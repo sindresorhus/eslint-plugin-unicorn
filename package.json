@@ -1,0 +1,46 @@
+{
+  "name": "eslint-plugin-xo",
+  "version": "0.0.0",
+  "description": "ESLint rules for XO",
+  "license": "MIT",
+  "repository": "sindresorhus/eslint-plugin-xo",
+  "author": {
+    "name": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com"
+  },
+  "maintainers": [
+    {
+      "name": "James Talmage",
+      "email": "james@talmage.io",
+      "url": "github.com/jamestalmage"
+    }
+  ],
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "xo && ava"
+  },
+  "files": [
+    "index.js",
+    "rules"
+  ],
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "xo",
+    "linter",
+    "lint",
+    "style"
+  ],
+  "devDependencies": {
+    "ava": "*",
+    "eslint": "^2.7.0",
+    "xo": "*"
+  },
+  "peerDependencies": {
+    "eslint": ">=2"
+  }
+}
