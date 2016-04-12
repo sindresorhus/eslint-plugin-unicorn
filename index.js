@@ -2,6 +2,7 @@
 
 module.exports = {
 	rules: {
+		'no-process-exit': require('./rules/no-process-exit'),
 		'throw-new-error': require('./rules/throw-new-error')
 	},
 	configs: {
@@ -14,6 +15,7 @@ module.exports = {
 				sourceType: 'module'
 			},
 			rules: {
+				'xo/no-process-exit': 'error',
 				'xo/throw-new-error': 'error'
 			}
 		}
