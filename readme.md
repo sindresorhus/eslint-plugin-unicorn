@@ -31,7 +31,8 @@ Configure it in `package.json`.
 			"xo"
 		],
 		"rules": {
-			"xo/throw-new-error": "error",
+			"xo/no-process-exit": "error",
+			"xo/throw-new-error": "error"
 		}
 	}
 }
@@ -40,6 +41,7 @@ Configure it in `package.json`.
 
 ## Rules
 
+- [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 
 
