@@ -14,6 +14,11 @@
       "name": "James Talmage",
       "email": "james@talmage.io",
       "url": "github.com/jamestalmage"
+    },
+    {
+      "name": "Jeroen Engels",
+      "email": "jfm.engels@gmail.com",
+      "url": "github.com/jfmengels"
     }
   ],
   "engines": {
