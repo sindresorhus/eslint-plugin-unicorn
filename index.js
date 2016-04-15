@@ -2,6 +2,7 @@
 
 module.exports = {
 	rules: {
+		'filename-case': require('./rules/filename-case'),
 		'no-process-exit': require('./rules/no-process-exit'),
 		'throw-new-error': require('./rules/throw-new-error')
 	},
@@ -15,6 +16,7 @@ module.exports = {
 				sourceType: 'module'
 			},
 			rules: {
+				'xo/filename-case': ['error', 'kebabCase'],
 				'xo/no-process-exit': 'error',
 				'xo/throw-new-error': 'error'
 			}
