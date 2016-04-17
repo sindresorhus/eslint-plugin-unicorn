@@ -31,7 +31,7 @@ Configure it in `package.json`.
 			"xo"
 		],
 		"rules": {
-			"xo/filename-case": ["error", "kebabCase"],
+			"xo/filename-case": ["error", {"case": "kebabCase"}],
 			"xo/no-process-exit": "error",
 			"xo/throw-new-error": "error"
 		}
