@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-xo",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "ESLint rules for XO",
   "license": "MIT",
   "repository": "sindresorhus/eslint-plugin-xo",
