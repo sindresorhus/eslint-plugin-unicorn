@@ -40,6 +40,11 @@
     "lint",
     "style"
   ],
+  "dependencies": {
+    "lodash.camelcase": "^4.1.1",
+    "lodash.kebabcase": "^4.0.1",
+    "lodash.snakecase": "^4.0.1"
+  },
   "devDependencies": {
     "ava": "*",
     "eslint": "^2.7.0",
