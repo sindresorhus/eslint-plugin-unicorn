@@ -31,6 +31,7 @@ Configure it in `package.json`.
 			"xo"
 		],
 		"rules": {
+			"xo/catch-error-name": ["error", {"name": "err"}],
 			"xo/filename-case": ["error", {"case": "kebabCase"}],
 			"xo/no-process-exit": "error",
 			"xo/throw-new-error": "error"
@@ -42,6 +43,7 @@ Configure it in `package.json`.
 
 ## Rules
 
+- [catch-error-name](docs/rules/catch-error-name.md) - Require a specific parameter name in catch clauses.
 - [filename-case](docs/rules/filename-case.md) - Enforce a case style for filenames.
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
