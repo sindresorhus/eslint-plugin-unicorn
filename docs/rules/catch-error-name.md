@@ -1,8 +1,8 @@
 # Require a specific parameter name in catch clauses.
 
-This is a style rule that ensures a certain parameter name is used for catch clauses and as the first parameter of promise catch handlers.
+Applies to both `try/catch` clauses and `promise.catch(...)` handlers.
 
-The desired name is configurable, by defaults to `err`.
+The desired name is configurable, but defaults to `err`.
 
 ## Fail
 
