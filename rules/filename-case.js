@@ -37,7 +37,10 @@ module.exports = function (context) {
 			var fixedFilename = fixFilename(chosenCase, filename);
 
 			if (fixedFilename !== filename) {
-				context.report(node, 'Filename is not in ' + chosenCase.name + '. Rename it to ' + fixedFilename + extension);
+				context.report({
+					node: node,
+					message: 'Filename is not in ' + chosenCase.name + '. Rename it to `' + fixedFilename + extension + '`.'
+				});
 			}
 		}
 	};
@@ -47,7 +50,11 @@ module.exports.schema = [{
 	type: 'object',
 	properties: {
 		case: {
-			enum: ['camelCase', 'snakeCase', 'kebabCase']
+			enum: [
+				'camelCase',
+				'snakeCase',
+				'kebabCase'
+			]
 		}
 	}
 }];

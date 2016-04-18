@@ -11,7 +11,10 @@ module.exports = function (context) {
 			var callee = node.callee;
 
 			if (callee.type === 'MemberExpression' && callee.object.name === 'process' && callee.property.name === 'exit') {
-				context.report(node, 'Only use `process.exit()` in CLI apps. Instead, throw an error.');
+				context.report({
+					node: node,
+					message: 'Only use `process.exit()` in CLI apps. Throw an error instead.'
+				});
 			}
 		}
 	};

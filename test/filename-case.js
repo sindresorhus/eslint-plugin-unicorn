@@ -42,43 +42,43 @@ test(() => {
 		invalid: [
 			testCase('src/foo/foo_bar.js',
 				undefined,
-				'Filename is not in camel case. Rename it to fooBar.js'
+				'Filename is not in camel case. Rename it to `fooBar.js`.'
 			),
 			testCase('src/foo/foo_bar.js',
 				'camelCase',
-				'Filename is not in camel case. Rename it to fooBar.js'
+				'Filename is not in camel case. Rename it to `fooBar.js`.'
 			),
 			testCase('src/foo/foo_bar.test.js',
 				'camelCase',
-				'Filename is not in camel case. Rename it to fooBar.test.js'
+				'Filename is not in camel case. Rename it to `fooBar.test.js`.'
 			),
 			testCase('test/foo/foo_bar.test_utils.js',
 				'camelCase',
-				'Filename is not in camel case. Rename it to fooBar.testUtils.js'
+				'Filename is not in camel case. Rename it to `fooBar.testUtils.js`.'
 			),
 			testCase('test/foo/fooBar.js',
 				'snakeCase',
-				'Filename is not in snake case. Rename it to foo_bar.js'
+				'Filename is not in snake case. Rename it to `foo_bar.js`.'
 			),
 			testCase('test/foo/fooBar.test.js',
 				'snakeCase',
-				'Filename is not in snake case. Rename it to foo_bar.test.js'
+				'Filename is not in snake case. Rename it to `foo_bar.test.js`.'
 			),
 			testCase('test/foo/fooBar.testUtils.js',
 				'snakeCase',
-				'Filename is not in snake case. Rename it to foo_bar.test_utils.js'
+				'Filename is not in snake case. Rename it to `foo_bar.test_utils.js`.'
 			),
 			testCase('test/foo/fooBar.js',
 				'kebabCase',
-				'Filename is not in kebab case. Rename it to foo-bar.js'
+				'Filename is not in kebab case. Rename it to `foo-bar.js`.'
 			),
 			testCase('test/foo/fooBar.test.js',
 				'kebabCase',
-				'Filename is not in kebab case. Rename it to foo-bar.test.js'
+				'Filename is not in kebab case. Rename it to `foo-bar.test.js`.'
 			),
 			testCase('test/foo/fooBar.testUtils.js',
 				'kebabCase',
-				'Filename is not in kebab case. Rename it to foo-bar.test-utils.js'
+				'Filename is not in kebab case. Rename it to `foo-bar.test-utils.js`.'
 			)
 		]
 	});
