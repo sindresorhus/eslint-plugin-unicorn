@@ -1,4 +1,4 @@
-# eslint-plugin-xo [![Build Status](https://travis-ci.org/sindresorhus/eslint-plugin-xo.svg?branch=master)](https://travis-ci.org/sindresorhus/eslint-plugin-xo)
+# eslint-plugin-xo [![Build Status](https://travis-ci.org/sindresorhus/eslint-plugin-xo.svg?branch=master)](https://travis-ci.org/sindresorhus/eslint-plugin-xo) [![Coverage Status](https://coveralls.io/repos/github/sindresorhus/eslint-plugin-xo/badge.svg?branch=master)](https://coveralls.io/github/sindresorhus/eslint-plugin-xo?branch=master)
 
 > ESLint rules for [XO](https://github.com/sindresorhus/xo)
 

@@ -6,3 +6,4 @@ node_js:
   - '0.10'
 before_install:
   - npm i -g npm
+after_success: npm run coveralls
