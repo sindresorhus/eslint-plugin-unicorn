@@ -1,5 +1,28 @@
 'use strict';
 
+// Matches someObj.then([FunctionExpression | ArrowFunctionExpression])
+function isLintablePromiseCatch(node) {
+	var callee = node.callee;
+
+	if (callee.type !== 'MemberExpression') {
+		return false;
+	}
+
+	var property = callee.property;
+
+	if (property.type !== 'Identifier' || property.name !== 'catch') {
+		return false;
+	}
+
+	if (node.arguments.length === 0) {
+		return false;
+	}
+
+	var arg0 = node.arguments[0];
+
+	return arg0.type === 'FunctionExpression' || arg0.type === 'ArrowFunctionExpression';
+}
+
 module.exports = function (context) {
 	var opts = context.options[0];
 	var name = (opts && opts.name) || 'err';
@@ -10,6 +33,7 @@ module.exports = function (context) {
 		if (stack.length === 1) {
 			stack[0] = true;
 		}
+
 		stack.push(stack.length > 0 || value);
 	}
 
@@ -17,7 +41,7 @@ module.exports = function (context) {
 		if (!stack.pop()) {
 			context.report({
 				node: node,
-				message: 'The catch parameter should be named ' + name + '.'
+				message: 'The catch parameter should be named `' + name + '`.'
 			});
 		}
 	}
@@ -42,29 +66,6 @@ module.exports = function (context) {
 		}
 	};
 };
-
-// Matches someObj.then([FunctionExpression | ArrowFunctionExpression])
-function isLintablePromiseCatch(node) {
-	var callee = node.callee;
-
-	if (callee.type !== 'MemberExpression') {
-		return false;
-	}
-
-	var property = callee.property;
-
-	if (property.type !== 'Identifier' || property.name !== 'catch') {
-		return false;
-	}
-
-	if (node.arguments.length === 0) {
-		return false;
-	}
-
-	var arg0 = node.arguments[0];
-
-	return arg0.type === 'FunctionExpression' || arg0.type === 'ArrowFunctionExpression';
-}
 
 module.exports.schema = [{
 	type: 'object',

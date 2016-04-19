@@ -1,16 +1,17 @@
-# Require a specific parameter name in catch clauses.
+# Enforce a specific parameter name in catch clauses
 
 Applies to both `try/catch` clauses and `promise.catch(...)` handlers.
 
 The desired name is configurable, but defaults to `err`.
 
+
 ## Fail
 
 ```js
 try {
-  doSomething();
+	doSomething();
 } catch (error) {
-  // ...
+	// ...
 }
 ```
 
@@ -23,9 +24,9 @@ somePromise.catch(e => {})
 
 ```js
 try {
-  doSomething();
+	doSomething();
 } catch (err) {
-  // ...
+	// ...
 }
 ```
 
@@ -35,19 +36,20 @@ somePromise.catch(err => {})
 
 ```js
 try {
-  doSomething();
-} catch (anyName) { // Nesting of catch clauses disables the rule.
-  try {
-    doSomethingElse();
-  } catch (anyOtherName) {
-    // ...
-  }
+	doSomething();
+} catch (anyName) { // Nesting of catch clauses disables the rule
+	try {
+		doSomethingElse();
+	} catch (anyOtherName) {
+		// ...
+	}
 }
 ```
 
+
 ## Options
 
-You can set the option in configuration like this:
+You can set the `name` option like this:
 
 ```js
 "xo/catch-error-name": ["error", {"name": "err"}]
