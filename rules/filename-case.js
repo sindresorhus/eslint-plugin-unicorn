@@ -3,7 +3,11 @@ var path = require('path');
 var camelCase = require('lodash.camelcase');
 var kebabCase = require('lodash.kebabcase');
 var snakeCase = require('lodash.snakecase');
-var pascalCase = require('pascal-case');
+var upperfirst = require('lodash.upperfirst');
+
+var pascalCase = function (str) {
+	return upperfirst(camelCase(str));
+};
 
 var cases = {
 	camelCase: {

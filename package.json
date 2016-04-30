@@ -45,7 +45,7 @@
     "lodash.camelcase": "^4.1.1",
     "lodash.kebabcase": "^4.0.1",
     "lodash.snakecase": "^4.0.1",
-    "pascal-case": "^1.1.2"
+    "lodash.upperfirst": "^4.2.0"
   },
   "devDependencies": {
     "ava": "*",
