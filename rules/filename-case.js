@@ -3,6 +3,11 @@ var path = require('path');
 var camelCase = require('lodash.camelcase');
 var kebabCase = require('lodash.kebabcase');
 var snakeCase = require('lodash.snakecase');
+var upperfirst = require('lodash.upperfirst');
+
+var pascalCase = function (str) {
+	return upperfirst(camelCase(str));
+};
 
 var cases = {
 	camelCase: {
@@ -16,6 +21,10 @@ var cases = {
 	snakeCase: {
 		fn: snakeCase,
 		name: 'snake case'
+	},
+	pascalCase: {
+		fn: pascalCase,
+		name: 'pascal case'
 	}
 };
 
@@ -53,7 +62,8 @@ module.exports.schema = [{
 			enum: [
 				'camelCase',
 				'snakeCase',
-				'kebabCase'
+				'kebabCase',
+				'pascalCase'
 			]
 		}
 	}
