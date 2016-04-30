@@ -37,7 +37,12 @@ test(() => {
 			testCase('src/foo/foo-bar.js', 'kebabCase'),
 			testCase('src/foo/foo.test.js', 'kebabCase'),
 			testCase('src/foo/foo-bar.test.js', 'kebabCase'),
-			testCase('src/foo/foo-bar.test-utils.js', 'kebabCase')
+			testCase('src/foo/foo-bar.test-utils.js', 'kebabCase'),
+			testCase('src/foo/Foo.js', 'pascalCase'),
+			testCase('src/foo/FooBar.js', 'pascalCase'),
+			testCase('src/foo/Foo.Test.js', 'pascalCase'),
+			testCase('src/foo/FooBar.Test.js', 'pascalCase'),
+			testCase('src/foo/FooBar.TestUtils.js', 'pascalCase')
 		],
 		invalid: [
 			testCase('src/foo/foo_bar.js',
@@ -79,6 +84,18 @@ test(() => {
 			testCase('test/foo/fooBar.testUtils.js',
 				'kebabCase',
 				'Filename is not in kebab case. Rename it to `foo-bar.test-utils.js`.'
+			),
+			testCase('test/foo/fooBar.js',
+				'pascalCase',
+				'Filename is not in pascal case. Rename it to `FooBar.js`.'
+			),
+			testCase('test/foo/foo_bar.test.js',
+				'pascalCase',
+				'Filename is not in pascal case. Rename it to `FooBar.Test.js`.'
+			),
+			testCase('test/foo/foo-bar.test-utils.js',
+				'pascalCase',
+				'Filename is not in pascal case. Rename it to `FooBar.TestUtils.js`.'
 			)
 		]
 	});
