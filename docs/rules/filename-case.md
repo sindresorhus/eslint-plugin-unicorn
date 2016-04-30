@@ -21,7 +21,7 @@ Enforces all linted files to have their names in a certain case style. Default i
 - `foo_bar.test.js`
 - `foo_bar.test_utils.js`
 
-### `PascalCase`
+### `pascalCase`
 
 - `FooBar.js`
 - `FooBar.Test.js`
