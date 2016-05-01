@@ -42,7 +42,11 @@ test(() => {
 			testCase('src/foo/FooBar.js', 'pascalCase'),
 			testCase('src/foo/Foo.Test.js', 'pascalCase'),
 			testCase('src/foo/FooBar.Test.js', 'pascalCase'),
-			testCase('src/foo/FooBar.TestUtils.js', 'pascalCase')
+			testCase('src/foo/FooBar.TestUtils.js', 'pascalCase'),
+			testCase('<text>', 'camelCase'),
+			testCase('<text>', 'snakeCase'),
+			testCase('<text>', 'kebabCase'),
+			testCase('<text>', 'pascalCase')
 		],
 		invalid: [
 			testCase('src/foo/foo_bar.js',

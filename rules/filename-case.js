@@ -37,10 +37,14 @@ function fixFilename(chosenCase, filename) {
 
 module.exports = function (context) {
 	var chosenCase = cases[context.options[0].case || 'camelCase'];
+	var filenameWithExt = context.getFilename();
+
+	if (filenameWithExt === '<text>') {
+		return {};
+	}
 
 	return {
 		Program: function (node) {
-			var filenameWithExt = context.getFilename();
 			var extension = path.extname(filenameWithExt);
 			var filename = path.basename(filenameWithExt, extension);
 			var fixedFilename = fixFilename(chosenCase, filename);
