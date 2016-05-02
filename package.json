@@ -52,6 +52,7 @@
     "coveralls": "^2.11.9",
     "eslint": "^2.7.0",
     "nyc": "^6.4.0",
+    "pify": "^2.3.0",
     "xo": "*"
   },
   "peerDependencies": {
