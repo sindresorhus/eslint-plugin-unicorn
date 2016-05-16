@@ -74,9 +74,10 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 
 ## Created by
 
-- [Sindre Sorhus](https://sindresorhus.com)
+- [Sindre Sorhus](https://github.com/sindresorhus)
 - [James Talmage](https://github.com/jamestalmage)
 - [Jeroen Engels](https://github.com/jfmengels)
+- [Contributors…](https://github.com/sindresorhus/eslint-plugin-xo/graphs/contributors)
 
 
 ## License
