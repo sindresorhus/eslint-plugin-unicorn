@@ -10,7 +10,7 @@ var pascalCase = function (str) {
 };
 
 var numberRegex = /(\d+)/;
-var PLACEHOLDER = 'œœœœœœœœœœ';
+var PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
 var PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
 
 function ignoreNumbers(fn) {
