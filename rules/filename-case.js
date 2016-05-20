@@ -9,6 +9,29 @@ var pascalCase = function (str) {
 	return upperfirst(camelCase(str));
 };
 
+var numberRegex = /(\d+)/;
+var PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
+var PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
+
+function ignoreNumbers(fn) {
+	return function (string) {
+		var stack = [];
+		var execResult = numberRegex.exec(string);
+		while (execResult) {
+			stack.push(execResult[0]);
+			string = string.replace(execResult[0], PLACEHOLDER);
+			execResult = numberRegex.exec(string);
+		}
+
+		var withCase = fn(string);
+		while (stack.length > 0) {
+			withCase = withCase.replace(PLACEHOLDER_REGEX, stack.shift());
+		}
+
+		return withCase;
+	};
+}
+
 var cases = {
 	camelCase: {
 		fn: camelCase,
@@ -31,7 +54,7 @@ var cases = {
 function fixFilename(chosenCase, filename) {
 	return filename
 		.split('.')
-		.map(chosenCase.fn)
+		.map(ignoreNumbers(chosenCase.fn))
 		.join('.');
 }
 
