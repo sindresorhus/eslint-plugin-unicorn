@@ -58,6 +58,15 @@ function fixFilename(chosenCase, filename) {
 		.join('.');
 }
 
+var leadingUnserscoresRegex = /^(_+)(.*)$/;
+function splitFilename(filename) {
+	var res = leadingUnserscoresRegex.exec(filename);
+	return {
+		leading: (res && res[1]) || '',
+		trailing: (res && res[2]) || filename
+	};
+}
+
 module.exports = function (context) {
 	var chosenCase = cases[context.options[0].case || 'camelCase'];
 	var filenameWithExt = context.getFilename();
@@ -70,12 +79,14 @@ module.exports = function (context) {
 		Program: function (node) {
 			var extension = path.extname(filenameWithExt);
 			var filename = path.basename(filenameWithExt, extension);
-			var fixedFilename = fixFilename(chosenCase, filename);
+			var splitName = splitFilename(filename);
+			var fixedFilename = fixFilename(chosenCase, splitName.trailing);
 
-			if (fixedFilename !== filename) {
+			if (fixedFilename !== splitName.trailing) {
 				context.report({
 					node: node,
-					message: 'Filename is not in ' + chosenCase.name + '. Rename it to `' + fixedFilename + extension + '`.'
+					message: 'Filename is not in ' + chosenCase.name +
+						'. Rename it to `' + splitName.leading + fixedFilename + extension + '`.'
 				});
 			}
 		}

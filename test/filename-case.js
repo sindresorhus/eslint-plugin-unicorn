@@ -60,7 +60,15 @@ test(() => {
 			testCase('<text>', 'camelCase'),
 			testCase('<text>', 'snakeCase'),
 			testCase('<text>', 'kebabCase'),
-			testCase('<text>', 'pascalCase')
+			testCase('<text>', 'pascalCase'),
+			testCase('src/foo/_fooBar.js', 'camelCase'),
+			testCase('src/foo/___fooBar.js', 'camelCase'),
+			testCase('src/foo/_foo_bar.js', 'snakeCase'),
+			testCase('src/foo/___foo_bar.js', 'snakeCase'),
+			testCase('src/foo/_foo-bar.js', 'kebabCase'),
+			testCase('src/foo/___foo-bar.js', 'kebabCase'),
+			testCase('src/foo/_FooBar.js', 'pascalCase'),
+			testCase('src/foo/___FooBar.js', 'pascalCase')
 		],
 		invalid: [
 			testCase('src/foo/foo_bar.js',
@@ -114,6 +122,38 @@ test(() => {
 			testCase('test/foo/foo-bar.test-utils.js',
 				'pascalCase',
 				'Filename is not in pascal case. Rename it to `FooBar.TestUtils.js`.'
+			),
+			testCase('src/foo/_FOO-BAR.js',
+				'camelCase',
+				'Filename is not in camel case. Rename it to `_fooBar.js`.'
+			),
+			testCase('src/foo/___FOO-BAR.js',
+				'camelCase',
+				'Filename is not in camel case. Rename it to `___fooBar.js`.'
+			),
+			testCase('src/foo/_FOO-BAR.js',
+				'snakeCase',
+				'Filename is not in snake case. Rename it to `_foo_bar.js`.'
+			),
+			testCase('src/foo/___FOO-BAR.js',
+				'snakeCase',
+				'Filename is not in snake case. Rename it to `___foo_bar.js`.'
+			),
+			testCase('src/foo/_FOO-BAR.js',
+				'kebabCase',
+				'Filename is not in kebab case. Rename it to `_foo-bar.js`.'
+			),
+			testCase('src/foo/___FOO-BAR.js',
+				'kebabCase',
+				'Filename is not in kebab case. Rename it to `___foo-bar.js`.'
+			),
+			testCase('src/foo/_FOO-BAR.js',
+				'pascalCase',
+				'Filename is not in pascal case. Rename it to `_FooBar.js`.'
+			),
+			testCase('src/foo/___FOO-BAR.js',
+				'pascalCase',
+				'Filename is not in pascal case. Rename it to `___FooBar.js`.'
 			)
 		]
 	});
