@@ -29,7 +29,11 @@ test(() => {
 			testCase('obj.catch(function (err) {})'),
 			testCase('obj.catch(function () {})'),
 			testCase('obj.catch(function (error) {})', 'error'),
-			testCase('obj.catch(function (outerError) { return obj2.catch(function (innerError) {}) })')
+			testCase('obj.catch(function (outerError) { return obj2.catch(function (innerError) {}) })'),
+			testCase('obj.catch()'),
+			testCase('foo(function (err) {})'),
+			testCase('foo().then(function (err) {})'),
+			testCase('foo().catch(function (err) {})')
 		],
 		invalid: [
 			testCase('try {} catch (error) {}', null, true),
