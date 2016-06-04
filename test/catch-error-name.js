@@ -29,7 +29,11 @@ test(() => {
 			testCase('obj.catch(function (err) {})'),
 			testCase('obj.catch(function () {})'),
 			testCase('obj.catch(function (error) {})', 'error'),
-			testCase('obj.catch(function (outerError) { return obj2.catch(function (innerError) {}) })')
+			testCase('obj.catch(function (outerError) { return obj2.catch(function (innerError) {}) })'),
+			testCase('obj.catch()'),
+			testCase('foo(function (err) {})'),
+			testCase('foo().then(function (err) {})'),
+			testCase('foo().catch(function (err) {})')
 		],
 		invalid: [
 			testCase('try {} catch (error) {}', null, true),
@@ -39,7 +43,17 @@ test(() => {
 			testCase('obj.catch(error => {})', null, true),
 			testCase('obj.catch(err => {})', 'error', true),
 			testCase('obj.catch(function (error) {})', null, true),
-			testCase('obj.catch(function (err) {})', 'error', true)
+			testCase('obj.catch(function (err) {})', 'error', true),
+			{
+				code: `
+					obj.catch(error => {});
+					obj.catch(error => {});
+				`,
+				errors: [
+					{ruleId: 'catch-error-name'},
+					{ruleId: 'catch-error-name'}
+				]
+			}
 		]
 	});
 });
