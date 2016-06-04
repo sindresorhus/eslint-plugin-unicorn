@@ -43,7 +43,17 @@ test(() => {
 			testCase('obj.catch(error => {})', null, true),
 			testCase('obj.catch(err => {})', 'error', true),
 			testCase('obj.catch(function (error) {})', null, true),
-			testCase('obj.catch(function (err) {})', 'error', true)
+			testCase('obj.catch(function (err) {})', 'error', true),
+			{
+				code: `
+					obj.catch(error => {});
+					obj.catch(error => {});
+				`,
+				errors: [
+					{ruleId: 'catch-error-name'},
+					{ruleId: 'catch-error-name'}
+				]
+			}
 		]
 	});
 });
