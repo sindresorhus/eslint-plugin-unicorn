@@ -37,19 +37,19 @@ test(() => {
 		invalid: [
 			{
 				code: `eval(); // eslint-disable-line`,
-				errors: [error('Specify the exact rules you want to disable at line 1:8')]
+				errors: [error('Specify the rules you want to disable at line 1:8')]
 			},
 			{
 				code: 'foo();\neval(); // eslint-disable-line',
-				errors: [error('Specify the exact rules you want to disable at line 2:8')]
+				errors: [error('Specify the rules you want to disable at line 2:8')]
 			},
 			{
 				code: '/* eslint-disable */',
-				errors: [error('Specify the exact rules you want to disable at line 1:0')]
+				errors: [error('Specify the rules you want to disable at line 1:0')]
 			},
 			{
 				code: 'foo();\n/* eslint-disable */\neval();',
-				errors: [error('Specify the exact rules you want to disable at line 2:0')]
+				errors: [error('Specify the rules you want to disable at line 2:0')]
 			}
 		]
 	});

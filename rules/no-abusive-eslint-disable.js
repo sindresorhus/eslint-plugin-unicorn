@@ -16,7 +16,7 @@ module.exports = function (context) {
 						// will be ignored due to the disable comment
 						loc: {line: 0, column: 0},
 						// So specify it in the message
-						message: 'Specify the exact rules you want to disable at line {{line}}:{{column}}',
+						message: 'Specify the rules you want to disable at line {{line}}:{{column}}',
 						data: comment.loc.start
 					});
 				}

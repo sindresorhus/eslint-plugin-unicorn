@@ -1,4 +1,4 @@
-# Enforce specifying exact rules to disable in `eslint-disable` comments
+# Enforce specifying rules to disable in `eslint-disable` comments
 
 This rule enforces you to specify the rules you want to disable when using `eslint-disable` or `eslint-disable-line` comments.
 
