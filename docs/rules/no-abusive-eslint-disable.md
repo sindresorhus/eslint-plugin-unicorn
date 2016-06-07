@@ -1,16 +1,18 @@
-# Specify rules to disable when using `eslint-disable` comments
+# Enforce specifying exact rules to disable in `eslint-disable` comments
 
-If you want to disable a ESLint rule in a file or on a specific line, you can add a comment like:
+This rule enforces you to specify the rules you want to disable when using `eslint-disable` or `eslint-disable-line` comments.
 
-On a single line
+If you want to disable an ESLint rule in a file or on a specific line, you can add a comment like:
+
+On a single line:
 ```js
-var message = 'foo';
+const message = 'foo';
 console.log(message); // eslint-disable-line no-console
 ```
-On the whole (rest of the) file
+On the whole (rest of the) file:
 ```js
 /* eslint-disable no-console */
-var message = 'foo';
+const message = 'foo';
 console.log(message);
 ```
 
@@ -21,7 +23,7 @@ You don't have to specify any rules (like `no-console` in the examples above), b
 console.log(message); // `message` is not defined, but it won't be reported
 ```
 
-This rule enforces the specification of rules to disable. If you want to disable ESLint on a file altogether, you should ignore it through [`.eslintignore`](http://eslint.org/docs/user-guide/configuring#ignoring-files-and-directories).
+This rule enforces the specification of rules to disable. If you want to disable ESLint on a file altogether, you should ignore it through [`.eslintignore`](http://eslint.org/docs/user-guide/configuring#ignoring-files-and-directories) for ESLint or through the `ignore` property in the `package.json` file for `XO`.
 
 ## Fail
 
