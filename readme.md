@@ -33,6 +33,7 @@ Configure it in `package.json`.
 		"rules": {
 			"xo/catch-error-name": ["error", {"name": "err"}],
 			"xo/filename-case": ["error", {"case": "kebabCase"}],
+			"xo/no-abusive-eslint-disable": "error",
 			"xo/no-process-exit": "error",
 			"xo/throw-new-error": "error"
 		}
@@ -45,6 +46,7 @@ Configure it in `package.json`.
 
 - [catch-error-name](docs/rules/catch-error-name.md) - Enforce a specific parameter name in catch clauses.
 - [filename-case](docs/rules/filename-case.md) - Enforce a case style for filenames.
+- [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) - Enforce specifying rules to disable in `eslint-disable` comments.
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 
