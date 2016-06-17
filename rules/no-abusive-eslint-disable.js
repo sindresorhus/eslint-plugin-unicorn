@@ -1,6 +1,6 @@
 'use strict';
 
-var disableRegex = /^eslint-disable(-line)?(\s+([\w-]+))?/;
+var disableRegex = /^eslint-disable(-next-line|-line)?($|(\s+([\w-]+))?)/;
 
 module.exports = function (context) {
 	return {
