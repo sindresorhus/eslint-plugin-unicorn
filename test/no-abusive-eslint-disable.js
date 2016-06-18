@@ -31,6 +31,9 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 		'/* eslint-disable no-eval */',
 		`foo();
 		/* eslint-disable no-eval */
+		eval();`,
+		`foo();
+		/* eslint-disable-next-line no-eval */
 		eval();`
 	],
 	invalid: [
@@ -49,6 +52,14 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 		{
 			code: 'foo();\n/* eslint-disable */\neval();',
 			errors: [error('Specify the rules you want to disable at line 2:0')]
+		},
+		{
+			code: 'foo();\n/* eslint-disable-next-line */\neval();',
+			errors: [error('Specify the rules you want to disable at line 2:0')]
+		},
+		{
+			code: '// eslint-disable-next-line\neval();',
+			errors: [error('Specify the rules you want to disable at line 1:0')]
 		}
 	]
 });
