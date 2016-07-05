@@ -1,13 +1,8 @@
 'use strict';
+const reqAll = require('req-all');
 
 module.exports = {
-	rules: {
-		'catch-error-name': require('./rules/catch-error-name'),
-		'filename-case': require('./rules/filename-case'),
-		'no-abusive-eslint-disable': require('./rules/no-abusive-eslint-disable'),
-		'no-process-exit': require('./rules/no-process-exit'),
-		'throw-new-error': require('./rules/throw-new-error')
-	},
+	rules: reqAll('rules', {camelize: false}),
 	configs: {
 		recommended: {
 			env: {
