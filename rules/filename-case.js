@@ -1,29 +1,28 @@
 'use strict';
-var path = require('path');
-var camelCase = require('lodash.camelcase');
-var kebabCase = require('lodash.kebabcase');
-var snakeCase = require('lodash.snakecase');
-var upperfirst = require('lodash.upperfirst');
+const path = require('path');
+const camelCase = require('lodash.camelcase');
+const kebabCase = require('lodash.kebabcase');
+const snakeCase = require('lodash.snakecase');
+const upperfirst = require('lodash.upperfirst');
 
-var pascalCase = function (str) {
-	return upperfirst(camelCase(str));
-};
-
-var numberRegex = /(\d+)/;
-var PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
-var PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
+const pascalCase = str => upperfirst(camelCase(str));
+const numberRegex = /(\d+)/;
+const PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
+const PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
 
 function ignoreNumbers(fn) {
-	return function (string) {
-		var stack = [];
-		var execResult = numberRegex.exec(string);
+	return str => {
+		const stack = [];
+		let execResult = numberRegex.exec(str);
+
 		while (execResult) {
 			stack.push(execResult[0]);
-			string = string.replace(execResult[0], PLACEHOLDER);
-			execResult = numberRegex.exec(string);
+			str = str.replace(execResult[0], PLACEHOLDER);
+			execResult = numberRegex.exec(str);
 		}
 
-		var withCase = fn(string);
+		let withCase = fn(str);
+
 		while (stack.length > 0) {
 			withCase = withCase.replace(PLACEHOLDER_REGEX, stack.shift());
 		}
@@ -32,7 +31,7 @@ function ignoreNumbers(fn) {
 	};
 }
 
-var cases = {
+const cases = {
 	camelCase: {
 		fn: camelCase,
 		name: 'camel case'
@@ -58,35 +57,35 @@ function fixFilename(chosenCase, filename) {
 		.join('.');
 }
 
-var leadingUnserscoresRegex = /^(_+)(.*)$/;
+const leadingUnserscoresRegex = /^(_+)(.*)$/;
 function splitFilename(filename) {
-	var res = leadingUnserscoresRegex.exec(filename);
+	const res = leadingUnserscoresRegex.exec(filename);
 	return {
 		leading: (res && res[1]) || '',
 		trailing: (res && res[2]) || filename
 	};
 }
 
-module.exports = function (context) {
-	var chosenCase = cases[context.options[0].case || 'camelCase'];
-	var filenameWithExt = context.getFilename();
+module.exports = context => {
+	const chosenCase = cases[context.options[0].case || 'camelCase'];
+	const filenameWithExt = context.getFilename();
 
 	if (filenameWithExt === '<text>') {
 		return {};
 	}
 
 	return {
-		Program: function (node) {
-			var extension = path.extname(filenameWithExt);
-			var filename = path.basename(filenameWithExt, extension);
-			var splitName = splitFilename(filename);
-			var fixedFilename = fixFilename(chosenCase, splitName.trailing);
+		Program: node => {
+			const extension = path.extname(filenameWithExt);
+			const filename = path.basename(filenameWithExt, extension);
+			const splitName = splitFilename(filename);
+			const fixedFilename = fixFilename(chosenCase, splitName.trailing);
+			const renameFilename = splitName.leading + fixedFilename + extension;
 
 			if (fixedFilename !== splitName.trailing) {
 				context.report({
-					node: node,
-					message: 'Filename is not in ' + chosenCase.name +
-						'. Rename it to `' + splitName.leading + fixedFilename + extension + '`.'
+					node,
+					message: `Filename is not in ${chosenCase.name}. Rename it to \`${renameFilename}\`.`
 				});
 			}
 		}

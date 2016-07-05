@@ -11,7 +11,7 @@ const ruleTester = avaRuleTester(test, {
 function testCase(filename, chosenCase, errorMessage) {
 	return {
 		code: 'foo()',
-		filename: filename,
+		filename,
 		options: [{case: chosenCase}],
 		errors: errorMessage && [{
 			ruleId: 'filename-case',

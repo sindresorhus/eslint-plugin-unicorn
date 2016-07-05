@@ -10,8 +10,8 @@ const ruleTester = avaRuleTester(test, {
 
 function testCase(code, name, error) {
 	return {
-		code: code,
-		options: name && [{name: name}],
+		code,
+		options: name && [{name}],
 		errors: error && [{ruleId: 'catch-error-name'}]
 	};
 }
