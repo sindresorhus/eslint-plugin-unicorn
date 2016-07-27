@@ -14,6 +14,7 @@ module.exports = {
 			},
 			rules: {
 				'xo/catch-error-name': ['error', {name: 'err'}],
+				'xo/explicit-length-check': 'error',
 				'xo/filename-case': ['error', {case: 'kebabCase'}],
 				'xo/no-abusive-eslint-disable': 'error',
 				'xo/no-process-exit': 'error',
