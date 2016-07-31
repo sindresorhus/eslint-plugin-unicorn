@@ -8,7 +8,10 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const errors = [{ruleId: 'no-process-exit'}];
+const errors = [{
+	ruleId: 'no-process-exit',
+	message: 'Only use `process.exit()` in CLI apps. Throw an error instead.'
+}];
 
 ruleTester.run('no-process-exit', rule, {
 	valid: [
@@ -16,6 +19,11 @@ ruleTester.run('no-process-exit', rule, {
 		'Process.exit()',
 		'const x = process.exit;',
 		'x(process.exit)',
+		'process.on("SIGINT", function() { process.exit(1); })',
+		'process.on("SIGKILL", function() { process.exit(1); })',
+		'process.on("SIGINT", () => { process.exit(1); })',
+		'process.on("SIGINT", () => process.exit(1))',
+		'process.on("SIGINT", () => { if (true) { process.exit(1); } })',
 		''
 	],
 	invalid: [

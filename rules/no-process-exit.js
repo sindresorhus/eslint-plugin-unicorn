@@ -6,15 +6,29 @@ module.exports = context => {
 		return {};
 	}
 
+	let processEventHandler = null;
+
 	return {
-		CallExpression: node => {
+		'CallExpression': node => {
 			const callee = node.callee;
 
-			if (callee.type === 'MemberExpression' && callee.object.name === 'process' && callee.property.name === 'exit') {
-				context.report({
-					node,
-					message: 'Only use `process.exit()` in CLI apps. Throw an error instead.'
-				});
+			if (callee.type === 'MemberExpression' && callee.object.name === 'process') {
+				if (callee.property.name === 'on') {
+					processEventHandler = node;
+					return;
+				}
+
+				if (callee.property.name === 'exit' && !processEventHandler) {
+					context.report({
+						node,
+						message: 'Only use `process.exit()` in CLI apps. Throw an error instead.'
+					});
+				}
+			}
+		},
+		'CallExpression:exit': node => {
+			if (node === processEventHandler) {
+				processEventHandler = null;
 			}
 		}
 	};
