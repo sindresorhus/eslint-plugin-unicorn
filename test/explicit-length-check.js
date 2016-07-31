@@ -22,12 +22,21 @@ ruleTester.run('explicit-length-check', rule, {
 		'array.length > 0',
 		'if (array.foo) {}',
 		'if (length) {}',
-		'if (array.length > 0) {}',
+		'if ([].length > 0) {}',
+		'if ("".length > 0) {}',
 		'if (array.length === 0) {}',
 		'if (array.length !== 0) {}',
 		'if (array.length !== 0 && array[0] === 1) {}'
 	],
 	invalid: [
+		{
+			code: 'if ([].length) {}',
+			errors
+		},
+		{
+			code: 'if ("".length) {}',
+			errors
+		},
 		{
 			code: 'if (array.length) {}',
 			errors
