@@ -32,6 +32,7 @@ Configure it in `package.json`.
 		],
 		"rules": {
 			"xo/catch-error-name": ["error", {"name": "err"}],
+			"xo/explicit-length-check": "error",
 			"xo/filename-case": ["error", {"case": "kebabCase"}],
 			"xo/no-abusive-eslint-disable": "error",
 			"xo/no-process-exit": "error",
@@ -45,6 +46,7 @@ Configure it in `package.json`.
 ## Rules
 
 - [catch-error-name](docs/rules/catch-error-name.md) - Enforce a specific parameter name in catch clauses.
+- [explicit-length-check](docs/rules/explicit-length-check.md) - Enforce explicitly comparing the `length` property of a value.
 - [filename-case](docs/rules/filename-case.md) - Enforce a case style for filenames.
 - [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) - Enforce specifying rules to disable in `eslint-disable` comments.
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
