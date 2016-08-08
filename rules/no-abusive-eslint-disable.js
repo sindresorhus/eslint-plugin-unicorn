@@ -2,7 +2,7 @@
 
 const disableRegex = /^eslint-disable(-next-line|-line)?($|(\s+([\w-]+))?)/;
 
-module.exports = context => ({
+const create = context => ({
 	Program: node => {
 		node.comments.forEach(comment => {
 			const value = comment.value.trim();
@@ -18,7 +18,7 @@ module.exports = context => ({
 						line: 0,
 						column: 0
 					},
-					// So specify it in the message
+					// So specify the location in the message
 					message: 'Specify the rules you want to disable at line {{line}}:{{column}}',
 					data: comment.loc.start
 				});
@@ -26,3 +26,8 @@ module.exports = context => ({
 		});
 	}
 });
+
+module.exports = {
+	create,
+	meta: {}
+};

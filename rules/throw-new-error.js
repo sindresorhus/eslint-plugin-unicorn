@@ -10,7 +10,7 @@ const errorTypes = [
 	'URIError'
 ];
 
-module.exports = context => ({
+const create = context => ({
 	ThrowStatement: node => {
 		const arg = node.argument;
 		const error = arg.callee;
@@ -24,3 +24,10 @@ module.exports = context => ({
 		}
 	}
 });
+
+module.exports = {
+	create,
+	meta: {
+		fixable: 'code'
+	}
+};

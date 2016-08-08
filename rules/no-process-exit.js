@@ -1,5 +1,6 @@
 'use strict';
-module.exports = context => {
+
+const create = context => {
 	const startsWithHashBang = context.getSourceCode().lines[0].indexOf('#!') === 0;
 
 	if (startsWithHashBang) {
@@ -32,4 +33,9 @@ module.exports = context => {
 			}
 		}
 	};
+};
+
+module.exports = {
+	create,
+	meta: {}
 };
