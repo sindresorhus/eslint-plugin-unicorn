@@ -23,7 +23,7 @@ function isLintablePromiseCatch(node) {
 	return arg0.type === 'FunctionExpression' || arg0.type === 'ArrowFunctionExpression';
 }
 
-module.exports = function (context) {
+const create = context => {
 	const opts = context.options[0];
 	const name = (opts && opts.name) || 'err';
 	const stack = [];
@@ -66,7 +66,7 @@ module.exports = function (context) {
 	};
 };
 
-module.exports.schema = [{
+const schema = [{
 	type: 'object',
 	properties: {
 		name: {
@@ -74,3 +74,10 @@ module.exports.schema = [{
 		}
 	}
 }];
+
+module.exports = {
+	create,
+	meta: {
+		schema
+	}
+};

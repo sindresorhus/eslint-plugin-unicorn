@@ -66,7 +66,7 @@ function splitFilename(filename) {
 	};
 }
 
-module.exports = context => {
+const create = context => {
 	const chosenCase = cases[context.options[0].case || 'camelCase'];
 	const filenameWithExt = context.getFilename();
 
@@ -92,7 +92,7 @@ module.exports = context => {
 	};
 };
 
-module.exports.schema = [{
+const schema = [{
 	type: 'object',
 	properties: {
 		case: {
@@ -105,3 +105,10 @@ module.exports.schema = [{
 		}
 	}
 }];
+
+module.exports = {
+	create,
+	meta: {
+		schema
+	}
+};

@@ -23,10 +23,15 @@ function checkExpression(context, node) {
 	}
 }
 
-module.exports = context => {
+const create = context => {
 	return {
 		IfStatement: node => {
 			checkExpression(context, node.test);
 		}
 	};
+};
+
+module.exports = {
+	create,
+	meta: {}
 };
