@@ -51,14 +51,14 @@
   "devDependencies": {
     "ava": "*",
     "coveralls": "^2.11.9",
-    "eslint": "^2.7.0",
+    "eslint": "^3.5.0",
     "eslint-ava-rule-tester": "^0.1.1",
     "nyc": "^6.4.0",
     "pify": "^2.3.0",
     "xo": "*"
   },
   "peerDependencies": {
-    "eslint": ">=2"
+    "eslint": ">=3"
   },
   "xo": {
     "esnext": true
