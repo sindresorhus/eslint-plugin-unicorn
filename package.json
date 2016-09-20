@@ -1,9 +1,9 @@
 {
-  "name": "eslint-plugin-xo",
+  "name": "eslint-plugin-unicorn",
   "version": "1.0.0",
-  "description": "ESLint rules for XO",
+  "description": "Various awesome ESLint rules",
   "license": "MIT",
-  "repository": "sindresorhus/eslint-plugin-xo",
+  "repository": "sindresorhus/eslint-plugin-unicorn",
   "author": {
     "name": "Sindre Sorhus",
     "email": "sindresorhus@gmail.com",
@@ -36,10 +36,11 @@
     "eslint",
     "eslintplugin",
     "eslint-plugin",
-    "xo",
+    "unicorn",
     "linter",
     "lint",
-    "style"
+    "style",
+    "xo"
   ],
   "dependencies": {
     "lodash.camelcase": "^4.1.1",

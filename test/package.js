@@ -10,7 +10,7 @@ test('Every rule is defined in index file', async t => {
 	rules.forEach(file => {
 		const name = file.slice(0, -3);
 		t.truthy(index.rules[name], `'${name}' is not exported in 'index.js'`);
-		t.truthy(index.configs.recommended.rules[`xo/${name}`], `'${name}' is not set in the recommended config`);
+		t.truthy(index.configs.recommended.rules[`unicorn/${name}`], `'${name}' is not set in the recommended config`);
 	});
 
 	t.is(Object.keys(index.rules).length, rules.length,

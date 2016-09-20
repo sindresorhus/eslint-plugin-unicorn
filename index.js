@@ -13,12 +13,12 @@ module.exports = {
 				sourceType: 'module'
 			},
 			rules: {
-				'xo/catch-error-name': ['error', {name: 'err'}],
-				'xo/explicit-length-check': 'error',
-				'xo/filename-case': ['error', {case: 'kebabCase'}],
-				'xo/no-abusive-eslint-disable': 'error',
-				'xo/no-process-exit': 'error',
-				'xo/throw-new-error': 'error'
+				'unicorn/catch-error-name': ['error', {name: 'err'}],
+				'unicorn/explicit-length-check': 'error',
+				'unicorn/filename-case': ['error', {case: 'kebabCase'}],
+				'unicorn/no-abusive-eslint-disable': 'error',
+				'unicorn/no-process-exit': 'error',
+				'unicorn/throw-new-error': 'error'
 			}
 		}
 	}

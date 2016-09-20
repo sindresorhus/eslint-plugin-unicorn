@@ -1,14 +1,16 @@
-# eslint-plugin-xo [![Build Status](https://travis-ci.org/sindresorhus/eslint-plugin-xo.svg?branch=master)](https://travis-ci.org/sindresorhus/eslint-plugin-xo) [![Coverage Status](https://coveralls.io/repos/github/sindresorhus/eslint-plugin-xo/badge.svg?branch=master)](https://coveralls.io/github/sindresorhus/eslint-plugin-xo?branch=master)
+# eslint-plugin-unicorn [![Build Status](https://travis-ci.org/sindresorhus/eslint-plugin-unicorn.svg?branch=master)](https://travis-ci.org/sindresorhus/eslint-plugin-unicorn) [![Coverage Status](https://coveralls.io/repos/github/sindresorhus/eslint-plugin-unicorn/badge.svg?branch=master)](https://coveralls.io/github/sindresorhus/eslint-plugin-unicorn?branch=master)
 
-> ESLint rules for [XO](https://github.com/sindresorhus/xo)
+<img src="https://cloud.githubusercontent.com/assets/170270/18659176/1cc373d0-7f33-11e6-890f-0ba35362ee7e.jpg" width="180" align="right">
 
-This plugin is bundled with XO, but can still be useful if you don't use XO.
+> Various awesome ESLint rules
+
+You might want to check out [XO](https://github.com/sindresorhus/xo), which includes this plugin.
 
 
 ## Install
 
 ```
-$ npm install --save-dev eslint eslint-plugin-xo
+$ npm install --save-dev eslint eslint-plugin-unicorn
 ```
 
 
@@ -24,19 +26,19 @@ Configure it in `package.json`.
 			"es6": true
 		},
 		"parserOptions": {
-			"ecmaVersion": 7,
+			"ecmaVersion": 2016,
 			"sourceType": "module"
 		},
 		"plugins": [
-			"xo"
+			"unicorn"
 		],
 		"rules": {
-			"xo/catch-error-name": ["error", {"name": "err"}],
-			"xo/explicit-length-check": "error",
-			"xo/filename-case": ["error", {"case": "kebabCase"}],
-			"xo/no-abusive-eslint-disable": "error",
-			"xo/no-process-exit": "error",
-			"xo/throw-new-error": "error"
+			"unicorn/catch-error-name": ["error", {"name": "err"}],
+			"unicorn/explicit-length-check": "error",
+			"unicorn/filename-case": ["error", {"case": "kebabCase"}],
+			"unicorn/no-abusive-eslint-disable": "error",
+			"unicorn/no-process-exit": "error",
+			"unicorn/throw-new-error": "error"
 		}
 	}
 }
@@ -64,9 +66,9 @@ Enable it in your `package.json` with the `extends` option:
 	"name": "my-awesome-project",
 	"eslintConfig": {
 		"plugins": [
-			"xo"
+			"unicorn"
 		],
-		"extends": "plugin:xo/recommended"
+		"extends": "plugin:unicorn/recommended"
 	}
 }
 ```
@@ -81,7 +83,7 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 - [Sindre Sorhus](https://github.com/sindresorhus)
 - [James Talmage](https://github.com/jamestalmage)
 - [Jeroen Engels](https://github.com/jfmengels)
-- [Contributors…](https://github.com/sindresorhus/eslint-plugin-xo/graphs/contributors)
+- [Contributors…](../../graphs/contributors)
 
 
 ## License
