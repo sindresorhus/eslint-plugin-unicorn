@@ -52,5 +52,5 @@ try {
 You can set the `name` option like this:
 
 ```js
-"xo/catch-error-name": ["error", {"name": "err"}]
+"unicorn/catch-error-name": ["error", {"name": "err"}]
 ```
