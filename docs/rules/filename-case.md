@@ -33,5 +33,5 @@ Enforces all linted files to have their names in a certain case style. Default i
 You can set the `case` option like this:
 
 ```js
-"xo/filename-case": ["error", {"case": "kebabCase"}]
+"unicorn/filename-case": ["error", {"case": "kebabCase"}]
 ```
