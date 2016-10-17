@@ -1,4 +1,4 @@
-# Enforce a lowercase identifier and an uppercase value for number literals
+# Enforce lowercase identifier and uppercase value for number literals
 
 Enforces a convention of defining number literals where the literal identifier is written in lowercase and the value in uppercase. Differentiating the casing of the identifier and value clearly separates them and makes your code more readable.
 

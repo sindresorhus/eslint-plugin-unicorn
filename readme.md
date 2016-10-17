@@ -54,7 +54,7 @@ Configure it in `package.json`.
 - [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) - Enforce specifying rules to disable in `eslint-disable` comments.
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
-- [number-literal-case](docs/rules/number-literal-case.md) - Enforce a lowercase literal identifier and an uppercase value. *(fixable)*
+- [number-literal-case](docs/rules/number-literal-case.md) - Enforce lowercase identifier and uppercase value for number literals. *(fixable)*
 
 
 ## Recommended config
