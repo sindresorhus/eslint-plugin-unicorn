@@ -1,6 +1,6 @@
-# Enforce a lowercase literal identifier and an uppercase value
+# Enforce a lowercase identifier and an uppercase value for number literals
 
-Enforces a convention in defining number literals where the literal identifier is written in lowercase and the value in uppercase.
+Enforces a convention of defining number literals where the literal identifier is written in lowercase and the value in uppercase. Differentiating the casing of the identifier and value clearly separates them and makes your code more readable.
 
 
 ## Fail
@@ -9,9 +9,13 @@ Enforces a convention in defining number literals where the literal identifier i
 const foo = 0XFF;
 const foo = 0xff;
 const foo = 0Xff;
+```
 
+```js
 const foo = 0B11;
+```
 
+```js
 const foo = 0O10;
 ```
 
@@ -20,8 +24,12 @@ const foo = 0O10;
 
 ```js
 const foo = 0xFF;
+```
 
+```js
 const foo = 0b11;
+```
 
+```js
 const foo = 0o10;
 ```

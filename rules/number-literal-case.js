@@ -5,7 +5,7 @@ const fix = value => {
 	}
 
 	const indicator = value[1].toLowerCase();
-	const val = value.substring(2).toUpperCase();
+	const val = value.slice(2).toUpperCase();
 
 	return `0${indicator}${val}`;
 };
