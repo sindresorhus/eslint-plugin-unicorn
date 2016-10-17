@@ -46,7 +46,7 @@ const create = context => {
 	}
 
 	return {
-		'CallExpression': node => {
+		CallExpression: node => {
 			if (isLintablePromiseCatch(node)) {
 				const params = node.arguments[0].params;
 				push(params.length === 0 || params[0].name === name);
@@ -57,7 +57,7 @@ const create = context => {
 				popAndReport(node.arguments[0].params[0]);
 			}
 		},
-		'CatchClause': node => {
+		CatchClause: node => {
 			push(node.param.name === name);
 		},
 		'CatchClause:exit': node => {

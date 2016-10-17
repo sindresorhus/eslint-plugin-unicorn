@@ -10,7 +10,7 @@ const create = context => {
 	let processEventHandler = null;
 
 	return {
-		'CallExpression': node => {
+		CallExpression: node => {
 			const callee = node.callee;
 
 			if (callee.type === 'MemberExpression' && callee.object.name === 'process') {
