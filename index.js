@@ -18,7 +18,8 @@ module.exports = {
 				'unicorn/filename-case': ['error', {case: 'kebabCase'}],
 				'unicorn/no-abusive-eslint-disable': 'error',
 				'unicorn/no-process-exit': 'error',
-				'unicorn/throw-new-error': 'error'
+				'unicorn/throw-new-error': 'error',
+				'unicorn/number-literal-case': 'error'
 			}
 		}
 	}
