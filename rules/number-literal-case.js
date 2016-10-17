@@ -29,12 +29,6 @@ const create = context => {
 
 module.exports = {
 	meta: {
-		meta: {
-			docs: {
-				description: 'Enforce a lowercase literal identifier and an uppercase value',
-				recommended: 'error'
-			}
-		},
 		fixable: 'code'
 	},
 	create
