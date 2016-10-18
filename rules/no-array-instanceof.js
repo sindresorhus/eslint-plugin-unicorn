@@ -7,7 +7,7 @@ const create = context => ({
 				context.report({
 					node,
 					message: 'Use `Array.isArray()` instead of `instanceof Array`',
-					fix: fixer => fixer.replaceText(node, 'Array.isArray(' + node.left.name + ')')
+					fix: fixer => fixer.replaceText(node, `Array.isArray(${node.left.name})`)
 				});
 			}
 			if (node.left.type === 'ArrayExpression') {
@@ -16,7 +16,7 @@ const create = context => ({
 				context.report({
 					node,
 					message: 'Use `Array.isArray()` instead of `instanceof Array`',
-					fix: fixer => fixer.replaceText(node, 'Array.isArray(' + arraySourceCode + ')')
+					fix: fixer => fixer.replaceText(node, `Array.isArray(${arraySourceCode})`)
 				});
 			}
 		}
