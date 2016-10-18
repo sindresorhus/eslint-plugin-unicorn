@@ -2,6 +2,8 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/no-array-instanceof';
 
+// Value for template String test Case.
+const value = 2;
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
@@ -16,13 +18,11 @@ const errors = [{
 ruleTester.run('avoid-array-instanceof', rule, {
 	valid: [
 		'Array.isArray(arr)',
-		'Array.isArray(arr) === true',
-		'Array.isArray([])',
-		'Array.isArray([]) === true',
-		'Array.isArray([1,2,3])',
-		'Array.isArray([1,2,3]) === true',
-		'if(Array.isArray(arr)){}',
-		'if(Array.isArray([1,2,3])){}'
+		'arr instanceof Object',
+		'arr instanceof array',
+		'a instanceof \'array\'',
+		'a instanceof ArrayA',
+		`a.x[${value}] instanceof Object`
 	],
 	invalid: [
 		{
@@ -31,38 +31,23 @@ ruleTester.run('avoid-array-instanceof', rule, {
 			errors
 		},
 		{
-			code: 'arr instanceof Array === true',
-			output: 'Array.isArray(arr) === true',
-			errors
-		},
-		{
 			code: '[] instanceof Array',
 			output: 'Array.isArray([])',
 			errors
 		},
 		{
-			code: '[] instanceof Array === true',
-			output: 'Array.isArray([]) === true',
+			code: 'fun.call(1, 2, 3) instanceof Array',
+			output: 'Array.isArray(fun.call(1, 2, 3))',
 			errors
 		},
 		{
-			code: '[1,2,3] instanceof Array',
-			output: 'Array.isArray([1,2,3])',
+			code: 'obj.arr instanceof Array',
+			output: 'Array.isArray(obj.arr)',
 			errors
 		},
 		{
-			code: '[1,2,3] instanceof Array === true',
-			output: 'Array.isArray([1,2,3]) === true',
-			errors
-		},
-		{
-			code: 'if(arr instanceof Array){}',
-			output: 'if(Array.isArray(arr)){}',
-			errors
-		},
-		{
-			code: 'if([1,2,3] instanceof Array){}',
-			output: 'if(Array.isArray([1,2,3])){}',
+			code: `foo.bar${value} instanceof Array`,
+			output: `Array.isArray(foo.bar${value})`,
 			errors
 		}
 	]
