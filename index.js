@@ -20,6 +20,7 @@ module.exports = {
 				'unicorn/no-process-exit': 'error',
 				'unicorn/throw-new-error': 'error',
 				'unicorn/no-array-instanceof': 'error'
+				'unicorn/number-literal-case': 'error'
 			}
 		}
 	}
