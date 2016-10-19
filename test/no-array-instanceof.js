@@ -2,8 +2,6 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/no-array-instanceof';
 
-// Value for template String test Case.
-const value = 2;
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
@@ -22,7 +20,9 @@ ruleTester.run('avoid-array-instanceof', rule, {
 		'arr instanceof array',
 		'a instanceof \'array\'',
 		'a instanceof ArrayA',
-		`a.x[${value}] instanceof Object`
+		'a.x[2] instanceof foo()',
+		'Array.isArray([1,2,3]) === true',
+		'"arr instanceof Array"'
 	],
 	invalid: [
 		{
@@ -36,6 +36,11 @@ ruleTester.run('avoid-array-instanceof', rule, {
 			errors
 		},
 		{
+			code: '[1,2,3] instanceof Array === true',
+			output: 'Array.isArray([1,2,3]) === true',
+			errors
+		},
+		{
 			code: 'fun.call(1, 2, 3) instanceof Array',
 			output: 'Array.isArray(fun.call(1, 2, 3))',
 			errors
@@ -46,8 +51,8 @@ ruleTester.run('avoid-array-instanceof', rule, {
 			errors
 		},
 		{
-			code: `foo.bar${value} instanceof Array`,
-			output: `Array.isArray(foo.bar${value})`,
+			code: 'foo.bar[2] instanceof Array',
+			output: 'Array.isArray(foo.bar[2])',
 			errors
 		}
 	]
