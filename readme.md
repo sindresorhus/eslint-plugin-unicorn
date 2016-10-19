@@ -85,6 +85,7 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 - [Sindre Sorhus](https://github.com/sindresorhus)
 - [James Talmage](https://github.com/jamestalmage)
 - [Jeroen Engels](https://github.com/jfmengels)
+- [Sam Verschueren](https://github.com/SamVerschueren)
 - [Contributors…](../../graphs/contributors)
 
 
