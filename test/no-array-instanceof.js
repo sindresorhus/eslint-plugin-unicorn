@@ -10,7 +10,7 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [{
 	ruleId: 'no-array-instanceof',
-	message: 'Use `Array.isArray()` instead of `instanceof Array`'
+	message: 'Use `Array.isArray()` instead of `instanceof Array`.'
 }];
 
 ruleTester.run('avoid-array-instanceof', rule, {

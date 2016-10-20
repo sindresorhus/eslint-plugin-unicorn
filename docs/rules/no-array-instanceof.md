@@ -1,6 +1,7 @@
-# Require  `Array.isArray()` check instead of `instanceof Array`
+# Require `Array.isArray()` instead of `instanceof Array`
 
-While the `instanceof Array` works, it is unreliable across environments Eg: multi-frame DOM environments (iframes). Hence, `Array.isArray()` is recommended.
+The `instanceof Array` check doesn't work across realms/contexts, for example, frames/windows in browsers or the `vm` module in Node.js.
+
 
 ## Fail
 
@@ -8,6 +9,7 @@ While the `instanceof Array` works, it is unreliable across environments Eg: mul
 array instanceof Array;
 [1,2,3] instanceof Array;
 ```
+
 
 ## Pass
 
