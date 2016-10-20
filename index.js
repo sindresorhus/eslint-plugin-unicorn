@@ -19,7 +19,8 @@ module.exports = {
 				'unicorn/no-abusive-eslint-disable': 'error',
 				'unicorn/no-process-exit': 'error',
 				'unicorn/throw-new-error': 'error',
-				'unicorn/number-literal-case': 'error'
+				'unicorn/number-literal-case': 'error',
+				'unicorn/no-hex-escape': 'error'
 			}
 		}
 	}
