@@ -27,8 +27,8 @@ const create = context => {
 };
 
 module.exports = {
+	create,
 	meta: {
 		fixable: 'code'
-	},
-	create
+	}
 };
