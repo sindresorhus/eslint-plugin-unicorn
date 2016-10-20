@@ -39,7 +39,8 @@ Configure it in `package.json`.
 			"unicorn/no-abusive-eslint-disable": "error",
 			"unicorn/no-process-exit": "error",
 			"unicorn/throw-new-error": "error",
-			"unicorn/number-literal-case": "error"
+			"unicorn/number-literal-case": "error",
+			"unicorn/no-array-instanceof": "error"
 		}
 	}
 }
@@ -55,6 +56,7 @@ Configure it in `package.json`.
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 - [number-literal-case](docs/rules/number-literal-case.md) - Enforce lowercase identifier and uppercase value for number literals. *(fixable)*
+- [no-array-instanceof](docs/rules/no-array-instanceof.md) - Disallow `instanceof Array`, instead use `Array.isArray()`. *(fixable)*
 
 
 ## Recommended config
