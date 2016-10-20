@@ -1,7 +1,8 @@
 'use strict';
+const hexRE = /\\x[a-fA-F0-9]{2}/;
 
 const fix = value => {
-	if (!/\\x[a-fA-F0-9]{2}/.test(value)) {
+	if (!hexRE.test(value)) {
 		return value;
 	}
 
