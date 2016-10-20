@@ -18,7 +18,7 @@ function checkExpression(context, node) {
 	) {
 		context.report({
 			node,
-			message: '`length` property should be compared to a value'
+			message: '`length` property should be compared to a value.'
 		});
 	}
 }
