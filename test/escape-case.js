@@ -10,31 +10,51 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [{
 	ruleId: 'escape-case',
-	message: 'Use uppercase characters for escape sequences'
+	message: 'Use uppercase characters for the value of the escape sequence'
 }];
 
 ruleTester.run('escape-case', rule, {
 	valid: [
-		'var foo = "\\xA9"',
-		'var foo = "\\uD834"',
-		'var foo = "\\u{1D306}"',
-		'var foo = "\\cA"'
+		'const foo = \'\\xA9\';',
+		'const foo = \'\\uD834\';',
+		'const foo = \'\\u{1D306}\';',
+		'const foo = \'\\cA\'',
+		'const foo = `\\xA9`;',
+		'const foo = `\\uD834`;',
+		'const foo = `\\u{1D306}`;',
+		'const foo = `\\cA`;'
 	],
 	invalid: [
 		{
-			code: 'var foo = "\\xa9"',
+			code: 'const foo = \'\\xa9\';',
 			errors
 		},
 		{
-			code: 'var foo = "\\ud834"',
+			code: 'const foo = \'\\ud834\';',
 			errors
 		},
 		{
-			code: 'var foo = "\\u{1d306}"',
+			code: 'const foo = \'\\u{1d306}\';',
 			errors
 		},
 		{
-			code: 'var foo = "\\ca"',
+			code: 'const foo = \'\\ca\';',
+			errors
+		},
+		{
+			code: 'const foo = `\\xa9`;',
+			errors
+		},
+		{
+			code: 'const foo = `\\ud834`;',
+			errors
+		},
+		{
+			code: 'const foo = `\\u{1d306}`;',
+			errors
+		},
+		{
+			code: 'const foo = `\\ca`;',
 			errors
 		}
 	]

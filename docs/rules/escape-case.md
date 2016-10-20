@@ -1,22 +1,22 @@
-# Enforce escape sequences to use uppercase values
+# Require escape sequences to use uppercase values
 
-Enforces a convention of defining escape sequences with uppercase characters rather than lowercase ones.
+Enforces defining escape sequence values with uppercase characters rather than lowercase ones. This promotes readability by making the escaped value more distinguishable from the identifier.
 
 ## Fail
 
 ```js
-var foo = "\xa9"
-var foo = "\ud834"
-var foo = "\u{1d306}"
-var foo = "\ca"
+const foo = '\xa9';
+const foo = '\ud834';
+const foo = '\u{1d306}';
+const foo = '\ca';
 ```
 
 
 ## Pass
 
 ```js
-var foo = "\xA9"
-var foo = "\uD834"
-var foo = "\u{1D306}"
-var foo = "\cA"
+const foo = '\xA9';
+const foo = '\uD834';
+const foo = '\u{1D306}';
+const foo = '\cA';
 ```
