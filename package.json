@@ -58,8 +58,8 @@
     "ava": "*",
     "coveralls": "^2.11.9",
     "eslint": "^3.5.0",
-    "eslint-ava-rule-tester": "^0.1.1",
-    "nyc": "^6.4.0",
+    "eslint-ava-rule-tester": "^2.0.0",
+    "nyc": "^8.3.2",
     "pify": "^2.3.0",
     "xo": "*"
   },

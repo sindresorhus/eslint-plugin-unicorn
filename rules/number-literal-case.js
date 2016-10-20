@@ -19,7 +19,7 @@ const create = context => {
 			if (value !== fixedValue) {
 				context.report({
 					node,
-					message: 'Invalid number literal casing',
+					message: 'Invalid number literal casing.',
 					fix: fixer => fixer.replaceText(node, fixedValue)
 				});
 			}
@@ -28,8 +28,8 @@ const create = context => {
 };
 
 module.exports = {
+	create,
 	meta: {
 		fixable: 'code'
-	},
-	create
+	}
 };
