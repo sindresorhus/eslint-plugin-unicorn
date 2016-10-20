@@ -1,13 +1,7 @@
 'use strict';
 const hexRE = /\\x[a-fA-F0-9]{2}/;
 
-const fix = value => {
-	if (!hexRE.test(value)) {
-		return value;
-	}
-
-	return value.replace(/\\x/g, '\\u00');
-};
+const fix = value => hexRE.test(value) ? value.replace(/\\x/g, '\\u00') : value;
 
 const create = context => {
 	return {
