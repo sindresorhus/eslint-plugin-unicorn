@@ -13,7 +13,7 @@ const ruleTester = avaRuleTester(test, {
 
 const error = {
 	ruleId: 'number-literal-case',
-	message: 'Invalid number literal casing'
+	message: 'Invalid number literal casing.'
 };
 
 ruleTester.run('number-literal-case', rule, {

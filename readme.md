@@ -40,7 +40,9 @@ Configure it in `package.json`.
 			"unicorn/no-process-exit": "error",
 			"unicorn/throw-new-error": "error",
 			"unicorn/number-literal-case": "error",
-			"unicorn/escape-case": "error"
+			"unicorn/escape-case": "error",
+			"unicorn/no-array-instanceof": "error",
+			"unicorn/no-new-buffer": "error"
 		}
 	}
 }
@@ -57,6 +59,8 @@ Configure it in `package.json`.
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 - [number-literal-case](docs/rules/number-literal-case.md) - Enforce lowercase identifier and uppercase value for number literals. *(fixable)*
 - [escape-case](docs/rules/escape-case.md) - Require escape sequences to use uppercase values. *(fixable)*
+- [no-array-instanceof](docs/rules/no-array-instanceof.md) - Require `Array.isArray()` instead of `instanceof Array`. *(fixable)*
+- [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 
 
 ## Recommended config
@@ -87,6 +91,7 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 - [Sindre Sorhus](https://github.com/sindresorhus)
 - [James Talmage](https://github.com/jamestalmage)
 - [Jeroen Engels](https://github.com/jfmengels)
+- [Sam Verschueren](https://github.com/SamVerschueren)
 - [Contributors…](../../graphs/contributors)
 
 

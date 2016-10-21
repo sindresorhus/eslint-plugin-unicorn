@@ -10,7 +10,7 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [{
 	ruleId: 'explicit-length-check',
-	message: '`length` property should be compared to a value'
+	message: '`length` property should be compared to a value.'
 }];
 
 ruleTester.run('explicit-length-check', rule, {
