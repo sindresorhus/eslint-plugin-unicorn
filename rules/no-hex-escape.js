@@ -1,14 +1,12 @@
 'use strict';
-const hexRE = /\\x[a-fA-F0-9]{2}/;
-
 function checkEscape(context, node, value) {
-	const fixedValue = hexRE.test(value) ? value.replace(/\\x/g, '\\u00') : value;
+	const fixedValue = typeof value === 'string' ? value.replace(/\\x/g, '\\u00') : value;
 
 	if (value !== fixedValue) {
 		context.report({
 			node,
-			message: 'Use unicode escape codes instead of hexadecimal escapes.',
-			fix: fixer => fixer.replaceText(node, fixedValue)
+			message: 'Use unicode escapes instead of hexadecimal escapes.',
+			fix: fixer => fixer.replaceTextRange([node.start, node.end], fixedValue)
 		});
 	}
 }

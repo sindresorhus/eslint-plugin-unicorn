@@ -1,15 +1,11 @@
-# Enforce the use of unicode encoded escapes instead of hexadecimal encoded escapes
+# Enforce the use of unicode escapes instead of hexadecimal escapes
 
-Enforces a convention of using unicode encoded escapes instead of hexadecimal encoded escapes to enfoce code consistency. Works on both Literals and TemplateLiterals.
+Enforces a convention of using unicode escapes instead of hexadecimal escapes for consistency and clarity.
 
 ## Fail
 
 ```js
 const foo = '\x1B';
-const foo = '\x1b';
-```
-
-```js
 const foo = `\x1B${bar}`;
 ```
 
@@ -17,9 +13,5 @@ const foo = `\x1B${bar}`;
 
 ```js
 const foo = '\u001B';
-const foo = '\u001b';
-```
-
-```js
 const foo = `\u001B${bar}`;
 ```
