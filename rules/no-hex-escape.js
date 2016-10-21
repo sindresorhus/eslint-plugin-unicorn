@@ -12,7 +12,7 @@ const create = context => {
 			if (value !== fixedValue) {
 				context.report({
 					node,
-					message: 'Use unicode escapes over hexadecimal escapes',
+					message: 'Use unicode escape codes instead of hexadecimal escapes.',
 					fix: fixer => fixer.replaceText(node, fixedValue)
 				});
 			}
