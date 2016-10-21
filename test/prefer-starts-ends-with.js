@@ -11,11 +11,11 @@ const ruleTester = avaRuleTester(test, {
 const errors = {
 	startsWith: [{
 		ruleId: 'prefer-starts-ends-with',
-		message: 'Prefer `.startsWith` over regex with `^`'
+		message: 'Prefer `.startsWith` over regex with `^`.'
 	}],
 	endsWith: [{
 		ruleId: 'prefer-starts-ends-with',
-		message: 'Prefer `.endsWith` over regex with `$`'
+		message: 'Prefer `.endsWith` over regex with `$`.'
 	}]
 };
 
