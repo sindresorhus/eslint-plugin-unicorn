@@ -21,7 +21,9 @@ ruleTester.run('no-hex-escape', rule, {
 		`const foo = 'foo\\u00b1'`,
 		`const foo = 'foo\\u00b1foo'`,
 		`const foo = '\\u00b1foo'`,
-		'const foo = 42'
+		'const foo = 42',
+		'const foo = `foo`',
+		'const foo = `42`'
 	],
 	invalid: [
 		{
@@ -63,6 +65,11 @@ ruleTester.run('no-hex-escape', rule, {
 			code: `const foo = '42\\x1242\\x34'`,
 			errors: [error],
 			output: `const foo = '42\\u001242\\u0034'`
+		},
+		{
+			code: 'const foo = `\\xb1`',
+			errors: [error],
+			output: 'const foo = \\u00b1'
 		}
 	]
 });
