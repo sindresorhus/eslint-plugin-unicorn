@@ -40,7 +40,8 @@ Configure it in `package.json`.
 			"unicorn/no-process-exit": "error",
 			"unicorn/throw-new-error": "error",
 			"unicorn/number-literal-case": "error",
-			"unicorn/no-array-instanceof": "error"
+			"unicorn/no-array-instanceof": "error",
+			"unicorn/prefer-starts-ends-with": "error"
 		}
 	}
 }
@@ -57,6 +58,7 @@ Configure it in `package.json`.
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 - [number-literal-case](docs/rules/number-literal-case.md) - Enforce lowercase identifier and uppercase value for number literals. *(fixable)*
 - [no-array-instanceof](docs/rules/no-array-instanceof.md) - Require `Array.isArray()` instead of `instanceof Array`. *(fixable)*
+- [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `foo.startsWith('bar)` over `/^bar/.test(foo)`.
 
 
 ## Recommended config
