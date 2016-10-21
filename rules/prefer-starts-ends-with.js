@@ -1,5 +1,5 @@
 'use strict';
-const doesNotContain = (string, chars) => chars.every(char => string.indexOf(char) === -1);
+const doesNotContain = (string, chars) => chars.every(char => !string.includes(char));
 
 const isSimpleString = string => doesNotContain(
 	string,
