@@ -15,13 +15,7 @@ const fix = value => {
 const create = context => {
 	return {
 		Literal(node) {
-			if (typeof node.value !== 'string') {
-				return;
-			}
-
-			const match = node.raw.match(escapeWithLowercase);
-
-			if (match) {
+			if (typeof node.value === 'string' && node.raw.match(escapeWithLowercase)) {
 				context.report({
 					node,
 					message,
@@ -31,13 +25,7 @@ const create = context => {
 		},
 
 		TemplateElement(node) {
-			if (typeof node.value.raw !== 'string') {
-				return;
-			}
-
-			const match = node.value.raw.match(escapeWithLowercase);
-
-			if (match) {
+			if (typeof node.value.raw === 'string' && node.value.raw.match(escapeWithLowercase)) {
 				context.report({
 					node,
 					message,

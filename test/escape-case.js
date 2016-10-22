@@ -15,10 +15,10 @@ const errors = [{
 
 ruleTester.run('escape-case', rule, {
 	valid: [
-		'const foo = \'\\xA9\';',
-		'const foo = \'\\uD834\';',
-		'const foo = \'\\u{1D306}\';',
-		'const foo = \'\\cA\';',
+		'const foo = "\\xA9";',
+		'const foo = "\\uD834";',
+		'const foo = "\\u{1D306}";',
+		'const foo = "\\cA";',
 		'const foo = `\\xA9`;',
 		'const foo = `\\uD834`;',
 		'const foo = `\\u{1D306}`;',
@@ -26,31 +26,31 @@ ruleTester.run('escape-case', rule, {
 		'const foo = `\\uD834foo`;',
 		'const foo = `foo\\uD834`;',
 		'const foo = `foo \\uD834`;',
-		'const foo = `${\'\uD834 foo\'} \\uD834`;',
-		'const foo = \'\\uD834foo\';',
-		'const foo = \'foo\\uD834\';',
-		'const foo = \'foo \\uD834\';'
+		'const foo = `${"\uD834 foo"} \\uD834`;',
+		'const foo = "\\uD834foo";',
+		'const foo = "foo\\uD834";',
+		'const foo = "foo \\uD834";'
 	],
 	invalid: [
 		{
-			code: 'const foo = \'\\xa9\';',
+			code: 'const foo = "\\xa9";',
 			errors,
-			output: 'const foo = \'\\xA9\';'
+			output: 'const foo = "\\xA9";'
 		},
 		{
-			code: 'const foo = \'\\ud834\';',
+			code: 'const foo = "\\ud834";',
 			errors,
-			output: 'const foo = \'\\uD834\';'
+			output: 'const foo = "\\uD834";'
 		},
 		{
-			code: 'const foo = \'\\u{1d306}\';',
+			code: 'const foo = "\\u{1d306}";',
 			errors,
-			output: 'const foo = \'\\u{1D306}\';'
+			output: 'const foo = "\\u{1D306}";'
 		},
 		{
-			code: 'const foo = \'\\ca\';',
+			code: 'const foo = "\\ca";',
 			errors,
-			output: 'const foo = \'\\cA\';'
+			output: 'const foo = "\\cA";'
 		},
 		{
 			code: 'const foo = `\\xa9`;',
@@ -88,24 +88,24 @@ ruleTester.run('escape-case', rule, {
 			output: 'const foo = `foo \\uD834`;'
 		},
 		{
-			code: 'const foo = `${\'\ud834 foo\'} \\ud834`;',
+			code: 'const foo = `${"\ud834 foo"} \\ud834`;',
 			errors,
-			output: 'const foo = `${\'\uD834 foo\'} \\uD834`;'
+			output: 'const foo = `${"\uD834 foo"} \\uD834`;'
 		},
 		{
-			code: 'const foo = \'\\ud834foo\';',
+			code: 'const foo = "\\ud834foo";',
 			errors,
-			output: 'const foo = \'\\uD834foo\';'
+			output: 'const foo = "\\uD834foo";'
 		},
 		{
-			code: 'const foo = \'foo\\ud834\';',
+			code: 'const foo = "foo\\ud834";',
 			errors,
-			output: 'const foo = \'foo\\uD834\';'
+			output: 'const foo = "foo\\uD834";'
 		},
 		{
-			code: 'const foo = \'foo \\ud834\';',
+			code: 'const foo = "foo \\ud834";',
 			errors,
-			output: 'const foo = \'foo \\uD834\';'
+			output: 'const foo = "foo \\uD834";'
 		}
 	]
 });
