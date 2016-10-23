@@ -41,7 +41,8 @@ Configure it in `package.json`.
 			"unicorn/throw-new-error": "error",
 			"unicorn/number-literal-case": "error",
 			"unicorn/no-array-instanceof": "error",
-			"unicorn/no-new-buffer": "error"
+			"unicorn/no-new-buffer": "error",
+			"unicorn/no-hex-escape": "error"
 		}
 	}
 }
