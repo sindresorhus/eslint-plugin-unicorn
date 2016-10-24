@@ -8,7 +8,7 @@ const create = context => {
 			if (name === 'substr' || name === 'substring') {
 				context.report({
 					node,
-					message: 'Use String.slice instead of String.substr or String.substring.'
+					message: `Use String.slice instead of String.${name}.`
 				});
 			}
 		}

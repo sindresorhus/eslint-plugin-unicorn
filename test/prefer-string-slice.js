@@ -8,10 +8,10 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const error = {
+const error = name => ({
 	ruleId: 'prefer-string-slice',
-	message: 'Use String.slice instead of String.substr or String.substring.'
-};
+	message: `Use String.slice instead of String.${name}.`
+});
 
 ruleTester.run('prefer-string-slice', rule, {
 	valid: [
@@ -21,27 +21,27 @@ ruleTester.run('prefer-string-slice', rule, {
 	invalid: [
 		{
 			code: 'const foo = bar.substr(1)',
-			errors: [error]
+			errors: [error('substr')]
 		},
 		{
 			code: 'const foo = bar.substr(1,2)',
-			errors: [error]
+			errors: [error('substr')]
 		},
 		{
 			code: `const foo = bar.substr(function() { return 1; }, 2);`,
-			errors: [error]
+			errors: [error('substr')]
 		},
 		{
 			code: 'const foo = bar.substring(1)',
-			errors: [error]
+			errors: [error('substring')]
 		},
 		{
 			code: 'const foo = bar.substring(1,2)',
-			errors: [error]
+			errors: [error('substring')]
 		},
 		{
-			code: `const foo = bar.substr(function() { return 1; }, 2);`,
-			errors: [error]
+			code: `const foo = bar.substring(function() { return 1; }, 2);`,
+			errors: [error('substring')]
 		}
 	]
 });
