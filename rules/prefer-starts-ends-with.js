@@ -24,12 +24,12 @@ const create = context => {
 			if (pattern.startsWith('^') && isSimpleString(pattern.slice(1))) {
 				context.report({
 					node,
-					message: 'Prefer `.startsWith` over regex with `^`.'
+					message: 'Prefer `String#startsWith` over a regex with `^`.'
 				});
 			} else if (pattern.endsWith('$') && isSimpleString(pattern.slice(0, -1))) {
 				context.report({
 					node,
-					message: 'Prefer `.endsWith` over regex with `$`.'
+					message: 'Prefer `String#endsWith` over a regex with `$`.'
 				});
 			}
 		}
