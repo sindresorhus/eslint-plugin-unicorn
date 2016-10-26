@@ -16,7 +16,8 @@ const error = name => ({
 ruleTester.run('prefer-string-slice', rule, {
 	valid: [
 		'const foo = bar.slice(1)',
-		`const foo = bar.slice(function() { return 1; }, 2);`
+		`const foo = bar.slice(baz, 2);`,
+		`const foo = bar.slice(baz - 1, 2);`
 	],
 	invalid: [
 		{
@@ -28,7 +29,11 @@ ruleTester.run('prefer-string-slice', rule, {
 			errors: [error('substr')]
 		},
 		{
-			code: `const foo = bar.substr(function() { return 1; }, 2);`,
+			code: `const foo = bar.substr(baz, 2);`,
+			errors: [error('substr')]
+		},
+		{
+			code: `const foo = bar.substr(baz - 1, 2);`,
 			errors: [error('substr')]
 		},
 		{
@@ -40,7 +45,11 @@ ruleTester.run('prefer-string-slice', rule, {
 			errors: [error('substring')]
 		},
 		{
-			code: `const foo = bar.substring(function() { return 1; }, 2);`,
+			code: `const foo = bar.substring(baz, 2);`,
+			errors: [error('substring')]
+		},
+		{
+			code: `const foo = bar.substring(baz - 1, 2);`,
 			errors: [error('substring')]
 		}
 	]
