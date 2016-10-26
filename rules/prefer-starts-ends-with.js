@@ -21,7 +21,7 @@ const create = context => {
 				return;
 			}
 
-			if (regex.flags.includes('i')) {
+			if (regex.flags && regex.flags.includes('i')) {
 				return;
 			}
 

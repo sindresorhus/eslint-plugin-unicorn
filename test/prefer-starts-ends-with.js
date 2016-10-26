@@ -31,7 +31,7 @@ const validRegex = [
 	/^foo./,
 	/foo.$/,
 	/\^foo/,
-	/^foo/i,
+	/^foo/i
 ];
 
 const invalidRegex = [
