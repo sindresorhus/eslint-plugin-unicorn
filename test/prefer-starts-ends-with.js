@@ -30,7 +30,8 @@ const validRegex = [
 	/\w$/,
 	/^foo./,
 	/foo.$/,
-	/\^foo/
+	/\^foo/,
+	/^foo/i,
 ];
 
 const invalidRegex = [

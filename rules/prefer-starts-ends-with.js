@@ -12,15 +12,20 @@ const create = context => {
 			const callee = node.callee;
 			const args = node.arguments;
 
-			let pattern;
+			let regex;
 			if (callee.property.name === 'test' && callee.object.regex) {
-				pattern = callee.object.regex.pattern;
+				regex = callee.object.regex;
 			} else if (callee.property.name === 'match' && args && args[0] && args[0].regex) {
-				pattern = args[0].regex.pattern;
+				regex = args[0].regex;
 			} else {
 				return;
 			}
 
+			if (regex.flags.includes('i')) {
+				return;
+			}
+
+			const pattern = regex.pattern;
 			if (pattern.startsWith('^') && isSimpleString(pattern.slice(1))) {
 				context.report({
 					node,
