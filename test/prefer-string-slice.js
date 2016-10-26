@@ -10,7 +10,7 @@ const ruleTester = avaRuleTester(test, {
 
 const error = name => ({
 	ruleId: 'prefer-string-slice',
-	message: `Use \`String.slice\` instead of \`String.${name}\`.`
+	message: `Use \`String#slice\` instead of \`String#${name}\`.`
 });
 
 ruleTester.run('prefer-string-slice', rule, {

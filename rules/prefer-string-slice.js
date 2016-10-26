@@ -6,7 +6,7 @@ const create = context => {
 			if (['substr', 'substring'].indexOf(node.name) !== -1) {
 				context.report({
 					node,
-					message: `Use \`String.slice\` instead of \`String.${node.name}\`.`
+					message: `Use \`String#slice\` instead of \`String#${node.name}\`.`
 				});
 			}
 		}
