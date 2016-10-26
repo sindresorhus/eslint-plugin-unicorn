@@ -41,6 +41,8 @@ Configure it in `package.json`.
 			"unicorn/throw-new-error": "error",
 			"unicorn/number-literal-case": "error",
 			"unicorn/no-array-instanceof": "error",
+			"unicorn/no-new-buffer": "error",
+			"unicorn/no-hex-escape": "error",
 			"unicorn/prefer-starts-ends-with": "error"
 		}
 	}
@@ -58,6 +60,8 @@ Configure it in `package.json`.
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 - [number-literal-case](docs/rules/number-literal-case.md) - Enforce lowercase identifier and uppercase value for number literals. *(fixable)*
 - [no-array-instanceof](docs/rules/no-array-instanceof.md) - Require `Array.isArray()` instead of `instanceof Array`. *(fixable)*
+- [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
+- [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of unicode escapes instead of hexadecimal escapes. *(fixable)*
 - [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWidth` & `String#endsWidth` over more complex alternatives.
 
 
