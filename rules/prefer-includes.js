@@ -16,11 +16,17 @@ const isUnaryNotExpression = node => (
 
 const isNegativeOne = (operator, value) => operator === '-' && value === 1;
 
-const report = (context, node) => {
+const getSourceCode = (context, node) => (
+	context.getSourceCode().text.slice(node.range[0], node.range[1])
+);
+
+const report = (context, node, target, pattern) => {
+	const targetSource = getSourceCode(context, target);
+	const patternSource = getSourceCode(context, pattern);
 	context.report({
 		node,
-		message: 'Use `.includes()`, not .indexOf(), when checking for existence.'
-		// fix: fixer => fixer.replaceText(node, `Array.isArray(${arraySourceCode})`)
+		message: 'Use `.includes()`, not .indexOf(), when checking for existence.',
+		fix: fixer => fixer.replaceText(node, `${targetSource}.includes(${patternSource})`)
 	});
 };
 
@@ -30,6 +36,9 @@ const create = context => ({
 		const right = node.right;
 
 		if (isIndexOfCallExpression(left)) {
+			const target = left.callee.object;
+			const pattern = left.arguments[0];
+
 			if (right.type === 'UnaryExpression') {
 				const argument = right.argument;
 
@@ -40,13 +49,13 @@ const create = context => ({
 				const value = argument.value;
 
 				if (node.operator === '!==' && isNegativeOne(right.operator, value)) {
-					report(context, node);
+					report(context, node, target, pattern);
 				}
 				if (node.operator === '!=' && isNegativeOne(right.operator, value)) {
-					report(context, node);
+					report(context, node, target, pattern);
 				}
 				if (node.operator === '>' && isNegativeOne(right.operator, value)) {
-					report(context, node);
+					report(context, node, target, pattern);
 				}
 			}
 
@@ -55,7 +64,7 @@ const create = context => ({
 			}
 
 			if (node.operator === '>=' && right.value === 0) {
-				report(context, node);
+				report(context, node, target, pattern);
 			}
 
 			return false;
@@ -65,6 +74,9 @@ const create = context => ({
 			const argument = left.argument;
 
 			if (isIndexOfCallExpression(argument)) {
+				const target = argument.callee.object;
+				const pattern = argument.arguments[0];
+
 				if (right.type === 'UnaryExpression') {
 					const argument = right.argument;
 
@@ -75,10 +87,10 @@ const create = context => ({
 					const value = argument.value;
 
 					if (node.operator === '===' && isNegativeOne(right.operator, value)) {
-						report(context, node);
+						report(context, node, target, pattern);
 					}
 					if (node.operator === '==' && isNegativeOne(right.operator, value)) {
-						report(context, node);
+						report(context, node, target, pattern);
 					}
 				}
 
@@ -87,7 +99,7 @@ const create = context => ({
 				}
 
 				if (node.operator === '<' && right.value === 0) {
-					report(context, node);
+					report(context, node, target, pattern);
 				}
 
 				return false;

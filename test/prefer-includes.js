@@ -27,42 +27,42 @@ ruleTester.run('prefer-includes', rule, {
 	invalid: [
 		{
 			code: '\'foobar\'.indexOf(\'foo\') !== -1',
-			// output: 'str.includes(\'foo\')',
+			output: '\'foobar\'.includes(\'foo\')',
 			errors
 		},
 		{
 			code: 'str.indexOf(\'foo\') != -1',
-			// output: 'str.includes(\'foo\')',
+			output: 'str.includes(\'foo\')',
 			errors
 		},
 		{
 			code: 'str.indexOf(\'foo\') > -1',
-			// output: 'str.includes(\'foo\')',
+			output: 'str.includes(\'foo\')',
 			errors
 		},
 		{
 			code: '\'foobar\'.indexOf(\'foo\') >= 0',
-			// output: 'str.includes(\'foo\')',
+			output: '\'foobar\'.includes(\'foo\')',
 			errors
 		},
 		{
 			code: '!str.indexOf(\'foo\') === -1',
-			// output: 'str.includes(\'foo\')',
+			output: 'str.includes(\'foo\')',
 			errors
 		},
 		{
 			code: '!str.indexOf(\'foo\') == -1',
-			// output: 'str.includes(\'foo\')',
+			output: 'str.includes(\'foo\')',
 			errors
 		},
 		{
 			code: '!\'foobar\'.indexOf(\'foo\') < 0',
-			// output: 'str.includes(\'foo\')',
+			output: '\'foobar\'.includes(\'foo\')',
 			errors
 		},
 		{
 			code: '[1,2,3].indexOf(4) !== -1',
-			// output: '[1,2,3].includes(4)',
+			output: '[1,2,3].includes(4)',
 			errors
 		}
 	]
