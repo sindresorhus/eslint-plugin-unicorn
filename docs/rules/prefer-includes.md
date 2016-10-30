@@ -24,12 +24,6 @@ const str = 'foobar';
 !str.includes < 0
 ```
 
-<!-- ```js
-const str = 'foobar';
-
-/foo/.test(str);
-``` -->
-
 
 ## Pass
 
