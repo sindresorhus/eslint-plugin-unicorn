@@ -22,7 +22,8 @@ module.exports = {
 				'unicorn/number-literal-case': 'error',
 				'unicorn/no-array-instanceof': 'error',
 				'unicorn/no-new-buffer': 'error',
-				'unicorn/no-hex-escape': 'error'
+				'unicorn/no-hex-escape': 'error',
+				'unicorn/typeerror': 'error'
 			}
 		}
 	}
