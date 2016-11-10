@@ -42,13 +42,13 @@ ruleTester.run('type-error', rule, {
 	],
 	invalid: [
 		{
-			code:	`if (Array.isArray(foo)) {
+			code: `if (Array.isArray(foo)) {
 				throw new Error();
 			}`,
 			errors: [typeError]
 		},
 		{
-			code:	`if (foo instanceof bar) {
+			code: `if (foo instanceof bar) {
 				throw new Error();
 			}`,
 			errors: [typeError]
@@ -60,19 +60,19 @@ ruleTester.run('type-error', rule, {
 			errors: [typeError]
 		},
 		{
-			code:	`if (check.not.emptySomething(foo)) {
+			code: `if (check.not.emptySomething(foo)) {
 				throw new Error();
 			}`,
 			errors: [typeError]
 		},
 		{
-			code:	`if (typeof foo == 'Foo' || 'Foo' === typeof foo) {
+			code: `if (typeof foo == 'Foo' || 'Foo' === typeof foo) {
 				throw new Error();
 			}`,
 			errors: [typeError]
 		},
 		{
-			code:	`if (Array.isArray(foo) || (Blob.isBlob(foo) || isBlip(foo))) {
+			code: `if (Array.isArray(foo) || (Blob.isBlob(foo) || isBlip(foo))) {
 				throw new Error();
 			}`,
 			errors: [typeError]
