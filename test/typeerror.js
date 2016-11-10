@@ -42,23 +42,33 @@ ruleTester.run('type-error', rule, {
 	],
 	invalid: [
 		{
-			code:	`if (Array.isArray(foo)) {throw new Error();}`,
+			code:	`if (Array.isArray(foo)) {
+				throw new Error();
+			}`,
 			errors: [typeError]
 		},
 		{
-			code:	`if (foo instanceof bar) {throw new Error();}`,
+			code:	`if (foo instanceof bar) {
+				throw new Error();
+			}`,
 			errors: [typeError]
 		},
 		{
-			code:	`if (kindOf(foo) === 'Foo') {throw new Error();}`,
+			code:	`if (kindOf(foo) === 'Foo') {
+				throw new Error();
+			}`,
 			errors: [typeError]
 		},
 		{
-			code:	`if (check.not.emptySomething(foo)) {throw new Error();}`,
+			code:	`if (check.not.emptySomething(foo)) {
+				throw new Error();
+			}`,
 			errors: [typeError]
 		},
 		{
-			code:	`if (typeof foo == 'Foo' || 'Foo' === typeof foo) {throw new Error();}`,
+			code:	`if (typeof foo == 'Foo' || 'Foo' === typeof foo) {
+				throw new Error();
+			}`,
 			errors: [typeError]
 		},
 		{
