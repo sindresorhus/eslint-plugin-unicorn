@@ -23,7 +23,7 @@ module.exports = {
 				'unicorn/no-array-instanceof': 'error',
 				'unicorn/no-new-buffer': 'error',
 				'unicorn/no-hex-escape': 'error',
-				'unicorn/typeerror': 'error'
+				'unicorn/type-error': 'error'
 			}
 		}
 	}

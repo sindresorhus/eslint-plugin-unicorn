@@ -1,6 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/typeerror';
+import rule from '../rules/type-error';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -12,11 +12,11 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const typeError = {
-	ruleId: 'typeerror',
+	ruleId: 'type-error',
 	message: '`new Error()` is too unspecific for a typecheck, use `new TypeError()` instead.'
 };
 
-ruleTester.run('typeerror', rule, {
+ruleTester.run('type-error', rule, {
 	valid: [
 		`if (Array.isValid(foo)) {
 			throw new TypeError();
