@@ -15,7 +15,13 @@ const errors = [{
 
 ruleTester.run('type-error', rule, {
 	valid: [
-		`if (Array.isValid(foo)) {
+		`if (Array.isArray(foo) || ArrayBuffer.isView(foo)) {
+			throw new TypeError();
+		}`,
+		`if (!isFinite(foo)) {
+			throw new TypeError();
+		}`,
+		`if (isNaN(foo)) {
 			throw new TypeError();
 		}`,
 		`if (foo instanceof boo) {
@@ -24,16 +30,19 @@ ruleTester.run('type-error', rule, {
 		`if (typeof boo === 'Boo') {
 			throw new TypeError();
 		}`,
-		`if (Blob.isBlob(foo)) {
+		`if (Number.isNaN(foo)) {
+			throw new TypeError();
+		}`,
+		`if (Number.isFinite(foo) && Number.isSafeInteger(foo) && Number.isInteger(foo)) {
 			throw new TypeError();
 		}`,
 		`if (Array.isArray(foo) || (Blob.isBlob(foo) || Blip.isBlip(foo))) {
 			throw new TypeError();
 		}`,
-		`if (typeof foo === 'object' || (Blob.isBlob(foo) || 'String' === typeof foo)) {
+		`if (typeof foo === 'object' || (Object.isFrozen(foo) || 'String' === typeof foo)) {
 			throw new TypeError();
 		}`,
-		`if (Blob.isBlob(foo) && Array.isArray(foo)) {
+		`if (Object.isSealed(foo) && _.isArguments(foo)) {
 			throw new TypeError();
 		}`
 	],
@@ -57,19 +66,19 @@ ruleTester.run('type-error', rule, {
 			errors
 		},
 		{
-			code:	`if (kindOf(foo) === 'Foo') {
+			code:	`if (Object.isSealed(foo)) {
 				throw new Error();
 			}`,
-			output: `if (foo instanceof bar) {
+			output: `if (Object.isSealed(foo)) {
 				throw new TypeError();
 			}`,
 			errors
 		},
 		{
-			code: `if (check.not.emptySomething(foo)) {
+			code: `if (_.isElement(foo)) {
 				throw new Error();
 			}`,
-			output: `if (foo instanceof bar) {
+			output: `if (_.isElement(foo)) {
 				throw new TypeError();
 			}`,
 			errors
@@ -78,16 +87,16 @@ ruleTester.run('type-error', rule, {
 			code: `if (typeof foo == 'Foo' || 'Foo' === typeof foo) {
 				throw new Error();
 			}`,
-			output: `if (foo instanceof bar) {
+			output: `if (typeof foo == 'Foo' || 'Foo' === typeof foo) {
 				throw new TypeError();
 			}`,
 			errors
 		},
 		{
-			code: `if (Array.isArray(foo) || (Blob.isBlob(foo) || isBlip(foo))) {
+			code: `if (Number.isFinite(foo) && Number.isSafeInteger(foo) && Number.isInteger(foo)) {
 				throw new Error();
 			}`,
-			output: `if (foo instanceof bar) {
+			output: `if (Number.isFinite(foo) && Number.isSafeInteger(foo) && Number.isInteger(foo)) {
 				throw new TypeError();
 			}`,
 			errors

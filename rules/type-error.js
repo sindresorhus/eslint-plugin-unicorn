@@ -98,7 +98,7 @@ const create = context => {
 				context.report({
 					node,
 					message: '`new Error()` is too unspecific for a typecheck, use `new TypeError()` instead.',
-					fix: fixer => fixer.replaceText(node.argument.callee.name, 'TypeError')
+					fix: fixer => fixer.replaceText(node.argument.callee, 'TypeError')
 				});
 			}
 		}
