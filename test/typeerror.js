@@ -5,16 +5,13 @@ import rule from '../rules/type-error';
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
-	},
-	parserOptions: {
-		sourceType: 'module'
 	}
 });
 
-const typeError = {
+const errors = [{
 	ruleId: 'type-error',
 	message: '`new Error()` is too unspecific for a typecheck, use `new TypeError()` instead.'
-};
+}];
 
 ruleTester.run('type-error', rule, {
 	valid: [
@@ -45,37 +42,55 @@ ruleTester.run('type-error', rule, {
 			code: `if (Array.isArray(foo)) {
 				throw new Error();
 			}`,
-			errors: [typeError]
+			output: `if (Array.isArray(foo)) {
+				throw new TypeError();
+			}`,
+			errors
 		},
 		{
 			code: `if (foo instanceof bar) {
 				throw new Error();
 			}`,
-			errors: [typeError]
+			output: `if (foo instanceof bar) {
+				throw new TypeError();
+			}`,
+			errors
 		},
 		{
 			code:	`if (kindOf(foo) === 'Foo') {
 				throw new Error();
 			}`,
-			errors: [typeError]
+			output: `if (foo instanceof bar) {
+				throw new TypeError();
+			}`,
+			errors
 		},
 		{
 			code: `if (check.not.emptySomething(foo)) {
 				throw new Error();
 			}`,
-			errors: [typeError]
+			output: `if (foo instanceof bar) {
+				throw new TypeError();
+			}`,
+			errors
 		},
 		{
 			code: `if (typeof foo == 'Foo' || 'Foo' === typeof foo) {
 				throw new Error();
 			}`,
-			errors: [typeError]
+			output: `if (foo instanceof bar) {
+				throw new TypeError();
+			}`,
+			errors
 		},
 		{
 			code: `if (Array.isArray(foo) || (Blob.isBlob(foo) || isBlip(foo))) {
 				throw new Error();
 			}`,
-			errors: [typeError]
+			output: `if (foo instanceof bar) {
+				throw new TypeError();
+			}`,
+			errors
 		}
 	]
 });
