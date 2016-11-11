@@ -1,57 +1,50 @@
 'use strict';
 
+const tcIdentifiers = new Set([
+	'isArguments',
+	'isArray',
+	'isArrayBuffer',
+	'isArrayLike',
+	'isArrayLikeObject',
+	'isBoolean',
+	'isBuffer',
+	'isDate',
+	'isElement',
+	'isEmptyObject',
+	'isError',
+	'isFinite',
+	'isFrozen',
+	'isFunction',
+	'isInteger',
+	'isLength',
+	'isMap',
+	'isNaN',
+	'isNative',
+	'isNil',
+	'isNull',
+	'isNumber',
+	'isObject',
+	'isObjectLike',
+	'isPlainObject',
+	'isPrototypeOf',
+	'isRegExp',
+	'isSafeInteger',
+	'isSealed',
+	'isSet',
+	'isString',
+	'isSymbol',
+	'isTypedArray',
+	'isUndefined',
+	'isView',
+	'isWeakMap',
+	'isWeakSet',
+	'isWindow',
+	'isXMLDoc'
+]);
+
 const isTypecheckingProvider = node => node.type === 'Identifier' && false;
-
 const isTypecheckingOperator = operator => operator === 'typeof' || operator === 'instanceof';
-
-const isTypecheckingIdentifier = node => { // eslint-disable-line complexity
-	if (node.type === 'Identifier') {
-		switch (node.name) {
-			case 'isArguments':
-			case 'isArray':
-			case 'isArrayBuffer':
-			case 'isArrayLike':
-			case 'isArrayLikeObject':
-			case 'isBoolean':
-			case 'isBuffer':
-			case 'isDate':
-			case 'isElement':
-			case 'isEmptyObject':
-			case 'isError':
-			case 'isFinite':
-			case 'isFrozen':
-			case 'isFunction':
-			case 'isInteger':
-			case 'isLength':
-			case 'isMap':
-			case 'isNaN':
-			case 'isNative':
-			case 'isNil':
-			case 'isNull':
-			case 'isNumber':
-			case 'isObject':
-			case 'isObjectLike':
-			case 'isPlainObject':
-			case 'isPrototypeOf':
-			case 'isRegExp':
-			case 'isSafeInteger':
-			case 'isSealed':
-			case 'isSet':
-			case 'isString':
-			case 'isSymbol':
-			case 'isTypedArray':
-			case 'isUndefined':
-			case 'isView':
-			case 'isWeakMap':
-			case 'isWeakSet':
-			case 'isWindow':
-			case 'isXMLDoc':
-				return true;
-			default:
-		}
-	}
-	return false;
-};
+const isTypecheckingIdentifier = node => node.type === 'Identifier' && tcIdentifiers.has(node.name);
 
 const throwsErrorObject = node =>
 	node.argument.type === 'NewExpression' &&
