@@ -21,6 +21,25 @@ const invalidMessageAssignmentError = {ruleId: 'custom-error', message: 'Pass th
 ruleTester.run('custom-error', rule, {
 	valid: [
 		'class Foo { }',
+		'class Foo extends Bar { }',
+		'class Foo extends Bar() { }',
+		'const Foo = class { }',
+		`
+			const FooError = class extends Error {
+				constructor(message) {
+					super(message);
+					this.name = 'FooError';
+				}
+			}
+		`,
+		`
+			class FooError extends Http.ProtocolError {
+				constructor(message) {
+					super(message);
+					this.name = 'FooError';
+				}
+			}
+		`,
 		`
 			class FooError extends Error {
 				constructor(message) {
@@ -322,6 +341,27 @@ ruleTester.run('custom-error', rule, {
 				class FooError extends Error {
 					constructor(message) {
 						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`
+		},
+		{
+			code: `
+				class FooError extends Http.ProtocolError {
+					constructor() {
+						super();
+						this.name = 'foo';
+					}
+				}
+			`,
+			errors: [
+				invalidNameError
+			],
+			output: `
+				class FooError extends Http.ProtocolError {
+					constructor() {
+						super();
 						this.name = 'FooError';
 					}
 				}

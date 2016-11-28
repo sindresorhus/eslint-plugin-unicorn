@@ -22,6 +22,20 @@ const getConstructorMethod = className => `
 	}
 `;
 
+const hasValidSuperClass = node => {
+	if (!node.superClass) {
+		return false;
+	}
+
+	let name = node.superClass.name;
+
+	if (node.superClass.type === 'MemberExpression') {
+		name = node.superClass.property.name;
+	}
+
+	return nameRegexp.test(name);
+};
+
 const isSuperExpression = node => node.type === 'ExpressionStatement' && node.expression.type === 'CallExpression' && node.expression.callee.type === 'Super';
 
 const isAssignmentExpression = (node, name) => {
@@ -41,7 +55,7 @@ const isAssignmentExpression = (node, name) => {
 const create = context => {
 	return {
 		ClassDeclaration: node => {
-			if (!node.superClass || !nameRegexp.test(node.superClass.name)) {
+			if (!hasValidSuperClass(node)) {
 				return;
 			}
 
