@@ -75,7 +75,7 @@ class foo extends Error {
 }
 ```
 
-The class name is invalid, it should be capitalized and end with `Error`. In this case it should be `FooError`.
+The class name is invalid. It should be capitalized and end with `Error`. In this case it should be `FooError`.
 
 
 ## Pass

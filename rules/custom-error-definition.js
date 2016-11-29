@@ -70,7 +70,7 @@ const create = context => {
 					fix: fixer => fixer.insertTextAfterRange([
 						node.body.start,
 						node.body.start + 1
-					], getConstructorMethod(className))
+					], getConstructorMethod(name))
 				});
 				return;
 			}
@@ -114,10 +114,10 @@ const create = context => {
 
 			const nameExpression = constructorBody.find(x => isAssignmentExpression(x, 'name'));
 
-			if (!nameExpression || nameExpression.expression.right.value !== className) {
+			if (!nameExpression || nameExpression.expression.right.value !== name) {
 				context.report({
 					node: nameExpression ? nameExpression.expression.right : constructorBodyNode,
-					message: `The \`name\` property should be set to \`${className}\`.`
+					message: `The \`name\` property should be set to \`${name}\`.`
 				});
 			}
 		}
