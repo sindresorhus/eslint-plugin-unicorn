@@ -66,6 +66,18 @@ class CustomError extends Error {
 The `name` property should be set to the class name.
 
 
+```js
+class foo extends Error {
+	constructor(message) {
+		super(message);
+		this.name = 'foo';
+	}
+}
+```
+
+The class name is invalid, it should be capitalized and end with `Error`. In this case it should be `FooError`.
+
+
 ## Pass
 
 ```js

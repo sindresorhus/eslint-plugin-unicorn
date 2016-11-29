@@ -1,6 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/custom-error';
+import rule from '../rules/custom-error-definition';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -11,14 +11,14 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const invalidClassNameError = {ruleId: 'custom-error', message: 'Invalid class name, use `FooError`.'};
-const constructorError = {ruleId: 'custom-error', message: 'Add a constructor to your error.'};
-const noSuperCallError = {ruleId: 'custom-error', message: 'Missing call to `super()` in constructor.'};
-const invalidNameError = {ruleId: 'custom-error', message: 'The `name` property should be set to `FooError`.'};
-const passMessageToSuperError = {ruleId: 'custom-error', message: 'Pass the error message to `super()`.'};
-const invalidMessageAssignmentError = {ruleId: 'custom-error', message: 'Pass the error message to `super()` instead of setting `this.message`.'};
+const invalidClassNameError = {ruleId: 'custom-error-definition', message: 'Invalid class name, use `FooError`.'};
+const constructorError = {ruleId: 'custom-error-definition', message: 'Add a constructor to your error.'};
+const noSuperCallError = {ruleId: 'custom-error-definition', message: 'Missing call to `super()` in constructor.'};
+const invalidNameError = {ruleId: 'custom-error-definition', message: 'The `name` property should be set to `FooError`.'};
+const passMessageToSuperError = {ruleId: 'custom-error-definition', message: 'Pass the error message to `super()`.'};
+const invalidMessageAssignmentError = {ruleId: 'custom-error-definition', message: 'Pass the error message to `super()` instead of setting `this.message`.'};
 
-ruleTester.run('custom-error', rule, {
+ruleTester.run('custom-error-definition', rule, {
 	valid: [
 		'class Foo { }',
 		'class Foo extends Bar { }',
@@ -93,15 +93,7 @@ ruleTester.run('custom-error', rule, {
 			`,
 			errors: [
 				invalidClassNameError
-			],
-			output: `
-				class FooError extends Error {
-					constructor(message) {
-						super(message);
-						this.name = 'FooError';
-					}
-				}
-			`
+			]
 		},
 		{
 			code: `
@@ -114,15 +106,7 @@ ruleTester.run('custom-error', rule, {
 			`,
 			errors: [
 				invalidClassNameError
-			],
-			output: `
-				class FooError extends Error {
-					constructor(message) {
-						super(message);
-						this.name = 'FooError';
-					}
-				}
-			`
+			]
 		},
 		{
 			code: `
@@ -135,15 +119,7 @@ ruleTester.run('custom-error', rule, {
 			`,
 			errors: [
 				invalidClassNameError
-			],
-			output: `
-				class FooError extends Error {
-					constructor(message) {
-						super(message);
-						this.name = 'FooError';
-					}
-				}
-			`
+			]
 		},
 		{
 			code: `
@@ -174,8 +150,7 @@ ruleTester.run('custom-error', rule, {
 				class FooError extends Error {
 					constructor() {
 						super('My custom message');
-					this.name = 'FooError';
-}
+					}
 				}
 			`
 		},
@@ -194,30 +169,6 @@ ruleTester.run('custom-error', rule, {
 		{
 			code: `
 				class FooError extends Error {
-					constructor(message) {
-						super(message);
-					}
-				}
-			`,
-			errors: [
-				invalidNameError
-			]
-		},
-		{
-			code: `
-				class FooError extends Error {
-					constructor() {
-						super('My awesome Foo Error');
-					}
-				}
-			`,
-			errors: [
-				invalidNameError
-			]
-		},
-		{
-			code: `
-				class FooError extends Error {
 					constructor() {
 						super('My awesome Foo Error');
 						this.name = this.constructor.name;
@@ -226,15 +177,7 @@ ruleTester.run('custom-error', rule, {
 			`,
 			errors: [
 				invalidNameError
-			],
-			output: `
-				class FooError extends Error {
-					constructor() {
-						super('My awesome Foo Error');
-						this.name = 'FooError';
-					}
-				}
-			`
+			]
 		},
 		{
 			code: `
@@ -248,36 +191,7 @@ ruleTester.run('custom-error', rule, {
 			errors: [
 				invalidClassNameError,
 				invalidNameError
-			],
-			output: `
-				class FooError extends Error {
-					constructor() {
-						super('My awesome Foo Error');
-						this.name = 'FooError';
-					}
-				}
-			`
-		},
-		{
-			code: `
-				class FooError extends Error {
-					constructor() {
-						super('My awesome Foo Error');
-						this.name = 'foo';
-					}
-				}
-			`,
-			errors: [
-				invalidNameError
-			],
-			output: `
-				class FooError extends Error {
-					constructor() {
-						super('My awesome Foo Error');
-						this.name = 'FooError';
-					}
-				}
-			`
+			]
 		},
 		{
 			code: `
@@ -305,21 +219,44 @@ ruleTester.run('custom-error', rule, {
 			code: `
 				class FooError extends Error {
 					constructor(message) {
+						super();
+						this.message = message;
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageToSuperError,
+				invalidMessageAssignmentError
+			],
+			output: `
+				class FooError extends Error {
+					constructor(message) {
 						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`
+		},
+		{
+			code: `
+				class FooError extends Error {
+					constructor(message) {
+						super();
 						this.message = message;
 					}
 				}
 			`,
 			errors: [
 				invalidNameError,
+				passMessageToSuperError,
 				invalidMessageAssignmentError
 			],
 			output: `
 				class FooError extends Error {
 					constructor(message) {
 						super(message);
-					this.name = 'FooError';
-}
+					}
 				}
 			`
 		},
@@ -357,15 +294,7 @@ ruleTester.run('custom-error', rule, {
 			`,
 			errors: [
 				invalidNameError
-			],
-			output: `
-				class FooError extends Http.ProtocolError {
-					constructor() {
-						super();
-						this.name = 'FooError';
-					}
-				}
-			`
+			]
 		}
 	]
 });

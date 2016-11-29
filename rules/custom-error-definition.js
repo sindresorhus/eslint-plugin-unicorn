@@ -3,17 +3,7 @@ const upperfirst = require('lodash.upperfirst');
 
 const nameRegexp = /^(?:[A-Z][a-z0-9]*)*Error$/;
 
-const getClassName = name => {
-	name = upperfirst(name);
-
-	const suffix = name.slice(-5);
-
-	if (suffix === 'error') {
-		return name.slice(0, name.length - 5) + 'Error';
-	}
-
-	return suffix === 'Error' ? name : `${name}Error`;
-};
+const getClassName = name => upperfirst(name).replace(/(error|)$/i, 'Error');
 
 const getConstructorMethod = className => `
 	constructor() {
@@ -65,8 +55,7 @@ const create = context => {
 			if (name !== className) {
 				context.report({
 					node: node.id,
-					message: `Invalid class name, use \`${className}\`.`,
-					fix: fixer => fixer.replaceText(node.id, className)
+					message: `Invalid class name, use \`${className}\`.`
 				});
 			}
 
@@ -124,22 +113,11 @@ const create = context => {
 			}
 
 			const nameExpression = constructorBody.find(x => isAssignmentExpression(x, 'name'));
-			const nameMessage = `The \`name\` property should be set to \`${className}\`.`;
 
-			if (!nameExpression) {
+			if (!nameExpression || nameExpression.expression.right.value !== className) {
 				context.report({
-					node: constructorBodyNode,
-					message: nameMessage,
-					fix: fixer => fixer.insertTextBeforeRange([
-						constructorBodyNode.end - 1,
-						constructorBodyNode.end - 1
-					], `this.name = '${className}';\n`)
-				});
-			} else if (nameExpression.expression.right.value !== className) {
-				context.report({
-					node: nameExpression.expression.right,
-					message: nameMessage,
-					fix: fixer => fixer.replaceText(nameExpression.expression.right, `'${className}'`)
+					node: nameExpression ? nameExpression.expression.right : constructorBodyNode,
+					message: `The \`name\` property should be set to \`${className}\`.`
 				});
 			}
 		}
