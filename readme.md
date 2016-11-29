@@ -43,7 +43,8 @@ Configure it in `package.json`.
 			"unicorn/escape-case": "error",
 			"unicorn/no-array-instanceof": "error",
 			"unicorn/no-new-buffer": "error",
-			"unicorn/no-hex-escape": "error"
+			"unicorn/no-hex-escape": "error",
+			"unicorn/custom-error-definition": "error"
 		}
 	}
 }
@@ -63,6 +64,7 @@ Configure it in `package.json`.
 - [no-array-instanceof](docs/rules/no-array-instanceof.md) - Require `Array.isArray()` instead of `instanceof Array`. *(fixable)*
 - [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of unicode escapes instead of hexadecimal escapes. *(fixable)*
+- [custom-error-definition](docs/rules/custom-error-definition.md) - Enforces the only valid way of `Error` subclassing. *(fixable)*
 
 
 ## Recommended config
