@@ -26,7 +26,7 @@ Configure it in `package.json`.
 			"es6": true
 		},
 		"parserOptions": {
-			"ecmaVersion": 2016,
+			"ecmaVersion": 2017,
 			"sourceType": "module"
 		},
 		"plugins": [
@@ -40,9 +40,11 @@ Configure it in `package.json`.
 			"unicorn/no-process-exit": "error",
 			"unicorn/throw-new-error": "error",
 			"unicorn/number-literal-case": "error",
+			"unicorn/escape-case": "error",
 			"unicorn/no-array-instanceof": "error",
 			"unicorn/no-new-buffer": "error",
 			"unicorn/no-hex-escape": "error",
+			"unicorn/custom-error-definition": "error",
 			"unicorn/prefer-starts-ends-with": "error"
 		}
 	}
@@ -59,9 +61,11 @@ Configure it in `package.json`.
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 - [number-literal-case](docs/rules/number-literal-case.md) - Enforce lowercase identifier and uppercase value for number literals. *(fixable)*
+- [escape-case](docs/rules/escape-case.md) - Require escape sequences to use uppercase values. *(fixable)*
 - [no-array-instanceof](docs/rules/no-array-instanceof.md) - Require `Array.isArray()` instead of `instanceof Array`. *(fixable)*
 - [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of unicode escapes instead of hexadecimal escapes. *(fixable)*
+- [custom-error-definition](docs/rules/custom-error-definition.md) - Enforces the only valid way of `Error` subclassing. *(fixable)*
 - [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWidth` & `String#endsWidth` over more complex alternatives.
 
 
