@@ -9,7 +9,7 @@ module.exports = {
 				es6: true
 			},
 			parserOptions: {
-				ecmaVersion: 2016,
+				ecmaVersion: 2017,
 				sourceType: 'module'
 			},
 			rules: {
@@ -20,9 +20,11 @@ module.exports = {
 				'unicorn/no-process-exit': 'error',
 				'unicorn/throw-new-error': 'error',
 				'unicorn/number-literal-case': 'error',
+				'unicorn/escape-case': 'error',
 				'unicorn/no-array-instanceof': 'error',
 				'unicorn/no-new-buffer': 'error',
 				'unicorn/no-hex-escape': 'error',
+				'unicorn/custom-error-definition': 'error',
 				'unicorn/type-error': 'error'
 			}
 		}
