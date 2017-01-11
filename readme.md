@@ -44,7 +44,8 @@ Configure it in `package.json`.
 			"unicorn/no-array-instanceof": "error",
 			"unicorn/no-new-buffer": "error",
 			"unicorn/no-hex-escape": "error",
-			"unicorn/custom-error-definition": "error"
+			"unicorn/custom-error-definition": "error",
+			"unicorn/prefer-starts-ends-with": "error"
 		}
 	}
 }
@@ -65,6 +66,7 @@ Configure it in `package.json`.
 - [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of unicode escapes instead of hexadecimal escapes. *(fixable)*
 - [custom-error-definition](docs/rules/custom-error-definition.md) - Enforces the only valid way of `Error` subclassing. *(fixable)*
+- [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWidth` & `String#endsWidth` over more complex alternatives.
 
 
 ## Recommended config
