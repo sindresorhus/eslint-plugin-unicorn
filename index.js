@@ -24,7 +24,8 @@ module.exports = {
 				'unicorn/no-array-instanceof': 'error',
 				'unicorn/no-new-buffer': 'error',
 				'unicorn/no-hex-escape': 'error',
-				'unicorn/custom-error-definition': 'error'
+				'unicorn/custom-error-definition': 'error',
+				'unicorn/prefer-starts-ends-with': 'error'
 			}
 		}
 	}
