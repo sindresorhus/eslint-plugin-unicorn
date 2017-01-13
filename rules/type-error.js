@@ -40,7 +40,6 @@ const tcIdentifiers = new Set([
 	'isXMLDoc'
 ]);
 
-const isTypecheckingOperator = operator => operator === 'typeof' || operator === 'instanceof';
 const isTypecheckingIdentifier = (node, callExpression) => {
 	return callExpression !== undefined &&
 		callExpression.arguments.length > 0 &&
@@ -72,9 +71,9 @@ const isTypecheckingExpression = (node, callExpression) => {
 		case 'CallExpression':
 			return isTypecheckingExpression(node.callee, node);
 		case 'UnaryExpression':
-			return isTypecheckingOperator(node.operator);
+			return node.operator === 'typeof';
 		case 'BinaryExpression':
-			return isTypecheckingOperator(node.operator) ||
+			return node.operator === 'instanceof' ||
 				isTypecheckingExpression(node.left, callExpression) ||
 				isTypecheckingExpression(node.right, callExpression);
 		case 'LogicalExpression':

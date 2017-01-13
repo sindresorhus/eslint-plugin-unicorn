@@ -94,7 +94,16 @@ ruleTester.run('type-error', rule, {
 			throw new Error();
 		}`,
 		`if (typeof foo !== 'object' || foo.bar() === false) {
-			throw new Error('Expected Foo being bar!');
+			throw new TypeError('Expected Foo being bar!');
+		}`,
+		`if (foo instanceof Foo) {
+			throw new TypeError('Expected Foo being bar!');
+		}`,
+		`if (!foo instanceof Foo) {
+			throw new TypeError('Expected Foo being bar!');
+		}`,
+		`if (foo instanceof Foo === false) {
+			throw new TypeError('Expected Foo being bar!');
 		}`,
 		`throw new Error('💣')`,
 		`if (!Number.isNaN(foo) && foo === 10) {
