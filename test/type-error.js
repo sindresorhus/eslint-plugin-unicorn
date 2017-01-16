@@ -13,6 +13,58 @@ const errors = [{
 	message: '`new Error()` is too unspecific for a type check, use `new TypeError()` instead.'
 }];
 
+const tcIdentifiers = new Set([
+	'isArguments',
+	'isArray',
+	'isArrayBuffer',
+	'isArrayLike',
+	'isArrayLikeObject',
+	'isBoolean',
+	'isBuffer',
+	'isDate',
+	'isElement',
+	'isEmptyObject',
+	'isError',
+	'isFinite',
+	'isFunction',
+	'isInteger',
+	'isLength',
+	'isMap',
+	'isNaN',
+	'isNative',
+	'isNil',
+	'isNull',
+	'isNumber',
+	'isObject',
+	'isObjectLike',
+	'isPlainObject',
+	'isPrototypeOf',
+	'isRegExp',
+	'isSafeInteger',
+	'isSet',
+	'isString',
+	'isSymbol',
+	'isTypedArray',
+	'isUndefined',
+	'isView',
+	'isWeakMap',
+	'isWeakSet',
+	'isWindow',
+	'isXMLDoc'
+]);
+
+const tcIdentifierInvalidTest = identifier => {
+	return {
+		code: `if(SomeThing.${identifier}(foo) === bar) {
+			throw new Error('foo is bar');
+		}`,
+		output: `if(SomeThing.${identifier}(foo) === bar) {
+			throw new TypeError('foo is bar');
+		}`,
+		errors
+	};
+};
+
 ruleTester.run('type-error', rule, {
 	valid: [
 		`if (MrFuManchu.name !== 'Fu Manchu' || MrFuManchu.isMale === false) {
@@ -66,11 +118,18 @@ ruleTester.run('type-error', rule, {
 		`if (isNaN(foo)) {
 			throw new TypeError();
 		}`,
+		`if (isArray(foo)) {
+			throw new Error();
+		}`,
 		`if (foo instanceof boo) {
 			throw new TypeError();
 		}`,
 		`if (typeof boo === 'Boo') {
 			throw new TypeError();
+		}`,
+		`if (typeof boo === 'Boo') {
+			some.thing.else.happens.before();
+			throw new Error();
 		}`,
 		`if (Number.isNaN(foo)) {
 			throw new TypeError();
@@ -139,6 +198,24 @@ ruleTester.run('type-error', rule, {
 		}`
 	],
 	invalid: [
+		{
+			code: `if (!isFinite(foo)) {
+				throw new Error();
+			}`,
+			output: `if (!isFinite(foo)) {
+				throw new TypeError();
+			}`,
+			errors
+		},
+		{
+			code: `if (isNaN(foo) === false) {
+				throw new Error();
+			}`,
+			output: `if (isNaN(foo) === false) {
+				throw new TypeError();
+			}`,
+			errors
+		},
 		{
 			code: `if (Array.isArray(foo)) {
 				throw new Error('foo is an Array');
@@ -219,345 +296,8 @@ ruleTester.run('type-error', rule, {
 				throw new TypeError();
 			}`,
 			errors
-		},
-		/*
-			Exhaustive check for members of tcIdentifiers
-
-			The structure of the following tests only differs by the identifier, to allow mass
-			changes with regular expressions.
-		*/
-		{
-			code: `if(SomeThing.isArguments(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isArguments(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isArray(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isArray(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isArrayBuffer(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isArrayBuffer(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isArrayLike(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isArrayLike(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isArrayLikeObject(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isArrayLikeObject(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isBoolean(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isBoolean(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isBuffer(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isBuffer(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isDate(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isDate(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isElement(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isElement(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isEmptyObject(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isEmptyObject(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isError(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isError(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isFinite(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isFinite(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isFunction(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isFunction(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isInteger(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isInteger(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isLength(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isLength(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isMap(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isMap(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isNaN(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isNaN(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isNative(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isNative(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isNil(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isNil(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isNull(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isNull(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isNumber(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isNumber(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isObject(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isObject(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isObjectLike(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isObjectLike(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isPlainObject(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isPlainObject(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isPrototypeOf(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isPrototypeOf(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isRegExp(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isRegExp(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isSafeInteger(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isSafeInteger(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isSet(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isSet(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isString(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isString(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isSymbol(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isSymbol(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isTypedArray(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isTypedArray(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isUndefined(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isUndefined(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isView(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isView(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isWeakMap(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isWeakMap(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isWeakSet(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isWeakSet(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isWindow(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isWindow(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
-		},
-		{
-			code: `if(SomeThing.isXMLDoc(foo) === bar) {
-				throw new Error('foo is bar');
-			}`,
-			output: `if(SomeThing.isXMLDoc(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}`,
-			errors
 		}
-	]
+	].concat(
+		Array.from(tcIdentifiers).map(identifier => tcIdentifierInvalidTest(identifier))
+	)
 });

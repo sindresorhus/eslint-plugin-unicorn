@@ -40,11 +40,19 @@ const tcIdentifiers = new Set([
 	'isXMLDoc'
 ]);
 
-const isTypecheckingIdentifier = (node, callExpression) => {
+const tcGlobalIdentifiers = new Set([
+	'isNaN',
+	'isFinite'
+]);
+
+const isTypecheckingIdentifier = (node, callExpression, isMemberExpression) => {
 	return callExpression !== undefined &&
 		callExpression.arguments.length > 0 &&
 		node.type === 'Identifier' &&
-		tcIdentifiers.has(node.name);
+		((isMemberExpression === true &&
+		tcIdentifiers.has(node.name)) ||
+		(isMemberExpression === false &&
+		tcGlobalIdentifiers.has(node.name)));
 };
 
 const throwsErrorObject = node =>
@@ -52,8 +60,13 @@ const throwsErrorObject = node =>
 	node.argument.callee.type === 'Identifier' &&
 	node.argument.callee.name === 'Error';
 
+const isLone = node =>
+	node.parent !== null &&
+	node.parent.body !== null &&
+	node.parent.body.length === 1;
+
 const isTypecheckingMemberExpression = (node, callExpression) => {
-	if (isTypecheckingIdentifier(node.property, callExpression)) {
+	if (isTypecheckingIdentifier(node.property, callExpression, true)) {
 		return true;
 	}
 	if (node.object.type === 'MemberExpression') {
@@ -65,13 +78,15 @@ const isTypecheckingMemberExpression = (node, callExpression) => {
 const isTypecheckingExpression = (node, callExpression) => {
 	switch (node.type) {
 		case 'Identifier':
-			return isTypecheckingIdentifier(node, callExpression);
+			return isTypecheckingIdentifier(node, callExpression, false);
 		case 'MemberExpression':
 			return isTypecheckingMemberExpression(node, callExpression);
 		case 'CallExpression':
 			return isTypecheckingExpression(node.callee, node);
 		case 'UnaryExpression':
-			return node.operator === 'typeof';
+			return node.operator === 'typeof' ||
+				(node.operator === '!' &&
+				isTypecheckingExpression(node.argument));
 		case 'BinaryExpression':
 			return node.operator === 'instanceof' ||
 				isTypecheckingExpression(node.left, callExpression) ||
@@ -90,7 +105,7 @@ const create = context => {
 	return {
 		ThrowStatement: node => {
 			if (throwsErrorObject(node) &&
-				node.parent !== null &&
+				isLone(node) &&
 				node.parent.parent !== null &&
 				isTypechecking(node.parent.parent)) {
 				context.report({
