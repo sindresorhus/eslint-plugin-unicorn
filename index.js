@@ -26,7 +26,7 @@ module.exports = {
 				'unicorn/no-hex-escape': 'error',
 				'unicorn/custom-error-definition': 'error',
 				'unicorn/prefer-starts-ends-with': 'error',
-				'unicorn/type-error': 'error'
+				'unicorn/prefer-type-error': 'error'
 			}
 		}
 	}

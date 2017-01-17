@@ -46,7 +46,7 @@ Configure it in `package.json`.
 			"unicorn/no-hex-escape": "error",
 			"unicorn/custom-error-definition": "error",
 			"unicorn/prefer-starts-ends-with": "error",
-			"unicorn/type-error": "error"
+			"unicorn/prefer-type-error": "error"
 		}
 	}
 }
@@ -68,7 +68,7 @@ Configure it in `package.json`.
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of unicode escapes instead of hexadecimal escapes. *(fixable)*
 - [custom-error-definition](docs/rules/custom-error-definition.md) - Enforces the only valid way of `Error` subclassing. *(fixable)*
 - [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWidth` & `String#endsWidth` over more complex alternatives.
-- [type-error](docs/rules/type-error.md) - Enforces the throw of TypeErrors for type checking conditions.
+- [prefer-type-error](docs/rules/prefer-type-error.md) - Enforces the throw of TypeErrors for type checking conditions.
 
 
 ## Recommended config

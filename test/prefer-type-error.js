@@ -1,6 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/type-error';
+import rule from '../rules/prefer-type-error';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -9,7 +9,7 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const errors = [{
-	ruleId: 'type-error',
+	ruleId: 'prefer-type-error',
 	message: '`new Error()` is too unspecific for a type check, use `new TypeError()` instead.'
 }];
 
@@ -65,7 +65,7 @@ const tcIdentifierInvalidTest = identifier => {
 	};
 };
 
-ruleTester.run('type-error', rule, {
+ruleTester.run('prefer-type-error', rule, {
 	valid: [
 		`if (MrFuManchu.name !== 'Fu Manchu' || MrFuManchu.isMale === false) {
 			throw new Error('How cant Fu Manchu be Fu Manchu?');
