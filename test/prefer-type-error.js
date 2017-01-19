@@ -10,7 +10,7 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [{
 	ruleId: 'prefer-type-error',
-	message: '`new Error()` is too unspecific for a type check, use `new TypeError()` instead.'
+	message: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.'
 }];
 
 const tcIdentifiers = new Set([
@@ -55,10 +55,10 @@ const tcIdentifiers = new Set([
 
 const tcIdentifierInvalidTest = identifier => {
 	return {
-		code: `if(SomeThing.${identifier}(foo) === bar) {
+		code: `if (SomeThing.${identifier}(foo) === bar) {
 			throw new Error('foo is bar');
 		}`,
-		output: `if(SomeThing.${identifier}(foo) === bar) {
+		output: `if (SomeThing.${identifier}(foo) === bar) {
 			throw new TypeError('foo is bar');
 		}`,
 		errors
