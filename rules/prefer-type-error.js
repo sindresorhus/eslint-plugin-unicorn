@@ -45,15 +45,14 @@ const tcGlobalIdentifiers = new Set([
 	'isFinite'
 ]);
 
-const isTypecheckingIdentifier = (node, callExpression, isMemberExpression) => {
-	return callExpression !== undefined &&
-		callExpression.arguments.length > 0 &&
-		node.type === 'Identifier' &&
-		((isMemberExpression === true &&
-		tcIdentifiers.has(node.name)) ||
-		(isMemberExpression === false &&
-		tcGlobalIdentifiers.has(node.name)));
-};
+const isTypecheckingIdentifier = (node, callExpression, isMemberExpression) =>
+	callExpression !== undefined &&
+	callExpression.arguments.length > 0 &&
+	node.type === 'Identifier' &&
+	((isMemberExpression === true &&
+	tcIdentifiers.has(node.name)) ||
+	(isMemberExpression === false &&
+	tcGlobalIdentifiers.has(node.name)));
 
 const throwsErrorObject = node =>
 	node.argument.type === 'NewExpression' &&
@@ -69,9 +68,11 @@ const isTypecheckingMemberExpression = (node, callExpression) => {
 	if (isTypecheckingIdentifier(node.property, callExpression, true)) {
 		return true;
 	}
+
 	if (node.object.type === 'MemberExpression') {
 		return isTypecheckingMemberExpression(node.object, callExpression);
 	}
+
 	return false;
 };
 
@@ -110,7 +111,7 @@ const create = context => {
 				isTypechecking(node.parent.parent)) {
 				context.report({
 					node,
-					message: '`new Error()` is too unspecific for a type check, use `new TypeError()` instead.',
+					message: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.',
 					fix: fixer => fixer.replaceText(node.argument.callee, 'TypeError')
 				});
 			}
