@@ -1,4 +1,4 @@
-# Enforce a `TypeError` after a type checking if-statement
+# Enforce throwing `TypeError` in type checking conditions
 
 This rule enforces you to throw a `TypeError` after a type checking if-statement, instead of a generic `Error`.
 
