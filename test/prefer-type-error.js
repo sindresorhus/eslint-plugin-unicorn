@@ -23,7 +23,6 @@ const tcIdentifiers = new Set([
 	'isBuffer',
 	'isDate',
 	'isElement',
-	'isEmptyObject',
 	'isError',
 	'isFinite',
 	'isFunction',
