@@ -1,5 +1,5 @@
 'use strict';
-const escapeWithLowercase = /\\(x[a-f0-9]{2}|u[(a-f)+0-9]{4}|u\{([0-9a-f]{1,})\}|c[a-z])/;
+const escapeWithLowercase = /\\(x[a-f0-9]{2}|u[a-f0-9]{4}|u\{([0-9a-f]{1,})\}|c[a-z])/;
 const hasLowercaseCharacter = /[a-z].*?[a-z]/;
 const message = 'Use uppercase characters for the value of the escape sequence.';
 
