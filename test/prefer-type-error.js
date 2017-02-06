@@ -194,6 +194,13 @@ ruleTester.run('prefer-type-error', rule, {
 		}`,
 		`if (!_.isFudge(x)) {
 			throw new Error('x is no fudge!');
+		}`,
+		// Should not crash:
+		`switch (something) {
+			case 1:
+				break;
+			default:
+				throw new Error('Unknown');
 		}`
 	],
 	invalid: [

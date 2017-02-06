@@ -58,10 +58,7 @@ const throwsErrorObject = node =>
 	node.argument.callee.type === 'Identifier' &&
 	node.argument.callee.name === 'Error';
 
-const isLone = node =>
-	node.parent !== null &&
-	node.parent.body !== null &&
-	node.parent.body.length === 1;
+const isLone = node => node.parent && node.parent.body && node.parent.body.length === 1;
 
 const isTypecheckingMemberExpression = (node, callExpression) => {
 	if (isTypecheckingIdentifier(node.property, callExpression, true)) {
@@ -106,7 +103,7 @@ const create = context => {
 		ThrowStatement: node => {
 			if (throwsErrorObject(node) &&
 				isLone(node) &&
-				node.parent.parent !== null &&
+				node.parent.parent &&
 				isTypechecking(node.parent.parent)) {
 				context.report({
 					node,
