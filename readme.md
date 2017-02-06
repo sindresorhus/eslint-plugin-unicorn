@@ -67,7 +67,7 @@ Configure it in `package.json`.
 - [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of unicode escapes instead of hexadecimal escapes. *(fixable)*
 - [custom-error-definition](docs/rules/custom-error-definition.md) - Enforce correct `Error` subclassing. *(fixable)*
-- [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWidth` & `String#endsWidth` over more complex alternatives.
+- [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith` & `String#endsWith` over more complex alternatives.
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
 
 
