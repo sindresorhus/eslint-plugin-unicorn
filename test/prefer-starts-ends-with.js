@@ -46,7 +46,15 @@ const invalidRegex = [
 ruleTester.run('prefer-starts-ends-with', rule, {
 	valid: [
 		'foo.startsWith("bar")',
-		'foo.endsWith("bar")'
+		'foo.endsWith("bar")',
+
+		// Ensure it doesn't crash:
+		'reject(new Error("foo"))',
+		'"".test()',
+		'test()',
+		'test.test()',
+		'startWith("bar")',
+		'foo()()'
 	]
 		.concat(validRegex.map(re => `${re}.test(bar)`))
 		.concat(validRegex.map(re => `bar.match(${re})`)),
