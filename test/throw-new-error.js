@@ -30,7 +30,7 @@ ruleTester.run('new-error', rule, {
 		},
 		{
 			code: `throw CustomerError('foo')`,
-			output: `throw new CustomeError('foo')`,
+			output: `throw new CustomerError('foo')`,
 			errors
 		},
 		{
