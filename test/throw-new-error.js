@@ -14,7 +14,8 @@ ruleTester.run('new-error', rule, {
 	valid: [
 		'throw new Error()',
 		'new Error()',
-		'throw new TypeError()'
+		'throw new TypeError()',
+		'throw new CustomeError()'
 	],
 	invalid: [
 		{
@@ -25,6 +26,11 @@ ruleTester.run('new-error', rule, {
 		{
 			code: `throw Error('foo')`,
 			output: `throw new Error('foo')`,
+			errors
+		},
+		{
+			code: `throw CustomeError('foo')`,
+			output: `throw new CustomeError('foo')`,
 			errors
 		},
 		{
