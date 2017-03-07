@@ -15,7 +15,7 @@ ruleTester.run('new-error', rule, {
 		'throw new Error()',
 		'new Error()',
 		'throw new TypeError()',
-		'throw new CustomeError()'
+		'throw new CustomerError()'
 	],
 	invalid: [
 		{
@@ -29,7 +29,7 @@ ruleTester.run('new-error', rule, {
 			errors
 		},
 		{
-			code: `throw CustomeError('foo')`,
+			code: `throw CustomerError('foo')`,
 			output: `throw new CustomeError('foo')`,
 			errors
 		},
