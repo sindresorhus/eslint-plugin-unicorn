@@ -15,6 +15,11 @@ ruleTester.run('new-error', rule, {
 		'throw new Error()',
 		'new Error()',
 		'throw new TypeError()',
+		'throw new EvalError()',
+		'throw new RangeError()',
+		'throw new ReferenceError()',
+		'throw new SyntaxError()',
+		'throw new URIError()',
 		'throw new CustomeError()',
 		'throw new FooBarBazError()',
 		'throw new ABCError()'
@@ -53,6 +58,31 @@ ruleTester.run('new-error', rule, {
 		{
 			code: `throw TypeError()`,
 			output: 'throw new TypeError()',
+			errors
+		},
+		{
+			code: `throw EvalError()`,
+			output: 'throw new EvalError()',
+			errors
+		},
+		{
+			code: `throw RangeError()`,
+			output: 'throw new RangeError()',
+			errors
+		},
+		{
+			code: `throw ReferenceError()`,
+			output: 'throw new ReferenceError()',
+			errors
+		},
+		{
+			code: `throw SyntaxError()`,
+			output: 'throw new SyntaxError()',
+			errors
+		},
+		{
+			code: `throw URIError()`,
+			output: 'throw new URIError()',
 			errors
 		}
 	]

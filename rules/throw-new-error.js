@@ -1,14 +1,5 @@
 'use strict';
 
-const errorTypes = [
-	'Error',
-	'EvalError',
-	'RangeError',
-	'ReferenceError',
-	'SyntaxError',
-	'TypeError',
-	'URIError'
-];
 const customeError = /^(?:[A-Z][a-z0-9]*)*Error$/;
 
 const create = context => ({
