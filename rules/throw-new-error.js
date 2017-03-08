@@ -9,14 +9,14 @@ const errorTypes = [
 	'TypeError',
 	'URIError'
 ];
-const customerError = /^(?:[A-Z][a-z0-9]*)*Error$/;
+const customeError = /^(?:[A-Z][a-z0-9]*)*Error$/;
 
 const create = context => ({
 	ThrowStatement: node => {
 		const arg = node.argument;
 		const error = arg.callee;
 
-		if (arg.type === 'CallExpression' && (errorTypes.indexOf(error.name) !== -1 || customerError.test(error.name))) {
+		if (arg.type === 'CallExpression' && customeError.test(error.name)) {
 			context.report({
 				node,
 				message: 'Use `new` when throwing an error.',

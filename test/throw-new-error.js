@@ -15,7 +15,9 @@ ruleTester.run('new-error', rule, {
 		'throw new Error()',
 		'new Error()',
 		'throw new TypeError()',
-		'throw new CustomerError()'
+		'throw new CustomeError()',
+		'throw new FooBarBazError()',
+		'throw new ABCError()'
 	],
 	invalid: [
 		{
@@ -29,8 +31,28 @@ ruleTester.run('new-error', rule, {
 			errors
 		},
 		{
-			code: `throw CustomerError('foo')`,
-			output: `throw new CustomerError('foo')`,
+			code: `throw CustomeError('foo')`,
+			output: `throw new CustomeError('foo')`,
+			errors
+		},
+		{
+			code: `throw FooBarBazError('foo')`,
+			output: `throw new FooBarBazError('foo')`,
+			errors
+		},
+		{
+			code: `throw fooBarBazError('foo')`,
+			output: `throw new fooBarBazError('foo')`,
+			errors
+		},
+		{
+			code: `throw ABCError('foo')`,
+			output: `throw new ABCError('foo')`,
+			errors
+		},
+		{
+			code: `throw Abc3Error('foo')`,
+			output: `throw new Abc3Error('foo')`,
 			errors
 		},
 		{
