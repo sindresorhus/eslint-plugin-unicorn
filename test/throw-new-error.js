@@ -20,7 +20,7 @@ ruleTester.run('new-error', rule, {
 		'throw new ReferenceError()',
 		'throw new SyntaxError()',
 		'throw new URIError()',
-		'throw new CustomeError()',
+		'throw new CustomError()',
 		'throw new FooBarBazError()',
 		'throw new ABCError()'
 	],
@@ -36,8 +36,8 @@ ruleTester.run('new-error', rule, {
 			errors
 		},
 		{
-			code: `throw CustomeError('foo')`,
-			output: `throw new CustomeError('foo')`,
+			code: `throw CustomError('foo')`,
+			output: `throw new CustomError('foo')`,
 			errors
 		},
 		{
