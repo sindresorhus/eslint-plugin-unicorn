@@ -41,11 +41,6 @@ ruleTester.run('new-error', rule, {
 			errors
 		},
 		{
-			code: `throw fooBarBazError('foo')`,
-			output: `throw new fooBarBazError('foo')`,
-			errors
-		},
-		{
 			code: `throw ABCError('foo')`,
 			output: `throw new ABCError('foo')`,
 			errors
