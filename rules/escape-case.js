@@ -1,5 +1,6 @@
 'use strict';
 const escapeWithLowercase = /\\(x[a-f0-9]{2}|u[a-f0-9]{4}|u\{([0-9a-f]{1,})\}|c[a-z])/;
+const hasLowercaseCharacter = /[a-z].*?[a-z]/;
 const message = 'Use uppercase characters for the value of the escape sequence.';
 
 const fix = value => {
@@ -16,7 +17,7 @@ const fix = value => {
 const create = context => {
 	return {
 		Literal(node) {
-			if (typeof node.value === 'string' && node.raw.match(escapeWithLowercase)) {
+			if (typeof node.value === 'string' && node.raw.match(escapeWithLowercase) && node.raw.match(hasLowercaseCharacter)) {
 				context.report({
 					node,
 					message,
@@ -25,7 +26,7 @@ const create = context => {
 			}
 		},
 		TemplateElement(node) {
-			if (typeof node.value.raw === 'string' && node.value.raw.match(escapeWithLowercase)) {
+			if (typeof node.value.raw === 'string' && node.value.raw.match(escapeWithLowercase) && node.value.raw.match(hasLowercaseCharacter)) {
 				context.report({
 					node,
 					message,
