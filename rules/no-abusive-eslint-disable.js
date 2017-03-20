@@ -9,7 +9,7 @@ const create = context => ({
 			const res = disableRegex.exec(value);
 
 			if (res && // It's a eslint-disable comment
-				!res[2] // but it did not specify any rules
+				!res[2] // But it did not specify any rules
 			) {
 				context.report({
 					// Can't set it at the given location as the warning

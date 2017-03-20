@@ -1,6 +1,6 @@
 'use strict';
 
-// matches someObj.then([FunctionExpression | ArrowFunctionExpression])
+// Matches someObj.then([FunctionExpression | ArrowFunctionExpression])
 function isLintablePromiseCatch(node) {
 	const callee = node.callee;
 

@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-hex-escape */
 'use strict';
 
 function checkEscape(context, node, value) {

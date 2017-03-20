@@ -65,8 +65,5 @@
   },
   "peerDependencies": {
     "eslint": ">=3.6"
-  },
-  "xo": {
-    "esnext": true
   }
 }
