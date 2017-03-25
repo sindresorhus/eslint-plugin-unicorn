@@ -20,10 +20,10 @@ module.exports = {
 				'unicorn/no-process-exit': 'error',
 				'unicorn/throw-new-error': 'error',
 				'unicorn/number-literal-case': 'error',
-				'unicorn/escape-case': 'error',
+				'unicorn/escape-case': 'off',
 				'unicorn/no-array-instanceof': 'error',
 				'unicorn/no-new-buffer': 'error',
-				'unicorn/no-hex-escape': 'error',
+				'unicorn/no-hex-escape': 'off',
 				'unicorn/custom-error-definition': 'error',
 				'unicorn/prefer-starts-ends-with': 'error',
 				'unicorn/prefer-type-error': 'error'
