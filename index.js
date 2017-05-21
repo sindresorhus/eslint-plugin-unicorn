@@ -1,8 +1,8 @@
 'use strict';
-const reqAll = require('req-all');
+const importModules = require('import-modules');
 
 module.exports = {
-	rules: reqAll('rules', {camelize: false}),
+	rules: importModules('rules', {camelize: false}),
 	configs: {
 		recommended: {
 			env: {
