@@ -22,6 +22,7 @@ module.exports = {
 				'unicorn/number-literal-case': 'error',
 				'unicorn/escape-case': 'off',
 				'unicorn/no-array-instanceof': 'error',
+				'unicorn/prefer-includes': 'error',
 				'unicorn/no-new-buffer': 'error',
 				'unicorn/no-hex-escape': 'off',
 				'unicorn/custom-error-definition': 'error',
