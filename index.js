@@ -1,8 +1,9 @@
 'use strict';
+const path = require('path');
 const importModules = require('import-modules');
 
 module.exports = {
-	rules: importModules('rules', {camelize: false}),
+	rules: importModules(path.resolve(__dirname, 'rules'), {camelize: false}),
 	configs: {
 		recommended: {
 			env: {
