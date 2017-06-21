@@ -20,12 +20,12 @@ function reportError(context, node, message) {
 function checkEmptyType(type, operator, value) {
 	switch (type) {
 		case 'eq':
-			if (types.lt.includes(operator) && value === 1) {
+			if (types.lt.indexOf(operator) >= 0 && value === 1) {
 				return 'empty `length` should be compared with `=== 0`.';
 			}
 			break;
 		case 'lt':
-			if (types.eq.includes(operator) && value === 0) {
+			if (types.eq.indexOf(operator) >= 0 && value === 0) {
 				return 'empty `length` should be compared with `< 1`.';
 			}
 			break;
@@ -37,22 +37,22 @@ function checkEmptyType(type, operator, value) {
 function checkNotEmptyType(type, operator, value) {
 	switch (type) {
 		case 'gt':
-			if ((types.gte.includes(operator) && value === 1) ||
-				(types.ne.includes(operator) && value === 0)
+			if ((types.gte.indexOf(operator) >= 0 && value === 1) ||
+				(types.ne.indexOf(operator) >= 0 && value === 0)
 			) {
 				return 'not empty `length` should be compared with `> 0`.';
 			}
 			break;
 		case 'gte':
-			if ((types.gt.includes(operator) && value === 0) ||
-				(types.ne.includes(operator) && value === 0)
+			if ((types.gt.indexOf(operator) >= 0 && value === 0) ||
+				(types.ne.indexOf(operator) >= 0 && value === 0)
 			) {
 				return 'not empty `length` should be compared with `>= 1`.';
 			}
 			break;
 		case 'ne':
-			if ((types.gt.includes(operator) && value === 0) ||
-				(types.gte.includes(operator) && value === 1)
+			if ((types.gt.indexOf(operator) >= 0 && value === 0) ||
+				(types.gte.indexOf(operator) >= 0 && value === 1)
 			) {
 				return 'not empty `length` should be compared with `!== 1`.';
 			}
@@ -62,7 +62,7 @@ function checkNotEmptyType(type, operator, value) {
 	}
 }
 
-function checkBinaryExpression(context, node, options = {}) {
+function checkBinaryExpression(context, node, options) {
 	if (node.left.type === 'Literal' &&
 		node.right.type === 'MemberExpression' &&
 		node.right.property.type === 'Identifier' &&
@@ -101,7 +101,7 @@ function checkExpression(context, node) {
 	}
 
 	if (node.type === 'BinaryExpression') {
-		checkBinaryExpression(context, node, context.options[0]);
+		checkBinaryExpression(context, node, context.options[0] || {});
 		return;
 	}
 

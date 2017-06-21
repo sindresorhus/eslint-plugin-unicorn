@@ -25,14 +25,14 @@ const errorMessages = {
 	notEmptyGreaterEqual: error('not empty `length` should be compared with `>= 1`.')
 };
 
-function testCase(code, emptyType, notEmptyType, errors = []) {
+function testCase(code, emptyType, notEmptyType, errors) {
 	return {
 		code,
 		options: (emptyType || notEmptyType) && [{
 			empty: emptyType,
 			'not-empty': notEmptyType
 		}],
-		errors
+		errors: errors || []
 	};
 }
 
