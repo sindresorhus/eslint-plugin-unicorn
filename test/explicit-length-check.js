@@ -16,13 +16,13 @@ const error = message => {
 };
 
 const errorMessages = {
-	lengthFirst: error('`length` property should be first argument of comparision'),
+	lengthFirst: error('`length` property should be first argument of comparision.'),
 	compareToValue: error('`length` property should be compared to a value.'),
-	emptyEqual: error('empty `length` should be compared with `=== 0`'),
-	emptyLess: error('empty `length` should be compared with `< 1`'),
-	notEmptyEqual: error('not empty `length` should be compared with `!== 1`'),
-	notEmptyGreater: error('not empty `length` should be compared with `> 0`'),
-	notEmptyGreaterEqual: error('not empty `length` should be compared with `>= 1`')
+	emptyEqual: error('empty `length` should be compared with `=== 0`.'),
+	emptyLess: error('empty `length` should be compared with `< 1`.'),
+	notEmptyEqual: error('not empty `length` should be compared with `!== 1`.'),
+	notEmptyGreater: error('not empty `length` should be compared with `> 0`.'),
+	notEmptyGreaterEqual: error('not empty `length` should be compared with `>= 1`.')
 };
 
 function testCase(code, emptyType, notEmptyType, errors = []) {

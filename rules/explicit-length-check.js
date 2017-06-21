@@ -21,12 +21,12 @@ function checkEmptyType(type, operator, value) {
 	switch (type) {
 		case 'eq':
 			if (types.lt.includes(operator) && value === 1) {
-				return 'empty `length` should be compared with `=== 0`';
+				return 'empty `length` should be compared with `=== 0`.';
 			}
 			break;
 		case 'lt':
 			if (types.eq.includes(operator) && value === 0) {
-				return 'empty `length` should be compared with `< 1`';
+				return 'empty `length` should be compared with `< 1`.';
 			}
 			break;
 		default:
@@ -40,21 +40,21 @@ function checkNotEmptyType(type, operator, value) {
 			if ((types.gte.includes(operator) && value === 1) ||
 				(types.ne.includes(operator) && value === 0)
 			) {
-				return 'not empty `length` should be compared with `> 0`';
+				return 'not empty `length` should be compared with `> 0`.';
 			}
 			break;
 		case 'gte':
 			if ((types.gt.includes(operator) && value === 0) ||
 				(types.ne.includes(operator) && value === 0)
 			) {
-				return 'not empty `length` should be compared with `>= 1`';
+				return 'not empty `length` should be compared with `>= 1`.';
 			}
 			break;
 		case 'ne':
 			if ((types.gt.includes(operator) && value === 0) ||
 				(types.gte.includes(operator) && value === 1)
 			) {
-				return 'not empty `length` should be compared with `!== 1`';
+				return 'not empty `length` should be compared with `!== 1`.';
 			}
 			break;
 		default:
@@ -68,7 +68,7 @@ function checkBinaryExpression(context, node, options = {}) {
 		node.right.property.type === 'Identifier' &&
 		node.right.property.name === 'length'
 	) {
-		reportError(context, node, '`length` property should be first argument of comparision');
+		reportError(context, node, '`length` property should be first argument of comparision.');
 		return;
 	}
 
