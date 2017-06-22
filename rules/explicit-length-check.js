@@ -1,60 +1,77 @@
 'use strict';
 
-const types = {
-	eq: ['===', '=='],
+const operatorTypes = {
 	gt: ['>'],
 	gte: ['>='],
-	lt: ['<'],
 	ne: ['!==', '!=']
 };
 
-function reportError(context, node, message) {
-	if (typeof message === 'string') {
-		context.report({
+const getFixDetails = (node, operator, value) => {
+	return {
+		node,
+		operator,
+		value
+	};
+};
+
+function reportError(context, node, message, fixDetails) {
+	context.report({
+		node,
+		message,
+		fix: fixDetails && (fixer => {
+			return fixer.replaceText(node,
+				`${context.getSourceCode().getText(fixDetails.node)} ${fixDetails.operator} ${fixDetails.value}`
+			);
+		})
+	});
+}
+
+function checkEmptyType(context, node) {
+	if (node.operator === '<' && node.right.value === 1) {
+		reportError(context,
 			node,
-			message
-		});
+			'Empty `.length` should be compared with `=== 0`.',
+			getFixDetails(node.left, '===', 0)
+		);
 	}
 }
 
-function checkEmptyType(type, operator, value) {
-	switch (type) {
-		case 'eq':
-			if (types.lt.indexOf(operator) >= 0 && value === 1) {
-				return 'empty `length` should be compared with `=== 0`.';
-			}
-			break;
-		case 'lt':
-			if (types.eq.indexOf(operator) >= 0 && value === 0) {
-				return 'empty `length` should be compared with `< 1`.';
-			}
-			break;
-		default:
-			break;
-	}
-}
+function checkNotEmptyType(context, node, type) {
+	const value = node.right.value;
+	const operator = node.operator;
 
-function checkNotEmptyType(type, operator, value) {
 	switch (type) {
 		case 'gt':
-			if ((types.gte.indexOf(operator) >= 0 && value === 1) ||
-				(types.ne.indexOf(operator) >= 0 && value === 0)
+			if ((operatorTypes.gte.indexOf(operator) !== -1 && value === 1) ||
+				(operatorTypes.ne.indexOf(operator) !== -1 && value === 0)
 			) {
-				return 'not empty `length` should be compared with `> 0`.';
+				reportError(context,
+					node,
+					'Non-zero `.length` should be compared with `> 0`.',
+					getFixDetails(node.left, '>', 0)
+				);
 			}
 			break;
 		case 'gte':
-			if ((types.gt.indexOf(operator) >= 0 && value === 0) ||
-				(types.ne.indexOf(operator) >= 0 && value === 0)
+			if ((operatorTypes.gt.indexOf(operator) !== -1 && value === 0) ||
+				(operatorTypes.ne.indexOf(operator) !== -1 && value === 0)
 			) {
-				return 'not empty `length` should be compared with `>= 1`.';
+				reportError(context,
+					node,
+					'Non-zero `.length` should be compared with `>= 1`.',
+					getFixDetails(node.left, '>=', 1)
+				);
 			}
 			break;
 		case 'ne':
-			if ((types.gt.indexOf(operator) >= 0 && value === 0) ||
-				(types.gte.indexOf(operator) >= 0 && value === 1)
+			if ((operatorTypes.gt.indexOf(operator) !== -1 && value === 0) ||
+				(operatorTypes.gte.indexOf(operator) !== -1 && value === 1)
 			) {
-				return 'not empty `length` should be compared with `!== 1`.';
+				reportError(context,
+					node,
+					'Non-zero `.length` should be compared with `!== 0`.',
+					getFixDetails(node.left, '!==', 0)
+				);
 			}
 			break;
 		default:
@@ -63,28 +80,13 @@ function checkNotEmptyType(type, operator, value) {
 }
 
 function checkBinaryExpression(context, node, options) {
-	if (node.left.type === 'Literal' &&
-		node.right.type === 'MemberExpression' &&
-		node.right.property.type === 'Identifier' &&
-		node.right.property.name === 'length'
-	) {
-		reportError(context, node, '`length` property should be first argument of comparision.');
-		return;
-	}
-
 	if (node.right.type === 'Literal' &&
 		node.left.type === 'MemberExpression' &&
 		node.left.property.type === 'Identifier' &&
 		node.left.property.name === 'length'
 	) {
-		reportError(context,
-			node,
-			checkEmptyType(options.empty, node.operator, node.right.value)
-		);
-		reportError(context,
-			node,
-			checkNotEmptyType(options['not-empty'], node.operator, node.right.value)
-		);
+		checkEmptyType(context, node);
+		checkNotEmptyType(context, node, options['not-empty']);
 	}
 }
 
@@ -123,5 +125,7 @@ const create = context => {
 
 module.exports = {
 	create,
-	meta: {}
+	meta: {
+		fixable: 'code'
+	}
 };

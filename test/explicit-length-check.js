@@ -16,23 +16,21 @@ const error = message => {
 };
 
 const errorMessages = {
-	lengthFirst: error('`length` property should be first argument of comparision.'),
 	compareToValue: error('`length` property should be compared to a value.'),
-	emptyEqual: error('empty `length` should be compared with `=== 0`.'),
-	emptyLess: error('empty `length` should be compared with `< 1`.'),
-	notEmptyEqual: error('not empty `length` should be compared with `!== 1`.'),
-	notEmptyGreater: error('not empty `length` should be compared with `> 0`.'),
-	notEmptyGreaterEqual: error('not empty `length` should be compared with `>= 1`.')
+	emptyEqual: error('Empty `.length` should be compared with `=== 0`.'),
+	notEmptyEqual: error('Non-zero `.length` should be compared with `!== 0`.'),
+	notEmptyGreater: error('Non-zero `.length` should be compared with `> 0`.'),
+	notEmptyGreaterEqual: error('Non-zero `.length` should be compared with `>= 1`.')
 };
 
-function testCase(code, emptyType, notEmptyType, errors) {
+function testCase(code, notEmptyType, errors, output) {
 	return {
 		code,
-		options: (emptyType || notEmptyType) && [{
-			empty: emptyType,
+		output: output || code,
+		errors: errors || [],
+		options: notEmptyType && [{
 			'not-empty': notEmptyType
-		}],
-		errors: errors || []
+		}]
 	};
 }
 
@@ -48,158 +46,123 @@ ruleTester.run('explicit-length-check', rule, {
 		testCase('if ([].length > 0) {}'),
 		testCase('if ("".length > 0) {}'),
 		testCase('if (array.length === 0) {}'),
+		testCase('if (array.length == 0) {}'),
 		testCase('if (array.length !== 0) {}'),
 		testCase('if (array.length !== 0 && array[0] === 1) {}'),
-		testCase('if (array.length == 0) {}', 'eq'),
-		testCase('if (array.length === 0) {}', 'eq'),
-		testCase('if (array.length === 1) {}', 'eq'),
-		testCase('if (array.length <= 1) {}', 'eq'),
-		testCase('if (array.length > 1) {}', 'eq'),
-		testCase('if (array.length < 2) {}', 'eq'),
-		testCase('if ([].length < 1) {}', 'lt'),
-		testCase('if ([].length === 1) {}', 'lt'),
-		testCase('if (array.length === 0) {}', ['eq', 'lt']),
-		testCase('if (array.length < 1) {}', ['eq', 'lt']),
-		testCase('if (array.length <= 1) {}', ['eq', 'lt']),
-		testCase('if ("".length !== 0) {}', undefined, 'ne'),
-		testCase('if ([].length === 0) {}', undefined, 'ne'),
-		testCase('if ([].length === 1) {}', undefined, 'ne'),
-		testCase('if ([].length <= 1) {}', undefined, 'ne'),
-		testCase('if ("".length == 0) {}', undefined, 'ne'),
-		testCase('if ("".length > 0) {}', undefined, 'gt'),
-		testCase('if ("".length >= 0) {}', undefined, 'gt'),
-		testCase('if ("".length >= 2) {}', undefined, 'gt'),
-		testCase('if ("".length >= 1) {}', undefined, 'gte'),
-		testCase('if ("".length === 0) {}', undefined, 'gte'),
-		testCase('if ("".length > 2) {}', undefined, 'gte'),
-		testCase('if ("".length === 2) {}', undefined, 'gte'),
-		testCase('if ("".length === 0 && array.length >= 1) {}', 'eq', 'gte'),
-		testCase('if ("".length === 0 && array.length > 0) {}', 'eq', 'gt'),
-		testCase('if ("".length === 0 && array.length !== 0) {}', 'eq', 'ne'),
-		testCase('if ("".length < 1 && array.length >= 1) {}', 'lt', 'gte'),
-		testCase('if ("".length < 1 && array.length > 0) {}', 'lt', 'gt'),
-		testCase('if ("".length < 1 && array.length != 0) {}', 'lt', 'ne')
+		testCase('if (array.length === 1) {}'),
+		testCase('if (array.length <= 1) {}'),
+		testCase('if (array.length > 1) {}'),
+		testCase('if (array.length < 2) {}'),
+		testCase('array.length', 'ne'),
+		testCase('array.length > 0', 'ne'),
+		testCase('array.length >= 1', 'ne'),
+		testCase('if ("".length !== 0) {}', 'ne'),
+		testCase('if ([].length === 0) {}', 'ne'),
+		testCase('if ([].length === 1) {}', 'ne'),
+		testCase('if ([].length <= 1) {}', 'ne'),
+		testCase('if ("".length == 0) {}', 'ne'),
+		testCase('array.length !== 0', 'gt'),
+		testCase('array.length >= 1', 'gt'),
+		testCase('if ("".length > 0) {}', 'gt'),
+		testCase('if ("".length >= 0) {}', 'gt'),
+		testCase('if ("".length >= 2) {}', 'gt'),
+		testCase('if ("".length >= 1) {}', 'gte'),
+		testCase('array.length !== 0', 'gte'),
+		testCase('array.length > 0', 'gte'),
+		testCase('if ("".length === 0) {}', 'gte'),
+		testCase('if ("".length > 2) {}', 'gte'),
+		testCase('if ("".length === 2) {}', 'gte'),
+		testCase('if ("".length === 0 && array.length >= 1) {}', 'gte'),
+		testCase('if ("".length === 0 && array.length > 0) {}', 'gt'),
+		testCase('if ("".length === 0 && array.length !== 0) {}', 'ne')
 	],
 	invalid: [
 		testCase('if ([].length) {}',
-			undefined,
 			undefined,
 			[errorMessages.compareToValue]
 		),
 		testCase('if ("".length) {}',
 			undefined,
-			undefined,
 			[errorMessages.compareToValue]
 		),
 		testCase('if (array.length) {}',
-			undefined,
 			undefined,
 			[errorMessages.compareToValue]
 		),
 		testCase('if (!array.length) {}',
 			undefined,
-			undefined,
 			[errorMessages.compareToValue]
 		),
 		testCase('if (array.foo.length) {}',
-			undefined,
 			undefined,
 			[errorMessages.compareToValue]
 		),
 		testCase('if (!!array.length) {}',
 			undefined,
-			undefined,
 			[errorMessages.compareToValue]
 		),
 		testCase('if (array.length && array[0] === 1) {}',
-			undefined,
 			undefined,
 			[errorMessages.compareToValue]
 		),
 		testCase('if (array[0] === 1 || array.length) {}',
 			undefined,
-			undefined,
 			[errorMessages.compareToValue]
-		),
-		testCase('if (1 === array.length) {}',
-			undefined,
-			undefined,
-			[errorMessages.lengthFirst]
-		),
-		testCase('if ([].length === 0 || 0 < array.length) {}',
-			undefined,
-			undefined,
-			[errorMessages.lengthFirst]
 		),
 		testCase('if (array.length < 1) {}',
 			'eq',
-			undefined,
-			[errorMessages.emptyEqual]
+			[errorMessages.emptyEqual],
+			'if (array.length === 0) {}'
 		),
-		testCase('if (array.length === 0) {}',
-			'lt',
-			undefined,
-			[errorMessages.emptyLess]
-		),
-		testCase('if (array.length == 0) {}',
-			'lt',
-			undefined,
-			[errorMessages.emptyLess]
+		testCase('if (array.length<1) {}',
+			'eq',
+			[errorMessages.emptyEqual],
+			'if (array.length === 0) {}'
 		),
 		testCase('if (array.length > 0) {}',
-			undefined,
 			'ne',
-			[errorMessages.notEmptyEqual]
+			[errorMessages.notEmptyEqual],
+			'if (array.length !== 0) {}'
 		),
 		testCase('if (array.length >= 1) {}',
-			undefined,
 			'ne',
-			[errorMessages.notEmptyEqual]
+			[errorMessages.notEmptyEqual],
+			'if (array.length !== 0) {}'
 		),
 		testCase('if (array.length != 0) {}',
-			undefined,
 			'gt',
-			[errorMessages.notEmptyGreater]
+			[errorMessages.notEmptyGreater],
+			'if (array.length > 0) {}'
 		),
 		testCase('if (array.length !== 0) {}',
-			undefined,
 			'gt',
-			[errorMessages.notEmptyGreater]
+			[errorMessages.notEmptyGreater],
+			'if (array.length > 0) {}'
 		),
 		testCase('if (array.length >= 1) {}',
-			undefined,
 			'gt',
-			[errorMessages.notEmptyGreater]
+			[errorMessages.notEmptyGreater],
+			'if (array.length > 0) {}'
 		),
 		testCase('if (array.length != 0) {}',
-			undefined,
 			'gte',
-			[errorMessages.notEmptyGreaterEqual]
+			[errorMessages.notEmptyGreaterEqual],
+			'if (array.length >= 1) {}'
 		),
 		testCase('if (array.length !== 0) {}',
-			undefined,
 			'gte',
-			[errorMessages.notEmptyGreaterEqual]
+			[errorMessages.notEmptyGreaterEqual],
+			'if (array.length >= 1) {}'
 		),
 		testCase('if (array.length > 0) {}',
-			undefined,
 			'gte',
-			[errorMessages.notEmptyGreaterEqual]
+			[errorMessages.notEmptyGreaterEqual],
+			'if (array.length >= 1) {}'
 		),
 		testCase('if (array.length < 1 || array.length >= 1) {}',
-			'eq',
 			'ne',
-			[errorMessages.emptyEqual, errorMessages.notEmptyEqual]
-		),
-		testCase('if (array1.length === 0 && array2.length > 0) {}',
-			'lt',
-			'gte',
-			[errorMessages.emptyLess, errorMessages.notEmptyGreaterEqual]
-		),
-		testCase('if (array1.length == 0 && array2.length != 0 && 1 > [].length) {}',
-			'lt',
-			'gt',
-			[errorMessages.emptyLess, errorMessages.notEmptyGreater, errorMessages.lengthFirst]
+			[errorMessages.emptyEqual, errorMessages.notEmptyEqual],
+			'if (array.length === 0 || array.length !== 0) {}'
 		)
 	]
 });
