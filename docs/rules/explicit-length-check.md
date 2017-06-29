@@ -20,9 +20,9 @@ if (array.length !== 0) {}
 if (array.length === 0) {}
 ```
 
-## Empty Comparisons
+## Zero Comparisons
 
-Enforce length comparison with `!== 0` when checking for an empty array.
+Enforce comparison with `!== 0` when checking for zero length.
 
 ### Fail
 
@@ -36,21 +36,20 @@ if (string.length < 1) {}
 if (array.length !== 0) {}
 ```
 
-## Non Zero Comparisons
+## Non-Zero Comparisons
 
-You can define your preferred way of checking non zero length by providing an option:
-```js
+You can define your preferred way of checking non-zero length by providing a `non-zero` option:
+```json
 {
   "unicorn/explicit-length-check": ["error", {
-    "not-empty": "notEmptyOption"
+    "non-zero": "not-equal"
   }]
 }
 ```
-where `"notEmptyOption"` can be one of the following:
-- `"ne"` (not-equal)
-	- this option makes sure that non zero is checked with: `array.length !== 0`
-- `"gt"` (greater-than)
-	- this option makes sure that non zero is checked with: `array.length > 0`
-- `"gte"` (greater-than or equal-to)
-	- this option makes sure that non zero is checked with: `array.length >= 1`
-
+where `"non-zero"` can be configured with one of the following:
+- `"not-equal"`
+	- this option makes sure that non-zero is checked with: `array.length !== 0`
+- `"greater-than"`
+	- this option makes sure that non-zero is checked with: `array.length > 0`
+- `"greater-than-or-equal"`
+	- this option makes sure that non-zero is checked with: `array.length >= 1`

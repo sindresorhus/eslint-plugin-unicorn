@@ -6,14 +6,6 @@ const operatorTypes = {
 	ne: ['!==', '!=']
 };
 
-const getFixDetails = (node, operator, value) => {
-	return {
-		node,
-		operator,
-		value
-	};
-};
-
 function reportError(context, node, message, fixDetails) {
 	context.report({
 		node,
@@ -26,51 +18,67 @@ function reportError(context, node, message, fixDetails) {
 	});
 }
 
-function checkEmptyType(context, node) {
+function checkZeroType(context, node) {
 	if (node.operator === '<' && node.right.value === 1) {
 		reportError(context,
 			node,
-			'Empty `.length` should be compared with `=== 0`.',
-			getFixDetails(node.left, '===', 0)
+			'Zero `.length` should be compared with `=== 0`.',
+			{
+				node: node.left,
+				operator: '===',
+				value: 0
+			}
 		);
 	}
 }
 
-function checkNotEmptyType(context, node, type) {
+function checkNonZeroType(context, node, type) {
 	const value = node.right.value;
 	const operator = node.operator;
 
 	switch (type) {
-		case 'gt':
+		case 'greater-than':
 			if ((operatorTypes.gte.indexOf(operator) !== -1 && value === 1) ||
 				(operatorTypes.ne.indexOf(operator) !== -1 && value === 0)
 			) {
 				reportError(context,
 					node,
 					'Non-zero `.length` should be compared with `> 0`.',
-					getFixDetails(node.left, '>', 0)
+					{
+						node: node.left,
+						operator: '>',
+						value: 0
+					}
 				);
 			}
 			break;
-		case 'gte':
+		case 'greater-than-or-equal':
 			if ((operatorTypes.gt.indexOf(operator) !== -1 && value === 0) ||
 				(operatorTypes.ne.indexOf(operator) !== -1 && value === 0)
 			) {
 				reportError(context,
 					node,
 					'Non-zero `.length` should be compared with `>= 1`.',
-					getFixDetails(node.left, '>=', 1)
+					{
+						node: node.left,
+						operator: '>=',
+						value: 1
+					}
 				);
 			}
 			break;
-		case 'ne':
+		case 'not-equal':
 			if ((operatorTypes.gt.indexOf(operator) !== -1 && value === 0) ||
 				(operatorTypes.gte.indexOf(operator) !== -1 && value === 1)
 			) {
 				reportError(context,
 					node,
 					'Non-zero `.length` should be compared with `!== 0`.',
-					getFixDetails(node.left, '!==', 0)
+					{
+						node: node.left,
+						operator: '!==',
+						value: 0
+					}
 				);
 			}
 			break;
@@ -85,8 +93,8 @@ function checkBinaryExpression(context, node, options) {
 		node.left.property.type === 'Identifier' &&
 		node.left.property.name === 'length'
 	) {
-		checkEmptyType(context, node);
-		checkNotEmptyType(context, node, options['not-empty']);
+		checkZeroType(context, node);
+		checkNonZeroType(context, node, options['non-zero']);
 	}
 }
 
@@ -123,9 +131,23 @@ const create = context => {
 	};
 };
 
+const schema = [{
+	type: 'object',
+	properties: {
+		'non-zero': {
+			enum: [
+				'not-equal',
+				'greater-than',
+				'greater-than-or-equal'
+			]
+		}
+	}
+}];
+
 module.exports = {
 	create,
 	meta: {
-		fixable: 'code'
+		fixable: 'code',
+		schema
 	}
 };
