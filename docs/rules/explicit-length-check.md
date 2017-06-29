@@ -39,17 +39,17 @@ if (array.length !== 0) {}
 ## Non-Zero Comparisons
 
 You can define your preferred way of checking non-zero length by providing a `non-zero` option:
-```json
+```js
 {
-  "unicorn/explicit-length-check": ["error", {
-    "non-zero": "not-equal"
+  'unicorn/explicit-length-check': ['error', {
+    'non-zero': 'not-equal'
   }]
 }
 ```
-where `"non-zero"` can be configured with one of the following:
-- `"not-equal"`
+where `non-zero` can be configured with one of the following:
+- `not-equal`
 	- this option makes sure that non-zero is checked with: `array.length !== 0`
-- `"greater-than"`
+- `greater-than`
 	- this option makes sure that non-zero is checked with: `array.length > 0`
-- `"greater-than-or-equal"`
+- `greater-than-or-equal`
 	- this option makes sure that non-zero is checked with: `array.length >= 1`
