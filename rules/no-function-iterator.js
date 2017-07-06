@@ -12,15 +12,7 @@ const iteratorMethods = new Set([
 const isIteratorMethod = node => node.callee.property && iteratorMethods.has(node.callee.property.name);
 const hasFunctionArgument = node => node.arguments.length === 1 && (node.arguments[0].type === 'Identifier' || node.arguments[0].type === 'CallExpression');
 
-const parseArgument = (context, arg) => {
-	if (arg.type === 'Identifier') {
-		return arg.name;
-	}
-
-	const sourcecode = context.getSourceCode();
-
-	return sourcecode.getText(arg);
-};
+const parseArgument = (context, arg) => arg.type === 'Identifier' ? arg.name : context.getSourceCode().getText(arg);
 
 const create = context => ({
 	CallExpression: node => {
