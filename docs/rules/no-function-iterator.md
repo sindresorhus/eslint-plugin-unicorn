@@ -47,6 +47,13 @@ const fn = x => x === 2;
 [1, 2, 3].some(fn);
 ```
 
+```js
+const fn = x => x === 2;
+
+[1, 2, 3].map(m({foo: 'bar'}));
+```
+
+
 ## Pass
 
 ```js
@@ -89,4 +96,10 @@ const fn = x => x === 1;
 const fn = x => x === 2;
 
 [1, 2, 3].some(x => fn(x));
+```
+
+```js
+const fn = x => x === 2;
+
+[1, 2, 3].map(x => m({foo: 'bar'})(x));
 ```

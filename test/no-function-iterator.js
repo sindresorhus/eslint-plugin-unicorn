@@ -25,7 +25,8 @@ ruleTester.run('no-function-iterator', rule, {
 		'foo.findIndex(x => fn(x))',
 		'foo.some(x => fn(x))',
 		'foo.filter(x => Boolean(x))',
-		'foo.map(x => parseInt(x, 10))'
+		'foo.map(x => parseInt(x, 10))',
+		'foo.map(x => m({foo: true})(x))'
 	],
 	invalid: [
 		{
@@ -72,6 +73,11 @@ ruleTester.run('no-function-iterator', rule, {
 			code: 'foo.map(parseInt)',
 			errors,
 			output: 'foo.map(x => parseInt(x))'
+		},
+		{
+			code: 'foo.map(m({foo: true}))',
+			errors,
+			output: 'foo.map(x => m({foo: true})(x))'
 		}
 	]
 });
