@@ -1,6 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/no-function-iterator';
+import rule from '../rules/no-fn-reference-in-iterator';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -10,12 +10,12 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [
 	{
-		ruleId: 'no-function-iterator',
-		message: 'Do not pass a function directly to an iterator method.'
+		ruleId: 'no-fn-reference-in-iterator',
+		message: 'Do not pass a function reference directly to an iterator method.'
 	}
 ];
 
-ruleTester.run('no-function-iterator', rule, {
+ruleTester.run('no-fn-reference-in-iterator', rule, {
 	valid: [
 		'foo.map(x => fn(x))',
 		'foo.forEach(x => fn(x))',

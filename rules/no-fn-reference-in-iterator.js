@@ -21,7 +21,7 @@ const create = context => ({
 
 			context.report({
 				node: arg,
-				message: 'Do not pass a function directly to an iterator method.',
+				message: 'Do not pass a function reference directly to an iterator method.',
 				fix: fixer => fixer.replaceText(arg, `x => ${parseArgument(context, arg)}(x)`)
 			});
 		}

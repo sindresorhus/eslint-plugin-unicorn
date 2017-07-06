@@ -1,4 +1,4 @@
-# Prevents passing a function directly to iterator methods
+# Prevents passing a function reference directly to iterator methods
 
 Suppose you have a `unicorn` module:
 
