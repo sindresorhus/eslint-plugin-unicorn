@@ -1,6 +1,34 @@
 # Prevents passing a function directly to iterator methods
 
-Prevents passing a function directly to an iterator method to make it more clear with the function accepts.
+Suppose you have a `unicorn` module:
+
+```js
+module.exports = x => x + 1;
+```
+
+You can then use it like this:
+
+```js
+const unicorn = require('unicorn');
+
+[1, 2, 3].map(unicorn);
+//=> [2, 3, 4]
+```
+
+The `unicorn` module now does a minor version that adds another argument:
+
+```js
+module.exports = (x, y) => x + (y ? y : 1);
+```
+
+Your code will now return something different and probably break for users because it is now passing the index of the item as second argument.
+
+```js
+const unicorn = require('unicorn');
+
+[1, 2, 3].map(unicorn);
+//=> [2, 3, 5]
+```
 
 
 ## Fail
