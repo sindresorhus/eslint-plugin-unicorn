@@ -76,6 +76,18 @@ const fn = x => x === 2;
 ```
 
 ```js
+const fn = (a, b) => a + b;
+
+[1, 2, 3].reduce(fn, 0);
+```
+
+```js
+const fn = (a, b) => a.concat(b);
+
+[1, 2, 3].reduceRight(fn, []);
+```
+
+```js
 const fn = x => x === 2;
 
 [1, 2, 3].map(m({foo: 'bar'}));
@@ -124,6 +136,24 @@ const fn = x => x === 1;
 const fn = x => x === 2;
 
 [1, 2, 3].some(x => fn(x));
+```
+
+```js
+const fn = (a, b) => a + b;
+
+[1, 2, 3].reduce((a, b) => fn(a, b), 0);
+```
+
+```js
+const fn = (a, b) => a.concat(b);
+
+[1, 2, 3].reduceRight((a, b) => fn(a, b), []);
+```
+
+```js
+const fn = (a, b) => a.concat(b);
+
+[1, 2, 3].reduceRight(fn, []);
 ```
 
 ```js

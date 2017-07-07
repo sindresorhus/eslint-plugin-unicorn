@@ -26,7 +26,9 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 		'foo.some(x => fn(x))',
 		'foo.filter(x => Boolean(x))',
 		'foo.map(x => parseInt(x, 10))',
-		'foo.map(x => m({foo: true})(x))'
+		'foo.map(x => m({foo: true})(x))',
+		'foo.reduce((a, b) => a + b, 0)',
+		'foo.reduceRight((a, b) => a.concat(b), [])'
 	],
 	invalid: [
 		{
@@ -78,6 +80,26 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 			code: 'foo.map(m({foo: true}))',
 			errors,
 			output: 'foo.map(x => m({foo: true})(x))'
+		},
+		{
+			code: 'foo.reduce(m)',
+			errors,
+			output: 'foo.reduce((a, b) => m(a, b))'
+		},
+		{
+			code: 'foo.reduce(m, 0)',
+			errors,
+			output: 'foo.reduce((a, b) => m(a, b), 0)'
+		},
+		{
+			code: 'foo.reduce(m({foo: true}), 0)',
+			errors,
+			output: 'foo.reduce((a, b) => m({foo: true})(a, b), 0)'
+		},
+		{
+			code: 'foo.reduceRight(m, [])',
+			errors,
+			output: 'foo.reduceRight((a, b) => m(a, b), [])'
 		}
 	]
 });
