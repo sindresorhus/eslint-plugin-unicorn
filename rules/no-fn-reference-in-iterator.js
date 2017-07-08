@@ -11,8 +11,12 @@ const iteratorMethods = new Map([
 	['reduceRight', 2]
 ]);
 
+const whitelist = new Set([
+	'Boolean'
+]);
+
 const isIteratorMethod = node => node.callee.property && iteratorMethods.has(node.callee.property.name);
-const hasFunctionArgument = node => node.arguments.length > 0 && (node.arguments[0].type === 'Identifier' || node.arguments[0].type === 'CallExpression');
+const hasFunctionArgument = node => node.arguments.length > 0 && (node.arguments[0].type === 'Identifier' || node.arguments[0].type === 'CallExpression') && !whitelist.has(node.arguments[0].name);
 
 const getNumberOfArguments = node => node.callee.property && iteratorMethods.get(node.callee.property.name);
 const parseArgument = (context, arg) => arg.type === 'Identifier' ? arg.name : context.getSourceCode().getText(arg);

@@ -25,6 +25,7 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 		'foo.findIndex(x => fn(x))',
 		'foo.some(x => fn(x))',
 		'foo.filter(x => Boolean(x))',
+		'foo.filter(Boolean)',
 		'foo.map(x => parseInt(x, 10))',
 		'foo.map(x => m({foo: true})(x))',
 		'foo.reduce((a, b) => a + b, 0)',
@@ -67,9 +68,9 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 			output: 'foo.some(x => fn(x))'
 		},
 		{
-			code: 'foo.filter(Boolean)',
+			code: 'foo.filter(fn)',
 			errors,
-			output: 'foo.filter(x => Boolean(x))'
+			output: 'foo.filter(x => fn(x))'
 		},
 		{
 			code: 'foo.map(parseInt)',

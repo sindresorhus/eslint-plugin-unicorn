@@ -121,6 +121,10 @@ const fn = x => x % 2;
 ```
 
 ```js
+[undefined, 2, 3].filter(Boolean);
+```
+
+```js
 const fn = x => x === 1;
 
 [1, 2, 3].find(x => fn(x));
