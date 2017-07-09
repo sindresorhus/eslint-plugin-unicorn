@@ -69,6 +69,7 @@ Configure it in `package.json`.
 - [custom-error-definition](docs/rules/custom-error-definition.md) - Enforce correct `Error` subclassing. *(fixable)*
 - [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith` & `String#endsWith` over more complex alternatives.
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
+- [new-regexp](docs/rules/new-regexp.md) - Enforce the use of `new RegExp()` instead of `RegExp`. *(fixable)*
 
 
 ## Recommended config
