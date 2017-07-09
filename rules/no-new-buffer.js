@@ -3,20 +3,18 @@ const inferMethod = args => (args.length > 0 && typeof args[0].value === 'number
 
 const create = context => {
 	return {
-		NewExpression: node => {
-			if (node.callee.name === 'Buffer') {
-				const method = inferMethod(node.arguments);
-				const range = [
-					node.start,
-					node.callee.end
-				];
+		'NewExpression[callee.name="Buffer"]': node => {
+			const method = inferMethod(node.arguments);
+			const range = [
+				node.start,
+				node.callee.end
+			];
 
-				context.report({
-					node,
-					message: `\`new Buffer()\` is deprecated, use \`Buffer.${method}()\` instead.`,
-					fix: fixer => fixer.replaceTextRange(range, `Buffer.${method}`)
-				});
-			}
+			context.report({
+				node,
+				message: `\`new Buffer()\` is deprecated, use \`Buffer.${method}()\` instead.`,
+				fix: fixer => fixer.replaceTextRange(range, `Buffer.${method}`)
+			});
 		}
 	};
 };
