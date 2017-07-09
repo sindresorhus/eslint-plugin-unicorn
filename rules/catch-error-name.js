@@ -1,4 +1,5 @@
 'use strict';
+const astUtils = require('eslint-ast-utils');
 
 // Matches someObj.then([FunctionExpression | ArrowFunctionExpression])
 function isLintablePromiseCatch(node) {
@@ -58,6 +59,11 @@ const create = context => {
 			}
 		},
 		CatchClause: node => {
+			if (node.param.name === '_') {
+				push(!astUtils.someContainIdentifier('_', node.body.body));
+				return;
+			}
+
 			push(node.param.name === name);
 		},
 		'CatchClause:exit': node => {
