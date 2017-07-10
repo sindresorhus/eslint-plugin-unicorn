@@ -46,7 +46,8 @@ Configure it in `package.json`.
 			"unicorn/no-hex-escape": "error",
 			"unicorn/custom-error-definition": "error",
 			"unicorn/prefer-starts-ends-with": "error",
-			"unicorn/prefer-type-error": "error"
+			"unicorn/prefer-type-error": "error",
+			"unicorn/new-regexp": "error"
 		}
 	}
 }
@@ -69,7 +70,7 @@ Configure it in `package.json`.
 - [custom-error-definition](docs/rules/custom-error-definition.md) - Enforce correct `Error` subclassing. *(fixable)*
 - [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith` & `String#endsWith` over more complex alternatives.
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
-- [new-regexp](docs/rules/new-regexp.md) - Enforce the use of `new RegExp()` instead of `RegExp`. *(fixable)*
+- [new-regexp](docs/rules/new-regexp.md) - Enforce the use of `new RegExp()` instead of `RegExp()`. *(fixable)*
 
 
 ## Recommended config
