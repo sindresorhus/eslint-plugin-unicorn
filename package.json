@@ -48,6 +48,7 @@
 		"xo"
 	],
 	"dependencies": {
+		"eslint-ast-utils": "^1.0.0",
 		"import-modules": "^1.1.0",
 		"lodash.camelcase": "^4.1.1",
 		"lodash.kebabcase": "^4.0.1",
