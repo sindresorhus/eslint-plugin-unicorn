@@ -27,7 +27,8 @@ module.exports = {
 				'unicorn/no-hex-escape': 'off',
 				'unicorn/custom-error-definition': 'error',
 				'unicorn/prefer-starts-ends-with': 'error',
-				'unicorn/prefer-type-error': 'error'
+				'unicorn/prefer-type-error': 'error',
+				'unicorn/no-fn-reference-in-iterator': 'error'
 			}
 		}
 	}

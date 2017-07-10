@@ -69,6 +69,7 @@ Configure it in `package.json`.
 - [custom-error-definition](docs/rules/custom-error-definition.md) - Enforce correct `Error` subclassing. *(fixable)*
 - [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith` & `String#endsWith` over more complex alternatives.
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
+- [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevents passing a function reference directly to iterator methods. *(fixable)*
 
 
 ## Recommended config
