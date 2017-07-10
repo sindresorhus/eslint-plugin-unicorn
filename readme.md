@@ -46,7 +46,8 @@ Configure it in `package.json`.
 			"unicorn/no-hex-escape": "error",
 			"unicorn/custom-error-definition": "error",
 			"unicorn/prefer-starts-ends-with": "error",
-			"unicorn/prefer-type-error": "error"
+			"unicorn/prefer-type-error": "error",
+			"unicorn/new-regexp": "error"
 		}
 	}
 }
@@ -70,6 +71,7 @@ Configure it in `package.json`.
 - [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith` & `String#endsWith` over more complex alternatives.
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
 - [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevents passing a function reference directly to iterator methods. *(fixable)*
+- [new-regexp](docs/rules/new-regexp.md) - Enforce the use of `new RegExp()` instead of `RegExp()`. *(fixable)*
 
 
 ## Recommended config
