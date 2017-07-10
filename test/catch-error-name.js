@@ -19,6 +19,8 @@ function testCase(code, name, error) {
 ruleTester.run('catch-error-name', rule, {
 	valid: [
 		testCase('try {} catch (err) {}'),
+		testCase('try {} catch (_) {}'),
+		testCase('try {} catch (_) { console.log(foo); }'),
 		testCase('try {} catch (error) {}', 'error'),
 		testCase('try {} catch (outerError) { try {} catch (innerError) {} }'),
 		testCase('obj.catch(err => {})'),
@@ -37,6 +39,7 @@ ruleTester.run('catch-error-name', rule, {
 	invalid: [
 		testCase('try {} catch (error) {}', null, true),
 		testCase('try {} catch (err) {}', 'error', true),
+		testCase('try {} catch (_) { console.log(_); }', null, true),
 		testCase('try {} catch (outerError) {}', null, true),
 		testCase('try {} catch (innerError) {}', null, true),
 		testCase('obj.catch(error => {})', null, true),
