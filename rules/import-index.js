@@ -1,6 +1,7 @@
 'use strict';
-const isImportingIndex = m => m.endsWith('/') || m.endsWith('index.js') || m.endsWith('index');
-const normalize = m => m.replace(/(\/|\/index(.js)?)$/, '');
+const regexp = /^(@.*?\/.*?|[./]+?.*?)(?:\/(?:index(?:\.js)?)?)$/;
+const isImportingIndex = m => regexp.test(m);
+const normalize = m => m.replace(regexp, '$1');
 
 const importIndex = (context, node, m) => {
 	if (isImportingIndex(m.value)) {
