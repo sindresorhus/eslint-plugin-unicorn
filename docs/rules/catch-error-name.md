@@ -55,6 +55,16 @@ try {
 }
 ```
 
+```js
+const handleError = err => {
+	const err2 = new Error('foo bar');
+
+	obj.catch(err3 => {
+		// `err3` is allowed because of shadowed variables
+	});
+}
+```
+
 
 ## Options
 

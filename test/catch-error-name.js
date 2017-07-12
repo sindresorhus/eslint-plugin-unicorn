@@ -23,7 +23,53 @@ ruleTester.run('catch-error-name', rule, {
 		testCase('try {} catch (_) { console.log(foo); }'),
 		testCase('try {} catch (error) {}', 'error'),
 		testCase('try {} catch (outerError) { try {} catch (innerError) {} }'),
+		testCase(`
+			const handleError = err => {
+				try {
+					doSomething();
+				} catch (err2) {
+					console.log(err2);
+				}
+			}
+		`),
+		testCase(`
+			const handleError = error => {
+				try {
+					doSomething();
+				} catch (error2) {
+					console.log(error2);
+				}
+			}
+		`, 'error'),
+		testCase(`
+			const handleError = err => {
+				const err2 = new Error('foo bar');
+
+				try {
+					doSomething();
+				} catch (err3) {
+					console.log(err3);
+				}
+			}
+		`),
 		testCase('obj.catch(err => {})'),
+		testCase(`
+			const handleError = err => {
+				obj.catch(err2 => { });
+			}
+		`),
+		testCase(`
+			const handleError = error => {
+				obj.catch(error2 => { });
+			}
+		`, 'error'),
+		testCase(`
+			const handleError = err => {
+				const err2 = new Error('foo bar');
+
+				obj.catch(err3 => { });
+			}
+		`),
 		testCase('obj.catch(() => {})'),
 		testCase('obj.catch(error => {})', 'error'),
 		testCase('obj.catch(outerError => { return obj2.catch(innerError => {}) })'),
@@ -46,6 +92,38 @@ ruleTester.run('catch-error-name', rule, {
 		testCase('obj.catch(err => {})', 'error', true),
 		testCase('obj.catch(function (error) {})', null, true),
 		testCase('obj.catch(function (err) {})', 'error', true),
+		{
+			code: `
+				const handleError = err => {
+					try {
+						doSomething();
+					} catch (foo) {
+						console.log(foo);
+					}
+				}
+			`,
+			errors: [
+				{
+					ruleId: 'catch-error-name',
+					message: 'The catch parameter should be named `err2`.'
+				}
+			]
+		},
+		{
+			code: `
+				const handleError = err => {
+					const err2 = new Error('foo bar');
+
+					obj.catch(foo => { });
+				}
+			`,
+			errors: [
+				{
+					ruleId: 'catch-error-name',
+					message: 'The catch parameter should be named `err3`.'
+				}
+			]
+		},
 		{
 			code: `
 				obj.catch(error => {});
