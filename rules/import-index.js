@@ -7,7 +7,7 @@ const importIndex = (context, node, m) => {
 	if (isImportingIndex(m.value)) {
 		context.report({
 			node,
-			message: 'Import index files with `.`',
+			message: 'Do not reference the index file directly',
 			fix: fixer => fixer.replaceText(m, `'${normalize(m.value)}'`)
 		});
 	}
