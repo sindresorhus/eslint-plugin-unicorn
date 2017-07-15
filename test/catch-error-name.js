@@ -70,6 +70,21 @@ ruleTester.run('catch-error-name', rule, {
 				obj.catch(err3 => { });
 			}
 		`),
+		testCase(`
+			const handleError = err => {
+				const err2 = new Error('foo bar');
+				const err3 = new Error('foo bar');
+				const err4 = new Error('foo bar');
+				const err5 = new Error('foo bar');
+				const err6 = new Error('foo bar');
+				const err7 = new Error('foo bar');
+				const err8 = new Error('foo bar');
+				const err9 = new Error('foo bar');
+				const err10 = new Error('foo bar');
+
+				obj.catch(err11 => { });
+			}
+		`),
 		testCase('obj.catch(() => {})'),
 		testCase('obj.catch(error => {})', 'error'),
 		testCase('obj.catch(outerError => { return obj2.catch(innerError => {}) })'),
@@ -112,6 +127,25 @@ ruleTester.run('catch-error-name', rule, {
 		{
 			code: `
 				const handleError = err => {
+					const err9 = new Error('foo bar');
+
+					try {
+						doSomething();
+					} catch (foo) {
+						console.log(foo);
+					}
+				}
+			`,
+			errors: [
+				{
+					ruleId: 'catch-error-name',
+					message: 'The catch parameter should be named `err2`.'
+				}
+			]
+		},
+		{
+			code: `
+				const handleError = err => {
 					const err2 = new Error('foo bar');
 
 					obj.catch(foo => { });
@@ -121,6 +155,26 @@ ruleTester.run('catch-error-name', rule, {
 				{
 					ruleId: 'catch-error-name',
 					message: 'The catch parameter should be named `err3`.'
+				}
+			]
+		},
+		{
+			code: `
+				const handleError = error => {
+					const error2 = new Error('foo bar');
+
+					obj.catch(foo => { });
+				}
+			`,
+			errors: [
+				{
+					ruleId: 'catch-error-name',
+					message: 'The catch parameter should be named `error3`.'
+				}
+			],
+			options: [
+				{
+					name: 'error'
 				}
 			]
 		},
