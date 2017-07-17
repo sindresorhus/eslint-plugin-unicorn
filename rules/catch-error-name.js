@@ -24,6 +24,17 @@ function isLintablePromiseCatch(node) {
 	return arg0.type === 'FunctionExpression' || arg0.type === 'ArrowFunctionExpression';
 }
 
+function indexifyName(name, scope) {
+	const variables = scope.variableScope.set;
+
+	let index = 1;
+	while (variables.has(index === 1 ? name : name + index)) {
+		index++;
+	}
+
+	return name + (index === 1 ? '' : index);
+}
+
 const create = context => {
 	const opts = context.options[0];
 	const name = (opts && opts.name) || 'err';
@@ -38,10 +49,12 @@ const create = context => {
 	}
 
 	function popAndReport(node) {
-		if (!stack.pop()) {
+		const value = stack.pop();
+
+		if (value !== true) {
 			context.report({
 				node,
-				message: `The catch parameter should be named \`${name}\`.`
+				message: `The catch parameter should be named \`${value || name}\`.`
 			});
 		}
 	}
@@ -50,7 +63,8 @@ const create = context => {
 		CallExpression: node => {
 			if (isLintablePromiseCatch(node)) {
 				const params = node.arguments[0].params;
-				push(params.length === 0 || params[0].name === name);
+				const errName = indexifyName(name, context.getScope());
+				push(params.length === 0 || params[0].name === errName || errName);
 			}
 		},
 		'CallExpression:exit': node => {
@@ -64,7 +78,8 @@ const create = context => {
 				return;
 			}
 
-			push(node.param.name === name);
+			const errName = indexifyName(name, context.getScope());
+			push(node.param.name === errName || errName);
 		},
 		'CatchClause:exit': node => {
 			popAndReport(node.param);
