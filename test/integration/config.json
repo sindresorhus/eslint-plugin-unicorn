@@ -1,0 +1,9 @@
+{
+	"name": "my-awesome-project",
+	"eslintConfig": {
+		"plugins": [
+			"../../"
+		],
+		"extends": "plugin:unicorn/recommended"
+	}
+}
