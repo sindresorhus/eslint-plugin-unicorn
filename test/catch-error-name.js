@@ -102,13 +102,16 @@ ruleTester.run('catch-error-name', rule, {
 	invalid: [
 		testCase('try {} catch (error) {}', null, true),
 		testCase('try {} catch (err) {}', 'error', true),
+		testCase('try {} catch ({message}) {}', null, true),
 		testCase('try {} catch (_) { console.log(_); }', null, true),
 		testCase('try {} catch (outerError) {}', null, true),
 		testCase('try {} catch (innerError) {}', null, true),
 		testCase('obj.catch(error => {})', null, true),
 		testCase('obj.catch(err => {})', 'error', true),
+		testCase('obj.catch(({message}) => {})', null, true),
 		testCase('obj.catch(_ => { console.log(_); })', null, true),
 		testCase('obj.catch(function (error) {})', null, true),
+		testCase('obj.catch(function ({message}) {})', null, true),
 		testCase('obj.catch(function (err) {})', 'error', true),
 		testCase('obj.catch(function (_) { console.log(_); })', null, true),
 		{
