@@ -3,13 +3,12 @@ node_js:
   - '8'
   - '6'
   - '4'
-env: TEST=npm test
 matrix:
-  allow_failures:
+  include:
     - node_js: 8
-      env: TEST=npm run integration
+      env: INTEGRATION=true
 before_install:
   - npm i -g npm
 script:
-  - (eval "$TEST")
+  - if [ "$INTEGRATION" = true ]; then npm run integration else npm test; fi
 after_success: npm run coveralls
