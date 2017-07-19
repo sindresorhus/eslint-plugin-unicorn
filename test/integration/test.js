@@ -63,4 +63,6 @@ list.run()
 		for (const error of err.errors) {
 			console.error(error.message);
 		}
+
+		process.exit(-1);
 	});
