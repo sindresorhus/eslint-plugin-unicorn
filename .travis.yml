@@ -3,11 +3,6 @@ node_js:
   - '8'
   - '6'
   - '4'
-env: TEST=npm test
-matrix:
-  include:
-    - node_js: 8
-      env: TEST=npm run integration
 before_install:
   - npm i -g npm
 after_success: npm run coveralls
