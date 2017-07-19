@@ -1,27 +1,17 @@
 #!/usr/bin/env node
 'use strict';
+const path = require('path');
 const Listr = require('listr');
 const tempy = require('tempy');
 const execa = require('execa');
-require('any-observable/register/rxjs-all');	// eslint-disable-line import/no-unassigned-import
-const Observable = require('any-observable');
-const streamToObservable = require('stream-to-observable');
-const split = require('split');
 const del = require('del');
 
 const packages = new Map([
-	['got', 'https://github.com/sindresorhus/got']
+	['got', 'https://github.com/sindresorhus/got'],
+	['ava', 'https://github.com/avajs/ava']
 ]);
 
-const exec = (cmd, args) => {
-	// Use `Observable` support if merged https://github.com/sindresorhus/execa/pull/26
-	const cp = execa(cmd, args);
-
-	return Observable.merge(
-		streamToObservable(cp.stdout.pipe(split()), {await: cp}),
-		streamToObservable(cp.stderr.pipe(split()), {await: cp})
-	).filter(Boolean);
-};
+const cwd = path.join(__dirname, 'eslint-config-unicorn-tester');
 
 const execute = url => {
 	const dest = tempy.directory();
@@ -29,28 +19,48 @@ const execute = url => {
 	return new Listr([
 		{
 			title: 'Cloning',
-			task: () => exec('git', ['clone', url, '--single-branch', dest])
+			task: () => execa('git', ['clone', url, '--single-branch', dest])
 		},
 		{
 			title: 'Running tests',
-			task: () => exec('./node_modules/.bin/eslint', ['--config', './config.json'])
+			task: () => execa('./node_modules/.bin/eslint', ['--config', path.join(cwd, 'index.js'), dest], {cwd})
 		},
 		{
 			title: 'Clean up',
 			task: () => del(dest, {force: true})
 		}
-	]);
+	], {
+		exitOnError: false
+	});
 };
 
-const list = new Listr();
+const list = new Listr([
+	{
+		title: 'Setup',
+		task: () => execa('npm', ['install', '../../../', 'eslint'], {cwd})
+	},
+	{
+		title: 'Integration tests',
+		task: () => {
+			const tests = new Listr({concurrent: true});
 
-for (const [name, url] of packages.entries()) {
-	list.add([
-		{
-			title: name,
-			task: () => execute(url)
+			for (const [name, url] of packages.entries()) {
+				tests.add([
+					{
+						title: name,
+						task: () => execute(url)
+					}
+				]);
+			}
+
+			return tests;
 		}
-	]);
-}
+	}
+]);
 
-list.run();
+list.run()
+	.catch(err => {
+		for (const error of err.errors) {
+			console.error(error.message);
+		}
+	});
