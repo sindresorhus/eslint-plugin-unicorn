@@ -114,6 +114,17 @@ ruleTester.run('catch-error-name', rule, {
 		testCase('obj.catch(function ({message}) {})', null, true),
 		testCase('obj.catch(function (err) {})', 'error', true),
 		testCase('obj.catch(function (_) { console.log(_); })', null, true),
+		// Failing tests for #107
+		// testCase(`
+		// 	foo.then(() => {
+		// 		try {} catch (e) {}
+		// 	}).catch(err => err);
+		// `, null, true),
+		// testCase(`
+		// 	foo.then(() => {
+		// 		try {} catch (e) {}
+		// 	});
+		// `, null, true),
 		{
 			code: `
 				const handleError = err => {
