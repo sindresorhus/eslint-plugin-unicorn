@@ -63,6 +63,12 @@ const create = context => {
 		CallExpression: node => {
 			if (isLintablePromiseCatch(node)) {
 				const params = node.arguments[0].params;
+
+				if (params.length > 0 && params[0].name === '_') {
+					push(!astUtils.containsIdentifier('_', node.arguments[0].body));
+					return;
+				}
+
 				const errName = indexifyName(name, context.getScope());
 				push(params.length === 0 || params[0].name === errName || errName);
 			}

@@ -86,6 +86,8 @@ ruleTester.run('catch-error-name', rule, {
 			}
 		`),
 		testCase('obj.catch(() => {})'),
+		testCase('obj.catch((_) => {})'),
+		testCase('obj.catch((_) => { console.log(foo); })'),
 		testCase('obj.catch(error => {})', 'error'),
 		testCase('obj.catch(outerError => { return obj2.catch(innerError => {}) })'),
 		testCase('obj.catch(function (err) {})'),
@@ -100,13 +102,18 @@ ruleTester.run('catch-error-name', rule, {
 	invalid: [
 		testCase('try {} catch (error) {}', null, true),
 		testCase('try {} catch (err) {}', 'error', true),
+		testCase('try {} catch ({message}) {}', null, true),
 		testCase('try {} catch (_) { console.log(_); }', null, true),
 		testCase('try {} catch (outerError) {}', null, true),
 		testCase('try {} catch (innerError) {}', null, true),
 		testCase('obj.catch(error => {})', null, true),
 		testCase('obj.catch(err => {})', 'error', true),
+		testCase('obj.catch(({message}) => {})', null, true),
+		testCase('obj.catch(_ => { console.log(_); })', null, true),
 		testCase('obj.catch(function (error) {})', null, true),
+		testCase('obj.catch(function ({message}) {})', null, true),
 		testCase('obj.catch(function (err) {})', 'error', true),
+		testCase('obj.catch(function (_) { console.log(_); })', null, true),
 		{
 			code: `
 				const handleError = err => {

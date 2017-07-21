@@ -65,6 +65,13 @@ const handleError = err => {
 }
 ```
 
+```js
+somePromise.catch(_ => {
+	// `_` is allowed when the error is not used
+	console.log(foo);
+});
+```
+
 
 ## Options
 
