@@ -40,9 +40,9 @@ const execute = name => {
 		},
 		{
 			title: 'Running tests',
-			task: () => execa('./node_modules/.bin/eslint', ['--config', path.join(cwd, 'index.js'), dest], {cwd})
+			task: () => execa('eslint', ['--config', path.join(cwd, 'index.js'), dest], {cwd, localDir: __dirname})
 				.catch(err => {
-					if (!/✖ [0-9]+ problems? \([0-9]+ errors?, [0-9]+ warnings?\)/.test(err.message)) {
+					if (!/✖ \d+ problems? \(\d+ errors?, \d+ warnings?\)/.test(err.message)) {
 						err.package = name;
 						throw err;
 					}
