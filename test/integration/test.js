@@ -35,7 +35,7 @@ const packages = new Map([
 	['decompress', 'https://github.com/kevva/decompress'],
 	['npm-conf', 'https://github.com/kevva/npm-conf'],
 	['imagemin', 'https://github.com/imagemin/imagemin'],
-	['ctolor-conver', 'https://github.com/qix-/color-convert']
+	['color-convert', 'https://github.com/qix-/color-convert']
 ]);
 
 const cwd = path.join(__dirname, 'eslint-config-unicorn-tester');
