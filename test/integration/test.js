@@ -8,8 +8,10 @@ const del = require('del');
 const chalk = require('chalk');
 
 const packages = new Map([
-	['got', 'https://github.com/sindresorhus/got'],
 	['ava', 'https://github.com/avajs/ava'],
+	['chalk', 'https://github.com/chalk/chalk'],
+	['wrap-ansi', 'https://github.com/chalk/wrap-ansi'],
+	['got', 'https://github.com/sindresorhus/got'],
 	['pageres', 'https://github.com/sindresorhus/pageres'],
 	['np', 'https://github.com/sindresorhus/np'],
 	['ora', 'https://github.com/sindresorhus/ora'],
@@ -21,11 +23,19 @@ const packages = new Map([
 	['boxen', 'https://github.com/sindresorhus/boxen'],
 	['make-dir', 'https://github.com/sindresorhus/make-dir'],
 	['listr', 'http://github.com/SamVerschueren/listr'],
+	['listr-update-renderer', 'http://github.com/SamVerschueren/listr-update-renderer'],
 	['clinton', 'http://github.com/SamVerschueren/clinton'],
 	['bragg', 'http://github.com/SamVerschueren/bragg'],
 	['bragg-router', 'http://github.com/SamVerschueren/bragg-router'],
 	['dev-time', 'http://github.com/SamVerschueren/dev-time'],
-	['decode-uri-component', 'https://github.com/SamVerschueren/decode-uri-component']
+	['decode-uri-component', 'https://github.com/SamVerschueren/decode-uri-component'],
+	['to-ico', 'https://github.com/kevva/to-ico'],
+	['download', 'https://github.com/kevva/download'],
+	['brightness', 'https://github.com/kevva/brightness'],
+	['decompress', 'https://github.com/kevva/decompress'],
+	['npm-conf', 'https://github.com/kevva/npm-conf'],
+	['imagemin', 'https://github.com/imagemin/imagemin'],
+	['ctolor-conver', 'https://github.com/qix-/color-convert']
 ]);
 
 const cwd = path.join(__dirname, 'eslint-config-unicorn-tester');
