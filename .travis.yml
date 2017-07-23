@@ -10,5 +10,5 @@ matrix:
 before_install:
   - npm i -g npm
 script:
-  - if [ "$INTEGRATION" = true ]; then npm run integration else npm test; fi
+  - "[ \"$INTEGRATION\" = true ] && npm run integration || npm test"
 after_success: npm run coveralls
