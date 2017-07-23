@@ -23,6 +23,8 @@ const packages = new Map([
 	['listr', 'http://github.com/SamVerschueren/listr'],
 	['clinton', 'http://github.com/SamVerschueren/clinton'],
 	['bragg', 'http://github.com/SamVerschueren/bragg'],
+	['bragg-router', 'http://github.com/SamVerschueren/bragg-router'],
+	['dev-time', 'http://github.com/SamVerschueren/dev-time'],
 	['decode-uri-component', 'https://github.com/SamVerschueren/decode-uri-component']
 ]);
 
