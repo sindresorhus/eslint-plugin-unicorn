@@ -18,7 +18,7 @@ const disallowNewError = builtin => ({
 	message: `Use \`${builtin}()\` instead of \`new ${builtin}()\`.`
 });
 
-ruleTester.run('new-regexp', rule, {
+ruleTester.run('new-for-builtins', rule, {
 	valid: [
 		`const foo = new Object()`,
 		`const foo = new Array()`,
