@@ -1,5 +1,6 @@
 'use strict';
 const enforceNew = new Set([
+	'Object',
 	'Array',
 	'ArrayBuffer',
 	'DataView',
@@ -27,7 +28,6 @@ const enforceNew = new Set([
 const disallowNew = new Set([
 	'Boolean',
 	'Number',
-	'Object',
 	'String'
 ]);
 
@@ -39,7 +39,7 @@ const create = context => {
 			if (enforceNew.has(name)) {
 				context.report({
 					node,
-					message: `Use \`new ${name}()\` instead of \`${name}()\``,
+					message: `Use \`new ${name}()\` instead of \`${name}()\`.`,
 					fix: fixer => fixer.insertTextBefore(node, 'new ')
 				});
 			}
@@ -50,7 +50,7 @@ const create = context => {
 			if (disallowNew.has(name)) {
 				context.report({
 					node,
-					message: `Use \`${name}()\` instead of \`new ${name}()\``,
+					message: `Use \`${name}()\` instead of \`new ${name}()\`.`,
 					fix: fixer => fixer.removeRange([
 						node.range[0],
 						node.callee.range[0]

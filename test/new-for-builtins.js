@@ -10,16 +10,17 @@ const ruleTester = avaRuleTester(test, {
 
 const enforceNewError = builtin => ({
 	ruleId: 'new-for-builtins',
-	message: `Use \`new ${builtin}()\` instead of \`${builtin}()\``
+	message: `Use \`new ${builtin}()\` instead of \`${builtin}()\`.`
 });
 
 const disallowNewError = builtin => ({
 	ruleId: 'new-for-builtins',
-	message: `Use \`${builtin}()\` instead of \`new ${builtin}()\``
+	message: `Use \`${builtin}()\` instead of \`new ${builtin}()\`.`
 });
 
 ruleTester.run('new-regexp', rule, {
 	valid: [
+		`const foo = new Object()`,
 		`const foo = new Array()`,
 		`const foo = new ArrayBuffer()`,
 		`const foo = new DataView()`,
@@ -45,10 +46,14 @@ ruleTester.run('new-regexp', rule, {
 		`const foo = new Uint8ClampedArray()`,
 		`const foo = Boolean()`,
 		`const foo = Number()`,
-		`const foo = Object()`,
 		`const foo = String()`
 	],
 	invalid: [
+		{
+			code: `const foo = Object()`,
+			errors: [enforceNewError('Object')],
+			output: `const foo = new Object()`
+		},
 		{
 			code: `const foo = Array()`,
 			errors: [enforceNewError('Array')],
@@ -183,11 +188,6 @@ ruleTester.run('new-regexp', rule, {
 			code: `const foo = new Number('123')`,
 			errors: [disallowNewError('Number')],
 			output: `const foo = Number('123')`
-		},
-		{
-			code: `const foo = new Object()`,
-			errors: [disallowNewError('Object')],
-			output: `const foo = Object()`
 		},
 		{
 			code: `const foo = new String()`,

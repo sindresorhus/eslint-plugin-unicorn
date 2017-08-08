@@ -74,7 +74,7 @@ Configure it in `package.json`.
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
 - [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevents passing a function reference directly to iterator methods. *(fixable)*
 - [import-index](docs/rules/import-index.md) - Enforce importing index files with `.`. *(fixable)*
-- [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number` `Boolean`, and `Object`. *(fixable)*
+- [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number` and `Boolean`. *(fixable)*
 
 
 ## Recommended config
