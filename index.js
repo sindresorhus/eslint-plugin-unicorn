@@ -29,8 +29,8 @@ module.exports = {
 				'unicorn/prefer-starts-ends-with': 'error',
 				'unicorn/prefer-type-error': 'error',
 				'unicorn/no-fn-reference-in-iterator': 'error',
-				'unicorn/new-regexp': 'error',
-				'unicorn/import-index': 'error'
+				'unicorn/import-index': 'error',
+				'unicorn/new-for-builtins': 'error'
 			}
 		}
 	}

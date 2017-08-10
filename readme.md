@@ -48,8 +48,8 @@ Configure it in `package.json`.
 			"unicorn/prefer-starts-ends-with": "error",
 			"unicorn/prefer-type-error": "error",
 			"unicorn/no-fn-reference-in-iterator": "error",
-			"unicorn/new-regexp": "error",
-			"unicorn/import-index": "error"
+			"unicorn/import-index": "error",
+			"unicorn/new-for-builtins": "error"
 		}
 	}
 }
@@ -73,8 +73,8 @@ Configure it in `package.json`.
 - [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith` & `String#endsWith` over more complex alternatives.
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
 - [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevents passing a function reference directly to iterator methods. *(fixable)*
-- [new-regexp](docs/rules/new-regexp.md) - Enforce the use of `new RegExp()` instead of `RegExp()`. *(fixable)*
 - [import-index](docs/rules/import-index.md) - Enforce importing index files with `.`. *(fixable)*
+- [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number` and `Boolean`. *(fixable)*
 
 
 ## Recommended config
