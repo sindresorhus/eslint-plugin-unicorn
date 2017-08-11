@@ -49,7 +49,8 @@ Configure it in `package.json`.
 			"unicorn/prefer-type-error": "error",
 			"unicorn/no-fn-reference-in-iterator": "error",
 			"unicorn/import-index": "error",
-			"unicorn/new-for-builtins": "error"
+			"unicorn/new-for-builtins": "error",
+			"unicorn/regex-shorthand": "error"
 		}
 	}
 }
@@ -75,6 +76,7 @@ Configure it in `package.json`.
 - [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevents passing a function reference directly to iterator methods. *(fixable)*
 - [import-index](docs/rules/import-index.md) - Enforce importing index files with `.`. *(fixable)*
 - [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number` and `Boolean`. *(fixable)*
+- [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
 
 
 ## Recommended config
