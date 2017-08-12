@@ -34,7 +34,7 @@ ruleTester.run('escape-case', rule, {
 		'const foo = "foo \\u2500";',
 		'const foo = "foo \\x46";',
 		'const foo = `foo \\u2500`;',
-		'const foo = `foo \\x46`;'
+		'const foo = `foo \\x46`;',
 		'const foo = "foo\\\\xbar";',
 		'const foo = "foo\\\\ubarbaz";',
 		'const foo = "foo\\\\\\\\xbar";',
