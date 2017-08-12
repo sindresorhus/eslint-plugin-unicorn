@@ -24,7 +24,7 @@ const create = context => {
 
 			const matches = node.raw.match(escapeWithLowercase);
 
-			if (matches && matches[0].slice(2).match(hasLowercaseCharacter)) {
+			if (matches && matches[4].slice(1).match(hasLowercaseCharacter)) {
 				context.report({
 					node,
 					message,
@@ -39,7 +39,7 @@ const create = context => {
 
 			const matches = node.value.raw.match(escapeWithLowercase);
 
-			if (matches && matches[0].slice(2).match(hasLowercaseCharacter)) {
+			if (matches && matches[4].slice(1).match(hasLowercaseCharacter)) {
 				context.report({
 					node,
 					message,
