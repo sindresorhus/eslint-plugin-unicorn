@@ -1,5 +1,5 @@
 'use strict';
-const escapeWithLowercase = /\\(x[a-f\d]{2}|u[a-f\d]{4}|u\{([a-f\d]{1,})\}|c[a-z])/;
+const escapeWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[a-f\d]{2}|u[a-f\d]{4}|u\{(?:[a-f\d]{1,})\}|c[a-z])/;
 const hasLowercaseCharacter = /[a-z]+/;
 const message = 'Use uppercase characters for the value of the escape sequence.';
 
@@ -7,8 +7,9 @@ const fix = value => {
 	const results = escapeWithLowercase.exec(value);
 
 	if (results) {
-		const fixedEscape = results[0].slice(0, 2) + results[0].slice(2).toUpperCase();
-		return value.slice(0, results.index) + fixedEscape + value.slice(results.index + results[0].length);
+		const prefix = results[1].length + 1;
+		const fixedEscape = results[2].slice(0, 1) + results[2].slice(1).toUpperCase();
+		return value.slice(0, results.index + prefix) + fixedEscape + value.slice(results.index + results[0].length);
 	}
 
 	return value;
@@ -23,7 +24,7 @@ const create = context => {
 
 			const matches = node.raw.match(escapeWithLowercase);
 
-			if (matches && matches[0].slice(2).match(hasLowercaseCharacter)) {
+			if (matches && matches[2].slice(1).match(hasLowercaseCharacter)) {
 				context.report({
 					node,
 					message,
@@ -38,7 +39,7 @@ const create = context => {
 
 			const matches = node.value.raw.match(escapeWithLowercase);
 
-			if (matches && matches[0].slice(2).match(hasLowercaseCharacter)) {
+			if (matches && matches[2].slice(1).match(hasLowercaseCharacter)) {
 				context.report({
 					node,
 					message,

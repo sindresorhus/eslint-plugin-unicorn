@@ -22,6 +22,14 @@ ruleTester.run('no-hex-escape', rule, {
 		`const foo = 'foo\\u00b1'`,
 		`const foo = 'foo\\u00b1foo'`,
 		`const foo = '\\u00b1foo'`,
+		`const foo = '\\\\xb1'`,
+		`const foo = '\\\\\\\\xb1'`,
+		`const foo = 'foo\\\\xb1'`,
+		`const foo = 'foo\\\\\\\\xb1'`,
+		`const foo = '\\\\xd8\\\\x3d\\\\xdc\\\\xa9'`,
+		`const foo = 'foo\\\\x12foo\\\\x34'`,
+		`const foo = '\\\\\\\\xd8\\\\\\\\x3d\\\\\\\\xdc\\\\\\\\xa9'`,
+		`const foo = 'foo\\\\\\\\x12foo\\\\\\\\x34'`,
 		'const foo = 42',
 		'const foo = `foo`',
 		'const foo = `\\u00b1`',
@@ -29,7 +37,15 @@ ruleTester.run('no-hex-escape', rule, {
 		'const foo = `foo\\u00b1`',
 		'const foo = `foo\\u00b1foo`',
 		'const foo = `\\u00b1foo`',
-		'const foo = `42`'
+		'const foo = `42`',
+		'const foo = `\\\\xb1`',
+		'const foo = `\\\\\\\\xb1`',
+		'const foo = `foo\\\\xb1`',
+		'const foo = `foo\\\\\\\\xb1`',
+		'const foo = `\\\\xd8\\\\x3d\\\\xdc\\\\xa9`',
+		'const foo = `foo\\\\x12foo\\\\x34`',
+		'const foo = `\\\\\\\\xd8\\\\\\\\x3d\\\\\\\\xdc\\\\\\\\xa9`',
+		'const foo = `foo\\\\\\\\x12foo\\\\\\\\x34`'
 	],
 	invalid: [
 		{
@@ -38,9 +54,29 @@ ruleTester.run('no-hex-escape', rule, {
 			output: `const foo = '\\u00b1'`
 		},
 		{
+			code: `const foo = '\\\\\\xb1'`,
+			errors: [error],
+			output: `const foo = '\\\\\\u00b1'`
+		},
+		{
 			code: `const foo = '\\xb1\\xb1'`,
 			errors: [error],
 			output: `const foo = '\\u00b1\\u00b1'`
+		},
+		{
+			code: `const foo = '\\\\\\xb1\\\\\\xb1'`,
+			errors: [error],
+			output: `const foo = '\\\\\\u00b1\\\\\\u00b1'`
+		},
+		{
+			code: `const foo = '\\\\\\xb1\\\\\\\\xb1'`,
+			errors: [error],
+			output: `const foo = '\\\\\\u00b1\\\\\\\\xb1'`
+		},
+		{
+			code: `const foo = '\\\\\\\\\\xb1\\\\\\xb1'`,
+			errors: [error],
+			output: `const foo = '\\\\\\\\\\u00b1\\\\\\u00b1'`
 		},
 		{
 			code: `const foo = '\\xb1foo'`,
@@ -58,6 +94,16 @@ ruleTester.run('no-hex-escape', rule, {
 			output: `const foo = 'foo\\u00b1'`
 		},
 		{
+			code: `const foo = 'foo\\\\\\xb1'`,
+			errors: [error],
+			output: `const foo = 'foo\\\\\\u00b1'`
+		},
+		{
+			code: `const foo = 'foo\\\\\\\\\\xb1'`,
+			errors: [error],
+			output: `const foo = 'foo\\\\\\\\\\u00b1'`
+		},
+		{
 			code: `const foo = 'foo\\x12foo\\x34'`,
 			errors: [error],
 			output: `const foo = 'foo\\u0012foo\\u0034'`
@@ -67,6 +113,11 @@ ruleTester.run('no-hex-escape', rule, {
 			errors: [error],
 			output: `const foo = '42\\u001242\\u0034'`
 		},
+		{
+			code: `const foo = '42\\\\\\x1242\\\\\\x34'`,
+			errors: [error],
+			output: `const foo = '42\\\\\\u001242\\\\\\u0034'`
+		},
 		// Test template literals
 		{
 			code: 'const foo = `\\xb1`',
@@ -74,9 +125,29 @@ ruleTester.run('no-hex-escape', rule, {
 			output: 'const foo = `\\u00b1`'
 		},
 		{
+			code: 'const foo = `\\\\\\xb1`',
+			errors: [error],
+			output: 'const foo = `\\\\\\u00b1`'
+		},
+		{
 			code: 'const foo = `\\xb1\\xb1`',
 			errors: [error],
 			output: 'const foo = `\\u00b1\\u00b1`'
+		},
+		{
+			code: 'const foo = `\\\\\\xb1\\\\\\xb1`',
+			errors: [error],
+			output: 'const foo = `\\\\\\u00b1\\\\\\u00b1`'
+		},
+		{
+			code: 'const foo = `\\\\\\\\\\xb1\\\\\\xb1`',
+			errors: [error],
+			output: 'const foo = `\\\\\\\\\\u00b1\\\\\\u00b1`'
+		},
+		{
+			code: 'const foo = `\\\\\\\\\\xb1\\\\\\\\xb1`',
+			errors: [error],
+			output: 'const foo = `\\\\\\\\\\u00b1\\\\\\\\xb1`'
 		},
 		{
 			code: 'const foo = `\\xb1foo`',
@@ -94,6 +165,16 @@ ruleTester.run('no-hex-escape', rule, {
 			output: 'const foo = `foo\\u00b1`'
 		},
 		{
+			code: 'const foo = `foo\\\\\\xb1`',
+			errors: [error],
+			output: 'const foo = `foo\\\\\\u00b1`'
+		},
+		{
+			code: 'const foo = `foo\\\\\\\\\\xb1`',
+			errors: [error],
+			output: 'const foo = `foo\\\\\\\\\\u00b1`'
+		},
+		{
 			code: 'const foo = `foo\\x12foo\\x34`',
 			errors: [error],
 			output: 'const foo = `foo\\u0012foo\\u0034`'
@@ -102,6 +183,11 @@ ruleTester.run('no-hex-escape', rule, {
 			code: 'const foo = `42\\x1242\\x34`',
 			errors: [error],
 			output: 'const foo = `42\\u001242\\u0034`'
+		},
+		{
+			code: 'const foo = `42\\\\\\x1242\\\\\\x34`',
+			errors: [error],
+			output: 'const foo = `42\\\\\\u001242\\\\\\u0034`'
 		}
 	]
 });

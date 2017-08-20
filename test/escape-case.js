@@ -31,12 +31,18 @@ ruleTester.run('escape-case', rule, {
 		'const foo = "\\uD834foo";',
 		'const foo = "foo\\uD834";',
 		'const foo = "foo \\uD834";',
-		'const foo = "\\u2500";',
-		'const foo = "\\x46";',
 		'const foo = "foo \\u2500";',
 		'const foo = "foo \\x46";',
 		'const foo = `foo \\u2500`;',
-		'const foo = `foo \\x46`;'
+		'const foo = `foo \\x46`;',
+		'const foo = "foo\\\\xbar";',
+		'const foo = "foo\\\\ubarbaz";',
+		'const foo = "foo\\\\\\\\xbar";',
+		'const foo = "foo\\\\\\\\ubarbaz";',
+		'const foo = `foo\\\\xbar`;',
+		'const foo = `foo\\\\ubarbaz`;',
+		'const foo = `foo\\\\\\\\xbar`;',
+		'const foo = `foo\\\\\\\\ubarbaz`;'
 	],
 	invalid: [
 		{
@@ -113,6 +119,36 @@ ruleTester.run('escape-case', rule, {
 			code: 'const foo = "foo \\ud834";',
 			errors,
 			output: 'const foo = "foo \\uD834";'
+		},
+		{
+			code: 'const foo = "\\\\\\ud834foo";',
+			errors,
+			output: 'const foo = "\\\\\\uD834foo";'
+		},
+		{
+			code: 'const foo = "foo\\\\\\ud834";',
+			errors,
+			output: 'const foo = "foo\\\\\\uD834";'
+		},
+		{
+			code: 'const foo = "foo \\\\\\ud834";',
+			errors,
+			output: 'const foo = "foo \\\\\\uD834";'
+		},
+		{
+			code: 'const foo = `\\\\\\ud834foo`;',
+			errors,
+			output: 'const foo = `\\\\\\uD834foo`;'
+		},
+		{
+			code: 'const foo = `foo\\\\\\ud834`;',
+			errors,
+			output: 'const foo = `foo\\\\\\uD834`;'
+		},
+		{
+			code: 'const foo = `foo \\\\\\ud834`;',
+			errors,
+			output: 'const foo = `foo \\\\\\uD834`;'
 		}
 	]
 });
