@@ -18,7 +18,6 @@ const enforceNew = new Set([
 	'WeakSet',
 	'Promise',
 	'RegExp',
-	'Symbol',
 	'Uint8Array',
 	'Uint16Array',
 	'Uint32Array',
@@ -28,7 +27,8 @@ const enforceNew = new Set([
 const disallowNew = new Set([
 	'Boolean',
 	'Number',
-	'String'
+	'String',
+	'Symbol'
 ]);
 
 const create = context => {

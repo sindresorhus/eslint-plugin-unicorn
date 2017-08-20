@@ -22,7 +22,6 @@ Enforces the use of `new` for following builtins.
 - `WeakSet`
 - `Promise`
 - `RegExp`
-- `Symbol`
 - `Uint8Array`
 - `Uint16Array`
 - `Uint32Array`
@@ -33,6 +32,7 @@ Disallows the use of `new` for following builtins.
 - `String`
 - `Number`
 - `Boolean`
+- `Symbol`
 
 > These should not use `new` as that would create object wrappers for the primitive values, which is not what you want. However, without `new` they can be useful for coercing a value to that type.
 

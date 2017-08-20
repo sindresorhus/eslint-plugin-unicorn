@@ -39,14 +39,14 @@ ruleTester.run('new-for-builtins', rule, {
 		`const foo = new WeakSet()`,
 		`const foo = new Promise()`,
 		`const foo = new RegExp()`,
-		`const foo = new Symbol()`,
 		`const foo = new UInt8Array()`,
 		`const foo = new UInt16Array()`,
 		`const foo = new UInt32Array()`,
 		`const foo = new Uint8ClampedArray()`,
 		`const foo = Boolean()`,
 		`const foo = Number()`,
-		`const foo = String()`
+		`const foo = String()`,
+		`const foo = Symbol()`
 	],
 	invalid: [
 		{
@@ -150,11 +150,6 @@ ruleTester.run('new-for-builtins', rule, {
 			output: `const foo = new RegExp()`
 		},
 		{
-			code: `const foo = Symbol()`,
-			errors: [enforceNewError('Symbol')],
-			output: `const foo = new Symbol()`
-		},
-		{
 			code: `const foo = Uint8Array()`,
 			errors: [enforceNewError('Uint8Array')],
 			output: `const foo = new Uint8Array()`
@@ -193,6 +188,11 @@ ruleTester.run('new-for-builtins', rule, {
 			code: `const foo = new String()`,
 			errors: [disallowNewError('String')],
 			output: `const foo = String()`
+		},
+		{
+			code: `const foo = new Symbol()`,
+			errors: [disallowNewError('Symbol')],
+			output: `const foo = Symbol()`
 		}
 	]
 });
