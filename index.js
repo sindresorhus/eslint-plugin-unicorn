@@ -31,7 +31,8 @@ module.exports = {
 				'unicorn/no-fn-reference-in-iterator': 'error',
 				'unicorn/import-index': 'error',
 				'unicorn/new-for-builtins': 'error',
-				'unicorn/regex-shorthand': 'error'
+				'unicorn/regex-shorthand': 'error',
+				'unicorn/prefer-spread': 'error'
 			}
 		}
 	}
