@@ -30,7 +30,7 @@ const fix = (context, node) => {
 };
 
 const create = context => ({
-	CallExpression: node => {
+	'CallExpression[callee.object.name!="Promise"]': node => {
 		if (isIteratorMethod(node) && hasFunctionArgument(node)) {
 			const arg = node.arguments[0];
 
