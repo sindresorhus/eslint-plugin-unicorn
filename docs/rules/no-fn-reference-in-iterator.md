@@ -165,3 +165,9 @@ const fn = x => x === 2;
 
 [1, 2, 3].map(x => m({foo: 'bar'})(x));
 ```
+
+```js
+const fn = x => x === 2;
+
+Promise.map(filenames, fn);
+```
