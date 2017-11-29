@@ -63,6 +63,38 @@ ruleTester.run('custom-error-definition', rule, {
 					this.name = 'FooError';
 				}
 			}
+		`,
+		`
+			export class FooError extends TypeError {
+				constructor() {
+					super();
+					this.name = 'FooError';
+				}
+			};
+		`,
+		`
+			export default class FooError extends TypeError {
+				constructor() {
+					super();
+					this.name = 'FooError';
+				}
+			};
+		`,
+		`
+			module.exports = class FooError extends TypeError {
+				constructor() {
+					super();
+					this.name = 'FooError';
+				}
+			};
+		`,
+		`
+			exports.FooError = class FooError extends TypeError {
+				constructor() {
+					super();
+					this.name = 'FooError';
+				}
+			};
 		`
 	],
 	invalid: [
@@ -291,6 +323,58 @@ ruleTester.run('custom-error-definition', rule, {
 						this.name = 'foo';
 					}
 				}
+			`,
+			errors: [
+				invalidNameError('FooError')
+			]
+		},
+		{
+			code: `
+				module.exports = class FooError extends TypeError {
+					constructor() {
+						super();
+						this.name = 'foo';
+					}
+				};
+			`,
+			errors: [
+				invalidNameError('FooError')
+			]
+		},
+		{
+			code: `
+				exports.FooError = class FooError extends TypeError {
+					constructor() {
+						super();
+						this.name = 'foo';
+					}
+				};
+			`,
+			errors: [
+				invalidNameError('FooError')
+			]
+		},
+		{
+			code: `
+				export class FooError extends TypeError {
+					constructor() {
+						super();
+						this.name = 'foo';
+					}
+				};
+			`,
+			errors: [
+				invalidNameError('FooError')
+			]
+		},
+		{
+			code: `
+				export default class FooError extends TypeError {
+					constructor() {
+						super();
+						this.name = 'foo';
+					}
+				};
 			`,
 			errors: [
 				invalidNameError('FooError')
