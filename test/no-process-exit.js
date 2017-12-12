@@ -24,6 +24,11 @@ ruleTester.run('no-process-exit', rule, {
 		'process.on("SIGINT", () => { process.exit(1); })',
 		'process.on("SIGINT", () => process.exit(1))',
 		'process.on("SIGINT", () => { if (true) { process.exit(1); } })',
+		'process.once("SIGINT", function() { process.exit(1); })',
+		'process.once("SIGKILL", function() { process.exit(1); })',
+		'process.once("SIGINT", () => { process.exit(1); })',
+		'process.once("SIGINT", () => process.exit(1))',
+		'process.once("SIGINT", () => { if (true) { process.exit(1); } })',
 		''
 	],
 	invalid: [
