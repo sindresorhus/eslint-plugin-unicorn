@@ -14,7 +14,7 @@ const create = context => {
 			const callee = node.callee;
 
 			if (callee.type === 'MemberExpression' && callee.object.name === 'process') {
-				if (callee.property.name === 'on') {
+				if (callee.property.name === 'on' || callee.property.name === 'once') {
 					processEventHandler = node;
 					return;
 				}
