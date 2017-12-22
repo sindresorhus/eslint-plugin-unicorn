@@ -66,6 +66,10 @@ function splitFilename(filename) {
 	};
 }
 
+function isIndexFile(filenameWithExt) {
+	return path.basename(filenameWithExt) === 'index.js';
+}
+
 const create = context => {
 	const chosenCase = cases[context.options[0].case || 'camelCase'];
 	const filenameWithExt = context.getFilename();
@@ -78,6 +82,11 @@ const create = context => {
 		Program: node => {
 			const extension = path.extname(filenameWithExt);
 			const filename = path.basename(filenameWithExt, extension);
+
+			if (isIndexFile(filenameWithExt)) {
+				return;
+			}
+
 			const splitName = splitFilename(filename);
 			const fixedFilename = fixFilename(chosenCase, splitName.trailing);
 			const renameFilename = splitName.leading + fixedFilename + extension;
