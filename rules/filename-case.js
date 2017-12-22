@@ -78,6 +78,11 @@ const create = context => {
 		Program: node => {
 			const extension = path.extname(filenameWithExt);
 			const filename = path.basename(filenameWithExt, extension);
+
+			if (filename + extension === 'index.js') {
+				return;
+			}
+
 			const splitName = splitFilename(filename);
 			const fixedFilename = fixFilename(chosenCase, splitName.trailing);
 			const renameFilename = splitName.leading + fixedFilename + extension;
