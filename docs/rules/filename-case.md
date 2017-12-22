@@ -1,6 +1,8 @@
 # Enforce a case style for filenames
 
-Enforces all linted files to have their names in a certain case style with the exception of `index.js`. Default is `kebabCase`.
+Enforces all linted files to have their names in a certain case style. Default is `kebabCase`.
+
+Files named `index.js` are ignored as they can't change case (Only a problem with `pascalCase`).
 
 
 ### `kebabCase`
@@ -27,7 +29,6 @@ Enforces all linted files to have their names in a certain case style with the e
 - `FooBar.Test.js`
 - `FooBar.TestUtils.js`
 
-Therefore, the `pascalCase` rule will not be applied to `index.js`
 
 ## Options
 
