@@ -61,6 +61,7 @@ Configure it in `package.json`.
 
 - [catch-error-name](docs/rules/catch-error-name.md) - Enforce a specific parameter name in catch clauses.
 - [explicit-length-check](docs/rules/explicit-length-check.md) - Enforce explicitly comparing the `length` property of a value. *(partly fixable)*
+- [error-message](docs/rules/error-message.md) - Enforce passing `message` parameter when throwing an error
 - [filename-case](docs/rules/filename-case.md) - Enforce a case style for filenames.
 - [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) - Enforce specifying rules to disable in `eslint-disable` comments.
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
