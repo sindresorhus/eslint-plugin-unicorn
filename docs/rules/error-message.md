@@ -1,6 +1,6 @@
 # Enforce passing a `message` value when throwing an error
 
-This rule enforce a `message` value to be passed in when throwing an instance of an `Error` object, which leads to more readable code
+This rule enforces a `message` value to be passed in when throwing an instance of an `Error` object, which leads to more readable code.
 
 
 ## Fail

@@ -1,6 +1,6 @@
 'use strict';
+const utils = require('../utils');
 
-const customError = /^(?:[A-Z][a-z0-9]*)*Error$/;
 const isReferenceAssigned = expression => {
 	if (expression.type === 'AssignmentExpression') {
 		const assignedVariable = expression.left;
@@ -18,13 +18,13 @@ const findIdentifierValues = (identifierNode, context) => {
 
 	const expressions = declarations.references.map(reference => reference.identifier.parent);
 	const referenceValues = [];
-	expressions.forEach(expression => {
+	for (const expression of expressions) {
 		if (isReferenceAssigned(expression)) {
 			referenceValues.push(expression.right);
 		} else if (expression.type === 'VariableDeclarator') {
 			referenceValues.push(expression.init);
 		}
-	});
+	}
 	return referenceValues;
 };
 
@@ -34,7 +34,7 @@ const isEmptyMessageString = node => {
 
 const reportError = (expressionNode, context) => {
 	const error = expressionNode.callee;
-	if (customError.test(error.name)) {
+	if (utils.customError.test(error.name)) {
 		if (expressionNode.arguments.length === 0) {
 			context.report({
 				node: expressionNode.parent,
@@ -54,7 +54,9 @@ const reportError = (expressionNode, context) => {
 const checkErrorMessage = (node, context) => {
 	if (node.type === 'Identifier') {
 		const identifierValues = findIdentifierValues(node, context);
-		identifierValues.forEach(node => checkErrorMessage(node, context));
+		for (const node of identifierValues) {
+			checkErrorMessage(node, context);
+		}
 	} else if (node.type === 'NewExpression' || node.type === 'CallExpression') {
 		reportError(node, context);
 	}
@@ -67,7 +69,9 @@ const create = context => {
 			throwStatements.push(throwStatement);
 		},
 		'Program:exit'() {
-			throwStatements.forEach(throwStatement => checkErrorMessage(throwStatement.argument, context));
+			for (const throwStatement of throwStatements) {
+				checkErrorMessage(throwStatement.argument, context);
+			}
 		}
 	};
 };
