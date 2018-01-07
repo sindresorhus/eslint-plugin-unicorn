@@ -23,6 +23,11 @@ ruleTester.run('prefer-spread', rule, {
 	],
 	invalid: [
 		{
+			code: 'const x = Array.from(set);',
+			errors: [{message: 'Prefer the spread operator over `Array.from()`.', column: 11, line: 1}],
+			output: 'const x = [...set];'
+		},
+		{
 			code: 'Array.from(set).map(() => {});',
 			errors: [{message: 'Prefer the spread operator over `Array.from()`.', column: 1, line: 1}],
 			output: '[...set].map(() => {});'
