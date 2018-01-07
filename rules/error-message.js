@@ -1,5 +1,15 @@
 'use strict';
-const utils = require('../utils');
+
+const errorConstructors = new Set([
+	'Error',
+	'EvalError',
+	'InternalError',
+	'RangeError',
+	'ReferenceError',
+	'SyntaxError',
+	'TypeError',
+	'URIError'
+]);
 
 const isReferenceAssigned = expression => {
 	if (expression.type === 'AssignmentExpression') {
@@ -34,11 +44,12 @@ const isEmptyMessageString = node => {
 
 const reportError = (expressionNode, context) => {
 	const error = expressionNode.callee;
-	if (utils.customError.test(error.name)) {
+	if (errorConstructors.has(error.name)) {
+		console.log(error.name);
 		if (expressionNode.arguments.length === 0) {
 			context.report({
 				node: expressionNode.parent,
-				message: 'Pass a message to the error object'
+				message: 'Pass a message to the error constructor'
 			});
 		}
 

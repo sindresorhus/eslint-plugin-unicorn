@@ -77,7 +77,7 @@ Configure it in `package.json`.
 - [import-index](docs/rules/import-index.md) - Enforce importing index files with `.`. *(fixable)*
 - [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number` and `Boolean`. *(fixable)*
 - [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
-- [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing an error
+- [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error object.
 
 
 ## Recommended config

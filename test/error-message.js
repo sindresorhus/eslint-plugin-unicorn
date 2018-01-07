@@ -15,7 +15,7 @@ const emptyStringError = {
 
 const noMessageError = {
 	ruleId: 'error-message',
-	message: 'Pass a message to the error object'
+	message: 'Pass a message to the error constructor'
 };
 
 ruleTester.run('error-message', rule, {
@@ -23,6 +23,8 @@ ruleTester.run('error-message', rule, {
 		`throw new Error('error')`,
 		`throw new TypeError('error')`,
 		`throw new MyCustomError('error')`,
+		`throw new MyCustomError()`,
+		`throw generateError()`,
 		'throw new Error(lineNumber=2)',
 		'throw new Error([])',
 		'throw foo()',
@@ -56,6 +58,14 @@ ruleTester.run('error-message', rule, {
 			code: `
 			let err = 1;
 			err = new Error();
+			throw err;
+			`,
+			errors: [noMessageError]
+		},
+		{
+			code: `
+			err = new Error();
+			let err = 1;
 			throw err;
 			`,
 			errors: [noMessageError]
