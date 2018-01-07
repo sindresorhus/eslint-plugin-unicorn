@@ -50,7 +50,8 @@ Configure it in `package.json`.
 			"unicorn/no-fn-reference-in-iterator": "error",
 			"unicorn/import-index": "error",
 			"unicorn/new-for-builtins": "error",
-			"unicorn/regex-shorthand": "error"
+			"unicorn/regex-shorthand": "error",
+			"unicorn/prefer-spread": "error"
 		}
 	}
 }
@@ -77,6 +78,7 @@ Configure it in `package.json`.
 - [import-index](docs/rules/import-index.md) - Enforce importing index files with `.`. *(fixable)*
 - [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number` and `Boolean`. *(fixable)*
 - [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
+- [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
 
 
 ## Recommended config
