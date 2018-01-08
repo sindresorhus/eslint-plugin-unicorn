@@ -130,6 +130,9 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/custom-error-definition.md'
+		},
 		fixable: 'code'
 	}
 };

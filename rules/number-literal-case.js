@@ -30,6 +30,9 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/number-literal-case.md'
+		},
 		fixable: 'code'
 	}
 };
