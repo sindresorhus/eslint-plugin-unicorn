@@ -1,6 +1,6 @@
-# Enforce passing a `message` value when throwing a built-in error object
+# Enforce passing a `message` value when throwing a built-in error
 
-This rule enforces a `message` value to be passed in when throwing an instance of a built-in `Error` object, which leads to more readable and better debuggable code.
+This rule enforces a `message` value to be passed in when throwing an instance of a built-in `Error` object, which leads to more readable and debuggable code.
 
 
 ## Fail
@@ -26,14 +26,14 @@ throw err;
 ## Pass
 
 ```js
-throw Error('foo');
+throw Error('Foo');
 ```
 
 ```js
-throw new TypeError('foo');
+throw new TypeError('Foo');
 ```
 
 ```js
-const err = new Error('foo');
+const err = new Error('Foo');
 throw err;
 ```
