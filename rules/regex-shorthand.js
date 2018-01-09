@@ -47,7 +47,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('regex-shorthand')
+			url: getDocsUrl()
 		},
 		fixable: 'code'
 	}

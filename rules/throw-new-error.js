@@ -22,7 +22,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('throw-new-error')
+			url: getDocsUrl()
 		},
 		fixable: 'code'
 	}

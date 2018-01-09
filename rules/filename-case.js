@@ -116,7 +116,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('filename-case')
+			url: getDocsUrl()
 		},
 		schema
 	}

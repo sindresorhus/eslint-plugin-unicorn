@@ -120,7 +120,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('prefer-type-error')
+			url: getDocsUrl()
 		},
 		fixable: 'code'
 	}

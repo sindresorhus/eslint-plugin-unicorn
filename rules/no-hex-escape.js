@@ -29,7 +29,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('no-hex-escape')
+			url: getDocsUrl()
 		},
 		fixable: 'code'
 	}

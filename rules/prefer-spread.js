@@ -51,7 +51,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('prefer-spread')
+			url: getDocsUrl()
 		},
 		fixable: 'code'
 	}

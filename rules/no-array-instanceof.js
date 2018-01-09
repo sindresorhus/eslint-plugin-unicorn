@@ -20,7 +20,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('no-array-instanceof')
+			url: getDocsUrl()
 		},
 		fixable: 'code'
 	}

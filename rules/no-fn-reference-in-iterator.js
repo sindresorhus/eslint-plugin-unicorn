@@ -49,7 +49,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('no-fn-reference-in-iterator')
+			url: getDocsUrl()
 		},
 		fixable: 'code'
 	}

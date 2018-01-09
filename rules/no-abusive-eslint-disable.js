@@ -32,7 +32,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('no-abusive-eslint-disable')
+			url: getDocsUrl()
 		}
 	}
 };

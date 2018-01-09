@@ -25,7 +25,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('no-new-buffer')
+			url: getDocsUrl()
 		},
 		fixable: 'code'
 	}

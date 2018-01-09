@@ -56,7 +56,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('escape-case')
+			url: getDocsUrl()
 		},
 		fixable: 'code'
 	}

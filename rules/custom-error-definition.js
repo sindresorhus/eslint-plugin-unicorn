@@ -132,7 +132,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('custom-error-definition')
+			url: getDocsUrl()
 		},
 		fixable: 'code'
 	}

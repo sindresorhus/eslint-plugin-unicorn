@@ -107,7 +107,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('catch-error-name')
+			url: getDocsUrl()
 		},
 		schema
 	}

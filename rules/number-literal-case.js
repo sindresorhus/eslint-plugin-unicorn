@@ -33,7 +33,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('number-literal-case')
+			url: getDocsUrl()
 		},
 		fixable: 'code'
 	}

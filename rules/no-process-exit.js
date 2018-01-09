@@ -40,7 +40,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('no-process-exit')
+			url: getDocsUrl()
 		}
 	}
 };

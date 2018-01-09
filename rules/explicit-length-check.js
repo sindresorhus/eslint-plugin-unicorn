@@ -149,7 +149,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('explicit-length-check')
+			url: getDocsUrl()
 		},
 		fixable: 'code',
 		schema

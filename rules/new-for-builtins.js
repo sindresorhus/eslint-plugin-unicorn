@@ -67,7 +67,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('new-for-builtins')
+			url: getDocsUrl()
 		},
 		fixable: 'code'
 	}

@@ -26,7 +26,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('import-index')
+			url: getDocsUrl()
 		},
 		fixable: 'code'
 	}

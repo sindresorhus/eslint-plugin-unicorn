@@ -53,7 +53,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl('prefer-starts-ends-with')
+			url: getDocsUrl()
 		}
 	}
 };
