@@ -1,5 +1,6 @@
 'use strict';
 const upperfirst = require('lodash.upperfirst');
+const getDocsUrl = require('./utils/get-docs-url');
 
 const nameRegexp = /^(?:[A-Z][a-z0-9]*)*Error$/;
 
@@ -131,7 +132,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/custom-error-definition.md'
+			url: getDocsUrl('custom-error-definition')
 		},
 		fixable: 'code'
 	}

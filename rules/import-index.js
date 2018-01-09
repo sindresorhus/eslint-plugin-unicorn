@@ -1,4 +1,6 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
+
 const regexp = /^(@.*?\/.*?|[./]+?.*?)(?:\/(?:index(?:\.js)?)?)$/;
 const isImportingIndex = m => regexp.test(m);
 const normalize = m => m.replace(regexp, '$1');
@@ -24,7 +26,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/import-index.md'
+			url: getDocsUrl('import-index')
 		},
 		fixable: 'code'
 	}

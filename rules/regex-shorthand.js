@@ -1,5 +1,6 @@
 'use strict';
 const cleanRegexp = require('clean-regexp');
+const getDocsUrl = require('./utils/get-docs-url');
 
 const message = 'Use regex shorthands to improve readability.';
 
@@ -46,7 +47,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/regex-shorthand.md'
+			url: getDocsUrl('regex-shorthand')
 		},
 		fixable: 'code'
 	}

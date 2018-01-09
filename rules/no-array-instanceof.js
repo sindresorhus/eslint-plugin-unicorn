@@ -1,4 +1,5 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
 
 const create = context => ({
 	BinaryExpression: node => {
@@ -19,7 +20,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/no-array-instanceof.md'
+			url: getDocsUrl('no-array-instanceof')
 		},
 		fixable: 'code'
 	}

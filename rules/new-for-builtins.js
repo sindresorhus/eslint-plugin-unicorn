@@ -1,4 +1,6 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
+
 const enforceNew = new Set([
 	'Object',
 	'Array',
@@ -65,7 +67,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/new-for-builtins.md'
+			url: getDocsUrl('new-for-builtins')
 		},
 		fixable: 'code'
 	}

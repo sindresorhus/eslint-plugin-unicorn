@@ -4,6 +4,7 @@ const camelCase = require('lodash.camelcase');
 const kebabCase = require('lodash.kebabcase');
 const snakeCase = require('lodash.snakecase');
 const upperfirst = require('lodash.upperfirst');
+const getDocsUrl = require('./utils/get-docs-url');
 
 const pascalCase = str => upperfirst(camelCase(str));
 const numberRegex = /(\d+)/;
@@ -115,7 +116,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/filename-case.md'
+			url: getDocsUrl('filename-case')
 		},
 		schema
 	}

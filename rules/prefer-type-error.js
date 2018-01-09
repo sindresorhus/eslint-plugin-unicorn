@@ -1,4 +1,5 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
 
 const tcIdentifiers = new Set([
 	'isArguments',
@@ -119,7 +120,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/prefer-type-error.md'
+			url: getDocsUrl('prefer-type-error')
 		},
 		fixable: 'code'
 	}

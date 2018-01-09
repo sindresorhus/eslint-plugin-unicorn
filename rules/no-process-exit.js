@@ -1,4 +1,5 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
 
 const create = context => {
 	const startsWithHashBang = context.getSourceCode().lines[0].indexOf('#!') === 0;
@@ -39,7 +40,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/no-process-exit.md'
+			url: getDocsUrl('no-process-exit')
 		}
 	}
 };

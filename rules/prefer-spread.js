@@ -1,4 +1,5 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
 
 const isArrayFrom = node => {
 	const callee = node.callee;
@@ -50,7 +51,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/prefer-spread.md'
+			url: getDocsUrl('prefer-spread')
 		},
 		fixable: 'code'
 	}

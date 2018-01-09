@@ -1,4 +1,5 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
 
 const customError = /^(?:[A-Z][a-z0-9]*)*Error$/;
 
@@ -21,7 +22,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/throw-new-error.md'
+			url: getDocsUrl('throw-new-error')
 		},
 		fixable: 'code'
 	}

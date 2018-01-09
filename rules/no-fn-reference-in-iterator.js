@@ -1,4 +1,6 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
+
 const iteratorMethods = new Map([
 	['map', 1],
 	['forEach', 1],
@@ -47,7 +49,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/no-fn-reference-in-iterator.md'
+			url: getDocsUrl('no-fn-reference-in-iterator')
 		},
 		fixable: 'code'
 	}

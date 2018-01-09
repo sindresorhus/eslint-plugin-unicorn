@@ -1,4 +1,5 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
 
 const disableRegex = /^eslint-disable(-next-line|-line)?($|(\s+([\w-]+))?)/;
 
@@ -31,7 +32,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/no-abusive-eslint-disable.md'
+			url: getDocsUrl('no-abusive-eslint-disable')
 		}
 	}
 };

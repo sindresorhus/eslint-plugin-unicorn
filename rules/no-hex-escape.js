@@ -1,5 +1,6 @@
 /* eslint-disable unicorn/no-hex-escape */
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
 
 function checkEscape(context, node, value) {
 	const fixedValue = typeof value === 'string' ? value.replace(/((?:^|[^\\])(?:\\\\)*)\\x/g, '$1\\u00') : value;
@@ -28,7 +29,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/no-hex-escape.md'
+			url: getDocsUrl('no-hex-escape')
 		},
 		fixable: 'code'
 	}

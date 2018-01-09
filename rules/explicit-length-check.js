@@ -1,4 +1,5 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
 
 const operatorTypes = {
 	gt: ['>'],
@@ -148,7 +149,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/explicit-length-check.md'
+			url: getDocsUrl('explicit-length-check')
 		},
 		fixable: 'code',
 		schema

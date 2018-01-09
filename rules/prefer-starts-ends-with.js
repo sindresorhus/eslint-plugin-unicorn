@@ -1,4 +1,6 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
+
 const doesNotContain = (string, chars) => chars.every(char => !string.includes(char));
 
 const isSimpleString = string => doesNotContain(
@@ -51,8 +53,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/prefer-starts-ends-with.md'
+			url: getDocsUrl('prefer-starts-ends-with')
 		}
 	}
 };
-

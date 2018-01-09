@@ -1,4 +1,6 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
+
 const inferMethod = args => (args.length > 0 && typeof args[0].value === 'number') ? 'alloc' : 'from';
 
 const create = context => {
@@ -23,7 +25,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/no-new-buffer.md'
+			url: getDocsUrl('no-new-buffer')
 		},
 		fixable: 'code'
 	}

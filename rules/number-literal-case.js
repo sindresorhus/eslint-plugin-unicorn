@@ -1,4 +1,6 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
+
 const fix = value => {
 	if (!/^0[a-zA-Z]/.test(value)) {
 		return value;
@@ -31,7 +33,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: 'https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/docs/rules/number-literal-case.md'
+			url: getDocsUrl('number-literal-case')
 		},
 		fixable: 'code'
 	}
