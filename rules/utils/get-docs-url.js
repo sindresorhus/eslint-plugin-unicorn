@@ -3,9 +3,7 @@ const path = require('path');
 
 const repoUrl = 'https://github.com/sindresorhus/eslint-plugin-unicorn';
 
-module.exports = (ruleName, commitHash) => {
+module.exports = (ruleName) => {
 	ruleName = ruleName || path.basename(module.parent.filename, '.js');
-	commitHash = commitHash || 'master';
-
-	return `${repoUrl}/blob/${commitHash}/docs/rules/${ruleName}.md`;
+	return `${repoUrl}/blob/master/docs/rules/${ruleName}.md`;
 };
