@@ -11,6 +11,11 @@ const create = context => {
 
 			const newPattern = cleanRegexp(oldPattern, flags);
 
+			// Handle regex literal inside RegExp constructor in the other handler
+			if (node.parent.type === 'NewExpression' && node.parent.callee.name === 'RegExp') {
+				return;
+			}
+
 			if (oldPattern !== newPattern) {
 				context.report({
 					node,
@@ -26,8 +31,18 @@ const create = context => {
 				return;
 			}
 
-			const oldPattern = args[0].value;
-			const flags = args[1] && args[1].type === 'Literal' ? args[1].value : '';
+			const hasRegExp = args[0].regex;
+
+			let oldPattern = null;
+			let flags = null;
+
+			if (hasRegExp) {
+				oldPattern = args[0].regex.pattern;
+				flags = args[1] && args[1].type === 'Literal' ? args[1].value : args[0].regex.flags;
+			} else {
+				oldPattern = args[0].value;
+				flags = args[1] && args[1].type === 'Literal' ? args[1].value : '';
+			}
 
 			const newPattern = cleanRegexp(oldPattern, flags);
 
@@ -35,7 +50,7 @@ const create = context => {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceTextRange(args[0].range, `'${newPattern}'`)
+					fix: fixer => fixer.replaceTextRange(args[0].range, hasRegExp ? `/${newPattern}/` : `'${newPattern}'`)
 				});
 			}
 		}
