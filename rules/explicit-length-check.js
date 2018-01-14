@@ -1,4 +1,5 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
 
 const operatorTypes = {
 	gt: ['>'],
@@ -147,6 +148,9 @@ const schema = [{
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: getDocsUrl()
+		},
 		fixable: 'code',
 		schema
 	}

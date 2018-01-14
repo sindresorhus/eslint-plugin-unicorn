@@ -1,5 +1,6 @@
 'use strict';
 const cleanRegexp = require('clean-regexp');
+const getDocsUrl = require('./utils/get-docs-url');
 
 const message = 'Use regex shorthands to improve readability.';
 
@@ -60,6 +61,9 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: getDocsUrl()
+		},
 		fixable: 'code'
 	}
 };

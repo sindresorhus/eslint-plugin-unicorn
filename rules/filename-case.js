@@ -4,6 +4,7 @@ const camelCase = require('lodash.camelcase');
 const kebabCase = require('lodash.kebabcase');
 const snakeCase = require('lodash.snakecase');
 const upperfirst = require('lodash.upperfirst');
+const getDocsUrl = require('./utils/get-docs-url');
 
 const pascalCase = str => upperfirst(camelCase(str));
 const numberRegex = /(\d+)/;
@@ -114,6 +115,9 @@ const schema = [{
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: getDocsUrl()
+		},
 		schema
 	}
 };

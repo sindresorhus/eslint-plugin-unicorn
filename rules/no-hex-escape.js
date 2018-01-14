@@ -1,5 +1,6 @@
 /* eslint-disable unicorn/no-hex-escape */
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
 
 function checkEscape(context, node, value) {
 	const fixedValue = typeof value === 'string' ? value.replace(/((?:^|[^\\])(?:\\\\)*)\\x/g, '$1\\u00') : value;
@@ -27,6 +28,9 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: getDocsUrl()
+		},
 		fixable: 'code'
 	}
 };

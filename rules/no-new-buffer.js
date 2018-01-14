@@ -1,4 +1,6 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
+
 const inferMethod = args => (args.length > 0 && typeof args[0].value === 'number') ? 'alloc' : 'from';
 
 const create = context => {
@@ -22,6 +24,9 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: getDocsUrl()
+		},
 		fixable: 'code'
 	}
 };

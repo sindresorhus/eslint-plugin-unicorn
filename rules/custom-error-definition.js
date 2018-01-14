@@ -1,5 +1,6 @@
 'use strict';
 const upperfirst = require('lodash.upperfirst');
+const getDocsUrl = require('./utils/get-docs-url');
 
 const nameRegexp = /^(?:[A-Z][a-z0-9]*)*Error$/;
 
@@ -130,6 +131,9 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: getDocsUrl()
+		},
 		fixable: 'code'
 	}
 };

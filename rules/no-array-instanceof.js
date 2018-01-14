@@ -1,4 +1,5 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
 
 const create = context => ({
 	BinaryExpression: node => {
@@ -18,6 +19,9 @@ const create = context => ({
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: getDocsUrl()
+		},
 		fixable: 'code'
 	}
 };

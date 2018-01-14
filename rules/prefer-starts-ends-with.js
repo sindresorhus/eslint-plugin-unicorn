@@ -1,4 +1,6 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
+
 const doesNotContain = (string, chars) => chars.every(char => !string.includes(char));
 
 const isSimpleString = string => doesNotContain(
@@ -49,6 +51,9 @@ const create = context => {
 
 module.exports = {
 	create,
-	meta: {}
+	meta: {
+		docs: {
+			url: getDocsUrl()
+		}
+	}
 };
-

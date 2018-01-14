@@ -1,4 +1,6 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
+
 const iteratorMethods = new Map([
 	['map', 1],
 	['forEach', 1],
@@ -46,6 +48,9 @@ const create = context => ({
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: getDocsUrl()
+		},
 		fixable: 'code'
 	}
 };

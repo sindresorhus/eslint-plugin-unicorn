@@ -1,4 +1,5 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
 
 const disableRegex = /^eslint-disable(-next-line|-line)?($|(\s+([\w-]+))?)/;
 
@@ -29,5 +30,9 @@ const create = context => ({
 
 module.exports = {
 	create,
-	meta: {}
+	meta: {
+		docs: {
+			url: getDocsUrl()
+		}
+	}
 };
