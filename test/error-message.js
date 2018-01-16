@@ -64,8 +64,8 @@ ruleTester.run('error-message', rule, {
 		},
 		{
 			code: `
-			err = new Error();
-			let err = 1;
+			let err = new Error();
+			err = 1;
 			throw err;
 			`,
 			errors: [noMessageError]

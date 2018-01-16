@@ -45,7 +45,6 @@ const isEmptyMessageString = node => {
 const reportError = (expressionNode, context) => {
 	const error = expressionNode.callee;
 	if (errorConstructors.has(error.name)) {
-		console.log(error.name);
 		if (expressionNode.arguments.length === 0) {
 			context.report({
 				node: expressionNode.parent,
