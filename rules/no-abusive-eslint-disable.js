@@ -1,7 +1,7 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
-const disableRegex = /^eslint-disable(-next-line|-line)?($|(\s+([\w-]+))?)/;
+const disableRegex = /^eslint-disable(-next-line|-line)?($|(\s+(@[\w-]+\/[\w-]+\/)?[\w-]+)?)/;
 
 const create = context => ({
 	Program: node => {
