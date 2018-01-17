@@ -75,7 +75,7 @@ somePromise.catch(_ => {
 
 ## Options
 
-### Name
+### name
 
 You can set the `name` option like this:
 
@@ -89,8 +89,8 @@ You can set the `name` option like this:
 "unicorn/catch-error-name": ["error", {"caughtErrorsIgnorePattern": "^ignore"}]
 ```
 
-The `caughtErrorsIgnorePattern` option specifies exceptions not to check for usage: catch arguments whose names match a regexp pattern. 
-For example, variables whose names begin with a string ‘ignore’.
+The `caughtErrorsIgnorePattern` option specifies exceptions not to check for usage: catch arguments whose names match a regexp pattern.
+For example, variables whose names begin with a string `ignore`. Default is `^ignore`.
 
 ## Fail
 
@@ -98,7 +98,7 @@ For example, variables whose names begin with a string ‘ignore’.
 try {
 	doSomething();
 } catch (skipErr) {
-	// ...
+	// …
 }
 ```
 
@@ -108,7 +108,6 @@ try {
 try {
 	doSomething();
 } catch (ignoreErr) {
-	// ...
+	// …
 }
 ```
-

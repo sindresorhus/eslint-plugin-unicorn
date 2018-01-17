@@ -37,9 +37,9 @@ function indexifyName(name, scope) {
 }
 
 const create = context => {
-	const opts = context.options[0];
-	const name = (opts && opts.name) || 'err';
-	const caughtErrorsIgnorePattern = opts && opts.caughtErrorsIgnorePattern ?
+	const opts = Object.assign({}, {name: 'err'}, context.options[0]);
+	const name = opts.name;
+	const caughtErrorsIgnorePattern = opts.caughtErrorsIgnorePattern ?
 		new RegExp(opts.caughtErrorsIgnorePattern) :
 		null;
 	const stack = [];
