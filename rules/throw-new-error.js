@@ -1,7 +1,7 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
-const customError = /^(?:[A-Z][a-z0-9]*)*Error$/;
+const customError = /^(?:[A-Z][a-z\d]*)*Error$/;
 
 const create = context => ({
 	ThrowStatement: node => {

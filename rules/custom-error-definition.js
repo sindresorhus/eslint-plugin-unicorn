@@ -2,7 +2,7 @@
 const upperfirst = require('lodash.upperfirst');
 const getDocsUrl = require('./utils/get-docs-url');
 
-const nameRegexp = /^(?:[A-Z][a-z0-9]*)*Error$/;
+const nameRegexp = /^(?:[A-Z][a-z\d]*)*Error$/;
 
 const getClassName = name => upperfirst(name).replace(/(error|)$/i, 'Error');
 
