@@ -1,5 +1,6 @@
 'use strict';
 const astUtils = require('eslint-ast-utils');
+const getDocsUrl = require('./utils/get-docs-url');
 
 // Matches someObj.then([FunctionExpression | ArrowFunctionExpression])
 function isLintablePromiseCatch(node) {
@@ -105,6 +106,9 @@ const schema = [{
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: getDocsUrl()
+		},
 		schema
 	}
 };

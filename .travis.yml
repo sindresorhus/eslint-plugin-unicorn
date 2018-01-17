@@ -8,7 +8,7 @@ matrix:
     - node_js: 8
       env: INTEGRATION=true
 before_install:
-  - npm i -g npm
+  - npm install --global npm
 script:
   - "[ \"$INTEGRATION\" = true ] && npm run integration || npm test"
 after_success: npm run coveralls

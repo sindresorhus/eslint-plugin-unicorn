@@ -1,4 +1,5 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
 
 const create = context => {
 	const startsWithHashBang = context.getSourceCode().lines[0].indexOf('#!') === 0;
@@ -14,7 +15,7 @@ const create = context => {
 			const callee = node.callee;
 
 			if (callee.type === 'MemberExpression' && callee.object.name === 'process') {
-				if (callee.property.name === 'on') {
+				if (callee.property.name === 'on' || callee.property.name === 'once') {
 					processEventHandler = node;
 					return;
 				}
@@ -37,5 +38,9 @@ const create = context => {
 
 module.exports = {
 	create,
-	meta: {}
+	meta: {
+		docs: {
+			url: getDocsUrl()
+		}
+	}
 };

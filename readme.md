@@ -50,7 +50,9 @@ Configure it in `package.json`.
 			"unicorn/no-fn-reference-in-iterator": "error",
 			"unicorn/import-index": "error",
 			"unicorn/new-for-builtins": "error",
-			"unicorn/regex-shorthand": "error"
+			"unicorn/regex-shorthand": "error",
+			"unicorn/prefer-spread": "error",
+			"unicorn/error-message": "error"
 		}
 	}
 }
@@ -77,6 +79,8 @@ Configure it in `package.json`.
 - [import-index](docs/rules/import-index.md) - Enforce importing index files with `.`. *(fixable)*
 - [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number` and `Boolean`. *(fixable)*
 - [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
+- [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
+- [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
 
 
 ## Recommended config
@@ -102,15 +106,14 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 **Note**: This config will also enable the correct [parser options](http://eslint.org/docs/user-guide/configuring#specifying-parser-options) and [environment](http://eslint.org/docs/user-guide/configuring#specifying-environments).
 
 
-## Created by
+## Maintainers
 
 - [Sindre Sorhus](https://github.com/sindresorhus)
 - [James Talmage](https://github.com/jamestalmage)
 - [Jeroen Engels](https://github.com/jfmengels)
 - [Sam Verschueren](https://github.com/SamVerschueren)
-- [Contributors…](../../graphs/contributors)
 
 
 ## License
 
-MIT © [Sindre Sorhus](https://sindresorhus.com)
+MIT

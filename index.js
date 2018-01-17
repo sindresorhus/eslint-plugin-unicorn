@@ -14,7 +14,7 @@ module.exports = {
 				sourceType: 'module'
 			},
 			rules: {
-				'unicorn/catch-error-name': ['error', {name: 'err'}],
+				'unicorn/catch-error-name': ['off', {name: 'err'}],
 				'unicorn/explicit-length-check': 'error',
 				'unicorn/filename-case': ['error', {case: 'kebabCase'}],
 				'unicorn/no-abusive-eslint-disable': 'error',
@@ -32,6 +32,8 @@ module.exports = {
 				'unicorn/import-index': 'error',
 				'unicorn/new-for-builtins': 'error',
 				'unicorn/regex-shorthand': 'error',
+				'unicorn/prefer-spread': 'error',
+				'unicorn/error-message': 'error',
 				'unicorn/prefer-includes': 'error'
 			}
 		}

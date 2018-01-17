@@ -1,4 +1,6 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
+
 const enforceNew = new Set([
 	'Object',
 	'Array',
@@ -64,6 +66,9 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: getDocsUrl()
+		},
 		fixable: 'code'
 	}
 };

@@ -2,6 +2,8 @@
 
 Enforces all linted files to have their names in a certain case style. Default is `kebabCase`.
 
+Files named `index.js` are ignored as they can't change case (Only a problem with `pascalCase`).
+
 
 ### `kebabCase`
 

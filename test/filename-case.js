@@ -56,6 +56,7 @@ ruleTester.run('filename-case', rule, {
 		testCase('spec/Iss47Spec.js', 'pascalCase'),
 		testCase('spec/Iss47.100Spec.js', 'pascalCase'),
 		testCase('spec/I18n.js', 'pascalCase'),
+		testCase('spec/index.js', 'pascalCase'),
 		testCase('<text>', 'camelCase'),
 		testCase('<text>', 'snakeCase'),
 		testCase('<text>', 'kebabCase'),

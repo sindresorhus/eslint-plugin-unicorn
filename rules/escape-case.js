@@ -1,4 +1,6 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
+
 const escapeWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[a-f\d]{2}|u[a-f\d]{4}|u\{(?:[a-f\d]{1,})\}|c[a-z])/;
 const hasLowercaseCharacter = /[a-z]+/;
 const message = 'Use uppercase characters for the value of the escape sequence.';
@@ -53,6 +55,9 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: getDocsUrl()
+		},
 		fixable: 'code'
 	}
 };

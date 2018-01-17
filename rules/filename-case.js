@@ -4,6 +4,7 @@ const camelCase = require('lodash.camelcase');
 const kebabCase = require('lodash.kebabcase');
 const snakeCase = require('lodash.snakecase');
 const upperfirst = require('lodash.upperfirst');
+const getDocsUrl = require('./utils/get-docs-url');
 
 const pascalCase = str => upperfirst(camelCase(str));
 const numberRegex = /(\d+)/;
@@ -78,6 +79,11 @@ const create = context => {
 		Program: node => {
 			const extension = path.extname(filenameWithExt);
 			const filename = path.basename(filenameWithExt, extension);
+
+			if (filename + extension === 'index.js') {
+				return;
+			}
+
 			const splitName = splitFilename(filename);
 			const fixedFilename = fixFilename(chosenCase, splitName.trailing);
 			const renameFilename = splitName.leading + fixedFilename + extension;
@@ -109,6 +115,9 @@ const schema = [{
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: getDocsUrl()
+		},
 		schema
 	}
 };

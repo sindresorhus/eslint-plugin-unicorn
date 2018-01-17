@@ -1,4 +1,6 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
+
 const iteratorMethods = new Map([
 	['map', 1],
 	['forEach', 1],
@@ -30,7 +32,7 @@ const fix = (context, node) => {
 };
 
 const create = context => ({
-	CallExpression: node => {
+	'CallExpression[callee.object.name!="Promise"]': node => {
 		if (isIteratorMethod(node) && hasFunctionArgument(node)) {
 			const arg = node.arguments[0];
 
@@ -46,6 +48,9 @@ const create = context => ({
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: getDocsUrl()
+		},
 		fixable: 'code'
 	}
 };
