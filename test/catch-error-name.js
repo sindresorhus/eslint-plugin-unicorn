@@ -97,7 +97,51 @@ ruleTester.run('catch-error-name', rule, {
 		testCase('obj.catch()'),
 		testCase('foo(function (err) {})'),
 		testCase('foo().then(function (err) {})'),
-		testCase('foo().catch(function (err) {})')
+		testCase('foo().catch(function (err) {})'),
+		{
+			code: 'try {} catch (ignoreErr) {}',
+			options: [
+				{
+					name: 'error',
+					caughtErrorsIgnorePattern: '^ignore'
+				}
+			]
+		},
+		{
+			code: 'try {} catch (ignoreErr) { try {} catch (ignoreErr) {} }',
+			options: [
+				{
+					name: 'error',
+					caughtErrorsIgnorePattern: '^ignore'
+				}
+			]
+		},
+		{
+			code: `
+				const handleError = error => {
+					try {
+						doSomething();
+					} catch (ignoreErr) {
+						console.log(ignoreErr);
+					}
+				}
+			`,
+			options: [
+				{
+					name: 'error',
+					caughtErrorsIgnorePattern: '^ignore'
+				}
+			]
+		},
+		{
+			code: 'obj.catch(ignoreErr => {})',
+			options: [
+				{
+					name: 'error',
+					caughtErrorsIgnorePattern: '^ignore'
+				}
+			]
+		}
 	],
 	invalid: [
 		testCase('try {} catch (error) {}', null, true),
@@ -204,6 +248,21 @@ ruleTester.run('catch-error-name', rule, {
 			errors: [
 				{ruleId: 'catch-error-name'},
 				{ruleId: 'catch-error-name'}
+			]
+		},
+		{
+			code: 'try {} catch (ignoreErr) {}',
+			errors: [
+				{
+					ruleId: 'catch-error-name',
+					message: 'The catch parameter should be named `error`.'
+				}
+			],
+			options: [
+				{
+					name: 'error',
+					caughtErrorsIgnorePattern: '^skip'
+				}
 			]
 		}
 	]

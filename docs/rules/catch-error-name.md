@@ -75,8 +75,40 @@ somePromise.catch(_ => {
 
 ## Options
 
+### Name
+
 You can set the `name` option like this:
 
 ```js
 "unicorn/catch-error-name": ["error", {"name": "err"}]
 ```
+
+### caughtErrorsIgnorePattern
+
+```js
+"unicorn/catch-error-name": ["error", {"caughtErrorsIgnorePattern": "^ignore"}]
+```
+
+The `caughtErrorsIgnorePattern` option specifies exceptions not to check for usage: catch arguments whose names match a regexp pattern. 
+For example, variables whose names begin with a string ‘ignore’.
+
+## Fail
+
+```js
+try {
+	doSomething();
+} catch (skipErr) {
+	// ...
+}
+```
+
+## Pass
+
+```js
+try {
+	doSomething();
+} catch (ignoreErr) {
+	// ...
+}
+```
+
