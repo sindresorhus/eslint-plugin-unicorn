@@ -1,4 +1,5 @@
 'use strict';
+const getDocsUrl = require('./utils/get-docs-url');
 
 const isIndexOfCallExpression = node => {
 	if (node.type !== 'CallExpression') {
@@ -105,6 +106,9 @@ const create = context => ({
 module.exports = {
 	create,
 	meta: {
+		docs: {
+			url: getDocsUrl()
+		},
 		fixable: 'code'
 	}
 };
