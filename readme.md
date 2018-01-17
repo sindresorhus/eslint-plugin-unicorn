@@ -51,7 +51,8 @@ Configure it in `package.json`.
 			"unicorn/import-index": "error",
 			"unicorn/new-for-builtins": "error",
 			"unicorn/regex-shorthand": "error",
-			"unicorn/prefer-spread": "error"
+			"unicorn/prefer-spread": "error",
+			"unicorn/error-message": "error"
 		}
 	}
 }
@@ -79,6 +80,7 @@ Configure it in `package.json`.
 - [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number` and `Boolean`. *(fixable)*
 - [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
 - [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
+- [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
 
 
 ## Recommended config

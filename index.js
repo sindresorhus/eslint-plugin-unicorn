@@ -32,7 +32,8 @@ module.exports = {
 				'unicorn/import-index': 'error',
 				'unicorn/new-for-builtins': 'error',
 				'unicorn/regex-shorthand': 'error',
-				'unicorn/prefer-spread': 'error'
+				'unicorn/prefer-spread': 'error',
+				'unicorn/error-message': 'error'
 			}
 		}
 	}
