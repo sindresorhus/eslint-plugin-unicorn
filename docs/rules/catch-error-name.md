@@ -86,11 +86,11 @@ You can set the `name` option like this:
 ### caughtErrorsIgnorePattern
 
 ```js
-"unicorn/catch-error-name": ["error", {"caughtErrorsIgnorePattern": "^ignore"}]
+"unicorn/catch-error-name": ["error", {"caughtErrorsIgnorePattern": "^_"}]
 ```
 
 The `caughtErrorsIgnorePattern` option specifies exceptions not to check for usage: catch arguments whose names match a regexp pattern.
-For example, variables whose names begin with a string `ignore`. Default is `^ignore`.
+For example, variables whose names begin with a string `_`. Default is `^_`.
 
 ## Fail
 
@@ -107,7 +107,7 @@ try {
 ```js
 try {
 	doSomething();
-} catch (ignoreErr) {
+} catch (_err) {
 	// …
 }
 ```

@@ -95,50 +95,29 @@ ruleTester.run('catch-error-name', rule, {
 		testCase('obj.catch(function (error) {})', 'error'),
 		testCase('obj.catch(function (outerError) { return obj2.catch(function (innerError) {}) })'),
 		testCase('obj.catch()'),
+		testCase('obj.catch(_ => { console.log(_); })'),
+		testCase('obj.catch(function (_) { console.log(_); })'),
 		testCase('foo(function (err) {})'),
 		testCase('foo().then(function (err) {})'),
 		testCase('foo().catch(function (err) {})'),
-		{
-			code: 'try {} catch (ignoreErr) {}',
-			options: [
-				{
-					name: 'error',
-					caughtErrorsIgnorePattern: '^ignore'
-				}
-			]
-		},
-		{
-			code: 'try {} catch (ignoreErr) { try {} catch (ignoreErr) {} }',
-			options: [
-				{
-					name: 'error',
-					caughtErrorsIgnorePattern: '^ignore'
-				}
-			]
-		},
-		{
-			code: `
+		testCase('try {} catch (_err) {}'),
+		testCase('try {} catch (_err) { try {} catch (_err) {} }'),
+		testCase('try {} catch (_) { console.log(_); }'),
+		testCase(`
 				const handleError = error => {
 					try {
 						doSomething();
-					} catch (ignoreErr) {
-						console.log(ignoreErr);
+					} catch (_err) {
+						console.log(_err);
 					}
 				}
-			`,
-			options: [
-				{
-					name: 'error',
-					caughtErrorsIgnorePattern: '^ignore'
-				}
-			]
-		},
+		`),
+		testCase('obj.catch(_err => {})'),
 		{
-			code: 'obj.catch(ignoreErr => {})',
+			code: 'try {} catch (skipErr) {}',
 			options: [
 				{
-					name: 'error',
-					caughtErrorsIgnorePattern: '^ignore'
+					caughtErrorsIgnorePattern: '^skip'
 				}
 			]
 		}
@@ -147,17 +126,14 @@ ruleTester.run('catch-error-name', rule, {
 		testCase('try {} catch (error) {}', null, true),
 		testCase('try {} catch (err) {}', 'error', true),
 		testCase('try {} catch ({message}) {}', null, true),
-		testCase('try {} catch (_) { console.log(_); }', null, true),
 		testCase('try {} catch (outerError) {}', null, true),
 		testCase('try {} catch (innerError) {}', null, true),
 		testCase('obj.catch(error => {})', null, true),
 		testCase('obj.catch(err => {})', 'error', true),
 		testCase('obj.catch(({message}) => {})', null, true),
-		testCase('obj.catch(_ => { console.log(_); })', null, true),
 		testCase('obj.catch(function (error) {})', null, true),
 		testCase('obj.catch(function ({message}) {})', null, true),
 		testCase('obj.catch(function (err) {})', 'error', true),
-		testCase('obj.catch(function (_) { console.log(_); })', null, true),
 		// Failing tests for #107
 		// testCase(`
 		// 	foo.then(() => {
@@ -251,16 +227,15 @@ ruleTester.run('catch-error-name', rule, {
 			]
 		},
 		{
-			code: 'try {} catch (ignoreErr) {}',
+			code: 'try {} catch (_err) {}',
 			errors: [
 				{
 					ruleId: 'catch-error-name',
-					message: 'The catch parameter should be named `error`.'
+					message: 'The catch parameter should be named `err`.'
 				}
 			],
 			options: [
 				{
-					name: 'error',
 					caughtErrorsIgnorePattern: '^skip'
 				}
 			]

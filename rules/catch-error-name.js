@@ -39,9 +39,7 @@ function indexifyName(name, scope) {
 const create = context => {
 	const opts = Object.assign({}, {name: 'err'}, context.options[0]);
 	const name = opts.name;
-	const caughtErrorsIgnorePattern = opts.caughtErrorsIgnorePattern ?
-		new RegExp(opts.caughtErrorsIgnorePattern) :
-		null;
+	const caughtErrorsIgnorePattern = new RegExp(opts.caughtErrorsIgnorePattern || '^_');
 	const stack = [];
 
 	function push(value) {
@@ -55,7 +53,7 @@ const create = context => {
 	function popAndReport(node) {
 		const value = stack.pop();
 
-		if (caughtErrorsIgnorePattern && caughtErrorsIgnorePattern.test(node.name)) {
+		if (node && caughtErrorsIgnorePattern.test(node.name)) {
 			return;
 		}
 
