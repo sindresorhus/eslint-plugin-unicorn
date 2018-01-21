@@ -52,7 +52,8 @@ Configure it in `package.json`.
 			"unicorn/new-for-builtins": "error",
 			"unicorn/regex-shorthand": "error",
 			"unicorn/prefer-spread": "error",
-			"unicorn/error-message": "error"
+			"unicorn/error-message": "error",
+			"unicorn/no-unsafe-regex": "error"
 		}
 	}
 }
@@ -81,6 +82,7 @@ Configure it in `package.json`.
 - [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
 - [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
 - [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
+- [no-unsafe-regex](docs/rules/no-unsafe-regex.md) - Disallow unsafe regular expressions.
 
 
 ## Recommended config
