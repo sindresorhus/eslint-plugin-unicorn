@@ -100,19 +100,19 @@ ruleTester.run('catch-error-name', rule, {
 		testCase('foo(function (err) {})'),
 		testCase('foo().then(function (err) {})'),
 		testCase('foo().catch(function (err) {})'),
-		testCase('try {} catch (_err) {}'),
-		testCase('try {} catch (_err) { try {} catch (_err) {} }'),
+		testCase('try {} catch (_) {}'),
+		testCase('try {} catch (_) { try {} catch (_) {} }'),
 		testCase('try {} catch (_) { console.log(_); }'),
 		testCase(`
 				const handleError = error => {
 					try {
 						doSomething();
-					} catch (_err) {
-						console.log(_err);
+					} catch (_) {
+						console.log(_);
 					}
 				}
 		`),
-		testCase('obj.catch(_err => {})'),
+		testCase('obj.catch(_ => {})'),
 		{
 			code: 'try {} catch (skipErr) {}',
 			options: [
