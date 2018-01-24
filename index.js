@@ -28,6 +28,7 @@ module.exports = {
 				'unicorn/custom-error-definition': 'error',
 				'unicorn/prefer-starts-ends-with': 'error',
 				'unicorn/prefer-type-error': 'error',
+				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/no-fn-reference-in-iterator': 'error',
 				'unicorn/import-index': 'error',
 				'unicorn/new-for-builtins': 'error',
