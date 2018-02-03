@@ -2,7 +2,7 @@
 const astUtils = require('eslint-ast-utils');
 const getDocsUrl = require('./utils/get-docs-url');
 
-// Matches someObj.then([FunctionExpression | ArrowFunctionExpression])
+// Matches `someObj.then([FunctionExpression | ArrowFunctionExpression])`
 function isLintablePromiseCatch(node) {
 	const callee = node.callee;
 
@@ -37,9 +37,13 @@ function indexifyName(name, scope) {
 }
 
 const create = context => {
-	const opts = Object.assign({}, {name: 'err'}, context.options[0]);
-	const name = opts.name;
-	const caughtErrorsIgnorePattern = new RegExp(opts.caughtErrorsIgnorePattern || '^_$');
+	const options = Object.assign({}, {
+		name: 'err',
+		caughtErrorsIgnorePattern: '^_$'
+	}, context.options[0]);
+
+	const name = options.name;
+	const caughtErrorsIgnorePattern = new RegExp(options.caughtErrorsIgnorePattern);
 	const stack = [];
 
 	function push(value) {
@@ -53,11 +57,7 @@ const create = context => {
 	function popAndReport(node) {
 		const value = stack.pop();
 
-		if (node && caughtErrorsIgnorePattern.test(node.name)) {
-			return;
-		}
-
-		if (value !== true) {
+		if (value !== true && !caughtErrorsIgnorePattern.test(node.name)) {
 			context.report({
 				node,
 				message: `The catch parameter should be named \`${value || name}\`.`

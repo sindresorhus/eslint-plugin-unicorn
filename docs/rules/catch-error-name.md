@@ -89,25 +89,24 @@ You can set the `name` option like this:
 "unicorn/catch-error-name": ["error", {"caughtErrorsIgnorePattern": "^_$"}]
 ```
 
-The `caughtErrorsIgnorePattern` option specifies exceptions not to check for usage: catch arguments whose names match a regexp pattern.
-For example, variables whose names is a string `_`. Default is `^_$`.
+This option lets you specify a regex pattern for matches to ignore. Default is `^_$`.
 
-## Fail
+With `^unicorn$`, this would fail:
 
 ```js
 try {
 	doSomething();
-} catch (skipErr) {
+} catch (pony) {
 	// …
 }
 ```
 
-## Pass
+And this would pass:
 
 ```js
 try {
 	doSomething();
-} catch (_) {
+} catch (unicorn) {
 	// …
 }
 ```
