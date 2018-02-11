@@ -1,8 +1,8 @@
 # Prefer `addEventListener` over `on`-functions
 
-Enforces the using `addEventListener` over `on`-functions for HTML DOM Events, such as `onclick` and `onkeydown`. There are numerous advantages of using `addEventListener`, which is described [here](https://stackoverflow.com/questions/6348494/addeventlistener-vs-onclick/35093997#35093997). Some of these advantages include registering unlimited event handlers and works in almost every browser.
+Enforces the use of, for example, `foo.addEventListener('click', handler);` over `foo.onclick = handler;` for HTML DOM Events. There are [numerous advantages of using `addEventListener`](https://stackoverflow.com/questions/6348494/addeventlistener-vs-onclick/35093997#35093997). Some of these advantages include registering unlimited event handlers and optionally having the event handler invoked only once.
 
-`on`-functions can be converted easily to `addEventListener` using the `--fix` option.
+This rule is fixable.
 
 
 ## Fail
@@ -26,9 +26,9 @@ foo.addEventListener('click', () => {});
 ```
 
 ```js
-foo.onclick;
+foo.addEventListener('keydown', () => {});
 ```
 
 ```js
-foo.setCallBack = () => {console.log('foo')};
+foo.bar.addEventListener('click', onClick);
 ```
