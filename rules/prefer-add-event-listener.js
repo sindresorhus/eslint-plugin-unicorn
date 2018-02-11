@@ -33,7 +33,7 @@ const create = context => {
 			if (isOnEvent(memberExpression, context, node)) {
 				context.report({
 					node,
-					message: `Prefer addEventListener over ${getEventMethodName(memberExpression)}`,
+					message: `Prefer \`addEventListener\` over \`${getEventMethodName(memberExpression)}\``,
 					fix: fixer => fix(fixer, context.getSourceCode(), node, memberExpression)
 				});
 			}
