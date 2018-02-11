@@ -12,7 +12,7 @@ const invalidTestCase = (code, correctCode, eventType) => {
 	return {
 		code,
 		output: correctCode,
-		errors: [{message: `Prefer addEventListener over ${eventType}`}]
+		errors: [{message: `Prefer \`addEventListener\` over \`${eventType}\``}]
 	};
 };
 
