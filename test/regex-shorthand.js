@@ -32,7 +32,8 @@ ruleTester.run('regex-shorthand', rule, {
 		`const foo = new RegExp(/\\d/ig)`,
 		`const foo = new RegExp(/\\d/, 'ig')`,
 		`const foo = new RegExp(/\\d*?/)`,
-		`const foo = new RegExp(/[a-z]/, 'i')`
+		`const foo = new RegExp(/[a-z]/, 'i')`,
+		`const foo = new RegExp(/^[^*]*[*]?$/)`
 	],
 	invalid: [
 		{

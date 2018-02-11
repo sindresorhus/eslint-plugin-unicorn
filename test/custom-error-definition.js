@@ -96,6 +96,13 @@ ruleTester.run('custom-error-definition', rule, {
 				}
 			};
 		`
+		// `
+		// 	exports.FooError = class extends Error {
+		// 		constructor(error) {
+		// 			super(error);
+		// 		}
+		// 	};
+		// `
 	],
 	invalid: [
 		{

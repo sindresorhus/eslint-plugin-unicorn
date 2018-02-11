@@ -44,17 +44,17 @@ Configure it in `package.json`.
 			"unicorn/no-array-instanceof": "error",
 			"unicorn/no-new-buffer": "error",
 			"unicorn/no-hex-escape": "error",
-			"unicorn/custom-error-definition": "error",
+			"unicorn/custom-error-definition": "off",
 			"unicorn/prefer-starts-ends-with": "error",
 			"unicorn/prefer-type-error": "error",
-			"unicorn/prefer-add-event-listener": "error",
-			"unicorn/no-fn-reference-in-iterator": "error",
+			"unicorn/no-fn-reference-in-iterator": "off",
 			"unicorn/import-index": "error",
 			"unicorn/new-for-builtins": "error",
 			"unicorn/regex-shorthand": "error",
 			"unicorn/prefer-spread": "error",
 			"unicorn/error-message": "error",
-			"unicorn/no-unsafe-regex": "error"
+			"unicorn/no-unsafe-regex": "error",
+			"unicorn/prefer-add-event-listener": "error"
 		}
 	}
 }
