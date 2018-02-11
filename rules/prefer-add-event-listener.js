@@ -4,14 +4,8 @@ const domEventsJson = require('./utils/dom-events.json');
 
 const nestedEvents = Object.keys(domEventsJson).map(key => domEventsJson[key]);
 const eventTypes = new Set(nestedEvents.reduce((accEvents, events) => accEvents.concat(events), []));
-
-const getEventMethodName = memberExpression => {
-	return memberExpression.property.name;
-};
-
-const getEventTypeName = eventMethodName => {
-	return eventMethodName.substring('on'.length);
-};
+const getEventMethodName = memberExpression => memberExpression.property.name;
+const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 
 const fix = (fixer, sourceCode, assignmentNode, memberExpression) => {
 	const eventTypeName = getEventTypeName(getEventMethodName(memberExpression));
@@ -21,14 +15,14 @@ const fix = (fixer, sourceCode, assignmentNode, memberExpression) => {
 	return fixer.replaceText(assignmentNode, fixedCodeStatement);
 };
 
-const isOnEvent = function (memberExpression) {
+const isOnEvent = memberExpression => {
 	if (memberExpression.type === 'MemberExpression') {
 		const eventMethodName = getEventMethodName(memberExpression);
 		if (eventMethodName.startsWith('on')) {
-			const eventTypeName = getEventTypeName(eventMethodName);
-			return eventTypes.has(eventTypeName);
+			return eventTypes.has(getEventTypeName(eventMethodName));
 		}
 	}
+	
 	return false;
 };
 
