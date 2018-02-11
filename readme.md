@@ -53,7 +53,8 @@ Configure it in `package.json`.
 			"unicorn/regex-shorthand": "error",
 			"unicorn/prefer-spread": "error",
 			"unicorn/error-message": "error",
-			"unicorn/no-unsafe-regex": "error"
+			"unicorn/no-unsafe-regex": "error",
+			"unicorn/prefer-add-event-listener": "error"
 		}
 	}
 }
@@ -83,6 +84,7 @@ Configure it in `package.json`.
 - [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
 - [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
 - [no-unsafe-regex](docs/rules/no-unsafe-regex.md) - Disallow unsafe regular expressions.
+- [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `addEventListener` over `on`-functions. *(fixable)*
 
 
 ## Recommended config
