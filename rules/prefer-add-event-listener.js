@@ -22,7 +22,7 @@ const isOnEvent = memberExpression => {
 			return eventTypes.has(getEventTypeName(eventMethodName));
 		}
 	}
-	
+
 	return false;
 };
 
