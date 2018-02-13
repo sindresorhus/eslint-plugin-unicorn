@@ -22,7 +22,8 @@ ruleTester.run('prefer-add-event-listener', rule, {
 		`foo.onclick`,
 		`foo.setCallBack = () => {console.log('foo')}`,
 		`setCallBack = () => {console.log('foo')}`,
-		`foo.onclick.bar = () => {}`
+		`foo.onclick.bar = () => {}`,
+		`foo['x'] = true;`
 	],
 	invalid: [
 		invalidTestCase(

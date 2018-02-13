@@ -18,7 +18,7 @@ const fix = (fixer, sourceCode, assignmentNode, memberExpression) => {
 const isOnEvent = memberExpression => {
 	if (memberExpression.type === 'MemberExpression') {
 		const eventMethodName = getEventMethodName(memberExpression);
-		if (eventMethodName.startsWith('on')) {
+		if (eventMethodName && eventMethodName.startsWith('on')) {
 			return eventTypes.has(getEventTypeName(eventMethodName));
 		}
 	}
