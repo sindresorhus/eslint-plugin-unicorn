@@ -4,7 +4,7 @@
 
 > Various awesome ESLint rules
 
-You might want to check out [XO](https://github.com/sindresorhus/xo), which includes this plugin.
+You might want to check out [XO](https://github.com/xojs/xo), which includes this plugin.
 
 
 ## Install
