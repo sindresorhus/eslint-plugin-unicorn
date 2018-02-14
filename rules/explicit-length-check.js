@@ -12,7 +12,8 @@ function reportError(context, node, message, fixDetails) {
 		node,
 		message,
 		fix: fixDetails && (fixer => {
-			return fixer.replaceText(node,
+			return fixer.replaceText(
+				node,
 				`${context.getSourceCode().getText(fixDetails.node)} ${fixDetails.operator} ${fixDetails.value}`
 			);
 		})
@@ -21,7 +22,8 @@ function reportError(context, node, message, fixDetails) {
 
 function checkZeroType(context, node) {
 	if (node.operator === '<' && node.right.value === 1) {
-		reportError(context,
+		reportError(
+			context,
 			node,
 			'Zero `.length` should be compared with `=== 0`.',
 			{
@@ -42,7 +44,8 @@ function checkNonZeroType(context, node, type) {
 			if ((operatorTypes.gte.indexOf(operator) !== -1 && value === 1) ||
 				(operatorTypes.ne.indexOf(operator) !== -1 && value === 0)
 			) {
-				reportError(context,
+				reportError(
+					context,
 					node,
 					'Non-zero `.length` should be compared with `> 0`.',
 					{
@@ -57,7 +60,8 @@ function checkNonZeroType(context, node, type) {
 			if ((operatorTypes.gt.indexOf(operator) !== -1 && value === 0) ||
 				(operatorTypes.ne.indexOf(operator) !== -1 && value === 0)
 			) {
-				reportError(context,
+				reportError(
+					context,
 					node,
 					'Non-zero `.length` should be compared with `>= 1`.',
 					{
@@ -72,7 +76,8 @@ function checkNonZeroType(context, node, type) {
 			if ((operatorTypes.gt.indexOf(operator) !== -1 && value === 0) ||
 				(operatorTypes.gte.indexOf(operator) !== -1 && value === 1)
 			) {
-				reportError(context,
+				reportError(
+					context,
 					node,
 					'Non-zero `.length` should be compared with `!== 0`.',
 					{

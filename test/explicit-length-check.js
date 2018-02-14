@@ -77,89 +77,108 @@ ruleTester.run('explicit-length-check', rule, {
 		testCase('if ("".length === 0 && array.length !== 0) {}', 'not-equal')
 	],
 	invalid: [
-		testCase('if ([].length) {}',
+		testCase(
+			'if ([].length) {}',
 			undefined,
 			[errorMessages.compareToValue]
 		),
-		testCase('if ("".length) {}',
+		testCase(
+			'if ("".length) {}',
 			undefined,
 			[errorMessages.compareToValue]
 		),
-		testCase('if (array.length) {}',
+		testCase(
+			'if (array.length) {}',
 			undefined,
 			[errorMessages.compareToValue]
 		),
-		testCase('if (!array.length) {}',
+		testCase(
+			'if (!array.length) {}',
 			undefined,
 			[errorMessages.compareToValue]
 		),
-		testCase('if (array.foo.length) {}',
+		testCase(
+			'if (array.foo.length) {}',
 			undefined,
 			[errorMessages.compareToValue]
 		),
-		testCase('if (!!array.length) {}',
+		testCase(
+			'if (!!array.length) {}',
 			undefined,
 			[errorMessages.compareToValue]
 		),
-		testCase('if (array.length && array[0] === 1) {}',
+		testCase(
+			'if (array.length && array[0] === 1) {}',
 			undefined,
 			[errorMessages.compareToValue]
 		),
-		testCase('if (array[0] === 1 || array.length) {}',
+		testCase(
+			'if (array[0] === 1 || array.length) {}',
 			undefined,
 			[errorMessages.compareToValue]
 		),
-		testCase('if (array.length < 1) {}',
+		testCase(
+			'if (array.length < 1) {}',
 			undefined,
 			[errorMessages.zeroEqual],
 			'if (array.length === 0) {}'
 		),
-		testCase('if (array.length<1) {}',
+		testCase(
+			'if (array.length<1) {}',
 			undefined,
 			[errorMessages.zeroEqual],
 			'if (array.length === 0) {}'
 		),
-		testCase('if (array.length > 0) {}',
+		testCase(
+			'if (array.length > 0) {}',
 			'not-equal',
 			[errorMessages.nonZeroEqual],
 			'if (array.length !== 0) {}'
 		),
-		testCase('if (array.length >= 1) {}',
+		testCase(
+			'if (array.length >= 1) {}',
 			'not-equal',
 			[errorMessages.nonZeroEqual],
 			'if (array.length !== 0) {}'
 		),
-		testCase('if (array.length != 0) {}',
+		testCase(
+			'if (array.length != 0) {}',
 			'greater-than',
 			[errorMessages.nonZeroGreater],
 			'if (array.length > 0) {}'
 		),
-		testCase('if (array.length !== 0) {}',
+		testCase(
+			'if (array.length !== 0) {}',
 			'greater-than',
 			[errorMessages.nonZeroGreater],
 			'if (array.length > 0) {}'
 		),
-		testCase('if (array.length >= 1) {}',
+		testCase(
+			'if (array.length >= 1) {}',
 			'greater-than',
 			[errorMessages.nonZeroGreater],
 			'if (array.length > 0) {}'
 		),
-		testCase('if (array.length != 0) {}',
+		testCase(
+			'if (array.length != 0) {}',
 			'greater-than-or-equal',
 			[errorMessages.nonZeroGreaterEqual],
 			'if (array.length >= 1) {}'
 		),
-		testCase('if (array.length !== 0) {}',
+		testCase(
+			'if (array.length !== 0) {}',
 			'greater-than-or-equal',
 			[errorMessages.nonZeroGreaterEqual],
 			'if (array.length >= 1) {}'
 		),
-		testCase('if (array.length > 0) {}',
+		testCase(
+			'if (array.length > 0) {}',
 			'greater-than-or-equal',
 			[errorMessages.nonZeroGreaterEqual],
 			'if (array.length >= 1) {}'
 		),
-		testCase('if (array.length < 1 || array.length >= 1) {}',
+		testCase(
+			'if (array.length < 1 || array.length >= 1) {}',
 			'not-equal',
 			[errorMessages.zeroEqual, errorMessages.nonZeroEqual],
 			'if (array.length === 0 || array.length !== 0) {}'
