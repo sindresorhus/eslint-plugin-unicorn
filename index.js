@@ -34,7 +34,7 @@ module.exports = {
 				'unicorn/regex-shorthand': 'error',
 				'unicorn/prefer-spread': 'error',
 				'unicorn/error-message': 'error',
-				'unicorn/no-unsafe-regex': 'error',
+				'unicorn/no-unsafe-regex': 'off',
 				'unicorn/prefer-add-event-listener': 'error'
 			}
 		}
