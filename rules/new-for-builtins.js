@@ -67,7 +67,7 @@ module.exports = {
 	create,
 	meta: {
 		docs: {
-			url: getDocsUrl()
+			url: getDocsUrl(__filename)
 		},
 		fixable: 'code'
 	}
