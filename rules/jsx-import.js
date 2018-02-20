@@ -11,25 +11,13 @@ const pragmas = {
 
 const getSuggestedPackages = modules => arrayToSentence(modules.map(x => `\`${x}\``), {lastSeparator: ' or '});
 
-const hasPackage = (node, packages) => {
-	if (node.init) {
-		return packages.some(x => x === astUtils.getRequireSource(node.init));
-	}
+const hasPackage = (node, packages) => node.init ?
+	packages.some(x => x === astUtils.getRequireSource(node.init)) :
+	packages.some(x => x === node.parent.source.value);
 
-	return packages.some(x => x === node.parent.source.value);
-};
-
-const isImportDeclaration = node => {
-	if (node.init && astUtils.isStaticRequire(node.init)) {
-		return true;
-	}
-
-	if (node.parent.type === 'ImportDeclaration') {
-		return true;
-	}
-
-	return false;
-};
+const isImportDeclaration = node => node.init ?
+	astUtils.isStaticRequire(node.init) :
+	node.parent.type === 'ImportDeclaration';
 
 const getVariable = (name, variables) => variables.find(x => x.name === name);
 
