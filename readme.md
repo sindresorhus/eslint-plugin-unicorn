@@ -85,6 +85,7 @@ Configure it in `package.json`.
 - [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
 - [no-unsafe-regex](docs/rules/no-unsafe-regex.md) - Disallow unsafe regular expressions.
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `addEventListener` over `on`-functions. *(fixable)*
+- [jsx-import](docs/rules/jsx-import.md) - Enforce importing a pragma when using JSX. *(fixable)*
 
 
 ## Recommended config
