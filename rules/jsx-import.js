@@ -67,7 +67,7 @@ const create = context => {
 		'Program:exit': () => {
 			if (pragma) {
 				const node = pragma.defs[0].node;
-				const isDeclaration = isImportDeclaration(pragma.defs[0].node);
+				const isDeclaration = isImportDeclaration(node);
 				const packages = pragmas[pragma.name];
 				const hasPkg = hasPackage(node, packages);
 

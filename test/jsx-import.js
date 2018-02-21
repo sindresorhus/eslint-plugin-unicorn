@@ -45,10 +45,12 @@ ruleTester.run('jsx-import', rule, {
 		`import preact, {render} from 'preact'; let Foo; <Foo/>;`,
 		`import {h, render} from 'preact'; let Foo; <Foo/>;`,
 		`import {h} from 'dom-chef'; let Foo; <Foo/>;`,
+		`import React from 'react'; import bar from 'bar'; let Foo; <Foo/>;`,
 		`const React = require('react'); let Foo; <Foo/>;`,
 		`const preact = require('preact'); let Foo; <Foo/>;`,
 		`const {h} = require('preact'); let Foo; <Foo/>;`,
-		`const {h} = require('dom-chef'); let Foo; <Foo/>;`
+		`const {h} = require('dom-chef'); let Foo; <Foo/>;`,
+		`const {h} = require('dom-chef'); const bar = require('bar'); let Foo; <Foo/>;`
 	],
 	invalid: [
 		{
