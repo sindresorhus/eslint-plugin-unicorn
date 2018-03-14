@@ -1,6 +1,6 @@
 # Enforce importing a pragma when using JSX
 
-This rule enforces you to import a pragma when you're using JSX. This is so that the JSX can be transformed into JavaScript. E.g. when using `React`; `<div/>` is transformed to `React.createElement('div')`.
+This rule enforces importing a pragma when JSX is used in the file. This is so that the JSX can be transformed into JavaScript. For example, when using `React`, `<div/>` is transformed to `React.createElement('div')`.
 
 
 ## Fail
