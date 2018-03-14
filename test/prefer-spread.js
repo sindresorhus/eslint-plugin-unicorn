@@ -19,7 +19,10 @@ ruleTester.run('prefer-spread', rule, {
 		'Int32Array.from(set);',
 		'Uint32Array.from(set);',
 		'Float32Array.from(set);',
-		'Float64Array.from(set);'
+		'Float64Array.from(set);',
+		'Array.from()',
+		'Array.from({length: 10})',
+		'Array.from({length: 10}, mapFn)'
 	],
 	invalid: [
 		{

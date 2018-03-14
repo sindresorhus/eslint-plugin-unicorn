@@ -12,6 +12,8 @@ const isArrayFrom = node => {
 	);
 };
 
+const isArrayLike = arg => arg && arg.type !== 'ObjectExpression';
+
 const parseArgument = (context, arg) => {
 	if (arg.type === 'Identifier') {
 		return arg.name;
@@ -23,7 +25,7 @@ const parseArgument = (context, arg) => {
 const create = context => {
 	return {
 		CallExpression(node) {
-			if (isArrayFrom(node)) {
+			if (isArrayFrom(node) && isArrayLike(node.arguments[0])) {
 				context.report({
 					node,
 					message: 'Prefer the spread operator over `Array.from()`.',
