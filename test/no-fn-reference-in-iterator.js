@@ -31,7 +31,11 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 		'foo.reduce((a, b) => a + b, 0)',
 		'foo.reduceRight((a, b) => a.concat(b), [])',
 		'Promise.map(fn)',
-		'Promise.forEach(fn)'
+		'Promise.forEach(fn)',
+		'_.map(fn)',
+		'Async.map(list, fn)',
+		'async.map(list, fn)',
+		'React.children.forEach(children, fn)'
 	],
 	invalid: [
 		{
