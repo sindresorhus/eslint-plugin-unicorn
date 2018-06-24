@@ -36,13 +36,14 @@ function checkZeroType(context, node) {
 }
 
 function checkNonZeroType(context, node, type) {
-	const value = node.right.value;
-	const operator = node.operator;
+	const {value} = node.right;
+	const {operator} = node;
 
 	switch (type) {
 		case 'greater-than':
-			if ((operatorTypes.gte.indexOf(operator) !== -1 && value === 1) ||
-				(operatorTypes.ne.indexOf(operator) !== -1 && value === 0)
+			if (
+				(operatorTypes.gte.includes(operator) && value === 1) ||
+				(operatorTypes.ne.includes(operator) && value === 0)
 			) {
 				reportError(
 					context,
@@ -57,8 +58,9 @@ function checkNonZeroType(context, node, type) {
 			}
 			break;
 		case 'greater-than-or-equal':
-			if ((operatorTypes.gt.indexOf(operator) !== -1 && value === 0) ||
-				(operatorTypes.ne.indexOf(operator) !== -1 && value === 0)
+			if (
+				(operatorTypes.gt.includes(operator) && value === 0) ||
+				(operatorTypes.ne.includes(operator) && value === 0)
 			) {
 				reportError(
 					context,
@@ -73,8 +75,9 @@ function checkNonZeroType(context, node, type) {
 			}
 			break;
 		case 'not-equal':
-			if ((operatorTypes.gt.indexOf(operator) !== -1 && value === 0) ||
-				(operatorTypes.gte.indexOf(operator) !== -1 && value === 1)
+			if (
+				(operatorTypes.gt.includes(operator) && value === 0) ||
+				(operatorTypes.gte.includes(operator) && value === 1)
 			) {
 				reportError(
 					context,

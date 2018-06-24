@@ -32,7 +32,7 @@ const create = context => {
 			let flags = null;
 
 			if (hasRegExp) {
-				pattern = args[0].regex.pattern;
+				({pattern} = args[0].regex);
 				flags = args[1] && args[1].type === 'Literal' ? args[1].value : args[0].regex.flags;
 			} else {
 				pattern = args[0].value;

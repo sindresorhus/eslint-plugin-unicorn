@@ -36,7 +36,7 @@ const disallowNew = new Set([
 const create = context => {
 	return {
 		CallExpression: node => {
-			const name = node.callee.name;
+			const {name} = node.callee;
 
 			if (enforceNew.has(name)) {
 				context.report({
@@ -47,7 +47,7 @@ const create = context => {
 			}
 		},
 		NewExpression: node => {
-			const name = node.callee.name;
+			const {name} = node.callee;
 
 			if (disallowNew.has(name)) {
 				context.report({

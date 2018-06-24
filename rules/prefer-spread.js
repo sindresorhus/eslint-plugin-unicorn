@@ -2,7 +2,7 @@
 const getDocsUrl = require('./utils/get-docs-url');
 
 const isArrayFrom = node => {
-	const callee = node.callee;
+	const {callee} = node;
 	return (
 		callee.type === 'MemberExpression' &&
 		callee.object.type === 'Identifier' &&

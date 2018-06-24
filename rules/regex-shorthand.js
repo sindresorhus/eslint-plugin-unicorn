@@ -8,7 +8,7 @@ const create = context => {
 	return {
 		'Literal[regex]': node => {
 			const oldPattern = node.regex.pattern;
-			const flags = node.regex.flags;
+			const {flags} = node.regex;
 
 			const newPattern = cleanRegexp(oldPattern, flags);
 

@@ -18,10 +18,10 @@ const hasValidSuperClass = node => {
 		return false;
 	}
 
-	let name = node.superClass.name;
+	let {name} = node.superClass;
 
 	if (node.superClass.type === 'MemberExpression') {
-		name = node.superClass.property.name;
+		({name} = node.superClass.property);
 	}
 
 	return nameRegexp.test(name);
@@ -48,7 +48,7 @@ const customErrorDefinition = (context, node) => {
 		return;
 	}
 
-	const name = node.id.name;
+	const {name} = node.id;
 	const className = getClassName(name);
 
 	if (name !== className) {
@@ -58,8 +58,7 @@ const customErrorDefinition = (context, node) => {
 		});
 	}
 
-	const body = node.body.body;
-
+	const {body} = node.body;
 	const constructor = body.find(x => x.kind === 'constructor');
 
 	if (!constructor) {

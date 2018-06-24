@@ -10,7 +10,7 @@
 		"url": "sindresorhus.com"
 	},
 	"engines": {
-		"node": ">=4"
+		"node": ">=6"
 	},
 	"scripts": {
 		"test": "nyc ava",
@@ -48,9 +48,9 @@
 		"del": "^3.0.0",
 		"eslint": "^5.0.0",
 		"eslint-ava-rule-tester": "^2.0.0",
-		"execa": "^0.9.0",
-		"listr": "^0.13.0",
-		"nyc": "^11.0.3",
+		"execa": "^0.10.0",
+		"listr": "^0.14.1",
+		"nyc": "^12.0.2",
 		"pify": "^3.0.0",
 		"tempy": "^0.2.1",
 		"xo": "*"

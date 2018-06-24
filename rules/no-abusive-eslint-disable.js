@@ -5,11 +5,12 @@ const disableRegex = /^eslint-disable(-next-line|-line)?($|(\s+(@[\w-]+\/[\w-]+\
 
 const create = context => ({
 	Program: node => {
-		node.comments.forEach(comment => {
+		for (const comment of node.comments) {
 			const value = comment.value.trim();
 			const res = disableRegex.exec(value);
 
-			if (res && // It's a eslint-disable comment
+			if (
+				res && // It's a eslint-disable comment
 				!res[2] // But it did not specify any rules
 			) {
 				context.report({
@@ -24,7 +25,7 @@ const create = context => ({
 					data: comment.loc.start
 				});
 			}
-		});
+		}
 	}
 });
 

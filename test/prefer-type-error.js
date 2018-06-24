@@ -304,6 +304,6 @@ ruleTester.run('prefer-type-error', rule, {
 			errors
 		}
 	].concat(
-		Array.from(tcIdentifiers).map(identifier => tcIdentifierInvalidTest(identifier))
+		[...tcIdentifiers].map(identifier => tcIdentifierInvalidTest(identifier))
 	)
 });
