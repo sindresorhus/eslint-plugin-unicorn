@@ -13,7 +13,7 @@
 		"node": ">=4"
 	},
 	"scripts": {
-		"test": "xo && nyc ava",
+		"test": "nyc ava",
 		"integration": "./test/integration/test.js",
 		"coveralls": "nyc report --reporter=text-lcov | coveralls"
 	},
@@ -46,7 +46,7 @@
 		"chalk": "^2.0.1",
 		"coveralls": "^3.0.0",
 		"del": "^3.0.0",
-		"eslint": "^4.0.0",
+		"eslint": "^5.0.0",
 		"eslint-ava-rule-tester": "^2.0.0",
 		"execa": "^0.9.0",
 		"listr": "^0.13.0",
@@ -56,7 +56,7 @@
 		"xo": "*"
 	},
 	"peerDependencies": {
-		"eslint": ">=4"
+		"eslint": ">=5.0.0"
 	},
 	"ava": {
 		"files": [
