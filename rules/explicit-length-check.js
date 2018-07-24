@@ -136,6 +136,9 @@ const create = context => {
 	return {
 		IfStatement: node => {
 			checkExpression(context, node.test);
+		},
+		ConditionalExpression: node => {
+			checkExpression(context, node.test);
 		}
 	};
 };
