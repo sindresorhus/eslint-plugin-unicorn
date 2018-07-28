@@ -53,6 +53,7 @@ ruleTester.run('explicit-length-check', rule, {
 		testCase('if (array.length <= 1) {}'),
 		testCase('if (array.length > 1) {}'),
 		testCase('if (array.length < 2) {}'),
+		testCase('const foo = [].length === 0 ? null : undefined'),
 		testCase('array.length', 'not-equal'),
 		testCase('array.length > 0', 'not-equal'),
 		testCase('array.length >= 1', 'not-equal'),
@@ -182,6 +183,11 @@ ruleTester.run('explicit-length-check', rule, {
 			'not-equal',
 			[errorMessages.zeroEqual, errorMessages.nonZeroEqual],
 			'if (array.length === 0 || array.length !== 0) {}'
-		)
+		),
+		testCase(
+			'const foo = [].length ? null : undefined',
+			undefined,
+			[errorMessages.compareToValue]
+		),
 	]
 });
