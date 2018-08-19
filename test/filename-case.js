@@ -9,10 +9,18 @@ const ruleTester = avaRuleTester(test, {
 });
 
 function testCase(filename, chosenCase, errorMessage) {
+	return testCaseWithOptions(
+		filename,
+		[{case: chosenCase}],
+		errorMessage,
+	);
+}
+
+function testCaseWithOptions(filename, options, errorMessage) {
 	return {
 		code: 'foo()',
 		filename,
-		options: [{case: chosenCase}],
+		options,
 		errors: errorMessage && [{
 			ruleId: 'filename-case',
 			message: errorMessage
@@ -68,7 +76,8 @@ ruleTester.run('filename-case', rule, {
 		testCase('src/foo/_foo-bar.js', 'kebabCase'),
 		testCase('src/foo/___foo-bar.js', 'kebabCase'),
 		testCase('src/foo/_FooBar.js', 'pascalCase'),
-		testCase('src/foo/___FooBar.js', 'pascalCase')
+		testCase('src/foo/___FooBar.js', 'pascalCase'),
+		testCaseWithOptions('src/foo/bar.js', null),
 	],
 	invalid: [
 		testCase(
