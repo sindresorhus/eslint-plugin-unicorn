@@ -68,7 +68,9 @@ function splitFilename(filename) {
 }
 
 const create = context => {
-	const chosenCase = cases[context.options[0].case || 'camelCase'];
+	const options = context.options[0] || {};
+
+	const chosenCase = cases[options.case || 'camelCase'];
 	const filenameWithExt = context.getFilename();
 
 	if (filenameWithExt === '<text>') {
