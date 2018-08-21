@@ -20,6 +20,15 @@ const parseArgument = (context, arg) => {
 	return context.getSourceCode().getText(arg);
 };
 
+const fix = (context, node, fixer) => {
+	const base = parseArgument(context, node.arguments[0]);
+	const exponent = parseArgument(context, node.arguments[1]);
+
+	const replacement = `${base} ** ${exponent}`;
+
+	return fixer.replaceText(node, replacement);
+}
+
 const create = context => {
 	return {
 		CallExpression(node) {
@@ -27,14 +36,7 @@ const create = context => {
 				context.report({
 					node,
 					message: 'Prefer the exponentiation operator over `Math.pow()`.',
-					fix: fixer => {
-						const base = parseArgument(context, node.arguments[0]);
-						const exponent = parseArgument(context, node.arguments[1]);
-
-						const replacement = `${base} ** ${exponent}`;
-
-						return fixer.replaceText(node, replacement);
-					}
+					fix: fixer => fix(context, node, fixer),
 				});
 			}
 		}
