@@ -14,7 +14,7 @@ module.exports = {
 				sourceType: 'module'
 			},
 			  plugins: [
-    				'unicorn'
+				'unicorn'
   			],
 			rules: {
 				'unicorn/catch-error-name': ['off', {name: 'err'}],
