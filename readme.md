@@ -98,9 +98,6 @@ Enable it in your `package.json` with the `extends` option:
 {
 	"name": "my-awesome-project",
 	"eslintConfig": {
-		"plugins": [
-			"unicorn"
-		],
 		"extends": "plugin:unicorn/recommended"
 	}
 }

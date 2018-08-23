@@ -13,6 +13,9 @@ module.exports = {
 				ecmaVersion: 2018,
 				sourceType: 'module'
 			},
+			plugins: [
+				'unicorn'
+			],
 			rules: {
 				'unicorn/catch-error-name': ['off', {name: 'err'}],
 				'unicorn/explicit-length-check': 'error',
