@@ -17,7 +17,7 @@ module.exports = {
 				'unicorn'
 			],
 			rules: {
-				'unicorn/catch-error-name': ['off', {name: 'error'}],
+				'unicorn/catch-error-name': ['error', {name: 'error'}],
 				'unicorn/explicit-length-check': 'error',
 				'unicorn/filename-case': ['error', {case: 'kebabCase'}],
 				'unicorn/no-abusive-eslint-disable': 'error',
