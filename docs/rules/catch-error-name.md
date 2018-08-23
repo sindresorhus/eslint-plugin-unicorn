@@ -2,7 +2,7 @@
 
 Applies to both `try/catch` clauses and `promise.catch(...)` handlers.
 
-The desired name is configurable, but defaults to `err`.
+The desired name is configurable, but defaults to `error`.
 
 
 ## Fail
@@ -10,8 +10,8 @@ The desired name is configurable, but defaults to `err`.
 ```js
 try {
 	doSomething();
-} catch (error) {
-	// ...
+} catch (ohNoes) {
+	// …
 }
 ```
 
@@ -25,13 +25,13 @@ somePromise.catch(e => {})
 ```js
 try {
 	doSomething();
-} catch (err) {
-	// ...
+} catch (error) {
+	// …
 }
 ```
 
 ```js
-somePromise.catch(err => {})
+somePromise.catch(error => {})
 ```
 
 ```js
@@ -56,11 +56,11 @@ try {
 ```
 
 ```js
-const handleError = err => {
-	const err2 = new Error('foo bar');
+const handleError = error => {
+	const error2 = new Error('🦄');
 
-	obj.catch(err3 => {
-		// `err3` is allowed because of shadowed variables
+	obj.catch(error3 => {
+		// `error3` is allowed because of shadowed variables
 	});
 }
 ```
@@ -80,7 +80,7 @@ somePromise.catch(_ => {
 You can set the `name` option like this:
 
 ```js
-"unicorn/catch-error-name": ["error", {"name": "err"}]
+"unicorn/catch-error-name": ["error", {"name": "error"}]
 ```
 
 ### caughtErrorsIgnorePattern

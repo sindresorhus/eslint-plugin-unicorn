@@ -38,7 +38,7 @@ function indexifyName(name, scope) {
 
 const create = context => {
 	const options = Object.assign({}, {
-		name: 'err',
+		name: 'error',
 		caughtErrorsIgnorePattern: '^_$'
 	}, context.options[0]);
 
