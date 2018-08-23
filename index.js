@@ -35,7 +35,8 @@ module.exports = {
 				'unicorn/prefer-spread': 'error',
 				'unicorn/error-message': 'error',
 				'unicorn/no-unsafe-regex': 'off',
-				'unicorn/prefer-add-event-listener': 'error'
+				'unicorn/prefer-add-event-listener': 'error',
+				'unicorn/prefer-exponentiation-operator': 'error'
 			}
 		}
 	}
