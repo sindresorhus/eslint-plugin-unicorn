@@ -14,8 +14,7 @@
 	},
 	"scripts": {
 		"test": "nyc ava",
-		"integration": "./test/integration/test.js",
-		"coveralls": "nyc report --reporter=text-lcov | coveralls"
+		"integration": "./test/integration/test.js"
 	},
 	"files": [
 		"index.js",

@@ -9,4 +9,5 @@ matrix:
       env: INTEGRATION=true
 script:
   - "[ \"$INTEGRATION\" = true ] && npm run integration || npm test"
-after_success: npm run coveralls
+after_success:
+  - './node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls'
