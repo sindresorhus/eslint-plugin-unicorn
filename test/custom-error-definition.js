@@ -95,14 +95,14 @@ ruleTester.run('custom-error-definition', rule, {
 					this.name = 'FooError';
 				}
 			};
+		`,
 		`
-		// `
-		// 	exports.FooError = class extends Error {
-		// 		constructor(error) {
-		// 			super(error);
-		// 		}
-		// 	};
-		// `
+			exports.FooError = class extends Error {
+				constructor(error) {
+					super(error);
+				}
+			};
+		`
 	],
 	invalid: [
 		{
