@@ -120,7 +120,15 @@ ruleTester.run('catch-error-name', rule, {
 					caughtErrorsIgnorePattern: '^skip'
 				}
 			]
-		}
+		},
+		// TODO: Uncomment once test runner supports optional-catch-binding https://github.com/tc39/proposal-optional-catch-binding
+		// testCase(`
+		// 	try {
+		// 		throw new Error('message');
+		// 	} catch {
+		// 		console.log('failed');
+		// 	}
+		// `),
 	],
 	invalid: [
 		testCase('try {} catch (err) {}', null, true),
