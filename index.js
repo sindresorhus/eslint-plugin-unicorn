@@ -40,7 +40,7 @@ module.exports = {
 				'unicorn/no-unsafe-regex': 'off',
 				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/prefer-exponentiation-operator': 'error',
-				'unicorn/no-console-spaces': 'error',
+				'unicorn/no-space-in-console': 'error',
 			}
 		}
 	}
