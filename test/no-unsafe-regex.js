@@ -20,8 +20,8 @@ ruleTester.run('no-unsafe-regex', rule, {
 	valid: [
 		'const foo = /\bunicorn\b/',
 		'const foo = /\bunicorn\b/g',
-		`const foo = new RegExp('^\bunicorn\b')`,
-		`const foo = new RegExp('^\bunicorn\b', 'i')`,
+		'const foo = new RegExp(\'^\bunicorn\b\')',
+		'const foo = new RegExp(\'^\bunicorn\b\', \'i\')',
 		'const foo = new RegExp(/\bunicorn\b/)',
 		'const foo = new RegExp(/\bunicorn\b/g)',
 		'const foo = new RegExp()'
@@ -36,19 +36,19 @@ ruleTester.run('no-unsafe-regex', rule, {
 			errors: [error]
 		},
 		{
-			code: `const foo = new RegExp('(x+x+)+y')`,
+			code: 'const foo = new RegExp(\'(x+x+)+y\')',
 			errors: [error]
 		},
 		{
-			code: `const foo = new RegExp('(x+x+)+y', 'g')`,
+			code: 'const foo = new RegExp(\'(x+x+)+y\', \'g\')',
 			errors: [error]
 		},
 		{
-			code: `const foo = new RegExp(/(x+x+)+y/)`,
+			code: 'const foo = new RegExp(/(x+x+)+y/)',
 			errors: [error]
 		},
 		{
-			code: `const foo = new RegExp(/(x+x+)+y/g)`,
+			code: 'const foo = new RegExp(/(x+x+)+y/g)',
 			errors: [error]
 		}
 	]

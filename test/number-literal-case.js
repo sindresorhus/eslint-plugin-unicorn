@@ -21,7 +21,7 @@ ruleTester.run('number-literal-case', rule, {
 		'const foo = 0xFF',
 		'const foo = 0b11',
 		'const foo = 0o10',
-		`const foo = '0Xff'`
+		'const foo = \'0Xff\''
 	],
 	invalid: [
 		{

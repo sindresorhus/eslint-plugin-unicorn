@@ -77,7 +77,7 @@ ruleTester.run('filename-case', rule, {
 		testCase('src/foo/___foo-bar.js', 'kebabCase'),
 		testCase('src/foo/_FooBar.js', 'pascalCase'),
 		testCase('src/foo/___FooBar.js', 'pascalCase'),
-		testCaseWithOptions('src/foo/bar.js', null),
+		testCaseWithOptions('src/foo/bar.js', null)
 	],
 	invalid: [
 		testCase(

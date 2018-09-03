@@ -18,32 +18,32 @@ const invalidTestCase = (code, correctCode, eventType) => {
 
 ruleTester.run('prefer-add-event-listener', rule, {
 	valid: [
-		`foo.addEventListener('click', () => {})`,
-		`foo.onclick`,
-		`foo.setCallBack = () => {console.log('foo')}`,
-		`setCallBack = () => {console.log('foo')}`,
-		`foo.onclick.bar = () => {}`,
-		`foo['x'] = true;`
+		'foo.addEventListener(\'click\', () => {})',
+		'foo.onclick',
+		'foo.setCallBack = () => {console.log(\'foo\')}',
+		'setCallBack = () => {console.log(\'foo\')}',
+		'foo.onclick.bar = () => {}',
+		'foo[\'x\'] = true;'
 	],
 	invalid: [
 		invalidTestCase(
 			'foo.onclick = () => {}',
-			`foo.addEventListener('click', () => {})`,
+			'foo.addEventListener(\'click\', () => {})',
 			'onclick'
 		),
 		invalidTestCase(
 			'foo.bar.onclick = onClick',
-			`foo.bar.addEventListener('click', onClick)`,
+			'foo.bar.addEventListener(\'click\', onClick)',
 			'onclick'
 		),
 		invalidTestCase(
 			'foo.onkeydown = () => {}',
-			`foo.addEventListener('keydown', () => {})`,
+			'foo.addEventListener(\'keydown\', () => {})',
 			'onkeydown'
 		),
 		invalidTestCase(
 			'foo.ondragend = () => {}',
-			`foo.addEventListener('dragend', () => {})`,
+			'foo.addEventListener(\'dragend\', () => {})',
 			'ondragend'
 		),
 		invalidTestCase(

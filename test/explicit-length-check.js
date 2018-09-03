@@ -188,6 +188,6 @@ ruleTester.run('explicit-length-check', rule, {
 			'const foo = [].length ? null : undefined',
 			undefined,
 			[errorMessages.compareToValue]
-		),
+		)
 	]
 });

@@ -23,8 +23,8 @@ const fromError = {
 
 ruleTester.run('no-new-buffer', rule, {
 	valid: [
-		`const buf = Buffer.from('buf')`,
-		`const buf = Buffer.from('7468697320697320612074c3a97374', 'hex')`,
+		'const buf = Buffer.from(\'buf\')',
+		'const buf = Buffer.from(\'7468697320697320612074c3a97374\', \'hex\')',
 		'const buf = Buffer.from([0x62, 0x75, 0x66, 0x66, 0x65, 0x72])',
 		'const buf = Buffer.alloc(10)'
 	],
@@ -35,14 +35,14 @@ ruleTester.run('no-new-buffer', rule, {
 			output: 'const buf = Buffer.from()'
 		},
 		{
-			code: `const buf = new Buffer('buf')`,
+			code: 'const buf = new Buffer(\'buf\')',
 			errors: [fromError],
-			output: `const buf = Buffer.from('buf')`
+			output: 'const buf = Buffer.from(\'buf\')'
 		},
 		{
-			code: `const buf = new Buffer('7468697320697320612074c3a97374', 'hex')`,
+			code: 'const buf = new Buffer(\'7468697320697320612074c3a97374\', \'hex\')',
 			errors: [fromError],
-			output: `const buf = Buffer.from('7468697320697320612074c3a97374', 'hex')`
+			output: 'const buf = Buffer.from(\'7468697320697320612074c3a97374\', \'hex\')'
 		},
 		{
 			code: 'const buf = new Buffer([0x62, 0x75, 0x66, 0x66, 0x65, 0x72])',

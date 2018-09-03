@@ -24,16 +24,16 @@ ruleTester.run('regex-shorthand', rule, {
 		'const foo = /[a-z]/ig',
 		'const foo = /\\d*?/ig',
 		'const foo = /[a-z0-9_]/',
-		`const foo = new RegExp('\\d')`,
-		`const foo = new RegExp('\\d', 'ig')`,
-		`const foo = new RegExp('\\d*?')`,
-		`const foo = new RegExp('[a-z]', 'i')`,
-		`const foo = new RegExp(/\\d/)`,
-		`const foo = new RegExp(/\\d/ig)`,
-		`const foo = new RegExp(/\\d/, 'ig')`,
-		`const foo = new RegExp(/\\d*?/)`,
-		`const foo = new RegExp(/[a-z]/, 'i')`,
-		`const foo = new RegExp(/^[^*]*[*]?$/)`
+		'const foo = new RegExp(\'\\d\')',
+		'const foo = new RegExp(\'\\d\', \'ig\')',
+		'const foo = new RegExp(\'\\d*?\')',
+		'const foo = new RegExp(\'[a-z]\', \'i\')',
+		'const foo = new RegExp(/\\d/)',
+		'const foo = new RegExp(/\\d/ig)',
+		'const foo = new RegExp(/\\d/, \'ig\')',
+		'const foo = new RegExp(/\\d*?/)',
+		'const foo = new RegExp(/[a-z]/, \'i\')',
+		'const foo = new RegExp(/^[^*]*[*]?$/)'
 	],
 	invalid: [
 		{
@@ -42,19 +42,19 @@ ruleTester.run('regex-shorthand', rule, {
 			output: 'const foo = /\\d/'
 		},
 		{
-			code: `const foo = new RegExp('[0-9]')`,
+			code: 'const foo = new RegExp(\'[0-9]\')',
 			errors: [error],
-			output: `const foo = new RegExp('\\\\d')`
+			output: 'const foo = new RegExp(\'\\\\d\')'
 		},
 		{
-			code: `const foo = new RegExp("[0-9]")`,
+			code: 'const foo = new RegExp("[0-9]")',
 			errors: [error],
-			output: `const foo = new RegExp('\\\\d')`
+			output: 'const foo = new RegExp(\'\\\\d\')'
 		},
 		{
-			code: `const foo = new RegExp("'[0-9]'")`,
+			code: 'const foo = new RegExp("\'[0-9]\'")',
 			errors: [error],
-			output: `const foo = new RegExp('\'\\\\d\'')`
+			output: 'const foo = new RegExp(\'\'\\\\d\'\')'
 		},
 		{
 			code: 'const foo = /[0-9]/ig',
@@ -62,9 +62,9 @@ ruleTester.run('regex-shorthand', rule, {
 			output: 'const foo = /\\d/ig'
 		},
 		{
-			code: `const foo = new RegExp('[0-9]', 'ig')`,
+			code: 'const foo = new RegExp(\'[0-9]\', \'ig\')',
 			errors: [error],
-			output: `const foo = new RegExp('\\\\d', 'ig')`
+			output: 'const foo = new RegExp(\'\\\\d\', \'ig\')'
 		},
 		{
 			code: 'const foo = /[^0-9]/',
@@ -137,24 +137,24 @@ ruleTester.run('regex-shorthand', rule, {
 			output: 'const foo = /\\W/ig'
 		},
 		{
-			code: `const foo = new RegExp(/[0-9]/)`,
+			code: 'const foo = new RegExp(/[0-9]/)',
 			errors: [error],
-			output: `const foo = new RegExp(/\\d/)`
+			output: 'const foo = new RegExp(/\\d/)'
 		},
 		{
-			code: `const foo = new RegExp(/[0-9]/, 'ig')`,
+			code: 'const foo = new RegExp(/[0-9]/, \'ig\')',
 			errors: [error],
-			output: `const foo = new RegExp(/\\d/, 'ig')`
+			output: 'const foo = new RegExp(/\\d/, \'ig\')'
 		},
 		{
-			code: `const foo = new RegExp(/[0-9]/)`,
+			code: 'const foo = new RegExp(/[0-9]/)',
 			errors: [error],
-			output: `const foo = new RegExp(/\\d/)`
+			output: 'const foo = new RegExp(/\\d/)'
 		},
 		{
-			code: `const foo = new RegExp(/[0-9]/, 'ig')`,
+			code: 'const foo = new RegExp(/[0-9]/, \'ig\')',
 			errors: [error],
-			output: `const foo = new RegExp(/\\d/, 'ig')`
+			output: 'const foo = new RegExp(/\\d/, \'ig\')'
 		}
 	]
 });

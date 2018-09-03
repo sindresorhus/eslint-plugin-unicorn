@@ -51,10 +51,10 @@ const execute = name => {
 		{
 			title: 'Running tests',
 			task: () => execa('eslint', ['--config', path.join(cwd, 'index.js'), dest], {cwd, localDir: __dirname})
-				.catch(err => {
-					if (!/✖ \d+ problems? \(\d+ errors?, \d+ warnings?\)/.test(err.message)) {
-						err.package = name;
-						throw err;
+				.catch(error => {
+					if (!/✖ \d+ problems? \(\d+ errors?, \d+ warnings?\)/.test(error.message)) {
+						error.package = name;
+						throw error;
 					}
 				})
 		},
@@ -92,10 +92,10 @@ const list = new Listr([
 ]);
 
 list.run()
-	.catch(err => {
-		for (const error of err.errors) {
-			console.error('\n' + chalk.red.bold.underline(error.package));
-			console.error(error.message);
+	.catch(error => {
+		for (const error2 of error.errors) {
+			console.error('\n' + chalk.red.bold.underline(error2.package));
+			console.error(error2.message);
 		}
 
 		process.exit(1);

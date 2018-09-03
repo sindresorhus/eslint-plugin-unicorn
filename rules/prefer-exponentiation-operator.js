@@ -27,7 +27,7 @@ const fix = (context, node, fixer) => {
 	const replacement = `${base} ** ${exponent}`;
 
 	return fixer.replaceText(node, replacement);
-}
+};
 
 const create = context => {
 	return {
@@ -36,7 +36,7 @@ const create = context => {
 				context.report({
 					node,
 					message: 'Prefer the exponentiation operator over `Math.pow()`.',
-					fix: fixer => fix(context, node, fixer),
+					fix: fixer => fix(context, node, fixer)
 				});
 			}
 		}

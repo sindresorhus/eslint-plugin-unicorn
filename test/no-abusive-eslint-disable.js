@@ -15,18 +15,18 @@ const error = message => ({
 
 ruleTester.run('no-abusive-eslint-disable', rule, {
 	valid: [
-		`eval();`,
-		`eval(); // eslint-disable-line no-eval`,
-		`eval(); // eslint-disable-line no-eval, no-console`,
-		`eval(); //eslint-disable-line no-eval`,
-		`eval(); //     eslint-disable-line no-eval`,
-		`eval(); //\teslint-disable-line no-eval`,
-		`eval(); /* eslint-disable-line no-eval */`,
-		`eval(); // eslint-disable-line plugin/rule`,
-		`eval(); // eslint-disable-line @scope/plugin/rule-name`,
-		`eval(); // eslint-disable-line no-eval, @scope/plugin/rule-name`,
-		`eval(); // eslint-line-disable`,
-		`eval(); // some comment`,
+		'eval();',
+		'eval(); // eslint-disable-line no-eval',
+		'eval(); // eslint-disable-line no-eval, no-console',
+		'eval(); //eslint-disable-line no-eval',
+		'eval(); //     eslint-disable-line no-eval',
+		'eval(); //\teslint-disable-line no-eval',
+		'eval(); /* eslint-disable-line no-eval */',
+		'eval(); // eslint-disable-line plugin/rule',
+		'eval(); // eslint-disable-line @scope/plugin/rule-name',
+		'eval(); // eslint-disable-line no-eval, @scope/plugin/rule-name',
+		'eval(); // eslint-line-disable',
+		'eval(); // some comment',
 		`foo();
 		// eslint-disable-line no-eval
 		eval();`,
@@ -40,7 +40,7 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 	],
 	invalid: [
 		{
-			code: `eval(); // eslint-disable-line`,
+			code: 'eval(); // eslint-disable-line',
 			errors: [error('Specify the rules you want to disable at line 1:8')]
 		},
 		{

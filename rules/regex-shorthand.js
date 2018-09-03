@@ -61,7 +61,7 @@ const create = context => {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceTextRange(args[0].range, fixed),
+					fix: fixer => fixer.replaceTextRange(args[0].range, fixed)
 				});
 			}
 		}

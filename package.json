@@ -13,7 +13,7 @@
 		"node": ">=6"
 	},
 	"scripts": {
-		"test": "nyc ava",
+		"test": "xo && nyc ava",
 		"integration": "./test/integration/test.js"
 	},
 	"files": [

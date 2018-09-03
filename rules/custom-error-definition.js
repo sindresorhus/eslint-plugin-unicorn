@@ -48,7 +48,7 @@ const customErrorDefinition = (context, node) => {
 		return;
 	}
 
-	if (node.id == null) {
+	if (node.id === null) {
 		return;
 	}
 

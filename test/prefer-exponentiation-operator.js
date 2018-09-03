@@ -13,7 +13,7 @@ const message = 'Prefer the exponentiation operator over `Math.pow()`.';
 ruleTester.run('prefer-exponentiation-operator', rule, {
 	valid: [
 		'a ** b;',
-		'2 ** 4;',
+		'2 ** 4;'
 	],
 	invalid: [
 		{
@@ -30,7 +30,7 @@ ruleTester.run('prefer-exponentiation-operator', rule, {
 			code: 'const x = Math.pow(Math.pow(2, 4), 8);',
 			errors: [
 				{message, column: 11, line: 1},
-				{message, column: 20, line: 1},
+				{message, column: 20, line: 1}
 			],
 			output: 'const x = Math.pow(2, 4) ** 8;'
 		},

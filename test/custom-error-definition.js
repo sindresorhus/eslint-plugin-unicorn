@@ -110,7 +110,7 @@ ruleTester.run('custom-error-definition', rule, {
 					this.name = 'fooError';
 				}
 			};
-		`,
+		`
 	],
 	invalid: [
 		{

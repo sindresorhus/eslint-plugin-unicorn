@@ -31,57 +31,57 @@ ruleTester.run('new-error', rule, {
 			errors
 		},
 		{
-			code: `throw Error('foo')`,
-			output: `throw new Error('foo')`,
+			code: 'throw Error(\'foo\')',
+			output: 'throw new Error(\'foo\')',
 			errors
 		},
 		{
-			code: `throw CustomError('foo')`,
-			output: `throw new CustomError('foo')`,
+			code: 'throw CustomError(\'foo\')',
+			output: 'throw new CustomError(\'foo\')',
 			errors
 		},
 		{
-			code: `throw FooBarBazError('foo')`,
-			output: `throw new FooBarBazError('foo')`,
+			code: 'throw FooBarBazError(\'foo\')',
+			output: 'throw new FooBarBazError(\'foo\')',
 			errors
 		},
 		{
-			code: `throw ABCError('foo')`,
-			output: `throw new ABCError('foo')`,
+			code: 'throw ABCError(\'foo\')',
+			output: 'throw new ABCError(\'foo\')',
 			errors
 		},
 		{
-			code: `throw Abc3Error('foo')`,
-			output: `throw new Abc3Error('foo')`,
+			code: 'throw Abc3Error(\'foo\')',
+			output: 'throw new Abc3Error(\'foo\')',
 			errors
 		},
 		{
-			code: `throw TypeError()`,
+			code: 'throw TypeError()',
 			output: 'throw new TypeError()',
 			errors
 		},
 		{
-			code: `throw EvalError()`,
+			code: 'throw EvalError()',
 			output: 'throw new EvalError()',
 			errors
 		},
 		{
-			code: `throw RangeError()`,
+			code: 'throw RangeError()',
 			output: 'throw new RangeError()',
 			errors
 		},
 		{
-			code: `throw ReferenceError()`,
+			code: 'throw ReferenceError()',
 			output: 'throw new ReferenceError()',
 			errors
 		},
 		{
-			code: `throw SyntaxError()`,
+			code: 'throw SyntaxError()',
 			output: 'throw new SyntaxError()',
 			errors
 		},
 		{
-			code: `throw URIError()`,
+			code: 'throw URIError()',
 			output: 'throw new URIError()',
 			errors
 		}
