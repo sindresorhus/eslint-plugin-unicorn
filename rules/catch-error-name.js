@@ -85,6 +85,12 @@ const create = context => {
 			}
 		},
 		CatchClause: node => {
+			// Optional catch binding
+			if (!node || !node.param) {
+				push(true);
+				return;
+			}
+
 			if (node.param.name === '_') {
 				push(!astUtils.someContainIdentifier('_', node.body.body));
 				return;
