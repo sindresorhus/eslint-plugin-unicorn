@@ -1,14 +1,14 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
-const getConsoleMethod = (node) => {
+const getConsoleMethod = node => {
 	const methods = [
 		'log',
 		'warn',
-		'error',
+		'error'
 	];
 
-	const { callee } = node;
+	const {callee} = node;
 
 	if (
 		callee.type === 'MemberExpression' &&
@@ -21,39 +21,38 @@ const getConsoleMethod = (node) => {
 	}
 };
 
-const getTrimmableArguments = (node) => {
+const getTrimmableArguments = node => {
 	const {
-		arguments: args,
+		arguments: args
 	} = node;
 
-	return args.filter((arg) => {
+	return args.filter(arg => {
 		return (
 			arg.type === 'Literal' &&
 			typeof arg.value === 'string' &&
-			!!arg.value &&
+			Boolean(arg.value) &&
 			arg.value !== arg.value.trim()
 		);
 	});
-}
+};
 
 const fix = (context, arg, fixer) => {
-	const token = context.getSourceCode().getText(arg);
 	const replacement = arg.value.trim();
 
 	// Ignore quotes
 	const range = [
 		arg.range[0] + 1,
-		arg.range[1] - 1,
+		arg.range[1] - 1
 	];
 
-	return fixer.replaceTextRange(range, replacement)
-}
+	return fixer.replaceTextRange(range, replacement);
+};
 
-const buildErrorMessage = (method) => {
+const buildErrorMessage = method => {
 	return `Do not include spaces in \`console.${method}\` parameters.`;
-}
+};
 
-const create = (context) => {
+const create = context => {
 	return {
 		CallExpression(node) {
 			const method = getConsoleMethod(node);
@@ -62,11 +61,11 @@ const create = (context) => {
 			}
 
 			const args = getTrimmableArguments(node);
-			args.forEach((arg) => {
+			args.forEach(arg => {
 				context.report({
 					node: arg,
 					message: buildErrorMessage(method),
-					fix: fixer => fix(context, arg, fixer),
+					fix: fixer => fix(context, arg, fixer)
 				});
 			});
 		}
