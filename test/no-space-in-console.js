@@ -8,11 +8,12 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-function buildError({method, ...rest}) {
+function buildError({method, column, line}) {
 	return {
 		ruleId: 'no-space-in-console',
 		message: `Do not include spaces in \`console.${method}\` parameters.`,
-		...rest,
+		column,
+		line,
 	};
 }
 
@@ -110,7 +111,7 @@ ruleTester.run('no-space-in-console', rule, {
 				);
 			`,
 			errors: [
-				buildError({ method: 'log', line: 4}),
+				buildError({ method: 'log', column: 6, line: 4}),
 			],
 			output: `
 				console.log(
