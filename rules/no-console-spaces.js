@@ -21,7 +21,16 @@ const getConsoleMethod = node => {
 	}
 };
 
-const getTrimmableArguments = node => {
+const fixValue = value => {
+	if (!value) {
+		return value;
+	}
+
+	// Find exactly one leading or tailing space
+	return value.replace(/^ ?((?! ).*?[^ ]) ?$/, '$1');
+};
+
+const getFixableArguments = node => {
 	const {
 		arguments: args
 	} = node;
@@ -30,14 +39,13 @@ const getTrimmableArguments = node => {
 		return (
 			arg.type === 'Literal' &&
 			typeof arg.value === 'string' &&
-			Boolean(arg.value) &&
-			arg.value !== arg.value.trim()
+			arg.value !== fixValue(arg.value)
 		);
 	});
 };
 
-const fix = (context, arg, fixer) => {
-	const replacement = arg.value.trim();
+const fixArg = (context, arg, fixer) => {
+	const replacement = fixValue(arg.value);
 
 	// Ignore quotes
 	const range = [
@@ -60,12 +68,12 @@ const create = context => {
 				return;
 			}
 
-			const args = getTrimmableArguments(node);
+			const args = getFixableArguments(node);
 			args.forEach(arg => {
 				context.report({
 					node: arg,
 					message: buildErrorMessage(method),
-					fix: fixer => fix(context, arg, fixer)
+					fix: fixer => fixArg(context, arg, fixer)
 				});
 			});
 		}

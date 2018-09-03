@@ -26,6 +26,12 @@ ruleTester.run('no-console-spaces', rule, {
 		'console.log(`abc `);',
 		'console.log(`\nabc\ndef\n`);',
 
+		'console.log(\' \');',
+		'console.log("abc  ");',
+		'console.log("abc\\t");',
+		'console.log("abc\\n");',
+		'console.log("  abc");',
+
 		'console.log();',
 		'console.log("");',
 		'console.log(123);',
@@ -43,28 +49,7 @@ ruleTester.run('no-console-spaces', rule, {
 			output: 'console.log("abc");'
 		},
 		{
-			code: 'console.log("abc  ");',
-			errors: [
-				buildError({method: 'log', column: 13, line: 1})
-			],
-			output: 'console.log("abc");'
-		},
-		{
-			code: 'console.log("abc\\t");',
-			errors: [
-				buildError({method: 'log', column: 13, line: 1})
-			],
-			output: 'console.log("abc");'
-		},
-		{
 			code: 'console.log(" abc");',
-			errors: [
-				buildError({method: 'log', column: 13, line: 1})
-			],
-			output: 'console.log("abc");'
-		},
-		{
-			code: 'console.log("abc\\n");',
 			errors: [
 				buildError({method: 'log', column: 13, line: 1})
 			],
