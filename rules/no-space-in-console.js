@@ -64,10 +64,6 @@ const create = (context) => {
 			}
 
 			const args = getTrimmableArguments(node);
-			if (!args.length) {
-				return;
-			}
-
 			args.forEach((arg) => {
 				context.report({
 					node: arg,
