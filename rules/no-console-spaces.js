@@ -4,6 +4,8 @@ const getDocsUrl = require('./utils/get-docs-url');
 const getConsoleMethod = node => {
 	const methods = [
 		'log',
+		'debug',
+		'info',
 		'warn',
 		'error'
 	];

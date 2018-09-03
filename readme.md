@@ -86,6 +86,7 @@ Configure it in `package.json`.
 - [no-unsafe-regex](docs/rules/no-unsafe-regex.md) - Disallow unsafe regular expressions.
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `addEventListener` over `on`-functions. *(fixable)*
  - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
+ - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not include spaces in `console.log` parameters. *(fixable)*
 
 
 ## Recommended config

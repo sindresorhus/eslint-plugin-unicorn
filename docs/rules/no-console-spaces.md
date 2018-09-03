@@ -7,14 +7,16 @@
 
 ```js
 console.log('abc ');
-console.warn('abc ');
-console.error('abc ');
+console.log("abc ");
+console.log(`abc `);
 
 console.log('abc ', 'def');
 console.log('abc', ' def');
 
-console.log('abc\t', 'def');
-console.log('abc\n', 'def');
+console.debug('abc ');
+console.info('abc ');
+console.warn('abc ');
+console.error('abc ');
 ```
 
 
@@ -24,7 +26,10 @@ console.log('abc\n', 'def');
 console.log('abc');
 console.log('abc', 'def');
 
-console.log(`abc `);
+console.log('abc  ', 'def');
+console.log('abc\t', 'def');
+console.log('abc\n', 'def');
+
 console.log(`abc\t`);
 console.log(`abc\n`);
 console.log(`
