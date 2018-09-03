@@ -85,6 +85,7 @@ const create = context => {
 			}
 		},
 		CatchClause: node => {
+			// Optional catch binding
 			if (!node || !node.param) {
 				push(true);
 				return;
