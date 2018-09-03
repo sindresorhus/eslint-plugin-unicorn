@@ -25,7 +25,7 @@ const getConsoleMethod = (node) => {
 
 const getTrimmableArguments = (node) => {
 	const {
-		arguments: args = [],
+		arguments: args,
 	} = node;
 
 	return args.filter((arg) => {

@@ -19,16 +19,19 @@ function buildError({method, column, line}) {
 
 ruleTester.run('no-space-in-console', rule, {
 	valid: [
-		'console.log(123);',
-		'console.log(null);',
-		'console.log(undefined);',
-
 		'console.log("abc");',
 		"console.log('abc');",
 		'console.log(`abc`);',
 		'console.log("abc", "def");',
 		'console.log(`abc `);',
 		'console.log(`\nabc\ndef\n`);',
+
+		'console.log();',
+		'console.log("");',
+		'console.log(123);',
+		'console.log(null);',
+		'console.log(undefined);',
+
 		'console.dir("abc ");',
 	],
 	invalid: [
