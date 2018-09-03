@@ -71,13 +71,13 @@ const create = context => {
 			}
 
 			const args = getFixableArguments(node);
-			args.forEach(arg => {
+			for (const arg of args) {
 				context.report({
 					node: arg,
 					message: buildErrorMessage(method),
 					fix: fixer => fixArg(context, arg, fixer)
 				});
-			});
+			}
 		}
 	};
 };
