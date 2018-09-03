@@ -95,14 +95,22 @@ ruleTester.run('custom-error-definition', rule, {
 					this.name = 'FooError';
 				}
 			};
+		`,
 		`
-		// `
-		// 	exports.FooError = class extends Error {
-		// 		constructor(error) {
-		// 			super(error);
-		// 		}
-		// 	};
-		// `
+			exports.FooError = class extends Error {
+				constructor(error) {
+					super(error);
+				}
+			};
+		`,
+		`
+			exports.fooError = class extends Error {
+				constructor(error) {
+					super(error);
+					this.name = 'fooError';
+				}
+			};
+		`,
 	],
 	invalid: [
 		{
@@ -348,6 +356,20 @@ ruleTester.run('custom-error-definition', rule, {
 				invalidNameError('FooError')
 			]
 		},
+		// TODO: Uncomment test as part of #190
+		// {
+		// 	code: `
+		// 		exports.fooError = class FooError extends Error {
+		// 			constructor(error) {
+		// 				super(error);
+		// 				this.name = 'FooError';
+		// 			}
+		// 		};
+		// 	`,
+		// 	errors: [
+		// 		invalidNameError('fooError')
+		// 	]
+		// },
 		{
 			code: `
 				exports.FooError = class FooError extends TypeError {
