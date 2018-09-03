@@ -11,16 +11,14 @@ const getConsoleMethod = (node) => {
 	const { callee } = node;
 
 	if (
-		callee.type !== 'MemberExpression' ||
-		callee.object.type !== 'Identifier' ||
-		callee.object.name !== 'console' ||
-		callee.property.type !== 'Identifier' ||
-		!methods.includes(callee.property.name)
+		callee.type === 'MemberExpression' &&
+		callee.object.type === 'Identifier' &&
+		callee.object.name === 'console' &&
+		callee.property.type === 'Identifier' &&
+		methods.includes(callee.property.name)
 	) {
-		return;
+		return callee.property.name;
 	}
-
-	return callee.property.name;
 };
 
 const getTrimmableArguments = (node) => {
