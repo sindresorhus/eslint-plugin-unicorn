@@ -1,6 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import rule, { buildErrorMessage } from '../rules/no-space-in-console';
+import rule, { buildErrorMessage } from '../rules/no-console-spaces';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
@@ -10,14 +10,14 @@ const ruleTester = avaRuleTester(test, {
 
 function buildError({method, column, line}) {
 	return {
-		ruleId: 'no-space-in-console',
+		ruleId: 'no-console-spaces',
 		message: `Do not include spaces in \`console.${method}\` parameters.`,
 		column,
 		line,
 	};
 }
 
-ruleTester.run('no-space-in-console', rule, {
+ruleTester.run('no-console-spaces', rule, {
 	valid: [
 		'console.log("abc");',
 		"console.log('abc');",
