@@ -34,6 +34,7 @@ ruleTester.run('no-console-spaces', rule, {
 		'console.log(`\nabc\ndef\n`);',
 
 		'console.log(\' \');',
+		'console.log(\'  \');',
 		'console.log("abc  ");',
 		'console.log("abc\\t");',
 		'console.log("abc\\n");',
@@ -55,6 +56,11 @@ ruleTester.run('no-console-spaces', rule, {
 		},
 		{
 			code: 'console.log(" abc");',
+			errors: [buildError({method: 'log'})],
+			output: 'console.log("abc");'
+		},
+		{
+			code: 'console.log(" abc ");',
 			errors: [buildError({method: 'log'})],
 			output: 'console.log("abc");'
 		},
