@@ -31,7 +31,6 @@ ruleTester.run('no-console-spaces', rule, {
 		'console.log(\'abc\');',
 		'console.log(`abc`);',
 		'console.log("abc", "def");',
-		'console.log(`abc `);',
 		'console.log(`\nabc\ndef\n`);',
 
 		'console.log(\' \');',
@@ -96,6 +95,18 @@ ruleTester.run('no-console-spaces', rule, {
 			code: 'console.log(\'abc \');',
 			errors: [buildError({method: 'log'})],
 			output: 'console.log(\'abc\');'
+		},
+		{
+			code: 'console.log(`abc `);',
+			errors: [buildError({method: 'log'})],
+			output: 'console.log(`abc`);'
+		},
+		{
+			// eslint-disable-next-line no-template-curly-in-string
+			code: 'console.log(` abc ${1 + 2} `);',
+			errors: [buildError({method: 'log'})],
+			// eslint-disable-next-line no-template-curly-in-string
+			output: 'console.log(`abc ${1 + 2}`);'
 		},
 		{
 			code: `

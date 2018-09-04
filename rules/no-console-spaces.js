@@ -23,6 +23,23 @@ const getConsoleMethod = node => {
 	}
 };
 
+const getArgumentValue = (context, nodeArgument) => {
+	let value = null;
+
+	if (nodeArgument.type === 'Literal' && typeof nodeArgument.value === 'string') {
+		value = nodeArgument.value;
+	}
+
+	if (nodeArgument.type === 'TemplateLiteral') {
+		const sourceCode = context.getSourceCode();
+		value = sourceCode.getText(nodeArgument);
+		// Strip off backticks
+		value = value.substring(1, value.length - 1);
+	}
+
+	return value;
+};
+
 const fixValue = value => {
 	if (!value) {
 		return value;
@@ -32,27 +49,25 @@ const fixValue = value => {
 	return value.replace(/^ ?((?! ).*?[^ ]) ?$/, '$1');
 };
 
-const getFixableArguments = node => {
+const getFixableArguments = (context, node) => {
 	const {
 		arguments: args
 	} = node;
 
-	return args.filter(arg => {
-		return (
-			arg.type === 'Literal' &&
-			typeof arg.value === 'string' &&
-			arg.value !== fixValue(arg.value)
-		);
+	return args.filter(nodeArgument => {
+		const value = getArgumentValue(context, nodeArgument);
+		return value !== fixValue(value);
 	});
 };
 
-const fixArg = (context, arg, fixer) => {
-	const replacement = fixValue(arg.value);
+const fixArg = (context, nodeArgument, fixer) => {
+	const value = getArgumentValue(context, nodeArgument);
+	const replacement = fixValue(value);
 
-	// Ignore quotes
+	// Ignore quotes and backticks
 	const range = [
-		arg.range[0] + 1,
-		arg.range[1] - 1
+		nodeArgument.range[0] + 1,
+		nodeArgument.range[1] - 1
 	];
 
 	return fixer.replaceTextRange(range, replacement);
@@ -70,12 +85,12 @@ const create = context => {
 				return;
 			}
 
-			const args = getFixableArguments(node);
-			for (const arg of args) {
+			const stringArgs = getFixableArguments(context, node);
+			for (const nodeArgument of stringArgs) {
 				context.report({
-					node: arg,
+					node: nodeArgument,
 					message: buildErrorMessage(method),
-					fix: fixer => fixArg(context, arg, fixer)
+					fix: fixer => fixArg(context, nodeArgument, fixer)
 				});
 			}
 		}
