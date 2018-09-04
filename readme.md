@@ -54,7 +54,8 @@ Configure it in `package.json`.
 			"unicorn/prefer-spread": "error",
 			"unicorn/error-message": "error",
 			"unicorn/no-unsafe-regex": "off",
-			"unicorn/prefer-add-event-listener": "error"
+			"unicorn/prefer-add-event-listener": "error",
+			"unicorn/no-console-spaces": "error"
 		}
 	}
 }
