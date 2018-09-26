@@ -1,0 +1,281 @@
+import test from 'ava';
+import avaRuleTester from 'eslint-ava-rule-tester';
+import rule from '../rules/no-unused-properties';
+
+const ruleTester = avaRuleTester(test, {
+	env: {
+		es6: true
+	},
+	parserOptions: {
+		sourceType: 'module'
+	}
+});
+
+const error = {
+	ruleId: 'no-unused-properties',
+	message: 'Property `u` is defined but never used.'
+};
+
+ruleTester.run('no-unused-properties', rule, {
+	valid: [
+		`
+const foo = { a: 1, b: 2 };
+console.log(foo.a, foo.b);
+`,
+		`
+const foo = { 'a': 1, "b": 2 };
+function main() {
+	console.log(foo.a, foo.b);
+}
+`,
+		`
+const foo = { a: 1, b: 2 };
+console.log(foo['a'], foo["b"]);
+`,
+		`
+const a = Symbol('a');
+const b = 'b';
+const c = {};
+const foo = { [a]: 1, [b]: 2, [c]: 3 };
+console.log(foo[a]);
+`,
+		`
+const a = Symbol('a');
+const foo = { [a]: 1 };
+console.log(foo);
+`,
+		`
+const b = 'b';
+const foo = { [b]: 2 };
+console.log(foo);
+`,
+		`
+const c = {};
+const foo = { [c]: 3 };
+console.log(foo);
+`,
+
+		`
+const foo = { a: 1, b: 2 };
+console.log(foo[x]);
+`,
+		`
+const foo = { a: 1, b: 2 };
+function main() {
+	console.log(foo[x]);
+}
+`,
+
+		`
+const foo = { a: { b: 2 } };
+console.log(foo.a[x]);
+`,
+
+		`
+const foo = { a: { b: 2 } };
+console.log(foo.a);
+`,
+
+		`
+const foo = { a: 1, b: 2 };
+console.log(foo);
+`,
+		`
+const foo = { a: 1, b: 2 };
+function main() {
+	console.log(foo);
+}
+`,
+
+		`
+const foo = {
+	a: 1,
+	f() {
+		return this.a;
+	}
+};
+`,
+		`
+const foo = {
+	a: 1,
+	f() {
+		return this;
+	}
+};
+`,
+
+		`
+const foo = {
+	a: 1
+};
+foo.f = function () { return this.a };
+`,
+		`
+const foo = {
+	a: 1
+};
+foo.f = function () { return this };
+`,
+
+		`
+const foo = {
+	a: {
+		b: 1
+	}
+};
+foo.a.f = function () { return this };
+`,
+
+		`
+const foo = {
+	a: {
+		b: 1
+	}
+};
+Object.assign(foo.a, {
+	f() {
+		return this;
+	}
+});
+`,
+
+		`
+const foo = {
+	a: 1
+};
+foo.hasOwnProperty(x);
+`,
+
+		`
+const foo = { a: { b: { c: 1 } } };
+console.log(foo.a.b.c);
+`,
+
+		`
+const foo = { a: 1, b: 2 };
+`,
+
+		`
+const foo = {};
+foo.a = 1;
+foo.b = 2;
+console.log(foo.a);
+`,
+
+		`
+var foo = {};
+foo.a = 1;
+foo.b = 2;
+console.log(foo.a);
+`,
+
+		`
+var foo = { a: 1, b: 2 };
+foo = { a: 3, b: 4 };
+console.log(foo.a);
+`,
+
+		`
+const foo = function () {};
+`,
+		`
+const foo = [];
+`,
+		`
+let foo;
+`,
+		`
+var foo;
+`,
+		`
+function foo() {}
+foo();
+`,
+		`
+const foo = {};
+export default foo;
+`,
+		`
+var foo = {
+	a: {
+		b: {
+			c: {
+				d: 1
+			}
+		}
+	}
+};
+export { foo };
+`
+	],
+
+	invalid: [
+		{
+			code: `
+const foo = { a: 1, u: 2 };
+console.log(foo.a);
+`,
+			errors: [error]
+		},
+		{
+			code: `
+const foo = { "a": 1, "u": 2 };
+console.log(foo.a);
+`,
+			errors: [error]
+		},
+		{
+			code: `
+const foo = { a: 1, u: 2 };
+console.log(foo['a']);
+`,
+			errors: [error]
+		},
+		{
+			code: `
+const foo = { a: 1, u: 2 };
+function main() {
+	console.log(foo.a);
+}
+`,
+			errors: [error]
+		},
+
+		{
+			code: `
+const foo = { a: 1, u: { b: 2, c: 3 } };
+console.log(foo.a);
+`,
+			errors: [error]
+		},
+
+		{
+			code: `
+const foo = { a: 1, b: { c: 2, u: 3 } };
+console.log(foo.a, foo.b.c);
+`,
+			errors: [error]
+		},
+		{
+			code: `
+const foo = { a: 1, b: { c: 2, u: 3 } };
+function main() {
+	console.log(foo.a, foo.b.c);
+}
+`,
+			errors: [error]
+		},
+		{
+			code: `
+const foo = {
+	a: {
+		b: 1
+	},
+	u: 2
+};
+foo.a.f = function () { return this };
+`,
+			errors: [error]
+		}
+	]
+});
