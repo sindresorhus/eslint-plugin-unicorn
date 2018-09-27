@@ -67,6 +67,10 @@ const create = context => {
 		objectExpression.properties.forEach(property => {
 			const {key} = property;
 
+			if (!key) {
+				return;
+			}
+
 			const nextPath = path.concat(key);
 
 			const nextReferences = references

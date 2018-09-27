@@ -11,6 +11,16 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const babelEslintRuleTester = avaRuleTester(test, {
+	env: {
+		es6: true
+	},
+	parser: 'babel-eslint',
+	parserOptions: {
+		sourceType: 'module'
+	}
+});
+
 const error = {
 	ruleId: 'no-unused-properties',
 	message: 'Property `u` is defined but never used.'
@@ -278,4 +288,16 @@ foo.a.f = function () { return this };
 			errors: [error]
 		}
 	]
+});
+
+babelEslintRuleTester.run('no-unused-properties', rule, {
+	valid: [
+		`
+const foo = {
+	...bar,
+};
+console.log(foo.a);
+`
+	],
+	invalid: []
 });
