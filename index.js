@@ -35,6 +35,7 @@ module.exports = {
 				'unicorn/import-index': 'error',
 				'unicorn/new-for-builtins': 'error',
 				'unicorn/regex-shorthand': 'error',
+				'unicorn/prefer-query-selector': 'error',
 				'unicorn/prefer-spread': 'error',
 				'unicorn/error-message': 'error',
 				'unicorn/no-unsafe-regex': 'off',
