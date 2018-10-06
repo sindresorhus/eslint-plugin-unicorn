@@ -45,8 +45,24 @@ const fixValue = value => {
 		return value;
 	}
 
-	// Find exactly one leading or tailing space
-	return value.replace(/^ ?((?! ).*?[^ ]) ?$/, '$1');
+	// Allow exactly one space
+	if (value.length <= 1) {
+		return value;
+	}
+
+	let fixed = value;
+
+	// Find exactly one leading space
+	if (fixed.startsWith(' ') && !fixed.startsWith('  ')) {
+		fixed = fixed.slice(1);
+	}
+
+	// Find exactly one trailing space
+	if (fixed.endsWith(' ') && !fixed.endsWith('  ')) {
+		fixed = fixed.slice(0, -1);
+	}
+
+	return fixed;
 };
 
 const getFixableArguments = (context, node) => {
