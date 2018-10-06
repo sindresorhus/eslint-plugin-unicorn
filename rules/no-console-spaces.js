@@ -40,7 +40,10 @@ const getArgumentValue = (context, nodeArgument) => {
 	return value;
 };
 
-const fixValue = value => {
+const fixValue = (value, {
+	fixLeading = true,
+	fixTrailing = true
+}) => {
 	if (!value) {
 		return value;
 	}
@@ -53,12 +56,12 @@ const fixValue = value => {
 	let fixed = value;
 
 	// Find exactly one leading space
-	if (fixed.startsWith(' ') && !fixed.startsWith('  ')) {
+	if (fixLeading && fixed.startsWith(' ') && !fixed.startsWith('  ')) {
 		fixed = fixed.slice(1);
 	}
 
 	// Find exactly one trailing space
-	if (fixed.endsWith(' ') && !fixed.endsWith('  ')) {
+	if (fixTrailing && fixed.endsWith(' ') && !fixed.endsWith('  ')) {
 		fixed = fixed.slice(0, -1);
 	}
 
@@ -70,15 +73,29 @@ const getFixableArguments = (context, node) => {
 		arguments: args
 	} = node;
 
-	return args.filter(nodeArgument => {
+	const fixables = args.map((nodeArgument, i) => {
+		const fixLeading = i !== 0;
+		const fixTrailing = i !== (args.length - 1);
+
 		const value = getArgumentValue(context, nodeArgument);
-		return value !== fixValue(value);
+		const fixed = fixValue(value, {fixLeading, fixTrailing});
+
+		return {
+			nodeArgument,
+			value,
+			fixed,
+			fixable: value !== fixed
+		};
 	});
+
+	return fixables.filter(fixable => fixable.fixable);
 };
 
-const fixArg = (context, nodeArgument, fixer) => {
-	const value = getArgumentValue(context, nodeArgument);
-	const replacement = fixValue(value);
+const fixArg = (context, fixable, fixer) => {
+	const {
+		nodeArgument,
+		fixed
+	} = fixable;
 
 	// Ignore quotes and backticks
 	const range = [
@@ -86,11 +103,11 @@ const fixArg = (context, nodeArgument, fixer) => {
 		nodeArgument.range[1] - 1
 	];
 
-	return fixer.replaceTextRange(range, replacement);
+	return fixer.replaceTextRange(range, fixed);
 };
 
 const buildErrorMessage = method => {
-	return `Do not include spaces in \`console.${method}\` parameters.`;
+	return `Do not use leading/trailing space between \`console.${method}\` parameters.`;
 };
 
 const create = context => {
@@ -101,12 +118,12 @@ const create = context => {
 				return;
 			}
 
-			const stringArgs = getFixableArguments(context, node);
-			for (const nodeArgument of stringArgs) {
+			const fixables = getFixableArguments(context, node);
+			for (const fixable of fixables) {
 				context.report({
-					node: nodeArgument,
+					node: fixable.nodeArgument,
 					message: buildErrorMessage(method),
-					fix: fixer => fixArg(context, nodeArgument, fixer)
+					fix: fixer => fixArg(context, fixable, fixer)
 				});
 			}
 		}
