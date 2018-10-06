@@ -1,4 +1,4 @@
-# Do not include spaces in `console.log` parameters.
+# Do not use leading/trailing space in `console.log` parameters
 
 [`console.log`](https://developer.mozilla.org/en-US/docs/Web/API/Console/log) and similar methods insert spaces between messages.
 
