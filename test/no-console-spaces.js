@@ -11,7 +11,7 @@ const ruleTester = avaRuleTester(test, {
 function buildError({method, column, line}) {
 	const error = {
 		ruleId: 'no-console-spaces',
-		message: `Do not include spaces in \`console.${method}\` parameters.`
+		message: `Do not use leading/trailing space between \`console.${method}\` parameters.`
 	};
 
 	if (column) {
