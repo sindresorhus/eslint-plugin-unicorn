@@ -1,10 +1,8 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
-const isCommaFollwedWithComma = (el, index, array) => {
-	if (el === null) {
-		return array[index + 1] === el;
-	}
+const isCommaFollowedWithComma = (el, index, array) => {
+	return el === null && array[index + 1] === null;
 };
 
 const create = context => {
@@ -15,10 +13,10 @@ const create = context => {
 				return;
 			}
 
-			if (elements.some(isCommaFollwedWithComma)) {
+			if (elements.some(isCommaFollowedWithComma)) {
 				context.report({
 					node,
-					message: 'Only one ignored value in series allowed in array destructuring.'
+					message: 'Array destructuring may not contain consecutive ignored values.'
 				});
 			}
 		}

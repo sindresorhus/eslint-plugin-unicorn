@@ -16,24 +16,47 @@ ruleTester.run('no-unreadable-array-destructuring', rule, {
 		'const [foo,   ,     bar] = parts;',
 		'const [foo,] = parts;',
 		'const [foo,,] = parts;',
-		'const [foo,, bar,, baz] = parts;'
+		'const [foo,, bar,, baz] = parts;',
+		'function foo([, bar]) {}',
+		'function foo([bar]) {}',
+		'function foo([bar,,baz]) {}',
+		'function foo([bar,   ,     baz]) {}',
+		'function foo([bar,]) {}',
+		'function foo([bar,,]) {}',
+		'function foo([bar,, baz,, qux]) {}'
 	],
 	invalid: [
 		{
 			code: 'const [,, foo] = parts;',
-			errors: [{message: 'Only one ignored value in series allowed in array destructuring.'}]
+			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
 		},
 		{
 			code: 'const [foo,,, bar] = parts;',
-			errors: [{message: 'Only one ignored value in series allowed in array destructuring.'}]
+			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
 		},
 		{
 			code: 'const [foo,,,] = parts;',
-			errors: [{message: 'Only one ignored value in series allowed in array destructuring.'}]
+			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
 		},
 		{
 			code: 'const [foo, bar,, baz ,,, qux] = parts;',
-			errors: [{message: 'Only one ignored value in series allowed in array destructuring.'}]
+			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
+		},
+		{
+			code: 'function foo([,, bar]) {}',
+			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
+		},
+		{
+			code: 'function foo([bar,,, baz]) {}',
+			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
+		},
+		{
+			code: 'function foo([bar,,,]) {}',
+			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
+		},
+		{
+			code: 'function foo([bar, baz,, qux ,,, quux]) {}',
+			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
 		}
 	]
 });
