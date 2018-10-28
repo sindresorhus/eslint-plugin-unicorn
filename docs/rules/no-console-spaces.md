@@ -1,6 +1,6 @@
 # Do not use leading/trailing space between `console.log` parameters
 
-[`console.log`](https://developer.mozilla.org/en-US/docs/Web/API/Console/log) and similar methods insert spaces between messages.
+The [`console.log()` method](https://developer.mozilla.org/en-US/docs/Web/API/Console/log) and similar methods joins the parameters with a space, so adding a leading/trailing space to a parameter, results in two spaces being added.
 
 
 ## Fail
