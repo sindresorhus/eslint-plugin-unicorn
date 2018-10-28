@@ -54,7 +54,8 @@ Configure it in `package.json`.
 			"unicorn/prefer-spread": "error",
 			"unicorn/error-message": "error",
 			"unicorn/no-unsafe-regex": "off",
-			"unicorn/prefer-add-event-listener": "error"
+			"unicorn/prefer-add-event-listener": "error",
+			"unicorn/no-console-spaces": "error"
 		}
 	}
 }
@@ -86,6 +87,7 @@ Configure it in `package.json`.
 - [no-unsafe-regex](docs/rules/no-unsafe-regex.md) - Disallow unsafe regular expressions.
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `addEventListener` over `on`-functions. *(fixable)*
  - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
+ - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
 
 
 ## Recommended config
