@@ -21,32 +21,27 @@ ruleTester.run('prefer-query-selector', rule, {
 			output: 'document.querySelector("#foo");'
 		},
 		{
-			code: 'document.querySelectorAll("p");',
-			errors: [{message: 'Prefer `querySelector` over `querySelectorAll`.'}],
-			output: 'document.querySelector("p");'
-		},
-		{
 			code: 'document.getElementsByClassName("foo");',
-			errors: [{message: 'Prefer `querySelector` over `getElementsByClassName`.'}],
-			output: 'document.querySelector(".foo");'
+			errors: [{message: 'Prefer `querySelectorAll` over `getElementsByClassName`.'}],
+			output: 'document.querySelectorAll(".foo");'
 		},
 		{
 			code: 'document.getElementsByClassName("foo bar");',
-			errors: [{message: 'Prefer `querySelector` over `getElementsByClassName`.'}],
-			output: 'document.querySelector(".foo.bar");'
+			errors: [{message: 'Prefer `querySelectorAll` over `getElementsByClassName`.'}],
+			output: 'document.querySelectorAll(".foo.bar");'
 		},
 		{
 			code: 'document.getElementsByTagName("div");',
-			errors: [{message: 'Prefer `querySelector` over `getElementsByTagName`.'}],
-			output: 'document.querySelector("div");'
+			errors: [{message: 'Prefer `querySelectorAll` over `getElementsByTagName`.'}],
+			output: 'document.querySelectorAll("div");'
 		},
 		{
 			code: 'document.getElementById("foo").getElementsByClassName("bar baz");',
 			errors: [
-				{message: 'Prefer `querySelector` over `getElementsByClassName`.'},
+				{message: 'Prefer `querySelectorAll` over `getElementsByClassName`.'},
 				{message: 'Prefer `querySelector` over `getElementById`.'}
 			],
-			output: 'document.querySelector("#foo").querySelector(".bar.baz");'
+			output: 'document.querySelector("#foo").querySelectorAll(".bar.baz");'
 		},
 		{
 			code: 'document.getElementById(\'foo\');',
@@ -55,8 +50,8 @@ ruleTester.run('prefer-query-selector', rule, {
 		},
 		{
 			code: 'const qux = \'qux\'; document.getElementsByClassName(`foo ${qux}`);', // eslint-disable-line no-template-curly-in-string
-			errors: [{message: 'Prefer `querySelector` over `getElementsByClassName`.'}],
-			output: 'const qux = \'qux\'; document.querySelector(`.foo.${qux}`);' // eslint-disable-line no-template-curly-in-string
+			errors: [{message: 'Prefer `querySelectorAll` over `getElementsByClassName`.'}],
+			output: 'const qux = \'qux\'; document.querySelectorAll(`.foo.${qux}`);' // eslint-disable-line no-template-curly-in-string
 		}
 	]
 });

@@ -55,7 +55,8 @@ Configure it in `package.json`.
 			"unicorn/error-message": "error",
 			"unicorn/no-unsafe-regex": "off",
 			"unicorn/prefer-add-event-listener": "error",
-			"unicorn/no-console-spaces": "error"
+			"unicorn/no-console-spaces": "error",
+			"unicorn/prefer-query-selector": "error"
 		}
 	}
 }
@@ -86,8 +87,9 @@ Configure it in `package.json`.
 - [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
 - [no-unsafe-regex](docs/rules/no-unsafe-regex.md) - Disallow unsafe regular expressions.
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `addEventListener` over `on`-functions. *(fixable)*
- - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
- - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
+- [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
+- [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
+- [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(fixable)*
 
 
 ## Recommended config
