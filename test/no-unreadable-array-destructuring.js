@@ -8,6 +8,8 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const errors = [{message: 'Array destructuring may not contain consecutive ignored values.'}];
+
 ruleTester.run('no-unreadable-array-destructuring', rule, {
 	valid: [
 		'const [, foo] = parts;',
@@ -23,40 +25,45 @@ ruleTester.run('no-unreadable-array-destructuring', rule, {
 		'function foo([bar,   ,     baz]) {}',
 		'function foo([bar,]) {}',
 		'function foo([bar,,]) {}',
-		'function foo([bar,, baz,, qux]) {}'
+		'function foo([bar,, baz,, qux]) {}',
+		'const [, ...rest] = parts;'
 	],
 	invalid: [
 		{
 			code: 'const [,, foo] = parts;',
-			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
+			errors
 		},
 		{
 			code: 'const [foo,,, bar] = parts;',
-			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
+			errors
 		},
 		{
 			code: 'const [foo,,,] = parts;',
-			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
+			errors
 		},
 		{
 			code: 'const [foo, bar,, baz ,,, qux] = parts;',
-			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
+			errors
 		},
 		{
 			code: 'function foo([,, bar]) {}',
-			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
+			errors
 		},
 		{
 			code: 'function foo([bar,,, baz]) {}',
-			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
+			errors
 		},
 		{
 			code: 'function foo([bar,,,]) {}',
-			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
+			errors
 		},
 		{
 			code: 'function foo([bar, baz,, qux ,,, quux]) {}',
-			errors: [{message: 'Array destructuring may not contain consecutive ignored values.'}]
+			errors
+		},
+		{
+			code: 'const [,,...rest] = parts;',
+			errors
 		}
 	]
 });

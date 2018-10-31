@@ -1,8 +1,8 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
-const isCommaFollowedWithComma = (el, index, array) => {
-	return el === null && array[index + 1] === null;
+const isCommaFollowedWithComma = (element, index, array) => {
+	return element === null && array[index + 1] === null;
 };
 
 const create = context => {

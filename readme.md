@@ -38,6 +38,7 @@ Configure it in `package.json`.
 			"unicorn/filename-case": ["error", {"case": "kebabCase"}],
 			"unicorn/no-abusive-eslint-disable": "error",
 			"unicorn/no-process-exit": "error",
+			"no-unreadable-array-destructuring": "error",
 			"unicorn/throw-new-error": "error",
 			"unicorn/number-literal-case": "error",
 			"unicorn/escape-case": "error",
@@ -85,7 +86,8 @@ Configure it in `package.json`.
 - [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
 - [no-unsafe-regex](docs/rules/no-unsafe-regex.md) - Disallow unsafe regular expressions.
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `addEventListener` over `on`-functions. *(fixable)*
- - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
+- [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
+- [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
 
 
 ## Recommended config
