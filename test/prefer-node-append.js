@@ -11,7 +11,9 @@ const ruleTester = avaRuleTester(test, {
 ruleTester.run('prefer-node-append', rule, {
 	valid: [
 		'parent.append(child);',
-		'document.body.append(child);'
+		'document.body.append(child, \'text\');',
+		'node.append()',
+		'node.append(null)'
 	],
 	invalid: [
 		{
@@ -24,6 +26,20 @@ ruleTester.run('prefer-node-append', rule, {
 		{
 			code: 'document.body.appendChild(child);',
 			output: 'document.body.append(child);',
+			errors: [{
+				message: 'Prefer `append` over `appendChild`'
+			}]
+		},
+		{
+			code: 'node.appendChild()',
+			output: 'node.append()',
+			errors: [{
+				message: 'Prefer `append` over `appendChild`'
+			}]
+		},
+		{
+			code: 'node.appendChild(null)',
+			output: 'node.append(null)',
 			errors: [{
 				message: 'Prefer `append` over `appendChild`'
 			}]
