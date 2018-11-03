@@ -55,7 +55,8 @@ Configure it in `package.json`.
 			"unicorn/error-message": "error",
 			"unicorn/no-unsafe-regex": "off",
 			"unicorn/prefer-add-event-listener": "error",
-			"unicorn/no-console-spaces": "error"
+			"unicorn/no-console-spaces": "error",
+			"unicorn/prefer-node-append": "error"
 		}
 	}
 }
@@ -88,6 +89,7 @@ Configure it in `package.json`.
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `addEventListener` over `on`-functions. *(fixable)*
  - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
  - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
+ - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
 
 
 ## Recommended config
