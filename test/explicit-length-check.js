@@ -28,9 +28,9 @@ function testCase(code, nonZeroType, errors, output) {
 		code,
 		output: output || code,
 		errors: errors || [],
-		options: nonZeroType && [{
+		options: nonZeroType ? [{
 			'non-zero': nonZeroType
-		}]
+		}] : []
 	};
 }
 
