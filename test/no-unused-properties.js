@@ -67,6 +67,15 @@ console.log(foo);
 
 		`
 const foo = { a: 1, b: 2 };
+const {a, b} = foo;
+`,
+		`
+const foo = { a: 1, b: 2 };
+({a, b} = foo);
+`,
+
+		`
+const foo = { a: 1, b: 2 };
 console.log(foo[x]);
 `,
 		`
@@ -253,6 +262,22 @@ function main() {
 
 		{
 			code: `
+const foo = { a: 1, u: 2 };
+const {a} = foo;
+`,
+			errors: [error]
+		},
+
+		{
+			code: `
+const foo = { a: 1, u: 2 };
+({a} = foo);
+`,
+			errors: [error]
+		},
+
+		{
+			code: `
 const foo = { a: 1, u: { b: 2, c: 3 } };
 console.log(foo.a);
 `,
@@ -292,6 +317,11 @@ foo.a.f = function () { return this };
 
 babelEslintRuleTester.run('no-unused-properties', rule, {
 	valid: [
+		`
+const foo = { a: 1, b: 2 };
+const {a, ...rest} = foo;
+`,
+
 		`
 const foo = {
 	...bar,

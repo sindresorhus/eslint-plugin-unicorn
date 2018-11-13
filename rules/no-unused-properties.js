@@ -47,7 +47,7 @@ const create = context => {
 			(memberExpression.property.type !== 'Literal');
 	}
 
-	function memeberExpressionPropertyMatchesObjectExprPropertyKey(property, key) {
+	function propertyMatchesObjectExprPropertyKey(property, key) {
 		if (property.type === key.type && property.name === key.name) {
 			return true;
 		}
@@ -61,6 +61,16 @@ const create = context => {
 		}
 
 		return false;
+	}
+
+	function objectPatternMatchesObjectExprPropertyKey(pattern, key) {
+		return pattern.properties.some(property => {
+			if (property.type === 'ExperimentalRestProperty') {
+				return true;
+			}
+
+			return propertyMatchesObjectExprPropertyKey(property.key, key);
+		});
 	}
 
 	function checkProperties(objectExpression, references, path = []) {
@@ -81,22 +91,42 @@ const create = context => {
 
 					const {parent} = reference.identifier;
 
-					if (parent.type !== 'MemberExpression') {
-						return reference;
+					if (parent.type === 'MemberExpression') {
+						if (
+							isMemberExpressionAssignment(parent) ||
+							isMemberExpressionCall(parent) ||
+							isMemberExpressionComputedBeyondPrediction(parent) ||
+							propertyMatchesObjectExprPropertyKey(parent.property, key)
+						) {
+							return {identifier: parent};
+						}
+
+						return null;
 					}
 
 					if (
-						isMemberExpressionAssignment(parent) ||
-						isMemberExpressionCall(parent) ||
-						isMemberExpressionComputedBeyondPrediction(parent) ||
-						memeberExpressionPropertyMatchesObjectExprPropertyKey(parent.property, key)
+						parent.type === 'VariableDeclarator' &&
+						parent.id.type === 'ObjectPattern'
 					) {
-						return {
-							identifier: parent
-						};
+						if (objectPatternMatchesObjectExprPropertyKey(parent.id, key)) {
+							return {identifier: parent};
+						}
+
+						return null;
 					}
 
-					return null;
+					if (
+						parent.type === 'AssignmentExpression' &&
+						parent.left.type === 'ObjectPattern'
+					) {
+						if (objectPatternMatchesObjectExprPropertyKey(parent.left, key)) {
+							return {identifier: parent};
+						}
+
+						return null;
+					}
+
+					return reference;
 				})
 				.filter(Boolean);
 
