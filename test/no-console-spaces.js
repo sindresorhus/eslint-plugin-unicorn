@@ -4,7 +4,7 @@ import rule from '../rules/no-console-spaces';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2016
+		ecmaVersion: 2019
 	}
 });
 
