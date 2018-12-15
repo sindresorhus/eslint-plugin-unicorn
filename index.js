@@ -22,7 +22,6 @@ module.exports = {
 				'unicorn/filename-case': ['error', {case: 'kebabCase'}],
 				'unicorn/no-abusive-eslint-disable': 'error',
 				'unicorn/no-process-exit': 'error',
-				'unicorn/no-unreadable-array-destructuring': 'error',
 				'unicorn/throw-new-error': 'error',
 				'unicorn/number-literal-case': 'error',
 				'unicorn/escape-case': 'error',
@@ -41,7 +40,8 @@ module.exports = {
 				'unicorn/no-unsafe-regex': 'off',
 				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/prefer-exponentiation-operator': 'error',
-				'unicorn/no-console-spaces': 'error'
+				'unicorn/no-console-spaces': 'error',
+				'unicorn/no-unreadable-array-destructuring': 'error'
 			}
 		}
 	}
