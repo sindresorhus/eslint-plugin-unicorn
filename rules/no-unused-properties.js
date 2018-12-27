@@ -21,17 +21,30 @@ const isMemberExpressionComputedBeyondPrediction = memberExpression => {
 		(memberExpression.property.type !== 'Literal');
 };
 
-const propertyMatchesObjectExprPropertyKey = (property, key) => {
-	if (property.type === key.type && property.name === key.name) {
-		return true;
+const specialProtoPropertyKey = {
+	type: 'Identifier',
+	name: '__proto__'
+};
+
+const propertyKeysEqual = (keyA, keyB) => {
+	if (keyA.type === 'Identifier') {
+		if (keyB.type === 'Identifier') {
+			return keyA.name === keyB.name;
+		}
+
+		if (keyB.type === 'Literal') {
+			return keyA.name === keyB.value;
+		}
 	}
 
-	if (key.type === 'Literal') {
-		return property.name === key.value;
-	}
+	if (keyA.type === 'Literal') {
+		if (keyB.type === 'Identifier') {
+			return keyA.value === keyB.name;
+		}
 
-	if (property.type === 'Literal') {
-		return key.name === property.value;
+		if (keyB.type === 'Literal') {
+			return keyA.value === keyB.value;
+		}
 	}
 
 	return false;
@@ -43,7 +56,7 @@ const objectPatternMatchesObjectExprPropertyKey = (pattern, key) => {
 			return true;
 		}
 
-		return propertyMatchesObjectExprPropertyKey(property.key, key);
+		return propertyKeysEqual(property.key, key);
 	});
 };
 
@@ -102,6 +115,10 @@ const create = context => {
 				return;
 			}
 
+			if (propertyKeysEqual(key, specialProtoPropertyKey)) {
+				return;
+			}
+
 			const nextPath = path.concat(key);
 
 			const nextReferences = references
@@ -117,7 +134,7 @@ const create = context => {
 							isMemberExpressionAssignment(parent) ||
 							isMemberExpressionCall(parent) ||
 							isMemberExpressionComputedBeyondPrediction(parent) ||
-							propertyMatchesObjectExprPropertyKey(parent.property, key)
+							propertyKeysEqual(parent.property, key)
 						) {
 							return {identifier: parent};
 						}

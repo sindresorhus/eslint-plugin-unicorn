@@ -187,6 +187,26 @@ Object.assign(foo.a, {
 
 		`
 const foo = {
+	a: 1,
+	__proto__: {
+		c: 3
+	}
+};
+console.log(foo.a);
+`,
+		`
+const bar = {
+	b: 2
+};
+const foo = {
+	a: 1,
+	['__proto__']: bar
+};
+console.log(foo.a);
+`,
+
+		`
+const foo = {
 	a: 1
 };
 foo.hasOwnProperty(x);
@@ -384,6 +404,18 @@ const foo = {
 	[u]: 2
 };
 console.log(foo.a);
+`,
+			errors: [error]
+		},
+
+		{
+			code: `
+const foo = {
+	__proto__: {a: 1},
+	b: 2,
+	u: 3
+};
+console.log(foo.b);
 `,
 			errors: [error]
 		}
