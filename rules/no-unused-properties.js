@@ -6,9 +6,11 @@ const create = context => {
 		if (property.key.type === 'Identifier') {
 			return property.key.name;
 		}
+
 		if (property.key.type === 'Literal') {
 			return property.key.value;
 		}
+
 		return context.getSource(property.key);
 	}
 
