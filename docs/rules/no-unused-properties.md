@@ -7,7 +7,10 @@ This rule is primarily useful when you use objects to group constants or model e
 ## Fail
 
 ```js
-const enum = { used: 1, unused: 2 }; // Property `unused` is defined but never used.
+const enum = {
+	used: 1,
+	unused: 2 // Property `unused` is defined but never used.
+};
 
 console.log(enum.used);
 
@@ -18,7 +21,10 @@ const {used} = enum;
 ## Pass
 
 ```js
-const enum = { used: 1, usedToo: 2 };
+const enum = {
+	used: 1,
+	usedToo: 2
+};
 
 console.log(enum); // The whole object is used
 
@@ -33,5 +39,4 @@ const foo = {
 		return this;
 	}
 };
-
 ```
