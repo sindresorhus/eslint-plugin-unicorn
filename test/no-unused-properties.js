@@ -43,6 +43,14 @@ const foo = {a: 1, b: 2};
 console.log(foo['a'], foo["b"]);
 `,
 		`
+const foo = {["a"]: 1, ['b']: 2};
+console.log(foo['a'], foo["b"]);
+`,
+		`
+const foo = {['a']: 1, ["b"]: 2};
+console.log(foo['a'], foo["b"]);
+`,
+		`
 const a = Symbol('a');
 const b = 'b';
 const c = {};
@@ -52,6 +60,21 @@ const foo = {
 	[c]: 3
 };
 console.log(foo[a]);
+`,
+		`
+const a = 'a';
+const foo = {
+	[a]: 1,
+};
+const a_ = a;
+console.log(foo[a_]);
+`,
+		`
+const a = 'a';
+const foo = {
+	[a]: 1,
+};
+console.log(foo[x]);
 `,
 		`
 const a = Symbol('a');
@@ -350,6 +373,17 @@ const foo = {
 	u: 2
 };
 foo.a.f = function () { return this };
+`,
+			errors: [error]
+		},
+
+		{
+			code: `
+const foo = {
+	a: 1,
+	[u]: 2
+};
+console.log(foo.a);
 `,
 			errors: [error]
 		}
