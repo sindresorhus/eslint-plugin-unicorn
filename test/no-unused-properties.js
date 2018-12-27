@@ -29,17 +29,17 @@ const error = {
 ruleTester.run('no-unused-properties', rule, {
 	valid: [
 		`
-const foo = { a: 1, b: 2 };
+const foo = {a: 1, b: 2};
 console.log(foo.a, foo.b);
 `,
 		`
-const foo = { 'a': 1, "b": 2 };
+const foo = {'a': 1, "b": 2};
 function main() {
 	console.log(foo.a, foo.b);
 }
 `,
 		`
-const foo = { a: 1, b: 2 };
+const foo = {a: 1, b: 2};
 console.log(foo['a'], foo["b"]);
 `,
 		`
@@ -51,56 +51,56 @@ console.log(foo[a]);
 `,
 		`
 const a = Symbol('a');
-const foo = { [a]: 1 };
+const foo = {[a]: 1};
 console.log(foo);
 `,
 		`
 const b = 'b';
-const foo = { [b]: 2 };
+const foo = {[b]: 2};
 console.log(foo);
 `,
 		`
 const c = {};
-const foo = { [c]: 3 };
+const foo = {[c]: 3};
 console.log(foo);
 `,
 
 		`
-const foo = { a: 1, b: 2 };
+const foo = {a: 1, b: 2};
 const {a, b} = foo;
 `,
 		`
-const foo = { a: 1, b: 2 };
+const foo = {a: 1, b: 2};
 ({a, b} = foo);
 `,
 
 		`
-const foo = { a: 1, b: 2 };
+const foo = {a: 1, b: 2};
 console.log(foo[x]);
 `,
 		`
-const foo = { a: 1, b: 2 };
+const foo = {a: 1, b: 2};
 function main() {
 	console.log(foo[x]);
 }
 `,
 
 		`
-const foo = { a: { b: 2 } };
+const foo = {a: { b: 2 }};
 console.log(foo.a[x]);
 `,
 
 		`
-const foo = { a: { b: 2 } };
+const foo = {a: { b: 2 }};
 console.log(foo.a);
 `,
 
 		`
-const foo = { a: 1, b: 2 };
+const foo = {a: 1, b: 2};
 console.log(foo);
 `,
 		`
-const foo = { a: 1, b: 2 };
+const foo = {a: 1, b: 2};
 function main() {
 	console.log(foo);
 }
@@ -166,12 +166,18 @@ foo.hasOwnProperty(x);
 `,
 
 		`
-const foo = { a: { b: { c: 1 } } };
+const foo = {
+	a: {
+		b: {
+			c: 1
+		}
+	}
+};
 console.log(foo.a.b.c);
 `,
 
 		`
-const foo = { a: 1, b: 2 };
+const foo = {a: 1, b: 2};
 `,
 
 		`
@@ -189,7 +195,7 @@ console.log(foo.a);
 `,
 
 		`
-var foo = { a: 1, b: 2 };
+var foo = {a: 1, b: 2};
 foo = { a: 3, b: 4 };
 console.log(foo.a);
 `,
@@ -224,35 +230,35 @@ var foo = {
 		}
 	}
 };
-export { foo };
+export {foo};
 `
 	],
 
 	invalid: [
 		{
 			code: `
-const foo = { a: 1, u: 2 };
+const foo = {a: 1, u: 2};
 console.log(foo.a);
 `,
 			errors: [error]
 		},
 		{
 			code: `
-const foo = { "a": 1, "u": 2 };
+const foo = {"a": 1, "u": 2};
 console.log(foo.a);
 `,
 			errors: [error]
 		},
 		{
 			code: `
-const foo = { a: 1, u: 2 };
+const foo = {a: 1, u: 2};
 console.log(foo['a']);
 `,
 			errors: [error]
 		},
 		{
 			code: `
-const foo = { a: 1, u: 2 };
+const foo = {a: 1, u: 2};
 function main() {
 	console.log(foo.a);
 }
@@ -262,7 +268,7 @@ function main() {
 
 		{
 			code: `
-const foo = { a: 1, u: 2 };
+const foo = {a: 1, u: 2};
 const {a} = foo;
 `,
 			errors: [error]
@@ -270,7 +276,7 @@ const {a} = foo;
 
 		{
 			code: `
-const foo = { a: 1, u: 2 };
+const foo = {a: 1, u: 2};
 ({a} = foo);
 `,
 			errors: [error]
@@ -278,7 +284,13 @@ const foo = { a: 1, u: 2 };
 
 		{
 			code: `
-const foo = { a: 1, u: { b: 2, c: 3 } };
+const foo = {
+	a: 1,
+	u: {
+		b: 2,
+		c: 3
+	}
+};
 console.log(foo.a);
 `,
 			errors: [error]
@@ -286,14 +298,26 @@ console.log(foo.a);
 
 		{
 			code: `
-const foo = { a: 1, b: { c: 2, u: 3 } };
+const foo = {
+	a: 1,
+	b: {
+		c: 2,
+		u: 3
+	}
+};
 console.log(foo.a, foo.b.c);
 `,
 			errors: [error]
 		},
 		{
 			code: `
-const foo = { a: 1, b: { c: 2, u: 3 } };
+const foo = {
+	a: 1,
+	b: {
+		c: 2,
+		u: 3
+	}
+};
 function main() {
 	console.log(foo.a, foo.b.c);
 }
@@ -318,7 +342,7 @@ foo.a.f = function () { return this };
 babelEslintRuleTester.run('no-unused-properties', rule, {
 	valid: [
 		`
-const foo = { a: 1, b: 2 };
+const foo = {a: 1, b: 2};
 const {a, ...rest} = foo;
 `,
 
