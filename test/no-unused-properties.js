@@ -220,6 +220,7 @@ var foo;
 function foo() {}
 foo();
 `,
+
 		`
 const foo = {};
 export default foo;
@@ -235,6 +236,18 @@ var foo = {
 	}
 };
 export {foo};
+`,
+		`
+var foo = {
+	a: 1
+};
+module.exports = foo;
+`,
+		`
+var foo = {
+	a: 1
+};
+exports.foo = foo;
 `
 	],
 
