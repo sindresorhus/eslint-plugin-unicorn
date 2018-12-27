@@ -1,8 +1,73 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
+const getDeclaratorOrPropertyValue = declaratorOrProperty => {
+	return declaratorOrProperty.init || declaratorOrProperty.value;
+};
+
+const isMemberExpressionCall = memberExpression => {
+	return memberExpression.parent &&
+		memberExpression.parent.type === 'CallExpression' &&
+		memberExpression.parent.callee === memberExpression;
+};
+
+const isMemberExpressionAssignment = memberExpression => {
+	return memberExpression.parent &&
+		memberExpression.parent.type === 'AssignmentExpression';
+};
+
+const isMemberExpressionComputedBeyondPrediction = memberExpression => {
+	return memberExpression.computed &&
+		(memberExpression.property.type !== 'Literal');
+};
+
+const propertyMatchesObjectExprPropertyKey = (property, key) => {
+	if (property.type === key.type && property.name === key.name) {
+		return true;
+	}
+
+	if (key.type === 'Literal') {
+		return property.name === key.value;
+	}
+
+	if (property.type === 'Literal') {
+		return key.name === property.value;
+	}
+
+	return false;
+};
+
+const objectPatternMatchesObjectExprPropertyKey = (pattern, key) => {
+	return pattern.properties.some(property => {
+		if (property.type === 'ExperimentalRestProperty') {
+			return true;
+		}
+
+		return propertyMatchesObjectExprPropertyKey(property.key, key);
+	});
+};
+
+const isLeafDeclaratorOrProperty = declaratorOrProperty => {
+	const value = getDeclaratorOrPropertyValue(declaratorOrProperty);
+
+	if (!value) {
+		return true;
+	}
+
+	if (value.type !== 'ObjectExpression') {
+		return true;
+	}
+
+	return false;
+};
+
+const isUnusedVariable = variable => {
+	const hasReadRef = variable.references.some(ref => ref.isRead());
+	return !hasReadRef;
+};
+
 const create = context => {
-	function getPropertyDisplayName(property) {
+	const getPropertyDisplayName = property => {
 		if (property.key.type === 'Identifier') {
 			return property.key.name;
 		}
@@ -12,13 +77,9 @@ const create = context => {
 		}
 
 		return context.getSource(property.key);
-	}
+	};
 
-	function getDeclaratorOrPropertyValue(declaratorOrProperty) {
-		return declaratorOrProperty.init || declaratorOrProperty.value;
-	}
-
-	function checkProperty(property, references, path) {
+	const checkProperty = (property, references, path) => {
 		if (references.length === 0) {
 			context.report({
 				node: property,
@@ -31,51 +92,9 @@ const create = context => {
 		}
 
 		checkObject(property, references, path);
-	}
+	};
 
-	function isMemberExpressionCall(memberExpression) {
-		return memberExpression.parent &&
-			memberExpression.parent.type === 'CallExpression' &&
-			memberExpression.parent.callee === memberExpression;
-	}
-
-	function isMemberExpressionAssignment(memberExpression) {
-		return memberExpression.parent &&
-			memberExpression.parent.type === 'AssignmentExpression';
-	}
-
-	function isMemberExpressionComputedBeyondPrediction(memberExpression) {
-		return memberExpression.computed &&
-			(memberExpression.property.type !== 'Literal');
-	}
-
-	function propertyMatchesObjectExprPropertyKey(property, key) {
-		if (property.type === key.type && property.name === key.name) {
-			return true;
-		}
-
-		if (key.type === 'Literal') {
-			return property.name === key.value;
-		}
-
-		if (property.type === 'Literal') {
-			return key.name === property.value;
-		}
-
-		return false;
-	}
-
-	function objectPatternMatchesObjectExprPropertyKey(pattern, key) {
-		return pattern.properties.some(property => {
-			if (property.type === 'ExperimentalRestProperty') {
-				return true;
-			}
-
-			return propertyMatchesObjectExprPropertyKey(property.key, key);
-		});
-	}
-
-	function checkProperties(objectExpression, references, path = []) {
+	const checkProperties = (objectExpression, references, path = []) => {
 		objectExpression.properties.forEach(property => {
 			const {key} = property;
 
@@ -134,23 +153,9 @@ const create = context => {
 
 			checkProperty(property, nextReferences, nextPath);
 		});
-	}
+	};
 
-	function isLeafDeclaratorOrProperty(declaratorOrProperty) {
-		const value = getDeclaratorOrPropertyValue(declaratorOrProperty);
-
-		if (!value) {
-			return true;
-		}
-
-		if (value.type !== 'ObjectExpression') {
-			return true;
-		}
-
-		return false;
-	}
-
-	function checkObject(declaratorOrProperty, references, path) {
+	const checkObject = (declaratorOrProperty, references, path) => {
 		if (isLeafDeclaratorOrProperty(declaratorOrProperty)) {
 			return;
 		}
@@ -158,14 +163,9 @@ const create = context => {
 		const value = getDeclaratorOrPropertyValue(declaratorOrProperty);
 
 		checkProperties(value, references, path);
-	}
+	};
 
-	function isUnusedVariable(variable) {
-		const hasReadRef = variable.references.some(ref => ref.isRead());
-		return !hasReadRef;
-	}
-
-	function checkVariable(variable) {
+	const checkVariable = variable => {
 		if (variable.defs.length !== 1) {
 			return;
 		}
@@ -177,17 +177,17 @@ const create = context => {
 		const [definition] = variable.defs;
 
 		checkObject(definition.node, variable.references);
-	}
+	};
 
-	function checkVariables(scope) {
+	const checkVariables = scope => {
 		scope.variables.forEach(checkVariable);
-	}
+	};
 
-	function checkChildScopes(scope) {
+	const checkChildScopes = scope => {
 		scope.childScopes.forEach(checkScope);
-	}
+	};
 
-	function checkScope(scope) {
+	const checkScope = scope => {
 		if (scope.type === 'global') {
 			return checkChildScopes(scope);
 		}
@@ -195,7 +195,7 @@ const create = context => {
 		checkVariables(scope);
 
 		return checkChildScopes(scope);
-	}
+	};
 
 	return {
 		'Program:exit'() {
