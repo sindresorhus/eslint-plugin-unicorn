@@ -46,7 +46,11 @@ console.log(foo['a'], foo["b"]);
 const a = Symbol('a');
 const b = 'b';
 const c = {};
-const foo = { [a]: 1, [b]: 2, [c]: 3 };
+const foo = {
+	[a]: 1,
+	[b]: 2,
+	[c]: 3
+};
 console.log(foo[a]);
 `,
 		`
