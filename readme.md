@@ -66,7 +66,7 @@ Configure it in `package.json`.
 			"unicorn/no-unsafe-regex": "off",
 			"unicorn/prefer-add-event-listener": "error",
 			"unicorn/no-console-spaces": "error",
-			"no-unreadable-array-destructuring": "error"
+			"unicorn/no-unreadable-array-destructuring": "error"
 		}
 	}
 }
