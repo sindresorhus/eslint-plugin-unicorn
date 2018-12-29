@@ -67,7 +67,8 @@ Configure it in `package.json`.
 			"unicorn/prefer-add-event-listener": "error",
 			"unicorn/no-console-spaces": "error",
 			"unicorn/no-unreadable-array-destructuring": "error",
-			"unicorn/no-unused-properties": "off"
+			"unicorn/no-unused-properties": "off",
+			"unicorn/prefer-node-append": "error"
 		}
 	}
 }
@@ -102,6 +103,7 @@ Configure it in `package.json`.
 - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
 - [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
 - [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
+- [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
 
 
 ## Recommended config

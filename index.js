@@ -52,7 +52,8 @@ module.exports = {
 				'unicorn/prefer-exponentiation-operator': 'error',
 				'unicorn/no-console-spaces': 'error',
 				'unicorn/no-unreadable-array-destructuring': 'error',
-				'unicorn/no-unused-properties': 'off'
+				'unicorn/no-unused-properties': 'off',
+				'unicorn/prefer-node-append': 'error'
 			}
 		}
 	}
