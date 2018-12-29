@@ -115,6 +115,10 @@ ruleTester.run('prefer-query-selector', rule, {
 		{
 			code: 'document.getElementsByClassName("foo" + fn());',
 			errors: [{message: 'Prefer `querySelectorAll` over `getElementsByClassName`.'}]
+		},
+		{
+			code: 'document.getElementsByClassName(foo + "bar");',
+			errors: [{message: 'Prefer `querySelectorAll` over `getElementsByClassName`.'}]
 		}
 	]
 });

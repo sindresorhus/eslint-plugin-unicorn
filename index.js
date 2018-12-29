@@ -53,6 +53,7 @@ module.exports = {
 				'unicorn/no-console-spaces': 'error',
 				'unicorn/no-unreadable-array-destructuring': 'error',
 				'unicorn/no-unused-properties': 'off',
+				'unicorn/prefer-node-append': 'error',
 				'unicorn/prefer-query-selector': 'error'
 			}
 		}
