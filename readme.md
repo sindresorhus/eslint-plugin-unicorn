@@ -6,6 +6,8 @@
 
 You might want to check out [XO](https://github.com/xojs/xo), which includes this plugin.
 
+[**Propose or contribute a new rule ➡**](.github/contributing.md)
+
 
 ## Install
 
