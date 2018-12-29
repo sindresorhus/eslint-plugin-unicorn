@@ -1,6 +1,6 @@
 # Prefer `append` over `appendChild`
 
-Enforces the use of, for example, `document.window.append(div);` over `document.window.appendChild(div);` for HTML DOM Elements. There are [some advantages of using `addEventListener`](https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/append). These advantages include the ability to append multiple nodes and to append both DOMString and Node Objects.
+Enforces the use of, for example, `document.body.append(div);` over `document.body.appendChild(div);` for DOM nodes. There are [some advantages of using `.append()`](https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/append, like the ability to append multiple nodes and to append both [`DOMString`](https://developer.mozilla.org/en-US/docs/Web/API/DOMString) and DOM node objects.
 
 This rule is fixable.
 
@@ -15,12 +15,6 @@ foo.appendChild(bar);
 
 ```js
 foo.append(bar);
-```
-
-```js
 foo.append('bar');
-```
-
-```js
 foo.append(bar, 'baz');
 ```
