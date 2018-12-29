@@ -1,49 +1,104 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
-const forbiddenIdentifierNames = {
-	getElementById: 'querySelector',
-	getElementsByClassName: 'querySelectorAll',
-	getElementsByTagName: 'querySelectorAll'
+const forbiddenIdentifierNames = new Map([
+	['getElementById', 'querySelector'],
+	['getElementsByClassName', 'querySelectorAll'],
+	['getElementsByTagName', 'querySelectorAll']
+]);
+
+const getReplacementForId = value => `#${value}`;
+const getReplacementForClass = value => value.match(/\S+/g).map(e => `.${e}`).join('');
+const getQuotedReplacement = (node, value) => {
+	const leftQuote = node.raw.charAt(0);
+	const rightQuote = node.raw.charAt(node.raw.length - 1);
+	return `${leftQuote}${value}${rightQuote}`;
 };
 
-const VALID_QUOTES = /([',",`])/;
-const getRange = (prop, node) => [prop.start, node.arguments[0].end];
-const getReplacement = (context, identifierName, node) => {
-	const argAsTxt = context.getSourceCode().getText(node.arguments[0]);
+const getLiteralFix = (fixer, node, identifierName) => {
+	let replacement = node.raw;
 	if (identifierName === 'getElementById') {
-		return `querySelector(${argAsTxt.replace(VALID_QUOTES, '$1#')}`;
+		replacement = getQuotedReplacement(node, getReplacementForId(node.value));
 	}
-	const leftQuote = argAsTxt.slice(0, 1);
-	const rightQuote = argAsTxt.slice(-1);
-	const selector = argAsTxt.slice(1, -1).split(' ').filter(e => e).map(e => `.${e}`).join('');
-	return `querySelectorAll(${leftQuote}${selector}${rightQuote}`;
+
+	if (identifierName === 'getElementsByClassName') {
+		replacement = getQuotedReplacement(node, getReplacementForClass(node.value));
+	}
+
+	return [fixer.replaceText(node, replacement)];
+};
+
+const getTemplateLiteralFix = (fixer, node, identifierName) => {
+	const fix = [fixer.insertTextAfter(node, '`'), fixer.insertTextBefore(node, '`')];
+
+	node.quasis.forEach(templateElement => {
+		if (identifierName === 'getElementById') {
+			fix.push(fixer.replaceText(templateElement, getReplacementForId(templateElement.value.cooked)));
+		}
+
+		if (identifierName === 'getElementsByClassName') {
+			fix.push(fixer.replaceText(templateElement, getReplacementForClass(templateElement.value.cooked)));
+		}
+	});
+
+	return fix;
+};
+
+const canBeFixed = node => {
+	if (node.type === 'Literal') {
+		return node.value === null || Boolean(node.value.trim());
+	}
+
+	if (node.type === 'TemplateLiteral') {
+		return node.expressions.length === 0 &&
+			node.quasis.some(templateElement => templateElement.value.cooked.trim());
+	}
+
+	return false;
+};
+
+const hasValue = node => {
+	if (node.type === 'Literal') {
+		return node.value;
+	}
+
+	return true;
+};
+
+const fix = (node, identifierName, preferedSelector) => {
+	const nodeToBeFixed = node.arguments[0];
+	if (identifierName === 'getElementsByTagName' || !hasValue(nodeToBeFixed)) {
+		return fixer => fixer.replaceText(node.callee.property, preferedSelector);
+	}
+
+	const getArgumentFix = nodeToBeFixed.type === 'Literal' ? getLiteralFix : getTemplateLiteralFix;
+	return fixer => [
+		...getArgumentFix(fixer, nodeToBeFixed, identifierName),
+		fixer.replaceText(node.callee.property, preferedSelector)
+	];
 };
 
 const create = context => {
 	return {
 		CallExpression(node) {
-			const {callee} = node;
-			const prop = callee.property;
+			const {callee: {property, type}} = node;
+			if (!property || type !== 'MemberExpression') {
+				return;
+			}
 
-			const identifierName = prop.name;
-			const preferedSelector = forbiddenIdentifierNames[identifierName];
-			if (!prop || callee.type !== 'MemberExpression' || !preferedSelector) {
+			const identifierName = property.name;
+			const preferedSelector = forbiddenIdentifierNames.get(identifierName);
+			if (!preferedSelector) {
 				return;
 			}
 
 			const report = {
 				node,
-				message: `Prefer \`${preferedSelector}\` over \`${identifierName}\`.`,
-				fix: fixer => fixer.replaceText(prop, preferedSelector)
+				message: `Prefer \`${preferedSelector}\` over \`${identifierName}\`.`
 			};
 
-			if (identifierName === 'getElementById' || identifierName === 'getElementsByClassName') {
-				report.fix = fixer => {
-					const range = getRange(prop, node);
-					const replacement = getReplacement(context, identifierName, node);
-					return fixer.replaceTextRange(range, replacement);
-				};
+			if (canBeFixed(node.arguments[0])) {
+				report.fix = fix(node, identifierName, preferedSelector);
 			}
 
 			context.report(report);
