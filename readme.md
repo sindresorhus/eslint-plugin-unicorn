@@ -26,16 +26,26 @@ Configure it in `package.json`.
 			"es6": true
 		},
 		"parserOptions": {
-			"ecmaVersion": 2018,
+			"ecmaVersion": 2019,
 			"sourceType": "module"
 		},
 		"plugins": [
 			"unicorn"
 		],
 		"rules": {
-			"unicorn/catch-error-name": ["error", {"name": "error"}],
+			"unicorn/catch-error-name": [
+				"error",
+				{
+					"name": "error"
+				}
+			],
 			"unicorn/explicit-length-check": "error",
-			"unicorn/filename-case": ["error", {"case": "kebabCase"}],
+			"unicorn/filename-case": [
+				"error",
+				{
+					"case": "kebabCase"
+				}
+			],
 			"unicorn/no-abusive-eslint-disable": "error",
 			"unicorn/no-process-exit": "error",
 			"unicorn/throw-new-error": "error",
@@ -56,7 +66,9 @@ Configure it in `package.json`.
 			"unicorn/no-unsafe-regex": "off",
 			"unicorn/prefer-add-event-listener": "error",
 			"unicorn/no-console-spaces": "error",
-			"unicorn/prefer-query-selector": "error"
+			"unicorn/no-unreadable-array-destructuring": "error",
+			"unicorn/no-unused-properties": "off",
+			"unicorn/prefer-query-selector": "error",
 		}
 	}
 }
@@ -89,8 +101,9 @@ Configure it in `package.json`.
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `addEventListener` over `on`-functions. *(fixable)*
 - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
 - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
-- [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(fixable)*
-
+- [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
+- [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
+- [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
 
 ## Recommended config
 
@@ -115,10 +128,9 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 ## Maintainers
 
 - [Sindre Sorhus](https://github.com/sindresorhus)
-- [James Talmage](https://github.com/jamestalmage)
 - [Jeroen Engels](https://github.com/jfmengels)
 - [Sam Verschueren](https://github.com/SamVerschueren)
-- [John Wu](https://github.com/johnwu93)
+- [futpib](https://github.com/futpib)
 
 
 ## License
