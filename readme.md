@@ -66,7 +66,8 @@ Configure it in `package.json`.
 			"unicorn/no-unsafe-regex": "off",
 			"unicorn/prefer-add-event-listener": "error",
 			"unicorn/no-console-spaces": "error",
-			"unicorn/no-unreadable-array-destructuring": "error"
+			"unicorn/no-unreadable-array-destructuring": "error",
+			"unicorn/no-unused-properties": "off"
 		}
 	}
 }
@@ -100,6 +101,7 @@ Configure it in `package.json`.
 - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
 - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
 - [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
+- [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
 
 
 ## Recommended config
