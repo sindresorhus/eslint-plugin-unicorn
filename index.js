@@ -10,16 +10,26 @@ module.exports = {
 				es6: true
 			},
 			parserOptions: {
-				ecmaVersion: 2018,
+				ecmaVersion: 2019,
 				sourceType: 'module'
 			},
 			plugins: [
 				'unicorn'
 			],
 			rules: {
-				'unicorn/catch-error-name': ['error', {name: 'error'}],
+				'unicorn/catch-error-name': [
+					'error',
+					{
+						name: 'error'
+					}
+				],
 				'unicorn/explicit-length-check': 'error',
-				'unicorn/filename-case': ['error', {case: 'kebabCase'}],
+				'unicorn/filename-case': [
+					'error',
+					{
+						case: 'kebabCase'
+					}
+				],
 				'unicorn/no-abusive-eslint-disable': 'error',
 				'unicorn/no-process-exit': 'error',
 				'unicorn/throw-new-error': 'error',
@@ -41,6 +51,8 @@ module.exports = {
 				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/prefer-exponentiation-operator': 'error',
 				'unicorn/no-console-spaces': 'error',
+				'unicorn/no-unreadable-array-destructuring': 'error',
+				'unicorn/no-unused-properties': 'off',
 				'unicorn/prefer-node-append': 'error'
 			}
 		}
