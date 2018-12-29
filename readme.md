@@ -127,10 +127,8 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 ## Maintainers
 
 - [Sindre Sorhus](https://github.com/sindresorhus)
-- [James Talmage](https://github.com/jamestalmage)
 - [Jeroen Engels](https://github.com/jfmengels)
 - [Sam Verschueren](https://github.com/SamVerschueren)
-- [John Wu](https://github.com/johnwu93)
 
 
 ## License
