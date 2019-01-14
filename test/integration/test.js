@@ -35,7 +35,16 @@ const packages = new Map([
 	['decompress', 'https://github.com/kevva/decompress'],
 	['npm-conf', 'https://github.com/kevva/npm-conf'],
 	['imagemin', 'https://github.com/imagemin/imagemin'],
-	['color-convert', 'https://github.com/qix-/color-convert']
+	['color-convert', 'https://github.com/qix-/color-convert'],
+	['eslint-plugin-unicorn', 'https://github.com/sindresorhus/eslint-plugin-unicorn'],
+	['ky', 'https://github.com/sindresorhus/ky'],
+	['query-string', 'https://github.com/sindresorhus/query-string'],
+	['meow', 'https://github.com/sindresorhus/meow'],
+	['globby', 'https://github.com/sindresorhus/globby'],
+	['emittery', 'https://github.com/sindresorhus/emittery'],
+	['p-queue', 'https://github.com/sindresorhus/p-queue'],
+	['pretty-bytes', 'https://github.com/sindresorhus/pretty-bytes'],
+	['normalize-url', 'https://github.com/sindresorhus/normalize-url']
 ]);
 
 const cwd = path.join(__dirname, 'eslint-config-unicorn-tester');
