@@ -70,7 +70,8 @@ Configure it in `package.json`.
 			"unicorn/no-console-spaces": "error",
 			"unicorn/no-unreadable-array-destructuring": "error",
 			"unicorn/no-unused-properties": "off",
-			"unicorn/prefer-node-append": "error"
+			"unicorn/prefer-node-append": "error",
+			"unicorn/prefer-query-selector": "error"
 		}
 	}
 }
@@ -106,6 +107,7 @@ Configure it in `package.json`.
 - [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
 - [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
+- [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
 
 
 ## Recommended config
