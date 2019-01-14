@@ -107,6 +107,7 @@ Configure it in `package.json`.
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
 
+
 ## Recommended config
 
 This plugin exports a [`recommended` config](index.js) that enforces good practices.
