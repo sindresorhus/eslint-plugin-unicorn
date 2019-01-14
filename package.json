@@ -41,12 +41,12 @@
 		"safe-regex": "^2.0.1"
 	},
 	"devDependencies": {
-		"ava": "^1.0.0-rc.1",
+		"ava": "^1.1.0",
 		"babel-eslint": "^10.0.0",
-		"chalk": "^2.0.1",
+		"chalk": "^2.4.2",
 		"coveralls": "^3.0.0",
 		"del": "^3.0.0",
-		"eslint": "^5.9.0",
+		"eslint": "^5.12.0",
 		"eslint-ava-rule-tester": "^3.0.0",
 		"execa": "^1.0.0",
 		"listr": "^0.14.1",
