@@ -6,9 +6,9 @@ They are not faster than `querySelector` and it's better to be consistent.
 ## Fail
 
 ```js
-document.getElementById("foo");
+document.getElementById('foo');
 document.getElementsByClassName('foo bar');
-document.getElementsByTagName(`main`);
+document.getElementsByTagName('main');
 document.getElementsByClassName(fn());
 ```
 
@@ -16,10 +16,10 @@ document.getElementsByClassName(fn());
 ## Pass
 
 ```js
-document.querySelector("#foo");
+document.querySelector('#foo');
 document.querySelector('.bar');
-document.querySelector(`main #foo .bar`);
-document.querySelectorAll(".foo .bar");
+document.querySelector('main #foo .bar');
+document.querySelectorAll('.foo .bar');
 document.querySelectorAll('li a');
-document.querySelector(`li`).querySelectorAll("a");
+document.querySelector('li').querySelectorAll('a');
 ```
