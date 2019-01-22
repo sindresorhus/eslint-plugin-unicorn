@@ -4,7 +4,7 @@ Applies to both `try/catch` clauses and `promise.catch(...)` handlers.
 
 The desired name is configurable, but defaults to `error`.
 
-This rule is fixable unless reported code was destructuring an error.
+This rule is fixable unless the reported code was destructuring an error.
 
 
 ## Fail
