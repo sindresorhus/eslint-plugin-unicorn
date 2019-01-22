@@ -71,9 +71,9 @@ const create = context => {
 					const scope = context.getScope();
 					const variable = scope.set.get(node.name);
 					if (variable) {
-						variable.references.forEach(reference => {
+						for (const reference of variable.references) {
 							fixings.push(fixer.replaceText(reference.identifier, expectedName));
-						});
+						}
 					}
 
 					return fixings;
