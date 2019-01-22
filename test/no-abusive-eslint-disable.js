@@ -25,6 +25,8 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 		'eval(); // eslint-disable-line plugin/rule',
 		'eval(); // eslint-disable-line @scope/plugin/rule-name',
 		'eval(); // eslint-disable-line no-eval, @scope/plugin/rule-name',
+		'eval(); // eslint-disable-line @scope/rule-name',
+		'eval(); // eslint-disable-line no-eval, @scope/rule-name',
 		'eval(); // eslint-line-disable',
 		'eval(); // some comment',
 		`foo();
@@ -65,10 +67,6 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 		},
 		{
 			code: '// eslint-disable-next-line @scopewithoutplugin\neval();',
-			errors: [error('Specify the rules you want to disable at line 1:0')]
-		},
-		{
-			code: '// eslint-disable-next-line @scope/pluginwithoutrule\neval();',
 			errors: [error('Specify the rules you want to disable at line 1:0')]
 		}
 	]
