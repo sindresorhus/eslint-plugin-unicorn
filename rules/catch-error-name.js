@@ -58,10 +58,29 @@ const create = context => {
 		const value = stack.pop();
 
 		if (value !== true && !caughtErrorsIgnorePattern.test(node.name)) {
-			context.report({
+			const expectedName = value || name;
+			const problem = {
 				node,
-				message: `The catch parameter should be named \`${value || name}\`.`
-			});
+				message: `The catch parameter should be named \`${expectedName}\`.`
+			};
+
+			if (node.type === 'Identifier') {
+				problem.fix = fixer => {
+					const fixings = [fixer.replaceText(node, expectedName)];
+
+					const scope = context.getScope();
+					const variable = scope.set.get(node.name);
+					if (variable) {
+						for (const reference of variable.references) {
+							fixings.push(fixer.replaceText(reference.identifier, expectedName));
+						}
+					}
+
+					return fixings;
+				};
+			}
+
+			context.report(problem);
 		}
 	}
 
@@ -123,6 +142,7 @@ module.exports = {
 		docs: {
 			url: getDocsUrl(__filename)
 		},
+		fixable: 'code',
 		schema
 	}
 };
