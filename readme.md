@@ -71,7 +71,8 @@ Configure it in `package.json`.
 			"unicorn/no-unreadable-array-destructuring": "error",
 			"unicorn/no-unused-properties": "off",
 			"unicorn/prefer-node-append": "error",
-			"unicorn/prefer-query-selector": "error"
+			"unicorn/prefer-query-selector": "error",
+			"unicorn/prefer-includes": "error"
 		}
 	}
 }
@@ -108,7 +109,7 @@ Configure it in `package.json`.
 - [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
-
+- [prefer-includes](docs/rules/prefer-includes.md) - Prefer `includes` over `indexOf` when checking for existence or non existence. *(fixable)*
 
 ## Recommended config
 
