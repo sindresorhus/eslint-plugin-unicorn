@@ -21,7 +21,8 @@ ruleTester.run('prefer-includes', rule, {
 		'!str.indexOf(\'foo\') === -n',
 		'str.includes(\'foo\')',
 		'\'foobar\'.includes(\'foo\')',
-		'[1,2,3].includes(4)'
+		'[1,2,3].includes(4)',
+		'null.indexOf(\'foo\')'
 	],
 	invalid: [
 		{
@@ -52,6 +53,11 @@ ruleTester.run('prefer-includes', rule, {
 		{
 			code: 'str.indexOf(\'foo\') < 0',
 			output: '!str.includes(\'foo\')',
+			errors
+		},
+		{
+			code: '\'\'.indexOf(\'foo\') < 0',
+			output: '!\'\'.includes(\'foo\')',
 			errors
 		}
 	]

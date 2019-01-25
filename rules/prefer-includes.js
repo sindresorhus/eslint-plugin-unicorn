@@ -23,7 +23,11 @@ const report = (context, node, target, pattern) => {
 	context.report({
 		node,
 		message: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.',
-		fix: fixer => fixer.replaceText(node, `${['!==', '!=', '<'].includes(node.operator) ? '!' : ''}${targetSource}.includes(${patternSource})`)
+		fix: fixer => {
+			const isNot = node => ['!==', '!=', '<'].includes(node.operator) ? '!' : '';
+			const replacement = `${isNot(node)}${targetSource}.includes(${patternSource})`;
+			return fixer.replaceText(node, replacement);
+		}
 	});
 };
 

@@ -1,6 +1,6 @@
 # Prefer `.includes()` over `.indexOf()` when checking for existence
 
-The rule assume some properties named `.indexOf()` have a `.includes()` counterpart, as ESLint doesn't do type analysis. This is luckily true for all built-ins: `String#includes`, `Array#includes`, `TypedArray#includes`, `Buffer#includes`.
+All built-ins have includes in addition to indexOf. Prefer includes over comparing the value of indexO
 
 This rule is fixable.
 
