@@ -280,6 +280,15 @@ var foo = {
 };
 export {foo};
 `,
+
+		`
+export const foo = {
+	a: 1,
+	b: 2
+};
+console.log(foo.a);
+`,
+
 		`
 var foo = {
 	a: 1
