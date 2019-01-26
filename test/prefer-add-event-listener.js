@@ -26,10 +26,10 @@ const expectedBeforeUnloadWithReturnMessage = [
 ruleTester.run('prefer-add-event-listener', rule, {
 	valid: [
 		'foo.addEventListener(\'click\', () => {})',
+		'foo.removeEventListener(\'click\', onClick)',
 		'foo.onclick',
 		'foo.setCallBack = () => {console.log(\'foo\')}',
 		'setCallBack = () => {console.log(\'foo\')}',
-		'foo.onclick.bar = () => {}',
 		'foo[\'x\'] = true;'
 	],
 
@@ -40,8 +40,18 @@ ruleTester.run('prefer-add-event-listener', rule, {
 			'onclick'
 		),
 		invalidTestCase(
+			'foo.onclick = 1',
+			'foo.addEventListener(\'click\', 1)',
+			'onclick'
+		),
+		invalidTestCase(
 			'foo.bar.onclick = onClick',
 			'foo.bar.addEventListener(\'click\', onClick)',
+			'onclick'
+		),
+		invalidTestCase(
+			'const bar = null; foo.onclick = bar;',
+			'const bar = null; foo.addEventListener(\'click\', bar);',
 			'onclick'
 		),
 		invalidTestCase(
@@ -63,7 +73,18 @@ ruleTester.run('prefer-add-event-listener', rule, {
 			})`,
 			'onclick'
 		),
-
+		invalidTestCase(
+			'foo.onclick = null',
+			null,
+			null,
+			'Prefer `removeEventListener` over `onclick`.'
+		),
+		invalidTestCase(
+			'foo.onclick = undefined',
+			null,
+			null,
+			'Prefer `removeEventListener` over `onclick`.'
+		),
 		invalidTestCase(
 			'window.onbeforeunload = foo',
 			null,
@@ -92,7 +113,6 @@ ruleTester.run('prefer-add-event-listener', rule, {
 			null,
 			expectedBeforeUnloadWithReturnMessage
 		),
-
 		invalidTestCase(
 			`window.onbeforeunload = function () {
 				return;
