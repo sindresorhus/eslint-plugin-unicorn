@@ -2,10 +2,10 @@
 const getDocsUrl = require('./utils/get-docs-url');
 
 function isMemberExpression(node) {
-	return node.type === 'MemberExpression'
+	return node.type === 'MemberExpression';
 }
 
-function getMethodName (memberExpression) {
+function getMethodName(memberExpression) {
 	return memberExpression.property.name;
 }
 
@@ -27,7 +27,7 @@ function create(context) {
 						fixer.insertTextBefore(callee.object.property, 'remove'),
 						fixer.removeRange([
 							callee.object.property.range[0],
-							callee.property.range[1],
+							callee.property.range[1]
 						]),
 						fixer.remove(arg)
 					]
