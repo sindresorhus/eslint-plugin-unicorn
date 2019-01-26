@@ -12,7 +12,7 @@ const create = context => {
 
 	return {
 		CallExpression: node => {
-			const callee = node.callee;
+			const {callee} = node;
 
 			if (callee.type === 'MemberExpression' && callee.object.name === 'process') {
 				if (callee.property.name === 'on' || callee.property.name === 'once') {

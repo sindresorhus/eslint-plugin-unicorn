@@ -35,7 +35,16 @@ const packages = new Map([
 	['decompress', 'https://github.com/kevva/decompress'],
 	['npm-conf', 'https://github.com/kevva/npm-conf'],
 	['imagemin', 'https://github.com/imagemin/imagemin'],
-	['color-convert', 'https://github.com/qix-/color-convert']
+	['color-convert', 'https://github.com/qix-/color-convert'],
+	['eslint-plugin-unicorn', 'https://github.com/sindresorhus/eslint-plugin-unicorn'],
+	['ky', 'https://github.com/sindresorhus/ky'],
+	['query-string', 'https://github.com/sindresorhus/query-string'],
+	['meow', 'https://github.com/sindresorhus/meow'],
+	['globby', 'https://github.com/sindresorhus/globby'],
+	['emittery', 'https://github.com/sindresorhus/emittery'],
+	['p-queue', 'https://github.com/sindresorhus/p-queue'],
+	['pretty-bytes', 'https://github.com/sindresorhus/pretty-bytes'],
+	['normalize-url', 'https://github.com/sindresorhus/normalize-url']
 ]);
 
 const cwd = path.join(__dirname, 'eslint-config-unicorn-tester');
@@ -51,10 +60,10 @@ const execute = name => {
 		{
 			title: 'Running tests',
 			task: () => execa('eslint', ['--config', path.join(cwd, 'index.js'), dest], {cwd, localDir: __dirname})
-				.catch(err => {
-					if (!/✖ \d+ problems? \(\d+ errors?, \d+ warnings?\)/.test(err.message)) {
-						err.package = name;
-						throw err;
+				.catch(error => {
+					if (!/✖ \d+ problems? \(\d+ errors?, \d+ warnings?\)/.test(error.message)) {
+						error.package = name;
+						throw error;
 					}
 				})
 		},
@@ -92,10 +101,10 @@ const list = new Listr([
 ]);
 
 list.run()
-	.catch(err => {
-		for (const error of err.errors) {
-			console.error('\n' + chalk.red.bold.underline(error.package));
-			console.error(error.message);
+	.catch(error => {
+		for (const error2 of error.errors) {
+			console.error('\n' + chalk.red.bold.underline(error2.package));
+			console.error(error2.message);
 		}
 
 		process.exit(1);

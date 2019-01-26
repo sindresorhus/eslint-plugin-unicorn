@@ -20,11 +20,11 @@ const noMessageError = {
 
 ruleTester.run('error-message', rule, {
 	valid: [
-		`throw new Error('error')`,
-		`throw new TypeError('error')`,
-		`throw new MyCustomError('error')`,
-		`throw new MyCustomError()`,
-		`throw generateError()`,
+		'throw new Error(\'error\')',
+		'throw new TypeError(\'error\')',
+		'throw new MyCustomError(\'error\')',
+		'throw new MyCustomError()',
+		'throw generateError()',
 		'throw new Error(lineNumber=2)',
 		'throw new Error([])',
 		'throw foo()',
@@ -44,7 +44,7 @@ ruleTester.run('error-message', rule, {
 			errors: [noMessageError]
 		},
 		{
-			code: `throw new Error('')`,
+			code: 'throw new Error(\'\')',
 			errors: [emptyStringError]
 		},
 		{

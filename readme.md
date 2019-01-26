@@ -6,6 +6,8 @@
 
 You might want to check out [XO](https://github.com/xojs/xo), which includes this plugin.
 
+[**Propose or contribute a new rule ➡**](.github/contributing.md)
+
 
 ## Install
 
@@ -26,16 +28,26 @@ Configure it in `package.json`.
 			"es6": true
 		},
 		"parserOptions": {
-			"ecmaVersion": 2017,
+			"ecmaVersion": 2019,
 			"sourceType": "module"
 		},
 		"plugins": [
 			"unicorn"
 		],
 		"rules": {
-			"unicorn/catch-error-name": ["error", {"name": "err"}],
+			"unicorn/catch-error-name": [
+				"error",
+				{
+					"name": "error"
+				}
+			],
 			"unicorn/explicit-length-check": "error",
-			"unicorn/filename-case": ["error", {"case": "kebabCase"}],
+			"unicorn/filename-case": [
+				"error",
+				{
+					"case": "kebabCase"
+				}
+			],
 			"unicorn/no-abusive-eslint-disable": "error",
 			"unicorn/no-process-exit": "error",
 			"unicorn/throw-new-error": "error",
@@ -54,7 +66,12 @@ Configure it in `package.json`.
 			"unicorn/prefer-spread": "error",
 			"unicorn/error-message": "error",
 			"unicorn/no-unsafe-regex": "off",
-			"unicorn/prefer-add-event-listener": "error"
+			"unicorn/prefer-add-event-listener": "error",
+			"unicorn/no-console-spaces": "error",
+			"unicorn/no-unreadable-array-destructuring": "error",
+			"unicorn/no-unused-properties": "off",
+			"unicorn/prefer-node-append": "error",
+			"unicorn/prefer-query-selector": "error"
 		}
 	}
 }
@@ -85,6 +102,12 @@ Configure it in `package.json`.
 - [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
 - [no-unsafe-regex](docs/rules/no-unsafe-regex.md) - Disallow unsafe regular expressions.
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `addEventListener` over `on`-functions. *(fixable)*
+- [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
+- [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
+- [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
+- [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
+- [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
+- [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
 - [jsx-import](docs/rules/jsx-import.md) - Enforce importing a pragma when using JSX. *(fixable)*
 
 
@@ -98,9 +121,6 @@ Enable it in your `package.json` with the `extends` option:
 {
 	"name": "my-awesome-project",
 	"eslintConfig": {
-		"plugins": [
-			"unicorn"
-		],
 		"extends": "plugin:unicorn/recommended"
 	}
 }
@@ -114,10 +134,9 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 ## Maintainers
 
 - [Sindre Sorhus](https://github.com/sindresorhus)
-- [James Talmage](https://github.com/jamestalmage)
 - [Jeroen Engels](https://github.com/jfmengels)
 - [Sam Verschueren](https://github.com/SamVerschueren)
-- [John Wu](https://github.com/johnwu93)
+- [futpib](https://github.com/futpib)
 
 
 ## License

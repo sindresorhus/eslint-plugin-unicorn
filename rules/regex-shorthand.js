@@ -8,7 +8,7 @@ const create = context => {
 	return {
 		'Literal[regex]': node => {
 			const oldPattern = node.regex.pattern;
-			const flags = node.regex.flags;
+			const {flags} = node.regex;
 
 			const newPattern = cleanRegexp(oldPattern, flags);
 
@@ -48,10 +48,20 @@ const create = context => {
 			const newPattern = cleanRegexp(oldPattern, flags);
 
 			if (oldPattern !== newPattern) {
+				let fixed;
+				if (hasRegExp) {
+					fixed = `/${newPattern}/`;
+				} else {
+					// Escape backslash and apostrophe because we wrap the result in single quotes.
+					fixed = (newPattern || '').replace(/\\/, '\\\\');
+					fixed = fixed.replace(/'/, '\'');
+					fixed = `'${fixed}'`;
+				}
+
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceTextRange(args[0].range, hasRegExp ? `/${newPattern}/` : `'${newPattern}'`)
+					fix: fixer => fixer.replaceTextRange(args[0].range, fixed)
 				});
 			}
 		}

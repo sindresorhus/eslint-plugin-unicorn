@@ -1,6 +1,6 @@
 {
 	"name": "eslint-plugin-unicorn",
-	"version": "4.0.2",
+	"version": "7.1.0",
 	"description": "Various awesome ESLint rules",
 	"license": "MIT",
 	"repository": "sindresorhus/eslint-plugin-unicorn",
@@ -10,12 +10,11 @@
 		"url": "sindresorhus.com"
 	},
 	"engines": {
-		"node": ">=4"
+		"node": ">=6"
 	},
 	"scripts": {
 		"test": "xo && nyc ava",
-		"integration": "./test/integration/test.js",
-		"coveralls": "nyc report --reporter=text-lcov | coveralls"
+		"integration": "./test/integration/test.js"
 	},
 	"files": [
 		"index.js",
@@ -40,24 +39,25 @@
 		"lodash.kebabcase": "^4.0.1",
 		"lodash.snakecase": "^4.0.1",
 		"lodash.upperfirst": "^4.2.0",
-		"safe-regex": "^1.1.0"
+		"safe-regex": "^2.0.1"
 	},
 	"devDependencies": {
-		"ava": "*",
-		"chalk": "^2.0.1",
+		"ava": "^1.1.0",
+		"babel-eslint": "^10.0.0",
+		"chalk": "^2.4.2",
 		"coveralls": "^3.0.0",
 		"del": "^3.0.0",
-		"eslint": "^4.0.0",
-		"eslint-ava-rule-tester": "^2.0.0",
-		"execa": "^0.9.0",
-		"listr": "^0.13.0",
-		"nyc": "^11.0.3",
-		"pify": "^3.0.0",
+		"eslint": "^5.12.0",
+		"eslint-ava-rule-tester": "^3.0.0",
+		"execa": "^1.0.0",
+		"listr": "^0.14.1",
+		"nyc": "^13.1.0",
+		"pify": "^4.0.1",
 		"tempy": "^0.2.1",
-		"xo": "*"
+		"xo": "^0.23.0"
 	},
 	"peerDependencies": {
-		"eslint": ">=4"
+		"eslint": ">=5.0.0"
 	},
 	"ava": {
 		"files": [

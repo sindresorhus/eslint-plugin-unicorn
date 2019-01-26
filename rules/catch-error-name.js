@@ -4,13 +4,13 @@ const getDocsUrl = require('./utils/get-docs-url');
 
 // Matches `someObj.then([FunctionExpression | ArrowFunctionExpression])`
 function isLintablePromiseCatch(node) {
-	const callee = node.callee;
+	const {callee} = node;
 
 	if (callee.type !== 'MemberExpression') {
 		return false;
 	}
 
-	const property = callee.property;
+	const {property} = callee;
 
 	if (property.type !== 'Identifier' || property.name !== 'catch') {
 		return false;
@@ -20,7 +20,7 @@ function isLintablePromiseCatch(node) {
 		return false;
 	}
 
-	const arg0 = node.arguments[0];
+	const [arg0] = node.arguments;
 
 	return arg0.type === 'FunctionExpression' || arg0.type === 'ArrowFunctionExpression';
 }
@@ -38,11 +38,11 @@ function indexifyName(name, scope) {
 
 const create = context => {
 	const options = Object.assign({}, {
-		name: 'err',
+		name: 'error',
 		caughtErrorsIgnorePattern: '^_$'
 	}, context.options[0]);
 
-	const name = options.name;
+	const {name} = options;
 	const caughtErrorsIgnorePattern = new RegExp(options.caughtErrorsIgnorePattern);
 	const stack = [];
 
@@ -58,17 +58,36 @@ const create = context => {
 		const value = stack.pop();
 
 		if (value !== true && !caughtErrorsIgnorePattern.test(node.name)) {
-			context.report({
+			const expectedName = value || name;
+			const problem = {
 				node,
-				message: `The catch parameter should be named \`${value || name}\`.`
-			});
+				message: `The catch parameter should be named \`${expectedName}\`.`
+			};
+
+			if (node.type === 'Identifier') {
+				problem.fix = fixer => {
+					const fixings = [fixer.replaceText(node, expectedName)];
+
+					const scope = context.getScope();
+					const variable = scope.set.get(node.name);
+					if (variable) {
+						for (const reference of variable.references) {
+							fixings.push(fixer.replaceText(reference.identifier, expectedName));
+						}
+					}
+
+					return fixings;
+				};
+			}
+
+			context.report(problem);
 		}
 	}
 
 	return {
 		CallExpression: node => {
 			if (isLintablePromiseCatch(node)) {
-				const params = node.arguments[0].params;
+				const {params} = node.arguments[0];
 
 				if (params.length > 0 && params[0].name === '_') {
 					push(!astUtils.containsIdentifier('_', node.arguments[0].body));
@@ -85,6 +104,12 @@ const create = context => {
 			}
 		},
 		CatchClause: node => {
+			// Optional catch binding
+			if (!node || !node.param) {
+				push(true);
+				return;
+			}
+
 			if (node.param.name === '_') {
 				push(!astUtils.someContainIdentifier('_', node.body.body));
 				return;
@@ -117,6 +142,7 @@ module.exports = {
 		docs: {
 			url: getDocsUrl(__filename)
 		},
+		fixable: 'code',
 		schema
 	}
 };

@@ -2,7 +2,7 @@
 const getDocsUrl = require('./utils/get-docs-url');
 
 const isArrayFrom = node => {
-	const callee = node.callee;
+	const {callee} = node;
 	return (
 		callee.type === 'MemberExpression' &&
 		callee.object.type === 'Identifier' &&
@@ -11,6 +11,8 @@ const isArrayFrom = node => {
 		callee.property.name === 'from'
 	);
 };
+
+const isArrayLike = arg => arg && arg.type !== 'ObjectExpression';
 
 const parseArgument = (context, arg) => {
 	if (arg.type === 'Identifier') {
@@ -23,7 +25,7 @@ const parseArgument = (context, arg) => {
 const create = context => {
 	return {
 		CallExpression(node) {
-			if (isArrayFrom(node)) {
+			if (isArrayFrom(node) && isArrayLike(node.arguments[0])) {
 				context.report({
 					node,
 					message: 'Prefer the spread operator over `Array.from()`.',

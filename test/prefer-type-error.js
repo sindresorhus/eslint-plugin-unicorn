@@ -163,7 +163,7 @@ ruleTester.run('prefer-type-error', rule, {
 		`if (foo instanceof Foo === false) {
 			throw new TypeError('Expected Foo being bar!');
 		}`,
-		`throw new Error('💣')`,
+		'throw new Error(\'💣\')',
 		`if (!Number.isNaN(foo) && foo === 10) {
 			throw new Error('foo is not 10!');
 		}`,
@@ -304,6 +304,6 @@ ruleTester.run('prefer-type-error', rule, {
 			errors
 		}
 	].concat(
-		Array.from(tcIdentifiers).map(identifier => tcIdentifierInvalidTest(identifier))
+		[...tcIdentifiers].map(identifier => tcIdentifierInvalidTest(identifier))
 	)
 });
