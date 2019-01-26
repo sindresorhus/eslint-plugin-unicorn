@@ -65,6 +65,7 @@ const create = context => {
 				callee.object.name === pragma.name &&
 				pragmaAPIs[pragma.name].includes(callee.property.name)
 			) {
+				context.markVariableAsUsed(pragma.name);
 				isModuleAPIsCalled = true;
 			}
 		},
