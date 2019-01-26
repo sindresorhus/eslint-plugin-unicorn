@@ -7,6 +7,16 @@ const eventTypes = new Set(nestedEvents.reduce((accEvents, events) => accEvents.
 const getEventMethodName = memberExpression => memberExpression.property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 
+const beforeUnloadMessage = 'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.';
+
+const formatMessage = (eventMethodName, extra) => {
+	let message = `Prefer \`addEventListener\` over \`${eventMethodName}\`.`;
+	if (extra) {
+		message += ' ' + extra;
+	}
+	return message;
+};
+
 const fix = (fixer, sourceCode, assignmentNode, memberExpression) => {
 	const eventTypeName = getEventTypeName(getEventMethodName(memberExpression));
 	const eventObjectCode = sourceCode.getText(memberExpression.object);
@@ -15,28 +25,77 @@ const fix = (fixer, sourceCode, assignmentNode, memberExpression) => {
 	return fixer.replaceText(assignmentNode, fixedCodeStatement);
 };
 
-const isOnEvent = memberExpression => {
-	if (memberExpression.type === 'MemberExpression') {
-		const eventMethodName = getEventMethodName(memberExpression);
-		if (eventMethodName && eventMethodName.startsWith('on')) {
-			return eventTypes.has(getEventTypeName(eventMethodName));
-		}
+const shouldFixBeforeUnload = (assignedExpression, nodeReturnsSomething) => {
+	if (assignedExpression.type !== 'ArrowFunctionExpression' &&
+		assignedExpression.type !== 'FunctionExpression'
+	) {
+		return false;
 	}
 
-	return false;
+	if (assignedExpression.body.type !== 'BlockStatement') {
+		return false;
+	}
+
+	return !nodeReturnsSomething.get(assignedExpression);
 };
 
 const create = context => {
+	const nodeReturnsSomething = new WeakMap();
+	let codePathInfo = null;
+
 	return {
-		AssignmentExpression(node) {
-			const memberExpression = node.left;
-			if (isOnEvent(memberExpression, context, node)) {
+		onCodePathStart(codePath, node) {
+			codePathInfo = {
+				node,
+				upper: codePathInfo,
+				returnsSomething: false
+			};
+		},
+
+		onCodePathEnd() {
+			nodeReturnsSomething.set(codePathInfo.node, codePathInfo.returnsSomething);
+			codePathInfo = codePathInfo.upper;
+		},
+
+		ReturnStatement(node) {
+			codePathInfo.returnsSomething = codePathInfo.returnsSomething || Boolean(node.argument);
+		},
+
+		'AssignmentExpression:exit'(node) {
+			const {left: memberExpression, right: assignedExpression} = node;
+
+			if (memberExpression.type !== 'MemberExpression') {
+				return;
+			}
+
+			const eventMethodName = getEventMethodName(memberExpression);
+
+			if (!eventMethodName || !eventMethodName.startsWith('on')) {
+				return;
+			}
+
+			const eventTypeName = getEventTypeName(eventMethodName);
+
+			if (!eventTypes.has(eventTypeName)) {
+				return;
+			}
+
+			if (eventTypeName === 'beforeunload' &&
+				!shouldFixBeforeUnload(assignedExpression, nodeReturnsSomething)
+			) {
 				context.report({
 					node,
-					message: `Prefer \`addEventListener\` over \`${getEventMethodName(memberExpression)}\``,
-					fix: fixer => fix(fixer, context.getSourceCode(), node, memberExpression)
+					message: formatMessage(eventMethodName, beforeUnloadMessage)
 				});
+
+				return;
 			}
+
+			context.report({
+				node,
+				message: formatMessage(eventMethodName),
+				fix: fixer => fix(fixer, context.getSourceCode(), node, memberExpression)
+			});
 		}
 	};
 };
