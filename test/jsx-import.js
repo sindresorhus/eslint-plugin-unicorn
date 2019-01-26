@@ -130,6 +130,10 @@ function App() {
 		return <Foo/>;
 	}
 }
+`,
+		`
+import React from 'react';
+React.cloneElement();
 `
 	],
 	invalid: [

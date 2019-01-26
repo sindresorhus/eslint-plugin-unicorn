@@ -9,6 +9,10 @@ const pragmas = {
 	preact: ['preact']
 };
 
+const pragmaAPIs = {
+	React: ['cloneElement']
+};
+
 const getSuggestedPackages = modules => arrayToSentence(modules.map(x => `\`${x}\``), {lastSeparator: ' or '});
 
 const hasPackage = (node, packages) => node.init ?
@@ -44,12 +48,24 @@ const getVariablesInScope = context => {
 
 const create = context => {
 	let isJsx = false;
+	let isModuleAPIsCalled = false;
 	let pragma;
 
 	return {
 		Program: () => {
-			for (const x of Object.keys(pragmas)) {
-				pragma = pragma || getVariable(x, getVariablesInScope(context));
+			for (const key of Object.keys(pragmas)) {
+				pragma = pragma || getVariable(key, getVariablesInScope(context));
+			}
+		},
+		CallExpression(node) {
+			const {callee} = node;
+			if (
+				pragma &&
+				callee.type === 'MemberExpression' &&
+				callee.object.name === pragma.name &&
+				pragmaAPIs[pragma.name].includes(callee.property.name)
+			) {
+				isModuleAPIsCalled = true;
 			}
 		},
 		JSXOpeningElement: node => {
@@ -71,7 +87,7 @@ const create = context => {
 				const packages = pragmas[pragma.name];
 				const hasPkg = hasPackage(node, packages);
 
-				if (!isJsx) {
+				if (!isModuleAPIsCalled && !isJsx) {
 					context.report({
 						node,
 						message: `\`${pragma.name}\` shouldn't be imported when not using JSX`
@@ -92,6 +108,7 @@ const create = context => {
 				}
 
 				isJsx = false;
+				isModuleAPIsCalled = false;
 			}
 		}
 	};
