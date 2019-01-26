@@ -15,8 +15,8 @@ this.parentNode.removeChild(this);
 ## Pass
 
 ```js
-foo.parentNode.removeChild(bar),
-this.parentNode.removeChild(foo),
-foo.remove(),
-this.remove(),
+foo.parentNode.removeChild(bar);
+this.parentNode.removeChild(foo);
+foo.remove();
+this.remove();
 ```
