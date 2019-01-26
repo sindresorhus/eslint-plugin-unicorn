@@ -11,9 +11,11 @@ const beforeUnloadMessage = 'Use `event.preventDefault(); event.returnValue = \'
 
 const formatMessage = (eventMethodName, extra) => {
 	let message = `Prefer \`addEventListener\` over \`${eventMethodName}\`.`;
+
 	if (extra) {
 		message += ' ' + extra;
 	}
+
 	return message;
 };
 
@@ -26,7 +28,8 @@ const fix = (fixer, sourceCode, assignmentNode, memberExpression) => {
 };
 
 const shouldFixBeforeUnload = (assignedExpression, nodeReturnsSomething) => {
-	if (assignedExpression.type !== 'ArrowFunctionExpression' &&
+	if (
+		assignedExpression.type !== 'ArrowFunctionExpression' &&
 		assignedExpression.type !== 'FunctionExpression'
 	) {
 		return false;

@@ -17,6 +17,7 @@ const isReferenceAssigned = expression => {
 		const assignedVariable = expression.left;
 		return assignedVariable.type === 'Identifier' && assignedVariable.name;
 	}
+
 	return false;
 };
 
@@ -36,6 +37,7 @@ const findIdentifierValues = (identifierNode, context) => {
 			referenceValues.push(expression.init);
 		}
 	}
+
 	return referenceValues;
 };
 
