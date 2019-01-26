@@ -40,77 +40,157 @@ const wrongError = name => ({
 
 ruleTester.run('jsx-import', rule, {
 	valid: [
-		`import React from 'react'; let Foo; <Foo/>;`,
-		`import preact from 'preact'; let Foo; <Foo/>;`,
-		`import preact, {render} from 'preact'; let Foo; <Foo/>;`,
-		`import {h, render} from 'preact'; let Foo; <Foo/>;`,
-		`import {h} from 'dom-chef'; let Foo; <Foo/>;`,
-		`import React from 'react'; import bar from 'bar'; let Foo; <Foo/>;`,
-		`const React = require('react'); let Foo; <Foo/>;`,
-		`const preact = require('preact'); let Foo; <Foo/>;`,
-		`const {h} = require('preact'); let Foo; <Foo/>;`,
-		`const {h} = require('dom-chef'); let Foo; <Foo/>;`,
-		`const {h} = require('dom-chef'); const bar = require('bar'); let Foo; <Foo/>;`
+		'import React from \'react\'; let Foo; <Foo/>;',
+		'import preact from \'preact\'; let Foo; <Foo/>;',
+		'import preact, {render} from \'preact\'; let Foo; <Foo/>;',
+		'import {h, render} from \'preact\'; let Foo; <Foo/>;',
+		'import {h} from \'dom-chef\'; let Foo; <Foo/>;',
+		'import React from \'react\'; import bar from \'bar\'; let Foo; <Foo/>;',
+		'const React = require(\'react\'); let Foo; <Foo/>;',
+		'const preact = require(\'preact\'); let Foo; <Foo/>;',
+		'const {h} = require(\'preact\'); let Foo; <Foo/>;',
+		'const {h} = require(\'dom-chef\'); let Foo; <Foo/>;',
+		'const {h} = require(\'dom-chef\'); const bar = require(\'bar\'); let Foo; <Foo/>;',
+		`
+import React from 'react';
+function App() {
+	function Inner() {
+		return <Foo/>;
+	}
+}
+`,
+		`
+import preact from 'preact';
+function App() {
+	function Inner() {
+		return <Foo/>;
+	}
+}
+`,
+		`
+import preact, {render} from 'preact';
+function App() {
+	function Inner() {
+		return <Foo/>;
+	}
+}
+`,
+		`
+import {h, render} from 'preact';
+function App() {
+	function Inner() {
+		return <Foo/>;
+	}
+}
+`,
+		`
+import {h} from 'dom-chef';
+function App() {
+	function Inner() {
+		return <Foo/>;
+	}
+}
+`,
+		`
+const React = require('react');
+function App() {
+	function Inner() {
+		return <Foo/>;
+	}
+}
+`,
+		`
+const preact = require('preact');
+function App() {
+	function Inner() {
+		return <Foo/>;
+	}
+}
+`,
+		`
+const {h} = require('preact');
+function App() {
+	function Inner() {
+		return <Foo/>;
+	}
+}
+`,
+		`
+const {h} = require('dom-chef');
+function App() {
+	function Inner() {
+		return <Foo/>;
+	}
+}
+`,
+		`
+const {h} = require('dom-chef'); const bar = require('bar');
+function App() {
+	function Inner() {
+		return <Foo/>;
+	}
+}
+`
 	],
 	invalid: [
 		{
-			code: `import bar from 'bar'; let Foo; <Foo/>;`,
+			code: 'import bar from \'bar\'; let Foo; <Foo/>;',
 			errors: [missingError]
 		},
 		{
-			code: `const bar = require('bar'); let Foo; <Foo/>;`,
+			code: 'const bar = require(\'bar\'); let Foo; <Foo/>;',
 			errors: [missingError]
 		},
 		{
-			code: `import React from 'react'; let Foo;`,
+			code: 'import React from \'react\'; let Foo;',
 			errors: [superflousError('React')]
 		},
 		{
-			code: `import preact from 'preact'; let Foo;`,
+			code: 'import preact from \'preact\'; let Foo;',
 			errors: [superflousError('preact')]
 		},
 		{
-			code: `import {h} from 'preact'; let Foo;`,
+			code: 'import {h} from \'preact\'; let Foo;',
 			errors: [superflousError('h')]
 		},
 		{
-			code: `const React = require('react'); let Foo;`,
+			code: 'const React = require(\'react\'); let Foo;',
 			errors: [superflousError('React')]
 		},
 		{
-			code: `const preact = require('preact'); let Foo;`,
+			code: 'const preact = require(\'preact\'); let Foo;',
 			errors: [superflousError('preact')]
 		},
 		{
-			code: `const {h} = require('preact'); let Foo;`,
+			code: 'const {h} = require(\'preact\'); let Foo;',
 			errors: [superflousError('h')]
 		},
 		{
-			code: `import React from 'foobar'; let Foo; <Foo/>`,
+			code: 'import React from \'foobar\'; let Foo; <Foo/>',
 			errors: [wrongError('React')],
-			output: `import React from 'react'; let Foo; <Foo/>`
+			output: 'import React from \'react\'; let Foo; <Foo/>'
 		},
 		{
-			code: `import preact from 'foobar'; let Foo; <Foo/>`,
+			code: 'import preact from \'foobar\'; let Foo; <Foo/>',
 			errors: [wrongError('preact')],
-			output: `import preact from 'preact'; let Foo; <Foo/>`
+			output: 'import preact from \'preact\'; let Foo; <Foo/>'
 		},
 		{
-			code: `import {h} from 'foobar'; let Foo; <Foo/>`,
+			code: 'import {h} from \'foobar\'; let Foo; <Foo/>',
 			errors: [wrongError('h')]
 		},
 		{
-			code: `const React = require('foobar'); let Foo; <Foo/>`,
+			code: 'const React = require(\'foobar\'); let Foo; <Foo/>',
 			errors: [wrongError('React')],
-			output: `const React = require('react'); let Foo; <Foo/>`
+			output: 'const React = require(\'react\'); let Foo; <Foo/>'
 		},
 		{
-			code: `const preact = require('foobar'); let Foo; <Foo/>`,
+			code: 'const preact = require(\'foobar\'); let Foo; <Foo/>',
 			errors: [wrongError('preact')],
-			output: `const preact = require('preact'); let Foo; <Foo/>`
+			output: 'const preact = require(\'preact\'); let Foo; <Foo/>'
 		},
 		{
-			code: `const {h} = require('foobar'); let Foo; <Foo/>`,
+			code: 'const {h} = require(\'foobar\'); let Foo; <Foo/>',
 			errors: [wrongError('h')]
 		}
 	]

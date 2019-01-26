@@ -24,7 +24,7 @@ const getVariable = (name, variables) => variables.find(x => x.name === name);
 // https://github.com/yannickcr/eslint-plugin-react/blob/master/lib/util/variable.js#L27-L52
 const getVariablesInScope = context => {
 	let scope = context.getScope();
-	let variables = scope.variables;
+	let {variables} = scope;
 
 	while (scope.type !== 'global') {
 		scope = scope.upper;
@@ -60,13 +60,13 @@ const create = context => {
 			} else {
 				context.report({
 					node,
-					message: `A valid pragma must be in scope when using JSX`
+					message: 'A valid pragma must be in scope when using JSX'
 				});
 			}
 		},
 		'Program:exit': () => {
 			if (pragma) {
-				const node = pragma.defs[0].node;
+				const {node} = pragma.defs[0];
 				const isDeclaration = isImportDeclaration(node);
 				const packages = pragmas[pragma.name];
 				const hasPkg = hasPackage(node, packages);
