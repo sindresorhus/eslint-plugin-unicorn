@@ -46,7 +46,33 @@ ruleTester.run('new-for-builtins', rule, {
 		'const foo = Boolean()',
 		'const foo = Number()',
 		'const foo = String()',
-		'const foo = Symbol()'
+		'const foo = Symbol()',
+		`
+			const {Map} = require('immutable');
+			const foo = Map();
+		`,
+		{
+			code: `
+				import {Map} from 'immutable';
+				const foo = Map();
+			`,
+			parserOptions: {
+				sourceType: 'module'
+			}
+		},
+		`
+			const {String} = require('guitar');
+			const lowE = new String();
+		`,
+		{
+			code: `
+				import {String} from 'guitar';
+				const lowE = new String();
+			`,
+			parserOptions: {
+				sourceType: 'module'
+			}
+		}
 	],
 	invalid: [
 		{

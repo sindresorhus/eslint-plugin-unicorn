@@ -33,10 +33,35 @@ const disallowNew = new Set([
 	'Symbol'
 ]);
 
+function isVariableInScope(context, name) {
+	let scope = context.getScope();
+	let {variables} = scope;
+
+	while (scope.type !== 'global') {
+		scope = scope.upper;
+		variables = scope.variables.concat(variables);
+	}
+
+	if (scope.childScopes.length > 0) {
+		variables = scope.childScopes[0].variables.concat(variables);
+		if (scope.childScopes[0].childScopes.length > 0) {
+			variables = scope.childScopes[0].childScopes[0].variables.concat(variables);
+		}
+	}
+
+	return variables.some(variable => (
+		variable.name === name && variable.defs[0] && variable.defs[0].node
+	));
+}
+
 const create = context => {
 	return {
 		CallExpression: node => {
 			const {name} = node.callee;
+
+			if (isVariableInScope(context, name)) {
+				return;
+			}
 
 			if (enforceNew.has(name)) {
 				context.report({
@@ -48,6 +73,10 @@ const create = context => {
 		},
 		NewExpression: node => {
 			const {name} = node.callee;
+
+			if (isVariableInScope(context, name)) {
+				return;
+			}
 
 			if (disallowNew.has(name)) {
 				context.report({
