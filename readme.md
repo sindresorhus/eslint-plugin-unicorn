@@ -57,6 +57,7 @@ Configure it in `package.json`.
 			"unicorn/no-zero-fractions": "error",
 			"unicorn/number-literal-case": "error",
 			"unicorn/prefer-add-event-listener": "error",
+			"unicorn/prefer-dataset": "error",
 			"unicorn/prefer-exponentiation-operator": "error",
 			"unicorn/prefer-flat-map": "error",
 			"unicorn/prefer-includes": "error",
@@ -100,6 +101,7 @@ Configure it in `package.json`.
 - [no-zero-fractions](docs/rules/no-zero-fractions.md) - Disallow number literals with zero fractions or dangling dots. *(fixable)*
 - [number-literal-case](docs/rules/number-literal-case.md) - Enforce lowercase identifier and uppercase value for number literals. *(fixable)*
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. *(partly fixable)*
+- [prefer-dataset](docs/rules/prefer-dataset.md) - Prefer the .dataset property on DOM elements over using setAttribute. *(fixable)*
 - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
 - [prefer-flat-map](docs/rules/prefer-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
 - [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
