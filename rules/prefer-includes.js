@@ -61,6 +61,7 @@ const create = context => ({
 			if (right.type === 'Literal' && ['>=', '<'].includes(node.operator) && right.value === 0) {
 				report(context, node, target, pattern);
 			}
+
 			return false;
 		}
 	}
