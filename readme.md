@@ -57,6 +57,7 @@ Configure it in `package.json`.
 			"unicorn/no-zero-fractions": "error",
 			"unicorn/number-literal-case": "error",
 			"unicorn/prefer-add-event-listener": "error",
+			"unicorn/prefer-key-over-key-code": "error",
 			"unicorn/prefer-exponentiation-operator": "error",
 			"unicorn/prefer-includes": "error",
 			"unicorn/prefer-node-append": "error",
@@ -102,16 +103,27 @@ Configure it in `package.json`.
 - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
 - [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
+<<<<<<< HEAD
+=======
+- [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
+<<<<<<< HEAD
+>>>>>>> Adds preliminary implementation for the rule
 - [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `remove` over `parentNode.removeChild` and `parentElement.removeChild`. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
 - [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
 - [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith` & `String#endsWith` over more complex alternatives.
 - [prefer-text-content](docs/rules/prefer-text-content.md) - Prefer `textContent` over `innerText`. *(fixable)*
+<<<<<<< HEAD
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
 - [prevent-abbreviations](docs/rules/prevent-abbreviations.md) - Prevent abbreviations *(partly fixable)*
 - [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 
+=======
+<<<<<<< HEAD
+- [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(fixable)*
+- [prefer-key-over-key-code](docs/rules/prefer-key-over-key-code.md) - Prefer `key` over `keyCode`. *(partly fixable)*
+>>>>>>> Adds preliminary implementation for the rule
 
 ## Recommended config
 
