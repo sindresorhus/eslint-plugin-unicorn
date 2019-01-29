@@ -92,21 +92,17 @@ const create = context => {
 				return;
 			}
 
-			if (eventTypeName === 'beforeunload' &&
+			if (isClearing(assignedExpression)) {
+				context.report({
+					node,
+					message: formatMessage('removeEventListener', eventMethodName)
+				});
+			} else if (eventTypeName === 'beforeunload' &&
 				!shouldFixBeforeUnload(assignedExpression, nodeReturnsSomething)
 			) {
 				context.report({
 					node,
 					message: formatMessage('addEventListener', eventMethodName, beforeUnloadMessage)
-				});
-
-				return;
-			}
-
-			if (isClearing(assignedExpression)) {
-				context.report({
-					node,
-					message: formatMessage('removeEventListener', eventMethodName)
 				});
 			} else {
 				context.report({

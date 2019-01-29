@@ -87,6 +87,18 @@ ruleTester.run('prefer-add-event-listener', rule, {
 			'Prefer `removeEventListener` over `onclick`.'
 		),
 		invalidTestCase(
+			'window.onbeforeunload = null',
+			null,
+			null,
+			'Prefer `removeEventListener` over `onbeforeunload`.'
+		),
+		invalidTestCase(
+			'window.onbeforeunload = undefined',
+			null,
+			null,
+			'Prefer `removeEventListener` over `onbeforeunload`.'
+		),
+		invalidTestCase(
 			'window.onbeforeunload = foo',
 			null,
 			null,
