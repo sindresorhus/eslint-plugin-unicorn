@@ -8,13 +8,20 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const invalidTestCase = (code, correctCode, eventType) => {
+const invalidTestCase = (code, correctCode, eventType, message) => {
 	return {
 		code,
-		output: correctCode,
-		errors: [{message: `Prefer \`addEventListener\` over \`${eventType}\``}]
+		output: correctCode || code,
+		errors: eventType ?
+			[{message: `Prefer \`addEventListener\` over \`${eventType}\`.`}] :
+			[{message}]
 	};
 };
+
+const expectedBeforeUnloadWithReturnMessage = [
+	'Prefer `addEventListener` over `onbeforeunload`.',
+	'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.'
+].join(' ');
 
 ruleTester.run('prefer-add-event-listener', rule, {
 	valid: [
@@ -25,6 +32,7 @@ ruleTester.run('prefer-add-event-listener', rule, {
 		'foo.onclick.bar = () => {}',
 		'foo[\'x\'] = true;'
 	],
+
 	invalid: [
 		invalidTestCase(
 			'foo.onclick = () => {}',
@@ -54,6 +62,67 @@ ruleTester.run('prefer-add-event-listener', rule, {
 				console.log(e);
 			})`,
 			'onclick'
+		),
+
+		invalidTestCase(
+			'window.onbeforeunload = foo',
+			null,
+			null,
+			expectedBeforeUnloadWithReturnMessage
+		),
+		invalidTestCase(
+			'window.onbeforeunload = () => \'foo\'',
+			null,
+			null,
+			expectedBeforeUnloadWithReturnMessage
+		),
+		invalidTestCase(
+			`window.onbeforeunload = () => {
+				return bar;
+			}`,
+			null,
+			null,
+			expectedBeforeUnloadWithReturnMessage
+		),
+		invalidTestCase(
+			`window.onbeforeunload = function () {
+				return 'bar';
+			}`,
+			null,
+			null,
+			expectedBeforeUnloadWithReturnMessage
+		),
+
+		invalidTestCase(
+			`window.onbeforeunload = function () {
+				return;
+			}`,
+			`window.addEventListener('beforeunload', function () {
+				return;
+			})`,
+			'onbeforeunload'
+		),
+		invalidTestCase(
+			`window.onbeforeunload = function () {
+				(() => {
+					return 'foo';
+				})();
+			}`,
+			`window.addEventListener('beforeunload', function () {
+				(() => {
+					return 'foo';
+				})();
+			})`,
+			'onbeforeunload'
+		),
+		invalidTestCase(
+			`window.onbeforeunload = e => {
+				console.log(e);
+			}`,
+			`window.addEventListener('beforeunload', e => {
+				console.log(e);
+			})`,
+			'onbeforeunload'
 		)
 	]
 });

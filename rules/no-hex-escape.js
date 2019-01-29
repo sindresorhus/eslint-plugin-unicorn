@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/no-hex-escape */
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
