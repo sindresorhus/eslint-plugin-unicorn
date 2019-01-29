@@ -11,7 +11,7 @@ const beforeUnloadMessage = 'Use `event.preventDefault(); event.returnValue = \'
 
 const formatMessage = (methodReplacement, eventMethodName, extra) => {
 	let message = `Prefer \`${methodReplacement}\` over \`${eventMethodName}\`.`;
-  
+
 	if (extra) {
 		message += ' ' + extra;
 	}
