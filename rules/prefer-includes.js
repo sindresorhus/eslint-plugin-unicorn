@@ -2,13 +2,13 @@
 const getDocsUrl = require('./utils/get-docs-url');
 
 const isIndexOfCallExpression = node => {
-	if (node.type !== 'CallExpression') {
+	if (node.type !== 'CallExpression' || node.callee.type !== 'MemberExpression') {
 		return false;
 	}
 
 	const {property} = node.callee;
 
-	return property.name === 'indexOf';
+	return property !== undefined && property.name === 'indexOf';
 };
 
 const isNegativeOne = (operator, value) => operator === '-' && value === 1;

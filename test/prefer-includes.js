@@ -22,7 +22,8 @@ ruleTester.run('prefer-includes', rule, {
 		'str.includes(\'foo\')',
 		'\'foobar\'.includes(\'foo\')',
 		'[1,2,3].includes(4)',
-		'null.indexOf(\'foo\') !== 1'
+		'null.indexOf(\'foo\') !== 1',
+		'f(0) < 0'
 	],
 	invalid: [
 		{
