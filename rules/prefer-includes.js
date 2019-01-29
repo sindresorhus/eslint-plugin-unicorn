@@ -1,14 +1,13 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
-const isIndexOfCallExpression = node => {
-	if (node.type !== 'CallExpression' || node.callee.type !== 'MemberExpression') {
-		return false;
-	}
-
-	const {property} = node.callee;
-
-	return property !== undefined && property.name === 'indexOf';
+const isIndexOf = node => {
+	return (
+		node.type === 'CallExpression' &&
+		node.callee.type === 'MemberExpression' &&
+		node.callee.property.type === 'Identifier' &&
+		node.callee.property.name === 'indexOf'
+	);
 };
 
 const isNegativeOne = (operator, value) => operator === '-' && value === 1;
@@ -36,7 +35,7 @@ const create = context => ({
 		const {left} = node;
 		const {right} = node;
 
-		if (isIndexOfCallExpression(left)) {
+		if (isIndexOf(left)) {
 			const target = left.callee.object;
 			const pattern = left.arguments[0];
 
