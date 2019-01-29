@@ -22,17 +22,17 @@ ruleTester.run('prefer-includes', rule, {
 		'str.includes(\'foo\')',
 		'\'foobar\'.includes(\'foo\')',
 		'[1,2,3].includes(4)',
-		'null.indexOf(\'foo\')'
+		'null.indexOf(\'foo\') !== 1'
 	],
 	invalid: [
 		{
 			code: '\'foobar\'.indexOf(\'foo\') !== -1',
-			output: '!\'foobar\'.includes(\'foo\')',
+			output: '\'foobar\'.includes(\'foo\')',
 			errors
 		},
 		{
 			code: 'str.indexOf(\'foo\') != -1',
-			output: '!str.includes(\'foo\')',
+			output: 'str.includes(\'foo\')',
 			errors
 		},
 		{
@@ -47,7 +47,7 @@ ruleTester.run('prefer-includes', rule, {
 		},
 		{
 			code: '[1,2,3].indexOf(4) !== -1',
-			output: '![1,2,3].includes(4)',
+			output: '[1,2,3].includes(4)',
 			errors
 		},
 		{
