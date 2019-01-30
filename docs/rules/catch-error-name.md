@@ -21,6 +21,18 @@ try {
 somePromise.catch(e => {})
 ```
 
+```js
+try {
+	doSomething();
+} catch (anyName) {
+	try {
+		doSomethingElse();
+	} catch (anyOtherName) {
+		// ...
+	}
+}
+```
+
 
 ## Pass
 
@@ -39,10 +51,10 @@ somePromise.catch(error => {})
 ```js
 try {
 	doSomething();
-} catch (anyName) { // Nesting of catch clauses disables the rule
+} catch (error) {
 	try {
 		doSomethingElse();
-	} catch (anyOtherName) {
+	} catch (error2) {
 		// ...
 	}
 }
