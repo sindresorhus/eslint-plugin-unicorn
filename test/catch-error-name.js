@@ -23,7 +23,7 @@ ruleTester.run('catch-error-name', rule, {
 		testCase('try {} catch (_) {}'),
 		testCase('try {} catch (_) { console.log(foo); }'),
 		testCase('try {} catch (err) {}', 'err'),
-		testCase('try {} catch (outerError) { try {} catch (innerError) {} }'),
+		testCase('try {} catch (error) { try {} catch (error2) {} }'),
 		testCase(`
 			const handleError = error => {
 				try {
@@ -90,11 +90,11 @@ ruleTester.run('catch-error-name', rule, {
 		testCase('obj.catch((_) => {})'),
 		testCase('obj.catch((_) => { console.log(foo); })'),
 		testCase('obj.catch(err => {})', 'err'),
-		testCase('obj.catch(outerError => { return obj2.catch(innerError => {}) })'),
+		testCase('obj.catch(error => { return obj2.catch(error2 => {}) })'),
 		testCase('obj.catch(function (error) {})'),
 		testCase('obj.catch(function () {})'),
 		testCase('obj.catch(function (err) {})', 'err'),
-		testCase('obj.catch(function (outerError) { return obj2.catch(function (innerError) {}) })'),
+		testCase('obj.catch(function (error) { return obj2.catch(function (error2) {}) })'),
 		testCase('obj.catch()'),
 		testCase('obj.catch(_ => { console.log(_); })'),
 		testCase('obj.catch(function (_) { console.log(_); })'),
@@ -144,17 +144,102 @@ ruleTester.run('catch-error-name', rule, {
 		testCase('obj.catch(function (err) {})', null, true, 'obj.catch(function (error) {})'),
 		testCase('obj.catch(function ({message}) {})', null, true),
 		testCase('obj.catch(function (error) {})', 'err', true, 'obj.catch(function (err) {})'),
-		// Failing tests for #107
-		// testCase(`
-		// 	foo.then(() => {
-		// 		try {} catch (e) {}
-		// 	}).catch(error => error);
-		// `, null, true),
-		// testCase(`
-		// 	foo.then(() => {
-		// 		try {} catch (e) {}
-		// 	});
-		// `, null, true),
+		{
+			code: `
+				foo.then(() => {
+					try {} catch (e) {}
+				}).catch(error => error);
+			`,
+			output: `
+				foo.then(() => {
+					try {} catch (error2) {}
+				}).catch(error => error);
+			`,
+			errors: [
+				{
+					ruleId: 'catch-error-name',
+					message: 'The catch parameter should be named `error2`.'
+				}
+			]
+		},
+		{
+			code: `
+				foo.then(() => {
+					try {} catch (e) {}
+				});
+			`,
+			output: `
+				foo.then(() => {
+					try {} catch (error) {}
+				});
+			`,
+			errors: [
+				{
+					ruleId: 'catch-error-name',
+					message: 'The catch parameter should be named `error`.'
+				}
+			]
+		},
+		{
+			code: `
+				try {
+				
+				} catch (e) {
+					try {} catch (f) {}
+				}
+			`,
+			output: `
+				try {
+				
+				} catch (error) {
+					try {} catch (error2) {}
+				}
+			`,
+			errors: [
+				{
+					ruleId: 'catch-error-name',
+					message: 'The catch parameter should be named `error`.'
+				},
+				{
+					ruleId: 'catch-error-name',
+					message: 'The catch parameter should be named `error2`.'
+				}
+			]
+		},
+		{
+			code: `
+				try {
+				
+				} catch (e) {
+					try {} catch (f) {
+						obj.catch(t => {})
+					}
+				}
+			`,
+			output: `
+				try {
+				
+				} catch (error) {
+					try {} catch (error2) {
+						obj.catch(error3 => {})
+					}
+				}
+			`,
+			errors: [
+				{
+					ruleId: 'catch-error-name',
+					message: 'The catch parameter should be named `error`.'
+				},
+				{
+					ruleId: 'catch-error-name',
+					message: 'The catch parameter should be named `error2`.'
+				},
+				{
+					ruleId: 'catch-error-name',
+					message: 'The catch parameter should be named `error3`.'
+				}
+			]
+		},
 		{
 			code: `
 				const handleError = error => {

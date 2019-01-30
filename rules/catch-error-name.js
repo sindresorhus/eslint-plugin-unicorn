@@ -25,17 +25,6 @@ function isLintablePromiseCatch(node) {
 	return arg0.type === 'FunctionExpression' || arg0.type === 'ArrowFunctionExpression';
 }
 
-function indexifyName(name, scope) {
-	const variables = scope.variableScope.set;
-
-	let index = 1;
-	while (variables.has(index === 1 ? name : name + index)) {
-		index++;
-	}
-
-	return name + (index === 1 ? '' : index);
-}
-
 const create = context => {
 	const options = Object.assign({}, {
 		name: 'error',
@@ -47,18 +36,36 @@ const create = context => {
 	const stack = [];
 
 	function push(value) {
-		if (stack.length === 1) {
-			stack[0] = true;
+		stack.push(value);
+	}
+
+	function indexifyName(name, scope) {
+		const variables = scope.variableScope.set;
+
+		let currentName = name;
+		let index = 1;
+		while (
+			variables.has(currentName) ||
+			stack
+				.filter(({skip}) => !skip)
+				.find(({errName}) => errName === currentName)
+		) {
+			index++;
+			currentName = name + index;
 		}
 
-		stack.push(stack.length > 0 || value);
+		return name + (index === 1 ? '' : index);
 	}
 
 	function popAndReport(node) {
-		const value = stack.pop();
+		const {errName, skip} = stack.pop();
 
-		if (value !== true && !caughtErrorsIgnorePattern.test(node.name)) {
-			const expectedName = value || name;
+		if (skip) {
+			return;
+		}
+
+		if (node && errName !== node.name && !caughtErrorsIgnorePattern.test(node.name)) {
+			const expectedName = errName;
 			const problem = {
 				node,
 				message: `The catch parameter should be named \`${expectedName}\`.`
@@ -90,12 +97,14 @@ const create = context => {
 				const {params} = node.arguments[0];
 
 				if (params.length > 0 && params[0].name === '_') {
-					push(!astUtils.containsIdentifier('_', node.arguments[0].body));
+					push({
+						skip: !astUtils.containsIdentifier('_', node.arguments[0].body)
+					});
 					return;
 				}
 
 				const errName = indexifyName(name, context.getScope());
-				push(params.length === 0 || params[0].name === errName || errName);
+				push({errName});
 			}
 		},
 		'CallExpression:exit': node => {
@@ -106,17 +115,21 @@ const create = context => {
 		CatchClause: node => {
 			// Optional catch binding
 			if (!node || !node.param) {
-				push(true);
+				push({
+					skip: true
+				});
 				return;
 			}
 
 			if (node.param.name === '_') {
-				push(!astUtils.someContainIdentifier('_', node.body.body));
+				push({
+					skip: !astUtils.someContainIdentifier('_', node.body.body)
+				});
 				return;
 			}
 
 			const errName = indexifyName(name, context.getScope());
-			push(node.param.name === errName || errName);
+			push({errName});
 		},
 		'CatchClause:exit': node => {
 			popAndReport(node.param);
