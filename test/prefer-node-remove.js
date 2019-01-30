@@ -8,36 +8,43 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const errors = [{
+	message: 'Prefer `remove` over `parentNode.removeChild`'
+}];
+
 ruleTester.run('prefer-node-remove', rule, {
 	valid: [
-		'foo.parentNode.removeChild(bar)',
-		'this.parentNode.removeChild(foo)',
-		'parentNode.removeChild(foo)',
 		'foo.remove()',
 		'this.remove()',
-		'remove()'
+		'remove()',
+		'foo.parentNode.removeChild(\'bar\')',
+		'foo.parentNode[\'bar\'](foo)'
 	],
 	invalid: [
 		{
 			code: 'foo.parentNode.removeChild(foo)',
 			output: 'foo.remove()',
-			errors: [{
-				message: 'Prefer `remove` over `removeChild`'
-			}]
+			errors
 		},
 		{
 			code: 'this.parentNode.removeChild(this)',
 			output: 'this.remove()',
-			errors: [{
-				message: 'Prefer `remove` over `removeChild`'
-			}]
+			errors
 		},
 		{
 			code: 'parentNode.removeChild(this)',
 			output: 'this.remove()',
-			errors: [{
-				message: 'Prefer `remove` over `removeChild`'
-			}]
+			errors
+		},
+		{
+			code: 'foo.parentNode.removeChild(bar)',
+			output: 'bar.remove()',
+			errors
+		},
+		{
+			code: 'this.parentNode.removeChild(foo)',
+			output: 'foo.remove()',
+			errors
 		}
 	]
 });
