@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/escape-case, unicorn/no-hex-escape */
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/no-hex-escape';
