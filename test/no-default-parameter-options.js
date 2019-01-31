@@ -19,6 +19,9 @@ ruleTester.run('no-default-parameter-options', rule, {
 		'const foo = (options = null) => {};',
 		'const foo = (options = undefined) => {};',
 		'const foo = ({a = true, b = true}) => {};',
+		'const foo = (bar = {a: false}) => {};',
+		'const foo = (bar = {a: false, b: true}) => {};',
+		'const foo = (bar = {}) => {};',
 		'function foo(options = {}) {}',
 		'function foo(options) {}',
 		`const foo = options => {
