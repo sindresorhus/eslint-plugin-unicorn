@@ -25,6 +25,7 @@ function isLintablePromiseCatch(node) {
 	return arg0.type === 'FunctionExpression' || arg0.type === 'ArrowFunctionExpression';
 }
 
+// TODO: Use `./utils/avoid-capture.js` instead
 function indexifyName(name, scope) {
 	const variables = scope.variableScope.set;
 
