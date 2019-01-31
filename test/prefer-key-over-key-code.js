@@ -28,6 +28,12 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 		'const { keyCode: key } = e',
 		'const { keyCode: abc } = e',
 		`foo.addEventListener('keydown', e => {
+			(function (abc) {
+				if (e.key === 'ArrowLeft') return true;
+				const { charCode } = abc;
+			}())
+		})`,
+		`foo.addEventListener('keydown', e => {
 			if (e.key === 'ArrowLeft') return true;
 		})`,
 		`a.addEventListener('keyup', function (event) {
@@ -50,7 +56,13 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 		});`,
 		`foo.addEventListener('click', e => {
 			const {keyCode: a, charCode: b, charCode: c} = e;
-		});`
+		});`,
+		`add.addEventListener('keyup', event => {
+			f.addEventList('some', e => {
+				const {charCode} = e;
+				console.log(event.key)
+			})
+		})`
 	],
 	invalid: [
 		{
@@ -119,6 +131,17 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 				foo.addEventListener('click', e => {
 					const {a: keyCode, a, b} = e;
 				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: `
+				add.addEventListener('keyup', event => {
+					f.addEventList('some', e => {
+						const {keyCode} = event;
+						console.log(event.key)
+					})
+				})
 			`,
 			errors: [error('keyCode')]
 		},
