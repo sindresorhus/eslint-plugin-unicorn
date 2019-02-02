@@ -68,6 +68,7 @@ Configure it in `package.json`.
 			"unicorn/no-unsafe-regex": "off",
 			"unicorn/prefer-add-event-listener": "error",
 			"unicorn/no-console-spaces": "error",
+			"unicorn/no-direct-import": "error",
 			"unicorn/no-unreadable-array-destructuring": "error",
 			"unicorn/no-unused-properties": "off",
 			"unicorn/prefer-node-append": "error",
@@ -104,6 +105,7 @@ Configure it in `package.json`.
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `addEventListener` over `on`-functions. *(fixable)*
 - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
 - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
+- [no-direct-import](docs/rules/no-direct-import.md) - Do not import the core Node.js modules directly.
 - [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
 - [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
