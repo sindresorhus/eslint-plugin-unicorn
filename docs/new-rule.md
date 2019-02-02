@@ -16,8 +16,12 @@ Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser a
 - Go to the `test` directory and duplicate the `no-hex-escape.js` file and rename it to the name of your rule. Then write some tests before starting to implement the rule.
 - Go to the `rules` directory and duplicate the `no-hex-escape.js` file and rename it to the name of your rule. Then start implementing the new rule logic.
 - Go to the `docs/rules` directory and duplicate the `no-hex-escape.md` file and rename it to the name of your rule. Then write some documentation.
-- Add the rule to [the recommended config](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/352ba4a0291f9210ca5c8e2e61c7e3ad14028e77/index.js#L19), [the recommended config in the readme](https://github.com/sindresorhus/eslint-plugin-unicorn/blame/352ba4a0291f9210ca5c8e2e61c7e3ad14028e77/readme.md#L35), and [the rule listing in the readme](https://github.com/sindresorhus/eslint-plugin-unicorn/blame/352ba4a0291f9210ca5c8e2e61c7e3ad14028e77/readme.md#L77) (The description should be the same as the heading of the documentation file).
+- Add the rule to the *bottom* of:
+	- [The recommended config](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/352ba4a0291f9210ca5c8e2e61c7e3ad14028e77/index.js#L19)
+	- [The recommended config in the readme](https://github.com/sindresorhus/eslint-plugin-unicorn/blame/352ba4a0291f9210ca5c8e2e61c7e3ad14028e77/readme.md#L35)
+	- [The rule listing in the readme](https://github.com/sindresorhus/eslint-plugin-unicorn/blame/352ba4a0291f9210ca5c8e2e61c7e3ad14028e77/readme.md#L77)<br>
+	*(The description should be the same as the heading of the documentation file).*
 - Run `$ npm test` to ensure the tests pass.
 - Run `$ npm run integration` to run the rules against real projects to ensure your rule does not fail on real-world code.
-- Open a pull request with a title like `` Add `rule-name` rule ``, for example, `` Add `no-unused-properties` rule ``.
+- Open a pull request with a title in exactly the format `` Add `rule-name` rule ``, for example, `` Add `no-unused-properties` rule ``.
 - The pull request description should include the issue it fixes, for example, `Fixes #123`.
