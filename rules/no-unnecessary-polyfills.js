@@ -56,22 +56,27 @@ if (engineVersion) {
 	compatValues = version && getCompatValues(version);
 }
 
+function processRule(context, node, moduleName) {
+	const polyfill = polyfillMap.find(({polyfills}) => polyfills.includes(moduleName));
+
+	if (polyfill && compatValues[polyfill.name] === true) {
+		context.report({
+			node,
+			message: `Use built in ${polyfill.original}`
+		});
+	}
+}
+
 const create = context => {
 	return {
 		CallExpression: node => {
 			if (compatValues && isRequireCall(node)) {
 				const arg0 = node.arguments[0];
 				const moduleName = arg0.value;
-				const polyfill = polyfillMap.find(({polyfills}) => polyfills.includes(moduleName));
-
-				if (polyfill && compatValues[polyfill.name] === true) {
-					context.report({
-						node,
-						message: `Use built in ${polyfill.original}`
-					});
-				}
+				processRule(context, node, moduleName);
 			}
-		}
+		},
+		ImportDeclaration: node => compatValues && processRule(context, node, node.source.value)
 	};
 };
 
