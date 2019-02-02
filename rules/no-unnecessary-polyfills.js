@@ -1,19 +1,8 @@
 'use strict';
 const semver = require('semver');
 const readPkgUp = require('read-pkg-up');
-const builtIns = require(`@babel/preset-env/data/built-ins`);
+const builtIns = require('@babel/preset-env/data/built-ins');
 const getDocsUrl = require('./utils/get-docs-url');
-
-const polyfillMap = [
-	{
-		feature: 'object.assign',
-		polyfills: ['object-assign']
-	},
-	{
-		feature: 'array.from',
-		polyfills: ['array-from-polyfill']
-	}
-];
 
 function isRequireCall(node) {
 	return node.callee.name === 'require';
@@ -27,8 +16,29 @@ function getTargetVersion() {
 const targetVersion = getTargetVersion();
 const compatTable = Object.keys(builtIns).reduce((current, feature) => ({
 	...current,
-	[feature.split('.').slice(1).join('.')]: builtIns[feature],
+	[feature.split('.').slice(1).join('.')]: builtIns[feature]
 }), {});
+
+const polyfillMap = Object.keys(compatTable).reduce((current, name) => {
+	const polyfills = [];
+	const parts = name.split('.');
+	const dashedName = parts.join('-');
+	const nameWithPrototype = parts.slice().splice(1, 0, 'prototype');
+
+	polyfills.push(name);
+	polyfills.push(dashedName);
+	polyfills.push(nameWithPrototype);
+	polyfills.push(`mdn-polyfills/${nameWithPrototype}`);
+	polyfills.push(`${dashedName}-polyfill`);
+	polyfills.push(`polyfill-${dashedName}`);
+
+	current.push({
+		feature: name,
+		polyfills
+	});
+
+	return current;
+}, []);
 
 function processRule(context, node, moduleName) {
 	const polyfill = polyfillMap.find(({polyfills}) => polyfills.includes(moduleName));
