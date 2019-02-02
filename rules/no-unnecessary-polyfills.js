@@ -6,13 +6,11 @@ const getDocsUrl = require('./utils/get-docs-url');
 
 const polyfillMap = [
 	{
-		feature: 'es6.object.assign',
-		original: 'Object.assign',
+		feature: 'object.assign',
 		polyfills: ['object-assign']
 	},
 	{
-		feature: 'es6.array.from',
-		original: 'Array.from',
+		feature: 'array.from',
 		polyfills: ['array-from-polyfill']
 	}
 ];
@@ -27,18 +25,22 @@ function getTargetVersion() {
 }
 
 const targetVersion = getTargetVersion();
+const compatTable = Object.keys(builtIns).reduce((current, feature) => ({
+	...current,
+	[feature.split('.').slice(1).join('.')]: builtIns[feature],
+}), {});
 
 function processRule(context, node, moduleName) {
 	const polyfill = polyfillMap.find(({polyfills}) => polyfills.includes(moduleName));
 
 	if (polyfill) {
-		const feature = builtIns[polyfill.feature];
+		const feature = compatTable[polyfill.feature];
 		const supportedNodeVersion = feature.node;
 
 		if (semver.satisfies(semver.coerce(supportedNodeVersion), targetVersion)) {
 			context.report({
 				node,
-				message: `Use built in ${polyfill.original}`
+				message: `Use built in ${polyfill.feature}`
 			});
 		}
 	}

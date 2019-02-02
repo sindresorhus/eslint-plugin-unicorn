@@ -18,11 +18,11 @@ ruleTester.run('no-unreadable-array-destructuring', rule, {
 	invalid: [
 		{
 			code: 'require("object-assign")',
-			errors: [{message: 'Use built in Object.assign'}]
+			errors: [{message: 'Use built in object.assign'}]
 		},
 		{
 			code: 'import assign from "object-assign"',
-			errors: [{message: 'Use built in Object.assign'}]
+			errors: [{message: 'Use built in object.assign'}]
 		}
 	]
 });
