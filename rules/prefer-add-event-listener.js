@@ -2,6 +2,8 @@
 const getDocsUrl = require('./utils/get-docs-url');
 const domEventsJson = require('./utils/dom-events.json');
 
+const excludedPackages = new Set(['koa', 'sax']);
+
 const nestedEvents = Object.keys(domEventsJson).map(key => domEventsJson[key]);
 const eventTypes = new Set(nestedEvents.reduce((accEvents, events) => accEvents.concat(events), []));
 const getEventMethodName = memberExpression => memberExpression.property.name;
@@ -57,6 +59,7 @@ const isClearing = node => {
 const create = context => {
 	const nodeReturnsSomething = new WeakMap();
 	let codePathInfo = null;
+	let isDisabled;
 
 	return {
 		onCodePathStart(codePath, node) {
@@ -72,11 +75,31 @@ const create = context => {
 			codePathInfo = codePathInfo.upper;
 		},
 
+		Program() {
+			isDisabled = false;
+		},
+
+		'CallExpression[callee.name="require"] > Literal'(node) {
+			if (!isDisabled && excludedPackages.has(node.value)) {
+				isDisabled = true;
+			}
+		},
+
+		'ImportDeclaration > Literal'(node) {
+			if (!isDisabled && excludedPackages.has(node.value)) {
+				isDisabled = true;
+			}
+		},
+
 		ReturnStatement(node) {
 			codePathInfo.returnsSomething = codePathInfo.returnsSomething || Boolean(node.argument);
 		},
 
 		'AssignmentExpression:exit'(node) {
+			if (isDisabled) {
+				return;
+			}
+
 			const {left: memberExpression, right: assignedExpression} = node;
 
 			if (memberExpression.type !== 'MemberExpression') {

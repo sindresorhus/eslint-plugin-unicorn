@@ -5,6 +5,9 @@ import rule from '../rules/prefer-add-event-listener';
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
+	},
+	parserOptions: {
+		sourceType: 'module'
 	}
 });
 
@@ -31,7 +34,23 @@ ruleTester.run('prefer-add-event-listener', rule, {
 		'foo.setCallBack = () => {console.log(\'foo\')}',
 		'setCallBack = () => {console.log(\'foo\')}',
 		'foo.onclick.bar = () => {}',
-		'foo[\'x\'] = true;'
+		'foo[\'x\'] = true;',
+		`const Koa = require('koa');
+		const app = new Koa();
+		
+		app.onerror = () => {};`,
+		`const sax = require('sax');
+		const parser = sax.parser();
+	  
+		parser.onerror = () => {};`,
+		`import Koa from 'koa';
+		const app = new Koa();
+		
+		app.onerror = () => {};`,
+		`import sax from 'sax';
+		const parser = sax.parser();
+	  
+		parser.onerror = () => {};`
 	],
 
 	invalid: [
@@ -156,6 +175,45 @@ ruleTester.run('prefer-add-event-listener', rule, {
 				console.log(e);
 			})`,
 			'onbeforeunload'
+		),
+		invalidTestCase(
+			`const foo = require('foo');
+
+			foo.onerror = () => {};
+			`,
+			`const foo = require('foo');
+
+			foo.addEventListener('error', () => {});
+			`,
+			'onerror'
+		),
+		invalidTestCase(
+			`import foo from 'foo';
+
+			foo.onerror = () => {};
+			`,
+			`import foo from 'foo';
+
+			foo.addEventListener('error', () => {});
+			`,
+			'onerror'
+		),
+		invalidTestCase(
+			`foo.onerror = () => {};
+
+			function bar() {
+				const koa = require('koa');
+
+				koa.onerror = () => {};
+			}`,
+			`foo.addEventListener('error', () => {});
+
+			function bar() {
+				const koa = require('koa');
+
+				koa.onerror = () => {};
+			}`,
+			'onerror'
 		)
 	]
 });
