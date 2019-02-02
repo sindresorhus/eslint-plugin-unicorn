@@ -15,8 +15,10 @@ const isImportingDirect = callExpression => {
 		if (defaults.includes(callExpression.arguments[0].value)) {
 			return true;
 		}
+
 		return false;
 	}
+
 	return false;
 };
 
@@ -24,6 +26,7 @@ const importDirectVariable = (context, node, callExpression) => {
 	if (isObjectPattern(node)) {
 		return true;
 	}
+
 	if (isImportingDirect(callExpression)) {
 		context.report({
 			node,
@@ -39,6 +42,7 @@ const isImportRestricted = node => {
 	if (defaults.includes(node.source.value)) {
 		return true;
 	}
+
 	return false;
 };
 
@@ -46,6 +50,7 @@ const importDirectDeclaration = (context, node) => {
 	if (isImportSpecifier(node)) {
 		return true;
 	}
+
 	if (isImportRestricted(node)) {
 		context.report({
 			node,
