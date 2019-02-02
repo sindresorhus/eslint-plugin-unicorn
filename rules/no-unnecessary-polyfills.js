@@ -1,30 +1,21 @@
 'use strict';
-const fs = require('fs');
-const path = require('path');
 const semver = require('semver');
 const readPkgUp = require('read-pkg-up');
+const builtIns = require(`@babel/preset-env/data/built-ins`);
 const getDocsUrl = require('./utils/get-docs-url');
 
 const polyfillMap = [
 	{
-		name: 'built-in extensions›Object static methods›Object.assign',
+		feature: 'es6.object.assign',
 		original: 'Object.assign',
 		polyfills: ['object-assign']
+	},
+	{
+		feature: 'es6.array.from',
+		original: 'Array.from',
+		polyfills: ['array-from-polyfill']
 	}
 ];
-
-function getCompatValues(nodeVersion) {
-	const compats = require(`node-compat-table/results/v8/${nodeVersion}`);
-	return Object
-		.values(compats)
-		.reduce((current, val) => {
-			if (typeof val !== 'object') {
-				return current;
-			}
-
-			return Object.assign(current, val);
-		}, {});
-}
 
 function isRequireCall(node) {
 	return node.callee.name === 'require';
@@ -35,48 +26,34 @@ function getTargetVersion() {
 	return pkg && pkg.pkg.engines && pkg.pkg.engines.node;
 }
 
-function getCompatVersions() {
-	const nodeCompatTablePath = path.dirname(require.resolve('node-compat-table/build'));
-	return fs
-		.readdirSync(
-			path.join(nodeCompatTablePath, 'results/v8')
-		)
-		.map(dir => dir.replace('.json', ''))
-		.filter(dir => semver.valid(dir) && !dir.includes('--'))
-		.sort(semver.compare);
-}
-
-const engineVersion = getTargetVersion();
-
-let version;
-let compatValues;
-
-if (engineVersion) {
-	version = getCompatVersions().find(item => semver.satisfies(item, engineVersion));
-	compatValues = version && getCompatValues(version);
-}
+const targetVersion = getTargetVersion();
 
 function processRule(context, node, moduleName) {
 	const polyfill = polyfillMap.find(({polyfills}) => polyfills.includes(moduleName));
 
-	if (polyfill && compatValues[polyfill.name] === true) {
-		context.report({
-			node,
-			message: `Use built in ${polyfill.original}`
-		});
+	if (polyfill) {
+		const feature = builtIns[polyfill.feature];
+		const supportedNodeVersion = feature.node;
+
+		if (semver.satisfies(semver.coerce(supportedNodeVersion), targetVersion)) {
+			context.report({
+				node,
+				message: `Use built in ${polyfill.original}`
+			});
+		}
 	}
 }
 
 const create = context => {
 	return {
 		CallExpression: node => {
-			if (compatValues && isRequireCall(node)) {
+			if (targetVersion && isRequireCall(node)) {
 				const arg0 = node.arguments[0];
 				const moduleName = arg0.value;
 				processRule(context, node, moduleName);
 			}
 		},
-		ImportDeclaration: node => compatValues && processRule(context, node, node.source.value)
+		ImportDeclaration: node => targetVersion && processRule(context, node, node.source.value)
 	};
 };
 
