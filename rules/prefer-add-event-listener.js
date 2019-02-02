@@ -75,10 +75,6 @@ const create = context => {
 			codePathInfo = codePathInfo.upper;
 		},
 
-		Program() {
-			isDisabled = false;
-		},
-
 		'CallExpression[callee.name="require"] > Literal'(node) {
 			if (!isDisabled && excludedPackages.has(node.value)) {
 				isDisabled = true;
