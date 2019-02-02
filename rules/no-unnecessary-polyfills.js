@@ -22,15 +22,45 @@ const compatTable = Object.keys(builtIns).reduce((current, feature) => ({
 const polyfillMap = Object.keys(compatTable).reduce((current, name) => {
 	const polyfills = [];
 	const parts = name.split('.');
-	const dashedName = parts.join('-');
-	const nameWithPrototype = parts.slice().splice(1, 0, 'prototype');
+	const allParts = name.split(/[.-]/);
+
+	function dotted() {
+		return parts.join('.');
+	}
+
+	function dashed() {
+		return parts.join('-');
+	}
+
+	function joined() {
+		return parts.join('');
+	}
+
+	function addPrototype(parts) {
+		const clone = parts.slice();
+		clone.splice(1, 0, 'prototype');
+		return clone;
+	}
 
 	polyfills.push(name);
-	polyfills.push(dashedName);
-	polyfills.push(nameWithPrototype);
-	polyfills.push(`mdn-polyfills/${nameWithPrototype}`);
-	polyfills.push(`${dashedName}-polyfill`);
-	polyfills.push(`polyfill-${dashedName}`);
+
+	function allVariants(parts) {
+		return [
+			dotted(parts),
+			joined(parts),
+			dashed(parts),
+			dotted(addPrototype(parts)),
+			dashed(addPrototype(parts)),
+			joined(addPrototype(parts))
+		];
+	}
+
+	polyfills.push(...allVariants(parts));
+	polyfills.push(...allVariants(allParts));
+
+	polyfills.push(`mdn-polyfills/${dotted(addPrototype(parts))}`);
+	polyfills.push(`${dashed(parts)}-polyfill`);
+	polyfills.push(`polyfill-${dashed(parts)}`);
 
 	current.push({
 		feature: name,

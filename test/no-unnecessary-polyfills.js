@@ -23,6 +23,10 @@ ruleTester.run('no-unreadable-array-destructuring', rule, {
 		{
 			code: 'import assign from "object-assign"',
 			errors: [{message: 'Use built in object.assign'}]
+		},
+		{
+			code: 'require("array-from")',
+			errors: [{message: 'Use built in array.from'}]
 		}
 	]
 });
