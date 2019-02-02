@@ -11,7 +11,7 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-ruleTester.run('no-unreadable-array-destructuring', rule, {
+ruleTester.run('no-unnecessary-polyfills', rule, {
 	valid: [
 
 	],

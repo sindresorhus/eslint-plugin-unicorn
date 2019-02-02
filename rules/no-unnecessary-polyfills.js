@@ -42,8 +42,6 @@ const polyfillMap = Object.keys(compatTable).reduce((current, name) => {
 		return clone;
 	}
 
-	polyfills.push(name);
-
 	function allVariants(parts) {
 		return [
 			dotted(parts),
@@ -54,6 +52,8 @@ const polyfillMap = Object.keys(compatTable).reduce((current, name) => {
 			joined(addPrototype(parts))
 		];
 	}
+
+	polyfills.push(name);
 
 	polyfills.push(...allVariants(parts));
 	polyfills.push(...allVariants(allParts));
