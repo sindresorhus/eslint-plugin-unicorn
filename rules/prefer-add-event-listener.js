@@ -2,8 +2,6 @@
 const getDocsUrl = require('./utils/get-docs-url');
 const domEventsJson = require('./utils/dom-events.json');
 
-const excludedPackages = new Set(['koa', 'sax']);
-
 const nestedEvents = Object.keys(domEventsJson).map(key => domEventsJson[key]);
 const eventTypes = new Set(nestedEvents.reduce((accEvents, events) => accEvents.concat(events), []));
 const getEventMethodName = memberExpression => memberExpression.property.name;
@@ -59,6 +57,7 @@ const isClearing = node => {
 const create = context => {
 	const nodeReturnsSomething = new WeakMap();
 	let codePathInfo = null;
+	const excludedPackages = new Set(context.options[0] || ['koa', 'sax']);
 	let isDisabled;
 
 	return {
@@ -137,12 +136,21 @@ const create = context => {
 	};
 };
 
+const schema = [{
+	type: 'array',
+	items: {
+		type: 'string'
+	},
+	uniqueItems: true
+}];
+
 module.exports = {
 	create,
 	meta: {
 		docs: {
 			url: getDocsUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		schema
 	}
 };
