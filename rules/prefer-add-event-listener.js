@@ -55,10 +55,12 @@ const isClearing = node => {
 };
 
 const create = context => {
+	const options = context.options[0] || {};
+	const excludedPackages = new Set(options.excludedPackages || ['koa', 'sax']);
+	let isDisabled;
+
 	const nodeReturnsSomething = new WeakMap();
 	let codePathInfo = null;
-	const excludedPackages = new Set(context.options[0] || ['koa', 'sax']);
-	let isDisabled;
 
 	return {
 		onCodePathStart(codePath, node) {
@@ -136,13 +138,21 @@ const create = context => {
 	};
 };
 
-const schema = [{
-	type: 'array',
-	items: {
-		type: 'string'
-	},
-	uniqueItems: true
-}];
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			excludedPackages: {
+				type: 'array',
+				items: {
+					type: 'string'
+				},
+				uniqueItems: true
+			}
+		},
+		additionalProperties: false
+	}
+];
 
 module.exports = {
 	create,

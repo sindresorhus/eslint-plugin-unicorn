@@ -11,6 +11,13 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const testCaseWithOptions = (code, options) => {
+	return {
+		code,
+		options
+	};
+};
+
 const invalidTestCase = (code, correctCode, eventType, message) => {
 	return {
 		code,
@@ -18,6 +25,15 @@ const invalidTestCase = (code, correctCode, eventType, message) => {
 		errors: eventType ?
 			[{message: `Prefer \`addEventListener\` over \`${eventType}\`.`}] :
 			[{message}]
+	};
+};
+
+const invalidTestCaseWithOptions = (code, correctCode, eventType, options) => {
+	return {
+		code,
+		output: correctCode || code,
+		errors: [{message: `Prefer \`addEventListener\` over \`${eventType}\`.`}],
+		options
 	};
 };
 
@@ -50,7 +66,13 @@ ruleTester.run('prefer-add-event-listener', rule, {
 		`import sax from 'sax';
 		const parser = sax.parser();
 	  
-		parser.onerror = () => {};`
+		parser.onerror = () => {};`,
+		testCaseWithOptions(
+			`const foo = require('foo');
+			
+			foo.onerror = () => {};`,
+			[{excludedPackages: ['foo']}]
+		)
 	],
 
 	invalid: [
@@ -214,6 +236,30 @@ ruleTester.run('prefer-add-event-listener', rule, {
 				koa.onerror = () => {};
 			}`,
 			'onerror'
+		),
+		invalidTestCaseWithOptions(
+			`const Koa = require('koa');
+			const app = new Koa();
+
+			app.onerror = () => {};`,
+			`const Koa = require('koa');
+			const app = new Koa();
+
+			app.addEventListener('error', () => {});`,
+			'onerror',
+			[{excludedPackages: ['foo']}]
+		),
+		invalidTestCaseWithOptions(
+			`const sax = require('sax');
+			const parser = sax.parser();
+
+			parser.onerror = () => {};`,
+			`const sax = require('sax');
+			const parser = sax.parser();
+
+			parser.addEventListener('error', () => {});`,
+			'onerror',
+			[{excludedPackages: []}]
 		)
 	]
 });
