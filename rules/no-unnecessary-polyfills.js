@@ -8,12 +8,11 @@ function isRequireCall(node) {
 	return node.callee.name === 'require';
 }
 
-function getTargetVersion() {
-	const pkg = readPkgUp.sync();
+function getVersionFromPkg(cwd) {
+	const pkg = readPkgUp.sync({ cwd });
 	return pkg && pkg.pkg.engines && pkg.pkg.engines.node;
 }
 
-const targetVersion = getTargetVersion();
 const compatTable = Object.keys(builtIns).reduce((current, feature) => ({
 	...current,
 	[feature.split('.').slice(1).join('.')]: builtIns[feature]
@@ -70,7 +69,7 @@ const polyfillMap = Object.keys(compatTable).reduce((current, name) => {
 	return current;
 }, []);
 
-function processRule(context, node, moduleName) {
+function processRule(context, node, moduleName, targetVersion) {
 	const polyfill = polyfillMap.find(({polyfills}) => polyfills.includes(moduleName));
 
 	if (polyfill) {
@@ -87,15 +86,17 @@ function processRule(context, node, moduleName) {
 }
 
 const create = context => {
+	const options = context.options[0];
+	const targetVersion = (options && options.targetVersion) || getVersionFromPkg(context.getFilename());
 	return {
 		CallExpression: node => {
 			if (targetVersion && isRequireCall(node)) {
 				const arg0 = node.arguments[0];
 				const moduleName = arg0.value;
-				processRule(context, node, moduleName);
+				processRule(context, node, moduleName, targetVersion);
 			}
 		},
-		ImportDeclaration: node => targetVersion && processRule(context, node, node.source.value)
+		ImportDeclaration: node => targetVersion && processRule(context, node, node.source.value, targetVersion)
 	};
 };
 

@@ -13,19 +13,25 @@ const ruleTester = avaRuleTester(test, {
 
 ruleTester.run('no-unnecessary-polyfills', rule, {
 	valid: [
-
+		{
+			code: 'require("object-assign")',
+			options: [{targetVersion: '0.10'}]
+		},
 	],
 	invalid: [
 		{
 			code: 'require("object-assign")',
+			options: [{targetVersion: '6'}],
 			errors: [{message: 'Use built in object.assign'}]
 		},
 		{
 			code: 'import assign from "object-assign"',
+			options: [{targetVersion: '6'}],
 			errors: [{message: 'Use built in object.assign'}]
 		},
 		{
 			code: 'require("array-from")',
+			options: [{targetVersion: '6'}],
 			errors: [{message: 'Use built in array.from'}]
 		}
 	]
