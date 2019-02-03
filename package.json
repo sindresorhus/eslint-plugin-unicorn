@@ -39,8 +39,6 @@
 		"lodash.kebabcase": "^4.0.1",
 		"lodash.snakecase": "^4.0.1",
 		"lodash.upperfirst": "^4.2.0",
-		"node-compat-table": "williamkapke/node-compat-table",
-		"read-pkg": "^4.0.1",
 		"read-pkg-up": "^4.0.0",
 		"safe-regex": "^2.0.1",
 		"semver": "^5.6.0"
