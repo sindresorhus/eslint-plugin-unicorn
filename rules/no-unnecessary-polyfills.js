@@ -9,7 +9,7 @@ function isRequireCall(node) {
 }
 
 function getVersionFromPkg(cwd) {
-	const pkg = readPkgUp.sync({ cwd });
+	const pkg = readPkgUp.sync({cwd});
 	return pkg && pkg.pkg.engines && pkg.pkg.engines.node;
 }
 

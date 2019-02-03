@@ -16,7 +16,7 @@ ruleTester.run('no-unnecessary-polyfills', rule, {
 		{
 			code: 'require("object-assign")',
 			options: [{targetVersion: '0.10'}]
-		},
+		}
 	],
 	invalid: [
 		{
