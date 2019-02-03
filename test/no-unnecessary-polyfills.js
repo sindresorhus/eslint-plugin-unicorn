@@ -15,7 +15,7 @@ ruleTester.run('no-unnecessary-polyfills', rule, {
 	valid: [
 		{
 			code: 'require("object-assign")',
-			options: [{targetVersion: '0.10'}]
+			options: [{targetVersion: '0.1.0'}]
 		}
 	],
 	invalid: [
@@ -31,8 +31,13 @@ ruleTester.run('no-unnecessary-polyfills', rule, {
 		},
 		{
 			code: 'require("array-from")',
-			options: [{targetVersion: '6'}],
+			options: [{targetVersion: '>7 <8'}],
 			errors: [{message: 'Use built in array.from'}]
+		},
+		{
+			code: 'require("array.prototype.every")',
+			options: [{targetVersion: '4.0.0'}],
+			errors: [{message: 'Use built in array.every'}]
 		}
 	]
 });

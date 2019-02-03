@@ -23,15 +23,15 @@ const polyfillMap = Object.keys(compatTable).reduce((current, name) => {
 	const parts = name.split('.');
 	const allParts = name.split(/[.-]/);
 
-	function dotted() {
+	function dotted(parts) {
 		return parts.join('.');
 	}
 
-	function dashed() {
+	function dashed(parts) {
 		return parts.join('-');
 	}
 
-	function joined() {
+	function joined(parts) {
 		return parts.join('');
 	}
 
@@ -74,9 +74,13 @@ function processRule(context, node, moduleName, targetVersion) {
 
 	if (polyfill) {
 		const feature = compatTable[polyfill.feature];
-		const supportedNodeVersion = feature.node;
+		const supportedNodeVersion = semver.valid(semver.coerce(feature.node));
+		const semverTargetVersion = semver.valid(semver.coerce(targetVersion));
 
-		if (semver.satisfies(semver.coerce(supportedNodeVersion), targetVersion)) {
+		if (
+			semver.satisfies(supportedNodeVersion, targetVersion) ||
+			semver.lt(supportedNodeVersion, semverTargetVersion)
+		) {
 			context.report({
 				node,
 				message: `Use built in ${polyfill.feature}`
