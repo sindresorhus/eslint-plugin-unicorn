@@ -1,10 +1,10 @@
 # Prevent abbreviations
 
-Using complete words result in more readable code. Not everyone knows all your abbreviations. You only write code once, but it's read many times.
+Using complete words results in more readable code. Not everyone knows all your abbreviations. You only write code once, but it's read many times.
 
 Default replacements are available [here](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/rules/prevent-abbreviations.js#L7).
 
-This rule is fixable for unambiguous abbreviations (that is abbreviations with exactly one replacement defined).
+This rule is fixable for unambiguous abbreviations (that is, abbreviations with exactly one replacement defined).
 
 
 ## Fail
