@@ -136,13 +136,15 @@ const create = context => {
 	};
 };
 
-const schema = [{
-	type: 'array',
-	items: {
-		type: 'string'
-	},
-	uniqueItems: true
-}];
+const schema = [
+	{
+		type: 'array',
+		items: {
+			type: 'string'
+		},
+		uniqueItems: true
+	}
+];
 
 module.exports = {
 	create,
