@@ -9,14 +9,10 @@ This rule is fixable.
 
 ```js
 foo.innerText;
-foo['innerText'];
-foo["innerText"];
 ```
 
 ## Pass
 
 ```js
 foo.textContent;
-foo['textContent'];
-foo["textContent"];
 ```
