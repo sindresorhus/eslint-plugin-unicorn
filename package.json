@@ -38,6 +38,7 @@
 		"lodash.defaultsdeep": "^4.6.0",
 		"lodash.kebabcase": "^4.0.1",
 		"lodash.snakecase": "^4.0.1",
+		"lodash.topairs": "^4.3.0",
 		"lodash.upperfirst": "^4.2.0",
 		"safe-regex": "^2.0.1"
 	},

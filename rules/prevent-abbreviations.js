@@ -1,5 +1,6 @@
 'use strict';
 const defaultsDeep = require('lodash.defaultsdeep');
+const toPairs = require('lodash.topairs');
 
 const getDocsUrl = require('./utils/get-docs-url');
 const avoidCapture = require('./utils/avoid-capture');
@@ -89,8 +90,8 @@ const prepareOptions = ({extendDefaults = true, replacements = {}} = {}) => {
 		defaultsDeep({}, replacements, defaultReplacements) :
 		replacements;
 
-	return new Map(Object.entries(mergedReplacements).map(([discouragedName, replacements]) => {
-		return [discouragedName, new Map(Object.entries(replacements))];
+	return new Map(toPairs(mergedReplacements).map(([discouragedName, replacements]) => {
+		return [discouragedName, new Map(toPairs(replacements))];
 	}));
 };
 
