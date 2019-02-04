@@ -54,7 +54,8 @@ module.exports = {
 				'unicorn/no-unreadable-array-destructuring': 'error',
 				'unicorn/no-unused-properties': 'off',
 				'unicorn/prefer-node-append': 'error',
-				'unicorn/prefer-query-selector': 'error'
+				'unicorn/prefer-query-selector': 'error',
+				'unicorn/prefer-node-remove': 'error'
 			}
 		}
 	}
