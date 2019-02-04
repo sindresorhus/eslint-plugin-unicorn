@@ -48,7 +48,10 @@ const create = context => {
 		CallExpression(node) {
 			const {callee} = node;
 
-			if (callee.type !== 'MemberExpression') {
+			if (node.arguments.length === 0 ||
+				callee.type !== 'MemberExpression' ||
+				callee.computed
+			) {
 				return;
 			}
 
