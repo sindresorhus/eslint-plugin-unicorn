@@ -109,7 +109,7 @@ Configure it in `package.json`.
 - [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
-- [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `remove` over `parentNode.removeChild` or `parentElement.removeChild`. *(fixable)*
+- [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `remove` over `parentNode.removeChild` and `parentElement.removeChild`. *(fixable)*
 
 
 ## Recommended config
