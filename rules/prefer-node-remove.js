@@ -1,6 +1,16 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
+const getMethodName = callee => {
+	const {property} = callee;
+
+	if (property.type === 'Identifier') {
+		return property.name;
+	}
+
+	return null;
+};
+
 const getCallerName = callee => {
 	const {object} = callee;
 
@@ -14,16 +24,6 @@ const getCallerName = callee => {
 		if (property.type === 'Identifier') {
 			return property.name;
 		}
-	}
-
-	return null;
-};
-
-const getMethodName = callee => {
-	const {property} = callee;
-
-	if (property.type === 'Identifier') {
-		return property.name;
 	}
 
 	return null;
@@ -52,15 +52,19 @@ const create = context => {
 				return;
 			}
 
-			if (getCallerName(callee) === 'parentNode' &&
-				getMethodName(callee) === 'removeChild'
-			) {
+			const methodName = getMethodName(callee);
+			const callerName = getCallerName(callee);
+
+			if (methodName === 'removeChild' && (
+				callerName === 'parentNode' ||
+				callerName === 'parentElement'
+			)) {
 				const argumentName = getArgumentName(node.arguments);
 
 				if (argumentName) {
 					context.report({
 						node,
-						message: 'Prefer `remove` over `parentNode.removeChild`',
+						message: `Prefer \`remove\` over \`${callerName}.removeChild\``,
 						fix: fixer => fixer.replaceText(node, `${argumentName}.remove()`)
 					});
 				}

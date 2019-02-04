@@ -1,6 +1,6 @@
-# Prefer `remove` over `parentNode.removeChild`
+# Prefer `remove` over `parentNode.removeChild` or `parentElement.removeChild`
 
-Enforces the use of, for example, `child.remove();` over `child.parentNode.removeChild(child);` for DOM nodes. The DOM function [`.remove()`](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/remove) is preferred over the indirect removal of an object with [`.removeChild()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/removeChild).
+Enforces the use of, for example, `child.remove();` over `child.parentNode.removeChild(child);` or `child.parentElement.removeChild(child);` for DOM nodes. The DOM function [`.remove()`](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/remove) is preferred over the indirect removal of an object with [`.removeChild()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/removeChild).
 
 This rule is fixable.
 
@@ -9,9 +9,13 @@ This rule is fixable.
 
 ```js
 foo.parentNode.removeChild(foo);
+foo.parentElement.removeChild(foo);
 this.parentNode.removeChild(this);
+this.parentElement.removeChild(this);
 foo.parentNode.removeChild(bar);
+foo.parentElement.removeChild(bar);
 this.parentNode.removeChild(foo);
+this.parentElement.removeChild(foo);
 ```
 
 ## Pass
