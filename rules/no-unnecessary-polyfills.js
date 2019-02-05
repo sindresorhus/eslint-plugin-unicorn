@@ -17,6 +17,10 @@ const compatTable = Object.keys(builtIns).reduce((current, feature) =>
 	Object.assign(current, {[feature.split('.').slice(1).join('.')]: builtIns[feature]})
 , {});
 
+function isValidVersion(version) {
+	return /^[\d.]+$/.test(version.trim());
+}
+
 const polyfillMap = Object.keys(compatTable).reduce((current, name) => {
 	const polyfills = [];
 	const parts = name.split('.');
@@ -74,12 +78,17 @@ function processRule(context, node, moduleName, targetVersion) {
 	if (polyfill) {
 		const feature = compatTable[polyfill.feature];
 		const supportedNodeVersion = semver.valid(semver.coerce(feature.node));
-		const semverTargetVersion = semver.valid(semver.coerce(targetVersion));
+		const validRangeTargetVersion = semver.validRange(targetVersion).replace('=', '');
+		const validTargetVersion = isValidVersion(targetVersion) && semver.valid(semver.coerce(targetVersion));
 
-		if (
-			semver.satisfies(supportedNodeVersion, targetVersion) ||
-			semver.lt(supportedNodeVersion, semverTargetVersion)
-		) {
+		if (validTargetVersion) {
+			if (semver.lte(supportedNodeVersion, validTargetVersion)) {
+				context.report({
+					node,
+					message: `Use built in ${polyfill.feature}`
+				});
+			}
+		} else if (semver.ltr(supportedNodeVersion, validRangeTargetVersion)) {
 			context.report({
 				node,
 				message: `Use built in ${polyfill.feature}`
