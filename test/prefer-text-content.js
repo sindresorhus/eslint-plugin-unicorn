@@ -17,12 +17,19 @@ ruleTester.run('prefer-text-content', rule, {
 	valid: [
 		'innerText;',
 		'node.textContent;',
-		'node[innerText];'
+		'node[innerText];',
+		'innerText = true;',
+		'node[\'innerText\'];'
 	],
 	invalid: [
 		{
 			code: 'node.innerText;',
 			output: 'node.textContent;',
+			errors: [error]
+		},
+		{
+			code: 'node.innerText = \'foo\';',
+			output: 'node.textContent = \'foo\';',
 			errors: [error]
 		}
 	]
