@@ -13,10 +13,9 @@ function getVersionFromPkg(cwd) {
 	return pkg && pkg.pkg.engines && pkg.pkg.engines.node;
 }
 
-const compatTable = Object.keys(builtIns).reduce((current, feature) => ({
-	...current,
-	[feature.split('.').slice(1).join('.')]: builtIns[feature]
-}), {});
+const compatTable = Object.keys(builtIns).reduce((current, feature) =>
+	Object.assign(current, {[feature.split('.').slice(1).join('.')]: builtIns[feature]})
+, {});
 
 const polyfillMap = Object.keys(compatTable).reduce((current, name) => {
 	const polyfills = [];
