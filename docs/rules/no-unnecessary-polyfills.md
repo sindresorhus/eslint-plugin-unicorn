@@ -34,3 +34,12 @@ package.json
 ```js
 const assign = require("object-assign"); // passes as Object.assign is not supported
 ```
+
+## Options
+
+By default it takes node version from `package.json`. However you can override
+target node version:
+
+```js
+"unicorn/no-unnecessary-polyfills": ["error", {"targetVersion": "6"}]
+```
