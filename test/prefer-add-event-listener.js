@@ -67,10 +67,20 @@ ruleTester.run('prefer-add-event-listener', rule, {
 		const parser = sax.parser();
 	  
 		parser.onerror = () => {};`,
+		`import {sax as foo} from 'sax';
+		const parser = foo.parser();
+	  
+		parser.onerror = () => {};`,
 		testCaseWithOptions(
 			`const foo = require('foo');
 			
 			foo.onerror = () => {};`,
+			[{excludedPackages: ['foo']}]
+		),
+		testCaseWithOptions(
+			`import foo from 'foo';
+			
+			foo.onclick = () => {};`,
 			[{excludedPackages: ['foo']}]
 		)
 	],
@@ -244,6 +254,18 @@ ruleTester.run('prefer-add-event-listener', rule, {
 			app.onerror = () => {};`,
 			`const Koa = require('koa');
 			const app = new Koa();
+
+			app.addEventListener('error', () => {});`,
+			'onerror',
+			[{excludedPackages: ['foo']}]
+		),
+		invalidTestCaseWithOptions(
+			`import {Koa as Foo} from 'koa';
+			const app = new Foo();
+
+			app.onerror = () => {};`,
+			`import {Koa as Foo} from 'koa';
+			const app = new Foo();
 
 			app.addEventListener('error', () => {});`,
 			'onerror',
