@@ -12,6 +12,8 @@ test('Every rule is defined in index file', async t => {
 		const name = path.basename(file, '.js');
 		t.truthy(index.rules[name], `'${name}' is not exported in 'index.js'`);
 		t.truthy(index.configs.recommended.rules[`unicorn/${name}`], `'${name}' is not set in the recommended config`);
+		t.truthy(fs.existsSync(path.join('docs/rules', `${name}.md`)), `There is no documentation for '${name}'`);
+		t.truthy(fs.existsSync(path.join('test', file)), `There are no tests for '${name}'`);
 	}
 
 	t.is(Object.keys(index.rules).length, ruleFiles.length,

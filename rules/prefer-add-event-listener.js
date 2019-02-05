@@ -9,8 +9,8 @@ const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 
 const beforeUnloadMessage = 'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.';
 
-const formatMessage = (eventMethodName, extra) => {
-	let message = `Prefer \`addEventListener\` over \`${eventMethodName}\`.`;
+const formatMessage = (methodReplacement, eventMethodName, extra) => {
+	let message = `Prefer \`${methodReplacement}\` over \`${eventMethodName}\`.`;
 
 	if (extra) {
 		message += ' ' + extra;
@@ -40,6 +40,18 @@ const shouldFixBeforeUnload = (assignedExpression, nodeReturnsSomething) => {
 	}
 
 	return !nodeReturnsSomething.get(assignedExpression);
+};
+
+const isClearing = node => {
+	if (node.type === 'Literal') {
+		return node.raw === 'null';
+	}
+
+	if (node.type === 'Identifier') {
+		return node.name === 'undefined';
+	}
+
+	return false;
 };
 
 const create = context => {
@@ -83,22 +95,25 @@ const create = context => {
 				return;
 			}
 
-			if (eventTypeName === 'beforeunload' &&
+			if (isClearing(assignedExpression)) {
+				context.report({
+					node,
+					message: formatMessage('removeEventListener', eventMethodName)
+				});
+			} else if (eventTypeName === 'beforeunload' &&
 				!shouldFixBeforeUnload(assignedExpression, nodeReturnsSomething)
 			) {
 				context.report({
 					node,
-					message: formatMessage(eventMethodName, beforeUnloadMessage)
+					message: formatMessage('addEventListener', eventMethodName, beforeUnloadMessage)
 				});
-
-				return;
+			} else {
+				context.report({
+					node,
+					message: formatMessage('addEventListener', eventMethodName),
+					fix: fixer => fix(fixer, context.getSourceCode(), node, memberExpression)
+				});
 			}
-
-			context.report({
-				node,
-				message: formatMessage(eventMethodName),
-				fix: fixer => fix(fixer, context.getSourceCode(), node, memberExpression)
-			});
 		}
 	};
 };

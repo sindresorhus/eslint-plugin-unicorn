@@ -55,6 +55,7 @@ module.exports = {
 				'unicorn/no-unused-properties': 'off',
 				'unicorn/prefer-node-append': 'error',
 				'unicorn/prefer-query-selector': 'error',
+				'unicorn/prefer-node-remove': 'error',
 				'unicorn/no-unnecessary-polyfills': 'error'
 			}
 		}

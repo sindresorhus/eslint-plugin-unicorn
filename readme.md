@@ -71,7 +71,8 @@ Configure it in `package.json`.
 			"unicorn/no-unreadable-array-destructuring": "error",
 			"unicorn/no-unused-properties": "off",
 			"unicorn/prefer-node-append": "error",
-			"unicorn/prefer-query-selector": "error"
+			"unicorn/prefer-query-selector": "error",
+			"unicorn/prefer-node-remove": "error"
 		}
 	}
 }
@@ -96,7 +97,7 @@ Configure it in `package.json`.
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
 - [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevents passing a function reference directly to iterator methods. *(fixable)*
 - [import-index](docs/rules/import-index.md) - Enforce importing index files with `.`. *(fixable)*
-- [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number` and `Boolean`. *(fixable)*
+- [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean` and `Symbol`. *(fixable)*
 - [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
 - [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
 - [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
@@ -108,6 +109,7 @@ Configure it in `package.json`.
 - [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
+- [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `remove` over `parentNode.removeChild` and `parentElement.removeChild`. *(fixable)*
 
 
 ## Recommended config
