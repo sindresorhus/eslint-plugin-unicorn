@@ -1,6 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/prefer-textcontent';
+import rule from '../rules/prefer-text-content';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -9,11 +9,11 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const error = {
-	ruleId: 'prefer-textcontent',
+	ruleId: 'prefer-text-content',
 	message: 'Prefer `textContent` over `innerText`.'
 };
 
-ruleTester.run('prefer-textcontent', rule, {
+ruleTester.run('prefer-text-content', rule, {
 	valid: [
 		'innerText;',
 		'node.textContent;',

@@ -56,7 +56,7 @@ module.exports = {
 				'unicorn/prefer-node-append': 'error',
 				'unicorn/prefer-query-selector': 'error',
 				'unicorn/prefer-node-remove': 'error',
-				'unicorn/prefer-textcontent': 'error'
+				'unicorn/prefer-text-content': 'error'
 			}
 		}
 	}
