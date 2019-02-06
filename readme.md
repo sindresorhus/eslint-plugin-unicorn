@@ -64,7 +64,8 @@ Configure it in `package.json`.
 			"unicorn/prefer-query-selector": "error",
 			"unicorn/prefer-node-remove": "error",
 			"unicorn/prefer-text-content": "error",
-			"unicorn/no-for-loop": "error"
+			"unicorn/no-for-loop": "error",
+			"unicorn/no-zero-fractions": "off"
 		}
 	}
 }
@@ -104,6 +105,7 @@ Configure it in `package.json`.
 - [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `remove` over `parentNode.removeChild` and `parentElement.removeChild`. *(fixable)*
 - [prefer-text-content](docs/rules/prefer-text-content.md) - Prefer `textContent` over `innerText`. *(fixable)*
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(fixable)*
+- [no-zero-fractions](docs/rules/no-zero-fractions.md) - Disallow number literals with zero fractions or dangling dots. *(fixable)*
 
 
 ## Recommended config
