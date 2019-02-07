@@ -75,8 +75,14 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 		},
 		{
 			code: `				
-				foo.addEventListener('click', event => {
+				foo123.addEventListener('click', event => {
 					if (event.keyCode === 27) {
+					}
+				});
+			`,
+			output: `				
+				foo123.addEventListener('click', event => {
+					if (event.key === 'Escape') {
 					}
 				});
 			`,
@@ -89,12 +95,24 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 					}
 				});
 			`,
+			output: `				
+				foo.addEventListener('click', a => {
+					if (a.key === 'Escape') {
+					}
+				});
+			`,
 			errors: [error('keyCode')]
 		},
 		{
 			code: `				
 				foo.addEventListener('click', (a, b, c) => {
 					if (a.keyCode === 27) {
+					}
+				});
+			`,
+			output: `				
+				foo.addEventListener('click', (a, b, c) => {
+					if (a.key === 'Escape') {
 					}
 				});
 			`,
@@ -107,12 +125,24 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 					}
 				});
 			`,
+			output: `				
+				foo.addEventListener('click', function(a, b, c) {
+					if (a.key === 'Escape') {
+					}
+				});
+			`,
 			errors: [error('keyCode')]
 		},
 		{
 			code: `				
 				foo.addEventListener('click', function(b) {
 					if (b.keyCode === 27) {
+					}
+				});
+			`,
+			output: `				
+				foo.addEventListener('click', function(b) {
+					if (b.key === 'Escape') {
 					}
 				});
 			`,
@@ -155,8 +185,14 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 		},
 		{
 			code: `				
-				foo.addEventListener('click', event => {
+				foo11111111.addEventListener('click', event => {
 					if (event.charCode === 27) {
+					}
+				});
+			`,
+			output: `				
+				foo11111111.addEventListener('click', event => {
+					if (event.key === 'Escape') {
 					}
 				});
 			`,
@@ -169,7 +205,13 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 					}
 				});
 			`,
-			errors: [error('charCode')]
+			errors: [error('charCode')],
+			output: `				
+				foo.addEventListener('click', a => {
+					if (a.key === 'Escape') {
+					}
+				});
+			`
 		},
 		{
 			code: `				
@@ -178,12 +220,24 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 					}
 				});
 			`,
-			errors: [error('charCode')]
+			errors: [error('charCode')],
+			output: `				
+				foo.addEventListener('click', (a, b, c) => {
+					if (a.key === 'Escape') {
+					}
+				});
+			`
 		},
 		{
 			code: `				
 				foo.addEventListener('click', function(a, b, c) {
 					if (a.charCode === 27) {
+					}
+				});
+			`,
+			output: `				
+				foo.addEventListener('click', function(a, b, c) {
+					if (a.key === 'Escape') {
 					}
 				});
 			`,
@@ -196,7 +250,13 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 					}
 				});
 			`,
-			errors: [error('charCode')]
+			errors: [error('charCode')],
+			output: `				
+				foo.addEventListener('click', function(b) {
+					if (b.key === 'Escape') {
+					}
+				});
+			`
 		},
 		{
 			code: `
@@ -229,7 +289,13 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 					}
 				});
 			`,
-			errors: [error('which')]
+			errors: [error('which')],
+			output: `				
+				foo.addEventListener('click', event => {
+					if (event.key === 'Escape') {
+					}
+				});
+			`
 		},
 		{
 			code: `				
@@ -238,7 +304,13 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 					}
 				});
 			`,
-			errors: [error('which')]
+			errors: [error('which')],
+			output: `				
+				foo.addEventListener('click', a => {
+					if (a.key === 'Escape') {
+					}
+				});
+			`
 		},
 		{
 			code: `				
@@ -247,7 +319,13 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 					}
 				});
 			`,
-			errors: [error('which')]
+			errors: [error('which')],
+			output: `				
+				foo.addEventListener('click', (a, b, c) => {
+					if (a.key === 'Escape') {
+					}
+				});
+			`
 		},
 		{
 			code: `				
@@ -256,7 +334,13 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 					}
 				});
 			`,
-			errors: [error('which')]
+			errors: [error('which')],
+			output: `				
+				foo.addEventListener('click', function(a, b, c) {
+					if (a.key === 'Escape') {
+					}
+				});
+			`
 		},
 		{
 			code: `				
@@ -265,7 +349,13 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 					}
 				});
 			`,
-			errors: [error('which')]
+			errors: [error('which')],
+			output: `				
+				foo.addEventListener('click', function(b) {
+					if (b.key === 'Escape') {
+					}
+				});
+			`
 		},
 		{
 			code: `
