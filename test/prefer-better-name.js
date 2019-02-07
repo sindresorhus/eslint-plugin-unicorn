@@ -14,7 +14,7 @@ const ruleTester = avaRuleTester(test, {
 const options = {
 	disabled: ['error', {
 		baseRuleset: null,
-		rules: {},
+		rules: {}
 	}],
 	changed: ['error', {
 		baseRuleset: 'default',
@@ -25,7 +25,7 @@ const options = {
 	custom: ['error', {
 		baseRuleset: null,
 		rules: {
-			spider: 'arachnide',
+			spider: 'arachnide'
 		}
 	}]
 };
@@ -34,7 +34,7 @@ const makeAmbiguousError = (name, betterNames) => {
 	return {
 		message: `Name \`${name}\` is ambiguous, is it ${betterNames.map(word => `\`${word}\``).join(' or ')} or something else`
 	};
-}
+};
 
 const makeReplaceError = (name, betterName) => {
 	return {message: `Prefer \`${betterName}\` over \`${name}\``};
@@ -55,13 +55,13 @@ ruleTester.run('prefer-better-name', rule, {
 		},
 		{
 			code: 'let str = 3',
-			options: options.disabled,
+			options: options.disabled
 		}
 	],
 	invalid: [
 		{
-			code: 'let str = "abc"; str+= str; console.log(`${str}`);',
-			output: 'let string = "abc"; string+= string; console.log(`${string}`);',
+			code: 'let str = "abc"; str+= str; console.log(str);',
+			output: 'let string = "abc"; string+= string; console.log(string);',
 			errors: [makeReplaceError('str', 'string')]
 		},
 		{
@@ -75,7 +75,7 @@ ruleTester.run('prefer-better-name', rule, {
 				const error = null;
 				console.log(err);
 			}`,
-			output:`
+			output: `
 			function test(error1){
 				const error = null;
 				console.log(error1);
@@ -98,6 +98,17 @@ ruleTester.run('prefer-better-name', rule, {
 			output: 'let arachnide = {type:"scary"};',
 			options: options.custom,
 			errors: [makeReplaceError('spider', 'arachnide')]
+		},
+		{
+			code: `
+			function test(...err){
+				console.log(err);
+			}`,
+			output: `
+			function test(...error){
+				console.log(error);
+			}`,
+			errors: [makeReplaceError('err', 'error')]
 		}
 	]
 });
