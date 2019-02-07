@@ -61,7 +61,12 @@ const compileReplaceMap = (rulesetName, additionalRules) => {
 	if (rulesetName === null) {
 		ruleset = [];
 	} else {
-		ruleset = rulesets[rulesetName].slice(0);
+
+		if (rulesets[rulesetName] === undefined) {
+			throw new Error(`unknown ruleset \`${rulesetName}\``);
+		} else {
+			ruleset = rulesets[rulesetName].slice(0);
+		}
 	}
 
 	if (additionalRules !== null && additionalRules !== undefined) {
@@ -84,6 +89,7 @@ const compileReplaceMap = (rulesetName, additionalRules) => {
 			});
 		});
 	});
+	// throw new Error(JSON.stringify(replaceMap));
 	return replaceMap;
 };
 
@@ -100,7 +106,8 @@ const findFreeName = (scope, baseName) => {
 };
 
 const create = context => {
-	const replaceMap = compileReplaceMap(context.options[0], context.options[1]);
+	const options = context.options[1] || {}
+	const replaceMap = compileReplaceMap(options.baseRuleset, options.rules);
 
 	function checkId(node, replaceId, getReferences) {
 		const {name} = node;

@@ -11,55 +11,93 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const invalidAmbiguousTestCase = (code, name, betterNames) => {
-	return {
-		code,
-		output: code,
-		errors: [{message: `Name \`${name}\` is ambiguous, is it ${betterNames.map(word => `\`${word}\``).join(' or ')} or something else`}]
-	};
+const options = {
+	disabled: ['error', {
+		baseRuleset: null,
+		rules: {},
+	}],
+	changed: ['error', {
+		baseRuleset: 'default',
+		rules: {
+			str: ''
+		}
+	}],
+	custom: ['error', {
+		baseRuleset: null,
+		rules: {
+			spider: 'arachnide',
+		}
+	}]
 };
+
+const makeAmbiguousError = (name, betterNames) => {
+	return {
+		message: `Name \`${name}\` is ambiguous, is it ${betterNames.map(word => `\`${word}\``).join(' or ')} or something else`
+	};
+}
 
 const makeReplaceError = (name, betterName) => {
 	return {message: `Prefer \`${betterName}\` over \`${name}\``};
 };
 
-const invalidReplaceTestCase = (code, output, name, betterName) => {
-	return {
-		code,
-		output,
-		errors: [makeReplaceError(name, betterName)]
-	};
-};
-
 ruleTester.run('prefer-better-name', rule, {
 	valid: [
-		'let error'
+		'let error',
+		'const error = new Error();',
+		'let completelySaneName',
+		{
+			code: 'let str = 1',
+			options: options.changed
+		},
+		{
+			code: 'let str = 2',
+			options: options.custom
+		},
+		{
+			code: 'let str = 3',
+			options: options.disabled,
+		}
 	],
 	invalid: [
-		invalidReplaceTestCase(
-			'let str = "abc"; str+= str; console.log(`${str}`);',
-			'let string = "abc"; string+= string; console.log(`${string}`);',
-			'str',
-			'string'),
-		invalidReplaceTestCase(
-			'try {} catch(err) { throw err; }',
-			'try {} catch(error) { throw error; }',
-			'err',
-			'error'),
-		invalidReplaceTestCase(
-			`function test(err){
+		{
+			code: 'let str = "abc"; str+= str; console.log(`${str}`);',
+			output: 'let string = "abc"; string+= string; console.log(`${string}`);',
+			errors: [makeReplaceError('str', 'string')]
+		},
+		{
+			code: 'try {} catch(err) { throw err; }',
+			output: 'try {} catch(error) { throw error; }',
+			errors: [makeReplaceError('err', 'error')]
+		},
+		{
+			code: `
+			function test(err){
 				const error = null;
 				console.log(err);
 			}`,
-			`function test(error1){
+			output:`
+			function test(error1){
 				const error = null;
 				console.log(error1);
 			}`,
-			'err',
-			'error1'),
-		invalidAmbiguousTestCase(
-			'let e;',
-			'e',
-			['event', 'error'])
+			errors: [makeReplaceError('err', 'error1')]
+		},
+		{
+			code: 'let e',
+			errors: [makeAmbiguousError('e', ['event', 'error'])]
+		},
+
+		{
+			code: 'let err = new Error(); let str = "string";',
+			output: 'let error = new Error(); let str = "string";',
+			options: options.changed,
+			errors: [makeReplaceError('err', 'error')]
+		},
+		{
+			code: 'let spider = {type:"scary"};',
+			output: 'let arachnide = {type:"scary"};',
+			options: options.custom,
+			errors: [makeReplaceError('spider', 'arachnide')]
+		}
 	]
 });

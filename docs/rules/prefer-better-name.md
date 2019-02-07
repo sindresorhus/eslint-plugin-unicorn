@@ -9,7 +9,7 @@ Configuration is done by 2 options `baseRuleset` and `rules`:
 ```js
 {
   "unicorn/prefer-better-name": ["error", {
-    "baseRuleset": "default", // optional, possible values are `default` and `extended`
+    "baseRuleset": "default", // optional, possible values are `default`, `extended` and null(to disable base ruleset)
     "rules": {
       "badName|anotherBadName": "goodName", // sets the rule to change `badName` and `anotherBadName` to `goodName`
       "oneMoreBadName": "anotherGoodName", // sets the rule to change `oneMoreBadName` to `anotherGoodName`
