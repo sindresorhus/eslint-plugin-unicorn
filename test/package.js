@@ -26,7 +26,7 @@ test('Every rule is defined in index file', t => {
 		'There are more exported rules in the recommended config than rule files.');
 });
 
-test('Every fixable rule has valid meta.type', t => {
+test('Every rule has valid meta.type', t => {
 	const validTypes = ['problem', 'suggestion', 'layout'];
 
 	for (const file of ruleFiles) {
@@ -34,9 +34,7 @@ test('Every fixable rule has valid meta.type', t => {
 		const rule = index.rules[name];
 
 		t.true(rule.meta !== null, `${name} has no meta`);
-		if (rule.meta.fixable) {
-			t.true(rule.meta.type !== null, `${name} has no meta.type`);
-			t.true(validTypes.includes(rule.meta.type), `${name} meta.type is not one of [${validTypes.join(', ')}]`);
-		}
+		t.true(rule.meta.type !== null, `${name} has no meta.type`);
+		t.true(validTypes.includes(rule.meta.type), `${name} meta.type is not one of [${validTypes.join(', ')}]`);
 	}
 });
