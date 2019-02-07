@@ -33,7 +33,7 @@ test('Every rule has valid meta.type', t => {
 		const name = path.basename(file, '.js');
 		const rule = index.rules[name];
 
-		t.true(rule.meta !== null, `${name} has no meta`);
+		t.true(rule.meta !== null && rule.meta !== undefined, `${name} has no meta`);
 		t.true(rule.meta.type !== null, `${name} has no meta.type`);
 		t.true(validTypes.includes(rule.meta.type), `${name} meta.type is not one of [${validTypes.join(', ')}]`);
 	}
