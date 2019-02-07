@@ -22,7 +22,7 @@ test('Every rule is defined in index file', async t => {
 		'There are more exported rules in the recommended config than rule files.');
 });
 
-test('Every fixable rule got valid meta.type', async t => {
+test('Every fixable rule has valid meta.type', async t => {
 	const validTypes = ['problem', 'suggestion', 'layout'];
 
 	const files = await pify(fs.readdir)('rules');
@@ -32,9 +32,9 @@ test('Every fixable rule got valid meta.type', async t => {
 		const name = path.basename(file, '.js');
 		const rule = index.rules[name];
 
-		t.true(rule.meta !== null, `${name} got no meta`);
+		t.true(rule.meta !== null, `${name} has no meta`);
 		if (rule.meta.fixable) {
-			t.true(rule.meta.type !== null, `${name} got no meta.type`);
+			t.true(rule.meta.type !== null, `${name} has no meta.type`);
 			t.true(validTypes.includes(rule.meta.type), `${name} meta.type is not one of [${validTypes.join(', ')}]`);
 		}
 	}
