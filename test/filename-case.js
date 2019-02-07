@@ -83,7 +83,7 @@ ruleTester.run('filename-case', rule, {
 		testCase(
 			'src/foo/foo_bar.js',
 			undefined,
-			'Filename is not in camel case. Rename it to `fooBar.js`.'
+			'Filename is not in kebab case. Rename it to `foo-bar.js`.'
 		),
 		testCase(
 			'src/foo/foo_bar.js',
