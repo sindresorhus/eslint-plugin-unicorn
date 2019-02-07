@@ -37,8 +37,8 @@ ruleTester.run('prefer-better-name', rule, {
 	],
 	invalid: [
 		invalidReplaceTestCase(
-			'let str = "abc"; console.log(str);',
-			'let string = "abc"; console.log(string);',
+			'let str = "abc"; str+= str; console.log(`${str}`);',
+			'let string = "abc"; string+= string; console.log(`${string}`);',
 			'str',
 			'string'),
 		invalidReplaceTestCase(

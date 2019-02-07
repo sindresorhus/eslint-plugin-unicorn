@@ -73,7 +73,9 @@ const compileReplaceMap = (rulesetName, additionalRules) => {
 		Object.keys(rules).forEach(fromRule => {
 			let toRule = rules[fromRule];
 
-			if (toRule.includes('|')) {
+			if (toRule === '' || toRule === null || toRule === undefined) {
+				toRule = undefined;
+			} else if (toRule.includes('|')) {
 				toRule = toRule.split('|').map(word => word.trim());
 			}
 
