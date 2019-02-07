@@ -4,10 +4,14 @@ import test from 'ava';
 import pify from 'pify';
 import index from '..';
 
-test('Every rule is defined in index file', async t => {
-	const files = await pify(fs.readdir)('rules');
-	const ruleFiles = files.filter(file => path.extname(file) === '.js');
+let ruleFiles;
 
+test.before(async () => {
+	const files = await pify(fs.readdir)('rules');
+	ruleFiles = files.filter(file => path.extname(file) === '.js');
+});
+
+test('Every rule is defined in index file', t => {
 	for (const file of ruleFiles) {
 		const name = path.basename(file, '.js');
 		t.truthy(index.rules[name], `'${name}' is not exported in 'index.js'`);
@@ -22,11 +26,8 @@ test('Every rule is defined in index file', async t => {
 		'There are more exported rules in the recommended config than rule files.');
 });
 
-test('Every fixable rule has valid meta.type', async t => {
+test('Every fixable rule has valid meta.type', t => {
 	const validTypes = ['problem', 'suggestion', 'layout'];
-
-	const files = await pify(fs.readdir)('rules');
-	const ruleFiles = files.filter(file => path.extname(file) === '.js');
 
 	for (const file of ruleFiles) {
 		const name = path.basename(file, '.js');
