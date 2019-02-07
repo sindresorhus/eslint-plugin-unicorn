@@ -8,11 +8,11 @@ This rule is fixable.
 ## Fail
 
 ```js
-foo.innerText;
+foo.innerText = '🦄';
 ```
 
 ## Pass
 
 ```js
-foo.textContent;
+foo.textContent = '🦄';
 ```
