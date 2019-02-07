@@ -54,19 +54,18 @@ const keyCodeToKey = (() => {
 		KanjiMode: 244
 	};
 
-	const map = {
-	};
+	const map = {};
 
 	for (const key of Object.keys(specialKeyToKeyCode)) {
 		map[specialKeyToKeyCode[key]] = key;
 	}
 
 	for (let i = 'A'.charCodeAt(0); i <= 'Z'.charCodeAt(0); i++) {
-		map[i] = `Key${String.fromCharCode(i)}`;
+		map[i] = String.fromCharCode(i).toLowerCase();
 	}
 
 	for (let i = '0'.charCodeAt(0); i <= '9'.charCodeAt(0); i++) {
-		map[i] = `Digit${String.fromCharCode(i)}`;
+		map[i] = String.fromCharCode(i);
 	}
 
 	for (let i = 1; i <= 12; i++) {

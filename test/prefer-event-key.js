@@ -40,6 +40,28 @@ ruleTester.run('prefer-event-key', rule, {
 		),
 		invalidTestCase(
 			`foo.addEventListener('keydown', event => {
+				if (event.keyCode === 65) {
+				}
+			});`,
+			`foo.addEventListener('keydown', event => {
+				if (event.key === 'a') {
+				}
+			});`,
+			'event'
+		),
+		invalidTestCase(
+			`foo.addEventListener('keydown', event => {
+				if (event.keyCode === 49) {
+				}
+			});`,
+			`foo.addEventListener('keydown', event => {
+				if (event.key === '1') {
+				}
+			});`,
+			'event'
+		),
+		invalidTestCase(
+			`foo.addEventListener('keydown', event => {
 				if (event.keyCode == 27) {
 				}
 			});`,
