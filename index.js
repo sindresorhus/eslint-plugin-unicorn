@@ -55,7 +55,8 @@ module.exports = {
 				'unicorn/no-unused-properties': 'off',
 				'unicorn/prefer-node-append': 'error',
 				'unicorn/prefer-query-selector': 'error',
-				'unicorn/prefer-node-remove': 'error'
+				'unicorn/prefer-node-remove': 'error',
+				'unicorn/prefer-text-content': 'error'
 			}
 		}
 	}
