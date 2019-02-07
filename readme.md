@@ -111,7 +111,7 @@ Configure it in `package.json`.
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
 - [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `remove` over `parentNode.removeChild` and `parentElement.removeChild`. *(fixable)*
-- [prefer-better-name](docs/rules/prefer-better-name.md) - Prefer one variables names over the others(configurable). Prefer not to have ambigue names. *(partially fixable)*
+- [prefer-better-name](docs/rules/prefer-better-name.md) - Prefer one variables names over the others and to not have ambigue names. *(partially fixable)*
 
 
 ## Recommended config
