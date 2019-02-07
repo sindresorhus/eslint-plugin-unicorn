@@ -27,9 +27,11 @@ test('Every fixable rule got valid meta.type', async t => {
 
 	const files = await pify(fs.readdir)('rules');
 	const ruleFiles = files.filter(file => path.extname(file) === '.js');
+
 	for (const file of ruleFiles) {
 		const name = path.basename(file, '.js');
-		const rule = require(`../rules/${name}`);
+		const rule = index.rules[name];
+
 		t.true(rule.meta !== null, `${name} got no meta`);
 		if (rule.meta.fixable) {
 			t.true(rule.meta.type !== null, `${name} got no meta.type`);
