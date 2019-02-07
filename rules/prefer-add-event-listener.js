@@ -55,6 +55,10 @@ const isClearing = node => {
 };
 
 const create = context => {
+	const options = context.options[0] || {};
+	const excludedPackages = new Set(options.excludedPackages || ['koa', 'sax']);
+	let isDisabled;
+
 	const nodeReturnsSomething = new WeakMap();
 	let codePathInfo = null;
 
@@ -72,11 +76,27 @@ const create = context => {
 			codePathInfo = codePathInfo.upper;
 		},
 
+		'CallExpression[callee.name="require"] > Literal'(node) {
+			if (!isDisabled && excludedPackages.has(node.value)) {
+				isDisabled = true;
+			}
+		},
+
+		'ImportDeclaration > Literal'(node) {
+			if (!isDisabled && excludedPackages.has(node.value)) {
+				isDisabled = true;
+			}
+		},
+
 		ReturnStatement(node) {
 			codePathInfo.returnsSomething = codePathInfo.returnsSomething || Boolean(node.argument);
 		},
 
 		'AssignmentExpression:exit'(node) {
+			if (isDisabled) {
+				return;
+			}
+
 			const {left: memberExpression, right: assignedExpression} = node;
 
 			if (memberExpression.type !== 'MemberExpression') {
@@ -118,12 +138,29 @@ const create = context => {
 	};
 };
 
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			excludedPackages: {
+				type: 'array',
+				items: {
+					type: 'string'
+				},
+				uniqueItems: true
+			}
+		},
+		additionalProperties: false
+	}
+];
+
 module.exports = {
 	create,
 	meta: {
 		docs: {
 			url: getDocsUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		schema
 	}
 };

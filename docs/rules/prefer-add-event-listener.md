@@ -40,3 +40,23 @@ foo.bar.addEventListener('click', onClick);
 ```js
 foo.removeEventListener('click', onClick);
 ```
+
+
+## Options
+
+### excludedPackages
+
+```js
+"unicorn/prefer-add-event-listener": ["error", {"excludedPackages": ["koa", "sax"]}]
+```
+
+This option lets you specify a list of packages that disable the rule when imported. By default, `koa` and `sax` are listed.
+
+With `koa`, this would still pass:
+
+```js
+const Koa = require('koa');
+const app = new Koa();
+
+app.onerror = () => {};
+```

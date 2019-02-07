@@ -17,19 +17,9 @@ module.exports = {
 				'unicorn'
 			],
 			rules: {
-				'unicorn/catch-error-name': [
-					'error',
-					{
-						name: 'error'
-					}
-				],
+				'unicorn/catch-error-name': 'error',
 				'unicorn/explicit-length-check': 'error',
-				'unicorn/filename-case': [
-					'error',
-					{
-						case: 'kebabCase'
-					}
-				],
+				'unicorn/filename-case': 'error',
 				'unicorn/no-abusive-eslint-disable': 'error',
 				'unicorn/no-process-exit': 'error',
 				'unicorn/throw-new-error': 'error',
@@ -54,7 +44,9 @@ module.exports = {
 				'unicorn/no-unreadable-array-destructuring': 'error',
 				'unicorn/no-unused-properties': 'off',
 				'unicorn/prefer-node-append': 'error',
-				'unicorn/prefer-query-selector': 'error'
+				'unicorn/prefer-query-selector': 'error',
+				'unicorn/prefer-node-remove': 'error',
+				'unicorn/prefer-text-content': 'error'
 			}
 		}
 	}
