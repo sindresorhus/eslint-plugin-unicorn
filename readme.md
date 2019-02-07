@@ -72,7 +72,8 @@ Configure it in `package.json`.
 			"unicorn/no-unused-properties": "off",
 			"unicorn/prefer-node-append": "error",
 			"unicorn/prefer-query-selector": "error",
-			"unicorn/prefer-node-remove": "error"
+			"unicorn/prefer-node-remove": "error",
+			"unicorn/prefer-event-key": "error"
 		}
 	}
 }
@@ -110,6 +111,7 @@ Configure it in `package.json`.
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
 - [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `remove` over `parentNode.removeChild` and `parentElement.removeChild`. *(fixable)*
+- [prefer-event-key](docs/rules/prefer-event-key.md) - Prefer `event.key` over `event.keyCode`. *(partially fixable)*
 
 
 ## Recommended config
