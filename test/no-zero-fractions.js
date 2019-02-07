@@ -29,18 +29,32 @@ ruleTester.run('no-zero-fractions', rule, {
 	invalid: [
 		{
 			code: 'const foo = 1.0',
+			output: 'const foo = 1',
+			errors: [error]
+		},
+		{
+			code: 'const foo = 1.00',
+			output: 'const foo = 1',
+			errors: [error]
+		},
+		{
+			code: 'const foo = 1.00000',
+			output: 'const foo = 1',
 			errors: [error]
 		},
 		{
 			code: 'const foo = -1.0',
+			output: 'const foo = -1',
 			errors: [error]
 		},
 		{
 			code: 'const foo = 123123123.0',
+			output: 'const foo = 123123123',
 			errors: [error]
 		},
 		{
 			code: 'const foo = 1.',
+			output: 'const foo = 1',
 			errors: [error]
 		}
 	]
