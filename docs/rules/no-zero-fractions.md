@@ -1,6 +1,8 @@
 # Disallow number literals with zero fractions or dangling dots
 
-Disallows number literals with zero fractions or dangling dots, as there is no difference in JS between one having it and one not having it.
+There is no difference in JS between e.g. `1`, `1.0` and `1.`, so prefer the former for consistency.
+
+This rule is fixable.
 
 ## Fail
 
