@@ -65,7 +65,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-node-remove": "error",
 			"unicorn/prefer-text-content": "error",
 			"unicorn/no-for-loop": "error",
-			"unicorn/no-zero-fractions": "off"
+			"unicorn/no-zero-fractions": "error"
 		}
 	}
 }
