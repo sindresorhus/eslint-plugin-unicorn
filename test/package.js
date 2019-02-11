@@ -34,7 +34,7 @@ test('Every rule has valid meta.type', t => {
 		const rule = index.rules[name];
 
 		t.true(rule.meta !== null && rule.meta !== undefined, `${name} has no meta`);
-		t.true(rule.meta.type !== null && rule.meta !== undefined, `${name} has no meta.type`);
+		t.is(typeof rule.meta.type, 'string', `${name} meta.type is not string`);
 		t.true(validTypes.includes(rule.meta.type), `${name} meta.type is not one of [${validTypes.join(', ')}]`);
 	}
 });
