@@ -113,7 +113,6 @@ ruleTester.run('no-for-loop', rule, {
 	],
 
 	invalid: [
-
 		testCase(`
 			for (let i = 0; arr.length > i; i += 1) {
 				let el = arr[i];
@@ -186,6 +185,5 @@ ruleTester.run('no-for-loop', rule, {
 			}
 			console.log(el);
 		`)
-
 	]
 });
