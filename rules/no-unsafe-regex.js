@@ -52,6 +52,7 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		type: 'problem',
 		docs: {
 			url: getDocsUrl(__filename)
 		}
