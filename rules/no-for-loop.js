@@ -272,7 +272,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				message: 'Use `for-of` loop instead of this `for` loop.'
+				message: 'Use a `for-of` loop instead of this `for` loop.'
 			};
 
 			const forScope = scopeManager.acquire(node);

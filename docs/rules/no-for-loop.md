@@ -1,4 +1,4 @@
-# Do not use for loop that can be replaced with a for-of loop
+# Do not use `for` loop that can be replaced with a `for-of` loop
 
 There's no reason to use old school for loops anymore for the common case. You can instead use for-of loop (with `.entries()` if you need to access the index).
 
