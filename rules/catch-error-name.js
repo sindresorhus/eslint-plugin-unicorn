@@ -86,6 +86,7 @@ const create = context => {
 
 	return {
 		CallExpression: node => {
+			throw new Error('test');
 			if (isLintablePromiseCatch(node)) {
 				const {params} = node.arguments[0];
 
