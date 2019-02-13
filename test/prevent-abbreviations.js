@@ -299,6 +299,31 @@ ruleTester.run('prevent-abbreviations', rule, {
 				}
 			`,
 			errors: createErrors()
+		},
+
+		{
+			code: `
+				const opts = {};
+				console.log(opts);
+			`,
+			output: `
+				const options = {};
+				console.log(options);
+			`,
+			errors: createErrors()
+		},
+		{
+			code: `
+				var opts = 1;
+				var opts = 2;
+				console.log(opts);
+			`,
+			output: `
+				var options = 1;
+				var options = 2;
+				console.log(options);
+			`,
+			errors: createErrors()
 		}
 	]
 });

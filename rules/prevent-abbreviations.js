@@ -180,12 +180,15 @@ const create = context => {
 			const captureAvoidingReplacement = avoidCapture(replacement, scopes);
 
 			problem.fix = fixer => [
-				...variable.identifiers.map(identifier => {
-					return fixer.replaceText(identifier, captureAvoidingReplacement);
-				}),
-				...variable.references.map(reference => {
-					return fixer.replaceText(reference.identifier, captureAvoidingReplacement);
-				})
+				...variable.identifiers
+					.map(identifier => {
+						return fixer.replaceText(identifier, captureAvoidingReplacement);
+					}),
+				...variable.references
+					.filter(reference => !reference.init)
+					.map(reference => {
+						return fixer.replaceText(reference.identifier, captureAvoidingReplacement);
+					})
 			];
 		}
 
