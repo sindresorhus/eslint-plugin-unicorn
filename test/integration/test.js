@@ -58,7 +58,7 @@ const execute = name => {
 		},
 		{
 			title: 'Running tests',
-			task: () => execa('eslint', ['--config', path.join(cwd, 'index.js'), dest], {cwd, localDir: __dirname})
+			task: () => execa('npx', ['eslint', '--config', path.join(cwd, 'index.js'), dest], {cwd, localDir: __dirname})
 				.catch(error => {
 					if (!/✖ \d+ problems? \(\d+ errors?, \d+ warnings?\)/.test(error.message)) {
 						error.package = name;
