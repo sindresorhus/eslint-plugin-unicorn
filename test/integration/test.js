@@ -12,7 +12,6 @@ const packages = new Map([
 	['chalk', 'https://github.com/chalk/chalk'],
 	['wrap-ansi', 'https://github.com/chalk/wrap-ansi'],
 	['got', 'https://github.com/sindresorhus/got'],
-	['pageres', 'https://github.com/sindresorhus/pageres'],
 	['np', 'https://github.com/sindresorhus/np'],
 	['ora', 'https://github.com/sindresorhus/ora'],
 	['p-map', 'https://github.com/sindresorhus/p-map'],
