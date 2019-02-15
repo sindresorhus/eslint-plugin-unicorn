@@ -148,6 +148,19 @@ const formatMessage = (discouragedName, replacements) => {
 	return message.join(' ');
 };
 
+const isShorthandPropertyIdentifier = identifier => {
+	return identifier.parent.type === 'Property' &&
+		identifier.parent.shorthand;
+};
+
+const fixIdentifier = (fixer, replacement) => identifier => {
+	if (isShorthandPropertyIdentifier(identifier)) {
+		return fixer.replaceText(identifier, `${identifier.name}: ${replacement}`);
+	}
+
+	return fixer.replaceText(identifier, replacement);
+};
+
 const create = context => {
 	const replacements = prepareOptions(context.options[0]);
 
@@ -181,14 +194,11 @@ const create = context => {
 
 			problem.fix = fixer => [
 				...variable.identifiers
-					.map(identifier => {
-						return fixer.replaceText(identifier, captureAvoidingReplacement);
-					}),
+					.map(fixIdentifier(fixer, captureAvoidingReplacement)),
 				...variable.references
 					.filter(reference => !reference.init)
-					.map(reference => {
-						return fixer.replaceText(reference.identifier, captureAvoidingReplacement);
-					})
+					.map(reference => reference.identifier)
+					.map(fixIdentifier(fixer, captureAvoidingReplacement))
 			];
 		}
 

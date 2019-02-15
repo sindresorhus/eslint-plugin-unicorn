@@ -324,6 +324,37 @@ ruleTester.run('prevent-abbreviations', rule, {
 				console.log(options);
 			`,
 			errors: createErrors()
+		},
+
+		{
+			code: `
+				const err = {};
+				const foo = {err};
+			`,
+			output: `
+				const error = {};
+				const foo = {err: error};
+			`,
+			errors: createErrors()
+		},
+		{
+			code: `
+				const err = {};
+				const foo = {
+					a: 1,
+					err,
+					b: 2
+				};
+			`,
+			output: `
+				const error = {};
+				const foo = {
+					a: 1,
+					err: error,
+					b: 2
+				};
+			`,
+			errors: createErrors()
 		}
 	]
 });
