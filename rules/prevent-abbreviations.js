@@ -82,6 +82,9 @@ const defaultReplacements = {
 	},
 	mod: {
 		module: true
+	},
+	prop: {
+		property: true
 	}
 };
 
