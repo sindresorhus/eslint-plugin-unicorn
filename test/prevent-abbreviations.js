@@ -95,6 +95,10 @@ ruleTester.run('prevent-abbreviations', rule, {
 
 		// Renaming to `arguments` would result in a `SyntaxError`, so it should keep `args`
 		`
+			'use strict';
+			let args;
+		`,
+		`
 			class A {
 				method(...args) {
 					return super.method(...args) + 1;
@@ -106,6 +110,21 @@ ruleTester.run('prevent-abbreviations', rule, {
 				constructor(...args) {
 					super(...args);
 				}
+			}
+		`,
+
+		// TODO: This could be renamed to `arguments` safely in non-strict mode,
+		// but it is currently impractical due to a suspected bug in `eslint-scope`.
+		// https://github.com/eslint/eslint-scope/issues/49
+		`
+			const f = (...args) => {
+				return args;
+			}
+		`,
+		`
+			let args;
+			const f = () => {
+				return args;
 			}
 		`,
 
@@ -286,36 +305,6 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'err => err',
 			output: 'error => error',
-			errors: createErrors()
-		},
-
-		{
-			code: `
-				const f = (...args) => {
-					return args;
-				}
-			`,
-			output: `
-				const f = (...arguments) => {
-					return arguments;
-				}
-			`,
-			errors: createErrors()
-		},
-
-		{
-			code: `
-				let args;
-				const f = () => {
-					return args;
-				}
-			`,
-			output: `
-				let arguments;
-				const f = () => {
-					return arguments;
-				}
-			`,
 			errors: createErrors()
 		},
 

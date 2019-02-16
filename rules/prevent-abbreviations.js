@@ -127,7 +127,8 @@ const collideWithArgumentsSpecial = (names, scopes) => {
 		return false;
 	}
 
-	return scopes.some(scopeHasArgumentsSpecial);
+	return scopes.some(scopeHasArgumentsSpecial) ||
+		scopes.some(scope => scope.isStrict);
 };
 
 const anotherNameMessage = 'A more descriptive name will do too.';
