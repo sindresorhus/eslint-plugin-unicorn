@@ -8,6 +8,15 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const moduleRuleTester = avaRuleTester(test, {
+	env: {
+		es6: true
+	},
+	parserOptions: {
+		sourceType: 'module'
+	}
+});
+
 const noFixingTestCase = test => Object.assign({}, test, {
 	output: test.code
 });
@@ -61,23 +70,26 @@ ruleTester.run('prevent-abbreviations', rule, {
 		'error => {}',
 		'(function (error) {})',
 		'function f(x) {}',
+		'(class {})',
+		'(class C {})',
+		'class C {}',
 
 		// `err` in not defined, should not be report (could be reported by `no-unused-vars`)
 		'console.log(err)',
 
 		'let c',
 		{
-			code: 'let c',
+			code: 'var c',
 			options: customOptions
 		},
 
 		{
-			code: 'let cb',
+			code: 'class cb {}',
 			options: customOptions
 		},
 
 		{
-			code: 'let e',
+			code: 'function e() {}',
 			options: extendedOptions
 		},
 
@@ -160,13 +172,13 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 
 		{
-			code: 'let cb',
-			output: 'let callback',
+			code: 'function cb() {}',
+			output: 'function callback() {}',
 			errors: createErrors()
 		},
 		{
-			code: 'let cb',
-			output: 'let circuitBreacker',
+			code: 'class cb {}',
+			output: 'class circuitBreacker {}',
 			options: extendedOptions,
 			errors: createErrors()
 		},
@@ -272,6 +284,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 
 		{
+			code: 'err => err',
+			output: 'error => error',
+			errors: createErrors()
+		},
+
+		{
 			code: `
 				const f = (...args) => {
 					return args;
@@ -353,6 +371,96 @@ ruleTester.run('prevent-abbreviations', rule, {
 					err: error,
 					b: 2
 				};
+			`,
+			errors: createErrors()
+		}
+	]
+});
+
+moduleRuleTester.run('prevent-abbreviations', rule, {
+	valid: [],
+
+	invalid: [
+		{
+			code: `
+				import err from 'err';
+			`,
+			output: `
+				import error from 'err';
+			`,
+			errors: createErrors()
+		},
+		{
+			code: `
+				import {err} from 'err';
+			`,
+			output: `
+				import {err as error} from 'err';
+			`,
+			errors: createErrors()
+		},
+
+		{
+			code: `
+				let err;
+				export {err};
+			`,
+			output: `
+				let error;
+				export {error as err};
+			`,
+			errors: createErrors()
+		},
+
+		noFixingTestCase({
+			code: 'export const err = {}',
+			errors: createErrors()
+		}),
+		noFixingTestCase({
+			code: 'export let err',
+			errors: createErrors()
+		}),
+		noFixingTestCase({
+			code: 'export var err',
+			errors: createErrors()
+		}),
+		noFixingTestCase({
+			code: 'export function err() {}',
+			errors: createErrors()
+		}),
+		noFixingTestCase({
+			code: 'export class err {}',
+			errors: createErrors()
+		}),
+
+		{
+			code: `
+				const err = {};
+				export const error = err;
+			`,
+			output: `
+				const error2 = {};
+				export const error = error2;
+			`,
+			errors: createErrors()
+		},
+
+		{
+			code: `
+				class err {
+					constructor() {
+						console.log(err);
+					}
+				};
+				console.log(err);
+			`,
+			output: `
+				class error {
+					constructor() {
+						console.log(error);
+					}
+				};
+				console.log(error);
 			`,
 			errors: createErrors()
 		}
