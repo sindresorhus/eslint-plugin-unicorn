@@ -372,6 +372,25 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 				});
 			`,
 			errors: [error('which')]
+		},
+		{
+			code: `				
+				foo.addEventListener('click', function(b) {
+					if (b.which === 27) {
+					}
+					const {keyCode} = b;
+					if (keyCode === 32) return 4;
+				});
+			`,
+			errors: [error('which'), error('keyCode')],
+			output: `				
+				foo.addEventListener('click', function(b) {
+					if (b.key === 'Escape') {
+					}
+					const {keyCode} = b;
+					if (keyCode === 32) return 4;
+				});
+			`
 		}
 	]
 });
