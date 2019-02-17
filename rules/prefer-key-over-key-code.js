@@ -142,10 +142,10 @@ const fix = (context, node) => fixer => {
 		return;
 	}
 
-	const {right} = nearestIf.test;
+	const {right, operator} = nearestIf.test;
+	const isTestingEquality = operator === '==' || operator === '===';
 	const isRightValid =
-		right.type === 'Literal' && typeof right.value === 'number';
-
+		isTestingEquality && right.type === 'Literal' && typeof right.value === 'number';
 	// Either a meta key or a printable character
 	const keyCode = translateToKey[right.value] || String.fromCharCode(right.value);
 	// And if we recognize the keyCode
