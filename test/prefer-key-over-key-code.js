@@ -62,8 +62,15 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 				const {charCode} = e;
 				console.log(event.key)
 			})
-		})`
+		})`,
+		`foo.addEventListener('click', e => {
+			{
+				const e = {};
+				console.log(e.keyCode);
+			}
+		});`
 	],
+
 	invalid: [
 		{
 			code: `
