@@ -74,13 +74,13 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `				
+			code: `
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 27) {
 					}
 				});
 			`,
-			output: `				
+			output: `
 				foo123.addEventListener('click', event => {
 					if (event.key === 'Escape') {
 					}
@@ -89,13 +89,13 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `				
+			code: `
 				foo.addEventListener('click', a => {
 					if (a.keyCode === 27) {
 					}
 				});
 			`,
-			output: `				
+			output: `
 				foo.addEventListener('click', a => {
 					if (a.key === 'Escape') {
 					}
@@ -104,13 +104,13 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `				
+			code: `
 				foo.addEventListener('click', (a, b, c) => {
 					if (a.keyCode === 27) {
 					}
 				});
 			`,
-			output: `				
+			output: `
 				foo.addEventListener('click', (a, b, c) => {
 					if (a.key === 'Escape') {
 					}
@@ -119,13 +119,13 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `				
+			code: `
 				foo.addEventListener('click', function(a, b, c) {
 					if (a.keyCode === 27) {
 					}
 				});
 			`,
-			output: `				
+			output: `
 				foo.addEventListener('click', function(a, b, c) {
 					if (a.key === 'Escape') {
 					}
@@ -134,13 +134,13 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `				
+			code: `
 				foo.addEventListener('click', function(b) {
 					if (b.keyCode === 27) {
 					}
 				});
 			`,
-			output: `				
+			output: `
 				foo.addEventListener('click', function(b) {
 					if (b.key === 'Escape') {
 					}
@@ -184,13 +184,13 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			errors: [error('charCode')]
 		},
 		{
-			code: `				
+			code: `
 				foo11111111.addEventListener('click', event => {
 					if (event.charCode === 27) {
 					}
 				});
 			`,
-			output: `				
+			output: `
 				foo11111111.addEventListener('click', event => {
 					if (event.key === 'Escape') {
 					}
@@ -199,14 +199,14 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			errors: [error('charCode')]
 		},
 		{
-			code: `				
+			code: `
 				foo.addEventListener('click', a => {
 					if (a.charCode === 27) {
 					}
 				});
 			`,
 			errors: [error('charCode')],
-			output: `				
+			output: `
 				foo.addEventListener('click', a => {
 					if (a.key === 'Escape') {
 					}
@@ -214,14 +214,14 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			`
 		},
 		{
-			code: `				
+			code: `
 				foo.addEventListener('click', (a, b, c) => {
 					if (a.charCode === 27) {
 					}
 				});
 			`,
 			errors: [error('charCode')],
-			output: `				
+			output: `
 				foo.addEventListener('click', (a, b, c) => {
 					if (a.key === 'Escape') {
 					}
@@ -229,13 +229,13 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			`
 		},
 		{
-			code: `				
+			code: `
 				foo.addEventListener('click', function(a, b, c) {
 					if (a.charCode === 27) {
 					}
 				});
 			`,
-			output: `				
+			output: `
 				foo.addEventListener('click', function(a, b, c) {
 					if (a.key === 'Escape') {
 					}
@@ -244,14 +244,14 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			errors: [error('charCode')]
 		},
 		{
-			code: `				
+			code: `
 				foo.addEventListener('click', function(b) {
 					if (b.charCode === 27) {
 					}
 				});
 			`,
 			errors: [error('charCode')],
-			output: `				
+			output: `
 				foo.addEventListener('click', function(b) {
 					if (b.key === 'Escape') {
 					}
@@ -283,14 +283,14 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			errors: [error('which')]
 		},
 		{
-			code: `				
+			code: `
 				foo.addEventListener('click', event => {
 					if (event.which === 27) {
 					}
 				});
 			`,
 			errors: [error('which')],
-			output: `				
+			output: `
 				foo.addEventListener('click', event => {
 					if (event.key === 'Escape') {
 					}
@@ -298,14 +298,14 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			`
 		},
 		{
-			code: `				
+			code: `
 				foo.addEventListener('click', a => {
 					if (a.which === 27) {
 					}
 				});
 			`,
 			errors: [error('which')],
-			output: `				
+			output: `
 				foo.addEventListener('click', a => {
 					if (a.key === 'Escape') {
 					}
@@ -313,14 +313,14 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			`
 		},
 		{
-			code: `				
+			code: `
 				foo.addEventListener('click', (a, b, c) => {
 					if (a.which === 27) {
 					}
 				});
 			`,
 			errors: [error('which')],
-			output: `				
+			output: `
 				foo.addEventListener('click', (a, b, c) => {
 					if (a.key === 'Escape') {
 					}
@@ -328,14 +328,14 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			`
 		},
 		{
-			code: `				
+			code: `
 				foo.addEventListener('click', function(a, b, c) {
 					if (a.which === 27) {
 					}
 				});
 			`,
 			errors: [error('which')],
-			output: `				
+			output: `
 				foo.addEventListener('click', function(a, b, c) {
 					if (a.key === 'Escape') {
 					}
@@ -343,14 +343,14 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			`
 		},
 		{
-			code: `				
+			code: `
 				foo.addEventListener('click', function(b) {
 					if (b.which === 27) {
 					}
 				});
 			`,
 			errors: [error('which')],
-			output: `				
+			output: `
 				foo.addEventListener('click', function(b) {
 					if (b.key === 'Escape') {
 					}
@@ -374,7 +374,7 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			errors: [error('which')]
 		},
 		{
-			code: `				
+			code: `
 				foo.addEventListener('click', function(b) {
 					if (b.which === 27) {
 					}
@@ -383,7 +383,7 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 				});
 			`,
 			errors: [error('which'), error('keyCode')],
-			output: `				
+			output: `
 				foo.addEventListener('click', function(b) {
 					if (b.key === 'Escape') {
 					}
@@ -393,7 +393,7 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			`
 		},
 		{
-			code: `				
+			code: `
 				foo.addEventListener('click', function(b) {
 					if (b.which > 27) {
 					}
@@ -402,7 +402,7 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 				});
 			`,
 			errors: [error('which'), error('keyCode')],
-			output: `				
+			output: `
 				foo.addEventListener('click', function(b) {
 					if (b.which > 27) {
 					}
