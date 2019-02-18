@@ -1,6 +1,6 @@
 # Enforce the use of object spreading instead of passing default parameters with an object
 
-Default parameters should not be passed to a function through an object. The `options = {a: false}` parameter works fine if only used with one option. As soon as additional options are added, you risk replacing the whole `options = {a: false, b: true}` object when passing only one options `{a: true}`. For this reason, object spreading should be used instead.
+Default parameters should not be passed to a function through an object. The `options = {a: false}` parameter works fine if only used with one option. As soon as additional options are added, you risk replacing the whole `options = {a: false, b: true}` object when passing only one option: `{a: true}`. For this reason, object spreading should be used instead.
 
 
 ## Fail
