@@ -77,18 +77,22 @@ const getEventNode = node => {
 	}
 };
 
+const getNearestAncestorByType = (node, type) => {
+	let current = node;
+	while (current) {
+		if (current.type === type) {
+			return current;
+		}
+
+		current = current.parent;
+	}
+
+	return null;
+};
+
 const extraCitation = 'See https://goo.gl/cRK532 for more info.';
 
 const util = context => {
-	const getNearestAncestorByType = nodes => type => {
-		for (let i = nodes.length - 1; i >= 0; i--) {
-			if (nodes[i].type === type) {
-				return nodes[i];
-			}
-		}
-	};
-
-	const report = reportError(context);
 	const ancestors = context.getAncestors();
 	const callExpressionNode = isInsideEventCallback(
 		ancestors.filter(n => n.type === 'CallExpression')
@@ -97,47 +101,12 @@ const util = context => {
 		callExpressionNode && callExpressionNode.arguments[1]
 	);
 	return {
-		report,
-		event,
-		getNearestAncestorByType: getNearestAncestorByType(ancestors)
+		event
 	};
 };
 
-const directAccessRule = context => node => {
-	const {report, event} = util(context);
-	// Normal case when usage is direct -> event.keyCode
-
-	const isPropertyOfEvent = isPropertyOf(node, event);
-	if (isPropertyOfEvent) {
-		report(node);
-	}
-};
-
-const destructuredPropertyRule = context => node => {
-	const propertyName = node.value && node.value.name;
-	if (!keys.includes(propertyName)) {
-		return;
-	}
-
-	const {report, event, getNearestAncestorByType} = util(context);
-
-	// Destructured case
-	const nearestVariableDeclarator = getNearestAncestorByType(
-		'VariableDeclarator'
-	);
-	const isDestructuredFromEvent =
-		nearestVariableDeclarator &&
-		nearestVariableDeclarator.init &&
-		nearestVariableDeclarator.init.name === event;
-
-	if (isDestructuredFromEvent) {
-		report(node.value);
-	}
-};
-
-const fix = (context, node) => fixer => {
-	const {getNearestAncestorByType} = util(context);
-	const nearestIf = getNearestAncestorByType('IfStatement');
+const fix = node => fixer => {
+	const nearestIf = getNearestAncestorByType(node, 'IfStatement');
 	if (!nearestIf) {
 		return;
 	}
@@ -160,20 +129,48 @@ const fix = (context, node) => fixer => {
 	];
 };
 
-const reportError = context => node => {
-	context.report({
-		message: `Use key instead of ${node.name}. ${extraCitation}`,
-		node,
-		fix: fix(context, node)
-	});
-};
-
 const create = context => {
+	const report = node => {
+		context.report({
+			message: `Use key instead of ${node.name}. ${extraCitation}`,
+			node,
+			fix: fix(node)
+		});
+	};
+
 	return {
-		'Identifier:matches([name=keyCode], [name=charCode], [name=which])': directAccessRule(
-			context
-		),
-		Property: destructuredPropertyRule(context)
+		'Identifier:matches([name=keyCode], [name=charCode], [name=which])'(node) {
+			const {event} = util(context);
+			// Normal case when usage is direct -> event.keyCode
+
+			const isPropertyOfEvent = isPropertyOf(node, event);
+			if (isPropertyOfEvent) {
+				report(node);
+			}
+		},
+
+		Property(node) {
+			const propertyName = node.value && node.value.name;
+			if (!keys.includes(propertyName)) {
+				return;
+			}
+
+			const {event} = util(context);
+
+			// Destructured case
+			const nearestVariableDeclarator = getNearestAncestorByType(
+				node,
+				'VariableDeclarator'
+			);
+			const isDestructuredFromEvent =
+				nearestVariableDeclarator &&
+				nearestVariableDeclarator.init &&
+				nearestVariableDeclarator.init.name === event;
+
+			if (isDestructuredFromEvent) {
+				report(node.value);
+			}
+		}
 	};
 };
 
