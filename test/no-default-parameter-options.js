@@ -14,6 +14,7 @@ const error = {
 
 ruleTester.run('no-default-parameter-options', rule, {
 	valid: [
+		'let foo;',
 		'const foo = options => {};',
 		'const foo = (options = {}) => {};',
 		'const foo = (options = null) => {};',

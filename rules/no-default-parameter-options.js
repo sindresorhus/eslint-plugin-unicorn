@@ -1,9 +1,7 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
-const optionsObjects = new Set();
-
-const getAssignmentType = node => {
+const getAssignmentType = (node, optionsObjects) => {
 	const {
 		left: identifier,
 		right: assignment
@@ -38,7 +36,7 @@ const isOptionsDeclaration = node => {
 		return false;
 	}
 
-	if (objectExpression.type !== 'ObjectExpression') {
+	if (!objectExpression || objectExpression.type !== 'ObjectExpression') {
 		return false;
 	}
 
@@ -67,17 +65,16 @@ const fix = (fixer, sourceCode, node) => {
 };
 
 const create = context => {
+	const optionsObjects = new Set();
+
 	return {
-		Program() {
-			optionsObjects.clear();
-		},
 		VariableDeclarator(node) {
 			if (isOptionsDeclaration(node)) {
 				optionsObjects.add(node.id.name);
 			}
 		},
 		AssignmentPattern(node) {
-			const type = getAssignmentType(node);
+			const type = getAssignmentType(node, optionsObjects);
 
 			if (type) {
 				const fixLiteral = fixer => fix(fixer, context.getSourceCode(), node);
