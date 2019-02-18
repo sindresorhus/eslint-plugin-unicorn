@@ -63,7 +63,8 @@ Configure it in `package.json`.
 			"unicorn/prefer-node-append": "error",
 			"unicorn/prefer-query-selector": "error",
 			"unicorn/prefer-node-remove": "error",
-			"unicorn/prefer-text-content": "error"
+			"unicorn/prefer-text-content": "error",
+			"unicorn/no-for-loop": "error"
 		}
 	}
 }
@@ -102,6 +103,7 @@ Configure it in `package.json`.
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
 - [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `remove` over `parentNode.removeChild` and `parentElement.removeChild`. *(fixable)*
 - [prefer-text-content](docs/rules/prefer-text-content.md) - Prefer `textContent` over `innerText`. *(fixable)*
+- [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(fixable)*
 
 
 ## Recommended config
