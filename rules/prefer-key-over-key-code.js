@@ -50,26 +50,31 @@ const isPropertyNamedAddEventListener = node =>
 	node.callee.property &&
 	node.callee.property.name === 'addEventListener';
 
-const getEventNode = node => {
+const getEventNodeAndReferences = (context, node) => {
 	const eventListener = getMatchingAncestorOfType(node, 'CallExpression', isPropertyNamedAddEventListener);
 	const callback = eventListener && eventListener.arguments && eventListener.arguments[1];
 	switch (callback && callback.type) {
 		case 'ArrowFunctionExpression':
 		case 'FunctionExpression': {
-			return callback.params && callback.params[0];
+			const eventVariable = context.getDeclaredVariables(callback)[0];
+			const references = eventVariable && eventVariable.references;
+			return {
+				event: callback.params && callback.params[0],
+				references
+			};
 		}
 
 		default:
-			return null;
+			return {};
 	}
 };
 
-const isPropertyOf = (node, objectName) => {
+const isPropertyOf = (node, eventNode) => {
 	return (
 		node &&
 		node.parent &&
 		node.parent.object &&
-		node.parent.object.name === objectName
+		node.parent.object === eventNode
 	);
 };
 
@@ -94,7 +99,7 @@ const fix = node => fixer => {
 		return;
 	}
 
-	const {right, operator} = nearestIf.test;
+	const {right = {}, operator} = nearestIf.test;
 	const isTestingEquality = operator === '==' || operator === '===';
 	const isRightValid =
 		isTestingEquality && right.type === 'Literal' && typeof right.value === 'number';
@@ -124,39 +129,43 @@ const create = context => {
 	return {
 		'Identifier:matches([name=keyCode], [name=charCode], [name=which])'(node) {
 			// Normal case when usage is direct -> event.keyCode
-			const event = getEventNode(node);
+			const {event, references} = getEventNodeAndReferences(context, node);
 			if (!event) {
 				return;
 			}
 
-			const isPropertyOfEvent = isPropertyOf(node, event.name);
+			const isPropertyOfEvent = Boolean(references && references.find(r => isPropertyOf(node, r.identifier)));
 			if (isPropertyOfEvent) {
 				report(node);
 			}
 		},
 
 		Property(node) {
+			// Destructured case
 			const propertyName = node.value && node.value.name;
 			if (!keys.includes(propertyName)) {
 				return;
 			}
 
-			const event = getEventNode(node);
+			const {event, references} = getEventNodeAndReferences(context, node);
 			if (!event) {
 				return;
 			}
-			// Destructured case
 
 			const nearestVariableDeclarator = getMatchingAncestorOfType(
 				node,
 				'VariableDeclarator'
 			);
-			const isDestructuredFromEvent =
+			const initObject =
 				nearestVariableDeclarator &&
 				nearestVariableDeclarator.init &&
-				nearestVariableDeclarator.init.name === event.name;
+				nearestVariableDeclarator.init;
 
-			if (isDestructuredFromEvent) {
+			// Make sure initObject is a reference of eventVariable
+			const isReferenceOfEvent = Boolean(
+				references && references.find(r => r.identifier === initObject)
+			);
+			if (isReferenceOfEvent) {
 				report(node.value);
 			}
 		}

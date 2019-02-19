@@ -22,6 +22,33 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 			console.log(keyCode, which, charCode);
 			console.log(window.keyCode);
 		})`,
+		`foo.addEventListener('click', (e, r, fg) => {
+			function a() {
+				if (true) {
+					{
+						{
+							const e = {};
+							const { charCode } = e;
+							console.log(e.keyCode, charCode);
+						}
+					}
+				}
+			}
+		});`,
+		`
+		const e = {}
+		foo.addEventListener('click', function (event) {
+			function a() {
+				if (true) {
+					{
+						{
+							console.log(e.keyCode);
+						}
+					}
+				}
+			}
+		});
+		`,
 		'const { keyCode } = e',
 		'const { charCode } = e',
 		'const {a, b, c} = event',
@@ -421,6 +448,24 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 					if (keyCode === 32) return 4;
 				});
 			`
+		},
+		{
+			code: `
+			const e = {}
+			foo.addEventListener('click', (e, r, fg) => {
+				function a() {
+					if (true) {
+						{
+							{
+								const { charCode } = e;
+								console.log(e.keyCode, charCode);
+							}
+						}
+					}
+				}
+			});
+			`,
+			errors: [error('charCode'), error('keyCode')]
 		}
 	]
 });
