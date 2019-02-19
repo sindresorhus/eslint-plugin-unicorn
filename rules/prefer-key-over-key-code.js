@@ -93,9 +93,23 @@ const getMatchingAncestorOfType = (node, type, fn = n => n || true) => {
 	return null;
 };
 
+const getParentByLevel = (node, level) => {
+	let current = node;
+	while (current && level) {
+		level--;
+		current = current.parent;
+	}
+
+	if (level === 0) {
+		return current;
+	}
+};
+
 const fix = node => fixer => {
-	const nearestIf = getMatchingAncestorOfType(node, 'IfStatement');
-	if (!nearestIf) {
+	// Since we're only fixing direct property access usages
+	// Like e.keyCode
+	const nearestIf = getParentByLevel(node, 3);
+	if (!nearestIf || nearestIf.type !== 'IfStatement') {
 		return;
 	}
 

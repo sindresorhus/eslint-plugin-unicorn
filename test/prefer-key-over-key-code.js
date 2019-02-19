@@ -465,7 +465,55 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 				}
 			});
 			`,
-			errors: [error('charCode'), error('keyCode')]
+			errors: [error('charCode'), error('keyCode')],
+			output: `
+			const e = {}
+			foo.addEventListener('click', (e, r, fg) => {
+				function a() {
+					if (true) {
+						{
+							{
+								const { charCode } = e;
+								console.log(e.keyCode, charCode);
+							}
+						}
+					}
+				}
+			});
+			`
+		},
+		{
+			code: `
+			const e = {}
+			foo.addEventListener('click', (e, r, fg) => {
+				function a() {
+					if (true) {
+						{
+							{
+								const { charCode } = e;
+								console.log(e.keyCode, charCode);
+							}
+						}
+					}
+				}
+			});
+			`,
+			errors: [error('charCode'), error('keyCode')],
+			output: `
+			const e = {}
+			foo.addEventListener('click', (e, r, fg) => {
+				function a() {
+					if (true) {
+						{
+							{
+								const { charCode } = e;
+								console.log(e.keyCode, charCode);
+							}
+						}
+					}
+				}
+			});
+			`
 		}
 	]
 });
