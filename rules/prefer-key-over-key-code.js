@@ -2,6 +2,7 @@
 const getDocsUrl = require('./utils/get-docs-url');
 
 const keys = ['keyCode', 'charCode', 'which'];
+const extraCitation = 'See https://goo.gl/cRK532 for more info.';
 // https://github.com/facebook/react/blob/b87aabd/packages/react-dom/src/events/getEventKey.js#L36
 // only meta characters which can't be deciphered from String.fromCharCode
 const translateToKey = {
@@ -47,13 +48,20 @@ const isPropertyNamedAddEventListener = node =>
 	node &&
 	node.callee &&
 	node.callee.property &&
-	node.callee.property.name === 'addEventListener' &&
-	node;
+	node.callee.property.name === 'addEventListener';
 
-const isInsideEventCallback = ancestors => {
-	return ancestors.reduce((isInside, current) => {
-		return isInside || isPropertyNamedAddEventListener(current);
-	}, null);
+const getEventNode = node => {
+	const eventListener = getMatchingAncestorOfType(node, 'CallExpression', isPropertyNamedAddEventListener);
+	const callback = eventListener && eventListener.arguments && eventListener.arguments[1];
+	switch (callback && callback.type) {
+		case 'ArrowFunctionExpression':
+		case 'FunctionExpression': {
+			return callback.params && callback.params[0];
+		}
+
+		default:
+			return null;
+	}
 };
 
 const isPropertyOf = (node, objectName) => {
@@ -65,22 +73,12 @@ const isPropertyOf = (node, objectName) => {
 	);
 };
 
-const getEventNode = node => {
-	switch (node && node.type) {
-		case 'ArrowFunctionExpression':
-		case 'FunctionExpression': {
-			return node.params && node.params[0] && node.params[0].name;
-		}
-
-		default:
-			return null;
-	}
-};
-
-const getNearestAncestorByType = (node, type) => {
+// Third argument is a condition function, as in passed to Array.filter
+// Helpful if nearest node of type also needs to have some other property
+const getMatchingAncestorOfType = (node, type, fn = n => n || true) => {
 	let current = node;
 	while (current) {
-		if (current.type === type) {
+		if (current.type === type && fn(current)) {
 			return current;
 		}
 
@@ -90,23 +88,8 @@ const getNearestAncestorByType = (node, type) => {
 	return null;
 };
 
-const extraCitation = 'See https://goo.gl/cRK532 for more info.';
-
-const util = context => {
-	const ancestors = context.getAncestors();
-	const callExpressionNode = isInsideEventCallback(
-		ancestors.filter(n => n.type === 'CallExpression')
-	);
-	const event = getEventNode(
-		callExpressionNode && callExpressionNode.arguments[1]
-	);
-	return {
-		event
-	};
-};
-
 const fix = node => fixer => {
-	const nearestIf = getNearestAncestorByType(node, 'IfStatement');
+	const nearestIf = getMatchingAncestorOfType(node, 'IfStatement');
 	if (!nearestIf) {
 		return;
 	}
@@ -140,10 +123,13 @@ const create = context => {
 
 	return {
 		'Identifier:matches([name=keyCode], [name=charCode], [name=which])'(node) {
-			const {event} = util(context);
 			// Normal case when usage is direct -> event.keyCode
+			const event = getEventNode(node);
+			if (!event) {
+				return;
+			}
 
-			const isPropertyOfEvent = isPropertyOf(node, event);
+			const isPropertyOfEvent = isPropertyOf(node, event.name);
 			if (isPropertyOfEvent) {
 				report(node);
 			}
@@ -155,17 +141,20 @@ const create = context => {
 				return;
 			}
 
-			const {event} = util(context);
-
+			const event = getEventNode(node);
+			if (!event) {
+				return;
+			}
 			// Destructured case
-			const nearestVariableDeclarator = getNearestAncestorByType(
+
+			const nearestVariableDeclarator = getMatchingAncestorOfType(
 				node,
 				'VariableDeclarator'
 			);
 			const isDestructuredFromEvent =
 				nearestVariableDeclarator &&
 				nearestVariableDeclarator.init &&
-				nearestVariableDeclarator.init.name === event;
+				nearestVariableDeclarator.init.name === event.name;
 
 			if (isDestructuredFromEvent) {
 				report(node.value);

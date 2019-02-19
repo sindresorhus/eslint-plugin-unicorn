@@ -18,6 +18,10 @@ ruleTester.run('prefer-key-over-key-code', rule, {
 		`window.addEventListener('click', e => {
 			console.log(e.key);
 		})`,
+		`window.addEventListener('click', () => {
+			console.log(keyCode, which, charCode);
+			console.log(window.keyCode);
+		})`,
 		'const { keyCode } = e',
 		'const { charCode } = e',
 		'const {a, b, c} = event',
