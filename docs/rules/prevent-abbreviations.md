@@ -53,7 +53,7 @@ The example below disables the default `e` => `event` replacement and adds a cus
 ]
 ```
 
-### extendDefaults
+### extendDefaultReplacements
 
 Pass `false` here to override the default `replacements` completely.
 
@@ -63,7 +63,7 @@ The example below disables all the default replacements and enables a custom `cm
 "unicorn/prevent-abbreviations": [
 	"error",
 	{
-		"extendDefaults": false,
+		"extendDefaultReplacements": false,
 		"replacements": {
 			"cmd": {
 				"command": true

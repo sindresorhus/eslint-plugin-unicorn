@@ -47,7 +47,7 @@ const extendedOptions = [{
 }];
 
 const customOptions = [{
-	extendDefaults: false,
+	extendDefaultReplacements: false,
 	replacements: {
 		args: {
 			arguments: true

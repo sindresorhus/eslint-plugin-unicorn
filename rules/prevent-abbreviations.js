@@ -88,8 +88,8 @@ const defaultReplacements = {
 	}
 };
 
-const prepareOptions = ({extendDefaults = true, replacements = {}} = {}) => {
-	const mergedReplacements = extendDefaults ?
+const prepareOptions = ({extendDefaultReplacements = true, replacements = {}} = {}) => {
+	const mergedReplacements = extendDefaultReplacements ?
 		defaultsDeep({}, replacements, defaultReplacements) :
 		replacements;
 
@@ -333,7 +333,7 @@ const create = context => {
 const schema = [{
 	type: 'object',
 	properties: {
-		extendDefaults: {type: 'boolean'},
+		extendDefaultReplacements: {type: 'boolean'},
 		replacements: {$ref: '#/items/0/definitions/abbreviations'}
 	},
 	additionalProperties: false,
