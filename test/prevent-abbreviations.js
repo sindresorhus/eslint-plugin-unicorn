@@ -67,9 +67,11 @@ ruleTester.run('prevent-abbreviations', rule, {
 	valid: [
 		'let x',
 		'let error',
+		'const {error} = {}',
 		'error => {}',
 		'httpError => {}',
 		'(function (error) {})',
+		'(function ({error}) {})',
 		'function f(x) {}',
 		'(class {})',
 		'(class C {})',
@@ -380,7 +382,13 @@ ruleTester.run('prevent-abbreviations', rule, {
 				};
 			`,
 			errors: createErrors()
-		}
+		},
+
+		{
+			code: '({err}) => err',
+			output: '({err: error}) => error',
+			errors: createErrors()
+		},
 	]
 });
 
@@ -448,6 +456,18 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 			output: `
 				const error_ = {};
 				export const error = error_;
+			`,
+			errors: createErrors()
+		},
+
+		{
+			code: `
+				class err {};
+				console.log(err);
+			`,
+			output: `
+				class error {};
+				console.log(error);
 			`,
 			errors: createErrors()
 		},
