@@ -516,12 +516,41 @@ ruleTester.run('prevent-abbreviations', rule, {
 			code: 'this.err = 1',
 			errors: createErrors()
 		}),
+
 		noFixingTestCase({
 			code: `
 				class C {
 					err() {}
 				}
 			`,
+			errors: createErrors()
+		}),
+
+		noFixingTestCase({
+			code: 'this._err = 1',
+			errors: createErrors('The property `_err` should be named `error`. A more descriptive name will do too.')
+		}),
+		noFixingTestCase({
+			code: 'this.__err__ = 1',
+			errors: createErrors()
+		}),
+		noFixingTestCase({
+			code: 'this.e_ = 1',
+			errors: createErrors()
+		}),
+
+		{
+			code: 'let err_',
+			output: 'let error',
+			errors: createErrors('The variable `err_` should be named `error`. A more descriptive name will do too.')
+		},
+		{
+			code: 'let __err__',
+			output: 'let error',
+			errors: createErrors()
+		},
+		noFixingTestCase({
+			code: 'let _e',
 			errors: createErrors()
 		})
 	]

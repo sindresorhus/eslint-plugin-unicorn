@@ -105,8 +105,18 @@ const prepareOptions = ({
 	};
 };
 
+const normalizeName = name => {
+	// Leading underscores are commonly used to flag private/protected identifiers,
+	// Trailing underscores are used as a common way to avoid name collision.
+	// We strip them before checking if the name is discouraged.
+	name = name.replace(/^_+|_+$/gu, '');
+
+	return name;
+};
+
 const getNameReplacements = (replacements, name) => {
-	const variableNameReplacements = replacements.get(name);
+	const normalizedName = normalizeName(name);
+	const variableNameReplacements = replacements.get(normalizedName);
 
 	if (!variableNameReplacements) {
 		return [];
