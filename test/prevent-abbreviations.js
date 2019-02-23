@@ -262,7 +262,24 @@ ruleTester.run('prevent-abbreviations', rule, {
 			output: `
 				let error;
 				{
-					let error2;
+					let error_;
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: `
+				let error;
+				let error_;
+				{
+					let err;
+				}
+			`,
+			output: `
+				let error;
+				let error_;
+				{
+					let error__;
 				}
 			`,
 			errors: createErrors()
@@ -278,7 +295,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 			output: `
 				let error;
 				{
-					let error2;
+					let error_;
 					console.log(error);
 				}
 			`,
@@ -295,8 +312,8 @@ ruleTester.run('prevent-abbreviations', rule, {
 			output: `
 				let error;
 				{
-					let error2;
-					console.log(error, error2);
+					let error_;
+					console.log(error, error_);
 				}
 			`,
 			errors: createErrors()
@@ -428,8 +445,8 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 				export const error = err;
 			`,
 			output: `
-				const error2 = {};
-				export const error = error2;
+				const error_ = {};
+				export const error = error_;
 			`,
 			errors: createErrors()
 		},
