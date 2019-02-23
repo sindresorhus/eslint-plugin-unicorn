@@ -137,13 +137,13 @@ const formatMessage = (discouragedName, replacements) => {
 	const message = [];
 
 	if (replacements.length === 1) {
-		message.push(`This variable should be named \`${replacements[0]}\`.`);
+		message.push(`The variable \`${discouragedName}\` should be named \`${replacements[0]}\`.`);
 	} else {
 		const replacementsText = replacements
 			.map(replacement => `\`${replacement}\``)
 			.join(', ');
 
-		message.push('Please rename this variable.');
+		message.push(`Please rename the variable \`${discouragedName}\`.`);
 		message.push(`Suggested names are: ${replacementsText}.`);
 	}
 
@@ -293,7 +293,7 @@ const create = context => {
 
 		const problem = {
 			node: definition.name,
-			message: formatMessage(definition.name, variableReplacements)
+			message: formatMessage(definition.name.name, variableReplacements)
 		};
 
 		if (variableReplacements.length === 1 && shouldFix(variable)) {

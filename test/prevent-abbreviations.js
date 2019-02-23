@@ -68,6 +68,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		'let x',
 		'let error',
 		'error => {}',
+		'httpError => {}',
 		'(function (error) {})',
 		'function f(x) {}',
 		'(class {})',
@@ -154,15 +155,15 @@ ruleTester.run('prevent-abbreviations', rule, {
 	invalid: [
 		{
 			code: 'let e',
-			errors: createErrors('Please rename this variable. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+			errors: createErrors('Please rename the variable `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
 		},
 		{
 			code: 'let err',
-			errors: createErrors('This variable should be named `error`. A more descriptive name will do too.')
+			errors: createErrors('The variable `err` should be named `error`. A more descriptive name will do too.')
 		},
 		{
 			code: 'let evt',
-			errors: createErrors('This variable should be named `event`. A more descriptive name will do too.')
+			errors: createErrors('The variable `evt` should be named `event`. A more descriptive name will do too.')
 		},
 
 		{
