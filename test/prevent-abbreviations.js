@@ -17,6 +17,10 @@ const moduleRuleTester = avaRuleTester(test, {
 	}
 });
 
+const babelRuleTester = avaRuleTester(test, {
+	parser: 'babel-eslint'
+});
+
 const noFixingTestCase = test => Object.assign({}, test, {
 	output: test.code
 });
@@ -47,6 +51,7 @@ const extendedOptions = [{
 }];
 
 const customOptions = [{
+	checkPropertyNames: false,
 	extendDefaultReplacements: false,
 	replacements: {
 		args: {
@@ -66,20 +71,58 @@ const customOptions = [{
 ruleTester.run('prevent-abbreviations', rule, {
 	valid: [
 		'let x',
+		'({x: 1})',
+		'({x() {}})',
+		'({[err]() {}})',
 		'let error',
 		'const {error} = {}',
+		'({error: 1})',
+		'({[err]: 1})',
 		'error => {}',
+		'({error}) => ({error})',
 		'httpError => {}',
+		'({httpError}) => ({httpError})',
 		'(function (error) {})',
 		'(function ({error}) {})',
 		'function f(x) {}',
+		'function f({x: y}) {}',
 		'(class {})',
 		'(class C {})',
 		'class C {}',
+		`
+			(class {
+				error() {}
+			})
+		`,
+		`
+			(class {
+				[err]() {}
+			})
+		`,
+		`
+			class C {
+				x() {}
+			}
+		`,
+		'foo.error',
+		'foo.x',
+
+		// Accessing banned names is allowed (as in `camelcase` rule)
+		'foo.err',
+		'foo.err()',
+		'foo.bar.err',
+		'foo.err.bar',
+		'this.err',
+		'({err: error}) => error',
+		'const {err: httpError} = {}',
 
 		// `err` in not defined, should not be report (could be reported by `no-unused-vars`)
 		'console.log(err)',
 
+		// `err` would be reported by `quote-props` if it's a problem for user
+		'({"err": 1})',
+
+		// Testing that options apply
 		'let c',
 		{
 			code: 'var c',
@@ -94,6 +137,11 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'function e() {}',
 			options: extendedOptions
+		},
+
+		{
+			code: '({err: 1})',
+			options: customOptions
 		},
 
 		// Renaming to `arguments` would result in a `SyntaxError`, so it should keep `args`
@@ -155,19 +203,63 @@ ruleTester.run('prevent-abbreviations', rule, {
 	],
 
 	invalid: [
-		{
+		noFixingTestCase({
 			code: 'let e',
 			errors: createErrors('Please rename the variable `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
-		},
+		}),
+		noFixingTestCase({
+			code: '({e: 1})',
+			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+		}),
+		noFixingTestCase({
+			code: 'this.e = 1',
+			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+		}),
+		noFixingTestCase({
+			code: '({e() {}})',
+			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+		}),
+		noFixingTestCase({
+			code: '(class {e() {}})',
+			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+		}),
+
 		{
 			code: 'let err',
+			output: 'let error',
 			errors: createErrors('The variable `err` should be named `error`. A more descriptive name will do too.')
 		},
+		noFixingTestCase({
+			code: '({err: 1})',
+			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
+		}),
+		noFixingTestCase({
+			code: 'this.err = 1',
+			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
+		}),
+		noFixingTestCase({
+			code: '({err() {}})',
+			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
+		}),
+		noFixingTestCase({
+			code: '(class {err() {}})',
+			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
+		}),
+
 		{
 			code: 'let evt',
 			errors: createErrors('The variable `evt` should be named `event`. A more descriptive name will do too.')
 		},
+		noFixingTestCase({
+			code: '({evt: 1})',
+			errors: createErrors('The property `evt` should be named `event`. A more descriptive name will do too.')
+		}),
+		noFixingTestCase({
+			code: 'foo.evt = 1',
+			errors: createErrors('The property `evt` should be named `event`. A more descriptive name will do too.')
+		}),
 
+		// Testing that options apply
 		{
 			code: 'let args',
 			output: 'let arguments',
@@ -234,6 +326,16 @@ ruleTester.run('prevent-abbreviations', rule, {
 			options: customOptions,
 			errors: createErrors()
 		},
+
+		noFixingTestCase({
+			code: '({err: 1})',
+			errors: createErrors()
+		}),
+		noFixingTestCase({
+			code: '({err: 1})',
+			options: extendedOptions,
+			errors: createErrors()
+		}),
 
 		noFixingTestCase({
 			code: `
@@ -389,11 +491,46 @@ ruleTester.run('prevent-abbreviations', rule, {
 			output: '({err: error}) => error',
 			errors: createErrors()
 		},
+
+		noFixingTestCase({
+			code: 'const foo = {err: 1}',
+			errors: createErrors()
+		}),
+		noFixingTestCase({
+			code: `
+				const foo = {
+					err() {}
+				};
+			`,
+			errors: createErrors()
+		}),
+		noFixingTestCase({
+			code: 'foo.err = 1',
+			errors: createErrors()
+		}),
+		noFixingTestCase({
+			code: 'foo.bar.err = 1',
+			errors: createErrors()
+		}),
+		noFixingTestCase({
+			code: 'this.err = 1',
+			errors: createErrors()
+		}),
+		noFixingTestCase({
+			code: `
+				class C {
+					err() {}
+				}
+			`,
+			errors: createErrors()
+		})
 	]
 });
 
 moduleRuleTester.run('prevent-abbreviations', rule, {
-	valid: [],
+	valid: [
+		'import {err as foo} from "foo"'
+	],
 
 	invalid: [
 		{
@@ -490,6 +627,37 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 				console.log(error);
 			`,
 			errors: createErrors()
-		}
+		},
+
+		noFixingTestCase({
+			code: `
+				let foo;
+				export {foo as err};
+			`,
+			errors: createErrors()
+		})
+	]
+});
+
+babelRuleTester.run('prevent-abbreviations', rule, {
+	valid: [],
+
+	invalid: [
+		noFixingTestCase({
+			code: '(class {e = 1})',
+			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+		}),
+		noFixingTestCase({
+			code: '(class {err = 1})',
+			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
+		}),
+		noFixingTestCase({
+			code: `
+				class C {
+					err = () => {}
+				}
+			`,
+			errors: createErrors()
+		})
 	]
 });

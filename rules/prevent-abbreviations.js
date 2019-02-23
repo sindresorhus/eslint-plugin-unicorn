@@ -88,18 +88,25 @@ const defaultReplacements = {
 	}
 };
 
-const prepareOptions = ({extendDefaultReplacements = true, replacements = {}} = {}) => {
+const prepareOptions = ({
+	checkPropertyNames = true,
+	extendDefaultReplacements = true,
+	replacements = {}
+} = {}) => {
 	const mergedReplacements = extendDefaultReplacements ?
 		defaultsDeep({}, replacements, defaultReplacements) :
 		replacements;
 
-	return new Map(toPairs(mergedReplacements).map(([discouragedName, replacements]) => {
-		return [discouragedName, new Map(toPairs(replacements))];
-	}));
+	return {
+		checkPropertyNames,
+		replacements: new Map(toPairs(mergedReplacements).map(([discouragedName, replacements]) => {
+			return [discouragedName, new Map(toPairs(replacements))];
+		}))
+	};
 };
 
-const getVariableReplacements = (replacements, variable) => {
-	const variableNameReplacements = replacements.get(variable.name);
+const getNameReplacements = (replacements, name) => {
+	const variableNameReplacements = replacements.get(name);
 
 	if (!variableNameReplacements) {
 		return [];
@@ -133,17 +140,17 @@ const collideWithArgumentsSpecial = (names, scopes) => {
 
 const anotherNameMessage = 'A more descriptive name will do too.';
 
-const formatMessage = (discouragedName, replacements) => {
+const formatMessage = (discouragedName, replacements, nameTypeText) => {
 	const message = [];
 
 	if (replacements.length === 1) {
-		message.push(`The variable \`${discouragedName}\` should be named \`${replacements[0]}\`.`);
+		message.push(`The ${nameTypeText} \`${discouragedName}\` should be named \`${replacements[0]}\`.`);
 	} else {
 		const replacementsText = replacements
 			.map(replacement => `\`${replacement}\``)
 			.join(', ');
 
-		message.push(`Please rename the variable \`${discouragedName}\`.`);
+		message.push(`Please rename the ${nameTypeText} \`${discouragedName}\`.`);
 		message.push(`Suggested names are: ${replacementsText}.`);
 	}
 
@@ -229,8 +236,54 @@ const isClassVariable = variable => {
 	return definition.type === 'ClassName';
 };
 
+const shouldReportIdentifierAsProperty = identifier => {
+	if (identifier.parent.type === 'MemberExpression' &&
+		identifier.parent.property === identifier &&
+		!identifier.parent.computed &&
+		identifier.parent.parent.type === 'AssignmentExpression' &&
+		identifier.parent.parent.left === identifier.parent
+	) {
+		return true;
+	}
+
+	if (identifier.parent.type === 'Property' &&
+		identifier.parent.key === identifier &&
+		!identifier.parent.computed &&
+		!identifier.parent.shorthand && // Shorthand properties are reported and fixed as variables
+		identifier.parent.parent.type === 'ObjectExpression'
+	) {
+		return true;
+	}
+
+	if (identifier.parent.type === 'ExportSpecifier' &&
+		identifier.parent.exported === identifier &&
+		identifier.parent.local !== identifier // Same as shorthand properties above
+	) {
+		return true;
+	}
+
+	if (identifier.parent.type === 'MethodDefinition' &&
+		identifier.parent.key === identifier &&
+		!identifier.parent.computed
+	) {
+		return true;
+	}
+
+	if (identifier.parent.type === 'ClassProperty' &&
+		identifier.parent.key === identifier &&
+		!identifier.parent.computed
+	) {
+		return true;
+	}
+
+	return false;
+};
+
 const create = context => {
-	const replacements = prepareOptions(context.options[0]);
+	const {
+		checkPropertyNames,
+		replacements
+	} = prepareOptions(context.options[0]);
 
 	// A `class` declaration produces two variables in two scopes:
 	// the inner class scope, and the outer one (whereever the class is declared).
@@ -273,7 +326,7 @@ const create = context => {
 	};
 
 	const checkVariable = variable => {
-		const variableReplacements = getVariableReplacements(replacements, variable);
+		const variableReplacements = getNameReplacements(replacements, variable.name);
 
 		if (variableReplacements.length === 0) {
 			return;
@@ -293,7 +346,7 @@ const create = context => {
 
 		const problem = {
 			node: definition.name,
-			message: formatMessage(definition.name.name, variableReplacements)
+			message: formatMessage(definition.name.name, variableReplacements, 'variable')
 		};
 
 		if (variableReplacements.length === 1 && shouldFix(variable)) {
@@ -324,6 +377,29 @@ const create = context => {
 	};
 
 	return {
+		Identifier(node) {
+			if (!checkPropertyNames) {
+				return;
+			}
+
+			const identifierReplacements = getNameReplacements(replacements, node.name);
+
+			if (identifierReplacements.length === 0) {
+				return;
+			}
+
+			if (!shouldReportIdentifierAsProperty(node)) {
+				return;
+			}
+
+			const problem = {
+				node,
+				message: formatMessage(node.name, identifierReplacements, 'property')
+			};
+
+			context.report(problem);
+		},
+
 		'Program:exit'() {
 			checkScope(context.getScope());
 		}
@@ -333,6 +409,7 @@ const create = context => {
 const schema = [{
 	type: 'object',
 	properties: {
+		checkPropertyNames: {type: 'boolean'},
 		extendDefaultReplacements: {type: 'boolean'},
 		replacements: {$ref: '#/items/0/definitions/abbreviations'}
 	},
