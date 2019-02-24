@@ -72,6 +72,10 @@ const customOptions = [{
 	}
 }];
 
+const dontCheckVariablesOptions = [{
+	checkVariableNames: false
+}];
+
 ruleTester.run('prevent-abbreviations', rule, {
 	valid: [
 		'let x',
@@ -155,6 +159,11 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'let E',
 			options: extendedOptions
+		},
+
+		{
+			code: 'let err',
+			options: dontCheckVariablesOptions
 		},
 
 		// Renaming to `arguments` would result in a `SyntaxError`, so it should keep `args`
@@ -372,6 +381,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 			options: customOptions,
 			errors: createErrors()
 		},
+
+		noFixingTestCase({
+			code: '({err: 1})',
+			options: dontCheckVariablesOptions,
+			errors: createErrors()
+		}),
 
 		noFixingTestCase({
 			code: `

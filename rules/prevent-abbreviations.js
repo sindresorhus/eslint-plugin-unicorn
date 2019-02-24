@@ -96,6 +96,7 @@ const defaultReplacements = {
 const prepareOptions = ({
 	matchPascalCase = true,
 	checkPropertyNames = true,
+	checkVariableNames = true,
 	extendDefaultReplacements = true,
 	replacements = {}
 } = {}) => {
@@ -106,6 +107,7 @@ const prepareOptions = ({
 	return {
 		matchPascalCase,
 		checkPropertyNames,
+		checkVariableNames,
 		replacements: new Map(toPairs(mergedReplacements).map(([discouragedName, replacements]) => {
 			return [discouragedName, new Map(toPairs(replacements))];
 		}))
@@ -313,6 +315,7 @@ const create = context => {
 	const {
 		matchPascalCase,
 		checkPropertyNames,
+		checkVariableNames,
 		replacements
 	} = prepareOptions(context.options[0]);
 
@@ -432,6 +435,10 @@ const create = context => {
 		},
 
 		'Program:exit'() {
+			if (!checkVariableNames) {
+				return;
+			}
+
 			checkScope(context.getScope());
 		}
 	};
@@ -442,6 +449,7 @@ const schema = [{
 	properties: {
 		matchPascalCase: {type: 'boolean'},
 		checkPropertyNames: {type: 'boolean'},
+		checkVariableNames: {type: 'boolean'},
 		extendDefaultReplacements: {type: 'boolean'},
 		replacements: {$ref: '#/items/0/definitions/abbreviations'}
 	},
