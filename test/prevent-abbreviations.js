@@ -51,6 +51,7 @@ const extendedOptions = [{
 }];
 
 const customOptions = [{
+	matchPascalCase: false,
 	checkPropertyNames: false,
 	extendDefaultReplacements: false,
 	replacements: {
@@ -64,6 +65,9 @@ const customOptions = [{
 		},
 		err: {
 			error: true
+		},
+		Err: {
+			Errand: true
 		}
 	}
 }];
@@ -142,6 +146,15 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: '({err: 1})',
 			options: customOptions
+		},
+
+		{
+			code: 'let E',
+			options: customOptions
+		},
+		{
+			code: 'let E',
+			options: extendedOptions
 		},
 
 		// Renaming to `arguments` would result in a `SyntaxError`, so it should keep `args`
@@ -336,6 +349,29 @@ ruleTester.run('prevent-abbreviations', rule, {
 			options: extendedOptions,
 			errors: createErrors()
 		}),
+
+		noFixingTestCase({
+			code: 'let E',
+			errors: createErrors()
+		}),
+
+		{
+			code: 'class Err {}',
+			output: 'class Error_ {}',
+			errors: createErrors()
+		},
+		{
+			code: 'class Err {}',
+			output: 'class Error_ {}',
+			options: extendedOptions,
+			errors: createErrors()
+		},
+		{
+			code: 'class Err {}',
+			output: 'class Errand {}',
+			options: customOptions,
+			errors: createErrors()
+		},
 
 		noFixingTestCase({
 			code: `
@@ -552,6 +588,39 @@ ruleTester.run('prevent-abbreviations', rule, {
 		noFixingTestCase({
 			code: 'let _e',
 			errors: createErrors()
+		}),
+
+		{
+			code: 'class Err {}',
+			output: 'class Error_ {}',
+			errors: createErrors('The variable `Err` should be named `Error`. A more descriptive name will do too.')
+		},
+		{
+			code: 'class Cb {}',
+			output: 'class Callback {}',
+			errors: createErrors('The variable `Cb` should be named `Callback`. A more descriptive name will do too.')
+		},
+		noFixingTestCase({
+			code: 'class E {}',
+			errors: createErrors('Please rename the variable `E`. Suggested names are: `Error`, `Event`. A more descriptive name will do too.')
+		}),
+		{
+			code: 'const Err = 1;',
+			output: 'const Error_ = 1;',
+			errors: createErrors()
+		},
+		{
+			code: 'const _Err_ = 1;',
+			output: 'const Error_ = 1;',
+			errors: createErrors()
+		},
+		noFixingTestCase({
+			code: '({Err: 1})',
+			errors: createErrors('The property `Err` should be named `Error`. A more descriptive name will do too.')
+		}),
+		noFixingTestCase({
+			code: '({E: 1})',
+			errors: createErrors('Please rename the property `E`. Suggested names are: `Error`, `Event`. A more descriptive name will do too.')
 		})
 	]
 });

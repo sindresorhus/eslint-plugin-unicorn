@@ -1,9 +1,14 @@
 'use strict';
 const defaultsDeep = require('lodash.defaultsdeep');
 const toPairs = require('lodash.topairs');
+const camelCase = require('lodash.camelcase');
+const upperfirst = require('lodash.upperfirst');
 
 const getDocsUrl = require('./utils/get-docs-url');
 const avoidCapture = require('./utils/avoid-capture');
+
+const pascalCase = str => upperfirst(camelCase(str));
+const isPascalCase = str => str === pascalCase(str);
 
 const defaultReplacements = {
 	err: {
@@ -89,6 +94,7 @@ const defaultReplacements = {
 };
 
 const prepareOptions = ({
+	matchPascalCase = true,
 	checkPropertyNames = true,
 	extendDefaultReplacements = true,
 	replacements = {}
@@ -98,6 +104,7 @@ const prepareOptions = ({
 		replacements;
 
 	return {
+		matchPascalCase,
 		checkPropertyNames,
 		replacements: new Map(toPairs(mergedReplacements).map(([discouragedName, replacements]) => {
 			return [discouragedName, new Map(toPairs(replacements))];
@@ -105,17 +112,29 @@ const prepareOptions = ({
 	};
 };
 
-const normalizeName = name => {
+const normalizeName = (name, matchPascalCase) => {
 	// Leading underscores are commonly used to flag private/protected identifiers,
 	// Trailing underscores are used as a common way to avoid name collision.
 	// We strip them before checking if the name is discouraged.
 	name = name.replace(/^_+|_+$/gu, '');
 
-	return name;
+	const originalIsInPascalCase = matchPascalCase && isPascalCase(name);
+	if (originalIsInPascalCase) {
+		name = camelCase(name);
+	}
+
+	return {
+		originalIsInPascalCase,
+		normalizedName: name
+	};
 };
 
-const getNameReplacements = (replacements, name) => {
-	const normalizedName = normalizeName(name);
+const getNameReplacements = (replacements, name, matchPascalCase) => {
+	const {
+		originalIsInPascalCase,
+		normalizedName
+	} = normalizeName(name, matchPascalCase);
+
 	const variableNameReplacements = replacements.get(normalizedName);
 
 	if (!variableNameReplacements) {
@@ -124,6 +143,7 @@ const getNameReplacements = (replacements, name) => {
 
 	return [...variableNameReplacements.keys()]
 		.filter(name => variableNameReplacements.get(name))
+		.map(originalIsInPascalCase ? pascalCase : name => name)
 		.sort();
 };
 
@@ -291,6 +311,7 @@ const shouldReportIdentifierAsProperty = identifier => {
 
 const create = context => {
 	const {
+		matchPascalCase,
 		checkPropertyNames,
 		replacements
 	} = prepareOptions(context.options[0]);
@@ -336,7 +357,7 @@ const create = context => {
 	};
 
 	const checkVariable = variable => {
-		const variableReplacements = getNameReplacements(replacements, variable.name);
+		const variableReplacements = getNameReplacements(replacements, variable.name, matchPascalCase);
 
 		if (variableReplacements.length === 0) {
 			return;
@@ -392,7 +413,7 @@ const create = context => {
 				return;
 			}
 
-			const identifierReplacements = getNameReplacements(replacements, node.name);
+			const identifierReplacements = getNameReplacements(replacements, node.name, matchPascalCase);
 
 			if (identifierReplacements.length === 0) {
 				return;
@@ -419,6 +440,7 @@ const create = context => {
 const schema = [{
 	type: 'object',
 	properties: {
+		matchPascalCase: {type: 'boolean'},
 		checkPropertyNames: {type: 'boolean'},
 		extendDefaultReplacements: {type: 'boolean'},
 		replacements: {$ref: '#/items/0/definitions/abbreviations'}
