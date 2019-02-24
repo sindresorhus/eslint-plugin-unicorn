@@ -2,9 +2,11 @@
 
 Using complete words results in more readable code. Not everyone knows all your abbreviations. You only write code once, but it's read many times.
 
-Default replacements are available [here](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/rules/prevent-abbreviations.js#L7).
+This rule can also be used to replace terms, disallowed words, etc. See [`replacements`](#replacements) and [`extendDefaultReplacements`](#extenddefaultreplacements) options.
 
-This rule is fixable for abbreviations with exactly one replacement defined.
+Default replacements are available [here](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/rules/prevent-abbreviations.js#L13).
+
+This rule is fixable only for variable names where abbreviation has with exactly one replacement defined.
 
 
 ## Fail
@@ -15,6 +17,20 @@ const e = new Error();
 
 ```js
 const e = document.createEvent('Event');
+```
+
+```js
+const levels = {
+	err: 0
+};
+```
+
+```js
+this.evt = 'click';
+```
+
+```js
+class Btn {}
 ```
 
 
@@ -28,6 +44,20 @@ const error = new Error();
 const event = document.createEvent('Event');
 ```
 
+```js
+const levels = {
+	error: 0
+};
+```
+
+```js
+this.event = 'click';
+```
+
+```js
+class Button {}
+```
+
 
 ## Options
 
@@ -35,7 +65,7 @@ const event = document.createEvent('Event');
 
 You can extend default replacements by passing this option.
 
-The example below disables the default `e` => `event` replacement and adds a custom `cmd` => `command` one.
+The example below disables the default `e` → `event` replacement and adds a custom `cmd` → `command` one.
 
 ```js
 "unicorn/prevent-abbreviations": [
@@ -57,7 +87,7 @@ The example below disables the default `e` => `event` replacement and adds a cus
 
 Pass `false` here to override the default `replacements` completely.
 
-The example below disables all the default replacements and enables a custom `cmd` => `command` one.
+The example below disables all the default replacements and enables a custom `cmd` → `command` one.
 
 ```js
 "unicorn/prevent-abbreviations": [
@@ -72,6 +102,40 @@ The example below disables all the default replacements and enables a custom `cm
 	}
 ]
 ```
+
+### matchPascalCase
+
+By default replacements defined in camelCase match PascalCase identifiers too. For example, default replacement `evt` → `event` will match both `evt` and `Evt` (which could be automatically fixed to `Event`).
+
+Pass `false` here to disable this case-agnostic matching.
+
+The example below defines two replacements `res` → `response` and `Res` → `Result` different in case.
+
+```js
+"unicorn/prevent-abbreviations": [
+	"error",
+	{
+		"matchPascalCase": false,
+		"extendDefaultReplacements": false,
+		"replacements": {
+			"res": {
+				"response": true
+			},
+			"Res": {
+				"Result": true
+			}
+		}
+	}
+]
+```
+
+### checkPropertyNames
+
+Pass `false` here to disable checking property names.
+
+### checkVariableNames
+
+Pass `false` here to disable checking variable names.
 
 
 ## Edge cases
