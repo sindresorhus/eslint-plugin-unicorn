@@ -32,8 +32,7 @@ const report = (context, node, target, pattern) => {
 
 const create = context => ({
 	BinaryExpression: node => {
-		const {left} = node;
-		const {right} = node;
+		const {left, right} = node;
 
 		if (isIndexOf(left)) {
 			const target = left.callee.object;
@@ -51,10 +50,6 @@ const create = context => ({
 				if (['!==', '!=', '>', '===', '=='].includes(node.operator) && isNegativeOne(right.operator, value)) {
 					report(context, node, target, pattern);
 				}
-			}
-
-			if (right.type !== 'Literal') {
-				return false;
 			}
 
 			if (right.type === 'Literal' && ['>=', '<'].includes(node.operator) && right.value === 0) {

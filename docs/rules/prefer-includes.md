@@ -1,6 +1,6 @@
 # Prefer `.includes()` over `.indexOf()` when checking for existence
 
-All built-ins have includes in addition to indexOf. Prefer includes over comparing the value of indexO
+All built-ins have `.includes()` in addition to `.indexOf()`. Prefer `.includes()` over comparing the value of `.indexOf()`
 
 This rule is fixable.
 
