@@ -388,6 +388,9 @@ const shouldReportIdentifierAsProperty = identifier => {
 
 const create = context => {
 	const {
+		ecmaVersion
+	} = context.parserOptions;
+	const {
 		matchPascalCase,
 		checkPropertyNames,
 		checkVariableNames,
@@ -460,7 +463,7 @@ const create = context => {
 
 		if (variableReplacements.length === 1 && shouldFix(variable)) {
 			const [replacement] = variableReplacements;
-			const captureAvoidingReplacement = avoidCapture(replacement, scopes);
+			const captureAvoidingReplacement = avoidCapture(replacement, scopes, ecmaVersion);
 
 			problem.fix = fixer => {
 				return variableIdentifiers(variable)

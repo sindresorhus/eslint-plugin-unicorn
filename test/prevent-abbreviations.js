@@ -8,18 +8,18 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const browserRuleTester = avaRuleTester(test, {
+const browserES5RuleTester = avaRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 5
+	},
 	env: {
-		es6: true,
 		browser: true
 	}
 });
 
 const moduleRuleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
 	parserOptions: {
+		ecmaVersion: 2019,
 		sourceType: 'module'
 	}
 });
@@ -75,6 +75,9 @@ const customOptions = [{
 		},
 		Err: {
 			Errand: true
+		},
+		y: {
+			yield: true
 		}
 	}
 }];
@@ -649,27 +652,71 @@ ruleTester.run('prevent-abbreviations', rule, {
 			code: 'let doc',
 			output: 'let document',
 			errors: createErrors()
-		}
-	]
-});
+		},
 
-browserRuleTester.run('prevent-abbreviations', rule, {
-	valid: [],
-	invalid: [
+		// `package` is a reserved word in strict mode
 		{
-			code: 'let doc',
-			output: 'let document_',
+			code: 'let pkg',
+			output: 'let package',
 			errors: createErrors()
 		},
 		{
 			code: `
-				let doc;
+				"use strict";
+				let pkg;
+			`,
+			output: `
+				"use strict";
+				let package_;
+			`,
+			errors: createErrors()
+		},
+
+		{
+			code: 'let y',
+			output: 'let yield_',
+			options: customOptions,
+			errors: createErrors()
+		}
+	]
+});
+
+browserES5RuleTester.run('prevent-abbreviations', rule, {
+	valid: [],
+	invalid: [
+		{
+			code: 'var doc',
+			output: 'var document_',
+			errors: createErrors()
+		},
+		{
+			code: `
+				var doc;
 				document.querySelector(doc);
 			`,
 			output: `
-				let document_;
+				var document_;
 				document.querySelector(document_);
 			`,
+			errors: createErrors()
+		},
+
+		{
+			code: 'var y',
+			output: 'var yield',
+			options: customOptions,
+			errors: createErrors()
+		},
+		{
+			code: `
+				"use strict";
+				var y;
+			`,
+			output: `
+				"use strict";
+				var yield_;
+			`,
+			options: customOptions,
 			errors: createErrors()
 		}
 	]
