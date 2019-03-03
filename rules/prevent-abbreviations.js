@@ -90,6 +90,81 @@ const defaultReplacements = {
 	},
 	prop: {
 		property: true
+	},
+	arr: {
+		array: true
+	},
+	ret: {
+		returnValue: true
+	},
+	retval: {
+		returnValue: true
+	},
+	ext: {
+		extension: true
+	},
+	exts: {
+		extensions: true
+	},
+	lib: {
+		library: true
+	},
+	dir: {
+		directory: true,
+		direction: true
+	},
+	dirs: {
+		directories: true
+	},
+	ref: {
+		reference: true
+	},
+	refs: {
+		references: true
+	},
+	pkg: {
+		package: true
+	},
+	sep: {
+		separator: true
+	},
+	doc: {
+		document: true
+	},
+	docs: {
+		documents: true
+	},
+	elem: {
+		element: true
+	},
+	src: {
+		source: true
+	},
+	dest: {
+		destination: true
+	},
+	prev: {
+		previous: true
+	},
+	rel: {
+		relative: true,
+		related: true,
+		relationship: true
+	},
+	conf: {
+		config: true
+	},
+	temp: {
+		temporary: true
+	},
+	props: {
+		properties: true
+	},
+	attr: {
+		attribute: true
+	},
+	attrs: {
+		attributes: true
 	}
 };
 

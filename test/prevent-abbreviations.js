@@ -8,6 +8,13 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const browserRuleTester = avaRuleTester(test, {
+	env: {
+		es6: true,
+		browser: true
+	}
+});
+
 const moduleRuleTester = avaRuleTester(test, {
 	env: {
 		es6: true
@@ -636,7 +643,35 @@ ruleTester.run('prevent-abbreviations', rule, {
 		noFixingTestCase({
 			code: '({E: 1})',
 			errors: createErrors('Please rename the property `E`. Suggested names are: `Error`, `Event`. A more descriptive name will do too.')
-		})
+		}),
+
+		{
+			code: 'let doc',
+			output: 'let document',
+			errors: createErrors()
+		}
+	]
+});
+
+browserRuleTester.run('prevent-abbreviations', rule, {
+	valid: [],
+	invalid: [
+		{
+			code: 'let doc',
+			output: 'let document_',
+			errors: createErrors()
+		},
+		{
+			code: `
+				let doc;
+				document.querySelector(doc);
+			`,
+			output: `
+				let document_;
+				document.querySelector(document_);
+			`,
+			errors: createErrors()
+		}
 	]
 });
 
