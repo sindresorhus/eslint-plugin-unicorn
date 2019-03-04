@@ -184,6 +184,22 @@ ruleTester.run('no-for-loop', rule, {
 				console.log(i, el);
 			}
 			console.log(el);
+		`),
+
+		// Index is assigned to inside the loop body, should not fix (#252)
+		testCase(`
+			for (let i = 0; i < input.length; i++) {
+				const el = input[i];
+				i++;
+				console.log(i, el);
+			}
+		`),
+		testCase(`
+			for (let i = 0; i < input.length; i++) {
+				const el = input[i];
+				i = 4;
+				console.log(i, el);
+			}
 		`)
 	]
 });

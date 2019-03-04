@@ -228,6 +228,12 @@ const isIndexVariableUsedElsewhereInTheLoopBody = (indexVariable, bodyScope) => 
 	return inBodyReferences.length > 1;
 };
 
+const isIndexVariableAssignedToInTheLoopBody = (indexVariable, bodyScope) => {
+	return indexVariable.references
+		.filter(reference => scopeContains(bodyScope, reference.from))
+		.some(inBodyReference => inBodyReference.isWrite());
+};
+
 const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) => {
 	return variables.some(variable => {
 		return !variable.references.every(reference => {
@@ -278,7 +284,8 @@ const create = context => {
 			const indexVariable = resolveIdentifierName(indexIdentifierName, bodyScope);
 			const elementVariable = resolveIdentifierName(elementIdentifierName, bodyScope);
 
-			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable], forScope);
+			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable], forScope) &&
+				!isIndexVariableAssignedToInTheLoopBody(indexVariable, bodyScope);
 
 			if (shouldFix) {
 				problem.fix = fixer => {
