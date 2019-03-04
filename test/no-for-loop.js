@@ -85,10 +85,6 @@ ruleTester.run('no-for-loop', rule, {
 			let el = arr[i];
 			console.log(i, el);
 		}`,
-		`for (let i = 0; i < arr.length; ++i) {
-			const el = f(i);
-			console.log(i, el);
-		}`,
 
 		// Screwing with the body
 
@@ -97,6 +93,10 @@ ruleTester.run('no-for-loop', rule, {
 
 		// Screwing with element variable declaration
 
+		`for (let i = 0; i < arr.length; ++i) {
+			const el = f(i);
+			console.log(i, el);
+		}`,
 		`for (var j = 0; j < xs.length; j = j + 1) {
 			var x = xs[j], y = ys[j];
 			console.log(j, x, y);
