@@ -220,7 +220,7 @@ const nodeContains = (ancestor, descendant) => {
 	return false;
 };
 
-const isIndexVariableUsedElsewhereInTheLoopBody = (forStatement, indexVariable, bodyScope) => {
+const isIndexVariableUsedElsewhereInTheLoopBody = (indexVariable, bodyScope) => {
 	const inBodyReferences = indexVariable.references.filter(reference => scopeContains(bodyScope, reference.from));
 
 	// One reference in the body would be the one in the element variable declaration like `const el = arr[i]`.
@@ -282,7 +282,7 @@ const create = context => {
 
 			if (shouldFix) {
 				problem.fix = fixer => {
-					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(node, indexVariable, bodyScope);
+					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope);
 
 					const index = indexIdentifierName;
 					const element = elementIdentifierName;
