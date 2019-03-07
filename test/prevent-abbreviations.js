@@ -58,7 +58,6 @@ const extendedOptions = [{
 }];
 
 const customOptions = [{
-	matchPascalCase: false,
 	checkPropertyNames: false,
 	extendDefaultReplacements: false,
 	replacements: {
@@ -72,9 +71,6 @@ const customOptions = [{
 		},
 		err: {
 			error: true
-		},
-		Err: {
-			Errand: true
 		},
 		y: {
 			yield: true
@@ -163,15 +159,6 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 
 		{
-			code: 'let E',
-			options: customOptions
-		},
-		{
-			code: 'let E',
-			options: extendedOptions
-		},
-
-		{
 			code: 'let err',
 			options: dontCheckVariablesOptions
 		},
@@ -240,6 +227,10 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors('Please rename the variable `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
+			code: 'let eCbOpts',
+			errors: createErrors('Please rename the variable `eCbOpts`. Suggested names are: `errorCallbackOptions`, `eventCallbackOptions`. A more descriptive name will do too.')
+		}),
+		noFixingTestCase({
 			code: '({e: 1})',
 			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
 		}),
@@ -255,11 +246,20 @@ ruleTester.run('prevent-abbreviations', rule, {
 			code: '(class {e() {}})',
 			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
 		}),
+		noFixingTestCase({
+			code: 'this.eResDir = 1',
+			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResponseDirection`, `errorResponseDirectory`, `errorResultDirection`, ... (5 more omitted). A more descriptive name will do too.')
+		}),
 
 		{
 			code: 'let err',
 			output: 'let error',
 			errors: createErrors('The variable `err` should be named `error`. A more descriptive name will do too.')
+		},
+		{
+			code: 'let errCbOptsObj',
+			output: 'let errorCallbackOptionsObject',
+			errors: createErrors('The variable `errCbOptsObj` should be named `errorCallbackOptionsObject`. A more descriptive name will do too.')
 		},
 		noFixingTestCase({
 			code: '({err: 1})',
@@ -277,6 +277,16 @@ ruleTester.run('prevent-abbreviations', rule, {
 			code: '(class {err() {}})',
 			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
 		}),
+		noFixingTestCase({
+			code: 'this.errCbOptsObj = 1',
+			errors: createErrors('The property `errCbOptsObj` should be named `errorCallbackOptionsObject`. A more descriptive name will do too.')
+		}),
+
+		// This tests that the rule does not hang up on combinatoric explosion of possible replacements
+		{
+			code: 'let ' + 'CbE'.repeat(1024),
+			errors: createErrors()
+		},
 
 		{
 			code: 'let evt',
@@ -377,18 +387,6 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'class Err {}',
 			output: 'class Error_ {}',
-			errors: createErrors()
-		},
-		{
-			code: 'class Err {}',
-			output: 'class Error_ {}',
-			options: extendedOptions,
-			errors: createErrors()
-		},
-		{
-			code: 'class Err {}',
-			output: 'class Errand {}',
-			options: customOptions,
 			errors: createErrors()
 		},
 

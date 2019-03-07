@@ -2,6 +2,7 @@
 const defaultsDeep = require('lodash.defaultsdeep');
 const toPairs = require('lodash.topairs');
 const camelCase = require('lodash.camelcase');
+const kebabCase = require('lodash.kebabcase');
 const upperfirst = require('lodash.upperfirst');
 
 const getDocsUrl = require('./utils/get-docs-url');
@@ -169,7 +170,6 @@ const defaultReplacements = {
 };
 
 const prepareOptions = ({
-	matchPascalCase = true,
 	checkPropertyNames = true,
 	checkVariableNames = true,
 	extendDefaultReplacements = true,
@@ -180,7 +180,6 @@ const prepareOptions = ({
 		replacements;
 
 	return {
-		matchPascalCase,
 		checkPropertyNames,
 		checkVariableNames,
 		replacements: new Map(toPairs(mergedReplacements).map(([discouragedName, replacements]) => {
@@ -189,13 +188,13 @@ const prepareOptions = ({
 	};
 };
 
-const normalizeName = (name, matchPascalCase) => {
+const normalizeName = name => {
 	// Leading underscores are commonly used to flag private/protected identifiers,
 	// Trailing underscores are used as a common way to avoid name collision.
 	// We strip them before checking if the name is discouraged.
 	name = name.replace(/^_+|_+$/gu, '');
 
-	const originalIsInPascalCase = matchPascalCase && isPascalCase(name);
+	const originalIsInPascalCase = isPascalCase(name);
 	if (originalIsInPascalCase) {
 		name = camelCase(name);
 	}
@@ -206,21 +205,64 @@ const normalizeName = (name, matchPascalCase) => {
 	};
 };
 
-const getNameReplacements = (replacements, name, matchPascalCase) => {
-	const {
-		originalIsInPascalCase,
-		normalizedName
-	} = normalizeName(name, matchPascalCase);
+const splitNormalizedName = normalizedName => {
+	return kebabCase(normalizedName).split('-');
+};
 
-	const variableNameReplacements = replacements.get(normalizedName);
+const getWordReplacements = (replacements, word) => {
+	const wordReplacements = replacements.get(word);
 
-	if (!variableNameReplacements) {
+	if (!wordReplacements) {
 		return [];
 	}
 
-	return [...variableNameReplacements.keys()]
-		.filter(name => variableNameReplacements.get(name))
-		.map(originalIsInPascalCase ? pascalCase : name => name)
+	return [...wordReplacements.keys()].filter(name => wordReplacements.get(name));
+};
+
+/*
+ * This function has terrible big O complexity, so we limit it by `limit`.
+ * This is fine since result of the function is used only to check if there is zero, one or more
+ * replacements and when formating the message.
+ * Example: `[[1, 2], [3, 4]]` -> `[[1, 3], [1, 4], [2, 3], [2, 4]]`
+ */
+const getWordByWordReplacementsCombinations = (wordByWordReplacements, limit = 16) => {
+	if (wordByWordReplacements.length === 0) {
+		return [];
+	}
+
+	if (wordByWordReplacements.length === 1) {
+		return wordByWordReplacements[0];
+	}
+
+	if (limit <= 1) {
+		return wordByWordReplacements[0];
+	}
+
+	const [wordReplacements, ...tailWordReplacements] = wordByWordReplacements;
+	const tailCombinations = getWordByWordReplacementsCombinations(tailWordReplacements, limit / wordReplacements.length);
+
+	const result = [];
+	for (const name of wordReplacements) {
+		for (const combination of tailCombinations) {
+			result.push([name].concat(combination));
+		}
+	}
+
+	return result;
+};
+
+const getNameReplacements = (replacements, name) => {
+	const {
+		originalIsInPascalCase,
+		normalizedName
+	} = normalizeName(name);
+
+	const words = splitNormalizedName(normalizedName);
+
+	const wordByWordReplacements = words.map(word => getWordReplacements(replacements, word));
+
+	return getWordByWordReplacementsCombinations(wordByWordReplacements)
+		.map(originalIsInPascalCase ? pascalCase : camelCase)
 		.sort();
 };
 
@@ -247,15 +289,20 @@ const collideWithArgumentsSpecial = (names, scopes) => {
 
 const anotherNameMessage = 'A more descriptive name will do too.';
 
-const formatMessage = (discouragedName, replacements, nameTypeText) => {
+const formatMessage = (discouragedName, replacements, nameTypeText, replacementsLimit = 3) => {
 	const message = [];
 
 	if (replacements.length === 1) {
 		message.push(`The ${nameTypeText} \`${discouragedName}\` should be named \`${replacements[0]}\`.`);
 	} else {
-		const replacementsText = replacements
+		let replacementsText = replacements.slice(0, replacementsLimit)
 			.map(replacement => `\`${replacement}\``)
 			.join(', ');
+
+		const omittedReplacementsCount = replacements.length - replacementsLimit;
+		if (omittedReplacementsCount > 0) {
+			replacementsText += `, ... (${omittedReplacementsCount} more omitted)`;
+		}
 
 		message.push(`Please rename the ${nameTypeText} \`${discouragedName}\`.`);
 		message.push(`Suggested names are: ${replacementsText}.`);
@@ -391,7 +438,6 @@ const create = context => {
 		ecmaVersion
 	} = context.parserOptions;
 	const {
-		matchPascalCase,
 		checkPropertyNames,
 		checkVariableNames,
 		replacements
@@ -438,7 +484,7 @@ const create = context => {
 	};
 
 	const checkVariable = variable => {
-		const variableReplacements = getNameReplacements(replacements, variable.name, matchPascalCase);
+		const variableReplacements = getNameReplacements(replacements, variable.name);
 
 		if (variableReplacements.length === 0) {
 			return;
@@ -494,7 +540,7 @@ const create = context => {
 				return;
 			}
 
-			const identifierReplacements = getNameReplacements(replacements, node.name, matchPascalCase);
+			const identifierReplacements = getNameReplacements(replacements, node.name);
 
 			if (identifierReplacements.length === 0) {
 				return;
@@ -525,7 +571,6 @@ const create = context => {
 const schema = [{
 	type: 'object',
 	properties: {
-		matchPascalCase: {type: 'boolean'},
 		checkPropertyNames: {type: 'boolean'},
 		checkVariableNames: {type: 'boolean'},
 		extendDefaultReplacements: {type: 'boolean'},

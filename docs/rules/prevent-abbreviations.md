@@ -67,6 +67,10 @@ You can extend default replacements by passing this option.
 
 The example below disables the default `e` → `event` replacement and adds a custom `cmd` → `command` one.
 
+Replacements should be lowercase and will match both camelcase and pascalcase identifiers. For example, `err` will match both `err` and `Err`.
+
+Replacements will also match separate words inside identifiers. For example, `cmd` will match all of `cmd`, `createCmd` and `CmdFactory`.
+
 ```js
 "unicorn/prevent-abbreviations": [
 	"error",
@@ -97,32 +101,6 @@ The example below disables all the default replacements and enables a custom `cm
 		"replacements": {
 			"cmd": {
 				"command": true
-			}
-		}
-	}
-]
-```
-
-### matchPascalCase
-
-By default replacements defined in camelCase match PascalCase identifiers too. For example, default replacement `evt` → `event` will match both `evt` and `Evt` (which could be automatically fixed to `Event`).
-
-Pass `false` here to disable this case-agnostic matching.
-
-The example below defines two replacements `res` → `response` and `Res` → `Result` different in case.
-
-```js
-"unicorn/prevent-abbreviations": [
-	"error",
-	{
-		"matchPascalCase": false,
-		"extendDefaultReplacements": false,
-		"replacements": {
-			"res": {
-				"response": true
-			},
-			"Res": {
-				"Result": true
 			}
 		}
 	}
