@@ -379,14 +379,14 @@ const isShorthandPropertyIdentifier = identifier => {
 
 const isShorthandImportIdentifier = identifier => {
 	return identifier.parent.type === 'ImportSpecifier' &&
-		identifier.parent.imported === identifier &&
-		identifier.parent.local === identifier;
+		identifier.parent.imported.name === identifier.name &&
+		identifier.parent.local.name === identifier.name;
 };
 
 const isShorthandExportIdentifier = identifier => {
 	return identifier.parent.type === 'ExportSpecifier' &&
-		identifier.parent.exported === identifier &&
-		identifier.parent.local === identifier;
+		identifier.parent.exported.name === identifier.name &&
+		identifier.parent.local.name === identifier.name;
 };
 
 const fixIdentifier = (fixer, replacement) => identifier => {

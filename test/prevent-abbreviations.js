@@ -764,6 +764,23 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 			`,
 			errors: createErrors()
 		},
+		{
+			code: `
+				import {
+					bar,
+					err,
+					buz,
+				} from 'foo';
+			`,
+			output: `
+				import {
+					bar,
+					err as error,
+					buz,
+				} from 'foo';
+			`,
+			errors: createErrors()
+		},
 
 		{
 			code: `
