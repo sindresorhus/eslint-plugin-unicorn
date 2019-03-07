@@ -65,14 +65,17 @@ class Button {}
 
 You can extend default replacements by passing this option.
 
-Replacements should be lowercase and will match both camelcase and pascalcase identifiers. For example, `err` will match both `err` and `Err`.
+Lowercase replacements will match both camelcase and pascalcase identifiers. For example, `err` will match both `err` and `Err`. `errCb` will match both `errCb` and `ErrCb`.
 
-Replacements will also match separate words inside identifiers. For example, `cmd` will match all of `cmd`, `createCmd` and `CmdFactory`.
+Lowercase replacements will match both complete identifiers and separate words inside identifiers. For example, `cmd` will match all of `cmd`, `createCmd` and `CmdFactory`.
+
+Camelcase replacements will only match complete identifiers. For example `errCb` will only match `errCb` and `ErrCb`. It will not match `fooErrCb` or `errCbFoo`.
 
 The example below:
 * disables the default `e` → `event` replacement (leaving `e` → `error` enabled),
 * disables `res` replacement completely (both `res` → `response` and `res` → `result` from defaults are disabled),
-* and adds a custom `cmd` → `command` replacement.
+* adds a custom `cmd` → `command` replacement,
+* adds a custom `errCb` → `handleError` replacement.
 
 ```js
 "unicorn/prevent-abbreviations": [
@@ -85,6 +88,9 @@ The example below:
 			"res": false,
 			"cmd": {
 				"command": true
+			},
+			"errCb": {
+				"handleError": true
 			}
 		}
 	}

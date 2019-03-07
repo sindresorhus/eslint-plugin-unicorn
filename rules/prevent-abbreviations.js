@@ -264,16 +264,7 @@ const getWordByWordReplacementsCombinations = (wordByWordReplacements, limit = 1
 	return result;
 };
 
-const getNameReplacements = (replacements, whitelist, name) => {
-	if (whitelist.get(name)) {
-		return [];
-	}
-
-	const {
-		originalIsInPascalCase,
-		normalizedName
-	} = normalizeName(name);
-
+const getWordByWordReplacements = (replacements, normalizedName, originalIsInPascalCase) => {
 	const words = splitNormalizedName(normalizedName);
 
 	let wordByWordReplacements = words.map(word => getWordReplacements(replacements, word));
@@ -289,6 +280,38 @@ const getNameReplacements = (replacements, whitelist, name) => {
 	return getWordByWordReplacementsCombinations(wordByWordReplacements)
 		.map(originalIsInPascalCase ? pascalCase : camelCase)
 		.sort();
+};
+
+const getExactReplacements = (replacements, normalizedName, originalIsInPascalCase) => {
+	const variableNameReplacements = replacements.get(normalizedName);
+
+	if (!variableNameReplacements) {
+		return [];
+	}
+
+	return [...variableNameReplacements.keys()]
+		.filter(name => variableNameReplacements.get(name))
+		.map(originalIsInPascalCase ? pascalCase : name => name)
+		.sort();
+};
+
+const getNameReplacements = (replacements, whitelist, name) => {
+	if (whitelist.get(name)) {
+		return [];
+	}
+
+	const {
+		originalIsInPascalCase,
+		normalizedName
+	} = normalizeName(name);
+
+	const exactReplacements = getExactReplacements(replacements, normalizedName, originalIsInPascalCase);
+
+	if (exactReplacements.length > 0) {
+		return exactReplacements;
+	}
+
+	return getWordByWordReplacements(replacements, normalizedName, originalIsInPascalCase);
 };
 
 const scopeHasArgumentsSpecial = scope => {

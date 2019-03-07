@@ -74,6 +74,9 @@ const customOptions = [{
 		},
 		y: {
 			yield: true
+		},
+		errCb: {
+			handleError: true
 		}
 	}
 }];
@@ -398,6 +401,55 @@ ruleTester.run('prevent-abbreviations', rule, {
 			options: extendedOptions,
 			errors: createErrors()
 		}),
+
+		{
+			code: 'let errCb',
+			output: 'let errorCallback',
+			errors: createErrors()
+		},
+		{
+			code: 'let errCb',
+			output: 'let errorCircuitBreacker',
+			options: extendedOptions,
+			errors: createErrors()
+		},
+		{
+			code: 'let errCb',
+			output: 'let handleError',
+			options: customOptions,
+			errors: createErrors()
+		},
+		{
+			code: 'let ErrCb',
+			output: 'let ErrorCallback',
+			errors: createErrors()
+		},
+		{
+			code: 'let ErrCb',
+			output: 'let ErrorCircuitBreacker',
+			options: extendedOptions,
+			errors: createErrors()
+		},
+		{
+			code: 'let ErrCb',
+			output: 'let HandleError',
+			options: customOptions,
+			errors: createErrors()
+		},
+
+		// `errCb` should not match this
+		{
+			code: 'let fooErrCb',
+			output: 'let fooErrorCb',
+			options: customOptions,
+			errors: createErrors()
+		},
+		{
+			code: 'let errCbFoo',
+			output: 'let errorCbFoo',
+			options: customOptions,
+			errors: createErrors()
+		},
 
 		noFixingTestCase({
 			code: 'let E',
