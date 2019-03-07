@@ -282,6 +282,26 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors('The property `errCbOptsObj` should be named `errorCallbackOptionsObject`. A more descriptive name will do too.')
 		}),
 
+		{
+			code: 'let successCb',
+			output: 'let successCallback',
+			errors: createErrors()
+		},
+		{
+			code: 'let btnColor',
+			output: 'let buttonColor',
+			errors: createErrors()
+		},
+
+		noFixingTestCase({
+			code: 'this.successCb = 1',
+			errors: createErrors()
+		}),
+		noFixingTestCase({
+			code: 'this.btnColor = 1',
+			errors: createErrors()
+		}),
+
 		// This tests that the rule does not hang up on combinatoric explosion of possible replacements
 		{
 			code: 'let ' + 'CbE'.repeat(1024),
@@ -833,9 +853,37 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 });
 
 babelRuleTester.run('prevent-abbreviations', rule, {
-	valid: [],
+	valid: [
+		// Whitelisted names
+		'Foo.defaultProps = {}',
+		`class Foo {
+			static propTypes = {};
+			static getDerivedStateFromProps() {}
+		}`
+	],
 
 	invalid: [
+		{
+			code: 'Foo.customProps = {}',
+			errors: createErrors()
+		},
+		{
+			code: `
+				class Foo {
+					static propTypesAndStuff = {};
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: `
+				class Foo {
+					static getDerivedContextFromProps() {}
+				}
+			`,
+			errors: createErrors()
+		},
+
 		noFixingTestCase({
 			code: '(class {e = 1})',
 			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')

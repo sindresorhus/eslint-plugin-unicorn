@@ -169,22 +169,35 @@ const defaultReplacements = {
 	}
 };
 
+const defaultWhitelist = {
+	propTypes: true,
+	defaultProps: true,
+	getDerivedStateFromProps: true
+};
+
 const prepareOptions = ({
 	checkPropertyNames = true,
 	checkVariableNames = true,
 	extendDefaultReplacements = true,
-	replacements = {}
+	replacements = {},
+	extendDefaultWhitelist = true,
+	whitelist = {}
 } = {}) => {
 	const mergedReplacements = extendDefaultReplacements ?
 		defaultsDeep({}, replacements, defaultReplacements) :
 		replacements;
+
+	const mergedWhitelist = extendDefaultWhitelist ?
+		defaultsDeep({}, whitelist, defaultWhitelist) :
+		whitelist;
 
 	return {
 		checkPropertyNames,
 		checkVariableNames,
 		replacements: new Map(toPairs(mergedReplacements).map(([discouragedName, replacements]) => {
 			return [discouragedName, new Map(toPairs(replacements))];
-		}))
+		})),
+		whitelist: new Map(toPairs(mergedWhitelist))
 	};
 };
 
@@ -251,7 +264,11 @@ const getWordByWordReplacementsCombinations = (wordByWordReplacements, limit = 1
 	return result;
 };
 
-const getNameReplacements = (replacements, name) => {
+const getNameReplacements = (replacements, whitelist, name) => {
+	if (whitelist.get(name)) {
+		return [];
+	}
+
 	const {
 		originalIsInPascalCase,
 		normalizedName
@@ -259,7 +276,15 @@ const getNameReplacements = (replacements, name) => {
 
 	const words = splitNormalizedName(normalizedName);
 
-	const wordByWordReplacements = words.map(word => getWordReplacements(replacements, word));
+	let wordByWordReplacements = words.map(word => getWordReplacements(replacements, word));
+
+	const someWordsHaveReplacements = wordByWordReplacements.some(wordReplacements => wordReplacements.length > 0);
+	if (!someWordsHaveReplacements) {
+		return [];
+	}
+
+	wordByWordReplacements = wordByWordReplacements
+		.map((wordReplacements, i) => wordReplacements.length > 0 ? wordReplacements : [words[i]]);
 
 	return getWordByWordReplacementsCombinations(wordByWordReplacements)
 		.map(originalIsInPascalCase ? pascalCase : camelCase)
@@ -440,7 +465,8 @@ const create = context => {
 	const {
 		checkPropertyNames,
 		checkVariableNames,
-		replacements
+		replacements,
+		whitelist
 	} = prepareOptions(context.options[0]);
 
 	// A `class` declaration produces two variables in two scopes:
@@ -484,7 +510,7 @@ const create = context => {
 	};
 
 	const checkVariable = variable => {
-		const variableReplacements = getNameReplacements(replacements, variable.name);
+		const variableReplacements = getNameReplacements(replacements, whitelist, variable.name);
 
 		if (variableReplacements.length === 0) {
 			return;
@@ -540,7 +566,7 @@ const create = context => {
 				return;
 			}
 
-			const identifierReplacements = getNameReplacements(replacements, node.name);
+			const identifierReplacements = getNameReplacements(replacements, whitelist, node.name);
 
 			if (identifierReplacements.length === 0) {
 				return;
@@ -574,7 +600,9 @@ const schema = [{
 		checkPropertyNames: {type: 'boolean'},
 		checkVariableNames: {type: 'boolean'},
 		extendDefaultReplacements: {type: 'boolean'},
-		replacements: {$ref: '#/items/0/definitions/abbreviations'}
+		replacements: {$ref: '#/items/0/definitions/abbreviations'},
+		extendDefaultWhitelist: {type: 'boolean'},
+		whitelist: {$ref: '#/items/0/definitions/booleanObject'}
 	},
 	additionalProperties: false,
 	definitions: {
@@ -587,11 +615,12 @@ const schema = [{
 				{
 					enum: [false]
 				},
-				{
-					type: 'object',
-					additionalProperties: {type: 'boolean'}
-				}
+				{$ref: '#/items/0/definitions/booleanObject'}
 			]
+		},
+		booleanObject: {
+			type: 'object',
+			additionalProperties: {type: 'boolean'}
 		}
 	}
 }];
