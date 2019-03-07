@@ -338,12 +338,11 @@ const formatMessage = (discouragedName, replacements, nameTypeText, replacements
 	return message.join(' ');
 };
 
-const variableIdentifiers = variable => [
+const variableIdentifiers = variable => [...(new Set([
 	...variable.identifiers,
 	...variable.references
-		.filter(reference => !reference.init)
 		.map(reference => reference.identifier)
-];
+])).values()];
 
 const isExportedIdentifier = identifier => {
 	if (identifier.parent.type === 'VariableDeclarator' &&

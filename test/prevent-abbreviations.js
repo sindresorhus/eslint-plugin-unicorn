@@ -701,6 +701,18 @@ ruleTester.run('prevent-abbreviations', rule, {
 			code: 'let errCb, errorCb',
 			output: 'let errorCallback, errorCallback_',
 			errors: createErrors().concat(createErrors())
+		},
+
+		{
+			code: `
+				let err;
+				({a: err = 1} = 2);
+			`,
+			output: `
+				let error;
+				({a: error = 1} = 2);
+			`,
+			errors: createErrors()
 		}
 	]
 });
