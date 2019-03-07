@@ -695,6 +695,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 			output: 'let yield_',
 			options: customOptions,
 			errors: createErrors()
+		},
+
+		{
+			code: 'let errCb, errorCb',
+			output: 'let errorCallback, errorCallback_',
+			errors: createErrors().concat(createErrors())
 		}
 	]
 });
