@@ -204,10 +204,9 @@ const prepareOptions = ({
 };
 
 const normalizeName = name => {
-	// Leading underscores are commonly used to flag private/protected identifiers,
-	// Trailing underscores are used as a common way to avoid name collision.
-	// We strip them before checking if the name is discouraged.
-	name = name.replace(/^_+|_+$/gu, '');
+	let originalLeadingUnderscores;
+	let originalTrailingUnderscores;
+	([, originalLeadingUnderscores, name, originalTrailingUnderscores] = /^(_*)(.*?)(_*)$/.exec(name));
 
 	const originalIsInPascalCase = isPascalCase(name);
 	if (originalIsInPascalCase) {
@@ -215,9 +214,15 @@ const normalizeName = name => {
 	}
 
 	return {
+		originalLeadingUnderscores,
+		originalTrailingUnderscores,
 		originalIsInPascalCase,
 		normalizedName: name
 	};
+};
+
+const createApplyOriginalUnderscores = (originalLeadingUnderscores, originalTrailingUnderscores) => name => {
+	return originalLeadingUnderscores + name + originalTrailingUnderscores;
 };
 
 const splitNormalizedName = normalizedName => {
@@ -307,17 +312,21 @@ const getNameReplacements = (replacements, whitelist, name) => {
 	}
 
 	const {
+		originalLeadingUnderscores,
+		originalTrailingUnderscores,
 		originalIsInPascalCase,
 		normalizedName
 	} = normalizeName(name);
 
+	const applyOriginalUnderscores = createApplyOriginalUnderscores(originalLeadingUnderscores, originalTrailingUnderscores);
+
 	const exactReplacements = getExactReplacements(replacements, normalizedName, originalIsInPascalCase);
 
 	if (exactReplacements.length > 0) {
-		return exactReplacements;
+		return exactReplacements.map(applyOriginalUnderscores);
 	}
 
-	return getWordByWordReplacements(replacements, normalizedName, originalIsInPascalCase);
+	return getWordByWordReplacements(replacements, normalizedName, originalIsInPascalCase).map(applyOriginalUnderscores);
 };
 
 const scopeHasArgumentsSpecial = scope => {
@@ -608,6 +617,10 @@ const create = context => {
 	return {
 		Identifier(node) {
 			if (!checkPropertyNames) {
+				return;
+			}
+
+			if (node.name === '__proto__') {
 				return;
 			}
 

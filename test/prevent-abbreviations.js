@@ -77,6 +77,9 @@ const customOptions = [{
 		},
 		errCb: {
 			handleError: true
+		},
+		proto: {
+			prototype: true
 		}
 	}
 }];
@@ -166,6 +169,11 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'let err',
 			options: dontCheckVariablesOptions
+		},
+
+		{
+			code: '({__proto__: null})',
+			options: customOptions
 		},
 
 		// Renaming to `arguments` would result in a `SyntaxError`, so it should keep `args`
@@ -654,30 +662,30 @@ ruleTester.run('prevent-abbreviations', rule, {
 
 		noFixingTestCase({
 			code: 'this._err = 1',
-			errors: createErrors('The property `_err` should be named `error`. A more descriptive name will do too.')
+			errors: createErrors('The property `_err` should be named `_error`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
 			code: 'this.__err__ = 1',
-			errors: createErrors()
+			errors: createErrors('The property `__err__` should be named `__error__`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
 			code: 'this.e_ = 1',
-			errors: createErrors()
+			errors: createErrors('Please rename the property `e_`. Suggested names are: `error_`, `event_`. A more descriptive name will do too.')
 		}),
 
 		{
 			code: 'let err_',
-			output: 'let error',
-			errors: createErrors('The variable `err_` should be named `error`. A more descriptive name will do too.')
+			output: 'let error_',
+			errors: createErrors()
 		},
 		{
 			code: 'let __err__',
-			output: 'let error',
+			output: 'let __error__',
 			errors: createErrors()
 		},
 		noFixingTestCase({
 			code: 'let _e',
-			errors: createErrors()
+			errors: createErrors('Please rename the variable `_e`. Suggested names are: `_error`, `_event`. A more descriptive name will do too.')
 		}),
 
 		{
@@ -701,7 +709,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 		{
 			code: 'const _Err_ = 1;',
-			output: 'const Error_ = 1;',
+			output: 'const _Error_ = 1;',
 			errors: createErrors()
 		},
 		noFixingTestCase({
