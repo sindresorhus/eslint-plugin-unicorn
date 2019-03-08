@@ -754,6 +754,50 @@ ruleTester.run('prevent-abbreviations', rule, {
 			output: 'let errorCallback, errorCallback_',
 			errors: createErrors().concat(createErrors())
 		},
+		{
+			code: '{ let errCb }; { let errorCb }',
+			output: '{ let errorCallback }; { let errorCallback }',
+			errors: createErrors().concat(createErrors())
+		},
+
+		// The following test should have looked like this (commented one), but eslint's `RuleTester`
+		// does not apply all fixes at once. See https://github.com/eslint/eslint/issues/11187#issuecomment-446380824
+		/*
+		{
+			code: `
+				let errCb;
+				{
+					let errorCb;
+					console.log(errCb, errorCb);
+				}
+			`,
+			output: `
+				let errorCallback;
+				{
+					let errorCallback_;
+					console.log(errorCallback, errorCallback_);
+				}
+			`,
+			errors: createErrors().concat(createErrors())
+		},
+		*/
+		{
+			code: `
+				let errCb;
+				{
+					let errorCb;
+					console.log(errCb, errorCb);
+				}
+			`,
+			output: `
+				let errorCallback;
+				{
+					let errorCb;
+					console.log(errorCallback, errorCb);
+				}
+			`,
+			errors: createErrors().concat(createErrors())
+		},
 
 		{
 			code: `

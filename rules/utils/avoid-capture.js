@@ -16,6 +16,17 @@ const isSafeName = (name, scopes, ecmaVersion, isStrict) => {
 		!reservedWords.check(name, ecmaVersion, isStrict);
 };
 
+const alwaysTrue = () => true;
+
+/**
+ * Rule-specific name check function
+ *
+ * @callback isSafe
+ * @param {string} indexifiedName - The generated candidate name
+ * @param {Scope[]} scopes - The same list of scopes you pass to `avoidCapture`
+ * @return {boolean} - `true` if the `indexifiedName` is ok
+ */
+
 /**
  * Generates a unique name prefixed with `name` such that:
  * * it is not defined in any of the `scopes`,
@@ -27,15 +38,18 @@ const isSafeName = (name, scopes, ecmaVersion, isStrict) => {
  * @param {string} name - The desired name for a new variable
  * @param {Scope[]} scopes - The list of scopes the new variable will be referenced in
  * @param {number} ecmaVersion - The language version, get it from `context.parserOptions.ecmaVersion`
+ * @param {isSafe} [isSafe] - Rule-specific name check function
  * @returns {string} - Either `name` as is, or a string like `${name}_` suffixed with undescores to make the name unique
  */
-module.exports = (name, scopes, ecmaVersion) => {
+module.exports = (name, scopes, ecmaVersion, isSafe = alwaysTrue) => {
 	const isStrict = someScopeIsStrict(scopes);
 
 	let index = 0;
-	while (!isSafeName(indexifyName(name, index), scopes, ecmaVersion, isStrict)) {
+	let indexifiedName = indexifyName(name, index);
+	while (!isSafeName(indexifiedName, scopes, ecmaVersion, isStrict) || !isSafe(indexifiedName, scopes)) {
 		index++;
+		indexifiedName = indexifyName(name, index);
 	}
 
-	return indexifyName(name, index);
+	return indexifiedName;
 };
