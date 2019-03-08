@@ -8,8 +8,10 @@ const upperfirst = require('lodash.upperfirst');
 const getDocsUrl = require('./utils/get-docs-url');
 const avoidCapture = require('./utils/avoid-capture');
 
-const pascalCase = str => upperfirst(camelCase(str));
-const isPascalCase = str => str === pascalCase(str);
+const pascalCase = string => upperfirst(camelCase(string));
+const isPascalCase = string => string === pascalCase(string);
+
+const isUpperCase = string => string === string.toUpperCase();
 
 const defaultReplacements = {
 	err: {
@@ -298,6 +300,10 @@ const getExactReplacements = (replacements, normalizedName, originalIsInPascalCa
 
 const getNameReplacements = (replacements, whitelist, name) => {
 	if (whitelist.get(name)) {
+		return [];
+	}
+
+	if (isUpperCase(name)) {
 		return [];
 	}
 

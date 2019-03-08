@@ -123,6 +123,8 @@ ruleTester.run('prevent-abbreviations', rule, {
 		`,
 		'foo.error',
 		'foo.x',
+		'let E',
+		'let NODE_ENV',
 
 		// Accessing banned names is allowed (as in `camelcase` rule)
 		'foo.err',
@@ -362,17 +364,15 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 
-		{
+		noFixingTestCase({
 			code: 'let e',
-			output: 'let e',
 			errors: createErrors()
-		},
-		{
+		}),
+		noFixingTestCase({
 			code: 'let e',
-			output: 'let e',
 			options: customOptions,
 			errors: createErrors()
-		},
+		}),
 
 		{
 			code: 'let err',
@@ -450,11 +450,6 @@ ruleTester.run('prevent-abbreviations', rule, {
 			options: customOptions,
 			errors: createErrors()
 		},
-
-		noFixingTestCase({
-			code: 'let E',
-			errors: createErrors()
-		}),
 
 		{
 			code: 'class Err {}',
@@ -696,8 +691,8 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors('The variable `Cb` should be named `Callback`. A more descriptive name will do too.')
 		},
 		noFixingTestCase({
-			code: 'class E {}',
-			errors: createErrors('Please rename the variable `E`. Suggested names are: `Error`, `Event`. A more descriptive name will do too.')
+			code: 'class Res {}',
+			errors: createErrors('Please rename the variable `Res`. Suggested names are: `Response`, `Result`. A more descriptive name will do too.')
 		}),
 		{
 			code: 'const Err = 1;',
@@ -714,8 +709,8 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors('The property `Err` should be named `Error`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
-			code: '({E: 1})',
-			errors: createErrors('Please rename the property `E`. Suggested names are: `Error`, `Event`. A more descriptive name will do too.')
+			code: '({Res: 1})',
+			errors: createErrors('Please rename the property `Res`. Suggested names are: `Response`, `Result`. A more descriptive name will do too.')
 		}),
 
 		{
