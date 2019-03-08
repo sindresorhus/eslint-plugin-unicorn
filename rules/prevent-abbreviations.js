@@ -172,7 +172,8 @@ const defaultReplacements = {
 const defaultWhitelist = {
 	propTypes: true,
 	defaultProps: true,
-	getDerivedStateFromProps: true
+	getDerivedStateFromProps: true,
+	stdDev: true
 };
 
 const prepareOptions = ({
