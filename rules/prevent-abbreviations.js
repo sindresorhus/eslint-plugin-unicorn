@@ -113,8 +113,7 @@ const defaultReplacements = {
 		library: true
 	},
 	dir: {
-		directory: true,
-		direction: true
+		directory: true
 	},
 	dirs: {
 		directories: true
