@@ -6,7 +6,7 @@ This rule can also be used to replace terms, disallowed words, etc. See [`replac
 
 Default replacements are available [here](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/rules/prevent-abbreviations.js#L13).
 
-This rule is fixable only for variable names where abbreviation has with exactly one replacement defined.
+This rule is fixable only for variable names with exactly one replacement defined.
 
 
 ## Fail
@@ -63,7 +63,7 @@ class Button {}
 
 ### replacements
 
-You can extend default replacements by passing this option.
+You can extend default replacements by passing `replacements` option.
 
 Lowercase replacements will match both camelcase and pascalcase identifiers. For example, `err` will match both `err` and `Err`. `errCb` will match both `errCb` and `ErrCb`.
 
@@ -99,7 +99,7 @@ The example below:
 
 ### extendDefaultReplacements
 
-Pass `false` here to override the default `replacements` completely.
+Pass `"extendDefaultReplacements": false` to override the default `replacements` completely.
 
 The example below disables all the default replacements and enables a custom `cmd` → `command` one.
 
@@ -119,7 +119,7 @@ The example below disables all the default replacements and enables a custom `cm
 
 ### whitelist
 
-You can extend default whitelist by passing this option.
+You can extend default whitelist by passing `whitelist` option.
 
 Unlike `replacements`, `whitelist` matches full identifier names case-sensitively.
 
@@ -138,15 +138,15 @@ For example, if you want to report `props` → `properties` (enabled by default)
 
 ### extendDefaultWhitelist
 
-Pass `false` here to override the default `whitelist` completely.
+Pass `"extendDefaultWhitelist": false` to override the default `whitelist` completely.
 
 ### checkPropertyNames
 
-Pass `false` here to disable checking property names.
+Pass `"checkPropertyNames": false` to disable checking property names.
 
 ### checkVariableNames
 
-Pass `false` here to disable checking variable names.
+Pass `"checkVariableNames": false` to disable checking variable names.
 
 
 ## Edge cases

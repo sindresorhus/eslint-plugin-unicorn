@@ -429,6 +429,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 		{
 			code: 'let ErrCb',
+			output: 'let HandleError',
+			options: customOptions,
+			errors: createErrors()
+		},
+		{
+			code: 'let ErrCb',
 			output: 'let ErrorCallback',
 			errors: createErrors()
 		},
