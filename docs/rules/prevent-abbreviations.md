@@ -147,10 +147,3 @@ Pass `"checkPropertyNames": false` to disable checking property names.
 ### checkVariableNames
 
 Pass `"checkVariableNames": false` to disable checking variable names.
-
-
-## Edge cases
-
-### arguments
-
-This rule does not report or fix `args` → `arguments` when it would result in a collision with the built-in [`arguments` object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments);

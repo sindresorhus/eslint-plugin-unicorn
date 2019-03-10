@@ -329,27 +329,6 @@ const getNameReplacements = (replacements, whitelist, name) => {
 	return getWordByWordReplacements(replacements, normalizedName, originalIsInPascalCase).map(applyOriginalUnderscores);
 };
 
-const scopeHasArgumentsSpecial = scope => {
-	while (scope) {
-		if (scope.taints.get('arguments')) {
-			return true;
-		}
-
-		scope = scope.upper;
-	}
-
-	return false;
-};
-
-const collideWithArgumentsSpecial = (names, scopes) => {
-	if (!names.includes('arguments')) {
-		return false;
-	}
-
-	return scopes.some(scopeHasArgumentsSpecial) ||
-		scopes.some(scope => scope.isStrict);
-};
-
 const anotherNameMessage = 'A more descriptive name will do too.';
 
 const formatMessage = (discouragedName, replacements, nameTypeText, replacementsLimit = 3) => {
@@ -566,10 +545,6 @@ const create = context => {
 		}
 
 		const scopes = variable.references.map(reference => reference.from).concat(variable.scope);
-
-		if (collideWithArgumentsSpecial(variableReplacements, scopes)) {
-			return;
-		}
 
 		const [definition] = variable.defs;
 

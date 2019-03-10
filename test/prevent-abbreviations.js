@@ -174,64 +174,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: '({__proto__: null})',
 			options: customOptions
-		},
-
-		// Renaming to `arguments` would result in a `SyntaxError`, so it should keep `args`
-		`
-			'use strict';
-			let args;
-		`,
-		`
-			class A {
-				method(...args) {
-					return super.method(...args) + 1;
-				}
-			}
-		`,
-		`
-			class A extends B {
-				constructor(...args) {
-					super(...args);
-				}
-			}
-		`,
-
-		// TODO: This could be renamed to `arguments` safely in non-strict mode,
-		// but it is currently impractical due to a suspected bug in `eslint-scope`.
-		// https://github.com/eslint/eslint-scope/issues/49
-		`
-			const f = (...args) => {
-				return args;
-			}
-		`,
-		`
-			let args;
-			const f = () => {
-				return args;
-			}
-		`,
-
-		// Renaming to `arguments` whould result in `f` returning it's arguments instead of the outer variable
-		`
-			let args;
-			function f() {
-				return args;
-			}
-		`,
-
-		`
-			let args;
-			function f() {
-				return arguments + args;
-			}
-		`,
-
-		`
-			let args;
-			function f() {
-				return g.apply(this, arguments) + args;
-			}
-		`
+		}
 	],
 
 	invalid: [
@@ -816,6 +759,132 @@ ruleTester.run('prevent-abbreviations', rule, {
 			output: `
 				let error;
 				({a: error = 1} = 2);
+			`,
+			errors: createErrors()
+		},
+
+		// Renaming to `arguments` would result in a `SyntaxError`, so it rename to `arguments_`
+		{
+			code: `
+				'use strict';
+				let args;
+			`,
+			output: `
+				'use strict';
+				let arguments_;
+			`,
+			errors: createErrors()
+		},
+		{
+			code: `
+				class A {
+					method(...args) {
+						return super.method(...args) + 1;
+					}
+				}
+			`,
+			output: `
+				class A {
+					method(...arguments_) {
+						return super.method(...arguments_) + 1;
+					}
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: `
+				class A extends B {
+					constructor(...args) {
+						super(...args);
+					}
+				}
+			`,
+			output: `
+				class A extends B {
+					constructor(...arguments_) {
+						super(...arguments_);
+					}
+				}
+			`,
+			errors: createErrors()
+		},
+
+		// TODO: This could be renamed to `arguments` safely in non-strict mode,
+		// but it is currently impractical due to a bug in `eslint-scope`.
+		// https://github.com/eslint/eslint-scope/issues/49
+		{
+			code: `
+				const f = (...args) => {
+					return args;
+				}
+			`,
+			output: `
+				const f = (...arguments_) => {
+					return arguments_;
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: `
+				let args;
+				const f = () => {
+					return args;
+				}
+			`,
+			output: `
+				let arguments_;
+				const f = () => {
+					return arguments_;
+				}
+			`,
+			errors: createErrors()
+		},
+
+		// Renaming to `arguments` whould result in `f` returning it's arguments instead of the outer variable
+		{
+			code: `
+				let args;
+				function f() {
+					return args;
+				}
+			`,
+			output: `
+				let arguments_;
+				function f() {
+					return arguments_;
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: `
+				let args;
+				function f() {
+					return arguments + args;
+				}
+			`,
+			output: `
+				let arguments_;
+				function f() {
+					return arguments + arguments_;
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: `
+				let args;
+				function f() {
+					return g.apply(this, arguments) + args;
+				}
+			`,
+			output: `
+				let arguments_;
+				function f() {
+					return g.apply(this, arguments) + arguments_;
+				}
 			`,
 			errors: createErrors()
 		}
