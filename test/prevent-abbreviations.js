@@ -59,6 +59,11 @@ const extendedOptions = [{
 
 const customOptions = [{
 	checkProperties: false,
+
+	checkDefaultAndNamespaceImports: true,
+	checkShorthandImports: true,
+	checkShorthandProperties: true,
+
 	extendDefaultReplacements: false,
 	replacements: {
 		args: {
@@ -572,6 +577,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: '({err}) => err',
 			output: '({err: error}) => error',
+			options: customOptions,
 			errors: createErrors()
 		},
 
@@ -763,7 +769,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 
-		// Renaming to `arguments` would result in a `SyntaxError`, so it rename to `arguments_`
+		// Renaming to `arguments` would result in a `SyntaxError`, so it should rename to `arguments_`
 		{
 			code: `
 				'use strict';
@@ -934,7 +940,27 @@ browserES5RuleTester.run('prevent-abbreviations', rule, {
 
 moduleRuleTester.run('prevent-abbreviations', rule, {
 	valid: [
-		'import {err as foo} from "foo"'
+		'import {err as foo} from "foo"',
+
+		// Default import names are allowed
+		'import err from "err"',
+		'import err, {foo as bar} from "err"',
+		'import {default as err, foo as bar} from "err"',
+
+		// Namespace import names are allowed
+		'import * as err from "err"',
+		'import foo, * as err from "err"',
+		'const err = require("err")',
+
+		// Named import name is allowed
+		'import {err} from "err"',
+		'import foo, {err} from "err"',
+		'import {default as foo, err} from "err"',
+
+		// Names from object destructuring are allowed
+		'const {err} = require("err")',
+		'const {err} = foo',
+		'function f({err}) {}'
 	],
 
 	invalid: [
@@ -945,6 +971,7 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 			output: `
 				import error from 'err';
 			`,
+			options: customOptions,
 			errors: createErrors()
 		},
 		{
@@ -954,6 +981,7 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 			output: `
 				import {err as error} from 'err';
 			`,
+			options: customOptions,
 			errors: createErrors()
 		},
 		{
@@ -970,6 +998,26 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 					err as error,
 					buz,
 				} from 'foo';
+			`,
+			options: customOptions,
+			errors: createErrors()
+		},
+
+		{
+			code: `
+				import {err as cb} from 'err';
+			`,
+			output: `
+				import {err as callback} from 'err';
+			`,
+			errors: createErrors()
+		},
+		{
+			code: `
+				const {err: cb} = foo;
+			`,
+			output: `
+				const {err: callback} = foo;
 			`,
 			errors: createErrors()
 		},

@@ -1,4 +1,5 @@
 'use strict';
+const astUtils = require('eslint-ast-utils');
 const defaultsDeep = require('lodash.defaultsdeep');
 const toPairs = require('lodash.topairs');
 const camelCase = require('lodash.camelcase');
@@ -180,8 +181,14 @@ const defaultWhitelist = {
 const prepareOptions = ({
 	checkProperties = true,
 	checkVariables = true,
+
+	checkDefaultAndNamespaceImports = false,
+	checkShorthandImports = false,
+	checkShorthandProperties = false,
+
 	extendDefaultReplacements = true,
 	replacements = {},
+
 	extendDefaultWhitelist = true,
 	whitelist = {}
 } = {}) => {
@@ -196,6 +203,11 @@ const prepareOptions = ({
 	return {
 		checkProperties,
 		checkVariables,
+
+		checkDefaultAndNamespaceImports,
+		checkShorthandImports,
+		checkShorthandProperties,
+
 		replacements: new Map(toPairs(mergedReplacements).map(([discouragedName, replacements]) => {
 			return [discouragedName, new Map(toPairs(replacements))];
 		})),
@@ -421,6 +433,37 @@ const fixIdentifier = (fixer, replacement) => identifier => {
 	return fixer.replaceText(identifier, replacement);
 };
 
+const isDefaultOrNamespaceImportName = identifier => {
+	if (identifier.parent.type === 'ImportDefaultSpecifier' &&
+		identifier.parent.local === identifier
+	) {
+		return true;
+	}
+
+	if (identifier.parent.type === 'ImportNamespaceSpecifier' &&
+		identifier.parent.local === identifier
+	) {
+		return true;
+	}
+
+	if (identifier.parent.type === 'ImportSpecifier' &&
+		identifier.parent.local === identifier &&
+		identifier.parent.imported.type === 'Identifier' &&
+		identifier.parent.imported.name === 'default'
+	) {
+		return true;
+	}
+
+	if (identifier.parent.type === 'VariableDeclarator' &&
+		identifier.parent.id === identifier &&
+		astUtils.isStaticRequire(identifier.parent.init)
+	) {
+		return true;
+	}
+
+	return false;
+};
+
 const isClassVariable = variable => {
 	if (variable.defs.length !== 1) {
 		return false;
@@ -529,19 +572,31 @@ const create = context => {
 	});
 
 	const checkVariable = variable => {
+		if (variable.defs.length === 0) {
+			return;
+		}
+
+		const [definition] = variable.defs;
+
+		if (!options.checkDefaultAndNamespaceImports && isDefaultOrNamespaceImportName(definition.name)) {
+			return;
+		}
+
+		if (!options.checkShorthandImports && isShorthandImportIdentifier(definition.name)) {
+			return;
+		}
+
+		if (!options.checkShorthandProperties && isShorthandPropertyIdentifier(definition.name)) {
+			return;
+		}
+
 		const variableReplacements = getNameReplacements(options.replacements, options.whitelist, variable.name);
 
 		if (variableReplacements.length === 0) {
 			return;
 		}
 
-		if (variable.defs.length === 0) {
-			return;
-		}
-
 		const scopes = variable.references.map(reference => reference.from).concat(variable.scope);
-
-		const [definition] = variable.defs;
 
 		const problem = {
 			node: definition.name,
@@ -627,8 +682,14 @@ const schema = [{
 	properties: {
 		checkProperties: {type: 'boolean'},
 		checkVariables: {type: 'boolean'},
+
+		checkDefaultAndNamespaceImports: {type: 'boolean'},
+		checkShorthandImports: {type: 'boolean'},
+		checkShorthandProperties: {type: 'boolean'},
+
 		extendDefaultReplacements: {type: 'boolean'},
 		replacements: {$ref: '#/items/0/definitions/abbreviations'},
+
 		extendDefaultWhitelist: {type: 'boolean'},
 		whitelist: {$ref: '#/items/0/definitions/booleanObject'}
 	},

@@ -140,6 +140,52 @@ For example, if you want to report `props` → `properties` (enabled by default)
 
 Pass `"extendDefaultWhitelist": false` to override the default `whitelist` completely.
 
+### checkDefaultAndNamespaceImports
+
+Pass `"checkDefaultAndNamespaceImports": true` to check variables declared in default or namespace import.
+
+With this set to `true` the following code will be reported.
+
+```js
+import tempWrite from 'temp-write';
+```
+
+```js
+import * as err from 'err';
+```
+
+```js
+const err = require('err');
+```
+
+### checkShorthandImports
+
+Pass `"checkShorthandImports": true` to check variables declared in shorthand import.
+
+With this set to `true` the following code will be reported.
+
+```js
+import {prop} from 'ramda';
+```
+
+### checkShorthandProperties
+
+Pass `"checkShorthandProperties": true` to check variables declared as shorhand properties in object destructuring.
+
+With this set to `true` the following code will be reported.
+
+```js
+const {prop} = require('ramda');
+```
+
+```js
+const {err} = foo;
+```
+
+```js
+function f({err}) {}
+```
+
 ### checkProperties
 
 Pass `"checkProperties": false` to disable checking property names.
