@@ -178,8 +178,8 @@ const defaultWhitelist = {
 };
 
 const prepareOptions = ({
-	checkPropertyNames = true,
-	checkVariableNames = true,
+	checkProperties = true,
+	checkVariables = true,
 	extendDefaultReplacements = true,
 	replacements = {},
 	extendDefaultWhitelist = true,
@@ -194,8 +194,8 @@ const prepareOptions = ({
 		whitelist;
 
 	return {
-		checkPropertyNames,
-		checkVariableNames,
+		checkProperties,
+		checkVariables,
 		replacements: new Map(toPairs(mergedReplacements).map(([discouragedName, replacements]) => {
 			return [discouragedName, new Map(toPairs(replacements))];
 		})),
@@ -478,12 +478,7 @@ const create = context => {
 	const {
 		ecmaVersion
 	} = context.parserOptions;
-	const {
-		checkPropertyNames,
-		checkVariableNames,
-		replacements,
-		whitelist
-	} = prepareOptions(context.options[0]);
+	const options = prepareOptions(context.options[0]);
 
 	// A `class` declaration produces two variables in two scopes:
 	// the inner class scope, and the outer one (whereever the class is declared).
@@ -534,7 +529,7 @@ const create = context => {
 	});
 
 	const checkVariable = variable => {
-		const variableReplacements = getNameReplacements(replacements, whitelist, variable.name);
+		const variableReplacements = getNameReplacements(options.replacements, options.whitelist, variable.name);
 
 		if (variableReplacements.length === 0) {
 			return;
@@ -591,7 +586,7 @@ const create = context => {
 
 	return {
 		Identifier(node) {
-			if (!checkPropertyNames) {
+			if (!options.checkProperties) {
 				return;
 			}
 
@@ -599,7 +594,7 @@ const create = context => {
 				return;
 			}
 
-			const identifierReplacements = getNameReplacements(replacements, whitelist, node.name);
+			const identifierReplacements = getNameReplacements(options.replacements, options.whitelist, node.name);
 
 			if (identifierReplacements.length === 0) {
 				return;
@@ -618,7 +613,7 @@ const create = context => {
 		},
 
 		'Program:exit'() {
-			if (!checkVariableNames) {
+			if (!options.checkVariables) {
 				return;
 			}
 
@@ -630,8 +625,8 @@ const create = context => {
 const schema = [{
 	type: 'object',
 	properties: {
-		checkPropertyNames: {type: 'boolean'},
-		checkVariableNames: {type: 'boolean'},
+		checkProperties: {type: 'boolean'},
+		checkVariables: {type: 'boolean'},
 		extendDefaultReplacements: {type: 'boolean'},
 		replacements: {$ref: '#/items/0/definitions/abbreviations'},
 		extendDefaultWhitelist: {type: 'boolean'},

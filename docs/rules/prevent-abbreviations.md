@@ -140,10 +140,10 @@ For example, if you want to report `props` → `properties` (enabled by default)
 
 Pass `"extendDefaultWhitelist": false` to override the default `whitelist` completely.
 
-### checkPropertyNames
+### checkProperties
 
-Pass `"checkPropertyNames": false` to disable checking property names.
+Pass `"checkProperties": false` to disable checking property names.
 
-### checkVariableNames
+### checkVariables
 
-Pass `"checkVariableNames": false` to disable checking variable names.
+Pass `"checkVariables": false` to disable checking variable names.

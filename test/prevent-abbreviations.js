@@ -58,7 +58,7 @@ const extendedOptions = [{
 }];
 
 const customOptions = [{
-	checkPropertyNames: false,
+	checkProperties: false,
 	extendDefaultReplacements: false,
 	replacements: {
 		args: {
@@ -85,7 +85,7 @@ const customOptions = [{
 }];
 
 const dontCheckVariablesOptions = [{
-	checkVariableNames: false
+	checkVariables: false
 }];
 
 ruleTester.run('prevent-abbreviations', rule, {
