@@ -35,9 +35,12 @@
 		"eslint-ast-utils": "^1.0.0",
 		"import-modules": "^1.1.0",
 		"lodash.camelcase": "^4.1.1",
+		"lodash.defaultsdeep": "^4.6.0",
 		"lodash.kebabcase": "^4.0.1",
 		"lodash.snakecase": "^4.0.1",
+		"lodash.topairs": "^4.3.0",
 		"lodash.upperfirst": "^4.2.0",
+		"reserved-words": "^0.1.2",
 		"safe-regex": "^2.0.1"
 	},
 	"devDependencies": {

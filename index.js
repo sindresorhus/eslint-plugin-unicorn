@@ -47,7 +47,8 @@ module.exports = {
 				'unicorn/prefer-query-selector': 'error',
 				'unicorn/prefer-node-remove': 'error',
 				'unicorn/prefer-text-content': 'error',
-				'unicorn/no-for-loop': 'error'
+				'unicorn/no-for-loop': 'error',
+				'unicorn/prevent-abbreviations': 'error'
 			}
 		}
 	}
