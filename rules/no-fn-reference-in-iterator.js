@@ -46,7 +46,7 @@ const toSelector = name => {
 };
 
 // Select all the call expressions except the ones present in the blacklist
-const selector = `CallExpression${calleeBlacklist.map(toSelector).join('')}`
+const selector = `CallExpression${calleeBlacklist.map(toSelector).join('')}`;
 
 const create = context => ({
 	[selector]: node => {
