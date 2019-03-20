@@ -1,6 +1,6 @@
 # Disallow number literals with zero fractions or dangling dots
 
-There is no difference in JS between e.g. `1`, `1.0` and `1.`, so prefer the former for consistency.
+There is no difference in JavaScript between, for example, `1`, `1.0` and `1.`, so prefer the former for consistency.
 
 This rule is fixable.
 
