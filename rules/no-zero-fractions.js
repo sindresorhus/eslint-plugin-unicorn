@@ -1,8 +1,8 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
-const MSG_ZERO_FRACTION = 'Zero fraction in number.';
-const MSG_DANGLING_DOT = 'Dangling dot in number.';
+const MSG_ZERO_FRACTION = 'Don\'t use a zero fraction in the number.';
+const MSG_DANGLING_DOT = 'Don\'t use a dangling dot in the number.';
 
 // Groups:
 // 1 - integer part

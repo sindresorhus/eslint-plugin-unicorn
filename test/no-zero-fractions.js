@@ -13,11 +13,11 @@ const ruleTester = avaRuleTester(test, {
 
 const errorZeroFraction = {
 	ruleId: 'no-zero-fractions',
-	message: 'Zero fraction in number.'
+	message: 'Don\'t use a zero fraction in the number.'
 };
 const errorDanglingDot = {
 	ruleId: 'no-zero-fractions',
-	message: 'Dangling dot in number.'
+	message: 'Don\'t use a dangling dot in the number.'
 };
 
 ruleTester.run('no-zero-fractions', rule, {
