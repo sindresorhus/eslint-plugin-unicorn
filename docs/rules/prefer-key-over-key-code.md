@@ -1,33 +1,35 @@
 # Enforce the use of event.key instead of event.keyCode
 
-Enforces use of [key](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key) which is more semantic and easy to follow in code.
+Enforces the use of [`KeyboardEvent#key`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key) over [`KeyboardEvent#keyCode`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode) which is deprecated. The `key` property is also more semantic and readable.
 
 ## Fail
 
 ```js
-window.addEventListener("keyDown", e => {
-	console.log(e.keyCode);
+window.addEventListener('keydown', event => {
+	console.log(event.keyCode);
 });
 ```
 
 ```js
-let wasBackspaceUsed = false;
-window.addEventListener("keydown", e => {
-	if (e.keyCode === 8) wasBackspaceUsed = true;
+window.addEventListener('keydown', event => {
+	if (event.keyCode === 8) {
+		console.log('Backspace was pressed');
+	}
 });
 ```
 
 ## Pass
 
 ```js
-window.addEventListener("click", e => {
-	console.log(e.key);
+window.addEventListener('click', event => {
+	console.log(event.key);
 });
 ```
 
 ```js
-let wasBackspaceUsed = false;
-window.addEventListener("keydown", e => {
-	if (e.key === "Backspace") wasBackspaceUsed = true;
+window.addEventListener('keydown', event => {
+	if (event.key === 'Backspace') {
+		console.log('Backspace was pressed');
+	}
 });
 ```
