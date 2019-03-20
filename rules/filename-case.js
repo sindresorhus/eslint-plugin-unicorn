@@ -70,7 +70,7 @@ function splitFilename(filename) {
 const create = context => {
 	const options = context.options[0] || {};
 
-	const chosenCase = cases[options.case || 'camelCase'];
+	const chosenCase = cases[options.case || 'kebabCase'];
 	const filenameWithExt = context.getFilename();
 
 	if (filenameWithExt === '<text>') {
@@ -117,6 +117,7 @@ const schema = [{
 module.exports = {
 	create,
 	meta: {
+		type: 'suggestion',
 		docs: {
 			url: getDocsUrl(__filename)
 		},

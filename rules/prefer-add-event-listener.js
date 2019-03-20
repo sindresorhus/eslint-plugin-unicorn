@@ -9,8 +9,8 @@ const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 
 const beforeUnloadMessage = 'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.';
 
-const formatMessage = (eventMethodName, extra) => {
-	let message = `Prefer \`addEventListener\` over \`${eventMethodName}\`.`;
+const formatMessage = (methodReplacement, eventMethodName, extra) => {
+	let message = `Prefer \`${methodReplacement}\` over \`${eventMethodName}\`.`;
 
 	if (extra) {
 		message += ' ' + extra;
@@ -42,7 +42,23 @@ const shouldFixBeforeUnload = (assignedExpression, nodeReturnsSomething) => {
 	return !nodeReturnsSomething.get(assignedExpression);
 };
 
+const isClearing = node => {
+	if (node.type === 'Literal') {
+		return node.raw === 'null';
+	}
+
+	if (node.type === 'Identifier') {
+		return node.name === 'undefined';
+	}
+
+	return false;
+};
+
 const create = context => {
+	const options = context.options[0] || {};
+	const excludedPackages = new Set(options.excludedPackages || ['koa', 'sax']);
+	let isDisabled;
+
 	const nodeReturnsSomething = new WeakMap();
 	let codePathInfo = null;
 
@@ -60,11 +76,27 @@ const create = context => {
 			codePathInfo = codePathInfo.upper;
 		},
 
+		'CallExpression[callee.name="require"] > Literal'(node) {
+			if (!isDisabled && excludedPackages.has(node.value)) {
+				isDisabled = true;
+			}
+		},
+
+		'ImportDeclaration > Literal'(node) {
+			if (!isDisabled && excludedPackages.has(node.value)) {
+				isDisabled = true;
+			}
+		},
+
 		ReturnStatement(node) {
 			codePathInfo.returnsSomething = codePathInfo.returnsSomething || Boolean(node.argument);
 		},
 
 		'AssignmentExpression:exit'(node) {
+			if (isDisabled) {
+				return;
+			}
+
 			const {left: memberExpression, right: assignedExpression} = node;
 
 			if (memberExpression.type !== 'MemberExpression') {
@@ -83,32 +115,53 @@ const create = context => {
 				return;
 			}
 
-			if (eventTypeName === 'beforeunload' &&
+			if (isClearing(assignedExpression)) {
+				context.report({
+					node,
+					message: formatMessage('removeEventListener', eventMethodName)
+				});
+			} else if (eventTypeName === 'beforeunload' &&
 				!shouldFixBeforeUnload(assignedExpression, nodeReturnsSomething)
 			) {
 				context.report({
 					node,
-					message: formatMessage(eventMethodName, beforeUnloadMessage)
+					message: formatMessage('addEventListener', eventMethodName, beforeUnloadMessage)
 				});
-
-				return;
+			} else {
+				context.report({
+					node,
+					message: formatMessage('addEventListener', eventMethodName),
+					fix: fixer => fix(fixer, context.getSourceCode(), node, memberExpression)
+				});
 			}
-
-			context.report({
-				node,
-				message: formatMessage(eventMethodName),
-				fix: fixer => fix(fixer, context.getSourceCode(), node, memberExpression)
-			});
 		}
 	};
 };
 
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			excludedPackages: {
+				type: 'array',
+				items: {
+					type: 'string'
+				},
+				uniqueItems: true
+			}
+		},
+		additionalProperties: false
+	}
+];
+
 module.exports = {
 	create,
 	meta: {
+		type: 'suggestion',
 		docs: {
 			url: getDocsUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		schema
 	}
 };

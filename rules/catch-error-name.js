@@ -25,6 +25,7 @@ function isLintablePromiseCatch(node) {
 	return arg0.type === 'FunctionExpression' || arg0.type === 'ArrowFunctionExpression';
 }
 
+// TODO: Use `./utils/avoid-capture.js` instead
 function indexifyName(name, scope) {
 	const variables = scope.variableScope.set;
 
@@ -42,6 +43,8 @@ const create = context => {
 		caughtErrorsIgnorePattern: '^_$'
 	}, context.options[0]);
 
+	const {scopeManager} = context.getSourceCode();
+
 	const {name} = options;
 	const caughtErrorsIgnorePattern = new RegExp(options.caughtErrorsIgnorePattern);
 	const stack = [];
@@ -54,7 +57,7 @@ const create = context => {
 		stack.push(stack.length > 0 || value);
 	}
 
-	function popAndReport(node) {
+	function popAndReport(node, scopeNode) {
 		const value = stack.pop();
 
 		if (value !== true && !caughtErrorsIgnorePattern.test(node.name)) {
@@ -68,12 +71,10 @@ const create = context => {
 				problem.fix = fixer => {
 					const fixings = [fixer.replaceText(node, expectedName)];
 
-					const scope = context.getScope();
+					const scope = scopeManager.acquire(scopeNode);
 					const variable = scope.set.get(node.name);
-					if (variable) {
-						for (const reference of variable.references) {
-							fixings.push(fixer.replaceText(reference.identifier, expectedName));
-						}
+					for (const reference of variable.references) {
+						fixings.push(fixer.replaceText(reference.identifier, expectedName));
 					}
 
 					return fixings;
@@ -100,7 +101,8 @@ const create = context => {
 		},
 		'CallExpression:exit': node => {
 			if (isLintablePromiseCatch(node)) {
-				popAndReport(node.arguments[0].params[0]);
+				const callbackNode = node.arguments[0];
+				popAndReport(callbackNode.params[0], callbackNode);
 			}
 		},
 		CatchClause: node => {
@@ -119,7 +121,7 @@ const create = context => {
 			push(node.param.name === errName || errName);
 		},
 		'CatchClause:exit': node => {
-			popAndReport(node.param);
+			popAndReport(node.param, node);
 		}
 	};
 };
@@ -139,6 +141,7 @@ const schema = [{
 module.exports = {
 	create,
 	meta: {
+		type: 'suggestion',
 		docs: {
 			url: getDocsUrl(__filename)
 		},

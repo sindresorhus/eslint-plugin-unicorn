@@ -133,17 +133,17 @@ ruleTester.run('catch-error-name', rule, {
 	],
 
 	invalid: [
-		testCase('try {} catch (err) {}', null, true, 'try {} catch (error) {}'),
-		testCase('try {} catch (error) {}', 'err', true, 'try {} catch (err) {}'),
+		testCase('try {} catch (err) { console.log(err) }', null, true, 'try {} catch (error) { console.log(error) }'),
+		testCase('try {} catch (error) { console.log(error) }', 'err', true, 'try {} catch (err) { console.log(err) }'),
 		testCase('try {} catch ({message}) {}', null, true),
 		testCase('try {} catch (outerError) {}', null, true, 'try {} catch (error) {}'),
 		testCase('try {} catch (innerError) {}', null, true, 'try {} catch (error) {}'),
-		testCase('obj.catch(err => {})', null, true, 'obj.catch(error => {})'),
-		testCase('obj.catch(error => {})', 'err', true, 'obj.catch(err => {})'),
+		testCase('obj.catch(err => err)', null, true, 'obj.catch(error => error)'),
+		testCase('obj.catch(error => error.stack)', 'err', true, 'obj.catch(err => err.stack)'),
 		testCase('obj.catch(({message}) => {})', null, true),
-		testCase('obj.catch(function (err) {})', null, true, 'obj.catch(function (error) {})'),
+		testCase('obj.catch(function (err) { console.log(err) })', null, true, 'obj.catch(function (error) { console.log(error) })'),
 		testCase('obj.catch(function ({message}) {})', null, true),
-		testCase('obj.catch(function (error) {})', 'err', true, 'obj.catch(function (err) {})'),
+		testCase('obj.catch(function (error) { console.log(error) })', 'err', true, 'obj.catch(function (err) { console.log(err) })'),
 		// Failing tests for #107
 		// testCase(`
 		// 	foo.then(() => {
