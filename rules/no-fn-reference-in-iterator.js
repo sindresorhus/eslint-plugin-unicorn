@@ -41,7 +41,6 @@ const fix = (context, node) => {
 
 const toSelector = name => {
 	const splitted = name.split('.');
-
 	return `[callee.${'object.'.repeat(splitted.length)}name!="${splitted.shift()}"]`;
 };
 
