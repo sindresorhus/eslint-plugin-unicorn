@@ -65,7 +65,8 @@ Configure it in `package.json`.
 			"unicorn/prefer-node-remove": "error",
 			"unicorn/prefer-text-content": "error",
 			"unicorn/no-for-loop": "error",
-			"unicorn/prevent-abbreviations": "error"
+			"unicorn/prevent-abbreviations": "error",
+			"unicorn/prefer-includes": "error"
 		}
 	}
 }
@@ -106,6 +107,7 @@ Configure it in `package.json`.
 - [prefer-text-content](docs/rules/prefer-text-content.md) - Prefer `textContent` over `innerText`. *(fixable)*
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(fixable)*
 - [prevent-abbreviations](docs/rules/prevent-abbreviations.md) - Prevent abbreviations *(partly fixable)*
+- [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
 
 
 ## Recommended config
