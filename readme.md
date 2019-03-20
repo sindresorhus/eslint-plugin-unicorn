@@ -111,6 +111,7 @@ Configure it in `package.json`.
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
 - [prefer-includes](docs/rules/prefer-includes.md) - Prefer `includes` over `indexOf` when checking for existence or non existence. *(fixable)*
 
+
 ## Recommended config
 
 This plugin exports a [`recommended` config](index.js) that enforces good practices.
