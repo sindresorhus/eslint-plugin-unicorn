@@ -816,9 +816,6 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 
-		// TODO: This could be renamed to `arguments` safely in non-strict mode,
-		// but it is currently impractical due to a bug in `eslint-scope`.
-		// https://github.com/eslint/eslint-scope/issues/49
 		{
 			code: `
 				const f = (...args) => {
@@ -826,8 +823,8 @@ ruleTester.run('prevent-abbreviations', rule, {
 				}
 			`,
 			output: `
-				const f = (...arguments_) => {
-					return arguments_;
+				const f = (...arguments) => {
+					return arguments;
 				}
 			`,
 			errors: createErrors()
@@ -840,9 +837,9 @@ ruleTester.run('prevent-abbreviations', rule, {
 				}
 			`,
 			output: `
-				let arguments_;
+				let arguments;
 				const f = () => {
-					return arguments_;
+					return arguments;
 				}
 			`,
 			errors: createErrors()
