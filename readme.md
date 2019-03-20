@@ -66,7 +66,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-text-content": "error",
 			"unicorn/no-for-loop": "error",
 			"unicorn/prevent-abbreviations": "error",
-      "unicorn/prefer-includes": "error"
+			"unicorn/prefer-includes": "error"
 		}
 	}
 }
