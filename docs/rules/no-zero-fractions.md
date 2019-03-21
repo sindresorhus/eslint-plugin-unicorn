@@ -11,6 +11,8 @@ const foo = 1.0;
 const foo = -1.0;
 const foo = 123123123.0;
 const foo = 1.;
+const foo = 123.111000000;
+const foo = 123.00e20;
 ```
 
 
