@@ -220,8 +220,7 @@ const nodeContains = (ancestor, descendant) => {
 	return false;
 };
 
-const isIndexIdentifierUsedElsewhereInTheLoopBody = (forStatement, indexIdentifierName, bodyScope) => {
-	const indexVariable = resolveIdentifierName(indexIdentifierName, bodyScope);
+const isIndexVariableUsedElsewhereInTheLoopBody = (indexVariable, bodyScope) => {
 	const inBodyReferences = indexVariable.references.filter(reference => scopeContains(bodyScope, reference.from));
 
 	// One reference in the body would be the one in the element variable declaration like `const el = arr[i]`.
@@ -229,10 +228,14 @@ const isIndexIdentifierUsedElsewhereInTheLoopBody = (forStatement, indexIdentifi
 	return inBodyReferences.length > 1;
 };
 
-const someIdentifiersLeakOutOfTheLoop = (forStatement, identifiers, forScope, bodyScope) => {
-	return identifiers.some(name => {
-		const variable = resolveIdentifierName(name, bodyScope);
+const isIndexVariableAssignedToInTheLoopBody = (indexVariable, bodyScope) => {
+	return indexVariable.references
+		.filter(reference => scopeContains(bodyScope, reference.from))
+		.some(inBodyReference => inBodyReference.isWrite());
+};
 
+const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) => {
+	return variables.some(variable => {
 		return !variable.references.every(reference => {
 			return scopeContains(forScope, reference.from) ||
 				nodeContains(forStatement, reference.identifier);
@@ -278,11 +281,15 @@ const create = context => {
 			const forScope = scopeManager.acquire(node);
 			const bodyScope = scopeManager.acquire(node.body);
 
-			const shouldFix = !someIdentifiersLeakOutOfTheLoop(node, [indexIdentifierName, elementIdentifierName], forScope, bodyScope);
+			const indexVariable = resolveIdentifierName(indexIdentifierName, bodyScope);
+			const elementVariable = resolveIdentifierName(elementIdentifierName, bodyScope);
+
+			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable], forScope) &&
+				!isIndexVariableAssignedToInTheLoopBody(indexVariable, bodyScope);
 
 			if (shouldFix) {
 				problem.fix = fixer => {
-					const shouldGenerateIndex = isIndexIdentifierUsedElsewhereInTheLoopBody(node, indexIdentifierName, bodyScope);
+					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope);
 
 					const index = indexIdentifierName;
 					const element = elementIdentifierName;
