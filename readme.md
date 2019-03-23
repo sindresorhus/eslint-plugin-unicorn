@@ -57,7 +57,7 @@ Configure it in `package.json`.
 			"unicorn/no-zero-fractions": "error",
 			"unicorn/number-literal-case": "error",
 			"unicorn/prefer-add-event-listener": "error",
-			"unicorn/prefer-key-over-key-code": "error",
+			"unicorn/prefer-event-key": "error",
 			"unicorn/prefer-exponentiation-operator": "error",
 			"unicorn/prefer-includes": "error",
 			"unicorn/prefer-node-append": "error",
@@ -114,7 +114,7 @@ Configure it in `package.json`.
 - [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(fixable)*
-- [prefer-key-over-key-code](docs/rules/prefer-key-over-key-code.md) - Prefer `key` over `keyCode`. *(partly fixable)*
+- [prefer-event-key](docs/rules/prefer-event-key.md) - Prefer `key` over `keyCode`. *(partly fixable)*
 
 ## Recommended config
 

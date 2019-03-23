@@ -1,6 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/prefer-key-over-key-code';
+import rule from '../rules/prefer-event-key';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -9,11 +9,11 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const error = key => ({
-	ruleId: 'prefer-key-over-key-code',
+	ruleId: 'prefer-event-key',
 	message: `Use key instead of ${key}. See https://goo.gl/cRK532 for more info.`
 });
 
-ruleTester.run('prefer-key-over-key-code', rule, {
+ruleTester.run('prefer-event-key', rule, {
 	valid: [
 		`window.addEventListener('click', e => {
 			console.log(e.key);
