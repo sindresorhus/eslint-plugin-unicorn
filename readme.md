@@ -36,38 +36,39 @@ Configure it in `package.json`.
 		],
 		"rules": {
 			"unicorn/catch-error-name": "error",
+			"unicorn/custom-error-definition": "off",
+			"unicorn/error-message": "error",
+			"unicorn/escape-case": "error",
 			"unicorn/explicit-length-check": "error",
 			"unicorn/filename-case": "error",
-			"unicorn/no-abusive-eslint-disable": "error",
-			"unicorn/no-process-exit": "error",
-			"unicorn/throw-new-error": "error",
-			"unicorn/number-literal-case": "error",
-			"unicorn/escape-case": "error",
-			"unicorn/no-array-instanceof": "error",
-			"unicorn/no-new-buffer": "error",
-			"unicorn/no-hex-escape": "error",
-			"unicorn/custom-error-definition": "off",
-			"unicorn/prefer-starts-ends-with": "error",
-			"unicorn/prefer-type-error": "error",
-			"unicorn/no-fn-reference-in-iterator": "off",
 			"unicorn/import-index": "error",
 			"unicorn/new-for-builtins": "error",
-			"unicorn/regex-shorthand": "error",
-			"unicorn/prefer-spread": "error",
-			"unicorn/error-message": "error",
-			"unicorn/no-unsafe-regex": "off",
-			"unicorn/prefer-add-event-listener": "error",
+			"unicorn/no-abusive-eslint-disable": "error",
+			"unicorn/no-array-instanceof": "error",
 			"unicorn/no-console-spaces": "error",
-			"unicorn/no-unreadable-array-destructuring": "error",
-			"unicorn/no-unused-properties": "off",
-			"unicorn/prefer-node-append": "error",
-			"unicorn/prefer-query-selector": "error",
-			"unicorn/prefer-node-remove": "error",
-			"unicorn/prefer-text-content": "error",
+			"unicorn/no-fn-reference-in-iterator": "off",
 			"unicorn/no-for-loop": "error",
-			"unicorn/prevent-abbreviations": "error",
+			"unicorn/no-hex-escape": "error",
+			"unicorn/no-new-buffer": "error",
+			"unicorn/no-process-exit": "error",
+			"unicorn/no-unreadable-array-destructuring": "error",
+			"unicorn/no-unsafe-regex": "off",
+			"unicorn/no-unused-properties": "off",
+			"unicorn/no-zero-fractions": "error",
+			"unicorn/number-literal-case": "error",
+			"unicorn/prefer-add-event-listener": "error",
+			"unicorn/prefer-exponentiation-operator": "error",
 			"unicorn/prefer-includes": "error",
-			"unicorn/no-zero-fractions": "error"
+			"unicorn/prefer-node-append": "error",
+			"unicorn/prefer-node-remove": "error",
+			"unicorn/prefer-query-selector": "error",
+			"unicorn/prefer-spread": "error",
+			"unicorn/prefer-starts-ends-with": "error",
+			"unicorn/prefer-text-content": "error",
+			"unicorn/prefer-type-error": "error",
+			"unicorn/prevent-abbreviations": "error",
+			"unicorn/regex-shorthand": "error",
+			"unicorn/throw-new-error": "error"
 		}
 	}
 }
@@ -77,39 +78,39 @@ Configure it in `package.json`.
 ## Rules
 
 - [catch-error-name](docs/rules/catch-error-name.md) - Enforce a specific parameter name in catch clauses.
+- [custom-error-definition](docs/rules/custom-error-definition.md) - Enforce correct `Error` subclassing. *(fixable)*
+- [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
+- [escape-case](docs/rules/escape-case.md) - Require escape sequences to use uppercase values. *(fixable)*
 - [explicit-length-check](docs/rules/explicit-length-check.md) - Enforce explicitly comparing the `length` property of a value. *(partly fixable)*
 - [filename-case](docs/rules/filename-case.md) - Enforce a case style for filenames.
-- [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) - Enforce specifying rules to disable in `eslint-disable` comments.
-- [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
-- [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
-- [number-literal-case](docs/rules/number-literal-case.md) - Enforce lowercase identifier and uppercase value for number literals. *(fixable)*
-- [escape-case](docs/rules/escape-case.md) - Require escape sequences to use uppercase values. *(fixable)*
-- [no-array-instanceof](docs/rules/no-array-instanceof.md) - Require `Array.isArray()` instead of `instanceof Array`. *(fixable)*
-- [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
-- [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of unicode escapes instead of hexadecimal escapes. *(fixable)*
-- [custom-error-definition](docs/rules/custom-error-definition.md) - Enforce correct `Error` subclassing. *(fixable)*
-- [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith` & `String#endsWith` over more complex alternatives.
-- [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
-- [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevents passing a function reference directly to iterator methods. *(fixable)*
 - [import-index](docs/rules/import-index.md) - Enforce importing index files with `.`. *(fixable)*
 - [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean` and `Symbol`. *(fixable)*
-- [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
-- [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
-- [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
+- [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) - Enforce specifying rules to disable in `eslint-disable` comments.
+- [no-array-instanceof](docs/rules/no-array-instanceof.md) - Require `Array.isArray()` instead of `instanceof Array`. *(fixable)*
+- [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
+- [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevents passing a function reference directly to iterator methods. *(fixable)*
+- [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(fixable)*
+- [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of unicode escapes instead of hexadecimal escapes. *(fixable)*
+- [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
+- [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
+- [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
 - [no-unsafe-regex](docs/rules/no-unsafe-regex.md) - Disallow unsafe regular expressions.
+- [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
+- [no-zero-fractions](docs/rules/no-zero-fractions.md) - Disallow number literals with zero fractions or dangling dots. *(fixable)*
+- [number-literal-case](docs/rules/number-literal-case.md) - Enforce lowercase identifier and uppercase value for number literals. *(fixable)*
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `addEventListener` over `on`-functions. *(fixable)*
 - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
-- [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
-- [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
-- [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
-- [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
-- [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
-- [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `remove` over `parentNode.removeChild` and `parentElement.removeChild`. *(fixable)*
-- [prefer-text-content](docs/rules/prefer-text-content.md) - Prefer `textContent` over `innerText`. *(fixable)*
-- [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(fixable)*
-- [prevent-abbreviations](docs/rules/prevent-abbreviations.md) - Prevent abbreviations *(partly fixable)*
 - [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
-- [no-zero-fractions](docs/rules/no-zero-fractions.md) - Disallow number literals with zero fractions or dangling dots. *(fixable)*
+- [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
+- [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `remove` over `parentNode.removeChild` and `parentElement.removeChild`. *(fixable)*
+- [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
+- [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
+- [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith` & `String#endsWith` over more complex alternatives.
+- [prefer-text-content](docs/rules/prefer-text-content.md) - Prefer `textContent` over `innerText`. *(fixable)*
+- [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
+- [prevent-abbreviations](docs/rules/prevent-abbreviations.md) - Prevent abbreviations *(partly fixable)*
+- [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
+- [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 
 
 ## Recommended config
