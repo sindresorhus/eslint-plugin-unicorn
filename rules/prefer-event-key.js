@@ -2,7 +2,6 @@
 const getDocsUrl = require('./utils/get-docs-url');
 
 const keys = ['keyCode', 'charCode', 'which'];
-const extraCitation = 'See https://goo.gl/cRK532 for more info.';
 // https://github.com/facebook/react/blob/b87aabd/packages/react-dom/src/events/getEventKey.js#L36
 // only meta characters which can't be deciphered from String.fromCharCode
 const translateToKey = {
@@ -134,7 +133,7 @@ const fix = node => fixer => {
 const create = context => {
 	const report = node => {
 		context.report({
-			message: `Use key instead of ${node.name}. ${extraCitation}`,
+			message: `Use \`key\` instead of \`${node.name}\``,
 			node,
 			fix: fix(node)
 		});

@@ -10,7 +10,7 @@ const ruleTester = avaRuleTester(test, {
 
 const error = key => ({
 	ruleId: 'prefer-event-key',
-	message: `Use key instead of ${key}. See https://goo.gl/cRK532 for more info.`
+	message: `Use \`key\` instead of \`${key}\``
 });
 
 ruleTester.run('prefer-event-key', rule, {
