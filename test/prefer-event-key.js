@@ -514,6 +514,113 @@ ruleTester.run('prefer-event-key', rule, {
 				}
 			});
 			`
+		},
+		{
+			code: `
+				foo123.addEventListener('click', event => {
+					if (event.keyCode === 13) {
+					}
+				});
+			`,
+			output: `
+				foo123.addEventListener('click', event => {
+					if (event.key === 'Enter') {
+					}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: `
+				foo123.addEventListener('click', event => {
+					if (event.keyCode === 38) {
+					}
+				});
+			`,
+			output: `
+				foo123.addEventListener('click', event => {
+					if (event.key === 'ArrowUp') {
+					}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: `
+				foo123.addEventListener('click', event => {
+					if (event.keyCode === 40) {
+					}
+				});
+			`,
+			output: `
+				foo123.addEventListener('click', event => {
+					if (event.key === 'ArrowDown') {
+					}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: `
+				foo123.addEventListener('click', event => {
+					if (event.keyCode === 37) {
+					}
+				});
+			`,
+			output: `
+				foo123.addEventListener('click', event => {
+					if (event.key === 'ArrowLeft') {
+					}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: `
+				foo123.addEventListener('click', event => {
+					if (event.keyCode === 39) {
+					}
+				});
+			`,
+			output: `
+				foo123.addEventListener('click', event => {
+					if (event.key === 'ArrowRight') {
+					}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: `
+				foo123.addEventListener('click', event => {
+					// period
+					if (event.keyCode === 190) {
+					}
+				});
+			`,
+			output: `
+				foo123.addEventListener('click', event => {
+					if (event.key === '.') {
+					}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: `
+				foo123.addEventListener('click', event => {
+					// close bracket
+					if (event.keyCode === 221) {
+					}
+				});
+			`,
+			output: `
+				foo123.addEventListener('click', event => {
+					if (event.key === ']') {
+					}
+				});
+			`,
+			errors: [error('keyCode')]
 		}
 	]
 });
