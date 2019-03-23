@@ -50,7 +50,7 @@ module.exports = {
 				'unicorn/no-for-loop': 'error',
 				'unicorn/prevent-abbreviations': 'error',
 				'unicorn/prefer-includes': 'error',
-        'unicorn/no-zero-fractions': 'error'
+				'unicorn/no-zero-fractions': 'error'
 			}
 		}
 	}
