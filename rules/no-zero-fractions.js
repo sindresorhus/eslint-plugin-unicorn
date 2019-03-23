@@ -14,25 +14,31 @@ const RE_DANGLINGDOT_OR_ZERO_FRACTIONS = /^([+-]?\d*)(?:(\.0*)|(\.\d*[1-9])0+)(e
 const create = context => {
 	return {
 		Literal: node => {
-			if (typeof node.value === 'number') {
-				const match = RE_DANGLINGDOT_OR_ZERO_FRACTIONS.exec(node.raw);
-				if (match !== null) {
-					const [, integerPart, dotAndZeroes, dotAndDigits, scientificNotationSuffix] = match;
-					const isDanglingDot = dotAndZeroes === '.';
-					context.report({
-						node,
-						message: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
-						fix: fixer => {
-							let wantedString = (dotAndZeroes === undefined) ? integerPart + dotAndDigits : integerPart;
-							if (scientificNotationSuffix !== undefined) {
-								wantedString += scientificNotationSuffix;
-							}
-
-							return fixer.replaceText(node, wantedString);
-						}
-					});
-				}
+			if (typeof node.value !== 'number') {
+				return;
 			}
+
+			const match = RE_DANGLINGDOT_OR_ZERO_FRACTIONS.exec(node.raw);
+			if (match === null) {
+				return;
+			}
+
+			const [, integerPart, dotAndZeroes, dotAndDigits, scientificNotationSuffix] = match;
+			const isDanglingDot = dotAndZeroes === '.';
+
+			context.report({
+				node,
+				message: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
+				fix: fixer => {
+					let wantedString = dotAndZeroes === undefined ? integerPart + dotAndDigits : integerPart;
+
+					if (scientificNotationSuffix !== undefined) {
+						wantedString += scientificNotationSuffix;
+					}
+
+					return fixer.replaceText(node, wantedString);
+				}
+			});
 		}
 	};
 };
