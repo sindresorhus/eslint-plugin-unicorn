@@ -66,7 +66,8 @@ Configure it in `package.json`.
 			"unicorn/prefer-text-content": "error",
 			"unicorn/no-for-loop": "error",
 			"unicorn/prevent-abbreviations": "error",
-			"unicorn/prefer-includes": "error"
+			"unicorn/prefer-includes": "error",
+			"unicorn/no-zero-fractions": "error"
 		}
 	}
 }
@@ -108,6 +109,7 @@ Configure it in `package.json`.
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(fixable)*
 - [prevent-abbreviations](docs/rules/prevent-abbreviations.md) - Prevent abbreviations *(partly fixable)*
 - [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
+- [no-zero-fractions](docs/rules/no-zero-fractions.md) - Disallow number literals with zero fractions or dangling dots. *(fixable)*
 
 
 ## Recommended config
