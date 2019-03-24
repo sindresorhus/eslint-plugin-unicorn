@@ -180,6 +180,18 @@ const create = context => {
 			);
 			if (isReferenceOfEvent) {
 				report(node.value);
+				return;
+			}
+
+			// When the event parameter itself is destructured directly
+			const isEventParamDestructured = event.type === 'ObjectPattern';
+			if (isEventParamDestructured) {
+				// Check for properties
+				for (const prop of event.properties) {
+					if (prop === node) {
+						report(node.value);
+					}
+				}
 			}
 		}
 	};

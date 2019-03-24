@@ -113,6 +113,24 @@ ruleTester.run('prefer-event-key', rule, {
 		},
 		{
 			code: `
+				window.addEventListener('click', ({keyCode}) => {
+					console.log(keyCode);
+				})
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: `
+				window.addEventListener('click', ({which}) => {
+					if (which === 23) {
+						console.log('Wrong!')
+					}
+				})
+			`,
+			errors: [error('which')]
+		},
+		{
+			code: `
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 27) {
 					}
