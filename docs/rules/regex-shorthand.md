@@ -25,3 +25,17 @@ const regex = /\W/;
 const regex = /\W/i;
 const regex = /\d\.\w\-\D/i;
 ```
+
+
+## Options
+
+You can set the option like this:
+
+```js
+"unicorn/regex-shorthand": ["error", [
+  'charClassToMeta', // [0-9] -> [\d]
+  'charClassToSingleChar' // [\d] -> \d
+]]
+```
+
+[available values](https://github.com/DmitrySoshnikov/regexp-tree/tree/master/src/optimizer): any transform name (from package regexp-tree).

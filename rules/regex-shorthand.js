@@ -1,69 +1,56 @@
 'use strict';
-const cleanRegexp = require('clean-regexp');
+
+const {parse, generate, optimize} = require('regexp-tree');
+
 const getDocsUrl = require('./utils/get-docs-url');
 
 const message = 'Use regex shorthands to improve readability.';
 
 const create = context => {
+	const sourceCode = context.getSourceCode();
+	const options = context.options[0] || [
+		'charClassToMeta', // [0-9] -> [\d]
+		'charClassToSingleChar' // [\d] -> \d
+	];
+
 	return {
 		'Literal[regex]': node => {
-			const oldPattern = node.regex.pattern;
-			const {flags} = node.regex;
+			const {type, value} = sourceCode.getFirstToken(node);
 
-			const newPattern = cleanRegexp(oldPattern, flags);
-
-			// Handle regex literal inside RegExp constructor in the other handler
-			if (node.parent.type === 'NewExpression' && node.parent.callee.name === 'RegExp') {
+			if (type !== 'RegularExpression') {
 				return;
 			}
 
-			if (oldPattern !== newPattern) {
+			let parsedSource;
+			try {
+				parsedSource = parse(value);
+			} catch (error) {
 				context.report({
 					node,
-					message,
-					fix: fixer => fixer.replaceTextRange(node.range, `/${newPattern}/${flags}`)
+					message: '{{original}} can\'t be parsed: {{message}}',
+					data: {
+						original: value,
+						message: error.message
+					}
 				});
-			}
-		},
-		'NewExpression[callee.name="RegExp"]': node => {
-			const args = node.arguments;
 
-			if (args.length === 0 || args[0].type !== 'Literal') {
 				return;
 			}
 
-			const hasRegExp = args[0].regex;
+			const originalRegex = generate(parsedSource).toString();
+			const optimizedRegex = optimize(value, options).toString();
 
-			let oldPattern = null;
-			let flags = null;
-
-			if (hasRegExp) {
-				oldPattern = args[0].regex.pattern;
-				flags = args[1] && args[1].type === 'Literal' ? args[1].value : args[0].regex.flags;
-			} else {
-				oldPattern = args[0].value;
-				flags = args[1] && args[1].type === 'Literal' ? args[1].value : '';
+			if (originalRegex === optimizedRegex) {
+				return;
 			}
 
-			const newPattern = cleanRegexp(oldPattern, flags);
-
-			if (oldPattern !== newPattern) {
-				let fixed;
-				if (hasRegExp) {
-					fixed = `/${newPattern}/`;
-				} else {
-					// Escape backslash and apostrophe because we wrap the result in single quotes.
-					fixed = (newPattern || '').replace(/\\/, '\\\\');
-					fixed = fixed.replace(/'/, '\'');
-					fixed = `'${fixed}'`;
+			context.report({
+				node,
+				message,
+				fix(fixer) {
+					return fixer.replaceText(node, optimizedRegex);
 				}
-
-				context.report({
-					node,
-					message,
-					fix: fixer => fixer.replaceTextRange(args[0].range, fixed)
-				});
-			}
+			});
 		}
 	};
 };
