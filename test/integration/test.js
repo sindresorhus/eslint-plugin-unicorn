@@ -11,7 +11,6 @@ const packages = new Map([
 	['ava', 'https://github.com/avajs/ava'],
 	['chalk', 'https://github.com/chalk/chalk'],
 	['wrap-ansi', 'https://github.com/chalk/wrap-ansi'],
-	['got', 'https://github.com/sindresorhus/got'],
 	['np', 'https://github.com/sindresorhus/np'],
 	['ora', 'https://github.com/sindresorhus/ora'],
 	['p-map', 'https://github.com/sindresorhus/p-map'],
