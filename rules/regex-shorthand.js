@@ -24,18 +24,12 @@ const create = context => {
 			}
 
 			const hasRegExp = args[0].regex;
-
-			let oldPattern = null;
-			let flags = null;
-
 			if (hasRegExp) {
-				oldPattern = args[0].regex.pattern;
-				flags = args[1] && args[1].type === 'Literal' ? args[1].value : args[0].regex.flags;
 				return;
-			} else {
-				oldPattern = args[0].value;
-				flags = args[1] && args[1].type === 'Literal' ? args[1].value : '';
 			}
+
+			const oldPattern = args[0].value;
+			const flags = args[1] && args[1].type === 'Literal' ? args[1].value : '';
 
 			const newPattern = cleanRegexp(oldPattern, flags);
 
@@ -58,18 +52,18 @@ const create = context => {
 			}
 		},
 		'Literal[regex]': node => {
-			const {type, value} = sourceCode.getFirstToken(node);
+			const {value} = sourceCode.getFirstToken(node);
 
 			let parsedSource;
 			try {
 				parsedSource = parse(value);
-			} catch ({message}) {
+			} catch (error) {
 				context.report({
 					node,
 					message: '{{original}} can\'t be parsed: {{message}}',
 					data: {
 						original: value,
-						message
+						message: error.message
 					}
 				});
 
