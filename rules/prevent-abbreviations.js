@@ -720,7 +720,10 @@ const schema = [{
 	definitions: {
 		abbreviations: {
 			type: 'object',
-			additionalProperties: {$ref: '#/items/0/definitions/replacements'} // n est pas verifié par la commande nyc ava
+			propertyNames: {
+				pattern: '[^ ]+'
+			},
+			additionalProperties: {$ref: '#/items/0/definitions/replacements'}
 		},
 		replacements: {
 			anyOf: [
@@ -732,7 +735,10 @@ const schema = [{
 		},
 		booleanObject: {
 			type: 'object',
-			additionalProperties: {type: 'boolean'}
+			additionalProperties: {type: 'boolean'},
+			propertyNames: {
+				pattern: '[^ ]+'
+			}
 		}
 	}
 }];
