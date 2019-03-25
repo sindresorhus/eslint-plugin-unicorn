@@ -322,6 +322,7 @@ module.exports = {
 		docs: {
 			url: getDocsUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		schema: []
 	}
 };

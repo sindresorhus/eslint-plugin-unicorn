@@ -135,7 +135,8 @@ const schema = [{
 		caughtErrorsIgnorePattern: {
 			type: 'string'
 		}
-	}
+	},
+	additionalProperties: false
 }];
 
 module.exports = {

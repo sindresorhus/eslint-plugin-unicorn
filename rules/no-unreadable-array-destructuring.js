@@ -29,6 +29,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			url: getDocsUrl(__filename)
-		}
+		},
+		schema: []
 	}
 };

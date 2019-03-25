@@ -680,24 +680,47 @@ const create = context => {
 const schema = [{
 	type: 'object',
 	properties: {
-		checkProperties: {type: 'boolean'},
-		checkVariables: {type: 'boolean'},
+		checkProperties: {
+			type: 'boolean',
+			default: true,
+			comment: 'Pass "checkProperties": false to disable checking property names'
+		},
+		checkVariables: {
+			type: 'boolean',
+			default: true,
+			comment: 'Pass "checkVariables": false to disable checking variable names'
+		},
 
-		checkDefaultAndNamespaceImports: {type: 'boolean'},
-		checkShorthandImports: {type: 'boolean'},
-		checkShorthandProperties: {type: 'boolean'},
+		checkDefaultAndNamespaceImports: {
+			type: 'boolean',
+			default: false
+		},
+		checkShorthandImports: {
+			type: 'boolean',
+			default: false
+		},
+		checkShorthandProperties: {
+			type: 'boolean',
+			default: false
+		},
 
-		extendDefaultReplacements: {type: 'boolean'},
+		extendDefaultReplacements: {
+			type: 'boolean',
+			default: true
+		},
 		replacements: {$ref: '#/items/0/definitions/abbreviations'},
 
-		extendDefaultWhitelist: {type: 'boolean'},
+		extendDefaultWhitelist: {
+			type: 'boolean',
+			default: true
+		},
 		whitelist: {$ref: '#/items/0/definitions/booleanObject'}
 	},
 	additionalProperties: false,
 	definitions: {
 		abbreviations: {
 			type: 'object',
-			additionalProperties: {$ref: '#/items/0/definitions/replacements'}
+			additionalProperties: {$ref: '#/items/0/definitions/replacements'} // n est pas verifié par la commande nyc ava
 		},
 		replacements: {
 			anyOf: [

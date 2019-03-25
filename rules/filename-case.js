@@ -104,6 +104,7 @@ const schema = [{
 	type: 'object',
 	properties: {
 		case: {
+			type: 'string',
 			enum: [
 				'camelCase',
 				'snakeCase',
@@ -111,7 +112,8 @@ const schema = [{
 				'pascalCase'
 			]
 		}
-	}
+	},
+	additionalProperties: false
 }];
 
 module.exports = {

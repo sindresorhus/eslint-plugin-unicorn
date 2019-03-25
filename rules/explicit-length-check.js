@@ -148,15 +148,18 @@ const create = context => {
 
 const schema = [{
 	type: 'object',
+  required: [],
 	properties: {
 		'non-zero': {
+			type: 'string',
 			enum: [
 				'not-equal',
 				'greater-than',
 				'greater-than-or-equal'
 			]
 		}
-	}
+	},
+	additionalProperties: false
 }];
 
 module.exports = {
@@ -166,7 +169,7 @@ module.exports = {
 		docs: {
 			url: getDocsUrl(__filename)
 		},
-		fixable: 'code',
+		fixable: 'code', // partly fixable
 		schema
 	}
 };

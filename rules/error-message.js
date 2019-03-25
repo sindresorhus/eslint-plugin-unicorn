@@ -95,6 +95,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			url: getDocsUrl(__filename)
-		}
+		},
+		schema: []
 	}
 };

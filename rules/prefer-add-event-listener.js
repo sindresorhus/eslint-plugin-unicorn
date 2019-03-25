@@ -147,7 +147,8 @@ const schema = [
 				items: {
 					type: 'string'
 				},
-				uniqueItems: true
+				uniqueItems: true,
+				default: ['koa', 'sax']
 			}
 		},
 		additionalProperties: false
