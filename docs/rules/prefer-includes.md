@@ -17,7 +17,7 @@ x.indexOf('foo') === -1
 ## Pass
 
 ```js
-const x = 'foobar';
+const str = 'foobar';
 str.indexOf('foo') !== -n;
 str.indexOf('foo') !== 1;
 !str.indexOf('foo') === 1;
