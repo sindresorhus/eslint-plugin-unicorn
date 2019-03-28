@@ -580,6 +580,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 			options: customOptions,
 			errors: createErrors()
 		},
+		{
+			code: 'const {err} = foo;',
+			output: 'const {err: error} = foo;',
+			options: customOptions,
+			errors: createErrors()
+		},
 
 		noFixingTestCase({
 			code: 'const foo = {err: 1}',
@@ -887,6 +893,22 @@ ruleTester.run('prevent-abbreviations', rule, {
 				let arguments_;
 				function f() {
 					return g.apply(this, arguments) + arguments_;
+				}
+			`,
+			errors: createErrors()
+		},
+
+		{
+			code: `
+				function unicorn(unicorn) {
+					const {docs = {}} = unicorn;
+					return docs;
+				}
+			`,
+			output: `
+				function unicorn(unicorn) {
+					const {docs: documents = {}} = unicorn;
+					return documents;
 				}
 			`,
 			errors: createErrors()

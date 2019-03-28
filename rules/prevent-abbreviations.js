@@ -402,7 +402,17 @@ const shouldFix = variable => {
 
 const isShorthandPropertyIdentifier = identifier => {
 	return identifier.parent.type === 'Property' &&
+		identifier.parent.key === identifier &&
 		identifier.parent.shorthand;
+};
+
+const isAssignmentPatternShorthandPropertyIdentifier = identifier => {
+	return identifier.parent.type === 'AssignmentPattern' &&
+		identifier.parent.left === identifier &&
+		identifier.parent.parent.type === 'Property' &&
+		identifier.parent.parent.key === identifier &&
+		identifier.parent.parent.value === identifier.parent &&
+		identifier.parent.parent.shorthand;
 };
 
 const isShorthandImportIdentifier = identifier => {
@@ -418,7 +428,7 @@ const isShorthandExportIdentifier = identifier => {
 };
 
 const fixIdentifier = (fixer, replacement) => identifier => {
-	if (isShorthandPropertyIdentifier(identifier)) {
+	if (isShorthandPropertyIdentifier(identifier) || isAssignmentPatternShorthandPropertyIdentifier(identifier)) {
 		return fixer.replaceText(identifier, `${identifier.name}: ${replacement}`);
 	}
 
