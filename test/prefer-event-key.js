@@ -611,7 +611,81 @@ ruleTester.run('prefer-event-key', rule, {
 		{
 			code: `
 				foo123.addEventListener('click', event => {
-					// period
+					if (event.keyCode === 221) {
+					}
+				});
+			`,
+			output: `
+				foo123.addEventListener('click', event => {
+					if (event.key === ']') {
+					}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: `
+				foo123.addEventListener('click', event => {
+					if (event.keyCode === 186) {
+					}
+				});
+			`,
+			output: `
+				foo123.addEventListener('click', event => {
+					if (event.key === ';') {
+					}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: `
+				foo123.addEventListener('click', event => {
+					if (event.keyCode === 187) {
+					}
+				});
+			`,
+			output: `
+				foo123.addEventListener('click', event => {
+					if (event.key === '=') {
+					}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: `
+				foo123.addEventListener('click', event => {
+					if (event.keyCode === 188) {
+					}
+				});
+			`,
+			output: `
+				foo123.addEventListener('click', event => {
+					if (event.key === ',') {
+					}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: `
+				foo123.addEventListener('click', event => {
+					if (event.keyCode === 189) {
+					}
+				});
+			`,
+			output: `
+				foo123.addEventListener('click', event => {
+					if (event.key === '-') {
+					}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: `
+				foo123.addEventListener('click', event => {
 					if (event.keyCode === 190) {
 					}
 				});
@@ -627,14 +701,43 @@ ruleTester.run('prefer-event-key', rule, {
 		{
 			code: `
 				foo123.addEventListener('click', event => {
-					// close bracket
-					if (event.keyCode === 221) {
+					if (event.keyCode === 191) {
 					}
 				});
 			`,
 			output: `
 				foo123.addEventListener('click', event => {
-					if (event.key === ']') {
+					if (event.key === '/') {
+					}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: `
+				foo123.addEventListener('click', event => {
+					if (event.keyCode === 219) {
+					}
+				});
+			`,
+			output: `
+				foo123.addEventListener('click', event => {
+					if (event.key === '[') {
+					}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: `
+				foo123.addEventListener('click', event => {
+					if (event.keyCode === 222) {
+					}
+				});
+			`,
+			output: `
+				foo123.addEventListener('click', event => {
+					if (event.key === ''') {
 					}
 				});
 			`,

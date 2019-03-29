@@ -40,7 +40,18 @@ const translateToKey = {
 	123: 'F12',
 	144: 'NumLock',
 	145: 'ScrollLock',
+	186: ';',
+	187: '=',
+	188: ',',
+	189: '-',
+	190: '.',
+	191: '/',
+	219: '[',
+	220: '\\',
+	221: ']',
+	222: '\'',
 	224: 'Meta'
+
 };
 
 const isPropertyNamedAddEventListener = node =>
