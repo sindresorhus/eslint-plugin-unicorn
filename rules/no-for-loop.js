@@ -168,7 +168,7 @@ const checkUpdateExpression = (forStatement, indexIdentifierName) => {
 
 const getRemovalRange = (node, sourceCode) => {
 	const nodeText = sourceCode.getText(node);
-	const {line} = sourceCode.getLocFromIndex(node.start);
+	const {line} = sourceCode.getLocFromIndex(node.range[0]);
 	const lineText = sourceCode.lines[line - 1];
 
 	const isOnlyNodeOnItsLine = lineText.trim() === nodeText;
