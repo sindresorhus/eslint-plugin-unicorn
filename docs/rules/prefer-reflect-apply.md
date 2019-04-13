@@ -10,6 +10,12 @@ function foo() {}
 
 foo.apply(null, [42]);
 Function.prototype.apply.call(foo, null, [42]);
+foo.apply(this, [42]);
+Function.prototype.apply.call(foo, this, [42]);
+foo.apply(null, arguments);
+Function.prototype.apply.call(foo, null, arguments);
+foo.apply(this, arguments);
+Function.prototype.apply.call(foo, this, arguments);
 ```
 
 
