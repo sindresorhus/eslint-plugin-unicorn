@@ -41,7 +41,14 @@ const packages = new Map([
 	['emittery', 'https://github.com/sindresorhus/emittery'],
 	['p-queue', 'https://github.com/sindresorhus/p-queue'],
 	['pretty-bytes', 'https://github.com/sindresorhus/pretty-bytes'],
-	['normalize-url', 'https://github.com/sindresorhus/normalize-url']
+	['normalize-url', 'https://github.com/sindresorhus/normalize-url'],
+	['pageres', 'https://github.com/sindresorhus/pageres'],
+	['got', 'https://github.com/sindresorhus/got']
+]);
+
+const typescriptPackages = new Set([
+	'pageres',
+	'got'
 ]);
 
 const cwd = path.join(__dirname, 'eslint-config-unicorn-tester');
@@ -57,7 +64,10 @@ const enrichErrors = (packageName, cliArgs, f) => async (...args) => {
 };
 
 const makeEslintTask = (packageName, dest, extraArgs = []) => {
-	const args = ['eslint', '--format', 'json', '--config', path.join(cwd, 'index.js'), dest, ...extraArgs];
+	const isTypescriptPackage = typescriptPackages.has(packageName);
+	const typescriptArgs = isTypescriptPackage ? ['--parser', '@typescript-eslint/parser', '--ext', '.ts'] : [];
+
+	const args = ['eslint', '--format', 'json', '--config', path.join(cwd, 'index.js'), dest, ...typescriptArgs, ...extraArgs];
 
 	return enrichErrors(packageName, args, async () => {
 		let stdout;
@@ -127,7 +137,7 @@ const execute = name => {
 const list = new Listr([
 	{
 		title: 'Setup',
-		task: () => execa('npm', ['install', '../../..', 'eslint', 'babel-eslint'], {cwd})
+		task: () => execa('npm', ['install', '../../..', 'eslint', 'babel-eslint', 'typescript', '@typescript-eslint/parser'], {cwd})
 	},
 	{
 		title: 'Integration tests',
