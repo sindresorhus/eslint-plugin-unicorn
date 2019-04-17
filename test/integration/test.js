@@ -48,7 +48,8 @@ const packages = new Map([
 
 const typescriptPackages = new Set([
 	'pageres',
-	'got'
+	'got',
+	'p-queue'
 ]);
 
 const cwd = path.join(__dirname, 'eslint-config-unicorn-tester');
