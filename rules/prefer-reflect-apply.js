@@ -21,8 +21,8 @@ const fixDirectApplyCall = (node, sourceCode) => {
 		isApplySignature(node.arguments[0], node.arguments[1])
 	) {
 		return fixer => (
-			fixer.replaceTextRange(
-				[node.start, node.end],
+			fixer.replaceText(
+				node,
 				getReflectApplyCall(sourceCode, node.callee.object, node.arguments[0], node.arguments[1])
 			)
 		);
@@ -39,8 +39,8 @@ const fixFunctionPrototypeCall = (node, sourceCode) => {
 		isApplySignature(node.arguments[1], node.arguments[2])
 	) {
 		return fixer => (
-			fixer.replaceTextRange(
-				[node.start, node.end],
+			fixer.replaceText(
+				node,
 				getReflectApplyCall(sourceCode, node.arguments[0], node.arguments[1], node.arguments[2])
 			)
 		);
