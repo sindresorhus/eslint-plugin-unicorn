@@ -22,13 +22,25 @@ const isMap = node => {
 };
 
 const report = (context, nodeFlat, nodeMap) => {
+	// Location will be:
+	//   map(...).flat();
+	//                 ^
+	const flatEnd = nodeFlat && nodeFlat.end;
+
+	// Location will be:
+	//   map(...).flat();
+	//          ^
+	const mapEnd = nodeMap && nodeMap.end;
+
+	const mapProperty = nodeMap && nodeMap.callee && nodeMap.callee.property;
+
 	context.report({
 		node: nodeFlat,
 		messageId: MESSAGE_ID,
 		fix: fixer => {
 			return [
-				fixer.removeRange([nodeMap.end, nodeFlat.end]),
-				fixer.replaceText(nodeMap.callee.property, 'flatMap')
+				fixer.removeRange([mapEnd, flatEnd]),
+				fixer.replaceText(mapProperty, 'flatMap')
 			];
 		}
 	});
@@ -40,7 +52,7 @@ const create = context => ({
 			return;
 		}
 
-		const parent = node.callee.object;
+		const parent = node && node.callee && node.callee.object;
 
 		if (!isMap(parent)) {
 			return;

@@ -77,6 +77,22 @@ ruleTester.run('prefer-flat-map', rule, {
 			errors: [error]
 		},
 		{
+			code: `
+				let bar = [1,2,3]
+					.map(i => {
+						return [i];
+					})
+					.flat();
+			`,
+			output: `
+				let bar = [1,2,3]
+					.flatMap(i => {
+						return [i];
+					});
+			`,
+			errors: [error]
+		},
+		{
 			code: 'const bar = [1,2,3].sort().map(i => [i]).flat()',
 			output: 'const bar = [1,2,3].sort().flatMap(i => [i])',
 			errors: [error]
