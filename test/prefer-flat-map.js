@@ -21,7 +21,11 @@ ruleTester.run('prefer-flat-map', rule, {
 		'const bar = [1,2,3].map((i) => { return i; })',
 		'const bar = foo.map(i => i)',
 		'const bar = [[1],[2],[3]].flat()',
-		'const bar = [1,2,3].map(i => [i]).sort().flat()'
+		'const bar = [1,2,3].map(i => [i]).sort().flat()',
+		`
+			let bar = [1,2,3].map(i => [i]);
+			bar = bar.flat();
+		`
 	],
 	invalid: [
 		{
@@ -57,6 +61,24 @@ ruleTester.run('prefer-flat-map', rule, {
 		{
 			code: 'const bar = [1,2,3].map(i => i).map(i => [i]).flat()',
 			output: 'const bar = [1,2,3].map(i => i).flatMap(i => [i])',
+			errors: [error]
+		},
+		{
+			code: `
+				let bar = [1,2,3].map(i => {
+					return [i];
+				}).flat();
+			`,
+			output: `
+				let bar = [1,2,3].flatMap(i => {
+					return [i];
+				});
+			`,
+			errors: [error]
+		},
+		{
+			code: 'const bar = [1,2,3].sort().map(i => [i]).flat()',
+			output: 'const bar = [1,2,3].sort().flatMap(i => [i])',
 			errors: [error]
 		}
 	]

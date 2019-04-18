@@ -59,7 +59,7 @@ module.exports = {
 		},
 		fixable: 'code',
 		messages: {
-			[MESSAGE_ID]: 'Use `.flatMap()`, rather than `.map(...).flat()`.'
+			[MESSAGE_ID]: 'Prefer `.flatMap()` over `.map(...).flat()`.'
 		}
 	}
 };
