@@ -64,6 +64,16 @@ ruleTester.run('prefer-flat-map', rule, {
 			errors: [error]
 		},
 		{
+			code: 'const bar = [1,2,3].sort().map(i => [i]).flat()',
+			output: 'const bar = [1,2,3].sort().flatMap(i => [i])',
+			errors: [error]
+		},
+		{
+			code: 'const bar = (([1,2,3].map(i => [i]))).flat()',
+			output: 'const bar = (([1,2,3].flatMap(i => [i])))',
+			errors: [error]
+		},
+		{
 			code: `
 				let bar = [1,2,3].map(i => {
 					return [i];
@@ -77,25 +87,19 @@ ruleTester.run('prefer-flat-map', rule, {
 			errors: [error]
 		},
 		{
-			code: `
-				let bar = [1,2,3]
-					.map(i => {
-						return [i];
-					})
-					.flat();
-			`,
-			output: `
-				let bar = [1,2,3]
-					.flatMap(i => {
-						return [i];
-					});
-			`,
+			code: 'let bar = [1,2,3].map(i => {\nreturn [i];\n})\n.flat();',
+			output: 'let bar = [1,2,3].flatMap(i => {\nreturn [i];\n});\n',
 			errors: [error]
 		},
 		{
-			code: 'const bar = [1,2,3].sort().map(i => [i]).flat()',
-			output: 'const bar = [1,2,3].sort().flatMap(i => [i])',
+			code: 'let bar = [1,2,3].map(i => {\nreturn [i];\n}) // comment\n.flat();',
+			output: 'let bar = [1,2,3].flatMap(i => {\nreturn [i];\n}); // comment\n',
 			errors: [error]
-		}
+		},
+		{
+			code: 'let bar = [1,2,3].map(i => {\nreturn [i];\n}) // comment\n.flat(); // other',
+			output: 'let bar = [1,2,3].flatMap(i => {\nreturn [i];\n}); // comment\n // other',
+			errors: [error]
+		},
 	]
 });
