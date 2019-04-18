@@ -52,7 +52,7 @@ const create = context => ({
 			return;
 		}
 
-		const parent = node && node.callee && node.callee.object;
+		const parent = node.callee.object;
 
 		if (!isMap(parent)) {
 			return;
