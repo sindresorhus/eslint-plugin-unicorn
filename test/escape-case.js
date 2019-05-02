@@ -21,11 +21,9 @@ ruleTester.run('escape-case', rule, {
 		'const foo = "\\xA9";',
 		'const foo = "\\uD834";',
 		'const foo = "\\u{1D306}";',
-		'const foo = "\\cA";',
 		'const foo = `\\xA9`;',
 		'const foo = `\\uD834`;',
 		'const foo = `\\u{1D306}`;',
-		'const foo = `\\cA`;',
 		'const foo = `\\uD834foo`;',
 		'const foo = `foo\\uD834`;',
 		'const foo = `foo \\uD834`;',
@@ -63,11 +61,6 @@ ruleTester.run('escape-case', rule, {
 			output: 'const foo = "\\u{1D306}";'
 		},
 		{
-			code: 'const foo = "\\ca";',
-			errors,
-			output: 'const foo = "\\cA";'
-		},
-		{
 			code: 'const foo = `\\xa9`;',
 			errors,
 			output: 'const foo = `\\xA9`;'
@@ -81,11 +74,6 @@ ruleTester.run('escape-case', rule, {
 			code: 'const foo = `\\u{1d306}`;',
 			errors,
 			output: 'const foo = `\\u{1D306}`;'
-		},
-		{
-			code: 'const foo = `\\ca`;',
-			errors,
-			output: 'const foo = `\\cA`;'
 		},
 		{
 			code: 'const foo = `\\ud834foo`;',
