@@ -16,7 +16,7 @@ const report = (context, node, target, pattern) => {
 	const sourceCode = context.getSourceCode();
 	const memberExpressionNode = target.parent;
 	const dotToken = sourceCode.getTokenBefore(memberExpressionNode.property);
-	const targetSource = sourceCode.getText().slice(memberExpressionNode.start, dotToken.start);
+	const targetSource = sourceCode.getText().slice(memberExpressionNode.range[0], dotToken.range[0]);
 	const patternSource = sourceCode.getText(pattern);
 	context.report({
 		node,
