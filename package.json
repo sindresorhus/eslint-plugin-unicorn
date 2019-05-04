@@ -51,6 +51,7 @@
 		"del": "^3.0.0",
 		"eslint": "^5.12.0",
 		"eslint-ava-rule-tester": "^3.0.0",
+		"eslint-plugin-eslint-plugin": "^2.0.1",
 		"execa": "^1.0.0",
 		"listr": "^0.14.1",
 		"nyc": "^13.1.0",
@@ -64,6 +65,22 @@
 	"ava": {
 		"files": [
 			"test/*.js"
+		]
+	},
+	"xo": {
+		"plugins": [
+			"eslint-plugin"
+		],
+		"extends": [
+			"plugin:eslint-plugin/all"
+		],
+		"overrides": [
+			{
+				"files": "rules/utils/*.js",
+				"rules": {
+					"eslint-plugin/require-meta-docs-url": "off"
+				}
+			}
 		]
 	}
 }
