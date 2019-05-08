@@ -6,8 +6,8 @@ const {
 
 const getDocsUrl = require('./utils/get-docs-url');
 
-const escapeWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[a-f\d]{2}|u[a-f\d]{4}|u\{(?:[a-f\d]{1,})\})/;
-const escapePatternWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[a-f\d]{2}|u[a-f\d]{4}|u\{(?:[a-f\d]{1,})\}|c[a-z])/;
+const escapeWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[a-f\d]{2}|u[a-f\d]{4}|u{(?:[a-f\d]+)})/;
+const escapePatternWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[a-f\d]{2}|u[a-f\d]{4}|u{(?:[a-f\d]+)}|c[a-z])/;
 const hasLowercaseCharacter = /[a-z]+/;
 const message = 'Use uppercase characters for the value of the escape sequence.';
 
