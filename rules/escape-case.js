@@ -1,12 +1,18 @@
 'use strict';
+const {
+	visitRegExpAST,
+	parseRegExpLiteral
+} = require('regexpp');
+
 const getDocsUrl = require('./utils/get-docs-url');
 
 const escapeWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[a-f\d]{2}|u[a-f\d]{4}|u\{(?:[a-f\d]{1,})\})/;
+const escapePatternWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[a-f\d]{2}|u[a-f\d]{4}|u\{(?:[a-f\d]{1,})\}|c[a-z])/;
 const hasLowercaseCharacter = /[a-z]+/;
 const message = 'Use uppercase characters for the value of the escape sequence.';
 
-const fix = value => {
-	const results = escapeWithLowercase.exec(value);
+const fix = (value, regexp) => {
+	const results = regexp.exec(value);
 
 	if (results) {
 		const prefix = results[1].length + 1;
@@ -15,6 +21,48 @@ const fix = value => {
 	}
 
 	return value;
+};
+
+/**
+ * Find the [start, end] position of the lowercase escape sequence in regular expression literal ASTNode
+ * @param {string} value a string representation of a literal ASTNode
+ * @return {number[]|null} [start, end] pair if found, null if not found
+ */
+const findLowercaseEscape = value => {
+	const ast = parseRegExpLiteral(value);
+	let escapeNodePosition = null;
+	visitRegExpAST(ast, {
+		onCharacterLeave(node) {
+			if (escapeNodePosition) {
+				return;
+			}
+
+			const matches = node.raw.match(escapePatternWithLowercase);
+
+			if (matches && matches[2].slice(1).match(hasLowercaseCharacter)) {
+				escapeNodePosition = [node.start, node.end];
+			}
+		}
+	});
+	return escapeNodePosition;
+};
+
+/**
+ * Produce a fix if there is any lowercase escape sequence in node
+ * @param {ASTNode} node The Regular Expression Literal ASTNode to check
+ * @return {string} The fixed `node.raw` string
+ */
+const fixRegExp = node => {
+	const escapeNodePosition = findLowercaseEscape(node.raw);
+	const {raw} = node;
+
+	if (escapeNodePosition) {
+		const [start, end] = escapeNodePosition;
+
+		return raw.slice(0, start) + fix(raw.slice(start, end), escapePatternWithLowercase) + raw.slice(end, raw.length);
+	}
+
+	return raw;
 };
 
 const create = context => {
@@ -30,7 +78,18 @@ const create = context => {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceTextRange([node.start, node.end], fix(node.raw))
+					fix: fixer => fixer.replaceTextRange([node.start, node.end], fix(node.raw, escapeWithLowercase))
+				});
+			}
+		},
+		'Literal[regex]'(node) {
+			const escapeNodePosition = findLowercaseEscape(node.raw);
+
+			if (escapeNodePosition) {
+				context.report({
+					node,
+					message,
+					fix: fixer => fixer.replaceTextRange([node.start, node.end], fixRegExp(node))
 				});
 			}
 		},
@@ -45,7 +104,7 @@ const create = context => {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceTextRange([node.start, node.end], fix(node.value.raw))
+					fix: fixer => fixer.replaceTextRange([node.start, node.end], fix(node.value.raw, escapeWithLowercase))
 				});
 			}
 		}
