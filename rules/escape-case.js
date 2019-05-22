@@ -24,12 +24,14 @@ const fix = (value, regexp) => {
 };
 
 /**
- * Find the [start, end] position of the lowercase escape sequence in regular expression literal ASTNode
- * @param {string} value a string representation of a literal ASTNode
- * @return {number[]|null} [start, end] pair if found, null if not found
- */
+Find the `[start, end]` position of the lowercase escape sequence in a regular expression literal ASTNode.
+
+@param {string} value - String representation of a literal ASTNode.
+@returns {number[] | null} The `[start, end]` pair if found, or null if not.
+*/
 const findLowercaseEscape = value => {
 	const ast = parseRegExpLiteral(value);
+
 	let escapeNodePosition = null;
 	visitRegExpAST(ast, {
 		onCharacterLeave(node) {
@@ -44,21 +46,22 @@ const findLowercaseEscape = value => {
 			}
 		}
 	});
+
 	return escapeNodePosition;
 };
 
 /**
- * Produce a fix if there is any lowercase escape sequence in node
- * @param {ASTNode} node The Regular Expression Literal ASTNode to check
- * @return {string} The fixed `node.raw` string
- */
+Produce a fix if there is a lowercase escape sequence in the node.
+
+@param {ASTNode} node - The regular expression literal ASTNode to check.
+@returns {string} The fixed `node.raw` string.
+*/
 const fixRegExp = node => {
 	const escapeNodePosition = findLowercaseEscape(node.raw);
 	const {raw} = node;
 
 	if (escapeNodePosition) {
 		const [start, end] = escapeNodePosition;
-
 		return raw.slice(0, start) + fix(raw.slice(start, end), escapePatternWithLowercase) + raw.slice(end, raw.length);
 	}
 
