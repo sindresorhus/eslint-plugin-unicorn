@@ -1,25 +1,8 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
+const isMethodNamed = require('./utils/is-method-named');
 
 const MESSAGE_ID = 'preferFlatMap';
-
-const isFlat = node => {
-	return (
-		node.type === 'CallExpression' &&
-		node.callee.type === 'MemberExpression' &&
-		node.callee.property.type === 'Identifier' &&
-		node.callee.property.name === 'flat'
-	);
-};
-
-const isMap = node => {
-	return (
-		node.type === 'CallExpression' &&
-		node.callee.type === 'MemberExpression' &&
-		node.callee.property.type === 'Identifier' &&
-		node.callee.property.name === 'map'
-	);
-};
 
 const report = (context, nodeFlat, nodeMap) => {
 	const source = context.getSourceCode();
@@ -111,13 +94,13 @@ const report = (context, nodeFlat, nodeMap) => {
 
 const create = context => ({
 	CallExpression: node => {
-		if (!isFlat(node)) {
+		if (!isMethodNamed(node, 'flat')) {
 			return;
 		}
 
 		const parent = node.callee.object;
 
-		if (!isMap(parent)) {
+		if (!isMethodNamed(parent, 'map')) {
 			return;
 		}
 
