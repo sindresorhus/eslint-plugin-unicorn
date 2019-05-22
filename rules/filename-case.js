@@ -6,23 +6,23 @@ const snakeCase = require('lodash.snakecase');
 const upperfirst = require('lodash.upperfirst');
 const getDocsUrl = require('./utils/get-docs-url');
 
-const pascalCase = str => upperfirst(camelCase(str));
+const pascalCase = string => upperfirst(camelCase(string));
 const numberRegex = /(\d+)/;
 const PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
 const PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
 
 function ignoreNumbers(fn) {
-	return str => {
+	return string => {
 		const stack = [];
-		let execResult = numberRegex.exec(str);
+		let execResult = numberRegex.exec(string);
 
 		while (execResult) {
 			stack.push(execResult[0]);
-			str = str.replace(execResult[0], PLACEHOLDER);
-			execResult = numberRegex.exec(str);
+			string = string.replace(execResult[0], PLACEHOLDER);
+			execResult = numberRegex.exec(string);
 		}
 
-		let withCase = fn(str);
+		let withCase = fn(string);
 
 		while (stack.length > 0) {
 			withCase = withCase.replace(PLACEHOLDER_REGEX, stack.shift());
@@ -71,16 +71,16 @@ const create = context => {
 	const options = context.options[0] || {};
 
 	const chosenCase = cases[options.case || 'kebabCase'];
-	const filenameWithExt = context.getFilename();
+	const filenameWithExtension = context.getFilename();
 
-	if (filenameWithExt === '<text>') {
+	if (filenameWithExtension === '<text>') {
 		return {};
 	}
 
 	return {
 		Program: node => {
-			const extension = path.extname(filenameWithExt);
-			const filename = path.basename(filenameWithExt, extension);
+			const extension = path.extname(filenameWithExtension);
+			const filename = path.basename(filenameWithExtension, extension);
 
 			if (filename + extension === 'index.js') {
 				return;

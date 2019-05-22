@@ -11,7 +11,7 @@ const create = context => {
 			if (callee.type === 'MemberExpression' && getMethodName(callee) === 'appendChild') {
 				context.report({
 					node,
-					message: 'Prefer `append` over `appendChild`',
+					message: 'Prefer `Node#append()` over `Node#appendChild()`.',
 					fix: fixer => fixer.replaceText(callee.property, 'append')
 				});
 			}

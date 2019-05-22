@@ -1,6 +1,6 @@
 # Enforce a case style for filenames
 
-Enforces all linted files to have their names in a certain case style. Default is `kebabCase`.
+Enforces all linted files to have their names in a certain case style. The default is `kebabCase`.
 
 Files named `index.js` are ignored as they can't change case (Only a problem with `pascalCase`).
 
@@ -35,5 +35,10 @@ Files named `index.js` are ignored as they can't change case (Only a problem wit
 You can set the `case` option like this:
 
 ```js
-"unicorn/filename-case": ["error", {"case": "kebabCase"}]
+"unicorn/filename-case": [
+	"error",
+	{
+		"case": "kebabCase"
+	}
+]
 ```

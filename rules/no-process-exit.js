@@ -8,7 +8,7 @@ const create = context => {
 		return {};
 	}
 
-	let processEventHandler = null;
+	let processEventHandler;
 
 	return {
 		CallExpression: node => {
@@ -30,7 +30,7 @@ const create = context => {
 		},
 		'CallExpression:exit': node => {
 			if (node === processEventHandler) {
-				processEventHandler = null;
+				processEventHandler = undefined;
 			}
 		}
 	};

@@ -2,15 +2,15 @@
 const getDocsUrl = require('./utils/get-docs-url');
 
 const regexp = /^(@.*?\/.*?|[./]+?.*?)(?:\/(?:index(?:\.js)?)?)$/;
-const isImportingIndex = m => regexp.test(m);
-const normalize = m => m.replace(regexp, '$1');
+const isImportingIndex = value => regexp.test(value);
+const normalize = value => value.replace(regexp, '$1');
 
-const importIndex = (context, node, m) => {
-	if (isImportingIndex(m.value)) {
+const importIndex = (context, node, argument) => {
+	if (isImportingIndex(argument.value)) {
 		context.report({
 			node,
-			message: 'Do not reference the index file directly',
-			fix: fixer => fixer.replaceText(m, `'${normalize(m.value)}'`)
+			message: 'Do not reference the index file directly.',
+			fix: fixer => fixer.replaceText(argument, `'${normalize(argument.value)}'`)
 		});
 	}
 };

@@ -10,6 +10,7 @@ const report = (context, node, target, pattern) => {
 	const dotToken = sourceCode.getTokenBefore(memberExpressionNode.property);
 	const targetSource = sourceCode.getText().slice(memberExpressionNode.range[0], dotToken.range[0]);
 	const patternSource = sourceCode.getText(pattern);
+
 	context.report({
 		node,
 		message: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.',

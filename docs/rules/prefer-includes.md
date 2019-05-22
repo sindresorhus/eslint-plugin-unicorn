@@ -4,6 +4,7 @@ All built-ins have `.includes()` in addition to `.indexOf()`. Prefer `.includes(
 
 This rule is fixable.
 
+
 ## Fail
 
 ```js
@@ -13,6 +14,7 @@ str.indexOf('foo') > -1;
 'foobar'.indexOf('foo') >= 0;
 x.indexOf('foo') === -1
 ```
+
 
 ## Pass
 

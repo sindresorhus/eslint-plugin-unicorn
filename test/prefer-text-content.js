@@ -8,10 +8,12 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const error = {
-	ruleId: 'prefer-text-content',
-	message: 'Prefer `textContent` over `innerText`.'
-};
+const errors = [
+	{
+		ruleId: 'prefer-text-content',
+		message: 'Prefer `.textContent` over `.innerText`.'
+	}
+];
 
 ruleTester.run('prefer-text-content', rule, {
 	valid: [
@@ -25,12 +27,12 @@ ruleTester.run('prefer-text-content', rule, {
 		{
 			code: 'node.innerText;',
 			output: 'node.textContent;',
-			errors: [error]
+			errors
 		},
 		{
 			code: 'node.innerText = \'foo\';',
 			output: 'node.textContent = \'foo\';',
-			errors: [error]
+			errors
 		}
 	]
 });

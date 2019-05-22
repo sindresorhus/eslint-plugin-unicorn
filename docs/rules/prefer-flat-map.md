@@ -11,6 +11,7 @@ This rule is fixable.
 [1, 2, 3].map(i => [i]).flat();
 ```
 
+
 ## Pass
 
 ```js

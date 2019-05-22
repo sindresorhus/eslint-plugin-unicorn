@@ -82,16 +82,26 @@ somePromise.catch(_ => {
 You can set the `name` option like this:
 
 ```js
-"unicorn/catch-error-name": ["error", {"name": "error"}]
+"unicorn/catch-error-name": [
+	"error",
+	{
+		"name": "error"
+	}
+]
 ```
 
 ### caughtErrorsIgnorePattern
 
 ```js
-"unicorn/catch-error-name": ["error", {"caughtErrorsIgnorePattern": "^_$"}]
+"unicorn/catch-error-name": [
+	"error",
+	{
+		"caughtErrorsIgnorePattern": "^_$"
+	}
+]
 ```
 
-This option lets you specify a regex pattern for matches to ignore. Default is `^_$`.
+This option lets you specify a regex pattern for matches to ignore. The default is `^_$`.
 
 With `^unicorn$`, this would fail:
 

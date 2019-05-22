@@ -89,9 +89,9 @@ Configure it in `package.json`.
 - [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) - Enforce specifying rules to disable in `eslint-disable` comments.
 - [no-array-instanceof](docs/rules/no-array-instanceof.md) - Require `Array.isArray()` instead of `instanceof Array`. *(fixable)*
 - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
-- [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevents passing a function reference directly to iterator methods. *(fixable)*
-- [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(fixable)*
-- [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of unicode escapes instead of hexadecimal escapes. *(fixable)*
+- [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevent passing a function reference directly to iterator methods. *(fixable)*
+- [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(partly fixable)*
+- [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of Unicode escapes instead of hexadecimal escapes. *(fixable)*
 - [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
 - [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
@@ -99,18 +99,18 @@ Configure it in `package.json`.
 - [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
 - [no-zero-fractions](docs/rules/no-zero-fractions.md) - Disallow number literals with zero fractions or dangling dots. *(fixable)*
 - [number-literal-case](docs/rules/number-literal-case.md) - Enforce lowercase identifier and uppercase value for number literals. *(fixable)*
-- [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `addEventListener` over `on`-functions. *(fixable)*
+- [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. *(partly fixable)*
 - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
 - [prefer-flat-map](docs/rules/prefer-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
 - [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
-- [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
-- [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `remove` over `parentNode.removeChild` and `parentElement.removeChild`. *(fixable)*
-- [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `querySelector` over `getElementById`, `querySelectorAll` over `getElementsByClassName` and `getElementsByTagName`. *(partly fixable)*
+- [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `Node.append()` over `Node.appendChild()`. *(fixable)*
+- [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `node.remove()` over `parentNode.removeChild(node)` and `parentElement.removeChild(node)`. *(fixable)*
+- [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. *(partly fixable)*
 - [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
-- [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith` & `String#endsWith` over more complex alternatives.
-- [prefer-text-content](docs/rules/prefer-text-content.md) - Prefer `textContent` over `innerText`. *(fixable)*
+- [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith()` & `String#endsWith()` over more complex alternatives.
+- [prefer-text-content](docs/rules/prefer-text-content.md) - Prefer `.textContent` over `.innerText`. *(fixable)*
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
-- [prevent-abbreviations](docs/rules/prevent-abbreviations.md) - Prevent abbreviations *(partly fixable)*
+- [prevent-abbreviations](docs/rules/prevent-abbreviations.md) - Prevent abbreviations. *(partly fixable)*
 - [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 
@@ -138,9 +138,12 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 ## Maintainers
 
 - [Sindre Sorhus](https://github.com/sindresorhus)
-- [Jeroen Engels](https://github.com/jfmengels)
 - [Sam Verschueren](https://github.com/SamVerschueren)
 - [futpib](https://github.com/futpib)
+
+###### Former
+
+- [Jeroen Engels](https://github.com/jfmengels)
 
 
 ## License

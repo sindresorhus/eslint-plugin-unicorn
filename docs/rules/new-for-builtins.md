@@ -2,7 +2,7 @@
 
 They work the same, but `new` should be preferred for consistency with other constructors.
 
-Enforces the use of `new` for following builtins.
+Enforces the use of `new` for following builtins:
 
 - `Object`
 - `Array`
