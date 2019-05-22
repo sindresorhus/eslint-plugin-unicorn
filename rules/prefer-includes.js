@@ -1,14 +1,6 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
-
-const isIndexOf = node => {
-	return (
-		node.type === 'CallExpression' &&
-		node.callee.type === 'MemberExpression' &&
-		node.callee.property.type === 'Identifier' &&
-		node.callee.property.name === 'indexOf'
-	);
-};
+const isMethodNamed = require('./utils/is-method-named');
 
 const isNegativeOne = (operator, value) => operator === '-' && value === 1;
 
@@ -33,7 +25,7 @@ const create = context => ({
 	BinaryExpression: node => {
 		const {left, right} = node;
 
-		if (isIndexOf(left)) {
+		if (isMethodNamed(left, 'indexOf')) {
 			const target = left.callee.object;
 			const pattern = left.arguments[0];
 

@@ -58,6 +58,7 @@ Configure it in `package.json`.
 			"unicorn/number-literal-case": "error",
 			"unicorn/prefer-add-event-listener": "error",
 			"unicorn/prefer-exponentiation-operator": "error",
+			"unicorn/prefer-flat-map": "error",
 			"unicorn/prefer-includes": "error",
 			"unicorn/prefer-node-append": "error",
 			"unicorn/prefer-node-remove": "error",
@@ -100,6 +101,7 @@ Configure it in `package.json`.
 - [number-literal-case](docs/rules/number-literal-case.md) - Enforce lowercase identifier and uppercase value for number literals. *(fixable)*
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `addEventListener` over `on`-functions. *(fixable)*
 - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
+- [prefer-flat-map](docs/rules/prefer-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
 - [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `append` over `appendChild`. *(fixable)*
 - [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `remove` over `parentNode.removeChild` and `parentElement.removeChild`. *(fixable)*
