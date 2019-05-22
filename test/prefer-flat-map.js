@@ -100,6 +100,21 @@ ruleTester.run('prefer-flat-map', rule, {
 			code: 'let bar = [1,2,3].map(i => {\nreturn [i];\n}) // comment\n.flat(); // other',
 			output: 'let bar = [1,2,3].flatMap(i => {\nreturn [i];\n}); // comment\n // other',
 			errors: [error]
+		},
+		{
+			code: 'let bar = [1,2,3]\n  .map(i => { return [i]; })\n  .flat();',
+			output: 'let bar = [1,2,3]\n  .flatMap(i => { return [i]; });\n  ',
+			errors: [error]
+		},
+		{
+			code: 'let bar = [1,2,3].map(i => { return [i]; })\n  .flat();',
+			output: 'let bar = [1,2,3].flatMap(i => { return [i]; });\n  ',
+			errors: [error]
+		},
+		{
+			code: 'let bar = [1,2,3] . map( x => y ) . flat () // 🤪',
+			output: 'let bar = [1,2,3] . flatMap( x => y )  // 🤪',
+			errors: [error]
 		}
 	]
 });
