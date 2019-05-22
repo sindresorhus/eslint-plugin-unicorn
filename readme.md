@@ -68,6 +68,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-type-error": "error",
 			"unicorn/prevent-abbreviations": "error",
 			"unicorn/regex-shorthand": "error",
+			"unicorn/no-nested-ternary": "error",
 			"unicorn/throw-new-error": "error"
 		}
 	}
@@ -91,6 +92,7 @@ Configure it in `package.json`.
 - [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevents passing a function reference directly to iterator methods. *(fixable)*
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(fixable)*
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of unicode escapes instead of hexadecimal escapes. *(fixable)*
+- [no-nested-ternary](docs/rules/no-nested-ternary.md) - Disallow nested ternary expressions *(partly fixable)*
 - [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
 - [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.

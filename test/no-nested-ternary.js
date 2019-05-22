@@ -42,6 +42,6 @@ ruleTester.run('new-error', rule, {
 			code: 'var foo = i > 5 ? true : i < 100 ? true : false;',
 			output: 'var foo = i > 5 ? true : (i < 100 ? true : false);',
 			errors
-		},
+		}
 	]
 });

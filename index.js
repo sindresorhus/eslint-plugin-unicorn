@@ -31,6 +31,7 @@ module.exports = {
 				'unicorn/no-fn-reference-in-iterator': 'off',
 				'unicorn/no-for-loop': 'error',
 				'unicorn/no-hex-escape': 'error',
+				'unicorn/no-nested-ternary': 'error',
 				'unicorn/no-new-buffer': 'error',
 				'unicorn/no-process-exit': 'error',
 				'unicorn/no-unreadable-array-destructuring': 'error',

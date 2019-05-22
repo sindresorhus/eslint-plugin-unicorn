@@ -8,7 +8,7 @@ const isParethesized = (sourceCode, node) => {
 	return Boolean(previousToken && nextToken) &&
 		previousToken.value === '(' && previousToken.end <= node.start &&
 		nextToken.value === ')' && nextToken.start >= node.end;
-}
+};
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
@@ -23,13 +23,13 @@ const create = context => {
 				}
 
 				// Nesting more than one level not allowed
-				if (childNode.alternate.type === "ConditionalExpression" || childNode.consequent.type === "ConditionalExpression") {
-					context.report({ node, message: "Do not nest ternary expressions." });
+				if (childNode.alternate.type === 'ConditionalExpression' || childNode.consequent.type === 'ConditionalExpression') {
+					context.report({node, message: 'Do not nest ternary expressions.'});
 					break;
 				} else if (!isParethesized(sourceCode, childNode)) {
 					context.report({
 						node: childNode,
-						message: "Do not nest ternary expressions.",
+						message: 'Do not nest ternary expressions.',
 						fix: fixer => [
 							fixer.insertTextBefore(childNode, '('),
 							fixer.insertTextAfter(childNode, ')')
@@ -38,7 +38,7 @@ const create = context => {
 				}
 			}
 		}
-	}
+	};
 };
 
 module.exports = {
