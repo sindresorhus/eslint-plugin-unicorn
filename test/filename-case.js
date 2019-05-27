@@ -86,6 +86,7 @@ ruleTester.run('filename-case', rule, {
 		testCase('src/foo/_FooBar.js', 'pascalCase'),
 		testCase('src/foo/___FooBar.js', 'pascalCase'),
 		testManyCases('src/foo/foo-bar.js', undefined),
+		testManyCases('src/foo/foo-bar.js', {}),
 		testManyCases('src/foo/fooBar.js', {camelCase: true}),
 		testManyCases('src/foo/FooBar.js', {kebabCase: true, pascalCase: true}),
 		testManyCases('src/foo/___foo_bar.js', {snakeCase: true, pascalCase: true}),
