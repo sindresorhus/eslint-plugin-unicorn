@@ -204,17 +204,26 @@ ruleTester.run('filename-case', rule, {
 		),
 		testManyCases(
 			'src/foo/foo-bar.js',
-			{camelCase: true, pascalCase: true},
+			{
+				camelCase: true,
+				pascalCase: true
+			},
 			'Filename is not in camel case or pascal case. Rename it to one of [`fooBar.js`, `FooBar.js`].'
 		),
 		testManyCases(
 			'src/foo/_foo_bar.js',
-			{camelCase: true, pascalCase: true, kebabCase: true},
+			{
+				camelCase: true,
+				pascalCase: true,
+				kebabCase: true
+			},
 			'Filename is not in camel case, pascal case or kebab case. Rename it to one of [`_fooBar.js`, `_FooBar.js`, `_foo-bar.js`].'
 		),
 		testManyCases(
 			'src/foo/_FOO-BAR.js',
-			{snakeCase: true},
+			{
+				snakeCase: true
+			},
 			'Filename is not in snake case. Rename it to `_foo_bar.js`.'
 		)
 	]
