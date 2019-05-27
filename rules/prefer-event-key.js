@@ -1,9 +1,14 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
-const keys = ['keyCode', 'charCode', 'which'];
+const keys = [
+	'keyCode',
+	'charCode',
+	'which'
+];
+
 // https://github.com/facebook/react/blob/b87aabd/packages/react-dom/src/events/getEventKey.js#L36
-// only meta characters which can't be deciphered from String.fromCharCode
+// Only meta characters which can't be deciphered from `String.fromCharCode()`
 const translateToKey = {
 	8: 'Backspace',
 	9: 'Tab',
