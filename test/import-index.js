@@ -13,7 +13,7 @@ const ruleTester = avaRuleTester(test, {
 
 const error = {
 	ruleId: 'import-index',
-	message: 'Do not reference the index file directly'
+	message: 'Do not reference the index file directly.'
 };
 
 ruleTester.run('import-index', rule, {

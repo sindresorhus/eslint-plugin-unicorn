@@ -38,10 +38,11 @@ function indexifyName(name, scope) {
 }
 
 const create = context => {
-	const options = Object.assign({}, {
+	const options = {
 		name: 'error',
-		caughtErrorsIgnorePattern: '^_$'
-	}, context.options[0]);
+		caughtErrorsIgnorePattern: '^_$',
+		...context.options[0]
+	};
 
 	const {scopeManager} = context.getSourceCode();
 
@@ -95,8 +96,8 @@ const create = context => {
 					return;
 				}
 
-				const errName = indexifyName(name, context.getScope());
-				push(params.length === 0 || params[0].name === errName || errName);
+				const errorName = indexifyName(name, context.getScope());
+				push(params.length === 0 || params[0].name === errorName || errorName);
 			}
 		},
 		'CallExpression:exit': node => {

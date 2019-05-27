@@ -2,6 +2,8 @@
 
 Enforces importing index file with `.` instead of `./`, `./index` or `./index.js`.
 
+This rule is fixable.
+
 
 ## Fail
 

@@ -28,9 +28,7 @@ const babelRuleTester = avaRuleTester(test, {
 	parser: 'babel-eslint'
 });
 
-const noFixingTestCase = test => Object.assign({}, test, {
-	output: test.code
-});
+const noFixingTestCase = test => ({...test, output: test.code});
 
 const createErrors = message => {
 	const error = {

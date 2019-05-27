@@ -4,6 +4,7 @@ Unused properties, much like unused variables, are often a result of incomplete 
 
 This rule is primarily useful when you use objects to group constants or model enumerations. It is much harder to predict class properties usage, and practically impossible to predict reflective property access. This rule ignores cases like that.
 
+
 ## Example use cases
 
 When using [React](https://reactjs.org)'s inline styles or one of [many CSS-in-JS](http://michelebertoli.github.io/css-in-js/) like [glamor](https://github.com/threepointone/glamor), one might find it helpful to group component styles into a constant object. Later you might remove one of the styles, but forget to remove its definition, especially if the component grew in complexity by that time. If these were defined as separate constants, ESLint's builtin `no-unused-vars` rule would have helped, but they are not. That's when the `no-unused-properties` rules becomes useful.
@@ -26,6 +27,7 @@ const ClassName = {
 	ACTIVE: 'active'
 };
 ```
+
 
 ## Fail
 
@@ -63,6 +65,7 @@ const foo = {
 	}
 };
 ```
+
 
 ## Scope and limitations
 

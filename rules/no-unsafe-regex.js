@@ -28,9 +28,8 @@ const create = context => {
 
 			const hasRegExp = args[0].regex;
 
-			let pattern = null;
-			let flags = null;
-
+			let pattern;
+			let flags;
 			if (hasRegExp) {
 				({pattern} = args[0].regex);
 				flags = args[1] && args[1].type === 'Literal' ? args[1].value : args[0].regex.flags;

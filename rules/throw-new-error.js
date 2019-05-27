@@ -5,10 +5,10 @@ const customError = /^(?:[A-Z][a-z\d]*)*Error$/;
 
 const create = context => ({
 	ThrowStatement: node => {
-		const arg = node.argument;
-		const error = arg.callee;
+		const {argument} = node;
+		const error = argument.callee;
 
-		if (arg.type === 'CallExpression' && customError.test(error.name)) {
+		if (argument.type === 'CallExpression' && customError.test(error.name)) {
 			context.report({
 				node,
 				message: 'Use `new` when throwing an error.',
