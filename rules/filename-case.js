@@ -91,7 +91,7 @@ function splitFilename(filename) {
 }
 
 /**
-Turns `[a, b, c]` into `a, b or c`.
+Turns `[a, b, c]` into `a, b, or c`.
 
 @param {string[]} words
 @returns {string}
@@ -101,9 +101,13 @@ function englishishJoinWords(words) {
 		return words[0];
 	}
 
+	if (words.length === 2) {
+		return `${words[0]} or ${words[1]}`;
+	}
+
 	words = words.slice();
 	const last = words.pop();
-	return `${words.join(', ')} or ${last}`;
+	return `${words.join(', ')}, or ${last}`;
 }
 
 const create = context => {
@@ -133,7 +137,7 @@ const create = context => {
 					messageId: chosenCases.length > 1 ? 'renameToCases' : 'renameToCase',
 					data: {
 						chosenCases: englishishJoinWords(chosenCases.map(x => cases[x].name)),
-						renamedFilenames: renamedFilenames.map(x => '`' + x + '`').join(', ')
+						renamedFilenames: englishishJoinWords(renamedFilenames.map(x => `\`${x}\``))
 					}
 				});
 			}
@@ -191,7 +195,7 @@ module.exports = {
 		schema,
 		messages: {
 			renameToCase: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.',
-			renameToCases: 'Filename is not in {{chosenCases}}. Rename it to one of [{{renamedFilenames}}].'
+			renameToCases: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.'
 		}
 	}
 };
