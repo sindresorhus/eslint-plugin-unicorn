@@ -52,10 +52,11 @@ const cases = {
 };
 
 /**
- * Get cases specified by option
- * @param {*} context context
- * @returns {string[]} the chosen cases
- */
+Get the cases specified by the option.
+
+@param {unknown} context
+@returns {string[]} The chosen cases.
+*/
 function getChosenCases(context) {
 	const option = context.options[0] || {};
 
@@ -90,10 +91,11 @@ function splitFilename(filename) {
 }
 
 /**
- * Turns `[a, b, c]` into `a, b or c`
- * @param {string[]} words .
- * @returns {string} .
- */
+Turns `[a, b, c]` into `a, b or c`.
+
+@param {string[]} words
+@returns {string}
+*/
 function englishishJoinWords(words) {
 	if (words.length === 1) {
 		return words[0];
@@ -158,10 +160,18 @@ const schema = [{
 			properties: {
 				cases: {
 					properties: {
-						camelCase: {type: 'boolean'},
-						snakeCase: {type: 'boolean'},
-						kebabCase: {type: 'boolean'},
-						pascalCase: {type: 'boolean'}
+						camelCase: {
+							type: 'boolean'
+						},
+						snakeCase: {
+							type: 'boolean'
+						},
+						kebabCase: {
+							type: 'boolean'
+						},
+						pascalCase: {
+							type: 'boolean'
+						}
 					},
 					additionalProperties: false
 				}
