@@ -114,6 +114,7 @@ Configure it in `package.json`.
 - [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 
+
 ## Recommended config
 
 This plugin exports a [`recommended` config](index.js) that enforces good practices.
