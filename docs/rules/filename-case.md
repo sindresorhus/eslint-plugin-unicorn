@@ -46,5 +46,13 @@ You can set the `case` option like this:
 Or set the `cases` option to allow multiple cases:
 
 ```js
-"unicorn/filename-case": ["error", {"cases": {"camelCase": true, "pascalCase": true}}]
+"unicorn/filename-case": [
+	"error",
+	{
+		"cases": {
+			"camelCase": true,
+			"pascalCase": true
+		}
+	}
+]
 ```
