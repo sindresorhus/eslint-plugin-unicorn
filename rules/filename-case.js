@@ -66,7 +66,7 @@ function getChosenCases(context) {
 
 	if (option.cases) {
 		const cases = Object.keys(option.cases)
-			.filter(c => option.cases[c]);
+			.filter(cases => option.cases[cases]);
 
 		return cases.length > 0 ? cases : ['kebabCase'];
 	}
