@@ -56,7 +56,6 @@ const translateToKey = {
 	221: ']',
 	222: '\'',
 	224: 'Meta'
-
 };
 
 const isPropertyNamedAddEventListener = node =>
@@ -93,7 +92,7 @@ const isPropertyOf = (node, eventNode) => {
 	);
 };
 
-// Third argument is a condition function, as in passed to Array.filter
+// Third argument is a condition function, as in passed to `Array#filter()`
 // Helpful if nearest node of type also needs to have some other property
 const getMatchingAncestorOfType = (node, type, fn = n => n || true) => {
 	let current = node;
@@ -121,8 +120,7 @@ const getParentByLevel = (node, level) => {
 };
 
 const fix = node => fixer => {
-	// Since we're only fixing direct property access usages
-	// Like e.keyCode
+	// Since we're only fixing direct property access usages, like `event.keyCode`
 	const nearestIf = getParentByLevel(node, 3);
 	if (!nearestIf || nearestIf.type !== 'IfStatement') {
 		return;
@@ -130,11 +128,10 @@ const fix = node => fixer => {
 
 	const {right = {}, operator} = nearestIf.test;
 	const isTestingEquality = operator === '==' || operator === '===';
-	const isRightValid =
-		isTestingEquality && right.type === 'Literal' && typeof right.value === 'number';
+	const isRightValid = isTestingEquality && right.type === 'Literal' && typeof right.value === 'number';
 	// Either a meta key or a printable character
 	const keyCode = translateToKey[right.value] || String.fromCharCode(right.value);
-	// And if we recognize the keyCode
+	// And if we recognize the `.keyCode`
 	if (!isRightValid || !keyCode) {
 		return;
 	}
@@ -157,7 +154,7 @@ const create = context => {
 
 	return {
 		'Identifier:matches([name=keyCode], [name=charCode], [name=which])'(node) {
-			// Normal case when usage is direct -> event.keyCode
+			// Normal case when usage is direct -> `event.keyCode`
 			const {event, references} = getEventNodeAndReferences(context, node);
 			if (!event) {
 				return;
