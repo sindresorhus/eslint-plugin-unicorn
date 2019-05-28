@@ -12,14 +12,14 @@ const isArrayFrom = node => {
 	);
 };
 
-const isArrayLike = arg => arg && arg.type !== 'ObjectExpression';
+const isArrayLike = argument => argument && argument.type !== 'ObjectExpression';
 
-const parseArgument = (context, arg) => {
-	if (arg.type === 'Identifier') {
-		return arg.name;
+const parseArgument = (context, argument) => {
+	if (argument.type === 'Identifier') {
+		return argument.name;
 	}
 
-	return context.getSourceCode().getText(arg);
+	return context.getSourceCode().getText(argument);
 };
 
 const create = context => {

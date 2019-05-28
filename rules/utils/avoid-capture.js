@@ -39,30 +39,29 @@ const isSafeName = (name, scopes, ecmaVersion, isStrict) => {
 const alwaysTrue = () => true;
 
 /**
- * Rule-specific name check function
- *
- * @callback isSafe
- * @param {string} indexifiedName - The generated candidate name.
- * @param {Scope[]} scopes - The same list of scopes you pass to `avoidCapture`.
- * @return {boolean} - `true` if the `indexifiedName` is ok.
- */
+Rule-specific name check function.
+
+@callback isSafe
+@param {string} indexifiedName - The generated candidate name.
+@param {Scope[]} scopes - The same list of scopes you pass to `avoidCapture`.
+@returns {boolean} - `true` if the `indexifiedName` is ok.
+*/
 
 /**
- * Generates a unique name prefixed with `name` such that:
- * - it is not defined in any of the `scopes`,
- * - it is not a reserved word,
- * - it is not `arguments` in strict scopes (where `arguments` is not allowed),
- * - it does not collide with the actual `arguments` (which is always defined in function scopes).
- *
- * Useful when you want to rename a variable (or create a new variable)
- * while being sure not to shadow any other variables in the code.
- *
- * @param {string} name - The desired name for a new variable.
- * @param {Scope[]} scopes - The list of scopes the new variable will be referenced in.
- * @param {number} ecmaVersion - The language version, get it from `context.parserOptions.ecmaVersion`.
- * @param {isSafe} [isSafe] - Rule-specific name check function.
- * @returns {string} - Either `name` as is, or a string like `${name}_` suffixed with undescores to make the name unique.
- */
+Generates a unique name prefixed with `name` such that:
+- it is not defined in any of the `scopes`,
+- it is not a reserved word,
+- it is not `arguments` in strict scopes (where `arguments` is not allowed),
+- it does not collide with the actual `arguments` (which is always defined in function scopes).
+
+Useful when you want to rename a variable (or create a new variable) while being sure not to shadow any other variables in the code.
+
+@param {string} name - The desired name for a new variable.
+@param {Scope[]} scopes - The list of scopes the new variable will be referenced in.
+@param {number} ecmaVersion - The language version, get it from `context.parserOptions.ecmaVersion`.
+@param {isSafe} [isSafe] - Rule-specific name check function.
+@returns {string} - Either `name` as is, or a string like `${name}_` suffixed with undescores to make the name unique.
+*/
 module.exports = (name, scopes, ecmaVersion, isSafe = alwaysTrue) => {
 	const isStrict = someScopeIsStrict(scopes);
 

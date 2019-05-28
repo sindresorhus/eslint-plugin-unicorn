@@ -4,9 +4,9 @@ This rule enforces you to throw a `TypeError` after a type checking if-statement
 
 It's aware of the most commonly used type checking operators and identifiers like `typeof`, `instanceof`, `.isString()`, etc, borrowed from [ES2017](https://tc39.github.io/ecma262/), [Underscore](http://underscorejs.org), [Lodash](https://lodash.com), and [jQuery](https://jquery.com). For a complete list of the recognized identifiers, please take a look at the [identifier-definition](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/master/rules/prefer-type-error.js#L3).
 
-The rule investigates every throw-statement which throws a generic `Error`. It will fail if the throw-statement is the only expression in the surrounding block and is preceeded by an if-statement whose condition consists of type-checks exclusively.
+The rule investigates every throw-statement which throws a generic `Error`. It will fail if the throw-statement is the only expression in the surrounding block and is preceeded by an if-statement whose condition consists of type-checks exclusively. You have to replace the `Error` with a `TypeError`.
 
-In order to fix the violation, you have to replace the `Error` with a `TypeError`. Fortunately, this rule is able to `--fix` it for you.
+This rule is fixable.
 
 
 ## Fail

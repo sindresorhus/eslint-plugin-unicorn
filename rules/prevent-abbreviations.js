@@ -252,11 +252,12 @@ const getWordReplacements = (replacements, word) => {
 };
 
 /*
- * This function has terrible big O complexity, so we limit it by `limit`.
- * This is fine since result of the function is used only to check if there is zero, one or more
- * replacements and when formating the message.
- * Example: `[[1, 2], [3, 4]]` -> `[[1, 3], [1, 4], [2, 3], [2, 4]]`
- */
+This function has terrible big O complexity, so we limit it by `limit`.
+
+This is fine since result of the function is used only to check if there is zero, one or more replacements and when formating the message.
+
+Example: `[[1, 2], [3, 4]]` → `[[1, 3], [1, 4], [2, 3], [2, 4]]`
+*/
 const getWordByWordReplacementsCombinations = (wordByWordReplacements, limit = 16) => {
 	if (wordByWordReplacements.length === 0) {
 		return [];
