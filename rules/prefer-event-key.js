@@ -60,7 +60,9 @@ const translateToKey = {
 
 const isPropertyNamedAddEventListener = node =>
 	node &&
+	node.type === 'CallExpression' &&
 	node.callee &&
+	node.callee.type === 'MemberExpression' &&
 	node.callee.property &&
 	node.callee.property.name === 'addEventListener';
 
@@ -87,12 +89,13 @@ const isPropertyOf = (node, eventNode) => {
 	return (
 		node &&
 		node.parent &&
+		node.parent.type === 'MemberExpression' &&
 		node.parent.object &&
 		node.parent.object === eventNode
 	);
 };
 
-// Third argument is a condition function, as in passed to `Array#filter()`
+// The third argument is a condition function, as one passed to `Array#filter()`
 // Helpful if nearest node of type also needs to have some other property
 const getMatchingAncestorOfType = (node, type, fn = n => n || true) => {
 	let current = node;
@@ -146,7 +149,7 @@ const fix = node => fixer => {
 const create = context => {
 	const report = node => {
 		context.report({
-			message: `Use \`key\` instead of \`${node.name}\``,
+			message: `Use \`.key\` instead of \`.${node.name}\``,
 			node,
 			fix: fix(node)
 		});
