@@ -51,10 +51,33 @@ const cases = {
 	}
 };
 
+/**
+Get the cases specified by the option.
+
+@param {unknown} context
+@returns {string[]} The chosen cases.
+*/
+function getChosenCases(context) {
+	const option = context.options[0] || {};
+
+	if (option.case) {
+		return [option.case];
+	}
+
+	if (option.cases) {
+		const cases = Object.keys(option.cases)
+			.filter(cases => option.cases[cases]);
+
+		return cases.length > 0 ? cases : ['kebabCase'];
+	}
+
+	return ['kebabCase'];
+}
+
 function fixFilename(chosenCase, filename) {
 	return filename
 		.split('.')
-		.map(ignoreNumbers(chosenCase.fn))
+		.map(ignoreNumbers(cases[chosenCase].fn))
 		.join('.');
 }
 
@@ -67,10 +90,28 @@ function splitFilename(filename) {
 	};
 }
 
-const create = context => {
-	const options = context.options[0] || {};
+/**
+Turns `[a, b, c]` into `a, b, or c`.
 
-	const chosenCase = cases[options.case || 'kebabCase'];
+@param {string[]} words
+@returns {string}
+*/
+function englishishJoinWords(words) {
+	if (words.length === 1) {
+		return words[0];
+	}
+
+	if (words.length === 2) {
+		return `${words[0]} or ${words[1]}`;
+	}
+
+	words = words.slice();
+	const last = words.pop();
+	return `${words.join(', ')}, or ${last}`;
+}
+
+const create = context => {
+	const chosenCases = getChosenCases(context);
 	const filenameWithExtension = context.getFilename();
 
 	if (filenameWithExtension === '<text>') {
@@ -87,13 +128,17 @@ const create = context => {
 			}
 
 			const splitName = splitFilename(filename);
-			const fixedFilename = fixFilename(chosenCase, splitName.trailing);
-			const renameFilename = splitName.leading + fixedFilename + extension;
+			const fixedFilenames = chosenCases.map(case_ => fixFilename(case_, splitName.trailing));
+			const renamedFilenames = fixedFilenames.map(x => splitName.leading + x + extension);
 
-			if (fixedFilename !== splitName.trailing) {
+			if (!fixedFilenames.includes(splitName.trailing)) {
 				context.report({
 					node,
-					message: `Filename is not in ${chosenCase.name}. Rename it to \`${renameFilename}\`.`
+					messageId: chosenCases.length > 1 ? 'renameToCases' : 'renameToCase',
+					data: {
+						chosenCases: englishishJoinWords(chosenCases.map(x => cases[x].name)),
+						renamedFilenames: englishishJoinWords(renamedFilenames.map(x => `\`${x}\``))
+					}
 				});
 			}
 		}
@@ -101,17 +146,43 @@ const create = context => {
 };
 
 const schema = [{
-	type: 'object',
-	properties: {
-		case: {
-			enum: [
-				'camelCase',
-				'snakeCase',
-				'kebabCase',
-				'pascalCase'
-			]
+	oneOf: [
+		{
+			properties: {
+				case: {
+					enum: [
+						'camelCase',
+						'snakeCase',
+						'kebabCase',
+						'pascalCase'
+					]
+				}
+			},
+			additionalProperties: false
+		},
+		{
+			properties: {
+				cases: {
+					properties: {
+						camelCase: {
+							type: 'boolean'
+						},
+						snakeCase: {
+							type: 'boolean'
+						},
+						kebabCase: {
+							type: 'boolean'
+						},
+						pascalCase: {
+							type: 'boolean'
+						}
+					},
+					additionalProperties: false
+				}
+			},
+			additionalProperties: false
 		}
-	}
+	]
 }];
 
 module.exports = {
@@ -121,6 +192,10 @@ module.exports = {
 		docs: {
 			url: getDocsUrl(__filename)
 		},
-		schema
+		schema,
+		messages: {
+			renameToCase: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.',
+			renameToCases: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.'
+		}
 	}
 };
