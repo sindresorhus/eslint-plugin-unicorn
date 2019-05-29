@@ -325,12 +325,12 @@ const create = context => {
 						], replacement),
 						...arrayReferences.map(reference => {
 							if (reference === elementReference) {
-								return null;
+								return;
 							}
 
 							return fixer.replaceText(reference.identifier.parent, element);
 						}),
-						elementNode ? fixer.removeRange(getRemovalRange(elementNode, sourceCode)) : null
+						elementNode && fixer.removeRange(getRemovalRange(elementNode, sourceCode))
 					].filter(Boolean);
 				};
 			}
