@@ -139,8 +139,8 @@ ruleTester.run('no-for-loop', rule, {
 				console.log(arr[i])
 			}
 		`, `
-			for (const value of arr) {
-				console.log(value)
+			for (const element of arr) {
+				console.log(element)
 			}
 		`),
 

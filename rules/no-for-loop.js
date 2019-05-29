@@ -326,7 +326,7 @@ const create = context => {
 						], replacement),
 						...arrayReferences.map(reference => {
 							if (reference === elementReference) {
-								return;
+								return null;
 							}
 
 							return fixer.replaceText(reference.identifier.parent, element);
