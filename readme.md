@@ -49,6 +49,7 @@ Configure it in `package.json`.
 			"unicorn/no-fn-reference-in-iterator": "off",
 			"unicorn/no-for-loop": "error",
 			"unicorn/no-hex-escape": "error",
+			"unicorn/no-nested-ternary": "error",
 			"unicorn/no-new-buffer": "error",
 			"unicorn/no-process-exit": "error",
 			"unicorn/no-unreadable-array-destructuring": "error",
@@ -69,7 +70,6 @@ Configure it in `package.json`.
 			"unicorn/prefer-type-error": "error",
 			"unicorn/prevent-abbreviations": "error",
 			"unicorn/regex-shorthand": "error",
-			"unicorn/no-nested-ternary": "error",
 			"unicorn/throw-new-error": "error"
 		}
 	}
