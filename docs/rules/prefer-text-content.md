@@ -1,6 +1,6 @@
-# Prefer `textContent` over `innerText`
+# Prefer `.textContent` over `.innerText`
 
-Enforces the use of `node.textContent` over `node.innerText` for DOM nodes. There are [some advantages of using `.textContent`](https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent), like performance and more predictable behavior when updating it.
+Enforces the use of `.textContent` over `.innerText` for DOM nodes. There are [some advantages of using `.textContent`](https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent), like performance and more predictable behavior when updating it.
 
 This rule is fixable.
 

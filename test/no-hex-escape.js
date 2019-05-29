@@ -10,7 +10,7 @@ const ruleTester = avaRuleTester(test, {
 
 const error = {
 	ruleId: 'no-hex-escape',
-	message: 'Use unicode escapes instead of hexadecimal escapes.'
+	message: 'Use Unicode escapes instead of hexadecimal escapes.'
 };
 
 ruleTester.run('no-hex-escape', rule, {

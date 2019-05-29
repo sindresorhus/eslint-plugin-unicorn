@@ -4,6 +4,7 @@ There is no difference in JavaScript between, for example, `1`, `1.0` and `1.`, 
 
 This rule is fixable.
 
+
 ## Fail
 
 ```js

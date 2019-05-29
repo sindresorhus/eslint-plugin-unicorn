@@ -13,7 +13,7 @@ const ruleTester = avaRuleTester(test, {
 
 const error = {
 	ruleId: 'import-index',
-	message: 'Do not reference the index file directly'
+	message: 'Do not reference the index file directly.'
 };
 
 ruleTester.run('import-index', rule, {
@@ -50,6 +50,11 @@ ruleTester.run('import-index', rule, {
 			output: 'const m = require(\'.\')'
 		},
 		{
+			code: 'const m = require(\'./.\')',
+			errors: [error],
+			output: 'const m = require(\'.\')'
+		},
+		{
 			code: 'const m = require(\'./index\')',
 			errors: [error],
 			output: 'const m = require(\'.\')'
@@ -63,6 +68,11 @@ ruleTester.run('import-index', rule, {
 			code: 'const m = require(\'../../index.js\')',
 			errors: [error],
 			output: 'const m = require(\'../..\')'
+		},
+		{
+			code: 'const m = require(\'../.\')',
+			errors: [error],
+			output: 'const m = require(\'..\')'
 		},
 		{
 			code: 'const m = require(\'./foo/index.js\')',
