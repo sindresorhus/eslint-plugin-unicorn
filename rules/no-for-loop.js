@@ -1,6 +1,7 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
+const defaultElementName = 'element';
 const isLiteralValue = value => node => node && node.type === 'Literal' && node.value === value;
 const isLiteralZero = isLiteralValue(0);
 const isLiteralOne = isLiteralValue(1);
@@ -311,7 +312,7 @@ const create = context => {
 					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 
 					const index = indexIdentifierName;
-					const element = elementIdentifierName || 'value';
+					const element = elementIdentifierName || defaultElementName;
 					const array = arrayIdentifierName;
 
 					const replacement = shouldGenerateIndex ?
