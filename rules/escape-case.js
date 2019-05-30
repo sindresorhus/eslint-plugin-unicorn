@@ -34,7 +34,7 @@ const findLowercaseEscape = value => {
 
 	let escapeNodePosition;
 	visitRegExpAST(ast, {
-/**
+		/**
 Record escaped node position in regexpp ASTNode. Returns undefined if not found.
 @param {ASTNode} node A regexpp ASTNode. Note that it is of different type to the ASTNode of ESLint parsers
 @returns {undefined}
@@ -109,10 +109,13 @@ const create = context => {
 			const matches = node.value.raw.match(escapeWithLowercase);
 
 			if (matches && matches[2].slice(1).match(hasLowercaseCharacter)) {
+				// Move cursor inside the head and tail apostrophe
+				const start = node.range[0] + 1;
+				const end = node.range[1] - 1;
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceTextRange([node.start, node.end], fix(node.value.raw, escapeWithLowercase))
+					fix: fixer => fixer.replaceTextRange([start, end], fix(node.value.raw, escapeWithLowercase))
 				});
 			}
 		}
