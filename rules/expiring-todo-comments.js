@@ -1,13 +1,14 @@
 'use strict';
 const readPkg = require('read-pkg');
 const semver = require('semver');
+const baseRule = require('eslint/lib/rules/no-warning-comments');
 const getDocsUrl = require('./utils/get-docs-url');
 
 const pkg = readPkg.sync();
 
 const pkgDependencies = {...pkg.dependencies, ...pkg.devDependencies};
 
-const TODO_RE = /[TODO|FIXME]\s*\[([^}]+)\]/i;
+const TODO_RE = /[TODO|FIXME][\s\S]*\[([^}]+)\]/i;
 const DEPENDENCY_INCLUSION_RE = /^[+|-]\s*@?[\S+]\/?\S+/;
 const DEPENDENCY_VERSION_RE = /^(@?[\S+]\/?\S+)@(>|>=)([\d]+(\.\d+){0,2})/;
 const PKG_VERSION_RE = /^(>|>=)([\d]+(\.\d+){0,2})\s*$/;
@@ -15,13 +16,31 @@ const ISO8601 = /(\d{4})-(\d{2})-(\d{2})/;
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
+	const comments = sourceCode.getAllComments();
+	const unnusedComments = comments
+		.filter(token => token.type !== 'Shebang')
+		.filter(processComment);
+
+	// This is highly dependable on eslint's no-warning-comments implementation.
+	// What I do is patch the parts I know the rule will use, the getAllComments.
+	// Since I have priority, I leave only the comments that I didn't use to it.
+	const fakeContext = {...context, getSourceCode() {
+		return {...sourceCode, getAllComments() {
+			return unnusedComments;
+		}};
+	}};
+	const rules = baseRule.create(fakeContext);
 
 	function processComment(comment) {
 		const parsed = parseTodoWithArgs(comment.value);
 
 		if (!parsed) {
-			return false;
+			return true;
 		}
+
+		// Count if there where valid props
+		// Otherwise it's a useless TODO (fallback to no-warning-comments)
+		let uses = 0;
 
 		const {
 			packageVersions = [],
@@ -30,6 +49,7 @@ const create = context => {
 		} = parsed;
 
 		if (dates.length > 1) {
+			uses++;
 			context.report({
 				node: null,
 				loc: comment.loc,
@@ -39,6 +59,7 @@ const create = context => {
 				}
 			});
 		} else if (dates.length === 1) {
+			uses++;
 			const [date] = dates;
 
 			if (reachedDate(date)) {
@@ -54,6 +75,7 @@ const create = context => {
 		}
 
 		if (packageVersions.length > 1) {
+			uses++;
 			context.report({
 				node: null,
 				loc: comment.loc,
@@ -63,6 +85,7 @@ const create = context => {
 				}
 			});
 		} else if (packageVersions.length === 1) {
+			uses++;
 			const [{condition, version}] = packageVersions;
 
 			const pkgVersion = tryToCoerceVersion(pkg.version);
@@ -85,6 +108,7 @@ const create = context => {
 		// Inclusion: 'in', 'out'
 		// Comparison: '>', '>='
 		for (const dependency of dependencies) {
+			uses++;
 			const targetPackageRawVersion = pkgDependencies[dependency.name];
 			const hasTargetPackage = Boolean(targetPackageRawVersion);
 
@@ -129,12 +153,13 @@ const create = context => {
 				});
 			}
 		}
+
+		return uses === 0;
 	}
 
 	return {
 		Program() {
-			const comments = sourceCode.getAllComments();
-			comments.filter(token => token.type !== 'Shebang').forEach(processComment);
+			rules.Program(); // eslint-disable-line new-cap
 		}
 	};
 };

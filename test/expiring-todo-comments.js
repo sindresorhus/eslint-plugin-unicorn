@@ -43,6 +43,11 @@ const avoidMultiplePackageVersionsError = versions => ({
 	message: `Avoid asking multiple package versions for TODO ${versions}`
 });
 
+const noWarningCommentError = part => ({
+	ruleId: 'expiring-todo-comments',
+	message: `Unexpected '${part}' comment.`
+});
+
 ruleTester.run('expiring-todo-comments', rule, {
 	valid: [
 		'// TODO [2200-12-12]: Too long... Can you feel it?',
@@ -50,17 +55,10 @@ ruleTester.run('expiring-todo-comments', rule, {
 		'// TODO (lubien) [2200-12-12]: Too long... Can you feel it?',
 		'// FIXME [2200-12-12] (lubien): Too long... Can you feel it?',
 		'// TODO [>2000]: We sure didnt past this version',
-		'// TODO [> 1]: Ignore if space',
 		'// TODO [-read-pkg]: We actually use this.',
 		'// TODO [+popura]: I think we wont need a broken package.',
 		'// TODO [semver@>1000]: Welp hopefully we wont get at that.',
 		'// TODO [semver@>=1000]: Welp hopefully we wont get at that.',
-		'// TODO [semver>1]: Ignore if miss @.',
-		'// TODO [semver>=1]: Ignore if miss @.',
-		'// TODO [semver> 1]: Ignore if space.',
-		'// TODO [semver >1]: Ignore if space.',
-		'// TODO [semver > 1]: Ignore if space.',
-		'// TODO [semver >= 1]: Ignore if space.',
 		'// TODO [2200-12-12, -read-pkg]: Combo',
 		'// TODO [2200-12-12, -read-pkg, +popura]: Combo',
 		'// TODO [2200-12-12, -read-pkg, +popura, semver>=1000]: Combo',
@@ -117,6 +115,36 @@ ruleTester.run('expiring-todo-comments', rule, {
 			code: '// TODO [read-pkg@>=5.1.1]: when `read-pkg` version is >= 5.1.1',
 			errors: [versionMatchesError('read-pkg >= 5.1.1')],
 			output: '// TODO [read-pkg@>=5.1.1]: when `read-pkg` version is >= 5.1.1'
+		},
+		{
+			code: '// TODO [> 1]: Default rule if space',
+			errors: [noWarningCommentError('todo')],
+			output: '// TODO [> 1]: Default rule if space'
+		},
+		{
+			code: '// TODO [semver>1]: Default rule if no @.',
+			errors: [noWarningCommentError('todo')],
+			output: '// TODO [semver>1]: Default rule if no @.'
+		},
+		{
+			code: '// TODO [semver@> 1]: Default rule if space.',
+			errors: [noWarningCommentError('todo')],
+			output: '// TODO [semver@> 1]: Default rule if space.'
+		},
+		{
+			code: '// TODO [semver @>1]: Default rule if space.',
+			errors: [noWarningCommentError('todo')],
+			output: '// TODO [semver @>1]: Default rule if space.'
+		},
+		{
+			code: '// TODO [semver@>= 1]: Default rule if space.',
+			errors: [noWarningCommentError('todo')],
+			output: '// TODO [semver@>= 1]: Default rule if space.'
+		},
+		{
+			code: '// TODO [semver @>=1]: Default rule if space.',
+			errors: [noWarningCommentError('todo')],
+			output: '// TODO [semver @>=1]: Default rule if space.'
 		}
 	]
 });

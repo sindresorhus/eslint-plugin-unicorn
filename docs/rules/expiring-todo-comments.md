@@ -12,6 +12,8 @@ Currently supporting:
 * You can either use `TODO` or `FIXME`.
 * Optional author name such as `TODO (lubien) [2019-05-30]` or `TODO [2019-05-30] (lubien)`.
 
+If no proper argument is found you'll be notified that the TODO is useless (no-warning-comments behavior).
+
 ## Fail
 
 ```js
@@ -28,6 +30,8 @@ Currently supporting:
 
 // TODO [read-pkg@>1]: when `read-pkg` version is > 1 don't forget to do this
 // TODO [read-pkg@>=5.1.1]: when `read-pkg` version is >= 5.1.1 don't forget to do that
+
+// TODO: do it
 ```
 
 
