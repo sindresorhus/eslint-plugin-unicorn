@@ -27,13 +27,18 @@ const fix = (value, regexp) => {
 Find the `[start, end]` position of the lowercase escape sequence in a regular expression literal ASTNode.
 
 @param {string} value - String representation of a literal ASTNode.
-@returns {number[] | null} The `[start, end]` pair if found, or null if not.
+@returns {number[] | undefined} The `[start, end]` pair if found, or null if not.
 */
 const findLowercaseEscape = value => {
 	const ast = parseRegExpLiteral(value);
 
-	let escapeNodePosition = null;
+	let escapeNodePosition;
 	visitRegExpAST(ast, {
+/**
+Record escaped node position in regexpp ASTNode. Returns undefined if not found.
+@param {ASTNode} node A regexpp ASTNode. Note that it is of different type to the ASTNode of ESLint parsers
+@returns {undefined}
+*/
 		onCharacterLeave(node) {
 			if (escapeNodePosition) {
 				return;
@@ -81,7 +86,7 @@ const create = context => {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceTextRange([node.start, node.end], fix(node.raw, escapeWithLowercase))
+					fix: fixer => fixer.replaceText(node, fix(node.raw, escapeWithLowercase))
 				});
 			}
 		},
@@ -92,7 +97,7 @@ const create = context => {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceTextRange([node.start, node.end], fixRegExp(node))
+					fix: fixer => fixer.replaceText(node, fixRegExp(node))
 				});
 			}
 		},
