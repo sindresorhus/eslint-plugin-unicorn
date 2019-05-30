@@ -7,7 +7,7 @@ Currently supporting:
 * `[YYYY-MM-DD]` to define a due date.
 * `[>1]` or `[>=2]` to expire at some version (from package.json). Don't use spaces between.
 * `[+package]` or `[-package]` to expire when you add/remove a package.
-* `[package>1]` or `[package>=2]` to expire when a package hits some version. Don't use spaces between.
+* `[package@>1]` or `[package@>=2]` to expire when a package hits some version. Don't use spaces between.
 * Stack by separating by comma such as `[YYYY-MM-DD, +package]`.
 * You can either use `TODO` or `FIXME`.
 * Optional author name such as `TODO (lubien) [2019-05-30]` or `TODO [2019-05-30] (lubien)`.
@@ -26,8 +26,8 @@ Currently supporting:
 // TODO [+react]: when you install `react`, refactor to use it
 // TODO [-popura]: when you uninstall `popura` do some stuff
 
-// TODO [read-pkg>1]: when `read-pkg` version is > 1 don't forget to do this
-// TODO [read-pkg>=5.1.1]: when `read-pkg` version is >= 5.1.1 don't forget to do that
+// TODO [read-pkg@>1]: when `read-pkg` version is > 1 don't forget to do this
+// TODO [read-pkg@>=5.1.1]: when `read-pkg` version is >= 5.1.1 don't forget to do that
 ```
 
 
@@ -43,8 +43,8 @@ Currently supporting:
 // TODO [-read-pkg]: We actually use this. If we remove this package I'll error.
 // TODO [+popura]: I think we wont need a broken package.
 
-// TODO [semver>1000]: Welp hopefully we wont get at that.
-// TODO [semver>=1000]: Welp hopefully we wont get at that.
+// TODO [semver@>1000]: Welp hopefully we wont get at that.
+// TODO [semver@>=1000]: Welp hopefully we wont get at that.
 
 // TODO [2200-12-25, +popura, semver>1000]: Combo.
 

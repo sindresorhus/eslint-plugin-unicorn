@@ -9,7 +9,7 @@ const pkgDependencies = {...pkg.dependencies, ...pkg.devDependencies};
 
 const TODO_RE = /[TODO|FIXME]\s*\[([^}]+)\]/i;
 const DEPENDENCY_INCLUSION_RE = /^[+|-]\s*@?[\S+]\/?\S+/;
-const DEPENDENCY_VERSION_RE = /^(@?[\S+]\/?\S+)(>|>=)([\d]+(\.\d+){0,2})/;
+const DEPENDENCY_VERSION_RE = /^(@?[\S+]\/?\S+)@(>|>=)([\d]+(\.\d+){0,2})/;
 const PKG_VERSION_RE = /^(>|>=)([\d]+(\.\d+){0,2})\s*$/;
 const ISO8601 = /(\d{4})-(\d{2})-(\d{2})/;
 

@@ -53,8 +53,10 @@ ruleTester.run('expiring-todo-comments', rule, {
 		'// TODO [> 1]: Ignore if space',
 		'// TODO [-read-pkg]: We actually use this.',
 		'// TODO [+popura]: I think we wont need a broken package.',
-		'// TODO [semver>1000]: Welp hopefully we wont get at that.',
-		'// TODO [semver>=1000]: Welp hopefully we wont get at that.',
+		'// TODO [semver@>1000]: Welp hopefully we wont get at that.',
+		'// TODO [semver@>=1000]: Welp hopefully we wont get at that.',
+		'// TODO [semver>1]: Ignore if miss @.',
+		'// TODO [semver>=1]: Ignore if miss @.',
 		'// TODO [semver> 1]: Ignore if space.',
 		'// TODO [semver >1]: Ignore if space.',
 		'// TODO [semver > 1]: Ignore if space.',
@@ -107,14 +109,14 @@ ruleTester.run('expiring-todo-comments', rule, {
 			output: '// TODO [-popura]: when you uninstall `popura`'
 		},
 		{
-			code: '// TODO [read-pkg>1]: when `read-pkg` version is > 1',
+			code: '// TODO [read-pkg@>1]: when `read-pkg` version is > 1',
 			errors: [versionMatchesError('read-pkg > 1')],
-			output: '// TODO [read-pkg>1]: when `read-pkg` version is > 1'
+			output: '// TODO [read-pkg@>1]: when `read-pkg` version is > 1'
 		},
 		{
-			code: '// TODO [read-pkg>=5.1.1]: when `read-pkg` version is >= 5.1.1',
+			code: '// TODO [read-pkg@>=5.1.1]: when `read-pkg` version is >= 5.1.1',
 			errors: [versionMatchesError('read-pkg >= 5.1.1')],
-			output: '// TODO [read-pkg>=5.1.1]: when `read-pkg` version is >= 5.1.1'
+			output: '// TODO [read-pkg@>=5.1.1]: when `read-pkg` version is >= 5.1.1'
 		}
 	]
 });
