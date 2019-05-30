@@ -97,10 +97,6 @@ ruleTester.run('no-for-loop', rule, {
 			const el = f(i);
 			console.log(i, el);
 		}`,
-		`for (var j = 0; j < xs.length; j = j + 1) {
-			var x = xs[j], y = ys[j];
-			console.log(j, x, y);
-		}`,
 		`for (var j = 0; j < xs.length; j++) {
 			var x;
 		}`,
@@ -109,10 +105,45 @@ ruleTester.run('no-for-loop', rule, {
 		}`,
 		`for (let i = 0; i < arr.length; i++) {
 			console.log(i);
+		}`,
+
+		// Index is assigned to inside the loop body
+		`for (let i = 0; i < input.length; i++) {
+			const el = input[i];
+			i++;
+			console.log(i, el);
+		}`,
+
+		`for (let i = 0; i < input.length; i++) {
+			const el = input[i];
+			i = 4;
+			console.log(i, el);
+		}`,
+
+		// Using the array other than reading the index
+		`for (let i = 0; i < arr.length;i++) {
+			console.log(arr[i]);
+			arr.reverse();
+		}`,
+
+		// Modifying the array element
+		`for (let i = 0; i < arr.length; i++) {
+			arr[i] = i + 2;
 		}`
 	],
 
 	invalid: [
+		// Use default name
+		testCase(`
+			for (let i = 0; i < arr.length; i += 1) {
+				console.log(arr[i])
+			}
+		`, `
+			for (const element of arr) {
+				console.log(element)
+			}
+		`),
+
 		testCase(`
 			for (let i = 0; arr.length > i; i += 1) {
 				let el = arr[i];
@@ -186,19 +217,74 @@ ruleTester.run('no-for-loop', rule, {
 			console.log(el);
 		`),
 
-		// Index is assigned to inside the loop body, should not fix (#252)
+		// Complex element declarations
 		testCase(`
-			for (let i = 0; i < input.length; i++) {
-				const el = input[i];
-				i++;
-				console.log(i, el);
+			for (var j = 0; j < xs.length; j = j + 1) {
+				var x = xs[j], y = ys[j];
+				console.log(j, x, y);
+			}
+		`, `
+			for (const [j, x] of xs.entries()) {
+				var y = ys[j];
+				console.log(j, x, y);
 			}
 		`),
+
 		testCase(`
-			for (let i = 0; i < input.length; i++) {
-				const el = input[i];
-				i = 4;
-				console.log(i, el);
+			for (var j = 0; j < xs.length; j = j + 1) {
+				var y = ys[j], x = xs[j];
+				console.log(j, x, y);
+			}
+		`, `
+			for (const [j, x] of xs.entries()) {
+				var y = ys[j];
+				console.log(j, x, y);
+			}
+		`),
+
+		testCase(`
+			for (var j = 0; j < xs.length; j = j + 1) {
+				var y = ys[j], x = xs[j], i = 10;
+				console.log(j, x, y);
+			}
+		`, `
+			for (const [j, x] of xs.entries()) {
+				var y = ys[j], i = 10;
+				console.log(j, x, y);
+			}
+		`),
+
+		// Complex replacement without index
+		testCase(`
+			for (var i = 0; i < arr.length; i++) {
+				console.log(arr[i]);
+				arr[i].doSomething();
+				counter += arr[i].total;
+				const z = arr[i];
+			}
+		`, `
+			for (const z of arr) {
+				console.log(z);
+				z.doSomething();
+				counter += z.total;
+			}
+		`),
+
+		// Complex replacement with index
+		testCase(`
+			for (var i = 0; i < arr.length; i++) {
+				console.log(arr[i]);
+				arr[i].doSomething();
+				counter += arr[i].total;
+				const z = arr[i];
+				const y = i + 1;
+			}
+		`, `
+			for (const [i, z] of arr.entries()) {
+				console.log(z);
+				z.doSomething();
+				counter += z.total;
+				const y = i + 1;
 			}
 		`)
 	]
