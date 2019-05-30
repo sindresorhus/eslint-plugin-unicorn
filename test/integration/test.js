@@ -138,7 +138,7 @@ const execute = name => {
 const list = new Listr([
 	{
 		title: 'Setup',
-		task: () => execa('npm', ['install', '../../..', 'eslint', 'babel-eslint', 'typescript', '@typescript-eslint/parser'], {cwd})
+		task: () => execa('npm', ['install'], {cwd})
 	},
 	{
 		title: 'Integration tests',
