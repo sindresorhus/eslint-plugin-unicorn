@@ -41,8 +41,10 @@
 		"lodash.topairs": "^4.3.0",
 		"lodash.upperfirst": "^4.2.0",
 		"regexpp": "^2.0.1",
+		"read-pkg": "^5.1.1",
 		"reserved-words": "^0.1.2",
-		"safe-regex": "^2.0.1"
+		"safe-regex": "^2.0.1",
+		"semver": "^6.1.1"
 	},
 	"devDependencies": {
 		"ava": "^1.4.1",

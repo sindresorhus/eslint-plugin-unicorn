@@ -21,6 +21,7 @@ module.exports = {
 				'unicorn/custom-error-definition': 'off',
 				'unicorn/error-message': 'error',
 				'unicorn/escape-case': 'error',
+				'unicorn/expiring-todo-comments': 'error',
 				'unicorn/explicit-length-check': 'error',
 				'unicorn/filename-case': 'error',
 				'unicorn/import-index': 'error',
