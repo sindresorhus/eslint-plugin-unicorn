@@ -2,6 +2,8 @@
 
 Enforces the use of the spread operator over `Array.from()`. This rule adds on to the built-in [prefer-spread](https://eslint.org/docs/rules/prefer-spread) rule, which only flags uses of `.apply()`. Does not enforce for `TypedArray.from()`;
 
+This rule is fixable.
+
 
 ## Fail
 

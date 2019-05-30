@@ -7,7 +7,7 @@ function checkEscape(context, node, value) {
 	if (value !== fixedValue) {
 		context.report({
 			node,
-			message: 'Use unicode escapes instead of hexadecimal escapes.',
+			message: 'Use Unicode escapes instead of hexadecimal escapes.',
 			fix: fixer => fixer.replaceTextRange([node.start, node.end], fixedValue)
 		});
 	}
