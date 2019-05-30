@@ -30,7 +30,12 @@ const dontHavePackageError = pkg => ({
 
 const versionMatchesError = comparison => ({
 	ruleId: 'expiring-todo-comments',
-	message: `You have a TODO matches version for package ${comparison}`
+	message: `You have a TODO match for version for package ${comparison}`
+});
+
+const engineMatchesError = comparison => ({
+	ruleId: 'expiring-todo-comments',
+	message: `You have a TODO match for engine version ${comparison}`
 });
 
 const reachedPackageVersionError = version => ({
@@ -62,6 +67,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 		'// TODO [2200-12-12, -read-pkg]: Combo',
 		'// TODO [2200-12-12, -read-pkg, +popura]: Combo',
 		'// TODO [2200-12-12, -read-pkg, +popura, semver>=1000]: Combo',
+		'// TODO [engines node>=100]: When we start supporting only >= 10',
 		`// TODO [2200-12-12]: Multiple
 		// TODO [2200-12-12]: Lines`,
 		`/*
@@ -112,6 +118,11 @@ ruleTester.run('expiring-todo-comments', rule, {
 			output: '// TODO [read-pkg@>1]: when `read-pkg` version is > 1'
 		},
 		{
+			code: '// TODO [engines node>=8]: when support is for node > 8',
+			errors: [engineMatchesError('node >= 8')],
+			output: '// TODO [engines node>=8]: when support is for node > 8'
+		},
+		{
 			code: '// TODO [read-pkg@>=5.1.1]: when `read-pkg` version is >= 5.1.1',
 			errors: [versionMatchesError('read-pkg >= 5.1.1')],
 			output: '// TODO [read-pkg@>=5.1.1]: when `read-pkg` version is >= 5.1.1'
@@ -145,6 +156,16 @@ ruleTester.run('expiring-todo-comments', rule, {
 			code: '// TODO [semver @>=1]: Default rule if space.',
 			errors: [noWarningCommentError('todo')],
 			output: '// TODO [semver @>=1]: Default rule if space.'
+		},
+		{
+			code: '// TODO [engines node >=1]: Default rule if space.',
+			errors: [noWarningCommentError('todo')],
+			output: '// TODO [engines node >=1]: Default rule if space.'
+		},
+		{
+			code: '// TODO [engines node>= 1]: Default rule if space.',
+			errors: [noWarningCommentError('todo')],
+			output: '// TODO [engines node>= 1]: Default rule if space.'
 		}
 	]
 });

@@ -13,6 +13,7 @@ const TODO_RE = /[TODO|FIXME][\s\S]*\[([^}]+)\]/i;
 const DEPENDENCY_INCLUSION_RE = /^[+|-]\s*@?[\S+]\/?\S+/;
 const DEPENDENCY_VERSION_RE = /^(@?[\S+]\/?\S+)@(>|>=)([\d]+(\.\d+){0,2})/;
 const PKG_VERSION_RE = /^(>|>=)([\d]+(\.\d+){0,2})\s*$/;
+const ENGINES_RE = /^engines (\S+)(>|>=)([\d]+(\.\d+){0,2})/;
 const ISO8601 = /(\d{4})-(\d{2})-(\d{2})/;
 
 const create = context => {
@@ -51,7 +52,8 @@ const create = context => {
 		const {
 			packageVersions = [],
 			dates = [],
-			dependencies = []
+			dependencies = [],
+			engines = []
 		} = parsed;
 
 		if (dates.length > 1) {
@@ -161,6 +163,34 @@ const create = context => {
 			}
 		}
 
+		const pkgEngines = pkg.engines || {};
+
+		for (const engine of engines) {
+			uses++;
+			const targetPackageRawEngineVersion = pkgEngines[engine.name];
+			const hasTargetEngine = Boolean(targetPackageRawEngineVersion);
+
+			if (!hasTargetEngine) {
+				continue;
+			}
+
+			const todoEngine = tryToCoerceVersion(engine.version);
+			const targetPackageEngineVersion = tryToCoerceVersion(targetPackageRawEngineVersion);
+
+			const compare = semverComparisonForOperator(engine.condition);
+
+			if (compare(targetPackageEngineVersion, todoEngine)) {
+				context.report({
+					node: null,
+					loc: comment.loc,
+					messageId: 'engineMatches',
+					data: {
+						comparison: `${engine.name} ${engine.condition} ${engine.version}`
+					}
+				});
+			}
+		}
+
 		return uses === 0;
 	}
 
@@ -194,7 +224,8 @@ module.exports = {
 			avoidMultiplePackageVersions: 'Avoid asking multiple package versions for TODO {{ versions }}',
 			havePackage: 'You have a TODO that is deprecated since you installed {{ package }}',
 			dontHavePackage: 'You have a TODO that is deprecated since you uninstalled {{ package }}',
-			versionMatches: 'You have a TODO matches version for package {{ comparison }}'
+			versionMatches: 'You have a TODO match for version for package {{ comparison }}',
+			engineMatches: 'You have a TODO match for engine version {{ comparison }}'
 		},
 		schema
 	}
@@ -267,6 +298,22 @@ function parseArg(argString) {
 		return {
 			type: 'packageVersions',
 			value: {
+				condition,
+				version
+			}
+		};
+	}
+
+	if (ENGINES_RE.test(argString)) {
+		const result = ENGINES_RE.exec(argString);
+		const name = result[1].trim();
+		const condition = result[2].trim();
+		const version = result[3].trim();
+
+		return {
+			type: 'engines',
+			value: {
+				name,
 				condition,
 				version
 			}

@@ -8,6 +8,7 @@ Currently supporting:
 * `[>1]` or `[>=2]` to expire at some version (from package.json). Don't use spaces between.
 * `[+package]` or `[-package]` to expire when you add/remove a package.
 * `[package@>1]` or `[package@>=2]` to expire when a package hits some version. Don't use spaces between.
+* `[engines node>8]` or `[engines node>=8]` to expire when package bump supported engines. Don't use spaces between the comparison.
 * Stack by separating by comma such as `[YYYY-MM-DD, +package]`.
 * You can either use `TODO` or `FIXME`.
 * Optional author name such as `TODO (lubien) [2019-05-30]` or `TODO [2019-05-30] (lubien)`.
@@ -31,6 +32,8 @@ If no proper argument is found you'll be notified that the TODO is useless (no-w
 // TODO [read-pkg@>1]: when `read-pkg` version is > 1 don't forget to do this
 // TODO [read-pkg@>=5.1.1]: when `read-pkg` version is >= 5.1.1 don't forget to do that
 
+// TODO [engines node>1]: Hopefully you support that and it'll trigger.
+
 // TODO: do it
 ```
 
@@ -51,6 +54,8 @@ If no proper argument is found you'll be notified that the TODO is useless (no-w
 // TODO [semver@>=1000]: Welp hopefully we wont get at that.
 
 // TODO [2200-12-25, +popura, semver>1000]: Combo.
+
+// TODO [engines node>100]: Just you wait for this version.
 
 /*
  * TODO [2200-12-25]: Yet
