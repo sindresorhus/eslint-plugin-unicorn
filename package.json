@@ -31,6 +31,7 @@
 		"xo"
 	],
 	"dependencies": {
+		"ci-info": "^2.0.0",
 		"clean-regexp": "^1.0.0",
 		"eslint-ast-utils": "^1.0.0",
 		"import-modules": "^1.1.0",

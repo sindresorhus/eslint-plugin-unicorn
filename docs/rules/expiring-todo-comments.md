@@ -58,3 +58,19 @@ If no proper argument is found you'll be notified that the TODO is useless (no-w
  * TODO [2200-12-25]: Way
  */
 ```
+
+
+## Options
+
+### ignoreDatesOnPR
+
+Disables time checks during pull requests. Default: `true`.
+
+```js
+"unicorn/expiring-todo-comments": [
+	"error",
+	{
+		"ignoreDatesOnPR": true
+	}
+]
+```

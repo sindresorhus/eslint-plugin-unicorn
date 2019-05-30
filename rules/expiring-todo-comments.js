@@ -1,6 +1,7 @@
 'use strict';
 const readPkg = require('read-pkg');
 const semver = require('semver');
+const ci = require('ci-info');
 const baseRule = require('eslint/lib/rules/no-warning-comments');
 const getDocsUrl = require('./utils/get-docs-url');
 
@@ -15,6 +16,11 @@ const PKG_VERSION_RE = /^(>|>=)([\d]+(\.\d+){0,2})\s*$/;
 const ISO8601 = /(\d{4})-(\d{2})-(\d{2})/;
 
 const create = context => {
+	const options = {
+		ignoreDatesOnPR: true,
+		...context.options[0]
+	};
+
 	const sourceCode = context.getSourceCode();
 	const comments = sourceCode.getAllComments();
 	const unnusedComments = comments
@@ -62,7 +68,8 @@ const create = context => {
 			uses++;
 			const [date] = dates;
 
-			if (reachedDate(date)) {
+			const shouldIgnore = options.ignoreDatesOnPR && ci.isPR;
+			if (!shouldIgnore && reachedDate(date)) {
 				context.report({
 					node: null,
 					loc: comment.loc,
@@ -164,6 +171,15 @@ const create = context => {
 	};
 };
 
+const schema = [{
+	type: 'object',
+	properties: {
+		ignoreDatesOnPR: {
+			type: 'boolean'
+		}
+	}
+}];
+
 module.exports = {
 	create,
 	meta: {
@@ -179,7 +195,8 @@ module.exports = {
 			havePackage: 'You have a TODO that is deprecated since you installed {{ package }}',
 			dontHavePackage: 'You have a TODO that is deprecated since you uninstalled {{ package }}',
 			versionMatches: 'You have a TODO matches version for package {{ comparison }}'
-		}
+		},
+		schema
 	}
 };
 
