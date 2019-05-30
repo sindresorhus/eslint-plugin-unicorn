@@ -57,6 +57,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 	valid: [
 		'// TODO [2200-12-12]: Too long... Can you feel it?',
 		'// FIXME [2200-12-12]: Too long... Can you feel it?',
+		'// XXX [2200-12-12]: Too long... Can you feel it?',
 		'// TODO (lubien) [2200-12-12]: Too long... Can you feel it?',
 		'// FIXME [2200-12-12] (lubien): Too long... Can you feel it?',
 		'// TODO [>2000]: We sure didnt past this version',

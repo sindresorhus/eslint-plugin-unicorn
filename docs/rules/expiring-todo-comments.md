@@ -79,3 +79,16 @@ Disables time checks during pull requests. Default: `true`.
 	}
 ]
 ```
+
+### terms
+
+Add more TODO verbs. Default: `['todo', 'fixme', 'xxx']`.
+
+```js
+"unicorn/expiring-todo-comments": [
+	"error",
+	{
+		"terms": ["todo", "fixme", "xxx"]
+	}
+]
+```

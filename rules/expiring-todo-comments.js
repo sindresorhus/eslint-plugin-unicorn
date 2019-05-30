@@ -9,7 +9,6 @@ const pkg = readPkg.sync();
 
 const pkgDependencies = {...pkg.dependencies, ...pkg.devDependencies};
 
-const TODO_RE = /[TODO|FIXME][\s\S]*\[([^}]+)\]/i;
 const DEPENDENCY_INCLUSION_RE = /^[+|-]\s*@?[\S+]\/?\S+/;
 const DEPENDENCY_VERSION_RE = /^(@?[\S+]\/?\S+)@(>|>=)([\d]+(\.\d+){0,2})/;
 const PKG_VERSION_RE = /^(>|>=)([\d]+(\.\d+){0,2})\s*$/;
@@ -18,6 +17,7 @@ const ISO8601 = /(\d{4})-(\d{2})-(\d{2})/;
 
 const create = context => {
 	const options = {
+		terms: ['todo', 'fixme', 'xxx'],
 		ignoreDatesOnPR: true,
 		...context.options[0]
 	};
@@ -39,7 +39,7 @@ const create = context => {
 	const rules = baseRule.create(fakeContext);
 
 	function processComment(comment) {
-		const parsed = parseTodoWithArgs(comment.value);
+		const parsed = parseTodoWithArgs(comment.value, options);
 
 		if (!parsed) {
 			return true;
@@ -204,6 +204,13 @@ const create = context => {
 const schema = [{
 	type: 'object',
 	properties: {
+		terms: {
+			type: 'array',
+			items: {
+				type: 'string'
+			}
+		},
+
 		ignoreDatesOnPR: {
 			type: 'boolean'
 		}
@@ -231,7 +238,8 @@ module.exports = {
 	}
 };
 
-function parseTodoWithArgs(str) {
+function parseTodoWithArgs(str, {terms}) {
+	const TODO_RE = new RegExp(`[${terms.join('|')}][\\s\\S]*\\[([^}]+)\\]`, 'i');
 	const result = TODO_RE.exec(str);
 
 	if (!result) {
