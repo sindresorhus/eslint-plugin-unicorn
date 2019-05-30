@@ -71,7 +71,6 @@ const create = context => {
 			const compare = semverComparisonForOperator(condition);
 
 			if (compare(pkgVersion, desidedPkgVersion)) {
-				debugger
 				context.report({
 					node: null,
 					loc: comment.loc,
