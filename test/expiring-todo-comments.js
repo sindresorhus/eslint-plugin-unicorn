@@ -43,7 +43,7 @@ const avoidMultiplePackageVersionsError = versions => ({
 	message: `Avoid asking multiple package versions for TODO ${versions}`
 });
 
-ruleTester.run('new-for-builtins', rule, {
+ruleTester.run('expiring-todo-comments', rule, {
 	valid: [
 		'// TODO [2200-12-12]: Too long... Can you feel it?',
 		'// FIXME [2200-12-12]: Too long... Can you feel it?',
