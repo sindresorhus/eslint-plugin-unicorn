@@ -242,6 +242,16 @@ const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) => {
 	});
 };
 
+const getReferencesInChildScopes = (scope, name) => {
+	const references = scope.references.filter(reference => reference.identifier.name === name);
+	return [
+		...references,
+		...scope.childScopes
+			.map(s => getReferencesInChildScopes(s, name))
+			.reduce((acc, scopeReferences) => [...acc, ...scopeReferences], [])
+	];
+};
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const {scopeManager} = sourceCode;
@@ -277,7 +287,7 @@ const create = context => {
 				return;
 			}
 
-			const arrayReferences = bodyScope.references.filter(reference => reference.identifier.name === arrayIdentifierName);
+			const arrayReferences = getReferencesInChildScopes(bodyScope, arrayIdentifierName);
 
 			if (arrayReferences.length === 0) {
 				return;
