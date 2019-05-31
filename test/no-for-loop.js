@@ -286,6 +286,23 @@ ruleTester.run('no-for-loop', rule, {
 				counter += z.total;
 				const y = i + 1;
 			}
+		`),
+
+		// Using array element in a child scope
+		testCase(`
+			for (let i = 0; i < arr.length; i += 1) {
+				console.log(arr[i])
+				if (Map) {
+					use(arr[i]);
+				}
+			}
+		`, `
+			for (const element of arr) {
+				console.log(element)
+				if (Map) {
+					use(element);
+				}
+			}
 		`)
 	]
 });
