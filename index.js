@@ -39,6 +39,7 @@ module.exports = {
 				'unicorn/no-zero-fractions': 'error',
 				'unicorn/number-literal-case': 'error',
 				'unicorn/prefer-add-event-listener': 'error',
+				'unicorn/prefer-event-key': 'error',
 				'unicorn/prefer-exponentiation-operator': 'error',
 				'unicorn/prefer-flat-map': 'error',
 				'unicorn/prefer-includes': 'error',
