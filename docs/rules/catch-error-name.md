@@ -59,10 +59,10 @@ try {
 
 ```js
 const handleError = error => {
-	const error2 = new Error('🦄');
+	const error_ = new Error('🦄');
 
-	obj.catch(error3 => {
-		// `error3` is allowed because of shadowed variables
+	obj.catch(error__ => {
+		// `error__` is allowed because of shadowed variables
 	});
 }
 ```
