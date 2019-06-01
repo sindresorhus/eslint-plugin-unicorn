@@ -177,6 +177,17 @@ ruleTester.run('consistent-function-scoping', rule, {
 			}
 			`,
 			errors: [functionError]
+		},
+		{
+			code: `
+			function doFoo(foo) {
+				function doBar(bar) {
+				  	return bar;
+				}
+				return doBar;
+			}
+			`,
+			errors: [functionError]
 		}
 	]
 });
