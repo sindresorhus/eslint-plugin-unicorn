@@ -4,7 +4,7 @@ const getDocsUrl = require('./utils/get-docs-url');
 const MESSAGE_ID_ARROW = 'ArrowFunctionExpression';
 const MESSAGE_ID_FUNCTION = 'FunctionDeclaration';
 
-function checkReferences(scope, parents, scopeManager) {
+function checkReferences(scope, parent, scopeManager) {
 	if (!scope) {
 		return false;
 	}
@@ -22,7 +22,7 @@ function checkReferences(scope, parents, scopeManager) {
 		}
 
 		const hitReference = variable.references.some(reference => {
-			return parents.includes(reference.from);
+			return parent === reference.from;
 		});
 
 		if (hitReference) {
@@ -31,7 +31,7 @@ function checkReferences(scope, parents, scopeManager) {
 
 		const hitDefinitions = variable.defs.some(definition => {
 			const scope = scopeManager.acquire(definition.node);
-			return parents.includes(scope);
+			return parent === scope;
 		});
 
 		if (hitDefinitions) {
@@ -46,7 +46,7 @@ function checkReferences(scope, parents, scopeManager) {
 	}
 
 	return scope.childScopes.some(scope => {
-		return checkReferences(scope, parents, scopeManager);
+		return checkReferences(scope, parent, scopeManager);
 	});
 }
 
@@ -56,41 +56,24 @@ function checkNode(node, scopeManager) {
 		return true;
 	}
 
-	if (scope.type === 'global') {
-		return true;
-	}
-
-	const parents = [];
-
 	let parentNode = node.parent;
 	if (!parentNode) {
 		return true;
 	}
 
-	parents.push(parentNode);
-
-	if (parentNode.type === 'Identifier') {
-		parentNode = parentNode.parent;
-		parents.push(parentNode);
-	}
+	// Skip over junk like the block statement inside of a function declaration
+	// or the various pieces of an arrow function.
 
 	if (parentNode.type === 'VariableDeclarator') {
 		parentNode = parentNode.parent;
-		parents.push(parentNode);
 	}
 
 	if (parentNode.type === 'VariableDeclaration') {
 		parentNode = parentNode.parent;
-		parents.push(parentNode);
 	}
 
 	if (parentNode.type === 'BlockStatement') {
 		parentNode = parentNode.parent;
-		parents.push(parentNode);
-	}
-
-	if (parentNode.type === 'Program') {
-		return true;
 	}
 
 	const parentScope = scopeManager.acquire(parentNode);
@@ -98,11 +81,7 @@ function checkNode(node, scopeManager) {
 		return true;
 	}
 
-	const parentScopes = parents.map(parent => {
-		return scopeManager.acquire(parent);
-	});
-
-	return checkReferences(scope, parentScopes, scopeManager);
+	return checkReferences(scope, parentScope, scopeManager);
 }
 
 const create = context => {

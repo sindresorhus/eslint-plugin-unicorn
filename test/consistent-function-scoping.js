@@ -26,7 +26,15 @@ ruleTester.run('consistent-function-scoping', rule, {
 		}
 		`,
 		`
+		function doFoo(foo) {
+			return bar;
+		}
+		`,
+		`
 		const doFoo = (foo) => foo;
+		`,
+		`
+		(foo) => foo;
 		`,
 		`
 		function doFoo(foo) {
@@ -78,6 +86,13 @@ ruleTester.run('consistent-function-scoping', rule, {
 		}
 		`,
 		`
+		for (var foo = 0; foo < 1; foo++) {
+			function doBar(bar) {
+				return bar;
+			}
+		}
+		`,
+		`
 		var foo = 0;
 		function doFoo() {
 			foo = 1;
@@ -93,10 +108,10 @@ ruleTester.run('consistent-function-scoping', rule, {
 		}
 		`,
 		`
-		const xxx =
-			(yyy) =>
-			(zzz) =>
-			yyy + zzz;
+		const doFoo =
+			(foo) =>
+			(bar) =>
+			foo + bar;
 		`,
 		`
 		const doFoo = () => {
@@ -185,6 +200,14 @@ ruleTester.run('consistent-function-scoping', rule, {
 				  	return bar;
 				}
 				return doBar;
+			}
+			`,
+			errors: [functionError]
+		},
+		{
+			code: `
+			function doFoo() {
+				function doBar() {}
 			}
 			`,
 			errors: [functionError]
