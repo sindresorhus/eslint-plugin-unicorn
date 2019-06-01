@@ -3,26 +3,41 @@ const getDocsUrl = require('./utils/get-docs-url');
 
 const MESSAGE_ID = 'consistentFunctionScoping';
 
-function checkReferences(scope, parents) {
+function checkReferences(scope, parents, scopeManager) {
 	if (!scope) {
 		return false;
 	}
 
-	const references = scope.references;
+	const {references} = scope;
 	if (!references || references.length === 0) {
 		return false;
 	}
 
-	const hit = references.some((reference) => {
+	const hit = references.some(reference => {
 		const variable = reference.resolved;
 
 		if (!variable) {
 			return false;
 		}
 
-		return variable.references.some((reference) => {
+		const hitReference = variable.references.some(reference => {
 			return parents.includes(reference.from);
 		});
+
+		if (hitReference) {
+			return true;
+		}
+
+		const hitDefinitions = variable.defs.some(definition => {
+			const scope = scopeManager.acquire(definition.node);
+			return parents.includes(scope);
+		});
+
+		if (hitDefinitions) {
+			return true;
+		}
+
+		return false;
 	});
 
 	if (hit) {
@@ -30,7 +45,7 @@ function checkReferences(scope, parents) {
 	}
 
 	return scope.childScopes.some(scope => {
-		return checkReferences(scope, parents);
+		return checkReferences(scope, parents, scopeManager);
 	});
 }
 
@@ -53,6 +68,21 @@ function checkNode(node, scopeManager) {
 
 	parents.push(parentNode);
 
+	if (parentNode.type === 'Identifier') {
+		parentNode = parentNode.parent;
+		parents.push(parentNode);
+	}
+
+	if (parentNode.type === 'VariableDeclarator') {
+		parentNode = parentNode.parent;
+		parents.push(parentNode);
+	}
+
+	if (parentNode.type === 'VariableDeclaration') {
+		parentNode = parentNode.parent;
+		parents.push(parentNode);
+	}
+
 	if (parentNode.type === 'BlockStatement') {
 		parentNode = parentNode.parent;
 		parents.push(parentNode);
@@ -67,11 +97,11 @@ function checkNode(node, scopeManager) {
 		return true;
 	}
 
-	const parentScopes = parents.map((parent) => {
+	const parentScopes = parents.map(parent => {
 		return scopeManager.acquire(parent);
 	});
 
-	return checkReferences(scope, parentScopes);
+	return checkReferences(scope, parentScopes, scopeManager);
 }
 
 const create = context => {
