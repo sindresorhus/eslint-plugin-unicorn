@@ -3,28 +3,75 @@ const getDocsUrl = require('./utils/get-docs-url');
 
 const MESSAGE_ID = 'consistentFunctionScoping';
 
-function checkVariables(scope, variables) {
-	if (!variables || variables.length === 0) {
+function checkReferences(scope, parents) {
+	if (!scope) {
 		return false;
 	}
 
-	const hit = variables.some(variable => {
-		if (!variable.references || variable.references.length === 0) {
+	const references = scope.references;
+	if (!references || references.length === 0) {
+		return false;
+	}
+
+	const hit = references.some((reference) => {
+		const variable = reference.resolved;
+
+		if (!variable) {
 			return false;
 		}
 
-		return variable.references.some(reference => {
-			return reference.from === scope;
+		return variable.references.some((reference) => {
+			return parents.includes(reference.from);
 		});
 	});
 
 	if (hit) {
-		return hit;
+		return true;
 	}
 
 	return scope.childScopes.some(scope => {
-		return checkVariables(scope, variables);
+		return checkReferences(scope, parents);
 	});
+}
+
+function checkNode(node, scopeManager) {
+	const scope = scopeManager.acquire(node);
+	if (!scope) {
+		return true;
+	}
+
+	if (scope.type === 'global') {
+		return true;
+	}
+
+	const parents = [];
+
+	let parentNode = node.parent;
+	if (!parentNode) {
+		return true;
+	}
+
+	parents.push(parentNode);
+
+	if (parentNode.type === 'BlockStatement') {
+		parentNode = parentNode.parent;
+		parents.push(parentNode);
+	}
+
+	if (parentNode.type === 'Program') {
+		return true;
+	}
+
+	const parentScope = scopeManager.acquire(parentNode);
+	if (!parentScope || parentScope.type === 'global') {
+		return true;
+	}
+
+	const parentScopes = parents.map((parent) => {
+		return scopeManager.acquire(parent);
+	});
+
+	return checkReferences(scope, parentScopes);
 }
 
 const create = context => {
@@ -32,33 +79,22 @@ const create = context => {
 	const {scopeManager} = sourceCode;
 
 	return {
+		ArrowFunctionExpression(node) {
+			const valid = checkNode(node, scopeManager);
+
+			if (valid) {
+				return;
+			}
+
+			context.report({
+				node,
+				messageId: MESSAGE_ID
+			});
+		},
 		FunctionDeclaration(node) {
-			const scope = scopeManager.acquire(node);
-			if (!scope) {
-				return;
-			}
+			const valid = checkNode(node, scopeManager);
 
-			if (scope.type === 'global') {
-				return;
-			}
-
-			let parentNode = node.parent;
-			if (!parentNode) {
-				return;
-			}
-
-			if (parentNode.type === 'BlockStatement') {
-				parentNode = parentNode.parent;
-			}
-
-			const parentScope = scopeManager.acquire(parentNode);
-			if (!parentScope || parentScope.type === 'global') {
-				return;
-			}
-
-			const hit = checkVariables(scope, parentScope.variables);
-
-			if (hit) {
+			if (valid) {
 				return;
 			}
 
