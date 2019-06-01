@@ -1,7 +1,8 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
-const MESSAGE_ID = 'consistentFunctionScoping';
+const MESSAGE_ID_ARROW = 'ArrowFunctionExpression';
+const MESSAGE_ID_FUNCTION = 'FunctionDeclaration';
 
 function checkReferences(scope, parents, scopeManager) {
 	if (!scope) {
@@ -118,7 +119,7 @@ const create = context => {
 
 			context.report({
 				node,
-				messageId: MESSAGE_ID
+				messageId: MESSAGE_ID_ARROW
 			});
 		},
 		FunctionDeclaration(node) {
@@ -130,7 +131,7 @@ const create = context => {
 
 			context.report({
 				node,
-				messageId: MESSAGE_ID
+				messageId: MESSAGE_ID_FUNCTION
 			});
 		}
 	};
@@ -144,7 +145,8 @@ module.exports = {
 			url: getDocsUrl(__filename)
 		},
 		messages: {
-			[MESSAGE_ID]: 'Move function to outer scope.'
+			[MESSAGE_ID_ARROW]: 'Move arrow function to outer scope.',
+			[MESSAGE_ID_FUNCTION]: 'Move function to outer scope.'
 		}
 	}
 };

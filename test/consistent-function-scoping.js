@@ -8,9 +8,14 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const error = {
+const arrowError = {
 	ruleId: 'consistent-function-scoping',
-	messageId: 'consistentFunctionScoping'
+	messageId: 'ArrowFunctionExpression'
+};
+
+const functionError = {
+	ruleId: 'consistent-function-scoping',
+	messageId: 'FunctionDeclaration'
 };
 
 ruleTester.run('consistent-function-scoping', rule, {
@@ -122,7 +127,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 				return foo;
 			}
 			`,
-			errors: [error]
+			errors: [functionError]
 		},
 		{
 			code: `
@@ -134,7 +139,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 				return foo;
 			}
 			`,
-			errors: [error]
+			errors: [functionError]
 		},
 		{
 			code: `
@@ -144,7 +149,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 			}
 			`,
-			errors: [error]
+			errors: [functionError]
 		},
 		{
 			code: `
@@ -154,13 +159,13 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 			}
 			`,
-			errors: [error]
+			errors: [arrowError]
 		},
 		{
 			code: `
 			const doFoo = () => (bar) => bar;
 			`,
-			errors: [error]
+			errors: [arrowError]
 		},
 		{
 			code: `
@@ -171,7 +176,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 				return foo;
 			}
 			`,
-			errors: [error]
+			errors: [functionError]
 		}
 	]
 });
