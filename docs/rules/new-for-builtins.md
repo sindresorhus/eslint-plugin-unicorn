@@ -33,6 +33,7 @@ Disallows the use of `new` for following builtins.
 - `Number`
 - `Boolean`
 - `Symbol`
+- `BigInt`
 
 > These should not use `new` as that would create object wrappers for the primitive values, which is not what you want. However, without `new` they can be useful for coercing a value to that type.
 
