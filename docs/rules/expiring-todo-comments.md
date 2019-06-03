@@ -2,6 +2,11 @@
 
 Makes possible to pass arguments to TODO and FIXME comments to trigger errors.
 
+This rule also implements [eslint/no-warning-comments](https://eslint.org/docs/rules/no-warning-comments) behavior so you should disable that in favor of using this.
+
+For projects with legacy branches such as long term supported older versions there might be a situations where you fix TODOs in the master but on the other branches you leave missing.
+Choose carefully which projects you would want this feature.
+
 Currently supporting:
 
 * `[YYYY-MM-DD]` to define a due date.
