@@ -1,4 +1,5 @@
 import test from 'ava';
+import {outdent} from 'outdent';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/prefer-flat-map';
 
@@ -22,7 +23,7 @@ ruleTester.run('prefer-flat-map', rule, {
 		'const bar = foo.map(i => i)',
 		'const bar = [[1],[2],[3]].flat()',
 		'const bar = [1,2,3].map(i => [i]).sort().flat()',
-		`
+		outdent`
 			let bar = [1,2,3].map(i => [i]);
 			bar = bar.flat();
 		`
@@ -74,12 +75,12 @@ ruleTester.run('prefer-flat-map', rule, {
 			errors: [error]
 		},
 		{
-			code: `
+			code: outdent`
 				let bar = [1,2,3].map(i => {
 					return [i];
 				}).flat();
 			`,
-			output: `
+			output: outdent`
 				let bar = [1,2,3].flatMap(i => {
 					return [i];
 				});
@@ -87,28 +88,68 @@ ruleTester.run('prefer-flat-map', rule, {
 			errors: [error]
 		},
 		{
-			code: 'let bar = [1,2,3].map(i => {\nreturn [i];\n})\n.flat();',
-			output: 'let bar = [1,2,3].flatMap(i => {\nreturn [i];\n});\n',
+			code: outdent`
+				let bar = [1,2,3].map(i => {
+					return [i];
+				})
+				.flat();
+			`,
+			output: outdent`
+				let bar = [1,2,3].flatMap(i => {
+					return [i];
+				});
+			` + '\n',
 			errors: [error]
 		},
 		{
-			code: 'let bar = [1,2,3].map(i => {\nreturn [i];\n}) // comment\n.flat();',
-			output: 'let bar = [1,2,3].flatMap(i => {\nreturn [i];\n}); // comment\n',
+			code: outdent`
+				let bar = [1,2,3].map(i => {
+					return [i];
+				}) // comment
+				.flat();
+			`,
+			output: outdent`
+				let bar = [1,2,3].flatMap(i => {
+					return [i];
+				}); // comment
+			` + '\n',
 			errors: [error]
 		},
 		{
-			code: 'let bar = [1,2,3].map(i => {\nreturn [i];\n}) // comment\n.flat(); // other',
-			output: 'let bar = [1,2,3].flatMap(i => {\nreturn [i];\n}); // comment\n // other',
+			code: outdent`
+				let bar = [1,2,3].map(i => {
+					return [i];
+				}) // comment
+				.flat(); // other
+			`,
+			output: outdent`
+				let bar = [1,2,3].flatMap(i => {
+					return [i];
+				}); // comment
+				 // other
+			 `,
 			errors: [error]
 		},
 		{
-			code: 'let bar = [1,2,3]\n  .map(i => { return [i]; })\n  .flat();',
-			output: 'let bar = [1,2,3]\n  .flatMap(i => { return [i]; });\n  ',
+			code: outdent`
+				let bar = [1,2,3]
+					.map(i => { return [i]; })
+					.flat();
+			`,
+			output: outdent`
+				let bar = [1,2,3]
+					.flatMap(i => { return [i]; });
+			` + '\n\t',
 			errors: [error]
 		},
 		{
-			code: 'let bar = [1,2,3].map(i => { return [i]; })\n  .flat();',
-			output: 'let bar = [1,2,3].flatMap(i => { return [i]; });\n  ',
+			code: outdent`
+				let bar = [1,2,3].map(i => { return [i]; })
+					.flat();
+			`,
+			output: outdent`
+				let bar = [1,2,3].flatMap(i => { return [i]; });
+			` + '\n\t',
 			errors: [error]
 		},
 		{
