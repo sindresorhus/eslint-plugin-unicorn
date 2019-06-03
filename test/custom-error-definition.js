@@ -118,17 +118,15 @@ ruleTester.run('custom-error-definition', rule, {
 		`
 			exports.whatever = class Whatever {};
 		`,
-		{
-			code: `
-				class FooError extends Error {
-					constructor(error) {
-						super(error);
-						this.name = 'FooError';
-					}
-				};
-				exports.fooError = FooError;
-			`
-		}
+		`
+			class FooError extends Error {
+				constructor(error) {
+					super(error);
+					this.name = 'FooError';
+				}
+			};
+			exports.fooError = FooError;
+		`
 	],
 	invalid: [
 		{
