@@ -26,7 +26,9 @@ ruleTester.run('prefer-flat-map', rule, {
 		outdent`
 			let bar = [1,2,3].map(i => [i]);
 			bar = bar.flat();
-		`
+		`,
+		'const bar = [1,2,3].map(i => [i]).flat(1)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(2)'
 	],
 	invalid: [
 		{

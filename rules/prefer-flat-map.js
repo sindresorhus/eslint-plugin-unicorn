@@ -98,6 +98,10 @@ const create = context => ({
 			return;
 		}
 
+		if (node.arguments.length > 0) {
+			return;
+		}
+
 		const parent = node.callee.object;
 
 		if (!isMethodNamed(parent, 'map')) {
