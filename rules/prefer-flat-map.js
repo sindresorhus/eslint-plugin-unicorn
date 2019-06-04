@@ -98,7 +98,11 @@ const create = context => ({
 			return;
 		}
 
-		if (node.arguments.length > 0) {
+		if (node.arguments.length > 1) {
+			return;
+		}
+
+		if (node.arguments.length === 1 && node.arguments[0].type === 'Literal' && node.arguments[0].value !== 1) {
 			return;
 		}
 
