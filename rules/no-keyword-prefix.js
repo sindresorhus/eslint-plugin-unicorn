@@ -6,7 +6,6 @@ const MESSAGE_ID = 'noKeywordPrefix';
 
 const prepareOptions = ({
 	blacklist,
-	checkDestructoring = true,
 	checkProperties = true,
 	onlyCamelCase = true
 } = {}) => {
@@ -15,7 +14,6 @@ const prepareOptions = ({
 			'new',
 			'class'
 		]),
-		checkDestructoring,
 		checkProperties,
 		onlyCamelCase
 	};
@@ -23,7 +21,7 @@ const prepareOptions = ({
 
 function findKeywordPrefix(name, options) {
 	return options.blacklist.find(keyword => {
-		const suffix = options.onlyCamelCase ? '[A-Z]' : '';
+		const suffix = options.onlyCamelCase ? '[A-Z]' : '.';
 		const regex = new RegExp(`^${keyword}${suffix}`);
 		return name.match(regex);
 	});
@@ -175,7 +173,6 @@ const schema = [{
 			minItems: 0,
 			uniqueItems: true
 		},
-		checkDestructoring: {type: 'boolean'},
 		checkProperties: {type: 'boolean'},
 		onlyCamelCase: {type: 'boolean'}
 	},

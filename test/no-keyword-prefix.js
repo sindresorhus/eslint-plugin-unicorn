@@ -17,12 +17,13 @@ const errorClass = {
 	messageId: 'noKeywordPrefix',
 	data: {keyword: 'class'}
 };
+const errorBlacklist = {
+	messageId: 'noKeywordPrefix',
+	data: {keyword: 'old'}
+};
 
 // Most of these test cases copied from:
 // https://github.com/eslint/eslint/blob/master/tests/lib/rules/camelcase.js
-// TODO: Tests for options.checkDestructoring
-// TODO: Tests for options.blacklist
-// TODO: Tests for options.onlyCamelCase
 ruleTester.run('prevent-keyword-prefix', rule, {
 	valid: [
 		'const foo = "foo"',
@@ -89,6 +90,10 @@ ruleTester.run('prevent-keyword-prefix', rule, {
 		{
 			code: 'foo.newFoo = function(){};',
 			options: [{checkProperties: false}]
+		},
+		{
+			code: 'const newFoo = "foo"',
+			options: [{blacklist: ['old']}]
 		}
 	],
 	invalid: [
@@ -242,6 +247,16 @@ ruleTester.run('prevent-keyword-prefix', rule, {
 		},
 		{
 			code: 'const { newFoo = newBar } = foo;',
+			errors: [errorNew]
+		},
+		{
+			code: 'const oldFoo = "foo"',
+			options: [{blacklist: ['old']}],
+			errors: [errorBlacklist]
+		},
+		{
+			code: 'const new_foo = "foo"',
+			options: [{onlyCamelCase: false}],
 			errors: [errorNew]
 		}
 	]
