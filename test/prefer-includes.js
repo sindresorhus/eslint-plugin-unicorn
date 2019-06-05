@@ -60,6 +60,11 @@ ruleTester.run('prefer-includes', rule, {
 			code: '\'\'.indexOf(\'foo\') < 0',
 			output: '!\'\'.includes(\'foo\')',
 			errors
+		},
+		{
+			code: '(a || b).indexOf(\'foo\') === -1',
+			output: '!(a || b).includes(\'foo\')',
+			errors
 		}
 	]
 });

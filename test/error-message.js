@@ -10,12 +10,12 @@ const ruleTester = avaRuleTester(test, {
 
 const emptyStringError = {
 	ruleId: 'error-message',
-	message: 'Error message should not be an empty string'
+	message: 'Error message should not be an empty string.'
 };
 
 const noMessageError = {
 	ruleId: 'error-message',
-	message: 'Pass a message to the error constructor'
+	message: 'Pass a message to the error constructor.'
 };
 
 ruleTester.run('error-message', rule, {

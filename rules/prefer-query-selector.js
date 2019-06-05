@@ -9,6 +9,7 @@ const forbiddenIdentifierNames = new Map([
 
 const getReplacementForId = value => `#${value}`;
 const getReplacementForClass = value => value.match(/\S+/g).map(e => `.${e}`).join('');
+
 const getQuotedReplacement = (node, value) => {
 	const leftQuote = node.raw.charAt(0);
 	const rightQuote = node.raw.charAt(node.raw.length - 1);
@@ -94,7 +95,7 @@ const create = context => {
 
 			const report = {
 				node,
-				message: `Prefer \`${preferedSelector}\` over \`${identifierName}\`.`
+				message: `Prefer \`.${preferedSelector}()\` over \`.${identifierName}()\`.`
 			};
 
 			if (canBeFixed(node.arguments[0])) {

@@ -33,10 +33,10 @@ const parseArgument = (context, arg) => arg.type === 'Identifier' ? arg.name : c
 
 const fix = (context, node) => {
 	const numberOfArgs = getNumberOfArguments(node);
-	const arg = node.arguments[0];
-	const argString = numberOfArgs === 1 ? 'x' : 'a, b';
+	const argument = node.arguments[0];
+	const argumentString = numberOfArgs === 1 ? 'x' : 'a, b';
 
-	return fixer => fixer.replaceText(arg, `${numberOfArgs === 1 ? argString : `(${argString})`} => ${parseArgument(context, arg)}(${argString})`);
+	return fixer => fixer.replaceText(argument, `${numberOfArgs === 1 ? argumentString : `(${argumentString})`} => ${parseArgument(context, argument)}(${argumentString})`);
 };
 
 const toSelector = name => {

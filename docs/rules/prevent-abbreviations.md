@@ -61,11 +61,11 @@ class Button {}
 
 ## Options
 
-Type: `Object`
+Type: `object`
 
 ### replacements
 
-Type: `Object`
+Type: `object`
 
 You can extend default replacements by passing the `replacements` option.
 
@@ -126,7 +126,7 @@ The example below disables all the default replacements and enables a custom `cm
 
 ### whitelist
 
-Type: `Object`
+Type: `object`
 
 You can extend the default whitelist by passing the `whitelist` option.
 

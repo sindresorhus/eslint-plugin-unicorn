@@ -1,7 +1,7 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
-const message = 'Prefer `textContent` over `innerText`.';
+const message = 'Prefer `.textContent` over `.innerText`.';
 
 const create = context => {
 	return {

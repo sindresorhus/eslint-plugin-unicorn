@@ -59,10 +59,10 @@ try {
 
 ```js
 const handleError = error => {
-	const error2 = new Error('🦄');
+	const error_ = new Error('🦄');
 
-	obj.catch(error3 => {
-		// `error3` is allowed because of shadowed variables
+	obj.catch(error__ => {
+		// `error__` is allowed because of shadowed variables
 	});
 }
 ```
@@ -82,16 +82,26 @@ somePromise.catch(_ => {
 You can set the `name` option like this:
 
 ```js
-"unicorn/catch-error-name": ["error", {"name": "error"}]
+"unicorn/catch-error-name": [
+	"error",
+	{
+		"name": "error"
+	}
+]
 ```
 
 ### caughtErrorsIgnorePattern
 
 ```js
-"unicorn/catch-error-name": ["error", {"caughtErrorsIgnorePattern": "^_$"}]
+"unicorn/catch-error-name": [
+	"error",
+	{
+		"caughtErrorsIgnorePattern": "^_$"
+	}
+]
 ```
 
-This option lets you specify a regex pattern for matches to ignore. Default is `^_$`.
+This option lets you specify a regex pattern for matches to ignore. The default is `^_$`.
 
 With `^unicorn$`, this would fail:
 
