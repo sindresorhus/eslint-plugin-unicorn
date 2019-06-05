@@ -156,6 +156,20 @@ ruleTester.run('prefer-flat-map', rule, {
 			code: 'let bar = [1,2,3] . map( x => y ) . flat () // 🤪',
 			output: 'let bar = [1,2,3] . flatMap( x => y )  // 🤪',
 			errors: [error]
+		},
+		{
+			code: outdent`
+				const foo = bars
+					.filter(foo => !!foo.zaz)
+					.map(foo => doFoo(foo))
+					.flat();
+			`,
+			output: outdent`
+				const foo = bars
+					.filter(foo => !!foo.zaz)
+					.flatMap(foo => doFoo(foo));
+			` + '\n\t',
+			errors: [error]
 		}
 	]
 });
