@@ -46,14 +46,14 @@ const report = (context, nodeFlat, nodeMap) => {
 	//               ^
 	//   (map(…)).flat();
 	//                 ^
-	const fixEnd = nodeFlat.end;
+	const fixEnd = nodeFlat.range[1];
 
 	// Location will be:
 	//   map(…).flat();
 	//         ^
 	//   (map(…)).flat();
 	//           ^
-	const fixStart = dot.start;
+	const fixStart = dot.range[0];
 
 	const mapProperty = nodeMap.callee.property;
 

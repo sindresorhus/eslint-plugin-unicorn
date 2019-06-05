@@ -161,7 +161,20 @@ ruleTester.run('prefer-flat-map', rule, {
 		},
 		{
 			code: 'const bar = [1,2,3].map(i => [i]).flat(1);',
-			output: 'const bar = [1,2,3].flatMap(i => [i]);',
+			output: 'const bar = [1,2,3].flatMap(i => [i]);'
+		},
+		{
+			code: outdent`
+				const foo = bars
+					.filter(foo => !!foo.zaz)
+					.map(foo => doFoo(foo))
+					.flat();
+			`,
+			output: outdent`
+				const foo = bars
+					.filter(foo => !!foo.zaz)
+					.flatMap(foo => doFoo(foo));
+			` + '\n\t',
 			errors: [error]
 		}
 	]
