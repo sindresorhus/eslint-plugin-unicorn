@@ -1,6 +1,6 @@
 {
 	"name": "eslint-plugin-unicorn",
-	"version": "9.0.0",
+	"version": "9.1.0",
 	"description": "Various awesome ESLint rules",
 	"license": "MIT",
 	"repository": "sindresorhus/eslint-plugin-unicorn",
@@ -40,6 +40,7 @@
 		"lodash.snakecase": "^4.0.1",
 		"lodash.topairs": "^4.3.0",
 		"lodash.upperfirst": "^4.2.0",
+		"regexpp": "^2.0.1",
 		"reserved-words": "^0.1.2",
 		"safe-regex": "^2.0.1"
 	},

@@ -2,6 +2,8 @@
 const upperfirst = require('lodash.upperfirst');
 const getDocsUrl = require('./utils/get-docs-url');
 
+const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
+
 const nameRegexp = /^(?:[A-Z][a-z\d]*)*Error$/;
 
 const getClassName = name => upperfirst(name).replace(/(error|)$/i, 'Error');
@@ -124,10 +126,50 @@ const customErrorDefinition = (context, node) => {
 	}
 };
 
+const customErrorExport = (context, node) => {
+	if (!node.left.object || node.left.object.name !== 'exports') {
+		return;
+	}
+
+	if (!node.left.property) {
+		return;
+	}
+
+	const exportsName = node.left.property.name;
+
+	const maybeError = node.right;
+
+	if (maybeError.type !== 'ClassExpression') {
+		return;
+	}
+
+	if (!hasValidSuperClass(maybeError)) {
+		return;
+	}
+
+	if (!maybeError.id) {
+		return;
+	}
+
+	// Assume rule has already fixed the error name
+	const errorName = maybeError.id.name;
+
+	if (exportsName === errorName) {
+		return;
+	}
+
+	context.report({
+		node: node.left.property,
+		messageId: MESSAGE_ID_INVALID_EXPORT,
+		fix: fixer => fixer.replaceText(node.left.property, errorName)
+	});
+};
+
 const create = context => {
 	return {
 		ClassDeclaration: node => customErrorDefinition(context, node),
-		'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right)
+		'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
+		'AssignmentExpression[left.type="MemberExpression"]': node => customErrorExport(context, node)
 	};
 };
 
@@ -138,6 +180,9 @@ module.exports = {
 		docs: {
 			url: getDocsUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages: {
+			[MESSAGE_ID_INVALID_EXPORT]: 'Exported error name should match error class'
+		}
 	}
 };

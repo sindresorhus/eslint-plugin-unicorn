@@ -18,6 +18,10 @@ const noSuperCallError = {ruleId: 'custom-error-definition', message: 'Missing c
 const invalidNameError = name => ({ruleId: 'custom-error-definition', message: `The \`name\` property should be set to \`${name}\`.`});
 const passMessageToSuperError = {ruleId: 'custom-error-definition', message: 'Pass the error message to `super()`.'};
 const invalidMessageAssignmentError = {ruleId: 'custom-error-definition', message: 'Pass the error message to `super()` instead of setting `this.message`.'};
+const invalidExportError = {
+	ruleId: 'custom-error-definition',
+	messageId: 'invalidExport'
+};
 
 ruleTester.run('custom-error-definition', rule, {
 	valid: [
@@ -111,6 +115,18 @@ ruleTester.run('custom-error-definition', rule, {
 					this.name = 'fooError';
 				}
 			};
+		`,
+		`
+			exports.whatever = class Whatever {};
+		`,
+		`
+			class FooError extends Error {
+				constructor(error) {
+					super(error);
+					this.name = 'FooError';
+				}
+			};
+			exports.fooError = FooError;
 		`
 	],
 	invalid: [
@@ -357,20 +373,25 @@ ruleTester.run('custom-error-definition', rule, {
 				invalidNameError('FooError')
 			]
 		},
-		// TODO: Uncomment test as part of #190
-		// {
-		// 	code: outdent`
-		// 		exports.fooError = class FooError extends Error {
-		// 			constructor(error) {
-		// 				super(error);
-		// 				this.name = 'FooError';
-		// 			}
-		// 		};
-		// 	`,
-		// 	errors: [
-		// 		invalidNameError('fooError')
-		// 	]
-		// },
+		{
+			code: outdent`
+				exports.fooError = class FooError extends Error {
+					constructor(error) {
+						super(error);
+						this.name = 'FooError';
+					}
+				};
+			`,
+			errors: [invalidExportError],
+			output: outdent`
+				exports.FooError = class FooError extends Error {
+					constructor(error) {
+						super(error);
+						this.name = 'FooError';
+					}
+				};
+			`
+		},
 		{
 			code: outdent`
 				exports.FooError = class FooError extends TypeError {
