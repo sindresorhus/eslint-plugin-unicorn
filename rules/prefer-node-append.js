@@ -4,8 +4,13 @@ const getDocsUrl = require('./utils/get-docs-url');
 const getMethodName = memberExpression => memberExpression.property.name;
 
 const ignoredParentTypes = [
-	'VariableDeclarator',
-	'CallExpression'
+	'IfStatement',
+	'MemberExpression',
+	'VariableDeclarator'
+];
+
+const ignoredGrandparentTypes = [
+	'ExpressionStatement'
 ];
 
 const create = context => {
@@ -16,10 +21,18 @@ const create = context => {
 				parent
 			} = node;
 
+			const {
+				parent: grandparent
+			} = (parent || {});
+
 			if (callee.type === 'MemberExpression' && getMethodName(callee) === 'appendChild') {
 				let fix = fixer => fixer.replaceText(callee.property, 'append');
 
 				if (parent && ignoredParentTypes.includes(parent.type)) {
+					fix = undefined;
+				}
+
+				if (grandparent && ignoredGrandparentTypes.includes(grandparent.type)) {
 					fix = undefined;
 				}
 
