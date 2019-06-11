@@ -24,7 +24,7 @@ ruleTester.run('prefer-exponentiation-operator', rule, {
 		{
 			code: 'const x = Math.pow(-2, (2 - 4) +0 -0.2);',
 			errors: [{message}],
-			output: 'const x = -2 ** (2 - 4) +0 -0.2;'
+			output: 'const x = -2 ** ((2 - 4) +0 -0.2);'
 		},
 		{
 			code: 'const x = Math.pow(Math.pow(2, 4), 8);',
@@ -48,6 +48,36 @@ ruleTester.run('prefer-exponentiation-operator', rule, {
 			code: 'const x = Math.pow(foo(), bar());',
 			errors: [{message}],
 			output: 'const x = foo() ** bar();'
+		},
+		{
+			code: 'const x = Math.pow(-2, 2 - 4);',
+			errors: [{message}],
+			output: 'const x = -2 ** (2 - 4);'
+		},
+		{
+			code: 'const x = Math.pow(4 - 2, 2 - 4);',
+			errors: [{message}],
+			output: 'const x = (4 - 2) ** (2 - 4);'
+		},
+		{
+			code: 'const x = Math.pow(\n2,\n2);',
+			errors: [{message}],
+			output: 'const x = 2 ** 2;'
+		},
+		{
+			code: 'const x = Math.pow(\n2,2 +\n2);',
+			errors: [{message}],
+			output: 'const x = 2 ** (2 +\n2);'
+		},
+		{
+			code: 'const x = Math.pow(\n2, // foo\n2);',
+			errors: [{message}],
+			output: 'const x = Math.pow(\n2, // foo\n2);'
+		},
+		{
+			code: 'const x = Math.pow(// foo\n2, 2);',
+			errors: [{message}],
+			output: 'const x = Math.pow(// foo\n2, 2);'
 		}
 	]
 });

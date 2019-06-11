@@ -27,6 +27,7 @@ const enforceNew = new Set([
 ]);
 
 const disallowNew = new Set([
+	'BigInt',
 	'Boolean',
 	'Number',
 	'String',
