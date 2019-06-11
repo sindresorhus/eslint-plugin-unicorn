@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/custom-error-definition';
 
 const ruleTester = avaRuleTester(test, {
@@ -24,7 +25,7 @@ ruleTester.run('custom-error-definition', rule, {
 		'class Foo extends Bar { }',
 		'class Foo extends Bar() { }',
 		'const Foo = class { }',
-		`
+		outdent`
 			const FooError = class extends Error {
 				constructor(message) {
 					super(message);
@@ -32,7 +33,7 @@ ruleTester.run('custom-error-definition', rule, {
 				}
 			}
 		`,
-		`
+		outdent`
 			class FooError extends Http.ProtocolError {
 				constructor(message) {
 					super(message);
@@ -40,7 +41,7 @@ ruleTester.run('custom-error-definition', rule, {
 				}
 			}
 		`,
-		`
+		outdent`
 			class FooError extends Error {
 				constructor(message) {
 					super(message);
@@ -48,7 +49,7 @@ ruleTester.run('custom-error-definition', rule, {
 				}
 			}
 		`,
-		`
+		outdent`
 			class FooError extends Error {
 				constructor() {
 					super('My super awesome Foo Error');
@@ -56,7 +57,7 @@ ruleTester.run('custom-error-definition', rule, {
 				}
 			}
 		`,
-		`
+		outdent`
 			class FooError extends TypeError {
 				constructor() {
 					super();
@@ -64,7 +65,7 @@ ruleTester.run('custom-error-definition', rule, {
 				}
 			}
 		`,
-		`
+		outdent`
 			export class FooError extends TypeError {
 				constructor() {
 					super();
@@ -72,7 +73,7 @@ ruleTester.run('custom-error-definition', rule, {
 				}
 			};
 		`,
-		`
+		outdent`
 			export default class FooError extends TypeError {
 				constructor() {
 					super();
@@ -80,7 +81,7 @@ ruleTester.run('custom-error-definition', rule, {
 				}
 			};
 		`,
-		`
+		outdent`
 			module.exports = class FooError extends TypeError {
 				constructor() {
 					super();
@@ -88,7 +89,7 @@ ruleTester.run('custom-error-definition', rule, {
 				}
 			};
 		`,
-		`
+		outdent`
 			exports.FooError = class FooError extends TypeError {
 				constructor() {
 					super();
@@ -96,14 +97,14 @@ ruleTester.run('custom-error-definition', rule, {
 				}
 			};
 		`,
-		`
+		outdent`
 			exports.FooError = class extends Error {
 				constructor(error) {
 					super(error);
 				}
 			};
 		`,
-		`
+		outdent`
 			exports.fooError = class extends Error {
 				constructor(error) {
 					super(error);
@@ -114,23 +115,23 @@ ruleTester.run('custom-error-definition', rule, {
 	],
 	invalid: [
 		{
-			code: `
+			code: outdent`
 				class FooError extends Error {}
 			`,
 			errors: [
 				constructorError
 			],
-			output: `
+			output: outdent`
 				class FooError extends Error {
-	constructor() {
-		super();
-		this.name = 'FooError';
-	}
-}
+					constructor() {
+						super();
+						this.name = 'FooError';
+					}
+				}
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				class fooError extends Error {
 					constructor(message) {
 						super(message);
@@ -144,7 +145,7 @@ ruleTester.run('custom-error-definition', rule, {
 			]
 		},
 		{
-			code: `
+			code: outdent`
 				class fooError extends Error {
 					constructor(message) {
 						super(message);
@@ -157,7 +158,7 @@ ruleTester.run('custom-error-definition', rule, {
 			]
 		},
 		{
-			code: `
+			code: outdent`
 				class Foo extends Error {
 					constructor(message) {
 						super(message);
@@ -170,7 +171,7 @@ ruleTester.run('custom-error-definition', rule, {
 			]
 		},
 		{
-			code: `
+			code: outdent`
 				class fooerror extends Error {
 					constructor(message) {
 						super(message);
@@ -183,7 +184,7 @@ ruleTester.run('custom-error-definition', rule, {
 			]
 		},
 		{
-			code: `
+			code: outdent`
 				class FooError extends Error {
 					constructor() { }
 				}
@@ -194,7 +195,7 @@ ruleTester.run('custom-error-definition', rule, {
 			]
 		},
 		{
-			code: `
+			code: outdent`
 				class FooError extends Error {
 					constructor() {
 						super();
@@ -207,7 +208,7 @@ ruleTester.run('custom-error-definition', rule, {
 				passMessageToSuperError,
 				invalidMessageAssignmentError
 			],
-			output: `
+			output: outdent`
 				class FooError extends Error {
 					constructor() {
 						super('My custom message');
@@ -216,7 +217,7 @@ ruleTester.run('custom-error-definition', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				class FooError extends Error {
 					constructor() {
 						super();
@@ -228,7 +229,7 @@ ruleTester.run('custom-error-definition', rule, {
 			]
 		},
 		{
-			code: `
+			code: outdent`
 				class FooError extends Error {
 					constructor() {
 						super('My awesome Foo Error');
@@ -241,7 +242,7 @@ ruleTester.run('custom-error-definition', rule, {
 			]
 		},
 		{
-			code: `
+			code: outdent`
 				class FooError extends Error {
 					constructor(message) {
 						super(message);
@@ -253,7 +254,7 @@ ruleTester.run('custom-error-definition', rule, {
 			errors: [
 				invalidMessageAssignmentError
 			],
-			output: `
+			output: outdent`
 				class FooError extends Error {
 					constructor(message) {
 						super(message);
@@ -263,7 +264,7 @@ ruleTester.run('custom-error-definition', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				class FooError extends Error {
 					constructor(message) {
 						super();
@@ -276,7 +277,7 @@ ruleTester.run('custom-error-definition', rule, {
 				passMessageToSuperError,
 				invalidMessageAssignmentError
 			],
-			output: `
+			output: outdent`
 				class FooError extends Error {
 					constructor(message) {
 						super(message);
@@ -286,7 +287,7 @@ ruleTester.run('custom-error-definition', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				class FooError extends Error {
 					constructor(message) {
 						super();
@@ -299,7 +300,7 @@ ruleTester.run('custom-error-definition', rule, {
 				passMessageToSuperError,
 				invalidMessageAssignmentError
 			],
-			output: `
+			output: outdent`
 				class FooError extends Error {
 					constructor(message) {
 						super(message);
@@ -308,7 +309,7 @@ ruleTester.run('custom-error-definition', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				class FooError extends Error {
 					constructor(message) {
 						super();
@@ -321,7 +322,7 @@ ruleTester.run('custom-error-definition', rule, {
 				passMessageToSuperError,
 				invalidMessageAssignmentError
 			],
-			output: `
+			output: outdent`
 				class FooError extends Error {
 					constructor(message) {
 						super(message);
@@ -331,7 +332,7 @@ ruleTester.run('custom-error-definition', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				class FooError extends Http.ProtocolError {
 					constructor() {
 						super();
@@ -344,7 +345,7 @@ ruleTester.run('custom-error-definition', rule, {
 			]
 		},
 		{
-			code: `
+			code: outdent`
 				module.exports = class FooError extends TypeError {
 					constructor() {
 						super();
@@ -358,7 +359,7 @@ ruleTester.run('custom-error-definition', rule, {
 		},
 		// TODO: Uncomment test as part of #190
 		// {
-		// 	code: `
+		// 	code: outdent`
 		// 		exports.fooError = class FooError extends Error {
 		// 			constructor(error) {
 		// 				super(error);
@@ -371,7 +372,7 @@ ruleTester.run('custom-error-definition', rule, {
 		// 	]
 		// },
 		{
-			code: `
+			code: outdent`
 				exports.FooError = class FooError extends TypeError {
 					constructor() {
 						super();
@@ -384,7 +385,7 @@ ruleTester.run('custom-error-definition', rule, {
 			]
 		},
 		{
-			code: `
+			code: outdent`
 				export class FooError extends TypeError {
 					constructor() {
 						super();
@@ -397,7 +398,7 @@ ruleTester.run('custom-error-definition', rule, {
 			]
 		},
 		{
-			code: `
+			code: outdent`
 				export default class FooError extends TypeError {
 					constructor() {
 						super();
