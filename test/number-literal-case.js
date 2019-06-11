@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/number-literal-case';
 
 const ruleTester = avaRuleTester(test, {
@@ -55,7 +56,7 @@ ruleTester.run('number-literal-case', rule, {
 			output: 'const foo = 0o10'
 		},
 		{
-			code: `
+			code: outdent`
 				const foo = 255;
 
 				if (foo === 0xff) {
@@ -63,7 +64,7 @@ ruleTester.run('number-literal-case', rule, {
 				}
 			`,
 			errors: [error],
-			output: `
+			output: outdent`
 				const foo = 255;
 
 				if (foo === 0xFF) {

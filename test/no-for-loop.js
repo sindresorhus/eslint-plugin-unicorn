@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/no-for-loop';
 
 const ruleTester = avaRuleTester(test, {
@@ -28,63 +29,87 @@ ruleTester.run('no-for-loop', rule, {
 		'for (const x of xs) {}',
 
 		'for (var j = 0; j < 10; j++) {}',
-		`for (i = 0; i < arr.length; i++) {
-			el = arr[i];
-			console.log(i, el);
-		}`,
+		outdent`
+			for (i = 0; i < arr.length; i++) {
+				el = arr[i];
+				console.log(i, el);
+			}
+		`,
 
 		// Screwing with initialization expression
 
-		`for (let i = 0, j = 0; i < arr.length; i++) {
-			const el = arr[i];
-			console.log(i, el);
-		}`,
-		`for (let {i} = 0; i < arr.length; i++) {
-			const el = arr[i];
-			console.log(i, el);
-		}`,
+		outdent`
+			for (let i = 0, j = 0; i < arr.length; i++) {
+				const el = arr[i];
+				console.log(i, el);
+			}
+		`,
+		outdent`
+			for (let {i} = 0; i < arr.length; i++) {
+				const el = arr[i];
+				console.log(i, el);
+			}
+		`,
 
 		// Screwing with test expression
 
-		`for (let i = 0; f(i, arr.length); i++) {
-			const el = arr[i];
-			console.log(i, el);
-		}`,
-		`for (let i = 0; i < arr.size; i++) {
-			const el = arr[i];
-			console.log(i, el);
-		}`,
-		`for (let i = 0; j < arr.length; i++) {
-			const el = arr[i];
-			console.log(i, el);
-		}`,
-		`for (let i = 0; i <= arr.length; i++) {
-			const el = arr[i];
-			console.log(i, el);
-		}`,
-		`for (let i = 0; i < arr['length']; i++) {
-			const el = arr[i];
-			console.log(i, el);
-		}`,
+		outdent`
+			for (let i = 0; f(i, arr.length); i++) {
+				const el = arr[i];
+				console.log(i, el);
+			}
+		`,
+		outdent`
+			for (let i = 0; i < arr.size; i++) {
+				const el = arr[i];
+				console.log(i, el);
+			}
+		`,
+		outdent`
+			for (let i = 0; j < arr.length; i++) {
+				const el = arr[i];
+				console.log(i, el);
+			}
+		`,
+		outdent`
+			for (let i = 0; i <= arr.length; i++) {
+				const el = arr[i];
+				console.log(i, el);
+			}
+		`,
+		outdent`
+			for (let i = 0; i < arr['length']; i++) {
+				const el = arr[i];
+				console.log(i, el);
+			}
+		`,
 
 		// Screwing with update expression
 
-		`for (let i = 0; arr.length > i;) {
-			let el = arr[i];
-			console.log(i, el);
-		}`,
-		`for (let i = 0; arr.length > i; i--) {
-			let el = arr[i];
-			console.log(i, el);
-		}`,
-		`for (let i = 0; arr.length > i; f(i)) {
-			let el = arr[i];
-			console.log(i, el);
-		}`,
-		`for (let i = 0; arr.length > i; i = f(i)) {
-			let el = arr[i];
-			console.log(i, el);
-		}`,
+		outdent`
+			for (let i = 0; arr.length > i;) {
+				let el = arr[i];
+				console.log(i, el);
+			}
+		`,
+		outdent`
+			for (let i = 0; arr.length > i; i--) {
+				let el = arr[i];
+				console.log(i, el);
+			}
+		`,
+		outdent`
+			for (let i = 0; arr.length > i; f(i)) {
+				let el = arr[i];
+				console.log(i, el);
+			}
+		`,
+		outdent`
+			for (let i = 0; arr.length > i; i = f(i)) {
+				let el = arr[i];
+				console.log(i, el);
+			}
+		`,
 
 		// Screwing with the body
 
@@ -93,114 +118,130 @@ ruleTester.run('no-for-loop', rule, {
 
 		// Screwing with element variable declaration
 
-		`for (let i = 0; i < arr.length; ++i) {
-			const el = f(i);
-			console.log(i, el);
-		}`,
-		`for (var j = 0; j < xs.length; j++) {
-			var x;
-		}`,
-		`for (var j = 0; j < xs.length; j++) {
-			var {x} = y;
-		}`,
-		`for (let i = 0; i < arr.length; i++) {
-			console.log(i);
-		}`,
+		outdent`
+			for (let i = 0; i < arr.length; ++i) {
+				const el = f(i);
+				console.log(i, el);
+			}
+		`,
+		outdent`
+			for (var j = 0; j < xs.length; j++) {
+				var x;
+			}
+		`,
+		outdent`
+			for (var j = 0; j < xs.length; j++) {
+				var {x} = y;
+			}
+		`,
+		outdent`
+			for (let i = 0; i < arr.length; i++) {
+				console.log(i);
+			}
+		`,
 
 		// Index is assigned to inside the loop body
-		`for (let i = 0; i < input.length; i++) {
-			const el = input[i];
-			i++;
-			console.log(i, el);
-		}`,
+		outdent`
+			for (let i = 0; i < input.length; i++) {
+				const el = input[i];
+				i++;
+				console.log(i, el);
+			}
+		`,
 
-		`for (let i = 0; i < input.length; i++) {
-			const el = input[i];
-			i = 4;
-			console.log(i, el);
-		}`,
+		outdent`
+			for (let i = 0; i < input.length; i++) {
+				const el = input[i];
+				i = 4;
+				console.log(i, el);
+			}
+		`,
 
 		// Using the array other than reading the index
-		`for (let i = 0; i < arr.length;i++) {
-			console.log(arr[i]);
-			arr.reverse();
-		}`,
+		outdent`
+			for (let i = 0; i < arr.length;i++) {
+				console.log(arr[i]);
+				arr.reverse();
+			}
+		`,
 
 		// Modifying the array element
-		`for (let i = 0; i < arr.length; i++) {
-			arr[i] = i + 2;
-		}`
+		outdent`
+			for (let i = 0; i < arr.length; i++) {
+				arr[i] = i + 2;
+			}
+		`
 	],
 
 	invalid: [
 		// Use default name
-		testCase(`
+		testCase(outdent`
 			for (let i = 0; i < arr.length; i += 1) {
 				console.log(arr[i])
 			}
-		`, `
+		`, outdent`
 			for (const element of arr) {
 				console.log(element)
 			}
 		`),
 
-		testCase(`
+		testCase(outdent`
 			for (let i = 0; arr.length > i; i += 1) {
 				let el = arr[i];
 				console.log(i, el);
 			}
-		`, `
+		`, outdent`
 			for (const [i, el] of arr.entries()) {
 				console.log(i, el);
 			}
 		`),
 
-		testCase(`
+		testCase(outdent`
 			for (let i = 0; i < arr.length; i++) {
 				const el = arr[i];
 				console.log(i, el);
 			}
-		`, `
+		`, outdent`
 			for (const [i, el] of arr.entries()) {
 				console.log(i, el);
 			}
 		`),
 
-		testCase(`
+		testCase(outdent`
 			for (let i = 0; i < arr.length; ++i) {
 				const el = arr[i];
 				console.log(i, el);
 			}
-		`, `
+		`, outdent`
 			for (const [i, el] of arr.entries()) {
 				console.log(i, el);
 			}
 		`),
 
-		testCase(`
+		testCase(outdent`
 			for (let i = 0; i < arr.length; i++) {
 				const el = arr[i];
 				console.log(el);
 			}
-		`, `
+		`, outdent`
 			for (const el of arr) {
 				console.log(el);
 			}
 		`),
 
 		// This tests that the "whole line" removal does not happen when it should not
-		testCase(`
+		testCase(outdent`
 			for (var j = 0; j < xs.length; j = j + 1) {
 				var x = xs[j];console.log(j, x);
 			}
-		`, `
+		`, outdent`
 			for (const [j, x] of xs.entries()) {
 				console.log(j, x);
 			}
 		`),
 
 		// Index is used outside of the loop, fixer should not apply
-		testCase(`
+		testCase(outdent`
 			for (var i = 0; i < arr.length; i++) {
 				const el = arr[i];
 				console.log(el);
@@ -209,7 +250,7 @@ ruleTester.run('no-for-loop', rule, {
 		`),
 
 		// Element is used outside of the loop, fixer should not apply
-		testCase(`
+		testCase(outdent`
 			for (let i = 0; i < arr.length; i++) {
 				var el = arr[i];
 				console.log(i, el);
@@ -218,36 +259,36 @@ ruleTester.run('no-for-loop', rule, {
 		`),
 
 		// Complex element declarations
-		testCase(`
+		testCase(outdent`
 			for (var j = 0; j < xs.length; j = j + 1) {
 				var x = xs[j], y = ys[j];
 				console.log(j, x, y);
 			}
-		`, `
+		`, outdent`
 			for (const [j, x] of xs.entries()) {
 				var y = ys[j];
 				console.log(j, x, y);
 			}
 		`),
 
-		testCase(`
+		testCase(outdent`
 			for (var j = 0; j < xs.length; j = j + 1) {
 				var y = ys[j], x = xs[j];
 				console.log(j, x, y);
 			}
-		`, `
+		`, outdent`
 			for (const [j, x] of xs.entries()) {
 				var y = ys[j];
 				console.log(j, x, y);
 			}
 		`),
 
-		testCase(`
+		testCase(outdent`
 			for (var j = 0; j < xs.length; j = j + 1) {
 				var y = ys[j], x = xs[j], i = 10;
 				console.log(j, x, y);
 			}
-		`, `
+		`, outdent`
 			for (const [j, x] of xs.entries()) {
 				var y = ys[j], i = 10;
 				console.log(j, x, y);
@@ -255,14 +296,14 @@ ruleTester.run('no-for-loop', rule, {
 		`),
 
 		// Complex replacement without index
-		testCase(`
+		testCase(outdent`
 			for (var i = 0; i < arr.length; i++) {
 				console.log(arr[i]);
 				arr[i].doSomething();
 				counter += arr[i].total;
 				const z = arr[i];
 			}
-		`, `
+		`, outdent`
 			for (const z of arr) {
 				console.log(z);
 				z.doSomething();
@@ -271,7 +312,7 @@ ruleTester.run('no-for-loop', rule, {
 		`),
 
 		// Complex replacement with index
-		testCase(`
+		testCase(outdent`
 			for (var i = 0; i < arr.length; i++) {
 				console.log(arr[i]);
 				arr[i].doSomething();
@@ -279,7 +320,7 @@ ruleTester.run('no-for-loop', rule, {
 				const z = arr[i];
 				const y = i + 1;
 			}
-		`, `
+		`, outdent`
 			for (const [i, z] of arr.entries()) {
 				console.log(z);
 				z.doSomething();
@@ -289,14 +330,14 @@ ruleTester.run('no-for-loop', rule, {
 		`),
 
 		// Using array element in a child scope
-		testCase(`
+		testCase(outdent`
 			for (let i = 0; i < arr.length; i += 1) {
 				console.log(arr[i])
 				if (Map) {
 					use(arr[i]);
 				}
 			}
-		`, `
+		`, outdent`
 			for (const element of arr) {
 				console.log(element)
 				if (Map) {
