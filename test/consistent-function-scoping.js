@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/consistent-function-scoping';
 
 const ruleTester = avaRuleTester(test, {
@@ -20,195 +21,242 @@ const functionError = {
 
 ruleTester.run('consistent-function-scoping', rule, {
 	valid: [
-		`
-		function doFoo(foo) {
-			return foo;
-		}
-		`,
-		`
-		function doFoo(foo) {
-			return bar;
-		}
-		`,
-		`
-		const doFoo = (foo) => foo;
-		`,
-		`
-		(foo) => foo;
-		`,
-		`
-		function doFoo(foo) {
-			function doBar(bar) {
-				return foo + bar;
+		outdent`
+			function doFoo(foo) {
+				return foo;
 			}
-			return foo;
-		}
 		`,
-		`
-		function doFoo(foo) {
-			function doBar(bar) {
-				return foo + bar;
+		outdent`
+			function doFoo(foo) {
+				return bar;
 			}
-		}
 		`,
-		`
-		function doFoo(foo = 'foo') {
-			function doBar(bar) {
-				return foo + bar;
-			}
-		}
+		outdent`
+			const doFoo = (foo) => foo;
 		`,
-		`
-		function doFoo() {
-			var foo = 'foo';
-			function doBar(bar) {
-				return foo + bar;
-			}
-			return foo;
-		}
+		outdent`
+			(foo) => foo;
 		`,
-		`
-		function doFoo(foo) {
-			function doBar(bar) {
-				function doZaz(zaz) {
-					return foo + bar + zaz;
+		outdent`
+			function doFoo(foo) {
+				function doBar(bar) {
+					return foo + bar;
 				}
-				return bar;
+				return foo;
 			}
-			return foo;
-		}
 		`,
-		`
-		for (var foo = 0; foo < 1; foo++) {
-			function doBar(bar) {
-			  	return bar + foo;
+		outdent`
+			function doFoo(foo) {
+				function doBar(bar) {
+					return foo + bar;
+				}
 			}
-		}
 		`,
-		`
-		for (var foo = 0; foo < 1; foo++) {
-			function doBar(bar) {
-				return bar;
+		outdent`
+			function doFoo(foo = 'foo') {
+				function doBar(bar) {
+					return foo + bar;
+				}
 			}
-		}
 		`,
-		`
-		var foo = 0;
-		function doFoo() {
-			foo = 1;
-			function doBar(bar) {
-				return foo + bar;
+		outdent`
+			function doFoo() {
+				var foo = 'foo';
+				function doBar(bar) {
+					return foo + bar;
+				}
+				return foo;
 			}
-			return foo;
-		}
 		`,
-		`
-		const doFoo = (foo) => {
-			return foo;
-		}
-		`,
-		`
-		const doFoo =
-			(foo) =>
-			(bar) =>
-			foo + bar;
-		`,
-		`
-		const doFoo = () => {
-			return (bar) => bar;
-		}
-		`,
-		`
-		function doFoo() {
-			return (bar) => bar;
-		}
-		`,
-		`
-		const doFoo = (foo) => {
-			const doBar = (bar) => {
-				return foo + bar;
+		outdent`
+			function doFoo(foo) {
+				function doBar(bar) {
+					function doZaz(zaz) {
+						return foo + bar + zaz;
+					}
+					return bar;
+				}
+				return foo;
 			}
-			return foo;
-		}
+		`,
+		outdent`
+			for (var foo = 0; foo < 1; foo++) {
+				function doBar(bar) {
+					return bar + foo;
+				}
+			}
+		`,
+		outdent`
+			for (var foo = 0; foo < 1; foo++) {
+				function doBar(bar) {
+					return bar;
+				}
+			}
+		`,
+		outdent`
+			var foo = 0;
+			function doFoo() {
+				foo = 1;
+				function doBar(bar) {
+					return foo + bar;
+				}
+				return foo;
+			}
+		`,
+		outdent`
+			const doFoo = (foo) => {
+				return foo;
+			}
+		`,
+		outdent`
+			const doFoo =
+				(foo) =>
+				(bar) =>
+				foo + bar;
+		`,
+		outdent`
+			const doFoo = () => {
+				return (bar) => bar;
+			}
+		`,
+		outdent`
+			function doFoo() {
+				return (bar) => bar;
+			}
+		`,
+		outdent`
+			const doFoo = (foo) => {
+				const doBar = (bar) => {
+					return foo + bar;
+				}
+				return foo;
+			}
+		`,
+		outdent`
+			function doFoo() {
+				{
+					const foo = 'foo';
+					function doBar(bar) {
+						return bar + foo;
+					}
+				}
+			}
+		`,
+		outdent`
+			function doFoo(foo) {
+				{
+					function doBar(bar) {
+						return bar;
+					}
+				}
+				return foo;
+			}
 		`
 	],
 	invalid: [
 		{
-			code: `
-			function doFoo(foo) {
-				function doBar(bar) {
-				  	return bar;
+			code: outdent`
+				function doFoo(foo) {
+					function doBar(bar) {
+						return bar;
+					}
+					return foo;
 				}
-				return foo;
-			}
 			`,
 			errors: [functionError]
 		},
 		{
-			code: `
-			function doFoo() {
-				var foo = 'foo';
-				function doBar(bar) {
-				  	return bar;
+			code: outdent`
+				function doFoo() {
+					var foo = 'foo';
+					function doBar(bar) {
+						return bar;
+					}
+					return foo;
 				}
-				return foo;
-			}
 			`,
 			errors: [functionError]
 		},
 		{
-			code: `
-			function doFoo() {
-				function doBar(bar) {
-					return bar;
+			code: outdent`
+				function doFoo() {
+					function doBar(bar) {
+						return bar;
+					}
 				}
-			}
 			`,
 			errors: [functionError]
 		},
 		{
-			code: `
-			const doFoo = () => {
-				const doBar = (bar) => {
-					return bar;
+			code: outdent`
+				const doFoo = () => {
+					const doBar = (bar) => {
+						return bar;
+					}
 				}
-			}
 			`,
 			errors: [arrowError]
 		},
 		{
-			code: `
-			const doFoo = () => (bar) => bar;
+			code: outdent`
+				const doFoo = () => (bar) => bar;
 			`,
 			errors: [arrowError]
 		},
 		{
-			code: `
-			function doFoo(foo) {
-				function doBar(bar) {
-					return doBar(bar);
+			code: outdent`
+				function doFoo(foo) {
+					function doBar(bar) {
+						return doBar(bar);
+					}
+					return foo;
 				}
-				return foo;
-			}
 			`,
 			errors: [functionError]
 		},
 		{
-			code: `
-			function doFoo(foo) {
-				function doBar(bar) {
-				  	return bar;
+			code: outdent`
+				function doFoo(foo) {
+					function doBar(bar) {
+						return bar;
+					}
+					return doBar;
 				}
-				return doBar;
-			}
 			`,
 			errors: [functionError]
 		},
 		{
-			code: `
-			function doFoo() {
-				function doBar() {}
-			}
+			code: outdent`
+				function doFoo() {
+					function doBar() {}
+				}
+			`,
+			errors: [functionError]
+		},
+		{
+			code: outdent`
+				function doFoo(foo) {
+					{
+						{
+							function doBar(bar) {
+								return bar;
+							}
+						}
+					}
+					return foo;
+				}
+			`,
+			errors: [functionError]
+		},
+		{
+			code: outdent`
+				{
+					{
+						function doBar(bar) {
+							return bar;
+						}
+					}
+				}
 			`,
 			errors: [functionError]
 		}
