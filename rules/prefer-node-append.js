@@ -4,8 +4,11 @@ const getDocsUrl = require('./utils/get-docs-url');
 const getMethodName = memberExpression => memberExpression.property.name;
 
 const ignoredParentTypes = [
+	'ArrayExpression',
 	'IfStatement',
 	'MemberExpression',
+	'Property',
+	'ReturnStatement',
 	'VariableDeclarator'
 ];
 
