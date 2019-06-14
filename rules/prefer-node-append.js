@@ -3,16 +3,43 @@ const getDocsUrl = require('./utils/get-docs-url');
 
 const getMethodName = memberExpression => memberExpression.property.name;
 
+const ignoredParentTypes = [
+	'IfStatement',
+	'MemberExpression',
+	'VariableDeclarator'
+];
+
+const ignoredGrandparentTypes = [
+	'ExpressionStatement'
+];
+
 const create = context => {
 	return {
 		CallExpression(node) {
-			const {callee} = node;
+			const {
+				callee,
+				parent
+			} = node;
+
+			const {
+				parent: grandparent
+			} = (parent || {});
 
 			if (callee.type === 'MemberExpression' && getMethodName(callee) === 'appendChild') {
+				let fix = fixer => fixer.replaceText(callee.property, 'append');
+
+				if (parent && ignoredParentTypes.includes(parent.type)) {
+					fix = undefined;
+				}
+
+				if (grandparent && ignoredGrandparentTypes.includes(grandparent.type)) {
+					fix = undefined;
+				}
+
 				context.report({
 					node,
 					message: 'Prefer `Node#append()` over `Node#appendChild()`.',
-					fix: fixer => fixer.replaceText(callee.property, 'append')
+					fix
 				});
 			}
 		}

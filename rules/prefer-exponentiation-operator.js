@@ -12,17 +12,34 @@ const isMathPow = node => {
 	);
 };
 
-const parseArgument = (context, arg) => {
-	if (arg.type === 'Identifier') {
-		return arg.name;
-	}
+const parseArgument = (source, arg) => {
+	const text = source.getText(arg);
 
-	return context.getSourceCode().getText(arg);
+	switch (arg.type) {
+		case 'Identifier':
+			return arg.name;
+		case 'Literal':
+			return text;
+		case 'CallExpression':
+			return text;
+		case 'UnaryExpression':
+			return text;
+		default:
+			// Handle cases like Math.pow(2, 2-1);
+			return `(${text})`;
+	}
 };
 
 const fix = (context, node, fixer) => {
-	const base = parseArgument(context, node.arguments[0]);
-	const exponent = parseArgument(context, node.arguments[1]);
+	const source = context.getSourceCode();
+	const comments = source.getCommentsInside(node);
+
+	if (comments && comments.length > 0) {
+		return;
+	}
+
+	const base = parseArgument(source, node.arguments[0]);
+	const exponent = parseArgument(source, node.arguments[1]);
 
 	const replacement = `${base} ** ${exponent}`;
 

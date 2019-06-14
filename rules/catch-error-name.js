@@ -1,5 +1,6 @@
 'use strict';
 const astUtils = require('eslint-ast-utils');
+const avoidCapture = require('./utils/avoid-capture');
 const getDocsUrl = require('./utils/get-docs-url');
 
 // Matches `someObj.then([FunctionExpression | ArrowFunctionExpression])`
@@ -25,19 +26,11 @@ function isLintablePromiseCatch(node) {
 	return arg0.type === 'FunctionExpression' || arg0.type === 'ArrowFunctionExpression';
 }
 
-// TODO: Use `./utils/avoid-capture.js` instead
-function indexifyName(name, scope) {
-	const variables = scope.variableScope.set;
-
-	let index = 1;
-	while (variables.has(index === 1 ? name : name + index)) {
-		index++;
-	}
-
-	return name + (index === 1 ? '' : index);
-}
-
 const create = context => {
+	const {
+		ecmaVersion
+	} = context.parserOptions;
+
 	const options = {
 		name: 'error',
 		caughtErrorsIgnorePattern: '^_$',
@@ -96,7 +89,8 @@ const create = context => {
 					return;
 				}
 
-				const errorName = indexifyName(name, context.getScope());
+				const scope = context.getScope();
+				const errorName = avoidCapture(name, [scope.variableScope], ecmaVersion);
 				push(params.length === 0 || params[0].name === errorName || errorName);
 			}
 		},
@@ -118,7 +112,8 @@ const create = context => {
 				return;
 			}
 
-			const errName = indexifyName(name, context.getScope());
+			const scope = context.getScope();
+			const errName = avoidCapture(name, [scope.variableScope], ecmaVersion);
 			push(node.param.name === errName || errName);
 		},
 		'CatchClause:exit': node => {
