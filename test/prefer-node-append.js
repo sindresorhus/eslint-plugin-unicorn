@@ -98,6 +98,26 @@ ruleTester.run('prefer-node-append', rule, {
 			code: 'if (node.appendChild(child)) {}',
 			output: 'if (node.appendChild(child)) {}',
 			errors: [error]
+		},
+		{
+			code: 'const foo = [node.appendChild(child)]',
+			output: 'const foo = [node.appendChild(child)]',
+			errors: [error]
+		},
+		{
+			code: 'const foo = { bar: node.appendChild(child) }',
+			output: 'const foo = { bar: node.appendChild(child) }',
+			errors: [error]
+		},
+		{
+			code: 'function foo() { return node.appendChild(child); }',
+			output: 'function foo() { return node.appendChild(child); }',
+			errors: [error]
+		},
+		{
+			code: 'const foo = () => { return node.appendChild(child); }',
+			output: 'const foo = () => { return node.appendChild(child); }',
+			errors: [error]
 		}
 	]
 });
