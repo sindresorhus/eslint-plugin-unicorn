@@ -142,6 +142,7 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 - [Sindre Sorhus](https://github.com/sindresorhus)
 - [Sam Verschueren](https://github.com/SamVerschueren)
 - [futpib](https://github.com/futpib)
+- [Adam Babcock](https://github.com/MrHen)
 
 ###### Former
 

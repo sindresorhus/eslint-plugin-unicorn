@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/error-message';
 
 const ruleTester = avaRuleTester(test, {
@@ -30,8 +31,10 @@ ruleTester.run('error-message', rule, {
 		'throw foo()',
 		'throw err',
 		'throw 1',
-		`const err = TypeError('error');
-		 throw err;`
+		outdent`
+			const err = TypeError('error');
+			throw err;
+		`
 	],
 
 	invalid: [
@@ -48,14 +51,14 @@ ruleTester.run('error-message', rule, {
 			errors: [emptyStringError]
 		},
 		{
-			code: `
+			code: outdent`
 			const err = new Error();
 			throw err;
 			`,
 			errors: [noMessageError]
 		},
 		{
-			code: `
+			code: outdent`
 			let err = 1;
 			err = new Error();
 			throw err;
@@ -63,7 +66,7 @@ ruleTester.run('error-message', rule, {
 			errors: [noMessageError]
 		},
 		{
-			code: `
+			code: outdent`
 			let err = new Error();
 			err = 1;
 			throw err;
