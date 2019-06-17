@@ -8,6 +8,13 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const errors = [
+	{
+		ruleId: 'prefer-dataset',
+		message: 'Prefer `dataset` over `setAttribute`'
+	}
+];
+
 ruleTester.run('prefer-dataset', rule, {
 	valid: [
 		'element.dataset.unicorn = \'🦄\';',
@@ -18,7 +25,7 @@ ruleTester.run('prefer-dataset', rule, {
 	invalid: [
 		{
 			code: 'element.setAttribute(\'data-unicorn\', \'🦄\');',
-			errors: [{message: 'Prefer `dataset` over `setAttribute`'}],
+			errors,
 			output: 'element.dataset.unicorn = \'🦄\';'
 		}
 	]
