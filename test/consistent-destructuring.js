@@ -25,7 +25,7 @@ ruleTester.run('consistent-destructuring', rule, {
 		'const {foo} = null;',
 		'const {foo} = this;',
 		`const {a} = foo;
-		console.log(a);`
+		console.log(a);`,
 		`const {a} = foo;
 		console.log(a, foo.b());`,
 		`const {a} = foo;
