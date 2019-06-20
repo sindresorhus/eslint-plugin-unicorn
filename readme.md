@@ -35,6 +35,7 @@ Configure it in `package.json`.
 		"rules": {
 			"unicorn/better-regex": "error",
 			"unicorn/catch-error-name": "error",
+			"unicorn/consistent-destructuring": "error",
 			"unicorn/consistent-function-scoping": "error",
 			"unicorn/custom-error-definition": "off",
 			"unicorn/empty-brace-spaces": "error",
@@ -107,10 +108,12 @@ Configure it in `package.json`.
 
 - [better-regex](docs/rules/better-regex.md) - Improve regexes by making them shorter, consistent, and safer. *(fixable)*
 - [catch-error-name](docs/rules/catch-error-name.md) - Enforce a specific parameter name in catch clauses. *(fixable)*
+- [consistent-destructuring](docs/rules/consistent-destructuring.md) - Use destructured variables over properties. *(partly fixable)*
 - [consistent-function-scoping](docs/rules/consistent-function-scoping.md) - Move function definitions to the highest possible scope.
 - [custom-error-definition](docs/rules/custom-error-definition.md) - Enforce correct `Error` subclassing. *(fixable)*
 - [empty-brace-spaces](docs/rules/empty-brace-spaces.md) - Enforce no spaces between braces. *(fixable)*
 - [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when creating a built-in error.
+- [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
 - [escape-case](docs/rules/escape-case.md) - Require escape sequences to use uppercase values. *(fixable)*
 - [expiring-todo-comments](docs/rules/expiring-todo-comments.md) - Add expiration conditions to TODO comments.
 - [explicit-length-check](docs/rules/explicit-length-check.md) - Enforce explicitly comparing the `length` property of a value. *(partly fixable)*
