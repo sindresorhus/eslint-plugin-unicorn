@@ -12,7 +12,10 @@ const invalidTestCase = (code, correctCode) => {
 	return {
 		code,
 		output: correctCode || code,
-		errors: [{message: 'Use destructured variables over properties.'}]
+		errors: [{
+			ruleId: 'consistent-destructuring',
+			messageId: 'consistentDestructuring'
+		}]
 	};
 };
 

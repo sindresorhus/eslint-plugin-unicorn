@@ -1,6 +1,8 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
+const MESSAGE_ID = 'consistentDestructuring';
+
 const fix = (fixer, source, objectPattern, memberExpression) => {
 	const member = source.getText(memberExpression.property);
 	const {properties} = objectPattern;
@@ -26,12 +28,8 @@ const create = context => {
 	const declarations = new Map();
 
 	return {
-		VariableDeclarator(node) {
-			const {id, init} = node;
-
-			if (id.type === 'ObjectPattern' && init.type !== 'Literal') {
-				declarations.set(source.getText(init), id);
-			}
+		'VariableDeclarator[id.type="ObjectPattern"][init.type!="Literal"]'(node) {
+			declarations.set(source.getText(node.init), node.id);
 		},
 		MemberExpression(node) {
 			const {parent, object} = node;
@@ -48,7 +46,7 @@ const create = context => {
 
 				context.report({
 					node,
-					message: 'Use destructured variables over properties.',
+					messageId: MESSAGE_ID,
 					fix: isNested ? null : fixer => fix(fixer, source, objectPattern, node)
 				});
 			}
@@ -63,6 +61,9 @@ module.exports = {
 		docs: {
 			url: getDocsUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages: {
+			[MESSAGE_ID]: 'Use destructured variables over properties.'
+		}
 	}
 };
