@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/catch-error-name';
 
 const ruleTester = avaRuleTester(test, {
@@ -24,7 +25,7 @@ ruleTester.run('catch-error-name', rule, {
 		testCase('try {} catch (_) { console.log(foo); }'),
 		testCase('try {} catch (err) {}', 'err'),
 		testCase('try {} catch (outerError) { try {} catch (innerError) {} }'),
-		testCase(`
+		testCase(outdent`
 			const handleError = error => {
 				try {
 					doSomething();
@@ -33,7 +34,7 @@ ruleTester.run('catch-error-name', rule, {
 				}
 			}
 		`),
-		testCase(`
+		testCase(outdent`
 			const handleError = err => {
 				try {
 					doSomething();
@@ -42,7 +43,7 @@ ruleTester.run('catch-error-name', rule, {
 				}
 			}
 		`, 'err'),
-		testCase(`
+		testCase(outdent`
 			const handleError = error => {
 				const error_ = new Error('🦄');
 
@@ -54,24 +55,24 @@ ruleTester.run('catch-error-name', rule, {
 			}
 		`),
 		testCase('obj.catch(error => {})'),
-		testCase(`
+		testCase(outdent`
 			const handleError = error => {
 				obj.catch(error_ => { });
 			}
 		`),
-		testCase(`
+		testCase(outdent`
 			const handleError = err => {
 				obj.catch(err_ => { });
 			}
 		`, 'err'),
-		testCase(`
+		testCase(outdent`
 			const handleError = error => {
 				const error_ = new Error('foo bar');
 
 				obj.catch(error__ => { });
 			}
 		`),
-		testCase(`
+		testCase(outdent`
 			const handleError = error => {
 				const error_ = new Error('foo bar');
 				const error__ = new Error('foo bar');
@@ -104,7 +105,7 @@ ruleTester.run('catch-error-name', rule, {
 		testCase('try {} catch (_) {}'),
 		testCase('try {} catch (_) { try {} catch (_) {} }'),
 		testCase('try {} catch (_) { console.log(_); }'),
-		testCase(`
+		testCase(outdent`
 				const handleError = error => {
 					try {
 						doSomething();
@@ -123,7 +124,7 @@ ruleTester.run('catch-error-name', rule, {
 			]
 		}
 		// TODO: Uncomment once test runner supports optional-catch-binding https://github.com/tc39/proposal-optional-catch-binding
-		// testCase(`
+		// testCase(outdent`
 		// 	try {
 		// 		throw new Error('message');
 		// 	} catch {
@@ -145,18 +146,18 @@ ruleTester.run('catch-error-name', rule, {
 		testCase('obj.catch(function ({message}) {})', null, true),
 		testCase('obj.catch(function (error) { console.log(error) })', 'err', true, 'obj.catch(function (err) { console.log(err) })'),
 		// Failing tests for #107
-		// testCase(`
+		// testCase(outdent`
 		// 	foo.then(() => {
 		// 		try {} catch (e) {}
 		// 	}).catch(error => error);
 		// `, null, true),
-		// testCase(`
+		// testCase(outdent`
 		// 	foo.then(() => {
 		// 		try {} catch (e) {}
 		// 	});
 		// `, null, true),
 		{
-			code: `
+			code: outdent`
 				const handleError = error => {
 					try {
 						doSomething();
@@ -165,7 +166,7 @@ ruleTester.run('catch-error-name', rule, {
 					}
 				}
 			`,
-			output: `
+			output: outdent`
 				const handleError = error => {
 					try {
 						doSomething();
@@ -182,7 +183,7 @@ ruleTester.run('catch-error-name', rule, {
 			]
 		},
 		{
-			code: `
+			code: outdent`
 				const handleError = error => {
 					try {
 						doSomething();
@@ -191,7 +192,7 @@ ruleTester.run('catch-error-name', rule, {
 					}
 				}
 			`,
-			output: `
+			output: outdent`
 				const handleError = error => {
 					try {
 						doSomething();
@@ -208,7 +209,7 @@ ruleTester.run('catch-error-name', rule, {
 			]
 		},
 		{
-			code: `
+			code: outdent`
 				const handleError = error => {
 					const error9 = new Error('foo bar');
 
@@ -219,7 +220,7 @@ ruleTester.run('catch-error-name', rule, {
 					}
 				}
 			`,
-			output: `
+			output: outdent`
 				const handleError = error => {
 					const error9 = new Error('foo bar');
 
@@ -238,14 +239,14 @@ ruleTester.run('catch-error-name', rule, {
 			]
 		},
 		{
-			code: `
+			code: outdent`
 				const handleError = error => {
 					const error_ = new Error('foo bar');
 
 					obj.catch(foo => { });
 				}
 			`,
-			output: `
+			output: outdent`
 				const handleError = error => {
 					const error_ = new Error('foo bar');
 
@@ -260,14 +261,14 @@ ruleTester.run('catch-error-name', rule, {
 			]
 		},
 		{
-			code: `
+			code: outdent`
 				const handleError = error => {
 					const error_ = new Error('foo bar');
 
 					obj.catch(foo => { });
 				}
 			`,
-			output: `
+			output: outdent`
 				const handleError = error => {
 					const error_ = new Error('foo bar');
 
@@ -287,11 +288,11 @@ ruleTester.run('catch-error-name', rule, {
 			]
 		},
 		{
-			code: `
+			code: outdent`
 				obj.catch(err => {});
 				obj.catch(err => {});
 			`,
-			output: `
+			output: outdent`
 				obj.catch(error => {});
 				obj.catch(error => {});
 			`,

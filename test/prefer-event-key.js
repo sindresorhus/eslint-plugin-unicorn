@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/prefer-event-key';
 
 const ruleTester = avaRuleTester(test, {
@@ -15,39 +16,45 @@ const error = key => ({
 
 ruleTester.run('prefer-event-key', rule, {
 	valid: [
-		`window.addEventListener('click', e => {
-			console.log(e.key);
-		})`,
-		`window.addEventListener('click', () => {
-			console.log(keyCode, which, charCode);
-			console.log(window.keyCode);
-		})`,
-		`foo.addEventListener('click', (e, r, fg) => {
-			function a() {
-				if (true) {
-					{
+		outdent`
+			window.addEventListener('click', e => {
+				console.log(e.key);
+			})
+		`,
+		outdent`
+			window.addEventListener('click', () => {
+				console.log(keyCode, which, charCode);
+				console.log(window.keyCode);
+			})
+		`,
+		outdent`
+			foo.addEventListener('click', (e, r, fg) => {
+				function a() {
+					if (true) {
 						{
-							const e = {};
-							const { charCode } = e;
-							console.log(e.keyCode, charCode);
+							{
+								const e = {};
+								const { charCode } = e;
+								console.log(e.keyCode, charCode);
+							}
 						}
 					}
 				}
-			}
-		});`,
-		`
-		const e = {}
-		foo.addEventListener('click', function (event) {
-			function a() {
-				if (true) {
-					{
+			});
+		`,
+		outdent`
+			const e = {}
+			foo.addEventListener('click', function (event) {
+				function a() {
+					if (true) {
 						{
-							console.log(e.keyCode);
+							{
+								console.log(e.keyCode);
+							}
 						}
 					}
 				}
-			}
-		});
+			});
 		`,
 		'const { keyCode } = e',
 		'const { charCode } = e',
@@ -58,12 +65,14 @@ ruleTester.run('prefer-event-key', rule, {
 		'const { which } = e',
 		'const { keyCode: key } = e',
 		'const { keyCode: abc } = e',
-		`foo.addEventListener('keydown', e => {
-			(function (abc) {
-				if (e.key === 'ArrowLeft') return true;
-				const { charCode } = abc;
-			}())
-		})`,
+		outdent`
+			foo.addEventListener('keydown', e => {
+				(function (abc) {
+					if (e.key === 'ArrowLeft') return true;
+					const { charCode } = abc;
+				}())
+			})
+		`,
 		`foo.addEventListener('keydown', e => {
 			if (e.key === 'ArrowLeft') return true;
 		})`,
@@ -104,7 +113,7 @@ ruleTester.run('prefer-event-key', rule, {
 
 	invalid: [
 		{
-			code: `
+			code: outdent`
 				window.addEventListener('click', e => {
 					console.log(e.keyCode);
 				})
@@ -112,7 +121,7 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				window.addEventListener('click', ({keyCode}) => {
 					console.log(keyCode);
 				})
@@ -120,7 +129,7 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				window.addEventListener('click', ({which}) => {
 					if (which === 23) {
 						console.log('Wrong!')
@@ -130,13 +139,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('which')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 27) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === 'Escape') {
 					}
@@ -145,13 +154,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', a => {
 					if (a.keyCode === 27) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo.addEventListener('click', a => {
 					if (a.key === 'Escape') {
 					}
@@ -160,13 +169,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', (a, b, c) => {
 					if (a.keyCode === 27) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo.addEventListener('click', (a, b, c) => {
 					if (a.key === 'Escape') {
 					}
@@ -175,13 +184,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', function(a, b, c) {
 					if (a.keyCode === 27) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo.addEventListener('click', function(a, b, c) {
 					if (a.key === 'Escape') {
 					}
@@ -190,13 +199,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', function(b) {
 					if (b.keyCode === 27) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo.addEventListener('click', function(b) {
 					if (b.key === 'Escape') {
 					}
@@ -205,7 +214,7 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', e => {
 					const {keyCode, a, b} = e;
 				});
@@ -213,7 +222,7 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', e => {
 					const {a: keyCode, a, b} = e;
 				});
@@ -221,7 +230,7 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				add.addEventListener('keyup', event => {
 					f.addEventList('some', e => {
 						const {keyCode} = event;
@@ -232,7 +241,7 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				window.addEventListener('click', e => {
 					console.log(e.charCode);
 				})
@@ -240,13 +249,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('charCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo11111111.addEventListener('click', event => {
 					if (event.charCode === 27) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo11111111.addEventListener('click', event => {
 					if (event.key === 'Escape') {
 					}
@@ -255,14 +264,14 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('charCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', a => {
 					if (a.charCode === 27) {
 					}
 				});
 			`,
 			errors: [error('charCode')],
-			output: `
+			output: outdent`
 				foo.addEventListener('click', a => {
 					if (a.key === 'Escape') {
 					}
@@ -270,14 +279,14 @@ ruleTester.run('prefer-event-key', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', (a, b, c) => {
 					if (a.charCode === 27) {
 					}
 				});
 			`,
 			errors: [error('charCode')],
-			output: `
+			output: outdent`
 				foo.addEventListener('click', (a, b, c) => {
 					if (a.key === 'Escape') {
 					}
@@ -285,13 +294,13 @@ ruleTester.run('prefer-event-key', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', function(a, b, c) {
 					if (a.charCode === 27) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo.addEventListener('click', function(a, b, c) {
 					if (a.key === 'Escape') {
 					}
@@ -300,14 +309,14 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('charCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', function(b) {
 					if (b.charCode === 27) {
 					}
 				});
 			`,
 			errors: [error('charCode')],
-			output: `
+			output: outdent`
 				foo.addEventListener('click', function(b) {
 					if (b.key === 'Escape') {
 					}
@@ -315,7 +324,7 @@ ruleTester.run('prefer-event-key', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', e => {
 					const {charCode, a, b} = e;
 				});
@@ -323,7 +332,7 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('charCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', e => {
 					const {a: charCode, a, b} = e;
 				});
@@ -331,7 +340,7 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('charCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				window.addEventListener('click', e => {
 					console.log(e.which);
 				})
@@ -339,14 +348,14 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('which')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', event => {
 					if (event.which === 27) {
 					}
 				});
 			`,
 			errors: [error('which')],
-			output: `
+			output: outdent`
 				foo.addEventListener('click', event => {
 					if (event.key === 'Escape') {
 					}
@@ -354,14 +363,14 @@ ruleTester.run('prefer-event-key', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', a => {
 					if (a.which === 27) {
 					}
 				});
 			`,
 			errors: [error('which')],
-			output: `
+			output: outdent`
 				foo.addEventListener('click', a => {
 					if (a.key === 'Escape') {
 					}
@@ -369,14 +378,14 @@ ruleTester.run('prefer-event-key', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', (a, b, c) => {
 					if (a.which === 27) {
 					}
 				});
 			`,
 			errors: [error('which')],
-			output: `
+			output: outdent`
 				foo.addEventListener('click', (a, b, c) => {
 					if (a.key === 'Escape') {
 					}
@@ -384,14 +393,14 @@ ruleTester.run('prefer-event-key', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', function(a, b, c) {
 					if (a.which === 27) {
 					}
 				});
 			`,
 			errors: [error('which')],
-			output: `
+			output: outdent`
 				foo.addEventListener('click', function(a, b, c) {
 					if (a.key === 'Escape') {
 					}
@@ -399,14 +408,14 @@ ruleTester.run('prefer-event-key', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', function(b) {
 					if (b.which === 27) {
 					}
 				});
 			`,
 			errors: [error('which')],
-			output: `
+			output: outdent`
 				foo.addEventListener('click', function(b) {
 					if (b.key === 'Escape') {
 					}
@@ -414,7 +423,7 @@ ruleTester.run('prefer-event-key', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', e => {
 					const {which, a, b} = e;
 				});
@@ -422,7 +431,7 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('which')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', e => {
 					const {a: which, a, b} = e;
 				});
@@ -430,7 +439,7 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('which')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', function(b) {
 					if (b.which === 27) {
 					}
@@ -439,7 +448,7 @@ ruleTester.run('prefer-event-key', rule, {
 				});
 			`,
 			errors: [error('which'), error('keyCode')],
-			output: `
+			output: outdent`
 				foo.addEventListener('click', function(b) {
 					if (b.key === 'Escape') {
 					}
@@ -449,7 +458,7 @@ ruleTester.run('prefer-event-key', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				foo.addEventListener('click', function(b) {
 					if (b.which > 27) {
 					}
@@ -458,7 +467,7 @@ ruleTester.run('prefer-event-key', rule, {
 				});
 			`,
 			errors: [error('which'), error('keyCode')],
-			output: `
+			output: outdent`
 				foo.addEventListener('click', function(b) {
 					if (b.which > 27) {
 					}
@@ -468,7 +477,7 @@ ruleTester.run('prefer-event-key', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 			const e = {}
 			foo.addEventListener('click', (e, r, fg) => {
 				function a() {
@@ -484,7 +493,7 @@ ruleTester.run('prefer-event-key', rule, {
 			});
 			`,
 			errors: [error('charCode'), error('keyCode')],
-			output: `
+			output: outdent`
 			const e = {}
 			foo.addEventListener('click', (e, r, fg) => {
 				function a() {
@@ -501,7 +510,7 @@ ruleTester.run('prefer-event-key', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 			const e = {}
 			foo.addEventListener('click', (e, r, fg) => {
 				function a() {
@@ -517,7 +526,7 @@ ruleTester.run('prefer-event-key', rule, {
 			});
 			`,
 			errors: [error('charCode'), error('keyCode')],
-			output: `
+			output: outdent`
 			const e = {}
 			foo.addEventListener('click', (e, r, fg) => {
 				function a() {
@@ -534,13 +543,13 @@ ruleTester.run('prefer-event-key', rule, {
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 13) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === 'Enter') {
 					}
@@ -549,13 +558,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 38) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === 'ArrowUp') {
 					}
@@ -564,13 +573,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 40) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === 'ArrowDown') {
 					}
@@ -579,13 +588,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 37) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === 'ArrowLeft') {
 					}
@@ -594,13 +603,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 39) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === 'ArrowRight') {
 					}
@@ -609,13 +618,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 221) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === ']') {
 					}
@@ -624,13 +633,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 186) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === ';') {
 					}
@@ -639,13 +648,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 187) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === '=') {
 					}
@@ -654,13 +663,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 188) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === ',') {
 					}
@@ -669,13 +678,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 189) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === '-') {
 					}
@@ -684,13 +693,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 190) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === '.') {
 					}
@@ -699,13 +708,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 191) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === '/') {
 					}
@@ -714,13 +723,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 219) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === '[') {
 					}
@@ -729,13 +738,13 @@ ruleTester.run('prefer-event-key', rule, {
 			errors: [error('keyCode')]
 		},
 		{
-			code: `
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 222) {
 					}
 				});
 			`,
-			output: `
+			output: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.key === ''') {
 					}

@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/prevent-abbreviations';
 
 const ruleTester = avaRuleTester(test, {
@@ -112,17 +113,17 @@ ruleTester.run('prevent-abbreviations', rule, {
 		'(class {})',
 		'(class C {})',
 		'class C {}',
-		`
+		outdent`
 			(class {
 				error() {}
 			})
 		`,
-		`
+		outdent`
 			(class {
 				[err]() {}
 			})
 		`,
-		`
+		outdent`
 			class C {
 				x() {}
 			}
@@ -424,7 +425,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		}),
 
 		noFixingTestCase({
-			code: `
+			code: outdent`
 				let e;
 				console.log(e);
 			`,
@@ -432,11 +433,11 @@ ruleTester.run('prevent-abbreviations', rule, {
 		}),
 
 		{
-			code: `
+			code: outdent`
 				let err;
 				console.log(err);
 			`,
-			output: `
+			output: outdent`
 				let error;
 				console.log(error);
 			`,
@@ -444,13 +445,13 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 
 		{
-			code: `
+			code: outdent`
 				let error;
 				{
 					let err;
 				}
 			`,
-			output: `
+			output: outdent`
 				let error;
 				{
 					let error_;
@@ -459,14 +460,14 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				let error;
 				let error_;
 				{
 					let err;
 				}
 			`,
-			output: `
+			output: outdent`
 				let error;
 				let error_;
 				{
@@ -476,14 +477,14 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				let error;
 				{
 					let err;
 					console.log(error);
 				}
 			`,
-			output: `
+			output: outdent`
 				let error;
 				{
 					let error_;
@@ -493,14 +494,14 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				let error;
 				{
 					let err;
 					console.log(error, err);
 				}
 			`,
-			output: `
+			output: outdent`
 				let error;
 				{
 					let error_;
@@ -517,23 +518,23 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 
 		{
-			code: `
+			code: outdent`
 				const opts = {};
 				console.log(opts);
 			`,
-			output: `
+			output: outdent`
 				const options = {};
 				console.log(options);
 			`,
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				var opts = 1;
 				var opts = 2;
 				console.log(opts);
 			`,
-			output: `
+			output: outdent`
 				var options = 1;
 				var options = 2;
 				console.log(options);
@@ -542,18 +543,18 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 
 		{
-			code: `
+			code: outdent`
 				const err = {};
 				const foo = {err};
 			`,
-			output: `
+			output: outdent`
 				const error = {};
 				const foo = {err: error};
 			`,
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				const err = {};
 				const foo = {
 					a: 1,
@@ -561,7 +562,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 					b: 2
 				};
 			`,
-			output: `
+			output: outdent`
 				const error = {};
 				const foo = {
 					a: 1,
@@ -590,7 +591,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		}),
 		noFixingTestCase({
-			code: `
+			code: outdent`
 				const foo = {
 					err() {}
 				};
@@ -611,7 +612,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		}),
 
 		noFixingTestCase({
-			code: `
+			code: outdent`
 				class C {
 					err() {}
 				}
@@ -693,11 +694,11 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				"use strict";
 				let pkg;
 			`,
-			output: `
+			output: outdent`
 				"use strict";
 				let package_;
 			`,
@@ -726,14 +727,14 @@ ruleTester.run('prevent-abbreviations', rule, {
 		// does not apply all fixes at once. See https://github.com/eslint/eslint/issues/11187#issuecomment-446380824
 		/*
 		{
-			code: `
+			code: outdent`
 				let errCb;
 				{
 					let errorCb;
 					console.log(errCb, errorCb);
 				}
 			`,
-			output: `
+			output: outdent`
 				let errorCallback;
 				{
 					let errorCallback_;
@@ -744,14 +745,14 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 		*/
 		{
-			code: `
+			code: outdent`
 				let errCb;
 				{
 					let errorCb;
 					console.log(errCb, errorCb);
 				}
 			`,
-			output: `
+			output: outdent`
 				let errorCallback;
 				{
 					let errorCb;
@@ -762,11 +763,11 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 
 		{
-			code: `
+			code: outdent`
 				let err;
 				({a: err = 1} = 2);
 			`,
-			output: `
+			output: outdent`
 				let error;
 				({a: error = 1} = 2);
 			`,
@@ -775,25 +776,25 @@ ruleTester.run('prevent-abbreviations', rule, {
 
 		// Renaming to `arguments` would result in a `SyntaxError`, so it should rename to `arguments_`
 		{
-			code: `
+			code: outdent`
 				'use strict';
 				let args;
 			`,
-			output: `
+			output: outdent`
 				'use strict';
 				let arguments_;
 			`,
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				class A {
 					method(...args) {
 						return super.method(...args) + 1;
 					}
 				}
 			`,
-			output: `
+			output: outdent`
 				class A {
 					method(...arguments_) {
 						return super.method(...arguments_) + 1;
@@ -803,14 +804,14 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				class A extends B {
 					constructor(...args) {
 						super(...args);
 					}
 				}
 			`,
-			output: `
+			output: outdent`
 				class A extends B {
 					constructor(...arguments_) {
 						super(...arguments_);
@@ -821,12 +822,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 
 		{
-			code: `
+			code: outdent`
 				const f = (...args) => {
 					return args;
 				}
 			`,
-			output: `
+			output: outdent`
 				const f = (...arguments) => {
 					return arguments;
 				}
@@ -834,13 +835,13 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				let args;
 				const f = () => {
 					return args;
 				}
 			`,
-			output: `
+			output: outdent`
 				let arguments;
 				const f = () => {
 					return arguments;
@@ -851,13 +852,13 @@ ruleTester.run('prevent-abbreviations', rule, {
 
 		// Renaming to `arguments` whould result in `f` returning it's arguments instead of the outer variable
 		{
-			code: `
+			code: outdent`
 				let args;
 				function f() {
 					return args;
 				}
 			`,
-			output: `
+			output: outdent`
 				let arguments_;
 				function f() {
 					return arguments_;
@@ -866,13 +867,13 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				let args;
 				function f() {
 					return arguments + args;
 				}
 			`,
-			output: `
+			output: outdent`
 				let arguments_;
 				function f() {
 					return arguments + arguments_;
@@ -881,13 +882,13 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				let args;
 				function f() {
 					return g.apply(this, arguments) + args;
 				}
 			`,
-			output: `
+			output: outdent`
 				let arguments_;
 				function f() {
 					return g.apply(this, arguments) + arguments_;
@@ -897,13 +898,13 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 
 		{
-			code: `
+			code: outdent`
 				function unicorn(unicorn) {
 					const {docs = {}} = unicorn;
 					return docs;
 				}
 			`,
-			output: `
+			output: outdent`
 				function unicorn(unicorn) {
 					const {docs: documents = {}} = unicorn;
 					return documents;
@@ -923,11 +924,11 @@ browserES5RuleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				var doc;
 				document.querySelector(doc);
 			`,
-			output: `
+			output: outdent`
 				var document_;
 				document.querySelector(document_);
 			`,
@@ -941,11 +942,11 @@ browserES5RuleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				"use strict";
 				var y;
 			`,
-			output: `
+			output: outdent`
 				"use strict";
 				var yield_;
 			`,
@@ -982,34 +983,34 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 
 	invalid: [
 		{
-			code: `
+			code: outdent`
 				import err from 'err';
 			`,
-			output: `
+			output: outdent`
 				import error from 'err';
 			`,
 			options: customOptions,
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				import {err} from 'err';
 			`,
-			output: `
+			output: outdent`
 				import {err as error} from 'err';
 			`,
 			options: customOptions,
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				import {
 					bar,
 					err,
 					buz,
 				} from 'foo';
 			`,
-			output: `
+			output: outdent`
 				import {
 					bar,
 					err as error,
@@ -1021,30 +1022,30 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 		},
 
 		{
-			code: `
+			code: outdent`
 				import {err as cb} from 'err';
 			`,
-			output: `
+			output: outdent`
 				import {err as callback} from 'err';
 			`,
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				const {err: cb} = foo;
 			`,
-			output: `
+			output: outdent`
 				const {err: callback} = foo;
 			`,
 			errors: createErrors()
 		},
 
 		{
-			code: `
+			code: outdent`
 				let err;
 				export {err};
 			`,
-			output: `
+			output: outdent`
 				let error;
 				export {error as err};
 			`,
@@ -1073,11 +1074,11 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 		}),
 
 		{
-			code: `
+			code: outdent`
 				const err = {};
 				export const error = err;
 			`,
-			output: `
+			output: outdent`
 				const error_ = {};
 				export const error = error_;
 			`,
@@ -1085,11 +1086,11 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 		},
 
 		{
-			code: `
+			code: outdent`
 				class err {};
 				console.log(err);
 			`,
-			output: `
+			output: outdent`
 				class error {};
 				console.log(error);
 			`,
@@ -1097,7 +1098,7 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 		},
 
 		{
-			code: `
+			code: outdent`
 				class err {
 					constructor() {
 						console.log(err);
@@ -1105,7 +1106,7 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 				};
 				console.log(err);
 			`,
-			output: `
+			output: outdent`
 				class error {
 					constructor() {
 						console.log(error);
@@ -1117,7 +1118,7 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 		},
 
 		noFixingTestCase({
-			code: `
+			code: outdent`
 				let foo;
 				export {foo as err};
 			`,
@@ -1130,10 +1131,12 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 	valid: [
 		// Whitelisted names
 		'Foo.defaultProps = {}',
-		`class Foo {
-			static propTypes = {};
-			static getDerivedStateFromProps() {}
-		}`
+		outdent`
+			class Foo {
+				static propTypes = {};
+				static getDerivedStateFromProps() {}
+			}
+		`
 	],
 
 	invalid: [
@@ -1142,7 +1145,7 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				class Foo {
 					static propTypesAndStuff = {};
 				}
@@ -1150,7 +1153,7 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 		{
-			code: `
+			code: outdent`
 				class Foo {
 					static getDerivedContextFromProps() {}
 				}
@@ -1167,7 +1170,7 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
-			code: `
+			code: outdent`
 				class C {
 					err = () => {}
 				}

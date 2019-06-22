@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/no-abusive-eslint-disable';
 
 const ruleTester = avaRuleTester(test, {
@@ -29,16 +30,22 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 		'eval(); // eslint-disable-line no-eval, @scope/rule-name',
 		'eval(); // eslint-line-disable',
 		'eval(); // some comment',
-		`foo();
-		// eslint-disable-line no-eval
-		eval();`,
+		outdent`
+			foo();
+			// eslint-disable-line no-eval
+			eval();
+		`,
 		'/* eslint-disable no-eval */',
-		`foo();
-		/* eslint-disable no-eval */
-		eval();`,
-		`foo();
-		/* eslint-disable-next-line no-eval */
-		eval();`
+		outdent`
+			foo();
+			/* eslint-disable no-eval */
+			eval();
+		`,
+		outdent`
+			foo();
+			/* eslint-disable-next-line no-eval */
+			eval();
+		`
 	],
 	invalid: [
 		{

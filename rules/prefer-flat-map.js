@@ -46,14 +46,14 @@ const report = (context, nodeFlat, nodeMap) => {
 	//               ^
 	//   (map(…)).flat();
 	//                 ^
-	const fixEnd = nodeFlat.end;
+	const fixEnd = nodeFlat.range[1];
 
 	// Location will be:
 	//   map(…).flat();
 	//         ^
 	//   (map(…)).flat();
 	//           ^
-	const fixStart = dot.start;
+	const fixStart = dot.range[0];
 
 	const mapProperty = nodeMap.callee.property;
 
@@ -95,6 +95,14 @@ const report = (context, nodeFlat, nodeMap) => {
 const create = context => ({
 	CallExpression: node => {
 		if (!isMethodNamed(node, 'flat')) {
+			return;
+		}
+
+		if (node.arguments.length > 1) {
+			return;
+		}
+
+		if (node.arguments.length === 1 && node.arguments[0].type === 'Literal' && node.arguments[0].value !== 1) {
 			return;
 		}
 
