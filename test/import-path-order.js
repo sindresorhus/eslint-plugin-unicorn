@@ -64,6 +64,10 @@ ruleTester.run('import-path-order', rule, {
 				var a = require('a');
 			}
 		`,
+		outdent`
+			import fs from 'fs';
+			import a from 'a';
+		`
 	],
 	invalid: [
 		{
@@ -117,22 +121,29 @@ ruleTester.run('import-path-order', rule, {
 		},
 		{
 			code: outdent`
-				import b from '../b';
 				import a from './a';
+				import b from '../b';
 			`,
 			errors: [errorImport]
 		},
 		{
 			code: outdent`
-				import b from '../../b';
 				import a from '../a';
+				import b from '../../b';
 			`,
 			errors: [errorImport]
 		},
 		{
 			code: outdent`
-				import b from '../../../b';
 				import a from '../../a';
+				import b from '../../../b';
+			`,
+			errors: [errorImport]
+		},
+		{
+			code: outdent`
+				import b from 'b';
+				import fs from 'fs';
 			`,
 			errors: [errorImport]
 		}

@@ -1,14 +1,24 @@
 'use strict';
+
+const coreModules = require('resolve/lib/core');
 const getDocsUrl = require('./utils/get-docs-url');
 
 const MESSAGE_ID_IMPORT = 'import-path-order';
 const MESSAGE_ID_REQUIRE = 'require-path-order';
 
-const GROUP_ABSOLUTE = 3;
-const GROUP_PARENT = 2;
-const GROUP_LOCAL = 1;
+const GROUP_BUILTIN = 1;
+const GROUP_ABSOLUTE = 2;
+const GROUP_PARENT = 3;
+const GROUP_LOCAL = 4;
 
 function getOrder(source) {
+	if (coreModules[source]) {
+		return {
+			group: GROUP_BUILTIN,
+			depth: 0
+		};
+	}
+
 	if (source.match(/^\.\//)) {
 		return {
 			group: GROUP_LOCAL,
@@ -16,15 +26,18 @@ function getOrder(source) {
 		};
 	}
 
-	const relative = source.match(/^(\.\.\/)+/);
+	const relative = source.match(/^((\.\.\/)+)/);
 	if (relative) {
 		return {
 			group: GROUP_PARENT,
-			depth: relative[0].split('..').length
+			depth: relative[1].split('..').length
 		};
 	}
 
-	return GROUP_ABSOLUTE;
+	return {
+		group: GROUP_ABSOLUTE,
+		depth: 0
+	};
 }
 
 function isValid(prev, next) {
@@ -36,7 +49,7 @@ function isValid(prev, next) {
 	}
 
 	if (nextOrder.depth !== prevOrder.depth) {
-		return nextOrder.depth >= prevOrder.depth;
+		return nextOrder.depth < prevOrder.depth;
 	}
 
 	// TODO: Case insensitive

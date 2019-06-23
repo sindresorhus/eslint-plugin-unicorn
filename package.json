@@ -42,6 +42,7 @@
 		"lodash.upperfirst": "^4.2.0",
 		"regexpp": "^2.0.1",
 		"reserved-words": "^0.1.2",
+		"resolve": "^1.10.0",
 		"safe-regex": "^2.0.1"
 	},
 	"devDependencies": {
