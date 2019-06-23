@@ -21,6 +21,7 @@ const fooNew = 'foo';
 
 
 ## Options
+
 ### `blacklist`
 
 If you want a custom list of forbidden prefixes you can set them with `blacklist`:
