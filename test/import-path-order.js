@@ -12,14 +12,19 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const errorImport = {
+const errorGroup = {
 	ruleId: 'import-path-order',
-	messageId: 'import-path-order'
+	messageId: 'import-path-order-group'
 };
 
-const errorRequire = {
+const errorDepth = {
 	ruleId: 'import-path-order',
-	messageId: 'require-path-order'
+	messageId: 'import-path-order-depth'
+};
+
+const errorOrder = {
+	ruleId: 'import-path-order',
+	messageId: 'import-path-order'
 };
 
 ruleTester.run('import-path-order', rule, {
@@ -75,77 +80,77 @@ ruleTester.run('import-path-order', rule, {
 				var b = require('b');
 				var a = require('a');
 			`,
-			errors: [errorRequire]
+			errors: [errorOrder]
 		},
 		{
 			code: outdent`
 				import b from 'b';
 				var a = require('a');
 			`,
-			errors: [errorRequire]
+			errors: [errorOrder]
 		},
 		{
 			code: outdent`
 				var b = require('b');
 				import a from 'a';
 			`,
-			errors: [errorImport]
+			errors: [errorOrder]
 		},
 		{
 			code: outdent`
 				import b from 'b';
 				import a from 'a';
 			`,
-			errors: [errorImport]
+			errors: [errorOrder]
 		},
 		{
 			code: outdent`
 				import b from './b';
 				import a from 'a';
 			`,
-			errors: [errorImport]
+			errors: [errorGroup]
 		},
 		{
 			code: outdent`
 				import b from '../b';
 				import a from 'a';
 			`,
-			errors: [errorImport]
+			errors: [errorGroup]
 		},
 		{
 			code: outdent`
 				import b from '../../b';
 				import a from 'a';
 			`,
-			errors: [errorImport]
+			errors: [errorGroup]
 		},
 		{
 			code: outdent`
 				import a from './a';
 				import b from '../b';
 			`,
-			errors: [errorImport]
+			errors: [errorGroup]
 		},
 		{
 			code: outdent`
 				import a from '../a';
 				import b from '../../b';
 			`,
-			errors: [errorImport]
+			errors: [errorDepth]
 		},
 		{
 			code: outdent`
 				import a from '../../a';
 				import b from '../../../b';
 			`,
-			errors: [errorImport]
+			errors: [errorDepth]
 		},
 		{
 			code: outdent`
 				import b from 'b';
 				import fs from 'fs';
 			`,
-			errors: [errorImport]
+			errors: [errorGroup]
 		}
 	]
 });
