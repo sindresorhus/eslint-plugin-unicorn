@@ -13,10 +13,10 @@ const GROUP_PARENT = 3;
 const GROUP_SIBLING = 4;
 
 const GROUP_NAMES = {
-	[GROUP_BUILTIN]: 'built-in',
-	[GROUP_ABSOLUTE]: 'absolute',
-	[GROUP_PARENT]: 'relative',
-	[GROUP_SIBLING]: 'sibling'
+	[GROUP_BUILTIN]: 'Built-in',
+	[GROUP_ABSOLUTE]: 'Absolute',
+	[GROUP_PARENT]: 'Relative',
+	[GROUP_SIBLING]: 'Sibling'
 };
 
 function getOrder(source) {
@@ -63,7 +63,7 @@ function isValid(prev, next) {
 				messageId: MESSAGE_ID_GROUP,
 				data: {
 					earlier: GROUP_NAMES[next.group],
-					later: GROUP_NAMES[prev.group]
+					later: GROUP_NAMES[prev.group].toLowerCase()
 				}
 			};
 		}
@@ -134,7 +134,6 @@ module.exports = {
 		},
 		messages: {
 			[MESSAGE_ID_DEPTH]: 'Relative paths should be sorted by depth',
-			// TODO: Capitalize {{earlier}}
 			[MESSAGE_ID_GROUP]: '{{earlier}} imports should come before {{later}} imports',
 			[MESSAGE_ID_ORDER]: 'Imports should be sorted alphabetically'
 		}
