@@ -2,9 +2,33 @@
 const getDocsUrl = require('./utils/get-docs-url');
 const isMethodNamed = require('./utils/is-method-named');
 
-const MESSAGE_ID = 'preferFlatMap';
+const MESSAGE_ID_FLATMAP = 'flat-map';
+const MESSAGE_ID_SPREAD = 'spread';
 
-const report = (context, nodeFlat, nodeMap) => {
+const SELECTOR_SPREAD = [
+	// [].concat(...bar.map((i) => i))
+	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	'CallExpression',
+
+	// [].concat(...bar.map((i) => i))
+	// ^^
+	'[callee.object.type="ArrayExpression"]',
+	'[callee.object.elements.length=0]',
+
+	// [].concat(...bar.map((i) => i))
+	//    ^^^^^^
+	'[callee.property.name="concat"]',
+
+	// [].concat(...bar.map((i) => i))
+	//           ^^^^^^^^^^^^^^^^^^^^
+	'[arguments.0.type="SpreadElement"]',
+
+	// [].concat(...bar.map((i) => i))
+	//                  ^^^
+	'[arguments.0.argument.callee.property.name="map"]'
+].join('');
+
+const reportFlatMap = (context, nodeFlat, nodeMap) => {
 	const source = context.getSourceCode();
 
 	// Node covers:
@@ -59,7 +83,7 @@ const report = (context, nodeFlat, nodeMap) => {
 
 	context.report({
 		node: nodeFlat,
-		messageId: MESSAGE_ID,
+		messageId: MESSAGE_ID_FLATMAP,
 		fix: fixer => {
 			const fixings = [
 				// Removes:
@@ -112,7 +136,13 @@ const create = context => ({
 			return;
 		}
 
-		report(context, node, parent);
+		reportFlatMap(context, node, parent);
+	},
+	[SELECTOR_SPREAD]: node => {
+		context.report({
+			node,
+			messageId: MESSAGE_ID_SPREAD
+		});
 	}
 });
 
@@ -125,7 +155,8 @@ module.exports = {
 		},
 		fixable: 'code',
 		messages: {
-			[MESSAGE_ID]: 'Prefer `.flatMap(…)` over `.map(…).flat()`.'
+			[MESSAGE_ID_FLATMAP]: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
+			[MESSAGE_ID_SPREAD]: 'Prefer `.flatMap(…)` over `[].concat(...foo.map(…))`.'
 		}
 	}
 };

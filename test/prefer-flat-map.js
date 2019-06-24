@@ -9,9 +9,14 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const error = {
+const errorFlatMap = {
 	ruleId: 'prefer-flat-map',
-	messageId: 'preferFlatMap'
+	messageId: 'flat-map'
+};
+
+const errorSpread = {
+	ruleId: 'prefer-flat-map',
+	messageId: 'spread'
 };
 
 ruleTester.run('prefer-flat-map', rule, {
@@ -28,53 +33,55 @@ ruleTester.run('prefer-flat-map', rule, {
 			bar = bar.flat();
 		`,
 		'const bar = [[1],[2],[3]].map(i => [i]).flat(2)',
-		'const bar = [[1],[2],[3]].map(i => [i]).flat(1, null)'
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(1, null)',
+		'const foo = [1,2,3].concat(...[4,5,6].map((i) => i));',
+		'const foo = [].concat(...[[4,5],6].flat());'
 	],
 	invalid: [
 		{
 			code: 'const bar = [1,2,3].map(i => [i]).flat()',
 			output: 'const bar = [1,2,3].flatMap(i => [i])',
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: 'const bar = [1,2,3].map((i) => [i]).flat()',
 			output: 'const bar = [1,2,3].flatMap((i) => [i])',
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: 'const bar = [1,2,3].map((i) => { return [i]; }).flat()',
 			output: 'const bar = [1,2,3].flatMap((i) => { return [i]; })',
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: 'const bar = [1,2,3].map(foo).flat()',
 			output: 'const bar = [1,2,3].flatMap(foo)',
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: 'const bar = foo.map(i => [i]).flat()',
 			output: 'const bar = foo.flatMap(i => [i])',
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: 'const bar = { map: () => {} }.map(i => [i]).flat()',
 			output: 'const bar = { map: () => {} }.flatMap(i => [i])',
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: 'const bar = [1,2,3].map(i => i).map(i => [i]).flat()',
 			output: 'const bar = [1,2,3].map(i => i).flatMap(i => [i])',
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: 'const bar = [1,2,3].sort().map(i => [i]).flat()',
 			output: 'const bar = [1,2,3].sort().flatMap(i => [i])',
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: 'const bar = (([1,2,3].map(i => [i]))).flat()',
 			output: 'const bar = (([1,2,3].flatMap(i => [i])))',
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: outdent`
@@ -87,7 +94,7 @@ ruleTester.run('prefer-flat-map', rule, {
 					return [i];
 				});
 			`,
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: outdent`
@@ -101,7 +108,7 @@ ruleTester.run('prefer-flat-map', rule, {
 					return [i];
 				});
 			` + '\n',
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: outdent`
@@ -115,7 +122,7 @@ ruleTester.run('prefer-flat-map', rule, {
 					return [i];
 				}); // comment
 			` + '\n',
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: outdent`
@@ -130,7 +137,7 @@ ruleTester.run('prefer-flat-map', rule, {
 				}); // comment
 				 // other
 			 `,
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: outdent`
@@ -142,7 +149,7 @@ ruleTester.run('prefer-flat-map', rule, {
 				let bar = [1,2,3]
 					.flatMap(i => { return [i]; });
 			` + '\n\t',
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: outdent`
@@ -152,17 +159,17 @@ ruleTester.run('prefer-flat-map', rule, {
 			output: outdent`
 				let bar = [1,2,3].flatMap(i => { return [i]; });
 			` + '\n\t',
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: 'let bar = [1,2,3] . map( x => y ) . flat () // 🤪',
 			output: 'let bar = [1,2,3] . flatMap( x => y )  // 🤪',
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: 'const bar = [1,2,3].map(i => [i]).flat(1);',
 			output: 'const bar = [1,2,3].flatMap(i => [i]);',
-			errors: [error]
+			errors: [errorFlatMap]
 		},
 		{
 			code: outdent`
@@ -176,7 +183,17 @@ ruleTester.run('prefer-flat-map', rule, {
 					.filter(foo => !!foo.zaz)
 					.flatMap(foo => doFoo(foo));
 			` + '\n\t',
-			errors: [error]
+			errors: [errorFlatMap]
+		},
+		{
+			code: 'const foo = [].concat(...bar.map((i) => i));',
+			output: 'const foo = [].concat(...bar.map((i) => i));',
+			errors: [errorSpread]
+		},
+		{
+			code: 'const foo = [].concat(...[1,2,3].map((i) => i));',
+			output: 'const foo = [].concat(...[1,2,3].map((i) => i));',
+			errors: [errorSpread]
 		}
 	]
 });
