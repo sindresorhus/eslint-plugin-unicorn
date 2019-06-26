@@ -45,7 +45,7 @@ const create = context => {
 			return true;
 		}
 
-		// Count if there where valid props
+		// Count if there are valid props
 		// Otherwise it's a useless TODO (fallback to no-warning-comments)
 		let uses = 0;
 
