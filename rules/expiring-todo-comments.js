@@ -251,21 +251,21 @@ module.exports = {
 		},
 		messages: {
 			[MESSAGE_ID_AVOID_MULTIPLE_DATES]:
-				'Avoid using multiple expiration dates for TODO {{ expirationDates }}',
+				'Avoid using multiple expiration dates in TODO: {{ expirationDates }}',
 			[MESSAGE_ID_EXPIRED_TODO]:
-				'You have a TODO that past due date {{ expirationDate }}',
+				'There is a TODO that is past due date: {{ expirationDate }}',
 			[MESSAGE_ID_REACHED_PACKAGE_VERSION]:
-				'You have a TODO that past due package version {{ comparison }}',
+				'There is a TODO that is past due package version: {{ comparison }}',
 			[MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS]:
-				'Avoid asking multiple package versions for TODO {{ versions }}',
+				'Avoid using multiple package versions in TODO: {{ versions }}',
 			[MESSAGE_ID_HAVE_PACKAGE]:
-				'You have a TODO that is deprecated since you installed {{ package }}',
+				'There is a TODO that is deprecated since you installed: {{ package }}',
 			[MESSAGE_ID_DONT_HAVE_PACKAGE]:
-				'You have a TODO that is deprecated since you uninstalled {{ package }}',
+				'There is a TODO that is deprecated since you uninstalled: {{ package }}',
 			[MESSAGE_ID_VERSION_MATCHES]:
-				'You have a TODO match for version for package {{ comparison }}',
+				'There is a TODO match for package version: {{ comparison }}',
 			[MESSAGE_ID_ENGINE_MATCHES]:
-				'You have a TODO match for engine version {{ comparison }}'
+				'There is a TODO match for engine version: {{ comparison }}'
 		},
 		schema
 	}

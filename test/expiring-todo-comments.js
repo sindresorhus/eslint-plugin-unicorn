@@ -15,37 +15,37 @@ const ruleTester = avaRuleTester(test, {
 
 const avoidMultipleDatesError = expirationDates => ({
 	ruleId: 'expiring-todo-comments',
-	message: `Avoid using multiple expiration dates for TODO ${expirationDates}`
+	message: `Avoid using multiple expiration dates in TODO: ${expirationDates}`
 });
 
 const havePackageError = pkg => ({
 	ruleId: 'expiring-todo-comments',
-	message: `You have a TODO that is deprecated since you installed ${pkg}`
+	message: `There is a TODO that is deprecated since you installed: ${pkg}`
 });
 
 const dontHavePackageError = pkg => ({
 	ruleId: 'expiring-todo-comments',
-	message: `You have a TODO that is deprecated since you uninstalled ${pkg}`
+	message: `There is a TODO that is deprecated since you uninstalled: ${pkg}`
 });
 
 const versionMatchesError = comparison => ({
 	ruleId: 'expiring-todo-comments',
-	message: `You have a TODO match for version for package ${comparison}`
+	message: `There is a TODO match for package version: ${comparison}`
 });
 
 const engineMatchesError = comparison => ({
 	ruleId: 'expiring-todo-comments',
-	message: `You have a TODO match for engine version ${comparison}`
+	message: `There is a TODO match for engine version: ${comparison}`
 });
 
 const reachedPackageVersionError = version => ({
 	ruleId: 'expiring-todo-comments',
-	message: `You have a TODO that past due package version ${version}`
+	message: `There is a TODO that is past due package version: ${version}`
 });
 
 const avoidMultiplePackageVersionsError = versions => ({
 	ruleId: 'expiring-todo-comments',
-	message: `Avoid asking multiple package versions for TODO ${versions}`
+	message: `Avoid using multiple package versions in TODO: ${versions}`
 });
 
 const noWarningCommentError = part => ({
