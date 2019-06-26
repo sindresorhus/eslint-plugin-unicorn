@@ -5,6 +5,16 @@ const ci = require('ci-info');
 const baseRule = require('eslint/lib/rules/no-warning-comments');
 const getDocsUrl = require('./utils/get-docs-url');
 
+const MESSAGE_ID_AVOID_MULTIPLE_DATES = 'avoidMultipleDates';
+const MESSAGE_ID_EXPIRED_TODO = 'expiredTodo';
+const MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS =
+	'avoidMultiplePackageVersions';
+const MESSAGE_ID_REACHED_PACKAGE_VERSION = 'reachedPackageVersion';
+const MESSAGE_ID_HAVE_PACKAGE = 'havePackage';
+const MESSAGE_ID_DONT_HAVE_PACKAGE = 'dontHavePackage';
+const MESSAGE_ID_VERSION_MATCHES = 'versionMatches';
+const MESSAGE_ID_ENGINE_MATCHES = 'engineMatches';
+
 const pkg = readPkg.sync();
 
 const pkgDependencies = {...pkg.dependencies, ...pkg.devDependencies};
@@ -31,11 +41,17 @@ const create = context => {
 	// This is highly dependable on eslint's no-warning-comments implementation.
 	// What I do is patch the parts I know the rule will use, the getAllComments.
 	// Since I have priority, I leave only the comments that I didn't use to it.
-	const fakeContext = {...context, getSourceCode() {
-		return {...sourceCode, getAllComments() {
-			return unnusedComments;
-		}};
-	}};
+	const fakeContext = {
+		...context,
+		getSourceCode() {
+			return {
+				...sourceCode,
+				getAllComments() {
+					return unnusedComments;
+				}
+			};
+		}
+	};
 	const rules = baseRule.create(fakeContext);
 
 	function processComment(comment) {
@@ -61,7 +77,7 @@ const create = context => {
 			context.report({
 				node: null,
 				loc: comment.loc,
-				messageId: 'avoidMultipleDates',
+				messageId: MESSAGE_ID_AVOID_MULTIPLE_DATES,
 				data: {
 					expirationDates: dates.join(', ')
 				}
@@ -75,7 +91,7 @@ const create = context => {
 				context.report({
 					node: null,
 					loc: comment.loc,
-					messageId: 'expiredTodo',
+					messageId: MESSAGE_ID_EXPIRED_TODO,
 					data: {
 						expirationDate: date
 					}
@@ -88,9 +104,11 @@ const create = context => {
 			context.report({
 				node: null,
 				loc: comment.loc,
-				messageId: 'avoidMultiplePackageVersions',
+				messageId: MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS,
 				data: {
-					versions: packageVersions.map(({condition, version}) => `${condition} ${version}`).join(', ')
+					versions: packageVersions
+						.map(({condition, version}) => `${condition} ${version}`)
+						.join(', ')
 				}
 			});
 		} else if (packageVersions.length === 1) {
@@ -106,7 +124,7 @@ const create = context => {
 				context.report({
 					node: null,
 					loc: comment.loc,
-					messageId: 'reachedPackageVersion',
+					messageId: MESSAGE_ID_REACHED_PACKAGE_VERSION,
 					data: {
 						comparison: `${condition} ${version}`
 					}
@@ -123,9 +141,10 @@ const create = context => {
 
 			const isInclusion = ['in', 'out'].includes(dependency.condition);
 			if (isInclusion) {
-				const [trigger, messageId] = dependency.condition === 'in' ?
-					[hasTargetPackage, 'havePackage'] :
-					[!hasTargetPackage, 'dontHavePackage'];
+				const [trigger, messageId] =
+					dependency.condition === 'in' ?
+						[hasTargetPackage, MESSAGE_ID_HAVE_PACKAGE] :
+						[!hasTargetPackage, MESSAGE_ID_DONT_HAVE_PACKAGE];
 
 				if (trigger) {
 					context.report({
@@ -155,9 +174,11 @@ const create = context => {
 				context.report({
 					node: null,
 					loc: comment.loc,
-					messageId: 'versionMatches',
+					messageId: MESSAGE_ID_VERSION_MATCHES,
 					data: {
-						comparison: `${dependency.name} ${dependency.condition} ${dependency.version}`
+						comparison: `${dependency.name} ${dependency.condition} ${
+							dependency.version
+						}`
 					}
 				});
 			}
@@ -175,7 +196,9 @@ const create = context => {
 			}
 
 			const todoEngine = tryToCoerceVersion(engine.version);
-			const targetPackageEngineVersion = tryToCoerceVersion(targetPackageRawEngineVersion);
+			const targetPackageEngineVersion = tryToCoerceVersion(
+				targetPackageRawEngineVersion
+			);
 
 			const compare = semverComparisonForOperator(engine.condition);
 
@@ -183,7 +206,7 @@ const create = context => {
 				context.report({
 					node: null,
 					loc: comment.loc,
-					messageId: 'engineMatches',
+					messageId: MESSAGE_ID_ENGINE_MATCHES,
 					data: {
 						comparison: `${engine.name} ${engine.condition} ${engine.version}`
 					}
@@ -201,21 +224,23 @@ const create = context => {
 	};
 };
 
-const schema = [{
-	type: 'object',
-	properties: {
-		terms: {
-			type: 'array',
-			items: {
-				type: 'string'
-			}
-		},
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			terms: {
+				type: 'array',
+				items: {
+					type: 'string'
+				}
+			},
 
-		ignoreDatesOnPR: {
-			type: 'boolean'
+			ignoreDatesOnPR: {
+				type: 'boolean'
+			}
 		}
 	}
-}];
+];
 
 module.exports = {
 	create,
@@ -225,14 +250,22 @@ module.exports = {
 			url: getDocsUrl(__filename)
 		},
 		messages: {
-			avoidMultipleDates: 'Avoid using multiple expiration dates for TODO {{ expirationDates }}',
-			expiredTodo: 'You have a TODO that past due date {{ expirationDate }}',
-			reachedPackageVersion: 'You have a TODO that past due package version {{ comparison }}',
-			avoidMultiplePackageVersions: 'Avoid asking multiple package versions for TODO {{ versions }}',
-			havePackage: 'You have a TODO that is deprecated since you installed {{ package }}',
-			dontHavePackage: 'You have a TODO that is deprecated since you uninstalled {{ package }}',
-			versionMatches: 'You have a TODO match for version for package {{ comparison }}',
-			engineMatches: 'You have a TODO match for engine version {{ comparison }}'
+			[MESSAGE_ID_AVOID_MULTIPLE_DATES]:
+				'Avoid using multiple expiration dates for TODO {{ expirationDates }}',
+			[MESSAGE_ID_EXPIRED_TODO]:
+				'You have a TODO that past due date {{ expirationDate }}',
+			[MESSAGE_ID_REACHED_PACKAGE_VERSION]:
+				'You have a TODO that past due package version {{ comparison }}',
+			[MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS]:
+				'Avoid asking multiple package versions for TODO {{ versions }}',
+			[MESSAGE_ID_HAVE_PACKAGE]:
+				'You have a TODO that is deprecated since you installed {{ package }}',
+			[MESSAGE_ID_DONT_HAVE_PACKAGE]:
+				'You have a TODO that is deprecated since you uninstalled {{ package }}',
+			[MESSAGE_ID_VERSION_MATCHES]:
+				'You have a TODO match for version for package {{ comparison }}',
+			[MESSAGE_ID_ENGINE_MATCHES]:
+				'You have a TODO match for engine version {{ comparison }}'
 		},
 		schema
 	}
@@ -337,7 +370,7 @@ function parseArg(argString) {
 }
 
 function reachedDate(past) {
-	const now = (new Date()).toISOString().substring(0, 10);
+	const now = new Date().toISOString().substring(0, 10);
 	return Date.parse(past) < Date.parse(now);
 }
 
@@ -350,8 +383,8 @@ function tryToCoerceVersion(version) {
 }
 
 function semverComparisonForOperator(operator) {
-	return ({
+	return {
 		'>': semver.gt,
 		'>=': semver.gte
-	})[operator];
+	}[operator];
 }
