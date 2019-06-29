@@ -9,36 +9,38 @@ For projects with legacy branches, such as long term supported older versions, t
 Supported conditions:
 
 - `[YYYY-MM-DD]` to define a due date.
-- `[>1]` or `[>=2]` to expire at some version (from package.json). Don't use spaces between.
+- `[>1]` or `[>=2]` to expire at some version (from package.json). No whitespace.
 - `[+package]` or `[-package]` to expire when you add/remove a package.
-- `[package@>1]` or `[package@>=2]` to expire when a package hits some version. Don't use spaces between.
+- `[package@>1]` or `[package@>=2]` to expire when a package hits some version. No whitespace.
 - `[engines node>8]` or `[engines node>=8]` to expire when package bump supported engines. Don't use spaces between the comparison.
-- Stack by separating by comma such as `[YYYY-MM-DD, +package]`.
+
+Info:
+- Multiple conditions can be separated by comma: `[YYYY-MM-DD, +foo-package, engines node>=8, bar-package@>=2]`.
+You obviously cannot stack multiple dates, multiple versions of your package, or multiple `engines`.
 - You use either `TODO`, `FIXME`, or `XXX`.
 - Optional author name such as `TODO (lubien) [2019-05-30]` or `TODO [2019-05-30] (lubien)`.
 
-If no proper argument is found you'll be notified that the TODO is useless (no-warning-comments behavior).
+If no proper argument is found, you'll be notified that the TODO is useless (`no-warning-comments` behavior).
+
 
 ## Fail
 
 ```js
-// TODO [2000-01-01]: forgot to refactor
-// TODO [2200-12-12, 2200-12-12]: multiple dates won't work
+// TODO [2000-01-01]: I'll fix this next week.
 
+// TODO [>1]: If your package.json version is >1.
+// TODO [>=1]: If your package.json version is >=1.
+// TODO [>1, >2]: Multiple package versions won't work.
 
-// TODO [>1]: if your package.json version is > 1
-// TODO [>=1]: if your package.json version is >= 1
-// TODO [>1, >2]: multiple package versions won't work
+// TODO [+react]: When you install `react`, refactor to use it.
+// TODO [-popura]: When you uninstall `popura` do some stuff.
 
-// TODO [+react]: when you install `react`, refactor to use it
-// TODO [-popura]: when you uninstall `popura` do some stuff
+// TODO [read-pkg@>1]: When `read-pkg` version is >1 don't forget to do this.
+// TODO [read-pkg@>=5.1.1]: When `read-pkg` version is >=5.1.1 don't forget to do that.
 
-// TODO [read-pkg@>1]: when `read-pkg` version is > 1 don't forget to do this
-// TODO [read-pkg@>=5.1.1]: when `read-pkg` version is >= 5.1.1 don't forget to do that
+// TODO [engines node>=8]: Use async/await!
 
-// TODO [engines node>1]: Hopefully you support that and it'll trigger.
-
-// TODO: do it
+// TODO: Add unicorns.
 ```
 
 
@@ -73,7 +75,9 @@ If no proper argument is found you'll be notified that the TODO is useless (no-w
 
 ### ignoreDatesOnPR
 
-Disables time checks during pull requests. Default: `true`.
+Disables time checks during pull requests.
+
+Default: `true`.
 
 ```js
 "unicorn/expiring-todo-comments": [
@@ -86,7 +90,9 @@ Disables time checks during pull requests. Default: `true`.
 
 ### terms
 
-Add more TODO verbs. Default: `['todo', 'fixme', 'xxx']`.
+Add more TODO verbs.
+
+Default: `['todo', 'fixme', 'xxx']`.
 
 ```js
 "unicorn/expiring-todo-comments": [
