@@ -38,9 +38,9 @@ const create = context => {
 		.filter(token => token.type !== 'Shebang')
 		.filter(processComment);
 
-	// This is highly dependable on eslint's no-warning-comments implementation.
-	// What I do is patch the parts I know the rule will use, the getAllComments.
-	// Since I have priority, I leave only the comments that I didn't use to it.
+	// This is highly dependable on ESLint's `no-warning-comments` implementation.
+	// What we do is patch the parts we know the rule will use, `getAllComments`.
+	// Since we have priority, we leave only the comments that we didn't use.
 	const fakeContext = {
 		...context,
 		getSourceCode() {
@@ -61,8 +61,8 @@ const create = context => {
 			return true;
 		}
 
-		// Count if there are valid props
-		// Otherwise it's a useless TODO (fallback to no-warning-comments)
+		// Count if there are valid properties.
+		// Otherwise, it's a useless TODO and falls back to `no-warning-comments`
 		let uses = 0;
 
 		const {
@@ -234,7 +234,6 @@ const schema = [
 					type: 'string'
 				}
 			},
-
 			ignoreDatesOnPR: {
 				type: 'boolean'
 			}
@@ -251,21 +250,21 @@ module.exports = {
 		},
 		messages: {
 			[MESSAGE_ID_AVOID_MULTIPLE_DATES]:
-				'Avoid using multiple expiration dates in TODO: {{ expirationDates }}',
+				'Avoid using multiple expiration dates in TODO: {{expirationDates}}',
 			[MESSAGE_ID_EXPIRED_TODO]:
-				'There is a TODO that is past due date: {{ expirationDate }}',
+				'There is a TODO that is past due date: {{expirationDate}}',
 			[MESSAGE_ID_REACHED_PACKAGE_VERSION]:
-				'There is a TODO that is past due package version: {{ comparison }}',
+				'There is a TODO that is past due package version: {{comparison}}',
 			[MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS]:
-				'Avoid using multiple package versions in TODO: {{ versions }}',
+				'Avoid using multiple package versions in TODO: {{versions}}',
 			[MESSAGE_ID_HAVE_PACKAGE]:
-				'There is a TODO that is deprecated since you installed: {{ package }}',
+				'There is a TODO that is deprecated since you installed: {{package}}',
 			[MESSAGE_ID_DONT_HAVE_PACKAGE]:
-				'There is a TODO that is deprecated since you uninstalled: {{ package }}',
+				'There is a TODO that is deprecated since you uninstalled: {{package}}',
 			[MESSAGE_ID_VERSION_MATCHES]:
-				'There is a TODO match for package version: {{ comparison }}',
+				'There is a TODO match for package version: {{comparison}}',
 			[MESSAGE_ID_ENGINE_MATCHES]:
-				'There is a TODO match for engine version: {{ comparison }}'
+				'There is a TODO match for engine version: {{comparison}}'
 		},
 		schema
 	}
@@ -362,7 +361,7 @@ function parseArg(argString) {
 	}
 
 	// Currently being ignored as integration tests pointed
-	// some TODO comments have [random data like this]
+	// some TODO comments have `[random data like this]`
 	return {
 		type: 'unknowns',
 		value: argString
