@@ -1,22 +1,21 @@
 # Add conditions to TODO comments to make them error
 
-Makes possible to pass arguments to TODO and FIXME comments to trigger errors.
+Makes it possible to pass arguments to TODO and FIXME comments to trigger errors.
 
-This rule also implements [eslint/no-warning-comments](https://eslint.org/docs/rules/no-warning-comments) behavior so you should disable that in favor of using this.
+This rule also implements [`eslint/no-warning-comments`](https://eslint.org/docs/rules/no-warning-comments) behavior so you should disable that in favor of using this.
 
-For projects with legacy branches such as long term supported older versions there might be a situations where you fix TODOs in the master but on the other branches you leave missing.
-Choose carefully which projects you would want this feature.
+For projects with legacy branches, such as long term supported older versions, there might be situations where you fix TODOs in the master branch but on the other branches you leave it missing. Choose carefully which projects you would want this feature.
 
-Currently supporting:
+Supported conditions:
 
-* `[YYYY-MM-DD]` to define a due date.
-* `[>1]` or `[>=2]` to expire at some version (from package.json). Don't use spaces between.
-* `[+package]` or `[-package]` to expire when you add/remove a package.
-* `[package@>1]` or `[package@>=2]` to expire when a package hits some version. Don't use spaces between.
-* `[engines node>8]` or `[engines node>=8]` to expire when package bump supported engines. Don't use spaces between the comparison.
-* Stack by separating by comma such as `[YYYY-MM-DD, +package]`.
-* You can either use `TODO` or `FIXME`.
-* Optional author name such as `TODO (lubien) [2019-05-30]` or `TODO [2019-05-30] (lubien)`.
+- `[YYYY-MM-DD]` to define a due date.
+- `[>1]` or `[>=2]` to expire at some version (from package.json). Don't use spaces between.
+- `[+package]` or `[-package]` to expire when you add/remove a package.
+- `[package@>1]` or `[package@>=2]` to expire when a package hits some version. Don't use spaces between.
+- `[engines node>8]` or `[engines node>=8]` to expire when package bump supported engines. Don't use spaces between the comparison.
+- Stack by separating by comma such as `[YYYY-MM-DD, +package]`.
+- You use either `TODO`, `FIXME`, or `XXX`.
+- Optional author name such as `TODO (lubien) [2019-05-30]` or `TODO [2019-05-30] (lubien)`.
 
 If no proper argument is found you'll be notified that the TODO is useless (no-warning-comments behavior).
 
