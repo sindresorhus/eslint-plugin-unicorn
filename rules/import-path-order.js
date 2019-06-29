@@ -67,11 +67,6 @@ function getInvalidBlankLinesMessage(prev, next, context) {
 
 	const sourceCode = context.getSourceCode();
 
-	// const between = sourceCode.getTokensBetween(prev, next);
-	// const commentsAfter = sourceCode.getCommentsAfter(prev);
-	// const commentsBefore = sourceCode.getCommentsBefore(next);
-
-	// let blanks = true;
 	for (let i = prevEndLine + 1; i < nextStartLine; i++) {
 		const index = sourceCode.getIndexFromLoc({
 			line: prevEndLine + 1,
@@ -95,22 +90,6 @@ function getInvalidBlankLinesMessage(prev, next, context) {
 	}
 
 	return null;
-
-	// console.log('AAA', {
-	// 	// between,
-	// 	commentsAfter,
-	// 	commentsBefore,
-	// 	index,
-	// 	lineContents,
-	// });
-
-	// if (isComment) {
-	// 	return null;
-	// }
-
-	// return {
-	// 	messageId: MESSAGE_ID_BLANKLINES
-	// };
 }
 
 function getInvalidOrderMessage(prev, next) {
