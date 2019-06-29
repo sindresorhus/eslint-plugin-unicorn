@@ -98,7 +98,11 @@ Default: `['todo', 'fixme', 'xxx']`.
 "unicorn/expiring-todo-comments": [
 	"error",
 	{
-		"terms": ["todo", "fixme", "xxx"]
+		"terms": [
+			"todo",
+			"fixme",
+			"xxx"
+		]
 	}
 ]
 ```
