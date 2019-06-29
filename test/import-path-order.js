@@ -27,6 +27,11 @@ const errorOrder = {
 	messageId: 'import-path-order'
 };
 
+const errorBlankLines = {
+	ruleId: 'import-path-order',
+	messageId: 'import-path-blanklines'
+};
+
 ruleTester.run('import-path-order', rule, {
 	valid: [
 		outdent`
@@ -72,6 +77,30 @@ ruleTester.run('import-path-order', rule, {
 		outdent`
 			import fs from 'fs';
 			import a from 'a';
+		`,
+		{
+			code: outdent`
+				var a = require('a');
+
+				var b = require('b');
+			`,
+			options: [{
+				allowBlankLines: true
+			}]
+		},
+		outdent`
+			var a = require('a');
+			// Not a blank line
+			var b = require('b');
+		`,
+		outdent`
+			var a = require('a');
+			/*
+
+			Not a blank line
+
+			*/
+			var b = require('b');
 		`
 	],
 	invalid: [
@@ -151,6 +180,52 @@ ruleTester.run('import-path-order', rule, {
 				import fs from 'fs';
 			`,
 			errors: [errorGroup]
+		},
+		{
+			code: outdent`
+				var b = require('b');
+
+				var a = require('a');
+			`,
+			errors: [
+				errorOrder,
+				errorBlankLines
+			]
+		},
+		{
+			code: outdent`
+				var b = require('b');
+				const foo = 'foo';
+
+				var a = require('a');
+			`,
+			errors: [
+				errorOrder,
+				errorBlankLines
+			]
+		},
+		{
+			code: outdent`
+				var b = require('b');
+
+				const foo = 'foo';
+				var a = require('a');
+			`,
+			errors: [
+				errorOrder,
+				errorBlankLines
+			]
+		},
+		{
+			code: outdent`
+				var b = require('b');
+				{ const foo = 'foo'; }
+				var a = require('a');
+			`,
+			errors: [
+				errorOrder,
+				errorBlankLines
+			]
 		}
 	]
 });

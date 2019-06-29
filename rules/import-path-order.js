@@ -3,6 +3,7 @@
 const coreModules = require('resolve/lib/core');
 const getDocsUrl = require('./utils/get-docs-url');
 
+const MESSAGE_ID_BLANKLINES = 'import-path-blanklines';
 const MESSAGE_ID_DEPTH = 'import-path-order-depth';
 const MESSAGE_ID_GROUP = 'import-path-order-group';
 const MESSAGE_ID_ORDER = 'import-path-order';
@@ -52,7 +53,67 @@ function getOrder(source) {
 	};
 }
 
-function isValid(prev, next) {
+function getInvalidBlankLinesMessage(prev, next, context) {
+	if (prev === null) {
+		return null;
+	}
+
+	const prevEndLine = prev.loc.end.line;
+	const nextStartLine = next.loc.end.line;
+
+	if (prevEndLine + 1 === nextStartLine) {
+		return null;
+	}
+
+	const sourceCode = context.getSourceCode();
+
+	// const between = sourceCode.getTokensBetween(prev, next);
+	// const commentsAfter = sourceCode.getCommentsAfter(prev);
+	// const commentsBefore = sourceCode.getCommentsBefore(next);
+
+	// let blanks = true;
+	for (let i = prevEndLine + 1; i < nextStartLine; i++) {
+		const index = sourceCode.getIndexFromLoc({
+			line: prevEndLine + 1,
+			column: 0
+		});
+
+		const lineContents = sourceCode.getTokenByRangeStart(index, {includeComments: true});
+		const {type} = lineContents || {};
+
+		if (type === 'Line') {
+			continue;
+		}
+
+		if (type === 'Block') {
+			continue;
+		}
+
+		return {
+			messageId: MESSAGE_ID_BLANKLINES
+		};
+	}
+
+	return null;
+
+	// console.log('AAA', {
+	// 	// between,
+	// 	commentsAfter,
+	// 	commentsBefore,
+	// 	index,
+	// 	lineContents,
+	// });
+
+	// if (isComment) {
+	// 	return null;
+	// }
+
+	// return {
+	// 	messageId: MESSAGE_ID_BLANKLINES
+	// };
+}
+
+function getInvalidOrderMessage(prev, next) {
 	if (prev === null) {
 		return null;
 	}
@@ -92,12 +153,19 @@ function isValid(prev, next) {
 }
 
 const create = context => {
-	let prev = null;
+	const {options} = context;
+	const {
+		allowBlankLines = false
+	} = options[0] || {};
+
+	let prevOrder = null;
+	let prevNode = null;
+
 	return {
 		'Program > VariableDeclaration[declarations.length=1] > VariableDeclarator:matches([id.type="Identifier"],[id.type="ObjectPattern"]) > CallExpression[callee.name="require"][arguments.length=1][arguments.0.type="Literal"]': node => {
-			const next = getOrder(node.arguments[0].value);
+			const nextOrder = getOrder(node.arguments[0].value);
 
-			const message = isValid(prev, next);
+			const message = getInvalidOrderMessage(prevOrder, nextOrder);
 
 			if (message) {
 				context.report({
@@ -106,12 +174,23 @@ const create = context => {
 				});
 			}
 
-			prev = next;
+			if (!allowBlankLines) {
+				const blankLinesMessage = getInvalidBlankLinesMessage(prevNode, node, context);
+				if (blankLinesMessage) {
+					context.report({
+						node,
+						...blankLinesMessage
+					});
+				}
+			}
+
+			prevOrder = nextOrder;
+			prevNode = node;
 		},
 		'Program > ImportDeclaration[specifiers.length>0]': node => {
 			const next = getOrder(node.source.value);
 
-			const message = isValid(prev, next);
+			const message = getInvalidOrderMessage(prevOrder, next);
 
 			if (message) {
 				context.report({
@@ -120,7 +199,18 @@ const create = context => {
 				});
 			}
 
-			prev = next;
+			if (!allowBlankLines) {
+				const blankLinesMessage = getInvalidBlankLinesMessage(prevNode, node, context);
+				if (blankLinesMessage) {
+					context.report({
+						node,
+						...blankLinesMessage
+					});
+				}
+			}
+
+			prevOrder = next;
+			prevNode = node;
 		}
 	};
 };
@@ -133,6 +223,7 @@ module.exports = {
 			url: getDocsUrl(__filename)
 		},
 		messages: {
+			[MESSAGE_ID_BLANKLINES]: 'Imports should not have blank lines between them',
 			[MESSAGE_ID_DEPTH]: 'Relative paths should be sorted by depth',
 			[MESSAGE_ID_GROUP]: '{{earlier}} imports should come before {{later}} imports',
 			[MESSAGE_ID_ORDER]: 'Imports should be sorted alphabetically'
