@@ -89,16 +89,16 @@ ruleTester.run('expiring-todo-comments', rule, {
 			output: '// TODO [2200-12-12, 2200-12-12]: Multiple dates'
 		},
 		{
-			code: '// TODO [>1]: if your package.json version is > 1',
-			errors: [reachedPackageVersionError('> 1')]
+			code: '// TODO [>1]: if your package.json version is >1',
+			errors: [reachedPackageVersionError('>1')]
 		},
 		{
 			code: '// TODO [>1, >2]: multiple package versions',
-			errors: [avoidMultiplePackageVersionsError('> 1, > 2')]
+			errors: [avoidMultiplePackageVersionsError('>1, >2')]
 		},
 		{
-			code: '// TODO [>=1]: if your package.json version is >= 1',
-			errors: [reachedPackageVersionError('>= 1')]
+			code: '// TODO [>=1]: if your package.json version is >=1',
+			errors: [reachedPackageVersionError('>=1')]
 		},
 		{
 			code: '// TODO [+read-pkg]: when you install `read-pkg`',

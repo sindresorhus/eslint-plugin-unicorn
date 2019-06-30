@@ -107,7 +107,7 @@ const create = context => {
 				messageId: MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS,
 				data: {
 					versions: packageVersions
-						.map(({condition, version}) => `${condition} ${version}`)
+						.map(({condition, version}) => `${condition}${version}`)
 						.join(', ')
 				}
 			});
@@ -126,7 +126,7 @@ const create = context => {
 					loc: comment.loc,
 					messageId: MESSAGE_ID_REACHED_PACKAGE_VERSION,
 					data: {
-						comparison: `${condition} ${version}`
+						comparison: `${condition}${version}`
 					}
 				});
 			}
