@@ -182,7 +182,7 @@ const create = context => {
 				const blankLinesMessage = getInvalidBlankLinesMessage(prevNode, node, context);
 				if (blankLinesMessage) {
 					context.report({
-						node,
+						node: node.source,
 						...blankLinesMessage
 					});
 				}
@@ -202,7 +202,7 @@ module.exports = {
 			url: getDocsUrl(__filename)
 		},
 		messages: {
-			[MESSAGE_ID_BLANKLINES]: 'Imports should not have blank lines between them',
+			[MESSAGE_ID_BLANKLINES]: 'Group imports together',
 			[MESSAGE_ID_DEPTH]: 'Relative paths should be sorted by depth',
 			[MESSAGE_ID_GROUP]: '{{earlier}} imports should come before {{later}} imports',
 			[MESSAGE_ID_ORDER]: 'Imports should be sorted alphabetically'

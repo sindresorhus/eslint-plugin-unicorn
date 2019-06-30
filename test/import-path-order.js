@@ -101,7 +101,17 @@ ruleTester.run('import-path-order', rule, {
 
 			*/
 			var b = require('b');
-		`
+		`,
+		outdent`
+			import 'a';
+			import b from 'b';
+			const c = require('c');
+		`,
+		outdent`
+			import a from 'a';
+			import 'b';
+			const c = require('c');
+		`,
 	],
 	invalid: [
 		{
@@ -183,7 +193,38 @@ ruleTester.run('import-path-order', rule, {
 		},
 		{
 			code: outdent`
+				import b from 'b';
+				import 'a';
+			`,
+			errors: [errorOrder]
+		},
+		{
+			code: outdent`
 				var b = require('b');
+
+				var a = require('a');
+			`,
+			errors: [
+				errorOrder,
+				errorBlankLines
+			]
+		},
+		{
+			code: outdent`
+				var b = require('b');
+
+				// Comment
+				var a = require('a');
+			`,
+			errors: [
+				errorOrder,
+				errorBlankLines
+			]
+		},
+		{
+			code: outdent`
+				var b = require('b');
+				// Comment
 
 				var a = require('a');
 			`,
