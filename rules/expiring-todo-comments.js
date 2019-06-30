@@ -14,6 +14,7 @@ const MESSAGE_ID_HAVE_PACKAGE = 'havePackage';
 const MESSAGE_ID_DONT_HAVE_PACKAGE = 'dontHavePackage';
 const MESSAGE_ID_VERSION_MATCHES = 'versionMatches';
 const MESSAGE_ID_ENGINE_MATCHES = 'engineMatches';
+const MESSAGE_ID_REMOVE_WHITESPACES = 'removeWhitespaces';
 
 const pkg = readPkg.sync();
 
@@ -69,7 +70,8 @@ const create = context => {
 			packageVersions = [],
 			dates = [],
 			dependencies = [],
-			engines = []
+			engines = [],
+			unknowns = []
 		} = parsed;
 
 		if (dates.length > 1) {
@@ -214,6 +216,24 @@ const create = context => {
 			}
 		}
 
+		for (const unknown of unknowns) {
+			console.log(unknown);
+			const withoutWhitespaces = unknown.replace(/ /g, '');
+
+			if (parseArg(withoutWhitespaces).type !== 'unknowns') {
+				uses++;
+				context.report({
+					node: null,
+					loc: comment.loc,
+					messageId: MESSAGE_ID_REMOVE_WHITESPACES,
+					data: {
+						original: unknown,
+						fix: withoutWhitespaces
+					}
+				});
+			}
+		}
+
 		return uses === 0;
 	}
 
@@ -264,7 +284,9 @@ module.exports = {
 			[MESSAGE_ID_VERSION_MATCHES]:
 				'There is a TODO match for package version: {{comparison}}',
 			[MESSAGE_ID_ENGINE_MATCHES]:
-				'There is a TODO match for engine version: {{comparison}}'
+				'There is a TODO match for engine version: {{comparison}}',
+			[MESSAGE_ID_REMOVE_WHITESPACES]:
+				'Avoid using whitespaces on TODO arguments. On \'{{original}}\' use \'{{fix}}\''
 		},
 		schema
 	}
