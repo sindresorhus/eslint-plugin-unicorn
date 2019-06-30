@@ -303,7 +303,7 @@ function parseArg(argString) {
 
 	if (DEPENDENCY_INCLUSION_RE.test(argString)) {
 		const condition = argString[0] === '+' ? 'in' : 'out';
-		const name = argString.substring(1).trim();
+		const name = argString.slice(1).trim();
 
 		return {
 			type: 'dependencies',
