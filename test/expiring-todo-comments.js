@@ -68,7 +68,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 		'// TODO [2200-12-12, -read-pkg]: Combo',
 		'// TODO [2200-12-12, -read-pkg, +popura]: Combo',
 		'// TODO [2200-12-12, -read-pkg, +popura, semver>=1000]: Combo',
-		'// TODO [engines node>=100]: When we start supporting only >= 10',
+		'// TODO [engines:node>=100]: When we start supporting only >= 10',
 		`// TODO [2200-12-12]: Multiple
 		// TODO [2200-12-12]: Lines`,
 		`/*
@@ -113,7 +113,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 			errors: [versionMatchesError('read-pkg > 1')]
 		},
 		{
-			code: '// TODO [engines node>=8]: when support is for node > 8',
+			code: '// TODO [engines:node>=8]: when support is for node > 8',
 			errors: [engineMatchesError('node >= 8')]
 		},
 		{
