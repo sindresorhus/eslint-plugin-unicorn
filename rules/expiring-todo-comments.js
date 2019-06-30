@@ -25,7 +25,7 @@ const DEPENDENCY_INCLUSION_RE = /^[+|-]\s*@?[\S+]\/?\S+/;
 const DEPENDENCY_VERSION_RE = /^(@?[\S+]\/?\S+)@(>|>=)([\d]+(\.\d+){0,2})/;
 const PKG_VERSION_RE = /^(>|>=)([\d]+(\.\d+){0,2})\s*$/;
 const ENGINES_RE = /^engines:(\S+)(>|>=)([\d]+(\.\d+){0,2})/;
-const ISO8601 = /(\d{4})-(\d{2})-(\d{2})/;
+const ISO8601_DATE = /(\d{4})-(\d{2})-(\d{2})/;
 
 const create = context => {
 	const options = {
@@ -57,7 +57,7 @@ const create = context => {
 	const rules = baseRule.create(fakeContext);
 
 	function processComment(comment) {
-		const parsed = parseTodoWithArgs(comment.value, options);
+		const parsed = parseTodoWithArguments(comment.value, options);
 
 		if (!parsed) {
 			return true;
@@ -225,7 +225,7 @@ const create = context => {
 			if (!hasAt && comparisonIndex !== -1) {
 				const testString = unknown.slice(0, comparisonIndex) + '@' + unknown.slice(comparisonIndex);
 
-				if (parseArg(testString).type !== 'unknowns') {
+				if (parseArgument(testString).type !== 'unknowns') {
 					uses++;
 					context.report({
 						node: null,
@@ -242,7 +242,7 @@ const create = context => {
 
 			const withoutWhitespaces = unknown.replace(/ /g, '');
 
-			if (parseArg(withoutWhitespaces).type !== 'unknowns') {
+			if (parseArgument(withoutWhitespaces).type !== 'unknowns') {
 				uses++;
 				context.report({
 					node: null,
@@ -317,7 +317,7 @@ module.exports = {
 	}
 };
 
-function parseTodoWithArgs(str, {terms}) {
+function parseTodoWithArguments(str, {terms}) {
 	const TODO_RE = new RegExp(`[${terms.join('|')}][\\s\\S]*\\[([^}]+)\\]`, 'i');
 	const result = TODO_RE.exec(str);
 
@@ -325,32 +325,32 @@ function parseTodoWithArgs(str, {terms}) {
 		return false;
 	}
 
-	const rawArgs = result[1];
+	const rawArguments = result[1];
 
-	return rawArgs
+	return rawArguments
 		.split(',')
-		.map(arg => parseArg(arg.trim()))
-		.reduce((groups, arg) => {
-			if (!groups[arg.type]) {
-				groups[arg.type] = [];
+		.map(argument => parseArgument(argument.trim()))
+		.reduce((groups, argument) => {
+			if (!groups[argument.type]) {
+				groups[argument.type] = [];
 			}
 
-			groups[arg.type].push(arg.value);
+			groups[argument.type].push(argument.value);
 			return groups;
 		}, {});
 }
 
-function parseArg(argString) {
-	if (ISO8601.test(argString)) {
+function parseArgument(argumentString) {
+	if (ISO8601_DATE.test(argumentString)) {
 		return {
 			type: 'dates',
-			value: argString
+			value: argumentString
 		};
 	}
 
-	if (DEPENDENCY_INCLUSION_RE.test(argString)) {
-		const condition = argString[0] === '+' ? 'in' : 'out';
-		const name = argString.slice(1).trim();
+	if (DEPENDENCY_INCLUSION_RE.test(argumentString)) {
+		const condition = argumentString[0] === '+' ? 'in' : 'out';
+		const name = argumentString.slice(1).trim();
 
 		return {
 			type: 'dependencies',
@@ -361,8 +361,8 @@ function parseArg(argString) {
 		};
 	}
 
-	if (DEPENDENCY_VERSION_RE.test(argString)) {
-		const result = DEPENDENCY_VERSION_RE.exec(argString);
+	if (DEPENDENCY_VERSION_RE.test(argumentString)) {
+		const result = DEPENDENCY_VERSION_RE.exec(argumentString);
 		const name = result[1].trim();
 		const condition = result[2].trim();
 		const version = result[3].trim();
@@ -377,8 +377,8 @@ function parseArg(argString) {
 		};
 	}
 
-	if (PKG_VERSION_RE.test(argString)) {
-		const result = PKG_VERSION_RE.exec(argString);
+	if (PKG_VERSION_RE.test(argumentString)) {
+		const result = PKG_VERSION_RE.exec(argumentString);
 		const condition = result[1].trim();
 		const version = result[2].trim();
 
@@ -391,8 +391,8 @@ function parseArg(argString) {
 		};
 	}
 
-	if (ENGINES_RE.test(argString)) {
-		const result = ENGINES_RE.exec(argString);
+	if (ENGINES_RE.test(argumentString)) {
+		const result = ENGINES_RE.exec(argumentString);
 		const name = result[1].trim();
 		const condition = result[2].trim();
 		const version = result[3].trim();
@@ -411,12 +411,12 @@ function parseArg(argString) {
 	// some TODO comments have `[random data like this]`
 	return {
 		type: 'unknowns',
-		value: argString
+		value: argumentString
 	};
 }
 
 function reachedDate(past) {
-	const now = new Date().toISOString().substring(0, 10);
+	const now = new Date().toISOString().slice(0, 10);
 	return Date.parse(past) < Date.parse(now);
 }
 
