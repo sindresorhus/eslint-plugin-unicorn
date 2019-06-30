@@ -73,7 +73,7 @@ If no proper argument is found, you'll be notified that the TODO is useless (`no
 
 ## Options
 
-### ignoreDatesOnPR
+### ignoreDatesOnPullRequests
 
 Disables time checks during pull requests.
 
@@ -83,7 +83,7 @@ Default: `true`.
 "unicorn/expiring-todo-comments": [
 	"error",
 	{
-		"ignoreDatesOnPR": true
+		"ignoreDatesOnPullRequests": true
 	}
 ]
 ```

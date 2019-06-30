@@ -28,7 +28,7 @@ const ISO8601 = /(\d{4})-(\d{2})-(\d{2})/;
 const create = context => {
 	const options = {
 		terms: ['todo', 'fixme', 'xxx'],
-		ignoreDatesOnPR: true,
+		ignoreDatesOnPullRequests: true,
 		...context.options[0]
 	};
 
@@ -86,7 +86,7 @@ const create = context => {
 			uses++;
 			const [date] = dates;
 
-			const shouldIgnore = options.ignoreDatesOnPR && ci.isPR;
+			const shouldIgnore = options.ignoreDatesOnPullRequests && ci.isPR;
 			if (!shouldIgnore && reachedDate(date)) {
 				context.report({
 					node: null,
@@ -234,7 +234,7 @@ const schema = [
 					type: 'string'
 				}
 			},
-			ignoreDatesOnPR: {
+			ignoreDatesOnPullRequests: {
 				type: 'boolean'
 			}
 		}

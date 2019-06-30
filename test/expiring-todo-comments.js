@@ -81,7 +81,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 		{
 			code: '// TODO [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01')],
-			options: [{ignoreDatesOnPR: false}],
+			options: [{ignoreDatesOnPullRequests: false}],
 			output: '// TODO [2000-01-01]: too old'
 		},
 		{
