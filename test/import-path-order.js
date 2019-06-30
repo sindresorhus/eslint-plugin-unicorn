@@ -112,6 +112,11 @@ ruleTester.run('import-path-order', rule, {
 			import 'b';
 			const c = require('c');
 		`,
+		outdent`
+			import a from 'a';
+			require('b');
+			const c = require('c');
+		`
 	],
 	invalid: [
 		{
@@ -195,6 +200,13 @@ ruleTester.run('import-path-order', rule, {
 			code: outdent`
 				import b from 'b';
 				import 'a';
+			`,
+			errors: [errorOrder]
+		},
+		{
+			code: outdent`
+				import b from 'b';
+				require('a');
 			`,
 			errors: [errorOrder]
 		},

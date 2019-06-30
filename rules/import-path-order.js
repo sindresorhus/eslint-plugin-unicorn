@@ -166,7 +166,32 @@ const create = context => {
 			prevOrder = nextOrder;
 			prevNode = node;
 		},
-		'Program > ImportDeclaration[specifiers.length>0]': node => {
+		'Program > ExpressionStatement > CallExpression[callee.name="require"][arguments.length=1][arguments.0.type="Literal"]': node => {
+			const nextOrder = getOrder(node.arguments[0].value);
+
+			const message = getInvalidOrderMessage(prevOrder, nextOrder);
+
+			if (message) {
+				context.report({
+					node,
+					...message
+				});
+			}
+
+			if (!allowBlankLines) {
+				const blankLinesMessage = getInvalidBlankLinesMessage(prevNode, node, context);
+				if (blankLinesMessage) {
+					context.report({
+						node,
+						...blankLinesMessage
+					});
+				}
+			}
+
+			prevOrder = nextOrder;
+			prevNode = node;
+		},
+		'Program > ImportDeclaration': node => {
 			const next = getOrder(node.source.value);
 
 			const message = getInvalidOrderMessage(prevOrder, next);
