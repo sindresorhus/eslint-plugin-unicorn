@@ -59,7 +59,7 @@ If no proper argument is found, you'll be notified that the TODO is useless (`no
 // TODO [semver@>1000]: Welp hopefully we wont get at that.
 // TODO [semver@>=1000]: Welp hopefully we wont get at that.
 
-// TODO [2200-12-25, +popura, semver>1000]: Combo.
+// TODO [2200-12-25, +popura, semver@>1000]: Combo.
 
 // TODO [engines node>100]: Just you wait for this version.
 

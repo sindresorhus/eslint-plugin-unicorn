@@ -15,6 +15,7 @@ const MESSAGE_ID_DONT_HAVE_PACKAGE = 'dontHavePackage';
 const MESSAGE_ID_VERSION_MATCHES = 'versionMatches';
 const MESSAGE_ID_ENGINE_MATCHES = 'engineMatches';
 const MESSAGE_ID_REMOVE_WHITESPACES = 'removeWhitespaces';
+const MESSAGE_ID_MISSING_AT_SYMBOL = 'missingAtSymbol';
 
 const pkg = readPkg.sync();
 
@@ -217,7 +218,28 @@ const create = context => {
 		}
 
 		for (const unknown of unknowns) {
-			console.log(unknown);
+			// In this case, check if there's just an '@' missing before a '>' or '>='.
+			const hasAt = unknown.includes('@');
+			const comparisonIndex = unknown.indexOf('>');
+
+			if (!hasAt && comparisonIndex !== -1) {
+				const testString = unknown.slice(0, comparisonIndex) + '@' + unknown.slice(comparisonIndex);
+
+				if (parseArg(testString).type !== 'unknowns') {
+					uses++;
+					context.report({
+						node: null,
+						loc: comment.loc,
+						messageId: MESSAGE_ID_MISSING_AT_SYMBOL,
+						data: {
+							original: unknown,
+							fix: testString
+						}
+					});
+					continue;
+				}
+			}
+
 			const withoutWhitespaces = unknown.replace(/ /g, '');
 
 			if (parseArg(withoutWhitespaces).type !== 'unknowns') {
@@ -231,6 +253,7 @@ const create = context => {
 						fix: withoutWhitespaces
 					}
 				});
+				continue;
 			}
 		}
 
@@ -286,7 +309,9 @@ module.exports = {
 			[MESSAGE_ID_ENGINE_MATCHES]:
 				'There is a TODO match for engine version: {{comparison}}',
 			[MESSAGE_ID_REMOVE_WHITESPACES]:
-				'Avoid using whitespaces on TODO arguments. On \'{{original}}\' use \'{{fix}}\''
+				'Avoid using whitespaces on TODO argument. On \'{{original}}\' use \'{{fix}}\'',
+			[MESSAGE_ID_MISSING_AT_SYMBOL]:
+				'Missing \'@\' on TODO argument. On \'{{original}}\' use \'{{fix}}\''
 		},
 		schema
 	}
