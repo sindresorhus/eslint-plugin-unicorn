@@ -81,8 +81,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 		{
 			code: '// TODO [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01')],
-			options: [{ignoreDatesOnPullRequests: false}],
-			output: '// TODO [2000-01-01]: too old'
+			options: [{ignoreDatesOnPullRequests: false}]
 		},
 		{
 			code: '// TODO [2200-12-12, 2200-12-12]: Multiple dates',
@@ -91,83 +90,67 @@ ruleTester.run('expiring-todo-comments', rule, {
 		},
 		{
 			code: '// TODO [>1]: if your package.json version is > 1',
-			errors: [reachedPackageVersionError('> 1')],
-			output: '// TODO [>1]: if your package.json version is > 1'
+			errors: [reachedPackageVersionError('> 1')]
 		},
 		{
 			code: '// TODO [>1, >2]: multiple package versions',
-			errors: [avoidMultiplePackageVersionsError('> 1, > 2')],
-			output: '// TODO [>1, >2]: multiple package versions'
+			errors: [avoidMultiplePackageVersionsError('> 1, > 2')]
 		},
 		{
 			code: '// TODO [>=1]: if your package.json version is >= 1',
-			errors: [reachedPackageVersionError('>= 1')],
-			output: '// TODO [>=1]: if your package.json version is >= 1'
+			errors: [reachedPackageVersionError('>= 1')]
 		},
 		{
 			code: '// TODO [+read-pkg]: when you install `read-pkg`',
-			errors: [havePackageError('read-pkg')],
-			output: '// TODO [+read-pkg]: when you install `read-pkg`'
+			errors: [havePackageError('read-pkg')]
 		},
 		{
 			code: '// TODO [-popura]: when you uninstall `popura`',
-			errors: [dontHavePackageError('popura')],
-			output: '// TODO [-popura]: when you uninstall `popura`'
+			errors: [dontHavePackageError('popura')]
 		},
 		{
 			code: '// TODO [read-pkg@>1]: when `read-pkg` version is > 1',
-			errors: [versionMatchesError('read-pkg > 1')],
-			output: '// TODO [read-pkg@>1]: when `read-pkg` version is > 1'
+			errors: [versionMatchesError('read-pkg > 1')]
 		},
 		{
 			code: '// TODO [engines node>=8]: when support is for node > 8',
-			errors: [engineMatchesError('node >= 8')],
-			output: '// TODO [engines node>=8]: when support is for node > 8'
+			errors: [engineMatchesError('node >= 8')]
 		},
 		{
 			code: '// TODO [read-pkg@>=5.1.1]: when `read-pkg` version is >= 5.1.1',
-			errors: [versionMatchesError('read-pkg >= 5.1.1')],
-			output: '// TODO [read-pkg@>=5.1.1]: when `read-pkg` version is >= 5.1.1'
+			errors: [versionMatchesError('read-pkg >= 5.1.1')]
 		},
 		{
 			code: '// TODO [> 1]: Default rule if space',
-			errors: [noWarningCommentError('todo')],
-			output: '// TODO [> 1]: Default rule if space'
+			errors: [noWarningCommentError('todo')]
 		},
 		{
 			code: '// TODO [semver>1]: Default rule if no @.',
-			errors: [noWarningCommentError('todo')],
-			output: '// TODO [semver>1]: Default rule if no @.'
+			errors: [noWarningCommentError('todo')]
 		},
 		{
 			code: '// TODO [semver@> 1]: Default rule if space.',
-			errors: [noWarningCommentError('todo')],
-			output: '// TODO [semver@> 1]: Default rule if space.'
+			errors: [noWarningCommentError('todo')]
 		},
 		{
 			code: '// TODO [semver @>1]: Default rule if space.',
-			errors: [noWarningCommentError('todo')],
-			output: '// TODO [semver @>1]: Default rule if space.'
+			errors: [noWarningCommentError('todo')]
 		},
 		{
 			code: '// TODO [semver@>= 1]: Default rule if space.',
-			errors: [noWarningCommentError('todo')],
-			output: '// TODO [semver@>= 1]: Default rule if space.'
+			errors: [noWarningCommentError('todo')]
 		},
 		{
 			code: '// TODO [semver @>=1]: Default rule if space.',
-			errors: [noWarningCommentError('todo')],
-			output: '// TODO [semver @>=1]: Default rule if space.'
+			errors: [noWarningCommentError('todo')]
 		},
 		{
 			code: '// TODO [engines node >=1]: Default rule if space.',
-			errors: [noWarningCommentError('todo')],
-			output: '// TODO [engines node >=1]: Default rule if space.'
+			errors: [noWarningCommentError('todo')]
 		},
 		{
 			code: '// TODO [engines node>= 1]: Default rule if space.',
-			errors: [noWarningCommentError('todo')],
-			output: '// TODO [engines node>= 1]: Default rule if space.'
+			errors: [noWarningCommentError('todo')]
 		}
 	]
 });
