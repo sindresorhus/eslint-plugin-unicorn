@@ -84,7 +84,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 		'// TODO [2200-12-12, -read-pkg]: Combo',
 		'// TODO [2200-12-12, -read-pkg, +popura]: Combo',
 		'// TODO [2200-12-12, -read-pkg, +popura, semver@>=1000]: Combo',
-		'// TODO [engines:node>=100]: When we start supporting only >= 10',
+		'// TODO [engine:node>=100]: When we start supporting only >= 10',
 		`// TODO [2200-12-12]: Multiple
 		// TODO [2200-12-12]: Lines`,
 		`/*
@@ -164,7 +164,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 			errors: [versionMatchesError('read-pkg > 1', 'when `read-pkg` version is > 1')]
 		},
 		{
-			code: '// TODO [engines:node>=8]: when support is for node > 8',
+			code: '// TODO [engine:node>=8]: when support is for node > 8',
 			errors: [engineMatchesError('node>=8', 'when support is for node > 8')]
 		},
 		{
@@ -196,12 +196,12 @@ ruleTester.run('expiring-todo-comments', rule, {
 			errors: [removeWhitespacesError('semver @>=1', 'Remove whitespaces when it can fix.')]
 		},
 		{
-			code: '// TODO [engines:node >=1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('engines:node >=1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [engine:node >=1]: Remove whitespaces when it can fix.',
+			errors: [removeWhitespacesError('engine:node >=1', 'Remove whitespaces when it can fix.')]
 		},
 		{
-			code: '// TODO [engines:node>= 1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('engines:node>= 1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [engine:node>= 1]: Remove whitespaces when it can fix.',
+			errors: [removeWhitespacesError('engine:node>= 1', 'Remove whitespaces when it can fix.')]
 		},
 		{
 			code: '// TODO',
@@ -268,7 +268,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 			]
 		},
 		{
-			code: '// HUGETODO [semver @>=1, engines:node>=8, 2000-01-01, -popura, >1, +read-pkg, read-pkg@>1]: Big mix',
+			code: '// HUGETODO [semver @>=1, engine:node>=8, 2000-01-01, -popura, >1, +read-pkg, read-pkg@>1]: Big mix',
 			errors: [
 				expiredTodoError('2000-01-01', 'Big mix'),
 				reachedPackageVersionError('>1', 'Big mix'),
