@@ -57,6 +57,7 @@ const create = context => {
 	const rules = baseRule.create(fakeContext);
 
 	function processComment(comment) {
+		console.log(comment)
 		const parsed = parseTodoWithArguments(comment.value, options);
 
 		if (!parsed) {
@@ -317,9 +318,9 @@ module.exports = {
 	}
 };
 
-function parseTodoWithArguments(str, {terms}) {
+function parseTodoWithArguments(string, {terms}) {
 	const TODO_RE = new RegExp(`[${terms.join('|')}][\\s\\S]*\\[([^}]+)\\]`, 'i');
-	const result = TODO_RE.exec(str);
+	const result = TODO_RE.exec(string);
 
 	if (!result) {
 		return false;
