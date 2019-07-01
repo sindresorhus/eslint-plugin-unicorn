@@ -57,7 +57,6 @@ const create = context => {
 	const rules = baseRule.create(fakeContext);
 
 	function processComment(comment) {
-		console.log(comment)
 		const parsed = parseTodoWithArguments(comment.value, options);
 
 		if (!parsed) {
@@ -83,7 +82,8 @@ const create = context => {
 				loc: comment.loc,
 				messageId: MESSAGE_ID_AVOID_MULTIPLE_DATES,
 				data: {
-					expirationDates: dates.join(', ')
+					expirationDates: dates.join(', '),
+					message: parseTodoMessage(comment.value)
 				}
 			});
 		} else if (dates.length === 1) {
@@ -97,7 +97,8 @@ const create = context => {
 					loc: comment.loc,
 					messageId: MESSAGE_ID_EXPIRED_TODO,
 					data: {
-						expirationDate: date
+						expirationDate: date,
+						message: parseTodoMessage(comment.value)
 					}
 				});
 			}
@@ -112,7 +113,8 @@ const create = context => {
 				data: {
 					versions: packageVersions
 						.map(({condition, version}) => `${condition}${version}`)
-						.join(', ')
+						.join(', '),
+					message: parseTodoMessage(comment.value)
 				}
 			});
 		} else if (packageVersions.length === 1) {
@@ -130,7 +132,8 @@ const create = context => {
 					loc: comment.loc,
 					messageId: MESSAGE_ID_REACHED_PACKAGE_VERSION,
 					data: {
-						comparison: `${condition}${version}`
+						comparison: `${condition}${version}`,
+						message: parseTodoMessage(comment.value)
 					}
 				});
 			}
@@ -156,7 +159,8 @@ const create = context => {
 						loc: comment.loc,
 						messageId,
 						data: {
-							package: dependency.name
+							package: dependency.name,
+							message: parseTodoMessage(comment.value)
 						}
 					});
 				}
@@ -182,7 +186,8 @@ const create = context => {
 					data: {
 						comparison: `${dependency.name} ${dependency.condition} ${
 							dependency.version
-						}`
+						}`,
+						message: parseTodoMessage(comment.value)
 					}
 				});
 			}
@@ -212,7 +217,8 @@ const create = context => {
 					loc: comment.loc,
 					messageId: MESSAGE_ID_ENGINE_MATCHES,
 					data: {
-						comparison: `${engine.name} ${engine.condition} ${engine.version}`
+						comparison: `${engine.name}${engine.condition}${engine.version}`,
+						message: parseTodoMessage(comment.value)
 					}
 				});
 			}
@@ -234,7 +240,8 @@ const create = context => {
 						messageId: MESSAGE_ID_MISSING_AT_SYMBOL,
 						data: {
 							original: unknown,
-							fix: testString
+							fix: testString,
+							message: parseTodoMessage(comment.value)
 						}
 					});
 					continue;
@@ -251,7 +258,8 @@ const create = context => {
 					messageId: MESSAGE_ID_REMOVE_WHITESPACES,
 					data: {
 						original: unknown,
-						fix: withoutWhitespaces
+						fix: withoutWhitespaces,
+						message: parseTodoMessage(comment.value)
 					}
 				});
 				continue;
@@ -294,25 +302,25 @@ module.exports = {
 		},
 		messages: {
 			[MESSAGE_ID_AVOID_MULTIPLE_DATES]:
-				'Avoid using multiple expiration dates in TODO: {{expirationDates}}',
+				'Avoid using multiple expiration dates in TODO: {{expirationDates}}. {{message}}',
 			[MESSAGE_ID_EXPIRED_TODO]:
-				'There is a TODO that is past due date: {{expirationDate}}',
+				'There is a TODO that is past due date: {{expirationDate}}. {{message}}',
 			[MESSAGE_ID_REACHED_PACKAGE_VERSION]:
-				'There is a TODO that is past due package version: {{comparison}}',
+				'There is a TODO that is past due package version: {{comparison}}. {{message}}',
 			[MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS]:
-				'Avoid using multiple package versions in TODO: {{versions}}',
+				'Avoid using multiple package versions in TODO: {{versions}}. {{message}}',
 			[MESSAGE_ID_HAVE_PACKAGE]:
-				'There is a TODO that is deprecated since you installed: {{package}}',
+				'There is a TODO that is deprecated since you installed: {{package}}. {{message}}',
 			[MESSAGE_ID_DONT_HAVE_PACKAGE]:
-				'There is a TODO that is deprecated since you uninstalled: {{package}}',
+				'There is a TODO that is deprecated since you uninstalled: {{package}}. {{message}}',
 			[MESSAGE_ID_VERSION_MATCHES]:
-				'There is a TODO match for package version: {{comparison}}',
+				'There is a TODO match for package version: {{comparison}}. {{message}}',
 			[MESSAGE_ID_ENGINE_MATCHES]:
-				'There is a TODO match for engine version: {{comparison}}',
+				'There is a TODO match for engine version: {{comparison}}. {{message}}',
 			[MESSAGE_ID_REMOVE_WHITESPACES]:
-				'Avoid using whitespaces on TODO argument. On \'{{original}}\' use \'{{fix}}\'',
+				'Avoid using whitespaces on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
 			[MESSAGE_ID_MISSING_AT_SYMBOL]:
-				'Missing \'@\' on TODO argument. On \'{{original}}\' use \'{{fix}}\''
+				'Missing \'@\' on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}'
 		},
 		schema
 	}
@@ -414,6 +422,23 @@ function parseArgument(argumentString) {
 		type: 'unknowns',
 		value: argumentString
 	};
+}
+
+function parseTodoMessage(todoString) {
+	// @example "TODO [...]: message here"
+	// @example "TODO [...] message here"
+	const argumentsEnd = todoString.indexOf(']');
+
+	const afterArguments = todoString.slice(argumentsEnd + 1).trim();
+
+	// Check if have to skip collon
+	// @example "TODO [...]: message here"
+	const dropCollon = afterArguments[0] === ':';
+	if (dropCollon) {
+	  return afterArguments.slice(1).trim();
+	}
+
+	return afterArguments;
 }
 
 function reachedDate(past) {
