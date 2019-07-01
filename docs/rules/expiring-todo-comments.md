@@ -237,7 +237,7 @@ or drop the TODO.
 
 ## Options
 
-### ignoreDatesOnPR
+### ignoreDatesOnPullRequests
 
 Disables time checks during pull requests.
 
