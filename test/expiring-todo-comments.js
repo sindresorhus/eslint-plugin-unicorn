@@ -70,6 +70,12 @@ ruleTester.run('expiring-todo-comments', rule, {
 		'// XXX [2200-12-12]: Too long... Can you feel it?',
 		'// TODO (lubien) [2200-12-12]: Too long... Can you feel it?',
 		'// FIXME [2200-12-12] (lubien): Too long... Can you feel it?',
+		{
+			code: '// Expire Condition [2200-12-12]: new term name',
+			errors: [],
+			options: [{terms: ['Expire Condition']}]
+		},
+		'// Expire Condition [2000-01-01]: new term name',
 		'// TODO [>2000]: We sure didnt past this version',
 		'// TODO [-read-pkg]: We actually use this.',
 		'// TODO [+popura]: I think we wont need a broken package.',
@@ -90,6 +96,41 @@ ruleTester.run('expiring-todo-comments', rule, {
 	invalid: [
 		{
 			code: '// TODO [2000-01-01]: too old',
+			errors: [expiredTodoError('2000-01-01', 'too old')],
+			options: [{ignoreDatesOnPullRequests: false}]
+		},
+		{
+			code: '// fixme [2000-01-01]: too old',
+			errors: [expiredTodoError('2000-01-01', 'too old')],
+			options: [{ignoreDatesOnPullRequests: false}]
+		},
+		{
+			code: '// xxx [2000-01-01]: too old',
+			errors: [expiredTodoError('2000-01-01', 'too old')],
+			options: [{ignoreDatesOnPullRequests: false}]
+		},
+		{
+			code: '// ToDo [2000-01-01]: too old',
+			errors: [expiredTodoError('2000-01-01', 'too old')],
+			options: [{ignoreDatesOnPullRequests: false}]
+		},
+		{
+			code: '// fIxME [2000-01-01]: too old',
+			errors: [expiredTodoError('2000-01-01', 'too old')],
+			options: [{ignoreDatesOnPullRequests: false}]
+		},
+		{
+			code: '// Todoist [2000-01-01]: too old',
+			errors: [expiredTodoError('2000-01-01', 'too old')],
+			options: [{ignoreDatesOnPullRequests: false, terms: ['Todoist']}]
+		},
+		{
+			code: '// Expire Condition [2000-01-01]: too old',
+			errors: [expiredTodoError('2000-01-01', 'too old')],
+			options: [{ignoreDatesOnPullRequests: false, terms: ['Expire Condition']}]
+		},
+		{
+			code: '// XxX [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
 			options: [{ignoreDatesOnPullRequests: false}]
 		},

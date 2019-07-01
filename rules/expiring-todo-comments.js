@@ -327,8 +327,16 @@ module.exports = {
 };
 
 function parseTodoWithArguments(string, {terms}) {
-	const TODO_RE = new RegExp(`[${terms.join('|')}][\\s\\S]*\\[([^}]+)\\]`, 'i');
-	const result = TODO_RE.exec(string);
+	const lowerCaseString = string.toLowerCase();
+	const lowerCaseTerms = terms.map(term => term.toLowerCase());
+	const hasTerm = lowerCaseTerms.some(term => lowerCaseString.includes(term));
+
+	if (!hasTerm) {
+		return false;
+	}
+
+	const TODO_ARGUMENT_RE = new RegExp('\\[([^}]+)\\]', 'i');
+	const result = TODO_ARGUMENT_RE.exec(string);
 
 	if (!result) {
 		return false;
