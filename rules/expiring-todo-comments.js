@@ -24,7 +24,7 @@ const pkgDependencies = {...pkg.dependencies, ...pkg.devDependencies};
 const DEPENDENCY_INCLUSION_RE = /^[+|-]\s*@?[\S+]\/?\S+/;
 const DEPENDENCY_VERSION_RE = /^(@?[\S+]\/?\S+)@(>|>=)([\d]+(\.\d+){0,2})/;
 const PKG_VERSION_RE = /^(>|>=)([\d]+(\.\d+){0,2})\s*$/;
-const ENGINES_RE = /^engine:(\S+)(>|>=)([\d]+(\.\d+){0,2})/;
+const ENGINES_RE = /^engine:(\S+)@(>|>=)([\d]+(\.\d+){0,2})/;
 const ISO8601_DATE = /(\d{4})-(\d{2})-(\d{2})/;
 
 const create = context => {
@@ -378,6 +378,22 @@ function parseArgument(argumentString) {
 		};
 	}
 
+	if (ENGINES_RE.test(argumentString)) {
+		const result = ENGINES_RE.exec(argumentString);
+		const name = result[1].trim();
+		const condition = result[2].trim();
+		const version = result[3].trim();
+
+		return {
+			type: 'engines',
+			value: {
+				name,
+				condition,
+				version
+			}
+		};
+	}
+
 	if (DEPENDENCY_VERSION_RE.test(argumentString)) {
 		const result = DEPENDENCY_VERSION_RE.exec(argumentString);
 		const name = result[1].trim();
@@ -402,22 +418,6 @@ function parseArgument(argumentString) {
 		return {
 			type: 'packageVersions',
 			value: {
-				condition,
-				version
-			}
-		};
-	}
-
-	if (ENGINES_RE.test(argumentString)) {
-		const result = ENGINES_RE.exec(argumentString);
-		const name = result[1].trim();
-		const condition = result[2].trim();
-		const version = result[3].trim();
-
-		return {
-			type: 'engines',
-			value: {
-				name,
 				condition,
 				version
 			}
