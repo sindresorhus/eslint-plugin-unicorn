@@ -443,7 +443,7 @@ function parseTodoMessage(todoString) {
 	// @example "TODO [...]: message here"
 	const dropCollon = afterArguments[0] === ':';
 	if (dropCollon) {
-	  return afterArguments.slice(1).trim();
+		return afterArguments.slice(1).trim();
 	}
 
 	return afterArguments;
