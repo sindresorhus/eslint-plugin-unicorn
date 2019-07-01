@@ -439,10 +439,10 @@ function parseTodoMessage(todoString) {
 
 	const afterArguments = todoString.slice(argumentsEnd + 1).trim();
 
-	// Check if have to skip collon
+	// Check if have to skip colon
 	// @example "TODO [...]: message here"
-	const dropCollon = afterArguments[0] === ':';
-	if (dropCollon) {
+	const dropColon = afterArguments[0] === ':';
+	if (dropColon) {
 		return afterArguments.slice(1).trim();
 	}
 
