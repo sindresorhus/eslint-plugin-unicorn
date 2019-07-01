@@ -222,6 +222,64 @@ ruleTester.run('expiring-todo-comments', rule, {
 		{
 			code: '// TODO [but [it will]] [fallback] [[[ to the default ]]] rule [[[',
 			errors: [noWarningCommentError()]
+		},
+		{
+			code: '// TODO [2000-01-01, >1]: Combine date with package version',
+			errors: [
+				expiredTodoError('2000-01-01', 'Combine date with package version'),
+				reachedPackageVersionError('>1', 'Combine date with package version')
+			],
+			options: [{ignoreDatesOnPullRequests: false}]
+		},
+		{
+			code: '// TODO [2200-12-12, >1, 2200-12-12, >2]: Multiple dates and package versions',
+			errors: [
+				avoidMultipleDatesError('2200-12-12, 2200-12-12', 'Multiple dates and package versions'),
+				avoidMultiplePackageVersionsError('>1, >2', 'Multiple dates and package versions')
+			]
+		},
+		{
+			code: '// TODO [-popura, read-pkg@>1]: Combine not having a package with version match',
+			errors: [
+				dontHavePackageError('popura', 'Combine not having a package with version match'),
+				versionMatchesError('read-pkg > 1', 'Combine not having a package with version match')
+			]
+		},
+		{
+			code: '// TODO [+read-pkg, -popura]: Combine presence/absence of packages',
+			errors: [
+				havePackageError('read-pkg', 'Combine presence/absence of packages'),
+				dontHavePackageError('popura', 'Combine presence/absence of packages')
+			]
+		},
+		{
+			code: '// Expire Condition [2000-01-01, semver>1]: Expired TODO and missing symbol',
+			errors: [
+				expiredTodoError('2000-01-01', 'Expired TODO and missing symbol'),
+				missingAtSymbolError('semver>1', 'semver@>1', 'Expired TODO and missing symbol')
+			],
+			options: [{ignoreDatesOnPullRequests: false, terms: ['Expire Condition']}]
+		},
+		{
+			code: '// TODO [semver @>=1, -popura]: Package uninstalled and whitespaces error',
+			errors: [
+				dontHavePackageError('popura', 'Package uninstalled and whitespaces error'),
+				removeWhitespacesError('semver @>=1', 'Package uninstalled and whitespaces error')
+			]
+		},
+		{
+			code: '// HUGETODO [semver @>=1, engines:node>=8, 2000-01-01, -popura, >1, +read-pkg, read-pkg@>1]: Big mix',
+			errors: [
+				expiredTodoError('2000-01-01', 'Big mix'),
+				reachedPackageVersionError('>1', 'Big mix'),
+				dontHavePackageError('popura', 'Big mix'),
+				havePackageError('read-pkg', 'Big mix'),
+				versionMatchesError('read-pkg > 1', 'Big mix'),
+				engineMatchesError('node>=8', 'Big mix'),
+				removeWhitespacesError('semver @>=1', 'Big mix')
+
+			],
+			options: [{ignoreDatesOnPullRequests: false, terms: ['HUGETODO']}]
 		}
 	]
 });
