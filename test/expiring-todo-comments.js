@@ -165,7 +165,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 		},
 		{
 			code: '// TODO [engine:node@>=8]: when support is for node >= 8',
-			errors: [engineMatchesError('node@>=8', 'when support is for node >= 8')]
+			errors: [engineMatchesError('node>=8', 'when support is for node >= 8')]
 		},
 		{
 			code: '// TODO [read-pkg@>=5.1.1]: when `read-pkg` version is >= 5.1.1',
@@ -275,7 +275,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 				dontHavePackageError('popura', 'Big mix'),
 				havePackageError('read-pkg', 'Big mix'),
 				versionMatchesError('read-pkg > 1', 'Big mix'),
-				engineMatchesError('node@>=8', 'Big mix'),
+				engineMatchesError('node>=8', 'Big mix'),
 				removeWhitespacesError('semver @>=1', 'Big mix')
 			],
 			options: [{ignoreDatesOnPullRequests: false, terms: ['HUGETODO']}]
