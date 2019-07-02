@@ -44,6 +44,8 @@ ruleTester.run('consistent-destructuring', rule, {
 		console.log(this);`,
 		`const {a} = null;
 		console.log(null);`,
+		`const {a} = foo;
+		delete foo.a;`,
 		`const {
 			a: {
 				b
@@ -210,6 +212,12 @@ ruleTester.run('consistent-destructuring', rule, {
 			`const {a} = foo;
 			const {b, c} = foo;
 			console.log(c);`
+		),
+		invalidTestCase(
+			`const {a} = foo;
+			console.log(!foo.a);`,
+			`const {a} = foo;
+			console.log(!a);`
 		)
 	]
 });

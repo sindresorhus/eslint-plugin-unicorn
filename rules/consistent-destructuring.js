@@ -64,8 +64,11 @@ const create = context => {
 		MemberExpression(node) {
 			const {parent, object, property} = node;
 
-			// Ignore member function calls
-			if (parent.type === 'CallExpression' && parent.callee === node) {
+			// Ignore member function calls and delete expressions
+			if ((parent.type === 'CallExpression' &&
+				parent.callee === node) ||
+				(parent.type === 'UnaryExpression' &&
+				parent.operator === 'delete')) {
 				return;
 			}
 
@@ -91,7 +94,7 @@ const create = context => {
 				memberVariables.delete(variable.name);
 			}
 
-			const isDefined = memberVariables.has(member);
+			const isDefined = memberVariables.has(member) || member === 'arguments';
 			const isNested = parent.type === 'MemberExpression';
 
 			context.report({
