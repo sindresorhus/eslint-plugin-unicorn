@@ -27,6 +27,7 @@ ruleTester.run('consistent-destructuring', rule, {
 		'const {foo} = 10;',
 		'const {foo} = null;',
 		'const {foo} = this;',
+		'const foo = {a: 1, b: 2};',
 		`const {a} = foo;
 		console.log(a);`,
 		`const {a} = foo;
@@ -60,7 +61,17 @@ ruleTester.run('consistent-destructuring', rule, {
 				b
 			}
 		} = foo;
-		console.log(b.a);`
+		console.log(b.a);`,
+		`function bar() {
+		  const {a} = foo;
+		}
+		function baz() {
+		  console.log(foo.b);
+		}`,
+		`for (const foo of bar) {
+			const {a} = foo;
+		}
+		console.log(foo.a);`
 	],
 	invalid: [
 		invalidTestCase(
@@ -158,6 +169,47 @@ ruleTester.run('consistent-destructuring', rule, {
 			console.log(foo.d);`,
 			`const {a: b, c, d} = foo;
 			console.log(d);`
+		),
+		invalidTestCase(
+			`const {a} = foo;
+			console.log('foo', foo.b);`,
+			`const {a, b} = foo;
+			console.log('foo', b);`
+		),
+		invalidTestCase(
+			`const {a} = foo;
+			console.log(
+			  'foo', // comment
+			  foo.b // comment
+			);`,
+			`const {a, b} = foo;
+			console.log(
+			  'foo', // comment
+			  b // comment
+			);`
+		),
+		invalidTestCase(
+			`const {a} = foo;
+			function bar() {
+			  console.log(foo.a);
+			}`,
+			`const {a} = foo;
+			function bar() {
+			  console.log(a);
+			}`
+		),
+		invalidTestCase(
+			`const {a} = foo;
+			const b = 'bar';
+			console.log(foo.b);`
+		),
+		invalidTestCase(
+			`const {a} = foo;
+			const {b} = foo;
+			console.log(foo.c);`,
+			`const {a} = foo;
+			const {b, c} = foo;
+			console.log(c);`
 		)
 	]
 });

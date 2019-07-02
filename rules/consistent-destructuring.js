@@ -23,33 +23,82 @@ const fix = (fixer, source, objectPattern, memberExpression) => {
 	return fixings;
 };
 
+const isInParentScope = (child, parent) => {
+	while (child) {
+		if (child === parent) {
+			return true;
+		}
+
+		child = child.upper;
+	}
+
+	return false;
+};
+
+const getVariablesInScope = scope => {
+	const variables = new Set();
+
+	while (scope) {
+		for (const variable of scope.variables) {
+			variables.add(variable.name);
+		}
+
+		scope = scope.upper;
+	}
+
+	return variables;
+};
+
 const create = context => {
 	const source = context.getSourceCode();
 	const declarations = new Map();
 
 	return {
 		'VariableDeclarator[id.type="ObjectPattern"][init.type!="Literal"]'(node) {
-			declarations.set(source.getText(node.init), node.id);
+			declarations.set(source.getText(node.init), {
+				scope: context.getScope(),
+				variables: context.getDeclaredVariables(node),
+				objectPattern: node.id
+			});
 		},
 		MemberExpression(node) {
-			const {parent, object} = node;
+			const {parent, object, property} = node;
 
 			// Ignore member function calls
 			if (parent.type === 'CallExpression' && parent.callee === node) {
 				return;
 			}
 
-			const objectPattern = declarations.get(source.getText(object));
+			const declaration = declarations.get(source.getText(object));
 
-			if (objectPattern) {
-				const isNested = parent.type === 'MemberExpression';
-
-				context.report({
-					node,
-					messageId: MESSAGE_ID,
-					fix: isNested ? null : fixer => fix(fixer, source, objectPattern, node)
-				});
+			if (!declaration) {
+				return;
 			}
+
+			const {scope, variables, objectPattern} = declaration;
+			const memberScope = context.getScope();
+
+			// Property is destructured outside the current scope
+			if (!isInParentScope(memberScope, scope)) {
+				return;
+			}
+
+			const memberVariables = getVariablesInScope(memberScope);
+			const member = source.getText(property);
+
+			// Exclude already destructured properties
+			for (const variable of variables) {
+				memberVariables.delete(variable.name);
+			}
+
+			const isDefined = memberVariables.has(member);
+			const isNested = parent.type === 'MemberExpression';
+
+			context.report({
+				node,
+				messageId: MESSAGE_ID,
+				fix: isDefined || isNested ? null : fixer => fix(fixer, source, objectPattern, node)
+			});
 		}
 	};
 };
