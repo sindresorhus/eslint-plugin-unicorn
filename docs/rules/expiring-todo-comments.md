@@ -67,6 +67,8 @@ Argument versions should be [semver](https://semver.org/) compatible such as: `1
 
 Only `node` engine is supported by this condition.
 
+Supported comparisons are `>` and `>=`. Comparison must have a `@` before such as `@>` and `@>=`.
+
 ### Dependency Presence
 
 As a Node.js developer, you probably already know about package.json [dependencies](https://docs.npmjs.com/files/package.json#dependencies) and [devDependencies](https://docs.npmjs.com/files/package.json#devdependencies). This condition works over the presence or absence of dependencies in both fields.
@@ -92,6 +94,8 @@ Another way to make conditions over dependencies is to look upon versions. This 
 ```
 
 Argument versions should be [semver](https://semver.org/) compatible such as: `1.2.45`, `5.3`, `1`.
+
+Supported comparisons are `>` and `>=`. Comparison must have a `@` before such as `@>` and `@>=`.
 
 ### Combinations
 
