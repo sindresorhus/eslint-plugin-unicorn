@@ -52,19 +52,20 @@ Multiple package versions on the same TODO are not valid and will be reported. J
 
 ### Engine Version
 
-On package.json you can specify some [engines](https://docs.npmjs.com/files/package.json#engines) that your code works on. With this setting you can specify both "node" and "npm" versions you can work on.
+On package.json you can specify over [engines](https://docs.npmjs.com/files/package.json#engines) field Node.js (`node`) versions that your package supports.
 
-With that in mind, this condition is triggered as soon as package.json engine reaches the target version. This is particularly useful for maintainers that strive for compatibility but have plans to the future where some feature will be widely available and the could drop support for older versions.
+With that in mind, this condition is triggered as soon as package.json `node` engine reaches the target version. This is particularly useful for maintainers that strive for compatibility but have plans to the future where some feature will be widely available and then could drop support for older versions.
 
-Imagine you want to use async/await but for now you support node versions that don't have it? Maybe npm will have a feature that could be useful later but for now you have to keep support for older version users?
+Imagine you want to use async/await but for now you support node versions that don't have it? Maybe you're eager to use import and export but for now you have to support CommonJS?
 
 ```js
 // TODO [engine:node@>=8]: We can use async/await now.
 // FIXME [engine:node@>=20.0.0] Hey, node can use import/export now, we should refactor.
-// XXX @lubien [engine:npm@>4.0]: Now npm have [feature] we should use it.
 ```
 
 Argument versions should be [semver](https://semver.org/) compatible such as: `1.2.45`, `5.3`, `1`.
+
+Only `node` engine is supported by this condition.
 
 ### Dependency Presence
 

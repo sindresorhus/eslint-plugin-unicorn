@@ -35,7 +35,7 @@ const versionMatchesError = (comparison, message) => ({
 
 const engineMatchesError = (comparison, message) => ({
 	ruleId: 'expiring-todo-comments',
-	message: `There is a TODO match for engine version: ${comparison}. ${message}`
+	message: `There is a TODO match for Node.js version: ${comparison}. ${message}`
 });
 
 const reachedPackageVersionError = (version, message) => ({
@@ -221,6 +221,14 @@ ruleTester.run('expiring-todo-comments', rule, {
 		},
 		{
 			code: '// TODO [but [it will]] [fallback] [[[ to the default ]]] rule [[[',
+			errors: [noWarningCommentError()]
+		},
+		{
+			code: '// TODO [engine:npm@>=10000]: Unsupported engine',
+			errors: [noWarningCommentError()]
+		},
+		{
+			code: '// TODO [engine:somethingrandom@>=10000]: Unsupported engine',
 			errors: [noWarningCommentError()]
 		},
 		{

@@ -22,9 +22,8 @@ const pkg = readPkg.sync();
 const pkgDependencies = {...pkg.dependencies, ...pkg.devDependencies};
 
 const DEPENDENCY_INCLUSION_RE = /^[+|-]\s*@?[\S+]\/?\S+/;
-const DEPENDENCY_VERSION_RE = /^(@?[\S+]\/?\S+)@(>|>=)([\d]+(\.\d+){0,2})/;
+const VERSION_COMPARISON_RE = /^(@?[\S+]\/?\S+)@(>|>=)([\d]+(\.\d+){0,2})/;
 const PKG_VERSION_RE = /^(>|>=)([\d]+(\.\d+){0,2})\s*$/;
-const ENGINES_RE = /^engine:(\S+)@(>|>=)([\d]+(\.\d+){0,2})/;
 const ISO8601_DATE = /(\d{4})-(\d{2})-(\d{2})/;
 
 const create = context => {
@@ -197,7 +196,8 @@ const create = context => {
 
 		for (const engine of engines) {
 			uses++;
-			const targetPackageRawEngineVersion = pkgEngines[engine.name];
+
+			const targetPackageRawEngineVersion = pkgEngines.node;
 			const hasTargetEngine = Boolean(targetPackageRawEngineVersion);
 
 			if (!hasTargetEngine) {
@@ -217,7 +217,7 @@ const create = context => {
 					loc: comment.loc,
 					messageId: MESSAGE_ID_ENGINE_MATCHES,
 					data: {
-						comparison: `${engine.name}${engine.condition}${engine.version}`,
+						comparison: `node${engine.condition}${engine.version}`,
 						message: parseTodoMessage(comment.value)
 					}
 				});
@@ -316,7 +316,7 @@ module.exports = {
 			[MESSAGE_ID_VERSION_MATCHES]:
 				'There is a TODO match for package version: {{comparison}}. {{message}}',
 			[MESSAGE_ID_ENGINE_MATCHES]:
-				'There is a TODO match for engine version: {{comparison}}. {{message}}',
+				'There is a TODO match for Node.js version: {{comparison}}. {{message}}',
 			[MESSAGE_ID_REMOVE_WHITESPACES]:
 				'Avoid using whitespaces on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
 			[MESSAGE_ID_MISSING_AT_SYMBOL]:
@@ -378,36 +378,35 @@ function parseArgument(argumentString) {
 		};
 	}
 
-	if (ENGINES_RE.test(argumentString)) {
-		const result = ENGINES_RE.exec(argumentString);
+	if (VERSION_COMPARISON_RE.test(argumentString)) {
+		const result = VERSION_COMPARISON_RE.exec(argumentString);
 		const name = result[1].trim();
 		const condition = result[2].trim();
 		const version = result[3].trim();
 
-		return {
-			type: 'engines',
-			value: {
-				name,
-				condition,
-				version
-			}
-		};
-	}
+		const hasEngineKeyword = name.indexOf('engine:') === 0;
+		const isNodeEngine = hasEngineKeyword && name === 'engine:node';
 
-	if (DEPENDENCY_VERSION_RE.test(argumentString)) {
-		const result = DEPENDENCY_VERSION_RE.exec(argumentString);
-		const name = result[1].trim();
-		const condition = result[2].trim();
-		const version = result[3].trim();
+		if (hasEngineKeyword && isNodeEngine) {
+			return {
+				type: 'engines',
+				value: {
+					condition,
+					version
+				}
+			};
+		}
 
-		return {
-			type: 'dependencies',
-			value: {
-				name,
-				condition,
-				version
-			}
-		};
+		if (!hasEngineKeyword) {
+			return {
+				type: 'dependencies',
+				value: {
+					name,
+					condition,
+					version
+				}
+			};
+		}
 	}
 
 	if (PKG_VERSION_RE.test(argumentString)) {
