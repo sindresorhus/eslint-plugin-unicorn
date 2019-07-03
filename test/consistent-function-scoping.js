@@ -104,14 +104,14 @@ ruleTester.run('consistent-function-scoping', rule, {
 			}
 		`,
 		outdent`
-			const doFoo = (foo) => {
+			const doFoo = foo => {
 				return foo;
 			}
 		`,
 		outdent`
 			const doFoo =
-				(foo) =>
-				(bar) =>
+				foo =>
+				bar =>
 				foo + bar;
 		`,
 		outdent`
