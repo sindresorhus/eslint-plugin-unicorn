@@ -15,8 +15,8 @@ This rule will:
 ## Fail
 
 ```js
-var b = require('b');
-var a = require('a');
+const b = require('b');
+const a = require('a');
 ```
 
 ```js
@@ -59,8 +59,8 @@ import fs from 'fs';
 ## Pass
 
 ```js
-var a = require('a');
-var b = require('b');
+const a = require('a');
+const b = require('b');
 ```
 
 ```js
@@ -104,7 +104,7 @@ import a from 'a';
 
 ### `allowBlankLines`
 
-`allowBlankLines` will force all imports to be organized together. It defaults to `true`.
+`allowBlankLines` will force all imports to be organized together. It defaults to `false`.
 
 #### Fail
 

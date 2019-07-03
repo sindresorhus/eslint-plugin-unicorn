@@ -35,20 +35,20 @@ const errorBlankLines = {
 ruleTester.run('import-path-order', rule, {
 	valid: [
 		outdent`
-			var a = require('a');
-			var b = require('b');
+			const a = require('a');
+			const b = require('b');
 		`,
 		outdent`
-			var a = require('ab');
-			var b = require('ab');
+			const a = require('ab');
+			const b = require('ab');
 		`,
 		outdent`
-			var a = require('a');
+			const a = require('a');
 			import b from 'b';
 		`,
 		outdent`
 			import a from 'a';
-			var b = require('b');
+			const b = require('b');
 		`,
 		outdent`
 			import a from 'a';
@@ -63,15 +63,15 @@ ruleTester.run('import-path-order', rule, {
 			import { b } from 'ab';
 		`,
 		outdent`
-			var z = require('a');
-			var y = require('b');
+			const z = require('a');
+			const y = require('b');
 		`,
 		outdent`
-			var c = require('c');
+			const c = require('c');
 
 			function foo() {
-				var b = require('b');
-				var a = require('a');
+				const b = require('b');
+				const a = require('a');
 			}
 		`,
 		outdent`
@@ -80,27 +80,27 @@ ruleTester.run('import-path-order', rule, {
 		`,
 		{
 			code: outdent`
-				var a = require('a');
+				const a = require('a');
 
-				var b = require('b');
+				const b = require('b');
 			`,
 			options: [{
 				allowBlankLines: true
 			}]
 		},
 		outdent`
-			var a = require('a');
+			const a = require('a');
 			// Not a blank line
-			var b = require('b');
+			const b = require('b');
 		`,
 		outdent`
-			var a = require('a');
+			const a = require('a');
 			/*
 
 			Not a blank line
 
 			*/
-			var b = require('b');
+			const b = require('b');
 		`,
 		outdent`
 			import 'a';
@@ -121,21 +121,21 @@ ruleTester.run('import-path-order', rule, {
 	invalid: [
 		{
 			code: outdent`
-				var b = require('b');
-				var a = require('a');
+				const b = require('b');
+				const a = require('a');
 			`,
 			errors: [errorOrder]
 		},
 		{
 			code: outdent`
 				import b from 'b';
-				var a = require('a');
+				const a = require('a');
 			`,
 			errors: [errorOrder]
 		},
 		{
 			code: outdent`
-				var b = require('b');
+				const b = require('b');
 				import a from 'a';
 			`,
 			errors: [errorOrder]
@@ -212,9 +212,9 @@ ruleTester.run('import-path-order', rule, {
 		},
 		{
 			code: outdent`
-				var b = require('b');
+				const b = require('b');
 
-				var a = require('a');
+				const a = require('a');
 			`,
 			errors: [
 				errorOrder,
@@ -223,10 +223,10 @@ ruleTester.run('import-path-order', rule, {
 		},
 		{
 			code: outdent`
-				var b = require('b');
+				const b = require('b');
 
 				// Comment
-				var a = require('a');
+				const a = require('a');
 			`,
 			errors: [
 				errorOrder,
@@ -235,10 +235,10 @@ ruleTester.run('import-path-order', rule, {
 		},
 		{
 			code: outdent`
-				var b = require('b');
+				const b = require('b');
 				// Comment
 
-				var a = require('a');
+				const a = require('a');
 			`,
 			errors: [
 				errorOrder,
@@ -247,10 +247,10 @@ ruleTester.run('import-path-order', rule, {
 		},
 		{
 			code: outdent`
-				var b = require('b');
+				const b = require('b');
 				const foo = 'foo';
 
-				var a = require('a');
+				const a = require('a');
 			`,
 			errors: [
 				errorOrder,
@@ -259,10 +259,10 @@ ruleTester.run('import-path-order', rule, {
 		},
 		{
 			code: outdent`
-				var b = require('b');
+				const b = require('b');
 
 				const foo = 'foo';
-				var a = require('a');
+				const a = require('a');
 			`,
 			errors: [
 				errorOrder,
@@ -271,9 +271,9 @@ ruleTester.run('import-path-order', rule, {
 		},
 		{
 			code: outdent`
-				var b = require('b');
+				const b = require('b');
 				{ const foo = 'foo'; }
-				var a = require('a');
+				const a = require('a');
 			`,
 			errors: [
 				errorOrder,

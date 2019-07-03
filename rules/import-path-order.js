@@ -1,6 +1,6 @@
 'use strict';
 
-const coreModules = require('resolve/lib/core');
+const isBuiltin = require('is-builtin-module');
 const getDocsUrl = require('./utils/get-docs-url');
 
 const MESSAGE_ID_BLANKLINES = 'import-path-blanklines';
@@ -21,7 +21,7 @@ const GROUP_NAMES = {
 };
 
 function getOrder(source) {
-	if (coreModules[source]) {
+	if (isBuiltin(source)) {
 		return {
 			name: source,
 			group: GROUP_BUILTIN,
