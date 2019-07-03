@@ -9,7 +9,8 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const error = {
-	message: 'Use object spreading instead of passing default parameters with an object'
+	ruleId: 'no-default-parameter-options',
+	messageId: 'noDefaultParameterOptions'
 };
 
 ruleTester.run('no-default-parameter-options', rule, {

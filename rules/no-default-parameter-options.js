@@ -1,6 +1,8 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
+const MESSAGE_ID = 'noDefaultParameterOptions';
+
 const getAssignmentType = (node, optionsObjects) => {
 	const {
 		left: identifier,
@@ -77,12 +79,12 @@ const create = context => {
 			const type = getAssignmentType(node, optionsObjects);
 
 			if (type) {
-				const fixLiteral = fixer => fix(fixer, context.getSourceCode(), node);
+				const isLiteral = type === 'literal';
 
 				context.report({
 					node,
-					message: 'Use object spreading instead of passing default parameters with an object',
-					fix: type === 'literal' ? fixLiteral : null
+					messageId: MESSAGE_ID,
+					fix: isLiteral ? fixer => fix(fixer, context.getSourceCode(), node) : null
 				});
 			}
 		}
@@ -96,6 +98,9 @@ module.exports = {
 		docs: {
 			url: getDocsUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages: {
+			[MESSAGE_ID]: 'Use object spreading instead of passing default parameters with an object'
+		}
 	}
 };
