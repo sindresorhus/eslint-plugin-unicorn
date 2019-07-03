@@ -10,7 +10,7 @@ TODO comments are useful when a piece of code needs some work. Unfortunately the
 
 With this rule, a TODO can have a condition right from the beginning to define its lifespan. When the condition is met, ESLint will take care of reporting that there's work to be done.
 
-This rule also defines that **there must be no TODO comment without conditions** so that you should take more care before simply adding tasks with no life expectancy. For more information read the section [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments) below.
+This rule also defines by default that **there must be no TODO comment without conditions** so that you should take more care before simply adding tasks with no life expectancy. For more information read the section [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments) below. To disable this behavior see [`allowWarningComments`](#allowWarningComments) below.
 
 Conditions quick overview:
 
@@ -139,6 +139,8 @@ The reason behind is that now that you have a powerful rule to make sure there a
 
 With that in mind, **you should disable** that ESLint rule in favor of this one as you will get the same behavior and more.
 
+You can also opt to `allowWarningComments` on this rule and have both rules coexist (See [`allowWarningComments`](#allowWarningComments) below).
+
 ## Legacy Branches
 
 Although this rule works just fine when you maintain a `master` branch, it gets trickier when you have legacy branches that happen to have unclosed TODOs.
@@ -257,6 +259,25 @@ Default: `['todo', 'fixme', 'xxx']`.
 			"fixme",
 			"xxx"
 		]
+	}
+]
+```
+
+### allowWarningComments
+
+Ignore TODOs without conditions.
+
+As mentioned before, [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments) will be triggered when there are no valid conditions on a TODO comment. If you want only triggering TODO conditions to be reported, you can disable this fallback rule with this setting.
+
+This is also helpful if you want to use **both** this rule and [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments) **but want different warning levels** as it's not possible to set multiple warning levels on the same rule.
+
+Default: `false`.
+
+```js
+"unicorn/expiring-todo-comments": [
+	"error",
+	{
+		"allowWarningComments": false
 	}
 ]
 ```
