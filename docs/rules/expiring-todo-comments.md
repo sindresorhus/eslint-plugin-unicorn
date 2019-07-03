@@ -85,7 +85,7 @@ This condition is really useful when the code should be looked upon changes in d
 
 ### Dependency Version
 
-Another way to make conditions over dependencies is to look upon versions. This is useful when developers know that further versions of dependencies make changes that impact on their code.
+Another way to make conditions over dependencies is to look upon versions. This is useful when developers know that changes in further versions of dependencies will impact their code.
 
 ```js
 // TODO [vue@>=3]: Refactor to function API when it's stable.
@@ -223,9 +223,9 @@ Imagine you maintain a `master` branch at a version such as 10 and always keep w
 
 ### ignoreDatesOnPullRequests
 
-Disables time checks during pull requests.
+Disables `Expiry Date` checks during pull requests.
 
-Sometimes developers may send [Pull Requests](https://help.github.com/en/articles/about-pull-requests) right on time when TODO expiry dates are triggered. This will mean that their code would fail to pass linting and would cause a false positive.
+Sometimes developers may send [Pull Requests](https://help.github.com/en/articles/about-pull-requests) at a time when TODO expiry dates are triggered. This means that their code would fail to pass linting, causing a false positive.
 
 By default this rule will not trigger expiry dates while on Pull Requests so that the one responsible for the fix will be the maintainer not the contributor.
 
