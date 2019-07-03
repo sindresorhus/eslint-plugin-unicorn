@@ -1,8 +1,10 @@
 # Prefer consistent function scoping
 
-A function definition should be placed as close to the top level scope as possible without breaking it's captured values.
+A function definition should be placed as close to the top-level scope as possible without breaking its captured values.
+
 
 ## Fail
+
 ```js
 export function doFoo(foo) {
   // Does not capture anything from the scope, can be moved to the outer scope
@@ -14,13 +16,15 @@ export function doFoo(foo) {
 }
 
 function doFoo(foo) {
-	const doBar = (bar) => {
+	const doBar = bar => {
 		return bar === 'bar';
 	};
 }
 ```
 
+
 ## Pass
+
 ```js
 function doBar(bar) {
   return bar === 'bar';
