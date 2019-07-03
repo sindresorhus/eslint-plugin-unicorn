@@ -32,10 +32,10 @@ ruleTester.run('consistent-function-scoping', rule, {
 			}
 		`,
 		outdent`
-			const doFoo = (foo) => foo;
+			const doFoo = foo => foo;
 		`,
 		outdent`
-			(foo) => foo;
+			foo => foo;
 		`,
 		outdent`
 			function doFoo(foo) {
@@ -116,17 +116,17 @@ ruleTester.run('consistent-function-scoping', rule, {
 		`,
 		outdent`
 			const doFoo = () => {
-				return (bar) => bar;
+				return bar => bar;
 			}
 		`,
 		outdent`
 			function doFoo() {
-				return (bar) => bar;
+				return bar => bar;
 			}
 		`,
 		outdent`
-			const doFoo = (foo) => {
-				const doBar = (bar) => {
+			const doFoo = foo => {
+				const doBar = bar => {
 					return foo + bar;
 				}
 				return foo;
@@ -190,7 +190,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 		{
 			code: outdent`
 				const doFoo = () => {
-					const doBar = (bar) => {
+					const doBar = bar => {
 						return bar;
 					}
 				}
@@ -199,7 +199,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 		},
 		{
 			code: outdent`
-				const doFoo = () => (bar) => bar;
+				const doFoo = () => bar => bar;
 			`,
 			errors: [arrowError]
 		},
