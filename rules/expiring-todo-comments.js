@@ -38,6 +38,23 @@ const create = context => {
 	const comments = sourceCode.getAllComments();
 	const unusedComments = comments
 		.filter(token => token.type !== 'Shebang')
+		// Block comments come as one.
+		// Split for situations like this:
+		// /*
+		//  * TODO [2000-01-01]: Validate this
+		//  * TODO [2000-01-01]: And this
+		//  * TODO [2000-01-01]: Also this
+		//  */
+		.map(comment =>
+			comment.value.split('\n').map(line => ({
+				...comment,
+				value: line
+			}))
+		)
+		// Flatten
+		.reduce((accumulator, array) =>
+			accumulator.concat(array)
+		, [])
 		.filter(processComment);
 
 	// This is highly dependable on ESLint's `no-warning-comments` implementation.

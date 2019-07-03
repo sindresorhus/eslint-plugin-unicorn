@@ -107,6 +107,28 @@ Any combination of rules is possible as long as you separate by commas. Each con
 // TODO [-vue-function-api, vue@>=3]: Now we should use Vue native function API.
 ```
 
+### Block Comments
+
+You can also use block comments to specify TODOs with conditions. Each line can have it's own set of conditions. This is specially useful when you aim for more details.
+
+```js
+/*
+ * We should really make this code better.
+ * When we support from Node.js 12 we can refactor imports.
+ * And we also can do [x], [y], [z].
+ * TODO [engine:node@>=12]: Use import/export.
+ */
+
+/*
+ * This code would be so easy if we used `popura` package helpers.
+ * When you can, install `popura`, use it and remove dead code.
+ * TODO [+popura]: Refactor to use `popura`.
+ *
+ * You can also use `popura-cli` so we wont to help on [feature].
+ * TODO [+popura-cli]: Document how to use `popura-cli`.
+ */
+```
+
 ## Disallow Warning Comments (no-warning-comments)
 
 This rule implements [`eslint/no-warning-comments`](https://eslint.org/docs/rules/no-warning-comments).

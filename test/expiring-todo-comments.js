@@ -89,8 +89,8 @@ ruleTester.run('expiring-todo-comments', rule, {
 		// TODO [2200-12-12]: Lines`,
 		`/*
 		  * TODO [2200-12-12]: Yet
-		  * TODO [2200-12-12]: Another
-		  * TODO [2200-12-12]: Way
+		  * TODO [engine:node@>=100]: Another
+		  * TODO [+popura]: Way
 		  */`,
 		{
 			code: '// TODO',
@@ -117,6 +117,42 @@ ruleTester.run('expiring-todo-comments', rule, {
 		{
 			code: '// TODO [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
+			options: [{ignoreDatesOnPullRequests: false}]
+		},
+		{
+			code: `/*
+			* TODO [2000-01-01]: Yet
+			* TODO [2000-01-01]: Another
+			* TODO [2000-01-01]: Way
+			*/`,
+			errors: [
+				expiredTodoError('2000-01-01', 'Yet'),
+				expiredTodoError('2000-01-01', 'Another'),
+				expiredTodoError('2000-01-01', 'Way')
+			],
+			options: [{ignoreDatesOnPullRequests: false}]
+		},
+		{
+			code: `/*
+			* TODO [2000-01-01]: Invalid
+			* TODO [2200-01-01]: Valid
+			* TODO [2000-01-01]: Invalid
+			*/`,
+			errors: [
+				expiredTodoError('2000-01-01', 'Invalid'),
+				expiredTodoError('2000-01-01', 'Invalid')
+			],
+			options: [{ignoreDatesOnPullRequests: false}]
+		},
+		{
+			code: `/*
+			* Something here
+			* TODO [engine:node@>=8]: Invalid
+			* Also something here
+			*/`,
+			errors: [
+				engineMatchesError('node>=8', 'Invalid')
+			],
 			options: [{ignoreDatesOnPullRequests: false}]
 		},
 		{
