@@ -8,14 +8,14 @@ From [ESLint's documentation](https://eslint.org/docs/rules/no-warning-comments)
 
 TODO comments are useful when a piece of code needs some work. Unfortunately these can be easily forgotten as it's easy to forget to track them, leaving dangling tasks to be found at later random moments.
 
-With this rule a TODO can have right from the beginning a condition to define it's lifespan. When the condition is met, ESLint will take care of reporting that there's work to be done.
+With this rule, a TODO can have a condition right from the beginning to define its lifespan. When the condition is met, ESLint will take care of reporting that there's work to be done.
 
-This rule also define that **there must be no TODO comment without conditions** so that you should take more care before simply adding tasks with no life expectancy. For more information read the section [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments) below.
+This rule also defines that **there must be no TODO comment without conditions** so that you should take more care before simply adding tasks with no life expectancy. For more information read the section [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments) below.
 
 Conditions quick overview:
 
 - Expire after a **specific date**.
-- Expire when **package.json** reaches a specific **version**.
+- Expire when **your package** (package.json) reaches a specific **version**.
 - Expire when a package.json **`engines`** property reaches a specific **version**.
 - Expire when you **install/uninstall** a specific **package**.
 - Expire when a **package** reaches a specific **version**.
@@ -24,7 +24,7 @@ Conditions quick overview:
 
 ### Expiry Date
 
-Using a date as condition, a TODO will only work as longs as this date is not met. This is specially useful when you either know when the action should take place or simply want to set boundaries for yourself.
+Using a date as condition, a TODO will only work as long as this date is not met. This is specially useful when you either know when the action should take place or simply want to set boundaries for yourself.
 
 ```js
 // TODO [2019-11-15]: Refactor this code before the sprint ends.
@@ -34,13 +34,13 @@ Using a date as condition, a TODO will only work as longs as this date is not me
 
 Dates are [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601#Dates) and use [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) timezone.
 
-Multiple dates on the same TODO are not valid and will be reported. There's no meaning in having two dates as the closest one will always be the one to report.
+Multiple dates on the same TODO are not valid and will be reported. There's no point in having two dates as the closest one will always be the one that is reported.
 
 ### Package Version
 
-If you're working on a NPM package, you should have a root level package.json with a [`version`](https://docs.npmjs.com/files/package.json#version) field as specified from NPM itself. This condition takes place under this value.
+If you're working on a npm package, you should have a root level package.json with a [`version`](https://docs.npmjs.com/files/package.json#version) field as specified by npm. This condition takes place under this value.
 
-By assigning a condition to compare a package.json `version` the TODO will report as soon as the condition is met. It's really useful when the work is related to the version of the package itself such as deprecated APIs.
+By assigning a condition to compare a package.json `version`, the TODO will report as soon as the condition is met. It's really useful when the work is related to the version of the package itself such as deprecated APIs.
 
 ```js
 // TODO [>=1.0.0]: I should work around this when we reach v1.
@@ -68,7 +68,7 @@ Argument versions should be [semver](https://semver.org/) compatible such as: `1
 
 ### Dependency Presence
 
-As a developer using NodeJS you should be know to package.json [dependencies](https://docs.npmjs.com/files/package.json#dependencies) and [devDependencies](https://docs.npmjs.com/files/package.json#devdependencies). This condition works over the presence or absence of dependencies in both fields.
+As a Node.js developer, you probably already know about package.json [dependencies](https://docs.npmjs.com/files/package.json#dependencies) and [devDependencies](https://docs.npmjs.com/files/package.json#devdependencies). This condition works over the presence or absence of dependencies in both fields.
 
 You may use `+` to trigger when the dependency is added and `-` when the dependency is removed.
 
@@ -114,9 +114,9 @@ With that in mind, **you should disable** that ESLint rule in favor of this one 
 
 ## Legacy Branches
 
-Although this rule works just fine when you maintain a master branch it gets trickier when you have legacy branches that happen to have unclosed TODOs.
+Although this rule works just fine when you maintain a `master` branch, it gets trickier when you have legacy branches that happen to have unclosed TODOs.
 
-Assume you maintain a master branch at a version such as 10 and always keep working on it and also keep fixing your TODOs. But your package happen to **publish and support** legacy branches such as 8 and 9 for [long term support](https://en.wikipedia.org/wiki/Long-term_support) with code such as security patches, meaning you might have stray TODOs that won't get fixed and will cause your build to break unless you either fix or drop the TODO.
+Imagine you maintain a `master` branch at a version such as 10 and always keep working on it and also keep fixing your TODOs. But your package happen to **publish and support** legacy branches such as 8 and 9 for [long term support](https://en.wikipedia.org/wiki/Long-term_support) with code such as security patches, meaning you might have stray TODOs that won't get fixed and will cause your build to break unless you either fix or drop the TODO.
 
 ## Conditions Overview
 
@@ -157,7 +157,7 @@ Assume you maintain a master branch at a version such as 10 and always keep work
 // TODO [read-pkg@>1]: When `read-pkg` version is > 1 don't forget to do this
 // TODO [read-pkg@>=5.1.1]: When `read-pkg` version is >= 5.1.1 don't forget to do that
 
-// TODO [engine:@node>=8]: Whoops we are already supporting it!
+// TODO [engine:node@>=8]: Whoops we are already supporting it!
 
 // TODO: Add unicorns.
 ```
