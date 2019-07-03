@@ -124,8 +124,8 @@ module.exports = {
 			url: getDocsUrl(__filename)
 		},
 		messages: {
-			[MESSAGE_ID_ARROW]: 'Move arrow function to outer scope.',
-			[MESSAGE_ID_FUNCTION]: 'Move function to outer scope.'
+			[MESSAGE_ID_ARROW]: 'Move arrow function to the outer scope.',
+			[MESSAGE_ID_FUNCTION]: 'Move function to the outer scope.'
 		}
 	}
 };

@@ -61,7 +61,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 		`,
 		outdent`
 			function doFoo() {
-				var foo = 'foo';
+				const foo = 'foo';
 				function doBar(bar) {
 					return foo + bar;
 				}
@@ -80,21 +80,21 @@ ruleTester.run('consistent-function-scoping', rule, {
 			}
 		`,
 		outdent`
-			for (var foo = 0; foo < 1; foo++) {
+			for (let foo = 0; foo < 1; foo++) {
 				function doBar(bar) {
 					return bar + foo;
 				}
 			}
 		`,
 		outdent`
-			for (var foo = 0; foo < 1; foo++) {
+			for (let foo = 0; foo < 1; foo++) {
 				function doBar(bar) {
 					return bar;
 				}
 			}
 		`,
 		outdent`
-			var foo = 0;
+			let foo = 0;
 			function doFoo() {
 				foo = 1;
 				function doBar(bar) {
@@ -168,7 +168,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 		{
 			code: outdent`
 				function doFoo() {
-					var foo = 'foo';
+					const foo = 'foo';
 					function doBar(bar) {
 						return bar;
 					}

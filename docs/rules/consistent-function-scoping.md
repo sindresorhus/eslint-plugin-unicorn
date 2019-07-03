@@ -1,6 +1,6 @@
-# Prefer consistent function scoping
+# Move function definitions to the highest possible scope
 
-A function definition should be placed as close to the top-level scope as possible without breaking its captured values.
+A function definition should be placed as close to the top-level scope as possible without breaking its captured values. This improves readability and allows JavaScript engines to better optimize performance.
 
 
 ## Fail
@@ -40,5 +40,20 @@ export function doFoo(foo) {
   }
 
   return doBar;
+}
+```
+
+## Limitations
+
+This rule does not detect or remove extraneous code blocks:
+
+```js
+function doFoo(foo) {
+  {
+		function doBar(bar) {
+			return bar;
+		}
+	}
+  return foo;
 }
 ```
