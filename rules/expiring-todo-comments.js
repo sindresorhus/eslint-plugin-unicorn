@@ -30,12 +30,13 @@ const create = context => {
 	const options = {
 		terms: ['todo', 'fixme', 'xxx'],
 		ignoreDatesOnPullRequests: true,
+		allowWarningComments: false,
 		...context.options[0]
 	};
 
 	const sourceCode = context.getSourceCode();
 	const comments = sourceCode.getAllComments();
-	const unnusedComments = comments
+	const unusedComments = comments
 		.filter(token => token.type !== 'Shebang')
 		.filter(processComment);
 
@@ -48,7 +49,7 @@ const create = context => {
 			return {
 				...sourceCode,
 				getAllComments() {
-					return unnusedComments;
+					return options.allowWarningComments ? [] : unusedComments;
 				}
 			};
 		}
@@ -287,6 +288,9 @@ const schema = [
 				}
 			},
 			ignoreDatesOnPullRequests: {
+				type: 'boolean'
+			},
+			allowWarningComments: {
 				type: 'boolean'
 			}
 		}

@@ -91,7 +91,27 @@ ruleTester.run('expiring-todo-comments', rule, {
 		  * TODO [2200-12-12]: Yet
 		  * TODO [2200-12-12]: Another
 		  * TODO [2200-12-12]: Way
-		  */`
+		  */`,
+		{
+			code: '// TODO',
+			options: [{allowWarningComments: true}],
+			errors: []
+		},
+		{
+			code: '// TODO [invalid]',
+			options: [{allowWarningComments: true}],
+			errors: []
+		},
+		{
+			code: '// TODO [] might have [some] that [try [to trick] me]',
+			options: [{allowWarningComments: true}],
+			errors: []
+		},
+		{
+			code: '// TODO [but [it will]] [fallback] [[[ to the default ]]] rule [[',
+			options: [{allowWarningComments: true}],
+			errors: []
+		}
 	],
 	invalid: [
 		{
