@@ -7,7 +7,7 @@ The scope of this rule is deliberately simple. Both [sort-imports](https://eslin
 This rule will:
 
 * Sort import lines by path
-* Built-in packages (`fs`, `path`, etc.)are sorted first
+* Built-in modules (`fs`, `path`, etc.) are sorted first
 * Relative paths (`../foo`) are sorted after absolute paths (`foo`)
 * `../../foo` is before `../foo`
 * Paths with the same nesting are sorted alphabetically
