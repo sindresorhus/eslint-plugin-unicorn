@@ -28,7 +28,7 @@ module.exports = {
 				'unicorn/no-abusive-eslint-disable': 'error',
 				'unicorn/no-array-instanceof': 'error',
 				'unicorn/no-console-spaces': 'error',
-        'unicorn/no-default-parameter-options': 'error'
+				'unicorn/no-default-parameter-options': 'error',
 				'unicorn/no-fn-reference-in-iterator': 'off',
 				'unicorn/no-for-loop': 'error',
 				'unicorn/no-hex-escape': 'error',
