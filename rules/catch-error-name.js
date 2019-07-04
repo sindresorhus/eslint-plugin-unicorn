@@ -1,5 +1,6 @@
 'use strict';
 const astUtils = require('eslint-ast-utils');
+const avoidCapture = require('./utils/avoid-capture');
 const getDocsUrl = require('./utils/get-docs-url');
 
 // Matches `someObj.then([FunctionExpression | ArrowFunctionExpression])`
@@ -25,22 +26,18 @@ function isLintablePromiseCatch(node) {
 	return arg0.type === 'FunctionExpression' || arg0.type === 'ArrowFunctionExpression';
 }
 
-function indexifyName(name, scope) {
-	const variables = scope.variableScope.set;
-
-	let index = 1;
-	while (variables.has(index === 1 ? name : name + index)) {
-		index++;
-	}
-
-	return name + (index === 1 ? '' : index);
-}
-
 const create = context => {
-	const options = Object.assign({}, {
+	const {
+		ecmaVersion
+	} = context.parserOptions;
+
+	const options = {
 		name: 'error',
-		caughtErrorsIgnorePattern: '^_$'
-	}, context.options[0]);
+		caughtErrorsIgnorePattern: '^_$',
+		...context.options[0]
+	};
+
+	const {scopeManager} = context.getSourceCode();
 
 	const {name} = options;
 	const caughtErrorsIgnorePattern = new RegExp(options.caughtErrorsIgnorePattern);
@@ -54,7 +51,7 @@ const create = context => {
 		stack.push(stack.length > 0 || value);
 	}
 
-	function popAndReport(node) {
+	function popAndReport(node, scopeNode) {
 		const value = stack.pop();
 
 		if (value !== true && !caughtErrorsIgnorePattern.test(node.name)) {
@@ -68,12 +65,10 @@ const create = context => {
 				problem.fix = fixer => {
 					const fixings = [fixer.replaceText(node, expectedName)];
 
-					const scope = context.getScope();
+					const scope = scopeManager.acquire(scopeNode);
 					const variable = scope.set.get(node.name);
-					if (variable) {
-						for (const reference of variable.references) {
-							fixings.push(fixer.replaceText(reference.identifier, expectedName));
-						}
+					for (const reference of variable.references) {
+						fixings.push(fixer.replaceText(reference.identifier, expectedName));
 					}
 
 					return fixings;
@@ -94,13 +89,15 @@ const create = context => {
 					return;
 				}
 
-				const errName = indexifyName(name, context.getScope());
-				push(params.length === 0 || params[0].name === errName || errName);
+				const scope = context.getScope();
+				const errorName = avoidCapture(name, [scope.variableScope], ecmaVersion);
+				push(params.length === 0 || params[0].name === errorName || errorName);
 			}
 		},
 		'CallExpression:exit': node => {
 			if (isLintablePromiseCatch(node)) {
-				popAndReport(node.arguments[0].params[0]);
+				const callbackNode = node.arguments[0];
+				popAndReport(callbackNode.params[0], callbackNode);
 			}
 		},
 		CatchClause: node => {
@@ -115,11 +112,12 @@ const create = context => {
 				return;
 			}
 
-			const errName = indexifyName(name, context.getScope());
+			const scope = context.getScope();
+			const errName = avoidCapture(name, [scope.variableScope], ecmaVersion);
 			push(node.param.name === errName || errName);
 		},
 		'CatchClause:exit': node => {
-			popAndReport(node.param);
+			popAndReport(node.param, node);
 		}
 	};
 };

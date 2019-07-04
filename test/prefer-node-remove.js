@@ -8,11 +8,15 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const invalidTestCase = (code, output, parentType) => {
+const invalidTestCase = (code, output, parentName, argumentName) => {
 	return {
 		code,
 		output,
-		errors: [{message: `Prefer \`remove\` over \`${parentType}.removeChild\``}]
+		errors: [
+			{
+				message: `Prefer \`${argumentName}.remove()\` over \`${parentName}.removeChild(${argumentName})\`.`
+			}
+		]
 	};
 };
 
@@ -30,52 +34,62 @@ ruleTester.run('prefer-node-remove', rule, {
 		invalidTestCase(
 			'foo.parentNode.removeChild(foo)',
 			'foo.remove()',
-			'parentNode'
+			'parentNode',
+			'foo'
 		),
 		invalidTestCase(
 			'this.parentNode.removeChild(this)',
 			'this.remove()',
-			'parentNode'
+			'parentNode',
+			'this'
 		),
 		invalidTestCase(
 			'parentNode.removeChild(this)',
 			'this.remove()',
-			'parentNode'
+			'parentNode',
+			'this'
 		),
 		invalidTestCase(
 			'foo.parentNode.removeChild(bar)',
 			'bar.remove()',
-			'parentNode'
+			'parentNode',
+			'bar'
 		),
 		invalidTestCase(
 			'this.parentNode.removeChild(foo)',
 			'foo.remove()',
-			'parentNode'
+			'parentNode',
+			'foo'
 		),
 		invalidTestCase(
 			'foo.parentElement.removeChild(foo)',
 			'foo.remove()',
-			'parentElement'
+			'parentElement',
+			'foo'
 		),
 		invalidTestCase(
 			'this.parentElement.removeChild(this)',
 			'this.remove()',
-			'parentElement'
+			'parentElement',
+			'this'
 		),
 		invalidTestCase(
 			'parentElement.removeChild(this)',
 			'this.remove()',
-			'parentElement'
+			'parentElement',
+			'this'
 		),
 		invalidTestCase(
 			'foo.parentElement.removeChild(bar)',
 			'bar.remove()',
-			'parentElement'
+			'parentElement',
+			'bar'
 		),
 		invalidTestCase(
 			'this.parentElement.removeChild(foo)',
 			'foo.remove()',
-			'parentElement'
+			'parentElement',
+			'foo'
 		)
 	]
 });

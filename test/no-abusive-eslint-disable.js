@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/no-abusive-eslint-disable';
 
 const ruleTester = avaRuleTester(test, {
@@ -8,10 +9,10 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const error = message => ({
+const error = [{
 	ruleId: 'no-abusive-eslint-disable',
-	message
-});
+	message: 'Specify the rules you want to disable.'
+}];
 
 ruleTester.run('no-abusive-eslint-disable', rule, {
 	valid: [
@@ -29,45 +30,55 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 		'eval(); // eslint-disable-line no-eval, @scope/rule-name',
 		'eval(); // eslint-line-disable',
 		'eval(); // some comment',
-		`foo();
-		// eslint-disable-line no-eval
-		eval();`,
 		'/* eslint-disable no-eval */',
-		`foo();
-		/* eslint-disable no-eval */
-		eval();`,
-		`foo();
-		/* eslint-disable-next-line no-eval */
-		eval();`
+		outdent`
+			/* eslint-disable no-abusive-eslint-disable */
+			eval(); // eslint-disable-line
+		`,
+		outdent`
+			foo();
+			// eslint-disable-line no-eval
+			eval();
+		`,
+		outdent`
+			foo();
+			/* eslint-disable no-eval */
+			eval();
+		`,
+		outdent`
+			foo();
+			/* eslint-disable-next-line no-eval */
+			eval();
+		`
 	],
 	invalid: [
 		{
 			code: 'eval(); // eslint-disable-line',
-			errors: [error('Specify the rules you want to disable at line 1:8')]
+			errors: error
 		},
 		{
 			code: 'foo();\neval(); // eslint-disable-line',
-			errors: [error('Specify the rules you want to disable at line 2:8')]
+			errors: error
 		},
 		{
 			code: '/* eslint-disable */',
-			errors: [error('Specify the rules you want to disable at line 1:0')]
+			errors: error
 		},
 		{
 			code: 'foo();\n/* eslint-disable */\neval();',
-			errors: [error('Specify the rules you want to disable at line 2:0')]
+			errors: error
 		},
 		{
 			code: 'foo();\n/* eslint-disable-next-line */\neval();',
-			errors: [error('Specify the rules you want to disable at line 2:0')]
+			errors: error
 		},
 		{
 			code: '// eslint-disable-next-line\neval();',
-			errors: [error('Specify the rules you want to disable at line 1:0')]
+			errors: error
 		},
 		{
 			code: '// eslint-disable-next-line @scopewithoutplugin\neval();',
-			errors: [error('Specify the rules you want to disable at line 1:0')]
+			errors: error
 		}
 	]
 });

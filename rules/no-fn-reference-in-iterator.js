@@ -13,26 +13,42 @@ const iteratorMethods = new Map([
 	['reduceRight', 2]
 ]);
 
-const whitelist = new Set([
+const functionWhitelist = new Set([
 	'Boolean'
 ]);
 
+const calleeBlacklist = [
+	'Promise',
+	'React.children',
+	'_',
+	'Async',
+	'async'
+];
+
 const isIteratorMethod = node => node.callee.property && iteratorMethods.has(node.callee.property.name);
-const hasFunctionArgument = node => node.arguments.length > 0 && (node.arguments[0].type === 'Identifier' || node.arguments[0].type === 'CallExpression') && !whitelist.has(node.arguments[0].name);
+const hasFunctionArgument = node => node.arguments.length > 0 && (node.arguments[0].type === 'Identifier' || node.arguments[0].type === 'CallExpression') && !functionWhitelist.has(node.arguments[0].name);
 
 const getNumberOfArguments = node => node.callee.property && iteratorMethods.get(node.callee.property.name);
 const parseArgument = (context, arg) => arg.type === 'Identifier' ? arg.name : context.getSourceCode().getText(arg);
 
 const fix = (context, node) => {
 	const numberOfArgs = getNumberOfArguments(node);
-	const arg = node.arguments[0];
-	const argString = numberOfArgs === 1 ? 'x' : 'a, b';
+	const argument = node.arguments[0];
+	const argumentString = numberOfArgs === 1 ? 'x' : 'a, b';
 
-	return fixer => fixer.replaceText(arg, `${numberOfArgs === 1 ? argString : `(${argString})`} => ${parseArgument(context, arg)}(${argString})`);
+	return fixer => fixer.replaceText(argument, `${numberOfArgs === 1 ? argumentString : `(${argumentString})`} => ${parseArgument(context, argument)}(${argumentString})`);
 };
 
+const toSelector = name => {
+	const splitted = name.split('.');
+	return `[callee.${'object.'.repeat(splitted.length)}name!="${splitted.shift()}"]`;
+};
+
+// Select all the call expressions except the ones present in the blacklist
+const selector = `CallExpression${calleeBlacklist.map(toSelector).join('')}`;
+
 const create = context => ({
-	'CallExpression[callee.object.name!="Promise"]': node => {
+	[selector]: node => {
 		if (isIteratorMethod(node) && hasFunctionArgument(node)) {
 			const [arg] = node.arguments;
 

@@ -17,7 +17,7 @@ Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser a
 - Go to the `rules` directory and duplicate the `no-hex-escape.js` file and rename it to the name of your rule. Then start implementing the new rule logic.
 - Add the correct [`meta.type`](https://eslint.org/docs/developer-guide/working-with-rules#rule-basics) to the rule.
 - Go to the `docs/rules` directory and duplicate the `no-hex-escape.md` file and rename it to the name of your rule. Then write some documentation.
-- Add the rule to the *bottom* of:
+- Add the rule in alphabetically sorted order to:
 	- [The recommended config](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/352ba4a0291f9210ca5c8e2e61c7e3ad14028e77/index.js#L19)
 	- [The recommended config in the readme](https://github.com/sindresorhus/eslint-plugin-unicorn/blame/352ba4a0291f9210ca5c8e2e61c7e3ad14028e77/readme.md#L35)
 	- [The rule listing in the readme](https://github.com/sindresorhus/eslint-plugin-unicorn/blame/352ba4a0291f9210ca5c8e2e61c7e3ad14028e77/readme.md#L77)<br>

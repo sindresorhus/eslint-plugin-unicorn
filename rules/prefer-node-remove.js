@@ -67,7 +67,7 @@ const create = context => {
 				if (argumentName) {
 					context.report({
 						node,
-						message: `Prefer \`remove\` over \`${callerName}.removeChild\``,
+						message: `Prefer \`${argumentName}.remove()\` over \`${callerName}.removeChild(${argumentName})\`.`,
 						fix: fixer => fixer.replaceText(node, `${argumentName}.remove()`)
 					});
 				}

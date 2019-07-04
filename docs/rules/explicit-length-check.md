@@ -2,6 +2,8 @@
 
 Enforce explicitly checking the length of a value array in an `if` condition, rather than checking the truthiness of the length.
 
+This rule is partly fixable.
+
 ### Fail
 
 ```js
@@ -57,5 +59,3 @@ The `non-zero` option can be configured with one of the following:
 	- Enforces non-zero to be checked with: `array.length > 0`
 - `greater-than-or-equal`
 	- Enforces non-zero to be checked with: `array.length >= 1`
-
-It can be auto-fixed.

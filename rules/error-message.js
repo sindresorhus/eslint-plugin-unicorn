@@ -51,14 +51,14 @@ const reportError = (expressionNode, context) => {
 		if (expressionNode.arguments.length === 0) {
 			context.report({
 				node: expressionNode.parent,
-				message: 'Pass a message to the error constructor'
+				message: 'Pass a message to the error constructor.'
 			});
 		}
 
 		if (isEmptyMessageString(expressionNode)) {
 			context.report({
 				node: expressionNode.parent,
-				message: 'Error message should not be an empty string'
+				message: 'Error message should not be an empty string.'
 			});
 		}
 	}
