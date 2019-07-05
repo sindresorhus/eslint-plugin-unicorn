@@ -26,7 +26,7 @@ const moduleRuleTester = avaRuleTester(test, {
 });
 
 const babelRuleTester = avaRuleTester(test, {
-	parser: require.resolve('babel-eslint'),
+	parser: require.resolve('babel-eslint')
 });
 
 const noFixingTestCase = test => ({...test, output: test.code});

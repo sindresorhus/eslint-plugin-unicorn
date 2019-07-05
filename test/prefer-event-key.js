@@ -6,7 +6,7 @@ import rule from '../rules/prefer-event-key';
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
-	},
+	}
 });
 
 const error = key => ({
