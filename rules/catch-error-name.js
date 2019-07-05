@@ -35,8 +35,8 @@ const create = context => {
 	} = context.parserOptions;
 
 	const options = {
-		name: DEFAULT_NAME,
-		caughtErrorsIgnorePattern: DEFAULT_IGNORE_PATTERN,
+		// name: DEFAULT_NAME,
+		// caughtErrorsIgnorePattern: DEFAULT_IGNORE_PATTERN,
 		...context.options[0]
 	};
 
