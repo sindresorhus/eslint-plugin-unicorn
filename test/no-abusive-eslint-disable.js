@@ -9,6 +9,16 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+// Define rules for test
+[
+	'plugin/rule',
+	'@scope/plugin/rule-name',
+	'@scope/rule-name',
+	'@scopewithoutplugin'
+].forEach(rule => {
+	ruleTester.linter.defineRule(rule, {});
+});
+
 const error = [{
 	ruleId: 'no-abusive-eslint-disable',
 	message: 'Specify the rules you want to disable.'
