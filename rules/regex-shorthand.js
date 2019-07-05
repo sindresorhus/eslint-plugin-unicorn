@@ -52,7 +52,7 @@ const create = context => {
 					fixed = `/${newPattern}/`;
 				} else {
 					// Escape backslash and apostrophe because we wrap the result in single quotes
-					fixed = (newPattern || '').replace(/\\/, '\\\\');
+					fixed = (newPattern || '').replace(/\\/g, '\\\\');
 					fixed = fixed.replace(/'/g, '\\\'');
 					fixed = `'${fixed}'`;
 				}
