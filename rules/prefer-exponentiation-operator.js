@@ -41,7 +41,7 @@ const fix = (context, node, fixer) => {
 	const base = parseArgument(source, node.arguments[0]);
 	const exponent = parseArgument(source, node.arguments[1]);
 
-	const replacement = `${base} ** ${exponent}`;
+	const replacement = `${base < 0 ? `(${base})` : base} ** ${exponent}`;
 
 	return fixer.replaceText(node, replacement);
 };

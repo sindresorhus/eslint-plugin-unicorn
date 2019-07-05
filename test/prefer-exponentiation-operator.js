@@ -24,7 +24,7 @@ ruleTester.run('prefer-exponentiation-operator', rule, {
 		{
 			code: 'const x = Math.pow(-2, (2 - 4) +0 -0.2);',
 			errors: [{message}],
-			output: 'const x = -2 ** ((2 - 4) +0 -0.2);'
+			output: 'const x = (-2) ** ((2 - 4) +0 -0.2);'
 		},
 		{
 			code: 'const x = Math.pow(Math.pow(2, 4), 8);',
@@ -52,7 +52,7 @@ ruleTester.run('prefer-exponentiation-operator', rule, {
 		{
 			code: 'const x = Math.pow(-2, 2 - 4);',
 			errors: [{message}],
-			output: 'const x = -2 ** (2 - 4);'
+			output: 'const x = (-2) ** (2 - 4);'
 		},
 		{
 			code: 'const x = Math.pow(4 - 2, 2 - 4);',
