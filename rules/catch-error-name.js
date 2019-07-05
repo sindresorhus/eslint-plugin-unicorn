@@ -3,6 +3,9 @@ const astUtils = require('eslint-ast-utils');
 const avoidCapture = require('./utils/avoid-capture');
 const getDocsUrl = require('./utils/get-docs-url');
 
+const DEFAULT_NAME = 'error';
+const DEFAULT_IGNORE_PATTERN = '^_$';
+
 // Matches `someObj.then([FunctionExpression | ArrowFunctionExpression])`
 function isLintablePromiseCatch(node) {
 	const {callee} = node;
@@ -32,8 +35,8 @@ const create = context => {
 	} = context.parserOptions;
 
 	const options = {
-		name: 'error',
-		caughtErrorsIgnorePattern: '^_$',
+		name: DEFAULT_NAME,
+		caughtErrorsIgnorePattern: DEFAULT_IGNORE_PATTERN,
 		...context.options[0]
 	};
 
@@ -126,12 +129,15 @@ const schema = [{
 	type: 'object',
 	properties: {
 		name: {
-			type: 'string'
+			type: 'string',
+			default: DEFAULT_NAME
 		},
 		caughtErrorsIgnorePattern: {
-			type: 'string'
+			type: 'string',
+			default: DEFAULT_IGNORE_PATTERN
 		}
-	}
+	},
+	additionalProperties: false
 }];
 
 module.exports = {
