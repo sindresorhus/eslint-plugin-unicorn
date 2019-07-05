@@ -6,7 +6,7 @@ import rule from '../rules/prefer-event-key';
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
-	}
+	},
 });
 
 const error = key => ({
@@ -746,7 +746,7 @@ ruleTester.run('prefer-event-key', rule, {
 			`,
 			output: outdent`
 				foo123.addEventListener('click', event => {
-					if (event.key === ''') {
+					if (event.key === '\\'') {
 					}
 				});
 			`,
