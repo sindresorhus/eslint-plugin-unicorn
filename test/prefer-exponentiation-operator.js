@@ -50,6 +50,16 @@ ruleTester.run('prefer-exponentiation-operator', rule, {
 			output: 'const x = foo() ** bar();'
 		},
 		{
+			code: 'const x = Math.pow(-0, +2);',
+			errors: [{message}],
+			output: 'const x = (-0) ** (+2);'
+		},
+		{
+			code: 'const x = Math.pow(-~a, a+2);',
+			errors: [{message}],
+			output: 'const x = (-~a) ** (a+2);'
+		},
+		{
 			code: 'const x = Math.pow(-2, 2 - 4);',
 			errors: [{message}],
 			output: 'const x = (-2) ** (2 - 4);'
