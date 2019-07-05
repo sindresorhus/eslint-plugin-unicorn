@@ -16,7 +16,7 @@ const babelEslintRuleTester = avaRuleTester(test, {
 	env: {
 		es6: true
 	},
-	parser: 'babel-eslint',
+	parser: require.resolve('babel-eslint'),
 	parserOptions: {
 		sourceType: 'module'
 	}
