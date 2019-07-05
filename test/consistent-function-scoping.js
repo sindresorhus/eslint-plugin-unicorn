@@ -87,13 +87,6 @@ ruleTester.run('consistent-function-scoping', rule, {
 			}
 		`,
 		outdent`
-			for (let foo = 0; foo < 1; foo++) {
-				function doBar(bar) {
-					return bar;
-				}
-			}
-		`,
-		outdent`
 			let foo = 0;
 			function doFoo() {
 				foo = 1;
@@ -255,6 +248,16 @@ ruleTester.run('consistent-function-scoping', rule, {
 						function doBar(bar) {
 							return bar;
 						}
+					}
+				}
+			`,
+			errors: [functionError]
+		},
+		{
+			code: outdent`
+				for (let foo = 0; foo < 1; foo++) {
+					function doBar(bar) {
+						return bar;
 					}
 				}
 			`,

@@ -45,7 +45,7 @@ export function doFoo(foo) {
 
 ## Limitations
 
-This rule does not detect or remove extraneous code blocks:
+This rule does not detect or remove extraneous code blocks inside of functions:
 
 ```js
 function doFoo(foo) {
