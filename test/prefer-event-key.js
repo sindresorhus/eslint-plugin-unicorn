@@ -746,7 +746,7 @@ ruleTester.run('prefer-event-key', rule, {
 			`,
 			output: outdent`
 				foo123.addEventListener('click', event => {
-					if (event.key === ''') {
+					if (event.key === '\\'') {
 					}
 				});
 			`,

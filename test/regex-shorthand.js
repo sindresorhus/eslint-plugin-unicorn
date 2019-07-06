@@ -54,7 +54,7 @@ ruleTester.run('regex-shorthand', rule, {
 		{
 			code: 'const foo = new RegExp("\'[0-9]\'")',
 			errors: [error],
-			output: 'const foo = new RegExp(\'\'\\\\d\'\')'
+			output: 'const foo = new RegExp(\'\\\'\\\\d\\\'\')'
 		},
 		{
 			code: 'const foo = /[0-9]/ig',
