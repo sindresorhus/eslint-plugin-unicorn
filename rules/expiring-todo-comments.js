@@ -52,9 +52,7 @@ const create = context => {
 			}))
 		)
 		// Flatten
-		.reduce((accumulator, array) =>
-			accumulator.concat(array)
-		, [])
+		.reduce((accumulator, array) => accumulator.concat(array), [])
 		.filter(processComment);
 
 	// This is highly dependable on ESLint's `no-warning-comments` implementation.
@@ -248,7 +246,7 @@ const create = context => {
 			const comparisonIndex = unknown.indexOf('>');
 
 			if (!hasAt && comparisonIndex !== -1) {
-				const testString = unknown.slice(0, comparisonIndex) + '@' + unknown.slice(comparisonIndex);
+				const testString = `${unknown.slice(0, comparisonIndex)}@${unknown.slice(comparisonIndex)}`;
 
 				if (parseArgument(testString).type !== 'unknowns') {
 					uses++;
@@ -311,7 +309,7 @@ const schema = [
 			allowWarningComments: {
 				type: 'boolean',
 				default: false
-		}
+			}
 		},
 		additionalProperties: false
 	}
