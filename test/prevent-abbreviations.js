@@ -63,6 +63,8 @@ const customOptions = [{
 	checkShorthandImports: true,
 	checkShorthandProperties: true,
 
+	checkFilenames: false,
+
 	extendDefaultReplacements: false,
 	replacements: {
 		args: {
@@ -178,6 +180,20 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: '({__proto__: null})',
 			options: customOptions
+		},
+		// `checkFilenames` option
+		{
+			code: 'foo();',
+			filename: 'http-error.js'
+		},
+		{
+			code: 'foo();',
+			filename: 'http-err.js',
+			options: customOptions
+		},
+		{
+			code: 'foo();',
+			filename: 'err/http-error.js'
 		}
 	],
 
@@ -896,7 +912,6 @@ ruleTester.run('prevent-abbreviations', rule, {
 			`,
 			errors: createErrors()
 		},
-
 		{
 			code: outdent`
 				function unicorn(unicorn) {
@@ -910,6 +925,17 @@ ruleTester.run('prevent-abbreviations', rule, {
 					return documents;
 				}
 			`,
+			errors: createErrors()
+		},
+		// `checkFilenames` option
+		{
+			code: 'foo();',
+			filename: 'err/http-err.js',
+			errors: createErrors()
+		},
+		{
+			code: 'foo();',
+			filename: 'http-err.js',
 			errors: createErrors()
 		}
 	]
