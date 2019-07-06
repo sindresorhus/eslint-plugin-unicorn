@@ -305,12 +305,15 @@ const schema = [
 				}
 			},
 			ignoreDatesOnPullRequests: {
-				type: 'boolean'
+				type: 'boolean',
+				default: true
 			},
 			allowWarningComments: {
-				type: 'boolean'
-			}
+				type: 'boolean',
+				default: false
 		}
+		},
+		additionalProperties: false
 	}
 ];
 
