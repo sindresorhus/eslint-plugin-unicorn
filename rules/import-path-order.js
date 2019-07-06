@@ -53,13 +53,13 @@ function getOrder(source) {
 	};
 }
 
-function getInvalidBlankLinesMessage(prev, next, context) {
-	if (prev === null) {
+function getInvalidBlankLinesReport(nodePrev, nodeNext, context) {
+	if (nodePrev === null) {
 		return null;
 	}
 
-	const prevEndLine = prev.loc.end.line;
-	const nextStartLine = next.loc.end.line;
+	const prevEndLine = nodePrev.loc.end.line;
+	const nextStartLine = nodeNext.loc.end.line;
 
 	if (prevEndLine + 1 === nextStartLine) {
 		return null;
@@ -76,10 +76,12 @@ function getInvalidBlankLinesMessage(prev, next, context) {
 		const lineContents = sourceCode.getTokenByRangeStart(index, {includeComments: true});
 		const {type} = lineContents || {};
 
+		// Ignore lines with comments on them
 		if (type === 'Line') {
 			continue;
 		}
 
+		// Ignore block comments
 		if (type === 'Block') {
 			continue;
 		}
@@ -92,7 +94,7 @@ function getInvalidBlankLinesMessage(prev, next, context) {
 	return null;
 }
 
-function getInvalidOrderMessage(prev, next) {
+function getInvalidOrderReport(prev, next) {
 	if (prev === null) {
 		return null;
 	}
@@ -131,90 +133,214 @@ function getInvalidOrderMessage(prev, next) {
 	return null;
 }
 
+function swapNodeLocation({
+	fixer,
+	nodePrev,
+	nodeNext,
+	sourceCode
+}) {
+	const tokensBetween = sourceCode.getTokensBetween(nodePrev, nodeNext);
+
+	if (tokensBetween && tokensBetween.length > 0) {
+		return;
+	}
+
+	const source = sourceCode.getText();
+	let [insertStart, insertEnd] = nodePrev.range;
+
+	// Grab the node and all comments and whitespace before the node
+	const start = nodePrev.range[1];
+	const end = nodeNext.range[1];
+
+	let text = source.substring(start, end);
+
+	// Preserve newline previously between nodes
+	if (source[start] === '\n') {
+		text = text.substring(1) + '\n';
+	}
+
+	// Preserve blank line previously between nodes
+	if (source.length >= (start + 1) && source[start + 1] === '\n') {
+		text = text.substring(1) + '\n';
+	}
+
+	// Preserve newline that was previously before nodes
+	if ((insertStart - 1) > 0 && source[insertStart - 1] === '\n') {
+		insertStart -= 1;
+	}
+
+	text = text.replace(/\n\n+/, '\n');
+
+	console.log('AAA', {
+		nodePrev: nodePrev.range,
+		nodeNext: nodeNext.range,
+		start,
+		end,
+		insertStart,
+		insertEnd,
+		text,
+		source,
+	});
+
+	return [
+		fixer.insertTextBeforeRange([insertStart, insertEnd], text),
+		fixer.removeRange([start, end])
+	];
+}
+
+function removeBlankLines({
+	fixer,
+	nodePrev,
+	nodeNext,
+	sourceCode
+}) {
+	const source = sourceCode.getText();
+
+	const start = nodePrev.range[1];
+	const end = nodeNext.range[0];
+
+	let text = source.substring(start, end);
+	text = text.replace(/\n\n+/, '\n');
+
+	return fixer.replaceTextRange([start, end], text);
+}
+
 const create = context => {
 	const {options} = context;
+	const sourceCode = context.getSourceCode();
 	const {
 		allowBlankLines = false
 	} = options[0] || {};
 
-	let prevOrder = null;
-	let prevNode = null;
+	let orderPrev = null;
+	let nodePrev = null;
 
 	return {
 		'Program > VariableDeclaration[declarations.length=1] > VariableDeclarator:matches([id.type="Identifier"],[id.type="ObjectPattern"]) > CallExpression[callee.name="require"][arguments.length=1][arguments.0.type="Literal"]': node => {
-			const nextOrder = getOrder(node.arguments[0].value);
+			const nodeNext = node.parent.parent;
+			const orderNext = getOrder(node.arguments[0].value);
 
-			const message = getInvalidOrderMessage(prevOrder, nextOrder);
+			const message = getInvalidOrderReport(orderPrev, orderNext);
 
 			if (message) {
 				context.report({
 					node,
+					fix: fixer => {
+						return swapNodeLocation({
+							fixer,
+							nodeNext,
+							nodePrev,
+							sourceCode
+						});
+					},
 					...message
 				});
 			}
 
 			if (!allowBlankLines) {
-				const blankLinesMessage = getInvalidBlankLinesMessage(prevNode, node, context);
+				const blankLinesMessage = getInvalidBlankLinesReport(nodePrev, nodeNext, context);
 				if (blankLinesMessage) {
 					context.report({
 						node,
+						fix: fixer => {
+							return removeBlankLines({
+								fixer,
+								nodeNext,
+								nodePrev,
+								sourceCode
+							});
+						},
 						...blankLinesMessage
 					});
 				}
 			}
 
-			prevOrder = nextOrder;
-			prevNode = node;
+			orderPrev = orderNext;
+			nodePrev = nodeNext;
 		},
 		'Program > ExpressionStatement > CallExpression[callee.name="require"][arguments.length=1][arguments.0.type="Literal"]': node => {
+			const nodeNext = node.parent.parent;
 			const nextOrder = getOrder(node.arguments[0].value);
 
-			const message = getInvalidOrderMessage(prevOrder, nextOrder);
+			const message = getInvalidOrderReport(orderPrev, nextOrder);
 
 			if (message) {
 				context.report({
 					node,
+					fix: fixer => {
+						return swapNodeLocation({
+							fixer,
+							nodeNext,
+							nodePrev,
+							sourceCode
+						});
+					},
 					...message
 				});
 			}
 
 			if (!allowBlankLines) {
-				const blankLinesMessage = getInvalidBlankLinesMessage(prevNode, node, context);
+				const blankLinesMessage = getInvalidBlankLinesReport(nodePrev, nodeNext, context);
 				if (blankLinesMessage) {
 					context.report({
 						node,
+						fix: fixer => {
+							return removeBlankLines({
+								fixer,
+								nodeNext,
+								nodePrev,
+								sourceCode
+							});
+						},
 						...blankLinesMessage
 					});
 				}
 			}
 
-			prevOrder = nextOrder;
-			prevNode = node;
+			orderPrev = nextOrder;
+			nodePrev = nodeNext;
 		},
 		'Program > ImportDeclaration': node => {
-			const next = getOrder(node.source.value);
+			const nodeNext = node;
+			const orderNext = getOrder(node.source.value);
 
-			const message = getInvalidOrderMessage(prevOrder, next);
+			const report = getInvalidOrderReport(orderPrev, orderNext);
 
-			if (message) {
+			if (report) {
 				context.report({
 					node: node.source,
-					...message
+					fix: fixer => {
+						return swapNodeLocation({
+							fixer,
+							nodeNext: node,
+							nodePrev,
+							sourceCode
+						});
+					},
+					...report
 				});
 			}
 
 			if (!allowBlankLines) {
-				const blankLinesMessage = getInvalidBlankLinesMessage(prevNode, node, context);
-				if (blankLinesMessage) {
+				const blankLinesReport = getInvalidBlankLinesReport(nodePrev, nodeNext, context);
+				if (blankLinesReport) {
 					context.report({
 						node: node.source,
-						...blankLinesMessage
+						fix: fixer => {
+							return removeBlankLines({
+								fixer,
+								nodeNext: node,
+								nodePrev,
+								sourceCode
+							});
+						},
+						...blankLinesReport
 					});
 				}
 			}
 
-			prevOrder = next;
-			prevNode = node;
+			orderPrev = orderNext;
+			nodePrev = node;
 		}
 	};
 };
@@ -226,8 +352,9 @@ module.exports = {
 		docs: {
 			url: getDocsUrl(__filename)
 		},
+		fixable: 'code',
 		messages: {
-			[MESSAGE_ID_BLANKLINES]: 'Group imports together',
+			[MESSAGE_ID_BLANKLINES]: 'Imports should be on adjacent lines',
 			[MESSAGE_ID_DEPTH]: 'Relative paths should be sorted by depth',
 			[MESSAGE_ID_GROUP]: '{{earlier}} imports should come before {{later}} imports',
 			[MESSAGE_ID_ORDER]: 'Imports should be sorted alphabetically'

@@ -124,12 +124,46 @@ ruleTester.run('import-path-order', rule, {
 				const b = require('b');
 				const a = require('a');
 			`,
+			output: outdent`
+				const a = require('a');
+				const b = require('b');
+			`,
+			errors: [errorOrder]
+		},
+		{
+			code: outdent`
+				const a = require('a');
+				const c = require('c');
+				const b = require('b');
+			`,
+			output: outdent`
+				const a = require('a');
+				const b = require('b');
+				const c = require('c');
+			`,
+			errors: [errorOrder]
+		},
+		{
+			code: outdent`
+				const b = require('b');
+				const a = require('a');
+				const c = require('c');
+			`,
+			output: outdent`
+				const a = require('a');
+				const b = require('b');
+				const c = require('c');
+			`,
 			errors: [errorOrder]
 		},
 		{
 			code: outdent`
 				import b from 'b';
 				const a = require('a');
+			`,
+			output: outdent`
+				const a = require('a');
+				import b from 'b';
 			`,
 			errors: [errorOrder]
 		},
@@ -138,12 +172,70 @@ ruleTester.run('import-path-order', rule, {
 				const b = require('b');
 				import a from 'a';
 			`,
+			output: outdent`
+				import a from 'a';
+				const b = require('b');
+			`,
 			errors: [errorOrder]
 		},
 		{
 			code: outdent`
 				import b from 'b';
 				import a from 'a';
+			`,
+			output: outdent`
+				import a from 'a';
+				import b from 'b';
+			`,
+			errors: [errorOrder]
+		},
+		{
+			code: outdent`
+
+				import b from 'b';
+				import a from 'a';
+			`,
+			output: outdent`
+
+				import a from 'a';
+				import b from 'b';
+			`,
+			errors: [errorOrder]
+		},
+		{
+			code: outdent`
+				import b from 'b';
+				import a from 'a';
+
+			`,
+			output: outdent`
+				import a from 'a';
+				import b from 'b';
+
+			`,
+			errors: [errorOrder]
+		},
+		{
+			code: outdent`
+				import b from 'b';
+
+				import a from 'a';
+			`,
+			output: outdent`
+				import a from 'a';
+				import b from 'b';
+			`,
+			errors: [
+				errorOrder,
+				errorBlankLines
+			]
+		},
+		{
+			code: outdent`
+				import b from 'b';import a from 'a';
+			`,
+			output: outdent`
+				import a from 'a';import b from 'b';
 			`,
 			errors: [errorOrder]
 		},
@@ -152,6 +244,10 @@ ruleTester.run('import-path-order', rule, {
 				import b from './b';
 				import a from 'a';
 			`,
+			output: outdent`
+				import a from 'a';
+				import b from './b';
+			`,
 			errors: [errorGroup]
 		},
 		{
@@ -159,12 +255,20 @@ ruleTester.run('import-path-order', rule, {
 				import b from '../b';
 				import a from 'a';
 			`,
+			output: outdent`
+				import a from 'a';
+				import b from '../b';
+			`,
 			errors: [errorGroup]
 		},
 		{
 			code: outdent`
 				import b from '../../b';
 				import a from 'a';
+			`,
+			output: outdent`
+				import a from 'a';
+				import b from '../../b';
 			`,
 			errors: [errorGroup]
 		},
@@ -173,12 +277,20 @@ ruleTester.run('import-path-order', rule, {
 				import a from './a';
 				import b from '../b';
 			`,
+			output: outdent`
+				import b from '../b';
+				import a from './a';
+			`,
 			errors: [errorGroup]
 		},
 		{
 			code: outdent`
 				import a from '../a';
 				import b from '../../b';
+			`,
+			output: outdent`
+				import b from '../../b';
+				import a from '../a';
 			`,
 			errors: [errorDepth]
 		},
@@ -187,12 +299,20 @@ ruleTester.run('import-path-order', rule, {
 				import a from '../../a';
 				import b from '../../../b';
 			`,
+			output: outdent`
+				import b from '../../../b';
+				import a from '../../a';
+			`,
 			errors: [errorDepth]
 		},
 		{
 			code: outdent`
 				import b from 'b';
 				import fs from 'fs';
+			`,
+			output: outdent`
+				import fs from 'fs';
+				import b from 'b';
 			`,
 			errors: [errorGroup]
 		},
@@ -201,12 +321,20 @@ ruleTester.run('import-path-order', rule, {
 				import b from 'b';
 				import 'a';
 			`,
+			output: outdent`
+				import 'a';
+				import b from 'b';
+			`,
 			errors: [errorOrder]
 		},
 		{
 			code: outdent`
 				import b from 'b';
 				require('a');
+			`,
+			output: outdent`
+				require('a');
+				import b from 'b';
 			`,
 			errors: [errorOrder]
 		},
@@ -216,10 +344,38 @@ ruleTester.run('import-path-order', rule, {
 
 				const a = require('a');
 			`,
+			output: outdent`
+				const a = require('a');
+				const b = require('b');
+			`,
 			errors: [
 				errorOrder,
 				errorBlankLines
 			]
+		},
+		{
+			code: outdent`
+				import a from 'a';
+
+				import b from 'b';
+			`,
+			output: outdent`
+				import a from 'a';
+				import b from 'b';
+			`,
+			errors: [errorBlankLines]
+		},
+		{
+			code: outdent`
+				import a from 'a';
+
+				import b from 'b';
+			`,
+			output: outdent`
+				import a from 'a';
+				import b from 'b';
+			`,
+			errors: [errorBlankLines]
 		},
 		{
 			code: outdent`
@@ -228,6 +384,11 @@ ruleTester.run('import-path-order', rule, {
 				// Comment
 				const a = require('a');
 			`,
+			output: outdent`
+				// Comment
+				const a = require('a');
+				const b = require('b');
+			`,
 			errors: [
 				errorOrder,
 				errorBlankLines
@@ -235,6 +396,12 @@ ruleTester.run('import-path-order', rule, {
 		},
 		{
 			code: outdent`
+				const b = require('b');
+				// Comment
+
+				const a = require('a');
+			`,
+			output: outdent`
 				const b = require('b');
 				// Comment
 
@@ -252,6 +419,11 @@ ruleTester.run('import-path-order', rule, {
 
 				const a = require('a');
 			`,
+			output: outdent`
+				const b = require('b');
+				const foo = 'foo';
+				const a = require('a');
+			`,
 			errors: [
 				errorOrder,
 				errorBlankLines
@@ -261,6 +433,11 @@ ruleTester.run('import-path-order', rule, {
 			code: outdent`
 				const b = require('b');
 
+				const foo = 'foo';
+				const a = require('a');
+			`,
+			output: outdent`
+				const b = require('b');
 				const foo = 'foo';
 				const a = require('a');
 			`,
@@ -275,10 +452,95 @@ ruleTester.run('import-path-order', rule, {
 				{ const foo = 'foo'; }
 				const a = require('a');
 			`,
+			output: outdent`
+				const b = require('b');
+				{ const foo = 'foo'; }
+				const a = require('a');
+			`,
 			errors: [
 				errorOrder,
 				errorBlankLines
 			]
-		}
+		},
+		{
+			code: outdent`
+				import { b } from 'b';
+				import { a } from 'a';
+			`,
+			output: outdent`
+				import { a } from 'a';
+				import { b } from 'b';
+			`,
+			errors: [errorOrder]
+		},
+		{
+			code: outdent`
+				import {
+					b
+				} from 'b';
+				import {
+					a
+				} from 'a';
+			`,
+			output: outdent`
+				import {
+					b
+				} from 'b';
+				import {
+					a
+				} from 'a';
+			`,
+			errors: [errorOrder]
+		},
+		// {
+		// 	code: outdent`
+		// 		import { // one
+		// 			b // two
+		// 		} from 'b'; // three
+		// 		import { // four
+		// 			a // five
+		// 		} from 'a'; // six
+		// 	`,
+		// 	output: outdent`
+		// 		import { // four
+		// 			b // five
+		// 		} from 'b'; // six
+		// 		import { // one
+		// 			a // two
+		// 		} from 'a'; // three
+		// 	`,
+		// 	errors: [errorOrder]
+		// },
+		// {
+		// 	code: outdent`
+		// 		// one
+		// 		import {
+		// 			// two
+		// 			b
+		// 		// three
+		// 		} from 'b';
+		// 		// four
+		// 		import {
+		// 			// five
+		// 			a
+		// 		// six
+		// 		} from 'a';
+		// 	`,
+		// 	output: outdent`
+		// 		// four
+		// 		import {
+		// 			// five
+		// 			a
+		// 		// six
+		// 		} from 'a';
+		// 		// one
+		// 		import {
+		// 			// two
+		// 			b
+		// 		// three
+		// 		} from 'b';
+		// 	`,
+		// 	errors: [errorOrder]
+		// }
 	]
 });
