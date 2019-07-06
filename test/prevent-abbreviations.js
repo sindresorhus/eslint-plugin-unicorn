@@ -181,7 +181,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 			code: '({__proto__: null})',
 			options: customOptions
 		},
-		// CheckFilenames
+		// `checkFilenames` option
 		{
 			code: 'foo();',
 			filename: 'http-error.js'
@@ -927,7 +927,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 			`,
 			errors: createErrors()
 		},
-		// Options: checkFilenames
+		// `checkFilenames` option
 		{
 			code: 'foo();',
 			filename: 'err/http-err.js',
