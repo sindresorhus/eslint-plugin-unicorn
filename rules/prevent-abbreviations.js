@@ -705,8 +705,6 @@ const create = context => {
 			}
 
 			const extension = path.extname(filenameWithExtension);
-			let dirname = path.dirname(filenameWithExtension);
-			dirname = dirname === '.' ? '' : `${dirname}/`;
 			const filename = path.basename(filenameWithExtension, extension);
 			const originalCase = getCase(filename);
 
@@ -715,7 +713,7 @@ const create = context => {
 				options.whitelist,
 				filename
 			)
-				.map(replacement => `${dirname}${originalCase(replacement)}${extension}`);
+				.map(replacement => `${originalCase(replacement)}${extension}`);
 
 			if (filenameReplacements.length === 0) {
 				return;
