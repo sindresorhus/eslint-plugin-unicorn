@@ -59,7 +59,7 @@ function getInvalidBlankLinesReport(nodePrev, nodeNext, context) {
 	}
 
 	const prevEndLine = nodePrev.loc.end.line;
-	const nextStartLine = nodeNext.loc.end.line;
+	const nextStartLine = nodeNext.loc.start.line;
 
 	if (prevEndLine + 1 === nextStartLine) {
 		return null;
@@ -145,8 +145,12 @@ function swapNodeLocation({
 		return;
 	}
 
+	if (sourceCode.commentsExistBetween(nodePrev, nodeNext)) {
+		return;
+	}
+
 	const source = sourceCode.getText();
-	let [insertStart, insertEnd] = nodePrev.range;
+	const [insertStart, insertEnd] = nodePrev.range;
 
 	// Grab the node and all comments and whitespace before the node
 	const start = nodePrev.range[1];
@@ -154,33 +158,12 @@ function swapNodeLocation({
 
 	let text = source.substring(start, end);
 
+	text = text.replace(/\n+/, '\n');
+
 	// Preserve newline previously between nodes
-	if (source[start] === '\n') {
+	if (text[0] === '\n') {
 		text = text.substring(1) + '\n';
 	}
-
-	// Preserve blank line previously between nodes
-	if (source.length >= (start + 1) && source[start + 1] === '\n') {
-		text = text.substring(1) + '\n';
-	}
-
-	// Preserve newline that was previously before nodes
-	if ((insertStart - 1) > 0 && source[insertStart - 1] === '\n') {
-		insertStart -= 1;
-	}
-
-	text = text.replace(/\n\n+/, '\n');
-
-	console.log('AAA', {
-		nodePrev: nodePrev.range,
-		nodeNext: nodeNext.range,
-		start,
-		end,
-		insertStart,
-		insertEnd,
-		text,
-		source,
-	});
 
 	return [
 		fixer.insertTextBeforeRange([insertStart, insertEnd], text),
@@ -259,7 +242,7 @@ const create = context => {
 			nodePrev = nodeNext;
 		},
 		'Program > ExpressionStatement > CallExpression[callee.name="require"][arguments.length=1][arguments.0.type="Literal"]': node => {
-			const nodeNext = node.parent.parent;
+			const nodeNext = node.parent;
 			const nextOrder = getOrder(node.arguments[0].value);
 
 			const message = getInvalidOrderReport(orderPrev, nextOrder);
@@ -312,7 +295,7 @@ const create = context => {
 					fix: fixer => {
 						return swapNodeLocation({
 							fixer,
-							nodeNext: node,
+							nodeNext,
 							nodePrev,
 							sourceCode
 						});
@@ -329,7 +312,7 @@ const create = context => {
 						fix: fixer => {
 							return removeBlankLines({
 								fixer,
-								nodeNext: node,
+								nodeNext,
 								nodePrev,
 								sourceCode
 							});
@@ -340,7 +323,7 @@ const create = context => {
 			}
 
 			orderPrev = orderNext;
-			nodePrev = node;
+			nodePrev = nodeNext;
 		}
 	};
 };

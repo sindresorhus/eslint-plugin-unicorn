@@ -232,6 +232,24 @@ ruleTester.run('import-path-order', rule, {
 		},
 		{
 			code: outdent`
+				import b from 'b';
+
+
+
+
+				import a from 'a';
+			`,
+			output: outdent`
+				import a from 'a';
+				import b from 'b';
+			`,
+			errors: [
+				errorOrder,
+				errorBlankLines
+			]
+		},
+		{
+			code: outdent`
 				import b from 'b';import a from 'a';
 			`,
 			output: outdent`
@@ -385,15 +403,17 @@ ruleTester.run('import-path-order', rule, {
 				const a = require('a');
 			`,
 			output: outdent`
+				const b = require('b');
 				// Comment
 				const a = require('a');
-				const b = require('b');
 			`,
 			errors: [
 				errorOrder,
 				errorBlankLines
 			]
 		},
+
+		// This is a weird edge case due to how comment tokens work
 		{
 			code: outdent`
 				const b = require('b');
@@ -407,10 +427,7 @@ ruleTester.run('import-path-order', rule, {
 
 				const a = require('a');
 			`,
-			errors: [
-				errorOrder,
-				errorBlankLines
-			]
+			errors: [errorOrder]
 		},
 		{
 			code: outdent`
@@ -484,63 +501,63 @@ ruleTester.run('import-path-order', rule, {
 			`,
 			output: outdent`
 				import {
-					b
-				} from 'b';
-				import {
 					a
 				} from 'a';
+				import {
+					b
+				} from 'b';
 			`,
 			errors: [errorOrder]
 		},
-		// {
-		// 	code: outdent`
-		// 		import { // one
-		// 			b // two
-		// 		} from 'b'; // three
-		// 		import { // four
-		// 			a // five
-		// 		} from 'a'; // six
-		// 	`,
-		// 	output: outdent`
-		// 		import { // four
-		// 			b // five
-		// 		} from 'b'; // six
-		// 		import { // one
-		// 			a // two
-		// 		} from 'a'; // three
-		// 	`,
-		// 	errors: [errorOrder]
-		// },
-		// {
-		// 	code: outdent`
-		// 		// one
-		// 		import {
-		// 			// two
-		// 			b
-		// 		// three
-		// 		} from 'b';
-		// 		// four
-		// 		import {
-		// 			// five
-		// 			a
-		// 		// six
-		// 		} from 'a';
-		// 	`,
-		// 	output: outdent`
-		// 		// four
-		// 		import {
-		// 			// five
-		// 			a
-		// 		// six
-		// 		} from 'a';
-		// 		// one
-		// 		import {
-		// 			// two
-		// 			b
-		// 		// three
-		// 		} from 'b';
-		// 	`,
-		// 	errors: [errorOrder]
-		// }
+		{
+			code: outdent`
+				import { // one
+					b // two
+				} from 'b'; // three
+				import { // four
+					a // five
+				} from 'a'; // six
+			`,
+			output: outdent`
+				import { // one
+					b // two
+				} from 'b'; // three
+				import { // four
+					a // five
+				} from 'a'; // six
+			`,
+			errors: [errorOrder]
+		},
+		{
+			code: outdent`
+				// one
+				import {
+					// two
+					b
+				// three
+				} from 'b';
+				// four
+				import {
+					// five
+					a
+				// six
+				} from 'a';
+			`,
+			output: outdent`
+				// one
+				import {
+					// two
+					b
+				// three
+				} from 'b';
+				// four
+				import {
+					// five
+					a
+				// six
+				} from 'a';
+			`,
+			errors: [errorOrder]
+		}
 	]
 });
