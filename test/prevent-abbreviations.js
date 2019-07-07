@@ -977,7 +977,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'foo();',
 			filename: 'e.js',
-			errors: createErrors(formatMessage('e.js', ['error.js','event.js'], 'filename'))
+			errors: createErrors(formatMessage('e.js', ['error.js', 'event.js'], 'filename'))
 		},
 		{
 			code: 'foo();',
