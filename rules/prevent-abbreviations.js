@@ -3,18 +3,15 @@ const path = require('path');
 const astUtils = require('eslint-ast-utils');
 const defaultsDeep = require('lodash.defaultsdeep');
 const toPairs = require('lodash.topairs');
-const camelCase = require('lodash.camelcase');
-const kebabCase = require('lodash.kebabcase');
-const upperfirst = require('lodash.upperfirst');
-const snakeCase = require('lodash.snakecase');
 
 const getDocsUrl = require('./utils/get-docs-url');
 const avoidCapture = require('./utils/avoid-capture');
 
-const pascalCase = string => upperfirst(camelCase(string));
-const isPascalCase = string => string === pascalCase(string);
-
 const isUpperCase = string => string === string.toUpperCase();
+const lowerFirst = string => string[0].toLowerCase() + string.slice(1);
+const isLowerFirst = string => string[0].toLowerCase() === string[0];
+const upperFirst = string => string[0].toUpperCase() + string.slice(1);
+const isUpperFirst = string => isUpperCase(string[0]);
 
 const defaultReplacements = {
 	err: {
@@ -180,16 +177,6 @@ const defaultWhitelist = {
 	stdDev: true
 };
 
-const getCase = string => {
-	for (const fn of [camelCase, kebabCase, snakeCase, upperfirst]) {
-		if (string === fn(string)) {
-			return fn;
-		}
-	}
-
-	return camelCase;
-};
-
 const prepareOptions = ({
 	checkProperties = true,
 	checkVariables = true,
@@ -231,107 +218,26 @@ const prepareOptions = ({
 	};
 };
 
-const normalizeName = name => {
-	let originalLeadingUnderscores;
-	let originalTrailingUnderscores;
-	([, originalLeadingUnderscores, name, originalTrailingUnderscores] = /^(_*)(.*?)(_*)$/.exec(name));
+const flat = Array.prototype.flat ? array => array.flat() : array => [].concat(...array);
+const getWordReplacement = (word, replacements) => {
+	const replacement = replacements.get(lowerFirst(word)) ||
+		replacements.get(word) ||
+		replacements.get(upperFirst);
 
-	const originalIsInPascalCase = isPascalCase(name);
-	if (originalIsInPascalCase) {
-		name = camelCase(name);
+	let wordReplacement = replacement ? [...replacement.keys()].filter(name => replacement.get(name)) : [];
+
+	if (isLowerFirst(word)) {
+		wordReplacement = wordReplacement.map(lowerFirst);
 	}
 
-	return {
-		originalLeadingUnderscores,
-		originalTrailingUnderscores,
-		originalIsInPascalCase,
-		normalizedName: name
-	};
+	if (isUpperFirst(word)) {
+		wordReplacement = wordReplacement.map(upperFirst);
+	}
+
+	return wordReplacement.length > 0 ? wordReplacement.sort() : [word];
 };
 
-const createApplyOriginalUnderscores = (originalLeadingUnderscores, originalTrailingUnderscores) => name => {
-	return originalLeadingUnderscores + name + originalTrailingUnderscores;
-};
-
-const splitNormalizedName = normalizedName => {
-	return kebabCase(normalizedName).split('-');
-};
-
-const getWordReplacements = (replacements, word) => {
-	const wordReplacements = replacements.get(word);
-
-	if (!wordReplacements) {
-		return [];
-	}
-
-	return [...wordReplacements.keys()].filter(name => wordReplacements.get(name));
-};
-
-/*
-This function has terrible big O complexity, so we limit it by `limit`.
-
-This is fine since result of the function is used only to check if there is zero, one or more replacements and when formating the message.
-
-Example: `[[1, 2], [3, 4]]` → `[[1, 3], [1, 4], [2, 3], [2, 4]]`
-*/
-const getWordByWordReplacementsCombinations = (wordByWordReplacements, limit = 16) => {
-	if (wordByWordReplacements.length === 0) {
-		return [];
-	}
-
-	if (wordByWordReplacements.length === 1) {
-		return wordByWordReplacements[0];
-	}
-
-	if (limit <= 1) {
-		return wordByWordReplacements[0];
-	}
-
-	const [wordReplacements, ...tailWordReplacements] = wordByWordReplacements;
-	const tailCombinations = getWordByWordReplacementsCombinations(tailWordReplacements, limit / wordReplacements.length);
-
-	const result = [];
-	for (const name of wordReplacements) {
-		for (const combination of tailCombinations) {
-			result.push([name].concat(combination));
-		}
-	}
-
-	return result;
-};
-
-const getWordByWordReplacements = (replacements, normalizedName, originalIsInPascalCase) => {
-	const words = splitNormalizedName(normalizedName);
-
-	let wordByWordReplacements = words.map(word => getWordReplacements(replacements, word));
-
-	const someWordsHaveReplacements = wordByWordReplacements.some(wordReplacements => wordReplacements.length > 0);
-	if (!someWordsHaveReplacements) {
-		return [];
-	}
-
-	wordByWordReplacements = wordByWordReplacements
-		.map((wordReplacements, i) => wordReplacements.length > 0 ? wordReplacements : [words[i]]);
-
-	return getWordByWordReplacementsCombinations(wordByWordReplacements)
-		.map(originalIsInPascalCase ? pascalCase : camelCase)
-		.sort();
-};
-
-const getExactReplacements = (replacements, normalizedName, originalIsInPascalCase) => {
-	const variableNameReplacements = replacements.get(normalizedName);
-
-	if (!variableNameReplacements) {
-		return [];
-	}
-
-	return [...variableNameReplacements.keys()]
-		.filter(name => variableNameReplacements.get(name))
-		.map(originalIsInPascalCase ? pascalCase : name => name)
-		.sort();
-};
-
-const getNameReplacements = (replacements, whitelist, name) => {
+const getNameReplacements = (name, {replacements, whitelist, limit = 16}) => {
 	if (whitelist.get(name)) {
 		return [];
 	}
@@ -340,22 +246,36 @@ const getNameReplacements = (replacements, whitelist, name) => {
 		return [];
 	}
 
-	const {
-		originalLeadingUnderscores,
-		originalTrailingUnderscores,
-		originalIsInPascalCase,
-		normalizedName
-	} = normalizeName(name);
+	const exactReplacements = getWordReplacement(name, replacements);
 
-	const applyOriginalUnderscores = createApplyOriginalUnderscores(originalLeadingUnderscores, originalTrailingUnderscores);
-
-	const exactReplacements = getExactReplacements(replacements, normalizedName, originalIsInPascalCase);
-
-	if (exactReplacements.length > 0) {
-		return exactReplacements.map(applyOriginalUnderscores);
+	if (exactReplacements.length > 1 || exactReplacements[0] !== name) {
+		return exactReplacements;
 	}
 
-	return getWordByWordReplacements(replacements, normalizedName, originalIsInPascalCase).map(applyOriginalUnderscores);
+	const words = name.split(/(?=[^a-z])|(?<=[^a-zA-Z])/g).filter(Boolean);
+
+	const combined = words.map(word => getWordReplacement(word, replacements));
+
+	let options = [[]];
+
+	for (const replacements of combined) {
+		options = flat(replacements.map(word => options.map(words => [...words, word])));
+
+		if (options.length > limit) {
+			break;
+		}
+	}
+
+	const wordsOptionsLength = options[0].length;
+
+	if (wordsOptionsLength < words.length) {
+		const restWords = combined.slice(wordsOptionsLength).map(word => word[0]);
+		options = options.map(words => [...words, ...restWords]);
+	}
+
+	options = options.map(words => words.join('')).sort().filter(nameReplacement => nameReplacement !== name);
+
+	return options.sort();
 };
 
 const anotherNameMessage = 'A more descriptive name will do too.';
@@ -618,7 +538,7 @@ const create = context => {
 			return;
 		}
 
-		const variableReplacements = getNameReplacements(options.replacements, options.whitelist, variable.name);
+		const variableReplacements = getNameReplacements(variable.name, options);
 
 		if (variableReplacements.length === 0) {
 			return;
@@ -677,7 +597,7 @@ const create = context => {
 				return;
 			}
 
-			const identifierReplacements = getNameReplacements(options.replacements, options.whitelist, node.name);
+			const identifierReplacements = getNameReplacements(node.name, options);
 
 			if (identifierReplacements.length === 0) {
 				return;
@@ -706,14 +626,12 @@ const create = context => {
 
 			const extension = path.extname(filenameWithExtension);
 			const filename = path.basename(filenameWithExtension, extension);
-			const originalCase = getCase(filename);
 
 			const filenameReplacements = getNameReplacements(
-				options.replacements,
-				options.whitelist,
-				filename
+				filename,
+				options
 			)
-				.map(replacement => `${originalCase(replacement)}${extension}`);
+				.map(replacement => `${replacement}${extension}`);
 
 			if (filenameReplacements.length === 0) {
 				return;
@@ -721,7 +639,7 @@ const create = context => {
 
 			context.report({
 				node,
-				message: formatMessage(filenameWithExtension, filenameReplacements, 'file')
+				message: formatMessage(filenameWithExtension, filenameReplacements, 'filename')
 			});
 		},
 

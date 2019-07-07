@@ -43,6 +43,34 @@ const createErrors = message => {
 	return [error];
 };
 
+const anotherNameMessage = 'A more descriptive name will do too.';
+
+const formatMessage = (discouragedName, replacements, nameTypeText, replacementsLimit = 3) => {
+	replacements = replacements.sort();
+
+	const message = [];
+
+	if (replacements.length === 1) {
+		message.push(`The ${nameTypeText} \`${discouragedName}\` should be named \`${replacements[0]}\`.`);
+	} else {
+		let replacementsText = replacements.slice(0, replacementsLimit)
+			.map(replacement => `\`${replacement}\``)
+			.join(', ');
+
+		const omittedReplacementsCount = replacements.length - replacementsLimit;
+		if (omittedReplacementsCount > 0) {
+			replacementsText += `, ... (${omittedReplacementsCount} more omitted)`;
+		}
+
+		message.push(`Please rename the ${nameTypeText} \`${discouragedName}\`.`);
+		message.push(`Suggested names are: ${replacementsText}.`);
+	}
+
+	message.push(anotherNameMessage);
+
+	return message.join(' ');
+};
+
 const extendedOptions = [{
 	replacements: {
 		e: false,
@@ -200,64 +228,62 @@ ruleTester.run('prevent-abbreviations', rule, {
 	invalid: [
 		noFixingTestCase({
 			code: 'let e',
-			errors: createErrors('Please rename the variable `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('e', ['event', 'error'], 'variable'))
 		}),
 		noFixingTestCase({
 			code: 'let eCbOpts',
-			errors: createErrors('Please rename the variable `eCbOpts`. Suggested names are: `errorCallbackOptions`, `eventCallbackOptions`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('eCbOpts', ['errorCallbackOptions', 'eventCallbackOptions'], 'variable'))
 		}),
 		noFixingTestCase({
 			code: '({e: 1})',
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('e', ['event', 'error'], 'property'))
 		}),
 		noFixingTestCase({
 			code: 'this.e = 1',
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('e', ['event', 'error'], 'property'))
 		}),
 		noFixingTestCase({
 			code: '({e() {}})',
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('e', ['event', 'error'], 'property'))
 		}),
 		noFixingTestCase({
 			code: '(class {e() {}})',
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('e', ['event', 'error'], 'property'))
 		}),
 		noFixingTestCase({
 			code: 'this.eResDir = 1',
-			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResponseDirectory`, `errorResultDirectory`, `eventResponseDirectory`, ... (1 more omitted). A more descriptive name will do too.')
+			errors: createErrors(formatMessage('eResDir', ['errorResponseDirectory', 'errorResultDirectory', 'eventResponseDirectory', 'eventResultDirectory'], 'property'))
 		}),
-
 		{
 			code: 'let err',
 			output: 'let error',
-			errors: createErrors('The variable `err` should be named `error`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('err', ['error'], 'variable'))
 		},
 		{
 			code: 'let errCbOptsObj',
 			output: 'let errorCallbackOptionsObject',
-			errors: createErrors('The variable `errCbOptsObj` should be named `errorCallbackOptionsObject`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('errCbOptsObj', ['errorCallbackOptionsObject'], 'variable'))
 		},
 		noFixingTestCase({
 			code: '({err: 1})',
-			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('err', ['error'], 'property'))
 		}),
 		noFixingTestCase({
 			code: 'this.err = 1',
-			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('err', ['error'], 'property'))
 		}),
 		noFixingTestCase({
 			code: '({err() {}})',
-			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('err', ['error'], 'property'))
 		}),
 		noFixingTestCase({
 			code: '(class {err() {}})',
-			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('err', ['error'], 'property'))
 		}),
 		noFixingTestCase({
 			code: 'this.errCbOptsObj = 1',
-			errors: createErrors('The property `errCbOptsObj` should be named `errorCallbackOptionsObject`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('errCbOptsObj', ['errorCallbackOptionsObject'], 'property'))
 		}),
-
 		{
 			code: 'let successCb',
 			output: 'let successCallback',
@@ -286,15 +312,15 @@ ruleTester.run('prevent-abbreviations', rule, {
 
 		{
 			code: 'let evt',
-			errors: createErrors('The variable `evt` should be named `event`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('evt', ['event'], 'variable'))
 		},
 		noFixingTestCase({
 			code: '({evt: 1})',
-			errors: createErrors('The property `evt` should be named `event`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('evt', ['event'], 'property'))
 		}),
 		noFixingTestCase({
 			code: 'foo.evt = 1',
-			errors: createErrors('The property `evt` should be named `event`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('evt', ['event'], 'property'))
 		}),
 
 		// Testing that options apply
@@ -638,15 +664,15 @@ ruleTester.run('prevent-abbreviations', rule, {
 
 		noFixingTestCase({
 			code: 'this._err = 1',
-			errors: createErrors('The property `_err` should be named `_error`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('_err', ['_error'], 'property'))
 		}),
 		noFixingTestCase({
 			code: 'this.__err__ = 1',
-			errors: createErrors('The property `__err__` should be named `__error__`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('__err__', ['__error__'], 'property'))
 		}),
 		noFixingTestCase({
 			code: 'this.e_ = 1',
-			errors: createErrors('Please rename the property `e_`. Suggested names are: `error_`, `event_`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('e_', ['error_', 'event_'], 'property'))
 		}),
 
 		{
@@ -661,22 +687,22 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 		noFixingTestCase({
 			code: 'let _e',
-			errors: createErrors('Please rename the variable `_e`. Suggested names are: `_error`, `_event`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('_e', ['_error', '_event'], 'variable'))
 		}),
 
 		{
 			code: 'class Err {}',
 			output: 'class Error_ {}',
-			errors: createErrors('The variable `Err` should be named `Error`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('Err', ['Error'], 'variable'))
 		},
 		{
 			code: 'class Cb {}',
 			output: 'class Callback {}',
-			errors: createErrors('The variable `Cb` should be named `Callback`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('Cb', ['Callback'], 'variable'))
 		},
 		noFixingTestCase({
 			code: 'class Res {}',
-			errors: createErrors('Please rename the variable `Res`. Suggested names are: `Response`, `Result`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('Res', ['Response', 'Result'], 'variable'))
 		}),
 		{
 			code: 'const Err = 1;',
@@ -690,11 +716,11 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 		noFixingTestCase({
 			code: '({Err: 1})',
-			errors: createErrors('The property `Err` should be named `Error`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('Err', ['Error'], 'property'))
 		}),
 		noFixingTestCase({
 			code: '({Res: 1})',
-			errors: createErrors('Please rename the property `Res`. Suggested names are: `Response`, `Result`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('Res', ['Response', 'Result'], 'property'))
 		}),
 
 		{
@@ -937,6 +963,33 @@ ruleTester.run('prevent-abbreviations', rule, {
 			code: 'foo();',
 			filename: 'http-err.js',
 			errors: createErrors()
+		},
+		{
+			code: 'foo();',
+			filename: '_err.js',
+			errors: createErrors(formatMessage('_err.js', ['_error.js'], 'filename'))
+		},
+		{
+			code: 'foo();',
+			filename: 'http.err.js',
+			errors: createErrors(formatMessage('http.err.js', ['http.error.js'], 'filename'))
+		},
+		{
+			code: 'foo();',
+			filename: 'e.js',
+			errors: createErrors(formatMessage('e.js', ['error.js','event.js'], 'filename'))
+		},
+		{
+			code: 'foo();',
+			filename: 'c.js',
+			options: extendedOptions,
+			errors: createErrors(formatMessage('c.js', ['custom.js'], 'filename'))
+		},
+		{
+			code: 'foo();',
+			filename: 'cb.js',
+			options: extendedOptions,
+			errors: createErrors(formatMessage('cb.js', ['circuitBreacker.js'], 'filename'))
 		}
 	]
 });
@@ -1189,11 +1242,11 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 
 		noFixingTestCase({
 			code: '(class {e = 1})',
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('e', ['error', 'event'], 'property'))
 		}),
 		noFixingTestCase({
 			code: '(class {err = 1})',
-			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
+			errors: createErrors(formatMessage('err', ['error'], 'property'))
 		}),
 		noFixingTestCase({
 			code: outdent`
