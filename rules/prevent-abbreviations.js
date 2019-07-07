@@ -233,19 +233,22 @@ const getWordReplacements = (word, replacements) => {
 	return wordReplacement.length > 0 ? wordReplacement.sort() : [];
 };
 
-const getNameReplacements = (name, {replacements, whitelist, limit = 16}) => {
+const getNameReplacements = (name, {replacements, whitelist, limit = 3}) => {
 	if (whitelist.get(name)) {
-		return [];
+		return {total: 0};
 	}
 
 	if (isUpperCase(name)) {
-		return [];
+		return {total: 0};
 	}
 
 	const exactReplacements = getWordReplacements(name, replacements);
 
 	if (exactReplacements.length > 0) {
-		return exactReplacements;
+		return {
+			total: exactReplacements.length,
+			samples: exactReplacements.sort().slice(0, limit)
+		};
 	}
 
 	const words = name.split(/(?=[^a-z])|(?<=[^a-zA-Z])/g).filter(Boolean);
@@ -262,7 +265,18 @@ const getNameReplacements = (name, {replacements, whitelist, limit = 16}) => {
 
 	// No replacements for any word
 	if (!hasReplacements) {
-		return [];
+		return {total: 0};
+	}
+
+	const total = combined.reduce((total, {length}) => total * length, 1);
+
+	if (total === 1) {
+		return {
+			total,
+			samples: [
+				combined.map(words => words[0]).join('')
+			]
+		};
 	}
 
 	let options = [[]];
@@ -282,22 +296,26 @@ const getNameReplacements = (name, {replacements, whitelist, limit = 16}) => {
 		options = options.map(words => [...words, ...restWords]);
 	}
 
-	return options.map(words => words.join('')).sort();
+	return {
+		total,
+		samples: options.map(words => words.join('')).sort().slice(0, limit)
+	};
 };
 
 const anotherNameMessage = 'A more descriptive name will do too.';
 
-const formatMessage = (discouragedName, replacements, nameTypeText, replacementsLimit = 3) => {
+const formatMessage = (discouragedName, replacements, nameTypeText) => {
 	const message = [];
+	const {total, samples = []} = replacements;
 
-	if (replacements.length === 1) {
-		message.push(`The ${nameTypeText} \`${discouragedName}\` should be named \`${replacements[0]}\`.`);
+	if (total === 1) {
+		message.push(`The ${nameTypeText} \`${discouragedName}\` should be named \`${samples[0]}\`.`);
 	} else {
-		let replacementsText = replacements.slice(0, replacementsLimit)
+		let replacementsText = samples
 			.map(replacement => `\`${replacement}\``)
 			.join(', ');
 
-		const omittedReplacementsCount = replacements.length - replacementsLimit;
+		const omittedReplacementsCount = total - samples.length;
 		if (omittedReplacementsCount > 0) {
 			replacementsText += `, ... (${omittedReplacementsCount} more omitted)`;
 		}
@@ -547,7 +565,7 @@ const create = context => {
 
 		const variableReplacements = getNameReplacements(variable.name, options);
 
-		if (variableReplacements.length === 0) {
+		if (variableReplacements.total === 0) {
 			return;
 		}
 
@@ -558,8 +576,8 @@ const create = context => {
 			message: formatMessage(definition.name.name, variableReplacements, 'variable')
 		};
 
-		if (variableReplacements.length === 1 && shouldFix(variable)) {
-			const [replacement] = variableReplacements;
+		if (variableReplacements.total === 1 && shouldFix(variable)) {
+			const [replacement] = variableReplacements.samples;
 			const captureAvoidingReplacement = avoidCapture(replacement, scopes, ecmaVersion, isSafeName);
 
 			for (const scope of scopes) {
@@ -606,7 +624,7 @@ const create = context => {
 
 			const identifierReplacements = getNameReplacements(node.name, options);
 
-			if (identifierReplacements.length === 0) {
+			if (identifierReplacements.total === 0) {
 				return;
 			}
 
@@ -634,15 +652,13 @@ const create = context => {
 			const extension = path.extname(filenameWithExtension);
 			const filename = path.basename(filenameWithExtension, extension);
 
-			const filenameReplacements = getNameReplacements(
-				filename,
-				options
-			)
-				.map(replacement => `${replacement}${extension}`);
+			const filenameReplacements = getNameReplacements(filename, options);
 
-			if (filenameReplacements.length === 0) {
+			if (filenameReplacements.total === 0) {
 				return;
 			}
+
+			filenameReplacements.samples = filenameReplacements.samples.map(replacement => `${replacement}${extension}`);
 
 			context.report({
 				node,
