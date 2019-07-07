@@ -218,7 +218,7 @@ const prepareOptions = ({
 };
 
 const flat = Array.prototype.flat ? array => array.flat() : array => [].concat(...array);
-const getWordReplacement = (word, replacements) => {
+const getWordReplacements = (word, replacements) => {
 	const replacement = replacements.get(lowerFirst(word)) ||
 		replacements.get(word) ||
 		replacements.get(upperFirst(word));
@@ -230,7 +230,7 @@ const getWordReplacement = (word, replacements) => {
 			.map(isUpperFirst(word) ? upperFirst : lowerFirst);
 	}
 
-	return wordReplacement.length > 0 ? wordReplacement.sort() : [word];
+	return wordReplacement.length > 0 ? wordReplacement.sort() : [];
 };
 
 const getNameReplacements = (name, {replacements, whitelist, limit = 16}) => {
@@ -242,20 +242,34 @@ const getNameReplacements = (name, {replacements, whitelist, limit = 16}) => {
 		return [];
 	}
 
-	const exactReplacements = getWordReplacement(name, replacements);
+	const exactReplacements = getWordReplacements(name, replacements);
 
-	if (exactReplacements.length > 1 || exactReplacements[0] !== name) {
+	if (exactReplacements.length > 0) {
 		return exactReplacements;
 	}
 
 	const words = name.split(/(?=[^a-z])|(?<=[^a-zA-Z])/g).filter(Boolean);
 
-	const combined = words.map(word => getWordReplacement(word, replacements));
+	let hasReplacements = false
+	const combined = words.map(word => {
+		const wordReplacements = getWordReplacements(word, replacements);
+		if (!hasReplacements && wordReplacements.length > 0) {
+			hasReplacements = true
+		}
+
+		return wordReplacements.length > 0 ? wordReplacements : [word]
+	});
+
+
+	// No replacements for any word
+	if (!hasReplacements) {
+		return []
+	}
 
 	let options = [[]];
 
-	for (const replacements of combined) {
-		options = flat(replacements.map(word => options.map(words => [...words, word])));
+	for (const wordReplacements of combined) {
+		options = flat(wordReplacements.map(word => options.map(words => [...words, word])));
 
 		if (options.length > limit) {
 			break;
@@ -269,7 +283,7 @@ const getNameReplacements = (name, {replacements, whitelist, limit = 16}) => {
 		options = options.map(words => [...words, ...restWords]);
 	}
 
-	return options.map(words => words.join('')).filter(nameReplacement => nameReplacement !== name).sort();
+	return options.map(words => words.join('')).sort();
 };
 
 const anotherNameMessage = 'A more descriptive name will do too.';
