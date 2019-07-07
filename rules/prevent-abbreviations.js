@@ -8,10 +8,9 @@ const getDocsUrl = require('./utils/get-docs-url');
 const avoidCapture = require('./utils/avoid-capture');
 
 const isUpperCase = string => string === string.toUpperCase();
-const lowerFirst = string => string[0].toLowerCase() + string.slice(1);
-const isLowerFirst = string => string[0].toLowerCase() === string[0];
-const upperFirst = string => string[0].toUpperCase() + string.slice(1);
 const isUpperFirst = string => isUpperCase(string[0]);
+const lowerFirst = string => string[0].toLowerCase() + string.slice(1);
+const upperFirst = string => string[0].toUpperCase() + string.slice(1);
 
 const defaultReplacements = {
 	err: {
@@ -222,16 +221,13 @@ const flat = Array.prototype.flat ? array => array.flat() : array => [].concat(.
 const getWordReplacement = (word, replacements) => {
 	const replacement = replacements.get(lowerFirst(word)) ||
 		replacements.get(word) ||
-		replacements.get(upperFirst);
+		replacements.get(upperFirst(word));
 
-	let wordReplacement = replacement ? [...replacement.keys()].filter(name => replacement.get(name)) : [];
-
-	if (isLowerFirst(word)) {
-		wordReplacement = wordReplacement.map(lowerFirst);
-	}
-
-	if (isUpperFirst(word)) {
-		wordReplacement = wordReplacement.map(upperFirst);
+	let wordReplacement = [];
+	if (replacement) {
+		wordReplacement = [...replacement.keys()]
+			.filter(name => replacement.get(name))
+			.map(isUpperFirst(word) ? upperFirst : lowerFirst);
 	}
 
 	return wordReplacement.length > 0 ? wordReplacement.sort() : [word];
@@ -273,9 +269,7 @@ const getNameReplacements = (name, {replacements, whitelist, limit = 16}) => {
 		options = options.map(words => [...words, ...restWords]);
 	}
 
-	options = options.map(words => words.join('')).sort().filter(nameReplacement => nameReplacement !== name);
-
-	return options.sort();
+	return options.map(words => words.join('')).filter(nameReplacement => nameReplacement !== name).sort();
 };
 
 const anotherNameMessage = 'A more descriptive name will do too.';
