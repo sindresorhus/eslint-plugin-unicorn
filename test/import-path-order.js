@@ -226,8 +226,8 @@ ruleTester.run('import-path-order', rule, {
 				import b from 'b';
 			`,
 			errors: [
-				errorOrder,
-				errorBlankLines
+				errorBlankLines,
+				errorOrder
 			]
 		},
 		{
@@ -244,8 +244,8 @@ ruleTester.run('import-path-order', rule, {
 				import b from 'b';
 			`,
 			errors: [
-				errorOrder,
-				errorBlankLines
+				errorBlankLines,
+				errorOrder
 			]
 		},
 		{
@@ -367,8 +367,8 @@ ruleTester.run('import-path-order', rule, {
 				const b = require('b');
 			`,
 			errors: [
-				errorOrder,
-				errorBlankLines
+				errorBlankLines,
+				errorOrder
 			]
 		},
 		{
@@ -408,11 +408,10 @@ ruleTester.run('import-path-order', rule, {
 				const a = require('a');
 			`,
 			errors: [
-				errorOrder,
-				errorBlankLines
+				errorBlankLines,
+				errorOrder
 			]
 		},
-
 		// This is a weird edge case due to how comment tokens work
 		{
 			code: outdent`
@@ -427,7 +426,40 @@ ruleTester.run('import-path-order', rule, {
 
 				const a = require('a');
 			`,
-			errors: [errorOrder]
+			errors: [
+				errorBlankLines,
+				errorOrder
+			]
+		},
+		{
+			code: outdent`
+				const b = require('b'); // Comment
+
+				const a = require('a');
+			`,
+			output: outdent`
+				const b = require('b'); // Comment
+				const a = require('a');
+			`,
+			errors: [
+				errorBlankLines,
+				errorOrder
+			]
+		},
+		{
+			code: outdent`
+				const b = require('b');
+
+				const a = require('a'); // Comment
+			`,
+			output: outdent`
+				const b = require('b');
+				const a = require('a'); // Comment
+			`,
+			errors: [
+				errorBlankLines,
+				errorOrder
+			]
 		},
 		{
 			code: outdent`
@@ -442,8 +474,8 @@ ruleTester.run('import-path-order', rule, {
 				const a = require('a');
 			`,
 			errors: [
-				errorOrder,
-				errorBlankLines
+				errorBlankLines,
+				errorOrder
 			]
 		},
 		{
@@ -459,8 +491,8 @@ ruleTester.run('import-path-order', rule, {
 				const a = require('a');
 			`,
 			errors: [
-				errorOrder,
-				errorBlankLines
+				errorBlankLines,
+				errorOrder
 			]
 		},
 		{
@@ -475,8 +507,8 @@ ruleTester.run('import-path-order', rule, {
 				const a = require('a');
 			`,
 			errors: [
-				errorOrder,
-				errorBlankLines
+				errorBlankLines,
+				errorOrder
 			]
 		},
 		{
