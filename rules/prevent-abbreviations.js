@@ -250,20 +250,19 @@ const getNameReplacements = (name, {replacements, whitelist, limit = 16}) => {
 
 	const words = name.split(/(?=[^a-z])|(?<=[^a-zA-Z])/g).filter(Boolean);
 
-	let hasReplacements = false
+	let hasReplacements = false;
 	const combined = words.map(word => {
 		const wordReplacements = getWordReplacements(word, replacements);
 		if (!hasReplacements && wordReplacements.length > 0) {
-			hasReplacements = true
+			hasReplacements = true;
 		}
 
-		return wordReplacements.length > 0 ? wordReplacements : [word]
+		return wordReplacements.length > 0 ? wordReplacements : [word];
 	});
-
 
 	// No replacements for any word
 	if (!hasReplacements) {
-		return []
+		return [];
 	}
 
 	let options = [[]];
