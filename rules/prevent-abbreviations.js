@@ -232,12 +232,12 @@ const getWordReplacements = (word, replacements) => {
 	return wordReplacement.length > 0 ? wordReplacement.sort() : [];
 };
 
-const getReplacementsFromCombined = (combined, length = Infinity) => {
-	const total = combined.reduce((total, {length}) => total * length, 1);
+const getReplacementsFromCombinations = (combinations, length = Infinity) => {
+	const total = combinations.reduce((total, {length}) => total * length, 1);
 
 	const samples = Array.from({length: Math.min(total, length)}, (_, sampleIndex) => {
 		let indexLeft = sampleIndex;
-		return combined.reduceRight((words, replacements) => {
+		return combinations.reduceRight((words, replacements) => {
 			const {length} = replacements;
 			const replacementIndex = indexLeft % length;
 			indexLeft -= replacementIndex;
@@ -253,14 +253,12 @@ const getReplacementsFromCombined = (combined, length = Infinity) => {
 };
 
 const getNameReplacements = (name, {replacements, whitelist}, limit = 3) => {
-	if (whitelist.get(name)) {
+	// Skip constants and whitelist
+	if (isUpperCase(name) || whitelist.get(name)) {
 		return {total: 0};
 	}
 
-	if (isUpperCase(name)) {
-		return {total: 0};
-	}
-
+	// Find exact replacements
 	const exactReplacements = getWordReplacements(name, replacements);
 
 	if (exactReplacements.length > 0) {
@@ -270,10 +268,11 @@ const getNameReplacements = (name, {replacements, whitelist}, limit = 3) => {
 		};
 	}
 
+	// Split words
 	const words = name.split(/(?=[^a-z])|(?<=[^a-zA-Z])/g).filter(Boolean);
 
 	let hasReplacements = false;
-	const combined = words.map(word => {
+	const combinations = words.map(word => {
 		const wordReplacements = getWordReplacements(word, replacements);
 
 		if (wordReplacements.length > 0) {
@@ -289,7 +288,7 @@ const getNameReplacements = (name, {replacements, whitelist}, limit = 3) => {
 		return {total: 0};
 	}
 
-	return getReplacementsFromCombined(combined, limit);
+	return getReplacementsFromCombinations(combinations, limit);
 };
 
 const anotherNameMessage = 'A more descriptive name will do too.';
