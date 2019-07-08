@@ -940,8 +940,8 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 		{
 			code: 'foo();',
-			filename: '_err.js',
-			errors: createErrors('The filename `_err.js` should be named `_error.js`. A more descriptive name will do too.')
+			filename: '/path/to/doc/__prev-Attr$1Err__.conf.js',
+			errors: createErrors('The filename `/path/to/doc/__prev-Attr$1Err__.conf.js` should be named `__previous-Attribute$1Error__.config.js`. A more descriptive name will do too.')
 		},
 		{
 			code: 'foo();',
