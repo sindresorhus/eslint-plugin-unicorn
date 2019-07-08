@@ -217,7 +217,6 @@ const prepareOptions = ({
 	};
 };
 
-const flat = Array.prototype.flat ? array => array.flat() : array => [].concat(...array);
 const getWordReplacements = (word, replacements) => {
 	const replacement = replacements.get(lowerFirst(word)) ||
 		replacements.get(word) ||
@@ -233,7 +232,27 @@ const getWordReplacements = (word, replacements) => {
 	return wordReplacement.length > 0 ? wordReplacement.sort() : [];
 };
 
-const getNameReplacements = (name, {replacements, whitelist, limit = 3}) => {
+const getReplacementsFromCombined = (combined, length = Infinity) => {
+	const total = combined.reduce((total, {length}) => total * length, 1);
+
+	const samples = Array.from({length: Math.min(total, length)}, (_, sampleIndex) => {
+		let indexLeft = sampleIndex;
+		return combined.reduceRight((words, replacements) => {
+			const {length} = replacements;
+			const replacementIndex = indexLeft % length;
+			indexLeft -= replacementIndex;
+			indexLeft /= length;
+			return [replacements[replacementIndex], ...words];
+		}, []).join('');
+	});
+
+	return {
+		total,
+		samples
+	};
+};
+
+const getNameReplacements = (name, {replacements, whitelist}, limit = 3) => {
 	if (whitelist.get(name)) {
 		return {total: 0};
 	}
@@ -247,7 +266,7 @@ const getNameReplacements = (name, {replacements, whitelist, limit = 3}) => {
 	if (exactReplacements.length > 0) {
 		return {
 			total: exactReplacements.length,
-			samples: exactReplacements.sort().slice(0, limit)
+			samples: exactReplacements.slice(0, limit)
 		};
 	}
 
@@ -256,11 +275,13 @@ const getNameReplacements = (name, {replacements, whitelist, limit = 3}) => {
 	let hasReplacements = false;
 	const combined = words.map(word => {
 		const wordReplacements = getWordReplacements(word, replacements);
-		if (!hasReplacements && wordReplacements.length > 0) {
+
+		if (wordReplacements.length > 0) {
 			hasReplacements = true;
+			return wordReplacements;
 		}
 
-		return wordReplacements.length > 0 ? wordReplacements : [word];
+		return [word];
 	});
 
 	// No replacements for any word
@@ -268,38 +289,7 @@ const getNameReplacements = (name, {replacements, whitelist, limit = 3}) => {
 		return {total: 0};
 	}
 
-	const total = combined.reduce((total, {length}) => total * length, 1);
-
-	if (total === 1) {
-		return {
-			total,
-			samples: [
-				combined.map(words => words[0]).join('')
-			]
-		};
-	}
-
-	let options = [[]];
-
-	for (const wordReplacements of combined) {
-		options = flat(wordReplacements.map(word => options.map(words => [...words, word])));
-
-		if (options.length > limit) {
-			break;
-		}
-	}
-
-	const wordsOptionsLength = options[0].length;
-
-	if (wordsOptionsLength < words.length) {
-		const restWords = combined.slice(wordsOptionsLength).map(word => word[0]);
-		options = options.map(words => [...words, ...restWords]);
-	}
-
-	return {
-		total,
-		samples: options.map(words => words.join('')).sort().slice(0, limit)
-	};
+	return getReplacementsFromCombined(combined, limit);
 };
 
 const anotherNameMessage = 'A more descriptive name will do too.';
@@ -317,7 +307,7 @@ const formatMessage = (discouragedName, replacements, nameTypeText) => {
 
 		const omittedReplacementsCount = total - samples.length;
 		if (omittedReplacementsCount > 0) {
-			replacementsText += `, ... (${omittedReplacementsCount} more omitted)`;
+			replacementsText += `, ... (${omittedReplacementsCount > 99 ? '99+' : omittedReplacementsCount} more omitted)`;
 		}
 
 		message.push(`Please rename the ${nameTypeText} \`${discouragedName}\`.`);
