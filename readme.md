@@ -49,6 +49,7 @@ Configure it in `package.json`.
 			"unicorn/no-fn-reference-in-iterator": "off",
 			"unicorn/no-for-loop": "error",
 			"unicorn/no-hex-escape": "error",
+			"unicorn/no-keyword-prefix": "off",
 			"unicorn/no-nested-ternary": "error",
 			"unicorn/no-new-buffer": "error",
 			"unicorn/no-process-exit": "error",
@@ -58,6 +59,7 @@ Configure it in `package.json`.
 			"unicorn/no-zero-fractions": "error",
 			"unicorn/number-literal-case": "error",
 			"unicorn/prefer-add-event-listener": "error",
+			"unicorn/prefer-event-key": "error",
 			"unicorn/prefer-exponentiation-operator": "error",
 			"unicorn/prefer-flat-map": "error",
 			"unicorn/prefer-includes": "error",
@@ -93,6 +95,7 @@ Configure it in `package.json`.
 - [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevent passing a function reference directly to iterator methods. *(fixable)*
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(partly fixable)*
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of Unicode escapes instead of hexadecimal escapes. *(fixable)*
+- [no-keyword-prefix](docs/rules/no-keyword-prefix.md) - Disallow identifiers starting with `new` or `class`.
 - [no-nested-ternary](docs/rules/no-nested-ternary.md) - Disallow nested ternary expressions *(partly fixable)*
 - [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
@@ -102,6 +105,7 @@ Configure it in `package.json`.
 - [no-zero-fractions](docs/rules/no-zero-fractions.md) - Disallow number literals with zero fractions or dangling dots. *(fixable)*
 - [number-literal-case](docs/rules/number-literal-case.md) - Enforce lowercase identifier and uppercase value for number literals. *(fixable)*
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. *(partly fixable)*
+- [prefer-event-key](docs/rules/prefer-event-key.md) - Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. *(partly fixable)*
 - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
 - [prefer-flat-map](docs/rules/prefer-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
 - [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
@@ -142,6 +146,7 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 - [Sindre Sorhus](https://github.com/sindresorhus)
 - [Sam Verschueren](https://github.com/SamVerschueren)
 - [futpib](https://github.com/futpib)
+- [Adam Babcock](https://github.com/MrHen)
 
 ###### Former
 

@@ -43,6 +43,7 @@ ruleTester.run('new-for-builtins', rule, {
 		'const foo = new UInt16Array()',
 		'const foo = new UInt32Array()',
 		'const foo = new Uint8ClampedArray()',
+		'const foo = BigInt()',
 		'const foo = Boolean()',
 		'const foo = Number()',
 		'const foo = String()',
@@ -168,6 +169,11 @@ ruleTester.run('new-for-builtins', rule, {
 			code: 'const foo = Uint8ClampedArray()',
 			errors: [enforceNewError('Uint8ClampedArray')],
 			output: 'const foo = new Uint8ClampedArray()'
+		},
+		{
+			code: 'const foo = new BigInt(123)',
+			errors: [disallowNewError('BigInt')],
+			output: 'const foo = BigInt(123)'
 		},
 		{
 			code: 'const foo = new Boolean()',

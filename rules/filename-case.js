@@ -114,7 +114,7 @@ const create = context => {
 	const chosenCases = getChosenCases(context);
 	const filenameWithExtension = context.getFilename();
 
-	if (filenameWithExtension === '<text>') {
+	if (filenameWithExtension === '<input>') {
 		return {};
 	}
 

@@ -1,10 +1,12 @@
 'use strict';
+const path = require('path');
 const astUtils = require('eslint-ast-utils');
 const defaultsDeep = require('lodash.defaultsdeep');
 const toPairs = require('lodash.topairs');
 const camelCase = require('lodash.camelcase');
 const kebabCase = require('lodash.kebabcase');
 const upperfirst = require('lodash.upperfirst');
+const snakeCase = require('lodash.snakecase');
 
 const getDocsUrl = require('./utils/get-docs-url');
 const avoidCapture = require('./utils/avoid-capture');
@@ -178,6 +180,16 @@ const defaultWhitelist = {
 	stdDev: true
 };
 
+const getCase = string => {
+	for (const fn of [camelCase, kebabCase, snakeCase, upperfirst]) {
+		if (string === fn(string)) {
+			return fn;
+		}
+	}
+
+	return camelCase;
+};
+
 const prepareOptions = ({
 	checkProperties = true,
 	checkVariables = true,
@@ -185,6 +197,8 @@ const prepareOptions = ({
 	checkDefaultAndNamespaceImports = false,
 	checkShorthandImports = false,
 	checkShorthandProperties = false,
+
+	checkFilenames = true,
 
 	extendDefaultReplacements = true,
 	replacements = {},
@@ -207,6 +221,8 @@ const prepareOptions = ({
 		checkDefaultAndNamespaceImports,
 		checkShorthandImports,
 		checkShorthandProperties,
+
+		checkFilenames,
 
 		replacements: new Map(toPairs(mergedReplacements).map(([discouragedName, replacements]) => {
 			return [discouragedName, new Map(toPairs(replacements))];
@@ -533,6 +549,7 @@ const create = context => {
 		ecmaVersion
 	} = context.parserOptions;
 	const options = prepareOptions(context.options[0]);
+	const filenameWithExtension = context.getFilename();
 
 	// A `class` declaration produces two variables in two scopes:
 	// the inner class scope, and the outer one (whereever the class is declared).
@@ -678,6 +695,36 @@ const create = context => {
 			context.report(problem);
 		},
 
+		Program(node) {
+			if (!options.checkFilenames) {
+				return;
+			}
+
+			if (filenameWithExtension === '<input>') {
+				return {};
+			}
+
+			const extension = path.extname(filenameWithExtension);
+			const filename = path.basename(filenameWithExtension, extension);
+			const originalCase = getCase(filename);
+
+			const filenameReplacements = getNameReplacements(
+				options.replacements,
+				options.whitelist,
+				filename
+			)
+				.map(replacement => `${originalCase(replacement)}${extension}`);
+
+			if (filenameReplacements.length === 0) {
+				return;
+			}
+
+			context.report({
+				node,
+				message: formatMessage(filenameWithExtension, filenameReplacements, 'file')
+			});
+		},
+
 		'Program:exit'() {
 			if (!options.checkVariables) {
 				return;
@@ -697,6 +744,8 @@ const schema = [{
 		checkDefaultAndNamespaceImports: {type: 'boolean'},
 		checkShorthandImports: {type: 'boolean'},
 		checkShorthandProperties: {type: 'boolean'},
+
+		checkFilenames: {type: 'boolean'},
 
 		extendDefaultReplacements: {type: 'boolean'},
 		replacements: {$ref: '#/items/0/definitions/abbreviations'},

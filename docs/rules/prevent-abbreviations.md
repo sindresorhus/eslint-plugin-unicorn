@@ -220,3 +220,10 @@ Type: `boolean`<br>
 Default: `true`
 
 Pass `"checkVariables": false` to disable checking variable names.
+
+### checkFilenames
+
+Type: `boolean`<br>
+Default: `true`
+
+Pass `"checkFilenames": false` to disable checking file names.

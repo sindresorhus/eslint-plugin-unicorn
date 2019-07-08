@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/no-new-buffer';
 
 const ruleTester = avaRuleTester(test, {
@@ -55,23 +56,23 @@ ruleTester.run('no-new-buffer', rule, {
 			output: 'const buf = Buffer.alloc(10)'
 		},
 		{
-			code: `
+			code: outdent`
 				const ab = new ArrayBuffer(10);
 				const buf = new Buffer(ab, 0, 2);
 			`,
 			errors: [fromError],
-			output: `
+			output: outdent`
 				const ab = new ArrayBuffer(10);
 				const buf = Buffer.from(ab, 0, 2);
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				const buf1 = new Buffer('buf');
 				const buf2 = new Buffer(buf1);
 			`,
 			errors: [fromError, fromError],
-			output: `
+			output: outdent`
 				const buf1 = Buffer.from('buf');
 				const buf2 = Buffer.from(buf1);
 			`
