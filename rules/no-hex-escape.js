@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/no-hex-escape */
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
@@ -8,7 +7,7 @@ function checkEscape(context, node, value) {
 	if (value !== fixedValue) {
 		context.report({
 			node,
-			message: 'Use unicode escapes instead of hexadecimal escapes.',
+			message: 'Use Unicode escapes instead of hexadecimal escapes.',
 			fix: fixer => fixer.replaceTextRange([node.start, node.end], fixedValue)
 		});
 	}
@@ -28,6 +27,7 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		type: 'suggestion',
 		docs: {
 			url: getDocsUrl(__filename)
 		},

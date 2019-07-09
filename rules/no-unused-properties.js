@@ -123,11 +123,19 @@ const create = context => {
 
 			const nextReferences = references
 				.map(reference => {
+					const {parent} = reference.identifier;
+
 					if (reference.init) {
+						if (
+							parent.type === 'VariableDeclarator' &&
+							parent.parent.type === 'VariableDeclaration' &&
+							parent.parent.parent.type === 'ExportNamedDeclaration'
+						) {
+							return {identifier: parent};
+						}
+
 						return null;
 					}
-
-					const {parent} = reference.identifier;
 
 					if (parent.type === 'MemberExpression') {
 						if (
@@ -224,6 +232,7 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		type: 'suggestion',
 		docs: {
 			url: getDocsUrl(__filename)
 		}

@@ -27,6 +27,7 @@ const enforceNew = new Set([
 ]);
 
 const disallowNew = new Set([
+	'BigInt',
 	'Boolean',
 	'Number',
 	'String',
@@ -66,6 +67,7 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		type: 'suggestion',
 		docs: {
 			url: getDocsUrl(__filename)
 		},

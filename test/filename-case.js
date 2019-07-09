@@ -16,6 +16,14 @@ function testCase(filename, chosenCase, errorMessage) {
 	);
 }
 
+function testManyCases(filename, chosenCases, errorMessage) {
+	return testCaseWithOptions(
+		filename,
+		[{cases: chosenCases}],
+		errorMessage,
+	);
+}
+
 function testCaseWithOptions(filename, options = [], errorMessage) {
 	return {
 		code: 'foo()',
@@ -65,10 +73,10 @@ ruleTester.run('filename-case', rule, {
 		testCase('spec/Iss47.100Spec.js', 'pascalCase'),
 		testCase('spec/I18n.js', 'pascalCase'),
 		testCase('spec/index.js', 'pascalCase'),
-		testCase('<text>', 'camelCase'),
-		testCase('<text>', 'snakeCase'),
-		testCase('<text>', 'kebabCase'),
-		testCase('<text>', 'pascalCase'),
+		testCase(undefined, 'camelCase'),
+		testCase(undefined, 'snakeCase'),
+		testCase(undefined, 'kebabCase'),
+		testCase(undefined, 'pascalCase'),
 		testCase('src/foo/_fooBar.js', 'camelCase'),
 		testCase('src/foo/___fooBar.js', 'camelCase'),
 		testCase('src/foo/_foo_bar.js', 'snakeCase'),
@@ -77,13 +85,18 @@ ruleTester.run('filename-case', rule, {
 		testCase('src/foo/___foo-bar.js', 'kebabCase'),
 		testCase('src/foo/_FooBar.js', 'pascalCase'),
 		testCase('src/foo/___FooBar.js', 'pascalCase'),
+		testManyCases('src/foo/foo-bar.js', undefined),
+		testManyCases('src/foo/foo-bar.js', {}),
+		testManyCases('src/foo/fooBar.js', {camelCase: true}),
+		testManyCases('src/foo/FooBar.js', {kebabCase: true, pascalCase: true}),
+		testManyCases('src/foo/___foo_bar.js', {snakeCase: true, pascalCase: true}),
 		testCaseWithOptions('src/foo/bar.js')
 	],
 	invalid: [
 		testCase(
 			'src/foo/foo_bar.js',
 			undefined,
-			'Filename is not in camel case. Rename it to `fooBar.js`.'
+			'Filename is not in kebab case. Rename it to `foo-bar.js`.'
 		),
 		testCase(
 			'src/foo/foo_bar.js',
@@ -184,6 +197,35 @@ ruleTester.run('filename-case', rule, {
 			'src/foo/___FOO-BAR.js',
 			'pascalCase',
 			'Filename is not in pascal case. Rename it to `___FooBar.js`.'
+		),
+		testManyCases(
+			'src/foo/foo_bar.js',
+			undefined,
+			'Filename is not in kebab case. Rename it to `foo-bar.js`.'
+		),
+		testManyCases(
+			'src/foo/foo-bar.js',
+			{
+				camelCase: true,
+				pascalCase: true
+			},
+			'Filename is not in camel case or pascal case. Rename it to `fooBar.js` or `FooBar.js`.'
+		),
+		testManyCases(
+			'src/foo/_foo_bar.js',
+			{
+				camelCase: true,
+				pascalCase: true,
+				kebabCase: true
+			},
+			'Filename is not in camel case, pascal case, or kebab case. Rename it to `_fooBar.js`, `_FooBar.js`, or `_foo-bar.js`.'
+		),
+		testManyCases(
+			'src/foo/_FOO-BAR.js',
+			{
+				snakeCase: true
+			},
+			'Filename is not in snake case. Rename it to `_foo_bar.js`.'
 		)
 	]
 });

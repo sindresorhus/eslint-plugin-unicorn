@@ -1,7 +1,7 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
-const doesNotContain = (string, chars) => chars.every(char => !string.includes(char));
+const doesNotContain = (string, characters) => characters.every(character => !string.includes(character));
 
 const isSimpleString = string => doesNotContain(
 	string,
@@ -37,12 +37,12 @@ const create = context => {
 			if (pattern.startsWith('^') && isSimpleString(pattern.slice(1))) {
 				context.report({
 					node,
-					message: 'Prefer `String#startsWith` over a regex with `^`.'
+					message: 'Prefer `String#startsWith()` over a regex with `^`.'
 				});
 			} else if (pattern.endsWith('$') && isSimpleString(pattern.slice(0, -1))) {
 				context.report({
 					node,
-					message: 'Prefer `String#endsWith` over a regex with `$`.'
+					message: 'Prefer `String#endsWith()` over a regex with `$`.'
 				});
 			}
 		}
@@ -52,6 +52,7 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		type: 'suggestion',
 		docs: {
 			url: getDocsUrl(__filename)
 		}

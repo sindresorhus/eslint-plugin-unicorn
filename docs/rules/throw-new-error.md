@@ -2,6 +2,8 @@
 
 While it's possible to create a new error without using the `new` keyword, it's better to be explicit.
 
+This rule is fixable.
+
 
 ## Fail
 
