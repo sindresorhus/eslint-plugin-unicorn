@@ -34,7 +34,11 @@ const fixDirectApplyCall = (node, sourceCode) => {
 const fixFunctionPrototypeCall = (node, sourceCode) => {
 	if (
 		astUtils.getPropertyName(node.callee) === 'call' &&
-		sourceCode.getText(node.callee.object) === 'Function.prototype.apply' &&
+		astUtils.getPropertyName(node.callee.object) === 'apply' &&
+		astUtils.getPropertyName(node.callee.object.object) === 'prototype' &&
+		node.callee.object.object.object &&
+		node.callee.object.object.object.type === 'Identifier' &&
+		node.callee.object.object.object.name === 'Function' &&
 		node.arguments.length === 3 &&
 		isApplySignature(node.arguments[1], node.arguments[2])
 	) {
@@ -61,7 +65,7 @@ const create = context => {
 				if (fix) {
 					context.report({
 						node,
-						message: 'Prefer Reflect.apply over Function.prototype.apply.',
+						message: 'Prefer `Reflect.apply()` over `Function#apply()`.',
 						fix
 					});
 				}
