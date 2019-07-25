@@ -281,6 +281,10 @@ const create = context => {
 			const forScope = scopeManager.acquire(node);
 			const bodyScope = scopeManager.acquire(node.body);
 
+			if (!bodyScope) {
+				return;
+			}
+
 			const indexVariable = resolveIdentifierName(indexIdentifierName, bodyScope);
 
 			if (isIndexVariableAssignedToInTheLoopBody(indexVariable, bodyScope)) {
