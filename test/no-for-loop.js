@@ -9,6 +9,12 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const ruleTesterEs5 = avaRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 5
+	}
+});
+
 function testCase(code, output) {
 	return {
 		code,
@@ -34,6 +40,12 @@ ruleTester.run('no-for-loop', rule, {
 				el = arr[i];
 				console.log(i, el);
 			}
+		`,
+		outdent`
+			var foo = function () {
+				for (var i = 0; i < bar.length; i++) {
+				}
+			};
 		`,
 
 		// Screwing with initialization expression
@@ -346,4 +358,25 @@ ruleTester.run('no-for-loop', rule, {
 			}
 		`)
 	]
+});
+
+ruleTesterEs5.run('no-for-loop', rule, {
+	valid: [
+		'for (;;);',
+		'for (;;) {}',
+		'for (var j = 0; j < 10; j++) {}',
+		outdent`
+			for (i = 0; i < arr.length; i++) {
+				el = arr[i];
+				console.log(i, el);
+			}
+		`,
+		outdent`
+			var foo = function () {
+				for (var i = 0; i < bar.length; i++) {
+				}
+			};
+		`
+	],
+	invalid: []
 });
