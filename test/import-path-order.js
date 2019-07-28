@@ -116,7 +116,25 @@ ruleTester.run('import-path-order', rule, {
 			import a from 'a';
 			require('b');
 			const c = require('c');
-		`
+		`,
+		{
+			code: outdent`
+				const B = require('B');
+				const a = require('a');
+			`,
+			options: [{
+				comparator: 'case-sensitive'
+			}]
+		},
+		{
+			code: outdent`
+				const a = require('a');
+				const B = require('B');
+			`,
+			options: [{
+				comparator: 'case-insensitive'
+			}]
+		},
 	],
 	invalid: [
 		{
@@ -635,6 +653,34 @@ ruleTester.run('import-path-order', rule, {
 				} from 'a';
 			`,
 			errors: [errorOrder]
-		}
+		},
+		{
+			code: outdent`
+				const a = require('a');
+				const B = require('B');
+			`,
+			output: outdent`
+				const B = require('B');
+				const a = require('a');
+			`,
+			options: [{
+				comparator: 'case-sensitive'
+			}],
+			errors: [errorOrder]
+		},
+		{
+			code: outdent`
+				const B = require('B');
+				const a = require('a');
+			`,
+			output: outdent`
+				const a = require('a');
+				const B = require('B');
+			`,
+			options: [{
+				comparator: 'case-insensitive'
+			}],
+			errors: [errorOrder]
+		},
 	]
 });

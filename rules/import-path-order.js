@@ -20,6 +20,10 @@ const GROUP_NAMES = {
 	[GROUP_SIBLING]: 'Sibling'
 };
 
+const COMPARATOR_CASE_SENSITIVE = 'case-sensitive';
+const COMPARATOR_CASE_INSENSITIVE = 'case-insensitive';
+const COMPARATOR_GROUP = 'groups';
+
 function getOrder(source) {
 	if (isBuiltin(source)) {
 		return {
@@ -124,7 +128,47 @@ function getInvalidBlankLinesReport(nodePrev, nodeNext, context) {
 	return null;
 }
 
-function getInvalidOrderReport(prev, next) {
+function caseSensitiveComparator(a, b) {
+	if (a < b) {
+		return -1;
+	}
+
+	if (a > b) {
+		return 1;
+	}
+
+	return 0;
+}
+
+function caseInsensitiveComparator(a, b) {
+	const aLower = a.toLowerCase();
+	const bLower = b.toLowerCase();
+
+	if (aLower < bLower) {
+		return -1;
+	}
+
+	if (aLower > bLower) {
+		return 1;
+	}
+
+	return 0;
+}
+
+function getComparator(comparator) {
+	switch(comparator) {
+		case COMPARATOR_CASE_INSENSITIVE:
+			return caseInsensitiveComparator;
+		case COMPARATOR_CASE_SENSITIVE:
+			return caseSensitiveComparator;
+		case COMPARATOR_GROUP:
+			return caseInsensitiveComparator;
+		default:
+			throw new Error(`Invalid comparator option: ${comparator}`);
+	}
+}
+
+function getInvalidOrderReport(prev, next, comparator) {
 	if (prev === null) {
 		return null;
 	}
@@ -154,7 +198,7 @@ function getInvalidOrderReport(prev, next) {
 	}
 
 	// TODO: Case insensitive
-	if (next.name < prev.name) {
+	if (comparator(next.name, prev.name) < 0) {
 		return {
 			messageId: MESSAGE_ID_ORDER
 		};
@@ -233,14 +277,17 @@ const create = context => {
 	const {options} = context;
 	const sourceCode = context.getSourceCode();
 	const {
-		allowBlankLines = false
+		allowBlankLines = false,
+		comparator: comparatorOption = COMPARATOR_CASE_SENSITIVE
 	} = options[0] || {};
 
 	let orderPrev = null;
 	let nodePrev = null;
 
+	const comparator = getComparator(comparatorOption);
+
 	function runRule(nodeNext, orderNext, reportTarget) {
-		const message = getInvalidOrderReport(orderPrev, orderNext);
+		const message = getInvalidOrderReport(orderPrev, orderNext, comparator);
 
 		if (message) {
 			context.report({
@@ -314,5 +361,22 @@ module.exports = {
 			[MESSAGE_ID_GROUP]: '{{earlier}} imports should come before {{later}} imports',
 			[MESSAGE_ID_ORDER]: 'Imports should be sorted alphabetically'
 		}
-	}
+	},
+	schema: [{
+		type: 'object',
+		properties: {
+			allowBlankLines: {
+				type: 'boolean',
+				default: false
+			},
+			comparator: {
+				type: 'string',
+				enum: [
+					COMPARATOR_CASE_SENSITIVE,
+					COMPARATOR_CASE_INSENSITIVE,
+					COMPARATOR_GROUP
+				]
+			}
+		}
+	}]
 };
