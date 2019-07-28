@@ -20,16 +20,24 @@ const GROUP_NAMES = {
 	[GROUP_SIBLING]: 'Sibling'
 };
 
-const ALPHABETIZE_CASE_SENSITIVE = 'case-sensitive';
-const ALPHABETIZE_CASE_INSENSITIVE = 'case-insensitive';
-const ALPHABETIZE_CASE_OFF = 'off';
+const COMPARATOR_CASE_SENSITIVE = 'case-sensitive';
+const COMPARATOR_CASE_INSENSITIVE = 'case-insensitive';
+const COMPARATOR_CASE_PARTS = 'parts';
+const COMPARATOR_CASE_OFF = 'off';
+
+function splitImport(name) {
+	return name.split('-');
+}
 
 function getOrder(source) {
+	const parts = splitImport(source);
+
 	if (isBuiltin(source)) {
 		return {
 			name: source,
 			group: GROUP_BUILTIN,
-			depth: 0
+			depth: 0,
+			parts
 		};
 	}
 
@@ -37,7 +45,8 @@ function getOrder(source) {
 		return {
 			name: source,
 			group: GROUP_SIBLING,
-			depth: 0
+			depth: 0,
+			parts
 		};
 	}
 
@@ -46,14 +55,16 @@ function getOrder(source) {
 		return {
 			name: source,
 			group: GROUP_PARENT,
-			depth: relative[1].split('..').length
+			depth: relative[1].split('..').length,
+			parts
 		};
 	}
 
 	return {
 		name: source,
 		group: GROUP_ABSOLUTE,
-		depth: 0
+		depth: 0,
+		parts
 	};
 }
 
@@ -128,34 +139,84 @@ function getInvalidBlankLinesReport(nodePrev, nodeNext, context) {
 	return null;
 }
 
-function alphaSensitive(a, b) {
-	return a < b;
+function alphaSensitive(prev, next) {
+	if (prev.name === next.name) {
+		return 0;
+	}
+
+	if (prev.name < next.name) {
+		return -1;
+	}
+
+	return 1;
 }
 
-function alphaInsensitive(a, b) {
-	const aLower = a.toLowerCase();
-	const bLower = b.toLowerCase();
-	return aLower < bLower;
+function alphaInsensitive(prev, next) {
+	const prevName = prev.name.toLowerCase();
+	const nextName = next.name.toLowerCase();
+
+	if (prevName === nextName) {
+		return 0;
+	}
+
+	if (prevName < nextName) {
+		return -1;
+	}
+
+	return 1;
 }
 
 function alphaOff() {
-	return false;
+	return 0;
+}
+
+function partsComparator(prev, next, partsSeen) {
+	const prevParts = prev.parts;
+	const nextParts = next.parts;
+
+	let exact = true;
+	const length = Math.min(prevParts.length, nextParts.length);
+
+	for (let depth = 0; depth < length; depth++) {
+		const prevPart = prevParts[depth];
+		const nextPart = nextParts[depth];
+		exact = exact && prevPart === nextPart;
+
+		if (exact) {
+			continue;
+		}
+
+		const prevScore = partsSeen[depth][prevPart];
+		const nextScore = partsSeen[depth][nextPart];
+
+		if (prevScore < nextScore) {
+			return -1;
+		}
+	}
+
+	if (exact) {
+		return 0;
+	}
+
+	return 1;
 }
 
 function getAlphabetize(alphabetize) {
 	switch (alphabetize) {
-		case ALPHABETIZE_CASE_INSENSITIVE:
+		case COMPARATOR_CASE_INSENSITIVE:
 			return alphaInsensitive;
-		case ALPHABETIZE_CASE_SENSITIVE:
+		case COMPARATOR_CASE_SENSITIVE:
 			return alphaSensitive;
-		case ALPHABETIZE_CASE_OFF:
+		case COMPARATOR_CASE_PARTS:
+			return partsComparator;
+		case COMPARATOR_CASE_OFF:
 			return alphaOff;
 		default:
 			throw new Error(`Invalid alphabetize option: ${alphabetize}`);
 	}
 }
 
-function getInvalidOrderReport(prev, next, alphabetize) {
+function getInvalidOrderReport(prev, next, alphabetize, partsSeen) {
 	if (prev === null) {
 		return null;
 	}
@@ -174,18 +235,17 @@ function getInvalidOrderReport(prev, next, alphabetize) {
 		return null;
 	}
 
-	if (prev.depth !== next.depth) {
-		if (prev.depth < next.depth) {
-			return {
-				messageId: MESSAGE_ID_DEPTH
-			};
-		}
+	if (prev.depth < next.depth) {
+		return {
+			messageId: MESSAGE_ID_DEPTH
+		};
+	}
 
+	if (prev.depth !== next.depth) {
 		return null;
 	}
 
-	// TODO: Case insensitive
-	if (alphabetize(next.name, prev.name)) {
+	if (alphabetize(next, prev, partsSeen) < 0) {
 		return {
 			messageId: MESSAGE_ID_ORDER
 		};
@@ -265,7 +325,7 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 	const {
 		allowBlankLines = false,
-		alphabetize: alphabetizeOption = ALPHABETIZE_CASE_SENSITIVE
+		alphabetize: alphabetizeOption = COMPARATOR_CASE_SENSITIVE
 	} = options[0] || {};
 
 	let orderPrev = null;
@@ -273,8 +333,23 @@ const create = context => {
 
 	const alphabetize = getAlphabetize(alphabetizeOption);
 
+	const partsSeen = [];
+	const partsMaxDepth = [];
+
 	function runRule(nodeNext, orderNext, reportTarget) {
-		const message = getInvalidOrderReport(orderPrev, orderNext, alphabetize);
+		orderNext.parts.forEach((group, i) => {
+			if (i >= partsSeen.length) {
+				partsSeen[i] = {};
+				partsMaxDepth[i] = 0;
+			}
+
+			if (partsSeen[i][group] === undefined) {
+				partsSeen[i][group] = partsMaxDepth[i];
+				partsMaxDepth[i] += 1;
+			}
+		});
+
+		const message = getInvalidOrderReport(orderPrev, orderNext, alphabetize, partsSeen);
 
 		if (message) {
 			context.report({
@@ -314,20 +389,20 @@ const create = context => {
 
 	return {
 		'Program > VariableDeclaration[declarations.length=1] > VariableDeclarator:matches([id.type="Identifier"],[id.type="ObjectPattern"]) > CallExpression[callee.name="require"][arguments.length=1][arguments.0.type="Literal"]': node => {
-			const nodeNext = node.parent.parent;
 			const orderNext = getOrder(node.arguments[0].value);
+			const nodeNext = node.parent.parent;
 
 			runRule(nodeNext, orderNext, node.arguments[0]);
 		},
 		'Program > ExpressionStatement > CallExpression[callee.name="require"][arguments.length=1][arguments.0.type="Literal"]': node => {
-			const nodeNext = node.parent;
 			const orderNext = getOrder(node.arguments[0].value);
+			const nodeNext = node.parent;
 
 			runRule(nodeNext, orderNext, node.arguments[0]);
 		},
 		'Program > ImportDeclaration': node => {
-			const nodeNext = node;
 			const orderNext = getOrder(node.source.value);
+			const nodeNext = node;
 
 			runRule(nodeNext, orderNext, node.source);
 		}
@@ -351,6 +426,7 @@ module.exports = {
 	},
 	schema: [{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			allowBlankLines: {
 				type: 'boolean',
@@ -359,9 +435,10 @@ module.exports = {
 			alphabetize: {
 				type: 'string',
 				enum: [
-					ALPHABETIZE_CASE_SENSITIVE,
-					ALPHABETIZE_CASE_INSENSITIVE,
-					ALPHABETIZE_CASE_OFF
+					COMPARATOR_CASE_SENSITIVE,
+					COMPARATOR_CASE_INSENSITIVE,
+					COMPARATOR_CASE_PARTS,
+					COMPARATOR_CASE_OFF
 				]
 			}
 		}

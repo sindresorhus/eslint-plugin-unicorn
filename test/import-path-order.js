@@ -40,6 +40,10 @@ const optionAlphaInsensitive = {
 	alphabetize: 'case-insensitive'
 };
 
+const optionAlphaParts = {
+	alphabetize: 'parts'
+};
+
 const optionAlphaOff = {
 	alphabetize: 'off'
 };
@@ -143,6 +147,37 @@ ruleTester.run('import-path-order', rule, {
 			`,
 			options: [optionAlphaInsensitive]
 		},
+		{
+			code: outdent`
+				const b = require('b');
+				const a = require('a');
+			`,
+			options: [optionAlphaOff]
+		},
+		{
+			code: outdent`
+				const one = require('a-one');
+				const two = require('a-two');
+				const three = require('b-three');
+			`,
+			options: [optionAlphaParts]
+		},
+		{
+			code: outdent`
+				const two = require('a-two');
+				const one = require('a-one');
+				const three = require('b-three');
+			`,
+			options: [optionAlphaParts]
+		},
+		{
+			code: outdent`
+				const three = require('b-three');
+				const one = require('a-one');
+				const two = require('a-two');
+			`,
+			options: [optionAlphaParts]
+		},
 	],
 	invalid: [
 		{
@@ -181,6 +216,42 @@ ruleTester.run('import-path-order', rule, {
 				const c = require('c');
 			`,
 			errors: [errorOrder]
+		},
+		{
+			code: outdent`
+				const c = require('c');
+				const b = require('b');
+				const a = require('a');
+			`,
+			output: outdent`
+				const b = require('b');
+				const c = require('c');
+				const a = require('a');
+			`,
+			errors: [
+				errorOrder,
+				errorOrder
+			]
+		},
+		{
+			code: outdent`
+				const d = require('d');
+				const a = require('a');
+				const c = require('c');
+				const e = require('e');
+				const b = require('b');
+			`,
+			output: outdent`
+				const a = require('a');
+				const d = require('d');
+				const c = require('c');
+				const b = require('b');
+				const e = require('e');
+			`,
+			errors: [
+				errorOrder,
+				errorOrder
+			]
 		},
 		{
 			code: outdent`
@@ -686,5 +757,40 @@ ruleTester.run('import-path-order', rule, {
 			options: [optionAlphaInsensitive],
 			errors: [errorOrder]
 		},
+		{
+			code: outdent`
+				const one = require('a-one');
+				const three = require('b-three');
+				const two = require('a-two');
+			`,
+			output: outdent`
+				const one = require('a-one');
+				const two = require('a-two');
+				const three = require('b-three');
+			`,
+			options: [optionAlphaParts],
+			errors: [errorOrder]
+		},
+		{
+			code: outdent`
+				const three = require('b-three');
+				const one = require('a-one');
+				const four = require('b-four');
+				const two = require('a-two');
+				const five = require('b-five');
+			`,
+			output: outdent`
+				const three = require('b-three');
+				const four = require('b-four');
+				const one = require('a-one');
+				const five = require('b-five');
+				const two = require('a-two');
+			`,
+			options: [optionAlphaParts],
+			errors: [
+				errorOrder,
+				errorOrder
+			]
+		}
 	]
 });
