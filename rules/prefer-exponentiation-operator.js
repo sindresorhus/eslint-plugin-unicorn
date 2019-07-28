@@ -22,10 +22,8 @@ const parseArgument = (source, arg) => {
 			return text;
 		case 'CallExpression':
 			return text;
-		case 'UnaryExpression':
-			return text;
 		default:
-			// Handle cases like Math.pow(2, 2-1);
+			// Handle cases like Math.pow(-0, 2-1);
 			return `(${text})`;
 	}
 };
