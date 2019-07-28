@@ -137,3 +137,109 @@ import a from 'a';
 const foo = a.foo; // Non-import statements will fail
 import b from 'b';
 ```
+
+### `comparator`
+
+`comparator` adds additional ordering constraints for imports that have the same relative source. Options are:
+* `case-sensitive` -- Orders alphabetically, case-sensitive *(default)*
+* `case-insensitive` -- Orders alphabetically, case-insensitive
+* `parts` -- Groups imports with similar parts next to each other
+* `off` -- No additional ordering
+
+#### Fail
+
+```js
+/* eslint unicorn/import-path-order: ["error", {comparator: 'case-sensitive'}] */
+import a from 'a';
+import B from 'B';
+```
+
+```js
+/* eslint unicorn/import-path-order: ["error", {comparator: 'case-insensitive'}] */
+import B from 'B';
+import a from 'a';
+```
+
+```js
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts'}] */
+import a from 'a-one';
+import b from 'b-three';
+import a from 'a-two';
+```
+
+#### Pass
+
+```js
+/* eslint unicorn/import-path-order: ["error", {comparator: 'case-sensitive'}] */
+import B from 'B';
+import a from 'a';
+```
+
+```js
+/* eslint unicorn/import-path-order: ["error", {comparator: 'case-insensitive'}] */
+import a from 'a';
+import B from 'B';
+```
+
+```js
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts'}] */
+import a from 'a-one';
+import a from 'a-two';
+import b from 'b-three';
+```
+
+```js
+/* eslint unicorn/import-path-order: ["error", {comparator: 'off'}] */
+import c from 'a-c';
+import b from 'b';
+import a from 'a';
+```
+
+### `partsRegex`
+
+`partsRegex` changes how `comparator: 'parts'` behaves. The default is `[-/]`.
+
+#### Fail
+
+```js
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: '[-/]'}] */
+import a from 'a-one';
+import b from 'b-three';
+import a from 'a-two';
+```
+
+```js
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: '[-/]'}] */
+import a from 'a/one';
+import b from 'b/three';
+import a from 'a/two';
+```
+
+```js
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: '[x]'}] */
+import a from 'axone';
+import b from 'bxthree';
+import a from 'axtwo';
+```
+
+#### Pass
+```js
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: '[-/]'}] */
+import a from 'a-one';
+import a from 'a-two';
+import b from 'b-three';
+```
+
+```js
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: '[-/]'}] */
+import a from 'a/one';
+import a from 'a/two';
+import b from 'b/three';
+```
+
+```js
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: '[x]'}] */
+import a from 'axone';
+import a from 'axtwo';
+import b from 'bxthree';
+```

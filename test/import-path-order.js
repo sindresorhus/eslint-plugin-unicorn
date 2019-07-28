@@ -180,6 +180,14 @@ ruleTester.run('import-path-order', rule, {
 		},
 		{
 			code: outdent`
+				const one = require('a-one');
+				const three = require('b-three');
+				const two = require('./a-two');
+			`,
+			options: [optionComparatorParts]
+		},
+		{
+			code: outdent`
 				const three = require('b/three');
 				const one = require('a/one');
 				const two = require('a/two');
@@ -775,6 +783,20 @@ ruleTester.run('import-path-order', rule, {
 				const one = require('a-one');
 				const two = require('a-two');
 				const three = require('b-three');
+			`,
+			options: [optionComparatorParts],
+			errors: [errorOrder]
+		},
+		{
+			code: outdent`
+				const one = require('./a-one');
+				const three = require('./b-three');
+				const two = require('./a-two');
+			`,
+			output: outdent`
+				const one = require('./a-one');
+				const two = require('./a-two');
+				const three = require('./b-three');
 			`,
 			options: [optionComparatorParts],
 			errors: [errorOrder]
