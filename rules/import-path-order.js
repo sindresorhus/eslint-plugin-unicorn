@@ -25,12 +25,8 @@ const COMPARATOR_CASE_INSENSITIVE = 'case-insensitive';
 const COMPARATOR_CASE_PARTS = 'parts';
 const COMPARATOR_CASE_OFF = 'off';
 
-function splitImport(name) {
-	return name.split('-');
-}
-
-function getOrder(source) {
-	const parts = splitImport(source);
+function getOrder(source, partsRegex) {
+	const parts = source.split(new RegExp(partsRegex));
 
 	if (isBuiltin(source)) {
 		return {
@@ -201,8 +197,8 @@ function partsComparator(prev, next, partsSeen) {
 	return 1;
 }
 
-function getAlphabetize(alphabetize) {
-	switch (alphabetize) {
+function getComparator(comparator) {
+	switch (comparator) {
 		case COMPARATOR_CASE_INSENSITIVE:
 			return alphaInsensitive;
 		case COMPARATOR_CASE_SENSITIVE:
@@ -212,11 +208,11 @@ function getAlphabetize(alphabetize) {
 		case COMPARATOR_CASE_OFF:
 			return alphaOff;
 		default:
-			throw new Error(`Invalid alphabetize option: ${alphabetize}`);
+			throw new Error(`Invalid comparator option: ${comparator}`);
 	}
 }
 
-function getInvalidOrderReport(prev, next, alphabetize, partsSeen) {
+function getInvalidOrderReport(prev, next, comparator, partsSeen) {
 	if (prev === null) {
 		return null;
 	}
@@ -245,7 +241,7 @@ function getInvalidOrderReport(prev, next, alphabetize, partsSeen) {
 		return null;
 	}
 
-	if (alphabetize(next, prev, partsSeen) < 0) {
+	if (comparator(next, prev, partsSeen) < 0) {
 		return {
 			messageId: MESSAGE_ID_ORDER
 		};
@@ -325,13 +321,14 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 	const {
 		allowBlankLines = false,
-		alphabetize: alphabetizeOption = COMPARATOR_CASE_SENSITIVE
+		comparator: comparatorOption = COMPARATOR_CASE_SENSITIVE,
+		partsRegex = '[-/]'
 	} = options[0] || {};
 
 	let orderPrev = null;
 	let nodePrev = null;
 
-	const alphabetize = getAlphabetize(alphabetizeOption);
+	const comparator = getComparator(comparatorOption);
 
 	const partsSeen = [];
 	const partsMaxDepth = [];
@@ -349,7 +346,7 @@ const create = context => {
 			}
 		});
 
-		const message = getInvalidOrderReport(orderPrev, orderNext, alphabetize, partsSeen);
+		const message = getInvalidOrderReport(orderPrev, orderNext, comparator, partsSeen);
 
 		if (message) {
 			context.report({
@@ -389,19 +386,19 @@ const create = context => {
 
 	return {
 		'Program > VariableDeclaration[declarations.length=1] > VariableDeclarator:matches([id.type="Identifier"],[id.type="ObjectPattern"]) > CallExpression[callee.name="require"][arguments.length=1][arguments.0.type="Literal"]': node => {
-			const orderNext = getOrder(node.arguments[0].value);
+			const orderNext = getOrder(node.arguments[0].value, partsRegex);
 			const nodeNext = node.parent.parent;
 
 			runRule(nodeNext, orderNext, node.arguments[0]);
 		},
 		'Program > ExpressionStatement > CallExpression[callee.name="require"][arguments.length=1][arguments.0.type="Literal"]': node => {
-			const orderNext = getOrder(node.arguments[0].value);
+			const orderNext = getOrder(node.arguments[0].value, partsRegex);
 			const nodeNext = node.parent;
 
 			runRule(nodeNext, orderNext, node.arguments[0]);
 		},
 		'Program > ImportDeclaration': node => {
-			const orderNext = getOrder(node.source.value);
+			const orderNext = getOrder(node.source.value, partsRegex);
 			const nodeNext = node;
 
 			runRule(nodeNext, orderNext, node.source);
@@ -432,7 +429,7 @@ module.exports = {
 				type: 'boolean',
 				default: false
 			},
-			alphabetize: {
+			comparator: {
 				type: 'string',
 				enum: [
 					COMPARATOR_CASE_SENSITIVE,
@@ -440,6 +437,10 @@ module.exports = {
 					COMPARATOR_CASE_PARTS,
 					COMPARATOR_CASE_OFF
 				]
+			},
+			partsRegex: {
+				type: 'string',
+				default: '[-/]'
 			}
 		}
 	}]

@@ -32,20 +32,20 @@ const errorBlankLines = {
 	messageId: 'import-path-blanklines'
 };
 
-const optionAlphaSensitive = {
-	alphabetize: 'case-sensitive'
+const optionComparatorSensitive = {
+	comparator: 'case-sensitive'
 };
 
-const optionAlphaInsensitive = {
-	alphabetize: 'case-insensitive'
+const optionComparatorInsensitive = {
+	comparator: 'case-insensitive'
 };
 
-const optionAlphaParts = {
-	alphabetize: 'parts'
+const optionComparatorParts = {
+	comparator: 'parts'
 };
 
-const optionAlphaOff = {
-	alphabetize: 'off'
+const optionComparatorOff = {
+	comparator: 'off'
 };
 
 ruleTester.run('import-path-order', rule, {
@@ -138,21 +138,21 @@ ruleTester.run('import-path-order', rule, {
 				const B = require('B');
 				const a = require('a');
 			`,
-			options: [optionAlphaSensitive]
+			options: [optionComparatorSensitive]
 		},
 		{
 			code: outdent`
 				const a = require('a');
 				const B = require('B');
 			`,
-			options: [optionAlphaInsensitive]
+			options: [optionComparatorInsensitive]
 		},
 		{
 			code: outdent`
 				const b = require('b');
 				const a = require('a');
 			`,
-			options: [optionAlphaOff]
+			options: [optionComparatorOff]
 		},
 		{
 			code: outdent`
@@ -160,7 +160,7 @@ ruleTester.run('import-path-order', rule, {
 				const two = require('a-two');
 				const three = require('b-three');
 			`,
-			options: [optionAlphaParts]
+			options: [optionComparatorParts]
 		},
 		{
 			code: outdent`
@@ -168,7 +168,7 @@ ruleTester.run('import-path-order', rule, {
 				const one = require('a-one');
 				const three = require('b-three');
 			`,
-			options: [optionAlphaParts]
+			options: [optionComparatorParts]
 		},
 		{
 			code: outdent`
@@ -176,8 +176,16 @@ ruleTester.run('import-path-order', rule, {
 				const one = require('a-one');
 				const two = require('a-two');
 			`,
-			options: [optionAlphaParts]
+			options: [optionComparatorParts]
 		},
+		{
+			code: outdent`
+				const three = require('b/three');
+				const one = require('a/one');
+				const two = require('a/two');
+			`,
+			options: [optionComparatorParts]
+		}
 	],
 	invalid: [
 		{
@@ -742,7 +750,7 @@ ruleTester.run('import-path-order', rule, {
 				const B = require('B');
 				const a = require('a');
 			`,
-			options: [optionAlphaSensitive],
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -754,7 +762,7 @@ ruleTester.run('import-path-order', rule, {
 				const a = require('a');
 				const B = require('B');
 			`,
-			options: [optionAlphaInsensitive],
+			options: [optionComparatorInsensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -768,7 +776,49 @@ ruleTester.run('import-path-order', rule, {
 				const two = require('a-two');
 				const three = require('b-three');
 			`,
-			options: [optionAlphaParts],
+			options: [optionComparatorParts],
+			errors: [errorOrder]
+		},
+		{
+			code: outdent`
+				const one = require('a-alfa-one');
+				const three = require('a-beta-three');
+				const two = require('a-alfa-two');
+			`,
+			output: outdent`
+				const one = require('a-alfa-one');
+				const two = require('a-alfa-two');
+				const three = require('a-beta-three');
+			`,
+			options: [optionComparatorParts],
+			errors: [errorOrder]
+		},
+		{
+			code: outdent`
+				const one = require('a/one');
+				const three = require('b/three');
+				const two = require('a/two');
+			`,
+			output: outdent`
+				const one = require('a/one');
+				const two = require('a/two');
+				const three = require('b/three');
+			`,
+			options: [optionComparatorParts],
+			errors: [errorOrder]
+		},
+		{
+			code: outdent`
+				const one = require('a-one');
+				const three = require('b-three');
+				const two = require('a/two');
+			`,
+			output: outdent`
+				const one = require('a-one');
+				const two = require('a/two');
+				const three = require('b-three');
+			`,
+			options: [optionComparatorParts],
 			errors: [errorOrder]
 		},
 		{
@@ -786,7 +836,7 @@ ruleTester.run('import-path-order', rule, {
 				const five = require('b-five');
 				const two = require('a-two');
 			`,
-			options: [optionAlphaParts],
+			options: [optionComparatorParts],
 			errors: [
 				errorOrder,
 				errorOrder
