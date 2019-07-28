@@ -20,9 +20,9 @@ const GROUP_NAMES = {
 	[GROUP_SIBLING]: 'Sibling'
 };
 
-const COMPARATOR_CASE_SENSITIVE = 'case-sensitive';
-const COMPARATOR_CASE_INSENSITIVE = 'case-insensitive';
-const COMPARATOR_GROUP = 'groups';
+const ALPHABETIZE_CASE_SENSITIVE = 'case-sensitive';
+const ALPHABETIZE_CASE_INSENSITIVE = 'case-insensitive';
+const ALPHABETIZE_CASE_OFF = 'off';
 
 function getOrder(source) {
 	if (isBuiltin(source)) {
@@ -128,47 +128,34 @@ function getInvalidBlankLinesReport(nodePrev, nodeNext, context) {
 	return null;
 }
 
-function caseSensitiveComparator(a, b) {
-	if (a < b) {
-		return -1;
-	}
-
-	if (a > b) {
-		return 1;
-	}
-
-	return 0;
+function alphaSensitive(a, b) {
+	return a < b;
 }
 
-function caseInsensitiveComparator(a, b) {
+function alphaInsensitive(a, b) {
 	const aLower = a.toLowerCase();
 	const bLower = b.toLowerCase();
-
-	if (aLower < bLower) {
-		return -1;
-	}
-
-	if (aLower > bLower) {
-		return 1;
-	}
-
-	return 0;
+	return aLower < bLower;
 }
 
-function getComparator(comparator) {
-	switch(comparator) {
-		case COMPARATOR_CASE_INSENSITIVE:
-			return caseInsensitiveComparator;
-		case COMPARATOR_CASE_SENSITIVE:
-			return caseSensitiveComparator;
-		case COMPARATOR_GROUP:
-			return caseInsensitiveComparator;
+function alphaOff() {
+	return false;
+}
+
+function getAlphabetize(alphabetize) {
+	switch (alphabetize) {
+		case ALPHABETIZE_CASE_INSENSITIVE:
+			return alphaInsensitive;
+		case ALPHABETIZE_CASE_SENSITIVE:
+			return alphaSensitive;
+		case ALPHABETIZE_CASE_OFF:
+			return alphaOff;
 		default:
-			throw new Error(`Invalid comparator option: ${comparator}`);
+			throw new Error(`Invalid alphabetize option: ${alphabetize}`);
 	}
 }
 
-function getInvalidOrderReport(prev, next, comparator) {
+function getInvalidOrderReport(prev, next, alphabetize) {
 	if (prev === null) {
 		return null;
 	}
@@ -198,7 +185,7 @@ function getInvalidOrderReport(prev, next, comparator) {
 	}
 
 	// TODO: Case insensitive
-	if (comparator(next.name, prev.name) < 0) {
+	if (alphabetize(next.name, prev.name)) {
 		return {
 			messageId: MESSAGE_ID_ORDER
 		};
@@ -278,16 +265,16 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 	const {
 		allowBlankLines = false,
-		comparator: comparatorOption = COMPARATOR_CASE_SENSITIVE
+		alphabetize: alphabetizeOption = ALPHABETIZE_CASE_SENSITIVE
 	} = options[0] || {};
 
 	let orderPrev = null;
 	let nodePrev = null;
 
-	const comparator = getComparator(comparatorOption);
+	const alphabetize = getAlphabetize(alphabetizeOption);
 
 	function runRule(nodeNext, orderNext, reportTarget) {
-		const message = getInvalidOrderReport(orderPrev, orderNext, comparator);
+		const message = getInvalidOrderReport(orderPrev, orderNext, alphabetize);
 
 		if (message) {
 			context.report({
@@ -369,12 +356,12 @@ module.exports = {
 				type: 'boolean',
 				default: false
 			},
-			comparator: {
+			alphabetize: {
 				type: 'string',
 				enum: [
-					COMPARATOR_CASE_SENSITIVE,
-					COMPARATOR_CASE_INSENSITIVE,
-					COMPARATOR_GROUP
+					ALPHABETIZE_CASE_SENSITIVE,
+					ALPHABETIZE_CASE_INSENSITIVE,
+					ALPHABETIZE_CASE_OFF
 				]
 			}
 		}

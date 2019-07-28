@@ -32,6 +32,18 @@ const errorBlankLines = {
 	messageId: 'import-path-blanklines'
 };
 
+const optionAlphaSensitive = {
+	alphabetize: 'case-sensitive'
+};
+
+const optionAlphaInsensitive = {
+	alphabetize: 'case-insensitive'
+};
+
+const optionAlphaOff = {
+	alphabetize: 'off'
+};
+
 ruleTester.run('import-path-order', rule, {
 	valid: [
 		outdent`
@@ -122,18 +134,14 @@ ruleTester.run('import-path-order', rule, {
 				const B = require('B');
 				const a = require('a');
 			`,
-			options: [{
-				comparator: 'case-sensitive'
-			}]
+			options: [optionAlphaSensitive]
 		},
 		{
 			code: outdent`
 				const a = require('a');
 				const B = require('B');
 			`,
-			options: [{
-				comparator: 'case-insensitive'
-			}]
+			options: [optionAlphaInsensitive]
 		},
 	],
 	invalid: [
@@ -663,9 +671,7 @@ ruleTester.run('import-path-order', rule, {
 				const B = require('B');
 				const a = require('a');
 			`,
-			options: [{
-				comparator: 'case-sensitive'
-			}],
+			options: [optionAlphaSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -677,9 +683,7 @@ ruleTester.run('import-path-order', rule, {
 				const a = require('a');
 				const B = require('B');
 			`,
-			options: [{
-				comparator: 'case-insensitive'
-			}],
+			options: [optionAlphaInsensitive],
 			errors: [errorOrder]
 		},
 	]
