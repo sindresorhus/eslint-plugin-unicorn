@@ -415,6 +415,21 @@ ruleTester.run('import-path-order', rule, {
 		{
 			code: outdent`
 				const b = require('b');
+				// Comment
+				const a = require('a');
+			`,
+			output: outdent`
+				const b = require('b');
+				// Comment
+				const a = require('a');
+			`,
+			errors: [
+				errorOrder
+			]
+		},
+		{
+			code: outdent`
+				const b = require('b');
 				// Comment with blank line afterward
 
 				const a = require('a');
@@ -441,6 +456,38 @@ ruleTester.run('import-path-order', rule, {
 			`,
 			errors: [
 				errorBlankLines,
+				errorOrder
+			]
+		},
+		{
+			code: outdent`
+				const b = require('b');
+				const a = require('a');
+				// Comment
+				const c = require('c');
+			`,
+			output: outdent`
+				const b = require('b');
+				const a = require('a');
+				// Comment
+				const c = require('c');
+			`,
+			errors: [
+				errorOrder
+			]
+		},
+		{
+			code: outdent`
+				// Comment
+				const b = require('b');
+				const a = require('a');
+			`,
+			output: outdent`
+				// Comment
+				const b = require('b');
+				const a = require('a');
+			`,
+			errors: [
 				errorOrder
 			]
 		},

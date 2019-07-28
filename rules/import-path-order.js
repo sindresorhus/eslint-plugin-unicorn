@@ -175,7 +175,18 @@ function swapNodeLocation({
 		return;
 	}
 
+	// Comments are annoying to auto-fix because intent is hard to interpret.
+	// Turn off fixes if any comments exist between, just before, or just after
+	// the affected nodes.
 	if (sourceCode.commentsExistBetween(nodePrev, nodeNext)) {
+		return;
+	}
+
+	if (sourceCode.getComments(nodePrev).leading.length > 0) {
+		return;
+	}
+
+	if (sourceCode.getComments(nodeNext).trailing.length > 0) {
 		return;
 	}
 
