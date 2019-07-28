@@ -412,18 +412,16 @@ ruleTester.run('import-path-order', rule, {
 				errorOrder
 			]
 		},
-		// This is a weird edge case due to how comment tokens work
 		{
 			code: outdent`
 				const b = require('b');
-				// Comment
+				// Comment with blank line afterward
 
 				const a = require('a');
 			`,
 			output: outdent`
 				const b = require('b');
-				// Comment
-
+				// Comment with blank line afterward
 				const a = require('a');
 			`,
 			errors: [

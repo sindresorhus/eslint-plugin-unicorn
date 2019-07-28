@@ -74,15 +74,33 @@ function getInvalidBlankLinesReport(nodePrev, nodeNext, context) {
 		});
 
 		const lineContents = sourceCode.getTokenByRangeStart(index, {includeComments: true});
-		const {type} = lineContents || {};
+		const {
+			type: contentType,
+			loc: contentLoc
+		} = lineContents || {};
 
-		// Ignore lines with comments on them
-		if (type === 'Line') {
+		const {
+			end: contentEnd
+		} = contentLoc || {};
+
+		const {
+			line: contentEndLine
+		} = contentEnd || {};
+
+		// Ignore lines with comments on them but only if they actually end on
+		// the line we are checking. This catches the strange case of:
+		//
+		// const b = require('b');
+		// // Comment with blank line afterward
+		//
+		// const a = require('a');
+		//
+		if (contentType === 'Line' && line === contentEndLine) {
 			continue;
 		}
 
 		// Ignore block comments
-		if (type === 'Block') {
+		if (contentType === 'Block') {
 			continue;
 		}
 
