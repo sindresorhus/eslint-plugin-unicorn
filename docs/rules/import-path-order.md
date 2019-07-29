@@ -141,9 +141,9 @@ import b from 'b';
 ### `comparator`
 
 `comparator` adds additional ordering constraints for imports that have the same relative source. Options are:
-* `case-sensitive` -- Orders alphabetically, case-sensitive *(default)*
+* `case-sensitive` -- Orders alphabetically, case-sensitive
 * `case-insensitive` -- Orders alphabetically, case-insensitive
-* `parts` -- Groups imports with similar parts next to each other
+* `parts` -- Groups imports with similar parts next to each other *(default)*
 * `off` -- No additional ordering
 
 #### Fail

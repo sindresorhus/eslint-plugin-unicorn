@@ -321,7 +321,7 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 	const {
 		allowBlankLines = false,
-		comparator: comparatorOption = COMPARATOR_CASE_SENSITIVE,
+		comparator: comparatorOption = COMPARATOR_CASE_PARTS,
 		partsRegex = '[-/]'
 	} = options[0] || {};
 
@@ -436,7 +436,8 @@ module.exports = {
 					COMPARATOR_CASE_INSENSITIVE,
 					COMPARATOR_CASE_PARTS,
 					COMPARATOR_CASE_OFF
-				]
+				],
+				default: COMPARATOR_CASE_PARTS
 			},
 			partsRegex: {
 				type: 'string',

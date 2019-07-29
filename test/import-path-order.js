@@ -50,50 +50,80 @@ const optionComparatorOff = {
 
 ruleTester.run('import-path-order', rule, {
 	valid: [
-		outdent`
-			const a = require('a');
-			const b = require('b');
-		`,
-		outdent`
-			const a = require('ab');
-			const b = require('ab');
-		`,
-		outdent`
-			const a = require('a');
-			import b from 'b';
-		`,
-		outdent`
-			import a from 'a';
-			const b = require('b');
-		`,
-		outdent`
-			import a from 'a';
-			import b from 'b';
-		`,
-		outdent`
-			import a from 'ab';
-			import b from 'ab';
-		`,
-		outdent`
-			import { a } from 'ab';
-			import { b } from 'ab';
-		`,
-		outdent`
-			const z = require('a');
-			const y = require('b');
-		`,
-		outdent`
-			const c = require('c');
-
-			function foo() {
-				const b = require('b');
+		{
+			code: outdent`
 				const a = require('a');
-			}
-		`,
-		outdent`
-			import fs from 'fs';
-			import a from 'a';
-		`,
+				const b = require('b');
+			`,
+			options: [optionComparatorSensitive]
+		},
+		{
+			code: outdent`
+				const a = require('ab');
+				const b = require('ab');
+			`,
+			options: [optionComparatorSensitive]
+		},
+		{
+			code: outdent`
+				const a = require('a');
+				import b from 'b';
+			`,
+			options: [optionComparatorSensitive]
+		},
+		{
+			code: outdent`
+				import a from 'a';
+				const b = require('b');
+			`,
+			options: [optionComparatorSensitive]
+		},
+		{
+			code: outdent`
+				import a from 'a';
+				import b from 'b';
+			`,
+			options: [optionComparatorSensitive]
+		},
+		{
+			code: outdent`
+				import a from 'ab';
+				import b from 'ab';
+			`,
+			options: [optionComparatorSensitive]
+		},
+		{
+			code: outdent`
+				import { a } from 'ab';
+				import { b } from 'ab';
+			`,
+			options: [optionComparatorSensitive]
+		},
+		{
+			code: outdent`
+				const z = require('a');
+				const y = require('b');
+			`,
+			options: [optionComparatorSensitive]
+		},
+		{
+			code: outdent`
+				const c = require('c');
+
+				function foo() {
+					const b = require('b');
+					const a = require('a');
+				}
+			`,
+			options: [optionComparatorSensitive]
+		},
+		{
+			code: outdent`
+				import fs from 'fs';
+				import a from 'a';
+			`,
+			options: [optionComparatorSensitive]
+		},
 		{
 			code: outdent`
 				const a = require('a');
@@ -104,115 +134,133 @@ ruleTester.run('import-path-order', rule, {
 				allowBlankLines: true
 			}]
 		},
-		outdent`
-			const a = require('a');
-			// Not a blank line
-			const b = require('b');
-		`,
-		outdent`
-			const a = require('a');
-			/*
-
-			Not a blank line
-
-			*/
-			const b = require('b');
-		`,
-		outdent`
-			import 'a';
-			import b from 'b';
-			const c = require('c');
-		`,
-		outdent`
-			import a from 'a';
-			import 'b';
-			const c = require('c');
-		`,
-		outdent`
-			import a from 'a';
-			require('b');
-			const c = require('c');
-		`,
 		{
 			code: outdent`
-				const B = require('B');
 				const a = require('a');
+				// Not a blank line
+				const b = require('b');
 			`,
+
 			options: [optionComparatorSensitive]
 		},
 		{
 			code: outdent`
 				const a = require('a');
-				const B = require('B');
-			`,
-			options: [optionComparatorInsensitive]
-		},
-		{
-			code: outdent`
-				const a = require('ab');
-				const B = require('AB');
-			`,
-			options: [optionComparatorInsensitive]
-		},
-		{
-			code: outdent`
-				const B = require('AB');
-				const a = require('ab');
-			`,
-			options: [optionComparatorInsensitive]
-		},
-		{
-			code: outdent`
+				/*
+
+				Not a blank line
+
+				*/
 				const b = require('b');
-				const a = require('a');
 			`,
+			options: [optionComparatorSensitive]
+		},
+		{
+			code: outdent`
+				import 'a';
+				import b from 'b';
+				const c = require('c');
+			`,
+
+			options: [optionComparatorSensitive]
+		},
+		{
+			code: outdent`
+				import a from 'a';
+				import 'b';
+				const c = require('c');
+			`,
+
+			options: [optionComparatorSensitive]
+		},
+		{
+			code: outdent`
+				import a from 'a';
+				require('b');
+				const c = require('c');
+			`,
+			options: [optionComparatorSensitive]
+		},
+		{
+			code: outdent`
+					const B = require('B');
+					const a = require('a');
+				`,
+			options: [optionComparatorSensitive]
+		},
+		{
+			code: outdent`
+					const a = require('a');
+					const B = require('B');
+				`,
+			options: [optionComparatorInsensitive]
+		},
+		{
+			code: outdent`
+					const a = require('ab');
+					const B = require('AB');
+				`,
+			options: [optionComparatorInsensitive]
+		},
+		{
+			code: outdent`
+					const B = require('AB');
+					const a = require('ab');
+				`,
+			options: [optionComparatorInsensitive]
+		},
+		{
+			code: outdent`
+					const b = require('b');
+					const a = require('a');
+				`,
 			options: [optionComparatorOff]
 		},
 		{
 			code: outdent`
-				const one = require('a-one');
-				const two = require('a-two');
-				const three = require('b-three');
-			`,
+					const one = require('a-one');
+					const two = require('a-two');
+					const three = require('b-three');
+				`,
 			options: [optionComparatorParts]
 		},
 		{
 			code: outdent`
-				const a = require('a-b');
-				const b = require('a-b');
-			`,
+					const a = require('a-b');
+					const b = require('a-b');
+				`,
 			options: [optionComparatorParts]
 		},
 		{
 			code: outdent`
-				const two = require('a-two');
-				const one = require('a-one');
-				const three = require('b-three');
-			`,
+					const two = require('a-two');
+					const one = require('a-one');
+					const three = require('b-three');
+				`,
 			options: [optionComparatorParts]
 		},
 		{
 			code: outdent`
-				const three = require('b-three');
-				const one = require('a-one');
-				const two = require('a-two');
-			`,
+					const three = require('b-three');
+					const one = require('a-one');
+					const two = require('a-two');
+				`,
 			options: [optionComparatorParts]
 		},
 		{
 			code: outdent`
-				const one = require('a-one');
-				const three = require('b-three');
-				const two = require('./a-two');
-			`,
+					const one = require('a-one');
+					const three = require('b-three');
+					const two = require('./a-two');
+				`,
 			options: [optionComparatorParts]
 		},
 		{
 			code: outdent`
-				const three = require('b/three');
-				const one = require('a/one');
-				const two = require('a/two');
-			`,
+					const three = require('b/three');
+					const one = require('a/one');
+					const two = require('a/two');
+				`,
 			options: [optionComparatorParts]
 		}
 	],
@@ -226,6 +274,7 @@ ruleTester.run('import-path-order', rule, {
 				const a = require('a');
 				const b = require('b');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -239,6 +288,7 @@ ruleTester.run('import-path-order', rule, {
 				const b = require('b');
 				const c = require('c');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -252,6 +302,7 @@ ruleTester.run('import-path-order', rule, {
 				const b = require('b');
 				const c = require('c');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -265,6 +316,7 @@ ruleTester.run('import-path-order', rule, {
 				const c = require('c');
 				const a = require('a');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [
 				errorOrder,
 				errorOrder
@@ -285,6 +337,7 @@ ruleTester.run('import-path-order', rule, {
 				const b = require('b');
 				const e = require('e');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [
 				errorOrder,
 				errorOrder
@@ -299,6 +352,7 @@ ruleTester.run('import-path-order', rule, {
 				const a = require('a');
 				import b from 'b';
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -310,6 +364,7 @@ ruleTester.run('import-path-order', rule, {
 				import a from 'a';
 				const b = require('b');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -321,6 +376,7 @@ ruleTester.run('import-path-order', rule, {
 				import a from 'a';
 				import b from 'b';
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -334,6 +390,7 @@ ruleTester.run('import-path-order', rule, {
 				import a from 'a';
 				import b from 'b';
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -347,6 +404,7 @@ ruleTester.run('import-path-order', rule, {
 				import b from 'b';
 
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -359,6 +417,7 @@ ruleTester.run('import-path-order', rule, {
 				import a from 'a';
 				import b from 'b';
 			`,
+			options: [optionComparatorSensitive],
 			errors: [
 				errorBlankLines,
 				errorOrder
@@ -377,6 +436,7 @@ ruleTester.run('import-path-order', rule, {
 				import a from 'a';
 				import b from 'b';
 			`,
+			options: [optionComparatorSensitive],
 			errors: [
 				errorBlankLines,
 				errorOrder
@@ -389,6 +449,7 @@ ruleTester.run('import-path-order', rule, {
 			output: outdent`
 				import a from 'a';import b from 'b';
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -477,6 +538,7 @@ ruleTester.run('import-path-order', rule, {
 				import 'a';
 				import b from 'b';
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -488,6 +550,7 @@ ruleTester.run('import-path-order', rule, {
 				require('a');
 				import b from 'b';
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -500,6 +563,7 @@ ruleTester.run('import-path-order', rule, {
 				const a = require('a');
 				const b = require('b');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [
 				errorBlankLines,
 				errorOrder
@@ -515,6 +579,7 @@ ruleTester.run('import-path-order', rule, {
 				import a from 'a';
 				import b from 'b';
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorBlankLines]
 		},
 		{
@@ -527,6 +592,7 @@ ruleTester.run('import-path-order', rule, {
 				import a from 'a';
 				import b from 'b';
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorBlankLines]
 		},
 		{
@@ -541,6 +607,7 @@ ruleTester.run('import-path-order', rule, {
 				// Comment
 				const a = require('a');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [
 				errorBlankLines,
 				errorOrder
@@ -557,6 +624,7 @@ ruleTester.run('import-path-order', rule, {
 				// Comment
 				const a = require('a');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [
 				errorOrder
 			]
@@ -573,6 +641,7 @@ ruleTester.run('import-path-order', rule, {
 				// Comment with blank line afterward
 				const a = require('a');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [
 				errorBlankLines,
 				errorOrder
@@ -588,6 +657,7 @@ ruleTester.run('import-path-order', rule, {
 				const b = require('b'); // Comment
 				const a = require('a');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [
 				errorBlankLines,
 				errorOrder
@@ -606,6 +676,7 @@ ruleTester.run('import-path-order', rule, {
 				// Comment
 				const c = require('c');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [
 				errorOrder
 			]
@@ -621,6 +692,7 @@ ruleTester.run('import-path-order', rule, {
 				const b = require('b');
 				const a = require('a');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [
 				errorOrder
 			]
@@ -635,6 +707,7 @@ ruleTester.run('import-path-order', rule, {
 				const b = require('b');
 				const a = require('a'); // Comment
 			`,
+			options: [optionComparatorSensitive],
 			errors: [
 				errorBlankLines,
 				errorOrder
@@ -652,6 +725,7 @@ ruleTester.run('import-path-order', rule, {
 				const foo = 'foo';
 				const a = require('a');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [
 				errorBlankLines,
 				errorOrder
@@ -669,6 +743,7 @@ ruleTester.run('import-path-order', rule, {
 				const foo = 'foo';
 				const a = require('a');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [
 				errorBlankLines,
 				errorOrder
@@ -685,6 +760,7 @@ ruleTester.run('import-path-order', rule, {
 				{ const foo = 'foo'; }
 				const a = require('a');
 			`,
+			options: [optionComparatorSensitive],
 			errors: [
 				errorBlankLines,
 				errorOrder
@@ -699,6 +775,7 @@ ruleTester.run('import-path-order', rule, {
 				import { a } from 'a';
 				import { b } from 'b';
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -718,6 +795,7 @@ ruleTester.run('import-path-order', rule, {
 					b
 				} from 'b';
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -737,6 +815,7 @@ ruleTester.run('import-path-order', rule, {
 					a // five
 				} from 'a'; // six
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
@@ -768,6 +847,7 @@ ruleTester.run('import-path-order', rule, {
 				// six
 				} from 'a';
 			`,
+			options: [optionComparatorSensitive],
 			errors: [errorOrder]
 		},
 		{
