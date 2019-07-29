@@ -197,49 +197,65 @@ import a from 'a';
 
 ### `partsRegex`
 
-`partsRegex` changes how `comparator: 'parts'` behaves. The default is `[-/]`.
+`partsRegex` changes how `comparator: 'parts'` behaves. It is an array of each _type_ of path comparator to use. The default is `["-", "/"]`.
 
 #### Fail
 
 ```js
-/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: '[-/]'}] */
-import a from 'a-one';
-import b from 'b-three';
-import a from 'a-two';
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: ["-"]}] */
+import one from 'a-one';
+import three from 'b-three';
+import two from 'a-two';
 ```
 
 ```js
-/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: '[-/]'}] */
-import a from 'a/one';
-import b from 'b/three';
-import a from 'a/two';
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: ["/"]}] */
+import one from 'a/one';
+import three from 'b/three';
+import two from 'a/two';
 ```
 
 ```js
-/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: '[x]'}] */
-import a from 'axone';
-import b from 'bxthree';
-import a from 'axtwo';
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: ["-","/"]}] */
+import one from 'a-one';
+import three from 'a/three';
+import two from 'a-two';
+import four from 'a/four';
+```
+
+```js
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: ["x"]}] */
+import one from 'axone';
+import three from 'bxthree';
+import two from 'axtwo';
 ```
 
 #### Pass
 ```js
-/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: '[-/]'}] */
-import a from 'a-one';
-import a from 'a-two';
-import b from 'b-three';
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: ["-"]}] */
+import one from 'a-one';
+import two from 'a-two';
+import three from 'b-three';
 ```
 
 ```js
-/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: '[-/]'}] */
-import a from 'a/one';
-import a from 'a/two';
-import b from 'b/three';
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: ["/"]}] */
+import one from 'a/one';
+import two from 'a/two';
+import three from 'b/three';
 ```
 
 ```js
-/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: '[x]'}] */
-import a from 'axone';
-import a from 'axtwo';
-import b from 'bxthree';
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: ["-","/"]}] */
+import one from 'a-one';
+import two from 'a-two';
+import three from 'a/three';
+import four from 'a/four';
+```
+
+```js
+/* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: ["x"]}] */
+import one from 'axone';
+import two from 'axtwo';
+import three from 'bxthree';
 ```

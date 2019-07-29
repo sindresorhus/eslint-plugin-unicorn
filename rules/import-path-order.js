@@ -25,31 +25,34 @@ const COMPARATOR_CASE_INSENSITIVE = 'case-insensitive';
 const COMPARATOR_CASE_PARTS = 'parts';
 const COMPARATOR_CASE_OFF = 'off';
 
-function getOrder(source, partsRegex) {
-	const parts = source.split(new RegExp(partsRegex));
+function getOrder(name, partsRegex) {
+	const parts = {};
+	partsRegex.forEach(regex => {
+		parts[regex] = name.split(new RegExp(regex));
+	});
 
-	if (isBuiltin(source)) {
+	if (isBuiltin(name)) {
 		return {
-			name: source,
+			name,
 			group: GROUP_BUILTIN,
 			depth: 0,
 			parts
 		};
 	}
 
-	if (source.match(/^\.\//)) {
+	if (name.match(/^\.\//)) {
 		return {
-			name: source,
+			name,
 			group: GROUP_SIBLING,
 			depth: 0,
 			parts
 		};
 	}
 
-	const relative = source.match(/^((\.\.\/)+)/);
+	const relative = name.match(/^((\.\.\/)+)/);
 	if (relative) {
 		return {
-			name: source,
+			name,
 			group: GROUP_PARENT,
 			depth: relative[1].split('..').length,
 			parts
@@ -57,7 +60,7 @@ function getOrder(source, partsRegex) {
 	}
 
 	return {
-		name: source,
+		name,
 		group: GROUP_ABSOLUTE,
 		depth: 0,
 		parts
@@ -167,31 +170,35 @@ function alphaOff() {
 }
 
 function partsComparator(prev, next, partsSeen) {
-	const prevParts = prev.parts;
-	const nextParts = next.parts;
+	if (prev.name === next.name) {
+		return 0;
+	}
 
-	let exact = true;
-	const length = Math.min(prevParts.length, nextParts.length);
-
-	for (let depth = 0; depth < length; depth++) {
-		const prevPart = prevParts[depth];
-		const nextPart = nextParts[depth];
-		exact = exact && prevPart === nextPart;
-
-		if (exact) {
+	for (const delimiter in next.parts) {
+		if (!Object.prototype.hasOwnProperty.call(next.parts, delimiter)) {
 			continue;
 		}
 
-		const prevScore = partsSeen[depth][prevPart];
-		const nextScore = partsSeen[depth][nextPart];
+		const prevParts = prev.parts[delimiter];
+		const nextParts = next.parts[delimiter];
 
-		if (prevScore < nextScore) {
-			return -1;
+		const length = Math.min(prevParts.length, nextParts.length);
+
+		for (let depth = 0; depth < length; depth++) {
+			const prevPart = prevParts[depth];
+			const nextPart = nextParts[depth];
+
+			if (prevPart === nextPart) {
+				continue;
+			}
+
+			const prevScore = partsSeen[delimiter][depth][prevPart];
+			const nextScore = partsSeen[delimiter][depth][nextPart];
+
+			if (prevScore < nextScore) {
+				return -1;
+			}
 		}
-	}
-
-	if (exact) {
-		return 0;
 	}
 
 	return 1;
@@ -322,7 +329,7 @@ const create = context => {
 	const {
 		allowBlankLines = false,
 		comparator: comparatorOption = COMPARATOR_CASE_PARTS,
-		partsRegex = '[-/]'
+		partsRegex = ['-', '/']
 	} = options[0] || {};
 
 	let orderPrev = null;
@@ -330,21 +337,33 @@ const create = context => {
 
 	const comparator = getComparator(comparatorOption);
 
-	const partsSeen = [];
-	const partsMaxDepth = [];
+	const partsSeen = {};
+	const partsMaxDepth = {};
 
 	function runRule(nodeNext, orderNext, reportTarget) {
-		orderNext.parts.forEach((group, i) => {
-			if (i >= partsSeen.length) {
-				partsSeen[i] = {};
-				partsMaxDepth[i] = 0;
+		for (const delimiter in orderNext.parts) {
+			if (!Object.prototype.hasOwnProperty.call(orderNext.parts, delimiter)) {
+				continue;
 			}
 
-			if (partsSeen[i][group] === undefined) {
-				partsSeen[i][group] = partsMaxDepth[i];
-				partsMaxDepth[i] += 1;
+			const parts = orderNext.parts[delimiter];
+			if (!partsSeen[delimiter]) {
+				partsSeen[delimiter] = [];
+				partsMaxDepth[delimiter] = [];
 			}
-		});
+
+			parts.forEach((group, i) => {
+				if (i >= partsSeen[delimiter].length) {
+					partsSeen[delimiter][i] = {};
+					partsMaxDepth[delimiter][i] = 0;
+				}
+
+				if (partsSeen[delimiter][i][group] === undefined) {
+					partsSeen[delimiter][i][group] = partsMaxDepth[delimiter][i];
+					partsMaxDepth[delimiter][i] += 1;
+				}
+			});
+		}
 
 		const message = getInvalidOrderReport(orderPrev, orderNext, comparator, partsSeen);
 
@@ -440,8 +459,15 @@ module.exports = {
 				default: COMPARATOR_CASE_PARTS
 			},
 			partsRegex: {
-				type: 'string',
-				default: '[-/]'
+				type: 'array',
+				default: [
+					'-',
+					'/'
+				],
+				minItems: 1,
+				items: {
+					type: 'string'
+				}
 			}
 		}
 	}]

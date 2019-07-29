@@ -262,6 +262,14 @@ ruleTester.run('import-path-order', rule, {
 					const two = require('a/two');
 				`,
 			options: [optionComparatorParts]
+		},
+		{
+			code: outdent`
+				const one = require('a-one');
+				const three = require('b-three');
+				const two = require('a/two');
+			`,
+			options: [optionComparatorParts]
 		}
 	],
 	invalid: [
@@ -933,13 +941,13 @@ ruleTester.run('import-path-order', rule, {
 		{
 			code: outdent`
 				const one = require('a-one');
-				const three = require('b-three');
-				const two = require('a/two');
+				const three = require('a/three');
+				const two = require('a-two');
 			`,
 			output: outdent`
 				const one = require('a-one');
-				const two = require('a/two');
-				const three = require('b-three');
+				const two = require('a-two');
+				const three = require('a/three');
 			`,
 			options: [optionComparatorParts],
 			errors: [errorOrder]
