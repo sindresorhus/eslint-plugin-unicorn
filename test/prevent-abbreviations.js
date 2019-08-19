@@ -20,7 +20,7 @@ const browserES5RuleTester = avaRuleTester(test, {
 
 const moduleRuleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2019,
+		ecmaVersion: 2020,
 		sourceType: 'module'
 	}
 });
