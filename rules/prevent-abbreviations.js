@@ -700,7 +700,7 @@ const create = context => {
 				return;
 			}
 
-			if (filenameWithExtension === '<input>') {
+			if (filenameWithExtension === '<input>' || filenameWithExtension === '<text>') {
 				return {};
 			}
 
