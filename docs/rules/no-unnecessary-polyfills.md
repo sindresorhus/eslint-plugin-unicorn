@@ -8,7 +8,7 @@ The desired name is configurable, but defaults to `error`.
 ## Fail
 
 package.json
-```json5
+```json
 {
 	"engines": {
 		"node": ">8.0.0"
