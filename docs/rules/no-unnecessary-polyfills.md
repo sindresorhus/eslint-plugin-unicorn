@@ -1,4 +1,4 @@
-# Enforce to use built in method instead of unnecessary polyfills
+# Enforce the use of built-in methods instead of unnecessary polyfills
 
 Takes node version from `package.json` and warns to use supported built in methods
 instead of using unnecessary polyfills.
