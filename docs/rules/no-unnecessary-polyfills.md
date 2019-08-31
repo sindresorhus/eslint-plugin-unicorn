@@ -17,7 +17,7 @@ package.json
 
 ```
 ```js
-const assign = require("object-assign"); // warns to use built in Object.assign
+const objectAssign = require('object-assign');
 ```
 
 ## Pass
