@@ -1,6 +1,8 @@
-# Enforce the use of unicode escapes instead of hexadecimal escapes
+# Enforce the use of Unicode escapes instead of hexadecimal escapes
 
-Enforces a convention of using [unicode escapes](https://mathiasbynens.be/notes/javascript-escapes#unicode) instead of [hexadecimal escapes](https://mathiasbynens.be/notes/javascript-escapes#hexadecimal) for consistency and clarity.
+Enforces a convention of using [Unicode escapes](https://mathiasbynens.be/notes/javascript-escapes#unicode) instead of [hexadecimal escapes](https://mathiasbynens.be/notes/javascript-escapes#hexadecimal) for consistency and clarity.
+
+This rule is fixable.
 
 
 ## Fail

@@ -1,10 +1,11 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/no-console-spaces';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2019
+		ecmaVersion: 2020
 	}
 });
 
@@ -119,7 +120,7 @@ ruleTester.run('no-console-spaces', rule, {
 			output: 'console.log(`abc ${1 + 2}`, "def");'
 		},
 		{
-			code: `
+			code: outdent`
 				console.log(
 					'abc',
 					'def ',
@@ -127,9 +128,9 @@ ruleTester.run('no-console-spaces', rule, {
 				);
 			`,
 			errors: [
-				buildError({method: 'log', column: 6, line: 4})
+				buildError({method: 'log', column: 2, line: 3})
 			],
-			output: `
+			output: outdent`
 				console.log(
 					'abc',
 					'def',

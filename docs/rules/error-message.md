@@ -18,8 +18,8 @@ throw new TypeError();
 ```
 
 ```js
-const err = new Error();
-throw err;
+const error = new Error();
+throw error;
 ```
 
 
@@ -34,6 +34,6 @@ throw new TypeError('Foo');
 ```
 
 ```js
-const err = new Error('Foo');
-throw err;
+const error = new Error('Foo');
+throw error;
 ```

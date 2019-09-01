@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/escape-case, unicorn/no-hex-escape */
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/no-hex-escape';
@@ -11,7 +10,7 @@ const ruleTester = avaRuleTester(test, {
 
 const error = {
 	ruleId: 'no-hex-escape',
-	message: 'Use unicode escapes instead of hexadecimal escapes.'
+	message: 'Use Unicode escapes instead of hexadecimal escapes.'
 };
 
 ruleTester.run('no-hex-escape', rule, {

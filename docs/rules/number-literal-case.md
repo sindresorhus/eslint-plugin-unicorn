@@ -2,6 +2,8 @@
 
 Enforces a convention of defining number literals where the literal identifier is written in lowercase and the value in uppercase. Differentiating the casing of the identifier and value clearly separates them and makes your code more readable.
 
+This rule is fixable.
+
 
 ## Fail
 

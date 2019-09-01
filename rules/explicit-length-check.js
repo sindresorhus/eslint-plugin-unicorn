@@ -56,6 +56,7 @@ function checkNonZeroType(context, node, type) {
 					}
 				);
 			}
+
 			break;
 		case 'greater-than-or-equal':
 			if (
@@ -73,6 +74,7 @@ function checkNonZeroType(context, node, type) {
 					}
 				);
 			}
+
 			break;
 		case 'not-equal':
 			if (
@@ -90,6 +92,7 @@ function checkNonZeroType(context, node, type) {
 					}
 				);
 			}
+
 			break;
 		default:
 			break;
@@ -159,6 +162,7 @@ const schema = [{
 module.exports = {
 	create,
 	meta: {
+		type: 'problem',
 		docs: {
 			url: getDocsUrl(__filename)
 		},

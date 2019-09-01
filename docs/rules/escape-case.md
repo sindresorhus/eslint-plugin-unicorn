@@ -2,6 +2,8 @@
 
 Enforces defining escape sequence values with uppercase characters rather than lowercase ones. This promotes readability by making the escaped value more distinguishable from the identifier.
 
+This rule is fixable.
+
 
 ## Fail
 
