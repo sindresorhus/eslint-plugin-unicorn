@@ -13,7 +13,7 @@
 		"node": ">=6"
 	},
 	"scripts": {
-		"test": "xo && nyc ava",
+		"test": "nyc ava",
 		"integration": "./test/integration/test.js"
 	},
 	"files": [
@@ -31,7 +31,7 @@
 		"xo"
 	],
 	"dependencies": {
-		"@babel/preset-env": "^7.3.1",
+		"@babel/preset-env": "^7.5.5",
 		"clean-regexp": "^1.0.0",
 		"eslint-ast-utils": "^1.0.0",
 		"import-modules": "^1.1.0",

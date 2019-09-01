@@ -1,9 +1,6 @@
 # Enforce the use of built-in methods instead of unnecessary polyfills
 
-Takes node version from `package.json` and warns to use supported built in methods
-instead of using unnecessary polyfills.
-
-The desired name is configurable, but defaults to `error`.
+This rules helps to use existing methods instead of using extra polyfills. 
 
 ## Fail
 
@@ -23,7 +20,7 @@ const objectAssign = require('object-assign');
 ## Pass
 
 package.json
-```json5
+```json
 {
 	"engines": {
 		"node": "<4.0.0"
