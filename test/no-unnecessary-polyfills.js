@@ -35,7 +35,8 @@ ruleTester.run('no-unnecessary-polyfills', rule, {
 			code: 'require("setprototypeof")',
 			options: [{targetVersion: '>4'}],
 			errors: [{message: 'Use the built-in `Object#setPrototypeOf`.'}]
-		},{
+		},
+		{
 			code: 'require("core-js-pure/features/array/from")',
 			options: [{targetVersion: '>7 <8'}],
 			errors: [{message: 'Use the built-in `Array#from`.'}]
@@ -55,20 +56,20 @@ ruleTester.run('no-unnecessary-polyfills', rule, {
 			options: [{targetVersion: '>4'}],
 			errors: [{message: 'Use the built-in `String#codePointAt`.'}]
 		},
-	/*	{
+		/*	{
 			code: 'require("util.promisify")',
 			options: [{targetVersion: '>5'}]
-		},*/
+		}, */
 		{
 			code: 'require("object.getownpropertydescriptors")',
 			options: [{targetVersion: '>8'}],
 			errors: [{message: 'Use the built-in `Object#getOwnPropertyDescriptors`.'}]
 		},
-		/*{
+		/* {
 			code: 'require("object.fromentries")',
 			options: [{targetVersion: '>=12'}],
 			errors: [{message: 'Use the built-in `Object#fromEntries`.'}]
-		},*/
+		}, */
 		{
 			code: 'require("string.prototype.padstart")',
 			options: [{targetVersion: '>8'}],

@@ -34,6 +34,7 @@ module.exports = {
 				'unicorn/no-keyword-prefix': 'off',
 				'unicorn/no-new-buffer': 'error',
 				'unicorn/no-process-exit': 'error',
+				'unicorn/no-unnecessary-polyfills': 'error',
 				'unicorn/no-unreadable-array-destructuring': 'error',
 				'unicorn/no-unsafe-regex': 'off',
 				'unicorn/no-unused-properties': 'off',
@@ -53,8 +54,7 @@ module.exports = {
 				'unicorn/prefer-type-error': 'error',
 				'unicorn/prevent-abbreviations': 'error',
 				'unicorn/regex-shorthand': 'error',
-				'unicorn/throw-new-error': 'error',
-				'unicorn/no-unnecessary-polyfills': 'error'
+				'unicorn/throw-new-error': 'error'
 			}
 		}
 	}
