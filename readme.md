@@ -42,6 +42,7 @@ Configure it in `package.json`.
 			"unicorn/explicit-length-check": "error",
 			"unicorn/filename-case": "error",
 			"unicorn/import-index": "error",
+			"unicorn/jsx-import": "error",
 			"unicorn/new-for-builtins": "error",
 			"unicorn/no-abusive-eslint-disable": "error",
 			"unicorn/no-array-instanceof": "error",

@@ -2,6 +2,8 @@
 const arrayToSentence = require('array-to-sentence');
 const astUtils = require('eslint-ast-utils');
 const getDocsUrl = require('./utils/get-docs-url');
+const getVariablesInScope = require('./utils/get-variables-in-scope');
+const { isImportDeclaration } = require('./utils');
 
 const pragmas = {
 	h: ['dom-chef', 'preact'],
@@ -19,32 +21,7 @@ const hasPackage = (node, packages) => node.init ?
 	packages.some(x => x === astUtils.getRequireSource(node.init)) :
 	packages.some(x => x === node.parent.source.value);
 
-const isImportDeclaration = node => node.init ?
-	astUtils.isStaticRequire(node.init) :
-	node.parent.type === 'ImportDeclaration';
-
 const getVariable = (name, variables) => variables.find(x => x.name === name);
-
-// https://github.com/yannickcr/eslint-plugin-react/blob/master/lib/util/variable.js#L27-L52
-const getVariablesInScope = context => {
-	let scope = context.getScope();
-	let {variables} = scope;
-
-	while (scope.type !== 'global') {
-		scope = scope.upper;
-		variables = variables.concat(scope.variables);
-	}
-
-	if (scope.childScopes.length > 0) {
-		variables = scope.childScopes[0].variables.concat(variables);
-
-		if (scope.childScopes[0].childScopes.length > 0) {
-			variables = scope.childScopes[0].childScopes[0].variables.concat(variables);
-		}
-	}
-
-	return variables.reverse();
-};
 
 const create = context => {
 	let isJsx = false;
@@ -118,6 +95,8 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		scheme: [],
+		type: 'error',
 		docs: {
 			url: getDocsUrl(__filename)
 		},
