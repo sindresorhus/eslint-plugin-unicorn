@@ -38,12 +38,12 @@ ruleTester.run('no-unnecessary-polyfills', rule, {
 		},
 		{
 			code: 'require("core-js-pure/features/array/from")',
-			options: [{targetVersion: '>7 <8'}],
+			options: [{targetVersion: '>7'}],
 			errors: [{message: 'Use the built-in `Array#from`.'}]
 		},
 		{
 			code: 'require("core-js/features/array/from")',
-			options: [{targetVersion: '>7 <8'}],
+			options: [{targetVersion: '>7'}],
 			errors: [{message: 'Use the built-in `Array#from`.'}]
 		},
 		{
@@ -114,7 +114,7 @@ ruleTester.run('no-unnecessary-polyfills', rule, {
 		},
 		{
 			code: 'require("array-from")',
-			options: [{targetVersion: '>7 <8'}],
+			options: [{targetVersion: '>7'}],
 			errors: [{message: 'Use the built-in `Array#from`.'}]
 		},
 		{

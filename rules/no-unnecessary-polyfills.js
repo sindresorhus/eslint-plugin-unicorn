@@ -15,10 +15,6 @@ function getVersionFromPkg(cwd) {
 	return pkg && pkg.pkg.engines && pkg.pkg.engines.node;
 }
 
-function isValidVersion(version) {
-	return /^[\d.]+$/.test(version.trim());
-}
-
 const polyfills = {
 	'es6.promise': ['promise-polyfill'],
 	'es7.promise.finally': ['p-finally']
@@ -57,7 +53,7 @@ function processRule(context, node, moduleName, targetVersion) {
 		const feature = compatTable[polyfill.feature];
 		const supportedNodeVersion = semver.valid(semver.coerce(feature.node));
 		const validRangeTargetVersion = semver.validRange(targetVersion).replace('=', '');
-		const validTargetVersion = isValidVersion(targetVersion) && semver.valid(semver.coerce(targetVersion));
+		const validTargetVersion = semver.minVersion(targetVersion);
 
 		if (validTargetVersion) {
 			if (semver.lte(supportedNodeVersion, validTargetVersion)) {
