@@ -19,6 +19,7 @@ const create = context => ({
 module.exports = {
 	create,
 	meta: {
+		type: 'suggestion',
 		docs: {
 			url: getDocsUrl(__filename)
 		},

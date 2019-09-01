@@ -18,6 +18,7 @@ const errors = [
 ruleTester.run('no-fn-reference-in-iterator', rule, {
 	valid: [
 		'foo.map(x => fn(x))',
+		'foo.map(fn, x)',
 		'foo.forEach(x => fn(x))',
 		'foo.every(x => fn(x))',
 		'foo.filter(x => fn(x))',
@@ -29,9 +30,14 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 		'foo.map(x => parseInt(x, 10))',
 		'foo.map(x => m({foo: true})(x))',
 		'foo.reduce((a, b) => a + b, 0)',
+		'foo.reduce(fn, x, y)',
 		'foo.reduceRight((a, b) => a.concat(b), [])',
 		'Promise.map(fn)',
-		'Promise.forEach(fn)'
+		'Promise.forEach(fn)',
+		'_.map(fn)',
+		'Async.map(list, fn)',
+		'async.map(list, fn)',
+		'React.children.forEach(children, fn)'
 	],
 	invalid: [
 		{

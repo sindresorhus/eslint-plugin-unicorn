@@ -21,7 +21,7 @@ const create = context => {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceTextRange(node.range, `/${newPattern}/${flags}`)
+					fix: fixer => fixer.replaceText(node, `/${newPattern}/${flags}`)
 				});
 			}
 		},
@@ -34,9 +34,8 @@ const create = context => {
 
 			const hasRegExp = args[0].regex;
 
-			let oldPattern = null;
-			let flags = null;
-
+			let oldPattern;
+			let flags;
 			if (hasRegExp) {
 				oldPattern = args[0].regex.pattern;
 				flags = args[1] && args[1].type === 'Literal' ? args[1].value : args[0].regex.flags;
@@ -52,16 +51,16 @@ const create = context => {
 				if (hasRegExp) {
 					fixed = `/${newPattern}/`;
 				} else {
-					// Escape backslash and apostrophe because we wrap the result in single quotes.
-					fixed = (newPattern || '').replace(/\\/, '\\\\');
-					fixed = fixed.replace(/'/, '\'');
+					// Escape backslash and apostrophe because we wrap the result in single quotes
+					fixed = (newPattern || '').replace(/\\/g, '\\\\');
+					fixed = fixed.replace(/'/g, '\\\'');
 					fixed = `'${fixed}'`;
 				}
 
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceTextRange(args[0].range, fixed)
+					fix: fixer => fixer.replaceText(args[0], fixed)
 				});
 			}
 		}
@@ -71,6 +70,7 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		type: 'suggestion',
 		docs: {
 			url: getDocsUrl(__filename)
 		},

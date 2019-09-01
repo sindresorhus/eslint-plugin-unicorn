@@ -1,4 +1,4 @@
-# Prevents passing a function reference directly to iterator methods
+# Prevent passing a function reference directly to iterator methods
 
 Suppose you have a `unicorn` module:
 
@@ -29,6 +29,8 @@ const unicorn = require('unicorn');
 [1, 2, 3].map(unicorn);
 //=> [2, 3, 5]
 ```
+
+This rule is fixable.
 
 
 ## Fail

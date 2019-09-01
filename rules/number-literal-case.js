@@ -7,9 +7,9 @@ const fix = value => {
 	}
 
 	const indicator = value[1].toLowerCase();
-	const val = value.slice(2).toUpperCase();
+	const newValue = value.slice(2).toUpperCase();
 
-	return `0${indicator}${val}`;
+	return `0${indicator}${newValue}`;
 };
 
 const create = context => {
@@ -32,6 +32,7 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
+		type: 'suggestion',
 		docs: {
 			url: getDocsUrl(__filename)
 		},
