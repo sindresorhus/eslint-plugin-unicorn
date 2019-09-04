@@ -4,7 +4,7 @@ import rule from '../rules/no-keyword-prefix';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2019,
+		ecmaVersion: 2020,
 		sourceType: 'module'
 	}
 });
