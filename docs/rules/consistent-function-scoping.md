@@ -7,12 +7,12 @@ A function definition should be placed as close to the top-level scope as possib
 
 ```js
 export function doFoo(foo) {
-  // Does not capture anything from the scope, can be moved to the outer scope
-  function doBar(bar) {
-    return bar === 'bar';
-  }
+	// Does not capture anything from the scope, can be moved to the outer scope
+	function doBar(bar) {
+		return bar === 'bar';
+	}
 
-  return doBar;
+	return doBar;
 }
 
 function doFoo(foo) {
@@ -27,21 +27,22 @@ function doFoo(foo) {
 
 ```js
 function doBar(bar) {
-  return bar === 'bar';
+	return bar === 'bar';
 }
 
 export function doFoo(foo) {
-  return doBar;
+	return doBar;
 }
 
 export function doFoo(foo) {
-  function doBar(bar) {
-    return bar === 'bar' && foo.doBar(bar);
-  }
+	function doBar(bar) {
+		return bar === 'bar' && foo.doBar(bar);
+	}
 
-  return doBar;
+	return doBar;
 }
 ```
+
 
 ## Limitations
 
@@ -49,11 +50,12 @@ This rule does not detect or remove extraneous code blocks inside of functions:
 
 ```js
 function doFoo(foo) {
-  {
+	{
 		function doBar(bar) {
 			return bar;
 		}
 	}
-  return foo;
+
+	return foo;
 }
 ```
