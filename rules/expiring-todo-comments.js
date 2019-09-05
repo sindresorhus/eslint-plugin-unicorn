@@ -19,16 +19,165 @@ const MESSAGE_ID_MISSING_AT_SYMBOL = 'missingAtSymbol';
 
 const pkg = readPkg.sync();
 
-const pkgDependencies = {...pkg.dependencies, ...pkg.devDependencies};
+const pkgDependencies = {
+	...pkg.dependencies,
+	...pkg.devDependencies
+};
 
 const DEPENDENCY_INCLUSION_RE = /^[+|-]\s*@?[\S+]\/?\S+/;
 const VERSION_COMPARISON_RE = /^(@?[\S+]\/?\S+)@(>|>=)([\d]+(\.\d+){0,2})/;
 const PKG_VERSION_RE = /^(>|>=)([\d]+(\.\d+){0,2})\s*$/;
 const ISO8601_DATE = /(\d{4})-(\d{2})-(\d{2})/;
 
+function parseTodoWithArguments(string, {terms}) {
+	const lowerCaseString = string.toLowerCase();
+	const lowerCaseTerms = terms.map(term => term.toLowerCase());
+	const hasTerm = lowerCaseTerms.some(term => lowerCaseString.includes(term));
+
+	if (!hasTerm) {
+		return false;
+	}
+
+	const TODO_ARGUMENT_RE = new RegExp('\\[([^}]+)\\]', 'i');
+	const result = TODO_ARGUMENT_RE.exec(string);
+
+	if (!result) {
+		return false;
+	}
+
+	const rawArguments = result[1];
+
+	return rawArguments
+		.split(',')
+		.map(argument => parseArgument(argument.trim()))
+		.reduce((groups, argument) => {
+			if (!groups[argument.type]) {
+				groups[argument.type] = [];
+			}
+
+			groups[argument.type].push(argument.value);
+			return groups;
+		}, {});
+}
+
+function parseArgument(argumentString) {
+	if (ISO8601_DATE.test(argumentString)) {
+		return {
+			type: 'dates',
+			value: argumentString
+		};
+	}
+
+	if (DEPENDENCY_INCLUSION_RE.test(argumentString)) {
+		const condition = argumentString[0] === '+' ? 'in' : 'out';
+		const name = argumentString.slice(1).trim();
+
+		return {
+			type: 'dependencies',
+			value: {
+				name,
+				condition
+			}
+		};
+	}
+
+	if (VERSION_COMPARISON_RE.test(argumentString)) {
+		const result = VERSION_COMPARISON_RE.exec(argumentString);
+		const name = result[1].trim();
+		const condition = result[2].trim();
+		const version = result[3].trim();
+
+		const hasEngineKeyword = name.indexOf('engine:') === 0;
+		const isNodeEngine = hasEngineKeyword && name === 'engine:node';
+
+		if (hasEngineKeyword && isNodeEngine) {
+			return {
+				type: 'engines',
+				value: {
+					condition,
+					version
+				}
+			};
+		}
+
+		if (!hasEngineKeyword) {
+			return {
+				type: 'dependencies',
+				value: {
+					name,
+					condition,
+					version
+				}
+			};
+		}
+	}
+
+	if (PKG_VERSION_RE.test(argumentString)) {
+		const result = PKG_VERSION_RE.exec(argumentString);
+		const condition = result[1].trim();
+		const version = result[2].trim();
+
+		return {
+			type: 'packageVersions',
+			value: {
+				condition,
+				version
+			}
+		};
+	}
+
+	// Currently being ignored as integration tests pointed
+	// some TODO comments have `[random data like this]`
+	return {
+		type: 'unknowns',
+		value: argumentString
+	};
+}
+
+function parseTodoMessage(todoString) {
+	// @example "TODO [...]: message here"
+	// @example "TODO [...] message here"
+	const argumentsEnd = todoString.indexOf(']');
+
+	const afterArguments = todoString.slice(argumentsEnd + 1).trim();
+
+	// Check if have to skip colon
+	// @example "TODO [...]: message here"
+	const dropColon = afterArguments[0] === ':';
+	if (dropColon) {
+		return afterArguments.slice(1).trim();
+	}
+
+	return afterArguments;
+}
+
+function reachedDate(past) {
+	const now = new Date().toISOString().slice(0, 10);
+	return Date.parse(past) < Date.parse(now);
+}
+
+function tryToCoerceVersion(version) {
+	try {
+		return semver.coerce(version);
+	} catch (_) {
+		return false;
+	}
+}
+
+function semverComparisonForOperator(operator) {
+	return {
+		'>': semver.gt,
+		'>=': semver.gte
+	}[operator];
+}
+
 const create = context => {
 	const options = {
-		terms: ['todo', 'fixme', 'xxx'],
+		terms: [
+			'todo',
+			'fixme',
+			'xxx'
+		],
 		ignoreDatesOnPullRequests: true,
 		allowWarningComments: false,
 		...context.options[0]
@@ -79,7 +228,7 @@ const create = context => {
 		}
 
 		// Count if there are valid properties.
-		// Otherwise, it's a useless TODO and falls back to `no-warning-comments`
+		// Otherwise, it's a useless TODO and falls back to `no-warning-comments`.
 		let uses = 0;
 
 		const {
@@ -187,7 +336,7 @@ const create = context => {
 			const targetPackageVersion = tryToCoerceVersion(targetPackageRawVersion);
 
 			if (!hasTargetPackage || !targetPackageVersion) {
-				// Can't compare ¯\_(ツ)_/¯
+				// Can't compare `¯\_(ツ)_/¯`
 				continue;
 			}
 
@@ -347,145 +496,3 @@ module.exports = {
 		schema
 	}
 };
-
-function parseTodoWithArguments(string, {terms}) {
-	const lowerCaseString = string.toLowerCase();
-	const lowerCaseTerms = terms.map(term => term.toLowerCase());
-	const hasTerm = lowerCaseTerms.some(term => lowerCaseString.includes(term));
-
-	if (!hasTerm) {
-		return false;
-	}
-
-	const TODO_ARGUMENT_RE = new RegExp('\\[([^}]+)\\]', 'i');
-	const result = TODO_ARGUMENT_RE.exec(string);
-
-	if (!result) {
-		return false;
-	}
-
-	const rawArguments = result[1];
-
-	return rawArguments
-		.split(',')
-		.map(argument => parseArgument(argument.trim()))
-		.reduce((groups, argument) => {
-			if (!groups[argument.type]) {
-				groups[argument.type] = [];
-			}
-
-			groups[argument.type].push(argument.value);
-			return groups;
-		}, {});
-}
-
-function parseArgument(argumentString) {
-	if (ISO8601_DATE.test(argumentString)) {
-		return {
-			type: 'dates',
-			value: argumentString
-		};
-	}
-
-	if (DEPENDENCY_INCLUSION_RE.test(argumentString)) {
-		const condition = argumentString[0] === '+' ? 'in' : 'out';
-		const name = argumentString.slice(1).trim();
-
-		return {
-			type: 'dependencies',
-			value: {
-				name,
-				condition
-			}
-		};
-	}
-
-	if (VERSION_COMPARISON_RE.test(argumentString)) {
-		const result = VERSION_COMPARISON_RE.exec(argumentString);
-		const name = result[1].trim();
-		const condition = result[2].trim();
-		const version = result[3].trim();
-
-		const hasEngineKeyword = name.indexOf('engine:') === 0;
-		const isNodeEngine = hasEngineKeyword && name === 'engine:node';
-
-		if (hasEngineKeyword && isNodeEngine) {
-			return {
-				type: 'engines',
-				value: {
-					condition,
-					version
-				}
-			};
-		}
-
-		if (!hasEngineKeyword) {
-			return {
-				type: 'dependencies',
-				value: {
-					name,
-					condition,
-					version
-				}
-			};
-		}
-	}
-
-	if (PKG_VERSION_RE.test(argumentString)) {
-		const result = PKG_VERSION_RE.exec(argumentString);
-		const condition = result[1].trim();
-		const version = result[2].trim();
-
-		return {
-			type: 'packageVersions',
-			value: {
-				condition,
-				version
-			}
-		};
-	}
-
-	// Currently being ignored as integration tests pointed
-	// some TODO comments have `[random data like this]`
-	return {
-		type: 'unknowns',
-		value: argumentString
-	};
-}
-
-function parseTodoMessage(todoString) {
-	// @example "TODO [...]: message here"
-	// @example "TODO [...] message here"
-	const argumentsEnd = todoString.indexOf(']');
-
-	const afterArguments = todoString.slice(argumentsEnd + 1).trim();
-
-	// Check if have to skip colon
-	// @example "TODO [...]: message here"
-	const dropColon = afterArguments[0] === ':';
-	if (dropColon) {
-		return afterArguments.slice(1).trim();
-	}
-
-	return afterArguments;
-}
-
-function reachedDate(past) {
-	const now = new Date().toISOString().slice(0, 10);
-	return Date.parse(past) < Date.parse(now);
-}
-
-function tryToCoerceVersion(version) {
-	try {
-		return semver.coerce(version);
-	} catch (error) {
-		return false;
-	}
-}
-
-function semverComparisonForOperator(operator) {
-	return {
-		'>': semver.gt,
-		'>=': semver.gte
-	}[operator];
-}
