@@ -36,6 +36,7 @@ Configure it in `package.json`.
 		],
 		"rules": {
 			"unicorn/catch-error-name": "error",
+			"unicorn/consistent-function-scoping": "error",
 			"unicorn/custom-error-definition": "off",
 			"unicorn/error-message": "error",
 			"unicorn/escape-case": "error",
@@ -82,6 +83,7 @@ Configure it in `package.json`.
 ## Rules
 
 - [catch-error-name](docs/rules/catch-error-name.md) - Enforce a specific parameter name in catch clauses.
+- [consistent-function-scoping](docs/rules/consistent-function-scoping.md) - Move function definitions to the highest possible scope.
 - [custom-error-definition](docs/rules/custom-error-definition.md) - Enforce correct `Error` subclassing. *(fixable)*
 - [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
 - [escape-case](docs/rules/escape-case.md) - Require escape sequences to use uppercase values. *(fixable)*
