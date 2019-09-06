@@ -25,7 +25,7 @@ const enforceNew = new Set([
 	'Uint8Array',
 	'Uint16Array',
 	'Uint32Array',
-	'Uint8ClampedArray',
+	'Uint8ClampedArray'
 ]);
 
 const disallowNew = new Set([

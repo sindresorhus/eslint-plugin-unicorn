@@ -23,6 +23,8 @@ ruleTester.run('new-for-builtins', rule, {
 		'const foo = new Object()',
 		'const foo = new Array()',
 		'const foo = new ArrayBuffer()',
+		'const foo = new BigInt64Array()',
+		'const foo = new BigUint64Array()',
 		'const foo = new DataView()',
 		'const foo = new Date()',
 		'const foo = new Error()',
@@ -64,6 +66,16 @@ ruleTester.run('new-for-builtins', rule, {
 			code: 'const foo = ArrayBuffer()',
 			errors: [enforceNewError('ArrayBuffer')],
 			output: 'const foo = new ArrayBuffer()'
+		},
+		{
+			code: 'const foo = BigInt64Array()',
+			errors: [enforceNewError('BigInt64Array')],
+			output: 'const foo = new BigInt64Array()'
+		},
+		{
+			code: 'const foo = BigUint64Array()',
+			errors: [enforceNewError('BigUint64Array')],
+			output: 'const foo = new BigUint64Array()'
 		},
 		{
 			code: 'const foo = DataView()',
