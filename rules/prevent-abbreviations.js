@@ -147,6 +147,12 @@ const defaultReplacements = {
 	prev: {
 		previous: true
 	},
+	curr: {
+		current: true
+	},
+	cur: {
+		current: true
+	},
 	rel: {
 		relative: true,
 		related: true,
