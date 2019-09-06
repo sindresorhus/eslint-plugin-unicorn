@@ -153,7 +153,7 @@ const defaultReplacements = {
 	},
 	cur: {
 		current: true
-  },
+	},
 	acc: {
 		accumulator: true
 	},
