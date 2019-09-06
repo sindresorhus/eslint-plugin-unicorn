@@ -148,6 +148,12 @@ const defaultReplacements = {
 	prev: {
 		previous: true
 	},
+	curr: {
+		current: true
+	},
+	cur: {
+		current: true
+	},
 	acc: {
 		accumulator: true
 	},
