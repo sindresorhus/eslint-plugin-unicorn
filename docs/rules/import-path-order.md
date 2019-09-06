@@ -207,7 +207,7 @@ import a from 'a';
 Type: `string[]`<br>
 Default: `['-', '/']`
 
-This how `comparator: 'parts'` behaves. It's an array of each *type& of path comparator to use.
+This controls how `comparator: 'parts'` behaves. It's an array of each *type* of path comparator to use.
 
 #### Fail
 
