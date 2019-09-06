@@ -147,6 +147,9 @@ const defaultReplacements = {
 	prev: {
 		previous: true
 	},
+	acc: {
+		accumulator: true
+	},
 	rel: {
 		relative: true,
 		related: true,
