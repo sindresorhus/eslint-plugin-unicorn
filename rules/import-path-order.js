@@ -1,5 +1,4 @@
 'use strict';
-
 const isBuiltin = require('is-builtin-module');
 const getDocsUrl = require('./utils/get-docs-url');
 
@@ -27,9 +26,9 @@ const COMPARATOR_CASE_OFF = 'off';
 
 function getOrder(name, partsRegex) {
 	const parts = {};
-	partsRegex.forEach(regex => {
+	for (const regex of partsRegex) {
 		parts[regex] = name.split(new RegExp(regex));
-	});
+	}
 
 	if (isBuiltin(name)) {
 		return {
