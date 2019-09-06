@@ -41,8 +41,9 @@
 		"lodash.snakecase": "^4.1.1",
 		"lodash.topairs": "^4.3.0",
 		"lodash.upperfirst": "^4.3.1",
-		"regexpp": "^2.0.1",
+		"map-obj": "4.1.0",
 		"read-pkg": "^5.1.1",
+		"regexpp": "^2.0.1",
 		"reserved-words": "^0.1.2",
 		"safe-regex": "^2.0.2",
 		"semver": "^6.1.1"

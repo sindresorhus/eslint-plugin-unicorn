@@ -1,6 +1,7 @@
 'use strict';
 const path = require('path');
 const importModules = require('import-modules');
+const mapObject = require('map-obj');
 
 module.exports = {
 	rules: importModules(path.resolve(__dirname, 'rules'), {camelize: false}),
@@ -16,47 +17,47 @@ module.exports = {
 			plugins: [
 				'unicorn'
 			],
-			rules: {
-				'unicorn/catch-error-name': 'error',
-				'unicorn/consistent-function-scoping': 'error',
-				'unicorn/custom-error-definition': 'off',
-				'unicorn/error-message': 'error',
-				'unicorn/escape-case': 'error',
-				'unicorn/expiring-todo-comments': 'error',
-				'unicorn/explicit-length-check': 'error',
-				'unicorn/filename-case': 'error',
-				'unicorn/import-index': 'error',
-				'unicorn/new-for-builtins': 'error',
-				'unicorn/no-abusive-eslint-disable': 'error',
-				'unicorn/no-array-instanceof': 'error',
-				'unicorn/no-console-spaces': 'error',
-				'unicorn/no-fn-reference-in-iterator': 'off',
-				'unicorn/no-for-loop': 'error',
-				'unicorn/no-hex-escape': 'error',
-				'unicorn/no-keyword-prefix': 'off',
-				'unicorn/no-new-buffer': 'error',
-				'unicorn/no-process-exit': 'error',
-				'unicorn/no-unreadable-array-destructuring': 'error',
-				'unicorn/no-unsafe-regex': 'off',
-				'unicorn/no-unused-properties': 'off',
-				'unicorn/no-zero-fractions': 'error',
-				'unicorn/number-literal-case': 'error',
-				'unicorn/prefer-add-event-listener': 'error',
-				'unicorn/prefer-event-key': 'error',
-				'unicorn/prefer-exponentiation-operator': 'error',
-				'unicorn/prefer-flat-map': 'error',
-				'unicorn/prefer-includes': 'error',
-				'unicorn/prefer-node-append': 'error',
-				'unicorn/prefer-node-remove': 'error',
-				'unicorn/prefer-query-selector': 'error',
-				'unicorn/prefer-spread': 'error',
-				'unicorn/prefer-starts-ends-with': 'error',
-				'unicorn/prefer-text-content': 'error',
-				'unicorn/prefer-type-error': 'error',
-				'unicorn/prevent-abbreviations': 'error',
-				'unicorn/regex-shorthand': 'error',
-				'unicorn/throw-new-error': 'error'
-			}
+			rules: mapObject({
+				'catch-error-name': 'error',
+				'consistent-function-scoping': 'error',
+				'custom-error-definition': 'off',
+				'error-message': 'error',
+				'escape-case': 'error',
+				'expiring-todo-comments': 'error',
+				'explicit-length-check': 'error',
+				'filename-case': 'error',
+				'import-index': 'error',
+				'new-for-builtins': 'error',
+				'no-abusive-eslint-disable': 'error',
+				'no-array-instanceof': 'error',
+				'no-console-spaces': 'error',
+				'no-fn-reference-in-iterator': 'off',
+				'no-for-loop': 'error',
+				'no-hex-escape': 'error',
+				'no-keyword-prefix': 'off',
+				'no-new-buffer': 'error',
+				'no-process-exit': 'error',
+				'no-unreadable-array-destructuring': 'error',
+				'no-unsafe-regex': 'off',
+				'no-unused-properties': 'off',
+				'no-zero-fractions': 'error',
+				'number-literal-case': 'error',
+				'prefer-add-event-listener': 'error',
+				'prefer-event-key': 'error',
+				'prefer-exponentiation-operator': 'error',
+				'prefer-flat-map': 'error',
+				'prefer-includes': 'error',
+				'prefer-node-append': 'error',
+				'prefer-node-remove': 'error',
+				'prefer-query-selector': 'error',
+				'prefer-spread': 'error',
+				'prefer-starts-ends-with': 'error',
+				'prefer-text-content': 'error',
+				'prefer-type-error': 'error',
+				'prevent-abbreviations': 'error',
+				'regex-shorthand': 'error',
+				'throw-new-error': 'error'
+			}, (key, value) => [`unicorn/${key}`, value])
 		}
 	}
 };
