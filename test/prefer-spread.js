@@ -11,6 +11,11 @@ const ruleTester = avaRuleTester(test, {
 ruleTester.run('prefer-spread', rule, {
 	valid: [
 		'[...set].map(() => {});',
+		'Array.from()',
+		'Array.from({length: 10})',
+		'Array.from({length: 10}, mapFn)',
+		// TypedArray.from
+		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/from
 		'Int8Array.from(set);',
 		'Uint8Array.from(set);',
 		'Uint8ClampedArray.from(set);',
@@ -20,9 +25,8 @@ ruleTester.run('prefer-spread', rule, {
 		'Uint32Array.from(set);',
 		'Float32Array.from(set);',
 		'Float64Array.from(set);',
-		'Array.from()',
-		'Array.from({length: 10})',
-		'Array.from({length: 10}, mapFn)'
+		'BigInt64Array.from(set);',
+		'BigUint64Array.from(set);'
 	],
 	invalid: [
 		{
