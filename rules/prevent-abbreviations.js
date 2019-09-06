@@ -112,7 +112,8 @@ const defaultReplacements = {
 		library: true
 	},
 	dir: {
-		directory: true
+		directory: true,
+		direction: true
 	},
 	dirs: {
 		directories: true
@@ -152,6 +153,9 @@ const defaultReplacements = {
 	},
 	cur: {
 		current: true
+  },
+	acc: {
+		accumulator: true
 	},
 	rel: {
 		relative: true,
