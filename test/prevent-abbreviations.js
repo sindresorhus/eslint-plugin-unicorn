@@ -224,7 +224,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		}),
 		noFixingTestCase({
 			code: 'this.eResDir = 1',
-			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResponseDirectory`, `errorResultDirectory`, `eventResponseDirectory`, ... (1 more omitted). A more descriptive name will do too.')
+			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResponseDirection`, `errorResponseDirectory`, `errorResultDirection`, ... (5 more omitted). A more descriptive name will do too.')
 		}),
 
 		{
