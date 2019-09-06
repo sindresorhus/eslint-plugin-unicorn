@@ -1,6 +1,7 @@
 'use strict';
 const cleanRegexp = require('clean-regexp');
 const getDocsUrl = require('./utils/get-docs-url');
+const quoteString = require('./utils/quote-string');
 
 const message = 'Use regex shorthands to improve readability.';
 
@@ -51,10 +52,9 @@ const create = context => {
 				if (hasRegExp) {
 					fixed = `/${newPattern}/`;
 				} else {
-					// Escape backslash and apostrophe because we wrap the result in single quotes
+					// Escape backslash
 					fixed = (newPattern || '').replace(/\\/g, '\\\\');
-					fixed = fixed.replace(/'/g, '\\\'');
-					fixed = `'${fixed}'`;
+					fixed = quoteString(fixed);
 				}
 
 				context.report({
