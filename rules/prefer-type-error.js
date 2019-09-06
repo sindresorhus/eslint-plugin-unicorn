@@ -7,6 +7,7 @@ const tcIdentifiers = new Set([
 	'isArrayBuffer',
 	'isArrayLike',
 	'isArrayLikeObject',
+	'isBigInt',
 	'isBoolean',
 	'isBuffer',
 	'isDate',
