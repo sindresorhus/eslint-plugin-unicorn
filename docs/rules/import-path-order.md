@@ -107,7 +107,7 @@ import a from 'a';
 Type: `boolean`<br>
 Default: `false`
 
-Force all imports to be organized together.
+Allow blank lines between import statements.
 
 #### Fail
 
