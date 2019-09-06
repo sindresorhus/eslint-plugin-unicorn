@@ -2,15 +2,15 @@
 
 Imports and requires should be organized together and sorted by relative path depth.
 
-The scope of this rule is deliberately simple. Both [sort-imports](https://eslint.org/docs/rules/sort-imports) and [import/order](https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/order.md) exist for more complicated and configurable patterns.
+The scope of this rule is deliberately simple. Both the [`sort-imports` rule](https://eslint.org/docs/rules/sort-imports) and the [`import/order` rule](https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/order.md) exist for more complicated and configurable patterns.
 
 This rule will:
 
-* Sort import lines by path
-* Built-in modules (`fs`, `path`, etc.) are sorted first
-* Relative paths (`../foo`) are sorted after absolute paths (`foo`)
-* `../../foo` is before `../foo`
-* Paths with the same nesting are sorted alphabetically
+- Sort import lines by path
+- Built-in modules (`fs`, `path`, etc.) are sorted first
+- Relative paths (`../foo`) are sorted after absolute paths (`foo`)
+- `../../foo` is before `../foo`
+- Paths with the same nesting are sorted alphabetically
 
 ## Fail
 
@@ -104,7 +104,10 @@ import a from 'a';
 
 ### `allowBlankLines`
 
-`allowBlankLines` will force all imports to be organized together. It defaults to `false`.
+Type: `boolean`<br>
+Default: `false`
+
+Force all imports to be organized together.
 
 #### Fail
 
@@ -140,11 +143,15 @@ import b from 'b';
 
 ### `comparator`
 
-`comparator` adds additional ordering constraints for imports that have the same relative source. Options are:
-* `case-sensitive` -- Orders alphabetically, case-sensitive
-* `case-insensitive` -- Orders alphabetically, case-insensitive
-* `parts` -- Groups imports with similar parts next to each other *(default)*
-* `off` -- No additional ordering
+Type: `string`
+
+This adds additional ordering constraints for imports that have the same relative source.
+
+Options are:
+- `case-sensitive` - Orders alphabetically, case-sensitive
+- `case-insensitive` - Orders alphabetically, case-insensitive
+- `parts` - Groups imports with similar parts next to each other *(default)*
+- `off` - No additional ordering
 
 #### Fail
 
@@ -197,7 +204,10 @@ import a from 'a';
 
 ### `partsRegex`
 
-`partsRegex` changes how `comparator: 'parts'` behaves. It is an array of each _type_ of path comparator to use. The default is `["-", "/"]`.
+Type: `string[]`<br>
+Default: `['-', '/']`
+
+This how `comparator: 'parts'` behaves. It's an array of each *type& of path comparator to use.
 
 #### Fail
 
@@ -231,6 +241,7 @@ import two from 'axtwo';
 ```
 
 #### Pass
+
 ```js
 /* eslint unicorn/import-path-order: ["error", {comparator: 'parts', partsRegex: ["-"]}] */
 import one from 'a-one';
