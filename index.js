@@ -13,9 +13,7 @@ module.exports = {
 				ecmaVersion: 2020,
 				sourceType: 'module'
 			},
-			plugins: [
-				'unicorn'
-			],
+			plugins: ['unicorn'],
 			rules: {
 				'unicorn/catch-error-name': 'error',
 				'unicorn/consistent-function-scoping': 'error',
@@ -46,6 +44,7 @@ module.exports = {
 				'unicorn/prefer-exponentiation-operator': 'error',
 				'unicorn/prefer-flat-map': 'error',
 				'unicorn/prefer-includes': 'error',
+				'unicorn/prefer-modern-dom-apis': 'error',
 				'unicorn/prefer-node-append': 'error',
 				'unicorn/prefer-node-remove': 'error',
 				'unicorn/prefer-query-selector': 'error',

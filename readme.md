@@ -8,13 +8,11 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 
 [**Propose or contribute a new rule ➡**](.github/contributing.md)
 
-
 ## Install
 
-```
+```bash
 $ npm install --save-dev eslint eslint-plugin-unicorn
 ```
-
 
 ## Usage
 
@@ -64,6 +62,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-exponentiation-operator": "error",
 			"unicorn/prefer-flat-map": "error",
 			"unicorn/prefer-includes": "error",
+			"unicorn/prefer-modern-dom-apis": "error",
 			"unicorn/prefer-node-append": "error",
 			"unicorn/prefer-node-remove": "error",
 			"unicorn/prefer-query-selector": "error",
@@ -78,7 +77,6 @@ Configure it in `package.json`.
 	}
 }
 ```
-
 
 ## Rules
 
@@ -111,6 +109,7 @@ Configure it in `package.json`.
 - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
 - [prefer-flat-map](docs/rules/prefer-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
 - [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
+- [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md) - Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`. *(fixable)*
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `Node#append()` over `Node#appendChild()`. *(fixable)*
 - [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `node.remove()` over `parentNode.removeChild(node)` and `parentElement.removeChild(node)`. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. *(partly fixable)*
@@ -121,7 +120,6 @@ Configure it in `package.json`.
 - [prevent-abbreviations](docs/rules/prevent-abbreviations.md) - Prevent abbreviations. *(partly fixable)*
 - [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
-
 
 ## Recommended config
 
@@ -142,7 +140,6 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 
 **Note**: This config will also enable the correct [parser options](http://eslint.org/docs/user-guide/configuring#specifying-parser-options) and [environment](http://eslint.org/docs/user-guide/configuring#specifying-environments).
 
-
 ## Maintainers
 
 - [Sindre Sorhus](https://github.com/sindresorhus)
@@ -150,11 +147,10 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 - [futpib](https://github.com/futpib)
 - [Adam Babcock](https://github.com/MrHen)
 
-###### Former
+### Former
 
 - [Jeroen Engels](https://github.com/jfmengels)
 
-
-## License
+#### License
 
 MIT
