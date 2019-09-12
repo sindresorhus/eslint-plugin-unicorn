@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/prefer-modern-dom-apis';
 
 const ruleTester = avaRuleTester(test, {
@@ -32,6 +33,36 @@ ruleTester.run('prefer-modern-dom-apis', rule, {
 			],
 			output: 'oldChildNode.replaceWith(newChildNode);'
 		},
+		{
+			code: outdent`
+			parentNode.replaceChild(
+				newChildNode,
+				oldChildNode
+			);
+			`,
+			errors: [
+				{
+					message:
+						'Prefer `oldChildNode.replaceWith(newChildNode)` over `parentNode.replaceChild(newChildNode, oldChildNode)`.'
+				}
+			],
+			output: 'oldChildNode.replaceWith(newChildNode);'
+		},
+		{
+			code: outdent`
+			parentNode.replaceChild( // inline comments
+				newChildNode, // inline comments
+				oldChildNode // inline comments
+			);
+			`,
+			errors: [
+				{
+					message:
+						'Prefer `oldChildNode.replaceWith(newChildNode)` over `parentNode.replaceChild(newChildNode, oldChildNode)`.'
+				}
+			],
+			output: 'oldChildNode.replaceWith(newChildNode);'
+		},
 		// Tests for .insertBefore()
 		{
 			code: 'parentNode.insertBefore(newNode, referenceNode);',
@@ -42,6 +73,26 @@ ruleTester.run('prefer-modern-dom-apis', rule, {
 				}
 			],
 			output: 'referenceNode.before(newNode);'
+		},
+		{
+			code: 'var foo = parentNode.insertBefore(alfa, beta);',
+			errors: [
+				{
+					message:
+						'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.'
+				}
+			],
+			output: 'var foo = beta.before(alfa);'
+		},
+		{
+			code: 'parentNode.insertBefore(alfa, beta).insertBefore(charlie, delta);',
+			errors: [
+				{
+					message:
+						'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.'
+				}
+			],
+			output: 'beta.before(alfa).insertBefore(charlie, delta);'
 		},
 		// Tests for .insertAdjacentText()
 		{
@@ -124,6 +175,36 @@ ruleTester.run('prefer-modern-dom-apis', rule, {
 				}
 			],
 			output: 'referenceNode.after(newNode);'
+		},
+		{
+			code: outdent`
+			referenceNode.insertAdjacentElement(
+				"afterend",
+				newNode
+			);
+			`,
+			errors: [
+				{
+					message:
+						'Prefer `referenceNode.after(newNode)` over `referenceNode.insertAdjacentElement("afterend", newNode)`.'
+				}
+			],
+			output: 'referenceNode.after(newNode);'
+		},
+		{
+			code: outdent`
+			referenceNode.insertAdjacentElement( // inline comments
+				"afterend", // inline comments
+				newNode  // inline comments
+			); // inline comments
+			`,
+			errors: [
+				{
+					message:
+						'Prefer `referenceNode.after(newNode)` over `referenceNode.insertAdjacentElement("afterend", newNode)`.'
+				}
+			],
+			output: 'referenceNode.after(newNode); // inline comments'
 		}
 	]
 });

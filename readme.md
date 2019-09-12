@@ -147,10 +147,10 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 - [futpib](https://github.com/futpib)
 - [Adam Babcock](https://github.com/MrHen)
 
-### Former
+###### Former
 
 - [Jeroen Engels](https://github.com/jfmengels)
 
-#### License
+## License
 
 MIT
