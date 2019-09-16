@@ -45,3 +45,5 @@ We recomend disabling the ESLint `no-nested-ternary` rule in favor of this one:
 	}
 }
 ```
+
+The recommended preset that comes with this plugin already does this for you.
