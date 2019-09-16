@@ -153,15 +153,10 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 ## Maintainers
 
 - [Sindre Sorhus](https://github.com/sindresorhus)
-- [Sam Verschueren](https://github.com/SamVerschueren)
-- [futpib](https://github.com/futpib)
 - [Adam Babcock](https://github.com/MrHen)
+- [futpib](https://github.com/futpib)
+- [Sam Verschueren](https://github.com/SamVerschueren)
 
 ###### Former
 
 - [Jeroen Engels](https://github.com/jfmengels)
-
-
-## License
-
-MIT

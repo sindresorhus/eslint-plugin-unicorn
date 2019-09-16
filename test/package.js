@@ -11,7 +11,12 @@ test.before(async () => {
 	ruleFiles = files.filter(file => path.extname(file) === '.js');
 });
 
+const ignoredRules = [
+	'no-nested-ternary'
+];
+
 const testSorted = (t, actualOrder, sourceName) => {
+	actualOrder = actualOrder.filter(x => !ignoredRules.includes(x));
 	const sortedOrder = actualOrder.slice(0).sort();
 
 	for (const [wantedIndex, name] of sortedOrder.entries()) {
@@ -30,10 +35,18 @@ test('Every rule is defined in index file in alphabetical order', t => {
 		t.truthy(fs.existsSync(path.join('test', file)), `There are no tests for '${name}'`);
 	}
 
-	t.is(Object.keys(index.rules).length, ruleFiles.length,
-		'There are more exported rules than rule files.');
-	t.is(Object.keys(index.configs.recommended.rules).length, ruleFiles.length,
-		'There are more exported rules in the recommended config than rule files.');
+	console.log(Object.keys(index.rules).length - ignoredRules.length, ruleFiles.length);
+
+	t.is(
+		Object.keys(index.rules).length,
+		ruleFiles.length,
+		'There are more exported rules than rule files.'
+	);
+	t.is(
+		Object.keys(index.configs.recommended.rules).length - ignoredRules.length,
+		ruleFiles.length,
+		'There are more exported rules in the recommended config than rule files.'
+	);
 
 	testSorted(t, Object.keys(index.configs.recommended.rules), 'configs.recommended.rules');
 });
@@ -70,7 +83,7 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 		t.truthy(rules.includes(name), `'${name}' is not described in the readme.md ## Rules`);
 	}
 
-	t.is(Object.keys(usageRules).length, ruleFiles.length, 'There are more rules in readme.md ## Usage than rule files.');
+	t.is(Object.keys(usageRules).length - ignoredRules.length, ruleFiles.length, 'There are more rules in readme.md ## Usage than rule files.');
 	t.is(Object.keys(rules).length, ruleFiles.length, 'There are more rules in readme.md ## Rules than rule files.');
 
 	testSorted(t, Object.keys(usageRules), 'readme.md ## Usage rules');
