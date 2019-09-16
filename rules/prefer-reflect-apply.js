@@ -53,8 +53,10 @@ const create = context => {
 	return {
 		CallExpression: node => {
 			if (
-				node.callee.type !== 'MemberExpression' &&
-				['Literal', 'ArrayExpression', 'ObjectExpression'].includes(node.callee.object.type)
+				!(
+					node.callee.type === 'MemberExpression' &&
+					!['Literal', 'ArrayExpression', 'ObjectExpression'].includes(node.callee.object.type)
+				)
 			) {
 				return;
 			}
