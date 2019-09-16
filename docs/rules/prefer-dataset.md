@@ -1,6 +1,4 @@
-# Prefer the .dataset property on DOM elements over using setAttribute
-
-Enforces the use of, for example, `element.dataset.key` over `element.setAttribute('data-key', 'foo')` for DOM elements.
+# Prefer using [`.dataset`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset) on DOM elements over `.setAttribute(…)`
 
 This rule is fixable.
 
@@ -10,6 +8,7 @@ This rule is fixable.
 ```js
 element.setAttribute('data-unicorn', '🦄');
 ```
+
 
 ## Pass
 
