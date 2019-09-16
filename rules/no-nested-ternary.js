@@ -23,7 +23,7 @@ const create = context => {
 				if (childNode.type !== 'ConditionalExpression') {
 					continue;
 				}
-				
+
 				const message = 'Do not nest ternary expressions.';
 
 				// Nesting more than one level not allowed.
