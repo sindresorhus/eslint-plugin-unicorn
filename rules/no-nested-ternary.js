@@ -6,8 +6,10 @@ const isParethesized = (sourceCode, node) => {
 	const nextToken = sourceCode.getTokenAfter(node);
 
 	return Boolean(previousToken && nextToken) &&
-		previousToken.value === '(' && previousToken.end <= node.start &&
-		nextToken.value === ')' && nextToken.start >= node.end;
+		previousToken.value === '(' &&
+		previousToken.end <= node.start &&
+		nextToken.value === ')' &&
+		nextToken.start >= node.end;
 };
 
 const create = context => {
@@ -21,15 +23,17 @@ const create = context => {
 				if (childNode.type !== 'ConditionalExpression') {
 					continue;
 				}
+				
+				const message = 'Do not nest ternary expressions.';
 
-				// Nesting more than one level not allowed
+				// Nesting more than one level not allowed.
 				if (childNode.alternate.type === 'ConditionalExpression' || childNode.consequent.type === 'ConditionalExpression') {
-					context.report({node, message: 'Do not nest ternary expressions.'});
+					context.report({node, message});
 					break;
 				} else if (!isParethesized(sourceCode, childNode)) {
 					context.report({
 						node: childNode,
-						message: 'Do not nest ternary expressions.',
+						message,
 						fix: fixer => [
 							fixer.insertTextBefore(childNode, '('),
 							fixer.insertTextAfter(childNode, ')')
