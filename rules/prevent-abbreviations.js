@@ -78,6 +78,12 @@ const defaultReplacements = {
 	args: {
 		arguments: true
 	},
+	param: {
+		parameter: true
+	},
+	params: {
+		parameters: true
+	},
 	tbl: {
 		table: true
 	},
