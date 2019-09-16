@@ -315,6 +315,26 @@ ruleTester.run('catch-error-name', rule, {
 					caughtErrorsIgnorePattern: '^skip'
 				}
 			]
+		},
+		{
+			code: outdent`
+				Promise.reject(new Error())
+					.catch(function onError(errorResult) {
+						console.log('errorResult should be fixed to', errorResult)
+					})
+			`,
+			output: outdent`
+				Promise.reject(new Error())
+					.catch(function onError(error) {
+						console.log('errorResult should be fixed to', error)
+					})
+			`,
+			errors: [
+				{
+					ruleId: 'catch-error-message',
+					message: 'The catch parameter should be named `error`.'
+				}
+			]
 		}
 	]
 });
