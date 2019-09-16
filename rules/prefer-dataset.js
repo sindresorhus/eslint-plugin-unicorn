@@ -11,13 +11,9 @@ const getDataAttributeName = arg => {
 	return '';
 };
 
-const parseValueArgument = (context, arg) => {
-	return context.getSourceCode().getText(arg);
-};
+const parseValueArgument = (context, arg) => context.getSourceCode().getText(arg);
 
-const dashToCamelCase = str => {
-	return str.replace(/-([a-z])/g, s => s[1].toUpperCase());
-};
+const dashToCamelCase = string => string.replace(/-([a-z])/g, s => s[1].toUpperCase());
 
 const getReplacement = (context, node, memberExpression, propertyName) => {
 	const objectName = memberExpression.object.name;
@@ -33,9 +29,9 @@ const getReplacement = (context, node, memberExpression, propertyName) => {
 };
 
 const isBracketNotation = (context, callee) => {
-	const bracketOpen = context.getSourceCode().getFirstTokenBetween(callee.object, callee.property, {filter: token => {
-		return token.value === '[';
-	}});
+	const bracketOpen = context.getSourceCode().getFirstTokenBetween(callee.object, callee.property, {
+		filter: token => token.value === '[';
+	});
 
 	return bracketOpen !== null && bracketOpen.value === '[';
 };
@@ -62,7 +58,7 @@ const create = context => {
 				const replacement = getReplacement(context, node, callee, attributeName);
 				context.report({
 					node,
-					message: 'Prefer `dataset` over `setAttribute`',
+					message: 'Prefer `.dataset` over `setAttribute(…)`.',
 					fix: fixer => fixer.replaceText(node, replacement)
 				});
 			}
