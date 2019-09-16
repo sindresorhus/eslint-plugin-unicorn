@@ -97,7 +97,7 @@ Configure it in `package.json`.
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(partly fixable)*
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of Unicode escapes instead of hexadecimal escapes. *(fixable)*
 - [no-keyword-prefix](docs/rules/no-keyword-prefix.md) - Disallow identifiers starting with `new` or `class`.
-- [no-nested-ternary](docs/rules/no-nested-ternary.md) - Disallow nested ternary expressions *(partly fixable)*
+- [no-nested-ternary](docs/rules/no-nested-ternary.md) - Disallow nested ternary expressions. *(partly fixable)*
 - [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
 - [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
