@@ -27,8 +27,6 @@ const fixDirectApplyCall = (node, sourceCode) => {
 			)
 		);
 	}
-
-	return null;
 };
 
 const fixFunctionPrototypeCall = (node, sourceCode) => {
@@ -49,26 +47,26 @@ const fixFunctionPrototypeCall = (node, sourceCode) => {
 			)
 		);
 	}
-
-	return null;
 };
 
 const create = context => {
 	return {
 		CallExpression: node => {
 			if (
-				node.callee.type === 'MemberExpression' &&
-				!['Literal', 'ArrayExpression', 'ObjectExpression'].includes(node.callee.object.type)
+				node.callee.type !== 'MemberExpression' &&
+				['Literal', 'ArrayExpression', 'ObjectExpression'].includes(node.callee.object.type)
 			) {
-				const sourceCode = context.getSourceCode();
-				const fix = fixDirectApplyCall(node, sourceCode) || fixFunctionPrototypeCall(node, sourceCode);
-				if (fix) {
-					context.report({
-						node,
-						message: 'Prefer `Reflect.apply()` over `Function#apply()`.',
-						fix
-					});
-				}
+				return;
+			}
+
+			const sourceCode = context.getSourceCode();
+			const fix = fixDirectApplyCall(node, sourceCode) || fixFunctionPrototypeCall(node, sourceCode);
+			if (fix) {
+				context.report({
+					node,
+					message: 'Prefer `Reflect.apply()` over `Function#apply()`.',
+					fix
+				});
 			}
 		}
 	};
