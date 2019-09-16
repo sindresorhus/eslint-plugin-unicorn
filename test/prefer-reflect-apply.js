@@ -8,9 +8,11 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const errors = [{
-	ruleId: 'prefer-reflect-apply'
-}];
+const errors = [
+	{
+		ruleId: 'prefer-reflect-apply'
+	}
+];
 
 ruleTester.run('prefer-reflect-apply', rule, {
 	valid: [
