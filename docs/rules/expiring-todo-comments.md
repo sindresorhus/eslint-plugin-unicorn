@@ -24,21 +24,21 @@ Quick overview of conditions:
 
 ### Expiry Date
 
-Using a date as condition, a TODO will only work as long as this date is not met. This is specially useful when you either know when the action should take place or simply want to set boundaries for yourself.
+Using a date as condition, a TODO will only work as long as this date is not met. This is especially useful when you either know when the action should take place or simply want to set boundaries for yourself.
 
 ```js
 // TODO [2019-11-15]: Refactor this code before the sprint ends.
-// TODO (@lubien) [2019-07-18]: When John deliver his code. I can reuse it.
+// TODO (@lubien) [2019-07-18]: When John delivers his code. I can reuse it.
 // TODO [2019-08-10]: I must refactor this for sure before I deliver.
 ```
 
-Dates are in [ISO 8601 format](https://en.wikipedia.org/wiki/ISO_8601#Dates) and use [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) timezone.
+Dates are in [ISO 8601 format](https://en.wikipedia.org/wiki/ISO_8601#Dates) and use [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) as timezone.
 
 Multiple dates on the same TODO are not valid and will be reported. There's no point in having two dates as the closest one will always be the one that is reported.
 
 ### Package Version
 
-If you're working on a npm package, you should have a root level package.json with a [`version`](https://docs.npmjs.com/files/package.json#version) field as specified by npm. This condition takes place under this value.
+If you're working on an npm package, you should have a root level package.json with a [`version`](https://docs.npmjs.com/files/package.json#version) field as specified by npm. This condition takes place under this value.
 
 By assigning a condition to compare a package.json `version`, the TODO will report as soon as the condition is met. It's really useful when the work is related to the version of the package itself such as deprecated APIs.
 
@@ -54,9 +54,9 @@ Multiple package versions on the same TODO are not valid and will be reported. J
 
 In package.json, you can specify an [`"engines"` field](https://docs.npmjs.com/files/package.json#engines) with the Node.js (`node`) versions that your package supports.
 
-With that in mind, this condition is triggered as soon as package.json's `node` engine reaches the target version. This is particularly useful for maintainers that strive for compatibility but have plans to the future where some feature will be widely available and then could drop support for older versions.
+With that in mind, this condition is triggered as soon as package.json's `node` engine reaches the target version. This is particularly useful for maintainers that strive for compatibility but have plans for the future when some feature will be widely available and when support for older versions could be dropped.
 
-Imagine you want to use async/await but for now you support Node.js versions that don't have it? Maybe you're eager to use import and export but for now you have to support CommonJS?
+Imagine you want to use `async`/`await` but for now you support Node.js versions that don't have it. Maybe you're eager to use `import` and `export` but for now you have to support CommonJS?
 
 ```js
 // TODO [engine:node@>=8]: We can use async/await now.
@@ -71,25 +71,25 @@ Supported comparisons are `>` and `>=`. Comparison must have a `@` before such a
 
 ### Dependency Presence
 
-As a Node.js developer, you probably already know about package.json [dependencies](https://docs.npmjs.com/files/package.json#dependencies) and [devDependencies](https://docs.npmjs.com/files/package.json#devdependencies). This condition works over the presence or absence of dependencies in both fields.
+As a Node.js developer, you probably already know about package.json [dependencies](https://docs.npmjs.com/files/package.json#dependencies) and [devDependencies](https://docs.npmjs.com/files/package.json#devdependencies). This condition works based on the presence or absence of dependencies in both fields.
 
 You may use `+` to trigger when a dependency is added and `-` when a dependency is removed.
 
 ```js
 // TODO [-vue-function-api]: When we remove `vue-function-api` we should refactor this.
 // FIXME [+read-pkg]: If we use this package we don't need to use this function below.
-// XXX @lubien [+react, -jquery]: We can use react for this widget instead of jQuery.
+// XXX @lubien [+react, -jquery]: We can use React for this widget instead of jQuery.
 ```
 
-This condition is really useful when the code should be looked upon changes in dependencies that are known to happen such as `vue-function-api` that will eventually be part of `vue` itself.
+Such conditions are really useful when the code depends upon changes in dependencies that are known to be happening such as `vue-function-api` that will eventually be part of `vue` itself.
 
 ### Dependency Version
 
-Another way to make conditions over dependencies is to look at versions. This is useful when developers know that changes in future versions of dependencies will impact their code.
+Another way to make conditions based on dependencies is to look at versions. This is useful when developers know that changes in future versions of dependencies will impact their code.
 
 ```js
 // TODO [vue@>=3]: Refactor to function API when it's stable.
-// FIXME [cerebro@>0.10.0]: This is a quickfix until cerebro fix this.
+// FIXME [cerebro@>0.10.0]: This is a quickfix until cerebro fixes this.
 // XXX [popura@>=2.0.0]: This API is deprecated so we should not use it by then.
 ```
 
@@ -99,22 +99,22 @@ Supported comparisons are `>` and `>=`. Comparison must have a `@` before such a
 
 ### Combinations
 
-Any combination of rules is possible as long as you separate them by comma. Each condition **trigger an individual report.**
+Any combination of rules is possible as long as you separate them by commas. Each condition **triggers an individual report.**
 
 ```js
-// TODO [+react, -jquery]: We can use react for this widget instead of jQuery.
+// TODO [+react, -jquery]: We can use React for this widget instead of jQuery.
 // TODO [2019-07-15, +react]: Refactor this if we install React or if we reach that date.
 // TODO [-vue-function-api, vue@>=3]: Now we should use Vue native function API.
 ```
 
 ### Block Comments
 
-You can also use block comments to specify TODOs with conditions. Each line can have it's own set of conditions. This is specially useful when you aim for more details.
+You can also use block comments to specify TODOs with conditions. Each line can have its own set of conditions. This is especially useful when you aim for more details.
 
 ```js
 /*
  * We should really make this code better.
- * When we support from Node.js 12 we can refactor imports.
+ * When we support Node.js 12 we can refactor imports.
  * And we also can do [x], [y], [z].
  * TODO [engine:node@>=12]: Use import/export.
  */
@@ -124,7 +124,7 @@ You can also use block comments to specify TODOs with conditions. Each line can 
  * When you can, install `popura`, use it and remove dead code.
  * TODO [+popura]: Refactor to use `popura`.
  *
- * You can also use `popura-cli` so we wont to help on [feature].
+ * You can also use `popura-cli` since we want help on [feature].
  * TODO [+popura-cli]: Document how to use `popura-cli`.
  */
 ```
@@ -133,27 +133,27 @@ You can also use block comments to specify TODOs with conditions. Each line can 
 
 This rule implements [`eslint/no-warning-comments`](https://eslint.org/docs/rules/no-warning-comments).
 
-The sole difference is that first we check for **valid conditions** to apply this rule. If no valid conditions are met, we fall back to `eslint/no-warning-comments` and you'll see something like `Unexpected 'todo' comment.`
+The sole difference is that first we check for **valid conditions** to apply this rule. If no valid conditions are met, we fall back to `eslint/no-warning-comments`, and you'll see something like `Unexpected 'todo' comment.`
 
-The reason behind is that now that you have a powerful rule to make sure there are no stray TODOs on your code, you should strive for best pratices. Don't just add TODO comment and leave them forever. Define conditions to justify the presence of warning comments.
+The reason behind this is that now that you have a powerful rule to make sure there are no stray TODOs on your code, you should strive for best pratices. Don't just add TODO comments and leave them forever. Define conditions to justify the presence of warning comments.
 
-With that in mind, **you should disable** that ESLint rule in favor of this one as you will get the same behavior and more.
+With that in mind, **you should disable** that ESLint rule in favor of this one as you will get its same behavior and more.
 
-You can also opt to `allowWarningComments` on this rule and have both rules coexist (See [`allowWarningComments`](#allowWarningComments) below).
+You can also opt for `allowWarningComments` on this rule and have both rules coexist (See [`allowWarningComments`](#allowWarningComments) below).
 
 ## Legacy Branches
 
 Although this rule works just fine when you maintain a `master` branch, it gets trickier when you have legacy branches that happen to have unclosed TODOs.
 
-Imagine you maintain a `master` branch at a version such as 10 and always keep working on it and also keep fixing your TODOs. But your package happen to **publish and support** legacy branches such as 8 and 9 for [long term support](https://en.wikipedia.org/wiki/Long-term_support) with code such as security patches, meaning you might have stray TODOs that won't get fixed and will cause your build to break unless you either fix or drop the TODO.
+Imagine you maintain a `master` branch at a version such as 10 and always keep working on it and also keep fixing your TODOs. But your package happens to **publish and support** legacy branches such as 8 and 9 for [long term support](https://en.wikipedia.org/wiki/Long-term_support) with code such as security patches, meaning you might have stray TODOs that won't get fixed and will cause your build to break unless you either fix or drop the TODO.
 
 ## Conditions Overview
 
-- `[YYYY-MM-DD]` to define an [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) due date in the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601#Dates) format.
+- `[YYYY-MM-DD]` to define a [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) due date in the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601#Dates) format.
 - `[>1]` or `[>=2]` to expire at some version (from package.json). No whitespace.
 - `[+package]` or `[-package]` to expire when you add/remove a package.
 - `[package@>1]` or `[package@>=2]` to expire when a package hits some version. No whitespace.
-- `[engine:node@>8]` or `[engine:node@>=8]` to expire when package bump supported engines. No whitespace.
+- `[engine:node@>8]` or `[engine:node@>=8]` to expire when the package bumps to the supported engines. No whitespace.
 
 ## Overall Information
 
@@ -181,12 +181,12 @@ Imagine you maintain a `master` branch at a version such as 10 and always keep w
 // TODO [>1, >2]: Multiple package versions won't work.
 
 // TODO [+already-have-pkg]: Since we already have it, this reports.
-// TODO [-we-dont-have-this-package]: Since we don't have, trigger report.
+// TODO [-we-dont-have-this-package]: Since we don't have, trigger a report.
 
 // TODO [read-pkg@>1]: When `read-pkg` version is > 1 don't forget to do this.
 // TODO [read-pkg@>=5.1.1]: When `read-pkg` version is >= 5.1.1 don't forget to do that.
 
-// TODO [engine:node@>=8]: Whoops we are already supporting it!
+// TODO [engine:node@>=8]: Whoops, we are already supporting it!
 
 // TODO: Add unicorns.
 ```
@@ -194,7 +194,7 @@ Imagine you maintain a `master` branch at a version such as 10 and always keep w
 ## Pass
 
 ```js
-// TODO [2200-12-25]: Too long... Can you feel it?'
+// TODO [2200-12-25]: Too long... Can you feel it?
 // FIXME [2200-12-25]: Too long... Can you feel it?
 
 // TODO (lubien) [2200-12-12]: You can add something before the arguments.
@@ -205,12 +205,12 @@ Imagine you maintain a `master` branch at a version such as 10 and always keep w
 // TODO [+react]: Refactor this when we use React.
 // TODO [-lodash]: If we remove lodash we need to change this.
 
-// TODO [lodash@>10]: Lodash has a new way to do this, when we bump version let's use it.
-// TODO [lodash@>=10]: Lodash has a new way to do this, when we bump version let's use it.
+// TODO [lodash@>10]: Lodash has a new way to do this; when we bump to its version let's use it.
+// TODO [lodash@>=10]: Lodash has a new way to do this; when we bump to its version let's use it.
 
 // TODO [2200-12-25, +popura, lodash@>10]: Combo.
 
-// TODO [engine:node@>12]: When we bump version we can use import/export.
+// TODO [engine:node@>12]: When we bump to this Node version we can use import/export.
 
 /*
  * TODO [2200-12-25]: Yet
@@ -250,7 +250,7 @@ Add or remove TODO verbs.
 
 The defaults come from the [`eslint/no-warning-comments` rule](https://eslint.org/docs/rules/no-warning-comments#options).
 
-If you just want to add a verb, make sure to leave the older ones there like `['todo', 'fixme', 'xxx', 'mytodo']` otherwise any TODO with older verbs will be ignored. Similarly, when you want to remove a verb, leave the others in like `['todo', 'fixme']`.
+If you just want to add a verb, make sure to explicitly include the default ones like `['todo', 'fixme', 'xxx', 'mytodo']` or otherwise any default TODO verb will be ignored. Similarly, when you want to remove a verb, leave the others in like `['todo', 'fixme']`.
 
 ```js
 "unicorn/expiring-todo-comments": [
