@@ -90,14 +90,16 @@ const create = context => {
 	};
 };
 
-const schema = [{
-	type: 'object',
-	properties: {
-		targetVersion: {
-			type: 'string'
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			targetVersion: {
+				type: 'string'
+			}
 		}
 	}
-}];
+];
 
 module.exports = {
 	create,
