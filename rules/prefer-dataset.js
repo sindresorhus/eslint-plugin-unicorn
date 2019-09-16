@@ -1,5 +1,6 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
+const {isValidVariableName} = require('./utils');
 
 const getMethodName = memberExpression => memberExpression.property.name;
 
@@ -21,7 +22,7 @@ const getReplacement = (context, node, memberExpression, propertyName) => {
 
 	propertyName = dashToCamelCase(propertyName);
 
-	if (propertyName.match(/[.:]/)) {
+	if (!isValidVariableName(propertyName)) {
 		return `${objectName}.dataset['${propertyName}'] = ${value}`;
 	}
 

@@ -34,7 +34,7 @@ ruleTester.run('prefer-dataset', rule, {
 		{
 			code: 'element.setAttribute(\'data-🦄\', \'🦄\');',
 			errors,
-			output: 'element.dataset.🦄 = \'🦄\';'
+			output: 'element.dataset[\'🦄\'] = \'🦄\';'
 		},
 		{
 			code: 'element.setAttribute(\'data-foo2\', \'🦄\');',
