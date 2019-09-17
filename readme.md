@@ -42,11 +42,11 @@ Configure it in `package.json`.
 			"unicorn/explicit-length-check": "error",
 			"unicorn/filename-case": "error",
 			"unicorn/import-index": "error",
+			"unicorn/import-style": "error",
 			"unicorn/new-for-builtins": "error",
 			"unicorn/no-abusive-eslint-disable": "error",
 			"unicorn/no-array-instanceof": "error",
 			"unicorn/no-console-spaces": "error",
-			"unicorn/no-direct-import": "error",
 			"unicorn/no-fn-reference-in-iterator": "off",
 			"unicorn/no-for-loop": "error",
 			"unicorn/no-hex-escape": "error",
@@ -88,11 +88,11 @@ Configure it in `package.json`.
 - [explicit-length-check](docs/rules/explicit-length-check.md) - Enforce explicitly comparing the `length` property of a value. *(partly fixable)*
 - [filename-case](docs/rules/filename-case.md) - Enforce a case style for filenames.
 - [import-index](docs/rules/import-index.md) - Enforce importing index files with `.`. *(fixable)*
+- [import-style](docs/rules/import-style.md) - Whether to allow default imports or destructuring/named imports
 - [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean` and `Symbol`. *(fixable)*
 - [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) - Enforce specifying rules to disable in `eslint-disable` comments.
 - [no-array-instanceof](docs/rules/no-array-instanceof.md) - Require `Array.isArray()` instead of `instanceof Array`. *(fixable)*
 - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
-- [no-direct-import](docs/rules/no-direct-import.md) - Do not import the core Node.js modules directly.
 - [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevent passing a function reference directly to iterator methods. *(fixable)*
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(partly fixable)*
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of Unicode escapes instead of hexadecimal escapes. *(fixable)*
