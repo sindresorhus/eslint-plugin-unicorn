@@ -20,7 +20,7 @@ const browserES5RuleTester = avaRuleTester(test, {
 
 const moduleRuleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2019,
+		ecmaVersion: 2020,
 		sourceType: 'module'
 	}
 });
@@ -224,7 +224,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		}),
 		noFixingTestCase({
 			code: 'this.eResDir = 1',
-			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResponseDirectory`, `errorResultDirectory`, `eventResponseDirectory`, ... (1 more omitted). A more descriptive name will do too.')
+			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResponseDirection`, `errorResponseDirectory`, `errorResultDirection`, ... (5 more omitted). A more descriptive name will do too.')
 		}),
 
 		{
@@ -937,6 +937,33 @@ ruleTester.run('prevent-abbreviations', rule, {
 			code: 'foo();',
 			filename: 'http-err.js',
 			errors: createErrors()
+		},
+		{
+			code: 'foo();',
+			filename: '/path/to/doc/__prev-Attr$1Err__.conf.js',
+			errors: createErrors('The filename `/path/to/doc/__prev-Attr$1Err__.conf.js` should be named `__previous-Attribute$1Error__.config.js`. A more descriptive name will do too.')
+		},
+		{
+			code: 'foo();',
+			filename: '.http.err.js',
+			errors: createErrors('The filename `.http.err.js` should be named `.http.error.js`. A more descriptive name will do too.')
+		},
+		{
+			code: 'foo();',
+			filename: 'e.js',
+			errors: createErrors('Please rename the filename `e.js`. Suggested names are: `error.js`, `event.js`. A more descriptive name will do too.')
+		},
+		{
+			code: 'foo();',
+			filename: 'c.js',
+			options: extendedOptions,
+			errors: createErrors('The filename `c.js` should be named `custom.js`. A more descriptive name will do too.')
+		},
+		{
+			code: 'foo();',
+			filename: 'cb.js',
+			options: extendedOptions,
+			errors: createErrors('The filename `cb.js` should be named `circuitBreacker.js`. A more descriptive name will do too.')
 		}
 	]
 });

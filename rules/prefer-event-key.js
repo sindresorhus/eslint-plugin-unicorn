@@ -1,5 +1,6 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
+const quoteString = require('./utils/quote-string');
 
 const keys = [
 	'keyCode',
@@ -54,7 +55,7 @@ const translateToKey = {
 	219: '[',
 	220: '\\',
 	221: ']',
-	222: '\\\'',
+	222: '\'',
 	224: 'Meta'
 };
 
@@ -142,7 +143,7 @@ const fix = node => fixer => {
 	// Apply fixes
 	return [
 		fixer.replaceText(node, 'key'),
-		fixer.replaceText(right, `'${keyCode}'`)
+		fixer.replaceText(right, quoteString(keyCode))
 	];
 };
 

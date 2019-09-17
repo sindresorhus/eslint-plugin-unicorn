@@ -7,6 +7,8 @@ Enforces the use of `new` for following builtins:
 - `Object`
 - `Array`
 - `ArrayBuffer`
+- `BigInt64Array`
+- `BigUint64Array`
 - `DataView`
 - `Date`
 - `Error`

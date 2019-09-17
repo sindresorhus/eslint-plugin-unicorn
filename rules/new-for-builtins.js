@@ -5,6 +5,8 @@ const enforceNew = new Set([
 	'Object',
 	'Array',
 	'ArrayBuffer',
+	'BigInt64Array',
+	'BigUint64Array',
 	'DataView',
 	'Date',
 	'Error',
