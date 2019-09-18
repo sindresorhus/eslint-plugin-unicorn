@@ -169,6 +169,14 @@ ruleTester.run('consistent-function-scoping', rule, {
 			}
 		`,
 		outdent`
+			function doFoo(Foo) {
+				function doBar() {
+					return new Foo();
+				}
+				return doBar;
+			};
+		`,
+		outdent`
 			function doFoo(FooComponent) {
 				return <FooComponent />;
 			}
@@ -179,14 +187,6 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return <FooComponent />;
 				}
 				return Bar;
-			};
-		`,
-		outdent`
-			function doFoo(Foo) {
-				function doBar() {
-					return new Foo();
-				}
-				return doBar;
 			};
 		`
 	],
