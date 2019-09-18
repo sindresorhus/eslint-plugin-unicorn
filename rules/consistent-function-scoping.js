@@ -30,6 +30,9 @@ function checkReferences(scope, parent, scopeManager) {
 		}
 
 		const hitDefinitions = variable.defs.some(definition => {
+			console.log('CCC.2', {
+				definition,
+			});
 			const scope = scopeManager.acquire(definition.node);
 			return parent === scope;
 		});
@@ -121,30 +124,48 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 	const {scopeManager} = sourceCode;
 
+	const reports = [];
+	let jsx = false;
+
 	return {
-		ArrowFunctionExpression(node) {
+		ArrowFunctionExpression: node => {
 			const valid = checkNode(node, scopeManager);
 
 			if (valid) {
-				return;
+				reports.push(null);
+			} else {
+				reports.push({
+					node,
+					messageId: MESSAGE_ID_ARROW
+				});
 			}
-
-			context.report({
-				node,
-				messageId: MESSAGE_ID_ARROW
-			});
 		},
-		FunctionDeclaration(node) {
+		FunctionDeclaration: node => {
 			const valid = checkNode(node, scopeManager);
 
 			if (valid) {
-				return;
+				reports.push(null);
+			} else {
+				reports.push({
+					node,
+					messageId: MESSAGE_ID_FUNCTION
+				});
+			}
+		},
+		JSXElement: () => {
+			// Turn off this rule if we see a JSX element because scope
+			// references does not include JSXElement nodes.
+			jsx = true;
+		},
+		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': () => {
+			const report = reports.pop();
+			if (report && !jsx) {
+				context.report(report);
 			}
 
-			context.report({
-				node,
-				messageId: MESSAGE_ID_FUNCTION
-			});
+			if (reports.length === 0) {
+				jsx = false;
+			}
 		}
 	};
 };
