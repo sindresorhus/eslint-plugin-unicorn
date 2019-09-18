@@ -62,11 +62,12 @@ function doFoo(foo) {
 
 It also ignores functions that contain `JSXElement` references:
 
-```js
+```jsx
 function doFoo(FooComponent) {
 	function Bar() {
-		return <FooComponent />;
+		return <FooComponent/>;
 	}
+
 	return Bar;
 };
 ```
