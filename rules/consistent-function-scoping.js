@@ -125,7 +125,7 @@ const create = context => {
 	const {scopeManager} = sourceCode;
 
 	const reports = [];
-	let jsx = false;
+	let hasJsx = false;
 
 	return {
 		ArrowFunctionExpression: node => {
