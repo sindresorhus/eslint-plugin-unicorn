@@ -144,6 +144,18 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 				return foo;
 			}
+		`,
+		outdent`
+			function doFoo(foo) {
+				function doBar(bar) {
+					foo.bar = bar;
+				}
+				function doZaz(zaz) {
+					doBar(zaz);
+				}
+
+				doZaz('zaz');
+			};
 		`
 	],
 	invalid: [

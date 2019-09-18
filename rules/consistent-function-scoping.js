@@ -38,6 +38,39 @@ function checkReferences(scope, parent, scopeManager) {
 			return true;
 		}
 
+		// This check looks for neighboring function definitions
+		const hitIdentifier = variable.identifiers.some(identifier => {
+			// Only look at identifiers that live in a FunctionDeclaration
+			if (!identifier.parent || identifier.parent.type !== 'FunctionDeclaration') {
+				return false;
+			}
+
+			const identifierScope = scopeManager.acquire(identifier);
+
+			// If we have a scope, the earlier checks should have worked so ignore them here
+			if (identifierScope) {
+				return false;
+			}
+
+			const identifierParentScope = scopeManager.acquire(identifier.parent);
+			if (!identifierParentScope) {
+				return false;
+			}
+
+			// Ignore identifiers from our own scope
+			if (scope === identifierParentScope) {
+				return false;
+			}
+
+			// Look at the scope above the function definition to see if lives
+			// next to the reference being checked
+			return parent === identifierParentScope.upper;
+		});
+
+		if (hitIdentifier) {
+			return true;
+		}
+
 		return false;
 	});
 
