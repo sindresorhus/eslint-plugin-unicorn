@@ -285,7 +285,7 @@ const getNameReplacements = (name, {replacements, whitelist}, limit = 3) => {
 	}
 
 	// Split words
-	const words = name.split(/(?=[^a-z])|(?<=[^a-zA-Z])/g).filter(Boolean);
+	const words = name.split(/(?=[^a-z])|(?<=[^a-zA-Z])/).filter(Boolean);
 
 	let hasReplacements = false;
 	const combinations = words.map(word => {
