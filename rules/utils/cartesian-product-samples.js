@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = (combinations, length = Infinity) => {
 	const total = combinations.reduce((total, {length}) => total * length, 1);
 

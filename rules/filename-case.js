@@ -83,15 +83,15 @@ function validateFilename(words, caseFunctions) {
 		.every(({word}) => caseFunctions.some(fn => fn(word) === word));
 }
 
-function fixFilename(words, caseFunctions) {
+function fixFilename(words, caseFunctions, {leading, extension}) {
 	const replacements = words
 		.map(({word, ignored}) => ignored ? [word] : caseFunctions.map(fn => fn(word)));
 
 	const {
-		samples
+		samples: combinations
 	} = cartesianProductSamples(replacements);
 
-	return samples.map(words => words.join(''));
+	return combinations.map(parts => `${leading}${parts.join('')}${extension}`);
 }
 
 const leadingUnserscoresRegex = /^(_+)(.*)$/;
@@ -168,18 +168,23 @@ const create = context => {
 			} = splitFilename(filename);
 			const isValid = validateFilename(words, chosenCasesFunctions);
 
-			if (!isValid) {
-				const renamedFilenames = fixFilename(words, chosenCasesFunctions).map(filename => `${leading}${filename}${extension}`);
-
-				context.report({
-					node,
-					messageId: chosenCases.length > 1 ? 'renameToCases' : 'renameToCase',
-					data: {
-						chosenCases: englishishJoinWords(chosenCases.map(x => cases[x].name)),
-						renamedFilenames: englishishJoinWords(renamedFilenames.map(x => `\`${x}\``))
-					}
-				});
+			if (isValid) {
+				return;
 			}
+
+			const renamedFilenames = fixFilename(words, chosenCasesFunctions, {
+				leading,
+				extension
+			});
+
+			context.report({
+				node,
+				messageId: chosenCases.length > 1 ? 'renameToCases' : 'renameToCase',
+				data: {
+					chosenCases: englishishJoinWords(chosenCases.map(x => cases[x].name)),
+					renamedFilenames: englishishJoinWords(renamedFilenames.map(x => `\`${x}\``))
+				}
+			});
 		}
 	};
 };
