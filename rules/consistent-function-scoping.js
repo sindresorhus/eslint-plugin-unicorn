@@ -30,9 +30,6 @@ function checkReferences(scope, parent, scopeManager) {
 		}
 
 		const hitDefinitions = variable.defs.some(definition => {
-			console.log('CCC.2', {
-				definition,
-			});
 			const scope = scopeManager.acquire(definition.node);
 			return parent === scope;
 		});
@@ -155,16 +152,16 @@ const create = context => {
 		JSXElement: () => {
 			// Turn off this rule if we see a JSX element because scope
 			// references does not include JSXElement nodes.
-			jsx = true;
+			hasJsx = true;
 		},
 		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': () => {
 			const report = reports.pop();
-			if (report && !jsx) {
+			if (report && !hasJsx) {
 				context.report(report);
 			}
 
 			if (reports.length === 0) {
-				jsx = false;
+				hasJsx = false;
 			}
 		}
 	};
