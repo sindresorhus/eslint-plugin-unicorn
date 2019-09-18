@@ -38,6 +38,16 @@ function checkReferences(scope, parent, scopeManager) {
 			return true;
 		}
 
+			// If we have a scope, the earlier checks should have worked so ignore them here
+			const identifierParentScope = scopeManager.acquire(identifier.parent);
+			if (!identifierParentScope) {
+				return false;
+			}
+			// Look at the scope above the function definition to see if lives
+			// next to the reference being checked
+			return parent === identifierParentScope.upper;
+		});
+
 		return false;
 	});
 
