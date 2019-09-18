@@ -133,6 +133,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		'foo.error',
 		'foo.x',
 		'let E',
+		'let ESLint',
 		'let NODE_ENV',
 
 		// Accessing banned names is allowed (as in `camelcase` rule)
