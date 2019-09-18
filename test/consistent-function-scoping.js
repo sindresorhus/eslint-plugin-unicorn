@@ -180,6 +180,14 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 				return Bar;
 			};
+		`,
+		outdent`
+			function doFoo(Foo) {
+				function doBar() {
+					return new Foo();
+				}
+				return doBar;
+			};
 		`
 	],
 	invalid: [
