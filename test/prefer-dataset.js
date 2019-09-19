@@ -70,6 +70,11 @@ ruleTester.run('prefer-dataset', rule, {
 			`,
 			errors,
 			output: 'element.dataset.foo = \'bar\';'
+		},
+		{
+			code: 'element.querySelector(\'#selector\').setAttribute(\'data-AllowAccess\', true);',
+			errors,
+			output: 'element.querySelector(\'#selector\').dataset.AllowAccess = true;'
 		}
 	]
 });
