@@ -56,4 +56,4 @@ module.exports = {
 		'unicorn/regex-shorthand': 'error',
 		'unicorn/throw-new-error': 'error'
 	}
-}
+};
