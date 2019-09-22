@@ -4,7 +4,6 @@ const camelCase = require('lodash.camelcase');
 const kebabCase = require('lodash.kebabcase');
 const snakeCase = require('lodash.snakecase');
 const upperfirst = require('lodash.upperfirst');
-
 const getDocsUrl = require('./utils/get-docs-url');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
 
