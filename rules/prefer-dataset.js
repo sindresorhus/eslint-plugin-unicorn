@@ -12,21 +12,21 @@ const getDataAttributeName = arg => {
 	return '';
 };
 
-const parseValueArgument = (context, arg) => context.getSourceCode().getText(arg);
+const parseNodeText = (context, arg) => context.getSourceCode().getText(arg);
 
 const dashToCamelCase = string => string.replace(/-([a-z])/g, s => s[1].toUpperCase());
 
 const getReplacement = (context, node, memberExpression, propertyName) => {
-	const objectName = memberExpression.object.name;
-	const value = parseValueArgument(context, node.arguments[1]);
+	const calleeObject = parseNodeText(context, memberExpression.object);
+	const value = parseNodeText(context, node.arguments[1]);
 
 	propertyName = dashToCamelCase(propertyName);
 
 	if (!isValidVariableName(propertyName)) {
-		return `${objectName}.dataset['${propertyName}'] = ${value}`;
+		return `${calleeObject}.dataset['${propertyName}'] = ${value}`;
 	}
 
-	return `${objectName}.dataset.${propertyName} = ${value}`;
+	return `${calleeObject}.dataset.${propertyName} = ${value}`;
 };
 
 const isBracketNotation = (context, callee) => {
