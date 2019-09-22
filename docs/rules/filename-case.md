@@ -4,7 +4,7 @@ Enforces all linted files to have their names in a certain case style. The defau
 
 Files named `index.js` are ignored as they can't change case (Only a problem with `pascalCase`).
 
-Characters in filename except `a-z`, `A-Z`, `0-9`, `-`, `_` and `$` are ignored.
+Characters in the filename except `a-z`, `A-Z`, `0-9`, `-`, `_` and `$` are ignored.
 
 ### `kebabCase`
 
