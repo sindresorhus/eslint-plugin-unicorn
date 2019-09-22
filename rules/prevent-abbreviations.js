@@ -234,7 +234,12 @@ const prepareOptions = ({
 	};
 };
 
-const getWordReplacements = (word, replacements) => {
+const getWordReplacements = (word, {replacements, whitelist}) => {
+	// Skip constants and whitelist
+	if (isUpperCase(word) || whitelist.get(word)) {
+		return [];
+	}
+
 	const replacement = replacements.get(lowerFirst(word)) ||
 		replacements.get(word) ||
 		replacements.get(upperFirst(word));
@@ -249,14 +254,16 @@ const getWordReplacements = (word, replacements) => {
 	return wordReplacement.length > 0 ? wordReplacement.sort() : [];
 };
 
-const getNameReplacements = (name, {replacements, whitelist}, limit = 3) => {
+const getNameReplacements = (name, options, limit = 3) => {
+	const {whitelist} = options;
+
 	// Skip constants and whitelist
 	if (isUpperCase(name) || whitelist.get(name)) {
 		return {total: 0};
 	}
 
 	// Find exact replacements
-	const exactReplacements = getWordReplacements(name, replacements);
+	const exactReplacements = getWordReplacements(name, options);
 
 	if (exactReplacements.length > 0) {
 		return {
@@ -270,7 +277,7 @@ const getNameReplacements = (name, {replacements, whitelist}, limit = 3) => {
 
 	let hasReplacements = false;
 	const combinations = words.map(word => {
-		const wordReplacements = getWordReplacements(word, replacements);
+		const wordReplacements = getWordReplacements(word, options);
 
 		if (wordReplacements.length > 0) {
 			hasReplacements = true;
