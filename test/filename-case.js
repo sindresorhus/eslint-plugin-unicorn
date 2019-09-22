@@ -91,7 +91,8 @@ ruleTester.run('filename-case', rule, {
 		testManyCases('src/foo/FooBar.js', {kebabCase: true, pascalCase: true}),
 		testManyCases('src/foo/___foo_bar.js', {snakeCase: true, pascalCase: true}),
 		testCaseWithOptions('src/foo/bar.js'),
-		testCase('src/foo/[bar].js', 'camelCase')
+		testCase('src/foo/[fooBar].js', 'camelCase'),
+		testCase('src/foo/{foo_bar}.js', 'snakeCase')
 	],
 	invalid: [
 		testCase(
@@ -232,6 +233,15 @@ ruleTester.run('filename-case', rule, {
 			'src/foo/[foo_bar].js',
 			undefined,
 			'Filename is not in kebab case. Rename it to `[foo-bar].js`.'
+		),
+		testManyCases(
+			'src/foo/{foo_bar}.js',
+			{
+				camelCase: true,
+				pascalCase: true,
+				kebabCase: true
+			},
+			'Filename is not in camel case, pascal case, or kebab case. Rename it to `{fooBar}.js`, `{FooBar}.js`, or `{foo-bar}.js`.'
 		)
 	]
 });
