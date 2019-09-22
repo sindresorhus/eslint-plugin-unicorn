@@ -4,7 +4,6 @@ const camelCase = require('lodash.camelcase');
 const kebabCase = require('lodash.kebabcase');
 const snakeCase = require('lodash.snakecase');
 const upperfirst = require('lodash.upperfirst');
-
 const getDocsUrl = require('./utils/get-docs-url');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
 
@@ -12,7 +11,7 @@ const pascalCase = string => upperfirst(camelCase(string));
 const numberRegex = /(\d+)/;
 const PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
 const PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
-const isIgnoredChar = char => !/^[a-z0-9-_$]$/i.test(char);
+const isIgnoredChar = char => !/^[a-z\d-_$]$/i.test(char);
 
 function ignoreNumbers(fn) {
 	return string => {
