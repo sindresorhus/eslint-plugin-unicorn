@@ -134,6 +134,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		'foo.x',
 		'let E',
 		'let ESLint',
+		'let isJPEG',
 		'let NODE_ENV',
 
 		// Accessing banned names is allowed (as in `camelcase` rule)
