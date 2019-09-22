@@ -6,6 +6,7 @@ const toPairs = require('lodash.topairs');
 
 const getDocsUrl = require('./utils/get-docs-url');
 const avoidCapture = require('./utils/avoid-capture');
+const cartesianProductSamples = require('./utils/cartesian-product-samples');
 
 const isUpperCase = string => string === string.toUpperCase();
 const isUpperFirst = string => isUpperCase(string[0]);
@@ -248,26 +249,6 @@ const getWordReplacements = (word, replacements) => {
 	return wordReplacement.length > 0 ? wordReplacement.sort() : [];
 };
 
-const getReplacementsFromCombinations = (combinations, length = Infinity) => {
-	const total = combinations.reduce((total, {length}) => total * length, 1);
-
-	const samples = Array.from({length: Math.min(total, length)}, (_, sampleIndex) => {
-		let indexLeft = sampleIndex;
-		return combinations.reduceRight((words, replacements) => {
-			const {length} = replacements;
-			const replacementIndex = indexLeft % length;
-			indexLeft -= replacementIndex;
-			indexLeft /= length;
-			return [replacements[replacementIndex], ...words];
-		}, []).join('');
-	});
-
-	return {
-		total,
-		samples
-	};
-};
-
 const getNameReplacements = (name, {replacements, whitelist}, limit = 3) => {
 	// Skip constants and whitelist
 	if (isUpperCase(name) || whitelist.get(name)) {
@@ -304,7 +285,15 @@ const getNameReplacements = (name, {replacements, whitelist}, limit = 3) => {
 		return {total: 0};
 	}
 
-	return getReplacementsFromCombinations(combinations, limit);
+	const {
+		total,
+		samples
+	} = cartesianProductSamples(combinations, limit);
+
+	return {
+		total,
+		samples: samples.map(words => words.join(''))
+	};
 };
 
 const anotherNameMessage = 'A more descriptive name will do too.';
