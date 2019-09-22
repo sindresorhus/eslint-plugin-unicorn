@@ -12,7 +12,7 @@ const pascalCase = string => upperfirst(camelCase(string));
 const numberRegex = /(\d+)/;
 const PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
 const PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
-const isIgnoredChar = char => !/^[a-z0-9-_$]$/i.test(char);
+const isIgnoredChar = char => !/^[a-z\d-_$]$/i.test(char);
 
 function ignoreNumbers(fn) {
 	return string => {
