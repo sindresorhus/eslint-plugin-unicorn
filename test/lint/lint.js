@@ -1,19 +1,17 @@
 #!/usr/bin/env node
 'use strict';
-
-const path = require('path');
-
-const ROOT = path.join(__dirname, '../../');
-const unicorn = require(ROOT);
-
 const {CLIEngine} = require('eslint');
+const unicorn = require('../../');
+
+const {configs: {recommended}} = unicorn
+const {rules} = recommended
 
 const cli = new CLIEngine({
-	...unicorn.configs.recommended,
+	...recommended,
 	rules: {
-		...unicorn.configs.recommended.rules,
+		...rules,
 
-		// TODO: remove this override, when default options changed
+		// TODO: remove this override, when `prevent-abbreviations` default options changes
 		'unicorn/prevent-abbreviations': [
 			'error',
 			{
@@ -21,7 +19,6 @@ const cli = new CLIEngine({
 			}
 		]
 	},
-	cwd: ROOT,
 	useEslintrc: false
 });
 
