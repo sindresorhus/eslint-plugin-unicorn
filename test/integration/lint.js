@@ -10,6 +10,17 @@ const {CLIEngine} = require('eslint');
 
 const cli = new CLIEngine({
 	...unicorn.configs.recommended,
+	rules: {
+		...unicorn.configs.recommended.rules,
+
+		// TODO: remove this override, when default options changed
+		'unicorn/prevent-abbreviations': [
+			'error',
+			{
+				checkProperties: false
+			}
+		]
+	},
 	cwd: ROOT,
 	useEslintrc: false
 });

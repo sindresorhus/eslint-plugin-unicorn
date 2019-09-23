@@ -8,7 +8,7 @@ const forbiddenIdentifierNames = new Map([
 ]);
 
 const getReplacementForId = value => `#${value}`;
-const getReplacementForClass = value => value.match(/\S+/g).map(e => `.${e}`).join('');
+const getReplacementForClass = value => value.match(/\S+/g).map(className => `.${className}`).join('');
 
 const getQuotedReplacement = (node, value) => {
 	const leftQuote = node.raw.charAt(0);
