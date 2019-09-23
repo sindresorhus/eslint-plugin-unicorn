@@ -6,7 +6,9 @@ node_js:
 matrix:
   include:
     - node_js: '12'
-      env: INTEGRATION=true LINT=true SKIP_TEST=true
+      env: INTEGRATION=true SKIP_TEST=true
+    - node_js: '12'
+      env: LINT=true SKIP_TEST=true
 script:
   - if [[ $INTEGRATION == true ]]; then npm run integration; fi
   - if [[ $LINT == true ]]; then npm run lint; fi
