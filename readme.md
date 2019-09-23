@@ -156,6 +156,7 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 - [Adam Babcock](https://github.com/MrHen)
 - [futpib](https://github.com/futpib)
 - [Sam Verschueren](https://github.com/SamVerschueren)
+- [Fisker Cheung](https://github.com/fisker)
 
 ###### Former
 
