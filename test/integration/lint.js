@@ -9,7 +9,7 @@ const unicorn = require(ROOT);
 const {CLIEngine} = require('eslint');
 
 const cli = new CLIEngine({
-	...unicorn.config.recommended,
+	...unicorn.configs.recommended,
 	cwd: ROOT,
 	useEslintrc: false
 });
