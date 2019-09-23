@@ -187,7 +187,7 @@ const create = context => {
 	const comments = sourceCode.getAllComments();
 	const unusedComments = comments
 		.filter(token => token.type !== 'Shebang')
-		/* eslint-disable unicorn/expiring-todo-comments */
+		/* eslint-disable unicorn/expiring-todo-comments, eslint-comments/no-unused-disable */
 		// Block comments come as one.
 		// Split for situations like this:
 		// /*
@@ -195,7 +195,7 @@ const create = context => {
 		//  * TODO [2000-01-01]: And this
 		//  * TODO [2000-01-01]: Also this
 		//  */
-		/* eslint-enable unicorn/expiring-todo-comments */
+		/* eslint-enable unicorn/expiring-todo-comments, eslint-comments/no-unused-disable */
 		.map(comment =>
 			comment.value.split('\n').map(line => ({
 				...comment,
