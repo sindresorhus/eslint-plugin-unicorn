@@ -21,9 +21,9 @@ function isLintablePromiseCatch(node) {
 		return false;
 	}
 
-	const [argument0] = node.arguments;
+	const [firstArgument] = node.arguments;
 
-	return argument0.type === 'FunctionExpression' || argument0.type === 'ArrowFunctionExpression';
+	return firstArgument.type === 'FunctionExpression' || firstArgument.type === 'ArrowFunctionExpression';
 }
 
 const create = context => {
