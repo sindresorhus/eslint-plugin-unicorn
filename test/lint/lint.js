@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 'use strict';
 const {CLIEngine} = require('eslint');
-const unicorn = require('../../');
+const unicorn = require('../..');
 
-const {configs: {recommended}} = unicorn
-const {rules} = recommended
+const {configs: {recommended}} = unicorn;
+const {rules} = recommended;
 
 const cli = new CLIEngine({
 	...recommended,
