@@ -18,14 +18,14 @@ const avoidMultipleDatesError = (expirationDates, message) => ({
 	message: `Avoid using multiple expiration dates in TODO: ${expirationDates}. ${message}`
 });
 
-const havePackageError = (pkg, message) => ({
+const havePackageError = (package_, message) => ({
 	ruleId: 'expiring-todo-comments',
-	message: `There is a TODO that is deprecated since you installed: ${pkg}. ${message}`
+	message: `There is a TODO that is deprecated since you installed: ${package_}. ${message}`
 });
 
-const dontHavePackageError = (pkg, message) => ({
+const dontHavePackageError = (package_, message) => ({
 	ruleId: 'expiring-todo-comments',
-	message: `There is a TODO that is deprecated since you uninstalled: ${pkg}. ${message}`
+	message: `There is a TODO that is deprecated since you uninstalled: ${package_}. ${message}`
 });
 
 const versionMatchesError = (comparison, message) => ({

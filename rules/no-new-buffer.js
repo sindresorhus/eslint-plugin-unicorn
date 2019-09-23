@@ -1,7 +1,7 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 
-const inferMethod = args => (args.length > 0 && typeof args[0].value === 'number') ? 'alloc' : 'from';
+const inferMethod = arguments_ => (arguments_.length > 0 && typeof arguments_[0].value === 'number') ? 'alloc' : 'from';
 
 const create = context => {
 	return {

@@ -95,10 +95,10 @@ function fixFilename(words, caseFunctions, {leading, extension}) {
 
 const leadingUnserscoresRegex = /^(_+)(.*)$/;
 function splitFilename(filename) {
-	const res = leadingUnserscoresRegex.exec(filename);
+	const result = leadingUnserscoresRegex.exec(filename);
 
-	const leading = (res && res[1]) || '';
-	const tailing = (res && res[2]) || filename;
+	const leading = (result && result[1]) || '';
+	const tailing = (result && result[2]) || filename;
 
 	const words = [];
 

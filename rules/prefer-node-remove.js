@@ -29,8 +29,8 @@ const getCallerName = callee => {
 	return null;
 };
 
-const getArgumentName = args => {
-	const [identifier] = args;
+const getArgumentName = arguments_ => {
+	const [identifier] = arguments_;
 
 	if (identifier.type === 'ThisExpression') {
 		return 'this';

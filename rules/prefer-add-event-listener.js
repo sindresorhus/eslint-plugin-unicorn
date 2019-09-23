@@ -3,7 +3,7 @@ const getDocsUrl = require('./utils/get-docs-url');
 const domEventsJson = require('./utils/dom-events.json');
 
 const nestedEvents = Object.keys(domEventsJson).map(key => domEventsJson[key]);
-const eventTypes = new Set(nestedEvents.reduce((accEvents, events) => accEvents.concat(events), []));
+const eventTypes = new Set(nestedEvents.reduce((accumulatorEvents, events) => accumulatorEvents.concat(events), []));
 const getEventMethodName = memberExpression => memberExpression.property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 

@@ -248,7 +248,7 @@ const getReferencesInChildScopes = (scope, name) => {
 		...references,
 		...scope.childScopes
 			.map(s => getReferencesInChildScopes(s, name))
-			.reduce((acc, scopeReferences) => [...acc, ...scopeReferences], [])
+			.reduce((accumulator, scopeReferences) => [...accumulator, ...scopeReferences], [])
 	];
 };
 

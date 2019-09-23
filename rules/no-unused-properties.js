@@ -75,8 +75,8 @@ const isLeafDeclaratorOrProperty = declaratorOrProperty => {
 };
 
 const isUnusedVariable = variable => {
-	const hasReadRef = variable.references.some(ref => ref.isRead());
-	return !hasReadRef;
+	const hasReadReference = variable.references.some(reference => reference.isRead());
+	return !hasReadReference;
 };
 
 const create = context => {

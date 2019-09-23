@@ -201,11 +201,11 @@ const create = context => {
 			}
 
 			// When the event parameter itself is destructured directly
-			const isEventParamDestructured = event.type === 'ObjectPattern';
-			if (isEventParamDestructured) {
+			const isEventParameterDestructured = event.type === 'ObjectPattern';
+			if (isEventParameterDestructured) {
 				// Check for properties
-				for (const prop of event.properties) {
-					if (prop === node) {
+				for (const property of event.properties) {
+					if (property === node) {
 						report(node.value);
 					}
 				}

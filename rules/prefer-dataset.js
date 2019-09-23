@@ -4,15 +4,15 @@ const {isValidVariableName} = require('./utils');
 
 const getMethodName = memberExpression => memberExpression.property.name;
 
-const getDataAttributeName = arg => {
-	if (arg.type === 'Literal') {
-		return (arg.value.match(/^data-(.+)/) || ['', ''])[1];
+const getDataAttributeName = argument => {
+	if (argument.type === 'Literal') {
+		return (argument.value.match(/^data-(.+)/) || ['', ''])[1];
 	}
 
 	return '';
 };
 
-const parseNodeText = (context, arg) => context.getSourceCode().getText(arg);
+const parseNodeText = (context, argument) => context.getSourceCode().getText(argument);
 
 const dashToCamelCase = string => string.replace(/-([a-z])/g, s => s[1].toUpperCase());
 

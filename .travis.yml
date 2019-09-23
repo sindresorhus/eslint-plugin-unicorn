@@ -8,6 +8,6 @@ matrix:
     - node_js: '12'
       env: INTEGRATION=true
 script:
-  - if [ $INTEGRATION == true ]; then npm run integration; else npm test; fi
+  - if [ $INTEGRATION == true ]; then npm run lint && npm run integration; else npm test; fi
 after_success:
   - './node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls'

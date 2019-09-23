@@ -12,12 +12,12 @@ const isMathPow = node => {
 	);
 };
 
-const parseArgument = (source, arg) => {
-	const text = source.getText(arg);
+const parseArgument = (source, argument) => {
+	const text = source.getText(argument);
 
-	switch (arg.type) {
+	switch (argument.type) {
 		case 'Identifier':
-			return arg.name;
+			return argument.name;
 		case 'Literal':
 			return text;
 		case 'CallExpression':

@@ -21,9 +21,9 @@ function isLintablePromiseCatch(node) {
 		return false;
 	}
 
-	const [arg0] = node.arguments;
+	const [argument0] = node.arguments;
 
-	return arg0.type === 'FunctionExpression' || arg0.type === 'ArrowFunctionExpression';
+	return argument0.type === 'FunctionExpression' || argument0.type === 'ArrowFunctionExpression';
 }
 
 const create = context => {
@@ -118,8 +118,8 @@ const create = context => {
 			}
 
 			const scope = context.getScope();
-			const errName = avoidCapture(name, [scope.variableScope], ecmaVersion);
-			push(node.param.name === errName || errName);
+			const errorName = avoidCapture(name, [scope.variableScope], ecmaVersion);
+			push(node.param.name === errorName || errorName);
 		},
 		'CatchClause:exit': node => {
 			popAndReport(node.param, node);

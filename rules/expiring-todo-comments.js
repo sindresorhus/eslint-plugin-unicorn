@@ -17,11 +17,11 @@ const MESSAGE_ID_ENGINE_MATCHES = 'engineMatches';
 const MESSAGE_ID_REMOVE_WHITESPACES = 'removeWhitespaces';
 const MESSAGE_ID_MISSING_AT_SYMBOL = 'missingAtSymbol';
 
-const pkg = readPkg.sync();
+const package_ = readPkg.sync();
 
-const pkgDependencies = {
-	...pkg.dependencies,
-	...pkg.devDependencies
+const packageDependencies = {
+	...package_.dependencies,
+	...package_.devDependencies
 };
 
 const DEPENDENCY_INCLUSION_RE = /^[+|-]\s*@?[\S+]\/?\S+/;
@@ -187,6 +187,7 @@ const create = context => {
 	const comments = sourceCode.getAllComments();
 	const unusedComments = comments
 		.filter(token => token.type !== 'Shebang')
+		/* eslint-disable unicorn/expiring-todo-comments */
 		// Block comments come as one.
 		// Split for situations like this:
 		// /*
@@ -194,6 +195,7 @@ const create = context => {
 		//  * TODO [2000-01-01]: And this
 		//  * TODO [2000-01-01]: Also this
 		//  */
+		/* eslint-enable unicorn/expiring-todo-comments */
 		.map(comment =>
 			comment.value.split('\n').map(line => ({
 				...comment,
@@ -285,12 +287,12 @@ const create = context => {
 			uses++;
 			const [{condition, version}] = packageVersions;
 
-			const pkgVersion = tryToCoerceVersion(pkg.version);
-			const desidedPkgVersion = tryToCoerceVersion(version);
+			const packageVersion = tryToCoerceVersion(package_.version);
+			const desidedPackageVersion = tryToCoerceVersion(version);
 
 			const compare = semverComparisonForOperator(condition);
 
-			if (compare(pkgVersion, desidedPkgVersion)) {
+			if (compare(packageVersion, desidedPackageVersion)) {
 				context.report({
 					node: null,
 					loc: comment.loc,
@@ -307,7 +309,7 @@ const create = context => {
 		// Comparison: '>', '>='
 		for (const dependency of dependencies) {
 			uses++;
-			const targetPackageRawVersion = pkgDependencies[dependency.name];
+			const targetPackageRawVersion = packageDependencies[dependency.name];
 			const hasTargetPackage = Boolean(targetPackageRawVersion);
 
 			const isInclusion = ['in', 'out'].includes(dependency.condition);
@@ -357,12 +359,12 @@ const create = context => {
 			}
 		}
 
-		const pkgEngines = pkg.engines || {};
+		const packageEngines = package_.engines || {};
 
 		for (const engine of engines) {
 			uses++;
 
-			const targetPackageRawEngineVersion = pkgEngines.node;
+			const targetPackageRawEngineVersion = packageEngines.node;
 			const hasTargetEngine = Boolean(targetPackageRawEngineVersion);
 
 			if (!hasTargetEngine) {

@@ -7,11 +7,11 @@ const create = context => ({
 	Program: node => {
 		for (const comment of node.comments) {
 			const value = comment.value.trim();
-			const res = disableRegex.exec(value);
+			const result = disableRegex.exec(value);
 
 			if (
-				res && // It's a eslint-disable comment
-				!res[2] // But it did not specify any rules
+				result && // It's a eslint-disable comment
+				!result[2] // But it did not specify any rules
 			) {
 				context.report({
 					loc: {
