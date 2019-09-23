@@ -4,17 +4,17 @@
 const path = require('path');
 
 const ROOT = path.join(__dirname, '../../');
-const module = require(ROOT);
+const unicorn = require(ROOT);
 
 const {CLIEngine} = require('eslint');
 
 const cli = new CLIEngine({
-	...module.config.recommended,
+	...unicorn.config.recommended,
 	cwd: ROOT,
 	useEslintrc: false
 });
 
-cli.addPlugin('eslint-plugin-unicorn', module);
+cli.addPlugin('eslint-plugin-unicorn', unicorn);
 
 const report = cli.executeOnFiles(['.']);
 
