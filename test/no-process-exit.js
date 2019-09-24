@@ -5,6 +5,9 @@ import rule from '../rules/no-process-exit';
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
+	},
+	parserOptions: {
+		sourceType: 'module'
 	}
 });
 
@@ -29,6 +32,9 @@ ruleTester.run('no-process-exit', rule, {
 		'process.once("SIGINT", () => { process.exit(1); })',
 		'process.once("SIGINT", () => process.exit(1))',
 		'process.once("SIGINT", () => { if (true) { process.exit(1); } })',
+		'const {workerData, parentPort} = require(\'worker_threads\')\n\nprocess.exit(1);',
+		'import {workerData, parentPort} from \'worker_threads\'\n\nprocess.exit(1);',
+		'import foo from \'worker_threads\'\n\nprocess.exit(1);',
 		''
 	],
 	invalid: [
@@ -42,6 +48,14 @@ ruleTester.run('no-process-exit', rule, {
 		},
 		{
 			code: 'x(process.exit(1));',
+			errors
+		},
+		{
+			code: 'const mod = require(\'not_worker_threads\');\n\nprocess.exit(1);',
+			errors
+		},
+		{
+			code: 'import mod from \'not_worker_threads\';\n\nprocess.exit(1);',
 			errors
 		}
 	]
