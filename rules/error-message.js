@@ -1,6 +1,4 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
-
 const errorConstructors = new Set([
 	'Error',
 	'EvalError',
@@ -92,9 +90,6 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
-		type: 'problem',
-		docs: {
-			url: getDocsUrl(__filename)
-		}
+		type: 'problem'
 	}
 };

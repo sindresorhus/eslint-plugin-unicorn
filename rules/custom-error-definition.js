@@ -1,6 +1,5 @@
 'use strict';
 const upperfirst = require('lodash.upperfirst');
-const getDocsUrl = require('./utils/get-docs-url');
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 
@@ -177,9 +176,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'problem',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		fixable: 'code',
 		messages: {
 			[MESSAGE_ID_INVALID_EXPORT]: 'Exported error name should match error class'

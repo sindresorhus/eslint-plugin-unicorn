@@ -1,6 +1,4 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
-
 const isMathPow = node => {
 	const {callee} = node;
 	return (
@@ -62,9 +60,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'suggestion',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		fixable: 'code'
 	}
 };

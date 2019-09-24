@@ -1,6 +1,4 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
-
 const getDeclaratorOrPropertyValue = declaratorOrProperty => {
 	return declaratorOrProperty.init || declaratorOrProperty.value;
 };
@@ -232,9 +230,6 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
-		type: 'suggestion',
-		docs: {
-			url: getDocsUrl(__filename)
-		}
+		type: 'suggestion'
 	}
 };

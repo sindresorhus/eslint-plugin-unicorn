@@ -1,6 +1,4 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
-
 const fix = value => {
 	if (!/^0[a-zA-Z]/.test(value)) {
 		return value;
@@ -33,9 +31,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'suggestion',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		fixable: 'code'
 	}
 };

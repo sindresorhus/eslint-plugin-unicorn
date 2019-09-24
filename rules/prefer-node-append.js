@@ -1,6 +1,4 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
-
 const getMethodName = memberExpression => memberExpression.property.name;
 
 const ignoredParentTypes = [
@@ -53,9 +51,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'suggestion',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		fixable: 'code'
 	}
 };

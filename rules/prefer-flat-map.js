@@ -1,5 +1,4 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
 const isMethodNamed = require('./utils/is-method-named');
 
 const MESSAGE_ID_FLATMAP = 'flat-map';
@@ -150,9 +149,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'suggestion',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		fixable: 'code',
 		messages: {
 			[MESSAGE_ID_FLATMAP]: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',

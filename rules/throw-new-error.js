@@ -1,6 +1,4 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
-
 const customError = /^(?:[A-Z][a-z\d]*)*Error$/;
 
 const create = context => ({
@@ -22,9 +20,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'suggestion',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		fixable: 'code'
 	}
 };

@@ -3,7 +3,6 @@ const readPkg = require('read-pkg');
 const semver = require('semver');
 const ci = require('ci-info');
 const baseRule = require('eslint/lib/rules/no-warning-comments');
-const getDocsUrl = require('./utils/get-docs-url');
 
 const MESSAGE_ID_AVOID_MULTIPLE_DATES = 'avoidMultipleDates';
 const MESSAGE_ID_EXPIRED_TODO = 'expiredTodo';
@@ -468,9 +467,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'suggestion',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		messages: {
 			[MESSAGE_ID_AVOID_MULTIPLE_DATES]:
 				'Avoid using multiple expiration dates in TODO: {{expirationDates}}. {{message}}',

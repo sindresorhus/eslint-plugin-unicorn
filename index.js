@@ -1,9 +1,22 @@
 'use strict';
 const path = require('path');
 const importModules = require('import-modules');
+const mapObject = require('map-obj');
+const getDocs = require('./rules/utils/get-docs-url');
+
+const rules = mapObject(
+	importModules(path.resolve(__dirname, 'rules'), {camelize: false}),
+	(ruleId, rule) => {
+		rule.meta = rule.meta || {};
+		rule.meta.docs = rule.meta.docs || {};
+		rule.meta.docs.url = rule.meta.docs.url || getDocs(ruleId);
+
+		return [ruleId, rule];
+	}
+);
 
 module.exports = {
-	rules: importModules(path.resolve(__dirname, 'rules'), {camelize: false}),
+	rules,
 	configs: {
 		recommended: {
 			env: {

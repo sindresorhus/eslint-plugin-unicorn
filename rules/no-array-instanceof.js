@@ -1,6 +1,4 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
-
 const create = context => ({
 	BinaryExpression: node => {
 		if (node.operator === 'instanceof' && node.right.type === 'Identifier' && node.right.name === 'Array') {
@@ -20,9 +18,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'suggestion',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		fixable: 'code'
 	}
 };

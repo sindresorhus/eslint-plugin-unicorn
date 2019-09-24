@@ -1,5 +1,4 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
 const quoteString = require('./utils/quote-string');
 
 const keys = [
@@ -218,9 +217,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'suggestion',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		fixable: 'code'
 	}
 };

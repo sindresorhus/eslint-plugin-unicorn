@@ -1,6 +1,4 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
-
 const regexp = /^(@.*?\/.*?|[./]+?.*?)(?:\/(\.|(?:index(?:\.js)?))?)$/;
 const isImportingIndex = value => regexp.test(value);
 const normalize = value => value.replace(regexp, '$1');
@@ -26,9 +24,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'suggestion',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		fixable: 'code'
 	}
 };

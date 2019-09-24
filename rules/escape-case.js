@@ -4,8 +4,6 @@ const {
 	parseRegExpLiteral
 } = require('regexpp');
 
-const getDocsUrl = require('./utils/get-docs-url');
-
 const escapeWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[a-f\d]{2}|u[a-f\d]{4}|u{(?:[a-f\d]+)})/;
 const escapePatternWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[a-f\d]{2}|u[a-f\d]{4}|u{(?:[a-f\d]+)}|c[a-z])/;
 const hasLowercaseCharacter = /[a-z]+/;
@@ -126,9 +124,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'suggestion',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		fixable: 'code'
 	}
 };

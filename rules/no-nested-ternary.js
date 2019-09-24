@@ -1,6 +1,4 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
-
 const isParethesized = (sourceCode, node) => {
 	const previousToken = sourceCode.getTokenBefore(node);
 	const nextToken = sourceCode.getTokenAfter(node);
@@ -49,9 +47,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'suggestion',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		fixable: 'code'
 	}
 };

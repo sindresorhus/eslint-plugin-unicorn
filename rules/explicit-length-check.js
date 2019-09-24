@@ -1,6 +1,4 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
-
 const operatorTypes = {
 	gt: ['>'],
 	gte: ['>='],
@@ -163,9 +161,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'problem',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		fixable: 'code',
 		schema
 	}

@@ -1,6 +1,4 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
-
 const defaultElementName = 'element';
 const isLiteralValue = value => node => node && node.type === 'Literal' && node.value === value;
 const isLiteralZero = isLiteralValue(0);
@@ -359,9 +357,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'suggestion',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		fixable: 'code'
 	}
 };

@@ -1,6 +1,4 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
-
 const MESSAGE_ZERO_FRACTION = 'Don\'t use a zero fraction in the number.';
 const MESSAGE_DANGLING_DOT = 'Don\'t use a dangling dot in the number.';
 
@@ -47,9 +45,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'suggestion',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		fixable: 'code'
 	}
 };

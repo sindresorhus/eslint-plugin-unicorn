@@ -1,6 +1,4 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
-
 const forbiddenIdentifierNames = new Map([
 	['getElementById', 'querySelector'],
 	['getElementsByClassName', 'querySelectorAll'],
@@ -111,9 +109,6 @@ module.exports = {
 	create,
 	meta: {
 		type: 'suggestion',
-		docs: {
-			url: getDocsUrl(__filename)
-		},
 		fixable: 'code'
 	}
 };
