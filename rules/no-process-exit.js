@@ -17,7 +17,6 @@ const create = context => {
 	return {
 		CallExpression: node => {
 			const {callee} = node;
-			// Console.log(requiredWorkerThreadsModule, callee.type, callee.name)
 
 			if (callee.type === 'Identifier' && callee.name === 'require') {
 				const args = node.arguments;
