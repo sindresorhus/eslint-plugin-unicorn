@@ -24,7 +24,7 @@ const cli = new CLIEngine({
 
 cli.addPlugin('eslint-plugin-unicorn', unicorn);
 
-const report = cli.executeOnFiles(['.']);
+const report = cli.executeOnFiles([process.argv[2] || '.']);
 
 const formatter = cli.getFormatter();
 
