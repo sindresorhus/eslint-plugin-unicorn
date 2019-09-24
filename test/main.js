@@ -1,7 +1,6 @@
 import test from 'ava';
-import pkg from '../package';
-import plugin from '..';
 import getDocsUrl from '../rules/utils/get-docs-url';
+import plugin from '..';
 
 const VALID_TYPES = new Set(['problem', 'suggestion', 'layout']);
 
@@ -12,4 +11,4 @@ test('each rule should has validate meta info', t => {
 		t.truthy(rule.meta.docs);
 		t.is(rule.meta.docs.url, getDocsUrl(ruleId));
 	}
-})
+});
