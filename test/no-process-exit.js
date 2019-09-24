@@ -34,8 +34,7 @@ ruleTester.run('no-process-exit', rule, {
 		'process.once("SIGINT", () => { if (true) { process.exit(1); } })',
 		'const {workerData, parentPort} = require(\'worker_threads\')\n\nprocess.exit(1);',
 		'import {workerData, parentPort} from \'worker_threads\'\n\nprocess.exit(1);',
-		'import foo from \'worker_threads\'\n\nprocess.exit(1);',
-		''
+		'import foo from \'worker_threads\'\n\nprocess.exit(1);'
 	],
 	invalid: [
 		{
