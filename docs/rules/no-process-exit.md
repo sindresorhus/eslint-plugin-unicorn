@@ -25,16 +25,12 @@ process.on('SIGINT', () => {
 ```
 
 ```js
-import {workerData, parentPort} from 'worker_threads'
+import workerThreads from 'worker_threads'
 
-const {data, seq} = workerData
-
-doSomething()
-  .then(() => {
-    const response = `modified ${data}`
-    parentPort.postMessage(`Data processed - ${seq}: ${response}`)
-  })
-  .catch(error => {
-    process.exit(1)
-  })
+try {
+	// do something...
+	process.exit(0)
+} catch(e) {
+	process.exit(1)
+}
 ```
