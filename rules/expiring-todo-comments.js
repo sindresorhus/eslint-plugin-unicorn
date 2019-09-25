@@ -1,5 +1,5 @@
 'use strict';
-const readPkg = require('read-pkg-up');
+const readPkgUp = require('read-pkg-up');
 const semver = require('semver');
 const ci = require('ci-info');
 const baseRule = require('eslint/lib/rules/no-warning-comments');
@@ -17,7 +17,7 @@ const MESSAGE_ID_ENGINE_MATCHES = 'engineMatches';
 const MESSAGE_ID_REMOVE_WHITESPACES = 'removeWhitespaces';
 const MESSAGE_ID_MISSING_AT_SYMBOL = 'missingAtSymbol';
 
-const pkg = readPkg.sync().package;
+const pkg = readPkgUp.sync().package;
 
 const pkgDependencies = {
 	...pkg.dependencies,
