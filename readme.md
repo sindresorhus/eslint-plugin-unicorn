@@ -73,6 +73,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-reflect-apply": "error",
 			"unicorn/prefer-spread": "error",
 			"unicorn/prefer-starts-ends-with": "error",
+			"unicorn/prefer-string-slice": "error",
 			"unicorn/prefer-text-content": "error",
 			"unicorn/prefer-type-error": "error",
 			"unicorn/prevent-abbreviations": "error",
@@ -123,6 +124,7 @@ Configure it in `package.json`.
 - [prefer-reflect-apply](docs/rules/prefer-reflect-apply.md) - Prefer `Reflect.apply()` over `Function#apply()`. *(fixable)*
 - [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
 - [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith()` & `String#endsWith()` over more complex alternatives.
+- [prefer-string-slice](docs/rules/prefer-string-slice.md) - Prefer `String#slice()` over `String#substr()` and `String#substring()`. *(partly fixable)*
 - [prefer-text-content](docs/rules/prefer-text-content.md) - Prefer `.textContent` over `.innerText`. *(fixable)*
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
 - [prevent-abbreviations](docs/rules/prevent-abbreviations.md) - Prevent abbreviations. *(partly fixable)*

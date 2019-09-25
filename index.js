@@ -55,6 +55,7 @@ module.exports = {
 				'unicorn/prefer-reflect-apply': 'error',
 				'unicorn/prefer-spread': 'error',
 				'unicorn/prefer-starts-ends-with': 'error',
+				'unicorn/prefer-string-slice': 'error',
 				'unicorn/prefer-text-content': 'error',
 				'unicorn/prefer-type-error': 'error',
 				'unicorn/prevent-abbreviations': 'error',

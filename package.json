@@ -34,6 +34,7 @@
 		"ci-info": "^2.0.0",
 		"clean-regexp": "^1.0.0",
 		"eslint-ast-utils": "^1.1.0",
+		"eslint-template-visitor": "^1.0.0",
 		"import-modules": "^1.1.0",
 		"lodash.camelcase": "^4.3.0",
 		"lodash.defaultsdeep": "^4.6.1",
