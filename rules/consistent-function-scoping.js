@@ -38,6 +38,39 @@ function checkReferences(scope, parent, scopeManager) {
 			return true;
 		}
 
+		// This check looks for neighboring function definitions
+		const hitIdentifier = variable.identifiers.some(identifier => {
+			// Only look at identifiers that live in a FunctionDeclaration
+			if (!identifier.parent || identifier.parent.type !== 'FunctionDeclaration') {
+				return false;
+			}
+
+			const identifierScope = scopeManager.acquire(identifier);
+
+			// If we have a scope, the earlier checks should have worked so ignore them here
+			if (identifierScope) {
+				return false;
+			}
+
+			const identifierParentScope = scopeManager.acquire(identifier.parent);
+			if (!identifierParentScope) {
+				return false;
+			}
+
+			// Ignore identifiers from our own scope
+			if (scope === identifierParentScope) {
+				return false;
+			}
+
+			// Look at the scope above the function definition to see if lives
+			// next to the reference being checked
+			return parent === identifierParentScope.upper;
+		});
+
+		if (hitIdentifier) {
+			return true;
+		}
+
 		return false;
 	});
 
@@ -88,30 +121,48 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 	const {scopeManager} = sourceCode;
 
+	const reports = [];
+	let hasJsx = false;
+
 	return {
-		ArrowFunctionExpression(node) {
+		ArrowFunctionExpression: node => {
 			const valid = checkNode(node, scopeManager);
 
 			if (valid) {
-				return;
+				reports.push(null);
+			} else {
+				reports.push({
+					node,
+					messageId: MESSAGE_ID_ARROW
+				});
 			}
-
-			context.report({
-				node,
-				messageId: MESSAGE_ID_ARROW
-			});
 		},
-		FunctionDeclaration(node) {
+		FunctionDeclaration: node => {
 			const valid = checkNode(node, scopeManager);
 
 			if (valid) {
-				return;
+				reports.push(null);
+			} else {
+				reports.push({
+					node,
+					messageId: MESSAGE_ID_FUNCTION
+				});
+			}
+		},
+		JSXElement: () => {
+			// Turn off this rule if we see a JSX element because scope
+			// references does not include JSXElement nodes.
+			hasJsx = true;
+		},
+		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': () => {
+			const report = reports.pop();
+			if (report && !hasJsx) {
+				context.report(report);
 			}
 
-			context.report({
-				node,
-				messageId: MESSAGE_ID_FUNCTION
-			});
+			if (reports.length === 0) {
+				hasJsx = false;
+			}
 		}
 	};
 };

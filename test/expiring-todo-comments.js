@@ -77,13 +77,13 @@ ruleTester.run('expiring-todo-comments', rule, {
 		},
 		'// Expire Condition [2000-01-01]: new term name',
 		'// TODO [>2000]: We sure didnt past this version',
-		'// TODO [-read-pkg]: We actually use this.',
+		'// TODO [-read-pkg-up]: We actually use this.',
 		'// TODO [+popura]: I think we wont need a broken package.',
 		'// TODO [semver@>1000]: Welp hopefully we wont get at that.',
 		'// TODO [semver@>=1000]: Welp hopefully we wont get at that.',
-		'// TODO [2200-12-12, -read-pkg]: Combo',
-		'// TODO [2200-12-12, -read-pkg, +popura]: Combo',
-		'// TODO [2200-12-12, -read-pkg, +popura, semver@>=1000]: Combo',
+		'// TODO [2200-12-12, -read-pkg-up]: Combo',
+		'// TODO [2200-12-12, -read-pkg-up, +popura]: Combo',
+		'// TODO [2200-12-12, -read-pkg-up, +popura, semver@>=1000]: Combo',
 		'// TODO [engine:node@>=100]: When we start supporting only >= 10',
 		`// TODO [2200-12-12]: Multiple
 		// TODO [2200-12-12]: Lines`,
@@ -208,24 +208,24 @@ ruleTester.run('expiring-todo-comments', rule, {
 			errors: [reachedPackageVersionError('>=1', 'if your package.json version is >=1')]
 		},
 		{
-			code: '// TODO [+read-pkg]: when you install `read-pkg`',
-			errors: [havePackageError('read-pkg', 'when you install `read-pkg`')]
+			code: '// TODO [+read-pkg-up]: when you install `read-pkg-up`',
+			errors: [havePackageError('read-pkg-up', 'when you install `read-pkg-up`')]
 		},
 		{
 			code: '// TODO [-popura]: when you uninstall `popura`',
 			errors: [dontHavePackageError('popura', 'when you uninstall `popura`')]
 		},
 		{
-			code: '// TODO [read-pkg@>1]: when `read-pkg` version is > 1',
-			errors: [versionMatchesError('read-pkg > 1', 'when `read-pkg` version is > 1')]
+			code: '// TODO [read-pkg-up@>1]: when `read-pkg-up` version is > 1',
+			errors: [versionMatchesError('read-pkg-up > 1', 'when `read-pkg-up` version is > 1')]
 		},
 		{
 			code: '// TODO [engine:node@>=8]: when support is for node >= 8',
 			errors: [engineMatchesError('node>=8', 'when support is for node >= 8')]
 		},
 		{
-			code: '// TODO [read-pkg@>=5.1.1]: when `read-pkg` version is >= 5.1.1',
-			errors: [versionMatchesError('read-pkg >= 5.1.1', 'when `read-pkg` version is >= 5.1.1')]
+			code: '// TODO [read-pkg-up@>=5.1.1]: when `read-pkg-up` version is >= 5.1.1',
+			errors: [versionMatchesError('read-pkg-up >= 5.1.1', 'when `read-pkg-up` version is >= 5.1.1')]
 		},
 		{
 			code: '// TODO [semver>1]: Missing @.',
@@ -303,16 +303,16 @@ ruleTester.run('expiring-todo-comments', rule, {
 			]
 		},
 		{
-			code: '// TODO [-popura, read-pkg@>1]: Combine not having a package with version match',
+			code: '// TODO [-popura, read-pkg-up@>1]: Combine not having a package with version match',
 			errors: [
 				dontHavePackageError('popura', 'Combine not having a package with version match'),
-				versionMatchesError('read-pkg > 1', 'Combine not having a package with version match')
+				versionMatchesError('read-pkg-up > 1', 'Combine not having a package with version match')
 			]
 		},
 		{
-			code: '// TODO [+read-pkg, -popura]: Combine presence/absence of packages',
+			code: '// TODO [+read-pkg-up, -popura]: Combine presence/absence of packages',
 			errors: [
-				havePackageError('read-pkg', 'Combine presence/absence of packages'),
+				havePackageError('read-pkg-up', 'Combine presence/absence of packages'),
 				dontHavePackageError('popura', 'Combine presence/absence of packages')
 			]
 		},
@@ -332,13 +332,13 @@ ruleTester.run('expiring-todo-comments', rule, {
 			]
 		},
 		{
-			code: '// HUGETODO [semver @>=1, engine:node@>=8, 2000-01-01, -popura, >1, +read-pkg, read-pkg@>1]: Big mix',
+			code: '// HUGETODO [semver @>=1, engine:node@>=8, 2000-01-01, -popura, >1, +read-pkg-up, read-pkg-up@>1]: Big mix',
 			errors: [
 				expiredTodoError('2000-01-01', 'Big mix'),
 				reachedPackageVersionError('>1', 'Big mix'),
 				dontHavePackageError('popura', 'Big mix'),
-				havePackageError('read-pkg', 'Big mix'),
-				versionMatchesError('read-pkg > 1', 'Big mix'),
+				havePackageError('read-pkg-up', 'Big mix'),
+				versionMatchesError('read-pkg-up > 1', 'Big mix'),
 				engineMatchesError('node>=8', 'Big mix'),
 				removeWhitespacesError('semver @>=1', 'Big mix')
 			],
