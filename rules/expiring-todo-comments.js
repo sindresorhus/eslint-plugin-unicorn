@@ -17,7 +17,8 @@ const MESSAGE_ID_ENGINE_MATCHES = 'engineMatches';
 const MESSAGE_ID_REMOVE_WHITESPACES = 'removeWhitespaces';
 const MESSAGE_ID_MISSING_AT_SYMBOL = 'missingAtSymbol';
 
-const pkg = readPkgUp.sync().package;
+const hasPackage = readPkgUp.sync();
+const pkg = hasPackage ? hasPackage.package : {};
 
 const pkgDependencies = {
 	...pkg.dependencies,
@@ -68,7 +69,7 @@ function parseArgument(argumentString) {
 		};
 	}
 
-	if (DEPENDENCY_INCLUSION_RE.test(argumentString)) {
+	if (hasPackage && DEPENDENCY_INCLUSION_RE.test(argumentString)) {
 		const condition = argumentString[0] === '+' ? 'in' : 'out';
 		const name = argumentString.slice(1).trim();
 
@@ -81,7 +82,7 @@ function parseArgument(argumentString) {
 		};
 	}
 
-	if (VERSION_COMPARISON_RE.test(argumentString)) {
+	if (hasPackage && VERSION_COMPARISON_RE.test(argumentString)) {
 		const result = VERSION_COMPARISON_RE.exec(argumentString);
 		const name = result[1].trim();
 		const condition = result[2].trim();
@@ -112,7 +113,7 @@ function parseArgument(argumentString) {
 		}
 	}
 
-	if (PKG_VERSION_RE.test(argumentString)) {
+	if (hasPackage && PKG_VERSION_RE.test(argumentString)) {
 		const result = PKG_VERSION_RE.exec(argumentString);
 		const condition = result[1].trim();
 		const version = result[2].trim();
@@ -173,11 +174,7 @@ function semverComparisonForOperator(operator) {
 
 const create = context => {
 	const options = {
-		terms: [
-			'todo',
-			'fixme',
-			'xxx'
-		],
+		terms: ['todo', 'fixme', 'xxx'],
 		ignoreDatesOnPullRequests: true,
 		allowWarningComments: false,
 		...context.options[0]
@@ -347,9 +344,7 @@ const create = context => {
 					loc: comment.loc,
 					messageId: MESSAGE_ID_VERSION_MATCHES,
 					data: {
-						comparison: `${dependency.name} ${dependency.condition} ${
-							dependency.version
-						}`,
+						comparison: `${dependency.name} ${dependency.condition} ${dependency.version}`,
 						message: parseTodoMessage(comment.value)
 					}
 				});
@@ -394,7 +389,10 @@ const create = context => {
 			const comparisonIndex = unknown.indexOf('>');
 
 			if (!hasAt && comparisonIndex !== -1) {
-				const testString = `${unknown.slice(0, comparisonIndex)}@${unknown.slice(comparisonIndex)}`;
+				const testString = `${unknown.slice(
+					0,
+					comparisonIndex
+				)}@${unknown.slice(comparisonIndex)}`;
 
 				if (parseArgument(testString).type !== 'unknowns') {
 					uses++;
