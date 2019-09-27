@@ -94,22 +94,18 @@ ruleTester.run('expiring-todo-comments', rule, {
 		  */`,
 		{
 			code: '// TODO',
-			options: [{allowWarningComments: true}],
 			errors: []
 		},
 		{
 			code: '// TODO [invalid]',
-			options: [{allowWarningComments: true}],
 			errors: []
 		},
 		{
 			code: '// TODO [] might have [some] that [try [to trick] me]',
-			options: [{allowWarningComments: true}],
 			errors: []
 		},
 		{
 			code: '// TODO [but [it will]] [fallback] [[[ to the default ]]] rule [[',
-			options: [{allowWarningComments: true}],
 			errors: []
 		}
 	],
@@ -261,31 +257,38 @@ ruleTester.run('expiring-todo-comments', rule, {
 		},
 		{
 			code: '// TODO',
-			errors: [noWarningCommentError()]
+			errors: [noWarningCommentError()],
+			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO []',
-			errors: [noWarningCommentError()]
+			errors: [noWarningCommentError()],
+			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [no meaning at all]',
-			errors: [noWarningCommentError()]
+			errors: [noWarningCommentError()],
+			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [] might have [some] that [try [to trick] me]',
-			errors: [noWarningCommentError()]
+			errors: [noWarningCommentError()],
+			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [but [it will]] [fallback] [[[ to the default ]]] rule [[[',
-			errors: [noWarningCommentError()]
+			errors: [noWarningCommentError()],
+			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [engine:npm@>=10000]: Unsupported engine',
-			errors: [noWarningCommentError()]
+			errors: [noWarningCommentError()],
+			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [engine:somethingrandom@>=10000]: Unsupported engine',
-			errors: [noWarningCommentError()]
+			errors: [noWarningCommentError()],
+			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [2000-01-01, >1]: Combine date with package version',
