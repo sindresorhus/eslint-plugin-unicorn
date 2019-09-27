@@ -17,12 +17,13 @@ const MESSAGE_ID_ENGINE_MATCHES = 'engineMatches';
 const MESSAGE_ID_REMOVE_WHITESPACES = 'removeWhitespaces';
 const MESSAGE_ID_MISSING_AT_SYMBOL = 'missingAtSymbol';
 
-const hasPackage = readPkgUp.sync();
-const pkg = hasPackage ? hasPackage.package : {};
+const packageResult = readPkgUp.sync();
+const hasPackage = Boolean(packageResult);
+const packageJson = hasPackage ? packageResult.package : {};
 
 const pkgDependencies = {
-	...pkg.dependencies,
-	...pkg.devDependencies
+	...packageJson.dependencies,
+	...packageJson.devDependencies
 };
 
 const DEPENDENCY_INCLUSION_RE = /^[+|-]\s*@?[\S+]\/?\S+/;
@@ -282,7 +283,7 @@ const create = context => {
 			uses++;
 			const [{condition, version}] = packageVersions;
 
-			const pkgVersion = tryToCoerceVersion(pkg.version);
+			const pkgVersion = tryToCoerceVersion(packageJson.version);
 			const desidedPkgVersion = tryToCoerceVersion(version);
 
 			const compare = semverComparisonForOperator(condition);
@@ -351,7 +352,7 @@ const create = context => {
 			}
 		}
 
-		const pkgEngines = pkg.engines || {};
+		const pkgEngines = packageJson.engines || {};
 
 		for (const engine of engines) {
 			uses++;
