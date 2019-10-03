@@ -1264,7 +1264,7 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 			class C {
 				err = () => {}
 			}
-		`,
+		`
 	],
 
 	invalid: [
