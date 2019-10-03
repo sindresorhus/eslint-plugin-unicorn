@@ -10,7 +10,7 @@ TODO comments are useful when a piece of code needs some work. Unfortunately the
 
 With this rule, a TODO can have a condition right from the beginning to define its lifespan. When the condition is met, ESLint will take care of reporting that there's work to be done.
 
-This rule also defines by default that **there must be no TODO comment without conditions** so that you should take more care before simply adding tasks with no life expectancy. For more information read the section [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments) below. To disable this behavior see [`allowWarningComments`](#allowWarningComments) below.
+This rule will ignore all TODOs without conditions. For more information, read the below [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments) section.
 
 Quick overview of conditions:
 
@@ -133,13 +133,13 @@ You can also use block comments to specify TODOs with conditions. Each line can 
 
 This rule implements [`eslint/no-warning-comments`](https://eslint.org/docs/rules/no-warning-comments).
 
-The sole difference is that first we check for **valid conditions** to apply this rule. If no valid conditions are met, we fall back to `eslint/no-warning-comments`, and you'll see something like `Unexpected 'todo' comment.`
+The sole difference is that first we check for **valid conditions** to apply this rule. If no valid conditions are met, we fall back to `eslint/no-warning-comments` if [`allowWarningComments`](#allowWarningComments) is set to `false` (default `true`) and you'll see something like `Unexpected 'todo' comment.`
 
 The reason behind this is that now that you have a powerful rule to make sure there are no stray TODOs on your code, you should strive for best pratices. Don't just add TODO comments and leave them forever. Define conditions to justify the presence of warning comments.
 
-With that in mind, **you should disable** that ESLint rule in favor of this one as you will get its same behavior and more.
+With that in mind, you **could** disable that ESLint rule in favor of this one as you will get its same behavior and more.
 
-You can also opt for `allowWarningComments` on this rule and have both rules coexist (See [`allowWarningComments`](#allowWarningComments) below).
+Since by default the option `allowWarningComments` is `true`, both rules can coexist even with different reporting levels. For example, one might want to error when conditions are met, but just warn on TODOs without conditions (See [`allowWarningComments`](#allowWarningComments) below).
 
 ## Legacy Branches
 
@@ -268,13 +268,15 @@ If you just want to add a verb, make sure to explicitly include the default ones
 ### allowWarningComments
 
 Type: `boolean`<br>
-Default: `false`
+Default: `true`
 
 Ignore TODOs without conditions.
 
-As mentioned before, the [`eslint/no-warning-comments` rule](#disallow-warning-comments-no-warning-comments) will be triggered when there are no valid conditions on a TODO comment. If you want only triggering TODO conditions to be reported, you can disable this fallback rule with this option.
+As mentioned before, the [`eslint/no-warning-comments` rule](#disallow-warning-comments-no-warning-comments) will be triggered when there are no valid conditions on a TODO comment.
 
-This is also helpful if you want to use **both** this rule and the [`eslint/no-warning-comments` rule](#disallow-warning-comments-no-warning-comments), **but want different warning levels** as it's not possible to set multiple warning levels on the same rule.
+This is helpful if you want to use **both** this rule and the [`eslint/no-warning-comments` rule](#disallow-warning-comments-no-warning-comments), **but want different warning levels**, as it's not possible to set multiple warning levels on the same rule.
+
+If you want this rule to trigger on stray TODO conditions, you can enable this fallback rule with this option.
 
 ```js
 "unicorn/expiring-todo-comments": [

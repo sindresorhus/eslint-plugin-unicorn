@@ -5,11 +5,13 @@ const kebabCase = require('lodash.kebabcase');
 const snakeCase = require('lodash.snakecase');
 const upperfirst = require('lodash.upperfirst');
 const getDocsUrl = require('./utils/get-docs-url');
+const cartesianProductSamples = require('./utils/cartesian-product-samples');
 
 const pascalCase = string => upperfirst(camelCase(string));
 const numberRegex = /(\d+)/;
 const PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
 const PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
+const isIgnoredChar = char => !/^[a-z\d-_$]$/i.test(char);
 
 function ignoreNumbers(fn) {
 	return string => {
@@ -74,19 +76,50 @@ function getChosenCases(context) {
 	return ['kebabCase'];
 }
 
-function fixFilename(chosenCase, filename) {
-	return filename
-		.split('.')
-		.map(ignoreNumbers(cases[chosenCase].fn))
-		.join('.');
+function validateFilename(words, caseFunctions) {
+	return words
+		.filter(({ignored}) => !ignored)
+		.every(({word}) => caseFunctions.some(fn => fn(word) === word));
+}
+
+function fixFilename(words, caseFunctions, {leading, extension}) {
+	const replacements = words
+		.map(({word, ignored}) => ignored ? [word] : caseFunctions.map(fn => fn(word)));
+
+	const {
+		samples: combinations
+	} = cartesianProductSamples(replacements);
+
+	return combinations.map(parts => `${leading}${parts.join('')}${extension}`);
 }
 
 const leadingUnserscoresRegex = /^(_+)(.*)$/;
 function splitFilename(filename) {
 	const res = leadingUnserscoresRegex.exec(filename);
+
+	const leading = (res && res[1]) || '';
+	const tailing = (res && res[2]) || filename;
+
+	const words = [];
+
+	let lastWord;
+	for (const char of tailing) {
+		const isIgnored = isIgnoredChar(char);
+
+		if (lastWord && lastWord.ignored === isIgnored) {
+			lastWord.word += char;
+		} else {
+			lastWord = {
+				word: char,
+				ignored: isIgnored
+			};
+			words.push(lastWord);
+		}
+	}
+
 	return {
-		leading: (res && res[1]) || '',
-		trailing: (res && res[2]) || filename
+		leading,
+		words
 	};
 }
 
@@ -112,6 +145,7 @@ function englishishJoinWords(words) {
 
 const create = context => {
 	const chosenCases = getChosenCases(context);
+	const chosenCasesFunctions = chosenCases.map(case_ => ignoreNumbers(cases[case_].fn));
 	const filenameWithExtension = context.getFilename();
 
 	if (filenameWithExtension === '<input>' || filenameWithExtension === '<text>') {
@@ -127,20 +161,29 @@ const create = context => {
 				return;
 			}
 
-			const splitName = splitFilename(filename);
-			const fixedFilenames = chosenCases.map(case_ => fixFilename(case_, splitName.trailing));
-			const renamedFilenames = fixedFilenames.map(x => splitName.leading + x + extension);
+			const {
+				leading,
+				words
+			} = splitFilename(filename);
+			const isValid = validateFilename(words, chosenCasesFunctions);
 
-			if (!fixedFilenames.includes(splitName.trailing)) {
-				context.report({
-					node,
-					messageId: chosenCases.length > 1 ? 'renameToCases' : 'renameToCase',
-					data: {
-						chosenCases: englishishJoinWords(chosenCases.map(x => cases[x].name)),
-						renamedFilenames: englishishJoinWords(renamedFilenames.map(x => `\`${x}\``))
-					}
-				});
+			if (isValid) {
+				return;
 			}
+
+			const renamedFilenames = fixFilename(words, chosenCasesFunctions, {
+				leading,
+				extension
+			});
+
+			context.report({
+				node,
+				messageId: chosenCases.length > 1 ? 'renameToCases' : 'renameToCase',
+				data: {
+					chosenCases: englishishJoinWords(chosenCases.map(x => cases[x].name)),
+					renamedFilenames: englishishJoinWords(renamedFilenames.map(x => `\`${x}\``))
+				}
+			});
 		}
 	};
 };

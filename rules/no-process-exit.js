@@ -10,9 +10,28 @@ const create = context => {
 
 	let processEventHandler;
 
+	// Only report if it's outside an worker thread context. See #328.
+	let requiredWorkerThreadsModule = false;
+	const reports = [];
+
 	return {
 		CallExpression: node => {
 			const {callee} = node;
+
+			if (callee.type === 'Identifier' && callee.name === 'require') {
+				const args = node.arguments;
+
+				if (args.length === 0) {
+					return;
+				}
+
+				const [argument] = args;
+
+				if (argument.type === 'Literal' && argument.value === 'worker_threads') {
+					requiredWorkerThreadsModule = true;
+					return;
+				}
+			}
 
 			if (callee.type === 'MemberExpression' && callee.object.name === 'process') {
 				if (callee.property.name === 'on' || callee.property.name === 'once') {
@@ -21,16 +40,35 @@ const create = context => {
 				}
 
 				if (callee.property.name === 'exit' && !processEventHandler) {
-					context.report({
-						node,
-						message: 'Only use `process.exit()` in CLI apps. Throw an error instead.'
-					});
+					reports.push(
+						() =>
+							context.report({
+								node,
+								message: 'Only use `process.exit()` in CLI apps. Throw an error instead.'
+							})
+					);
 				}
 			}
 		},
 		'CallExpression:exit': node => {
 			if (node === processEventHandler) {
 				processEventHandler = undefined;
+			}
+		},
+
+		ImportDeclaration: node => {
+			const {source} = node;
+
+			if (source.type === 'Literal' && source.value === 'worker_threads') {
+				requiredWorkerThreadsModule = true;
+			}
+		},
+
+		'Program:exit': () => {
+			if (!requiredWorkerThreadsModule) {
+				for (const report of reports) {
+					report();
+				}
 			}
 		}
 	};

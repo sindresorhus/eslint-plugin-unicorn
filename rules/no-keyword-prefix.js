@@ -107,7 +107,7 @@ const create = context => {
 	const ALLOWED_PARENT_TYPES = new Set(['CallExpression', 'NewExpression']);
 
 	function report(node, keyword) {
-		if (reported.indexOf(node) < 0) {
+		if (!reported.includes(node)) {
 			reported.push(node);
 			context.report({
 				node,
@@ -146,7 +146,7 @@ const create = context => {
 				}
 
 			// Check if it's an import specifier
-			} else if (['ImportSpecifier', 'ImportNamespaceSpecifier', 'ImportDefaultSpecifier'].indexOf(node.parent.type) >= 0) {
+			} else if (['ImportSpecifier', 'ImportNamespaceSpecifier', 'ImportDefaultSpecifier'].includes(node.parent.type)) {
 				// Report only if the local imported identifier is invalid
 				if (Boolean(keyword) && node.parent.local && node.parent.local.name === node.name) {
 					report(node, keyword);

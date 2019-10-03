@@ -137,6 +137,8 @@ ruleTester.run('prevent-abbreviations', rule, {
 		'foo.error',
 		'foo.x',
 		'let E',
+		'let ESLint',
+		'let isJPEG',
 		'let NODE_ENV',
 
 		// Property should not report by default

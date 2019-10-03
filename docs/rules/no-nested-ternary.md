@@ -1,6 +1,6 @@
 # Disallow nested ternary expressions
 
-Improved version of the `[no-nested-ternary](https://eslint.org/docs/rules/no-nested-ternary)` ESLint rule, which allows cases where the nested ternary is only one level and wrapped in parens.
+Improved version of the [`no-nested-ternary`](https://eslint.org/docs/rules/no-nested-ternary) ESLint rule, which allows cases where the nested ternary is only one level and wrapped in parens.
 
 
 ## Fail

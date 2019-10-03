@@ -1,5 +1,5 @@
 import test from 'ava';
-import pkg from '../package';
+import pkg from '../package.json';
 import getDocsUrl from '../rules/utils/get-docs-url';
 
 test('returns the URL of the a named rule\'s documentation', t => {
