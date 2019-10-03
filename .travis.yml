@@ -14,4 +14,4 @@ script:
   - if [[ $LINT == true ]]; then npm run lint; fi
   - if [[ $SKIP_TEST != true ]]; then npm test; fi
 after_success:
-  - './node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls'
+  - if [[ $LINT != true ]]; then ./node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls; fi
