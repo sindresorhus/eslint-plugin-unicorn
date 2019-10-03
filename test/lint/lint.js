@@ -17,7 +17,10 @@ const cli = new CLIEngine({
 			{
 				checkProperties: false
 			}
-		]
+		],
+
+		// TODO: remove this override, when #391 is fixed
+		'consistent-function-scoping': 'off',
 	},
 	useEslintrc: false
 });
