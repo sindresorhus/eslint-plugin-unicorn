@@ -11,20 +11,20 @@ const ruleTester = avaRuleTester(test, {
 function testCase(filename, chosenCase, errorMessage) {
 	return testCaseWithOptions(
 		filename,
-		[{case: chosenCase}],
 		errorMessage,
+		[{case: chosenCase}]
 	);
 }
 
 function testManyCases(filename, chosenCases, errorMessage) {
 	return testCaseWithOptions(
 		filename,
-		[{cases: chosenCases}],
 		errorMessage,
+		[{cases: chosenCases}]
 	);
 }
 
-function testCaseWithOptions(filename, options = [], errorMessage) {
+function testCaseWithOptions(filename, errorMessage, options = []) {
 	return {
 		code: 'foo()',
 		filename,

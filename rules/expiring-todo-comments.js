@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/expiring-todo-comments */
 'use strict';
 const readPkgUp = require('read-pkg-up');
 const semver = require('semver');
@@ -19,7 +20,7 @@ const MESSAGE_ID_MISSING_AT_SYMBOL = 'missingAtSymbol';
 
 const packageResult = readPkgUp.sync();
 const hasPackage = Boolean(packageResult);
-const packageJson = hasPackage ? packageResult.package : {};
+const packageJson = hasPackage ? packageResult.packageJson : {};
 
 const pkgDependencies = {
 	...packageJson.dependencies,
@@ -40,7 +41,7 @@ function parseTodoWithArguments(string, {terms}) {
 		return false;
 	}
 
-	const TODO_ARGUMENT_RE = new RegExp('\\[([^}]+)\\]', 'i');
+	const TODO_ARGUMENT_RE = /\[([^}]+)\]/i;
 	const result = TODO_ARGUMENT_RE.exec(string);
 
 	if (!result) {
