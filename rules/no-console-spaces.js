@@ -34,7 +34,7 @@ const getArgumentValue = (context, nodeArgument) => {
 		const sourceCode = context.getSourceCode();
 		value = sourceCode.getText(nodeArgument);
 		// Strip off backticks
-		value = value.substring(1, value.length - 1);
+		value = value.slice(1, value.length - 1);
 	}
 
 	return value;
