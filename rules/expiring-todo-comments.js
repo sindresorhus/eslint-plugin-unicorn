@@ -177,7 +177,7 @@ const create = context => {
 	const options = {
 		terms: ['todo', 'fixme', 'xxx'],
 		ignoreDatesOnPullRequests: true,
-		allowWarningComments: false,
+		allowWarningComments: true,
 		...context.options[0]
 	};
 
