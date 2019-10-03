@@ -1,7 +1,7 @@
 'use strict';
 const astUtils = require('eslint-ast-utils');
 const avoidCapture = require('./utils/avoid-capture');
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentsUrl = require('./utils/get-documents-url');
 
 // Matches `someObj.then([FunctionExpression | ArrowFunctionExpression])`
 function isLintablePromiseCatch(node) {
@@ -144,7 +144,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentsUrl(__filename)
 		},
 		fixable: 'code',
 		schema

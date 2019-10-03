@@ -1,6 +1,6 @@
 'use strict';
 const astUtils = require('eslint-ast-utils');
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentsUrl = require('./utils/get-documents-url');
 
 const isApplySignature = (argument1, argument2) => (
 	((argument1.type === 'Literal' && argument1.raw === 'null') ||
@@ -79,7 +79,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentsUrl(__filename)
 		},
 		fixable: 'code'
 	}

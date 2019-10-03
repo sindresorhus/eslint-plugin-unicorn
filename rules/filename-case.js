@@ -4,7 +4,7 @@ const camelCase = require('lodash.camelcase');
 const kebabCase = require('lodash.kebabcase');
 const snakeCase = require('lodash.snakecase');
 const upperfirst = require('lodash.upperfirst');
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentsUrl = require('./utils/get-documents-url');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
 
 const pascalCase = string => upperfirst(camelCase(string));
@@ -233,7 +233,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentsUrl(__filename)
 		},
 		schema,
 		messages: {
