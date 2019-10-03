@@ -210,9 +210,9 @@ function f({err}) {}
 ### checkProperties
 
 Type: `boolean`<br>
-Default: `true`
+Default: `false`
 
-Pass `"checkProperties": false` to disable checking property names.
+Pass `"checkProperties": true` to enable checking property names.
 
 ### checkVariables
 
