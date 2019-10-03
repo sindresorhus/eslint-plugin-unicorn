@@ -10,7 +10,7 @@ TODO comments are useful when a piece of code needs some work. Unfortunately the
 
 With this rule, a TODO can have a condition right from the beginning to define its lifespan. When the condition is met, ESLint will take care of reporting that there's work to be done.
 
-This rule will ignore all TODOs without conditions. For more information read the section [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments) below.
+This rule will ignore all TODOs without conditions. For more information, read the below [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments) section.
 
 Quick overview of conditions:
 
@@ -139,7 +139,7 @@ The reason behind this is that now that you have a powerful rule to make sure th
 
 With that in mind, you **could** disable that ESLint rule in favor of this one as you will get its same behavior and more.
 
-Since by default the option `allowWarningComments` is `true` both rules can coexist even with different reporting levels. For example one might want to error when conditions are met but just warn on TODOs without conditions (See [`allowWarningComments`](#allowWarningComments) below).
+Since by default the option `allowWarningComments` is `true`, both rules can coexist even with different reporting levels. For example, one might want to error when conditions are met, but just warn on TODOs without conditions (See [`allowWarningComments`](#allowWarningComments) below).
 
 ## Legacy Branches
 
@@ -274,7 +274,7 @@ Ignore TODOs without conditions.
 
 As mentioned before, the [`eslint/no-warning-comments` rule](#disallow-warning-comments-no-warning-comments) will be triggered when there are no valid conditions on a TODO comment.
 
-This is helpful if you want to use **both** this rule and the [`eslint/no-warning-comments` rule](#disallow-warning-comments-no-warning-comments), **but want different warning levels** as it's not possible to set multiple warning levels on the same rule.
+This is helpful if you want to use **both** this rule and the [`eslint/no-warning-comments` rule](#disallow-warning-comments-no-warning-comments), **but want different warning levels**, as it's not possible to set multiple warning levels on the same rule.
 
 If you want this rule to trigger on stray TODO conditions, you can enable this fallback rule with this option.
 
