@@ -5,6 +5,8 @@ const unicorn = require('../..');
 
 const {configs: {recommended}} = unicorn;
 const {rules} = recommended;
+const files = [process.argv[2] || '.'];
+const fix = process.argv.includes('--fix');
 
 const cli = new CLIEngine({
 	...recommended,
@@ -22,12 +24,17 @@ const cli = new CLIEngine({
 		// TODO: remove this override, when #391 is fixed
 		'unicorn/consistent-function-scoping': 'off',
 	},
-	useEslintrc: false
+	useEslintrc: false,
+	fix
 });
 
 cli.addPlugin('eslint-plugin-unicorn', unicorn);
 
-const report = cli.executeOnFiles([process.argv[2] || '.']);
+const report = cli.executeOnFiles(files);
+
+if (fix) {
+	CLIEngine.outputFixes(report);
+}
 
 const formatter = cli.getFormatter();
 
