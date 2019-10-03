@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/expiring-todo-comments */
 'use strict';
 const readPkgUp = require('read-pkg-up');
 const semver = require('semver');
