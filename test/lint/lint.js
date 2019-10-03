@@ -20,7 +20,7 @@ const cli = new CLIEngine({
 		],
 
 		// TODO: remove this override, when #391 is fixed
-		'consistent-function-scoping': 'off',
+		'unicorn/consistent-function-scoping': 'off',
 	},
 	useEslintrc: false
 });
