@@ -19,13 +19,13 @@ const create = context => {
 			const {callee} = node;
 
 			if (callee.type === 'Identifier' && callee.name === 'require') {
-				const args = node.arguments;
+				const arguments_ = node.arguments;
 
-				if (args.length === 0) {
+				if (arguments_.length === 0) {
 					return;
 				}
 
-				const [argument] = args;
+				const [argument] = arguments_;
 
 				if (argument.type === 'Literal' && argument.value === 'worker_threads') {
 					requiredWorkerThreadsModule = true;

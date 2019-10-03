@@ -22,7 +22,7 @@ const packageResult = readPkgUp.sync();
 const hasPackage = Boolean(packageResult);
 const packageJson = hasPackage ? packageResult.packageJson : {};
 
-const pkgDependencies = {
+const packageDependencies = {
 	...packageJson.dependencies,
 	...packageJson.devDependencies
 };
@@ -284,11 +284,11 @@ const create = context => {
 			uses++;
 			const [{condition, version}] = packageVersions;
 
-			const pkgVersion = tryToCoerceVersion(packageJson.version);
-			const desidedPkgVersion = tryToCoerceVersion(version);
+			const packageVersion = tryToCoerceVersion(packageJson.version);
+			const desidedPackageVersion = tryToCoerceVersion(version);
 
 			const compare = semverComparisonForOperator(condition);
-			if (compare(pkgVersion, desidedPkgVersion)) {
+			if (compare(packageVersion, desidedPackageVersion)) {
 				context.report({
 					node: null,
 					loc: comment.loc,
@@ -353,7 +353,7 @@ const create = context => {
 			}
 		}
 
-		const pkgEngines = packageJson.engines || {};
+		const packageEngines = packageJson.engines || {};
 
 		for (const engine of engines) {
 			uses++;
