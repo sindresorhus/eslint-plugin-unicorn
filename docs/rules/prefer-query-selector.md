@@ -1,6 +1,6 @@
 # Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`
 
-It's better to be consistent.
+It's better to use the same method to query DOM elements.
 
 This rule is partly fixable.
 
