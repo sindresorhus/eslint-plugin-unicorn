@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/expiring-todo-comments */
 'use strict';
 const readPkgUp = require('read-pkg-up');
 const semver = require('semver');
@@ -189,9 +188,9 @@ const create = context => {
 		// Block comments come as one.
 		// Split for situations like this:
 		// /*
-		//  * TODO [2000-01-01]: Validate this
-		//  * TODO [2000-01-01]: And this
-		//  * TODO [2000-01-01]: Also this
+		//  * TODO [2999-01-01]: Validate this
+		//  * TODO [2999-01-01]: And this
+		//  * TODO [2999-01-01]: Also this
 		//  */
 		.map(comment =>
 			comment.value.split('\n').map(line => ({
