@@ -38,8 +38,8 @@ const create = context => ({
 
 		const target = left.callee.object;
 
-		// Ignore _.indexOf(foo)
-		if (target.type === 'Identifier' && target.name === '_') {
+		// Ignore {_,lodash,underscore}.indexOf
+		if (target.type === 'Identifier' && ['_', 'lodash', 'underscore'].includes(target.name)) {
 			return;
 		}
 
