@@ -23,7 +23,9 @@ ruleTester.run('prefer-includes', rule, {
 		'\'foobar\'.includes(\'foo\')',
 		'[1,2,3].includes(4)',
 		'null.indexOf(\'foo\') !== 1',
-		'f(0) < 0'
+		'f(0) < 0',
+		'[].indexOf(foo, \'bar\', 0) !== -1',
+		'_.indexOf(foo, bar) !== -1'
 	],
 	invalid: [
 		{
@@ -64,6 +66,16 @@ ruleTester.run('prefer-includes', rule, {
 		{
 			code: '(a || b).indexOf(\'foo\') === -1',
 			output: '!(a || b).includes(\'foo\')',
+			errors
+		},
+		{
+			code: 'foo.indexOf(bar, 0) !== -1',
+			output: 'foo.includes(bar)',
+			errors
+		},
+		{
+			code: 'foo.indexOf(bar, 1) !== -1',
+			output: 'foo.includes(bar, 1)',
 			errors
 		}
 	]
