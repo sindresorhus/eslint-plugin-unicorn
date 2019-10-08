@@ -13,14 +13,6 @@ const cli = new CLIEngine({
 	rules: {
 		...rules,
 
-		// TODO: remove this override, when `prevent-abbreviations` default options changes
-		'unicorn/prevent-abbreviations': [
-			'error',
-			{
-				checkProperties: false
-			}
-		],
-
 		// TODO: remove this override, when #391 is fixed
 		'unicorn/consistent-function-scoping': 'off'
 	},
