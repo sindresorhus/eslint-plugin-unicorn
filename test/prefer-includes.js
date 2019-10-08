@@ -25,7 +25,9 @@ ruleTester.run('prefer-includes', rule, {
 		'null.indexOf(\'foo\') !== 1',
 		'f(0) < 0',
 		'[].indexOf(foo, \'bar\', 0) !== -1',
-		'_.indexOf(foo, bar) !== -1'
+		'_.indexOf(foo, bar) !== -1',
+		'lodash.indexOf(foo, bar) !== -1',
+		'underscore.indexOf(foo, bar) !== -1'
 	],
 	invalid: [
 		{
