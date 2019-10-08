@@ -194,7 +194,7 @@ const defaultWhitelist = {
 };
 
 const prepareOptions = ({
-	checkProperties = true,
+	checkProperties = false,
 	checkVariables = true,
 
 	checkDefaultAndNamespaceImports = false,
