@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentsUrl = require('./utils/get-documents-url');
-const {isValidVariableName} = require('./utils');
+const isValidVariableName = require('./utils/is-valid-variable-name');
 
 const getMethodName = memberExpression => memberExpression.property.name;
 
