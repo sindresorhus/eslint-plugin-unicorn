@@ -8,6 +8,6 @@ test('returns the URL of the a named rule\'s documentation', t => {
 });
 
 test('determines the rule name from the file', t => {
-	const url = `https://github.com/sindresorhus/eslint-plugin-unicorn/blob/v${pkg.version}/docs/rules/get-docs-url.md`;
+	const url = `https://github.com/sindresorhus/eslint-plugin-unicorn/blob/v${pkg.version}/docs/rules/get-documents-url.md`;
 	t.is(getDocumentsUrl(__filename), url);
 });
