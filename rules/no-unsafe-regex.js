@@ -1,6 +1,6 @@
 'use strict';
 const safeRegex = require('safe-regex');
-const getDocumentsUrl = require('./utils/get-documents-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const message = 'Unsafe regular expression.';
 
@@ -53,7 +53,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			url: getDocumentsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		}
 	}
 };

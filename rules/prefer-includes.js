@@ -1,5 +1,5 @@
 'use strict';
-const getDocumentsUrl = require('./utils/get-documents-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 const isMethodNamed = require('./utils/is-method-named');
 
 const isNegativeOne = (operator, value) => operator === '-' && value === 1;
@@ -58,7 +58,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocumentsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}

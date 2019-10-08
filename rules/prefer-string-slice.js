@@ -1,6 +1,6 @@
 'use strict';
 const eslintTemplateVisitor = require('eslint-template-visitor');
-const getDocumentsUrl = require('./utils/get-documents-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const templates = eslintTemplateVisitor();
 
@@ -57,7 +57,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocumentsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}

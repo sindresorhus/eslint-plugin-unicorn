@@ -1,5 +1,5 @@
 'use strict';
-const getDocumentsUrl = require('./utils/get-documents-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const iteratorMethods = new Map([
 	['map', 1],
@@ -66,7 +66,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			url: getDocumentsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}

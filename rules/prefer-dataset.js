@@ -1,5 +1,5 @@
 'use strict';
-const getDocumentsUrl = require('./utils/get-documents-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValidVariableName = require('./utils/is-valid-variable-name');
 
 const getMethodName = memberExpression => memberExpression.property.name;
@@ -72,7 +72,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocumentsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}

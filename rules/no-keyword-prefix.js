@@ -1,6 +1,6 @@
 'use strict';
 
-const getDocumentsUrl = require('./utils/get-documents-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'noKeywordPrefix';
 
@@ -184,7 +184,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocumentsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,

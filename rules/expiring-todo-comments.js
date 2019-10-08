@@ -3,7 +3,7 @@ const readPkgUp = require('read-pkg-up');
 const semver = require('semver');
 const ci = require('ci-info');
 const baseRule = require('eslint/lib/rules/no-warning-comments');
-const getDocumentsUrl = require('./utils/get-documents-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_AVOID_MULTIPLE_DATES = 'avoidMultipleDates';
 const MESSAGE_ID_EXPIRED_TODO = 'expiredTodo';
@@ -467,7 +467,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocumentsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		messages: {
 			[MESSAGE_ID_AVOID_MULTIPLE_DATES]:

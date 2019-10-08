@@ -1,5 +1,5 @@
 'use strict';
-const getDocumentsUrl = require('./utils/get-documents-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ZERO_FRACTION = 'Don\'t use a zero fraction in the number.';
 const MESSAGE_DANGLING_DOT = 'Don\'t use a dangling dot in the number.';
@@ -48,7 +48,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocumentsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}
