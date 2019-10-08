@@ -38,14 +38,14 @@ const create = context => ({
 
 		const target = left.callee.object;
 
-		// ignore _.indexOf(foo)
+		// Ignore _.indexOf(foo)
 		if (target.type === 'Identifier' && target.name === '_') {
 			return;
 		}
 
 		const {arguments: argumentsNodes} = left;
 
-		// ignore something.indexOf(foo, 0, another)
+		// Ignore something.indexOf(foo, 0, another)
 		if (argumentsNodes.length > 2) {
 			return;
 		}
