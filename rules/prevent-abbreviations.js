@@ -647,7 +647,7 @@ const create = context => {
 			}
 
 			if (filenameWithExtension === '<input>' || filenameWithExtension === '<text>') {
-				return {};
+				return;
 			}
 
 			const extension = path.extname(filenameWithExtension);
