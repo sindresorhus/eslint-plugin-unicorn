@@ -17,6 +17,7 @@ ruleTester.run('prefer-includes', rule, {
 	valid: [
 		'str.indexOf(\'foo\') !== -n',
 		'str.indexOf(\'foo\') !== 1',
+		'str.indexOf(\'foo\') === -2',
 		'!str.indexOf(\'foo\') === 1',
 		'!str.indexOf(\'foo\') === -n',
 		'str.includes(\'foo\')',
