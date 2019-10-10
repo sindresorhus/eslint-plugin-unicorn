@@ -2,7 +2,10 @@
 const getDocsUrl = require('./utils/get-docs-url');
 const isMethodNamed = require('./utils/is-method-named');
 
+// Ignore {_,lodash,underscore}.indexOf
+const ignoredVariables = new Set(['_', 'lodash', 'underscore']);
 const isNegativeOne = (operator, value) => operator === '-' && value === 1;
+const isIgnoredTarget = node => node.type === 'Identifier' && ignoredVariables.has(node.name)
 
 const report = (context, node, target, argumentsNodes) => {
 	const sourceCode = context.getSourceCode();
@@ -38,8 +41,7 @@ const create = context => ({
 
 		const target = left.callee.object;
 
-		// Ignore {_,lodash,underscore}.indexOf
-		if (target.type === 'Identifier' && ['_', 'lodash', 'underscore'].includes(target.name)) {
+		if (isIgnoredTarget(target)) {
 			return;
 		}
 
