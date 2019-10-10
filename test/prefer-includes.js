@@ -17,13 +17,18 @@ ruleTester.run('prefer-includes', rule, {
 	valid: [
 		'str.indexOf(\'foo\') !== -n',
 		'str.indexOf(\'foo\') !== 1',
+		'str.indexOf(\'foo\') === -2',
 		'!str.indexOf(\'foo\') === 1',
 		'!str.indexOf(\'foo\') === -n',
 		'str.includes(\'foo\')',
 		'\'foobar\'.includes(\'foo\')',
 		'[1,2,3].includes(4)',
 		'null.indexOf(\'foo\') !== 1',
-		'f(0) < 0'
+		'f(0) < 0',
+		'something.indexOf(foo, 0, another) !== -1',
+		'_.indexOf(foo, bar) !== -1',
+		'lodash.indexOf(foo, bar) !== -1',
+		'underscore.indexOf(foo, bar) !== -1'
 	],
 	invalid: [
 		{
@@ -39,6 +44,11 @@ ruleTester.run('prefer-includes', rule, {
 		{
 			code: 'str.indexOf(\'foo\') > -1',
 			output: 'str.includes(\'foo\')',
+			errors
+		},
+		{
+			code: 'str.indexOf(\'foo\') == -1',
+			output: '!str.includes(\'foo\')',
 			errors
 		},
 		{
@@ -64,6 +74,16 @@ ruleTester.run('prefer-includes', rule, {
 		{
 			code: '(a || b).indexOf(\'foo\') === -1',
 			output: '!(a || b).includes(\'foo\')',
+			errors
+		},
+		{
+			code: 'foo.indexOf(bar, 0) !== -1',
+			output: 'foo.includes(bar)',
+			errors
+		},
+		{
+			code: 'foo.indexOf(bar, 1) !== -1',
+			output: 'foo.includes(bar, 1)',
 			errors
 		}
 	]
