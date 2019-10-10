@@ -46,6 +46,11 @@ ruleTester.run('prefer-includes', rule, {
 			errors
 		},
 		{
+			code: 'str.indexOf(\'foo\') == -1',
+			output: '!str.includes(\'foo\')',
+			errors
+		},
+		{
 			code: '\'foobar\'.indexOf(\'foo\') >= 0',
 			output: '\'foobar\'.includes(\'foo\')',
 			errors
