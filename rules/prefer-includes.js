@@ -5,7 +5,7 @@ const isMethodNamed = require('./utils/is-method-named');
 // Ignore {_,lodash,underscore}.indexOf
 const ignoredVariables = new Set(['_', 'lodash', 'underscore']);
 const isNegativeOne = (operator, value) => operator === '-' && value === 1;
-const isIgnoredTarget = node => node.type === 'Identifier' && ignoredVariables.has(node.name)
+const isIgnoredTarget = node => node.type === 'Identifier' && ignoredVariables.has(node.name);
 
 const report = (context, node, target, argumentsNodes) => {
 	const sourceCode = context.getSourceCode();
