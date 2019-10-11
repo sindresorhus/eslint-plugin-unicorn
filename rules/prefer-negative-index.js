@@ -20,7 +20,7 @@ const isSame = (target, node) => {
 
 	switch (type) {
 		case 'Identifier':
-			return node.name === target.name;
+			return node.name === target.name && node.computed === target.computed;
 		case 'Literal':
 			return String(node.value) === String(target.value);
 		case 'MemberExpression':
