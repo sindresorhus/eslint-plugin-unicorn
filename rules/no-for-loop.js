@@ -1,8 +1,8 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
+const isLiteralValue = require('./utils/is-literal-value');
 
 const defaultElementName = 'element';
-const isLiteralValue = value => node => node && node.type === 'Literal' && node.value === value;
 const isLiteralZero = isLiteralValue(0);
 const isLiteralOne = isLiteralValue(1);
 

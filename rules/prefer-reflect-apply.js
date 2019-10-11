@@ -1,9 +1,12 @@
 'use strict';
 const astUtils = require('eslint-ast-utils');
 const getDocsUrl = require('./utils/get-docs-url');
+const isLiteralValue = require('./utils/is-literal-value');
+
+const isLiteralNull = isLiteralValue(null);
 
 const isApplySignature = (argument1, argument2) => (
-	((argument1.type === 'Literal' && argument1.raw === 'null') ||
+	(isLiteralNull(argument1) ||
 		argument1.type === 'ThisExpression') &&
 	(argument2.type === 'ArrayExpression' ||
 		(argument2.type === 'Identifier' &&
