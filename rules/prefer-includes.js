@@ -8,7 +8,7 @@ const message = 'Use `.includes()`, rather than `.indexOf()`, when checking for 
 const ignoredVariables = new Set(['_', 'lodash', 'underscore']);
 const isIgnoredTarget = node => node.type === 'Identifier' && ignoredVariables.has(node.name);
 const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator === '-' && node.argument && node.argument.type === 'Literal' && node.argument.value === 1;
-const isLiteralZero = isLiteralValue(0);
+const isLiteralZero = node => isLiteralValue(node, 0);
 const isNegativeResult = node => ['===', '==', '<'].includes(node.operator);
 
 const report = (context, node, target, argumentsNodes) => {

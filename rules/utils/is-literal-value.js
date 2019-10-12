@@ -1,2 +1,2 @@
 'use strict';
-module.exports = value => node => node && node.type === 'Literal' && node.value === value;
+module.exports = (node, value) => node.type === 'Literal' && node.value === value;

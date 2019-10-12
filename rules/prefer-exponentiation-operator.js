@@ -2,7 +2,7 @@
 const getDocsUrl = require('./utils/get-docs-url');
 const isObjectMethod = require('./utils/is-object-method');
 
-const isMathPow = isObjectMethod('Math', 'pow');
+const isMathPow = node => isObjectMethod(node, 'Math', 'pow');
 
 const parseArgument = (source, arg) => {
 	const text = source.getText(arg);

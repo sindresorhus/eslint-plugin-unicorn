@@ -2,7 +2,7 @@
 const getDocsUrl = require('./utils/get-docs-url');
 const isLiteralValue = require('./utils/is-literal-value');
 
-const isLiteralWorkerThreads = isLiteralValue('worker_threads');
+const isLiteralWorkerThreads = node => isLiteralValue(node, 'worker_threads');
 
 const create = context => {
 	const startsWithHashBang = context.getSourceCode().lines[0].indexOf('#!') === 0;

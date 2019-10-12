@@ -2,7 +2,7 @@
 const getDocsUrl = require('./utils/get-docs-url');
 const isObjectMethod = require('./utils/is-object-method');
 
-const isArrayFrom = isObjectMethod('Array', 'from');
+const isArrayFrom = node => isObjectMethod(node, 'Array', 'from');
 const isArrayLike = argument => argument && argument.type !== 'ObjectExpression';
 
 const parseArgument = (context, argument) => {
