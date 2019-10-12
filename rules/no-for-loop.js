@@ -1,5 +1,5 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 
 const defaultElementName = 'element';
@@ -248,7 +248,7 @@ const getReferencesInChildScopes = (scope, name) => {
 		...references,
 		...scope.childScopes
 			.map(s => getReferencesInChildScopes(s, name))
-			.reduce((acc, scopeReferences) => [...acc, ...scopeReferences], [])
+			.reduce((accumulator, scopeReferences) => [...accumulator, ...scopeReferences], [])
 	];
 };
 
@@ -360,7 +360,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}

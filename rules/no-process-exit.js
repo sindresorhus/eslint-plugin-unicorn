@@ -1,5 +1,5 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 
 const isLiteralWorkerThreads = node => isLiteralValue(node, 'worker_threads');
@@ -22,13 +22,13 @@ const create = context => {
 			const {callee} = node;
 
 			if (callee.type === 'Identifier' && callee.name === 'require') {
-				const args = node.arguments;
+				const arguments_ = node.arguments;
 
-				if (args.length === 0) {
+				if (arguments_.length === 0) {
 					return;
 				}
 
-				const [argument] = args;
+				const [argument] = arguments_;
 
 				if (isLiteralWorkerThreads(argument)) {
 					requiredWorkerThreadsModule = true;
@@ -82,7 +82,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		}
 	}
 };

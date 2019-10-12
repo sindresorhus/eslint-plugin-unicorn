@@ -1,7 +1,7 @@
 'use strict';
 const astUtils = require('eslint-ast-utils');
 const avoidCapture = require('./utils/avoid-capture');
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 // Matches `someObj.then([FunctionExpression | ArrowFunctionExpression])`
 function isLintablePromiseCatch(node) {
@@ -21,9 +21,9 @@ function isLintablePromiseCatch(node) {
 		return false;
 	}
 
-	const [arg0] = node.arguments;
+	const [firstArgument] = node.arguments;
 
-	return arg0.type === 'FunctionExpression' || arg0.type === 'ArrowFunctionExpression';
+	return firstArgument.type === 'FunctionExpression' || firstArgument.type === 'ArrowFunctionExpression';
 }
 
 const create = context => {
@@ -118,8 +118,8 @@ const create = context => {
 			}
 
 			const scope = context.getScope();
-			const errName = avoidCapture(name, [scope.variableScope], ecmaVersion);
-			push(node.param.name === errName || errName);
+			const errorName = avoidCapture(name, [scope.variableScope], ecmaVersion);
+			push(node.param.name === errorName || errorName);
 		},
 		'CatchClause:exit': node => {
 			popAndReport(node.param, node);
@@ -144,7 +144,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema

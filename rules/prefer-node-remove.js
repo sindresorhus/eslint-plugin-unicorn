@@ -1,5 +1,5 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const getMethodName = callee => {
 	const {property} = callee;
@@ -29,8 +29,8 @@ const getCallerName = callee => {
 	return null;
 };
 
-const getArgumentName = args => {
-	const [identifier] = args;
+const getArgumentName = arguments_ => {
+	const [identifier] = arguments_;
 
 	if (identifier.type === 'ThisExpression') {
 		return 'this';
@@ -81,7 +81,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}

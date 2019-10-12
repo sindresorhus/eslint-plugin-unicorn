@@ -1,15 +1,15 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 const isObjectMethod = require('./utils/is-object-method');
 
 const isMathPow = node => isObjectMethod(node, 'Math', 'pow');
 
-const parseArgument = (source, arg) => {
-	const text = source.getText(arg);
+const parseArgument = (source, argument) => {
+	const text = source.getText(argument);
 
-	switch (arg.type) {
+	switch (argument.type) {
 		case 'Identifier':
-			return arg.name;
+			return argument.name;
 		case 'Literal':
 			return text;
 		case 'CallExpression':
@@ -55,7 +55,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}
