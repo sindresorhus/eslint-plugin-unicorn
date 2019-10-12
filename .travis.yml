@@ -3,6 +3,8 @@ node_js:
   - '12'
   - '10'
   - '8'
+cache:
+  npm: false
 matrix:
   include:
     - node_js: '12'
