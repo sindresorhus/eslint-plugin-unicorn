@@ -65,7 +65,7 @@ const create = context => {
 				problem.fix = fixer => {
 					const fixings = [fixer.replaceText(node, expectedName)];
 
-					const variables =	scopeManager.getDeclaredVariables(scopeNode);
+					const variables = scopeManager.getDeclaredVariables(scopeNode);
 					for (const variable of variables) {
 						if (variable.name !== node.name) {
 							continue;
