@@ -18,7 +18,7 @@ const report = (context, node, target, argumentsNodes) => {
 	const targetSource = sourceCode.getText().slice(memberExpressionNode.range[0], dotToken.range[0]);
 
 	// Strip default `fromIndex`
-	if (argumentsNodes[1] && isLiteralZero(argumentsNodes[1])) {
+	if (isLiteralZero(argumentsNodes[1])) {
 		argumentsNodes = argumentsNodes.slice(0, 1);
 	}
 
