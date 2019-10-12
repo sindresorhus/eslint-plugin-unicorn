@@ -1,11 +1,15 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
 const isMethodNamed = require('./utils/is-method-named');
+const isLiteralValue = require('./utils/is-literal-value');
 
+const message = 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.';
 // Ignore {_,lodash,underscore}.indexOf
 const ignoredVariables = new Set(['_', 'lodash', 'underscore']);
-const isNegativeOne = (operator, value) => operator === '-' && value === 1;
 const isIgnoredTarget = node => node.type === 'Identifier' && ignoredVariables.has(node.name);
+const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator === '-' && node.argument && node.argument.type === 'Literal' && node.argument.value === 1;
+const isLiteralZero = node => isLiteralValue(node, 0);
+const isNegativeResult = node => ['===', '==', '<'].includes(node.operator);
 
 const report = (context, node, target, argumentsNodes) => {
 	const sourceCode = context.getSourceCode();
@@ -14,7 +18,7 @@ const report = (context, node, target, argumentsNodes) => {
 	const targetSource = sourceCode.getText().slice(memberExpressionNode.range[0], dotToken.range[0]);
 
 	// Strip default `fromIndex`
-	if (argumentsNodes.length === 2 && argumentsNodes[1].type === 'Literal' && argumentsNodes[1].value === 0) {
+	if (isLiteralZero(argumentsNodes[1])) {
 		argumentsNodes = argumentsNodes.slice(0, 1);
 	}
 
@@ -22,10 +26,9 @@ const report = (context, node, target, argumentsNodes) => {
 
 	context.report({
 		node,
-		message: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.',
+		message,
 		fix: fixer => {
-			const isNot = node => ['===', '==', '<'].includes(node.operator) ? '!' : '';
-			const replacement = `${isNot(node)}${targetSource}.includes(${argumentsSource.join(', ')})`;
+			const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
 			return fixer.replaceText(node, replacement);
 		}
 	});
@@ -52,22 +55,16 @@ const create = context => ({
 			return;
 		}
 
-		if (right.type === 'UnaryExpression') {
-			const {argument} = right;
-
-			if (argument.type !== 'Literal') {
-				return;
-			}
-
-			const {value} = argument;
-
-			if (['!==', '!=', '>', '===', '=='].includes(node.operator) && isNegativeOne(right.operator, value)) {
-				report(context, node, target, argumentsNodes);
-			}
-		}
-
-		if (right.type === 'Literal' && ['>=', '<'].includes(node.operator) && right.value === 0) {
-			report(context, node, target, argumentsNodes);
+		if (
+			(['!==', '!=', '>', '===', '=='].includes(node.operator) && isNegativeOne(right)) ||
+			(['>=', '<'].includes(node.operator) && isLiteralZero(right))
+		) {
+			report(
+				context,
+				node,
+				target,
+				argumentsNodes
+			);
 		}
 	}
 });

@@ -1,5 +1,8 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
+const isLiteralValue = require('./utils/is-literal-value');
+
+const isLiteralWorkerThreads = node => isLiteralValue(node, 'worker_threads');
 
 const create = context => {
 	const startsWithHashBang = context.getSourceCode().lines[0].indexOf('#!') === 0;
@@ -27,7 +30,7 @@ const create = context => {
 
 				const [argument] = args;
 
-				if (argument.type === 'Literal' && argument.value === 'worker_threads') {
+				if (isLiteralWorkerThreads(argument)) {
 					requiredWorkerThreadsModule = true;
 					return;
 				}
@@ -59,7 +62,7 @@ const create = context => {
 		ImportDeclaration: node => {
 			const {source} = node;
 
-			if (source.type === 'Literal' && source.value === 'worker_threads') {
+			if (isLiteralWorkerThreads(source)) {
 				requiredWorkerThreadsModule = true;
 			}
 		},

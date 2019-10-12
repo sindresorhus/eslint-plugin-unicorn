@@ -1,10 +1,10 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
+const isLiteralValue = require('./utils/is-literal-value');
 
 const defaultElementName = 'element';
-const isLiteralValue = value => node => node && node.type === 'Literal' && node.value === value;
-const isLiteralZero = isLiteralValue(0);
-const isLiteralOne = isLiteralValue(1);
+const isLiteralZero = node => isLiteralValue(node, 0);
+const isLiteralOne = node => isLiteralValue(node, 1);
 
 const isIdentifierWithName = (node, name) => node && node.type === 'Identifier' && node.name === name;
 

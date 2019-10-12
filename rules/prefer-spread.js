@@ -1,17 +1,8 @@
 'use strict';
 const getDocsUrl = require('./utils/get-docs-url');
+const isObjectMethod = require('./utils/is-object-method');
 
-const isArrayFrom = node => {
-	const {callee} = node;
-	return (
-		callee.type === 'MemberExpression' &&
-		callee.object.type === 'Identifier' &&
-		callee.object.name === 'Array' &&
-		callee.property.type === 'Identifier' &&
-		callee.property.name === 'from'
-	);
-};
-
+const isArrayFrom = node => isObjectMethod(node, 'Array', 'from');
 const isArrayLike = argument => argument && argument.type !== 'ObjectExpression';
 
 const parseArgument = (context, argument) => {
