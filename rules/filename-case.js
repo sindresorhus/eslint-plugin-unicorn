@@ -4,7 +4,7 @@ const camelCase = require('lodash.camelcase');
 const kebabCase = require('lodash.kebabcase');
 const snakeCase = require('lodash.snakecase');
 const upperfirst = require('lodash.upperfirst');
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
 
 const pascalCase = string => upperfirst(camelCase(string));
@@ -95,10 +95,10 @@ function fixFilename(words, caseFunctions, {leading, extension}) {
 
 const leadingUnserscoresRegex = /^(_+)(.*)$/;
 function splitFilename(filename) {
-	const res = leadingUnserscoresRegex.exec(filename);
+	const result = leadingUnserscoresRegex.exec(filename);
 
-	const leading = (res && res[1]) || '';
-	const tailing = (res && res[2]) || filename;
+	const leading = (result && result[1]) || '';
+	const tailing = (result && result[2]) || filename;
 
 	const words = [];
 
@@ -233,7 +233,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		schema,
 		messages: {

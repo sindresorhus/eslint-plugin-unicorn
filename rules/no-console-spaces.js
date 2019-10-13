@@ -1,5 +1,5 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const getConsoleMethod = node => {
 	const methods = [
@@ -70,12 +70,12 @@ const fixValue = (value, {
 
 const getFixableArguments = (context, node) => {
 	const {
-		arguments: args
+		arguments: arguments_
 	} = node;
 
-	const fixables = args.map((nodeArgument, i) => {
+	const fixables = arguments_.map((nodeArgument, i) => {
 		const fixLeading = i !== 0;
-		const fixTrailing = i !== (args.length - 1);
+		const fixTrailing = i !== (arguments_.length - 1);
 
 		const value = getArgumentValue(context, nodeArgument);
 		const fixed = fixValue(value, {fixLeading, fixTrailing});
@@ -91,7 +91,7 @@ const getFixableArguments = (context, node) => {
 	return fixables.filter(fixable => fixable.fixable);
 };
 
-const fixArg = (context, fixable, fixer) => {
+const fixArgument = (context, fixable, fixer) => {
 	const {
 		nodeArgument,
 		fixed
@@ -123,7 +123,7 @@ const create = context => {
 				context.report({
 					node: fixable.nodeArgument,
 					message: buildErrorMessage(method),
-					fix: fixer => fixArg(context, fixable, fixer)
+					fix: fixer => fixArgument(context, fixable, fixer)
 				});
 			}
 		}
@@ -135,7 +135,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}

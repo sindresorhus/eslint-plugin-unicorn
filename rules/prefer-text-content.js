@@ -1,5 +1,5 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const message = 'Prefer `.textContent` over `.innerText`.';
 
@@ -24,7 +24,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}

@@ -4,7 +4,7 @@ const astUtils = require('eslint-ast-utils');
 const defaultsDeep = require('lodash.defaultsdeep');
 const toPairs = require('lodash.topairs');
 
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
 
@@ -721,7 +721,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema

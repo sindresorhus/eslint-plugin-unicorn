@@ -1,5 +1,5 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const getDeclaratorOrPropertyValue = declaratorOrProperty => {
 	return declaratorOrProperty.init || declaratorOrProperty.value;
@@ -75,8 +75,8 @@ const isLeafDeclaratorOrProperty = declaratorOrProperty => {
 };
 
 const isUnusedVariable = variable => {
-	const hasReadRef = variable.references.some(ref => ref.isRead());
-	return !hasReadRef;
+	const hasReadReference = variable.references.some(reference => reference.isRead());
+	return !hasReadReference;
 };
 
 const create = context => {
@@ -234,7 +234,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		}
 	}
 };

@@ -1,5 +1,5 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_ARROW = 'ArrowFunctionExpression';
 const MESSAGE_ID_FUNCTION = 'FunctionDeclaration';
@@ -172,7 +172,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		messages: {
 			[MESSAGE_ID_ARROW]: 'Move arrow function to the outer scope.',

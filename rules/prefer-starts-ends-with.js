@@ -1,5 +1,5 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const doesNotContain = (string, characters) => characters.every(character => !string.includes(character));
 
@@ -12,19 +12,19 @@ const create = context => {
 	return {
 		CallExpression(node) {
 			const {callee} = node;
-			const prop = callee.property;
+			const {property} = callee;
 
-			if (!(prop && callee.type === 'MemberExpression')) {
+			if (!(property && callee.type === 'MemberExpression')) {
 				return;
 			}
 
-			const args = node.arguments;
+			const arguments_ = node.arguments;
 
 			let regex;
-			if (prop.name === 'test' && callee.object.regex) {
+			if (property.name === 'test' && callee.object.regex) {
 				({regex} = callee.object);
-			} else if (prop.name === 'match' && args && args[0] && args[0].regex) {
-				({regex} = args[0]);
+			} else if (property.name === 'match' && arguments_ && arguments_[0] && arguments_[0].regex) {
+				({regex} = arguments_[0]);
 			} else {
 				return;
 			}
@@ -54,7 +54,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		}
 	}
 };

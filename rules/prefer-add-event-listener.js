@@ -1,9 +1,9 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 const domEventsJson = require('./utils/dom-events.json');
 
 const nestedEvents = Object.keys(domEventsJson).map(key => domEventsJson[key]);
-const eventTypes = new Set(nestedEvents.reduce((accEvents, events) => accEvents.concat(events), []));
+const eventTypes = new Set(nestedEvents.reduce((accumulatorEvents, events) => accumulatorEvents.concat(events), []));
 const getEventMethodName = memberExpression => memberExpression.property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 
@@ -159,7 +159,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema

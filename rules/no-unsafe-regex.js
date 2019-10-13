@@ -1,6 +1,6 @@
 'use strict';
 const safeRegex = require('safe-regex');
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const message = 'Unsafe regular expression.';
 
@@ -20,22 +20,22 @@ const create = context => {
 			}
 		},
 		'NewExpression[callee.name="RegExp"]': node => {
-			const args = node.arguments;
+			const arguments_ = node.arguments;
 
-			if (args.length === 0 || args[0].type !== 'Literal') {
+			if (arguments_.length === 0 || arguments_[0].type !== 'Literal') {
 				return;
 			}
 
-			const hasRegExp = args[0].regex;
+			const hasRegExp = arguments_[0].regex;
 
 			let pattern;
 			let flags;
 			if (hasRegExp) {
-				({pattern} = args[0].regex);
-				flags = args[1] && args[1].type === 'Literal' ? args[1].value : args[0].regex.flags;
+				({pattern} = arguments_[0].regex);
+				flags = arguments_[1] && arguments_[1].type === 'Literal' ? arguments_[1].value : arguments_[0].regex.flags;
 			} else {
-				pattern = args[0].value;
-				flags = args[1] && args[1].type === 'Literal' ? args[1].value : '';
+				pattern = arguments_[0].value;
+				flags = arguments_[1] && arguments_[1].type === 'Literal' ? arguments_[1].value : '';
 			}
 
 			if (!safeRegex(`/${pattern}/${flags}`)) {
@@ -53,7 +53,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		}
 	}
 };

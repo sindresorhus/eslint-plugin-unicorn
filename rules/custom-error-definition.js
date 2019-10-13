@@ -1,6 +1,6 @@
 'use strict';
 const upperfirst = require('lodash.upperfirst');
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 
@@ -178,7 +178,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		messages: {
