@@ -17,7 +17,7 @@ ruleTester.run('prefer-negative-index', rule, {
 		// docs example (1)
 		'foo.slice(-2, -1)',
 		// docs example (2)
-		'foo.splice(-1, 1)'
+		'foo.splice(-1, 1)',
 		'foo.slice(-(-1), -n)',
 		'[1,2,3].slice([1, 2, 3].length - 2, [1, 2, 3].length - 1)',
 		'foo.splice(-1, 1)',
