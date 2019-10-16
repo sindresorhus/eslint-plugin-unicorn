@@ -971,14 +971,14 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: outdent`
 				function unicorn(unicorn) {
-					const {docs = {}} = unicorn;
-					return docs;
+					const {prop = {}} = unicorn;
+					return property;
 				}
 			`,
 			output: outdent`
 				function unicorn(unicorn) {
-					const {docs: documents = {}} = unicorn;
-					return documents;
+					const {prop: property = {}} = unicorn;
+					return property;
 				}
 			`,
 			errors: createErrors()
