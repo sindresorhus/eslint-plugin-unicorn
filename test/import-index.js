@@ -16,9 +16,17 @@ const error = {
 	message: 'Do not reference the index file directly.'
 };
 
+const ignoreImportsOptions = [{
+	ignoreImports: true
+}];
+
 ruleTester.run('import-index', rule, {
 	valid: [
 		'const m = require(\'.\')',
+		{
+			code: 'const m = require(\'.\')',
+			options: ignoreImportsOptions
+		},
 		'const m = require(\'..\')',
 		'const m = require(\'../..\')',
 		'const m = require(\'./foobar\')',
@@ -37,11 +45,47 @@ ruleTester.run('import-index', rule, {
 		'import m from \'foobar\'',
 		'import m from \'index\'',
 		'import m from \'index.js\'',
+		{
+			code: 'import m from \'index.js\'',
+			options: ignoreImportsOptions
+		},
 		'import m from \'indexbar\'',
 		'import m from \'fooindex\'',
 		'import m from \'@index/foo\'',
 		'import m from \'@foo/index\'',
-		'import m from \'@foo/index.js\''
+		'import m from \'@foo/index.js\'',
+		{
+			code: 'import m from \'./\'',
+			options: ignoreImportsOptions
+		},
+		{
+			code: 'import m from \'./index\'',
+			options: ignoreImportsOptions
+		},
+		{
+			code: 'import m from \'./index.js\'',
+			options: ignoreImportsOptions
+		},
+		{
+			code: 'import m from \'../../index\'',
+			options: ignoreImportsOptions
+		},
+		{
+			code: 'import m from \'./foo/index.js\'',
+			options: ignoreImportsOptions
+		},
+		{
+			code: 'import m from \'./foobar/\'',
+			options: ignoreImportsOptions
+		},
+		{
+			code: 'import m from \'@foo/index/index\'',
+			options: ignoreImportsOptions
+		},
+		{
+			code: 'import m from \'@foo/index/index.js\'',
+			options: ignoreImportsOptions
+		}
 	],
 	invalid: [
 		{

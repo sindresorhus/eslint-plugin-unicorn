@@ -61,3 +61,16 @@ const m = require('@foo/bar');
 ```js
 import m from '.';
 ```
+
+
+### `ignoreImports`
+
+The default behavior is to check for imports. If you want to disable this (for example, you are moving to nodejs esm), set `ignoreImports` to `true`:
+
+```js
+// eslint unicorn/import-index: ["error", {"ignoreImports": true}]
+import m from './index'; // pass
+
+// eslint unicorn/import-index: ["error", {"ignoreImports": false}]
+import m from './index'; // fails
+```
