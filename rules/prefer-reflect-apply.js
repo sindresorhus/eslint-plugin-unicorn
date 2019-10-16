@@ -1,17 +1,18 @@
 'use strict';
 const astUtils = require('eslint-ast-utils');
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
+const isLiteralValue = require('./utils/is-literal-value');
 
 const isApplySignature = (argument1, argument2) => (
-	((argument1.type === 'Literal' && argument1.raw === 'null') ||
+	(isLiteralValue(argument1, null) ||
 		argument1.type === 'ThisExpression') &&
 	(argument2.type === 'ArrayExpression' ||
 		(argument2.type === 'Identifier' &&
 		argument2.name === 'arguments'))
 );
 
-const getReflectApplyCall = (sourceCode, func, receiver, args) => (
-	`Reflect.apply(${sourceCode.getText(func)}, ${sourceCode.getText(receiver)}, ${sourceCode.getText(args)})`
+const getReflectApplyCall = (sourceCode, func, receiver, arguments_) => (
+	`Reflect.apply(${sourceCode.getText(func)}, ${sourceCode.getText(receiver)}, ${sourceCode.getText(arguments_)})`
 );
 
 const fixDirectApplyCall = (node, sourceCode) => {
@@ -79,7 +80,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}

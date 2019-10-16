@@ -1,5 +1,5 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 function checkEscape(context, node, value) {
 	const fixedValue = typeof value === 'string' ? value.replace(/((?:^|[^\\])(?:\\\\)*)\\x/g, '$1\\u00') : value;
@@ -29,7 +29,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}

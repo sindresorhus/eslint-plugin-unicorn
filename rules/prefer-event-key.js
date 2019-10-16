@@ -1,5 +1,5 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 
 const keys = [
@@ -201,11 +201,11 @@ const create = context => {
 			}
 
 			// When the event parameter itself is destructured directly
-			const isEventParamDestructured = event.type === 'ObjectPattern';
-			if (isEventParamDestructured) {
+			const isEventParameterDestructured = event.type === 'ObjectPattern';
+			if (isEventParameterDestructured) {
 				// Check for properties
-				for (const prop of event.properties) {
-					if (prop === node) {
+				for (const property of event.properties) {
+					if (property === node) {
 						report(node.value);
 					}
 				}
@@ -219,7 +219,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}

@@ -3,7 +3,7 @@ const readPkgUp = require('read-pkg-up');
 const semver = require('semver');
 const ci = require('ci-info');
 const baseRule = require('eslint/lib/rules/no-warning-comments');
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_AVOID_MULTIPLE_DATES = 'avoidMultipleDates';
 const MESSAGE_ID_EXPIRED_TODO = 'expiredTodo';
@@ -21,7 +21,7 @@ const packageResult = readPkgUp.sync();
 const hasPackage = Boolean(packageResult);
 const packageJson = hasPackage ? packageResult.packageJson : {};
 
-const pkgDependencies = {
+const packageDependencies = {
 	...packageJson.dependencies,
 	...packageJson.devDependencies
 };
@@ -283,11 +283,11 @@ const create = context => {
 			uses++;
 			const [{condition, version}] = packageVersions;
 
-			const pkgVersion = tryToCoerceVersion(packageJson.version);
-			const desidedPkgVersion = tryToCoerceVersion(version);
+			const packageVersion = tryToCoerceVersion(packageJson.version);
+			const desidedPackageVersion = tryToCoerceVersion(version);
 
 			const compare = semverComparisonForOperator(condition);
-			if (compare(pkgVersion, desidedPkgVersion)) {
+			if (compare(packageVersion, desidedPackageVersion)) {
 				context.report({
 					node: null,
 					loc: comment.loc,
@@ -304,7 +304,7 @@ const create = context => {
 		// Comparison: '>', '>='
 		for (const dependency of dependencies) {
 			uses++;
-			const targetPackageRawVersion = pkgDependencies[dependency.name];
+			const targetPackageRawVersion = packageDependencies[dependency.name];
 			const hasTargetPackage = Boolean(targetPackageRawVersion);
 
 			const isInclusion = ['in', 'out'].includes(dependency.condition);
@@ -352,12 +352,12 @@ const create = context => {
 			}
 		}
 
-		const pkgEngines = packageJson.engines || {};
+		const packageEngines = packageJson.engines || {};
 
 		for (const engine of engines) {
 			uses++;
 
-			const targetPackageRawEngineVersion = pkgEngines.node;
+			const targetPackageRawEngineVersion = packageEngines.node;
 			const hasTargetEngine = Boolean(targetPackageRawEngineVersion);
 
 			if (!hasTargetEngine) {
@@ -467,7 +467,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		messages: {
 			[MESSAGE_ID_AVOID_MULTIPLE_DATES]:
