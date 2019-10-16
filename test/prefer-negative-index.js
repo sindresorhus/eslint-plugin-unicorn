@@ -14,9 +14,9 @@ const error = {
 
 ruleTester.run('prefer-negative-index', rule, {
 	valid: [
-		// docs example #1
+		// docs example (1)
 		'foo.slice(-2, -1)',
-		// docs example #2
+		// docs example (2)
 		'foo.splice(-1, 1)'
 		'foo.slice(-(-1), -n)',
 		'[1,2,3].slice([1, 2, 3].length - 2, [1, 2, 3].length - 1)',
@@ -33,13 +33,13 @@ ruleTester.run('prefer-negative-index', rule, {
 		'foo.slice(0, foo.length + 1 - 1)'
 	],
 	invalid: [
-		// docs example #1
+		// docs example (1)
 		{
 			code: 'foo.slice(foo.length - 2, foo.length - 1)',
 			errors: [error],
 			output: 'foo.slice( - 2,  - 1)'
 		},
-		// docs example #2
+		// docs example (2)
 		{
 			code: 'foo.splice(foo.length - 1, 1);',
 			errors: [error],
