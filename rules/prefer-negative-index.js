@@ -9,7 +9,8 @@ const methods = new Map([
 
 const fixableOperators = new Set([
 	'-',
-	'+'
+	// not right, disable for now
+	// '+'
 ]);
 
 const isSame = (target, node) => {

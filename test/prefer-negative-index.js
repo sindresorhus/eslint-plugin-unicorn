@@ -95,11 +95,12 @@ ruleTester.run('prefer-negative-index', rule, {
 			errors: [error],
 			output: 'foo.slice(0,  - 1 / 1)'
 		},
-		{
-			code: 'foo.slice(0, foo.length - 1 + 1)',
-			errors: [error],
-			output: 'foo.slice(0,  - 1 + 1)'
-		},
+		// need discuss
+		// {
+		// 	code: 'foo.slice(0, foo.length - 1 + 1)',
+		// 	errors: [error],
+		// 	output: 'foo.slice(0,  - 1 + 1)'
+		// },
 		{
 			code: 'foo.slice(0, (foo.length - 1))',
 			errors: [error],
