@@ -7,6 +7,11 @@ const methods = new Map([
 	['splice', [0]]
 ]);
 
+const fixableOperators = new Set([
+	'-',
+	'+'
+]);
+
 const isSame = (target, node) => {
 	if (target === node) {
 		return true;
@@ -22,7 +27,15 @@ const isSame = (target, node) => {
 		case 'Identifier':
 			return node.name === target.name && node.computed === target.computed;
 		case 'Literal':
-			return String(node.value) === String(target.value);
+			return node.value === target.value;
+		case 'TemplateLiteral':
+			return (node.quasis.length === target.quasis.length) &&
+				node.quasis.every((templateElement, index) => isSame(templateElement, target.quasis[index]));
+		case 'TemplateElement':
+			return node.value &&
+				target.value &&
+				(node.tail === target.tail) &&
+				(node.value.raw === target.value.raw);
 		case 'MemberExpression':
 			return isSame(node.object, target.object) && isSame(node.property, target.property);
 		default:
@@ -30,24 +43,48 @@ const isSame = (target, node) => {
 	}
 };
 
-const needFix = target => argument => {
-	const {type, operator, left} = argument;
+const isLengthMemberExpression = node => node &&
+	node.type === 'MemberExpression' &&
+	node.property &&
+	node.property.type === 'Identifier' &&
+	node.property.name === 'length' &&
+	node.object;
 
+const getLengthMemberExpression = node => {
+	if (!node) {
+		return;
+	}
+
+	const {type, operator, left} = node;
+
+	if (!left) {
+		return;
+	}
+
+	// Is `.length -`
 	if (
 		type === 'BinaryExpression' &&
 		operator === '-' &&
-		left &&
-		left.type === 'MemberExpression' &&
-		left.property &&
-		left.property.type === 'Identifier' &&
-		left.property.name === 'length' &&
-		left.object &&
-		isSame(target, left.object)
+		isLengthMemberExpression(left)
 	) {
-		return true;
+		return left;
 	}
 
-	return false;
+	// Nested BinaryExpression
+	if (
+		left.type === 'BinaryExpression' &&
+		fixableOperators.has(operator)
+	) {
+		return getLengthMemberExpression(left);
+	}
+};
+
+const getRemoveAbleNode = (target, argument) => {
+	const lengthMemberExpression = getLengthMemberExpression(argument);
+
+	if (lengthMemberExpression && isSame(target, lengthMemberExpression.object)) {
+		return lengthMemberExpression;
+	}
 };
 
 const create = context => ({
@@ -66,20 +103,21 @@ const create = context => ({
 
 		const target = callee.object;
 		const argumentIndexes = methods.get(methodName);
-		const shouldFixArguments = argumentIndexes
-			.map(index => argumentsNodes[index])
-			.filter(Boolean)
-			.filter(needFix(target));
+		const removeAbleNodes = argumentIndexes
+			.map(index => getRemoveAbleNode(target, argumentsNodes[index]))
+			.filter(Boolean);
 
-		if (shouldFixArguments.length > 0) {
-			context.report({
-				node,
-				message: `Prefer \`-n\` over \`.length - n\` for \`${methodName}\``,
-				fix(fixer) {
-					return shouldFixArguments.map(argument => fixer.remove(argument.left));
-				}
-			});
+		if (removeAbleNodes.length === 0) {
+			return;
 		}
+
+		context.report({
+			node,
+			message: `Prefer \`-n\` over \`.length - n\` for \`${methodName}\``,
+			fix(fixer) {
+				return removeAbleNodes.map(node => fixer.remove(node));
+			}
+		});
 	}
 });
 
