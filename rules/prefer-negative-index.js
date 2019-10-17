@@ -9,12 +9,11 @@ const methods = new Map([
 
 const OPERATOR_MINUS = '-';
 
-
 const isPropertiesSame = (node1, node2) => properties => {
-	return properties.every(property => isSame(node1[property], node2[property]))
-}
+	return properties.every(property => isSame(node1[property], node2[property]));
+};
 
-const isSame = (node1, node2) => {
+function isSame(node1, node2) {
 	if (node1 === node2) {
 		return true;
 	}
@@ -27,18 +26,19 @@ const isSame = (node1, node2) => {
 
 	const {type} = node1;
 
+	/* eslint-disable no-case-declarations */
 	switch (type) {
 		case 'Identifier':
 			return compare(['name', 'computed']);
 		case 'Literal':
 			return compare(['value', 'raw']);
 		case 'TemplateLiteral':
-			const {quasis: quasis1} = node1
-			const {quasis: quasis2} = node2
+			const {quasis: quasis1} = node1;
+			const {quasis: quasis2} = node2;
 			return (quasis1.length === quasis2.length) &&
 				quasis1.every((templateElement, index) => isSame(templateElement, quasis2[index]));
 		case 'TemplateElement':
-			const compareValue = isPropertiesSame(node1.value, node2.value)
+			const compareValue = isPropertiesSame(node1.value, node2.value);
 			return node1.value &&
 				node2.value &&
 				compare(['tail']) &&
@@ -50,7 +50,8 @@ const isSame = (node1, node2) => {
 		default:
 			return false;
 	}
-};
+	/* eslint-enable no-case-declarations */
+}
 
 const isLengthMemberExpression = node => node &&
 	node.type === 'MemberExpression' &&
@@ -81,7 +82,6 @@ const getLengthMemberExpression = node => {
 		return;
 	}
 
-
 	if (isLengthMemberExpression(left)) {
 		return left;
 	}
@@ -105,32 +105,31 @@ const getRemovalRange = (node, sourceCode) => {
 	let [start] = node.range;
 	let [, end] = node.range;
 
-	while (true) {
-		if (
-			before.type === 'Punctuator' && before.value === '(' &&
-			after.type === 'Punctuator' && after.value === ')'
-		) {
+	let hasParentheses = true;
+
+	while (hasParentheses) {
+		hasParentheses =
+			(before.type === 'Punctuator' && before.value === '(') &&
+			(after.type === 'Punctuator' && after.value === ')');
+		if (hasParentheses) {
 			before = sourceCode.getTokenBefore(before);
 			after = sourceCode.getTokenAfter(after);
 			[, start] = before.range;
 			[end] = after.range;
-		} else {
-			break
 		}
 	}
 
-
-	const [nextStart] = after.range
-	const textBetween = sourceCode.text.slice(end, nextStart)
+	const [nextStart] = after.range;
+	const textBetween = sourceCode.text.slice(end, nextStart);
 
 	if (/^\s+$/.test(textBetween)) {
-		end = nextStart
+		end = nextStart;
 	} else {
 		const leadingSpaceLength = textBetween.length - textBetween.trimStart().length;
-		end += leadingSpaceLength
+		end += leadingSpaceLength;
 	}
 
-	return [start, end]
+	return [start, end];
 };
 
 const create = context => ({
@@ -167,7 +166,7 @@ const create = context => ({
 					node => fixer.removeRange(
 						getRemovalRange(node, sourceCode)
 					)
-				)
+				);
 			}
 		});
 	}

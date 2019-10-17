@@ -1,7 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/prefer-negative-index';
 import {outdent} from 'outdent';
+import rule from '../rules/prefer-negative-index';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -31,9 +31,9 @@ ruleTester.run('prefer-negative-index', rule, {
 		'foo[1].slice(foo["1"].length - 1)',
 		'foo.slice((foo.length - 1) + 1)',
 		'foo.slice(foo.length - 1 / 1)',
-		// foo[bar++]
+		// Foo[bar++]
 		'foo[bar++].slice(foo[bar++].length - 1)',
-		// foo['bar'] & foo["bar"]
+		// Foo['bar'] & foo["bar"]
 		'foo[\'bar\'].slice(foo["bar"].length - 1)'
 	],
 	invalid: [
@@ -49,49 +49,51 @@ ruleTester.run('prefer-negative-index', rule, {
 			errors: [error],
 			output: 'foo.splice(- 1, 1);'
 		},
-		// nested
+		// Nested
 		{
 			code: 'foo.slice(foo.length - 1 - 1)',
 			errors: [error],
 			output: 'foo.slice(- 1 - 1)'
 		},
-		// foo.bar
+		// Foo.bar
 		{
 			code: 'foo.bar.slice(foo.bar.length - 1)',
 			errors: [error],
 			output: 'foo.bar.slice(- 1)'
 		},
-		// foo['bar']
+		// Foo['bar']
 		{
 			code: 'foo[\'bar\'].slice(foo[\'bar\'].length - 1)',
 			errors: [error],
 			output: 'foo[\'bar\'].slice(- 1)'
 		},
-		// foo[1]
+		// Foo[1]
 		{
 			code: 'foo[1].slice(foo[1].length - 1)',
 			errors: [error],
 			output: 'foo[1].slice(- 1)'
 		},
-		// foo[`${bar}`]
+		// Foo[`${bar}`]
 		{
+			// eslint-disable-next-line no-template-curly-in-string
 			code: 'foo[`${bar}`].slice(foo[`${bar}`].length - 1)',
 			errors: [error],
+			// eslint-disable-next-line no-template-curly-in-string
 			output: 'foo[`${bar}`].slice(- 1)'
 		},
-		// foo[a + b]
+		// Foo[a + b]
 		{
 			code: 'foo[a + b].slice(foo[a + b].length - 1)',
 			errors: [error],
 			output: 'foo[a + b].slice(- 1)'
 		},
-		// comment
+		// Comment
 		{
 			code: 'foo.slice(foo.length/* comment */ - 1)',
 			errors: [error],
 			output: 'foo.slice(/* comment */ - 1)'
 		},
-		// comment
+		// Comment
 		{
 			code: outdent`
 				foo.slice(
@@ -119,19 +121,19 @@ ruleTester.run('prefer-negative-index', rule, {
 					// comment 3
 					- 1
 				)
-			`,
+			`
 		},
-		// parentheses
+		// Parentheses
 		{
 			code: 'foo.slice((((foo.length)) - 1) - 1)',
 			errors: [error],
 			output: 'foo.slice((- 1) - 1)'
 		},
-		// comment inside parentheses
+		// Comment inside parentheses
 		{
 			code: 'foo.slice(/* will keep */(/* will remove 1 */(/* will remove 2 */(foo.length)) - 1) - 1)',
 			errors: [error],
 			output: 'foo.slice(/* will keep */(- 1) - 1)'
-		},
+		}
 	]
 });
