@@ -23,6 +23,8 @@ ruleTester.run('prefer-negative-index', rule, {
 		'Array.prototype.slice.call(foo, -2, -1)',
 		// Docs example (4)
 		'Array.prototype.slice.apply(foo, [-2, -1])',
+		// A function named `slice`
+		'slice(foo.length - 1)',
 		// Not slice
 		'foo.forEach(foo.length - 1)',
 		// Not slice

@@ -160,6 +160,10 @@ const create = context => ({
 	CallExpression: node => {
 		const {callee, arguments: arguments_} = node;
 
+		if (callee.type !== 'MemberExpression') {
+			return
+		}
+
 		let methodName = callee.property.name;
 		let target;
 		let argumentsNodes = arguments_;
