@@ -3,15 +3,39 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 
 const methods = new Map([
-	// Method, argument indexes
-	['slice', [0, 1]],
-	['splice', [0]]
-]);
-
-const checkPrototypeObject = new Set([
-	'Array',
-	'String'
-	// 'Blob'
+	[
+		'slice',
+		{
+			argumentsIndexes: [0, 1],
+			supportObjects: new Set([
+				'Array',
+				'String',
+				'ArrayBuffer',
+				'Int8Array',
+				'Uint8Array',
+				'Uint8ClampedArray',
+				'Int16Array',
+				'Uint16Array',
+				'Int32Array',
+				'Uint32Array',
+				'Float32Array',
+				'Float64Array',
+				'BigInt64Array',
+				'BigUint64Array'
+				// 'Blob'
+				// 'File'
+			])
+		}
+	],
+	[
+		'splice',
+		{
+			argumentsIndexes: [0],
+			supportObjects: new Set([
+				'Array',
+			])
+		}
+	]
 ]);
 
 const OPERATOR_MINUS = '-';
@@ -177,6 +201,10 @@ function parse(node) {
 		return;
 	}
 
+	const {
+		supportObjects
+	} = methods.get(method)
+
 	const parentCallee = callee.object.object;
 
 	if (
@@ -185,15 +213,17 @@ function parse(node) {
 			parentCallee.type === 'ArrayExpression' &&
 			parentCallee.elements.length === 0
 		) ||
-		// ''.{slice,splice}
+		// ''.slice
 		(
+			method === 'slice' &&
 			isLiteralValue(parentCallee, '')
 		) ||
-		// {Array,String}.prototype.{slice,splice}
+		// {Array,String...}.prototype.slice
+		// Array.prototype.splice
 		(
 			getMemberName(parentCallee) === 'prototype' &&
 			parentCallee.object.type === 'Identifier' &&
-			checkPrototypeObject.has(parentCallee.object.name)
+			supportObjects.has(parentCallee.object.name)
 		)
 	) {
 		[target] = originalArguments;
@@ -235,7 +265,7 @@ const create = context => ({
 			argumentsNodes
 		} = parsed;
 
-		const argumentsIndexes = methods.get(method);
+		const {argumentsIndexes} = methods.get(method);
 		const removeAbleNodes = argumentsIndexes
 			.map(index => getRemoveAbleNode(target, argumentsNodes[index]))
 			.filter(Boolean);
