@@ -7,38 +7,46 @@ const methods = new Map([
 	['splice', [0]]
 ]);
 
-const fixableOperators = new Set([
-	'-',
-	// not right, disable for now
-	// '+'
-]);
+const OPERATOR_MINUS = '-';
 
-const isSame = (target, node) => {
-	if (target === node) {
+
+const isPropertiesSame = (node1, node2) => properties => {
+	return properties.every(property => isSame(node1[property], node2[property]))
+}
+
+const isSame = (node1, node2) => {
+	if (node1 === node2) {
 		return true;
 	}
 
-	const {type} = target;
+	const compare = isPropertiesSame(node1, node2);
 
-	if (node.type !== type) {
+	if (!compare(['type'])) {
 		return false;
 	}
 
+	const {type} = node1;
+
 	switch (type) {
 		case 'Identifier':
-			return node.name === target.name && node.computed === target.computed;
+			return compare(['name', 'computed']);
 		case 'Literal':
-			return node.value === target.value;
+			return compare(['value', 'raw']);
 		case 'TemplateLiteral':
-			return (node.quasis.length === target.quasis.length) &&
-				node.quasis.every((templateElement, index) => isSame(templateElement, target.quasis[index]));
+			const {quasis: quasis1} = node1
+			const {quasis: quasis2} = node2
+			return (quasis1.length === quasis2.length) &&
+				quasis1.every((templateElement, index) => isSame(templateElement, quasis2[index]));
 		case 'TemplateElement':
-			return node.value &&
-				target.value &&
-				(node.tail === target.tail) &&
-				(node.value.raw === target.value.raw);
+			const compareValue = isPropertiesSame(node1.value, node2.value)
+			return node1.value &&
+				node2.value &&
+				compare(['tail']) &&
+				compareValue(['cooked', 'raw']);
+		case 'BinaryExpression':
+			return compare(['operator', 'left', 'right']);
 		case 'MemberExpression':
-			return isSame(node.object, target.object) && isSame(node.property, target.property);
+			return compare(['object', 'property']);
 		default:
 			return false;
 	}
@@ -51,33 +59,35 @@ const isLengthMemberExpression = node => node &&
 	node.property.name === 'length' &&
 	node.object;
 
+const isLiteralPositiveValue = node =>
+	node &&
+	node.type === 'Literal' &&
+	typeof node.value === 'number' &&
+	node.value > 0;
+
 const getLengthMemberExpression = node => {
 	if (!node) {
 		return;
 	}
 
-	const {type, operator, left} = node;
+	const {type, operator, left, right} = node;
 
-	if (!left) {
+	if (
+		type !== 'BinaryExpression' ||
+		operator !== OPERATOR_MINUS ||
+		!left ||
+		!isLiteralPositiveValue(right)
+	) {
 		return;
 	}
 
-	// Is `.length -`
-	if (
-		type === 'BinaryExpression' &&
-		operator === '-' &&
-		isLengthMemberExpression(left)
-	) {
+
+	if (isLengthMemberExpression(left)) {
 		return left;
 	}
 
 	// Nested BinaryExpression
-	if (
-		left.type === 'BinaryExpression' &&
-		fixableOperators.has(operator)
-	) {
-		return getLengthMemberExpression(left);
-	}
+	return getLengthMemberExpression(left);
 };
 
 const getRemoveAbleNode = (target, argument) => {
@@ -104,6 +114,7 @@ const create = context => ({
 
 		const target = callee.object;
 		const argumentIndexes = methods.get(methodName);
+
 		const removeAbleNodes = argumentIndexes
 			.map(index => getRemoveAbleNode(target, argumentsNodes[index]))
 			.filter(Boolean);
