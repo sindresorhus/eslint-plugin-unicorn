@@ -161,7 +161,7 @@ const create = context => ({
 		const {callee, arguments: arguments_} = node;
 
 		if (callee.type !== 'MemberExpression') {
-			return
+			return;
 		}
 
 		let methodName = callee.property.name;
