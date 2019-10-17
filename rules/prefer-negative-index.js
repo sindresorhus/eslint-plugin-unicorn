@@ -138,21 +138,15 @@ const getRemovalRange = (node, sourceCode) => {
 	return [start, end];
 };
 
-const getNodePropertyName = node => {
-	const {type, expression} = node;
+const getMemberName = node => {
+	const {type, property} = node;
 
 	if (
-		type === 'ExpressionStatement' &&
-		expression &&
-		expression.type === 'CallExpression' &&
-		expression.callee &&
-		expression.callee.type === 'MemberExpression' &&
-		expression.callee.object &&
-		expression.callee.object.type === 'MemberExpression' &&
-		expression.callee.object.property &&
-		expression.callee.object.property.type === 'Identifier'
+		type === 'MemberExpression' &&
+		property &&
+		property.type === 'Identifier'
 	) {
-		return expression.callee.object.property.name;
+		return property.name
 	}
 };
 
@@ -169,16 +163,15 @@ const create = context => ({
 		let argumentsNodes = arguments_;
 
 		if (methodName === 'call' || methodName === 'apply') {
-			const {parent} = node;
 			const isApply = methodName === 'apply';
 
-			methodName = getNodePropertyName(parent);
+			methodName = getMemberName(callee.object);
 
 			if (!methods.has(methodName)) {
 				return;
 			}
 
-			const parentCallee = parent.expression.callee.object.object;
+			const parentCallee = callee.object.object;
 
 			if (
 				// [].{slice,splice}
@@ -192,9 +185,7 @@ const create = context => ({
 				) ||
 				// {Array,String}.prototype.{slice,splice}
 				(
-					parentCallee.type === 'MemberExpression' &&
-					parentCallee.property.type === 'Identifier' &&
-					parentCallee.property.name === 'prototype' &&
+					getMemberName(parentCallee) === 'prototype' &&
 					parentCallee.object.type === 'Identifier' &&
 					checkPrototypeObject.has(parentCallee.object.name)
 				)
