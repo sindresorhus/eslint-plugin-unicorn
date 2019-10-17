@@ -41,49 +41,49 @@ ruleTester.run('prefer-negative-index', rule, {
 		{
 			code: 'foo.slice(foo.length - 2, foo.length - 1)',
 			errors: [error],
-			output: 'foo.slice( - 2,  - 1)'
+			output: 'foo.slice(- 2, - 1)'
 		},
 		// Docs example (2)
 		{
 			code: 'foo.splice(foo.length - 1, 1);',
 			errors: [error],
-			output: 'foo.splice( - 1, 1);'
+			output: 'foo.splice(- 1, 1);'
 		},
 		// nested
 		{
 			code: 'foo.slice(foo.length - 1 - 1)',
 			errors: [error],
-			output: 'foo.slice( - 1 - 1)'
+			output: 'foo.slice(- 1 - 1)'
 		},
 		// foo.bar
 		{
 			code: 'foo.bar.slice(foo.bar.length - 1)',
 			errors: [error],
-			output: 'foo.bar.slice( - 1)'
+			output: 'foo.bar.slice(- 1)'
 		},
 		// foo['bar']
 		{
 			code: 'foo[\'bar\'].slice(foo[\'bar\'].length - 1)',
 			errors: [error],
-			output: 'foo[\'bar\'].slice( - 1)'
+			output: 'foo[\'bar\'].slice(- 1)'
 		},
 		// foo[1]
 		{
 			code: 'foo[1].slice(foo[1].length - 1)',
 			errors: [error],
-			output: 'foo[1].slice( - 1)'
+			output: 'foo[1].slice(- 1)'
 		},
 		// foo[`${bar}`]
 		{
 			code: 'foo[`${bar}`].slice(foo[`${bar}`].length - 1)',
 			errors: [error],
-			output: 'foo[`${bar}`].slice( - 1)'
+			output: 'foo[`${bar}`].slice(- 1)'
 		},
 		// foo[a + b]
 		{
 			code: 'foo[a + b].slice(foo[a + b].length - 1)',
 			errors: [error],
-			output: 'foo[a + b].slice( - 1)'
+			output: 'foo[a + b].slice(- 1)'
 		},
 		// comment
 		{
@@ -96,32 +96,42 @@ ruleTester.run('prefer-negative-index', rule, {
 			code: outdent`
 				foo.slice(
 					// comment 1
+
 					foo.length
+
+					// comment 2
 					- 1
 					-1
 					,
-					foo.length // comment 2
+					foo.length // comment 3
 					- 1
 				)
 			`,
 			errors: [error],
-			output: (outdent`
+			output: outdent`
 				foo.slice(
 					// comment 1
-					<PLACEHOLDER_TO_KEEP_TAB>
+
+					// comment 2
 					- 1
 					-1
 					,
-					 // comment 2
+					// comment 3
 					- 1
 				)
-			`).replace('<PLACEHOLDER_TO_KEEP_TAB>', ''),
+			`,
 		},
 		// parentheses
-		// {
-		// 	code: 'foo.slice(((foo.length) - 1) - 1)',
-		// 	errors: [error],
-		// 	output: 'foo.slice(( - 1) - 1)'
-		// },
+		{
+			code: 'foo.slice((((foo.length)) - 1) - 1)',
+			errors: [error],
+			output: 'foo.slice((- 1) - 1)'
+		},
+		// comment inside parentheses
+		{
+			code: 'foo.slice(/* will keep */(/* will remove 1 */(/* will remove 2 */(foo.length)) - 1) - 1)',
+			errors: [error],
+			output: 'foo.slice(/* will keep */(- 1) - 1)'
+		},
 	]
 });

@@ -98,6 +98,41 @@ const getRemoveAbleNode = (target, argument) => {
 	}
 };
 
+const getRemovalRange = (node, sourceCode) => {
+	let before = sourceCode.getTokenBefore(node);
+	let after = sourceCode.getTokenAfter(node);
+
+	let [start] = node.range;
+	let [, end] = node.range;
+
+	while (true) {
+		if (
+			before.type === 'Punctuator' && before.value === '(' &&
+			after.type === 'Punctuator' && after.value === ')'
+		) {
+			before = sourceCode.getTokenBefore(before);
+			after = sourceCode.getTokenAfter(after);
+			[, start] = before.range;
+			[end] = after.range;
+		} else {
+			break
+		}
+	}
+
+
+	const [nextStart] = after.range
+	const textBetween = sourceCode.text.slice(end, nextStart)
+
+	if (/^\s+$/.test(textBetween)) {
+		end = nextStart
+	} else {
+		const leadingSpaceLength = textBetween.length - textBetween.trimStart().length;
+		end += leadingSpaceLength
+	}
+
+	return [start, end]
+};
+
 const create = context => ({
 	CallExpression: node => {
 		const {callee, arguments: argumentsNodes} = node;
@@ -127,7 +162,12 @@ const create = context => ({
 			node,
 			message: `Prefer \`-n\` over \`.length - n\` for \`${methodName}\``,
 			fix(fixer) {
-				return removeAbleNodes.map(node => fixer.remove(node));
+				const sourceCode = context.getSourceCode();
+				return removeAbleNodes.map(
+					node => fixer.removeRange(
+						getRemovalRange(node, sourceCode)
+					)
+				)
 			}
 		});
 	}
