@@ -151,11 +151,11 @@ const getMemberName = node => {
 };
 
 function parse(node) {
-	const {callee, arguments: orignalArguments} = node;
+	const {callee, arguments: originalArguments} = node;
 
 	let method = callee.property.name;
 	let target = callee.object;
-	let argumentsNodes = orignalArguments;
+	let argumentsNodes = originalArguments;
 
 	if (methods.has(method)) {
 		return {
@@ -196,17 +196,17 @@ function parse(node) {
 			checkPrototypeObject.has(parentCallee.object.name)
 		)
 	) {
-		[target] = orignalArguments;
+		[target] = originalArguments;
 
 		if (isApply) {
-			const [, secondArgument] = orignalArguments;
+			const [, secondArgument] = originalArguments;
 			if (secondArgument.type !== 'ArrayExpression') {
 				return;
 			}
 
 			argumentsNodes = secondArgument.elements;
 		} else {
-			argumentsNodes = orignalArguments.slice(1);
+			argumentsNodes = originalArguments.slice(1);
 		}
 
 		return {
