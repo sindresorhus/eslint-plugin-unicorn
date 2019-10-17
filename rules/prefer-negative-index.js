@@ -146,75 +146,97 @@ const getMemberName = node => {
 		property &&
 		property.type === 'Identifier'
 	) {
-		return property.name
+		return property.name;
 	}
 };
 
+function parse(node) {
+	const {callee, arguments: orignalArguments} = node;
+
+	let method = callee.property.name;
+	let target = callee.object;
+	let argumentsNodes = orignalArguments;
+
+	if (methods.has(method)) {
+		return {
+			method,
+			target,
+			argumentsNodes
+		};
+	}
+
+	if (method !== 'call' && method !== 'apply') {
+		return;
+	}
+
+	const isApply = method === 'apply';
+
+	method = getMemberName(callee.object);
+
+	if (!methods.has(method)) {
+		return;
+	}
+
+	const parentCallee = callee.object.object;
+
+	if (
+		// [].{slice,splice}
+		(
+			parentCallee.type === 'ArrayExpression' &&
+			parentCallee.elements.length === 0
+		) ||
+		// ''.{slice,splice}
+		(
+			isLiteralValue(parentCallee, '')
+		) ||
+		// {Array,String}.prototype.{slice,splice}
+		(
+			getMemberName(parentCallee) === 'prototype' &&
+			parentCallee.object.type === 'Identifier' &&
+			checkPrototypeObject.has(parentCallee.object.name)
+		)
+	) {
+		[target] = orignalArguments;
+
+		if (isApply) {
+			const [, secondArgument] = orignalArguments;
+			if (secondArgument.type !== 'ArrayExpression') {
+				return;
+			}
+
+			argumentsNodes = secondArgument.elements;
+		} else {
+			argumentsNodes = orignalArguments.slice(1);
+		}
+
+		return {
+			method,
+			target,
+			argumentsNodes
+		};
+	}
+}
+
 const create = context => ({
 	CallExpression: node => {
-		const {callee, arguments: arguments_} = node;
-
-		if (callee.type !== 'MemberExpression') {
+		if (node.callee.type !== 'MemberExpression') {
 			return;
 		}
 
-		let methodName = callee.property.name;
-		let target;
-		let argumentsNodes = arguments_;
+		const parsed = parse(node);
 
-		if (methodName === 'call' || methodName === 'apply') {
-			const isApply = methodName === 'apply';
-
-			methodName = getMemberName(callee.object);
-
-			if (!methods.has(methodName)) {
-				return;
-			}
-
-			const parentCallee = callee.object.object;
-
-			if (
-				// [].{slice,splice}
-				(
-					parentCallee.type === 'ArrayExpression' &&
-					parentCallee.elements.length === 0
-				) ||
-				// ''.{slice,splice}
-				(
-					isLiteralValue(parentCallee, '')
-				) ||
-				// {Array,String}.prototype.{slice,splice}
-				(
-					getMemberName(parentCallee) === 'prototype' &&
-					parentCallee.object.type === 'Identifier' &&
-					checkPrototypeObject.has(parentCallee.object.name)
-				)
-			) {
-				target = arguments_[0];
-
-				if (isApply) {
-					const [, secondArgument] = arguments_;
-					if (secondArgument.type !== 'ArrayExpression') {
-						return;
-					}
-
-					argumentsNodes = secondArgument.elements;
-				} else {
-					argumentsNodes = arguments_.slice(1);
-				}
-			} else {
-				return;
-			}
-		} else {
-			if (!methods.has(methodName)) {
-				return;
-			}
-
-			target = callee.object;
+		if (!parsed) {
+			return;
 		}
 
-		const argumentIndexes = methods.get(methodName);
-		const removeAbleNodes = argumentIndexes
+		const {
+			method,
+			target,
+			argumentsNodes
+		} = parsed;
+
+		const argumentsIndexes = methods.get(method);
+		const removeAbleNodes = argumentsIndexes
 			.map(index => getRemoveAbleNode(target, argumentsNodes[index]))
 			.filter(Boolean);
 
@@ -224,7 +246,7 @@ const create = context => ({
 
 		context.report({
 			node,
-			message: `Prefer \`-n\` over \`.length - n\` for \`${methodName}\``,
+			message: `Prefer \`-n\` over \`.length - n\` for \`${method}\``,
 			fix(fixer) {
 				const sourceCode = context.getSourceCode();
 				return removeAbleNodes.map(
