@@ -32,7 +32,7 @@ const methods = new Map([
 		{
 			argumentsIndexes: [0],
 			supportObjects: new Set([
-				'Array',
+				'Array'
 			])
 		}
 	]
@@ -203,7 +203,7 @@ function parse(node) {
 
 	const {
 		supportObjects
-	} = methods.get(method)
+	} = methods.get(method);
 
 	const parentCallee = callee.object.object;
 

@@ -360,6 +360,6 @@ ruleTester.run('prefer-negative-index', rule, {
 				NOT_SUPPORTED.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				NOT_SUPPORTED.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 			`
-		},
+		}
 	]
 });
