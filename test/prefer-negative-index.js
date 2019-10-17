@@ -19,19 +19,34 @@ ruleTester.run('prefer-negative-index', rule, {
 		'foo.slice(-2, -1)',
 		// Docs example (2)
 		'foo.splice(-1, 1)',
-		'foo.notSlice()',
+		// Not slice
+		'foo.notSlice(foo.length - 1)',
+		// New call
+		'new Foo.slice(Foo.length - 1)',
+		// Bar.length
 		'foo.slice(bar.length - 1)',
-		'foo.slice(foo.length - 2 + 1)',
+		// - NOT_POSITIVE_VALUE
 		'foo.slice(foo.length - 0)',
+		// - NOT_NUMBER
+		'foo.slice(foo.length - "1")',
+		// - NOT_LITERAL
 		'foo.slice(foo.length - (-1))',
+		// + BinaryExpression
 		'foo.slice(foo.length + 1)',
-		'[1, 2, 3].slice([1, 2, 3].length + 1)',
-		'[1, 2, 3].slice([1, 2, 3].length + 1)',
-		'foo.bar.slice(foo["bar"].length - 1)',
-		'foo[`bar`].slice(foo["bar"].length - 1)',
-		'foo[1].slice(foo["1"].length - 1)',
+		// Has + BinaryExpression
+		'foo.slice(foo.length - 2 + 1)',
+		// Has + BinaryExpression
 		'foo.slice((foo.length - 1) + 1)',
+		// Has / BinaryExpression
 		'foo.slice(foo.length - 1 / 1)',
+		// ArrayExpression
+		'[1, 2, 3].slice([1, 2, 3].length - 1)',
+		// Foo.bar and foo["bar"]
+		'foo.bar.slice(foo["bar"].length - 1)',
+		// Foo[`bar`] and foo["bar"]
+		'foo[`bar`].slice(foo["bar"].length - 1)',
+		// Foo[1] and foo["1"]
+		'foo[1].slice(foo["1"].length - 1)',
 		// Foo[bar++]
 		'foo[bar++].slice(foo[bar++].length - 1)',
 		// Foo['bar'] & foo["bar"]
