@@ -125,8 +125,7 @@ const getRemovalRange = (node, sourceCode) => {
 	if (/^\s+$/.test(textBetween)) {
 		end = nextStart;
 	} else {
-		const leadingSpaceLength = textBetween.length - textBetween.trimStart().length;
-		end += leadingSpaceLength;
+		end += textBetween.match(/^\s*/)[0].length;
 	}
 
 	return [start, end];
