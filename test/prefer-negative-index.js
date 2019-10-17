@@ -19,6 +19,7 @@ ruleTester.run('prefer-negative-index', rule, {
 		'foo.slice(-2, -1)',
 		// Docs example (2)
 		'foo.splice(-1, 1)',
+		'foo.notSlice()',
 		'foo.slice(bar.length - 1)',
 		'foo.slice(foo.length - 2 + 1)',
 		'foo.slice(foo.length - 0)',
