@@ -1,10 +1,17 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const isLiteralValue = require('./utils/is-literal-value')
 
 const methods = new Map([
 	// Method, argument indexes
 	['slice', [0, 1]],
 	['splice', [0]]
+]);
+
+const checkPrototypeObject = new Set([
+	'Array',
+	'String'
+	// 'Blob'
 ]);
 
 const OPERATOR_MINUS = '-';
@@ -131,19 +138,92 @@ const getRemovalRange = (node, sourceCode) => {
 	return [start, end];
 };
 
+const getNodePropertyName = node => {
+	if (!node) {
+		return
+	}
+
+	const {type, expression} = node
+
+	if (
+		type === 'ExpressionStatement' &&
+		expression &&
+		expression.type === 'CallExpression' &&
+		expression.callee &&
+		expression.callee.type === 'MemberExpression' &&
+		expression.callee.object &&
+		expression.callee.object.type === 'MemberExpression' &&
+		expression.callee.object.property &&
+		expression.callee.object.property.type === 'Identifier'
+	) {
+		return expression.callee.object.property.name
+	}
+}
+
 const create = context => ({
 	CallExpression: node => {
-		const {callee, arguments: argumentsNodes} = node;
+		const {callee, arguments: arguments_} = node;
 
-		const methodName = callee.property.name;
+		let methodName = callee.property.name;
+		let target;
+		let argumentsNodes = arguments_
 
-		if (!methods.has(methodName)) {
-			return;
+		if (methodName === 'call' || methodName === 'apply') {
+			const {parent} = node
+			const isApply = methodName === 'apply'
+
+			methodName = getNodePropertyName(parent)
+
+			if (!methods.has(methodName)) {
+				return;
+			}
+
+			const parentCallee = parent.expression.callee.object.object
+
+			if (
+				// [].{slice,splice}
+				(
+					parentCallee.type === 'ArrayExpression' &&
+					parentCallee.elements.length === 0
+				) ||
+				// ''.{slice,splice}
+				(
+					isLiteralValue(parentCallee, '')
+				) ||
+				// {Array,String}.prototype.{slice,splice}
+				(
+					parentCallee.type === 'MemberExpression' &&
+					parentCallee.property.type === 'Identifier' &&
+					parentCallee.property.name === 'prototype' &&
+					parentCallee.object.type === 'Identifier' &&
+					checkPrototypeObject.has(parentCallee.object.name)
+				)
+			) {
+				target = arguments_[0];
+
+				if (isApply) {
+					const [, secondArgument] = arguments_
+					if (secondArgument.type !== 'ArrayExpression') {
+						return;
+					}
+
+					argumentsNodes = secondArgument.elements
+				} else {
+					argumentsNodes = arguments_.slice(1)
+				}
+			} else {
+				return;
+			}
+
+		} else {
+			if (!methods.has(methodName)) {
+				return;
+			}
+			target = callee.object;
 		}
 
-		const target = callee.object;
-		const argumentIndexes = methods.get(methodName);
 
+		const argumentIndexes = methods.get(methodName);
 		const removeAbleNodes = argumentIndexes
 			.map(index => getRemoveAbleNode(target, argumentsNodes[index]))
 			.filter(Boolean);

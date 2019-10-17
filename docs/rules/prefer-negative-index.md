@@ -9,6 +9,8 @@ This rule is fixable.
 ```js
 foo.slice(foo.length - 2, foo.length - 1);
 foo.splice(foo.length - 1, 1);
+Array.prototype.slice.call(foo, foo.length - 2, foo.length - 1);
+Array.prototype.slice.apply(foo, [foo.length - 2, foo.length - 1]);
 ```
 
 ## Pass
@@ -16,4 +18,6 @@ foo.splice(foo.length - 1, 1);
 ```js
 foo.slice(-2, -1);
 foo.splice(-1, 1);
+Array.prototype.slice.call(foo, -2, -1);
+Array.prototype.slice.apply(foo, [-2, -1]);
 ```

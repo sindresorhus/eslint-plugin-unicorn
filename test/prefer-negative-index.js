@@ -19,6 +19,10 @@ ruleTester.run('prefer-negative-index', rule, {
 		'foo.slice(-2, -1)',
 		// Docs example (2)
 		'foo.splice(-1, 1)',
+		// Docs example (3)
+		'Array.prototype.slice.call(foo, -2, -1)',
+		// Docs example (4)
+		'Array.prototype.slice.apply(foo, [-2, -1])',
 		// Not slice
 		'foo.notSlice(foo.length - 1)',
 		// New call
@@ -61,9 +65,21 @@ ruleTester.run('prefer-negative-index', rule, {
 		},
 		// Docs example (2)
 		{
-			code: 'foo.splice(foo.length - 1, 1);',
+			code: 'foo.splice(foo.length - 1, 1)',
 			errors: [error],
-			output: 'foo.splice(- 1, 1);'
+			output: 'foo.splice(- 1, 1)'
+		},
+		// Docs example (3)
+		{
+			code: 'Array.prototype.slice.call(foo, foo.length - 2, foo.length - 1)',
+			errors: [error],
+			output: 'Array.prototype.slice.call(foo, - 2, - 1)'
+		},
+		// Docs example (4)
+		{
+			code: 'Array.prototype.slice.apply(foo, [foo.length - 2, foo.length - 1])',
+			errors: [error],
+			output: 'Array.prototype.slice.apply(foo, [- 2, - 1])'
 		},
 		// Nested
 		{
@@ -150,6 +166,48 @@ ruleTester.run('prefer-negative-index', rule, {
 			code: 'foo.slice(/* will keep */(/* will remove 1 */(/* will remove 2 */(foo.length)) - 1) - 1)',
 			errors: [error],
 			output: 'foo.slice(/* will keep */(- 1) - 1)'
-		}
+		},
+		// Array.prototype.slice.call
+		{
+			code: 'Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3)',
+			errors: [error],
+			output: 'Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3)'
+		},
+		// String.prototype.slice.call
+		{
+			code: 'String.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3)',
+			errors: [error],
+			output: 'String.prototype.slice.call(foo, - 1, - 2, foo.length - 3)'
+		},
+		// [].slice.call
+		{
+			code: '[].slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3)',
+			errors: [error],
+			output: '[].slice.call(foo, - 1, - 2, foo.length - 3)'
+		},
+		// ''.slice.call
+		{
+			code: '\'\'.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3)',
+			errors: [error],
+			output: '\'\'.slice.call(foo, - 1, - 2, foo.length - 3)'
+		},
+		// Array.prototype.splice.call
+		{
+			code: 'Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3)',
+			errors: [error],
+			output: 'Array.prototype.splice.call(foo, - 1, foo.length - 2, foo.length - 3)'
+		},
+		// Array.prototype.slice.apply
+		{
+			code: 'Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3])',
+			errors: [error],
+			output: 'Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3])'
+		},
+		// Array.prototype.splice.apply
+		{
+			code: 'Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3])',
+			errors: [error],
+			output: 'Array.prototype.splice.apply(foo, [- 1, foo.length - 2, foo.length - 3])'
+		},
 	]
 });
