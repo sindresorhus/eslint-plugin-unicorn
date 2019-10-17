@@ -24,9 +24,15 @@ ruleTester.run('prefer-negative-index', rule, {
 		// Docs example (4)
 		'Array.prototype.slice.apply(foo, [-2, -1])',
 		// Not slice
-		'foo.notSlice(foo.length - 1)',
+		'foo.forEach(foo.length - 1)',
+		// Not slice
+		'Array.prototype.forEach.call(foo, foo.length - 1)',
+		// Not Array
+		'FOO.prototype.slice.apply(foo, [-2, -1])',
+		// Second argument is not a array
+		'Array.prototype.slice.apply(foo, "")',
 		// New call
-		'new Foo.slice(Foo.length - 1)',
+		'new Foo.forEach(Foo.length - 1)',
 		// Bar.length
 		'foo.slice(bar.length - 1)',
 		// - NOT_POSITIVE_VALUE
@@ -208,6 +214,6 @@ ruleTester.run('prefer-negative-index', rule, {
 			code: 'Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3])',
 			errors: [error],
 			output: 'Array.prototype.splice.apply(foo, [- 1, foo.length - 2, foo.length - 3])'
-		},
+		}
 	]
 });

@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const isLiteralValue = require('./utils/is-literal-value')
+const isLiteralValue = require('./utils/is-literal-value');
 
 const methods = new Map([
 	// Method, argument indexes
@@ -139,11 +139,7 @@ const getRemovalRange = (node, sourceCode) => {
 };
 
 const getNodePropertyName = node => {
-	if (!node) {
-		return
-	}
-
-	const {type, expression} = node
+	const {type, expression} = node;
 
 	if (
 		type === 'ExpressionStatement' &&
@@ -156,9 +152,9 @@ const getNodePropertyName = node => {
 		expression.callee.object.property &&
 		expression.callee.object.property.type === 'Identifier'
 	) {
-		return expression.callee.object.property.name
+		return expression.callee.object.property.name;
 	}
-}
+};
 
 const create = context => ({
 	CallExpression: node => {
@@ -166,19 +162,19 @@ const create = context => ({
 
 		let methodName = callee.property.name;
 		let target;
-		let argumentsNodes = arguments_
+		let argumentsNodes = arguments_;
 
 		if (methodName === 'call' || methodName === 'apply') {
-			const {parent} = node
-			const isApply = methodName === 'apply'
+			const {parent} = node;
+			const isApply = methodName === 'apply';
 
-			methodName = getNodePropertyName(parent)
+			methodName = getNodePropertyName(parent);
 
 			if (!methods.has(methodName)) {
 				return;
 			}
 
-			const parentCallee = parent.expression.callee.object.object
+			const parentCallee = parent.expression.callee.object.object;
 
 			if (
 				// [].{slice,splice}
@@ -202,26 +198,25 @@ const create = context => ({
 				target = arguments_[0];
 
 				if (isApply) {
-					const [, secondArgument] = arguments_
+					const [, secondArgument] = arguments_;
 					if (secondArgument.type !== 'ArrayExpression') {
 						return;
 					}
 
-					argumentsNodes = secondArgument.elements
+					argumentsNodes = secondArgument.elements;
 				} else {
-					argumentsNodes = arguments_.slice(1)
+					argumentsNodes = arguments_.slice(1);
 				}
 			} else {
 				return;
 			}
-
 		} else {
 			if (!methods.has(methodName)) {
 				return;
 			}
+
 			target = callee.object;
 		}
-
 
 		const argumentIndexes = methods.get(methodName);
 		const removeAbleNodes = argumentIndexes
