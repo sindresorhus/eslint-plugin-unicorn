@@ -156,7 +156,7 @@ Pass `"extendDefaultWhitelist": false` to override the default `whitelist` compl
 
 ### checkDefaultAndNamespaceImports
 
-Type: `"internal"` || `boolean`<br>
+Type: `"internal"` | `boolean`<br>
 Default: `"internal"`
 
 - `"internal"` check variables declared in default or namespace import, **but only internal module**.
@@ -193,7 +193,7 @@ const err = require('err');
 
 ### checkShorthandImports
 
-Type: `"internal"` || `boolean`<br>
+Type: `"internal"` | `boolean`<br>
 Default: `"internal"`
 
 
