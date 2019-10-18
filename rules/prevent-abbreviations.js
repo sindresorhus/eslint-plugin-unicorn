@@ -197,8 +197,8 @@ const prepareOptions = ({
 	checkProperties = false,
 	checkVariables = true,
 
-	checkDefaultAndNamespaceImports = false,
-	checkShorthandImports = false,
+	checkDefaultAndNamespaceImports = 'internal',
+	checkShorthandImports = 'internal',
 	checkShorthandProperties = false,
 
 	checkFilenames = true,
@@ -490,6 +490,18 @@ const shouldReportIdentifierAsProperty = identifier => {
 	return false;
 };
 
+const isInternalImport = node => {
+	let source = '';
+
+	if (node.type === 'Variable') {
+		source = node.node.init.arguments[0].value;
+	} else if (node.type === 'ImportBinding') {
+		source = node.parent.source.value;
+	}
+
+	return !source.includes('node_modules') && (source.startsWith('.') || source.startsWith('/') || source.startsWith('@/'));
+};
+
 const create = context => {
 	const {
 		ecmaVersion
@@ -552,12 +564,28 @@ const create = context => {
 
 		const [definition] = variable.defs;
 
-		if (!options.checkDefaultAndNamespaceImports && isDefaultOrNamespaceImportName(definition.name)) {
-			return;
+		if (isDefaultOrNamespaceImportName(definition.name)) {
+			if (
+				!options.checkDefaultAndNamespaceImports ||
+				(
+					options.checkDefaultAndNamespaceImports === 'internal' &&
+					!isInternalImport(definition)
+				)
+			) {
+				return;
+			}
 		}
 
-		if (!options.checkShorthandImports && isShorthandImportIdentifier(definition.name)) {
-			return;
+		if (isShorthandImportIdentifier(definition.name)) {
+			if (
+				!options.checkShorthandImports ||
+				(
+					options.checkShorthandImports === 'internal' &&
+					!isInternalImport(definition)
+				)
+			) {
+				return;
+			}
 		}
 
 		if (!options.checkShorthandProperties && isShorthandPropertyIdentifier(definition.name)) {
@@ -683,8 +711,14 @@ const schema = [{
 		checkProperties: {type: 'boolean'},
 		checkVariables: {type: 'boolean'},
 
-		checkDefaultAndNamespaceImports: {type: 'boolean'},
-		checkShorthandImports: {type: 'boolean'},
+		checkDefaultAndNamespaceImports: {
+			type: ['boolean', 'string'],
+			pattern: 'internal'
+		},
+		checkShorthandImports: {
+			type: ['boolean', 'string'],
+			pattern: 'internal'
+		},
 		checkShorthandProperties: {type: 'boolean'},
 
 		checkFilenames: {type: 'boolean'},

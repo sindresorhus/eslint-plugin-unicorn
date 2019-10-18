@@ -156,10 +156,26 @@ Pass `"extendDefaultWhitelist": false` to override the default `whitelist` compl
 
 ### checkDefaultAndNamespaceImports
 
-Type: `boolean`<br>
-Default: `false`
+Type: `"internal"` || `boolean`<br>
+Default: `"internal"`
 
-Pass `"checkDefaultAndNamespaceImports": true` to check variables declared in default or namespace import.
+- `"internal"` check variables declared in default or namespace import, **but only internal module**.
+- `true` check variables declared in default or namespace import.
+- `false` disable check variables declared in default or namespace import.
+
+The following code will be reported.
+
+```js
+import * as err from './err';
+```
+
+```js
+import err from '/err';
+```
+
+```js
+const err = require('@/err');
+```
 
 With this set to `true` the following code will be reported.
 
@@ -177,10 +193,19 @@ const err = require('err');
 
 ### checkShorthandImports
 
-Type: `boolean`<br>
-Default: `false`
+Type: `"internal"` || `boolean`<br>
+Default: `"internal"`
 
-Pass `"checkShorthandImports": true` to check variables declared in shorthand import.
+
+- `"internal"` check variables declared in shorthand import, **but only internal module**.
+- `true` check variables declared in shorthand import.
+- `false` disable check variables declared in default shorthand import.
+
+The following code will be reported.
+
+```js
+import {prop} from './ramda';
+```
 
 With this set to `true` the following code will be reported.
 

@@ -1075,6 +1075,9 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 			export {foo as err};
 		`,
 
+		// Path includes `node_modules`
+		'import err from "./node_modules/err"',
+
 		// Default import names are allowed
 		'import err from "err"',
 		'import err, {foo as bar} from "err"',
@@ -1169,11 +1172,6 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'const err = require("@/err")',
 			output: 'const error = require("@/err")',
-			errors: createErrors()
-		},
-		{
-			code: 'const {err} = require("./err")',
-			output: 'const {err as error} = require("./err")',
 			errors: createErrors()
 		},
 		{
