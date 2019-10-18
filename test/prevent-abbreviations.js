@@ -1155,6 +1155,63 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 
+		// Internal import
+		{
+			code: 'const err = require("./err")',
+			output: 'const error = require("./err")',
+			errors: createErrors()
+		},
+		{
+			code: 'const err = require("/err")',
+			output: 'const error = require("/err")',
+			errors: createErrors()
+		},
+		{
+			code: 'const err = require("@/err")',
+			output: 'const error = require("@/err")',
+			errors: createErrors()
+		},
+		{
+			code: 'const {err} = require("./err")',
+			output: 'const {err as error} = require("./err")',
+			errors: createErrors()
+		},
+		{
+			code: 'import err from "./err"',
+			output: 'import error from "./err"',
+			errors: createErrors()
+		},
+		{
+			code: 'import err, {foo as bar} from "./err"',
+			output: 'import error, {foo as bar} from "./err"',
+			errors: createErrors()
+		},
+		{
+			code: 'import {default as err, foo as bar} from "./err"',
+			output: 'import {default as error, foo as bar} from "./err"',
+			errors: createErrors()
+		},
+		{
+			code: 'import * as err from "./err"',
+			output: 'import * as error from "./err"',
+			errors: createErrors()
+		},
+		{
+			code: 'import foo, * as err from "./err"',
+			output: 'import foo, * as error from "./err"',
+			errors: createErrors()
+		},
+		{
+			code: 'import {err} from "./err"',
+			output: 'import {err as error} from "./err"',
+			errors: createErrors()
+		},
+		{
+			code: 'import {default as foo, err} from "./err"',
+			output: 'import {default as foo, err as error} from "./err"',
+			errors: createErrors()
+		},
+
 		{
 			code: outdent`
 				let err;
