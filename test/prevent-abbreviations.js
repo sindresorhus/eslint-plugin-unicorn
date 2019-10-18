@@ -56,8 +56,8 @@ const extendedOptions = [{
 	}
 }];
 
-const noCheckShorthandImportsOptions = [{ checkShorthandImports: false }]
-const noCheckDefaultAndNamespaceImports = [{ checkDefaultAndNamespaceImports: false }]
+const noCheckShorthandImportsOptions = [{checkShorthandImports: false}];
+const noCheckDefaultAndNamespaceImports = [{checkDefaultAndNamespaceImports: false}];
 
 const customOptions = [{
 	checkProperties: true,
@@ -238,7 +238,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'foo();',
 			filename: 'err/http-error.js'
-		},
+		}
 	],
 
 	invalid: [
@@ -1101,8 +1101,6 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 		'const {err} = foo',
 		'function f({err}) {}',
 
-
-
 		// Option checkDefaultAndNamespaceImports: false
 		{
 			code: 'const err = require("err")',
@@ -1169,7 +1167,7 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'import { default as foo, err } from "./err"',
 			options: noCheckShorthandImportsOptions
-		},
+		}
 	],
 
 	invalid: [
