@@ -1160,18 +1160,13 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 
 		// Internal import
 		{
-			code: 'const err = require("./err")',
-			output: 'const error = require("./err")',
+			code: 'const err = require("../err")',
+			output: 'const error = require("../err")',
 			errors: createErrors()
 		},
 		{
 			code: 'const err = require("/err")',
 			output: 'const error = require("/err")',
-			errors: createErrors()
-		},
-		{
-			code: 'const err = require("@/err")',
-			output: 'const error = require("@/err")',
 			errors: createErrors()
 		},
 		{

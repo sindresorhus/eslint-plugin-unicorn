@@ -499,7 +499,7 @@ const isInternalImport = node => {
 		source = node.parent.source.value;
 	}
 
-	return !source.includes('node_modules') && (source.startsWith('.') || source.startsWith('/') || source.startsWith('@/'));
+	return !source.includes('node_modules') && (source.startsWith('.') || source.startsWith('/')));
 };
 
 const create = context => {
