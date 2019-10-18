@@ -56,6 +56,9 @@ const extendedOptions = [{
 	}
 }];
 
+const noCheckShorthandImportsOptions = [{ checkShorthandImports: false }]
+const noCheckDefaultAndNamespaceImports = [{ checkDefaultAndNamespaceImports: false }]
+
 const customOptions = [{
 	checkProperties: true,
 
@@ -235,7 +238,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'foo();',
 			filename: 'err/http-error.js'
-		}
+		},
 	],
 
 	invalid: [
@@ -1096,7 +1099,77 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 		// Names from object destructuring are allowed
 		'const {err} = require("err")',
 		'const {err} = foo',
-		'function f({err}) {}'
+		'function f({err}) {}',
+
+
+
+		// Option checkDefaultAndNamespaceImports: false
+		{
+			code: 'const err = require("err")',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'const err = require("./err")',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import foo, * as err from "err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import foo, * as err from "./err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import { default as err, foo as bar } from "err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import { default as err, foo as bar } from "./err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import err, { foo as bar } from "err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import err, { foo as bar } from "./err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import * as err from "err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import * as err from "./err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import err from "err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import err from "./err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+
+		// Option checkShorthandImports: false
+		{
+			code: 'import { err } from "err"',
+			options: noCheckShorthandImportsOptions
+		},
+		{
+			code: 'import { err } from "./err"',
+			options: noCheckShorthandImportsOptions
+		},
+		{
+			code: 'import { default as foo, err } from "err"',
+			options: noCheckShorthandImportsOptions
+		},
+		{
+			code: 'import { default as foo, err } from "./err"',
+			options: noCheckShorthandImportsOptions
+		},
 	],
 
 	invalid: [
