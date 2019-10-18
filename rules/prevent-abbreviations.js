@@ -565,25 +565,21 @@ const create = context => {
 		const [definition] = variable.defs;
 
 		if (isDefaultOrNamespaceImportName(definition.name)) {
-			if (
-				!options.checkDefaultAndNamespaceImports ||
-				(
-					options.checkDefaultAndNamespaceImports === 'internal' &&
-					!isInternalImport(definition)
-				)
-			) {
+			if (!options.checkDefaultAndNamespaceImports) {
+				return;
+			}
+
+			if (options.checkDefaultAndNamespaceImports === 'internal' && !isInternalImport(definition)) {
 				return;
 			}
 		}
 
 		if (isShorthandImportIdentifier(definition.name)) {
-			if (
-				!options.checkShorthandImports ||
-				(
-					options.checkShorthandImports === 'internal' &&
-					!isInternalImport(definition)
-				)
-			) {
+			if (!options.checkShorthandImports) {
+				return;
+			}
+
+			if (options.checkShorthandImports === 'internal' && !isInternalImport(definition)) {
 				return;
 			}
 		}
