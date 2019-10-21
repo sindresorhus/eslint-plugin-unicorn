@@ -8,11 +8,13 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 
 [**Propose or contribute a new rule ➡**](.github/contributing.md)
 
+
 ## Install
 
 ```bash
-$ npm install --save-dev eslint eslint-plugin-unicorn
+npm install --save-dev eslint eslint-plugin-unicorn
 ```
+
 
 ## Usage
 
@@ -83,6 +85,7 @@ Configure it in `package.json`.
 }
 ```
 
+
 ## Rules
 
 - [catch-error-name](docs/rules/catch-error-name.md) - Enforce a specific parameter name in catch clauses.
@@ -130,6 +133,7 @@ Configure it in `package.json`.
 - [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 
+
 ## Recommended config
 
 This plugin exports a [`recommended` config](index.js) that enforces good practices.
@@ -148,6 +152,7 @@ Enable it in your `package.json` with the `extends` option:
 See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-configuration-files) for more information about extending config files.
 
 **Note**: This config will also enable the correct [parser options](http://eslint.org/docs/user-guide/configuring#specifying-parser-options) and [environment](http://eslint.org/docs/user-guide/configuring#specifying-environments).
+
 
 ## Maintainers
 
