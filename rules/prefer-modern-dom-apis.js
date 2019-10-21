@@ -23,15 +23,15 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 	}
 
 	const nodeArguments = node.arguments;
-	const newChildNodeArg = getArgumentNameForReplaceChildOrInsertBefore(
+	const newChildNodeArgument = getArgumentNameForReplaceChildOrInsertBefore(
 		nodeArguments[0]
 	);
-	const oldChildNodeArg = getArgumentNameForReplaceChildOrInsertBefore(
+	const oldChildNodeArgument = getArgumentNameForReplaceChildOrInsertBefore(
 		nodeArguments[1]
 	);
 
 	// Return early in case that one of the provided arguments is not a node
-	if (!newChildNodeArg || !oldChildNodeArg) {
+	if (!newChildNodeArgument || !oldChildNodeArgument) {
 		return;
 	}
 
@@ -45,11 +45,11 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 
 	return context.report({
 		node,
-		message: `Prefer \`${oldChildNodeArg}.${preferredSelector}(${newChildNodeArg})\` over \`${parentNode}.${identifierName}(${newChildNodeArg}, ${oldChildNodeArg})\`.`,
+		message: `Prefer \`${oldChildNodeArgument}.${preferredSelector}(${newChildNodeArgument})\` over \`${parentNode}.${identifierName}(${newChildNodeArgument}, ${oldChildNodeArgument})\`.`,
 		fix: fixer =>
 			fixer.replaceText(
 				node,
-				`${oldChildNodeArg}.${preferredSelector}(${newChildNodeArg})`
+				`${oldChildNodeArgument}.${preferredSelector}(${newChildNodeArgument})`
 			)
 	});
 };
@@ -85,7 +85,7 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 	}
 
 	const nodeArguments = node.arguments;
-	const positionArg = getArgumentNameForInsertAdjacentMethods(nodeArguments[0]);
+	const positionArgument = getArgumentNameForInsertAdjacentMethods(nodeArguments[0]);
 	const positionAsValue = nodeArguments[0].value;
 
 	// Return early when specified position value of 1st argument is not a recognised value
@@ -95,17 +95,17 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 
 	const referenceNode = node.callee.object.name;
 	const preferredSelector = positionReplacers.get(positionAsValue);
-	const insertedTextArg = getArgumentNameForInsertAdjacentMethods(
+	const insertedTextArgument = getArgumentNameForInsertAdjacentMethods(
 		nodeArguments[1]
 	);
 
 	return context.report({
 		node,
-		message: `Prefer \`${referenceNode}.${preferredSelector}(${insertedTextArg})\` over \`${referenceNode}.${identifierName}(${positionArg}, ${insertedTextArg})\`.`,
+		message: `Prefer \`${referenceNode}.${preferredSelector}(${insertedTextArgument})\` over \`${referenceNode}.${identifierName}(${positionArgument}, ${insertedTextArgument})\`.`,
 		fix: fixer =>
 			fixer.replaceText(
 				node,
-				`${referenceNode}.${preferredSelector}(${insertedTextArg})`
+				`${referenceNode}.${preferredSelector}(${insertedTextArgument})`
 			)
 	});
 };
