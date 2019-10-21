@@ -1,22 +1,34 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 const isMethodNamed = require('./utils/is-method-named');
+const isLiteralValue = require('./utils/is-literal-value');
 
-const isNegativeOne = (operator, value) => operator === '-' && value === 1;
+const message = 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.';
+// Ignore {_,lodash,underscore}.indexOf
+const ignoredVariables = new Set(['_', 'lodash', 'underscore']);
+const isIgnoredTarget = node => node.type === 'Identifier' && ignoredVariables.has(node.name);
+const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator === '-' && node.argument && node.argument.type === 'Literal' && node.argument.value === 1;
+const isLiteralZero = node => isLiteralValue(node, 0);
+const isNegativeResult = node => ['===', '==', '<'].includes(node.operator);
 
-const report = (context, node, target, pattern) => {
+const report = (context, node, target, argumentsNodes) => {
 	const sourceCode = context.getSourceCode();
 	const memberExpressionNode = target.parent;
 	const dotToken = sourceCode.getTokenBefore(memberExpressionNode.property);
 	const targetSource = sourceCode.getText().slice(memberExpressionNode.range[0], dotToken.range[0]);
-	const patternSource = sourceCode.getText(pattern);
+
+	// Strip default `fromIndex`
+	if (isLiteralZero(argumentsNodes[1])) {
+		argumentsNodes = argumentsNodes.slice(0, 1);
+	}
+
+	const argumentsSource = argumentsNodes.map(argument => sourceCode.getText(argument));
 
 	context.report({
 		node,
-		message: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.',
+		message,
 		fix: fixer => {
-			const isNot = node => ['===', '==', '<'].includes(node.operator) ? '!' : '';
-			const replacement = `${isNot(node)}${targetSource}.includes(${patternSource})`;
+			const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
 			return fixer.replaceText(node, replacement);
 		}
 	});
@@ -26,29 +38,33 @@ const create = context => ({
 	BinaryExpression: node => {
 		const {left, right} = node;
 
-		if (isMethodNamed(left, 'indexOf')) {
-			const target = left.callee.object;
-			const pattern = left.arguments[0];
+		if (!isMethodNamed(left, 'indexOf')) {
+			return;
+		}
 
-			if (right.type === 'UnaryExpression') {
-				const {argument} = right;
+		const target = left.callee.object;
 
-				if (argument.type !== 'Literal') {
-					return false;
-				}
+		if (isIgnoredTarget(target)) {
+			return;
+		}
 
-				const {value} = argument;
+		const {arguments: argumentsNodes} = left;
 
-				if (['!==', '!=', '>', '===', '=='].includes(node.operator) && isNegativeOne(right.operator, value)) {
-					report(context, node, target, pattern);
-				}
-			}
+		// Ignore something.indexOf(foo, 0, another)
+		if (argumentsNodes.length > 2) {
+			return;
+		}
 
-			if (right.type === 'Literal' && ['>=', '<'].includes(node.operator) && right.value === 0) {
-				report(context, node, target, pattern);
-			}
-
-			return false;
+		if (
+			(['!==', '!=', '>', '===', '=='].includes(node.operator) && isNegativeOne(right)) ||
+			(['>=', '<'].includes(node.operator) && isLiteralZero(right))
+		) {
+			report(
+				context,
+				node,
+				target,
+				argumentsNodes
+			);
 		}
 	}
 });
@@ -58,7 +74,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}

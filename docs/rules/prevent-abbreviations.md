@@ -20,16 +20,6 @@ const e = document.createEvent('Event');
 ```
 
 ```js
-const levels = {
-	err: 0
-};
-```
-
-```js
-this.evt = 'click';
-```
-
-```js
 class Btn {}
 ```
 
@@ -56,6 +46,18 @@ this.event = 'click';
 
 ```js
 class Button {}
+```
+
+```js
+// Property is not checked by default
+const levels = {
+	err: 0
+};
+```
+
+```js
+// Property is not checked by default
+this.evt = 'click';
 ```
 
 
@@ -210,9 +212,9 @@ function f({err}) {}
 ### checkProperties
 
 Type: `boolean`<br>
-Default: `true`
+Default: `false`
 
-Pass `"checkProperties": false` to disable checking property names.
+Pass `"checkProperties": true` to enable checking property names.
 
 ### checkVariables
 

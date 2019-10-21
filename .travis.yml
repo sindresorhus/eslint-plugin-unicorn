@@ -3,11 +3,17 @@ node_js:
   - '12'
   - '10'
   - '8'
+cache:
+  npm: false
 matrix:
   include:
     - node_js: '12'
-      env: INTEGRATION=true
+      env: INTEGRATION=true SKIP_TEST=true
+    - node_js: '12'
+      env: LINT=true SKIP_TEST=true
 script:
-  - if [ $INTEGRATION == true ]; then npm run integration; else npm test; fi
+  - if [[ $INTEGRATION == true ]]; then npm run integration; fi
+  - if [[ $LINT == true ]]; then npm run lint; fi
+  - if [[ $SKIP_TEST != true ]]; then npm test; fi
 after_success:
-  - './node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls'
+  - if [[ $LINT != true ]]; then ./node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls; fi

@@ -57,7 +57,7 @@ const extendedOptions = [{
 }];
 
 const customOptions = [{
-	checkProperties: false,
+	checkProperties: true,
 
 	checkDefaultAndNamespaceImports: true,
 	checkShorthandImports: true,
@@ -92,6 +92,10 @@ const customOptions = [{
 
 const dontCheckVariablesOptions = [{
 	checkVariables: false
+}];
+
+const checkPropertiesOptions = [{
+	checkProperties: true
 }];
 
 ruleTester.run('prevent-abbreviations', rule, {
@@ -133,7 +137,49 @@ ruleTester.run('prevent-abbreviations', rule, {
 		'foo.error',
 		'foo.x',
 		'let E',
+		'let ESLint',
+		'let isJPEG',
 		'let NODE_ENV',
+
+		// Property should not report by default
+		'({err: 1})',
+		'({e: 1})',
+		'this.e = 1',
+		'({e() {}})',
+		'(class {e() {}})',
+		'this.eResDir = 1',
+		'this.err = 1',
+		'({err() {}})',
+		'(class {err() {}})',
+		'this.errCbOptsObj = 1',
+		'this.successCb = 1',
+		'this.btnColor = 1',
+		'({evt: 1})',
+		'foo.evt = 1',
+		outdent`
+			const foo = {
+				err() {}
+			};
+		`,
+		'foo.err = 1',
+		'foo.bar.err = 1',
+		'this.err = 1',
+		outdent`
+			class C {
+				err() {}
+			}
+		`,
+		'this._err = 1',
+		'this.__err__ = 1',
+		'this.e_ = 1',
+		'({Err: 1})',
+		'({Res: 1})',
+		'Foo.customProps = {}',
+		outdent`
+			class Foo {
+				static getDerivedContextFromProps() {}
+			}
+		`,
 
 		// Accessing banned names is allowed (as in `camelcase` rule)
 		'foo.err',
@@ -165,11 +211,6 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'function e() {}',
 			options: extendedOptions
-		},
-
-		{
-			code: '({err: 1})',
-			options: customOptions
 		},
 
 		{
@@ -208,22 +249,27 @@ ruleTester.run('prevent-abbreviations', rule, {
 		}),
 		noFixingTestCase({
 			code: '({e: 1})',
+			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
 			code: 'this.e = 1',
+			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
 			code: '({e() {}})',
+			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
 			code: '(class {e() {}})',
+			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
 			code: 'this.eResDir = 1',
+			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResponseDirection`, `errorResponseDirectory`, `errorResultDirection`, ... (5 more omitted). A more descriptive name will do too.')
 		}),
 
@@ -239,22 +285,27 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 		noFixingTestCase({
 			code: '({err: 1})',
+			options: checkPropertiesOptions,
 			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
 			code: 'this.err = 1',
+			options: checkPropertiesOptions,
 			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
 			code: '({err() {}})',
+			options: checkPropertiesOptions,
 			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
 			code: '(class {err() {}})',
+			options: checkPropertiesOptions,
 			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
 			code: 'this.errCbOptsObj = 1',
+			options: checkPropertiesOptions,
 			errors: createErrors('The property `errCbOptsObj` should be named `errorCallbackOptionsObject`. A more descriptive name will do too.')
 		}),
 
@@ -271,10 +322,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 
 		noFixingTestCase({
 			code: 'this.successCb = 1',
+			options: checkPropertiesOptions,
 			errors: createErrors()
 		}),
 		noFixingTestCase({
 			code: 'this.btnColor = 1',
+			options: checkPropertiesOptions,
 			errors: createErrors()
 		}),
 
@@ -290,10 +343,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 		noFixingTestCase({
 			code: '({evt: 1})',
+			options: checkPropertiesOptions,
 			errors: createErrors('The property `evt` should be named `event`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
 			code: 'foo.evt = 1',
+			options: checkPropertiesOptions,
 			errors: createErrors('The property `evt` should be named `event`. A more descriptive name will do too.')
 		}),
 
@@ -365,11 +420,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 
 		noFixingTestCase({
 			code: '({err: 1})',
-			errors: createErrors()
-		}),
-		noFixingTestCase({
-			code: '({err: 1})',
-			options: extendedOptions,
+			options: checkPropertiesOptions,
 			errors: createErrors()
 		}),
 
@@ -433,12 +484,6 @@ ruleTester.run('prevent-abbreviations', rule, {
 			output: 'class Error_ {}',
 			errors: createErrors()
 		},
-
-		noFixingTestCase({
-			code: '({err: 1})',
-			options: dontCheckVariablesOptions,
-			errors: createErrors()
-		}),
 
 		noFixingTestCase({
 			code: outdent`
@@ -604,6 +649,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 
 		noFixingTestCase({
 			code: 'const foo = {err: 1}',
+			options: checkPropertiesOptions,
 			errors: createErrors()
 		}),
 		noFixingTestCase({
@@ -612,18 +658,22 @@ ruleTester.run('prevent-abbreviations', rule, {
 					err() {}
 				};
 			`,
+			options: checkPropertiesOptions,
 			errors: createErrors()
 		}),
 		noFixingTestCase({
 			code: 'foo.err = 1',
+			options: checkPropertiesOptions,
 			errors: createErrors()
 		}),
 		noFixingTestCase({
 			code: 'foo.bar.err = 1',
+			options: checkPropertiesOptions,
 			errors: createErrors()
 		}),
 		noFixingTestCase({
 			code: 'this.err = 1',
+			options: checkPropertiesOptions,
 			errors: createErrors()
 		}),
 
@@ -633,19 +683,23 @@ ruleTester.run('prevent-abbreviations', rule, {
 					err() {}
 				}
 			`,
+			options: checkPropertiesOptions,
 			errors: createErrors()
 		}),
 
 		noFixingTestCase({
 			code: 'this._err = 1',
+			options: checkPropertiesOptions,
 			errors: createErrors('The property `_err` should be named `_error`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
 			code: 'this.__err__ = 1',
+			options: checkPropertiesOptions,
 			errors: createErrors('The property `__err__` should be named `__error__`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
 			code: 'this.e_ = 1',
+			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `e_`. Suggested names are: `error_`, `event_`. A more descriptive name will do too.')
 		}),
 
@@ -690,10 +744,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 		noFixingTestCase({
 			code: '({Err: 1})',
+			options: checkPropertiesOptions,
 			errors: createErrors('The property `Err` should be named `Error`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
 			code: '({Res: 1})',
+			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `Res`. Suggested names are: `Response`, `Result`. A more descriptive name will do too.')
 		}),
 
@@ -915,14 +971,14 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: outdent`
 				function unicorn(unicorn) {
-					const {docs = {}} = unicorn;
-					return docs;
+					const {prop = {}} = unicorn;
+					return property;
 				}
 			`,
 			output: outdent`
 				function unicorn(unicorn) {
-					const {docs: documents = {}} = unicorn;
-					return documents;
+					const {prop: property = {}} = unicorn;
+					return property;
 				}
 			`,
 			errors: createErrors()
@@ -1012,6 +1068,12 @@ browserES5RuleTester.run('prevent-abbreviations', rule, {
 moduleRuleTester.run('prevent-abbreviations', rule, {
 	valid: [
 		'import {err as foo} from "foo"',
+
+		// Property should not report by default
+		outdent`
+			let foo;
+			export {foo as err};
+		`,
 
 		// Default import names are allowed
 		'import err from "err"',
@@ -1175,6 +1237,7 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 				let foo;
 				export {foo as err};
 			`,
+			options: checkPropertiesOptions,
 			errors: createErrors()
 		})
 	]
@@ -1189,12 +1252,27 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 				static propTypes = {};
 				static getDerivedStateFromProps() {}
 			}
+		`,
+
+		// Property should not report by default
+		outdent`
+			class Foo {
+				static propTypesAndStuff = {};
+			}
+		`,
+		'(class {e = 1})',
+		'(class {err = 1})',
+		outdent`
+			class C {
+				err = () => {}
+			}
 		`
 	],
 
 	invalid: [
 		{
 			code: 'Foo.customProps = {}',
+			options: checkPropertiesOptions,
 			errors: createErrors()
 		},
 		{
@@ -1203,6 +1281,7 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 					static propTypesAndStuff = {};
 				}
 			`,
+			options: checkPropertiesOptions,
 			errors: createErrors()
 		},
 		{
@@ -1211,15 +1290,18 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 					static getDerivedContextFromProps() {}
 				}
 			`,
+			options: checkPropertiesOptions,
 			errors: createErrors()
 		},
 
 		noFixingTestCase({
 			code: '(class {e = 1})',
+			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
 			code: '(class {err = 1})',
+			options: checkPropertiesOptions,
 			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
 		}),
 		noFixingTestCase({
@@ -1228,6 +1310,7 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 					err = () => {}
 				}
 			`,
+			options: checkPropertiesOptions,
 			errors: createErrors()
 		})
 	]

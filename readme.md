@@ -50,6 +50,8 @@ Configure it in `package.json`.
 			"unicorn/no-for-loop": "error",
 			"unicorn/no-hex-escape": "error",
 			"unicorn/no-keyword-prefix": "off",
+			"no-nested-ternary": "off",
+			"unicorn/no-nested-ternary": "error",
 			"unicorn/no-new-buffer": "error",
 			"unicorn/no-process-exit": "error",
 			"unicorn/no-unreadable-array-destructuring": "error",
@@ -58,6 +60,7 @@ Configure it in `package.json`.
 			"unicorn/no-zero-fractions": "error",
 			"unicorn/number-literal-case": "error",
 			"unicorn/prefer-add-event-listener": "error",
+			"unicorn/prefer-dataset": "error",
 			"unicorn/prefer-event-key": "error",
 			"unicorn/prefer-exponentiation-operator": "error",
 			"unicorn/prefer-flat-map": "error",
@@ -66,8 +69,10 @@ Configure it in `package.json`.
 			"unicorn/prefer-node-append": "error",
 			"unicorn/prefer-node-remove": "error",
 			"unicorn/prefer-query-selector": "error",
+			"unicorn/prefer-reflect-apply": "error",
 			"unicorn/prefer-spread": "error",
 			"unicorn/prefer-starts-ends-with": "error",
+			"unicorn/prefer-string-slice": "error",
 			"unicorn/prefer-text-content": "error",
 			"unicorn/prefer-type-error": "error",
 			"unicorn/prevent-abbreviations": "error",
@@ -97,6 +102,7 @@ Configure it in `package.json`.
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(partly fixable)*
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of Unicode escapes instead of hexadecimal escapes. *(fixable)*
 - [no-keyword-prefix](docs/rules/no-keyword-prefix.md) - Disallow identifiers starting with `new` or `class`.
+- [no-nested-ternary](docs/rules/no-nested-ternary.md) - Disallow nested ternary expressions. *(partly fixable)*
 - [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
 - [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
@@ -105,6 +111,7 @@ Configure it in `package.json`.
 - [no-zero-fractions](docs/rules/no-zero-fractions.md) - Disallow number literals with zero fractions or dangling dots. *(fixable)*
 - [number-literal-case](docs/rules/number-literal-case.md) - Enforce lowercase identifier and uppercase value for number literals. *(fixable)*
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. *(partly fixable)*
+- [prefer-dataset](docs/rules/prefer-dataset.md) - Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. *(fixable)*
 - [prefer-event-key](docs/rules/prefer-event-key.md) - Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. *(partly fixable)*
 - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
 - [prefer-flat-map](docs/rules/prefer-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
@@ -113,8 +120,10 @@ Configure it in `package.json`.
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `Node#append()` over `Node#appendChild()`. *(fixable)*
 - [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `node.remove()` over `parentNode.removeChild(node)` and `parentElement.removeChild(node)`. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. *(partly fixable)*
+- [prefer-reflect-apply](docs/rules/prefer-reflect-apply.md) - Prefer `Reflect.apply()` over `Function#apply()`. *(fixable)*
 - [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
 - [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith()` & `String#endsWith()` over more complex alternatives.
+- [prefer-string-slice](docs/rules/prefer-string-slice.md) - Prefer `String#slice()` over `String#substr()` and `String#substring()`. *(partly fixable)*
 - [prefer-text-content](docs/rules/prefer-text-content.md) - Prefer `.textContent` over `.innerText`. *(fixable)*
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
 - [prevent-abbreviations](docs/rules/prevent-abbreviations.md) - Prevent abbreviations. *(partly fixable)*
@@ -143,14 +152,11 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 ## Maintainers
 
 - [Sindre Sorhus](https://github.com/sindresorhus)
-- [Sam Verschueren](https://github.com/SamVerschueren)
-- [futpib](https://github.com/futpib)
 - [Adam Babcock](https://github.com/MrHen)
+- [futpib](https://github.com/futpib)
+- [Sam Verschueren](https://github.com/SamVerschueren)
+- [Fisker Cheung](https://github.com/fisker)
 
 ###### Former
 
 - [Jeroen Engels](https://github.com/jfmengels)
-
-## License
-
-MIT

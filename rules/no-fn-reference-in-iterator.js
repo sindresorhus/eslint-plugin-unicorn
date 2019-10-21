@@ -1,5 +1,5 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const iteratorMethods = new Map([
 	['map', 1],
@@ -29,14 +29,14 @@ const isIteratorMethod = node => node.callee.property && iteratorMethods.has(nod
 const hasFunctionArgument = node => node.arguments.length > 0 && (node.arguments[0].type === 'Identifier' || node.arguments[0].type === 'CallExpression') && !functionWhitelist.has(node.arguments[0].name);
 
 const getNumberOfArguments = node => node.callee.property && iteratorMethods.get(node.callee.property.name);
-const parseArgument = (context, arg) => arg.type === 'Identifier' ? arg.name : context.getSourceCode().getText(arg);
+const parseArgument = (context, argument) => argument.type === 'Identifier' ? argument.name : context.getSourceCode().getText(argument);
 
 const fix = (context, node) => {
-	const numberOfArgs = getNumberOfArguments(node);
+	const numberOfArguments = getNumberOfArguments(node);
 	const argument = node.arguments[0];
-	const argumentString = numberOfArgs === 1 ? 'x' : 'a, b';
+	const argumentString = numberOfArguments === 1 ? 'x' : 'a, b';
 
-	return fixer => fixer.replaceText(argument, `${numberOfArgs === 1 ? argumentString : `(${argumentString})`} => ${parseArgument(context, argument)}(${argumentString})`);
+	return fixer => fixer.replaceText(argument, `${numberOfArguments === 1 ? argumentString : `(${argumentString})`} => ${parseArgument(context, argument)}(${argumentString})`);
 };
 
 const toSelector = name => {
@@ -50,10 +50,10 @@ const selector = `CallExpression${calleeBlacklist.map(toSelector).join('')}`;
 const create = context => ({
 	[selector]: node => {
 		if (isIteratorMethod(node) && hasFunctionArgument(node) && node.arguments.length <= getNumberOfArguments(node)) {
-			const [arg] = node.arguments;
+			const [argument] = node.arguments;
 
 			context.report({
-				node: arg,
+				node: argument,
 				message: 'Do not pass a function reference directly to an iterator method.',
 				fix: fix(context, node)
 			});
@@ -66,7 +66,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}

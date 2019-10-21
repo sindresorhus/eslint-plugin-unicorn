@@ -1,6 +1,6 @@
 'use strict';
 const cleanRegexp = require('clean-regexp');
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 
 const message = 'Use regex shorthands to improve readability.';
@@ -27,22 +27,22 @@ const create = context => {
 			}
 		},
 		'NewExpression[callee.name="RegExp"]': node => {
-			const args = node.arguments;
+			const arguments_ = node.arguments;
 
-			if (args.length === 0 || args[0].type !== 'Literal') {
+			if (arguments_.length === 0 || arguments_[0].type !== 'Literal') {
 				return;
 			}
 
-			const hasRegExp = args[0].regex;
+			const hasRegExp = arguments_[0].regex;
 
 			let oldPattern;
 			let flags;
 			if (hasRegExp) {
-				oldPattern = args[0].regex.pattern;
-				flags = args[1] && args[1].type === 'Literal' ? args[1].value : args[0].regex.flags;
+				oldPattern = arguments_[0].regex.pattern;
+				flags = arguments_[1] && arguments_[1].type === 'Literal' ? arguments_[1].value : arguments_[0].regex.flags;
 			} else {
-				oldPattern = args[0].value;
-				flags = args[1] && args[1].type === 'Literal' ? args[1].value : '';
+				oldPattern = arguments_[0].value;
+				flags = arguments_[1] && arguments_[1].type === 'Literal' ? arguments_[1].value : '';
 			}
 
 			const newPattern = cleanRegexp(oldPattern, flags);
@@ -60,7 +60,7 @@ const create = context => {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceText(args[0], fixed)
+					fix: fixer => fixer.replaceText(arguments_[0], fixed)
 				});
 			}
 		}
@@ -72,7 +72,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}

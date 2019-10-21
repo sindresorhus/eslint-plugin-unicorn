@@ -1,6 +1,6 @@
 # Disallow `process.exit()`
 
-This rule is an extension to ESLint's [`no-process-exit` rule](http://eslint.org/docs/rules/no-process-exit), that allows `process.exit()` to be called in files that start with a [hashbang](https://en.wikipedia.org/wiki/Shebang_(Unix)) → `#!/usr/bin/env node`. It also allows `process.exit()` to be called in `process.on('<event>', func)` event handlers.
+This rule is an extension to ESLint's [`no-process-exit` rule](http://eslint.org/docs/rules/no-process-exit), that allows `process.exit()` to be called in files that start with a [hashbang](https://en.wikipedia.org/wiki/Shebang_(Unix)) → `#!/usr/bin/env node`. It also allows `process.exit()` to be called in `process.on('<event>', func)` event handlers and in files that imports `worker_threads`.
 
 
 ## Fail
@@ -22,4 +22,15 @@ process.on('SIGINT', () => {
     console.log('Got SIGINT');
     process.exit(1);
 });
+```
+
+```js
+import workerThreads from 'worker_threads';
+
+try {
+	// Do something…
+	process.exit(0);
+} catch (_) {
+	process.exit(1);
+}
 ```

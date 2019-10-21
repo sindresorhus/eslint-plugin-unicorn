@@ -1,9 +1,9 @@
 'use strict';
-const readPkg = require('read-pkg');
+const readPkgUp = require('read-pkg-up');
 const semver = require('semver');
 const ci = require('ci-info');
 const baseRule = require('eslint/lib/rules/no-warning-comments');
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_AVOID_MULTIPLE_DATES = 'avoidMultipleDates';
 const MESSAGE_ID_EXPIRED_TODO = 'expiredTodo';
@@ -17,11 +17,13 @@ const MESSAGE_ID_ENGINE_MATCHES = 'engineMatches';
 const MESSAGE_ID_REMOVE_WHITESPACES = 'removeWhitespaces';
 const MESSAGE_ID_MISSING_AT_SYMBOL = 'missingAtSymbol';
 
-const pkg = readPkg.sync();
+const packageResult = readPkgUp.sync();
+const hasPackage = Boolean(packageResult);
+const packageJson = hasPackage ? packageResult.packageJson : {};
 
-const pkgDependencies = {
-	...pkg.dependencies,
-	...pkg.devDependencies
+const packageDependencies = {
+	...packageJson.dependencies,
+	...packageJson.devDependencies
 };
 
 const DEPENDENCY_INCLUSION_RE = /^[+|-]\s*@?[\S+]\/?\S+/;
@@ -38,7 +40,7 @@ function parseTodoWithArguments(string, {terms}) {
 		return false;
 	}
 
-	const TODO_ARGUMENT_RE = new RegExp('\\[([^}]+)\\]', 'i');
+	const TODO_ARGUMENT_RE = /\[([^}]+)\]/i;
 	const result = TODO_ARGUMENT_RE.exec(string);
 
 	if (!result) {
@@ -68,7 +70,7 @@ function parseArgument(argumentString) {
 		};
 	}
 
-	if (DEPENDENCY_INCLUSION_RE.test(argumentString)) {
+	if (hasPackage && DEPENDENCY_INCLUSION_RE.test(argumentString)) {
 		const condition = argumentString[0] === '+' ? 'in' : 'out';
 		const name = argumentString.slice(1).trim();
 
@@ -81,7 +83,7 @@ function parseArgument(argumentString) {
 		};
 	}
 
-	if (VERSION_COMPARISON_RE.test(argumentString)) {
+	if (hasPackage && VERSION_COMPARISON_RE.test(argumentString)) {
 		const result = VERSION_COMPARISON_RE.exec(argumentString);
 		const name = result[1].trim();
 		const condition = result[2].trim();
@@ -112,7 +114,7 @@ function parseArgument(argumentString) {
 		}
 	}
 
-	if (PKG_VERSION_RE.test(argumentString)) {
+	if (hasPackage && PKG_VERSION_RE.test(argumentString)) {
 		const result = PKG_VERSION_RE.exec(argumentString);
 		const condition = result[1].trim();
 		const version = result[2].trim();
@@ -173,13 +175,9 @@ function semverComparisonForOperator(operator) {
 
 const create = context => {
 	const options = {
-		terms: [
-			'todo',
-			'fixme',
-			'xxx'
-		],
+		terms: ['todo', 'fixme', 'xxx'],
 		ignoreDatesOnPullRequests: true,
-		allowWarningComments: false,
+		allowWarningComments: true,
 		...context.options[0]
 	};
 
@@ -190,9 +188,9 @@ const create = context => {
 		// Block comments come as one.
 		// Split for situations like this:
 		// /*
-		//  * TODO [2000-01-01]: Validate this
-		//  * TODO [2000-01-01]: And this
-		//  * TODO [2000-01-01]: Also this
+		//  * TODO [2999-01-01]: Validate this
+		//  * TODO [2999-01-01]: And this
+		//  * TODO [2999-01-01]: Also this
 		//  */
 		.map(comment =>
 			comment.value.split('\n').map(line => ({
@@ -285,12 +283,11 @@ const create = context => {
 			uses++;
 			const [{condition, version}] = packageVersions;
 
-			const pkgVersion = tryToCoerceVersion(pkg.version);
-			const desidedPkgVersion = tryToCoerceVersion(version);
+			const packageVersion = tryToCoerceVersion(packageJson.version);
+			const desidedPackageVersion = tryToCoerceVersion(version);
 
 			const compare = semverComparisonForOperator(condition);
-
-			if (compare(pkgVersion, desidedPkgVersion)) {
+			if (compare(packageVersion, desidedPackageVersion)) {
 				context.report({
 					node: null,
 					loc: comment.loc,
@@ -307,7 +304,7 @@ const create = context => {
 		// Comparison: '>', '>='
 		for (const dependency of dependencies) {
 			uses++;
-			const targetPackageRawVersion = pkgDependencies[dependency.name];
+			const targetPackageRawVersion = packageDependencies[dependency.name];
 			const hasTargetPackage = Boolean(targetPackageRawVersion);
 
 			const isInclusion = ['in', 'out'].includes(dependency.condition);
@@ -348,21 +345,19 @@ const create = context => {
 					loc: comment.loc,
 					messageId: MESSAGE_ID_VERSION_MATCHES,
 					data: {
-						comparison: `${dependency.name} ${dependency.condition} ${
-							dependency.version
-						}`,
+						comparison: `${dependency.name} ${dependency.condition} ${dependency.version}`,
 						message: parseTodoMessage(comment.value)
 					}
 				});
 			}
 		}
 
-		const pkgEngines = pkg.engines || {};
+		const packageEngines = packageJson.engines || {};
 
 		for (const engine of engines) {
 			uses++;
 
-			const targetPackageRawEngineVersion = pkgEngines.node;
+			const targetPackageRawEngineVersion = packageEngines.node;
 			const hasTargetEngine = Boolean(targetPackageRawEngineVersion);
 
 			if (!hasTargetEngine) {
@@ -395,7 +390,10 @@ const create = context => {
 			const comparisonIndex = unknown.indexOf('>');
 
 			if (!hasAt && comparisonIndex !== -1) {
-				const testString = `${unknown.slice(0, comparisonIndex)}@${unknown.slice(comparisonIndex)}`;
+				const testString = `${unknown.slice(
+					0,
+					comparisonIndex
+				)}@${unknown.slice(comparisonIndex)}`;
 
 				if (parseArgument(testString).type !== 'unknowns') {
 					uses++;
@@ -469,7 +467,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		messages: {
 			[MESSAGE_ID_AVOID_MULTIPLE_DATES]:

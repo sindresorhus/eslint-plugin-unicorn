@@ -1,5 +1,5 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const forbiddenIdentifierNames = new Map([
 	['getElementById', 'querySelector'],
@@ -8,7 +8,7 @@ const forbiddenIdentifierNames = new Map([
 ]);
 
 const getReplacementForId = value => `#${value}`;
-const getReplacementForClass = value => value.match(/\S+/g).map(e => `.${e}`).join('');
+const getReplacementForClass = value => value.match(/\S+/g).map(className => `.${className}`).join('');
 
 const getQuotedReplacement = (node, value) => {
 	const leftQuote = node.raw.charAt(0);
@@ -112,7 +112,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code'
 	}

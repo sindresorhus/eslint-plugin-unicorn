@@ -6,6 +6,12 @@ import rule from '../rules/consistent-function-scoping';
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
+	},
+	parserOptions: {
+		ecmaVersion: 2018,
+		ecmaFeatures: {
+			jsx: true
+		}
 	}
 });
 
@@ -144,6 +150,44 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 				return foo;
 			}
+		`,
+		outdent`
+			function doFoo(foo) {
+				function doBar(bar) {
+					foo.bar = bar;
+				}
+				function doZaz(zaz) {
+					doBar(zaz);
+				}
+
+				doZaz('zaz');
+			};
+		`,
+		outdent`
+			function doFoo() {
+				return function doBar() {};
+			}
+		`,
+		outdent`
+			function doFoo(Foo) {
+				function doBar() {
+					return new Foo();
+				}
+				return doBar;
+			};
+		`,
+		outdent`
+			function doFoo(FooComponent) {
+				return <FooComponent />;
+			}
+		`,
+		outdent`
+			function doFoo(FooComponent) {
+				function Bar() {
+					return <FooComponent />;
+				}
+				return Bar;
+			};
 		`
 	],
 	invalid: [
