@@ -40,16 +40,31 @@ const methods = new Map([
 
 const OPERATOR_MINUS = '-';
 
-const isPropertiesSame = (node1, node2) => properties => {
-	return properties.every(property => isSame(node1[property], node2[property]));
+const isPropertiesEqual = (node1, node2) => properties => {
+	return properties.every(property => isEqual(node1[property], node2[property]));
 };
 
-function isSame(node1, node2) {
+const isTemplateElementEqual = (node1, node2) => {
+	return node1.value &&
+		node2.value &&
+		node1.tail === node2.tail &&
+		isPropertiesEqual(node1.value, node2.value)(['cooked', 'raw']);
+};
+
+const isTemplateLiteralEqual = (node1, node2) => {
+	const {quasis: quasis1} = node1;
+	const {quasis: quasis2} = node2;
+
+	return quasis1.length === quasis2.length &&
+		quasis1.every((templateElement, index) => isEqual(templateElement, quasis2[index]));
+};
+
+const isEqual = (node1, node2) => {
 	if (node1 === node2) {
 		return true;
 	}
 
-	const compare = isPropertiesSame(node1, node2);
+	const compare = isPropertiesEqual(node1, node2);
 
 	if (!compare(['type'])) {
 		return false;
@@ -57,23 +72,15 @@ function isSame(node1, node2) {
 
 	const {type} = node1;
 
-	/* eslint-disable no-case-declarations */
 	switch (type) {
 		case 'Identifier':
 			return compare(['name', 'computed']);
 		case 'Literal':
 			return compare(['value', 'raw']);
 		case 'TemplateLiteral':
-			const {quasis: quasis1} = node1;
-			const {quasis: quasis2} = node2;
-			return (quasis1.length === quasis2.length) &&
-				quasis1.every((templateElement, index) => isSame(templateElement, quasis2[index]));
+			return isTemplateLiteralEqual(node1, node2);
 		case 'TemplateElement':
-			const compareValue = isPropertiesSame(node1.value, node2.value);
-			return node1.value &&
-				node2.value &&
-				compare(['tail']) &&
-				compareValue(['cooked', 'raw']);
+			return isTemplateElementEqual(node1, node2);
 		case 'BinaryExpression':
 			return compare(['operator', 'left', 'right']);
 		case 'MemberExpression':
@@ -81,8 +88,7 @@ function isSame(node1, node2) {
 		default:
 			return false;
 	}
-	/* eslint-enable no-case-declarations */
-}
+};
 
 const isLengthMemberExpression = node => node &&
 	node.type === 'MemberExpression' &&
@@ -124,7 +130,7 @@ const getLengthMemberExpression = node => {
 const getRemoveAbleNode = (target, argument) => {
 	const lengthMemberExpression = getLengthMemberExpression(argument);
 
-	if (lengthMemberExpression && isSame(target, lengthMemberExpression.object)) {
+	if (lengthMemberExpression && isEqual(target, lengthMemberExpression.object)) {
 		return lengthMemberExpression;
 	}
 };
