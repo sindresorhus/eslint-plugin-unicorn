@@ -23,10 +23,17 @@ const create = context => {
 				message: 'Prefer `String#slice()` over `String#substr()`.'
 			};
 
-			const canFix = argumentNodes.length === 0;
+			const firstArg = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
+			const secondArg = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
 
-			if (canFix) {
+			if (argumentNodes.length === 0) {
 				problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + '.slice()');
+			} else if (argumentNodes.length === 1) {
+				problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + `.slice(${firstArg})`);
+			} else if (argumentNodes.length === 2) {
+				if (argumentNodes[0].type === 'Literal') {
+					problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + `.slice(${firstArg}, ${firstArg} + ${secondArg})`);
+				}
 			}
 
 			context.report(problem);
@@ -41,10 +48,15 @@ const create = context => {
 				message: 'Prefer `String#slice()` over `String#substring()`.'
 			};
 
-			const canFix = argumentNodes.length === 0;
+			const firstArg = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
+			const secondArg = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
 
-			if (canFix) {
+			if (argumentNodes.length === 0) {
 				problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + '.slice()');
+			} else if (argumentNodes.length === 1) {
+				problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + `.slice(${firstArg})`);
+			} else if (argumentNodes.length === 2) {
+				problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + `.slice(${firstArg}, ${secondArg})`);
 			}
 
 			context.report(problem);
