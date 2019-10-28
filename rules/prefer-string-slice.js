@@ -25,18 +25,18 @@ const create = context => {
 				message: 'Prefer `String#slice()` over `String#substr()`.'
 			};
 
-			const firstArg = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
-			const secondArg = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
+			const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
+			const secondArgument = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
 
 			if (argumentNodes.length === 0) {
 				problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + '.slice()');
 			} else if (argumentNodes.length === 1) {
-				problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + `.slice(${firstArg})`);
+				problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + `.slice(${firstArgument})`);
 			} else if (argumentNodes.length === 2) {
-				if (firstArg === '0') {
-					problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + `.slice(${firstArg}, ${secondArg})`);
+				if (firstArgument === '0') {
+					problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + `.slice(${firstArgument}, ${secondArgument})`);
 				} else if (argumentNodes[0].type === 'Literal') {
-					problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + `.slice(${firstArg}, ${firstArg} + ${secondArg})`);
+					problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + `.slice(${firstArgument}, ${firstArgument} + ${secondArgument})`);
 				}
 			}
 
@@ -52,15 +52,15 @@ const create = context => {
 				message: 'Prefer `String#slice()` over `String#substring()`.'
 			};
 
-			const firstArg = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
-			const secondArg = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
+			const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
+			const secondArgument = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
 
 			if (argumentNodes.length === 0) {
 				problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + '.slice()');
 			} else if (argumentNodes.length === 1) {
-				problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + `.slice(${firstArg})`);
+				problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + `.slice(${firstArgument})`);
 			} else if (argumentNodes.length === 2) {
-				problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + `.slice(${firstArg}, ${secondArg})`);
+				problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + `.slice(${firstArgument}, ${secondArgument})`);
 			}
 
 			context.report(problem);
