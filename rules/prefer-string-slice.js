@@ -13,7 +13,7 @@ const substringCallTemplate = templates.template`${objectVariable}.substring(${a
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
-	const getPossiblyWrappedText = (objectNode) => objectNode.type === 'LogicalExpression' ? `(${sourceCode.getText(objectNode)})` : sourceCode.getText(objectNode);
+	const getPossiblyWrappedText = objectNode => objectNode.type === 'LogicalExpression' ? `(${sourceCode.getText(objectNode)})` : sourceCode.getText(objectNode);
 
 	return templates.visitor({
 		[substrCallTemplate](node) {
