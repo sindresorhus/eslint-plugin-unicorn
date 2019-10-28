@@ -13,6 +13,8 @@ const substringCallTemplate = templates.template`${objectVariable}.substring(${a
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
+	const getPossiblyWrappedText = (objectNode) => objectNode.type === 'LogicalExpression' ? `(${sourceCode.getText(objectNode)})` : sourceCode.getText(objectNode);
+
 	return templates.visitor({
 		[substrCallTemplate](node) {
 			const objectNode = substrCallTemplate.context.getMatch(objectVariable);
@@ -27,14 +29,14 @@ const create = context => {
 			const secondArg = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
 
 			if (argumentNodes.length === 0) {
-				problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + '.slice()');
+				problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + '.slice()');
 			} else if (argumentNodes.length === 1) {
-				problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + `.slice(${firstArg})`);
+				problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + `.slice(${firstArg})`);
 			} else if (argumentNodes.length === 2) {
 				if (firstArg === '0') {
-					problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + `.slice(${firstArg}, ${secondArg})`);
+					problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + `.slice(${firstArg}, ${secondArg})`);
 				} else if (argumentNodes[0].type === 'Literal') {
-					problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + `.slice(${firstArg}, ${firstArg} + ${secondArg})`);
+					problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + `.slice(${firstArg}, ${firstArg} + ${secondArg})`);
 				}
 			}
 
@@ -54,11 +56,11 @@ const create = context => {
 			const secondArg = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
 
 			if (argumentNodes.length === 0) {
-				problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + '.slice()');
+				problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + '.slice()');
 			} else if (argumentNodes.length === 1) {
-				problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + `.slice(${firstArg})`);
+				problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + `.slice(${firstArg})`);
 			} else if (argumentNodes.length === 2) {
-				problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + `.slice(${firstArg}, ${secondArg})`);
+				problem.fix = fixer => fixer.replaceText(node, getPossiblyWrappedText(objectNode) + `.slice(${firstArg}, ${secondArg})`);
 			}
 
 			context.report(problem);

@@ -78,6 +78,17 @@ ruleTester.run('prefer-string-slice', rule, {
 			`,
 			errors
 		},
+		{
+			code: outdent`
+				const uri = 'foo';
+				(uri || '').substr(1)
+			`,
+			output: outdent`
+				const uri = 'foo';
+				(uri || '').slice(1)
+			`,
+			errors
+		},
 
 		{
 			code: 'foo.substr(start)',
