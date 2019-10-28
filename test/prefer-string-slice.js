@@ -59,6 +59,17 @@ ruleTester.run('prefer-string-slice', rule, {
 		{
 			code: outdent`
 				const length = 123;
+				"foo".substr(0, length)
+			`,
+			output: outdent`
+				const length = 123;
+				"foo".slice(0, length)
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				const length = 123;
 				"foo".substr(1, length - 4)
 			`,
 			output: outdent`

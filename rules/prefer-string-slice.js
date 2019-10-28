@@ -31,7 +31,9 @@ const create = context => {
 			} else if (argumentNodes.length === 1) {
 				problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + `.slice(${firstArg})`);
 			} else if (argumentNodes.length === 2) {
-				if (argumentNodes[0].type === 'Literal') {
+				if (argumentNodes[0].type === 'Literal' && firstArg === '0') {
+					problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + `.slice(${firstArg}, ${secondArg})`);
+				} else if (argumentNodes[0].type === 'Literal') {
 					problem.fix = fixer => fixer.replaceText(node, sourceCode.getText(objectNode) + `.slice(${firstArg}, ${firstArg} + ${secondArg})`);
 				}
 			}
