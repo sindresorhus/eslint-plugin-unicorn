@@ -127,6 +127,41 @@ ruleTester.run('prefer-string-slice', rule, {
 			output: '"foo".slice(1, 2)',
 			errors
 		},
+		{
+			code: '"foo".substring(2, 1)',
+			output: '"foo".slice(1, 2)',
+			errors
+		},
+		{
+			code: '"foo".substring(-1, -5)',
+			output: '"foo".slice(0, 0)',
+			errors
+		},
+		{
+			code: '"foo".substring(-1, 2)',
+			output: '"foo".slice(0, 2)',
+			errors
+		},
+		{
+			code: '"foo".substring(length)',
+			output: '"foo".slice(Math.max(0, length))',
+			errors
+		},
+		{
+			code: '"foo".substring("fo".length)',
+			output: '"foo".slice("fo".length)',
+			errors
+		},
+		{
+			code: '"foo".substring(0, length)',
+			output: '"foo".slice(0, Math.max(0, length))',
+			errors
+		},
+		{
+			code: '"foo".substring(length, 0)',
+			output: '"foo".slice(0, Math.max(0, length))',
+			errors
+		},
 
 		{
 			code: 'foo.substring(start)',
