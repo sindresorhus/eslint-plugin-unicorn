@@ -44,7 +44,7 @@ if (errorCount || warningCount) {
 	console.log();
 	console.log('* If you\'re making a new rule, you can fix this later. *');
 } else {
-	console.log('All test passed.');
+	console.log('All test have passed.');
 }
 
 process.exit(errorCount);
