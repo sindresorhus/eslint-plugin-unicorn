@@ -3,7 +3,7 @@
 const {CLIEngine} = require('eslint');
 const unicorn = require('../..');
 
-const {configs: {recommended}} = unicorn;
+const {recommended} = unicorn.configs;
 const files = [process.argv[2] || '.'];
 const fix = process.argv.includes('--fix');
 
