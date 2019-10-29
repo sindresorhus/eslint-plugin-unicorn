@@ -25,7 +25,7 @@ cli.addPlugin('eslint-plugin-unicorn', unicorn);
 const loadedRules = cli.getRules();
 if (!ruleIds.every(ruleId => unicornRules.get(ruleId) === loadedRules.get(`unicorn/${ruleId}`))) {
 	console.error('`eslint-plugin-unicorn` rules are not loaded from codebase.');
-	process.exit(1)
+	process.exit(1);
 }
 
 const report = cli.executeOnFiles(files);
