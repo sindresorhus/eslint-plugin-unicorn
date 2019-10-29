@@ -42,7 +42,12 @@ ruleTester.run('prefer-string-slice', rule, {
 		},
 		{
 			code: '"foo".substr(1, 2)',
-			output: '"foo".slice(1, 1 + 2)',
+			output: '"foo".slice(1, 3)',
+			errors
+		},
+		{
+			code: '"foo".substr(1, length)',
+			output: '"foo".slice(1, 1 + length)',
 			errors
 		},
 		{
