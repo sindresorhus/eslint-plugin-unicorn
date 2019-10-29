@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 'use strict';
+const assert = require('assert');
 const {CLIEngine} = require('eslint');
 const unicorn = require('../..');
 
 const {recommended} = unicorn.configs;
 const files = [process.argv[2] || '.'];
 const fix = process.argv.includes('--fix');
+const ruleIds = Object.keys(unicorn.rules);
+const unicornRules = new Map(Object.entries(unicorn.rules));
 
 const cli = new CLIEngine({
 	baseConfig: recommended,
@@ -13,13 +16,27 @@ const cli = new CLIEngine({
 		// TODO: remove this override, when #391 is fixed
 		'unicorn/consistent-function-scoping': 'off'
 	},
+	// Prevent plugin load from other place
+	resolvePluginsRelativeTo: __dirname,
 	useEslintrc: false,
 	fix
 });
 
+// Make sure rules are not loaded
+const loadedRulesBefore = cli.getRules();
+assert(
+	!ruleIds.some(ruleId => loadedRulesBefore.has(`unicorn/${ruleId}`)),
+	'`eslint-plugin-unicorn` rules should not loaded before `addPlugin` is called.'
+)
+
 cli.addPlugin('eslint-plugin-unicorn', unicorn);
 
-// Find a way to make sure rules are loaded from codebase
+// Make sure rules are loaded from codebase
+const loadedRules = cli.getRules();
+assert(
+	ruleIds.every(ruleId => unicornRules.get(ruleId) === loadedRules.get(`unicorn/${ruleId}`)),
+	'`eslint-plugin-unicorn` rules are not loaded from codebase.'
+)
 
 const report = cli.executeOnFiles(files);
 
