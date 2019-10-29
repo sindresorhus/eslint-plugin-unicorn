@@ -52,7 +52,11 @@ const create = context => {
 				if (firstArgument === '0') {
 					slice = [firstArgument, secondArgument];
 				} else if (argumentNodes[0].type === 'Literal') {
-					slice = [firstArgument, firstArgument + ' + ' + secondArgument];
+					if (argumentNodes[1].type === 'Literal' && typeof argumentNodes[1].value === 'number' && typeof argumentNodes[0].value === 'number') {
+						slice = [argumentNodes[0].value, argumentNodes[0].value + argumentNodes[1].value];
+					} else {
+						slice = [firstArgument, firstArgument + ' + ' + secondArgument];
+					}
 				}
 			}
 
