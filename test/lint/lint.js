@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 'use strict';
-const assert = require('assert');
 const {CLIEngine} = require('eslint');
 const unicorn = require('../..');
 
@@ -16,27 +15,18 @@ const cli = new CLIEngine({
 		// TODO: remove this override, when #391 is fixed
 		'unicorn/consistent-function-scoping': 'off'
 	},
-	// Prevent plugin load from other place
-	resolvePluginsRelativeTo: __dirname,
 	useEslintrc: false,
 	fix
 });
-
-// Make sure rules are not loaded
-const loadedRulesBefore = cli.getRules();
-assert(
-	!ruleIds.some(ruleId => loadedRulesBefore.has(`unicorn/${ruleId}`)),
-	'`eslint-plugin-unicorn` rules should not loaded before `addPlugin` is called.'
-)
 
 cli.addPlugin('eslint-plugin-unicorn', unicorn);
 
 // Make sure rules are loaded from codebase
 const loadedRules = cli.getRules();
-assert(
-	ruleIds.every(ruleId => unicornRules.get(ruleId) === loadedRules.get(`unicorn/${ruleId}`)),
-	'`eslint-plugin-unicorn` rules are not loaded from codebase.'
-)
+if (!ruleIds.every(ruleId => unicornRules.get(ruleId) === loadedRules.get(`unicorn/${ruleId}`))) {
+	console.error('`eslint-plugin-unicorn` rules are not loaded from codebase.');
+	process.exit(1)
+}
 
 const report = cli.executeOnFiles(files);
 
@@ -53,7 +43,7 @@ if (errorCount || warningCount) {
 	console.log(formatter(report.results));
 
 	console.log();
-	console.log('Some tests have failed, you need fix them and run `npm run lint <file>` to check again.');
+	console.log(`You need fix failed test${errorCount + warningCount > 1 ? 's' : ''} above and run \`npm run lint <file>\` to check again.`);
 
 	if (hasFixable) {
 		console.log();
