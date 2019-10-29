@@ -13,9 +13,7 @@ function isLintablePromiseCatch(node) {
 
 	const {property} = callee;
 
-	const prop = property
-
-	if (prop.type !== 'Identifier' || prop.name !== 'catch') {
+	if (property.type !== 'Identifier' || property.name !== 'catch') {
 		return false;
 	}
 
