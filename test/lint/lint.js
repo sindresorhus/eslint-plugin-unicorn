@@ -21,9 +21,9 @@ cli.addPlugin('eslint-plugin-unicorn', unicorn);
 
 const report = cli.executeOnFiles(files);
 
-const {errorCount, warningCount, fixableErrorCount, fixableWarningCount} = report
+const {errorCount, warningCount, fixableErrorCount, fixableWarningCount} = report;
 
-const hasFixable = fixableErrorCount || fixableWarningCount
+const hasFixable = fixableErrorCount || fixableWarningCount;
 
 if (fix && hasFixable) {
 	CLIEngine.outputFixes(report);
@@ -44,7 +44,7 @@ if (errorCount || warningCount) {
 	console.log();
 	console.log('* If you\'re making a new rule, you can fix this later. *');
 } else {
-	console.log('All test passed.')
+	console.log('All test passed.');
 }
 
 process.exit(errorCount);
