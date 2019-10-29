@@ -19,6 +19,8 @@ const cli = new CLIEngine({
 
 cli.addPlugin('eslint-plugin-unicorn', unicorn);
 
+// Find a way to make sure rules are loaded from codebase
+
 const report = cli.executeOnFiles(files);
 
 const {errorCount, warningCount, fixableErrorCount, fixableWarningCount} = report;
@@ -34,7 +36,7 @@ if (errorCount || warningCount) {
 	console.log(formatter(report.results));
 
 	console.log();
-	console.log('Some test fails, you need fix them, and run `npm run lint <file>` again.');
+	console.log('Some tests have failed, you need fix them and run `npm run lint <file>` to check again.');
 
 	if (hasFixable) {
 		console.log();
@@ -44,7 +46,7 @@ if (errorCount || warningCount) {
 	console.log();
 	console.log('* If you\'re making a new rule, you can fix this later. *');
 } else {
-	console.log('All test have passed.');
+	console.log('All tests have passed.');
 }
 
 process.exit(errorCount);
