@@ -89,12 +89,14 @@ const create = context => {
 
 			if (argumentNodes.length === 0) {
 				slice = [];
-			} else if (argumentNodes.length === 1 && firstNumber !== undefined) {
-				slice = [Math.max(0, firstNumber)];
-			} else if (argumentNodes.length === 1 && isLengthProperty(argumentNodes[0])) {
-				slice = [firstArgument];
 			} else if (argumentNodes.length === 1) {
-				slice = [`Math.max(0, ${firstArgument})`];
+				if (firstNumber !== undefined) {
+					slice = [Math.max(0, firstNumber)];
+				} else if (isLengthProperty(argumentNodes[0])) {
+					slice = [firstArgument];
+				} else {
+					slice = [`Math.max(0, ${firstArgument})`];
+				}
 			} else if (argumentNodes.length === 2) {
 				const secondNumber = argumentNodes[1] ? getNumericValue(argumentNodes[1]) : undefined;
 
