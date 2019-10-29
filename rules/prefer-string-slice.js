@@ -13,7 +13,9 @@ const substringCallTemplate = templates.template`${objectVariable}.substring(${a
 const getNumericValue = node => {
 	if (node.type === 'Literal' && typeof node.value === 'number') {
 		return node.value;
-	} else if (node.type === 'UnaryExpression' && node.operator === '-') {
+	}
+
+	if (node.type === 'UnaryExpression' && node.operator === '-') {
 		return 0 - getNumericValue(node.argument);
 	}
 };
@@ -61,9 +63,9 @@ const create = context => {
 			}
 
 			if (slice) {
-				const objectText = objectNode.type === 'LogicalExpression'
-					? `(${sourceCode.getText(objectNode)})`
-					: sourceCode.getText(objectNode);
+				const objectText = objectNode.type === 'LogicalExpression' ?
+					`(${sourceCode.getText(objectNode)})` :
+					sourceCode.getText(objectNode);
 
 				problem.fix = fixer => fixer.replaceText(node, `${objectText}.slice(${slice.join(', ')})`);
 			}
@@ -101,9 +103,9 @@ const create = context => {
 				const secondNumber = argumentNodes[1] ? getNumericValue(argumentNodes[1]) : undefined;
 
 				if (firstNumber !== undefined && secondNumber !== undefined) {
-					slice = firstNumber > secondNumber
-						? [Math.max(0, secondNumber), Math.max(0, firstNumber)]
-						: [Math.max(0, firstNumber), Math.max(0, secondNumber)];
+					slice = firstNumber > secondNumber ?
+						[Math.max(0, secondNumber), Math.max(0, firstNumber)] :
+						[Math.max(0, firstNumber), Math.max(0, secondNumber)];
 				} else if (firstNumber === 0 || secondNumber === 0) {
 					slice = [0, `Math.max(0, ${firstNumber === 0 ? secondArgument : firstArgument})`];
 				} else {
@@ -117,12 +119,12 @@ const create = context => {
 			}
 
 			if (slice) {
-				const objectText = objectNode.type === 'LogicalExpression'
-					? `(${sourceCode.getText(objectNode)})`
-					: sourceCode.getText(objectNode);
+				const objectText = objectNode.type === 'LogicalExpression' ?
+					`(${sourceCode.getText(objectNode)})` :
+					sourceCode.getText(objectNode);
 
 				problem.fix = fixer => fixer.replaceText(node, `${objectText}.slice(${slice.join(', ')})`);
-				}
+			}
 
 			context.report(problem);
 		}
