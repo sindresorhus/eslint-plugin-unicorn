@@ -43,7 +43,7 @@ if (errorCount || warningCount) {
 	console.log(formatter(report.results));
 
 	console.log();
-	console.log(`You need fix failed test${errorCount + warningCount > 1 ? 's' : ''} above and run \`npm run lint <file>\` to check again.`);
+	console.log(`You need to fix the failed test${errorCount + warningCount > 1 ? 's' : ''} above and run \`npm run lint <file>\` to check again.`);
 
 	if (hasFixable) {
 		console.log();
