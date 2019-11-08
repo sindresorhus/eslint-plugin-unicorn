@@ -33,6 +33,8 @@ Characters in the filename except `a-z`, `A-Z`, `0-9`, `-`, `_` and `$` are igno
 
 ## Options
 
+### case
+
 You can set the `case` option like this:
 
 ```js
@@ -44,7 +46,9 @@ You can set the `case` option like this:
 ]
 ```
 
-Or set the `cases` option to allow multiple cases:
+### cases
+
+You can set the `cases` option to allow multiple cases:
 
 ```js
 "unicorn/filename-case": [
@@ -54,6 +58,20 @@ Or set the `cases` option to allow multiple cases:
 			"camelCase": true,
 			"pascalCase": true
 		}
+	}
+]
+```
+
+### ignore
+
+An array of RegExp to ignore. It’s set to [] by default. If provided, it must be an Array.
+
+```js
+"unicorn/filename-case": [
+	"error",
+	{
+		"case": "kebabCase",
+		"ignore": ["FOOBAR\\.js", '^(B|b)az', '\\.SOMETHING\\.js']
 	}
 ]
 ```
