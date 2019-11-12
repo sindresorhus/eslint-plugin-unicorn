@@ -2,10 +2,10 @@
 
 Enforces the use of:
 
-- `childNode.replaceWith(newNode);` over `parentNode.replaceChild(newNode, oldNode)`;
-- `referenceNode.before(newNode);` over `parentNode.insertBefore(newNode, referenceNode);`
-- `referenceNode.before("text");` over `referenceNode.insertAdjacentText("beforebegin", "text");`
-- `referenceNode.before(newNode);` over `referenceNode.insertAdjacentElement("beforebegin", newNode);`
+- [childNode.replaceWith(newNode)](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/replaceWith) over [parentNode.replaceChild(newNode, oldNode)](https://developer.mozilla.org/en-US/docs/Web/API/Node/replaceChild)
+- [referenceNode.before(newNode)](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/before) over [parentNode.insertBefore(newNode, referenceNode)](https://developer.mozilla.org/en-US/docs/Web/API/Node/insertBefore)
+- [referenceNode.before("text")](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/before) over [referenceNode.insertAdjacentText("beforebegin", "text")](https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentText)
+- [referenceNode.before(newNode)](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/before) over [referenceNode.insertAdjacentElement("beforebegin", newNode)](https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentElement)
 
 There are some advantages of using the newer DOM APIs, like:
 
