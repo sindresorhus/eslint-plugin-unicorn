@@ -203,7 +203,7 @@ Default: `'internal'`
 By default, the following code will be reported:
 
 ```js
-import {prop} from './ramda';
+import {prop} from './foo';
 ```
 
 With this set to `true`, the following code will be reported:
