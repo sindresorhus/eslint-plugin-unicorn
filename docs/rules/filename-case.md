@@ -35,6 +35,8 @@ Characters in the filename except `a-z`, `A-Z`, `0-9`, `-`, `_` and `$` are igno
 
 ### case
 
+Type: `string`
+
 You can set the `case` option like this:
 
 ```js
@@ -47,6 +49,8 @@ You can set the `case` option like this:
 ```
 
 ### cases
+
+Type: `{[type: string]: string}`
 
 You can set the `cases` option to allow multiple cases:
 
