@@ -141,7 +141,8 @@ const defaultReplacements = {
 		document: true
 	},
 	docs: {
-		documents: true
+		documents: true,
+		documentation: true
 	},
 	elem: {
 		element: true
