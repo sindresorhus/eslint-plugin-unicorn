@@ -173,10 +173,6 @@ import * as err from './err';
 import err from '/err';
 ```
 
-```js
-const err = require('@/err');
-```
-
 With this set to `true`, the following code will be reported:
 
 ```js
