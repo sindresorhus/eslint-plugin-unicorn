@@ -35,6 +35,8 @@ Characters in the filename except `a-z`, `A-Z`, `0-9`, `-`, `_` and `$` are igno
 
 ### case
 
+Type: `string`
+
 You can set the `case` option like this:
 
 ```js
@@ -47,6 +49,8 @@ You can set the `case` option like this:
 ```
 
 ### cases
+
+Type: `{[type: string]: string}`
 
 You can set the `cases` option to allow multiple cases:
 
@@ -64,14 +68,30 @@ You can set the `cases` option to allow multiple cases:
 
 ### ignore
 
-An array of RegExp to ignore. It’s set to [] by default. If provided, it must be an Array.
+Type: `Array<string | RegExp>`\
+Default: `[]`
+
+Filenames to ignore.
+
+Sometimes you may have in non-standard file names a project, so using this option allow to ignore them.
+
+For example:
+
+- vendor packages which are not published and was copy-pasted
+- ignore some of files when you use [eslint-plugin-markdown](https://github.com/eslint/eslint-plugin-markdown), for example `README.md`
+- some tools may require special names for some files
 
 ```js
 "unicorn/filename-case": [
 	"error",
 	{
 		"case": "kebabCase",
-		"ignore": ["FOOBAR\\.js", '^(B|b)az', '\\.SOMETHING\\.js']
+		"ignore": [
+			"FOOBAR\\.js",
+			"^(B|b)az",
+			"\\.SOMETHING\\.js",
+			/^vendor/i
+		]
 	}
 ]
 ```

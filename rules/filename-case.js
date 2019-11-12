@@ -144,7 +144,13 @@ function englishishJoinWords(words) {
 const create = context => {
 	const options = context.options[0] || {};
 	const chosenCases = getChosenCases(options);
-	const ignore = (options.ignore || []).map(item => new RegExp(item, 'u'));
+	const ignore = (options.ignore || []).map(item => {
+		if (item instanceof RegExp) {
+			return item;
+		}
+
+		return new RegExp(item, 'u');
+	});
 	const chosenCasesFunctions = chosenCases.map(case_ => ignoreNumbers(cases[case_].fn));
 	const filenameWithExtension = context.getFilename();
 
@@ -203,9 +209,6 @@ const schema = [{
 				},
 				ignore: {
 					type: 'array',
-					items: {
-						type: 'string'
-					},
 					uniqueItems: true
 				}
 			},
@@ -232,9 +235,6 @@ const schema = [{
 				},
 				ignore: {
 					type: 'array',
-					items: {
-						type: 'string'
-					},
 					uniqueItems: true
 				}
 			},
