@@ -64,14 +64,21 @@ You can set the `cases` option to allow multiple cases:
 
 ### ignore
 
-An array of RegExp to ignore. It’s set to [] by default. If provided, it must be an Array.
+Type: `RegExp[]`\
+Default: `[]`
+
+Filenames to ignore.
 
 ```js
 "unicorn/filename-case": [
 	"error",
 	{
 		"case": "kebabCase",
-		"ignore": ["FOOBAR\\.js", '^(B|b)az', '\\.SOMETHING\\.js']
+		"ignore": [
+			"FOOBAR\\.js",
+			"^(B|b)az",
+			"\\.SOMETHING\\.js"
+		]
 	}
 ]
 ```
