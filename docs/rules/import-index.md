@@ -63,14 +63,23 @@ import m from '.';
 ```
 
 
-### `ignoreImports`
+## Options
 
-The default behavior is to check for imports. If you want to disable this (for example, you are moving to nodejs esm), set `ignoreImports` to `true`:
+### ignoreImports
+
+Type: `boolean`\
+Default: `false`
+
+Don't check `import` statements.
+
+Can be useful if you're using native `import` in Node.js where the filename and extension is required.
 
 ```js
 // eslint unicorn/import-index: ["error", {"ignoreImports": true}]
-import m from './index'; // pass
+import m from './index'; // Passes
+```
 
+```js
 // eslint unicorn/import-index: ["error", {"ignoreImports": false}]
-import m from './index'; // fails
+import m from './index'; // Fails
 ```
