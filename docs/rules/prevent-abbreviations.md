@@ -156,14 +156,14 @@ Pass `"extendDefaultWhitelist": false` to override the default `whitelist` compl
 
 ### checkDefaultAndNamespaceImports
 
-Type: `"internal"` | `boolean`<br>
-Default: `"internal"`
+Type: `'internal' | boolean`<br>
+Default: `'internal'`
 
-- `"internal"` check variables declared in default or namespace import, **but only internal module**.
-- `true` check variables declared in default or namespace import.
-- `false` disable check variables declared in default or namespace import.
+- `'internal'` - Check variables declared in default or namespace import, **but only for internal modules**.
+- `true` - Check variables declared in default or namespace import.
+- `false` - Don't check variables declared in default or namespace import.
 
-The following code will be reported.
+By default, the following code will be reported:
 
 ```js
 import * as err from './err';
@@ -177,7 +177,7 @@ import err from '/err';
 const err = require('@/err');
 ```
 
-With this set to `true` the following code will be reported.
+With this set to `true`, the following code will be reported:
 
 ```js
 import tempWrite from 'temp-write';
@@ -193,21 +193,20 @@ const err = require('err');
 
 ### checkShorthandImports
 
-Type: `"internal"` | `boolean`<br>
-Default: `"internal"`
+Type: `'internal'` | `boolean`<br>
+Default: `'internal'`
 
+- `'internal'` - Check variables declared in shorthand import, **but only for internal modules**.
+- `true` - Check variables declared in shorthand import.
+- `false` - Don't check variables declared in default shorthand import.
 
-- `"internal"` check variables declared in shorthand import, **but only internal module**.
-- `true` check variables declared in shorthand import.
-- `false` disable check variables declared in default shorthand import.
-
-The following code will be reported.
+By default, the following code will be reported:
 
 ```js
 import {prop} from './ramda';
 ```
 
-With this set to `true` the following code will be reported.
+With this set to `true`, the following code will be reported:
 
 ```js
 import {prop} from 'ramda';
