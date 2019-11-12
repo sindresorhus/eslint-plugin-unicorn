@@ -24,6 +24,6 @@ Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser a
 	*(The description should be the same as the heading of the documentation file).*
 - Run `$ npm test` to ensure the tests pass.
 - Run `$ npm run integration` to run the rules against real projects to ensure your rule does not fail on real-world code.
-- Run `$ npm run lint` to run the rules against this repository to ensure code in the repository are following your rule.
 - Open a pull request with a title in exactly the format `` Add `rule-name` rule ``, for example, `` Add `no-unused-properties` rule ``.
 - The pull request description should include the issue it fixes, for example, `Fixes #123`.
+- Run `$ npm run lint` to run the rules against codebase to ensure code in the repository are following your rule, _you can ignore this step until your PR is reviewed_.
