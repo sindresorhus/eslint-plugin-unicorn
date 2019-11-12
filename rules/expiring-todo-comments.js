@@ -159,6 +159,10 @@ function reachedDate(past) {
 }
 
 function tryToCoerceVersion(version) {
+	if (semver.valid(version)) {
+		return version;
+	}
+
 	try {
 		return semver.coerce(version);
 	} catch (_) {
