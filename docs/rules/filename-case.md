@@ -73,7 +73,7 @@ Default: `[]`
 
 Filenames to ignore.
 
-When string is given, it's interpreted as a regular expressions inside a string, don't forget what you must escape special characters (For example `.`, `[`,`]`, `(`, `)` and etc) by putting two backslashes in front of them (to ignore `[id].js` file, you should use `"\\[id\\]\\.js"`).
+When string is given, it's interpreted as a regular expressions inside a string, don't forget what you must escape special characters (For example `.`, `[`,`]`, `(`, `)` and etc) by putting two backslashes in front of them (to ignore `[id].js` file, you should use `"^\\[id\\]\\.js$"`).
 
 Sometimes you may have non-standard filenames in a project. This option lets you ignore those files.
 
