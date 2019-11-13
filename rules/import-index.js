@@ -6,7 +6,7 @@ const isImportingIndex = value => regexp.test(value);
 const normalize = value => value.replace(regexp, '$1');
 
 const importIndex = (context, node, argument) => {
-	if (isImportingIndex(argument.value)) {
+	if (argument && isImportingIndex(argument.value)) {
 		context.report({
 			node,
 			message: 'Do not reference the index file directly.',
