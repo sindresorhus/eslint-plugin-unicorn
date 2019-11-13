@@ -73,13 +73,12 @@ Default: `[]`
 
 Filenames to ignore.
 
-Sometimes you may have in non-standard file names a project, so using this option allow to ignore them.
+Sometimes you may have non-standard filenames in a project. This option lets you ignore those files.
 
 For example:
-
-- vendor packages which are not published and was copy-pasted
-- ignore some of files when you use [eslint-plugin-markdown](https://github.com/eslint/eslint-plugin-markdown), for example `README.md`
-- some tools may require special names for some files
+- Vendor packages that are not published and was copy-pasted.
+- Ignore some files when you use [eslint-plugin-markdown](https://github.com/eslint/eslint-plugin-markdown), for example `README.md`.
+- Some tools may require special names for some files.
 
 ```js
 "unicorn/filename-case": [
