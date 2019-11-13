@@ -88,9 +88,9 @@ For example:
 	{
 		"case": "kebabCase",
 		"ignore": [
-			"FOOBAR\\.js",
+			"^FOOBAR\\.js$",
 			"^(B|b)az",
-			"\\.SOMETHING\\.js",
+			"\\.SOMETHING\\.js$",
 			/^vendor/i
 		]
 	}
