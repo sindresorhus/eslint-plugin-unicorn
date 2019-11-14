@@ -9,9 +9,9 @@ Enforces the use of:
 
 There are some advantages of using the newer DOM APIs, like:
 
-- traversing to the parent node is not necessary
-- appending multiple nodes at once
-- both [`DOMString`](https://developer.mozilla.org/en-US/docs/Web/API/DOMString) and [DOM node objects](https://developer.mozilla.org/en-US/docs/Web/API/Element) can be manipulated.
+- Traversing to the parent node is not necessary.
+- Appending multiple nodes at once.
+- Both [`DOMString`](https://developer.mozilla.org/en-US/docs/Web/API/DOMString) and [DOM node objects](https://developer.mozilla.org/en-US/docs/Web/API/Element) can be manipulated.
 
 This rule is fixable.
 
