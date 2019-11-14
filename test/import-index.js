@@ -18,6 +18,7 @@ const error = {
 
 ruleTester.run('import-index', rule, {
 	valid: [
+		'const m = require()',
 		'const m = require(\'.\')',
 		'const m = require(\'..\')',
 		'const m = require(\'../..\')',
