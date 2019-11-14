@@ -12,7 +12,7 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 ## Install
 
 ```console
-npm install --save-dev eslint eslint-plugin-unicorn
+$ npm install --save-dev eslint eslint-plugin-unicorn
 ```
 
 
