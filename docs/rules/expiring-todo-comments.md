@@ -97,6 +97,14 @@ Argument versions should be [semver](https://semver.org/) compatible such as: `1
 
 Supported comparisons are `>` and `>=`. Comparison must have a `@` before such as `@>` and `@>=`.
 
+### Pre-releases
+
+TODOS with rules for package.json and dependency versions support semver pre-release format (such as `1.0.0-my.pre.release.1.2.3`). This means if your TODO asks for version `>=1.0.0` and you're in `1.0.0-beta` your TODO will **not** trigger as a pre-release comes first. Conversely, when you land version at least `1.0.0` it'll properly trigger.
+
+Keep in mind that pre-releases compare by number and alphabetical order. Example: 1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-alpha.beta < 1.0.0-beta < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
+
+You can read more about [pre-release format here](https://semver.org/#spec-item-9) or [semver precedence rules here](https://semver.org/#spec-item-11).
+
 ### Combinations
 
 Any combination of rules is possible as long as you separate them by commas. Each condition **triggers an individual report.**
