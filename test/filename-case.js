@@ -92,7 +92,153 @@ ruleTester.run('filename-case', rule, {
 		testManyCases('src/foo/___foo_bar.js', {snakeCase: true, pascalCase: true}),
 		testCaseWithOptions('src/foo/bar.js'),
 		testCase('src/foo/[fooBar].js', 'camelCase'),
-		testCase('src/foo/{foo_bar}.js', 'snakeCase')
+		testCase('src/foo/{foo_bar}.js', 'snakeCase'),
+		testCaseWithOptions(undefined, undefined, [
+			{case: 'kebabCase', ignore: ['FOOBAR\\.js']}
+		]),
+		testCaseWithOptions(undefined, undefined, [
+			{case: 'kebabCase', ignore: [/FOOBAR\.js/u]}
+		]),
+		testCaseWithOptions('src/foo/index.js', undefined, [
+			{case: 'kebabCase', ignore: ['FOOBAR\\.js']}
+		]),
+		testCaseWithOptions('src/foo/index.js', undefined, [
+			{case: 'kebabCase', ignore: [/FOOBAR\.js/u]}
+		]),
+		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
+			{case: 'kebabCase', ignore: ['FOOBAR\\.js']}
+		]),
+		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
+			{case: 'kebabCase', ignore: [/FOOBAR\.js/u]}
+		]),
+		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
+			{case: 'camelCase', ignore: ['FOOBAR\\.js']}
+		]),
+		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
+			{case: 'camelCase', ignore: [/FOOBAR\.js/u]}
+		]),
+		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
+			{case: 'snakeCase', ignore: ['FOOBAR\\.js']}
+		]),
+		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
+			{case: 'pascalCase', ignore: ['FOOBAR\\.js']}
+		]),
+		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
+			{case: 'pascalCase', ignore: [/FOOBAR\.js/u]}
+		]),
+		testCaseWithOptions('src/foo/BARBAZ.js', undefined, [
+			{case: 'kebabCase', ignore: ['FOOBAR\\.js', 'BARBAZ\\.js']}
+		]),
+		testCaseWithOptions('src/foo/BARBAZ.js', undefined, [
+			{case: 'kebabCase', ignore: ['FOOBAR\\.js', /BARBAZ\.js/u]}
+		]),
+		testCaseWithOptions('src/foo/[FOOBAR].js', undefined, [
+			{case: 'camelCase', ignore: ['\\[FOOBAR\\]\\.js']}
+		]),
+		testCaseWithOptions('src/foo/[FOOBAR].js', undefined, [
+			{case: 'camelCase', ignore: [/\[FOOBAR\]\.js/]}
+		]),
+		testCaseWithOptions('src/foo/{FOOBAR}.js', undefined, [
+			{case: 'snakeCase', ignore: ['\\{FOOBAR\\}\\.js']}
+		]),
+		testCaseWithOptions('src/foo/{FOOBAR}.js', undefined, [
+			{case: 'snakeCase', ignore: [/\{FOOBAR\}\.js/]}
+		]),
+		testCaseWithOptions('src/foo/foo.js', undefined, [
+			{case: 'kebabCase', ignore: ['^(F|f)oo']}
+		]),
+		testCaseWithOptions('src/foo/foo-bar.js', undefined, [
+			{case: 'kebabCase', ignore: ['^(F|f)oo']}
+		]),
+		testCaseWithOptions('src/foo/fooBar.js', undefined, [
+			{case: 'kebabCase', ignore: ['^(F|f)oo']}
+		]),
+		testCaseWithOptions('src/foo/foo_bar.js', undefined, [
+			{case: 'kebabCase', ignore: ['^(F|f)oo']}
+		]),
+		testCaseWithOptions('src/foo/foo_bar.js', undefined, [
+			{case: 'kebabCase', ignore: [/foo/iu]}
+		]),
+		testCaseWithOptions('src/foo/FOO_bar.js', undefined, [
+			{case: 'kebabCase', ignore: [/foo/iu]}
+		]),
+		testCaseWithOptions('src/foo/foo-bar.js', undefined, [
+			{case: 'kebabCase', ignore: ['\\.(web|android|ios)\\.js$']}
+		]),
+		testCaseWithOptions('src/foo/FooBar.web.js', undefined, [
+			{case: 'kebabCase', ignore: ['\\.(web|android|ios)\\.js$']}
+		]),
+		testCaseWithOptions('src/foo/FooBar.android.js', undefined, [
+			{case: 'kebabCase', ignore: ['\\.(web|android|ios)\\.js$']}
+		]),
+		testCaseWithOptions('src/foo/FooBar.ios.js', undefined, [
+			{case: 'kebabCase', ignore: ['\\.(web|android|ios)\\.js$']}
+		]),
+		testCaseWithOptions('src/foo/FooBar.something.js', undefined, [
+			{case: 'kebabCase', ignore: [/\.(web|android|ios|something)\.js$/u]}
+		]),
+		testCaseWithOptions('src/foo/FooBar.js', undefined, [
+			{case: 'kebabCase', ignore: ['^(F|f)oo']}
+		]),
+		testCaseWithOptions('src/foo/FooBar.js', undefined, [
+			{case: 'kebabCase', ignore: [/^(F|f)oo/u]}
+		]),
+		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
+			{case: 'kebabCase', ignore: ['^FOO', 'BAZ\\.js$']}
+		]),
+		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
+			{case: 'kebabCase', ignore: [/^FOO/, /BAZ\.js$/u]}
+		]),
+		testCaseWithOptions('src/foo/BARBAZ.js', undefined, [
+			{case: 'kebabCase', ignore: ['^FOO', 'BAZ\\.js$']}
+		]),
+		testCaseWithOptions('src/foo/BARBAZ.js', undefined, [
+			{case: 'kebabCase', ignore: [/^FOO/, /BAZ\.js$/]}
+		]),
+		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
+			{
+				cases: {
+					kebabCase: true,
+					camelCase: true,
+					snakeCase: true,
+					pascalCase: true
+				},
+				ignore: ['FOOBAR\\.js']
+			}
+		]),
+		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
+			{
+				cases: {
+					kebabCase: true,
+					camelCase: true,
+					snakeCase: true,
+					pascalCase: true
+				},
+				ignore: [/FOOBAR\.js/u]
+			}
+		]),
+		testCaseWithOptions('src/foo/BaRbAz.js', undefined, [
+			{
+				cases: {
+					kebabCase: true,
+					camelCase: true,
+					snakeCase: true,
+					pascalCase: true
+				},
+				ignore: ['FOOBAR\\.js', 'BaRbAz\\.js']
+			}
+		]),
+		testCaseWithOptions('src/foo/BaRbAz.js', undefined, [
+			{
+				cases: {
+					kebabCase: true,
+					camelCase: true,
+					snakeCase: true,
+					pascalCase: true
+				},
+				ignore: [/FOOBAR\.js/u, /BaRbAz\.js/u]
+			}
+		])
 	],
 	invalid: [
 		testCase(
@@ -242,6 +388,129 @@ ruleTester.run('filename-case', rule, {
 				kebabCase: true
 			},
 			'Filename is not in camel case, pascal case, or kebab case. Rename it to `{fooBar}.js`, `{FooBar}.js`, or `{foo-bar}.js`.'
+		),
+		testCaseWithOptions(
+			'src/foo/barBaz.js',
+			'Filename is not in kebab case. Rename it to `bar-baz.js`.',
+			[{case: 'kebabCase', ignore: ['FOOBAR\\.js']}]
+		),
+		testCaseWithOptions(
+			'src/foo/barBaz.js',
+			'Filename is not in kebab case. Rename it to `bar-baz.js`.',
+			[{case: 'kebabCase', ignore: ['/FOOBAR\\.js/']}]
+		),
+		testCaseWithOptions(
+			'src/foo/barBaz.js',
+			'Filename is not in kebab case. Rename it to `bar-baz.js`.',
+			[{case: 'kebabCase', ignore: [/FOOBAR\.js/u]}]
+		),
+		testCaseWithOptions(
+			'src/foo/fooBar.js',
+			'Filename is not in kebab case. Rename it to `foo-bar.js`.',
+			[{case: 'kebabCase', ignore: ['FOOBAR\\.js']}]
+		),
+		testCaseWithOptions(
+			'src/foo/fooBar.js',
+			'Filename is not in kebab case. Rename it to `foo-bar.js`.',
+			[{case: 'kebabCase', ignore: [/FOOBAR\.js/u]}]
+		),
+		testCaseWithOptions(
+			'src/foo/fooBar.js',
+			'Filename is not in kebab case. Rename it to `foo-bar.js`.',
+			[{case: 'kebabCase', ignore: ['FOOBAR\\.js', 'foobar\\.js']}]
+		),
+		testCaseWithOptions(
+			'src/foo/fooBar.js',
+			'Filename is not in kebab case. Rename it to `foo-bar.js`.',
+			[{case: 'kebabCase', ignore: [/FOOBAR\.js/u, /foobar\.js/u]}]
+		),
+		testCaseWithOptions(
+			'src/foo/FooBar.js',
+			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
+			[{
+				cases: {
+					camelCase: true,
+					snakeCase: true
+				},
+				ignore: ['FOOBAR\\.js']
+			}]
+		),
+		testCaseWithOptions(
+			'src/foo/FooBar.js',
+			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
+			[{
+				cases: {
+					camelCase: true,
+					snakeCase: true
+				},
+				ignore: [/FOOBAR\.js/u]
+			}]
+		),
+		testCaseWithOptions(
+			'src/foo/FooBar.js',
+			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
+			[{
+				cases: {
+					camelCase: true,
+					snakeCase: true
+				},
+				ignore: ['BaRbAz\\.js']
+			}]
+		),
+		testCaseWithOptions(
+			'src/foo/FooBar.js',
+			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
+			[{
+				cases: {
+					camelCase: true,
+					snakeCase: true
+				},
+				ignore: [/BaRbAz\.js/u]
+			}]
+		),
+		testCaseWithOptions(
+			'src/foo/FooBar.js',
+			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
+			[{
+				cases: {
+					camelCase: true,
+					snakeCase: true
+				},
+				ignore: ['^foo']
+			}]
+		),
+		testCaseWithOptions(
+			'src/foo/FooBar.js',
+			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
+			[{
+				cases: {
+					camelCase: true,
+					snakeCase: true
+				},
+				ignore: [/^foo/]
+			}]
+		),
+		testCaseWithOptions(
+			'src/foo/FooBar.js',
+			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
+			[{
+				cases: {
+					camelCase: true,
+					snakeCase: true
+				},
+				ignore: ['^foo', '^bar']
+			}]
+		),
+		testCaseWithOptions(
+			'src/foo/FooBar.js',
+			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
+			[{
+				cases: {
+					camelCase: true,
+					snakeCase: true
+				},
+				ignore: [/^foo/, /^bar/]
+			}]
 		)
 	]
 });
