@@ -73,7 +73,7 @@ Default: `[]`
 
 Filenames to ignore.
 
-When string is given, it's interpreted as a regular expressions inside a string, don't forget what you must escape special characters (For example `.`, `[`,`]`, `(`, `)` and etc) by putting two backslashes in front of them (to ignore `[id].js` file, you should use `"^\\[id\\]\\.js$"`).
+When a string is given, it's interpreted as a regular expressions inside a string. Needed for ESLint config in JSON.
 
 Sometimes you may have non-standard filenames in a project. This option lets you ignore those files.
 
@@ -81,6 +81,8 @@ For example:
 - Vendor packages that are not published and was copy-pasted.
 - Ignore some files when you use [eslint-plugin-markdown](https://github.com/eslint/eslint-plugin-markdown), for example `README.md`.
 - Some tools may require special names for some files.
+
+Don't forget that you must escape special characters that you don't want to be interpreted as part of the regex, for example, if you have `[` in the actual filename. For example, to match `[id].js`, use `/^\[id\]\.js$/"` or `'^\\[id\\]\\.js$'`.
 
 ```js
 "unicorn/filename-case": [
