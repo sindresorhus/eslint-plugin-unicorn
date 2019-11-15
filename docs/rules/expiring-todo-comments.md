@@ -99,7 +99,7 @@ Supported comparisons are `>` and `>=`. Comparison must have a `@` before such a
 
 ### Pre-releases
 
-TODO comments with rules for package.json and dependency versions support the semver pre-release format, such as `1.0.0-my.pre.release.1.2.3`. This means that if your TODO asks for version `>=1.0.0` and you're in `1.0.0-beta`, your TODO will **not** trigger as a pre-release comes first. Conversely, when you land version at least `1.0.0`, it will properly trigger.
+TODO comments with rules for package.json and dependency versions support the semver pre-release format, such as `1.0.0-my.pre.release.1.2.3`. This means that if your TODO asks for version `>=1.0.0` and you're in `1.0.0-beta`, your TODO will **not** trigger as a pre-release comes first. When the version is at least `1.0.0`, it will properly trigger.
 
 Keep in mind that pre-releases compare by number and alphabetical order. Example: `1.0.0-alpha` < `1.0.0-alpha.1` < `1.0.0-alpha.beta` < `1.0.0-beta` < `1.0.0-beta.2` < `1.0.0-beta.11` < `1.0.0-rc.1` < `1.0.0`.
 
