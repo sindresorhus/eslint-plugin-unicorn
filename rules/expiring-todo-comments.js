@@ -27,8 +27,8 @@ const packageDependencies = {
 };
 
 const DEPENDENCY_INCLUSION_RE = /^[+|-]\s*@?[\S+]\/?\S+/;
-const VERSION_COMPARISON_RE = /^(@?[\S+]\/?\S+)@(>|>=)([\d]+(\.\d+){0,2})/;
-const PKG_VERSION_RE = /^(>|>=)([\d]+(\.\d+){0,2})\s*$/;
+const VERSION_COMPARISON_RE = /^(@?[\S+]\/?\S+)@(>|>=)([\d]+(\.\d+){0,2}(-[\da-z-]+(\.[\da-z-]+)*)?(\+[\da-z-]+(\.[\da-z-]+)*)?)/i;
+const PKG_VERSION_RE = /^(>|>=)([\d]+(\.\d+){0,2}(-[\da-z-]+(\.[\da-z-]+)*)?(\+[\da-z-]+(\.[\da-z-]+)*)?)\s*$/;
 const ISO8601_DATE = /(\d{4})-(\d{2})-(\d{2})/;
 
 function parseTodoWithArguments(string, {terms}) {
@@ -158,9 +158,37 @@ function reachedDate(past) {
 	return Date.parse(past) < Date.parse(now);
 }
 
-function tryToCoerceVersion(version) {
+function tryToCoerceVersion(rawVersion) {
+	let version = rawVersion;
+
+	// Remove leading things like `^1.0.0`, `>1.0.0`
+	const leadingNoises = [
+		'>=',
+		'<=',
+		'>',
+		'<',
+		'~',
+		'^'
+	];
+	const foundTrailingNoise = leadingNoises.find(noise => version.startsWith(noise));
+	if (foundTrailingNoise) {
+		version = version.slice(foundTrailingNoise.length);
+	}
+
+	// Get only the first member for cases such as `1.0.0 - 2.9999.9999`
+	const parts = version.split(' ');
+	if (parts.length > 1) {
+		version = parts[0];
+	}
+
+	if (semver.valid(version)) {
+		return version;
+	}
+
 	try {
-		return semver.coerce(version);
+		// Try to semver.parse a perfect match while semver.coerce tries to fix errors
+		// But coerce can't parse pre-releases.
+		return semver.parse(version) || semver.coerce(version);
 	} catch (_) {
 		return false;
 	}
