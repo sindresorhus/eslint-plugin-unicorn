@@ -10,8 +10,10 @@ const argumentsVariable = templates.spreadVariable();
 const substrCallTemplate = templates.template`${objectVariable}.substr(${argumentsVariable})`;
 const substringCallTemplate = templates.template`${objectVariable}.substring(${argumentsVariable})`;
 
+const isLiteralNumber = node => node && node.type === 'Literal' && typeof node.value === 'number';
+
 const getNumericValue = node => {
-	if (node.type === 'Literal' && typeof node.value === 'number') {
+	if (isLiteralNumber(node)) {
 		return node.value;
 	}
 
@@ -20,6 +22,7 @@ const getNumericValue = node => {
 	}
 };
 
+// This handles cases where the argument is very likely to be a number, such as .substring('foo'.length)
 const isLengthProperty = node => (
 	node &&
 	node.type === 'MemberExpression' &&
@@ -27,6 +30,8 @@ const isLengthProperty = node => (
 	node.property.type === 'Identifier' &&
 	node.property.name === 'length'
 );
+
+const isLikelyNumeric = node => isLiteralNumber(node) || isLengthProperty(node);
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
@@ -53,12 +58,10 @@ const create = context => {
 			} else if (argumentNodes.length === 2) {
 				if (firstArgument === '0') {
 					slice = [firstArgument, secondArgument];
-				} else if (argumentNodes[0].type === 'Literal') {
-					if (argumentNodes[1].type === 'Literal' && typeof argumentNodes[1].value === 'number' && typeof argumentNodes[0].value === 'number') {
-						slice = [argumentNodes[0].value, argumentNodes[0].value + argumentNodes[1].value];
-					} else {
-						slice = [firstArgument, firstArgument + ' + ' + secondArgument];
-					}
+				} else if (isLiteralNumber(argumentNodes[0]) && isLiteralNumber(argumentNodes[1])) {
+					slice = [firstArgument, argumentNodes[0].value + argumentNodes[1].value];
+				} else if (isLikelyNumeric(argumentNodes[0]) && isLikelyNumeric(argumentNodes[1])) {
+					slice = [firstArgument, firstArgument + ' + ' + secondArgument];
 				}
 			}
 

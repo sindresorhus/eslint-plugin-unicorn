@@ -47,7 +47,17 @@ ruleTester.run('prefer-string-slice', rule, {
 		},
 		{
 			code: '"foo".substr(1, length)',
-			output: '"foo".slice(1, 1 + length)',
+			output: '"foo".substr(1, length)',
+			errors
+		},
+		{
+			code: '"foo".substr(1, "abc".length)',
+			output: '"foo".slice(1, 1 + "abc".length)',
+			errors
+		},
+		{
+			code: '"foo".substr("1", 2)',
+			output: '"foo".substr("1", 2)',
 			errors
 		},
 		{
@@ -57,7 +67,7 @@ ruleTester.run('prefer-string-slice', rule, {
 			`,
 			output: outdent`
 				const length = 123;
-				"foo".slice(1, 1 + length)
+				"foo".substr(1, length)
 			`,
 			errors
 		},
@@ -75,11 +85,22 @@ ruleTester.run('prefer-string-slice', rule, {
 		{
 			code: outdent`
 				const length = 123;
+				"foo".substr('0', length)
+			`,
+			output: outdent`
+				const length = 123;
+				"foo".substr('0', length)
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				const length = 123;
 				"foo".substr(1, length - 4)
 			`,
 			output: outdent`
 				const length = 123;
-				"foo".slice(1, 1 + length - 4)
+				"foo".substr(1, length - 4)
 			`,
 			errors
 		},
