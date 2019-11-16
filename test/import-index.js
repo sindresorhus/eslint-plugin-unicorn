@@ -104,9 +104,21 @@ ruleTester.run('import-index', rule, {
 			output: 'const m = require(\'.\')'
 		},
 		{
+			code: 'const m = require(\'./index\')',
+			errors: [error],
+			output: 'const m = require(\'.\')',
+			options: ignoreImportsOptions
+		},
+		{
 			code: 'const m = require(\'./index.js\')',
 			errors: [error],
 			output: 'const m = require(\'.\')'
+		},
+		{
+			code: 'const m = require(\'./index.js\')',
+			errors: [error],
+			output: 'const m = require(\'.\')',
+			options: ignoreImportsOptions
 		},
 		{
 			code: 'const m = require(\'../../index.js\')',
