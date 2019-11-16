@@ -26,9 +26,9 @@ const packageDependencies = {
 	...packageJson.devDependencies
 };
 
-const DEPENDENCY_INCLUSION_RE = /^[+|-]\s*@?[\S+]\/?\S+/;
-const VERSION_COMPARISON_RE = /^(@?[\S+]\/?\S+)@(>|>=)([\d]+(\.\d+){0,2}(-[\da-z-]+(\.[\da-z-]+)*)?(\+[\da-z-]+(\.[\da-z-]+)*)?)/i;
-const PKG_VERSION_RE = /^(>|>=)([\d]+(\.\d+){0,2}(-[\da-z-]+(\.[\da-z-]+)*)?(\+[\da-z-]+(\.[\da-z-]+)*)?)\s*$/;
+const DEPENDENCY_INCLUSION_RE = /^[+-]\s*@?\S+\/?\S+/;
+const VERSION_COMPARISON_RE = /^(@?\S\/?\S+)@(>|>=)(\d+(\.\d+){0,2}(-[\d\-a-z]+(\.[\d\-a-z]+)*)?(\+[\d\-a-z]+(\.[\d\-a-z]+)*)?)/i;
+const PKG_VERSION_RE = /^(>|>=)(\d+(\.\d+){0,2}(-[\d-a-z]+(\.[\d-a-z]+)*)?(\+[\d-a-z]+(\.[\d-a-z]+)*)?)\s*$/;
 const ISO8601_DATE = /(\d{4})-(\d{2})-(\d{2})/;
 
 function parseTodoWithArguments(string, {terms}) {
@@ -40,7 +40,7 @@ function parseTodoWithArguments(string, {terms}) {
 		return false;
 	}
 
-	const TODO_ARGUMENT_RE = /\[([^}]+)\]/i;
+	const TODO_ARGUMENT_RE = /\[([^}]+)]/i;
 	const result = TODO_ARGUMENT_RE.exec(string);
 
 	if (!result) {
