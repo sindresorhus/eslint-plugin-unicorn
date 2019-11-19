@@ -16,11 +16,29 @@ const importIndex = (context, node, argument) => {
 };
 
 const create = context => {
-	return {
-		'CallExpression[callee.name="require"]': node => importIndex(context, node, node.arguments[0]),
-		ImportDeclaration: node => importIndex(context, node, node.source)
+	const options = context.options[0] || {};
+
+	const rules = {
+		'CallExpression[callee.name="require"]': node => importIndex(context, node, node.arguments[0])
 	};
+
+	if (!options.ignoreImports) {
+		rules.ImportDeclaration = node => importIndex(context, node, node.source);
+	}
+
+	return rules;
 };
+
+const schema = [{
+	type: 'object',
+	properties: {
+		ignoreImports: {
+			type: 'boolean',
+			default: false
+		}
+	},
+	additionalProperties: false
+}];
 
 module.exports = {
 	create,
@@ -29,6 +47,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
+		schema,
 		fixable: 'code'
 	}
 };
