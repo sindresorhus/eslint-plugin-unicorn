@@ -2,7 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const fix = value => {
-	if (!/^0[a-zA-Z]/.test(value)) {
+	if (!/^0[A-Za-z]/.test(value)) {
 		return value;
 	}
 

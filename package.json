@@ -44,6 +44,7 @@
 		"lodash.topairs": "^4.3.0",
 		"lodash.upperfirst": "^4.3.1",
 		"read-pkg-up": "^7.0.0",
+		"regexp-tree": "^0.1.16",
 		"regexpp": "^3.0.0",
 		"reserved-words": "^0.1.2",
 		"safe-regex": "^2.1.1",

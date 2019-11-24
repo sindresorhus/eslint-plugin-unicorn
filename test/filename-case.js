@@ -136,13 +136,13 @@ ruleTester.run('filename-case', rule, {
 			{case: 'camelCase', ignore: ['\\[FOOBAR\\]\\.js']}
 		]),
 		testCaseWithOptions('src/foo/[FOOBAR].js', undefined, [
-			{case: 'camelCase', ignore: [/\[FOOBAR\]\.js/]}
+			{case: 'camelCase', ignore: [/\[FOOBAR]\.js/]}
 		]),
 		testCaseWithOptions('src/foo/{FOOBAR}.js', undefined, [
 			{case: 'snakeCase', ignore: ['\\{FOOBAR\\}\\.js']}
 		]),
 		testCaseWithOptions('src/foo/{FOOBAR}.js', undefined, [
-			{case: 'snakeCase', ignore: [/\{FOOBAR\}\.js/]}
+			{case: 'snakeCase', ignore: [/{FOOBAR}\.js/]}
 		]),
 		testCaseWithOptions('src/foo/foo.js', undefined, [
 			{case: 'kebabCase', ignore: ['^(F|f)oo']}
