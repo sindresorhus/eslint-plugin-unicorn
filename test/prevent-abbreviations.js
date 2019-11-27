@@ -1397,6 +1397,21 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 	],
 	invalid: [
 		{
+			code: outdent`
+				function unicorn(unicorn) {
+					const {prop = {}} = unicorn;
+					return property;
+				}
+			`,
+			output: outdent`
+				function unicorn(unicorn) {
+					const {prop: property = {}} = unicorn;
+					return property;
+				}
+			`,
+			errors: createErrors()
+		},
+		{
 			code: '({err}) => err',
 			output: '({err: error}) => error',
 			options: customOptions,
