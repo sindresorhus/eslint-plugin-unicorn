@@ -67,6 +67,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-exponentiation-operator": "error",
 			"unicorn/prefer-flat-map": "error",
 			"unicorn/prefer-includes": "error",
+			"unicorn/prefer-negative-index": "error",
 			"unicorn/prefer-node-append": "error",
 			"unicorn/prefer-node-remove": "error",
 			"unicorn/prefer-query-selector": "error",
@@ -119,6 +120,7 @@ Configure it in `package.json`.
 - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Prefer the exponentiation operator over `Math.pow()` *(fixable)*
 - [prefer-flat-map](docs/rules/prefer-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
 - [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
+- [prefer-negative-index](docs/rules/prefer-negative-index.md) - Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()` and `Array#splice()`. *(fixable)*
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `Node#append()` over `Node#appendChild()`. *(fixable)*
 - [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `node.remove()` over `parentNode.removeChild(node)` and `parentElement.removeChild(node)`. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. *(partly fixable)*
