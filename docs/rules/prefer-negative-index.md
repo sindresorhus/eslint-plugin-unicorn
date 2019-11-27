@@ -1,6 +1,6 @@
 # Prefer negative index over `.length - index` for `String#slice()` and `String#splice()`
 
-Prefer negative index over calculating from `length` for `slice` and `splice`
+Prefer negative index over calculating from `.length` for `String#slice()` and `String#splice()`
 
 This rule is fixable.
 
