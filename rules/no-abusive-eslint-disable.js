@@ -1,7 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const disableRegex = /^eslint-disable(-next-line|-line)?($|(\s+(@[\w-]+\/(?:[\w-]+\/)?)?[\w-]+)?)/;
+const disableRegex = /^eslint-disable(-next-line|-line)?($|(\s+(@(?:[\w-]+\/){1,2})?[\w-]+)?)/;
 
 const create = context => ({
 	Program: node => {

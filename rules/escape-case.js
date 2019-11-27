@@ -6,8 +6,8 @@ const {
 
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const escapeWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[a-f\d]{2}|u[a-f\d]{4}|u{(?:[a-f\d]+)})/;
-const escapePatternWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[a-f\d]{2}|u[a-f\d]{4}|u{(?:[a-f\d]+)}|c[a-z])/;
+const escapeWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+})/;
+const escapePatternWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+}|c[a-z])/;
 const hasLowercaseCharacter = /[a-z]+/;
 const message = 'Use uppercase characters for the value of the escape sequence.';
 

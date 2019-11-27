@@ -33,6 +33,10 @@ Characters in the filename except `a-z`, `A-Z`, `0-9`, `-`, `_` and `$` are igno
 
 ## Options
 
+### case
+
+Type: `string`
+
 You can set the `case` option like this:
 
 ```js
@@ -44,7 +48,11 @@ You can set the `case` option like this:
 ]
 ```
 
-Or set the `cases` option to allow multiple cases:
+### cases
+
+Type: `{[type: string]: string}`
+
+You can set the `cases` option to allow multiple cases:
 
 ```js
 "unicorn/filename-case": [
@@ -54,6 +62,39 @@ Or set the `cases` option to allow multiple cases:
 			"camelCase": true,
 			"pascalCase": true
 		}
+	}
+]
+```
+
+### ignore
+
+Type: `Array<string | RegExp>`\
+Default: `[]`
+
+Filenames to ignore.
+
+When a string is given, it's interpreted as a regular expressions inside a string. Needed for ESLint config in JSON.
+
+Sometimes you may have non-standard filenames in a project. This option lets you ignore those files.
+
+For example:
+- Vendor packages that are not published and was copy-pasted.
+- Ignore some files when you use [eslint-plugin-markdown](https://github.com/eslint/eslint-plugin-markdown), for example `README.md`.
+- Some tools may require special names for some files.
+
+Don't forget that you must escape special characters that you don't want to be interpreted as part of the regex, for example, if you have `[` in the actual filename. For example, to match `[id].js`, use `/^\[id\]\.js$/"` or `'^\\[id\\]\\.js$'`.
+
+```js
+"unicorn/filename-case": [
+	"error",
+	{
+		"case": "kebabCase",
+		"ignore": [
+			"^FOOBAR\\.js$",
+			"^(B|b)az",
+			"\\.SOMETHING\\.js$",
+			/^vendor/i
+		]
 	}
 ]
 ```

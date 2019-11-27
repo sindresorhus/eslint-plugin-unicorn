@@ -1,5 +1,6 @@
 'use strict';
 const cleanRegexp = require('clean-regexp');
+const {generate, optimize, parse} = require('regexp-tree');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 
@@ -8,23 +9,46 @@ const message = 'Use regex shorthands to improve readability.';
 const create = context => {
 	return {
 		'Literal[regex]': node => {
-			const oldPattern = node.regex.pattern;
-			const {flags} = node.regex;
+			const {type, value} = context.getSourceCode().getFirstToken(node);
 
-			const newPattern = cleanRegexp(oldPattern, flags);
-
-			// Handle regex literal inside RegExp constructor in the other handler
-			if (node.parent.type === 'NewExpression' && node.parent.callee.name === 'RegExp') {
+			if (type !== 'RegularExpression') {
 				return;
 			}
 
-			if (oldPattern !== newPattern) {
+			let parsedSource;
+			try {
+				parsedSource = parse(value);
+			} catch (error) {
 				context.report({
 					node,
-					message,
-					fix: fixer => fixer.replaceText(node, `/${newPattern}/${flags}`)
+					message: '{{original}} can\'t be parsed: {{message}}',
+					data: {
+						original: value,
+						message: error.message
+					}
 				});
+
+				return;
 			}
+
+			const originalRegex = generate(parsedSource).toString();
+			const optimizedRegex = optimize(value).toString();
+
+			if (originalRegex === optimizedRegex) {
+				return;
+			}
+
+			context.report({
+				node,
+				message: '{{original}} can be optimized to {{optimized}}',
+				data: {
+					original: value,
+					optimized: optimizedRegex
+				},
+				fix(fixer) {
+					return fixer.replaceText(node, optimizedRegex);
+				}
+			});
 		},
 		'NewExpression[callee.name="RegExp"]': node => {
 			const arguments_ = node.arguments;
@@ -35,27 +59,18 @@ const create = context => {
 
 			const hasRegExp = arguments_[0].regex;
 
-			let oldPattern;
-			let flags;
 			if (hasRegExp) {
-				oldPattern = arguments_[0].regex.pattern;
-				flags = arguments_[1] && arguments_[1].type === 'Literal' ? arguments_[1].value : arguments_[0].regex.flags;
-			} else {
-				oldPattern = arguments_[0].value;
-				flags = arguments_[1] && arguments_[1].type === 'Literal' ? arguments_[1].value : '';
+				return;
 			}
+
+			const oldPattern = arguments_[0].value;
+			const flags = arguments_[1] && arguments_[1].type === 'Literal' ? arguments_[1].value : '';
 
 			const newPattern = cleanRegexp(oldPattern, flags);
 
 			if (oldPattern !== newPattern) {
-				let fixed;
-				if (hasRegExp) {
-					fixed = `/${newPattern}/`;
-				} else {
-					// Escape backslash
-					fixed = (newPattern || '').replace(/\\/g, '\\\\');
-					fixed = quoteString(fixed);
-				}
+				// Escape backslash
+				const fixed = quoteString((newPattern || '').replace(/\\/g, '\\\\'));
 
 				context.report({
 					node,

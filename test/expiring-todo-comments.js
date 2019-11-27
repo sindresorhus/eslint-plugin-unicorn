@@ -81,6 +81,9 @@ ruleTester.run('expiring-todo-comments', rule, {
 		'// TODO [+popura]: I think we wont need a broken package.',
 		'// TODO [semver@>1000]: Welp hopefully we wont get at that.',
 		'// TODO [semver@>=1000]: Welp hopefully we wont get at that.',
+		'// TODO [@lubien/fixture-beta-package@>=1.0.0]: we are using a pre-release',
+		'// TODO [@lubien/fixture-beta-package@>=1.0.0-gamma.1]: beta comes first from gamma',
+		'// TODO [@lubien/fixture-beta-package@>=1.0.0-beta.2]: we are in beta.1',
 		'// TODO [2200-12-12, -read-pkg-up]: Combo',
 		'// TODO [2200-12-12, -read-pkg-up, +popura]: Combo',
 		'// TODO [2200-12-12, -read-pkg-up, +popura, semver@>=1000]: Combo',
@@ -222,6 +225,18 @@ ruleTester.run('expiring-todo-comments', rule, {
 		{
 			code: '// TODO [read-pkg-up@>=5.1.1]: when `read-pkg-up` version is >= 5.1.1',
 			errors: [versionMatchesError('read-pkg-up >= 5.1.1', 'when `read-pkg-up` version is >= 5.1.1')]
+		},
+		{
+			code: '// TODO [@lubien/fixture-beta-package@>=1.0.0-alfa.1]: when `@lubien/fixture-beta-package` version is >= 1.0.0-alfa.1',
+			errors: [versionMatchesError('@lubien/fixture-beta-package >= 1.0.0-alfa.1', 'when `@lubien/fixture-beta-package` version is >= 1.0.0-alfa.1')]
+		},
+		{
+			code: '// TODO [@lubien/fixture-beta-package@>=1.0.0-beta.1]: when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.1',
+			errors: [versionMatchesError('@lubien/fixture-beta-package >= 1.0.0-beta.1', 'when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.1')]
+		},
+		{
+			code: '// TODO [@lubien/fixture-beta-package@>=1.0.0-beta.0]: when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.0',
+			errors: [versionMatchesError('@lubien/fixture-beta-package >= 1.0.0-beta.0', 'when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.0')]
 		},
 		{
 			code: '// TODO [semver>1]: Missing @.',

@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = name => /^[a-z$_][a-z$_\d]*$/i.test(name);
+module.exports = name => /^[$_a-z][\w$]*$/i.test(name);

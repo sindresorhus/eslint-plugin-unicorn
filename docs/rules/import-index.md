@@ -61,3 +61,25 @@ const m = require('@foo/bar');
 ```js
 import m from '.';
 ```
+
+
+## Options
+
+### ignoreImports
+
+Type: `boolean`\
+Default: `false`
+
+Don't check `import` statements.
+
+Can be useful if you're using native `import` in Node.js where the filename and extension is required.
+
+```js
+// eslint unicorn/import-index: ["error", {"ignoreImports": true}]
+import m from './index'; // Passes
+```
+
+```js
+// eslint unicorn/import-index: ["error", {"ignoreImports": false}]
+import m from './index'; // Fails
+```

@@ -12,6 +12,10 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const typescriptRuleTester = avaRuleTester(test, {
+	parser: require.resolve('@typescript-eslint/parser')
+});
+
 const invalidClassNameError = {ruleId: 'custom-error-definition', message: 'Invalid class name, use `FooError`.'};
 const constructorError = {ruleId: 'custom-error-definition', message: 'Add a constructor to your error.'};
 const noSuperCallError = {ruleId: 'custom-error-definition', message: 'Missing call to `super()` in constructor.'};
@@ -432,4 +436,15 @@ ruleTester.run('custom-error-definition', rule, {
 			]
 		}
 	]
+});
+
+typescriptRuleTester.run('custom-error-definition', rule, {
+	valid: [
+		outdent`
+			class CustomError extends Error {
+				constructor(type: string, text: string, reply?: any);
+			}
+		`
+	],
+	invalid: []
 });
