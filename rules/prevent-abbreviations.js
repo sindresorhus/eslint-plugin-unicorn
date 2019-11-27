@@ -366,8 +366,17 @@ const shouldFix = variable => {
 
 const isShorthandPropertyIdentifier = identifier => {
 	return identifier.parent.type === 'Property' &&
-		identifier.parent.key === identifier &&
-		identifier.parent.shorthand;
+		identifier.parent.shorthand &&
+		(
+			identifier.parent.key === identifier ||
+			// In `babel-eslint` parent.key is not reference of identifier
+			(
+				identifier.parent.key.type === identifier.type &&
+				identifier.parent.key.name === identifier.name &&
+				identifier.parent.key.start === identifier.start &&
+				identifier.parent.key.end === identifier.end
+			)
+		);
 };
 
 const isAssignmentPatternShorthandPropertyIdentifier = identifier => {
