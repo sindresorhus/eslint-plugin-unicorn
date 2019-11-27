@@ -22,6 +22,7 @@ const methods = new Map([
 				'Float64Array',
 				'BigInt64Array',
 				'BigUint64Array'
+				// {Blob,File}#slice is not used generally
 				// 'Blob'
 				// 'File'
 			])
@@ -139,8 +140,7 @@ const getRemovalRange = (node, sourceCode) => {
 	let before = sourceCode.getTokenBefore(node);
 	let after = sourceCode.getTokenAfter(node);
 
-	let start = node.range[0];
-	let end = node.range[1];
+	let [start, end] = node.range;
 
 	let hasParentheses = true;
 
