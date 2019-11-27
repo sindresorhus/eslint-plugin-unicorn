@@ -22,7 +22,7 @@ const methods = new Map([
 				'Float64Array',
 				'BigInt64Array',
 				'BigUint64Array'
-				// {Blob,File}#slice is not used generally
+				// `{Blob,File}#slice()` are not generally used
 				// 'Blob'
 				// 'File'
 			])
