@@ -80,6 +80,12 @@ const customErrorDefinition = (context, node) => {
 	}
 
 	const constructorBodyNode = constructor.value.body;
+
+	// Verify the constructor has a body (TypeScript)
+	if (!constructorBodyNode) {
+		return;
+	}
+
 	const constructorBody = constructorBodyNode.body;
 
 	const superExpression = constructorBody.find(isSuperExpression);
