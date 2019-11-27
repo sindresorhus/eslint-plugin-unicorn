@@ -367,6 +367,7 @@ const shouldFix = variable => {
 const isIdentifierKeyOfNode = (identifier, node) =>
 	node.key === identifier ||
 	// In `babel-eslint` parent.key is not reference of identifier
+	// https://github.com/babel/babel-eslint/issues/809
 	(
 		node.key.type === identifier.type &&
 		node.key.name === identifier.name
