@@ -446,6 +446,5 @@ typescriptRuleTester.run('custom-error-definition', rule, {
 			}
 		`
 	],
-	invalid: [
-	]
+	invalid: []
 });
