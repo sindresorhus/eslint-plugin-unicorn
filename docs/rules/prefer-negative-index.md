@@ -1,4 +1,4 @@
-# Prefer `-n` over `.length - n` for `slice` and `splice`
+# Prefer negative index over `.length - index` for `String#slice()` and `String#splice()`
 
 Prefer negative index over calculating from `length` for `slice` and `splice`
 
