@@ -1,6 +1,6 @@
-# Prefer negative index over `.length - index` for `String#slice()` and `String#splice()`
+# Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()` and `Array#splice()`
 
-Prefer negative index over calculating from `.length` for `String#slice()` and `String#splice()`
+Prefer negative index over calculating from `.length` for [`String#slice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice), [`Array#slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice), [`TypedArray#slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/slice) and [`Array#splice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice)
 
 This rule is fixable.
 

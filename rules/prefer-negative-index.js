@@ -139,8 +139,8 @@ const getRemovalRange = (node, sourceCode) => {
 	let before = sourceCode.getTokenBefore(node);
 	let after = sourceCode.getTokenAfter(node);
 
-	let [start] = node.range;
-	let [, end] = node.range;
+	let start = node.range[0];
+	let end = node.range[1];
 
 	let hasParentheses = true;
 
@@ -151,19 +151,15 @@ const getRemovalRange = (node, sourceCode) => {
 		if (hasParentheses) {
 			before = sourceCode.getTokenBefore(before);
 			after = sourceCode.getTokenAfter(after);
-			[, start] = before.range;
-			[end] = after.range;
+			start = before.range[1];
+			end = after.range[0];
 		}
 	}
 
 	const [nextStart] = after.range;
 	const textBetween = sourceCode.text.slice(end, nextStart);
 
-	if (/^\s+$/.test(textBetween)) {
-		end = nextStart;
-	} else {
-		end += textBetween.match(/\S|$/).index;
-	}
+	end += textBetween.match(/\S|$/).index;
 
 	return [start, end];
 };
@@ -272,20 +268,20 @@ const create = context => ({
 		} = parsed;
 
 		const {argumentsIndexes} = methods.get(method);
-		const removeAbleNodes = argumentsIndexes
+		const removableNodes = argumentsIndexes
 			.map(index => getRemoveAbleNode(target, argumentsNodes[index]))
 			.filter(Boolean);
 
-		if (removeAbleNodes.length === 0) {
+		if (removableNodes.length === 0) {
 			return;
 		}
 
 		context.report({
 			node,
-			message: `Prefer \`-n\` over \`.length - n\` for \`${method}\``,
+			message: `Prefer negative index over length minus index for \`${method}\`.`,
 			fix(fixer) {
 				const sourceCode = context.getSourceCode();
-				return removeAbleNodes.map(
+				return removableNodes.map(
 					node => fixer.removeRange(
 						getRemovalRange(node, sourceCode)
 					)
