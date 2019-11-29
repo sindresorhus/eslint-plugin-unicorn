@@ -31,8 +31,17 @@ const create = context => {
 				return;
 			}
 
+			const optimized = optimize(value);
+
+			// Optimized RegExp might broken and crush ESLint
+			try {
+				optimized.toRegExp();
+			} catch (_) {
+				return;
+			}
+
 			const originalRegex = generate(parsedSource).toString();
-			const optimizedRegex = optimize(value).toString();
+			const optimizedRegex = optimized.toString();
 
 			if (originalRegex === optimizedRegex) {
 				return;
