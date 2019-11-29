@@ -3,11 +3,8 @@ import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/regex-shorthand';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
 	parserOptions: {
-		sourceType: 'module'
+		ecmaVersion: 2020
 	}
 });
 
@@ -32,8 +29,9 @@ ruleTester.run('regex-shorthand', rule, {
 		'const foo = new RegExp(/\\d/, \'ig\')',
 		'const foo = new RegExp(/\\d*?/)',
 		'const foo = new RegExp(/[a-z]/, \'i\')',
-		// Should not crush eslint #446
-		'const foo = /\\{\\{verificationUrl\\}\\}/gu'
+		// Should not crush eslint #446 and #448
+		'/\\{\\{verificationUrl\\}\\}/gu',
+		'/^test-(?<name>[a-zA-Z-\\d]+)$/u'
 	],
 	invalid: [
 		{
