@@ -18,11 +18,11 @@ const getNumericValue = node => {
 	}
 
 	if (node.type === 'UnaryExpression' && node.operator === '-') {
-		return 0 - getNumericValue(node.argument);
+		return -getNumericValue(node.argument);
 	}
 };
 
-// This handles cases where the argument is very likely to be a number, such as .substring('foo'.length)
+// This handles cases where the argument is very likely to be a number, such as `.substring('foo'.length)`.
 const isLengthProperty = node => (
 	node &&
 	node.type === 'MemberExpression' &&
