@@ -644,6 +644,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 		{
+			code: 'err => ({err})',
+			output: 'error => ({err: error})',
+			options: customOptions,
+			errors: createErrors()
+		},
+		{
 			code: 'const {err} = foo;',
 			output: 'const {err: error} = foo;',
 			options: customOptions,
@@ -1389,8 +1395,34 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 			}
 		`
 	],
-
 	invalid: [
+		{
+			code: outdent`
+				function unicorn(unicorn) {
+					const {prop = {}} = unicorn;
+					return property;
+				}
+			`,
+			output: outdent`
+				function unicorn(unicorn) {
+					const {prop: property = {}} = unicorn;
+					return property;
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: '({err}) => err',
+			output: '({err: error}) => error',
+			options: customOptions,
+			errors: createErrors()
+		},
+		{
+			code: 'err => ({err})',
+			output: 'error => ({err: error})',
+			options: customOptions,
+			errors: createErrors()
+		},
 		{
 			code: 'Foo.customProps = {}',
 			options: checkPropertiesOptions,

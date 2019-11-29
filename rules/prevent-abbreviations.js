@@ -364,17 +364,26 @@ const shouldFix = variable => {
 	return !variableIdentifiers(variable).some(isExportedIdentifier);
 };
 
+const isIdentifierKeyOfNode = (identifier, node) =>
+	node.key === identifier ||
+	// In `babel-eslint` parent.key is not reference of identifier
+	// https://github.com/babel/babel-eslint/issues/809
+	(
+		node.key.type === identifier.type &&
+		node.key.name === identifier.name
+	);
+
 const isShorthandPropertyIdentifier = identifier => {
 	return identifier.parent.type === 'Property' &&
-		identifier.parent.key === identifier &&
-		identifier.parent.shorthand;
+		identifier.parent.shorthand &&
+		isIdentifierKeyOfNode(identifier, identifier.parent);
 };
 
 const isAssignmentPatternShorthandPropertyIdentifier = identifier => {
 	return identifier.parent.type === 'AssignmentPattern' &&
 		identifier.parent.left === identifier &&
 		identifier.parent.parent.type === 'Property' &&
-		identifier.parent.parent.key === identifier &&
+		isIdentifierKeyOfNode(identifier, identifier.parent.parent) &&
 		identifier.parent.parent.value === identifier.parent &&
 		identifier.parent.parent.shorthand;
 };
