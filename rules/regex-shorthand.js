@@ -31,17 +31,14 @@ const create = context => {
 				return;
 			}
 
-			const optimized = optimize(value);
-
-			// The optimized regex might be broken and crash ESLint
-			try {
-				optimized.toRegExp();
-			} catch (_) {
+			// `u` flag regex is not well handled by `regexp-tree`
+			// https://github.com/DmitrySoshnikov/regexp-tree/issues/162
+			if (parsedSource.flags.includes('u')) {
 				return;
 			}
 
 			const originalRegex = generate(parsedSource).toString();
-			const optimizedRegex = optimized.toString();
+			const optimizedRegex = optimize(value).toString();
 
 			if (originalRegex === optimizedRegex) {
 				return;
