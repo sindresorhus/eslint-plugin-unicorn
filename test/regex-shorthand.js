@@ -32,7 +32,7 @@ ruleTester.run('regex-shorthand', rule, {
 		'const foo = new RegExp(/\\d/, \'ig\')',
 		'const foo = new RegExp(/\\d*?/)',
 		'const foo = new RegExp(/[a-z]/, \'i\')',
-		// Should not crush eslint #446
+		// Should not crash ESLint (#446)
 		'const foo = /\\{\\{verificationUrl\\}\\}/gu'
 	],
 	invalid: [
