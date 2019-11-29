@@ -7,13 +7,13 @@ This rule is fixable.
 ## Fail
 
 ```js
-const foo = bar.trimStart();
-const foo = bar.trimEnd();
+const foo = bar.trimLeft();
+const foo = bar.trimRight();
 ```
 
 ## Pass
 
 ```js
-const foo = bar.trimLeft();
-const foo = bar.trimRight();
+const foo = bar.trimStart();
+const foo = bar.trimEnd();
 ```
