@@ -33,7 +33,7 @@ const create = context => {
 
 			const optimized = optimize(value);
 
-			// Optimized RegExp might broken and crush ESLint
+			// The optimized regex might be broken and crash ESLint
 			try {
 				optimized.toRegExp();
 			} catch (_) {
