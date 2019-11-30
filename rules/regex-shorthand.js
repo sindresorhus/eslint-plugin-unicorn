@@ -9,9 +9,15 @@ const message = 'Use regex shorthands to improve readability.';
 const create = context => {
 	return {
 		'Literal[regex]': node => {
-			const {type, value} = context.getSourceCode().getFirstToken(node);
+			const {type, value, regex} = context.getSourceCode().getFirstToken(node);
 
 			if (type !== 'RegularExpression') {
+				return;
+			}
+
+			// Regex with `u` flag is not well handled by `regexp-tree`
+			// https://github.com/DmitrySoshnikov/regexp-tree/issues/162
+			if (regex.flags.includes('u')) {
 				return;
 			}
 
@@ -28,12 +34,6 @@ const create = context => {
 					}
 				});
 
-				return;
-			}
-
-			// `u` flag regex is not well handled by `regexp-tree`
-			// https://github.com/DmitrySoshnikov/regexp-tree/issues/162
-			if (parsedSource.flags.includes('u')) {
 				return;
 			}
 
