@@ -332,11 +332,12 @@ const formatMessage = (discouragedName, replacements, nameTypeText) => {
 	return message.join(' ');
 };
 
-const variableIdentifiers = variable => [...(new Set([
-	...variable.identifiers,
-	...variable.references
-		.map(reference => reference.identifier)
-])).values()];
+const variableIdentifiers = ({identifiers, references}) => [
+	...new Set([
+		...identifiers,
+		...references.map(({identifier}) => identifier)
+	])
+];
 
 const isExportedIdentifier = identifier => {
 	if (identifier.parent.type === 'VariableDeclarator' &&
