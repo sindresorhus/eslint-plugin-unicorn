@@ -1,6 +1,6 @@
 'use strict';
 const cleanRegexp = require('clean-regexp');
-const {generate, optimize, parse} = require('regexp-tree');
+const {optimize} = require('regexp-tree');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 
@@ -9,32 +9,21 @@ const message = 'Use regex shorthands to improve readability.';
 const create = context => {
 	return {
 		'Literal[regex]': node => {
-			const {type, value} = context.getSourceCode().getFirstToken(node);
+			const {raw: original, regex} = node;
 
-			if (type !== 'RegularExpression') {
+			// Regular Expressions with `u` flag are not well handled by `regexp-tree`
+			// https://github.com/DmitrySoshnikov/regexp-tree/issues/162
+			if (regex.flags.includes('u')) {
 				return;
 			}
 
-			let parsedSource;
+			let optimized = original;
+
 			try {
-				parsedSource = parse(value);
-			} catch (error) {
-				context.report({
-					node,
-					message: '{{original}} can\'t be parsed: {{message}}',
-					data: {
-						original: value,
-						message: error.message
-					}
-				});
+				optimized = optimize(original).toString();
+			} catch (_) {}
 
-				return;
-			}
-
-			const originalRegex = generate(parsedSource).toString();
-			const optimizedRegex = optimize(value).toString();
-
-			if (originalRegex === optimizedRegex) {
+			if (original === optimized) {
 				return;
 			}
 
@@ -42,12 +31,10 @@ const create = context => {
 				node,
 				message: '{{original}} can be optimized to {{optimized}}',
 				data: {
-					original: value,
-					optimized: optimizedRegex
+					original,
+					optimized
 				},
-				fix(fixer) {
-					return fixer.replaceText(node, optimizedRegex);
-				}
+				fix: fixer => fixer.replaceText(node, optimized)
 			});
 		},
 		'NewExpression[callee.name="RegExp"]': node => {
