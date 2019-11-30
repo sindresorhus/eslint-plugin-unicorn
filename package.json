@@ -55,13 +55,13 @@
 		"@typescript-eslint/parser": "^2.9.0",
 		"ava": "^2.4.0",
 		"babel-eslint": "^10.0.3",
-		"chalk": "^2.4.2",
-		"coveralls": "^3.0.7",
+		"chalk": "^3.0.0",
+		"coveralls": "^3.0.9",
 		"del": "^5.1.0",
 		"eslint": "^6.6.0",
 		"eslint-ava-rule-tester": "^4.0.0",
 		"eslint-plugin-eslint-plugin": "2.1.0",
-		"execa": "^3.2.0",
+		"execa": "^3.4.0",
 		"listr": "^0.14.3",
 		"nyc": "^14.1.1",
 		"outdent": "^0.7.0",
@@ -71,7 +71,7 @@
 		"xo": "^0.25.3"
 	},
 	"peerDependencies": {
-		"eslint": ">=6.6.0"
+		"eslint": ">=6.7.1"
 	},
 	"ava": {
 		"files": [
