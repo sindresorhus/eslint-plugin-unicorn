@@ -18,16 +18,7 @@ const create = context => {
 			let parsedSource;
 			try {
 				parsedSource = parse(value);
-			} catch (error) {
-				context.report({
-					node,
-					message: '{{original}} can\'t be parsed: {{message}}',
-					data: {
-						original: value,
-						message: error.message
-					}
-				});
-
+			} catch (_) {
 				return;
 			}
 
