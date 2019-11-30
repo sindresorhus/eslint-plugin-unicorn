@@ -3,11 +3,8 @@ import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/regex-shorthand';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
 	parserOptions: {
-		sourceType: 'module'
+		ecmaVersion: 2020
 	}
 });
 
@@ -20,20 +17,36 @@ ruleTester.run('regex-shorthand', rule, {
 	valid: [
 		'const foo = /\\d/',
 		'const foo = /\\W/i',
-		'const foo = /\\w/ig',
-		'const foo = /[a-z]/ig',
-		'const foo = /\\d*?/ig',
+		'const foo = /\\w/gi',
+		'const foo = /[a-z]/gi',
+		'const foo = /\\d*?/gi',
 		'const foo = new RegExp(\'\\d\')',
 		'const foo = new RegExp(\'\\d\', \'ig\')',
 		'const foo = new RegExp(\'\\d*?\')',
 		'const foo = new RegExp(\'[a-z]\', \'i\')',
 		'const foo = new RegExp(/\\d/)',
-		'const foo = new RegExp(/\\d/ig)',
+		'const foo = new RegExp(/\\d/gi)',
 		'const foo = new RegExp(/\\d/, \'ig\')',
 		'const foo = new RegExp(/\\d*?/)',
-		'const foo = new RegExp(/[a-z]/, \'i\')'
+		'const foo = new RegExp(/[a-z]/, \'i\')',
+
+		// Should not crash ESLint (#446 and #448)
+		'/\\{\\{verificationUrl\\}\\}/gu',
+		'/^test-(?<name>[a-zA-Z-\\d]+)$/u',
+
+		// Should not suggest wrong regex (#447)
+		'/(\\s|\\.|@|_|-)/u',
+		'/[\\s.@_-]/u'
 	],
 	invalid: [
+		{
+			code: 'const foo = /\\w/ig',
+			errors: [{
+				...error,
+				message: '/\\w/ig can be optimized to /\\w/gi'
+			}],
+			output: 'const foo = /\\w/gi'
+		},
 		{
 			code: 'const foo = /[0-9]/',
 			errors: [{
