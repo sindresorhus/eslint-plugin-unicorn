@@ -13,7 +13,7 @@ const isUpperFirst = string => isUpperCase(string[0]);
 const lowerFirst = string => string[0].toLowerCase() + string.slice(1);
 const upperFirst = string => string[0].toUpperCase() + string.slice(1);
 
-// Keep this in alphabetically sorted, for easier maintenance
+// Keep this alphabetically sorted for easier maintenance
 const defaultReplacements = {
 	acc: {
 		accumulator: true
