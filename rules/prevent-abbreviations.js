@@ -13,37 +13,144 @@ const isUpperFirst = string => isUpperCase(string[0]);
 const lowerFirst = string => string[0].toLowerCase() + string.slice(1);
 const upperFirst = string => string[0].toUpperCase() + string.slice(1);
 
+// Keep this alphabetically sorted for easier maintenance
 const defaultReplacements = {
-	err: {
-		error: true
+	acc: {
+		accumulator: true
+	},
+	arg: {
+		argument: true
+	},
+	args: {
+		arguments: true
+	},
+	arr: {
+		array: true
+	},
+	attr: {
+		attribute: true
+	},
+	attrs: {
+		attributes: true
+	},
+	btn: {
+		button: true
 	},
 	cb: {
 		callback: true
 	},
-	opts: {
-		options: true
+	conf: {
+		config: true
 	},
-	str: {
-		string: true
+	ctx: {
+		context: true
 	},
-	obj: {
-		object: true
+	cur: {
+		current: true
 	},
-	num: {
-		number: true
+	curr: {
+		current: true
 	},
-	val: {
-		value: true
+	db: {
+		database: true
+	},
+	dest: {
+		destination: true
+	},
+	dev: {
+		development: true
+	},
+	dir: {
+		direction: true,
+		directory: true
+	},
+	dirs: {
+		directories: true
+	},
+	doc: {
+		document: true
+	},
+	docs: {
+		documentation: true,
+		documents: true
 	},
 	e: {
-		event: true,
+		error: true,
+		event: true
+	},
+	el: {
+		element: true
+	},
+	elem: {
+		element: true
+	},
+	env: {
+		environment: true
+	},
+	err: {
 		error: true
 	},
 	evt: {
 		event: true
 	},
-	el: {
-		element: true
+	ext: {
+		extension: true
+	},
+	exts: {
+		extensions: true
+	},
+	len: {
+		length: true
+	},
+	lib: {
+		library: true
+	},
+	mod: {
+		module: true
+	},
+	msg: {
+		message: true
+	},
+	num: {
+		number: true
+	},
+	obj: {
+		object: true
+	},
+	opts: {
+		options: true
+	},
+	param: {
+		parameter: true
+	},
+	params: {
+		parameters: true
+	},
+	pkg: {
+		package: true
+	},
+	prev: {
+		previous: true
+	},
+	prod: {
+		production: true
+	},
+	prop: {
+		property: true
+	},
+	props: {
+		properties: true
+	},
+	ref: {
+		reference: true
+	},
+	refs: {
+		references: true
+	},
+	rel: {
+		related: true,
+		relationship: true,
+		relative: true
 	},
 	req: {
 		request: true
@@ -52,138 +159,32 @@ const defaultReplacements = {
 		response: true,
 		result: true
 	},
-	btn: {
-		button: true
-	},
-	msg: {
-		message: true
-	},
-	len: {
-		length: true
-	},
-	env: {
-		environment: true
-	},
-	dev: {
-		development: true
-	},
-	prod: {
-		production: true
-	},
-	tmp: {
-		temporary: true
-	},
-	arg: {
-		argument: true
-	},
-	args: {
-		arguments: true
-	},
-	param: {
-		parameter: true
-	},
-	params: {
-		parameters: true
-	},
-	tbl: {
-		table: true
-	},
-	db: {
-		database: true
-	},
-	ctx: {
-		context: true
-	},
-	mod: {
-		module: true
-	},
-	prop: {
-		property: true
-	},
-	arr: {
-		array: true
-	},
 	ret: {
 		returnValue: true
 	},
 	retval: {
 		returnValue: true
 	},
-	ext: {
-		extension: true
-	},
-	exts: {
-		extensions: true
-	},
-	lib: {
-		library: true
-	},
-	dir: {
-		directory: true,
-		direction: true
-	},
-	dirs: {
-		directories: true
-	},
-	ref: {
-		reference: true
-	},
-	refs: {
-		references: true
-	},
-	pkg: {
-		package: true
-	},
 	sep: {
 		separator: true
-	},
-	doc: {
-		document: true
-	},
-	docs: {
-		documents: true,
-		documentation: true
-	},
-	elem: {
-		element: true
 	},
 	src: {
 		source: true
 	},
-	dest: {
-		destination: true
+	str: {
+		string: true
 	},
-	prev: {
-		previous: true
-	},
-	curr: {
-		current: true
-	},
-	cur: {
-		current: true
-	},
-	acc: {
-		accumulator: true
-	},
-	rel: {
-		relative: true,
-		related: true,
-		relationship: true
-	},
-	conf: {
-		config: true
+	tbl: {
+		table: true
 	},
 	temp: {
 		temporary: true
 	},
-	props: {
-		properties: true
+	tmp: {
+		temporary: true
 	},
-	attr: {
-		attribute: true
-	},
-	attrs: {
-		attributes: true
+	val: {
+		value: true
 	}
 };
 
