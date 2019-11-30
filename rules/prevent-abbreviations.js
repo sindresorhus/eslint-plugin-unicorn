@@ -171,6 +171,9 @@ const defaultReplacements = {
 	src: {
 		source: true
 	},
+	stdDev: {
+		standardDeviation: true
+	},
 	str: {
 		string: true
 	},
@@ -191,8 +194,7 @@ const defaultReplacements = {
 const defaultWhitelist = {
 	propTypes: true,
 	defaultProps: true,
-	getDerivedStateFromProps: true,
-	stdDev: true
+	getDerivedStateFromProps: true
 };
 
 const prepareOptions = ({
