@@ -189,8 +189,14 @@ const defaultReplacements = {
 };
 
 const defaultWhitelist = {
+	// React PropTypes
+	// https://reactjs.org/docs/typechecking-with-proptypes.html
 	propTypes: true,
+	// React.Component Class property
+	// https://reactjs.org/docs/react-component.html#defaultprops
 	defaultProps: true,
+	// React.Component static method
+	// https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
 	getDerivedStateFromProps: true,
 	stdDev: true
 };
