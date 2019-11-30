@@ -41,7 +41,6 @@
 		"lodash.defaultsdeep": "^4.6.1",
 		"lodash.kebabcase": "^4.1.1",
 		"lodash.snakecase": "^4.1.1",
-		"lodash.topairs": "^4.3.0",
 		"lodash.upperfirst": "^4.3.1",
 		"read-pkg-up": "^7.0.0",
 		"regexp-tree": "^0.1.16",
