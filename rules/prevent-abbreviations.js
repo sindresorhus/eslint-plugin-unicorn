@@ -185,6 +185,9 @@ const defaultReplacements = {
 	temp: {
 		temporary: true
 	},
+	tit: {
+		title: true
+	},
 	tmp: {
 		temporary: true
 	},
