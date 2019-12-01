@@ -286,6 +286,10 @@ ruleTester.run('prevent-abbreviations', rule, {
 			output: 'let errorCallbackOptionsObject',
 			errors: createErrors('The variable `errCbOptsObj` should be named `errorCallbackOptionsObject`. A more descriptive name will do too.')
 		},
+		{
+			code: 'let stdDev',
+			errors: createErrors('The variable `stdDev` should be named `standardDeviation`. A more descriptive name will do too.')
+		},
 		noFixingTestCase({
 			code: '({err: 1})',
 			options: checkPropertiesOptions,

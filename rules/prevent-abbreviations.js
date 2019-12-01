@@ -170,6 +170,9 @@ const defaultReplacements = {
 	src: {
 		source: true
 	},
+	stdDev: {
+		standardDeviation: true
+	},
 	str: {
 		string: true
 	},
@@ -196,8 +199,7 @@ const defaultWhitelist = {
 	defaultProps: true,
 	// React.Component static method
 	// https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
-	getDerivedStateFromProps: true,
-	stdDev: true
+	getDerivedStateFromProps: true
 };
 
 const prepareOptions = ({
