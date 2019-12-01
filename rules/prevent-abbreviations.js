@@ -2,7 +2,6 @@
 const path = require('path');
 const astUtils = require('eslint-ast-utils');
 const defaultsDeep = require('lodash.defaultsdeep');
-const toPairs = require('lodash.topairs');
 
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
@@ -235,10 +234,13 @@ const prepareOptions = ({
 
 		checkFilenames,
 
-		replacements: new Map(toPairs(mergedReplacements).map(([discouragedName, replacements]) => {
-			return [discouragedName, new Map(toPairs(replacements))];
-		})),
-		whitelist: new Map(toPairs(mergedWhitelist))
+		replacements: new Map(
+			Object.entries(mergedReplacements).map(
+				([discouragedName, replacements]) =>
+					[discouragedName, new Map(Object.entries(replacements))]
+			)
+		),
+		whitelist: new Map(Object.entries(mergedWhitelist))
 	};
 };
 
