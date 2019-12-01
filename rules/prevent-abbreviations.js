@@ -214,7 +214,10 @@ const defaultWhitelist = {
 	devDependencies: true,
 	// Jest configuration
 	// https://jestjs.io/docs/en/configuration#setupfilesafterenv-array
-	setupFilesAfterEnv: true
+	setupFilesAfterEnv: true,
+	// Next.js function
+	// https://nextjs.org/learn/basics/fetching-data-for-pages
+	getInitialProps: true
 };
 
 const prepareOptions = ({
