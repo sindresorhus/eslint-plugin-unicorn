@@ -4,6 +4,7 @@
 	"description": "Various awesome ESLint rules",
 	"license": "MIT",
 	"repository": "sindresorhus/eslint-plugin-unicorn",
+	"funding": "https://github.com/sindresorhus/eslint-plugin-unicorn?sponsor=1",
 	"author": {
 		"name": "Sindre Sorhus",
 		"email": "sindresorhus@gmail.com",
