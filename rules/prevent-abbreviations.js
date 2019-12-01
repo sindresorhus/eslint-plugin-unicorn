@@ -86,6 +86,9 @@ const defaultReplacements = {
 	env: {
 		environment: true
 	},
+	envs: {
+		environments: true
+	},
 	err: {
 		error: true
 	},
