@@ -6,6 +6,7 @@ const tempy = require('tempy');
 const execa = require('execa');
 const del = require('del');
 const chalk = require('chalk');
+const {isCI} = require('ci-info');
 
 const packages = new Map([
 	['ava', 'https://github.com/avajs/ava'],
@@ -130,7 +131,10 @@ const execute = name => {
 			title: 'Clean up',
 			task: () => del(destination, {force: true})
 		}
-	], {
+	].map(({title, ...task}) => ({
+		title: [name, title].join(' / '),
+		...task
+	})), {
 		exitOnError: false
 	});
 };
@@ -157,7 +161,9 @@ const list = new Listr([
 			return tests;
 		}
 	}
-]);
+], {
+	renderer: isCI ? 'verbose' : 'default'
+});
 
 list.run()
 	.catch(error => {
