@@ -199,7 +199,16 @@ const defaultWhitelist = {
 	defaultProps: true,
 	// React.Component static method
 	// https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
-	getDerivedStateFromProps: true
+	getDerivedStateFromProps: true,
+	// Ember class name
+	// https://api.emberjs.com/ember/3.10/classes/Ember.EmberENV/properties
+	EmberENV: true,
+	// `package.json` field
+	// https://docs.npmjs.com/specifying-dependencies-and-devdependencies-in-a-package-json-file
+	devDependencies: true,
+	// Jest configuration
+	// https://jestjs.io/docs/en/configuration#setupfilesafterenv-array
+	setupFilesAfterEnv: true
 };
 
 const prepareOptions = ({
