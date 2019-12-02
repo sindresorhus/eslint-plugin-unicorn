@@ -6,6 +6,7 @@ const tempy = require('tempy');
 const execa = require('execa');
 const del = require('del');
 const chalk = require('chalk');
+const {isCI} = require('ci-info');
 
 const packages = new Map([
 	['ava', 'https://github.com/avajs/ava'],
@@ -130,7 +131,10 @@ const execute = name => {
 			title: 'Clean up',
 			task: () => del(destination, {force: true})
 		}
-	], {
+	].map(({title, ...task}) => ({
+		title: [name, title].join(' / '),
+		...task
+	})), {
 		exitOnError: false
 	});
 };
@@ -157,7 +161,9 @@ const list = new Listr([
 			return tests;
 		}
 	}
-]);
+], {
+	renderer: isCI ? 'verbose' : 'default'
+});
 
 list.run()
 	.catch(error => {
@@ -165,6 +171,11 @@ list.run()
 			for (const error2 of error.errors) {
 				console.error('\n', chalk.red.bold.underline(error2.packageName), chalk.gray('(' + error2.cliArgs.join(' ') + ')'));
 				console.error(error2.message);
+
+				if (error2.stderr) {
+					console.error(chalk.gray(error2.stderr));
+				}
+
 				if (error2.eslintMessage) {
 					console.error(chalk.gray(error2.eslintFile.filePath), chalk.gray(JSON.stringify(error2.eslintMessage, null, 2)));
 				}
