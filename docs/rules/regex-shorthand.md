@@ -28,9 +28,9 @@ const regex = /\d\.\w\-\D/i;
 
 ## Options
 
-### disableCharacterSorting
+### sortCharacterClasses
 
 Type: `boolean`\
-Default: `false`
+Default: `true`
 
 Disables optimizations that affects the sorting of characters.

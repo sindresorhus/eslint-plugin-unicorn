@@ -29,11 +29,11 @@ const availableRegexpTreeOptimizations = [
 const generateRegexpTreeWhitelistFromBlacklist = blacklist => availableRegexpTreeOptimizations.filter(optimization => !blacklist.includes(optimization));
 
 const create = context => {
-	const {disableCharacterSorting} = context.options[0] || {};
+	const {sortCharacterClasses} = context.options[0] || {};
 
 	let whitelist;
 
-	if (disableCharacterSorting) {
+	if (sortCharacterClasses === false) {
 		whitelist = generateRegexpTreeWhitelistFromBlacklist(['charClassClassrangesMerge']);
 	}
 
@@ -102,9 +102,8 @@ const create = context => {
 const schema = [{
 	type: 'object',
 	properties: {
-		disableCharacterSorting: {
-			type: 'boolean',
-			default: false
+		sortCharacterClasses: {
+			type: 'boolean'
 		}
 	}
 }];

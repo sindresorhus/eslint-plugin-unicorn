@@ -13,8 +13,8 @@ const error = {
 	message: 'Use regex shorthands to improve readability.'
 };
 
-const disableCharacterSortingOptions = [{
-	disableCharacterSorting: true
+const disableSortCharacterClassesOptions = [{
+	sortCharacterClasses: false
 }];
 
 ruleTester.run('regex-shorthand', rule, {
@@ -44,7 +44,7 @@ ruleTester.run('regex-shorthand', rule, {
 
 		{
 			code: '/[GgHhIiå.Z:a-f"0-8%A*ä]/',
-			options: disableCharacterSortingOptions
+			options: disableSortCharacterClassesOptions
 		}
 	],
 	invalid: [
