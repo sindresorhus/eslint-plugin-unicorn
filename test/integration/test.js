@@ -131,9 +131,9 @@ const execute = name => {
 			title: 'Clean up',
 			task: () => del(destination, {force: true})
 		}
-	].map(({title, ...task}) => ({
-		title: [name, title].join(' / '),
-		...task
+	].map(({title, task}) => ({
+		title: `${name} / ${title}`,
+		task
 	})), {
 		exitOnError: false
 	});
