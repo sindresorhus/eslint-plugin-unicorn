@@ -6,7 +6,36 @@ const quoteString = require('./utils/quote-string');
 
 const message = 'Use regex shorthands to improve readability.';
 
+const availableRegexpTreeOptimizations = [
+	'charSurrogatePairToSingleUnicode',
+	'charCodeToSimpleChar',
+	'charCaseInsensitiveLowerCaseTransform',
+	'charClassRemoveDuplicates',
+	'quantifiersMerge',
+	'quantifierRangeToSymbol',
+	'charClassClassrangesToChars',
+	'charClassClassrangesMerge',
+	'charClassToMeta',
+	'charClassToSingleChar',
+	'charEscapeUnescape',
+	'disjunctionRemoveDuplicates',
+	'groupSingleCharsToCharClass',
+	'removeEmptyGroup',
+	'ungroup',
+	'combineRepeatingPatterns'
+];
+
+const generateRegexpTreeWhitelistFromBlacklist = blacklist => availableRegexpTreeOptimizations.filter(optimization => !blacklist.includes(optimization));
+
 const create = context => {
+	const {disableCharacterSorting} = context.options[0] || {};
+
+	let whitelist;
+
+	if (disableCharacterSorting) {
+		whitelist = generateRegexpTreeWhitelistFromBlacklist(['charClassClassrangesMerge']);
+	}
+
 	return {
 		'Literal[regex]': node => {
 			const {raw: original, regex} = node;
@@ -20,7 +49,7 @@ const create = context => {
 			let optimized = original;
 
 			try {
-				optimized = optimize(original).toString();
+				optimized = optimize(original, whitelist).toString();
 			} catch (_) {}
 
 			if (original === optimized) {
@@ -69,6 +98,16 @@ const create = context => {
 	};
 };
 
+const schema = [{
+	type: 'object',
+	properties: {
+		disableCharacterSorting: {
+			type: 'boolean',
+			default: false
+		}
+	}
+}];
+
 module.exports = {
 	create,
 	meta: {
@@ -76,6 +115,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		schema
 	}
 };

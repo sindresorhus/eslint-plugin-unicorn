@@ -27,3 +27,12 @@ const regex = /\W/;
 const regex = /\W/i;
 const regex = /\d\.\w\-\D/i;
 ```
+
+## Options
+
+### disableCharacterSorting
+
+Type: `boolean`<br>
+Default: `false`
+
+Disables optimizations that affects the sorting of characters.

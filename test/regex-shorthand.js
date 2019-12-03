@@ -13,6 +13,10 @@ const error = {
 	message: 'Use regex shorthands to improve readability.'
 };
 
+const disableCharacterSortingOptions = [{
+	disableCharacterSorting: true
+}];
+
 ruleTester.run('regex-shorthand', rule, {
 	valid: [
 		'const foo = /\\d/',
@@ -36,7 +40,11 @@ ruleTester.run('regex-shorthand', rule, {
 
 		// Should not suggest wrong regex (#447)
 		'/(\\s|\\.|@|_|-)/u',
-		'/[\\s.@_-]/u'
+		'/[\\s.@_-]/u',
+		{
+			code: '/[åä]/',
+			options: disableCharacterSortingOptions
+		}
 	],
 	invalid: [
 		{
@@ -250,6 +258,14 @@ ruleTester.run('regex-shorthand', rule, {
 				message: '/^by @([a-zA-Z0-9-]+)/ can be optimized to /^by @([\\d-A-Za-z]+)/'
 			}],
 			output: 'const foo = /^by @([\\d-A-Za-z]+)/'
+		},
+		{
+			code: 'const foo = /[åä]/',
+			errors: [{
+				...error,
+				message: '/[åä]/ can be optimized to /[äå]/'
+			}],
+			output: 'const foo = /[äå]/'
 		}
 	]
 });
