@@ -6,6 +6,7 @@ const quoteString = require('./utils/quote-string');
 
 const message = 'Use regex shorthands to improve readability.';
 
+// TODO: Simplify when/if this PR gets merged: https://github.com/DmitrySoshnikov/regexp-tree/pull/200
 const availableRegexpTreeOptimizations = [
 	'charSurrogatePairToSingleUnicode',
 	'charCodeToSimpleChar',
