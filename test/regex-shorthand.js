@@ -41,8 +41,9 @@ ruleTester.run('regex-shorthand', rule, {
 		// Should not suggest wrong regex (#447)
 		'/(\\s|\\.|@|_|-)/u',
 		'/[\\s.@_-]/u',
+
 		{
-			code: '/[åä]/',
+			code: '/[GgHhIiå.Z:a-f"0-8%A*ä]/',
 			options: disableCharacterSortingOptions
 		}
 	],
@@ -260,12 +261,12 @@ ruleTester.run('regex-shorthand', rule, {
 			output: 'const foo = /^by @([\\d-A-Za-z]+)/'
 		},
 		{
-			code: 'const foo = /[åä]/',
+			code: '/[GgHhIiå.Z:a-f"0-8%A*ä]/',
 			errors: [{
 				...error,
-				message: '/[åä]/ can be optimized to /[äå]/'
+				message: '/[GgHhIiå.Z:a-f"0-8%A*ä]/ can be optimized to /["%*.0-8:AG-IZa-iäå]/'
 			}],
-			output: 'const foo = /[äå]/'
+			output: '/["%*.0-8:AG-IZa-iäå]/'
 		}
 	]
 });
