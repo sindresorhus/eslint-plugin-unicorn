@@ -2,7 +2,6 @@
 
 This rule is fixable.
 
-
 ## Fail
 
 ```js
@@ -14,7 +13,6 @@ const regex = /[^a-zA-Z0-9_]/;
 const regex = /[^a-z0-9_]/i;
 const regex = /[0-9]\.[a-zA-Z0-9_]\-[^0-9]/i;
 ```
-
 
 ## Pass
 
@@ -32,7 +30,7 @@ const regex = /\d\.\w\-\D/i;
 
 ### disableCharacterSorting
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `false`
 
 Disables optimizations that affects the sorting of characters.
