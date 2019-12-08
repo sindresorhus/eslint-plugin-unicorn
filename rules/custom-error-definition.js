@@ -4,7 +4,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 
-const nameRegexp = /^(?:[A-Z][a-z\d]*)*Error$/;
+const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
 
 const getClassName = name => upperfirst(name).replace(/(error|)$/i, 'Error');
 
@@ -80,6 +80,12 @@ const customErrorDefinition = (context, node) => {
 	}
 
 	const constructorBodyNode = constructor.value.body;
+
+	// Verify the constructor has a body (TypeScript)
+	if (!constructorBodyNode) {
+		return;
+	}
+
 	const constructorBody = constructorBodyNode.body;
 
 	const superExpression = constructorBody.find(isSuperExpression);

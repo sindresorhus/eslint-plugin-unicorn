@@ -56,6 +56,9 @@ const extendedOptions = [{
 	}
 }];
 
+const noCheckShorthandImportsOptions = [{checkShorthandImports: false}];
+const noCheckDefaultAndNamespaceImports = [{checkDefaultAndNamespaceImports: false}];
+
 const customOptions = [{
 	checkProperties: true,
 
@@ -282,6 +285,10 @@ ruleTester.run('prevent-abbreviations', rule, {
 			code: 'let errCbOptsObj',
 			output: 'let errorCallbackOptionsObject',
 			errors: createErrors('The variable `errCbOptsObj` should be named `errorCallbackOptionsObject`. A more descriptive name will do too.')
+		},
+		{
+			code: 'let stdDev',
+			errors: createErrors('The variable `stdDev` should be named `standardDeviation`. A more descriptive name will do too.')
 		},
 		noFixingTestCase({
 			code: '({err: 1})',
@@ -637,6 +644,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: '({err}) => err',
 			output: '({err: error}) => error',
+			options: customOptions,
+			errors: createErrors()
+		},
+		{
+			code: 'err => ({err})',
+			output: 'error => ({err: error})',
 			options: customOptions,
 			errors: createErrors()
 		},
@@ -1075,6 +1088,9 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 			export {foo as err};
 		`,
 
+		// Path includes `node_modules`
+		'import err from "./node_modules/err"',
+
 		// Default import names are allowed
 		'import err from "err"',
 		'import err, {foo as bar} from "err"',
@@ -1093,7 +1109,75 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 		// Names from object destructuring are allowed
 		'const {err} = require("err")',
 		'const {err} = foo',
-		'function f({err}) {}'
+		'function f({err}) {}',
+
+		// Option checkDefaultAndNamespaceImports: false
+		{
+			code: 'const err = require("err")',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'const err = require("./err")',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import foo, * as err from "err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import foo, * as err from "./err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import { default as err, foo as bar } from "err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import { default as err, foo as bar } from "./err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import err, { foo as bar } from "err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import err, { foo as bar } from "./err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import * as err from "err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import * as err from "./err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import err from "err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+		{
+			code: 'import err from "./err"',
+			options: noCheckDefaultAndNamespaceImports
+		},
+
+		// Option checkShorthandImports: false
+		{
+			code: 'import { err } from "err"',
+			options: noCheckShorthandImportsOptions
+		},
+		{
+			code: 'import { err } from "./err"',
+			options: noCheckShorthandImportsOptions
+		},
+		{
+			code: 'import { default as foo, err } from "err"',
+			options: noCheckShorthandImportsOptions
+		},
+		{
+			code: 'import { default as foo, err } from "./err"',
+			options: noCheckShorthandImportsOptions
+		}
 	],
 
 	invalid: [
@@ -1152,6 +1236,53 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 			output: outdent`
 				const {err: callback} = foo;
 			`,
+			errors: createErrors()
+		},
+
+		// Internal import
+		{
+			code: 'const err = require("../err")',
+			output: 'const error = require("../err")',
+			errors: createErrors()
+		},
+		{
+			code: 'const err = require("/err")',
+			output: 'const error = require("/err")',
+			errors: createErrors()
+		},
+		{
+			code: 'import err from "./err"',
+			output: 'import error from "./err"',
+			errors: createErrors()
+		},
+		{
+			code: 'import err, {foo as bar} from "./err"',
+			output: 'import error, {foo as bar} from "./err"',
+			errors: createErrors()
+		},
+		{
+			code: 'import {default as err, foo as bar} from "./err"',
+			output: 'import {default as error, foo as bar} from "./err"',
+			errors: createErrors()
+		},
+		{
+			code: 'import * as err from "./err"',
+			output: 'import * as error from "./err"',
+			errors: createErrors()
+		},
+		{
+			code: 'import foo, * as err from "./err"',
+			output: 'import foo, * as error from "./err"',
+			errors: createErrors()
+		},
+		{
+			code: 'import {err} from "./err"',
+			output: 'import {err as error} from "./err"',
+			errors: createErrors()
+		},
+		{
+			code: 'import {default as foo, err} from "./err"',
+			output: 'import {default as foo, err as error} from "./err"',
 			errors: createErrors()
 		},
 
@@ -1268,8 +1399,34 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 			}
 		`
 	],
-
 	invalid: [
+		{
+			code: outdent`
+				function unicorn(unicorn) {
+					const {prop = {}} = unicorn;
+					return property;
+				}
+			`,
+			output: outdent`
+				function unicorn(unicorn) {
+					const {prop: property = {}} = unicorn;
+					return property;
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: '({err}) => err',
+			output: '({err: error}) => error',
+			options: customOptions,
+			errors: createErrors()
+		},
+		{
+			code: 'err => ({err})',
+			output: 'error => ({err: error})',
+			options: customOptions,
+			errors: createErrors()
+		},
 		{
 			code: 'Foo.customProps = {}',
 			options: checkPropertiesOptions,

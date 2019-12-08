@@ -68,6 +68,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-flat-map": "error",
 			"unicorn/prefer-includes": "error",
 			"unicorn/prefer-modern-dom-apis": "error",
+			"unicorn/prefer-negative-index": "error",
 			"unicorn/prefer-node-append": "error",
 			"unicorn/prefer-node-remove": "error",
 			"unicorn/prefer-query-selector": "error",
@@ -76,6 +77,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-starts-ends-with": "error",
 			"unicorn/prefer-string-slice": "error",
 			"unicorn/prefer-text-content": "error",
+			"unicorn/prefer-trim-start-end": "error",
 			"unicorn/prefer-type-error": "error",
 			"unicorn/prevent-abbreviations": "error",
 			"unicorn/regex-shorthand": "error",
@@ -120,6 +122,7 @@ Configure it in `package.json`.
 - [prefer-flat-map](docs/rules/prefer-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
 - [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
 - [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md) - Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`. *(fixable)*
+- [prefer-negative-index](docs/rules/prefer-negative-index.md) - Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()` and `Array#splice()`. *(fixable)*
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `Node#append()` over `Node#appendChild()`. *(fixable)*
 - [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `node.remove()` over `parentNode.removeChild(node)` and `parentElement.removeChild(node)`. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. *(partly fixable)*
@@ -128,6 +131,7 @@ Configure it in `package.json`.
 - [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith()` & `String#endsWith()` over more complex alternatives.
 - [prefer-string-slice](docs/rules/prefer-string-slice.md) - Prefer `String#slice()` over `String#substr()` and `String#substring()`. *(partly fixable)*
 - [prefer-text-content](docs/rules/prefer-text-content.md) - Prefer `.textContent` over `.innerText`. *(fixable)*
+- [prefer-trim-start-end](docs/rules/prefer-trim-start-end.md) - Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`. *(fixable)*
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
 - [prevent-abbreviations](docs/rules/prevent-abbreviations.md) - Prevent abbreviations. *(partly fixable)*
 - [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*

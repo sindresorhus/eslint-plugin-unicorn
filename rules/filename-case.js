@@ -56,19 +56,17 @@ const cases = {
 /**
 Get the cases specified by the option.
 
-@param {unknown} context
+@param {object} options
 @returns {string[]} The chosen cases.
 */
-function getChosenCases(context) {
-	const option = context.options[0] || {};
-
-	if (option.case) {
-		return [option.case];
+function getChosenCases(options) {
+	if (options.case) {
+		return [options.case];
 	}
 
-	if (option.cases) {
-		const cases = Object.keys(option.cases)
-			.filter(cases => option.cases[cases]);
+	if (options.cases) {
+		const cases = Object.keys(options.cases)
+			.filter(cases => options.cases[cases]);
 
 		return cases.length > 0 ? cases : ['kebabCase'];
 	}
@@ -144,7 +142,15 @@ function englishishJoinWords(words) {
 }
 
 const create = context => {
-	const chosenCases = getChosenCases(context);
+	const options = context.options[0] || {};
+	const chosenCases = getChosenCases(options);
+	const ignore = (options.ignore || []).map(item => {
+		if (item instanceof RegExp) {
+			return item;
+		}
+
+		return new RegExp(item, 'u');
+	});
 	const chosenCasesFunctions = chosenCases.map(case_ => ignoreNumbers(cases[case_].fn));
 	const filenameWithExtension = context.getFilename();
 
@@ -156,8 +162,9 @@ const create = context => {
 		Program: node => {
 			const extension = path.extname(filenameWithExtension);
 			const filename = path.basename(filenameWithExtension, extension);
+			const base = filename + extension;
 
-			if (filename + extension === 'index.js') {
+			if (base === 'index.js' || ignore.some(regexp => regexp.test(base))) {
 				return;
 			}
 
@@ -199,6 +206,10 @@ const schema = [{
 						'kebabCase',
 						'pascalCase'
 					]
+				},
+				ignore: {
+					type: 'array',
+					uniqueItems: true
 				}
 			},
 			additionalProperties: false
@@ -221,6 +232,10 @@ const schema = [{
 						}
 					},
 					additionalProperties: false
+				},
+				ignore: {
+					type: 'array',
+					uniqueItems: true
 				}
 			},
 			additionalProperties: false

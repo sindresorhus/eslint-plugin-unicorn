@@ -2,7 +2,6 @@
 const path = require('path');
 const astUtils = require('eslint-ast-utils');
 const defaultsDeep = require('lodash.defaultsdeep');
-const toPairs = require('lodash.topairs');
 
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
@@ -13,37 +12,147 @@ const isUpperFirst = string => isUpperCase(string[0]);
 const lowerFirst = string => string[0].toLowerCase() + string.slice(1);
 const upperFirst = string => string[0].toUpperCase() + string.slice(1);
 
+// Keep this alphabetically sorted for easier maintenance
 const defaultReplacements = {
-	err: {
-		error: true
+	acc: {
+		accumulator: true
+	},
+	arg: {
+		argument: true
+	},
+	args: {
+		arguments: true
+	},
+	arr: {
+		array: true
+	},
+	attr: {
+		attribute: true
+	},
+	attrs: {
+		attributes: true
+	},
+	btn: {
+		button: true
 	},
 	cb: {
 		callback: true
 	},
-	opts: {
-		options: true
+	conf: {
+		config: true
 	},
-	str: {
-		string: true
+	ctx: {
+		context: true
 	},
-	obj: {
-		object: true
+	cur: {
+		current: true
 	},
-	num: {
-		number: true
+	curr: {
+		current: true
 	},
-	val: {
-		value: true
+	db: {
+		database: true
+	},
+	dest: {
+		destination: true
+	},
+	dev: {
+		development: true
+	},
+	dir: {
+		direction: true,
+		directory: true
+	},
+	dirs: {
+		directories: true
+	},
+	doc: {
+		document: true
+	},
+	docs: {
+		documentation: true,
+		documents: true
 	},
 	e: {
-		event: true,
+		error: true,
+		event: true
+	},
+	el: {
+		element: true
+	},
+	elem: {
+		element: true
+	},
+	env: {
+		environment: true
+	},
+	envs: {
+		environments: true
+	},
+	err: {
 		error: true
 	},
 	evt: {
 		event: true
 	},
-	el: {
-		element: true
+	ext: {
+		extension: true
+	},
+	exts: {
+		extensions: true
+	},
+	len: {
+		length: true
+	},
+	lib: {
+		library: true
+	},
+	mod: {
+		module: true
+	},
+	msg: {
+		message: true
+	},
+	num: {
+		number: true
+	},
+	obj: {
+		object: true
+	},
+	opts: {
+		options: true
+	},
+	param: {
+		parameter: true
+	},
+	params: {
+		parameters: true
+	},
+	pkg: {
+		package: true
+	},
+	prev: {
+		previous: true
+	},
+	prod: {
+		production: true
+	},
+	prop: {
+		property: true
+	},
+	props: {
+		properties: true
+	},
+	ref: {
+		reference: true
+	},
+	refs: {
+		references: true
+	},
+	rel: {
+		related: true,
+		relationship: true,
+		relative: true
 	},
 	req: {
 		request: true
@@ -52,154 +161,71 @@ const defaultReplacements = {
 		response: true,
 		result: true
 	},
-	btn: {
-		button: true
-	},
-	msg: {
-		message: true
-	},
-	len: {
-		length: true
-	},
-	env: {
-		environment: true
-	},
-	dev: {
-		development: true
-	},
-	prod: {
-		production: true
-	},
-	tmp: {
-		temporary: true
-	},
-	arg: {
-		argument: true
-	},
-	args: {
-		arguments: true
-	},
-	param: {
-		parameter: true
-	},
-	params: {
-		parameters: true
-	},
-	tbl: {
-		table: true
-	},
-	db: {
-		database: true
-	},
-	ctx: {
-		context: true
-	},
-	mod: {
-		module: true
-	},
-	prop: {
-		property: true
-	},
-	arr: {
-		array: true
-	},
 	ret: {
 		returnValue: true
 	},
 	retval: {
 		returnValue: true
 	},
-	ext: {
-		extension: true
-	},
-	exts: {
-		extensions: true
-	},
-	lib: {
-		library: true
-	},
-	dir: {
-		directory: true,
-		direction: true
-	},
-	dirs: {
-		directories: true
-	},
-	ref: {
-		reference: true
-	},
-	refs: {
-		references: true
-	},
-	pkg: {
-		package: true
-	},
 	sep: {
 		separator: true
-	},
-	doc: {
-		document: true
-	},
-	docs: {
-		documents: true,
-		documentation: true
-	},
-	elem: {
-		element: true
 	},
 	src: {
 		source: true
 	},
-	dest: {
-		destination: true
+	stdDev: {
+		standardDeviation: true
 	},
-	prev: {
-		previous: true
+	str: {
+		string: true
 	},
-	curr: {
-		current: true
-	},
-	cur: {
-		current: true
-	},
-	acc: {
-		accumulator: true
-	},
-	rel: {
-		relative: true,
-		related: true,
-		relationship: true
-	},
-	conf: {
-		config: true
+	tbl: {
+		table: true
 	},
 	temp: {
 		temporary: true
 	},
-	props: {
-		properties: true
+	tit: {
+		title: true
 	},
-	attr: {
-		attribute: true
+	tmp: {
+		temporary: true
 	},
-	attrs: {
-		attributes: true
+	val: {
+		value: true
 	}
 };
 
 const defaultWhitelist = {
+	// React PropTypes
+	// https://reactjs.org/docs/typechecking-with-proptypes.html
 	propTypes: true,
+	// React.Component Class property
+	// https://reactjs.org/docs/react-component.html#defaultprops
 	defaultProps: true,
+	// React.Component static method
+	// https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
 	getDerivedStateFromProps: true,
-	stdDev: true
+	// Ember class name
+	// https://api.emberjs.com/ember/3.10/classes/Ember.EmberENV/properties
+	EmberENV: true,
+	// `package.json` field
+	// https://docs.npmjs.com/specifying-dependencies-and-devdependencies-in-a-package-json-file
+	devDependencies: true,
+	// Jest configuration
+	// https://jestjs.io/docs/en/configuration#setupfilesafterenv-array
+	setupFilesAfterEnv: true,
+	// Next.js function
+	// https://nextjs.org/learn/basics/fetching-data-for-pages
+	getInitialProps: true
 };
 
 const prepareOptions = ({
 	checkProperties = false,
 	checkVariables = true,
 
-	checkDefaultAndNamespaceImports = false,
-	checkShorthandImports = false,
+	checkDefaultAndNamespaceImports = 'internal',
+	checkShorthandImports = 'internal',
 	checkShorthandProperties = false,
 
 	checkFilenames = true,
@@ -228,10 +254,13 @@ const prepareOptions = ({
 
 		checkFilenames,
 
-		replacements: new Map(toPairs(mergedReplacements).map(([discouragedName, replacements]) => {
-			return [discouragedName, new Map(toPairs(replacements))];
-		})),
-		whitelist: new Map(toPairs(mergedWhitelist))
+		replacements: new Map(
+			Object.entries(mergedReplacements).map(
+				([discouragedName, replacements]) =>
+					[discouragedName, new Map(Object.entries(replacements))]
+			)
+		),
+		whitelist: new Map(Object.entries(mergedWhitelist))
 	};
 };
 
@@ -274,7 +303,7 @@ const getNameReplacements = (name, options, limit = 3) => {
 	}
 
 	// Split words
-	const words = name.split(/(?=[^a-z])|(?<=[^a-zA-Z])/).filter(Boolean);
+	const words = name.split(/(?=[^a-z])|(?<=[^A-Za-z])/).filter(Boolean);
 
 	let hasReplacements = false;
 	const combinations = words.map(word => {
@@ -331,11 +360,12 @@ const formatMessage = (discouragedName, replacements, nameTypeText) => {
 	return message.join(' ');
 };
 
-const variableIdentifiers = variable => [...(new Set([
-	...variable.identifiers,
-	...variable.references
-		.map(reference => reference.identifier)
-])).values()];
+const variableIdentifiers = ({identifiers, references}) => [
+	...new Set([
+		...identifiers,
+		...references.map(({identifier}) => identifier)
+	])
+];
 
 const isExportedIdentifier = identifier => {
 	if (identifier.parent.type === 'VariableDeclarator' &&
@@ -364,17 +394,26 @@ const shouldFix = variable => {
 	return !variableIdentifiers(variable).some(isExportedIdentifier);
 };
 
+const isIdentifierKeyOfNode = (identifier, node) =>
+	node.key === identifier ||
+	// In `babel-eslint` parent.key is not reference of identifier
+	// https://github.com/babel/babel-eslint/issues/809
+	(
+		node.key.type === identifier.type &&
+		node.key.name === identifier.name
+	);
+
 const isShorthandPropertyIdentifier = identifier => {
 	return identifier.parent.type === 'Property' &&
-		identifier.parent.key === identifier &&
-		identifier.parent.shorthand;
+		identifier.parent.shorthand &&
+		isIdentifierKeyOfNode(identifier, identifier.parent);
 };
 
 const isAssignmentPatternShorthandPropertyIdentifier = identifier => {
 	return identifier.parent.type === 'AssignmentPattern' &&
 		identifier.parent.left === identifier &&
 		identifier.parent.parent.type === 'Property' &&
-		identifier.parent.parent.key === identifier &&
+		isIdentifierKeyOfNode(identifier, identifier.parent.parent) &&
 		identifier.parent.parent.value === identifier.parent &&
 		identifier.parent.parent.shorthand;
 };
@@ -491,6 +530,18 @@ const shouldReportIdentifierAsProperty = identifier => {
 	return false;
 };
 
+const isInternalImport = node => {
+	let source = '';
+
+	if (node.type === 'Variable') {
+		source = node.node.init.arguments[0].value;
+	} else if (node.type === 'ImportBinding') {
+		source = node.parent.source.value;
+	}
+
+	return !source.includes('node_modules') && (source.startsWith('.') || source.startsWith('/'));
+};
+
 const create = context => {
 	const {
 		ecmaVersion
@@ -553,12 +604,24 @@ const create = context => {
 
 		const [definition] = variable.defs;
 
-		if (!options.checkDefaultAndNamespaceImports && isDefaultOrNamespaceImportName(definition.name)) {
-			return;
+		if (isDefaultOrNamespaceImportName(definition.name)) {
+			if (!options.checkDefaultAndNamespaceImports) {
+				return;
+			}
+
+			if (options.checkDefaultAndNamespaceImports === 'internal' && !isInternalImport(definition)) {
+				return;
+			}
 		}
 
-		if (!options.checkShorthandImports && isShorthandImportIdentifier(definition.name)) {
-			return;
+		if (isShorthandImportIdentifier(definition.name)) {
+			if (!options.checkShorthandImports) {
+				return;
+			}
+
+			if (options.checkShorthandImports === 'internal' && !isInternalImport(definition)) {
+				return;
+			}
 		}
 
 		if (!options.checkShorthandProperties && isShorthandPropertyIdentifier(definition.name)) {
@@ -684,8 +747,14 @@ const schema = [{
 		checkProperties: {type: 'boolean'},
 		checkVariables: {type: 'boolean'},
 
-		checkDefaultAndNamespaceImports: {type: 'boolean'},
-		checkShorthandImports: {type: 'boolean'},
+		checkDefaultAndNamespaceImports: {
+			type: ['boolean', 'string'],
+			pattern: 'internal'
+		},
+		checkShorthandImports: {
+			type: ['boolean', 'string'],
+			pattern: 'internal'
+		},
 		checkShorthandProperties: {type: 'boolean'},
 
 		checkFilenames: {type: 'boolean'},
