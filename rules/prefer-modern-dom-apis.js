@@ -14,11 +14,28 @@ const forbiddenIdentifierNames = new Map([
 	['insertBefore', 'before']
 ]);
 
+const isPartOfVariableAssignment = nodeParentType => {
+	if (nodeParentType === 'VariableDeclarator' || nodeParentType === 'AssignmentExpression') {
+		return true;
+	}
+
+	return false;
+};
+
 const checkForReplaceChildOrInsertBefore = (context, node) => {
 	const identifierName = node.callee.property.name;
 
 	// Return early when specified methods don't exist in forbiddenIdentifierNames
 	if (!forbiddenIdentifierNames.has(identifierName)) {
+		return;
+	}
+
+	/**
+	 * Return early when the method is part of a variable assignment
+	 * because we don't want to autofix .replaceWith() and .before()
+	 * which don't have a return value
+	 */
+	if (isPartOfVariableAssignment(node.parent.type)) {
 		return;
 	}
 
@@ -81,6 +98,15 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 		identifierName !== 'insertAdjacentText' &&
 		identifierName !== 'insertAdjacentElement'
 	) {
+		return;
+	}
+
+	/**
+	 * Return early when the method is part of a variable assignment
+	 * because we don't want to autofix .insertAdjacentElement()
+	 * which doesn't have a return value
+	 */
+	if (identifierName === 'insertAdjacentElement' && isPartOfVariableAssignment(node.parent.type)) {
 		return;
 	}
 

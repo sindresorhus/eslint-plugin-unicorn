@@ -19,7 +19,13 @@ ruleTester.run('prefer-modern-dom-apis', rule, {
 		'referenceNode.append(newNode);',
 		'referenceNode.append("text");',
 		'referenceNode.after(newNode);',
-		'referenceNode.after("text");'
+		'referenceNode.after("text");',
+		'const foo = oldChildNode.replaceWith(newChildNode);',
+		'foo = oldChildNode.replaceWith(newChildNode);',
+		'const foo = parentNode.insertBefore(alfa, beta);',
+		'foo = parentNode.insertBefore(alfa, beta);',
+		'const foo = referenceNode.insertAdjacentElement("beforebegin", newNode);',
+		'foo = referenceNode.insertAdjacentElement("beforebegin", newNode);'
 	],
 	invalid: [
 		// Tests for .replaceChild()
@@ -73,16 +79,6 @@ ruleTester.run('prefer-modern-dom-apis', rule, {
 				}
 			],
 			output: 'referenceNode.before(newNode);'
-		},
-		{
-			code: 'var foo = parentNode.insertBefore(alfa, beta);',
-			errors: [
-				{
-					message:
-						'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.'
-				}
-			],
-			output: 'var foo = beta.before(alfa);'
 		},
 		{
 			code: 'parentNode.insertBefore(alfa, beta).insertBefore(charlie, delta);',
