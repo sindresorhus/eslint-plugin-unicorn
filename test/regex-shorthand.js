@@ -267,6 +267,16 @@ ruleTester.run('regex-shorthand', rule, {
 				message: '/[GgHhIiå.Z:a-f"0-8%A*ä]/ can be optimized to /["%*.0-8:AG-IZa-iäå]/'
 			}],
 			output: '/["%*.0-8:AG-IZa-iäå]/'
-		}
+		},
+		// Should still use shorthand when disabling sort character classes
+		{
+			code: '/[a0-9b]/',
+			options: disableSortCharacterClassesOptions,
+			errors: [{
+				...error,
+				message: '/[a0-9b]/ can be optimized to /[a\\db]/'
+			}],
+			output: '/[a\\db]/'
+		},
 	]
 });
