@@ -6,35 +6,13 @@ const quoteString = require('./utils/quote-string');
 
 const message = 'Use regex shorthands to improve readability.';
 
-// TODO: Simplify when/if this PR gets merged: https://github.com/DmitrySoshnikov/regexp-tree/pull/200
-const availableRegexpTreeOptimizations = [
-	'charSurrogatePairToSingleUnicode',
-	'charCodeToSimpleChar',
-	'charCaseInsensitiveLowerCaseTransform',
-	'charClassRemoveDuplicates',
-	'quantifiersMerge',
-	'quantifierRangeToSymbol',
-	'charClassClassrangesToChars',
-	'charClassClassrangesMerge',
-	'charClassToMeta',
-	'charClassToSingleChar',
-	'charEscapeUnescape',
-	'disjunctionRemoveDuplicates',
-	'groupSingleCharsToCharClass',
-	'removeEmptyGroup',
-	'ungroup',
-	'combineRepeatingPatterns'
-];
-
-const generateRegexpTreeWhitelistFromBlacklist = blacklist => availableRegexpTreeOptimizations.filter(optimization => !blacklist.includes(optimization));
-
 const create = context => {
 	const {sortCharacterClasses} = context.options[0] || {};
 
-	let whitelist;
+	const blacklist = [];
 
 	if (sortCharacterClasses === false) {
-		whitelist = generateRegexpTreeWhitelistFromBlacklist(['charClassClassrangesMerge']);
+		blacklist.push('charClassClassrangesMerge');
 	}
 
 	return {
@@ -50,7 +28,7 @@ const create = context => {
 			let optimized = original;
 
 			try {
-				optimized = optimize(original, whitelist).toString();
+				optimized = optimize(original, undefined, {blacklist}).toString();
 			} catch (_) {}
 
 			if (original === optimized) {
@@ -103,7 +81,8 @@ const schema = [{
 	type: 'object',
 	properties: {
 		sortCharacterClasses: {
-			type: 'boolean'
+			type: 'boolean',
+			default: true,
 		}
 	}
 }];
