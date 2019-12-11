@@ -82,7 +82,7 @@ const schema = [{
 	properties: {
 		sortCharacterClasses: {
 			type: 'boolean',
-			default: true,
+			default: true
 		}
 	}
 }];
