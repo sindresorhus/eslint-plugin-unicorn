@@ -277,6 +277,6 @@ ruleTester.run('regex-shorthand', rule, {
 				message: '/[a0-9b]/ can be optimized to /[a\\db]/'
 			}],
 			output: '/[a\\db]/'
-		},
+		}
 	]
 });
