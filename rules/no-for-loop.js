@@ -326,12 +326,18 @@ const create = context => {
 					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 
 					const index = indexIdentifierName;
-					const element = elementIdentifierName || defaultElementName;
 					const array = arrayIdentifierName;
 
+					let element = elementIdentifierName || defaultElementName;
+					let declarationType = 'const';
+					if (elementNode && elementNode.id.type === 'ObjectPattern') {
+						declarationType = elementNode.parent.kind;
+						element = sourceCode.getText(elementNode.id);
+					}
+
 					const replacement = shouldGenerateIndex ?
-						`const [${index}, ${element}] of ${array}.entries()` :
-						`const ${element} of ${array}`;
+						`${declarationType} [${index}, ${element}] of ${array}.entries()` :
+						`${declarationType} ${element} of ${array}`;
 
 					return [
 						fixer.replaceTextRange([

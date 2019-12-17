@@ -356,6 +356,48 @@ ruleTester.run('no-for-loop', rule, {
 					use(element);
 				}
 			}
+		`),
+
+		// Destructuring assignment in usage:
+		testCase(outdent`
+			for (let i = 0; i < arr.length; i++) {
+				const { a, b } = arr[i];
+				console.log(a, b);
+			}
+		`, outdent`
+			for (const { a, b } of arr) {
+				console.log(a, b);
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0; i < arr.length; i++) {
+				var { a, b } = arr[i];
+				console.log(a, b);
+			}
+		`, outdent`
+			for (var { a, b } of arr) {
+				console.log(a, b);
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0; i < arr.length; i++) {
+				let { a, b } = arr[i];
+				console.log(a, b);
+			}
+		`, outdent`
+			for (let { a, b } of arr) {
+				console.log(a, b);
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0; i < arr.length; i++) {
+				var { a, b } = arr[i];
+				console.log(i, a, b);
+			}
+		`, outdent`
+			for (var [i, { a, b }] of arr.entries()) {
+				console.log(i, a, b);
+			}
 		`)
 	]
 });
