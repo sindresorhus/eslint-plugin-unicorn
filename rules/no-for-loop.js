@@ -329,9 +329,24 @@ const create = context => {
 					const element = elementIdentifierName || defaultElementName;
 					const array = arrayIdentifierName;
 
+					let declarationElement = element;
+					let declarationType = 'const';
+					let removeDeclaration = true;
+					if (
+						elementNode &&
+						elementNode.id.type === 'ObjectPattern'
+					) {
+						removeDeclaration = arrayReferences.length === 1;
+
+						if (removeDeclaration) {
+							declarationType = elementNode.parent.kind;
+							declarationElement = sourceCode.getText(elementNode.id);
+						}
+					}
+
 					const replacement = shouldGenerateIndex ?
-						`const [${index}, ${element}] of ${array}.entries()` :
-						`const ${element} of ${array}`;
+						`${declarationType} [${index}, ${declarationElement}] of ${array}.entries()` :
+						`${declarationType} ${declarationElement} of ${array}`;
 
 					return [
 						fixer.replaceTextRange([
@@ -345,7 +360,11 @@ const create = context => {
 
 							return fixer.replaceText(reference.identifier.parent, element);
 						}),
-						elementNode && fixer.removeRange(getRemovalRange(elementNode, sourceCode))
+						elementNode && (
+							removeDeclaration ?
+								fixer.removeRange(getRemovalRange(elementNode, sourceCode)) :
+								fixer.replaceText(elementNode.init, element)
+						)
 					].filter(Boolean);
 				};
 			}
