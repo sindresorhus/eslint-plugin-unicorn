@@ -398,6 +398,17 @@ ruleTester.run('no-for-loop', rule, {
 			for (var [i, { a, b }] of arr.entries()) {
 				console.log(i, a, b);
 			}
+		`),
+		testCase(outdent`
+			for (let i = 0; i < arr.length; i++) {
+				const { a, b } = arr[i];
+				console.log(a, b, i, arr[i]);
+			}
+		`, outdent`
+			for (const [i, element] of arr.entries()) {
+				const { a, b } = element;
+				console.log(a, b, i, element);
+			}
 		`)
 	]
 });

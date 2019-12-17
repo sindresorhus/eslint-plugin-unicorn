@@ -326,18 +326,27 @@ const create = context => {
 					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 
 					const index = indexIdentifierName;
+					const element = elementIdentifierName || defaultElementName;
 					const array = arrayIdentifierName;
 
-					let element = elementIdentifierName || defaultElementName;
+					let declarationElement = element;
 					let declarationType = 'const';
-					if (elementNode && elementNode.id.type === 'ObjectPattern') {
-						declarationType = elementNode.parent.kind;
-						element = sourceCode.getText(elementNode.id);
+					let removeDeclaration = true;
+					if (
+						elementNode &&
+						elementNode.id.type === 'ObjectPattern'
+					) {
+						removeDeclaration = arrayReferences.length === 1;
+
+						if (removeDeclaration) {
+							declarationType = elementNode.parent.kind;
+							declarationElement = sourceCode.getText(elementNode.id);
+						}
 					}
 
 					const replacement = shouldGenerateIndex ?
-						`${declarationType} [${index}, ${element}] of ${array}.entries()` :
-						`${declarationType} ${element} of ${array}`;
+						`${declarationType} [${index}, ${declarationElement}] of ${array}.entries()` :
+						`${declarationType} ${declarationElement} of ${array}`;
 
 					return [
 						fixer.replaceTextRange([
@@ -351,7 +360,11 @@ const create = context => {
 
 							return fixer.replaceText(reference.identifier.parent, element);
 						}),
-						elementNode && fixer.removeRange(getRemovalRange(elementNode, sourceCode))
+						elementNode && (
+							removeDeclaration ?
+								fixer.removeRange(getRemovalRange(elementNode, sourceCode)) :
+								fixer.replaceText(elementNode.init, element)
+						)
 					].filter(Boolean);
 				};
 			}
