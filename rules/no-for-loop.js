@@ -345,7 +345,11 @@ const create = context => {
 
 							return fixer.replaceText(reference.identifier.parent, element);
 						}),
-						elementNode && fixer.removeRange(getRemovalRange(elementNode, sourceCode))
+						elementNode && (
+							elementNode.id.type === 'ObjectPattern' ?
+								fixer.replaceText(elementNode.init, element) :
+								fixer.removeRange(getRemovalRange(elementNode, sourceCode))
+						)
 					].filter(Boolean);
 				};
 			}
