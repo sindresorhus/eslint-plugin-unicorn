@@ -5,8 +5,6 @@ const getArgumentNameForReplaceChildOrInsertBefore = nodeArguments => {
 	if (nodeArguments.type === 'Identifier') {
 		return nodeArguments.name;
 	}
-
-	return null;
 };
 
 const forbiddenIdentifierNames = new Map([
@@ -70,7 +68,7 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 	});
 };
 
-// Handle both Identifier and Literal because the preferred selectors support nodes and DOMString
+// Handle both `Identifier` and `Literal` because the preferred selectors support nodes and DOMString.
 const getArgumentNameForInsertAdjacentMethods = nodeArguments => {
 	if (nodeArguments.type === 'Identifier') {
 		return nodeArguments.name;
@@ -79,8 +77,6 @@ const getArgumentNameForInsertAdjacentMethods = nodeArguments => {
 	if (nodeArguments.type === 'Literal') {
 		return nodeArguments.raw;
 	}
-
-	return null;
 };
 
 const positionReplacers = new Map([
@@ -93,7 +89,7 @@ const positionReplacers = new Map([
 const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 	const identifierName = node.callee.property.name;
 
-	// Return early when method name is not one of the targeted ones
+	// Return early when method name is not one of the targeted ones.
 	if (
 		identifierName !== 'insertAdjacentText' &&
 		identifierName !== 'insertAdjacentElement'
@@ -105,7 +101,7 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 	const positionArgument = getArgumentNameForInsertAdjacentMethods(nodeArguments[0]);
 	const positionAsValue = nodeArguments[0].value;
 
-	// Return early when specified position value of 1st argument is not a recognised value
+	// Return early when specified position value of first argument is not a recognized value.
 	if (!positionReplacers.has(positionAsValue)) {
 		return;
 	}
