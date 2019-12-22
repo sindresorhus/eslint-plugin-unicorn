@@ -56,11 +56,9 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 		`${oldChildNodeArgument}.${preferredSelector}(${newChildNodeArgument})`
 	);
 
-	/**
-	 * Report error when the method is part of a variable assignment
-	 * but don't offer to autofix .replaceWith() and .before()
-	 * which don't have a return value
-	 */
+	// Report error when the method is part of a variable assignment
+	// but don't offer to autofix `.replaceWith()` and `.before()`
+	// which don't have a return value.
 	if (isPartOfVariableAssignment(node.parent.type)) {
 		fix = undefined;
 	}
@@ -124,11 +122,9 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 			`${referenceNode}.${preferredSelector}(${insertedTextArgument})`
 		);
 
-	/**
-	 * Report error when the method is part of a variable assignment
-	 * but don't offer to autofix .insertAdjacentElement()
-	 * which don't have a return value
-	 */
+	// Report error when the method is part of a variable assignment
+	// but don't offer to autofix `.insertAdjacentElement()`
+	// which don't have a return value.
 	if (identifierName === 'insertAdjacentElement' && isPartOfVariableAssignment(node.parent.type)) {
 		fix = undefined;
 	}
