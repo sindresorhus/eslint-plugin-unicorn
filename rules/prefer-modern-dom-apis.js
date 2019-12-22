@@ -30,15 +30,6 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 		return;
 	}
 
-	/**
-	 * Return early when the method is part of a variable assignment
-	 * because we don't want to autofix .replaceWith() and .before()
-	 * which don't have a return value
-	 */
-	if (isPartOfVariableAssignment(node.parent.type)) {
-		return;
-	}
-
 	const nodeArguments = node.arguments;
 	const newChildNodeArgument = getArgumentNameForReplaceChildOrInsertBefore(
 		nodeArguments[0]
@@ -60,14 +51,24 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 
 	const preferredSelector = forbiddenIdentifierNames.get(identifierName);
 
+	let fix = fixer => fixer.replaceText(
+		node,
+		`${oldChildNodeArgument}.${preferredSelector}(${newChildNodeArgument})`
+	);
+
+	/**
+	 * Report error when the method is part of a variable assignment
+	 * but don't offer to autofix .replaceWith() and .before()
+	 * which don't have a return value
+	 */
+	if (isPartOfVariableAssignment(node.parent.type)) {
+		fix = undefined;
+	}
+
 	return context.report({
 		node,
 		message: `Prefer \`${oldChildNodeArgument}.${preferredSelector}(${newChildNodeArgument})\` over \`${parentNode}.${identifierName}(${newChildNodeArgument}, ${oldChildNodeArgument})\`.`,
-		fix: fixer =>
-			fixer.replaceText(
-				node,
-				`${oldChildNodeArgument}.${preferredSelector}(${newChildNodeArgument})`
-			)
+		fix
 	});
 };
 
@@ -94,19 +95,11 @@ const positionReplacers = new Map([
 const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 	const identifierName = node.callee.property.name;
 
+	// Return early when method name is not one of the targeted ones
 	if (
 		identifierName !== 'insertAdjacentText' &&
 		identifierName !== 'insertAdjacentElement'
 	) {
-		return;
-	}
-
-	/**
-	 * Return early when the method is part of a variable assignment
-	 * because we don't want to autofix .insertAdjacentElement()
-	 * which doesn't have a return value
-	 */
-	if (identifierName === 'insertAdjacentElement' && isPartOfVariableAssignment(node.parent.type)) {
 		return;
 	}
 
@@ -125,14 +118,25 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 		nodeArguments[1]
 	);
 
+	let fix = fixer =>
+		fixer.replaceText(
+			node,
+			`${referenceNode}.${preferredSelector}(${insertedTextArgument})`
+		);
+
+	/**
+	 * Report error when the method is part of a variable assignment
+	 * but don't offer to autofix .insertAdjacentElement()
+	 * which don't have a return value
+	 */
+	if (identifierName === 'insertAdjacentElement' && isPartOfVariableAssignment(node.parent.type)) {
+		fix = undefined;
+	}
+
 	return context.report({
 		node,
 		message: `Prefer \`${referenceNode}.${preferredSelector}(${insertedTextArgument})\` over \`${referenceNode}.${identifierName}(${positionArgument}, ${insertedTextArgument})\`.`,
-		fix: fixer =>
-			fixer.replaceText(
-				node,
-				`${referenceNode}.${preferredSelector}(${insertedTextArgument})`
-			)
+		fix
 	});
 };
 
