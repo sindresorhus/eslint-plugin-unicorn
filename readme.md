@@ -9,6 +9,11 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 [**Propose or contribute a new rule ➡**](.github/contributing.md)
 
 
+## Requirements
+
+* [Node.js](https://nodejs.org/) `>= 8`
+
+
 ## Install
 
 ```console
