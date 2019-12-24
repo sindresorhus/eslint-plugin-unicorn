@@ -1,5 +1,4 @@
 'use strict';
-/* eslint no-useless-escape: 0 */
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 function checkReplace(node) {
@@ -13,9 +12,9 @@ function checkGlobalFlag(node) {
 
 function checkLiteralCharactersOnly(node) {
 	const searchPattern = node.arguments[0].regex.pattern;
-	const specialCharacters = searchPattern.match(/[\^\$\*\+\?\.\(\)\{\}\[\]\\]/g);
+	const specialCharacters = searchPattern.match(/[$()*+.?[\\\]^{}]/g);
 	const specialCharactersCount = specialCharacters ? specialCharacters.length : 0;
-	const escapedSpecialCharacters = searchPattern.match(/\\[\^\$\*\+\?\.\(\)\{\}\[\]\\]/g);
+	const escapedSpecialCharacters = searchPattern.match(/\\[$()*+.?[\\\]^{}]/g);
 	const escapedSpecialCharactersCount = escapedSpecialCharacters ? escapedSpecialCharacters.length : 0;
 	return specialCharactersCount === 2 * escapedSpecialCharactersCount;
 }
