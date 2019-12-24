@@ -12,12 +12,12 @@ test.before(async () => {
 });
 
 const ignoredRules = [
-	'no-nested-ternary',
+	'no-nested-ternary'
 ];
 
 const deprecatedRules = [
 	'prefer-exponentiation-operator'
-]
+];
 
 const testSorted = (t, actualOrder, sourceName) => {
 	actualOrder = actualOrder.filter(x => !ignoredRules.includes(x));
