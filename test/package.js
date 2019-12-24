@@ -12,8 +12,12 @@ test.before(async () => {
 });
 
 const ignoredRules = [
-	'no-nested-ternary'
+	'no-nested-ternary',
 ];
+
+const deprecatedRules = [
+	'prefer-exponentiation-operator'
+]
 
 const testSorted = (t, actualOrder, sourceName) => {
 	actualOrder = actualOrder.filter(x => !ignoredRules.includes(x));
@@ -77,14 +81,17 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 		}
 	} while (match);
 
-	for (const file of ruleFiles) {
-		const name = path.basename(file, '.js');
+	const availableRules = ruleFiles
+		.map(file => path.basename(file, '.js'))
+		.filter(name => !deprecatedRules.includes(name));
+
+	for (const name of availableRules) {
 		t.truthy(usageRules[`unicorn/${name}`], `'${name}' is not described in the readme.md ## Usage`);
 		t.truthy(rules.includes(name), `'${name}' is not described in the readme.md ## Rules`);
 	}
 
-	t.is(Object.keys(usageRules).length - ignoredRules.length, ruleFiles.length, 'There are more rules in readme.md ## Usage than rule files.');
-	t.is(Object.keys(rules).length, ruleFiles.length, 'There are more rules in readme.md ## Rules than rule files.');
+	t.is(Object.keys(usageRules).length - ignoredRules.length, availableRules.length, 'There are more rules in readme.md ## Usage than rule files.');
+	t.is(Object.keys(rules).length, availableRules.length, 'There are more rules in readme.md ## Rules than rule files.');
 
 	testSorted(t, Object.keys(usageRules), 'readme.md ## Usage rules');
 	testSorted(t, rules, 'readme.md ## Rules');
