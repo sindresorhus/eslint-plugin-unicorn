@@ -19,6 +19,7 @@ const create = context => {
 			if (typeof value !== 'number') {
 				return;
 			}
+
 			const fixed = fix(raw);
 
 			if (raw !== fixed) {
