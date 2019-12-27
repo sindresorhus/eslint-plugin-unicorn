@@ -8,6 +8,7 @@ const ruleTester = avaRuleTester(test, {
 		es6: true
 	},
 	parserOptions: {
+		ecmaVersion: 2020,
 		sourceType: 'module'
 	}
 });
@@ -22,7 +23,14 @@ ruleTester.run('number-literal-case', rule, {
 		'const foo = 0xFF',
 		'const foo = 0b11',
 		'const foo = 0o10',
-		'const foo = \'0Xff\''
+		'const foo = \'0Xff\'',
+
+		// NaN
+		'const foo = NaN',
+
+		// Should not work on BigInt
+		'const foo = 0xFFn',
+		'const foo = 0xffn'
 	],
 	invalid: [
 		{

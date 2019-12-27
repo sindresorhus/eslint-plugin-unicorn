@@ -15,14 +15,17 @@ const fix = value => {
 const create = context => {
 	return {
 		Literal: node => {
-			const value = node.raw;
-			const fixedValue = fix(value);
+			const {value, raw} = node;
+			if (typeof value !== 'number') {
+				return;
+			}
+			const fixed = fix(raw);
 
-			if (value !== fixedValue) {
+			if (raw !== fixed) {
 				context.report({
 					node,
 					message: 'Invalid number literal casing.',
-					fix: fixer => fixer.replaceText(node, fixedValue)
+					fix: fixer => fixer.replaceText(node, fixed)
 				});
 			}
 		}
