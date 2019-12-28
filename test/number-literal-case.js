@@ -66,7 +66,7 @@ ruleTester.run('number-literal-case', rule, {
 			output: 'const foo = 0xABCDEF'
 		},
 
-		// Big int
+		// BigInt
 		{
 			code: 'const foo = 0B10n',
 			errors: [error],
