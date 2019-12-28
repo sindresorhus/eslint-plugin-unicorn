@@ -8,8 +8,7 @@ const ruleTester = avaRuleTester(test, {
 		es6: true
 	},
 	parserOptions: {
-		ecmaVersion: 2020,
-		sourceType: 'module'
+		ecmaVersion: 2020
 	}
 });
 
@@ -18,51 +17,89 @@ const error = {
 	message: 'Invalid number literal casing.'
 };
 
+// TODO: add numeric separator tests, when ESLint support it
 ruleTester.run('number-literal-case', rule, {
 	valid: [
-		'const foo = 0xFF',
-		'const foo = 0b11',
-		'const foo = 0o10',
-		'const foo = \'0Xff\'',
+		// Number
+		'const foo = 1234',
+		'const foo = 0777',
+		'const foo = 0888',
+		'const foo = 0b10',
+		'const foo = 0o1234567',
+		'const foo = 0xABCDEF',
 
-		// NaN
+		// BigInt
+		'const foo = 1234n',
+		'const foo = 0b10n',
+		'const foo = 0o1234567n',
+		'const foo = 0xABCDEFn',
+
+		// Symbolic value
 		'const foo = NaN',
+		'const foo = +Infinity',
+		'const foo = -Infinity',
 
-		// Should not work on BigInt
-		'const foo = 0xFFn',
-		'const foo = 0xffn'
+		// Exponential notation
+		'const foo = 1.2e3',
+		'const foo = 1.2e-3',
+		'const foo = 1.2e+3',
+
+		// Not number
+		'const foo = \'0Xff\'',
+		'const foo = \'0Xffn\'',
 	],
 	invalid: [
+		// Number
 		{
-			code: 'const foo = 0XFF',
+			code: 'const foo = 0B10',
 			errors: [error],
-			output: 'const foo = 0xFF'
+			output: 'const foo = 0b10'
 		},
 		{
-			code: 'const foo = 0xff',
+			code: 'const foo = 0O1234567',
 			errors: [error],
-			output: 'const foo = 0xFF'
+			output: 'const foo = 0o1234567'
 		},
 		{
-			code: 'const foo = 0Xff',
+			code: 'const foo = 0XaBcDeF',
 			errors: [error],
-			output: 'const foo = 0xFF'
+			output: 'const foo = 0xABCDEF'
+		},
+
+		// Big int
+		{
+			code: 'const foo = 0B10n',
+			errors: [error],
+			output: 'const foo = 0b10n'
 		},
 		{
-			code: 'const foo = 0Xff',
+			code: 'const foo = 0O1234567n',
 			errors: [error],
-			output: 'const foo = 0xFF'
+			output: 'const foo = 0o1234567n'
 		},
 		{
-			code: 'const foo = 0B11',
+			code: 'const foo = 0XaBcDeFn',
 			errors: [error],
-			output: 'const foo = 0b11'
+			output: 'const foo = 0xABCDEFn'
+		},
+
+		// Exponential notation
+		{
+			code: 'const foo = 1.2E3',
+			errors: [error],
+			output: 'const foo = 1.2e3'
 		},
 		{
-			code: 'const foo = 0O10',
+			code: 'const foo = 1.2E-3',
 			errors: [error],
-			output: 'const foo = 0o10'
+			output: 'const foo = 1.2e-3'
 		},
+		{
+			code: 'const foo = 1.2E+3',
+			errors: [error],
+			output: 'const foo = 1.2e+3'
+		},
+
 		{
 			code: outdent`
 				const foo = 255;
