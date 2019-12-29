@@ -32,6 +32,7 @@ module.exports = {
 				'unicorn/no-console-spaces': 'error',
 				'unicorn/no-fn-reference-in-iterator': 'off',
 				'unicorn/no-for-loop': 'error',
+				'unicorn/no-for-loop-extra-variable': 'error',
 				'unicorn/no-hex-escape': 'error',
 				'unicorn/no-keyword-prefix': 'off',
 				'no-nested-ternary': 'off',

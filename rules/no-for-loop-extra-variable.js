@@ -44,50 +44,46 @@ function fixForLoop(node, context, fixer) {
 	const nonIterator = getVariableNames(node).filter(variableName => variableName !== getIteratorName(node))[0];
 	const nonIteratorDeclaration = node.init.declarations.filter(declaration => declaration.id.name === nonIterator)[0];
 	const iteratorDeclaration = node.init.declarations.filter(declaration => declaration.id.name !== nonIterator)[0];
-	
-	function replaceInTestFix(){
+
+	function replaceInTestFix() {
 		const nonIteratorInitValue = sourceCode.getText(nonIteratorDeclaration.init);
 		const nonIteratorTokensInTest = getNonIteratorTokensInNode(sourceCode, node.test, nonIterator);
 		return nonIteratorTokensInTest.map(token => {
 			return fixer.replaceText(token, nonIteratorInitValue);
 		});
-
 	}
 
-	function removeDeclarationFix(){
+	function removeDeclarationFix() {
 		return [fixer.replaceText(node.init, node.init.kind + ' ' + sourceCode.getText(iteratorDeclaration))];
 	}
-	function moveDeclarationFix(){
-		return removeDeclarationFix().concat([fixer.insertTextBefore(node, node.init.kind + ' ' + sourceCode.getText(nonIteratorDeclaration) + '\n')])
+
+	function moveDeclarationFix() {
+		return removeDeclarationFix().concat([fixer.insertTextBefore(node, node.init.kind + ' ' + sourceCode.getText(nonIteratorDeclaration) + '\n')]);
 	}
-	function removeVariableFix(){
-		return removeDeclarationFix().concat(replaceInTestFix())
+
+	function removeVariableFix() {
+		return removeDeclarationFix().concat(replaceInTestFix());
 	}
-	
-	if(node.init.kind==='let'){
-		if(checkNonIteratorUsedInNode(node, context)){
-			if(checkNonIteratorUsedOutsideNode(node, context)){
-				return
+
+	if (node.init.kind === 'let') {
+		if (checkNonIteratorUsedInNode(node, context)) {
+			if (checkNonIteratorUsedOutsideNode(node, context)) {
+				return null;
 			}
-			else{
-				return moveDeclarationFix()
-			}
+
+			return moveDeclarationFix();
 		}
-		else{
-			return removeVariableFix()
-		}
+
+		return removeVariableFix();
 	}
-	else {
-		if (checkNonIteratorUsedInNode(node, context) || checkNonIteratorUsedOutsideNode(node, context)){
-			return moveDeclarationFix()
-		}
-		else{
-			return removeVariableFix()
-		}
+
+	if (checkNonIteratorUsedInNode(node, context) || checkNonIteratorUsedOutsideNode(node, context)) {
+		return moveDeclarationFix();
 	}
+
+	return removeVariableFix();
 }
-	
-	
+
 function checkNonIteratorUsedInNode(node, context) {
 	const nonIterator = getVariableNames(node).filter(variableName => variableName !== getIteratorName(node))[0];
 	const sourceCode = context.getSourceCode();
@@ -107,11 +103,11 @@ function checkNonIteratorUsedOutsideNode(node, context) {
 }
 
 function getNonIteratorTokenOutsideNode(sourceCode, node, nonIterator) {
-	const tokens = node.init.kind === 'var' ? sourceCode.getTokensBefore(node) : []
-	tokens.push(...sourceCode.getTokensAfter(node))
+	const tokens = node.init.kind === 'var' ? sourceCode.getTokensBefore(node) : [];
+	tokens.push(...sourceCode.getTokensAfter(node));
 	return tokens.filter(token => {
-			return token.type === 'Identifier' && token.value === nonIterator;
-		});
+		return token.type === 'Identifier' && token.value === nonIterator;
+	});
 }
 
 const create = context => {

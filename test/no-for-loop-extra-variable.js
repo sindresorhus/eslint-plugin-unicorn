@@ -35,7 +35,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 	],
 	invalid: [
 		{
-			// j never used anywhere else (let)
+			// J never used anywhere else (let)
 			code: outdent`for(let i = 1, j=arr.length; i < j; i += 1) {
 				const element = arr[i];
 				console.log(element);
@@ -47,7 +47,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 				}`
 		},
 		{
-			// j never used anywhere else (var)
+			// J never used anywhere else (var)
 			code: outdent`for(var i = 1, j=arr.length; i < j; i += 1) {
 				const element = arr[i];
 				console.log(element);
@@ -71,7 +71,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 				}`
 		},
 		{
-			// i = i + 1 instead of += 1
+			// I = i + 1 instead of += 1
 			code: outdent`for(let i = 1, j=arr.length; i < j; i = i + 1) {
 				const element = arr[i];
 				console.log(element);
@@ -95,7 +95,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 				}`
 		},
 		{
-			// j on left side of test
+			// J on left side of test
 			code: outdent`for(let i = 1, j=arr.length; j > i; i += 1) {
 				console.log('string');
 				}`,
@@ -105,7 +105,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 				}`
 		},
 		{
-			// j fixed value
+			// J fixed value
 			code: outdent`for(let i = 1, j=5; j > i; i += 1) {
 				const element = arr[i];
 				console.log(element);
@@ -117,7 +117,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 				}`
 		},
 		{
-			// j used in loop only (let)
+			// J used in loop only (let)
 			code: outdent`for(let i = 1, j=arr.length; i < j; i += 1) {
 				otherFunction(j)
 				}`,
@@ -128,7 +128,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 				}`
 		},
 		{
-			// j used in loop only (var)
+			// J used in loop only (var)
 			code: outdent`for(var i = 1, j=arr.length; i < j; i += 1) {
 				otherFunction(j)
 				}`,
@@ -139,7 +139,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 				}`
 		},
 		{
-			// j used after loop only (let)
+			// J used after loop only (let)
 			code: outdent`
 				for(let i = 1, j = arr.length; j > i; i += 1) {
 					console.log('string');
@@ -155,7 +155,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 		`
 		},
 		{
-			// j used after loop only (var)
+			// J used after loop only (var)
 			code: outdent`
 				for(var i = 1, j = arr.length; j > i; i += 1) {
 					console.log('string');
@@ -172,7 +172,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 		`
 		},
 		{
-			// j used in loop and after loop (let)
+			// J used in loop and after loop (let)
 			code: outdent`
 				for(let i = 1, j = arr.length; j > i; i += 1) {
 					console.log(j);
@@ -188,7 +188,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 		`
 		},
 		{
-			// j used in loop and after loop (var)
+			// J used in loop and after loop (var)
 			code: outdent`
 				for(var i = 1, j = arr.length; j > i; i += 1) {
 					console.log(j);
@@ -205,7 +205,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 		`
 		},
 		{
-			// j used before loop only (let)
+			// J used before loop only (let)
 			code: outdent`
 			if(conditional){
 				let j = 5
@@ -214,8 +214,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 			for(let i = 1, j = arr.length; j > i; i += 1) {
 					console.log('string');
 				}
-			}`
-			,
+			}`,
 			errors: [error],
 			output: outdent`
 			if(conditional){
@@ -228,7 +227,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 			}`
 		},
 		{
-			// j used before and in loop (let)
+			// J used before and in loop (let)
 			code: outdent`
 			if(conditional){
 				let j = 5
@@ -237,8 +236,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 			for(let i = 1, j = arr.length; j > i; i += 1) {
 					console.log(j);
 				}
-			}`
-			,
+			}`,
 			errors: [error],
 			output: outdent`
 			if(conditional){
@@ -252,7 +250,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 			}`
 		},
 		{
-			// j used before and in loop (var)
+			// J used before and in loop (var)
 			code: outdent`
 			if(conditional){
 				var j = 5
@@ -261,8 +259,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 			for(var i = 1, j = arr.length; j > i; i += 1) {
 					console.log(j);
 				}
-			}`
-			,
+			}`,
 			errors: [error],
 			output: outdent`
 			if(conditional){
@@ -276,7 +273,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 			}`
 		},
 		{
-			// j used before, in, and after loop (let)
+			// J used before, in, and after loop (let)
 			code: outdent`
 			if(conditional){
 				let j = 5
@@ -286,8 +283,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 					console.log(j);
 				}
 			let j = 5
-			}`
-			,
+			}`,
 			errors: [error],
 			output: outdent`
 			if(conditional){
@@ -301,7 +297,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 			}`
 		},
 		{
-			// j used before, in, and after loop (var)
+			// J used before, in, and after loop (var)
 			code: outdent`
 			if(conditional){
 				console.log(j)
@@ -311,8 +307,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 					console.log(j);
 				}
 			console.log(j)
-			}`
-			,
+			}`,
 			errors: [error],
 			output: outdent`
 			if(conditional){
