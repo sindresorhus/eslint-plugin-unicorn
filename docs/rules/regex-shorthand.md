@@ -33,4 +33,4 @@ const regex = /\d\.\w\-\D/i;
 Type: `boolean`\
 Default: `true`
 
-Disables optimizations that affects the sorting of characters.
+Disables optimizations that affects the sorting of character classes.
