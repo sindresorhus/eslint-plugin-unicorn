@@ -137,8 +137,7 @@ Configure it in `package.json`.
 
 ## Deprecated Rules
 
-- [unicorn/prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md)\
-  Use the built-in ESLint [`prefer-exponentiation-operator`](https://eslint.org/docs/rules/prefer-exponentiation-operator) rule instead.
+- [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Use the built-in ESLint [`prefer-exponentiation-operator`](https://eslint.org/docs/rules/prefer-exponentiation-operator) rule instead.
 
 ## Recommended config
 
