@@ -17,7 +17,7 @@ const error = {
 	message: 'Invalid number literal casing.'
 };
 
-// TODO: add numeric separator tests, when ESLint support it
+// TODO: Add numeric separator tests when ESLint supports it.
 ruleTester.run('number-literal-case', rule, {
 	valid: [
 		// Number
