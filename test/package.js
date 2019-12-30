@@ -15,6 +15,10 @@ const ignoredRules = [
 	'no-nested-ternary'
 ];
 
+const deprecatedRules = [
+	'prefer-exponentiation-operator'
+];
+
 const testSorted = (t, actualOrder, sourceName) => {
 	actualOrder = actualOrder.filter(x => !ignoredRules.includes(x));
 	const sortedOrder = actualOrder.slice(0).sort();
@@ -30,12 +34,13 @@ test('Every rule is defined in index file in alphabetical order', t => {
 	for (const file of ruleFiles) {
 		const name = path.basename(file, '.js');
 		t.truthy(index.rules[name], `'${name}' is not exported in 'index.js'`);
-		t.truthy(index.configs.recommended.rules[`unicorn/${name}`], `'${name}' is not set in the recommended config`);
+		if (!deprecatedRules.includes(name)) {
+			t.truthy(index.configs.recommended.rules[`unicorn/${name}`], `'${name}' is not set in the recommended config`);
+		}
+
 		t.truthy(fs.existsSync(path.join('docs/rules', `${name}.md`)), `There is no documentation for '${name}'`);
 		t.truthy(fs.existsSync(path.join('test', file)), `There are no tests for '${name}'`);
 	}
-
-	console.log(Object.keys(index.rules).length - ignoredRules.length, ruleFiles.length);
 
 	t.is(
 		Object.keys(index.rules).length,
@@ -44,7 +49,7 @@ test('Every rule is defined in index file in alphabetical order', t => {
 	);
 	t.is(
 		Object.keys(index.configs.recommended.rules).length - ignoredRules.length,
-		ruleFiles.length,
+		ruleFiles.length - deprecatedRules.length,
 		'There are more exported rules in the recommended config than rule files.'
 	);
 
@@ -62,7 +67,7 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 
 	t.truthy(usageRules, 'List of rules should be defined in readme.md ## Usage and be valid JSON');
 
-	const rulesMatch = /## Rules(.*?)## Recommended config/ms.exec(readme);
+	const rulesMatch = /## Rules(.*?)## Deprecated Rules/ms.exec(readme);
 	t.truthy(rulesMatch, 'List of rules should be defined in readme.md in ## Rules before ## Recommended config');
 	const rulesText = rulesMatch[1];
 	const re = /- \[(.*?)]\((.*?)\) - (.*)\n/gm;
@@ -77,14 +82,17 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 		}
 	} while (match);
 
-	for (const file of ruleFiles) {
-		const name = path.basename(file, '.js');
+	const availableRules = ruleFiles
+		.map(file => path.basename(file, '.js'))
+		.filter(name => !deprecatedRules.includes(name));
+
+	for (const name of availableRules) {
 		t.truthy(usageRules[`unicorn/${name}`], `'${name}' is not described in the readme.md ## Usage`);
 		t.truthy(rules.includes(name), `'${name}' is not described in the readme.md ## Rules`);
 	}
 
-	t.is(Object.keys(usageRules).length - ignoredRules.length, ruleFiles.length, 'There are more rules in readme.md ## Usage than rule files.');
-	t.is(Object.keys(rules).length, ruleFiles.length, 'There are more rules in readme.md ## Rules than rule files.');
+	t.is(Object.keys(usageRules).length - ignoredRules.length, availableRules.length, 'There are more rules in readme.md ## Usage than rule files.');
+	t.is(Object.keys(rules).length, availableRules.length, 'There are more rules in readme.md ## Rules than rule files.');
 
 	testSorted(t, Object.keys(usageRules), 'readme.md ## Usage rules');
 	testSorted(t, rules, 'readme.md ## Rules');
