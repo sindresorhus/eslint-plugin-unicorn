@@ -34,12 +34,13 @@ test('Every rule is defined in index file in alphabetical order', t => {
 	for (const file of ruleFiles) {
 		const name = path.basename(file, '.js');
 		t.truthy(index.rules[name], `'${name}' is not exported in 'index.js'`);
-		t.truthy(index.configs.recommended.rules[`unicorn/${name}`], `'${name}' is not set in the recommended config`);
+		if (!deprecatedRules.includes(name)) {
+			t.truthy(index.configs.recommended.rules[`unicorn/${name}`], `'${name}' is not set in the recommended config`);
+		}
+
 		t.truthy(fs.existsSync(path.join('docs/rules', `${name}.md`)), `There is no documentation for '${name}'`);
 		t.truthy(fs.existsSync(path.join('test', file)), `There are no tests for '${name}'`);
 	}
-
-	console.log(Object.keys(index.rules).length - ignoredRules.length, ruleFiles.length);
 
 	t.is(
 		Object.keys(index.rules).length,
@@ -48,7 +49,7 @@ test('Every rule is defined in index file in alphabetical order', t => {
 	);
 	t.is(
 		Object.keys(index.configs.recommended.rules).length - ignoredRules.length,
-		ruleFiles.length,
+		ruleFiles.length - deprecatedRules.length,
 		'There are more exported rules in the recommended config than rule files.'
 	);
 
@@ -66,7 +67,7 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 
 	t.truthy(usageRules, 'List of rules should be defined in readme.md ## Usage and be valid JSON');
 
-	const rulesMatch = /## Rules(.*?)## Recommended config/ms.exec(readme);
+	const rulesMatch = /## Rules(.*?)## Deprecated Rules/ms.exec(readme);
 	t.truthy(rulesMatch, 'List of rules should be defined in readme.md in ## Rules before ## Recommended config');
 	const rulesText = rulesMatch[1];
 	const re = /- \[(.*?)]\((.*?)\) - (.*)\n/gm;
