@@ -137,9 +137,8 @@ Configure it in `package.json`.
 
 ## Deprecated Rules
 
-|Deprecated rule|Replaced by|Rule Details|
-|:--|:--|:--|
-|[unicorn/prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md)|[prefer-exponentiation-operator](https://eslint.org/docs/rules/prefer-exponentiation-operator)|Prefer the exponentiation operator over `Math.pow()`|
+- [unicorn/prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md)\
+  Use [prefer-exponentiation-operator](https://eslint.org/docs/rules/prefer-exponentiation-operator) instead.
 
 ## Recommended config
 
