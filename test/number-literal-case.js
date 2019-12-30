@@ -99,7 +99,6 @@ ruleTester.run('number-literal-case', rule, {
 			errors: [error],
 			output: 'const foo = 1.2e+3'
 		},
-
 		{
 			code: outdent`
 				const foo = 255;
