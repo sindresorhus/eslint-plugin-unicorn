@@ -8,7 +8,7 @@ function isReplaceMethod(node) {
 
 function hasGlobalFlag(node) {
 	const searchPattern = node.arguments[0];
-	return searchPattern && searchPattern.regex &&searchPattern.regex.flags==='g';
+	return searchPattern && searchPattern.regex && searchPattern.regex.flags === 'g';
 }
 
 function isLiteralCharactersOnly(node) {
@@ -22,7 +22,7 @@ function isLiteralCharactersOnly(node) {
 
 function replaceNode(node, fixer) {
 	const stringName = node.callee.object.name;
-	const searchPattern = node.arguments[0].regex.pattern
+	const searchPattern = node.arguments[0].regex.pattern;
 	const replacePattern = node.arguments[1].value;
 	return fixer.replaceText(node, `${stringName}.replaceAll(${quoteString(searchPattern)}, ${quoteString(replacePattern)})`);
 }
