@@ -37,32 +37,37 @@ ruleTester.run('prefer-replace-all', rule, {
 		},
 		{
 			code: 'str.replace(/\\(It also checks for escaped regex symbols\\)/g,\'something\')',
-			output: 'str.replaceAll(\'\\(It also checks for escaped regex symbols\\)\', \'something\')',
+			output: 'str.replaceAll(\'\\(It also checks for escaped regex symbols\\)\',\'something\')',
 			errors: [error]
 		},
 		{
 			code: 'str.replace(/a\\\\bc\\?/g,\'123\')',
-			output: 'str.replaceAll(\'a\\\\bc\\?\', \'123\')',
+			output: 'str.replaceAll(\'a\\\\bc\\?\',\'123\')',
 			errors: [error]
 		},
 		{
 			code: 'console.log(str.replace(/a\\\\bc\\?/g,\'123\'))',
-			output: 'console.log(str.replaceAll(\'a\\\\bc\\?\', \'123\'))',
+			output: 'console.log(str.replaceAll(\'a\\\\bc\\?\',\'123\'))',
 			errors: [error]
 		},
 		{
 			code: 'str.replace(/"doubleQuotes"/g,\'1"2"3\')',
-			output: 'str.replaceAll(\'"doubleQuotes"\', \'1"2"3\')',
+			output: 'str.replaceAll(\'"doubleQuotes"\',\'1"2"3\')',
 			errors: [error]
 		},
 		{
 			code: 'str.replace(/\'singleQuotes\'/g,"1\'2\'3")',
-			output: 'str.replaceAll(\'\\\'singleQuotes\\\'\', \'1\\\'2\\\'3\')',
+			output: 'str.replaceAll(\'\\\'singleQuotes\\\'\',\"1\'2\'3\")',
 			errors: [error]
 		},
 		{
 			code: 'str.replace(/searchPattern/g,\'\\\'escapedQuotes\\\'\')',
-			output: 'str.replaceAll(\'searchPattern\', \'\\\'escapedQuotes\\\'\')',
+			output: 'str.replaceAll(\'searchPattern\',\'\\\'escapedQuotes\\\'\')',
+			errors: [error]
+		},
+		{
+			code: 'foo().replace(/searchPattern/g, bar())',
+			output: 'foo().replaceAll(\'searchPattern\', bar())',
 			errors: [error]
 		}
 	]

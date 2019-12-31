@@ -17,14 +17,13 @@ function isLiteralCharactersOnly(node) {
 }
 
 function replaceNode(node, fixer) {
-	const stringName = node.callee.object.name;
 	const searchPattern = node.arguments[0].regex.pattern;
-	const replacePattern = node.arguments[1].value;
-	return fixer.replaceText(node, `${stringName}.replaceAll(${quoteString(searchPattern)}, ${quoteString(replacePattern)})`);
+	return [fixer.insertTextAfter(node.callee, 'All'),
+		fixer.replaceText(node.arguments[0], quoteString(searchPattern))];
 }
 
 function checkNode(context, node) {
-	if (hasGlobalFlag(node) && isLiteralCharactersOnly(node)) {
+	if (hasGlobalFlag(node) && isLiteralCharactersOnly(node) && node.arguments.length === 2) {
 		context.report({
 			node,
 			message: 'Use replaceAll method of string.',
