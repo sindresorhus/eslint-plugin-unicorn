@@ -57,7 +57,7 @@ ruleTester.run('prefer-replace-all', rule, {
 		},
 		{
 			code: 'str.replace(/\'singleQuotes\'/g,"1\'2\'3")',
-			output: 'str.replaceAll(\'\\\'singleQuotes\\\'\',\"1\'2\'3\")',
+			output: 'str.replaceAll(\'\\\'singleQuotes\\\'\',"1\'2\'3")',
 			errors: [error]
 		},
 		{
