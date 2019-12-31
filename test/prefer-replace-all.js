@@ -27,7 +27,7 @@ ruleTester.run('prefer-replace-all', rule, {
 
 		'str.replace(/Extra flags/gi, "something");',
 		'str.replace("Not a regex expression", "something")',
-		'str.foo(/Wrong method name/g, "something");'
+		'str.methodNotReplace(/Wrong method name/g, "something");'
 	],
 	invalid: [
 		{

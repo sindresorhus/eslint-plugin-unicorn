@@ -2,10 +2,6 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 
-function isReplaceMethod(node) {
-	return node.callee.property.name === 'replace';
-}
-
 function hasGlobalFlag(node) {
 	const searchPattern = node.arguments[0];
 	return searchPattern && searchPattern.regex && searchPattern.regex.flags === 'g';
@@ -28,7 +24,7 @@ function replaceNode(node, fixer) {
 }
 
 function checkNode(context, node) {
-	if (isReplaceMethod(node) && hasGlobalFlag(node) && isLiteralCharactersOnly(node)) {
+	if (hasGlobalFlag(node) && isLiteralCharactersOnly(node)) {
 		context.report({
 			node,
 			message: 'Use replaceAll method of string.',
@@ -39,7 +35,7 @@ function checkNode(context, node) {
 
 const create = context => {
 	return {
-		CallExpression: node => {
+		'CallExpression[callee.property.name="replace"]': node => {
 			checkNode(context, node);
 		}
 	};
