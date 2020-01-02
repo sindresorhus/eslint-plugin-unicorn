@@ -31,7 +31,7 @@ const create = context => {
 			if (!isRegexWithGlobalFlag(search) || !isLiteralCharactersOnly(search)) {
 				return;
 			}
-			
+
 			context.report({
 				node,
 				message: 'Use replaceAll method of string.',
