@@ -2,13 +2,14 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 
-function hasGlobalFlag(node) {
-	const searchPattern = node.arguments[0];
-	return searchPattern && searchPattern.regex && searchPattern.regex.flags === 'g';
+function isRegexWithGlobalFlag(node) {
+	const {type, regex} = node;
+
+	return type === 'Literal' && regex && regex.flags === 'g';
 }
 
 function isLiteralCharactersOnly(node) {
-	const searchPattern = node.arguments[0].regex.pattern;
+	const searchPattern = node.regex.pattern;
 	const specialCharacters = searchPattern.match(/[$()*+.?[\\\]^{}]/g);
 	const specialCharactersCount = specialCharacters ? specialCharacters.length : 0;
 	const escapedSpecialCharacters = searchPattern.match(/\\[$()*+.?[\\\]^{}]/g);
@@ -16,26 +17,29 @@ function isLiteralCharactersOnly(node) {
 	return specialCharactersCount === 2 * escapedSpecialCharactersCount;
 }
 
-function replaceNode(node, fixer) {
-	const searchPattern = node.arguments[0].regex.pattern;
-	return [fixer.insertTextAfter(node.callee, 'All'),
-		fixer.replaceText(node.arguments[0], quoteString(searchPattern))];
-}
-
-function checkNode(context, node) {
-	if (hasGlobalFlag(node) && isLiteralCharactersOnly(node) && node.arguments.length === 2) {
-		context.report({
-			node,
-			message: 'Use replaceAll method of string.',
-			fix: fixer => replaceNode(node, fixer)
-		});
-	}
-}
-
 const create = context => {
 	return {
 		'CallExpression[callee.property.name="replace"]': node => {
-			checkNode(context, node);
+			const {arguments: arguments_} = node;
+
+			if (arguments_.length !== 2) {
+				return;
+			}
+
+			const [search] = arguments_;
+
+			if (!isRegexWithGlobalFlag(search) || !isLiteralCharactersOnly(search)) {
+				return;
+			}
+			
+			context.report({
+				node,
+				message: 'Use replaceAll method of string.',
+				fix: fixer => [
+					fixer.insertTextAfter(node.callee, 'All'),
+					fixer.replaceText(search, quoteString(search.regex.pattern))
+				]
+			});
 		}
 	};
 };
