@@ -19,56 +19,69 @@ const error = {
 
 ruleTester.run('prefer-replace-all', rule, {
 	valid: [
-		'foo.replace(/No global flag/, "123")',
-		'foo.replace(/[abc]/g, "123")',
-		'foo.replace(/abc?/g, "123")',
-		'foo.replace(/Non-literal characters .*/g, \'something\');',
-		'foo.replace(/Other non-literal \\W/g, \'something\');',
-
-		'foo.replace(/Extra flags/gi, \'something\');',
-		'foo.replace("Not a regex expression", \'something\')',
-		'foo.methodNotReplace(/Wrong method name/g, \'something\');'
+		// No global flag
+		'foo.replace(/a/, bar)',
+		// Special characters
+		'foo.replace(/[a]/g, bar)',
+		'foo.replace(/a?/g, bar)',
+		'foo.replace(/.*/g, bar)',
+		'foo.replace(/\\W/g, bar)',
+		// Extra flag
+		'foo.replace(/a/gi, bar)',
+		// Not regex literal
+		'foo.replace(\'string\', bar)',
+		// Not 2 arguments
+		'foo.replace(/a/g)',
+		// New
+		'new foo.replace(/a/g, bar)',
+		// Function call
+		'replace(/a/g, bar)',
+		// Not call
+		'foo.replace',
+		// Not replace
+		'foo.methodNotReplace(/a/g, bar);',
+		// `replace` is not Identifier
+		'foo[\'replace\'](/a/gi, bar)'
 	],
 	invalid: [
 		{
-			code: 'foo.replace(/This has no special regex symbols/g, \'something\')',
-			output: 'foo.replaceAll(\'This has no special regex symbols\', \'something\')',
+			code: 'foo.replace(/a/g, bar)',
+			output: 'foo.replaceAll(\'a\', bar)',
 			errors: [error]
 		},
+		// Comments
 		{
-			code: 'foo.replace(/\\(It also checks for escaped regex symbols\\)/g, \'something\')',
-			output: 'foo.replaceAll(\'\\(It also checks for escaped regex symbols\\)\', \'something\')',
+			code: `
+				foo/* comment 1 */
+					.replace/* comment 2 */(
+						/* comment 3 */
+						/a/g // comment 4
+						,
+						bar
+					)
+			`,
+			output: `
+				foo/* comment 1 */
+					.replaceAll/* comment 2 */(
+						/* comment 3 */
+						'a' // comment 4
+						,
+						bar
+					)
+			`,
 			errors: [error]
 		},
+		// Quotes
 		{
-			code: 'foo.replace(/a\\\\bc\\?/g, \'123\')',
-			output: 'foo.replaceAll(\'a\\\\bc\\?\', \'123\')',
+			code: 'foo.replace(/"\'/g, \'\\\'\')',
+			output: 'foo.replaceAll(\'"\\\'\', \'\\\'\')',
 			errors: [error]
 		},
+		// Escaped symbols
 		{
-			code: 'console.log(foo.replace(/a\\\\bc\\?/g, \'123\'))',
-			output: 'console.log(foo.replaceAll(\'a\\\\bc\\?\', \'123\'))',
+			code: 'foo.replace(/\\./g, bar)',
+			output: 'foo.replaceAll(\'.\', bar)',
 			errors: [error]
 		},
-		{
-			code: 'foo.replace(/"doubleQuotes"/g, \'1"2"3\')',
-			output: 'foo.replaceAll(\'"doubleQuotes"\', \'1"2"3\')',
-			errors: [error]
-		},
-		{
-			code: 'foo.replace(/\'singleQuotes\'/g, "1\'2\'3")',
-			output: 'foo.replaceAll(\'\\\'singleQuotes\\\'\', "1\'2\'3")',
-			errors: [error]
-		},
-		{
-			code: 'foo.replace(/searchPattern/g, \'\\\'escapedQuotes\\\'\')',
-			output: 'foo.replaceAll(\'searchPattern\', \'\\\'escapedQuotes\\\'\')',
-			errors: [error]
-		},
-		{
-			code: 'foo().replace(/searchPattern/g, bar())',
-			output: 'foo().replaceAll(\'searchPattern\', bar())',
-			errors: [error]
-		}
 	]
 });
