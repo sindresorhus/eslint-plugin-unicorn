@@ -34,7 +34,7 @@ const create = context => {
 
 			context.report({
 				node,
-				message: 'Use replaceAll method of string.',
+				message: 'Prefer \`String#replaceAll()\` over \`String#replace()\`.',
 				fix: fixer => [
 					fixer.insertTextAfter(node.callee, 'All'),
 					fixer.replaceText(search, quoteString(search.regex.pattern))
