@@ -80,6 +80,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-type-error": "error",
 			"unicorn/prevent-abbreviations": "error",
 			"unicorn/regex-shorthand": "error",
+			"unicorn/string-content": "error",
 			"unicorn/throw-new-error": "error"
 		}
 	}
@@ -133,6 +134,7 @@ Configure it in `package.json`.
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
 - [prevent-abbreviations](docs/rules/prevent-abbreviations.md) - Prevent abbreviations. *(partly fixable)*
 - [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
+- [string-content](docs/rules/string-content.md) - ??. *(fixable)*
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 
 ## Deprecated Rules

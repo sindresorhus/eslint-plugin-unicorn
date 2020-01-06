@@ -1,33 +1,40 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const MAX_REPLACEMENTS = 3;
+const defaultPatterns = {
+	'\'': '’'
+};
 
-function message(replacements) {
-	replacements = replacements.map(({match, suggest}) => `\`${suggest}\` over \`${match}\``);
+function getReplacements(options) {
+	const {patterns} = options;
 
-	const last = replacements.pop();
+	return Object.entries({
+		...defaultPatterns,
+		...patterns
+	}).filter(([, options]) => options !== false)
+		.map(([match, options]) => {
+			if (typeof options === 'string') {
+				options = {
+					suggest: options
+				};
+			}
 
-	const hasMore = replacements.length >= MAX_REPLACEMENTS - 1;
+			const {suggest} = options;
 
-	let message = 'Prefer ';
-	if (replacements.length !== 0) {
-		message += replacements.slice(0, MAX_REPLACEMENTS - 1).join(' ,');
-
-		if (hasMore) {
-			message += ' …';
-		}
-
-		message += ' and ';
-	}
-
-	return `${message}${last}`;
+			return {
+				match,
+				regex: new RegExp(match, 'gu'),
+				fix: true,
+				message: `Prefer \`${suggest}\` over \`${match}\`.`,
+				...options
+			};
+		});
 }
 
 const create = context => {
-	const {patterns = []} = context.options[0] || {};
+	const replacements = getReplacements(context.options[0] || {});
 
-	if (patterns.length === 0) {
+	if (replacements.length === 0) {
 		return {};
 	}
 
@@ -39,53 +46,60 @@ const create = context => {
 				return;
 			}
 
-			const reportedPatterns = patterns.filter(({match}) => value.includes(match));
+			const reported = replacements.filter(({regex}) => regex.test(value));
+			const fixed = reported.reduce((fixed, {fix, regex, suggest}) => fix ? fixed.replace(regex, suggest) : fixed
+				, value);
 
-			if (reportedPatterns.length === 0) {
-				return;
+			let fix;
+
+			if (fixed !== value) {
+				const quote = node.raw[0];
+				const escaped = fixed.replace(new RegExp(quote, 'g'), `\\${quote}`);
+				fix = fixer => fixer.replaceTextRange([node.range[0] + 1, node.range[1] - 1], escaped);
 			}
 
-			const fixed = reportedPatterns.filter(({fix}) => fix).reduce((fixed, {match, suggest}) => fixed.split(match).join(suggest), value);
-			const quote = node.raw[0];
-			const escaped = fixed.replace(new RegExp(quote, 'g'), `\\${quote}`);
-			const fix = fixed === value ?
-				undefined :
-				fixer => fixer.replaceTextRange([node.range[0] + 1, node.range[1] - 1], escaped);
-
-			context.report({
-				node,
-				message: message(reportedPatterns),
-				fix
-			});
+			for (const {message} of reported) {
+				context.report({
+					node,
+					message,
+					fix
+				});
+			}
 		}
 	};
 };
 
-const patternSchema = {
-	type: 'object',
-	properties: {
-		match: {
-			type: 'string',
-			require: true
-		},
-		suggest: {
-			type: 'string',
-			require: true
-		},
-		fix: {
-			type: 'boolean',
-			default: true
-		}
-	},
-	additionalProperties: false
-};
 const schema = [{
 	type: 'object',
 	properties: {
 		patterns: {
-			type: 'array',
-			items: patternSchema
-		}
+			type: 'object',
+			additionalProperties: {
+				anyOf: [
+					{
+						enum: [false]
+					},
+					{type: 'string'},
+					{
+						type: 'object',
+						required: ['suggest'],
+						properties: {
+							suggest: {
+								type: 'string'
+							},
+							fix: {
+								type: 'boolean'
+								// Default: true
+							},
+							message: {
+								type: 'string'
+								// Default: ''
+							}
+						},
+						additionalProperties: false
+					}
+				]
+			}}
 	},
 	additionalProperties: false
 }];

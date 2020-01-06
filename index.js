@@ -62,6 +62,7 @@ module.exports = {
 				'unicorn/prefer-type-error': 'error',
 				'unicorn/prevent-abbreviations': 'error',
 				'unicorn/regex-shorthand': 'error',
+				'unicorn/string-content': 'error',
 				'unicorn/throw-new-error': 'error'
 			}
 		}
