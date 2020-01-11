@@ -9,11 +9,7 @@ function hasGlobalFlag(node) {
 
 function isLiteralCharactersOnly(node) {
 	const searchPattern = node.arguments[0].regex.pattern;
-	const specialCharacters = searchPattern.match(/[$()*+.?[\\\]^{}]/g);
-	const specialCharactersCount = specialCharacters ? specialCharacters.length : 0;
-	const escapedSpecialCharacters = searchPattern.match(/\\[$()*+.?[\\\]^{}]/g);
-	const escapedSpecialCharactersCount = escapedSpecialCharacters ? escapedSpecialCharacters.length : 0;
-	return specialCharactersCount === 2 * escapedSpecialCharactersCount;
+	return !/[$()*+.?[\\\]^{}]/.test(searchPattern.replace(/\\[$()*+.?[\\\]^{}]/g, ''));
 }
 
 function replaceNode(node, fixer) {
