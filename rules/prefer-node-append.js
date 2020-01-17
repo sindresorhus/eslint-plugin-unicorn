@@ -24,18 +24,16 @@ const create = context => {
 				parent
 			} = node;
 
-			const {
-				parent: grandparent
-			} = (parent || {});
-
 			if (callee.type === 'MemberExpression' && getMethodName(callee) === 'appendChild') {
 				let fix = fixer => fixer.replaceText(callee.property, 'append');
 
+				const {
+					parent: grandparent
+				} = (parent || {});
+
 				if (parent && ignoredParentTypes.includes(parent.type)) {
 					fix = undefined;
-				}
-
-				if (grandparent && ignoredGrandparentTypes.includes(grandparent.type)) {
+				} else if (grandparent && ignoredGrandparentTypes.includes(grandparent.type)) {
 					fix = undefined;
 				}
 
