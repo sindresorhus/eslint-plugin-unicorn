@@ -43,10 +43,23 @@ const getArgumentName = arguments_ => {
 	return null;
 };
 
+const ignoredParentTypes = [
+	'ArrayExpression',
+	'IfStatement',
+	'MemberExpression',
+	'Property',
+	'ReturnStatement',
+	'VariableDeclarator'
+];
+
+const ignoredGrandparentTypes = [
+	'ExpressionStatement'
+];
+
 const create = context => {
 	return {
 		CallExpression(node) {
-			const {callee} = node;
+			const {callee, parent} = node;
 
 			if (node.arguments.length === 0 ||
 				callee.type !== 'MemberExpression' ||
@@ -64,11 +77,23 @@ const create = context => {
 			)) {
 				const argumentName = getArgumentName(node.arguments);
 
+				const {
+					parent: grandparent
+				} = (parent || {});
+
+				let fix = fixer => fixer.replaceText(node, `${argumentName}.remove()`);
+
+				if (parent && ignoredParentTypes.includes(parent.type)) {
+					fix = undefined;
+				} else if (grandparent && ignoredGrandparentTypes.includes(grandparent.type)) {
+					fix = undefined;
+				}
+
 				if (argumentName) {
 					context.report({
 						node,
 						message: `Prefer \`${argumentName}.remove()\` over \`${callerName}.removeChild(${argumentName})\`.`,
-						fix: fixer => fixer.replaceText(node, `${argumentName}.remove()`)
+						fix
 					});
 				}
 			}
