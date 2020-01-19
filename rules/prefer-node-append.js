@@ -31,9 +31,10 @@ const create = context => {
 					parent: grandparent
 				} = (parent || {});
 
-				if (parent && ignoredParentTypes.includes(parent.type)) {
-					fix = undefined;
-				} else if (grandparent && ignoredGrandparentTypes.includes(grandparent.type)) {
+				if (
+					(parent && ignoredParentTypes.includes(parent.type)) ||
+					(grandparent && ignoredGrandparentTypes.includes(grandparent.type))
+				) {
 					fix = undefined;
 				}
 

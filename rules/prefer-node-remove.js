@@ -83,9 +83,10 @@ const create = context => {
 
 				let fix = fixer => fixer.replaceText(node, `${argumentName}.remove()`);
 
-				if (parent && ignoredParentTypes.includes(parent.type)) {
-					fix = undefined;
-				} else if (grandparent && ignoredGrandparentTypes.includes(grandparent.type)) {
+				if (
+					(parent && ignoredParentTypes.includes(parent.type)) ||
+					(grandparent && ignoredGrandparentTypes.includes(grandparent.type))
+				) {
 					fix = undefined;
 				}
 
