@@ -1,5 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const isReturnValueUsed = require('./utils/is-return-value-used');
 
 const getMethodName = callee => {
 	const {property} = callee;
@@ -43,23 +44,10 @@ const getArgumentName = arguments_ => {
 	return null;
 };
 
-const ignoredParentTypes = [
-	'ArrayExpression',
-	'IfStatement',
-	'MemberExpression',
-	'Property',
-	'ReturnStatement',
-	'VariableDeclarator'
-];
-
-const ignoredGrandparentTypes = [
-	'ExpressionStatement'
-];
-
 const create = context => {
 	return {
 		CallExpression(node) {
-			const {callee, parent} = node;
+			const {callee} = node;
 
 			if (node.arguments.length === 0 ||
 				callee.type !== 'MemberExpression' ||
@@ -77,16 +65,9 @@ const create = context => {
 			)) {
 				const argumentName = getArgumentName(node.arguments);
 
-				const {
-					parent: grandparent
-				} = (parent || {});
-
 				let fix = fixer => fixer.replaceText(node, `${argumentName}.remove()`);
 
-				if (
-					(parent && ignoredParentTypes.includes(parent.type)) ||
-					(grandparent && ignoredGrandparentTypes.includes(grandparent.type))
-				) {
+				if (!isReturnValueUsed(node)) {
 					fix = undefined;
 				}
 
