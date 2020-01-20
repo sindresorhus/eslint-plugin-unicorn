@@ -10,6 +10,11 @@ const ruleTester = avaRuleTester(test, {
 
 const message = 'Prefer the exponentiation operator over `Math.pow()`.';
 
+test('deprecated', t => {
+	t.true(rule.deprecated);
+	t.deepEqual(rule.replacedBy, ['prefer-exponentiation-operator']);
+});
+
 ruleTester.run('prefer-exponentiation-operator', rule, {
 	valid: [
 		'a ** b;',

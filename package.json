@@ -1,6 +1,6 @@
 {
 	"name": "eslint-plugin-unicorn",
-	"version": "15.0.0",
+	"version": "15.0.1",
 	"description": "Various awesome ESLint rules",
 	"license": "MIT",
 	"repository": "sindresorhus/eslint-plugin-unicorn",
@@ -15,8 +15,8 @@
 	},
 	"scripts": {
 		"test": "xo && nyc ava",
-		"lint": "./test/lint/lint.js",
-		"integration": "./test/integration/test.js"
+		"lint": "node ./test/lint/lint.js",
+		"integration": "node ./test/integration/test.js"
 	},
 	"files": [
 		"index.js",
@@ -48,7 +48,7 @@
 		"regexpp": "^3.0.0",
 		"reserved-words": "^0.1.2",
 		"safe-regex": "^2.1.1",
-		"semver": "^7.1.1"
+		"semver": "^6.3.0"
 	},
 	"devDependencies": {
 		"@lubien/fixture-beta-package": "^1.0.0-beta.1",

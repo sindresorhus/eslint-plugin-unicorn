@@ -334,7 +334,7 @@ const create = context => {
 					let removeDeclaration = true;
 					if (
 						elementNode &&
-						elementNode.id.type === 'ObjectPattern'
+						(elementNode.id.type === 'ObjectPattern' || elementNode.id.type === 'ArrayPattern')
 					) {
 						removeDeclaration = arrayReferences.length === 1;
 
