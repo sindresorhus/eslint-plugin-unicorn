@@ -67,7 +67,7 @@ const create = context => {
 
 				let fix = fixer => fixer.replaceText(node, `${argumentName}.remove()`);
 
-				if (!isValueUsed(node)) {
+				if (isValueUsed(node)) {
 					fix = undefined;
 				}
 

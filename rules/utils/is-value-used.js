@@ -19,6 +19,6 @@ module.exports = function (node) {
 		parent: grandparent
 	} = (parent || {});
 
-	return (!parent || !ignoredParentTypes.includes(parent.type)) &&
-		(!grandparent || !ignoredGrandparentTypes.includes(grandparent.type));
+	return (parent && ignoredParentTypes.includes(parent.type)) ||
+		(grandparent && ignoredGrandparentTypes.includes(grandparent.type));
 };
