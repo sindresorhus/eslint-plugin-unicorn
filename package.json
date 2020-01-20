@@ -15,8 +15,8 @@
 	},
 	"scripts": {
 		"test": "xo && nyc ava",
-		"lint": "./test/lint/lint.js",
-		"integration": "./test/integration/test.js"
+		"lint": "node ./test/lint/lint.js",
+		"integration": "node ./test/integration/test.js"
 	},
 	"files": [
 		"index.js",
