@@ -10,11 +10,7 @@ const create = context => {
 			const {callee} = node;
 
 			if (callee.type === 'MemberExpression' && getMethodName(callee) === 'appendChild') {
-				let fix = fixer => fixer.replaceText(callee.property, 'append');
-
-				if (isValueUsed(node)) {
-					fix = undefined;
-				}
+				const fix = isValueUsed(node) ? undefined : fixer => fixer.replaceText(callee.property, 'append');
 
 				context.report({
 					node,

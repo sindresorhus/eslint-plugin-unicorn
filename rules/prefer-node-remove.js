@@ -65,13 +65,9 @@ const create = context => {
 			)) {
 				const argumentName = getArgumentName(node.arguments);
 
-				let fix = fixer => fixer.replaceText(node, `${argumentName}.remove()`);
-
-				if (isValueUsed(node)) {
-					fix = undefined;
-				}
-
 				if (argumentName) {
+					const fix = isValueUsed(node) ? undefined : fixer => fixer.replaceText(node, `${argumentName}.remove()`);
+
 					context.report({
 						node,
 						message: `Prefer \`${argumentName}.remove()\` over \`${callerName}.removeChild(${argumentName})\`.`,
