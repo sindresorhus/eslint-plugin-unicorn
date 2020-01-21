@@ -159,7 +159,11 @@ function reachedDate(past) {
 }
 
 function tryToCoerceVersion(rawVersion) {
-	let version = rawVersion;
+	if (!rawVersion) {
+		return false;
+	}
+
+	let version = String(rawVersion);
 
 	// Remove leading things like `^1.0.0`, `>1.0.0`
 	const leadingNoises = [
@@ -312,10 +316,10 @@ const create = context => {
 			const [{condition, version}] = packageVersions;
 
 			const packageVersion = tryToCoerceVersion(packageJson.version);
-			const desidedPackageVersion = tryToCoerceVersion(version);
+			const decidedPackageVersion = tryToCoerceVersion(version);
 
 			const compare = semverComparisonForOperator(condition);
-			if (compare(packageVersion, desidedPackageVersion)) {
+			if (packageVersion && compare(packageVersion, decidedPackageVersion)) {
 				context.report({
 					node: null,
 					loc: comment.loc,
