@@ -118,6 +118,11 @@ ruleTester.run('prefer-node-append', rule, {
 			code: 'const foo = () => { return node.appendChild(child); }',
 			output: 'const foo = () => { return node.appendChild(child); }',
 			errors: [error]
+		},
+		{
+			code: 'foo(bar = node.appendChild(child))',
+			output: 'foo(bar = node.appendChild(child))',
+			errors: [error]
 		}
 	]
 });

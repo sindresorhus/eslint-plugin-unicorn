@@ -2,6 +2,7 @@
 
 const ignoredParentTypes = [
 	'ArrayExpression',
+	'AssignmentExpression',
 	'IfStatement',
 	'MemberExpression',
 	'Property',

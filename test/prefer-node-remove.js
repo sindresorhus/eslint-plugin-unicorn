@@ -174,6 +174,12 @@ ruleTester.run('prefer-node-remove', rule, {
 			'const foo = () => { return node.parentNode.removeChild(child); }',
 			'parentNode',
 			'child'
+		),
+		invalidTestCase(
+			'foo(bar = node.parentNode.removeChild(child))',
+			'foo(bar = node.parentNode.removeChild(child))',
+			'parentNode',
+			'child'
 		)
 	]
 });
