@@ -1,5 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const isValueUsed = require('./utils/is-value-used');
 
 const getMethodName = callee => {
 	const {property} = callee;
@@ -65,10 +66,12 @@ const create = context => {
 				const argumentName = getArgumentName(node.arguments);
 
 				if (argumentName) {
+					const fix = isValueUsed(node) ? undefined : fixer => fixer.replaceText(node, `${argumentName}.remove()`);
+
 					context.report({
 						node,
 						message: `Prefer \`${argumentName}.remove()\` over \`${callerName}.removeChild(${argumentName})\`.`,
-						fix: fixer => fixer.replaceText(node, `${argumentName}.remove()`)
+						fix
 					});
 				}
 			}
