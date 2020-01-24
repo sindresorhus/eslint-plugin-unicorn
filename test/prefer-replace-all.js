@@ -14,7 +14,7 @@ const ruleTester = avaRuleTester(test, {
 
 const error = {
 	ruleId: 'prefer-replace-all',
-	message: 'Use replaceAll method of string.'
+	message: 'Prefer `String#replaceAll()` over `String#replace()`.'
 };
 
 ruleTester.run('prefer-replace-all', rule, {
@@ -32,6 +32,7 @@ ruleTester.run('prefer-replace-all', rule, {
 		'foo.replace(\'string\', bar)',
 		// Not 2 arguments
 		'foo.replace(/a/g)',
+		'foo.replace(/\\\\./g)',
 		// New
 		'new foo.replace(/a/g, bar)',
 		// Function call
@@ -81,6 +82,11 @@ ruleTester.run('prefer-replace-all', rule, {
 		{
 			code: 'foo.replace(/\\./g, bar)',
 			output: 'foo.replaceAll(\'.\', bar)',
+			errors: [error]
+		},
+		{
+			code: 'foo.replace(/\\\\\\./g, bar)',
+			output: 'foo.replaceAll(\'\\.\', bar)',
 			errors: [error]
 		}
 	]

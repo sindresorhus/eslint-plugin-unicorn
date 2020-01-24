@@ -9,8 +9,23 @@ function isRegexWithGlobalFlag(node) {
 }
 
 function isLiteralCharactersOnly(node) {
-	const searchPattern = node.arguments[0].regex.pattern;
+	const searchPattern = node.regex.pattern;
 	return !/[$()*+.?[\\\]^{}]/.test(searchPattern.replace(/\\[$()*+.?[\\\]^{}]/g, ''));
+}
+
+function removeEscapeCharacters(regexString) {
+	let fixedString = regexString;
+	let index = 0;
+	do {
+		index = fixedString.indexOf('\\', index);
+		if (index >= 0) {
+			fixedString = fixedString.slice(0, index) + fixedString.slice(index + 1);
+			index++;
+		}
+	}
+	while (index >= 0);
+
+	return fixedString;
 }
 
 const create = context => {
@@ -31,10 +46,11 @@ const create = context => {
 			context.report({
 				node,
 				message: 'Prefer `String#replaceAll()` over `String#replace()`.',
-				fix: fixer => [
-					fixer.insertTextAfter(node.callee, 'All'),
-					fixer.replaceText(search, quoteString(search.regex.pattern))
-				]
+				fix: fixer =>
+					[
+						fixer.insertTextAfter(node.callee, 'All'),
+						fixer.replaceText(search, quoteString(removeEscapeCharacters(search.regex.pattern)))
+					]
 			});
 		}
 	};
