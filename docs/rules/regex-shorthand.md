@@ -33,4 +33,4 @@ const regex = /\d\.\w\-\D/i;
 Type: `boolean`\
 Default: `true`
 
-Disables optimizations that affects the sorting of character classes. Eg. preserves `[AaQqTt]` in its order rather then resorting it to `[AQTaqt]`
+Disables optimizations that affect the sorting of character classes. For example, preserves the order of the characters in `[AaQqTt]` rather than sorting it to `[AQTaqt]`.
