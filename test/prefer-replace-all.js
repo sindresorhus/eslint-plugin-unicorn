@@ -42,7 +42,7 @@ ruleTester.run('prefer-replace-all', rule, {
 		// Not replace
 		'foo.methodNotReplace(/a/g, bar);',
 		// `replace` is not Identifier
-		'foo[\'replace\'](/a/gi, bar)'
+		'foo[\'replace\'](/a/g, bar)'
 	],
 	invalid: [
 		{
