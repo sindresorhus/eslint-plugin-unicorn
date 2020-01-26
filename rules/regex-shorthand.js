@@ -7,6 +7,14 @@ const quoteString = require('./utils/quote-string');
 const message = 'Use regex shorthands to improve readability.';
 
 const create = context => {
+	const {sortCharacterClasses} = context.options[0] || {};
+
+	const blacklist = [];
+
+	if (sortCharacterClasses === false) {
+		blacklist.push('charClassClassrangesMerge');
+	}
+
 	return {
 		'Literal[regex]': node => {
 			const {raw: original, regex} = node;
@@ -20,7 +28,7 @@ const create = context => {
 			let optimized = original;
 
 			try {
-				optimized = optimize(original).toString();
+				optimized = optimize(original, undefined, {blacklist}).toString();
 			} catch (_) {}
 
 			if (original === optimized) {
@@ -69,6 +77,16 @@ const create = context => {
 	};
 };
 
+const schema = [{
+	type: 'object',
+	properties: {
+		sortCharacterClasses: {
+			type: 'boolean',
+			default: true
+		}
+	}
+}];
+
 module.exports = {
 	create,
 	meta: {
@@ -76,6 +94,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		schema
 	}
 };
