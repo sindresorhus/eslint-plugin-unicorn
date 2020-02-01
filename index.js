@@ -54,6 +54,7 @@ module.exports = {
 				'unicorn/prefer-node-remove': 'error',
 				'unicorn/prefer-query-selector': 'error',
 				'unicorn/prefer-reflect-apply': 'error',
+				// TODO: Enable this by default when it's shipping in a Node.js LTS version.
 				'unicorn/prefer-replace-all': 'off',
 				'unicorn/prefer-spread': 'error',
 				'unicorn/prefer-starts-ends-with': 'error',
