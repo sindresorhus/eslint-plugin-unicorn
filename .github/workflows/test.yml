@@ -9,6 +9,7 @@ jobs:
     strategy:
       matrix:
         node_version:
+          - 13
           - 12
           - 10
         os:
