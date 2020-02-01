@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const isValueUsed = require('./utils/is-value-used');
+const isValueNotUsable = require('./utils/is-value-not-usable');
 
 const getMethodName = callee => {
 	const {property} = callee;
@@ -66,7 +66,7 @@ const create = context => {
 				const argumentName = getArgumentName(node.arguments);
 
 				if (argumentName) {
-					const fix = isValueUsed(node) ? undefined : fixer => fixer.replaceText(node, `${argumentName}.remove()`);
+					const fix = isValueNotUsable(node) ? fixer => fixer.replaceText(node, `${argumentName}.remove()`) : undefined;
 
 					context.report({
 						node,

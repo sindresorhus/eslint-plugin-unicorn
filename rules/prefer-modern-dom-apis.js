@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const isValueUsed = require('./utils/is-value-used');
+const isValueNotUsable = require('./utils/is-value-not-usable');
 
 const getArgumentNameForReplaceChildOrInsertBefore = nodeArguments => {
 	if (nodeArguments.type === 'Identifier') {
@@ -42,15 +42,15 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 
 	const preferredSelector = forbiddenIdentifierNames.get(identifierName);
 
-	const fix = isValueUsed(node) ?
+	const fix = isValueNotUsable(node) ?
 		// Report error when the method is part of a variable assignment
 		// but don't offer to autofix `.replaceWith()` and `.before()`
 		// which don't have a return value.
-		undefined :
 		fixer => fixer.replaceText(
 			node,
 			`${oldChildNodeArgument}.${preferredSelector}(${newChildNodeArgument})`
-		);
+		) :
+		undefined;
 
 	return context.report({
 		node,
@@ -103,7 +103,7 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 		nodeArguments[1]
 	);
 
-	const fix = identifierName === 'insertAdjacentElement' && isValueUsed(node) ?
+	const fix = identifierName === 'insertAdjacentElement' && !isValueNotUsable(node) ?
 		// Report error when the method is part of a variable assignment
 		// but don't offer to autofix `.insertAdjacentElement()`
 		// which doesn't have a return value.
