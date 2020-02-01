@@ -4,7 +4,6 @@ const quoteString = require('./utils/quote-string');
 
 function isRegexWithGlobalFlag(node) {
 	const {type, regex} = node;
-
 	return type === 'Literal' && regex && regex.flags === 'g';
 }
 
@@ -18,12 +17,12 @@ function removeEscapeCharacters(regexString) {
 	let index = 0;
 	do {
 		index = fixedString.indexOf('\\', index);
+
 		if (index >= 0) {
 			fixedString = fixedString.slice(0, index) + fixedString.slice(index + 1);
 			index++;
 		}
-	}
-	while (index >= 0);
+	} while (index >= 0);
 
 	return fixedString;
 }
