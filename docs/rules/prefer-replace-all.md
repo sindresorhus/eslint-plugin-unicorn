@@ -1,24 +1,21 @@
-# Prefer `String.prototype.replaceAll` over regex searches with the global flag.
+# Prefer `String#replaceAll()` over regex searches with the global flag
 
-As the replaceAll method is being added to strings, there is no reason to use expensive regex searches when the search string is a string-literal.
+The [`String#replaceAll()`](https://github.com/tc39/proposal-string-replaceall) method is both faster and safer as you don't have to escape the regex if the string is not a literal.
 
 This rule is fixable.
-
 
 ## Fail
 
 ```js
-str.replace(/This has no special regex symbols/g, 'something');
-str.replace(/\(It also checks for escaped regex symbols\)/g, 'something');
-
+string.replace(/This has no special regex symbols/g, '');
+string.replace(/\(It also checks for escaped regex symbols\)/g, '');
 ```
-
 
 ## Pass
 
 ```js
-str.replace(/Non-literal characters .*/g, 'something');
-str.replace(/Extra flags/gi, 'something');
-str.replace('Not a regex expression', 'something')
-str.replaceAll('literal characters only', 'something');
+string.replace(/Non-literal characters .*/g, '');
+string.replace(/Extra flags/gi, '');
+string.replace('Not a regex expression', '')
+string.replaceAll('Literal characters only', '');
 ```
