@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const isValueUsed = require('./utils/is-value-used');
+const isValueNotUsable = require('./utils/is-value-not-usable');
 
 const getMethodName = memberExpression => memberExpression.property.name;
 
@@ -10,7 +10,7 @@ const create = context => {
 			const {callee} = node;
 
 			if (callee.type === 'MemberExpression' && getMethodName(callee) === 'appendChild') {
-				const fix = isValueUsed(node) ? undefined : fixer => fixer.replaceText(callee.property, 'append');
+				const fix = isValueNotUsable(node) ? fixer => fixer.replaceText(callee.property, 'append') : undefined;
 
 				context.report({
 					node,
