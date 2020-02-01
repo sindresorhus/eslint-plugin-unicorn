@@ -106,7 +106,7 @@ Configure it in `package.json`.
 - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
 - [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevent passing a function reference directly to iterator methods. *(fixable)*
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(partly fixable)*
-- [no-for-loop-extra-variable](docs/rules/no-for-loop-extra-variable.md) - Do not declare an extra variable in a `for` loop setup *(fixable)*
+- [no-for-loop-extra-variable](docs/rules/no-for-loop-extra-variable.md) - Do not declare an extra variable in a `for` loop init *(fixable)*
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of Unicode escapes instead of hexadecimal escapes. *(fixable)*
 - [no-keyword-prefix](docs/rules/no-keyword-prefix.md) - Disallow identifiers starting with `new` or `class`.
 - [no-nested-ternary](docs/rules/no-nested-ternary.md) - Disallow nested ternary expressions. *(partly fixable)*
