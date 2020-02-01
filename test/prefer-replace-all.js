@@ -2,10 +2,6 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 const rule = require('../rules/prefer-replace-all');
 
-//------------------------------------------------------------------------------
-// Tests
-//------------------------------------------------------------------------------
-
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
