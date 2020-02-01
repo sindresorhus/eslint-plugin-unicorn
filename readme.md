@@ -126,7 +126,7 @@ Configure it in `package.json`.
 - [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `node.remove()` over `parentNode.removeChild(node)` and `parentElement.removeChild(node)`. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. *(partly fixable)*
 - [prefer-reflect-apply](docs/rules/prefer-reflect-apply.md) - Prefer `Reflect.apply()` over `Function#apply()`. *(fixable)*
-- [prefer-replace-all](docs/rules/prefer-replace-all.md) - Prefer `String.prototype.replaceAll` over regex searches with the global flag. *(fixable)*
+- [prefer-replace-all](docs/rules/prefer-replace-all.md) - Prefer `String#replaceAll()` over regex searches with the global flag. *(fixable)*
 - [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
 - [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith()` & `String#endsWith()` over more complex alternatives.
 - [prefer-string-slice](docs/rules/prefer-string-slice.md) - Prefer `String#slice()` over `String#substr()` and `String#substring()`. *(partly fixable)*
