@@ -1,7 +1,3 @@
 'use strict';
 
-module.exports = function (node) {
-	const {parent} = node;
-
-	return !parent || parent.type === 'ExpressionStatement';
-};
+module.exports = ({parent}) => !parent || parent.type === 'ExpressionStatement';
