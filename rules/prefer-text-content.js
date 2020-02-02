@@ -8,7 +8,11 @@ const create = context => {
 		MemberExpression: node => {
 			const {property} = node;
 
-			if (property.type === 'Identifier' && !node.computed && property.name === 'innerText') {
+			if (
+				property.type === 'Identifier' &&
+				!node.computed &&
+				property.name === 'innerText'
+			) {
 				context.report({
 					node,
 					message,

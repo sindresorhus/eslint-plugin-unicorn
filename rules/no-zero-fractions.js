@@ -1,8 +1,8 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const MESSAGE_ZERO_FRACTION = 'Don\'t use a zero fraction in the number.';
-const MESSAGE_DANGLING_DOT = 'Don\'t use a dangling dot in the number.';
+const MESSAGE_ZERO_FRACTION = "Don't use a zero fraction in the number.";
+const MESSAGE_DANGLING_DOT = "Don't use a dangling dot in the number.";
 
 // Groups:
 // 1. Integer part.
@@ -36,7 +36,10 @@ const create = context => {
 				node,
 				message: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
 				fix: fixer => {
-					let wantedString = dotAndZeroes === undefined ? integerPart + dotAndDigits : integerPart;
+					let wantedString =
+						dotAndZeroes === undefined
+							? integerPart + dotAndDigits
+							: integerPart;
 
 					if (scientificNotationSuffix !== undefined) {
 						wantedString += scientificNotationSuffix;

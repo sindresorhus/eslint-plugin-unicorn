@@ -216,7 +216,7 @@ ruleTester.run('prevent-keyword-prefix', rule, {
 			errors: [errorNew]
 		},
 		{
-			code: 'function foo({ newBar = \'default value\' }) {};',
+			code: "function foo({ newBar = 'default value' }) {};",
 			parserOptions: {ecmaVersion: 6},
 			errors: [errorNew]
 		},

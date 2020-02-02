@@ -32,9 +32,7 @@ const methods = new Map([
 		'splice',
 		{
 			argumentsIndexes: [0],
-			supportObjects: new Set([
-				'Array'
-			])
+			supportObjects: new Set(['Array'])
 		}
 	]
 ]);
@@ -42,22 +40,30 @@ const methods = new Map([
 const OPERATOR_MINUS = '-';
 
 const isPropertiesEqual = (node1, node2) => properties => {
-	return properties.every(property => isEqual(node1[property], node2[property]));
+	return properties.every(property =>
+		isEqual(node1[property], node2[property])
+	);
 };
 
 const isTemplateElementEqual = (node1, node2) => {
-	return node1.value &&
+	return (
+		node1.value &&
 		node2.value &&
 		node1.tail === node2.tail &&
-		isPropertiesEqual(node1.value, node2.value)(['cooked', 'raw']);
+		isPropertiesEqual(node1.value, node2.value)(['cooked', 'raw'])
+	);
 };
 
 const isTemplateLiteralEqual = (node1, node2) => {
 	const {quasis: quasis1} = node1;
 	const {quasis: quasis2} = node2;
 
-	return quasis1.length === quasis2.length &&
-		quasis1.every((templateElement, index) => isEqual(templateElement, quasis2[index]));
+	return (
+		quasis1.length === quasis2.length &&
+		quasis1.every((templateElement, index) =>
+			isEqual(templateElement, quasis2[index])
+		)
+	);
 };
 
 const isEqual = (node1, node2) => {
@@ -91,7 +97,8 @@ const isEqual = (node1, node2) => {
 	}
 };
 
-const isLengthMemberExpression = node => node &&
+const isLengthMemberExpression = node =>
+	node &&
 	node.type === 'MemberExpression' &&
 	node.property &&
 	node.property.type === 'Identifier' &&
@@ -131,7 +138,10 @@ const getLengthMemberExpression = node => {
 const getRemoveAbleNode = (target, argument) => {
 	const lengthMemberExpression = getLengthMemberExpression(argument);
 
-	if (lengthMemberExpression && isEqual(target, lengthMemberExpression.object)) {
+	if (
+		lengthMemberExpression &&
+		isEqual(target, lengthMemberExpression.object)
+	) {
 		return lengthMemberExpression;
 	}
 };
@@ -146,8 +156,10 @@ const getRemovalRange = (node, sourceCode) => {
 
 	while (hasParentheses) {
 		hasParentheses =
-			(before.type === 'Punctuator' && before.value === '(') &&
-			(after.type === 'Punctuator' && after.value === ')');
+			before.type === 'Punctuator' &&
+			before.value === '(' &&
+			after.type === 'Punctuator' &&
+			after.value === ')';
 		if (hasParentheses) {
 			before = sourceCode.getTokenBefore(before);
 			after = sourceCode.getTokenAfter(after);
@@ -203,30 +215,21 @@ function parse(node) {
 		return;
 	}
 
-	const {
-		supportObjects
-	} = methods.get(method);
+	const {supportObjects} = methods.get(method);
 
 	const parentCallee = callee.object.object;
 
 	if (
 		// [].{slice,splice}
-		(
-			parentCallee.type === 'ArrayExpression' &&
-			parentCallee.elements.length === 0
-		) ||
+		(parentCallee.type === 'ArrayExpression' &&
+			parentCallee.elements.length === 0) ||
 		// ''.slice
-		(
-			method === 'slice' &&
-			isLiteralValue(parentCallee, '')
-		) ||
+		(method === 'slice' && isLiteralValue(parentCallee, '')) ||
 		// {Array,String...}.prototype.slice
 		// Array.prototype.splice
-		(
-			getMemberName(parentCallee) === 'prototype' &&
+		(getMemberName(parentCallee) === 'prototype' &&
 			parentCallee.object.type === 'Identifier' &&
-			supportObjects.has(parentCallee.object.name)
-		)
+			supportObjects.has(parentCallee.object.name))
 	) {
 		[target] = originalArguments;
 
@@ -261,11 +264,7 @@ const create = context => ({
 			return;
 		}
 
-		const {
-			method,
-			target,
-			argumentsNodes
-		} = parsed;
+		const {method, target, argumentsNodes} = parsed;
 
 		const {argumentsIndexes} = methods.get(method);
 		const removableNodes = argumentsIndexes
@@ -281,10 +280,8 @@ const create = context => ({
 			message: `Prefer negative index over length minus index for \`${method}\`.`,
 			fix(fixer) {
 				const sourceCode = context.getSourceCode();
-				return removableNodes.map(
-					node => fixer.removeRange(
-						getRemovalRange(node, sourceCode)
-					)
+				return removableNodes.map(node =>
+					fixer.removeRange(getRemovalRange(node, sourceCode))
 				);
 			}
 		});

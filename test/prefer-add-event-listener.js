@@ -23,9 +23,9 @@ const invalidTestCase = (code, correctCode, eventType, message) => {
 	return {
 		code,
 		output: correctCode || code,
-		errors: eventType ?
-			[{message: `Prefer \`addEventListener\` over \`${eventType}\`.`}] :
-			[{message}]
+		errors: eventType
+			? [{message: `Prefer \`addEventListener\` over \`${eventType}\`.`}]
+			: [{message}]
 	};
 };
 
@@ -40,18 +40,18 @@ const invalidTestCaseWithOptions = (code, correctCode, eventType, options) => {
 
 const expectedBeforeUnloadWithReturnMessage = [
 	'Prefer `addEventListener` over `onbeforeunload`.',
-	'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.'
+	"Use `event.preventDefault(); event.returnValue = 'foo'` to trigger the prompt."
 ].join(' ');
 
 ruleTester.run('prefer-add-event-listener', rule, {
 	valid: [
-		'foo.addEventListener(\'click\', () => {})',
-		'foo.removeEventListener(\'click\', onClick)',
+		"foo.addEventListener('click', () => {})",
+		"foo.removeEventListener('click', onClick)",
 		'foo.onclick',
-		'foo.setCallBack = () => {console.log(\'foo\')}',
-		'setCallBack = () => {console.log(\'foo\')}',
+		"foo.setCallBack = () => {console.log('foo')}",
+		"setCallBack = () => {console.log('foo')}",
 		'foo.onclick.bar = () => {}',
-		'foo[\'x\'] = true;',
+		"foo['x'] = true;",
 		outdent`
 			const Koa = require('koa');
 			const app = new Koa();
@@ -103,32 +103,32 @@ ruleTester.run('prefer-add-event-listener', rule, {
 	invalid: [
 		invalidTestCase(
 			'foo.onclick = () => {}',
-			'foo.addEventListener(\'click\', () => {})',
+			"foo.addEventListener('click', () => {})",
 			'onclick'
 		),
 		invalidTestCase(
 			'foo.onclick = 1',
-			'foo.addEventListener(\'click\', 1)',
+			"foo.addEventListener('click', 1)",
 			'onclick'
 		),
 		invalidTestCase(
 			'foo.bar.onclick = onClick',
-			'foo.bar.addEventListener(\'click\', onClick)',
+			"foo.bar.addEventListener('click', onClick)",
 			'onclick'
 		),
 		invalidTestCase(
 			'const bar = null; foo.onclick = bar;',
-			'const bar = null; foo.addEventListener(\'click\', bar);',
+			"const bar = null; foo.addEventListener('click', bar);",
 			'onclick'
 		),
 		invalidTestCase(
 			'foo.onkeydown = () => {}',
-			'foo.addEventListener(\'keydown\', () => {})',
+			"foo.addEventListener('keydown', () => {})",
 			'onkeydown'
 		),
 		invalidTestCase(
 			'foo.ondragend = () => {}',
-			'foo.addEventListener(\'dragend\', () => {})',
+			"foo.addEventListener('dragend', () => {})",
 			'ondragend'
 		),
 		invalidTestCase(
@@ -175,7 +175,7 @@ ruleTester.run('prefer-add-event-listener', rule, {
 			expectedBeforeUnloadWithReturnMessage
 		),
 		invalidTestCase(
-			'window.onbeforeunload = () => \'foo\'',
+			"window.onbeforeunload = () => 'foo'",
 			null,
 			null,
 			expectedBeforeUnloadWithReturnMessage

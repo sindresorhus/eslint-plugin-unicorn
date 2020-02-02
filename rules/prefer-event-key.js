@@ -2,11 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 
-const keys = [
-	'keyCode',
-	'charCode',
-	'which'
-];
+const keys = ['keyCode', 'charCode', 'which'];
 
 // https://github.com/facebook/react/blob/b87aabd/packages/react-dom/src/events/getEventKey.js#L36
 // Only meta characters which can't be deciphered from `String.fromCharCode()`
@@ -55,7 +51,7 @@ const translateToKey = {
 	219: '[',
 	220: '\\',
 	221: ']',
-	222: '\'',
+	222: "'",
 	224: 'Meta'
 };
 
@@ -68,8 +64,13 @@ const isPropertyNamedAddEventListener = node =>
 	node.callee.property.name === 'addEventListener';
 
 const getEventNodeAndReferences = (context, node) => {
-	const eventListener = getMatchingAncestorOfType(node, 'CallExpression', isPropertyNamedAddEventListener);
-	const callback = eventListener && eventListener.arguments && eventListener.arguments[1];
+	const eventListener = getMatchingAncestorOfType(
+		node,
+		'CallExpression',
+		isPropertyNamedAddEventListener
+	);
+	const callback =
+		eventListener && eventListener.arguments && eventListener.arguments[1];
 	switch (callback && callback.type) {
 		case 'ArrowFunctionExpression':
 		case 'FunctionExpression': {
@@ -132,9 +133,13 @@ const fix = node => fixer => {
 
 	const {right = {}, operator} = nearestIf.test;
 	const isTestingEquality = operator === '==' || operator === '===';
-	const isRightValid = isTestingEquality && right.type === 'Literal' && typeof right.value === 'number';
+	const isRightValid =
+		isTestingEquality &&
+		right.type === 'Literal' &&
+		typeof right.value === 'number';
 	// Either a meta key or a printable character
-	const keyCode = translateToKey[right.value] || String.fromCharCode(right.value);
+	const keyCode =
+		translateToKey[right.value] || String.fromCharCode(right.value);
 	// And if we recognize the `.keyCode`
 	if (!isRightValid || !keyCode) {
 		return;
@@ -164,7 +169,9 @@ const create = context => {
 				return;
 			}
 
-			const isPropertyOfEvent = Boolean(references && references.find(r => isPropertyOf(node, r.identifier)));
+			const isPropertyOfEvent = Boolean(
+				references && references.find(r => isPropertyOf(node, r.identifier))
+			);
 			if (isPropertyOfEvent) {
 				report(node);
 			}

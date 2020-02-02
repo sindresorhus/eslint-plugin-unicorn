@@ -28,7 +28,9 @@ const findIdentifierValues = (identifierNode, context) => {
 		return [];
 	}
 
-	const expressions = declarations.references.map(reference => reference.identifier.parent);
+	const expressions = declarations.references.map(
+		reference => reference.identifier.parent
+	);
 	const referenceValues = [];
 	for (const expression of expressions) {
 		if (isReferenceAssigned(expression)) {
@@ -42,7 +44,11 @@ const findIdentifierValues = (identifierNode, context) => {
 };
 
 const isEmptyMessageString = node => {
-	return node.arguments.length > 0 && node.arguments[0].type === 'Literal' && !node.arguments[0].value;
+	return (
+		node.arguments.length > 0 &&
+		node.arguments[0].type === 'Literal' &&
+		!node.arguments[0].value
+	);
 };
 
 const reportError = (expressionNode, context) => {
@@ -78,7 +84,7 @@ const checkErrorMessage = (node, context) => {
 const create = context => {
 	const throwStatements = [];
 	return {
-		'ThrowStatement'(throwStatement) {
+		ThrowStatement(throwStatement) {
 			throwStatements.push(throwStatement);
 		},
 		'Program:exit'() {

@@ -11,12 +11,16 @@ function reportError(context, node, message, fixDetails) {
 	context.report({
 		node,
 		message,
-		fix: fixDetails && (fixer => {
-			return fixer.replaceText(
-				node,
-				`${context.getSourceCode().getText(fixDetails.node)} ${fixDetails.operator} ${fixDetails.value}`
-			);
-		})
+		fix:
+			fixDetails &&
+			(fixer => {
+				return fixer.replaceText(
+					node,
+					`${context.getSourceCode().getText(fixDetails.node)} ${
+						fixDetails.operator
+					} ${fixDetails.value}`
+				);
+			})
 	});
 }
 
@@ -100,7 +104,8 @@ function checkNonZeroType(context, node, type) {
 }
 
 function checkBinaryExpression(context, node, options) {
-	if (node.right.type === 'Literal' &&
+	if (
+		node.right.type === 'Literal' &&
 		node.left.type === 'MemberExpression' &&
 		node.left.property.type === 'Identifier' &&
 		node.left.property.name === 'length'
@@ -127,11 +132,16 @@ function checkExpression(context, node) {
 		return;
 	}
 
-	if (node.type === 'MemberExpression' &&
+	if (
+		node.type === 'MemberExpression' &&
 		node.property.type === 'Identifier' &&
 		node.property.name === 'length'
 	) {
-		reportError(context, node, '`length` property should be compared to a value.');
+		reportError(
+			context,
+			node,
+			'`length` property should be compared to a value.'
+		);
 	}
 }
 
@@ -146,18 +156,16 @@ const create = context => {
 	};
 };
 
-const schema = [{
-	type: 'object',
-	properties: {
-		'non-zero': {
-			enum: [
-				'not-equal',
-				'greater-than',
-				'greater-than-or-equal'
-			]
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			'non-zero': {
+				enum: ['not-equal', 'greater-than', 'greater-than-or-equal']
+			}
 		}
 	}
-}];
+];
 
 module.exports = {
 	create,

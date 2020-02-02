@@ -3,17 +3,15 @@ const astUtils = require('eslint-ast-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 
-const isApplySignature = (argument1, argument2) => (
-	(isLiteralValue(argument1, null) ||
-		argument1.type === 'ThisExpression') &&
+const isApplySignature = (argument1, argument2) =>
+	(isLiteralValue(argument1, null) || argument1.type === 'ThisExpression') &&
 	(argument2.type === 'ArrayExpression' ||
-		(argument2.type === 'Identifier' &&
-		argument2.name === 'arguments'))
-);
+		(argument2.type === 'Identifier' && argument2.name === 'arguments'));
 
-const getReflectApplyCall = (sourceCode, func, receiver, arguments_) => (
-	`Reflect.apply(${sourceCode.getText(func)}, ${sourceCode.getText(receiver)}, ${sourceCode.getText(arguments_)})`
-);
+const getReflectApplyCall = (sourceCode, func, receiver, arguments_) =>
+	`Reflect.apply(${sourceCode.getText(func)}, ${sourceCode.getText(
+		receiver
+	)}, ${sourceCode.getText(arguments_)})`;
 
 const fixDirectApplyCall = (node, sourceCode) => {
 	if (
@@ -21,12 +19,16 @@ const fixDirectApplyCall = (node, sourceCode) => {
 		node.arguments.length === 2 &&
 		isApplySignature(node.arguments[0], node.arguments[1])
 	) {
-		return fixer => (
+		return fixer =>
 			fixer.replaceText(
 				node,
-				getReflectApplyCall(sourceCode, node.callee.object, node.arguments[0], node.arguments[1])
-			)
-		);
+				getReflectApplyCall(
+					sourceCode,
+					node.callee.object,
+					node.arguments[0],
+					node.arguments[1]
+				)
+			);
 	}
 };
 
@@ -41,12 +43,16 @@ const fixFunctionPrototypeCall = (node, sourceCode) => {
 		node.arguments.length === 3 &&
 		isApplySignature(node.arguments[1], node.arguments[2])
 	) {
-		return fixer => (
+		return fixer =>
 			fixer.replaceText(
 				node,
-				getReflectApplyCall(sourceCode, node.arguments[0], node.arguments[1], node.arguments[2])
-			)
-		);
+				getReflectApplyCall(
+					sourceCode,
+					node.arguments[0],
+					node.arguments[1],
+					node.arguments[2]
+				)
+			);
 	}
 };
 
@@ -56,14 +62,18 @@ const create = context => {
 			if (
 				!(
 					node.callee.type === 'MemberExpression' &&
-					!['Literal', 'ArrayExpression', 'ObjectExpression'].includes(node.callee.object.type)
+					!['Literal', 'ArrayExpression', 'ObjectExpression'].includes(
+						node.callee.object.type
+					)
 				)
 			) {
 				return;
 			}
 
 			const sourceCode = context.getSourceCode();
-			const fix = fixDirectApplyCall(node, sourceCode) || fixFunctionPrototypeCall(node, sourceCode);
+			const fix =
+				fixDirectApplyCall(node, sourceCode) ||
+				fixFunctionPrototypeCall(node, sourceCode);
 			if (fix) {
 				context.report({
 					node,

@@ -9,10 +9,13 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const errors = [{
-	ruleId: 'prefer-type-error',
-	message: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.'
-}];
+const errors = [
+	{
+		ruleId: 'prefer-type-error',
+		message:
+			'`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.'
+	}
+];
 
 const tcIdentifiers = new Set([
 	'isArguments',
@@ -231,7 +234,7 @@ ruleTester.run('prefer-type-error', rule, {
 				throw new TypeError('Expected Foo being bar!');
 			}
 		`,
-		'throw new Error(\'💣\')',
+		"throw new Error('💣')",
 		outdent`
 			if (!Number.isNaN(foo) && foo === 10) {
 				throw new Error('foo is not 10!');

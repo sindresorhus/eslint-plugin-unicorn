@@ -9,7 +9,9 @@ const methods = new Map([
 const messages = {};
 
 for (const [method, replacement] of methods.entries()) {
-	messages[method] = `Prefer \`String#${method}()\` over \`String#${replacement}()\`.`;
+	messages[
+		method
+	] = `Prefer \`String#${method}()\` over \`String#${replacement}()\`.`;
 }
 
 const create = context => {

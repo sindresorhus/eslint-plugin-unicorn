@@ -236,13 +236,13 @@ const prepareOptions = ({
 	extendDefaultWhitelist = true,
 	whitelist = {}
 } = {}) => {
-	const mergedReplacements = extendDefaultReplacements ?
-		defaultsDeep({}, replacements, defaultReplacements) :
-		replacements;
+	const mergedReplacements = extendDefaultReplacements
+		? defaultsDeep({}, replacements, defaultReplacements)
+		: replacements;
 
-	const mergedWhitelist = extendDefaultWhitelist ?
-		defaultsDeep({}, whitelist, defaultWhitelist) :
-		whitelist;
+	const mergedWhitelist = extendDefaultWhitelist
+		? defaultsDeep({}, whitelist, defaultWhitelist)
+		: whitelist;
 
 	return {
 		checkProperties,
@@ -255,10 +255,12 @@ const prepareOptions = ({
 		checkFilenames,
 
 		replacements: new Map(
-			Object.entries(mergedReplacements).map(
-				([discouragedName, replacements]) =>
-					[discouragedName, new Map(Object.entries(replacements))]
-			)
+			Object.entries(
+				mergedReplacements
+			).map(([discouragedName, replacements]) => [
+				discouragedName,
+				new Map(Object.entries(replacements))
+			])
 		),
 		whitelist: new Map(Object.entries(mergedWhitelist))
 	};
@@ -270,7 +272,8 @@ const getWordReplacements = (word, {replacements, whitelist}) => {
 		return [];
 	}
 
-	const replacement = replacements.get(lowerFirst(word)) ||
+	const replacement =
+		replacements.get(lowerFirst(word)) ||
 		replacements.get(word) ||
 		replacements.get(upperFirst(word));
 
@@ -322,10 +325,7 @@ const getNameReplacements = (name, options, limit = 3) => {
 		return {total: 0};
 	}
 
-	const {
-		total,
-		samples
-	} = cartesianProductSamples(combinations, limit);
+	const {total, samples} = cartesianProductSamples(combinations, limit);
 
 	return {
 		total,
@@ -340,7 +340,9 @@ const formatMessage = (discouragedName, replacements, nameTypeText) => {
 	const {total, samples = []} = replacements;
 
 	if (total === 1) {
-		message.push(`The ${nameTypeText} \`${discouragedName}\` should be named \`${samples[0]}\`.`);
+		message.push(
+			`The ${nameTypeText} \`${discouragedName}\` should be named \`${samples[0]}\`.`
+		);
 	} else {
 		let replacementsText = samples
 			.map(replacement => `\`${replacement}\``)
@@ -348,7 +350,9 @@ const formatMessage = (discouragedName, replacements, nameTypeText) => {
 
 		const omittedReplacementsCount = total - samples.length;
 		if (omittedReplacementsCount > 0) {
-			replacementsText += `, ... (${omittedReplacementsCount > 99 ? '99+' : omittedReplacementsCount} more omitted)`;
+			replacementsText += `, ... (${
+				omittedReplacementsCount > 99 ? '99+' : omittedReplacementsCount
+			} more omitted)`;
 		}
 
 		message.push(`Please rename the ${nameTypeText} \`${discouragedName}\`.`);
@@ -361,27 +365,29 @@ const formatMessage = (discouragedName, replacements, nameTypeText) => {
 };
 
 const variableIdentifiers = ({identifiers, references}) => [
-	...new Set([
-		...identifiers,
-		...references.map(({identifier}) => identifier)
-	])
+	...new Set([...identifiers, ...references.map(({identifier}) => identifier)])
 ];
 
 const isExportedIdentifier = identifier => {
-	if (identifier.parent.type === 'VariableDeclarator' &&
+	if (
+		identifier.parent.type === 'VariableDeclarator' &&
 		identifier.parent.id === identifier
 	) {
-		return identifier.parent.parent.type === 'VariableDeclaration' &&
-			identifier.parent.parent.parent.type === 'ExportNamedDeclaration';
+		return (
+			identifier.parent.parent.type === 'VariableDeclaration' &&
+			identifier.parent.parent.parent.type === 'ExportNamedDeclaration'
+		);
 	}
 
-	if (identifier.parent.type === 'FunctionDeclaration' &&
+	if (
+		identifier.parent.type === 'FunctionDeclaration' &&
 		identifier.parent.id === identifier
 	) {
 		return identifier.parent.parent.type === 'ExportNamedDeclaration';
 	}
 
-	if (identifier.parent.type === 'ClassDeclaration' &&
+	if (
+		identifier.parent.type === 'ClassDeclaration' &&
 		identifier.parent.id === identifier
 	) {
 		return identifier.parent.parent.type === 'ExportNamedDeclaration';
@@ -398,68 +404,85 @@ const isIdentifierKeyOfNode = (identifier, node) =>
 	node.key === identifier ||
 	// In `babel-eslint` parent.key is not reference of identifier
 	// https://github.com/babel/babel-eslint/issues/809
-	(
-		node.key.type === identifier.type &&
-		node.key.name === identifier.name
-	);
+	(node.key.type === identifier.type && node.key.name === identifier.name);
 
 const isShorthandPropertyIdentifier = identifier => {
-	return identifier.parent.type === 'Property' &&
+	return (
+		identifier.parent.type === 'Property' &&
 		identifier.parent.shorthand &&
-		isIdentifierKeyOfNode(identifier, identifier.parent);
+		isIdentifierKeyOfNode(identifier, identifier.parent)
+	);
 };
 
 const isAssignmentPatternShorthandPropertyIdentifier = identifier => {
-	return identifier.parent.type === 'AssignmentPattern' &&
+	return (
+		identifier.parent.type === 'AssignmentPattern' &&
 		identifier.parent.left === identifier &&
 		identifier.parent.parent.type === 'Property' &&
 		isIdentifierKeyOfNode(identifier, identifier.parent.parent) &&
 		identifier.parent.parent.value === identifier.parent &&
-		identifier.parent.parent.shorthand;
+		identifier.parent.parent.shorthand
+	);
 };
 
 const isShorthandImportIdentifier = identifier => {
-	return identifier.parent.type === 'ImportSpecifier' &&
+	return (
+		identifier.parent.type === 'ImportSpecifier' &&
 		identifier.parent.imported.name === identifier.name &&
-		identifier.parent.local.name === identifier.name;
+		identifier.parent.local.name === identifier.name
+	);
 };
 
 const isShorthandExportIdentifier = identifier => {
-	return identifier.parent.type === 'ExportSpecifier' &&
+	return (
+		identifier.parent.type === 'ExportSpecifier' &&
 		identifier.parent.exported.name === identifier.name &&
-		identifier.parent.local.name === identifier.name;
+		identifier.parent.local.name === identifier.name
+	);
 };
 
 const fixIdentifier = (fixer, replacement) => identifier => {
-	if (isShorthandPropertyIdentifier(identifier) || isAssignmentPatternShorthandPropertyIdentifier(identifier)) {
+	if (
+		isShorthandPropertyIdentifier(identifier) ||
+		isAssignmentPatternShorthandPropertyIdentifier(identifier)
+	) {
 		return fixer.replaceText(identifier, `${identifier.name}: ${replacement}`);
 	}
 
 	if (isShorthandImportIdentifier(identifier)) {
-		return fixer.replaceText(identifier, `${identifier.name} as ${replacement}`);
+		return fixer.replaceText(
+			identifier,
+			`${identifier.name} as ${replacement}`
+		);
 	}
 
 	if (isShorthandExportIdentifier(identifier)) {
-		return fixer.replaceText(identifier, `${replacement} as ${identifier.name}`);
+		return fixer.replaceText(
+			identifier,
+			`${replacement} as ${identifier.name}`
+		);
 	}
 
 	return fixer.replaceText(identifier, replacement);
 };
 
 const isDefaultOrNamespaceImportName = identifier => {
-	if (identifier.parent.type === 'ImportDefaultSpecifier' &&
+	if (
+		identifier.parent.type === 'ImportDefaultSpecifier' &&
 		identifier.parent.local === identifier
 	) {
 		return true;
 	}
 
-	if (identifier.parent.type === 'ImportNamespaceSpecifier' &&
+	if (
+		identifier.parent.type === 'ImportNamespaceSpecifier' &&
 		identifier.parent.local === identifier
 	) {
 		return true;
 	}
 
-	if (identifier.parent.type === 'ImportSpecifier' &&
+	if (
+		identifier.parent.type === 'ImportSpecifier' &&
 		identifier.parent.local === identifier &&
 		identifier.parent.imported.type === 'Identifier' &&
 		identifier.parent.imported.name === 'default'
@@ -467,7 +490,8 @@ const isDefaultOrNamespaceImportName = identifier => {
 		return true;
 	}
 
-	if (identifier.parent.type === 'VariableDeclarator' &&
+	if (
+		identifier.parent.type === 'VariableDeclarator' &&
 		identifier.parent.id === identifier &&
 		astUtils.isStaticRequire(identifier.parent.init)
 	) {
@@ -488,7 +512,8 @@ const isClassVariable = variable => {
 };
 
 const shouldReportIdentifierAsProperty = identifier => {
-	if (identifier.parent.type === 'MemberExpression' &&
+	if (
+		identifier.parent.type === 'MemberExpression' &&
 		identifier.parent.property === identifier &&
 		!identifier.parent.computed &&
 		identifier.parent.parent.type === 'AssignmentExpression' &&
@@ -497,7 +522,8 @@ const shouldReportIdentifierAsProperty = identifier => {
 		return true;
 	}
 
-	if (identifier.parent.type === 'Property' &&
+	if (
+		identifier.parent.type === 'Property' &&
 		identifier.parent.key === identifier &&
 		!identifier.parent.computed &&
 		!identifier.parent.shorthand && // Shorthand properties are reported and fixed as variables
@@ -506,21 +532,24 @@ const shouldReportIdentifierAsProperty = identifier => {
 		return true;
 	}
 
-	if (identifier.parent.type === 'ExportSpecifier' &&
+	if (
+		identifier.parent.type === 'ExportSpecifier' &&
 		identifier.parent.exported === identifier &&
 		identifier.parent.local !== identifier // Same as shorthand properties above
 	) {
 		return true;
 	}
 
-	if (identifier.parent.type === 'MethodDefinition' &&
+	if (
+		identifier.parent.type === 'MethodDefinition' &&
 		identifier.parent.key === identifier &&
 		!identifier.parent.computed
 	) {
 		return true;
 	}
 
-	if (identifier.parent.type === 'ClassProperty' &&
+	if (
+		identifier.parent.type === 'ClassProperty' &&
 		identifier.parent.key === identifier &&
 		!identifier.parent.computed
 	) {
@@ -539,13 +568,14 @@ const isInternalImport = node => {
 		source = node.parent.source.value;
 	}
 
-	return !source.includes('node_modules') && (source.startsWith('.') || source.startsWith('/'));
+	return (
+		!source.includes('node_modules') &&
+		(source.startsWith('.') || source.startsWith('/'))
+	);
 };
 
 const create = context => {
-	const {
-		ecmaVersion
-	} = context.parserOptions;
+	const {ecmaVersion} = context.parserOptions;
 	const options = prepareOptions(context.options[0]);
 	const filenameWithExtension = context.getFilename();
 
@@ -557,9 +587,12 @@ const create = context => {
 
 	const checkPossiblyWeirdClassVariable = variable => {
 		if (isClassVariable(variable)) {
-			if (variable.scope.type === 'class') { // The inner class variable
+			if (variable.scope.type === 'class') {
+				// The inner class variable
 				const [definition] = variable.defs;
-				const outerClassVariable = identifierToOuterClassVariable.get(definition.name);
+				const outerClassVariable = identifierToOuterClassVariable.get(
+					definition.name
+				);
 
 				if (!outerClassVariable) {
 					return checkVariable(variable);
@@ -592,10 +625,11 @@ const create = context => {
 	// Holds a map from a `Scope` to a `Set` of new variable names generated by our fixer.
 	// Used to avoid generating duplicate names, see for instance `let errCb, errorCb` test.
 	const scopeToNamesGeneratedByFixer = new WeakMap();
-	const isSafeName = (name, scopes) => scopes.every(scope => {
-		const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
-		return !generatedNames || !generatedNames.has(name);
-	});
+	const isSafeName = (name, scopes) =>
+		scopes.every(scope => {
+			const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
+			return !generatedNames || !generatedNames.has(name);
+		});
 
 	const checkVariable = variable => {
 		if (variable.defs.length === 0) {
@@ -609,7 +643,10 @@ const create = context => {
 				return;
 			}
 
-			if (options.checkDefaultAndNamespaceImports === 'internal' && !isInternalImport(definition)) {
+			if (
+				options.checkDefaultAndNamespaceImports === 'internal' &&
+				!isInternalImport(definition)
+			) {
 				return;
 			}
 		}
@@ -619,12 +656,18 @@ const create = context => {
 				return;
 			}
 
-			if (options.checkShorthandImports === 'internal' && !isInternalImport(definition)) {
+			if (
+				options.checkShorthandImports === 'internal' &&
+				!isInternalImport(definition)
+			) {
 				return;
 			}
 		}
 
-		if (!options.checkShorthandProperties && isShorthandPropertyIdentifier(definition.name)) {
+		if (
+			!options.checkShorthandProperties &&
+			isShorthandPropertyIdentifier(definition.name)
+		) {
 			return;
 		}
 
@@ -634,16 +677,27 @@ const create = context => {
 			return;
 		}
 
-		const scopes = variable.references.map(reference => reference.from).concat(variable.scope);
+		const scopes = variable.references
+			.map(reference => reference.from)
+			.concat(variable.scope);
 
 		const problem = {
 			node: definition.name,
-			message: formatMessage(definition.name.name, variableReplacements, 'variable')
+			message: formatMessage(
+				definition.name.name,
+				variableReplacements,
+				'variable'
+			)
 		};
 
 		if (variableReplacements.total === 1 && shouldFix(variable)) {
 			const [replacement] = variableReplacements.samples;
-			const captureAvoidingReplacement = avoidCapture(replacement, scopes, ecmaVersion, isSafeName);
+			const captureAvoidingReplacement = avoidCapture(
+				replacement,
+				scopes,
+				ecmaVersion,
+				isSafeName
+			);
 
 			for (const scope of scopes) {
 				if (!scopeToNamesGeneratedByFixer.has(scope)) {
@@ -655,8 +709,9 @@ const create = context => {
 			}
 
 			problem.fix = fixer => {
-				return variableIdentifiers(variable)
-					.map(fixIdentifier(fixer, captureAvoidingReplacement));
+				return variableIdentifiers(variable).map(
+					fixIdentifier(fixer, captureAvoidingReplacement)
+				);
 			};
 		}
 
@@ -710,7 +765,10 @@ const create = context => {
 				return;
 			}
 
-			if (filenameWithExtension === '<input>' || filenameWithExtension === '<text>') {
+			if (
+				filenameWithExtension === '<input>' ||
+				filenameWithExtension === '<text>'
+			) {
 				return;
 			}
 
@@ -723,11 +781,17 @@ const create = context => {
 				return;
 			}
 
-			filenameReplacements.samples = filenameReplacements.samples.map(replacement => `${replacement}${extension}`);
+			filenameReplacements.samples = filenameReplacements.samples.map(
+				replacement => `${replacement}${extension}`
+			);
 
 			context.report({
 				node,
-				message: formatMessage(filenameWithExtension, filenameReplacements, 'filename')
+				message: formatMessage(
+					filenameWithExtension,
+					filenameReplacements,
+					'filename'
+				)
 			});
 		},
 
@@ -741,50 +805,52 @@ const create = context => {
 	};
 };
 
-const schema = [{
-	type: 'object',
-	properties: {
-		checkProperties: {type: 'boolean'},
-		checkVariables: {type: 'boolean'},
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			checkProperties: {type: 'boolean'},
+			checkVariables: {type: 'boolean'},
 
-		checkDefaultAndNamespaceImports: {
-			type: ['boolean', 'string'],
-			pattern: 'internal'
-		},
-		checkShorthandImports: {
-			type: ['boolean', 'string'],
-			pattern: 'internal'
-		},
-		checkShorthandProperties: {type: 'boolean'},
+			checkDefaultAndNamespaceImports: {
+				type: ['boolean', 'string'],
+				pattern: 'internal'
+			},
+			checkShorthandImports: {
+				type: ['boolean', 'string'],
+				pattern: 'internal'
+			},
+			checkShorthandProperties: {type: 'boolean'},
 
-		checkFilenames: {type: 'boolean'},
+			checkFilenames: {type: 'boolean'},
 
-		extendDefaultReplacements: {type: 'boolean'},
-		replacements: {$ref: '#/items/0/definitions/abbreviations'},
+			extendDefaultReplacements: {type: 'boolean'},
+			replacements: {$ref: '#/items/0/definitions/abbreviations'},
 
-		extendDefaultWhitelist: {type: 'boolean'},
-		whitelist: {$ref: '#/items/0/definitions/booleanObject'}
-	},
-	additionalProperties: false,
-	definitions: {
-		abbreviations: {
-			type: 'object',
-			additionalProperties: {$ref: '#/items/0/definitions/replacements'}
+			extendDefaultWhitelist: {type: 'boolean'},
+			whitelist: {$ref: '#/items/0/definitions/booleanObject'}
 		},
-		replacements: {
-			anyOf: [
-				{
-					enum: [false]
-				},
-				{$ref: '#/items/0/definitions/booleanObject'}
-			]
-		},
-		booleanObject: {
-			type: 'object',
-			additionalProperties: {type: 'boolean'}
+		additionalProperties: false,
+		definitions: {
+			abbreviations: {
+				type: 'object',
+				additionalProperties: {$ref: '#/items/0/definitions/replacements'}
+			},
+			replacements: {
+				anyOf: [
+					{
+						enum: [false]
+					},
+					{$ref: '#/items/0/definitions/booleanObject'}
+				]
+			},
+			booleanObject: {
+				type: 'object',
+				additionalProperties: {type: 'boolean'}
+			}
 		}
 	}
-}];
+];
 
 module.exports = {
 	create,

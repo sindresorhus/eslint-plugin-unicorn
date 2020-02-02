@@ -10,7 +10,8 @@ const argumentsVariable = templates.spreadVariable();
 const substrCallTemplate = templates.template`${objectVariable}.substr(${argumentsVariable})`;
 const substringCallTemplate = templates.template`${objectVariable}.substring(${argumentsVariable})`;
 
-const isLiteralNumber = node => node && node.type === 'Literal' && typeof node.value === 'number';
+const isLiteralNumber = node =>
+	node && node.type === 'Literal' && typeof node.value === 'number';
 
 const getNumericValue = node => {
 	if (isLiteralNumber(node)) {
@@ -23,13 +24,12 @@ const getNumericValue = node => {
 };
 
 // This handles cases where the argument is very likely to be a number, such as `.substring('foo'.length)`.
-const isLengthProperty = node => (
+const isLengthProperty = node =>
 	node &&
 	node.type === 'MemberExpression' &&
 	node.computed === false &&
 	node.property.type === 'Identifier' &&
-	node.property.name === 'length'
-);
+	node.property.name === 'length';
 
 const isLikelyNumeric = node => isLiteralNumber(node) || isLengthProperty(node);
 
@@ -39,15 +39,21 @@ const create = context => {
 	return templates.visitor({
 		[substrCallTemplate](node) {
 			const objectNode = substrCallTemplate.context.getMatch(objectVariable);
-			const argumentNodes = substrCallTemplate.context.getMatch(argumentsVariable);
+			const argumentNodes = substrCallTemplate.context.getMatch(
+				argumentsVariable
+			);
 
 			const problem = {
 				node,
 				message: 'Prefer `String#slice()` over `String#substr()`.'
 			};
 
-			const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
-			const secondArgument = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
+			const firstArgument = argumentNodes[0]
+				? sourceCode.getText(argumentNodes[0])
+				: undefined;
+			const secondArgument = argumentNodes[1]
+				? sourceCode.getText(argumentNodes[1])
+				: undefined;
 
 			let slice;
 
@@ -58,19 +64,30 @@ const create = context => {
 			} else if (argumentNodes.length === 2) {
 				if (firstArgument === '0') {
 					slice = [firstArgument, secondArgument];
-				} else if (isLiteralNumber(argumentNodes[0]) && isLiteralNumber(argumentNodes[1])) {
-					slice = [firstArgument, argumentNodes[0].value + argumentNodes[1].value];
-				} else if (isLikelyNumeric(argumentNodes[0]) && isLikelyNumeric(argumentNodes[1])) {
+				} else if (
+					isLiteralNumber(argumentNodes[0]) &&
+					isLiteralNumber(argumentNodes[1])
+				) {
+					slice = [
+						firstArgument,
+						argumentNodes[0].value + argumentNodes[1].value
+					];
+				} else if (
+					isLikelyNumeric(argumentNodes[0]) &&
+					isLikelyNumeric(argumentNodes[1])
+				) {
 					slice = [firstArgument, firstArgument + ' + ' + secondArgument];
 				}
 			}
 
 			if (slice) {
-				const objectText = objectNode.type === 'LogicalExpression' ?
-					`(${sourceCode.getText(objectNode)})` :
-					sourceCode.getText(objectNode);
+				const objectText =
+					objectNode.type === 'LogicalExpression'
+						? `(${sourceCode.getText(objectNode)})`
+						: sourceCode.getText(objectNode);
 
-				problem.fix = fixer => fixer.replaceText(node, `${objectText}.slice(${slice.join(', ')})`);
+				problem.fix = fixer =>
+					fixer.replaceText(node, `${objectText}.slice(${slice.join(', ')})`);
 			}
 
 			context.report(problem);
@@ -78,17 +95,25 @@ const create = context => {
 
 		[substringCallTemplate](node) {
 			const objectNode = substringCallTemplate.context.getMatch(objectVariable);
-			const argumentNodes = substringCallTemplate.context.getMatch(argumentsVariable);
+			const argumentNodes = substringCallTemplate.context.getMatch(
+				argumentsVariable
+			);
 
 			const problem = {
 				node,
 				message: 'Prefer `String#slice()` over `String#substring()`.'
 			};
 
-			const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
-			const secondArgument = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
+			const firstArgument = argumentNodes[0]
+				? sourceCode.getText(argumentNodes[0])
+				: undefined;
+			const secondArgument = argumentNodes[1]
+				? sourceCode.getText(argumentNodes[1])
+				: undefined;
 
-			const firstNumber = argumentNodes[0] ? getNumericValue(argumentNodes[0]) : undefined;
+			const firstNumber = argumentNodes[0]
+				? getNumericValue(argumentNodes[0])
+				: undefined;
 
 			let slice;
 
@@ -103,14 +128,20 @@ const create = context => {
 					slice = [`Math.max(0, ${firstArgument})`];
 				}
 			} else if (argumentNodes.length === 2) {
-				const secondNumber = argumentNodes[1] ? getNumericValue(argumentNodes[1]) : undefined;
+				const secondNumber = argumentNodes[1]
+					? getNumericValue(argumentNodes[1])
+					: undefined;
 
 				if (firstNumber !== undefined && secondNumber !== undefined) {
-					slice = firstNumber > secondNumber ?
-						[Math.max(0, secondNumber), Math.max(0, firstNumber)] :
-						[Math.max(0, firstNumber), Math.max(0, secondNumber)];
+					slice =
+						firstNumber > secondNumber
+							? [Math.max(0, secondNumber), Math.max(0, firstNumber)]
+							: [Math.max(0, firstNumber), Math.max(0, secondNumber)];
 				} else if (firstNumber === 0 || secondNumber === 0) {
-					slice = [0, `Math.max(0, ${firstNumber === 0 ? secondArgument : firstArgument})`];
+					slice = [
+						0,
+						`Math.max(0, ${firstNumber === 0 ? secondArgument : firstArgument})`
+					];
 				} else {
 					// As values aren't Literal, we can not know whether secondArgument will become smaller than the first or not, causing an issue:
 					//   .substring(0, 2) and .substring(2, 0) returns the same result
@@ -122,11 +153,13 @@ const create = context => {
 			}
 
 			if (slice) {
-				const objectText = objectNode.type === 'LogicalExpression' ?
-					`(${sourceCode.getText(objectNode)})` :
-					sourceCode.getText(objectNode);
+				const objectText =
+					objectNode.type === 'LogicalExpression'
+						? `(${sourceCode.getText(objectNode)})`
+						: sourceCode.getText(objectNode);
 
-				problem.fix = fixer => fixer.replaceText(node, `${objectText}.slice(${slice.join(', ')})`);
+				problem.fix = fixer =>
+					fixer.replaceText(node, `${objectText}.slice(${slice.join(', ')})`);
 			}
 
 			context.report(problem);

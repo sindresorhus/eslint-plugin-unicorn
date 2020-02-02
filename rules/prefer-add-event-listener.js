@@ -3,11 +3,17 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const domEventsJson = require('./utils/dom-events.json');
 
 const nestedEvents = Object.keys(domEventsJson).map(key => domEventsJson[key]);
-const eventTypes = new Set(nestedEvents.reduce((accumulatorEvents, events) => accumulatorEvents.concat(events), []));
+const eventTypes = new Set(
+	nestedEvents.reduce(
+		(accumulatorEvents, events) => accumulatorEvents.concat(events),
+		[]
+	)
+);
 const getEventMethodName = memberExpression => memberExpression.property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 
-const beforeUnloadMessage = 'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.';
+const beforeUnloadMessage =
+	"Use `event.preventDefault(); event.returnValue = 'foo'` to trigger the prompt.";
 
 const formatMessage = (methodReplacement, eventMethodName, extra) => {
 	let message = `Prefer \`${methodReplacement}\` over \`${eventMethodName}\`.`;
@@ -72,7 +78,10 @@ const create = context => {
 		},
 
 		onCodePathEnd() {
-			nodeReturnsSomething.set(codePathInfo.node, codePathInfo.returnsSomething);
+			nodeReturnsSomething.set(
+				codePathInfo.node,
+				codePathInfo.returnsSomething
+			);
 			codePathInfo = codePathInfo.upper;
 		},
 
@@ -89,7 +98,8 @@ const create = context => {
 		},
 
 		ReturnStatement(node) {
-			codePathInfo.returnsSomething = codePathInfo.returnsSomething || Boolean(node.argument);
+			codePathInfo.returnsSomething =
+				codePathInfo.returnsSomething || Boolean(node.argument);
 		},
 
 		'AssignmentExpression:exit'(node) {
@@ -120,18 +130,24 @@ const create = context => {
 					node,
 					message: formatMessage('removeEventListener', eventMethodName)
 				});
-			} else if (eventTypeName === 'beforeunload' &&
+			} else if (
+				eventTypeName === 'beforeunload' &&
 				!shouldFixBeforeUnload(assignedExpression, nodeReturnsSomething)
 			) {
 				context.report({
 					node,
-					message: formatMessage('addEventListener', eventMethodName, beforeUnloadMessage)
+					message: formatMessage(
+						'addEventListener',
+						eventMethodName,
+						beforeUnloadMessage
+					)
 				});
 			} else {
 				context.report({
 					node,
 					message: formatMessage('addEventListener', eventMethodName),
-					fix: fixer => fix(fixer, context.getSourceCode(), node, memberExpression)
+					fix: fixer =>
+						fix(fixer, context.getSourceCode(), node, memberExpression)
 				});
 			}
 		}

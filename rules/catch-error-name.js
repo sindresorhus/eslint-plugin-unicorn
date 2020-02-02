@@ -23,13 +23,14 @@ function isLintablePromiseCatch(node) {
 
 	const [firstArgument] = node.arguments;
 
-	return firstArgument.type === 'FunctionExpression' || firstArgument.type === 'ArrowFunctionExpression';
+	return (
+		firstArgument.type === 'FunctionExpression' ||
+		firstArgument.type === 'ArrowFunctionExpression'
+	);
 }
 
 const create = context => {
-	const {
-		ecmaVersion
-	} = context.parserOptions;
+	const {ecmaVersion} = context.parserOptions;
 
 	const options = {
 		name: 'error',
@@ -40,7 +41,9 @@ const create = context => {
 	const {scopeManager} = context.getSourceCode();
 
 	const {name} = options;
-	const caughtErrorsIgnorePattern = new RegExp(options.caughtErrorsIgnorePattern);
+	const caughtErrorsIgnorePattern = new RegExp(
+		options.caughtErrorsIgnorePattern
+	);
 	const stack = [];
 
 	function push(value) {
@@ -72,7 +75,9 @@ const create = context => {
 						}
 
 						for (const reference of variable.references) {
-							fixings.push(fixer.replaceText(reference.identifier, expectedName));
+							fixings.push(
+								fixer.replaceText(reference.identifier, expectedName)
+							);
 						}
 					}
 
@@ -95,7 +100,11 @@ const create = context => {
 				}
 
 				const scope = context.getScope();
-				const errorName = avoidCapture(name, [scope.variableScope], ecmaVersion);
+				const errorName = avoidCapture(
+					name,
+					[scope.variableScope],
+					ecmaVersion
+				);
 				push(params.length === 0 || params[0].name === errorName || errorName);
 			}
 		},
@@ -127,17 +136,19 @@ const create = context => {
 	};
 };
 
-const schema = [{
-	type: 'object',
-	properties: {
-		name: {
-			type: 'string'
-		},
-		caughtErrorsIgnorePattern: {
-			type: 'string'
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			name: {
+				type: 'string'
+			},
+			caughtErrorsIgnorePattern: {
+				type: 'string'
+			}
 		}
 	}
-}];
+];
 
 module.exports = {
 	create,

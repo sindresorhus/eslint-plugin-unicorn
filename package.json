@@ -85,6 +85,7 @@
 		"extends": [
 			"plugin:eslint-plugin/all"
 		],
+		"prettier": true,
 		"rules": {
 			"prefer-named-capture-group": "off"
 		},

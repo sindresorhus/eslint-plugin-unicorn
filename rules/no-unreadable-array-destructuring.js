@@ -16,7 +16,8 @@ const create = context => {
 			if (elements.some(isCommaFollowedWithComma)) {
 				context.report({
 					node,
-					message: 'Array destructuring may not contain consecutive ignored values.'
+					message:
+						'Array destructuring may not contain consecutive ignored values.'
 				});
 			}
 		}

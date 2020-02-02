@@ -45,8 +45,8 @@ ruleTester.run('number-literal-case', rule, {
 		'const foo = 1.2e+3',
 
 		// Not number
-		'const foo = \'0Xff\'',
-		'const foo = \'0Xffn\''
+		"const foo = '0Xff'",
+		"const foo = '0Xffn'"
 	],
 	invalid: [
 		// Number

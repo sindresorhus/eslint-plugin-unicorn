@@ -1,23 +1,26 @@
 'use strict';
-const {
-	visitRegExpAST,
-	parseRegExpLiteral
-} = require('regexpp');
+const {visitRegExpAST, parseRegExpLiteral} = require('regexpp');
 
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const escapeWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+})/;
 const escapePatternWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+}|c[a-z])/;
 const hasLowercaseCharacter = /[a-z]+/;
-const message = 'Use uppercase characters for the value of the escape sequence.';
+const message =
+	'Use uppercase characters for the value of the escape sequence.';
 
 const fix = (value, regexp) => {
 	const results = regexp.exec(value);
 
 	if (results) {
 		const prefix = results[1].length + 1;
-		const fixedEscape = results[2].slice(0, 1) + results[2].slice(1).toUpperCase();
-		return value.slice(0, results.index + prefix) + fixedEscape + value.slice(results.index + results[0].length);
+		const fixedEscape =
+			results[2].slice(0, 1) + results[2].slice(1).toUpperCase();
+		return (
+			value.slice(0, results.index + prefix) +
+			fixedEscape +
+			value.slice(results.index + results[0].length)
+		);
 	}
 
 	return value;
@@ -67,7 +70,11 @@ const fixRegExp = node => {
 
 	if (escapeNodePosition) {
 		const [start, end] = escapeNodePosition;
-		return raw.slice(0, start) + fix(raw.slice(start, end), escapePatternWithLowercase) + raw.slice(end, raw.length);
+		return (
+			raw.slice(0, start) +
+			fix(raw.slice(start, end), escapePatternWithLowercase) +
+			raw.slice(end, raw.length)
+		);
 	}
 
 	return raw;
@@ -86,7 +93,8 @@ const create = context => {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceText(node, fix(node.raw, escapeWithLowercase))
+					fix: fixer =>
+						fixer.replaceText(node, fix(node.raw, escapeWithLowercase))
 				});
 			}
 		},
@@ -115,7 +123,11 @@ const create = context => {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceTextRange([start, end], fix(node.value.raw, escapeWithLowercase))
+					fix: fixer =>
+						fixer.replaceTextRange(
+							[start, end],
+							fix(node.value.raw, escapeWithLowercase)
+						)
 				});
 			}
 		}

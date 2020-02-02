@@ -23,14 +23,23 @@ cli.addPlugin('eslint-plugin-unicorn', unicorn);
 
 // Make sure rules are loaded from codebase
 const loadedRules = cli.getRules();
-if (!ruleIds.every(ruleId => unicornRules.get(ruleId) === loadedRules.get(`unicorn/${ruleId}`))) {
+if (
+	!ruleIds.every(
+		ruleId => unicornRules.get(ruleId) === loadedRules.get(`unicorn/${ruleId}`)
+	)
+) {
 	console.error('`eslint-plugin-unicorn` rules are not loaded from codebase.');
 	process.exit(1);
 }
 
 const report = cli.executeOnFiles(files);
 
-const {errorCount, warningCount, fixableErrorCount, fixableWarningCount} = report;
+const {
+	errorCount,
+	warningCount,
+	fixableErrorCount,
+	fixableWarningCount
+} = report;
 
 const hasFixable = fixableErrorCount || fixableWarningCount;
 
@@ -43,15 +52,21 @@ if (errorCount || warningCount) {
 	console.log(formatter(report.results));
 
 	console.log();
-	console.log(`You need to fix the failed test${errorCount + warningCount > 1 ? 's' : ''} above and run \`npm run lint <file>\` to check again.`);
+	console.log(
+		`You need to fix the failed test${
+			errorCount + warningCount > 1 ? 's' : ''
+		} above and run \`npm run lint <file>\` to check again.`
+	);
 
 	if (hasFixable) {
 		console.log();
-		console.log('You may also want run `npm run lint <file> --fix` to fix fixable problems.');
+		console.log(
+			'You may also want run `npm run lint <file> --fix` to fix fixable problems.'
+		);
 	}
 
 	console.log();
-	console.log('* If you\'re making a new rule, you can fix this later. *');
+	console.log("* If you're making a new rule, you can fix this later. *");
 } else {
 	console.log('All tests have passed.');
 }

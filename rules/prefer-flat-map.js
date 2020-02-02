@@ -126,7 +126,11 @@ const create = context => ({
 			return;
 		}
 
-		if (node.arguments.length === 1 && node.arguments[0].type === 'Literal' && node.arguments[0].value !== 1) {
+		if (
+			node.arguments.length === 1 &&
+			node.arguments[0].type === 'Literal' &&
+			node.arguments[0].value !== 1
+		) {
 			return;
 		}
 
@@ -156,7 +160,8 @@ module.exports = {
 		fixable: 'code',
 		messages: {
 			[MESSAGE_ID_FLATMAP]: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
-			[MESSAGE_ID_SPREAD]: 'Prefer `.flatMap(…)` over `[].concat(...foo.map(…))`.'
+			[MESSAGE_ID_SPREAD]:
+				'Prefer `.flatMap(…)` over `[].concat(...foo.map(…))`.'
 		}
 	}
 };

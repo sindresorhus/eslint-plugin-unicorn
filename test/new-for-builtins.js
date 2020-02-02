@@ -35,7 +35,7 @@ ruleTester.run('new-for-builtins', rule, {
 		'const foo = new Int16Array()',
 		'const foo = new Int32Array()',
 		'const foo = new Map()',
-		'const foo = new Map([[\'foo\', \'bar\'], [\'unicorn\', \'rainbow\']])',
+		"const foo = new Map([['foo', 'bar'], ['unicorn', 'rainbow']])",
 		'const foo = new WeakMap()',
 		'const foo = new Set()',
 		'const foo = new WeakSet()',
@@ -93,9 +93,9 @@ ruleTester.run('new-for-builtins', rule, {
 			output: 'const foo = new Error()'
 		},
 		{
-			code: 'const foo = Error(\'Foo bar\')',
+			code: "const foo = Error('Foo bar')",
 			errors: [enforceNewError('Error')],
-			output: 'const foo = new Error(\'Foo bar\')'
+			output: "const foo = new Error('Foo bar')"
 		},
 		{
 			code: 'const foo = Float32Array()',
@@ -133,9 +133,9 @@ ruleTester.run('new-for-builtins', rule, {
 			output: 'const foo = new Map()'
 		},
 		{
-			code: 'const foo = Map([[\'foo\', \'bar\'], [\'unicorn\', \'rainbow\']])',
+			code: "const foo = Map([['foo', 'bar'], ['unicorn', 'rainbow']])",
 			errors: [enforceNewError('Map')],
-			output: 'const foo = new Map([[\'foo\', \'bar\'], [\'unicorn\', \'rainbow\']])'
+			output: "const foo = new Map([['foo', 'bar'], ['unicorn', 'rainbow']])"
 		},
 		{
 			code: 'const foo = WeakMap()',
@@ -198,9 +198,9 @@ ruleTester.run('new-for-builtins', rule, {
 			output: 'const foo = Number()'
 		},
 		{
-			code: 'const foo = new Number(\'123\')',
+			code: "const foo = new Number('123')",
 			errors: [disallowNewError('Number')],
-			output: 'const foo = Number(\'123\')'
+			output: "const foo = Number('123')"
 		},
 		{
 			code: 'const foo = new String()',

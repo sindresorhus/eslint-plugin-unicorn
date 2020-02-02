@@ -21,12 +21,18 @@ const packages = new Map([
 	['boxen', 'https://github.com/sindresorhus/boxen'],
 	['make-dir', 'https://github.com/sindresorhus/make-dir'],
 	['listr', 'http://github.com/SamVerschueren/listr'],
-	['listr-update-renderer', 'http://github.com/SamVerschueren/listr-update-renderer'],
+	[
+		'listr-update-renderer',
+		'http://github.com/SamVerschueren/listr-update-renderer'
+	],
 	['clinton', 'http://github.com/SamVerschueren/clinton'],
 	['bragg', 'http://github.com/SamVerschueren/bragg'],
 	['bragg-router', 'http://github.com/SamVerschueren/bragg-router'],
 	['dev-time', 'http://github.com/SamVerschueren/dev-time'],
-	['decode-uri-component', 'https://github.com/SamVerschueren/decode-uri-component'],
+	[
+		'decode-uri-component',
+		'https://github.com/SamVerschueren/decode-uri-component'
+	],
 	['to-ico', 'https://github.com/kevva/to-ico'],
 	['download', 'https://github.com/kevva/download'],
 	['brightness', 'https://github.com/kevva/brightness'],
@@ -34,7 +40,10 @@ const packages = new Map([
 	['npm-conf', 'https://github.com/kevva/npm-conf'],
 	['imagemin', 'https://github.com/imagemin/imagemin'],
 	['color-convert', 'https://github.com/qix-/color-convert'],
-	['eslint-plugin-unicorn', 'https://github.com/sindresorhus/eslint-plugin-unicorn'],
+	[
+		'eslint-plugin-unicorn',
+		'https://github.com/sindresorhus/eslint-plugin-unicorn'
+	],
 	['ky', 'https://github.com/sindresorhus/ky'],
 	['query-string', 'https://github.com/sindresorhus/query-string'],
 	['meow', 'https://github.com/sindresorhus/meow'],
@@ -47,15 +56,13 @@ const packages = new Map([
 	['got', 'https://github.com/sindresorhus/got']
 ]);
 
-const typescriptPackages = new Set([
-	'pageres',
-	'got',
-	'p-queue'
-]);
+const typescriptPackages = new Set(['pageres', 'got', 'p-queue']);
 
 const cwd = path.join(__dirname, 'eslint-config-unicorn-tester');
 
-const enrichErrors = (packageName, cliArguments, f) => async (...arguments_) => {
+const enrichErrors = (packageName, cliArguments, f) => async (
+	...arguments_
+) => {
 	try {
 		return await f(...arguments_);
 	} catch (error) {
@@ -67,9 +74,20 @@ const enrichErrors = (packageName, cliArguments, f) => async (...arguments_) => 
 
 const makeEslintTask = (packageName, destination, extraArguments = []) => {
 	const isTypescriptPackage = typescriptPackages.has(packageName);
-	const typescriptArguments = isTypescriptPackage ? ['--parser', '@typescript-eslint/parser', '--ext', '.ts'] : [];
+	const typescriptArguments = isTypescriptPackage
+		? ['--parser', '@typescript-eslint/parser', '--ext', '.ts']
+		: [];
 
-	const arguments_ = ['eslint', '--format', 'json', '--config', path.join(cwd, 'index.js'), destination, ...typescriptArguments, ...extraArguments];
+	const arguments_ = [
+		'eslint',
+		'--format',
+		'json',
+		'--config',
+		path.join(cwd, 'index.js'),
+		destination,
+		...typescriptArguments,
+		...extraArguments
+	];
 
 	return enrichErrors(packageName, arguments_, async () => {
 		let stdout;
@@ -114,75 +132,93 @@ const makeEslintTask = (packageName, destination, extraArguments = []) => {
 const execute = name => {
 	const destination = tempy.directory();
 
-	return new Listr([
+	return new Listr(
+		[
+			{
+				title: 'Cloning',
+				task: () =>
+					execa('git', [
+						'clone',
+						packages.get(name),
+						'--single-branch',
+						destination
+					])
+			},
+			{
+				title: 'Running eslint',
+				task: makeEslintTask(name, destination)
+			},
+			{
+				title: 'Running eslint --fix',
+				task: makeEslintTask(name, destination, ['--fix-dry-run'])
+			},
+			{
+				title: 'Clean up',
+				task: () => del(destination, {force: true})
+			}
+		].map(({title, task}) => ({
+			title: `${name} / ${title}`,
+			task
+		})),
 		{
-			title: 'Cloning',
-			task: () => execa('git', ['clone', packages.get(name), '--single-branch', destination])
-		},
-		{
-			title: 'Running eslint',
-			task: makeEslintTask(name, destination)
-		},
-		{
-			title: 'Running eslint --fix',
-			task: makeEslintTask(name, destination, ['--fix-dry-run'])
-		},
-		{
-			title: 'Clean up',
-			task: () => del(destination, {force: true})
+			exitOnError: false
 		}
-	].map(({title, task}) => ({
-		title: `${name} / ${title}`,
-		task
-	})), {
-		exitOnError: false
-	});
+	);
 };
 
-const list = new Listr([
-	{
-		title: 'Setup',
-		task: () => execa('npm', ['install'], {cwd})
-	},
-	{
-		title: 'Integration tests',
-		task: () => {
-			const tests = new Listr({concurrent: true});
+const list = new Listr(
+	[
+		{
+			title: 'Setup',
+			task: () => execa('npm', ['install'], {cwd})
+		},
+		{
+			title: 'Integration tests',
+			task: () => {
+				const tests = new Listr({concurrent: true});
 
-			for (const [name] of packages) {
-				tests.add([
-					{
-						title: name,
-						task: () => execute(name)
-					}
-				]);
+				for (const [name] of packages) {
+					tests.add([
+						{
+							title: name,
+							task: () => execute(name)
+						}
+					]);
+				}
+
+				return tests;
 			}
-
-			return tests;
 		}
+	],
+	{
+		renderer: isCI ? 'verbose' : 'default'
 	}
-], {
-	renderer: isCI ? 'verbose' : 'default'
-});
+);
 
-list.run()
-	.catch(error => {
-		if (error.errors) {
-			for (const error2 of error.errors) {
-				console.error('\n', chalk.red.bold.underline(error2.packageName), chalk.gray('(' + error2.cliArgs.join(' ') + ')'));
-				console.error(error2.message);
+list.run().catch(error => {
+	if (error.errors) {
+		for (const error2 of error.errors) {
+			console.error(
+				'\n',
+				chalk.red.bold.underline(error2.packageName),
+				chalk.gray('(' + error2.cliArgs.join(' ') + ')')
+			);
+			console.error(error2.message);
 
-				if (error2.stderr) {
-					console.error(chalk.gray(error2.stderr));
-				}
-
-				if (error2.eslintMessage) {
-					console.error(chalk.gray(error2.eslintFile.filePath), chalk.gray(JSON.stringify(error2.eslintMessage, null, 2)));
-				}
+			if (error2.stderr) {
+				console.error(chalk.gray(error2.stderr));
 			}
-		} else {
-			console.error(error);
-		}
 
-		process.exit(1);
-	});
+			if (error2.eslintMessage) {
+				console.error(
+					chalk.gray(error2.eslintFile.filePath),
+					chalk.gray(JSON.stringify(error2.eslintMessage, null, 2))
+				);
+			}
+		}
+	} else {
+		console.error(error);
+	}
+
+	process.exit(1);
+});

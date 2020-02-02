@@ -8,7 +8,11 @@ const forbiddenIdentifierNames = new Map([
 ]);
 
 const getReplacementForId = value => `#${value}`;
-const getReplacementForClass = value => value.match(/\S+/g).map(className => `.${className}`).join('');
+const getReplacementForClass = value =>
+	value
+		.match(/\S+/g)
+		.map(className => `.${className}`)
+		.join('');
 
 const getQuotedReplacement = (node, value) => {
 	const leftQuote = node.raw.charAt(0);
@@ -23,22 +27,38 @@ const getLiteralFix = (fixer, node, identifierName) => {
 	}
 
 	if (identifierName === 'getElementsByClassName') {
-		replacement = getQuotedReplacement(node, getReplacementForClass(node.value));
+		replacement = getQuotedReplacement(
+			node,
+			getReplacementForClass(node.value)
+		);
 	}
 
 	return [fixer.replaceText(node, replacement)];
 };
 
 const getTemplateLiteralFix = (fixer, node, identifierName) => {
-	const fix = [fixer.insertTextAfter(node, '`'), fixer.insertTextBefore(node, '`')];
+	const fix = [
+		fixer.insertTextAfter(node, '`'),
+		fixer.insertTextBefore(node, '`')
+	];
 
 	node.quasis.forEach(templateElement => {
 		if (identifierName === 'getElementById') {
-			fix.push(fixer.replaceText(templateElement, getReplacementForId(templateElement.value.cooked)));
+			fix.push(
+				fixer.replaceText(
+					templateElement,
+					getReplacementForId(templateElement.value.cooked)
+				)
+			);
 		}
 
 		if (identifierName === 'getElementsByClassName') {
-			fix.push(fixer.replaceText(templateElement, getReplacementForClass(templateElement.value.cooked)));
+			fix.push(
+				fixer.replaceText(
+					templateElement,
+					getReplacementForClass(templateElement.value.cooked)
+				)
+			);
 		}
 	});
 
@@ -51,8 +71,10 @@ const canBeFixed = node => {
 	}
 
 	if (node.type === 'TemplateLiteral') {
-		return node.expressions.length === 0 &&
-			node.quasis.some(templateElement => templateElement.value.cooked.trim());
+		return (
+			node.expressions.length === 0 &&
+			node.quasis.some(templateElement => templateElement.value.cooked.trim())
+		);
 	}
 
 	return false;
@@ -72,7 +94,8 @@ const fix = (node, identifierName, preferedSelector) => {
 		return fixer => fixer.replaceText(node.callee.property, preferedSelector);
 	}
 
-	const getArgumentFix = nodeToBeFixed.type === 'Literal' ? getLiteralFix : getTemplateLiteralFix;
+	const getArgumentFix =
+		nodeToBeFixed.type === 'Literal' ? getLiteralFix : getTemplateLiteralFix;
 	return fixer => [
 		...getArgumentFix(fixer, nodeToBeFixed, identifierName),
 		fixer.replaceText(node.callee.property, preferedSelector)
@@ -82,7 +105,9 @@ const fix = (node, identifierName, preferedSelector) => {
 const create = context => {
 	return {
 		CallExpression(node) {
-			const {callee: {property, type}} = node;
+			const {
+				callee: {property, type}
+			} = node;
 			if (!property || type !== 'MemberExpression') {
 				return;
 			}

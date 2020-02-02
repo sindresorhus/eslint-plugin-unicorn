@@ -9,19 +9,11 @@ const ruleTester = avaRuleTester(test, {
 });
 
 function testCase(filename, chosenCase, errorMessage) {
-	return testCaseWithOptions(
-		filename,
-		errorMessage,
-		[{case: chosenCase}]
-	);
+	return testCaseWithOptions(filename, errorMessage, [{case: chosenCase}]);
 }
 
 function testManyCases(filename, chosenCases, errorMessage) {
-	return testCaseWithOptions(
-		filename,
-		errorMessage,
-		[{cases: chosenCases}]
-	);
+	return testCaseWithOptions(filename, errorMessage, [{cases: chosenCases}]);
 }
 
 function testCaseWithOptions(filename, errorMessage, options = []) {
@@ -29,10 +21,12 @@ function testCaseWithOptions(filename, errorMessage, options = []) {
 		code: 'foo()',
 		filename,
 		options,
-		errors: errorMessage && [{
-			ruleId: 'filename-case',
-			message: errorMessage
-		}]
+		errors: errorMessage && [
+			{
+				ruleId: 'filename-case',
+				message: errorMessage
+			}
+		]
 	};
 }
 
@@ -427,90 +421,106 @@ ruleTester.run('filename-case', rule, {
 		testCaseWithOptions(
 			'src/foo/FooBar.js',
 			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
-			[{
-				cases: {
-					camelCase: true,
-					snakeCase: true
-				},
-				ignore: ['FOOBAR\\.js']
-			}]
+			[
+				{
+					cases: {
+						camelCase: true,
+						snakeCase: true
+					},
+					ignore: ['FOOBAR\\.js']
+				}
+			]
 		),
 		testCaseWithOptions(
 			'src/foo/FooBar.js',
 			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
-			[{
-				cases: {
-					camelCase: true,
-					snakeCase: true
-				},
-				ignore: [/FOOBAR\.js/u]
-			}]
+			[
+				{
+					cases: {
+						camelCase: true,
+						snakeCase: true
+					},
+					ignore: [/FOOBAR\.js/u]
+				}
+			]
 		),
 		testCaseWithOptions(
 			'src/foo/FooBar.js',
 			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
-			[{
-				cases: {
-					camelCase: true,
-					snakeCase: true
-				},
-				ignore: ['BaRbAz\\.js']
-			}]
+			[
+				{
+					cases: {
+						camelCase: true,
+						snakeCase: true
+					},
+					ignore: ['BaRbAz\\.js']
+				}
+			]
 		),
 		testCaseWithOptions(
 			'src/foo/FooBar.js',
 			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
-			[{
-				cases: {
-					camelCase: true,
-					snakeCase: true
-				},
-				ignore: [/BaRbAz\.js/u]
-			}]
+			[
+				{
+					cases: {
+						camelCase: true,
+						snakeCase: true
+					},
+					ignore: [/BaRbAz\.js/u]
+				}
+			]
 		),
 		testCaseWithOptions(
 			'src/foo/FooBar.js',
 			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
-			[{
-				cases: {
-					camelCase: true,
-					snakeCase: true
-				},
-				ignore: ['^foo']
-			}]
+			[
+				{
+					cases: {
+						camelCase: true,
+						snakeCase: true
+					},
+					ignore: ['^foo']
+				}
+			]
 		),
 		testCaseWithOptions(
 			'src/foo/FooBar.js',
 			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
-			[{
-				cases: {
-					camelCase: true,
-					snakeCase: true
-				},
-				ignore: [/^foo/]
-			}]
+			[
+				{
+					cases: {
+						camelCase: true,
+						snakeCase: true
+					},
+					ignore: [/^foo/]
+				}
+			]
 		),
 		testCaseWithOptions(
 			'src/foo/FooBar.js',
 			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
-			[{
-				cases: {
-					camelCase: true,
-					snakeCase: true
-				},
-				ignore: ['^foo', '^bar']
-			}]
+			[
+				{
+					cases: {
+						camelCase: true,
+						snakeCase: true
+					},
+					ignore: ['^foo', '^bar']
+				}
+			]
 		),
 		testCaseWithOptions(
 			'src/foo/FooBar.js',
 			'Filename is not in camel case or snake case. Rename it to `fooBar.js` or `foo_bar.js`.',
-			[{
-				cases: {
-					camelCase: true,
-					snakeCase: true
-				},
-				ignore: [/^foo/, /^bar/]
-			}]
+			[
+				{
+					cases: {
+						camelCase: true,
+						snakeCase: true
+					},
+					ignore: [/^foo/, /^bar/]
+				}
+			]
 		)
 	]
 });

@@ -13,9 +13,7 @@ module.exports = {
 				ecmaVersion: 2020,
 				sourceType: 'module'
 			},
-			plugins: [
-				'unicorn'
-			],
+			plugins: ['unicorn'],
 			rules: {
 				'unicorn/catch-error-name': 'error',
 				'unicorn/consistent-function-scoping': 'error',

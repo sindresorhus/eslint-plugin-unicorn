@@ -21,7 +21,7 @@ ruleTester.run('prefer-text-content', rule, {
 		'node.textContent;',
 		'node[innerText];',
 		'innerText = true;',
-		'node[\'innerText\'];'
+		"node['innerText'];"
 	],
 	invalid: [
 		{
@@ -30,8 +30,8 @@ ruleTester.run('prefer-text-content', rule, {
 			errors
 		},
 		{
-			code: 'node.innerText = \'foo\';',
-			output: 'node.textContent = \'foo\';',
+			code: "node.innerText = 'foo';",
+			output: "node.textContent = 'foo';",
 			errors
 		}
 	]

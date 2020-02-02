@@ -85,7 +85,8 @@ ruleTester.run('prefer-negative-index', rule, {
 		},
 		// Docs example (4)
 		{
-			code: 'Array.prototype.slice.apply(foo, [foo.length - 2, foo.length - 1])',
+			code:
+				'Array.prototype.slice.apply(foo, [foo.length - 2, foo.length - 1])',
 			errors: [error],
 			output: 'Array.prototype.slice.apply(foo, [- 2, - 1])'
 		},
@@ -103,9 +104,9 @@ ruleTester.run('prefer-negative-index', rule, {
 		},
 		// Foo['bar']
 		{
-			code: 'foo[\'bar\'].slice(foo[\'bar\'].length - 1)',
+			code: "foo['bar'].slice(foo['bar'].length - 1)",
 			errors: [error],
-			output: 'foo[\'bar\'].slice(- 1)'
+			output: "foo['bar'].slice(- 1)"
 		},
 		// Foo[1]
 		{
@@ -171,7 +172,8 @@ ruleTester.run('prefer-negative-index', rule, {
 		},
 		// Comment inside parentheses
 		{
-			code: 'foo.slice(/* will keep */(/* will remove 1 */(/* will remove 2 */(foo.length)) - 1) - 1)',
+			code:
+				'foo.slice(/* will keep */(/* will remove 1 */(/* will remove 2 */(foo.length)) - 1) - 1)',
 			errors: [error],
 			output: 'foo.slice(/* will keep */(- 1) - 1)'
 		},

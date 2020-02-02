@@ -6,12 +6,16 @@ const defaultElementName = 'element';
 const isLiteralZero = node => isLiteralValue(node, 0);
 const isLiteralOne = node => isLiteralValue(node, 1);
 
-const isIdentifierWithName = (node, name) => node && node.type === 'Identifier' && node.name === name;
+const isIdentifierWithName = (node, name) =>
+	node && node.type === 'Identifier' && node.name === name;
 
 const getIndexIdentifierName = forStatement => {
 	const {init: variableDeclaration} = forStatement;
 
-	if (!variableDeclaration || variableDeclaration.type !== 'VariableDeclaration') {
+	if (
+		!variableDeclaration ||
+		variableDeclaration.type !== 'VariableDeclaration'
+	) {
 		return;
 	}
 
@@ -48,7 +52,10 @@ const getStrictComparisonOperands = binaryExpression => {
 	}
 };
 
-const getArrayIdentifierNameFromBinaryExpression = (binaryExpression, indexIdentifierName) => {
+const getArrayIdentifierNameFromBinaryExpression = (
+	binaryExpression,
+	indexIdentifierName
+) => {
 	const operands = getStrictComparisonOperands(binaryExpression);
 
 	if (!operands) {
@@ -65,7 +72,10 @@ const getArrayIdentifierNameFromBinaryExpression = (binaryExpression, indexIdent
 		return;
 	}
 
-	if (greater.object.type !== 'Identifier' || greater.property.type !== 'Identifier') {
+	if (
+		greater.object.type !== 'Identifier' ||
+		greater.property.type !== 'Identifier'
+	) {
 		return;
 	}
 
@@ -88,8 +98,12 @@ const getArrayIdentifierName = (forStatement, indexIdentifierName) => {
 
 const isLiteralOnePlusIdentifierWithName = (node, identifierName) => {
 	if (node && node.type === 'BinaryExpression' && node.operator === '+') {
-		return (isIdentifierWithName(node.left, identifierName) && isLiteralOne(node.right)) ||
-			(isIdentifierWithName(node.right, identifierName) && isLiteralOne(node.left));
+		return (
+			(isIdentifierWithName(node.left, identifierName) &&
+				isLiteralOne(node.right)) ||
+			(isIdentifierWithName(node.right, identifierName) &&
+				isLiteralOne(node.left))
+		);
 	}
 
 	return false;
@@ -103,23 +117,35 @@ const checkUpdateExpression = (forStatement, indexIdentifierName) => {
 	}
 
 	if (update.type === 'UpdateExpression') {
-		return update.operator === '++' && isIdentifierWithName(update.argument, indexIdentifierName);
+		return (
+			update.operator === '++' &&
+			isIdentifierWithName(update.argument, indexIdentifierName)
+		);
 	}
 
-	if (update.type === 'AssignmentExpression' && isIdentifierWithName(update.left, indexIdentifierName)) {
+	if (
+		update.type === 'AssignmentExpression' &&
+		isIdentifierWithName(update.left, indexIdentifierName)
+	) {
 		if (update.operator === '+=') {
 			return isLiteralOne(update.right);
 		}
 
 		if (update.operator === '=') {
-			return isLiteralOnePlusIdentifierWithName(update.right, indexIdentifierName);
+			return isLiteralOnePlusIdentifierWithName(
+				update.right,
+				indexIdentifierName
+			);
 		}
 	}
 
 	return false;
 };
 
-const isOnlyArrayOfIndexVariableRead = (arrayReferences, indexIdentifierName) => {
+const isOnlyArrayOfIndexVariableRead = (
+	arrayReferences,
+	indexIdentifierName
+) => {
 	return arrayReferences.every(reference => {
 		const node = reference.identifier.parent;
 
@@ -131,7 +157,10 @@ const isOnlyArrayOfIndexVariableRead = (arrayReferences, indexIdentifierName) =>
 			return false;
 		}
 
-		if (node.parent.type === 'AssignmentExpression' && node.parent.left === node) {
+		if (
+			node.parent.type === 'AssignmentExpression' &&
+			node.parent.left === node
+		) {
 			return false;
 		}
 
@@ -146,27 +175,24 @@ const getRemovalRange = (node, sourceCode) => {
 		const {line} = sourceCode.getLocFromIndex(declarationNode.range[0]);
 		const lineText = sourceCode.lines[line - 1];
 
-		const isOnlyNodeOnLine = lineText.trim() === sourceCode.getText(declarationNode);
+		const isOnlyNodeOnLine =
+			lineText.trim() === sourceCode.getText(declarationNode);
 
-		return isOnlyNodeOnLine ? [
-			sourceCode.getIndexFromLoc({line, column: 0}),
-			sourceCode.getIndexFromLoc({line: line + 1, column: 0})
-		] : declarationNode.range;
+		return isOnlyNodeOnLine
+			? [
+					sourceCode.getIndexFromLoc({line, column: 0}),
+					sourceCode.getIndexFromLoc({line: line + 1, column: 0})
+			  ]
+			: declarationNode.range;
 	}
 
 	const index = declarationNode.declarations.indexOf(node);
 
 	if (index === 0) {
-		return [
-			node.range[0],
-			declarationNode.declarations[1].range[0]
-		];
+		return [node.range[0], declarationNode.declarations[1].range[0]];
 	}
 
-	return [
-		declarationNode.declarations[index - 1].range[1],
-		node.range[1]
-	];
+	return [declarationNode.declarations[index - 1].range[1], node.range[1]];
 };
 
 const resolveIdentifierName = (name, scope) => {
@@ -207,8 +233,14 @@ const nodeContains = (ancestor, descendant) => {
 	return false;
 };
 
-const isIndexVariableUsedElsewhereInTheLoopBody = (indexVariable, bodyScope, arrayIdentifierName) => {
-	const inBodyReferences = indexVariable.references.filter(reference => scopeContains(bodyScope, reference.from));
+const isIndexVariableUsedElsewhereInTheLoopBody = (
+	indexVariable,
+	bodyScope,
+	arrayIdentifierName
+) => {
+	const inBodyReferences = indexVariable.references.filter(reference =>
+		scopeContains(bodyScope, reference.from)
+	);
 
 	const referencesOtherThanArrayAccess = inBodyReferences.filter(reference => {
 		const node = reference.identifier.parent;
@@ -236,19 +268,26 @@ const isIndexVariableAssignedToInTheLoopBody = (indexVariable, bodyScope) => {
 const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) => {
 	return variables.some(variable => {
 		return !variable.references.every(reference => {
-			return scopeContains(forScope, reference.from) ||
-				nodeContains(forStatement, reference.identifier);
+			return (
+				scopeContains(forScope, reference.from) ||
+				nodeContains(forStatement, reference.identifier)
+			);
 		});
 	});
 };
 
 const getReferencesInChildScopes = (scope, name) => {
-	const references = scope.references.filter(reference => reference.identifier.name === name);
+	const references = scope.references.filter(
+		reference => reference.identifier.name === name
+	);
 	return [
 		...references,
 		...scope.childScopes
 			.map(s => getReferencesInChildScopes(s, name))
-			.reduce((accumulator, scopeReferences) => [...accumulator, ...scopeReferences], [])
+			.reduce(
+				(accumulator, scopeReferences) => [...accumulator, ...scopeReferences],
+				[]
+			)
 	];
 };
 
@@ -264,7 +303,10 @@ const create = context => {
 				return;
 			}
 
-			const arrayIdentifierName = getArrayIdentifierName(node, indexIdentifierName);
+			const arrayIdentifierName = getArrayIdentifierName(
+				node,
+				indexIdentifierName
+			);
 
 			if (!arrayIdentifierName) {
 				return;
@@ -285,19 +327,27 @@ const create = context => {
 				return;
 			}
 
-			const indexVariable = resolveIdentifierName(indexIdentifierName, bodyScope);
+			const indexVariable = resolveIdentifierName(
+				indexIdentifierName,
+				bodyScope
+			);
 
 			if (isIndexVariableAssignedToInTheLoopBody(indexVariable, bodyScope)) {
 				return;
 			}
 
-			const arrayReferences = getReferencesInChildScopes(bodyScope, arrayIdentifierName);
+			const arrayReferences = getReferencesInChildScopes(
+				bodyScope,
+				arrayIdentifierName
+			);
 
 			if (arrayReferences.length === 0) {
 				return;
 			}
 
-			if (!isOnlyArrayOfIndexVariableRead(arrayReferences, indexIdentifierName)) {
+			if (
+				!isOnlyArrayOfIndexVariableRead(arrayReferences, indexIdentifierName)
+			) {
 				return;
 			}
 
@@ -315,15 +365,26 @@ const create = context => {
 
 				return true;
 			});
-			const elementNode = elementReference && elementReference.identifier.parent.parent;
+			const elementNode =
+				elementReference && elementReference.identifier.parent.parent;
 			const elementIdentifierName = elementNode && elementNode.id.name;
-			const elementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
+			const elementVariable =
+				elementIdentifierName &&
+				resolveIdentifierName(elementIdentifierName, bodyScope);
 
-			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope);
+			const shouldFix = !someVariablesLeakOutOfTheLoop(
+				node,
+				[indexVariable, elementVariable].filter(Boolean),
+				forScope
+			);
 
 			if (shouldFix) {
 				problem.fix = fixer => {
-					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
+					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(
+						indexVariable,
+						bodyScope,
+						arrayIdentifierName
+					);
 
 					const index = indexIdentifierName;
 					const element = elementIdentifierName || defaultElementName;
@@ -334,7 +395,8 @@ const create = context => {
 					let removeDeclaration = true;
 					if (
 						elementNode &&
-						(elementNode.id.type === 'ObjectPattern' || elementNode.id.type === 'ArrayPattern')
+						(elementNode.id.type === 'ObjectPattern' ||
+							elementNode.id.type === 'ArrayPattern')
 					) {
 						removeDeclaration = arrayReferences.length === 1;
 
@@ -344,15 +406,15 @@ const create = context => {
 						}
 					}
 
-					const replacement = shouldGenerateIndex ?
-						`${declarationType} [${index}, ${declarationElement}] of ${array}.entries()` :
-						`${declarationType} ${declarationElement} of ${array}`;
+					const replacement = shouldGenerateIndex
+						? `${declarationType} [${index}, ${declarationElement}] of ${array}.entries()`
+						: `${declarationType} ${declarationElement} of ${array}`;
 
 					return [
-						fixer.replaceTextRange([
-							node.init.range[0],
-							node.update.range[1]
-						], replacement),
+						fixer.replaceTextRange(
+							[node.init.range[0], node.update.range[1]],
+							replacement
+						),
 						...arrayReferences.map(reference => {
 							if (reference === elementReference) {
 								return undefined;
@@ -360,11 +422,10 @@ const create = context => {
 
 							return fixer.replaceText(reference.identifier.parent, element);
 						}),
-						elementNode && (
-							removeDeclaration ?
-								fixer.removeRange(getRemovalRange(elementNode, sourceCode)) :
-								fixer.replaceText(elementNode.init, element)
-						)
+						elementNode &&
+							(removeDeclaration
+								? fixer.removeRange(getRemovalRange(elementNode, sourceCode))
+								: fixer.replaceText(elementNode.init, element))
 					].filter(Boolean);
 				};
 			}

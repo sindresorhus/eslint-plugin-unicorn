@@ -29,10 +29,16 @@ const hasValidSuperClass = node => {
 	return nameRegexp.test(name);
 };
 
-const isSuperExpression = node => node.type === 'ExpressionStatement' && node.expression.type === 'CallExpression' && node.expression.callee.type === 'Super';
+const isSuperExpression = node =>
+	node.type === 'ExpressionStatement' &&
+	node.expression.type === 'CallExpression' &&
+	node.expression.callee.type === 'Super';
 
 const isAssignmentExpression = (node, name) => {
-	if (node.type !== 'ExpressionStatement' || node.expression.type !== 'AssignmentExpression') {
+	if (
+		node.type !== 'ExpressionStatement' ||
+		node.expression.type !== 'AssignmentExpression'
+	) {
 		return false;
 	}
 
@@ -71,10 +77,11 @@ const customErrorDefinition = (context, node) => {
 		context.report({
 			node,
 			message: 'Add a constructor to your error.',
-			fix: fixer => fixer.insertTextAfterRange([
-				node.body.start,
-				node.body.start + 1
-			], getConstructorMethod(name))
+			fix: fixer =>
+				fixer.insertTextAfterRange(
+					[node.body.start, node.body.start + 1],
+					getConstructorMethod(name)
+				)
 		});
 		return;
 	}
@@ -89,23 +96,29 @@ const customErrorDefinition = (context, node) => {
 	const constructorBody = constructorBodyNode.body;
 
 	const superExpression = constructorBody.find(isSuperExpression);
-	const messageExpressionIndex = constructorBody.findIndex(x => isAssignmentExpression(x, 'message'));
+	const messageExpressionIndex = constructorBody.findIndex(x =>
+		isAssignmentExpression(x, 'message')
+	);
 
 	if (!superExpression) {
 		context.report({
 			node: constructorBodyNode,
 			message: 'Missing call to `super()` in constructor.'
 		});
-	} else if (messageExpressionIndex !== -1 && superExpression.expression.arguments.length === 0) {
+	} else if (
+		messageExpressionIndex !== -1 &&
+		superExpression.expression.arguments.length === 0
+	) {
 		const rhs = constructorBody[messageExpressionIndex].expression.right;
 
 		context.report({
 			node: superExpression,
 			message: 'Pass the error message to `super()`.',
-			fix: fixer => fixer.insertTextAfterRange([
-				superExpression.start,
-				superExpression.start + 6
-			], rhs.raw || rhs.name)
+			fix: fixer =>
+				fixer.insertTextAfterRange(
+					[superExpression.start, superExpression.start + 6],
+					rhs.raw || rhs.name
+				)
 		});
 	}
 
@@ -114,19 +127,27 @@ const customErrorDefinition = (context, node) => {
 
 		context.report({
 			node: expression,
-			message: 'Pass the error message to `super()` instead of setting `this.message`.',
-			fix: fixer => fixer.removeRange([
-				messageExpressionIndex === 0 ? constructorBodyNode.start : constructorBody[messageExpressionIndex - 1].end,
-				expression.end
-			])
+			message:
+				'Pass the error message to `super()` instead of setting `this.message`.',
+			fix: fixer =>
+				fixer.removeRange([
+					messageExpressionIndex === 0
+						? constructorBodyNode.start
+						: constructorBody[messageExpressionIndex - 1].end,
+					expression.end
+				])
 		});
 	}
 
-	const nameExpression = constructorBody.find(x => isAssignmentExpression(x, 'name'));
+	const nameExpression = constructorBody.find(x =>
+		isAssignmentExpression(x, 'name')
+	);
 
 	if (!nameExpression || nameExpression.expression.right.value !== name) {
 		context.report({
-			node: nameExpression ? nameExpression.expression.right : constructorBodyNode,
+			node: nameExpression
+				? nameExpression.expression.right
+				: constructorBodyNode,
 			message: `The \`name\` property should be set to \`${name}\`.`
 		});
 	}
@@ -174,8 +195,10 @@ const customErrorExport = (context, node) => {
 const create = context => {
 	return {
 		ClassDeclaration: node => customErrorDefinition(context, node),
-		'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
-		'AssignmentExpression[left.type="MemberExpression"]': node => customErrorExport(context, node)
+		'AssignmentExpression[right.type="ClassExpression"]': node =>
+			customErrorDefinition(context, node.right),
+		'AssignmentExpression[left.type="MemberExpression"]': node =>
+			customErrorExport(context, node)
 	};
 };
 
@@ -188,7 +211,8 @@ module.exports = {
 		},
 		fixable: 'code',
 		messages: {
-			[MESSAGE_ID_INVALID_EXPORT]: 'Exported error name should match error class'
+			[MESSAGE_ID_INVALID_EXPORT]:
+				'Exported error name should match error class'
 		}
 	}
 };

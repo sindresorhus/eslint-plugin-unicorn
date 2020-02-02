@@ -8,22 +8,25 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const errors = [{
-	ruleId: 'prefer-includes',
-	message: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.'
-}];
+const errors = [
+	{
+		ruleId: 'prefer-includes',
+		message:
+			'Use `.includes()`, rather than `.indexOf()`, when checking for existence.'
+	}
+];
 
 ruleTester.run('prefer-includes', rule, {
 	valid: [
-		'str.indexOf(\'foo\') !== -n',
-		'str.indexOf(\'foo\') !== 1',
-		'str.indexOf(\'foo\') === -2',
-		'!str.indexOf(\'foo\') === 1',
-		'!str.indexOf(\'foo\') === -n',
-		'str.includes(\'foo\')',
-		'\'foobar\'.includes(\'foo\')',
+		"str.indexOf('foo') !== -n",
+		"str.indexOf('foo') !== 1",
+		"str.indexOf('foo') === -2",
+		"!str.indexOf('foo') === 1",
+		"!str.indexOf('foo') === -n",
+		"str.includes('foo')",
+		"'foobar'.includes('foo')",
 		'[1,2,3].includes(4)',
-		'null.indexOf(\'foo\') !== 1',
+		"null.indexOf('foo') !== 1",
 		'f(0) < 0',
 		'something.indexOf(foo, 0, another) !== -1',
 		'_.indexOf(foo, bar) !== -1',
@@ -32,28 +35,28 @@ ruleTester.run('prefer-includes', rule, {
 	],
 	invalid: [
 		{
-			code: '\'foobar\'.indexOf(\'foo\') !== -1',
-			output: '\'foobar\'.includes(\'foo\')',
+			code: "'foobar'.indexOf('foo') !== -1",
+			output: "'foobar'.includes('foo')",
 			errors
 		},
 		{
-			code: 'str.indexOf(\'foo\') != -1',
-			output: 'str.includes(\'foo\')',
+			code: "str.indexOf('foo') != -1",
+			output: "str.includes('foo')",
 			errors
 		},
 		{
-			code: 'str.indexOf(\'foo\') > -1',
-			output: 'str.includes(\'foo\')',
+			code: "str.indexOf('foo') > -1",
+			output: "str.includes('foo')",
 			errors
 		},
 		{
-			code: 'str.indexOf(\'foo\') == -1',
-			output: '!str.includes(\'foo\')',
+			code: "str.indexOf('foo') == -1",
+			output: "!str.includes('foo')",
 			errors
 		},
 		{
-			code: '\'foobar\'.indexOf(\'foo\') >= 0',
-			output: '\'foobar\'.includes(\'foo\')',
+			code: "'foobar'.indexOf('foo') >= 0",
+			output: "'foobar'.includes('foo')",
 			errors
 		},
 		{
@@ -62,18 +65,18 @@ ruleTester.run('prefer-includes', rule, {
 			errors
 		},
 		{
-			code: 'str.indexOf(\'foo\') < 0',
-			output: '!str.includes(\'foo\')',
+			code: "str.indexOf('foo') < 0",
+			output: "!str.includes('foo')",
 			errors
 		},
 		{
-			code: '\'\'.indexOf(\'foo\') < 0',
-			output: '!\'\'.includes(\'foo\')',
+			code: "''.indexOf('foo') < 0",
+			output: "!''.includes('foo')",
 			errors
 		},
 		{
-			code: '(a || b).indexOf(\'foo\') === -1',
-			output: '!(a || b).includes(\'foo\')',
+			code: "(a || b).indexOf('foo') === -1",
+			output: "!(a || b).includes('foo')",
 			errors
 		},
 		{

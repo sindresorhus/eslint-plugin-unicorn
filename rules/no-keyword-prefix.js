@@ -10,10 +10,7 @@ const prepareOptions = ({
 	onlyCamelCase = true
 } = {}) => {
 	return {
-		blacklist: (blacklist || [
-			'new',
-			'class'
-		]),
+		blacklist: blacklist || ['new', 'class'],
 		checkProperties,
 		onlyCamelCase
 	};
@@ -33,7 +30,12 @@ function isInsideObjectPattern(node) {
 	while (current) {
 		const {parent} = current;
 
-		if (parent && parent.type === 'Property' && parent.computed && parent.key === current) {
+		if (
+			parent &&
+			parent.type === 'Property' &&
+			parent.computed &&
+			parent.key === current
+		) {
 			return false;
 		}
 
@@ -50,18 +52,24 @@ function isInsideObjectPattern(node) {
 function checkMemberExpression(report, node, options) {
 	const {name} = node;
 	const keyword = findKeywordPrefix(name, options);
-	const effectiveParent = (node.parent.type === 'MemberExpression') ? node.parent.parent : node.parent;
+	const effectiveParent =
+		node.parent.type === 'MemberExpression' ? node.parent.parent : node.parent;
 
 	if (!options.checkProperties) {
 		return;
 	}
 
-	if (node.parent.object.type === 'Identifier' && node.parent.object.name === node.name && Boolean(keyword)) {
+	if (
+		node.parent.object.type === 'Identifier' &&
+		node.parent.object.name === node.name &&
+		Boolean(keyword)
+	) {
 		report(node, keyword);
 	} else if (
 		effectiveParent.type === 'AssignmentExpression' &&
 		Boolean(keyword) &&
-		(effectiveParent.right.type !== 'MemberExpression' || effectiveParent.left.type === 'MemberExpression') &&
+		(effectiveParent.right.type !== 'MemberExpression' ||
+			effectiveParent.left.type === 'MemberExpression') &&
 		effectiveParent.left.property.name === node.name
 	) {
 		report(node, keyword);
@@ -76,7 +84,8 @@ function checkObjectPattern(report, node, options) {
 		report(node, keyword);
 	}
 
-	const assignmentKeyEqualsValue = node.parent.key.name === node.parent.value.name;
+	const assignmentKeyEqualsValue =
+		node.parent.key.name === node.parent.value.name;
 
 	if (Boolean(keyword) && node.parent.computed) {
 		report(node, keyword);
@@ -90,7 +99,10 @@ function checkObjectPattern(report, node, options) {
 	const valueIsInvalid = node.parent.value.name && Boolean(keyword);
 
 	// Ignore destructuring if the option is set, unless a new identifier is created
-	if (valueIsInvalid && !(assignmentKeyEqualsValue && options.ignoreDestructuring)) {
+	if (
+		valueIsInvalid &&
+		!(assignmentKeyEqualsValue && options.ignoreDestructuring)
+	) {
 		report(node, keyword);
 	}
 
@@ -124,11 +136,17 @@ const create = context => {
 		Identifier: node => {
 			const {name} = node;
 			const keyword = findKeywordPrefix(name, options);
-			const effectiveParent = (node.parent.type === 'MemberExpression') ? node.parent.parent : node.parent;
+			const effectiveParent =
+				node.parent.type === 'MemberExpression'
+					? node.parent.parent
+					: node.parent;
 
 			if (node.parent.type === 'MemberExpression') {
 				checkMemberExpression(report, node, options);
-			} else if (node.parent.type === 'Property' || node.parent.type === 'AssignmentPattern') {
+			} else if (
+				node.parent.type === 'Property' ||
+				node.parent.type === 'AssignmentPattern'
+			) {
 				if (node.parent.parent && node.parent.parent.type === 'ObjectPattern') {
 					const finished = checkObjectPattern(report, node, options);
 					if (finished) {
@@ -136,48 +154,70 @@ const create = context => {
 					}
 				}
 
-				if (!options.checkProperties || (options.ignoreDestructuring && isInsideObjectPattern(node))) {
+				if (
+					!options.checkProperties ||
+					(options.ignoreDestructuring && isInsideObjectPattern(node))
+				) {
 					return;
 				}
 
 				// Don't check right hand side of AssignmentExpression to prevent duplicate warnings
-				if (Boolean(keyword) && !ALLOWED_PARENT_TYPES.has(effectiveParent.type) && !(node.parent.right === node)) {
+				if (
+					Boolean(keyword) &&
+					!ALLOWED_PARENT_TYPES.has(effectiveParent.type) &&
+					!(node.parent.right === node)
+				) {
 					report(node, keyword);
 				}
 
-			// Check if it's an import specifier
-			} else if (['ImportSpecifier', 'ImportNamespaceSpecifier', 'ImportDefaultSpecifier'].includes(node.parent.type)) {
+				// Check if it's an import specifier
+			} else if (
+				[
+					'ImportSpecifier',
+					'ImportNamespaceSpecifier',
+					'ImportDefaultSpecifier'
+				].includes(node.parent.type)
+			) {
 				// Report only if the local imported identifier is invalid
-				if (Boolean(keyword) && node.parent.local && node.parent.local.name === node.name) {
+				if (
+					Boolean(keyword) &&
+					node.parent.local &&
+					node.parent.local.name === node.name
+				) {
 					report(node, keyword);
 				}
 
-			// Report anything that is invalid that isn't a CallExpression
-			} else if (Boolean(keyword) && !ALLOWED_PARENT_TYPES.has(effectiveParent.type)) {
+				// Report anything that is invalid that isn't a CallExpression
+			} else if (
+				Boolean(keyword) &&
+				!ALLOWED_PARENT_TYPES.has(effectiveParent.type)
+			) {
 				report(node, keyword);
 			}
 		}
 	};
 };
 
-const schema = [{
-	type: 'object',
-	properties: {
-		blacklist: {
-			type: 'array',
-			items: [
-				{
-					type: 'string'
-				}
-			],
-			minItems: 0,
-			uniqueItems: true
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			blacklist: {
+				type: 'array',
+				items: [
+					{
+						type: 'string'
+					}
+				],
+				minItems: 0,
+				uniqueItems: true
+			},
+			checkProperties: {type: 'boolean'},
+			onlyCamelCase: {type: 'boolean'}
 		},
-		checkProperties: {type: 'boolean'},
-		onlyCamelCase: {type: 'boolean'}
-	},
-	additionalProperties: false
-}];
+		additionalProperties: false
+	}
+];
 
 module.exports = {
 	create,

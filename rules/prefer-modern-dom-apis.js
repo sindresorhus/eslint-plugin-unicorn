@@ -42,15 +42,16 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 
 	const preferredSelector = forbiddenIdentifierNames.get(identifierName);
 
-	const fix = isValueNotUsable(node) ?
-		// Report error when the method is part of a variable assignment
-		// but don't offer to autofix `.replaceWith()` and `.before()`
-		// which don't have a return value.
-		fixer => fixer.replaceText(
-			node,
-			`${oldChildNodeArgument}.${preferredSelector}(${newChildNodeArgument})`
-		) :
-		undefined;
+	const fix = isValueNotUsable(node)
+		? // Report error when the method is part of a variable assignment
+		  // but don't offer to autofix `.replaceWith()` and `.before()`
+		  // which don't have a return value.
+		  fixer =>
+				fixer.replaceText(
+					node,
+					`${oldChildNodeArgument}.${preferredSelector}(${newChildNodeArgument})`
+				)
+		: undefined;
 
 	return context.report({
 		node,
@@ -89,7 +90,9 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 	}
 
 	const nodeArguments = node.arguments;
-	const positionArgument = getArgumentNameForInsertAdjacentMethods(nodeArguments[0]);
+	const positionArgument = getArgumentNameForInsertAdjacentMethods(
+		nodeArguments[0]
+	);
 	const positionAsValue = nodeArguments[0].value;
 
 	// Return early when specified position value of first argument is not a recognized value.
@@ -103,16 +106,17 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 		nodeArguments[1]
 	);
 
-	const fix = identifierName === 'insertAdjacentElement' && !isValueNotUsable(node) ?
-		// Report error when the method is part of a variable assignment
-		// but don't offer to autofix `.insertAdjacentElement()`
-		// which doesn't have a return value.
-		undefined :
-		fixer =>
-			fixer.replaceText(
-				node,
-				`${referenceNode}.${preferredSelector}(${insertedTextArgument})`
-			);
+	const fix =
+		identifierName === 'insertAdjacentElement' && !isValueNotUsable(node)
+			? // Report error when the method is part of a variable assignment
+			  // but don't offer to autofix `.insertAdjacentElement()`
+			  // which doesn't have a return value.
+			  undefined
+			: fixer =>
+					fixer.replaceText(
+						node,
+						`${referenceNode}.${preferredSelector}(${insertedTextArgument})`
+					);
 
 	return context.report({
 		node,

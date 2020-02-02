@@ -127,9 +127,7 @@ ruleTester.run('no-console-spaces', rule, {
 					'ghi'
 				);
 			`,
-			errors: [
-				buildError({method: 'log', column: 2, line: 3})
-			],
+			errors: [buildError({method: 'log', column: 2, line: 3})],
 			output: outdent`
 				console.log(
 					'abc',

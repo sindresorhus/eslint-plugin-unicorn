@@ -12,9 +12,11 @@ const getDataAttributeName = argument => {
 	return '';
 };
 
-const parseNodeText = (context, argument) => context.getSourceCode().getText(argument);
+const parseNodeText = (context, argument) =>
+	context.getSourceCode().getText(argument);
 
-const dashToCamelCase = string => string.replace(/-([a-z])/g, s => s[1].toUpperCase());
+const dashToCamelCase = string =>
+	string.replace(/-([a-z])/g, s => s[1].toUpperCase());
 
 const getReplacement = (context, node, memberExpression, propertyName) => {
 	const calleeObject = parseNodeText(context, memberExpression.object);
@@ -30,9 +32,11 @@ const getReplacement = (context, node, memberExpression, propertyName) => {
 };
 
 const isBracketNotation = (context, callee) => {
-	const bracketOpen = context.getSourceCode().getFirstTokenBetween(callee.object, callee.property, {
-		filter: token => token.value === '['
-	});
+	const bracketOpen = context
+		.getSourceCode()
+		.getFirstTokenBetween(callee.object, callee.property, {
+			filter: token => token.value === '['
+		});
 
 	return bracketOpen !== null && bracketOpen.value === '[';
 };
@@ -56,7 +60,12 @@ const create = context => {
 
 			const attributeName = getDataAttributeName(node.arguments[0]);
 			if (attributeName) {
-				const replacement = getReplacement(context, node, callee, attributeName);
+				const replacement = getReplacement(
+					context,
+					node,
+					callee,
+					attributeName
+				);
 				context.report({
 					node,
 					message: 'Prefer `.dataset` over `setAttribute(…)`.',

@@ -16,12 +16,31 @@ const typescriptRuleTester = avaRuleTester(test, {
 	parser: require.resolve('@typescript-eslint/parser')
 });
 
-const invalidClassNameError = {ruleId: 'custom-error-definition', message: 'Invalid class name, use `FooError`.'};
-const constructorError = {ruleId: 'custom-error-definition', message: 'Add a constructor to your error.'};
-const noSuperCallError = {ruleId: 'custom-error-definition', message: 'Missing call to `super()` in constructor.'};
-const invalidNameError = name => ({ruleId: 'custom-error-definition', message: `The \`name\` property should be set to \`${name}\`.`});
-const passMessageToSuperError = {ruleId: 'custom-error-definition', message: 'Pass the error message to `super()`.'};
-const invalidMessageAssignmentError = {ruleId: 'custom-error-definition', message: 'Pass the error message to `super()` instead of setting `this.message`.'};
+const invalidClassNameError = {
+	ruleId: 'custom-error-definition',
+	message: 'Invalid class name, use `FooError`.'
+};
+const constructorError = {
+	ruleId: 'custom-error-definition',
+	message: 'Add a constructor to your error.'
+};
+const noSuperCallError = {
+	ruleId: 'custom-error-definition',
+	message: 'Missing call to `super()` in constructor.'
+};
+const invalidNameError = name => ({
+	ruleId: 'custom-error-definition',
+	message: `The \`name\` property should be set to \`${name}\`.`
+});
+const passMessageToSuperError = {
+	ruleId: 'custom-error-definition',
+	message: 'Pass the error message to `super()`.'
+};
+const invalidMessageAssignmentError = {
+	ruleId: 'custom-error-definition',
+	message:
+		'Pass the error message to `super()` instead of setting `this.message`.'
+};
 const invalidExportError = {
 	ruleId: 'custom-error-definition',
 	messageId: 'invalidExport'
@@ -138,9 +157,7 @@ ruleTester.run('custom-error-definition', rule, {
 			code: outdent`
 				class FooError extends Error {}
 			`,
-			errors: [
-				constructorError
-			],
+			errors: [constructorError],
 			output: outdent`
 				class FooError extends Error {
 					constructor() {
@@ -159,10 +176,7 @@ ruleTester.run('custom-error-definition', rule, {
 					}
 				}
 			`,
-			errors: [
-				invalidClassNameError,
-				invalidNameError('fooError')
-			]
+			errors: [invalidClassNameError, invalidNameError('fooError')]
 		},
 		{
 			code: outdent`
@@ -173,9 +187,7 @@ ruleTester.run('custom-error-definition', rule, {
 					}
 				}
 			`,
-			errors: [
-				invalidClassNameError
-			]
+			errors: [invalidClassNameError]
 		},
 		{
 			code: outdent`
@@ -186,9 +198,7 @@ ruleTester.run('custom-error-definition', rule, {
 					}
 				}
 			`,
-			errors: [
-				invalidClassNameError
-			]
+			errors: [invalidClassNameError]
 		},
 		{
 			code: outdent`
@@ -199,9 +209,7 @@ ruleTester.run('custom-error-definition', rule, {
 					}
 				}
 			`,
-			errors: [
-				invalidClassNameError
-			]
+			errors: [invalidClassNameError]
 		},
 		{
 			code: outdent`
@@ -209,10 +217,7 @@ ruleTester.run('custom-error-definition', rule, {
 					constructor() { }
 				}
 			`,
-			errors: [
-				noSuperCallError,
-				invalidNameError('FooError')
-			]
+			errors: [noSuperCallError, invalidNameError('FooError')]
 		},
 		{
 			code: outdent`
@@ -244,9 +249,7 @@ ruleTester.run('custom-error-definition', rule, {
 					}
 				}
 			`,
-			errors: [
-				invalidNameError('FooError')
-			]
+			errors: [invalidNameError('FooError')]
 		},
 		{
 			code: outdent`
@@ -257,9 +260,7 @@ ruleTester.run('custom-error-definition', rule, {
 					}
 				}
 			`,
-			errors: [
-				invalidNameError('FooError')
-			]
+			errors: [invalidNameError('FooError')]
 		},
 		{
 			code: outdent`
@@ -271,9 +272,7 @@ ruleTester.run('custom-error-definition', rule, {
 					}
 				}
 			`,
-			errors: [
-				invalidMessageAssignmentError
-			],
+			errors: [invalidMessageAssignmentError],
 			output: outdent`
 				class FooError extends Error {
 					constructor(message) {
@@ -293,10 +292,7 @@ ruleTester.run('custom-error-definition', rule, {
 					}
 				}
 			`,
-			errors: [
-				passMessageToSuperError,
-				invalidMessageAssignmentError
-			],
+			errors: [passMessageToSuperError, invalidMessageAssignmentError],
 			output: outdent`
 				class FooError extends Error {
 					constructor(message) {
@@ -338,10 +334,7 @@ ruleTester.run('custom-error-definition', rule, {
 					}
 				}
 			`,
-			errors: [
-				passMessageToSuperError,
-				invalidMessageAssignmentError
-			],
+			errors: [passMessageToSuperError, invalidMessageAssignmentError],
 			output: outdent`
 				class FooError extends Error {
 					constructor(message) {
@@ -360,9 +353,7 @@ ruleTester.run('custom-error-definition', rule, {
 					}
 				}
 			`,
-			errors: [
-				invalidNameError('FooError')
-			]
+			errors: [invalidNameError('FooError')]
 		},
 		{
 			code: outdent`
@@ -373,9 +364,7 @@ ruleTester.run('custom-error-definition', rule, {
 					}
 				};
 			`,
-			errors: [
-				invalidNameError('FooError')
-			]
+			errors: [invalidNameError('FooError')]
 		},
 		{
 			code: outdent`
@@ -405,9 +394,7 @@ ruleTester.run('custom-error-definition', rule, {
 					}
 				};
 			`,
-			errors: [
-				invalidNameError('FooError')
-			]
+			errors: [invalidNameError('FooError')]
 		},
 		{
 			code: outdent`
@@ -418,9 +405,7 @@ ruleTester.run('custom-error-definition', rule, {
 					}
 				};
 			`,
-			errors: [
-				invalidNameError('FooError')
-			]
+			errors: [invalidNameError('FooError')]
 		},
 		{
 			code: outdent`
@@ -431,9 +416,7 @@ ruleTester.run('custom-error-definition', rule, {
 					}
 				};
 			`,
-			errors: [
-				invalidNameError('FooError')
-			]
+			errors: [invalidNameError('FooError')]
 		}
 	]
 });

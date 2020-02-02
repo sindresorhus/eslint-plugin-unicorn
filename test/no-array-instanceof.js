@@ -8,17 +8,19 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const errors = [{
-	ruleId: 'no-array-instanceof',
-	message: 'Use `Array.isArray()` instead of `instanceof Array`.'
-}];
+const errors = [
+	{
+		ruleId: 'no-array-instanceof',
+		message: 'Use `Array.isArray()` instead of `instanceof Array`.'
+	}
+];
 
 ruleTester.run('avoid-array-instanceof', rule, {
 	valid: [
 		'Array.isArray(arr)',
 		'arr instanceof Object',
 		'arr instanceof array',
-		'a instanceof \'array\'',
+		"a instanceof 'array'",
 		'a instanceof ArrayA',
 		'a.x[2] instanceof foo()',
 		'Array.isArray([1,2,3]) === true',

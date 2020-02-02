@@ -16,10 +16,7 @@ test('deprecated', t => {
 });
 
 ruleTester.run('prefer-exponentiation-operator', rule, {
-	valid: [
-		'a ** b;',
-		'2 ** 4;'
-	],
+	valid: ['a ** b;', '2 ** 4;'],
 	invalid: [
 		{
 			code: 'const x = Math.pow(2, 4);',

@@ -9,14 +9,18 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const errors = {
-	startsWith: [{
-		ruleId: 'prefer-starts-ends-with',
-		message: 'Prefer `String#startsWith()` over a regex with `^`.'
-	}],
-	endsWith: [{
-		ruleId: 'prefer-starts-ends-with',
-		message: 'Prefer `String#endsWith()` over a regex with `$`.'
-	}]
+	startsWith: [
+		{
+			ruleId: 'prefer-starts-ends-with',
+			message: 'Prefer `String#startsWith()` over a regex with `^`.'
+		}
+	],
+	endsWith: [
+		{
+			ruleId: 'prefer-starts-ends-with',
+			message: 'Prefer `String#endsWith()` over a regex with `$`.'
+		}
+	]
 };
 
 const validRegex = [
@@ -34,14 +38,7 @@ const validRegex = [
 	/^foo/i
 ];
 
-const invalidRegex = [
-	/^foo/,
-	/foo$/,
-	/^!/,
-	/!$/,
-	/^ /,
-	/ $/
-];
+const invalidRegex = [/^foo/, /foo$/, /^!/, /!$/, /^ /, / $/];
 
 ruleTester.run('prefer-starts-ends-with', rule, {
 	valid: [
@@ -59,12 +56,16 @@ ruleTester.run('prefer-starts-ends-with', rule, {
 		.concat(validRegex.map(re => `${re}.test(bar)`))
 		.concat(validRegex.map(re => `bar.match(${re})`)),
 	invalid: []
-		.concat(invalidRegex.map(re => ({
-			code: `${re}.test(bar)`,
-			errors: errors[`${re}`.startsWith('/^') ? 'startsWith' : 'endsWith']
-		})))
-		.concat(invalidRegex.map(re => ({
-			code: `bar.match(${re})`,
-			errors: errors[`${re}`.startsWith('/^') ? 'startsWith' : 'endsWith']
-		})))
+		.concat(
+			invalidRegex.map(re => ({
+				code: `${re}.test(bar)`,
+				errors: errors[`${re}`.startsWith('/^') ? 'startsWith' : 'endsWith']
+			}))
+		)
+		.concat(
+			invalidRegex.map(re => ({
+				code: `bar.match(${re})`,
+				errors: errors[`${re}`.startsWith('/^') ? 'startsWith' : 'endsWith']
+			}))
+		)
 });

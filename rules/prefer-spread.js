@@ -3,7 +3,8 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const isObjectMethod = require('./utils/is-object-method');
 
 const isArrayFrom = node => isObjectMethod(node, 'Array', 'from');
-const isArrayLike = argument => argument && argument.type !== 'ObjectExpression';
+const isArrayLike = argument =>
+	argument && argument.type !== 'ObjectExpression';
 
 const parseArgument = (context, argument) => {
 	if (argument.type === 'Identifier') {
@@ -26,10 +27,18 @@ const create = context => {
 
 						if (node.arguments.length > 1) {
 							const mapFn = parseArgument(context, node.arguments[1]);
-							const thisArgument = node.arguments.length === 3 ? parseArgument(context, node.arguments[2]) : null;
-							const thisArgumentReplacement = thisArgument ? `, ${thisArgument}` : '';
+							const thisArgument =
+								node.arguments.length === 3
+									? parseArgument(context, node.arguments[2])
+									: null;
+							const thisArgumentReplacement = thisArgument
+								? `, ${thisArgument}`
+								: '';
 
-							return fixer.replaceText(node, `${replacement}.map(${mapFn}${thisArgumentReplacement})`);
+							return fixer.replaceText(
+								node,
+								`${replacement}.map(${mapFn}${thisArgumentReplacement})`
+							);
 						}
 
 						return fixer.replaceText(node, replacement);

@@ -60,7 +60,5 @@ module.exports = {
 		fixable: 'code'
 	},
 	deprecated: true,
-	replacedBy: [
-		'prefer-exponentiation-operator'
-	]
+	replacedBy: ['prefer-exponentiation-operator']
 };

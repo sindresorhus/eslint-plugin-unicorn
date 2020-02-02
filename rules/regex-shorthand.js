@@ -59,7 +59,10 @@ const create = context => {
 			}
 
 			const oldPattern = arguments_[0].value;
-			const flags = arguments_[1] && arguments_[1].type === 'Literal' ? arguments_[1].value : '';
+			const flags =
+				arguments_[1] && arguments_[1].type === 'Literal'
+					? arguments_[1].value
+					: '';
 
 			const newPattern = cleanRegexp(oldPattern, flags);
 
@@ -77,15 +80,17 @@ const create = context => {
 	};
 };
 
-const schema = [{
-	type: 'object',
-	properties: {
-		sortCharacterClasses: {
-			type: 'boolean',
-			default: true
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			sortCharacterClasses: {
+				type: 'boolean',
+				default: true
+			}
 		}
 	}
-}];
+];
 
 module.exports = {
 	create,

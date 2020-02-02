@@ -25,7 +25,7 @@ ruleTester.run('prefer-replace-all', rule, {
 		// Extra flag
 		'foo.replace(/a/gi, bar)',
 		// Not regex literal
-		'foo.replace(\'string\', bar)',
+		"foo.replace('string', bar)",
 		// Not 2 arguments
 		'foo.replace(/a/g)',
 		'foo.replace(/\\\\./g)',
@@ -38,12 +38,12 @@ ruleTester.run('prefer-replace-all', rule, {
 		// Not replace
 		'foo.methodNotReplace(/a/g, bar);',
 		// `replace` is not Identifier
-		'foo[\'replace\'](/a/g, bar)'
+		"foo['replace'](/a/g, bar)"
 	],
 	invalid: [
 		{
 			code: 'foo.replace(/a/g, bar)',
-			output: 'foo.replaceAll(\'a\', bar)',
+			output: "foo.replaceAll('a', bar)",
 			errors: [error]
 		},
 		// Comments
@@ -70,19 +70,19 @@ ruleTester.run('prefer-replace-all', rule, {
 		},
 		// Quotes
 		{
-			code: 'foo.replace(/"\'/g, \'\\\'\')',
-			output: 'foo.replaceAll(\'"\\\'\', \'\\\'\')',
+			code: "foo.replace(/\"'/g, '\\'')",
+			output: "foo.replaceAll('\"\\'', '\\'')",
 			errors: [error]
 		},
 		// Escaped symbols
 		{
 			code: 'foo.replace(/\\./g, bar)',
-			output: 'foo.replaceAll(\'.\', bar)',
+			output: "foo.replaceAll('.', bar)",
 			errors: [error]
 		},
 		{
 			code: 'foo.replace(/\\\\\\./g, bar)',
-			output: 'foo.replaceAll(\'\\.\', bar)',
+			output: "foo.replaceAll('\\.', bar)",
 			errors: [error]
 		}
 	]

@@ -10,7 +10,8 @@ const importIndex = (context, node, argument) => {
 		context.report({
 			node,
 			message: 'Do not reference the index file directly.',
-			fix: fixer => fixer.replaceText(argument, `'${normalize(argument.value)}'`)
+			fix: fixer =>
+				fixer.replaceText(argument, `'${normalize(argument.value)}'`)
 		});
 	}
 };
@@ -19,7 +20,8 @@ const create = context => {
 	const options = context.options[0] || {};
 
 	const rules = {
-		'CallExpression[callee.name="require"]': node => importIndex(context, node, node.arguments[0])
+		'CallExpression[callee.name="require"]': node =>
+			importIndex(context, node, node.arguments[0])
 	};
 
 	if (!options.ignoreImports) {
@@ -29,16 +31,18 @@ const create = context => {
 	return rules;
 };
 
-const schema = [{
-	type: 'object',
-	properties: {
-		ignoreImports: {
-			type: 'boolean',
-			default: false
-		}
-	},
-	additionalProperties: false
-}];
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			ignoreImports: {
+				type: 'boolean',
+				default: false
+			}
+		},
+		additionalProperties: false
+	}
+];
 
 module.exports = {
 	create,

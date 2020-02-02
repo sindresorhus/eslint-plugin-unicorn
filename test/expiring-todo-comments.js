@@ -50,7 +50,10 @@ const avoidMultiplePackageVersionsError = (versions, message) => ({
 
 const removeWhitespacesError = (argument, message) => ({
 	ruleId: 'expiring-todo-comments',
-	message: `Avoid using whitespaces on TODO argument. On '${argument}' use '${argument.replace(/ /g, '')}'. ${message}`
+	message: `Avoid using whitespaces on TODO argument. On '${argument}' use '${argument.replace(
+		/ /g,
+		''
+	)}'. ${message}`
 });
 
 const missingAtSymbolError = (bad, good, message) => ({
@@ -60,7 +63,7 @@ const missingAtSymbolError = (bad, good, message) => ({
 
 const noWarningCommentError = () => ({
 	ruleId: 'expiring-todo-comments',
-	message: 'Unexpected \'todo\' comment.'
+	message: "Unexpected 'todo' comment."
 });
 
 ruleTester.run('expiring-todo-comments', rule, {
@@ -149,9 +152,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 			* TODO [engine:node@>=8]: Invalid
 			* Also something here
 			*/`,
-			errors: [
-				engineMatchesError('node>=8', 'Invalid')
-			],
+			errors: [engineMatchesError('node>=8', 'Invalid')],
 			options: [{ignoreDatesOnPullRequests: false}]
 		},
 		{
@@ -191,24 +192,34 @@ ruleTester.run('expiring-todo-comments', rule, {
 		},
 		{
 			code: '// TODO [2200-12-12, 2200-12-12]: Multiple dates',
-			errors: [avoidMultipleDatesError('2200-12-12, 2200-12-12', 'Multiple dates')],
+			errors: [
+				avoidMultipleDatesError('2200-12-12, 2200-12-12', 'Multiple dates')
+			],
 			output: '// TODO [2200-12-12, 2200-12-12]: Multiple dates'
 		},
 		{
 			code: '// TODO [>1]: if your package.json version is >1',
-			errors: [reachedPackageVersionError('>1', 'if your package.json version is >1')]
+			errors: [
+				reachedPackageVersionError('>1', 'if your package.json version is >1')
+			]
 		},
 		{
 			code: '// TODO [>1, >2]: multiple package versions',
-			errors: [avoidMultiplePackageVersionsError('>1, >2', 'multiple package versions')]
+			errors: [
+				avoidMultiplePackageVersionsError('>1, >2', 'multiple package versions')
+			]
 		},
 		{
 			code: '// TODO [>=1]: if your package.json version is >=1',
-			errors: [reachedPackageVersionError('>=1', 'if your package.json version is >=1')]
+			errors: [
+				reachedPackageVersionError('>=1', 'if your package.json version is >=1')
+			]
 		},
 		{
 			code: '// TODO [+read-pkg-up]: when you install `read-pkg-up`',
-			errors: [havePackageError('read-pkg-up', 'when you install `read-pkg-up`')]
+			errors: [
+				havePackageError('read-pkg-up', 'when you install `read-pkg-up`')
+			]
 		},
 		{
 			code: '// TODO [-popura]: when you uninstall `popura`',
@@ -216,27 +227,56 @@ ruleTester.run('expiring-todo-comments', rule, {
 		},
 		{
 			code: '// TODO [read-pkg-up@>1]: when `read-pkg-up` version is > 1',
-			errors: [versionMatchesError('read-pkg-up > 1', 'when `read-pkg-up` version is > 1')]
+			errors: [
+				versionMatchesError(
+					'read-pkg-up > 1',
+					'when `read-pkg-up` version is > 1'
+				)
+			]
 		},
 		{
 			code: '// TODO [engine:node@>=8]: when support is for node >= 8',
 			errors: [engineMatchesError('node>=8', 'when support is for node >= 8')]
 		},
 		{
-			code: '// TODO [read-pkg-up@>=5.1.1]: when `read-pkg-up` version is >= 5.1.1',
-			errors: [versionMatchesError('read-pkg-up >= 5.1.1', 'when `read-pkg-up` version is >= 5.1.1')]
+			code:
+				'// TODO [read-pkg-up@>=5.1.1]: when `read-pkg-up` version is >= 5.1.1',
+			errors: [
+				versionMatchesError(
+					'read-pkg-up >= 5.1.1',
+					'when `read-pkg-up` version is >= 5.1.1'
+				)
+			]
 		},
 		{
-			code: '// TODO [@lubien/fixture-beta-package@>=1.0.0-alfa.1]: when `@lubien/fixture-beta-package` version is >= 1.0.0-alfa.1',
-			errors: [versionMatchesError('@lubien/fixture-beta-package >= 1.0.0-alfa.1', 'when `@lubien/fixture-beta-package` version is >= 1.0.0-alfa.1')]
+			code:
+				'// TODO [@lubien/fixture-beta-package@>=1.0.0-alfa.1]: when `@lubien/fixture-beta-package` version is >= 1.0.0-alfa.1',
+			errors: [
+				versionMatchesError(
+					'@lubien/fixture-beta-package >= 1.0.0-alfa.1',
+					'when `@lubien/fixture-beta-package` version is >= 1.0.0-alfa.1'
+				)
+			]
 		},
 		{
-			code: '// TODO [@lubien/fixture-beta-package@>=1.0.0-beta.1]: when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.1',
-			errors: [versionMatchesError('@lubien/fixture-beta-package >= 1.0.0-beta.1', 'when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.1')]
+			code:
+				'// TODO [@lubien/fixture-beta-package@>=1.0.0-beta.1]: when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.1',
+			errors: [
+				versionMatchesError(
+					'@lubien/fixture-beta-package >= 1.0.0-beta.1',
+					'when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.1'
+				)
+			]
 		},
 		{
-			code: '// TODO [@lubien/fixture-beta-package@>=1.0.0-beta.0]: when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.0',
-			errors: [versionMatchesError('@lubien/fixture-beta-package >= 1.0.0-beta.0', 'when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.0')]
+			code:
+				'// TODO [@lubien/fixture-beta-package@>=1.0.0-beta.0]: when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.0',
+			errors: [
+				versionMatchesError(
+					'@lubien/fixture-beta-package >= 1.0.0-beta.0',
+					'when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.0'
+				)
+			]
 		},
 		{
 			code: '// TODO [semver>1]: Missing @.',
@@ -244,31 +284,63 @@ ruleTester.run('expiring-todo-comments', rule, {
 		},
 		{
 			code: '// TODO [> 1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('> 1', 'Remove whitespaces when it can fix.')]
+			errors: [
+				removeWhitespacesError('> 1', 'Remove whitespaces when it can fix.')
+			]
 		},
 		{
 			code: '// TODO [semver@> 1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('semver@> 1', 'Remove whitespaces when it can fix.')]
+			errors: [
+				removeWhitespacesError(
+					'semver@> 1',
+					'Remove whitespaces when it can fix.'
+				)
+			]
 		},
 		{
 			code: '// TODO [semver @>1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('semver @>1', 'Remove whitespaces when it can fix.')]
+			errors: [
+				removeWhitespacesError(
+					'semver @>1',
+					'Remove whitespaces when it can fix.'
+				)
+			]
 		},
 		{
 			code: '// TODO [semver@>= 1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('semver@>= 1', 'Remove whitespaces when it can fix.')]
+			errors: [
+				removeWhitespacesError(
+					'semver@>= 1',
+					'Remove whitespaces when it can fix.'
+				)
+			]
 		},
 		{
 			code: '// TODO [semver @>=1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('semver @>=1', 'Remove whitespaces when it can fix.')]
+			errors: [
+				removeWhitespacesError(
+					'semver @>=1',
+					'Remove whitespaces when it can fix.'
+				)
+			]
 		},
 		{
 			code: '// TODO [engine:node @>=1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('engine:node @>=1', 'Remove whitespaces when it can fix.')]
+			errors: [
+				removeWhitespacesError(
+					'engine:node @>=1',
+					'Remove whitespaces when it can fix.'
+				)
+			]
 		},
 		{
 			code: '// TODO [engine:node@>= 1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('engine:node@>= 1', 'Remove whitespaces when it can fix.')]
+			errors: [
+				removeWhitespacesError(
+					'engine:node@>= 1',
+					'Remove whitespaces when it can fix.'
+				)
+			]
 		},
 		{
 			code: '// TODO',
@@ -291,7 +363,8 @@ ruleTester.run('expiring-todo-comments', rule, {
 			options: [{allowWarningComments: false}]
 		},
 		{
-			code: '// TODO [but [it will]] [fallback] [[[ to the default ]]] rule [[[',
+			code:
+				'// TODO [but [it will]] [fallback] [[[ to the default ]]] rule [[[',
 			errors: [noWarningCommentError()],
 			options: [{allowWarningComments: false}]
 		},
@@ -314,43 +387,71 @@ ruleTester.run('expiring-todo-comments', rule, {
 			options: [{ignoreDatesOnPullRequests: false}]
 		},
 		{
-			code: '// TODO [2200-12-12, >1, 2200-12-12, >2]: Multiple dates and package versions',
+			code:
+				'// TODO [2200-12-12, >1, 2200-12-12, >2]: Multiple dates and package versions',
 			errors: [
-				avoidMultipleDatesError('2200-12-12, 2200-12-12', 'Multiple dates and package versions'),
-				avoidMultiplePackageVersionsError('>1, >2', 'Multiple dates and package versions')
+				avoidMultipleDatesError(
+					'2200-12-12, 2200-12-12',
+					'Multiple dates and package versions'
+				),
+				avoidMultiplePackageVersionsError(
+					'>1, >2',
+					'Multiple dates and package versions'
+				)
 			]
 		},
 		{
-			code: '// TODO [-popura, read-pkg-up@>1]: Combine not having a package with version match',
+			code:
+				'// TODO [-popura, read-pkg-up@>1]: Combine not having a package with version match',
 			errors: [
-				dontHavePackageError('popura', 'Combine not having a package with version match'),
-				versionMatchesError('read-pkg-up > 1', 'Combine not having a package with version match')
+				dontHavePackageError(
+					'popura',
+					'Combine not having a package with version match'
+				),
+				versionMatchesError(
+					'read-pkg-up > 1',
+					'Combine not having a package with version match'
+				)
 			]
 		},
 		{
-			code: '// TODO [+read-pkg-up, -popura]: Combine presence/absence of packages',
+			code:
+				'// TODO [+read-pkg-up, -popura]: Combine presence/absence of packages',
 			errors: [
 				havePackageError('read-pkg-up', 'Combine presence/absence of packages'),
 				dontHavePackageError('popura', 'Combine presence/absence of packages')
 			]
 		},
 		{
-			code: '// Expire Condition [2000-01-01, semver>1]: Expired TODO and missing symbol',
+			code:
+				'// Expire Condition [2000-01-01, semver>1]: Expired TODO and missing symbol',
 			errors: [
 				expiredTodoError('2000-01-01', 'Expired TODO and missing symbol'),
-				missingAtSymbolError('semver>1', 'semver@>1', 'Expired TODO and missing symbol')
+				missingAtSymbolError(
+					'semver>1',
+					'semver@>1',
+					'Expired TODO and missing symbol'
+				)
 			],
 			options: [{ignoreDatesOnPullRequests: false, terms: ['Expire Condition']}]
 		},
 		{
-			code: '// TODO [semver @>=1, -popura]: Package uninstalled and whitespaces error',
+			code:
+				'// TODO [semver @>=1, -popura]: Package uninstalled and whitespaces error',
 			errors: [
-				dontHavePackageError('popura', 'Package uninstalled and whitespaces error'),
-				removeWhitespacesError('semver @>=1', 'Package uninstalled and whitespaces error')
+				dontHavePackageError(
+					'popura',
+					'Package uninstalled and whitespaces error'
+				),
+				removeWhitespacesError(
+					'semver @>=1',
+					'Package uninstalled and whitespaces error'
+				)
 			]
 		},
 		{
-			code: '// HUGETODO [semver @>=1, engine:node@>=8, 2000-01-01, -popura, >1, +read-pkg-up, read-pkg-up@>1]: Big mix',
+			code:
+				'// HUGETODO [semver @>=1, engine:node@>=8, 2000-01-01, -popura, >1, +read-pkg-up, read-pkg-up@>1]: Big mix',
 			errors: [
 				expiredTodoError('2000-01-01', 'Big mix'),
 				reachedPackageVersionError('>1', 'Big mix'),

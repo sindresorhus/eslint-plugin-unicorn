@@ -18,48 +18,48 @@ const errors = [
 
 ruleTester.run('prefer-dataset', rule, {
 	valid: [
-		'element.dataset.unicorn = \'🦄\';',
-		'element.dataset[\'unicorn\'] = \'🦄\';',
-		'element[setAttribute](\'data-unicorn\', \'🦄\');',
-		'element.setAttribute(\'foo\', \'bar\');',
+		"element.dataset.unicorn = '🦄';",
+		"element.dataset['unicorn'] = '🦄';",
+		"element[setAttribute]('data-unicorn', '🦄');",
+		"element.setAttribute('foo', 'bar');",
 		'element.setAttribute(foo, bar);',
-		'element.getAttribute(\'data-unicorn\');'
+		"element.getAttribute('data-unicorn');"
 	],
 	invalid: [
 		{
-			code: 'element.setAttribute(\'data-unicorn\', \'🦄\');',
+			code: "element.setAttribute('data-unicorn', '🦄');",
 			errors,
-			output: 'element.dataset.unicorn = \'🦄\';'
+			output: "element.dataset.unicorn = '🦄';"
 		},
 		{
-			code: 'element.setAttribute(\'data-🦄\', \'🦄\');',
+			code: "element.setAttribute('data-🦄', '🦄');",
 			errors,
-			output: 'element.dataset[\'🦄\'] = \'🦄\';'
+			output: "element.dataset['🦄'] = '🦄';"
 		},
 		{
-			code: 'element.setAttribute(\'data-foo2\', \'🦄\');',
+			code: "element.setAttribute('data-foo2', '🦄');",
 			errors,
-			output: 'element.dataset.foo2 = \'🦄\';'
+			output: "element.dataset.foo2 = '🦄';"
 		},
 		{
-			code: 'element.setAttribute(\'data-foo:bar\', \'zaz\');',
+			code: "element.setAttribute('data-foo:bar', 'zaz');",
 			errors,
-			output: 'element.dataset[\'foo:bar\'] = \'zaz\';'
+			output: "element.dataset['foo:bar'] = 'zaz';"
 		},
 		{
-			code: 'element.setAttribute(\'data-foo.bar\', \'zaz\');',
+			code: "element.setAttribute('data-foo.bar', 'zaz');",
 			errors,
-			output: 'element.dataset[\'foo.bar\'] = \'zaz\';'
+			output: "element.dataset['foo.bar'] = 'zaz';"
 		},
 		{
-			code: 'element.setAttribute(\'data-foo-bar\', \'zaz\');',
+			code: "element.setAttribute('data-foo-bar', 'zaz');",
 			errors,
-			output: 'element.dataset.fooBar = \'zaz\';'
+			output: "element.dataset.fooBar = 'zaz';"
 		},
 		{
-			code: 'element.setAttribute(\'data-foo\', /* comment */ \'bar\');',
+			code: "element.setAttribute('data-foo', /* comment */ 'bar');",
 			errors,
-			output: 'element.dataset.foo = \'bar\';'
+			output: "element.dataset.foo = 'bar';"
 		},
 		{
 			code: outdent`
@@ -69,12 +69,13 @@ ruleTester.run('prefer-dataset', rule, {
 				);
 			`,
 			errors,
-			output: 'element.dataset.foo = \'bar\';'
+			output: "element.dataset.foo = 'bar';"
 		},
 		{
-			code: 'element.querySelector(\'#selector\').setAttribute(\'data-AllowAccess\', true);',
+			code:
+				"element.querySelector('#selector').setAttribute('data-AllowAccess', true);",
 			errors,
-			output: 'element.querySelector(\'#selector\').dataset.AllowAccess = true;'
+			output: "element.querySelector('#selector').dataset.AllowAccess = true;"
 		}
 	]
 });

@@ -1,16 +1,16 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const inferMethod = arguments_ => (arguments_.length > 0 && typeof arguments_[0].value === 'number') ? 'alloc' : 'from';
+const inferMethod = arguments_ =>
+	arguments_.length > 0 && typeof arguments_[0].value === 'number'
+		? 'alloc'
+		: 'from';
 
 const create = context => {
 	return {
 		'NewExpression[callee.name="Buffer"]': node => {
 			const method = inferMethod(node.arguments);
-			const range = [
-				node.start,
-				node.callee.end
-			];
+			const range = [node.start, node.callee.end];
 
 			context.report({
 				node,

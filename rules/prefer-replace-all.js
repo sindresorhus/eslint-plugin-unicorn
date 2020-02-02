@@ -9,7 +9,9 @@ function isRegexWithGlobalFlag(node) {
 
 function isLiteralCharactersOnly(node) {
 	const searchPattern = node.regex.pattern;
-	return !/[$()*+.?[\\\]^{}]/.test(searchPattern.replace(/\\[$()*+.?[\\\]^{}]/g, ''));
+	return !/[$()*+.?[\\\]^{}]/.test(
+		searchPattern.replace(/\\[$()*+.?[\\\]^{}]/g, '')
+	);
 }
 
 function removeEscapeCharacters(regexString) {
@@ -45,11 +47,13 @@ const create = context => {
 			context.report({
 				node,
 				message: 'Prefer `String#replaceAll()` over `String#replace()`.',
-				fix: fixer =>
-					[
-						fixer.insertTextAfter(node.callee, 'All'),
-						fixer.replaceText(search, quoteString(removeEscapeCharacters(search.regex.pattern)))
-					]
+				fix: fixer => [
+					fixer.insertTextAfter(node.callee, 'All'),
+					fixer.replaceText(
+						search,
+						quoteString(removeEscapeCharacters(search.regex.pattern))
+					)
+				]
 			});
 		}
 	};

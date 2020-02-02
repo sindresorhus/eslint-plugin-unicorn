@@ -16,7 +16,7 @@ const error = {
 ruleTester.run('prefer-node-append', rule, {
 	valid: [
 		'parent.append(child);',
-		'document.body.append(child, \'text\');',
+		"document.body.append(child, 'text');",
 		'node.append()',
 		'node.append(null)'
 	],

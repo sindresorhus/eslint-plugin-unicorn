@@ -6,8 +6,6 @@ module.exports = {
 			jsx: true
 		}
 	},
-	plugins: [
-		'unicorn'
-	],
+	plugins: ['unicorn'],
 	extends: 'plugin:unicorn/recommended'
 };

@@ -166,15 +166,10 @@ function tryToCoerceVersion(rawVersion) {
 	let version = String(rawVersion);
 
 	// Remove leading things like `^1.0.0`, `>1.0.0`
-	const leadingNoises = [
-		'>=',
-		'<=',
-		'>',
-		'<',
-		'~',
-		'^'
-	];
-	const foundTrailingNoise = leadingNoises.find(noise => version.startsWith(noise));
+	const leadingNoises = ['>=', '<=', '>', '<', '~', '^'];
+	const foundTrailingNoise = leadingNoises.find(noise =>
+		version.startsWith(noise)
+	);
 	if (foundTrailingNoise) {
 		version = version.slice(foundTrailingNoise.length);
 	}
@@ -342,9 +337,9 @@ const create = context => {
 			const isInclusion = ['in', 'out'].includes(dependency.condition);
 			if (isInclusion) {
 				const [trigger, messageId] =
-					dependency.condition === 'in' ?
-						[hasTargetPackage, MESSAGE_ID_HAVE_PACKAGE] :
-						[!hasTargetPackage, MESSAGE_ID_DONT_HAVE_PACKAGE];
+					dependency.condition === 'in'
+						? [hasTargetPackage, MESSAGE_ID_HAVE_PACKAGE]
+						: [!hasTargetPackage, MESSAGE_ID_DONT_HAVE_PACKAGE];
 
 				if (trigger) {
 					context.report({
@@ -519,9 +514,9 @@ module.exports = {
 			[MESSAGE_ID_ENGINE_MATCHES]:
 				'There is a TODO match for Node.js version: {{comparison}}. {{message}}',
 			[MESSAGE_ID_REMOVE_WHITESPACES]:
-				'Avoid using whitespaces on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
+				"Avoid using whitespaces on TODO argument. On '{{original}}' use '{{fix}}'. {{message}}",
 			[MESSAGE_ID_MISSING_AT_SYMBOL]:
-				'Missing \'@\' on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}'
+				"Missing '@' on TODO argument. On '{{original}}' use '{{fix}}'. {{message}}"
 		},
 		schema
 	}

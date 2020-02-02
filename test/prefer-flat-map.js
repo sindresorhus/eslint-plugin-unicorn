@@ -103,7 +103,8 @@ ruleTester.run('prefer-flat-map', rule, {
 				})
 				.flat();
 			`,
-			output: outdent`
+			output:
+				outdent`
 				let bar = [1,2,3].flatMap(i => {
 					return [i];
 				});
@@ -117,7 +118,8 @@ ruleTester.run('prefer-flat-map', rule, {
 				}) // comment
 				.flat();
 			`,
-			output: outdent`
+			output:
+				outdent`
 				let bar = [1,2,3].flatMap(i => {
 					return [i];
 				}); // comment
@@ -145,7 +147,8 @@ ruleTester.run('prefer-flat-map', rule, {
 					.map(i => { return [i]; })
 					.flat();
 			`,
-			output: outdent`
+			output:
+				outdent`
 				let bar = [1,2,3]
 					.flatMap(i => { return [i]; });
 			` + '\n\t',
@@ -156,7 +159,8 @@ ruleTester.run('prefer-flat-map', rule, {
 				let bar = [1,2,3].map(i => { return [i]; })
 					.flat();
 			`,
-			output: outdent`
+			output:
+				outdent`
 				let bar = [1,2,3].flatMap(i => { return [i]; });
 			` + '\n\t',
 			errors: [errorFlatMap]
@@ -178,7 +182,8 @@ ruleTester.run('prefer-flat-map', rule, {
 					.map(foo => doFoo(foo))
 					.flat();
 			`,
-			output: outdent`
+			output:
+				outdent`
 				const foo = bars
 					.filter(foo => !!foo.zaz)
 					.flatMap(foo => doFoo(foo));

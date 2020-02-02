@@ -27,11 +27,13 @@ ruleTester.run('new-error', rule, {
 	],
 	invalid: [
 		{
-			code: 'const foo = i > 5 ? true : (i < 100 ? true : (i < 1000 ? true : false));',
+			code:
+				'const foo = i > 5 ? true : (i < 100 ? true : (i < 1000 ? true : false));',
 			errors
 		},
 		{
-			code: 'const foo = i > 5 ? true : (i < 100 ? (i > 50 ? false : true) : false);',
+			code:
+				'const foo = i > 5 ? true : (i < 100 ? (i > 50 ? false : true) : false);',
 			errors
 		},
 		{
@@ -40,8 +42,10 @@ ruleTester.run('new-error', rule, {
 			errors
 		},
 		{
-			code: 'const foo = i > 5 ? i < 100 ? true : false : i < 100 ? true : false;',
-			output: 'const foo = i > 5 ? (i < 100 ? true : false) : (i < 100 ? true : false);',
+			code:
+				'const foo = i > 5 ? i < 100 ? true : false : i < 100 ? true : false;',
+			output:
+				'const foo = i > 5 ? (i < 100 ? true : false) : (i < 100 ? true : false);',
 			errors: [
 				{
 					ruleId: 'no-nested-ternary',

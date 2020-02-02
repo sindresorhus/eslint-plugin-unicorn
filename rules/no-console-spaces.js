@@ -2,13 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const getConsoleMethod = node => {
-	const methods = [
-		'log',
-		'debug',
-		'info',
-		'warn',
-		'error'
-	];
+	const methods = ['log', 'debug', 'info', 'warn', 'error'];
 
 	const {callee} = node;
 
@@ -26,7 +20,10 @@ const getConsoleMethod = node => {
 const getArgumentValue = (context, nodeArgument) => {
 	let value = null;
 
-	if (nodeArgument.type === 'Literal' && typeof nodeArgument.value === 'string') {
+	if (
+		nodeArgument.type === 'Literal' &&
+		typeof nodeArgument.value === 'string'
+	) {
 		value = nodeArgument.value;
 	}
 
@@ -40,10 +37,7 @@ const getArgumentValue = (context, nodeArgument) => {
 	return value;
 };
 
-const fixValue = (value, {
-	fixLeading = true,
-	fixTrailing = true
-}) => {
+const fixValue = (value, {fixLeading = true, fixTrailing = true}) => {
 	if (!value) {
 		return value;
 	}
@@ -69,13 +63,11 @@ const fixValue = (value, {
 };
 
 const getFixableArguments = (context, node) => {
-	const {
-		arguments: arguments_
-	} = node;
+	const {arguments: arguments_} = node;
 
 	const fixables = arguments_.map((nodeArgument, i) => {
 		const fixLeading = i !== 0;
-		const fixTrailing = i !== (arguments_.length - 1);
+		const fixTrailing = i !== arguments_.length - 1;
 
 		const value = getArgumentValue(context, nodeArgument);
 		const fixed = fixValue(value, {fixLeading, fixTrailing});
@@ -92,16 +84,10 @@ const getFixableArguments = (context, node) => {
 };
 
 const fixArgument = (context, fixable, fixer) => {
-	const {
-		nodeArgument,
-		fixed
-	} = fixable;
+	const {nodeArgument, fixed} = fixable;
 
 	// Ignore quotes and backticks
-	const range = [
-		nodeArgument.range[0] + 1,
-		nodeArgument.range[1] - 1
-	];
+	const range = [nodeArgument.range[0] + 1, nodeArgument.range[1] - 1];
 
 	return fixer.replaceTextRange(range, fixed);
 };

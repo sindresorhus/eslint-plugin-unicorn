@@ -56,10 +56,7 @@ const create = context => {
 				context.report({
 					node,
 					message: `Use \`${name}()\` instead of \`new ${name}()\`.`,
-					fix: fixer => fixer.removeRange([
-						node.range[0],
-						node.callee.range[0]
-					])
+					fix: fixer => fixer.removeRange([node.range[0], node.callee.range[0]])
 				});
 			}
 		}

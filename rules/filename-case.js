@@ -65,8 +65,9 @@ function getChosenCases(options) {
 	}
 
 	if (options.cases) {
-		const cases = Object.keys(options.cases)
-			.filter(cases => options.cases[cases]);
+		const cases = Object.keys(options.cases).filter(
+			cases => options.cases[cases]
+		);
 
 		return cases.length > 0 ? cases : ['kebabCase'];
 	}
@@ -81,12 +82,11 @@ function validateFilename(words, caseFunctions) {
 }
 
 function fixFilename(words, caseFunctions, {leading, extension}) {
-	const replacements = words
-		.map(({word, ignored}) => ignored ? [word] : caseFunctions.map(fn => fn(word)));
+	const replacements = words.map(({word, ignored}) =>
+		ignored ? [word] : caseFunctions.map(fn => fn(word))
+	);
 
-	const {
-		samples: combinations
-	} = cartesianProductSamples(replacements);
+	const {samples: combinations} = cartesianProductSamples(replacements);
 
 	return combinations.map(parts => `${leading}${parts.join('')}${extension}`);
 }
@@ -151,10 +151,15 @@ const create = context => {
 
 		return new RegExp(item, 'u');
 	});
-	const chosenCasesFunctions = chosenCases.map(case_ => ignoreNumbers(cases[case_].fn));
+	const chosenCasesFunctions = chosenCases.map(case_ =>
+		ignoreNumbers(cases[case_].fn)
+	);
 	const filenameWithExtension = context.getFilename();
 
-	if (filenameWithExtension === '<input>' || filenameWithExtension === '<text>') {
+	if (
+		filenameWithExtension === '<input>' ||
+		filenameWithExtension === '<text>'
+	) {
 		return {};
 	}
 
@@ -168,10 +173,7 @@ const create = context => {
 				return;
 			}
 
-			const {
-				leading,
-				words
-			} = splitFilename(filename);
+			const {leading, words} = splitFilename(filename);
 			const isValid = validateFilename(words, chosenCasesFunctions);
 
 			if (isValid) {
@@ -188,60 +190,59 @@ const create = context => {
 				messageId: chosenCases.length > 1 ? 'renameToCases' : 'renameToCase',
 				data: {
 					chosenCases: englishishJoinWords(chosenCases.map(x => cases[x].name)),
-					renamedFilenames: englishishJoinWords(renamedFilenames.map(x => `\`${x}\``))
+					renamedFilenames: englishishJoinWords(
+						renamedFilenames.map(x => `\`${x}\``)
+					)
 				}
 			});
 		}
 	};
 };
 
-const schema = [{
-	oneOf: [
-		{
-			properties: {
-				case: {
-					enum: [
-						'camelCase',
-						'snakeCase',
-						'kebabCase',
-						'pascalCase'
-					]
-				},
-				ignore: {
-					type: 'array',
-					uniqueItems: true
-				}
-			},
-			additionalProperties: false
-		},
-		{
-			properties: {
-				cases: {
-					properties: {
-						camelCase: {
-							type: 'boolean'
-						},
-						snakeCase: {
-							type: 'boolean'
-						},
-						kebabCase: {
-							type: 'boolean'
-						},
-						pascalCase: {
-							type: 'boolean'
-						}
+const schema = [
+	{
+		oneOf: [
+			{
+				properties: {
+					case: {
+						enum: ['camelCase', 'snakeCase', 'kebabCase', 'pascalCase']
 					},
-					additionalProperties: false
+					ignore: {
+						type: 'array',
+						uniqueItems: true
+					}
 				},
-				ignore: {
-					type: 'array',
-					uniqueItems: true
-				}
+				additionalProperties: false
 			},
-			additionalProperties: false
-		}
-	]
-}];
+			{
+				properties: {
+					cases: {
+						properties: {
+							camelCase: {
+								type: 'boolean'
+							},
+							snakeCase: {
+								type: 'boolean'
+							},
+							kebabCase: {
+								type: 'boolean'
+							},
+							pascalCase: {
+								type: 'boolean'
+							}
+						},
+						additionalProperties: false
+					},
+					ignore: {
+						type: 'array',
+						uniqueItems: true
+					}
+				},
+				additionalProperties: false
+			}
+		]
+	}
+];
 
 module.exports = {
 	create,
@@ -252,8 +253,10 @@ module.exports = {
 		},
 		schema,
 		messages: {
-			renameToCase: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.',
-			renameToCases: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.'
+			renameToCase:
+				'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.',
+			renameToCases:
+				'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.'
 		}
 	}
 };

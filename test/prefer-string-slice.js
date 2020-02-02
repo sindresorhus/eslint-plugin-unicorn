@@ -9,9 +9,11 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const errors = [{
-	ruleId: 'prefer-string-slice'
-}];
+const errors = [
+	{
+		ruleId: 'prefer-string-slice'
+	}
+];
 
 ruleTester.run('prefer-string-slice', rule, {
 	valid: [
