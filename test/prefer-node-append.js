@@ -23,6 +23,8 @@ ruleTester.run('prefer-node-append', rule, {
 		'appendChild(child);',
 		// `callee.property` is not a `Identifier`
 		'parent[\'appendChild\'](child);',
+		// Computed
+		'parent[appendChild](child);',
 		// Not `appendChild`
 		'parent.foo(child);',
 		// Extra/Less argument(s)
