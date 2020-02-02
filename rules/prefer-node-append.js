@@ -3,9 +3,14 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValueNotUsable = require('./utils/is-value-not-usable');
 const methodSelector = require('./utils/method-selector');
 
+const selector = methodSelector({
+	name: 'appendChild',
+	length: 1
+});
+
 const create = context => {
 	return {
-		[methodSelector("appendChild", 1)](node) {
+		[selector](node) {
 			// TODO: exclude those cases parent/child impossible to be `Node`
 			const fix = isValueNotUsable(node) ?
 				fixer => fixer.replaceText(node.callee.property, 'append') :
