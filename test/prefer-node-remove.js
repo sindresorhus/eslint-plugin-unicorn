@@ -28,7 +28,8 @@ ruleTester.run('prefer-node-remove', rule, {
 		'foo.parentNode.removeChild(\'bar\')',
 		'foo.parentNode[\'bar\'](foo)',
 		'foo.parentNode[removeChild](foo)',
-		'foo.parentNode.removeChild()'
+		'foo.parentNode.removeChild()',
+		'foo.parentNode.removeChild(bar, baz)'
 	],
 	invalid: [
 		invalidTestCase(

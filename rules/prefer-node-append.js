@@ -2,14 +2,16 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValueNotUsable = require('./utils/is-value-not-usable');
 
-const getMethodName = memberExpression => memberExpression.property.name;
-
 const create = context => {
 	return {
-		CallExpression(node) {
+		'CallExpression[callee.property.name="appendChild"]'(node) {
 			const {callee} = node;
 
-			if (callee.type === 'MemberExpression' && getMethodName(callee) === 'appendChild') {
+			if (node.arguments.length !== 1) {
+				return;
+			}
+
+			if (callee.type === 'MemberExpression') {
 				const fix = isValueNotUsable(node) ? fixer => fixer.replaceText(callee.property, 'append') : undefined;
 
 				context.report({

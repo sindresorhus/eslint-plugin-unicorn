@@ -2,16 +2,6 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValueNotUsable = require('./utils/is-value-not-usable');
 
-const getMethodName = callee => {
-	const {property} = callee;
-
-	if (property.type === 'Identifier') {
-		return property.name;
-	}
-
-	return null;
-};
-
 const getCallerName = callee => {
 	const {object} = callee;
 
@@ -46,31 +36,28 @@ const getArgumentName = arguments_ => {
 
 const create = context => {
 	return {
-		CallExpression(node) {
+		'CallExpression[callee.property.name="removeChild"]'(node) {
 			const {callee} = node;
 
-			if (node.arguments.length === 0 ||
+			if (node.arguments.length !== 1 ||
 				callee.type !== 'MemberExpression' ||
 				callee.computed
 			) {
 				return;
 			}
 
-			const methodName = getMethodName(callee);
 			const callerName = getCallerName(callee);
 
-			if (methodName === 'removeChild') {
-				const argumentName = getArgumentName(node.arguments);
+			const argumentName = getArgumentName(node.arguments);
 
-				if (argumentName) {
-					const fix = isValueNotUsable(node) ? fixer => fixer.replaceText(node, `${argumentName}.remove()`) : undefined;
+			if (argumentName) {
+				const fix = isValueNotUsable(node) ? fixer => fixer.replaceText(node, `${argumentName}.remove()`) : undefined;
 
-					context.report({
-						node,
-						message: `Prefer \`${argumentName}.remove()\` over \`${callerName}.removeChild(${argumentName})\`.`,
-						fix
-					});
-				}
+				context.report({
+					node,
+					message: `Prefer \`${argumentName}.remove()\` over \`${callerName}.removeChild(${argumentName})\`.`,
+					fix
+				});
 			}
 		}
 	};
