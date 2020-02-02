@@ -1,17 +1,11 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValueNotUsable = require('./utils/is-value-not-usable');
-
-const selector = [
-	'CallExpression',
-	'[callee.property.name="appendChild"]',
-	'[arguments.length=1]',
-	'[arguments.0.type!="SpreadElement"]'
-].join('')
+const methodSelector = require('./utils/method-selector');
 
 const create = context => {
 	return {
-		[selector](node) {
+		[methodSelector('appendChild', 1)](node) {
 			// TODO: exclude those cases parent/child impossible to be `Node`
 			const fix = isValueNotUsable(node) ?
 				fixer => fixer.replaceText(node.callee.property, 'append') :
