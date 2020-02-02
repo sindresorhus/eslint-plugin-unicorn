@@ -59,10 +59,7 @@ const create = context => {
 			const methodName = getMethodName(callee);
 			const callerName = getCallerName(callee);
 
-			if (methodName === 'removeChild' && (
-				callerName === 'parentNode' ||
-				callerName === 'parentElement'
-			)) {
+			if (methodName === 'removeChild') {
 				const argumentName = getArgumentName(node.arguments);
 
 				if (argumentName) {

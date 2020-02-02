@@ -180,6 +180,18 @@ ruleTester.run('prefer-node-remove', rule, {
 			'foo(bar = node.parentNode.removeChild(child))',
 			'parentNode',
 			'child'
+		),
+		invalidTestCase(
+			'parentNode.removeChild(foo)',
+			'foo.remove()',
+			'parentNode',
+			'foo'
+		),
+		invalidTestCase(
+			'bar.removeChild(foo)',
+			'foo.remove()',
+			'bar',
+			'foo'
 		)
 	]
 });
