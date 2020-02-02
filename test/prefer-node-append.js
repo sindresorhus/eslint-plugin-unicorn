@@ -17,8 +17,12 @@ ruleTester.run('prefer-node-append', rule, {
 	valid: [
 		// Already using `append`
 		'parent.append(child);',
+		// Not `CallExpression`
+		'new parent.appendChild(child);',
 		// Not `MemberExpression`
 		'appendChild(child);',
+		// `callee.property` is not a `Identifier`
+		'parent[\'appendChild\'](child);',
 		// Not `appendChild`
 		'parent.foo(child);',
 		// Extra/Less argument(s)
