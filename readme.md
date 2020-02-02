@@ -8,13 +8,11 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 
 [**Propose or contribute a new rule ➡**](.github/contributing.md)
 
-
 ## Install
 
 ```console
 $ npm install --save-dev eslint eslint-plugin-unicorn
 ```
-
 
 ## Usage
 
@@ -72,6 +70,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-node-remove": "error",
 			"unicorn/prefer-query-selector": "error",
 			"unicorn/prefer-reflect-apply": "error",
+			"unicorn/prefer-replace-all": "off",
 			"unicorn/prefer-spread": "error",
 			"unicorn/prefer-starts-ends-with": "error",
 			"unicorn/prefer-string-slice": "error",
@@ -86,7 +85,6 @@ Configure it in `package.json`.
 	}
 }
 ```
-
 
 ## Rules
 
@@ -126,6 +124,7 @@ Configure it in `package.json`.
 - [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `node.remove()` over `parentNode.removeChild(node)` and `parentElement.removeChild(node)`. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. *(partly fixable)*
 - [prefer-reflect-apply](docs/rules/prefer-reflect-apply.md) - Prefer `Reflect.apply()` over `Function#apply()`. *(fixable)*
+- [prefer-replace-all](docs/rules/prefer-replace-all.md) - Prefer `String#replaceAll()` over regex searches with the global flag. *(fixable)*
 - [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
 - [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith()` & `String#endsWith()` over more complex alternatives.
 - [prefer-string-slice](docs/rules/prefer-string-slice.md) - Prefer `String#slice()` over `String#substr()` and `String#substring()`. *(partly fixable)*
@@ -160,15 +159,14 @@ See the [ESLint docs](http://eslint.org/docs/user-guide/configuring#extending-co
 
 **Note**: This config will also enable the correct [parser options](http://eslint.org/docs/user-guide/configuring#specifying-parser-options) and [environment](http://eslint.org/docs/user-guide/configuring#specifying-environments).
 
-
 ## Maintainers
 
 - [Sindre Sorhus](https://github.com/sindresorhus)
 - [Adam Babcock](https://github.com/MrHen)
 - [futpib](https://github.com/futpib)
-- [Sam Verschueren](https://github.com/SamVerschueren)
 - [Fisker Cheung](https://github.com/fisker)
 
 ###### Former
 
 - [Jeroen Engels](https://github.com/jfmengels)
+- [Sam Verschueren](https://github.com/SamVerschueren)

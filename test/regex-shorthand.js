@@ -13,6 +13,10 @@ const error = {
 	message: 'Use regex shorthands to improve readability.'
 };
 
+const disableSortCharacterClassesOptions = [{
+	sortCharacterClasses: false
+}];
+
 ruleTester.run('regex-shorthand', rule, {
 	valid: [
 		'const foo = /\\d/',
@@ -36,7 +40,12 @@ ruleTester.run('regex-shorthand', rule, {
 
 		// Should not suggest wrong regex (#447)
 		'/(\\s|\\.|@|_|-)/u',
-		'/[\\s.@_-]/u'
+		'/[\\s.@_-]/u',
+
+		{
+			code: '/[GgHhIiå.Z:a-f"0-8%A*ä]/',
+			options: disableSortCharacterClassesOptions
+		}
 	],
 	invalid: [
 		{
@@ -250,6 +259,24 @@ ruleTester.run('regex-shorthand', rule, {
 				message: '/^by @([a-zA-Z0-9-]+)/ can be optimized to /^by @([\\d-A-Za-z]+)/'
 			}],
 			output: 'const foo = /^by @([\\d-A-Za-z]+)/'
+		},
+		{
+			code: '/[GgHhIiå.Z:a-f"0-8%A*ä]/',
+			errors: [{
+				...error,
+				message: '/[GgHhIiå.Z:a-f"0-8%A*ä]/ can be optimized to /["%*.0-8:AG-IZa-iäå]/'
+			}],
+			output: '/["%*.0-8:AG-IZa-iäå]/'
+		},
+		// Should still use shorthand when disabling sort character classes
+		{
+			code: '/[a0-9b]/',
+			options: disableSortCharacterClassesOptions,
+			errors: [{
+				...error,
+				message: '/[a0-9b]/ can be optimized to /[a\\db]/'
+			}],
+			output: '/[a\\db]/'
 		}
 	]
 });
