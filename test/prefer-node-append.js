@@ -15,10 +15,15 @@ const error = {
 
 ruleTester.run('prefer-node-append', rule, {
 	valid: [
+		// Already using `append`
 		'parent.append(child);',
-		'document.body.append(child, \'text\');',
-		'node.append()',
-		'node.append(null)'
+		// Not `MemberExpression`
+		'appendChild(child);',
+		// Not `appendChild`
+		'parent.foo(child);',
+		// Extra/Less argument(s)
+		'parent.appendChild(one, two);',
+		'parent.appendChild();'
 	],
 	invalid: [
 		{
@@ -29,11 +34,6 @@ ruleTester.run('prefer-node-append', rule, {
 		{
 			code: 'document.body.appendChild(child);',
 			output: 'document.body.append(child);',
-			errors: [error]
-		},
-		{
-			code: 'node.appendChild()',
-			output: 'node.append()',
 			errors: [error]
 		},
 		{
