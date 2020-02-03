@@ -58,9 +58,18 @@ const create = context => {
 			} else if (argumentNodes.length === 2) {
 				if (firstArgument === '0') {
 					slice = [firstArgument, secondArgument];
-				} else if (isLiteralNumber(argumentNodes[0]) && isLiteralNumber(argumentNodes[1])) {
-					slice = [firstArgument, argumentNodes[0].value + argumentNodes[1].value];
-				} else if (isLikelyNumeric(argumentNodes[0]) && isLikelyNumeric(argumentNodes[1])) {
+				} else if (
+					isLiteralNumber(argumentNodes[0]) &&
+					isLiteralNumber(argumentNodes[1])
+				) {
+					slice = [
+						firstArgument,
+						argumentNodes[0].value + argumentNodes[1].value
+					];
+				} else if (
+					isLikelyNumeric(argumentNodes[0]) &&
+					isLikelyNumeric(argumentNodes[1])
+				) {
 					slice = [firstArgument, firstArgument + ' + ' + secondArgument];
 				}
 			}

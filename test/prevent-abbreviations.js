@@ -43,63 +43,80 @@ const createErrors = message => {
 	return [error];
 };
 
-const extendedOptions = [{
-	replacements: {
-		e: false,
-		c: {
-			custom: true
-		},
-		cb: {
-			callback: false,
-			circuitBreacker: true
+const extendedOptions = [
+	{
+		replacements: {
+			e: false,
+			c: {
+				custom: true
+			},
+			cb: {
+				callback: false,
+				circuitBreacker: true
+			}
 		}
 	}
-}];
+];
 
-const noCheckShorthandImportsOptions = [{checkShorthandImports: false}];
-const noCheckDefaultAndNamespaceImports = [{checkDefaultAndNamespaceImports: false}];
+const noCheckShorthandImportsOptions = [
+	{
+		checkShorthandImports: false
+	}
+];
 
-const customOptions = [{
-	checkProperties: true,
+const noCheckDefaultAndNamespaceImports = [
+	{
+		checkDefaultAndNamespaceImports: false
+	}
+];
 
-	checkDefaultAndNamespaceImports: true,
-	checkShorthandImports: true,
-	checkShorthandProperties: true,
+const customOptions = [
+	{
+		checkProperties: true,
 
-	checkFilenames: false,
+		checkDefaultAndNamespaceImports: true,
+		checkShorthandImports: true,
+		checkShorthandProperties: true,
 
-	extendDefaultReplacements: false,
-	replacements: {
-		args: {
-			arguments: true
-		},
-		e: {
-			error: true,
-			event: true,
-			element: true
-		},
-		err: {
-			error: true
-		},
-		y: {
-			yield: true
-		},
-		errCb: {
-			handleError: true
-		},
-		proto: {
-			prototype: true
+		checkFilenames: false,
+
+		extendDefaultReplacements: false,
+		replacements: {
+			args: {
+				arguments: true
+			},
+			e: {
+				error: true,
+				event: true,
+				element: true
+			},
+			err: {
+				error: true
+			},
+			y: {
+				yield: true
+			},
+			errCb: {
+				handleError: true
+			},
+			proto: {
+				prototype: true
+			}
 		}
 	}
-}];
+];
 
-const dontCheckVariablesOptions = [{
-	checkVariables: false
-}];
+const dontCheckVariablesOptions = [
+	{
+		checkVariables: false
+	}
+];
 
-const checkPropertiesOptions = [{
-	checkProperties: true
-}];
+const checkPropertiesOptions = [
+	{
+		checkProperties: true
+	}
+];
 
 ruleTester.run('prevent-abbreviations', rule, {
 	valid: [

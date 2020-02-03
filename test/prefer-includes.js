@@ -8,10 +8,12 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const errors = [{
-	ruleId: 'prefer-includes',
-	message: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.'
-}];
+const errors = [
+	{
+		ruleId: 'prefer-includes',
+		message: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.'
+	}
+];
 
 ruleTester.run('prefer-includes', rule, {
 	valid: [
