@@ -2,7 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 function checkForLoop(context, node) {
-	if (checkTwoDeclaredVariables(node) && checkIteratorType(node)) {
+	if (checkTwoDeclaredVariables(node.init) && checkIteratorType(node, node.update)) {
 		context.report({
 			node,
 			messageId: 'noForLoopExtraVariable',
@@ -13,16 +13,16 @@ function checkForLoop(context, node) {
 	}
 }
 
-function checkTwoDeclaredVariables(node) {
-	return node.init.type === 'VariableDeclaration' && node.init.declarations.length === 2;
+function checkTwoDeclaredVariables(init) {
+	return init.type === 'VariableDeclaration' && init.declarations.length === 2;
 }
 
-function checkIteratorType(node) {
+function checkIteratorType(node, update) {
 	let iteratorNode;
-	if (node.update.type === 'AssignmentExpression') {
-		iteratorNode = node.update.left;
-	} else if (node.update.type === 'UpdateExpression') {
-		iteratorNode = node.update.argument;
+	if (update.type === 'AssignmentExpression') {
+		iteratorNode = update.left;
+	} else if (update.type === 'UpdateExpression') {
+		iteratorNode = update.argument;
 	} else {
 		return false;
 	}
@@ -41,9 +41,9 @@ function getIteratorName(node) {
 
 function fixForLoop(node, context, fixer) {
 	const sourceCode = context.getSourceCode();
-	const nonIterator = getVariableNames(node).filter(variableName => variableName !== getIteratorName(node))[0];
-	const nonIteratorDeclaration = node.init.declarations.filter(declaration => declaration.id.name === nonIterator)[0];
-	const iteratorDeclaration = node.init.declarations.filter(declaration => declaration.id.name !== nonIterator)[0];
+	const nonIterator = getVariableNames(node).find(variableName => variableName !== getIteratorName(node));
+	const nonIteratorDeclaration = node.init.declarations.find(declaration => declaration.id.name === nonIterator);
+	const iteratorDeclaration = node.init.declarations.find(declaration => declaration.id.name !== nonIterator);
 
 	function replaceInTestFix() {
 		const nonIteratorInitValue = sourceCode.getText(nonIteratorDeclaration.init);
@@ -58,11 +58,11 @@ function fixForLoop(node, context, fixer) {
 	}
 
 	function moveDeclarationFix() {
-		return removeDeclarationFix().concat([fixer.insertTextBefore(node, node.init.kind + ' ' + sourceCode.getText(nonIteratorDeclaration) + '\n')]);
+		return [...removeDeclarationFix(), fixer.insertTextBefore(node, node.init.kind + ' ' + sourceCode.getText(nonIteratorDeclaration) + '\n')];
 	}
 
 	function removeVariableFix() {
-		return removeDeclarationFix().concat(replaceInTestFix());
+		return [...removeDeclarationFix(), ...replaceInTestFix()];
 	}
 
 	if (node.init.kind === 'let') {
@@ -85,7 +85,7 @@ function fixForLoop(node, context, fixer) {
 }
 
 function checkNonIteratorUsedInNode(node, context) {
-	const nonIterator = getVariableNames(node).filter(variableName => variableName !== getIteratorName(node))[0];
+	const nonIterator = getVariableNames(node).find(variableName => variableName !== getIteratorName(node));
 	const sourceCode = context.getSourceCode();
 	return getNonIteratorTokensInNode(sourceCode, node.body, nonIterator).length !== 0;
 }
@@ -97,17 +97,17 @@ function getNonIteratorTokensInNode(sourceCode, node, nonIterator) {
 }
 
 function checkNonIteratorUsedOutsideNode(node, context) {
-	const nonIterator = getVariableNames(node).filter(variableName => variableName !== getIteratorName(node))[0];
+	const nonIterator = getVariableNames(node).find(variableName => variableName !== getIteratorName(node));
 	const sourceCode = context.getSourceCode();
 	return getNonIteratorTokenOutsideNode(sourceCode, node, nonIterator).length !== 0;
 }
 
 function getNonIteratorTokenOutsideNode(sourceCode, node, nonIterator) {
-	const tokens = node.init.kind === 'var' ? sourceCode.getTokensBefore(node) : [];
-	tokens.push(...sourceCode.getTokensAfter(node));
-	return tokens.filter(token => {
-		return token.type === 'Identifier' && token.value === nonIterator;
-	});
+	return [...(node.init.kind === 'var' ? sourceCode.getTokensBefore(node) : []),
+		...sourceCode.getTokensAfter(node)]
+		.filter(token => {
+			return token.type === 'Identifier' && token.value === nonIterator;
+		});
 }
 
 const create = context => {
