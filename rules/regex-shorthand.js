@@ -77,15 +77,17 @@ const create = context => {
 	};
 };
 
-const schema = [{
-	type: 'object',
-	properties: {
-		sortCharacterClasses: {
-			type: 'boolean',
-			default: true
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			sortCharacterClasses: {
+				type: 'boolean',
+				default: true
+			}
 		}
 	}
-}];
+];
 
 module.exports = {
 	create,

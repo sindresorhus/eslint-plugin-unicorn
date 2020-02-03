@@ -26,7 +26,10 @@ const getConsoleMethod = node => {
 const getArgumentValue = (context, nodeArgument) => {
 	let value = null;
 
-	if (nodeArgument.type === 'Literal' && typeof nodeArgument.value === 'string') {
+	if (
+		nodeArgument.type === 'Literal' &&
+		typeof nodeArgument.value === 'string'
+	) {
 		value = nodeArgument.value;
 	}
 
@@ -69,13 +72,11 @@ const fixValue = (value, {
 };
 
 const getFixableArguments = (context, node) => {
-	const {
-		arguments: arguments_
-	} = node;
+	const {arguments: arguments_} = node;
 
 	const fixables = arguments_.map((nodeArgument, i) => {
 		const fixLeading = i !== 0;
-		const fixTrailing = i !== (arguments_.length - 1);
+		const fixTrailing = i !== arguments_.length - 1;
 
 		const value = getArgumentValue(context, nodeArgument);
 		const fixed = fixValue(value, {fixLeading, fixTrailing});
@@ -92,10 +93,7 @@ const getFixableArguments = (context, node) => {
 };
 
 const fixArgument = (context, fixable, fixer) => {
-	const {
-		nodeArgument,
-		fixed
-	} = fixable;
+	const {nodeArgument, fixed} = fixable;
 
 	// Ignore quotes and backticks
 	const range = [

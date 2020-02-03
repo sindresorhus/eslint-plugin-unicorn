@@ -36,19 +36,21 @@ const create = context => {
 				}
 			}
 
-			if (callee.type === 'MemberExpression' && callee.object.name === 'process') {
+			if (
+				callee.type === 'MemberExpression' &&
+				callee.object.name === 'process'
+			) {
 				if (callee.property.name === 'on' || callee.property.name === 'once') {
 					processEventHandler = node;
 					return;
 				}
 
 				if (callee.property.name === 'exit' && !processEventHandler) {
-					reports.push(
-						() =>
-							context.report({
-								node,
-								message: 'Only use `process.exit()` in CLI apps. Throw an error instead.'
-							})
+					reports.push(() =>
+						context.report({
+							node,
+							message: 'Only use `process.exit()` in CLI apps. Throw an error instead.'
+						})
 					);
 				}
 			}

@@ -11,7 +11,10 @@ const isIdentifierWithName = (node, name) => node && node.type === 'Identifier' 
 const getIndexIdentifierName = forStatement => {
 	const {init: variableDeclaration} = forStatement;
 
-	if (!variableDeclaration || variableDeclaration.type !== 'VariableDeclaration') {
+	if (
+		!variableDeclaration ||
+		variableDeclaration.type !== 'VariableDeclaration'
+	) {
 		return;
 	}
 
@@ -65,7 +68,10 @@ const getArrayIdentifierNameFromBinaryExpression = (binaryExpression, indexIdent
 		return;
 	}
 
-	if (greater.object.type !== 'Identifier' || greater.property.type !== 'Identifier') {
+	if (
+		greater.object.type !== 'Identifier' ||
+		greater.property.type !== 'Identifier'
+	) {
 		return;
 	}
 
@@ -106,7 +112,10 @@ const checkUpdateExpression = (forStatement, indexIdentifierName) => {
 		return update.operator === '++' && isIdentifierWithName(update.argument, indexIdentifierName);
 	}
 
-	if (update.type === 'AssignmentExpression' && isIdentifierWithName(update.left, indexIdentifierName)) {
+	if (
+		update.type === 'AssignmentExpression' &&
+		isIdentifierWithName(update.left, indexIdentifierName)
+	) {
 		if (update.operator === '+=') {
 			return isLiteralOne(update.right);
 		}
@@ -131,7 +140,10 @@ const isOnlyArrayOfIndexVariableRead = (arrayReferences, indexIdentifierName) =>
 			return false;
 		}
 
-		if (node.parent.type === 'AssignmentExpression' && node.parent.left === node) {
+		if (
+			node.parent.type === 'AssignmentExpression' &&
+			node.parent.left === node
+		) {
 			return false;
 		}
 

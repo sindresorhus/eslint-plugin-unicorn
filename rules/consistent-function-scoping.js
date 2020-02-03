@@ -41,7 +41,10 @@ function checkReferences(scope, parent, scopeManager) {
 		// This check looks for neighboring function definitions
 		const hitIdentifier = variable.identifiers.some(identifier => {
 			// Only look at identifiers that live in a FunctionDeclaration
-			if (!identifier.parent || identifier.parent.type !== 'FunctionDeclaration') {
+			if (
+				!identifier.parent ||
+				identifier.parent.type !== 'FunctionDeclaration'
+			) {
 				return false;
 			}
 

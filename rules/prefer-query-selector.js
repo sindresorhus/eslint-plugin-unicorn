@@ -30,15 +30,28 @@ const getLiteralFix = (fixer, node, identifierName) => {
 };
 
 const getTemplateLiteralFix = (fixer, node, identifierName) => {
-	const fix = [fixer.insertTextAfter(node, '`'), fixer.insertTextBefore(node, '`')];
+	const fix = [
+		fixer.insertTextAfter(node, '`'),
+		fixer.insertTextBefore(node, '`')
+	];
 
 	node.quasis.forEach(templateElement => {
 		if (identifierName === 'getElementById') {
-			fix.push(fixer.replaceText(templateElement, getReplacementForId(templateElement.value.cooked)));
+			fix.push(
+				fixer.replaceText(
+					templateElement,
+					getReplacementForId(templateElement.value.cooked)
+				)
+			);
 		}
 
 		if (identifierName === 'getElementsByClassName') {
-			fix.push(fixer.replaceText(templateElement, getReplacementForClass(templateElement.value.cooked)));
+			fix.push(
+				fixer.replaceText(
+					templateElement,
+					getReplacementForClass(templateElement.value.cooked)
+				)
+			);
 		}
 	});
 
@@ -51,8 +64,10 @@ const canBeFixed = node => {
 	}
 
 	if (node.type === 'TemplateLiteral') {
-		return node.expressions.length === 0 &&
-			node.quasis.some(templateElement => templateElement.value.cooked.trim());
+		return (
+			node.expressions.length === 0 &&
+			node.quasis.some(templateElement => templateElement.value.cooked.trim())
+		);
 	}
 
 	return false;

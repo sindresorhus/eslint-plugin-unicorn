@@ -29,16 +29,18 @@ const create = context => {
 	return rules;
 };
 
-const schema = [{
-	type: 'object',
-	properties: {
-		ignoreImports: {
-			type: 'boolean',
-			default: false
-		}
-	},
-	additionalProperties: false
-}];
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			ignoreImports: {
+				type: 'boolean',
+				default: false
+			}
+		},
+		additionalProperties: false
+	}
+];
 
 module.exports = {
 	create,
