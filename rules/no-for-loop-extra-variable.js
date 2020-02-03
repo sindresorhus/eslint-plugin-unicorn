@@ -127,7 +127,7 @@ module.exports = {
 		},
 		fixable: 'code',
 		messages: {
-			noForLoopExtraVariable: 'Unnecessary variable in for loop.'
+			noForLoopExtraVariable: 'Unnecessary variable in for-loop.'
 		}
 	}
 };
