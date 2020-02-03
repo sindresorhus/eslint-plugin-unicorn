@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 # Do not declare an extra variable in a `for` loop init
-=======
-# Do not declare an extra variable in a for-loop setup
->>>>>>> b0e2ee9f6d8eb5850e5789564a3b2437316d73d8
 
 A pattern in some codebases is to declare a second variable in the initial state which is then only used in the test condition. This variable is unecessary and prevents the `no-for-loop` rule from flagging the loop.
 
