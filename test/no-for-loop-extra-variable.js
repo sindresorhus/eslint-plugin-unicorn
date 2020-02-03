@@ -291,7 +291,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 				}
 				else{	
 					let j = arr.length
-					for(let i = 1; j > i; i += 1) {
+				for(let i = 1; j > i; i += 1) {
 						console.log(j);
 					}
 				}
@@ -316,7 +316,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 				}
 				else{	
 					var j = arr.length
-					for(var i = 1; j > i; i += 1) {
+				for(var i = 1; j > i; i += 1) {
 						console.log(j);
 					}
 				}
@@ -368,7 +368,7 @@ ruleTester.run('no-for-loop-extra-variable', rule, {
 				}
 				else{	
 					var j = arr.length
-					for(var i = 1; j > i; i += 1) {
+				for(var i = 1; j > i; i += 1) {
 						console.log(j);
 					}
 					console.log(j)
