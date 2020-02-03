@@ -1,5 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const isValueNotUsable = require('./utils/is-value-not-usable');
 
 const getArgumentNameForReplaceChildOrInsertBefore = nodeArguments => {
 	if (nodeArguments.type === 'Identifier') {
@@ -11,14 +12,6 @@ const forbiddenIdentifierNames = new Map([
 	['replaceChild', 'replaceWith'],
 	['insertBefore', 'before']
 ]);
-
-const isPartOfVariableAssignment = nodeParentType => {
-	if (nodeParentType === 'VariableDeclarator' || nodeParentType === 'AssignmentExpression') {
-		return true;
-	}
-
-	return false;
-};
 
 const checkForReplaceChildOrInsertBefore = (context, node) => {
 	const identifierName = node.callee.property.name;
@@ -42,24 +35,22 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 	}
 
 	const parentNode = node.callee.object.name;
-	// This check makes sure that only the first method of chained methods with same identifier name e.g: parentNode.insertBefore(alfa, beta).insertBefore(charlie, delta); gets transformed
+	// This check makes sure that only the first method of chained methods with same identifier name e.g: parentNode.insertBefore(alfa, beta).insertBefore(charlie, delta); gets reported
 	if (!parentNode) {
 		return;
 	}
 
 	const preferredSelector = forbiddenIdentifierNames.get(identifierName);
 
-	let fix = fixer => fixer.replaceText(
-		node,
-		`${oldChildNodeArgument}.${preferredSelector}(${newChildNodeArgument})`
-	);
-
-	// Report error when the method is part of a variable assignment
-	// but don't offer to autofix `.replaceWith()` and `.before()`
-	// which don't have a return value.
-	if (isPartOfVariableAssignment(node.parent.type)) {
-		fix = undefined;
-	}
+	const fix = isValueNotUsable(node) ?
+		// Report error when the method is part of a variable assignment
+		// but don't offer to autofix `.replaceWith()` and `.before()`
+		// which don't have a return value.
+		fixer => fixer.replaceText(
+			node,
+			`${oldChildNodeArgument}.${preferredSelector}(${newChildNodeArgument})`
+		) :
+		undefined;
 
 	return context.report({
 		node,
@@ -112,18 +103,16 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 		nodeArguments[1]
 	);
 
-	let fix = fixer =>
-		fixer.replaceText(
-			node,
-			`${referenceNode}.${preferredSelector}(${insertedTextArgument})`
-		);
-
-	// Report error when the method is part of a variable assignment
-	// but don't offer to autofix `.insertAdjacentElement()`
-	// which don't have a return value.
-	if (identifierName === 'insertAdjacentElement' && isPartOfVariableAssignment(node.parent.type)) {
-		fix = undefined;
-	}
+	const fix = identifierName === 'insertAdjacentElement' && !isValueNotUsable(node) ?
+		// Report error when the method is part of a variable assignment
+		// but don't offer to autofix `.insertAdjacentElement()`
+		// which doesn't have a return value.
+		undefined :
+		fixer =>
+			fixer.replaceText(
+				node,
+				`${referenceNode}.${preferredSelector}(${insertedTextArgument})`
+			);
 
 	return context.report({
 		node,

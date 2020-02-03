@@ -168,10 +168,7 @@ const create = context => {
 				return;
 			}
 
-			const {
-				leading,
-				words
-			} = splitFilename(filename);
+			const {leading, words} = splitFilename(filename);
 			const isValid = validateFilename(words, chosenCasesFunctions);
 
 			if (isValid) {
@@ -195,53 +192,55 @@ const create = context => {
 	};
 };
 
-const schema = [{
-	oneOf: [
-		{
-			properties: {
-				case: {
-					enum: [
-						'camelCase',
-						'snakeCase',
-						'kebabCase',
-						'pascalCase'
-					]
-				},
-				ignore: {
-					type: 'array',
-					uniqueItems: true
-				}
-			},
-			additionalProperties: false
-		},
-		{
-			properties: {
-				cases: {
-					properties: {
-						camelCase: {
-							type: 'boolean'
-						},
-						snakeCase: {
-							type: 'boolean'
-						},
-						kebabCase: {
-							type: 'boolean'
-						},
-						pascalCase: {
-							type: 'boolean'
-						}
+const schema = [
+	{
+		oneOf: [
+			{
+				properties: {
+					case: {
+						enum: [
+							'camelCase',
+							'snakeCase',
+							'kebabCase',
+							'pascalCase'
+						]
 					},
-					additionalProperties: false
+					ignore: {
+						type: 'array',
+						uniqueItems: true
+					}
 				},
-				ignore: {
-					type: 'array',
-					uniqueItems: true
-				}
+				additionalProperties: false
 			},
-			additionalProperties: false
-		}
-	]
-}];
+			{
+				properties: {
+					cases: {
+						properties: {
+							camelCase: {
+								type: 'boolean'
+							},
+							snakeCase: {
+								type: 'boolean'
+							},
+							kebabCase: {
+								type: 'boolean'
+							},
+							pascalCase: {
+								type: 'boolean'
+							}
+						},
+						additionalProperties: false
+					},
+					ignore: {
+						type: 'array',
+						uniqueItems: true
+					}
+				},
+				additionalProperties: false
+			}
+		]
+	}
+];
 
 module.exports = {
 	create,

@@ -5,11 +5,11 @@ const MESSAGE_ZERO_FRACTION = 'Don\'t use a zero fraction in the number.';
 const MESSAGE_DANGLING_DOT = 'Don\'t use a dangling dot in the number.';
 
 // Groups:
-// 1. Integer part
-// 2. Dangling dot or dot with zeroes
-// 3. Dot with digits except last zeroes
-// 4. Scientific notation
-const RE_DANGLINGDOT_OR_ZERO_FRACTIONS = /^([+-]?\d*)(?:(\.0*)|(\.\d*[1-9])0+)(e[+-]?\d+)?$/; // TODO: Possibly use named capture groups when targeting Node.js 10
+// 1. Integer part.
+// 2. Dangling dot or dot with zeroes.
+// 3. Dot with digits except last zeroes.
+// 4. Scientific notation.
+const RE_DANGLINGDOT_OR_ZERO_FRACTIONS = /^(?<integerPart>[+-]?\d*)(?:(?<dotAndZeroes>\.0*)|(?<dotAndDigits>\.\d*[1-9])0+)(?<scientificNotationSuffix>e[+-]?\d+)?$/;
 
 const create = context => {
 	return {
@@ -23,7 +23,13 @@ const create = context => {
 				return;
 			}
 
-			const [, integerPart, dotAndZeroes, dotAndDigits, scientificNotationSuffix] = match;
+			const {
+				integerPart,
+				dotAndZeroes,
+				dotAndDigits,
+				scientificNotationSuffix
+			} = match.groups;
+
 			const isDanglingDot = dotAndZeroes === '.';
 
 			context.report({

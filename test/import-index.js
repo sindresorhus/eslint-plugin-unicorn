@@ -16,9 +16,11 @@ const error = {
 	message: 'Do not reference the index file directly.'
 };
 
-const ignoreImportsOptions = [{
-	ignoreImports: true
-}];
+const ignoreImportsOptions = [
+	{
+		ignoreImports: true
+	}
+];
 
 ruleTester.run('import-index', rule, {
 	valid: [

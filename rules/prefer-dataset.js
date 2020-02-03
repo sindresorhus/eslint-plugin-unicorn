@@ -30,9 +30,11 @@ const getReplacement = (context, node, memberExpression, propertyName) => {
 };
 
 const isBracketNotation = (context, callee) => {
-	const bracketOpen = context.getSourceCode().getFirstTokenBetween(callee.object, callee.property, {
-		filter: token => token.value === '['
-	});
+	const bracketOpen = context
+		.getSourceCode()
+		.getFirstTokenBetween(callee.object, callee.property, {
+			filter: token => token.value === '['
+		});
 
 	return bracketOpen !== null && bracketOpen.value === '[';
 };

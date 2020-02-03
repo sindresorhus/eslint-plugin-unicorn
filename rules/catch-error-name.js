@@ -23,13 +23,14 @@ function isLintablePromiseCatch(node) {
 
 	const [firstArgument] = node.arguments;
 
-	return firstArgument.type === 'FunctionExpression' || firstArgument.type === 'ArrowFunctionExpression';
+	return (
+		firstArgument.type === 'FunctionExpression' ||
+		firstArgument.type === 'ArrowFunctionExpression'
+	);
 }
 
 const create = context => {
-	const {
-		ecmaVersion
-	} = context.parserOptions;
+	const {ecmaVersion} = context.parserOptions;
 
 	const options = {
 		name: 'error',
@@ -127,17 +128,19 @@ const create = context => {
 	};
 };
 
-const schema = [{
-	type: 'object',
-	properties: {
-		name: {
-			type: 'string'
-		},
-		caughtErrorsIgnorePattern: {
-			type: 'string'
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			name: {
+				type: 'string'
+			},
+			caughtErrorsIgnorePattern: {
+				type: 'string'
+			}
 		}
 	}
-}];
+];
 
 module.exports = {
 	create,

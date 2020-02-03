@@ -17,7 +17,11 @@ const fix = (value, regexp) => {
 	if (results) {
 		const prefix = results[1].length + 1;
 		const fixedEscape = results[2].slice(0, 1) + results[2].slice(1).toUpperCase();
-		return value.slice(0, results.index + prefix) + fixedEscape + value.slice(results.index + results[0].length);
+		return (
+			value.slice(0, results.index + prefix) +
+			fixedEscape +
+			value.slice(results.index + results[0].length)
+		);
 	}
 
 	return value;
@@ -67,7 +71,11 @@ const fixRegExp = node => {
 
 	if (escapeNodePosition) {
 		const [start, end] = escapeNodePosition;
-		return raw.slice(0, start) + fix(raw.slice(start, end), escapePatternWithLowercase) + raw.slice(end, raw.length);
+		return (
+			raw.slice(0, start) +
+			fix(raw.slice(start, end), escapePatternWithLowercase) +
+			raw.slice(end, raw.length)
+		);
 	}
 
 	return raw;

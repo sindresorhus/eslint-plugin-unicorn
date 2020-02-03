@@ -47,7 +47,6 @@ module.exports = {
 				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/prefer-dataset': 'error',
 				'unicorn/prefer-event-key': 'error',
-				'unicorn/prefer-exponentiation-operator': 'error',
 				'unicorn/prefer-flat-map': 'error',
 				'unicorn/prefer-includes': 'error',
 				'unicorn/prefer-modern-dom-apis': 'error',
@@ -56,6 +55,8 @@ module.exports = {
 				'unicorn/prefer-node-remove': 'error',
 				'unicorn/prefer-query-selector': 'error',
 				'unicorn/prefer-reflect-apply': 'error',
+				// TODO: Enable this by default when it's shipping in a Node.js LTS version.
+				'unicorn/prefer-replace-all': 'off',
 				'unicorn/prefer-spread': 'error',
 				'unicorn/prefer-starts-ends-with': 'error',
 				'unicorn/prefer-string-slice': 'error',
