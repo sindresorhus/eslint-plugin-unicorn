@@ -11,7 +11,7 @@ const ruleTester = avaRuleTester(test, {
 
 const error = {
 	ruleId: 'no-for-loop-extra-variables',
-	messageId: 'noForLoopExtraVariable'
+	message: 'Unnecessary variable in for-loop.'
 };
 
 ruleTester.run('no-for-loop-extra-variable', rule, {

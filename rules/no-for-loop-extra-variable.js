@@ -2,10 +2,10 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 function checkForLoop(context, node) {
-	if (checkTwoDeclaredVariables(node.init) && checkIteratorType(node, node.update)) {
+	if (checkTwoDeclaredVariables(node.init) && checkIteratorType(node)) {
 		context.report({
 			node,
-			messageId: 'noForLoopExtraVariable',
+			message: 'Unnecessary variable in for-loop.',
 			fix(fixer) {
 				return fixForLoop(node, context, fixer);
 			}
@@ -13,12 +13,13 @@ function checkForLoop(context, node) {
 	}
 }
 
-function checkTwoDeclaredVariables(init) {
-	return init.type === 'VariableDeclaration' && init.declarations.length === 2;
+function checkTwoDeclaredVariables(node) {
+	return node.type === 'VariableDeclaration' && node.declarations.length === 2;
 }
 
-function checkIteratorType(node, update) {
+function checkIteratorType(node) {
 	let iteratorNode;
+	const {update} = node;
 	if (update.type === 'AssignmentExpression') {
 		iteratorNode = update.left;
 	} else if (update.type === 'UpdateExpression') {
@@ -125,9 +126,6 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code',
-		messages: {
-			noForLoopExtraVariable: 'Unnecessary variable in for-loop.'
-		}
+		fixable: 'code'
 	}
 };
