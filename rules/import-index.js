@@ -1,9 +1,9 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const regexp = /^(@.*?\/.*?|[./]+?.*?)\/(\.|(?:index(?:\.js)?))?$/;
+const regexp = /^(?<package>@.*?\/.*?|[./]+?.*?)\/(?:\.|(?:index(?:\.js)?))?$/;
 const isImportingIndex = value => regexp.test(value);
-const normalize = value => value.replace(regexp, '$1');
+const normalize = value => value.replace(regexp, '$<package>');
 
 const importIndex = (context, node, argument) => {
 	if (argument && isImportingIndex(argument.value)) {

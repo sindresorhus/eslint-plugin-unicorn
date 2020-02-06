@@ -6,7 +6,8 @@ const getMethodName = memberExpression => memberExpression.property.name;
 
 const getDataAttributeName = argument => {
 	if (argument.type === 'Literal') {
-		return (argument.value.match(/^data-(.+)/) || ['', ''])[1];
+		const matches = /^data-(?<name>.+)/.exec(argument.value);
+		return matches ? matches.groups.name : '';
 	}
 
 	return '';
@@ -14,7 +15,7 @@ const getDataAttributeName = argument => {
 
 const parseNodeText = (context, argument) => context.getSourceCode().getText(argument);
 
-const dashToCamelCase = string => string.replace(/-([a-z])/g, s => s[1].toUpperCase());
+const dashToCamelCase = string => string.replace(/-[a-z]/g, s => s[1].toUpperCase());
 
 const getReplacement = (context, node, memberExpression, propertyName) => {
 	const calleeObject = parseNodeText(context, memberExpression.object);

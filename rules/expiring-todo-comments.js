@@ -27,9 +27,9 @@ const packageDependencies = {
 };
 
 const DEPENDENCY_INCLUSION_RE = /^[+-]\s*@?\S+\/?\S+/;
-const VERSION_COMPARISON_RE = /^(@?\S\/?\S+)@(>|>=)(\d+(\.\d+){0,2}(-[\d\-a-z]+(\.[\d\-a-z]+)*)?(\+[\d\-a-z]+(\.[\d\-a-z]+)*)?)/i;
-const PKG_VERSION_RE = /^(>|>=)(\d+(\.\d+){0,2}(-[\d-a-z]+(\.[\d-a-z]+)*)?(\+[\d-a-z]+(\.[\d-a-z]+)*)?)\s*$/;
-const ISO8601_DATE = /(\d{4})-(\d{2})-(\d{2})/;
+const VERSION_COMPARISON_RE = /^(?<name>@?\S\/?\S+)@(?<condition>>|>=)(?<version>\d+(?:\.\d+){0,2}(?:-[\d\-a-z]+(?:\.[\d\-a-z]+)*)?(?:\+[\d\-a-z]+(?:\.[\d\-a-z]+)*)?)/i;
+const PKG_VERSION_RE = /^(?<condition>>|>=)(?<version>\d+(?:\.\d+){0,2}(?:-[\d-a-z]+(?:\.[\d-a-z]+)*)?(?:\+[\d-a-z]+(?:\.[\d-a-z]+)*)?)\s*$/;
+const ISO8601_DATE = /\d{4}-\d{2}-\d{2}/;
 
 function parseTodoWithArguments(string, {terms}) {
 	const lowerCaseString = string.toLowerCase();
@@ -40,14 +40,14 @@ function parseTodoWithArguments(string, {terms}) {
 		return false;
 	}
 
-	const TODO_ARGUMENT_RE = /\[([^}]+)]/i;
+	const TODO_ARGUMENT_RE = /\[(?<rawArguments>[^}]+)]/i;
 	const result = TODO_ARGUMENT_RE.exec(string);
 
 	if (!result) {
 		return false;
 	}
 
-	const rawArguments = result[1];
+	const {rawArguments} = result.groups;
 
 	return rawArguments
 		.split(',')
@@ -84,10 +84,10 @@ function parseArgument(argumentString) {
 	}
 
 	if (hasPackage && VERSION_COMPARISON_RE.test(argumentString)) {
-		const result = VERSION_COMPARISON_RE.exec(argumentString);
-		const name = result[1].trim();
-		const condition = result[2].trim();
-		const version = result[3].trim();
+		const {groups} = VERSION_COMPARISON_RE.exec(argumentString);
+		const name = groups.name.trim();
+		const condition = groups.condition.trim();
+		const version = groups.version.trim();
 
 		const hasEngineKeyword = name.indexOf('engine:') === 0;
 		const isNodeEngine = hasEngineKeyword && name === 'engine:node';
@@ -116,14 +116,13 @@ function parseArgument(argumentString) {
 
 	if (hasPackage && PKG_VERSION_RE.test(argumentString)) {
 		const result = PKG_VERSION_RE.exec(argumentString);
-		const condition = result[1].trim();
-		const version = result[2].trim();
+		const {condition, version} = result.groups;
 
 		return {
 			type: 'packageVersions',
 			value: {
-				condition,
-				version
+				condition: condition.trim(),
+				version: version.trim()
 			}
 		};
 	}

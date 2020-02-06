@@ -6,8 +6,8 @@ const {
 
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const escapeWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+})/;
-const escapePatternWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+}|c[a-z])/;
+const escapeWithLowercase = /(?<before>(?:^|[^\\])(?:\\\\)*)\\(?<data>x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+})/;
+const escapePatternWithLowercase = /(?<before>(?:^|[^\\])(?:\\\\)*)\\(?<data>x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+}|c[a-z])/;
 const hasLowercaseCharacter = /[a-z]+/;
 const message = 'Use uppercase characters for the value of the escape sequence.';
 
@@ -15,8 +15,9 @@ const fix = (value, regexp) => {
 	const results = regexp.exec(value);
 
 	if (results) {
-		const prefix = results[1].length + 1;
-		const fixedEscape = results[2].slice(0, 1) + results[2].slice(1).toUpperCase();
+		const {before, data} = results.groups;
+		const prefix = before.length + 1;
+		const fixedEscape = data.slice(0, 1) + data.slice(1).toUpperCase();
 		return (
 			value.slice(0, results.index + prefix) +
 			fixedEscape +
@@ -50,7 +51,7 @@ Record escaped node position in regexpp ASTNode. Returns undefined if not found.
 
 			const matches = node.raw.match(escapePatternWithLowercase);
 
-			if (matches && matches[2].slice(1).match(hasLowercaseCharacter)) {
+			if (matches && matches.groups.data.slice(1).match(hasLowercaseCharacter)) {
 				escapeNodePosition = [node.start, node.end];
 			}
 		}
@@ -90,7 +91,7 @@ const create = context => {
 
 			const matches = node.raw.match(escapeWithLowercase);
 
-			if (matches && matches[2].slice(1).match(hasLowercaseCharacter)) {
+			if (matches && matches.groups.data.slice(1).match(hasLowercaseCharacter)) {
 				context.report({
 					node,
 					message,
