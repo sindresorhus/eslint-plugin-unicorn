@@ -6,7 +6,7 @@ const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 
 const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
 
-const getClassName = name => upperfirst(name).replace(/(error|)$/i, 'Error');
+const getClassName = name => upperfirst(name).replace(/(?:error|)$/i, 'Error');
 
 const getConstructorMethod = className => `
 	constructor() {

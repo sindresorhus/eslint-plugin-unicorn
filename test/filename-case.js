@@ -177,13 +177,13 @@ ruleTester.run('filename-case', rule, {
 			{case: 'kebabCase', ignore: ['\\.(web|android|ios)\\.js$']}
 		]),
 		testCaseWithOptions('src/foo/FooBar.something.js', undefined, [
-			{case: 'kebabCase', ignore: [/\.(web|android|ios|something)\.js$/u]}
+			{case: 'kebabCase', ignore: [/\.(?:web|android|ios|something)\.js$/u]}
 		]),
 		testCaseWithOptions('src/foo/FooBar.js', undefined, [
 			{case: 'kebabCase', ignore: ['^(F|f)oo']}
 		]),
 		testCaseWithOptions('src/foo/FooBar.js', undefined, [
-			{case: 'kebabCase', ignore: [/^(F|f)oo/u]}
+			{case: 'kebabCase', ignore: [/^[Ff]oo/u]}
 		]),
 		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
 			{case: 'kebabCase', ignore: ['^FOO', 'BAZ\\.js$']}
