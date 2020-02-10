@@ -83,16 +83,21 @@ const isTypecheckingExpression = (node, callExpression) => {
 		case 'CallExpression':
 			return isTypecheckingExpression(node.callee, node);
 		case 'UnaryExpression':
-			return node.operator === 'typeof' ||
-				(node.operator === '!' &&
-				isTypecheckingExpression(node.argument));
+			return (
+				node.operator === 'typeof' ||
+				(node.operator === '!' && isTypecheckingExpression(node.argument))
+			);
 		case 'BinaryExpression':
-			return node.operator === 'instanceof' ||
+			return (
+				node.operator === 'instanceof' ||
 				isTypecheckingExpression(node.left, callExpression) ||
-				isTypecheckingExpression(node.right, callExpression);
+				isTypecheckingExpression(node.right, callExpression)
+			);
 		case 'LogicalExpression':
-			return isTypecheckingExpression(node.left, callExpression) &&
-				isTypecheckingExpression(node.right, callExpression);
+			return (
+				isTypecheckingExpression(node.left, callExpression) &&
+				isTypecheckingExpression(node.right, callExpression)
+			);
 		default:
 			return false;
 	}
@@ -103,10 +108,12 @@ const isTypechecking = node => node.type === 'IfStatement' && isTypecheckingExpr
 const create = context => {
 	return {
 		ThrowStatement: node => {
-			if (throwsErrorObject(node) &&
+			if (
+				throwsErrorObject(node) &&
 				isLone(node) &&
 				node.parent.parent &&
-				isTypechecking(node.parent.parent)) {
+				isTypechecking(node.parent.parent)
+			) {
 				context.report({
 					node,
 					message: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.',

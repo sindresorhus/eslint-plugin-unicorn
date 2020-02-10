@@ -1,9 +1,9 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const regexp = /^(@.*?\/.*?|[./]+?.*?)\/(\.|(?:index(?:\.js)?))?$/;
+const regexp = /^(?<package>@.*?\/.*?|[./]+?.*?)\/(?:\.|(?:index(?:\.js)?))?$/;
 const isImportingIndex = value => regexp.test(value);
-const normalize = value => value.replace(regexp, '$1');
+const normalize = value => value.replace(regexp, '$<package>');
 
 const importIndex = (context, node, argument) => {
 	if (argument && isImportingIndex(argument.value)) {
@@ -29,16 +29,18 @@ const create = context => {
 	return rules;
 };
 
-const schema = [{
-	type: 'object',
-	properties: {
-		ignoreImports: {
-			type: 'boolean',
-			default: false
-		}
-	},
-	additionalProperties: false
-}];
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			ignoreImports: {
+				type: 'boolean',
+				default: false
+			}
+		},
+		additionalProperties: false
+	}
+];
 
 module.exports = {
 	create,

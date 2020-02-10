@@ -2,7 +2,9 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 function checkEscape(context, node, value) {
-	const fixedValue = typeof value === 'string' ? value.replace(/((?:^|[^\\])(?:\\\\)*)\\x/g, '$1\\u00') : value;
+	const fixedValue = typeof value === 'string' ?
+		value.replace(/(?<=(?:^|[^\\])(?:\\\\)*)\\x/g, '\\u00') :
+		value;
 
 	if (value !== fixedValue) {
 		context.report({

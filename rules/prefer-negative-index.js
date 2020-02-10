@@ -46,18 +46,24 @@ const isPropertiesEqual = (node1, node2) => properties => {
 };
 
 const isTemplateElementEqual = (node1, node2) => {
-	return node1.value &&
+	return (
+		node1.value &&
 		node2.value &&
 		node1.tail === node2.tail &&
-		isPropertiesEqual(node1.value, node2.value)(['cooked', 'raw']);
+		isPropertiesEqual(node1.value, node2.value)(['cooked', 'raw'])
+	);
 };
 
 const isTemplateLiteralEqual = (node1, node2) => {
 	const {quasis: quasis1} = node1;
 	const {quasis: quasis2} = node2;
 
-	return quasis1.length === quasis2.length &&
-		quasis1.every((templateElement, index) => isEqual(templateElement, quasis2[index]));
+	return (
+		quasis1.length === quasis2.length &&
+		quasis1.every((templateElement, index) =>
+			isEqual(templateElement, quasis2[index])
+		)
+	);
 };
 
 const isEqual = (node1, node2) => {
@@ -131,7 +137,10 @@ const getLengthMemberExpression = node => {
 const getRemoveAbleNode = (target, argument) => {
 	const lengthMemberExpression = getLengthMemberExpression(argument);
 
-	if (lengthMemberExpression && isEqual(target, lengthMemberExpression.object)) {
+	if (
+		lengthMemberExpression &&
+		isEqual(target, lengthMemberExpression.object)
+	) {
 		return lengthMemberExpression;
 	}
 };
@@ -146,8 +155,10 @@ const getRemovalRange = (node, sourceCode) => {
 
 	while (hasParentheses) {
 		hasParentheses =
-			(before.type === 'Punctuator' && before.value === '(') &&
-			(after.type === 'Punctuator' && after.value === ')');
+			before.type === 'Punctuator' &&
+			before.value === '(' &&
+			after.type === 'Punctuator' &&
+			after.value === ')';
 		if (hasParentheses) {
 			before = sourceCode.getTokenBefore(before);
 			after = sourceCode.getTokenAfter(after);
@@ -203,9 +214,7 @@ function parse(node) {
 		return;
 	}
 
-	const {
-		supportObjects
-	} = methods.get(method);
+	const {supportObjects} = methods.get(method);
 
 	const parentCallee = callee.object.object;
 

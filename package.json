@@ -85,9 +85,6 @@
 		"extends": [
 			"plugin:eslint-plugin/all"
 		],
-		"rules": {
-			"prefer-named-capture-group": "off"
-		},
 		"overrides": [
 			{
 				"files": "rules/utils/*.js",

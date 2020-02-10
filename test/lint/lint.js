@@ -30,7 +30,12 @@ if (!ruleIds.every(ruleId => unicornRules.get(ruleId) === loadedRules.get(`unico
 
 const report = cli.executeOnFiles(files);
 
-const {errorCount, warningCount, fixableErrorCount, fixableWarningCount} = report;
+const {
+	errorCount,
+	warningCount,
+	fixableErrorCount,
+	fixableWarningCount
+} = report;
 
 const hasFixable = fixableErrorCount || fixableWarningCount;
 

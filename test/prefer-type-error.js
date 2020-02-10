@@ -9,10 +9,12 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const errors = [{
-	ruleId: 'prefer-type-error',
-	message: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.'
-}];
+const errors = [
+	{
+		ruleId: 'prefer-type-error',
+		message: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.'
+	}
+];
 
 const tcIdentifiers = new Set([
 	'isArguments',
