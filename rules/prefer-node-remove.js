@@ -1,16 +1,12 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValueNotUsable = require('./utils/is-value-not-usable');
+const methodSelector = require('./utils/method-selector');
 
-const getMethodName = callee => {
-	const {property} = callee;
-
-	if (property.type === 'Identifier') {
-		return property.name;
-	}
-
-	return null;
-};
+const selector = methodSelector({
+	name: 'removeChild',
+	length: 1
+});
 
 const getCallerName = callee => {
 	const {object} = callee;
@@ -46,22 +42,12 @@ const getArgumentName = arguments_ => {
 
 const create = context => {
 	return {
-		CallExpression(node) {
+		[selector](node) {
 			const {callee} = node;
 
-			if (
-				node.arguments.length === 0 ||
-				callee.type !== 'MemberExpression' ||
-				callee.computed
-			) {
-				return;
-			}
-
-			const methodName = getMethodName(callee);
 			const callerName = getCallerName(callee);
 
 			if (
-				methodName === 'removeChild' &&
 				(callerName === 'parentNode' || callerName === 'parentElement')
 			) {
 				const argumentName = getArgumentName(node.arguments);

@@ -26,9 +26,20 @@ ruleTester.run('prefer-node-remove', rule, {
 		'this.remove()',
 		'remove()',
 		'foo.parentNode.removeChild(\'bar\')',
-		'foo.parentNode[\'bar\'](foo)',
-		'foo.parentNode[removeChild](foo)',
-		'foo.parentNode.removeChild()'
+		// Not `CallExpression`
+		'new foo.parentNode.removeChild(foo);',
+		// Not `MemberExpression`
+		'removeChild(foo);',
+		// `callee.property` is not a `Identifier`
+		'foo.parentNode[\'removeChild\'](foo);',
+		// Computed
+		'foo.parentNode[removeChild](foo);',
+		// Not `removeChild`
+		'foo.parentNode.foo(foo);',
+		// More or less argument(s)
+		'foo.parentNode.removeChild(foo, two);',
+		'foo.parentNode.removeChild();',
+		'foo.parentNode.removeChild(...argumentsArray)'
 	],
 	invalid: [
 		invalidTestCase(
