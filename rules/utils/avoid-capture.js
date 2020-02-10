@@ -31,9 +31,11 @@ const nameCollidesWithArgumentsSpecial = (name, scopes, isStrict) => {
 const isSafeName = (name, scopes, ecmaVersion, isStrict) => {
 	ecmaVersion = Math.min(6, ecmaVersion); // 6 is the latest version understood by `reservedWords`
 
-	return !someScopeHasVariableName(name, scopes) &&
+	return (
+		!someScopeHasVariableName(name, scopes) &&
 		!reservedWords.check(name, ecmaVersion, isStrict) &&
-		!nameCollidesWithArgumentsSpecial(name, scopes, isStrict);
+		!nameCollidesWithArgumentsSpecial(name, scopes, isStrict)
+	);
 };
 
 const alwaysTrue = () => true;
@@ -67,7 +69,10 @@ module.exports = (name, scopes, ecmaVersion, isSafe = alwaysTrue) => {
 
 	let index = 0;
 	let indexifiedName = indexifyName(name, index);
-	while (!isSafeName(indexifiedName, scopes, ecmaVersion, isStrict) || !isSafe(indexifiedName, scopes)) {
+	while (
+		!isSafeName(indexifiedName, scopes, ecmaVersion, isStrict) ||
+		!isSafe(indexifiedName, scopes)
+	) {
 		index++;
 		indexifiedName = indexifyName(name, index);
 	}

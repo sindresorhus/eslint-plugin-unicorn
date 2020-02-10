@@ -19,10 +19,12 @@ const ruleTester = avaRuleTester(test, {
 	ruleTester.linter.defineRule(rule, {});
 });
 
-const error = [{
-	ruleId: 'no-abusive-eslint-disable',
-	message: 'Specify the rules you want to disable.'
-}];
+const error = [
+	{
+		ruleId: 'no-abusive-eslint-disable',
+		message: 'Specify the rules you want to disable.'
+	}
+];
 
 ruleTester.run('no-abusive-eslint-disable', rule, {
 	valid: [

@@ -368,20 +368,25 @@ const variableIdentifiers = ({identifiers, references}) => [
 ];
 
 const isExportedIdentifier = identifier => {
-	if (identifier.parent.type === 'VariableDeclarator' &&
+	if (
+		identifier.parent.type === 'VariableDeclarator' &&
 		identifier.parent.id === identifier
 	) {
-		return identifier.parent.parent.type === 'VariableDeclaration' &&
-			identifier.parent.parent.parent.type === 'ExportNamedDeclaration';
+		return (
+			identifier.parent.parent.type === 'VariableDeclaration' &&
+			identifier.parent.parent.parent.type === 'ExportNamedDeclaration'
+		);
 	}
 
-	if (identifier.parent.type === 'FunctionDeclaration' &&
+	if (
+		identifier.parent.type === 'FunctionDeclaration' &&
 		identifier.parent.id === identifier
 	) {
 		return identifier.parent.parent.type === 'ExportNamedDeclaration';
 	}
 
-	if (identifier.parent.type === 'ClassDeclaration' &&
+	if (
+		identifier.parent.type === 'ClassDeclaration' &&
 		identifier.parent.id === identifier
 	) {
 		return identifier.parent.parent.type === 'ExportNamedDeclaration';
@@ -404,34 +409,45 @@ const isIdentifierKeyOfNode = (identifier, node) =>
 	);
 
 const isShorthandPropertyIdentifier = identifier => {
-	return identifier.parent.type === 'Property' &&
+	return (
+		identifier.parent.type === 'Property' &&
 		identifier.parent.shorthand &&
-		isIdentifierKeyOfNode(identifier, identifier.parent);
+		isIdentifierKeyOfNode(identifier, identifier.parent)
+	);
 };
 
 const isAssignmentPatternShorthandPropertyIdentifier = identifier => {
-	return identifier.parent.type === 'AssignmentPattern' &&
+	return (
+		identifier.parent.type === 'AssignmentPattern' &&
 		identifier.parent.left === identifier &&
 		identifier.parent.parent.type === 'Property' &&
 		isIdentifierKeyOfNode(identifier, identifier.parent.parent) &&
 		identifier.parent.parent.value === identifier.parent &&
-		identifier.parent.parent.shorthand;
+		identifier.parent.parent.shorthand
+	);
 };
 
 const isShorthandImportIdentifier = identifier => {
-	return identifier.parent.type === 'ImportSpecifier' &&
+	return (
+		identifier.parent.type === 'ImportSpecifier' &&
 		identifier.parent.imported.name === identifier.name &&
-		identifier.parent.local.name === identifier.name;
+		identifier.parent.local.name === identifier.name
+	);
 };
 
 const isShorthandExportIdentifier = identifier => {
-	return identifier.parent.type === 'ExportSpecifier' &&
+	return (
+		identifier.parent.type === 'ExportSpecifier' &&
 		identifier.parent.exported.name === identifier.name &&
-		identifier.parent.local.name === identifier.name;
+		identifier.parent.local.name === identifier.name
+	);
 };
 
 const fixIdentifier = (fixer, replacement) => identifier => {
-	if (isShorthandPropertyIdentifier(identifier) || isAssignmentPatternShorthandPropertyIdentifier(identifier)) {
+	if (
+		isShorthandPropertyIdentifier(identifier) ||
+		isAssignmentPatternShorthandPropertyIdentifier(identifier)
+	) {
 		return fixer.replaceText(identifier, `${identifier.name}: ${replacement}`);
 	}
 
@@ -447,19 +463,22 @@ const fixIdentifier = (fixer, replacement) => identifier => {
 };
 
 const isDefaultOrNamespaceImportName = identifier => {
-	if (identifier.parent.type === 'ImportDefaultSpecifier' &&
+	if (
+		identifier.parent.type === 'ImportDefaultSpecifier' &&
 		identifier.parent.local === identifier
 	) {
 		return true;
 	}
 
-	if (identifier.parent.type === 'ImportNamespaceSpecifier' &&
+	if (
+		identifier.parent.type === 'ImportNamespaceSpecifier' &&
 		identifier.parent.local === identifier
 	) {
 		return true;
 	}
 
-	if (identifier.parent.type === 'ImportSpecifier' &&
+	if (
+		identifier.parent.type === 'ImportSpecifier' &&
 		identifier.parent.local === identifier &&
 		identifier.parent.imported.type === 'Identifier' &&
 		identifier.parent.imported.name === 'default'
@@ -467,7 +486,8 @@ const isDefaultOrNamespaceImportName = identifier => {
 		return true;
 	}
 
-	if (identifier.parent.type === 'VariableDeclarator' &&
+	if (
+		identifier.parent.type === 'VariableDeclarator' &&
 		identifier.parent.id === identifier &&
 		astUtils.isStaticRequire(identifier.parent.init)
 	) {
@@ -488,7 +508,8 @@ const isClassVariable = variable => {
 };
 
 const shouldReportIdentifierAsProperty = identifier => {
-	if (identifier.parent.type === 'MemberExpression' &&
+	if (
+		identifier.parent.type === 'MemberExpression' &&
 		identifier.parent.property === identifier &&
 		!identifier.parent.computed &&
 		identifier.parent.parent.type === 'AssignmentExpression' &&
@@ -497,7 +518,8 @@ const shouldReportIdentifierAsProperty = identifier => {
 		return true;
 	}
 
-	if (identifier.parent.type === 'Property' &&
+	if (
+		identifier.parent.type === 'Property' &&
 		identifier.parent.key === identifier &&
 		!identifier.parent.computed &&
 		!identifier.parent.shorthand && // Shorthand properties are reported and fixed as variables
@@ -506,21 +528,24 @@ const shouldReportIdentifierAsProperty = identifier => {
 		return true;
 	}
 
-	if (identifier.parent.type === 'ExportSpecifier' &&
+	if (
+		identifier.parent.type === 'ExportSpecifier' &&
 		identifier.parent.exported === identifier &&
 		identifier.parent.local !== identifier // Same as shorthand properties above
 	) {
 		return true;
 	}
 
-	if (identifier.parent.type === 'MethodDefinition' &&
+	if (
+		identifier.parent.type === 'MethodDefinition' &&
 		identifier.parent.key === identifier &&
 		!identifier.parent.computed
 	) {
 		return true;
 	}
 
-	if (identifier.parent.type === 'ClassProperty' &&
+	if (
+		identifier.parent.type === 'ClassProperty' &&
 		identifier.parent.key === identifier &&
 		!identifier.parent.computed
 	) {
@@ -539,13 +564,14 @@ const isInternalImport = node => {
 		source = node.parent.source.value;
 	}
 
-	return !source.includes('node_modules') && (source.startsWith('.') || source.startsWith('/'));
+	return (
+		!source.includes('node_modules') &&
+		(source.startsWith('.') || source.startsWith('/'))
+	);
 };
 
 const create = context => {
-	const {
-		ecmaVersion
-	} = context.parserOptions;
+	const {ecmaVersion} = context.parserOptions;
 	const options = prepareOptions(context.options[0]);
 	const filenameWithExtension = context.getFilename();
 
@@ -609,7 +635,10 @@ const create = context => {
 				return;
 			}
 
-			if (options.checkDefaultAndNamespaceImports === 'internal' && !isInternalImport(definition)) {
+			if (
+				options.checkDefaultAndNamespaceImports === 'internal' &&
+				!isInternalImport(definition)
+			) {
 				return;
 			}
 		}
@@ -619,12 +648,18 @@ const create = context => {
 				return;
 			}
 
-			if (options.checkShorthandImports === 'internal' && !isInternalImport(definition)) {
+			if (
+				options.checkShorthandImports === 'internal' &&
+				!isInternalImport(definition)
+			) {
 				return;
 			}
 		}
 
-		if (!options.checkShorthandProperties && isShorthandPropertyIdentifier(definition.name)) {
+		if (
+			!options.checkShorthandProperties &&
+			isShorthandPropertyIdentifier(definition.name)
+		) {
 			return;
 		}
 
@@ -710,7 +745,10 @@ const create = context => {
 				return;
 			}
 
-			if (filenameWithExtension === '<input>' || filenameWithExtension === '<text>') {
+			if (
+				filenameWithExtension === '<input>' ||
+				filenameWithExtension === '<text>'
+			) {
 				return;
 			}
 
@@ -741,50 +779,78 @@ const create = context => {
 	};
 };
 
-const schema = [{
-	type: 'object',
-	properties: {
-		checkProperties: {type: 'boolean'},
-		checkVariables: {type: 'boolean'},
-
-		checkDefaultAndNamespaceImports: {
-			type: ['boolean', 'string'],
-			pattern: 'internal'
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			checkProperties: {
+				type: 'boolean'
+			},
+			checkVariables: {
+				type: 'boolean'
+			},
+			checkDefaultAndNamespaceImports: {
+				type: [
+					'boolean',
+					'string'
+				],
+				pattern: 'internal'
+			},
+			checkShorthandImports: {
+				type: [
+					'boolean',
+					'string'
+				],
+				pattern: 'internal'
+			},
+			checkShorthandProperties: {
+				type: 'boolean'
+			},
+			checkFilenames: {
+				type: 'boolean'
+			},
+			extendDefaultReplacements: {
+				type: 'boolean'
+			},
+			replacements: {
+				$ref: '#/items/0/definitions/abbreviations'
+			},
+			extendDefaultWhitelist: {
+				type: 'boolean'
+			},
+			whitelist: {
+				$ref: '#/items/0/definitions/booleanObject'
+			}
 		},
-		checkShorthandImports: {
-			type: ['boolean', 'string'],
-			pattern: 'internal'
-		},
-		checkShorthandProperties: {type: 'boolean'},
-
-		checkFilenames: {type: 'boolean'},
-
-		extendDefaultReplacements: {type: 'boolean'},
-		replacements: {$ref: '#/items/0/definitions/abbreviations'},
-
-		extendDefaultWhitelist: {type: 'boolean'},
-		whitelist: {$ref: '#/items/0/definitions/booleanObject'}
-	},
-	additionalProperties: false,
-	definitions: {
-		abbreviations: {
-			type: 'object',
-			additionalProperties: {$ref: '#/items/0/definitions/replacements'}
-		},
-		replacements: {
-			anyOf: [
-				{
-					enum: [false]
-				},
-				{$ref: '#/items/0/definitions/booleanObject'}
-			]
-		},
-		booleanObject: {
-			type: 'object',
-			additionalProperties: {type: 'boolean'}
+		additionalProperties: false,
+		definitions: {
+			abbreviations: {
+				type: 'object',
+				additionalProperties: {
+					$ref: '#/items/0/definitions/replacements'
+				}
+			},
+			replacements: {
+				anyOf: [
+					{
+						enum: [
+							false
+						]
+					},
+					{
+						$ref: '#/items/0/definitions/booleanObject'
+					}
+				]
+			},
+			booleanObject: {
+				type: 'object',
+				additionalProperties: {
+					type: 'boolean'
+				}
+			}
 		}
 	}
-}];
+];
 
 module.exports = {
 	create,
