@@ -1,6 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValidVariableName = require('./utils/is-valid-variable-name');
+const quoteString = require('./utils/quote-string');
 const methodSelector = require('./utils/method-selector');
 
 const selector = methodSelector({
@@ -22,7 +23,7 @@ const fix = (context, node, fixer) => {
 	const replacement = `${calleeObject}.dataset${
 		isValidVariableName(name) ?
 			`.${name}` :
-			`['${name}']`
+			`[${quoteString(name)}]`
 	} = ${value}`;
 
 	return fixer.replaceText(node, replacement);
