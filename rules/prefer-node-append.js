@@ -3,6 +3,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValueNotUsable = require('./utils/is-value-not-usable');
 const methodSelector = require('./utils/method-selector');
 
+const message = 'Prefer `Node#append()` over `Node#appendChild()`.'
 const selector = methodSelector({
 	name: 'appendChild',
 	length: 1
@@ -18,7 +19,7 @@ const create = context => {
 
 			context.report({
 				node,
-				message: 'Prefer `Node#append()` over `Node#appendChild()`.',
+				message,
 				fix
 			});
 		}

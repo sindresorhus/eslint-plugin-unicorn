@@ -27,7 +27,7 @@ ruleTester.run('prefer-node-append', rule, {
 		'parent[appendChild](child);',
 		// Not `appendChild`
 		'parent.foo(child);',
-		// Extra/Less argument(s)
+		// More or less argument(s)
 		'parent.appendChild(one, two);',
 		'parent.appendChild();',
 		'parent.appendChild(...argumentsArray)'
