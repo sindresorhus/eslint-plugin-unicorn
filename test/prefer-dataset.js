@@ -33,7 +33,7 @@ ruleTester.run('prefer-dataset', rule, {
 		// More or less argument(s)
 		'element.setAttribute(\'data-unicorn\', \'🦄\', \'extra\');',
 		'element.setAttribute(\'data-unicorn\');',
-		'element.setAttribute(...argumentsArray)',
+		'element.setAttribute(...argumentsArray, ...argumentsArray2)',
 		// First Argument is not `Literal`
 		'element.setAttribute(`data-unicorn`, \'🦄\');',
 		// First Argument is not `string`
