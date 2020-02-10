@@ -1,43 +1,30 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const methodSelector = require('./utils/method-selector');
 
+const selector = methodSelector({length: 0});
 const methods = new Map([
 	['trimLeft', 'trimStart'],
 	['trimRight', 'trimEnd']
 ]);
 
 const messages = {};
-
 for (const [method, replacement] of methods.entries()) {
 	messages[method] = `Prefer \`String#${method}()\` over \`String#${replacement}()\`.`;
 }
 
 const create = context => {
 	return {
-		CallExpression(node) {
-			const {callee, arguments: arguments_} = node;
-
-			if (
-				callee.type !== 'MemberExpression' ||
-				callee.property.type !== 'Identifier' ||
-				arguments_.length !== 0
-			) {
-				return;
+		[selector](node) {
+			const {property} = node.callee;
+			const method = property.name;
+			if (methods.has(method)) {
+				context.report({
+					node,
+					messageId: method,
+					fix: fixer => fixer.replaceText(property, methods.get(method))
+				});
 			}
-
-			const method = callee.property.name;
-
-			if (!methods.has(method)) {
-				return;
-			}
-
-			const replacement = methods.get(method);
-
-			context.report({
-				node,
-				messageId: method,
-				fix: fixer => fixer.replaceText(callee.property, replacement)
-			});
 		}
 	};
 };
