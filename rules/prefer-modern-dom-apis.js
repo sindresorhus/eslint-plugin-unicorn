@@ -123,8 +123,11 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 
 const create = context => {
 	return {
-		'CallExpression[callee.type="MemberExpression"]'(node) {
-			if (node.arguments.length === 2) {
+		CallExpression(node) {
+			if (
+				node.callee.type === 'MemberExpression' &&
+				node.arguments.length === 2
+			) {
 				checkForReplaceChildOrInsertBefore(context, node);
 				checkForInsertAdjacentTextOrInsertAdjacentElement(context, node);
 			}

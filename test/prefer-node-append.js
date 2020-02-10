@@ -18,9 +18,7 @@ ruleTester.run('prefer-node-append', rule, {
 		'parent.append(child);',
 		'document.body.append(child, \'text\');',
 		'node.append()',
-		'node.append(null)',
-		'node.appendChild(child, child2)',
-		'node.appendChild()'
+		'node.append(null)'
 	],
 	invalid: [
 		{
@@ -31,6 +29,11 @@ ruleTester.run('prefer-node-append', rule, {
 		{
 			code: 'document.body.appendChild(child);',
 			output: 'document.body.append(child);',
+			errors: [error]
+		},
+		{
+			code: 'node.appendChild()',
+			output: 'node.append()',
 			errors: [error]
 		},
 		{
