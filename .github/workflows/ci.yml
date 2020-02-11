@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
       - run: npm install
-      - run: npm run test-coverage
+      - run: npm run test
       - uses: coverallsapp/github-action@master
         continue-on-error: true
         with:
