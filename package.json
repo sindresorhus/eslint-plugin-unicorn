@@ -14,7 +14,7 @@
 		"node": ">=10"
 	},
 	"scripts": {
-		"test": "xo && nyc --reporter=lcov ava",
+		"test": "xo && nyc ava",
 		"lint": "node ./test/lint/lint.js",
 		"integration": "node ./test/integration/test.js"
 	},
@@ -77,6 +77,9 @@
 		"files": [
 			"test/*.js"
 		]
+	},
+	"nyc": {
+		"reporter": ["lcov"]
 	},
 	"xo": {
 		"plugins": [
