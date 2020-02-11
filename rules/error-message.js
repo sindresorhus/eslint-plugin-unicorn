@@ -42,7 +42,11 @@ const findIdentifierValues = (identifierNode, context) => {
 };
 
 const isEmptyMessageString = node => {
-	return node.arguments.length > 0 && node.arguments[0].type === 'Literal' && !node.arguments[0].value;
+	return (
+		node.arguments.length > 0 &&
+		node.arguments[0].type === 'Literal' &&
+		!node.arguments[0].value
+	);
 };
 
 const reportError = (expressionNode, context) => {

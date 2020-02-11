@@ -6,19 +6,24 @@ const getDeclaratorOrPropertyValue = declaratorOrProperty => {
 };
 
 const isMemberExpressionCall = memberExpression => {
-	return memberExpression.parent &&
+	return (
+		memberExpression.parent &&
 		memberExpression.parent.type === 'CallExpression' &&
-		memberExpression.parent.callee === memberExpression;
+		memberExpression.parent.callee === memberExpression
+	);
 };
 
 const isMemberExpressionAssignment = memberExpression => {
-	return memberExpression.parent &&
-		memberExpression.parent.type === 'AssignmentExpression';
+	return (
+		memberExpression.parent &&
+		memberExpression.parent.type === 'AssignmentExpression'
+	);
 };
 
 const isMemberExpressionComputedBeyondPrediction = memberExpression => {
-	return memberExpression.computed &&
-		(memberExpression.property.type !== 'Literal');
+	return (
+		memberExpression.computed && memberExpression.property.type !== 'Literal'
+	);
 };
 
 const specialProtoPropertyKey = {

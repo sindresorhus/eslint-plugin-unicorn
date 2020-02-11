@@ -60,25 +60,26 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 	const readme = await pify(fs.readFile)('readme.md', 'utf8');
 	let usageRules;
 	try {
-		const usageRulesMatch = /## Usage.*?"rules": ({.*?})/ms.exec(readme);
+		const usageRulesMatch = /## Usage.*?"rules": (?<rules>{.*?})/ms.exec(readme);
 		t.truthy(usageRulesMatch, 'List of rules should be defined in readme.md ## Usage');
-		usageRules = JSON.parse(usageRulesMatch[1]);
+		usageRules = JSON.parse(usageRulesMatch.groups.rules);
 	} catch (_) {}
 
 	t.truthy(usageRules, 'List of rules should be defined in readme.md ## Usage and be valid JSON');
 
-	const rulesMatch = /## Rules(.*?)## Deprecated Rules/ms.exec(readme);
+	const rulesMatch = /## Rules(?<rulesText>.*?)## Deprecated Rules/ms.exec(readme);
 	t.truthy(rulesMatch, 'List of rules should be defined in readme.md in ## Rules before ## Recommended config');
-	const rulesText = rulesMatch[1];
-	const re = /- \[(.*?)]\((.*?)\) - (.*)\n/gm;
+	const {rulesText} = rulesMatch.groups;
+	const re = /- \[(?<id>.*?)]\((?<link>.*?)\) - (?<description>.*)\n/gm;
 	const rules = [];
 	let match;
 	do {
 		match = re.exec(rulesText);
 		if (match) {
-			t.is(match[2], `docs/rules/${match[1]}.md`, `${match[1]} link to docs should be correct`);
-			t.true(match[3].trim().length > 0, `${match[1]} should have description in readme.md ## Rules`);
-			rules.push(match[1]);
+			const {id, link, description} = match.groups;
+			t.is(link, `docs/rules/${id}.md`, `${id} link to docs should be correct`);
+			t.true(description.trim().length > 0, `${id} should have description in readme.md ## Rules`);
+			rules.push(id);
 		}
 	} while (match);
 

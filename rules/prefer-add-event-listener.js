@@ -120,7 +120,8 @@ const create = context => {
 					node,
 					message: formatMessage('removeEventListener', eventMethodName)
 				});
-			} else if (eventTypeName === 'beforeunload' &&
+			} else if (
+				eventTypeName === 'beforeunload' &&
 				!shouldFixBeforeUnload(assignedExpression, nodeReturnsSomething)
 			) {
 				context.report({

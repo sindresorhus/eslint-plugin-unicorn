@@ -31,37 +31,79 @@ ruleTester.run('prefer-spread', rule, {
 	invalid: [
 		{
 			code: 'const x = Array.from(set);',
-			errors: [{message: 'Prefer the spread operator over `Array.from()`.', column: 11, line: 1}],
+			errors: [
+				{
+					message: 'Prefer the spread operator over `Array.from()`.',
+					column: 11,
+					line: 1
+				}
+			],
 			output: 'const x = [...set];'
 		},
 		{
 			code: 'Array.from(set).map(() => {});',
-			errors: [{message: 'Prefer the spread operator over `Array.from()`.', column: 1, line: 1}],
+			errors: [
+				{
+					message: 'Prefer the spread operator over `Array.from()`.',
+					column: 1,
+					line: 1
+				}
+			],
 			output: '[...set].map(() => {});'
 		},
 		{
 			code: 'Array.from(set, mapFn).reduce(() => {});',
-			errors: [{message: 'Prefer the spread operator over `Array.from()`.', column: 1, line: 1}],
+			errors: [
+				{
+					message: 'Prefer the spread operator over `Array.from()`.',
+					column: 1,
+					line: 1
+				}
+			],
 			output: '[...set].map(mapFn).reduce(() => {});'
 		},
 		{
 			code: 'Array.from(set, mapFn, thisArg).reduce(() => {});',
-			errors: [{message: 'Prefer the spread operator over `Array.from()`.', column: 1, line: 1}],
+			errors: [
+				{
+					message: 'Prefer the spread operator over `Array.from()`.',
+					column: 1,
+					line: 1
+				}
+			],
 			output: '[...set].map(mapFn, thisArg).reduce(() => {});'
 		},
 		{
 			code: 'Array.from(set, () => {}, thisArg).reduce(() => {});',
-			errors: [{message: 'Prefer the spread operator over `Array.from()`.', column: 1, line: 1}],
+			errors: [
+				{
+					message: 'Prefer the spread operator over `Array.from()`.',
+					column: 1,
+					line: 1
+				}
+			],
 			output: '[...set].map(() => {}, thisArg).reduce(() => {});'
 		},
 		{
 			code: 'Array.from(new Set([1, 2])).map(() => {});',
-			errors: [{message: 'Prefer the spread operator over `Array.from()`.', column: 1, line: 1}],
+			errors: [
+				{
+					message: 'Prefer the spread operator over `Array.from()`.',
+					column: 1,
+					line: 1
+				}
+			],
 			output: '[...new Set([1, 2])].map(() => {});'
 		},
 		{
 			code: 'Array.from(document.querySelectorAll("*")).map(() => {});',
-			errors: [{message: 'Prefer the spread operator over `Array.from()`.', column: 1, line: 1}],
+			errors: [
+				{
+					message: 'Prefer the spread operator over `Array.from()`.',
+					column: 1,
+					line: 1
+				}
+			],
 			output: '[...document.querySelectorAll("*")].map(() => {});'
 		}
 	]

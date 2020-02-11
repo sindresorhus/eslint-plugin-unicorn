@@ -8,7 +8,11 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const errors = [{message: 'Array destructuring may not contain consecutive ignored values.'}];
+const errors = [
+	{
+		message: 'Array destructuring may not contain consecutive ignored values.'
+	}
+];
 
 ruleTester.run('no-unreadable-array-destructuring', rule, {
 	valid: [

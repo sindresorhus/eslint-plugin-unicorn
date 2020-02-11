@@ -1,7 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const disableRegex = /^eslint-disable(-next-line|-line)?($|(\s+(@(?:[\w-]+\/){1,2})?[\w-]+)?)/;
+const disableRegex = /^eslint-disable(?:-next-line|-line)?(?<ruleId>$|(?:\s+(?:@(?:[\w-]+\/){1,2})?[\w-]+)?)/;
 
 const create = context => ({
 	Program: node => {
@@ -11,7 +11,7 @@ const create = context => ({
 
 			if (
 				result && // It's a eslint-disable comment
-				!result[2] // But it did not specify any rules
+				!result.groups.ruleId // But it did not specify any rules
 			) {
 				context.report({
 					loc: {
