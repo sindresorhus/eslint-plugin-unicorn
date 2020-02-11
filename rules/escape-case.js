@@ -52,6 +52,8 @@ Record escaped node position in regexpp ASTNode. Returns undefined if not found.
 			const matches = node.raw.match(escapePatternWithLowercase);
 
 			if (matches && matches.groups.data.slice(1).match(hasLowercaseCharacter)) {
+				// There is no `range` property in AST from `regexpp`
+				// reference: https://github.com/mysticatea/regexpp/blob/master/src/ast.ts#L60-L71
 				escapeNodePosition = [node.start, node.end];
 			}
 		}

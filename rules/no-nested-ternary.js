@@ -8,9 +8,9 @@ const isParethesized = (sourceCode, node) => {
 	return (
 		Boolean(previousToken && nextToken) &&
 		previousToken.value === '(' &&
-		previousToken.end <= node.start &&
+		previousToken.end <= node.range[0] &&
 		nextToken.value === ')' &&
-		nextToken.start >= node.end
+		nextToken.start >= node.range[1]
 	);
 };
 

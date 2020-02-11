@@ -8,7 +8,7 @@ const create = context => {
 		'NewExpression[callee.name="Buffer"]': node => {
 			const method = inferMethod(node.arguments);
 			const range = [
-				node.start,
+				node.range[0],
 				node.callee.end
 			];
 
