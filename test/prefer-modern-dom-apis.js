@@ -19,7 +19,47 @@ ruleTester.run('prefer-modern-dom-apis', rule, {
 		'referenceNode.append(newNode);',
 		'referenceNode.append("text");',
 		'referenceNode.after(newNode);',
-		'referenceNode.after("text");'
+		'referenceNode.after("text");',
+		// Not `CallExpression`
+		'new parentNode.replaceChild(newNode, oldNode);',
+		'new parentNode.insertBefore(newNode, referenceNode);',
+		'new referenceNode.insertAdjacentText(\'beforebegin\', \'text\');',
+		'new referenceNode.insertAdjacentElement(\'beforebegin\', newNode);',
+		// Not `MemberExpression`
+		'replaceChild(newNode, oldNode);',
+		'insertBefore(newNode, referenceNode);',
+		'insertAdjacentText(\'beforebegin\', \'text\');',
+		'insertAdjacentElement(\'beforebegin\', newNode);',
+		// `callee.property` is not a `Identifier`
+		'parentNode[\'replaceChild\'](newNode, oldNode);',
+		'parentNode[\'insertBefore\'](newNode, referenceNode);',
+		'referenceNode[\'insertAdjacentText\'](\'beforebegin\', \'text\');',
+		'referenceNode[\'insertAdjacentElement\'](\'beforebegin\', newNode);',
+		// Computed
+		'parentNode[replaceChild](newNode, oldNode);',
+		'parentNode[insertBefore](newNode, referenceNode);',
+		'referenceNode[insertAdjacentText](\'beforebegin\', \'text\');',
+		'referenceNode[insertAdjacentElement](\'beforebegin\', newNode);',
+		// Not a legacy api
+		'parent.foo(a, b);',
+		// Less arguments
+		'parentNode.replaceChild(newNode);',
+		'parentNode.insertBefore(newNode);',
+		'referenceNode.insertAdjacentText(\'beforebegin\');',
+		'referenceNode.insertAdjacentElement(\'beforebegin\');',
+		// More arguments
+		'parentNode.replaceChild(newNode, oldNode, extra);',
+		'parentNode.insertBefore(newNode, referenceNode, extra);',
+		'referenceNode.insertAdjacentText(\'beforebegin\', \'text\', extra);',
+		'referenceNode.insertAdjacentElement(\'beforebegin\', newNode, extra);',
+		// `SpreadElement` arguments
+		'parentNode.replaceChild(...argumentsArray1, ...argumentsArray2);',
+		'parentNode.insertBefore(...argumentsArray1, ...argumentsArray2);',
+		'referenceNode.insertAdjacentText(...argumentsArray1, ...argumentsArray2);',
+		'referenceNode.insertAdjacentElement(...argumentsArray1, ...argumentsArray2);',
+		// `position` argument is not listed
+		'referenceNode.insertAdjacentText(\'foo\', \'text\');',
+		'referenceNode.insertAdjacentElement(\'foo\', newNode);'
 	],
 	invalid: [
 		// Tests for .replaceChild()

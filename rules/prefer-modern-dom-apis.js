@@ -1,6 +1,11 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValueNotUsable = require('./utils/is-value-not-usable');
+const methodSelector = require('./utils/method-selector');
+
+const selector = methodSelector({
+	length: 2
+});
 
 const getArgumentNameForReplaceChildOrInsertBefore = nodeArguments => {
 	if (nodeArguments.type === 'Identifier') {
@@ -123,14 +128,9 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 
 const create = context => {
 	return {
-		CallExpression(node) {
-			if (
-				node.callee.type === 'MemberExpression' &&
-				node.arguments.length === 2
-			) {
-				checkForReplaceChildOrInsertBefore(context, node);
-				checkForInsertAdjacentTextOrInsertAdjacentElement(context, node);
-			}
+		[selector](node) {
+			checkForReplaceChildOrInsertBefore(context, node);
+			checkForInsertAdjacentTextOrInsertAdjacentElement(context, node);
 		}
 	};
 };
