@@ -15,8 +15,7 @@
 	},
 	"scripts": {
 		"test": "xo && nyc ava",
-		"test-coverage": "nyc --reporter=lcov ava",
-		"lint": "node ./test/lint/lint.js && xo",
+		"lint": "node ./test/lint/lint.js",
 		"integration": "node ./test/integration/test.js"
 	},
 	"files": [
