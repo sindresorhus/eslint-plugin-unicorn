@@ -1,71 +1,48 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValidVariableName = require('./utils/is-valid-variable-name');
+const quoteString = require('./utils/quote-string');
+const methodSelector = require('./utils/method-selector');
 
-const getMethodName = memberExpression => memberExpression.property.name;
-
-const getDataAttributeName = argument => {
-	if (argument.type === 'Literal') {
-		const matches = /^data-(?<name>.+)/.exec(argument.value);
-		return matches ? matches.groups.name : '';
-	}
-
-	return '';
-};
+const selector = methodSelector({
+	name: 'setAttribute',
+	length: 2
+}) + '[arguments.0.type="Literal"]';
 
 const parseNodeText = (context, argument) => context.getSourceCode().getText(argument);
 
 const dashToCamelCase = string => string.replace(/-[a-z]/g, s => s[1].toUpperCase());
 
-const getReplacement = (context, node, memberExpression, propertyName) => {
-	const calleeObject = parseNodeText(context, memberExpression.object);
-	const value = parseNodeText(context, node.arguments[1]);
+const fix = (context, node, fixer) => {
+	let [name, value] = node.arguments;
+	const calleeObject = parseNodeText(context, node.callee.object);
 
-	propertyName = dashToCamelCase(propertyName);
+	name = dashToCamelCase(name.value.slice(5));
+	value = parseNodeText(context, value);
 
-	if (!isValidVariableName(propertyName)) {
-		return `${calleeObject}.dataset['${propertyName}'] = ${value}`;
-	}
+	const replacement = `${calleeObject}.dataset${
+		isValidVariableName(name) ?
+			`.${name}` :
+			`[${quoteString(name)}]`
+	} = ${value}`;
 
-	return `${calleeObject}.dataset.${propertyName} = ${value}`;
-};
-
-const isBracketNotation = (context, callee) => {
-	const bracketOpen = context
-		.getSourceCode()
-		.getFirstTokenBetween(callee.object, callee.property, {
-			filter: token => token.value === '['
-		});
-
-	return bracketOpen !== null && bracketOpen.value === '[';
+	return fixer.replaceText(node, replacement);
 };
 
 const create = context => {
 	return {
-		CallExpression(node) {
-			const {callee} = node;
+		[selector](node) {
+			const name = node.arguments[0].value;
 
-			if (callee.type !== 'MemberExpression') {
+			if (typeof name !== 'string' || !name.startsWith('data-') || name === 'data-') {
 				return;
 			}
 
-			if (getMethodName(callee) !== 'setAttribute') {
-				return;
-			}
-
-			if (isBracketNotation(context, callee)) {
-				return;
-			}
-
-			const attributeName = getDataAttributeName(node.arguments[0]);
-			if (attributeName) {
-				const replacement = getReplacement(context, node, callee, attributeName);
-				context.report({
-					node,
-					message: 'Prefer `.dataset` over `setAttribute(…)`.',
-					fix: fixer => fixer.replaceText(node, replacement)
-				});
-			}
+			context.report({
+				node,
+				message: 'Prefer `.dataset` over `setAttribute(…)`.',
+				fix: fixer => fix(context, node, fixer)
+			});
 		}
 	};
 };
