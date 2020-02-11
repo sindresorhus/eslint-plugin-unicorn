@@ -79,7 +79,9 @@
 		]
 	},
 	"nyc": {
-		"reporter": ["lcov"]
+		"reporter": [
+			"lcov"
+		]
 	},
 	"xo": {
 		"plugins": [
