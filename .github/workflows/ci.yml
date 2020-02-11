@@ -29,17 +29,6 @@ jobs:
         continue-on-error: true
         with:
           github-token: ${{ secrets.github_token }}
-          parallel: true
-
-  coverage:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-        - uses: coverallsapp/github-action@master
-          continue-on-error: true
-          with:
-              github-token: ${{ secrets.github_token }}
-              parallel-finished: true
 
   lint:
     runs-on: ubuntu-latest
