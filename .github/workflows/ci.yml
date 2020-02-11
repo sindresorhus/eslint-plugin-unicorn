@@ -26,6 +26,7 @@ jobs:
       - run: npm install
       - run: npm run test
       - uses: coverallsapp/github-action@master
+        if: matrix.os == 'ubuntu-latest' || matrix.node_version == 12
         continue-on-error: true
         with:
           github-token: ${{ secrets.github_token }}
