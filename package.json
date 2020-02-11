@@ -14,7 +14,7 @@
 		"node": ">=10"
 	},
 	"scripts": {
-		"test": "xo && nyc ava",
+		"test": "xo && nyc --reporter=lcov ava",
 		"lint": "node ./test/lint/lint.js",
 		"integration": "node ./test/integration/test.js"
 	},
@@ -92,6 +92,9 @@
 					"eslint-plugin/require-meta-docs-url": "off"
 				}
 			}
-		]
+		],
+		"rules": {
+			"import/order": "off"
+		}
 	}
 }
