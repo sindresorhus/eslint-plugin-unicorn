@@ -8,23 +8,7 @@ const selector = methodSelector({
 	length: 1
 });
 
-const getCallerName = callee => {
-	const {object} = callee;
-
-	if (object.type === 'Identifier') {
-		return object.name;
-	}
-
-	if (object.type === 'MemberExpression') {
-		const {property} = object;
-
-		if (property.type === 'Identifier') {
-			return property.name;
-		}
-	}
-
-	return null;
-};
+const message = `Prefer Prefer \`childNode.remove()\` over \`parentNode.removeChild(childNode)\`.`
 
 const getArgumentName = arguments_ => {
 	const [identifier] = arguments_;
@@ -45,7 +29,6 @@ const create = context => {
 		[selector](node) {
 			const {callee} = node;
 
-			const callerName = getCallerName(callee);
 			const argumentName = getArgumentName(node.arguments);
 
 			if (argumentName) {
@@ -53,7 +36,7 @@ const create = context => {
 
 				context.report({
 					node,
-					message: `Prefer \`${argumentName}.remove()\` over \`${callerName}.removeChild(${argumentName})\`.`,
+					message,
 					fix
 				});
 			}
