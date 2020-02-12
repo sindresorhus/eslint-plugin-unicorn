@@ -51,7 +51,46 @@ ruleTester.run('no-console-spaces', rule, {
 		'console.log(null);',
 		'console.log(undefined);',
 
-		'console.dir("abc ");'
+		'console.dir("abc ");',
+
+		// Not `CallExpression`
+		'new console.log(" a ", " b ");',
+		'new console.debug(" a ", " b ");',
+		'new console.info(" a ", " b ");',
+		'new console.warn(" a ", " b ");',
+		'new console.error(" a ", " b ");',
+		// Not `MemberExpression`
+		'log(" a ", " b ");',
+		'debug(" a ", " b ");',
+		'info(" a ", " b ");',
+		'warn(" a ", " b ");',
+		'error(" a ", " b ");',
+		// `callee.property` is not a `Identifier`
+		'console["log"](" a ", " b ");',
+		'console["debug"](" a ", " b ");',
+		'console["info"](" a ", " b ");',
+		'console["warn"](" a ", " b ");',
+		'console["error"](" a ", " b ");',
+		// Computed
+		'console[log](" a ", " b ");',
+		'console[debug](" a ", " b ");',
+		'console[info](" a ", " b ");',
+		'console[warn](" a ", " b ");',
+		'console[error](" a ", " b ");',
+		// Not listed method
+		'console.foo(" a ", " b ");',
+		// Not `console`
+		'foo.log(" a ", " b ");',
+		'foo.debug(" a ", " b ");',
+		'foo.info(" a ", " b ");',
+		'foo.warn(" a ", " b ");',
+		'foo.error(" a ", " b ");',
+		// `callee.object.type` is not a `Identifier`
+		'lib.console.log(" a ", " b ");',
+		'lib.console.debug(" a ", " b ");',
+		'lib.console.info(" a ", " b ");',
+		'lib.console.warn(" a ", " b ");',
+		'lib.console.error(" a ", " b ");'
 	],
 	invalid: [
 		{

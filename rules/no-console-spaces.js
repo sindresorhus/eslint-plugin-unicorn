@@ -1,27 +1,20 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const methodSelector = require('./utils/method-selector');
 
-const getConsoleMethod = node => {
-	const methods = [
-		'log',
-		'debug',
-		'info',
-		'warn',
-		'error'
-	];
+const selector = [
+	methodSelector(),
+	'[callee.object.type="Identifier"]',
+	'[callee.object.name="console"]'
+].join('');
 
-	const {callee} = node;
-
-	if (
-		callee.type === 'MemberExpression' &&
-		callee.object.type === 'Identifier' &&
-		callee.object.name === 'console' &&
-		callee.property.type === 'Identifier' &&
-		methods.includes(callee.property.name)
-	) {
-		return callee.property.name;
-	}
-};
+const methods = new Set([
+	'log',
+	'debug',
+	'info',
+	'warn',
+	'error'
+]);
 
 const getArgumentValue = (context, nodeArgument) => {
 	let value = null;
@@ -110,9 +103,10 @@ const buildErrorMessage = method => {
 
 const create = context => {
 	return {
-		CallExpression(node) {
-			const method = getConsoleMethod(node);
-			if (!method) {
+		[selector](node) {
+			const method = node.callee.property.name;
+
+			if (!methods.has(method)) {
 				return;
 			}
 
