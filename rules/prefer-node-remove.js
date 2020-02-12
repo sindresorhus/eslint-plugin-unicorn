@@ -8,8 +8,9 @@ const selector = methodSelector({
 	length: 1
 });
 
-const message = `Prefer Prefer \`childNode.remove()\` over \`parentNode.removeChild(childNode)\`.`
+const message = 'Prefer Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.';
 
+// TODO: support more types of childNode
 const getArgumentName = arguments_ => {
 	const [identifier] = arguments_;
 
@@ -27,12 +28,12 @@ const getArgumentName = arguments_ => {
 const create = context => {
 	return {
 		[selector](node) {
-			const {callee} = node;
-
 			const argumentName = getArgumentName(node.arguments);
 
 			if (argumentName) {
-				const fix = isValueNotUsable(node) ? fixer => fixer.replaceText(node, `${argumentName}.remove()`) : undefined;
+				const fix = isValueNotUsable(node) ?
+					fixer => fixer.replaceText(node, `${argumentName}.remove()`) :
+					undefined;
 
 				context.report({
 					node,
