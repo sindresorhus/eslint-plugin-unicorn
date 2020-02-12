@@ -18,11 +18,9 @@ const getArgumentName = arguments_ => {
 		return 'this';
 	}
 
-	if (identifier.type === 'Identifier') {
+	if (identifier.type === 'Identifier' && identifier.name !== 'undefined') {
 		return identifier.name;
 	}
-
-	return null;
 };
 
 const create = context => {
