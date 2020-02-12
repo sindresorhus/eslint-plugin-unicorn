@@ -7,8 +7,8 @@ const {
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const replaceTemplateElement = require('./utils/replace-template-element');
 
-const escapeWithLowercase = /(?<before>(?:^|[^\\])(?:\\\\)*)\\(?<data>x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+})/;
-const escapePatternWithLowercase = /(?<before>(?:^|[^\\])(?:\\\\)*)\\(?<data>x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+}|c[a-z])/;
+const escapeWithLowercase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+})/;
+const escapePatternWithLowercase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+}|c[a-z])/;
 const hasLowercaseCharacter = /[a-z]+/;
 const message = 'Use uppercase characters for the value of the escape sequence.';
 
@@ -16,13 +16,12 @@ const fix = (value, regexp) => {
 	const results = regexp.exec(value);
 
 	if (results) {
-		const {before, data} = results.groups;
-		const prefix = before.length + 1;
+		const {data} = results.groups;
 		const fixedEscape = data.slice(0, 1) + data.slice(1).toUpperCase();
 		return (
-			value.slice(0, results.index + prefix) +
+			value.slice(0, results.index) +
 			fixedEscape +
-			value.slice(results.index + results[0].length)
+			value.slice(results.index + data.length)
 		);
 	}
 
@@ -116,7 +115,7 @@ const create = context => {
 		TemplateElement(node) {
 			const matches = node.value.raw.match(escapeWithLowercase);
 
-			if (matches && matches[2].slice(1).match(hasLowercaseCharacter)) {
+			if (matches && matches.groups.data.slice(1).match(hasLowercaseCharacter)) {
 				context.report({
 					node,
 					message,
