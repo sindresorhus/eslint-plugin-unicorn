@@ -118,6 +118,24 @@ const checkPropertiesOptions = [
 	}
 ];
 
+const extendDefaultWhitelistOptions = [
+	{
+		whitelist: {
+			err: true
+		},
+		extendDefaultWhitelist: true
+	}
+];
+
+const noExtendDefaultWhitelistOptions = [
+	{
+		whitelist: {
+			err: true
+		},
+		extendDefaultWhitelist: false
+	}
+];
+
 ruleTester.run('prevent-abbreviations', rule, {
 	valid: [
 		'let x',
@@ -255,6 +273,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'foo();',
 			filename: 'err/http-error.js'
+		},
+
+		// `extendDefaultWhitelist` option
+		{
+			code: 'const propTypes = 2;const err = 2;',
+			options: extendDefaultWhitelistOptions
 		}
 	],
 
@@ -1050,6 +1074,14 @@ ruleTester.run('prevent-abbreviations', rule, {
 			filename: 'cb.js',
 			options: extendedOptions,
 			errors: createErrors('The filename `cb.js` should be named `circuitBreacker.js`. A more descriptive name will do too.')
+		},
+
+		// `extendDefaultWhitelist` option
+		{
+			code: 'const propTypes = 2;const err = 2;',
+			output: 'const propertyTypes = 2;const err = 2;',
+			options: noExtendDefaultWhitelistOptions,
+			errors: createErrors()
 		}
 	]
 });
