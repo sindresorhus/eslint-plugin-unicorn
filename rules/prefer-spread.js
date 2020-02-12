@@ -1,41 +1,37 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const isObjectMethod = require('./utils/is-object-method');
+const methodSelector = require('./utils/method-selector');
 
-const isArrayFrom = node => isObjectMethod(node, 'Array', 'from');
-const isArrayLike = argument => argument && argument.type !== 'ObjectExpression';
-
-const parseArgument = (context, argument) => {
-	if (argument.type === 'Identifier') {
-		return argument.name;
-	}
-
-	return context.getSourceCode().getText(argument);
-};
+const selector = [
+	methodSelector({
+		object: 'Array',
+		name: 'from',
+		length: [1, 3]
+	}),
+	// Allow Array.from({length})
+	'[arguments.0.type!="ObjectExpression"]'
+].join('');
 
 const create = context => {
+	const getSource = node => context.getSourceCode().getText(node);
+
 	return {
-		CallExpression(node) {
-			if (isArrayFrom(node) && isArrayLike(node.arguments[0])) {
-				context.report({
-					node,
-					message: 'Prefer the spread operator over `Array.from()`.',
-					fix: fixer => {
-						const arrayLikeArgument = parseArgument(context, node.arguments[0]);
-						const replacement = `[...${arrayLikeArgument}]`;
+		[selector](node) {
+			context.report({
+				node,
+				message: 'Prefer the spread operator over `Array.from()`.',
+				fix: fixer => {
+					const [arrayLikeArgument, mapFn, thisArgument] = node.arguments.map(getSource);
+					let replacement = `[...${arrayLikeArgument}]`;
 
-						if (node.arguments.length > 1) {
-							const mapFn = parseArgument(context, node.arguments[1]);
-							const thisArgument = node.arguments.length === 3 ? parseArgument(context, node.arguments[2]) : null;
-							const thisArgumentReplacement = thisArgument ? `, ${thisArgument}` : '';
-
-							return fixer.replaceText(node, `${replacement}.map(${mapFn}${thisArgumentReplacement})`);
-						}
-
-						return fixer.replaceText(node, replacement);
+					if (mapFn) {
+						const mapArguments = [mapFn, thisArgument].filter(Boolean);
+						replacement += `.map(${mapArguments.join(', ')})`;
 					}
-				});
-			}
+
+					return fixer.replaceText(node, replacement);
+				}
+			});
 		}
 	};
 };

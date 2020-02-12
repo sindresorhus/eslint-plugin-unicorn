@@ -30,6 +30,16 @@ module.exports = options => {
 		}
 	} else if (typeof length === 'string') {
 		selector.push(`[arguments.length${length}]`);
+	} else if (Array.isArray(length)) {
+		const [min, max] = length;
+		selector.push(`[arguments.length>=${min}]`);
+		selector.push(`[arguments.length<=${max}]`);
+
+		// TODO: DRY this part
+		// Exclude arguments with `SpreadElement` type
+		for (let index = 0; index < max; index += 1) {
+			selector.push(`[arguments.${index}.type!="SpreadElement"]`);
+		}
 	}
 
 	return selector.join('');

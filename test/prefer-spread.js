@@ -11,9 +11,6 @@ const ruleTester = avaRuleTester(test, {
 ruleTester.run('prefer-spread', rule, {
 	valid: [
 		'[...set].map(() => {});',
-		'Array.from()',
-		'Array.from({length: 10})',
-		'Array.from({length: 10}, mapFn)',
 		// TypedArray.from
 		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/from
 		'Int8Array.from(set);',
@@ -26,7 +23,28 @@ ruleTester.run('prefer-spread', rule, {
 		'Float32Array.from(set);',
 		'Float64Array.from(set);',
 		'BigInt64Array.from(set);',
-		'BigUint64Array.from(set);'
+		'BigUint64Array.from(set);',
+
+		// Not `CallExpression`
+		'new Array.from(foo);',
+		// Not `MemberExpression`
+		'from(foo);',
+		// `callee.property` is not a `Identifier`
+		'Array["from"](foo);',
+		// Computed
+		'Array[from](foo);',
+		// Not `from`
+		'Array.foo(foo);',
+		// Not `Array`
+		'foo.from(foo);',
+		// `callee.object.type` is not a `Identifier`
+		'lib.Array.from(foo);',
+		// More/Less arguments
+		'Array.from();',
+		'Array.from(foo, mapFn, thisArg, extra);',
+		'Array.from(...argumentsArray);',
+		// FirstArgument is `ObjectExpression`
+		'Array.from({length: 10});'
 	],
 	invalid: [
 		{
