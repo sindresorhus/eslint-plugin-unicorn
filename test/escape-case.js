@@ -72,10 +72,21 @@ ruleTester.run('escape-case', rule, {
 			errors,
 			output: 'const foo = "\\xA9";'
 		},
+		// Mixed cases
 		{
-			code: 'const foo = "\\xAb";',
+			code: 'const foo = "\\xAa";',
 			errors,
-			output: 'const foo = "\\xAB";'
+			output: 'const foo = "\\xAA";'
+		},
+		{
+			code: 'const foo = "\\uAaAa";',
+			errors,
+			output: 'const foo = "\\uAAAA";'
+		},
+		{
+			code: 'const foo = "\\u{AaAa}";',
+			errors,
+			output: 'const foo = "\\u{AAAA}";'
 		},
 		{
 			code: 'const foo = "\\ud834";',
