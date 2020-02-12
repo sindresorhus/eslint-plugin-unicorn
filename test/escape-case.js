@@ -73,6 +73,11 @@ ruleTester.run('escape-case', rule, {
 			output: 'const foo = "\\xA9";'
 		},
 		{
+			code: 'const foo = "\\xAb";',
+			errors,
+			output: 'const foo = "\\xAB";'
+		},
+		{
 			code: 'const foo = "\\ud834";',
 			errors,
 			output: 'const foo = "\\uD834";'
