@@ -2,22 +2,13 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const domEventsJson = require('./utils/dom-events.json');
 
+const message = 'Prefer `{{replacement}}` over `{{method}}`.{{extra}}';
+const beforeUnloadMessage = ' Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.';
+
 const nestedEvents = Object.keys(domEventsJson).map(key => domEventsJson[key]);
 const eventTypes = new Set(nestedEvents.reduce((accumulatorEvents, events) => accumulatorEvents.concat(events), []));
 const getEventMethodName = memberExpression => memberExpression.property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
-
-const beforeUnloadMessage = 'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.';
-
-const formatMessage = (methodReplacement, eventMethodName, extra) => {
-	let message = `Prefer \`${methodReplacement}\` over \`${eventMethodName}\`.`;
-
-	if (extra) {
-		message += ' ' + extra;
-	}
-
-	return message;
-};
 
 const fix = (fixer, sourceCode, assignmentNode, memberExpression) => {
 	const eventTypeName = getEventTypeName(getEventMethodName(memberExpression));
@@ -115,26 +106,28 @@ const create = context => {
 				return;
 			}
 
+			const problem = {
+				node,
+				message,
+				data: {
+					replacement: 'addEventListener',
+					method: eventMethodName,
+					extra: ''
+				}
+			};
+
 			if (isClearing(assignedExpression)) {
-				context.report({
-					node,
-					message: formatMessage('removeEventListener', eventMethodName)
-				});
+				problem.data.replacement = 'removeEventListener';
 			} else if (
 				eventTypeName === 'beforeunload' &&
 				!shouldFixBeforeUnload(assignedExpression, nodeReturnsSomething)
 			) {
-				context.report({
-					node,
-					message: formatMessage('addEventListener', eventMethodName, beforeUnloadMessage)
-				});
+				problem.data.extra = beforeUnloadMessage;
 			} else {
-				context.report({
-					node,
-					message: formatMessage('addEventListener', eventMethodName),
-					fix: fixer => fix(fixer, context.getSourceCode(), node, memberExpression)
-				});
+				problem.fix = fixer => fix(fixer, context.getSourceCode(), node, memberExpression);
 			}
+
+			context.report(problem);
 		}
 	};
 };
