@@ -5,6 +5,9 @@ import rule from '../rules/prefer-node-remove';
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
+	},
+	parserOptions: {
+		ecmaVersion: 2020
 	}
 });
 
@@ -39,6 +42,7 @@ ruleTester.run('prefer-node-remove', rule, {
 		'remove()',
 		'foo.parentNode.removeChild(\'bar\')',
 		'parentNode.removeChild(undefined)',
+
 		// Not `CallExpression`
 		'new parentNode.removeChild(bar);',
 		// Not `MemberExpression`
@@ -52,7 +56,13 @@ ruleTester.run('prefer-node-remove', rule, {
 		// More or less argument(s)
 		'parentNode.removeChild(bar, extra);',
 		'parentNode.removeChild();',
-		'parentNode.removeChild(...argumentsArray)'
+		'parentNode.removeChild(...argumentsArray)',
+
+		// TODO: support cases bellow, maybe more
+		'parentNode.removeChild(some.node)',
+		'parentNode.removeChild(get.child())',
+		'const foo = async () => parentNode.removeChild(await getChild())',
+		'parentNode.removeChild((() => childNode)())'
 	],
 	invalid: [
 		invalidTestCase(
