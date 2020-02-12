@@ -122,11 +122,7 @@ const create = context => {
 				context.report({
 					node,
 					message,
-					fix: fixer => replaceTemplateElement(
-						fixer,
-						node,
-						fix(node.value.raw, escapeWithLowercase)
-					)
+					fix: fixer => replaceTemplateElement(fixer, node, fixed)
 				});
 			}
 		}
