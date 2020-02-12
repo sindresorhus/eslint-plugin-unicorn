@@ -1,10 +1,11 @@
 'use strict';
 
 module.exports = options => {
-	const {name, length, allowSpreadElement} = {
-		allowSpreadElement: false,
+	const {name, length} = {
 		...options
 	};
+
+	const checkLength = typeof length === 'number';
 
 	return [
 		'CallExpression',
@@ -12,9 +13,9 @@ module.exports = options => {
 		'[callee.computed=false]',
 		'[callee.property.type="Identifier"]',
 		name ? `[callee.property.name="${name}"]` : '',
-		`[arguments.length=${length}]`,
+		checkLength ? `[arguments.length=${length}]` : '',
 		...(
-			allowSpreadElement ?
+			!checkLength || length === 0 ?
 				[] :
 				Array.from(
 					{length},
