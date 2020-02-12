@@ -5,6 +5,7 @@ const {
 } = require('regexpp');
 
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const replaceTemplateElement = require('./utils/replace-template-element');
 
 const escapeWithLowercase = /(?<before>(?:^|[^\\])(?:\\\\)*)\\(?<data>x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+})/;
 const escapePatternWithLowercase = /(?<before>(?:^|[^\\])(?:\\\\)*)\\(?<data>x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+}|c[a-z])/;
@@ -113,20 +114,17 @@ const create = context => {
 			}
 		},
 		TemplateElement(node) {
-			if (typeof node.value.raw !== 'string') {
-				return;
-			}
-
 			const matches = node.value.raw.match(escapeWithLowercase);
 
 			if (matches && matches[2].slice(1).match(hasLowercaseCharacter)) {
-				// Move cursor inside the head and tail apostrophe
-				const start = node.range[0] + 1;
-				const end = node.range[1] - 1;
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceTextRange([start, end], fix(node.value.raw, escapeWithLowercase))
+					fix: fixer => replaceTemplateElement(
+						fixer,
+						node,
+						fix(node.value.raw, escapeWithLowercase)
+					)
 				});
 			}
 		}

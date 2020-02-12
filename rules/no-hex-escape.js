@@ -1,5 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const replaceTemplateElement = require('./utils/replace-template-element');
 
 function checkEscape(context, node, value) {
 	const fixedValue = typeof value === 'string' ?
@@ -10,16 +11,10 @@ function checkEscape(context, node, value) {
 		context.report({
 			node,
 			message: 'Use Unicode escapes instead of hexadecimal escapes.',
-			fix: fixer => {
-				let {range: [start, end], type, tail} = node;
-
-				if (type === 'TemplateElement') {
-					start += 1;
-					end -= tail ? 1 : 2;
-				}
-
-				return fixer.replaceTextRange([start, end], fixedValue);
-			}
+			fix: fixer =>
+				node.type === 'TemplateElement' ?
+					replaceTemplateElement(fixer, node, fixedValue) :
+					fixer.replaceText(node, fixedValue)
 		});
 	}
 }

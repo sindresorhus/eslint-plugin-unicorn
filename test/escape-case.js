@@ -104,6 +104,11 @@ ruleTester.run('escape-case', rule, {
 			output: 'const foo = `${"\uD834 foo"} \\uD834`;'
 		},
 		{
+			code: 'const foo = `\\ud834${foo}\\ud834${foo}\\ud834`;',
+			errors: Array.from({length: 3}, () => errors[0]),
+			output: 'const foo = `\\uD834${foo}\\uD834${foo}\\uD834`;'
+		},
+		{
 			code: 'const foo = "\\ud834foo";',
 			errors,
 			output: 'const foo = "\\uD834foo";'
