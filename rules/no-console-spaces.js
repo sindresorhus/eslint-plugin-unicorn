@@ -4,11 +4,10 @@ const methodSelector = require('./utils/method-selector');
 
 const message = 'Do not use leading/trailing space between `console.{{method}}` parameters.';
 
-const selector = [
-	methodSelector(),
-	'[callee.object.type="Identifier"]',
-	'[callee.object.name="console"]'
-].join('');
+const selector = methodSelector({
+	length: '>0',
+	object: 'console'
+});
 
 const methods = new Set([
 	'log',
