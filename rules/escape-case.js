@@ -91,31 +91,34 @@ const create = context => {
 				return;
 			}
 
-			const matches = node.raw.match(escapeWithLowercase);
+			const original = node.raw;
+			const fixed = fix(original, escapeWithLowercase);
 
-			if (matches && matches.groups.data.slice(1).match(hasLowercaseCharacter)) {
+			if (fixed !== original) {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceText(node, fix(node.raw, escapeWithLowercase))
+					fix: fixer => fixer.replaceText(node, fixed)
 				});
 			}
 		},
 		'Literal[regex]'(node) {
-			const escapeNodePosition = findLowercaseEscape(node.raw);
+			const original = node.raw;
+			const fixed = fixRegExp(original);
 
-			if (escapeNodePosition) {
+			if (fixed !== original) {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceText(node, fixRegExp(node.raw))
+					fix: fixer => fixer.replaceText(node, fixed)
 				});
 			}
 		},
 		TemplateElement(node) {
-			const matches = node.value.raw.match(escapeWithLowercase);
+			const original = node.value.raw;
+			const fixed = fix(original, escapeWithLowercase);
 
-			if (matches && matches[2].slice(1).match(hasLowercaseCharacter)) {
+			if (fixed !== original) {
 				context.report({
 					node,
 					message,
