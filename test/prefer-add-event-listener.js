@@ -48,6 +48,7 @@ ruleTester.run('prefer-add-event-listener', rule, {
 		'foo.addEventListener(\'click\', () => {})',
 		'foo.removeEventListener(\'click\', onClick)',
 		'foo.onclick',
+		'foo.onunknown = () => {}',
 		'foo.setCallBack = () => {console.log(\'foo\')}',
 		'setCallBack = () => {console.log(\'foo\')}',
 		'foo.onclick.bar = () => {}',
