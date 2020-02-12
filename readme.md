@@ -137,7 +137,7 @@ Configure it in `package.json`.
 ## Deprecated Rules
 
 - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Use the built-in ESLint [`prefer-exponentiation-operator`](https://eslint.org/docs/rules/prefer-exponentiation-operator) rule instead.
-- [regex-shorthand](docs/rules/regex-shorthand.md) - Renamed as [`better-regex`](docs/rules/better-regex.md).
+- [regex-shorthand](docs/rules/regex-shorthand.md) - Renamed to [`better-regex`](docs/rules/better-regex.md).
 
 ## Recommended config
 
