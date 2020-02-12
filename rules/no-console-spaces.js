@@ -2,6 +2,8 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 
+const message = 'Do not use leading/trailing space between `console.{{method}}` parameters.';
+
 const selector = [
 	methodSelector(),
 	'[callee.object.type="Identifier"]',
@@ -97,10 +99,6 @@ const fixArgument = (context, fixable, fixer) => {
 	return fixer.replaceTextRange(range, fixed);
 };
 
-const buildErrorMessage = method => {
-	return `Do not use leading/trailing space between \`console.${method}\` parameters.`;
-};
-
 const create = context => {
 	return {
 		[selector](node) {
@@ -114,7 +112,8 @@ const create = context => {
 			for (const fixable of fixables) {
 				context.report({
 					node: fixable.nodeArgument,
-					message: buildErrorMessage(method),
+					message,
+					data: {method},
 					fix: fixer => fixArgument(context, fixable, fixer)
 				});
 			}
