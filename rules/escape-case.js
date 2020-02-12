@@ -66,23 +66,22 @@ Record escaped node position in regexpp ASTNode. Returns undefined if not found.
 /**
 Produce a fix if there is a lowercase escape sequence in the node.
 
-@param {ASTNode} node - The regular expression literal ASTNode to check.
-@returns {string} The fixed `node.raw` string.
+@param {string} value - The regular expression literal string to check.
+@returns {string} The fixed string.
 */
-const fixRegExp = node => {
-	const escapeNodePosition = findLowercaseEscape(node.raw);
-	const {raw} = node;
+const fixRegExp = value => {
+	const escapeNodePosition = findLowercaseEscape(value);
 
 	if (escapeNodePosition) {
 		const [start, end] = escapeNodePosition;
 		return (
-			raw.slice(0, start) +
-			fix(raw.slice(start, end), escapePatternWithLowercase) +
-			raw.slice(end, raw.length)
+			value.slice(0, start) +
+			fix(value.slice(start, end), escapePatternWithLowercase) +
+			value.slice(end, value.length)
 		);
 	}
 
-	return raw;
+	return value;
 };
 
 const create = context => {
@@ -109,7 +108,7 @@ const create = context => {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceText(node, fixRegExp(node))
+					fix: fixer => fixer.replaceText(node, fixRegExp(node.raw))
 				});
 			}
 		},
