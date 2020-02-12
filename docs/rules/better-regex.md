@@ -1,4 +1,4 @@
-# Enforce the use of regex shorthands to improve readability
+# Improve regexes by making them shorter, consistent, and safer
 
 This rule is fixable.
 

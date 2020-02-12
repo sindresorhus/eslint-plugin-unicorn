@@ -4,7 +4,7 @@ const {optimize} = require('regexp-tree');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 
-const message = 'Use regex shorthands to improve readability.';
+const message = '{{original}} can be optimized to {{optimized}}';
 
 const create = context => {
 	const {sortCharacterClasses} = context.options[0] || {};
@@ -37,7 +37,7 @@ const create = context => {
 
 			context.report({
 				node,
-				message: '{{original}} can be optimized to {{optimized}}',
+				message,
 				data: {
 					original,
 					optimized
@@ -70,6 +70,10 @@ const create = context => {
 				context.report({
 					node,
 					message,
+					data: {
+						original: oldPattern,
+						optimized: newPattern
+					},
 					fix: fixer => fixer.replaceText(arguments_[0], fixed)
 				});
 			}

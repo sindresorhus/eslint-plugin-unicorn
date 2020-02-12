@@ -87,7 +87,7 @@ Configure it in `package.json`.
 
 ## Rules
 
-- [better-regex](docs/rules/better-regex.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
+- [better-regex](docs/rules/better-regex.md) - Improve regexes by making them shorter, consistent, and safer. *(fixable)*
 - [catch-error-name](docs/rules/catch-error-name.md) - Enforce a specific parameter name in catch clauses.
 - [consistent-function-scoping](docs/rules/consistent-function-scoping.md) - Move function definitions to the highest possible scope.
 - [custom-error-definition](docs/rules/custom-error-definition.md) - Enforce correct `Error` subclassing. *(fixable)*
