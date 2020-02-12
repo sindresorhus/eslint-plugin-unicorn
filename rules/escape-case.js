@@ -1,5 +1,4 @@
 'use strict';
-
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const replaceTemplateElement = require('./utils/replace-template-element');
 
@@ -23,7 +22,6 @@ const fix = (value, regexp) => {
 
 	return value;
 };
-
 
 const create = context => {
 	return {
