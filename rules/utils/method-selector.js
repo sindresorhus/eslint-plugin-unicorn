@@ -11,7 +11,7 @@ module.exports = options => {
 		'[callee.type="MemberExpression"]',
 		'[callee.computed=false]',
 		'[callee.property.type="Identifier"]',
-		`[callee.property.name="${name}"]`,
+		name ? `[callee.property.name="${name}"]` : '',
 		`[arguments.length=${length}]`,
 		...(
 			allowSpreadElement ?
