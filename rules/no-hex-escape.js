@@ -3,9 +3,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const replaceTemplateElement = require('./utils/replace-template-element');
 
 function checkEscape(context, node, value) {
-	const fixedValue = typeof value === 'string' ?
-		value.replace(/(?<=(?:^|[^\\])(?:\\\\)*)\\x/g, '\\u00') :
-		value;
+	const fixedValue = value.replace(/(?<=(?:^|[^\\])(?:\\\\)*)\\x/g, '\\u00');
 
 	if (value !== fixedValue) {
 		context.report({
@@ -22,7 +20,9 @@ function checkEscape(context, node, value) {
 const create = context => {
 	return {
 		Literal: node => {
-			checkEscape(context, node, node.raw);
+			if (node.regex || typeof node.value === 'string') {
+				checkEscape(context, node, node.raw);
+			}
 		},
 		TemplateElement: node => {
 			checkEscape(context, node, node.value.raw);
