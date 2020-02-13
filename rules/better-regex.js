@@ -45,27 +45,25 @@ const create = context => {
 				fix: fixer => fixer.replaceText(node, optimized)
 			});
 		},
-		'NewExpression[callee.name="RegExp"]': node => {
-			const arguments_ = node.arguments;
+		'NewExpression[callee.type="Identifier"][callee.name="RegExp"][arguments.length>=1][arguments.0.type="Literal"]': node => {
+			const [patternNode, flagsNode] = node.arguments;
 
-			if (arguments_.length === 0 || arguments_[0].type !== 'Literal') {
+			if (typeof patternNode.value !== 'string') {
 				return;
 			}
 
-			const hasRegExp = arguments_[0].regex;
-
-			if (hasRegExp) {
-				return;
-			}
-
-			const oldPattern = arguments_[0].value;
-			const flags = arguments_[1] && arguments_[1].type === 'Literal' ? arguments_[1].value : '';
+			const oldPattern = patternNode.value;
+			const flags = flagsNode &&
+				flagsNode.type === 'Literal' &&
+				typeof flagsNode.value === 'string' ?
+				flagsNode.value :
+				'';
 
 			const newPattern = cleanRegexp(oldPattern, flags);
 
 			if (oldPattern !== newPattern) {
 				// Escape backslash
-				const fixed = quoteString((newPattern || '').replace(/\\/g, '\\\\'));
+				const fixed = quoteString(newPattern.replace(/\\/g, '\\\\'));
 
 				context.report({
 					node,
@@ -74,7 +72,7 @@ const create = context => {
 						original: oldPattern,
 						optimized: newPattern
 					},
-					fix: fixer => fixer.replaceText(arguments_[0], fixed)
+					fix: fixer => fixer.replaceText(patternNode, fixed)
 				});
 			}
 		}

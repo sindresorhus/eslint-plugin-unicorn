@@ -4,8 +4,8 @@ import {outdent} from 'outdent';
 import rule from '../rules/catch-error-name';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
+	parserOptions: {
+		ecmaVersion: 2020
 	}
 });
 
@@ -122,15 +122,14 @@ ruleTester.run('catch-error-name', rule, {
 					caughtErrorsIgnorePattern: '^skip'
 				}
 			]
-		}
-		// TODO: Uncomment once test runner supports optional-catch-binding https://github.com/tc39/proposal-optional-catch-binding
-		// testCase(outdent`
-		// 	try {
-		// 		throw new Error('message');
-		// 	} catch {
-		// 		console.log('failed');
-		// 	}
-		// `),
+		},
+		testCase(outdent`
+			try {
+				throw new Error('message');
+			} catch {
+				console.log('failed');
+			}
+		`)
 	],
 
 	invalid: [
