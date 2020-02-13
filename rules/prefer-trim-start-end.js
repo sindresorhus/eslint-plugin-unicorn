@@ -2,11 +2,15 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 
-const selector = methodSelector({length: 0});
 const methods = new Map([
 	['trimLeft', 'trimStart'],
 	['trimRight', 'trimEnd']
 ]);
+
+const selector = methodSelector({
+	names: ['trimLeft', 'trimRight'],
+	length: 0
+});
 
 const messages = {};
 for (const [method, replacement] of methods.entries()) {
@@ -18,13 +22,11 @@ const create = context => {
 		[selector](node) {
 			const {property} = node.callee;
 			const method = property.name;
-			if (methods.has(method)) {
-				context.report({
-					node,
-					messageId: method,
-					fix: fixer => fixer.replaceText(property, methods.get(method))
-				});
-			}
+			context.report({
+				node,
+				messageId: method,
+				fix: fixer => fixer.replaceText(property, methods.get(method))
+			});
 		}
 	};
 };

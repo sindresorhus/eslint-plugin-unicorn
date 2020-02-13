@@ -1,7 +1,16 @@
 'use strict';
 
 module.exports = options => {
-	const {name, length, object} = {
+	const {
+		name,
+		names,
+		length,
+		object,
+		min,
+		max
+	} = {
+		min: 0,
+		max: Infinity,
 		...options
 	};
 
@@ -16,6 +25,14 @@ module.exports = options => {
 		selector.push(`[callee.property.name="${name}"]`);
 	}
 
+	if (Array.isArray(names) && names.length !== 0) {
+		selector.push(
+			':matches(' +
+			names.map(name => `[callee.property.name="${name}"]`).join(', ') +
+			')'
+		);
+	}
+
 	if (object) {
 		selector.push('[callee.object.type="Identifier"]');
 		selector.push(`[callee.object.name="${object}"]`);
@@ -23,21 +40,20 @@ module.exports = options => {
 
 	if (typeof length === 'number') {
 		selector.push(`[arguments.length=${length}]`);
+	}
 
-		// Exclude arguments with `SpreadElement` type
-		for (let index = 0; index < length; index += 1) {
-			selector.push(`[arguments.${index}.type!="SpreadElement"]`);
-		}
-	} else if (typeof length === 'string') {
-		selector.push(`[arguments.length${length}]`);
-	} else if (Array.isArray(length)) {
-		const [min, max] = length;
+	if (min !== 0) {
 		selector.push(`[arguments.length>=${min}]`);
-		selector.push(`[arguments.length<=${max}]`);
+	}
 
-		// TODO: DRY this part
+	if (Number.isFinite(max)) {
+		selector.push(`[arguments.length<=${max}]`);
+	}
+
+	const maxArguments = Number.isFinite(max) ? max : length;
+	if (typeof maxArguments === 'number') {
 		// Exclude arguments with `SpreadElement` type
-		for (let index = 0; index < max; index += 1) {
+		for (let index = 0; index < maxArguments; index += 1) {
 			selector.push(`[arguments.${index}.type!="SpreadElement"]`);
 		}
 	}
