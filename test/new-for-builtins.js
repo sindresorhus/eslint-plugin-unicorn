@@ -1,12 +1,13 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/new-for-builtins';
+import {enforceNew, disallowNew} from '../rules/utils/builtins';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
 		ecmaVersion: 2020,
 		sourceType: 'module'
-	}
+	},
 	// Make sure globals don't effect shadowed check result
 	globals: {
 		Map: 'off',
@@ -23,41 +24,6 @@ const disallowNewError = builtin => ({
 	ruleId: 'new-for-builtins',
 	message: `Use \`${builtin}()\` instead of \`new ${builtin}()\`.`
 });
-
-const enforceNew = [
-	'Object',
-	'Array',
-	'ArrayBuffer',
-	'BigInt64Array',
-	'BigUint64Array',
-	'DataView',
-	'Date',
-	'Error',
-	'Float32Array',
-	'Float64Array',
-	'Function',
-	'Int8Array',
-	'Int16Array',
-	'Int32Array',
-	'Map',
-	'WeakMap',
-	'Set',
-	'WeakSet',
-	'Promise',
-	'RegExp',
-	'Uint8Array',
-	'Uint16Array',
-	'Uint32Array',
-	'Uint8ClampedArray'
-];
-
-const disallowNew = [
-	'BigInt',
-	'Boolean',
-	'Number',
-	'String',
-	'Symbol'
-];
 
 ruleTester.run('new-for-builtins', rule, {
 	valid: [
