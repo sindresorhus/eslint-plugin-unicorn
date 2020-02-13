@@ -5,7 +5,7 @@ const domEventsJson = require('./utils/dom-events.json');
 const message = 'Prefer `{{replacement}}` over `{{method}}`.{{extra}}';
 const extraMessages = {
 	beforeunload: 'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.',
-	message: 'Notice that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.'
+	message: 'Note that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.'
 };
 
 const nestedEvents = Object.values(domEventsJson);
