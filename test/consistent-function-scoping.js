@@ -196,6 +196,14 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return await f(...args);
 				} catch (error) {}
 			};
+		`,
+		// Another case from #391 comment
+		outdent`
+			const canStepForward = ([X, Y]) => {
+				return ([x, y]) => direction => {
+					switch (direction) { }
+				}
+			}
 		`
 	],
 	invalid: [
@@ -239,12 +247,6 @@ ruleTester.run('consistent-function-scoping', rule, {
 						return bar;
 					}
 				}
-			`,
-			errors: [arrowError]
-		},
-		{
-			code: outdent`
-				const doFoo = () => bar => bar;
 			`,
 			errors: [arrowError]
 		},

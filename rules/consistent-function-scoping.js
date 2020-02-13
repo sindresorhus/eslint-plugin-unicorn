@@ -97,6 +97,13 @@ function checkNode(node, scopeManager) {
 		return true;
 	}
 
+	if (
+		parentNode.type === 'ArrowFunctionExpression' &&
+		parentNode.body === node
+	) {
+		return true;
+	}
+
 	// Skip over junk like the block statement inside of a function declaration
 	// or the various pieces of an arrow function.
 
