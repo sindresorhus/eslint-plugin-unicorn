@@ -152,38 +152,38 @@ ruleTester.run('prefer-add-event-listener', rule, {
 		),
 		invalidTestCase(
 			'foo.onclick = null',
-			null,
-			null,
+			undefined,
+			undefined,
 			'Prefer `removeEventListener` over `onclick`.'
 		),
 		invalidTestCase(
 			'foo.onclick = undefined',
-			null,
-			null,
+			undefined,
+			undefined,
 			'Prefer `removeEventListener` over `onclick`.'
 		),
 		invalidTestCase(
 			'window.onbeforeunload = null',
-			null,
-			null,
+			undefined,
+			undefined,
 			'Prefer `removeEventListener` over `onbeforeunload`.'
 		),
 		invalidTestCase(
 			'window.onbeforeunload = undefined',
-			null,
-			null,
+			undefined,
+			undefined,
 			'Prefer `removeEventListener` over `onbeforeunload`.'
 		),
 		invalidTestCase(
 			'window.onbeforeunload = foo',
-			null,
-			null,
+			undefined,
+			undefined,
 			expectedBeforeUnloadWithReturnMessage
 		),
 		invalidTestCase(
 			'window.onbeforeunload = () => \'foo\'',
-			null,
-			null,
+			undefined,
+			undefined,
 			expectedBeforeUnloadWithReturnMessage
 		),
 		invalidTestCase(
@@ -192,8 +192,8 @@ ruleTester.run('prefer-add-event-listener', rule, {
 					return bar;
 				}
 			`,
-			null,
-			null,
+			undefined,
+			undefined,
 			expectedBeforeUnloadWithReturnMessage
 		),
 		invalidTestCase(
@@ -202,8 +202,8 @@ ruleTester.run('prefer-add-event-listener', rule, {
 					return 'bar';
 				}
 			`,
-			null,
-			null,
+			undefined,
+			undefined,
 			expectedBeforeUnloadWithReturnMessage
 		),
 		invalidTestCase(
@@ -346,8 +346,8 @@ ruleTester.run('prefer-add-event-listener', rule, {
 		),
 		invalidTestCase(
 			'myWorker.port.onmessage = function(e) {}',
-			null,
-			null,
+			undefined,
+			undefined,
 			expectedMessageEventWithReturnMessage
 		)
 	]
