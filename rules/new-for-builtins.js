@@ -3,6 +3,11 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const builtins = require('./utils/builtins');
 const isShadowed = require('./utils/is-shadowed');
 
+const messages = {
+	enforce: 'Use `new {{name}}()` instead of `{{name}}()`.',
+	disallow: 'Use `{{name}}()` instead of `new {{name}}()`.'
+};
+
 const enforceNew = new Set(builtins.enforceNew);
 const disallowNew = new Set(builtins.disallowNew);
 
@@ -15,7 +20,8 @@ const create = context => {
 			if (enforceNew.has(name) && !isShadowed(context.getScope(), callee)) {
 				context.report({
 					node,
-					message: `Use \`new ${name}()\` instead of \`${name}()\`.`,
+					messageId: 'enforce',
+					data: {name},
 					fix: fixer => fixer.insertTextBefore(node, 'new ')
 				});
 			}
@@ -27,7 +33,8 @@ const create = context => {
 			if (disallowNew.has(name) && !isShadowed(context.getScope(), callee)) {
 				context.report({
 					node,
-					message: `Use \`${name}()\` instead of \`new ${name}()\`.`,
+					messageId: 'disallow',
+					data: {name},
 					fix: fixer => fixer.removeRange([
 						node.range[0],
 						node.callee.range[0]
@@ -45,6 +52,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };
