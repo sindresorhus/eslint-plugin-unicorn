@@ -10,8 +10,12 @@ const ruleTester = avaRuleTester(test, {
 	},
 	// Make sure globals don't effect shadowed check result
 	globals: {
-		Map: 'off',
-		String: 'off'
+		Map: 'writable',
+		Set: 'readonly',
+		WeakMap: 'off',
+		BigInt: 'writable',
+		Boolean: 'readonly',
+		Number: 'off'
 	}
 });
 
@@ -78,6 +82,22 @@ ruleTester.run('new-for-builtins', rule, {
 				const foo = new ${object}();
 			}
 		`),
+		...enforceNew.map(object => `
+			function outer() {
+				const ${object} = function() {};
+				function inner() {
+					const foo = ${object}();
+				}
+			}
+		`),
+		...disallowNew.map(object => `
+			function insideFunction() {
+				const ${object} = function() {};
+				function inner() {
+					const foo = new ${object}();
+				}
+			}
+		`),
 		// #122
 		`
 			import { Map } from 'immutable';
@@ -94,7 +114,10 @@ ruleTester.run('new-for-builtins', rule, {
 		`
 			import {String} from 'guitar';
 			const lowE = new String();
-		`
+		`,
+		// Not builtin
+		'new Foo();Bar();',
+		'Foo();new Bar();'
 	],
 	invalid: [
 		{
