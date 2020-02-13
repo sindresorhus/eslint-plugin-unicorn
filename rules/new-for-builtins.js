@@ -1,6 +1,11 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const messages = {
+	enforce: 'Use `new {{name}}()` instead of `{{name}}()`.',
+	disallow: 'Use `{{name}}()` instead of `new {{name}}()`.'
+};
+
 const enforceNew = new Set([
 	'Object',
 	'Array',
@@ -44,7 +49,8 @@ const create = context => {
 			if (enforceNew.has(name)) {
 				context.report({
 					node,
-					message: `Use \`new ${name}()\` instead of \`${name}()\`.`,
+					messageId: 'enforce',
+					data: {name},
 					fix: fixer => fixer.insertTextBefore(node, 'new ')
 				});
 			}
@@ -55,7 +61,8 @@ const create = context => {
 			if (disallowNew.has(name)) {
 				context.report({
 					node,
-					message: `Use \`${name}()\` instead of \`new ${name}()\`.`,
+					messageId: 'disallow',
+					data: {name},
 					fix: fixer => fixer.removeRange([
 						node.range[0],
 						node.callee.range[0]
@@ -73,6 +80,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };
