@@ -387,7 +387,7 @@ typescriptRuleTester.run('consistent-function-scoping', rule, {
 				const b = (y: number) => (z: number): number => x + y + z;
 				return b(1)(2);
 			}
-		`,
+		`
 	],
 	invalid: []
-})
+});

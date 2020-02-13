@@ -6,13 +6,14 @@ const MESSAGE_ID_FUNCTION = 'FunctionDeclaration';
 
 function getReferences(scope) {
 	const {references, childScopes} = scope;
-	return references.concat(...childScopes.map(getReferences))
+	return references.concat(...childScopes.map(getReferences));
 }
 
 function checkReferences(scope, parent, scopeManager) {
 	if (!scope) {
 		return false;
 	}
+
 	const references = getReferences(scope);
 	if (!references || references.length === 0) {
 		return false;
