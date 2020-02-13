@@ -1,52 +1,23 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const builtins = require('./utils/builtins');
+const isShadowed = require('./utils/is-shadowed');
 
 const messages = {
 	enforce: 'Use `new {{name}}()` instead of `{{name}}()`.',
 	disallow: 'Use `{{name}}()` instead of `new {{name}}()`.'
 };
 
-const enforceNew = new Set([
-	'Object',
-	'Array',
-	'ArrayBuffer',
-	'BigInt64Array',
-	'BigUint64Array',
-	'DataView',
-	'Date',
-	'Error',
-	'Float32Array',
-	'Float64Array',
-	'Function',
-	'Int8Array',
-	'Int16Array',
-	'Int32Array',
-	'Map',
-	'WeakMap',
-	'Set',
-	'WeakSet',
-	'Promise',
-	'RegExp',
-	'Uint8Array',
-	'Uint16Array',
-	'Uint32Array',
-	'Uint8ClampedArray'
-]);
-
-const disallowNew = new Set([
-	'BigInt',
-	'Boolean',
-	'Number',
-	'String',
-	'Symbol'
-]);
+const enforceNew = new Set(builtins.enforceNew);
+const disallowNew = new Set(builtins.disallowNew);
 
 const create = context => {
 	return {
 		CallExpression: node => {
-			const {name} = node.callee;
+			const {callee} = node;
+			const {name} = callee;
 
-			if (enforceNew.has(name)) {
+			if (enforceNew.has(name) && !isShadowed(context.getScope(), callee)) {
 				context.report({
 					node,
 					messageId: 'enforce',
@@ -56,9 +27,10 @@ const create = context => {
 			}
 		},
 		NewExpression: node => {
-			const {name} = node.callee;
+			const {callee} = node;
+			const {name} = callee;
 
-			if (disallowNew.has(name)) {
+			if (disallowNew.has(name) && !isShadowed(context.getScope(), callee)) {
 				context.report({
 					node,
 					messageId: 'disallow',
