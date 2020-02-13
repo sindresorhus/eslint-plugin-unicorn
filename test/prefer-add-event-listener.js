@@ -45,7 +45,7 @@ const expectedBeforeUnloadWithReturnMessage = [
 
 const expectedMessageEventWithReturnMessage = [
 	'Prefer `addEventListener` over `onmessage`.',
-	'Notice that there is difference between `SharedWorker#onmessage` between `SharedWorker#addEventListener(\'message\')`.'
+	'Notice that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.'
 ].join(' ');
 
 ruleTester.run('prefer-add-event-listener', rule, {
