@@ -6,9 +6,10 @@ const selector = [
 	methodSelector({
 		object: 'Array',
 		name: 'from',
-		length: [1, 3]
+		min: 1,
+		max: 3
 	}),
-	// Allow Array.from({length})
+	// Allow `Array.from({length})`
 	'[arguments.0.type!="ObjectExpression"]'
 ].join('');
 

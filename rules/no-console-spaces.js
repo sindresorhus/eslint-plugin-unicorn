@@ -4,18 +4,19 @@ const methodSelector = require('./utils/method-selector');
 
 const message = 'Do not use leading/trailing space between `console.{{method}}` parameters.';
 
-const selector = methodSelector({
-	length: '>0',
-	object: 'console'
-});
-
-const methods = new Set([
+const methods = [
 	'log',
 	'debug',
 	'info',
 	'warn',
 	'error'
-]);
+];
+
+const selector = methodSelector({
+	names: methods,
+	min: 1,
+	object: 'console'
+});
 
 const getArgumentValue = (context, nodeArgument) => {
 	let value = null;
@@ -102,10 +103,6 @@ const create = context => {
 	return {
 		[selector](node) {
 			const method = node.callee.property.name;
-
-			if (!methods.has(method)) {
-				return;
-			}
 
 			const fixables = getFixableArguments(context, node);
 			for (const fixable of fixables) {

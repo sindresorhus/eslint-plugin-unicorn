@@ -4,10 +4,13 @@ const isValidVariableName = require('./utils/is-valid-variable-name');
 const quoteString = require('./utils/quote-string');
 const methodSelector = require('./utils/method-selector');
 
-const selector = methodSelector({
-	name: 'setAttribute',
-	length: 2
-}) + '[arguments.0.type="Literal"]';
+const selector = [
+	methodSelector({
+		name: 'setAttribute',
+		length: 2
+	}),
+	'[arguments.0.type="Literal"]'
+].join('');
 
 const parseNodeText = (context, argument) => context.getSourceCode().getText(argument);
 
