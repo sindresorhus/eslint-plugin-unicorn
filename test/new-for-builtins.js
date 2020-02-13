@@ -5,6 +5,9 @@ import rule from '../rules/new-for-builtins';
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
+	},
+	parserOptions: {
+		sourceType: 'module'
 	}
 });
 
@@ -17,6 +20,41 @@ const disallowNewError = builtin => ({
 	ruleId: 'new-for-builtins',
 	message: `Use \`${builtin}()\` instead of \`new ${builtin}()\`.`
 });
+
+const enforceNew = [
+	'Object',
+	'Array',
+	'ArrayBuffer',
+	'BigInt64Array',
+	'BigUint64Array',
+	'DataView',
+	'Date',
+	'Error',
+	'Float32Array',
+	'Float64Array',
+	'Function',
+	'Int8Array',
+	'Int16Array',
+	'Int32Array',
+	'Map',
+	'WeakMap',
+	'Set',
+	'WeakSet',
+	'Promise',
+	'RegExp',
+	'Uint8Array',
+	'Uint16Array',
+	'Uint32Array',
+	'Uint8ClampedArray'
+];
+
+const disallowNew = [
+	'BigInt',
+	'Boolean',
+	'Number',
+	'String',
+	'Symbol'
+];
 
 ruleTester.run('new-for-builtins', rule, {
 	valid: [
@@ -49,7 +87,49 @@ ruleTester.run('new-for-builtins', rule, {
 		'const foo = Boolean()',
 		'const foo = Number()',
 		'const foo = String()',
-		'const foo = Symbol()'
+		'const foo = Symbol()',
+		// Shadowed
+		...enforceNew.map(object => `
+			const ${object} = function() {};
+			const foo = ${object}();
+		`),
+		...disallowNew.map(object => `
+			const ${object} = function() {};
+			const foo = new ${object}();
+		`),
+		...enforceNew.map(object => `
+			function insideFunction() {
+				const ${object} = function() {};
+				const foo = ${object}();
+			}
+		`),
+		...disallowNew.map(object => `
+			function insideFunction() {
+				const ${object} = function() {};
+				const foo = new ${object}();
+			}
+		`),
+		...disallowNew.map(object => `
+			const ${object} = function() {};
+			const foo = new ${object}();
+		`),
+		// #122
+		`
+			import { Map } from 'immutable';
+			const m = Map();
+		`,
+		`
+			const {Map} = require('immutable');
+			const foo = Map();
+		`,
+		`
+			const {String} = require('guitar');
+			const lowE = new String();
+		`,
+		`
+			import {String} from 'guitar';
+			const lowE = new String();
+		`
 	],
 	invalid: [
 		{

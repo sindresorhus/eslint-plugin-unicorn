@@ -1,5 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const isShadowed = require('./utils/is-shadowed');
 
 const enforceNew = new Set([
 	'Object',
@@ -39,9 +40,10 @@ const disallowNew = new Set([
 const create = context => {
 	return {
 		CallExpression: node => {
-			const {name} = node.callee;
+			const {callee} = node;
+			const {name} = callee;
 
-			if (enforceNew.has(name)) {
+			if (enforceNew.has(name) && !isShadowed(context.getScope(), callee)) {
 				context.report({
 					node,
 					message: `Use \`new ${name}()\` instead of \`${name}()\`.`,
@@ -50,9 +52,10 @@ const create = context => {
 			}
 		},
 		NewExpression: node => {
-			const {name} = node.callee;
+			const {callee} = node;
+			const {name} = callee;
 
-			if (disallowNew.has(name)) {
+			if (disallowNew.has(name) && !isShadowed(context.getScope(), callee)) {
 				context.report({
 					node,
 					message: `Use \`${name}()\` instead of \`new ${name}()\`.`,
