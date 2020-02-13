@@ -338,6 +338,11 @@ ruleTester.run('prefer-add-event-listener', rule, {
 			`,
 			'onerror',
 			[{excludedPackages: []}]
+		),
+		invalidTestCase(
+			'myWorker.port.onmessage = function(e) {}',
+			null,
+			'onmessage'
 		)
 	]
 });

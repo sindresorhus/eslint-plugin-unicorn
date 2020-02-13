@@ -123,6 +123,8 @@ const create = context => {
 				!shouldFixBeforeUnload(assignedExpression, nodeReturnsSomething)
 			) {
 				problem.data.extra = beforeUnloadMessage;
+			} else if (eventTypeName === 'message') {
+				// Disable `onmessage` fix, see #537
 			} else {
 				problem.fix = fixer => fix(fixer, context.getSourceCode(), node, memberExpression);
 			}
