@@ -11,10 +11,6 @@ const unicornRules = new Map(Object.entries(unicorn.rules));
 
 const cli = new CLIEngine({
 	baseConfig: recommended,
-	rules: {
-		// TODO: remove this override, when #391 is fixed
-		'unicorn/consistent-function-scoping': 'off'
-	},
 	useEslintrc: false,
 	fix
 });
