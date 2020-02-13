@@ -4,10 +4,8 @@ import {outdent} from 'outdent';
 import rule from '../rules/no-process-exit';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
 	parserOptions: {
+		ecmaVersion: 2020,
 		sourceType: 'module'
 	}
 });
@@ -63,108 +61,48 @@ ruleTester.run('no-process-exit', rule, {
 		'lib.process.exit(1);'
 	],
 	invalid: [
-		{
-			code: 'process.exit();',
-			errors
-		},
-		{
-			code: 'process.exit(1);',
-			errors
-		},
-		{
-			code: 'x(process.exit(1));',
-			errors
-		},
-		{
-			code: outdent`
-				const mod = require('not_worker_threads');
-				process.exit(1);
-			`,
-			errors
-		},
-		{
-			code: outdent`
-				import mod from 'not_worker_threads';
-				process.exit(1);
-			`,
-			errors
-		},
+		'process.exit();',
+		'process.exit(1);',
+		'x(process.exit(1));',
+		outdent`
+			const mod = require('not_worker_threads');
+			process.exit(1);
+		`,
+		outdent`
+			import mod from 'not_worker_threads';
+			process.exit(1);
+		`,
 
 		// Not `CallExpression`
-		{
-			code: outdent`
-				const mod = new require('worker_threads');
-				process.exit(1);
-			`,
-			errors
-		},
+		outdent`
+			const mod = new require('worker_threads');
+			process.exit(1);
+		`,
 		// Not `Literal` worker_threads
-		{
-			code: outdent`
-				const mod = require(worker_threads);
-				process.exit(1);
-			`,
-			errors
-		},
+		outdent`
+			const mod = require(worker_threads);
+			process.exit(1);
+		`,
 
 		// Not `CallExpression`
-		{
-			code: 'new process.on("SIGINT", function() { process.exit(1); })',
-			errors
-		},
-		{
-			code: 'new process.once("SIGINT", function() { process.exit(1); })',
-			errors
-		},
+		'new process.on("SIGINT", function() { process.exit(1); })',
+		'new process.once("SIGINT", function() { process.exit(1); })',
 		// Not `MemberExpression`
-		{
-			code: 'on("SIGINT", function() { process.exit(1); })',
-			errors
-		},
-		{
-			code: 'once("SIGINT", function() { process.exit(1); })',
-			errors
-		},
+		'on("SIGINT", function() { process.exit(1); })',
+		'once("SIGINT", function() { process.exit(1); })',
 		// `callee.property` is not a `Identifier`
-		{
-			code: 'process["on"]("SIGINT", function() { process.exit(1); })',
-			errors
-		},
-		{
-			code: 'process["once"]("SIGINT", function() { process.exit(1); })',
-			errors
-		},
+		'process["on"]("SIGINT", function() { process.exit(1); })',
+		'process["once"]("SIGINT", function() { process.exit(1); })',
 		// Computed
-		{
-			code: 'process[on]("SIGINT", function() { process.exit(1); })',
-			errors
-		},
-		{
-			code: 'process[once]("SIGINT", function() { process.exit(1); })',
-			errors
-		},
+		'process[on]("SIGINT", function() { process.exit(1); })',
+		'process[once]("SIGINT", function() { process.exit(1); })',
 		// Not `on` / `once`
-		{
-			code: 'process.foo("SIGINT", function() { process.exit(1); })',
-			errors
-		},
+		'process.foo("SIGINT", function() { process.exit(1); })',
 		// Not `process`
-		{
-			code: 'foo.on("SIGINT", function() { process.exit(1); })',
-			errors
-		},
-		{
-			code: 'foo.once("SIGINT", function() { process.exit(1); })',
-			errors
-		},
+		'foo.on("SIGINT", function() { process.exit(1); })',
+		'foo.once("SIGINT", function() { process.exit(1); })',
 		// `callee.object.type` is not a `Identifier`
-		{
-			code: 'lib.process.on("SIGINT", function() { process.exit(1); })',
-			errors
-		},
-		{
-			code: 'lib.process.once("SIGINT", function() { process.exit(1); })',
-			errors
-		}
-	]
+		'lib.process.on("SIGINT", function() { process.exit(1); })',
+		'lib.process.once("SIGINT", function() { process.exit(1); })'
+	].map(code => ({code, errors}))
 });
