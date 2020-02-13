@@ -8,6 +8,11 @@ const ruleTester = avaRuleTester(test, {
 	},
 	parserOptions: {
 		sourceType: 'module'
+	},
+	// Make sure globals don't effect shadowed check result
+	globals: {
+		Map: 'off',
+		String: 'off'
 	}
 });
 
