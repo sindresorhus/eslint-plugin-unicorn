@@ -3,14 +3,17 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const domEventsJson = require('./utils/dom-events.json');
 
 const message = 'Prefer `{{replacement}}` over `{{method}}`.{{extra}}';
-const beforeUnloadMessage = ' Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.';
+const extraMessages = {
+	beforeunload: 'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.',
+	message: 'Note that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.'
+};
 
-const nestedEvents = Object.keys(domEventsJson).map(key => domEventsJson[key]);
+const nestedEvents = Object.values(domEventsJson);
 const eventTypes = new Set(nestedEvents.reduce((accumulatorEvents, events) => accumulatorEvents.concat(events), []));
 const getEventMethodName = memberExpression => memberExpression.property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 
-const fix = (fixer, sourceCode, assignmentNode, memberExpression) => {
+const fixCode = (fixer, sourceCode, assignmentNode, memberExpression) => {
 	const eventTypeName = getEventTypeName(getEventMethodName(memberExpression));
 	const eventObjectCode = sourceCode.getText(memberExpression.object);
 	const fncCode = sourceCode.getText(assignmentNode.right);
@@ -106,28 +109,34 @@ const create = context => {
 				return;
 			}
 
-			const problem = {
-				node,
-				message,
-				data: {
-					replacement: 'addEventListener',
-					method: eventMethodName,
-					extra: ''
-				}
-			};
+			let replacement = 'addEventListener';
+			let extra = '';
+			let fix;
 
 			if (isClearing(assignedExpression)) {
-				problem.data.replacement = 'removeEventListener';
+				replacement = 'removeEventListener';
 			} else if (
 				eventTypeName === 'beforeunload' &&
 				!shouldFixBeforeUnload(assignedExpression, nodeReturnsSomething)
 			) {
-				problem.data.extra = beforeUnloadMessage;
+				extra = extraMessages.beforeunload;
+			} else if (eventTypeName === 'message') {
+				// Disable `onmessage` fix, see #537
+				extra = extraMessages.message;
 			} else {
-				problem.fix = fixer => fix(fixer, context.getSourceCode(), node, memberExpression);
+				fix = fixer => fixCode(fixer, context.getSourceCode(), node, memberExpression);
 			}
 
-			context.report(problem);
+			context.report({
+				node,
+				message,
+				data: {
+					replacement,
+					method: eventMethodName,
+					extra: extra ? ` ${extra}` : ''
+				},
+				fix
+			});
 		}
 	};
 };

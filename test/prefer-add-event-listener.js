@@ -43,6 +43,11 @@ const expectedBeforeUnloadWithReturnMessage = [
 	'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.'
 ].join(' ');
 
+const expectedMessageEventWithReturnMessage = [
+	'Prefer `addEventListener` over `onmessage`.',
+	'Note that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.'
+].join(' ');
+
 ruleTester.run('prefer-add-event-listener', rule, {
 	valid: [
 		'foo.addEventListener(\'click\', () => {})',
@@ -147,38 +152,38 @@ ruleTester.run('prefer-add-event-listener', rule, {
 		),
 		invalidTestCase(
 			'foo.onclick = null',
-			null,
-			null,
+			undefined,
+			undefined,
 			'Prefer `removeEventListener` over `onclick`.'
 		),
 		invalidTestCase(
 			'foo.onclick = undefined',
-			null,
-			null,
+			undefined,
+			undefined,
 			'Prefer `removeEventListener` over `onclick`.'
 		),
 		invalidTestCase(
 			'window.onbeforeunload = null',
-			null,
-			null,
+			undefined,
+			undefined,
 			'Prefer `removeEventListener` over `onbeforeunload`.'
 		),
 		invalidTestCase(
 			'window.onbeforeunload = undefined',
-			null,
-			null,
+			undefined,
+			undefined,
 			'Prefer `removeEventListener` over `onbeforeunload`.'
 		),
 		invalidTestCase(
 			'window.onbeforeunload = foo',
-			null,
-			null,
+			undefined,
+			undefined,
 			expectedBeforeUnloadWithReturnMessage
 		),
 		invalidTestCase(
 			'window.onbeforeunload = () => \'foo\'',
-			null,
-			null,
+			undefined,
+			undefined,
 			expectedBeforeUnloadWithReturnMessage
 		),
 		invalidTestCase(
@@ -187,8 +192,8 @@ ruleTester.run('prefer-add-event-listener', rule, {
 					return bar;
 				}
 			`,
-			null,
-			null,
+			undefined,
+			undefined,
 			expectedBeforeUnloadWithReturnMessage
 		),
 		invalidTestCase(
@@ -197,8 +202,8 @@ ruleTester.run('prefer-add-event-listener', rule, {
 					return 'bar';
 				}
 			`,
-			null,
-			null,
+			undefined,
+			undefined,
 			expectedBeforeUnloadWithReturnMessage
 		),
 		invalidTestCase(
@@ -338,6 +343,12 @@ ruleTester.run('prefer-add-event-listener', rule, {
 			`,
 			'onerror',
 			[{excludedPackages: []}]
+		),
+		invalidTestCase(
+			'myWorker.port.onmessage = function(e) {}',
+			undefined,
+			undefined,
+			expectedMessageEventWithReturnMessage
 		)
 	]
 });
