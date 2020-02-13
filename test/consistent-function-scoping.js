@@ -188,6 +188,14 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 				return Bar;
 			};
+		`,
+		// #391
+		outdent`
+			const enrichErrors = (packageName, cliArgs, f) => async (...args) => {
+				try {
+					return await f(...args);
+				} catch (error) {}
+			};
 		`
 	],
 	invalid: [
