@@ -13,7 +13,9 @@ function findReference(scope, node) {
 			reference.identifier.range[1] === node.range[1]
 		);
 
-	return references.length === 1 ? references[0] : undefined;
+	if (references.length === 1) {
+		return references[0];
+	}
 }
 
 /**
