@@ -114,10 +114,6 @@ ruleTester.run('new-for-builtins', rule, {
 				const foo = new ${object}();
 			}
 		`),
-		...disallowNew.map(object => `
-			const ${object} = function() {};
-			const foo = new ${object}();
-		`),
 		// #122
 		`
 			import { Map } from 'immutable';
@@ -296,6 +292,51 @@ ruleTester.run('new-for-builtins', rule, {
 			code: 'const foo = new Symbol()',
 			errors: [disallowNewError('Symbol')],
 			output: 'const foo = Symbol()'
+		},
+		{
+			code: `
+				function varCheck() {
+					{
+						var WeakMap = function() {};
+					}
+					// This should not reported
+					return WeakMap()
+				}
+				function constCheck() {
+					{
+						const Array = function() {};
+					}
+					return Array()
+				}
+				function letCheck() {
+					{
+						let Map = function() {};
+					}
+					return Map()
+				}
+			`,
+			errors: [enforceNewError('Array'), enforceNewError('Map')],
+			output: `
+				function varCheck() {
+					{
+						var WeakMap = function() {};
+					}
+					// This should not reported
+					return WeakMap()
+				}
+				function constCheck() {
+					{
+						const Array = function() {};
+					}
+					return new Array()
+				}
+				function letCheck() {
+					{
+						let Map = function() {};
+					}
+					return new Map()
+				}
+			`
 		}
 	]
 });
