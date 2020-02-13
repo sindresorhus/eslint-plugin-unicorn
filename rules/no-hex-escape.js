@@ -3,7 +3,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const replaceTemplateElement = require('./utils/replace-template-element');
 
 function checkEscape(context, node, value) {
-	const fixedValue = value.replace(/(?<=(?:^|[^\\])(?:\\\\)*)\\x/g, '\\u00');
+	const fixedValue = value.replace(/(?<=(?:^|[^\\])(?:\\\\)*\\)x/g, 'u00');
 
 	if (value !== fixedValue) {
 		context.report({
