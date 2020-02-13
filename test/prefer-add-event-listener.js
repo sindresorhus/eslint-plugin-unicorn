@@ -43,6 +43,11 @@ const expectedBeforeUnloadWithReturnMessage = [
 	'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.'
 ].join(' ');
 
+const expectedMessageEventWithReturnMessage = [
+	'Prefer `addEventListener` over `onmessage`.',
+	'Notice that there is difference between `SharedWorker#onmessage` between `SharedWorker#addEventListener(\'message\')`.'
+].join(' ');
+
 ruleTester.run('prefer-add-event-listener', rule, {
 	valid: [
 		'foo.addEventListener(\'click\', () => {})',
@@ -342,7 +347,8 @@ ruleTester.run('prefer-add-event-listener', rule, {
 		invalidTestCase(
 			'myWorker.port.onmessage = function(e) {}',
 			null,
-			'onmessage'
+			null,
+			expectedMessageEventWithReturnMessage
 		)
 	]
 });
