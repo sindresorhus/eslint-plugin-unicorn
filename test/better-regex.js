@@ -23,20 +23,12 @@ const disableSortCharacterClassesOptions = [
 
 ruleTester.run('better-regex', rule, {
 	valid: [
+		// Literal regex
 		'const foo = /\\d/',
 		'const foo = /\\W/i',
 		'const foo = /\\w/gi',
 		'const foo = /[a-z]/gi',
 		'const foo = /\\d*?/gi',
-		'const foo = new RegExp(\'\\d\')',
-		'const foo = new RegExp(\'\\d\', \'ig\')',
-		'const foo = new RegExp(\'\\d*?\')',
-		'const foo = new RegExp(\'[a-z]\', \'i\')',
-		'const foo = new RegExp(/\\d/)',
-		'const foo = new RegExp(/\\d/gi)',
-		'const foo = new RegExp(/\\d/, \'ig\')',
-		'const foo = new RegExp(/\\d*?/)',
-		'const foo = new RegExp(/[a-z]/, \'i\')',
 
 		// Should not crash ESLint (#446 and #448)
 		'/\\{\\{verificationUrl\\}\\}/gu',
@@ -49,9 +41,33 @@ ruleTester.run('better-regex', rule, {
 		{
 			code: '/[GgHhIiå.Z:a-f"0-8%A*ä]/',
 			options: disableSortCharacterClassesOptions
-		}
+		},
+
+		// `RegExp()` constructor
+		'new RegExp(\'\\d\')',
+		'new RegExp(\'\\d\', \'ig\')',
+		'new RegExp(\'\\d*?\')',
+		'new RegExp(\'[a-z]\', \'i\')',
+		'new RegExp(/\\d/)',
+		'new RegExp(/\\d/gi)',
+		'new RegExp(/\\d/, \'ig\')',
+		'new RegExp(/\\d*?/)',
+		'new RegExp(/[a-z]/, \'i\')',
+		// Not `new`
+		'RegExp("[0-9]")',
+		// Not `RegExp`
+		'new Foo("[0-9]")',
+		// `callee` is not `Identifier`
+		'new foo.RegExp("[0-9]")',
+		// `pattern` is not `Literal`
+		'new RegExp(foo)',
+		// `patter` is not `string`
+		'new RegExp(0)',
+		// No arguments
+		'new RegExp()'
 	],
 	invalid: [
+		// Literal regex
 		{
 			code: 'const foo = /\\w/ig',
 			errors: createError('/\\w/ig', '/\\w/gi'),
@@ -63,29 +79,9 @@ ruleTester.run('better-regex', rule, {
 			output: 'const foo = /\\d/'
 		},
 		{
-			code: 'const foo = new RegExp(\'[0-9]\')',
-			errors: createError('[0-9]', '\\d'),
-			output: 'const foo = new RegExp(\'\\\\d\')'
-		},
-		{
-			code: 'const foo = new RegExp("[0-9]")',
-			errors: createError('[0-9]', '\\d'),
-			output: 'const foo = new RegExp(\'\\\\d\')'
-		},
-		{
-			code: 'const foo = new RegExp("\'[0-9]\'")',
-			errors: createError('\'[0-9]\'', '\'\\d\''),
-			output: 'const foo = new RegExp(\'\\\'\\\\d\\\'\')'
-		},
-		{
 			code: 'const foo = /[0-9]/ig',
 			errors: createError('/[0-9]/ig', '/\\d/gi'),
 			output: 'const foo = /\\d/gi'
-		},
-		{
-			code: 'const foo = new RegExp(\'[0-9]\', \'ig\')',
-			errors: createError('[0-9]', '\\d'),
-			output: 'const foo = new RegExp(\'\\\\d\', \'ig\')'
 		},
 		{
 			code: 'const foo = /[^0-9]/',
@@ -158,6 +154,50 @@ ruleTester.run('better-regex', rule, {
 			output: 'const foo = /\\W/gi'
 		},
 		{
+			code: 'const foo = /[a-z0-9_]/',
+			errors: createError('/[a-z0-9_]/', '/[\\d_a-z]/'),
+			output: 'const foo = /[\\d_a-z]/'
+		},
+		{
+			code: 'const foo = /^by @([a-zA-Z0-9-]+)/',
+			errors: createError('/^by @([a-zA-Z0-9-]+)/', '/^by @([\\d-A-Za-z]+)/'),
+			output: 'const foo = /^by @([\\d-A-Za-z]+)/'
+		},
+		{
+			code: '/[GgHhIiå.Z:a-f"0-8%A*ä]/',
+			errors: createError('/[GgHhIiå.Z:a-f"0-8%A*ä]/', '/["%*.0-8:AG-IZa-iäå]/'),
+			output: '/["%*.0-8:AG-IZa-iäå]/'
+		},
+		// Should still use shorthand when disabling sort character classes
+		{
+			code: '/[a0-9b]/',
+			options: disableSortCharacterClassesOptions,
+			errors: createError('/[a0-9b]/', '/[a\\db]/'),
+			output: '/[a\\db]/'
+		},
+
+		// `RegExp()` constructor
+		{
+			code: 'const foo = new RegExp(\'[0-9]\')',
+			errors: createError('[0-9]', '\\d'),
+			output: 'const foo = new RegExp(\'\\\\d\')'
+		},
+		{
+			code: 'const foo = new RegExp("[0-9]")',
+			errors: createError('[0-9]', '\\d'),
+			output: 'const foo = new RegExp(\'\\\\d\')'
+		},
+		{
+			code: 'const foo = new RegExp("\'[0-9]\'")',
+			errors: createError('\'[0-9]\'', '\'\\d\''),
+			output: 'const foo = new RegExp(\'\\\'\\\\d\\\'\')'
+		},
+		{
+			code: 'const foo = new RegExp(\'[0-9]\', \'ig\')',
+			errors: createError('[0-9]', '\\d'),
+			output: 'const foo = new RegExp(\'\\\\d\', \'ig\')'
+		},
+		{
 			code: 'const foo = new RegExp(/[0-9]/)',
 			errors: createError('/[0-9]/', '/\\d/'),
 			output: 'const foo = new RegExp(/\\d/)'
@@ -182,27 +222,23 @@ ruleTester.run('better-regex', rule, {
 			errors: createError('/^[^*]*[*]?$/', '/^[^*]*\\*?$/'),
 			output: 'const foo = new RegExp(/^[^*]*\\*?$/)'
 		},
+		// No `flags`
 		{
-			code: 'const foo = /[a-z0-9_]/',
-			errors: createError('/[a-z0-9_]/', '/[\\d_a-z]/'),
-			output: 'const foo = /[\\d_a-z]/'
+			code: 'const foo = new RegExp(/[0-9]/)',
+			errors: createError('/[0-9]/', '/\\d/'),
+			output: 'const foo = new RegExp(/\\d/)'
 		},
+		// `flags` not `Literal`
 		{
-			code: 'const foo = /^by @([a-zA-Z0-9-]+)/',
-			errors: createError('/^by @([a-zA-Z0-9-]+)/', '/^by @([\\d-A-Za-z]+)/'),
-			output: 'const foo = /^by @([\\d-A-Za-z]+)/'
+			code: 'const foo = new RegExp(/[0-9]/, ig)',
+			errors: createError('/[0-9]/', '/\\d/'),
+			output: 'const foo = new RegExp(/\\d/, ig)'
 		},
+		// `flags` not `string`
 		{
-			code: '/[GgHhIiå.Z:a-f"0-8%A*ä]/',
-			errors: createError('/[GgHhIiå.Z:a-f"0-8%A*ä]/', '/["%*.0-8:AG-IZa-iäå]/'),
-			output: '/["%*.0-8:AG-IZa-iäå]/'
-		},
-		// Should still use shorthand when disabling sort character classes
-		{
-			code: '/[a0-9b]/',
-			options: disableSortCharacterClassesOptions,
-			errors: createError('/[a0-9b]/', '/[a\\db]/'),
-			output: '/[a\\db]/'
+			code: 'const foo = new RegExp(/[0-9]/, 0)',
+			errors: createError('/[0-9]/', '/\\d/'),
+			output: 'const foo = new RegExp(/\\d/, 0)'
 		}
 	]
 });
