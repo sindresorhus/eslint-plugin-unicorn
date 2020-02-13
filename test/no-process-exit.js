@@ -46,7 +46,21 @@ ruleTester.run('no-process-exit', rule, {
 		outdent`
 			import foo from 'worker_threads';
 			process.exit(1);
-		`
+		`,
+		// Not `CallExpression`
+		'new process.exit(1);',
+		// Not `MemberExpression`
+		'exit(1);',
+		// `callee.property` is not a `Identifier`
+		'process["exit"](1);',
+		// Computed
+		'process[exit](1);',
+		// Not exit
+		'process.foo(1);',
+		// Not `process`
+		'foo.exit(1);',
+		// `callee.object.type` is not a `Identifier`
+		'lib.process.exit(1);'
 	],
 	invalid: [
 		{
@@ -73,6 +87,83 @@ ruleTester.run('no-process-exit', rule, {
 				import mod from 'not_worker_threads';
 				process.exit(1);
 			`,
+			errors
+		},
+
+		// Not `CallExpression`
+		{
+			code: outdent`
+				const mod = new require('worker_threads');
+				process.exit(1);
+			`,
+			errors
+		},
+		// Not `Literal` worker_threads
+		{
+			code: outdent`
+				const mod = require(worker_threads);
+				process.exit(1);
+			`,
+			errors
+		},
+
+		// Not `CallExpression`
+		{
+			code: 'new process.on("SIGINT", function() { process.exit(1); })',
+			errors
+		},
+		{
+			code: 'new process.once("SIGINT", function() { process.exit(1); })',
+			errors
+		},
+		// Not `MemberExpression`
+		{
+			code: 'on("SIGINT", function() { process.exit(1); })',
+			errors
+		},
+		{
+			code: 'once("SIGINT", function() { process.exit(1); })',
+			errors
+		},
+		// `callee.property` is not a `Identifier`
+		{
+			code: 'process["on"]("SIGINT", function() { process.exit(1); })',
+			errors
+		},
+		{
+			code: 'process["once"]("SIGINT", function() { process.exit(1); })',
+			errors
+		},
+		// Computed
+		{
+			code: 'process[on]("SIGINT", function() { process.exit(1); })',
+			errors
+		},
+		{
+			code: 'process[once]("SIGINT", function() { process.exit(1); })',
+			errors
+		},
+		// Not `on` / `once`
+		{
+			code: 'process.foo("SIGINT", function() { process.exit(1); })',
+			errors
+		},
+		// Not `process`
+		{
+			code: 'foo.on("SIGINT", function() { process.exit(1); })',
+			errors
+		},
+		{
+			code: 'foo.once("SIGINT", function() { process.exit(1); })',
+			errors
+		},
+		// `callee.object.type` is not a `Identifier`
+		{
+			code: 'lib.process.on("SIGINT", function() { process.exit(1); })',
+			errors
+		},
+		{
+			code: 'lib.process.once("SIGINT", function() { process.exit(1); })',
 			errors
 		}
 	]

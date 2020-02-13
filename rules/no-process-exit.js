@@ -1,8 +1,34 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const isLiteralValue = require('./utils/is-literal-value');
+const methodSelector = require('./utils/method-selector');
 
-const isLiteralWorkerThreads = node => isLiteralValue(node, 'worker_threads');
+const message = 'Only use `process.exit()` in CLI apps. Throw an error instead.';
+const importWorkerThreadsSelector = [
+	// `require('worker_threads')`
+	[
+		'CallExpression',
+		'[callee.type="Identifier"]',
+		'[callee.name="require"]',
+		'[arguments.length=1]',
+		'[arguments.0.type="Literal"]',
+		'[arguments.0.value="worker_threads"]'
+	].join(''),
+	// `import workerThreads from 'worker_threads'`
+	[
+		'ImportDeclaration',
+		'[source.type="Literal"]',
+		'[source.value="worker_threads"]'
+	].join('')
+].join(', ');
+const processOnOrOnceCallSelector = methodSelector({
+	object: 'process',
+	names: ['on', 'once'],
+	min: 1
+});
+const processExitCallSelector = methodSelector({
+	object: 'process',
+	name: 'exit'
+});
 
 const create = context => {
 	const startsWithHashBang = context.getSourceCode().lines[0].indexOf('#!') === 0;
@@ -15,44 +41,21 @@ const create = context => {
 
 	// Only report if it's outside an worker thread context. See #328.
 	let requiredWorkerThreadsModule = false;
-	const reports = [];
+	const problemNodes = [];
 
 	return {
-		CallExpression: node => {
-			const {callee} = node;
-
-			if (callee.type === 'Identifier' && callee.name === 'require') {
-				const arguments_ = node.arguments;
-
-				if (arguments_.length === 0) {
-					return;
-				}
-
-				const [argument] = arguments_;
-
-				if (isLiteralWorkerThreads(argument)) {
-					requiredWorkerThreadsModule = true;
-					return;
-				}
-			}
-
-			if (
-				callee.type === 'MemberExpression' &&
-				callee.object.name === 'process'
-			) {
-				if (callee.property.name === 'on' || callee.property.name === 'once') {
-					processEventHandler = node;
-					return;
-				}
-
-				if (callee.property.name === 'exit' && !processEventHandler) {
-					reports.push(() =>
-						context.report({
-							node,
-							message: 'Only use `process.exit()` in CLI apps. Throw an error instead.'
-						})
-					);
-				}
+		// Check `worker_threads` require / import
+		[importWorkerThreadsSelector]: () => {
+			requiredWorkerThreadsModule = true;
+		},
+		// Check `process.on` / `process.once` call
+		[processOnOrOnceCallSelector]: node => {
+			processEventHandler = node;
+		},
+		// Check `process.exit` call
+		[processExitCallSelector]: node => {
+			if (!processEventHandler) {
+				problemNodes.push(node);
 			}
 		},
 		'CallExpression:exit': node => {
@@ -60,19 +63,13 @@ const create = context => {
 				processEventHandler = undefined;
 			}
 		},
-
-		ImportDeclaration: node => {
-			const {source} = node;
-
-			if (isLiteralWorkerThreads(source)) {
-				requiredWorkerThreadsModule = true;
-			}
-		},
-
 		'Program:exit': () => {
 			if (!requiredWorkerThreadsModule) {
-				for (const report of reports) {
-					report();
+				for (const node of problemNodes) {
+					context.report({
+						node,
+						message
+					});
 				}
 			}
 		}
