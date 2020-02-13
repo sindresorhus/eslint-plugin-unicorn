@@ -124,46 +124,26 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 	const {scopeManager} = sourceCode;
 
-	const reports = [];
+	const functions = [];
 	let hasJsx = false;
 
 	return {
-		ArrowFunctionExpression: node => {
-			const valid = checkNode(node, scopeManager);
-
-			if (valid) {
-				reports.push(null);
-			} else {
-				reports.push({
-					node,
-					messageId: MESSAGE_ID_ARROW
-				});
-			}
-		},
-		FunctionDeclaration: node => {
-			const valid = checkNode(node, scopeManager);
-
-			if (valid) {
-				reports.push(null);
-			} else {
-				reports.push({
-					node,
-					messageId: MESSAGE_ID_FUNCTION
-				});
-			}
-		},
+		'ArrowFunctionExpression, FunctionDeclaration': node => functions.push(node),
 		JSXElement: () => {
 			// Turn off this rule if we see a JSX element because scope
 			// references does not include JSXElement nodes.
 			hasJsx = true;
 		},
-		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': () => {
-			const report = reports.pop();
-			if (report && !hasJsx) {
-				context.report(report);
+		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
+			if (!hasJsx && !checkNode(node, scopeManager)) {
+				context.report({
+					node,
+					messageId: node.type
+				});
 			}
 
-			if (reports.length === 0) {
+			functions.pop();
+			if (functions.length === 0) {
 				hasJsx = false;
 			}
 		}
