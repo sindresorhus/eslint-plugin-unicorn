@@ -4,10 +4,9 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const MESSAGE_ID_ARROW = 'ArrowFunctionExpression';
 const MESSAGE_ID_FUNCTION = 'FunctionDeclaration';
 
-function getReferences(scope) {
-	const {references, childScopes} = scope;
-	return references.concat(...childScopes.map(getReferences));
-}
+const getReferences = scope => scope.references.concat(
+	...scope.childScopes.map(scope => getReferences(scope))
+);
 
 function checkReferences(scope, parent, scopeManager) {
 	if (!scope) {
