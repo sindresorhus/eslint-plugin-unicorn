@@ -8,24 +8,9 @@ const selector = methodSelector({
 	length: 1
 });
 
-const getCallerName = callee => {
-	const {object} = callee;
+const message = 'Prefer Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.';
 
-	if (object.type === 'Identifier') {
-		return object.name;
-	}
-
-	if (object.type === 'MemberExpression') {
-		const {property} = object;
-
-		if (property.type === 'Identifier') {
-			return property.name;
-		}
-	}
-
-	return null;
-};
-
+// TODO: support more types of childNode
 const getArgumentName = arguments_ => {
 	const [identifier] = arguments_;
 
@@ -33,34 +18,26 @@ const getArgumentName = arguments_ => {
 		return 'this';
 	}
 
-	if (identifier.type === 'Identifier') {
+	if (identifier.type === 'Identifier' && identifier.name !== 'undefined') {
 		return identifier.name;
 	}
-
-	return null;
 };
 
 const create = context => {
 	return {
 		[selector](node) {
-			const {callee} = node;
+			const argumentName = getArgumentName(node.arguments);
 
-			const callerName = getCallerName(callee);
+			if (argumentName) {
+				const fix = isValueNotUsable(node) ?
+					fixer => fixer.replaceText(node, `${argumentName}.remove()`) :
+					undefined;
 
-			if (
-				(callerName === 'parentNode' || callerName === 'parentElement')
-			) {
-				const argumentName = getArgumentName(node.arguments);
-
-				if (argumentName) {
-					const fix = isValueNotUsable(node) ? fixer => fixer.replaceText(node, `${argumentName}.remove()`) : undefined;
-
-					context.report({
-						node,
-						message: `Prefer \`${argumentName}.remove()\` over \`${callerName}.removeChild(${argumentName})\`.`,
-						fix
-					});
-				}
+				context.report({
+					node,
+					message,
+					fix
+				});
 			}
 		}
 	};

@@ -5,20 +5,35 @@ import rule from '../rules/prefer-node-remove';
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
+	},
+	parserOptions: {
+		ecmaVersion: 2020
 	}
 });
 
-const invalidTestCase = (code, output, parentName, argumentName) => {
+const message = 'Prefer Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.';
+
+const invalidTestCase = (code, output) => {
 	return {
 		code,
 		output,
 		errors: [
 			{
-				message: `Prefer \`${argumentName}.remove()\` over \`${parentName}.removeChild(${argumentName})\`.`
+				message
 			}
 		]
 	};
 };
+
+const noFixTestCase = code => ({
+	code,
+	output: code,
+	errors: [
+		{
+			message
+		}
+	]
+});
 
 ruleTester.run('prefer-node-remove', rule, {
 	valid: [
@@ -26,171 +41,52 @@ ruleTester.run('prefer-node-remove', rule, {
 		'this.remove()',
 		'remove()',
 		'foo.parentNode.removeChild(\'bar\')',
+		'parentNode.removeChild(undefined)',
+
 		// Not `CallExpression`
-		'new foo.parentNode.removeChild(foo);',
+		'new parentNode.removeChild(bar);',
 		// Not `MemberExpression`
 		'removeChild(foo);',
 		// `callee.property` is not a `Identifier`
-		'foo.parentNode[\'removeChild\'](foo);',
+		'parentNode[\'removeChild\'](bar);',
 		// Computed
-		'foo.parentNode[removeChild](foo);',
+		'parentNode[removeChild](bar);',
 		// Not `removeChild`
-		'foo.parentNode.foo(foo);',
+		'parentNode.foo(bar);',
 		// More or less argument(s)
-		'foo.parentNode.removeChild(foo, two);',
-		'foo.parentNode.removeChild();',
-		'foo.parentNode.removeChild(...argumentsArray)'
+		'parentNode.removeChild(bar, extra);',
+		'parentNode.removeChild();',
+		'parentNode.removeChild(...argumentsArray)',
+
+		// TODO: support cases bellow, maybe more
+		'parentNode.removeChild(some.node)',
+		'parentNode.removeChild(get.child())',
+		'const foo = async () => parentNode.removeChild(await getChild())',
+		'parentNode.removeChild((() => childNode)())'
 	],
 	invalid: [
 		invalidTestCase(
-			'foo.parentNode.removeChild(foo)',
-			'foo.remove()',
-			'parentNode',
-			'foo'
-		),
-		invalidTestCase(
-			'this.parentNode.removeChild(this)',
-			'this.remove()',
-			'parentNode',
-			'this'
+			'parentNode.removeChild(foo)',
+			'foo.remove()'
 		),
 		invalidTestCase(
 			'parentNode.removeChild(this)',
-			'this.remove()',
-			'parentNode',
-			'this'
+			'this.remove()'
 		),
-		invalidTestCase(
-			'foo.parentNode.removeChild(bar)',
-			'bar.remove()',
-			'parentNode',
-			'bar'
-		),
-		invalidTestCase(
-			'this.parentNode.removeChild(foo)',
-			'foo.remove()',
-			'parentNode',
-			'foo'
-		),
-		invalidTestCase(
-			'foo.parentElement.removeChild(foo)',
-			'foo.remove()',
-			'parentElement',
-			'foo'
-		),
-		invalidTestCase(
-			'this.parentElement.removeChild(this)',
-			'this.remove()',
-			'parentElement',
-			'this'
-		),
-		invalidTestCase(
-			'parentElement.removeChild(this)',
-			'this.remove()',
-			'parentElement',
-			'this'
-		),
-		invalidTestCase(
-			'foo.parentElement.removeChild(bar)',
-			'bar.remove()',
-			'parentElement',
-			'bar'
-		),
-		invalidTestCase(
-			'this.parentElement.removeChild(foo)',
-			'foo.remove()',
-			'parentElement',
-			'foo'
-		),
-		invalidTestCase(
-			'if (foo.parentNode.removeChild(foo)) {}',
-			'if (foo.parentNode.removeChild(foo)) {}',
-			'parentNode',
-			'foo'
-		),
-		invalidTestCase(
-			'var removed = foo.parentNode.removeChild(foo);',
-			'var removed = foo.parentNode.removeChild(foo);',
-			'parentNode',
-			'foo'
-		),
-		invalidTestCase(
-			'const foo = node.parentNode.removeChild(child);',
-			'const foo = node.parentNode.removeChild(child);',
-			'parentNode',
-			'child'
-		),
-		invalidTestCase(
-			'console.log(node.parentNode.removeChild(child));',
-			'console.log(node.parentNode.removeChild(child));',
-			'parentNode',
-			'child'
-		),
-		invalidTestCase(
-			'node.parentNode.removeChild(child) || "foo";',
-			'node.parentNode.removeChild(child) || "foo";',
-			'parentNode',
-			'child'
-		),
-		invalidTestCase(
-			'node.parentNode.removeChild(child) + 0;',
-			'node.parentNode.removeChild(child) + 0;',
-			'parentNode',
-			'child'
-		),
-		invalidTestCase(
-			'node.parentNode.removeChild(child) + 0;',
-			'node.parentNode.removeChild(child) + 0;',
-			'parentNode',
-			'child'
-		),
-		invalidTestCase(
-			'+node.parentNode.removeChild(child);',
-			'+node.parentNode.removeChild(child);',
-			'parentNode',
-			'child'
-		),
-		invalidTestCase(
-			'node.parentNode.removeChild(child) ? "foo" : "bar";',
-			'node.parentNode.removeChild(child) ? "foo" : "bar";',
-			'parentNode',
-			'child'
-		),
-		invalidTestCase(
-			'if (node.parentNode.removeChild(child)) {}',
-			'if (node.parentNode.removeChild(child)) {}',
-			'parentNode',
-			'child'
-		),
-		invalidTestCase(
-			'const foo = [node.parentNode.removeChild(child)]',
-			'const foo = [node.parentNode.removeChild(child)]',
-			'parentNode',
-			'child'
-		),
-		invalidTestCase(
-			'const foo = { bar: node.parentNode.removeChild(child) }',
-			'const foo = { bar: node.parentNode.removeChild(child) }',
-			'parentNode',
-			'child'
-		),
-		invalidTestCase(
-			'function foo() { return node.parentNode.removeChild(child); }',
-			'function foo() { return node.parentNode.removeChild(child); }',
-			'parentNode',
-			'child'
-		),
-		invalidTestCase(
-			'const foo = () => { return node.parentNode.removeChild(child); }',
-			'const foo = () => { return node.parentNode.removeChild(child); }',
-			'parentNode',
-			'child'
-		),
-		invalidTestCase(
-			'foo(bar = node.parentNode.removeChild(child))',
-			'foo(bar = node.parentNode.removeChild(child))',
-			'parentNode',
-			'child'
-		)
+		// Value of `parentNode.removeChild` call is used
+		noFixTestCase('if (parentNode.removeChild(foo)) {}'),
+		noFixTestCase('var removed = parentNode.removeChild(child);'),
+		noFixTestCase('const foo = parentNode.removeChild(child);'),
+		noFixTestCase('console.log(parentNode.removeChild(child));'),
+		noFixTestCase('parentNode.removeChild(child) || "foo";'),
+		noFixTestCase('parentNode.removeChild(child) + 0;'),
+		noFixTestCase('+parentNode.removeChild(child);'),
+		noFixTestCase('parentNode.removeChild(child) ? "foo" : "bar";'),
+		noFixTestCase('if (parentNode.removeChild(child)) {}'),
+		noFixTestCase('const foo = [parentNode.removeChild(child)]'),
+		noFixTestCase('const foo = { bar: parentNode.removeChild(child) }'),
+		noFixTestCase('function foo() { return parentNode.removeChild(child); }'),
+		noFixTestCase('const foo = () => { return parentElement.removeChild(child); }'),
+		noFixTestCase('foo(bar = parentNode.removeChild(child))')
 	]
 });
