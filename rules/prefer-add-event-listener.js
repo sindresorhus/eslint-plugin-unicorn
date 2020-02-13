@@ -8,7 +8,7 @@ const extraMessages = {
 	message: 'Notice that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.'
 };
 
-const nestedEvents = Object.keys(domEventsJson).map(key => domEventsJson[key]);
+const nestedEvents = Object.values(domEventsJson);
 const eventTypes = new Set(nestedEvents.reduce((accumulatorEvents, events) => accumulatorEvents.concat(events), []));
 const getEventMethodName = memberExpression => memberExpression.property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
