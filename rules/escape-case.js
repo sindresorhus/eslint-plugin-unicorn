@@ -1,15 +1,9 @@
 'use strict';
-const {
-	visitRegExpAST,
-	parseRegExpLiteral
-} = require('regexpp');
-
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const replaceTemplateElement = require('./utils/replace-template-element');
 
 const escapeWithLowercase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+})/;
 const escapePatternWithLowercase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+}|c[a-z])/;
-const hasLowercaseCharacter = /[a-z]+/;
 const message = 'Use uppercase characters for the value of the escape sequence.';
 
 const fix = (value, regexp) => {
@@ -28,62 +22,6 @@ const fix = (value, regexp) => {
 	return value;
 };
 
-/**
-Find the `[start, end]` position of the lowercase escape sequence in a regular expression literal ASTNode.
-
-@param {string} value - String representation of a literal ASTNode.
-@returns {number[] | undefined} The `[start, end]` pair if found, or null if not.
-*/
-const findLowercaseEscape = value => {
-	const ast = parseRegExpLiteral(value);
-
-	let escapeNodePosition;
-	visitRegExpAST(ast, {
-		/**
-Record escaped node position in regexpp ASTNode. Returns undefined if not found.
-@param {ASTNode} node A regexpp ASTNode. Note that it is of different type to the ASTNode of ESLint parsers
-@returns {undefined}
-*/
-		onCharacterLeave(node) {
-			if (escapeNodePosition) {
-				return;
-			}
-
-			const matches = node.raw.match(escapePatternWithLowercase);
-
-			if (matches && matches.groups.data.slice(1).match(hasLowercaseCharacter)) {
-				// There is no `range` property in AST from `regexpp`
-				// reference: https://github.com/mysticatea/regexpp/blob/master/src/ast.ts#L60-L71
-				escapeNodePosition = [node.start, node.end];
-			}
-		}
-	});
-
-	return escapeNodePosition;
-};
-
-/**
-Produce a fix if there is a lowercase escape sequence in the node.
-
-@param {ASTNode} node - The regular expression literal ASTNode to check.
-@returns {string} The fixed `node.raw` string.
-*/
-const fixRegExp = node => {
-	const escapeNodePosition = findLowercaseEscape(node.raw);
-	const {raw} = node;
-
-	if (escapeNodePosition) {
-		const [start, end] = escapeNodePosition;
-		return (
-			raw.slice(0, start) +
-			fix(raw.slice(start, end), escapePatternWithLowercase) +
-			raw.slice(end, raw.length)
-		);
-	}
-
-	return raw;
-};
-
 const create = context => {
 	return {
 		Literal(node) {
@@ -91,39 +29,38 @@ const create = context => {
 				return;
 			}
 
-			const matches = node.raw.match(escapeWithLowercase);
+			const original = node.raw;
+			const fixed = fix(original, escapeWithLowercase);
 
-			if (matches && matches.groups.data.slice(1).match(hasLowercaseCharacter)) {
+			if (fixed !== original) {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceText(node, fix(node.raw, escapeWithLowercase))
+					fix: fixer => fixer.replaceText(node, fixed)
 				});
 			}
 		},
 		'Literal[regex]'(node) {
-			const escapeNodePosition = findLowercaseEscape(node.raw);
+			const original = node.raw;
+			const fixed = fix(original, escapePatternWithLowercase);
 
-			if (escapeNodePosition) {
+			if (fixed !== original) {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceText(node, fixRegExp(node))
+					fix: fixer => fixer.replaceText(node, fixed)
 				});
 			}
 		},
 		TemplateElement(node) {
-			const matches = node.value.raw.match(escapeWithLowercase);
+			const original = node.value.raw;
+			const fixed = fix(original, escapePatternWithLowercase);
 
-			if (matches && matches.groups.data.slice(1).match(hasLowercaseCharacter)) {
+			if (fixed !== original) {
 				context.report({
 					node,
 					message,
-					fix: fixer => replaceTemplateElement(
-						fixer,
-						node,
-						fix(node.value.raw, escapeWithLowercase)
-					)
+					fix: fixer => replaceTemplateElement(fixer, node, fixed)
 				});
 			}
 		}
