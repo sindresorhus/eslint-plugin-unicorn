@@ -16,7 +16,8 @@ const ignoredRules = [
 ];
 
 const deprecatedRules = [
-	'prefer-exponentiation-operator'
+	'prefer-exponentiation-operator',
+	'regex-shorthand'
 ];
 
 const testSorted = (t, actualOrder, sourceName) => {

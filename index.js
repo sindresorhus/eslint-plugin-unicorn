@@ -17,6 +17,7 @@ module.exports = {
 				'unicorn'
 			],
 			rules: {
+				'unicorn/better-regex': 'error',
 				'unicorn/catch-error-name': 'error',
 				'unicorn/consistent-function-scoping': 'error',
 				'unicorn/custom-error-definition': 'off',
@@ -63,7 +64,6 @@ module.exports = {
 				'unicorn/prefer-trim-start-end': 'error',
 				'unicorn/prefer-type-error': 'error',
 				'unicorn/prevent-abbreviations': 'error',
-				'unicorn/regex-shorthand': 'error',
 				'unicorn/throw-new-error': 'error'
 			}
 		}

@@ -33,6 +33,7 @@ Configure it in `package.json`.
 			"unicorn"
 		],
 		"rules": {
+			"unicorn/better-regex": "error",
 			"unicorn/catch-error-name": "error",
 			"unicorn/consistent-function-scoping": "error",
 			"unicorn/custom-error-definition": "off",
@@ -78,7 +79,6 @@ Configure it in `package.json`.
 			"unicorn/prefer-trim-start-end": "error",
 			"unicorn/prefer-type-error": "error",
 			"unicorn/prevent-abbreviations": "error",
-			"unicorn/regex-shorthand": "error",
 			"unicorn/throw-new-error": "error"
 		}
 	}
@@ -87,6 +87,7 @@ Configure it in `package.json`.
 
 ## Rules
 
+- [better-regex](docs/rules/better-regex.md) - Improve regexes by making them shorter, consistent, and safer. *(fixable)*
 - [catch-error-name](docs/rules/catch-error-name.md) - Enforce a specific parameter name in catch clauses.
 - [consistent-function-scoping](docs/rules/consistent-function-scoping.md) - Move function definitions to the highest possible scope.
 - [custom-error-definition](docs/rules/custom-error-definition.md) - Enforce correct `Error` subclassing. *(fixable)*
@@ -131,12 +132,12 @@ Configure it in `package.json`.
 - [prefer-trim-start-end](docs/rules/prefer-trim-start-end.md) - Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`. *(fixable)*
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
 - [prevent-abbreviations](docs/rules/prevent-abbreviations.md) - Prevent abbreviations. *(partly fixable)*
-- [regex-shorthand](docs/rules/regex-shorthand.md) - Enforce the use of regex shorthands to improve readability. *(fixable)*
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 
 ## Deprecated Rules
 
 - [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Use the built-in ESLint [`prefer-exponentiation-operator`](https://eslint.org/docs/rules/prefer-exponentiation-operator) rule instead.
+- [regex-shorthand](docs/rules/regex-shorthand.md) - Renamed to [`better-regex`](docs/rules/better-regex.md).
 
 ## Recommended config
 
