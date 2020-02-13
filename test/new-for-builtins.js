@@ -3,12 +3,10 @@ import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/new-for-builtins';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
 	parserOptions: {
+		ecmaVersion: 2020,
 		sourceType: 'module'
-	},
+	}
 	// Make sure globals don't effect shadowed check result
 	globals: {
 		Map: 'off',
