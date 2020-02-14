@@ -231,7 +231,7 @@ Imagine you maintain a `master` branch at a version such as 10 and always keep w
 
 ### ignoreDatesOnPullRequests
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `true`
 
 Disables `Expiry Date` checks during pull requests.
@@ -251,7 +251,7 @@ By default, this rule will not trigger expiry dates while on Pull Requests so th
 
 ### terms
 
-Type: `string[]`<br>
+Type: `string[]`\
 Default: `['todo', 'fixme', 'xxx']`
 
 Add or remove TODO verbs.
@@ -275,7 +275,7 @@ If you just want to add a verb, make sure to explicitly include the default ones
 
 ### allowWarningComments
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `true`
 
 Ignore TODOs without conditions.
