@@ -4,15 +4,17 @@ import {outdent} from 'outdent';
 import rule from '../rules/consistent-function-scoping';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
 	parserOptions: {
-		ecmaVersion: 2018,
+		sourceType: 'module',
+		ecmaVersion: 2020,
 		ecmaFeatures: {
 			jsx: true
 		}
 	}
+});
+
+const typescriptRuleTester = avaRuleTester(test, {
+	parser: require.resolve('@typescript-eslint/parser')
 });
 
 const arrowError = {
@@ -188,6 +190,35 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 				return Bar;
 			};
+		`,
+		// #391
+		outdent`
+			const enrichErrors = (packageName, cliArgs, f) => async (...args) => {
+				try {
+					return await f(...args);
+				} catch (error) {
+					error.packageName = packageName;
+					error.cliArgs = cliArgs;
+					throw error;
+				}
+			};
+		`,
+		// #391 comment https://github.com/sindresorhus/eslint-plugin-unicorn/issues/391#issuecomment-536916771
+		outdent`
+			export const canStepForward = ([X, Y]) => ([x, y]) => direction => {
+				switch (direction) {
+					case 0:
+						return y !== 0
+					case 1:
+						return x !== X - 1
+					case 2:
+						return y !== Y - 1
+					case 3:
+						return x !== 0
+					default:
+						throw new Error('unknown direction')
+				}
+			}
 		`
 	],
 	invalid: [
@@ -308,4 +339,55 @@ ruleTester.run('consistent-function-scoping', rule, {
 			errors: [functionError]
 		}
 	]
+});
+
+typescriptRuleTester.run('consistent-function-scoping', rule, {
+	valid: [
+		// #372
+		outdent`
+			type Data<T> = T extends 'error' ? Error : Record<string, unknown> | unknown[]
+
+			type Method = 'info' | 'error'
+
+			export function createLogger(name: string) {
+					// Two lint errors are on the next line.
+					const log = <T extends Method>(method: T) => (data: Data<T>) => {
+							try {
+									// eslint-disable-next-line no-console
+									console[method](JSON.stringify({ name, data }))
+							} catch (error) {
+									console.error(error)
+							}
+					}
+
+					return {
+							info: log('info'),
+							error: log('error'),
+					}
+			}
+		`,
+		// #372 comment https://github.com/sindresorhus/eslint-plugin-unicorn/issues/372#issuecomment-546915612
+		outdent`
+			test('it works', async function(assert) {
+				function assertHeader(assertions) {
+					for (const [key, value] of Object.entries(assertions)) {
+						assert.strictEqual(
+							native[key],
+							value
+						);
+					}
+				}
+
+				// ...
+			});
+		`,
+		// #372 comment https://github.com/sindresorhus/eslint-plugin-unicorn/issues/372#issuecomment-546915612
+		outdent`
+			export function a(x: number) {
+				const b = (y: number) => (z: number): number => x + y + z;
+				return b(1)(2);
+			}
+		`
+	],
+	invalid: []
 });
