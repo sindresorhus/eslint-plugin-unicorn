@@ -294,3 +294,29 @@ If you want this rule to trigger on stray TODO conditions, you can enable this f
 	}
 ]
 ```
+
+### ignore
+
+Type: `Array<string | RegExp>`\
+Default: `[]`
+
+Ignore TODOs matching any of the given regex patterns. When a string is given, it's interpreted as a regular expressions inside a string. Needed for ESLint config in JSON.
+
+This option is only useful if you have `allowWarningComments` set to `false`.
+
+If you want this rule to **completely ignore** comments containing references to GitHub issues, you can do so by ignoring `"#\\d+"`:
+
+Don't forget that you must escape special characters in regex. If you want to ignore numbers with `\d` for example. To match `#\d`, use `/#\d/` or `"#\\d"`.
+
+```js
+"unicorn/expiring-todo-comments": [
+	"error",
+	{
+		"allowWarningComments": false,
+		"ignore": [
+			"#\\d+",
+			/issue-\d+/i
+		]
+	}
+]
+```

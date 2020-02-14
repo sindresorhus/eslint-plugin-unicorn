@@ -207,10 +207,15 @@ function semverComparisonForOperator(operator) {
 const create = context => {
 	const options = {
 		terms: ['todo', 'fixme', 'xxx'],
+		ignore: [],
 		ignoreDatesOnPullRequests: true,
 		allowWarningComments: true,
 		...context.options[0]
 	};
+
+	const ignoreRegexes = options.ignore.map(
+		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u')
+	);
 
 	const sourceCode = context.getSourceCode();
 	const comments = sourceCode.getAllComments();
@@ -250,6 +255,10 @@ const create = context => {
 	const rules = baseRule.create(fakeContext);
 
 	function processComment(comment) {
+		if (ignoreRegexes.some(ignore => ignore.test(comment.value))) {
+			return;
+		}
+
 		const parsed = parseTodoWithArguments(comment.value, options);
 
 		if (!parsed) {
@@ -479,6 +488,10 @@ const schema = [
 				items: {
 					type: 'string'
 				}
+			},
+			ignore: {
+				type: 'array',
+				uniqueItems: true
 			},
 			ignoreDatesOnPullRequests: {
 				type: 'boolean',

@@ -110,6 +110,22 @@ ruleTester.run('expiring-todo-comments', rule, {
 		{
 			code: '// TODO [but [it will]] [fallback] [[[ to the default ]]] rule [[',
 			errors: []
+		},
+		{
+			code: '// TODO ISSUE-123 fix later',
+			options: [{allowWarningComments: false, ignore: ['ISSUE-\\d+']}]
+		},
+		{
+			code: '// TODO [ISSUE-123] fix later',
+			options: [{allowWarningComments: false, ignore: ['ISSUE-\\d+']}]
+		},
+		{
+			code: '// TODO [1999-01-01, ISSUE-123] fix later',
+			options: [{allowWarningComments: false, ignore: ['ISSUE-\\d+']}]
+		},
+		{
+			code: '// TODO [Issue-123] fix later',
+			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}]
 		}
 	],
 	invalid: [
@@ -361,6 +377,33 @@ ruleTester.run('expiring-todo-comments', rule, {
 				removeWhitespacesError('semver @>=1', 'Big mix')
 			],
 			options: [{ignoreDatesOnPullRequests: false, terms: ['HUGETODO']}]
+		},
+		{
+			code: '// TODO [ISSUE-123] fix later',
+			options: [{allowWarningComments: false, ignore: []}],
+			errors: [
+				noWarningCommentError()
+			]
+		},
+		{
+			code: `
+			// TODO fix later
+			// TODO ISSUE-123 fix later
+			`,
+			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}],
+			errors: [
+				noWarningCommentError()
+			]
+		},
+		{
+			code: `/*
+			TODO Invalid
+			TODO ISSUE-123 Valid
+			*/`,
+			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}],
+			errors: [
+				noWarningCommentError()
+			]
 		}
 	]
 });
