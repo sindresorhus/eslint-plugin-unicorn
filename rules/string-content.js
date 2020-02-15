@@ -1,19 +1,18 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const replaceTemplateElement = require('./utils/replace-template-element');
 
 const defaultPatterns = {
 	'\'': '’'
 };
 
-const message = `Prefer {suggest} over {match}.`;
+const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
 
-function getReplacements(options) {
-	const {} = options;
-
+function getReplacements(patterns) {
 	return Object.entries({
-			...defaultPatterns,
-			...patterns
-		})
+		...defaultPatterns,
+		...patterns
+	})
 		.filter(([, options]) => options !== false)
 		.map(([match, options]) => {
 			if (typeof options === 'string') {
@@ -21,8 +20,6 @@ function getReplacements(options) {
 					suggest: options
 				};
 			}
-
-			const {suggest} = options;
 
 			return {
 				match,
@@ -34,41 +31,68 @@ function getReplacements(options) {
 }
 
 const create = context => {
-	const replacements = getReplacements(context.options[0] || {});
+	const {patterns} = {
+		patterns: [],
+		...context.options[0]
+	};
+	const replacements = getReplacements(patterns);
 
 	if (replacements.length === 0) {
 		return {};
 	}
 
 	return {
-		Literal: node => {
-			const {value} = node;
+		'Literal, TemplateElement': node => {
+			const {type} = node;
 
-			if (typeof value !== 'string') {
+			let string;
+			if (type === 'Literal') {
+				string = node.value;
+				if (typeof string !== 'string') {
+					return;
+				}
+			} else {
+				string = node.value.raw;
+			}
+
+			if (!string) {
 				return;
 			}
 
-			for (const {regex, fix} = replacements) {
-				if (regex.test(value)) {
-					const problem = {
-						node,
-						message,
-						data: {
-							match,
-							suggest
-						}
-					}
+			const replacement = replacements.find(({regex}) => regex.test(string));
 
-					if (fix) {
-						const quote = node.raw[0];
-						const fixed = quote +
-							value.replace(regex, suggest).replace(new RegExp(quote, 'g'), `\\${quote}`) +
-							quote;
-						problem.fix = fixer => fixer.replaceText(node, fixed);
-					}
-					return context.report(problem);
-				}
+			if (!replacement) {
+				return;
 			}
+
+			const {fix, message = defaultMessage, match, suggest} = replacement;
+			const problem = {
+				node,
+				message,
+				data: {
+					match,
+					suggest
+				}
+			};
+
+			if (!fix) {
+				context.report(problem);
+				return;
+			}
+
+			let fixed = string.replace(replacement.regex, suggest);
+			if (type === 'Literal') {
+				const quote = node.raw[0];
+				fixed = fixed.replace(new RegExp(quote, 'g'), `\\${quote}`);
+				const {range: [start, end]} = node;
+				const fixRange = [start + 1, end - 1];
+				problem.fix = fixer => fixer.replaceTextRange(fixRange, fixed);
+			} else {
+				fixed = fixed.replace(/`/g, '\\`').replace(/\$(?={)/g, '\\$');
+				problem.fix = fixer => replaceTemplateElement(fixer, node, fixed);
+			}
+
+			context.report(problem);
 		}
 	};
 };

@@ -2,11 +2,6 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/string-content';
 
-const fromEntries = Object.fromEntries || (entries => entries.reduce((object, [key, value]) => {
-	object[key] = value;
-	return object;
-}, {}));
-
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
@@ -23,145 +18,143 @@ const patterns = {
 	quote: {suggest: '\'"'}
 };
 
-// TODO: [engine >= 12] use Object.fromEntries
-const lowerToUpperPatterns = fromEntries(Array.from({length: 26}, (_, index) => {
-	const match = String.fromCharCode('a'.charCodeAt(0) + index);
-	const suggest = String.fromCharCode('A'.charCodeAt(0) + index);
-	return [
-		match,
-		{suggest}
-	];
-}));
-const lowerToUpperMessages = Array.from({length: 26}, (_, index) => {
-	const match = String.fromCharCode('a'.charCodeAt(0) + index);
-	const suggest = String.fromCharCode('A'.charCodeAt(0) + index);
-	const message = `Prefer \`${suggest}\` over \`${match}\`.`;
-	return {message};
-});
+const createError = (match, suggest) => [
+	{
+		message: `Prefer \`${suggest}\` over \`${match}\`.`
+	}
+];
 
 ruleTester.run('string-content', rule, {
 	valid: [
-		'const foo = \'🦄\'',
-		// Not a string
-		'const foo = 0',
-
+		// `Literal` string
+		'const foo = \'🦄\';',
+		// Not `a string`
+		'const foo = 0;',
+		// Not `Literal`
+		'const foo = bar;',
 		// Disable default patterns
 		{
 			code: 'const foo = \'\\\'\'',
 			options: [{patterns: {'\'': false}}]
-		}
+		},
+		// `TemplateLiteral`
+		'const foo = `🦄`'
 	],
 	invalid: [
+		// `Literal` string
 		{
 			code: 'const foo = \'\\\'\'',
 			output: 'const foo = \'’\'',
-			errors: [{message: 'Prefer `’` over `\'`.'}]
+			errors: createError('\'', '’')
 		},
 		// Custom patterns
 		{
 			code: 'const foo = \'unicorn\'',
 			output: 'const foo = \'🦄\'',
-			errors: [{message: 'Prefer `🦄` over `unicorn`.'}],
-			options: [{patterns}]
+			options: [{patterns}],
+			errors: createError('unicorn', '🦄')
 		},
 		// Custom patterns should not override default patterns
 		{
-			code: 'const foo = \'unicorn\\\'\'',
-			output: 'const foo = \'🦄’\'',
-			errors: [{message: 'Prefer `’` over `\'`.'}, {message: 'Prefer `🦄` over `unicorn`.'}],
-			options: [{patterns}]
+			code: 'const foo = \'\\\'\'',
+			output: 'const foo = \'’\'',
+			options: [{patterns}],
+			errors: createError('\'', '’')
 		},
 		// Escape single quote
 		{
 			code: 'const foo = \'quote\'',
 			output: 'const foo = \'\\\'"\'',
-			errors: [{message: 'Prefer `\'"` over `quote`.'}],
-			options: [{patterns}]
+			options: [{patterns}],
+			errors: createError('quote', '\'"')
 		},
 		// Escape double quote
 		{
 			code: 'const foo = "quote"',
 			output: 'const foo = "\'\\""',
-			errors: [{message: 'Prefer `\'"` over `quote`.'}],
-			options: [{patterns}]
+			options: [{patterns}],
+			errors: createError('quote', '\'"')
 		},
 		// Not fix
 		{
-			code: 'const foo = \'unicorn\'',
-			errors: [{message: 'Prefer `🦄` over `unicorn`.'}],
-			options: [{patterns: {unicorn: {...patterns.unicorn, fix: false}}}]
-		},
-		// Multi patterns
-		{
-			code: 'const foo = \'unicorn is awesome\'',
-			output: 'const foo = \'🦄 is 😎\'',
-			errors: [{message: 'Prefer `🦄` over `unicorn`.'}, {message: 'Prefer `😎` over `awesome`.'}],
-			options: [{patterns}]
-		},
-		// Multi patterns, Not fix `awesome`
-		{
-			code: 'const foo = \'unicorn is awesome\'',
-			output: 'const foo = \'🦄 is awesome\'',
-			errors: [{message: 'Prefer `🦄` over `unicorn`.'}, {message: 'Prefer `😎` over `awesome`.'}],
-			options: [{patterns: {
-				unicorn: patterns.unicorn,
-				awesome: {...patterns.awesome, fix: false}
-			}}]
+			code: 'const foo = "unicorn"',
+			options: [{patterns: {unicorn: {...patterns.unicorn, fix: false}}}],
+			errors: createError('unicorn', '🦄')
 		},
 		// Conflict patterns
 		{
-			code: 'const foo = \'a\'',
-			output: 'const foo = \'A\'',
-			errors: [{message: 'Prefer `A` over `a`.'}],
-			options: [{patterns: {a: 'A', A: 'a'}}]
+			code: 'const foo = "a"',
+			output: 'const foo = "A"',
+			options: [{patterns: {a: 'A', A: 'a'}}],
+			errors: createError('a', 'A')
 		},
 		{
-			code: 'const foo = \'A\'',
-			output: 'const foo = \'a\'',
-			errors: [{message: 'Prefer `a` over `A`.'}],
-			options: [{patterns: {a: 'A', A: 'a'}}]
+			code: 'const foo = "A"',
+			output: 'const foo = "a"',
+			options: [{patterns: {a: 'A', A: 'a'}}],
+			errors: createError('A', 'a')
 		},
 		{
-			code: 'const foo = \'aA\'',
-			output: 'const foo = \'aa\'',
-			errors: [{message: 'Prefer `A` over `a`.'}, {message: 'Prefer `a` over `A`.'}],
-			options: [{patterns: {a: 'A', A: 'a'}}]
+			code: 'const foo = "aA"',
+			output: 'const foo = "AA"',
+			options: [{patterns: {a: 'A', A: 'a'}}],
+			errors: createError('a', 'A')
 		},
 		{
-			code: 'const foo = \'aA\'',
-			output: 'const foo = \'AA\'',
-			errors: [{message: 'Prefer `a` over `A`.'}, {message: 'Prefer `A` over `a`.'}],
-			options: [{patterns: {A: 'a', a: 'A'}}] // <- patterns order changed
+			code: 'const foo = "aA"',
+			output: 'const foo = "aa"',
+			options: [{patterns: {A: 'a', a: 'A'}}],
+			errors: createError('A', 'a')
 		},
 
 		// Escaped pattern
 		{
-			code: 'const foo = \'foo.bar\'',
-			output: 'const foo = \'_______\'',
-			errors: [{message: 'Prefer `_` over `.`.'}],
-			options: [{patterns: {'.': '_'}}] // <- not escaped
+			code: 'const foo = "foo.bar"',
+			output: 'const foo = "_______"',
+			options: [{patterns: {'.': '_'}}], // <- not escaped
+			errors: createError('.', '_')
 		},
 		{
-			code: 'const foo = \'foo.bar\'',
-			output: 'const foo = \'foo_bar\'',
-			errors: [{message: 'Prefer `_` over `\\.`.'}],
-			options: [{patterns: {'\\.': '_'}}] // <- escaped
+			code: 'const foo = "foo.bar"',
+			output: 'const foo = "foo_bar"',
+			options: [{patterns: {'\\.': '_'}}], // <- escaped
+			errors: createError('\\.', '_')
 		},
 
 		// Custom message
 		{
-			code: 'const foo = \'foo\'',
-			output: 'const foo = \'bar\'',
-			errors: [{message: '`bar` is better than `foo`.'}],
-			options: [{patterns: {foo: {suggest: 'bar', message: '`bar` is better than `foo`.'}}}]
+			code: 'const foo = "foo"',
+			output: 'const foo = "bar"',
+			options: [{patterns: {foo: {suggest: 'bar', message: '`bar` is better than `foo`.'}}}],
+			errors: [{message: '`bar` is better than `foo`.'}]
 		},
 
-		// Many patterns
+		/* eslint-disable no-template-curly-in-string */
+		// `TemplateLiteral`
 		{
-			code: 'const foo = \'abcdefghijklmnopqrstuvwxyz\'',
-			output: 'const foo = \'ABCDEFGHIJKLMNOPQRSTUVWXYZ\'',
-			errors: lowerToUpperMessages,
-			options: [{patterns: lowerToUpperPatterns}]
+			code: 'const foo = `\'`',
+			output: 'const foo = `’`',
+			errors: createError('\'', '’')
+		},
+		// `TemplateElement` position
+		{
+			code: 'const foo = `\'${foo}\'${foo}\'`',
+			output: 'const foo = `’${foo}’${foo}’`',
+			errors: Array.from({length: 3}).fill(createError('\'', '’'))
+		},
+		// Escape
+		{
+			code: 'const foo = `foo`',
+			output: 'const foo = `bar\\`bar`',
+			options: [{patterns: {foo: 'bar`bar'}}],
+			errors: createError('foo', 'bar`bar')
+		},
+		{
+			code: 'const foo = `foo`',
+			output: 'const foo = `\\${bar}`',
+			options: [{patterns: {foo: '${bar}'}}],
+			errors: createError('foo', '${bar}')
 		}
+		/* eslint-enable no-template-curly-in-string */
 	]
 });
