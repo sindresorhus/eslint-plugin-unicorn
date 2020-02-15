@@ -1,35 +1,16 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValueNotUsable = require('./utils/is-value-not-usable');
+const methodSelector = require('./utils/method-selector');
 
-const getMethodName = callee => {
-	const {property} = callee;
+const selector = methodSelector({
+	name: 'removeChild',
+	length: 1
+});
 
-	if (property.type === 'Identifier') {
-		return property.name;
-	}
+const message = 'Prefer Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.';
 
-	return null;
-};
-
-const getCallerName = callee => {
-	const {object} = callee;
-
-	if (object.type === 'Identifier') {
-		return object.name;
-	}
-
-	if (object.type === 'MemberExpression') {
-		const {property} = object;
-
-		if (property.type === 'Identifier') {
-			return property.name;
-		}
-	}
-
-	return null;
-};
-
+// TODO: support more types of childNode
 const getArgumentName = arguments_ => {
 	const [identifier] = arguments_;
 
@@ -37,43 +18,26 @@ const getArgumentName = arguments_ => {
 		return 'this';
 	}
 
-	if (identifier.type === 'Identifier') {
+	if (identifier.type === 'Identifier' && identifier.name !== 'undefined') {
 		return identifier.name;
 	}
-
-	return null;
 };
 
 const create = context => {
 	return {
-		CallExpression(node) {
-			const {callee} = node;
+		[selector](node) {
+			const argumentName = getArgumentName(node.arguments);
 
-			if (node.arguments.length === 0 ||
-				callee.type !== 'MemberExpression' ||
-				callee.computed
-			) {
-				return;
-			}
+			if (argumentName) {
+				const fix = isValueNotUsable(node) ?
+					fixer => fixer.replaceText(node, `${argumentName}.remove()`) :
+					undefined;
 
-			const methodName = getMethodName(callee);
-			const callerName = getCallerName(callee);
-
-			if (methodName === 'removeChild' && (
-				callerName === 'parentNode' ||
-				callerName === 'parentElement'
-			)) {
-				const argumentName = getArgumentName(node.arguments);
-
-				if (argumentName) {
-					const fix = isValueNotUsable(node) ? fixer => fixer.replaceText(node, `${argumentName}.remove()`) : undefined;
-
-					context.report({
-						node,
-						message: `Prefer \`${argumentName}.remove()\` over \`${callerName}.removeChild(${argumentName})\`.`,
-						fix
-					});
-				}
+				context.report({
+					node,
+					message,
+					fix
+				});
 			}
 		}
 	};

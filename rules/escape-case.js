@@ -1,76 +1,25 @@
 'use strict';
-const {
-	visitRegExpAST,
-	parseRegExpLiteral
-} = require('regexpp');
-
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const replaceTemplateElement = require('./utils/replace-template-element');
 
-const escapeWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+})/;
-const escapePatternWithLowercase = /((?:^|[^\\])(?:\\\\)*)\\(x[\da-f]{2}|u[\da-f]{4}|u{[\da-f]+}|c[a-z])/;
-const hasLowercaseCharacter = /[a-z]+/;
+const escapeWithLowercase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+})/;
+const escapePatternWithLowercase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+}|c[a-z])/;
 const message = 'Use uppercase characters for the value of the escape sequence.';
 
 const fix = (value, regexp) => {
 	const results = regexp.exec(value);
 
 	if (results) {
-		const prefix = results[1].length + 1;
-		const fixedEscape = results[2].slice(0, 1) + results[2].slice(1).toUpperCase();
-		return value.slice(0, results.index + prefix) + fixedEscape + value.slice(results.index + results[0].length);
+		const {data} = results.groups;
+		const fixedEscape = data.slice(0, 1) + data.slice(1).toUpperCase();
+		return (
+			value.slice(0, results.index) +
+			fixedEscape +
+			value.slice(results.index + data.length)
+		);
 	}
 
 	return value;
-};
-
-/**
-Find the `[start, end]` position of the lowercase escape sequence in a regular expression literal ASTNode.
-
-@param {string} value - String representation of a literal ASTNode.
-@returns {number[] | undefined} The `[start, end]` pair if found, or null if not.
-*/
-const findLowercaseEscape = value => {
-	const ast = parseRegExpLiteral(value);
-
-	let escapeNodePosition;
-	visitRegExpAST(ast, {
-		/**
-Record escaped node position in regexpp ASTNode. Returns undefined if not found.
-@param {ASTNode} node A regexpp ASTNode. Note that it is of different type to the ASTNode of ESLint parsers
-@returns {undefined}
-*/
-		onCharacterLeave(node) {
-			if (escapeNodePosition) {
-				return;
-			}
-
-			const matches = node.raw.match(escapePatternWithLowercase);
-
-			if (matches && matches[2].slice(1).match(hasLowercaseCharacter)) {
-				escapeNodePosition = [node.start, node.end];
-			}
-		}
-	});
-
-	return escapeNodePosition;
-};
-
-/**
-Produce a fix if there is a lowercase escape sequence in the node.
-
-@param {ASTNode} node - The regular expression literal ASTNode to check.
-@returns {string} The fixed `node.raw` string.
-*/
-const fixRegExp = node => {
-	const escapeNodePosition = findLowercaseEscape(node.raw);
-	const {raw} = node;
-
-	if (escapeNodePosition) {
-		const [start, end] = escapeNodePosition;
-		return raw.slice(0, start) + fix(raw.slice(start, end), escapePatternWithLowercase) + raw.slice(end, raw.length);
-	}
-
-	return raw;
 };
 
 const create = context => {
@@ -80,42 +29,38 @@ const create = context => {
 				return;
 			}
 
-			const matches = node.raw.match(escapeWithLowercase);
+			const original = node.raw;
+			const fixed = fix(original, escapeWithLowercase);
 
-			if (matches && matches[2].slice(1).match(hasLowercaseCharacter)) {
+			if (fixed !== original) {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceText(node, fix(node.raw, escapeWithLowercase))
+					fix: fixer => fixer.replaceText(node, fixed)
 				});
 			}
 		},
 		'Literal[regex]'(node) {
-			const escapeNodePosition = findLowercaseEscape(node.raw);
+			const original = node.raw;
+			const fixed = fix(original, escapePatternWithLowercase);
 
-			if (escapeNodePosition) {
+			if (fixed !== original) {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceText(node, fixRegExp(node))
+					fix: fixer => fixer.replaceText(node, fixed)
 				});
 			}
 		},
 		TemplateElement(node) {
-			if (typeof node.value.raw !== 'string') {
-				return;
-			}
+			const original = node.value.raw;
+			const fixed = fix(original, escapePatternWithLowercase);
 
-			const matches = node.value.raw.match(escapeWithLowercase);
-
-			if (matches && matches[2].slice(1).match(hasLowercaseCharacter)) {
-				// Move cursor inside the head and tail apostrophe
-				const start = node.range[0] + 1;
-				const end = node.range[1] - 1;
+			if (fixed !== original) {
 				context.report({
 					node,
 					message,
-					fix: fixer => fixer.replaceTextRange([start, end], fix(node.value.raw, escapeWithLowercase))
+					fix: fixer => replaceTemplateElement(fixer, node, fixed)
 				});
 			}
 		}

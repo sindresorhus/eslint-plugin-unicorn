@@ -8,12 +8,19 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const babelRuleTester = avaRuleTester(test, {
+	parser: require.resolve('babel-eslint')
+});
+const typescriptRuleTester = avaRuleTester(test, {
+	parser: require.resolve('@typescript-eslint/parser')
+});
+
 const error = {
 	ruleId: 'no-hex-escape',
 	message: 'Use Unicode escapes instead of hexadecimal escapes.'
 };
 
-ruleTester.run('no-hex-escape', rule, {
+const tests = {
 	valid: [
 		'const foo = \'foo\'',
 		'const foo = \'\\u00b1\'',
@@ -117,6 +124,11 @@ ruleTester.run('no-hex-escape', rule, {
 			errors: [error],
 			output: 'const foo = \'42\\\\\\u001242\\\\\\u0034\''
 		},
+		{
+			code: 'const foo = /^[\\x20-\\x7E]*$/',
+			errors: [error],
+			output: 'const foo = /^[\\u0020-\\u007E]*$/'
+		},
 		// Test template literals
 		{
 			code: 'const foo = `\\xb1`',
@@ -187,6 +199,17 @@ ruleTester.run('no-hex-escape', rule, {
 			code: 'const foo = `42\\\\\\x1242\\\\\\x34`',
 			errors: [error],
 			output: 'const foo = `42\\\\\\u001242\\\\\\u0034`'
+		},
+		{
+			// eslint-disable-next-line no-template-curly-in-string
+			code: 'const foo = `\\xb1${foo}\\xb1${foo}`',
+			errors: [error, error],
+			// eslint-disable-next-line no-template-curly-in-string
+			output: 'const foo = `\\u00b1${foo}\\u00b1${foo}`'
 		}
 	]
-});
+};
+
+ruleTester.run('no-hex-escape', rule, tests);
+babelRuleTester.run('no-hex-escape', rule, tests);
+typescriptRuleTester.run('no-hex-escape', rule, tests);

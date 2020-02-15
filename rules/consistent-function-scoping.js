@@ -4,12 +4,16 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const MESSAGE_ID_ARROW = 'ArrowFunctionExpression';
 const MESSAGE_ID_FUNCTION = 'FunctionDeclaration';
 
+const getReferences = scope => scope.references.concat(
+	...scope.childScopes.map(scope => getReferences(scope))
+);
+
 function checkReferences(scope, parent, scopeManager) {
 	if (!scope) {
 		return false;
 	}
 
-	const {references} = scope;
+	const references = getReferences(scope);
 	if (!references || references.length === 0) {
 		return false;
 	}
@@ -41,7 +45,10 @@ function checkReferences(scope, parent, scopeManager) {
 		// This check looks for neighboring function definitions
 		const hitIdentifier = variable.identifiers.some(identifier => {
 			// Only look at identifiers that live in a FunctionDeclaration
-			if (!identifier.parent || identifier.parent.type !== 'FunctionDeclaration') {
+			if (
+				!identifier.parent ||
+				identifier.parent.type !== 'FunctionDeclaration'
+			) {
 				return false;
 			}
 
@@ -121,46 +128,26 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 	const {scopeManager} = sourceCode;
 
-	const reports = [];
+	const functions = [];
 	let hasJsx = false;
 
 	return {
-		ArrowFunctionExpression: node => {
-			const valid = checkNode(node, scopeManager);
-
-			if (valid) {
-				reports.push(null);
-			} else {
-				reports.push({
-					node,
-					messageId: MESSAGE_ID_ARROW
-				});
-			}
-		},
-		FunctionDeclaration: node => {
-			const valid = checkNode(node, scopeManager);
-
-			if (valid) {
-				reports.push(null);
-			} else {
-				reports.push({
-					node,
-					messageId: MESSAGE_ID_FUNCTION
-				});
-			}
-		},
+		'ArrowFunctionExpression, FunctionDeclaration': node => functions.push(node),
 		JSXElement: () => {
 			// Turn off this rule if we see a JSX element because scope
 			// references does not include JSXElement nodes.
 			hasJsx = true;
 		},
-		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': () => {
-			const report = reports.pop();
-			if (report && !hasJsx) {
-				context.report(report);
+		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
+			if (!hasJsx && !checkNode(node, scopeManager)) {
+				context.report({
+					node,
+					messageId: node.type
+				});
 			}
 
-			if (reports.length === 0) {
+			functions.pop();
+			if (functions.length === 0) {
 				hasJsx = false;
 			}
 		}

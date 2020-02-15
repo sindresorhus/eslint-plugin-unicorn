@@ -1,6 +1,6 @@
 {
 	"name": "eslint-plugin-unicorn",
-	"version": "16.0.0",
+	"version": "16.1.1",
 	"description": "Various awesome ESLint rules",
 	"license": "MIT",
 	"repository": "sindresorhus/eslint-plugin-unicorn",
@@ -45,7 +45,6 @@
 		"lodash.upperfirst": "^4.3.1",
 		"read-pkg-up": "^7.0.1",
 		"regexp-tree": "^0.1.17",
-		"regexpp": "^3.0.0",
 		"reserved-words": "^0.1.2",
 		"safe-regex": "^2.1.1",
 		"semver": "^7.1.2"
@@ -78,6 +77,12 @@
 			"test/*.js"
 		]
 	},
+	"nyc": {
+		"reporter": [
+			"text",
+			"lcov"
+		]
+	},
 	"xo": {
 		"plugins": [
 			"eslint-plugin"
@@ -85,9 +90,6 @@
 		"extends": [
 			"plugin:eslint-plugin/all"
 		],
-		"rules": {
-			"prefer-named-capture-group": "off"
-		},
 		"overrides": [
 			{
 				"files": "rules/utils/*.js",
@@ -95,6 +97,9 @@
 					"eslint-plugin/require-meta-docs-url": "off"
 				}
 			}
-		]
+		],
+		"rules": {
+			"import/order": "off"
+		}
 	}
 }

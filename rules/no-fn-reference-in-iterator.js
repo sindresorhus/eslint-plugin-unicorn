@@ -49,7 +49,11 @@ const selector = `CallExpression${calleeBlacklist.map(toSelector).join('')}`;
 
 const create = context => ({
 	[selector]: node => {
-		if (isIteratorMethod(node) && hasFunctionArgument(node) && node.arguments.length <= getNumberOfArguments(node)) {
+		if (
+			isIteratorMethod(node) &&
+			hasFunctionArgument(node) &&
+			node.arguments.length <= getNumberOfArguments(node)
+		) {
 			const [argument] = node.arguments;
 
 			context.report({

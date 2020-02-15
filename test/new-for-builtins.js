@@ -1,10 +1,21 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/new-for-builtins';
+import {enforceNew, disallowNew} from '../rules/utils/builtins';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
+	parserOptions: {
+		ecmaVersion: 2020,
+		sourceType: 'module'
+	},
+	// Make sure globals don't effect shadowed check result
+	globals: {
+		Map: 'writable',
+		Set: 'readonly',
+		WeakMap: 'off',
+		BigInt: 'writable',
+		Boolean: 'readonly',
+		Number: 'off'
 	}
 });
 
@@ -49,7 +60,64 @@ ruleTester.run('new-for-builtins', rule, {
 		'const foo = Boolean()',
 		'const foo = Number()',
 		'const foo = String()',
-		'const foo = Symbol()'
+		'const foo = Symbol()',
+		// Shadowed
+		...enforceNew.map(object => `
+			const ${object} = function() {};
+			const foo = ${object}();
+		`),
+		...disallowNew.map(object => `
+			const ${object} = function() {};
+			const foo = new ${object}();
+		`),
+		...enforceNew.map(object => `
+			function insideFunction() {
+				const ${object} = function() {};
+				const foo = ${object}();
+			}
+		`),
+		...disallowNew.map(object => `
+			function insideFunction() {
+				const ${object} = function() {};
+				const foo = new ${object}();
+			}
+		`),
+		...enforceNew.map(object => `
+			function outer() {
+				const ${object} = function() {};
+				function inner() {
+					const foo = ${object}();
+				}
+			}
+		`),
+		...disallowNew.map(object => `
+			function insideFunction() {
+				const ${object} = function() {};
+				function inner() {
+					const foo = new ${object}();
+				}
+			}
+		`),
+		// #122
+		`
+			import { Map } from 'immutable';
+			const m = Map();
+		`,
+		`
+			const {Map} = require('immutable');
+			const foo = Map();
+		`,
+		`
+			const {String} = require('guitar');
+			const lowE = new String();
+		`,
+		`
+			import {String} from 'guitar';
+			const lowE = new String();
+		`,
+		// Not builtin
+		'new Foo();Bar();',
+		'Foo();new Bar();'
 	],
 	invalid: [
 		{
@@ -211,6 +279,51 @@ ruleTester.run('new-for-builtins', rule, {
 			code: 'const foo = new Symbol()',
 			errors: [disallowNewError('Symbol')],
 			output: 'const foo = Symbol()'
+		},
+		{
+			code: `
+				function varCheck() {
+					{
+						var WeakMap = function() {};
+					}
+					// This should not reported
+					return WeakMap()
+				}
+				function constCheck() {
+					{
+						const Array = function() {};
+					}
+					return Array()
+				}
+				function letCheck() {
+					{
+						let Map = function() {};
+					}
+					return Map()
+				}
+			`,
+			errors: [enforceNewError('Array'), enforceNewError('Map')],
+			output: `
+				function varCheck() {
+					{
+						var WeakMap = function() {};
+					}
+					// This should not reported
+					return WeakMap()
+				}
+				function constCheck() {
+					{
+						const Array = function() {};
+					}
+					return new Array()
+				}
+				function letCheck() {
+					{
+						let Map = function() {};
+					}
+					return new Map()
+				}
+			`
 		}
 	]
 });
