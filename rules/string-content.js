@@ -88,7 +88,9 @@ const create = context => {
 			let fixed = string.replace(replacement.regex, suggest);
 			if (type === 'Literal') {
 				const quote = node.raw[0];
-				fixed = fixed.replace(new RegExp(quote, 'g'), `\\${quote}`);
+				fixed = fixed
+					.replace(new RegExp(quote, 'g'), `\\${quote}`)
+					.replace(/\n/g, '\\n');
 				problem.fix = fixer => fixer.replaceText(node, quote + fixed + quote);
 			} else {
 				problem.fix = fixer => replaceTemplateElement(
