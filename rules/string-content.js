@@ -5,13 +5,16 @@ const defaultPatterns = {
 	'\'': '’'
 };
 
+const message = `Prefer {suggest} over {match}.`;
+
 function getReplacements(options) {
-	const {patterns} = options;
+	const {} = options;
 
 	return Object.entries({
-		...defaultPatterns,
-		...patterns
-	}).filter(([, options]) => options !== false)
+			...defaultPatterns,
+			...patterns
+		})
+		.filter(([, options]) => options !== false)
 		.map(([match, options]) => {
 			if (typeof options === 'string') {
 				options = {
@@ -25,7 +28,6 @@ function getReplacements(options) {
 				match,
 				regex: new RegExp(match, 'gu'),
 				fix: true,
-				message: `Prefer \`${suggest}\` over \`${match}\`.`,
 				...options
 			};
 		});
@@ -46,24 +48,26 @@ const create = context => {
 				return;
 			}
 
-			const reported = replacements.filter(({regex}) => regex.test(value));
-			const fixed = reported.reduce((fixed, {fix, regex, suggest}) => fix ? fixed.replace(regex, suggest) : fixed
-				, value);
+			for (const {regex, fix} = replacements) {
+				if (regex.test(value)) {
+					const problem = {
+						node,
+						message,
+						data: {
+							match,
+							suggest
+						}
+					}
 
-			let fix;
-
-			if (fixed !== value) {
-				const quote = node.raw[0];
-				const escaped = fixed.replace(new RegExp(quote, 'g'), `\\${quote}`);
-				fix = fixer => fixer.replaceTextRange([node.range[0] + 1, node.range[1] - 1], escaped);
-			}
-
-			for (const {message} of reported) {
-				context.report({
-					node,
-					message,
-					fix
-				});
+					if (fix) {
+						const quote = node.raw[0];
+						const fixed = quote +
+							value.replace(regex, suggest).replace(new RegExp(quote, 'g'), `\\${quote}`) +
+							quote;
+						problem.fix = fixer => fixer.replaceText(node, fixed);
+					}
+					return context.report(problem);
+				}
 			}
 		}
 	};
