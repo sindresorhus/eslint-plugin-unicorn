@@ -8,6 +8,11 @@ const defaultPatterns = {
 
 const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
 
+const escapeTemplateElementRaw = string => string.replace(
+	/(?<=(?:^|[^\\])(?:\\\\)*)(?<symbol>(?:`|\$(?={)))/g,
+	'\\$<symbol>'
+);
+
 function getReplacements(patterns) {
 	return Object.entries({
 		...defaultPatterns,
@@ -84,12 +89,13 @@ const create = context => {
 			if (type === 'Literal') {
 				const quote = node.raw[0];
 				fixed = fixed.replace(new RegExp(quote, 'g'), `\\${quote}`);
-				const {range: [start, end]} = node;
-				const fixRange = [start + 1, end - 1];
-				problem.fix = fixer => fixer.replaceTextRange(fixRange, fixed);
+				problem.fix = fixer => fixer.replaceText(node, quote + fixed + quote);
 			} else {
-				fixed = fixed.replace(/`/g, '\\`').replace(/\$(?={)/g, '\\$');
-				problem.fix = fixer => replaceTemplateElement(fixer, node, fixed);
+				problem.fix = fixer => replaceTemplateElement(
+					fixer,
+					node,
+					escapeTemplateElementRaw(fixed)
+				);
 			}
 
 			context.report(problem);

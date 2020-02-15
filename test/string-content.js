@@ -37,8 +37,12 @@ ruleTester.run('string-content', rule, {
 			code: 'const foo = \'\\\'\'',
 			options: [{patterns: {'\'': false}}]
 		},
+		/* eslint-disable no-template-curly-in-string */
 		// `TemplateLiteral`
-		'const foo = `🦄`'
+		'const foo = `🦄`',
+		// Should not escape
+		'const foo = `\\`\\${1}`'
+		/* eslint-enable no-template-curly-in-string */
 	],
 	invalid: [
 		// `Literal` string
@@ -144,16 +148,28 @@ ruleTester.run('string-content', rule, {
 		},
 		// Escape
 		{
-			code: 'const foo = `foo`',
-			output: 'const foo = `bar\\`bar`',
+			code: 'const foo = `foo_foo`',
+			output: 'const foo = `bar\\`bar_bar\\`bar`',
 			options: [{patterns: {foo: 'bar`bar'}}],
 			errors: createError('foo', 'bar`bar')
 		},
 		{
-			code: 'const foo = `foo`',
-			output: 'const foo = `\\${bar}`',
+			code: 'const foo = `foo_foo`',
+			output: 'const foo = `\\${bar}_\\${bar}`',
 			options: [{patterns: {foo: '${bar}'}}],
 			errors: createError('foo', '${bar}')
+		},
+		{
+			code: 'const foo = `$foo`', // <-- not escaped $
+			output: 'const foo = `\\${bar}`',
+			options: [{patterns: {foo: '{bar}'}}],
+			errors: createError('foo', '{bar}')
+		},
+		{
+			code: 'const foo = `\\\\$foo`', // <-- escaped $
+			output: 'const foo = `\\\\\\${bar}`',
+			options: [{patterns: {foo: '{bar}'}}],
+			errors: createError('foo', '{bar}')
 		}
 		/* eslint-enable no-template-curly-in-string */
 	]
