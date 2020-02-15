@@ -133,6 +133,15 @@ ruleTester.run('string-content', rule, {
 			errors: [{message: '`bar` is better than `foo`.'}]
 		},
 
+		// Should not crash on multiline string
+		// https://github.com/avajs/ava/blob/7f99aef61f3aed2389ca9407115ad4c9aecada92/test/assert.js#L1477
+		{
+			code: 'const foo = "\'\\n"',
+			output: 'const foo = "’\\n"',
+			options: [{patterns}],
+			errors: createError('\'', '’')
+		},
+
 		/* eslint-disable no-template-curly-in-string */
 		// `TemplateLiteral`
 		{
