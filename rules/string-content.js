@@ -90,6 +90,7 @@ const create = context => {
 				const quote = node.raw[0];
 				fixed = fixed
 					.replace(new RegExp(quote, 'g'), `\\${quote}`)
+					.replace(/\r/g, '\\r')
 					.replace(/\n/g, '\\n');
 				problem.fix = fixer => fixer.replaceText(node, quote + fixed + quote);
 			} else {

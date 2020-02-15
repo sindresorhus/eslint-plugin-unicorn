@@ -141,6 +141,13 @@ ruleTester.run('string-content', rule, {
 			options: [{patterns}],
 			errors: createError('\'', '’')
 		},
+		// https://github.com/sindresorhus/execa/blob/df08cfb2d849adb31dc764ca3ab5f29e5b191d50/test/error.js#L20
+		{
+			code: 'const foo = "\'\\r"',
+			output: 'const foo = "’\\r"',
+			options: [{patterns}],
+			errors: createError('\'', '’')
+		},
 
 		/* eslint-disable no-template-curly-in-string */
 		// `TemplateLiteral`
