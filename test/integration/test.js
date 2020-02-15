@@ -58,11 +58,6 @@ const projects = [
 		path: 'lib'
 	},
 	{
-		repository: 'https://github.com/babel/babel',
-		path: 'packages',
-		ignore: '**/{test,tests}/**/*'
-	},
-	{
 		repository: 'https://github.com/prettier/prettier',
 		path: 'src'
 	},
