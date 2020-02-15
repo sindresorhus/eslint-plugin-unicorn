@@ -65,12 +65,6 @@ const projects = [
 		repository: 'https://github.com/facebook/react',
 		path: 'packages'
 	},
-	'https://github.com/vuejs/vue',
-	{
-		repository: 'https://github.com/angular/angular',
-		path: 'packages',
-		typescript: true
-	},
 	{
 		repository: 'https://github.com/microsoft/typescript',
 		path: 'src',
