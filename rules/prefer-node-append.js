@@ -10,12 +10,8 @@ const selector = [
 		name: 'appendChild',
 		length: 1
 	}),
-	notDomNodeSelector({
-		node: 'callee.object'
-	}),
-	notDomNodeSelector({
-		node: 'arguments.0'
-	})
+	notDomNodeSelector('callee.object'),
+	notDomNodeSelector('arguments.0')
 ].join('');
 
 const create = context => {

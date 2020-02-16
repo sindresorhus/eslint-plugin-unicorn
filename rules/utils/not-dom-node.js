@@ -20,9 +20,7 @@ const isNotDomNode = node => {
 	(node.type === 'Identifier' && node.name === 'undefined');
 };
 
-const notDomNodeSelector = options => {
-	const {node} = options;
-
+const notDomNodeSelector = node => {
 	return [
 		...impossibleTypes.map(type => `[${node}.type!="${type}"]`),
 		`:not([${node}.type="Identifier"][${node}.name="undefined"])`
