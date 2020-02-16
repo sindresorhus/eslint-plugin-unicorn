@@ -67,6 +67,11 @@ const projects = [
 		path: 'packages'
 	},
 	{
+		repository: 'https://github.com/angular/angular',
+		path: 'packages',
+		typescript: true
+	},
+	{
 		repository: 'https://github.com/microsoft/typescript',
 		path: 'src',
 		typescript: true
