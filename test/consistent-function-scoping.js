@@ -231,7 +231,20 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 				eventEmitter.once('error', onError);
 			};
-		`
+		`,
+		// #375
+		outdent`
+			module.exports = function recordErrors(eventEmitter, stateArgument) {
+				function onError(error) {
+					stateArgument.inputError = error;
+				}
+				function onError2(error) {
+					onError(error);
+				}
+
+				eventEmitter.once('error', onError2);
+			};
+		`,
 	],
 	invalid: [
 		{
