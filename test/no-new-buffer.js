@@ -12,6 +12,10 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const typescriptRuleTester = avaRuleTester(test, {
+	parser: require.resolve('@typescript-eslint/parser')
+});
+
 const allocError = {
 	ruleId: 'no-new-buffer',
 	message: '`new Buffer()` is deprecated, use `Buffer.alloc()` instead.'
@@ -76,6 +80,17 @@ ruleTester.run('no-new-buffer', rule, {
 				const buf1 = Buffer.from('buf');
 				const buf2 = Buffer.from(buf1);
 			`
+		}
+	]
+});
+
+typescriptRuleTester.run('no-new-buffer', rule, {
+	valid: [],
+	invalid: [
+		{
+			code: 'new Buffer(input, encoding);',
+			errors: [fromError],
+			output: 'Buffer.from(input, encoding);'
 		}
 	]
 });
