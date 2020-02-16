@@ -9,7 +9,7 @@ const getReferences = scope => scope.references.concat(
 );
 
 const isSameScope = (scope1, scope2) =>
-	scope1 === scope2 || scope1.block === scope2.block
+	scope1 === scope2 || scope1.block === scope2.block;
 
 function checkReferences(scope, parent, scopeManager) {
 	if (!scope) {
@@ -38,7 +38,7 @@ function checkReferences(scope, parent, scopeManager) {
 
 		const hitDefinitions = variable.defs.some(definition => {
 			const scope = scopeManager.acquire(definition.node);
-			return parent === scope;
+			return isSameScope(parent, scope);
 		});
 
 		if (hitDefinitions) {
@@ -74,7 +74,7 @@ function checkReferences(scope, parent, scopeManager) {
 
 			// Look at the scope above the function definition to see if lives
 			// next to the reference being checked
-			return parent === identifierParentScope.upper;
+			return isSameScope(parent, identifierParentScope.upper);
 		});
 
 		if (hitIdentifier) {

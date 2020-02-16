@@ -244,7 +244,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 
 				eventEmitter.once('error', onError2);
 			};
-		`,
+		`
 	],
 	invalid: [
 		{
