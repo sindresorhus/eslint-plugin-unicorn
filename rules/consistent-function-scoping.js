@@ -41,7 +41,7 @@ function checkReferences(scope, parent, scopeManager) {
 		}
 
 		// Ignore identifiers from our own scope
-		if (scope === identifierParentScope) {
+		if (isSameScope(scope, identifierParentScope)) {
 			return false;
 		}
 
