@@ -9,6 +9,10 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const typescriptRuleTester = avaRuleTester(test, {
+	parser: require.resolve('@typescript-eslint/parser')
+});
+
 const errors = [
 	{
 		ruleId: 'prefer-string-slice'
@@ -205,6 +209,38 @@ ruleTester.run('prefer-string-slice', rule, {
 		},
 		{
 			code: '"foo".substring(1, 3)',
+			errors
+		}
+	]
+});
+
+typescriptRuleTester.run('prefer-string-slice', rule, {
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				function foo() {
+					return (bar as string).substr(3);
+				}
+			`,
+			output: outdent`
+				function foo() {
+					return (bar as string).slice(3);
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				function foo() {
+					return (bar as string).substring(3);
+				}
+			`,
+			output: outdent`
+				function foo() {
+					return (bar as string).slice(3);
+				}
+			`,
 			errors
 		}
 	]
