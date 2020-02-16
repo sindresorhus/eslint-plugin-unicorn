@@ -8,6 +8,9 @@ const del = require('del');
 const chalk = require('chalk');
 const {isCI} = require('ci-info');
 
+const typescriptArguments = ['--parser', '@typescript-eslint/parser', '--ext', '.ts'];
+const vueArguments = ['--parser', 'vue-eslint-parser', '--ext', '.vue']
+
 const projects = [
 	'https://github.com/avajs/ava',
 	'https://github.com/chalk/chalk',
@@ -41,17 +44,17 @@ const projects = [
 	'https://github.com/sindresorhus/emittery',
 	{
 		repository: 'https://github.com/sindresorhus/p-queue',
-		typescript: true
+		extraArguments: typescriptArguments
 	},
 	'https://github.com/sindresorhus/pretty-bytes',
 	'https://github.com/sindresorhus/normalize-url',
 	{
 		repository: 'https://github.com/sindresorhus/pageres',
-		typescript: true
+		extraArguments: typescriptArguments
 	},
 	{
 		repository: 'https://github.com/sindresorhus/got',
-		typescript: true
+		extraArguments: typescriptArguments
 	},
 	// TODO: Add this project when #561 got fixed
 	// {
@@ -67,15 +70,15 @@ const projects = [
 		path: 'packages'
 	},
 	{
-		repository: 'https://github.com/angular/angular',
-		path: 'packages',
-		typescript: true
-	},
-	{
 		repository: 'https://github.com/microsoft/typescript',
 		path: 'src',
-		typescript: true
-	}
+		extraArguments: typescriptArguments
+	},
+	{
+		repository: 'https://github.com/ElemeFE/element',
+		path: 'packages',
+		extraArguments: vueArguments
+	},
 ].map(project => {
 	if (typeof project === 'string') {
 		project = {repository: project};
@@ -84,15 +87,16 @@ const projects = [
 	const {
 		repository,
 		name = repository.split('/').pop(),
-		typescript = false,
-		path = ''
+		path = '',
+		extraArguments = []
 	} = project;
 
 	return {
+		...project,
 		name,
 		repository,
-		typescript,
-		path
+		path,
+		extraArguments
 	};
 });
 
@@ -109,8 +113,6 @@ const enrichErrors = (packageName, cliArguments, f) => async (...arguments_) => 
 };
 
 const makeEslintTask = (project, destination, extraArguments = []) => {
-	const typescriptArguments = project.typescript ? ['--parser', '@typescript-eslint/parser', '--ext', '.ts'] : [];
-
 	const arguments_ = [
 		'eslint',
 		'--no-eslintrc',
@@ -119,7 +121,7 @@ const makeEslintTask = (project, destination, extraArguments = []) => {
 		'--config',
 		path.join(cwd, 'index.js'),
 		project.path ? path.join(destination, project.path) : destination,
-		...typescriptArguments,
+		...project.extraArguments,
 		...extraArguments
 	];
 

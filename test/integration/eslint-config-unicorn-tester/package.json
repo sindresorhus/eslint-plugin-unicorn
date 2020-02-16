@@ -5,6 +5,7 @@
 		"babel-eslint": "^10.0.3",
 		"eslint": "^6.8.0",
 		"eslint-plugin-unicorn": "file:../../..",
-		"typescript": "3.7.5"
+		"typescript": "3.7.5",
+		"vue-eslint-parser": "7.0.0"
 	}
 }
