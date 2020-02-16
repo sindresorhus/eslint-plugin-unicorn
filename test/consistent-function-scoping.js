@@ -219,6 +219,18 @@ ruleTester.run('consistent-function-scoping', rule, {
 						throw new Error('unknown direction')
 				}
 			}
+		`,
+		// #374
+		outdent`
+			'use strict';
+
+			module.exports = function recordErrors(eventEmitter, stateArgument) {
+				const stateVariable = stateArgument;
+				function onError(error) {
+					stateVariable.inputError = error;
+				}
+				eventEmitter.once('error', onError);
+			};
 		`
 	],
 	invalid: [
