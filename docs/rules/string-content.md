@@ -1,15 +1,12 @@
-# Enforce a case style for filenames
-
+# Enforce better string context
 
 This rule is fixable.
-
 
 ## Fail
 
 ```js
 const foo = 'Someone\'s coming!';
 ```
-
 
 ## Pass
 

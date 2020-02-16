@@ -37,7 +37,7 @@ function getReplacements(patterns) {
 
 const create = context => {
 	const {patterns} = {
-		patterns: [],
+		patterns: {},
 		...context.options[0]
 	};
 	const replacements = getReplacements(patterns);
