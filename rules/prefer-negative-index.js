@@ -241,7 +241,7 @@ function parse(node) {
 
 		if (isApply) {
 			const [, secondArgument] = originalArguments;
-			if (secondArgument.type !== 'ArrayExpression') {
+			if (!secondArgument || secondArgument.type !== 'ArrayExpression') {
 				return;
 			}
 
