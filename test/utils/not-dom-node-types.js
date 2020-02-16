@@ -3,7 +3,7 @@
 module.exports = [
 	// ArrayExpression
 	'[]',
-	'[1]',
+	'[element]',
 	'[...elements]',
 	// ArrowFunctionExpression
 	'() => {}',
@@ -14,6 +14,7 @@ module.exports = [
 	// Literal
 	'0',
 	'1',
+	'0.1',
 	'""',
 	'"string"',
 	'/regex/',
