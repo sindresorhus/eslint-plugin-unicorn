@@ -9,7 +9,7 @@ const getReferences = scope => scope.references.concat(
 );
 
 const isSameScope = (scope1, scope2) =>
-	scope1 === scope2 || scope1.block === scope2.block;
+	scope1 && scope2 && (scope1 === scope2 || scope1.block === scope2.block);
 
 function checkReferences(scope, parent, scopeManager) {
 	if (!scope) {
