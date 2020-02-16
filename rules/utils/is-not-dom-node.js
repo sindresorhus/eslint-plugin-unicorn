@@ -13,6 +13,8 @@ const impossibleTypes = [
 	'TemplateLiteral'
 ];
 
+// We might need this later
+/* istanbul ignore next */
 const isNotDomNode = node => {
 	return impossibleTypes.includes(node.type) ||
 	(node.type === 'Identifier' && node.name === 'undefined');

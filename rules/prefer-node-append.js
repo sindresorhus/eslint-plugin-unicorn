@@ -2,17 +2,25 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValueNotUsable = require('./utils/is-value-not-usable');
 const methodSelector = require('./utils/method-selector');
+const {isNotDomNodeSelector} = require('./utils/is-not-dom-node');
 
 const message = 'Prefer `Node#append()` over `Node#appendChild()`.';
-const selector = methodSelector({
-	name: 'appendChild',
-	length: 1
-});
+const selector = [
+	methodSelector({
+		name: 'appendChild',
+		length: 1
+	}),
+	isNotDomNodeSelector({
+		node: 'callee.object'
+	}),
+	isNotDomNodeSelector({
+		node: 'arguments.0'
+	})
+].join('');
 
 const create = context => {
 	return {
 		[selector](node) {
-			// TODO: exclude those cases parent/child impossible to be `Node`
 			const fix = isValueNotUsable(node) ?
 				fixer => fixer.replaceText(node.callee.property, 'append') :
 				undefined;
