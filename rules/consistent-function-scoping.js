@@ -8,6 +8,9 @@ const getReferences = scope => scope.references.concat(
 	...scope.childScopes.map(scope => getReferences(scope))
 );
 
+const isSameScope = (scope1, scope2) =>
+	scope1 && scope2 && (scope1 === scope2 || scope1.block === scope2.block);
+
 function checkReferences(scope, parent, scopeManager) {
 	if (!scope) {
 		return false;
@@ -26,7 +29,7 @@ function checkReferences(scope, parent, scopeManager) {
 		}
 
 		const hitReference = variable.references.some(reference => {
-			return parent === reference.from;
+			return isSameScope(parent, reference.from);
 		});
 
 		if (hitReference) {
@@ -35,7 +38,7 @@ function checkReferences(scope, parent, scopeManager) {
 
 		const hitDefinitions = variable.defs.some(definition => {
 			const scope = scopeManager.acquire(definition.node);
-			return parent === scope;
+			return isSameScope(parent, scope);
 		});
 
 		if (hitDefinitions) {
@@ -71,7 +74,7 @@ function checkReferences(scope, parent, scopeManager) {
 
 			// Look at the scope above the function definition to see if lives
 			// next to the reference being checked
-			return parent === identifierParentScope.upper;
+			return isSameScope(parent, identifierParentScope.upper);
 		});
 
 		if (hitIdentifier) {
