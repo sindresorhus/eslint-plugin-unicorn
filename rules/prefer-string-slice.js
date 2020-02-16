@@ -35,6 +35,19 @@ const isLikelyNumeric = node => isLiteralNumber(node) || isLengthProperty(node);
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
+	const getNodeText = node => {
+		const text = sourceCode.getText(node);
+		const before = sourceCode.getTokenBefore(node);
+		const after = sourceCode.getTokenAfter(node);
+		if (
+			(before && before.type === 'Punctuator' && before.value === '(') &&
+			(after && after.type === 'Punctuator' && after.value === ')')
+		) {
+			return '(' + text + ')';
+		}
+
+		return text;
+	};
 
 	return templates.visitor({
 		[substrCallTemplate](node) {
@@ -75,9 +88,7 @@ const create = context => {
 			}
 
 			if (slice) {
-				const objectText = objectNode.type === 'LogicalExpression' ?
-					`(${sourceCode.getText(objectNode)})` :
-					sourceCode.getText(objectNode);
+				const objectText = getNodeText(objectNode);
 
 				problem.fix = fixer => fixer.replaceText(node, `${objectText}.slice(${slice.join(', ')})`);
 			}
@@ -131,10 +142,7 @@ const create = context => {
 			}
 
 			if (slice) {
-				const objectText = objectNode.type === 'LogicalExpression' ?
-					`(${sourceCode.getText(objectNode)})` :
-					sourceCode.getText(objectNode);
-
+				const objectText = getNodeText(objectNode);
 				problem.fix = fixer => fixer.replaceText(node, `${objectText}.slice(${slice.join(', ')})`);
 			}
 
