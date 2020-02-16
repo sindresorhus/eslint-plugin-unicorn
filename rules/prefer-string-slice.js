@@ -35,6 +35,7 @@ const isLikelyNumeric = node => isLiteralNumber(node) || isLengthProperty(node);
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
+
 	const getNodeText = node => {
 		const text = sourceCode.getText(node);
 		const before = sourceCode.getTokenBefore(node);
@@ -43,7 +44,7 @@ const create = context => {
 			(before && before.type === 'Punctuator' && before.value === '(') &&
 			(after && after.type === 'Punctuator' && after.value === ')')
 		) {
-			return '(' + text + ')';
+			return `(${text})`;
 		}
 
 		return text;
