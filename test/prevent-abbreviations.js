@@ -43,63 +43,98 @@ const createErrors = message => {
 	return [error];
 };
 
-const extendedOptions = [{
-	replacements: {
-		e: false,
-		c: {
-			custom: true
-		},
-		cb: {
-			callback: false,
-			circuitBreacker: true
+const extendedOptions = [
+	{
+		replacements: {
+			e: false,
+			c: {
+				custom: true
+			},
+			cb: {
+				callback: false,
+				circuitBreacker: true
+			}
 		}
 	}
-}];
+];
 
-const noCheckShorthandImportsOptions = [{checkShorthandImports: false}];
-const noCheckDefaultAndNamespaceImports = [{checkDefaultAndNamespaceImports: false}];
+const noCheckShorthandImportsOptions = [
+	{
+		checkShorthandImports: false
+	}
+];
 
-const customOptions = [{
-	checkProperties: true,
+const noCheckDefaultAndNamespaceImports = [
+	{
+		checkDefaultAndNamespaceImports: false
+	}
+];
 
-	checkDefaultAndNamespaceImports: true,
-	checkShorthandImports: true,
-	checkShorthandProperties: true,
+const customOptions = [
+	{
+		checkProperties: true,
 
-	checkFilenames: false,
+		checkDefaultAndNamespaceImports: true,
+		checkShorthandImports: true,
+		checkShorthandProperties: true,
 
-	extendDefaultReplacements: false,
-	replacements: {
-		args: {
-			arguments: true
-		},
-		e: {
-			error: true,
-			event: true,
-			element: true
-		},
-		err: {
-			error: true
-		},
-		y: {
-			yield: true
-		},
-		errCb: {
-			handleError: true
-		},
-		proto: {
-			prototype: true
+		checkFilenames: false,
+
+		extendDefaultReplacements: false,
+		replacements: {
+			args: {
+				arguments: true
+			},
+			e: {
+				error: true,
+				event: true,
+				element: true
+			},
+			err: {
+				error: true
+			},
+			y: {
+				yield: true
+			},
+			errCb: {
+				handleError: true
+			},
+			proto: {
+				prototype: true
+			}
 		}
 	}
-}];
+];
 
-const dontCheckVariablesOptions = [{
-	checkVariables: false
-}];
+const dontCheckVariablesOptions = [
+	{
+		checkVariables: false
+	}
+];
 
-const checkPropertiesOptions = [{
-	checkProperties: true
-}];
+const checkPropertiesOptions = [
+	{
+		checkProperties: true
+	}
+];
+
+const extendDefaultWhitelistOptions = [
+	{
+		whitelist: {
+			err: true
+		},
+		extendDefaultWhitelist: true
+	}
+];
+
+const noExtendDefaultWhitelistOptions = [
+	{
+		whitelist: {
+			err: true
+		},
+		extendDefaultWhitelist: false
+	}
+];
 
 ruleTester.run('prevent-abbreviations', rule, {
 	valid: [
@@ -238,6 +273,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'foo();',
 			filename: 'err/http-error.js'
+		},
+
+		// `extendDefaultWhitelist` option
+		{
+			code: 'const propTypes = 2;const err = 2;',
+			options: extendDefaultWhitelistOptions
 		}
 	],
 
@@ -1033,6 +1074,14 @@ ruleTester.run('prevent-abbreviations', rule, {
 			filename: 'cb.js',
 			options: extendedOptions,
 			errors: createErrors('The filename `cb.js` should be named `circuitBreacker.js`. A more descriptive name will do too.')
+		},
+
+		// `extendDefaultWhitelist` option
+		{
+			code: 'const propTypes = 2;const err = 2;',
+			output: 'const propertyTypes = 2;const err = 2;',
+			options: noExtendDefaultWhitelistOptions,
+			errors: createErrors()
 		}
 	]
 });

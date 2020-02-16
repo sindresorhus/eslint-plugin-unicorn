@@ -4,83 +4,60 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const MESSAGE_ID_ARROW = 'ArrowFunctionExpression';
 const MESSAGE_ID_FUNCTION = 'FunctionDeclaration';
 
+const getReferences = scope => scope.references.concat(
+	...scope.childScopes.map(scope => getReferences(scope))
+);
+
+const isSameScope = (scope1, scope2) =>
+	scope1 && scope2 && (scope1 === scope2 || scope1.block === scope2.block);
+
 function checkReferences(scope, parent, scopeManager) {
-	if (!scope) {
-		return false;
-	}
+	const hitReference = references => references.some(reference => isSameScope(parent, reference.from));
+	const hitDefinitions = definitions => definitions.some(definition => {
+		const scope = scopeManager.acquire(definition.node);
+		return isSameScope(parent, scope);
+	});
 
-	const {references} = scope;
-	if (!references || references.length === 0) {
-		return false;
-	}
-
-	const hit = references.some(reference => {
-		const variable = reference.resolved;
-
-		if (!variable) {
+	// This check looks for neighboring function definitions
+	const hitIdentifier = identifiers => identifiers.some(identifier => {
+		// Only look at identifiers that live in a FunctionDeclaration
+		if (
+			!identifier.parent ||
+				identifier.parent.type !== 'FunctionDeclaration'
+		) {
 			return false;
 		}
 
-		const hitReference = variable.references.some(reference => {
-			return parent === reference.from;
-		});
+		const identifierScope = scopeManager.acquire(identifier);
 
-		if (hitReference) {
-			return true;
+		// If we have a scope, the earlier checks should have worked so ignore them here
+		if (identifierScope) {
+			return false;
 		}
 
-		const hitDefinitions = variable.defs.some(definition => {
-			const scope = scopeManager.acquire(definition.node);
-			return parent === scope;
-		});
-
-		if (hitDefinitions) {
-			return true;
+		const identifierParentScope = scopeManager.acquire(identifier.parent);
+		if (!identifierParentScope) {
+			return false;
 		}
 
-		// This check looks for neighboring function definitions
-		const hitIdentifier = variable.identifiers.some(identifier => {
-			// Only look at identifiers that live in a FunctionDeclaration
-			if (!identifier.parent || identifier.parent.type !== 'FunctionDeclaration') {
-				return false;
-			}
-
-			const identifierScope = scopeManager.acquire(identifier);
-
-			// If we have a scope, the earlier checks should have worked so ignore them here
-			if (identifierScope) {
-				return false;
-			}
-
-			const identifierParentScope = scopeManager.acquire(identifier.parent);
-			if (!identifierParentScope) {
-				return false;
-			}
-
-			// Ignore identifiers from our own scope
-			if (scope === identifierParentScope) {
-				return false;
-			}
-
-			// Look at the scope above the function definition to see if lives
-			// next to the reference being checked
-			return parent === identifierParentScope.upper;
-		});
-
-		if (hitIdentifier) {
-			return true;
+		// Ignore identifiers from our own scope
+		if (isSameScope(scope, identifierParentScope)) {
+			return false;
 		}
 
-		return false;
+		// Look at the scope above the function definition to see if lives
+		// next to the reference being checked
+		return isSameScope(parent, identifierParentScope.upper);
 	});
 
-	if (hit) {
-		return true;
-	}
-
-	return scope.childScopes.some(scope => {
-		return checkReferences(scope, parent, scopeManager);
-	});
+	return getReferences(scope)
+		.map(({resolved}) => resolved)
+		.filter(Boolean)
+		.some(variable =>
+			hitReference(variable.references) ||
+			hitDefinitions(variable.defs) ||
+			hitIdentifier(variable.identifiers)
+		);
 }
 
 function checkNode(node, scopeManager) {
@@ -121,46 +98,26 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 	const {scopeManager} = sourceCode;
 
-	const reports = [];
+	const functions = [];
 	let hasJsx = false;
 
 	return {
-		ArrowFunctionExpression: node => {
-			const valid = checkNode(node, scopeManager);
-
-			if (valid) {
-				reports.push(null);
-			} else {
-				reports.push({
-					node,
-					messageId: MESSAGE_ID_ARROW
-				});
-			}
-		},
-		FunctionDeclaration: node => {
-			const valid = checkNode(node, scopeManager);
-
-			if (valid) {
-				reports.push(null);
-			} else {
-				reports.push({
-					node,
-					messageId: MESSAGE_ID_FUNCTION
-				});
-			}
-		},
+		'ArrowFunctionExpression, FunctionDeclaration': node => functions.push(node),
 		JSXElement: () => {
 			// Turn off this rule if we see a JSX element because scope
 			// references does not include JSXElement nodes.
 			hasJsx = true;
 		},
-		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': () => {
-			const report = reports.pop();
-			if (report && !hasJsx) {
-				context.report(report);
+		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
+			if (!hasJsx && !checkNode(node, scopeManager)) {
+				context.report({
+					node,
+					messageId: node.type
+				});
 			}
 
-			if (reports.length === 0) {
+			functions.pop();
+			if (functions.length === 0) {
 				hasJsx = false;
 			}
 		}

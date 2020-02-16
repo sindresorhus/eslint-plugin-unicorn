@@ -22,14 +22,19 @@ ruleTester.run('prefer-flat-map', rule, {
 	valid: [
 		'foo.trimStart()',
 		'foo.trimEnd()',
-		// Extra arguments
-		'foo.trimLeft(1)',
-		// New
-		'new foo.trimLeft()',
-		// Function call
-		'trimLeft()',
-		// Not call
-		'foo.trimLeft'
+		// Not `CallExpression`
+		'new foo.trimLeft();',
+		// Not `MemberExpression`
+		'trimLeft();',
+		// `callee.property` is not a `Identifier`
+		'foo[\'trimLeft\']();',
+		// Computed
+		'foo[trimLeft]();',
+		// Not `trimLeft`/`trimRight`
+		'foo.bar();',
+		// More argument(s)
+		'foo.trimLeft(extra);',
+		'foo.trimLeft(...argumentsArray)'
 	],
 	invalid: [
 		{
