@@ -12,85 +12,52 @@ const isSameScope = (scope1, scope2) =>
 	scope1 && scope2 && (scope1 === scope2 || scope1.block === scope2.block);
 
 function checkReferences(scope, parent, scopeManager) {
-	if (!scope) {
-		return false;
-	}
+	const hitReference = references => references.some(reference => isSameScope(parent, reference.from));
+	const hitDefinitions = definitions => definitions.some(definition => {
+		const scope = scopeManager.acquire(definition.node);
+		return isSameScope(parent, scope);
+	});
 
-	const references = getReferences(scope);
-	if (!references || references.length === 0) {
-		return false;
-	}
-
-	const hit = references.some(reference => {
-		const variable = reference.resolved;
-
-		if (!variable) {
+	// This check looks for neighboring function definitions
+	const hitIdentifier = identifiers => identifiers.some(identifier => {
+		// Only look at identifiers that live in a FunctionDeclaration
+		if (
+			!identifier.parent ||
+				identifier.parent.type !== 'FunctionDeclaration'
+		) {
 			return false;
 		}
 
-		const hitReference = variable.references.some(reference => {
-			return isSameScope(parent, reference.from);
-		});
+		const identifierScope = scopeManager.acquire(identifier);
 
-		if (hitReference) {
-			return true;
+		// If we have a scope, the earlier checks should have worked so ignore them here
+		if (identifierScope) {
+			return false;
 		}
 
-		const hitDefinitions = variable.defs.some(definition => {
-			const scope = scopeManager.acquire(definition.node);
-			return isSameScope(parent, scope);
-		});
-
-		if (hitDefinitions) {
-			return true;
+		const identifierParentScope = scopeManager.acquire(identifier.parent);
+		if (!identifierParentScope) {
+			return false;
 		}
 
-		// This check looks for neighboring function definitions
-		const hitIdentifier = variable.identifiers.some(identifier => {
-			// Only look at identifiers that live in a FunctionDeclaration
-			if (
-				!identifier.parent ||
-				identifier.parent.type !== 'FunctionDeclaration'
-			) {
-				return false;
-			}
-
-			const identifierScope = scopeManager.acquire(identifier);
-
-			// If we have a scope, the earlier checks should have worked so ignore them here
-			if (identifierScope) {
-				return false;
-			}
-
-			const identifierParentScope = scopeManager.acquire(identifier.parent);
-			if (!identifierParentScope) {
-				return false;
-			}
-
-			// Ignore identifiers from our own scope
-			if (scope === identifierParentScope) {
-				return false;
-			}
-
-			// Look at the scope above the function definition to see if lives
-			// next to the reference being checked
-			return isSameScope(parent, identifierParentScope.upper);
-		});
-
-		if (hitIdentifier) {
-			return true;
+		// Ignore identifiers from our own scope
+		if (isSameScope(scope, identifierParentScope)) {
+			return false;
 		}
 
-		return false;
+		// Look at the scope above the function definition to see if lives
+		// next to the reference being checked
+		return isSameScope(parent, identifierParentScope.upper);
 	});
 
-	if (hit) {
-		return true;
-	}
-
-	return scope.childScopes.some(scope => {
-		return checkReferences(scope, parent, scopeManager);
-	});
+	return getReferences(scope)
+		.map(({resolved}) => resolved)
+		.filter(Boolean)
+		.some(variable =>
+			hitReference(variable.references) ||
+			hitDefinitions(variable.defs) ||
+			hitIdentifier(variable.identifiers)
+		);
 }
 
 function checkNode(node, scopeManager) {
