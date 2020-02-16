@@ -70,6 +70,11 @@ const projects = [
 		path: 'packages'
 	},
 	{
+		repository: 'https://github.com/angular/angular',
+		path: 'packages',
+		extraArguments: typescriptArguments
+	},
+	{
 		repository: 'https://github.com/microsoft/typescript',
 		path: 'src',
 		extraArguments: typescriptArguments
@@ -96,7 +101,10 @@ const projects = [
 	'https://github.com/sindresorhus/file-type',
 	'https://github.com/sindresorhus/slugify',
 	'https://github.com/gatsbyjs/gatsby',
-	'https://github.com/puppeteer/puppeteer',
+	{
+		repository: 'https://github.com/puppeteer/puppeteer',
+		path: 'lib'
+	},
 	{
 		repository: 'https://github.com/zeit/next.js',
 		path: 'packages',
