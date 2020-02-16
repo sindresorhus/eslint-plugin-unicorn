@@ -2,7 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValueNotUsable = require('./utils/is-value-not-usable');
 const methodSelector = require('./utils/method-selector');
-const {isNotDomNodeSelector} = require('./utils/is-not-dom-node');
+const {notDomNodeSelector} = require('./utils/is-not-dom-node');
 
 const message = 'Prefer `Node#append()` over `Node#appendChild()`.';
 const selector = [
@@ -10,10 +10,10 @@ const selector = [
 		name: 'appendChild',
 		length: 1
 	}),
-	isNotDomNodeSelector({
+	notDomNodeSelector({
 		node: 'callee.object'
 	}),
-	isNotDomNodeSelector({
+	notDomNodeSelector({
 		node: 'arguments.0'
 	})
 ].join('');

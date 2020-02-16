@@ -20,7 +20,7 @@ const isNotDomNode = node => {
 	(node.type === 'Identifier' && node.name === 'undefined');
 };
 
-const isNotDomNodeSelector = options => {
+const notDomNodeSelector = options => {
 	const {node} = options;
 
 	return [
@@ -31,5 +31,5 @@ const isNotDomNodeSelector = options => {
 
 module.exports = {
 	isNotDomNode,
-	isNotDomNodeSelector
+	notDomNodeSelector
 };
