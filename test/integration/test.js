@@ -74,11 +74,12 @@ const projects = [
 		path: 'src',
 		extraArguments: typescriptArguments
 	},
-	{
-		repository: 'https://github.com/microsoft/vscode',
-		path: 'src/vs',
-		extraArguments: typescriptArguments
-	},
+	// TODO: Add this project when `@typescript-eslint/parser` support `Type-Only Imports and Export`
+	// {
+	// 	repository: 'https://github.com/microsoft/vscode',
+	// 	path: 'src/vs',
+	// 	extraArguments: typescriptArguments
+	// },
 	{
 		repository: 'https://github.com/ElemeFE/element',
 		path: 'packages',
