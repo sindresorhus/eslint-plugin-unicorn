@@ -53,10 +53,11 @@ const projects = [
 		repository: 'https://github.com/sindresorhus/got',
 		typescript: true
 	},
-	{
-		repository: 'https://github.com/eslint/eslint',
-		path: 'lib'
-	},
+	// TODO: Add this project when #561 got fixed
+	// {
+	// 	repository: 'https://github.com/eslint/eslint',
+	// 	path: 'lib'
+	// },
 	{
 		repository: 'https://github.com/prettier/prettier',
 		path: 'src'
