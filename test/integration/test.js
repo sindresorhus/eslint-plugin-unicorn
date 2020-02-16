@@ -9,7 +9,7 @@ const chalk = require('chalk');
 const {isCI} = require('ci-info');
 
 const typescriptArguments = ['--parser', '@typescript-eslint/parser', '--ext', '.ts'];
-const vueArguments = ['--parser', 'vue-eslint-parser', '--ext', '.vue']
+const vueArguments = ['--parser', 'vue-eslint-parser', '--ext', '.vue'];
 
 const projects = [
 	'https://github.com/avajs/ava',
@@ -75,10 +75,15 @@ const projects = [
 		extraArguments: typescriptArguments
 	},
 	{
+		repository: 'https://github.com/microsoft/vscode',
+		path: 'src/vs',
+		extraArguments: typescriptArguments
+	},
+	{
 		repository: 'https://github.com/ElemeFE/element',
 		path: 'packages',
 		extraArguments: vueArguments
-	},
+	}
 ].map(project => {
 	if (typeof project === 'string') {
 		project = {repository: project};
