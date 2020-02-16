@@ -89,7 +89,23 @@ const projects = [
 		repository: 'https://github.com/iview/iview',
 		path: 'src',
 		extraArguments: vueArguments
-	}
+	},
+	'https://github.com/sindresorhus/create-dmg',
+	'https://github.com/sindresorhus/cp-file',
+	'https://github.com/sindresorhus/capture-website',
+	'https://github.com/sindresorhus/file-type',
+	'https://github.com/sindresorhus/slugify',
+	'https://github.com/gatsbyjs/gatsby',
+	'https://github.com/puppeteer/puppeteer',
+	{
+		repository: 'https://github.com/zeit/next.js',
+		path: 'packages',
+		extraArguments: typescriptArguments
+	},
+	'https://github.com/chakra-ui/chakra-ui',
+	'https://github.com/ReactTraining/react-router',
+	'https://github.com/facebook/relay',
+	'https://github.com/mozilla/pdf.js'
 ].map(project => {
 	if (typeof project === 'string') {
 		project = {repository: project};
