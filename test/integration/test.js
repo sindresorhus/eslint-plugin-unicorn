@@ -83,6 +83,11 @@ const projects = [
 		repository: 'https://github.com/ElemeFE/element',
 		path: 'packages',
 		extraArguments: vueArguments
+	},
+	{
+		repository: 'https://github.com/iview/iview',
+		path: 'src',
+		extraArguments: vueArguments
 	}
 ].map(project => {
 	if (typeof project === 'string') {
