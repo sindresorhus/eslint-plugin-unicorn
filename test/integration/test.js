@@ -8,50 +8,133 @@ const del = require('del');
 const chalk = require('chalk');
 const {isCI} = require('ci-info');
 
-const packages = new Map([
-	['ava', 'https://github.com/avajs/ava'],
-	['chalk', 'https://github.com/chalk/chalk'],
-	['wrap-ansi', 'https://github.com/chalk/wrap-ansi'],
-	['np', 'https://github.com/sindresorhus/np'],
-	['ora', 'https://github.com/sindresorhus/ora'],
-	['p-map', 'https://github.com/sindresorhus/p-map'],
-	['os-locale', 'https://github.com/sindresorhus/os-locale'],
-	['execa', 'https://github.com/sindresorhus/execa'],
-	['pify', 'https://github.com/sindresorhus/pify'],
-	['boxen', 'https://github.com/sindresorhus/boxen'],
-	['make-dir', 'https://github.com/sindresorhus/make-dir'],
-	['listr', 'http://github.com/SamVerschueren/listr'],
-	['listr-update-renderer', 'http://github.com/SamVerschueren/listr-update-renderer'],
-	['clinton', 'http://github.com/SamVerschueren/clinton'],
-	['bragg', 'http://github.com/SamVerschueren/bragg'],
-	['bragg-router', 'http://github.com/SamVerschueren/bragg-router'],
-	['dev-time', 'http://github.com/SamVerschueren/dev-time'],
-	['decode-uri-component', 'https://github.com/SamVerschueren/decode-uri-component'],
-	['to-ico', 'https://github.com/kevva/to-ico'],
-	['download', 'https://github.com/kevva/download'],
-	['brightness', 'https://github.com/kevva/brightness'],
-	['decompress', 'https://github.com/kevva/decompress'],
-	['npm-conf', 'https://github.com/kevva/npm-conf'],
-	['imagemin', 'https://github.com/imagemin/imagemin'],
-	['color-convert', 'https://github.com/qix-/color-convert'],
-	['eslint-plugin-unicorn', 'https://github.com/sindresorhus/eslint-plugin-unicorn'],
-	['ky', 'https://github.com/sindresorhus/ky'],
-	['query-string', 'https://github.com/sindresorhus/query-string'],
-	['meow', 'https://github.com/sindresorhus/meow'],
-	['globby', 'https://github.com/sindresorhus/globby'],
-	['emittery', 'https://github.com/sindresorhus/emittery'],
-	['p-queue', 'https://github.com/sindresorhus/p-queue'],
-	['pretty-bytes', 'https://github.com/sindresorhus/pretty-bytes'],
-	['normalize-url', 'https://github.com/sindresorhus/normalize-url'],
-	['pageres', 'https://github.com/sindresorhus/pageres'],
-	['got', 'https://github.com/sindresorhus/got']
-]);
+const typescriptArguments = ['--parser', '@typescript-eslint/parser', '--ext', '.ts'];
+const vueArguments = ['--parser', 'vue-eslint-parser', '--ext', '.vue'];
 
-const typescriptPackages = new Set([
-	'pageres',
-	'got',
-	'p-queue'
-]);
+const projects = [
+	'https://github.com/avajs/ava',
+	'https://github.com/chalk/chalk',
+	'https://github.com/chalk/wrap-ansi',
+	'https://github.com/sindresorhus/np',
+	'https://github.com/sindresorhus/ora',
+	'https://github.com/sindresorhus/p-map',
+	'https://github.com/sindresorhus/os-locale',
+	'https://github.com/sindresorhus/execa',
+	'https://github.com/sindresorhus/pify',
+	'https://github.com/sindresorhus/boxen',
+	'https://github.com/sindresorhus/make-dir',
+	'http://github.com/SamVerschueren/listr',
+	'http://github.com/SamVerschueren/listr-update-renderer',
+	'http://github.com/SamVerschueren/clinton',
+	'http://github.com/SamVerschueren/bragg',
+	'http://github.com/SamVerschueren/bragg-router',
+	'http://github.com/SamVerschueren/dev-time',
+	'https://github.com/SamVerschueren/decode-uri-component',
+	'https://github.com/kevva/to-ico',
+	'https://github.com/kevva/download',
+	'https://github.com/kevva/brightness',
+	'https://github.com/kevva/decompress',
+	'https://github.com/kevva/npm-conf',
+	'https://github.com/imagemin/imagemin',
+	'https://github.com/qix-/color-convert',
+	'https://github.com/sindresorhus/ky',
+	'https://github.com/sindresorhus/query-string',
+	'https://github.com/sindresorhus/meow',
+	'https://github.com/sindresorhus/globby',
+	'https://github.com/sindresorhus/emittery',
+	{
+		repository: 'https://github.com/sindresorhus/p-queue',
+		extraArguments: typescriptArguments
+	},
+	'https://github.com/sindresorhus/pretty-bytes',
+	'https://github.com/sindresorhus/normalize-url',
+	{
+		repository: 'https://github.com/sindresorhus/pageres',
+		extraArguments: typescriptArguments
+	},
+	{
+		repository: 'https://github.com/sindresorhus/got',
+		extraArguments: typescriptArguments
+	},
+	// TODO: Add this project when #561 got fixed
+	// {
+	// 	repository: 'https://github.com/eslint/eslint',
+	// 	path: 'lib'
+	// },
+	{
+		repository: 'https://github.com/prettier/prettier',
+		path: 'src'
+	},
+	{
+		repository: 'https://github.com/facebook/react',
+		path: 'packages'
+	},
+	{
+		repository: 'https://github.com/angular/angular',
+		path: 'packages',
+		extraArguments: typescriptArguments
+	},
+	{
+		repository: 'https://github.com/microsoft/typescript',
+		path: 'src',
+		extraArguments: typescriptArguments
+	},
+	// TODO: Add this project when `@typescript-eslint/parser` support `Type-Only Imports and Export`
+	// {
+	// 	repository: 'https://github.com/microsoft/vscode',
+	// 	path: 'src/vs',
+	// 	extraArguments: typescriptArguments
+	// },
+	{
+		repository: 'https://github.com/ElemeFE/element',
+		path: 'packages',
+		extraArguments: vueArguments
+	},
+	{
+		repository: 'https://github.com/iview/iview',
+		path: 'src',
+		extraArguments: vueArguments
+	},
+	'https://github.com/sindresorhus/create-dmg',
+	'https://github.com/sindresorhus/cp-file',
+	'https://github.com/sindresorhus/capture-website',
+	'https://github.com/sindresorhus/file-type',
+	'https://github.com/sindresorhus/slugify',
+	// TODO: add this project when #254 got fixed
+	// https://github.com/gatsbyjs/gatsby/blob/e720d8efe58eba0f6fae9f26ec8879128967d0b5/packages/gatsby/src/bootstrap/page-hot-reloader.js#L30
+	// 'https://github.com/gatsbyjs/gatsby',
+	{
+		repository: 'https://github.com/puppeteer/puppeteer',
+		path: 'lib'
+	},
+	{
+		repository: 'https://github.com/zeit/next.js',
+		path: 'packages',
+		extraArguments: typescriptArguments
+	},
+	'https://github.com/chakra-ui/chakra-ui',
+	'https://github.com/ReactTraining/react-router',
+	'https://github.com/mozilla/pdf.js'
+].map(project => {
+	if (typeof project === 'string') {
+		project = {repository: project};
+	}
+
+	const {
+		repository,
+		name = repository.split('/').pop(),
+		path = '',
+		extraArguments = []
+	} = project;
+
+	return {
+		...project,
+		name,
+		repository,
+		path,
+		extraArguments
+	};
+});
 
 const cwd = path.join(__dirname, 'eslint-config-unicorn-tester');
 
@@ -65,13 +148,20 @@ const enrichErrors = (packageName, cliArguments, f) => async (...arguments_) => 
 	}
 };
 
-const makeEslintTask = (packageName, destination, extraArguments = []) => {
-	const isTypescriptPackage = typescriptPackages.has(packageName);
-	const typescriptArguments = isTypescriptPackage ? ['--parser', '@typescript-eslint/parser', '--ext', '.ts'] : [];
+const makeEslintTask = (project, destination, extraArguments = []) => {
+	const arguments_ = [
+		'eslint',
+		'--no-eslintrc',
+		'--format',
+		'json',
+		'--config',
+		path.join(cwd, 'index.js'),
+		project.path ? path.join(destination, project.path) : destination,
+		...project.extraArguments,
+		...extraArguments
+	];
 
-	const arguments_ = ['eslint', '--format', 'json', '--config', path.join(cwd, 'index.js'), destination, ...typescriptArguments, ...extraArguments];
-
-	return enrichErrors(packageName, arguments_, async () => {
+	return enrichErrors(project.name, arguments_, async () => {
 		let stdout;
 		let processError;
 		try {
@@ -111,28 +201,28 @@ const makeEslintTask = (packageName, destination, extraArguments = []) => {
 	});
 };
 
-const execute = name => {
+const execute = project => {
 	const destination = tempy.directory();
 
 	return new Listr([
 		{
 			title: 'Cloning',
-			task: () => execa('git', ['clone', packages.get(name), '--single-branch', destination])
+			task: () => execa('git', ['clone', project.repository, '--single-branch', destination])
 		},
 		{
 			title: 'Running eslint',
-			task: makeEslintTask(name, destination)
+			task: makeEslintTask(project, destination)
 		},
 		{
 			title: 'Running eslint --fix',
-			task: makeEslintTask(name, destination, ['--fix-dry-run'])
+			task: makeEslintTask(project, destination, ['--fix-dry-run'])
 		},
 		{
 			title: 'Clean up',
 			task: () => del(destination, {force: true})
 		}
 	].map(({title, task}) => ({
-		title: `${name} / ${title}`,
+		title: `${project.name} / ${title}`,
 		task
 	})), {
 		exitOnError: false
@@ -149,11 +239,11 @@ const list = new Listr([
 		task: () => {
 			const tests = new Listr({concurrent: true});
 
-			for (const [name] of packages) {
+			for (const project of projects) {
 				tests.add([
 					{
-						title: name,
-						task: () => execute(name)
+						title: project.name,
+						task: () => execute(project)
 					}
 				]);
 			}
