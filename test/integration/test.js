@@ -115,8 +115,7 @@ const makeEslintTask = (project, destination, extraArguments = []) => {
 		path.join(cwd, 'index.js'),
 		project.path ? path.join(destination, project.path) : destination,
 		...typescriptArguments,
-		...extraArguments,
-		...(path.ignore ? ['--ignore-pattern', path.ignore] : [])
+		...extraArguments
 	];
 
 	return enrichErrors(project.name, arguments_, async () => {
