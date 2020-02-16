@@ -79,7 +79,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-trim-start-end": "error",
 			"unicorn/prefer-type-error": "error",
 			"unicorn/prevent-abbreviations": "error",
-			"unicorn/string-content": "error",
+			"unicorn/string-content": "off",
 			"unicorn/throw-new-error": "error"
 		}
 	}
