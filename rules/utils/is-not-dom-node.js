@@ -10,8 +10,6 @@ const impossibleTypes = [
 	'FunctionExpression',
 	'Literal',
 	'ObjectExpression',
-	// This could be a `Node` in arguments, like `call(...[node])`, but we are ignoring it
-	'SpreadElement',
 	'TemplateLiteral'
 ];
 
