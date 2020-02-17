@@ -5,7 +5,9 @@ const methodSelector = require('./utils/method-selector');
 
 const messages = {
 	replaceChildOrInsertBefore:
-		'Prefer `{{oldChildNode}}.{{preferredMethod}}({{newChildNode}})` over `{{parentNode}}.{{method}}({{newChildNode}}, {{oldChildNode}})`.'
+		'Prefer `{{oldChildNode}}.{{preferredMethod}}({{newChildNode}})` over `{{parentNode}}.{{method}}({{newChildNode}}, {{oldChildNode}})`.',
+	insertAdjacentTextOrInsertAdjacentElement:
+		'Prefer `{{reference}}.{{preferredMethod}}({{content}})` over `{{reference}}.{{method}}({{position}}, {{content}})`.'
 };
 
 const replaceChildOrInsertBeforeSelector = [
@@ -54,20 +56,18 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 	});
 };
 
-const selector = methodSelector({
-	length: 2
-});
-
-// Handle both `Identifier` and `Literal` because the preferred selectors support nodes and DOMString.
-const getArgumentNameForInsertAdjacentMethods = nodeArguments => {
-	if (nodeArguments.type === 'Identifier') {
-		return nodeArguments.name;
-	}
-
-	if (nodeArguments.type === 'Literal') {
-		return nodeArguments.raw;
-	}
-};
+const insertAdjacentTextOrInsertAdjacentElementSelector = [
+	methodSelector({
+		names: ['insertAdjacentText', 'insertAdjacentElement'],
+		length: 2
+	}),
+	// Position argument should be `string`
+	'[arguments.0.type="Literal"]',
+	// TODO: remove this limits on second argument
+	':matches([arguments.1.type="Literal"], [arguments.1.type="Identifier"])',
+	// TODO: remove this limits on callee
+	'[callee.object.type="Identifier"]'
+].join('');
 
 const positionReplacers = new Map([
 	['beforebegin', 'before'],
@@ -77,45 +77,37 @@ const positionReplacers = new Map([
 ]);
 
 const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
-	const identifierName = node.callee.property.name;
+	const method = node.callee.property.name;
+	const [positionNode, contentNode] = node.arguments;
 
-	// Return early when method name is not one of the targeted ones.
-	if (
-		identifierName !== 'insertAdjacentText' &&
-		identifierName !== 'insertAdjacentElement'
-	) {
-		return;
-	}
-
-	const nodeArguments = node.arguments;
-	const positionArgument = getArgumentNameForInsertAdjacentMethods(nodeArguments[0]);
-	const positionAsValue = nodeArguments[0].value;
-
+	const position = positionNode.value;
 	// Return early when specified position value of first argument is not a recognized value.
-	if (!positionReplacers.has(positionAsValue)) {
+	if (!positionReplacers.has(position)) {
 		return;
 	}
 
-	const referenceNode = node.callee.object.name;
-	const preferredSelector = positionReplacers.get(positionAsValue);
-	const insertedTextArgument = getArgumentNameForInsertAdjacentMethods(
-		nodeArguments[1]
-	);
+	const preferredMethod = positionReplacers.get(position);
+	const content = context.getSource(contentNode);
+	const reference = context.getSource(node.callee.object);
 
-	const fix = identifierName === 'insertAdjacentElement' && !isValueNotUsable(node) ?
-		// Report error when the method is part of a variable assignment
-		// but don't offer to autofix `.insertAdjacentElement()`
-		// which doesn't have a return value.
+	const fix = method === 'insertAdjacentElement' && !isValueNotUsable(node) ?
 		undefined :
-		fixer =>
-			fixer.replaceText(
-				node,
-				`${referenceNode}.${preferredSelector}(${insertedTextArgument})`
-			);
+		// TODO: make a better fix, don't touch reference
+		fixer => fixer.replaceText(
+			node,
+			`${reference}.${preferredMethod}(${content})`
+		);
 
 	return context.report({
 		node,
-		message: `Prefer \`${referenceNode}.${preferredSelector}(${insertedTextArgument})\` over \`${referenceNode}.${identifierName}(${positionArgument}, ${insertedTextArgument})\`.`,
+		messageId: 'insertAdjacentTextOrInsertAdjacentElement',
+		data: {
+			reference,
+			method,
+			preferredMethod,
+			position: context.getSource(positionNode),
+			content
+		},
 		fix
 	});
 };
@@ -125,7 +117,7 @@ const create = context => {
 		[replaceChildOrInsertBeforeSelector](node) {
 			checkForReplaceChildOrInsertBefore(context, node);
 		},
-		[selector](node) {
+		[insertAdjacentTextOrInsertAdjacentElementSelector](node) {
 			checkForInsertAdjacentTextOrInsertAdjacentElement(context, node);
 		}
 	};
