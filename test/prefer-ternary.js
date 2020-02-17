@@ -215,6 +215,72 @@ ruleTester.run('prefer-ternary', rule, {
 			errors: [
 				{column: 1, line: 1, type: 'IfStatement'}
 			]
+		},
+		{
+			code: `async () => {
+				if(a){
+					await foo();
+				} 
+				else{
+					await bar();
+				}
+			}`,
+			parserOptions: {ecmaVersion: 2018},
+			options: [{await: true}],
+			output: `async () => {
+				a ? await foo() : await bar()
+			}`,
+			errors: [
+				{column: 5, line: 2, type: 'IfStatement'}
+			]
+		},
+		{
+			code: `if(a){
+					new foo();
+				} 
+				else{
+					new bar();
+				}`,
+			options: [{new: true}],
+			output: 'a ? new foo() : new bar()',
+			errors: [
+				{column: 1, line: 1, type: 'IfStatement'}
+			]
+		},
+		{
+			code: `if(a){
+					throw Error(123);
+				} 
+				else{
+					throw Error(456);
+				}`,
+			options: [{throw: true}],
+			output: 'throw a ? Error(123) : Error(456)',
+			errors: [
+				{column: 1, line: 1, type: 'IfStatement'}
+			]
+		},
+		{
+			code: `function* foo(index) {
+				while (index < 10) {
+				  if(index < 3){
+					yield index++;
+				  }
+				  else{
+					yield index * 2
+				  }
+				}
+			  }`,
+			options: [{yield: true}],
+			output: `function* foo(index) {
+				while (index < 10) {
+				  index < 3 ? yield index++ : yield index * 2
+				}
+			  }`,
+			errors: [
+				{column: 7, line: 3, type: 'IfStatement'}
+			]
 		}
+
 	]
 });

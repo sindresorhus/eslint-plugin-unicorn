@@ -28,27 +28,27 @@ const schema = [
 
 const create = context => {
 	function parseOptions(options) {
-		const optionsDefined = options ? options : {} 
-		const optionsObject =  
-		 {
-			 AssignmentExpression: optionsDefined.assignment ? optionsDefined.assignment : 'same',
-			 ReturnStatement: optionsDefined.return !== false,
-			 CallExpression: optionsDefined.call === true,
-			 NewExpression: optionsDefined.new === true,
-			 ThrowStatement: optionsDefined.throw !== false,
-			 YieldExpression: optionsDefined.yield !== false,
-			 AwaitExpression: optionsDefined.await === true
-			}
+		const optionsDefined = options ? options : {};
+		const optionsObject =
+		{
+			AssignmentExpression: optionsDefined.assignment ? optionsDefined.assignment : 'same',
+			ReturnStatement: optionsDefined.return !== false,
+			CallExpression: optionsDefined.call === true,
+			NewExpression: optionsDefined.new === true,
+			ThrowStatement: optionsDefined.throw !== false,
+			YieldExpression: optionsDefined.yield !== false,
+			AwaitExpression: optionsDefined.await === true
+		};
 
 		if (typeof options === 'string') {
 			optionsObject.AssignmentExpression = 'any';
 			optionsObject.CallExpression = true;
 			optionsObject.NewExpression = true;
 			optionsObject.AwaitExpression = true;
-		
+		}
+
+		return optionsObject;
 	}
-	return optionsObject
-}
 
 	const options = parseOptions(context.options[0]);
 
@@ -76,58 +76,46 @@ const create = context => {
 	}
 
 	function checkConsequentAndAlternateType(node) {
-		const consequentType = node.consequent.body[0].type
-		return consequentType === node.alternate.body[0].type &&
+		const consequentType = node.consequent.body[0].type;
+		return (consequentType === node.alternate.body[0].type &&
 		((Object.keys(options).includes(consequentType) && options[consequentType]) ||
-		consequentType === 'ExpressionStatement' && checkConsequentAndAlternateExpressionStatement(node))
+		(consequentType === 'ExpressionStatement' && checkConsequentAndAlternateExpressionStatement(node))));
 	}
 
-	function checkConsequentAndAlternateExpressionStatement(node){
-		const consequentType = node.consequent.body[0].expression.type
-		return consequentType === node.alternate.body[0].expression.type && 
-		(consequentType === "AssignmentExpression" ? checkConsequentAndAlternateAssignment(node) :
-		(Object.keys(options).includes(consequentType) && options[consequentType]))
+	function checkConsequentAndAlternateExpressionStatement(node) {
+		const consequentType = node.consequent.body[0].expression.type;
+		return consequentType === node.alternate.body[0].expression.type &&
+		(consequentType === 'AssignmentExpression' ? checkConsequentAndAlternateAssignment(node) :
+			(Object.keys(options).includes(consequentType) && options[consequentType]));
 	}
 
 	function checkConsequentAndAlternateAssignment(node) {
 		return options.AssignmentExpression === 'any' ||
-		(options.AssignmentExpression === 'same' && compareConsequentAndAlternateAssignments(node))
+		(options.AssignmentExpression === 'same' && compareConsequentAndAlternateAssignments(node));
 	}
 
 	function compareConsequentAndAlternateAssignments(node) {
 		return node.consequent.body[0].expression.left.name === node.alternate.body[0].expression.left.name;
 	}
 
-	
 	function fixFunction(node, fixer) {
+		const sourceCode = context.getSourceCode();
 		let prefix = '';
-		const ifCondition = node.test.name;
+		const ifCondition = sourceCode.getText(node.test);
 		let left = '';
 		let right = '';
-		const sourceCode = context.getSourceCode();
-		if (node.consequent.body[0].type==='ExpressionStatement'){
-			if(node.consequent.body[0].expression.type==='AssignmentExpression') {
-				if (compareConsequentAndAlternateAssignments(node)) {
-					prefix = sourceCode.getText(node.consequent.body[0].expression.left) + ' = ';
-					left = sourceCode.getText(node.consequent.body[0].expression.right);
-					right = sourceCode.getText(node.alternate.body[0].expression.right);
-				} else {
-					left = sourceCode.getText(node.consequent.body[0].expression);
-					right = sourceCode.getText(node.alternate.body[0].expression);
-				}
-			}
-			else if(node.consequent.body[0].expression.type==='CallExpression'){
-					left = sourceCode.getText(node.consequent.body[0].expression);
-					right = sourceCode.getText(node.alternate.body[0].expression);
-			}
-			else{
-				prefix = node.consequent.body[0].expression.type.replace('Expression','').toLowerCase()
-				left = sourceCode.getText(node.consequent.body[0].expression.argument)
-				right = sourceCode.getText(node.alternate.body[0].expression.argument)
-			}
-		} 
-		 else if (node.consequent.body[0].type === 'ReturnStatement') {
+		if (node.consequent.body[0].type === 'ExpressionStatement' &&
+			node.consequent.body[0].expression.type === 'AssignmentExpression' &&
+			compareConsequentAndAlternateAssignments(node)) {
+			prefix = sourceCode.getText(node.consequent.body[0].expression.left) + ' = ';
+			left = sourceCode.getText(node.consequent.body[0].expression.right);
+			right = sourceCode.getText(node.alternate.body[0].expression.right);
+		} else if (node.consequent.body[0].type === 'ReturnStatement') {
 			prefix = 'return ';
+			left = sourceCode.getText(node.consequent.body[0].argument);
+			right = sourceCode.getText(node.alternate.body[0].argument);
+		} else if (node.consequent.body[0].type === 'ThrowStatement') {
+			prefix = 'throw ';
 			left = sourceCode.getText(node.consequent.body[0].argument);
 			right = sourceCode.getText(node.alternate.body[0].argument);
 		} else {
