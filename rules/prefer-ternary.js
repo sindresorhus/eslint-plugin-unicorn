@@ -36,7 +36,7 @@ const create = context => {
 			CallExpression: optionsDefined.call === true,
 			NewExpression: optionsDefined.new === true,
 			ThrowStatement: optionsDefined.throw !== false,
-			YieldExpression: optionsDefined.yield !== false,
+			YieldExpression: optionsDefined.yield === false,
 			AwaitExpression: optionsDefined.await === true
 		};
 

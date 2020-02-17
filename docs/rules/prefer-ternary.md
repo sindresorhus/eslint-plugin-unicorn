@@ -30,6 +30,15 @@ else{
 }
 ```
 
+```js
+if(bar){
+	throw Error(123)
+}
+else{
+	throw Error(456)
+}
+```
+
 ## Pass
 
 ```js
@@ -61,10 +70,14 @@ else{
 }
 ```
 
+```js
+throw bar ? Error(123) : Error(456)
+```
+
 ## Options
 
 This rule can take the following options:
-* An object with the following keys: 'assignment', 'return', 'call'
+* An object with the following keys: 'assignment', 'return', 'call', 'throw', 'new', 'yield', 'await'
 * The string 'always'
 
 ### assignment
@@ -162,7 +175,61 @@ else{
 }
 ```
 
+### throw
+The throw option determines whether the rule will flag throw statements. It can take a boolean. Default value is true.
+With `{thow: false}` the following would NOT be flagged:
+```js
+if(bar){
+	throw Error(123)
+}
+else{
+	throw Error(456)
+}
+```
+
+### new
+The new option determines whether the rule will flag new constructors. It can take a boolean. Default value is false.
+With `{new: true}` the following would be flagged:
+```js
+if(bar){
+	new foo()
+}
+else{
+	new baz()
+}
+```
+
+### yield
+The yield option determines whether the rule will flag yield expressions. It can take a boolean. Default value is false.
+With `{yield: true}` the following would be flagged:
+```js
+function* foo(index) {
+	while (index < 10) {
+		if(index < 3){
+			yield index++;
+		}
+		else{
+			yield index * 2
+		}
+	}
+}
+```
+
+### await
+The await option determines whether the rule will flag await expressions. It can take a boolean. Default value is false.
+With `{await: true}` the following would be flagged:
+```js
+async () => {
+	if(a){
+		await foo();
+	} 
+	else{
+		await bar();
+	}
+}
+```
+
 
 ### 'always'
 
-Always prefer ternary to simple `if-else` statements. This option is equivalent to ```{assignment: 'always', return: true, call:true}```.
+Always prefer ternary to simple `if-else` statements. This option is equivalent to ```{assignment: 'always', return: true, call:true, throw: true, new: true, yield: true, await: true}```.
