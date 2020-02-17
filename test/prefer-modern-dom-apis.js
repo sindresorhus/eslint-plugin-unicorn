@@ -20,6 +20,9 @@ ruleTester.run('prefer-modern-dom-apis', rule, {
 		'referenceNode.append("text");',
 		'referenceNode.after(newNode);',
 		'referenceNode.after("text");',
+		// Argument is `Identifier` but is `undefined`
+		'oldChildNode.replaceWith(undefined, oldNode);',
+		'oldChildNode.replaceWith(newNode, undefined);',
 		// Not `CallExpression`
 		'new parentNode.replaceChild(newNode, oldNode);',
 		'new parentNode.insertBefore(newNode, referenceNode);',
