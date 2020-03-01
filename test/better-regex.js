@@ -64,7 +64,10 @@ ruleTester.run('better-regex', rule, {
 		// `patter` is not `string`
 		'new RegExp(0)',
 		// No arguments
-		'new RegExp()'
+		'new RegExp()',
+
+		// #472
+		'/[ ;-]/g'
 	],
 	invalid: [
 		// Literal regex
