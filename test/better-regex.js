@@ -239,6 +239,12 @@ ruleTester.run('better-regex', rule, {
 			code: 'const foo = new RegExp(/[0-9]/, 0)',
 			errors: createError('/[0-9]/', '/\\d/'),
 			output: 'const foo = new RegExp(/\\d/, 0)'
+		},
+		// #499
+		{
+			code: '/^[a-z][a-z0-9\\-]{5,29}$/',
+			errors: createError('/^[a-z][a-z0-9\\-]{5,29}$/', '/^[a-z][\\da-z\\-]{5,29}$/'),
+			output: '/^[a-z][\\da-z\\-]{5,29}$/'
 		}
 	]
 });
