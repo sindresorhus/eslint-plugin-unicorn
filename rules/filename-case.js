@@ -1,9 +1,6 @@
 'use strict';
 const path = require('path');
-const {camelCase} = require('lodash');
-const {kebabCase} = require('lodash');
-const {snakeCase} = require('lodash');
-const {upperFirst} = require('lodash');
+const {camelCase, kebabCase, snakeCase, upperFirst} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
 
