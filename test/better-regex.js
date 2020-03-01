@@ -160,8 +160,8 @@ ruleTester.run('better-regex', rule, {
 		},
 		{
 			code: 'const foo = /^by @([a-zA-Z0-9-]+)/',
-			errors: createError('/^by @([a-zA-Z0-9-]+)/', '/^by @([\\d-A-Za-z]+)/'),
-			output: 'const foo = /^by @([\\d-A-Za-z]+)/'
+			errors: createError('/^by @([a-zA-Z0-9-]+)/', '/^by @([\\dA-Za-z-]+)/'),
+			output: 'const foo = /^by @([\\dA-Za-z-]+)/'
 		},
 		{
 			code: '/[GgHhIiå.Z:a-f"0-8%A*ä]/',
