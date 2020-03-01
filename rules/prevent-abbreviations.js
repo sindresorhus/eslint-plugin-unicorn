@@ -1,7 +1,7 @@
 'use strict';
 const path = require('path');
 const astUtils = require('eslint-ast-utils');
-const defaultsDeep = require('lodash.defaultsdeep');
+const {defaultsDeep} = require('lodash');
 
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
