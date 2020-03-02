@@ -138,6 +138,7 @@ const projects = [
 
 const cwd = path.join(__dirname, 'eslint-config-unicorn-tester');
 
+// eslint-disable-next-line unicorn/consistent-function-scoping
 const enrichErrors = (packageName, cliArguments, f) => async (...arguments_) => {
 	try {
 		return await f(...arguments_);
