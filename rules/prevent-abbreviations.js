@@ -1,7 +1,7 @@
 'use strict';
 const path = require('path');
 const astUtils = require('eslint-ast-utils');
-const defaultsDeep = require('lodash.defaultsdeep');
+const {defaultsDeep, upperFirst, lowerFirst} = require('lodash');
 
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
@@ -9,8 +9,6 @@ const cartesianProductSamples = require('./utils/cartesian-product-samples');
 
 const isUpperCase = string => string === string.toUpperCase();
 const isUpperFirst = string => isUpperCase(string[0]);
-const lowerFirst = string => string[0].toLowerCase() + string.slice(1);
-const upperFirst = string => string[0].toUpperCase() + string.slice(1);
 
 // Keep this alphabetically sorted for easier maintenance
 const defaultReplacements = {

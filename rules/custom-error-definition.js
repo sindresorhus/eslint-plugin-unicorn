@@ -1,12 +1,12 @@
 'use strict';
-const upperfirst = require('lodash.upperfirst');
+const {upperFirst} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 
 const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
 
-const getClassName = name => upperfirst(name).replace(/(?:error|)$/i, 'Error');
+const getClassName = name => upperFirst(name).replace(/(?:error|)$/i, 'Error');
 
 const getConstructorMethod = className => `
 	constructor() {
