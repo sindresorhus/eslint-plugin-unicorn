@@ -15,9 +15,8 @@ const create = context => {
 		}
 	}
 
-	function checkConsequentAndAlternateLength(node) {
-		return checkConsequentOrAlternateLength(node.consequent) &&
-			checkConsequentOrAlternateLength(node.alternate);
+	function isSingleBlockStatement(node) {
+		return [node.consequent, node.alternate].every(node => node && node.body.length === 1);
 	}
 
 	function checkConsequentOrAlternateLength(node) {
