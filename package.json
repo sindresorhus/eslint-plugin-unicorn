@@ -46,9 +46,10 @@
 		"semver": "^7.1.2"
 	},
 	"devDependencies": {
+		"@ava/babel": "^1.0.1",
 		"@lubien/fixture-beta-package": "^1.0.0-beta.1",
 		"@typescript-eslint/parser": "^2.21.0",
-		"ava": "^2.4.0",
+		"ava": "^3.5.0",
 		"babel-eslint": "^10.1.0",
 		"chalk": "^3.0.0",
 		"coveralls": "^3.0.9",
@@ -69,6 +70,7 @@
 		"eslint": ">=6.7.1"
 	},
 	"ava": {
+		"babel": true,
 		"files": [
 			"test/*.js"
 		]
