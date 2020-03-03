@@ -15,8 +15,6 @@ const create = context => {
 		}
 	}
 
-	
-
 	function fixFunction(node, fixer) {
 		const sourceCode = context.getSourceCode();
 		let prefix = '';
@@ -90,8 +88,6 @@ function checkNotAlreadyTernary(node) {
 		getNodeBody(node.consequent).expression.argument.type !== 'ConditionalExpression' &&
 		getNodeBody(node.alternate).expression.argument.type !== 'ConditionalExpression';
 }
-
-
 
 module.exports = {
 	create,

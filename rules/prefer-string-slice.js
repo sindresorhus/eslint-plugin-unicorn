@@ -95,12 +95,10 @@ const create = context => {
 			if (argumentNodes.length === 0) {
 				slice = [];
 			} else if (argumentNodes.length === 1) {
-				if (firstNumber !== undefined) {
-					slice = [Math.max(0, firstNumber)];
-				} else if (isLengthProperty(argumentNodes[0])) {
-					slice = [firstArgument];
+				if (firstNumber === undefined) {
+					slice = (isLengthProperty(argumentNodes[0])) ? [firstArgument] : [`Math.max(0, ${firstArgument})`];
 				} else {
-					slice = [`Math.max(0, ${firstArgument})`];
+					slice = [Math.max(0, firstNumber)];
 				}
 			} else if (argumentNodes.length === 2) {
 				const secondNumber = argumentNodes[1] ? getNumericValue(argumentNodes[1]) : undefined;
