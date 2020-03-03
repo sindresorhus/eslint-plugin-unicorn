@@ -62,7 +62,10 @@ ruleTester.run('prefer-negative-index', rule, {
 		// Foo[bar++]
 		'foo[bar++].slice(foo[bar++].length - 1)',
 		// Foo['bar'] & foo["bar"]
-		'foo[\'bar\'].slice(foo["bar"].length - 1)'
+		'foo[\'bar\'].slice(foo["bar"].length - 1)',
+		// Should not crash
+		// https://github.com/gatsbyjs/gatsby/blob/e720d8efe58eba0f6fae9f26ec8879128967d0b5/packages/gatsby/src/bootstrap/log-line-function.js#L9
+		'function foo() {return [].slice.apply(arguments);}'
 	],
 	invalid: [
 		// Docs example (1)

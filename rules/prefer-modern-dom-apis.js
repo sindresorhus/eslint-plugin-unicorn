@@ -3,77 +3,71 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValueNotUsable = require('./utils/is-value-not-usable');
 const methodSelector = require('./utils/method-selector');
 
-const selector = methodSelector({
-	length: 2
-});
-
-const getArgumentNameForReplaceChildOrInsertBefore = nodeArguments => {
-	if (nodeArguments.type === 'Identifier') {
-		return nodeArguments.name;
-	}
+const messages = {
+	replaceChildOrInsertBefore:
+		'Prefer `{{oldChildNode}}.{{preferredMethod}}({{newChildNode}})` over `{{parentNode}}.{{method}}({{newChildNode}}, {{oldChildNode}})`.',
+	insertAdjacentTextOrInsertAdjacentElement:
+		'Prefer `{{reference}}.{{preferredMethod}}({{content}})` over `{{reference}}.{{method}}({{position}}, {{content}})`.'
 };
 
-const forbiddenIdentifierNames = new Map([
+const replaceChildOrInsertBeforeSelector = [
+	methodSelector({
+		names: ['replaceChild', 'insertBefore'],
+		length: 2
+	}),
+	// We only allow Identifier for now
+	'[arguments.0.type="Identifier"]',
+	'[arguments.0.name!="undefined"]',
+	'[arguments.1.type="Identifier"]',
+	'[arguments.1.name!="undefined"]',
+	// This check makes sure that only the first method of chained methods with same identifier name e.g: parentNode.insertBefore(alfa, beta).insertBefore(charlie, delta); gets reported
+	'[callee.object.type="Identifier"]'
+].join('');
+
+const forbiddenMethods = new Map([
 	['replaceChild', 'replaceWith'],
 	['insertBefore', 'before']
 ]);
 
 const checkForReplaceChildOrInsertBefore = (context, node) => {
-	const identifierName = node.callee.property.name;
-
-	// Return early when specified methods don't exist in forbiddenIdentifierNames
-	if (!forbiddenIdentifierNames.has(identifierName)) {
-		return;
-	}
-
-	const nodeArguments = node.arguments;
-	const newChildNodeArgument = getArgumentNameForReplaceChildOrInsertBefore(
-		nodeArguments[0]
-	);
-	const oldChildNodeArgument = getArgumentNameForReplaceChildOrInsertBefore(
-		nodeArguments[1]
-	);
-
-	// Return early in case that one of the provided arguments is not a node
-	if (!newChildNodeArgument || !oldChildNodeArgument) {
-		return;
-	}
-
+	const method = node.callee.property.name;
 	const parentNode = node.callee.object.name;
-	// This check makes sure that only the first method of chained methods with same identifier name e.g: parentNode.insertBefore(alfa, beta).insertBefore(charlie, delta); gets reported
-	if (!parentNode) {
-		return;
-	}
-
-	const preferredSelector = forbiddenIdentifierNames.get(identifierName);
+	const [newChildNode, oldChildNode] = node.arguments.map(({name}) => name);
+	const preferredMethod = forbiddenMethods.get(method);
 
 	const fix = isValueNotUsable(node) ?
-		// Report error when the method is part of a variable assignment
-		// but don't offer to autofix `.replaceWith()` and `.before()`
-		// which don't have a return value.
 		fixer => fixer.replaceText(
 			node,
-			`${oldChildNodeArgument}.${preferredSelector}(${newChildNodeArgument})`
+			`${oldChildNode}.${preferredMethod}(${newChildNode})`
 		) :
 		undefined;
 
 	return context.report({
 		node,
-		message: `Prefer \`${oldChildNodeArgument}.${preferredSelector}(${newChildNodeArgument})\` over \`${parentNode}.${identifierName}(${newChildNodeArgument}, ${oldChildNodeArgument})\`.`,
+		messageId: 'replaceChildOrInsertBefore',
+		data: {
+			parentNode,
+			method,
+			preferredMethod,
+			newChildNode,
+			oldChildNode
+		},
 		fix
 	});
 };
 
-// Handle both `Identifier` and `Literal` because the preferred selectors support nodes and DOMString.
-const getArgumentNameForInsertAdjacentMethods = nodeArguments => {
-	if (nodeArguments.type === 'Identifier') {
-		return nodeArguments.name;
-	}
-
-	if (nodeArguments.type === 'Literal') {
-		return nodeArguments.raw;
-	}
-};
+const insertAdjacentTextOrInsertAdjacentElementSelector = [
+	methodSelector({
+		names: ['insertAdjacentText', 'insertAdjacentElement'],
+		length: 2
+	}),
+	// Position argument should be `string`
+	'[arguments.0.type="Literal"]',
+	// TODO: remove this limits on second argument
+	':matches([arguments.1.type="Literal"], [arguments.1.type="Identifier"])',
+	// TODO: remove this limits on callee
+	'[callee.object.type="Identifier"]'
+].join('');
 
 const positionReplacers = new Map([
 	['beforebegin', 'before'],
@@ -83,53 +77,47 @@ const positionReplacers = new Map([
 ]);
 
 const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
-	const identifierName = node.callee.property.name;
+	const method = node.callee.property.name;
+	const [positionNode, contentNode] = node.arguments;
 
-	// Return early when method name is not one of the targeted ones.
-	if (
-		identifierName !== 'insertAdjacentText' &&
-		identifierName !== 'insertAdjacentElement'
-	) {
-		return;
-	}
-
-	const nodeArguments = node.arguments;
-	const positionArgument = getArgumentNameForInsertAdjacentMethods(nodeArguments[0]);
-	const positionAsValue = nodeArguments[0].value;
-
+	const position = positionNode.value;
 	// Return early when specified position value of first argument is not a recognized value.
-	if (!positionReplacers.has(positionAsValue)) {
+	if (!positionReplacers.has(position)) {
 		return;
 	}
 
-	const referenceNode = node.callee.object.name;
-	const preferredSelector = positionReplacers.get(positionAsValue);
-	const insertedTextArgument = getArgumentNameForInsertAdjacentMethods(
-		nodeArguments[1]
-	);
+	const preferredMethod = positionReplacers.get(position);
+	const content = context.getSource(contentNode);
+	const reference = context.getSource(node.callee.object);
 
-	const fix = identifierName === 'insertAdjacentElement' && !isValueNotUsable(node) ?
-		// Report error when the method is part of a variable assignment
-		// but don't offer to autofix `.insertAdjacentElement()`
-		// which doesn't have a return value.
+	const fix = method === 'insertAdjacentElement' && !isValueNotUsable(node) ?
 		undefined :
-		fixer =>
-			fixer.replaceText(
-				node,
-				`${referenceNode}.${preferredSelector}(${insertedTextArgument})`
-			);
+		// TODO: make a better fix, don't touch reference
+		fixer => fixer.replaceText(
+			node,
+			`${reference}.${preferredMethod}(${content})`
+		);
 
 	return context.report({
 		node,
-		message: `Prefer \`${referenceNode}.${preferredSelector}(${insertedTextArgument})\` over \`${referenceNode}.${identifierName}(${positionArgument}, ${insertedTextArgument})\`.`,
+		messageId: 'insertAdjacentTextOrInsertAdjacentElement',
+		data: {
+			reference,
+			method,
+			preferredMethod,
+			position: context.getSource(positionNode),
+			content
+		},
 		fix
 	});
 };
 
 const create = context => {
 	return {
-		[selector](node) {
+		[replaceChildOrInsertBeforeSelector](node) {
 			checkForReplaceChildOrInsertBefore(context, node);
+		},
+		[insertAdjacentTextOrInsertAdjacentElementSelector](node) {
 			checkForInsertAdjacentTextOrInsertAdjacentElement(context, node);
 		}
 	};
@@ -142,6 +130,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };

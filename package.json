@@ -8,7 +8,7 @@
 	"author": {
 		"name": "Sindre Sorhus",
 		"email": "sindresorhus@gmail.com",
-		"url": "sindresorhus.com"
+		"url": "https://sindresorhus.com"
 	},
 	"engines": {
 		"node": ">=10"
@@ -38,22 +38,18 @@
 		"eslint-ast-utils": "^1.1.0",
 		"eslint-template-visitor": "^1.1.0",
 		"import-modules": "^2.0.0",
-		"lodash.camelcase": "^4.3.0",
-		"lodash.defaultsdeep": "^4.6.1",
-		"lodash.kebabcase": "^4.1.1",
-		"lodash.snakecase": "^4.1.1",
-		"lodash.upperfirst": "^4.3.1",
+		"lodash": "^4.17.15",
 		"read-pkg-up": "^7.0.1",
-		"regexp-tree": "^0.1.17",
+		"regexp-tree": "^0.1.20",
 		"reserved-words": "^0.1.2",
 		"safe-regex": "^2.1.1",
 		"semver": "^7.1.2"
 	},
 	"devDependencies": {
 		"@lubien/fixture-beta-package": "^1.0.0-beta.1",
-		"@typescript-eslint/parser": "^2.12.0",
+		"@typescript-eslint/parser": "^2.21.0",
 		"ava": "^2.4.0",
-		"babel-eslint": "^10.0.3",
+		"babel-eslint": "^10.1.0",
 		"chalk": "^3.0.0",
 		"coveralls": "^3.0.9",
 		"del": "^5.1.0",
@@ -64,10 +60,10 @@
 		"listr": "^0.14.3",
 		"nyc": "^15.0.0",
 		"outdent": "^0.7.0",
-		"pify": "^4.0.1",
-		"tempy": "^0.3.0",
-		"typescript": "^3.7.4",
-		"xo": "^0.25.3"
+		"pify": "^5.0.0",
+		"tempy": "^0.4.0",
+		"typescript": "^3.8.3",
+		"xo": "^0.27.2"
 	},
 	"peerDependencies": {
 		"eslint": ">=6.7.1"

@@ -1,13 +1,10 @@
 'use strict';
 const path = require('path');
-const camelCase = require('lodash.camelcase');
-const kebabCase = require('lodash.kebabcase');
-const snakeCase = require('lodash.snakecase');
-const upperfirst = require('lodash.upperfirst');
+const {camelCase, kebabCase, snakeCase, upperFirst} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
 
-const pascalCase = string => upperfirst(camelCase(string));
+const pascalCase = string => upperFirst(camelCase(string));
 const numberRegex = /\d+/;
 const PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
 const PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
