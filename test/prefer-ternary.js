@@ -115,6 +115,18 @@ ruleTester.run('prefer-ternary', rule, {
 		},
 		{
 			code: outdent`
+			if(foo)
+				bar = 1; 
+			else
+				bar = 2;
+			`,
+			output: 'bar = (foo ? 1 : 2)',
+			errors: [
+				{column: 1, line: 1, type: 'IfStatement'}
+			]
+		},
+		{
+			code: outdent`
 			function foo(){
 				if(bar){
 					return 1;
