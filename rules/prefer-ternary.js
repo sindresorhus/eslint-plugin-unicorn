@@ -34,12 +34,23 @@ const create = context => {
 	function checkConsequentAndAlternateExpressionStatement(node) {
 		const consequentType = node.consequent.body[0].expression.type;
 		return consequentType === node.alternate.body[0].expression.type &&
-			(consequentType === 'AssignmentExpression' ? compareConsequentAndAlternateAssignments(node) :
-				consequentType === 'YieldExpression');
+			(consequentType === 'YieldExpression' ||
+				consequentType === 'AwaitExpression' ||
+				(consequentType === 'AssignmentExpression' && compareConsequentAndAlternateAssignments(node))
+			) &&
+			checkNotAlreadyTernary(node);
 	}
 
 	function compareConsequentAndAlternateAssignments(node) {
 		return node.consequent.body[0].expression.left.name === node.alternate.body[0].expression.left.name;
+	}
+
+	function checkNotAlreadyTernary(node) {
+		return node.consequent.body[0].expression.type === 'AssignmentExpression' ?
+			node.consequent.body[0].expression.right.type !== 'ConditionalExpression' &&
+			node.alternate.body[0].expression.right.type !== 'ConditionalExpression' :
+			node.consequent.body[0].expression.argument.type !== 'ConditionalExpression' &&
+			node.alternate.body[0].expression.argument.type !== 'ConditionalExpression';
 	}
 
 	function fixFunction(node, fixer) {
@@ -49,12 +60,13 @@ const create = context => {
 		let left = '';
 		let right = '';
 		if (node.consequent.body[0].type === 'ExpressionStatement') {
-			if (node.consequent.body[0].expression.type === 'AssignmentExpression') {
+			const expressionType = node.consequent.body[0].expression.type;
+			if (expressionType === 'AssignmentExpression') {
 				prefix = sourceCode.getText(node.consequent.body[0].expression.left) + ' = ';
 				left = sourceCode.getText(node.consequent.body[0].expression.right);
 				right = sourceCode.getText(node.alternate.body[0].expression.right);
 			} else {
-				prefix = 'yield ';
+				prefix = expressionType === 'AwaitExpression' ? 'await ' : 'yield ';
 				left = sourceCode.getText(node.consequent.body[0].expression.argument);
 				right = sourceCode.getText(node.alternate.body[0].expression.argument);
 			}

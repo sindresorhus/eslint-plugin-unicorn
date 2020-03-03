@@ -30,6 +30,24 @@ else{
 }
 ```
 
+```js
+if(bar){
+	await firstPromise()
+}
+else{
+	await secondPromise()
+}
+```
+
+```js
+if(bar){
+	yield bat
+}
+else{
+	yield baz
+}
+```
+
 ## Pass
 
 ```js
@@ -40,6 +58,13 @@ let foo = bar ? 3 : 4
 return bar ? 3 : 4
 ```
 
+```js
+await (bar ? 3 : 4)
+```
+
+```js
+yield (bar ? 3 : 4)
+```
 
 ```js
 let foo = ''

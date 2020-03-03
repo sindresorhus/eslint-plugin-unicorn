@@ -13,9 +13,9 @@ ruleTester.run('prefer-ternary', rule, {
 	valid: [
 		{
 			code: outdent`
-		if(a){
-			b = 1;
-		}`
+			if(a){
+				b = 1;
+			}`
 		},
 		{
 			code: outdent`
@@ -53,8 +53,50 @@ ruleTester.run('prefer-ternary', rule, {
 			else{
 				bar();
 			}`
+		},
+		{
+			code: outdent`
+			if (foo) {
+				bar = a ? b : c;
+			} else {
+				bar = 2;
+			}`
+		},
+		{
+			code: outdent`
+			if (foo) {
+				bar = 2;
+			} else {
+				bar = a ? b : c;
+			}`
+		},
+		{
+			code: outdent`
+			async function foo(){
+				if(bar){
+					await (bat ? firstPromise() : secondPromise());
+				}
+				else{
+					await thirdPromise();
+				}
+			}`,
+			parserOptions: {
+				ecmaVersion: 2020
+			}
+		},
+		{
+			code: outdent`
+			function* generator(){
+				while(foo){
+					if(bar){
+						yield (a ? b : c)
+					}
+					else{
+						yield d
+					}
+				}
+			}`
 		}
-
 	],
 
 	invalid: [
@@ -84,6 +126,27 @@ ruleTester.run('prefer-ternary', rule, {
 			output: outdent`
 			function foo(){
 				return (bar ? 1 : 2)
+			}`,
+			errors: [
+				{column: 2, line: 2, type: 'IfStatement'}
+			]
+		},
+		{
+			code: outdent`
+			async function foo(){
+				if(bar){
+					await firstPromise();
+				}
+				else{
+					await secondPromise();
+				}
+			}`,
+			parserOptions: {
+				ecmaVersion: 2020
+			},
+			output: outdent`
+			async function foo(){
+				await (bar ? firstPromise() : secondPromise())
 			}`,
 			errors: [
 				{column: 2, line: 2, type: 'IfStatement'}
