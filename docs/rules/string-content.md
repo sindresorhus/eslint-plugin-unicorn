@@ -20,9 +20,9 @@ Type: `object`
 
 ### `patterns`
 
-Type: `object`
+Type: `object`\
 
-Extend default patterns.
+Extend [default patterns](#default-pattern).
 
 The example below:
 
@@ -62,5 +62,13 @@ For example, if you want to enforce `...` → `…`:
 	"patterns": {
 		"\\.\\.\\.": "…"
 	}
+}
+```
+
+## Default Pattern
+
+```json
+{
+	"'": "’"
 }
 ```
