@@ -20,6 +20,14 @@ ruleTester.run('prefer-ternary', rule, {
 		{
 			code: outdent`
 			if(a){
+				b = 1;
+			}
+			else{
+			}`
+		},
+		{
+			code: outdent`
+			if(a){
 				b = 1
 				bar()
 			}

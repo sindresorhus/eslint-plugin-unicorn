@@ -1,6 +1,5 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-
 const create = context => {
 	function checkIfStatement(node) {
 		if (isSingleBlockStatement(node) &&
@@ -16,47 +15,7 @@ const create = context => {
 		}
 	}
 
-	function isSingleBlockStatement(node) {
-		return [node.consequent, node.alternate].every(node => {
-			return node && (node.type !== 'BlockStatement' || node.body.length === 1);
-		});
-	}
-
-	function getNodeBody(node) {
-		return node.type === 'BlockStatement' ? node.body[0] : node;
-	}
-
-	function isSameType(node) {
-		return getNodeBody(node.consequent).type === getNodeBody(node.alternate).type;
-	}
-
-	function checkConsequentAndAlternateType(node) {
-		return (
-			(getNodeBody(node.consequent).type === 'ReturnStatement' ||
-				(getNodeBody(node.consequent).type === 'ExpressionStatement' && checkConsequentAndAlternateExpressionStatement(node))));
-	}
-
-	function checkConsequentAndAlternateExpressionStatement(node) {
-		const consequentType = getNodeBody(node.consequent).expression.type;
-		return consequentType === getNodeBody(node.alternate).expression.type &&
-			(consequentType === 'YieldExpression' ||
-				consequentType === 'AwaitExpression' ||
-				(consequentType === 'AssignmentExpression' && compareConsequentAndAlternateAssignments(node))
-			) &&
-			checkNotAlreadyTernary(node);
-	}
-
-	function compareConsequentAndAlternateAssignments(node) {
-		return getNodeBody(node.consequent).expression.left.name === getNodeBody(node.alternate).expression.left.name;
-	}
-
-	function checkNotAlreadyTernary(node) {
-		return getNodeBody(node.consequent).expression.type === 'AssignmentExpression' ?
-			getNodeBody(node.consequent).expression.right.type !== 'ConditionalExpression' &&
-			getNodeBody(node.alternate).expression.right.type !== 'ConditionalExpression' :
-			getNodeBody(node.consequent).expression.argument.type !== 'ConditionalExpression' &&
-			getNodeBody(node.alternate).expression.argument.type !== 'ConditionalExpression';
-	}
+	
 
 	function fixFunction(node, fixer) {
 		const sourceCode = context.getSourceCode();
@@ -89,6 +48,50 @@ const create = context => {
 		IfStatement: checkIfStatement
 	};
 };
+
+function isSingleBlockStatement(node) {
+	return [node.consequent, node.alternate].every(node => {
+		return node && (node.type !== 'BlockStatement' || node.body.length === 1);
+	});
+}
+
+function getNodeBody(node) {
+	return node.type === 'BlockStatement' ? node.body[0] : node;
+}
+
+function isSameType(node) {
+	return getNodeBody(node.consequent).type === getNodeBody(node.alternate).type;
+}
+
+function checkConsequentAndAlternateType(node) {
+	return (
+		(getNodeBody(node.consequent).type === 'ReturnStatement' ||
+			(getNodeBody(node.consequent).type === 'ExpressionStatement' && checkConsequentAndAlternateExpressionStatement(node))));
+}
+
+function checkConsequentAndAlternateExpressionStatement(node) {
+	const consequentType = getNodeBody(node.consequent).expression.type;
+	return consequentType === getNodeBody(node.alternate).expression.type &&
+		(consequentType === 'YieldExpression' ||
+			consequentType === 'AwaitExpression' ||
+			(consequentType === 'AssignmentExpression' && compareConsequentAndAlternateAssignments(node))
+		) &&
+		checkNotAlreadyTernary(node);
+}
+
+function compareConsequentAndAlternateAssignments(node) {
+	return getNodeBody(node.consequent).expression.left.name === getNodeBody(node.alternate).expression.left.name;
+}
+
+function checkNotAlreadyTernary(node) {
+	return getNodeBody(node.consequent).expression.type === 'AssignmentExpression' ?
+		getNodeBody(node.consequent).expression.right.type !== 'ConditionalExpression' &&
+		getNodeBody(node.alternate).expression.right.type !== 'ConditionalExpression' :
+		getNodeBody(node.consequent).expression.argument.type !== 'ConditionalExpression' &&
+		getNodeBody(node.alternate).expression.argument.type !== 'ConditionalExpression';
+}
+
+
 
 module.exports = {
 	create,
