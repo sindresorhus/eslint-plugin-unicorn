@@ -1,17 +1,13 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const replaceTemplateElement = require('./utils/replace-template-element');
+const escapeTemplateElementRaw = require('./utils/escape-template-element-raw');
 
 const defaultPatterns = {
 	'\'': '’'
 };
 
 const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
-
-const escapeTemplateElementRaw = string => string.replace(
-	/(?<=(?:^|[^\\])(?:\\\\)*)(?<symbol>(?:`|\$(?={)))/g,
-	'\\$<symbol>'
-);
 
 function getReplacements(patterns) {
 	return Object.entries({
