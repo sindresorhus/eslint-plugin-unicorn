@@ -1,5 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const quoteString = require('./utils/quote-string');
 const replaceTemplateElement = require('./utils/replace-template-element');
 const escapeTemplateElementRaw = require('./utils/escape-template-element-raw');
 
@@ -81,14 +82,12 @@ const create = context => {
 				return;
 			}
 
-			let fixed = string.replace(replacement.regex, suggest);
+			const fixed = string.replace(replacement.regex, suggest);
 			if (type === 'Literal') {
-				const quote = node.raw[0];
-				fixed = fixed
-					.replace(new RegExp(quote, 'g'), `\\${quote}`)
-					.replace(/\r/g, '\\r')
-					.replace(/\n/g, '\\n');
-				problem.fix = fixer => fixer.replaceText(node, quote + fixed + quote);
+				problem.fix = fixer => fixer.replaceText(
+					node,
+					quoteString(fixed, node.raw[0])
+				);
 			} else {
 				problem.fix = fixer => replaceTemplateElement(
 					fixer,

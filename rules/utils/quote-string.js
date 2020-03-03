@@ -1,9 +1,16 @@
 'use strict';
 
 /**
-Escape apostrophe and wrap the result in single quotes.
+Escape string and wrap the result in quotes.
 
 @param {string} string - The string to be quoted.
-@returns {string} - The quoted string.
+@param {quote} string - The quote character.
+@returns {string} - The quoted and escaped string.
 */
-module.exports = string => `'${string.replace(/'/g, '\\\'')}'`;
+module.exports = (string, quote = '\'') => {
+	const escaped = string
+		.replace(new RegExp(quote, 'g'), `\\${quote}`)
+		.replace(/\r/g, '\\r')
+		.replace(/\n/g, '\\n');
+	return quote + escaped + quote;
+};
