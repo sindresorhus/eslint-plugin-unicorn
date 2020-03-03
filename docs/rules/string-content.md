@@ -4,6 +4,8 @@ Enforce using `’` instead of `'` to avoid escaping.
 
 This rule is fixable.
 
+_This rule only reports one pattern per node._
+
 ## Fail
 
 ```js
