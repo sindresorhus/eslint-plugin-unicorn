@@ -1,4 +1,6 @@
-# Enforce better string context
+# Enforce better string content
+
+Enforce using `’` instead of `'` to avoid escaping.
 
 This rule is fixable.
 
