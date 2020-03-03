@@ -13,8 +13,11 @@ const selector = [
 	'[arguments.0.type!="ObjectExpression"]'
 ].join('');
 
+const isClosingBracketToken = token => token && token.value === ']' && token.type === 'Punctuator';
+
 const create = context => {
-	const getSource = node => context.getSourceCode().getText(node);
+	const sourceCode = context.getSourceCode();
+	const getSource = node => sourceCode.getText(node);
 
 	return {
 		[selector](node) {
@@ -23,7 +26,8 @@ const create = context => {
 				message: 'Prefer the spread operator over `Array.from()`.',
 				fix: fixer => {
 					const [arrayLikeArgument, mapFn, thisArgument] = node.arguments.map(getSource);
-					let replacement = `[...${arrayLikeArgument}]`;
+					const tokenBefore = sourceCode.getTokenBefore(node);
+					let replacement = `${isClosingBracketToken(tokenBefore) ? ';' : ''}[...${arrayLikeArgument}]`;
 
 					if (mapFn) {
 						const mapArguments = [mapFn, thisArgument].filter(Boolean);

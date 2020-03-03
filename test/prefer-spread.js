@@ -123,6 +123,22 @@ ruleTester.run('prefer-spread', rule, {
 				}
 			],
 			output: '[...document.querySelectorAll("*")].map(() => {});'
+		},
+		// #254
+		{
+			code: `
+				const foo = []
+				Array.from(arrayLike).forEach(doSomething)
+			`,
+			errors: [
+				{
+					message: 'Prefer the spread operator over `Array.from()`.'
+				}
+			],
+			output: `
+				const foo = []
+				;[...arrayLike].forEach(doSomething)
+			`
 		}
 	]
 });
