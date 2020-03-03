@@ -22,14 +22,14 @@ Type: `object`
 
 Type: `object`
 
-You can extend default patterns by passing the `patterns` option.
+Extend default patterns.
 
 The example below:
 
 - disables the default `'` → `’` replacement
-- add a custom `unicorn` → `🦄` replacement
-- add a custom `awesome` → `😎` replacement, and a custom message
-- add a custom `cool` → `😎` replacement, but disabled auto fix
+- adds a custom `unicorn` → `🦄` replacement
+- adds a custom `awesome` → `😎` replacement and a custom message
+- adds a custom `cool` → `😎` replacement, but disables auto fix
 
 ```json
 {
@@ -53,11 +53,11 @@ The example below:
 }
 ```
 
-The key of `patterns` is treat as regex, so you must escape special characters.
+The key of `patterns` is treated as a regex, so you must escape special characters.
 
-for example, you want add `...` → `…` replacement
+For example, if you want to enforce `...` → `…`:
 
-```js
+```json
 {
 	"patterns": {
 		"\\.\\.\\.": "…"
