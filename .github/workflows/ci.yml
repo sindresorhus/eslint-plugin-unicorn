@@ -29,6 +29,12 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.node_version == 12
         with:
           github-token: ${{ secrets.github_token }}
+          parallel: true
+      - uses: coverallsapp/github-action@master
+        if: matrix.os == 'ubuntu-latest' && matrix.node_version == 12
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
 
   lint:
     runs-on: ubuntu-latest
