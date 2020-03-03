@@ -20,17 +20,19 @@ const create = context => {
 	const needsSemicolon = node => {
 		const tokenBefore = sourceCode.getTokenBefore(node);
 
-		if (
-			tokenBefore &&
-			tokenBefore.type === 'Punctuator' &&
-			(tokenBefore.value === ']' || tokenBefore.value === ')')
-		) {
-			return true;
-		}
-
 		if (tokenBefore) {
-			const lastBlockNode = sourceCode.getNodeByRangeIndex(tokenBefore.range[0]);
+			const {type, value} = tokenBefore;
+			if (type === 'Punctuator') {
+				if (value === ';') {
+					return false;
+				}
 
+				if (value === ']' || value === ')') {
+					return true;
+				}
+			}
+
+			const lastBlockNode = sourceCode.getNodeByRangeIndex(tokenBefore.range[0]);
 			if (lastBlockNode && lastBlockNode.type === 'ObjectExpression') {
 				return true;
 			}
