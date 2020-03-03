@@ -13,8 +13,6 @@ const selector = [
 	'[arguments.0.type!="ObjectExpression"]'
 ].join('');
 
-const isClosingBracketToken = token => token && token.value === ']' && token.type === 'Punctuator';
-
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const getSource = node => sourceCode.getText(node);
@@ -27,7 +25,10 @@ const create = context => {
 				fix: fixer => {
 					const [arrayLikeArgument, mapFn, thisArgument] = node.arguments.map(getSource);
 					const tokenBefore = sourceCode.getTokenBefore(node);
-					let replacement = `${isClosingBracketToken(tokenBefore) ? ';' : ''}[...${arrayLikeArgument}]`;
+					const needsSemicolon = tokenBefore &&
+						tokenBefore.type === 'Punctuator' &&
+						(tokenBefore.value === ']' || tokenBefore.value === ')');
+					let replacement = `${needsSemicolon ? ';' : ''}[...${arrayLikeArgument}]`;
 
 					if (mapFn) {
 						const mapArguments = [mapFn, thisArgument].filter(Boolean);

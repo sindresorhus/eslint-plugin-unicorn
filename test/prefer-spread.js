@@ -139,6 +139,22 @@ ruleTester.run('prefer-spread', rule, {
 				const foo = []
 				;[...arrayLike].forEach(doSomething)
 			`
+		},
+		// https://github.com/gatsbyjs/gatsby/blob/e720d8efe58eba0f6fae9f26ec8879128967d0b5/packages/gatsby/src/bootstrap/page-hot-reloader.js#L30
+		{
+			code: `
+				foo()
+				Array.from(arrayLike).forEach(doSomething)
+			`,
+			errors: [
+				{
+					message: 'Prefer the spread operator over `Array.from()`.'
+				}
+			],
+			output: `
+				foo()
+				;[...arrayLike].forEach(doSomething)
+			`
 		}
 	]
 });
