@@ -54,7 +54,7 @@
 		"chalk": "^3.0.0",
 		"coveralls": "^3.0.9",
 		"del": "^5.1.0",
-		"eslint": "^6.8.0",
+		"eslint": "^7.0.0-alpha.2",
 		"eslint-ava-rule-tester": "^4.0.0",
 		"eslint-plugin-eslint-plugin": "^2.2.1",
 		"execa": "^4.0.0",
@@ -67,7 +67,7 @@
 		"xo": "^0.27.2"
 	},
 	"peerDependencies": {
-		"eslint": ">=6.7.1"
+		"eslint": ">=7.0.0"
 	},
 	"ava": {
 		"babel": true,
