@@ -19,11 +19,11 @@ const create = context => {
 	function isSingleBlockStatement(node) {
 		return [node.consequent, node.alternate].every(node => {
 			return node && (node.type !== 'BlockStatement' || node.body.length === 1);
-		})
+		});
 	}
 
-	function getNodeBody(node){
-		return node.type==='BlockStatement' ? node.body[0] : node
+	function getNodeBody(node) {
+		return node.type === 'BlockStatement' ? node.body[0] : node;
 	}
 
 	function isSameType(node) {
