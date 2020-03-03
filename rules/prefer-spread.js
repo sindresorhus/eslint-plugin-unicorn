@@ -17,6 +17,28 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 	const getSource = node => sourceCode.getText(node);
 
+	const needsSemicolon = node => {
+		const tokenBefore = sourceCode.getTokenBefore(node);
+
+		if (
+			tokenBefore &&
+			tokenBefore.type === 'Punctuator' &&
+			(tokenBefore.value === ']' || tokenBefore.value === ')')
+		) {
+			return true;
+		}
+
+		if (tokenBefore) {
+			const lastBlockNode = sourceCode.getNodeByRangeIndex(tokenBefore.range[0]);
+
+			if (lastBlockNode && lastBlockNode.type === 'ObjectExpression') {
+				return true;
+			}
+		}
+
+		return false;
+	};
+
 	return {
 		[selector](node) {
 			context.report({
@@ -24,11 +46,7 @@ const create = context => {
 				message: 'Prefer the spread operator over `Array.from()`.',
 				fix: fixer => {
 					const [arrayLikeArgument, mapFn, thisArgument] = node.arguments.map(getSource);
-					const tokenBefore = sourceCode.getTokenBefore(node);
-					const needsSemicolon = tokenBefore &&
-						tokenBefore.type === 'Punctuator' &&
-						(tokenBefore.value === ']' || tokenBefore.value === ')');
-					let replacement = `${needsSemicolon ? ';' : ''}[...${arrayLikeArgument}]`;
+					let replacement = `${needsSemicolon(node) ? ';' : ''}[...${arrayLikeArgument}]`;
 
 					if (mapFn) {
 						const mapArguments = [mapFn, thisArgument].filter(Boolean);
