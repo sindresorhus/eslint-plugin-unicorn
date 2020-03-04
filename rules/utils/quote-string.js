@@ -9,8 +9,9 @@ Escape string and wrap the result in quotes.
 */
 module.exports = (string, quote = '\'') => {
 	const escaped = string
-		.replace(new RegExp(quote, 'g'), `\\${quote}`)
+		.replace(/\\/g, '\\\\')
 		.replace(/\r/g, '\\r')
-		.replace(/\n/g, '\\n');
+		.replace(/\n/g, '\\n')
+		.replace(new RegExp(quote, 'g'), `\\${quote}`);
 	return quote + escaped + quote;
 };

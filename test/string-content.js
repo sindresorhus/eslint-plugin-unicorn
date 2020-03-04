@@ -72,10 +72,22 @@ ruleTester.run('string-content', rule, {
 			options: [{patterns}],
 			errors: createError('quote', '\'"')
 		},
+		{
+			code: 'const foo = \'\\\\quote\\\\\'',
+			output: 'const foo = \'\\\\\\\'"\\\\\'',
+			options: [{patterns}],
+			errors: createError('quote', '\'"')
+		},
 		// Escape double quote
 		{
 			code: 'const foo = "quote"',
 			output: 'const foo = "\'\\""',
+			options: [{patterns}],
+			errors: createError('quote', '\'"')
+		},
+		{
+			code: 'const foo = "\\\\quote\\\\"',
+			output: 'const foo = "\\\\\'\\"\\\\"',
 			options: [{patterns}],
 			errors: createError('quote', '\'"')
 		},
