@@ -123,6 +123,54 @@ ruleTester.run('prefer-spread', rule, {
 				}
 			],
 			output: '[...document.querySelectorAll("*")].map(() => {});'
+		},
+		// #254
+		{
+			code: `
+				const foo = []
+				Array.from(arrayLike).forEach(doSomething)
+			`,
+			errors: [
+				{
+					message: 'Prefer the spread operator over `Array.from()`.'
+				}
+			],
+			output: `
+				const foo = []
+				;[...arrayLike].forEach(doSomething)
+			`
+		},
+		// https://github.com/gatsbyjs/gatsby/blob/e720d8efe58eba0f6fae9f26ec8879128967d0b5/packages/gatsby/src/bootstrap/page-hot-reloader.js#L30
+		{
+			code: `
+				foo()
+				Array.from(arrayLike).forEach(doSomething)
+			`,
+			errors: [
+				{
+					message: 'Prefer the spread operator over `Array.from()`.'
+				}
+			],
+			output: `
+				foo()
+				;[...arrayLike].forEach(doSomething)
+			`
+		},
+		// https://github.com/gatsbyjs/gatsby/blob/4ab3f194cf5d6dcafcb2a75d9604aac79d963554/packages/gatsby/src/redux/__tests__/nodes.js#L277
+		{
+			code: `
+				const foo = {}
+				Array.from(arrayLike).forEach(doSomething)
+			`,
+			errors: [
+				{
+					message: 'Prefer the spread operator over `Array.from()`.'
+				}
+			],
+			output: `
+				const foo = {}
+				;[...arrayLike].forEach(doSomething)
+			`
 		}
 	]
 });
