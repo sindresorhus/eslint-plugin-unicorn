@@ -101,7 +101,7 @@ You can set the `name` option like this:
 ]
 ```
 
-This option lets you specify a regex pattern for matches to ignore. The default is `^_$`.
+This option lets you specify a regex pattern for matches to ignore. The default allows `_` and descriptive names like `networkError`.
 
 With `^unicorn$`, this would fail:
 
@@ -122,3 +122,7 @@ try {
 	// …
 }
 ```
+
+## Tip
+
+In order to avoid shadowing in nested catch clauses the auto-fix rule appends underscores to the identifier name. Since this might be hard to read the default settings for `caughtErrorsIgnorePattern` allows to use descriptive names instead, e.g. `fsError` or `authError`.
