@@ -193,6 +193,77 @@ ruleTester.run('prefer-ternary', rule, {
 			errors: [
 				{column: 3, line: 3, type: 'IfStatement'}
 			]
+		},
+		{
+			code: outdent`
+			function foo(){
+				if (a) {
+					return 1;
+				} else if (b) {
+					return 2;
+				} else {
+					return 3;
+				}
+			}`,
+			output: outdent`
+			function foo(){
+				if (a) {
+					return 1;
+				} else return (b ? 2 : 3)
+			}`,
+			errors: [
+				{column: 9, line: 4, type: 'IfStatement'}
+			]
+		},
+		{
+			code: outdent`
+			function foo(){
+				if (a) {
+					return 1;
+				} else {
+					if (b) {
+						return 2;
+					} else {
+						return 3;
+					}
+				}
+			}`,
+			output: outdent`
+			function foo(){
+				if (a) {
+					return 1;
+				} else {
+					return (b ? 2 : 3)
+				}
+			}`,
+			errors: [
+				{column: 3, line: 5, type: 'IfStatement'}
+			]
+		},
+		{
+			code: outdent`
+			function foo(){
+				if (a) {
+					if (b) {
+						return 1;
+					} else {
+						return 2;
+					}
+				} else {
+					return 3;
+				}
+			}`,
+			output: outdent`
+			function foo(){
+				if (a) {
+					return (b ? 1 : 2)
+				} else {
+					return 3;
+				}
+			}`,
+			errors: [
+				{column: 3, line: 3, type: 'IfStatement'}
+			]
 		}
 	]
 });
