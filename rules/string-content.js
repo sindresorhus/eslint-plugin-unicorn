@@ -101,40 +101,48 @@ const create = context => {
 	};
 };
 
-const schema = [{
-	type: 'object',
-	properties: {
-		patterns: {
-			type: 'object',
-			additionalProperties: {
-				anyOf: [
-					{
-						enum: [false]
-					},
-					{type: 'string'},
-					{
-						type: 'object',
-						required: ['suggest'],
-						properties: {
-							suggest: {
-								type: 'string'
-							},
-							fix: {
-								type: 'boolean'
-								// Default: true
-							},
-							message: {
-								type: 'string'
-								// Default: ''
-							}
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			patterns: {
+				type: 'object',
+				additionalProperties: {
+					anyOf: [
+						{
+							enum: [
+								false
+							]
 						},
-						additionalProperties: false
-					}
-				]
-			}}
-	},
-	additionalProperties: false
-}];
+						{
+							type: 'string'
+						},
+						{
+							type: 'object',
+							required: [
+								'suggest'
+							],
+							properties: {
+								suggest: {
+									type: 'string'
+								},
+								fix: {
+									type: 'boolean'
+									// Default: true
+								},
+								message: {
+									type: 'string'
+									// Default: ''
+								}
+							},
+							additionalProperties: false
+						}
+					]
+				}}
+		},
+		additionalProperties: false
+	}
+];
 
 module.exports = {
 	create,
