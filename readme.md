@@ -79,6 +79,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-trim-start-end": "error",
 			"unicorn/prefer-type-error": "error",
 			"unicorn/prevent-abbreviations": "error",
+			"unicorn/string-content": "off",
 			"unicorn/throw-new-error": "error"
 		}
 	}
@@ -132,6 +133,7 @@ Configure it in `package.json`.
 - [prefer-trim-start-end](docs/rules/prefer-trim-start-end.md) - Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`. *(fixable)*
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
 - [prevent-abbreviations](docs/rules/prevent-abbreviations.md) - Prevent abbreviations. *(partly fixable)*
+- [string-content](docs/rules/string-content.md) - Enforce better string content. *(fixable)*
 - [throw-new-error](docs/rules/throw-new-error.md) - Require `new` when throwing an error. *(fixable)*
 
 ## Deprecated Rules

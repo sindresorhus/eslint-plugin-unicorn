@@ -64,6 +64,7 @@ module.exports = {
 				'unicorn/prefer-trim-start-end': 'error',
 				'unicorn/prefer-type-error': 'error',
 				'unicorn/prevent-abbreviations': 'error',
+				'unicorn/string-content': 'off',
 				'unicorn/throw-new-error': 'error'
 			}
 		}
