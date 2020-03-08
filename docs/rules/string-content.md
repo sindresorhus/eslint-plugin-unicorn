@@ -1,10 +1,10 @@
 # Enforce better string content
 
-Enforce using `’` instead of `'` to avoid escaping.
+Enforce certain things about the contents of strings. For example, you can enforce using `’` instead of `'` to avoid escaping. Or you could block some words. The possibilities are endless.
 
 This rule is fixable.
 
-_This rule only reports one pattern per node._
+*It only reports one pattern per AST node at the time.*
 
 ## Fail
 
@@ -22,22 +22,22 @@ const foo = 'Someone’s coming!';
 
 Type: `object`
 
-### `patterns`
+### patterns
 
-Type: `object`\
+Type: `object`
 
 Extend [default patterns](#default-pattern).
 
 The example below:
 
-- disables the default `'` → `’` replacement
-- adds a custom `unicorn` → `🦄` replacement
-- adds a custom `awesome` → `😎` replacement and a custom message
-- adds a custom `cool` → `😎` replacement, but disables auto fix
+- Disables the default `'` → `’` replacement.
+- Adds a custom `unicorn` → `🦄` replacement.
+- Adds a custom `awesome` → `😎` replacement and a custom message.
+- Adds a custom `cool` → `😎` replacement, but disables auto fix.
 
 ```json
 {
-	"unicorn/string-context": [
+	"unicorn/string-content": [
 		"error",
 		{
 			"patterns": {
@@ -50,7 +50,7 @@ The example below:
 				"cool": {
 					"suggest": "😎",
 					"fix": false
-				},
+				}
 			}
 		}
 	]
