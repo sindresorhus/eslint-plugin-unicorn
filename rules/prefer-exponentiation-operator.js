@@ -2,6 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 module.exports = {
+	create() {},
 	meta: {
 		type: 'suggestion',
 		docs: {
