@@ -9,7 +9,9 @@ const defaultPatterns = {
 };
 
 const ignoredIdentifier = new Set([
-	'gql'
+	'gql',
+	'html',
+	'svg'
 ]);
 
 const ignoredMemberExpressionObject = new Set([
