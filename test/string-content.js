@@ -41,7 +41,10 @@ ruleTester.run('string-content', rule, {
 		// `TemplateLiteral`
 		'const foo = `🦄`',
 		// Should not escape
-		'const foo = `\\`\\${1}`'
+		'const foo = `\\`\\${1}`',
+		// Ignored
+		'const foo = gql`\'`',
+		'const foo = styled.div`\'`'
 		/* eslint-enable no-template-curly-in-string */
 	],
 	invalid: [
@@ -198,7 +201,14 @@ ruleTester.run('string-content', rule, {
 			output: 'const foo = `\\\\\\${bar}`',
 			options: [{patterns: {foo: '{bar}'}}],
 			errors: createError('foo', '{bar}')
+		},
+		// Not ignored tag
+		{
+			code: 'const foo = notIgnoredTag`\'`',
+			output: 'const foo = notIgnoredTag`’`',
+			errors: createError('\'', '’')
 		}
+
 		/* eslint-enable no-template-curly-in-string */
 	]
 });
