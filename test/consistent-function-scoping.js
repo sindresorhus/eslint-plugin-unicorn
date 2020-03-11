@@ -194,6 +194,12 @@ ruleTester.run('consistent-function-scoping', rule, {
 				return Bar;
 			};
 		`,
+		// React Hooks
+		outdent`
+			useEffect(() => {
+				function foo() {}
+			}, [])
+		`,
 		// #391
 		outdent`
 			const enrichErrors = (packageName, cliArgs, f) => async (...args) => {
@@ -377,6 +383,18 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 			`,
 			errors: [createError({name: 'doBar'})]
+		},
+		// React Hooks
+		{
+			code: outdent`
+				useEffect(() => {
+					function foo() {
+						function bar() {
+						}
+					}
+				}, [])
+			`,
+			errors: [createError({name: 'bar'})]
 		}
 	]
 });

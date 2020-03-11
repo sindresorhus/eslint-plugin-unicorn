@@ -668,6 +668,9 @@ const create = context => {
 		}
 
 		const scopes = variable.references.map(reference => reference.from).concat(variable.scope);
+		variableReplacements.samples = variableReplacements.samples.map(
+			name => avoidCapture(name, scopes, ecmaVersion, isSafeName)
+		);
 
 		const problem = {
 			node: definition.name,
@@ -676,7 +679,6 @@ const create = context => {
 
 		if (variableReplacements.total === 1 && shouldFix(variable)) {
 			const [replacement] = variableReplacements.samples;
-			const captureAvoidingReplacement = avoidCapture(replacement, scopes, ecmaVersion, isSafeName);
 
 			for (const scope of scopes) {
 				if (!scopeToNamesGeneratedByFixer.has(scope)) {
@@ -684,12 +686,12 @@ const create = context => {
 				}
 
 				const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
-				generatedNames.add(captureAvoidingReplacement);
+				generatedNames.add(replacement);
 			}
 
 			problem.fix = fixer => {
 				return variableIdentifiers(variable)
-					.map(fixIdentifier(fixer, captureAvoidingReplacement));
+					.map(fixIdentifier(fixer, replacement));
 			};
 		}
 
