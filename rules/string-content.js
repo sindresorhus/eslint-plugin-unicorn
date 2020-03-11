@@ -8,6 +8,40 @@ const defaultPatterns = {
 	'\'': '’'
 };
 
+const ignoredIdentifier = new Set([
+	'gql',
+	'html',
+	'svg'
+]);
+
+const ignoredMemberExpressionObject = new Set([
+	'styled'
+]);
+
+const isIgnoredTag = node => {
+	if (!node.parent || !node.parent.parent || !node.parent.parent.tag) {
+		return false;
+	}
+
+	const {tag} = node.parent.parent;
+
+	if (tag.type === 'Identifier' && ignoredIdentifier.has(tag.name)) {
+		return true;
+	}
+
+	if (tag.type === 'MemberExpression') {
+		const {object} = tag;
+		if (
+			object.type === 'Identifier' &&
+			ignoredMemberExpressionObject.has(object.name)
+		) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
 const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
 
 function getReplacements(patterns) {
@@ -53,7 +87,7 @@ const create = context => {
 				if (typeof string !== 'string') {
 					return;
 				}
-			} else {
+			} else if (!isIgnoredTag(node)) {
 				string = node.value.raw;
 			}
 

@@ -775,7 +775,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'class Err {}',
 			output: 'class Error_ {}',
-			errors: createErrors('The variable `Err` should be named `Error`. A more descriptive name will do too.')
+			errors: createErrors('The variable `Err` should be named `Error_`. A more descriptive name will do too.')
 		},
 		{
 			code: 'class Cb {}',
@@ -828,7 +828,40 @@ ruleTester.run('prevent-abbreviations', rule, {
 				"use strict";
 				let package_;
 			`,
-			errors: createErrors()
+			errors: createErrors('The variable `pkg` should be named `package_`. A more descriptive name will do too.')
+		},
+		{
+			code: outdent`
+				"use strict";
+				let pkg = 1;
+				let package_ = 2;
+			`,
+			output: outdent`
+				"use strict";
+				let package__ = 1;
+				let package_ = 2;
+			`,
+			errors: createErrors('The variable `pkg` should be named `package__`. A more descriptive name will do too.')
+		},
+		{
+			code: outdent`
+				"use strict";
+				function foo() {
+					const args = [...arguments];
+					const pkg = 1;
+				}
+			`,
+			output: outdent`
+				"use strict";
+				function foo() {
+					const arguments_ = [...arguments];
+					const package_ = 1;
+				}
+			`,
+			errors: [
+				...createErrors('The variable `args` should be named `arguments_`. A more descriptive name will do too.'),
+				...createErrors('The variable `pkg` should be named `package_`. A more descriptive name will do too.')
+			]
 		},
 
 		{
