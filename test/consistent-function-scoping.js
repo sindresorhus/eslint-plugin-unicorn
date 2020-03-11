@@ -347,7 +347,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return doBar();
 				};
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -356,7 +356,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return doBar();
 				};
 			`,
-			errors: [arrowError]
+			errors: [createError({name: 'doBar', arrow: true})]
 		},
 		{
 			code: outdent`
@@ -365,7 +365,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return doBar();
 				};
 			`,
-			errors: [arrowError]
+			errors: [createError({name: 'doBar', arrow: true})]
 		},
 		// `arguments`
 		{
@@ -377,7 +377,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return doBar();
 				};
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -386,7 +386,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return doBar();
 				};
 			`,
-			errors: [arrowError]
+			errors: [createError({name: 'doBar', arrow: true})]
 		},
 		{
 			code: outdent`
