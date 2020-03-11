@@ -79,12 +79,12 @@ const isArrowFunctionWithThis = scope =>
 	scope.type === 'function' &&
 	scope.block &&
 	scope.block.type === 'ArrowFunctionExpression' &&
-	scope.thisFound;
+	(scope.thisFound || scope.childScopes.some(scope => isArrowFunctionWithThis(scope)));
 
 function checkNode(node, scopeManager) {
 	const scope = scopeManager.acquire(node);
 
-	if (!scope || isArrowFunctionWithThis(scope) || scope.childScopes.some(scope => isArrowFunctionWithThis(scope))) {
+	if (!scope || isArrowFunctionWithThis(scope)) {
 		return true;
 	}
 

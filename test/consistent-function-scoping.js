@@ -204,6 +204,12 @@ ruleTester.run('consistent-function-scoping', rule, {
 				return doBar();
 			};
 		`,
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => () => () => this;
+				return doBar();
+			};
+		`,
 		// `arguments`
 		outdent`
 			function doFoo(Foo) {
