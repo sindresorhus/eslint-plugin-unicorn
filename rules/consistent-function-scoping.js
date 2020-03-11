@@ -111,7 +111,17 @@ const create = context => {
 		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
 			if (!hasJsx && !checkNode(node, scopeManager)) {
 				const functionType = node.type === 'ArrowFunctionExpression' ? 'arrow function' : 'function';
-				const functionName = node.id && node.id.name;
+				let functionName = '';
+				if (node.id) {
+					functionName = node.id.name;
+				} else if (
+					node.parent &&
+					node.parent.type === 'VariableDeclarator' &&
+					node.parent.id &&
+					node.parent.id.type === 'Identifier'
+				) {
+					functionName = node.parent.id.name;
+				}
 
 				context.report({
 					node,

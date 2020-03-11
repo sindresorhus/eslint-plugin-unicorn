@@ -291,7 +291,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					}
 				}
 			`,
-			errors: [createError({arrow: true})]
+			errors: [createError({name: 'doBar', arrow: true})]
 		},
 		{
 			code: outdent`
