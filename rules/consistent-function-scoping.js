@@ -74,6 +74,25 @@ function checkReferences(scope, parent, scopeManager) {
 			hitIdentifier(variable.identifiers)
 		);
 }
+// https://reactjs.org/docs/hooks-reference.html
+const reactHooks = new Set([
+	'useState',
+	'useEffect',
+	'useContext',
+	'useReducer',
+	'useCallback',
+	'useMemo',
+	'useRef',
+	'useImperativeHandle',
+	'useLayoutEffect',
+	'useDebugValue'
+]);
+const isReactHook = scope =>
+	scope.block &&
+	scope.block.parent &&
+	scope.block.parent.callee &&
+	scope.block.parent.callee.type === 'Identifier' &&
+	reactHooks.has(scope.block.parent.callee.name);
 
 const isArrowFunctionWithThis = scope =>
 	scope.type === 'function' &&
@@ -109,7 +128,7 @@ function checkNode(node, scopeManager) {
 	}
 
 	const parentScope = scopeManager.acquire(parentNode);
-	if (!parentScope || parentScope.type === 'global') {
+	if (!parentScope || parentScope.type === 'global' || isReactHook(parentScope)) {
 		return true;
 	}
 

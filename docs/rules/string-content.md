@@ -6,6 +6,13 @@ This rule is fixable.
 
 *It only reports one pattern per AST node at the time.*
 
+This rule ignores the following tagged template literals as they're known to contain code:
+
+- ``gql`…` ``
+- ``html`…` ``
+- ``svg`…` ``
+- ``styled.*`…` ``
+
 ## Fail
 
 ```js
