@@ -191,6 +191,12 @@ ruleTester.run('consistent-function-scoping', rule, {
 				return Bar;
 			};
 		`,
+		// `useEffect`
+		outdent`
+			useEffect(() => {
+				function inner() {}
+			}, [])
+		`,
 		// #391
 		outdent`
 			const enrichErrors = (packageName, cliArgs, f) => async (...args) => {
