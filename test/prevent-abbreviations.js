@@ -860,7 +860,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 			`,
 			errors: [
 				...createErrors('The variable `args` should be named `arguments_`. A more descriptive name will do too.'),
-				...createErrors('The variable `pkg` should be named `package_`. A more descriptive name will do too.'),
+				...createErrors('The variable `pkg` should be named `package_`. A more descriptive name will do too.')
 			]
 		},
 

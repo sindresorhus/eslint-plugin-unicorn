@@ -668,7 +668,9 @@ const create = context => {
 		}
 
 		const scopes = variable.references.map(reference => reference.from).concat(variable.scope);
-		variableReplacements.samples = variableReplacements.samples.map(name => avoidCapture(name, scopes, ecmaVersion, isSafeName));
+		variableReplacements.samples = variableReplacements.samples.map(
+			name => avoidCapture(name, scopes, ecmaVersion, isSafeName)
+		);
 
 		const problem = {
 			node: definition.name,
