@@ -198,6 +198,12 @@ ruleTester.run('consistent-function-scoping', rule, {
 				return doBar();
 			};
 		`,
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => () => this;
+				return doBar();
+			};
+		`,
 		// `arguments`
 		outdent`
 			function doFoo(Foo) {
@@ -338,6 +344,15 @@ ruleTester.run('consistent-function-scoping', rule, {
 			code: outdent`
 				function doFoo(Foo) {
 					const doBar = () => (function() {return this})();
+					return doBar();
+				};
+			`,
+			errors: [arrowError]
+		},
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					const doBar = () => (function() {return () => this})();
 					return doBar();
 				};
 			`,

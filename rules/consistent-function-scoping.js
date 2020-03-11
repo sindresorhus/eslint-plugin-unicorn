@@ -75,9 +75,16 @@ function checkReferences(scope, parent, scopeManager) {
 		);
 }
 
+const isArrowFunctionWithThis = scope =>
+	scope.type === 'function' &&
+	scope.block &&
+	scope.block.type === 'ArrowFunctionExpression' &&
+	scope.thisFound
+
 function checkNode(node, scopeManager) {
 	const scope = scopeManager.acquire(node);
-	if (!scope || (node.type === 'ArrowFunctionExpression' && scope.thisFound)) {
+
+	if (!scope || isArrowFunctionWithThis(scope) || scope.childScopes.some(scope => isArrowFunctionWithThis(scope))) {
 		return true;
 	}
 
