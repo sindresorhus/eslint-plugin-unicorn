@@ -1,8 +1,8 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const MESSAGE_ID_ARROW = 'ArrowFunctionExpression';
-const MESSAGE_ID_FUNCTION = 'FunctionDeclaration';
+const MESSAGE_ID_NAMED = 'named';
+const MESSAGE_ID_ANONYMOUS = 'anonymous';
 
 const getReferences = scope => scope.references.concat(
 	...scope.childScopes.map(scope => getReferences(scope))
@@ -110,9 +110,16 @@ const create = context => {
 		},
 		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
 			if (!hasJsx && !checkNode(node, scopeManager)) {
+				const functionType = node.type === 'ArrowFunctionExpression' ? 'arrow function' : 'function';
+				const functionName = node.id && node.id.name;
+
 				context.report({
 					node,
-					messageId: node.type
+					messageId: functionName ? MESSAGE_ID_NAMED : MESSAGE_ID_ANONYMOUS,
+					data: {
+						functionType,
+						functionName
+					}
 				});
 			}
 
@@ -132,8 +139,8 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		messages: {
-			[MESSAGE_ID_ARROW]: 'Move arrow function to the outer scope.',
-			[MESSAGE_ID_FUNCTION]: 'Move function to the outer scope.'
+			[MESSAGE_ID_NAMED]: 'Move {{functionType}} `{{functionName}}` to the outer scope.',
+			[MESSAGE_ID_ANONYMOUS]: 'Move {{functionType}} to the outer scope.'
 		}
 	}
 };
