@@ -62,9 +62,6 @@ const create = context => {
 			const newPattern = cleanRegexp(oldPattern, flags);
 
 			if (oldPattern !== newPattern) {
-				// Escape backslash
-				const fixed = quoteString(newPattern.replace(/\\/g, '\\\\'));
-
 				context.report({
 					node,
 					message,
@@ -72,7 +69,10 @@ const create = context => {
 						original: oldPattern,
 						optimized: newPattern
 					},
-					fix: fixer => fixer.replaceText(patternNode, fixed)
+					fix: fixer => fixer.replaceText(
+						patternNode,
+						quoteString(newPattern)
+					)
 				});
 			}
 		}

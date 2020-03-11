@@ -1,11 +1,10 @@
 # Enforce a specific parameter name in catch clauses
 
-Applies to both `try/catch` clauses and `promise.catch(...)` handlers.
+Applies to both `try/catch` clauses and `promise.catch(…)` handlers.
 
 The desired name is configurable, but defaults to `error`.
 
 This rule is fixable unless the reported code was destructuring an error.
-
 
 ## Fail
 
@@ -20,7 +19,6 @@ try {
 ```js
 somePromise.catch(e => {})
 ```
-
 
 ## Pass
 
@@ -74,7 +72,6 @@ somePromise.catch(_ => {
 });
 ```
 
-
 ## Options
 
 ### name
@@ -101,7 +98,7 @@ You can set the `name` option like this:
 ]
 ```
 
-This option lets you specify a regex pattern for matches to ignore. The default is `^_$`.
+This option lets you specify a regex pattern for matches to ignore. The default allows `_` and descriptive names like `networkError`.
 
 With `^unicorn$`, this would fail:
 
@@ -122,3 +119,7 @@ try {
 	// …
 }
 ```
+
+## Tip
+
+In order to avoid shadowing in nested catch clauses, the auto-fix rule appends underscores to the identifier name. Since this might be hard to read, the default setting for `caughtErrorsIgnorePattern` allows the use of descriptive names instead, for example, `fsError` or `authError`.

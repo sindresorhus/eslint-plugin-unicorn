@@ -86,7 +86,7 @@ ruleTester.run('prefer-replace-all', rule, {
 		},
 		{
 			code: 'foo.replace(/\\\\\\./g, bar)',
-			output: 'foo.replaceAll(\'\\.\', bar)',
+			output: 'foo.replaceAll(\'\\\\.\', bar)',
 			errors: [error]
 		}
 	]

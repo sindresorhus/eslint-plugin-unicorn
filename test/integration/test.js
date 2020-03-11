@@ -100,9 +100,7 @@ const projects = [
 	'https://github.com/sindresorhus/capture-website',
 	'https://github.com/sindresorhus/file-type',
 	'https://github.com/sindresorhus/slugify',
-	// TODO: add this project when #254 got fixed
-	// https://github.com/gatsbyjs/gatsby/blob/e720d8efe58eba0f6fae9f26ec8879128967d0b5/packages/gatsby/src/bootstrap/page-hot-reloader.js#L30
-	// 'https://github.com/gatsbyjs/gatsby',
+	'https://github.com/gatsbyjs/gatsby',
 	{
 		repository: 'https://github.com/puppeteer/puppeteer',
 		path: 'lib'
