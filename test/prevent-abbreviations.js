@@ -843,6 +843,26 @@ ruleTester.run('prevent-abbreviations', rule, {
 			`,
 			errors: createErrors('The variable `pkg` should be named `package__`. A more descriptive name will do too.')
 		},
+		{
+			code: outdent`
+				"use strict";
+				function foo() {
+					const args = [...arguments];
+					const pkg = 1;
+				}
+			`,
+			output: outdent`
+				"use strict";
+				function foo() {
+					const arguments_ = [...arguments];
+					const package_ = 1;
+				}
+			`,
+			errors: [
+				...createErrors('The variable `args` should be named `arguments_`. A more descriptive name will do too.'),
+				...createErrors('The variable `pkg` should be named `package_`. A more descriptive name will do too.'),
+			]
+		},
 
 		{
 			code: 'let y',
