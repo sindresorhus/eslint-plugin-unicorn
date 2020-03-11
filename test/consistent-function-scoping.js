@@ -256,7 +256,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 
 				inner();
 			}
-		`,
+		`
 	],
 	invalid: [
 		{
