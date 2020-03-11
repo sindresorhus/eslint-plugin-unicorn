@@ -75,12 +75,24 @@ function checkReferences(scope, parent, scopeManager) {
 		);
 }
 
+const reactHooks = new Set([
+	'useState',
+	'useEffect',
+	'useContext',
+	'useReducer',
+	'useCallback',
+	'useMemo',
+	'useRef',
+	'useImperativeHandle',
+	'useLayoutEffect',
+	'useDebugValue'
+]);
 const isReactHook = scope =>
 	scope.block &&
 	scope.block.parent &&
 	scope.block.parent.callee &&
 	scope.block.parent.callee.type === 'Identifier' &&
-	scope.block.parent.callee.name === 'useEffect';
+	reactHooks.has(scope.block.parent.callee.name);
 
 function checkNode(node, scopeManager) {
 	const scope = scopeManager.acquire(node);
