@@ -74,6 +74,7 @@ function checkReferences(scope, parent, scopeManager) {
 			hitIdentifier(variable.identifiers)
 		);
 }
+
 // https://reactjs.org/docs/hooks-reference.html
 const reactHooks = new Set([
 	'useState',
