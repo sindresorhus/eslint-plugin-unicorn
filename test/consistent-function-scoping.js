@@ -194,6 +194,32 @@ ruleTester.run('consistent-function-scoping', rule, {
 				return Bar;
 			};
 		`,
+		// `this`
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => this;
+				return doBar();
+			};
+		`,
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => () => this;
+				return doBar();
+			};
+		`,
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => () => () => this;
+				return doBar();
+			};
+		`,
+		// `arguments`
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => arguments;
+				return doBar();
+			};
+		`,
 		// React Hooks
 		outdent`
 			useEffect(() => {
@@ -316,6 +342,57 @@ ruleTester.run('consistent-function-scoping', rule, {
 				const doFoo = () => bar => bar;
 			`,
 			errors: [createError({arrow: true})]
+		},
+		// `this`
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					function doBar() {
+						return this;
+					}
+					return doBar();
+				};
+			`,
+			errors: [createError({name: 'doBar'})]
+		},
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					const doBar = () => (function() {return this})();
+					return doBar();
+				};
+			`,
+			errors: [createError({name: 'doBar', arrow: true})]
+		},
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					const doBar = () => (function() {return () => this})();
+					return doBar();
+				};
+			`,
+			errors: [createError({name: 'doBar', arrow: true})]
+		},
+		// `arguments`
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					function doBar() {
+						return arguments;
+					}
+					return doBar();
+				};
+			`,
+			errors: [createError({name: 'doBar'})]
+		},
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					const doBar = () => (function() {return arguments})();
+					return doBar();
+				};
+			`,
+			errors: [createError({name: 'doBar', arrow: true})]
 		},
 		{
 			code: outdent`
