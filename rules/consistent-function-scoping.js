@@ -75,7 +75,7 @@ function checkReferences(scope, parent, scopeManager) {
 		);
 }
 
-const isReactHooks = scope =>
+const isReactHook = scope =>
 	scope.block &&
 	scope.block.parent &&
 	scope.block.parent.callee &&
@@ -109,7 +109,7 @@ function checkNode(node, scopeManager) {
 	}
 
 	const parentScope = scopeManager.acquire(parentNode);
-	if (!parentScope || parentScope.type === 'global' || isReactHooks(parentScope)) {
+	if (!parentScope || parentScope.type === 'global' || isReactHook(parentScope)) {
 		return true;
 	}
 
