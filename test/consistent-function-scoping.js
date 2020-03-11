@@ -17,15 +17,18 @@ const typescriptRuleTester = avaRuleTester(test, {
 	parser: require.resolve('@typescript-eslint/parser')
 });
 
-const arrowError = {
-	ruleId: 'consistent-function-scoping',
-	messageId: 'ArrowFunctionExpression'
-};
+const ruleId = 'consistent-function-scoping';
+const MESSAGE_ID_NAMED = 'named';
+const MESSAGE_ID_ANONYMOUS = 'anonymous';
 
-const functionError = {
-	ruleId: 'consistent-function-scoping',
-	messageId: 'FunctionDeclaration'
-};
+const createError = ({name, arrow}) => ({
+	ruleId,
+	messageId: name ? MESSAGE_ID_NAMED : MESSAGE_ID_ANONYMOUS,
+	data: {
+		functionType: arrow ? 'arrow function' : 'function',
+		functionName: name
+	}
+});
 
 ruleTester.run('consistent-function-scoping', rule, {
 	valid: [
@@ -268,7 +271,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return foo;
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -280,7 +283,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return foo;
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -290,7 +293,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					}
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -300,13 +303,13 @@ ruleTester.run('consistent-function-scoping', rule, {
 					}
 				}
 			`,
-			errors: [arrowError]
+			errors: [createError({name: 'doBar', arrow: true})]
 		},
 		{
 			code: outdent`
 				const doFoo = () => bar => bar;
 			`,
-			errors: [arrowError]
+			errors: [createError({arrow: true})]
 		},
 		{
 			code: outdent`
@@ -317,7 +320,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return foo;
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -328,7 +331,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return doBar;
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -336,7 +339,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					function doBar() {}
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -351,7 +354,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return foo;
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -363,7 +366,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					}
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -373,7 +376,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					}
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		}
 	]
 });
