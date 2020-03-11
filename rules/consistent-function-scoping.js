@@ -60,6 +60,13 @@ function checkReferences(scope, parent, scopeManager) {
 		);
 }
 
+const isReactHooks = scope =>
+	scope.block &&
+	scope.block.parent &&
+	scope.block.parent.callee &&
+	scope.block.parent.callee.type === 'Identifier' &&
+	scope.block.parent.callee.name === 'useEffect';
+
 function checkNode(node, scopeManager) {
 	const scope = scopeManager.acquire(node);
 	if (!scope) {
@@ -87,7 +94,7 @@ function checkNode(node, scopeManager) {
 	}
 
 	const parentScope = scopeManager.acquire(parentNode);
-	if (!parentScope || parentScope.type === 'global') {
+	if (!parentScope || parentScope.type === 'global' || isReactHooks(parentScope)) {
 		return true;
 	}
 

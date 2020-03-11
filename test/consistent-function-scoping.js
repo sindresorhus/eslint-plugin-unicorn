@@ -191,10 +191,10 @@ ruleTester.run('consistent-function-scoping', rule, {
 				return Bar;
 			};
 		`,
-		// `useEffect`
+		// React Hooks
 		outdent`
 			useEffect(() => {
-				function inner() {}
+				function foo() {}
 			}, [])
 		`,
 		// #391
@@ -368,6 +368,25 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 			`,
 			errors: [functionError]
+		},
+		// React Hooks
+		{
+			code: outdent`
+				useEffect(() => {
+					function foo() {
+						function bar() {
+						}
+					}
+				}, [])
+			`,
+			errors: [
+				{
+					ruleId: 'consistent-function-scoping',
+					messageId: 'FunctionDeclaration',
+					column: 3,
+					line: 3
+				}
+			]
 		}
 	]
 });
