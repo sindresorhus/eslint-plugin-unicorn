@@ -75,12 +75,6 @@
 			"test/*.js"
 		]
 	},
-	"nyc": {
-		"reporter": [
-			"text",
-			"lcov"
-		]
-	},
 	"xo": {
 		"plugins": [
 			"eslint-plugin"

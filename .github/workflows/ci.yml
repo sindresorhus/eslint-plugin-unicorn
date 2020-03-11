@@ -25,10 +25,11 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - run: npm install
       - run: npm run test
-      - uses: coverallsapp/github-action@master
+      - run: ./node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls
         if: matrix.os == 'ubuntu-latest' && matrix.node_version == 12
-        with:
-          github-token: ${{ secrets.github_token }}
+        env:
+          COVERALLS_REPO_TOKEN: "${{ secrets.COVERALLS_REPO_TOKEN }}"
+          COVERALLS_GIT_BRANCH: "${{ github.ref }}"
 
   lint:
     runs-on: ubuntu-latest
