@@ -75,6 +75,7 @@ function checkReferences(scope, parent, scopeManager) {
 		);
 }
 
+// https://reactjs.org/docs/hooks-reference.html
 const reactHooks = new Set([
 	'useState',
 	'useEffect',
