@@ -77,7 +77,7 @@ function checkReferences(scope, parent, scopeManager) {
 
 function checkNode(node, scopeManager) {
 	const scope = scopeManager.acquire(node);
-	if (!scope) {
+	if (!scope || (node.type === 'ArrowFunctionExpression' && scope.thisFound)) {
 		return true;
 	}
 

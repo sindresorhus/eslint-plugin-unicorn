@@ -191,6 +191,13 @@ ruleTester.run('consistent-function-scoping', rule, {
 				return Bar;
 			};
 		`,
+		// `this`
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => this;
+				return doBar();
+			};
+		`,
 		// #391
 		outdent`
 			const enrichErrors = (packageName, cliArgs, f) => async (...args) => {
@@ -307,6 +314,18 @@ ruleTester.run('consistent-function-scoping', rule, {
 				const doFoo = () => bar => bar;
 			`,
 			errors: [arrowError]
+		},
+		// `this`
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					function doBar() {
+						return this;
+					}
+					return doBar();
+				};
+			`,
+			errors: [functionError]
 		},
 		{
 			code: outdent`
