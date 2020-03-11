@@ -12,7 +12,22 @@ const isSameScope = (scope1, scope2) =>
 	scope1 && scope2 && (scope1 === scope2 || scope1.block === scope2.block);
 
 function checkReferences(scope, parent, scopeManager) {
-	const hitReference = references => references.some(reference => isSameScope(parent, reference.from));
+	const hitReference = references => references.some(reference => {
+		if (isSameScope(parent, reference.from)) {
+			return true;
+		}
+
+		const {resolved} = reference;
+		const [definition] = resolved.defs;
+
+		// Skip recursive function name
+		if (definition && definition.type === 'FunctionName' && resolved.name === definition.name.name) {
+			return false;
+		}
+
+		return isSameScope(parent, resolved.scope);
+	});
+
 	const hitDefinitions = definitions => definitions.some(definition => {
 		const scope = scopeManager.acquire(definition.node);
 		return isSameScope(parent, scope);

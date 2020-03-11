@@ -250,6 +250,18 @@ ruleTester.run('consistent-function-scoping', rule, {
 
 				eventEmitter.once('error', onError2);
 			};
+		`,
+		// #586
+		outdent`
+			function outer(stream) {
+				let content;
+
+				function inner() {
+					process.stdout.write(content);
+				}
+
+				inner();
+			}
 		`
 	],
 	invalid: [
