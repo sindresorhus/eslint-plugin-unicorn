@@ -62,7 +62,7 @@ Useful when you want to rename a variable (or create a new variable) while being
 @param {Scope[]} scopes - The list of scopes the new variable will be referenced in.
 @param {number} ecmaVersion - The language version, get it from `context.parserOptions.ecmaVersion`.
 @param {isSafe} [isSafe] - Rule-specific name check function.
-@returns {string} - Either `name` as is, or a string like `${name}_` suffixed with undescores to make the name unique.
+@returns {string} - Either `name` as is, or a string like `${name}_` suffixed with underscores to make the name unique.
 */
 module.exports = (name, scopes, ecmaVersion, isSafe = alwaysTrue) => {
 	const isStrict = someScopeIsStrict(scopes);
