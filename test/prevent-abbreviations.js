@@ -317,6 +317,27 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResponseDirection`, `errorResponseDirectory`, `errorResultDirection`, ... (5 more omitted). A more descriptive name will do too.')
 		}),
 
+		// All suggested names should avoid capture
+		{
+			code: outdent`
+				const a = 1;
+				const var_ = 1;
+				const used = 1;
+			`,
+			options: [
+				{
+					replacements: {
+						a: {
+							var: true,
+							const: true,
+							used: true
+						}
+					}
+				}
+			],
+			errors: createErrors('Please rename the variable `a`. Suggested names are: `const_`, `used_`, `var__`. A more descriptive name will do too.')
+		},
+
 		{
 			code: 'let err',
 			output: 'let error',
