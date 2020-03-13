@@ -28,14 +28,22 @@ const nameCollidesWithArgumentsSpecial = (name, scopes, isStrict) => {
 	return isStrict || scopes.some(scopeHasArgumentsSpecial);
 };
 
-// Unresolved reference is probably from the global scope, should avoid reuse that name,
-// function foo() {
-// 	return bar;
-// }
-const isProbablyGlobal = (name, scopes) => scopes.some(
-	scope => scope.references.some(
-		reference => reference.identifier && reference.identifier.name === name && !reference.resolved
-	)
+/*
+Unresolved reference is probably from the global scope, should avoid use that name, like `foo` and `bar` bellow
+
+function unicorn() {
+	return foo;
+}
+
+function unicorn() {
+	return function() {
+		return bar;
+	};
+}
+*/
+const isProbablyGlobal = (name, scopes) => scopes.some(scope =>
+	scope.references.some(reference => reference.identifier && reference.identifier.name === name && !reference.resolved) ||
+	isProbablyGlobal(name, scope.childScopes)
 );
 
 const isSafeName = (name, scopes, ecmaVersion, isStrict) => {

@@ -1110,6 +1110,25 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 		{
 			code: outdent`
+				function unicorn() {
+					const prop = 1;
+					return function () {
+						return property;
+					};
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					const property_ = 1;
+					return function () {
+						return property;
+					};
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: outdent`
 				let property;
 				function unicorn() {
 					const prop = 1;
