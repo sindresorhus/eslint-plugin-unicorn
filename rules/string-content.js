@@ -117,19 +117,17 @@ const create = context => {
 			}
 
 			const fixed = string.replace(replacement.regex, suggest);
-			if (type === 'Literal') {
-				problem.fix = fixer => fixer.replaceText(
+			problem.fix = type === 'Literal' ?
+				 fixer => fixer.replaceText(
 					node,
 					quoteString(fixed, node.raw[0])
-				);
-			} else {
-				problem.fix = fixer => replaceTemplateElement(
+				) : 
+				fixer => replaceTemplateElement(
 					fixer,
 					node,
 					escapeTemplateElementRaw(fixed)
 				);
-			}
-
+				
 			context.report(problem);
 		}
 	};
