@@ -50,10 +50,10 @@ const isSafeName = (name, scopes, ecmaVersion, isStrict) => {
 	ecmaVersion = Math.min(6, ecmaVersion); // 6 is the latest version understood by `reservedWords`
 
 	return (
-		!isProbablyGlobal(name, scopes) &&
 		!someScopeHasVariableName(name, scopes) &&
 		!reservedWords.check(name, ecmaVersion, isStrict) &&
-		!nameCollidesWithArgumentsSpecial(name, scopes, isStrict)
+		!nameCollidesWithArgumentsSpecial(name, scopes, isStrict) &&
+		!isProbablyGlobal(name, scopes)
 	);
 };
 
