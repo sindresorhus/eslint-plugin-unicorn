@@ -28,7 +28,11 @@ const nameCollidesWithArgumentsSpecial = (name, scopes, isStrict) => {
 	return isStrict || scopes.some(scopeHasArgumentsSpecial);
 };
 
-const maybeGlobal = (name, scopes) => scopes.some(
+// Unresolved reference is probably from the global scope, should avoid reuse that name,
+// function foo() {
+// 	return bar;
+// }
+const isProbablyGlobal = (name, scopes) => scopes.some(
 	scope => scope.references.some(
 		reference => reference.identifier && reference.identifier.name === name && !reference.resolved
 	)
@@ -38,7 +42,7 @@ const isSafeName = (name, scopes, ecmaVersion, isStrict) => {
 	ecmaVersion = Math.min(6, ecmaVersion); // 6 is the latest version understood by `reservedWords`
 
 	return (
-		!maybeGlobal(name, scopes) &&
+		!isProbablyGlobal(name, scopes) &&
 		!someScopeHasVariableName(name, scopes) &&
 		!reservedWords.check(name, ecmaVersion, isStrict) &&
 		!nameCollidesWithArgumentsSpecial(name, scopes, isStrict)
