@@ -15,7 +15,7 @@ const createError = name => [
 	{
 		messageId: 'preferSetHas',
 		data: {
-			name,
+			name
 		}
 	}
 ];

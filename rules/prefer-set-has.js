@@ -9,14 +9,15 @@ const selector = [
 	'Identifier'
 ].join('');
 
-const MESSAGE_ID = "preferSetHas";
+const MESSAGE_ID = 'preferSetHas';
 
 const isIncludesCall = node => {
 	/* istanbul ignore next */
 	if (!node.parent || !node.parent.parent) {
 		return false;
 	}
-	const {callee, type} = node.parent.parent
+
+	const {callee, type} = node.parent.parent;
 	return (
 		type === 'CallExpression' &&
 		callee &&
@@ -25,12 +26,12 @@ const isIncludesCall = node => {
 		callee.object === node &&
 		callee.property.type === 'Identifier' &&
 		callee.property.name === 'includes'
-	)
-}
+	);
+};
 
 const create = context => {
 	const scope = context.getScope();
-	let declarations = new Set([]);
+	const declarations = new Set();
 
 	return {
 		[selector]: node => {
