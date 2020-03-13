@@ -17,6 +17,7 @@ module.exports = {
 				'unicorn'
 			],
 			rules: {
+				'unicorn/better-regex': 'error',
 				'unicorn/catch-error-name': 'error',
 				'unicorn/consistent-function-scoping': 'error',
 				'unicorn/custom-error-definition': 'off',
@@ -54,6 +55,8 @@ module.exports = {
 				'unicorn/prefer-node-remove': 'error',
 				'unicorn/prefer-query-selector': 'error',
 				'unicorn/prefer-reflect-apply': 'error',
+				// TODO: Enable this by default when it's shipping in a Node.js LTS version.
+				'unicorn/prefer-replace-all': 'off',
 				'unicorn/prefer-spread': 'error',
 				'unicorn/prefer-starts-ends-with': 'error',
 				'unicorn/prefer-string-slice': 'error',
@@ -62,7 +65,7 @@ module.exports = {
 				'unicorn/prefer-trim-start-end': 'error',
 				'unicorn/prefer-type-error': 'error',
 				'unicorn/prevent-abbreviations': 'error',
-				'unicorn/regex-shorthand': 'error',
+				'unicorn/string-content': 'off',
 				'unicorn/throw-new-error': 'error'
 			}
 		}

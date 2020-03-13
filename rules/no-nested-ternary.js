@@ -1,15 +1,17 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const isParethesized = (sourceCode, node) => {
+const isParenthesized = (sourceCode, node) => {
 	const previousToken = sourceCode.getTokenBefore(node);
 	const nextToken = sourceCode.getTokenAfter(node);
 
-	return Boolean(previousToken && nextToken) &&
+	return (
+		Boolean(previousToken && nextToken) &&
 		previousToken.value === '(' &&
-		previousToken.end <= node.start &&
+		previousToken.end <= node.range[0] &&
 		nextToken.value === ')' &&
-		nextToken.start >= node.end;
+		nextToken.start >= node.range[1]
+	);
 };
 
 const create = context => {
@@ -27,10 +29,13 @@ const create = context => {
 				const message = 'Do not nest ternary expressions.';
 
 				// Nesting more than one level not allowed.
-				if (childNode.alternate.type === 'ConditionalExpression' || childNode.consequent.type === 'ConditionalExpression') {
+				if (
+					childNode.alternate.type === 'ConditionalExpression' ||
+					childNode.consequent.type === 'ConditionalExpression'
+				) {
 					context.report({node, message});
 					break;
-				} else if (!isParethesized(sourceCode, childNode)) {
+				} else if (!isParenthesized(sourceCode, childNode)) {
 					context.report({
 						node: childNode,
 						message,

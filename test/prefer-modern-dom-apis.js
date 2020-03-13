@@ -19,7 +19,50 @@ ruleTester.run('prefer-modern-dom-apis', rule, {
 		'referenceNode.append(newNode);',
 		'referenceNode.append("text");',
 		'referenceNode.after(newNode);',
-		'referenceNode.after("text");'
+		'referenceNode.after("text");',
+		// Argument is `Identifier` but is `undefined`
+		'oldChildNode.replaceWith(undefined, oldNode);',
+		'oldChildNode.replaceWith(newNode, undefined);',
+		// Not `CallExpression`
+		'new parentNode.replaceChild(newNode, oldNode);',
+		'new parentNode.insertBefore(newNode, referenceNode);',
+		'new referenceNode.insertAdjacentText(\'beforebegin\', \'text\');',
+		'new referenceNode.insertAdjacentElement(\'beforebegin\', newNode);',
+		// Not `MemberExpression`
+		'replaceChild(newNode, oldNode);',
+		'insertBefore(newNode, referenceNode);',
+		'insertAdjacentText(\'beforebegin\', \'text\');',
+		'insertAdjacentElement(\'beforebegin\', newNode);',
+		// `callee.property` is not a `Identifier`
+		'parentNode[\'replaceChild\'](newNode, oldNode);',
+		'parentNode[\'insertBefore\'](newNode, referenceNode);',
+		'referenceNode[\'insertAdjacentText\'](\'beforebegin\', \'text\');',
+		'referenceNode[\'insertAdjacentElement\'](\'beforebegin\', newNode);',
+		// Computed
+		'parentNode[replaceChild](newNode, oldNode);',
+		'parentNode[insertBefore](newNode, referenceNode);',
+		'referenceNode[insertAdjacentText](\'beforebegin\', \'text\');',
+		'referenceNode[insertAdjacentElement](\'beforebegin\', newNode);',
+		// Not a legacy api
+		'parent.foo(a, b);',
+		// Less arguments
+		'parentNode.replaceChild(newNode);',
+		'parentNode.insertBefore(newNode);',
+		'referenceNode.insertAdjacentText(\'beforebegin\');',
+		'referenceNode.insertAdjacentElement(\'beforebegin\');',
+		// More arguments
+		'parentNode.replaceChild(newNode, oldNode, extra);',
+		'parentNode.insertBefore(newNode, referenceNode, extra);',
+		'referenceNode.insertAdjacentText(\'beforebegin\', \'text\', extra);',
+		'referenceNode.insertAdjacentElement(\'beforebegin\', newNode, extra);',
+		// `SpreadElement` arguments
+		'parentNode.replaceChild(...argumentsArray1, ...argumentsArray2);',
+		'parentNode.insertBefore(...argumentsArray1, ...argumentsArray2);',
+		'referenceNode.insertAdjacentText(...argumentsArray1, ...argumentsArray2);',
+		'referenceNode.insertAdjacentElement(...argumentsArray1, ...argumentsArray2);',
+		// `position` argument is not listed
+		'referenceNode.insertAdjacentText(\'foo\', \'text\');',
+		'referenceNode.insertAdjacentElement(\'foo\', newNode);'
 	],
 	invalid: [
 		// Tests for .replaceChild()
@@ -102,7 +145,7 @@ ruleTester.run('prefer-modern-dom-apis', rule, {
 						'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.'
 				}
 			],
-			output: 'beta.before(alfa).insertBefore(charlie, delta);'
+			output: 'parentNode.insertBefore(alfa, beta).insertBefore(charlie, delta);'
 		},
 		{
 			code: 'const foo = parentNode.insertBefore(alfa, beta);',
@@ -123,6 +166,28 @@ ruleTester.run('prefer-modern-dom-apis', rule, {
 				}
 			],
 			output: 'foo = parentNode.insertBefore(alfa, beta);'
+		},
+		{
+			code: 'new Dom(parentNode.insertBefore(alfa, beta))',
+			errors: [
+				{
+					message:
+					'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.'
+				}
+			],
+			output: 'new Dom(parentNode.insertBefore(alfa, beta))'
+		},
+		{
+			/* eslint-disable no-template-curly-in-string */
+			code: '`${parentNode.insertBefore(alfa, beta)}`',
+			errors: [
+				{
+					message:
+					'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.'
+				}
+			],
+			output: '`${parentNode.insertBefore(alfa, beta)}`'
+			/* eslint-enable no-template-curly-in-string */
 		},
 		// Tests for .insertAdjacentText()
 		{
@@ -275,6 +340,56 @@ ruleTester.run('prefer-modern-dom-apis', rule, {
 				}
 			],
 			output: 'foo = referenceNode.insertAdjacentElement("beforebegin", newNode);'
+		},
+		{
+			code: 'const foo = [referenceNode.insertAdjacentElement("beforebegin", newNode)]',
+			errors: [
+				{
+					message:
+					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.'
+				}
+			],
+			output: 'const foo = [referenceNode.insertAdjacentElement("beforebegin", newNode)]'
+		},
+		{
+			code: 'foo(bar = referenceNode.insertAdjacentElement("beforebegin", newNode))',
+			errors: [
+				{
+					message:
+					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.'
+				}
+			],
+			output: 'foo(bar = referenceNode.insertAdjacentElement("beforebegin", newNode))'
+		},
+		{
+			code: 'const foo = () => { return referenceNode.insertAdjacentElement("beforebegin", newNode); }',
+			errors: [
+				{
+					message:
+					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.'
+				}
+			],
+			output: 'const foo = () => { return referenceNode.insertAdjacentElement("beforebegin", newNode); }'
+		},
+		{
+			code: 'if (referenceNode.insertAdjacentElement("beforebegin", newNode)) {}',
+			errors: [
+				{
+					message:
+					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.'
+				}
+			],
+			output: 'if (referenceNode.insertAdjacentElement("beforebegin", newNode)) {}'
+		},
+		{
+			code: 'const foo = { bar: referenceNode.insertAdjacentElement("beforebegin", newNode) }',
+			errors: [
+				{
+					message:
+					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.'
+				}
+			],
+			output: 'const foo = { bar: referenceNode.insertAdjacentElement("beforebegin", newNode) }'
 		}
 	]
 });

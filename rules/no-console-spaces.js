@@ -1,32 +1,30 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const methodSelector = require('./utils/method-selector');
 
-const getConsoleMethod = node => {
-	const methods = [
-		'log',
-		'debug',
-		'info',
-		'warn',
-		'error'
-	];
+const message = 'Do not use leading/trailing space between `console.{{method}}` parameters.';
 
-	const {callee} = node;
+const methods = [
+	'log',
+	'debug',
+	'info',
+	'warn',
+	'error'
+];
 
-	if (
-		callee.type === 'MemberExpression' &&
-		callee.object.type === 'Identifier' &&
-		callee.object.name === 'console' &&
-		callee.property.type === 'Identifier' &&
-		methods.includes(callee.property.name)
-	) {
-		return callee.property.name;
-	}
-};
+const selector = methodSelector({
+	names: methods,
+	min: 1,
+	object: 'console'
+});
 
 const getArgumentValue = (context, nodeArgument) => {
 	let value = null;
 
-	if (nodeArgument.type === 'Literal' && typeof nodeArgument.value === 'string') {
+	if (
+		nodeArgument.type === 'Literal' &&
+		typeof nodeArgument.value === 'string'
+	) {
 		value = nodeArgument.value;
 	}
 
@@ -69,13 +67,11 @@ const fixValue = (value, {
 };
 
 const getFixableArguments = (context, node) => {
-	const {
-		arguments: arguments_
-	} = node;
+	const {arguments: arguments_} = node;
 
 	const fixables = arguments_.map((nodeArgument, i) => {
 		const fixLeading = i !== 0;
-		const fixTrailing = i !== (arguments_.length - 1);
+		const fixTrailing = i !== arguments_.length - 1;
 
 		const value = getArgumentValue(context, nodeArgument);
 		const fixed = fixValue(value, {fixLeading, fixTrailing});
@@ -92,10 +88,7 @@ const getFixableArguments = (context, node) => {
 };
 
 const fixArgument = (context, fixable, fixer) => {
-	const {
-		nodeArgument,
-		fixed
-	} = fixable;
+	const {nodeArgument, fixed} = fixable;
 
 	// Ignore quotes and backticks
 	const range = [
@@ -106,23 +99,17 @@ const fixArgument = (context, fixable, fixer) => {
 	return fixer.replaceTextRange(range, fixed);
 };
 
-const buildErrorMessage = method => {
-	return `Do not use leading/trailing space between \`console.${method}\` parameters.`;
-};
-
 const create = context => {
 	return {
-		CallExpression(node) {
-			const method = getConsoleMethod(node);
-			if (!method) {
-				return;
-			}
+		[selector](node) {
+			const method = node.callee.property.name;
 
 			const fixables = getFixableArguments(context, node);
 			for (const fixable of fixables) {
 				context.report({
 					node: fixable.nodeArgument,
-					message: buildErrorMessage(method),
+					message,
+					data: {method},
 					fix: fixer => fixArgument(context, fixable, fixer)
 				});
 			}

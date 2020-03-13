@@ -1,11 +1,12 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
+import notDomNodeTypes from './utils/not-dom-node-types';
 import rule from '../rules/prefer-node-append';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
+	parserOptions: {
+		ecmaVersion: 2020
 	}
 });
 
@@ -15,10 +16,26 @@ const error = {
 
 ruleTester.run('prefer-node-append', rule, {
 	valid: [
+		// Already using `append`
 		'parent.append(child);',
-		'document.body.append(child, \'text\');',
-		'node.append()',
-		'node.append(null)'
+		// Not `CallExpression`
+		'new parent.appendChild(child);',
+		// Not `MemberExpression`
+		'appendChild(child);',
+		// `callee.property` is not a `Identifier`
+		'parent[\'appendChild\'](child);',
+		// Computed
+		'parent[appendChild](child);',
+		// Not `appendChild`
+		'parent.foo(child);',
+		// More or less argument(s)
+		'parent.appendChild(one, two);',
+		'parent.appendChild();',
+		'parent.appendChild(...argumentsArray)',
+		// `callee.object` is not a DOM Node,
+		...notDomNodeTypes.map(data => `(${data}).appendChild(foo)`),
+		// First argument is not a DOM Node,
+		...notDomNodeTypes.map(data => `foo.appendChild(${data})`)
 	],
 	invalid: [
 		{
@@ -32,24 +49,19 @@ ruleTester.run('prefer-node-append', rule, {
 			errors: [error]
 		},
 		{
-			code: 'node.appendChild()',
-			output: 'node.append()',
-			errors: [error]
-		},
-		{
-			code: 'node.appendChild(null)',
-			output: 'node.append(null)',
+			code: 'node.appendChild(foo)',
+			output: 'node.append(foo)',
 			errors: [error]
 		},
 		{
 			code: outdent`
 				function foo() {
-					node.appendChild(null);
+					node.appendChild(bar);
 				}
 			`,
 			output: outdent`
 				function foo() {
-					node.append(null);
+					node.append(bar);
 				}
 			`,
 			errors: [error]

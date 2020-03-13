@@ -11,10 +11,6 @@ const unicornRules = new Map(Object.entries(unicorn.rules));
 
 const cli = new CLIEngine({
 	baseConfig: recommended,
-	rules: {
-		// TODO: remove this override, when #391 is fixed
-		'unicorn/consistent-function-scoping': 'off'
-	},
 	useEslintrc: false,
 	fix
 });
@@ -30,11 +26,16 @@ if (!ruleIds.every(ruleId => unicornRules.get(ruleId) === loadedRules.get(`unico
 
 const report = cli.executeOnFiles(files);
 
-const {errorCount, warningCount, fixableErrorCount, fixableWarningCount} = report;
+const {
+	errorCount,
+	warningCount,
+	fixableErrorCount,
+	fixableWarningCount
+} = report;
 
 const hasFixable = fixableErrorCount || fixableWarningCount;
 
-if (fix && hasFixable) {
+if (fix) {
 	CLIEngine.outputFixes(report);
 }
 

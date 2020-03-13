@@ -1,14 +1,11 @@
 'use strict';
 const path = require('path');
-const camelCase = require('lodash.camelcase');
-const kebabCase = require('lodash.kebabcase');
-const snakeCase = require('lodash.snakecase');
-const upperfirst = require('lodash.upperfirst');
+const {camelCase, kebabCase, snakeCase, upperFirst} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
 
-const pascalCase = string => upperfirst(camelCase(string));
-const numberRegex = /(\d+)/;
+const pascalCase = string => upperFirst(camelCase(string));
+const numberRegex = /\d+/;
 const PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
 const PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
 const isIgnoredChar = char => !/^[a-z\d-_$]$/i.test(char);
@@ -91,12 +88,10 @@ function fixFilename(words, caseFunctions, {leading, extension}) {
 	return combinations.map(parts => `${leading}${parts.join('')}${extension}`);
 }
 
-const leadingUnserscoresRegex = /^(_+)(.*)$/;
+const leadingUnderscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;
 function splitFilename(filename) {
-	const result = leadingUnserscoresRegex.exec(filename);
-
-	const leading = (result && result[1]) || '';
-	const tailing = (result && result[2]) || filename;
+	const result = leadingUnderscoresRegex.exec(filename) || {groups: {}};
+	const {leading = '', tailing = filename} = result.groups;
 
 	const words = [];
 
@@ -168,10 +163,7 @@ const create = context => {
 				return;
 			}
 
-			const {
-				leading,
-				words
-			} = splitFilename(filename);
+			const {leading, words} = splitFilename(filename);
 			const isValid = validateFilename(words, chosenCasesFunctions);
 
 			if (isValid) {
@@ -195,53 +187,55 @@ const create = context => {
 	};
 };
 
-const schema = [{
-	oneOf: [
-		{
-			properties: {
-				case: {
-					enum: [
-						'camelCase',
-						'snakeCase',
-						'kebabCase',
-						'pascalCase'
-					]
-				},
-				ignore: {
-					type: 'array',
-					uniqueItems: true
-				}
-			},
-			additionalProperties: false
-		},
-		{
-			properties: {
-				cases: {
-					properties: {
-						camelCase: {
-							type: 'boolean'
-						},
-						snakeCase: {
-							type: 'boolean'
-						},
-						kebabCase: {
-							type: 'boolean'
-						},
-						pascalCase: {
-							type: 'boolean'
-						}
+const schema = [
+	{
+		oneOf: [
+			{
+				properties: {
+					case: {
+						enum: [
+							'camelCase',
+							'snakeCase',
+							'kebabCase',
+							'pascalCase'
+						]
 					},
-					additionalProperties: false
+					ignore: {
+						type: 'array',
+						uniqueItems: true
+					}
 				},
-				ignore: {
-					type: 'array',
-					uniqueItems: true
-				}
+				additionalProperties: false
 			},
-			additionalProperties: false
-		}
-	]
-}];
+			{
+				properties: {
+					cases: {
+						properties: {
+							camelCase: {
+								type: 'boolean'
+							},
+							snakeCase: {
+								type: 'boolean'
+							},
+							kebabCase: {
+								type: 'boolean'
+							},
+							pascalCase: {
+								type: 'boolean'
+							}
+						},
+						additionalProperties: false
+					},
+					ignore: {
+						type: 'array',
+						uniqueItems: true
+					}
+				},
+				additionalProperties: false
+			}
+		]
+	}
+];
 
 module.exports = {
 	create,

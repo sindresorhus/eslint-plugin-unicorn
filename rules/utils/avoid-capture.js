@@ -31,9 +31,11 @@ const nameCollidesWithArgumentsSpecial = (name, scopes, isStrict) => {
 const isSafeName = (name, scopes, ecmaVersion, isStrict) => {
 	ecmaVersion = Math.min(6, ecmaVersion); // 6 is the latest version understood by `reservedWords`
 
-	return !someScopeHasVariableName(name, scopes) &&
+	return (
+		!someScopeHasVariableName(name, scopes) &&
 		!reservedWords.check(name, ecmaVersion, isStrict) &&
-		!nameCollidesWithArgumentsSpecial(name, scopes, isStrict);
+		!nameCollidesWithArgumentsSpecial(name, scopes, isStrict)
+	);
 };
 
 const alwaysTrue = () => true;
@@ -60,14 +62,17 @@ Useful when you want to rename a variable (or create a new variable) while being
 @param {Scope[]} scopes - The list of scopes the new variable will be referenced in.
 @param {number} ecmaVersion - The language version, get it from `context.parserOptions.ecmaVersion`.
 @param {isSafe} [isSafe] - Rule-specific name check function.
-@returns {string} - Either `name` as is, or a string like `${name}_` suffixed with undescores to make the name unique.
+@returns {string} - Either `name` as is, or a string like `${name}_` suffixed with underscores to make the name unique.
 */
 module.exports = (name, scopes, ecmaVersion, isSafe = alwaysTrue) => {
 	const isStrict = someScopeIsStrict(scopes);
 
 	let index = 0;
 	let indexifiedName = indexifyName(name, index);
-	while (!isSafeName(indexifiedName, scopes, ecmaVersion, isStrict) || !isSafe(indexifiedName, scopes)) {
+	while (
+		!isSafeName(indexifiedName, scopes, ecmaVersion, isStrict) ||
+		!isSafe(indexifiedName, scopes)
+	) {
 		index++;
 		indexifiedName = indexifyName(name, index);
 	}

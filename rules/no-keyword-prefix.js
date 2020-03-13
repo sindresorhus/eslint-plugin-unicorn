@@ -27,26 +27,6 @@ function findKeywordPrefix(name, options) {
 	});
 }
 
-function isInsideObjectPattern(node) {
-	let current = node;
-
-	while (current) {
-		const {parent} = current;
-
-		if (parent && parent.type === 'Property' && parent.computed && parent.key === current) {
-			return false;
-		}
-
-		if (current.type === 'ObjectPattern') {
-			return true;
-		}
-
-		current = parent;
-	}
-
-	return false;
-}
-
 function checkMemberExpression(report, node, options) {
 	const {name} = node;
 	const keyword = findKeywordPrefix(name, options);
@@ -90,7 +70,7 @@ function checkObjectPattern(report, node, options) {
 	const valueIsInvalid = node.parent.value.name && Boolean(keyword);
 
 	// Ignore destructuring if the option is set, unless a new identifier is created
-	if (valueIsInvalid && !(assignmentKeyEqualsValue && options.ignoreDestructuring)) {
+	if (valueIsInvalid && !assignmentKeyEqualsValue) {
 		report(node, keyword);
 	}
 
@@ -128,7 +108,10 @@ const create = context => {
 
 			if (node.parent.type === 'MemberExpression') {
 				checkMemberExpression(report, node, options);
-			} else if (node.parent.type === 'Property' || node.parent.type === 'AssignmentPattern') {
+			} else if (
+				node.parent.type === 'Property' ||
+				node.parent.type === 'AssignmentPattern'
+			) {
 				if (node.parent.parent && node.parent.parent.type === 'ObjectPattern') {
 					const finished = checkObjectPattern(report, node, options);
 					if (finished) {
@@ -136,48 +119,73 @@ const create = context => {
 					}
 				}
 
-				if (!options.checkProperties || (options.ignoreDestructuring && isInsideObjectPattern(node))) {
+				if (
+					!options.checkProperties
+				) {
 					return;
 				}
 
 				// Don't check right hand side of AssignmentExpression to prevent duplicate warnings
-				if (Boolean(keyword) && !ALLOWED_PARENT_TYPES.has(effectiveParent.type) && !(node.parent.right === node)) {
+				if (
+					Boolean(keyword) &&
+					!ALLOWED_PARENT_TYPES.has(effectiveParent.type) &&
+					!(node.parent.right === node)
+				) {
 					report(node, keyword);
 				}
 
 			// Check if it's an import specifier
-			} else if (['ImportSpecifier', 'ImportNamespaceSpecifier', 'ImportDefaultSpecifier'].includes(node.parent.type)) {
+			} else if (
+				[
+					'ImportSpecifier',
+					'ImportNamespaceSpecifier',
+					'ImportDefaultSpecifier'
+				].includes(node.parent.type)
+			) {
 				// Report only if the local imported identifier is invalid
-				if (Boolean(keyword) && node.parent.local && node.parent.local.name === node.name) {
+				if (
+					Boolean(keyword) &&
+					node.parent.local &&
+					node.parent.local.name === node.name
+				) {
 					report(node, keyword);
 				}
 
 			// Report anything that is invalid that isn't a CallExpression
-			} else if (Boolean(keyword) && !ALLOWED_PARENT_TYPES.has(effectiveParent.type)) {
+			} else if (
+				Boolean(keyword) &&
+				!ALLOWED_PARENT_TYPES.has(effectiveParent.type)
+			) {
 				report(node, keyword);
 			}
 		}
 	};
 };
 
-const schema = [{
-	type: 'object',
-	properties: {
-		blacklist: {
-			type: 'array',
-			items: [
-				{
-					type: 'string'
-				}
-			],
-			minItems: 0,
-			uniqueItems: true
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			blacklist: {
+				type: 'array',
+				items: [
+					{
+						type: 'string'
+					}
+				],
+				minItems: 0,
+				uniqueItems: true
+			},
+			checkProperties: {
+				type: 'boolean'
+			},
+			onlyCamelCase: {
+				type: 'boolean'
+			}
 		},
-		checkProperties: {type: 'boolean'},
-		onlyCamelCase: {type: 'boolean'}
-	},
-	additionalProperties: false
-}];
+		additionalProperties: false
+	}
+];
 
 module.exports = {
 	create,

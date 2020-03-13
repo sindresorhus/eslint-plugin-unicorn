@@ -36,6 +36,20 @@ const isLikelyNumeric = node => isLiteralNumber(node) || isLengthProperty(node);
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
+	const getNodeText = node => {
+		const text = sourceCode.getText(node);
+		const before = sourceCode.getTokenBefore(node);
+		const after = sourceCode.getTokenAfter(node);
+		if (
+			(before && before.type === 'Punctuator' && before.value === '(') &&
+			(after && after.type === 'Punctuator' && after.value === ')')
+		) {
+			return `(${text})`;
+		}
+
+		return text;
+	};
+
 	return templates.visitor({
 		[substrCallTemplate](node) {
 			const objectNode = substrCallTemplate.context.getMatch(objectVariable);
@@ -58,17 +72,24 @@ const create = context => {
 			} else if (argumentNodes.length === 2) {
 				if (firstArgument === '0') {
 					slice = [firstArgument, secondArgument];
-				} else if (isLiteralNumber(argumentNodes[0]) && isLiteralNumber(argumentNodes[1])) {
-					slice = [firstArgument, argumentNodes[0].value + argumentNodes[1].value];
-				} else if (isLikelyNumeric(argumentNodes[0]) && isLikelyNumeric(argumentNodes[1])) {
+				} else if (
+					isLiteralNumber(argumentNodes[0]) &&
+					isLiteralNumber(argumentNodes[1])
+				) {
+					slice = [
+						firstArgument,
+						argumentNodes[0].value + argumentNodes[1].value
+					];
+				} else if (
+					isLikelyNumeric(argumentNodes[0]) &&
+					isLikelyNumeric(argumentNodes[1])
+				) {
 					slice = [firstArgument, firstArgument + ' + ' + secondArgument];
 				}
 			}
 
 			if (slice) {
-				const objectText = objectNode.type === 'LogicalExpression' ?
-					`(${sourceCode.getText(objectNode)})` :
-					sourceCode.getText(objectNode);
+				const objectText = getNodeText(objectNode);
 
 				problem.fix = fixer => fixer.replaceText(node, `${objectText}.slice(${slice.join(', ')})`);
 			}
@@ -120,10 +141,7 @@ const create = context => {
 			}
 
 			if (slice) {
-				const objectText = objectNode.type === 'LogicalExpression' ?
-					`(${sourceCode.getText(objectNode)})` :
-					sourceCode.getText(objectNode);
-
+				const objectText = getNodeText(objectNode);
 				problem.fix = fixer => fixer.replaceText(node, `${objectText}.slice(${slice.join(', ')})`);
 			}
 

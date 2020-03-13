@@ -1,41 +1,63 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const isObjectMethod = require('./utils/is-object-method');
+const methodSelector = require('./utils/method-selector');
 
-const isArrayFrom = node => isObjectMethod(node, 'Array', 'from');
-const isArrayLike = argument => argument && argument.type !== 'ObjectExpression';
-
-const parseArgument = (context, argument) => {
-	if (argument.type === 'Identifier') {
-		return argument.name;
-	}
-
-	return context.getSourceCode().getText(argument);
-};
+const selector = [
+	methodSelector({
+		object: 'Array',
+		name: 'from',
+		min: 1,
+		max: 3
+	}),
+	// Allow `Array.from({length})`
+	'[arguments.0.type!="ObjectExpression"]'
+].join('');
 
 const create = context => {
-	return {
-		CallExpression(node) {
-			if (isArrayFrom(node) && isArrayLike(node.arguments[0])) {
-				context.report({
-					node,
-					message: 'Prefer the spread operator over `Array.from()`.',
-					fix: fixer => {
-						const arrayLikeArgument = parseArgument(context, node.arguments[0]);
-						const replacement = `[...${arrayLikeArgument}]`;
+	const sourceCode = context.getSourceCode();
+	const getSource = node => sourceCode.getText(node);
 
-						if (node.arguments.length > 1) {
-							const mapFn = parseArgument(context, node.arguments[1]);
-							const thisArgument = node.arguments.length === 3 ? parseArgument(context, node.arguments[2]) : null;
-							const thisArgumentReplacement = thisArgument ? `, ${thisArgument}` : '';
+	const needsSemicolon = node => {
+		const tokenBefore = sourceCode.getTokenBefore(node);
 
-							return fixer.replaceText(node, `${replacement}.map(${mapFn}${thisArgumentReplacement})`);
-						}
+		if (tokenBefore) {
+			const {type, value} = tokenBefore;
+			if (type === 'Punctuator') {
+				if (value === ';') {
+					return false;
+				}
 
-						return fixer.replaceText(node, replacement);
-					}
-				});
+				if (value === ']' || value === ')') {
+					return true;
+				}
 			}
+
+			const lastBlockNode = sourceCode.getNodeByRangeIndex(tokenBefore.range[0]);
+			if (lastBlockNode && lastBlockNode.type === 'ObjectExpression') {
+				return true;
+			}
+		}
+
+		return false;
+	};
+
+	return {
+		[selector](node) {
+			context.report({
+				node,
+				message: 'Prefer the spread operator over `Array.from()`.',
+				fix: fixer => {
+					const [arrayLikeArgument, mapFn, thisArgument] = node.arguments.map(getSource);
+					let replacement = `${needsSemicolon(node) ? ';' : ''}[...${arrayLikeArgument}]`;
+
+					if (mapFn) {
+						const mapArguments = [mapFn, thisArgument].filter(Boolean);
+						replacement += `.map(${mapArguments.join(', ')})`;
+					}
+
+					return fixer.replaceText(node, replacement);
+				}
+			});
 		}
 	};
 };

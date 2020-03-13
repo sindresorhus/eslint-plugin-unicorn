@@ -43,63 +43,98 @@ const createErrors = message => {
 	return [error];
 };
 
-const extendedOptions = [{
-	replacements: {
-		e: false,
-		c: {
-			custom: true
-		},
-		cb: {
-			callback: false,
-			circuitBreacker: true
+const extendedOptions = [
+	{
+		replacements: {
+			e: false,
+			c: {
+				custom: true
+			},
+			cb: {
+				callback: false,
+				circuitBreacker: true
+			}
 		}
 	}
-}];
+];
 
-const noCheckShorthandImportsOptions = [{checkShorthandImports: false}];
-const noCheckDefaultAndNamespaceImports = [{checkDefaultAndNamespaceImports: false}];
+const noCheckShorthandImportsOptions = [
+	{
+		checkShorthandImports: false
+	}
+];
 
-const customOptions = [{
-	checkProperties: true,
+const noCheckDefaultAndNamespaceImports = [
+	{
+		checkDefaultAndNamespaceImports: false
+	}
+];
 
-	checkDefaultAndNamespaceImports: true,
-	checkShorthandImports: true,
-	checkShorthandProperties: true,
+const customOptions = [
+	{
+		checkProperties: true,
 
-	checkFilenames: false,
+		checkDefaultAndNamespaceImports: true,
+		checkShorthandImports: true,
+		checkShorthandProperties: true,
 
-	extendDefaultReplacements: false,
-	replacements: {
-		args: {
-			arguments: true
-		},
-		e: {
-			error: true,
-			event: true,
-			element: true
-		},
-		err: {
-			error: true
-		},
-		y: {
-			yield: true
-		},
-		errCb: {
-			handleError: true
-		},
-		proto: {
-			prototype: true
+		checkFilenames: false,
+
+		extendDefaultReplacements: false,
+		replacements: {
+			args: {
+				arguments: true
+			},
+			e: {
+				error: true,
+				event: true,
+				element: true
+			},
+			err: {
+				error: true
+			},
+			y: {
+				yield: true
+			},
+			errCb: {
+				handleError: true
+			},
+			proto: {
+				prototype: true
+			}
 		}
 	}
-}];
+];
 
-const dontCheckVariablesOptions = [{
-	checkVariables: false
-}];
+const dontCheckVariablesOptions = [
+	{
+		checkVariables: false
+	}
+];
 
-const checkPropertiesOptions = [{
-	checkProperties: true
-}];
+const checkPropertiesOptions = [
+	{
+		checkProperties: true
+	}
+];
+
+const extendDefaultWhitelistOptions = [
+	{
+		whitelist: {
+			err: true
+		},
+		extendDefaultWhitelist: true
+	}
+];
+
+const noExtendDefaultWhitelistOptions = [
+	{
+		whitelist: {
+			err: true
+		},
+		extendDefaultWhitelist: false
+	}
+];
 
 ruleTester.run('prevent-abbreviations', rule, {
 	valid: [
@@ -238,6 +273,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'foo();',
 			filename: 'err/http-error.js'
+		},
+
+		// `extendDefaultWhitelist` option
+		{
+			code: 'const propTypes = 2;const err = 2;',
+			options: extendDefaultWhitelistOptions
 		}
 	],
 
@@ -275,6 +316,27 @@ ruleTester.run('prevent-abbreviations', rule, {
 			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResponseDirection`, `errorResponseDirectory`, `errorResultDirection`, ... (5 more omitted). A more descriptive name will do too.')
 		}),
+
+		// All suggested names should avoid capture
+		{
+			code: outdent`
+				const a = 1;
+				const var_ = 1;
+				const used = 1;
+			`,
+			options: [
+				{
+					replacements: {
+						a: {
+							var: true,
+							const: true,
+							used: true
+						}
+					}
+				}
+			],
+			errors: createErrors('Please rename the variable `a`. Suggested names are: `const_`, `used_`, `var__`. A more descriptive name will do too.')
+		},
 
 		{
 			code: 'let err',
@@ -734,7 +796,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'class Err {}',
 			output: 'class Error_ {}',
-			errors: createErrors('The variable `Err` should be named `Error`. A more descriptive name will do too.')
+			errors: createErrors('The variable `Err` should be named `Error_`. A more descriptive name will do too.')
 		},
 		{
 			code: 'class Cb {}',
@@ -787,7 +849,40 @@ ruleTester.run('prevent-abbreviations', rule, {
 				"use strict";
 				let package_;
 			`,
-			errors: createErrors()
+			errors: createErrors('The variable `pkg` should be named `package_`. A more descriptive name will do too.')
+		},
+		{
+			code: outdent`
+				"use strict";
+				let pkg = 1;
+				let package_ = 2;
+			`,
+			output: outdent`
+				"use strict";
+				let package__ = 1;
+				let package_ = 2;
+			`,
+			errors: createErrors('The variable `pkg` should be named `package__`. A more descriptive name will do too.')
+		},
+		{
+			code: outdent`
+				"use strict";
+				function foo() {
+					const args = [...arguments];
+					const pkg = 1;
+				}
+			`,
+			output: outdent`
+				"use strict";
+				function foo() {
+					const arguments_ = [...arguments];
+					const package_ = 1;
+				}
+			`,
+			errors: [
+				...createErrors('The variable `args` should be named `arguments_`. A more descriptive name will do too.'),
+				...createErrors('The variable `pkg` should be named `package_`. A more descriptive name will do too.')
+			]
 		},
 
 		{
@@ -1033,6 +1128,14 @@ ruleTester.run('prevent-abbreviations', rule, {
 			filename: 'cb.js',
 			options: extendedOptions,
 			errors: createErrors('The filename `cb.js` should be named `circuitBreacker.js`. A more descriptive name will do too.')
+		},
+
+		// `extendDefaultWhitelist` option
+		{
+			code: 'const propTypes = 2;const err = 2;',
+			output: 'const propertyTypes = 2;const err = 2;',
+			options: noExtendDefaultWhitelistOptions,
+			errors: createErrors()
 		}
 	]
 });

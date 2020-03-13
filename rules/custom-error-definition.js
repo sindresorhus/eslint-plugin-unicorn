@@ -1,12 +1,12 @@
 'use strict';
-const upperfirst = require('lodash.upperfirst');
+const {upperFirst} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 
 const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
 
-const getClassName = name => upperfirst(name).replace(/(error|)$/i, 'Error');
+const getClassName = name => upperFirst(name).replace(/(?:error|)$/i, 'Error');
 
 const getConstructorMethod = className => `
 	constructor() {
@@ -29,10 +29,16 @@ const hasValidSuperClass = node => {
 	return nameRegexp.test(name);
 };
 
-const isSuperExpression = node => node.type === 'ExpressionStatement' && node.expression.type === 'CallExpression' && node.expression.callee.type === 'Super';
+const isSuperExpression = node =>
+	node.type === 'ExpressionStatement' &&
+	node.expression.type === 'CallExpression' &&
+	node.expression.callee.type === 'Super';
 
 const isAssignmentExpression = (node, name) => {
-	if (node.type !== 'ExpressionStatement' || node.expression.type !== 'AssignmentExpression') {
+	if (
+		node.type !== 'ExpressionStatement' ||
+		node.expression.type !== 'AssignmentExpression'
+	) {
 		return false;
 	}
 
