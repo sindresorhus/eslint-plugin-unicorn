@@ -12,6 +12,7 @@ const selector = [
 const MESSAGE_ID = "preferSetHas";
 
 const isIncludesCall = node => {
+	/* istanbul ignore next */
 	if (!node.parent || !node.parent.parent) {
 		return false;
 	}
@@ -22,7 +23,6 @@ const isIncludesCall = node => {
 		callee.type === 'MemberExpression' &&
 		!callee.computed &&
 		callee.object === node &&
-		callee.property &&
 		callee.property.type === 'Identifier' &&
 		callee.property.name === 'includes'
 	)
@@ -30,37 +30,47 @@ const isIncludesCall = node => {
 
 const create = context => {
 	const scope = context.getScope();
-	let identifiers = new Set([]);
+	let declarations = new Set([]);
 
 	return {
 		[selector]: node => {
-				const allReferences = getReferences(scope);
-				const variable = allReferences.find(
-					reference => reference.identifier === node
-				).resolved;
+			declarations.add(node);
+		},
+		'Program:exit'() {
+			if (declarations.size === 0) {
+				return;
+			}
 
-				const {references} = variable;
-				const nodes = references
+			const references = getReferences(scope);
+			for (const declaration of declarations) {
+				declarations.delete(declaration);
+
+				const variable = references
+					.find(({identifier}) => identifier === declaration)
+					.resolved;
+				const nodes = variable.references
 					.map(({identifier}) => identifier)
-					.filter(x => x !== node)
+					.filter(node => node !== declaration);
 
 				if (
+					nodes.length > 0 &&
 					nodes.every(node => isIncludesCall(node))
 				) {
 					context.report({
-						node,
+						node: declaration,
 						messageId: MESSAGE_ID,
 						data: {
-							name: node.name
+							name: declaration.name
 						},
 						fix: fixer => [
-							fixer.insertTextBefore(node.parent.init, 'Set('),
-							fixer.insertTextAfter(node.parent.init, ')'),
+							fixer.insertTextBefore(declaration.parent.init, 'new Set('),
+							fixer.insertTextAfter(declaration.parent.init, ')'),
 							...nodes.map(node => fixer.replaceText(node.parent.property, 'has'))
 						]
-					})
+					});
 				}
-		},
+			}
+		}
 	};
 };
 
