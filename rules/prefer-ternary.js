@@ -28,7 +28,12 @@ const create = context => {
 				left = sourceCode.getText(getNodeBody(node.consequent).expression.right);
 				right = sourceCode.getText(getNodeBody(node.alternate).expression.right);
 			} else {
-				prefix = expressionType === 'AwaitExpression' ? 'await ' : 'yield ';
+				if (expressionType === 'AwaitExpression') {
+					prefix = 'await ';
+				} else {
+					prefix = getNodeBody(node.consequent).expression.delegate ? 'yield* ' : 'yield ';
+				}
+
 				left = sourceCode.getText(getNodeBody(node.consequent).expression.argument);
 				right = sourceCode.getText(getNodeBody(node.alternate).expression.argument);
 			}
@@ -70,11 +75,16 @@ function checkConsequentAndAlternateType(node) {
 function checkConsequentAndAlternateExpressionStatement(node) {
 	const consequentType = getNodeBody(node.consequent).expression.type;
 	return consequentType === getNodeBody(node.alternate).expression.type &&
-		(consequentType === 'YieldExpression' ||
+		(
 			consequentType === 'AwaitExpression' ||
+			(consequentType === 'YieldExpression' && compareYieldExpressions(node)) ||
 			(consequentType === 'AssignmentExpression' && compareConsequentAndAlternateAssignments(node))
 		) &&
 		checkNotAlreadyTernary(node);
+}
+
+function compareYieldExpressions(node) {
+	return getNodeBody(node.consequent).expression.delegate === getNodeBody(node.alternate).expression.delegate;
 }
 
 function compareConsequentAndAlternateAssignments(node) {

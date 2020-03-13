@@ -104,6 +104,19 @@ ruleTester.run('prefer-ternary', rule, {
 					}
 				}
 			}`
+		},
+		{
+			code: outdent`
+			function* generator(){
+				while(foo){
+					if(bar){
+						yield baz()
+					}
+					else{
+						yield* bat()
+					}
+				}
+			}`
 		}
 	],
 
@@ -188,6 +201,28 @@ ruleTester.run('prefer-ternary', rule, {
 			function* generator(){
 				while(foo){
 					yield (bar ? bat : baz)
+				}
+			}`,
+			errors: [
+				{column: 3, line: 3, type: 'IfStatement'}
+			]
+		},
+		{
+			code: outdent`
+			function* generator(){
+				while(foo){
+					if(bar){
+						yield* bat()
+					}
+					else{
+						yield* baz()
+					}
+				}
+			}`,
+			output: outdent`
+			function* generator(){
+				while(foo){
+					yield* (bar ? bat() : baz())
 				}
 			}`,
 			errors: [
