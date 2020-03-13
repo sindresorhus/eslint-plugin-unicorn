@@ -27,26 +27,6 @@ function findKeywordPrefix(name, options) {
 	});
 }
 
-function isInsideObjectPattern(node) {
-	let current = node;
-
-	while (current) {
-		const {parent} = current;
-
-		if (parent && parent.type === 'Property' && parent.computed && parent.key === current) {
-			return false;
-		}
-
-		if (current.type === 'ObjectPattern') {
-			return true;
-		}
-
-		current = parent;
-	}
-
-	return false;
-}
-
 function checkMemberExpression(report, node, options) {
 	const {name} = node;
 	const keyword = findKeywordPrefix(name, options);
@@ -90,7 +70,7 @@ function checkObjectPattern(report, node, options) {
 	const valueIsInvalid = node.parent.value.name && Boolean(keyword);
 
 	// Ignore destructuring if the option is set, unless a new identifier is created
-	if (valueIsInvalid && !(assignmentKeyEqualsValue && options.ignoreDestructuring)) {
+	if (valueIsInvalid && !assignmentKeyEqualsValue) {
 		report(node, keyword);
 	}
 
@@ -140,8 +120,7 @@ const create = context => {
 				}
 
 				if (
-					!options.checkProperties ||
-					(options.ignoreDestructuring && isInsideObjectPattern(node))
+					!options.checkProperties
 				) {
 					return;
 				}
