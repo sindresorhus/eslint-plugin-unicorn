@@ -1,0 +1,25 @@
+# Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence. *(fixable)*
+
+[`Set#has()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/has) is faster than [`Array#includes()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes).
+
+This rule is fixable.
+
+## Fail
+
+```js
+const array = [1, 2, 3];
+if (array.includes(1)) {}
+```
+
+## Pass
+
+```js
+const set = new Set([1, 2, 3]);
+if (set.has(1)) {}
+```
+
+```js
+const array = [1, 2];
+array.push(3);
+if (array.includes(1)) {}
+```

@@ -1,6 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import outdent from 'outdent';
+import {outdent} from 'outdent';
 import rule from '../rules/prefer-set-has';
 
 const ruleId = 'prefer-set-has';
