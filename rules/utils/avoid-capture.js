@@ -41,9 +41,9 @@ function unicorn() {
 	};
 }
 */
-const isProbablyGlobal = (name, scopes) => scopes.some(scope =>
+const isUnresolvedName = (name, scopes) => scopes.some(scope =>
 	scope.references.some(reference => reference.identifier && reference.identifier.name === name && !reference.resolved) ||
-	isProbablyGlobal(name, scope.childScopes)
+	isUnresolvedName(name, scope.childScopes)
 );
 
 const isSafeName = (name, scopes, ecmaVersion, isStrict) => {
@@ -53,7 +53,7 @@ const isSafeName = (name, scopes, ecmaVersion, isStrict) => {
 		!someScopeHasVariableName(name, scopes) &&
 		!reservedWords.check(name, ecmaVersion, isStrict) &&
 		!nameCollidesWithArgumentsSpecial(name, scopes, isStrict) &&
-		!isProbablyGlobal(name, scopes)
+		!isUnresolvedName(name, scopes)
 	);
 };
 
