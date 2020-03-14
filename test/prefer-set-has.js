@@ -24,18 +24,18 @@ ruleTester.run(ruleId, rule, {
 	valid: [
 		outdent`
 			const foo = new Set([1, 2, 3]);
-			if (foo.has(1)) {}
+			const exists = foo.has(1);
 		`,
 		// Not `VariableDeclarator`
 		outdent`
 			foo = [1, 2, 3];
-			if (foo.includes(1)) {}
+			const exists = foo.includes(1);
 		`,
 		outdent`
-			if (foo.includes(1)) {}
+			const exists = foo.includes(1);
 		`,
 		outdent`
-			if ([1, 2, 3].includes(1)) {}
+			const exists = [1, 2, 3].includes(1);
 		`,
 		// Didn't call `includes()`
 		outdent`
@@ -44,29 +44,29 @@ ruleTester.run(ruleId, rule, {
 		// Not `CallExpression`
 		outdent`
 			const foo = [1, 2, 3];
-			if (foo.includes) {}
+			const exists = foo.includes;
 		`,
 		// Not `foo.includes()`
 		outdent`
 			const foo = [1, 2, 3];
-			if (includes(foo)) {}
+			const exists = includes(foo);
 		`,
 		outdent`
 			const foo = [1, 2, 3];
-			if (bar.includes(foo)) {}
+			const exists = bar.includes(foo);
 		`,
 		outdent`
 			const foo = [1, 2, 3];
-			if (foo[includes](1)) {}
+			const exists = foo[includes](1);
 		`,
 		outdent`
 			const foo = [1, 2, 3];
-			if (foo.indexOf(1) !== -1) {}
+			const exists = foo.indexOf(1) !== -1;
 		`,
 		// Not only `foo.includes()`
 		outdent`
 			const foo = [1, 2, 3];
-			if (foo.includes(1)) {}
+			const exists = foo.includes(1);
 			foo.length = 1;
 		`,
 		outdent`
@@ -80,63 +80,67 @@ ruleTester.run(ruleId, rule, {
 		outdent`
 			var foo = [1, 2, 3];
 			var foo = [4, 5, 6];
-			if (foo.includes(1)) {}
+			const exists = foo.includes(1);
 		`,
 
 		// Not `ArrayExpression`, maybe we can enable some of those later
 		outdent`
 			const foo = bar;
-			if (foo.includes(1)) {}
+			const exists = foo.includes(1);
 		`,
 		outdent`
 			const foo = [1, 2, 3].slice();
-			if (foo.includes(1)) {}
+			const exists = foo.includes(1);
 		`,
 		outdent`
 			const foo = Array.from(bar);
-			if (foo.includes(1)) {}
+			const exists = foo.includes(1);
 		`,
 
 		// Extra arguments
 		outdent`
 			const foo = [1, 2, 3];
-			if (foo.includes(1, 1)) {}
+			const exists = foo.includes();
 		`,
 		outdent`
 			const foo = [1, 2, 3];
-			if (foo.includes(1, 0)) {}
+			const exists = foo.includes(1, 1);
 		`,
 		outdent`
 			const foo = [1, 2, 3];
-			if (foo.includes(1, undefined)) {}
+			const exists = foo.includes(1, 0);
 		`,
 		outdent`
 			const foo = [1, 2, 3];
-			if (foo.includes(...[1])) {}
+			const exists = foo.includes(1, undefined);
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			const exists = foo.includes(...[1]);
 		`,
 		// TODO: enable this test when eslint support optional-chaining
 		// Optional
 		// outdent`
 		// 	const foo = [1, 2, 3];
-		// 	if (foo.?includes(1)) {}
+		// 	const exists = foo.?includes(1);
 		// `,
-		//
+		// Different scope
 		outdent`
 			function unicorn() {
 				const foo = [1, 2, 3];
 			}
-			if (foo.includes(1)) {}
+			const exists = foo.includes(1);
 		`
 	],
 	invalid: [
 		{
 			code: outdent`
 				const foo = [1, 2, 3];
-				if (foo.includes(1)) {}
+				const exists = foo.includes(1);
 			`,
 			output: outdent`
 				const foo = new Set([1, 2, 3]);
-				if (foo.has(1)) {}
+				const exists = foo.has(1);
 			`,
 			errors: createError('foo')
 		},
@@ -144,11 +148,13 @@ ruleTester.run(ruleId, rule, {
 		{
 			code: outdent`
 				const foo = [...bar];
-				if (foo.includes(1)) {}
+				const exists = foo.includes(1);
+				bar.pop();
 			`,
 			output: outdent`
 				const foo = new Set([...bar]);
-				if (foo.has(1)) {}
+				const exists = foo.has(1);
+				bar.pop();
 			`,
 			errors: createError('foo')
 		},
@@ -156,19 +162,41 @@ ruleTester.run(ruleId, rule, {
 		{
 			code: outdent`
 				const foo = [1, 2, 3];
-				if (foo.includes(1)) {}
-				function bar() {
-					return foo.includes(2);
+				const exists = foo.includes(1);
+				function isExists(find) {
+					return foo.includes(find);
 				}
 			`,
 			output: outdent`
 				const foo = new Set([1, 2, 3]);
-				if (foo.has(1)) {}
-				function bar() {
-					return foo.has(2);
+				const exists = foo.has(1);
+				function isExists(find) {
+					return foo.has(find);
 				}
 			`,
 			errors: createError('foo')
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					const foo = [1, 2, 3];
+					return foo.includes(1);
+				}
+				const bar = [4, 5, 6];
+				const exists = bar.includes(1);
+			`,
+			output: outdent`
+				function unicorn() {
+					const foo = new Set([1, 2, 3]);
+					return foo.has(1);
+				}
+				const bar = new Set([4, 5, 6]);
+				const exists = bar.has(1);
+			`,
+			errors: [
+				...createError('foo'),
+				...createError('bar')
+			]
 		},
 	]
 });

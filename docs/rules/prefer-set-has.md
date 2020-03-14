@@ -8,18 +8,24 @@ This rule is fixable.
 
 ```js
 const array = [1, 2, 3];
-if (array.includes(1)) {}
+function isExists(find) {
+	return array.includes(find);
+}
 ```
 
 ## Pass
 
 ```js
 const set = new Set([1, 2, 3]);
-if (set.has(1)) {}
+function isExists(find) {
+	return set.has(find);
+}
 ```
 
 ```js
 const array = [1, 2];
+function isExists(find) {
+	return array.includes(find);
+}
 array.push(3);
-if (array.includes(1)) {}
 ```
