@@ -29,8 +29,11 @@ const nameCollidesWithArgumentsSpecial = (name, scopes, isStrict) => {
 };
 
 /*
-Unresolved reference is probably from the global scope, should avoid use that name, like `foo` and `bar` bellow
+Unresolved reference is probably from the global scope. We should avoid using that name.
 
+For example, like `foo` and `bar` below.
+
+```
 function unicorn() {
 	return foo;
 }
@@ -40,6 +43,7 @@ function unicorn() {
 		return bar;
 	};
 }
+```
 */
 const isUnresolvedName = (name, scopes) => scopes.some(scope =>
 	scope.references.some(reference => reference.identifier && reference.identifier.name === name && !reference.resolved) ||
