@@ -88,9 +88,9 @@ function fixFilename(words, caseFunctions, {leading, extension}) {
 	return combinations.map(parts => `${leading}${parts.join('')}${extension}`);
 }
 
-const leadingUnserscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;
+const leadingUnderscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;
 function splitFilename(filename) {
-	const result = leadingUnserscoresRegex.exec(filename) || {groups: {}};
+	const result = leadingUnderscoresRegex.exec(filename) || {groups: {}};
 	const {leading = '', tailing = filename} = result.groups;
 
 	const words = [];

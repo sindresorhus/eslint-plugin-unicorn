@@ -17,15 +17,18 @@ const typescriptRuleTester = avaRuleTester(test, {
 	parser: require.resolve('@typescript-eslint/parser')
 });
 
-const arrowError = {
-	ruleId: 'consistent-function-scoping',
-	messageId: 'ArrowFunctionExpression'
-};
+const ruleId = 'consistent-function-scoping';
+const MESSAGE_ID_NAMED = 'named';
+const MESSAGE_ID_ANONYMOUS = 'anonymous';
 
-const functionError = {
-	ruleId: 'consistent-function-scoping',
-	messageId: 'FunctionDeclaration'
-};
+const createError = ({name, arrow}) => ({
+	ruleId,
+	messageId: name ? MESSAGE_ID_NAMED : MESSAGE_ID_ANONYMOUS,
+	data: {
+		functionType: arrow ? 'arrow function' : 'function',
+		functionName: name
+	}
+});
 
 ruleTester.run('consistent-function-scoping', rule, {
 	valid: [
@@ -191,6 +194,38 @@ ruleTester.run('consistent-function-scoping', rule, {
 				return Bar;
 			};
 		`,
+		// `this`
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => this;
+				return doBar();
+			};
+		`,
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => () => this;
+				return doBar();
+			};
+		`,
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => () => () => this;
+				return doBar();
+			};
+		`,
+		// `arguments`
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => arguments;
+				return doBar();
+			};
+		`,
+		// React Hooks
+		outdent`
+			useEffect(() => {
+				function foo() {}
+			}, [])
+		`,
 		// #391
 		outdent`
 			const enrichErrors = (packageName, cliArgs, f) => async (...args) => {
@@ -244,6 +279,18 @@ ruleTester.run('consistent-function-scoping', rule, {
 
 				eventEmitter.once('error', onError2);
 			};
+		`,
+		// #586
+		outdent`
+			function outer(stream) {
+				let content;
+
+				function inner() {
+					process.stdout.write(content);
+				}
+
+				inner();
+			}
 		`
 	],
 	invalid: [
@@ -256,7 +303,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return foo;
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -268,7 +315,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return foo;
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -278,7 +325,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					}
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -288,13 +335,64 @@ ruleTester.run('consistent-function-scoping', rule, {
 					}
 				}
 			`,
-			errors: [arrowError]
+			errors: [createError({name: 'doBar', arrow: true})]
 		},
 		{
 			code: outdent`
 				const doFoo = () => bar => bar;
 			`,
-			errors: [arrowError]
+			errors: [createError({arrow: true})]
+		},
+		// `this`
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					function doBar() {
+						return this;
+					}
+					return doBar();
+				};
+			`,
+			errors: [createError({name: 'doBar'})]
+		},
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					const doBar = () => (function() {return this})();
+					return doBar();
+				};
+			`,
+			errors: [createError({name: 'doBar', arrow: true})]
+		},
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					const doBar = () => (function() {return () => this})();
+					return doBar();
+				};
+			`,
+			errors: [createError({name: 'doBar', arrow: true})]
+		},
+		// `arguments`
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					function doBar() {
+						return arguments;
+					}
+					return doBar();
+				};
+			`,
+			errors: [createError({name: 'doBar'})]
+		},
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					const doBar = () => (function() {return arguments})();
+					return doBar();
+				};
+			`,
+			errors: [createError({name: 'doBar', arrow: true})]
 		},
 		{
 			code: outdent`
@@ -305,7 +403,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return foo;
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -316,7 +414,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return doBar;
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -324,7 +422,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					function doBar() {}
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -339,7 +437,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return foo;
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -351,7 +449,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					}
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
 		},
 		{
 			code: outdent`
@@ -361,7 +459,19 @@ ruleTester.run('consistent-function-scoping', rule, {
 					}
 				}
 			`,
-			errors: [functionError]
+			errors: [createError({name: 'doBar'})]
+		},
+		// React Hooks
+		{
+			code: outdent`
+				useEffect(() => {
+					function foo() {
+						function bar() {
+						}
+					}
+				}, [])
+			`,
+			errors: [createError({name: 'bar'})]
 		}
 	]
 });

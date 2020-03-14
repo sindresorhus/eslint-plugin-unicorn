@@ -2,14 +2,29 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const getReferences = require('./utils/get-references');
 
-const MESSAGE_ID_ARROW = 'ArrowFunctionExpression';
-const MESSAGE_ID_FUNCTION = 'FunctionDeclaration';
+const MESSAGE_ID_NAMED = 'named';
+const MESSAGE_ID_ANONYMOUS = 'anonymous';
 
 const isSameScope = (scope1, scope2) =>
 	scope1 && scope2 && (scope1 === scope2 || scope1.block === scope2.block);
 
 function checkReferences(scope, parent, scopeManager) {
-	const hitReference = references => references.some(reference => isSameScope(parent, reference.from));
+	const hitReference = references => references.some(reference => {
+		if (isSameScope(parent, reference.from)) {
+			return true;
+		}
+
+		const {resolved} = reference;
+		const [definition] = resolved.defs;
+
+		// Skip recursive function name
+		if (definition && definition.type === 'FunctionName' && resolved.name === definition.name.name) {
+			return false;
+		}
+
+		return isSameScope(parent, resolved.scope);
+	});
+
 	const hitDefinitions = definitions => definitions.some(definition => {
 		const scope = scopeManager.acquire(definition.node);
 		return isSameScope(parent, scope);
@@ -57,9 +72,36 @@ function checkReferences(scope, parent, scopeManager) {
 		);
 }
 
+// https://reactjs.org/docs/hooks-reference.html
+const reactHooks = new Set([
+	'useState',
+	'useEffect',
+	'useContext',
+	'useReducer',
+	'useCallback',
+	'useMemo',
+	'useRef',
+	'useImperativeHandle',
+	'useLayoutEffect',
+	'useDebugValue'
+]);
+const isReactHook = scope =>
+	scope.block &&
+	scope.block.parent &&
+	scope.block.parent.callee &&
+	scope.block.parent.callee.type === 'Identifier' &&
+	reactHooks.has(scope.block.parent.callee.name);
+
+const isArrowFunctionWithThis = scope =>
+	scope.type === 'function' &&
+	scope.block &&
+	scope.block.type === 'ArrowFunctionExpression' &&
+	(scope.thisFound || scope.childScopes.some(scope => isArrowFunctionWithThis(scope)));
+
 function checkNode(node, scopeManager) {
 	const scope = scopeManager.acquire(node);
-	if (!scope) {
+
+	if (!scope || isArrowFunctionWithThis(scope)) {
 		return true;
 	}
 
@@ -84,7 +126,7 @@ function checkNode(node, scopeManager) {
 	}
 
 	const parentScope = scopeManager.acquire(parentNode);
-	if (!parentScope || parentScope.type === 'global') {
+	if (!parentScope || parentScope.type === 'global' || isReactHook(parentScope)) {
 		return true;
 	}
 
@@ -107,9 +149,26 @@ const create = context => {
 		},
 		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
 			if (!hasJsx && !checkNode(node, scopeManager)) {
+				const functionType = node.type === 'ArrowFunctionExpression' ? 'arrow function' : 'function';
+				let functionName = '';
+				if (node.id) {
+					functionName = node.id.name;
+				} else if (
+					node.parent &&
+					node.parent.type === 'VariableDeclarator' &&
+					node.parent.id &&
+					node.parent.id.type === 'Identifier'
+				) {
+					functionName = node.parent.id.name;
+				}
+
 				context.report({
 					node,
-					messageId: node.type
+					messageId: functionName ? MESSAGE_ID_NAMED : MESSAGE_ID_ANONYMOUS,
+					data: {
+						functionType,
+						functionName
+					}
 				});
 			}
 
@@ -129,8 +188,8 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		messages: {
-			[MESSAGE_ID_ARROW]: 'Move arrow function to the outer scope.',
-			[MESSAGE_ID_FUNCTION]: 'Move function to the outer scope.'
+			[MESSAGE_ID_NAMED]: 'Move {{functionType}} `{{functionName}}` to the outer scope.',
+			[MESSAGE_ID_ANONYMOUS]: 'Move {{functionType}} to the outer scope.'
 		}
 	}
 };

@@ -1,7 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const isParethesized = (sourceCode, node) => {
+const isParenthesized = (sourceCode, node) => {
 	const previousToken = sourceCode.getTokenBefore(node);
 	const nextToken = sourceCode.getTokenAfter(node);
 
@@ -35,7 +35,7 @@ const create = context => {
 				) {
 					context.report({node, message});
 					break;
-				} else if (!isParethesized(sourceCode, childNode)) {
+				} else if (!isParenthesized(sourceCode, childNode)) {
 					context.report({
 						node: childNode,
 						message,
