@@ -17,15 +17,18 @@ const isIncludesCall = node => {
 		return false;
 	}
 
-	const {callee, type} = node.parent.parent;
+	const {type, optional, callee, arguments: parameters} = node.parent.parent;
 	return (
 		type === 'CallExpression' &&
+		!optional,
 		callee &&
 		callee.type === 'MemberExpression' &&
 		!callee.computed &&
 		callee.object === node &&
 		callee.property.type === 'Identifier' &&
-		callee.property.name === 'includes'
+		callee.property.name === 'includes' &&
+		parameters.length === 1 &&
+		parameters[0].type !== 'SpreadElement'
 	);
 };
 
