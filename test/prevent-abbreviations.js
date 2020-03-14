@@ -1085,7 +1085,94 @@ ruleTester.run('prevent-abbreviations', rule, {
 			`,
 			output: outdent`
 				function unicorn(unicorn) {
-					const {prop: property = {}} = unicorn;
+					const {prop: property_ = {}} = unicorn;
+					return property;
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: outdent`
+				const property = '';
+				function unicorn() {
+					const prop = 1;
+					return property;
+				}
+			`,
+			output: outdent`
+				const property = '';
+				function unicorn() {
+					const property_ = 1;
+					return property;
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					const prop = 1;
+					return function () {
+						return property;
+					};
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					const property_ = 1;
+					return function () {
+						return property;
+					};
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: outdent`
+				let property;
+				function unicorn() {
+					const prop = 1;
+					return property;
+				}
+			`,
+			output: outdent`
+				let property;
+				function unicorn() {
+					const property_ = 1;
+					return property;
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: outdent`
+				/*global property:true*/
+				function unicorn() {
+					const prop = 1;
+					return property;
+				}
+			`,
+			output: outdent`
+				/*global property:true*/
+				function unicorn() {
+					const property_ = 1;
+					return property;
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: outdent`
+				/*global property:false*/
+				function unicorn() {
+					const prop = 1;
+					return property;
+				}
+			`,
+			output: outdent`
+				/*global property:false*/
+				function unicorn() {
+					const property_ = 1;
 					return property;
 				}
 			`,
@@ -1512,7 +1599,7 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 			`,
 			output: outdent`
 				function unicorn(unicorn) {
-					const {prop: property = {}} = unicorn;
+					const {prop: property_ = {}} = unicorn;
 					return property;
 				}
 			`,
