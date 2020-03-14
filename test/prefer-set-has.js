@@ -197,6 +197,6 @@ ruleTester.run(ruleId, rule, {
 				...createError('foo'),
 				...createError('bar')
 			]
-		},
+		}
 	]
 });
