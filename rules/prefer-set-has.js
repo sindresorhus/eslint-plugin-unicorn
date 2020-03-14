@@ -3,6 +3,10 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const getReferences = require('./utils/get-references');
 
 const selector = [
+	':not(ExportNamedDeclaration)',
+	'>',
+	'VariableDeclaration',
+	'>',
 	'VariableDeclarator',
 	'[init.type="ArrayExpression"]',
 	'>',

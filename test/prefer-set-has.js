@@ -7,7 +7,8 @@ const ruleId = 'prefer-set-has';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2020,
+		sourceType: 'module'
 	}
 });
 
@@ -129,6 +130,11 @@ ruleTester.run(ruleId, rule, {
 			function unicorn() {
 				const foo = [1, 2, 3];
 			}
+			const exists = foo.includes(1);
+		`,
+
+		outdent`
+			export const foo = [1, 2, 3];
 			const exists = foo.includes(1);
 		`
 	],
