@@ -6,12 +6,9 @@ const {defaultsDeep, upperFirst, lowerFirst} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
-const isSameNode = require('./utils/is-same-node');
 const isShorthandPropertyIdentifier = require('./utils/is-shorthand-property-identifier');
-const isAssignmentPatternShorthandPropertyIdentifier = require('./utils/is-assignment-pattern-shorthand-property-identifier');
 const isShorthandImportIdentifier = require('./utils/is-shorthand-import-identifier');
-const isShorthandExportIdentifier = require('./utils/is-shorthand-export-identifier');
-const renameIdentifier = require('./utils/rename-identifier')
+const renameIdentifier = require('./utils/rename-identifier');
 
 const isUpperCase = string => string === string.toUpperCase();
 const isUpperFirst = string => isUpperCase(string[0]);

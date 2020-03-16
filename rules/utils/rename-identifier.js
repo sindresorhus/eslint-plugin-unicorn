@@ -34,4 +34,4 @@ function renameIdentifier(identifier, name, fixer, sourceCode) {
 	return fixer.replaceText(identifier, name);
 }
 
-module.exports = renameIdentifier
+module.exports = renameIdentifier;

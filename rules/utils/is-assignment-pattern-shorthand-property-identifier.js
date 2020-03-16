@@ -8,4 +8,4 @@ module.exports = identifier =>
 	identifier.parent.parent.type === 'Property' &&
 	isSameNode(identifier, identifier.parent.parent.key) &&
 	identifier.parent.parent.value === identifier.parent &&
-	identifier.parent.parent.shorthand
+	identifier.parent.parent.shorthand;
