@@ -118,16 +118,16 @@ const create = context => {
 
 			const fixed = string.replace(replacement.regex, suggest);
 			problem.fix = type === 'Literal' ?
-				 fixer => fixer.replaceText(
+				fixer => fixer.replaceText(
 					node,
 					quoteString(fixed, node.raw[0])
-				) : 
+				) :
 				fixer => replaceTemplateElement(
 					fixer,
 					node,
 					escapeTemplateElementRaw(fixed)
 				);
-				
+
 			context.report(problem);
 		}
 	};
