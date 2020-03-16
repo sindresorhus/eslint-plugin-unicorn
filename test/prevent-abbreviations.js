@@ -29,6 +29,10 @@ const babelRuleTester = avaRuleTester(test, {
 	parser: require.resolve('babel-eslint')
 });
 
+const typescriptRuleTester = avaRuleTester(test, {
+	parser: require.resolve('@typescript-eslint/parser')
+});
+
 const noFixingTestCase = test => ({...test, output: test.code});
 
 const createErrors = message => {
@@ -1700,5 +1704,24 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 			options: checkPropertiesOptions,
 			errors: createErrors()
 		})
+	]
+});
+
+typescriptRuleTester.run('prevent-abbreviations', rule, {
+	valid: [],
+	invalid: [
+		// Types
+		...[
+			'declare const prop: string;',
+			'declare const prop: string;',
+			'declare var prop: number;',
+			'declare let prop: any;',
+			'declare class prop {}',
+			'const prop: SomeThing<boolean> = func();'
+		].map(code => ({
+			code,
+			output: code.replace('prop', 'property'),
+			errors: createErrors()
+		}))
 	]
 });
