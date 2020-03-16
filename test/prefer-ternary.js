@@ -9,6 +9,10 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const babelRuleTester = avaRuleTester(test, {
+	parser: require.resolve('babel-eslint')
+});
+
 ruleTester.run('prefer-ternary', rule, {
 	valid: [
 		{
@@ -48,7 +52,7 @@ ruleTester.run('prefer-ternary', rule, {
 			code: outdent`
 			if(a){
 				b  = 1;
-			} 
+			}
 			else{
 				c =  2;
 			}`
@@ -57,7 +61,7 @@ ruleTester.run('prefer-ternary', rule, {
 			code: outdent`
 			if(a){
 				foo();
-			} 
+			}
 			else{
 				bar();
 			}`
@@ -125,7 +129,7 @@ ruleTester.run('prefer-ternary', rule, {
 			code: outdent`
 			if(foo){
 				bar = 1;
-			} 
+			}
 			else{
 				bar = 2;
 			}`,
@@ -137,7 +141,7 @@ ruleTester.run('prefer-ternary', rule, {
 		{
 			code: outdent`
 			if(foo)
-				bar = 1; 
+				bar = 1;
 			else
 				bar = 2;
 			`,
@@ -299,6 +303,26 @@ ruleTester.run('prefer-ternary', rule, {
 			errors: [
 				{column: 3, line: 3, type: 'IfStatement'}
 			]
+		}
+	]
+});
+
+babelRuleTester.run('prefer-ternary', rule, {
+	valid: [],
+	invalid: [
+		// https://github.com/facebook/react/blob/7a1691cdff209249b49a4472ba87b542980a5f71/packages/react-dom/src/client/DOMPropertyOperations.js#L183
+		{
+			code: outdent`
+				if (enableTrustedTypesIntegration) {
+					attributeValue = (value: any);
+				} else {
+					attributeValue = '' + (value: any);
+				}
+			`,
+			output: outdent`
+				attributeValue = (enableTrustedTypesIntegration ? (value: any) : '' + (value: any))
+			`,
+			errors: [{}]
 		}
 	]
 });

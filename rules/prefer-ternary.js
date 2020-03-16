@@ -1,5 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const isParenthesized = require('./utils/is-parenthesized');
+
 const create = context => {
 	function checkIfStatement(node) {
 		if (isSingleBlockStatement(node) &&
@@ -25,8 +27,8 @@ const create = context => {
 			const expressionType = getNodeBody(node.consequent).expression.type;
 			if (expressionType === 'AssignmentExpression') {
 				prefix = sourceCode.getText(getNodeBody(node.consequent).expression.left) + ' = ';
-				left = sourceCode.getText(getNodeBody(node.consequent).expression.right);
-				right = sourceCode.getText(getNodeBody(node.alternate).expression.right);
+				left = getNodeBody(node.consequent).expression.right;
+				right = getNodeBody(node.alternate).expression.right;
 			} else {
 				if (expressionType === 'AwaitExpression') {
 					prefix = 'await ';
@@ -34,16 +36,26 @@ const create = context => {
 					prefix = getNodeBody(node.consequent).expression.delegate ? 'yield* ' : 'yield ';
 				}
 
-				left = sourceCode.getText(getNodeBody(node.consequent).expression.argument);
-				right = sourceCode.getText(getNodeBody(node.alternate).expression.argument);
+				left = getNodeBody(node.consequent).expression.argument;
+				right = getNodeBody(node.alternate).expression.argument;
 			}
 		} else {
 			prefix = 'return ';
-			left = sourceCode.getText(getNodeBody(node.consequent).argument);
-			right = sourceCode.getText(getNodeBody(node.alternate).argument);
+			left = getNodeBody(node.consequent).argument;
+			right = getNodeBody(node.alternate).argument;
 		}
 
-		const replacement = prefix + '(' + ifCondition + ' ? ' + left + ' : ' + right + ')';
+		let leftCode = sourceCode.getText(left);
+		if (isParenthesized(left, sourceCode)) {
+			leftCode = `(${leftCode})`;
+		}
+
+		let rightCode = sourceCode.getText(right);
+		if (isParenthesized(right, sourceCode)) {
+			rightCode = `(${rightCode})`;
+		}
+
+		const replacement = prefix + '(' + ifCondition + ' ? ' + leftCode + ' : ' + rightCode + ')';
 		return fixer.replaceText(node, replacement);
 	}
 
