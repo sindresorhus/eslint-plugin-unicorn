@@ -441,7 +441,7 @@ const isShorthandExportIdentifier = identifier => {
 	);
 };
 
-const fixIdentifier = (fixer, replacement) => identifier => {
+const fixIdentifier = (fixer, replacement, sourceCode) => identifier => {
 	if (
 		isShorthandPropertyIdentifier(identifier) ||
 		isAssignmentPatternShorthandPropertyIdentifier(identifier)
@@ -455,6 +455,11 @@ const fixIdentifier = (fixer, replacement) => identifier => {
 
 	if (isShorthandExportIdentifier(identifier)) {
 		return fixer.replaceText(identifier, `${replacement} as ${identifier.name}`);
+	}
+
+	// `TypeParameter` default value
+	if (identifier.default) {
+		return fixer.replaceText(identifier, `${replacement} = ${sourceCode.getText(identifier.default)}`);
 	}
 
 	return fixer.replaceText(identifier, replacement);
@@ -572,6 +577,7 @@ const create = context => {
 	const {ecmaVersion} = context.parserOptions;
 	const options = prepareOptions(context.options[0]);
 	const filenameWithExtension = context.getFilename();
+	const sourceCode = context.getSourceCode();
 
 	// A `class` declaration produces two variables in two scopes:
 	// the inner class scope, and the outer one (whereever the class is declared).
@@ -691,7 +697,7 @@ const create = context => {
 
 			problem.fix = fixer => {
 				return variableIdentifiers(variable)
-					.map(fixIdentifier(fixer, replacement));
+					.map(fixIdentifier(fixer, replacement, sourceCode));
 			};
 		}
 
