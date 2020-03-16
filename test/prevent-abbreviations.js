@@ -1649,16 +1649,12 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 		{
 			code: outdent`
 				function onKeyDown(e: KeyboardEvent) {
-					if (e.keyCode) {
-						// ...
-					}
+					if (e.keyCode) {}
 				}
 			`,
 			output: outdent`
 				function onKeyDown(event: KeyboardEvent) {
-					if (event.keyCode) {
-						// ...
-					}
+					if (event.keyCode) {}
 				}
 			`,
 			options: [
