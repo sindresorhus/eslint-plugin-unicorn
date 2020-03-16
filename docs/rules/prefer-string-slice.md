@@ -4,17 +4,15 @@
 
 This rule is partly fixable.
 
-
 ## Fail
 
 ```js
-foo.substr(1, 2);
-foo.substring(1, 3);
+foo.substr(start, length);
+foo.substring(indexStart, indexEnd);
 ```
-
 
 ## Pass
 
 ```js
-foo.slice(1, 3);
+foo.slice(beginIndex, endIndex);
 ```
