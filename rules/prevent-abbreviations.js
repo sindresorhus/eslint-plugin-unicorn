@@ -462,6 +462,11 @@ const fixIdentifier = (fixer, replacement, sourceCode) => identifier => {
 		return fixer.replaceText(identifier, `${replacement} = ${sourceCode.getText(identifier.default)}`);
 	}
 
+	// `typeAnnotation`
+	if (identifier.typeAnnotation) {
+		return fixer.replaceText(identifier, `${replacement}${sourceCode.getText(identifier.typeAnnotation)}`);
+	}
+
 	return fixer.replaceText(identifier, replacement);
 };
 
