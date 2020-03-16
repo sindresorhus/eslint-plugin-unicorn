@@ -1641,6 +1641,17 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 
+		// https://github.com/facebook/relay/blob/597d2a17aa29d401830407b6814a5f8d148f632d/packages/relay-experimental/EntryPointTypes.flow.js#L138
+		{
+			code: outdent`
+				export type PreloadProps<TExtraProps = null> = {}
+			`,
+			output: outdent`
+				export type PreloadProperties<TExtraProperties = null> = {}
+			`,
+			errors: [...createErrors(), ...createErrors()]
+		},
+
 		noFixingTestCase({
 			code: '(class {e = 1})',
 			options: checkPropertiesOptions,
