@@ -12,7 +12,8 @@ const unicornRules = new Map(Object.entries(unicorn.rules));
 const cli = new CLIEngine({
 	baseConfig: recommended,
 	useEslintrc: false,
-	fix
+	fix,
+	parser: require.resolve('babel-eslint')
 });
 
 cli.addPlugin('eslint-plugin-unicorn', unicorn);
