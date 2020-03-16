@@ -6,6 +6,7 @@ const {defaultsDeep, upperFirst, lowerFirst} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
+const isSameNode = require('./utils/is-same-node');
 
 const isUpperCase = string => string === string.toUpperCase();
 const isUpperFirst = string => isUpperCase(string[0]);
@@ -397,20 +398,11 @@ const shouldFix = variable => {
 	return !variableIdentifiers(variable).some(isExportedIdentifier);
 };
 
-const isIdentifierKeyOfNode = (identifier, node) =>
-	node.key === identifier ||
-	// In `babel-eslint` parent.key is not reference of identifier
-	// https://github.com/babel/babel-eslint/issues/809
-	(
-		node.key.type === identifier.type &&
-		node.key.name === identifier.name
-	);
-
 const isShorthandPropertyIdentifier = identifier => {
 	return (
 		identifier.parent.type === 'Property' &&
 		identifier.parent.shorthand &&
-		isIdentifierKeyOfNode(identifier, identifier.parent)
+		isSameNode(identifier, identifier.parent.key)
 	);
 };
 
@@ -419,7 +411,7 @@ const isAssignmentPatternShorthandPropertyIdentifier = identifier => {
 		identifier.parent.type === 'AssignmentPattern' &&
 		identifier.parent.left === identifier &&
 		identifier.parent.parent.type === 'Property' &&
-		isIdentifierKeyOfNode(identifier, identifier.parent.parent) &&
+		isSameNode(identifier, identifier.parent.parent.key) &&
 		identifier.parent.parent.value === identifier.parent &&
 		identifier.parent.parent.shorthand
 	);
