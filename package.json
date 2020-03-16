@@ -82,6 +82,9 @@
 		]
 	},
 	"xo": {
+		"parserOptions": {
+			"sourceType": "script"
+		},
 		"plugins": [
 			"eslint-plugin"
 		],
@@ -94,9 +97,16 @@
 				"rules": {
 					"eslint-plugin/require-meta-docs-url": "off"
 				}
+			},
+			{
+				"files": "test/*.js",
+				"parserOptions": {
+					"sourceType": "module"
+				}
 			}
 		],
 		"rules": {
+			"strict": "error",
 			"import/order": "off"
 		}
 	}
