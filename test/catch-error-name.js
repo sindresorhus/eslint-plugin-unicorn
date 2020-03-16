@@ -13,6 +13,7 @@ function invalidTestCase(options) {
 	if (typeof options === 'string') {
 		options = {code: options};
 	}
+
 	const {code, name, output} = options;
 	return {
 		code,
@@ -215,7 +216,7 @@ ruleTester.run('catch-error-name', rule, {
 			code:
 			'obj.catch(function (error) { console.log(error) })',
 			output: 'obj.catch(function (err) { console.log(err) })',
-			name: 'err',
+			name: 'err'
 		}),
 		// Failing tests for #107
 		// invalidTestCase(outdent`
