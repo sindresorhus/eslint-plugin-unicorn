@@ -102,9 +102,6 @@
 				"files": "test/*.js",
 				"parserOptions": {
 					"sourceType": "module"
-				},
-				"rules": {
-					"strict": "off"
 				}
 			}
 		],
