@@ -106,10 +106,7 @@
 			}
 		],
 		"rules": {
-			"strict": [
-				"error",
-				"global"
-			],
+			"strict": "error",
 			"import/order": "off"
 		}
 	}
