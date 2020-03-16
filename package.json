@@ -40,7 +40,7 @@
 		"import-modules": "^2.0.0",
 		"lodash": "^4.17.15",
 		"read-pkg-up": "^7.0.1",
-		"regexp-tree": "^0.1.20",
+		"regexp-tree": "^0.1.21",
 		"reserved-words": "^0.1.2",
 		"safe-regex": "^2.1.1",
 		"semver": "^7.1.2"

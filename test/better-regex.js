@@ -21,6 +21,12 @@ const disableSortCharacterClassesOptions = [
 	}
 ];
 
+const testCase = (original, optimized) => ({
+	code: original,
+	output: optimized,
+	errors: createError(original, optimized)
+});
+
 ruleTester.run('better-regex', rule, {
 	valid: [
 		// Literal regex
@@ -243,11 +249,29 @@ ruleTester.run('better-regex', rule, {
 			errors: createError('/[0-9]/', '/\\d/'),
 			output: 'const foo = new RegExp(/\\d/, 0)'
 		},
+		// `\s` rewrite
+		testCase(
+			'/[ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]+/',
+			'/\\s+/'
+		),
 		// #499
 		{
 			code: '/^[a-z][a-z0-9\\-]{5,29}$/',
 			errors: createError('/^[a-z][a-z0-9\\-]{5,29}$/', '/^[a-z][\\da-z\\-]{5,29}$/'),
 			output: '/^[a-z][\\da-z\\-]{5,29}$/'
-		}
+		},
+		// #477
+		testCase(
+			'/[ \\n\\t\\r\\]]/g',
+			'/[\\t\\n\\r \\]]/g'
+		),
+		testCase(
+			'/[ \\n\\t\\r\\f"#\'()/;[\\\\\\]{}]/g',
+			'/[\\t\\n\\f\\r "#\'()/;[\\\\\\]{}]/g'
+		),
+		testCase(
+			'/[ \\n\\t\\r\\f(){}:;@!\'"\\\\\\][#]|\\/(?=\\*)/g',
+			'/[\\t\\n\\f\\r !"#\'():;@[\\\\\\]{}]|\\/(?=\\*)/g'
+		)
 	]
 });
