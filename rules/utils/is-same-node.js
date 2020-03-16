@@ -1,3 +1,4 @@
+'use strict';
 
 module.exports = (node1, node2) =>
 	node1 &&
