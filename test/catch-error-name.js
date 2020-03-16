@@ -108,7 +108,6 @@ ruleTester.run('catch-error-name', rule, {
 			code: 'obj.catch(err => {})',
 			options: [{name: 'err'}]
 		},
-
 		'obj.catch(outerError => { return obj2.catch(innerError => {}) })',
 		'obj.catch(function (error) {})',
 		'obj.catch(function () {})',
@@ -116,7 +115,6 @@ ruleTester.run('catch-error-name', rule, {
 			code: 'obj.catch(function (err) {})',
 			options: [{name: 'err'}]
 		},
-
 		'obj.catch(function (outerError) { return obj2.catch(function (innerError) {}) })',
 		'obj.catch()',
 		'obj.catch(_ => { console.log(_); })',
