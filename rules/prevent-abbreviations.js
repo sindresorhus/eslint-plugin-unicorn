@@ -457,7 +457,7 @@ const fixIdentifier = (fixer, replacement, sourceCode) => identifier => {
 		return fixer.replaceText(identifier, `${replacement} as ${identifier.name}`);
 	}
 
-	// `TypeParameter` default
+	// `TypeParameter` default value
 	if (identifier.default) {
 		return fixer.replaceText(identifier, `${replacement} = ${sourceCode.getText(identifier.default)}`);
 	}
