@@ -112,6 +112,7 @@ const projects = [
 	},
 	'https://github.com/chakra-ui/chakra-ui',
 	'https://github.com/ReactTraining/react-router',
+	'https://github.com/facebook/relay',
 	'https://github.com/mozilla/pdf.js'
 ].map(project => {
 	if (typeof project === 'string') {
