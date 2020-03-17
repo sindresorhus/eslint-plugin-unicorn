@@ -1,22 +1,17 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const isCommaFollowedWithComma = (element, index, array) => {
-	return element === null && array[index + 1] === null;
-};
+const message = 'Array destructuring may not contain consecutive ignored values.';
+const isCommaFollowedWithComma = (element, index, array) =>
+	element === null && array[index + 1] === null;
 
 const create = context => {
 	return {
-		ArrayPattern(node) {
-			const {elements} = node;
-			if (!elements || elements.length === 0) {
-				return;
-			}
-
-			if (elements.some(isCommaFollowedWithComma)) {
+		'ArrayPattern[elements.length>=3]': node => {
+			if (node.elements.some(isCommaFollowedWithComma)) {
 				context.report({
 					node,
-					message: 'Array destructuring may not contain consecutive ignored values.'
+					message
 				});
 			}
 		}
