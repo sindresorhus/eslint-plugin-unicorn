@@ -2,6 +2,7 @@
 const astUtils = require('eslint-ast-utils');
 const avoidCapture = require('./utils/avoid-capture');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const renameIdentifier = require('./utils/rename-identifier');
 
 // Matches `someObj.then([FunctionExpression | ArrowFunctionExpression])`
 function isLintablePromiseCatch(node) {
@@ -38,7 +39,8 @@ const create = context => {
 		...context.options[0]
 	};
 
-	const {scopeManager} = context.getSourceCode();
+	const sourceCode = context.getSourceCode();
+	const {scopeManager} = sourceCode;
 
 	const {name} = options;
 	const caughtErrorsIgnorePattern = new RegExp(options.caughtErrorsIgnorePattern);
@@ -64,7 +66,7 @@ const create = context => {
 
 			if (node.type === 'Identifier') {
 				problem.fix = fixer => {
-					const fixings = [fixer.replaceText(node, expectedName)];
+					const nodes = [node];
 
 					const variables = scopeManager.getDeclaredVariables(scopeNode);
 					for (const variable of variables) {
@@ -73,11 +75,11 @@ const create = context => {
 						}
 
 						for (const reference of variable.references) {
-							fixings.push(fixer.replaceText(reference.identifier, expectedName));
+							nodes.push(reference.identifier);
 						}
 					}
 
-					return fixings;
+					return nodes.map(node => renameIdentifier(node, expectedName, fixer, sourceCode));
 				};
 			}
 

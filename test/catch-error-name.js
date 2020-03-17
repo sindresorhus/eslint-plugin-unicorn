@@ -9,6 +9,10 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const typescriptRuleTester = avaRuleTester(test, {
+	parser: require.resolve('@typescript-eslint/parser')
+});
+
 function invalidTestCase(options) {
 	if (typeof options === 'string') {
 		options = {code: options};
@@ -414,5 +418,15 @@ ruleTester.run('catch-error-name', rule, {
 				}
 			]
 		}
+	]
+});
+
+typescriptRuleTester.run('catch-error-name', rule, {
+	valid: [],
+	invalid: [
+		invalidTestCase({
+			code: 'promise.catch(function (err: Error) { console.log(err) })',
+			output: 'promise.catch(function (error: Error) { console.log(error) })'
+		})
 	]
 });
