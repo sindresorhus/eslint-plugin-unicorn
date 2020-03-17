@@ -32,7 +32,7 @@ ruleTester.run('no-unreadable-array-destructuring', rule, {
 		'function foo([bar,, baz,, qux]) {}',
 		'const [, ...rest] = parts;',
 		// This is stupid, but valid code
-		'const [,] = parts;'
+		'const [,,] = parts;'
 	],
 	invalid: [
 		{
@@ -73,8 +73,8 @@ ruleTester.run('no-unreadable-array-destructuring', rule, {
 		},
 		// This is stupid, but valid code
 		{
-			code: 'const [,,] = parts;',
+			code: 'const [,,,] = parts;',
 			errors
-		},
+		}
 	]
 });

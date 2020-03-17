@@ -7,7 +7,7 @@ const isCommaFollowedWithComma = (element, index, array) =>
 
 const create = context => {
 	return {
-		'ArrayPattern[elements.length>1]': node => {
+		'ArrayPattern[elements.length>=3]': node => {
 			if (node.elements.some(isCommaFollowedWithComma)) {
 				context.report({
 					node,
