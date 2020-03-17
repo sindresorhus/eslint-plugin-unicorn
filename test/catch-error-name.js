@@ -9,23 +9,31 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-function testCase(code, name, error, output) {
+function invalidTestCase(options) {
+	if (typeof options === 'string') {
+		options = {code: options};
+	}
+
+	const {code, name, output} = options;
 	return {
 		code,
 		output: output || code,
 		options: name ? [{name}] : [],
-		errors: error ? [{ruleId: 'catch-error-name'}] : []
+		errors: [{ruleId: 'catch-error-name'}]
 	};
 }
 
 ruleTester.run('catch-error-name', rule, {
 	valid: [
-		testCase('try {} catch (error) {}'),
-		testCase('try {} catch (_) {}'),
-		testCase('try {} catch (_) { console.log(foo); }'),
-		testCase('try {} catch (err) {}', 'err'),
-		testCase('try {} catch (outerError) { try {} catch (innerError) {} }'),
-		testCase(outdent`
+		'try {} catch (error) {}',
+		'try {} catch (_) {}',
+		'try {} catch (_) { console.log(foo); }',
+		{
+			code: 'try {} catch (err) {}',
+			options: [{name: 'err'}]
+		},
+		'try {} catch (outerError) { try {} catch (innerError) {} }',
+		outdent`
 			const handleError = error => {
 				try {
 					doSomething();
@@ -33,20 +41,20 @@ ruleTester.run('catch-error-name', rule, {
 					console.log(error_);
 				}
 			}
-		`),
-		testCase(
-			outdent`
-			const handleError = err => {
-				try {
-					doSomething();
-				} catch (err_) {
-					console.log(err_);
-				}
-			}
 		`,
-			'err'
-		),
-		testCase(outdent`
+		{
+			code: outdent`
+				const handleError = err => {
+					try {
+						doSomething();
+					} catch (err_) {
+						console.log(err_);
+					}
+				}
+			`,
+			options: [{name: 'err'}]
+		},
+		outdent`
 			const handleError = error => {
 				const error_ = new Error('🦄');
 
@@ -56,29 +64,29 @@ ruleTester.run('catch-error-name', rule, {
 					console.log(error__);
 				}
 			}
-		`),
-		testCase('obj.catch(error => {})'),
-		testCase(outdent`
+		`,
+		'obj.catch(error => {})',
+		outdent`
 			const handleError = error => {
 				obj.catch(error_ => { });
 			}
-		`),
-		testCase(
-			outdent`
-			const handleError = err => {
-				obj.catch(err_ => { });
-			}
 		`,
-			'err'
-		),
-		testCase(outdent`
+		{
+			code: outdent`
+				const handleError = err => {
+					obj.catch(err_ => { });
+				}
+			`,
+			options: [{name: 'err'}]
+		},
+		outdent`
 			const handleError = error => {
 				const error_ = new Error('foo bar');
 
 				obj.catch(error__ => { });
 			}
-		`),
-		testCase(outdent`
+		`,
+		outdent`
 			const handleError = error => {
 				const error_ = new Error('foo bar');
 				const error__ = new Error('foo bar');
@@ -92,30 +100,32 @@ ruleTester.run('catch-error-name', rule, {
 
 				obj.catch(error__________ => { });
 			}
-		`),
-		testCase('obj.catch(() => {})'),
-		testCase('obj.catch((_) => {})'),
-		testCase('obj.catch((_) => { console.log(foo); })'),
-		testCase('obj.catch(err => {})', 'err'),
-		testCase(
-			'obj.catch(outerError => { return obj2.catch(innerError => {}) })'
-		),
-		testCase('obj.catch(function (error) {})'),
-		testCase('obj.catch(function () {})'),
-		testCase('obj.catch(function (err) {})', 'err'),
-		testCase(
-			'obj.catch(function (outerError) { return obj2.catch(function (innerError) {}) })'
-		),
-		testCase('obj.catch()'),
-		testCase('obj.catch(_ => { console.log(_); })'),
-		testCase('obj.catch(function (_) { console.log(_); })'),
-		testCase('foo(function (error) {})'),
-		testCase('foo().then(function (error) {})'),
-		testCase('foo().catch(function (error) {})'),
-		testCase('try {} catch (_) {}'),
-		testCase('try {} catch (_) { try {} catch (_) {} }'),
-		testCase('try {} catch (_) { console.log(_); }'),
-		testCase(outdent`
+		`,
+		'obj.catch(() => {})',
+		'obj.catch((_) => {})',
+		'obj.catch((_) => { console.log(foo); })',
+		{
+			code: 'obj.catch(err => {})',
+			options: [{name: 'err'}]
+		},
+		'obj.catch(outerError => { return obj2.catch(innerError => {}) })',
+		'obj.catch(function (error) {})',
+		'obj.catch(function () {})',
+		{
+			code: 'obj.catch(function (err) {})',
+			options: [{name: 'err'}]
+		},
+		'obj.catch(function (outerError) { return obj2.catch(function (innerError) {}) })',
+		'obj.catch()',
+		'obj.catch(_ => { console.log(_); })',
+		'obj.catch(function (_) { console.log(_); })',
+		'foo(function (error) {})',
+		'foo().then(function (error) {})',
+		'foo().catch(function (error) {})',
+		'try {} catch (_) {}',
+		'try {} catch (_) { try {} catch (_) {} }',
+		'try {} catch (_) { console.log(_); }',
+		outdent`
 				const handleError = error => {
 					try {
 						doSomething();
@@ -123,8 +133,8 @@ ruleTester.run('catch-error-name', rule, {
 						console.log(_);
 					}
 				}
-		`),
-		testCase('obj.catch(_ => {})'),
+		`,
+		'obj.catch(_ => {})',
 		{
 			code: 'try {} catch (skipErr) {}',
 			options: [
@@ -133,31 +143,28 @@ ruleTester.run('catch-error-name', rule, {
 				}
 			]
 		},
-		testCase(outdent`
+		outdent`
 			try {
 				throw new Error('message');
 			} catch {
 				console.log('failed');
 			}
-		`),
-		testCase('try {} catch (descriptiveError) {}'),
-		testCase('try {} catch (descriptiveerror) {}')
+		`,
+		'try {} catch (descriptiveError) {}',
+		'try {} catch (descriptiveerror) {}'
 	],
 
 	invalid: [
-		testCase(
-			'try {} catch (err) { console.log(err) }',
-			null,
-			true,
-			'try {} catch (error) { console.log(error) }'
-		),
-		testCase(
-			'try {} catch (error) { console.log(error) }',
-			'err',
-			true,
-			'try {} catch (err) { console.log(err) }'
-		),
-		testCase('try {} catch ({message}) {}', null, true),
+		invalidTestCase({
+			code: 'try {} catch (err) { console.log(err) }',
+			output: 'try {} catch (error) { console.log(error) }'
+		}),
+		invalidTestCase({
+			code: 'try {} catch (error) { console.log(error) }',
+			output: 'try {} catch (err) { console.log(err) }',
+			name: 'err'
+		}),
+		invalidTestCase('try {} catch ({message}) {}'),
 		{
 			code: 'try {} catch (outerError) {}',
 			output: 'try {} catch (error) {}',
@@ -188,38 +195,38 @@ ruleTester.run('catch-error-name', rule, {
 				}
 			]
 		},
-		testCase('obj.catch(err => err)', null, true, 'obj.catch(error => error)'),
-		testCase(
-			'obj.catch(error => error.stack)',
-			'err',
-			true,
-			'obj.catch(err => err.stack)'
-		),
-		testCase('obj.catch(({message}) => {})', null, true),
-		testCase(
-			'obj.catch(function (err) { console.log(err) })',
-			null,
-			true,
-			'obj.catch(function (error) { console.log(error) })'
-		),
-		testCase('obj.catch(function ({message}) {})', null, true),
-		testCase(
+		invalidTestCase({
+			code: 'obj.catch(err => err)',
+			output: 'obj.catch(error => error)'
+		}),
+		invalidTestCase({
+			code: 'obj.catch(error => error.stack)',
+			output: 'obj.catch(err => err.stack)',
+			name: 'err'
+		}),
+		invalidTestCase('obj.catch(({message}) => {})'),
+		invalidTestCase({
+			code: 'obj.catch(function (err) { console.log(err) })',
+			output: 'obj.catch(function (error) { console.log(error) })'
+		}),
+		invalidTestCase('obj.catch(function ({message}) {})'),
+		invalidTestCase({
+			code:
 			'obj.catch(function (error) { console.log(error) })',
-			'err',
-			true,
-			'obj.catch(function (err) { console.log(err) })'
-		),
+			output: 'obj.catch(function (err) { console.log(err) })',
+			name: 'err'
+		}),
 		// Failing tests for #107
-		// testCase(outdent`
+		// invalidTestCase(outdent`
 		// 	foo.then(() => {
 		// 		try {} catch (e) {}
 		// 	}).catch(error => error);
-		// `, null, true),
-		// testCase(outdent`
+		// `),
+		// invalidTestCase(outdent`
 		// 	foo.then(() => {
 		// 		try {} catch (e) {}
 		// 	});
-		// `, null, true),
+		// `),
 		{
 			code: outdent`
 				const handleError = error => {
