@@ -6,7 +6,9 @@ const {defaultsDeep, upperFirst, lowerFirst} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
-const isSameNode = require('./utils/is-same-node');
+const isShorthandPropertyIdentifier = require('./utils/is-shorthand-property-identifier');
+const isShorthandImportIdentifier = require('./utils/is-shorthand-import-identifier');
+const renameIdentifier = require('./utils/rename-identifier');
 
 const isUpperCase = string => string === string.toUpperCase();
 const isUpperFirst = string => isUpperCase(string[0]);
@@ -398,65 +400,6 @@ const shouldFix = variable => {
 	return !variableIdentifiers(variable).some(isExportedIdentifier);
 };
 
-const isShorthandPropertyIdentifier = identifier => {
-	return (
-		identifier.parent.type === 'Property' &&
-		identifier.parent.shorthand &&
-		isSameNode(identifier, identifier.parent.key)
-	);
-};
-
-const isAssignmentPatternShorthandPropertyIdentifier = identifier => {
-	return (
-		identifier.parent.type === 'AssignmentPattern' &&
-		identifier.parent.left === identifier &&
-		identifier.parent.parent.type === 'Property' &&
-		isSameNode(identifier, identifier.parent.parent.key) &&
-		identifier.parent.parent.value === identifier.parent &&
-		identifier.parent.parent.shorthand
-	);
-};
-
-const isShorthandImportIdentifier = identifier => {
-	return (
-		identifier.parent.type === 'ImportSpecifier' &&
-		identifier.parent.imported.name === identifier.name &&
-		identifier.parent.local.name === identifier.name
-	);
-};
-
-const isShorthandExportIdentifier = identifier => {
-	return (
-		identifier.parent.type === 'ExportSpecifier' &&
-		identifier.parent.exported.name === identifier.name &&
-		identifier.parent.local.name === identifier.name
-	);
-};
-
-const fixIdentifier = (fixer, replacement, sourceCode) => identifier => {
-	if (
-		isShorthandPropertyIdentifier(identifier) ||
-		isAssignmentPatternShorthandPropertyIdentifier(identifier)
-	) {
-		return fixer.replaceText(identifier, `${identifier.name}: ${replacement}`);
-	}
-
-	if (isShorthandImportIdentifier(identifier)) {
-		return fixer.replaceText(identifier, `${identifier.name} as ${replacement}`);
-	}
-
-	if (isShorthandExportIdentifier(identifier)) {
-		return fixer.replaceText(identifier, `${replacement} as ${identifier.name}`);
-	}
-
-	// `TypeParameter` default value
-	if (identifier.default) {
-		return fixer.replaceText(identifier, `${replacement} = ${sourceCode.getText(identifier.default)}`);
-	}
-
-	return fixer.replaceText(identifier, replacement);
-};
-
 const isDefaultOrNamespaceImportName = identifier => {
 	if (
 		identifier.parent.type === 'ImportDefaultSpecifier' &&
@@ -689,7 +632,7 @@ const create = context => {
 
 			problem.fix = fixer => {
 				return variableIdentifiers(variable)
-					.map(fixIdentifier(fixer, replacement, sourceCode));
+					.map(identifier => renameIdentifier(identifier, replacement, fixer, sourceCode));
 			};
 		}
 
