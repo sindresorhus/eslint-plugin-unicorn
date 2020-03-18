@@ -13,6 +13,17 @@ const selector = [
 	'[arguments.0.type!="ObjectExpression"]'
 ].join('');
 
+// https://github.com/eslint/espree/blob/6b7d0b8100537dcd5c84a7fb17bbe28edcabe05d/lib/token-translator.js#L20
+const tokenTypesCantFollowOpenBracket = new Set([
+	'String',
+	'Null',
+	'Boolean',
+	'Numeric',
+	'Template',
+	'RegularExpression',
+	'Identifier'
+]);
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const getSource = node => sourceCode.getText(node);
@@ -30,6 +41,10 @@ const create = context => {
 				if (value === ']' || value === ')') {
 					return true;
 				}
+			}
+
+			if (tokenTypesCantFollowOpenBracket.has(type)) {
+				return true;
 			}
 
 			const lastBlockNode = sourceCode.getNodeByRangeIndex(tokenBefore.range[0]);

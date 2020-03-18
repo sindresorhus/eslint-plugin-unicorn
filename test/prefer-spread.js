@@ -124,6 +124,8 @@ ruleTester.run('prefer-spread', rule, {
 			],
 			output: '[...document.querySelectorAll("*")].map(() => {});'
 		},
+
+		// Semicolon
 		// #254
 		{
 			code: `
@@ -140,6 +142,130 @@ ruleTester.run('prefer-spread', rule, {
 				;[...arrayLike].forEach(doSomething)
 			`
 		},
+		{
+			code: `
+				const foo = "1"
+				Array.from(arrayLike).forEach(doSomething)
+			`,
+			errors: [{}],
+			output: `
+				const foo = "1"
+				;[...arrayLike].forEach(doSomething)
+			`
+		},
+		{
+			code: `
+				const foo = null
+				Array.from(arrayLike).forEach(doSomething)
+			`,
+			errors: [{}],
+			output: `
+				const foo = null
+				;[...arrayLike].forEach(doSomething)
+			`
+		},
+		{
+			code: `
+				const foo = true
+				Array.from(arrayLike).forEach(doSomething)
+			`,
+			errors: [{}],
+			output: `
+				const foo = true
+				;[...arrayLike].forEach(doSomething)
+			`
+		},
+		{
+			code: `
+				const foo = 1
+				Array.from(arrayLike).forEach(doSomething)
+			`,
+			errors: [{}],
+			output: `
+				const foo = 1
+				;[...arrayLike].forEach(doSomething)
+			`
+		},
+		{
+			code: `
+				const foo = /./
+				Array.from(arrayLike).forEach(doSomething)
+			`,
+			errors: [{}],
+			output: `
+				const foo = /./
+				;[...arrayLike].forEach(doSomething)
+			`
+		},
+		{
+			code: `
+				const foo = /./g
+				Array.from(arrayLike).forEach(doSomething)
+			`,
+			errors: [{}],
+			output: `
+				const foo = /./g
+				;[...arrayLike].forEach(doSomething)
+			`
+		},
+		{
+			code: `
+				const foo = bar
+				Array.from(arrayLike).forEach(doSomething)
+			`,
+			errors: [{}],
+			output: `
+				const foo = bar
+				;[...arrayLike].forEach(doSomething)
+			`
+		},
+		{
+			code: `
+				const foo = bar.baz
+				Array.from(arrayLike).forEach(doSomething)
+			`,
+			errors: [{}],
+			output: `
+				const foo = bar.baz
+				;[...arrayLike].forEach(doSomething)
+			`
+		},
+		{
+			code: `
+				function* foo() {
+					yield Array.from(arrayLike).forEach(doSomething)
+				}
+			`,
+			errors: [{}],
+			output: `
+				function* foo() {
+					yield [...arrayLike].forEach(doSomething)
+				}
+			`
+		},
+		{
+			code: `
+				const foo = \`bar\`
+				Array.from(arrayLike).forEach(doSomething)
+			`,
+			errors: [{}],
+			output: `
+				const foo = \`bar\`
+				;[...arrayLike].forEach(doSomething)
+			`
+		},
+		{
+			code: `
+				const foo = [];
+				Array.from(arrayLike).forEach(doSomething)
+			`,
+			errors: [{}],
+			output: `
+				const foo = [];
+				[...arrayLike].forEach(doSomething)
+			`
+		},
+
 		// https://github.com/gatsbyjs/gatsby/blob/e720d8efe58eba0f6fae9f26ec8879128967d0b5/packages/gatsby/src/bootstrap/page-hot-reloader.js#L30
 		{
 			code: `
