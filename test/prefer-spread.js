@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/prefer-spread';
 
 const ruleTester = avaRuleTester(test, {
@@ -128,7 +129,7 @@ ruleTester.run('prefer-spread', rule, {
 		// Semicolon
 		// #254
 		{
-			code: `
+			code: outdent`
 				const foo = []
 				Array.from(arrayLike).forEach(doSomething)
 			`,
@@ -137,130 +138,130 @@ ruleTester.run('prefer-spread', rule, {
 					message: 'Prefer the spread operator over `Array.from()`.'
 				}
 			],
-			output: `
+			output: outdent`
 				const foo = []
 				;[...arrayLike].forEach(doSomething)
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				const foo = "1"
 				Array.from(arrayLike).forEach(doSomething)
 			`,
 			errors: [{}],
-			output: `
+			output: outdent`
 				const foo = "1"
 				;[...arrayLike].forEach(doSomething)
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				const foo = null
 				Array.from(arrayLike).forEach(doSomething)
 			`,
 			errors: [{}],
-			output: `
+			output: outdent`
 				const foo = null
 				;[...arrayLike].forEach(doSomething)
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				const foo = true
 				Array.from(arrayLike).forEach(doSomething)
 			`,
 			errors: [{}],
-			output: `
+			output: outdent`
 				const foo = true
 				;[...arrayLike].forEach(doSomething)
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				const foo = 1
 				Array.from(arrayLike).forEach(doSomething)
 			`,
 			errors: [{}],
-			output: `
+			output: outdent`
 				const foo = 1
 				;[...arrayLike].forEach(doSomething)
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				const foo = /./
 				Array.from(arrayLike).forEach(doSomething)
 			`,
 			errors: [{}],
-			output: `
+			output: outdent`
 				const foo = /./
 				;[...arrayLike].forEach(doSomething)
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				const foo = /./g
 				Array.from(arrayLike).forEach(doSomething)
 			`,
 			errors: [{}],
-			output: `
+			output: outdent`
 				const foo = /./g
 				;[...arrayLike].forEach(doSomething)
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				const foo = bar
 				Array.from(arrayLike).forEach(doSomething)
 			`,
 			errors: [{}],
-			output: `
+			output: outdent`
 				const foo = bar
 				;[...arrayLike].forEach(doSomething)
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				const foo = bar.baz
 				Array.from(arrayLike).forEach(doSomething)
 			`,
 			errors: [{}],
-			output: `
+			output: outdent`
 				const foo = bar.baz
 				;[...arrayLike].forEach(doSomething)
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				function* foo() {
 					yield Array.from(arrayLike).forEach(doSomething)
 				}
 			`,
 			errors: [{}],
-			output: `
+			output: outdent`
 				function* foo() {
 					yield [...arrayLike].forEach(doSomething)
 				}
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				const foo = \`bar\`
 				Array.from(arrayLike).forEach(doSomething)
 			`,
 			errors: [{}],
-			output: `
+			output: outdent`
 				const foo = \`bar\`
 				;[...arrayLike].forEach(doSomething)
 			`
 		},
 		{
-			code: `
+			code: outdent`
 				const foo = [];
 				Array.from(arrayLike).forEach(doSomething)
 			`,
 			errors: [{}],
-			output: `
+			output: outdent`
 				const foo = [];
 				[...arrayLike].forEach(doSomething)
 			`
@@ -268,24 +269,24 @@ ruleTester.run('prefer-spread', rule, {
 		// https://github.com/angular/angular/blob/9e70bcb34f91d439f5203dc22a44f323d02c4648/packages/benchpress/src/webdriver/selenium_webdriver_adapter.ts#L37
 		// TokenType of `of` is `Identifier`
 		{
-			code: `
+			code: outdent`
 				for (const key of Array.from(arrayLike)) {
 				}
 			`,
 			errors: [{}],
-			output: `
+			output: outdent`
 				for (const key of [...arrayLike]) {
 				}
 			`
 		},
 		// TokenType of `in` is `Keyword`
 		{
-			code: `
+			code: outdent`
 				for (const key in Array.from(arrayLike)) {
 				}
 			`,
 			errors: [{}],
-			output: `
+			output: outdent`
 				for (const key in [...arrayLike]) {
 				}
 			`
@@ -300,13 +301,13 @@ ruleTester.run('prefer-spread', rule, {
 		},
 		// https://github.com/angular/angular/blob/9e70bcb34f91d439f5203dc22a44f323d02c4648/packages/service-worker/worker/testing/cache.ts#L48
 		{
-			code: `
+			code: outdent`
 				async function foo(){
 					return await Array.from(arrayLike)
 				}
 			`,
 			errors: [{}],
-			output: `
+			output: outdent`
 				async function foo(){
 					return await [...arrayLike]
 				}
@@ -315,7 +316,7 @@ ruleTester.run('prefer-spread', rule, {
 
 		// https://github.com/gatsbyjs/gatsby/blob/e720d8efe58eba0f6fae9f26ec8879128967d0b5/packages/gatsby/src/bootstrap/page-hot-reloader.js#L30
 		{
-			code: `
+			code: outdent`
 				foo()
 				Array.from(arrayLike).forEach(doSomething)
 			`,
@@ -324,14 +325,14 @@ ruleTester.run('prefer-spread', rule, {
 					message: 'Prefer the spread operator over `Array.from()`.'
 				}
 			],
-			output: `
+			output: outdent`
 				foo()
 				;[...arrayLike].forEach(doSomething)
 			`
 		},
 		// https://github.com/gatsbyjs/gatsby/blob/4ab3f194cf5d6dcafcb2a75d9604aac79d963554/packages/gatsby/src/redux/__tests__/nodes.js#L277
 		{
-			code: `
+			code: outdent`
 				const foo = {}
 				Array.from(arrayLike).forEach(doSomething)
 			`,
@@ -340,7 +341,7 @@ ruleTester.run('prefer-spread', rule, {
 					message: 'Prefer the spread operator over `Array.from()`.'
 				}
 			],
-			output: `
+			output: outdent`
 				const foo = {}
 				;[...arrayLike].forEach(doSomething)
 			`
