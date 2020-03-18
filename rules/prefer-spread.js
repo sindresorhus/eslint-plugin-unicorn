@@ -19,9 +19,7 @@ const tokenTypesCantFollowOpenBracket = new Set([
 	'Null',
 	'Boolean',
 	'Numeric',
-	'Template',
-	'RegularExpression',
-	'Identifier'
+	'RegularExpression'
 ]);
 
 const create = context => {
@@ -47,9 +45,18 @@ const create = context => {
 				return true;
 			}
 
+			if (type === 'Template') {
+				return value.endsWith('`');
+			}
+
 			const lastBlockNode = sourceCode.getNodeByRangeIndex(tokenBefore.range[0]);
 			if (lastBlockNode && lastBlockNode.type === 'ObjectExpression') {
 				return true;
+			}
+
+			// `for...of`
+			if (type === 'Identifier') {
+				return !(value === 'of' && lastBlockNode && lastBlockNode.type === 'ForOfStatement');
 			}
 		}
 

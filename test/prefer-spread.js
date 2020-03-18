@@ -265,6 +265,39 @@ ruleTester.run('prefer-spread', rule, {
 				[...arrayLike].forEach(doSomething)
 			`
 		},
+		// https://github.com/angular/angular/blob/9e70bcb34f91d439f5203dc22a44f323d02c4648/packages/benchpress/src/webdriver/selenium_webdriver_adapter.ts#L37
+		// TokenType of `of` is `Identifier`
+		{
+			code: `
+				for (const key of Array.from(arrayLike)) {
+				}
+			`,
+			errors: [{}],
+			output: `
+				for (const key of [...arrayLike]) {
+				}
+			`
+		},
+		// TokenType of `in` is `Keyword`
+		{
+			code: `
+				for (const key in Array.from(arrayLike)) {
+				}
+			`,
+			errors: [{}],
+			output: `
+				for (const key in [...arrayLike]) {
+				}
+			`
+		},
+		// https://github.com/facebook/relay/blob/c7dd4cc33eb2dba82629884bff865f0905fc269e/packages/relay-compiler/transforms/ValidateUnusedVariablesTransform.js#L57
+		{
+			// eslint-disable-next-line no-template-curly-in-string
+			code: 'const foo = `${Array.from(arrayLike)}`',
+			errors: [{}],
+			// eslint-disable-next-line no-template-curly-in-string
+			output: 'const foo = `${[...arrayLike]}`'
+		},
 
 		// https://github.com/gatsbyjs/gatsby/blob/e720d8efe58eba0f6fae9f26ec8879128967d0b5/packages/gatsby/src/bootstrap/page-hot-reloader.js#L30
 		{
