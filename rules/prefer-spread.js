@@ -54,9 +54,18 @@ const create = context => {
 				return true;
 			}
 
-			// `for...of`
 			if (type === 'Identifier') {
-				return !(value === 'of' && lastBlockNode && lastBlockNode.type === 'ForOfStatement');
+				// `for...of`
+				if (value === 'of' && lastBlockNode && lastBlockNode.type === 'ForOfStatement') {
+					return false;
+				}
+
+				// `await`
+				if (value === 'await' && lastBlockNode && lastBlockNode.type === 'AwaitExpression') {
+					return false;
+				}
+
+				return true;
 			}
 		}
 

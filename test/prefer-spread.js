@@ -3,8 +3,8 @@ import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/prefer-spread';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
+	parserOptions: {
+		ecmaVersion: 2020
 	}
 });
 
@@ -297,6 +297,20 @@ ruleTester.run('prefer-spread', rule, {
 			errors: [{}],
 			// eslint-disable-next-line no-template-curly-in-string
 			output: 'const foo = `${[...arrayLike]}`'
+		},
+		// https://github.com/angular/angular/blob/9e70bcb34f91d439f5203dc22a44f323d02c4648/packages/service-worker/worker/testing/cache.ts#L48
+		{
+			code: `
+				async function foo(){
+					return await Array.from(arrayLike)
+				}
+			`,
+			errors: [{}],
+			output: `
+				async function foo(){
+					return await [...arrayLike]
+				}
+			`
 		},
 
 		// https://github.com/gatsbyjs/gatsby/blob/e720d8efe58eba0f6fae9f26ec8879128967d0b5/packages/gatsby/src/bootstrap/page-hot-reloader.js#L30
