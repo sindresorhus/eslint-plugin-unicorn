@@ -29,44 +29,46 @@ const create = context => {
 	const needsSemicolon = node => {
 		const tokenBefore = sourceCode.getTokenBefore(node);
 
-		if (tokenBefore) {
-			const {type, value} = tokenBefore;
-			if (type === 'Punctuator') {
-				if (value === ';') {
-					return false;
-				}
+		if (!tokenBefore) {
+			return false;
+		}
 
-				if (value === ']' || value === ')') {
-					return true;
-				}
+		const {type, value} = tokenBefore;
+		if (type === 'Punctuator') {
+			if (value === ';') {
+				return false;
 			}
 
-			if (tokenTypesCantFollowOpenBracket.has(type)) {
+			if (value === ']' || value === ')') {
 				return true;
 			}
+		}
 
-			if (type === 'Template') {
-				return value.endsWith('`');
+		if (tokenTypesCantFollowOpenBracket.has(type)) {
+			return true;
+		}
+
+		if (type === 'Template') {
+			return value.endsWith('`');
+		}
+
+		const lastBlockNode = sourceCode.getNodeByRangeIndex(tokenBefore.range[0]);
+		if (lastBlockNode && lastBlockNode.type === 'ObjectExpression') {
+			return true;
+		}
+
+		if (type === 'Identifier') {
+			// `for...of`
+			if (value === 'of' && lastBlockNode && lastBlockNode.type === 'ForOfStatement') {
+				return false;
 			}
 
-			const lastBlockNode = sourceCode.getNodeByRangeIndex(tokenBefore.range[0]);
-			if (lastBlockNode && lastBlockNode.type === 'ObjectExpression') {
-				return true;
+			// `await`
+			if (value === 'await' && lastBlockNode && lastBlockNode.type === 'AwaitExpression') {
+				return false;
 			}
 
-			if (type === 'Identifier') {
-				// `for...of`
-				if (value === 'of' && lastBlockNode && lastBlockNode.type === 'ForOfStatement') {
-					return false;
-				}
-
-				// `await`
-				if (value === 'await' && lastBlockNode && lastBlockNode.type === 'AwaitExpression') {
-					return false;
-				}
-
-				return true;
-			}
+			return true;
 		}
 
 		return false;
