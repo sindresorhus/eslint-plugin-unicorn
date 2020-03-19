@@ -95,9 +95,16 @@ const isReactHook = scope =>
 	scope.block.parent.callee.type === 'Identifier' &&
 	reactHooks.has(scope.block.parent.callee.name);
 
+const isArrowFunctionWithThis = scope =>
+	scope.type === 'function' &&
+	scope.block &&
+	scope.block.type === 'ArrowFunctionExpression' &&
+	(scope.thisFound || scope.childScopes.some(scope => isArrowFunctionWithThis(scope)));
+
 function checkNode(node, scopeManager) {
 	const scope = scopeManager.acquire(node);
-	if (!scope) {
+
+	if (!scope || isArrowFunctionWithThis(scope)) {
 		return true;
 	}
 
