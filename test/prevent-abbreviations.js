@@ -29,6 +29,10 @@ const babelRuleTester = avaRuleTester(test, {
 	parser: require.resolve('babel-eslint')
 });
 
+const typescriptRuleTester = avaRuleTester(test, {
+	parser: require.resolve('@typescript-eslint/parser')
+});
+
 const noFixingTestCase = test => ({...test, output: test.code});
 
 const createErrors = message => {
@@ -316,6 +320,27 @@ ruleTester.run('prevent-abbreviations', rule, {
 			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResponseDirection`, `errorResponseDirectory`, `errorResultDirection`, ... (5 more omitted). A more descriptive name will do too.')
 		}),
+
+		// All suggested names should avoid capture
+		{
+			code: outdent`
+				const a = 1;
+				const var_ = 1;
+				const used = 1;
+			`,
+			options: [
+				{
+					replacements: {
+						a: {
+							var: true,
+							const: true,
+							used: true
+						}
+					}
+				}
+			],
+			errors: createErrors('Please rename the variable `a`. Suggested names are: `const_`, `used_`, `var__`. A more descriptive name will do too.')
+		},
 
 		{
 			code: 'let err',
@@ -1064,7 +1089,94 @@ ruleTester.run('prevent-abbreviations', rule, {
 			`,
 			output: outdent`
 				function unicorn(unicorn) {
-					const {prop: property = {}} = unicorn;
+					const {prop: property_ = {}} = unicorn;
+					return property;
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: outdent`
+				const property = '';
+				function unicorn() {
+					const prop = 1;
+					return property;
+				}
+			`,
+			output: outdent`
+				const property = '';
+				function unicorn() {
+					const property_ = 1;
+					return property;
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					const prop = 1;
+					return function () {
+						return property;
+					};
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					const property_ = 1;
+					return function () {
+						return property;
+					};
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: outdent`
+				let property;
+				function unicorn() {
+					const prop = 1;
+					return property;
+				}
+			`,
+			output: outdent`
+				let property;
+				function unicorn() {
+					const property_ = 1;
+					return property;
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: outdent`
+				/*global property:true*/
+				function unicorn() {
+					const prop = 1;
+					return property;
+				}
+			`,
+			output: outdent`
+				/*global property:true*/
+				function unicorn() {
+					const property_ = 1;
+					return property;
+				}
+			`,
+			errors: createErrors()
+		},
+		{
+			code: outdent`
+				/*global property:false*/
+				function unicorn() {
+					const prop = 1;
+					return property;
+				}
+			`,
+			output: outdent`
+				/*global property:false*/
+				function unicorn() {
+					const property_ = 1;
 					return property;
 				}
 			`,
@@ -1491,7 +1603,7 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 			`,
 			output: outdent`
 				function unicorn(unicorn) {
-					const {prop: property = {}} = unicorn;
+					const {prop: property_ = {}} = unicorn;
 					return property;
 				}
 			`,
@@ -1533,6 +1645,42 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 
+		// #347
+		{
+			code: outdent`
+				function onKeyDown(e: KeyboardEvent) {
+					if (e.keyCode) {}
+				}
+			`,
+			output: outdent`
+				function onKeyDown(event: KeyboardEvent) {
+					if (event.keyCode) {}
+				}
+			`,
+			options: [
+				{
+					extendDefaultReplacements: false,
+					replacements: {
+						e: {
+							event: true
+						}
+					}
+				}
+			],
+			errors: createErrors()
+		},
+
+		// https://github.com/facebook/relay/blob/597d2a17aa29d401830407b6814a5f8d148f632d/packages/relay-experimental/EntryPointTypes.flow.js#L138
+		{
+			code: outdent`
+				export type PreloadProps<TExtraProps = null> = {}
+			`,
+			output: outdent`
+				export type PreloadProperties<TExtraProperties = null> = {}
+			`,
+			errors: [...createErrors(), ...createErrors()]
+		},
+
 		noFixingTestCase({
 			code: '(class {e = 1})',
 			options: checkPropertiesOptions,
@@ -1552,5 +1700,24 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 			options: checkPropertiesOptions,
 			errors: createErrors()
 		})
+	]
+});
+
+typescriptRuleTester.run('prevent-abbreviations', rule, {
+	valid: [],
+	invalid: [
+		// Types
+		...[
+			'declare const prop: string;',
+			'declare const prop: string;',
+			'declare var prop: number;',
+			'declare let prop: any;',
+			'declare class prop {}',
+			'const prop: SomeThing<boolean> = func();'
+		].map(code => ({
+			code,
+			output: code.replace('prop', 'property'),
+			errors: createErrors()
+		}))
 	]
 });
