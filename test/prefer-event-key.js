@@ -176,6 +176,20 @@ ruleTester.run('prefer-event-key', rule, {
 			`,
 			errors: [error('keyCode')]
 		},
+		// Make sure `\n` is escaped
+		{
+			code: outdent`
+				foo.addEventListener('click', event => {
+					if (event.keyCode === 10) {}
+				});
+			`,
+			output: outdent`
+				foo.addEventListener('click', event => {
+					if (event.key === '\\n') {}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
 		{
 			code: outdent`
 				foo.addEventListener('click', a => {
