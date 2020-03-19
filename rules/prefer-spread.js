@@ -13,6 +13,15 @@ const selector = [
 	'[arguments.0.type!="ObjectExpression"]'
 ].join('');
 
+// https://github.com/eslint/espree/blob/6b7d0b8100537dcd5c84a7fb17bbe28edcabe05d/lib/token-translator.js#L20
+const tokenTypesCantFollowOpenBracket = new Set([
+	'String',
+	'Null',
+	'Boolean',
+	'Numeric',
+	'RegularExpression'
+]);
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const getSource = node => sourceCode.getText(node);
@@ -20,22 +29,46 @@ const create = context => {
 	const needsSemicolon = node => {
 		const tokenBefore = sourceCode.getTokenBefore(node);
 
-		if (tokenBefore) {
-			const {type, value} = tokenBefore;
-			if (type === 'Punctuator') {
-				if (value === ';') {
-					return false;
-				}
+		if (!tokenBefore) {
+			return false;
+		}
 
-				if (value === ']' || value === ')') {
-					return true;
-				}
+		const {type, value} = tokenBefore;
+		if (type === 'Punctuator') {
+			if (value === ';') {
+				return false;
 			}
 
-			const lastBlockNode = sourceCode.getNodeByRangeIndex(tokenBefore.range[0]);
-			if (lastBlockNode && lastBlockNode.type === 'ObjectExpression') {
+			if (value === ']' || value === ')') {
 				return true;
 			}
+		}
+
+		if (tokenTypesCantFollowOpenBracket.has(type)) {
+			return true;
+		}
+
+		if (type === 'Template') {
+			return value.endsWith('`');
+		}
+
+		const lastBlockNode = sourceCode.getNodeByRangeIndex(tokenBefore.range[0]);
+		if (lastBlockNode && lastBlockNode.type === 'ObjectExpression') {
+			return true;
+		}
+
+		if (type === 'Identifier') {
+			// `for...of`
+			if (value === 'of' && lastBlockNode && lastBlockNode.type === 'ForOfStatement') {
+				return false;
+			}
+
+			// `await`
+			if (value === 'await' && lastBlockNode && lastBlockNode.type === 'AwaitExpression') {
+				return false;
+			}
+
+			return true;
 		}
 
 		return false;
