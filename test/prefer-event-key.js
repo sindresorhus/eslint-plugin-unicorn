@@ -192,6 +192,19 @@ ruleTester.run('prefer-event-key', rule, {
 		},
 		{
 			code: outdent`
+				foo.addEventListener('click', event => {
+					if (!event.keyCode) {}
+				});
+			`,
+			output: outdent`
+				foo.addEventListener('click', event => {
+					if (!event.keyCode) {}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: outdent`
 				foo.addEventListener('click', a => {
 					if (a.keyCode === 27) {
 					}
