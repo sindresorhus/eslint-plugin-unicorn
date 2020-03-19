@@ -25,11 +25,11 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - run: npm install
       - run: npm run test
-      - run: ./node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls
+      - uses: codecov/codecov-action@v1
         if: matrix.os == 'ubuntu-latest' && matrix.node_version == 12
-        env:
-          COVERALLS_REPO_TOKEN: "${{ secrets.COVERALLS_REPO_TOKEN }}"
-          COVERALLS_GIT_BRANCH: "${{ github.ref }}"
+        with:
+          file: ./coverage/lcov.info
+          fail_ci_if_error: true
 
   lint:
     runs-on: ubuntu-latest
