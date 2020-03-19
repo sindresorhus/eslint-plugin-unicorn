@@ -140,6 +140,16 @@ ruleTester.run('prefer-event-key', rule, {
 		},
 		{
 			code: outdent`
+				window.addEventListener('click', ({which, another}) => {
+					if (which === 23) {
+						console.log('Wrong!')
+					}
+				})
+			`,
+			errors: [error('which')]
+		},
+		{
+			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 27) {
 					}
@@ -149,6 +159,46 @@ ruleTester.run('prefer-event-key', rule, {
 				foo123.addEventListener('click', event => {
 					if (event.key === 'Escape') {
 					}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: outdent`
+				foo.addEventListener('click', event => {
+					if (event.keyCode === 65) {}
+				});
+			`,
+			output: outdent`
+				foo.addEventListener('click', event => {
+					if (event.key === 'A') {}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		// Make sure `\n` is escaped
+		{
+			code: outdent`
+				foo.addEventListener('click', event => {
+					if (event.keyCode === 10) {}
+				});
+			`,
+			output: outdent`
+				foo.addEventListener('click', event => {
+					if (event.key === '\\n') {}
+				});
+			`,
+			errors: [error('keyCode')]
+		},
+		{
+			code: outdent`
+				foo.addEventListener('click', event => {
+					if (!event.keyCode) {}
+				});
+			`,
+			output: outdent`
+				foo.addEventListener('click', event => {
+					if (!event.keyCode) {}
 				});
 			`,
 			errors: [error('keyCode')]
