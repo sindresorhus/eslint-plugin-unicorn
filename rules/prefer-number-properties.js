@@ -1,6 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isShadowed = require('./utils/is-shadowed');
+const renameIdentifier = require('./utils/rename-identifier');
 
 const methodMessageId = 'method';
 const propertyMessageId = 'property';
@@ -22,15 +23,15 @@ const methodsSelector = [
 ].join('');
 
 const propertiesSelector = [
-	':not(MemberExpression)',
+	`:not(MemberExpression)`,
 	'>',
 	'Identifier',
 	'[name="NaN"]'
 ].join('');
 
-const replaceProperty = (fixer, node) => fixer.insertTextBefore(node, 'Number.');
-
 const create = context => {
+	const sourceCode = context.getSourceCode();
+
 	return {
 		[methodsSelector]: node => {
 			if (isShadowed(context.getScope(), node)) {
@@ -48,7 +49,7 @@ const create = context => {
 				}
 			};
 
-			const fix = fixer => replaceProperty(fixer, node);
+			const fix = fixer => renameIdentifier(node, `Number.${name}`, fixer, sourceCode);
 
 			if (isSafe) {
 				problem.fix = fix;
@@ -63,6 +64,10 @@ const create = context => {
 				return;
 			}
 
+			if (node.parent && node.parent.type === 'Property' && !node.parent.shorthand && node.parent.key === node) {
+					return;
+			}
+
 			const {name} = node;
 			context.report({
 				node,
@@ -70,7 +75,7 @@ const create = context => {
 				data: {
 					name
 				},
-				fix: fixer => replaceProperty(fixer, node)
+				fix: fixer => renameIdentifier(node, `Number.${name}`, fixer, sourceCode)
 			});
 		}
 	};

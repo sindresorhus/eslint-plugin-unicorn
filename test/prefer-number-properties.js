@@ -164,6 +164,7 @@ const errorNaN = [
 ruleTester.run('prefer-node-remove', rule, {
 	valid: [
 		'const foo = Number.NaN;',
+		'const foo = window.Number.NaN;',
 		'const foo = bar.NaN;',
 		// Shadowed
 		outdent`
@@ -171,7 +172,8 @@ ruleTester.run('prefer-node-remove', rule, {
 				const NaN = 2
 				return NaN
 			}
-		`
+		`,
+		'const {NaN} = {};'
 	],
 	invalid: [
 		{
@@ -187,6 +189,22 @@ ruleTester.run('prefer-node-remove', rule, {
 		{
 			code: 'if (Object.is(foo, NaN)) {}',
 			output: 'if (Object.is(foo, Number.NaN)) {}',
+			errors: errorNaN
+		},
+		{
+			code: 'const foo = {NaN};',
+			output: 'const foo = {NaN: Number.NaN};',
+			// TODO: should be one error
+			errors: [...errorNaN, ...errorNaN]
+		},
+		{
+			code: 'const foo = {NaN: NaN};',
+			output: 'const foo = {NaN: Number.NaN};',
+			errors: errorNaN
+		},
+		{
+			code: 'const {foo = NaN} = {};',
+			output: 'const {foo = Number.NaN} = {};',
 			errors: errorNaN
 		}
 	]
