@@ -6,8 +6,10 @@ const methodMessageId = 'method';
 const propertyMessageId = 'property';
 
 const methods = {
+	// Safe
 	parseInt: true,
 	parseFloat: true,
+	// Unsafe
 	isNaN: false,
 	isFinite: false
 };

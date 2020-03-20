@@ -116,13 +116,13 @@ ruleTester.run('prefer-node-remove', rule, {
 			`,
 			errors: [
 				{
-					messageId,
+					messageId: methodMessageId,
 					data: {
 						name: 'parseInt'
 					}
 				},
 				{
-					messageId,
+					messageId: methodMessageId,
 					data: {
 						name: 'parseFloat'
 					}
@@ -130,7 +130,7 @@ ruleTester.run('prefer-node-remove', rule, {
 				{
 					suggestions: [
 						{
-							messageId,
+							messageId: methodMessageId,
 							data: {
 								name: 'isNaN'
 							}
@@ -140,7 +140,7 @@ ruleTester.run('prefer-node-remove', rule, {
 				{
 					suggestions: [
 						{
-							messageId,
+							messageId: methodMessageId,
 							data: {
 								name: 'isFinite'
 							}
