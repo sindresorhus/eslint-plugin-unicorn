@@ -23,7 +23,7 @@ const methodsSelector = [
 ].join('');
 
 const propertiesSelector = [
-	`:not(MemberExpression)`,
+	':not(MemberExpression)',
 	'>',
 	'Identifier',
 	'[name="NaN"]'
@@ -64,8 +64,17 @@ const create = context => {
 				return;
 			}
 
+			if (node.parent && node.parent.type === 'VariableDeclarator' && node.parent.id === node) {
+				return;
+			}
+
+			// TODO: not sure how this work
+			if (node.parent && node.parent.type === 'TSEnumMember') {
+				return;
+			}
+
 			if (node.parent && node.parent.type === 'Property' && !node.parent.shorthand && node.parent.key === node) {
-					return;
+				return;
 			}
 
 			const {name} = node;

@@ -3,6 +3,7 @@ import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/prefer-number-properties';
 
+const ruleId = 'prefer-number-properties';
 const methodMessageId = 'method';
 const propertyMessageId = 'property';
 
@@ -26,12 +27,13 @@ const methods = {
 };
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
 	parserOptions: {
 		ecmaVersion: 2020
 	}
+});
+
+const typescriptRuleTester = avaRuleTester(test, {
+	parser: require.resolve('@typescript-eslint/parser')
 });
 
 const invalidMethodTest = ({code, output, name}) => {
@@ -52,7 +54,7 @@ const invalidMethodTest = ({code, output, name}) => {
 };
 
 // Methods
-ruleTester.run('prefer-node-remove', rule, {
+ruleTester.run(ruleId, rule, {
 	valid: [
 		'Number.parseInt("10", 2);',
 		'Number.parseFloat("10.5");',
@@ -161,7 +163,7 @@ const errorNaN = [
 		}
 	}
 ];
-ruleTester.run('prefer-node-remove', rule, {
+ruleTester.run(ruleId, rule, {
 	valid: [
 		'const foo = Number.NaN;',
 		'const foo = window.Number.NaN;',
@@ -207,5 +209,31 @@ ruleTester.run('prefer-node-remove', rule, {
 			output: 'const {foo = Number.NaN} = {};',
 			errors: errorNaN
 		}
+	]
+});
+
+typescriptRuleTester.run(ruleId, rule, {
+	valid: [],
+	invalid: [
+		// https://github.com/angular/angular/blob/b4972fa1656101c02c92ddbf247db6e0de139937/packages/common/src/i18n/locale_data_api.ts#L178
+		// {
+		// 	code: outdent`
+		// 		export enum NumberSymbol {
+		// 			NaN,
+		// 		}
+		// 	`,
+		// 	output: outdent`
+		// 		export enum NumberSymbol {
+		// 			NaN,
+		// 		}
+		// 	`,
+		// 	errors: errorNaN
+		// }
+		// https://github.com/microsoft/TypeScript/blob/114fe4deab68519a44969c1db8300003719059db/src/lib/es5.d.ts#L5
+		// {
+		// 	code: 'declare var NaN: number;',
+		// 	output: 'declare var NaN: number;',
+		// 	errors: errorNaN
+		// }
 	]
 });
