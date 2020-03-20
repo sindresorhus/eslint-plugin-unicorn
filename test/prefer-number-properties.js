@@ -228,12 +228,27 @@ typescriptRuleTester.run(ruleId, rule, {
 		// 		}
 		// 	`,
 		// 	errors: errorNaN
-		// }
+		// },
 		// https://github.com/microsoft/TypeScript/blob/114fe4deab68519a44969c1db8300003719059db/src/lib/es5.d.ts#L5
 		// {
 		// 	code: 'declare var NaN: number;',
 		// 	output: 'declare var NaN: number;',
 		// 	errors: errorNaN
 		// }
+		// https://github.com/microsoft/TypeScript/blob/114fe4deab68519a44969c1db8300003719059db/src/lib/es5.d.ts#L566
+		// {
+		// 	code: outdent`
+		// 		interface NumberConstructor {
+		// 			readonly NaN: number;
+		// 		}
+		// 	`,
+		// 	output: outdent`
+		// 		export enum NumberSymbol {
+		// 			NaN,
+		// 		}
+		// 	`,
+		// 	errors: errorNaN
+		// },
+
 	]
 });

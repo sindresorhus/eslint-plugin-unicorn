@@ -68,8 +68,12 @@ const create = context => {
 				return;
 			}
 
-			// TODO: not sure how this work
+			// TODO: not sure how this works
 			if (node.parent && node.parent.type === 'TSEnumMember') {
+				return;
+			}
+
+			if (node.parent && node.parent.type === 'TSPropertySignature') {
 				return;
 			}
 
