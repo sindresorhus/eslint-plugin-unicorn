@@ -3,7 +3,9 @@ import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/prefer-number-properties';
 
-const messageId = 'preferNumberProperties';
+const methodMessageId = 'method';
+const propertyMessageId = 'property';
+
 const methods = {
 	parseInt: {
 		safe: true,
@@ -32,11 +34,11 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const invalidTest = ({code, output, name}) => {
+const invalidMethodTest = ({code, output, name}) => {
 	const isSafe = methods[name].safe;
 
 	const error = {
-		messageId,
+		messageId: methodMessageId,
 		data: {
 			name
 		}
@@ -81,21 +83,21 @@ ruleTester.run('prefer-node-remove', rule, {
 	],
 
 	invalid: [
-		invalidTest({
+		invalidMethodTest({
 			code: 'parseInt("10", 2);',
 			output: 'Number.parseInt("10", 2);',
 			name: 'parseInt'
 		}),
-		invalidTest({
+		invalidMethodTest({
 			code: 'parseFloat("10.5");',
 			output: 'Number.parseFloat("10.5");',
 			name: 'parseFloat'
 		}),
-		invalidTest({
+		invalidMethodTest({
 			code: 'isNaN(10);',
 			name: 'isNaN'
 		}),
-		invalidTest({
+		invalidMethodTest({
 			code: 'isFinite(10);',
 			name: 'isFinite'
 		}),
@@ -153,7 +155,7 @@ ruleTester.run('prefer-node-remove', rule, {
 // NaN
 const errorNaN = [
 	{
-		messageId,
+		messageId: propertyMessageId,
 		data: {
 			name: 'NaN'
 		}

@@ -2,7 +2,8 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isShadowed = require('./utils/is-shadowed');
 
-const messageId = 'preferNumberProperties';
+const methodMessageId = 'method';
+const propertyMessageId = 'property';
 
 const methods = {
 	parseInt: true,
@@ -39,7 +40,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				messageId,
+				messageId: methodMessageId,
 				data: {
 					name
 				}
@@ -50,7 +51,7 @@ const create = context => {
 			if (isSafe) {
 				problem.fix = fix;
 			} else {
-				problem.suggest = [{messageId, fix}];
+				problem.suggest = [{messageId: methodMessageId, fix}];
 			}
 
 			context.report(problem);
@@ -63,7 +64,7 @@ const create = context => {
 			const {name} = node;
 			context.report({
 				node,
-				messageId,
+				messageId: propertyMessageId,
 				data: {
 					name
 				},
@@ -82,7 +83,8 @@ module.exports = {
 		},
 		fixable: 'code',
 		messages: {
-			[messageId]: 'Prefer `Number.{{name}}` over `{{name}}`.'
+			[methodMessageId]: 'Prefer `Number.{{name}}()` over `{{name}}()`.',
+			[propertyMessageId]: 'Prefer `Number.{{name}}` over `{{name}}`.'
 		}
 	}
 };
