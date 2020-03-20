@@ -56,5 +56,5 @@ const foo = Number.isFinite(10);
 ```
 
 ```js
-if (Object.is(Number.foo, NaN)) {}
+if (Object.is(foo, Number.NaN)) {}
 ```
