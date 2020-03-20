@@ -1,26 +1,28 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const create = context => ({
-	BinaryExpression: node => {
-		if (
-			node.operator === 'instanceof' &&
-			node.right.type === 'Identifier' &&
-			node.right.name === 'Array'
-		) {
-			// Get the source code and extract the left part
-			const arraySourceCode = context
-				.getSourceCode()
-				.text.slice(node.left.range[0], node.left.range[1]);
+const message = 'Use `Array.isArray()` instead of `instanceof Array`.';
+const selector = [
+	'BinaryExpression',
+	'[operator="instanceof"]',
+	'[right.type="Identifier"]',
+	'[right.name="Array"]'
+].join('');
 
-			context.report({
+const create = context => {
+	const sourceCode = context.getSourceCode();
+
+	return {
+		[selector]: node => context.report({
+			node,
+			message,
+			fix: fixer => fixer.replaceText(
 				node,
-				message: 'Use `Array.isArray()` instead of `instanceof Array`.',
-				fix: fixer => fixer.replaceText(node, `Array.isArray(${arraySourceCode})`)
-			});
-		}
-	}
-});
+				`Array.isArray(${sourceCode.getText(node.left)})`
+			)
+		})
+	};
+};
 
 module.exports = {
 	create,
