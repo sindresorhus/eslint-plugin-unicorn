@@ -28,7 +28,6 @@ jobs:
       - uses: codecov/codecov-action@v1
         if: matrix.os == 'ubuntu-latest' && matrix.node_version == 12
         with:
-          file: ./coverage/lcov.info
           fail_ci_if_error: true
 
   lint:
