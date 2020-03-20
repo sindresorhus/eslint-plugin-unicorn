@@ -52,7 +52,6 @@
 		"ava": "^3.5.0",
 		"babel-eslint": "^10.1.0",
 		"chalk": "^3.0.0",
-		"coveralls": "^3.0.9",
 		"del": "^5.1.0",
 		"eslint": "^6.8.0",
 		"eslint-ava-rule-tester": "^4.0.0",
