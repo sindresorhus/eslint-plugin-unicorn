@@ -23,7 +23,14 @@ const methodsSelector = [
 ].join('');
 
 const propertiesSelector = [
-	':not(MemberExpression[computed=false])',
+	`:not(${
+		[
+			'MemberExpression[computed=false]',
+			'FunctionDeclaration',
+			'ClassDeclaration',
+			'MethodDefinition'
+		].join(', ')
+	})`,
 	'>',
 	'Identifier',
 	'[name="NaN"]'
@@ -65,6 +72,10 @@ const create = context => {
 			}
 
 			if (node.parent && node.parent.type === 'VariableDeclarator' && node.parent.id === node) {
+				return;
+			}
+
+			if (node.parent && node.parent.type === 'TSDeclareFunction' && node.parent.id === node) {
 				return;
 			}
 

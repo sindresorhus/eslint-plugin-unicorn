@@ -175,7 +175,10 @@ ruleTester.run(ruleId, rule, {
 				return NaN
 			}
 		`,
-		'const {NaN} = {};'
+		'const {NaN} = {};',
+		'function NaN() {}',
+		'class NaN {}',
+		'class Foo { NaN(){}}'
 	],
 	invalid: [
 		{
@@ -223,6 +226,7 @@ typescriptRuleTester.run(ruleId, rule, {
 		{
 			code: outdent`
 				export enum NumberSymbol {
+					Decimal,
 					NaN,
 				}
 			`
@@ -239,6 +243,7 @@ typescriptRuleTester.run(ruleId, rule, {
 				}
 			`
 		},
+		'declare function NaN(s: string, radix?: number): number;'
 	],
 	invalid: []
 });
