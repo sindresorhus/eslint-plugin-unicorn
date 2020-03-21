@@ -194,6 +194,11 @@ ruleTester.run(ruleId, rule, {
 			errors: errorNaN
 		},
 		{
+			code: 'const foo = bar[NaN];',
+			output: 'const foo = bar[Number.NaN];',
+			errors: errorNaN
+		},
+		{
 			code: 'const foo = {NaN};',
 			output: 'const foo = {NaN: Number.NaN};',
 			// TODO: should be one error
@@ -213,42 +218,27 @@ ruleTester.run(ruleId, rule, {
 });
 
 typescriptRuleTester.run(ruleId, rule, {
-	valid: [],
-	invalid: [
+	valid: [
 		// https://github.com/angular/angular/blob/b4972fa1656101c02c92ddbf247db6e0de139937/packages/common/src/i18n/locale_data_api.ts#L178
-		// {
-		// 	code: outdent`
-		// 		export enum NumberSymbol {
-		// 			NaN,
-		// 		}
-		// 	`,
-		// 	output: outdent`
-		// 		export enum NumberSymbol {
-		// 			NaN,
-		// 		}
-		// 	`,
-		// 	errors: errorNaN
-		// },
+		{
+			code: outdent`
+				export enum NumberSymbol {
+					NaN,
+				}
+			`
+		},
 		// https://github.com/microsoft/TypeScript/blob/114fe4deab68519a44969c1db8300003719059db/src/lib/es5.d.ts#L5
-		// {
-		// 	code: 'declare var NaN: number;',
-		// 	output: 'declare var NaN: number;',
-		// 	errors: errorNaN
-		// }
+		{
+			code: 'declare var NaN: number;'
+		},
 		// https://github.com/microsoft/TypeScript/blob/114fe4deab68519a44969c1db8300003719059db/src/lib/es5.d.ts#L566
-		// {
-		// 	code: outdent`
-		// 		interface NumberConstructor {
-		// 			readonly NaN: number;
-		// 		}
-		// 	`,
-		// 	output: outdent`
-		// 		export enum NumberSymbol {
-		// 			NaN,
-		// 		}
-		// 	`,
-		// 	errors: errorNaN
-		// },
-
-	]
+		{
+			code: outdent`
+				interface NumberConstructor {
+					readonly NaN: number;
+				}
+			`
+		},
+	],
+	invalid: []
 });

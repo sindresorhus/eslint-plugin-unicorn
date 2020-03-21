@@ -23,7 +23,7 @@ const methodsSelector = [
 ].join('');
 
 const propertiesSelector = [
-	':not(MemberExpression)',
+	':not(MemberExpression[computed=false])',
 	'>',
 	'Identifier',
 	'[name="NaN"]'
