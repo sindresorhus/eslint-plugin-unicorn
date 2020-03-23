@@ -131,7 +131,8 @@ function checkExpression(context, node) {
 	if (
 		node.type === 'MemberExpression' &&
 		node.property.type === 'Identifier' &&
-		node.property.name === 'length'
+		node.property.name === 'length' &&
+		!node.computed
 	) {
 		reportError(context, node, '`length` property should be compared to a value.');
 	}
