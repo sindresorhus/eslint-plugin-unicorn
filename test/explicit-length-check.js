@@ -75,7 +75,8 @@ ruleTester.run('explicit-length-check', rule, {
 		testCase('if ("".length === 2) {}', 'greater-than-or-equal'),
 		testCase('if ("".length === 0 && array.length >= 1) {}', 'greater-than-or-equal'),
 		testCase('if ("".length === 0 && array.length > 0) {}', 'greater-than'),
-		testCase('if ("".length === 0 && array.length !== 0) {}', 'not-equal')
+		testCase('if ("".length === 0 && array.length !== 0) {}', 'not-equal'),
+		testCase('if (foo[length]) {}')
 	],
 	invalid: [
 		testCase(
