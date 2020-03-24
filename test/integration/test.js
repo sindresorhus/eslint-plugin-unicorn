@@ -74,11 +74,25 @@ const projects = [
 		path: 'packages',
 		extraArguments: typescriptArguments
 	},
-	{
-		repository: 'https://github.com/microsoft/typescript',
-		path: 'src',
-		extraArguments: typescriptArguments
-	},
+	// TODO: enable this if `--ignore-pattern` works
+	// {
+	// 	repository: 'https://github.com/microsoft/typescript',
+	// 	path: 'src',
+	// 	extraArguments: [
+	// 		...typescriptArguments,
+
+	// 		// TODO: Remove the following once typescript-eslint supports `awaited`:
+	// 		// ref: https://github.com/microsoft/TypeScript/blob/5fa066f6a6a4c37a7e56f8db11575ebeb0af2f77/.eslintignore#L6
+	// 		...[
+	// 			'/src/lib/es5.d.ts',
+	// 			'/src/lib/es2015.iterable.d.ts',
+	// 			'/src/lib/es2015.promise.d.ts',
+	// 			'/src/lib/es2018.promise.d.ts',
+	// 			'/src/lib/es2020.promise.d.ts',
+	// 			'/src/lib/esnext.promise.d.ts'
+	// 		].flatMap(file => ['--ignore-pattern', file])
+	// 	]
+	// },
 	// TODO: Add this project when `@typescript-eslint/parser` support `Type-Only Imports and Export`
 	// {
 	// 	repository: 'https://github.com/microsoft/vscode',

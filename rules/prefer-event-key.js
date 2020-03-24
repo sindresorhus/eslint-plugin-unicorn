@@ -2,11 +2,11 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 
-const keys = [
+const keys = new Set([
 	'keyCode',
 	'charCode',
 	'which'
-];
+]);
 
 // https://github.com/facebook/react/blob/b87aabd/packages/react-dom/src/events/getEventKey.js#L36
 // Only meta characters which can't be deciphered from `String.fromCharCode()`
@@ -174,7 +174,7 @@ const create = context => {
 		Property(node) {
 			// Destructured case
 			const propertyName = node.value && node.value.name;
-			if (!keys.includes(propertyName)) {
+			if (!keys.has(propertyName)) {
 				return;
 			}
 
