@@ -231,7 +231,7 @@ Imagine you maintain a `master` branch at a version such as 10 and always keep w
 
 ### ignoreDatesOnPullRequests
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `true`
 
 Disables `Expiry Date` checks during pull requests.
@@ -251,7 +251,7 @@ By default, this rule will not trigger expiry dates while on Pull Requests so th
 
 ### terms
 
-Type: `string[]`<br>
+Type: `string[]`\
 Default: `['todo', 'fixme', 'xxx']`
 
 Add or remove TODO verbs.
@@ -275,7 +275,7 @@ If you just want to add a verb, make sure to explicitly include the default ones
 
 ### allowWarningComments
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `true`
 
 Ignore TODOs without conditions.
@@ -291,6 +291,32 @@ If you want this rule to trigger on stray TODO conditions, you can enable this f
 	"error",
 	{
 		"allowWarningComments": false
+	}
+]
+```
+
+### ignore
+
+Type: `Array<string | RegExp>`\
+Default: `[]`
+
+Ignore TODOs matching any of the given regex patterns. When a string is given, it's interpreted as a regular expressions inside a string. Needed for ESLint config in JSON.
+
+This option is only useful if you have `allowWarningComments` set to `false`.
+
+If you want this rule to **completely ignore** comments containing references to GitHub issues, you can do so by ignoring `"#\\d+"`:
+
+Don't forget that you must escape special characters in regex. If you want to ignore numbers with `\d` for example. To match `#\d`, use `/#\d/` or `"#\\d"`.
+
+```js
+"unicorn/expiring-todo-comments": [
+	"error",
+	{
+		"allowWarningComments": false,
+		"ignore": [
+			"#\\d+",
+			/issue-\d+/i
+		]
 	}
 ]
 ```
