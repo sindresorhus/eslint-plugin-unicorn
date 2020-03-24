@@ -133,8 +133,43 @@ ruleTester.run(ruleId, rule, {
 			const exists = foo.includes(1);
 		`,
 
+		// `export`
 		outdent`
 			export const foo = [1, 2, 3];
+			const exists = foo.includes(1);
+		`,
+		outdent`
+			module.exports = [1, 2, 3];
+			const exists = module.exports.includes(1);
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			export {foo};
+			const exists = foo.includes(1);
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			export default foo;
+			const exists = foo.includes(1);
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			export {foo as bar};
+			const exists = foo.includes(1);
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			module.exports = foo;
+			const exists = foo.includes(1);
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			exports = foo;
+			const exists = foo.includes(1);
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			module.exports.foo = foo;
 			const exists = foo.includes(1);
 		`
 	],
