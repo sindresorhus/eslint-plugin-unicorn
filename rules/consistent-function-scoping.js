@@ -1,12 +1,9 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const getReferences = require('./utils/get-references');
 
 const MESSAGE_ID_NAMED = 'named';
 const MESSAGE_ID_ANONYMOUS = 'anonymous';
-
-const getReferences = scope => scope.references.concat(
-	...scope.childScopes.map(scope => getReferences(scope))
-);
 
 const isSameScope = (scope1, scope2) =>
 	scope1 && scope2 && (scope1 === scope2 || scope1.block === scope2.block);
