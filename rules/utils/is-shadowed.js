@@ -1,5 +1,7 @@
 'use strict';
 
+const isSameNode = require('./is-same-node');
+
 /**
  * Finds the eslint-scope reference in the given scope.
  * @param {Object} scope The scope to search.
@@ -8,10 +10,7 @@
  */
 function findReference(scope, node) {
 	const references = scope.references
-		.filter(reference =>
-			reference.identifier.range[0] === node.range[0] &&
-			reference.identifier.range[1] === node.range[1]
-		);
+		.filter(reference => isSameNode(reference.identifier, node));
 
 	if (references.length === 1) {
 		return references[0];

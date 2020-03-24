@@ -51,8 +51,6 @@ const create = context => {
 
 			const references = getReferences(scope);
 			for (const declaration of declarations) {
-				declarations.delete(declaration);
-
 				const variable = references
 					.find(({identifier}) => identifier === declaration)
 					.resolved;

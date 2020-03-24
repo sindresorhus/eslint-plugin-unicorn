@@ -28,13 +28,36 @@ const nameCollidesWithArgumentsSpecial = (name, scopes, isStrict) => {
 	return isStrict || scopes.some(scopeHasArgumentsSpecial);
 };
 
+/*
+Unresolved reference is probably from the global scope. We should avoid using that name.
+
+For example, like `foo` and `bar` below.
+
+```
+function unicorn() {
+	return foo;
+}
+
+function unicorn() {
+	return function() {
+		return bar;
+	};
+}
+```
+*/
+const isUnresolvedName = (name, scopes) => scopes.some(scope =>
+	scope.references.some(reference => reference.identifier && reference.identifier.name === name && !reference.resolved) ||
+	isUnresolvedName(name, scope.childScopes)
+);
+
 const isSafeName = (name, scopes, ecmaVersion, isStrict) => {
 	ecmaVersion = Math.min(6, ecmaVersion); // 6 is the latest version understood by `reservedWords`
 
 	return (
 		!someScopeHasVariableName(name, scopes) &&
 		!reservedWords.check(name, ecmaVersion, isStrict) &&
-		!nameCollidesWithArgumentsSpecial(name, scopes, isStrict)
+		!nameCollidesWithArgumentsSpecial(name, scopes, isStrict) &&
+		!isUnresolvedName(name, scopes)
 	);
 };
 
