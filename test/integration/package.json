@@ -1,4 +1,5 @@
 {
+	"private": true,
 	"name": "eslint-config-unicorn-tester",
 	"dependencies": {
 		"eslint-plugin-unicorn": "file:../.."
