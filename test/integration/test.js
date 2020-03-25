@@ -2,7 +2,6 @@
 'use strict';
 const path = require('path');
 const Listr = require('listr');
-const tempy = require('tempy');
 const execa = require('execa');
 const del = require('del');
 const chalk = require('chalk');
@@ -74,25 +73,11 @@ const projects = [
 		path: 'packages',
 		extraArguments: typescriptArguments
 	},
-	// TODO: enable this if `--ignore-pattern` works
-	// {
-	// 	repository: 'https://github.com/microsoft/typescript',
-	// 	path: 'src',
-	// 	extraArguments: [
-	// 		...typescriptArguments,
-
-	// 		// TODO: Remove the following once typescript-eslint supports `awaited`:
-	// 		// ref: https://github.com/microsoft/TypeScript/blob/5fa066f6a6a4c37a7e56f8db11575ebeb0af2f77/.eslintignore#L6
-	// 		...[
-	// 			'/src/lib/es5.d.ts',
-	// 			'/src/lib/es2015.iterable.d.ts',
-	// 			'/src/lib/es2015.promise.d.ts',
-	// 			'/src/lib/es2018.promise.d.ts',
-	// 			'/src/lib/es2020.promise.d.ts',
-	// 			'/src/lib/esnext.promise.d.ts'
-	// 		].flatMap(file => ['--ignore-pattern', file])
-	// 	]
-	// },
+	{
+		repository: 'https://github.com/microsoft/typescript',
+		path: 'src',
+		extraArguments: typescriptArguments
+	},
 	// TODO: Add this project when `@typescript-eslint/parser` support `Type-Only Imports and Export`
 	// {
 	// 	repository: 'https://github.com/microsoft/vscode',
@@ -165,6 +150,8 @@ const makeEslintTask = (project, destination, extraArguments = []) => {
 	const arguments_ = [
 		'eslint',
 		'--no-eslintrc',
+		// https://github.com/microsoft/TypeScript/blob/a1c8608f681488fda3f0b6ffd89195a81f80f0b0/.eslintignore#L6
+		project.name === 'typescript' ? '' : '--no-ignore',
 		'--format',
 		'json',
 		'--config',
@@ -172,13 +159,13 @@ const makeEslintTask = (project, destination, extraArguments = []) => {
 		project.path ? path.join(destination, project.path) : destination,
 		...project.extraArguments,
 		...extraArguments
-	];
+	].filter(Boolean);
 
 	return enrichErrors(project.name, arguments_, async () => {
 		let stdout;
 		let processError;
 		try {
-			({stdout} = await execa('npx', arguments_, {cwd, localDir: __dirname}));
+			({stdout} = await execa('npx', arguments_, {cwd: destination, localDir: __dirname}));
 		} catch (error) {
 			({stdout} = error);
 			processError = error;
@@ -215,7 +202,7 @@ const makeEslintTask = (project, destination, extraArguments = []) => {
 };
 
 const execute = project => {
-	const destination = tempy.directory();
+	const destination = path.join(cwd, 'fixtures', project.name);
 
 	return new Listr([
 		{
@@ -224,10 +211,6 @@ const execute = project => {
 		},
 		{
 			title: 'Running eslint',
-			task: makeEslintTask(project, destination)
-		},
-		{
-			title: 'Running eslint --fix',
 			task: makeEslintTask(project, destination, ['--fix-dry-run'])
 		},
 		{
