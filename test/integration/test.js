@@ -202,7 +202,7 @@ const makeEslintTask = (project, destination, extraArguments = []) => {
 };
 
 const execute = project => {
-	const destination = path.join(cwd, 'projects', project.name);
+	const destination = path.join(cwd, 'fixtures', project.name);
 
 	return new Listr([
 		{
