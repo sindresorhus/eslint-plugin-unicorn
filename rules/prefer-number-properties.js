@@ -71,24 +71,18 @@ const create = context => {
 				return;
 			}
 
-			if (node.parent && node.parent.type === 'VariableDeclarator' && node.parent.id === node) {
-				return;
-			}
+			const {parent} = node;
 
-			if (node.parent && node.parent.type === 'TSDeclareFunction' && node.parent.id === node) {
-				return;
-			}
-
-			// TODO: not sure how this works
-			if (node.parent && node.parent.type === 'TSEnumMember') {
-				return;
-			}
-
-			if (node.parent && node.parent.type === 'TSPropertySignature') {
-				return;
-			}
-
-			if (node.parent && node.parent.type === 'Property' && !node.parent.shorthand && node.parent.key === node) {
+			if (
+				parent &&
+				(
+					(parent.type === 'VariableDeclarator' && parent.id === node) ||
+					(parent.type === 'Property' && !parent.shorthand && parent.key === node) ||
+					(parent.type === 'TSDeclareFunction' && parent.id === node) ||
+					parent.type === 'TSEnumMember' ||
+					parent.type === 'TSPropertySignature'
+				)
+			) {
 				return;
 			}
 
