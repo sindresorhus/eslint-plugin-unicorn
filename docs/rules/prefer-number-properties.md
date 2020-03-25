@@ -1,4 +1,4 @@
-# Prefer `Number.{parseInt,parseFloat,isNaN,isFinite}()` and `Number.NaN` over global ones.
+# Prefer `Number` static properties over global ones.
 
 Enforces the use of:
 
