@@ -54,7 +54,12 @@ module.exports = [
 	'https://github.com/facebook/react',
 	{
 		repository: 'https://github.com/angular/angular',
-		extraArguments: typescriptArguments
+		extraArguments: [
+			...typescriptArguments,
+
+			'--ignore-pattern',
+			'aio/content/examples/animations/src/app/open-close.component.3.ts'
+		]
 	},
 	{
 		repository: 'https://github.com/microsoft/typescript',
