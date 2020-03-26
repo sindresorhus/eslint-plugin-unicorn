@@ -53,6 +53,7 @@ module.exports = {
 				'unicorn/prefer-negative-index': 'error',
 				'unicorn/prefer-node-append': 'error',
 				'unicorn/prefer-node-remove': 'error',
+				'unicorn/prefer-number-properties': 'error',
 				'unicorn/prefer-query-selector': 'error',
 				'unicorn/prefer-reflect-apply': 'error',
 				// TODO: Enable this by default when it's shipping in a Node.js LTS version.
