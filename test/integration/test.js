@@ -147,7 +147,7 @@ list.run()
 					const {file, project, destination} = error2.eslintJob;
 					const {line} = error2.eslintMessage;
 
-					console.error(chalk.gray(`${project.repository}/tree/master/${path.relative(destination, file.filePath)}L${line}`));
+					console.error(chalk.gray(`${project.repository}/tree/master/${path.relative(destination, file.filePath)}#L${line}`));
 					console.error(chalk.gray(JSON.stringify(error2.eslintMessage, null, 2)));
 				}
 			}
