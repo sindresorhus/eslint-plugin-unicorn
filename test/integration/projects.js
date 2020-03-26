@@ -1,7 +1,7 @@
 'use strict';
 
-const typescriptArguments = ['--parser', '@typescript-eslint/parser', '--ext', '.ts'];
-const vueArguments = ['--parser', 'vue-eslint-parser', '--ext', '.vue'];
+const typescriptArguments = ['--parser', '@typescript-eslint/parser', '--ext', '.ts,.js'];
+const vueArguments = ['--parser', 'vue-eslint-parser', '--ext', '.vue,.js'];
 
 module.exports = [
 	'https://github.com/avajs/ava',
@@ -49,42 +49,35 @@ module.exports = [
 		extraArguments: typescriptArguments
 	},
 	// TODO: Add this project when #561 got fixed
-	// {
-	// 	repository: 'https://github.com/eslint/eslint',
-	// 	path: 'lib'
-	// },
-	{
-		repository: 'https://github.com/prettier/prettier',
-		path: 'src'
-	},
-	{
-		repository: 'https://github.com/facebook/react',
-		path: 'packages'
-	},
+	// 'https://github.com/eslint/eslint',
+	'https://github.com/prettier/prettier',
+	'https://github.com/facebook/react',
 	{
 		repository: 'https://github.com/angular/angular',
-		path: 'packages',
-		extraArguments: typescriptArguments
+		extraArguments: [
+			...typescriptArguments,
+
+			'--ignore-pattern',
+			'aio/content/examples/animations/src/app/open-close.component.3.ts',
+
+			'--ignore-pattern',
+			'aio/tools/transforms/templates/data-module.template.js'
+		]
 	},
 	{
 		repository: 'https://github.com/microsoft/typescript',
-		path: 'src',
 		extraArguments: typescriptArguments
 	},
-	// TODO: Add this project when `@typescript-eslint/parser` support `Type-Only Imports and Export`
-	// {
-	// 	repository: 'https://github.com/microsoft/vscode',
-	// 	path: 'src/vs',
-	// 	extraArguments: typescriptArguments
-	// },
+	{
+		repository: 'https://github.com/microsoft/vscode',
+		extraArguments: typescriptArguments
+	},
 	{
 		repository: 'https://github.com/ElemeFE/element',
-		path: 'packages',
 		extraArguments: vueArguments
 	},
 	{
 		repository: 'https://github.com/iview/iview',
-		path: 'src',
 		extraArguments: vueArguments
 	},
 	'https://github.com/sindresorhus/create-dmg',
@@ -95,12 +88,26 @@ module.exports = [
 	'https://github.com/gatsbyjs/gatsby',
 	{
 		repository: 'https://github.com/puppeteer/puppeteer',
-		path: 'lib'
+		extraArguments: [
+			// Parser error on `await page.evaluate(() => delete Node);`
+			// https://github.com/puppeteer/puppeteer/blob/0b1a9ceee2f05f534f0d50079ece172d627a93c7/test/jshandle.spec.js#L151
+			'--ignore-pattern',
+			'test/jshandle.spec.js',
+
+			// `package` keyword
+			// https://github.com/puppeteer/puppeteer/blob/0b1a9ceee2f05f534f0d50079ece172d627a93c7/utils/apply_next_version.js#L17
+			'--ignore-pattern',
+			'utils/apply_next_version.js'
+		]
 	},
 	{
 		repository: 'https://github.com/zeit/next.js',
-		path: 'packages',
-		extraArguments: typescriptArguments
+		extraArguments: [
+			...typescriptArguments,
+
+			'--ignore-pattern',
+			'examples/**'
+		]
 	},
 	'https://github.com/chakra-ui/chakra-ui',
 	'https://github.com/ReactTraining/react-router',
