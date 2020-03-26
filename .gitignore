@@ -3,4 +3,4 @@ yarn.lock
 .nyc_output
 coverage
 package-lock.json
-/test/integration/eslint-config-unicorn-tester/fixtures
+/test/integration/fixtures
