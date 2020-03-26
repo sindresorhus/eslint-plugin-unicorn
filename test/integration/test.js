@@ -62,7 +62,11 @@ const makeEslintTask = (project, destination) => {
 			for (const message of file.messages) {
 				if (message.fatal) {
 					const error = new Error(message.message);
-					error.eslintFile = file;
+					error.eslintJob = {
+						destination,
+						project,
+						file,
+					};
 					error.eslintMessage = message;
 					throw error;
 				}
@@ -140,7 +144,10 @@ list.run()
 				}
 
 				if (error2.eslintMessage) {
-					console.error(chalk.gray(path.relative(__dirname, error2.eslintFile.filePath)))
+					const {file, project, destination} = error2.eslintJob;
+					const {line} = error2.eslintMessage
+
+					console.error(chalk.gray(`${project.repository}/tree/master/${path.relative(destination, file.filePath)}L${line}`))
 					console.error(chalk.gray(JSON.stringify(error2.eslintMessage, null, 2)));
 				}
 			}
