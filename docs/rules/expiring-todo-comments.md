@@ -300,13 +300,13 @@ If you want this rule to trigger on stray TODO conditions, you can enable this f
 Type: `Array<string | RegExp>`\
 Default: `[]`
 
-Ignore TODOs matching any of the given regex patterns. When a string is given, it's interpreted as a regular expressions inside a string. Needed for ESLint config in JSON.
+Ignore TODOs matching any of the given regex patterns. This option is only useful if you have `allowWarningComments` set to `false`.
 
-This option is only useful if you have `allowWarningComments` set to `false`.
+When a string is given, it will be interpreted as a regular expression inside of a string (as strings are required for ESLint config in JSON).
 
-If you want this rule to **completely ignore** comments containing references to GitHub issues, you can do so by ignoring `"#\\d+"`:
+Don't forget that you must escape special characters in string regexes. If you want to ignore numbers with `\d` for example, to match `#\d`, you must use `/#\d/` or `"#\\d"`.
 
-Don't forget that you must escape special characters in regex. If you want to ignore numbers with `\d` for example. To match `#\d`, use `/#\d/` or `"#\\d"`.
+As an example of this option, if you want this rule to **completely ignore** comments containing references to GitHub issues, you can do so by ignoring `"#\\d+"`:
 
 ```js
 "unicorn/expiring-todo-comments": [
