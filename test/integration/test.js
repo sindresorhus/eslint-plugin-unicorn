@@ -29,7 +29,7 @@ const makeEslintTask = (project, destination) => {
 		'json',
 		'--config',
 		path.join(__dirname, 'config.js'),
-		project.path ? path.join(destination, project.path) : destination,
+		project.path || '.',
 		...project.extraArguments
 	].filter(Boolean);
 
