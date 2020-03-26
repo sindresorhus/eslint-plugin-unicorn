@@ -62,6 +62,7 @@
 		"outdent": "^0.7.1",
 		"pify": "^5.0.0",
 		"typescript": "^3.8.3",
+		"vue-eslint-parser": "^7.0.0",
 		"xo": "^0.28.0"
 	},
 	"peerDependencies": {
