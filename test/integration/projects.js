@@ -78,7 +78,15 @@ module.exports = [
 	'https://github.com/sindresorhus/file-type',
 	'https://github.com/sindresorhus/slugify',
 	'https://github.com/gatsbyjs/gatsby',
-	'https://github.com/puppeteer/puppeteer',
+	{
+		repository: 'https://github.com/puppeteer/puppeteer',
+		extraArguments: [
+			// Parser error on `await page.evaluate(() => delete Node);`
+			// https://github.com/puppeteer/puppeteer/blob/0b1a9ceee2f05f534f0d50079ece172d627a93c7/test/jshandle.spec.js#L151
+			'--ignore-pattern',
+			'test/jshandle.spec.js'
+		]
+	},
 	{
 		repository: 'https://github.com/zeit/next.js',
 		extraArguments: typescriptArguments
