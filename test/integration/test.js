@@ -140,7 +140,8 @@ list.run()
 				}
 
 				if (error2.eslintMessage) {
-					console.error(chalk.gray(error2.eslintFile.filePath), chalk.gray(JSON.stringify(error2.eslintMessage, null, 2)));
+					console.error(chalk.gray(path.relative(__dirname, error2.eslintFile.filePath)))
+					console.error(chalk.gray(JSON.stringify(error2.eslintMessage, null, 2)));
 				}
 			}
 		} else {
