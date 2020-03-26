@@ -29,10 +29,7 @@ const getArgumentValue = (context, nodeArgument) => {
 	}
 
 	if (nodeArgument.type === 'TemplateLiteral') {
-		const sourceCode = context.getSourceCode();
-		value = sourceCode.getText(nodeArgument);
-
-		value = value;
+		value = context.getSourceCode().getText(nodeArgument);
 	}
 
 	// Strip off quotes and backticks
