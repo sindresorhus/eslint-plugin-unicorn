@@ -132,4 +132,4 @@ module.exports = [
 		path,
 		extraArguments
 	};
-}).filter(({name}) => name === 'react');
+});
