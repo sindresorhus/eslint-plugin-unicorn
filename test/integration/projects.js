@@ -94,7 +94,14 @@ module.exports = [
 	},
 	{
 		repository: 'https://github.com/zeit/next.js',
-		extraArguments: typescriptArguments
+		extraArguments: [
+			...typescriptArguments,
+
+			// Parser don't support this
+			// https://github.com/zeit/next.js/blob/9730be67340d16e2e0c4a936c483326c48be7b1a/examples/with-custom-babel-config/pages/index.js#L26
+			'--ignore-pattern',
+			'examples/with-custom-babel-config/pages/index.js'
+		]
 	},
 	'https://github.com/chakra-ui/chakra-ui',
 	'https://github.com/ReactTraining/react-router',
