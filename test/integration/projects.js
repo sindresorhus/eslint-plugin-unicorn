@@ -1,7 +1,7 @@
 'use strict';
 
-const typescriptArguments = ['--parser', '@typescript-eslint/parser', '--ext', '.ts'];
-const vueArguments = ['--parser', 'vue-eslint-parser', '--ext', '.vue'];
+const typescriptArguments = ['--parser', '@typescript-eslint/parser', '--ext', '.ts,.js'];
+const vueArguments = ['--parser', 'vue-eslint-parser', '--ext', '.vue,.js'];
 
 module.exports = [
 	'https://github.com/avajs/ava',
@@ -57,10 +57,7 @@ module.exports = [
 		repository: 'https://github.com/prettier/prettier',
 		path: 'src'
 	},
-	{
-		repository: 'https://github.com/facebook/react',
-		path: 'packages'
-	},
+	'https://github.com/facebook/react',
 	{
 		repository: 'https://github.com/angular/angular',
 		path: 'packages',
@@ -68,23 +65,19 @@ module.exports = [
 	},
 	{
 		repository: 'https://github.com/microsoft/typescript',
-		path: 'src',
 		extraArguments: typescriptArguments
 	},
-	// TODO: Add this project when `@typescript-eslint/parser` support `Type-Only Imports and Export`
-	// {
-	// 	repository: 'https://github.com/microsoft/vscode',
-	// 	path: 'src/vs',
-	// 	extraArguments: typescriptArguments
-	// },
+	{
+		repository: 'https://github.com/microsoft/vscode',
+		path: 'src/vs',
+		extraArguments: typescriptArguments
+	},
 	{
 		repository: 'https://github.com/ElemeFE/element',
-		path: 'packages',
 		extraArguments: vueArguments
 	},
 	{
 		repository: 'https://github.com/iview/iview',
-		path: 'src',
 		extraArguments: vueArguments
 	},
 	'https://github.com/sindresorhus/create-dmg',
