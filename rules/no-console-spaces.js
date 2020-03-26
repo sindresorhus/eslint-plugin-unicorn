@@ -19,23 +19,21 @@ const selector = methodSelector({
 });
 
 const getArgumentValue = (context, nodeArgument) => {
-	let value = null;
+	let value = '';
 
 	if (
 		nodeArgument.type === 'Literal' &&
 		typeof nodeArgument.value === 'string'
 	) {
-		value = nodeArgument.value;
+		value = nodeArgument.raw;
 	}
 
 	if (nodeArgument.type === 'TemplateLiteral') {
-		const sourceCode = context.getSourceCode();
-		value = sourceCode.getText(nodeArgument);
-		// Strip off backticks
-		value = value.slice(1, -1);
+		value = context.getSourceCode().getText(nodeArgument);
 	}
 
-	return value;
+	// Strip off quotes and backticks
+	return value.slice(1, -1);
 };
 
 const fixValue = (value, {

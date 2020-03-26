@@ -176,6 +176,26 @@ ruleTester.run('no-console-spaces', rule, {
 					'ghi'
 				);
 			`
+		},
+		// https://github.com/facebook/react/blob/dbb060d561b83ad901af3e1f60541e6c313cca4f/scripts/release/shared-commands/test-packaging-fixture.js#L69
+		{
+			code: outdent`
+				console.error(
+					theme.error('✗'),
+					'Verifying "packaging" fixture\\n ',
+					theme.error(errorMessage)
+				);
+			`,
+			errors: [
+				buildError({method: 'error'})
+			],
+			output: outdent`
+				console.error(
+					theme.error('✗'),
+					'Verifying "packaging" fixture\\n',
+					theme.error(errorMessage)
+				);
+			`
 		}
 	]
 });
