@@ -37,6 +37,7 @@ Configure it in `package.json`.
 			"unicorn/catch-error-name": "error",
 			"unicorn/consistent-function-scoping": "error",
 			"unicorn/custom-error-definition": "off",
+			"unicorn/disallow-objects-as-default": "error",
 			"unicorn/error-message": "error",
 			"unicorn/escape-case": "error",
 			"unicorn/expiring-todo-comments": "error",
@@ -99,6 +100,7 @@ Configure it in `package.json`.
 - [catch-error-name](docs/rules/catch-error-name.md) - Enforce a specific parameter name in catch clauses. *(fixable)*
 - [consistent-function-scoping](docs/rules/consistent-function-scoping.md) - Move function definitions to the highest possible scope.
 - [custom-error-definition](docs/rules/custom-error-definition.md) - Enforce correct `Error` subclassing. *(fixable)*
+- [disallow-objects-as-default](docs/rules/disallow-objects-as-default.md) - Disallow the use of objects as default parameters.
 - [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
 - [escape-case](docs/rules/escape-case.md) - Require escape sequences to use uppercase values. *(fixable)*
 - [expiring-todo-comments](docs/rules/expiring-todo-comments.md) - Add expiration conditions to TODO comments.

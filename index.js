@@ -21,6 +21,7 @@ module.exports = {
 				'unicorn/catch-error-name': 'error',
 				'unicorn/consistent-function-scoping': 'error',
 				'unicorn/custom-error-definition': 'off',
+				'unicorn/disallow-objects-as-default': 'error',
 				'unicorn/error-message': 'error',
 				'unicorn/escape-case': 'error',
 				'unicorn/expiring-todo-comments': 'error',
