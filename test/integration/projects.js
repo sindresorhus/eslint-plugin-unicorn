@@ -89,7 +89,12 @@ module.exports = [
 			// Parser error on `await page.evaluate(() => delete Node);`
 			// https://github.com/puppeteer/puppeteer/blob/0b1a9ceee2f05f534f0d50079ece172d627a93c7/test/jshandle.spec.js#L151
 			'--ignore-pattern',
-			'test/jshandle.spec.js'
+			'test/jshandle.spec.js',
+
+			// `package` keyword
+			// https://github.com/puppeteer/puppeteer/blob/0b1a9ceee2f05f534f0d50079ece172d627a93c7/utils/apply_next_version.js#L17
+			'--ignore-pattern',
+			'utils/apply_next_version.js'
 		]
 	},
 	{
