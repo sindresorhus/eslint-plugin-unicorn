@@ -25,10 +25,10 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - run: npm install
       - run: npm run test
-      - uses: coverallsapp/github-action@master
+      - uses: codecov/codecov-action@v1
         if: matrix.os == 'ubuntu-latest' && matrix.node_version == 12
         with:
-          github-token: ${{ secrets.github_token }}
+          fail_ci_if_error: true
 
   lint:
     runs-on: ubuntu-latest

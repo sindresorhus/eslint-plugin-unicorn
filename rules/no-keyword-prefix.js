@@ -194,7 +194,6 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code',
 		schema,
 		messages: {
 			[MESSAGE_ID]: 'Do not prefix identifiers with keyword `{{keyword}}`.'

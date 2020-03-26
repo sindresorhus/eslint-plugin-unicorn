@@ -2,11 +2,11 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 
-const keys = [
+const keys = new Set([
 	'keyCode',
 	'charCode',
 	'which'
-];
+]);
 
 // https://github.com/facebook/react/blob/b87aabd/packages/react-dom/src/events/getEventKey.js#L36
 // Only meta characters which can't be deciphered from `String.fromCharCode()`
@@ -98,7 +98,7 @@ const isPropertyOf = (node, eventNode) => {
 
 // The third argument is a condition function, as one passed to `Array#filter()`
 // Helpful if nearest node of type also needs to have some other property
-const getMatchingAncestorOfType = (node, type, fn = n => n || true) => {
+const getMatchingAncestorOfType = (node, type, fn = () => true) => {
 	let current = node;
 	while (current) {
 		if (current.type === type && fn(current)) {
@@ -107,8 +107,6 @@ const getMatchingAncestorOfType = (node, type, fn = n => n || true) => {
 
 		current = current.parent;
 	}
-
-	return null;
 };
 
 const getParentByLevel = (node, level) => {
@@ -118,6 +116,7 @@ const getParentByLevel = (node, level) => {
 		current = current.parent;
 	}
 
+	/* istanbul ignore else */
 	if (level === 0) {
 		return current;
 	}
@@ -157,15 +156,17 @@ const create = context => {
 	};
 
 	return {
-		'Identifier:matches([name=keyCode], [name=charCode], [name=which])'(node) {
+		'Identifier:matches([name="keyCode"], [name="charCode"], [name="which"])'(node) {
 			// Normal case when usage is direct -> `event.keyCode`
 			const {event, references} = getEventNodeAndReferences(context, node);
 			if (!event) {
 				return;
 			}
 
-			const isPropertyOfEvent = Boolean(references && references.find(r => isPropertyOf(node, r.identifier)));
-			if (isPropertyOfEvent) {
+			if (
+				references &&
+				references.find(reference => isPropertyOf(node, reference.identifier))
+			) {
 				report(node);
 			}
 		},
@@ -173,7 +174,7 @@ const create = context => {
 		Property(node) {
 			// Destructured case
 			const propertyName = node.value && node.value.name;
-			if (!keys.includes(propertyName)) {
+			if (!keys.has(propertyName)) {
 				return;
 			}
 
@@ -192,10 +193,10 @@ const create = context => {
 				nearestVariableDeclarator.init;
 
 			// Make sure initObject is a reference of eventVariable
-			const isReferenceOfEvent = Boolean(
-				references && references.find(r => r.identifier === initObject)
-			);
-			if (isReferenceOfEvent) {
+			if (
+				references &&
+				references.find(reference => reference.identifier === initObject)
+			) {
 				report(node.value);
 				return;
 			}
