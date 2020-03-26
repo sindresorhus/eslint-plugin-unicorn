@@ -23,15 +23,13 @@ const makeEslintTask = (project, destination) => {
 		'eslint',
 		'--fix-dry-run',
 		'--no-eslintrc',
-		// https://github.com/microsoft/TypeScript/blob/a1c8608f681488fda3f0b6ffd89195a81f80f0b0/.eslintignore#L6
-		project.name === 'typescript' ? '' : '--no-ignore',
 		'--format',
 		'json',
 		'--config',
 		path.join(__dirname, 'config.js'),
 		project.path || '.',
 		...project.extraArguments
-	].filter(Boolean);
+	];
 
 	return enrichErrors(project.name, arguments_, async () => {
 		let stdout;

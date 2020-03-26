@@ -49,18 +49,11 @@ module.exports = [
 		extraArguments: typescriptArguments
 	},
 	// TODO: Add this project when #561 got fixed
-	// {
-	// 	repository: 'https://github.com/eslint/eslint',
-	// 	path: 'lib'
-	// },
-	{
-		repository: 'https://github.com/prettier/prettier',
-		path: 'src'
-	},
+	// 'https://github.com/eslint/eslint',
+	'https://github.com/prettier/prettier',
 	'https://github.com/facebook/react',
 	{
 		repository: 'https://github.com/angular/angular',
-		path: 'packages',
 		extraArguments: typescriptArguments
 	},
 	{
@@ -69,7 +62,6 @@ module.exports = [
 	},
 	{
 		repository: 'https://github.com/microsoft/vscode',
-		path: 'src/vs',
 		extraArguments: typescriptArguments
 	},
 	{
@@ -86,13 +78,9 @@ module.exports = [
 	'https://github.com/sindresorhus/file-type',
 	'https://github.com/sindresorhus/slugify',
 	'https://github.com/gatsbyjs/gatsby',
-	{
-		repository: 'https://github.com/puppeteer/puppeteer',
-		path: 'lib'
-	},
+	'https://github.com/puppeteer/puppeteer',
 	{
 		repository: 'https://github.com/zeit/next.js',
-		path: 'packages',
 		extraArguments: typescriptArguments
 	},
 	'https://github.com/chakra-ui/chakra-ui',
