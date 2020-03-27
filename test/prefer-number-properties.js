@@ -37,7 +37,7 @@ const typescriptRuleTester = avaRuleTester(test, {
 	parser: require.resolve('@typescript-eslint/parser')
 });
 
-const createError = name => {
+const createError = (name, suggestionOutput) => {
 	const {safe} = methods[name];
 
 	const error = {
@@ -52,7 +52,8 @@ const createError = name => {
 			messageId: METHOD_SUGGESTION_MESSAGE_ID,
 			data: {
 				name
-			}
+			},
+			output: suggestionOutput
 		}
 	];
 
@@ -62,14 +63,14 @@ const createError = name => {
 	};
 };
 
-const invalidMethodTest = ({code, output, name}) => {
+const invalidMethodTest = ({code, output, name, suggestionOutput}) => {
 	const {safe} = methods[name];
 
 	return {
 		code,
 		output: safe ? output : code,
 		errors: [
-			createError(name)
+			createError(name, suggestionOutput)
 		]
 	};
 };
@@ -118,10 +119,12 @@ ruleTester.run(ruleId, rule, {
 		}),
 		invalidMethodTest({
 			code: 'isNaN(10);',
+			suggestionOutput: 'Number.isNaN(10);',
 			name: 'isNaN'
 		}),
 		invalidMethodTest({
 			code: 'isFinite(10);',
+			suggestionOutput: 'Number.isFinite(10);',
 			name: 'isFinite'
 		}),
 		{
@@ -140,8 +143,24 @@ ruleTester.run(ruleId, rule, {
 			errors: [
 				createError('parseInt'),
 				createError('parseFloat'),
-				createError('isNaN'),
-				createError('isFinite')
+				createError(
+					'isNaN',
+					outdent`
+						const a = parseInt("10", 2);
+						const b = parseFloat("10.5");
+						const c = Number.isNaN(10);
+						const d = isFinite(10);
+					`
+				),
+				createError(
+					'isFinite',
+					outdent`
+						const a = parseInt("10", 2);
+						const b = parseFloat("10.5");
+						const c = isNaN(10);
+						const d = Number.isFinite(10);
+					`
+				)
 			]
 		}
 	]
