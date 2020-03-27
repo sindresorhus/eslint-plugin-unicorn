@@ -1,29 +1,17 @@
 'use strict';
-const getDocsUrl = require('./utils/get-docs-url');
+const avoidCapture = require('./utils/avoid-capture');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'consistentDestructuring';
+const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';
 
-const fix = (fixer, source, objectPattern, memberExpression) => {
-	const member = source.getText(memberExpression.property);
-	const {properties} = objectPattern;
-	const declarations = properties.map(property => source.getText(property));
-	const fixings = [fixer.replaceText(memberExpression, member)];
+const declaratorSelector = [
+	'VariableDeclarator',
+	'[id.type="ObjectPattern"]',
+	'[init.type!="Literal"]'
+].join('');
 
-	// Member is not already destructured
-	if (!declarations.includes(member)) {
-		const lastProperty = properties[properties.length - 1];
-
-		if (lastProperty) {
-			fixings.push(fixer.insertTextAfter(lastProperty, `, ${member}`));
-		} else {
-			fixings.push(fixer.replaceText(objectPattern, `{${member}}`));
-		}
-	}
-
-	return fixings;
-};
-
-const isInParentScope = (child, parent) => {
+const isChildInParentScope = (child, parent) => {
 	while (child) {
 		if (child === parent) {
 			return true;
@@ -35,40 +23,44 @@ const isInParentScope = (child, parent) => {
 	return false;
 };
 
-const getVariablesInScope = scope => {
-	const variables = new Set();
+const fixDestructuring = (fixer, objectPattern, member, newMember) => {
+	// Check if member needs to be renamed
+	const property = member === newMember ?
+		`${member}` :
+		`${member}: ${newMember}`;
+	const {properties} = objectPattern;
+	const lastProperty = properties[properties.length - 1];
 
-	while (scope) {
-		for (const variable of scope.variables) {
-			variables.add(variable.name);
-		}
-
-		scope = scope.upper;
+	if (lastProperty) {
+		return fixer.insertTextAfter(lastProperty, `, ${property}`);
 	}
 
-	return variables;
+	return fixer.replaceText(objectPattern, `{${property}}`);
 };
 
 const create = context => {
+	const {ecmaVersion} = context.parserOptions;
 	const source = context.getSourceCode();
 	const declarations = new Map();
 
 	return {
-		'VariableDeclarator[id.type="ObjectPattern"][init.type!="Literal"]'(node) {
+		[declaratorSelector]: node => {
 			declarations.set(source.getText(node.init), {
 				scope: context.getScope(),
 				variables: context.getDeclaredVariables(node),
 				objectPattern: node.id
 			});
 		},
-		MemberExpression(node) {
+		MemberExpression: node => {
 			const {parent, object, property} = node;
 
 			// Ignore member function calls and delete expressions
-			if ((parent.type === 'CallExpression' &&
+			if (
+				(parent.type === 'CallExpression' &&
 				parent.callee === node) ||
 				(parent.type === 'UnaryExpression' &&
-				parent.operator === 'delete')) {
+				parent.operator === 'delete')
+			) {
 				return;
 			}
 
@@ -78,29 +70,55 @@ const create = context => {
 				return;
 			}
 
-			const {scope, variables, objectPattern} = declaration;
+			const {scope, objectPattern} = declaration;
 			const memberScope = context.getScope();
 
 			// Property is destructured outside the current scope
-			if (!isInParentScope(memberScope, scope)) {
+			if (!isChildInParentScope(memberScope, scope)) {
 				return;
 			}
 
-			const memberVariables = getVariablesInScope(memberScope);
-			const member = source.getText(property);
+			const isNested = parent.type === 'MemberExpression';
 
-			// Exclude already destructured properties
-			for (const variable of variables) {
-				memberVariables.delete(variable.name);
+			if (isNested) {
+				context.report({
+					node,
+					messageId: MESSAGE_ID
+				});
+
+				return;
 			}
 
-			const isDefined = memberVariables.has(member) || member === 'arguments';
-			const isNested = parent.type === 'MemberExpression';
+			const destructurings = objectPattern.properties.filter(property =>
+				property.key.type === 'Identifier' && property.value.type === 'Identifier'
+			);
+			const expression = source.getText(node);
+			const member = source.getText(property);
+
+			// Member might already be destructured
+			const destructuredMember = destructurings.find(property =>
+				property.key.name === member
+			);
+			const newMember = destructuredMember ?
+				destructuredMember.value.name :
+				avoidCapture(member, [memberScope], ecmaVersion);
 
 			context.report({
 				node,
 				messageId: MESSAGE_ID,
-				fix: isDefined || isNested ? null : fixer => fix(fixer, source, objectPattern, node)
+				data: {
+					expression,
+					property: newMember
+				},
+				suggest: [{
+					messageId: MESSAGE_ID_SUGGEST,
+					fix: destructuredMember ?
+						fixer => [fixer.replaceText(node, newMember)] :
+						fixer => [
+							fixer.replaceText(node, newMember),
+							fixDestructuring(fixer, objectPattern, member, newMember)
+						]
+				}]
 			});
 		}
 	};
@@ -111,11 +129,12 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			url: getDocsUrl(__filename)
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		messages: {
-			[MESSAGE_ID]: 'Use destructured variables over properties.'
+			[MESSAGE_ID]: 'Use destructured variables over properties.',
+			[MESSAGE_ID_SUGGEST]: 'Replace `{{expression}}` with destructured property `{{property}}`.'
 		}
 	}
 };
