@@ -37,7 +37,6 @@ Configure it in `package.json`.
 			"unicorn/catch-error-name": "error",
 			"unicorn/consistent-function-scoping": "error",
 			"unicorn/custom-error-definition": "off",
-			"unicorn/disallow-objects-as-default": "error",
 			"unicorn/error-message": "error",
 			"unicorn/escape-case": "error",
 			"unicorn/expiring-todo-comments": "error",
@@ -56,6 +55,7 @@ Configure it in `package.json`.
 			"unicorn/no-nested-ternary": "error",
 			"unicorn/no-new-buffer": "error",
 			"unicorn/no-null": "error",
+			"unicorn/no-object-as-default": "error",
 			"unicorn/no-process-exit": "error",
 			"unicorn/no-reduce": "error",
 			"unicorn/no-unreadable-array-destructuring": "error",
@@ -100,7 +100,6 @@ Configure it in `package.json`.
 - [catch-error-name](docs/rules/catch-error-name.md) - Enforce a specific parameter name in catch clauses. *(fixable)*
 - [consistent-function-scoping](docs/rules/consistent-function-scoping.md) - Move function definitions to the highest possible scope.
 - [custom-error-definition](docs/rules/custom-error-definition.md) - Enforce correct `Error` subclassing. *(fixable)*
-- [disallow-objects-as-default](docs/rules/disallow-objects-as-default.md) - Disallow the use of objects as default parameters.
 - [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
 - [escape-case](docs/rules/escape-case.md) - Require escape sequences to use uppercase values. *(fixable)*
 - [expiring-todo-comments](docs/rules/expiring-todo-comments.md) - Add expiration conditions to TODO comments.
@@ -118,6 +117,7 @@ Configure it in `package.json`.
 - [no-nested-ternary](docs/rules/no-nested-ternary.md) - Disallow nested ternary expressions. *(partly fixable)*
 - [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 - [no-null](docs/rules/no-null.md) - Disallow the use of the `null` literal.
+- [no-object-as-default](docs/rules/no-object-as-default.md) - Disallow the use of objects as default parameters.
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
 - [no-reduce](docs/rules/no-reduce.md) - Disallow `Array#reduce()` and `Array#reduceRight()`.
 - [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
