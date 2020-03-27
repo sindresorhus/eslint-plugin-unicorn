@@ -6,6 +6,7 @@ import rule from '../rules/prefer-number-properties';
 const ruleId = 'prefer-number-properties';
 const methodMessageId = 'method';
 const propertyMessageId = 'property';
+const fixMethodMessageId = 'fixMethod';
 
 const methods = {
 	parseInt: {
@@ -37,7 +38,7 @@ const typescriptRuleTester = avaRuleTester(test, {
 });
 
 const invalidMethodTest = ({code, output, name}) => {
-	const isSafe = methods[name].safe;
+	const {safe} = methods[name];
 
 	const error = {
 		messageId: methodMessageId,
@@ -46,10 +47,24 @@ const invalidMethodTest = ({code, output, name}) => {
 		}
 	};
 
+	const suggestions = safe ? undefined : [
+		{
+			messageId: fixMethodMessageId,
+			data: {
+				name
+			}
+		}
+	];
+
 	return {
 		code,
-		output: isSafe ? output : code,
-		errors: isSafe ? [{...error, suggestions: undefined}] : [{suggestions: [error]}]
+		output: safe ? output : code,
+		errors: [
+			{
+				...error,
+				suggestions
+			}
+		]
 	};
 };
 
@@ -130,9 +145,13 @@ ruleTester.run(ruleId, rule, {
 					}
 				},
 				{
+					messageId: methodMessageId,
+					data: {
+						name: 'isNaN'
+					},
 					suggestions: [
 						{
-							messageId: methodMessageId,
+							messageId: fixMethodMessageId,
 							data: {
 								name: 'isNaN'
 							}
@@ -140,9 +159,13 @@ ruleTester.run(ruleId, rule, {
 					]
 				},
 				{
+					messageId: methodMessageId,
+					data: {
+						name: 'isFinite'
+					},
 					suggestions: [
 						{
-							messageId: methodMessageId,
+							messageId: fixMethodMessageId,
 							data: {
 								name: 'isFinite'
 							}

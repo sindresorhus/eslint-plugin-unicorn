@@ -5,6 +5,7 @@ const renameIdentifier = require('./utils/rename-identifier');
 
 const methodMessageId = 'method';
 const propertyMessageId = 'property';
+const fixMethodMessageId = 'fixMethod';
 
 const methods = {
 	// Safe
@@ -61,7 +62,15 @@ const create = context => {
 			if (isSafe) {
 				problem.fix = fix;
 			} else {
-				problem.suggest = [{messageId: methodMessageId, fix}];
+				problem.suggest = [
+					{
+						messageId: fixMethodMessageId,
+						data: {
+							name
+						},
+						fix
+					}
+				];
 			}
 
 			context.report(problem);
@@ -109,7 +118,8 @@ module.exports = {
 		fixable: 'code',
 		messages: {
 			[methodMessageId]: 'Prefer `Number.{{name}}()` over `{{name}}()`.',
-			[propertyMessageId]: 'Prefer `Number.{{name}}` over `{{name}}`.'
+			[propertyMessageId]: 'Prefer `Number.{{name}}` over `{{name}}`.',
+			[fixMethodMessageId]: 'Replace `{{name}}()` with `Number.{{name}}()`.'
 		}
 	}
 };
