@@ -34,7 +34,7 @@ const createError = (match, suggest) => [
 	}
 ];
 
-const createSuggestionError = (match, suggest) => [
+const createSuggestionError = (match, suggest, output) => [
 	{
 		message: `Prefer \`${suggest}\` over \`${match}\`.`,
 		suggestions: [
@@ -43,7 +43,8 @@ const createSuggestionError = (match, suggest) => [
 				messageId: SUGGESTION_MESSAGE_ID,
 				data: {
 					match,
-					suggest
+					suggest,
+					output
 				}
 			}
 		]
@@ -137,7 +138,11 @@ ruleTester.run('string-content', rule, {
 		{
 			code: 'const foo = "unicorn"',
 			options: [{patterns: {unicorn: {...patterns.unicorn, fix: false}}}],
-			errors: createSuggestionError('unicorn', '🦄')
+			errors: createSuggestionError(
+				'unicorn',
+				'🦄',
+				'const foo = "🦄"'
+			)
 		},
 		// Conflict patterns
 		{
