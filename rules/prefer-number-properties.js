@@ -3,9 +3,9 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const isShadowed = require('./utils/is-shadowed');
 const renameIdentifier = require('./utils/rename-identifier');
 
-const methodMessageId = 'method';
-const propertyMessageId = 'property';
-const fixMethodMessageId = 'fixMethod';
+const METHOD_ERROR_MESSAGE_ID = 'method-error';
+const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
+const PROPERTY_ERROR_MESSAGE_ID = 'property-error';
 
 const methods = {
 	// Safe
@@ -51,7 +51,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				messageId: methodMessageId,
+				messageId: METHOD_ERROR_MESSAGE_ID,
 				data: {
 					name
 				}
@@ -64,7 +64,7 @@ const create = context => {
 			} else {
 				problem.suggest = [
 					{
-						messageId: fixMethodMessageId,
+						messageId: METHOD_SUGGESTION_MESSAGE_ID,
 						data: {
 							name
 						},
@@ -98,7 +98,7 @@ const create = context => {
 			const {name} = node;
 			context.report({
 				node,
-				messageId: propertyMessageId,
+				messageId: PROPERTY_ERROR_MESSAGE_ID,
 				data: {
 					name
 				},
@@ -117,9 +117,9 @@ module.exports = {
 		},
 		fixable: 'code',
 		messages: {
-			[methodMessageId]: 'Prefer `Number.{{name}}()` over `{{name}}()`.',
-			[propertyMessageId]: 'Prefer `Number.{{name}}` over `{{name}}`.',
-			[fixMethodMessageId]: 'Replace `{{name}}()` with `Number.{{name}}()`.'
+			[METHOD_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}()` over `{{name}}()`.',
+			[METHOD_SUGGESTION_MESSAGE_ID]: 'Replace `{{name}}()` with `Number.{{name}}()`.',
+			[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}` over `{{name}}`.'
 		}
 	}
 };
