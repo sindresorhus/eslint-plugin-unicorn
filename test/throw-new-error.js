@@ -22,7 +22,14 @@ ruleTester.run('new-error', rule, {
 		'throw new URIError()',
 		'throw new CustomError()',
 		'throw new FooBarBazError()',
-		'throw new ABCError()'
+		'throw new ABCError()',
+
+		// Not `FooError` like
+		'throw getError()',
+		// Not `CallExpression`
+		'throw CustomError',
+		// Not `Identifier`
+		'throw lib.Error()'
 	],
 	invalid: [
 		{
