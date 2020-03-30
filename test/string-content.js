@@ -1,6 +1,9 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/string-content';
+
+const SUGGESTION_MESSAGE_ID = 'replace';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -18,59 +21,85 @@ const patterns = {
 	quote: {suggest: '\'"'}
 };
 
+const noToYesPattern = {
+	no: {
+		suggest: 'yes'
+	}
+};
+
 const createError = (match, suggest) => [
 	{
-		message: `Prefer \`${suggest}\` over \`${match}\`.`
+		message: `Prefer \`${suggest}\` over \`${match}\`.`,
+		suggestions: undefined
+	}
+];
+
+const createSuggestionError = (match, suggest, output) => [
+	{
+		message: `Prefer \`${suggest}\` over \`${match}\`.`,
+		suggestions: [
+			{
+				desc: `Replace \`${match}\` with \`${suggest}\`.`,
+				messageId: SUGGESTION_MESSAGE_ID,
+				data: {
+					match,
+					suggest,
+					output
+				}
+			}
+		]
 	}
 ];
 
 ruleTester.run('string-content', rule, {
 	valid: [
-		// `Literal` string
-		'const foo = \'🦄\';',
-		// Not `a string`
-		'const foo = 0;',
-		// Not `Literal`
-		'const foo = bar;',
-		// Disable default patterns
-		{
-			code: 'const foo = \'\\\'\'',
-			options: [{patterns: {'\'': false}}]
-		},
-		/* eslint-disable no-template-curly-in-string */
-		// `TemplateLiteral`
-		'const foo = `🦄`',
-		// Should not escape
-		'const foo = `\\`\\${1}`',
-		// Ignored
-		`
-			const foo = gql\`{
-				field(input: '...')
-			}\`;
-		`,
-		`
-			const foo = styled.div\`
-				background: url('...')
-			\`;
-		`,
-		`
-			const foo = html\`
-				<div class='test'>...</div>
-			\`;
-		`,
-		`
-			const foo = svg\`
-				<svg xmlns="http://www.w3.org/2000/svg"><path fill='#00CD9F'/></svg>
-			\`;
-		`
-		/* eslint-enable no-template-curly-in-string */
+		'const foo = "";',
+		...[
+			// `Literal` string
+			'const foo = \'🦄\';',
+			// Not `a string`
+			'const foo = 0;',
+			// Not `Literal`
+			'const foo = bar;',
+			/* eslint-disable no-template-curly-in-string */
+			// `TemplateLiteral`
+			'const foo = `🦄`',
+			// Should not escape
+			'const foo = `\\`\\${1}`',
+			// Ignored
+			outdent`
+				const foo = gql\`{
+					field(input: 'no')
+				}\`;
+			`,
+			outdent`
+				const foo = styled.div\`
+					background: url('no')
+				\`;
+			`,
+			outdent`
+				const foo = html\`
+					<div class='test'>no</div>
+				\`;
+			`,
+			outdent`
+				const foo = svg\`
+					<svg xmlns="http://www.w3.org/2000/svg"><text>no</text></svg>
+				\`;
+			`
+			/* eslint-enable no-template-curly-in-string */
+		].map(code => ({
+			code,
+			options: [{patterns: noToYesPattern}]
+		}))
 	],
 	invalid: [
 		// `Literal` string
 		{
-			code: 'const foo = \'\\\'\'',
-			output: 'const foo = \'’\'',
-			errors: createError('\'', '’')
+			code: 'const foo = \'no\'',
+			output: 'const foo = \'yes\'',
+			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes')
 		},
 		// Custom patterns
 		{
@@ -78,13 +107,6 @@ ruleTester.run('string-content', rule, {
 			output: 'const foo = \'🦄\'',
 			options: [{patterns}],
 			errors: createError('unicorn', '🦄')
-		},
-		// Custom patterns should not override default patterns
-		{
-			code: 'const foo = \'\\\'\'',
-			output: 'const foo = \'’\'',
-			options: [{patterns}],
-			errors: createError('\'', '’')
 		},
 		// Escape single quote
 		{
@@ -116,7 +138,11 @@ ruleTester.run('string-content', rule, {
 		{
 			code: 'const foo = "unicorn"',
 			options: [{patterns: {unicorn: {...patterns.unicorn, fix: false}}}],
-			errors: createError('unicorn', '🦄')
+			errors: createSuggestionError(
+				'unicorn',
+				'🦄',
+				'const foo = "🦄"'
+			)
 		},
 		// Conflict patterns
 		{
@@ -169,31 +195,33 @@ ruleTester.run('string-content', rule, {
 		// Should not crash on multiline string
 		// https://github.com/avajs/ava/blob/7f99aef61f3aed2389ca9407115ad4c9aecada92/test/assert.js#L1477
 		{
-			code: 'const foo = "\'\\n"',
-			output: 'const foo = "’\\n"',
-			options: [{patterns}],
-			errors: createError('\'', '’')
+			code: 'const foo = "no\\n"',
+			output: 'const foo = "yes\\n"',
+			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes')
 		},
 		// https://github.com/sindresorhus/execa/blob/df08cfb2d849adb31dc764ca3ab5f29e5b191d50/test/error.js#L20
 		{
-			code: 'const foo = "\'\\r"',
-			output: 'const foo = "’\\r"',
-			options: [{patterns}],
-			errors: createError('\'', '’')
+			code: 'const foo = "no\\r"',
+			output: 'const foo = "yes\\r"',
+			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes')
 		},
 
 		/* eslint-disable no-template-curly-in-string */
 		// `TemplateLiteral`
 		{
-			code: 'const foo = `\'`',
-			output: 'const foo = `’`',
-			errors: createError('\'', '’')
+			code: 'const foo = `no`',
+			output: 'const foo = `yes`',
+			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes')
 		},
 		// `TemplateElement` position
 		{
-			code: 'const foo = `\'${foo}\'${foo}\'`',
-			output: 'const foo = `’${foo}’${foo}’`',
-			errors: Array.from({length: 3}).fill(createError('\'', '’'))
+			code: 'const foo = `no${foo}no${foo}no`',
+			output: 'const foo = `yes${foo}yes${foo}yes`',
+			options: [{patterns: noToYesPattern}],
+			errors: Array.from({length: 3}).fill(createError('no', 'yes'))
 		},
 		// Escape
 		{
@@ -222,9 +250,40 @@ ruleTester.run('string-content', rule, {
 		},
 		// Not ignored tag
 		{
-			code: 'const foo = notIgnoredTag`\'`',
-			output: 'const foo = notIgnoredTag`’`',
-			errors: createError('\'', '’')
+			code: 'const foo = notIgnoredTag`no`',
+			output: 'const foo = notIgnoredTag`yes`',
+			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes')
+		},
+
+		// Object is not `Identifier`
+		{
+			code: outdent`
+				const foo = 'styled'[div]\`
+					background: url('no')
+				\`;
+			`,
+			output: outdent`
+				const foo = 'styled'[div]\`
+					background: url('yes')
+				\`;
+			`,
+			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes')
+		},
+		{
+			code: outdent`
+				const foo = bar.html\`
+					background: url('no')
+				\`;
+			`,
+			output: outdent`
+				const foo = bar.html\`
+					background: url('yes')
+				\`;
+			`,
+			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes')
 		}
 		/* eslint-enable no-template-curly-in-string */
 	]
