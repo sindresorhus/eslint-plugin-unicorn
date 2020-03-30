@@ -4,8 +4,9 @@ import {outdent} from 'outdent';
 import rule from '../rules/prefer-number-properties';
 
 const ruleId = 'prefer-number-properties';
-const methodMessageId = 'method';
-const propertyMessageId = 'property';
+const METHOD_ERROR_MESSAGE_ID = 'method-error';
+const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
+const PROPERTY_ERROR_MESSAGE_ID = 'property-error';
 
 const methods = {
 	parseInt: {
@@ -36,20 +37,41 @@ const typescriptRuleTester = avaRuleTester(test, {
 	parser: require.resolve('@typescript-eslint/parser')
 });
 
-const invalidMethodTest = ({code, output, name}) => {
-	const isSafe = methods[name].safe;
+const createError = (name, suggestionOutput) => {
+	const {safe} = methods[name];
 
 	const error = {
-		messageId: methodMessageId,
+		messageId: METHOD_ERROR_MESSAGE_ID,
 		data: {
 			name
 		}
 	};
 
+	const suggestions = safe ? undefined : [
+		{
+			messageId: METHOD_SUGGESTION_MESSAGE_ID,
+			data: {
+				name
+			},
+			output: suggestionOutput
+		}
+	];
+
+	return {
+		...error,
+		suggestions
+	};
+};
+
+const invalidMethodTest = ({code, output, name, suggestionOutput}) => {
+	const {safe} = methods[name];
+
 	return {
 		code,
-		output: isSafe ? output : code,
-		errors: isSafe ? [{...error, suggestions: undefined}] : [{suggestions: [error]}]
+		output: safe ? output : code,
+		errors: [
+			createError(name, suggestionOutput)
+		]
 	};
 };
 
@@ -97,10 +119,12 @@ ruleTester.run(ruleId, rule, {
 		}),
 		invalidMethodTest({
 			code: 'isNaN(10);',
+			suggestionOutput: 'Number.isNaN(10);',
 			name: 'isNaN'
 		}),
 		invalidMethodTest({
 			code: 'isFinite(10);',
+			suggestionOutput: 'Number.isFinite(10);',
 			name: 'isFinite'
 		}),
 		{
@@ -117,38 +141,26 @@ ruleTester.run(ruleId, rule, {
 				const d = isFinite(10);
 			`,
 			errors: [
-				{
-					messageId: methodMessageId,
-					data: {
-						name: 'parseInt'
-					}
-				},
-				{
-					messageId: methodMessageId,
-					data: {
-						name: 'parseFloat'
-					}
-				},
-				{
-					suggestions: [
-						{
-							messageId: methodMessageId,
-							data: {
-								name: 'isNaN'
-							}
-						}
-					]
-				},
-				{
-					suggestions: [
-						{
-							messageId: methodMessageId,
-							data: {
-								name: 'isFinite'
-							}
-						}
-					]
-				}
+				createError('parseInt'),
+				createError('parseFloat'),
+				createError(
+					'isNaN',
+					outdent`
+						const a = parseInt("10", 2);
+						const b = parseFloat("10.5");
+						const c = Number.isNaN(10);
+						const d = isFinite(10);
+					`
+				),
+				createError(
+					'isFinite',
+					outdent`
+						const a = parseInt("10", 2);
+						const b = parseFloat("10.5");
+						const c = isNaN(10);
+						const d = Number.isFinite(10);
+					`
+				)
 			]
 		}
 	]
@@ -157,7 +169,7 @@ ruleTester.run(ruleId, rule, {
 // NaN
 const errorNaN = [
 	{
-		messageId: propertyMessageId,
+		messageId: PROPERTY_ERROR_MESSAGE_ID,
 		data: {
 			name: 'NaN'
 		}

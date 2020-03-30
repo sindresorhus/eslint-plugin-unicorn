@@ -4,7 +4,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const {notDomNode} = require('./utils/not-dom-node');
 const needsSemicolon = require('./utils/needs-semicolon');
-const isValueNotUsable = require('./utils/is-value-not-usable')
+const isValueNotUsable = require('./utils/is-value-not-usable');
 
 const selector = methodSelector({
 	name: 'removeChild',
@@ -41,7 +41,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				messageId: ERROR_MESSAGE_ID,
+				messageId: ERROR_MESSAGE_ID
 			};
 
 			if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node)) {
@@ -52,7 +52,7 @@ const create = context => {
 						messageId: SUGGESTION_MESSAGE_ID,
 						fix
 					}
-				]
+				];
 			}
 
 			context.report(problem);

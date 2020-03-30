@@ -35,16 +35,16 @@ const invalidTestCase = ({code, output, suggestionOutput}) => {
 		};
 	}
 
-	return  {
+	return {
 		code,
-		output: output,
+		output,
 		errors: [
 			{
 				messageId: ERROR_MESSAGE_ID,
 				suggestions: undefined
 			}
-		],
-	}
+		]
+	};
 };
 
 ruleTester.run('prefer-node-remove', rule, {
@@ -238,7 +238,7 @@ ruleTester.run('prefer-node-remove', rule, {
 			suggestionOutput: 'foo(bar = child.remove())'
 		},
 
-		// `parentNode` has sideEffect
+		// `parentNode` has side effect
 		{
 			code: 'foo().removeChild(child)',
 			suggestionOutput: 'child.remove()'
