@@ -76,9 +76,9 @@ For example, if you want to enforce `...` → `…`:
 }
 ```
 
-## Pattern Ideas
+## Pattern ideas
 
-- Use `’` instead of `'` to avoid escape.
+- Enforce `’` over `'` to avoid escape.
 - Enforce `…` over `...` for better typography.
 - Enforce `→` over `->` for better typography.
-- Enforce `https:` over `http:` to secure your links.
+- Enforce `^https:\\/\\/` over `^http:\\/\\/` to secure your links.
