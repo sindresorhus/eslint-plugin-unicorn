@@ -13,7 +13,9 @@ const impossibleNodeTypes = [
 	'TemplateLiteral'
 ];
 
-const notDomNode = node =>
+// We might need this later
+/* istanbul ignore next */
+const isNotDomNode = node =>
 	impossibleNodeTypes.includes(node.type) ||
 	(node.type === 'Identifier' && node.name === 'undefined');
 
@@ -23,6 +25,6 @@ const notDomNodeSelector = node => [
 ].join('');
 
 module.exports = {
-	notDomNode,
+	isNotDomNode,
 	notDomNodeSelector
 };

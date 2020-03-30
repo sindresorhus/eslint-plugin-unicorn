@@ -2,14 +2,18 @@
 const {isParenthesized, hasSideEffect} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
-const {notDomNode} = require('./utils/not-dom-node');
+const {notDomNodeSelector} = require('./utils/not-dom-node');
 const needsSemicolon = require('./utils/needs-semicolon');
 const isValueNotUsable = require('./utils/is-value-not-usable');
 
-const selector = methodSelector({
-	name: 'removeChild',
-	length: 1
-});
+const selector = [
+	methodSelector({
+		name: 'removeChild',
+		length: 1
+	}),
+	notDomNodeSelector('callee.object'),
+	notDomNodeSelector('arguments.0')
+].join('');
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_MESSAGE_ID = 'suggestion';
@@ -22,9 +26,10 @@ const create = context => {
 			const parentNode = node.callee.object;
 			const childNode = node.arguments[0];
 
-			if (notDomNode(parentNode) || notDomNode(childNode)) {
-				return;
-			}
+			const problem = {
+				node,
+				messageId: ERROR_MESSAGE_ID
+			};
 
 			const fix = fixer => {
 				let childNodeText = sourceCode.getText(childNode);
@@ -37,11 +42,6 @@ const create = context => {
 				}
 
 				return fixer.replaceText(node, `${childNodeText}.remove()`);
-			};
-
-			const problem = {
-				node,
-				messageId: ERROR_MESSAGE_ID
 			};
 
 			if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node)) {
