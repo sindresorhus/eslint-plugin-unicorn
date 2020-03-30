@@ -19,22 +19,26 @@ const methods = {
 const methodsSelector = [
 	'CallExpression',
 	'>',
-	'Identifier',
+	'Identifier.callee',
 	`:matches(${Object.keys(methods).map(name => `[name="${name}"]`).join(', ')})`
 ].join('');
 
 const propertiesSelector = [
+	'Identifier',
+	'[name="NaN"]',
 	`:not(${
 		[
-			'MemberExpression[computed=false]',
-			'FunctionDeclaration',
-			'ClassDeclaration',
-			'MethodDefinition'
+			'MemberExpression[computed=false] > Identifier.property',
+			'FunctionDeclaration > Identifier.id',
+			'ClassDeclaration > Identifier.id',
+			'MethodDefinition > Identifier.key',
+			'VariableDeclarator > Identifier.id',
+			'Property[shorthand=false] > Identifier.key',
+			'TSDeclareFunction > Identifier.id',
+			'TSEnumMember > Identifier.id',
+			'TSPropertySignature > Identifier.key'
 		].join(', ')
-	})`,
-	'>',
-	'Identifier',
-	'[name="NaN"]'
+	})`
 ].join('');
 
 const create = context => {
@@ -77,21 +81,6 @@ const create = context => {
 		},
 		[propertiesSelector]: node => {
 			if (isShadowed(context.getScope(), node)) {
-				return;
-			}
-
-			const {parent} = node;
-
-			if (
-				parent &&
-				(
-					(parent.type === 'VariableDeclarator' && parent.id === node) ||
-					(parent.type === 'Property' && !parent.shorthand && parent.key === node) ||
-					(parent.type === 'TSDeclareFunction' && parent.id === node) ||
-					parent.type === 'TSEnumMember' ||
-					parent.type === 'TSPropertySignature'
-				)
-			) {
 				return;
 			}
 

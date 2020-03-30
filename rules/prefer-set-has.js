@@ -10,7 +10,7 @@ const selector = [
 	'VariableDeclarator',
 	'[init.type="ArrayExpression"]',
 	'>',
-	'Identifier'
+	'Identifier.id'
 ].join('');
 
 const MESSAGE_ID = 'preferSetHas';

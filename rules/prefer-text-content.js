@@ -6,13 +6,14 @@ const message = 'Prefer `.textContent` over `.innerText`.';
 const selector = [
 	'MemberExpression',
 	'[computed=false]',
-	'[property.type="Identifier"]',
-	'[property.name="innerText"]'
+	'>',
+	'Identifier.property',
+	'[name="innerText"]'
 ].join('');
 
 const create = context => {
 	return {
-		[selector]: ({property: node}) => {
+		[selector]: node => {
 			context.report({
 				node,
 				message,
