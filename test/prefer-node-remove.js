@@ -16,22 +16,35 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const invalidTestCase = ({code, output}) => {
-	return {
+const invalidTestCase = ({code, output, suggestionOutput}) => {
+	if (suggestionOutput) {
+		return {
+			code,
+			output: code,
+			errors: [
+				{
+					messageId: ERROR_MESSAGE_ID,
+					suggestions: [
+						{
+							messageId: SUGGESTION_MESSAGE_ID,
+							output: suggestionOutput
+						}
+					]
+				}
+			]
+		};
+	}
+
+	return  {
 		code,
-		output: code,
+		output: output,
 		errors: [
 			{
 				messageId: ERROR_MESSAGE_ID,
-				suggestions: [
-					{
-						messageId: SUGGESTION_MESSAGE_ID,
-						output
-					}
-				]
+				suggestions: undefined
 			}
-		]
-	};
+		],
+	}
 };
 
 ruleTester.run('prefer-node-remove', rule, {
@@ -63,6 +76,7 @@ ruleTester.run('prefer-node-remove', rule, {
 		...notDomNodeTypes.map(data => `foo.removeChild(${data})`)
 	],
 	invalid: [
+		// Auto fix
 		{
 			code: 'parentNode.removeChild(foo)',
 			output: 'foo.remove()'
@@ -169,59 +183,69 @@ ruleTester.run('prefer-node-remove', rule, {
 		// Value of `parentNode.removeChild` call is use
 		{
 			code: 'if (parentNode.removeChild(foo)) {}',
-			output: 'if (foo.remove()) {}'
+			suggestionOutput: 'if (foo.remove()) {}'
 		},
 		{
 			code: 'var removed = parentNode.removeChild(child);',
-			output: 'var removed = child.remove();'
+			suggestionOutput: 'var removed = child.remove();'
 		},
 		{
 			code: 'const foo = parentNode.removeChild(child);',
-			output: 'const foo = child.remove();'
+			suggestionOutput: 'const foo = child.remove();'
 		},
 		{
 			code: 'foo.bar(parentNode.removeChild(child));',
-			output: 'foo.bar(child.remove());'
+			suggestionOutput: 'foo.bar(child.remove());'
 		},
 		{
 			code: 'parentNode.removeChild(child) || "foo";',
-			output: 'child.remove() || "foo";'
+			suggestionOutput: 'child.remove() || "foo";'
 		},
 		{
 			code: 'parentNode.removeChild(child) + 0;',
-			output: 'child.remove() + 0;'
+			suggestionOutput: 'child.remove() + 0;'
 		},
 		{
 			code: '+parentNode.removeChild(child);',
-			output: '+child.remove();'
+			suggestionOutput: '+child.remove();'
 		},
 		{
 			code: 'parentNode.removeChild(child) ? "foo" : "bar";',
-			output: 'child.remove() ? "foo" : "bar";'
+			suggestionOutput: 'child.remove() ? "foo" : "bar";'
 		},
 		{
 			code: 'if (parentNode.removeChild(child)) {}',
-			output: 'if (child.remove()) {}'
+			suggestionOutput: 'if (child.remove()) {}'
 		},
 		{
 			code: 'const foo = [parentNode.removeChild(child)]',
-			output: 'const foo = [child.remove()]'
+			suggestionOutput: 'const foo = [child.remove()]'
 		},
 		{
 			code: 'const foo = { bar: parentNode.removeChild(child) }',
-			output: 'const foo = { bar: child.remove() }'
+			suggestionOutput: 'const foo = { bar: child.remove() }'
 		},
 		{
 			code: 'function foo() { return parentNode.removeChild(child); }',
-			output: 'function foo() { return child.remove(); }'
+			suggestionOutput: 'function foo() { return child.remove(); }'
 		},
 		{
 			code: 'const foo = () => { return parentElement.removeChild(child); }',
-			output: 'const foo = () => { return child.remove(); }'
+			suggestionOutput: 'const foo = () => { return child.remove(); }'
 		},
 		{
 			code: 'foo(bar = parentNode.removeChild(child))',
-			output: 'foo(bar = child.remove())'
+			suggestionOutput: 'foo(bar = child.remove())'
+		},
+
+		// `parentNode` has sideEffect
+		{
+			code: 'foo().removeChild(child)',
+			suggestionOutput: 'child.remove()'
+		},
+		{
+			code: 'foo[doSomething()].removeChild(child)',
+			suggestionOutput: 'child.remove()'
 		}
 	].map(options => invalidTestCase(options))
 });
