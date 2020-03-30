@@ -13,7 +13,7 @@ This rule ignores the following tagged template literals as they're known to con
 - ``svg`…` ``
 - ``styled.*`…` ``
 
-This rule has no effect by default, you need set [`patterns`](#patterns) to check string content.
+**This rule has no effect by default. You need set [`patterns`](#patterns) to check string content.**
 
 ## Fail
 
