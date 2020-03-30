@@ -21,6 +21,20 @@ const createError = name => [
 	}
 ];
 
+const methodsReturnsArray = [
+	'concat',
+	'copyWithin',
+	'fill',
+	'filter',
+	'flat',
+	'flatMap',
+	'map',
+	'reverse',
+	'slice',
+	'sort',
+	'splice'
+];
+
 ruleTester.run(ruleId, rule, {
 	valid: [
 		outdent`
@@ -84,17 +98,8 @@ ruleTester.run(ruleId, rule, {
 			const exists = foo.includes(1);
 		`,
 
-		// Not `ArrayExpression`, maybe we can enable some of those later
 		outdent`
 			const foo = bar;
-			const exists = foo.includes(1);
-		`,
-		outdent`
-			const foo = [1, 2, 3].slice();
-			const exists = foo.includes(1);
-		`,
-		outdent`
-			const foo = Array.from(bar);
 			const exists = foo.includes(1);
 		`,
 
@@ -171,6 +176,100 @@ ruleTester.run(ruleId, rule, {
 			const foo = [1, 2, 3];
 			module.exports.foo = foo;
 			const exists = foo.includes(1);
+		`,
+
+		// `Array()`
+		outdent`
+			const foo = NotArray(1, 2);
+			const exists = foo.includes(1);
+		`,
+
+		// `new Array()`
+		outdent`
+			const foo = new NotArray(1, 2);
+			const exists = foo.includes(1);
+		`,
+
+		// `Array.from()` / `Array.of()`
+		// Not `Array`
+		outdent`
+			const foo = NotArray.from({length: 1}, (_, index) => index);
+			const exists = foo.includes(1);
+		`,
+		outdent`
+			const foo = NotArray.of(1, 2);
+			const exists = foo.includes(1);
+		`,
+		// Not `Listed`
+		outdent`
+			const foo = Array.notListed();
+			const exists = foo.includes(1);
+		`,
+		// Computed
+		outdent`
+			const foo = Array[from]({length: 1}, (_, index) => index);
+			const exists = foo.includes(1);
+		`,
+		outdent`
+			const foo = Array[of](1, 2);
+			const exists = foo.includes(1);
+		`,
+		// Not Identifier
+		outdent`
+			const foo = 'Array'.from({length: 1}, (_, index) => index);
+			const exists = foo.includes(1);
+		`,
+		outdent`
+			const foo = 'Array'.of(1, 2);
+			const exists = foo.includes(1);
+		`,
+		outdent`
+			const foo = Array['from']({length: 1}, (_, index) => index);
+			const exists = foo.includes(1);
+		`,
+		outdent`
+			const foo = Array['of'](1, 2);
+			const exists = foo.includes(1);
+		`,
+
+		outdent`
+			const foo = of(1, 2);
+			const exists = foo.includes(1);
+		`,
+		outdent`
+			const foo = from({length: 1}, (_, index) => index);
+			const exists = foo.includes(1);
+		`,
+
+		// Methods
+		// Not call
+		...methodsReturnsArray.map(method => outdent`
+			const foo = bar.${method};
+			const exists = foo.includes(1);
+		`),
+		...methodsReturnsArray.map(method => outdent`
+			const foo = new bar.${method}();
+			const exists = foo.includes(1);
+		`),
+		// Not MemberExpression
+		...methodsReturnsArray.map(method => outdent`
+			const foo = ${method}();
+			const exists = foo.includes(1);
+		`),
+		// Computed
+		...methodsReturnsArray.map(method => outdent`
+			const foo = bar[${method}]();
+			const exists = foo.includes(1);
+		`),
+		// Not `Identifier`
+		...methodsReturnsArray.map(method => outdent`
+			const foo = bar["${method}"]();
+			const exists = foo.includes(1);
+		`),
+		// Not listed method
+		outdent`
+			const foo = bar.notListed();
+			const exists = foo.includes(1);
 		`
 	],
 	invalid: [
@@ -238,6 +337,71 @@ ruleTester.run(ruleId, rule, {
 				...createError('foo'),
 				...createError('bar')
 			]
-		}
+		},
+
+		// `Array()`
+		{
+			code: outdent`
+				const foo = Array(1, 2);
+				const exists = foo.includes(1);
+			`,
+			output: outdent`
+				const foo = new Set(Array(1, 2));
+				const exists = foo.has(1);
+			`,
+			errors: createError('foo')
+		},
+
+		// `new Array()`
+		{
+			code: outdent`
+				const foo = new Array(1, 2);
+				const exists = foo.includes(1);
+			`,
+			output: outdent`
+				const foo = new Set(new Array(1, 2));
+				const exists = foo.has(1);
+			`,
+			errors: createError('foo')
+		},
+
+		// `Array.from()`
+		{
+			code: outdent`
+				const foo = Array.from({length: 1}, (_, index) => index);
+				const exists = foo.includes(1);
+			`,
+			output: outdent`
+				const foo = new Set(Array.from({length: 1}, (_, index) => index));
+				const exists = foo.has(1);
+			`,
+			errors: createError('foo')
+		},
+
+		// `Array.of()`
+		{
+			code: outdent`
+				const foo = Array.of(1, 2);
+				const exists = foo.includes(1);
+			`,
+			output: outdent`
+				const foo = new Set(Array.of(1, 2));
+				const exists = foo.has(1);
+			`,
+			errors: createError('foo')
+		},
+
+		// Methods
+		...methodsReturnsArray.map(method => ({
+			code: outdent`
+				const foo = bar.${method}();
+				const exists = foo.includes(1);
+			`,
+			output: outdent`
+				const foo = new Set(bar.${method}());
+				const exists = foo.has(1);
+			`,
+			errors: createError('foo')
+		}))
 	]
 });

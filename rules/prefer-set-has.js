@@ -2,13 +2,91 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const getReferences = require('./utils/get-references');
 
+// `[]`
+const arrayExpressionSelector = [
+	'[init.type="ArrayExpression"]'
+];
+
+// `Array()`
+const ArraySelector = [
+	'[init.type="CallExpression"]',
+	'[init.callee.type="Identifier"]',
+	'[init.callee.name="Array"]'
+];
+
+// `new Array()`
+const newArraySelector = [
+	'[init.type="NewExpression"]',
+	'[init.callee.type="Identifier"]',
+	'[init.callee.name="Array"]'
+];
+
+// `Array.from()`
+// `Array.of()`
+const arrayStaticMethodSelector = [
+	'[init.type="CallExpression"]',
+	'[init.callee.type="MemberExpression"]',
+	'[init.callee.computed=false]',
+	'[init.callee.object.type="Identifier"]',
+	'[init.callee.object.name="Array"]',
+	'[init.callee.property.type="Identifier"]',
+	`:matches(${
+		[
+			'from',
+			'of'
+		].map(method => `[init.callee.property.name="${method}"]`).join(',')
+	})`
+];
+
+// `foo.concat()`
+// `foo.copyWithin()`
+// `foo.fill()`
+// `foo.filter()`
+// `foo.flat()`
+// `foo.flatMap()`
+// `foo.map()`
+// `foo.reverse()`
+// `foo.slice()`
+// `foo.sort()`
+// `foo.splice()`
+const arrayMethodSelector = [
+	'[init.type="CallExpression"]',
+	'[init.callee.type="MemberExpression"]',
+	'[init.callee.computed=false]',
+	'[init.callee.property.type="Identifier"]',
+	`:matches(${
+		[
+			'concat',
+			'copyWithin',
+			'fill',
+			'filter',
+			'flat',
+			'flatMap',
+			'map',
+			'reverse',
+			'slice',
+			'sort',
+			'splice'
+		].map(method => `[init.callee.property.name="${method}"]`).join(',')
+	})`
+];
+
 const selector = [
 	':not(ExportNamedDeclaration)',
 	'>',
 	'VariableDeclaration',
 	'>',
 	'VariableDeclarator',
-	'[init.type="ArrayExpression"]',
+	`:matches(${
+		[
+			arrayExpressionSelector,
+			ArraySelector,
+			newArraySelector,
+			arrayStaticMethodSelector,
+			arrayMethodSelector
+		].map(pieces => pieces.join(''))
+			.join(',')
+	})`,
 	'>',
 	'Identifier'
 ].join('');
