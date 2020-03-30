@@ -228,6 +228,11 @@ ruleTester.run(ruleId, rule, {
 			code: 'const {foo = NaN} = {};',
 			output: 'const {foo = Number.NaN} = {};',
 			errors: errorNaN
+		},
+		{
+			code: 'const foo = NaN.toString();',
+			output: 'const foo = Number.NaN.toString();',
+			errors: errorNaN
 		}
 	]
 });
