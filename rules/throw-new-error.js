@@ -3,21 +3,20 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const selector = [
 	'ThrowStatement',
-	'[argument.type="CallExpression"]',
-	'[argument.callee.type="Identifier"]'
+	'>',
+	'CallExpression',
+	'[callee.type="Identifier"]'
 ].join('');
 const customError = /^(?:[A-Z][\da-z]*)*Error$/;
 const message = 'Use `new` when throwing an error.';
 
 const create = context => ({
-	[selector]: ({argument: error}) => {
-		const errorConstructor = error.callee;
-
-		if (customError.test(errorConstructor.name)) {
+	[selector]: node => {
+		if (customError.test(node.callee.name)) {
 			context.report({
-				node: error,
+				node,
 				message,
-				fix: fixer => fixer.insertTextBefore(errorConstructor, 'new ')
+				fix: fixer => fixer.insertTextBefore(node, 'new ')
 			});
 		}
 	}
