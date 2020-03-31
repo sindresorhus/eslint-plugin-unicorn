@@ -17,7 +17,8 @@ const promiseCatchSelector = [
 			'FunctionExpression',
 			'ArrowFunctionExpression'
 		].map(type => `[arguments.0.type="${type}"]`).join(', ')
-	})`
+	})`,
+	'[arguments.0.params.length=1]'
 ].join('');
 
 const catchSelector = [
@@ -51,7 +52,7 @@ const create = context => {
 			message: `The catch parameter should be named \`${expectedName}\`.`
 		};
 
-		if (node.type === 'Identifier') {
+		if (node.type === 'Identifier' && node.name !== expectedName) {
 			problem.fix = fixer => {
 				const nodes = [node];
 
@@ -75,11 +76,11 @@ const create = context => {
 
 	return {
 		[promiseCatchSelector]: node => {
-			const {params} = node.arguments[0];
+			const callbackNode = node.arguments[0];
+			const param = callbackNode.params[0];
 
 			if (
-				params.length > 0 &&
-				params[0].name === '_' &&
+				param.name === '_' &&
 				!astUtils.containsIdentifier('_', node.arguments[0].body)
 			) {
 				return;
@@ -87,15 +88,14 @@ const create = context => {
 
 			const scope = context.getScope();
 			const errorName = avoidCapture(name, [scope.variableScope], ecmaVersion);
-			const callbackNode = node.arguments[0];
 
-			if (params.length === 0 || params[0].name === errorName) {
+			if (param.name === errorName) {
 				return;
 			}
 
 			report(
 				errorName,
-				callbackNode.params[0],
+				param,
 				callbackNode
 			);
 		},
