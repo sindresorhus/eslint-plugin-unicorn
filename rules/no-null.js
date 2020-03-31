@@ -38,14 +38,14 @@ const create = context => ({
 			problem.suggest = [
 				{
 					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-					fix: fixer => fixer.replaceText(node, '')
+					fix: fixer => fixer.remove(node)
 				}
 			];
 		} else if (parent.type === 'VariableDeclarator' && parent.init === node && parent.parent.kind !== 'const') {
 			problem.suggest = [
 				{
 					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-					fix: fixer => fixer.replaceTextRange([parent.id.range[1], node.range[1]], '')
+					fix: fixer => fixer.removeRange([parent.id.range[1], node.range[1]])
 				}
 			];
 		} else {
