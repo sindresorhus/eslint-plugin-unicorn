@@ -138,8 +138,6 @@ ruleTester.run('catch-error-name', rule, {
 			})
 		`,
 		'obj.catch()',
-		'obj.catch(_ => { console.log(_); })',
-		'obj.catch(function (_) { console.log(_); })',
 		'foo(function (error) {})',
 		'foo().then(function (error) {})',
 		'foo().catch(function (error) {})',
@@ -150,16 +148,6 @@ ruleTester.run('catch-error-name', rule, {
 				try {
 				} catch (_) {}
 			}
-		`,
-		'try {} catch (_) { console.log(_); }',
-		outdent`
-				const handleError = error => {
-					try {
-						doSomething();
-					} catch (_) {
-						console.log(_);
-					}
-				}
 		`,
 		'obj.catch(_ => {})',
 		{
@@ -475,7 +463,68 @@ ruleTester.run('catch-error-name', rule, {
 					caughtErrorsIgnorePattern: '^_$'
 				}
 			]
-		}
+		},
+
+		// `_`
+		invalidTestCase({
+			code: outdent`
+				obj.catch(_ => {
+					console.log(_);
+				})
+			`,
+			output: outdent`
+				obj.catch(error => {
+					console.log(error);
+				})
+			`
+		}),
+		invalidTestCase({
+			code: outdent`
+				obj.catch(function (_) {
+					console.log(_);
+				})
+			`,
+			output: outdent`
+				obj.catch(function (error) {
+					console.log(error);
+				})
+			`
+		}),
+		invalidTestCase({
+			code: outdent`
+				try {
+				} catch (_) {
+					console.log(_);
+				}
+			`,
+			output: outdent`
+				try {
+				} catch (error) {
+					console.log(error);
+				}
+			`
+		}),
+		// TODO: this should fix to `error`, not `error_`
+		invalidTestCase({
+			code: outdent`
+				const handleError = error => {
+					try {
+						doSomething();
+					} catch (_) {
+						console.log(_);
+					}
+				}
+			`,
+			output: outdent`
+				const handleError = error => {
+					try {
+						doSomething();
+					} catch (error_) {
+						console.log(error_);
+					}
+				}
+			`
+		}),
 	]
 });
 
