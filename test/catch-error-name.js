@@ -475,7 +475,91 @@ ruleTester.run('catch-error-name', rule, {
 					caughtErrorsIgnorePattern: '^_$'
 				}
 			]
-		}
+		},
+
+		// #107
+		{
+			code: outdent`
+				foo.then(() => {
+					try {} catch (e) {}
+				}).catch(err => err);
+			`,
+			output: outdent`
+				foo.then(() => {
+					try {} catch (error) {}
+				}).catch(error => error);
+			`,
+			errors: [{}, {}]
+		},
+		{
+			code: outdent`
+				try {
+					doSomething();
+				} catch (anyName) { // Nesting of catch clauses disables the rule
+					try {
+						doSomethingElse();
+					} catch (anyOtherName) {
+						// ...
+					}
+				}
+			`,
+			output: outdent`
+				try {
+					doSomething();
+				} catch (error) { // Nesting of catch clauses disables the rule
+					try {
+						doSomethingElse();
+					} catch (error) {
+						// ...
+					}
+				}
+			`,
+			errors: [{}, {}]
+		},
+		invalidTestCase({
+			code: outdent`
+				exports.get = function (req, res) {
+						myfunc(function (err, values) {
+								if (err) {
+									console.log(err);
+									return;
+								} else {
+												var temp;
+												try {
+														temp = JSON.parse(values.value);
+												}
+												catch(err2) {
+														exports.services.logger.error('catching', err2);
+														temp = values;
+												}
+												return temp;
+								}
+						});
+				};
+			`,
+			output: outdent`
+				exports.get = function (req, res) {
+						myfunc(function (err, values) {
+								if (err) {
+									console.log(err);
+									return;
+								} else {
+												var temp;
+												try {
+														temp = JSON.parse(values.value);
+												}
+												catch(err_) {
+														exports.services.logger.error('catching', err_);
+														temp = values;
+												}
+												return temp;
+								}
+						});
+				};
+			`,
+			name: 'err'
+		})
+
 	]
 });
 
