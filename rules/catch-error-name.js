@@ -3,129 +3,96 @@ const astUtils = require('eslint-ast-utils');
 const avoidCapture = require('./utils/avoid-capture');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const renameIdentifier = require('./utils/rename-identifier');
+const methodSelector = require('./utils/method-selector');
 
-// Matches `someObj.then([FunctionExpression | ArrowFunctionExpression])`
-function isLintablePromiseCatch(node) {
-	const {callee} = node;
+// Matches `someObj.catch([FunctionExpression | ArrowFunctionExpression])`
+// TODO: Support `promise.then()` second argument
+const promiseCatchSelector = [
+	methodSelector({
+		name: 'catch',
+		length: 1
+	}),
+	`:matches(${
+		[
+			'FunctionExpression',
+			'ArrowFunctionExpression'
+		].map(type => `[arguments.0.type="${type}"]`).join(', ')
+	})`,
+	'[arguments.0.params.length=1]'
+].join('');
 
-	if (callee.type !== 'MemberExpression') {
-		return false;
-	}
-
-	const {property} = callee;
-
-	if (property.type !== 'Identifier' || property.name !== 'catch') {
-		return false;
-	}
-
-	if (node.arguments.length === 0) {
-		return false;
-	}
-
-	const [firstArgument] = node.arguments;
-
-	return (
-		firstArgument.type === 'FunctionExpression' ||
-		firstArgument.type === 'ArrowFunctionExpression'
-	);
-}
+const catchSelector = [
+	'CatchClause',
+	// Ignore optional catch binding
+	'[param]'
+].join('');
 
 const create = context => {
 	const {ecmaVersion} = context.parserOptions;
-
-	const options = {
-		name: 'error',
-		caughtErrorsIgnorePattern: /^_$|^[\dA-Za-z]+(e|E)rror$/.source,
-		...context.options[0]
-	};
-
 	const sourceCode = context.getSourceCode();
 	const {scopeManager} = sourceCode;
 
-	const {name} = options;
-	const caughtErrorsIgnorePattern = new RegExp(options.caughtErrorsIgnorePattern);
-	const stack = [];
+	const {name, caughtErrorsIgnorePattern} = {
+		name: 'error',
+		caughtErrorsIgnorePattern: /^[\dA-Za-z]+[Ee]rror$/.source,
+		...context.options[0]
+	};
+	const ignoreRegex = new RegExp(caughtErrorsIgnorePattern);
 
-	function push(value) {
-		if (stack.length === 1) {
-			stack[0] = true;
+	function check(parameter, node) {
+		if (
+			ignoreRegex.test(parameter.name) ||
+			(
+				parameter.name === '_' &&
+				// Should be `node.body.body` in `CatchClause`, body also not right
+				// will fix it when fixing #648
+				!astUtils.someContainIdentifier('_', node.body)
+			)
+		) {
+			return;
 		}
 
-		stack.push(stack.length > 0 || value);
-	}
+		const scope = context.getScope();
+		const fixed = avoidCapture(name, [scope.variableScope], ecmaVersion);
 
-	function popAndReport(node, scopeNode) {
-		const value = stack.pop();
+		if (parameter.name === fixed) {
+			return;
+		}
 
-		if (value !== true && !caughtErrorsIgnorePattern.test(node.name)) {
-			const expectedName = value || name;
-			const problem = {
-				node,
-				message: `The catch parameter should be named \`${expectedName}\`.`
-			};
+		const problem = {
+			node,
+			message: `The catch parameter should be named \`${fixed}\`.`
+		};
 
-			if (node.type === 'Identifier') {
-				problem.fix = fixer => {
-					const nodes = [node];
+		if (parameter.type === 'Identifier') {
+			problem.fix = fixer => {
+				const nodes = [parameter];
 
-					const variables = scopeManager.getDeclaredVariables(scopeNode);
-					for (const variable of variables) {
-						if (variable.name !== node.name) {
-							continue;
-						}
-
-						for (const reference of variable.references) {
-							nodes.push(reference.identifier);
-						}
+				const variables = scopeManager.getDeclaredVariables(node);
+				for (const variable of variables) {
+					if (variable.name !== parameter.name) {
+						continue;
 					}
 
-					return nodes.map(node => renameIdentifier(node, expectedName, fixer, sourceCode));
-				};
-			}
+					for (const reference of variable.references) {
+						nodes.push(reference.identifier);
+					}
+				}
 
-			context.report(problem);
+				return nodes.map(node => renameIdentifier(node, fixed, fixer, sourceCode));
+			};
 		}
+
+		context.report(problem);
 	}
 
 	return {
-		CallExpression: node => {
-			if (isLintablePromiseCatch(node)) {
-				const {params} = node.arguments[0];
-
-				if (params.length > 0 && params[0].name === '_') {
-					push(!astUtils.containsIdentifier('_', node.arguments[0].body));
-					return;
-				}
-
-				const scope = context.getScope();
-				const errorName = avoidCapture(name, [scope.variableScope], ecmaVersion);
-				push(params.length === 0 || params[0].name === errorName || errorName);
-			}
+		[promiseCatchSelector]: node => {
+			const callbackNode = node.arguments[0];
+			check(callbackNode.params[0], callbackNode);
 		},
-		'CallExpression:exit': node => {
-			if (isLintablePromiseCatch(node)) {
-				const callbackNode = node.arguments[0];
-				popAndReport(callbackNode.params[0], callbackNode);
-			}
-		},
-		CatchClause: node => {
-			// Optional catch binding
-			if (!node || !node.param) {
-				push(true);
-				return;
-			}
-
-			if (node.param.name === '_') {
-				push(!astUtils.someContainIdentifier('_', node.body.body));
-				return;
-			}
-
-			const scope = context.getScope();
-			const errorName = avoidCapture(name, [scope.variableScope], ecmaVersion);
-			push(node.param.name === errorName || errorName);
-		},
-		'CatchClause:exit': node => {
-			popAndReport(node.param, node);
+		[catchSelector]: node => {
+			check(node.param, node);
 		}
 	};
 };

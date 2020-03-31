@@ -36,6 +36,15 @@ ruleTester.run('no-console-spaces', rule, {
 		'console.log(`\nabc\ndef\n`);',
 
 		'console.log(\' \', "def");',
+
+		// Exactly one space
+		'console.log(" ");',
+		'console.log(" ", "b");',
+		'console.log("a", " ");',
+		'console.log(" ", "b", "c");',
+		'console.log("a", " ", "c");',
+		'console.log("a", "b", " ");',
+
 		'console.log(\'  \', "def");',
 		'console.log("abc  ", "def");',
 		'console.log("abc\\t", "def");',

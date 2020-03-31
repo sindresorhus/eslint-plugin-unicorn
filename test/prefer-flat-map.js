@@ -34,7 +34,35 @@ ruleTester.run('prefer-flat-map', rule, {
 		`,
 		'const bar = [[1],[2],[3]].map(i => [i]).flat(2)',
 		'const bar = [[1],[2],[3]].map(i => [i]).flat(1, null)',
+
+		// Spread: test `[].concat()` part
+		// Not `CallExpression`
+		'const foo = new [].concat(...bar.map((i) => i));',
+		// Not empty array
 		'const foo = [1,2,3].concat(...[4,5,6].map((i) => i));',
+		'const foo = bar.concat(...[4,5,6].map((i) => i));',
+		// Not `concat`
+		'const foo = [].notConcat(...bar.map((i) => i));',
+		// Computed
+		'const foo = [][concat](...bar.map((i) => i));',
+		// Not `Identifier`
+		'const foo = []["concat"](...bar.map((i) => i));',
+		// Not `MemberExpression`
+		'const foo = concat(...bar.map((i) => i));',
+
+		// Spread: test `[].map()` part
+		// Not `SpreadElement`
+		'const foo = [].concat(bar.map((i) => i));',
+		// Not `CallExpression`
+		'const foo = [].concat(...new bar.map((i) => i));',
+		// Not `MemberExpression`
+		'const foo = [].concat(...map((i) => i));',
+		// Computed
+		'const foo = [].concat(...bar[map]((i) => i));',
+		// Not `Identifier`
+		'const foo = [].concat(...bar["map"]((i) => i));',
+		// Not `map`
+		'const foo = [].concat(...bar.notMap((i) => i));',
 		'const foo = [].concat(...[[4,5],6].flat());'
 	],
 	invalid: [

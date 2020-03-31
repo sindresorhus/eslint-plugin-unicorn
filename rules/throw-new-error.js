@@ -1,18 +1,22 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const selector = [
+	'ThrowStatement',
+	'>',
+	'CallExpression',
+	'[callee.type="Identifier"]'
+].join('');
 const customError = /^(?:[A-Z][\da-z]*)*Error$/;
+const message = 'Use `new` when throwing an error.';
 
 const create = context => ({
-	ThrowStatement: node => {
-		const {argument} = node;
-		const error = argument.callee;
-
-		if (argument.type === 'CallExpression' && customError.test(error.name)) {
+	[selector]: node => {
+		if (customError.test(node.callee.name)) {
 			context.report({
 				node,
-				message: 'Use `new` when throwing an error.',
-				fix: fixer => fixer.insertTextBefore(error, 'new ')
+				message,
+				fix: fixer => fixer.insertTextBefore(node, 'new ')
 			});
 		}
 	}

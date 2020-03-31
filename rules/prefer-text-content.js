@@ -3,22 +3,22 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const message = 'Prefer `.textContent` over `.innerText`.';
 
+const selector = [
+	'MemberExpression',
+	'[computed=false]',
+	'>',
+	'Identifier.property',
+	'[name="innerText"]'
+].join('');
+
 const create = context => {
 	return {
-		MemberExpression: node => {
-			const {property} = node;
-
-			if (
-				property.type === 'Identifier' &&
-				!node.computed &&
-				property.name === 'innerText'
-			) {
-				context.report({
-					node,
-					message,
-					fix: fixer => fixer.replaceText(property, 'textContent')
-				});
-			}
+		[selector]: node => {
+			context.report({
+				node,
+				message,
+				fix: fixer => fixer.replaceText(node, 'textContent')
+			});
 		}
 	};
 };

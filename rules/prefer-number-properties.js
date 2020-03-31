@@ -3,8 +3,9 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const isShadowed = require('./utils/is-shadowed');
 const renameIdentifier = require('./utils/rename-identifier');
 
-const methodMessageId = 'method';
-const propertyMessageId = 'property';
+const METHOD_ERROR_MESSAGE_ID = 'method-error';
+const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
+const PROPERTY_ERROR_MESSAGE_ID = 'property-error';
 
 const methods = {
 	// Safe
@@ -18,22 +19,26 @@ const methods = {
 const methodsSelector = [
 	'CallExpression',
 	'>',
-	'Identifier',
+	'Identifier.callee',
 	`:matches(${Object.keys(methods).map(name => `[name="${name}"]`).join(', ')})`
 ].join('');
 
 const propertiesSelector = [
+	'Identifier',
+	'[name="NaN"]',
 	`:not(${
 		[
-			'MemberExpression[computed=false]',
-			'FunctionDeclaration',
-			'ClassDeclaration',
-			'MethodDefinition'
+			'MemberExpression[computed=false] > Identifier.property',
+			'FunctionDeclaration > Identifier.id',
+			'ClassDeclaration > Identifier.id',
+			'MethodDefinition > Identifier.key',
+			'VariableDeclarator > Identifier.id',
+			'Property[shorthand=false] > Identifier.key',
+			'TSDeclareFunction > Identifier.id',
+			'TSEnumMember > Identifier.id',
+			'TSPropertySignature > Identifier.key'
 		].join(', ')
-	})`,
-	'>',
-	'Identifier',
-	'[name="NaN"]'
+	})`
 ].join('');
 
 const create = context => {
@@ -50,7 +55,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				messageId: methodMessageId,
+				messageId: METHOD_ERROR_MESSAGE_ID,
 				data: {
 					name
 				}
@@ -61,7 +66,15 @@ const create = context => {
 			if (isSafe) {
 				problem.fix = fix;
 			} else {
-				problem.suggest = [{messageId: methodMessageId, fix}];
+				problem.suggest = [
+					{
+						messageId: METHOD_SUGGESTION_MESSAGE_ID,
+						data: {
+							name
+						},
+						fix
+					}
+				];
 			}
 
 			context.report(problem);
@@ -71,25 +84,10 @@ const create = context => {
 				return;
 			}
 
-			const {parent} = node;
-
-			if (
-				parent &&
-				(
-					(parent.type === 'VariableDeclarator' && parent.id === node) ||
-					(parent.type === 'Property' && !parent.shorthand && parent.key === node) ||
-					(parent.type === 'TSDeclareFunction' && parent.id === node) ||
-					parent.type === 'TSEnumMember' ||
-					parent.type === 'TSPropertySignature'
-				)
-			) {
-				return;
-			}
-
 			const {name} = node;
 			context.report({
 				node,
-				messageId: propertyMessageId,
+				messageId: PROPERTY_ERROR_MESSAGE_ID,
 				data: {
 					name
 				},
@@ -108,8 +106,9 @@ module.exports = {
 		},
 		fixable: 'code',
 		messages: {
-			[methodMessageId]: 'Prefer `Number.{{name}}()` over `{{name}}()`.',
-			[propertyMessageId]: 'Prefer `Number.{{name}}` over `{{name}}`.'
+			[METHOD_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}()` over `{{name}}()`.',
+			[METHOD_SUGGESTION_MESSAGE_ID]: 'Replace `{{name}}()` with `Number.{{name}}()`.',
+			[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}` over `{{name}}`.'
 		}
 	}
 };
