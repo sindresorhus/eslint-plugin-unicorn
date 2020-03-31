@@ -68,7 +68,10 @@ ruleTester.run('no-null', rule, {
 		// Not `null`
 		'const foo = "null";',
 		// More/Less arguments
-		'Object.create()'
+		'Object.create()',
+		// Not `null`
+		'Object.create(bar)',
+		'Object.create("null")'
 	],
 	invalid: [
 		invalidTestCase('const foo = null'),
