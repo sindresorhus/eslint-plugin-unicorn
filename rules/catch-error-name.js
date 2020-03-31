@@ -90,17 +90,10 @@ const create = context => {
 	return {
 		[promiseCatchSelector]: node => {
 			const callbackNode = node.arguments[0];
-			const parameter = callbackNode.params[0];
-			check(
-				parameter,
-				callbackNode
-			);
+			check(callbackNode.params[0], callbackNode);
 		},
 		[catchSelector]: node => {
-			check(
-				node.param,
-				node
-			);
+			check(node.param, node);
 		}
 	};
 };
