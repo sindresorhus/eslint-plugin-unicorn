@@ -40,78 +40,85 @@ const create = context => {
 
 	const {name} = options;
 	const caughtErrorsIgnorePattern = new RegExp(options.caughtErrorsIgnorePattern);
-	const stack = [];
 
-	function push(value) {
-		if (stack.length === 1) {
-			stack[0] = true;
+	function report(expectedName, node, scopeNode) {
+		if (caughtErrorsIgnorePattern.test(node.name)) {
+			return;
 		}
 
-		stack.push(stack.length > 0 || value);
-	}
+		const problem = {
+			node,
+			message: `The catch parameter should be named \`${expectedName}\`.`
+		};
 
-	function popAndReport(node, scopeNode) {
-		const value = stack.pop();
+		if (node.type === 'Identifier') {
+			problem.fix = fixer => {
+				const nodes = [node];
 
-		if (value !== true && !caughtErrorsIgnorePattern.test(node.name)) {
-			const expectedName = value || name;
-			const problem = {
-				node,
-				message: `The catch parameter should be named \`${expectedName}\`.`
-			};
-
-			if (node.type === 'Identifier') {
-				problem.fix = fixer => {
-					const nodes = [node];
-
-					const variables = scopeManager.getDeclaredVariables(scopeNode);
-					for (const variable of variables) {
-						if (variable.name !== node.name) {
-							continue;
-						}
-
-						for (const reference of variable.references) {
-							nodes.push(reference.identifier);
-						}
+				const variables = scopeManager.getDeclaredVariables(scopeNode);
+				for (const variable of variables) {
+					if (variable.name !== node.name) {
+						continue;
 					}
 
-					return nodes.map(node => renameIdentifier(node, expectedName, fixer, sourceCode));
-				};
-			}
+					for (const reference of variable.references) {
+						nodes.push(reference.identifier);
+					}
+				}
 
-			context.report(problem);
+				return nodes.map(node => renameIdentifier(node, expectedName, fixer, sourceCode));
+			};
 		}
+
+		context.report(problem);
 	}
 
 	return {
 		[promiseCatchSelector]: node => {
 			const {params} = node.arguments[0];
 
-			if (params.length > 0 && params[0].name === '_') {
-				push(!astUtils.containsIdentifier('_', node.arguments[0].body));
+			if (
+				params.length > 0 &&
+				params[0].name === '_' &&
+				!astUtils.containsIdentifier('_', node.arguments[0].body)
+			) {
 				return;
 			}
 
 			const scope = context.getScope();
 			const errorName = avoidCapture(name, [scope.variableScope], ecmaVersion);
-			push(params.length === 0 || params[0].name === errorName || errorName);
-		},
-		[`${promiseCatchSelector}:exit`]: node => {
 			const callbackNode = node.arguments[0];
-			popAndReport(callbackNode.params[0], callbackNode);
+
+			if (params.length === 0 || params[0].name === errorName) {
+				return;
+			}
+
+			report(
+				errorName,
+				callbackNode.params[0],
+				callbackNode
+			);
 		},
 		[catchSelector]: node => {
-			if (node.param.name === '_') {
-				push(!astUtils.someContainIdentifier('_', node.body.body));
+			if (
+				node.param.name === '_' &&
+				!astUtils.someContainIdentifier('_', node.body.body)
+			) {
 				return;
 			}
 
 			const scope = context.getScope();
 			const errorName = avoidCapture(name, [scope.variableScope], ecmaVersion);
-			push(node.param.name === errorName || errorName);
-		},
-		[`${catchSelector}:exit`]: node => {
-			popAndReport(node.param, node);
+
+			if (node.param.name === errorName) {
+				return;
+			}
+
+			report(
+				errorName,
+				node.param,
+				node
+			);
 		}
 	};
 };
