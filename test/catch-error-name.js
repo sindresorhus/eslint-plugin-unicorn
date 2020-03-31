@@ -178,7 +178,10 @@ ruleTester.run('catch-error-name', rule, {
 			}
 		`,
 		'try {} catch (descriptiveError) {}',
-		'try {} catch (descriptiveerror) {}'
+		'try {} catch (descriptiveerror) {}',
+		'try {} catch ({message}) {}',
+		'obj.catch(function ({message}) {})',
+		'obj.catch(({message}) => {})'
 	],
 
 	invalid: [
@@ -211,7 +214,6 @@ ruleTester.run('catch-error-name', rule, {
 			`,
 			name: 'err'
 		}),
-		invalidTestCase('try {} catch ({message}) {}'),
 		{
 			code: 'try {} catch (outerError) {}',
 			output: 'try {} catch (error) {}',
@@ -251,7 +253,6 @@ ruleTester.run('catch-error-name', rule, {
 			output: 'obj.catch(err => err.stack)',
 			name: 'err'
 		}),
-		invalidTestCase('obj.catch(({message}) => {})'),
 		invalidTestCase({
 			code: outdent`
 				obj.catch(function (err) {
@@ -264,7 +265,6 @@ ruleTester.run('catch-error-name', rule, {
 				})
 			`
 		}),
-		invalidTestCase('obj.catch(function ({message}) {})'),
 		invalidTestCase({
 			code: outdent`
 				obj.catch(function (error) {

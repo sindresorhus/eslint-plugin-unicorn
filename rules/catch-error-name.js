@@ -24,7 +24,9 @@ const promiseCatchSelector = [
 const catchSelector = [
 	'CatchClause',
 	// Ignore optional catch binding
-	'[param]'
+	'[param]',
+	'>',
+	'Identifier.param'
 ].join('');
 
 const create = context => {
@@ -41,6 +43,7 @@ const create = context => {
 
 	function check(parameter, node) {
 		if (
+			parameter.type !== 'Identifier' ||
 			ignoreRegex.test(parameter.name) ||
 			(
 				parameter.name === '_' &&
@@ -59,13 +62,10 @@ const create = context => {
 			return;
 		}
 
-		const problem = {
+		context.report({
 			node,
-			message: `The catch parameter should be named \`${fixed}\`.`
-		};
-
-		if (parameter.type === 'Identifier') {
-			problem.fix = fixer => {
+			message: `The catch parameter should be named \`${fixed}\`.`,
+			fix: fixer => {
 				const nodes = [parameter];
 
 				const variables = scopeManager.getDeclaredVariables(node);
@@ -80,10 +80,8 @@ const create = context => {
 				}
 
 				return nodes.map(node => renameIdentifier(node, fixed, fixer, sourceCode));
-			};
-		}
-
-		context.report(problem);
+			}
+		});
 	}
 
 	return {
@@ -92,7 +90,7 @@ const create = context => {
 			check(callbackNode.params[0], callbackNode);
 		},
 		[catchSelector]: node => {
-			check(node.param, node);
+			check(node, node.parent);
 		}
 	};
 };
