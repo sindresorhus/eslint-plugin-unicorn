@@ -1,6 +1,5 @@
 'use strict';
-const astUtils = require('eslint-ast-utils');
-const { findVariable } = require("eslint-utils")
+const {findVariable} = require('eslint-utils');
 const avoidCapture = require('./utils/avoid-capture');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const renameIdentifier = require('./utils/rename-identifier');

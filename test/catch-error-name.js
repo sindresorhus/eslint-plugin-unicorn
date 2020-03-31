@@ -600,7 +600,7 @@ ruleTester.run('catch-error-name', rule, {
 				}
 			`,
 			errors: [{ruleId: 'catch-error-name'}, {ruleId: 'catch-error-name'}]
-		},
+		}
 	]
 });
 
