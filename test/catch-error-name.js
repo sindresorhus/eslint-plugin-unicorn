@@ -30,8 +30,6 @@ function invalidTestCase(options) {
 ruleTester.run('catch-error-name', rule, {
 	valid: [
 		'try {} catch (error) {}',
-		'try {} catch (_) {}',
-		'try {} catch (_) { console.log(foo); }',
 		{
 			code: 'try {} catch (err) {}',
 			options: [{name: 'err'}]
@@ -112,8 +110,6 @@ ruleTester.run('catch-error-name', rule, {
 			}
 		`,
 		'obj.catch(() => {})',
-		'obj.catch((_) => {})',
-		'obj.catch((_) => { console.log(foo); })',
 		{
 			code: 'obj.catch(err => {})',
 			options: [{name: 'err'}]
@@ -141,8 +137,6 @@ ruleTester.run('catch-error-name', rule, {
 		'foo(function (error) {})',
 		'foo().then(function (error) {})',
 		'foo().catch(function (error) {})',
-		'try {} catch (_) {}',
-		'obj.catch(_ => {})',
 		{
 			code: 'try {} catch (skipErr) {}',
 			options: [
@@ -164,6 +158,12 @@ ruleTester.run('catch-error-name', rule, {
 		'obj.catch(function ({message}) {})',
 		'obj.catch(({message}) => {})',
 
+		// `_`
+		'obj.catch(_ => {})',
+		'obj.catch((_) => {})',
+		'obj.catch((_) => { console.log(foo); })',
+		'try {} catch (_) {}',
+		'try {} catch (_) { console.log(foo); }',
 		outdent`
 			try {
 			} catch (_) {
