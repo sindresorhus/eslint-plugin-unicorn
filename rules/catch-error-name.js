@@ -29,24 +29,23 @@ const catchSelector = [
 
 const create = context => {
 	const {ecmaVersion} = context.parserOptions;
+	const sourceCode = context.getSourceCode();
+	const {scopeManager} = sourceCode;
 
-	const options = {
+	const {name, caughtErrorsIgnorePattern} = {
 		name: 'error',
 		caughtErrorsIgnorePattern: /^[\dA-Za-z]+[Ee]rror$/.source,
 		...context.options[0]
 	};
-
-	const sourceCode = context.getSourceCode();
-	const {scopeManager} = sourceCode;
-
-	const {name} = options;
-	const caughtErrorsIgnorePattern = new RegExp(options.caughtErrorsIgnorePattern);
+	const ignoreRegex = new RegExp(caughtErrorsIgnorePattern);
 
 	function check(parameter, node) {
 		if (
-			caughtErrorsIgnorePattern.test(parameter.name) ||
+			ignoreRegex.test(parameter.name) ||
 			(
 				parameter.name === '_' &&
+				// Should be `node.body.body` in `CatchClause`, body also not right
+				// will fix it when fixing #648
 				!astUtils.someContainIdentifier('_', node.body)
 			)
 		) {
