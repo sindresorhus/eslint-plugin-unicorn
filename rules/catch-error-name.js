@@ -42,23 +42,36 @@ const create = context => {
 	const {name} = options;
 	const caughtErrorsIgnorePattern = new RegExp(options.caughtErrorsIgnorePattern);
 
-	function report(expectedName, node, scopeNode) {
-		if (caughtErrorsIgnorePattern.test(node.name)) {
+	function check(parameter, node) {
+		if (
+			caughtErrorsIgnorePattern.test(parameter.name) ||
+			(
+				parameter.name === '_' &&
+				!astUtils.someContainIdentifier('_', node.body)
+			)
+		) {
+			return;
+		}
+
+		const scope = context.getScope();
+		const fixed = avoidCapture(name, [scope.variableScope], ecmaVersion);
+
+		if (parameter.name === fixed) {
 			return;
 		}
 
 		const problem = {
 			node,
-			message: `The catch parameter should be named \`${expectedName}\`.`
+			message: `The catch parameter should be named \`${fixed}\`.`
 		};
 
-		if (node.type === 'Identifier' && node.name !== expectedName) {
+		if (parameter.type === 'Identifier') {
 			problem.fix = fixer => {
-				const nodes = [node];
+				const nodes = [parameter];
 
-				const variables = scopeManager.getDeclaredVariables(scopeNode);
+				const variables = scopeManager.getDeclaredVariables(node);
 				for (const variable of variables) {
-					if (variable.name !== node.name) {
+					if (variable.name !== parameter.name) {
 						continue;
 					}
 
@@ -67,7 +80,7 @@ const create = context => {
 					}
 				}
 
-				return nodes.map(node => renameIdentifier(node, expectedName, fixer, sourceCode));
+				return nodes.map(node => renameIdentifier(node, fixed, fixer, sourceCode));
 			};
 		}
 
@@ -77,45 +90,14 @@ const create = context => {
 	return {
 		[promiseCatchSelector]: node => {
 			const callbackNode = node.arguments[0];
-			const param = callbackNode.params[0];
-
-			if (
-				param.name === '_' &&
-				!astUtils.containsIdentifier('_', node.arguments[0].body)
-			) {
-				return;
-			}
-
-			const scope = context.getScope();
-			const errorName = avoidCapture(name, [scope.variableScope], ecmaVersion);
-
-			if (param.name === errorName) {
-				return;
-			}
-
-			report(
-				errorName,
-				param,
+			const parameter = callbackNode.params[0];
+			check(
+				parameter,
 				callbackNode
 			);
 		},
 		[catchSelector]: node => {
-			if (
-				node.param.name === '_' &&
-				!astUtils.someContainIdentifier('_', node.body.body)
-			) {
-				return;
-			}
-
-			const scope = context.getScope();
-			const errorName = avoidCapture(name, [scope.variableScope], ecmaVersion);
-
-			if (node.param.name === errorName) {
-				return;
-			}
-
-			report(
-				errorName,
+			check(
 				node.param,
 				node
 			);
