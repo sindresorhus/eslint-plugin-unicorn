@@ -278,17 +278,6 @@ ruleTester.run('catch-error-name', rule, {
 			`,
 			name: 'err'
 		}),
-		// Failing tests for #107
-		// invalidTestCase(outdent`
-		// 	foo.then(() => {
-		// 		try {} catch (e) {}
-		// 	}).catch(error => error);
-		// `),
-		// invalidTestCase(outdent`
-		// 	foo.then(() => {
-		// 		try {} catch (e) {}
-		// 	});
-		// `),
 		{
 			code: outdent`
 				const handleError = error => {
@@ -478,6 +467,30 @@ ruleTester.run('catch-error-name', rule, {
 		},
 
 		// #107
+		invalidTestCase({
+			code: outdent`
+				foo.then(() => {
+					try {} catch (e) {}
+				}).catch(error => error);
+			`,
+			output: outdent`
+				foo.then(() => {
+					try {} catch (error) {}
+				}).catch(error => error);
+			`
+		}),
+		invalidTestCase({
+			code: outdent`
+				foo.then(() => {
+					try {} catch (e) {}
+				});
+			`,
+			output: outdent`
+				foo.then(() => {
+					try {} catch (error) {}
+				});
+			`
+		}),
 		{
 			code: outdent`
 				foo.then(() => {
