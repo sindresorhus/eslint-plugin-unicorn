@@ -32,7 +32,7 @@ const create = context => {
 
 	const options = {
 		name: 'error',
-		caughtErrorsIgnorePattern: /^[\dA-Za-z]+[e|E]rror$/.source,
+		caughtErrorsIgnorePattern: /^[\dA-Za-z]+[Ee]rror$/.source,
 		...context.options[0]
 	};
 
