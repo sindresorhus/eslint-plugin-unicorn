@@ -37,18 +37,6 @@ somePromise.catch(error => {})
 ```js
 try {
 	doSomething();
-} catch (anyName) { // Nesting of catch clauses disables the rule
-	try {
-		doSomethingElse();
-	} catch (anyOtherName) {
-		// ...
-	}
-}
-```
-
-```js
-try {
-	doSomething();
 } catch (_) {
 	// `_` is allowed when the error is not used
 	console.log(foo);
