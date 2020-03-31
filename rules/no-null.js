@@ -30,6 +30,7 @@ const create = context => ({
 
 		const fix = fixer => fixer.replaceText(node, 'undefined');
 
+		/* istanbul ignore next */
 		const {parent = {}} = node;
 		if (isLooseEqual(parent)) {
 			problem.fix = fix;
