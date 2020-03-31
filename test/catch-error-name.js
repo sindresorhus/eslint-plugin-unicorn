@@ -142,13 +142,6 @@ ruleTester.run('catch-error-name', rule, {
 		'foo().then(function (error) {})',
 		'foo().catch(function (error) {})',
 		'try {} catch (_) {}',
-		outdent`
-			try {
-			} catch (_) {
-				try {
-				} catch (_) {}
-			}
-		`,
 		'obj.catch(_ => {})',
 		{
 			code: 'try {} catch (skipErr) {}',
@@ -169,7 +162,29 @@ ruleTester.run('catch-error-name', rule, {
 		'try {} catch (descriptiveerror) {}',
 		'try {} catch ({message}) {}',
 		'obj.catch(function ({message}) {})',
-		'obj.catch(({message}) => {})'
+		'obj.catch(({message}) => {})',
+
+		outdent`
+			try {
+			} catch (_) {
+				try {
+				} catch (_) {}
+			}
+		`,
+		// Ignore `_` even it's used
+		{
+			code: `
+				try {
+				} catch (_) {
+					console.log(_);
+				}
+			`,
+			options: [
+				{
+					caughtErrorsIgnorePattern: '^_$'
+				}
+			]
+		}
 	],
 
 	invalid: [
@@ -525,6 +540,67 @@ ruleTester.run('catch-error-name', rule, {
 				}
 			`
 		}),
+		invalidTestCase({
+			code: outdent`
+				try {
+				} catch (_) {
+					console.log(_)
+					try {
+					} catch (_) {}
+				}
+			`,
+			output: outdent`
+				try {
+				} catch (error) {
+					console.log(error)
+					try {
+					} catch (_) {}
+				}
+			`
+		}),
+		invalidTestCase({
+			code: outdent`
+				try {
+				} catch (_) {
+					try {
+					} catch (_) {
+						console.log(_)
+					}
+				}
+			`,
+			output: outdent`
+				try {
+				} catch (_) {
+					try {
+					} catch (error) {
+						console.log(error)
+					}
+				}
+			`
+		}),
+		{
+			code: outdent`
+				try {
+				} catch (_) {
+					console.log(_)
+					try {
+					} catch (_) {
+						console.log(_)
+					}
+				}
+			`,
+			output: outdent`
+				try {
+				} catch (error) {
+					console.log(error)
+					try {
+					} catch (error) {
+						console.log(error)
+					}
+				}
+			`,
+			errors: [{ruleId: 'catch-error-name'}, {ruleId: 'catch-error-name'}]
+		},
 	]
 });
 
