@@ -4,7 +4,9 @@ Applies to both `try/catch` clauses and `promise.catch(…)` handlers.
 
 The desired name is configurable, but defaults to `error`.
 
-This rule is fixable unless the reported code was destructuring an error.
+The error name `_` is ignored, if the error is not used.
+
+This rule is fixable.
 
 ## Fail
 
@@ -32,18 +34,6 @@ try {
 
 ```js
 somePromise.catch(error => {})
-```
-
-```js
-try {
-	doSomething();
-} catch (anyName) { // Nesting of catch clauses disables the rule
-	try {
-		doSomethingElse();
-	} catch (anyOtherName) {
-		// ...
-	}
-}
 ```
 
 ```js
@@ -93,12 +83,12 @@ You can set the `name` option like this:
 "unicorn/catch-error-name": [
 	"error",
 	{
-		"caughtErrorsIgnorePattern": "^_$"
+		"caughtErrorsIgnorePattern": "^error\\d*$"
 	}
 ]
 ```
 
-This option lets you specify a regex pattern for matches to ignore. The default allows `_` and descriptive names like `networkError`.
+This option lets you specify a regex pattern for matches to ignore. The default allows descriptive names like `networkError`.
 
 With `^unicorn$`, this would fail:
 
