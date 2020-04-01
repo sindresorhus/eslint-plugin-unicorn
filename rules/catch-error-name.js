@@ -2,7 +2,7 @@
 const {findVariable} = require('eslint-utils');
 const avoidCapture = require('./utils/avoid-capture');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const renameIdentifier = require('./utils/rename-identifier');
+const renameVariable = require('./utils/rename-variable');
 const methodSelector = require('./utils/method-selector');
 
 // Matches `someObj.catch([FunctionExpression | ArrowFunctionExpression])`
@@ -42,45 +42,38 @@ const create = context => {
 	const ignoreRegex = new RegExp(caughtErrorsIgnorePattern);
 
 	function check(parameter, node) {
-		if (
-			parameter.type !== 'Identifier' ||
-			ignoreRegex.test(parameter.name)
-		) {
+		if (parameter.type !== 'Identifier') {
+			return;
+		}
+
+		const originalName = parameter.name;
+		const cleanName = originalName.replace(/_+$/g, '');
+
+		if (ignoreRegex.test(originalName) || ignoreRegex.test(cleanName)) {
 			return;
 		}
 
 		const scope = context.getScope();
 		const variable = findVariable(scope, parameter);
 
-		if (parameter.name === '_' && variable.references.length === 0) {
+		if (originalName === '_' && variable.references.length === 0) {
 			return;
 		}
 
-		const fixed = avoidCapture(name, [scope.variableScope], ecmaVersion);
+		const scopes = [
+			variable.scope,
+			...variable.references.map(({from}) => from)
+		];
+		const fixed = avoidCapture(name, scopes, ecmaVersion, name => name !== originalName);
 
-		if (parameter.name === fixed) {
+		if (originalName === fixed) {
 			return;
 		}
 
 		context.report({
 			node,
 			message: `The catch parameter should be named \`${fixed}\`.`,
-			fix: fixer => {
-				const nodes = [parameter];
-
-				const variables = scopeManager.getDeclaredVariables(node);
-				for (const variable of variables) {
-					if (variable.name !== parameter.name) {
-						continue;
-					}
-
-					for (const reference of variable.references) {
-						nodes.push(reference.identifier);
-					}
-				}
-
-				return nodes.map(node => renameIdentifier(node, fixed, fixer, sourceCode));
-			}
+			fix: fixer => renameVariable(variable, fixed, fixer, sourceCode)
 		});
 	}
 
