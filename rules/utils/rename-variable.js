@@ -1,6 +1,6 @@
 'use strict';
-const getVariableIdentifiers = require('./utils/get-variable-identifiers');
-const renameIdentifier = require('./utils/rename-identifier');
+const getVariableIdentifiers = require('./get-variable-identifiers');
+const renameIdentifier = require('./rename-identifier');
 
 module.exports = (variable, name, fixer, sourceCode) =>
 	getVariableIdentifiers(variable)

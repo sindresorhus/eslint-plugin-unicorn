@@ -32,7 +32,6 @@ const catchSelector = [
 const create = context => {
 	const {ecmaVersion} = context.parserOptions;
 	const sourceCode = context.getSourceCode();
-	const {scopeManager} = sourceCode;
 
 	const {name, caughtErrorsIgnorePattern} = {
 		name: 'error',
@@ -41,20 +40,20 @@ const create = context => {
 	};
 	const ignoreRegex = new RegExp(caughtErrorsIgnorePattern);
 
-	function check(parameter, node) {
-		if (parameter.type !== 'Identifier') {
-			return;
-		}
-
-		const originalName = parameter.name;
+	function check(node) {
+		const originalName = node.name;
 		const cleanName = originalName.replace(/_+$/g, '');
 
-		if (ignoreRegex.test(originalName) || ignoreRegex.test(cleanName)) {
+		if (
+			cleanName === name ||
+			ignoreRegex.test(originalName) ||
+			ignoreRegex.test(cleanName)
+		) {
 			return;
 		}
 
 		const scope = context.getScope();
-		const variable = findVariable(scope, parameter);
+		const variable = findVariable(scope, node);
 
 		if (originalName === '_' && variable.references.length === 0) {
 			return;
@@ -64,11 +63,7 @@ const create = context => {
 			variable.scope,
 			...variable.references.map(({from}) => from)
 		];
-		const fixed = avoidCapture(name, scopes, ecmaVersion, name => name !== originalName);
-
-		if (originalName === fixed) {
-			return;
-		}
+		const fixed = avoidCapture(name, scopes, ecmaVersion);
 
 		context.report({
 			node,
@@ -79,11 +74,13 @@ const create = context => {
 
 	return {
 		[promiseCatchSelector]: node => {
-			const callbackNode = node.arguments[0];
-			check(callbackNode.params[0], callbackNode);
+			node = node.arguments[0].params[0];
+			if (node.type === 'Identifier') {
+				check(node);
+			}
 		},
 		[catchSelector]: node => {
-			check(node, node.parent);
+			check(node);
 		}
 	};
 };

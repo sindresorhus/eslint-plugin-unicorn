@@ -707,7 +707,13 @@ ruleTester.run('catch-error-name', rule, {
 					throw error
 				}
 			`,
-			output: outdent``,
+			output: outdent`
+				try {
+				} catch (error_) {
+					const error = new Error(error_);
+					throw error
+				}
+			`
 		})
 	]
 });
