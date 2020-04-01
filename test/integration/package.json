@@ -3,5 +3,8 @@
 	"name": "eslint-config-unicorn-tester",
 	"dependencies": {
 		"eslint-plugin-unicorn": "file:../.."
+	},
+	"engines": {
+		"node": ">=12"
 	}
 }
