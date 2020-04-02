@@ -30,8 +30,6 @@ function invalidTestCase(options) {
 ruleTester.run('catch-error-name', rule, {
 	valid: [
 		'try {} catch (error) {}',
-		'try {} catch (_) {}',
-		'try {} catch (_) { console.log(foo); }',
 		{
 			code: 'try {} catch (err) {}',
 			options: [{name: 'err'}]
@@ -112,8 +110,6 @@ ruleTester.run('catch-error-name', rule, {
 			}
 		`,
 		'obj.catch(() => {})',
-		'obj.catch((_) => {})',
-		'obj.catch((_) => { console.log(foo); })',
 		{
 			code: 'obj.catch(err => {})',
 			options: [{name: 'err'}]
@@ -138,30 +134,9 @@ ruleTester.run('catch-error-name', rule, {
 			})
 		`,
 		'obj.catch()',
-		'obj.catch(_ => { console.log(_); })',
-		'obj.catch(function (_) { console.log(_); })',
 		'foo(function (error) {})',
 		'foo().then(function (error) {})',
 		'foo().catch(function (error) {})',
-		'try {} catch (_) {}',
-		outdent`
-			try {
-			} catch (_) {
-				try {
-				} catch (_) {}
-			}
-		`,
-		'try {} catch (_) { console.log(_); }',
-		outdent`
-				const handleError = error => {
-					try {
-						doSomething();
-					} catch (_) {
-						console.log(_);
-					}
-				}
-		`,
-		'obj.catch(_ => {})',
 		{
 			code: 'try {} catch (skipErr) {}',
 			options: [
@@ -181,7 +156,35 @@ ruleTester.run('catch-error-name', rule, {
 		'try {} catch (descriptiveerror) {}',
 		'try {} catch ({message}) {}',
 		'obj.catch(function ({message}) {})',
-		'obj.catch(({message}) => {})'
+		'obj.catch(({message}) => {})',
+
+		// `_`
+		'obj.catch(_ => {})',
+		'obj.catch((_) => {})',
+		'obj.catch((_) => { console.log(foo); })',
+		'try {} catch (_) {}',
+		'try {} catch (_) { console.log(foo); }',
+		outdent`
+			try {
+			} catch (_) {
+				try {
+				} catch (_) {}
+			}
+		`,
+		// Ignore `_` even it's used
+		{
+			code: `
+				try {
+				} catch (_) {
+					console.log(_);
+				}
+			`,
+			options: [
+				{
+					caughtErrorsIgnorePattern: '^_$'
+				}
+			]
+		}
 	],
 
 	invalid: [
@@ -466,6 +469,128 @@ ruleTester.run('catch-error-name', rule, {
 			]
 		},
 
+		// `_`
+		invalidTestCase({
+			code: outdent`
+				obj.catch(_ => {
+					console.log(_);
+				})
+			`,
+			output: outdent`
+				obj.catch(error => {
+					console.log(error);
+				})
+			`
+		}),
+		invalidTestCase({
+			code: outdent`
+				obj.catch(function (_) {
+					console.log(_);
+				})
+			`,
+			output: outdent`
+				obj.catch(function (error) {
+					console.log(error);
+				})
+			`
+		}),
+		invalidTestCase({
+			code: outdent`
+				try {
+				} catch (_) {
+					console.log(_);
+				}
+			`,
+			output: outdent`
+				try {
+				} catch (error) {
+					console.log(error);
+				}
+			`
+		}),
+		// TODO: this should fix to `error`, not `error_`
+		invalidTestCase({
+			code: outdent`
+				const handleError = error => {
+					try {
+						doSomething();
+					} catch (_) {
+						console.log(_);
+					}
+				}
+			`,
+			output: outdent`
+				const handleError = error => {
+					try {
+						doSomething();
+					} catch (error_) {
+						console.log(error_);
+					}
+				}
+			`
+		}),
+		invalidTestCase({
+			code: outdent`
+				try {
+				} catch (_) {
+					console.log(_)
+					try {
+					} catch (_) {}
+				}
+			`,
+			output: outdent`
+				try {
+				} catch (error) {
+					console.log(error)
+					try {
+					} catch (_) {}
+				}
+			`
+		}),
+		invalidTestCase({
+			code: outdent`
+				try {
+				} catch (_) {
+					try {
+					} catch (_) {
+						console.log(_)
+					}
+				}
+			`,
+			output: outdent`
+				try {
+				} catch (_) {
+					try {
+					} catch (error) {
+						console.log(error)
+					}
+				}
+			`
+		}),
+		{
+			code: outdent`
+				try {
+				} catch (_) {
+					console.log(_)
+					try {
+					} catch (_) {
+						console.log(_)
+					}
+				}
+			`,
+			output: outdent`
+				try {
+				} catch (error) {
+					console.log(error)
+					try {
+					} catch (error) {
+						console.log(error)
+					}
+				}
+			`,
+			errors: [{ruleId: 'catch-error-name'}, {ruleId: 'catch-error-name'}]
+		},
+
 		// #107
 		invalidTestCase({
 			code: outdent`
@@ -572,7 +697,6 @@ ruleTester.run('catch-error-name', rule, {
 			`,
 			name: 'err'
 		})
-
 	]
 });
 

@@ -1,5 +1,5 @@
 'use strict';
-const astUtils = require('eslint-ast-utils');
+const {findVariable} = require('eslint-utils');
 const avoidCapture = require('./utils/avoid-capture');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const renameIdentifier = require('./utils/rename-identifier');
@@ -44,18 +44,18 @@ const create = context => {
 	function check(parameter, node) {
 		if (
 			parameter.type !== 'Identifier' ||
-			ignoreRegex.test(parameter.name) ||
-			(
-				parameter.name === '_' &&
-				// Should be `node.body.body` in `CatchClause`, body also not right
-				// will fix it when fixing #648
-				!astUtils.someContainIdentifier('_', node.body)
-			)
+			ignoreRegex.test(parameter.name)
 		) {
 			return;
 		}
 
 		const scope = context.getScope();
+		const variable = findVariable(scope, parameter);
+
+		if (parameter.name === '_' && variable.references.length === 0) {
+			return;
+		}
+
 		const fixed = avoidCapture(name, [scope.variableScope], ecmaVersion);
 
 		if (parameter.name === fixed) {
