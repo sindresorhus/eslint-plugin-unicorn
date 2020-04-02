@@ -78,8 +78,8 @@ const customErrorDefinition = (context, node) => {
 			node,
 			message: 'Add a constructor to your error.',
 			fix: fixer => fixer.insertTextAfterRange([
-				node.body.start,
-				node.body.start + 1
+				node.body.range[0],
+				node.body.range[0] + 1
 			], getConstructorMethod(name))
 		});
 		return;
@@ -109,8 +109,8 @@ const customErrorDefinition = (context, node) => {
 			node: superExpression,
 			message: 'Pass the error message to `super()`.',
 			fix: fixer => fixer.insertTextAfterRange([
-				superExpression.start,
-				superExpression.start + 6
+				superExpression.range[0],
+				superExpression.range[0] + 6
 			], rhs.raw || rhs.name)
 		});
 	}
@@ -122,8 +122,8 @@ const customErrorDefinition = (context, node) => {
 			node: expression,
 			message: 'Pass the error message to `super()` instead of setting `this.message`.',
 			fix: fixer => fixer.removeRange([
-				messageExpressionIndex === 0 ? constructorBodyNode.start : constructorBody[messageExpressionIndex - 1].end,
-				expression.end
+				messageExpressionIndex === 0 ? constructorBodyNode.range[0] : constructorBody[messageExpressionIndex - 1].range[1],
+				expression.range[1]
 			])
 		});
 	}
