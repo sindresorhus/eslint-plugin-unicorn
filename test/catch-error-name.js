@@ -696,6 +696,24 @@ ruleTester.run('catch-error-name', rule, {
 				};
 			`,
 			name: 'err'
+		}),
+
+		// #561
+		invalidTestCase({
+			code: outdent`
+				try {
+				} catch (e) {
+					const error = new Error(e);
+					throw error
+				}
+			`,
+			output: outdent`
+				try {
+				} catch (error_) {
+					const error = new Error(error_);
+					throw error
+				}
+			`
 		})
 	]
 });

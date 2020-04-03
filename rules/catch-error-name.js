@@ -2,7 +2,7 @@
 const {findVariable} = require('eslint-utils');
 const avoidCapture = require('./utils/avoid-capture');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const renameIdentifier = require('./utils/rename-identifier');
+const renameVariable = require('./utils/rename-variable');
 const methodSelector = require('./utils/method-selector');
 
 // Matches `someObj.catch([FunctionExpression | ArrowFunctionExpression])`
@@ -32,7 +32,6 @@ const catchSelector = [
 const create = context => {
 	const {ecmaVersion} = context.parserOptions;
 	const sourceCode = context.getSourceCode();
-	const {scopeManager} = sourceCode;
 
 	const {name, caughtErrorsIgnorePattern} = {
 		name: 'error',
@@ -41,56 +40,47 @@ const create = context => {
 	};
 	const ignoreRegex = new RegExp(caughtErrorsIgnorePattern);
 
-	function check(parameter, node) {
+	function check(node) {
+		const originalName = node.name;
+		const cleanName = originalName.replace(/_+$/g, '');
+
 		if (
-			parameter.type !== 'Identifier' ||
-			ignoreRegex.test(parameter.name)
+			cleanName === name ||
+			ignoreRegex.test(originalName) ||
+			ignoreRegex.test(cleanName)
 		) {
 			return;
 		}
 
 		const scope = context.getScope();
-		const variable = findVariable(scope, parameter);
+		const variable = findVariable(scope, node);
 
-		if (parameter.name === '_' && variable.references.length === 0) {
+		if (originalName === '_' && variable.references.length === 0) {
 			return;
 		}
 
-		const fixed = avoidCapture(name, [scope.variableScope], ecmaVersion);
-
-		if (parameter.name === fixed) {
-			return;
-		}
+		const scopes = [
+			variable.scope,
+			...variable.references.map(({from}) => from)
+		];
+		const fixed = avoidCapture(name, scopes, ecmaVersion);
 
 		context.report({
 			node,
 			message: `The catch parameter should be named \`${fixed}\`.`,
-			fix: fixer => {
-				const nodes = [parameter];
-
-				const variables = scopeManager.getDeclaredVariables(node);
-				for (const variable of variables) {
-					if (variable.name !== parameter.name) {
-						continue;
-					}
-
-					for (const reference of variable.references) {
-						nodes.push(reference.identifier);
-					}
-				}
-
-				return nodes.map(node => renameIdentifier(node, fixed, fixer, sourceCode));
-			}
+			fix: fixer => renameVariable(variable, fixed, fixer, sourceCode)
 		});
 	}
 
 	return {
 		[promiseCatchSelector]: node => {
-			const callbackNode = node.arguments[0];
-			check(callbackNode.params[0], callbackNode);
+			node = node.arguments[0].params[0];
+			if (node.type === 'Identifier') {
+				check(node);
+			}
 		},
 		[catchSelector]: node => {
-			check(node, node.parent);
+			check(node);
 		}
 	};
 };
