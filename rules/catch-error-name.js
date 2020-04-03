@@ -18,7 +18,7 @@ const promiseMethodSelector = (method, argumentsLength, argumentIndex) => [
 	})`,
 	`[arguments.${argumentIndex}.params.length=1]`,
 	`[arguments.${argumentIndex}.params.0.type="Identifier"]`
-].join('')
+].join('');
 
 // Matches `promise.catch([FunctionExpression | ArrowFunctionExpression])`
 const promiseCatchSelector = promiseMethodSelector('catch', 1, 0);

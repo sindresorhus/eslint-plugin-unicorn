@@ -211,7 +211,7 @@ ruleTester.run('catch-error-name', rule, {
 		'obj.catch(({message}) => {})',
 		'obj.then(undefined, ({message}) => {})',
 
-		// extra arguments
+		// Extra arguments
 		'obj.catch(error => {}, anotherArgument)',
 		'obj.then(undefined, error => {}, anotherArgument)',
 
