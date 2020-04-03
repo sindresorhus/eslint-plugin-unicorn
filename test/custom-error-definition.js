@@ -27,7 +27,7 @@ const invalidExportError = {
 	messageId: 'invalidExport'
 };
 
-ruleTester.run('custom-error-definition', rule, {
+const tests = {
 	valid: [
 		'class Foo { }',
 		'class Foo extends Bar { }',
@@ -436,7 +436,10 @@ ruleTester.run('custom-error-definition', rule, {
 			]
 		}
 	]
-});
+};
+
+ruleTester.run('custom-error-definition', rule, tests);
+typescriptRuleTester.run('custom-error-definition', rule, tests);
 
 typescriptRuleTester.run('custom-error-definition', rule, {
 	valid: [

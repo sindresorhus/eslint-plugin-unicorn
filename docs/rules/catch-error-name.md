@@ -4,7 +4,7 @@ Applies to both `try/catch` clauses and `promise.catch(…)` handlers.
 
 The desired name is configurable, but defaults to `error`.
 
-The error name `_` is ignored, if the error is not used.
+The error name `_` is ignored if the error is not used.
 
 This rule is fixable.
 
