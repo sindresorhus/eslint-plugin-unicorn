@@ -306,11 +306,13 @@ const getNameReplacements = (name, options, limit = 3) => {
 
 	const whitelistWordPlaceholders = [];
 	for (const whitelistWord of whitelist.keys()) {
-		if (/\d/.test(whitelistWord) && name.includes(whitelistWord)) {
-			const index = whitelistWordPlaceholders.push(whitelistWord);
+		if (/\d/.test(whitelistWord)) {
 			name = name.replace(
-				new RegExp(`(?<=[^A-Za-z])${whitelistWord}(?<=[^A-Za-z])`, 'g')
-				`\0placeholder_${index}_placeholder\0`
+				new RegExp(`(?<![a-z])${whitelistWord}(?![a-z])`, 'ig'),
+				word => {
+					const index = whitelistWordPlaceholders.push(word);
+					return `\0placeholder_${index}_placeholder\0`;
+				}
 			);
 		}
 	}

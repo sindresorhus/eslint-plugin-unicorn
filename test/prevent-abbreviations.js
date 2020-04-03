@@ -285,15 +285,24 @@ ruleTester.run('prevent-abbreviations', rule, {
 			options: extendDefaultWhitelistOptions
 		},
 
-		// special `whitelist`
+		// Special `whitelist`
 		// #567
 		{
 			code: 'const is_e2e = true;',
 			options: [{whitelist: {e2e: true}}]
 		},
 		{
+			code: 'const is_E2e = true;',
+			options: [{whitelist: {e2e: true}}]
+		},
+		{
 			code: 'foo();',
 			filename: 'some.spec.e2e.js',
+			options: [{whitelist: {e2e: true}}]
+		},
+		{
+			code: 'foo();',
+			filename: 'some.spec.e2E.js',
 			options: [{whitelist: {e2e: true}}]
 		},
 		{
@@ -1250,7 +1259,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 
-		// special `whitelist`
+		// Special `whitelist`
 		{
 			code: 'const err = 1',
 			output: 'const error = 1',
@@ -1262,7 +1271,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 			output: 'const tree2error = 1',
 			options: [{whitelist: {e2e: true}}],
 			errors: createErrors()
-		},
+		}
 	]
 });
 
