@@ -283,6 +283,27 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'const propTypes = 2;const err = 2;',
 			options: extendDefaultWhitelistOptions
+		},
+
+		// special `whitelist`
+		// #567
+		{
+			code: 'const is_e2e = true;',
+			options: [{whitelist: {e2e: true}}]
+		},
+		{
+			code: 'foo();',
+			filename: 'some.spec.e2e.js',
+			options: [{whitelist: {e2e: true}}]
+		},
+		{
+			code: 'const e2e_and_e2e = true;',
+			options: [{whitelist: {e2e: true}}]
+		},
+		{
+			code: 'foo();',
+			filename: 'e2e.spec.e2e.js',
+			options: [{whitelist: {e2e: true}}]
 		}
 	],
 
@@ -1226,6 +1247,14 @@ ruleTester.run('prevent-abbreviations', rule, {
 			code: 'const propTypes = 2;const err = 2;',
 			output: 'const propertyTypes = 2;const err = 2;',
 			options: noExtendDefaultWhitelistOptions,
+			errors: createErrors()
+		},
+
+		// special `whitelist`
+		{
+			code: 'const err = 1',
+			output: 'const error = 1',
+			options: [{whitelist: {e: true}}], // Should not replace `e`
 			errors: createErrors()
 		}
 	]

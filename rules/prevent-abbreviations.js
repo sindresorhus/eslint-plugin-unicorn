@@ -304,6 +304,14 @@ const getNameReplacements = (name, options, limit = 3) => {
 		};
 	}
 
+	const whitelistWordPlaceholders = [];
+	for (const whitelistWord of whitelist.keys()) {
+		if (/\d/.test(whitelistWord) && name.includes(whitelistWord)) {
+			const index = whitelistWordPlaceholders.push(whitelistWord);
+			name = name.split(whitelistWord).join(`\0placeholder_${index}_placeholder\0`)
+		}
+	}
+
 	// Split words
 	const words = name.split(/(?=[^a-z])|(?<=[^A-Za-z])/).filter(Boolean);
 
@@ -329,9 +337,14 @@ const getNameReplacements = (name, options, limit = 3) => {
 		samples
 	} = cartesianProductSamples(combinations, limit);
 
+	const restoreWhitelistPlaceHolders = name => name.replace(
+		/\0placeholder_(\d+)_placeholder\0/,
+		(_, index) => whitelistWordPlaceholders[index]
+	);
+
 	return {
 		total,
-		samples: samples.map(words => words.join(''))
+		samples: samples.map(words => restoreWhitelistPlaceHolders(words.join('')))
 	};
 };
 
