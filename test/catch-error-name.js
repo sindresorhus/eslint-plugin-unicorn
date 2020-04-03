@@ -137,14 +137,6 @@ ruleTester.run('catch-error-name', rule, {
 		'foo(function (error) {})',
 		'foo().then(function (error) {})',
 		'foo().catch(function (error) {})',
-		{
-			code: 'try {} catch (skipErr) {}',
-			options: [
-				{
-					caughtErrorsIgnorePattern: '^skip'
-				}
-			]
-		},
 		outdent`
 			try {
 				throw new Error('message');
@@ -152,8 +144,6 @@ ruleTester.run('catch-error-name', rule, {
 				console.log('failed');
 			}
 		`,
-		'try {} catch (descriptiveError) {}',
-		'try {} catch (descriptiveerror) {}',
 		'try {} catch ({message}) {}',
 		'obj.catch(function ({message}) {})',
 		'obj.catch(({message}) => {})',
@@ -181,9 +171,60 @@ ruleTester.run('catch-error-name', rule, {
 			`,
 			options: [
 				{
-					caughtErrorsIgnorePattern: '^_$'
+					ignore: ['^_$']
 				}
 			]
+		},
+
+		// Allowed names
+		'try {} catch (error) {}',
+		'try {} catch (error__) {}',
+		'try {} catch (descriptiveError) {}',
+		'try {} catch (descriptive_error) {}',
+		'try {} catch (descriptiveError__) {}',
+		'try {} catch (descriptive_error__) {}',
+
+		// Allowed names, with `options.name`
+		...[
+			'try {} catch (exception) {}',
+			'try {} catch (exception__) {}',
+			'try {} catch (descriptiveException) {}',
+			'try {} catch (descriptive_exception) {}',
+			'try {} catch (descriptiveException__) {}',
+			'try {} catch (descriptive_exception__) {}'
+		].map(code => ({
+			code,
+			options: [{name: 'exception'}]
+		})),
+
+		// `ignore`
+		{
+			code: 'try {} catch (skipThisNameCheck) {}',
+			options: [{ignore: ['^skip']}]
+		},
+		{
+			code: 'try {} catch (skipThisNameCheck) {}',
+			options: [{ignore: [/^skip/]}]
+		},
+		{
+			code: outdent`
+				try {} catch (skipThisNameCheck) {}
+				try {} catch (ignoreThisNameCheck) {}
+				try {} catch (pleaseIgnoreThisNameCheck) {}
+			`,
+			options: [{ignore: [/^skip/, /ignore/i]}]
+		},
+		{
+			code: outdent`
+				try {} catch (error1) {}
+				try {} catch (error1__) {}
+				try {} catch (error2) {}
+			`,
+			options: [{ignore: [/error\d*/]}]
+		},
+		{
+			code: 'promise.catch(unicorn => {})',
+			options: [{ignore: ['unicorn']}]
 		}
 	],
 
@@ -217,36 +258,6 @@ ruleTester.run('catch-error-name', rule, {
 			`,
 			name: 'err'
 		}),
-		{
-			code: 'try {} catch (outerError) {}',
-			output: 'try {} catch (error) {}',
-			errors: [
-				{
-					ruleId: 'catch-error-message',
-					message: 'The catch parameter should be named `error`.'
-				}
-			],
-			options: [
-				{
-					caughtErrorsIgnorePattern: '^_$'
-				}
-			]
-		},
-		{
-			code: 'try {} catch (innerError) {}',
-			output: 'try {} catch (error) {}',
-			errors: [
-				{
-					ruleId: 'catch-error-name',
-					message: 'The catch parameter should be named `error`.'
-				}
-			],
-			options: [
-				{
-					caughtErrorsIgnorePattern: '^_$'
-				}
-			]
-		},
 		invalidTestCase({
 			code: 'obj.catch(err => err)',
 			output: 'obj.catch(error => error)'
@@ -304,37 +315,6 @@ ruleTester.run('catch-error-name', rule, {
 				{
 					ruleId: 'catch-error-name',
 					message: 'The catch parameter should be named `error_`.'
-				}
-			]
-		},
-		{
-			code: outdent`
-				const handleError = error => {
-					try {
-						doSomething();
-					} catch (error2) {
-						console.log(error2);
-					}
-				}
-			`,
-			output: outdent`
-				const handleError = error => {
-					try {
-						doSomething();
-					} catch (error_) {
-						console.log(error_);
-					}
-				}
-			`,
-			errors: [
-				{
-					ruleId: 'catch-error-name',
-					message: 'The catch parameter should be named `error_`.'
-				}
-			],
-			options: [
-				{
-					caughtErrorsIgnorePattern: '^_$'
 				}
 			]
 		},
@@ -428,45 +408,69 @@ ruleTester.run('catch-error-name', rule, {
 			`,
 			errors: [{ruleId: 'catch-error-name'}, {ruleId: 'catch-error-name'}]
 		},
+
+		// Allowed names
 		{
-			code: 'try {} catch (_error) {}',
+			code: 'try {} catch (descriptiveError) {}',
+			output: 'try {} catch (exception) {}',
+			errors: [{}],
+			options: [{name: 'exception'}]
+		},
+
+		// `ignore`
+		{
+			code: 'try {} catch (notMatching) {}',
 			output: 'try {} catch (error) {}',
-			errors: [
-				{
-					ruleId: 'catch-error-name',
-					message: 'The catch parameter should be named `error`.'
-				}
-			],
-			options: [
-				{
-					caughtErrorsIgnorePattern: '^skip'
-				}
-			]
+			errors: [{}],
+			options: [{ignore: []}]
+		},
+		{
+			code: 'try {} catch (notMatching) {}',
+			output: 'try {} catch (error) {}',
+			errors: [{}],
+			options: [{ignore: ['unicorn']}]
+		},
+		{
+			code: 'try {} catch (notMatching) {}',
+			output: 'try {} catch (error) {}',
+			errors: [{}],
+			options: [{ignore: [/unicorn/]}]
 		},
 		{
 			code: outdent`
-				Promise.reject(new Error())
-					.catch(function onError(errorResult) {
-						console.log('errorResult should be fixed to', errorResult)
-					})
+				try {} catch (error1) {}
+				try {} catch (error1__) {}
+				try {} catch (error2) {}
+				try {} catch (unicorn) {}
 			`,
 			output: outdent`
-				Promise.reject(new Error())
-					.catch(function onError(error) {
-						console.log('errorResult should be fixed to', error)
-					})
+				try {} catch (error1) {}
+				try {} catch (error1__) {}
+				try {} catch (error2) {}
+				try {} catch (error) {}
 			`,
-			errors: [
-				{
-					ruleId: 'catch-error-message',
-					message: 'The catch parameter should be named `error`.'
-				}
-			],
-			options: [
-				{
-					caughtErrorsIgnorePattern: '^_$'
-				}
-			]
+			errors: [{}],
+			options: [{ignore: [/error\d*/]}]
+		},
+		{
+			code: outdent`
+				try {} catch (notMatching) {}
+				try {} catch (unicorn) {}
+				try {} catch (unicorn__) {}
+			`,
+			output: outdent`
+				try {} catch (error) {}
+				try {} catch (unicorn) {}
+				try {} catch (unicorn__) {}
+			`,
+			errors: [{}],
+			options: [{ignore: ['unicorn']}]
+		},
+		{
+			code: 'promise.catch(notMatching => {})',
+			output: 'promise.catch(error => {})',
+			errors: [{}],
+			options: [{ignore: ['unicorn']}]
 		},
 
 		// `_`
