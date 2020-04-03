@@ -308,7 +308,10 @@ const getNameReplacements = (name, options, limit = 3) => {
 	for (const whitelistWord of whitelist.keys()) {
 		if (/\d/.test(whitelistWord) && name.includes(whitelistWord)) {
 			const index = whitelistWordPlaceholders.push(whitelistWord);
-			name = name.split(whitelistWord).join(`\0placeholder_${index}_placeholder\0`)
+			name = name.replace(
+				new RegExp(`(?<=[^A-Za-z])${whitelistWord}(?<=[^A-Za-z])`, 'g')
+				`\0placeholder_${index}_placeholder\0`
+			);
 		}
 	}
 

@@ -1256,7 +1256,13 @@ ruleTester.run('prevent-abbreviations', rule, {
 			output: 'const error = 1',
 			options: [{whitelist: {e: true}}], // Should not replace `e`
 			errors: createErrors()
-		}
+		},
+		{
+			code: 'const tree2err = 1',
+			output: 'const tree2error = 1',
+			options: [{whitelist: {e2e: true}}],
+			errors: createErrors()
+		},
 	]
 });
 
