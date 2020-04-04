@@ -1,6 +1,10 @@
 # Enforce a specific parameter name in catch clauses
 
-Applies to both `try/catch` clauses and `promise.catch(…)` handlers.
+Applies to
+
+- `try/catch` clauses handlers
+- `promise.catch(…)` handlers
+- `promise.then(onFulfilled, …)` handlers
 
 The desired name is configurable, but defaults to `error`.
 
@@ -13,13 +17,17 @@ This rule is fixable.
 ```js
 try {
 	doSomething();
-} catch (ohNoes) {
+} catch (badName) {
 	// …
 }
 ```
 
 ```js
-somePromise.catch(e => {})
+somePromise.catch(badName => {})
+```
+
+```js
+somePromise.then(undefined, badName => {})
 ```
 
 ## Pass
@@ -34,6 +42,10 @@ try {
 
 ```js
 somePromise.catch(error => {})
+```
+
+```js
+somePromise.then(undefined, error => {})
 ```
 
 ```js
@@ -55,13 +67,6 @@ const handleError = error => {
 }
 ```
 
-```js
-somePromise.catch(_ => {
-	// `_` is allowed when the error is not used
-	console.log(foo);
-});
-```
-
 ## Options
 
 ### name
@@ -72,7 +77,7 @@ You can set the `name` option like this:
 "unicorn/catch-error-name": [
 	"error",
 	{
-		"name": "error"
+		"name": "exception"
 	}
 ]
 ```

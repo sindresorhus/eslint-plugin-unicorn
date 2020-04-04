@@ -5,21 +5,26 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const renameVariable = require('./utils/rename-variable');
 const methodSelector = require('./utils/method-selector');
 
-// Matches `someObj.catch([FunctionExpression | ArrowFunctionExpression])`
-// TODO: Support `promise.then()` second argument
-const promiseCatchSelector = [
+const promiseMethodSelector = (method, argumentsLength, argumentIndex) => [
 	methodSelector({
-		name: 'catch',
-		length: 1
+		name: method,
+		length: argumentsLength
 	}),
 	`:matches(${
 		[
 			'FunctionExpression',
 			'ArrowFunctionExpression'
-		].map(type => `[arguments.0.type="${type}"]`).join(', ')
+		].map(type => `[arguments.${argumentIndex}.type="${type}"]`).join(', ')
 	})`,
-	'[arguments.0.params.length=1]'
+	`[arguments.${argumentIndex}.params.length=1]`,
+	`[arguments.${argumentIndex}.params.0.type="Identifier"]`
 ].join('');
+
+// Matches `promise.catch([FunctionExpression | ArrowFunctionExpression])`
+const promiseCatchSelector = promiseMethodSelector('catch', 1, 0);
+
+// Matches `promise.then(any, [FunctionExpression | ArrowFunctionExpression])`
+const promiseThenSelector = promiseMethodSelector('then', 2, 1);
 
 const catchSelector = [
 	'CatchClause',
@@ -74,10 +79,10 @@ const create = context => {
 
 	return {
 		[promiseCatchSelector]: node => {
-			node = node.arguments[0].params[0];
-			if (node.type === 'Identifier') {
-				check(node);
-			}
+			check(node.arguments[0].params[0]);
+		},
+		[promiseThenSelector]: node => {
+			check(node.arguments[1].params[0]);
 		},
 		[catchSelector]: node => {
 			check(node);
