@@ -8,7 +8,7 @@ The following names are ignored:
 
 - `_`, but only if the error is not used.
 - Descriptive names, for example, `fsError` or `authError`.
-- Names matches [options.ignore](#ignore).
+- Names matching [`options.ignore`](#ignore).
 
 This rule is fixable.
 
@@ -69,6 +69,9 @@ somePromise.catch(_ => {
 ## Options
 
 ### name
+
+Type: `string`\
+Default: `'error'`
 
 You can set the `name` option like this:
 
