@@ -22,12 +22,13 @@ const charactersMightNeedsSemicolon = new Set([
 ]);
 
 /**
-	* Determines if a semicolon needs to be inserted before `code`, in order to avoid a SyntaxError.
-	* @param {Token}  tokenBefore Token before `code`
-	* @param {SourceCode} sourceCode
-	* @param {String} [code] Code text to determine
-	* @returns {boolean} `true` if a semicolon needs to be inserted before `code`.
-	*/
+Determines if a semicolon needs to be inserted before `code`, in order to avoid a SyntaxError.
+
+@param {Token} tokenBefore Token before `code`.
+@param {SourceCode} sourceCode
+@param {String} [code] Code text to determine.
+@returns {boolean} `true` if a semicolon needs to be inserted before `code`.
+*/
 
 function needsSemicolon(tokenBefore, sourceCode, code) {
 	if (
