@@ -38,21 +38,27 @@ const create = context => {
 	const {ecmaVersion} = context.parserOptions;
 	const sourceCode = context.getSourceCode();
 
-	const {name, caughtErrorsIgnorePattern} = {
+	const options = {
 		name: 'error',
-		caughtErrorsIgnorePattern: /^[\dA-Za-z]+[Ee]rror$/.source,
+		ignore: [],
 		...context.options[0]
 	};
-	const ignoreRegex = new RegExp(caughtErrorsIgnorePattern);
+	const {name: expectedName} = options;
+	const ignore = options.ignore.map(
+		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u')
+	);
+	const isNameAllowed = name =>
+		name === expectedName ||
+		ignore.some(regexp => regexp.test(name)) ||
+		name.endsWith(expectedName) ||
+		name.endsWith(expectedName.charAt(0).toUpperCase() + expectedName.slice(1));
 
 	function check(node) {
 		const originalName = node.name;
-		const cleanName = originalName.replace(/_+$/g, '');
 
 		if (
-			cleanName === name ||
-			ignoreRegex.test(originalName) ||
-			ignoreRegex.test(cleanName)
+			isNameAllowed(originalName) ||
+			isNameAllowed(originalName.replace(/_+$/g, ''))
 		) {
 			return;
 		}
@@ -68,7 +74,7 @@ const create = context => {
 			variable.scope,
 			...variable.references.map(({from}) => from)
 		];
-		const fixed = avoidCapture(name, scopes, ecmaVersion);
+		const fixed = avoidCapture(expectedName, scopes, ecmaVersion);
 
 		context.report({
 			node,
@@ -97,8 +103,9 @@ const schema = [
 			name: {
 				type: 'string'
 			},
-			caughtErrorsIgnorePattern: {
-				type: 'string'
+			ignore: {
+				type: 'array',
+				uniqueItems: true
 			}
 		}
 	}

@@ -6,9 +6,13 @@ Applies to
 - `promise.catch(…)` handlers
 - `promise.then(onFulfilled, …)` handlers
 
-The desired name is configurable, but defaults to `error`.
+The desired name is [configurable](#name), but defaults to `error`.
 
-The error name `_` is ignored if the error is not used.
+The following names are ignored:
+
+- `_`, but only if the error is not used.
+- Descriptive names, for example, `fsError` or `authError`.
+- Names matching [`options.ignore`](#ignore).
 
 This rule is fixable.
 
@@ -71,6 +75,9 @@ const handleError = error => {
 
 ### name
 
+Type: `string`\
+Default: `'error'`
+
 You can set the `name` option like this:
 
 ```js
@@ -82,18 +89,26 @@ You can set the `name` option like this:
 ]
 ```
 
-### caughtErrorsIgnorePattern
+### ignore
+
+Type: `Array<string | RegExp>`\
+Default: `[]`
+
+This option lets you specify a regex pattern for matches to ignore.
+
+When a string is given, it's interpreted as a regular expressions inside a string. Needed for ESLint config in JSON.
 
 ```js
 "unicorn/catch-error-name": [
 	"error",
 	{
-		"caughtErrorsIgnorePattern": "^error\\d*$"
+		"ignore": [
+			"^error\\d*$",
+			/^ignore/i
+		]
 	}
 ]
 ```
-
-This option lets you specify a regex pattern for matches to ignore. The default allows descriptive names like `networkError`.
 
 With `^unicorn$`, this would fail:
 
@@ -117,4 +132,4 @@ try {
 
 ## Tip
 
-In order to avoid shadowing in nested catch clauses, the auto-fix rule appends underscores to the identifier name. Since this might be hard to read, the default setting for `caughtErrorsIgnorePattern` allows the use of descriptive names instead, for example, `fsError` or `authError`.
+In order to avoid shadowing in nested catch clauses, the auto-fix rule appends underscores to the identifier name.
