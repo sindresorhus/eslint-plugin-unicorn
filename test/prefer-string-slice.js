@@ -123,18 +123,22 @@ ruleTester.run('prefer-string-slice', rule, {
 
 		{
 			code: 'foo.substr(start)',
+			output: 'foo.slice(start)',
 			errors
 		},
 		{
 			code: '"foo".substr(1)',
+			output: '"foo".slice(1)',
 			errors
 		},
 		{
 			code: 'foo.substr(start, length)',
+			output: 'foo.substr(start, length)',
 			errors
 		},
 		{
 			code: '"foo".substr(1, 2)',
+			output: '"foo".slice(1, 3)',
 			errors
 		},
 
@@ -196,10 +200,12 @@ ruleTester.run('prefer-string-slice', rule, {
 
 		{
 			code: 'foo.substring(start)',
+			output: 'foo.slice(Math.max(0, start))',
 			errors
 		},
 		{
 			code: '"foo".substring(1)',
+			output: '"foo".slice(1)',
 			errors
 		},
 		{
@@ -208,6 +214,7 @@ ruleTester.run('prefer-string-slice', rule, {
 		},
 		{
 			code: '"foo".substring(1, 3)',
+			output: '"foo".slice(1, 3)',
 			errors
 		}
 	]
