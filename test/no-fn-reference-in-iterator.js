@@ -3,8 +3,8 @@ import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/no-fn-reference-in-iterator';
 
-const ERROR_MESSAGE_ID = 'error';
-const REPLACE_MESSAGE_ID = 'replace';
+const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
+const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
 
 const simpleMethods = [
 	'every',
@@ -27,26 +27,25 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const generateError = (methodName, functionName) => ({
-	messageId: ERROR_MESSAGE_ID,
+const generateError = (method, name) => ({
+	messageId: name ? ERROR_WITH_NAME_MESSAGE_ID : ERROR_WITHOUT_NAME_MESSAGE_ID,
 	data: {
-		methodName,
-		functionName
+		method,
+		name
 	}
 });
 
 // Only test output is good enough
 const suggestionOutput = output => ({
-	messageId: REPLACE_MESSAGE_ID,
 	output
 });
 
-const invalidTestCase = (({code, methodName, functionName, suggestions}) => ({
+const invalidTestCase = (({code, method, name, suggestions}) => ({
 	code,
 	output: code,
 	errors: [
 		{
-			...generateError(methodName, functionName),
+			...generateError(method, name),
 			suggestions: suggestions.map(output => suggestionOutput(output))
 		}
 	]
@@ -55,11 +54,11 @@ const invalidTestCase = (({code, methodName, functionName, suggestions}) => ({
 
 ruleTester.run('no-fn-reference-in-iterator', rule, {
 	valid: [
-		...simpleMethods.map(methodName => `foo.${methodName}(element => fn(element))`),
-		...reduceLikeMethods.map(methodName => `foo.${methodName}((accumulator, element) => fn(element))`),
+		...simpleMethods.map(method => `foo.${method}(element => fn(element))`),
+		...reduceLikeMethods.map(method => `foo.${method}((accumulator, element) => fn(element))`),
 
 		// `Boolean`
-		...simpleMethods.map(methodName => `foo.${methodName}(Boolean)`),
+		...simpleMethods.map(method => `foo.${method}(Boolean)`),
 
 		// Not `CallExpression`
 		'new foo.map(fn);',
@@ -76,10 +75,6 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 		'foo.map(fn, extraArgument1, extraArgument2);',
 		'foo.map(...argumentsArray)',
 
-		// TODO: support more types of iterator
-		// Not `Identifier`
-		'foo.map(lib.fn);',
-
 		// Whitelisted
 		'Promise.map(fn)',
 		'Promise.forEach(fn)',
@@ -93,80 +88,134 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 	invalid: [
 		// Suggestions
 		...simpleMethods.map(
-			methodName => invalidTestCase({
-				code: `foo.${methodName}(fn)`,
-				methodName,
-				functionName: 'fn',
+			method => invalidTestCase({
+				code: `foo.${method}(fn)`,
+				method,
+				name: 'fn',
 				suggestions: [
-					`foo.${methodName}((element) => fn(element))`,
-					`foo.${methodName}((element, index) => fn(element, index))`,
-					`foo.${methodName}((element, index, array) => fn(element, index, array))`
+					`foo.${method}((element) => fn(element))`,
+					`foo.${method}((element, index) => fn(element, index))`,
+					`foo.${method}((element, index, array) => fn(element, index, array))`
 				]
 			})
 		),
 		...reduceLikeMethods.map(
-			methodName => invalidTestCase({
-				code: `foo.${methodName}(fn)`,
-				methodName,
-				functionName: 'fn',
+			method => invalidTestCase({
+				code: `foo.${method}(fn)`,
+				method,
+				name: 'fn',
 				suggestions: [
-					`foo.${methodName}((accumulator, element) => fn(accumulator, element))`,
-					`foo.${methodName}((accumulator, element, index) => fn(accumulator, element, index))`,
-					`foo.${methodName}((accumulator, element, index, array) => fn(accumulator, element, index, array))`
+					`foo.${method}((accumulator, element) => fn(accumulator, element))`,
+					`foo.${method}((accumulator, element, index) => fn(accumulator, element, index))`,
+					`foo.${method}((accumulator, element, index, array) => fn(accumulator, element, index, array))`
 				]
 			})
 		),
 
 		// 2 arguments
 		...simpleMethods.map(
-			methodName => invalidTestCase({
-				code: `foo.${methodName}(fn, thisArgument)`,
-				methodName,
-				functionName: 'fn',
+			method => invalidTestCase({
+				code: `foo.${method}(fn, thisArgument)`,
+				method,
+				name: 'fn',
 				suggestions: [
-					`foo.${methodName}((element) => fn(element), thisArgument)`,
-					`foo.${methodName}((element, index) => fn(element, index), thisArgument)`,
-					`foo.${methodName}((element, index, array) => fn(element, index, array), thisArgument)`
+					`foo.${method}((element) => fn(element), thisArgument)`,
+					`foo.${method}((element, index) => fn(element, index), thisArgument)`,
+					`foo.${method}((element, index, array) => fn(element, index, array), thisArgument)`
 				]
 			})
 		),
 		...reduceLikeMethods.map(
-			methodName => invalidTestCase({
-				code: `foo.${methodName}(fn, initialValue)`,
-				methodName,
-				functionName: 'fn',
+			method => invalidTestCase({
+				code: `foo.${method}(fn, initialValue)`,
+				method,
+				name: 'fn',
 				suggestions: [
-					`foo.${methodName}((accumulator, element) => fn(accumulator, element), initialValue)`,
-					`foo.${methodName}((accumulator, element, index) => fn(accumulator, element, index), initialValue)`,
-					`foo.${methodName}((accumulator, element, index, array) => fn(accumulator, element, index, array), initialValue)`
+					`foo.${method}((accumulator, element) => fn(accumulator, element), initialValue)`,
+					`foo.${method}((accumulator, element, index) => fn(accumulator, element, index), initialValue)`,
+					`foo.${method}((accumulator, element, index, array) => fn(accumulator, element, index, array), initialValue)`
 				]
 			})
 		),
 
 		// `Boolean` is not ignored on `reduce` and `reduceRight`
 		...reduceLikeMethods.map(
-			methodName => invalidTestCase({
-				code: `foo.${methodName}(Boolean, initialValue)`,
-				methodName,
-				functionName: 'Boolean',
+			method => invalidTestCase({
+				code: `foo.${method}(Boolean, initialValue)`,
+				method,
+				name: 'Boolean',
 				suggestions: [
-					`foo.${methodName}((accumulator, element) => Boolean(accumulator, element), initialValue)`,
-					`foo.${methodName}((accumulator, element, index) => Boolean(accumulator, element, index), initialValue)`,
-					`foo.${methodName}((accumulator, element, index, array) => Boolean(accumulator, element, index, array), initialValue)`
+					`foo.${method}((accumulator, element) => Boolean(accumulator, element), initialValue)`,
+					`foo.${method}((accumulator, element, index) => Boolean(accumulator, element, index), initialValue)`,
+					`foo.${method}((accumulator, element, index, array) => Boolean(accumulator, element, index, array), initialValue)`
 				]
 			})
 		),
+
+		// Not `Identifier`
+		...simpleMethods.map(
+			method => invalidTestCase({
+				code: `foo.${method}(lib.fn)`,
+				method,
+				suggestions: [
+					`foo.${method}((element) => lib.fn(element))`,
+					`foo.${method}((element, index) => lib.fn(element, index))`,
+					`foo.${method}((element, index, array) => lib.fn(element, index, array))`
+				]
+			})
+		),
+		...reduceLikeMethods.map(
+			method => invalidTestCase({
+				code: `foo.${method}(lib.fn)`,
+				method,
+				suggestions: [
+					`foo.${method}((accumulator, element) => lib.fn(accumulator, element))`,
+					`foo.${method}((accumulator, element, index) => lib.fn(accumulator, element, index))`,
+					`foo.${method}((accumulator, element, index, array) => lib.fn(accumulator, element, index, array))`
+				]
+			})
+		),
+
+		// Need parenthesized
+		invalidTestCase({
+			code: 'foo.map(a ? b : c)',
+			method: 'map',
+			suggestions: [
+				'foo.map((element) => (a ? b : c)(element))',
+				'foo.map((element, index) => (a ? b : c)(element, index))',
+				'foo.map((element, index, array) => (a ? b : c)(element, index, array))'
+			]
+		}),
+		invalidTestCase({
+			code: 'foo.map((() => _.map)())',
+			method: 'map',
+			suggestions: [
+				'foo.map((element) => (() => _.map)()(element))',
+				'foo.map((element, index) => (() => _.map)()(element, index))',
+				'foo.map((element, index, array) => (() => _.map)()(element, index, array))'
+			]
+		}),
+		// Note: `await` is not handled, not sure if this is needed
+		// invalidTestCase({
+		// 	code: `foo.map(await foo())`,
+		// 	method: 'map',
+		// 	suggestions: [
+		// 		`foo.map(async (accumulator, element) => (await foo())(accumulator, element))`,
+		// 		`foo.map(async (accumulator, element, index) => (await foo())(accumulator, element, index))`,
+		// 		`foo.map(async (accumulator, element, index, array) => (await foo())(accumulator, element, index, array))`
+		// 	]
+		// }),
 
 		// Actual messages
 		{
 			code: 'foo.map(fn)',
 			errors: [
 				{
-					message: 'Do not pass function `fn` directly to `map()`.',
+					message: 'Do not pass function `fn` directly to `map(…)`.',
 					suggestions: [
-						{desc: 'Replace function `fn` with `(element) => fn(element)`.'},
-						{desc: 'Replace function `fn` with `(element, index) => fn(element, index)`.'},
-						{desc: 'Replace function `fn` with `(element, index, array) => fn(element, index, array)`.'}
+						{desc: 'Replace function `fn` with `… => fn(element)`.'},
+						{desc: 'Replace function `fn` with `… => fn(element, index)`.'},
+						{desc: 'Replace function `fn` with `… => fn(element, index, array)`.'}
 					]
 				}
 			]
@@ -175,11 +224,11 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 			code: 'foo.reduce(fn)',
 			errors: [
 				{
-					message: 'Do not pass function `fn` directly to `reduce()`.',
+					message: 'Do not pass function `fn` directly to `reduce(…)`.',
 					suggestions: [
-						{desc: 'Replace function `fn` with `(accumulator, element) => fn(accumulator, element)`.'},
-						{desc: 'Replace function `fn` with `(accumulator, element, index) => fn(accumulator, element, index)`.'},
-						{desc: 'Replace function `fn` with `(accumulator, element, index, array) => fn(accumulator, element, index, array)`.'}
+						{desc: 'Replace function `fn` with `… => fn(accumulator, element)`.'},
+						{desc: 'Replace function `fn` with `… => fn(accumulator, element, index)`.'},
+						{desc: 'Replace function `fn` with `… => fn(accumulator, element, index, array)`.'}
 					]
 				}
 			]
@@ -191,8 +240,8 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 				const fn = (x, y) => x + y;
 				[1, 2, 3].map(fn);
 			`,
-			methodName: 'map',
-			functionName: 'fn',
+			method: 'map',
+			name: 'fn',
 			suggestions: [
 				outdent`
 					const fn = (x, y) => x + y;

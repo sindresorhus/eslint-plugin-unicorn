@@ -1,9 +1,12 @@
 'use strict';
+const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 
-const ERROR_MESSAGE_ID = 'error';
-const REPLACE_MESSAGE_ID = 'replace';
+const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
+const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
+const REPLACE_WITH_NAME_MESSAGE_ID = 'replace-with-name';
+const REPLACE_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
 
 const iteratorMethods = [
 	['every'],
@@ -67,19 +70,22 @@ const toSelector = name => {
 const ignoredCalleeSelector = `${ignoredCallee.map(toSelector).join('')}`;
 
 function check(context, node, method, options) {
-	const {name: functionName} = node;
-	const {ignore} = options;
+	const {type, name} = node;
 
-	if (ignore.includes(functionName)) {
+	if (type === 'FunctionExpression' || type === 'ArrowFunctionExpression') {
+		return;
+	}
+
+	if (type === 'Identifier' && options.ignore.includes(name)) {
 		return;
 	}
 
 	const problem = {
 		node,
-		messageId: ERROR_MESSAGE_ID,
+		messageId: name ? ERROR_WITH_NAME_MESSAGE_ID : ERROR_WITHOUT_NAME_MESSAGE_ID,
 		data: {
-			functionName,
-			methodName: method
+			name,
+			method
 		},
 		suggest: []
 	};
@@ -89,15 +95,23 @@ function check(context, node, method, options) {
 		const suggestionParameters = parameters.slice(0, parameterLength).join(', ');
 
 		const suggest = {
-			messageId: REPLACE_MESSAGE_ID,
+			messageId: name ? REPLACE_WITH_NAME_MESSAGE_ID : REPLACE_WITHOUT_NAME_MESSAGE_ID,
 			data: {
-				functionName,
+				name,
 				parameters: suggestionParameters
 			},
-			fix: fixer => fixer.replaceText(
-				node,
-				`(${suggestionParameters}) => ${functionName}(${suggestionParameters})`
-			)
+			fix: fixer => {
+				const sourceCode = context.getSourceCode();
+				let nodeText = sourceCode.getText(node);
+				if (isParenthesized(node, sourceCode) || type === 'ConditionalExpression') {
+					nodeText = `(${nodeText})`;
+				}
+
+				return fixer.replaceText(
+					node,
+					`(${suggestionParameters}) => ${nodeText}(${suggestionParameters})`
+				);
+			}
 		};
 
 		problem.suggest.push(suggest);
@@ -121,12 +135,6 @@ const create = context => {
 		].join('');
 		rules[selector] = node => {
 			const [iterator] = node.arguments;
-
-			// TODO: support more types of iterator
-			if (iterator.type !== 'Identifier') {
-				return;
-			}
-
 			check(context, iterator, method, options, sourceCode);
 		};
 	}
@@ -142,8 +150,10 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		messages: {
-			[ERROR_MESSAGE_ID]: 'Do not pass function `{{functionName}}` directly to `{{methodName}}()`.',
-			[REPLACE_MESSAGE_ID]: 'Replace function `{{functionName}}` with `({{parameters}}) => {{functionName}}({{parameters}})`.'
+			[ERROR_WITH_NAME_MESSAGE_ID]: 'Do not pass function `{{name}}` directly to `{{method}}(…)`.',
+			[ERROR_WITHOUT_NAME_MESSAGE_ID]: 'Do not pass function directly to `{{method}}(…)`.',
+			[REPLACE_WITH_NAME_MESSAGE_ID]: 'Replace function `{{name}}` with `… => {{name}}({{parameters}})`.',
+			[REPLACE_WITHOUT_NAME_MESSAGE_ID]: 'Replace function with `… => …({{parameters}})`.'
 		}
 	}
 };
