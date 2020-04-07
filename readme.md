@@ -1,4 +1,4 @@
-# eslint-plugin-unicorn [![Build Status](https://github.com/sindresorhus/eslint-plugin-unicorn/workflows/CI/badge.svg?branch=master)](https://github.com/sindresorhus/eslint-plugin-unicorn/actions?query=branch%3Amaster+workflow%3ACI) [![Coverage Status](https://coveralls.io/repos/github/sindresorhus/eslint-plugin-unicorn/badge.svg?branch=master)](https://coveralls.io/github/sindresorhus/eslint-plugin-unicorn?branch=master)
+# eslint-plugin-unicorn [![Build Status](https://github.com/sindresorhus/eslint-plugin-unicorn/workflows/CI/badge.svg?branch=master)](https://github.com/sindresorhus/eslint-plugin-unicorn/actions?query=branch%3Amaster+workflow%3ACI) [![Coverage Status](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/master/graph/badge.svg)](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/master)
 
 <img src="https://cloud.githubusercontent.com/assets/170270/18659176/1cc373d0-7f33-11e6-890f-0ba35362ee7e.jpg" width="180" align="right">
 
@@ -69,9 +69,11 @@ Configure it in `package.json`.
 			"unicorn/prefer-negative-index": "error",
 			"unicorn/prefer-node-append": "error",
 			"unicorn/prefer-node-remove": "error",
+			"unicorn/prefer-number-properties": "error",
 			"unicorn/prefer-query-selector": "error",
 			"unicorn/prefer-reflect-apply": "error",
 			"unicorn/prefer-replace-all": "off",
+			"unicorn/prefer-set-has": "error",
 			"unicorn/prefer-spread": "error",
 			"unicorn/prefer-starts-ends-with": "error",
 			"unicorn/prefer-string-slice": "error",
@@ -123,9 +125,11 @@ Configure it in `package.json`.
 - [prefer-negative-index](docs/rules/prefer-negative-index.md) - Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()` and `Array#splice()`. *(fixable)*
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `Node#append()` over `Node#appendChild()`. *(fixable)*
 - [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`. *(fixable)*
+- [prefer-number-properties](docs/rules/prefer-number-properties.md) - Prefer `Number` static properties over global ones. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. *(partly fixable)*
 - [prefer-reflect-apply](docs/rules/prefer-reflect-apply.md) - Prefer `Reflect.apply()` over `Function#apply()`. *(fixable)*
 - [prefer-replace-all](docs/rules/prefer-replace-all.md) - Prefer `String#replaceAll()` over regex searches with the global flag. *(fixable)*
+- [prefer-set-has](docs/rules/prefer-set-has.md) - Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence. *(fixable)*
 - [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
 - [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith()` & `String#endsWith()` over more complex alternatives.
 - [prefer-string-slice](docs/rules/prefer-string-slice.md) - Prefer `String#slice()` over `String#substr()` and `String#substring()`. *(partly fixable)*

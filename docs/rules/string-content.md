@@ -6,15 +6,26 @@ This rule is fixable.
 
 *It only reports one pattern per AST node at the time.*
 
+This rule ignores the following tagged template literals as they're known to contain code:
+
+- ``gql`…` ``
+- ``html`…` ``
+- ``svg`…` ``
+- ``styled.*`…` ``
+
+**This rule has no effect by default. You need set [`patterns`](#patterns) to check string content.**
+
 ## Fail
 
 ```js
+/*eslint unicorn/string-content: ["error", { "patterns": { "'": "’" } }]*/
 const foo = 'Someone\'s coming!';
 ```
 
 ## Pass
 
 ```js
+/*eslint unicorn/string-content: ["error", { "patterns": { "'": "’" } }]*/
 const foo = 'Someone’s coming!';
 ```
 
@@ -26,11 +37,8 @@ Type: `object`
 
 Type: `object`
 
-Extend [default patterns](#default-pattern).
-
 The example below:
 
-- Disables the default `'` → `’` replacement.
 - Adds a custom `unicorn` → `🦄` replacement.
 - Adds a custom `awesome` → `😎` replacement and a custom message.
 - Adds a custom `cool` → `😎` replacement, but disables auto fix.
@@ -41,7 +49,6 @@ The example below:
 		"error",
 		{
 			"patterns": {
-				"'": false,
 				"unicorn": "🦄",
 				"awesome": {
 					"suggest": "😎",
@@ -69,10 +76,9 @@ For example, if you want to enforce `...` → `…`:
 }
 ```
 
-## Default Pattern
+## Pattern ideas
 
-```json
-{
-	"'": "’"
-}
-```
+- Enforce `’` over `'` to avoid escape.
+- Enforce `…` over `...` for better typography.
+- Enforce `→` over `->` for better typography.
+- Enforce `^https:\\/\\/` over `^http:\\/\\/` to secure your links.

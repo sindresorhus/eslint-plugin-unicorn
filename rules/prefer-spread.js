@@ -1,6 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
+const needsSemicolon = require('./utils/needs-semicolon');
 
 const selector = [
 	methodSelector({
@@ -17,30 +18,6 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 	const getSource = node => sourceCode.getText(node);
 
-	const needsSemicolon = node => {
-		const tokenBefore = sourceCode.getTokenBefore(node);
-
-		if (tokenBefore) {
-			const {type, value} = tokenBefore;
-			if (type === 'Punctuator') {
-				if (value === ';') {
-					return false;
-				}
-
-				if (value === ']' || value === ')') {
-					return true;
-				}
-			}
-
-			const lastBlockNode = sourceCode.getNodeByRangeIndex(tokenBefore.range[0]);
-			if (lastBlockNode && lastBlockNode.type === 'ObjectExpression') {
-				return true;
-			}
-		}
-
-		return false;
-	};
-
 	return {
 		[selector](node) {
 			context.report({
@@ -48,7 +25,9 @@ const create = context => {
 				message: 'Prefer the spread operator over `Array.from()`.',
 				fix: fixer => {
 					const [arrayLikeArgument, mapFn, thisArgument] = node.arguments.map(getSource);
-					let replacement = `${needsSemicolon(node) ? ';' : ''}[...${arrayLikeArgument}]`;
+					let replacement = `${
+						needsSemicolon(sourceCode.getTokenBefore(node), sourceCode) ? ';' : ''
+					}[...${arrayLikeArgument}]`;
 
 					if (mapFn) {
 						const mapArguments = [mapFn, thisArgument].filter(Boolean);

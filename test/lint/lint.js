@@ -35,7 +35,7 @@ const {
 
 const hasFixable = fixableErrorCount || fixableWarningCount;
 
-if (fix && hasFixable) {
+if (fix) {
 	CLIEngine.outputFixes(report);
 }
 

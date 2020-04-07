@@ -1,23 +1,37 @@
 # Enforce a specific parameter name in catch clauses
 
-Applies to both `try/catch` clauses and `promise.catch(…)` handlers.
+Applies to
 
-The desired name is configurable, but defaults to `error`.
+- `try/catch` clauses handlers
+- `promise.catch(…)` handlers
+- `promise.then(onFulfilled, …)` handlers
 
-This rule is fixable unless the reported code was destructuring an error.
+The desired name is [configurable](#name), but defaults to `error`.
+
+The following names are ignored:
+
+- `_`, but only if the error is not used.
+- Descriptive names, for example, `fsError` or `authError`.
+- Names matching [`options.ignore`](#ignore).
+
+This rule is fixable.
 
 ## Fail
 
 ```js
 try {
 	doSomething();
-} catch (ohNoes) {
+} catch (badName) {
 	// …
 }
 ```
 
 ```js
-somePromise.catch(e => {})
+somePromise.catch(badName => {})
+```
+
+```js
+somePromise.then(undefined, badName => {})
 ```
 
 ## Pass
@@ -35,15 +49,7 @@ somePromise.catch(error => {})
 ```
 
 ```js
-try {
-	doSomething();
-} catch (anyName) { // Nesting of catch clauses disables the rule
-	try {
-		doSomethingElse();
-	} catch (anyOtherName) {
-		// ...
-	}
-}
+somePromise.then(undefined, error => {})
 ```
 
 ```js
@@ -65,16 +71,12 @@ const handleError = error => {
 }
 ```
 
-```js
-somePromise.catch(_ => {
-	// `_` is allowed when the error is not used
-	console.log(foo);
-});
-```
-
 ## Options
 
 ### name
+
+Type: `string`\
+Default: `'error'`
 
 You can set the `name` option like this:
 
@@ -82,23 +84,31 @@ You can set the `name` option like this:
 "unicorn/catch-error-name": [
 	"error",
 	{
-		"name": "error"
+		"name": "exception"
 	}
 ]
 ```
 
-### caughtErrorsIgnorePattern
+### ignore
+
+Type: `Array<string | RegExp>`\
+Default: `[]`
+
+This option lets you specify a regex pattern for matches to ignore.
+
+When a string is given, it's interpreted as a regular expressions inside a string. Needed for ESLint config in JSON.
 
 ```js
 "unicorn/catch-error-name": [
 	"error",
 	{
-		"caughtErrorsIgnorePattern": "^_$"
+		"ignore": [
+			"^error\\d*$",
+			/^ignore/i
+		]
 	}
 ]
 ```
-
-This option lets you specify a regex pattern for matches to ignore. The default allows `_` and descriptive names like `networkError`.
 
 With `^unicorn$`, this would fail:
 
@@ -122,4 +132,4 @@ try {
 
 ## Tip
 
-In order to avoid shadowing in nested catch clauses, the auto-fix rule appends underscores to the identifier name. Since this might be hard to read, the default setting for `caughtErrorsIgnorePattern` allows the use of descriptive names instead, for example, `fsError` or `authError`.
+In order to avoid shadowing in nested catch clauses, the auto-fix rule appends underscores to the identifier name.

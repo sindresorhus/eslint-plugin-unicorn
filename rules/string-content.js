@@ -4,18 +4,45 @@ const quoteString = require('./utils/quote-string');
 const replaceTemplateElement = require('./utils/replace-template-element');
 const escapeTemplateElementRaw = require('./utils/escape-template-element-raw');
 
-const defaultPatterns = {
-	'\'': '’'
+const ignoredIdentifier = new Set([
+	'gql',
+	'html',
+	'svg'
+]);
+
+const ignoredMemberExpressionObject = new Set([
+	'styled'
+]);
+
+const isIgnoredTag = node => {
+	if (!node.parent || !node.parent.parent || !node.parent.parent.tag) {
+		return false;
+	}
+
+	const {tag} = node.parent.parent;
+
+	if (tag.type === 'Identifier' && ignoredIdentifier.has(tag.name)) {
+		return true;
+	}
+
+	if (tag.type === 'MemberExpression') {
+		const {object} = tag;
+		if (
+			object.type === 'Identifier' &&
+			ignoredMemberExpressionObject.has(object.name)
+		) {
+			return true;
+		}
+	}
+
+	return false;
 };
 
 const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
+const SUGGESTION_MESSAGE_ID = 'replace';
 
 function getReplacements(patterns) {
-	return Object.entries({
-		...defaultPatterns,
-		...patterns
-	})
-		.filter(([, options]) => options !== false)
+	return Object.entries(patterns)
 		.map(([match, options]) => {
 			if (typeof options === 'string') {
 				options = {
@@ -50,14 +77,11 @@ const create = context => {
 			let string;
 			if (type === 'Literal') {
 				string = node.value;
-				if (typeof string !== 'string') {
-					return;
-				}
-			} else {
+			} else if (!isIgnoredTag(node)) {
 				string = node.value.raw;
 			}
 
-			if (!string) {
+			if (!string || typeof string !== 'string') {
 				return;
 			}
 
@@ -67,33 +91,39 @@ const create = context => {
 				return;
 			}
 
-			const {fix, message = defaultMessage, match, suggest} = replacement;
+			const {fix: autoFix, message = defaultMessage, match, suggest} = replacement;
+			const messageData = {
+				match,
+				suggest
+			};
 			const problem = {
 				node,
 				message,
-				data: {
-					match,
-					suggest
-				}
+				data: messageData
 			};
 
-			if (!fix) {
-				context.report(problem);
-				return;
-			}
-
 			const fixed = string.replace(replacement.regex, suggest);
-			if (type === 'Literal') {
-				problem.fix = fixer => fixer.replaceText(
+			const fix = type === 'Literal' ?
+				fixer => fixer.replaceText(
 					node,
 					quoteString(fixed, node.raw[0])
-				);
-			} else {
-				problem.fix = fixer => replaceTemplateElement(
+				) :
+				fixer => replaceTemplateElement(
 					fixer,
 					node,
 					escapeTemplateElementRaw(fixed)
 				);
+
+			if (autoFix) {
+				problem.fix = fix;
+			} else {
+				problem.suggest = [
+					{
+						messageId: SUGGESTION_MESSAGE_ID,
+						data: messageData,
+						fix
+					}
+				];
 			}
 
 			context.report(problem);
@@ -109,11 +139,6 @@ const schema = [
 				type: 'object',
 				additionalProperties: {
 					anyOf: [
-						{
-							enum: [
-								false
-							]
-						},
 						{
 							type: 'string'
 						},
@@ -152,6 +177,9 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema
+		schema,
+		messages: {
+			[SUGGESTION_MESSAGE_ID]: 'Replace `{{match}}` with `{{suggest}}`.'
+		}
 	}
 };
