@@ -150,8 +150,8 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		messages: {
-			[ERROR_WITH_NAME_MESSAGE_ID]: 'Do not pass function `{{name}}` directly to `{{method}}(…)`.',
-			[ERROR_WITHOUT_NAME_MESSAGE_ID]: 'Do not pass function directly to `{{method}}(…)`.',
+			[ERROR_WITH_NAME_MESSAGE_ID]: 'Do not pass function `{{name}}` directly to `.{{method}}(…)`.',
+			[ERROR_WITHOUT_NAME_MESSAGE_ID]: 'Do not pass function directly to `.{{method}}(…)`.',
 			[REPLACE_WITH_NAME_MESSAGE_ID]: 'Replace function `{{name}}` with `… => {{name}}({{parameters}})`.',
 			[REPLACE_WITHOUT_NAME_MESSAGE_ID]: 'Replace function with `… => …({{parameters}})`.'
 		}

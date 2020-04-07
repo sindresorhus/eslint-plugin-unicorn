@@ -211,7 +211,7 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 			code: 'foo.map(fn)',
 			errors: [
 				{
-					message: 'Do not pass function `fn` directly to `map(…)`.',
+					message: 'Do not pass function `fn` directly to `.map(…)`.',
 					suggestions: [
 						{desc: 'Replace function `fn` with `… => fn(element)`.'},
 						{desc: 'Replace function `fn` with `… => fn(element, index)`.'},
@@ -224,7 +224,7 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 			code: 'foo.reduce(fn)',
 			errors: [
 				{
-					message: 'Do not pass function `fn` directly to `reduce(…)`.',
+					message: 'Do not pass function `fn` directly to `.reduce(…)`.',
 					suggestions: [
 						{desc: 'Replace function `fn` with `… => fn(accumulator, element)`.'},
 						{desc: 'Replace function `fn` with `… => fn(accumulator, element, index)`.'},
