@@ -171,6 +171,19 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 				}
 			]
 		},
+		{
+			code: 'foo.reduce(fn)',
+			errors: [
+				{
+					message: 'Do not pass function `fn` directly to `reduce()`.',
+					suggestions: [
+						{desc: 'Replace function `fn` with `(accumulator, element) => fn(accumulator, element)`.'},
+						{desc: 'Replace function `fn` with `(accumulator, element, index) => fn(accumulator, element, index)`.'},
+						{desc: 'Replace function `fn` with `(accumulator, element, index, array) => fn(accumulator, element, index, array)`.'}
+					]
+				}
+			]
+		},
 
 		// #418
 		invalidTestCase({
