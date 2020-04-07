@@ -391,7 +391,7 @@ const isExportedIdentifier = identifier => {
 };
 
 const shouldFix = variable => {
-	return !getVariableIdentifiers(variable).some(isExportedIdentifier);
+	return !getVariableIdentifiers(variable).some(identifier => isExportedIdentifier(identifier));
 };
 
 const isDefaultOrNamespaceImportName = identifier => {
@@ -634,11 +634,11 @@ const create = context => {
 	};
 
 	const checkVariables = scope => {
-		scope.variables.forEach(checkPossiblyWeirdClassVariable);
+		scope.variables.forEach(variable => checkPossiblyWeirdClassVariable(variable));
 	};
 
 	const checkChildScopes = scope => {
-		scope.childScopes.forEach(checkScope);
+		scope.childScopes.forEach(scope => checkScope(scope));
 	};
 
 	const checkScope = scope => {

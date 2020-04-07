@@ -67,7 +67,7 @@ const toSelector = name => {
 };
 
 // Select all the call expressions except the ones present in the blacklist
-const ignoredCalleeSelector = `${ignoredCallee.map(toSelector).join('')}`;
+const ignoredCalleeSelector = `${ignoredCallee.map(name => toSelector(name)).join('')}`;
 
 function check(context, node, method, options) {
 	const {type, name} = node;
