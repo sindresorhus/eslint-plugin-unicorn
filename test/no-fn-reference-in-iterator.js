@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/no-fn-reference-in-iterator';
 
 const ERROR_MESSAGE_ID = 'error';
@@ -154,6 +155,30 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 					`foo.${methodName}((accumulator, element, index, array) => Boolean(accumulator, element, index, array), initialValue)`
 				]
 			})
-		)
+		),
+
+		// #418
+		invalidTestCase({
+			code: outdent`
+				const fn = (x, y) => x + y;
+				[1, 2, 3].map(fn);
+			`,
+			methodName: 'map',
+			functionName: 'fn',
+			suggestions: [
+				outdent`
+					const fn = (x, y) => x + y;
+					[1, 2, 3].map((element) => fn(element));
+				`,
+				outdent`
+					const fn = (x, y) => x + y;
+					[1, 2, 3].map((element, index) => fn(element, index));
+				`,
+				outdent`
+					const fn = (x, y) => x + y;
+					[1, 2, 3].map((element, index, array) => fn(element, index, array));
+				`
+			]
+		})
 	]
 });
