@@ -10,7 +10,6 @@ const ruleTester = avaRuleTester(test, {
 
 const error = message => {
 	return {
-		ruleId: 'explicit-length-check',
 		message
 	};
 };

@@ -14,7 +14,7 @@ function testCase(code, name, error, output) {
 		code,
 		output: output || code,
 		options: name ? [{name}] : [],
-		errors: error ? [{ruleId: 'catch-error-name'}] : []
+		errors: error ? [{}] : []
 	};
 }
 
@@ -163,7 +163,6 @@ ruleTester.run('catch-error-name', rule, {
 			output: 'try {} catch (error) {}',
 			errors: [
 				{
-					ruleId: 'catch-error-message',
 					message: 'The catch parameter should be named `error`.'
 				}
 			],
@@ -178,7 +177,6 @@ ruleTester.run('catch-error-name', rule, {
 			output: 'try {} catch (error) {}',
 			errors: [
 				{
-					ruleId: 'catch-error-name',
 					message: 'The catch parameter should be named `error`.'
 				}
 			],
@@ -241,7 +239,6 @@ ruleTester.run('catch-error-name', rule, {
 			`,
 			errors: [
 				{
-					ruleId: 'catch-error-name',
 					message: 'The catch parameter should be named `error_`.'
 				}
 			]
@@ -267,7 +264,6 @@ ruleTester.run('catch-error-name', rule, {
 			`,
 			errors: [
 				{
-					ruleId: 'catch-error-name',
 					message: 'The catch parameter should be named `error_`.'
 				}
 			],
@@ -302,7 +298,6 @@ ruleTester.run('catch-error-name', rule, {
 			`,
 			errors: [
 				{
-					ruleId: 'catch-error-name',
 					message: 'The catch parameter should be named `error_`.'
 				}
 			]
@@ -324,7 +319,6 @@ ruleTester.run('catch-error-name', rule, {
 			`,
 			errors: [
 				{
-					ruleId: 'catch-error-name',
 					message: 'The catch parameter should be named `error__`.'
 				}
 			]
@@ -346,7 +340,6 @@ ruleTester.run('catch-error-name', rule, {
 			`,
 			errors: [
 				{
-					ruleId: 'catch-error-name',
 					message: 'The catch parameter should be named `error__`.'
 				}
 			],
@@ -365,14 +358,13 @@ ruleTester.run('catch-error-name', rule, {
 				obj.catch(error => {});
 				obj.catch(error => {});
 			`,
-			errors: [{ruleId: 'catch-error-name'}, {ruleId: 'catch-error-name'}]
+			errors: [{}, {}]
 		},
 		{
 			code: 'try {} catch (_error) {}',
 			output: 'try {} catch (error) {}',
 			errors: [
 				{
-					ruleId: 'catch-error-name',
 					message: 'The catch parameter should be named `error`.'
 				}
 			],
@@ -397,7 +389,6 @@ ruleTester.run('catch-error-name', rule, {
 			`,
 			errors: [
 				{
-					ruleId: 'catch-error-message',
 					message: 'The catch parameter should be named `error`.'
 				}
 			],

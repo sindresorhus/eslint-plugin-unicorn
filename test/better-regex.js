@@ -10,7 +10,6 @@ const ruleTester = avaRuleTester(test, {
 
 const createError = (original, optimized) => [
 	{
-		ruleId: 'better-regex',
 		message: `${original} can be optimized to ${optimized}`
 	}
 ];

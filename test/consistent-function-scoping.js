@@ -18,12 +18,10 @@ const typescriptRuleTester = avaRuleTester(test, {
 });
 
 const arrowError = {
-	ruleId: 'consistent-function-scoping',
 	messageId: 'ArrowFunctionExpression'
 };
 
 const functionError = {
-	ruleId: 'consistent-function-scoping',
 	messageId: 'FunctionDeclaration'
 };
 

@@ -9,57 +9,46 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const expiredTodoError = (expirationDate, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `There is a TODO that is past due date: ${expirationDate}. ${message}`
 });
 
 const avoidMultipleDatesError = (expirationDates, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `Avoid using multiple expiration dates in TODO: ${expirationDates}. ${message}`
 });
 
 const havePackageError = (package_, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `There is a TODO that is deprecated since you installed: ${package_}. ${message}`
 });
 
 const dontHavePackageError = (package_, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `There is a TODO that is deprecated since you uninstalled: ${package_}. ${message}`
 });
 
 const versionMatchesError = (comparison, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `There is a TODO match for package version: ${comparison}. ${message}`
 });
 
 const engineMatchesError = (comparison, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `There is a TODO match for Node.js version: ${comparison}. ${message}`
 });
 
 const reachedPackageVersionError = (version, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `There is a TODO that is past due package version: ${version}. ${message}`
 });
 
 const avoidMultiplePackageVersionsError = (versions, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `Avoid using multiple package versions in TODO: ${versions}. ${message}`
 });
 
 const removeWhitespacesError = (argument, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `Avoid using whitespaces on TODO argument. On '${argument}' use '${argument.replace(/ /g, '')}'. ${message}`
 });
 
 const missingAtSymbolError = (bad, good, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `Missing '@' on TODO argument. On '${bad}' use '${good}'. ${message}`
 });
 
 const noWarningCommentError = () => ({
-	ruleId: 'expiring-todo-comments',
 	message: 'Unexpected \'todo\' comment.'
 });
 

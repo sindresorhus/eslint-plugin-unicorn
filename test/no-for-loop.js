@@ -19,7 +19,7 @@ function testCase(code, output) {
 	return {
 		code,
 		output: output || code,
-		errors: [{ruleId: 'no-for-loop'}]
+		errors: [{}]
 	};
 }
 

@@ -10,7 +10,6 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [
 	{
-		ruleId: 'prefer-text-content',
 		message: 'Prefer `.textContent` over `.innerText`.'
 	}
 ];

@@ -10,7 +10,6 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [
 	{
-		ruleId: 'no-fn-reference-in-iterator',
 		message: 'Do not pass a function reference directly to an iterator method.'
 	}
 ];

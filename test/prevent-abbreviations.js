@@ -33,7 +33,6 @@ const noFixingTestCase = test => ({...test, output: test.code});
 
 const createErrors = message => {
 	const error = {
-		ruleId: 'prevent-abbreviations'
 	};
 
 	if (message) {

@@ -10,7 +10,6 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [
 	{
-		ruleId: 'no-nested-ternary',
 		message: 'Do not nest ternary expressions.'
 	}
 ];
@@ -44,11 +43,9 @@ ruleTester.run('new-error', rule, {
 			output: 'const foo = i > 5 ? (i < 100 ? true : false) : (i < 100 ? true : false);',
 			errors: [
 				{
-					ruleId: 'no-nested-ternary',
 					column: 21
 				},
 				{
-					ruleId: 'no-nested-ternary',
 					column: 46
 				}
 			]

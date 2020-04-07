@@ -8,7 +8,7 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const errors = [{ruleId: 'throw-new-error'}];
+const errors = [{}];
 
 ruleTester.run('new-error', rule, {
 	valid: [

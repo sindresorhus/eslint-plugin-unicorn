@@ -15,7 +15,6 @@ const typescriptRuleTester = avaRuleTester(test, {
 
 const errors = [
 	{
-		ruleId: 'prefer-string-slice'
 	}
 ];
 
