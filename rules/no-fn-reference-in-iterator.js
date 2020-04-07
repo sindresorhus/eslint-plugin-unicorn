@@ -6,7 +6,7 @@ const methodSelector = require('./utils/method-selector');
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
 const REPLACE_WITH_NAME_MESSAGE_ID = 'replace-with-name';
-const REPLACE_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
+const REPLACE_WITHOUT_NAME_MESSAGE_ID = 'replace-without-name';
 
 const iteratorMethods = [
 	['every'],
@@ -70,11 +70,13 @@ const toSelector = name => {
 const ignoredCalleeSelector = `${ignoredCallee.map(name => toSelector(name)).join('')}`;
 
 function check(context, node, method, options) {
-	const {type, name} = node;
+	const {type} = node;
 
 	if (type === 'FunctionExpression' || type === 'ArrowFunctionExpression') {
 		return;
 	}
+
+	const name = type === 'Identifier' ? node.name : '';
 
 	if (type === 'Identifier' && options.ignore.includes(name)) {
 		return;
