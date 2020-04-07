@@ -5,6 +5,8 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const renameVariable = require('./utils/rename-variable');
 const methodSelector = require('./utils/method-selector');
 
+const ERROR_MESSAGE_ID = 'error';
+
 const promiseMethodSelector = (method, argumentsLength, argumentIndex) => [
 	methodSelector({
 		name: method,
@@ -74,12 +76,16 @@ const create = context => {
 			variable.scope,
 			...variable.references.map(({from}) => from)
 		];
-		const fixed = avoidCapture(expectedName, scopes, ecmaVersion);
+		const fixedName = avoidCapture(expectedName, scopes, ecmaVersion);
 
 		context.report({
 			node,
-			message: `The catch parameter should be named \`${fixed}\`.`,
-			fix: fixer => renameVariable(variable, fixed, fixer, sourceCode)
+			messageId: ERROR_MESSAGE_ID,
+			data: {
+				originalName,
+				fixedName
+			},
+			fix: fixer => renameVariable(variable, fixedName, fixer, sourceCode)
 		});
 	}
 
@@ -119,6 +125,9 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema
+		schema,
+		messages: {
+			[ERROR_MESSAGE_ID]: 'The catch parameter `{{originalName}}` should be named `{{fixedName}}`.'
+		}
 	}
 };
