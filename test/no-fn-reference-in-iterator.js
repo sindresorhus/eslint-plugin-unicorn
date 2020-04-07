@@ -2,113 +2,158 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/no-fn-reference-in-iterator';
 
+const ERROR_MESSAGE_ID = 'error';
+const REPLACE_MESSAGE_ID = 'replace';
+
+const simpleMethods = [
+	'every',
+	'filter',
+	'find',
+	'findIndex',
+	'flatMap',
+	'forEach',
+	'map'
+];
+
+const reduceLikeMethods = [
+	'reduce',
+	'reduceRight'
+];
+
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
 	}
 });
 
-const errors = [
-	{
-		ruleId: 'no-fn-reference-in-iterator',
-		message: 'Do not pass a function reference directly to an iterator method.'
+const generateError = (methodName, functionName) => ({
+	messageId: ERROR_MESSAGE_ID,
+	data: {
+		methodName,
+		functionName
 	}
-];
+});
+
+// Only test output is good enough
+const suggestionOutput = output => ({
+	messageId: REPLACE_MESSAGE_ID,
+	output
+});
+
+const invalidTestCase = (({code, methodName, functionName, suggestions}) => ({
+	code,
+	output: code,
+	errors: [
+		{
+			...generateError(methodName, functionName),
+			suggestions: suggestions.map(output => suggestionOutput(output))
+		}
+	]
+
+}));
 
 ruleTester.run('no-fn-reference-in-iterator', rule, {
 	valid: [
-		'foo.map(x => fn(x))',
-		'foo.map(fn, x)',
-		'foo.forEach(x => fn(x))',
-		'foo.every(x => fn(x))',
-		'foo.filter(x => fn(x))',
-		'foo.find(x => fn(x))',
-		'foo.findIndex(x => fn(x))',
-		'foo.some(x => fn(x))',
-		'foo.filter(x => Boolean(x))',
-		'foo.filter(Boolean)',
-		'foo.map(x => parseInt(x, 10))',
-		'foo.map(x => m({foo: true})(x))',
-		'foo.reduce((a, b) => a + b, 0)',
-		'foo.reduce(fn, x, y)',
-		'foo.reduceRight((a, b) => a.concat(b), [])',
+		...simpleMethods.map(methodName => `foo.${methodName}(element => fn(element))`),
+		...reduceLikeMethods.map(methodName => `foo.${methodName}((accumulator, element) => fn(element))`),
+
+		// `Boolean`
+		...simpleMethods.map(methodName => `foo.${methodName}(Boolean)`),
+
+		// Not `CallExpression`
+		'new foo.map(fn);',
+		// Not `MemberExpression`
+		'map(fn);',
+		// `callee.property` is not a `Identifier`
+		'foo[\'map\'](fn);',
+		// Computed
+		'foo[map](fn);',
+		// Not listed method
+		'foo.notListedMethod(fn);',
+		// More or less argument(s)
+		'foo.map();',
+		'foo.map(fn, extraArgument1, extraArgument2);',
+		'foo.map(...argumentsArray)',
+
+		// TODO: support more types of iterator
+		// Not `Identifier`
+		'foo.map(lib.fn);',
+
+		// Whitelisted
 		'Promise.map(fn)',
 		'Promise.forEach(fn)',
+		'lodash.map(fn)',
+		'underscore.map(fn)',
 		'_.map(fn)',
 		'Async.map(list, fn)',
 		'async.map(list, fn)',
 		'React.children.forEach(children, fn)'
 	],
 	invalid: [
-		{
-			code: 'foo.map(fn)',
-			errors,
-			output: 'foo.map(x => fn(x))'
-		},
-		{
-			code: 'foo.forEach(fn)',
-			errors,
-			output: 'foo.forEach(x => fn(x))'
-		},
-		{
-			code: 'foo.every(fn)',
-			errors,
-			output: 'foo.every(x => fn(x))'
-		},
-		{
-			code: 'foo.filter(fn)',
-			errors,
-			output: 'foo.filter(x => fn(x))'
-		},
-		{
-			code: 'foo.find(fn)',
-			errors,
-			output: 'foo.find(x => fn(x))'
-		},
-		{
-			code: 'foo.findIndex(fn)',
-			errors,
-			output: 'foo.findIndex(x => fn(x))'
-		},
-		{
-			code: 'foo.some(fn)',
-			errors,
-			output: 'foo.some(x => fn(x))'
-		},
-		{
-			code: 'foo.filter(fn)',
-			errors,
-			output: 'foo.filter(x => fn(x))'
-		},
-		{
-			code: 'foo.map(parseInt)',
-			errors,
-			output: 'foo.map(x => parseInt(x))'
-		},
-		{
-			code: 'foo.map(m({foo: true}))',
-			errors,
-			output: 'foo.map(x => m({foo: true})(x))'
-		},
-		{
-			code: 'foo.reduce(m)',
-			errors,
-			output: 'foo.reduce((a, b) => m(a, b))'
-		},
-		{
-			code: 'foo.reduce(m, 0)',
-			errors,
-			output: 'foo.reduce((a, b) => m(a, b), 0)'
-		},
-		{
-			code: 'foo.reduce(m({foo: true}), 0)',
-			errors,
-			output: 'foo.reduce((a, b) => m({foo: true})(a, b), 0)'
-		},
-		{
-			code: 'foo.reduceRight(m, [])',
-			errors,
-			output: 'foo.reduceRight((a, b) => m(a, b), [])'
-		}
+		// Suggestions
+		...simpleMethods.map(
+			methodName => invalidTestCase({
+				code: `foo.${methodName}(fn)`,
+				methodName,
+				functionName: 'fn',
+				suggestions: [
+					`foo.${methodName}((element) => fn(element))`,
+					`foo.${methodName}((element, index) => fn(element, index))`,
+					`foo.${methodName}((element, index, array) => fn(element, index, array))`
+				]
+			})
+		),
+		...reduceLikeMethods.map(
+			methodName => invalidTestCase({
+				code: `foo.${methodName}(fn)`,
+				methodName,
+				functionName: 'fn',
+				suggestions: [
+					`foo.${methodName}((accumulator, element) => fn(accumulator, element))`,
+					`foo.${methodName}((accumulator, element, index) => fn(accumulator, element, index))`,
+					`foo.${methodName}((accumulator, element, index, array) => fn(accumulator, element, index, array))`
+				]
+			})
+		),
+
+		// 2 arguments
+		...simpleMethods.map(
+			methodName => invalidTestCase({
+				code: `foo.${methodName}(fn, thisArgument)`,
+				methodName,
+				functionName: 'fn',
+				suggestions: [
+					`foo.${methodName}((element) => fn(element), thisArgument)`,
+					`foo.${methodName}((element, index) => fn(element, index), thisArgument)`,
+					`foo.${methodName}((element, index, array) => fn(element, index, array), thisArgument)`
+				]
+			})
+		),
+		...reduceLikeMethods.map(
+			methodName => invalidTestCase({
+				code: `foo.${methodName}(fn, initialValue)`,
+				methodName,
+				functionName: 'fn',
+				suggestions: [
+					`foo.${methodName}((accumulator, element) => fn(accumulator, element), initialValue)`,
+					`foo.${methodName}((accumulator, element, index) => fn(accumulator, element, index), initialValue)`,
+					`foo.${methodName}((accumulator, element, index, array) => fn(accumulator, element, index, array), initialValue)`
+				]
+			})
+		),
+
+		// `Boolean` is not ignored on `reduce` and `reduceRight`
+		...reduceLikeMethods.map(
+			methodName => invalidTestCase({
+				code: `foo.${methodName}(Boolean, initialValue)`,
+				methodName,
+				functionName: 'Boolean',
+				suggestions: [
+					`foo.${methodName}((accumulator, element) => Boolean(accumulator, element), initialValue)`,
+					`foo.${methodName}((accumulator, element, index) => Boolean(accumulator, element, index), initialValue)`,
+					`foo.${methodName}((accumulator, element, index, array) => Boolean(accumulator, element, index, array), initialValue)`
+				]
+			})
+		)
 	]
 });
