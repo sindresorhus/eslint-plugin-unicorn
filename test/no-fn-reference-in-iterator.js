@@ -233,6 +233,32 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 				}
 			]
 		},
+		{
+			code: 'foo.map(lib.fn)',
+			errors: [
+				{
+					message: 'Do not pass function directly to `.map(…)`.',
+					suggestions: [
+						{desc: 'Replace function with `… => …(element)`.'},
+						{desc: 'Replace function with `… => …(element, index)`.'},
+						{desc: 'Replace function with `… => …(element, index, array)`.'}
+					]
+				}
+			]
+		},
+		{
+			code: 'foo.reduce(lib.fn)',
+			errors: [
+				{
+					message: 'Do not pass function directly to `.reduce(…)`.',
+					suggestions: [
+						{desc: 'Replace function with `… => …(accumulator, element)`.'},
+						{desc: 'Replace function with `… => …(accumulator, element, index)`.'},
+						{desc: 'Replace function with `… => …(accumulator, element, index, array)`.'}
+					]
+				}
+			]
+		},
 
 		// #418
 		invalidTestCase({
