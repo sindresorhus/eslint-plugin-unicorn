@@ -157,6 +157,21 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 			})
 		),
 
+		// Actual messages
+		{
+			code: 'foo.map(fn)',
+			errors: [
+				{
+					message: 'Do not pass function `fn` directly to `map()`.',
+					suggestions: [
+						{desc: 'Replace function `fn` with `(element) => fn(element)`.'},
+						{desc: 'Replace function `fn` with `(element, index) => fn(element, index)`.'},
+						{desc: 'Replace function `fn` with `(element, index, array) => fn(element, index, array)`.'}
+					]
+				}
+			]
+		},
+
 		// #418
 		invalidTestCase({
 			code: outdent`

@@ -144,7 +144,7 @@ module.exports = {
 		fixable: 'code',
 		messages: {
 			[ERROR_MESSAGE_ID]: 'Do not pass function `{{functionName}}` directly to `{{methodName}}()`.',
-			[REPLACE_MESSAGE_ID]: 'Replace function `{{functionName}}` with `({{parameters}}) => {{functionName}}({parameters})`.'
+			[REPLACE_MESSAGE_ID]: 'Replace function `{{functionName}}` with `({{parameters}}) => {{functionName}}({{parameters}})`.'
 		}
 	}
 };
