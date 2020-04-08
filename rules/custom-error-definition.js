@@ -102,29 +102,32 @@ const customErrorDefinition = (context, node) => {
 			node: constructorBodyNode,
 			message: 'Missing call to `super()` in constructor.'
 		});
-	} else if (messageExpressionIndex !== -1 && superExpression.expression.arguments.length === 0) {
-		const rhs = constructorBody[messageExpressionIndex].expression.right;
-
-		context.report({
-			node: superExpression,
-			message: 'Pass the error message to `super()`.',
-			fix: fixer => fixer.insertTextAfterRange([
-				superExpression.range[0],
-				superExpression.range[0] + 6
-			], rhs.raw || rhs.name)
-		});
-	}
-
-	if (messageExpressionIndex !== -1) {
+	} else if (messageExpressionIndex !== -1) {
 		const expression = constructorBody[messageExpressionIndex];
 
 		context.report({
-			node: expression,
+			node: superExpression,
 			message: 'Pass the error message to `super()` instead of setting `this.message`.',
-			fix: fixer => fixer.removeRange([
-				messageExpressionIndex === 0 ? constructorBodyNode.range[0] : constructorBody[messageExpressionIndex - 1].range[1],
-				expression.range[1]
-			])
+			fix: fixer => {
+				const fixings = [];
+				if (superExpression.expression.arguments.length === 0) {
+					const rhs = expression.expression.right;
+					fixings.push(
+						fixer.insertTextAfterRange([
+							superExpression.range[0],
+							superExpression.range[0] + 6
+						], rhs.raw || rhs.name)
+					);
+				}
+
+				fixings.push(
+					fixer.removeRange([
+						messageExpressionIndex === 0 ? constructorBodyNode.range[0] : constructorBody[messageExpressionIndex - 1].range[1],
+						expression.range[1]
+					])
+				);
+				return fixings;
+			}
 		});
 	}
 

@@ -20,8 +20,7 @@ const invalidClassNameError = {ruleId: 'custom-error-definition', message: 'Inva
 const constructorError = {ruleId: 'custom-error-definition', message: 'Add a constructor to your error.'};
 const noSuperCallError = {ruleId: 'custom-error-definition', message: 'Missing call to `super()` in constructor.'};
 const invalidNameError = name => ({ruleId: 'custom-error-definition', message: `The \`name\` property should be set to \`${name}\`.`});
-const passMessageToSuperError = {ruleId: 'custom-error-definition', message: 'Pass the error message to `super()`.'};
-const invalidMessageAssignmentError = {ruleId: 'custom-error-definition', message: 'Pass the error message to `super()` instead of setting `this.message`.'};
+const passMessageToSuperError = {ruleId: 'custom-error-definition', message: 'Pass the error message to `super()` instead of setting `this.message`.'};
 const invalidExportError = {
 	ruleId: 'custom-error-definition',
 	messageId: 'invalidExport'
@@ -123,7 +122,7 @@ const tests = {
 		`
 			exports.whatever = class Whatever {};
 		`,
-		`
+		outdent`
 			class FooError extends Error {
 				constructor(error) {
 					super(error);
@@ -131,6 +130,15 @@ const tests = {
 				}
 			};
 			exports.fooError = FooError;
+		`,
+		outdent`
+			class FooError extends Error {
+				constructor() {
+					super();
+					this.name = 'FooError';
+					someThingNotThis.message = 'My custom message';
+				}
+			}
 		`
 	],
 	invalid: [
@@ -225,8 +233,7 @@ const tests = {
 			`,
 			errors: [
 				invalidNameError('FooError'),
-				passMessageToSuperError,
-				invalidMessageAssignmentError
+				passMessageToSuperError
 			],
 			output: outdent`
 				class FooError extends Error {
@@ -272,7 +279,7 @@ const tests = {
 				}
 			`,
 			errors: [
-				invalidMessageAssignmentError
+				passMessageToSuperError
 			],
 			output: outdent`
 				class FooError extends Error {
@@ -294,8 +301,7 @@ const tests = {
 				}
 			`,
 			errors: [
-				passMessageToSuperError,
-				invalidMessageAssignmentError
+				passMessageToSuperError
 			],
 			output: outdent`
 				class FooError extends Error {
@@ -317,8 +323,7 @@ const tests = {
 			`,
 			errors: [
 				invalidNameError('FooError'),
-				passMessageToSuperError,
-				invalidMessageAssignmentError
+				passMessageToSuperError
 			],
 			output: outdent`
 				class FooError extends Error {
@@ -339,8 +344,7 @@ const tests = {
 				}
 			`,
 			errors: [
-				passMessageToSuperError,
-				invalidMessageAssignmentError
+				passMessageToSuperError
 			],
 			output: outdent`
 				class FooError extends Error {
@@ -434,6 +438,38 @@ const tests = {
 			errors: [
 				invalidNameError('FooError')
 			]
+		},
+
+		// #90
+		{
+			code: outdent`
+				class AbortError extends Error {
+					constructor(message) {
+						if (message instanceof Error) {
+							this.originalError = message;
+							message = message.message;
+						}
+
+						super();
+						this.name = 'AbortError';
+						this.message = message;
+					}
+				}
+			`,
+			output: outdent`
+				class AbortError extends Error {
+					constructor(message) {
+						if (message instanceof Error) {
+							this.originalError = message;
+							message = message.message;
+						}
+
+						super(message);
+						this.name = 'AbortError';
+					}
+				}
+			`,
+			errors: [passMessageToSuperError]
 		}
 	]
 };
