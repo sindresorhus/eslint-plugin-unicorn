@@ -6,19 +6,45 @@ Disallow the use of the `null` literal, to encourage using `undefined` instead.
 
 ```js
 let foo = null;
+```
 
-if (bar === null) {}
+```js
+if (bar == null) {}
 ```
 
 ## Pass
 
 ```js
 let foo;
-
-Object.create(null)
 ```
 
-### Why
+```js
+const foo = Object.create(null);
+```
+
+```js
+if (foo === null) {}
+```
+
+## Options
+
+Type: `object`
+
+### checkStrictEquality
+
+Type: `boolean`\
+Default: `false`
+
+Strict equality(`===`) and strict inequality(`!==`) is ignored by default.
+
+#### Fail
+
+```js
+// eslint unicorn/no-null: ["error", {"checkStrictEquality": true}]
+if (foo === null) {}
+```
+
+## Why
 
 - [“Intent to stop using `null` in my JS code”](https://github.com/sindresorhus/meta/issues/7).
 - [TypeScript coding guidelines](https://github.com/Microsoft/TypeScript/wiki/Coding-guidelines#null-and-undefined).
