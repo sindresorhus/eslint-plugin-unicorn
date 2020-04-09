@@ -51,6 +51,20 @@ const isAssignmentExpression = (node, name) => {
 	return lhs.property.name === name;
 };
 
+const isClassProperty = (node, name) => {
+	if (node.type !== 'ClassProperty' || node.computed) {
+		return false;
+	}
+
+	const {key} = node;
+
+	if (key.type !== 'Identifier') {
+		return false;
+	}
+
+	return key.name === name;
+};
+
 const customErrorDefinition = (context, node) => {
 	if (!hasValidSuperClass(node)) {
 		return;
@@ -132,8 +146,16 @@ const customErrorDefinition = (context, node) => {
 	}
 
 	const nameExpression = constructorBody.find(x => isAssignmentExpression(x, 'name'));
+	if (!nameExpression) {
+		const nameProperty = node.body.body.find(node => isClassProperty(node, 'name'));
 
-	if (!nameExpression || nameExpression.expression.right.value !== name) {
+		if (!nameProperty || !nameProperty.value || nameProperty.value.value !== name) {
+			context.report({
+				node: nameProperty && nameProperty.value ? nameProperty.value : constructorBodyNode,
+				message: `The \`name\` property should be set to \`${name}\`.`
+			});
+		}
+	} else if (nameExpression.expression.right.value !== name) {
 		context.report({
 			node: nameExpression ? nameExpression.expression.right : constructorBodyNode,
 			message: `The \`name\` property should be set to \`${name}\`.`
