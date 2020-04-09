@@ -14,18 +14,22 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const invalidTestCase = options => {
+const invalidTestCase = testCase => {
 	const {
 		code,
 		output,
 		suggestionOutput,
-		suggestionMessageId = SUGGESTION_REPLACE_MESSAGE_ID
-	} = typeof options === 'string' ? {code: options} : options;
+		suggestionMessageId = SUGGESTION_REPLACE_MESSAGE_ID,
+		checkStrictEquality
+	} = typeof testCase === 'string' ? {code: testCase} : testCase;
+
+	const options = typeof checkStrictEquality === 'boolean' ? [{checkStrictEquality}] : [];
 
 	if (suggestionOutput) {
 		return {
 			code,
 			output: code,
+			options,
 			errors: [
 				{
 					messageId: ERROR_MESSAGE_ID,
@@ -34,7 +38,8 @@ const invalidTestCase = options => {
 							messageId: suggestionMessageId,
 							output: suggestionOutput
 						}
-					]}
+					]
+				}
 			]
 		};
 	}
@@ -43,10 +48,12 @@ const invalidTestCase = options => {
 		return {
 			code,
 			output,
+			options,
 			errors: [
 				{
 					messageId: ERROR_MESSAGE_ID,
-					suggestions: undefined}
+					suggestions: undefined
+				}
 			]
 		};
 	}
@@ -54,9 +61,11 @@ const invalidTestCase = options => {
 	return {
 		code,
 		output: code,
+		options,
 		errors: [
 			{
-				messageId: ERROR_MESSAGE_ID}
+				messageId: ERROR_MESSAGE_ID
+			}
 		]
 	};
 };
@@ -71,11 +80,27 @@ ruleTester.run('no-null', rule, {
 		'Object.create()',
 		// Not `null`
 		'Object.create(bar)',
-		'Object.create("null")'
+		'Object.create("null")',
+
+		// Ignored
+		'if (foo === null) {}',
+		'if (null === foo) {}',
+		'if (foo !== null) {}',
+		'if (null !== foo) {}',
+		// `checkStrictEquality: false`
+		...[
+			'if (foo === null) {}',
+			'if (null === foo) {}',
+			'if (foo !== null) {}',
+			'if (null !== foo) {}'
+		].map(code => ({
+			code,
+			options: [{checkStrictEquality: false}]
+		}))
 	],
 	invalid: [
 		invalidTestCase('const foo = null'),
-		invalidTestCase('if (foo === null) {}'),
+		invalidTestCase('foo(null)'),
 
 		// Auto fix
 		invalidTestCase({
@@ -130,6 +155,17 @@ ruleTester.run('no-null', rule, {
 			code: 'const foo = null;',
 			suggestionOutput: 'const foo = undefined;'
 		}),
+
+		// `checkStrictEquality`
+		...[
+			'if (foo === null) {}',
+			'if (null === foo) {}',
+			'if (foo !== null) {}',
+			'if (null !== foo) {}'
+		].map(code => invalidTestCase({
+			code,
+			checkStrictEquality: true
+		})),
 
 		// Not `CallExpression`
 		invalidTestCase('new Object.create(null)'),

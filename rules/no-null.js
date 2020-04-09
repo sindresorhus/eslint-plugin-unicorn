@@ -20,46 +20,72 @@ const selector = [
 ].join('');
 
 const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].includes(node.operator);
+const isStrictEqual = node => node.type === 'BinaryExpression' && ['===', '!=='].includes(node.operator);
 
-const create = context => ({
-	[selector]: node => {
-		const problem = {
-			node,
-			messageId: ERROR_MESSAGE_ID
-		};
+const create = context => {
+	const {checkStrictEquality} = {
+		checkStrictEquality: false,
+		...context.options[0]
+	};
 
-		const fix = fixer => fixer.replaceText(node, 'undefined');
+	return {
+		[selector]: node => {
+			const problem = {
+				node,
+				messageId: ERROR_MESSAGE_ID
+			};
 
-		/* istanbul ignore next */
-		const {parent = {}} = node;
-		if (isLooseEqual(parent)) {
-			problem.fix = fix;
-		} else if (parent.type === 'ReturnStatement' && parent.argument === node) {
-			problem.suggest = [
-				{
-					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-					fix: fixer => fixer.remove(node)
-				}
-			];
-		} else if (parent.type === 'VariableDeclarator' && parent.init === node && parent.parent.kind !== 'const') {
-			problem.suggest = [
-				{
-					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-					fix: fixer => fixer.removeRange([parent.id.range[1], node.range[1]])
-				}
-			];
-		} else {
-			problem.suggest = [
-				{
-					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
-					fix
-				}
-			];
+			/* istanbul ignore next */
+			const {parent = {}} = node;
+
+			if (!checkStrictEquality && isStrictEqual(parent)) {
+				return;
+			}
+
+			const fix = fixer => fixer.replaceText(node, 'undefined');
+
+			if (isLooseEqual(parent)) {
+				problem.fix = fix;
+			} else if (parent.type === 'ReturnStatement' && parent.argument === node) {
+				problem.suggest = [
+					{
+						messageId: SUGGESTION_REMOVE_MESSAGE_ID,
+						fix: fixer => fixer.remove(node)
+					}
+				];
+			} else if (parent.type === 'VariableDeclarator' && parent.init === node && parent.parent.kind !== 'const') {
+				problem.suggest = [
+					{
+						messageId: SUGGESTION_REMOVE_MESSAGE_ID,
+						fix: fixer => fixer.removeRange([parent.id.range[1], node.range[1]])
+					}
+				];
+			} else {
+				problem.suggest = [
+					{
+						messageId: SUGGESTION_REPLACE_MESSAGE_ID,
+						fix
+					}
+				];
+			}
+
+			context.report(problem);
 		}
+	};
+};
 
-		context.report(problem);
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			checkStrictEquality: {
+				type: 'boolean',
+				default: false
+			}
+		},
+		additionalProperties: false
 	}
-});
+];
 
 module.exports = {
 	create,
@@ -73,6 +99,7 @@ module.exports = {
 			[SUGGESTION_REPLACE_MESSAGE_ID]: 'Replace `null` with `undefined`.',
 			[SUGGESTION_REMOVE_MESSAGE_ID]: 'Remove `null`.'
 		},
-		fixable: true
+		schema,
+		fixable: 'code'
 	}
 };
