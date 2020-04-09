@@ -1,30 +1,35 @@
 'use strict';
-const astUtils = require('eslint-ast-utils');
+const {findVariable} = require('eslint-utils');
 const avoidCapture = require('./utils/avoid-capture');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const renameIdentifier = require('./utils/rename-identifier');
+const renameVariable = require('./utils/rename-variable');
 const methodSelector = require('./utils/method-selector');
 
-// Matches `someObj.catch([FunctionExpression | ArrowFunctionExpression])`
-// TODO: Support `promise.then()` second argument
-const promiseCatchSelector = [
+const ERROR_MESSAGE_ID = 'error';
+
+const promiseMethodSelector = (method, argumentsLength, argumentIndex) => [
 	methodSelector({
-		name: 'catch',
-		length: 1
+		name: method,
+		length: argumentsLength
 	}),
 	`:matches(${
 		[
 			'FunctionExpression',
 			'ArrowFunctionExpression'
-		].map(type => `[arguments.0.type="${type}"]`).join(', ')
+		].map(type => `[arguments.${argumentIndex}.type="${type}"]`).join(', ')
 	})`,
-	'[arguments.0.params.length=1]'
+	`[arguments.${argumentIndex}.params.length=1]`,
+	`[arguments.${argumentIndex}.params.0.type="Identifier"]`
 ].join('');
+
+// Matches `promise.catch([FunctionExpression | ArrowFunctionExpression])`
+const promiseCatchSelector = promiseMethodSelector('catch', 1, 0);
+
+// Matches `promise.then(any, [FunctionExpression | ArrowFunctionExpression])`
+const promiseThenSelector = promiseMethodSelector('then', 2, 1);
 
 const catchSelector = [
 	'CatchClause',
-	// Ignore optional catch binding
-	'[param]',
 	'>',
 	'Identifier.param'
 ].join('');
@@ -32,65 +37,65 @@ const catchSelector = [
 const create = context => {
 	const {ecmaVersion} = context.parserOptions;
 	const sourceCode = context.getSourceCode();
-	const {scopeManager} = sourceCode;
 
-	const {name, caughtErrorsIgnorePattern} = {
+	const options = {
 		name: 'error',
-		caughtErrorsIgnorePattern: /^[\dA-Za-z]+[Ee]rror$/.source,
+		ignore: [],
 		...context.options[0]
 	};
-	const ignoreRegex = new RegExp(caughtErrorsIgnorePattern);
+	const {name: expectedName} = options;
+	const ignore = options.ignore.map(
+		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u')
+	);
+	const isNameAllowed = name =>
+		name === expectedName ||
+		ignore.some(regexp => regexp.test(name)) ||
+		name.endsWith(expectedName) ||
+		name.endsWith(expectedName.charAt(0).toUpperCase() + expectedName.slice(1));
 
-	function check(parameter, node) {
+	function check(node) {
+		const originalName = node.name;
+
 		if (
-			parameter.type !== 'Identifier' ||
-			ignoreRegex.test(parameter.name) ||
-			(
-				parameter.name === '_' &&
-				// Should be `node.body.body` in `CatchClause`, body also not right
-				// will fix it when fixing #648
-				!astUtils.someContainIdentifier('_', node.body)
-			)
+			isNameAllowed(originalName) ||
+			isNameAllowed(originalName.replace(/_+$/g, ''))
 		) {
 			return;
 		}
 
 		const scope = context.getScope();
-		const fixed = avoidCapture(name, [scope.variableScope], ecmaVersion);
+		const variable = findVariable(scope, node);
 
-		if (parameter.name === fixed) {
+		if (originalName === '_' && variable.references.length === 0) {
 			return;
 		}
 
+		const scopes = [
+			variable.scope,
+			...variable.references.map(({from}) => from)
+		];
+		const fixedName = avoidCapture(expectedName, scopes, ecmaVersion);
+
 		context.report({
 			node,
-			message: `The catch parameter should be named \`${fixed}\`.`,
-			fix: fixer => {
-				const nodes = [parameter];
-
-				const variables = scopeManager.getDeclaredVariables(node);
-				for (const variable of variables) {
-					if (variable.name !== parameter.name) {
-						continue;
-					}
-
-					for (const reference of variable.references) {
-						nodes.push(reference.identifier);
-					}
-				}
-
-				return nodes.map(node => renameIdentifier(node, fixed, fixer, sourceCode));
-			}
+			messageId: ERROR_MESSAGE_ID,
+			data: {
+				originalName,
+				fixedName
+			},
+			fix: fixer => renameVariable(variable, fixedName, fixer, sourceCode)
 		});
 	}
 
 	return {
 		[promiseCatchSelector]: node => {
-			const callbackNode = node.arguments[0];
-			check(callbackNode.params[0], callbackNode);
+			check(node.arguments[0].params[0]);
+		},
+		[promiseThenSelector]: node => {
+			check(node.arguments[1].params[0]);
 		},
 		[catchSelector]: node => {
-			check(node, node.parent);
+			check(node);
 		}
 	};
 };
@@ -102,8 +107,9 @@ const schema = [
 			name: {
 				type: 'string'
 			},
-			caughtErrorsIgnorePattern: {
-				type: 'string'
+			ignore: {
+				type: 'array',
+				uniqueItems: true
 			}
 		}
 	}
@@ -117,6 +123,9 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema
+		schema,
+		messages: {
+			[ERROR_MESSAGE_ID]: 'The catch parameter `{{originalName}}` should be named `{{fixedName}}`.'
+		}
 	}
 };

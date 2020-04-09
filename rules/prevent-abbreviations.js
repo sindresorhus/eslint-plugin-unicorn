@@ -8,6 +8,7 @@ const avoidCapture = require('./utils/avoid-capture');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
 const isShorthandPropertyIdentifier = require('./utils/is-shorthand-property-identifier');
 const isShorthandImportIdentifier = require('./utils/is-shorthand-import-identifier');
+const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 const renameIdentifier = require('./utils/rename-identifier');
 
 const isUpperCase = string => string === string.toUpperCase();
@@ -361,13 +362,6 @@ const formatMessage = (discouragedName, replacements, nameTypeText) => {
 	return message.join(' ');
 };
 
-const variableIdentifiers = ({identifiers, references}) => [
-	...new Set([
-		...identifiers,
-		...references.map(({identifier}) => identifier)
-	])
-];
-
 const isExportedIdentifier = identifier => {
 	if (
 		identifier.parent.type === 'VariableDeclarator' &&
@@ -397,7 +391,7 @@ const isExportedIdentifier = identifier => {
 };
 
 const shouldFix = variable => {
-	return !variableIdentifiers(variable).some(isExportedIdentifier);
+	return !getVariableIdentifiers(variable).some(isExportedIdentifier);
 };
 
 const isDefaultOrNamespaceImportName = identifier => {
@@ -631,7 +625,7 @@ const create = context => {
 			}
 
 			problem.fix = fixer => {
-				return variableIdentifiers(variable)
+				return getVariableIdentifiers(variable)
 					.map(identifier => renameIdentifier(identifier, replacement, fixer, sourceCode));
 			};
 		}
