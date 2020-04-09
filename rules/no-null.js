@@ -43,6 +43,10 @@ const create = context => {
 			}
 
 			const fix = fixer => fixer.replaceText(node, 'undefined');
+			const replaceSuggestion = {
+				messageId: SUGGESTION_REPLACE_MESSAGE_ID,
+				fix
+			};
 
 			if (isLooseEqual(parent)) {
 				problem.fix = fix;
@@ -51,21 +55,20 @@ const create = context => {
 					{
 						messageId: SUGGESTION_REMOVE_MESSAGE_ID,
 						fix: fixer => fixer.remove(node)
-					}
+					},
+					replaceSuggestion
 				];
 			} else if (parent.type === 'VariableDeclarator' && parent.init === node && parent.parent.kind !== 'const') {
 				problem.suggest = [
 					{
 						messageId: SUGGESTION_REMOVE_MESSAGE_ID,
 						fix: fixer => fixer.removeRange([parent.id.range[1], node.range[1]])
-					}
+					},
+					replaceSuggestion
 				];
 			} else {
 				problem.suggest = [
-					{
-						messageId: SUGGESTION_REPLACE_MESSAGE_ID,
-						fix
-					}
+					replaceSuggestion
 				];
 			}
 

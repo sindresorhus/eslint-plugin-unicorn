@@ -18,14 +18,13 @@ const invalidTestCase = testCase => {
 	const {
 		code,
 		output,
-		suggestionOutput,
-		suggestionMessageId = SUGGESTION_REPLACE_MESSAGE_ID,
+		suggestions,
 		checkStrictEquality
 	} = typeof testCase === 'string' ? {code: testCase} : testCase;
 
 	const options = typeof checkStrictEquality === 'boolean' ? [{checkStrictEquality}] : [];
 
-	if (suggestionOutput) {
+	if (suggestions) {
 		return {
 			code,
 			output: code,
@@ -33,12 +32,7 @@ const invalidTestCase = testCase => {
 			errors: [
 				{
 					messageId: ERROR_MESSAGE_ID,
-					suggestions: [
-						{
-							messageId: suggestionMessageId,
-							output: suggestionOutput
-						}
-					]
+					suggestions
 				}
 			]
 		};
@@ -127,33 +121,74 @@ ruleTester.run('no-null', rule, {
 					return null;
 				}
 			`,
-			suggestionOutput: outdent`
-				function foo() {
-					return ;
+			suggestions: [
+				{
+					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
+					output: outdent`
+						function foo() {
+							return ;
+						}
+					`
+				},
+				{
+					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
+					output: outdent`
+						function foo() {
+							return undefined;
+						}
+					`
 				}
-			`,
-			suggestionMessageId: SUGGESTION_REMOVE_MESSAGE_ID
+			]
 		}),
 
 		// Suggestion `VariableDeclaration`
 		invalidTestCase({
 			code: 'let foo = null;',
-			suggestionOutput: 'let foo;',
-			suggestionMessageId: SUGGESTION_REMOVE_MESSAGE_ID
+			suggestions: [
+				{
+					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
+					output: 'let foo;'
+				},
+				{
+					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
+					output: 'let foo = undefined;'
+				}
+			]
 		}),
 		invalidTestCase({
 			code: 'var foo = null;',
-			suggestionOutput: 'var foo;',
-			suggestionMessageId: SUGGESTION_REMOVE_MESSAGE_ID
+			suggestions: [
+				{
+					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
+					output: 'var foo;'
+				},
+				{
+					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
+					output: 'var foo = undefined;'
+				}
+			]
 		}),
 		invalidTestCase({
 			code: 'var foo = 1, bar = null, baz = 2;',
-			suggestionOutput: 'var foo = 1, bar, baz = 2;',
-			suggestionMessageId: SUGGESTION_REMOVE_MESSAGE_ID
+			suggestions: [
+				{
+					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
+					output: 'var foo = 1, bar, baz = 2;'
+				},
+				{
+					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
+					output: 'var foo = 1, bar = undefined, baz = 2;'
+				}
+			]
 		}),
 		invalidTestCase({
 			code: 'const foo = null;',
-			suggestionOutput: 'const foo = undefined;'
+			suggestions: [
+				{
+					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
+					output: 'const foo = undefined;'
+				}
+			]
 		}),
 
 		// `checkStrictEquality`
