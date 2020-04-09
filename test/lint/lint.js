@@ -15,9 +15,7 @@ const cli = new CLIEngine({
 	fix,
 	ignorePattern: [
 		// This can't disable by `eslint-disable` before `xo` update
-		'rules/prefer-reflect-apply.js',
-		// Not sure about `JSON.stringify()` replacer
-		'test/integration/test.js'
+		'rules/prefer-reflect-apply.js'
 	]
 });
 
