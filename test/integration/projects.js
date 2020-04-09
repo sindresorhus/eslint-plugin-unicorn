@@ -48,8 +48,7 @@ module.exports = [
 		repository: 'https://github.com/sindresorhus/got',
 		extraArguments: typescriptArguments
 	},
-	// TODO: Add this project when #561 got fixed
-	// 'https://github.com/eslint/eslint',
+	'https://github.com/eslint/eslint',
 	'https://github.com/prettier/prettier',
 	'https://github.com/facebook/react',
 	{
