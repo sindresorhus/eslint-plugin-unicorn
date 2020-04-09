@@ -503,6 +503,17 @@ babelRuleTester.run('custom-error-definition', rule, {
 				}
 			`,
 			errors: [invalidNameError('ValidationError')]
+		},
+		{
+			code: outdent`
+				export class ValidationError extends Error {
+					'name': SomeType;
+					constructor(message) {
+						super(message);
+					}
+				}
+			`,
+			errors: [invalidNameError('ValidationError')]
 		}
 	]
 });
