@@ -1,4 +1,4 @@
-# Do not use `null`
+# Disallow the use of the `null` literal.
 
 Disallow the use of the `null` literal, to encourage using `undefined` instead.
 
