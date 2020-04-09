@@ -23,18 +23,7 @@ module.exports = {
 	rules: {
 		...enableAllRules,
 
-		// This rule has no effect without options
-		'unicorn/string-content': [
-			'error',
-			{
-				patterns: {
-					a: '\'',
-					b: '"',
-					c: '`',
-					d: '${',
-					e: '}'
-				}
-			}
-		]
+		// This rule crashing on replace string inside `jsx` or `Unicode escape sequence`
+		'unicorn/string-content': 'off'
 	}
 };
