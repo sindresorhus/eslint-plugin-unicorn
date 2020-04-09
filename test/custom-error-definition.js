@@ -11,7 +11,9 @@ const ruleTester = avaRuleTester(test, {
 		sourceType: 'module'
 	}
 });
-
+const babelRuleTester = avaRuleTester(test, {
+	parser: require.resolve('babel-eslint')
+});
 const typescriptRuleTester = avaRuleTester(test, {
 	parser: require.resolve('@typescript-eslint/parser')
 });
@@ -476,6 +478,45 @@ const tests = {
 
 ruleTester.run('custom-error-definition', rule, tests);
 typescriptRuleTester.run('custom-error-definition', rule, tests);
+
+babelRuleTester.run('custom-error-definition', rule, {
+	valid: [
+		// #130
+		outdent`
+			export class ValidationError extends Error {
+				name = 'ValidationError';
+				constructor(message) {
+					super(message);
+				}
+			}
+		`
+	],
+	invalid: [
+		// #130
+		{
+			code: outdent`
+				export class ValidationError extends Error {
+					name = 'FOO';
+					constructor(message) {
+						super(message);
+					}
+				}
+			`,
+			errors: [invalidNameError('ValidationError')]
+		},
+		{
+			code: outdent`
+				export class ValidationError extends Error {
+					'name': SomeType;
+					constructor(message) {
+						super(message);
+					}
+				}
+			`,
+			errors: [invalidNameError('ValidationError')]
+		}
+	]
+});
 
 typescriptRuleTester.run('custom-error-definition', rule, {
 	valid: [
