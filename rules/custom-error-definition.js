@@ -78,7 +78,7 @@ const checkClassName = (context, node) => {
 			}
 		});
 	}
-}
+};
 
 const getClassConstructor = node => node.body.body.find(({kind}) => kind === 'constructor');
 
@@ -152,6 +152,10 @@ const customErrorDefinition = (context, node) => {
 		});
 	}
 
+	checkNameProperty(context, node, name, constructorBody, constructorBodyNode);
+};
+
+const checkNameProperty = (context, node, name, constructorBody, constructorBodyNode) => {
 	const nameExpression = constructorBody.find(x => isAssignmentExpression(x, 'name'));
 	if (!nameExpression) {
 		const nameProperty = node.body.body.find(node => isClassProperty(node, 'name'));
