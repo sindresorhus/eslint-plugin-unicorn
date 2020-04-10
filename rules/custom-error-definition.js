@@ -135,7 +135,7 @@ const customErrorDefinition = (context, node) => {
 
 				fixings.push(
 					fixer.removeRange([
-						messageExpressionIndex === 0 ? constructorBodyNode.range[0] : constructorBody[messageExpressionIndex - 1].range[1],
+						messageExpressionIndex === 0 ? constructorBodyNode.range[0] + 1 : constructorBody[messageExpressionIndex - 1].range[1],
 						expression.range[1]
 					])
 				);
@@ -162,7 +162,7 @@ const checkNameProperty = (context, node, name, constructorBody, constructorBody
 		}
 	} else if (nameExpression.expression.right.value !== name) {
 		context.report({
-			node: nameExpression ? nameExpression.expression.right : constructorBodyNode,
+			node: nameExpression.expression.right,
 			messageId: MESSAGE_ID_INVALID_NAME_PROPERTY,
 			data: {
 				name

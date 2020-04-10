@@ -296,6 +296,28 @@ const tests = {
 			code: outdent`
 				class FooError extends Error {
 					constructor(message) {
+						this.message = message;
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageToSuperError
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message) {
 						super();
 						this.message = message;
 						this.name = 'FooError';
