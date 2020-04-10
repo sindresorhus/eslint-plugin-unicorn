@@ -169,18 +169,20 @@ const customErrorDefinition = (context, node) => {
 };
 
 const customErrorExport = (context, node) => {
-	if (!hasValidSuperClass(node.right)) {
+	const {right} = node;
+
+	if (!hasValidSuperClass(right)) {
 		return;
 	}
 
-	const exportsName = node.left.property.name;
-	// Assume rule has already fixed the error name
-	const errorName = node.right.id.name;
+	const {left} = node;
+	const exportsName = left.property.name;
+	const errorName = right.id.name;
 	if (exportsName !== errorName) {
 		context.report({
-			node: node.left.property,
+			node: left.property,
 			messageId: MESSAGE_ID_INVALID_EXPORT,
-			fix: fixer => fixer.replaceText(node.left.property, errorName)
+			fix: fixer => fixer.replaceText(left.property, errorName)
 		});
 	}
 };
@@ -191,6 +193,7 @@ const exportsSelector = [
 	'[left.object.name="exports"]',
 	'[left.property]',
 	'[right.type="ClassExpression"]',
+	// Assume rule has already fixed the error name
 	'[right.id.name]'
 ].join('');
 
