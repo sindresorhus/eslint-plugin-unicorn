@@ -44,19 +44,13 @@ const isAssignmentExpression = (node, name) =>
 	node.expression.left.property &&
 	node.expression.left.property.name === name;
 
-const isClassProperty = (node, name) => {
-	if (node.type !== 'ClassProperty' || node.computed) {
-		return false;
-	}
-
-	const {key} = node;
-
-	if (key.type !== 'Identifier') {
-		return false;
-	}
-
-	return key.name === name;
-};
+const isClassProperty = (node, name) =>
+	node &&
+	node.type === 'ClassProperty' &&
+	!node.computed &&
+	node.key &&
+	node.key.type === 'Identifier' &&
+	node.key.name === name;
 
 const checkClassName = (context, node) => {
 	const {name} = node.id;
