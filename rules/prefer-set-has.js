@@ -1,14 +1,84 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const getReferences = require('./utils/get-references');
+const methodSelector = require('./utils/method-selector');
+
+// `[]`
+const arrayExpressionSelector = [
+	'[init.type="ArrayExpression"]'
+].join('');
+
+// `Array()`
+const ArraySelector = [
+	'[init.type="CallExpression"]',
+	'[init.callee.type="Identifier"]',
+	'[init.callee.name="Array"]'
+].join('');
+
+// `new Array()`
+const newArraySelector = [
+	'[init.type="NewExpression"]',
+	'[init.callee.type="Identifier"]',
+	'[init.callee.name="Array"]'
+].join('');
+
+// `Array.from()`
+// `Array.of()`
+const arrayStaticMethodSelector = methodSelector({
+	object: 'Array',
+	names: ['from', 'of'],
+	property: 'init'
+});
+
+// `array.concat()`
+// `array.copyWithin()`
+// `array.fill()`
+// `array.filter()`
+// `array.flat()`
+// `array.flatMap()`
+// `array.map()`
+// `array.reverse()`
+// `array.slice()`
+// `array.sort()`
+// `array.splice()`
+const arrayMethodSelector = methodSelector({
+	names: [
+		'concat',
+		'copyWithin',
+		'fill',
+		'filter',
+		'flat',
+		'flatMap',
+		'map',
+		'reverse',
+		'slice',
+		'sort',
+		'splice'
+	],
+	property: 'init'
+});
 
 const selector = [
-	':not(ExportNamedDeclaration)',
-	'>',
 	'VariableDeclaration',
+	// Exclude `export const foo = [];`
+	`:not(${
+		[
+			'ExportNamedDeclaration',
+			'>',
+			'VariableDeclaration.declaration'
+		].join('')
+	})`,
 	'>',
-	'VariableDeclarator',
-	'[init.type="ArrayExpression"]',
+	'VariableDeclarator.declarations',
+	`:matches(${
+		[
+			arrayExpressionSelector,
+			ArraySelector,
+			newArraySelector,
+			arrayStaticMethodSelector,
+			arrayMethodSelector
+		].join(',')
+	})`,
 	'>',
 	'Identifier.id'
 ].join('');
