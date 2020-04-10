@@ -1,6 +1,7 @@
 'use strict';
+const {findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const getReferences = require('./utils/get-references');
+const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 const methodSelector = require('./utils/method-selector');
 
 // `[]`
@@ -107,45 +108,30 @@ const isIncludesCall = node => {
 };
 
 const create = context => {
-	const scope = context.getScope();
-	const declarations = new Set();
-
 	return {
 		[selector]: node => {
-			declarations.add(node);
-		},
-		'Program:exit'() {
-			if (declarations.size === 0) {
+			const variable = findVariable(context.getScope(), node);
+			const identifiers = getVariableIdentifiers(variable).filter(identifier => identifier !== node);
+
+			if (
+				identifiers.length === 0 ||
+				identifiers.some(node => !isIncludesCall(node))
+			) {
 				return;
 			}
 
-			const references = getReferences(scope);
-			for (const declaration of declarations) {
-				const variable = references
-					.find(({identifier}) => identifier === declaration)
-					.resolved;
-				const nodes = variable.references
-					.map(({identifier}) => identifier)
-					.filter(node => node !== declaration);
-
-				if (
-					nodes.length > 0 &&
-					nodes.every(node => isIncludesCall(node))
-				) {
-					context.report({
-						node: declaration,
-						messageId: MESSAGE_ID,
-						data: {
-							name: declaration.name
-						},
-						fix: fixer => [
-							fixer.insertTextBefore(declaration.parent.init, 'new Set('),
-							fixer.insertTextAfter(declaration.parent.init, ')'),
-							...nodes.map(node => fixer.replaceText(node.parent.property, 'has'))
-						]
-					});
-				}
-			}
+			context.report({
+				node,
+				messageId: MESSAGE_ID,
+				data: {
+					name: node.name
+				},
+				fix: fixer => [
+					fixer.insertTextBefore(node.parent.init, 'new Set('),
+					fixer.insertTextAfter(node.parent.init, ')'),
+					...identifiers.map(identifier => fixer.replaceText(identifier.parent.property, 'has'))
+				]
+			});
 		}
 	};
 };
