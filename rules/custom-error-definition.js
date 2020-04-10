@@ -65,48 +65,56 @@ const isClassProperty = (node, name) => {
 	return key.name === name;
 };
 
+const checkClassName = (context, node) => {
+	const {name} = node.id;
+	const suggestName = getClassName(name);
+
+	if (name !== suggestName) {
+		context.report({
+			node: node.id,
+			messageId: MESSAGE_ID_INVALID_CLASS_NAME,
+			data: {
+				suggestName
+			}
+		});
+	}
+}
+
+const getClassConstructor = node => node.body.body.find(({kind}) => kind === 'constructor');
+
 const customErrorDefinition = (context, node) => {
 	if (!hasValidSuperClass(node)) {
 		return;
 	}
 
+	checkClassName(context, node);
+
 	const {name} = node.id;
-	const className = getClassName(name);
-
-	if (name !== className) {
-		context.report({
-			node: node.id,
-			messageId: MESSAGE_ID_INVALID_CLASS_NAME,
-			data: {
-				className
-			}
-		});
-	}
-
-	const {body} = node.body;
-	const constructor = body.find(x => x.kind === 'constructor');
+	const constructor = getClassConstructor(node);
 
 	if (!constructor) {
 		context.report({
 			node,
+			// TODO: add name to message
 			messageId: MESSAGE_ID_MISSING_CONSTRUCTOR,
-			fix: fixer => fixer.insertTextAfterRange([
-				node.body.range[0],
-				node.body.range[0] + 1
-			], getConstructorMethod(name))
+			fix: fixer => fixer.insertTextAfterRange(
+				[
+					node.body.range[0],
+					node.body.range[0] + 1
+				],
+				getConstructorMethod(name)
+			)
 		});
 		return;
 	}
 
 	const constructorBodyNode = constructor.value.body;
-
 	// Verify the constructor has a body (TypeScript)
 	if (!constructorBodyNode) {
 		return;
 	}
 
 	const constructorBody = constructorBodyNode.body;
-
 	const superExpression = constructorBody.find(isSuperExpression);
 	const messageExpressionIndex = constructorBody.findIndex(x => isAssignmentExpression(x, 'message'));
 
@@ -215,7 +223,7 @@ module.exports = {
 		fixable: 'code',
 		messages: {
 			[MESSAGE_ID_INVALID_EXPORT]: 'Exported error name should match error class',
-			[MESSAGE_ID_INVALID_CLASS_NAME]: 'Invalid class name, use `{{className}}`.',
+			[MESSAGE_ID_INVALID_CLASS_NAME]: 'Invalid class name, use `{{suggestName}}`.',
 			[MESSAGE_ID_INVALID_NAME_PROPERTY]: 'The `name` property should be set to `{{name}}`.',
 			[MESSAGE_ID_MISSING_CONSTRUCTOR]: 'Add a constructor to your error.',
 			[MESSAGE_ID_MISSING_SUPER]: 'Missing call to `super()` in constructor.',
