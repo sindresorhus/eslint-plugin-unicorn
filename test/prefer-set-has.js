@@ -270,6 +270,12 @@ ruleTester.run(ruleId, rule, {
 		outdent`
 			const foo = bar.notListed();
 			const exists = foo.includes(1);
+		`,
+
+		// `lodash`
+		outdent`
+			const foo = _.map([1, 2, 3], value => value);
+			const exists = _.includes(foo, 1);
 		`
 	],
 	invalid: [
@@ -338,6 +344,44 @@ ruleTester.run(ruleId, rule, {
 				...createError('bar')
 			]
 		},
+		// Different scope
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				const exists = foo.includes(1);
+				const bar = [1, 2, 3];
+
+				function outer(find) {
+					const foo = [1, 2, 3];
+					const exists = foo.includes(1);
+
+					function inner(find) {
+						const bar = [1, 2, 3];
+						const exists = bar.includes(1);
+					}
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				const exists = foo.has(1);
+				const bar = [1, 2, 3];
+
+				function outer(find) {
+					const foo = new Set([1, 2, 3]);
+					const exists = foo.has(1);
+
+					function inner(find) {
+						const bar = new Set([1, 2, 3]);
+						const exists = bar.has(1);
+					}
+				}
+			`,
+			errors: [
+				...createError('foo'),
+				...createError('foo'),
+				...createError('bar')
+			]
+		},
 
 		// `Array()`
 		{
@@ -402,6 +446,23 @@ ruleTester.run(ruleId, rule, {
 				const exists = foo.has(1);
 			`,
 			errors: createError('foo')
-		}))
+		})),
+
+		// `lodash`
+		// `bar` is not `array`, but code not broken
+		// See https://github.com/sindresorhus/eslint-plugin-unicorn/pull/641
+		{
+			code: outdent`
+				const foo = _([1,2,3]);
+				const bar = foo.map(value => value);
+				const exists = bar.includes(1);
+			`,
+			output: outdent`
+				const foo = _([1,2,3]);
+				const bar = new Set(foo.map(value => value));
+				const exists = bar.has(1);
+			`,
+			errors: createError('bar')
+		}
 	]
 });

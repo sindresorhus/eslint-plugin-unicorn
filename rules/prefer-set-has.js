@@ -110,11 +110,11 @@ const isIncludesCall = node => {
 const create = context => {
 	return {
 		[selector]: node => {
-	 		const variable = findVariable(context.getScope(), node);
+			const variable = findVariable(context.getScope(), node);
 			const identifiers = getVariableIdentifiers(variable).filter(identifier => identifier !== node);
 
 			if (
-				identifiers.length == 0 ||
+				identifiers.length === 0 ||
 				identifiers.some(node => !isIncludesCall(node))
 			) {
 				return;
