@@ -63,6 +63,7 @@ const checkClassName = (context, node) => {
 			data: {
 				suggestName
 			}
+			// TODO: add fix or suggestion
 		});
 	}
 };
@@ -89,6 +90,7 @@ const customErrorDefinition = (context, node) => {
 					node.body.range[0],
 					node.body.range[0] + 1
 				],
+				// TODO: is already has nameProperty, do not add `this.name`
 				getConstructorMethod(name)
 			)
 		});
@@ -112,7 +114,6 @@ const customErrorDefinition = (context, node) => {
 		});
 	} else if (messageExpressionIndex !== -1) {
 		const expression = constructorBody[messageExpressionIndex];
-
 		context.report({
 			node: superExpression,
 			messageId: MESSAGE_ID_ASSIGN_MESSAGE,
@@ -121,10 +122,14 @@ const customErrorDefinition = (context, node) => {
 				if (superExpression.expression.arguments.length === 0) {
 					const rhs = expression.expression.right;
 					fixings.push(
-						fixer.insertTextAfterRange([
-							superExpression.range[0],
-							superExpression.range[0] + 6
-						], rhs.raw || rhs.name)
+						fixer.insertTextAfterRange(
+							[
+								superExpression.range[0],
+								superExpression.range[0] + 6
+							],
+							// TODO: use node text
+							rhs.raw || rhs.name
+						)
 					);
 				}
 
@@ -146,7 +151,6 @@ const checkNameProperty = (context, node, name, constructorBody, constructorBody
 	const nameExpression = constructorBody.find(x => isAssignmentExpression(x, 'name'));
 	if (!nameExpression) {
 		const nameProperty = node.body.body.find(node => isClassProperty(node, 'name'));
-
 		if (!nameProperty || !nameProperty.value || nameProperty.value.value !== name) {
 			context.report({
 				node: nameProperty && nameProperty.value ? nameProperty.value : constructorBodyNode,
