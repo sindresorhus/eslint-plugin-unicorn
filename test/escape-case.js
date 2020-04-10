@@ -95,9 +95,9 @@ ruleTester.run('escape-case', rule, {
 
 		// Many
 		{
-			code: 'const foo = "\\xAaa\\xaaa\\xAAa\\uAaAaa\\uaaaaa\\uAAAAa\\u{AaAa}a\\u{aaaa}a\\u{AAAA}";',
+			code: 'const foo = "\\xAab\\xaab\\xAAb\\uAaAab\\uaaaab\\uAAAAb\\u{AaAa}b\\u{aaaa}b\\u{AAAA}";',
 			errors,
-			output: 'const foo = "\\xAAa\\xAAa\\xAAa\\uAAAAa\\uAAAAa\\uAAAAa\\u{AAAA}a\\u{AAAA}a\\u{AAAA}";'
+			output: 'const foo = "\\xAAb\\xAAb\\xAAb\\uAAAAb\\uAAAAb\\uAAAAb\\u{AAAA}b\\u{AAAA}b\\u{AAAA}";'
 		},
 
 		{
@@ -217,9 +217,9 @@ ruleTester.run('escape-case', rule, {
 
 		// Many
 		{
-			code: 'const foo = `\\xAaa\\xaaa\\xAA${foo}\\uAaAaa\\uaaaaa\\uAAAAa\\u{AaAa}${foo}\\u{aaaa}a\\u{AAAA}`;',
+			code: 'const foo = `\\xAab\\xaab\\xAA${foo}\\uAaAab\\uaaaab\\uAAAAb\\u{AaAa}${foo}\\u{aaaa}b\\u{AAAA}`;',
 			errors: Array.from({length: 3}, () => errors[0]),
-			output: 'const foo = `\\xAAa\\xAAa\\xAA${foo}\\uAAAAa\\uAAAAa\\uAAAAa\\u{AAAA}${foo}\\u{AAAA}a\\u{AAAA}`;'
+			output: 'const foo = `\\xAAb\\xAAb\\xAA${foo}\\uAAAAb\\uAAAAb\\uAAAAb\\u{AAAA}${foo}\\u{AAAA}b\\u{AAAA}`;'
 		},
 
 		// Literal regex
@@ -273,9 +273,9 @@ ruleTester.run('escape-case', rule, {
 
 		// Many
 		{
-			code: 'const foo = /\\xAaa\\xaaa\\xAAa\\uAaAaa\\uaaaaa\\uAAAAa\\u{AaAa}a\\u{aaaa}a\\u{AAAA}a\\ca/;',
+			code: 'const foo = /\\xAab\\xaab\\xAAb\\uAaAab\\uaaaab\\uAAAAb\\u{AaAa}b\\u{aaaa}b\\u{AAAA}b\\ca/;',
 			errors,
-			output: 'const foo = /\\xAAa\\xAAa\\xAAa\\uAAAAa\\uAAAAa\\uAAAAa\\u{AAAA}a\\u{AAAA}a\\u{AAAA}a\\cA/;'
+			output: 'const foo = /\\xAAb\\xAAb\\xAAb\\uAAAAb\\uAAAAb\\uAAAAb\\u{AAAA}b\\u{AAAA}b\\u{AAAA}b\\cA/;'
 		},
 
 		// RegExp
