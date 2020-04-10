@@ -164,22 +164,8 @@ const customErrorDefinition = (context, node) => {
 };
 
 const customErrorExport = (context, node) => {
-	if (!node.left.object || node.left.object.name !== 'exports') {
-		return;
-	}
-
-	if (!node.left.property) {
-		return;
-	}
-
 	const exportsName = node.left.property.name;
-
 	const maybeError = node.right;
-
-	if (maybeError.type !== 'ClassExpression') {
-		return;
-	}
-
 	if (!hasValidSuperClass(maybeError)) {
 		return;
 	}
@@ -202,11 +188,19 @@ const customErrorExport = (context, node) => {
 	});
 };
 
+const exportsSelector = [
+	'AssignmentExpression',
+	'[left.type="MemberExpression"]',
+	'[left.object.name="exports"]',
+	'[left.property]',
+	'[right.type="ClassExpression"]',
+].join('');
+
 const create = context => {
 	return {
 		ClassDeclaration: node => customErrorDefinition(context, node),
 		'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
-		'AssignmentExpression[left.type="MemberExpression"]': node => customErrorExport(context, node)
+		[exportsSelector]: node => customErrorExport(context, node)
 	};
 };
 
