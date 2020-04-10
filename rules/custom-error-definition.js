@@ -34,22 +34,15 @@ const isSuperExpression = node =>
 	node.expression.type === 'CallExpression' &&
 	node.expression.callee.type === 'Super';
 
-const isAssignmentExpression = (node, name) => {
-	if (
-		node.type !== 'ExpressionStatement' ||
-		node.expression.type !== 'AssignmentExpression'
-	) {
-		return false;
-	}
-
-	const lhs = node.expression.left;
-
-	if (!lhs.object || lhs.object.type !== 'ThisExpression') {
-		return false;
-	}
-
-	return lhs.property.name === name;
-};
+const isAssignmentExpression = (node, name) =>
+	node &&
+	node.type === 'ExpressionStatement' &&
+	node.expression.type === 'AssignmentExpression' &&
+	node.expression.left &&
+	node.expression.left.object &&
+	node.expression.left.object.type === 'ThisExpression' &&
+	node.expression.left.property &&
+	node.expression.left.property.name === name;
 
 const isClassProperty = (node, name) => {
 	if (node.type !== 'ClassProperty' || node.computed) {
