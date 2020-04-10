@@ -9,8 +9,8 @@ This rule is fixable.
 ```js
 const array = [1, 2, 3];
 
-function isExists(find) {
-	return array.includes(find);
+function hasValue(valueToFind) {
+	return array.includes(valueToFind);
 }
 ```
 
@@ -19,16 +19,16 @@ function isExists(find) {
 ```js
 const set = new Set([1, 2, 3]);
 
-function isExists(find) {
-	return set.has(find);
+function hasValue(valueToFind) {
+	return set.has(valueToFind);
 }
 ```
 
 ```js
 const array = [1, 2];
 
-function isExists(find) {
-	return array.includes(find);
+function hasValue(valueToFind) {
+	return array.includes(valueToFind);
 }
 
 array.push(3);
