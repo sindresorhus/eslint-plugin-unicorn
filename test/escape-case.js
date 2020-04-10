@@ -72,6 +72,7 @@ ruleTester.run('escape-case', rule, {
 			errors,
 			output: 'const foo = "\\xA9";'
 		},
+
 		// Mixed cases
 		{
 			code: 'const foo = "\\xAa";',
@@ -88,6 +89,14 @@ ruleTester.run('escape-case', rule, {
 			errors,
 			output: 'const foo = "\\u{AAAA}";'
 		},
+
+		// Many
+		{
+			code: 'const foo = "\\xAaa\\xaaa\\xAAa\\uAaAaa\\uaaaaa\\uAAAAa\\u{AaAa}a\\u{aaaa}a\\u{AAAA}";',
+			errors,
+			output: 'const foo = "\\xAAa\\xAAa\\xAAa\\uAAAAa\\uAAAAa\\uAAAAa\\u{AAAA}a\\u{AAAA}a\\u{AAAA}";'
+		},
+   
 		{
 			code: 'const foo = "\\ud834";',
 			errors,
