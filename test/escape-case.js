@@ -31,6 +31,7 @@ ruleTester.run('escape-case', rule, {
 		'const foo = "foo\\\\ubarbaz";',
 		'const foo = "foo\\\\\\\\xbar";',
 		'const foo = "foo\\\\\\\\ubarbaz";',
+		'const foo = "\\ca";',
 
 		// TemplateLiteral
 		'const foo = `\\xA9`;',
@@ -46,6 +47,7 @@ ruleTester.run('escape-case', rule, {
 		'const foo = `foo\\\\ubarbaz`;',
 		'const foo = `foo\\\\\\\\xbar`;',
 		'const foo = `foo\\\\\\\\ubarbaz`;',
+		'const foo = `\\ca`;',
 
 		// Literal regex
 		'const foo = /foo\\xA9/',
@@ -63,6 +65,7 @@ ruleTester.run('escape-case', rule, {
 		'const foo = new RegExp("/\\xA9")',
 		'const foo = new RegExp("/\\uD834/")',
 		'const foo = new RegExp("/\\u{1D306}/", "u")',
+		'const foo = new RegExp("/\\ca/")',
 		'const foo = new RegExp("/\\cA/")'
 	],
 	invalid: [
@@ -195,6 +198,30 @@ ruleTester.run('escape-case', rule, {
 			output: 'const foo = `foo \\\\\\uD834`;'
 		},
 
+		// Mixed cases
+		{
+			code: 'const foo = `\\xAa`;',
+			errors,
+			output: 'const foo = `\\xAA`;'
+		},
+		{
+			code: 'const foo = `\\uAaAa`;',
+			errors,
+			output: 'const foo = `\\uAAAA`;'
+		},
+		{
+			code: 'const foo = `\\u{AaAa}`;',
+			errors,
+			output: 'const foo = `\\u{AAAA}`;'
+		},
+
+		// Many
+		{
+			code: 'const foo = `\\xAaa\\xaaa\\xAA${foo}\\uAaAaa\\uaaaaa\\uAAAAa\\u{AaAa}${foo}\\u{aaaa}a\\u{AAAA}`;',
+			errors: Array.from({length: 3}, () => errors[0]),
+			output: 'const foo = `\\xAAa\\xAAa\\xAA${foo}\\uAAAAa\\uAAAAa\\uAAAAa\\u{AAAA}${foo}\\u{AAAA}a\\u{AAAA}`;'
+		},
+
 		// Literal regex
 		{
 			code: 'const foo = /\\xa9/;',
@@ -225,6 +252,30 @@ ruleTester.run('escape-case', rule, {
 			code: 'const foo = /foo\\\\\\\\\\xa9/;',
 			errors,
 			output: 'const foo = /foo\\\\\\\\\\xA9/;'
+		},
+
+		// Mixed cases
+		{
+			code: 'const foo = /\\xAa/;',
+			errors,
+			output: 'const foo = /\\xAA/;'
+		},
+		{
+			code: 'const foo = /\\uAaAa/;',
+			errors,
+			output: 'const foo = /\\uAAAA/;'
+		},
+		{
+			code: 'const foo = /\\u{AaAa}/;',
+			errors,
+			output: 'const foo = /\\u{AAAA}/;'
+		},
+
+		// Many
+		{
+			code: 'const foo = /\\xAaa\\xaaa\\xAAa\\uAaAaa\\uaaaaa\\uAAAAa\\u{AaAa}a\\u{aaaa}a\\u{AAAA}a\\ca/;',
+			errors,
+			output: 'const foo = /\\xAAa\\xAAa\\xAAa\\uAAAAa\\uAAAAa\\uAAAAa\\u{AAAA}a\\u{AAAA}a\\u{AAAA}a\\cA/;'
 		},
 
 		// RegExp

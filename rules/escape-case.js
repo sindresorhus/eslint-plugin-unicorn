@@ -7,7 +7,7 @@ const escapePatternWithLowercase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-
 const message = 'Use uppercase characters for the value of the escape sequence.';
 
 const create = context => {
-	const check = ({node, original, regex, fix}) => {
+	const check = ({node, original, regex = escapeWithLowercase, fix}) => {
 		const fixed = original.replace(regex, data => data.slice(0, 1) + data.slice(1).toUpperCase());
 
 		if (fixed !== original) {
@@ -27,8 +27,7 @@ const create = context => {
 
 			check({
 				node,
-				original: node.raw,
-				regex: escapeWithLowercase
+				original: node.raw
 			});
 		},
 		'Literal[regex]'(node) {
@@ -42,7 +41,6 @@ const create = context => {
 			check({
 				node,
 				original: node.value.raw,
-				regex: escapePatternWithLowercase,
 				fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed)
 			});
 		}
