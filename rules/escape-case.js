@@ -2,67 +2,47 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const replaceTemplateElement = require('./utils/replace-template-element');
 
-const escapeWithLowercase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+})/;
-const escapePatternWithLowercase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+}|c[a-z])/;
+const escapeWithLowercase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+})/g;
+const escapePatternWithLowercase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+}|c[a-z])/g;
 const message = 'Use uppercase characters for the value of the escape sequence.';
 
-const fix = (value, regexp) => {
-	const results = regexp.exec(value);
-
-	if (results) {
-		const {data} = results.groups;
-		const fixedEscape = data.slice(0, 1) + data.slice(1).toUpperCase();
-		return (
-			value.slice(0, results.index) +
-			fixedEscape +
-			value.slice(results.index + data.length)
-		);
-	}
-
-	return value;
-};
-
 const create = context => {
+	const check = ({node, original, regex = escapeWithLowercase, fix}) => {
+		const fixed = original.replace(regex, data => data.slice(0, 1) + data.slice(1).toUpperCase());
+
+		if (fixed !== original) {
+			context.report({
+				node,
+				message,
+				fix: fixer => fix ? fix(fixer, fixed) : fixer.replaceText(node, fixed)
+			});
+		}
+	};
+
 	return {
 		Literal(node) {
 			if (typeof node.value !== 'string') {
 				return;
 			}
 
-			const original = node.raw;
-			const fixed = fix(original, escapeWithLowercase);
-
-			if (fixed !== original) {
-				context.report({
-					node,
-					message,
-					fix: fixer => fixer.replaceText(node, fixed)
-				});
-			}
+			check({
+				node,
+				original: node.raw
+			});
 		},
 		'Literal[regex]'(node) {
-			const original = node.raw;
-			const fixed = fix(original, escapePatternWithLowercase);
-
-			if (fixed !== original) {
-				context.report({
-					node,
-					message,
-					fix: fixer => fixer.replaceText(node, fixed)
-				});
-			}
+			check({
+				node,
+				original: node.raw,
+				regex: escapePatternWithLowercase
+			});
 		},
 		TemplateElement(node) {
-			const original = node.value.raw;
-			const fixed = fix(original, escapePatternWithLowercase);
-
-			if (fixed !== original) {
-				context.report({
-					node,
-					message,
-					fix: fixer => replaceTemplateElement(fixer, node, fixed)
-				});
-			}
+			check({
+				node,
+				original: node.value.raw,
+				fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed)
+			});
 		}
 	};
 };
