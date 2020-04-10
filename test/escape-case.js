@@ -96,7 +96,7 @@ ruleTester.run('escape-case', rule, {
 			errors,
 			output: 'const foo = "\\xAAa\\xAAa\\xAAa\\uAAAAa\\uAAAAa\\uAAAAa\\u{AAAA}a\\u{AAAA}a\\u{AAAA}";'
 		},
-   
+
 		{
 			code: 'const foo = "\\ud834";',
 			errors,
