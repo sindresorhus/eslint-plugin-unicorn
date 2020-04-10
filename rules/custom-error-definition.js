@@ -178,28 +178,20 @@ const customErrorDefinition = (context, node) => {
 };
 
 const customErrorExport = (context, node) => {
+	if (!hasValidSuperClass(node.right)) {
+		return;
+	}
+
 	const exportsName = node.left.property.name;
-	const maybeError = node.right;
-	if (!hasValidSuperClass(maybeError)) {
-		return;
-	}
-
-	if (!maybeError.id) {
-		return;
-	}
-
 	// Assume rule has already fixed the error name
-	const errorName = maybeError.id.name;
-
-	if (exportsName === errorName) {
-		return;
+	const errorName = node.right.id.name;
+	if (exportsName !== errorName) {
+		context.report({
+			node: node.left.property,
+			messageId: MESSAGE_ID_INVALID_EXPORT,
+			fix: fixer => fixer.replaceText(node.left.property, errorName)
+		});
 	}
-
-	context.report({
-		node: node.left.property,
-		messageId: MESSAGE_ID_INVALID_EXPORT,
-		fix: fixer => fixer.replaceText(node.left.property, errorName)
-	});
 };
 
 const exportsSelector = [
@@ -207,7 +199,8 @@ const exportsSelector = [
 	'[left.type="MemberExpression"]',
 	'[left.object.name="exports"]',
 	'[left.property]',
-	'[right.type="ClassExpression"]'
+	'[right.type="ClassExpression"]',
+	'[right.id.name]'
 ].join('');
 
 const create = context => {
