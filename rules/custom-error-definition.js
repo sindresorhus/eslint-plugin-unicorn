@@ -70,10 +70,6 @@ const customErrorDefinition = (context, node) => {
 		return;
 	}
 
-	if (node.id === null) {
-		return;
-	}
-
 	const {name} = node.id;
 	const className = getClassName(name);
 
@@ -200,8 +196,8 @@ const exportsSelector = [
 
 const create = context => {
 	return {
-		ClassDeclaration: node => customErrorDefinition(context, node),
-		'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
+		'ClassDeclaration[id]': node => customErrorDefinition(context, node),
+		'AssignmentExpression[right.type="ClassExpression"][right.id]': node => customErrorDefinition(context, node.right),
 		[exportsSelector]: node => customErrorExport(context, node)
 	};
 };
