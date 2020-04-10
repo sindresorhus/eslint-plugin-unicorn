@@ -20,14 +20,14 @@ const getConstructorMethod = className => `
 	}
 `;
 
-const hasValidSuperClass = ({superClass}) => {
-	if (!superClass) {
-		return false;
-	}
-
-	const {name} = superClass.type === 'MemberExpression' ? superClass.property : superClass;
-	return nameRegexp.test(name);
-};
+const hasValidSuperClass = node =>
+	node &&
+	node.superClass &&
+	nameRegexp.test(
+		node.superClass.type === 'MemberExpression' ?
+			node.superClass.property.name :
+			node.superClass.name
+	);
 
 const isSuperExpression = node =>
 	node.type === 'ExpressionStatement' &&
