@@ -12,7 +12,7 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-ruleTester.run('prefer-optional-catch-binding2', rule, {
+ruleTester.run('prefer-optional-catch-binding', rule, {
 	valid: [
 		'try {} catch {}',
 		outdent`
@@ -104,7 +104,7 @@ ruleTester.run('prefer-optional-catch-binding2', rule, {
 		{
 			code: 'try {} catch(theRealErrorName) {}',
 			output: 'try {} catch {}',
-			errors: [{message: 'Remove unused catch binding `theRealErrorName`.'}]
+			errors: [{message: 'Remove unused catch binding paramter `theRealErrorName`.'}]
 		},
 		// TODO: this `error` should be able to remove
 		// {

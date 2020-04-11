@@ -55,7 +55,7 @@ module.exports = {
 		},
 		fixable: 'code',
 		messages: {
-			[ERROR_MESSAGE_ID]: 'Remove unused catch binding `{{name}}`.'
+			[ERROR_MESSAGE_ID]: 'Remove unused catch binding paramter `{{name}}`.'
 		}
 	}
 };
