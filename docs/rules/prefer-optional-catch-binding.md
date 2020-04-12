@@ -1,4 +1,4 @@
-# Prefer omit the `catch` binding parameter.
+# Prefer omitting the `catch` binding parameter
 
 If the `catch` binding parameter is not used, it should be omitted.
 
