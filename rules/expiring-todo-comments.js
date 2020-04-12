@@ -237,7 +237,7 @@ const create = context => {
 		)
 		// Flatten
 		.reduce((accumulator, array) => accumulator.concat(array), [])
-		.filter(processComment);
+		.filter(comment => processComment(comment));
 
 	// This is highly dependable on ESLint's `no-warning-comments` implementation.
 	// What we do is patch the parts we know the rule will use, `getAllComments`.

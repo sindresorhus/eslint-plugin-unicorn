@@ -25,7 +25,7 @@ const nameCollidesWithArgumentsSpecial = (name, scopes, isStrict) => {
 		return false;
 	}
 
-	return isStrict || scopes.some(scopeHasArgumentsSpecial);
+	return isStrict || scopes.some(scope => scopeHasArgumentsSpecial(scope));
 };
 
 /*

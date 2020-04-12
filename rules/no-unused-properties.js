@@ -210,11 +210,11 @@ const create = context => {
 	};
 
 	const checkVariables = scope => {
-		scope.variables.forEach(checkVariable);
+		scope.variables.forEach(variable => checkVariable(variable));
 	};
 
 	const checkChildScopes = scope => {
-		scope.childScopes.forEach(checkScope);
+		scope.childScopes.forEach(scope => checkScope(scope));
 	};
 
 	const checkScope = scope => {

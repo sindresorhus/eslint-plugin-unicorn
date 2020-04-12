@@ -108,7 +108,7 @@ const customErrorDefinition = (context, node) => {
 
 	const constructorBody = constructorBodyNode.body;
 
-	const superExpression = constructorBody.find(isSuperExpression);
+	const superExpression = constructorBody.find(body => isSuperExpression(body));
 	const messageExpressionIndex = constructorBody.findIndex(x => isAssignmentExpression(x, 'message'));
 
 	if (!superExpression) {

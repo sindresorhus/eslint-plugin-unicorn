@@ -31,7 +31,7 @@ module.exports = {
 				'unicorn/no-abusive-eslint-disable': 'error',
 				'unicorn/no-array-instanceof': 'error',
 				'unicorn/no-console-spaces': 'error',
-				'unicorn/no-fn-reference-in-iterator': 'off',
+				'unicorn/no-fn-reference-in-iterator': 'error',
 				'unicorn/no-for-loop': 'error',
 				'unicorn/no-hex-escape': 'error',
 				'unicorn/no-keyword-prefix': 'off',
