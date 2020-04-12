@@ -281,7 +281,6 @@ const create = context => {
 		if (dates.length > 1) {
 			uses++;
 			context.report({
-				node: null,
 				loc: comment.loc,
 				messageId: MESSAGE_ID_AVOID_MULTIPLE_DATES,
 				data: {
@@ -296,7 +295,6 @@ const create = context => {
 			const shouldIgnore = options.ignoreDatesOnPullRequests && ci.isPR;
 			if (!shouldIgnore && reachedDate(date)) {
 				context.report({
-					node: null,
 					loc: comment.loc,
 					messageId: MESSAGE_ID_EXPIRED_TODO,
 					data: {
@@ -310,7 +308,6 @@ const create = context => {
 		if (packageVersions.length > 1) {
 			uses++;
 			context.report({
-				node: null,
 				loc: comment.loc,
 				messageId: MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS,
 				data: {
@@ -330,7 +327,6 @@ const create = context => {
 			const compare = semverComparisonForOperator(condition);
 			if (packageVersion && compare(packageVersion, decidedPackageVersion)) {
 				context.report({
-					node: null,
 					loc: comment.loc,
 					messageId: MESSAGE_ID_REACHED_PACKAGE_VERSION,
 					data: {
@@ -357,7 +353,6 @@ const create = context => {
 
 				if (trigger) {
 					context.report({
-						node: null,
 						loc: comment.loc,
 						messageId,
 						data: {
@@ -382,7 +377,6 @@ const create = context => {
 
 			if (compare(targetPackageVersion, todoVersion)) {
 				context.report({
-					node: null,
 					loc: comment.loc,
 					messageId: MESSAGE_ID_VERSION_MATCHES,
 					data: {
@@ -414,7 +408,6 @@ const create = context => {
 
 			if (compare(targetPackageEngineVersion, todoEngine)) {
 				context.report({
-					node: null,
 					loc: comment.loc,
 					messageId: MESSAGE_ID_ENGINE_MATCHES,
 					data: {
@@ -439,7 +432,6 @@ const create = context => {
 				if (parseArgument(testString).type !== 'unknowns') {
 					uses++;
 					context.report({
-						node: null,
 						loc: comment.loc,
 						messageId: MESSAGE_ID_MISSING_AT_SYMBOL,
 						data: {
@@ -457,7 +449,6 @@ const create = context => {
 			if (parseArgument(withoutWhitespaces).type !== 'unknowns') {
 				uses++;
 				context.report({
-					node: null,
 					loc: comment.loc,
 					messageId: MESSAGE_ID_REMOVE_WHITESPACES,
 					data: {
