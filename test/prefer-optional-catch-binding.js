@@ -104,7 +104,7 @@ ruleTester.run('prefer-optional-catch-binding', rule, {
 		{
 			code: 'try {} catch(theRealErrorName) {}',
 			output: 'try {} catch {}',
-			errors: [{message: 'Remove unused catch binding paramter `theRealErrorName`.'}]
+			errors: [{message: 'Remove unused catch binding `theRealErrorName`.'}]
 		},
 		// TODO: this `error` should be able to remove
 		// {
