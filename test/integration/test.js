@@ -78,29 +78,34 @@ const makeEslintTask = (project, destination) => {
 const execute = project => {
 	const destination = path.join(__dirname, 'fixtures', project.name);
 
-	return new Listr([
+	return new Listr(
+		[
+			{
+				title: 'Cloning',
+				skip: () => fs.existsSync(destination) ? 'Already exists.' : false,
+				task: () => execa('git', [
+					'clone',
+					project.repository,
+					'--single-branch',
+					'--depth',
+					'1',
+					destination
+				])
+			},
+			{
+				title: 'Running eslint',
+				task: makeEslintTask(project, destination)
+			}
+		].map(
+			task => ({
+				title: `${project.name} / ${task.title}`,
+				...task
+			})
+		),
 		{
-			title: 'Cloning',
-			skip: () => fs.existsSync(destination),
-			task: () => execa('git', [
-				'clone',
-				project.repository,
-				'--single-branch',
-				'--depth',
-				'1',
-				destination
-			])
-		},
-		{
-			title: 'Running eslint',
-			task: makeEslintTask(project, destination)
+			exitOnError: false
 		}
-	].map(({title, task}) => ({
-		title: `${project.name} / ${title}`,
-		task
-	})), {
-		exitOnError: false
-	});
+	);
 };
 
 const list = new Listr([
