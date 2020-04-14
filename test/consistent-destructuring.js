@@ -4,8 +4,8 @@ import {outdent} from 'outdent';
 import rule from '../rules/consistent-destructuring';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
+	parserOptions: {
+		ecmaVersion: 2020
 	}
 });
 
