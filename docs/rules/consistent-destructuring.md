@@ -2,8 +2,7 @@
 
 Enforces the use of already destructured objects and their variables over accessing each property individually. Previous destructurings are easily missed which leads to an inconsistent code style.
 
-This rule is fixable (except for nested destructuring).
-
+This rule is partly fixable. It does not fix nested destructuring.
 
 ## Fail
 
