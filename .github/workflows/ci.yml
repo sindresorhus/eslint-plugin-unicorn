@@ -44,6 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: 1
+      TIMING: 1
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
