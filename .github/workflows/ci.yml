@@ -48,4 +48,13 @@ jobs:
         with:
           node-version: 12
       - run: npm install
+      - uses: actions/cache@v1
+        # Prevent error on re-run, ref https://github.com/actions/cache/issues/107#issuecomment-556037278
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        with:
+          path: test/integration/fixtures
+          key: v1-build-cache-${{ github.ref }}-${{ hashFiles('package.json') }}-${{ hashFiles('test/integration/*') }}-
+          restore-keys: |
+            v1-build-cache-${{ github.ref }}-${{ hashFiles('package.json') }}-${{ hashFiles('test/integration/*') }}-
+            v1-build-cache-master-${{ hashFiles('package.json') }}-${{ hashFiles('test/integration/*') }}-
       - run: npm run integration
