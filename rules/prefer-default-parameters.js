@@ -18,6 +18,7 @@ const isDefaultExpression = (left, right) =>
 	right &&
 	left.type === 'Identifier' &&
 	right.type === 'LogicalExpression' &&
+	right.operator === '||' &&
 	right.left.type === 'Identifier' &&
 	right.right.type === 'Literal';
 

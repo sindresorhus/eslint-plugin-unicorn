@@ -27,6 +27,7 @@ ruleTester.run('prefer-default-parameters', rule, {
 		'function abc(foo) { foo = foo || {bar} }',
 		'function abc(foo) { const {bar} = foo || 123 }',
 		'function abc(foo, bar) { bar = foo || \'bar\' }',
+		'function abc(foo) { foo = foo && \'bar\' }',
 		'function abc(foo) { foo = foo || 1 && 2 || 3 }',
 		'function abc(foo) { foo = !foo || \'bar\' }',
 		'function abc(foo) { foo = (foo && bar) || baz }',
