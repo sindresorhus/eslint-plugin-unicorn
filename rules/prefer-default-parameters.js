@@ -120,16 +120,10 @@ const create = context => {
 	};
 
 	return {
-		FunctionDeclaration: node => {
+		':function': node => {
 			functionStack.push(node);
 		},
-		ArrowFunctionExpression: node => {
-			functionStack.push(node);
-		},
-		'FunctionDeclaration:exit': () => {
-			functionStack.pop();
-		},
-		'ArrowFunctionExpression:exit': () => {
+		':function:exit': () => {
 			functionStack.pop();
 		},
 		[assignmentSelector]: node => {
