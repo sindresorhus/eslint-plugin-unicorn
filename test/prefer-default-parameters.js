@@ -10,19 +10,28 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const invalidTestCase = ({code, suggestions}) => {
-	const errors = suggestions.map(suggestion => ({
-		ruleId: 'prefer-default-parameters',
-		messageId: 'preferDefaultParameters',
-		suggestions: [{
-			messageId: 'preferDefaultParametersSuggest',
-			output: suggestion
-		}]
-	}));
+	if (!suggestions) {
+		return {
+			code,
+			output: code,
+			errors: [{
+				ruleId: 'prefer-default-parameters',
+				messageId: 'preferDefaultParameters'
+			}]
+		};
+	}
 
 	return {
 		code,
 		output: code,
-		errors
+		errors: suggestions.map(suggestion => ({
+			ruleId: 'prefer-default-parameters',
+			messageId: 'preferDefaultParameters',
+			suggestions: [{
+				messageId: 'preferDefaultParametersSuggest',
+				output: suggestion
+			}]
+		}))
 	};
 };
 
@@ -137,12 +146,7 @@ ruleTester.run('prefer-default-parameters', rule, {
 					foo = foo || 'bar';
 					baz();
 				}
-			`,
-			suggestions: [outdent`
-				function abc(foo = 'bar', bar) {
-					baz();
-				}
-			`]
+			`
 		}),
 		invalidTestCase({
 			code: outdent`
