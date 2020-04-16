@@ -2,6 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'preferDefaultParameters';
+const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
 
 const assignmentSelector = [
 	'ExpressionStatement',
@@ -61,9 +62,11 @@ const fixDefaultExpression = (fixer, source, node) => {
 
 const create = context => {
 	const source = context.getSourceCode();
-	let currentFunction;
+	const functionStack = [];
 
 	const checkExpression = (node, left, right, assignment) => {
+		const currentFunction = functionStack[functionStack.length - 1];
+
 		if (!currentFunction || !isDefaultExpression(left, right)) {
 			return;
 		}
@@ -95,25 +98,28 @@ const create = context => {
 		context.report({
 			node,
 			messageId: MESSAGE_ID,
-			fix: fixer => [
-				fixer.replaceText(parameter, replacement),
-				fixDefaultExpression(fixer, source, node)
-			]
+			suggest: [{
+				messageId: MESSAGE_ID_SUGGEST,
+				fix: fixer => [
+					fixer.replaceText(parameter, replacement),
+					fixDefaultExpression(fixer, source, node)
+				]
+			}]
 		});
 	};
 
 	return {
 		FunctionDeclaration: node => {
-			currentFunction = node;
+			functionStack.push(node);
 		},
 		ArrowFunctionExpression: node => {
-			currentFunction = node;
+			functionStack.push(node);
 		},
 		'FunctionDeclaration:exit': () => {
-			currentFunction = undefined;
+			functionStack.pop();
 		},
 		'ArrowFunctionExpression:exit': () => {
-			currentFunction = undefined;
+			functionStack.pop();
 		},
 		[assignmentSelector]: node => {
 			const {left, right} = node.expression;
@@ -137,7 +143,8 @@ module.exports = {
 		},
 		fixable: 'code',
 		messages: {
-			[MESSAGE_ID]: 'Prefer default parameters over reassignment.'
+			[MESSAGE_ID]: 'Prefer default parameters over reassignment.',
+			[MESSAGE_ID_SUGGEST]: 'Replace reassignment with default parameter.'
 		}
 	}
 };

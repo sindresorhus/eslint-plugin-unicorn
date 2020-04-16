@@ -9,9 +9,21 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const error = {
-	ruleId: 'prefer-default-parameters',
-	messageId: 'preferDefaultParameters'
+const invalidTestCase = ({code, suggestions}) => {
+	const errors = suggestions.map(suggestion => ({
+		ruleId: 'prefer-default-parameters',
+		messageId: 'preferDefaultParameters',
+		suggestions: [{
+			messageId: 'preferDefaultParametersSuggest',
+			output: suggestion
+		}]
+	}));
+
+	return {
+		code,
+		output: code,
+		errors
+	};
 };
 
 ruleTester.run('prefer-default-parameters', rule, {
@@ -97,133 +109,123 @@ ruleTester.run('prefer-default-parameters', rule, {
 		`
 	],
 	invalid: [
-		{
+		invalidTestCase({
 			code: outdent`
 				function abc(foo) {
 					foo = foo || 123;
 				}
 			`,
-			output: outdent`
+			suggestions: [outdent`
 				function abc(foo = 123) {
 				}
-			`,
-			errors: [error]
-		},
-		{
+			`]
+		}),
+		invalidTestCase({
 			code: outdent`
 				function abc(foo) {
 					foo = foo || true;
 				}
 			`,
-			output: outdent`
+			suggestions: [outdent`
 				function abc(foo = true) {
 				}
-			`,
-			errors: [error]
-		},
-		{
+			`]
+		}),
+		invalidTestCase({
 			code: outdent`
 				function abc(foo, bar) {
 					foo = foo || 'bar';
 					baz();
 				}
 			`,
-			output: outdent`
+			suggestions: [outdent`
 				function abc(foo = 'bar', bar) {
 					baz();
 				}
-			`,
-			errors: [error]
-		},
-		{
+			`]
+		}),
+		invalidTestCase({
 			code: outdent`
 				function abc(foo) {
 					const bar = foo || 'bar';
 				}
 			`,
-			output: outdent`
+			suggestions: [outdent`
 				function abc(bar = 'bar') {
 				}
-			`,
-			errors: [error]
-		},
-		{
+			`]
+		}),
+		invalidTestCase({
 			code: outdent`
 				function abc(foo) {
 					let bar = foo || 'bar';
 				}
 			`,
-			output: outdent`
+			suggestions: [outdent`
 				function abc(bar = 'bar') {
 				}
-			`,
-			errors: [error]
-		},
-		{
+			`]
+		}),
+		invalidTestCase({
 			code: outdent`
 				function abc(bar) {
 					foo();
 					bar = bar || 123;
 				}
 			`,
-			output: outdent`
+			suggestions: [outdent`
 				function abc(bar = 123) {
 					foo();
 				}
-			`,
-			errors: [error]
-		},
-		{
+			`]
+		}),
+		invalidTestCase({
 			code: outdent`
 				const abc = (foo) => {
 					foo = foo || 'bar';
 				};
 			`,
-			output: outdent`
+			suggestions: [outdent`
 				const abc = (foo = 'bar') => {
 				};
-			`,
-			errors: [error]
-		},
-		{
+			`]
+		}),
+		invalidTestCase({
 			code: outdent`
 				const abc = foo => {
 					foo = foo || 'bar';
 				};
 			`,
-			output: outdent`
+			suggestions: [outdent`
 				const abc = (foo = 'bar') => {
 				};
-			`,
-			errors: [error]
-		},
-		{
+			`]
+		}),
+		invalidTestCase({
 			code: outdent`
 				const abc = (bar) => {
 					foo();
 					bar = bar || 'bar';
 				};
 			`,
-			output: outdent`
+			suggestions: [outdent`
 				const abc = (bar = 'bar') => {
 					foo();
 				};
-			`,
-			errors: [error]
-		},
-		{
+			`]
+		}),
+		invalidTestCase({
 			code: outdent`
 				const abc = (foo) => {
 					const bar = foo || 'bar';
 				};
 			`,
-			output: outdent`
+			suggestions: [outdent`
 				const abc = (bar = 'bar') => {
 				};
-			`,
-			errors: [error]
-		},
-		{
+			`]
+		}),
+		invalidTestCase({
 			code: outdent`
 				function abc(foo) {
 					foo = foo || 'bar';
@@ -231,39 +233,35 @@ ruleTester.run('prefer-default-parameters', rule, {
 					baz();
 				}
 			`,
-			output: outdent`
+			suggestions: [outdent`
 				function abc(foo = 'bar') {
 					bar();
 					baz();
 				}
-			`,
-			errors: [error]
-		},
+			`]
+		}),
 		// The following tests verify the correct code formatting
-		{
+		invalidTestCase({
 			code: 'function abc(foo) { foo = foo || \'bar\'; }',
-			output: 'function abc(foo = \'bar\') { }',
-			errors: [error]
-		},
-		{
+			suggestions: ['function abc(foo = \'bar\') { }']
+		}),
+		invalidTestCase({
 			code: 'function abc(foo) { foo = foo || \'bar\';}',
-			output: 'function abc(foo = \'bar\') { }',
-			errors: [error]
-		},
-		{
+			suggestions: ['function abc(foo = \'bar\') { }']
+		}),
+		invalidTestCase({
 			code: outdent`
 				function abc(foo) {
 					foo = foo || 'bar'; bar(); baz();
 				}
 			`,
-			output: outdent`
+			suggestions: [outdent`
 				function abc(foo = 'bar') {
 					bar(); baz();
 				}
-			`,
-			errors: [error]
-		},
-		{
+			`]
+		}),
+		invalidTestCase({
 			code: outdent`
 				function abc(foo) {
 					foo = foo || 'bar';
@@ -272,13 +270,64 @@ ruleTester.run('prefer-default-parameters', rule, {
 					}
 				}
 			`,
-			output: outdent`
+			suggestions: [outdent`
 				function abc(foo = 'bar') {
+					function def(bar) {
+						bar = bar || 'foo';
+					}
+				}
+			`, outdent`
+				function abc(foo) {
+					foo = foo || 'bar';
 					function def(bar = 'foo') {
 					}
 				}
+			`]
+		}),
+		invalidTestCase({
+			code: outdent`
+				function abc(foo) {
+					foo += 'bar';
+					function def(bar) {
+						bar = bar || 'foo';
+					}
+					function ghi(baz) {
+						const bay = baz || 'bar';
+					}
+					foo = foo || 'bar';
+				}
 			`,
-			errors: [error, error]
-		}
+			suggestions: [outdent`
+				function abc(foo) {
+					foo += 'bar';
+					function def(bar = 'foo') {
+					}
+					function ghi(baz) {
+						const bay = baz || 'bar';
+					}
+					foo = foo || 'bar';
+				}
+			`, outdent`
+				function abc(foo) {
+					foo += 'bar';
+					function def(bar) {
+						bar = bar || 'foo';
+					}
+					function ghi(bay = 'bar') {
+					}
+					foo = foo || 'bar';
+				}
+			`, outdent`
+				function abc(foo = 'bar') {
+					foo += 'bar';
+					function def(bar) {
+						bar = bar || 'foo';
+					}
+					function ghi(baz) {
+						const bay = baz || 'bar';
+					}
+				}
+			`]
+		})
 	]
 });
