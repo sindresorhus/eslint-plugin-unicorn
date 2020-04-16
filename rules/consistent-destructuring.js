@@ -11,6 +11,14 @@ const declaratorSelector = [
 	'[init.type!="Literal"]'
 ].join('');
 
+const memberSelector = [
+	'MemberExpression',
+	':not(',
+	'CallExpression > MemberExpression.callee,',
+	'UnaryExpression[operator="delete"] > MemberExpression.argument',
+	')'
+].join('');
+
 const isChildInParentScope = (child, parent) => {
 	while (child) {
 		if (child === parent) {
@@ -51,20 +59,8 @@ const create = context => {
 				objectPattern: node.id
 			});
 		},
-		MemberExpression: node => {
-			const {parent, object, property} = node;
-
-			// Ignore member function calls and delete expressions
-			if (
-				(parent.type === 'CallExpression' &&
-				parent.callee === node) ||
-				(parent.type === 'UnaryExpression' &&
-				parent.operator === 'delete')
-			) {
-				return;
-			}
-
-			const declaration = declarations.get(source.getText(object));
+		[memberSelector]: node => {
+			const declaration = declarations.get(source.getText(node.object));
 
 			if (!declaration) {
 				return;
@@ -78,7 +74,7 @@ const create = context => {
 				return;
 			}
 
-			const isNested = parent.type === 'MemberExpression';
+			const isNested = node.parent.type === 'MemberExpression';
 
 			if (isNested) {
 				context.report({
@@ -93,7 +89,7 @@ const create = context => {
 				property.key.type === 'Identifier' && property.value.type === 'Identifier'
 			);
 			const expression = source.getText(node);
-			const member = source.getText(property);
+			const member = source.getText(node.property);
 
 			// Member might already be destructured
 			const destructuredMember = destructurings.find(property =>
