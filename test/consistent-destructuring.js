@@ -72,6 +72,10 @@ ruleTester.run('consistent-destructuring', rule, {
 			delete foo.a;
 		`,
 		outdent`
+			const {a, ...b} = foo;
+			console.log(foo.c);
+		`,
+		outdent`
 			const {
 				a: {
 					b
@@ -348,21 +352,11 @@ ruleTester.run('consistent-destructuring', rule, {
 		invalidTestCase({
 			code: outdent`
 				const {a, ...b} = foo;
-				console.log(foo.c);
+				console.log(foo.a);
 			`,
 			correctCode: outdent`
-				const {a, c, ...b} = foo;
-				console.log(c);
-			`
-		}),
-		invalidTestCase({
-			code: outdent`
 				const {a, ...b} = foo;
-				console.log(foo.b);
-			`,
-			correctCode: outdent`
-				const {a, b: b_, ...b} = foo;
-				console.log(b_);
+				console.log(a);
 			`
 		})
 	]

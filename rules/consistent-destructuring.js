@@ -38,12 +38,7 @@ const fixDestructuring = (fixer, objectPattern, member, newMember) => {
 		`${member}` :
 		`${member}: ${newMember}`;
 	const {properties} = objectPattern;
-	let lastProperty = properties[properties.length - 1];
-
-	// Don't insert member after rest
-	if (lastProperty && lastProperty.type === 'RestElement') {
-		lastProperty = properties[properties.length - 2];
-	}
+	const lastProperty = properties[properties.length - 1];
 
 	if (lastProperty) {
 		return fixer.insertTextAfter(lastProperty, `, ${property}`);
@@ -96,6 +91,9 @@ const create = context => {
 				property.key.type === 'Identifier' &&
 				property.value.type === 'Identifier'
 			);
+			const lastProperty = objectPattern.properties[objectPattern.properties.length - 1];
+			const hasRest = lastProperty && lastProperty.type === 'RestElement';
+
 			const expression = source.getText(node);
 			const member = source.getText(node.property);
 
@@ -103,6 +101,12 @@ const create = context => {
 			const destructuredMember = destructurings.find(property =>
 				property.key.name === member
 			);
+
+			// Don't destructure additional members when rest is used
+			if (hasRest && !destructuredMember) {
+				return;
+			}
+
 			const newMember = destructuredMember ?
 				destructuredMember.value.name :
 				avoidCapture(member, [memberScope], ecmaVersion);
