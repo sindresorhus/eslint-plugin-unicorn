@@ -13,6 +13,7 @@ const declaratorSelector = [
 
 const memberSelector = [
 	'MemberExpression',
+	'[computed=false]',
 	':not(',
 	'CallExpression > MemberExpression.callee,',
 	'UnaryExpression[operator="delete"] > MemberExpression.argument',

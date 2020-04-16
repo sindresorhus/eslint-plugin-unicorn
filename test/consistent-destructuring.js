@@ -51,6 +51,10 @@ ruleTester.run('consistent-destructuring', rule, {
 			console.log(foo.bar);
 		`,
 		outdent`
+			const {a} = foo;
+			console.log(foo[a]);
+		`,
+		outdent`
 			const [a] = foo;
 			console.log(foo);
 		`,
