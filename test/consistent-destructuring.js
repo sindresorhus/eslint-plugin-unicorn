@@ -9,9 +9,10 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const invalidTestCase = (code, correctCode) => {
+const invalidTestCase = ({code, correctCode}) => {
 	return {
 		code,
+		output: code,
 		errors: [{
 			ruleId: 'consistent-destructuring',
 			messageId: 'consistentDestructuring',
@@ -110,58 +111,58 @@ ruleTester.run('consistent-destructuring', rule, {
 		`
 	],
 	invalid: [
-		invalidTestCase(
-			outdent`
+		invalidTestCase({
+			code: outdent`
 				const {a} = foo;
 				console.log(foo.a);
 			`,
-			outdent`
+			correctCode: outdent`
 				const {a} = foo;
 				console.log(a);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {a} = foo;
 				console.log(a, foo.b);
 			`,
-			outdent`
+			correctCode: outdent`
 				const {a, b} = foo;
 				console.log(a, b);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {a} = foo.bar;
 				console.log(foo.bar.a);
 			`,
-			outdent`
+			correctCode: outdent`
 				const {a} = foo.bar;
 				console.log(a);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {bar} = foo;
 				const {a} = foo.bar;
 			`,
-			outdent`
+			correctCode: outdent`
 				const {bar} = foo;
 				const {a} = bar;
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {a} = foo;
 				const bar = foo.b;
 			`,
-			outdent`
+			correctCode: outdent`
 				const {a, b} = foo;
 				const bar = b;
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {
 					a: {
 						b
@@ -169,9 +170,9 @@ ruleTester.run('consistent-destructuring', rule, {
 				} = foo;
 				console.log(foo.a.c);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {
 					a: {
 						b
@@ -179,7 +180,7 @@ ruleTester.run('consistent-destructuring', rule, {
 				} = foo;
 				console.log(foo.a);
 			`,
-			outdent`
+			correctCode: outdent`
 				const {
 					a: {
 						b
@@ -187,9 +188,9 @@ ruleTester.run('consistent-destructuring', rule, {
 				} = foo;
 				console.log(a);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {
 					a: {
 						b
@@ -197,7 +198,7 @@ ruleTester.run('consistent-destructuring', rule, {
 				} = foo;
 				console.log(foo.c);
 			`,
-			outdent`
+			correctCode: outdent`
 				const {
 					a: {
 						b
@@ -205,144 +206,144 @@ ruleTester.run('consistent-destructuring', rule, {
 				} = foo;
 				console.log(c);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {} = foo;
 				console.log(foo.a);
 			`,
-			outdent`
+			correctCode: outdent`
 				const {a} = foo;
 				console.log(a);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {a} = this;
 				console.log(this.a);
 			`,
-			outdent`
+			correctCode: outdent`
 				const {a} = this;
 				console.log(a);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {a: b} = foo;
 				console.log(foo.a);
 			`,
-			outdent`
+			correctCode: outdent`
 				const {a: b} = foo;
 				console.log(b);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {a: b} = foo;
 				console.log(foo.b);
 			`,
-			outdent`
+			correctCode: outdent`
 				const {a: b, b: b_} = foo;
 				console.log(b_);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {a: b, c} = foo;
 				console.log(foo.d);
 			`,
-			outdent`
+			correctCode: outdent`
 				const {a: b, c, d} = foo;
 				console.log(d);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {a} = foo;
 				console.log('foo', foo.b);
 			`,
-			outdent`
+			correctCode: outdent`
 				const {a, b} = foo;
 				console.log('foo', b);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {a} = foo;
 				console.log(
 					'foo', // comment
 					foo.b // comment
 				);
 			`,
-			outdent`
+			correctCode: outdent`
 				const {a, b} = foo;
 				console.log(
 					'foo', // comment
 					b // comment
 				);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {a} = foo;
 				function bar() {
 					console.log(foo.a);
 				}
 			`,
-			outdent`
+			correctCode: outdent`
 				const {a} = foo;
 				function bar() {
 					console.log(a);
 				}
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {a} = foo;
 				const b = 'bar';
 				console.log(foo.b);
 			`,
-			outdent`
+			correctCode: outdent`
 				const {a, b: b_} = foo;
 				const b = 'bar';
 				console.log(b_);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {a} = foo;
 				const {b} = foo;
 				console.log(foo.c);
 			`,
-			outdent`
+			correctCode: outdent`
 				const {a} = foo;
 				const {b, c} = foo;
 				console.log(c);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const c = 123;
 				const {a} = foo;
 				const {b} = foo;
 				console.log(foo.c);
 			`,
-			outdent`
+			correctCode: outdent`
 				const c = 123;
 				const {a} = foo;
 				const {b, c: c_} = foo;
 				console.log(c_);
 			`
-		),
-		invalidTestCase(
-			outdent`
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {a} = foo;
 				console.log(!foo.a);
 			`,
-			outdent`
+			correctCode: outdent`
 				const {a} = foo;
 				console.log(!a);
 			`
-		)
+		})
 	]
 });
