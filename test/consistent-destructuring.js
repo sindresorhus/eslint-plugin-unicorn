@@ -344,6 +344,26 @@ ruleTester.run('consistent-destructuring', rule, {
 				const {a} = foo;
 				console.log(!a);
 			`
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a, ...b} = foo;
+				console.log(foo.c);
+			`,
+			correctCode: outdent`
+				const {a, c, ...b} = foo;
+				console.log(c);
+			`
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a, ...b} = foo;
+				console.log(foo.b);
+			`,
+			correctCode: outdent`
+				const {a, b: b_, ...b} = foo;
+				console.log(b_);
+			`
 		})
 	]
 });

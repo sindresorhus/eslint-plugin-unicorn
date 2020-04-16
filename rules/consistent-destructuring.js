@@ -38,7 +38,12 @@ const fixDestructuring = (fixer, objectPattern, member, newMember) => {
 		`${member}` :
 		`${member}: ${newMember}`;
 	const {properties} = objectPattern;
-	const lastProperty = properties[properties.length - 1];
+	let lastProperty = properties[properties.length - 1];
+
+	// Don't insert member after rest
+	if (lastProperty && lastProperty.type === 'RestElement') {
+		lastProperty = properties[properties.length - 2];
+	}
 
 	if (lastProperty) {
 		return fixer.insertTextAfter(lastProperty, `, ${property}`);
@@ -87,7 +92,9 @@ const create = context => {
 			}
 
 			const destructurings = objectPattern.properties.filter(property =>
-				property.key.type === 'Identifier' && property.value.type === 'Identifier'
+				property.type === 'Property' &&
+				property.key.type === 'Identifier' &&
+				property.value.type === 'Identifier'
 			);
 			const expression = source.getText(node);
 			const member = source.getText(node.property);
