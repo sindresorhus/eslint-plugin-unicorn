@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 'use strict';
+const fs = require('fs');
 const path = require('path');
 const Listr = require('listr');
 const execa = require('execa');
-const del = require('del');
 const chalk = require('chalk');
 const {isCI} = require('ci-info');
 const projects = require('./projects');
@@ -81,6 +81,7 @@ const execute = project => {
 	return new Listr([
 		{
 			title: 'Cloning',
+			skip: () => fs.existsSync(destination) ? 'Project already downloaded.' : false,
 			task: () => execa('git', [
 				'clone',
 				project.repository,
@@ -93,13 +94,10 @@ const execute = project => {
 		{
 			title: 'Running eslint',
 			task: makeEslintTask(project, destination)
-		},
-		{
-			title: 'Clean up',
-			task: () => del(destination, {force: true})
 		}
-	].map(({title, task}) => ({
+	].map(({title, task, skip}) => ({
 		title: `${project.name} / ${title}`,
+		skip,
 		task
 	})), {
 		exitOnError: false
