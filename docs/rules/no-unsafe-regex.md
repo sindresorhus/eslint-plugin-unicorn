@@ -1,6 +1,6 @@
 # Disallow unsafe regular expressions
 
-Uses [safe-regex](https://github.com/substack/safe-regex) to disallow potentially [catastrophic](http://regular-expressions.mobi/catastrophic.html) [exponential-time](http://perlgeek.de/blog-en/perl-tips/in-search-of-an-exponetial-regexp.html) regular expressions.
+Uses [safe-regex](https://github.com/substack/safe-regex) to disallow potentially [catastrophic](https://regular-expressions.mobi/catastrophic.html) [exponential-time](https://perlgeek.de/blog-en/perl-tips/in-search-of-an-exponetial-regexp.html) regular expressions.
 
 
 ## Fail

@@ -15,12 +15,12 @@ module.exports = [
 	'https://github.com/sindresorhus/pify',
 	'https://github.com/sindresorhus/boxen',
 	'https://github.com/sindresorhus/make-dir',
-	'http://github.com/SamVerschueren/listr',
-	'http://github.com/SamVerschueren/listr-update-renderer',
-	'http://github.com/SamVerschueren/clinton',
-	'http://github.com/SamVerschueren/bragg',
-	'http://github.com/SamVerschueren/bragg-router',
-	'http://github.com/SamVerschueren/dev-time',
+	'https://github.com/SamVerschueren/listr',
+	'https://github.com/SamVerschueren/listr-update-renderer',
+	'https://github.com/SamVerschueren/clinton',
+	'https://github.com/SamVerschueren/bragg',
+	'https://github.com/SamVerschueren/bragg-router',
+	'https://github.com/SamVerschueren/dev-time',
 	'https://github.com/SamVerschueren/decode-uri-component',
 	'https://github.com/kevva/to-ico',
 	'https://github.com/kevva/download',
@@ -60,7 +60,10 @@ module.exports = [
 			'aio/content/examples/animations/src/app/open-close.component.3.ts',
 
 			'--ignore-pattern',
-			'aio/tools/transforms/templates/data-module.template.js'
+			'aio/tools/transforms/templates/data-module.template.js',
+
+			'--ignore-pattern',
+			'aio/content/examples/router/src/app/app-routing.module.9.ts'
 		]
 	},
 	{
