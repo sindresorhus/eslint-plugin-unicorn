@@ -60,7 +60,10 @@ module.exports = [
 			'aio/content/examples/animations/src/app/open-close.component.3.ts',
 
 			'--ignore-pattern',
-			'aio/tools/transforms/templates/data-module.template.js'
+			'aio/tools/transforms/templates/data-module.template.js',
+
+			'--ignore-pattern',
+			'aio/content/examples/router/src/app/app-routing.module.9.ts'
 		]
 	},
 	{
