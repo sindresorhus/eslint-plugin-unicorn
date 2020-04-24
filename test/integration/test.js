@@ -6,7 +6,12 @@ const Listr = require('listr');
 const execa = require('execa');
 const chalk = require('chalk');
 const {isCI} = require('ci-info');
-const projects = require('./projects');
+const allProjects = require('./projects');
+
+const projectsArguments = process.argv.slice(2);
+const projects = projectsArguments.length === 0 ?
+	allProjects :
+	allProjects.filter(({name}) => projectsArguments.includes(name));
 
 const enrichErrors = (packageName, cliArguments, f) => async (...arguments_) => {
 	try {
