@@ -69,27 +69,8 @@ const toSelector = name => {
 // Select all the call expressions except the ones present in the blacklist
 const ignoredCalleeSelector = `${ignoredCallee.map(name => toSelector(name)).join('')}`;
 
-const isIgnoredIterator = node => {
-	const {type} = node;
-
-	if (
-		type === 'FunctionExpression' ||
-		type === 'ArrowFunctionExpression' ||
-		type === 'Literal' ||
-		(type === 'Identifier' && node.name === 'undefined')
-	) {
-		return true;
-	}
-
-	return false;
-};
-
 function check(context, node, method, options) {
 	const {type} = node;
-
-	if (isIgnoredIterator(node)) {
-		return;
-	}
 
 	const name = type === 'Identifier' ? node.name : '';
 
@@ -137,6 +118,15 @@ function check(context, node, method, options) {
 	context.report(problem);
 }
 
+const ignoredFirstArgumentSelector = `:not(${
+	[
+		'[arguments.0.type="FunctionExpression"]',
+		'[arguments.0.type="ArrowFunctionExpression"]',
+		'[arguments.0.type="Literal"]',
+		'[arguments.0.type="Identifier"][arguments.0.name="undefined"]'
+	].join(',')
+})`;
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const rules = {};
@@ -148,7 +138,8 @@ const create = context => {
 				min: 1,
 				max: 2
 			}),
-			ignoredCalleeSelector
+			ignoredCalleeSelector,
+			ignoredFirstArgumentSelector
 		].join('');
 		rules[selector] = node => {
 			const [iterator] = node.arguments;
