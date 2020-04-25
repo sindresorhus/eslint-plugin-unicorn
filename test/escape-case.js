@@ -31,6 +31,7 @@ ruleTester.run('escape-case', rule, {
 		'const foo = "foo\\\\ubarbaz";',
 		'const foo = "foo\\\\\\\\xbar";',
 		'const foo = "foo\\\\\\\\ubarbaz";',
+		'const foo = "\\ca";',
 
 		// TemplateLiteral
 		'const foo = `\\xA9`;',
@@ -46,6 +47,7 @@ ruleTester.run('escape-case', rule, {
 		'const foo = `foo\\\\ubarbaz`;',
 		'const foo = `foo\\\\\\\\xbar`;',
 		'const foo = `foo\\\\\\\\ubarbaz`;',
+		'const foo = `\\ca`;',
 
 		// Literal regex
 		'const foo = /foo\\xA9/',
@@ -63,6 +65,7 @@ ruleTester.run('escape-case', rule, {
 		'const foo = new RegExp("/\\xA9")',
 		'const foo = new RegExp("/\\uD834/")',
 		'const foo = new RegExp("/\\u{1D306}/", "u")',
+		'const foo = new RegExp("/\\ca/")',
 		'const foo = new RegExp("/\\cA/")'
 	],
 	invalid: [
@@ -72,6 +75,7 @@ ruleTester.run('escape-case', rule, {
 			errors,
 			output: 'const foo = "\\xA9";'
 		},
+
 		// Mixed cases
 		{
 			code: 'const foo = "\\xAa";',
@@ -88,6 +92,14 @@ ruleTester.run('escape-case', rule, {
 			errors,
 			output: 'const foo = "\\u{AAAA}";'
 		},
+
+		// Many
+		{
+			code: 'const foo = "\\xAab\\xaab\\xAAb\\uAaAab\\uaaaab\\uAAAAb\\u{AaAa}b\\u{aaaa}b\\u{AAAA}";',
+			errors,
+			output: 'const foo = "\\xAAb\\xAAb\\xAAb\\uAAAAb\\uAAAAb\\uAAAAb\\u{AAAA}b\\u{AAAA}b\\u{AAAA}";'
+		},
+
 		{
 			code: 'const foo = "\\ud834";',
 			errors,
@@ -186,6 +198,30 @@ ruleTester.run('escape-case', rule, {
 			output: 'const foo = `foo \\\\\\uD834`;'
 		},
 
+		// Mixed cases
+		{
+			code: 'const foo = `\\xAa`;',
+			errors,
+			output: 'const foo = `\\xAA`;'
+		},
+		{
+			code: 'const foo = `\\uAaAa`;',
+			errors,
+			output: 'const foo = `\\uAAAA`;'
+		},
+		{
+			code: 'const foo = `\\u{AaAa}`;',
+			errors,
+			output: 'const foo = `\\u{AAAA}`;'
+		},
+
+		// Many
+		{
+			code: 'const foo = `\\xAab\\xaab\\xAA${foo}\\uAaAab\\uaaaab\\uAAAAb\\u{AaAa}${foo}\\u{aaaa}b\\u{AAAA}`;',
+			errors: Array.from({length: 3}, () => errors[0]),
+			output: 'const foo = `\\xAAb\\xAAb\\xAA${foo}\\uAAAAb\\uAAAAb\\uAAAAb\\u{AAAA}${foo}\\u{AAAA}b\\u{AAAA}`;'
+		},
+
 		// Literal regex
 		{
 			code: 'const foo = /\\xa9/;',
@@ -216,6 +252,30 @@ ruleTester.run('escape-case', rule, {
 			code: 'const foo = /foo\\\\\\\\\\xa9/;',
 			errors,
 			output: 'const foo = /foo\\\\\\\\\\xA9/;'
+		},
+
+		// Mixed cases
+		{
+			code: 'const foo = /\\xAa/;',
+			errors,
+			output: 'const foo = /\\xAA/;'
+		},
+		{
+			code: 'const foo = /\\uAaAa/;',
+			errors,
+			output: 'const foo = /\\uAAAA/;'
+		},
+		{
+			code: 'const foo = /\\u{AaAa}/;',
+			errors,
+			output: 'const foo = /\\u{AAAA}/;'
+		},
+
+		// Many
+		{
+			code: 'const foo = /\\xAab\\xaab\\xAAb\\uAaAab\\uaaaab\\uAAAAb\\u{AaAa}b\\u{aaaa}b\\u{AAAA}b\\ca/;',
+			errors,
+			output: 'const foo = /\\xAAb\\xAAb\\xAAb\\uAAAAb\\uAAAAb\\uAAAAb\\u{AAAA}b\\u{AAAA}b\\u{AAAA}b\\cA/;'
 		},
 
 		// RegExp

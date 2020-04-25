@@ -19,55 +19,54 @@ This rule is fixable.
 ## Fail
 
 ```js
-try {
-	doSomething();
-} catch (badName) {
-	// …
+try {} catch (badName) {}
+```
+
+```js
+// `_` is not allowed if it's used
+try {} catch (_) {
+	console.log(_);
 }
 ```
 
 ```js
-somePromise.catch(badName => {})
+promise.catch(badName => {});
 ```
 
 ```js
-somePromise.then(undefined, badName => {})
+promise.then(undefined, badName => {});
 ```
 
 ## Pass
 
 ```js
-try {
-	doSomething();
-} catch (error) {
-	// …
-}
+try {} catch (error) {}
 ```
 
 ```js
-somePromise.catch(error => {})
+promise.catch(error => {});
 ```
 
 ```js
-somePromise.then(undefined, error => {})
+promise.then(undefined, error => {});
 ```
 
 ```js
-try {
-	doSomething();
-} catch (_) {
-	// `_` is allowed when the error is not used
+// `_` is allowed when it's not used
+try {} catch (_) {
 	console.log(foo);
 }
 ```
 
 ```js
-const handleError = error => {
-	const error_ = new Error('🦄');
+// Descriptive name is allowed
+try {} catch (fsError) {}
+```
 
-	obj.catch(error__ => {
-		// `error__` is allowed because of shadowed variables
-	});
+```js
+// `error_` is allowed because of shadowed variables
+try {} catch (error_) {
+	const error = new Error('🦄');
 }
 ```
 
@@ -113,21 +112,13 @@ When a string is given, it's interpreted as a regular expressions inside a strin
 With `^unicorn$`, this would fail:
 
 ```js
-try {
-	doSomething();
-} catch (pony) {
-	// …
-}
+try {} catch (pony) {}
 ```
 
 And this would pass:
 
 ```js
-try {
-	doSomething();
-} catch (unicorn) {
-	// …
-}
+try {} catch (unicorn) {}
 ```
 
 ## Tip

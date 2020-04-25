@@ -1,6 +1,9 @@
 {
 	"private": true,
 	"name": "eslint-config-unicorn-tester",
+	"engines": {
+		"node": ">=12"
+	},
 	"dependencies": {
 		"eslint-plugin-unicorn": "file:../.."
 	}

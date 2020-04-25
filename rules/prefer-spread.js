@@ -24,7 +24,7 @@ const create = context => {
 				node,
 				message: 'Prefer the spread operator over `Array.from()`.',
 				fix: fixer => {
-					const [arrayLikeArgument, mapFn, thisArgument] = node.arguments.map(getSource);
+					const [arrayLikeArgument, mapFn, thisArgument] = node.arguments.map(node => getSource(node));
 					let replacement = `${
 						needsSemicolon(sourceCode.getTokenBefore(node), sourceCode) ? ';' : ''
 					}[...${arrayLikeArgument}]`;

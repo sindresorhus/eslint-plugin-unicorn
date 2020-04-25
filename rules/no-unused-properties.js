@@ -139,7 +139,7 @@ const create = context => {
 							return {identifier: parent};
 						}
 
-						return null;
+						return undefined;
 					}
 
 					if (parent.type === 'MemberExpression') {
@@ -152,7 +152,7 @@ const create = context => {
 							return {identifier: parent};
 						}
 
-						return null;
+						return undefined;
 					}
 
 					if (
@@ -163,7 +163,7 @@ const create = context => {
 							return {identifier: parent};
 						}
 
-						return null;
+						return undefined;
 					}
 
 					if (
@@ -174,7 +174,7 @@ const create = context => {
 							return {identifier: parent};
 						}
 
-						return null;
+						return undefined;
 					}
 
 					return reference;
@@ -210,11 +210,11 @@ const create = context => {
 	};
 
 	const checkVariables = scope => {
-		scope.variables.forEach(checkVariable);
+		scope.variables.forEach(variable => checkVariable(variable));
 	};
 
 	const checkChildScopes = scope => {
-		scope.childScopes.forEach(checkScope);
+		scope.childScopes.forEach(scope => checkScope(scope));
 	};
 
 	const checkScope = scope => {
