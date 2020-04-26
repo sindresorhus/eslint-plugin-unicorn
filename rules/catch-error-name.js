@@ -30,8 +30,6 @@ const promiseThenSelector = promiseMethodSelector('then', 2, 1);
 
 const catchSelector = [
 	'CatchClause',
-	// Ignore optional catch binding
-	'[param]',
 	'>',
 	'Identifier.param'
 ].join('');

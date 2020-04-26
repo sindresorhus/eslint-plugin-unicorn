@@ -54,7 +54,7 @@ const create = context => {
 	let isDisabled;
 
 	const nodeReturnsSomething = new WeakMap();
-	let codePathInfo = null;
+	let codePathInfo;
 
 	return {
 		onCodePathStart(codePath, node) {

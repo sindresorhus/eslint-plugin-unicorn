@@ -12,7 +12,11 @@ const unicornRules = new Map(Object.entries(unicorn.rules));
 const cli = new CLIEngine({
 	baseConfig: recommended,
 	useEslintrc: false,
-	fix
+	fix,
+	ignorePattern: [
+		// This can't disable by `eslint-disable` before `xo` update
+		'rules/prefer-reflect-apply.js'
+	]
 });
 
 cli.addPlugin('eslint-plugin-unicorn', unicorn);

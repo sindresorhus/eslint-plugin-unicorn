@@ -4,6 +4,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 
 const isApplySignature = (argument1, argument2) => (
+	// Please remove this file from `test/lint/lint.js` when fixing `null` issue
 	(isLiteralValue(argument1, null) ||
 		argument1.type === 'ThisExpression') &&
 	(argument2.type === 'ArrayExpression' ||
