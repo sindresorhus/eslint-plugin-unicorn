@@ -83,7 +83,17 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 		'_.map(fn)',
 		'Async.map(list, fn)',
 		'async.map(list, fn)',
-		'React.children.forEach(children, fn)'
+		'React.children.forEach(children, fn)',
+
+		// Ignored
+		'foo.map(() => {})',
+		'foo.map(function() {})',
+		'foo.map(function bar() {})',
+		'foo.map("string")',
+		'foo.map(null)',
+		'foo.map(1)',
+		'foo.map(true)',
+		'foo.map(undefined)'
 	],
 	invalid: [
 		// Suggestions

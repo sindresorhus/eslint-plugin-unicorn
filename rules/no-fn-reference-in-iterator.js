@@ -72,10 +72,6 @@ const ignoredCalleeSelector = `${ignoredCallee.map(name => toSelector(name)).joi
 function check(context, node, method, options) {
 	const {type} = node;
 
-	if (type === 'FunctionExpression' || type === 'ArrowFunctionExpression') {
-		return;
-	}
-
 	const name = type === 'Identifier' ? node.name : '';
 
 	if (type === 'Identifier' && options.ignore.includes(name)) {
@@ -122,6 +118,15 @@ function check(context, node, method, options) {
 	context.report(problem);
 }
 
+const ignoredFirstArgumentSelector = `:not(${
+	[
+		'[arguments.0.type="FunctionExpression"]',
+		'[arguments.0.type="ArrowFunctionExpression"]',
+		'[arguments.0.type="Literal"]',
+		'[arguments.0.type="Identifier"][arguments.0.name="undefined"]'
+	].join(',')
+})`;
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const rules = {};
@@ -133,7 +138,8 @@ const create = context => {
 				min: 1,
 				max: 2
 			}),
-			ignoredCalleeSelector
+			ignoredCalleeSelector,
+			ignoredFirstArgumentSelector
 		].join('');
 		rules[selector] = node => {
 			const [iterator] = node.arguments;
