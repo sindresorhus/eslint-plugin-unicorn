@@ -29,7 +29,7 @@ const create = context => {
 
 			try {
 				optimized = optimize(original, undefined, {blacklist}).toString();
-			} catch (_) {}
+			} catch {}
 
 			if (original === optimized) {
 				return;
