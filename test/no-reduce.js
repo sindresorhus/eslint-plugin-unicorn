@@ -1,6 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/no-reduce';
+import {outdent} from 'outdent';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -17,7 +18,7 @@ const typescriptRuleTester = avaRuleTester(test, {
 
 const error = {
 	ruleId: 'no-reduce',
-	message: 'No Array#reduce'
+	message: 'Array.reduce not allowed'
 };
 
 const tests = {
@@ -46,61 +47,57 @@ const tests = {
 			errors: [error]
 		},
 		{
-			code: `
-			arr.reduce((obj, item) => {
+			code: outdent`
+				arr.reduce((obj, item) => {
 				obj[item] = null;
 				return obj;
-			}, {})
+				}, {})
 			`,
 			errors: [error]
 		},
 		{
-			code: `
-			arr.reduce((obj, item) => ({
-				...obj,
-				[item]: null,
-			}), {})
+			code: outdent`
+				arr.reduce((obj, item) => ({ [item]: null }), {})
 			`,
 			errors: [error]
 		},
 		{
-			code: `
-			const hyphenate = (str, char) => \`\${str}-\${char}\`;
-			["a", "b", "c"].reduce(hyphenate);
+			code: outdent`
+				const hyphenate = (str, char) => \`\${str}-\${char}\`;
+				["a", "b", "c"].reduce(hyphenate);
 			`,
 			errors: [error]
 		},
 		{
-			code: `
-			var arr = [1,2,3];
-			[].reduce.call(arr, (s, i) => s + i)
+			code: outdent`
+				var arr = [1,2,3];
+				[].reduce.call(arr, (s, i) => s + i)
 			`,
 			errors: [error]
 		},
 		{
-			code: `
-			var arr = [1,2,3];
-			const sum = (s, i) => s + i;
-			[].reduce.call(arr, sum);
+			code: outdent`
+				var arr = [1,2,3];
+				const sum = (s, i) => s + i;
+				[].reduce.call(arr, sum);
 			`,
 			errors: [error]
 		},
 		{
-			code: `
-			var arr = [1,2,3];
-			Array.prototype.reduce.call(arr, (s, i) => s + i)
+			code: outdent`
+				var arr = [1,2,3];
+				Array.prototype.reduce.call(arr, (s, i) => s + i)
 			`,
 			errors: [error]
 		},
 		{
-			code: `
-			var arr = [1,2,3];
-			const sum = (s, i) => s + i;
-			Array.prototype.reduce.call(arr, sum);
+			code: outdent`
+				var arr = [1,2,3];
+				const sum = (s, i) => s + i;
+				Array.prototype.reduce.call(arr, sum);
 			`,
 			errors: [error]
 		}
-
 	]
 };
 
