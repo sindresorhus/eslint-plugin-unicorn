@@ -107,7 +107,7 @@ const isIncludesCall = node => {
 	);
 };
 
-const multipleCallNodeTypes = [
+const multipleCallNodeTypes = new Set([
 	'ForOfStatement',
 	'ForStatement',
 	'WhileStatement',
@@ -116,25 +116,25 @@ const multipleCallNodeTypes = [
 	'FunctionExpression',
 	'ArrowFunctionExpression',
 	'ObjectMethod',
-	'ClassMethod',
-];
+	'ClassMethod'
+]);
 
 const isMultipleCall = (identifier, node) => {
 	const root = node.parent.parent.parent;
-	let parent = identifier.parent.parent; // `.include()` callExpression
+	let {parent} = identifier.parent; // `.include()` callExpression
 	while (
 		parent &&
-		parent != root
+		parent !== root
 	) {
-		if (multipleCallNodeTypes.includes(parent.type)) {
+		if (multipleCallNodeTypes.has(parent.type)) {
 			return true;
 		}
 
-		parent = parent.parent
+		parent = parent.parent;
 	}
 
 	return false;
-}
+};
 
 const create = context => {
 	return {

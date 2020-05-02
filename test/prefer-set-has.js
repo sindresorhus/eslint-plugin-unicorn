@@ -403,7 +403,7 @@ ruleTester.run(ruleId, rule, {
 
 		// Called multiple times
 		{
-			code:outdent`
+			code: outdent`
 				const foo = [1, 2, 3];
 				const isExists = foo.includes(1);
 				const isExists2 = foo.includes(2);
@@ -586,7 +586,6 @@ ruleTester.run(ruleId, rule, {
 			`,
 			errors: createError('foo')
 		},
-
 
 		// SpreadElement
 		{
