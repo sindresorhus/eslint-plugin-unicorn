@@ -69,7 +69,38 @@ const tests = {
 			["a", "b", "c"].reduce(hyphenate);
 			`,
 			errors: [error]
+		},
+		{
+			code: `
+			var arr = [1,2,3];
+			[].reduce.call(arr, (s, i) => s + i)
+			`,
+			errors: [error]
+		},
+		{
+			code: `
+			var arr = [1,2,3];
+			const sum = (s, i) => s + i;
+			[].reduce.call(arr, sum);
+			`,
+			errors: [error]
+		},
+		{
+			code: `
+			var arr = [1,2,3];
+			Array.prototype.reduce.call(arr, (s, i) => s + i)
+			`,
+			errors: [error]
+		},
+		{
+			code: `
+			var arr = [1,2,3];
+			const sum = (s, i) => s + i;
+			Array.prototype.reduce.call(arr, sum);
+			`,
+			errors: [error]
 		}
+
 	]
 };
 
