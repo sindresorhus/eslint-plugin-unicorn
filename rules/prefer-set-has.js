@@ -110,6 +110,7 @@ const isIncludesCall = node => {
 const multipleCallNodeTypes = new Set([
 	'ForOfStatement',
 	'ForStatement',
+	'ForInStatement',
 	'WhileStatement',
 	'DoWhileStatement',
 	'FunctionDeclaration',

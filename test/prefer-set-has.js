@@ -432,6 +432,25 @@ ruleTester.run(ruleId, rule, {
 			`,
 			errors: createError('foo')
 		},
+		{
+			code: outdent`
+				async function unicorn() {
+					const foo = [1, 2, 3];
+					for await (const a of b) {
+						foo.includes(1);
+					}
+				}
+			`,
+			output: outdent`
+				async function unicorn() {
+					const foo = new Set([1, 2, 3]);
+					for await (const a of b) {
+						foo.has(1);
+					}
+				}
+			`,
+			errors: createError('foo')
+		},
 
 		// `ForStatement`
 		{
@@ -444,6 +463,23 @@ ruleTester.run(ruleId, rule, {
 			output: outdent`
 				const foo = new Set([1, 2, 3]);
 				for (let i = 0; i < n; i++) {
+					foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+
+		// `ForInStatement`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				for (let a in b) {
+					foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				for (let a in b) {
 					foo.has(1);
 				}
 			`,
@@ -511,6 +547,51 @@ ruleTester.run(ruleId, rule, {
 			output: outdent`
 				const foo = new Set([1, 2, 3]);
 				function unicorn() {
+					return foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				function * unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				function * unicorn() {
+					return foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				async function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				async function unicorn() {
+					return foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				async function * unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				async function * unicorn() {
 					return foo.has(1);
 				}
 			`,
