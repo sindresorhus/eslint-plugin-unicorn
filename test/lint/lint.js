@@ -14,8 +14,6 @@ const cli = new CLIEngine({
 	useEslintrc: false,
 	fix,
 	ignorePattern: [
-		// This can't disable by `eslint-disable` before `xo` update
-		'rules/prefer-reflect-apply.js'
 	]
 });
 

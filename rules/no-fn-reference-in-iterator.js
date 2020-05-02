@@ -10,7 +10,11 @@ const REPLACE_WITHOUT_NAME_MESSAGE_ID = 'replace-without-name';
 
 const iteratorMethods = [
 	['every'],
-	['filter'],
+	[
+		'filter', {
+			extraSelector: '[callee.object.name!="Vue"]'
+		}
+	],
 	['find'],
 	['findIndex'],
 	['flatMap'],
@@ -46,6 +50,7 @@ const iteratorMethods = [
 		parameters: ['element', 'index', 'array'],
 		ignore: ['Boolean'],
 		minParameters: 1,
+		extraSelector: '',
 		...options
 	};
 	return [method, options];
@@ -67,14 +72,14 @@ const toSelector = name => {
 };
 
 // Select all the call expressions except the ones present in the blacklist
-const ignoredCalleeSelector = `${ignoredCallee.map(name => toSelector(name)).join('')}`;
+const ignoredCalleeSelector = [
+	// `this.{map, filter, …}()`
+	'[callee.object.type!="ThisExpression"]',
+	...ignoredCallee.map(name => toSelector(name))
+].join('');
 
 function check(context, node, method, options) {
 	const {type} = node;
-
-	if (type === 'FunctionExpression' || type === 'ArrowFunctionExpression') {
-		return;
-	}
 
 	const name = type === 'Identifier' ? node.name : '';
 
@@ -122,6 +127,15 @@ function check(context, node, method, options) {
 	context.report(problem);
 }
 
+const ignoredFirstArgumentSelector = `:not(${
+	[
+		'[arguments.0.type="FunctionExpression"]',
+		'[arguments.0.type="ArrowFunctionExpression"]',
+		'[arguments.0.type="Literal"]',
+		'[arguments.0.type="Identifier"][arguments.0.name="undefined"]'
+	].join(',')
+})`;
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const rules = {};
@@ -133,7 +147,9 @@ const create = context => {
 				min: 1,
 				max: 2
 			}),
-			ignoredCalleeSelector
+			options.extraSelector,
+			ignoredCalleeSelector,
+			ignoredFirstArgumentSelector
 		].join('');
 		rules[selector] = node => {
 			const [iterator] = node.arguments;

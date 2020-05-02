@@ -57,6 +57,10 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 		...simpleMethods.map(method => `foo.${method}(element => fn(element))`),
 		...reduceLikeMethods.map(method => `foo.${method}((accumulator, element) => fn(element))`),
 
+		// `this.{map, filter, …}`
+		...simpleMethods.map(method => `this.${method}(fn)`),
+		...reduceLikeMethods.map(method => `this.${method}(fn)`),
+
 		// `Boolean`
 		...simpleMethods.map(method => `foo.${method}(Boolean)`),
 
@@ -83,7 +87,18 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 		'_.map(fn)',
 		'Async.map(list, fn)',
 		'async.map(list, fn)',
-		'React.children.forEach(children, fn)'
+		'React.children.forEach(children, fn)',
+		'Vue.filter(name, fn)',
+
+		// Ignored
+		'foo.map(() => {})',
+		'foo.map(function() {})',
+		'foo.map(function bar() {})',
+		'foo.map("string")',
+		'foo.map(null)',
+		'foo.map(1)',
+		'foo.map(true)',
+		'foo.map(undefined)'
 	],
 	invalid: [
 		// Suggestions
