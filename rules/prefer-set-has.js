@@ -107,6 +107,35 @@ const isIncludesCall = node => {
 	);
 };
 
+const multipleCallNodeTypes = [
+	'ForOfStatement',
+	'ForStatement',
+	'WhileStatement',
+	'DoWhileStatement',
+	'FunctionDeclaration',
+	'FunctionExpression',
+	'ArrowFunctionExpression',
+	'ObjectMethod',
+	'ClassMethod',
+];
+
+const isMultipleCall = (identifier, node) => {
+	const root = node.parent.parent.parent;
+	let parent = identifier.parent.parent; // `.include()` callExpression
+	while (
+		parent &&
+		parent != root
+	) {
+		if (multipleCallNodeTypes.includes(parent.type)) {
+			return true;
+		}
+
+		parent = parent.parent
+	}
+
+	return false;
+}
+
 const create = context => {
 	return {
 		[selector]: node => {
@@ -115,7 +144,14 @@ const create = context => {
 
 			if (
 				identifiers.length === 0 ||
-				identifiers.some(node => !isIncludesCall(node))
+				identifiers.some(identifier => !isIncludesCall(identifier))
+			) {
+				return;
+			}
+
+			if (
+				identifiers.length === 1 &&
+				identifiers.every(identifier => !isMultipleCall(identifier, node))
 			) {
 				return;
 			}
