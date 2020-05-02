@@ -43,6 +43,22 @@ ruleTester.run(ruleId, rule, {
 				return foo.has(1);
 			}
 		`,
+		// Only called once
+		outdent`
+			const foo = [1, 2, 3];
+			const isExists = foo.includes(1);
+		`,
+		outdent`
+			while (a) {
+				const foo = [1, 2, 3];
+				const isExists = foo.includes(1);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			(() => {})(foo.includes(1));
+		`,
+
 		// Not `VariableDeclarator`
 		outdent`
 			foo = [1, 2, 3];
@@ -384,6 +400,194 @@ ruleTester.run(ruleId, rule, {
 			`,
 			errors: createError('foo')
 		},
+
+		// Called multiple times
+		{
+			code:outdent`
+				const foo = [1, 2, 3];
+				const isExists = foo.includes(1);
+				const isExists2 = foo.includes(2);
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				const isExists = foo.has(1);
+				const isExists2 = foo.has(2);
+			`,
+			errors: createError('foo')
+		},
+
+		// `ForOfStatement`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				for (const a of b) {
+					foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				for (const a of b) {
+					foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+
+		// `ForStatement`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				for (let i = 0; i < n; i++) {
+					foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				for (let i = 0; i < n; i++) {
+					foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+
+		// `WhileStatement`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				while (a)  {
+					foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				while (a)  {
+					foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+
+		// `DoWhileStatement`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				do {
+					foo.includes(1);
+				} while (a)
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				do {
+					foo.has(1);
+				} while (a)
+			`,
+			errors: createError('foo')
+		},
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				do {
+					// …
+				} while (foo.includes(1))
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				do {
+					// …
+				} while (foo.has(1))
+			`,
+			errors: createError('foo')
+		},
+
+		// `function` https://github.com/estools/esquery/blob/master/esquery.js#L216
+		// `FunctionDeclaration`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				function unicorn() {
+					return foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+		// `FunctionExpression`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				const unicorn = function () {
+					return foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				const unicorn = function () {
+					return foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+		// `ArrowFunctionExpression`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				const unicorn = () => foo.includes(1);
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				const unicorn = () => foo.has(1);
+			`,
+			errors: createError('foo')
+		},
+
+		// `ObjectMethod`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				const a = {
+					b() {
+						return foo.includes(1);
+					}
+				};
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				const a = {
+					b() {
+						return foo.has(1);
+					}
+				};
+			`,
+			errors: createError('foo')
+		},
+
+		// `ClassMethod`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				class A {
+					b() {
+						return foo.includes(1);
+					}
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				class A {
+					b() {
+						return foo.has(1);
+					}
+				}
+			`,
+			errors: createError('foo')
+		},
+
+
 		// SpreadElement
 		{
 			code: outdent`
@@ -470,11 +674,15 @@ ruleTester.run(ruleId, rule, {
 
 					function outer(find) {
 						const foo = [1, 2, 3];
-						const exists = foo.includes(1);
+						while (a) {
+							foo.includes(1);
+						}
 
 						function inner(find) {
 							const bar = [1, 2, 3];
-							const exists = bar.includes(1);
+							while (a) {
+								const exists = bar.includes(1);
+							}
 						}
 					}
 				}
@@ -487,11 +695,15 @@ ruleTester.run(ruleId, rule, {
 
 					function outer(find) {
 						const foo = new Set([1, 2, 3]);
-						const exists = foo.has(1);
+						while (a) {
+							foo.has(1);
+						}
 
 						function inner(find) {
 							const bar = new Set([1, 2, 3]);
-							const exists = bar.has(1);
+							while (a) {
+								const exists = bar.has(1);
+							}
 						}
 					}
 				}
