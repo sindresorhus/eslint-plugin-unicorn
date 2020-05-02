@@ -503,6 +503,18 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}, [])
 			`,
 			errors: [createError({name: 'bar'})]
+		},
+		// IIFE
+		{
+			code: outdent`
+				(function() {
+					function foo() {
+						function bar() {
+						}
+					}
+				})();
+			`,
+			errors: [createError({name: 'bar'})]
 		}
 	]
 });
