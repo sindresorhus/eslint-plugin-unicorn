@@ -8,28 +8,25 @@ This rule is fixable.
 
 ```js
 const array = [1, 2, 3];
-
-function hasValue(value) {
-	return array.includes(value);
-}
+const hasValue = value => array.includes(value);
 ```
 
 ## Pass
 
 ```js
 const set = new Set([1, 2, 3]);
-
-function hasValue(value) {
-	return set.has(value);
-}
+const hasValue = value => set.has(value);
 ```
 
 ```js
+// This array is not only checking existence.
 const array = [1, 2];
-
-function hasValue(value) {
-	return array.includes(value);
-}
-
+const hasValue = value => array.includes(value);
 array.push(3);
+```
+
+```js
+// This array is only checked once.
+const array = [1, 2, 3];
+const hasOne = array.includes(1);
 ```
