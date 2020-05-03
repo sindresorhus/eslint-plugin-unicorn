@@ -1,6 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
+const quoteString = require('./utils/quote-string');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
@@ -51,6 +52,8 @@ const checkRegex = ({pattern, flags}) => {
 }
 
 const create = context => {
+	const sourceCode = context.getSourceCode();
+
 	return {
 		[regexTestSelector](node) {
 			const {regex} = node.callee.object;
@@ -58,9 +61,22 @@ const create = context => {
 			if (!result) {
 				return;
 			}
+
 			context.report({
 				node,
-				messageId: result.messageId
+				messageId: result.messageId,
+				fix: fixer => {
+					const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
+					const string = sourceCode.getText(node.arguments[0]);
+					return [
+						// Replace regex with string
+						fixer.replaceText(node.callee.object, string),
+						// `.test` => `.startsWith` / `.endsWith`
+						fixer.replaceText(node.callee.property, method),
+						// Replace argument with result.string
+						fixer.replaceText(node.arguments[0], quoteString(result.string))
+					]
+				}
 			});
 		},
 		[stringMatchSelector](node) {
@@ -87,7 +103,7 @@ module.exports = {
 		messages: {
 			[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
 			[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.'
-		}
-	},
-	fixable: 'code'
+		},
+		fixable: 'code'
+	}
 };

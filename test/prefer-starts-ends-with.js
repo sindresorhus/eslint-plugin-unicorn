@@ -53,11 +53,21 @@ ruleTester.run('prefer-starts-ends-with', rule, {
 	],
 	invalid: [
 		...invalidRegex.map(re => {
-			const code = `${re}.test(bar)`;
-			const messageId = re.source.startsWith('^') ? MESSAGE_STARTS_WITH : MESSAGE_ENDS_WITH;
+			let messageId = MESSAGE_STARTS_WITH;
+			let method = 'startsWith';
+			let string = re.source
+
+			if (string.startsWith('^')) {
+				string = string.slice(1)
+			} else {
+				messageId = MESSAGE_ENDS_WITH;
+				method = 'endsWith';
+				string = string.slice(0, -1)
+			}
+
 			return {
-				code,
-				output: code,
+				code: `${re}.test(bar)`,
+				output: `bar.${method}('${string}')`,
 				errors: [{messageId}]
 			};
 		}),
