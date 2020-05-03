@@ -90,7 +90,7 @@ const customErrorDefinition = (context, node) => {
 					node.body.range[0],
 					node.body.range[0] + 1
 				],
-				// TODO: is already has nameProperty, do not add `this.name`
+				// TODO: if already has nameProperty, do not add `this.name`
 				getConstructorMethod(name)
 			)
 		});
@@ -202,8 +202,7 @@ const exportsSelector = [
 
 const create = context => {
 	return {
-		'ClassDeclaration[id]': node => customErrorDefinition(context, node),
-		'AssignmentExpression[right.type="ClassExpression"][right.id]': node => customErrorDefinition(context, node.right),
+		'ClassDeclaration[id], ClassExpression[id]': node => customErrorDefinition(context, node),
 		[exportsSelector]: node => customErrorExport(context, node)
 	};
 };
