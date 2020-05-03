@@ -226,6 +226,37 @@ ruleTester.run('consistent-function-scoping', rule, {
 				function foo() {}
 			}, [])
 		`,
+		// IIEF
+		outdent`
+			(function() {
+				function bar() {}
+			})();
+		`,
+		outdent`
+			(function() {
+				function bar() {}
+			}());
+		`,
+		outdent`
+			!function() {
+				function bar() {}
+			}();
+		`,
+		outdent`
+			(() => {
+				function bar() {}
+			})();
+		`,
+		outdent`
+			(async function() {
+				function bar() {}
+			})();
+		`,
+		outdent`
+			(async function * () {
+				function bar() {}
+			})();
+		`,
 		// #391
 		outdent`
 			const enrichErrors = (packageName, cliArgs, f) => async (...args) => {
@@ -470,6 +501,18 @@ ruleTester.run('consistent-function-scoping', rule, {
 						}
 					}
 				}, [])
+			`,
+			errors: [createError({name: 'bar'})]
+		},
+		// IIFE
+		{
+			code: outdent`
+				(function() {
+					function foo() {
+						function bar() {
+						}
+					}
+				})();
 			`,
 			errors: [createError({name: 'bar'})]
 		}

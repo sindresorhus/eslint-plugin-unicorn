@@ -98,6 +98,15 @@ const isArrowFunctionWithThis = scope =>
 	scope.block.type === 'ArrowFunctionExpression' &&
 	(scope.thisFound || scope.childScopes.some(scope => isArrowFunctionWithThis(scope)));
 
+const iifeFunctionTypes = new Set([
+	'FunctionExpression',
+	'ArrowFunctionExpression'
+]);
+const isIife = node => node &&
+	iifeFunctionTypes.has(node.type) &&
+	node.parent &&
+	node.parent.type === 'CallExpression';
+
 function checkNode(node, scopeManager) {
 	const scope = scopeManager.acquire(node);
 
@@ -126,7 +135,12 @@ function checkNode(node, scopeManager) {
 	}
 
 	const parentScope = scopeManager.acquire(parentNode);
-	if (!parentScope || parentScope.type === 'global' || isReactHook(parentScope)) {
+	if (
+		!parentScope ||
+		parentScope.type === 'global' ||
+		isReactHook(parentScope) ||
+		isIife(parentNode)
+	) {
 		return true;
 	}
 
