@@ -9,9 +9,30 @@ const MESSAGE_ID_MISSING_CONSTRUCTOR = 'missingConstructor';
 const MESSAGE_ID_MISSING_SUPER = 'missingSuper';
 const MESSAGE_ID_ASSIGN_MESSAGE = 'assignMessage';
 
-const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
+const errorClassSelector = (prefix = '') => [
+	`:matches(${
+		['ClassDeclaration', 'ClassExpression']
+			.map(type => `[${prefix}type="${type}"]`)
+			.join(', ')
+	})`,
+	`[${prefix}id]`,
+	`[${prefix}superClass]`,
+	`:matches(${
+		['superClass', 'superClass.property']
+			.map(node => `[${prefix}${node}.type="Identifier"][${prefix}${node}.name=/^(?:[A-Z][\da-z]*)*Error$/]`)
+			.join(', ')
+	})`
+].join('')
 
-const getClassName = name => upperFirst(name).replace(/(?:error|)$/i, 'Error');
+const exportsSelector = [
+	'AssignmentExpression',
+	'[left.type="MemberExpression"]',
+	'[left.object.name="exports"]',
+	'[left.property]',
+	'[right.type="ClassExpression"]',
+	errorClassSelector('right.')
+].join('');
+
 
 const getConstructorMethod = className => `
 	constructor() {
@@ -19,13 +40,6 @@ const getConstructorMethod = className => `
 		this.name = '${className}';
 	}
 `;
-
-const isErrorSuperClass = ({superClass}) =>
-	nameRegexp.test(
-		superClass.type === 'MemberExpression' ?
-			superClass.property.name :
-			superClass.name
-	);
 
 const isSuperExpression = node =>
 	node.type === 'ExpressionStatement' &&
@@ -51,12 +65,12 @@ const isClassProperty = (node, name) =>
 	node.key.name === name;
 
 const checkClassName = (context, node) => {
-	const {name} = node.id;
-	const suggestName = getClassName(name);
+	const {name} = node;
+	const suggestName = upperFirst(name).replace(/(?:error|)$/i, 'Error');
 
 	if (name !== suggestName) {
 		context.report({
-			node: node.id,
+			node: node,
 			messageId: MESSAGE_ID_INVALID_CLASS_NAME,
 			data: {
 				suggestName
@@ -69,11 +83,7 @@ const checkClassName = (context, node) => {
 const getClassConstructor = node => node.body.body.find(({kind}) => kind === 'constructor');
 
 const customErrorDefinition = (context, node) => {
-	if (!isErrorSuperClass(node)) {
-		return;
-	}
-
-	checkClassName(context, node);
+	checkClassName(context, node.id);
 
 	const {name} = node.id;
 	const constructor = getClassConstructor(node);
@@ -169,40 +179,24 @@ const checkNameProperty = (context, node, name, constructorBody, constructorBody
 	}
 };
 
-const customErrorExport = (context, node) => {
-	const {right} = node;
 
-	if (!isErrorSuperClass(right)) {
-		return;
-	}
-
-	const {left} = node;
-	const exportsName = left.property.name;
-	const errorName = right.id.name;
-	if (exportsName !== errorName) {
+const fixExportName = (context, node) => {
+	const errorName = node.right.id.name;
+	const {property} = node.left;
+	if (property.name !== errorName) {
 		context.report({
-			node: left.property,
+			node: property,
 			messageId: MESSAGE_ID_INVALID_EXPORT,
-			fix: fixer => fixer.replaceText(left.property, errorName)
+			fix: fixer => fixer.replaceText(property, errorName)
 		});
 	}
 };
 
-const exportsSelector = [
-	'AssignmentExpression',
-	'[left.type="MemberExpression"]',
-	'[left.object.name="exports"]',
-	'[left.property]',
-	'[right.type="ClassExpression"]',
-	// Assume rule has already fixed the error name
-	'[right.id.name]',
-	'[right.superClass]'
-].join('');
 
 const create = context => {
 	return {
-		'ClassDeclaration[superClass][id], ClassExpression[superClass][id]': node => customErrorDefinition(context, node),
-		[exportsSelector]: node => customErrorExport(context, node)
+		[errorClassSelector()]: node => customErrorDefinition(context, node),
+		[exportsSelector]: node => fixExportName(context, node)
 	};
 };
 
