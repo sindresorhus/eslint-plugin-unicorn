@@ -74,7 +74,7 @@ const create = context => {
 					sliceArguments = [firstArgument];
 					if (isLiteralNumber(secondArgument) || isLengthProperty(argumentNodes[1])) {
 						sliceArguments.push(secondArgument);
-					} else if (getNumericValue(argumentNodes[1]) !== undefined) {
+					} else if (typeof getNumericValue(argumentNodes[1]) === 'number') {
 						sliceArguments.push(Math.max(0, getNumericValue(argumentNodes[1])));
 					} else {
 						sliceArguments.push(`Math.max(0, ${secondArgument})`);
