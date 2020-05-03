@@ -39,12 +39,32 @@ ruleTester.run(ruleId, rule, {
 	valid: [
 		outdent`
 			const foo = new Set([1, 2, 3]);
-			const exists = foo.has(1);
+			function unicorn() {
+				return foo.has(1);
+			}
 		`,
+		// Only called once
+		outdent`
+			const foo = [1, 2, 3];
+			const isExists = foo.includes(1);
+		`,
+		outdent`
+			while (a) {
+				const foo = [1, 2, 3];
+				const isExists = foo.includes(1);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			(() => {})(foo.includes(1));
+		`,
+
 		// Not `VariableDeclarator`
 		outdent`
 			foo = [1, 2, 3];
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		outdent`
 			const exists = foo.includes(1);
@@ -59,30 +79,42 @@ ruleTester.run(ruleId, rule, {
 		// Not `CallExpression`
 		outdent`
 			const foo = [1, 2, 3];
-			const exists = foo.includes;
+			function unicorn() {
+				return foo.includes;
+			}
 		`,
 		// Not `foo.includes()`
 		outdent`
 			const foo = [1, 2, 3];
-			const exists = includes(foo);
+			function unicorn() {
+				return includes(foo);
+			}
 		`,
 		outdent`
 			const foo = [1, 2, 3];
-			const exists = bar.includes(foo);
+			function unicorn() {
+				return bar.includes(foo);
+			}
 		`,
 		outdent`
 			const foo = [1, 2, 3];
-			const exists = foo[includes](1);
+			function unicorn() {
+				return foo[includes](1);
+			}
 		`,
 		outdent`
 			const foo = [1, 2, 3];
-			const exists = foo.indexOf(1) !== -1;
+			function unicorn() {
+				return foo.indexOf(1) !== -1;
+			}
 		`,
 		// Not only `foo.includes()`
 		outdent`
 			const foo = [1, 2, 3];
-			const exists = foo.includes(1);
-			foo.length = 1;
+			function unicorn() {
+				foo.includes(1);
+				foo.length = 1;
+			}
 		`,
 		outdent`
 			const foo = [1, 2, 3];
@@ -95,211 +127,561 @@ ruleTester.run(ruleId, rule, {
 		outdent`
 			var foo = [1, 2, 3];
 			var foo = [4, 5, 6];
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 
 		outdent`
 			const foo = bar;
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 
 		// Extra arguments
 		outdent`
 			const foo = [1, 2, 3];
-			const exists = foo.includes();
+			function unicorn() {
+				return foo.includes();
+			}
 		`,
 		outdent`
 			const foo = [1, 2, 3];
-			const exists = foo.includes(1, 1);
+			function unicorn() {
+				return foo.includes(1, 1);
+			}
 		`,
 		outdent`
 			const foo = [1, 2, 3];
-			const exists = foo.includes(1, 0);
+			function unicorn() {
+				return foo.includes(1, 0);
+			}
 		`,
 		outdent`
 			const foo = [1, 2, 3];
-			const exists = foo.includes(1, undefined);
+			function unicorn() {
+				return foo.includes(1, undefined);
+			}
 		`,
 		outdent`
 			const foo = [1, 2, 3];
-			const exists = foo.includes(...[1]);
+			function unicorn() {
+				return foo.includes(...[1]);
+			}
 		`,
 		// TODO: enable this test when eslint support optional-chaining
-		// Optional
+		// // Optional
 		// outdent`
 		// 	const foo = [1, 2, 3];
-		// 	const exists = foo.?includes(1);
+		// 	function unicorn() {
+		// 		return foo.?includes(1);
+		// 	}
 		// `,
 		// Different scope
 		outdent`
 			function unicorn() {
 				const foo = [1, 2, 3];
 			}
-			const exists = foo.includes(1);
+			function unicorn2() {
+				return foo.includes(1);
+			}
 		`,
 
 		// `export`
 		outdent`
 			export const foo = [1, 2, 3];
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		outdent`
 			module.exports = [1, 2, 3];
-			const exists = module.exports.includes(1);
+			function unicorn() {
+				return module.exports.includes(1);
+			}
 		`,
 		outdent`
 			const foo = [1, 2, 3];
 			export {foo};
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		outdent`
 			const foo = [1, 2, 3];
 			export default foo;
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		outdent`
 			const foo = [1, 2, 3];
 			export {foo as bar};
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		outdent`
 			const foo = [1, 2, 3];
 			module.exports = foo;
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		outdent`
 			const foo = [1, 2, 3];
 			exports = foo;
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		outdent`
 			const foo = [1, 2, 3];
 			module.exports.foo = foo;
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 
 		// `Array()`
 		outdent`
 			const foo = NotArray(1, 2);
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 
 		// `new Array()`
 		outdent`
 			const foo = new NotArray(1, 2);
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 
 		// `Array.from()` / `Array.of()`
 		// Not `Array`
 		outdent`
 			const foo = NotArray.from({length: 1}, (_, index) => index);
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		outdent`
 			const foo = NotArray.of(1, 2);
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		// Not `Listed`
 		outdent`
 			const foo = Array.notListed();
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		// Computed
 		outdent`
 			const foo = Array[from]({length: 1}, (_, index) => index);
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		outdent`
 			const foo = Array[of](1, 2);
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		// Not Identifier
 		outdent`
 			const foo = 'Array'.from({length: 1}, (_, index) => index);
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		outdent`
 			const foo = 'Array'.of(1, 2);
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		outdent`
 			const foo = Array['from']({length: 1}, (_, index) => index);
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		outdent`
 			const foo = Array['of'](1, 2);
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 
 		outdent`
 			const foo = of(1, 2);
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 		outdent`
 			const foo = from({length: 1}, (_, index) => index);
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 
 		// Methods
 		// Not call
 		...methodsReturnsArray.map(method => outdent`
 			const foo = bar.${method};
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`),
 		...methodsReturnsArray.map(method => outdent`
 			const foo = new bar.${method}();
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`),
 		// Not MemberExpression
 		...methodsReturnsArray.map(method => outdent`
 			const foo = ${method}();
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`),
 		// Computed
 		...methodsReturnsArray.map(method => outdent`
 			const foo = bar[${method}]();
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`),
 		// Not `Identifier`
 		...methodsReturnsArray.map(method => outdent`
 			const foo = bar["${method}"]();
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`),
 		// Not listed method
 		outdent`
 			const foo = bar.notListed();
-			const exists = foo.includes(1);
+			function unicorn() {
+				return foo.includes(1);
+			}
 		`,
 
 		// `lodash`
 		outdent`
 			const foo = _.map([1, 2, 3], value => value);
-			const exists = _.includes(foo, 1);
+			function unicorn() {
+				return _.includes(foo, 1);
+			}
 		`
 	],
 	invalid: [
 		{
 			code: outdent`
 				const foo = [1, 2, 3];
-				const exists = foo.includes(1);
+				function unicorn() {
+					return foo.includes(1);
+				}
 			`,
 			output: outdent`
 				const foo = new Set([1, 2, 3]);
-				const exists = foo.has(1);
+				function unicorn() {
+					return foo.has(1);
+				}
 			`,
 			errors: createError('foo')
 		},
+
+		// Called multiple times
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				const isExists = foo.includes(1);
+				const isExists2 = foo.includes(2);
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				const isExists = foo.has(1);
+				const isExists2 = foo.has(2);
+			`,
+			errors: createError('foo')
+		},
+
+		// `ForOfStatement`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				for (const a of b) {
+					foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				for (const a of b) {
+					foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+		{
+			code: outdent`
+				async function unicorn() {
+					const foo = [1, 2, 3];
+					for await (const a of b) {
+						foo.includes(1);
+					}
+				}
+			`,
+			output: outdent`
+				async function unicorn() {
+					const foo = new Set([1, 2, 3]);
+					for await (const a of b) {
+						foo.has(1);
+					}
+				}
+			`,
+			errors: createError('foo')
+		},
+
+		// `ForStatement`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				for (let i = 0; i < n; i++) {
+					foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				for (let i = 0; i < n; i++) {
+					foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+
+		// `ForInStatement`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				for (let a in b) {
+					foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				for (let a in b) {
+					foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+
+		// `WhileStatement`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				while (a)  {
+					foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				while (a)  {
+					foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+
+		// `DoWhileStatement`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				do {
+					foo.includes(1);
+				} while (a)
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				do {
+					foo.has(1);
+				} while (a)
+			`,
+			errors: createError('foo')
+		},
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				do {
+					// …
+				} while (foo.includes(1))
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				do {
+					// …
+				} while (foo.has(1))
+			`,
+			errors: createError('foo')
+		},
+
+		// `function` https://github.com/estools/esquery/blob/master/esquery.js#L216
+		// `FunctionDeclaration`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				function unicorn() {
+					return foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				function * unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				function * unicorn() {
+					return foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				async function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				async function unicorn() {
+					return foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				async function * unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				async function * unicorn() {
+					return foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+		// `FunctionExpression`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				const unicorn = function () {
+					return foo.includes(1);
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				const unicorn = function () {
+					return foo.has(1);
+				}
+			`,
+			errors: createError('foo')
+		},
+		// `ArrowFunctionExpression`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				const unicorn = () => foo.includes(1);
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				const unicorn = () => foo.has(1);
+			`,
+			errors: createError('foo')
+		},
+
+		// `ObjectMethod`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				const a = {
+					b() {
+						return foo.includes(1);
+					}
+				};
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				const a = {
+					b() {
+						return foo.has(1);
+					}
+				};
+			`,
+			errors: createError('foo')
+		},
+
+		// `ClassMethod`
+		{
+			code: outdent`
+				const foo = [1, 2, 3];
+				class A {
+					b() {
+						return foo.includes(1);
+					}
+				}
+			`,
+			output: outdent`
+				const foo = new Set([1, 2, 3]);
+				class A {
+					b() {
+						return foo.has(1);
+					}
+				}
+			`,
+			errors: createError('foo')
+		},
+
 		// SpreadElement
 		{
 			code: outdent`
 				const foo = [...bar];
-				const exists = foo.includes(1);
+				function unicorn() {
+					return foo.includes(1);
+				}
 				bar.pop();
 			`,
 			output: outdent`
 				const foo = new Set([...bar]);
-				const exists = foo.has(1);
+				function unicorn() {
+					return foo.has(1);
+				}
 				bar.pop();
 			`,
 			errors: createError('foo')
@@ -308,36 +690,54 @@ ruleTester.run(ruleId, rule, {
 		{
 			code: outdent`
 				const foo = [1, 2, 3];
-				const exists = foo.includes(1);
-				function isExists(find) {
-					return foo.includes(find);
+				function unicorn() {
+					const exists = foo.includes(1);
+					function isExists(find) {
+						return foo.includes(find);
+					}
 				}
 			`,
 			output: outdent`
 				const foo = new Set([1, 2, 3]);
-				const exists = foo.has(1);
-				function isExists(find) {
-					return foo.has(find);
+				function unicorn() {
+					const exists = foo.has(1);
+					function isExists(find) {
+						return foo.has(find);
+					}
 				}
 			`,
 			errors: createError('foo')
 		},
 		{
 			code: outdent`
-				function unicorn() {
+				function wrap() {
 					const foo = [1, 2, 3];
-					return foo.includes(1);
+
+					function unicorn() {
+						return foo.includes(1);
+					}
 				}
+
 				const bar = [4, 5, 6];
-				const exists = bar.includes(1);
+
+				function unicorn() {
+					return bar.includes(1);
+				}
 			`,
 			output: outdent`
-				function unicorn() {
+				function wrap() {
 					const foo = new Set([1, 2, 3]);
-					return foo.has(1);
+
+					function unicorn() {
+						return foo.has(1);
+					}
 				}
+
 				const bar = new Set([4, 5, 6]);
-				const exists = bar.has(1);
+
+				function unicorn() {
+					return bar.has(1);
+				}
 			`,
 			errors: [
 				...createError('foo'),
@@ -348,31 +748,43 @@ ruleTester.run(ruleId, rule, {
 		{
 			code: outdent`
 				const foo = [1, 2, 3];
-				const exists = foo.includes(1);
-				const bar = [1, 2, 3];
-
-				function outer(find) {
-					const foo = [1, 2, 3];
+				function wrap() {
 					const exists = foo.includes(1);
+					const bar = [1, 2, 3];
 
-					function inner(find) {
-						const bar = [1, 2, 3];
-						const exists = bar.includes(1);
+					function outer(find) {
+						const foo = [1, 2, 3];
+						while (a) {
+							foo.includes(1);
+						}
+
+						function inner(find) {
+							const bar = [1, 2, 3];
+							while (a) {
+								const exists = bar.includes(1);
+							}
+						}
 					}
 				}
 			`,
 			output: outdent`
 				const foo = new Set([1, 2, 3]);
-				const exists = foo.has(1);
-				const bar = [1, 2, 3];
-
-				function outer(find) {
-					const foo = new Set([1, 2, 3]);
+				function wrap() {
 					const exists = foo.has(1);
+					const bar = [1, 2, 3];
 
-					function inner(find) {
-						const bar = new Set([1, 2, 3]);
-						const exists = bar.has(1);
+					function outer(find) {
+						const foo = new Set([1, 2, 3]);
+						while (a) {
+							foo.has(1);
+						}
+
+						function inner(find) {
+							const bar = new Set([1, 2, 3]);
+							while (a) {
+								const exists = bar.has(1);
+							}
+						}
 					}
 				}
 			`,
@@ -387,11 +799,15 @@ ruleTester.run(ruleId, rule, {
 		{
 			code: outdent`
 				const foo = Array(1, 2);
-				const exists = foo.includes(1);
+				function unicorn() {
+					return foo.includes(1);
+				}
 			`,
 			output: outdent`
 				const foo = new Set(Array(1, 2));
-				const exists = foo.has(1);
+				function unicorn() {
+					return foo.has(1);
+				}
 			`,
 			errors: createError('foo')
 		},
@@ -400,11 +816,15 @@ ruleTester.run(ruleId, rule, {
 		{
 			code: outdent`
 				const foo = new Array(1, 2);
-				const exists = foo.includes(1);
+				function unicorn() {
+					return foo.includes(1);
+				}
 			`,
 			output: outdent`
 				const foo = new Set(new Array(1, 2));
-				const exists = foo.has(1);
+				function unicorn() {
+					return foo.has(1);
+				}
 			`,
 			errors: createError('foo')
 		},
@@ -413,11 +833,15 @@ ruleTester.run(ruleId, rule, {
 		{
 			code: outdent`
 				const foo = Array.from({length: 1}, (_, index) => index);
-				const exists = foo.includes(1);
+				function unicorn() {
+					return foo.includes(1);
+				}
 			`,
 			output: outdent`
 				const foo = new Set(Array.from({length: 1}, (_, index) => index));
-				const exists = foo.has(1);
+				function unicorn() {
+					return foo.has(1);
+				}
 			`,
 			errors: createError('foo')
 		},
@@ -426,11 +850,15 @@ ruleTester.run(ruleId, rule, {
 		{
 			code: outdent`
 				const foo = Array.of(1, 2);
-				const exists = foo.includes(1);
+				function unicorn() {
+					return foo.includes(1);
+				}
 			`,
 			output: outdent`
 				const foo = new Set(Array.of(1, 2));
-				const exists = foo.has(1);
+				function unicorn() {
+					return foo.has(1);
+				}
 			`,
 			errors: createError('foo')
 		},
@@ -439,11 +867,15 @@ ruleTester.run(ruleId, rule, {
 		...methodsReturnsArray.map(method => ({
 			code: outdent`
 				const foo = bar.${method}();
-				const exists = foo.includes(1);
+				function unicorn() {
+					return foo.includes(1);
+				}
 			`,
 			output: outdent`
 				const foo = new Set(bar.${method}());
-				const exists = foo.has(1);
+				function unicorn() {
+					return foo.has(1);
+				}
 			`,
 			errors: createError('foo')
 		})),
@@ -455,12 +887,16 @@ ruleTester.run(ruleId, rule, {
 			code: outdent`
 				const foo = _([1,2,3]);
 				const bar = foo.map(value => value);
-				const exists = bar.includes(1);
+				function unicorn() {
+					return bar.includes(1);
+				}
 			`,
 			output: outdent`
 				const foo = _([1,2,3]);
 				const bar = new Set(foo.map(value => value));
-				const exists = bar.has(1);
+				function unicorn() {
+					return bar.has(1);
+				}
 			`,
 			errors: createError('bar')
 		}
