@@ -5,7 +5,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const message = 'Array.reduce not allowed';
 
 const PROTOTYPE_SELECTOR = [
-	methodSelector({name: 'call'}),
+	methodSelector({names: ['call', 'apply']}),
 	'[callee.object.type="MemberExpression"]',
 	'[callee.object.property.type="Identifier"]',
 	'[callee.object.property.name="reduce"]'
@@ -13,7 +13,7 @@ const PROTOTYPE_SELECTOR = [
 
 const create = context => {
 	return {
-		[methodSelector({name: 'reduce'})](node) {
+		[methodSelector({name: 'reduce', min: 1, max: 2})](node) {
 			// For arr.reduce()
 			context.report({node: node.callee.property, message});
 		},
