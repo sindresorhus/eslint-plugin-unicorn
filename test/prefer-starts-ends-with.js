@@ -119,7 +119,7 @@ ruleTester.run('prefer-starts-ends-with', rule, {
 					(
 						/* comment 4 */
 						'b'
-						/* comment  5*/
+						/* comment 5 */
 					)
 				) {}
 			`,
