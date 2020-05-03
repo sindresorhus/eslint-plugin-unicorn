@@ -71,7 +71,14 @@ const create = context => {
 				sliceArguments = [firstArgument];
 			} else if (argumentNodes.length === 2) {
 				if (firstArgument === '0') {
-					sliceArguments = [firstArgument, secondArgument];
+					sliceArguments = [firstArgument];
+					if (isLiteralNumber(secondArgument) || isLengthProperty(argumentNodes[1])) {
+						sliceArguments.push(secondArgument);
+					} else if (getNumericValue(argumentNodes[1]) !== undefined) {
+						sliceArguments.push(Math.max(0, getNumericValue(argumentNodes[1])));
+					} else {
+						sliceArguments.push(`Math.max(0, ${secondArgument})`);
+					}
 				} else if (
 					isLiteralNumber(argumentNodes[0]) &&
 					isLiteralNumber(argumentNodes[1])
@@ -124,7 +131,7 @@ const create = context => {
 					sliceArguments = [`Math.max(0, ${firstArgument})`];
 				}
 			} else if (argumentNodes.length === 2) {
-				const secondNumber = argumentNodes[1] ? getNumericValue(argumentNodes[1]) : undefined;
+				const secondNumber = getNumericValue(argumentNodes[1]);
 
 				if (firstNumber !== undefined && secondNumber !== undefined) {
 					sliceArguments = firstNumber > secondNumber ?
