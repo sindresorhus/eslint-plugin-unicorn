@@ -260,7 +260,7 @@ const getReferencesInChildScopes = (scope, name) => {
 		...references,
 		...scope.childScopes
 			.map(s => getReferencesInChildScopes(s, name))
-			.reduce((accumulator, scopeReferences) => [...accumulator, ...scopeReferences], [])
+			.reduce((accumulator, scopeReferences) => [...accumulator, ...scopeReferences], []) // eslint-disable-line unicorn/no-reduce
 	];
 };
 

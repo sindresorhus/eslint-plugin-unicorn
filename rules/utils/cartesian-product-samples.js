@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (combinations, length = Infinity) => {
-	const total = combinations.reduce((total, {length}) => total * length, 1);
+	const total = combinations.reduce((total, {length}) => total * length, 1); // eslint-disable-line unicorn/no-reduce
 
 	const samples = Array.from({length: Math.min(total, length)}, (_, sampleIndex) => {
 		let indexRemaining = sampleIndex;

@@ -53,7 +53,7 @@ function parseTodoWithArguments(string, {terms}) {
 	return rawArguments
 		.split(',')
 		.map(argument => parseArgument(argument.trim()))
-		.reduce((groups, argument) => {
+		.reduce((groups, argument) => { // eslint-disable-line unicorn/no-reduce
 			if (!groups[argument.type]) {
 				groups[argument.type] = [];
 			}
@@ -236,7 +236,7 @@ const create = context => {
 			}))
 		)
 		// Flatten
-		.reduce((accumulator, array) => accumulator.concat(array), [])
+		.reduce((accumulator, array) => accumulator.concat(array), []) // eslint-disable-line unicorn/no-reduce
 		.filter(comment => processComment(comment));
 
 	// This is highly dependable on ESLint's `no-warning-comments` implementation.

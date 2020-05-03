@@ -9,6 +9,7 @@ const extraMessages = {
 };
 
 const nestedEvents = Object.values(domEventsJson);
+// eslint-disable-next-line unicorn/no-reduce
 const eventTypes = new Set(nestedEvents.reduce((accumulatorEvents, events) => accumulatorEvents.concat(events), []));
 const getEventMethodName = memberExpression => memberExpression.property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
