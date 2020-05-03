@@ -63,20 +63,20 @@ const create = context => {
 			const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
 			const secondArgument = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
 
-			let slice;
+			let sliceArguments;
 
 			if (argumentNodes.length === 0) {
-				slice = [];
+				sliceArguments = [];
 			} else if (argumentNodes.length === 1) {
-				slice = [firstArgument];
+				sliceArguments = [firstArgument];
 			} else if (argumentNodes.length === 2) {
 				if (firstArgument === '0') {
-					slice = [firstArgument, secondArgument];
+					sliceArguments = [firstArgument, secondArgument];
 				} else if (
 					isLiteralNumber(argumentNodes[0]) &&
 					isLiteralNumber(argumentNodes[1])
 				) {
-					slice = [
+					sliceArguments = [
 						firstArgument,
 						argumentNodes[0].value + argumentNodes[1].value
 					];
@@ -84,14 +84,14 @@ const create = context => {
 					isLikelyNumeric(argumentNodes[0]) &&
 					isLikelyNumeric(argumentNodes[1])
 				) {
-					slice = [firstArgument, firstArgument + ' + ' + secondArgument];
+					sliceArguments = [firstArgument, firstArgument + ' + ' + secondArgument];
 				}
 			}
 
-			if (slice) {
+			if (sliceArguments) {
 				const objectText = getNodeText(objectNode);
 
-				problem.fix = fixer => fixer.replaceText(node, `${objectText}.slice(${slice.join(', ')})`);
+				problem.fix = fixer => fixer.replaceText(node, `${objectText}.slice(${sliceArguments.join(', ')})`);
 			}
 
 			context.report(problem);
@@ -111,27 +111,27 @@ const create = context => {
 
 			const firstNumber = argumentNodes[0] ? getNumericValue(argumentNodes[0]) : undefined;
 
-			let slice;
+			let sliceArguments;
 
 			if (argumentNodes.length === 0) {
-				slice = [];
+				sliceArguments = [];
 			} else if (argumentNodes.length === 1) {
 				if (firstNumber !== undefined) {
-					slice = [Math.max(0, firstNumber)];
+					sliceArguments = [Math.max(0, firstNumber)];
 				} else if (isLengthProperty(argumentNodes[0])) {
-					slice = [firstArgument];
+					sliceArguments = [firstArgument];
 				} else {
-					slice = [`Math.max(0, ${firstArgument})`];
+					sliceArguments = [`Math.max(0, ${firstArgument})`];
 				}
 			} else if (argumentNodes.length === 2) {
 				const secondNumber = argumentNodes[1] ? getNumericValue(argumentNodes[1]) : undefined;
 
 				if (firstNumber !== undefined && secondNumber !== undefined) {
-					slice = firstNumber > secondNumber ?
+					sliceArguments = firstNumber > secondNumber ?
 						[Math.max(0, secondNumber), Math.max(0, firstNumber)] :
 						[Math.max(0, firstNumber), Math.max(0, secondNumber)];
 				} else if (firstNumber === 0 || secondNumber === 0) {
-					slice = [0, `Math.max(0, ${firstNumber === 0 ? secondArgument : firstArgument})`];
+					sliceArguments = [0, `Math.max(0, ${firstNumber === 0 ? secondArgument : firstArgument})`];
 				} else {
 					// As values aren't Literal, we can not know whether secondArgument will become smaller than the first or not, causing an issue:
 					//   .substring(0, 2) and .substring(2, 0) returns the same result
@@ -142,9 +142,9 @@ const create = context => {
 				}
 			}
 
-			if (slice) {
+			if (sliceArguments) {
 				const objectText = getNodeText(objectNode);
-				problem.fix = fixer => fixer.replaceText(node, `${objectText}.slice(${slice.join(', ')})`);
+				problem.fix = fixer => fixer.replaceText(node, `${objectText}.slice(${sliceArguments.join(', ')})`);
 			}
 
 			context.report(problem);
