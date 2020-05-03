@@ -22,7 +22,7 @@ const regexTestSelector = [
 const stringMatchSelector = [
 	methodSelector({name: 'match', length: 1}),
 	'[arguments.0.regex]'
-];
+].join('');
 
 const checkRegex = ({pattern, flags}) => {
 	if (flags.includes('i')) {
