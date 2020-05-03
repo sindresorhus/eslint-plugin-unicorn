@@ -3,25 +3,13 @@ import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/prefer-starts-ends-with';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
+	parserOptions: {
+		ecmaVersion: 2020
 	}
 });
 
-const errors = {
-	startsWith: [
-		{
-			ruleId: 'prefer-starts-ends-with',
-			message: 'Prefer `String#startsWith()` over a regex with `^`.'
-		}
-	],
-	endsWith: [
-		{
-			ruleId: 'prefer-starts-ends-with',
-			message: 'Prefer `String#endsWith()` over a regex with `$`.'
-		}
-	]
-};
+const MESSAGE_STARTS_WITH = 'prefer-starts-with';
+const MESSAGE_ENDS_WITH = 'prefer-ends-with';
 
 const validRegex = [
 	/foo/,
@@ -58,17 +46,29 @@ ruleTester.run('prefer-starts-ends-with', rule, {
 		'test()',
 		'test.test()',
 		'startWith("bar")',
-		'foo()()'
+		'foo()()',
+
+		...validRegex.map(re => `${re}.test(bar)`),
+		...validRegex.map(re => `bar.match(${re})`)
+	],
+	invalid: [
+		...invalidRegex.map(re => {
+			const code = `${re}.test(bar)`;
+			const messageId = re.source.startsWith('^') ? MESSAGE_STARTS_WITH : MESSAGE_ENDS_WITH;
+			return {
+				code,
+				output: code,
+				errors: [{messageId}]
+			};
+		}),
+		...invalidRegex.map(re => {
+			const code = `bar.match(${re})`;
+			const messageId = re.source.startsWith('^') ? MESSAGE_STARTS_WITH : MESSAGE_ENDS_WITH;
+			return {
+				code,
+				output: code,
+				errors: [{messageId}]
+			};
+		})
 	]
-		.concat(validRegex.map(re => `${re}.test(bar)`))
-		.concat(validRegex.map(re => `bar.match(${re})`)),
-	invalid: []
-		.concat(invalidRegex.map(re => ({
-			code: `${re}.test(bar)`,
-			errors: errors[`${re}`.startsWith('/^') ? 'startsWith' : 'endsWith']
-		})))
-		.concat(invalidRegex.map(re => ({
-			code: `bar.match(${re})`,
-			errors: errors[`${re}`.startsWith('/^') ? 'startsWith' : 'endsWith']
-		})))
 });

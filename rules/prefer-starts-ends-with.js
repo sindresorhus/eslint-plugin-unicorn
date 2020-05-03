@@ -1,6 +1,9 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const MESSAGE_STARTS_WITH = 'prefer-starts-with';
+const MESSAGE_ENDS_WITH = 'prefer-ends-with';
+
 const doesNotContain = (string, characters) => characters.every(character => !string.includes(character));
 
 const isSimpleString = string => doesNotContain(
@@ -39,10 +42,13 @@ const create = context => {
 			}
 
 			const {pattern} = regex;
-			if (pattern.startsWith('^') && isSimpleString(pattern.slice(1))) {
+			if (
+				pattern.startsWith('^') &&
+				isSimpleString(pattern.slice(1))
+			) {
 				context.report({
 					node,
-					message: 'Prefer `String#startsWith()` over a regex with `^`.'
+					messageId: MESSAGE_STARTS_WITH
 				});
 			} else if (
 				pattern.endsWith('$') &&
@@ -50,7 +56,7 @@ const create = context => {
 			) {
 				context.report({
 					node,
-					message: 'Prefer `String#endsWith()` over a regex with `$`.'
+					messageId: MESSAGE_ENDS_WITH
 				});
 			}
 		}
@@ -63,6 +69,10 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			url: getDocumentationUrl(__filename)
+		},
+		messages: {
+			[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
+			[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.'
 		}
 	}
 };
