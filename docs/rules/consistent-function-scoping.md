@@ -72,7 +72,7 @@ function doFoo(FooComponent) {
 };
 ```
 
-[Immediately invoked function expression (IIFE)](https://en.wikipedia.org/wiki/Immediately_invoked_function_expression) are ignored:
+[Immediately invoked function expressions (IIFE)](https://en.wikipedia.org/wiki/Immediately_invoked_function_expression) are ignored:
 
 ```js
 (function () {
@@ -86,8 +86,8 @@ function doFoo(FooComponent) {
 
 ```js
 useEffect(() => {
-  async function getItems() {}
+	async function getItems() {}
 
-  getItems()
+	getItems();
 }, [])
 ```
