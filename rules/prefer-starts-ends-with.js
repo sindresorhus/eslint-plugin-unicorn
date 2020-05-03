@@ -1,5 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const methodSelector = require('./utils/method-selector');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
@@ -11,54 +12,67 @@ const isSimpleString = string => doesNotContain(
 	['^', '$', '+', '[', '{', '(', '\\', '.', '?', '*']
 );
 
+const regexTestSelector = [
+	methodSelector({name: 'test', length: 1}),
+	'[callee.object.regex]'
+].join('');
+
+const stringMatchSelector = [
+	methodSelector({name: 'match', length: 1}),
+	'[arguments.0.regex]'
+]
+
+const checkRegex = ({pattern, flags}) => {
+	if (flags.includes('i')) {
+		return;
+	}
+
+	if (pattern.startsWith('^')) {
+		const string = pattern.slice(1);
+
+		if (isSimpleString(string)) {
+			return {
+				messageId: MESSAGE_STARTS_WITH,
+				string,
+			}
+		}
+	}
+
+	if (pattern.endsWith('$')) {
+		const string = pattern.slice(0, -1);
+
+		if (isSimpleString(string)) {
+			return {
+				messageId: MESSAGE_ENDS_WITH,
+				string,
+			}
+		}
+	}
+}
+
 const create = context => {
 	return {
-		CallExpression(node) {
-			const {callee} = node;
-			const {property} = callee;
-
-			if (!(property && callee.type === 'MemberExpression')) {
+		[regexTestSelector](node) {
+			const {regex} = node.callee.object;
+			const result = checkRegex(regex);
+			if (!result) {
 				return;
 			}
-
-			const arguments_ = node.arguments;
-
-			let regex;
-			if (property.name === 'test' && callee.object.regex) {
-				({regex} = callee.object);
-			} else if (
-				property.name === 'match' &&
-				arguments_ &&
-				arguments_[0] &&
-				arguments_[0].regex
-			) {
-				({regex} = arguments_[0]);
-			} else {
+			context.report({
+				node,
+				messageId: result.messageId
+			});
+		},
+		[stringMatchSelector](node) {
+			const {regex} = node.arguments[0];
+			const result = checkRegex(regex);
+			if (!result) {
 				return;
 			}
-
-			if (regex.flags && regex.flags.includes('i')) {
-				return;
-			}
-
-			const {pattern} = regex;
-			if (
-				pattern.startsWith('^') &&
-				isSimpleString(pattern.slice(1))
-			) {
-				context.report({
-					node,
-					messageId: MESSAGE_STARTS_WITH
-				});
-			} else if (
-				pattern.endsWith('$') &&
-				isSimpleString(pattern.slice(0, -1))
-			) {
-				context.report({
-					node,
-					messageId: MESSAGE_ENDS_WITH
-				});
-			}
+			context.report({
+				node,
+				messageId: result.messageId
+			});
 		}
 	};
 };
@@ -74,5 +88,6 @@ module.exports = {
 			[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
 			[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.'
 		}
-	}
+	},
+	fixable: 'code'
 };
