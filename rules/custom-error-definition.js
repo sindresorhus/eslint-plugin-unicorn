@@ -20,13 +20,11 @@ const getConstructorMethod = className => `
 	}
 `;
 
-const hasValidSuperClass = node =>
-	node &&
-	node.superClass &&
+const isErrorSuperClass = ({superClass}) =>
 	nameRegexp.test(
-		node.superClass.type === 'MemberExpression' ?
-			node.superClass.property.name :
-			node.superClass.name
+		superClass.type === 'MemberExpression' ?
+			superClass.property.name :
+			superClass.name
 	);
 
 const isSuperExpression = node =>
@@ -71,7 +69,7 @@ const checkClassName = (context, node) => {
 const getClassConstructor = node => node.body.body.find(({kind}) => kind === 'constructor');
 
 const customErrorDefinition = (context, node) => {
-	if (!hasValidSuperClass(node)) {
+	if (!isErrorSuperClass(node)) {
 		return;
 	}
 
@@ -174,7 +172,7 @@ const checkNameProperty = (context, node, name, constructorBody, constructorBody
 const customErrorExport = (context, node) => {
 	const {right} = node;
 
-	if (!hasValidSuperClass(right)) {
+	if (!isErrorSuperClass(right)) {
 		return;
 	}
 
@@ -197,12 +195,13 @@ const exportsSelector = [
 	'[left.property]',
 	'[right.type="ClassExpression"]',
 	// Assume rule has already fixed the error name
-	'[right.id.name]'
+	'[right.id.name]',
+	'[right.superClass]'
 ].join('');
 
 const create = context => {
 	return {
-		'ClassDeclaration[id], ClassExpression[id]': node => customErrorDefinition(context, node),
+		'ClassDeclaration[superClass][id], ClassExpression[superClass][id]': node => customErrorDefinition(context, node),
 		[exportsSelector]: node => customErrorExport(context, node)
 	};
 };
