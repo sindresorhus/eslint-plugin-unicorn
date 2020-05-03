@@ -23,7 +23,8 @@ const error = {
 
 const tests = {
 	valid: [
-
+		'a[b.reduce]()',
+		'a(b.reduce)'
 	],
 	invalid: [
 		{
