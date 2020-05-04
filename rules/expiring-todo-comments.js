@@ -58,11 +58,11 @@ function parseTodoWithArguments(string, {terms}) {
 	return createArgumentGroup(parsedArguments);
 }
 
-function createArgumentGroup(args) {
+function createArgumentGroup(arguments_) {
 	const groups = {};
-	for (const arg of args) {
-		groups[arg.type] = groups[arg.type] || [];
-		groups[arg.type].push(arg.value);
+	for (const argument of arguments_) {
+		groups[argument.type] = groups[argument.type] || [];
+		groups[argument.type].push(argument.value);
 	}
 
 	return groups;
