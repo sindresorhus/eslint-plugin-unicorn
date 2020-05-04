@@ -32,7 +32,7 @@ const tests = {
 		// Not `MemberExpression`
 		'reduce(fn);',
 		// `callee.property` is not a `Identifier`
-		'foo[\'reduce\'](fn);',
+		'foo["reduce"](fn);',
 		// Computed
 		'foo[reduce](fn);',
 		// Not listed method
@@ -40,14 +40,60 @@ const tests = {
 		// More or less argument(s)
 		'foo.reduce();',
 		'foo.reduce(fn, extraArgument1, extraArgument2);',
-		'foo.reduce(...argumentsArray)'
+		'foo.reduce(...argumentsArray)',
+
+		// Test `[].reduce.{call,apply}`
+		// Not `CallExpression`
+		'new [].reduce.call(foo, fn);',
+		// Not `MemberExpression`
+		'call(foo, fn);',
+		'reduce.call(foo, fn);',
+		// `callee.property` is not a `Identifier`
+		'[].reduce["call"](foo, fn);',
+		'[]["reduce"].call(foo, fn);',
+		// Computed
+		'[].reduce[call](foo, fn);',
+		'[][reduce].call(foo, fn);',
+		// Not listed method
+		'[].reduce.notListedMethod(foo, fn);',
+		'[].notListedMethod.call(foo, fn);',
+		// Not empty
+		'[1].reduce.call(foo, fn)',
+		// Not ArrayExpression
+		'"".reduce.call(foo, fn)',
+		// More or less argument(s)
+		// We are not checking arguments length
+
+		// Test `Array.prototype.{call,apply}`
+		// Not `CallExpression`
+		'new Array.prototype.reduce.call(foo, fn);',
+		// Not `MemberExpression`
+		'call(foo, fn);',
+		'reduce.call(foo, fn);',
+		// `callee.property` is not a `Identifier`
+		'Array.prototype.reduce["call"](foo, fn);',
+		'Array.prototype["reduce"].call(foo, fn);',
+		'Array["prototype"].reduce.call(foo, fn);',
+		'"Array".prototype.reduce.call(foo, fn);',
+		// Computed
+		'Array.prototype.reduce[call](foo, fn);',
+		'Array.prototype[reduce].call(foo, fn);',
+		'Array[prototype].reduce.call(foo, fn);',
+		// Not listed method
+		'Array.prototype.reduce.notListedMethod(foo, fn);',
+		'Array.prototype.notListedMethod.call(foo, fn);',
+		'Array.notListedMethod.reduce.call(foo, fn);',
+		// Not `Array`
+		'NotArray.prototype.reduce.call(foo, fn);'
+		// More or less argument(s)
+		// We are not checking arguments length
 	],
 	invalid: [
 		'arr.reduce((total, item) => total + item)',
 		'arr.reduce((total, item) => total + item, 0)',
 		'arr.reduce(function (total, item) { return total + item }, 0)',
 		'arr.reduce(function (total, item) { return total + item })',
-		'arr.reduce((str, item) => str += item, \'\')',
+		'arr.reduce((str, item) => str += item, "")',
 		outdent`
 			arr.reduce((obj, item) => {
 				obj[item] = null;
