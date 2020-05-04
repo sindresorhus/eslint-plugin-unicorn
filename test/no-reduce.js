@@ -30,7 +30,9 @@ const tests = {
 		'a.reduce(b, c, d)',
 		'a.b.call.reduce(() => {})',
 		'a.call.reduce(() => {})',
-		'[][reduce].call()'
+		'[][reduce].call()',
+		'[1, 2].call.reduce(() => {})',
+		'[1, 2].reduce.call(() => {}, 34)'
 	],
 	invalid: [
 		{
@@ -84,6 +86,12 @@ const tests = {
 		{
 			code: outdent`
 				[].reduce.call(arr, sum);
+			`,
+			errors: [error]
+		},
+		{
+			code: outdent`
+				[].reduce.call(sum);
 			`,
 			errors: [error]
 		},

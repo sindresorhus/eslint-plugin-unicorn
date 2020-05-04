@@ -7,7 +7,7 @@ const message = 'Array.reduce not allowed';
 const PROTOTYPE_SELECTOR = [
 	methodSelector({names: ['call', 'apply']}),
 	'[callee.object.type="MemberExpression"]',
-	':matches([callee.object.object.type="ArrayExpression"], [callee.object.object.object.type="Identifier"][callee.object.object.object.name="Array"][callee.object.object.property.name="prototype"])',
+	':matches([callee.object.object.type="ArrayExpression"][callee.object.object.elements.length=0], [callee.object.object.object.type="Identifier"][callee.object.object.object.name="Array"][callee.object.object.property.name="prototype"])',
 	'[callee.object.computed=false]',
 	'[callee.object.property.type="Identifier"]',
 	'[callee.object.property.name="reduce"]'
