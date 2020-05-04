@@ -60,9 +60,9 @@ function parseTodoWithArguments(string, {terms}) {
 
 function createArgumentGroup(arguments_) {
 	const groups = {};
-	for (const argument of arguments_) {
-		groups[argument.type] = groups[argument.type] || [];
-		groups[argument.type].push(argument.value);
+	for (const {value, type} of arguments_) {
+		groups[type] = groups[type] || [];
+		groups[type].push(value);
 	}
 
 	return groups;

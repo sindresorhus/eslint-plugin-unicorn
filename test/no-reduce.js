@@ -77,60 +77,48 @@ const tests = {
 		},
 		{
 			code: outdent`
-				var arr = [1,2,3];
 				[].reduce.call(arr, (s, i) => s + i)
 			`,
 			errors: [error]
 		},
 		{
 			code: outdent`
-				var arr = [1,2,3];
-				const sum = (s, i) => s + i;
 				[].reduce.call(arr, sum);
 			`,
 			errors: [error]
 		},
 		{
 			code: outdent`
-				var arr = [1,2,3];
 				Array.prototype.reduce.call(arr, (s, i) => s + i)
 			`,
 			errors: [error]
 		},
 		{
 			code: outdent`
-				var arr = [1,2,3];
-				const sum = (s, i) => s + i;
 				Array.prototype.reduce.call(arr, sum);
 			`,
 			errors: [error]
 		},
 		{
 			code: outdent`
-				var arr = [1,2,3];
 				[].reduce.apply(arr, [(s, i) => s + i])
 			`,
 			errors: [error]
 		},
 		{
 			code: outdent`
-				var arr = [1,2,3];
-				const sum = (s, i) => s + i;
 				[].reduce.apply(arr, [sum]);
 			`,
 			errors: [error]
 		},
 		{
 			code: outdent`
-				var arr = [1,2,3];
 				Array.prototype.reduce.apply(arr, [(s, i) => s + i])
 			`,
 			errors: [error]
 		},
 		{
 			code: outdent`
-				var arr = [1,2,3];
-				const sum = (s, i) => s + i;
 				Array.prototype.reduce.apply(arr, [sum]);
 			`,
 			errors: [error]
