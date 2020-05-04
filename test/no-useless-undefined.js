@@ -10,9 +10,13 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const typescriptRuleTester = avaRuleTester(test, {
+	parser: require.resolve('@typescript-eslint/parser')
+});
+
 const errors = [{messageId}];
 
-ruleTester.run('better-regex', rule, {
+ruleTester.run('no-useless-undefined', rule, {
 	valid: [
 		'function foo() {return;}',
 		'const foo = () => {};',
@@ -143,4 +147,12 @@ ruleTester.run('better-regex', rule, {
 			errors
 		}
 	]
+});
+
+typescriptRuleTester.run('no-useless-undefined', rule, {
+	valid: [
+		// https://github.com/zeit/next.js/blob/3af0fe5cf2542237f34d106872d104c3606b1858/packages/next/build/utils.ts#L620
+		'prerenderPaths?.add(entry)'
+	],
+	invalid: []
 });

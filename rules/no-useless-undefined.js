@@ -31,7 +31,19 @@ const variableInitSelector = getSelector(
 const assignmentPatternSelector = getSelector('AssignmentPattern', 'right');
 
 // `foo(bar, undefined)`
-const lastArgumentSelector = getSelector('CallExpression', 'arguments:last-child');
+// TODO: Use this selector and remove `ifLastArgument` function
+// esquery throws when use `:last-child` with `typescript-eslint`,
+// maybe because ESLint hasn't support OptionalCallExpression
+// const lastArgumentSelector = getSelector('CallExpression', 'arguments:last-child');
+const lastArgumentSelector = getSelector('CallExpression', 'arguments');
+const ifLastArgument = listener => node => {
+	const argumentNodes = node.parent.arguments;
+	if (argumentNodes[argumentNodes.length - 1] === node) {
+		listener(node);
+	}
+};
+
+const removeNode = (node, fixer) => fixer.remove(node);
 
 const create = context => {
 	const listener = fix => node => {
@@ -42,11 +54,9 @@ const create = context => {
 		});
 	};
 
-	const remove = (node, fixer) => fixer.remove(node);
-
 	return {
-		[returnSelector]: listener(remove),
-		[yieldSelector]: listener(remove),
+		[returnSelector]: listener(removeNode),
+		[yieldSelector]: listener(removeNode),
 		[arrowFunctionSelector]: listener(
 			(node, fixer) => fixer.replaceText(node, '{}')
 		),
@@ -56,13 +66,13 @@ const create = context => {
 		[assignmentPatternSelector]: listener(
 			(node, fixer) => fixer.removeRange([node.parent.left.range[1], node.range[1]])
 		),
-		[lastArgumentSelector]: listener(
+		[lastArgumentSelector]: ifLastArgument(listener(
 			(node, fixer) => {
 				const argumentNodes = node.parent.arguments;
-				const lastArgument = argumentNodes[argumentNodes.length - 2];
+				const previousArgument = argumentNodes[argumentNodes.length - 2];
 				let [start, end] = node.range;
-				if (lastArgument) {
-					start = lastArgument.range[1];
+				if (previousArgument) {
+					start = previousArgument.range[1];
 				} else {
 					// If it's the only argument, and there is trailing comma, we need remove it.
 					const tokenAfter = context.getTokenAfter(node);
@@ -73,7 +83,7 @@ const create = context => {
 
 				return fixer.removeRange([start, end]);
 			}
-		)
+		))
 	};
 };
 
