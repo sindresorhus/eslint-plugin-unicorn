@@ -58,9 +58,20 @@ const create = context => {
 		),
 		[lastArgumentSelector]: listener(
 			(node, fixer) => {
-				const tokenAfter = context.getTokenAfter(node);
-				return (isCommaToken(tokenAfter) ? [node, tokenAfter] : [node])
-					.map(nodeOrToken => remove(nodeOrToken, fixer));
+				const argumentNodes = node.parent.arguments;
+				const lastArgument = argumentNodes[argumentNodes.length - 2];
+				let [start, end] = node.range;
+				if (lastArgument) {
+					start = lastArgument.range[1];
+				} else {
+					// If it's the only argument, and there is trailing comma, we need remove it.
+					const tokenAfter = context.getTokenAfter(node);
+					if (isCommaToken(tokenAfter)) {
+						end = tokenAfter.range[1];
+					}
+				}
+
+				return fixer.removeRange([start, end]);
 			}
 		)
 	};

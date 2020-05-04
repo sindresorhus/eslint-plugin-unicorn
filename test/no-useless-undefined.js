@@ -73,13 +73,38 @@ ruleTester.run('better-regex', rule, {
 			errors
 		},
 		{
+			code: 'foo(undefined, undefined);',
+			output: 'foo(undefined);',
+			errors
+		},
+		{
 			code: 'foo(undefined,);',
 			output: 'foo();',
 			errors
 		},
 		{
+			code: 'foo(undefined, undefined,);',
+			output: 'foo(undefined,);',
+			errors
+		},
+		{
+			code: 'foo(bar, undefined);',
+			output: 'foo(bar);',
+			errors
+		},
+		{
+			code: 'foo(bar, undefined, undefined);',
+			output: 'foo(bar, undefined);',
+			errors
+		},
+		{
 			code: 'foo(bar, undefined,);',
-			output: 'foo(bar, );',
+			output: 'foo(bar,);',
+			errors
+		},
+		{
+			code: 'foo(bar, undefined, undefined,);',
+			output: 'foo(bar, undefined,);',
 			errors
 		},
 		{
