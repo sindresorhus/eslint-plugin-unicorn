@@ -30,20 +30,8 @@ const variableInitSelector = getSelector(
 // `const {foo = undefined} = {}`
 const assignmentPatternSelector = getSelector('AssignmentPattern', 'right');
 
-// `foo(bar, undefined)`
-// TODO: Use this selector and remove `ifLastArgument` function
-// esquery throws when use `:last-child` with `typescript-eslint`,
-// maybe because ESLint hasn't support OptionalCallExpression
-// const lastArgumentSelector = getSelector('CallExpression', 'arguments:last-child');
-const lastArgumentSelector = getSelector('CallExpression', 'arguments');
-const ifLastArgument = listener => node => {
-	const argumentNodes = node.parent.arguments;
-	if (argumentNodes[argumentNodes.length - 1] === node) {
-		listener(node);
-	}
-};
-
 const removeNode = (node, fixer) => fixer.remove(node);
+const isUndefined = node => node && node.type === 'Identifier' && node.name === 'undefined';
 
 const create = context => {
 	const listener = fix => node => {
@@ -66,24 +54,55 @@ const create = context => {
 		[assignmentPatternSelector]: listener(
 			(node, fixer) => fixer.removeRange([node.parent.left.range[1], node.range[1]])
 		),
-		[lastArgumentSelector]: ifLastArgument(listener(
-			(node, fixer) => {
-				const argumentNodes = node.parent.arguments;
-				const previousArgument = argumentNodes[argumentNodes.length - 2];
-				let [start, end] = node.range;
+		CallExpression: node => {
+			const argumentNodes = node.arguments;
+			const undefinedArguments = [];
+			for (let index = argumentNodes.length - 1; index >= 0; index--) {
+				const node = argumentNodes[index];
+				if (isUndefined(node)) {
+					undefinedArguments.unshift(node);
+				} else {
+					break;
+				}
+			}
+
+			if (undefinedArguments.length === 0) {
+				return;
+			}
+
+			const problem = {
+				messageId
+			};
+
+			const firstUndefined = undefinedArguments[0];
+			const lastUndefined = undefinedArguments[undefinedArguments.length - 1];
+
+			problem.loc = {
+				start: firstUndefined.loc.start,
+				end: lastUndefined.loc.end
+			};
+
+			problem.fix = fixer => {
+				let start = firstUndefined.range[0];
+				let end = lastUndefined.range[1];
+
+				const previousArgument = argumentNodes[argumentNodes.length - undefinedArguments.length - 1];
+
 				if (previousArgument) {
 					start = previousArgument.range[1];
 				} else {
-					// If it's the only argument, and there is trailing comma, we need remove it.
-					const tokenAfter = context.getTokenAfter(node);
+					// If all arguments removed, and there is trailing comma, we need remove it.
+					const tokenAfter = context.getTokenAfter(lastUndefined);
 					if (isCommaToken(tokenAfter)) {
 						end = tokenAfter.range[1];
 					}
 				}
 
 				return fixer.removeRange([start, end]);
-			}
-		))
+			};
+
+			context.report(problem);
+		}
 	};
 };
 
@@ -95,8 +114,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		messages: {
-			// [TBD]: better message
-			[messageId]: '`undefined` is useless.'
+			[messageId]: 'Do not use useless `undefined`.'
 		},
 		fixable: 'code'
 	}

@@ -1,4 +1,5 @@
 import test from 'ava';
+import {outdent} from 'outdent';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/no-useless-undefined';
 
@@ -78,7 +79,7 @@ ruleTester.run('no-useless-undefined', rule, {
 		},
 		{
 			code: 'foo(undefined, undefined);',
-			output: 'foo(undefined);',
+			output: 'foo();',
 			errors
 		},
 		{
@@ -88,7 +89,7 @@ ruleTester.run('no-useless-undefined', rule, {
 		},
 		{
 			code: 'foo(undefined, undefined,);',
-			output: 'foo(undefined,);',
+			output: 'foo();',
 			errors
 		},
 		{
@@ -98,7 +99,12 @@ ruleTester.run('no-useless-undefined', rule, {
 		},
 		{
 			code: 'foo(bar, undefined, undefined);',
-			output: 'foo(bar, undefined);',
+			output: 'foo(bar);',
+			errors
+		},
+		{
+			code: 'foo(undefined, bar, undefined);',
+			output: 'foo(undefined, bar);',
 			errors
 		},
 		{
@@ -107,9 +113,47 @@ ruleTester.run('no-useless-undefined', rule, {
 			errors
 		},
 		{
-			code: 'foo(bar, undefined, undefined,);',
-			output: 'foo(bar, undefined,);',
+			code: 'foo(undefined, bar, undefined,);',
+			output: 'foo(undefined, bar,);',
 			errors
+		},
+		{
+			code: 'foo(bar, undefined, undefined,);',
+			output: 'foo(bar,);',
+			errors
+		},
+		{
+			code: 'foo(undefined, bar, undefined, undefined,);',
+			output: 'foo(undefined, bar,);',
+			errors
+		},
+		// Test report range
+		{
+			code: outdent`
+				foo(
+					undefined,
+					bar,
+					undefined,
+					undefined,
+					undefined,
+					undefined,
+				)
+			`,
+			output: outdent`
+				foo(
+					undefined,
+					bar,
+				)
+			`,
+			errors: [
+				{
+					messageId,
+					// The 2rd `undefined`
+					line: 4, column: 2,
+					// The last `undefined`
+					endLine: 7, endColumn: 11
+				}
+			]
 		},
 		{
 			code: 'const {foo = undefined} = {};',
