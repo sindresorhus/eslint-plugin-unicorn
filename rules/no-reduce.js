@@ -19,6 +19,9 @@ const PROTOTYPE_SELECTOR = [
 			],
 			// `Array.prototype.reduce`
 			[
+				'type="MemberExpression"',
+				'computed=false',
+				'property.type="Identifier"',
 				'property.name="prototype"',
 				'object.type="Identifier"',
 				'object.name="Array"'

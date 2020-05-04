@@ -50,8 +50,8 @@ const tests = {
 		'arr.reduce((str, item) => str += item, \'\')',
 		outdent`
 			arr.reduce((obj, item) => {
-			obj[item] = null;
-			return obj;
+				obj[item] = null;
+				return obj;
 			}, {})
 		`,
 		'arr.reduce((obj, item) => ({ [item]: null }), {})',
