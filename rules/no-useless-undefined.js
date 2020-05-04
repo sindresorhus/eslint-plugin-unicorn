@@ -60,7 +60,7 @@ const create = context => {
 			(node, fixer) => {
 				const tokenAfter = context.getTokenAfter(node);
 				return (isCommaToken(tokenAfter) ? [node, tokenAfter] : [node])
-					.map(nodeOrToken => remove(nodeOrToken, fixer))
+					.map(nodeOrToken => remove(nodeOrToken, fixer));
 			}
 		)
 	};

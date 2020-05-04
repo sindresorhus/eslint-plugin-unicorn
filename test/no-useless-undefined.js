@@ -116,6 +116,6 @@ ruleTester.run('better-regex', rule, {
 			code: 'function foo([bar = undefined] = []) {}',
 			output: 'function foo([bar] = []) {}',
 			errors
-		},
+		}
 	]
 });
