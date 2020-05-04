@@ -1,24 +1,38 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const messageId = 'throw-new-error';
+const customError = /^(?:[A-Z][\da-z]*)*Error$/;
+
 const selector = [
 	'ThrowStatement',
 	'>',
-	'CallExpression',
-	'[callee.type="Identifier"]'
+	'CallExpression.argument',
+	`:matches(${
+		[
+			// `throw FooError()`
+			[
+				'[callee.type="Identifier"]',
+				`[callee.name=/${customError.source}/]`
+			],
+			// `throw lib.FooError()`
+			[
+				'[callee.type="MemberExpression"]',
+				'[callee.computed=false]',
+				'[callee.property.type="Identifier"]',
+				`[callee.property.name=/${customError.source}/]`
+			]
+		].map(selector => selector.join('')).join(', ')
+	})`
 ].join('');
-const customError = /^(?:[A-Z][\da-z]*)*Error$/;
-const message = 'Use `new` when throwing an error.';
 
 const create = context => ({
 	[selector]: node => {
-		if (customError.test(node.callee.name)) {
-			context.report({
-				node,
-				message,
-				fix: fixer => fixer.insertTextBefore(node, 'new ')
-			});
-		}
+		context.report({
+			node,
+			messageId,
+			fix: fixer => fixer.insertTextBefore(node, 'new ')
+		});
 	}
 });
 
@@ -28,6 +42,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			url: getDocumentationUrl(__filename)
+		},
+		messages: {
+			[messageId]: 'Use `new` when throwing an error.'
 		},
 		fixable: 'code'
 	}
