@@ -69,7 +69,7 @@ function* foo() {
 ```
 
 ```js
-function foo(bar = undefined) {
+function foo(bar) {
 }
 ```
 

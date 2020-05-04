@@ -95,6 +95,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		messages: {
+			// [TBD]: better message
 			[messageId]: '`undefined` is useless.'
 		},
 		fixable: 'code'
