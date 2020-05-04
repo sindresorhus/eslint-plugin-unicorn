@@ -1,5 +1,8 @@
 'use strict';
+const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const methodSelector = require('./utils/method-selector');
+const quoteString = require('./utils/quote-string');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
@@ -11,54 +14,96 @@ const isSimpleString = string => doesNotContain(
 	['^', '$', '+', '[', '{', '(', '\\', '.', '?', '*']
 );
 
+const regexTestSelector = [
+	methodSelector({name: 'test', length: 1}),
+	'[callee.object.regex]'
+].join('');
+
+const stringMatchSelector = [
+	methodSelector({name: 'match', length: 1}),
+	'[arguments.0.regex]'
+].join('');
+
+const checkRegex = ({pattern, flags}) => {
+	if (flags.includes('i')) {
+		return;
+	}
+
+	if (pattern.startsWith('^')) {
+		const string = pattern.slice(1);
+
+		if (isSimpleString(string)) {
+			return {
+				messageId: MESSAGE_STARTS_WITH,
+				string
+			};
+		}
+	}
+
+	if (pattern.endsWith('$')) {
+		const string = pattern.slice(0, -1);
+
+		if (isSimpleString(string)) {
+			return {
+				messageId: MESSAGE_ENDS_WITH,
+				string
+			};
+		}
+	}
+};
+
 const create = context => {
+	const sourceCode = context.getSourceCode();
+
 	return {
-		CallExpression(node) {
-			const {callee} = node;
-			const {property} = callee;
-
-			if (!(property && callee.type === 'MemberExpression')) {
+		[regexTestSelector](node) {
+			const regexNode = node.callee.object;
+			const {regex} = regexNode;
+			const result = checkRegex(regex);
+			if (!result) {
 				return;
 			}
 
-			const arguments_ = node.arguments;
+			context.report({
+				node,
+				messageId: result.messageId,
+				fix: fixer => {
+					const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
+					const [target] = node.arguments;
+					let targetString = sourceCode.getText(target);
 
-			let regex;
-			if (property.name === 'test' && callee.object.regex) {
-				({regex} = callee.object);
-			} else if (
-				property.name === 'match' &&
-				arguments_ &&
-				arguments_[0] &&
-				arguments_[0].regex
-			) {
-				({regex} = arguments_[0]);
-			} else {
+					if (
+						// If regex is parenthesized, we can use it, so we don't need add again
+						!isParenthesized(regexNode, sourceCode) &&
+						(isParenthesized(target, sourceCode) || target.type === 'AwaitExpression')
+					) {
+						targetString = `(${targetString})`;
+					}
+
+					// The regex literal always starts with `/` or `(`, so we don't need check ASI
+
+					return [
+						// Replace regex with string
+						fixer.replaceText(regexNode, targetString),
+						// `.test` => `.startsWith` / `.endsWith`
+						fixer.replaceText(node.callee.property, method),
+						// Replace argument with result.string
+						fixer.replaceText(target, quoteString(result.string))
+					];
+				}
+			});
+		},
+		[stringMatchSelector](node) {
+			const {regex} = node.arguments[0];
+			const result = checkRegex(regex);
+			if (!result) {
 				return;
 			}
 
-			if (regex.flags && regex.flags.includes('i')) {
-				return;
-			}
-
-			const {pattern} = regex;
-			if (
-				pattern.startsWith('^') &&
-				isSimpleString(pattern.slice(1))
-			) {
-				context.report({
-					node,
-					messageId: MESSAGE_STARTS_WITH
-				});
-			} else if (
-				pattern.endsWith('$') &&
-				isSimpleString(pattern.slice(0, -1))
-			) {
-				context.report({
-					node,
-					messageId: MESSAGE_ENDS_WITH
-				});
-			}
+			context.report({
+				node,
+				messageId: result.messageId
+			});
 		}
 	};
 };
@@ -73,6 +118,7 @@ module.exports = {
 		messages: {
 			[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
 			[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.'
-		}
+		},
+		fixable: 'code'
 	}
 };
