@@ -3,9 +3,11 @@ import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/no-reduce';
 import {outdent} from 'outdent';
 
+const messageId = 'no-reduce';
+
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
+	parserOptions: {
+		ecmaVersion: 2020
 	}
 });
 
@@ -16,10 +18,7 @@ const typescriptRuleTester = avaRuleTester(test, {
 	parser: require.resolve('@typescript-eslint/parser')
 });
 
-const error = {
-	ruleId: 'no-reduce',
-	message: 'Array.reduce not allowed'
-};
+const errors = [{messageId}];
 
 const tests = {
 	valid: [
@@ -37,23 +36,23 @@ const tests = {
 	invalid: [
 		{
 			code: 'arr.reduce((total, item) => total + item)',
-			errors: [error]
+			errors
 		},
 		{
 			code: 'arr.reduce((total, item) => total + item, 0)',
-			errors: [error]
+			errors
 		},
 		{
 			code: 'arr.reduce(function (total, item) { return total + item }, 0)',
-			errors: [error]
+			errors
 		},
 		{
 			code: 'arr.reduce(function (total, item) { return total + item })',
-			errors: [error]
+			errors
 		},
 		{
 			code: 'arr.reduce((str, item) => str += item, \'\')',
-			errors: [error]
+			errors
 		},
 		{
 			code: outdent`
@@ -62,74 +61,74 @@ const tests = {
 				return obj;
 				}, {})
 			`,
-			errors: [error]
+			errors
 		},
 		{
 			code: outdent`
 				arr.reduce((obj, item) => ({ [item]: null }), {})
 			`,
-			errors: [error]
+			errors
 		},
 		{
 			code: outdent`
 				const hyphenate = (str, char) => \`\${str}-\${char}\`;
 				["a", "b", "c"].reduce(hyphenate);
 			`,
-			errors: [error]
+			errors
 		},
 		{
 			code: outdent`
 				[].reduce.call(arr, (s, i) => s + i)
 			`,
-			errors: [error]
+			errors
 		},
 		{
 			code: outdent`
 				[].reduce.call(arr, sum);
 			`,
-			errors: [error]
+			errors
 		},
 		{
 			code: outdent`
 				[].reduce.call(sum);
 			`,
-			errors: [error]
+			errors
 		},
 		{
 			code: outdent`
 				Array.prototype.reduce.call(arr, (s, i) => s + i)
 			`,
-			errors: [error]
+			errors
 		},
 		{
 			code: outdent`
 				Array.prototype.reduce.call(arr, sum);
 			`,
-			errors: [error]
+			errors
 		},
 		{
 			code: outdent`
 				[].reduce.apply(arr, [(s, i) => s + i])
 			`,
-			errors: [error]
+			errors
 		},
 		{
 			code: outdent`
 				[].reduce.apply(arr, [sum]);
 			`,
-			errors: [error]
+			errors
 		},
 		{
 			code: outdent`
 				Array.prototype.reduce.apply(arr, [(s, i) => s + i])
 			`,
-			errors: [error]
+			errors
 		},
 		{
 			code: outdent`
 				Array.prototype.reduce.apply(arr, [sum]);
 			`,
-			errors: [error]
+			errors
 		}
 	]
 };

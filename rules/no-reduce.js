@@ -2,29 +2,33 @@
 const methodSelector = require('./utils/method-selector');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const message = 'Array.reduce not allowed';
+const messageId = 'no-reduce';
 
 const PROTOTYPE_SELECTOR = [
 	methodSelector({names: ['call', 'apply']}),
 	'[callee.object.type="MemberExpression"]',
+	'[callee.object.computed=false]',
+	'[callee.object.property.name="reduce"]',
+	'[callee.object.property.type="Identifier"]',
 	`:matches(${
 		[
 			// `[].reduce`
 			[
-				'[callee.object.object.type="ArrayExpression"]',
-				'[callee.object.object.elements.length=0]'
+				'type="ArrayExpression"',
+				'elements.length=0'
 			],
 			// `Array.prototype.reduce`
 			[
-				'[callee.object.object.object.type="Identifier"]',
-				'[callee.object.object.object.name="Array"]',
-				'[callee.object.object.property.name="prototype"]'
+				'property.name="prototype"',
+				'object.type="Identifier"',
+				'object.name="Array"'
 			]
-		].map(selector => selector.join('')).join(', ')
-	})`,
-	'[callee.object.computed=false]',
-	'[callee.object.property.type="Identifier"]',
-	'[callee.object.property.name="reduce"]'
+		].map(
+			selectors => selectors
+				.map(selector => `[callee.object.object.${selector}]`)
+				.join('')
+		).join(', ')
+	})`
 ].join('');
 
 const METHOD_SELECTOR = [
@@ -36,11 +40,11 @@ const create = context => {
 	return {
 		[METHOD_SELECTOR](node) {
 			// For arr.reduce()
-			context.report({node: node.callee.property, message});
+			context.report({node: node.callee.property, messageId});
 		},
 		[PROTOTYPE_SELECTOR](node) {
 			// For cases [].reduce.call() and Array.prototype.reduce.call()
-			context.report({node: node.callee.object.property, message});
+			context.report({node: node.callee.object.property, messageId});
 		}
 	};
 };
@@ -51,6 +55,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			url: getDocumentationUrl(__filename)
+		},
+		messages: {
+			[messageId]: '`Array#reduce()` not allowed'
 		}
 	}
 };
