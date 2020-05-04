@@ -1,61 +1,69 @@
 'use strict';
-const {isCommaToken} = require('eslint-utils')
+const {isCommaToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const messageId = 'no-useless-undefined';
 
+const getSelector = (parent, property) =>
+	`${parent} > Identifier.${property}[name="undefined"]`;
+
+// `return undefined`
+const returnSelector = getSelector('ReturnStatement', 'argument');
+
+// `yield undefined`
+const yieldSelector = getSelector('YieldExpression', 'argument');
+
+// `() => undefined`
+const arrowFunctionSelector = getSelector('ArrowFunctionExpression', 'body');
+
+// `let foo = undefined` / `var foo = undefined`
+const variableInitSelector = getSelector(
+	[
+		'VariableDeclaration',
+		'[kind!="const"]',
+		'>',
+		'VariableDeclarator'
+	].join(''),
+	'init'
+);
+
+// `const {foo = undefined} = {}`
+const assignmentPatternSelector = getSelector('AssignmentPattern', 'right');
+
+// `foo(bar, undefined)`
+const lastArgumentSelector = getSelector('CallExpression', 'arguments:last-child');
+
 const create = context => {
+	const listener = fix => node => {
+		context.report({
+			node,
+			messageId,
+			fix: fixer => fix(node, fixer)
+		});
+	};
+
+	const remove = (node, fixer) => fixer.remove(node);
+
 	return {
-		'ReturnStatement > Identifier.argument[name="undefined"]'(node) {
-			context.report({
-				node,
-				messageId,
-				fix: fixer => fixer.replaceText(node, '')
-			})
-		},
-		'YieldExpression > Identifier.argument[name="undefined"]'(node) {
-			context.report({
-				node,
-				messageId,
-				fix: fixer => fixer.replaceText(node, '')
-			})
-		},
-		'ArrowFunctionExpression > Identifier.body[name="undefined"]'(node) {
-			context.report({
-				node,
-				messageId,
-				fix: fixer => fixer.replaceText(node, '{}')
-			})
-		},
-		'VariableDeclaration[kind!="const"] > VariableDeclarator > Identifier.init[name="undefined"]'(node) {
-			context.report({
-				node,
-				messageId,
-				fix: fixer => fixer.removeRange([node.parent.id.range[1], node.range[1]])
-			})
-		},
-		'AssignmentPattern > Identifier.right[name="undefined"]'(node) {
-			context.report({
-				node,
-				messageId,
-				fix: fixer => fixer.removeRange([node.parent.left.range[1], node.range[1]])
-			})
-		},
-		'CallExpression > Identifier.arguments:last-child[name="undefined"]'(node) {
-			context.report({
-				node,
-				messageId,
-				fix: fixer => {
-					const fixes = [fixer.replaceText(node, '')];
-					const tokenAfter = context.getTokenAfter(node);
-					if (isCommaToken(tokenAfter)) {
-						fixes.push(fixer.replaceText(tokenAfter, ''))
-					}
-					return fixes
-				}
-			})
-		}
-	}
+		[returnSelector]: listener(remove),
+		[yieldSelector]: listener(remove),
+		[arrowFunctionSelector]: listener(
+			(node, fixer) => fixer.replaceText(node, '{}')
+		),
+		[variableInitSelector]: listener(
+			(node, fixer) => fixer.removeRange([node.parent.id.range[1], node.range[1]])
+		),
+		[assignmentPatternSelector]: listener(
+			(node, fixer) => fixer.removeRange([node.parent.left.range[1], node.range[1]])
+		),
+		[lastArgumentSelector]: listener(
+			(node, fixer) => {
+				const tokenAfter = context.getTokenAfter(node);
+				return (isCommaToken(tokenAfter) ? [node, tokenAfter] : [node])
+					.map(nodeOrToken => remove(nodeOrToken, fixer))
+			}
+		)
+	};
 };
 
 module.exports = {
@@ -66,7 +74,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		messages: {
-			[messageId]: 'Do not use `undefined`.'
+			[messageId]: '`undefined` is useless.'
 		},
 		fixable: 'code'
 	}
