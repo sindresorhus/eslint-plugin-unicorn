@@ -31,7 +31,23 @@ const tests = {
 		'a.call.reduce(() => {})',
 		'[][reduce].call()',
 		'[1, 2].call.reduce(() => {})',
-		'[1, 2].reduce.call(() => {}, 34)'
+		'[1, 2].reduce.call(() => {}, 34)',
+
+		// Test `.reduce`
+		// Not `CallExpression`
+		'new foo.reduce(fn);',
+		// Not `MemberExpression`
+		'reduce(fn);',
+		// `callee.property` is not a `Identifier`
+		'foo[\'reduce\'](fn);',
+		// Computed
+		'foo[reduce](fn);',
+		// Not listed method
+		'foo.notListedMethod(fn);',
+		// More or less argument(s)
+		'foo.reduce();',
+		'foo.reduce(fn, extraArgument1, extraArgument2);',
+		'foo.reduce(...argumentsArray)'
 	],
 	invalid: [
 		{
