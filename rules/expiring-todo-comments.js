@@ -5,17 +5,18 @@ const ci = require('ci-info');
 const baseRule = require('eslint/lib/rules/no-warning-comments');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const MESSAGE_ID_AVOID_MULTIPLE_DATES = 'avoidMultipleDates';
-const MESSAGE_ID_EXPIRED_TODO = 'expiredTodo';
+// `unicorn/` prefix is added to avoid conflicts with core rule
+const MESSAGE_ID_AVOID_MULTIPLE_DATES = 'unicorn/avoidMultipleDates';
+const MESSAGE_ID_EXPIRED_TODO = 'unicorn/expiredTodo';
 const MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS =
-	'avoidMultiplePackageVersions';
-const MESSAGE_ID_REACHED_PACKAGE_VERSION = 'reachedPackageVersion';
-const MESSAGE_ID_HAVE_PACKAGE = 'havePackage';
-const MESSAGE_ID_DONT_HAVE_PACKAGE = 'dontHavePackage';
-const MESSAGE_ID_VERSION_MATCHES = 'versionMatches';
-const MESSAGE_ID_ENGINE_MATCHES = 'engineMatches';
-const MESSAGE_ID_REMOVE_WHITESPACES = 'removeWhitespaces';
-const MESSAGE_ID_MISSING_AT_SYMBOL = 'missingAtSymbol';
+	'unicorn/avoidMultiplePackageVersions';
+const MESSAGE_ID_REACHED_PACKAGE_VERSION = 'unicorn/reachedPackageVersion';
+const MESSAGE_ID_HAVE_PACKAGE = 'unicorn/havePackage';
+const MESSAGE_ID_DONT_HAVE_PACKAGE = 'unicorn/dontHavePackage';
+const MESSAGE_ID_VERSION_MATCHES = 'unicorn/versionMatches';
+const MESSAGE_ID_ENGINE_MATCHES = 'unicorn/engineMatches';
+const MESSAGE_ID_REMOVE_WHITESPACES = 'unicorn/removeWhitespaces';
+const MESSAGE_ID_MISSING_AT_SYMBOL = 'unicorn/missingAtSymbol';
 
 const packageResult = readPkgUp.sync();
 const hasPackage = Boolean(packageResult);
@@ -192,7 +193,7 @@ function tryToCoerceVersion(rawVersion) {
 		// Try to semver.parse a perfect match while semver.coerce tries to fix errors
 		// But coerce can't parse pre-releases.
 		return semver.parse(version) || semver.coerce(version);
-	} catch (_) {
+	} catch {
 		return false;
 	}
 }
@@ -236,7 +237,7 @@ const create = context => {
 		)
 		// Flatten
 		.reduce((accumulator, array) => accumulator.concat(array), [])
-		.filter(processComment);
+		.filter(comment => processComment(comment));
 
 	// This is highly dependable on ESLint's `no-warning-comments` implementation.
 	// What we do is patch the parts we know the rule will use, `getAllComments`.
@@ -280,7 +281,6 @@ const create = context => {
 		if (dates.length > 1) {
 			uses++;
 			context.report({
-				node: null,
 				loc: comment.loc,
 				messageId: MESSAGE_ID_AVOID_MULTIPLE_DATES,
 				data: {
@@ -295,7 +295,6 @@ const create = context => {
 			const shouldIgnore = options.ignoreDatesOnPullRequests && ci.isPR;
 			if (!shouldIgnore && reachedDate(date)) {
 				context.report({
-					node: null,
 					loc: comment.loc,
 					messageId: MESSAGE_ID_EXPIRED_TODO,
 					data: {
@@ -309,7 +308,6 @@ const create = context => {
 		if (packageVersions.length > 1) {
 			uses++;
 			context.report({
-				node: null,
 				loc: comment.loc,
 				messageId: MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS,
 				data: {
@@ -329,7 +327,6 @@ const create = context => {
 			const compare = semverComparisonForOperator(condition);
 			if (packageVersion && compare(packageVersion, decidedPackageVersion)) {
 				context.report({
-					node: null,
 					loc: comment.loc,
 					messageId: MESSAGE_ID_REACHED_PACKAGE_VERSION,
 					data: {
@@ -356,7 +353,6 @@ const create = context => {
 
 				if (trigger) {
 					context.report({
-						node: null,
 						loc: comment.loc,
 						messageId,
 						data: {
@@ -381,7 +377,6 @@ const create = context => {
 
 			if (compare(targetPackageVersion, todoVersion)) {
 				context.report({
-					node: null,
 					loc: comment.loc,
 					messageId: MESSAGE_ID_VERSION_MATCHES,
 					data: {
@@ -413,7 +408,6 @@ const create = context => {
 
 			if (compare(targetPackageEngineVersion, todoEngine)) {
 				context.report({
-					node: null,
 					loc: comment.loc,
 					messageId: MESSAGE_ID_ENGINE_MATCHES,
 					data: {
@@ -438,7 +432,6 @@ const create = context => {
 				if (parseArgument(testString).type !== 'unknowns') {
 					uses++;
 					context.report({
-						node: null,
 						loc: comment.loc,
 						messageId: MESSAGE_ID_MISSING_AT_SYMBOL,
 						data: {
@@ -456,7 +449,6 @@ const create = context => {
 			if (parseArgument(withoutWhitespaces).type !== 'unknowns') {
 				uses++;
 				context.report({
-					node: null,
 					loc: comment.loc,
 					messageId: MESSAGE_ID_REMOVE_WHITESPACES,
 					data: {
@@ -533,7 +525,8 @@ module.exports = {
 			[MESSAGE_ID_REMOVE_WHITESPACES]:
 				'Avoid using whitespaces on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
 			[MESSAGE_ID_MISSING_AT_SYMBOL]:
-				'Missing \'@\' on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}'
+				'Missing \'@\' on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
+			...baseRule.meta.messages
 		},
 		schema
 	}

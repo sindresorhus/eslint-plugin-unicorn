@@ -64,7 +64,7 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 		const usageRulesMatch = /## Usage.*?"rules": (?<rules>{.*?})/ms.exec(readme);
 		t.truthy(usageRulesMatch, 'List of rules should be defined in readme.md ## Usage');
 		usageRules = JSON.parse(usageRulesMatch.groups.rules);
-	} catch (_) {}
+	} catch {}
 
 	t.truthy(usageRules, 'List of rules should be defined in readme.md ## Usage and be valid JSON');
 

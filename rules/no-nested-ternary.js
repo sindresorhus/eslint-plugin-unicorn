@@ -1,6 +1,6 @@
 'use strict';
+const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const isParenthesized = require('./utils/is-parenthesized');
 
 const create = context => {
 	const sourceCode = context.getSourceCode();

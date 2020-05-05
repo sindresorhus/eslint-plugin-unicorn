@@ -7,18 +7,21 @@ module.exports = options => {
 		length,
 		object,
 		min,
-		max
+		max,
+		property = ''
 	} = {
 		min: 0,
 		max: Infinity,
 		...options
 	};
 
+	const prefix = property ? `${property}.` : '';
+
 	const selector = [
-		'CallExpression',
-		'[callee.type="MemberExpression"]',
-		'[callee.computed=false]',
-		'[callee.property.type="Identifier"]'
+		`[${prefix}type="CallExpression"]`,
+		`[${prefix}callee.type="MemberExpression"]`,
+		`[${prefix}callee.computed=false]`,
+		`[${prefix}callee.property.type="Identifier"]`
 	];
 
 	if (name) {
@@ -28,33 +31,33 @@ module.exports = options => {
 	if (Array.isArray(names) && names.length !== 0) {
 		selector.push(
 			':matches(' +
-			names.map(name => `[callee.property.name="${name}"]`).join(', ') +
+			names.map(name => `[${prefix}callee.property.name="${name}"]`).join(', ') +
 			')'
 		);
 	}
 
 	if (object) {
-		selector.push('[callee.object.type="Identifier"]');
-		selector.push(`[callee.object.name="${object}"]`);
+		selector.push(`[${prefix}callee.object.type="Identifier"]`);
+		selector.push(`[${prefix}callee.object.name="${object}"]`);
 	}
 
 	if (typeof length === 'number') {
-		selector.push(`[arguments.length=${length}]`);
+		selector.push(`[${prefix}arguments.length=${length}]`);
 	}
 
 	if (min !== 0) {
-		selector.push(`[arguments.length>=${min}]`);
+		selector.push(`[${prefix}arguments.length>=${min}]`);
 	}
 
 	if (Number.isFinite(max)) {
-		selector.push(`[arguments.length<=${max}]`);
+		selector.push(`[${prefix}arguments.length<=${max}]`);
 	}
 
 	const maxArguments = Number.isFinite(max) ? max : length;
 	if (typeof maxArguments === 'number') {
 		// Exclude arguments with `SpreadElement` type
 		for (let index = 0; index < maxArguments; index += 1) {
-			selector.push(`[arguments.${index}.type!="SpreadElement"]`);
+			selector.push(`[${prefix}arguments.${index}.type!="SpreadElement"]`);
 		}
 	}
 

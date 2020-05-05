@@ -12,7 +12,9 @@ const unicornRules = new Map(Object.entries(unicorn.rules));
 const cli = new CLIEngine({
 	baseConfig: recommended,
 	useEslintrc: false,
-	fix
+	fix,
+	ignorePattern: [
+	]
 });
 
 cli.addPlugin('eslint-plugin-unicorn', unicorn);

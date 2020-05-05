@@ -1,11 +1,16 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/no-nested-ternary';
+import {outdent} from 'outdent';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
 	}
+});
+
+const typescriptRuleTester = avaRuleTester(test, {
+	parser: require.resolve('@typescript-eslint/parser')
 });
 
 const errors = [
@@ -69,4 +74,20 @@ ruleTester.run('new-error', rule, {
 			errors
 		}
 	]
+});
+
+typescriptRuleTester.run('new-error', rule, {
+	valid: [
+		// #663
+		outdent`
+			const pluginName = isAbsolute ?
+				pluginPath.slice(pluginPath.lastIndexOf('/') + 1) :
+				(
+					isNamespaced ?
+					pluginPath.split('@')[1].split('/')[1] :
+					pluginPath
+				);
+		`
+	],
+	invalid: []
 });

@@ -8,6 +8,7 @@ const avoidCapture = require('./utils/avoid-capture');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
 const isShorthandPropertyIdentifier = require('./utils/is-shorthand-property-identifier');
 const isShorthandImportIdentifier = require('./utils/is-shorthand-import-identifier');
+const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 const renameIdentifier = require('./utils/rename-identifier');
 
 const isUpperCase = string => string === string.toUpperCase();
@@ -277,9 +278,10 @@ const getWordReplacements = (word, {replacements, whitelist}) => {
 
 	let wordReplacement = [];
 	if (replacement) {
+		const transform = isUpperFirst(word) ? upperFirst : lowerFirst;
 		wordReplacement = [...replacement.keys()]
 			.filter(name => replacement.get(name))
-			.map(isUpperFirst(word) ? upperFirst : lowerFirst);
+			.map(name => transform(name));
 	}
 
 	return wordReplacement.length > 0 ? wordReplacement.sort() : [];
@@ -361,13 +363,6 @@ const formatMessage = (discouragedName, replacements, nameTypeText) => {
 	return message.join(' ');
 };
 
-const variableIdentifiers = ({identifiers, references}) => [
-	...new Set([
-		...identifiers,
-		...references.map(({identifier}) => identifier)
-	])
-];
-
 const isExportedIdentifier = identifier => {
 	if (
 		identifier.parent.type === 'VariableDeclarator' &&
@@ -397,7 +392,7 @@ const isExportedIdentifier = identifier => {
 };
 
 const shouldFix = variable => {
-	return !variableIdentifiers(variable).some(isExportedIdentifier);
+	return !getVariableIdentifiers(variable).some(identifier => isExportedIdentifier(identifier));
 };
 
 const isDefaultOrNamespaceImportName = identifier => {
@@ -631,7 +626,7 @@ const create = context => {
 			}
 
 			problem.fix = fixer => {
-				return variableIdentifiers(variable)
+				return getVariableIdentifiers(variable)
 					.map(identifier => renameIdentifier(identifier, replacement, fixer, sourceCode));
 			};
 		}
@@ -640,11 +635,11 @@ const create = context => {
 	};
 
 	const checkVariables = scope => {
-		scope.variables.forEach(checkPossiblyWeirdClassVariable);
+		scope.variables.forEach(variable => checkPossiblyWeirdClassVariable(variable));
 	};
 
 	const checkChildScopes = scope => {
-		scope.childScopes.forEach(checkScope);
+		scope.childScopes.forEach(scope => checkScope(scope));
 	};
 
 	const checkScope = scope => {

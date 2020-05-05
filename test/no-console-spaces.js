@@ -36,6 +36,15 @@ ruleTester.run('no-console-spaces', rule, {
 		'console.log(`\nabc\ndef\n`);',
 
 		'console.log(\' \', "def");',
+
+		// Exactly one space
+		'console.log(" ");',
+		'console.log(" ", "b");',
+		'console.log("a", " ");',
+		'console.log(" ", "b", "c");',
+		'console.log("a", " ", "c");',
+		'console.log("a", "b", " ");',
+
 		'console.log(\'  \', "def");',
 		'console.log("abc  ", "def");',
 		'console.log("abc\\t", "def");',
@@ -174,6 +183,26 @@ ruleTester.run('no-console-spaces', rule, {
 					'abc',
 					'def',
 					'ghi'
+				);
+			`
+		},
+		// https://github.com/facebook/react/blob/dbb060d561b83ad901af3e1f60541e6c313cca4f/scripts/release/shared-commands/test-packaging-fixture.js#L69
+		{
+			code: outdent`
+				console.error(
+					theme.error('✗'),
+					'Verifying "packaging" fixture\\n ',
+					theme.error(errorMessage)
+				);
+			`,
+			errors: [
+				buildError({method: 'error'})
+			],
+			output: outdent`
+				console.error(
+					theme.error('✗'),
+					'Verifying "packaging" fixture\\n',
+					theme.error(errorMessage)
 				);
 			`
 		}

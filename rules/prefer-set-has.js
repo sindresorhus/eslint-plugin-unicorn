@@ -1,16 +1,87 @@
 'use strict';
+const {findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const getReferences = require('./utils/get-references');
+const getVariableIdentifiers = require('./utils/get-variable-identifiers');
+const methodSelector = require('./utils/method-selector');
+
+// `[]`
+const arrayExpressionSelector = [
+	'[init.type="ArrayExpression"]'
+].join('');
+
+// `Array()`
+const ArraySelector = [
+	'[init.type="CallExpression"]',
+	'[init.callee.type="Identifier"]',
+	'[init.callee.name="Array"]'
+].join('');
+
+// `new Array()`
+const newArraySelector = [
+	'[init.type="NewExpression"]',
+	'[init.callee.type="Identifier"]',
+	'[init.callee.name="Array"]'
+].join('');
+
+// `Array.from()`
+// `Array.of()`
+const arrayStaticMethodSelector = methodSelector({
+	object: 'Array',
+	names: ['from', 'of'],
+	property: 'init'
+});
+
+// `array.concat()`
+// `array.copyWithin()`
+// `array.fill()`
+// `array.filter()`
+// `array.flat()`
+// `array.flatMap()`
+// `array.map()`
+// `array.reverse()`
+// `array.slice()`
+// `array.sort()`
+// `array.splice()`
+const arrayMethodSelector = methodSelector({
+	names: [
+		'concat',
+		'copyWithin',
+		'fill',
+		'filter',
+		'flat',
+		'flatMap',
+		'map',
+		'reverse',
+		'slice',
+		'sort',
+		'splice'
+	],
+	property: 'init'
+});
 
 const selector = [
-	':not(ExportNamedDeclaration)',
-	'>',
 	'VariableDeclaration',
+	// Exclude `export const foo = [];`
+	`:not(${
+		[
+			'ExportNamedDeclaration',
+			'>',
+			'VariableDeclaration.declaration'
+		].join('')
+	})`,
 	'>',
-	'VariableDeclarator',
-	'[init.type="ArrayExpression"]',
+	'VariableDeclarator.declarations',
+	`:matches(${
+		[
+			arrayExpressionSelector,
+			ArraySelector,
+			newArraySelector,
+			arrayStaticMethodSelector,
+			arrayMethodSelector
+		].join(',')
+	})`,
 	'>',
-	'Identifier'
+	'Identifier.id'
 ].join('');
 
 const MESSAGE_ID = 'preferSetHas';
@@ -36,46 +107,68 @@ const isIncludesCall = node => {
 	);
 };
 
-const create = context => {
-	const scope = context.getScope();
-	const declarations = new Set();
+const multipleCallNodeTypes = new Set([
+	'ForOfStatement',
+	'ForStatement',
+	'ForInStatement',
+	'WhileStatement',
+	'DoWhileStatement',
+	'FunctionDeclaration',
+	'FunctionExpression',
+	'ArrowFunctionExpression',
+	'ObjectMethod',
+	'ClassMethod'
+]);
 
+const isMultipleCall = (identifier, node) => {
+	const root = node.parent.parent.parent;
+	let {parent} = identifier.parent; // `.include()` callExpression
+	while (
+		parent &&
+		parent !== root
+	) {
+		if (multipleCallNodeTypes.has(parent.type)) {
+			return true;
+		}
+
+		parent = parent.parent;
+	}
+
+	return false;
+};
+
+const create = context => {
 	return {
 		[selector]: node => {
-			declarations.add(node);
-		},
-		'Program:exit'() {
-			if (declarations.size === 0) {
+			const variable = findVariable(context.getScope(), node);
+			const identifiers = getVariableIdentifiers(variable).filter(identifier => identifier !== node);
+
+			if (
+				identifiers.length === 0 ||
+				identifiers.some(identifier => !isIncludesCall(identifier))
+			) {
 				return;
 			}
 
-			const references = getReferences(scope);
-			for (const declaration of declarations) {
-				const variable = references
-					.find(({identifier}) => identifier === declaration)
-					.resolved;
-				const nodes = variable.references
-					.map(({identifier}) => identifier)
-					.filter(node => node !== declaration);
-
-				if (
-					nodes.length > 0 &&
-					nodes.every(node => isIncludesCall(node))
-				) {
-					context.report({
-						node: declaration,
-						messageId: MESSAGE_ID,
-						data: {
-							name: declaration.name
-						},
-						fix: fixer => [
-							fixer.insertTextBefore(declaration.parent.init, 'new Set('),
-							fixer.insertTextAfter(declaration.parent.init, ')'),
-							...nodes.map(node => fixer.replaceText(node.parent.property, 'has'))
-						]
-					});
-				}
+			if (
+				identifiers.length === 1 &&
+				identifiers.every(identifier => !isMultipleCall(identifier, node))
+			) {
+				return;
 			}
+
+			context.report({
+				node,
+				messageId: MESSAGE_ID,
+				data: {
+					name: node.name
+				},
+				fix: fixer => [
+					fixer.insertTextBefore(node.parent.init, 'new Set('),
+					fixer.insertTextAfter(node.parent.init, ')'),
+					...identifiers.map(identifier => fixer.replaceText(identifier.parent.property, 'has'))
+				]
+			});
 		}
 	};
 };

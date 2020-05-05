@@ -17,6 +17,9 @@ const SELECTOR_SPREAD = [
 
 	// [].concat(...bar.map((i) => i))
 	//    ^^^^^^
+	'[callee.type="MemberExpression"]',
+	'[callee.computed=false]',
+	'[callee.property.type="Identifier"]',
 	'[callee.property.name="concat"]',
 
 	// [].concat(...bar.map((i) => i))
@@ -24,7 +27,17 @@ const SELECTOR_SPREAD = [
 	'[arguments.0.type="SpreadElement"]',
 
 	// [].concat(...bar.map((i) => i))
+	//              ^^^^^^^^^^^^^^^^^
+	'[arguments.0.argument.type="CallExpression"]',
+
+	// [].concat(...bar.map((i) => i))
+	//              ^^^^^^^
+	'[arguments.0.argument.callee.type="MemberExpression"]',
+	'[arguments.0.argument.callee.computed=false]',
+
+	// [].concat(...bar.map((i) => i))
 	//                  ^^^
+	'[arguments.0.argument.callee.property.type="Identifier"]',
 	'[arguments.0.argument.callee.property.name="map"]'
 ].join('');
 

@@ -51,6 +51,20 @@ const isAssignmentExpression = (node, name) => {
 	return lhs.property.name === name;
 };
 
+const isClassProperty = (node, name) => {
+	if (node.type !== 'ClassProperty' || node.computed) {
+		return false;
+	}
+
+	const {key} = node;
+
+	if (key.type !== 'Identifier') {
+		return false;
+	}
+
+	return key.name === name;
+};
+
 const customErrorDefinition = (context, node) => {
 	if (!hasValidSuperClass(node)) {
 		return;
@@ -78,8 +92,8 @@ const customErrorDefinition = (context, node) => {
 			node,
 			message: 'Add a constructor to your error.',
 			fix: fixer => fixer.insertTextAfterRange([
-				node.body.start,
-				node.body.start + 1
+				node.body.range[0],
+				node.body.range[0] + 1
 			], getConstructorMethod(name))
 		});
 		return;
@@ -94,7 +108,7 @@ const customErrorDefinition = (context, node) => {
 
 	const constructorBody = constructorBodyNode.body;
 
-	const superExpression = constructorBody.find(isSuperExpression);
+	const superExpression = constructorBody.find(body => isSuperExpression(body));
 	const messageExpressionIndex = constructorBody.findIndex(x => isAssignmentExpression(x, 'message'));
 
 	if (!superExpression) {
@@ -102,35 +116,46 @@ const customErrorDefinition = (context, node) => {
 			node: constructorBodyNode,
 			message: 'Missing call to `super()` in constructor.'
 		});
-	} else if (messageExpressionIndex !== -1 && superExpression.expression.arguments.length === 0) {
-		const rhs = constructorBody[messageExpressionIndex].expression.right;
-
-		context.report({
-			node: superExpression,
-			message: 'Pass the error message to `super()`.',
-			fix: fixer => fixer.insertTextAfterRange([
-				superExpression.start,
-				superExpression.start + 6
-			], rhs.raw || rhs.name)
-		});
-	}
-
-	if (messageExpressionIndex !== -1) {
+	} else if (messageExpressionIndex !== -1) {
 		const expression = constructorBody[messageExpressionIndex];
 
 		context.report({
-			node: expression,
+			node: superExpression,
 			message: 'Pass the error message to `super()` instead of setting `this.message`.',
-			fix: fixer => fixer.removeRange([
-				messageExpressionIndex === 0 ? constructorBodyNode.start : constructorBody[messageExpressionIndex - 1].end,
-				expression.end
-			])
+			fix: fixer => {
+				const fixings = [];
+				if (superExpression.expression.arguments.length === 0) {
+					const rhs = expression.expression.right;
+					fixings.push(
+						fixer.insertTextAfterRange([
+							superExpression.range[0],
+							superExpression.range[0] + 6
+						], rhs.raw || rhs.name)
+					);
+				}
+
+				fixings.push(
+					fixer.removeRange([
+						messageExpressionIndex === 0 ? constructorBodyNode.range[0] : constructorBody[messageExpressionIndex - 1].range[1],
+						expression.range[1]
+					])
+				);
+				return fixings;
+			}
 		});
 	}
 
 	const nameExpression = constructorBody.find(x => isAssignmentExpression(x, 'name'));
+	if (!nameExpression) {
+		const nameProperty = node.body.body.find(node => isClassProperty(node, 'name'));
 
-	if (!nameExpression || nameExpression.expression.right.value !== name) {
+		if (!nameProperty || !nameProperty.value || nameProperty.value.value !== name) {
+			context.report({
+				node: nameProperty && nameProperty.value ? nameProperty.value : constructorBodyNode,
+				message: `The \`name\` property should be set to \`${name}\`.`
+			});
+		}
+	} else if (nameExpression.expression.right.value !== name) {
 		context.report({
 			node: nameExpression ? nameExpression.expression.right : constructorBodyNode,
 			message: `The \`name\` property should be set to \`${name}\`.`

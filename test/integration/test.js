@@ -1,12 +1,17 @@
 #!/usr/bin/env node
 'use strict';
+const fs = require('fs');
 const path = require('path');
 const Listr = require('listr');
 const execa = require('execa');
-const del = require('del');
 const chalk = require('chalk');
 const {isCI} = require('ci-info');
-const projects = require('./projects');
+const allProjects = require('./projects');
+
+const projectsArguments = process.argv.slice(2);
+const projects = projectsArguments.length === 0 ?
+	allProjects :
+	allProjects.filter(({name}) => projectsArguments.includes(name));
 
 const enrichErrors = (packageName, cliArguments, f) => async (...arguments_) => {
 	try {
@@ -23,15 +28,13 @@ const makeEslintTask = (project, destination) => {
 		'eslint',
 		'--fix-dry-run',
 		'--no-eslintrc',
-		// https://github.com/microsoft/TypeScript/blob/a1c8608f681488fda3f0b6ffd89195a81f80f0b0/.eslintignore#L6
-		project.name === 'typescript' ? '' : '--no-ignore',
 		'--format',
 		'json',
 		'--config',
 		path.join(__dirname, 'config.js'),
-		project.path ? path.join(destination, project.path) : destination,
+		project.path || '.',
 		...project.extraArguments
-	].filter(Boolean);
+	];
 
 	return enrichErrors(project.name, arguments_, async () => {
 		let stdout;
@@ -64,7 +67,11 @@ const makeEslintTask = (project, destination) => {
 			for (const message of file.messages) {
 				if (message.fatal) {
 					const error = new Error(message.message);
-					error.eslintFile = file;
+					error.eslintJob = {
+						destination,
+						project,
+						file
+					};
 					error.eslintMessage = message;
 					throw error;
 				}
@@ -79,6 +86,7 @@ const execute = project => {
 	return new Listr([
 		{
 			title: 'Cloning',
+			skip: () => fs.existsSync(destination) ? 'Project already downloaded.' : false,
 			task: () => execa('git', [
 				'clone',
 				project.repository,
@@ -91,13 +99,10 @@ const execute = project => {
 		{
 			title: 'Running eslint',
 			task: makeEslintTask(project, destination)
-		},
-		{
-			title: 'Clean up',
-			task: () => del(destination, {force: true})
 		}
-	].map(({title, task}) => ({
+	].map(({title, task, skip}) => ({
 		title: `${project.name} / ${title}`,
+		skip,
 		task
 	})), {
 		exitOnError: false
@@ -142,7 +147,11 @@ list.run()
 				}
 
 				if (error2.eslintMessage) {
-					console.error(chalk.gray(error2.eslintFile.filePath), chalk.gray(JSON.stringify(error2.eslintMessage, null, 2)));
+					const {file, project, destination} = error2.eslintJob;
+					const {line} = error2.eslintMessage;
+
+					console.error(chalk.gray(`${project.repository}/tree/master/${path.relative(destination, file.filePath)}#L${line}`));
+					console.error(chalk.gray(JSON.stringify(error2.eslintMessage, undefined, 2)));
 				}
 			}
 		} else {

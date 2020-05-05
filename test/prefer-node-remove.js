@@ -1,6 +1,11 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/prefer-node-remove';
+import notDomNodeTypes from './utils/not-dom-node-types';
+
+const ERROR_MESSAGE_ID = 'error';
+const SUGGESTION_MESSAGE_ID = 'suggestion';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -11,29 +16,36 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const message = 'Prefer Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.';
+const invalidTestCase = ({code, output, suggestionOutput}) => {
+	if (suggestionOutput) {
+		return {
+			code,
+			output: code,
+			errors: [
+				{
+					messageId: ERROR_MESSAGE_ID,
+					suggestions: [
+						{
+							messageId: SUGGESTION_MESSAGE_ID,
+							output: suggestionOutput
+						}
+					]
+				}
+			]
+		};
+	}
 
-const invalidTestCase = (code, output) => {
 	return {
 		code,
 		output,
 		errors: [
 			{
-				message
+				messageId: ERROR_MESSAGE_ID,
+				suggestions: undefined
 			}
 		]
 	};
 };
-
-const noFixTestCase = code => ({
-	code,
-	output: code,
-	errors: [
-		{
-			message
-		}
-	]
-});
 
 ruleTester.run('prefer-node-remove', rule, {
 	valid: [
@@ -58,35 +70,182 @@ ruleTester.run('prefer-node-remove', rule, {
 		'parentNode.removeChild();',
 		'parentNode.removeChild(...argumentsArray)',
 
-		// TODO: support cases bellow, maybe more
-		'parentNode.removeChild(some.node)',
-		'parentNode.removeChild(get.child())',
-		'const foo = async () => parentNode.removeChild(await getChild())',
-		'parentNode.removeChild((() => childNode)())'
+		// `callee.object` is not a DOM Node,
+		...notDomNodeTypes.map(data => `(${data}).removeChild(foo)`),
+		// First argument is not a DOM Node,
+		...notDomNodeTypes.map(data => `foo.removeChild(${data})`)
 	],
 	invalid: [
-		invalidTestCase(
-			'parentNode.removeChild(foo)',
-			'foo.remove()'
-		),
-		invalidTestCase(
-			'parentNode.removeChild(this)',
-			'this.remove()'
-		),
-		// Value of `parentNode.removeChild` call is used
-		noFixTestCase('if (parentNode.removeChild(foo)) {}'),
-		noFixTestCase('var removed = parentNode.removeChild(child);'),
-		noFixTestCase('const foo = parentNode.removeChild(child);'),
-		noFixTestCase('console.log(parentNode.removeChild(child));'),
-		noFixTestCase('parentNode.removeChild(child) || "foo";'),
-		noFixTestCase('parentNode.removeChild(child) + 0;'),
-		noFixTestCase('+parentNode.removeChild(child);'),
-		noFixTestCase('parentNode.removeChild(child) ? "foo" : "bar";'),
-		noFixTestCase('if (parentNode.removeChild(child)) {}'),
-		noFixTestCase('const foo = [parentNode.removeChild(child)]'),
-		noFixTestCase('const foo = { bar: parentNode.removeChild(child) }'),
-		noFixTestCase('function foo() { return parentNode.removeChild(child); }'),
-		noFixTestCase('const foo = () => { return parentElement.removeChild(child); }'),
-		noFixTestCase('foo(bar = parentNode.removeChild(child))')
-	]
+		// Auto fix
+		{
+			code: 'parentNode.removeChild(foo)',
+			output: 'foo.remove()'
+		},
+		{
+			code: 'parentNode.removeChild(this)',
+			output: 'this.remove()'
+		},
+		{
+			code: 'parentNode.removeChild(some.node)',
+			output: 'some.node.remove()'
+		},
+		{
+			code: 'parentNode.removeChild(getChild())',
+			output: 'getChild().remove()'
+		},
+		{
+			code: 'parentNode.removeChild(lib.getChild())',
+			output: 'lib.getChild().remove()'
+		},
+		{
+			code: 'parentNode.removeChild((() => childNode)())',
+			output: '(() => childNode)().remove()'
+		},
+
+		// Need parenthesized
+		{
+			code: outdent`
+				async function foo () {
+					parentNode.removeChild(
+						await getChild()
+					);
+				}
+			`,
+			output: outdent`
+				async function foo () {
+					(await getChild()).remove();
+				}
+			`
+		},
+		{
+			code: outdent`
+				async function foo () {
+					parentNode.removeChild(
+						(await getChild())
+					);
+				}
+			`,
+			output: outdent`
+				async function foo () {
+					(await getChild()).remove();
+				}
+			`
+		},
+		{
+			code: 'parentNode.removeChild((0, child))',
+			output: '(0, child).remove()'
+		},
+
+		// Need semicolon
+		{
+			code: outdent`
+				const array = []
+				parentNode.removeChild([a, b, c].reduce(child => child, child))
+			`,
+			output: outdent`
+				const array = []
+				;[a, b, c].reduce(child => child, child).remove()
+			`
+		},
+		{
+			code: outdent`
+				async function foo () {
+					const array = []
+					parentNode.removeChild(
+						await getChild()
+					);
+				}
+			`,
+			output: outdent`
+				async function foo () {
+					const array = []
+					;(await getChild()).remove();
+				}
+			`
+		},
+		{
+			code: outdent`
+				async function foo () {
+					const array = []
+					parentNode.removeChild(
+						(0, childNode)
+					);
+				}
+			`,
+			output: outdent`
+				async function foo () {
+					const array = []
+					;(0, childNode).remove();
+				}
+			`
+		},
+
+		// Value of `parentNode.removeChild` call is use
+		{
+			code: 'if (parentNode.removeChild(foo)) {}',
+			suggestionOutput: 'if (foo.remove()) {}'
+		},
+		{
+			code: 'var removed = parentNode.removeChild(child);',
+			suggestionOutput: 'var removed = child.remove();'
+		},
+		{
+			code: 'const foo = parentNode.removeChild(child);',
+			suggestionOutput: 'const foo = child.remove();'
+		},
+		{
+			code: 'foo.bar(parentNode.removeChild(child));',
+			suggestionOutput: 'foo.bar(child.remove());'
+		},
+		{
+			code: 'parentNode.removeChild(child) || "foo";',
+			suggestionOutput: 'child.remove() || "foo";'
+		},
+		{
+			code: 'parentNode.removeChild(child) + 0;',
+			suggestionOutput: 'child.remove() + 0;'
+		},
+		{
+			code: '+parentNode.removeChild(child);',
+			suggestionOutput: '+child.remove();'
+		},
+		{
+			code: 'parentNode.removeChild(child) ? "foo" : "bar";',
+			suggestionOutput: 'child.remove() ? "foo" : "bar";'
+		},
+		{
+			code: 'if (parentNode.removeChild(child)) {}',
+			suggestionOutput: 'if (child.remove()) {}'
+		},
+		{
+			code: 'const foo = [parentNode.removeChild(child)]',
+			suggestionOutput: 'const foo = [child.remove()]'
+		},
+		{
+			code: 'const foo = { bar: parentNode.removeChild(child) }',
+			suggestionOutput: 'const foo = { bar: child.remove() }'
+		},
+		{
+			code: 'function foo() { return parentNode.removeChild(child); }',
+			suggestionOutput: 'function foo() { return child.remove(); }'
+		},
+		{
+			code: 'const foo = () => { return parentElement.removeChild(child); }',
+			suggestionOutput: 'const foo = () => { return child.remove(); }'
+		},
+		{
+			code: 'foo(bar = parentNode.removeChild(child))',
+			suggestionOutput: 'foo(bar = child.remove())'
+		},
+
+		// `parentNode` has side effect
+		{
+			code: 'foo().removeChild(child)',
+			suggestionOutput: 'child.remove()'
+		},
+		{
+			code: 'foo[doSomething()].removeChild(child)',
+			suggestionOutput: 'child.remove()'
+		}
+	].map(options => invalidTestCase(options))
 });

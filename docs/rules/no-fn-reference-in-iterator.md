@@ -30,8 +30,6 @@ const unicorn = require('unicorn');
 //=> [2, 3, 5]
 ```
 
-This rule is fixable.
-
 
 ## Fail
 
