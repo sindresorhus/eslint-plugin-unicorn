@@ -58,13 +58,13 @@ const noop = () => {};
 
 ```js
 function foo() {
-	return ;
+	return;
 }
 ```
 
 ```js
 function* foo() {
-	yield ;
+	yield;
 }
 ```
 
