@@ -76,8 +76,22 @@ function isSingleBlockStatement(node) {
 }
 
 function getNodeBody(node) {
-	return node.type === 'BlockStatement' ? node.body[0] : node;
+	// `if (a) b;`
+	if (node.type === 'ExpressionStatement') {
+		return node.expression;
+	}
+
+	if (node.type === 'BlockStatement') {
+		const body = node.body.filter(({type}) => type === 'EmptyStatement');
+		if (body.length === 1) {
+			return getNodeBody(body[0]);
+		}
+	}
+
+	return node;
 }
+
+
 
 function isSameType(node) {
 	return getNodeBody(node.consequent).type === getNodeBody(node.alternate).type;

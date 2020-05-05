@@ -13,6 +13,8 @@ const babelRuleTester = avaRuleTester(test, {
 	parser: require.resolve('babel-eslint')
 });
 
+const errors = [{}]
+
 ruleTester.run('prefer-ternary', rule, {
 	valid: [
 		// IfStatement contains ternary
@@ -150,16 +152,14 @@ ruleTester.run('prefer-ternary', rule, {
 	invalid: [
 		{
 			code: outdent`
-			if(foo){
-				bar = 1;
-			}
-			else{
-				bar = 2;
-			}`,
+				if(foo){
+					bar = 1;
+				} else{
+					bar = 2;
+				}
+			`,
 			output: 'bar = (foo ? 1 : 2)',
-			errors: [
-				{column: 1, line: 1, type: 'IfStatement'}
-			]
+			errors
 		},
 		{
 			code: outdent`
