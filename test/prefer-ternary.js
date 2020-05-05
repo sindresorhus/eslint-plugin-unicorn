@@ -3,6 +3,8 @@ import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/prefer-ternary';
 
+const messageId = 'prefer-ternary';
+
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
@@ -13,7 +15,7 @@ const babelRuleTester = avaRuleTester(test, {
 	parser: require.resolve('babel-eslint')
 });
 
-const errors = [{}]
+const errors = [{messageId}]
 
 ruleTester.run('prefer-ternary', rule, {
 	valid: [
@@ -39,6 +41,9 @@ ruleTester.run('prefer-ternary', rule, {
 				a ? b() : c();
 			}
 		`,
+		// No `consequent` / `alternate`
+		'if (a) {b}',
+		'if (a) {} else {}',
 
 		{
 			code: outdent`

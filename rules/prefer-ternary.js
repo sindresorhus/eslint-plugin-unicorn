@@ -2,87 +2,29 @@
 const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const messageId = 'prefer-ternary';
+
 const selector = [
 	'IfStatement',
-	'[test.type!="ConditionalExpression"]'
-];
+	'[test.type!="ConditionalExpression"]',
+	'[consequent]',
+	'[alternate]',
+].join('');
 
-const create = context => {
-	function checkIfStatement(node) {
-		if (isSingleBlockStatement(node) &&
-		isSameType(node) &&
-			checkConsequentAndAlternateType(node)) {
-			context.report({
-				node,
-				message: 'This `if` statement can be replaced by a ternary operator.',
-				fix(fixer) {
-					return fixFunction(node, fixer);
-				}
-			});
-		}
-	}
+const isTernary = node => node && node.type === 'ConditionalExpression';
 
-	function fixFunction(node, fixer) {
-		const sourceCode = context.getSourceCode();
-		let prefix = '';
-		const ifCondition = sourceCode.getText(node.test);
-		let left = '';
-		let right = '';
-		if (getNodeBody(node.consequent).type === 'ExpressionStatement') {
-			const expressionType = getNodeBody(node.consequent).expression.type;
-			if (expressionType === 'AssignmentExpression') {
-				prefix = sourceCode.getText(getNodeBody(node.consequent).expression.left) + ' = ';
-				left = getNodeBody(node.consequent).expression.right;
-				right = getNodeBody(node.alternate).expression.right;
-			} else {
-				if (expressionType === 'AwaitExpression') {
-					prefix = 'await ';
-				} else {
-					prefix = getNodeBody(node.consequent).expression.delegate ? 'yield* ' : 'yield ';
-				}
-
-				left = getNodeBody(node.consequent).expression.argument;
-				right = getNodeBody(node.alternate).expression.argument;
-			}
-		} else {
-			prefix = 'return ';
-			left = getNodeBody(node.consequent).argument;
-			right = getNodeBody(node.alternate).argument;
-		}
-
-		let leftCode = sourceCode.getText(left);
-		if (isParenthesized(left, sourceCode)) {
-			leftCode = `(${leftCode})`;
-		}
-
-		let rightCode = sourceCode.getText(right);
-		if (isParenthesized(right, sourceCode)) {
-			rightCode = `(${rightCode})`;
-		}
-
-		const replacement = prefix + '(' + ifCondition + ' ? ' + leftCode + ' : ' + rightCode + ')';
-		return fixer.replaceText(node, replacement);
-	}
-
-	return {
-		[selector]: checkIfStatement
-	};
-};
-
-function isSingleBlockStatement(node) {
-	return [node.consequent, node.alternate].every(node => {
-		return node && (node.type !== 'BlockStatement' || node.body.length === 1);
-	});
-}
 
 function getNodeBody(node) {
-	// `if (a) b;`
+	if (!node) {
+		return;
+	}
+
 	if (node.type === 'ExpressionStatement') {
-		return node.expression;
+		return getNodeBody(node.expression);
 	}
 
 	if (node.type === 'BlockStatement') {
-		const body = node.body.filter(({type}) => type === 'EmptyStatement');
+		const body = node.body.filter(({type}) => type !== 'EmptyStatement');
 		if (body.length === 1) {
 			return getNodeBody(body[0]);
 		}
@@ -91,44 +33,88 @@ function getNodeBody(node) {
 	return node;
 }
 
-
-
-function isSameType(node) {
-	return getNodeBody(node.consequent).type === getNodeBody(node.alternate).type;
+function isSameNode(node1, node2) {
+	// [TBD]: compare more type
+	return node1.type == node2.type && node1.type === 'Identifier' && node1.name === node2.name;
 }
 
-function checkConsequentAndAlternateType(node) {
-	return (
-		(getNodeBody(node.consequent).type === 'ReturnStatement' ||
-			(getNodeBody(node.consequent).type === 'ExpressionStatement' && checkConsequentAndAlternateExpressionStatement(node))));
-}
+const create = context => {
+	const sourceCode = context.getSourceCode();
 
-function checkConsequentAndAlternateExpressionStatement(node) {
-	const consequentType = getNodeBody(node.consequent).expression.type;
-	return consequentType === getNodeBody(node.alternate).expression.type &&
-		(
-			consequentType === 'AwaitExpression' ||
-			(consequentType === 'YieldExpression' && compareYieldExpressions(node)) ||
-			(consequentType === 'AssignmentExpression' && compareConsequentAndAlternateAssignments(node))
-		) &&
-		checkNotAlreadyTernary(node);
-}
+	return {
+		[selector](node) {
+			const consequent = getNodeBody(node.consequent);
+			const alternate = getNodeBody(node.alternate);
 
-function compareYieldExpressions(node) {
-	return getNodeBody(node.consequent).expression.delegate === getNodeBody(node.alternate).expression.delegate;
-}
+			if (!consequent || !alternate || consequent.type !== alternate.type) {
+				return;
+			}
 
-function compareConsequentAndAlternateAssignments(node) {
-	return getNodeBody(node.consequent).expression.left.name === getNodeBody(node.alternate).expression.left.name;
-}
+			const {type} = consequent;
+			let prefix = '';
+			let left;
+			let right;
 
-function checkNotAlreadyTernary(node) {
-	return getNodeBody(node.consequent).expression.type === 'AssignmentExpression' ?
-		getNodeBody(node.consequent).expression.right.type !== 'ConditionalExpression' &&
-		getNodeBody(node.alternate).expression.right.type !== 'ConditionalExpression' :
-		getNodeBody(node.consequent).expression.argument.type !== 'ConditionalExpression' &&
-		getNodeBody(node.alternate).expression.argument.type !== 'ConditionalExpression';
-}
+			if (
+				type === 'ReturnStatement' &&
+				!isTernary(consequent.argument) &&
+				!isTernary(alternate.argument)
+			) {
+				prefix = 'return ';
+				left = consequent.argument;
+				right = alternate.argument;
+			}
+
+			if (
+				type === 'YieldStatement' &&
+				consequent.delegate === alternate.delegate &&
+				!isTernary(consequent.argument) &&
+				!isTernary(alternate.argument)
+			) {
+				prefix = `yield${consequent.delegate ? '*' : ''} `;
+				left = consequent.argument;
+				right = alternate.argument;
+			}
+
+			if (
+				type === 'AwaitExpression' &&
+				!isTernary(consequent.argument) &&
+				!isTernary(alternate.argument)
+			) {
+				prefix = `await `;
+				left = consequent.argument;
+				right = alternate.argument;
+			}
+
+			if (
+				type === 'AssignmentExpression' &&
+				isSameNode(consequent.left, alternate.left) &&
+				!isTernary(consequent.left) &&
+				!isTernary(alternate.left) &&
+				!isTernary(consequent.right) &&
+				!isTernary(alternate.right)
+			) {
+				prefix = sourceCode.getText(consequent.left) + ' = '
+				left = consequent.right;
+				right = alternate.right;
+			}
+
+			if (left && right) {
+				left = sourceCode.getText(left);
+				right = sourceCode.getText(right);
+				const test = sourceCode.getText(node.test);
+				context.report({
+					node,
+					messageId,
+					fix: fixer => fixer.replaceText(
+						node,
+						`${prefix}(${test}) ? (${left}) : (${right})`
+					)
+				})
+			}
+		}
+	};
+};
 
 module.exports = {
 	create,
@@ -136,6 +122,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			url: getDocumentationUrl(__filename)
+		},
+		messages: {
+			[messageId]: 'This `if` statement can be replaced by a ternary expression.',
 		},
 		fixable: 'code'
 	}
