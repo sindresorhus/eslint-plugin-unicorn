@@ -15,6 +15,29 @@ const babelRuleTester = avaRuleTester(test, {
 
 ruleTester.run('prefer-ternary', rule, {
 	valid: [
+		// IfStatement contains ternary
+		outdent`
+			if (a ? b : c) {
+				a();
+			} else {
+				b();
+			}
+		`,
+		outdent`
+			if (a) {
+				a ? b() : c();
+			} else {
+				b();
+			}
+		`,
+		outdent`
+			if (a) {
+				b();
+			} else {
+				a ? b() : c();
+			}
+		`,
+
 		{
 			code: outdent`
 			if(a){

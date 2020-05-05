@@ -1,6 +1,11 @@
 'use strict';
+const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const isParenthesized = require('./utils/is-parenthesized');
+
+const selector = [
+	'IfStatement',
+	'[test.type!="ConditionalExpression"]'
+];
 
 const create = context => {
 	function checkIfStatement(node) {
@@ -60,7 +65,7 @@ const create = context => {
 	}
 
 	return {
-		IfStatement: checkIfStatement
+		[selector]: checkIfStatement
 	};
 };
 
