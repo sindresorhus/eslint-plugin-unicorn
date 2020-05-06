@@ -106,6 +106,12 @@
 		],
 		"rules": {
 			"strict": "error",
+			"array-callback-return": [
+				"error",
+				{
+					"allowImplicit": true
+				}
+			],
 			"unicorn/no-null": "error",
 			"unicorn/string-content": "off"
 		}
