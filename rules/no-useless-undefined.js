@@ -11,7 +11,7 @@ const getSelector = (parent, property) =>
 const returnSelector = getSelector('ReturnStatement', 'argument');
 
 // `yield undefined`
-const yieldSelector = getSelector('YieldExpression', 'argument');
+const yieldSelector = getSelector('YieldExpression[delegate=false]', 'argument');
 
 // `() => undefined`
 const arrowFunctionSelector = getSelector('ArrowFunctionExpression', 'body');

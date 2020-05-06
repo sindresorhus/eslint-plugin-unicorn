@@ -29,7 +29,9 @@ ruleTester.run('no-useless-undefined', rule, {
 		'foo(undefined, bar);',
 		'const {foo} = {};',
 		'function foo({bar} = {}) {}',
-		'function foo(bar) {}'
+		'function foo(bar) {}',
+		// I guess nobody use this, but `yield* undefined;` is valid code, and `yield*;` is not
+		'function* foo() {yield* undefined;}'
 	],
 	invalid: [
 		{
