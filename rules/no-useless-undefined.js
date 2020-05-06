@@ -79,38 +79,34 @@ const create = context => {
 				return;
 			}
 
-			const problem = {
-				messageId
-			};
-
 			const firstUndefined = undefinedArguments[0];
 			const lastUndefined = undefinedArguments[undefinedArguments.length - 1];
 
-			problem.loc = {
-				start: firstUndefined.loc.start,
-				end: lastUndefined.loc.end
-			};
+			context.report({
+				messageId,
+				loc: {
+					start: firstUndefined.loc.start,
+					end: lastUndefined.loc.end
+				},
+				fix: fixer => {
+					let start = firstUndefined.range[0];
+					let end = lastUndefined.range[1];
 
-			problem.fix = fixer => {
-				let start = firstUndefined.range[0];
-				let end = lastUndefined.range[1];
+					const previousArgument = argumentNodes[argumentNodes.length - undefinedArguments.length - 1];
 
-				const previousArgument = argumentNodes[argumentNodes.length - undefinedArguments.length - 1];
-
-				if (previousArgument) {
-					start = previousArgument.range[1];
-				} else {
-					// If all arguments removed, and there is trailing comma, we need remove it.
-					const tokenAfter = context.getTokenAfter(lastUndefined);
-					if (isCommaToken(tokenAfter)) {
-						end = tokenAfter.range[1];
+					if (previousArgument) {
+						start = previousArgument.range[1];
+					} else {
+						// If all arguments removed, and there is trailing comma, we need remove it.
+						const tokenAfter = context.getTokenAfter(lastUndefined);
+						if (isCommaToken(tokenAfter)) {
+							end = tokenAfter.range[1];
+						}
 					}
+
+					return fixer.removeRange([start, end]);
 				}
-
-				return fixer.removeRange([start, end]);
-			};
-
-			context.report(problem);
+			});
 		}
 	};
 };
