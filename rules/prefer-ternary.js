@@ -91,8 +91,8 @@ const create = context => {
 			!isTernary(alternate.argument)
 		) {
 			return merge({
-				before: `${before}yield${consequent.delegate ? '*' : ''} `,
-				after,
+				before: `${before}yield${consequent.delegate ? '*' : ''} (`,
+				after: `)${after}`,
 				consequent: consequent.argument,
 				alternate: alternate.argument
 			});

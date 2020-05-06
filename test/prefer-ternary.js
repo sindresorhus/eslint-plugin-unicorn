@@ -126,7 +126,7 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			output: outdent`
 				async function* unicorn() {
-					return yield await (foo = test ? a : b);
+					return yield (await (foo = test ? a : b));
 				}
 			`,
 			errors
@@ -201,7 +201,7 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			output: outdent`
 				function* unicorn() {
-					yield test ? a : b;
+					yield (test ? a : b);
 				}
 			`,
 			errors
@@ -218,7 +218,7 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			output: outdent`
 				function* unicorn() {
-					yield* test ? a : b;
+					yield* (test ? a : b);
 				}
 			`,
 			errors
@@ -235,7 +235,7 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			output: outdent`
 				async function* unicorn() {
-					yield test ? (await a) : b;
+					yield (test ? (await a) : b);
 				}
 			`,
 			errors
@@ -252,7 +252,7 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			output: outdent`
 				async function* unicorn() {
-					yield await (test ? a : b);
+					yield (await (test ? a : b));
 				}
 			`,
 			errors
@@ -414,7 +414,7 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			output: outdent`
 				async function* unicorn() {
-					throw yield await (foo = test ? a : b);
+					throw yield (await (foo = test ? a : b));
 				}
 			`,
 			errors
@@ -540,7 +540,7 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			output: outdent`
 				async function* unicorn() {
-					foo = yield await (test ? a : b);
+					foo = yield (await (test ? a : b));
 				}
 			`,
 			errors
