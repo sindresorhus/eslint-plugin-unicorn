@@ -12,7 +12,7 @@ This rule is fixable.
 
 ```js
 function unicorn() {
-	if(test){
+	if (test) {
 		return a;
 	} else {
 		return b;
@@ -22,7 +22,7 @@ function unicorn() {
 
 ```js
 function* unicorn() {
-	if(test){
+	if (test) {
 		yield a;
 	} else {
 		yield b;
@@ -32,7 +32,7 @@ function* unicorn() {
 
 ```js
 async function unicorn() {
-	if(test){
+	if (test) {
 		await a();
 	} else {
 		await b();
@@ -41,7 +41,7 @@ async function unicorn() {
 ```
 
 ```js
-if(test){
+if (test) {
 	throw new Error('foo');
 } else {
 	throw new Error('bar');
@@ -50,7 +50,7 @@ if(test){
 
 ```js
 let foo;
-if(test){
+if (test) {
 	foo = 1;
 } else {
 	foo = 2;
@@ -91,7 +91,7 @@ foo = test ? 1 : 2;
 // Multiple expressions
 let foo;
 let bar;
-if(test){
+if (test) {
 	foo = 1;
 	bar = 2;
 } else{
@@ -102,7 +102,7 @@ if(test){
 ```js
 // Different expressions
 function unicorn() {
-	if(test){
+	if (test) {
 		return a;
 	} else {
 		throw new Error('error');
@@ -114,7 +114,7 @@ function unicorn() {
 // Assign to different variable
 let foo;
 let bar;
-if(test){
+if (test) {
 	foo = 1;
 } else{
 	baz = 2;
