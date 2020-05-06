@@ -82,9 +82,9 @@ function foo({bar}) {
 foo();
 ```
 
-## Conflict ESLint `array-callback-return` rule
+## Conflict with ESLint `array-callback-return` rule
 
-We recommend set the ESLint [`array-callback-return`](https://eslint.org/docs/rules/array-callback-return#top) rule option [`allowImplicit`](https://eslint.org/docs/rules/array-callback-return#options) to `true`:
+We recommend setting the ESLint [`array-callback-return`](https://eslint.org/docs/rules/array-callback-return#top) rule option [`allowImplicit`](https://eslint.org/docs/rules/array-callback-return#options) to `true`:
 
 ```json
 {
@@ -94,7 +94,7 @@ We recommend set the ESLint [`array-callback-return`](https://eslint.org/docs/ru
 			{
 				"allowImplicit": true
 			}
-		],
+		]
 	}
 }
 ```
