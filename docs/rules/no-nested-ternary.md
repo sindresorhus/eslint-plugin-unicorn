@@ -36,7 +36,7 @@ const foo = i > 5 ? (i < 100 ? true : false) : true
 
 ## Disabling ESLint `no-nested-ternary`
 
-We recomend disabling the ESLint `no-nested-ternary` rule in favor of this one:
+We recommend disabling the ESLint `no-nested-ternary` rule in favor of this one:
 
 ```json
 {
