@@ -299,6 +299,23 @@ ruleTester.run('prefer-ternary', rule, {
 			code: outdent`
 				async function unicorn() {
 					if(test){
+						await doSomething1();
+					} else{
+						await doSomething2();
+					}
+				}
+			`,
+			output: outdent`
+				async function unicorn() {
+					await (test ? doSomething1() : doSomething2());
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				async function unicorn() {
+					if(test){
 						await a;
 					} else{
 						await b;
@@ -350,6 +367,23 @@ ruleTester.run('prefer-ternary', rule, {
 		`
 	],
 	invalid: [
+		{
+			code: outdent`
+				function unicorn() {
+					if(test){
+						throw new Error('a');
+					} else{
+						throw new TypeError('a');
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					throw test ? new Error('a') : new TypeError('a');
+				}
+			`,
+			errors
+		},
 		{
 			code: outdent`
 				function unicorn() {
