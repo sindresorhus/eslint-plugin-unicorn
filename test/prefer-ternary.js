@@ -6,8 +6,8 @@ import rule from '../rules/prefer-ternary';
 const messageId = 'prefer-ternary';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
+	parserOptions: {
+		ecmaVersion: 2020
 	}
 });
 
@@ -15,322 +15,643 @@ const babelRuleTester = avaRuleTester(test, {
 	parser: require.resolve('babel-eslint')
 });
 
-const errors = [{messageId}]
+const errors = [{messageId}];
 
+// ReturnStatement
 ruleTester.run('prefer-ternary', rule, {
 	valid: [
-		// IfStatement contains ternary
+		// When ReturnStatement has no argument, should fix to `test ? undefined : …`, not handled
 		outdent`
-			if (a ? b : c) {
-				a();
-			} else {
-				b();
+			function unicorn() {
+				if(test){
+					return;
+				} else{
+					return b;
+				}
 			}
 		`,
+		// Test is Ternary
 		outdent`
-			if (a) {
-				a ? b() : c();
-			} else {
-				b();
+			function unicorn() {
+				if(a ? b : c){
+					return a;
+				} else{
+					return b;
+				}
 			}
 		`,
+		// Consequent is Ternary
 		outdent`
-			if (a) {
-				b();
-			} else {
-				a ? b() : c();
+			function unicorn() {
+				if(test){
+					return a ? b : c;
+				} else{
+					return b;
+				}
 			}
 		`,
-		// No `consequent` / `alternate`
-		'if (a) {b}',
-		'if (a) {} else {}',
-
-		{
-			code: outdent`
-			if(a){
-				b = 1;
-			}`
-		},
-		{
-			code: outdent`
-			if(a){
-				b = 1;
-			}
-			else{
-			}`
-		},
-		{
-			code: outdent`
-			if(a){
-				b = 1
-				bar()
-			}
-			else{
-				b = 2
-			}`
-		},
-		{
-			code: outdent`
-			if(a){
-				b = 1
-			}
-			else{
-				c = 2
-			}`
-		},
-		{
-			code: outdent`
-			if(a){
-				b  = 1;
-			}
-			else{
-				c =  2;
-			}`
-		},
-		{
-			code: outdent`
-			if(a){
-				foo();
-			}
-			else{
-				bar();
-			}`
-		},
-		{
-			code: outdent`
-			if (foo) {
-				bar = a ? b : c;
-			} else {
-				bar = 2;
-			}`
-		},
-		{
-			code: outdent`
-			if (foo) {
-				bar = 2;
-			} else {
-				bar = a ? b : c;
-			}`
-		},
-		{
-			code: outdent`
-			async function foo(){
-				if(bar){
-					await (bat ? firstPromise() : secondPromise());
+		// Alternate is Ternary
+		outdent`
+			function unicorn() {
+				if(test){
+					return a;
+				} else{
+					return a ? b : c;
 				}
-				else{
-					await thirdPromise();
-				}
-			}`,
-			parserOptions: {
-				ecmaVersion: 2020
 			}
-		},
-		{
-			code: outdent`
-			function* generator(){
-				while(foo){
-					if(bar){
-						yield (a ? b : c)
-					}
-					else{
-						yield d
-					}
-				}
-			}`
-		},
-		{
-			code: outdent`
-			function* generator(){
-				while(foo){
-					if(bar){
-						yield baz()
-					}
-					else{
-						yield* bat()
-					}
-				}
-			}`
-		}
+		`
 	],
-
 	invalid: [
 		{
 			code: outdent`
-				if(foo){
-					bar = 1;
-				} else{
-					bar = 2;
+				function unicorn() {
+					if(test){
+						return a;
+					} else{
+						return b;
+					}
 				}
 			`,
-			output: 'bar = (foo ? 1 : 2)',
+			output: outdent`
+				function unicorn() {
+					return test ? a : b;
+				}
+			`,
 			errors
 		},
 		{
 			code: outdent`
-			if(foo)
-				bar = 1;
-			else
-				bar = 2;
+				async function unicorn() {
+					if(test){
+						return await a;
+					} else{
+						return b;
+					}
+				}
 			`,
-			output: 'bar = (foo ? 1 : 2)',
-			errors: [
-				{column: 1, line: 1, type: 'IfStatement'}
-			]
-		},
-		{
-			code: outdent`
-			function foo(){
-				if(bar){
-					return 1;
-				}
-				else{
-					return 2;
-				}
-			}`,
 			output: outdent`
-			function foo(){
-				return (bar ? 1 : 2)
-			}`,
-			errors: [
-				{column: 2, line: 2, type: 'IfStatement'}
-			]
+				async function unicorn() {
+					return test ? (await a) : b;
+				}
+			`,
+			errors
 		},
 		{
 			code: outdent`
-			async function foo(){
-				if(bar){
-					await firstPromise();
-				}
-				else{
-					await secondPromise();
-				}
-			}`,
-			parserOptions: {
-				ecmaVersion: 2020
-			},
-			output: outdent`
-			async function foo(){
-				await (bar ? firstPromise() : secondPromise())
-			}`,
-			errors: [
-				{column: 2, line: 2, type: 'IfStatement'}
-			]
-		},
-		{
-			code: outdent`
-			function* generator(){
-				while(foo){
-					if(bar){
-						yield bat
-					}
-					else{
-						yield baz
+				async function unicorn() {
+					if(test){
+						return await a;
+					} else{
+						return await b;
 					}
 				}
-			}`,
+			`,
 			output: outdent`
-			function* generator(){
-				while(foo){
-					yield (bar ? bat : baz)
+				async function unicorn() {
+					return await (test ? a : b);
 				}
-			}`,
-			errors: [
-				{column: 3, line: 3, type: 'IfStatement'}
-			]
-		},
+			`,
+			errors
+		}
+	]
+});
+
+// YieldExpression
+ruleTester.run('prefer-ternary', rule, {
+	valid: [
+		// When YieldExpression has no argument, should fix to `test ? undefined : …`, not handled
+		outdent`
+			function* unicorn() {
+				if(test){
+					yield;
+				} else{
+					yield b;
+				}
+			}
+		`,
+		// Different `delegate`
+		outdent`
+			function* unicorn() {
+				if(test){
+					yield* a;
+				} else{
+					yield b;
+				}
+			}
+		`,
+		// Test is Ternary
+		outdent`
+			function* unicorn() {
+				if(a ? b : c){
+					yield a;
+				} else{
+					yield b;
+				}
+			}
+		`,
+		// Consequent is Ternary
+		outdent`
+			function* unicorn() {
+				if(test){
+					yield a ? b : c;
+				} else{
+					yield b;
+				}
+			}
+		`,
+		// Alternate is Ternary
+		outdent`
+			function* unicorn() {
+				if(test){
+					yield a;
+				} else{
+					yield a ? b : c;
+				}
+			}
+		`
+	],
+	invalid: [
 		{
 			code: outdent`
-			function* generator(){
-				while(foo){
-					if(bar){
-						yield* bat()
+				function* unicorn() {
+					if(test){
+						yield a;
+					} else{
+						yield b;
 					}
-					else{
-						yield* baz()
+				}
+			`,
+			output: outdent`
+				function* unicorn() {
+					yield test ? a : b;
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				function* unicorn() {
+					if(test){
+						yield* a;
+					} else{
+						yield* b;
 					}
 				}
-			}`,
+			`,
 			output: outdent`
-			function* generator(){
-				while(foo){
-					yield* (bar ? bat() : baz())
+				function* unicorn() {
+					yield* test ? a : b;
 				}
-			}`,
-			errors: [
-				{column: 3, line: 3, type: 'IfStatement'}
-			]
+			`,
+			errors
 		},
 		{
 			code: outdent`
-			function foo(){
-				if (a) {
-					return 1;
-				} else if (b) {
-					return 2;
-				} else {
-					return 3;
+				async function* unicorn() {
+					if(test){
+						yield await a;
+					} else{
+						yield b;
+					}
 				}
-			}`,
+			`,
 			output: outdent`
-			function foo(){
-				if (a) {
-					return 1;
-				} else return (b ? 2 : 3)
-			}`,
-			errors: [
-				{column: 9, line: 4, type: 'IfStatement'}
-			]
+				async function* unicorn() {
+					yield test ? (await a) : b;
+				}
+			`,
+			errors
 		},
 		{
 			code: outdent`
-			function foo(){
-				if (a) {
-					return 1;
-				} else {
-					if (b) {
+				async function* unicorn() {
+					if(test){
+						yield await a;
+					} else{
+						yield await b;
+					}
+				}
+			`,
+			output: outdent`
+				async function* unicorn() {
+					yield await (test ? a : b);
+				}
+			`,
+			errors
+		}
+	]
+});
+
+// AwaitExpression
+ruleTester.run('prefer-ternary', rule, {
+	valid: [
+		// Test is Ternary
+		outdent`
+			async function unicorn() {
+				if(a ? b : c){
+					await a;
+				} else{
+					await b;
+				}
+			}
+		`,
+		// Consequent is Ternary
+		outdent`
+			async function unicorn() {
+				if(test){
+					await a ? b : c;
+				} else{
+					await b;
+				}
+			}
+		`,
+		// Alternate is Ternary
+		outdent`
+			async function unicorn() {
+				if(test){
+					await a;
+				} else{
+					await a ? b : c;
+				}
+			}
+		`
+	],
+	invalid: [
+		{
+			code: outdent`
+				async function unicorn() {
+					if(test){
+						await a;
+					} else{
+						await b;
+					}
+				}
+			`,
+			output: outdent`
+				async function unicorn() {
+					await (test ? a : b);
+				}
+			`,
+			errors
+		}
+	]
+});
+
+// ThrowStatement
+ruleTester.run('prefer-ternary', rule, {
+	valid: [
+		// Test is Ternary
+		outdent`
+			function unicorn() {
+				if(a ? b : c){
+					throw a;
+				} else{
+					throw b;
+				}
+			}
+		`,
+		// Consequent is Ternary
+		outdent`
+			function unicorn() {
+				if(test){
+					throw a ? b : c;
+				} else{
+					throw b;
+				}
+			}
+		`,
+		// Alternate is Ternary
+		outdent`
+			function unicorn() {
+				if(test){
+					throw a;
+				} else{
+					throw a ? b : c;
+				}
+			}
+		`
+	],
+	invalid: [
+		{
+			code: outdent`
+				function unicorn() {
+					if(test){
+						throw a;
+					} else{
+						throw b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					throw test ? a : b;
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				async function unicorn() {
+					if(test){
+						throw await a;
+					} else{
+						throw b;
+					}
+				}
+			`,
+			output: outdent`
+				async function unicorn() {
+					throw test ? (await a) : b;
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				async function unicorn() {
+					if(test){
+						throw await a;
+					} else{
+						throw await b;
+					}
+				}
+			`,
+			output: outdent`
+				async function unicorn() {
+					throw await (test ? a : b);
+				}
+			`,
+			errors
+		}
+	]
+});
+
+// AssignmentExpression
+ruleTester.run('prefer-ternary', rule, {
+	valid: [
+		// Different `left`
+		outdent`
+			function unicorn() {
+				if(test){
+					foo = a;
+				} else{
+					bar = b;
+				}
+			}
+		`,
+		// Same `left`, but not handled
+		outdent`
+			function unicorn() {
+				if(test){
+					foo.bar = a;
+				} else{
+					foo.bar = b;
+				}
+			}
+		`,
+		// Test is Ternary
+		outdent`
+			function unicorn() {
+				if(a ? b : c){
+					foo = a;
+				} else{
+					foo = b;
+				}
+			}
+		`,
+		// Consequent is Ternary
+		outdent`
+			function unicorn() {
+				if(test){
+					foo = a ? b : c;
+				} else{
+					foo = b;
+				}
+			}
+		`,
+		// Alternate is Ternary
+		outdent`
+			function unicorn() {
+				if(test){
+					foo = a;
+				} else{
+					foo = a ? b : c;
+				}
+			}
+		`
+	],
+	invalid: [
+		{
+			code: outdent`
+				function unicorn() {
+					if(test){
+						foo = a;
+					} else{
+						foo = b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					foo = test ? a : b;
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				async function unicorn() {
+					if(test){
+						foo = await a;
+					} else{
+						foo = b;
+					}
+				}
+			`,
+			output: outdent`
+				async function unicorn() {
+					foo = test ? (await a) : b;
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				async function unicorn() {
+					if(test){
+						foo = await a;
+					} else{
+						foo = await b;
+					}
+				}
+			`,
+			output: outdent`
+				async function unicorn() {
+					foo = await (test ? a : b);
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				async function* unicorn() {
+					if(test){
+						foo = yield await a;
+					} else{
+						foo = yield await b;
+					}
+				}
+			`,
+			output: outdent`
+				async function* unicorn() {
+					foo = yield await (test ? a : b);
+				}
+			`,
+			errors
+		}
+	]
+});
+
+ruleTester.run('prefer-ternary', rule, {
+	valid: [
+		// No `consequent` / `alternate`
+		'if (a) {b}',
+		'if (a) {} else {b}',
+		'if (a) {} else {}',
+
+		// Call is not allow to merge
+		outdent`
+			if (test) {
+				a();
+			} else {
+				b();
+			}
+		`
+	],
+	invalid: [
+		// Empty block should not matters
+		{
+			code: outdent`
+				function unicorn() {
+					if (test) {
+						; // Empty block
+						return a;
+					} else {
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test ? a : b;
+				}
+			`,
+			errors
+		},
+		// `ExpressionStatement` or `BlockStatement` should not matters
+		{
+			code: outdent`
+				function unicorn() {
+					if (test) {
+						foo = a
+					} else foo = b;
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					foo = test ? a : b;
+				}
+			`,
+			errors
+		},
+		// No `ExpressionStatement` or `BlockStatement` should not matters
+		{
+			code: outdent`
+				function unicorn() {
+					if (test) return a;
+					else return b;
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test ? a : b;
+				}
+			`,
+			errors
+		},
+
+		// Nested
+		// [TBD]: this need discuss
+		{
+			code: outdent`
+				function foo(){
+					if (a) {
+						return 1;
+					} else if (b) {
 						return 2;
 					} else {
 						return 3;
 					}
 				}
-			}`,
+			`,
 			output: outdent`
-			function foo(){
-				if (a) {
-					return 1;
-				} else {
-					return (b ? 2 : 3)
+				function foo(){
+					if (a) {
+						return 1;
+					} else return b ? 2 : 3;
 				}
-			}`,
-			errors: [
-				{column: 3, line: 5, type: 'IfStatement'}
-			]
+			`,
+			errors
 		},
 		{
 			code: outdent`
-			function foo(){
-				if (a) {
-					if (b) {
+				function foo(){
+					if (a) {
 						return 1;
 					} else {
-						return 2;
+						if (b) {
+							return 2;
+						} else {
+							return 3;
+						}
 					}
-				} else {
-					return 3;
 				}
-			}`,
+			`,
 			output: outdent`
-			function foo(){
-				if (a) {
-					return (b ? 1 : 2)
-				} else {
-					return 3;
+				function foo(){
+					if (a) {
+						return 1;
+					} else {
+						return b ? 2 : 3;
+					}
 				}
-			}`,
-			errors: [
-				{column: 3, line: 3, type: 'IfStatement'}
-			]
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				function foo(){
+					if (a) {
+						if (b) {
+							return 1;
+						} else {
+							return 2;
+						}
+					} else {
+						return 3;
+					}
+				}
+			`,
+			output: outdent`
+				function foo(){
+					if (a) {
+						return b ? 1 : 2;
+					} else {
+						return 3;
+					}
+				}
+			`,
+			errors
 		}
 	]
 });
@@ -348,9 +669,9 @@ babelRuleTester.run('prefer-ternary', rule, {
 				}
 			`,
 			output: outdent`
-				attributeValue = (enableTrustedTypesIntegration ? (value: any) : '' + (value: any))
+				attributeValue = enableTrustedTypesIntegration ? (value: any) : '' + (value: any);
 			`,
-			errors: [{}]
+			errors
 		}
 	]
 });
