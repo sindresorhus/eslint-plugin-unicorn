@@ -112,7 +112,25 @@ ruleTester.run('prefer-ternary', rule, {
 				}
 			`,
 			errors
-		}
+		},
+		// Crazy nested
+		{
+			code: outdent`
+				async function* unicorn() {
+					if(test){
+						return yield await (foo = a);
+					} else{
+						return yield await (foo = b);
+					}
+				}
+			`,
+			output: outdent`
+				async function* unicorn() {
+					return yield await (foo = test ? a : b);
+				}
+			`,
+			errors
+		},
 	]
 });
 
@@ -382,7 +400,25 @@ ruleTester.run('prefer-ternary', rule, {
 				}
 			`,
 			errors
-		}
+		},
+		// Crazy nested
+		{
+			code: outdent`
+				async function* unicorn() {
+					if(test){
+						throw yield await (foo = a);
+					} else{
+						throw yield await (foo = b);
+					}
+				}
+			`,
+			output: outdent`
+				async function* unicorn() {
+					throw yield await (foo = test ? a : b);
+				}
+			`,
+			errors
+		},
 	]
 });
 
