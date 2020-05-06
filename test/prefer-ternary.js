@@ -615,6 +615,61 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			errors
 		},
+		{
+			code: outdent`
+				function unicorn() {
+					if (test) return a;
+					else return b;
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test ? a : b;
+				}
+			`,
+			errors
+		},
+
+		// Precedence
+		{
+			code: outdent`
+				if (a = b) {
+					foo = 1;
+				} else foo = 2;
+			`,
+			output: 'foo = (a = b) ? 1 : 2;',
+			errors
+		},
+		{
+			code: outdent`
+				function* unicorn() {
+					if (yield a) {
+						foo = 1;
+					} else foo = 2;
+				}
+			`,
+			output: outdent`
+				function* unicorn() {
+					foo = (yield a) ? 1 : 2;
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				function* unicorn() {
+					if (yield* a) {
+						foo = 1;
+					} else foo = 2;
+				}
+			`,
+			output: outdent`
+				function* unicorn() {
+					foo = (yield* a) ? 1 : 2;
+				}
+			`,
+			errors
+		},
 
 		// Nested
 		// [TBD]: this need discuss
