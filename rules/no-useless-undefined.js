@@ -30,7 +30,6 @@ const variableInitSelector = getSelector(
 // `const {foo = undefined} = {}`
 const assignmentPatternSelector = getSelector('AssignmentPattern', 'right');
 
-const removeNode = (node, fixer) => fixer.remove(node);
 const isUndefined = node => node && node.type === 'Identifier' && node.name === 'undefined';
 
 const create = context => {
@@ -41,10 +40,19 @@ const create = context => {
 			fix: fixer => fix(node, fixer)
 		});
 	};
+	const code = context.getSourceCode().text;
+
+	const removeNodeAndLeadingSpace = (node, fixer) => {
+		const textBefore = code.slice(0, node.range[0]);
+		return fixer.removeRange([
+			node.range[0] - (textBefore.length - textBefore.trim().length),
+			node.range[1]
+		])
+	};
 
 	return {
-		[returnSelector]: listener(removeNode),
-		[yieldSelector]: listener(removeNode),
+		[returnSelector]: listener(removeNodeAndLeadingSpace),
+		[yieldSelector]: listener(removeNodeAndLeadingSpace),
 		[arrowFunctionSelector]: listener(
 			(node, fixer) => fixer.replaceText(node, '{}')
 		),

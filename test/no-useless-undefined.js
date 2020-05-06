@@ -36,7 +36,7 @@ ruleTester.run('no-useless-undefined', rule, {
 	invalid: [
 		{
 			code: 'function foo() {return undefined;}',
-			output: 'function foo() {return ;}',
+			output: 'function foo() {return;}',
 			errors
 		},
 		{
@@ -46,12 +46,27 @@ ruleTester.run('no-useless-undefined', rule, {
 		},
 		{
 			code: 'const foo = () => {return undefined;};',
-			output: 'const foo = () => {return ;};',
+			output: 'const foo = () => {return;};',
+			errors
+		},
+		{
+			code: 'function foo() {return       undefined;}',
+			output: 'function foo() {return;}',
+			errors
+		},
+		{
+			code: 'function foo() {return /* comment */ undefined;}',
+			output: 'function foo() {return /* comment */;}',
 			errors
 		},
 		{
 			code: 'function* foo() {yield undefined;}',
-			output: 'function* foo() {yield ;}',
+			output: 'function* foo() {yield;}',
+			errors
+		},
+		{
+			code: 'function* foo() {yield                 undefined;}',
+			output: 'function* foo() {yield;}',
 			errors
 		},
 		{
