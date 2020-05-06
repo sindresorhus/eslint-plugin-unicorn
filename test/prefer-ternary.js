@@ -130,7 +130,7 @@ ruleTester.run('prefer-ternary', rule, {
 				}
 			`,
 			errors
-		},
+		}
 	]
 });
 
@@ -418,7 +418,7 @@ ruleTester.run('prefer-ternary', rule, {
 				}
 			`,
 			errors
-		},
+		}
 	]
 });
 

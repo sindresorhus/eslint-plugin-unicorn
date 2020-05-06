@@ -8,89 +8,115 @@ Additionally, using an `if-else` statement can result in defining variables usin
 
 This rule is fixable.
 
-
 ## Fail
 
 ```js
-let foo =''
-if(bar){
-	foo = 3
-}
-else{
-	foo = 4
-}
-```
-
-```js
-if(bar){
-	return 3
-}
-else{
-	return 4
+function unicorn() {
+	if(test){
+		return a;
+	} else {
+		return b;
+	}
 }
 ```
 
 ```js
-if(bar){
-	await firstPromise()
-}
-else{
-	await secondPromise()
+function* unicorn() {
+	if(test){
+		yield a;
+	} else {
+		yield b;
+	}
 }
 ```
 
 ```js
-if(bar){
-	yield bat
+async function unicorn() {
+	if(test){
+		await a();
+	} else {
+		await b();
+	}
 }
-else{
-	yield baz
+```
+
+```js
+if(test){
+	throw new Error('foo');
+} else {
+	throw new Error('bar');
+}
+```
+
+```js
+let foo;
+if(test){
+	foo = 1;
+} else {
+	foo = 2;
 }
 ```
 
 ## Pass
 
 ```js
-let foo = bar ? 3 : 4
-```
-
-```js
-return bar ? 3 : 4
-```
-
-```js
-await (bar ? 3 : 4)
-```
-
-```js
-yield (bar ? 3 : 4)
-```
-
-```js
-let foo = ''
-if(bar){
-	baz()
-	foo = 3
-}
-else{
-	foo = 4
+function unicorn() {
+	return test ? a : b;
 }
 ```
 
 ```js
-if(bar){
-	foo = 3
-}
-else{
-	return 4
+function* unicorn() {
+	yield (test ? a : b);
 }
 ```
 
 ```js
-if(bar){
-	foo = 3
+async function unicorn() {
+	await (test ? a() : b());
 }
-else{
-	baz = 4
+```
+
+```js
+throw test ? new Error('foo') : new Error('bar');
+```
+
+```js
+let foo;
+foo = test ? 1 : 2;
+```
+
+
+```js
+// Multiple expressions
+let foo;
+let bar;
+if(test){
+	foo = 1;
+	bar = 2;
+} else{
+	foo = 2;
+}
+```
+
+```js
+// Different expressions
+function unicorn() {
+	if(test){
+		return a;
+	} else {
+		throw new Error('error');
+	}
+}
+```
+
+```js
+// Assign to different variable
+let foo;
+let bar;
+if(test){
+	foo = 1;
+} else{
+	baz = 2;
 }
 ```
