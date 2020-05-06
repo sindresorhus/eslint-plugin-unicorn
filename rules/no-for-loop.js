@@ -191,8 +191,6 @@ const resolveIdentifierName = (name, scope) => {
 
 		scope = scope.upper;
 	}
-
-	return;
 };
 
 const scopeContains = (ancestor, descendant) => {
