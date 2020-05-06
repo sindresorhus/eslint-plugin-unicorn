@@ -40,6 +40,7 @@ const create = context => {
 			fix: fixer => fix(node, fixer)
 		});
 	};
+
 	const code = context.getSourceCode().text;
 
 	const removeNodeAndLeadingSpace = (node, fixer) => {
@@ -47,7 +48,7 @@ const create = context => {
 		return fixer.removeRange([
 			node.range[0] - (textBefore.length - textBefore.trim().length),
 			node.range[1]
-		])
+		]);
 	};
 
 	return {
