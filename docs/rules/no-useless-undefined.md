@@ -81,3 +81,20 @@ function foo({bar}) {
 ```js
 foo();
 ```
+
+## Conflict ESLint `array-callback-return` rule
+
+We recommend set the ESLint [`array-callback-return`](https://eslint.org/docs/rules/array-callback-return#top) rule option [`allowImplicit`](https://eslint.org/docs/rules/array-callback-return#options) to `true`:
+
+```json
+{
+	"rules": {
+		"array-callback-return": [
+			"error",
+			{
+				"allowImplicit": true
+			}
+		],
+	}
+}
+```
