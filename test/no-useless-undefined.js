@@ -165,7 +165,7 @@ ruleTester.run('no-useless-undefined', rule, {
 			errors: [
 				{
 					messageId,
-					// The 2rd `undefined`
+					// The second `undefined`
 					line: 4, column: 2,
 					// The last `undefined`
 					endLine: 7, endColumn: 11
