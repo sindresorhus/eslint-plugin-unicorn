@@ -25,7 +25,7 @@ const stringMatchSelector = [
 ].join('');
 
 const checkRegex = ({pattern, flags}) => {
-	if (flags.includes('i')) {
+	if (flags.includes('i') || flags.includes('m')) {
 		return;
 	}
 
