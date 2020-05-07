@@ -161,12 +161,17 @@ Enable it in your `package.json` with the `extends` option:
 {
 	"name": "my-awesome-project",
 	"eslintConfig": {
-		"extends": "plugin:unicorn/recommended"
+		"plugins": [
+			"unicorn"
+		],
+		"extends": [
+			"plugin:unicorn/recommended"
+		]
 	}
 }
 ```
 
-See the [ESLint docs](https://eslint.org/docs/user-guide/configuring#extending-configuration-files) for more information about extending config files.
+See the ESLint docs for more information about [extending config files](https://eslint.org/docs/user-guide/configuring#extending-configuration-files) and [using the configuration from a plugin](https://eslint.org/docs/user-guide/configuring#using-the-configuration-from-a-plugin).
 
 **Note**: This config will also enable the correct [parser options](https://eslint.org/docs/user-guide/configuring#specifying-parser-options) and [environment](https://eslint.org/docs/user-guide/configuring#specifying-environments).
 
