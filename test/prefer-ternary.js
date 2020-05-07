@@ -647,6 +647,21 @@ ruleTester.run('prefer-ternary', rule, {
 			} else {
 				b();
 			}
+		`,
+
+		//
+		outdent`
+			function foo(){
+				if (a) {
+					return 1;
+				} else if (b) {
+					return 2;
+				} else if (c) {
+					return 3;
+				} else {
+					return 4;
+				}
+			}
 		`
 	],
 	invalid: [
@@ -757,28 +772,6 @@ ruleTester.run('prefer-ternary', rule, {
 		},
 
 		// Nested
-		// [TBD]: this need discuss
-		{
-			code: outdent`
-				function foo(){
-					if (a) {
-						return 1;
-					} else if (b) {
-						return 2;
-					} else {
-						return 3;
-					}
-				}
-			`,
-			output: outdent`
-				function foo(){
-					if (a) {
-						return 1;
-					} else return b ? 2 : 3;
-				}
-			`,
-			errors
-		},
 		{
 			code: outdent`
 				function foo(){
