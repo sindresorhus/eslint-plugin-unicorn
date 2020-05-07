@@ -469,6 +469,16 @@ ruleTester.run('prefer-ternary', rule, {
 				}
 			}
 		`,
+		// Different `operator`
+		outdent`
+			function unicorn() {
+				if(test){
+					foo = a;
+				} else{
+					foo *= b;
+				}
+			}
+		`,
 		// Same `left`, but not handled
 		outdent`
 			function unicorn() {
@@ -530,6 +540,23 @@ ruleTester.run('prefer-ternary', rule, {
 		},
 		{
 			code: outdent`
+				function unicorn() {
+					if(test){
+						foo *= a;
+					} else{
+						foo *= b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					foo *= test ? a : b;
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
 				async function unicorn() {
 					if(test){
 						foo = await a;
@@ -562,6 +589,7 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			errors
 		},
+		// Crazy nested
 		{
 			code: outdent`
 				async function* unicorn() {
@@ -576,6 +604,29 @@ ruleTester.run('prefer-ternary', rule, {
 				async function* unicorn() {
 					foo = yield (await (test ? a : b));
 				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				if(test){
+					$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
+					_STOP_ =
+					$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
+					1;
+				} else{
+					$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
+					_STOP_2_ =
+					$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
+					2;
+				}
+			`,
+			output: outdent`
+				$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 = test ? (_STOP_ =
+					$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
+					1) : (_STOP_2_ =
+					$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
+					2);
 			`,
 			errors
 		}

@@ -127,13 +127,14 @@ const create = context => {
 		if (
 			type === 'AssignmentExpression' &&
 			isSameAssignmentLeft(consequent.left, alternate.left) &&
+			consequent.operator === alternate.operator &&
 			!isTernary(consequent.left) &&
 			!isTernary(alternate.left) &&
 			!isTernary(consequent.right) &&
 			!isTernary(alternate.right)
 		) {
 			return merge({
-				before: `${before}${sourceCode.getText(consequent.left)} = `,
+				before: `${before}${sourceCode.getText(consequent.left)} ${consequent.operator} `,
 				after,
 				consequent: consequent.right,
 				alternate: alternate.right
