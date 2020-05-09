@@ -71,3 +71,23 @@ function doFoo(FooComponent) {
 	return Bar;
 };
 ```
+
+[Immediately invoked function expressions (IIFE)](https://en.wikipedia.org/wiki/Immediately_invoked_function_expression) are ignored:
+
+```js
+(function () {
+	function doFoo(bar) {
+		return bar;
+	}
+})();
+```
+
+[Built-in Hooks in React](https://reactjs.org/docs/hooks-reference.html) are ignored:
+
+```js
+useEffect(() => {
+	async function getItems() {}
+
+	getItems();
+}, [])
+```

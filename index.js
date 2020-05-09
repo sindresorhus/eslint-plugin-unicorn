@@ -43,6 +43,7 @@ module.exports = {
 				'unicorn/no-unreadable-array-destructuring': 'error',
 				'unicorn/no-unsafe-regex': 'off',
 				'unicorn/no-unused-properties': 'off',
+				'unicorn/no-useless-undefined': 'error',
 				'unicorn/no-zero-fractions': 'error',
 				'unicorn/number-literal-case': 'error',
 				'unicorn/prefer-add-event-listener': 'error',
@@ -55,6 +56,7 @@ module.exports = {
 				'unicorn/prefer-node-append': 'error',
 				'unicorn/prefer-node-remove': 'error',
 				'unicorn/prefer-number-properties': 'error',
+				'unicorn/prefer-optional-catch-binding': 'error',
 				'unicorn/prefer-query-selector': 'error',
 				'unicorn/prefer-reflect-apply': 'error',
 				// TODO: Enable this by default when it's shipping in a Node.js LTS version.

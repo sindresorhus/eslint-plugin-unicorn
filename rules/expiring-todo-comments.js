@@ -193,7 +193,7 @@ function tryToCoerceVersion(rawVersion) {
 		// Try to semver.parse a perfect match while semver.coerce tries to fix errors
 		// But coerce can't parse pre-releases.
 		return semver.parse(version) || semver.coerce(version);
-	} catch (_) {
+	} catch {
 		return false;
 	}
 }
