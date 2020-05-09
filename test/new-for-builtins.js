@@ -20,12 +20,10 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const enforceNewError = builtin => ({
-	ruleId: 'new-for-builtins',
 	message: `Use \`new ${builtin}()\` instead of \`${builtin}()\`.`
 });
 
 const disallowNewError = builtin => ({
-	ruleId: 'new-for-builtins',
 	message: `Use \`${builtin}()\` instead of \`new ${builtin}()\`.`
 });
 

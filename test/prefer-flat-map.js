@@ -10,12 +10,10 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const errorFlatMap = {
-	ruleId: 'prefer-flat-map',
 	messageId: 'flat-map'
 };
 
 const errorSpread = {
-	ruleId: 'prefer-flat-map',
 	messageId: 'spread'
 };
 

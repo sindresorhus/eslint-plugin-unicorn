@@ -31,7 +31,6 @@ function testCaseWithOptions(filename, errorMessage, options = []) {
 		options,
 		errors: errorMessage && [
 			{
-				ruleId: 'filename-case',
 				message: errorMessage
 			}
 		]

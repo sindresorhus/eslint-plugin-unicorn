@@ -11,7 +11,6 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [
 	{
-		ruleId: 'prefer-dataset',
 		message: 'Prefer `.dataset` over `setAttribute(…)`.'
 	}
 ];
