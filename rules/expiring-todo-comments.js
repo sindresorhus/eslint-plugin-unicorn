@@ -2,7 +2,8 @@
 const readPkgUp = require('read-pkg-up');
 const semver = require('semver');
 const ci = require('ci-info');
-const baseRule = require('eslint/lib/rules/no-warning-comments');
+const path = require('path');
+const baseRule = require(path.join(__dirname, '..', 'node_modules', 'eslint', 'lib', 'rules', 'no-warning-comments'));
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 // `unicorn/` prefix is added to avoid conflicts with core rule
