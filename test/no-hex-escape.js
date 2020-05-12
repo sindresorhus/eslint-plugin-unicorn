@@ -16,7 +16,6 @@ const typescriptRuleTester = avaRuleTester(test, {
 });
 
 const error = {
-	ruleId: 'no-hex-escape',
 	message: 'Use Unicode escapes instead of hexadecimal escapes.'
 };
 

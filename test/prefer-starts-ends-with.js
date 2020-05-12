@@ -1,27 +1,16 @@
 import test from 'ava';
+import {outdent} from 'outdent';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/prefer-starts-ends-with';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
+	parserOptions: {
+		ecmaVersion: 2020
 	}
 });
 
-const errors = {
-	startsWith: [
-		{
-			ruleId: 'prefer-starts-ends-with',
-			message: 'Prefer `String#startsWith()` over a regex with `^`.'
-		}
-	],
-	endsWith: [
-		{
-			ruleId: 'prefer-starts-ends-with',
-			message: 'Prefer `String#endsWith()` over a regex with `$`.'
-		}
-	]
-};
+const MESSAGE_STARTS_WITH = 'prefer-starts-with';
+const MESSAGE_ENDS_WITH = 'prefer-ends-with';
 
 const validRegex = [
 	/foo/,
@@ -35,7 +24,9 @@ const validRegex = [
 	/^foo./,
 	/foo.$/,
 	/\^foo/,
-	/^foo/i
+	/^foo/i,
+	/^foo/m,
+	/^foo/im
 ];
 
 const invalidRegex = [
@@ -58,17 +49,93 @@ ruleTester.run('prefer-starts-ends-with', rule, {
 		'test()',
 		'test.test()',
 		'startWith("bar")',
-		'foo()()'
+		'foo()()',
+
+		...validRegex.map(re => `${re}.test(bar)`),
+		...validRegex.map(re => `bar.match(${re})`)
+	],
+	invalid: [
+		...invalidRegex.map(re => {
+			let messageId = MESSAGE_STARTS_WITH;
+			let method = 'startsWith';
+			let string = re.source;
+
+			if (string.startsWith('^')) {
+				string = string.slice(1);
+			} else {
+				messageId = MESSAGE_ENDS_WITH;
+				method = 'endsWith';
+				string = string.slice(0, -1);
+			}
+
+			return {
+				code: `${re}.test(bar)`,
+				output: `bar.${method}('${string}')`,
+				errors: [{messageId}]
+			};
+		}),
+		// Parenthesized
+		{
+			code: '/^b/.test(("a"))',
+			output: '("a").startsWith((\'b\'))',
+			errors: [{messageId: MESSAGE_STARTS_WITH}]
+		},
+		{
+			code: '(/^b/).test(("a"))',
+			output: '("a").startsWith((\'b\'))',
+			errors: [{messageId: MESSAGE_STARTS_WITH}]
+		},
+		{
+			code: 'const fn = async () => /^b/.test(await foo)',
+			output: 'const fn = async () => (await foo).startsWith(\'b\')',
+			errors: [{messageId: MESSAGE_STARTS_WITH}]
+		},
+		{
+			code: 'const fn = async () => (/^b/).test(await foo)',
+			output: 'const fn = async () => (await foo).startsWith(\'b\')',
+			errors: [{messageId: MESSAGE_STARTS_WITH}]
+		},
+		// Comments
+		{
+			code: outdent`
+				if (
+					/* comment 1 */
+					/^b/
+					/* comment 2 */
+					.test
+					/* comment 3 */
+					(
+						/* comment 4 */
+						foo
+						/* comment 5 */
+					)
+				) {}
+			`,
+			output: outdent`
+				if (
+					/* comment 1 */
+					foo
+					/* comment 2 */
+					.startsWith
+					/* comment 3 */
+					(
+						/* comment 4 */
+						'b'
+						/* comment 5 */
+					)
+				) {}
+			`,
+			errors: [{messageId: MESSAGE_STARTS_WITH}]
+		},
+
+		...invalidRegex.map(re => {
+			const code = `bar.match(${re})`;
+			const messageId = re.source.startsWith('^') ? MESSAGE_STARTS_WITH : MESSAGE_ENDS_WITH;
+			return {
+				code,
+				output: code,
+				errors: [{messageId}]
+			};
+		})
 	]
-		.concat(validRegex.map(re => `${re}.test(bar)`))
-		.concat(validRegex.map(re => `bar.match(${re})`)),
-	invalid: []
-		.concat(invalidRegex.map(re => ({
-			code: `${re}.test(bar)`,
-			errors: errors[`${re}`.startsWith('/^') ? 'startsWith' : 'endsWith']
-		})))
-		.concat(invalidRegex.map(re => ({
-			code: `bar.match(${re})`,
-			errors: errors[`${re}`.startsWith('/^') ? 'startsWith' : 'endsWith']
-		})))
 });

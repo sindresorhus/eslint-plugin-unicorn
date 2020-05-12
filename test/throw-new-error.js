@@ -2,13 +2,15 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/throw-new-error';
 
+const messageId = 'throw-new-error';
+
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
+	parserOptions: {
+		ecmaVersion: 2020
 	}
 });
 
-const errors = [{ruleId: 'throw-new-error'}];
+const errors = [{messageId}];
 
 ruleTester.run('new-error', rule, {
 	valid: [
@@ -28,13 +30,44 @@ ruleTester.run('new-error', rule, {
 		'throw getError()',
 		// Not `CallExpression`
 		'throw CustomError',
-		// Not `Identifier`
-		'throw lib.Error()'
+		// Not `Identifier` / `MemberExpression`
+		'throw getErrorConstructor()()',
+		// `MemberExpression.computed`
+		'throw lib[Error]()',
+		// `MemberExpression.property` not `Identifier`
+		'throw lib["Error"]()',
+		// Not `FooError` like
+		'throw lib.getError()'
 	],
 	invalid: [
 		{
 			code: 'throw Error()',
 			output: 'throw new Error()',
+			errors
+		},
+		{
+			code: 'throw (Error)()',
+			output: 'throw new (Error)()',
+			errors
+		},
+		{
+			code: 'throw lib.Error()',
+			output: 'throw new lib.Error()',
+			errors
+		},
+		{
+			code: 'throw lib.mod.Error()',
+			output: 'throw new lib.mod.Error()',
+			errors
+		},
+		{
+			code: 'throw lib[mod].Error()',
+			output: 'throw new lib[mod].Error()',
+			errors
+		},
+		{
+			code: 'throw (lib.mod).Error()',
+			output: 'throw new (lib.mod).Error()',
 			errors
 		},
 		{

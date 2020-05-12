@@ -192,8 +192,6 @@ const resolveIdentifierName = (name, scope) => {
 
 		scope = scope.upper;
 	}
-
-	return undefined;
 };
 
 const scopeContains = (ancestor, descendant) => {
@@ -366,7 +364,7 @@ const create = context => {
 						], replacement),
 						...arrayReferences.map(reference => {
 							if (reference === elementReference) {
-								return undefined;
+								return;
 							}
 
 							return fixer.replaceText(reference.identifier.parent, element);

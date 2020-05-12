@@ -17,12 +17,10 @@ const typescriptRuleTester = avaRuleTester(test, {
 	parser: require.resolve('@typescript-eslint/parser')
 });
 
-const ruleId = 'consistent-function-scoping';
 const MESSAGE_ID_NAMED = 'named';
 const MESSAGE_ID_ANONYMOUS = 'anonymous';
 
 const createError = ({name, arrow}) => ({
-	ruleId,
 	messageId: name ? MESSAGE_ID_NAMED : MESSAGE_ID_ANONYMOUS,
 	data: {
 		functionType: arrow ? 'arrow function' : 'function',
@@ -225,6 +223,37 @@ ruleTester.run('consistent-function-scoping', rule, {
 			useEffect(() => {
 				function foo() {}
 			}, [])
+		`,
+		// IIEF
+		outdent`
+			(function() {
+				function bar() {}
+			})();
+		`,
+		outdent`
+			(function() {
+				function bar() {}
+			}());
+		`,
+		outdent`
+			!function() {
+				function bar() {}
+			}();
+		`,
+		outdent`
+			(() => {
+				function bar() {}
+			})();
+		`,
+		outdent`
+			(async function() {
+				function bar() {}
+			})();
+		`,
+		outdent`
+			(async function * () {
+				function bar() {}
+			})();
 		`,
 		// #391
 		outdent`
@@ -470,6 +499,18 @@ ruleTester.run('consistent-function-scoping', rule, {
 						}
 					}
 				}, [])
+			`,
+			errors: [createError({name: 'bar'})]
+		},
+		// IIFE
+		{
+			code: outdent`
+				(function() {
+					function foo() {
+						function bar() {
+						}
+					}
+				})();
 			`,
 			errors: [createError({name: 'bar'})]
 		}
