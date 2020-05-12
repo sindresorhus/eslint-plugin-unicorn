@@ -24,6 +24,7 @@ const tests = {
 		'[1, 2].reduce.call(() => {}, 34)',
 		'a.reduce(123)',
 		'a.reduce()',
+		'a.reduce(undefined)',
 		'a.reduce(\'abc\')',
 
 		// Test `.reduce`
