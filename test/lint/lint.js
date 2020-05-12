@@ -22,6 +22,15 @@ const eslint = new ESLint({
 	}
 });
 
+const sum = (collection, fieldName) => {
+	let result = 0;
+	for (const item of collection) {
+		result += item[fieldName];
+	}
+
+	return result;
+};
+
 (async function () {
 	const results = await eslint.lintFiles(files);
 
@@ -29,10 +38,10 @@ const eslint = new ESLint({
 		await ESLint.outputFixes(results);
 	}
 
-	const errorCount = results.reduce((total, {errorCount}) => total + errorCount, 0);
-	const warningCount = results.reduce((total, {warningCount}) => total + warningCount, 0);
-	const fixableErrorCount = results.reduce((total, {fixableErrorCount}) => total + fixableErrorCount, 0);
-	const fixableWarningCount = results.reduce((total, {fixableWarningCount}) => total + fixableWarningCount, 0);
+	const errorCount = sum(results, 'errorCount');
+	const warningCount = sum(results, 'warningCount');
+	const fixableErrorCount = sum(results, 'fixableErrorCount');
+	const fixableWarningCount = sum(results, 'fixableWarningCount');
 
 	const hasFixable = fixableErrorCount || fixableWarningCount;
 
