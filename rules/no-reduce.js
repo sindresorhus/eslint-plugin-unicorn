@@ -4,8 +4,16 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const messageId = 'no-reduce';
 
+const ignoredFirstArgumentSelector = `:not(${
+	[
+		'[arguments.0.type="Literal"]',
+		'[arguments.0.type="Identifier"][arguments.0.name="undefined"]'
+	].join(',')
+})`;
+
 const PROTOTYPE_SELECTOR = [
 	methodSelector({names: ['call', 'apply']}),
+	ignoredFirstArgumentSelector,
 	'[callee.object.type="MemberExpression"]',
 	'[callee.object.computed=false]',
 	'[callee.object.property.name="reduce"]',
@@ -36,6 +44,7 @@ const PROTOTYPE_SELECTOR = [
 
 const METHOD_SELECTOR = [
 	methodSelector({name: 'reduce', min: 1, max: 2}),
+	ignoredFirstArgumentSelector,
 	'[callee.object.property.name!="call"]'
 ].join('');
 

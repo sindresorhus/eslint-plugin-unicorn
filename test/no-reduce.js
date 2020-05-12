@@ -25,6 +25,9 @@ const tests = {
 		'[][reduce].call()',
 		'[1, 2].call.reduce(() => {})',
 		'[1, 2].reduce.call(() => {}, 34)',
+		'a.reduce(123)',
+		'a.reduce()',
+		'a.reduce(\'abc\')',
 
 		// Test `.reduce`
 		// Not `CallExpression`
