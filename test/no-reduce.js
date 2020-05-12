@@ -65,29 +65,67 @@ const tests = {
 		// More or less argument(s)
 		// We are not checking arguments length
 
-		// Test `Array.prototype.{call,apply}`
-		// Not `CallExpression`
-		'new Array.prototype.reduce.call(foo, fn);',
-		// Not `MemberExpression`
+		'new Array.prototype.reduceRight.call(foo, fn);',
 		'call(foo, fn);',
-		'reduce.call(foo, fn);',
-		// `callee.property` is not a `Identifier`
-		'Array.prototype.reduce["call"](foo, fn);',
-		'Array.prototype["reduce"].call(foo, fn);',
-		'Array["prototype"].reduce.call(foo, fn);',
-		'"Array".prototype.reduce.call(foo, fn);',
-		// Computed
-		'Array.prototype.reduce[call](foo, fn);',
-		'Array.prototype[reduce].call(foo, fn);',
-		'Array[prototype].reduce.call(foo, fn);',
-		// Not listed method
-		'Array.prototype.reduce.notListedMethod(foo, fn);',
+		'reduceRight.call(foo, fn);',
+		'Array.prototype.reduceRight["call"](foo, fn);',
+		'Array.prototype["reduceRight"].call(foo, fn);',
+		'Array["prototype"].reduceRight.call(foo, fn);',
+		'"Array".prototype.reduceRight.call(foo, fn);',
+		'Array.prototype.reduceRight[call](foo, fn);',
+		'Array.prototype[reduceRight].call(foo, fn);',
+		'Array[prototype].reduceRight.call(foo, fn);',
+		'Array.prototype.reduceRight.notListedMethod(foo, fn);',
 		'Array.prototype.notListedMethod.call(foo, fn);',
-		'Array.notListedMethod.reduce.call(foo, fn);',
-		// Not `Array`
-		'NotArray.prototype.reduce.call(foo, fn);'
-		// More or less argument(s)
-		// We are not checking arguments length
+		'Array.notListedMethod.reduceRight.call(foo, fn);',
+		'NotArray.prototype.reduceRight.call(foo, fn);',
+		'a[b.reduceRight]()',
+		'a(b.reduceRight)',
+		'a.reduceRight()',
+		'a.reduceRight(1, 2, 3)',
+		'a.reduceRight(b, c, d)',
+		'[][reduceRight].call()',
+		'[1, 2].reduceRight.call(() => {}, 34)',
+		'a.reduceRight(123)',
+		'a.reduceRight()',
+		'a.reduceRight(undefined)',
+		'a.reduceRight(\'abc\')',
+
+		'new foo.reduceRight(fn);',
+		'reduceRight(fn);',
+		'foo["reduceRight"](fn);',
+		'foo[reduceRight](fn);',
+		'foo.notListedMethod(fn);',
+		'foo.reduceRight();',
+		'foo.reduceRight(fn, extraArgument1, extraArgument2);',
+		'foo.reduceRight(...argumentsArray)',
+
+		'new [].reduceRight.call(foo, fn);',
+		'call(foo, fn);',
+		'reduceRight.call(foo, fn);',
+		'[].reduceRight["call"](foo, fn);',
+		'[]["reduceRight"].call(foo, fn);',
+		'[].reduceRight[call](foo, fn);',
+		'[][reduceRight].call(foo, fn);',
+		'[].reduceRight.notListedMethod(foo, fn);',
+		'[].notListedMethod.call(foo, fn);',
+		'[1].reduceRight.call(foo, fn)',
+		'"".reduceRight.call(foo, fn)',
+
+		'new Array.prototype.reduceRight.call(foo, fn);',
+		'call(foo, fn);',
+		'reduceRight.call(foo, fn);',
+		'Array.prototype.reduceRight["call"](foo, fn);',
+		'Array.prototype["reduceRight"].call(foo, fn);',
+		'Array["prototype"].reduceRight.call(foo, fn);',
+		'"Array".prototype.reduceRight.call(foo, fn);',
+		'Array.prototype.reduceRight[call](foo, fn);',
+		'Array.prototype[reduceRight].call(foo, fn);',
+		'Array[prototype].reduceRight.call(foo, fn);',
+		'Array.prototype.reduceRight.notListedMethod(foo, fn);',
+		'Array.prototype.notListedMethod.call(foo, fn);',
+		'Array.notListedMethod.reduceRight.call(foo, fn);',
+		'NotArray.prototype.reduceRight.call(foo, fn);'
 	],
 	invalid: [
 		'arr.reduce((total, item) => total + item)',
@@ -114,7 +152,32 @@ const tests = {
 		'[].reduce.apply(arr, [(s, i) => s + i])',
 		'[].reduce.apply(arr, [sum]);',
 		'Array.prototype.reduce.apply(arr, [(s, i) => s + i])',
-		'Array.prototype.reduce.apply(arr, [sum]);'
+		'Array.prototype.reduceRight.apply(arr, [sum]);',
+		'arr.reduceRight((total, item) => total + item)',
+		'arr.reduceRight((total, item) => total + item, 0)',
+		'arr.reduceRight(function (total, item) { return total + item }, 0)',
+		'arr.reduceRight(function (total, item) { return total + item })',
+		'arr.reduceRight((str, item) => str += item, "")',
+		outdent`
+			arr.reduceRight((obj, item) => {
+				obj[item] = null;
+				return obj;
+			}, {})
+		`,
+		'arr.reduceRight((obj, item) => ({ [item]: null }), {})',
+		outdent`
+			const hyphenate = (str, char) => \`\${str}-\${char}\`;
+			["a", "b", "c"].reduceRight(hyphenate);
+		`,
+		'[].reduceRight.call(arr, (s, i) => s + i)',
+		'[].reduceRight.call(arr, sum);',
+		'[].reduceRight.call(sum);',
+		'Array.prototype.reduceRight.call(arr, (s, i) => s + i)',
+		'Array.prototype.reduceRight.call(arr, sum);',
+		'[].reduceRight.apply(arr, [(s, i) => s + i])',
+		'[].reduceRight.apply(arr, [sum]);',
+		'Array.prototype.reduceRight.apply(arr, [(s, i) => s + i])',
+		'Array.prototype.reduceRight.apply(arr, [sum]);'
 	].map(code => ({code, errors}))
 };
 

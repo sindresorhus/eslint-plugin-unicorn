@@ -16,7 +16,7 @@ const PROTOTYPE_SELECTOR = [
 	ignoredFirstArgumentSelector,
 	'[callee.object.type="MemberExpression"]',
 	'[callee.object.computed=false]',
-	'[callee.object.property.name="reduce"]',
+	'[callee.object.property.name=/reduce|reduceRight/]',
 	'[callee.object.property.type="Identifier"]',
 	`:matches(${
 		[
@@ -43,7 +43,7 @@ const PROTOTYPE_SELECTOR = [
 ].join('');
 
 const METHOD_SELECTOR = [
-	methodSelector({name: 'reduce', min: 1, max: 2}),
+	methodSelector({names: ['reduce', 'reduceRight'], min: 1, max: 2}),
 	ignoredFirstArgumentSelector
 ].join('');
 
