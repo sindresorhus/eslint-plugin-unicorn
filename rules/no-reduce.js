@@ -44,8 +44,7 @@ const PROTOTYPE_SELECTOR = [
 
 const METHOD_SELECTOR = [
 	methodSelector({name: 'reduce', min: 1, max: 2}),
-	ignoredFirstArgumentSelector,
-	'[callee.object.property.name!="call"]'
+	ignoredFirstArgumentSelector
 ].join('');
 
 const create = context => {
