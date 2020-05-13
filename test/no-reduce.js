@@ -26,10 +26,16 @@ const tests = {
 			'a.reduce(b, c, d)',
 			'[][reduce].call()',
 			'[1, 2].reduce.call(() => {}, 34)',
+
+			// First argument is not a function
 			'a.reduce(123)',
-			'a.reduce()',
-			'a.reduce(undefined)',
 			'a.reduce(\'abc\')',
+			'a.reduce(null)',
+			'a.reduce(undefined)',
+			'a.reduce(123, initialValue)',
+			'a.reduce(\'abc\', initialValue)',
+			'a.reduce(null, initialValue)',
+			'a.reduce(undefined, initialValue)',
 
 			// Test `.reduce`
 			// Not `CallExpression`
