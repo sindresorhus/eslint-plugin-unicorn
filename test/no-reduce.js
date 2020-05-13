@@ -17,103 +17,95 @@ const errorsReduce = [{messageId: MESSAGE_ID_REDUCE}];
 const errorsReduceRight = [{messageId: MESSAGE_ID_REDUCE_RIGHT}];
 
 const tests = {
-	valid: [
-		...flatten([
-			'a[b.reduce]()',
-			'a(b.reduce)',
-			'a.reduce()',
-			'a.reduce(1, 2, 3)',
-			'a.reduce(b, c, d)',
-			'[][reduce].call()',
-			'[1, 2].reduce.call(() => {}, 34)',
+	valid: flatten([
+		'a[b.reduce]()',
+		'a(b.reduce)',
+		'a.reduce()',
+		'a.reduce(1, 2, 3)',
+		'a.reduce(b, c, d)',
+		'[][reduce].call()',
+		'[1, 2].reduce.call(() => {}, 34)',
 
-			// First argument is not a function
-			'a.reduce(123)',
-			'a.reduce(\'abc\')',
-			'a.reduce(null)',
-			'a.reduce(undefined)',
-			'a.reduce(123, initialValue)',
-			'a.reduce(\'abc\', initialValue)',
-			'a.reduce(null, initialValue)',
-			'a.reduce(undefined, initialValue)',
+		// First argument is not a function
+		'a.reduce(123)',
+		'a.reduce(\'abc\')',
+		'a.reduce(null)',
+		'a.reduce(undefined)',
+		'a.reduce(123, initialValue)',
+		'a.reduce(\'abc\', initialValue)',
+		'a.reduce(null, initialValue)',
+		'a.reduce(undefined, initialValue)',
 
-			// Test `.reduce`
-			// Not `CallExpression`
-			'new foo.reduce(fn);',
-			// Not `MemberExpression`
-			'reduce(fn);',
-			// `callee.property` is not a `Identifier`
-			'foo["reduce"](fn);',
-			// Computed
-			'foo[reduce](fn);',
-			// Not listed method or property
-			'foo.notListed(fn);',
-			// More or less argument(s)
-			'foo.reduce();',
-			'foo.reduce(fn, extraArgument1, extraArgument2);',
-			'foo.reduce(...argumentsArray)',
+		// Test `.reduce`
+		// Not `CallExpression`
+		'new foo.reduce(fn);',
+		// Not `MemberExpression`
+		'reduce(fn);',
+		// `callee.property` is not a `Identifier`
+		'foo["reduce"](fn);',
+		// Computed
+		'foo[reduce](fn);',
+		// Not listed method or property
+		'foo.notListed(fn);',
+		// More or less argument(s)
+		'foo.reduce();',
+		'foo.reduce(fn, extraArgument1, extraArgument2);',
+		'foo.reduce(...argumentsArray)',
 
-			// Test `[].reduce.{call,apply}`
-			// Not `CallExpression`
-			'new [].reduce.call(foo, fn);',
-			// Not `MemberExpression`
-			'call(foo, fn);',
-			'reduce.call(foo, fn);',
-			// `callee.property` is not a `Identifier`
-			'[].reduce["call"](foo, fn);',
-			'[]["reduce"].call(foo, fn);',
-			// Computed
-			'[].reduce[call](foo, fn);',
-			'[][reduce].call(foo, fn);',
-			// Not listed method or property
-			'[].reduce.notListed(foo, fn);',
-			'[].notListed.call(foo, fn);',
-			// Not empty
-			'[1].reduce.call(foo, fn)',
-			// Not ArrayExpression
-			'"".reduce.call(foo, fn)',
-			// More or less argument(s)
-			// We are not checking arguments length
+		// Test `[].reduce.{call,apply}`
+		// Not `CallExpression`
+		'new [].reduce.call(foo, fn);',
+		// Not `MemberExpression`
+		'call(foo, fn);',
+		'reduce.call(foo, fn);',
+		// `callee.property` is not a `Identifier`
+		'[].reduce["call"](foo, fn);',
+		'[]["reduce"].call(foo, fn);',
+		// Computed
+		'[].reduce[call](foo, fn);',
+		'[][reduce].call(foo, fn);',
+		// Not listed method or property
+		'[].reduce.notListed(foo, fn);',
+		'[].notListed.call(foo, fn);',
+		// Not empty
+		'[1].reduce.call(foo, fn)',
+		// Not ArrayExpression
+		'"".reduce.call(foo, fn)',
+		// More or less argument(s)
+		// We are not checking arguments length
 
-			// Test `Array.prototype.{call,apply}`
-			// Not `CallExpression`
-			'new Array.prototype.reduce.call(foo, fn);',
-			// Not `MemberExpression`
-			'call(foo, fn);',
-			'reduce.call(foo, fn);',
-			// `callee.property` is not a `Identifier`
-			'Array.prototype.reduce["call"](foo, fn);',
-			'Array.prototype["reduce"].call(foo, fn);',
-			'Array["prototype"].reduce.call(foo, fn);',
-			'"Array".prototype.reduce.call(foo, fn);',
-			// Computed
-			'Array.prototype.reduce[call](foo, fn);',
-			'Array.prototype[reduce].call(foo, fn);',
-			'Array[prototype].reduce.call(foo, fn);',
-			// Not listed method
-			'Array.prototype.reduce.notListed(foo, fn);',
-			'Array.prototype.notListed.call(foo, fn);',
-			'Array.notListed.reduce.call(foo, fn);',
-			// Not `Array`
-			'NotArray.prototype.reduce.call(foo, fn);'
-			// More or less argument(s)
-			// We are not checking arguments length
-		].map(code => [code, code.replace('reduce', 'reduceRight')])),
+		// Test `Array.prototype.{call,apply}`
+		// Not `CallExpression`
+		'new Array.prototype.reduce.call(foo, fn);',
+		// Not `MemberExpression`
+		'call(foo, fn);',
+		'reduce.call(foo, fn);',
+		// `callee.property` is not a `Identifier`
+		'Array.prototype.reduce["call"](foo, fn);',
+		'Array.prototype["reduce"].call(foo, fn);',
+		'Array["prototype"].reduce.call(foo, fn);',
+		'"Array".prototype.reduce.call(foo, fn);',
+		// Computed
+		'Array.prototype.reduce[call](foo, fn);',
+		'Array.prototype[reduce].call(foo, fn);',
+		'Array[prototype].reduce.call(foo, fn);',
+		// Not listed method
+		'Array.prototype.reduce.notListed(foo, fn);',
+		'Array.prototype.notListed.call(foo, fn);',
+		'Array.notListed.reduce.call(foo, fn);',
+		// Not `Array`
+		'NotArray.prototype.reduce.call(foo, fn);',
+		// More or less argument(s)
+		// We are not checking arguments length
 
 		// `reduce-like`
-		`arr.reducex(foo)`,
-		`arr.xreduce(foo)`,
-		`arr.reduceRightx(foo)`,
-		`arr.xreduceRight(foo)`,
-		`[].reducex.call(arr, foo)`,
-		`[].xreduce.call(arr, foo)`,
-		`[].reduceRightx.call(arr, foo)`,
-		`[].xreduceRight.call(arr, foo)`,
-		`Array.prototype.reducex.call(arr, foo)`,
-		`Array.prototype.xreduce.call(arr, foo)`,
-		`Array.prototype.reduceRightx.call(arr, foo)`,
-		`Array.prototype.xreduceRight.call(arr, foo)`
-	],
+		'arr.reducex(foo)',
+		'arr.xreduce(foo)',
+		'[].reducex.call(arr, foo)',
+		'[].xreduce.call(arr, foo)',
+		'Array.prototype.reducex.call(arr, foo)',
+		'Array.prototype.xreduce.call(arr, foo)'
+	].map(code => [code, code.replace('reduce', 'reduceRight')])),
 	invalid: flatten([
 		'arr.reduce((total, item) => total + item)',
 		'arr.reduce((total, item) => total + item, 0)',
