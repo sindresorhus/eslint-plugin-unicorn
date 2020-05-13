@@ -14,12 +14,16 @@ module.exports = (combinations, length = Infinity) => {
 
 	const samples = Array.from({length: Math.min(total, length)}, (_, sampleIndex) => {
 		let indexRemaining = sampleIndex;
-		return combinations.reduceRight((combination, items) => {
+		const combination = [];
+		for (let i = combinations.length - 1; i >= 0; i--) {
+			const items = combinations[i];
 			const {length} = items;
 			const index = indexRemaining % length;
 			indexRemaining = (indexRemaining - index) / length;
-			return [items[index], ...combination];
-		}, []);
+			combination.unshift(items[index]);
+		}
+
+		return combination;
 	});
 
 	return {
