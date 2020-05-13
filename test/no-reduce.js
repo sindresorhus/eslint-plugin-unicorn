@@ -36,8 +36,8 @@ const tests = {
 		'foo["reduce"](fn);',
 		// Computed
 		'foo[reduce](fn);',
-		// Not listed method
-		'foo.notListedMethod(fn);',
+		// Not listed method or property
+		'foo.notListed(fn);',
 		// More or less argument(s)
 		'foo.reduce();',
 		'foo.reduce(fn, extraArgument1, extraArgument2);',
@@ -55,9 +55,9 @@ const tests = {
 		// Computed
 		'[].reduce[call](foo, fn);',
 		'[][reduce].call(foo, fn);',
-		// Not listed method
-		'[].reduce.notListedMethod(foo, fn);',
-		'[].notListedMethod.call(foo, fn);',
+		// Not listed method or property
+		'[].reduce.notListed(foo, fn);',
+		'[].notListed.call(foo, fn);',
 		// Not empty
 		'[1].reduce.call(foo, fn)',
 		// Not ArrayExpression
@@ -81,9 +81,9 @@ const tests = {
 		'Array.prototype[reduce].call(foo, fn);',
 		'Array[prototype].reduce.call(foo, fn);',
 		// Not listed method
-		'Array.prototype.reduce.notListedMethod(foo, fn);',
-		'Array.prototype.notListedMethod.call(foo, fn);',
-		'Array.notListedMethod.reduce.call(foo, fn);',
+		'Array.prototype.reduce.notListed(foo, fn);',
+		'Array.prototype.notListed.call(foo, fn);',
+		'Array.notListed.reduce.call(foo, fn);',
 		// Not `Array`
 		'NotArray.prototype.reduce.call(foo, fn);'
 		// More or less argument(s)
