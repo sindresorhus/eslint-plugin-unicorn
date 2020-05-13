@@ -1,4 +1,4 @@
-# Disallow the usage of `Array#reduce()` and `Array#reduceRight()`
+# Disallow `Array#reduce()` and `Array#reduceRight()`
 
 `Array#reduce()` and `Array#reduceRight()` usually [result in hard-to-read code](https://twitter.com/jaffathecake/status/1213077702300852224). In almost every case, it can be replaced by `.map`, `.filter`, or a `for-of` loop. It's only somewhat useful in the rare case of summing up numbers.
 
