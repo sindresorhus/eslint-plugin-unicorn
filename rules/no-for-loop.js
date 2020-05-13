@@ -1,6 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
+const {flatten} = require('lodash');
 
 const defaultElementName = 'element';
 const isLiteralZero = node => isLiteralValue(node, 0);
@@ -256,9 +257,7 @@ const getReferencesInChildScopes = (scope, name) => {
 	const references = scope.references.filter(reference => reference.identifier.name === name);
 	return [
 		...references,
-		...scope.childScopes
-			.map(s => getReferencesInChildScopes(s, name))
-			.reduce((accumulator, scopeReferences) => [...accumulator, ...scopeReferences], [])
+		...flatten(scope.childScopes.map(s => getReferencesInChildScopes(s, name)))
 	];
 };
 

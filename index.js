@@ -40,6 +40,7 @@ module.exports = {
 				'unicorn/no-new-buffer': 'error',
 				'unicorn/no-null': 'error',
 				'unicorn/no-process-exit': 'error',
+				'unicorn/no-reduce': 'error',
 				'unicorn/no-unreadable-array-destructuring': 'error',
 				'unicorn/no-unsafe-regex': 'off',
 				'unicorn/no-unused-properties': 'off',

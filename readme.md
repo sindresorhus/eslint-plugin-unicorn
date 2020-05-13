@@ -56,6 +56,7 @@ Configure it in `package.json`.
 			"unicorn/no-new-buffer": "error",
 			"unicorn/no-null": "error",
 			"unicorn/no-process-exit": "error",
+			"unicorn/no-reduce": "error",
 			"unicorn/no-unreadable-array-destructuring": "error",
 			"unicorn/no-unsafe-regex": "off",
 			"unicorn/no-unused-properties": "off",
@@ -115,6 +116,7 @@ Configure it in `package.json`.
 - [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 - [no-null](docs/rules/no-null.md) - Disallow the use of the `null` literal.
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
+- [no-reduce](docs/rules/no-reduce.md) - Disallow `Array#reduce()` and `Array#reduceRight()`.
 - [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
 - [no-unsafe-regex](docs/rules/no-unsafe-regex.md) - Disallow unsafe regular expressions.
 - [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
