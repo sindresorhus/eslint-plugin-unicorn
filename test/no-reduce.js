@@ -4,7 +4,8 @@ import {flatten} from 'lodash';
 import rule from '../rules/no-reduce';
 import {outdent} from 'outdent';
 
-const messageId = 'no-reduce';
+const MESSAGE_ID_REDUCE = 'reduce';
+const MESSAGE_ID_REDUCE_RIGHT = 'reduceRight';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
@@ -12,7 +13,8 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const errors = [{messageId}];
+const errorsReduce = [{messageId: MESSAGE_ID_REDUCE}];
+const errorsReduceRight = [{messageId: MESSAGE_ID_REDUCE_RIGHT}];
 
 const tests = {
 	valid: [
@@ -132,7 +134,7 @@ const tests = {
 		'[].reduce.apply(arr, [sum]);',
 		'Array.prototype.reduce.apply(arr, [(s, i) => s + i])',
 		'Array.prototype.reduce.apply(arr, [sum]);'
-	].map(code => [{code, errors}, {code: code.replace('reduce', 'reduceRight'), errors}]))
+	].map(code => [{code, errors: errorsReduce}, {code: code.replace('reduce', 'reduceRight'), errors: errorsReduceRight}]))
 };
 
 ruleTester.run('no-reduce', rule, tests);

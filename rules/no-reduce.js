@@ -2,7 +2,8 @@
 const methodSelector = require('./utils/method-selector');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const messageId = 'no-reduce';
+const MESSAGE_ID_REDUCE = 'reduce';
+const MESSAGE_ID_REDUCE_RIGHT = 'reduceRight';
 
 const ignoredFirstArgumentSelector = `:not(${
 	[
@@ -53,11 +54,11 @@ const create = context => {
 	return {
 		[METHOD_SELECTOR](node) {
 			// For arr.reduce()
-			context.report({node: node.callee.property, messageId});
+			context.report({node: node.callee.property, messageId: node.callee.property.name});
 		},
 		[PROTOTYPE_SELECTOR](node) {
 			// For cases [].reduce.call() and Array.prototype.reduce.call()
-			context.report({node: node.callee.object.property, messageId});
+			context.report({node: node.callee.object.property, messageId: node.callee.object.property.name});
 		}
 	};
 };
@@ -70,7 +71,8 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		messages: {
-			[messageId]: '`Array#reduce()` not allowed'
+			[MESSAGE_ID_REDUCE]: '`Array#reduce()` not allowed',
+			[MESSAGE_ID_REDUCE_RIGHT]: '`Array#reduceRight()` not allowed'
 		}
 	}
 };
