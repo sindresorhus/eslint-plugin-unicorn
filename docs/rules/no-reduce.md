@@ -1,6 +1,6 @@
-# Disallow the usage of Array#reduce
+# Disallow the usage of `Array#reduce()` and `Array#reduceRight()`
 
-`Array.reduce` usually results in hard-to-read code. It can almost every time by replaced fith `.map`, `.filter`. Only in the rare case of summing up the array it is useful.
+`Array#reduce()` and `Array#reduceRight()` usually results in hard-to-read code. It can almost every time by replaced with `.map`, `.filter`. Only in the rare case of summing up the array it is useful.
 
 Use `eslint-disable` comment if you really need to use it.
 
@@ -9,18 +9,40 @@ This rule is not fixable.
 ## Fail
 
 ```js
-const arr = [1, 2, 3, 4];
+array.reduce(reducer, initialValue);
+```
 
-arr.reduce((acc, n) => {
-	if (n > 2) acc = [...acc, n];
-	return acc;
-}, []);
+```js
+array.reduceRight(reducer, initialValue);
+```
+
+```js
+array.reduce(reducer);
+```
+
+```js
+[].reduce.call(array, reducer);
+```
+
+```js
+[].reduce.apply(array, [reducer, initialValue]);
+```
+
+```js
+Array.prototype.reduce.call(array, reducer);
 ```
 
 ## Pass
 
 ```js
-const arr = [1, 2, 3, 4];
+// eslint-disable-next-line
+array.reduce(reducer, initialValue);
+```
 
-arr.filter((n) => n > 2);
+```js
+let result = initialValue;
+
+for (const element of array) {
+	result += element;
+}
 ```

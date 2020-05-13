@@ -71,8 +71,8 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		messages: {
-			[MESSAGE_ID_REDUCE]: '`Array#reduce()` not allowed',
-			[MESSAGE_ID_REDUCE_RIGHT]: '`Array#reduceRight()` not allowed'
+			[MESSAGE_ID_REDUCE]: '`Array#reduce()` is not allowed',
+			[MESSAGE_ID_REDUCE_RIGHT]: '`Array#reduceRight()` is not allowed'
 		}
 	}
 };
