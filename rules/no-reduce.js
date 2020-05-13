@@ -16,7 +16,9 @@ const PROTOTYPE_SELECTOR = [
 	ignoredFirstArgumentSelector,
 	'[callee.object.type="MemberExpression"]',
 	'[callee.object.computed=false]',
-	'[callee.object.property.name=/reduce|reduceRight/]',
+	`:matches(${
+		['reduce', 'reduceRight'].map(method => `[callee.object.property.name="${method}"]`).join(', ')
+	})`,
 	'[callee.object.property.type="Identifier"]',
 	`:matches(${
 		[
