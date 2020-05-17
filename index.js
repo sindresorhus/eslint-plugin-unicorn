@@ -50,6 +50,7 @@ module.exports = {
 				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/prefer-dataset': 'error',
 				'unicorn/prefer-event-key': 'error',
+				'unicorn/prefer-find': 'error',
 				'unicorn/prefer-flat-map': 'error',
 				'unicorn/prefer-includes': 'error',
 				'unicorn/prefer-modern-dom-apis': 'error',

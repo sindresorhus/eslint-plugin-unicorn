@@ -25,7 +25,7 @@ module.exports = options => {
 	];
 
 	if (name) {
-		selector.push(`[callee.property.name="${name}"]`);
+		selector.push(`[${prefix}callee.property.name="${name}"]`);
 	}
 
 	if (Array.isArray(names) && names.length !== 0) {
