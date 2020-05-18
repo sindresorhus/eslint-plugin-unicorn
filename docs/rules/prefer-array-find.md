@@ -14,6 +14,10 @@ const item = array.filter(x => x === '🦄')[0];
 const item = array.filter(x => x === '🦄').shift();
 ```
 
+```js
+const [item] = array.filter(x => x === '🦄');
+```
+
 ## Pass
 
 ```js
