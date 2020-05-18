@@ -18,8 +18,16 @@ const item = array.filter(x => x === '🦄').shift();
 const [item] = array.filter(x => x === '🦄');
 ```
 
+```js
+[item] = array.filter(x => x === '🦄');
+```
+
 ## Pass
 
 ```js
 const item = array.find(x => x === '🦄');
+```
+
+```js
+item = array.find(x => x === '🦄');
 ```
