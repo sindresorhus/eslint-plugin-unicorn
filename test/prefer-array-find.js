@@ -1,10 +1,10 @@
 import test from 'ava';
 import {outdent} from 'outdent';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/prefer-find';
+import rule from '../rules/prefer-array-find';
 
-const MESSAGE_ID_ZERO_INDEX = 'prefer-find-over-filter-zero-index';
-const MESSAGE_ID_SHIFT = 'prefer-find-over-filter-shift';
+const MESSAGE_ID_ZERO_INDEX = 'prefer-array-find-over-filter-zero-index';
+const MESSAGE_ID_SHIFT = 'prefer-array-find-over-filter-shift';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
@@ -12,7 +12,7 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-ruleTester.run('prefer-find', rule, {
+ruleTester.run('prefer-array-find', rule, {
 	valid: [
 		'array.find(foo)',
 

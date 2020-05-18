@@ -3,7 +3,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 
 const MESSAGE_ID_ZERO_INDEX = 'prefer-array-find-over-filter-zero-index';
-const MESSAGE_ID_SHIFT = 'prefer-find-over-filter-shift';
+const MESSAGE_ID_SHIFT = 'prefer-array-find-over-filter-shift';
 
 const zeroIndexSelector = [
 	'MemberExpression',
