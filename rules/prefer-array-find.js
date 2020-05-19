@@ -13,6 +13,12 @@ const MESSAGE_ID_DECLARATION = 'prefer-array-find-over-filter';
 const MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR = 'use-nullish-coalescing-operator';
 const MESSAGE_ID_USE_LOGICAL_OR_OPERATOR = 'use-logical-or-operator';
 
+const filterMethodSelectorOptions = {
+	name: 'filter',
+	min: 1,
+	max: 2
+};
+
 const filterVariableSelector = [
 	'VariableDeclaration',
 	// Exclude `export const foo = [];`
@@ -27,9 +33,7 @@ const filterVariableSelector = [
 	'VariableDeclarator.declarations',
 	'[id.type="Identifier"]',
 	methodSelector({
-		name: 'filter',
-		min: 1,
-		max: 2,
+		...filterMethodSelectorOptions,
 		property: 'init'
 	})
 ].join('');
@@ -40,9 +44,7 @@ const zeroIndexSelector = [
 	'[property.type="Literal"]',
 	'[property.raw="0"]',
 	methodSelector({
-		name: 'filter',
-		min: 1,
-		max: 2,
+		...filterMethodSelectorOptions,
 		property: 'object'
 	})
 ].join('');
@@ -53,9 +55,7 @@ const shiftSelector = [
 		length: 0
 	}),
 	methodSelector({
-		name: 'filter',
-		min: 1,
-		max: 2,
+		...filterMethodSelectorOptions,
 		property: 'callee.object'
 	})
 ].join('');
@@ -66,9 +66,7 @@ const destructuringDeclaratorSelector = [
 	'[id.elements.length=1]',
 	'[id.elements.0.type!="RestElement"]',
 	methodSelector({
-		name: 'filter',
-		min: 1,
-		max: 2,
+		...filterMethodSelectorOptions,
 		property: 'init'
 	})
 ].join('');
@@ -79,9 +77,7 @@ const destructuringAssignmentSelector = [
 	'[left.elements.length=1]',
 	'[left.elements.0.type!="RestElement"]',
 	methodSelector({
-		name: 'filter',
-		min: 1,
-		max: 2,
+		...filterMethodSelectorOptions,
 		property: 'right'
 	})
 ].join('');
@@ -94,10 +90,12 @@ const assignmentNeedParenthesize = ({type}) => type === 'ObjectExpression' || ty
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Expressions_and_Operators#Operator_precedence
 // Higher than `??` and `||`
 const hasHigherPrecedence = (node, operator) => (
-	(node.type === 'LogicalExpression' && node.operator === operator) ||
-	// `??` has lower precedence than `||`
-	// https://tc39.es/proposal-nullish-coalescing/
-	(operator === '??' && node.type === 'LogicalExpression' && node.operator === '||') ||
+	(node.type === 'LogicalExpression' && (
+		node.operator === operator ||
+		// `??` has lower precedence than `||`
+		// https://tc39.es/proposal-nullish-coalescing/
+		(operator === '??' && node.operator === '||')
+	)) ||
 	node.type === 'ConditionalExpression' ||
 	node.type === 'AssignmentExpression' ||
 	node.type === 'SequenceExpression'
