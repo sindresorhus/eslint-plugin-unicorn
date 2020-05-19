@@ -1,4 +1,5 @@
 'use strict';
+const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 
@@ -66,6 +67,18 @@ const destructuringAssignmentSelector = [
 // - `ObjectPattern`: `[{foo = baz}] = array.filter(bar)`
 const assignmentNeedParenthesize = ({type}) => type === 'ObjectExpression' || type === 'ObjectPattern';
 
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Expressions_and_Operators#Operator_precedence
+// Higher than `??` and `||`
+const hasHigherPrecedence = (node, operator) => (
+	(node.type === 'LogicalExpression' && node.operator === operator) ||
+	// `??` has lower precedence than `||`
+	// https://tc39.es/proposal-nullish-coalescing/
+	(operator === '??' && node.type === 'LogicalExpression' && node.operator === '||') ||
+	node.type === 'ConditionalExpression' ||
+	node.type === 'AssignmentExpression' ||
+	node.type === 'SequenceExpression'
+);
+
 const fixDestructuring = (source, node) => {
 	const isAssign = node.type === 'AssignmentExpression';
 	const left = isAssign ? node.left : node.id;
@@ -74,7 +87,9 @@ const fixDestructuring = (source, node) => {
 	const [element] = left.elements;
 
 	// `AssignmentExpression` always starts with `[` or `(`, so we don't need check ASI
-	const needParenthesize = isAssign && assignmentNeedParenthesize(element.type !== 'AssignmentPattern' ? element : element.left);
+	const needParenthesize = isAssign &&
+		!isParenthesized(node, source) &&
+		assignmentNeedParenthesize(element.type !== 'AssignmentPattern' ? element : element.left);
 
 	if (element.type !== 'AssignmentPattern') {
 		return {
@@ -87,13 +102,22 @@ const fixDestructuring = (source, node) => {
 		};
 	}
 
-	const fix = operator => fixer => [
-		needParenthesize && fixer.insertTextBefore(node, '('),
-		fixer.replaceText(right.callee.property, 'find'),
-		fixer.replaceText(left, source.getText(element.left)),
-		fixer.insertTextAfter(right, ` ${operator} ${source.getText(element.right)}`),
-		needParenthesize && fixer.insertTextAfter(node, ')')
-	].filter(Boolean);
+	const fix = operator => fixer => {
+		const defaultValue = element.right;
+		let defaultValueText = source.getText(defaultValue);
+
+		if (isParenthesized(defaultValue, source) || hasHigherPrecedence(defaultValue, operator)) {
+			defaultValueText = `(${defaultValueText})`;
+		}
+
+		return [
+			needParenthesize && fixer.insertTextBefore(node, '('),
+			fixer.replaceText(right.callee.property, 'find'),
+			fixer.replaceText(left, source.getText(element.left)),
+			fixer.insertTextAfter(right, ` ${operator} ${defaultValueText}`),
+			needParenthesize && fixer.insertTextAfter(node, ')')
+		].filter(Boolean);
+	}
 
 	return {
 		suggest: [

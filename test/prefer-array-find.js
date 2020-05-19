@@ -272,6 +272,59 @@ ruleTester.run('prefer-array-find', rule, {
 					}
 				]
 			}]
+		},
+		// Default value is parenthesized
+		{
+			code: 'const [foo = (bar)] = array.filter(bar)',
+			output: 'const [foo = (bar)] = array.filter(bar)',
+			errors: [{
+				messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
+				suggestions: [
+					{
+						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						output: 'const foo = array.find(bar) ?? (bar)'
+					},
+					{
+						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						output: 'const foo = array.find(bar) || (bar)'
+					}
+				]
+			}]
+		},
+		// Default value has higher precedence
+		{
+			code: 'const [foo = a ? b : c] = array.filter(bar)',
+			output: 'const [foo = a ? b : c] = array.filter(bar)',
+			errors: [{
+				messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
+				suggestions: [
+					{
+						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						output: 'const foo = array.find(bar) ?? (a ? b : c)'
+					},
+					{
+						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						output: 'const foo = array.find(bar) || (a ? b : c)'
+					}
+				]
+			}]
+		},
+		{
+			code: 'const [foo = a || b] = array.filter(bar)',
+			output: 'const [foo = a || b] = array.filter(bar)',
+			errors: [{
+				messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
+				suggestions: [
+					{
+						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						output: 'const foo = array.find(bar) ?? (a || b)'
+					},
+					{
+						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						output: 'const foo = array.find(bar) || (a || b)'
+					}
+				]
+			}]
 		}
 	]
 });
@@ -398,6 +451,76 @@ ruleTester.run('prefer-array-find', rule, {
 				]
 			}]
 		},
+		{
+			code: ';([{foo} = baz] = array.filter(bar))',
+			output: ';([{foo} = baz] = array.filter(bar))',
+			errors: [{
+				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
+				suggestions: [
+					{
+						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						output: ';({foo} = array.find(bar) ?? baz)'
+					},
+					{
+						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						output: ';({foo} = array.find(bar) || baz)'
+					}
+				]
+			}]
+		},
+		// Default value is parenthesized
+		{
+			code: '[foo = (bar)] = array.filter(bar)',
+			output: '[foo = (bar)] = array.filter(bar)',
+			errors: [{
+				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
+				suggestions: [
+					{
+						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						output: 'foo = array.find(bar) ?? (bar)'
+					},
+					{
+						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						output: 'foo = array.find(bar) || (bar)'
+					}
+				]
+			}]
+		},
+		// Default value has higher precedence
+		{
+			code: '[foo = a ? b : c] = array.filter(bar)',
+			output: '[foo = a ? b : c] = array.filter(bar)',
+			errors: [{
+				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
+				suggestions: [
+					{
+						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						output: 'foo = array.find(bar) ?? (a ? b : c)'
+					},
+					{
+						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						output: 'foo = array.find(bar) || (a ? b : c)'
+					}
+				]
+			}]
+		},
+		{
+			code: '[foo = a || b] = array.filter(bar)',
+			output: '[foo = a || b] = array.filter(bar)',
+			errors: [{
+				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
+				suggestions: [
+					{
+						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						output: 'foo = array.find(bar) ?? (a || b)'
+					},
+					{
+						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						output: 'foo = array.find(bar) || (a || b)'
+					}
+				]
+			}]
+		}
 	]
 });
 
