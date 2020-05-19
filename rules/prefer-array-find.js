@@ -61,6 +61,54 @@ const destructuringAssignmentSelector = [
 	})
 ].join('');
 
+// Need add `()` to the `AssignmentExpression`
+// - `ObjectExpression`: `[{foo}] = array.filter(bar)` fix to `{foo} = array.find(bar)`
+// - `ObjectPattern`: `[{foo = baz}] = array.filter(bar)`
+const assignmentNeedParenthesize = ({type}) => type === 'ObjectExpression' || type === 'ObjectPattern';
+
+const fixDestructuring = (source, node) => {
+	const isAssign = node.type === 'AssignmentExpression';
+	const left = isAssign ? node.left : node.id;
+	const right = isAssign ? node.right : node.init;
+
+	const [element] = left.elements;
+
+	// `AssignmentExpression` always starts with `[` or `(`, so we don't need check ASI
+	const needParenthesize = isAssign && assignmentNeedParenthesize(element.type !== 'AssignmentPattern' ? element : element.left);
+
+	if (element.type !== 'AssignmentPattern') {
+		return {
+			fix: fixer => [
+				needParenthesize && fixer.insertTextBefore(node, '('),
+				fixer.replaceText(right.callee.property, 'find'),
+				fixer.replaceText(left, source.getText(element)),
+				needParenthesize && fixer.insertTextAfter(node, ')')
+			].filter(Boolean)
+		};
+	}
+
+	const fix = operator => fixer => [
+		needParenthesize && fixer.insertTextBefore(node, '('),
+		fixer.replaceText(right.callee.property, 'find'),
+		fixer.replaceText(left, source.getText(element.left)),
+		fixer.insertTextAfter(right, ` ${operator} ${source.getText(element.right)}`),
+		needParenthesize && fixer.insertTextAfter(node, ')')
+	].filter(Boolean);
+
+	return {
+		suggest: [
+			{
+				messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+				fix: fix('??')
+			},
+			{
+				messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+				fix: fix('||')
+			},
+		]
+	};
+};
+
 const create = context => {
 	const source = context.getSourceCode();
 
@@ -86,99 +134,18 @@ const create = context => {
 			});
 		},
 		[destructuringDeclaratorSelector](node) {
-			const {id, init} = node;
-			const [element] = id.elements;
-			const problem = {
+			context.report({
 				node,
 				messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
-			};
-
-			if (element.type === 'AssignmentPattern') {
-				problem.suggest = [
-					{
-						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
-						fix: fixer => [
-							fixer.replaceText(init.callee.property, 'find'),
-							fixer.replaceText(id, source.getText(element.left)),
-							fixer.insertTextAfter(init, ` ?? ${source.getText(element.right)}`)
-						]
-					},
-					{
-						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
-						fix: fixer => [
-							fixer.replaceText(init.callee.property, 'find'),
-							fixer.replaceText(id, source.getText(element.left)),
-							fixer.insertTextAfter(init, ` || ${source.getText(element.right)}`)
-						]
-					},
-				]
-			} else {
-				problem.fix = fixer => [
-					fixer.replaceText(init.callee.property, 'find'),
-					fixer.replaceText(id, source.getText(element))
-				];
-			}
-
-			context.report(problem);
+				...fixDestructuring(source, node)
+			});
 		},
 		[destructuringAssignmentSelector](node) {
-			const {left, right} = node;
-			const [element] = left.elements;
-			const problem = {
+			context.report({
 				node,
 				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
-			};
-
-			if (element.type === 'AssignmentPattern') {
-				problem.suggest = [
-					{
-						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
-						fix: fixer => {
-							const needParenthesize = element.left.type === 'ObjectExpression' || element.left.type === 'ObjectPattern';
-
-							return [
-								needParenthesize && fixer.insertTextBefore(node, '('),
-								fixer.replaceText(right.callee.property, 'find'),
-								fixer.replaceText(left, context.getSourceCode().getText(element.left)),
-								fixer.insertTextAfter(right, ` ?? ${source.getText(element.right)}`),
-								needParenthesize && fixer.insertTextAfter(node, ')')
-							].filter(Boolean);
-						}
-					},
-					{
-						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
-						fix: fixer => {
-							const needParenthesize = element.left.type === 'ObjectExpression' || element.left.type === 'ObjectPattern';
-
-							return [
-								needParenthesize && fixer.insertTextBefore(node, '('),
-								fixer.replaceText(right.callee.property, 'find'),
-								fixer.replaceText(left, context.getSourceCode().getText(element.left)),
-								fixer.insertTextAfter(right, ` || ${source.getText(element.right)}`),
-								needParenthesize && fixer.insertTextAfter(node, ')')
-							].filter(Boolean);
-						}
-					},
-				]
-			} else {
-				problem.fix = fixer => {
-					// `AssignmentExpression` always starts with `[` or `(`, so we don't need check ASI
-
-					// Need add `()` to the `AssignmentExpression`
-					// - `ObjectExpression`: `[{foo}] = array.filter(bar)` fix to `{foo} = array.find(bar)`
-					// - `ObjectPattern`: `[{foo = baz}] = array.filter(bar)`
-					const needParenthesize = element.type === 'ObjectExpression' || element.type === 'ObjectPattern';
-
-					return [
-						needParenthesize && fixer.insertTextBefore(node, '('),
-						fixer.replaceText(right.callee.property, 'find'),
-						fixer.replaceText(left, context.getSourceCode().getText(element)),
-						needParenthesize && fixer.insertTextAfter(node, ')')
-					].filter(Boolean);
-				};
-			}
-
-			context.report(problem);
+				...fixDestructuring(source, node)
+			});
 		}
 	};
 };
