@@ -1,14 +1,38 @@
 'use strict';
-const {isParenthesized} = require('eslint-utils');
+const {isParenthesized, findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
+const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 
 const MESSAGE_ID_ZERO_INDEX = 'prefer-array-find-over-filter-zero-index';
 const MESSAGE_ID_SHIFT = 'prefer-array-find-over-filter-shift';
 const MESSAGE_ID_DESTRUCTURING_DECLARATION = 'prefer-array-find-over-filter-destructuring-declaration';
 const MESSAGE_ID_DESTRUCTURING_ASSIGNMENT = 'prefer-array-find-over-filter-destructuring-assignment';
+const MESSAGE_ID_DECLARATION = 'prefer-array-find-over-filter';
+
 const MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR = 'use-nullish-coalescing-operator';
 const MESSAGE_ID_USE_LOGICAL_OR_OPERATOR = 'use-logical-or-operator';
+
+const filterVariableSelector = [
+	'VariableDeclaration',
+	// Exclude `export const foo = [];`
+	`:not(${
+		[
+			'ExportNamedDeclaration',
+			'>',
+			'VariableDeclaration.declaration'
+		].join('')
+	})`,
+	'>',
+	'VariableDeclarator.declarations',
+	'[id.type="Identifier"]',
+	methodSelector({
+		name: 'filter',
+		min: 1,
+		max: 2,
+		property: 'init'
+	})
+].join('');
 
 const zeroIndexSelector = [
 	'MemberExpression',
@@ -133,6 +157,14 @@ const fixDestructuring = (source, node) => {
 	};
 };
 
+const isAccessingZeroIndex = node =>
+	node.parent &&
+	node.parent.type === 'MemberExpression' &&
+	node.parent.computed === true &&
+	node.parent.property &&
+	node.parent.property.type === 'Literal' &&
+	node.parent.property.raw === '0';
+
 const create = context => {
 	const source = context.getSourceCode();
 
@@ -170,6 +202,26 @@ const create = context => {
 				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
 				...fixDestructuring(source, node)
 			});
+		},
+		[filterVariableSelector](node) {
+			const variable = findVariable(context.getScope(), node.id);
+			const identifiers = getVariableIdentifiers(variable).filter(identifier => identifier !== node.id);
+
+			if (
+				identifiers.length === 0 ||
+				identifiers.some(identifier => !isAccessingZeroIndex(identifier))
+			) {
+				return;
+			}
+
+			context.report({
+				node: node.init.callee.property,
+				messageId: MESSAGE_ID_DECLARATION,
+				fix: fixer => [
+					fixer.replaceText(node.init.callee.property, 'find'),
+					...identifiers.map(identifier => fixer.removeRange([identifier.range[1], identifier.parent.range[1]]))
+				]
+			});
 		}
 	};
 };
@@ -183,6 +235,7 @@ module.exports = {
 		},
 		fixable: 'code',
 		messages: {
+			[MESSAGE_ID_DECLARATION]: 'Prefer `.find(…)` over `.filter(…)`.',
 			[MESSAGE_ID_ZERO_INDEX]: 'Prefer `.find(…)` over `.filter(…)[0]`.',
 			[MESSAGE_ID_SHIFT]: 'Prefer `.find(…)` over `.filter(…).shift()`.',
 			[MESSAGE_ID_DESTRUCTURING_DECLARATION]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',

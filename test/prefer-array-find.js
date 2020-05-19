@@ -7,12 +7,15 @@ const MESSAGE_ID_ZERO_INDEX = 'prefer-array-find-over-filter-zero-index';
 const MESSAGE_ID_SHIFT = 'prefer-array-find-over-filter-shift';
 const MESSAGE_ID_DESTRUCTURING_DECLARATION = 'prefer-array-find-over-filter-destructuring-declaration';
 const MESSAGE_ID_DESTRUCTURING_ASSIGNMENT = 'prefer-array-find-over-filter-destructuring-assignment';
+const MESSAGE_ID_DECLARATION = 'prefer-array-find-over-filter';
+
 const MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR = 'use-nullish-coalescing-operator';
 const MESSAGE_ID_USE_LOGICAL_OR_OPERATOR = 'use-logical-or-operator';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2020,
+		sourceType: 'module'
 	}
 });
 
@@ -521,6 +524,93 @@ ruleTester.run('prefer-array-find', rule, {
 				]
 			}]
 		}
+	]
+});
+
+// Test `const foo = array.filter(); foo[0];`
+ruleTester.run('prefer-array-find', rule, {
+	valid: [
+		`const foo = array.find(bar); const baz = foo[0];`,
+		`const foo = array.filter(bar); const baz = foo[+0];`,
+		`const foo = array.filter(bar); const baz = foo[-0];`,
+		`const foo = array.filter(bar); const baz = foo[1-1];`,
+		`const foo = array.filter(bar); const baz = foo["0"];`,
+		`const foo = array.filter(bar); const baz = foo.first;`,
+		`foo = array.filter(bar); const baz = foo[+0];`,
+		`const {foo} = array.filter(bar); const baz = foo[0];`,
+		outdent`
+			const foo = array.filter(bar);
+			doSomething(foo);
+			const first = foo[0];
+		`,
+		outdent`
+			var foo = array.filter(bar);
+			var foo = array.filter(bar);
+			const first = foo[0];
+		`,
+		outdent`
+			export const foo = array.filter(bar);
+			const first = foo[0];
+		`,
+
+		// Test `.filter()`
+		// Not `CallExpression`
+		'const foo = array.filter; const first = foo[0]',
+		// Not `MemberExpression`
+		'const foo = filter(bar); const first = foo[0]',
+		// `callee.property` is not a `Identifier`
+		'const foo = array["filter"](bar); const first = foo[0]',
+		// Computed
+		'const foo = array[filter](bar); const first = foo[0]',
+		// Not `filter`
+		'const foo = array.notFilter(bar); const first = foo[0]',
+		// More or less argument(s)
+		'const foo = array.filter(); const first = foo[0]',
+		'const foo = array.filter(bar, thisArgument, extraArgument); const first = foo[0]',
+		'const foo = array.filter(...bar); const first = foo[0]'
+	],
+	invalid: [
+		{
+			code: 'const foo = array.filter(bar); const first = foo[0];',
+			output: 'const foo = array.find(bar); const first = foo;',
+			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+		},
+		{
+			code: 'const foo = array.filter(bar), first = foo[0];',
+			output: 'const foo = array.find(bar), first = foo;',
+			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+		},
+		{
+			code: 'var foo = array.filter(bar), first = foo[0];',
+			output: 'var foo = array.find(bar), first = foo;',
+			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+		},
+		{
+			code: 'let foo = array.filter(bar), first = foo[0];',
+			output: 'let foo = array.find(bar), first = foo;',
+			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+		},
+		{
+			code: outdent`
+				const foo = array.filter(bar);
+				function getValueOfFirst() {
+					return foo[0].value;
+				}
+				function getPropertyOfFirst(property) {
+					return foo[0][property];
+				}
+			`,
+			output: outdent`
+				const foo = array.find(bar);
+				function getValueOfFirst() {
+					return foo.value;
+				}
+				function getPropertyOfFirst(property) {
+					return foo[property];
+				}
+			`,
+			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+		},
 	]
 });
 
