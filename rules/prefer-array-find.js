@@ -97,6 +97,7 @@ const create = context => {
 				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
 				fix: fixer => {
 					const assignTarget = node.left.elements[0];
+
 					// `AssignmentExpression` always starts with `[` or `(`, so we don't need check ASI
 
 					// Need add `()` to the `AssignmentExpression`

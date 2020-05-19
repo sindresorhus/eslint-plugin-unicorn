@@ -14,6 +14,7 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+// `[0]`
 ruleTester.run('prefer-array-find', rule, {
 	valid: [
 		'array.find(foo)',
@@ -26,6 +27,39 @@ ruleTester.run('prefer-array-find', rule, {
 		'array.filter(foo)["0"]',
 		'array.filter(foo).first',
 
+		// Test `.filter()`
+		// Not `CallExpression`
+		'array.filter[0]',
+		// Not `MemberExpression`
+		'filter(foo)[0]',
+		// `callee.property` is not a `Identifier`
+		'array["filter"](foo)[0]',
+		// Computed
+		'array[filter](foo)[0]',
+		// Not `filter`
+		'array.notFilter(foo)[0]',
+		// More or less argument(s)
+		'array.filter()[0]',
+		'array.filter(foo, thisArgument, extraArgument)[0]',
+		'array.filter(...foo)[0]'
+	],
+	invalid: [
+		{
+			code: 'array.filter(foo)[0]',
+			output: 'array.find(foo)',
+			errors: [{messageId: MESSAGE_ID_ZERO_INDEX}]
+		},
+		{
+			code: 'array.filter(foo, thisArgument)[0]',
+			output: 'array.find(foo, thisArgument)',
+			errors: [{messageId: MESSAGE_ID_ZERO_INDEX}]
+		}
+	]
+});
+
+// `.shift()`
+ruleTester.run('prefer-array-find', rule, {
+	valid: [
 		// Test `.shift()`
 		// Not `CallExpression`
 		'array.filter(foo).shift',
@@ -41,6 +75,64 @@ ruleTester.run('prefer-array-find', rule, {
 		'array.filter(foo).shift(extraArgument)',
 		'array.filter(foo).shift(...[])',
 
+		// Test `.filter()`
+		// Not `CallExpression`
+		'array.filter.shift()',
+		// Not `MemberExpression`
+		'filter(foo).shift()',
+		// `callee.property` is not a `Identifier`
+		'array["filter"](foo).shift()',
+		// Computed
+		'array[filter](foo).shift()',
+		// Not `filter`
+		'array.notFilter(foo).shift()',
+		// More or less argument(s)
+		'array.filter().shift()',
+		'array.filter(foo, thisArgument, extraArgument).shift()',
+		'array.filter(...foo).shift()'
+	],
+	invalid: [
+		{
+			code: 'array.filter(foo).shift()',
+			output: 'array.find(foo)',
+			errors: [{messageId: MESSAGE_ID_SHIFT}]
+		},
+		{
+			code: 'array.filter(foo, thisArgument).shift()',
+			output: 'array.find(foo, thisArgument)',
+			errors: [{messageId: MESSAGE_ID_SHIFT}]
+		},
+		{
+			code: outdent`
+				const item = array
+					// comment 1
+					.filter(
+						// comment 2
+						x => x === '🦄'
+					)
+					// comment 3
+					.shift()
+					// comment 4
+					;
+			`,
+			output: outdent`
+				const item = array
+					// comment 1
+					.find(
+						// comment 2
+						x => x === '🦄'
+					)
+					// comment 4
+					;
+			`,
+			errors: [{messageId: MESSAGE_ID_SHIFT}]
+		}
+	]
+});
+// `const [foo] =`
+
+ruleTester.run('prefer-array-find', rule, {
+	valid: [
 		// Test `const [item] = …`
 		// Not `VariableDeclarator`
 		'function a([foo] = array.filter(bar)) {}',
@@ -54,75 +146,31 @@ ruleTester.run('prefer-array-find', rule, {
 		// `AssignmentPattern`
 		'const [foo = baz] = array.filter(bar)',
 
-		// Test `[item] = …`
-		// Not `AssignmentExpression`
-		'function a([foo] = array.filter(bar)) {}',
-		// Not `ArrayPattern`
-		'foo = array.filter(bar)',
-		'({foo} = array.filter(bar))',
-		// `elements`
-		'[] = array.filter(bar)',
-		'[foo, another] = array.filter(bar)',
-		'[, foo] = array.filter(bar)',
-		// `AssignmentPattern`
-		'[foo = baz] = array.filter(bar)',
-
 		// Test `.filter()`
 		// Not `CallExpression`
-		'array.filter[0]',
-		'array.filter.shift()',
 		'const [foo] = array.filter',
-		'[foo] = array.filter',
 		// Not `MemberExpression`
-		'filter(foo)[0]',
-		'filter(foo).shift()',
 		'const [foo] = filter(bar)',
-		'[foo] = filter(bar)',
 		// `callee.property` is not a `Identifier`
-		'array["filter"](foo)[0]',
-		'array["filter"](foo).shift()',
 		'const [foo] = array["filter"](bar)',
-		'[foo] = array["filter"](bar)',
 		// Computed
-		'array[filter](foo)[0]',
-		'array[filter](foo).shift()',
 		'const [foo] = array[filter](bar)',
-		'[foo] = array[filter](bar)',
 		// Not `filter`
-		'array.notFilter(foo)[0]',
-		'array.notFilter(foo).shift()',
 		'const [foo] = array.notFilter(bar)',
-		'[foo] = array.notFilter(bar)',
 		// More or less argument(s)
-		'array.filter()[0]',
-		'array.filter(foo, thisArgument, extraArgument)[0]',
-		'array.filter(...foo)[0]',
-		'array.filter().shift()',
-		'array.filter(foo, thisArgument, extraArgument).shift()',
-		'array.filter(...foo).shift()',
 		'const [foo] = array.filter()',
 		'const [foo] = array.filter(bar, thisArgument, extraArgument)',
-		'const [foo] = array.filter(...bar)',
-		'[foo] = array.filter()',
-		'[foo] = array.filter(bar, thisArgument, extraArgument)',
-		'[foo] = array.filter(...bar)'
+		'const [foo] = array.filter(...bar)'
 	],
 	invalid: [
 		{
-			code: 'array.filter(foo)[0]',
-			output: 'array.find(foo)',
-			errors: [{messageId: MESSAGE_ID_ZERO_INDEX}]
-		},
-		{
-			code: 'array.filter(foo).shift()',
-			output: 'array.find(foo)',
-			errors: [{messageId: MESSAGE_ID_SHIFT}]
-		},
-
-		// VariableDeclarator
-		{
 			code: 'const [foo] = array.filter(bar)',
 			output: 'const foo = array.find(bar)',
+			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+		},
+		{
+			code: 'const [foo] = array.filter(bar, thisArgument)',
+			output: 'const foo = array.find(bar, thisArgument)',
 			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
 		},
 		{
@@ -175,11 +223,80 @@ ruleTester.run('prefer-array-find', rule, {
 			output: 'for (let i = array.find(bar); i< 10; i++) {}',
 			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
 		},
+		{
+			code: outdent`
+				const [
+					// comment 1
+					item
+					]
+					// comment 2
+					= array
+					// comment 3
+					.filter(
+						// comment 4
+						x => x === '🦄'
+					)
+					// comment 5
+					;
+			`,
+			output: outdent`
+				const item
+					// comment 2
+					= array
+					// comment 3
+					.find(
+						// comment 4
+						x => x === '🦄'
+					)
+					// comment 5
+					;
+			`,
+			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+		}
+	]
+});
 
-		// AssignmentExpression
+// `[foo] =`
+ruleTester.run('prefer-array-find', rule, {
+	valid: [
+		// Test `[item] = …`
+		// Not `AssignmentExpression`
+		'function a([foo] = array.filter(bar)) {}',
+		// Not `ArrayPattern`
+		'foo = array.filter(bar)',
+		'({foo} = array.filter(bar))',
+		// `elements`
+		'[] = array.filter(bar)',
+		'[foo, another] = array.filter(bar)',
+		'[, foo] = array.filter(bar)',
+		// `AssignmentPattern`
+		'[foo = baz] = array.filter(bar)',
+
+		// Test `.filter()`
+		// Not `CallExpression`
+		'[foo] = array.filter',
+		// Not `MemberExpression`
+		'[foo] = filter(bar)',
+		// `callee.property` is not a `Identifier`
+		'[foo] = array["filter"](bar)',
+		// Computed
+		'[foo] = array[filter](bar)',
+		// Not `filter`
+		'[foo] = array.notFilter(bar)',
+		// More or less argument(s)
+		'[foo] = array.filter()',
+		'[foo] = array.filter(bar, thisArgument, extraArgument)',
+		'[foo] = array.filter(...bar)'
+	],
+	invalid: [
 		{
 			code: '[foo] = array.filter(bar)',
 			output: 'foo = array.find(bar)',
+			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
+		},
+		{
+			code: '[foo] = array.filter(bar, thisArgument)',
+			output: 'foo = array.find(bar, thisArgument)',
 			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
 		},
 		{
@@ -212,6 +329,7 @@ ruleTester.run('prefer-array-find', rule, {
 			output: 'for (i = array.find(bar); i< 10; i++) {}',
 			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
 		},
+		// `no-semi` style
 		{
 			code: outdent`
 				let foo
@@ -224,77 +342,63 @@ ruleTester.run('prefer-array-find', rule, {
 				;foo = array.find(bar)
 			`,
 			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
-		},
+		}
+	]
+});
 
-		{
-			code: 'array.filter(foo, thisArgument)[0]',
-			output: 'array.find(foo, thisArgument)',
-			errors: [{messageId: MESSAGE_ID_ZERO_INDEX}]
-		},
-		{
-			code: 'array.filter(foo, thisArgument).shift()',
-			output: 'array.find(foo, thisArgument)',
-			errors: [{messageId: MESSAGE_ID_SHIFT}]
-		},
-		{
-			code: 'const [foo] = array.filter(bar, thisArgument)',
-			output: 'const foo = array.find(bar, thisArgument)',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
-		},
+// Mixed
+ruleTester.run('prefer-array-find', rule, {
+	valid: [],
+	invalid: [
 		{
 			code: outdent`
-				const item = array
-					// comment 1
-					.filter(
-						// comment 2
-						x => x === '🦄'
-					)
-					// comment 3
-					.shift()
-					// comment 4
-					;
+				const [foo] = array.filter(fn);
+				[{bar: baz}] = foo[
+					array.filter(fn)[0]
+				].filter(
+					array.filter(fn).shift()
+				);
 			`,
+			// I don't know why eslint can't fix all of them,
+			// But run test on this again will fix to correct code,
+			// See next test
 			output: outdent`
-				const item = array
-					// comment 1
-					.find(
-						// comment 2
-						x => x === '🦄'
-					)
-					// comment 4
-					;
+				const foo = array.find(fn);
+				({bar: baz} = foo[
+					array.filter(fn)[0]
+				].find(
+					array.filter(fn).shift()
+				));
 			`,
-			errors: [{messageId: MESSAGE_ID_SHIFT}]
+			errors: [
+				{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION},
+				{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT},
+				{messageId: MESSAGE_ID_ZERO_INDEX},
+				{messageId: MESSAGE_ID_SHIFT}
+			]
 		},
 		{
+			// This code from previous output
 			code: outdent`
-				const [
-					// comment 1
-					item
-					]
-					// comment 2
-					= array
-					// comment 3
-					.filter(
-						// comment 4
-						x => x === '🦄'
-					)
-					// comment 5
-					;
+				const foo = array.find(fn);
+				({bar: baz} = foo[
+					array.filter(fn)[0]
+				].find(
+					array.filter(fn).shift()
+				));
 			`,
 			output: outdent`
-				const item
-					// comment 2
-					= array
-					// comment 3
-					.find(
-						// comment 4
-						x => x === '🦄'
-					)
-					// comment 5
-					;
+				const foo = array.find(fn);
+				({bar: baz} = foo[
+					array.find(fn)
+				].find(
+					array.find(fn)
+				));
 			`,
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+			errors: [
+				{messageId: MESSAGE_ID_ZERO_INDEX},
+				{messageId: MESSAGE_ID_SHIFT}
+			]
 		}
 	]
 });
