@@ -7,6 +7,8 @@ const MESSAGE_ID_ZERO_INDEX = 'prefer-array-find-over-filter-zero-index';
 const MESSAGE_ID_SHIFT = 'prefer-array-find-over-filter-shift';
 const MESSAGE_ID_DESTRUCTURING_DECLARATION = 'prefer-array-find-over-filter-destructuring-declaration';
 const MESSAGE_ID_DESTRUCTURING_ASSIGNMENT = 'prefer-array-find-over-filter-destructuring-assignment';
+const MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR = 'use-nullish-coalescing-operator';
+const MESSAGE_ID_USE_LOGICAL_OR_OPERATOR = 'use-logical-or-operator';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
@@ -143,8 +145,8 @@ ruleTester.run('prefer-array-find', rule, {
 		'const [] = array.filter(bar)',
 		'const [foo, another] = array.filter(bar)',
 		'const [, foo] = array.filter(bar)',
-		// `AssignmentPattern`
-		'const [foo = baz] = array.filter(bar)',
+		// `RestElement`
+		'const [...foo] = array.filter(bar)',
 
 		// Test `.filter()`
 		// Not `CallExpression`
@@ -252,6 +254,24 @@ ruleTester.run('prefer-array-find', rule, {
 					;
 			`,
 			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+		},
+		// Suggestions
+		{
+			code: 'const [foo = baz] = array.filter(bar)',
+			output: 'const [foo = baz] = array.filter(bar)',
+			errors: [{
+				messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
+				suggestions: [
+					{
+						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						output: 'const foo = array.find(bar) ?? baz'
+					},
+					{
+						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						output: 'const foo = array.find(bar) || baz'
+					}
+				]
+			}]
 		}
 	]
 });
@@ -269,8 +289,8 @@ ruleTester.run('prefer-array-find', rule, {
 		'[] = array.filter(bar)',
 		'[foo, another] = array.filter(bar)',
 		'[, foo] = array.filter(bar)',
-		// `AssignmentPattern`
-		'[foo = baz] = array.filter(bar)',
+		// `RestElement`
+		'[...foo] = array.filter(bar)',
 
 		// Test `.filter()`
 		// Not `CallExpression`
@@ -342,7 +362,42 @@ ruleTester.run('prefer-array-find', rule, {
 				;foo = array.find(bar)
 			`,
 			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
-		}
+		},
+		// Suggestions
+		{
+			code: '[foo = baz] = array.filter(bar)',
+			output: '[foo = baz] = array.filter(bar)',
+			errors: [{
+				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
+				suggestions: [
+					{
+						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						output: 'foo = array.find(bar) ?? baz'
+					},
+					{
+						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						output: 'foo = array.find(bar) || baz'
+					}
+				]
+			}]
+		},
+		{
+			code: '[{foo} = baz] = array.filter(bar)',
+			output: '[{foo} = baz] = array.filter(bar)',
+			errors: [{
+				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
+				suggestions: [
+					{
+						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						output: '({foo} = array.find(bar) ?? baz)'
+					},
+					{
+						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						output: '({foo} = array.find(bar) || baz)'
+					}
+				]
+			}]
+		},
 	]
 });
 

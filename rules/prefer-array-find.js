@@ -6,6 +6,8 @@ const MESSAGE_ID_ZERO_INDEX = 'prefer-array-find-over-filter-zero-index';
 const MESSAGE_ID_SHIFT = 'prefer-array-find-over-filter-shift';
 const MESSAGE_ID_DESTRUCTURING_DECLARATION = 'prefer-array-find-over-filter-destructuring-declaration';
 const MESSAGE_ID_DESTRUCTURING_ASSIGNMENT = 'prefer-array-find-over-filter-destructuring-assignment';
+const MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR = 'use-nullish-coalescing-operator';
+const MESSAGE_ID_USE_LOGICAL_OR_OPERATOR = 'use-logical-or-operator';
 
 const zeroIndexSelector = [
 	'MemberExpression',
@@ -37,7 +39,7 @@ const destructuringDeclaratorSelector = [
 	'VariableDeclarator',
 	'[id.type="ArrayPattern"]',
 	'[id.elements.length=1]',
-	'[id.elements.0.type!="AssignmentPattern"]',
+	'[id.elements.0.type!="RestElement"]',
 	methodSelector({
 		name: 'filter',
 		min: 1,
@@ -50,7 +52,7 @@ const destructuringAssignmentSelector = [
 	'AssignmentExpression',
 	'[left.type="ArrayPattern"]',
 	'[left.elements.length=1]',
-	'[left.elements.0.type!="AssignmentPattern"]',
+	'[left.elements.0.type!="RestElement"]',
 	methodSelector({
 		name: 'filter',
 		min: 1,
@@ -60,6 +62,8 @@ const destructuringAssignmentSelector = [
 ].join('');
 
 const create = context => {
+	const source = context.getSourceCode();
+
 	return {
 		[zeroIndexSelector](node) {
 			context.report({
@@ -82,37 +86,99 @@ const create = context => {
 			});
 		},
 		[destructuringDeclaratorSelector](node) {
-			context.report({
+			const {id, init} = node;
+			const [element] = id.elements;
+			const problem = {
 				node,
 				messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
-				fix: fixer => [
-					fixer.replaceText(node.init.callee.property, 'find'),
-					fixer.replaceText(node.id, context.getSourceCode().getText(node.id.elements[0]))
+			};
+
+			if (element.type === 'AssignmentPattern') {
+				problem.suggest = [
+					{
+						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						fix: fixer => [
+							fixer.replaceText(init.callee.property, 'find'),
+							fixer.replaceText(id, source.getText(element.left)),
+							fixer.insertTextAfter(init, ` ?? ${source.getText(element.right)}`)
+						]
+					},
+					{
+						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						fix: fixer => [
+							fixer.replaceText(init.callee.property, 'find'),
+							fixer.replaceText(id, source.getText(element.left)),
+							fixer.insertTextAfter(init, ` || ${source.getText(element.right)}`)
+						]
+					},
 				]
-			});
+			} else {
+				problem.fix = fixer => [
+					fixer.replaceText(init.callee.property, 'find'),
+					fixer.replaceText(id, source.getText(element))
+				];
+			}
+
+			context.report(problem);
 		},
 		[destructuringAssignmentSelector](node) {
-			context.report({
+			const {left, right} = node;
+			const [element] = left.elements;
+			const problem = {
 				node,
 				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
-				fix: fixer => {
-					const assignTarget = node.left.elements[0];
+			};
 
+			if (element.type === 'AssignmentPattern') {
+				problem.suggest = [
+					{
+						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						fix: fixer => {
+							const needParenthesize = element.left.type === 'ObjectExpression' || element.left.type === 'ObjectPattern';
+
+							return [
+								needParenthesize && fixer.insertTextBefore(node, '('),
+								fixer.replaceText(right.callee.property, 'find'),
+								fixer.replaceText(left, context.getSourceCode().getText(element.left)),
+								fixer.insertTextAfter(right, ` ?? ${source.getText(element.right)}`),
+								needParenthesize && fixer.insertTextAfter(node, ')')
+							].filter(Boolean);
+						}
+					},
+					{
+						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						fix: fixer => {
+							const needParenthesize = element.left.type === 'ObjectExpression' || element.left.type === 'ObjectPattern';
+
+							return [
+								needParenthesize && fixer.insertTextBefore(node, '('),
+								fixer.replaceText(right.callee.property, 'find'),
+								fixer.replaceText(left, context.getSourceCode().getText(element.left)),
+								fixer.insertTextAfter(right, ` || ${source.getText(element.right)}`),
+								needParenthesize && fixer.insertTextAfter(node, ')')
+							].filter(Boolean);
+						}
+					},
+				]
+			} else {
+				problem.fix = fixer => {
 					// `AssignmentExpression` always starts with `[` or `(`, so we don't need check ASI
 
 					// Need add `()` to the `AssignmentExpression`
 					// - `ObjectExpression`: `[{foo}] = array.filter(bar)` fix to `{foo} = array.find(bar)`
 					// - `ObjectPattern`: `[{foo = baz}] = array.filter(bar)`
-					const needParenthesize = assignTarget.type === 'ObjectExpression' || assignTarget.type === 'ObjectPattern';
+					const needParenthesize = element.type === 'ObjectExpression' || element.type === 'ObjectPattern';
 
 					return [
 						needParenthesize && fixer.insertTextBefore(node, '('),
-						fixer.replaceText(node.right.callee.property, 'find'),
-						fixer.replaceText(node.left, context.getSourceCode().getText(assignTarget)),
+						fixer.replaceText(right.callee.property, 'find'),
+						fixer.replaceText(left, context.getSourceCode().getText(element)),
 						needParenthesize && fixer.insertTextAfter(node, ')')
 					].filter(Boolean);
-				}
-			});
+				};
+			}
+
+			context.report(problem);
 		}
 	};
 };
@@ -130,7 +196,9 @@ module.exports = {
 			[MESSAGE_ID_SHIFT]: 'Prefer `.find(…)` over `.filter(…).shift()`.',
 			[MESSAGE_ID_DESTRUCTURING_DECLARATION]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
 			// Same message as `MESSAGE_ID_DESTRUCTURING_DECLARATION`, but different case
-			[MESSAGE_ID_DESTRUCTURING_ASSIGNMENT]: 'Prefer `.find(…)` over destructuring `.filter(…)`.'
+			[MESSAGE_ID_DESTRUCTURING_ASSIGNMENT]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
+			[MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR]: 'Replace `.filter(…)` with `.find(…) ?? …`.',
+			[MESSAGE_ID_USE_LOGICAL_OR_OPERATOR]: 'Replace `.filter(…)` with `.find(…) || …`.'
 		}
 	}
 };
