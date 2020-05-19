@@ -139,7 +139,7 @@ const create = context => {
 	return {
 		[zeroIndexSelector](node) {
 			context.report({
-				node,
+				node: node.object.callee.property,
 				messageId: MESSAGE_ID_ZERO_INDEX,
 				fix: fixer => [
 					fixer.replaceText(node.object.callee.property, 'find'),
@@ -149,7 +149,7 @@ const create = context => {
 		},
 		[shiftSelector](node) {
 			context.report({
-				node,
+				node: node.callee.object.callee.property,
 				messageId: MESSAGE_ID_SHIFT,
 				fix: fixer => [
 					fixer.replaceText(node.callee.object.callee.property, 'find'),
@@ -159,14 +159,14 @@ const create = context => {
 		},
 		[destructuringDeclaratorSelector](node) {
 			context.report({
-				node,
+				node: node.init.callee.property,
 				messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
 				...fixDestructuring(source, node)
 			});
 		},
 		[destructuringAssignmentSelector](node) {
 			context.report({
-				node,
+				node: node.right.callee.property,
 				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
 				...fixDestructuring(source, node)
 			});

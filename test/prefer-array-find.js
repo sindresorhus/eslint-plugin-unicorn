@@ -550,8 +550,8 @@ ruleTester.run('prefer-array-find', rule, {
 			`,
 			errors: [
 				{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION},
-				{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT},
 				{messageId: MESSAGE_ID_ZERO_INDEX},
+				{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT},
 				{messageId: MESSAGE_ID_SHIFT}
 			]
 		},
