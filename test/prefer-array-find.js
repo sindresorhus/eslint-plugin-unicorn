@@ -134,8 +134,8 @@ ruleTester.run('prefer-array-find', rule, {
 		}
 	]
 });
-// `const [foo] =`
 
+// `const [foo] =`
 ruleTester.run('prefer-array-find', rule, {
 	valid: [
 		// Test `const [item] = …`
@@ -527,18 +527,18 @@ ruleTester.run('prefer-array-find', rule, {
 	]
 });
 
-// Test `const foo = array.filter(); foo[0];`
+// `const foo = array.filter(); foo[0];`
 ruleTester.run('prefer-array-find', rule, {
 	valid: [
-		`const foo = array.find(bar), first = foo[0];`,
-		`const foo = array.filter(bar), first = foo[+0];`,
-		`const foo = array.filter(bar), first = a[foo][0];`,
-		`const foo = array.filter(bar), first = foo[-0];`,
-		`const foo = array.filter(bar), first = foo[1-1];`,
-		`const foo = array.filter(bar), first = foo["0"];`,
-		`const foo = array.filter(bar), first = foo.first;`,
-		`foo = array.filter(bar); const first = foo[+0];`,
-		`const {foo} = array.filter(bar), first = foo[0];`,
+		'const foo = array.find(bar), first = foo[0];',
+		'const foo = array.filter(bar), first = foo[+0];',
+		'const foo = array.filter(bar), first = a[foo][0];',
+		'const foo = array.filter(bar), first = foo[-0];',
+		'const foo = array.filter(bar), first = foo[1-1];',
+		'const foo = array.filter(bar), first = foo["0"];',
+		'const foo = array.filter(bar), first = foo.first;',
+		'foo = array.filter(bar); const first = foo[+0];',
+		'const {foo} = array.filter(bar), first = foo[0];',
 		outdent`
 			const foo = array.filter(bar);
 			doSomething(foo);
@@ -616,7 +616,7 @@ ruleTester.run('prefer-array-find', rule, {
 				}
 			`,
 			errors: [{messageId: MESSAGE_ID_DECLARATION}]
-		},
+		}
 	]
 });
 

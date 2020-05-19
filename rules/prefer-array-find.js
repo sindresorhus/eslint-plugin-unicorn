@@ -113,7 +113,7 @@ const fixDestructuring = (source, node) => {
 	// `AssignmentExpression` always starts with `[` or `(`, so we don't need check ASI
 	const needParenthesize = isAssign &&
 		!isParenthesized(node, source) &&
-		assignmentNeedParenthesize(element.type !== 'AssignmentPattern' ? element : element.left);
+		assignmentNeedParenthesize(element.type === 'AssignmentPattern' ? element.left : element);
 
 	if (element.type !== 'AssignmentPattern') {
 		return {
@@ -141,7 +141,7 @@ const fixDestructuring = (source, node) => {
 			fixer.insertTextAfter(right, ` ${operator} ${defaultValueText}`),
 			needParenthesize && fixer.insertTextAfter(node, ')')
 		].filter(Boolean);
-	}
+	};
 
 	return {
 		suggest: [
@@ -152,7 +152,7 @@ const fixDestructuring = (source, node) => {
 			{
 				messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
 				fix: fix('||')
-			},
+			}
 		]
 	};
 };
