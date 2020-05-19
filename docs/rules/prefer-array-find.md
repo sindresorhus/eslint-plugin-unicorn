@@ -1,6 +1,6 @@
 # Prefer `.find(…)` over the first element from `.filter(…)`
 
-[`Array#find`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) breaks the loop as soon as it finds a match.
+[`Array#find()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) breaks the loop as soon as it finds a match, and don't create new array.
 
 This rule is fixable.
 
