@@ -51,8 +51,7 @@ ruleTester.run('prefer-array-find', rule, {
 		'const [] = array.filter(bar)',
 		'const [foo, another] = array.filter(bar)',
 		'const [, foo] = array.filter(bar)',
-		'const [foo = bar] = array.filter(baz)',
-		'const [{foo}] = array.filter(bar)',
+		// `AssignmentPattern`
 		'const [foo = baz] = array.filter(bar)',
 
 		// Test `[item] = …`
@@ -127,6 +126,26 @@ ruleTester.run('prefer-array-find', rule, {
 			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
 		},
 		{
+			code: 'const [{foo}] = array.filter(fn);',
+			output: 'const {foo} = array.find(fn);',
+			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+		},
+		{
+			code: 'const [{foo = bar}] = array.filter(fn);',
+			output: 'const {foo = bar} = array.find(fn);',
+			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+		},
+		{
+			code: 'const [[foo]] = array.filter(fn);',
+			output: 'const [foo] = array.find(fn);',
+			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+		},
+		{
+			code: 'const [[foo = bar]] = array.filter(fn);',
+			output: 'const [foo = bar] = array.find(fn);',
+			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+		},
+		{
 			code: 'const [foo, ] = array.filter(bar)',
 			output: 'const foo = array.find(bar)',
 			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
@@ -144,6 +163,11 @@ ruleTester.run('prefer-array-find', rule, {
 		{
 			code: 'let a = 1, [foo, ] = array.filter(bar)',
 			output: 'let a = 1, foo = array.find(bar)',
+			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+		},
+		{
+			code: 'let a = 1, [{foo}] = array.filter(bar)',
+			output: 'let a = 1, {foo} = array.find(bar)',
 			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
 		},
 		{
@@ -166,6 +190,11 @@ ruleTester.run('prefer-array-find', rule, {
 		{
 			code: '[{foo}] = array.filter(fn);',
 			output: '({foo} = array.find(fn));',
+			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
+		},
+		{
+			code: '[[foo]] = array.filter(fn);',
+			output: '[foo] = array.find(fn);',
 			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
 		},
 		{

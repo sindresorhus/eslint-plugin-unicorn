@@ -37,7 +37,7 @@ const destructuringDeclaratorSelector = [
 	'VariableDeclarator',
 	'[id.type="ArrayPattern"]',
 	'[id.elements.length=1]',
-	'[id.elements.0.type="Identifier"]',
+	'[id.elements.0.type!="AssignmentPattern"]',
 	methodSelector({
 		name: 'filter',
 		min: 1,
