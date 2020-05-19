@@ -530,14 +530,15 @@ ruleTester.run('prefer-array-find', rule, {
 // Test `const foo = array.filter(); foo[0];`
 ruleTester.run('prefer-array-find', rule, {
 	valid: [
-		`const foo = array.find(bar); const baz = foo[0];`,
-		`const foo = array.filter(bar); const baz = foo[+0];`,
-		`const foo = array.filter(bar); const baz = foo[-0];`,
-		`const foo = array.filter(bar); const baz = foo[1-1];`,
-		`const foo = array.filter(bar); const baz = foo["0"];`,
-		`const foo = array.filter(bar); const baz = foo.first;`,
-		`foo = array.filter(bar); const baz = foo[+0];`,
-		`const {foo} = array.filter(bar); const baz = foo[0];`,
+		`const foo = array.find(bar), first = foo[0];`,
+		`const foo = array.filter(bar), first = foo[+0];`,
+		`const foo = array.filter(bar), first = a[foo][0];`,
+		`const foo = array.filter(bar), first = foo[-0];`,
+		`const foo = array.filter(bar), first = foo[1-1];`,
+		`const foo = array.filter(bar), first = foo["0"];`,
+		`const foo = array.filter(bar), first = foo.first;`,
+		`foo = array.filter(bar); const first = foo[+0];`,
+		`const {foo} = array.filter(bar), first = foo[0];`,
 		outdent`
 			const foo = array.filter(bar);
 			doSomething(foo);
@@ -591,6 +592,11 @@ ruleTester.run('prefer-array-find', rule, {
 			errors: [{messageId: MESSAGE_ID_DECLARATION}]
 		},
 		{
+			code: 'let foo = array.filter(bar);foo[0](foo[0])[foo[0]];',
+			output: 'let foo = array.find(bar);foo(foo)[foo];',
+			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+		},
+		{
 			code: outdent`
 				const foo = array.filter(bar);
 				function getValueOfFirst() {
@@ -620,18 +626,20 @@ ruleTester.run('prefer-array-find', rule, {
 	invalid: [
 		{
 			code: outdent`
-				const [foo] = array.filter(fn);
+				const quz = array.filter(fn);
+				const [foo] = array.filter(quz[0]);
 				[{bar: baz}] = foo[
 					array.filter(fn)[0]
 				].filter(
 					array.filter(fn).shift()
 				);
 			`,
-			// I don't know why eslint can't fix all of them,
+			// Eslint can't fix all of them,
 			// But run test on this again will fix to correct code,
 			// See next test
 			output: outdent`
-				const foo = array.find(fn);
+				const quz = array.find(fn);
+				const [foo] = array.filter(quz);
 				({bar: baz} = foo[
 					array.filter(fn)[0]
 				].find(
@@ -639,6 +647,7 @@ ruleTester.run('prefer-array-find', rule, {
 				));
 			`,
 			errors: [
+				{messageId: MESSAGE_ID_DECLARATION},
 				{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION},
 				{messageId: MESSAGE_ID_ZERO_INDEX},
 				{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT},
@@ -648,7 +657,8 @@ ruleTester.run('prefer-array-find', rule, {
 		{
 			// This code from previous output
 			code: outdent`
-				const foo = array.find(fn);
+				const quz = array.find(fn);
+				const [foo] = array.filter(quz);
 				({bar: baz} = foo[
 					array.filter(fn)[0]
 				].find(
@@ -656,7 +666,8 @@ ruleTester.run('prefer-array-find', rule, {
 				));
 			`,
 			output: outdent`
-				const foo = array.find(fn);
+				const quz = array.find(fn);
+				const foo = array.find(quz);
 				({bar: baz} = foo[
 					array.find(fn)
 				].find(
@@ -664,6 +675,7 @@ ruleTester.run('prefer-array-find', rule, {
 				));
 			`,
 			errors: [
+				{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION},
 				{messageId: MESSAGE_ID_ZERO_INDEX},
 				{messageId: MESSAGE_ID_SHIFT}
 			]
