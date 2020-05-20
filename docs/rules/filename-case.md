@@ -50,7 +50,7 @@ You can set the `case` option like this:
 
 ### cases
 
-Type: `{[type: string]: string}`
+Type: `{[type: string]: boolean}`
 
 You can set the `cases` option to allow multiple cases:
 
