@@ -312,6 +312,24 @@ ruleTester.run('prefer-array-find', rule, {
 				]
 			}]
 		},
+		// // TODO:  enable this test when ESLint support `nullish coalescing operator`
+		// {
+		// 	code: 'const [foo = a ?? b] = array.filter(bar)',
+		// 	output: 'const [foo = a ?? b] = array.filter(bar)',
+		// 	errors: [{
+		// 		messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
+		// 		suggestions: [
+		// 			{
+		// 				messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+		// 				output: 'const foo = array.find(bar) ?? (a ?? b)'
+		// 			},
+		// 			{
+		// 				messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+		// 				output: 'const foo = array.find(bar) || (a ?? b)'
+		// 			}
+		// 		]
+		// 	}]
+		// },
 		{
 			code: 'const [foo = a || b] = array.filter(bar)',
 			output: 'const [foo = a || b] = array.filter(bar)',
@@ -325,6 +343,23 @@ ruleTester.run('prefer-array-find', rule, {
 					{
 						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
 						output: 'const foo = array.find(bar) || (a || b)'
+					}
+				]
+			}]
+		},
+		{
+			code: 'const [foo = a && b] = array.filter(bar)',
+			output: 'const [foo = a && b] = array.filter(bar)',
+			errors: [{
+				messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
+				suggestions: [
+					{
+						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						output: 'const foo = array.find(bar) ?? (a && b)'
+					},
+					{
+						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						output: 'const foo = array.find(bar) || a && b'
 					}
 				]
 			}]

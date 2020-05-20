@@ -87,17 +87,22 @@ const destructuringAssignmentSelector = [
 // - `ObjectPattern`: `[{foo = baz}] = array.filter(bar)`
 const assignmentNeedParenthesize = ({type}) => type === 'ObjectExpression' || type === 'ObjectPattern';
 
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Expressions_and_Operators#Operator_precedence
-// Higher than `??` and `||`
-const hasHigherPrecedence = (node, operator) => (
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
+const hasLowerPrecedence = (node, operator) => (
 	(node.type === 'LogicalExpression' && (
 		node.operator === operator ||
+		// https://tc39.es/proposal-nullish-coalescing/ says
 		// `??` has lower precedence than `||`
-		// https://tc39.es/proposal-nullish-coalescing/
-		(operator === '??' && node.operator === '||')
+		// But MDN says
+		// `??` has higher precedence than `||`
+		(operator === '||' && node.operator === '??') ||
+		(operator === '??' && (node.operator === '||' || node.operator === '&&'))
 	)) ||
 	node.type === 'ConditionalExpression' ||
+	// Lower than `assignment`, should already parenthesized
+	/* istanbul ignore next */
 	node.type === 'AssignmentExpression' ||
+	node.type === 'YieldExpression' ||
 	node.type === 'SequenceExpression'
 );
 
@@ -128,7 +133,7 @@ const fixDestructuring = (source, node) => {
 		const defaultValue = element.right;
 		let defaultValueText = source.getText(defaultValue);
 
-		if (isParenthesized(defaultValue, source) || hasHigherPrecedence(defaultValue, operator)) {
+		if (isParenthesized(defaultValue, source) || hasLowerPrecedence(defaultValue, operator)) {
 			defaultValueText = `(${defaultValueText})`;
 		}
 
