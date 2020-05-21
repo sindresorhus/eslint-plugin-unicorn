@@ -1,5 +1,4 @@
 'use strict';
-const {flatten} = require('lodash');
 const {isParenthesized, findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
@@ -139,22 +138,23 @@ const fixDestructuring = (node, source, fixer) => {
 	const isAssign = node.type === 'AssignmentExpression';
 	const {left} = getDestructuringLeftAndRight(node);
 	const [element] = left.elements;
-	const needParenthesize = assignmentNeedParenthesize(node, source);
 
-	return [
-		needParenthesize && fixer.insertTextBefore(node, '('),
-		fixer.replaceText(left, source.getText(element)),
-		needParenthesize && fixer.insertTextAfter(node, ')')
-	].filter(Boolean);
+	const leftText = source.getText(element.type === 'AssignmentPattern' ? element.left : element);
+	const fixes = [ fixer.replaceText(left, leftText) ];
+
+	// `AssignmentExpression` always starts with `[` or `(`, so we don't need check ASI
+	if (assignmentNeedParenthesize(node, source)) {
+		fixes.push(fixer.insertTextBefore(node, '('));
+		fixes.push(fixer.insertTextAfter(node, ')'));
+	}
+
+	return fixes;
 };
 
 const fixDestructuringAndReplaceFilter = (source, node) => {
 	const isAssign = node.type === 'AssignmentExpression';
 	const {left, right} = getDestructuringLeftAndRight(node);
 	const [element] = left.elements;
-
-	// `AssignmentExpression` always starts with `[` or `(`, so we don't need check ASI
-	const needParenthesize = assignmentNeedParenthesize(node, source);
 
 	if (element.type !== 'AssignmentPattern') {
 		return {
@@ -174,11 +174,9 @@ const fixDestructuringAndReplaceFilter = (source, node) => {
 		}
 
 		return [
-			needParenthesize && fixer.insertTextBefore(node, '('),
 			fixer.replaceText(right.callee.property, 'find'),
-			fixer.replaceText(left, source.getText(element.left)),
 			fixer.insertTextAfter(right, ` ${operator} ${defaultValueText}`),
-			needParenthesize && fixer.insertTextAfter(node, ')')
+			...fixDestructuring(node, source, fixer)
 		].filter(Boolean);
 	};
 
@@ -283,11 +281,18 @@ const create = context => {
 			if (
 				!destructuringNodes.some(node => getDestructuringLeftAndRight(node).left.elements[0].type === 'AssignmentPattern')
 			) {
-				problem.fix = fixer => [
-					fixer.replaceText(node.init.callee.property, 'find'),
-					...zeroIndexNodes.map(node => fixer.removeRange([node.object.range[1], node.range[1]])),
-					...flatten(destructuringNodes.map(node => fixDestructuring(node, source, fixer)))
-				];
+				problem.fix = fixer => {
+					const fixes = [
+						fixer.replaceText(node.init.callee.property, 'find')
+					];
+					for (const node of zeroIndexNodes) {
+						fixes.push(fixer.removeRange([node.object.range[1], node.range[1]]))
+					}
+					for (const node of destructuringNodes) {
+						fixes.push(...fixDestructuring(node, source, fixer))
+					}
+					return fixes;
+				};
 			}
 
 			context.report(problem);
