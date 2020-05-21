@@ -135,7 +135,6 @@ const getDestructuringLeftAndRight = node => {
 }
 
 const fixDestructuring = (node, source, fixer) => {
-	const isAssign = node.type === 'AssignmentExpression';
 	const {left} = getDestructuringLeftAndRight(node);
 	const [element] = left.elements;
 
@@ -150,48 +149,46 @@ const fixDestructuring = (node, source, fixer) => {
 
 	return fixes;
 };
-
-const fixDestructuringAndReplaceFilter = (source, node) => {
-	const isAssign = node.type === 'AssignmentExpression';
+const hasDefaultValue = node => getDestructuringLeftAndRight(node).left.elements[0].type === 'AssignmentPattern';
+const fixDestructuringDefaultValue = (node, source, fixer, operator) => {
 	const {left, right} = getDestructuringLeftAndRight(node);
 	const [element] = left.elements;
+	const defaultValue = element.right;
+	let defaultValueText = source.getText(defaultValue);
 
-	if (element.type !== 'AssignmentPattern') {
-		return {
-			fix: fixer => [
-				fixer.replaceText(right.callee.property, 'find'),
-				...fixDestructuring(node, source, fixer)
-			]
-		};
+	if (isParenthesized(defaultValue, source) || hasLowerPrecedence(defaultValue, operator)) {
+		defaultValueText = `(${defaultValueText})`;
 	}
 
-	const fix = operator => fixer => {
-		const defaultValue = element.right;
-		let defaultValueText = source.getText(defaultValue);
+	return fixer.insertTextAfter(right, ` ${operator} ${defaultValueText}`);
+};
 
-		if (isParenthesized(defaultValue, source) || hasLowerPrecedence(defaultValue, operator)) {
-			defaultValueText = `(${defaultValueText})`;
-		}
+const fixDestructuringAndReplaceFilter = (source, node) => {
+	const property = getDestructuringLeftAndRight(node).right.callee.property;
 
-		return [
-			fixer.replaceText(right.callee.property, 'find'),
-			fixer.insertTextAfter(right, ` ${operator} ${defaultValueText}`),
+	let suggest;
+	let fix;
+
+	if (hasDefaultValue(node)) {
+		suggest = [
+			{ messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR, operator: '??' },
+			{ messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR, operator: '||' },
+		].map(({messageId, operator}) => ({
+			messageId,
+			fix: fixer => [
+				fixer.replaceText(property, 'find'),
+				fixDestructuringDefaultValue(node, source, fixer, operator),
+				...fixDestructuring(node, source, fixer)
+			]
+		}))
+	} else {
+		fix = fixer => [
+			fixer.replaceText(property, 'find'),
 			...fixDestructuring(node, source, fixer)
-		].filter(Boolean);
-	};
-
-	return {
-		suggest: [
-			{
-				messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
-				fix: fix('??')
-			},
-			{
-				messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
-				fix: fix('||')
-			}
 		]
-	};
+	}
+
+	return { fix, suggest };
 };
 
 const isAccessingZeroIndex = node =>
@@ -278,9 +275,7 @@ const create = context => {
 			};
 
 			// `const [foo = bar] = baz` is not fixable
-			if (
-				!destructuringNodes.some(node => getDestructuringLeftAndRight(node).left.elements[0].type === 'AssignmentPattern')
-			) {
+			if (!destructuringNodes.some(node => hasDefaultValue(node))) {
 				problem.fix = fixer => {
 					const fixes = [
 						fixer.replaceText(node.init.callee.property, 'find')
