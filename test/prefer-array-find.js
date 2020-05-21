@@ -294,7 +294,7 @@ ruleTester.run('prefer-array-find', rule, {
 				]
 			}]
 		},
-		// Default value has higher precedence
+		// Default value has lower precedence
 		{
 			code: 'const [foo = a ? b : c] = array.filter(bar)',
 			output: 'const [foo = a ? b : c] = array.filter(bar)',
@@ -524,7 +524,7 @@ ruleTester.run('prefer-array-find', rule, {
 				]
 			}]
 		},
-		// Default value has higher precedence
+		// Default value has lower precedence
 		{
 			code: '[foo = a ? b : c] = array.filter(bar)',
 			output: '[foo = a ? b : c] = array.filter(bar)',
@@ -562,11 +562,13 @@ ruleTester.run('prefer-array-find', rule, {
 	]
 });
 
-// `const foo = array.filter(); foo[0];`
+// `const foo = array.filter(); foo[0]; [bar] = foo`
 ruleTester.run('prefer-array-find', rule, {
 	valid: [
 		'const foo = array.find(bar), first = foo[0];',
+		'const foo = array.filter(bar), first = notFoo[0];',
 		'const foo = array.filter(bar), first = foo[+0];',
+		'const foo = array.filter(bar); first = foo;',
 		'const foo = array.filter(bar), first = a[foo][0];',
 		'const foo = array.filter(bar), first = foo[-0];',
 		'const foo = array.filter(bar), first = foo[1-1];',
@@ -588,6 +590,22 @@ ruleTester.run('prefer-array-find', rule, {
 			export const foo = array.filter(bar);
 			const first = foo[0];
 		`,
+
+		'const foo = array.find(bar); const [first] = foo;',
+		'const foo = array.find(bar); [first] = foo;',
+		'const foo = array.filter(bar); const [first] = notFoo;',
+		'const foo = array.filter(bar); [first] = notFoo;',
+		'const foo = array.filter(bar); const first = foo;',
+		'const foo = array.filter(bar); first = foo;',
+		'const foo = array.filter(bar); const {0: first} = foo;',
+		'const foo = array.filter(bar); ({0: first} = foo);',
+		'const foo = array.filter(bar); const [] = foo;',
+		'const foo = array.filter(bar); const [first, another] = foo;',
+		'const foo = array.filter(bar); [first, another] = foo;',
+		'const foo = array.filter(bar); const [,first] = foo;',
+		'const foo = array.filter(bar); [,first] = foo;',
+		'const foo = array.filter(bar); const [...first] = foo;',
+		'const foo = array.filter(bar); [...first] = foo;',
 
 		// Test `.filter()`
 		// Not `CallExpression`
@@ -627,13 +645,48 @@ ruleTester.run('prefer-array-find', rule, {
 			errors: [{messageId: MESSAGE_ID_DECLARATION}]
 		},
 		{
+			code: 'const foo = array.filter(bar); const [first] = foo;',
+			output: 'const foo = array.find(bar); const first = foo;',
+			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+		},
+		{
+			code: 'const foo = array.filter(bar); [first] = foo;',
+			output: 'const foo = array.find(bar); first = foo;',
+			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+		},
+		{
+			code: 'const foo = array.filter(bar); const [{propOfFirst = unicorn}] = foo;',
+			output: 'const foo = array.find(bar); const {propOfFirst = unicorn} = foo;',
+			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+		},
+		{
+			code: 'const foo = array.filter(bar); [{propOfFirst = unicorn}] = foo;',
+			output: 'const foo = array.find(bar); ({propOfFirst = unicorn} = foo);',
+			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+		},
+		// Not fixable
+		{
+			code: 'const foo = array.filter(bar); const [first = bar] = foo;',
+			output: 'const foo = array.filter(bar); const [first = bar] = foo;',
+			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+		},
+		{
+			code: 'const foo = array.filter(bar); [first = bar] = foo;',
+			output: 'const foo = array.filter(bar); [first = bar] = foo;',
+			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+		},
+		// Many
+		{
 			code: 'let foo = array.filter(bar);foo[0](foo[0])[foo[0]];',
 			output: 'let foo = array.find(bar);foo(foo)[foo];',
 			errors: [{messageId: MESSAGE_ID_DECLARATION}]
 		},
 		{
 			code: outdent`
+				let baz;
 				const foo = array.filter(bar);
+				const [bar] = foo;
+				[{bar}] = foo;
 				function getValueOfFirst() {
 					return foo[0].value;
 				}
@@ -642,7 +695,10 @@ ruleTester.run('prefer-array-find', rule, {
 				}
 			`,
 			output: outdent`
+				let baz;
 				const foo = array.find(bar);
+				const bar = foo;
+				({bar} = foo);
 				function getValueOfFirst() {
 					return foo.value;
 				}

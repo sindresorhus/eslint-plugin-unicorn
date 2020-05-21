@@ -1,4 +1,5 @@
 'use strict';
+const {flatten} = require('lodash');
 const {isParenthesized, findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
@@ -85,7 +86,18 @@ const destructuringAssignmentSelector = [
 // Need add `()` to the `AssignmentExpression`
 // - `ObjectExpression`: `[{foo}] = array.filter(bar)` fix to `{foo} = array.find(bar)`
 // - `ObjectPattern`: `[{foo = baz}] = array.filter(bar)`
-const assignmentNeedParenthesize = ({type}) => type === 'ObjectExpression' || type === 'ObjectPattern';
+const assignmentNeedParenthesize = (node, source) => {
+	const isAssign = node.type === 'AssignmentExpression';
+
+	if (!isAssign || isParenthesized(node, source)) {
+		return false;
+	}
+
+	const {left} = getDestructuringLeftAndRight(node);
+	const [element] = left.elements;
+	const {type} = element.type === 'AssignmentPattern' ? element.left : element;
+	return type === 'ObjectExpression' || type === 'ObjectPattern';
+};
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
 const hasLowerPrecedence = (node, operator) => (
@@ -106,26 +118,50 @@ const hasLowerPrecedence = (node, operator) => (
 	node.type === 'SequenceExpression'
 );
 
-const fixDestructuring = (source, node) => {
-	const isAssign = node.type === 'AssignmentExpression';
-	const left = isAssign ? node.left : node.id;
-	const right = isAssign ? node.right : node.init;
+const getDestructuringLeftAndRight = node => {
+	/* istanbul ignore next */
+	if (!node) {
+		return {};
+	}
 
+	if (node.type === 'AssignmentExpression') {
+		return node;
+	}
+
+	if (node.type === 'VariableDeclarator') {
+		return {left: node.id, right: node.init};
+	}
+
+	return {};
+}
+
+const fixDestructuring = (node, source, fixer) => {
+	const isAssign = node.type === 'AssignmentExpression';
+	const {left} = getDestructuringLeftAndRight(node);
+	const [element] = left.elements;
+	const needParenthesize = assignmentNeedParenthesize(node, source);
+
+	return [
+		needParenthesize && fixer.insertTextBefore(node, '('),
+		fixer.replaceText(left, source.getText(element)),
+		needParenthesize && fixer.insertTextAfter(node, ')')
+	].filter(Boolean);
+};
+
+const fixDestructuringAndReplaceFilter = (source, node) => {
+	const isAssign = node.type === 'AssignmentExpression';
+	const {left, right} = getDestructuringLeftAndRight(node);
 	const [element] = left.elements;
 
 	// `AssignmentExpression` always starts with `[` or `(`, so we don't need check ASI
-	const needParenthesize = isAssign &&
-		!isParenthesized(node, source) &&
-		assignmentNeedParenthesize(element.type === 'AssignmentPattern' ? element.left : element);
+	const needParenthesize = assignmentNeedParenthesize(node, source);
 
 	if (element.type !== 'AssignmentPattern') {
 		return {
 			fix: fixer => [
-				needParenthesize && fixer.insertTextBefore(node, '('),
 				fixer.replaceText(right.callee.property, 'find'),
-				fixer.replaceText(left, source.getText(element)),
-				needParenthesize && fixer.insertTextAfter(node, ')')
-			].filter(Boolean)
+				...fixDestructuring(node, source, fixer)
+			]
 		};
 	}
 
@@ -169,6 +205,17 @@ const isAccessingZeroIndex = node =>
 	node.parent.property.type === 'Literal' &&
 	node.parent.property.raw === '0';
 
+const isDestructuringFirstElement = node => {
+	const {left, right} = getDestructuringLeftAndRight(node.parent);
+	return left &&
+		right &&
+		right === node &&
+		left.type === 'ArrayPattern' &&
+		left.elements &&
+		left.elements.length === 1 &&
+		left.elements[0].type !== 'RestElement';
+};
+
 const create = context => {
 	const source = context.getSourceCode();
 
@@ -197,35 +244,53 @@ const create = context => {
 			context.report({
 				node: node.init.callee.property,
 				messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
-				...fixDestructuring(source, node)
+				...fixDestructuringAndReplaceFilter(source, node)
 			});
 		},
 		[destructuringAssignmentSelector](node) {
 			context.report({
 				node: node.right.callee.property,
 				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
-				...fixDestructuring(source, node)
+				...fixDestructuringAndReplaceFilter(source, node)
 			});
 		},
 		[filterVariableSelector](node) {
 			const variable = findVariable(context.getScope(), node.id);
 			const identifiers = getVariableIdentifiers(variable).filter(identifier => identifier !== node.id);
 
-			if (
-				identifiers.length === 0 ||
-				identifiers.some(identifier => !isAccessingZeroIndex(identifier))
-			) {
+			if (identifiers.length === 0) {
 				return;
 			}
 
-			context.report({
+			const zeroIndexNodes = [];
+			const destructuringNodes = [];
+			for (const identifier of identifiers) {
+				if (isAccessingZeroIndex(identifier)) {
+					zeroIndexNodes.push(identifier.parent);
+				} else if (isDestructuringFirstElement(identifier)) {
+					destructuringNodes.push(identifier.parent);
+				} else {
+					return;
+				}
+			}
+
+			const problem = {
 				node: node.init.callee.property,
-				messageId: MESSAGE_ID_DECLARATION,
-				fix: fixer => [
+				messageId: MESSAGE_ID_DECLARATION
+			};
+
+			// `const [foo = bar] = baz` is not fixable
+			if (
+				!destructuringNodes.some(node => getDestructuringLeftAndRight(node).left.elements[0].type === 'AssignmentPattern')
+			) {
+				problem.fix = fixer => [
 					fixer.replaceText(node.init.callee.property, 'find'),
-					...identifiers.map(identifier => fixer.removeRange([identifier.range[1], identifier.parent.range[1]]))
-				]
-			});
+					...zeroIndexNodes.map(node => fixer.removeRange([node.object.range[1], node.range[1]])),
+					...flatten(destructuringNodes.map(node => fixDestructuring(node, source, fixer)))
+				];
+			}
+
+			context.report(problem);
 		}
 	};
 };
