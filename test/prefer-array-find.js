@@ -3,14 +3,14 @@ import {outdent} from 'outdent';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/prefer-array-find';
 
-const MESSAGE_ID_ZERO_INDEX = 'prefer-array-find-over-filter-zero-index';
-const MESSAGE_ID_SHIFT = 'prefer-array-find-over-filter-shift';
-const MESSAGE_ID_DESTRUCTURING_DECLARATION = 'prefer-array-find-over-filter-destructuring-declaration';
-const MESSAGE_ID_DESTRUCTURING_ASSIGNMENT = 'prefer-array-find-over-filter-destructuring-assignment';
-const MESSAGE_ID_DECLARATION = 'prefer-array-find-over-filter';
+const ERROR_ZERO_INDEX = 'error-zero-index';
+const ERROR_SHIFT = 'error-shift';
+const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
+const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
+const ERROR_DECLARATION = 'error-variable';
 
-const MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR = 'use-nullish-coalescing-operator';
-const MESSAGE_ID_USE_LOGICAL_OR_OPERATOR = 'use-logical-or-operator';
+const SUGGESTION_NULLISH_COALESCING_OPERATOR = 'suggest-nullish-coalescing-operator';
+const SUGGESTION_LOGICAL_OR_OPERATOR = 'suggest-logical-or-operator';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
@@ -52,12 +52,12 @@ ruleTester.run('prefer-array-find', rule, {
 		{
 			code: 'array.filter(foo)[0]',
 			output: 'array.find(foo)',
-			errors: [{messageId: MESSAGE_ID_ZERO_INDEX}]
+			errors: [{messageId: ERROR_ZERO_INDEX}]
 		},
 		{
 			code: 'array.filter(foo, thisArgument)[0]',
 			output: 'array.find(foo, thisArgument)',
-			errors: [{messageId: MESSAGE_ID_ZERO_INDEX}]
+			errors: [{messageId: ERROR_ZERO_INDEX}]
 		}
 	]
 });
@@ -100,12 +100,12 @@ ruleTester.run('prefer-array-find', rule, {
 		{
 			code: 'array.filter(foo).shift()',
 			output: 'array.find(foo)',
-			errors: [{messageId: MESSAGE_ID_SHIFT}]
+			errors: [{messageId: ERROR_SHIFT}]
 		},
 		{
 			code: 'array.filter(foo, thisArgument).shift()',
 			output: 'array.find(foo, thisArgument)',
-			errors: [{messageId: MESSAGE_ID_SHIFT}]
+			errors: [{messageId: ERROR_SHIFT}]
 		},
 		{
 			code: outdent`
@@ -130,7 +130,7 @@ ruleTester.run('prefer-array-find', rule, {
 					// comment 4
 					;
 			`,
-			errors: [{messageId: MESSAGE_ID_SHIFT}]
+			errors: [{messageId: ERROR_SHIFT}]
 		}
 	]
 });
@@ -171,62 +171,62 @@ ruleTester.run('prefer-array-find', rule, {
 		{
 			code: 'const [foo] = array.filter(bar)',
 			output: 'const foo = array.find(bar)',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
 		},
 		{
 			code: 'const [foo] = array.filter(bar, thisArgument)',
 			output: 'const foo = array.find(bar, thisArgument)',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
 		},
 		{
 			code: 'const [{foo}] = array.filter(fn);',
 			output: 'const {foo} = array.find(fn);',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
 		},
 		{
 			code: 'const [{foo = bar}] = array.filter(fn);',
 			output: 'const {foo = bar} = array.find(fn);',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
 		},
 		{
 			code: 'const [[foo]] = array.filter(fn);',
 			output: 'const [foo] = array.find(fn);',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
 		},
 		{
 			code: 'const [[foo = bar]] = array.filter(fn);',
 			output: 'const [foo = bar] = array.find(fn);',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
 		},
 		{
 			code: 'const [foo, ] = array.filter(bar)',
 			output: 'const foo = array.find(bar)',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
 		},
 		{
 			code: 'var [foo, ] = array.filter(bar)',
 			output: 'var foo = array.find(bar)',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
 		},
 		{
 			code: 'let [foo, ] = array.filter(bar)',
 			output: 'let foo = array.find(bar)',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
 		},
 		{
 			code: 'let a = 1, [foo, ] = array.filter(bar)',
 			output: 'let a = 1, foo = array.find(bar)',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
 		},
 		{
 			code: 'let a = 1, [{foo}] = array.filter(bar)',
 			output: 'let a = 1, {foo} = array.find(bar)',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
 		},
 		{
 			code: 'for (let [i] = array.filter(bar); i< 10; i++) {}',
 			output: 'for (let i = array.find(bar); i< 10; i++) {}',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
 		},
 		{
 			code: outdent`
@@ -256,21 +256,21 @@ ruleTester.run('prefer-array-find', rule, {
 					// comment 5
 					;
 			`,
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
 		},
 		// Suggestions
 		{
 			code: 'const [foo = baz] = array.filter(bar)',
 			output: 'const [foo = baz] = array.filter(bar)',
 			errors: [{
-				messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
+				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
 					{
-						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
 						output: 'const foo = array.find(bar) ?? baz'
 					},
 					{
-						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
 						output: 'const foo = array.find(bar) || baz'
 					}
 				]
@@ -281,14 +281,14 @@ ruleTester.run('prefer-array-find', rule, {
 			code: 'const [foo = (bar)] = array.filter(bar)',
 			output: 'const [foo = (bar)] = array.filter(bar)',
 			errors: [{
-				messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
+				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
 					{
-						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
 						output: 'const foo = array.find(bar) ?? (bar)'
 					},
 					{
-						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
 						output: 'const foo = array.find(bar) || (bar)'
 					}
 				]
@@ -299,14 +299,14 @@ ruleTester.run('prefer-array-find', rule, {
 			code: 'const [foo = a ? b : c] = array.filter(bar)',
 			output: 'const [foo = a ? b : c] = array.filter(bar)',
 			errors: [{
-				messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
+				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
 					{
-						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
 						output: 'const foo = array.find(bar) ?? (a ? b : c)'
 					},
 					{
-						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
 						output: 'const foo = array.find(bar) || (a ? b : c)'
 					}
 				]
@@ -317,14 +317,14 @@ ruleTester.run('prefer-array-find', rule, {
 		// 	code: 'const [foo = a ?? b] = array.filter(bar)',
 		// 	output: 'const [foo = a ?? b] = array.filter(bar)',
 		// 	errors: [{
-		// 		messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
+		// 		messageId: ERROR_DESTRUCTURING_DECLARATION,
 		// 		suggestions: [
 		// 			{
-		// 				messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+		// 				messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
 		// 				output: 'const foo = array.find(bar) ?? (a ?? b)'
 		// 			},
 		// 			{
-		// 				messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+		// 				messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
 		// 				output: 'const foo = array.find(bar) || (a ?? b)'
 		// 			}
 		// 		]
@@ -334,14 +334,14 @@ ruleTester.run('prefer-array-find', rule, {
 			code: 'const [foo = a || b] = array.filter(bar)',
 			output: 'const [foo = a || b] = array.filter(bar)',
 			errors: [{
-				messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
+				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
 					{
-						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
 						output: 'const foo = array.find(bar) ?? (a || b)'
 					},
 					{
-						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
 						output: 'const foo = array.find(bar) || (a || b)'
 					}
 				]
@@ -351,14 +351,14 @@ ruleTester.run('prefer-array-find', rule, {
 			code: 'const [foo = a && b] = array.filter(bar)',
 			output: 'const [foo = a && b] = array.filter(bar)',
 			errors: [{
-				messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
+				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
 					{
-						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
 						output: 'const foo = array.find(bar) ?? (a && b)'
 					},
 					{
-						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
 						output: 'const foo = array.find(bar) || a && b'
 					}
 				]
@@ -403,42 +403,42 @@ ruleTester.run('prefer-array-find', rule, {
 		{
 			code: '[foo] = array.filter(bar)',
 			output: 'foo = array.find(bar)',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
 		},
 		{
 			code: '[foo] = array.filter(bar, thisArgument)',
 			output: 'foo = array.find(bar, thisArgument)',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
 		},
 		{
 			code: '[foo.bar().baz] = array.filter(fn)',
 			output: 'foo.bar().baz = array.find(fn)',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
 		},
 		{
 			code: '[{foo}] = array.filter(fn);',
 			output: '({foo} = array.find(fn));',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
 		},
 		{
 			code: '[[foo]] = array.filter(fn);',
 			output: '[foo] = array.find(fn);',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
 		},
 		{
 			code: '[{foo = baz}] = array.filter(fn);',
 			output: '({foo = baz} = array.find(fn));',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
 		},
 		{
 			code: '[foo, ] = array.filter(bar)',
 			output: 'foo = array.find(bar)',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
 		},
 		{
 			code: 'for ([i] = array.filter(bar); i< 10; i++) {}',
 			output: 'for (i = array.find(bar); i< 10; i++) {}',
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
 		},
 		// `no-semi` style
 		{
@@ -452,21 +452,21 @@ ruleTester.run('prefer-array-find', rule, {
 				const bar = []
 				;foo = array.find(bar)
 			`,
-			errors: [{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
 		},
 		// Suggestions
 		{
 			code: '[foo = baz] = array.filter(bar)',
 			output: '[foo = baz] = array.filter(bar)',
 			errors: [{
-				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
+				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
 					{
-						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
 						output: 'foo = array.find(bar) ?? baz'
 					},
 					{
-						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
 						output: 'foo = array.find(bar) || baz'
 					}
 				]
@@ -476,14 +476,14 @@ ruleTester.run('prefer-array-find', rule, {
 			code: '[{foo} = baz] = array.filter(bar)',
 			output: '[{foo} = baz] = array.filter(bar)',
 			errors: [{
-				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
+				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
 					{
-						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
 						output: '({foo} = array.find(bar) ?? baz)'
 					},
 					{
-						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
 						output: '({foo} = array.find(bar) || baz)'
 					}
 				]
@@ -493,14 +493,14 @@ ruleTester.run('prefer-array-find', rule, {
 			code: ';([{foo} = baz] = array.filter(bar))',
 			output: ';([{foo} = baz] = array.filter(bar))',
 			errors: [{
-				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
+				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
 					{
-						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
 						output: ';({foo} = array.find(bar) ?? baz)'
 					},
 					{
-						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
 						output: ';({foo} = array.find(bar) || baz)'
 					}
 				]
@@ -511,14 +511,14 @@ ruleTester.run('prefer-array-find', rule, {
 			code: '[foo = (bar)] = array.filter(bar)',
 			output: '[foo = (bar)] = array.filter(bar)',
 			errors: [{
-				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
+				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
 					{
-						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
 						output: 'foo = array.find(bar) ?? (bar)'
 					},
 					{
-						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
 						output: 'foo = array.find(bar) || (bar)'
 					}
 				]
@@ -529,14 +529,14 @@ ruleTester.run('prefer-array-find', rule, {
 			code: '[foo = a ? b : c] = array.filter(bar)',
 			output: '[foo = a ? b : c] = array.filter(bar)',
 			errors: [{
-				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
+				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
 					{
-						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
 						output: 'foo = array.find(bar) ?? (a ? b : c)'
 					},
 					{
-						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
 						output: 'foo = array.find(bar) || (a ? b : c)'
 					}
 				]
@@ -546,14 +546,14 @@ ruleTester.run('prefer-array-find', rule, {
 			code: '[foo = a || b] = array.filter(bar)',
 			output: '[foo = a || b] = array.filter(bar)',
 			errors: [{
-				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
+				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
 					{
-						messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR,
+						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
 						output: 'foo = array.find(bar) ?? (a || b)'
 					},
 					{
-						messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR,
+						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
 						output: 'foo = array.find(bar) || (a || b)'
 					}
 				]
@@ -631,59 +631,59 @@ ruleTester.run('prefer-array-find', rule, {
 		{
 			code: 'const foo = array.filter(bar); const first = foo[0];',
 			output: 'const foo = array.find(bar); const first = foo;',
-			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}]
 		},
 		{
 			code: 'const foo = array.filter(bar), first = foo[0];',
 			output: 'const foo = array.find(bar), first = foo;',
-			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}]
 		},
 		{
 			code: 'var foo = array.filter(bar), first = foo[0];',
 			output: 'var foo = array.find(bar), first = foo;',
-			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}]
 		},
 		{
 			code: 'let foo = array.filter(bar), first = foo[0];',
 			output: 'let foo = array.find(bar), first = foo;',
-			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}]
 		},
 		{
 			code: 'const foo = array.filter(bar); const [first] = foo;',
 			output: 'const foo = array.find(bar); const first = foo;',
-			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}]
 		},
 		{
 			code: 'const foo = array.filter(bar); [first] = foo;',
 			output: 'const foo = array.find(bar); first = foo;',
-			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}]
 		},
 		{
 			code: 'const foo = array.filter(bar); const [{propOfFirst = unicorn}] = foo;',
 			output: 'const foo = array.find(bar); const {propOfFirst = unicorn} = foo;',
-			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}]
 		},
 		{
 			code: 'const foo = array.filter(bar); [{propOfFirst = unicorn}] = foo;',
 			output: 'const foo = array.find(bar); ({propOfFirst = unicorn} = foo);',
-			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}]
 		},
 		// Not fixable
 		{
 			code: 'const foo = array.filter(bar); const [first = bar] = foo;',
 			output: 'const foo = array.filter(bar); const [first = bar] = foo;',
-			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}]
 		},
 		{
 			code: 'const foo = array.filter(bar); [first = bar] = foo;',
 			output: 'const foo = array.filter(bar); [first = bar] = foo;',
-			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}]
 		},
 		// Many
 		{
 			code: 'let foo = array.filter(bar);foo[0](foo[0])[foo[0]];',
 			output: 'let foo = array.find(bar);foo(foo)[foo];',
-			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}]
 		},
 		{
 			code: outdent`
@@ -710,7 +710,7 @@ ruleTester.run('prefer-array-find', rule, {
 					return foo[property];
 				}
 			`,
-			errors: [{messageId: MESSAGE_ID_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}]
 		}
 	]
 });
@@ -742,11 +742,11 @@ ruleTester.run('prefer-array-find', rule, {
 				));
 			`,
 			errors: [
-				{messageId: MESSAGE_ID_DECLARATION},
-				{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION},
-				{messageId: MESSAGE_ID_ZERO_INDEX},
-				{messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT},
-				{messageId: MESSAGE_ID_SHIFT}
+				{messageId: ERROR_DECLARATION},
+				{messageId: ERROR_DESTRUCTURING_DECLARATION},
+				{messageId: ERROR_ZERO_INDEX},
+				{messageId: ERROR_DESTRUCTURING_ASSIGNMENT},
+				{messageId: ERROR_SHIFT}
 			]
 		},
 		{
@@ -770,9 +770,9 @@ ruleTester.run('prefer-array-find', rule, {
 				));
 			`,
 			errors: [
-				{messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION},
-				{messageId: MESSAGE_ID_ZERO_INDEX},
-				{messageId: MESSAGE_ID_SHIFT}
+				{messageId: ERROR_DESTRUCTURING_DECLARATION},
+				{messageId: ERROR_ZERO_INDEX},
+				{messageId: ERROR_SHIFT}
 			]
 		}
 	]

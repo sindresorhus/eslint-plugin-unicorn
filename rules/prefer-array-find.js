@@ -4,14 +4,14 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 
-const MESSAGE_ID_ZERO_INDEX = 'prefer-array-find-over-filter-zero-index';
-const MESSAGE_ID_SHIFT = 'prefer-array-find-over-filter-shift';
-const MESSAGE_ID_DESTRUCTURING_DECLARATION = 'prefer-array-find-over-filter-destructuring-declaration';
-const MESSAGE_ID_DESTRUCTURING_ASSIGNMENT = 'prefer-array-find-over-filter-destructuring-assignment';
-const MESSAGE_ID_DECLARATION = 'prefer-array-find-over-filter';
+const ERROR_ZERO_INDEX = 'error-zero-index';
+const ERROR_SHIFT = 'error-shift';
+const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
+const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
+const ERROR_DECLARATION = 'error-variable';
 
-const MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR = 'use-nullish-coalescing-operator';
-const MESSAGE_ID_USE_LOGICAL_OR_OPERATOR = 'use-logical-or-operator';
+const SUGGESTION_NULLISH_COALESCING_OPERATOR = 'suggest-nullish-coalescing-operator';
+const SUGGESTION_LOGICAL_OR_OPERATOR = 'suggest-logical-or-operator';
 
 const filterMethodSelectorOptions = {
 	name: 'filter',
@@ -173,8 +173,8 @@ const fixDestructuringAndReplaceFilter = (source, node) => {
 
 	if (hasDefaultValue(node)) {
 		suggest = [
-			{operator: '??', messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR},
-			{operator: '||', messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR}
+			{operator: '??', messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR},
+			{operator: '||', messageId: SUGGESTION_LOGICAL_OR_OPERATOR}
 		].map(({messageId, operator}) => ({
 			messageId,
 			fix: fixer => [
@@ -220,7 +220,7 @@ const create = context => {
 		[zeroIndexSelector](node) {
 			context.report({
 				node: node.object.callee.property,
-				messageId: MESSAGE_ID_ZERO_INDEX,
+				messageId: ERROR_ZERO_INDEX,
 				fix: fixer => [
 					fixer.replaceText(node.object.callee.property, 'find'),
 					fixer.removeRange([node.object.range[1], node.range[1]])
@@ -230,7 +230,7 @@ const create = context => {
 		[shiftSelector](node) {
 			context.report({
 				node: node.callee.object.callee.property,
-				messageId: MESSAGE_ID_SHIFT,
+				messageId: ERROR_SHIFT,
 				fix: fixer => [
 					fixer.replaceText(node.callee.object.callee.property, 'find'),
 					fixer.removeRange([node.callee.object.range[1], node.range[1]])
@@ -240,14 +240,14 @@ const create = context => {
 		[destructuringDeclaratorSelector](node) {
 			context.report({
 				node: node.init.callee.property,
-				messageId: MESSAGE_ID_DESTRUCTURING_DECLARATION,
+				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				...fixDestructuringAndReplaceFilter(source, node)
 			});
 		},
 		[destructuringAssignmentSelector](node) {
 			context.report({
 				node: node.right.callee.property,
-				messageId: MESSAGE_ID_DESTRUCTURING_ASSIGNMENT,
+				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				...fixDestructuringAndReplaceFilter(source, node)
 			});
 		},
@@ -273,7 +273,7 @@ const create = context => {
 
 			const problem = {
 				node: node.init.callee.property,
-				messageId: MESSAGE_ID_DECLARATION
+				messageId: ERROR_DECLARATION
 			};
 
 			// `const [foo = bar] = baz` is not fixable
@@ -309,14 +309,14 @@ module.exports = {
 		},
 		fixable: 'code',
 		messages: {
-			[MESSAGE_ID_DECLARATION]: 'Prefer `.find(…)` over `.filter(…)`.',
-			[MESSAGE_ID_ZERO_INDEX]: 'Prefer `.find(…)` over `.filter(…)[0]`.',
-			[MESSAGE_ID_SHIFT]: 'Prefer `.find(…)` over `.filter(…).shift()`.',
-			[MESSAGE_ID_DESTRUCTURING_DECLARATION]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
-			// Same message as `MESSAGE_ID_DESTRUCTURING_DECLARATION`, but different case
-			[MESSAGE_ID_DESTRUCTURING_ASSIGNMENT]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
-			[MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR]: 'Replace `.filter(…)` with `.find(…) ?? …`.',
-			[MESSAGE_ID_USE_LOGICAL_OR_OPERATOR]: 'Replace `.filter(…)` with `.find(…) || …`.'
+			[ERROR_DECLARATION]: 'Prefer `.find(…)` over `.filter(…)`.',
+			[ERROR_ZERO_INDEX]: 'Prefer `.find(…)` over `.filter(…)[0]`.',
+			[ERROR_SHIFT]: 'Prefer `.find(…)` over `.filter(…).shift()`.',
+			[ERROR_DESTRUCTURING_DECLARATION]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
+			// Same message as `ERROR_DESTRUCTURING_DECLARATION`, but different case
+			[ERROR_DESTRUCTURING_ASSIGNMENT]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
+			[SUGGESTION_NULLISH_COALESCING_OPERATOR]: 'Replace `.filter(…)` with `.find(…) ?? …`.',
+			[SUGGESTION_LOGICAL_OR_OPERATOR]: 'Replace `.filter(…)` with `.find(…) || …`.'
 		}
 	}
 };
