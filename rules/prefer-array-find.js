@@ -132,14 +132,14 @@ const getDestructuringLeftAndRight = node => {
 	}
 
 	return {};
-}
+};
 
 const fixDestructuring = (node, source, fixer) => {
 	const {left} = getDestructuringLeftAndRight(node);
 	const [element] = left.elements;
 
 	const leftText = source.getText(element.type === 'AssignmentPattern' ? element.left : element);
-	const fixes = [ fixer.replaceText(left, leftText) ];
+	const fixes = [fixer.replaceText(left, leftText)];
 
 	// `AssignmentExpression` always starts with `[` or `(`, so we don't need check ASI
 	if (assignmentNeedParenthesize(node, source)) {
@@ -149,7 +149,9 @@ const fixDestructuring = (node, source, fixer) => {
 
 	return fixes;
 };
+
 const hasDefaultValue = node => getDestructuringLeftAndRight(node).left.elements[0].type === 'AssignmentPattern';
+
 const fixDestructuringDefaultValue = (node, source, fixer, operator) => {
 	const {left, right} = getDestructuringLeftAndRight(node);
 	const [element] = left.elements;
@@ -164,15 +166,15 @@ const fixDestructuringDefaultValue = (node, source, fixer, operator) => {
 };
 
 const fixDestructuringAndReplaceFilter = (source, node) => {
-	const property = getDestructuringLeftAndRight(node).right.callee.property;
+	const {property} = getDestructuringLeftAndRight(node).right.callee;
 
 	let suggest;
 	let fix;
 
 	if (hasDefaultValue(node)) {
 		suggest = [
-			{ messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR, operator: '??' },
-			{ messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR, operator: '||' },
+			{operator: '??', messageId: MESSAGE_ID_USE_NULLISH_COALESCING_OPERATOR},
+			{operator: '||', messageId: MESSAGE_ID_USE_LOGICAL_OR_OPERATOR}
 		].map(({messageId, operator}) => ({
 			messageId,
 			fix: fixer => [
@@ -180,15 +182,15 @@ const fixDestructuringAndReplaceFilter = (source, node) => {
 				fixDestructuringDefaultValue(node, source, fixer, operator),
 				...fixDestructuring(node, source, fixer)
 			]
-		}))
+		}));
 	} else {
 		fix = fixer => [
 			fixer.replaceText(property, 'find'),
 			...fixDestructuring(node, source, fixer)
-		]
+		];
 	}
 
-	return { fix, suggest };
+	return {fix, suggest};
 };
 
 const isAccessingZeroIndex = node =>
@@ -280,12 +282,15 @@ const create = context => {
 					const fixes = [
 						fixer.replaceText(node.init.callee.property, 'find')
 					];
+
 					for (const node of zeroIndexNodes) {
-						fixes.push(fixer.removeRange([node.object.range[1], node.range[1]]))
+						fixes.push(fixer.removeRange([node.object.range[1], node.range[1]]));
 					}
+
 					for (const node of destructuringNodes) {
-						fixes.push(...fixDestructuring(node, source, fixer))
+						fixes.push(...fixDestructuring(node, source, fixer));
 					}
+
 					return fixes;
 				};
 			}

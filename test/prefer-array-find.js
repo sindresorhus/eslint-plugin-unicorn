@@ -606,6 +606,10 @@ ruleTester.run('prefer-array-find', rule, {
 		'const foo = array.filter(bar); [,first] = foo;',
 		'const foo = array.filter(bar); const [...first] = foo;',
 		'const foo = array.filter(bar); [...first] = foo;',
+		outdent`
+			const foo = array.filter(bar);
+			function a([bar] = foo) {}
+		`,
 
 		// Test `.filter()`
 		// Not `CallExpression`
