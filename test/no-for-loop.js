@@ -482,6 +482,40 @@ ruleTester.run('no-for-loop', rule, {
 				const [ a, b ] = element;
 				console.log(a, b, element);
 			}
+		`),
+
+		// Avoid naming collision when using default element name.
+		testCase(outdent`
+			for (let i = 0; i < arr.length; i += 1) {
+				console.log(arr[i]);
+				const element = foo();
+				console.log(element);
+			}
+		`, outdent`
+			for (const element_ of arr) {
+				console.log(element_);
+				const element = foo();
+				console.log(element);
+			}
+		`),
+
+		// Avoid naming collision when using default element name (multiple collisions).
+		testCase(outdent`
+			for (let i = 0; i < arr.length; i += 1) {
+				console.log(arr[i]);
+				const element = foo();
+				const element_ = foo();
+				console.log(element);
+				console.log(element_);
+			}
+		`, outdent`
+			for (const element__ of arr) {
+				console.log(element__);
+				const element = foo();
+				const element_ = foo();
+				console.log(element);
+				console.log(element_);
+			}
 		`)
 	]
 });
