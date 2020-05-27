@@ -651,26 +651,20 @@ ruleTester.run('no-for-loop', rule, {
 			}
 		`),
 
-		// Singularization (simple case):
-		testCase(outdent`
-			for (let i = 0; i < plugins.length; i++) {
-				console.log(plugins[i]);
-			}
-		`, outdent`
-			for (const plugin of plugins) {
-				console.log(plugin);
-			}
-		`),
-		// Singularization (irregular case):
-		testCase(outdent`
-			for (let i = 0; i < people.length; i++) {
-				console.log(people[i]);
-			}
-		`, outdent`
-			for (const person of people) {
-				console.log(person);
-			}
-		`),
+		// Singularization:
+		...[
+			['plugin', 'plugins'], // simple
+			['person', 'people'], // irregular
+			['largeCity', 'largeCities'], // camelCase
+			['LARGE_CITY', 'LARGE_CITIES'], // caps, snake_case
+			['element', 'list'], // no singular version
+		].map(([elementName, arrayName]) =>
+			testCase(
+				`for(const i = 0; i < ${arrayName}.length; i++) {console.log(${arrayName}[i])}`,
+				`for(const ${elementName} of ${arrayName}) {console.log(${elementName})}`,
+			)
+		),
+
 		// Singularization (avoid using reserved JavaScript keywords):
 		testCase(outdent`
 			for (let i = 0; i < cases.length; i++) {
@@ -695,26 +689,6 @@ ruleTester.run('no-for-loop', rule, {
 				console.log(city);
 			}
 		`),
-		// Singularization (camelCase):
-		testCase(outdent`
-			for (let i = 0; i < largeCities.length; i++) {
-				console.log(largeCities[i]);
-			}
-		`, outdent`
-			for (const largeCity of largeCities) {
-				console.log(largeCity);
-			}
-		`),
-		// Singularization (capital letters, multiple words):
-		testCase(outdent`
-			for (let i = 0; i < LARGE_CITIES.length; i++) {
-				console.log(LARGE_CITIES[i]);
-			}
-		`, outdent`
-			for (const LARGE_CITY of LARGE_CITIES) {
-				console.log(LARGE_CITY);
-			}
-		`)
 	]
 });
 
