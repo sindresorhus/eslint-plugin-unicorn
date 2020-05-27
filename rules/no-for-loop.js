@@ -262,12 +262,10 @@ const getReferencesInChildScopes = (scope, name) => {
 	];
 };
 
-const getChildScopesRecursive = scope => {
-	return [
-		scope,
-		...flatten(scope.childScopes.map(s => getChildScopesRecursive(s)))
-	];
-};
+const getChildScopesRecursive = scope => [
+	scope,
+	...flatten(scope.childScopes.map(s => getChildScopesRecursive(s)))
+];
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
