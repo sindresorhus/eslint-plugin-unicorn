@@ -653,15 +653,15 @@ ruleTester.run('no-for-loop', rule, {
 
 		// Singularization:
 		...[
-			['plugin', 'plugins'], // simple
-			['person', 'people'], // irregular
-			['largeCity', 'largeCities'], // camelCase
-			['LARGE_CITY', 'LARGE_CITIES'], // caps, snake_case
-			['element', 'list'], // no singular version
+			['plugin', 'plugins'], // Simple
+			['person', 'people'], // Irregular
+			['largeCity', 'largeCities'], // CamelCase
+			['LARGE_CITY', 'LARGE_CITIES'], // Caps, snake_case
+			['element', 'list'] // No singular version
 		].map(([elementName, arrayName]) =>
 			testCase(
 				`for(const i = 0; i < ${arrayName}.length; i++) {console.log(${arrayName}[i])}`,
-				`for(const ${elementName} of ${arrayName}) {console.log(${elementName})}`,
+				`for(const ${elementName} of ${arrayName}) {console.log(${elementName})}`
 			)
 		),
 
@@ -688,7 +688,7 @@ ruleTester.run('no-for-loop', rule, {
 				const city = foo();
 				console.log(city);
 			}
-		`),
+		`)
 	]
 });
 
