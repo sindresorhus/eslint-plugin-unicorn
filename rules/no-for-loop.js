@@ -273,7 +273,7 @@ const getSingularName = originalName => {
 	if (singularName !== originalName) {
 		return singularName;
 	}
-}
+};
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
