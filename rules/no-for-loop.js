@@ -264,7 +264,7 @@ const getReferencesInChildScopes = (scope, name) => {
 
 const getChildScopesRecursive = scope => [
 	scope,
-	...flatten(scope.childScopes.map(s => getChildScopesRecursive(s)))
+	...flatten(scope.childScopes.map(scope => getChildScopesRecursive(scope)))
 ];
 
 const create = context => {
