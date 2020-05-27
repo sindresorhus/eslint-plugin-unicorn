@@ -163,11 +163,14 @@ const create = context => {
 				data: {
 					name: node.name
 				},
-				fix: fixer => [
-					fixer.insertTextBefore(node.parent.init, 'new Set('),
-					fixer.insertTextAfter(node.parent.init, ')'),
-					...identifiers.map(identifier => fixer.replaceText(identifier.parent.property, 'has'))
-				]
+				* fix(fixer) {
+					yield fixer.insertTextBefore(node.parent.init, 'new Set(');
+					yield fixer.insertTextAfter(node.parent.init, ')');
+
+					for (const identifier of identifiers) {
+						yield fixer.replaceText(identifier.parent.property, 'has');
+					}
+				}
 			});
 		}
 	};

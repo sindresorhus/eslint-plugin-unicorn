@@ -122,25 +122,19 @@ const customErrorDefinition = (context, node) => {
 		context.report({
 			node: superExpression,
 			message: 'Pass the error message to `super()` instead of setting `this.message`.',
-			fix: fixer => {
-				const fixings = [];
+			* fix(fixer) {
 				if (superExpression.expression.arguments.length === 0) {
 					const rhs = expression.expression.right;
-					fixings.push(
-						fixer.insertTextAfterRange([
-							superExpression.range[0],
-							superExpression.range[0] + 6
-						], rhs.raw || rhs.name)
-					);
+					yield fixer.insertTextAfterRange([
+						superExpression.range[0],
+						superExpression.range[0] + 6
+					], rhs.raw || rhs.name);
 				}
 
-				fixings.push(
-					fixer.removeRange([
-						messageExpressionIndex === 0 ? constructorBodyNode.range[0] : constructorBody[messageExpressionIndex - 1].range[1],
-						expression.range[1]
-					])
-				);
-				return fixings;
+				yield fixer.removeRange([
+					messageExpressionIndex === 0 ? constructorBodyNode.range[0] : constructorBody[messageExpressionIndex - 1].range[1],
+					expression.range[1]
+				]);
 			}
 		});
 	}
