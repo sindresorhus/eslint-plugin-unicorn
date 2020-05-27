@@ -514,6 +514,21 @@ ruleTester.run('no-for-loop', rule, {
 			}
 		`),
 		testCase(outdent`
+			let element;
+			function foo() {
+				for (let i = 0; i < arr.length; i += 1) {
+					console.log(arr[i]);
+				}
+			}
+		`, outdent`
+			let element;
+			function foo() {
+				for (const element_ of arr) {
+					console.log(element_);
+				}
+			}
+		`),
+		testCase(outdent`
 			for (let i = 0; i < arr.length; i += 1) {
 				function element__(element) {
 					console.log(arr[i], element);
@@ -559,6 +574,30 @@ ruleTester.run('no-for-loop', rule, {
 		`, outdent`
 			for (const element_ of arr) {
 				console.log(element_, element);
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0; i < element.length; i += 1) {
+				console.log(element[i]);
+			}
+		`, outdent`
+			for (const element_ of element) {
+				console.log(element_);
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0; i < arr.length; i += 1) {
+				console.log(arr[i]);
+				function foo(element) {
+					console.log(element);
+				}
+			}
+		`, outdent`
+			for (const element_ of arr) {
+				console.log(element_);
+				function foo(element) {
+					console.log(element);
+				}
 			}
 		`),
 		testCase(outdent`
