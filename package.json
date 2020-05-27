@@ -40,6 +40,7 @@
 		"eslint-utils": "^2.0.0",
 		"import-modules": "^2.0.0",
 		"lodash": "^4.17.15",
+		"pluralize": "^8.0.0",
 		"read-pkg-up": "^7.0.1",
 		"regexp-tree": "^0.1.21",
 		"reserved-words": "^0.1.2",

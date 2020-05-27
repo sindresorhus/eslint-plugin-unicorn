@@ -3,6 +3,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 const {flatten} = require('lodash');
 const avoidCapture = require('./utils/avoid-capture');
+const {singular} = require('pluralize');
 
 const defaultElementName = 'element';
 const isLiteralZero = node => isLiteralValue(node, 0);
@@ -267,6 +268,13 @@ const getChildScopesRecursive = scope => [
 	...flatten(scope.childScopes.map(scope => getChildScopesRecursive(scope)))
 ];
 
+const getSingularName = originalName => {
+	const singularName = singular(originalName);
+	if (singularName !== originalName) {
+		return singularName;
+	}
+};
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const {scopeManager} = sourceCode;
@@ -342,7 +350,7 @@ const create = context => {
 
 					const index = indexIdentifierName;
 					const element = elementIdentifierName ||
-						avoidCapture(defaultElementName, getChildScopesRecursive(bodyScope), context.parserOptions.ecmaVersion);
+						avoidCapture(getSingularName(arrayIdentifierName) || defaultElementName, getChildScopesRecursive(bodyScope), context.parserOptions.ecmaVersion);
 					const array = arrayIdentifierName;
 
 					let declarationElement = element;

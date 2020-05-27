@@ -649,6 +649,57 @@ ruleTester.run('no-for-loop', rule, {
 				console.log(element);
 				console.log(element_);
 			}
+		`),
+
+		// Singularization:
+		...[
+			['plugin', 'plugins'], // Simple
+			['person', 'people'], // Irregular
+			['girlsAndBoy', 'girlsAndBoys'], // Multiple plurals
+			['largeCity', 'largeCities'], // CamelCase
+			['LARGE_CITY', 'LARGE_CITIES'], // Caps, snake_case
+			['element', 'news'], // No singular version, ends in s
+			['element', 'list'] // No singular version
+		].map(([elementName, arrayName]) =>
+			testCase(
+				`for(const i = 0; i < ${arrayName}.length; i++) {console.log(${arrayName}[i])}`,
+				`for(const ${elementName} of ${arrayName}) {console.log(${elementName})}`
+			)
+		),
+
+		// Singularization (avoid using reserved JavaScript keywords):
+		testCase(outdent`
+			for (let i = 0; i < cases.length; i++) {
+				console.log(cases[i]);
+			}
+		`, outdent`
+			for (const case_ of cases) {
+				console.log(case_);
+			}
+		`),
+		// Singularization (avoid variable name collision):
+		testCase(outdent`
+			for (let i = 0; i < cities.length; i++) {
+				console.log(cities[i]);
+				const city = foo();
+				console.log(city);
+			}
+		`, outdent`
+			for (const city_ of cities) {
+				console.log(city_);
+				const city = foo();
+				console.log(city);
+			}
+		`),
+		// Singularization (uses i):
+		testCase(outdent`
+			for (let i = 0; i < cities.length; i++) {
+				console.log(i, cities[i]);
+			}
+		`, outdent`
+			for (const [i, city] of cities.entries()) {
+				console.log(i, city);
+			}
 		`)
 	]
 });
