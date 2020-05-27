@@ -341,7 +341,8 @@ const create = context => {
 					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 
 					const index = indexIdentifierName;
-					const element = elementIdentifierName || avoidCapture(defaultElementName, getChildScopesRecursive(bodyScope), context.parserOptions.ecmaVersion);
+					const element = elementIdentifierName ||
+						avoidCapture(defaultElementName, getChildScopesRecursive(bodyScope), context.parserOptions.ecmaVersion);
 					const array = arrayIdentifierName;
 
 					let declarationElement = element;
