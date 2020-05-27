@@ -270,16 +270,10 @@ const getChildScopesRecursive = scope => [
 
 const getSingularName = originalName => {
 	const singularName = singular(originalName);
-	if (
-		!singularName ||
-		singularName === originalName
-	) {
-		// Bail if we can't produce a singular name that differs from the original name.
-		return;
+	if (singularName !== originalName) {
+		return singularName;
 	}
-
-	return singularName;
-};
+}
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
