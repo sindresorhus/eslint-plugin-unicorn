@@ -345,7 +345,7 @@ const create = context => {
 			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope);
 
 			if (shouldFix) {
-				problem.fix = fixer => {
+				problem.fix = function * (fixer) {
 					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 
 					const index = indexIdentifierName;
@@ -372,24 +372,24 @@ const create = context => {
 						`${declarationType} [${index}, ${declarationElement}] of ${array}.entries()` :
 						`${declarationType} ${declarationElement} of ${array}`;
 
-					return [
-						fixer.replaceTextRange([
-							node.init.range[0],
-							node.update.range[1]
-						], replacement),
-						...arrayReferences.map(reference => {
-							if (reference === elementReference) {
-								return;
-							}
+					yield fixer.replaceTextRange([
+						node.init.range[0],
+						node.update.range[1]
+					], replacement);
 
-							return fixer.replaceText(reference.identifier.parent, element);
-						}),
-						elementNode && (
-							removeDeclaration ?
-								fixer.removeRange(getRemovalRange(elementNode, sourceCode)) :
-								fixer.replaceText(elementNode.init, element)
-						)
-					].filter(Boolean);
+					for (const reference of arrayReferences) {
+						if (reference !== elementReference) {
+							yield fixer.replaceText(reference.identifier.parent, element);
+						}
+					}
+
+					if (elementNode) {
+						if (removeDeclaration) {
+							yield fixer.removeRange(getRemovalRange(elementNode, sourceCode));
+						} else {
+							yield fixer.replaceText(elementNode.init, element);
+						}
+					}
 				};
 			}
 
