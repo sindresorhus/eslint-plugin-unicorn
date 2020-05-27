@@ -2,6 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 const {flatten} = require('lodash');
+const avoidCapture = require('./utils/avoid-capture');
 
 const defaultElementName = 'element';
 const isLiteralZero = node => isLiteralValue(node, 0);
@@ -261,6 +262,11 @@ const getReferencesInChildScopes = (scope, name) => {
 	];
 };
 
+const getChildScopesRecursive = scope => [
+	scope,
+	...flatten(scope.childScopes.map(scope => getChildScopesRecursive(scope)))
+];
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const {scopeManager} = sourceCode;
@@ -335,7 +341,8 @@ const create = context => {
 					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 
 					const index = indexIdentifierName;
-					const element = elementIdentifierName || defaultElementName;
+					const element = elementIdentifierName ||
+						avoidCapture(defaultElementName, getChildScopesRecursive(bodyScope), context.parserOptions.ecmaVersion);
 					const array = arrayIdentifierName;
 
 					let declarationElement = element;
