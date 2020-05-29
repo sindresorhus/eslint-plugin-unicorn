@@ -97,7 +97,20 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 		// Ignored
 		'foo.map(() => {})',
 		'foo.map(function() {})',
-		'foo.map(function bar() {})'
+		'foo.map(function bar() {})',
+
+		// #755
+		outdent`
+			const results = collection
+				.find({
+					$and: [cursorQuery, params.query]
+				}, {
+					projection: params.projection
+				})
+				.sort($sort)
+				.limit(params.limit + 1)
+				.toArray()
+		`
 	],
 	invalid: [
 		// Suggestions
