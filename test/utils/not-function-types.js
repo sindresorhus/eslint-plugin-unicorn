@@ -10,7 +10,7 @@ module.exports = [
 	'"length" in fn',
 	'fn instanceof Function',
 	// ClassExpression
-	'class Node {}',
+	'class ClassCantUseAsFunction {}',
 	// Literal
 	'0',
 	'1',
@@ -44,8 +44,8 @@ module.exports = [
 	'a = fn', // Could be a function
 	// 'await fn', // This requires async function to test, ignore for now
 	'fn()', // Could be a factory returns a function
-	'false || fn', // Could be a function
-	'new Fn()', // `class` constructor could return a function
+	'fn1 || fn2', // Could be a function
+	'new ClassReturnsFunction()', // `class` constructor could return a function
 	'new Function()', // `function`
 	'fn``', // Same as `CallExpression`
 	'this' // Could be a function
