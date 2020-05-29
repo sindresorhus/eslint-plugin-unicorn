@@ -213,15 +213,6 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 				'foo.map((element, index, array) => (a ? b : c)(element, index, array))'
 			]
 		}),
-		invalidTestCase({
-			code: 'foo.map((() => _.map)())',
-			method: 'map',
-			suggestions: [
-				'foo.map((element) => (() => _.map)()(element))',
-				'foo.map((element, index) => (() => _.map)()(element, index))',
-				'foo.map((element, index, array) => (() => _.map)()(element, index, array))'
-			]
-		}),
 		// Note: `await` is not handled, not sure if this is needed
 		// invalidTestCase({
 		// 	code: `foo.map(await foo())`,
