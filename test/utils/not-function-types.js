@@ -41,12 +41,12 @@ module.exports = [
 	'-- fn',
 
 	// Following are not safe
-	'a = fn', // could be a function
-	// 'await fn', // this requires async function to test, ignore for now
-	'fn()', // could be a factory returns a function
-	'false || fn', // could be a function
-	'new Fn()', // class constructor could return a function
-	'new Function()', // class constructor could return a function
-	'fn``', // same as `CallExpression`
-	'this' // could be a function
+	'a = fn', // Could be a function
+	// 'await fn', // This requires async function to test, ignore for now
+	'fn()', // Could be a factory returns a function
+	'false || fn', // Could be a function
+	'new Fn()', // `class` constructor could return a function
+	'new Function()', // `function`
+	'fn``', // Same as `CallExpression`
+	'this' // Could be a function
 ];

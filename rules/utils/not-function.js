@@ -11,7 +11,7 @@ const impossibleNodeTypes = [
 	'ObjectExpression',
 	'TemplateLiteral',
 	'UnaryExpression',
-	'UpdateExpression',
+	'UpdateExpression'
 ];
 
 // Technically these nodes could be a function, but most likely not
@@ -24,7 +24,6 @@ const mostLikelyNotNodeTypes = [
 	'TaggedTemplateExpression',
 	'ThisExpression'
 ];
-
 
 const notFunctionSelector = node => [
 	...[...impossibleNodeTypes, ...mostLikelyNotNodeTypes].map(type => `[${node}.type!="${type}"]`),
