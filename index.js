@@ -48,6 +48,7 @@ module.exports = {
 				'unicorn/no-zero-fractions': 'error',
 				'unicorn/number-literal-case': 'error',
 				'unicorn/prefer-add-event-listener': 'error',
+				'unicorn/prefer-array-find': 'error',
 				'unicorn/prefer-dataset': 'error',
 				'unicorn/prefer-event-key': 'error',
 				'unicorn/prefer-flat-map': 'error',
