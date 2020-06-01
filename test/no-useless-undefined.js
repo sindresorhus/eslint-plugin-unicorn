@@ -31,7 +31,28 @@ ruleTester.run('no-useless-undefined', rule, {
 		'function foo({bar} = {}) {}',
 		'function foo(bar) {}',
 		// I guess nobody use this, but `yield* undefined;` is valid code, and `yield*;` is not
-		'function* foo() {yield* undefined;}'
+		'function* foo() {yield* undefined;}',
+
+		// Ignored
+		'if (Object.is(foo, undefined)){}',
+		't.is(foo, undefined)',
+		'assert.equal(foo, undefined, message)',
+		'assert.notEqual(foo, undefined, message)',
+		'assert.strictEqual(foo, undefined, message)',
+		'assert.notStrictEqual(foo, undefined, message)',
+		'assert.propertyVal(foo, "bar", undefined, message)',
+		'assert.notPropertyVal(foo, "bar", undefined, message)',
+		'expect(foo).not(undefined)',
+		'expect(foo).to.have.property("bar", undefined)',
+		'expect(foo).to.have.property("bar", undefined)',
+		'expect(foo).toBe(undefined)',
+		'expect(foo).toContain(undefined)',
+		'expect(foo).toContainEqual(undefined)',
+		'expect(foo).toEqual(undefined)',
+		't.same(foo, undefined)',
+		't.notSame(foo, undefined)',
+		't.strictSame(foo, undefined)',
+		't.strictNotSame(foo, undefined)'
 	],
 	invalid: [
 		{

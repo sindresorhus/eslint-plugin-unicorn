@@ -32,6 +32,43 @@ const assignmentPatternSelector = getSelector('AssignmentPattern', 'right');
 
 const isUndefined = node => node && node.type === 'Identifier' && node.name === 'undefined';
 
+const compareFunctionNames = new Set([
+	'is',
+	'equal',
+	'notEqual',
+	'strictEqual',
+	'notStrictEqual',
+	'propertyVal',
+	'notPropertyVal',
+	'not',
+	'include',
+	'property',
+	'toBe',
+	'toContain',
+	'toContainEqual',
+	'toEqual',
+	'same',
+	'notSame',
+	'strictSame',
+	'strictNotSame'
+]);
+const isCompareFunction = node => {
+	let name;
+
+	if (node.type === 'Identifier') {
+		name = node.name;
+	} else if (
+		node.type === 'MemberExpression' &&
+		node.computed === false &&
+		node.property &&
+		node.property.type === 'Identifier'
+	) {
+		name = node.property.name;
+	}
+
+	return compareFunctionNames.has(name);
+};
+
 const create = context => {
 	const listener = fix => node => {
 		context.report({
@@ -64,6 +101,10 @@ const create = context => {
 			(node, fixer) => fixer.removeRange([node.parent.left.range[1], node.range[1]])
 		),
 		CallExpression: node => {
+			if (isCompareFunction(node.callee)) {
+				return;
+			}
+
 			const argumentNodes = node.arguments;
 			const undefinedArguments = [];
 			for (let index = argumentNodes.length - 1; index >= 0; index--) {
