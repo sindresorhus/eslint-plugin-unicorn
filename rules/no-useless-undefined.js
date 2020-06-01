@@ -67,7 +67,7 @@ const isCompareFunction = node => {
 	}
 
 	return compareFunctionNames.has(name);
-}
+};
 
 const create = context => {
 	const listener = fix => node => {
