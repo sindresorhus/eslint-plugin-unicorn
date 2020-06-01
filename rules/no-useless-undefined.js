@@ -59,7 +59,7 @@ const isCompareFunction = node => {
 		name = node.name;
 	} else if (
 		node.type === 'MemberExpression' &&
-		node.computed = false &&
+		node.computed === false &&
 		node.property &&
 		node.property.type === 'Identifier'
 	) {
