@@ -23,7 +23,8 @@ const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].in
 const isStrictEqual = node => node.type === 'BinaryExpression' && ['===', '!=='].includes(node.operator);
 
 const create = context => {
-	const {checkStrictEquality} = {
+	const {checkStrictEquality, checkLooseEquality} = {
+		checkLooseEquality: true,
 		checkStrictEquality: false,
 		...context.options[0]
 	};
@@ -38,7 +39,10 @@ const create = context => {
 			/* istanbul ignore next */
 			const {parent = {}} = node;
 
-			if (!checkStrictEquality && isStrictEqual(parent)) {
+			if (
+				(!checkStrictEquality && isStrictEqual(parent)) ||
+				(!checkLooseEquality && isLooseEqual(parent))
+			) {
 				return;
 			}
 
@@ -84,6 +88,10 @@ const schema = [
 			checkStrictEquality: {
 				type: 'boolean',
 				default: false
+			},
+			checkLooseEquality: {
+				type: 'boolean',
+				default: true
 			}
 		},
 		additionalProperties: false

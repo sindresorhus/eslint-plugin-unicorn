@@ -19,10 +19,16 @@ const invalidTestCase = testCase => {
 		code,
 		output,
 		suggestions,
-		checkStrictEquality
+		checkStrictEquality,
+		checkLooseEquality
 	} = typeof testCase === 'string' ? {code: testCase} : testCase;
 
-	const options = typeof checkStrictEquality === 'boolean' ? [{checkStrictEquality}] : [];
+	const options = [
+		{
+			checkStrictEquality,
+			checkLooseEquality
+		}
+	];
 
 	if (suggestions) {
 		return {
@@ -90,6 +96,16 @@ ruleTester.run('no-null', rule, {
 		].map(code => ({
 			code,
 			options: [{checkStrictEquality: false}]
+		})),
+		// `checkLooseEquality: false`
+		...[
+			'if (foo == null) {}',
+			'if (null == foo) {}',
+			'if (foo != null) {}',
+			'if (null != foo) {}'
+		].map(code => ({
+			code,
+			options: [{checkLooseEquality: false}]
 		}))
 	],
 	invalid: [
@@ -199,6 +215,18 @@ ruleTester.run('no-null', rule, {
 			'if (null !== foo) {}'
 		].map(code => invalidTestCase({
 			code,
+			checkStrictEquality: true
+		})),
+
+		// `checkLooseEquality`
+		...[
+			'if (foo == null) {}',
+			'if (null == foo) {}',
+			'if (foo != null) {}',
+			'if (null != foo) {}'
+		].map(code => invalidTestCase({
+			code,
+			output: code.replace('null', 'undefined'),
 			checkStrictEquality: true
 		})),
 

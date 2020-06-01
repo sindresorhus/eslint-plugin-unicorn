@@ -44,6 +44,20 @@ Strict equality(`===`) and strict inequality(`!==`) is ignored by default.
 if (foo === null) {}
 ```
 
+### checkLooseEquality
+
+Type: `boolean`\
+Default: `true`
+
+Set to `false` to ignore loose equality(`==`) and equality inequality(`!=`).
+
+#### Pass
+
+```js
+// eslint unicorn/no-null: ["error", {"checkLooseEquality": false}]
+if (foo == null) {}
+```
+
 ## Why
 
 - [“Intent to stop using `null` in my JS code”](https://github.com/sindresorhus/meta/issues/7).
