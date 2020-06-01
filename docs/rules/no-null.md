@@ -49,7 +49,7 @@ if (foo === null) {}
 Type: `boolean`\
 Default: `true`
 
-Set to `false` to ignore loose equality(`==`) and equality inequality(`!=`).
+Set to `false` to ignore loose equality(`==`) and loose inequality(`!=`).
 
 #### Pass
 
