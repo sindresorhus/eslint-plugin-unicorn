@@ -3,6 +3,7 @@ import avaRuleTester from 'eslint-ava-rule-tester';
 import {flatten} from 'lodash';
 import rule from '../rules/no-reduce';
 import {outdent} from 'outdent';
+import notFunctionTypes from './utils/not-function-types';
 
 const MESSAGE_ID_REDUCE = 'reduce';
 const MESSAGE_ID_REDUCE_RIGHT = 'reduceRight';
@@ -27,14 +28,7 @@ const tests = {
 		'[1, 2].reduce.call(() => {}, 34)',
 
 		// First argument is not a function
-		'a.reduce(123)',
-		'a.reduce(\'abc\')',
-		'a.reduce(null)',
-		'a.reduce(undefined)',
-		'a.reduce(123, initialValue)',
-		'a.reduce(\'abc\', initialValue)',
-		'a.reduce(null, initialValue)',
-		'a.reduce(undefined, initialValue)',
+		...notFunctionTypes.map(data => `foo.reduce(${data})`),
 
 		// Test `.reduce`
 		// Not `CallExpression`
@@ -104,7 +98,11 @@ const tests = {
 		'[].reducex.call(arr, foo)',
 		'[].xreduce.call(arr, foo)',
 		'Array.prototype.reducex.call(arr, foo)',
-		'Array.prototype.xreduce.call(arr, foo)'
+		'Array.prototype.xreduce.call(arr, foo)',
+
+		// Second argument is not a function
+		...notFunctionTypes.map(data => `Array.prototype.reduce.call(foo, ${data})`)
+
 	].map(code => [code, code.replace('reduce', 'reduceRight')])),
 	invalid: flatten([
 		'arr.reduce((total, item) => total + item)',
