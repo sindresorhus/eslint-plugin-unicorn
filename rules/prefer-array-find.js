@@ -134,21 +134,19 @@ const getDestructuringLeftAndRight = node => {
 	return {};
 };
 
-const fixDestructuring = (node, source, fixer) => {
+function * fixDestructuring(node, source, fixer) {
 	const {left} = getDestructuringLeftAndRight(node);
 	const [element] = left.elements;
 
 	const leftText = source.getText(element.type === 'AssignmentPattern' ? element.left : element);
-	const fixes = [fixer.replaceText(left, leftText)];
+	yield fixer.replaceText(left, leftText);
 
 	// `AssignmentExpression` always starts with `[` or `(`, so we don't need check ASI
 	if (assignmentNeedParenthesize(node, source)) {
-		fixes.push(fixer.insertTextBefore(node, '('));
-		fixes.push(fixer.insertTextAfter(node, ')'));
+		yield fixer.insertTextBefore(node, '(');
+		yield fixer.insertTextAfter(node, ')');
 	}
-
-	return fixes;
-};
+}
 
 const hasDefaultValue = node => getDestructuringLeftAndRight(node).left.elements[0].type === 'AssignmentPattern';
 
@@ -177,17 +175,17 @@ const fixDestructuringAndReplaceFilter = (source, node) => {
 			{operator: '||', messageId: SUGGESTION_LOGICAL_OR_OPERATOR}
 		].map(({messageId, operator}) => ({
 			messageId,
-			fix: fixer => [
-				fixer.replaceText(property, 'find'),
-				fixDestructuringDefaultValue(node, source, fixer, operator),
-				...fixDestructuring(node, source, fixer)
-			]
+			* fix(fixer) {
+				yield fixer.replaceText(property, 'find');
+				yield fixDestructuringDefaultValue(node, source, fixer, operator);
+				yield * fixDestructuring(node, source, fixer);
+			}
 		}));
 	} else {
-		fix = fixer => [
-			fixer.replaceText(property, 'find'),
-			...fixDestructuring(node, source, fixer)
-		];
+		fix = function * (fixer) {
+			yield fixer.replaceText(property, 'find');
+			yield * fixDestructuring(node, source, fixer);
+		};
 	}
 
 	return {fix, suggest};
@@ -278,20 +276,16 @@ const create = context => {
 
 			// `const [foo = bar] = baz` is not fixable
 			if (!destructuringNodes.some(node => hasDefaultValue(node))) {
-				problem.fix = fixer => {
-					const fixes = [
-						fixer.replaceText(node.init.callee.property, 'find')
-					];
+				problem.fix = function * (fixer) {
+					yield fixer.replaceText(node.init.callee.property, 'find');
 
 					for (const node of zeroIndexNodes) {
-						fixes.push(fixer.removeRange([node.object.range[1], node.range[1]]));
+						yield fixer.removeRange([node.object.range[1], node.range[1]]);
 					}
 
 					for (const node of destructuringNodes) {
-						fixes.push(...fixDestructuring(node, source, fixer));
+						yield * fixDestructuring(node, source, fixer);
 					}
-
-					return fixes;
 				};
 			}
 
