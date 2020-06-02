@@ -1,5 +1,5 @@
 'use strict';
-
+const path = require('path');
 const typescriptArguments = ['--parser', '@typescript-eslint/parser', '--ext', '.ts,.js'];
 const vueArguments = ['--parser', 'vue-eslint-parser', '--ext', '.vue,.js'];
 
@@ -120,7 +120,11 @@ module.exports = [
 	'https://github.com/chakra-ui/chakra-ui',
 	'https://github.com/ReactTraining/react-router',
 	'https://github.com/facebook/relay',
-	'https://github.com/mozilla/pdf.js'
+	'https://github.com/mozilla/pdf.js',
+	{
+		name: 'unicorn',
+		location: path.join(__dirname, 'unicorn'),
+	}
 ].map(project => {
 	if (typeof project === 'string') {
 		project = {repository: project};
