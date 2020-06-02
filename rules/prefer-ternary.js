@@ -36,7 +36,7 @@ function getNodeBody(node) {
 }
 
 function isSameAssignmentLeft(node1, node2) {
-	// [TBD]: Allow more types of left
+	// [TODO]: Allow more types of left
 	return node1.type === node2.type && node1.type === 'Identifier' && node1.name === node2.name;
 }
 
