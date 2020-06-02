@@ -94,8 +94,8 @@ const create = context => {
 
 		if (
 			type === 'ReturnStatement' &&
-			(consequent.argument === null || !isTernary(consequent.argument)) &&
-			(alternate.argument === null || !isTernary(alternate.argument))
+			!isTernary(consequent.argument) &&
+			!isTernary(alternate.argument)
 		) {
 			return merge({
 				before: `${before}return `,
@@ -108,8 +108,8 @@ const create = context => {
 		if (
 			type === 'YieldExpression' &&
 			consequent.delegate === alternate.delegate &&
-			(consequent.argument === null || !isTernary(consequent.argument)) &&
-			(alternate.argument === null || !isTernary(alternate.argument))
+			!isTernary(consequent.argument) &&
+			!isTernary(alternate.argument)
 		) {
 			return merge({
 				before: `${before}yield${consequent.delegate ? '*' : ''} (`,
@@ -138,6 +138,7 @@ const create = context => {
 			!isTernary(consequent.argument) &&
 			!isTernary(alternate.argument)
 		) {
+			// `ThrowStatement` don't check nested
 			return {
 				type,
 				before: `${before}const {{ERROR_NAME}} = `,

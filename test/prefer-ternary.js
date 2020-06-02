@@ -396,9 +396,9 @@ ruleTester.run('prefer-ternary', rule, {
 		// Consequent is Ternary
 		outdent`
 			function unicorn() {
-				if(test){
+				if (test) {
 					throw a ? b : c;
-				} else{
+				} else {
 					throw b;
 				}
 			}
@@ -406,9 +406,9 @@ ruleTester.run('prefer-ternary', rule, {
 		// Alternate is Ternary
 		outdent`
 			function unicorn() {
-				if(test){
+				if (test) {
 					throw a;
-				} else{
+				} else {
 					throw a ? b : c;
 				}
 			}
@@ -418,7 +418,7 @@ ruleTester.run('prefer-ternary', rule, {
 		{
 			code: outdent`
 				function unicorn() {
-					if(test){
+					if (test) {
 						throw new Error('a');
 					} else{
 						throw new TypeError('a');
@@ -436,9 +436,9 @@ ruleTester.run('prefer-ternary', rule, {
 		{
 			code: outdent`
 				function unicorn() {
-					if(test){
+					if (test) {
 						throw a;
-					} else{
+					} else {
 						throw b;
 					}
 				}
@@ -451,12 +451,68 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			errors
 		},
+		// Indention
+		{
+			code: outdent`
+				function unicorn() {
+					/* comment cause wrong indention */ if (test) {
+						throw a;
+					} else {
+						throw b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					/* comment cause wrong indention */ const error = test ? a : b;
+				 throw error;
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				function unicorn() {
+														if (test) {
+															throw a;
+														} else {
+															throw b;
+														}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+														const error = test ? a : b;
+														throw error;
+				}
+			`,
+			errors
+		},
+		// Space
+		{
+			code: outdent`
+				function unicorn() {
+														if (test) {
+															throw new Error('a');
+														} else {
+															throw new TypeError('a');
+														}
+				}
+			`.replace(/\t/g, '  '),
+			output: outdent`
+				function unicorn() {
+														const error = test ? new Error('a') : new TypeError('a');
+														throw error;
+				}
+			`.replace(/\t/g, '  '),
+			errors
+		},
 		{
 			code: outdent`
 				async function unicorn() {
-					if(test){
+					if (test) {
 						throw await a;
-					} else{
+					} else {
 						throw b;
 					}
 				}
@@ -469,13 +525,13 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			errors
 		},
-		// ThrowStatement don't check nested
+		// `ThrowStatement` don't check nested
 		{
 			code: outdent`
 				async function unicorn() {
-					if(test){
+					if (test) {
 						throw await a;
-					} else{
+					} else {
 						throw await b;
 					}
 				}
@@ -493,9 +549,9 @@ ruleTester.run('prefer-ternary', rule, {
 			code: outdent`
 				function unicorn() {
 					const error = new Error();
-					if(test){
+					if (test) {
 						throw a;
-					} else{
+					} else {
 						throw b;
 					}
 				}
@@ -513,11 +569,12 @@ ruleTester.run('prefer-ternary', rule, {
 		{
 			code: outdent`
 				function unicorn() {
-					if(test){
+					if (test) {
 						throw a;
-					} else{
+					} else {
 						throw b;
 					}
+
 					try {} catch(error) {
 						const error_ = new TypeError(error);
 						throw error_;
@@ -528,6 +585,7 @@ ruleTester.run('prefer-ternary', rule, {
 				function unicorn() {
 					const error__ = test ? a : b;
 					throw error__;
+
 					try {} catch(error) {
 						const error_ = new TypeError(error);
 						throw error_;
@@ -540,11 +598,12 @@ ruleTester.run('prefer-ternary', rule, {
 		{
 			code: outdent`
 				function unicorn() {
-					if(test){
+					if (test) {
 						throw a;
-					} else{
+					} else {
 						throw b;
 					}
+
 					function foo() {
 						throw error;
 					}
@@ -554,6 +613,7 @@ ruleTester.run('prefer-ternary', rule, {
 				function unicorn() {
 					const error_ = test ? a : b;
 					throw error_;
+
 					function foo() {
 						throw error;
 					}
@@ -565,14 +625,15 @@ ruleTester.run('prefer-ternary', rule, {
 		{
 			code: outdent`
 				function unicorn() {
-					if(test){
+					if (test) {
 						throw a;
-					} else{
+					} else {
 						throw b;
 					}
-					if(test){
+
+					if (test) {
 						throw a;
-					} else{
+					} else {
 						throw b;
 					}
 				}
@@ -581,6 +642,7 @@ ruleTester.run('prefer-ternary', rule, {
 				function unicorn() {
 					const error = test ? a : b;
 					throw error;
+
 					const error_ = test ? a : b;
 					throw error_;
 				}
@@ -591,16 +653,16 @@ ruleTester.run('prefer-ternary', rule, {
 		{
 			code: outdent`
 				function outer() {
-					if(test){
+					if (test) {
 						throw a;
-					} else{
+					} else {
 						throw b;
 					}
 
 					function inner() {
-						if(test){
+						if (test) {
 							throw a;
-						} else{
+						} else {
 							throw b;
 						}
 					}
