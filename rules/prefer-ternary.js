@@ -17,6 +17,7 @@ const selector = [
 const isTernary = node => node && node.type === 'ConditionalExpression';
 
 function getNodeBody(node) {
+	/* istanbul ignore next */
 	if (!node) {
 		return;
 	}

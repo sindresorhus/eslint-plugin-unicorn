@@ -122,6 +122,23 @@ ruleTester.run('prefer-ternary', rule, {
 		},
 		{
 			code: outdent`
+				function unicorn() {
+					if(test){
+						return;
+					} else{
+						return;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test ? undefined : undefined;
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
 				async function unicorn() {
 					if(test){
 						return;
@@ -233,6 +250,23 @@ ruleTester.run('prefer-ternary', rule, {
 			output: outdent`
 				function* unicorn() {
 					yield (test ? undefined : b);
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				function* unicorn() {
+					if(test){
+						yield;
+					} else{
+						yield;
+					}
+				}
+			`,
+			output: outdent`
+				function* unicorn() {
+					yield (test ? undefined : undefined);
 				}
 			`,
 			errors
