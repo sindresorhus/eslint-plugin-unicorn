@@ -6,7 +6,7 @@ const vueArguments = ['--parser', 'vue-eslint-parser', '--ext', '.vue,.js'];
 module.exports = [
 	{
 		name: 'unicorn',
-		location: path.join(__dirname, 'unicorn'),
+		location: path.join(__dirname, 'unicorn')
 	},
 	{
 		repository: 'https://github.com/avajs/ava',
