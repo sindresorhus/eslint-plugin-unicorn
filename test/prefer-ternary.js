@@ -20,16 +20,6 @@ const errors = [{messageId}];
 // ReturnStatement
 ruleTester.run('prefer-ternary', rule, {
 	valid: [
-		// When ReturnStatement has no argument, should fix to `test ? undefined : …`, not handled
-		outdent`
-			function unicorn() {
-				if(test){
-					return;
-				} else{
-					return b;
-				}
-			}
-		`,
 		// Test is Ternary
 		outdent`
 			function unicorn() {
@@ -113,6 +103,40 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			errors
 		},
+		{
+			code: outdent`
+				function unicorn() {
+					if(test){
+						return;
+					} else{
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test ? undefined : b;
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				async function unicorn() {
+					if(test){
+						return;
+					} else{
+						return await b;
+					}
+				}
+			`,
+			output: outdent`
+				async function unicorn() {
+					return test ? undefined : (await b);
+				}
+			`,
+			errors
+		},
 		// Crazy nested
 		{
 			code: outdent`
@@ -137,16 +161,6 @@ ruleTester.run('prefer-ternary', rule, {
 // YieldExpression
 ruleTester.run('prefer-ternary', rule, {
 	valid: [
-		// When YieldExpression has no argument, should fix to `test ? undefined : …`, not handled
-		outdent`
-			function* unicorn() {
-				if(test){
-					yield;
-				} else{
-					yield b;
-				}
-			}
-		`,
 		// Different `delegate`
 		outdent`
 			function* unicorn() {
@@ -202,6 +216,40 @@ ruleTester.run('prefer-ternary', rule, {
 			output: outdent`
 				function* unicorn() {
 					yield (test ? a : b);
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				function* unicorn() {
+					if(test){
+						yield;
+					} else{
+						yield b;
+					}
+				}
+			`,
+			output: outdent`
+				function* unicorn() {
+					yield (test ? undefined : b);
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				async function* unicorn() {
+					if(test){
+						yield;
+					} else{
+						yield await b;
+					}
+				}
+			`,
+			output: outdent`
+				async function* unicorn() {
+					yield (test ? undefined : (await b));
 				}
 			`,
 			errors

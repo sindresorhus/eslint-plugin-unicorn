@@ -70,32 +70,28 @@ const create = context => {
 
 		if (
 			type === 'ReturnStatement' &&
-			consequent.argument &&
-			alternate.argument &&
-			!isTernary(consequent.argument) &&
-			!isTernary(alternate.argument)
+			(consequent.argument === null || !isTernary(consequent.argument)) &&
+			(alternate.argument === null || !isTernary(alternate.argument))
 		) {
 			return merge({
 				before: `${before}return `,
 				after,
-				consequent: consequent.argument,
-				alternate: alternate.argument
+				consequent: consequent.argument === null ? 'undefined' : consequent.argument,
+				alternate: alternate.argument === null ? 'undefined' : alternate.argument
 			});
 		}
 
 		if (
 			type === 'YieldExpression' &&
 			consequent.delegate === alternate.delegate &&
-			consequent.argument &&
-			alternate.argument &&
-			!isTernary(consequent.argument) &&
-			!isTernary(alternate.argument)
+			(consequent.argument === null || !isTernary(consequent.argument)) &&
+			(alternate.argument === null || !isTernary(alternate.argument))
 		) {
 			return merge({
 				before: `${before}yield${consequent.delegate ? '*' : ''} (`,
 				after: `)${after}`,
-				consequent: consequent.argument,
-				alternate: alternate.argument
+				consequent: consequent.argument === null ? 'undefined' : consequent.argument,
+				alternate: alternate.argument === null ? 'undefined' : alternate.argument
 			});
 		}
 
@@ -160,7 +156,15 @@ const create = context => {
 				node,
 				messageId,
 				fix: fixer => {
-					const fixed = `${result.before}${getParenthesizedText(node.test)} ? ${getParenthesizedText(result.consequent)} : ${getParenthesizedText(result.alternate)}${result.after}`;
+					const testText = getParenthesizedText(node.test);
+					const consequentText = typeof result.consequent === 'string' ?
+						result.consequent :
+						getParenthesizedText(result.consequent);
+					const alternateText = typeof result.alternate === 'string' ?
+						result.alternate :
+						getParenthesizedText(result.alternate);
+
+					const fixed = `${result.before}${testText} ? ${consequentText} : ${alternateText}${result.after}`;
 					return fixer.replaceText(
 						node,
 						fixed
