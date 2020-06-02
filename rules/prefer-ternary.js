@@ -55,6 +55,11 @@ const getScopes = scope => [
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
+	const scopeToNamesGeneratedByFixer = new WeakMap();
+	const isSafeName = (name, scopes) => scopes.every(scope => {
+		const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
+		return !generatedNames || !generatedNames.has(name);
+	});
 
 	const getParenthesizedText = node => {
 		const text = sourceCode.getText(node);
@@ -83,7 +88,7 @@ const create = context => {
 		} = {
 			checkThrowStatement: false,
 			returnFalseIfNotMergeable: false,
-			...mergeOptions,
+			...mergeOptions
 		};
 
 		if (!consequent || !alternate || consequent.type !== alternate.type) {
@@ -168,12 +173,6 @@ const create = context => {
 		return returnFalseIfNotMergeable ? false : options;
 	}
 
-	const scopeToNamesGeneratedByFixer = new WeakMap();
-	const isSafeName = (name, scopes) => scopes.every(scope => {
-		const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
-		return !generatedNames || !generatedNames.has(name);
-	});
-
 	return {
 		[selector](node) {
 			const consequent = getNodeBody(node.consequent);
@@ -187,6 +186,8 @@ const create = context => {
 			if (!result) {
 				return;
 			}
+
+			const scope = context.getScope();
 
 			context.report({
 				node,
@@ -203,7 +204,7 @@ const create = context => {
 					let {type, before, after} = result;
 
 					if (type === 'ThrowStatement') {
-						const scopes = getScopes(context.getScope());
+						const scopes = getScopes(scope);
 						const errorName = avoidCapture('error', scopes, context.parserOptions.ecmaVersion, isSafeName);
 
 						for (const scope of scopes) {
@@ -216,9 +217,10 @@ const create = context => {
 						}
 
 						const indentString = getIndentString(node, sourceCode);
+
 						after = after
-								.replace('{{INDENT_STRING}}', indentString)
-								.replace('{{ERROR_NAME}}', errorName);
+							.replace('{{INDENT_STRING}}', indentString)
+							.replace('{{ERROR_NAME}}', errorName);
 						before = before.replace('{{ERROR_NAME}}', errorName);
 					}
 

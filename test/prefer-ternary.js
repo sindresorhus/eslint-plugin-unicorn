@@ -680,7 +680,7 @@ ruleTester.run('prefer-ternary', rule, {
 				}
 			`,
 			errors: [...errors, ...errors]
-		},
+		}
 	]
 });
 
