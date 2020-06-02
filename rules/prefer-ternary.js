@@ -1,6 +1,8 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
+const {flatten} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const avoidCapture = require('./utils/avoid-capture');
 
 const messageId = 'prefer-ternary';
 
@@ -38,6 +40,19 @@ function isSameAssignmentLeft(node1, node2) {
 	return node1.type === node2.type && node1.type === 'Identifier' && node1.name === node2.name;
 }
 
+const getIndentString = (node, sourceCode) => {
+	const {line, column} = sourceCode.getLocFromIndex(node.range[0]);
+	const lines = sourceCode.getLines();
+	const before = lines[line - 1].slice(0, column);
+
+	return before.match(/\s*$/)[0];
+};
+
+const getScopes = scope => [
+	scope,
+	...flatten(scope.childScopes.map(scope => getScopes(scope)))
+];
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
@@ -54,13 +69,22 @@ const create = context => {
 			`(${text})` : text;
 	};
 
-	function merge(options, returnFalseIfNotMergeable = false) {
+	function merge(options, mergeOptions) {
 		const {
 			before = '',
 			after = ';',
 			consequent,
 			alternate
 		} = options;
+
+		const {
+			checkThrowStatement,
+			returnFalseIfNotMergeable
+		} = {
+			checkThrowStatement: false,
+			returnFalseIfNotMergeable: false,
+			...mergeOptions,
+		};
 
 		if (!consequent || !alternate || consequent.type !== alternate.type) {
 			return returnFalseIfNotMergeable ? false : options;
@@ -109,16 +133,18 @@ const create = context => {
 		}
 
 		if (
+			checkThrowStatement &&
 			type === 'ThrowStatement' &&
 			!isTernary(consequent.argument) &&
 			!isTernary(alternate.argument)
 		) {
-			return merge({
-				before: `${before}throw `,
-				after,
+			return {
+				type,
+				before: `${before}const {{ERROR_NAME}} = `,
+				after: `;\n{{INDENT_STRING}}throw {{ERROR_NAME}};`,
 				consequent: consequent.argument,
 				alternate: alternate.argument
-			});
+			};
 		}
 
 		if (
@@ -141,12 +167,21 @@ const create = context => {
 		return returnFalseIfNotMergeable ? false : options;
 	}
 
+	const scopeToNamesGeneratedByFixer = new WeakMap();
+	const isSafeName = (name, scopes) => scopes.every(scope => {
+		const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
+		return !generatedNames || !generatedNames.has(name);
+	});
+
 	return {
 		[selector](node) {
 			const consequent = getNodeBody(node.consequent);
 			const alternate = getNodeBody(node.alternate);
 
-			const result = merge({consequent, alternate}, true);
+			const result = merge({consequent, alternate}, {
+				checkThrowStatement: true,
+				returnFalseIfNotMergeable: true
+			});
 
 			if (!result) {
 				return;
@@ -164,11 +199,30 @@ const create = context => {
 						result.alternate :
 						getParenthesizedText(result.alternate);
 
-					const fixed = `${result.before}${testText} ? ${consequentText} : ${alternateText}${result.after}`;
-					return fixer.replaceText(
-						node,
-						fixed
-					);
+					let {type, before, after} = result;
+
+					if (type === 'ThrowStatement') {
+						const scopes = getScopes(context.getScope());
+						const errorName = avoidCapture('error', scopes, context.parserOptions.ecmaVersion, isSafeName);
+
+						for (const scope of scopes) {
+							if (!scopeToNamesGeneratedByFixer.has(scope)) {
+								scopeToNamesGeneratedByFixer.set(scope, new Set());
+							}
+
+							const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
+							generatedNames.add(errorName);
+						}
+
+						const indentString = getIndentString(node, sourceCode);
+						after = after
+								.replace('{{INDENT_STRING}}', indentString)
+								.replace('{{ERROR_NAME}}', errorName);
+						before = before.replace('{{ERROR_NAME}}', errorName);
+					}
+
+					const fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
+					return fixer.replaceText(node, fixed);
 				}
 			});
 		}

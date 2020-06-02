@@ -427,7 +427,8 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			output: outdent`
 				function unicorn() {
-					throw test ? new Error('a') : new TypeError('a');
+					const error = test ? new Error('a') : new TypeError('a');
+					throw error;
 				}
 			`,
 			errors
@@ -444,7 +445,8 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			output: outdent`
 				function unicorn() {
-					throw test ? a : b;
+					const error = test ? a : b;
+					throw error;
 				}
 			`,
 			errors
@@ -461,11 +463,13 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			output: outdent`
 				async function unicorn() {
-					throw test ? (await a) : b;
+					const error = test ? (await a) : b;
+					throw error;
 				}
 			`,
 			errors
 		},
+		// ThrowStatement don't check nested
 		{
 			code: outdent`
 				async function unicorn() {
@@ -478,29 +482,143 @@ ruleTester.run('prefer-ternary', rule, {
 			`,
 			output: outdent`
 				async function unicorn() {
-					throw await (test ? a : b);
+					const error = test ? (await a) : (await b);
+					throw error;
 				}
 			`,
 			errors
 		},
-		// Crazy nested
+		// `error` is used
 		{
 			code: outdent`
-				async function* unicorn() {
+				function unicorn() {
+					const error = new Error();
 					if(test){
-						throw yield await (foo = a);
+						throw a;
 					} else{
-						throw yield await (foo = b);
+						throw b;
 					}
 				}
 			`,
 			output: outdent`
-				async function* unicorn() {
-					throw yield (await (foo = test ? a : b));
+				function unicorn() {
+					const error = new Error();
+					const error_ = test ? a : b;
+					throw error_;
 				}
 			`,
 			errors
-		}
+		},
+		// Child scope
+		{
+			code: outdent`
+				function unicorn() {
+					if(test){
+						throw a;
+					} else{
+						throw b;
+					}
+					try {} catch(error) {
+						const error_ = new TypeError(error);
+						throw error_;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					const error__ = test ? a : b;
+					throw error__;
+					try {} catch(error) {
+						const error_ = new TypeError(error);
+						throw error_;
+					}
+				}
+			`,
+			errors
+		},
+		// Global
+		{
+			code: outdent`
+				function unicorn() {
+					if(test){
+						throw a;
+					} else{
+						throw b;
+					}
+					function foo() {
+						throw error;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					const error_ = test ? a : b;
+					throw error_;
+					function foo() {
+						throw error;
+					}
+				}
+			`,
+			errors
+		},
+		// Multiple
+		{
+			code: outdent`
+				function unicorn() {
+					if(test){
+						throw a;
+					} else{
+						throw b;
+					}
+					if(test){
+						throw a;
+					} else{
+						throw b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					const error = test ? a : b;
+					throw error;
+					const error_ = test ? a : b;
+					throw error_;
+				}
+			`,
+			errors: [...errors, ...errors]
+		},
+		// Multiple nested
+		{
+			code: outdent`
+				function outer() {
+					if(test){
+						throw a;
+					} else{
+						throw b;
+					}
+
+					function inner() {
+						if(test){
+							throw a;
+						} else{
+							throw b;
+						}
+					}
+				}
+			`,
+			output: outdent`
+				function outer() {
+					const error = test ? a : b;
+					throw error;
+
+					function inner() {
+						const error_ = test ? a : b;
+						throw error_;
+					}
+				}
+			`,
+			errors: [...errors, ...errors]
+		},
 	]
 });
 
