@@ -10,10 +10,10 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
-	},
-	deprecated: true,
-	replacedBy: [
-		'unicorn/better-regex'
-	]
+		fixable: 'code',
+		deprecated: true,
+		replacedBy: [
+			'unicorn/better-regex'
+		]
+	}
 };

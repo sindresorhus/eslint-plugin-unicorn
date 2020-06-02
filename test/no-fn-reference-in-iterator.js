@@ -2,6 +2,7 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/no-fn-reference-in-iterator';
+import notFunctionTypes from './utils/not-function-types';
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
@@ -22,8 +23,8 @@ const reduceLikeMethods = [
 ];
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
+	parserOptions: {
+		ecmaVersion: 2020
 	}
 });
 
@@ -90,15 +91,26 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 		'React.children.forEach(children, fn)',
 		'Vue.filter(name, fn)',
 
+		// First argument is not a function
+		...notFunctionTypes.map(data => `foo.map(${data})`),
+
 		// Ignored
 		'foo.map(() => {})',
 		'foo.map(function() {})',
 		'foo.map(function bar() {})',
-		'foo.map("string")',
-		'foo.map(null)',
-		'foo.map(1)',
-		'foo.map(true)',
-		'foo.map(undefined)'
+
+		// #755
+		outdent`
+			const results = collection
+				.find({
+					$and: [cursorQuery, params.query]
+				}, {
+					projection: params.projection
+				})
+				.sort($sort)
+				.limit(params.limit + 1)
+				.toArray()
+		`
 	],
 	invalid: [
 		// Suggestions
@@ -199,15 +211,6 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 				'foo.map((element) => (a ? b : c)(element))',
 				'foo.map((element, index) => (a ? b : c)(element, index))',
 				'foo.map((element, index, array) => (a ? b : c)(element, index, array))'
-			]
-		}),
-		invalidTestCase({
-			code: 'foo.map((() => _.map)())',
-			method: 'map',
-			suggestions: [
-				'foo.map((element) => (() => _.map)()(element))',
-				'foo.map((element, index) => (() => _.map)()(element, index))',
-				'foo.map((element, index, array) => (() => _.map)()(element, index, array))'
 			]
 		}),
 		// Note: `await` is not handled, not sure if this is needed

@@ -139,7 +139,7 @@ const create = context => {
 							return {identifier: parent};
 						}
 
-						return undefined;
+						return;
 					}
 
 					if (parent.type === 'MemberExpression') {
@@ -152,7 +152,7 @@ const create = context => {
 							return {identifier: parent};
 						}
 
-						return undefined;
+						return;
 					}
 
 					if (
@@ -163,7 +163,7 @@ const create = context => {
 							return {identifier: parent};
 						}
 
-						return undefined;
+						return;
 					}
 
 					if (
@@ -174,7 +174,7 @@ const create = context => {
 							return {identifier: parent};
 						}
 
-						return undefined;
+						return;
 					}
 
 					return reference;

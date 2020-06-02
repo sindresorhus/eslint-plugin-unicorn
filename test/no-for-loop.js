@@ -19,7 +19,7 @@ function testCase(code, output) {
 	return {
 		code,
 		output: output || code,
-		errors: [{ruleId: 'no-for-loop'}]
+		errors: [{}]
 	};
 }
 
@@ -481,6 +481,224 @@ ruleTester.run('no-for-loop', rule, {
 			for (const element of arr) {
 				const [ a, b ] = element;
 				console.log(a, b, element);
+			}
+		`),
+
+		// Avoid naming collision when using default element name.
+		testCase(outdent`
+			for (let i = 0; i < arr.length; i += 1) {
+				console.log(arr[i]);
+				const element = foo();
+				console.log(element);
+			}
+		`, outdent`
+			for (const element_ of arr) {
+				console.log(element_);
+				const element = foo();
+				console.log(element);
+			}
+		`),
+
+		// Avoid naming collision when using default element name (different scope).
+		testCase(outdent`
+			function element(element_) {
+				for (let i = 0; i < arr.length; i += 1) {
+					console.log(arr[i], element);
+				}
+			}
+		`, outdent`
+			function element(element_) {
+				for (const element__ of arr) {
+					console.log(element__, element);
+				}
+			}
+		`),
+		testCase(outdent`
+			let element;
+			function foo() {
+				for (let i = 0; i < arr.length; i += 1) {
+					console.log(arr[i]);
+				}
+			}
+		`, outdent`
+			let element;
+			function foo() {
+				for (const element_ of arr) {
+					console.log(element_);
+				}
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0; i < arr.length; i += 1) {
+				function element__(element) {
+					console.log(arr[i], element);
+				}
+			}
+		`, outdent`
+			for (const element_ of arr) {
+				function element__(element) {
+					console.log(element_, element);
+				}
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0; i < arr.length; i += 1) {
+				function element_(element) {
+					console.log(arr[i], element);
+				}
+			}
+		`, outdent`
+			for (const element__ of arr) {
+				function element_(element) {
+					console.log(element__, element);
+				}
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0; i < arr.length; i += 1) {
+				function element() {
+					console.log(arr[i], element);
+				}
+			}
+		`, outdent`
+			for (const element_ of arr) {
+				function element() {
+					console.log(element_, element);
+				}
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0; i < arr.length; i += 1) {
+				console.log(arr[i], element);
+			}
+		`, outdent`
+			for (const element_ of arr) {
+				console.log(element_, element);
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0; i < element.length; i += 1) {
+				console.log(element[i]);
+			}
+		`, outdent`
+			for (const element_ of element) {
+				console.log(element_);
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0; i < arr.length; i += 1) {
+				console.log(arr[i]);
+				function foo(element) {
+					console.log(element);
+				}
+			}
+		`, outdent`
+			for (const element_ of arr) {
+				console.log(element_);
+				function foo(element) {
+					console.log(element);
+				}
+			}
+		`),
+		testCase(outdent`
+			for (let element = 0; element < arr.length; element += 1) {
+				console.log(element, arr[element]);
+			}
+		`, outdent`
+			for (const [element, element_] of arr.entries()) {
+				console.log(element, element_);
+			}
+		`),
+		testCase(outdent`
+			for (let element = 0; element < arr.length; element += 1) {
+				console.log(arr[element]);
+			}
+		`, outdent`
+			for (const element_ of arr) {
+				console.log(element_);
+			}
+		`),
+		testCase(outdent`
+			for (const element of arr) {
+				for (let j = 0; j < arr2.length; j += 1) {
+					console.log(element, arr2[j]);
+				}
+			}
+		`, outdent`
+			for (const element of arr) {
+				for (const element_ of arr2) {
+					console.log(element, element_);
+				}
+			}
+		`),
+
+		// Avoid naming collision when using default element name (multiple collisions).
+		testCase(outdent`
+			for (let i = 0; i < arr.length; i += 1) {
+				const element = foo();
+				console.log(arr[i]);
+				const element_ = foo();
+				console.log(element);
+				console.log(element_);
+			}
+		`, outdent`
+			for (const element__ of arr) {
+				const element = foo();
+				console.log(element__);
+				const element_ = foo();
+				console.log(element);
+				console.log(element_);
+			}
+		`),
+
+		// Singularization:
+		...[
+			['plugin', 'plugins'], // Simple
+			['person', 'people'], // Irregular
+			['girlsAndBoy', 'girlsAndBoys'], // Multiple plurals
+			['largeCity', 'largeCities'], // CamelCase
+			['LARGE_CITY', 'LARGE_CITIES'], // Caps, snake_case
+			['element', 'news'], // No singular version, ends in s
+			['element', 'list'] // No singular version
+		].map(([elementName, arrayName]) =>
+			testCase(
+				`for(const i = 0; i < ${arrayName}.length; i++) {console.log(${arrayName}[i])}`,
+				`for(const ${elementName} of ${arrayName}) {console.log(${elementName})}`
+			)
+		),
+
+		// Singularization (avoid using reserved JavaScript keywords):
+		testCase(outdent`
+			for (let i = 0; i < cases.length; i++) {
+				console.log(cases[i]);
+			}
+		`, outdent`
+			for (const case_ of cases) {
+				console.log(case_);
+			}
+		`),
+		// Singularization (avoid variable name collision):
+		testCase(outdent`
+			for (let i = 0; i < cities.length; i++) {
+				console.log(cities[i]);
+				const city = foo();
+				console.log(city);
+			}
+		`, outdent`
+			for (const city_ of cities) {
+				console.log(city_);
+				const city = foo();
+				console.log(city);
+			}
+		`),
+		// Singularization (uses i):
+		testCase(outdent`
+			for (let i = 0; i < cities.length; i++) {
+				console.log(i, cities[i]);
+			}
+		`, outdent`
+			for (const [i, city] of cities.entries()) {
+				console.log(i, city);
 			}
 		`)
 	]

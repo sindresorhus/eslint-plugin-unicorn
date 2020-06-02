@@ -17,12 +17,10 @@ const typescriptRuleTester = avaRuleTester(test, {
 });
 
 const allocError = {
-	ruleId: 'no-new-buffer',
 	message: '`new Buffer()` is deprecated, use `Buffer.alloc()` instead.'
 };
 
 const fromError = {
-	ruleId: 'no-new-buffer',
 	message: '`new Buffer()` is deprecated, use `Buffer.from()` instead.'
 };
 

@@ -17,12 +17,10 @@ const typescriptRuleTester = avaRuleTester(test, {
 	parser: require.resolve('@typescript-eslint/parser')
 });
 
-const ruleId = 'consistent-function-scoping';
 const MESSAGE_ID_NAMED = 'named';
 const MESSAGE_ID_ANONYMOUS = 'anonymous';
 
 const createError = ({name, arrow}) => ({
-	ruleId,
 	messageId: name ? MESSAGE_ID_NAMED : MESSAGE_ID_ANONYMOUS,
 	data: {
 		functionType: arrow ? 'arrow function' : 'function',

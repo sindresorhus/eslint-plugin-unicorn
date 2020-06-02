@@ -16,7 +16,7 @@ const getQuotedReplacement = (node, value) => {
 	return `${leftQuote}${value}${rightQuote}`;
 };
 
-const getLiteralFix = (fixer, node, identifierName) => {
+function * getLiteralFix(fixer, node, identifierName) {
 	let replacement = node.raw;
 	if (identifierName === 'getElementById') {
 		replacement = getQuotedReplacement(node, getReplacementForId(node.value));
@@ -26,37 +26,29 @@ const getLiteralFix = (fixer, node, identifierName) => {
 		replacement = getQuotedReplacement(node, getReplacementForClass(node.value));
 	}
 
-	return [fixer.replaceText(node, replacement)];
-};
+	yield fixer.replaceText(node, replacement);
+}
 
-const getTemplateLiteralFix = (fixer, node, identifierName) => {
-	const fix = [
-		fixer.insertTextAfter(node, '`'),
-		fixer.insertTextBefore(node, '`')
-	];
+function * getTemplateLiteralFix(fixer, node, identifierName) {
+	yield fixer.insertTextAfter(node, '`');
+	yield fixer.insertTextBefore(node, '`');
 
-	node.quasis.forEach(templateElement => {
+	for (const templateElement of node.quasis) {
 		if (identifierName === 'getElementById') {
-			fix.push(
-				fixer.replaceText(
-					templateElement,
-					getReplacementForId(templateElement.value.cooked)
-				)
+			yield fixer.replaceText(
+				templateElement,
+				getReplacementForId(templateElement.value.cooked)
 			);
 		}
 
 		if (identifierName === 'getElementsByClassName') {
-			fix.push(
-				fixer.replaceText(
-					templateElement,
-					getReplacementForClass(templateElement.value.cooked)
-				)
+			yield fixer.replaceText(
+				templateElement,
+				getReplacementForClass(templateElement.value.cooked)
 			);
 		}
-	});
-
-	return fix;
-};
+	}
+}
 
 const canBeFixed = node => {
 	if (node.type === 'Literal') {
@@ -88,10 +80,10 @@ const fix = (node, identifierName, preferedSelector) => {
 	}
 
 	const getArgumentFix = nodeToBeFixed.type === 'Literal' ? getLiteralFix : getTemplateLiteralFix;
-	return fixer => [
-		...getArgumentFix(fixer, nodeToBeFixed, identifierName),
-		fixer.replaceText(node.callee.property, preferedSelector)
-	];
+	return function * (fixer) {
+		yield * getArgumentFix(fixer, nodeToBeFixed, identifierName);
+		yield fixer.replaceText(node.callee.property, preferedSelector);
+	};
 };
 
 const create = context => {

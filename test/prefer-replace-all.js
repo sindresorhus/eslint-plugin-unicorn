@@ -9,7 +9,6 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const error = {
-	ruleId: 'prefer-replace-all',
 	message: 'Prefer `String#replaceAll()` over `String#replace()`.'
 };
 

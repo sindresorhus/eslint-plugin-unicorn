@@ -4,7 +4,13 @@ const typescriptArguments = ['--parser', '@typescript-eslint/parser', '--ext', '
 const vueArguments = ['--parser', 'vue-eslint-parser', '--ext', '.vue,.js'];
 
 module.exports = [
-	'https://github.com/avajs/ava',
+	{
+		repository: 'https://github.com/avajs/ava',
+		extraArguments: [
+			'--ignore-pattern',
+			'test/node_modules'
+		]
+	},
 	'https://github.com/chalk/chalk',
 	'https://github.com/chalk/wrap-ansi',
 	'https://github.com/sindresorhus/np',

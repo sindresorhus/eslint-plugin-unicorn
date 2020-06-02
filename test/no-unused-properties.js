@@ -23,7 +23,6 @@ const babelEslintRuleTester = avaRuleTester(test, {
 });
 
 const error = {
-	ruleId: 'no-unused-properties',
 	message: 'Property `u` is defined but never used.'
 };
 

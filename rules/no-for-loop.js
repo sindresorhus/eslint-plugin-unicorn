@@ -1,6 +1,9 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
+const {flatten} = require('lodash');
+const avoidCapture = require('./utils/avoid-capture');
+const {singular} = require('pluralize');
 
 const defaultElementName = 'element';
 const isLiteralZero = node => isLiteralValue(node, 0);
@@ -191,8 +194,6 @@ const resolveIdentifierName = (name, scope) => {
 
 		scope = scope.upper;
 	}
-
-	return undefined;
 };
 
 const scopeContains = (ancestor, descendant) => {
@@ -258,10 +259,20 @@ const getReferencesInChildScopes = (scope, name) => {
 	const references = scope.references.filter(reference => reference.identifier.name === name);
 	return [
 		...references,
-		...scope.childScopes
-			.map(s => getReferencesInChildScopes(s, name))
-			.reduce((accumulator, scopeReferences) => [...accumulator, ...scopeReferences], [])
+		...flatten(scope.childScopes.map(s => getReferencesInChildScopes(s, name)))
 	];
+};
+
+const getChildScopesRecursive = scope => [
+	scope,
+	...flatten(scope.childScopes.map(scope => getChildScopesRecursive(scope)))
+];
+
+const getSingularName = originalName => {
+	const singularName = singular(originalName);
+	if (singularName !== originalName) {
+		return singularName;
+	}
 };
 
 const create = context => {
@@ -334,11 +345,12 @@ const create = context => {
 			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope);
 
 			if (shouldFix) {
-				problem.fix = fixer => {
+				problem.fix = function * (fixer) {
 					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 
 					const index = indexIdentifierName;
-					const element = elementIdentifierName || defaultElementName;
+					const element = elementIdentifierName ||
+						avoidCapture(getSingularName(arrayIdentifierName) || defaultElementName, getChildScopesRecursive(bodyScope), context.parserOptions.ecmaVersion);
 					const array = arrayIdentifierName;
 
 					let declarationElement = element;
@@ -360,24 +372,24 @@ const create = context => {
 						`${declarationType} [${index}, ${declarationElement}] of ${array}.entries()` :
 						`${declarationType} ${declarationElement} of ${array}`;
 
-					return [
-						fixer.replaceTextRange([
-							node.init.range[0],
-							node.update.range[1]
-						], replacement),
-						...arrayReferences.map(reference => {
-							if (reference === elementReference) {
-								return undefined;
-							}
+					yield fixer.replaceTextRange([
+						node.init.range[0],
+						node.update.range[1]
+					], replacement);
 
-							return fixer.replaceText(reference.identifier.parent, element);
-						}),
-						elementNode && (
-							removeDeclaration ?
-								fixer.removeRange(getRemovalRange(elementNode, sourceCode)) :
-								fixer.replaceText(elementNode.init, element)
-						)
-					].filter(Boolean);
+					for (const reference of arrayReferences) {
+						if (reference !== elementReference) {
+							yield fixer.replaceText(reference.identifier.parent, element);
+						}
+					}
+
+					if (elementNode) {
+						if (removeDeclaration) {
+							yield fixer.removeRange(getRemovalRange(elementNode, sourceCode));
+						} else {
+							yield fixer.replaceText(elementNode.init, element);
+						}
+					}
 				};
 			}
 
