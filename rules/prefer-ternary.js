@@ -147,7 +147,7 @@ const create = context => {
 			return {
 				type,
 				before: `${before}const {{ERROR_NAME}} = `,
-				after: `;\n{{INDENT_STRING}}throw {{ERROR_NAME}};`,
+				after: ';\n{{INDENT_STRING}}throw {{ERROR_NAME}};',
 				consequent: consequent.argument,
 				alternate: alternate.argument
 			};

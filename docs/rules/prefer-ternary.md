@@ -78,14 +78,14 @@ async function unicorn() {
 ```
 
 ```js
-throw test ? new Error('foo') : new Error('bar');
+const error = test ? new Error('foo') : new Error('bar');
+throw error;
 ```
 
 ```js
 let foo;
 foo = test ? 1 : 2;
 ```
-
 
 ```js
 // Multiple expressions
