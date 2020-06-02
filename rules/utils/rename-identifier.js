@@ -28,7 +28,7 @@ function renameIdentifier(identifier, name, fixer, sourceCode) {
 
 	// `typeAnnotation`
 	if (identifier.typeAnnotation) {
-		return fixer.replaceText(identifier, `${name}${sourceCode.getText(identifier.typeAnnotation)}`);
+		return fixer.replaceText(identifier, `${name}${identifier.optional ? '?' : ''}${sourceCode.getText(identifier.typeAnnotation)}`);
 	}
 
 	return fixer.replaceText(identifier, name);
