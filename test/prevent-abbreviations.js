@@ -1720,6 +1720,13 @@ typescriptRuleTester.run('prevent-abbreviations', rule, {
 			code,
 			output: code.replace('prop', 'property'),
 			errors: createErrors()
-		}))
+		})),
+
+		// #763
+		{
+			code: 'const foo = (extraParams?: string) => {}',
+			output: 'const foo = (extraParameters?: string) => {}',
+			errors: createErrors()
+		}
 	]
 });
