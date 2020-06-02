@@ -39,7 +39,6 @@ const createSuggestionError = (match, suggest, output) => [
 		message: `Prefer \`${suggest}\` over \`${match}\`.`,
 		suggestions: [
 			{
-				desc: `Replace \`${match}\` with \`${suggest}\`.`,
 				messageId: SUGGESTION_MESSAGE_ID,
 				data: {
 					match,
@@ -221,7 +220,7 @@ ruleTester.run('string-content', rule, {
 			code: 'const foo = `no${foo}no${foo}no`',
 			output: 'const foo = `yes${foo}yes${foo}yes`',
 			options: [{patterns: noToYesPattern}],
-			errors: Array.from({length: 3}).fill(createError('no', 'yes'))
+			errors: Array.from({length: 3}).fill(createError('no', 'yes')[0])
 		},
 		// Escape
 		{

@@ -21,7 +21,6 @@ const ruleTester = avaRuleTester(test, {
 
 const error = [
 	{
-		ruleId: 'no-abusive-eslint-disable',
 		message: 'Specify the rules you want to disable.'
 	}
 ];

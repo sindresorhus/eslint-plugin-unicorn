@@ -1,6 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const domEventsJson = require('./utils/dom-events.json');
+const {flatten} = require('lodash');
 
 const message = 'Prefer `{{replacement}}` over `{{method}}`.{{extra}}';
 const extraMessages = {
@@ -9,7 +10,7 @@ const extraMessages = {
 };
 
 const nestedEvents = Object.values(domEventsJson);
-const eventTypes = new Set(nestedEvents.reduce((accumulatorEvents, events) => accumulatorEvents.concat(events), []));
+const eventTypes = new Set(flatten(nestedEvents));
 const getEventMethodName = memberExpression => memberExpression.property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 

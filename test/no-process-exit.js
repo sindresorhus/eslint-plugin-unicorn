@@ -12,7 +12,6 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [
 	{
-		ruleId: 'no-process-exit',
 		message: 'Only use `process.exit()` in CLI apps. Throw an error instead.'
 	}
 ];

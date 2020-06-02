@@ -18,13 +18,12 @@ const typescriptRuleTester = avaRuleTester(test, {
 	parser: require.resolve('@typescript-eslint/parser')
 });
 
-const invalidClassNameError = {ruleId: 'custom-error-definition', message: 'Invalid class name, use `FooError`.'};
-const constructorError = {ruleId: 'custom-error-definition', message: 'Add a constructor to your error.'};
-const noSuperCallError = {ruleId: 'custom-error-definition', message: 'Missing call to `super()` in constructor.'};
-const invalidNameError = name => ({ruleId: 'custom-error-definition', message: `The \`name\` property should be set to \`${name}\`.`});
-const passMessageToSuperError = {ruleId: 'custom-error-definition', message: 'Pass the error message to `super()` instead of setting `this.message`.'};
+const invalidClassNameError = {message: 'Invalid class name, use `FooError`.'};
+const constructorError = {message: 'Add a constructor to your error.'};
+const noSuperCallError = {message: 'Missing call to `super()` in constructor.'};
+const invalidNameError = name => ({message: `The \`name\` property should be set to \`${name}\`.`});
+const passMessageToSuperError = {message: 'Pass the error message to `super()` instead of setting `this.message`.'};
 const invalidExportError = {
-	ruleId: 'custom-error-definition',
 	messageId: 'invalidExport'
 };
 

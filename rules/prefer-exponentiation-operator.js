@@ -10,10 +10,10 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
-	},
-	deprecated: true,
-	replacedBy: [
-		'prefer-exponentiation-operator'
-	]
+		fixable: 'code',
+		deprecated: true,
+		replacedBy: [
+			'prefer-exponentiation-operator'
+		]
+	}
 };

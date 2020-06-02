@@ -37,7 +37,6 @@ const noFixingTestCase = test => ({...test, output: test.code});
 
 const createErrors = message => {
 	const error = {
-		ruleId: 'prevent-abbreviations'
 	};
 
 	if (message) {
@@ -354,6 +353,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 		{
 			code: 'let stdDev',
+			output: 'let standardDeviation',
 			errors: createErrors('The variable `stdDev` should be named `standardDeviation`. A more descriptive name will do too.')
 		},
 		noFixingTestCase({
@@ -407,11 +407,13 @@ ruleTester.run('prevent-abbreviations', rule, {
 		// This tests that the rule does not hang up on combinatoric explosion of possible replacements
 		{
 			code: 'let ' + 'CbE'.repeat(1024),
+			output: 'let ' + 'CallbackE'.repeat(1024),
 			errors: createErrors()
 		},
 
 		{
 			code: 'let evt',
+			output: 'let event',
 			errors: createErrors('The variable `evt` should be named `event`. A more descriptive name will do too.')
 		},
 		noFixingTestCase({

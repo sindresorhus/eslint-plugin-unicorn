@@ -2,6 +2,7 @@
 const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
+const {notFunctionSelector} = require('./utils/not-function');
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
@@ -127,14 +128,11 @@ function check(context, node, method, options) {
 	context.report(problem);
 }
 
-const ignoredFirstArgumentSelector = `:not(${
-	[
-		'[arguments.0.type="FunctionExpression"]',
-		'[arguments.0.type="ArrowFunctionExpression"]',
-		'[arguments.0.type="Literal"]',
-		'[arguments.0.type="Identifier"][arguments.0.name="undefined"]'
-	].join(',')
-})`;
+const ignoredFirstArgumentSelector = [
+	notFunctionSelector('arguments.0'),
+	'[arguments.0.type!="FunctionExpression"]',
+	'[arguments.0.type!="ArrowFunctionExpression"]'
+].join('');
 
 const create = context => {
 	const sourceCode = context.getSourceCode();

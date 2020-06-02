@@ -12,7 +12,6 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const error = {
-	ruleId: 'no-unsafe-regex',
 	message: 'Unsafe regular expression.'
 };
 

@@ -625,9 +625,10 @@ const create = context => {
 				generatedNames.add(replacement);
 			}
 
-			problem.fix = fixer => {
-				return getVariableIdentifiers(variable)
-					.map(identifier => renameIdentifier(identifier, replacement, fixer, sourceCode));
+			problem.fix = function * (fixer) {
+				for (const identifier of getVariableIdentifiers(variable)) {
+					yield renameIdentifier(identifier, replacement, fixer, sourceCode);
+				}
 			};
 		}
 

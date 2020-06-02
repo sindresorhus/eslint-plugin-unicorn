@@ -10,7 +10,6 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const error = {
-	ruleId: 'prefer-negative-index'
 };
 
 ruleTester.run('prefer-negative-index', rule, {

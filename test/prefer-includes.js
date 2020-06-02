@@ -10,7 +10,6 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [
 	{
-		ruleId: 'prefer-includes',
 		message: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.'
 	}
 ];

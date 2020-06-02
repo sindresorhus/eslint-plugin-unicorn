@@ -9,12 +9,10 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const errorTrimLeft = {
-	ruleId: 'prefer-trim-start-end',
 	messageId: 'trimLeft'
 };
 
 const errorTrimRight = {
-	ruleId: 'prefer-trim-start-end',
 	messageId: 'trimRight'
 };
 
