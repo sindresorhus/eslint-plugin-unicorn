@@ -5,6 +5,10 @@ const vueArguments = ['--parser', 'vue-eslint-parser', '--ext', '.vue,.js'];
 
 module.exports = [
 	{
+		name: 'unicorn',
+		location: path.join(__dirname, 'unicorn'),
+	},
+	{
 		repository: 'https://github.com/avajs/ava',
 		extraArguments: [
 			'--ignore-pattern',
@@ -120,11 +124,7 @@ module.exports = [
 	'https://github.com/chakra-ui/chakra-ui',
 	'https://github.com/ReactTraining/react-router',
 	'https://github.com/facebook/relay',
-	'https://github.com/mozilla/pdf.js',
-	{
-		name: 'unicorn',
-		location: path.join(__dirname, 'unicorn'),
-	}
+	'https://github.com/mozilla/pdf.js'
 ].map(project => {
 	if (typeof project === 'string') {
 		project = {repository: project};
