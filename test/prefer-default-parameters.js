@@ -15,7 +15,6 @@ const invalidTestCase = ({code, suggestions}) => {
 			code,
 			output: code,
 			errors: [{
-				ruleId: 'prefer-default-parameters',
 				messageId: 'preferDefaultParameters'
 			}]
 		};
@@ -25,7 +24,6 @@ const invalidTestCase = ({code, suggestions}) => {
 		code,
 		output: code,
 		errors: suggestions.map(suggestion => ({
-			ruleId: 'prefer-default-parameters',
 			messageId: 'preferDefaultParameters',
 			suggestions: [{
 				messageId: 'preferDefaultParametersSuggest',
