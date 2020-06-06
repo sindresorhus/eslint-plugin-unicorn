@@ -9,7 +9,6 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const error = {
-	ruleId: 'no-object-as-default',
 	messageId: 'noObjectAsDefault',
 	data: {parameter: 'foo'}
 };
