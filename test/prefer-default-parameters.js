@@ -113,6 +113,17 @@ ruleTester.run('prefer-default-parameters', rule, {
 					foo = foo || 'bar';
 				}
 			}
+		`,
+		outdent`
+			function abc(foo) {
+				const bar = foo = foo || 123;
+		   	}
+		`,
+		outdent`
+			function abc(foo) {
+				bar(foo = foo || 1);
+				baz(foo);
+			}
 		`
 	],
 	invalid: [
