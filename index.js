@@ -51,7 +51,8 @@ module.exports = {
 				'unicorn/prefer-array-find': 'error',
 				'unicorn/prefer-dataset': 'error',
 				'unicorn/prefer-event-key': 'error',
-				'unicorn/prefer-flat-map': 'error',
+				// TODO: Enable this by default when targeting Node.js 12.
+				'unicorn/prefer-flat-map': 'off',
 				'unicorn/prefer-includes': 'error',
 				'unicorn/prefer-modern-dom-apis': 'error',
 				'unicorn/prefer-negative-index': 'error',
