@@ -513,6 +513,18 @@ ruleTester.run('consistent-function-scoping', rule, {
 				})();
 			`,
 			errors: [createError({name: 'bar'})]
+		},
+		// #770
+		{
+			code: outdent`
+				process.nextTick(() => {
+					function returnsZero() {
+						return true;
+					}
+					process.exitCode = returnsZero();
+				});
+			`,
+			errors: [createError({name: 'returnsZero'})]
 		}
 	]
 });
