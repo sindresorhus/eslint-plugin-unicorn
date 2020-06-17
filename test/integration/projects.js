@@ -109,15 +109,25 @@ module.exports = [
 		]
 	},
 	{
-		repository: 'https://github.com/zeit/next.js',
+		repository: 'https://github.com/vercel/next.js',
 		extraArguments: [
 			...typescriptArguments,
 
 			'--ignore-pattern',
-			'examples/**'
+			'examples/**',
+
+			// These files use `>` in jsx
+			'--ignore-pattern',
+			'test/integration/**'
 		]
 	},
-	'https://github.com/chakra-ui/chakra-ui',
+	{
+		repository: 'https://github.com/chakra-ui/chakra-ui',
+		extraArguments: [
+			'--ignore-pattern',
+			'scripts/create-package.js' // This file use `package` keyword as variable
+		]
+	},
 	'https://github.com/ReactTraining/react-router',
 	'https://github.com/facebook/relay',
 	'https://github.com/mozilla/pdf.js'
