@@ -19,7 +19,7 @@ const typescriptRuleTester = avaRuleTester(test, {
 
 const MESSAGE_ID = 'consistent-function-scoping';
 
-const createError = (functionNameWithKind) => ({
+const createError = functionNameWithKind => ({
 	messageId: MESSAGE_ID,
 	data: {
 		functionNameWithKind
@@ -488,7 +488,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 			`,
 			errors: [createError('function \'doBar\'')]
 		},
-		// function kinds and names
+		// Function kinds and names
 		{
 			code: 'function foo() { function bar() {} }',
 			errors: [createError('function \'bar\'')]
