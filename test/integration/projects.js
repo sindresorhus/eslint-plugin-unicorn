@@ -116,9 +116,9 @@ module.exports = [
 			'--ignore-pattern',
 			'examples/**',
 
-			// This file use `>` in jsx
+			// These files use `>` in jsx
 			'--ignore-pattern',
-			'test/integration/index-index/pages/index/index/index.js'
+			'test/integration/**'
 		]
 	},
 	{
