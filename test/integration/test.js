@@ -150,6 +150,7 @@ list.run()
 					const {file, project, destination} = error2.eslintJob;
 					const {line} = error2.eslintMessage;
 
+					// TODO: The default branch of `next.js` is not master, find a way to link to the default branch
 					console.error(chalk.gray(`${project.repository}/tree/master/${path.relative(destination, file.filePath)}#L${line}`));
 					console.error(chalk.gray(JSON.stringify(error2.eslintMessage, undefined, 2)));
 				}
