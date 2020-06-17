@@ -528,19 +528,36 @@ ruleTester.run('consistent-function-scoping', rule, {
 		},
 		{
 			code: outdent`
-				process.nextTick(() => {
-					function returnsZero() {
-						return true;
-					}
-					process.exitCode = returnsZero();
-				},(() => {
-					function returnsZero() {
-						return true;
-					}
-					process.exitCode = returnsZero();
-				})());
+				foo(
+					// This is not IIFE
+					function() {
+						function bar() {
+						}
+					},
+					// This is IIFE
+					(function() {
+						function baz() {
+						}
+					})(),
+				)
 			`,
-			errors: [createError({name: 'returnsZero'})]
+			errors: [createError({name: 'bar'})]
+		},
+		{
+			code: outdent`
+				// This is IIFE
+				(function() {
+					function bar() {
+					}
+				})(
+					// This is not IIFE
+					function() {
+						function baz() {
+						}
+					},
+				)
+			`,
+			errors: [createError({name: 'baz'})]
 		}
 	]
 });
