@@ -44,7 +44,6 @@ function fixForLoop(node, context, fixer) {
 	const sourceCode = context.getSourceCode();
 	const nonIterator = getVariableNames(node).find(variableName => variableName !== getIteratorName(node));
 	const nonIteratorDeclaration = node.init.declarations.find(declaration => declaration.id.name === nonIterator);
-	const iteratorDeclaration = node.init.declarations.find(declaration => declaration.id.name !== nonIterator);
 
 	function replaceInTestFix() {
 		const nonIteratorInitValue = sourceCode.getText(nonIteratorDeclaration.init);
@@ -55,7 +54,7 @@ function fixForLoop(node, context, fixer) {
 	}
 
 	function removeDeclarationFix() {
-		let replacementText = node.init.kind + ' ' + node.init.declarations
+		const replacementText = node.init.kind + ' ' + node.init.declarations
 			.filter(dec => dec !== nonIteratorDeclaration)
 			.map(dec => sourceCode.getText(dec))
 			.join(', ');
