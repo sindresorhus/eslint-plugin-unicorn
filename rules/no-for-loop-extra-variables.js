@@ -55,7 +55,11 @@ function fixForLoop(node, context, fixer) {
 	}
 
 	function removeDeclarationFix() {
-		return [fixer.replaceText(node.init, node.init.kind + ' ' + sourceCode.getText(iteratorDeclaration))];
+		let replacementText = node.init.kind + ' ' + node.init.declarations
+			.filter(dec => dec !== nonIteratorDeclaration)
+			.map(dec => sourceCode.getText(dec))
+			.join(', ');
+		return [fixer.replaceText(node.init, replacementText)];
 	}
 
 	function moveDeclarationFix() {

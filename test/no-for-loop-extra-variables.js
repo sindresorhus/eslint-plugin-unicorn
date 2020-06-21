@@ -10,7 +10,6 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const error = {
-	ruleId: 'no-for-loop-extra-variables',
 	message: 'Unnecessary variable in for-loop.'
 };
 
@@ -24,12 +23,6 @@ ruleTester.run('no-for-loop-extra-variables', rule, {
 		`,
 		outdent`
 			for(let i = 1, j=arr.length; i < j; otherVariable += 1) {
-				const element = arr[i];
-				console.log(element);
-			}
-		`,
-		outdent`
-			for(let i = 1, j=arr.length, k =0; i < j; i += 1) {
 				const element = arr[i];
 				console.log(element);
 			}
@@ -53,6 +46,37 @@ ruleTester.run('no-for-loop-extra-variables', rule, {
 			errors: [error],
 			output: outdent`
 				for(let i = 1; i < arr.length; i += 1) {
+					const element = arr[i];
+					console.log(element);
+				}
+			`
+		},
+		{
+			// J never used anywhere else (let)
+			code: outdent`
+				for(let j=arr.length, i = 1; i < j; i += 1) {
+					const element = arr[i];
+					console.log(element);
+				}
+			`,
+			errors: [error],
+			output: outdent`
+				for(let i = 1; i < arr.length; i += 1) {
+					const element = arr[i];
+					console.log(element);
+				}
+			`
+		},
+		{
+			code: outdent`
+				for(let i = 1, j=arr.length, k=0; i < j; i += 1) {
+					const element = arr[i];
+					console.log(element);
+				}
+			`,
+			errors: [error],
+			output: outdent`
+				for(let i = 1, k=0; i < arr.length; i += 1) {
 					const element = arr[i];
 					console.log(element);
 				}
