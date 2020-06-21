@@ -222,7 +222,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 				function foo() {}
 			}, [])
 		`,
-		// IIEF
+		// IIFE
 		outdent`
 			(function() {
 				function bar() {}
@@ -547,6 +547,51 @@ ruleTester.run('consistent-function-scoping', rule, {
 				})();
 			`,
 			errors: [createError('function \'bar\'')]
+		},
+		// #770
+		{
+			code: outdent`
+				process.nextTick(() => {
+					function returnsZero() {
+						return true;
+					}
+					process.exitCode = returnsZero();
+				});
+			`,
+			errors: [createError('function \'returnsZero\'')]
+		},
+		{
+			code: outdent`
+				foo(
+					// This is not IIFE
+					function() {
+						function bar() {
+						}
+					},
+					// This is IIFE
+					(function() {
+						function baz() {
+						}
+					})(),
+				)
+			`,
+			errors: [createError('function \'bar\'')]
+		},
+		{
+			code: outdent`
+				// This is IIFE
+				(function() {
+					function bar() {
+					}
+				})(
+					// This is not IIFE
+					function() {
+						function baz() {
+						}
+					},
+				)
+			`,
+			errors: [createError('function \'baz\'')]
 		}
 	]
 });
