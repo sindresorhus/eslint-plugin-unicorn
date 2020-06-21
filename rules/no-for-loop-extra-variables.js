@@ -69,7 +69,7 @@ function fixForLoop(node, context, fixer) {
 	if (node.init.kind === 'let') {
 		if (checkNonIteratorUsedInNode(node, context)) {
 			if (checkNonIteratorUsedOutsideNode(node, context)) {
-				return null;
+				return undefined;
 			}
 
 			return moveDeclarationFix();
