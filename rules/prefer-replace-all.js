@@ -1,6 +1,14 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
+const methodSelector = require('./utils/method-selector');
+
+const selector = methodSelector({
+	name: 'replace',
+	length: 2
+});
+
+const message = 'Prefer `String#replaceAll()` over `String#replace()`.';
 
 function isRegexWithGlobalFlag(node) {
 	const {type, regex} = node;
@@ -29,13 +37,8 @@ function removeEscapeCharacters(regexString) {
 
 const create = context => {
 	return {
-		'CallExpression[callee.property.name="replace"]': node => {
+		[selector]: node => {
 			const {arguments: arguments_} = node;
-
-			if (arguments_.length !== 2) {
-				return;
-			}
-
 			const [search] = arguments_;
 
 			if (!isRegexWithGlobalFlag(search) || !isLiteralCharactersOnly(search)) {
@@ -44,7 +47,7 @@ const create = context => {
 
 			context.report({
 				node,
-				message: 'Prefer `String#replaceAll()` over `String#replace()`.',
+				message,
 				fix: fixer =>
 					[
 						fixer.insertTextAfter(node.callee, 'All'),

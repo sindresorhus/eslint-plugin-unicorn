@@ -1,64 +1,70 @@
 #!/usr/bin/env node
 'use strict';
-const {CLIEngine} = require('eslint');
+const {ESLint} = require('eslint');
 const unicorn = require('../..');
 
 const {recommended} = unicorn.configs;
 const files = [process.argv[2] || '.'];
 const fix = process.argv.includes('--fix');
-const ruleIds = Object.keys(unicorn.rules);
-const unicornRules = new Map(Object.entries(unicorn.rules));
 
-const cli = new CLIEngine({
+const eslint = new ESLint({
 	baseConfig: recommended,
-	rules: {
-		// TODO: remove this override, when #391 is fixed
-		'unicorn/consistent-function-scoping': 'off'
-	},
 	useEslintrc: false,
-	fix
+	plugins: {
+		unicorn
+	},
+	fix,
+	overrideConfig: {
+		ignorePatterns: [
+			'coverage',
+			'test/integration/fixtures'
+		]
+	}
 });
 
-cli.addPlugin('eslint-plugin-unicorn', unicorn);
-
-// Make sure rules are loaded from codebase
-const loadedRules = cli.getRules();
-if (!ruleIds.every(ruleId => unicornRules.get(ruleId) === loadedRules.get(`unicorn/${ruleId}`))) {
-	console.error('`eslint-plugin-unicorn` rules are not loaded from codebase.');
-	process.exit(1);
-}
-
-const report = cli.executeOnFiles(files);
-
-const {
-	errorCount,
-	warningCount,
-	fixableErrorCount,
-	fixableWarningCount
-} = report;
-
-const hasFixable = fixableErrorCount || fixableWarningCount;
-
-if (fix && hasFixable) {
-	CLIEngine.outputFixes(report);
-}
-
-if (errorCount || warningCount) {
-	const formatter = cli.getFormatter();
-	console.log(formatter(report.results));
-
-	console.log();
-	console.log(`You need to fix the failed test${errorCount + warningCount > 1 ? 's' : ''} above and run \`npm run lint <file>\` to check again.`);
-
-	if (hasFixable) {
-		console.log();
-		console.log('You may also want run `npm run lint <file> --fix` to fix fixable problems.');
+const sum = (collection, fieldName) => {
+	let result = 0;
+	for (const item of collection) {
+		result += item[fieldName];
 	}
 
-	console.log();
-	console.log('* If you\'re making a new rule, you can fix this later. *');
-} else {
-	console.log('All tests have passed.');
-}
+	return result;
+};
 
-process.exit(errorCount);
+(async function () {
+	const results = await eslint.lintFiles(files);
+
+	if (fix) {
+		await ESLint.outputFixes(results);
+	}
+
+	const errorCount = sum(results, 'errorCount');
+	const warningCount = sum(results, 'warningCount');
+	const fixableErrorCount = sum(results, 'fixableErrorCount');
+	const fixableWarningCount = sum(results, 'fixableWarningCount');
+
+	const hasFixable = fixableErrorCount || fixableWarningCount;
+
+	if (errorCount || warningCount) {
+		const {format} = await eslint.loadFormatter();
+		console.log(format(results));
+
+		console.log();
+		console.log(`You need to fix the failed test${errorCount + warningCount > 1 ? 's' : ''} above and run \`npm run lint <file>\` to check again.`);
+
+		if (hasFixable) {
+			console.log();
+			console.log('You may also want run `npm run lint <file> --fix` to fix fixable problems.');
+		}
+
+		console.log();
+		console.log('* If you\'re making a new rule, you can fix this later. *');
+	} else {
+		console.log('All tests have passed.');
+	}
+
+	process.exit(errorCount);
+})().catch(error => {
+	process.exitCode = 1;
+	console.error(error);
+});

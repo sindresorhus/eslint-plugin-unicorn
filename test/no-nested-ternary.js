@@ -1,6 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/no-nested-ternary';
+import {outdent} from 'outdent';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -8,9 +9,12 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
+const typescriptRuleTester = avaRuleTester(test, {
+	parser: require.resolve('@typescript-eslint/parser')
+});
+
 const errors = [
 	{
-		ruleId: 'no-nested-ternary',
 		message: 'Do not nest ternary expressions.'
 	}
 ];
@@ -44,11 +48,9 @@ ruleTester.run('new-error', rule, {
 			output: 'const foo = i > 5 ? (i < 100 ? true : false) : (i < 100 ? true : false);',
 			errors: [
 				{
-					ruleId: 'no-nested-ternary',
 					column: 21
 				},
 				{
-					ruleId: 'no-nested-ternary',
 					column: 46
 				}
 			]
@@ -69,4 +71,20 @@ ruleTester.run('new-error', rule, {
 			errors
 		}
 	]
+});
+
+typescriptRuleTester.run('new-error', rule, {
+	valid: [
+		// #663
+		outdent`
+			const pluginName = isAbsolute ?
+				pluginPath.slice(pluginPath.lastIndexOf('/') + 1) :
+				(
+					isNamespaced ?
+					pluginPath.split('@')[1].split('/')[1] :
+					pluginPath
+				);
+		`
+	],
+	invalid: []
 });

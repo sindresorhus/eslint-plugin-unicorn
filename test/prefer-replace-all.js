@@ -9,7 +9,6 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const error = {
-	ruleId: 'prefer-replace-all',
 	message: 'Prefer `String#replaceAll()` over `String#replace()`.'
 };
 
@@ -29,16 +28,20 @@ ruleTester.run('prefer-replace-all', rule, {
 		// Not 2 arguments
 		'foo.replace(/a/g)',
 		'foo.replace(/\\\\./g)',
-		// New
+		// Not `CallExpression`
 		'new foo.replace(/a/g, bar)',
-		// Function call
+		// Not `MemberExpression`
 		'replace(/a/g, bar)',
-		// Not call
-		'foo.replace',
+		// Computed
+		'foo[replace](/a/g, bar);',
 		// Not replace
 		'foo.methodNotReplace(/a/g, bar);',
-		// `replace` is not Identifier
-		'foo[\'replace\'](/a/g, bar)'
+		// `callee.property` is not a `Identifier`
+		'foo[\'replace\'](/a/g, bar)',
+		// More or less argument(s)
+		'foo.replace(/a/g, bar, extra);',
+		'foo.replace();',
+		'foo.replace(...argumentsArray, ...argumentsArray2)'
 	],
 	invalid: [
 		{
@@ -82,7 +85,7 @@ ruleTester.run('prefer-replace-all', rule, {
 		},
 		{
 			code: 'foo.replace(/\\\\\\./g, bar)',
-			output: 'foo.replaceAll(\'\\.\', bar)',
+			output: 'foo.replaceAll(\'\\\\.\', bar)',
 			errors: [error]
 		}
 	]

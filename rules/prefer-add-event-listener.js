@@ -1,25 +1,20 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const domEventsJson = require('./utils/dom-events.json');
+const {flatten} = require('lodash');
 
-const nestedEvents = Object.keys(domEventsJson).map(key => domEventsJson[key]);
-const eventTypes = new Set(nestedEvents.reduce((accumulatorEvents, events) => accumulatorEvents.concat(events), []));
+const message = 'Prefer `{{replacement}}` over `{{method}}`.{{extra}}';
+const extraMessages = {
+	beforeunload: 'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.',
+	message: 'Note that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.'
+};
+
+const nestedEvents = Object.values(domEventsJson);
+const eventTypes = new Set(flatten(nestedEvents));
 const getEventMethodName = memberExpression => memberExpression.property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 
-const beforeUnloadMessage = 'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.';
-
-const formatMessage = (methodReplacement, eventMethodName, extra) => {
-	let message = `Prefer \`${methodReplacement}\` over \`${eventMethodName}\`.`;
-
-	if (extra) {
-		message += ' ' + extra;
-	}
-
-	return message;
-};
-
-const fix = (fixer, sourceCode, assignmentNode, memberExpression) => {
+const fixCode = (fixer, sourceCode, assignmentNode, memberExpression) => {
 	const eventTypeName = getEventTypeName(getEventMethodName(memberExpression));
 	const eventObjectCode = sourceCode.getText(memberExpression.object);
 	const fncCode = sourceCode.getText(assignmentNode.right);
@@ -60,7 +55,7 @@ const create = context => {
 	let isDisabled;
 
 	const nodeReturnsSomething = new WeakMap();
-	let codePathInfo = null;
+	let codePathInfo;
 
 	return {
 		onCodePathStart(codePath, node) {
@@ -115,26 +110,34 @@ const create = context => {
 				return;
 			}
 
+			let replacement = 'addEventListener';
+			let extra = '';
+			let fix;
+
 			if (isClearing(assignedExpression)) {
-				context.report({
-					node,
-					message: formatMessage('removeEventListener', eventMethodName)
-				});
+				replacement = 'removeEventListener';
 			} else if (
 				eventTypeName === 'beforeunload' &&
 				!shouldFixBeforeUnload(assignedExpression, nodeReturnsSomething)
 			) {
-				context.report({
-					node,
-					message: formatMessage('addEventListener', eventMethodName, beforeUnloadMessage)
-				});
+				extra = extraMessages.beforeunload;
+			} else if (eventTypeName === 'message') {
+				// Disable `onmessage` fix, see #537
+				extra = extraMessages.message;
 			} else {
-				context.report({
-					node,
-					message: formatMessage('addEventListener', eventMethodName),
-					fix: fixer => fix(fixer, context.getSourceCode(), node, memberExpression)
-				});
+				fix = fixer => fixCode(fixer, context.getSourceCode(), node, memberExpression);
 			}
+
+			context.report({
+				node,
+				message,
+				data: {
+					replacement,
+					method: eventMethodName,
+					extra: extra ? ` ${extra}` : ''
+				},
+				fix
+			});
 		}
 	};
 };

@@ -17,6 +17,9 @@ const SELECTOR_SPREAD = [
 
 	// [].concat(...bar.map((i) => i))
 	//    ^^^^^^
+	'[callee.type="MemberExpression"]',
+	'[callee.computed=false]',
+	'[callee.property.type="Identifier"]',
 	'[callee.property.name="concat"]',
 
 	// [].concat(...bar.map((i) => i))
@@ -24,7 +27,17 @@ const SELECTOR_SPREAD = [
 	'[arguments.0.type="SpreadElement"]',
 
 	// [].concat(...bar.map((i) => i))
+	//              ^^^^^^^^^^^^^^^^^
+	'[arguments.0.argument.type="CallExpression"]',
+
+	// [].concat(...bar.map((i) => i))
+	//              ^^^^^^^
+	'[arguments.0.argument.callee.type="MemberExpression"]',
+	'[arguments.0.argument.callee.computed=false]',
+
+	// [].concat(...bar.map((i) => i))
 	//                  ^^^
+	'[arguments.0.argument.callee.property.type="Identifier"]',
 	'[arguments.0.argument.callee.property.name="map"]'
 ].join('');
 
@@ -84,22 +97,20 @@ const reportFlatMap = (context, nodeFlat, nodeMap) => {
 	context.report({
 		node: nodeFlat,
 		messageId: MESSAGE_ID_FLATMAP,
-		fix: fixer => {
-			const fixings = [
-				// Removes:
-				//   map(…).flat();
-				//         ^^^^^^^
-				//   (map(…)).flat();
-				//           ^^^^^^^
-				fixer.removeRange([fixStart, fixEnd]),
+		* fix(fixer) {
+			// Removes:
+			//   map(…).flat();
+			//         ^^^^^^^
+			//   (map(…)).flat();
+			//           ^^^^^^^
+			yield fixer.removeRange([fixStart, fixEnd]);
 
-				// Renames:
-				//   map(…).flat();
-				//   ^^^
-				//   (map(…)).flat();
-				//    ^^^
-				fixer.replaceText(mapProperty, 'flatMap')
-			];
+			// Renames:
+			//   map(…).flat();
+			//   ^^^
+			//   (map(…)).flat();
+			//    ^^^
+			yield fixer.replaceText(mapProperty, 'flatMap');
 
 			if (hasSemicolon) {
 				// Moves semicolon to:
@@ -107,11 +118,9 @@ const reportFlatMap = (context, nodeFlat, nodeMap) => {
 				//         ^
 				//   (map(…)).flat();
 				//           ^
-				fixings.push(fixer.insertTextAfter(beforeSemicolon, ';'));
-				fixings.push(fixer.remove(maybeSemicolon));
+				yield fixer.insertTextAfter(beforeSemicolon, ';');
+				yield fixer.remove(maybeSemicolon);
 			}
-
-			return fixings;
 		}
 	});
 };

@@ -1,81 +1,61 @@
 'use strict';
+const {isParenthesized, hasSideEffect} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const methodSelector = require('./utils/method-selector');
+const {notDomNodeSelector} = require('./utils/not-dom-node');
+const needsSemicolon = require('./utils/needs-semicolon');
 const isValueNotUsable = require('./utils/is-value-not-usable');
 
-const getMethodName = callee => {
-	const {property} = callee;
+const selector = [
+	methodSelector({
+		name: 'removeChild',
+		length: 1
+	}),
+	notDomNodeSelector('callee.object'),
+	notDomNodeSelector('arguments.0')
+].join('');
 
-	if (property.type === 'Identifier') {
-		return property.name;
-	}
-
-	return null;
-};
-
-const getCallerName = callee => {
-	const {object} = callee;
-
-	if (object.type === 'Identifier') {
-		return object.name;
-	}
-
-	if (object.type === 'MemberExpression') {
-		const {property} = object;
-
-		if (property.type === 'Identifier') {
-			return property.name;
-		}
-	}
-
-	return null;
-};
-
-const getArgumentName = arguments_ => {
-	const [identifier] = arguments_;
-
-	if (identifier.type === 'ThisExpression') {
-		return 'this';
-	}
-
-	if (identifier.type === 'Identifier') {
-		return identifier.name;
-	}
-
-	return null;
-};
+const ERROR_MESSAGE_ID = 'error';
+const SUGGESTION_MESSAGE_ID = 'suggestion';
 
 const create = context => {
+	const sourceCode = context.getSourceCode();
+
 	return {
-		CallExpression(node) {
-			const {callee} = node;
+		[selector](node) {
+			const parentNode = node.callee.object;
+			const childNode = node.arguments[0];
 
-			if (
-				node.arguments.length === 0 ||
-				callee.type !== 'MemberExpression' ||
-				callee.computed
-			) {
-				return;
-			}
+			const problem = {
+				node,
+				messageId: ERROR_MESSAGE_ID
+			};
 
-			const methodName = getMethodName(callee);
-			const callerName = getCallerName(callee);
-
-			if (
-				methodName === 'removeChild' &&
-				(callerName === 'parentNode' || callerName === 'parentElement')
-			) {
-				const argumentName = getArgumentName(node.arguments);
-
-				if (argumentName) {
-					const fix = isValueNotUsable(node) ? fixer => fixer.replaceText(node, `${argumentName}.remove()`) : undefined;
-
-					context.report({
-						node,
-						message: `Prefer \`${argumentName}.remove()\` over \`${callerName}.removeChild(${argumentName})\`.`,
-						fix
-					});
+			const fix = fixer => {
+				let childNodeText = sourceCode.getText(childNode);
+				if (isParenthesized(childNode, sourceCode) || childNode.type === 'AwaitExpression') {
+					childNodeText = `(${childNodeText})`;
 				}
+
+				if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, childNodeText)) {
+					childNodeText = `;${childNodeText}`;
+				}
+
+				return fixer.replaceText(node, `${childNodeText}.remove()`);
+			};
+
+			if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node)) {
+				problem.fix = fix;
+			} else {
+				problem.suggest = [
+					{
+						messageId: SUGGESTION_MESSAGE_ID,
+						fix
+					}
+				];
 			}
+
+			context.report(problem);
 		}
 	};
 };
@@ -87,6 +67,10 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages: {
+			[ERROR_MESSAGE_ID]: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
+			[SUGGESTION_MESSAGE_ID]: 'Replace `parentNode.removeChild(childNode)` with `childNode.remove()`.'
+		}
 	}
 };

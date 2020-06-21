@@ -17,6 +17,4 @@ module.exports = (name, scope) => {
 
 		scope = scope.upper;
 	}
-
-	return undefined;
 };

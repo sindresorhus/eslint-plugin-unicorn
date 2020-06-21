@@ -4,26 +4,27 @@ import {outdent} from 'outdent';
 import rule from '../rules/consistent-function-scoping';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
 	parserOptions: {
-		ecmaVersion: 2018,
+		sourceType: 'module',
+		ecmaVersion: 2020,
 		ecmaFeatures: {
 			jsx: true
 		}
 	}
 });
 
-const arrowError = {
-	ruleId: 'consistent-function-scoping',
-	messageId: 'ArrowFunctionExpression'
-};
+const typescriptRuleTester = avaRuleTester(test, {
+	parser: require.resolve('@typescript-eslint/parser')
+});
 
-const functionError = {
-	ruleId: 'consistent-function-scoping',
-	messageId: 'FunctionDeclaration'
-};
+const MESSAGE_ID = 'consistent-function-scoping';
+
+const createError = functionNameWithKind => ({
+	messageId: MESSAGE_ID,
+	data: {
+		functionNameWithKind
+	}
+});
 
 ruleTester.run('consistent-function-scoping', rule, {
 	valid: [
@@ -188,6 +189,135 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 				return Bar;
 			};
+		`,
+		// `this`
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => this;
+				return doBar();
+			};
+		`,
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => () => this;
+				return doBar();
+			};
+		`,
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => () => () => this;
+				return doBar();
+			};
+		`,
+		// `arguments`
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => arguments;
+				return doBar();
+			};
+		`,
+		// React Hooks
+		outdent`
+			useEffect(() => {
+				function foo() {}
+			}, [])
+		`,
+		// IIFE
+		outdent`
+			(function() {
+				function bar() {}
+			})();
+		`,
+		outdent`
+			(function() {
+				function bar() {}
+			}());
+		`,
+		outdent`
+			!function() {
+				function bar() {}
+			}();
+		`,
+		outdent`
+			(() => {
+				function bar() {}
+			})();
+		`,
+		outdent`
+			(async function() {
+				function bar() {}
+			})();
+		`,
+		outdent`
+			(async function * () {
+				function bar() {}
+			})();
+		`,
+		// #391
+		outdent`
+			const enrichErrors = (packageName, cliArgs, f) => async (...args) => {
+				try {
+					return await f(...args);
+				} catch (error) {
+					error.packageName = packageName;
+					error.cliArgs = cliArgs;
+					throw error;
+				}
+			};
+		`,
+		// #391 comment https://github.com/sindresorhus/eslint-plugin-unicorn/issues/391#issuecomment-536916771
+		outdent`
+			export const canStepForward = ([X, Y]) => ([x, y]) => direction => {
+				switch (direction) {
+					case 0:
+						return y !== 0
+					case 1:
+						return x !== X - 1
+					case 2:
+						return y !== Y - 1
+					case 3:
+						return x !== 0
+					default:
+						throw new Error('unknown direction')
+				}
+			}
+		`,
+		// #374
+		outdent`
+			'use strict';
+
+			module.exports = function recordErrors(eventEmitter, stateArgument) {
+				const stateVariable = stateArgument;
+				function onError(error) {
+					stateVariable.inputError = error;
+				}
+				eventEmitter.once('error', onError);
+			};
+		`,
+		// #375
+		outdent`
+			module.exports = function recordErrors(eventEmitter, stateArgument) {
+				function onError(error) {
+					stateArgument.inputError = error;
+				}
+				function onError2(error) {
+					onError(error);
+				}
+
+				eventEmitter.once('error', onError2);
+			};
+		`,
+		// #586
+		outdent`
+			function outer(stream) {
+				let content;
+
+				function inner() {
+					process.stdout.write(content);
+				}
+
+				inner();
+			}
 		`
 	],
 	invalid: [
@@ -200,7 +330,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return foo;
 				}
 			`,
-			errors: [functionError]
+			errors: [createError('function \'doBar\'')]
 		},
 		{
 			code: outdent`
@@ -212,7 +342,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return foo;
 				}
 			`,
-			errors: [functionError]
+			errors: [createError('function \'doBar\'')]
 		},
 		{
 			code: outdent`
@@ -222,7 +352,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					}
 				}
 			`,
-			errors: [functionError]
+			errors: [createError('function \'doBar\'')]
 		},
 		{
 			code: outdent`
@@ -232,13 +362,64 @@ ruleTester.run('consistent-function-scoping', rule, {
 					}
 				}
 			`,
-			errors: [arrowError]
+			errors: [createError('arrow function \'doBar\'')]
 		},
 		{
 			code: outdent`
 				const doFoo = () => bar => bar;
 			`,
-			errors: [arrowError]
+			errors: [createError('arrow function')]
+		},
+		// `this`
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					function doBar() {
+						return this;
+					}
+					return doBar();
+				};
+			`,
+			errors: [createError('function \'doBar\'')]
+		},
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					const doBar = () => (function() {return this})();
+					return doBar();
+				};
+			`,
+			errors: [createError('arrow function \'doBar\'')]
+		},
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					const doBar = () => (function() {return () => this})();
+					return doBar();
+				};
+			`,
+			errors: [createError('arrow function \'doBar\'')]
+		},
+		// `arguments`
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					function doBar() {
+						return arguments;
+					}
+					return doBar();
+				};
+			`,
+			errors: [createError('function \'doBar\'')]
+		},
+		{
+			code: outdent`
+				function doFoo(Foo) {
+					const doBar = () => (function() {return arguments})();
+					return doBar();
+				};
+			`,
+			errors: [createError('arrow function \'doBar\'')]
 		},
 		{
 			code: outdent`
@@ -249,7 +430,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return foo;
 				}
 			`,
-			errors: [functionError]
+			errors: [createError('function \'doBar\'')]
 		},
 		{
 			code: outdent`
@@ -260,7 +441,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return doBar;
 				}
 			`,
-			errors: [functionError]
+			errors: [createError('function \'doBar\'')]
 		},
 		{
 			code: outdent`
@@ -268,7 +449,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					function doBar() {}
 				}
 			`,
-			errors: [functionError]
+			errors: [createError('function \'doBar\'')]
 		},
 		{
 			code: outdent`
@@ -283,7 +464,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return foo;
 				}
 			`,
-			errors: [functionError]
+			errors: [createError('function \'doBar\'')]
 		},
 		{
 			code: outdent`
@@ -295,7 +476,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					}
 				}
 			`,
-			errors: [functionError]
+			errors: [createError('function \'doBar\'')]
 		},
 		{
 			code: outdent`
@@ -305,7 +486,163 @@ ruleTester.run('consistent-function-scoping', rule, {
 					}
 				}
 			`,
-			errors: [functionError]
+			errors: [createError('function \'doBar\'')]
+		},
+		// Function kinds and names
+		{
+			code: 'function foo() { function bar() {} }',
+			errors: [createError('function \'bar\'')]
+		},
+		{
+			code: 'function foo() { async function bar() {} }',
+			errors: [createError('async function \'bar\'')]
+		},
+		{
+			code: 'function foo() { function* bar() {} }',
+			errors: [createError('generator function \'bar\'')]
+		},
+		{
+			code: 'function foo() { async function* bar() {} }',
+			errors: [createError('async generator function \'bar\'')]
+		},
+		{
+			code: 'function foo() { const bar = () => {} }',
+			errors: [createError('arrow function \'bar\'')]
+		},
+		{
+			code: 'const doFoo = () => bar => bar;',
+			errors: [createError('arrow function')]
+		},
+		{
+			code: 'function foo() { const bar = async () => {} }',
+			errors: [createError('async arrow function \'bar\'')]
+		},
+		// Actual message
+		{
+			code: 'function foo() { async function* bar() {} }',
+			errors: [{
+				message: 'Move async generator function \'bar\' to the outer scope.'
+			}]
+		},
+		// React Hooks
+		{
+			code: outdent`
+				useEffect(() => {
+					function foo() {
+						function bar() {
+						}
+					}
+				}, [])
+			`,
+			errors: [createError('function \'bar\'')]
+		},
+		// IIFE
+		{
+			code: outdent`
+				(function() {
+					function foo() {
+						function bar() {
+						}
+					}
+				})();
+			`,
+			errors: [createError('function \'bar\'')]
+		},
+		// #770
+		{
+			code: outdent`
+				process.nextTick(() => {
+					function returnsZero() {
+						return true;
+					}
+					process.exitCode = returnsZero();
+				});
+			`,
+			errors: [createError('function \'returnsZero\'')]
+		},
+		{
+			code: outdent`
+				foo(
+					// This is not IIFE
+					function() {
+						function bar() {
+						}
+					},
+					// This is IIFE
+					(function() {
+						function baz() {
+						}
+					})(),
+				)
+			`,
+			errors: [createError('function \'bar\'')]
+		},
+		{
+			code: outdent`
+				// This is IIFE
+				(function() {
+					function bar() {
+					}
+				})(
+					// This is not IIFE
+					function() {
+						function baz() {
+						}
+					},
+				)
+			`,
+			errors: [createError('function \'baz\'')]
 		}
 	]
+});
+
+typescriptRuleTester.run('consistent-function-scoping', rule, {
+	valid: [
+		// #372
+		outdent`
+			type Data<T> = T extends 'error' ? Error : Record<string, unknown> | unknown[]
+
+			type Method = 'info' | 'error'
+
+			export function createLogger(name: string) {
+					// Two lint errors are on the next line.
+					const log = <T extends Method>(method: T) => (data: Data<T>) => {
+							try {
+									// eslint-disable-next-line no-console
+									console[method](JSON.stringify({ name, data }))
+							} catch (error) {
+									console.error(error)
+							}
+					}
+
+					return {
+							info: log('info'),
+							error: log('error'),
+					}
+			}
+		`,
+		// #372 comment https://github.com/sindresorhus/eslint-plugin-unicorn/issues/372#issuecomment-546915612
+		outdent`
+			test('it works', async function(assert) {
+				function assertHeader(assertions) {
+					for (const [key, value] of Object.entries(assertions)) {
+						assert.strictEqual(
+							native[key],
+							value
+						);
+					}
+				}
+
+				// ...
+			});
+		`,
+		// #372 comment https://github.com/sindresorhus/eslint-plugin-unicorn/issues/372#issuecomment-546915612
+		outdent`
+			export function a(x: number) {
+				const b = (y: number) => (z: number): number => x + y + z;
+				return b(1)(2);
+			}
+		`
+	],
+	invalid: []
 });

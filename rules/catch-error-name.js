@@ -1,129 +1,101 @@
 'use strict';
-const astUtils = require('eslint-ast-utils');
+const {findVariable} = require('eslint-utils');
 const avoidCapture = require('./utils/avoid-capture');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const renameVariable = require('./utils/rename-variable');
+const methodSelector = require('./utils/method-selector');
 
-// Matches `someObj.then([FunctionExpression | ArrowFunctionExpression])`
-function isLintablePromiseCatch(node) {
-	const {callee} = node;
+const ERROR_MESSAGE_ID = 'error';
 
-	if (callee.type !== 'MemberExpression') {
-		return false;
-	}
+const promiseMethodSelector = (method, argumentsLength, argumentIndex) => [
+	methodSelector({
+		name: method,
+		length: argumentsLength
+	}),
+	`:matches(${
+		[
+			'FunctionExpression',
+			'ArrowFunctionExpression'
+		].map(type => `[arguments.${argumentIndex}.type="${type}"]`).join(', ')
+	})`,
+	`[arguments.${argumentIndex}.params.length=1]`,
+	`[arguments.${argumentIndex}.params.0.type="Identifier"]`
+].join('');
 
-	const {property} = callee;
+// Matches `promise.catch([FunctionExpression | ArrowFunctionExpression])`
+const promiseCatchSelector = promiseMethodSelector('catch', 1, 0);
 
-	if (property.type !== 'Identifier' || property.name !== 'catch') {
-		return false;
-	}
+// Matches `promise.then(any, [FunctionExpression | ArrowFunctionExpression])`
+const promiseThenSelector = promiseMethodSelector('then', 2, 1);
 
-	if (node.arguments.length === 0) {
-		return false;
-	}
-
-	const [firstArgument] = node.arguments;
-
-	return (
-		firstArgument.type === 'FunctionExpression' ||
-		firstArgument.type === 'ArrowFunctionExpression'
-	);
-}
+const catchSelector = [
+	'CatchClause',
+	'>',
+	'Identifier.param'
+].join('');
 
 const create = context => {
 	const {ecmaVersion} = context.parserOptions;
+	const sourceCode = context.getSourceCode();
 
 	const options = {
 		name: 'error',
-		caughtErrorsIgnorePattern: '^_$',
+		ignore: [],
 		...context.options[0]
 	};
+	const {name: expectedName} = options;
+	const ignore = options.ignore.map(
+		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u')
+	);
+	const isNameAllowed = name =>
+		name === expectedName ||
+		ignore.some(regexp => regexp.test(name)) ||
+		name.endsWith(expectedName) ||
+		name.endsWith(expectedName.charAt(0).toUpperCase() + expectedName.slice(1));
 
-	const {scopeManager} = context.getSourceCode();
+	function check(node) {
+		const originalName = node.name;
 
-	const {name} = options;
-	const caughtErrorsIgnorePattern = new RegExp(options.caughtErrorsIgnorePattern);
-	const stack = [];
-
-	function push(value) {
-		if (stack.length === 1) {
-			stack[0] = true;
+		if (
+			isNameAllowed(originalName) ||
+			isNameAllowed(originalName.replace(/_+$/g, ''))
+		) {
+			return;
 		}
 
-		stack.push(stack.length > 0 || value);
-	}
+		const scope = context.getScope();
+		const variable = findVariable(scope, node);
 
-	function popAndReport(node, scopeNode) {
-		const value = stack.pop();
-
-		if (value !== true && !caughtErrorsIgnorePattern.test(node.name)) {
-			const expectedName = value || name;
-			const problem = {
-				node,
-				message: `The catch parameter should be named \`${expectedName}\`.`
-			};
-
-			if (node.type === 'Identifier') {
-				problem.fix = fixer => {
-					const fixings = [fixer.replaceText(node, expectedName)];
-
-					const variables = scopeManager.getDeclaredVariables(scopeNode);
-					for (const variable of variables) {
-						if (variable.name !== node.name) {
-							continue;
-						}
-
-						for (const reference of variable.references) {
-							fixings.push(fixer.replaceText(reference.identifier, expectedName));
-						}
-					}
-
-					return fixings;
-				};
-			}
-
-			context.report(problem);
+		if (originalName === '_' && variable.references.length === 0) {
+			return;
 		}
+
+		const scopes = [
+			variable.scope,
+			...variable.references.map(({from}) => from)
+		];
+		const fixedName = avoidCapture(expectedName, scopes, ecmaVersion);
+
+		context.report({
+			node,
+			messageId: ERROR_MESSAGE_ID,
+			data: {
+				originalName,
+				fixedName
+			},
+			fix: fixer => renameVariable(variable, fixedName, fixer, sourceCode)
+		});
 	}
 
 	return {
-		CallExpression: node => {
-			if (isLintablePromiseCatch(node)) {
-				const {params} = node.arguments[0];
-
-				if (params.length > 0 && params[0].name === '_') {
-					push(!astUtils.containsIdentifier('_', node.arguments[0].body));
-					return;
-				}
-
-				const scope = context.getScope();
-				const errorName = avoidCapture(name, [scope.variableScope], ecmaVersion);
-				push(params.length === 0 || params[0].name === errorName || errorName);
-			}
+		[promiseCatchSelector]: node => {
+			check(node.arguments[0].params[0]);
 		},
-		'CallExpression:exit': node => {
-			if (isLintablePromiseCatch(node)) {
-				const callbackNode = node.arguments[0];
-				popAndReport(callbackNode.params[0], callbackNode);
-			}
+		[promiseThenSelector]: node => {
+			check(node.arguments[1].params[0]);
 		},
-		CatchClause: node => {
-			// Optional catch binding
-			if (!node || !node.param) {
-				push(true);
-				return;
-			}
-
-			if (node.param.name === '_') {
-				push(!astUtils.someContainIdentifier('_', node.body.body));
-				return;
-			}
-
-			const scope = context.getScope();
-			const errorName = avoidCapture(name, [scope.variableScope], ecmaVersion);
-			push(node.param.name === errorName || errorName);
-		},
-		'CatchClause:exit': node => {
-			popAndReport(node.param, node);
+		[catchSelector]: node => {
+			check(node);
 		}
 	};
 };
@@ -135,8 +107,9 @@ const schema = [
 			name: {
 				type: 'string'
 			},
-			caughtErrorsIgnorePattern: {
-				type: 'string'
+			ignore: {
+				type: 'array',
+				uniqueItems: true
 			}
 		}
 	}
@@ -150,6 +123,9 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema
+		schema,
+		messages: {
+			[ERROR_MESSAGE_ID]: 'The catch parameter `{{originalName}}` should be named `{{fixedName}}`.'
+		}
 	}
 };

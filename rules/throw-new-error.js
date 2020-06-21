@@ -1,20 +1,38 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const messageId = 'throw-new-error';
 const customError = /^(?:[A-Z][\da-z]*)*Error$/;
 
-const create = context => ({
-	ThrowStatement: node => {
-		const {argument} = node;
-		const error = argument.callee;
+const selector = [
+	'ThrowStatement',
+	'>',
+	'CallExpression.argument',
+	`:matches(${
+		[
+			// `throw FooError()`
+			[
+				'[callee.type="Identifier"]',
+				`[callee.name=/${customError.source}/]`
+			],
+			// `throw lib.FooError()`
+			[
+				'[callee.type="MemberExpression"]',
+				'[callee.computed=false]',
+				'[callee.property.type="Identifier"]',
+				`[callee.property.name=/${customError.source}/]`
+			]
+		].map(selector => selector.join('')).join(', ')
+	})`
+].join('');
 
-		if (argument.type === 'CallExpression' && customError.test(error.name)) {
-			context.report({
-				node,
-				message: 'Use `new` when throwing an error.',
-				fix: fixer => fixer.insertTextBefore(error, 'new ')
-			});
-		}
+const create = context => ({
+	[selector]: node => {
+		context.report({
+			node,
+			messageId,
+			fix: fixer => fixer.insertTextBefore(node, 'new ')
+		});
 	}
 });
 
@@ -24,6 +42,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			url: getDocumentationUrl(__filename)
+		},
+		messages: {
+			[messageId]: 'Use `new` when throwing an error.'
 		},
 		fixable: 'code'
 	}

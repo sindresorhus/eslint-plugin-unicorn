@@ -4,18 +4,20 @@ const semver = require('semver');
 const ci = require('ci-info');
 const baseRule = require('eslint/lib/rules/no-warning-comments');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const {flatten} = require('lodash');
 
-const MESSAGE_ID_AVOID_MULTIPLE_DATES = 'avoidMultipleDates';
-const MESSAGE_ID_EXPIRED_TODO = 'expiredTodo';
+// `unicorn/` prefix is added to avoid conflicts with core rule
+const MESSAGE_ID_AVOID_MULTIPLE_DATES = 'unicorn/avoidMultipleDates';
+const MESSAGE_ID_EXPIRED_TODO = 'unicorn/expiredTodo';
 const MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS =
-	'avoidMultiplePackageVersions';
-const MESSAGE_ID_REACHED_PACKAGE_VERSION = 'reachedPackageVersion';
-const MESSAGE_ID_HAVE_PACKAGE = 'havePackage';
-const MESSAGE_ID_DONT_HAVE_PACKAGE = 'dontHavePackage';
-const MESSAGE_ID_VERSION_MATCHES = 'versionMatches';
-const MESSAGE_ID_ENGINE_MATCHES = 'engineMatches';
-const MESSAGE_ID_REMOVE_WHITESPACES = 'removeWhitespaces';
-const MESSAGE_ID_MISSING_AT_SYMBOL = 'missingAtSymbol';
+	'unicorn/avoidMultiplePackageVersions';
+const MESSAGE_ID_REACHED_PACKAGE_VERSION = 'unicorn/reachedPackageVersion';
+const MESSAGE_ID_HAVE_PACKAGE = 'unicorn/havePackage';
+const MESSAGE_ID_DONT_HAVE_PACKAGE = 'unicorn/dontHavePackage';
+const MESSAGE_ID_VERSION_MATCHES = 'unicorn/versionMatches';
+const MESSAGE_ID_ENGINE_MATCHES = 'unicorn/engineMatches';
+const MESSAGE_ID_REMOVE_WHITESPACES = 'unicorn/removeWhitespaces';
+const MESSAGE_ID_MISSING_AT_SYMBOL = 'unicorn/missingAtSymbol';
 
 const packageResult = readPkgUp.sync();
 const hasPackage = Boolean(packageResult);
@@ -27,9 +29,9 @@ const packageDependencies = {
 };
 
 const DEPENDENCY_INCLUSION_RE = /^[+-]\s*@?\S+\/?\S+/;
-const VERSION_COMPARISON_RE = /^(@?\S\/?\S+)@(>|>=)(\d+(\.\d+){0,2}(-[\d\-a-z]+(\.[\d\-a-z]+)*)?(\+[\d\-a-z]+(\.[\d\-a-z]+)*)?)/i;
-const PKG_VERSION_RE = /^(>|>=)(\d+(\.\d+){0,2}(-[\d-a-z]+(\.[\d-a-z]+)*)?(\+[\d-a-z]+(\.[\d-a-z]+)*)?)\s*$/;
-const ISO8601_DATE = /(\d{4})-(\d{2})-(\d{2})/;
+const VERSION_COMPARISON_RE = /^(?<name>@?\S\/?\S+)@(?<condition>>|>=)(?<version>\d+(?:\.\d+){0,2}(?:-[\da-z-]+(?:\.[\da-z-]+)*)?(?:\+[\da-z-]+(?:\.[\da-z-]+)*)?)/i;
+const PKG_VERSION_RE = /^(?<condition>>|>=)(?<version>\d+(?:\.\d+){0,2}(?:-[\da-z-]+(?:\.[\da-z-]+)*)?(?:\+[\da-z-]+(?:\.[\da-z-]+)*)?)\s*$/;
+const ISO8601_DATE = /\d{4}-\d{2}-\d{2}/;
 
 function parseTodoWithArguments(string, {terms}) {
 	const lowerCaseString = string.toLowerCase();
@@ -40,26 +42,30 @@ function parseTodoWithArguments(string, {terms}) {
 		return false;
 	}
 
-	const TODO_ARGUMENT_RE = /\[([^}]+)]/i;
+	const TODO_ARGUMENT_RE = /\[(?<rawArguments>[^}]+)]/i;
 	const result = TODO_ARGUMENT_RE.exec(string);
 
 	if (!result) {
 		return false;
 	}
 
-	const rawArguments = result[1];
+	const {rawArguments} = result.groups;
 
-	return rawArguments
+	const parsedArguments = rawArguments
 		.split(',')
-		.map(argument => parseArgument(argument.trim()))
-		.reduce((groups, argument) => {
-			if (!groups[argument.type]) {
-				groups[argument.type] = [];
-			}
+		.map(argument => parseArgument(argument.trim()));
 
-			groups[argument.type].push(argument.value);
-			return groups;
-		}, {});
+	return createArgumentGroup(parsedArguments);
+}
+
+function createArgumentGroup(arguments_) {
+	const groups = {};
+	for (const {value, type} of arguments_) {
+		groups[type] = groups[type] || [];
+		groups[type].push(value);
+	}
+
+	return groups;
 }
 
 function parseArgument(argumentString) {
@@ -84,10 +90,10 @@ function parseArgument(argumentString) {
 	}
 
 	if (hasPackage && VERSION_COMPARISON_RE.test(argumentString)) {
-		const result = VERSION_COMPARISON_RE.exec(argumentString);
-		const name = result[1].trim();
-		const condition = result[2].trim();
-		const version = result[3].trim();
+		const {groups} = VERSION_COMPARISON_RE.exec(argumentString);
+		const name = groups.name.trim();
+		const condition = groups.condition.trim();
+		const version = groups.version.trim();
 
 		const hasEngineKeyword = name.indexOf('engine:') === 0;
 		const isNodeEngine = hasEngineKeyword && name === 'engine:node';
@@ -116,14 +122,13 @@ function parseArgument(argumentString) {
 
 	if (hasPackage && PKG_VERSION_RE.test(argumentString)) {
 		const result = PKG_VERSION_RE.exec(argumentString);
-		const condition = result[1].trim();
-		const version = result[2].trim();
+		const {condition, version} = result.groups;
 
 		return {
 			type: 'packageVersions',
 			value: {
-				condition,
-				version
+				condition: condition.trim(),
+				version: version.trim()
 			}
 		};
 	}
@@ -193,7 +198,7 @@ function tryToCoerceVersion(rawVersion) {
 		// Try to semver.parse a perfect match while semver.coerce tries to fix errors
 		// But coerce can't parse pre-releases.
 		return semver.parse(version) || semver.coerce(version);
-	} catch (_) {
+	} catch {
 		return false;
 	}
 }
@@ -208,31 +213,35 @@ function semverComparisonForOperator(operator) {
 const create = context => {
 	const options = {
 		terms: ['todo', 'fixme', 'xxx'],
+		ignore: [],
 		ignoreDatesOnPullRequests: true,
 		allowWarningComments: true,
 		...context.options[0]
 	};
 
+	const ignoreRegexes = options.ignore.map(
+		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u')
+	);
+
 	const sourceCode = context.getSourceCode();
 	const comments = sourceCode.getAllComments();
-	const unusedComments = comments
-		.filter(token => token.type !== 'Shebang')
-		// Block comments come as one.
-		// Split for situations like this:
-		// /*
-		//  * TODO [2999-01-01]: Validate this
-		//  * TODO [2999-01-01]: And this
-		//  * TODO [2999-01-01]: Also this
-		//  */
-		.map(comment =>
-			comment.value.split('\n').map(line => ({
-				...comment,
-				value: line
-			}))
-		)
-		// Flatten
-		.reduce((accumulator, array) => accumulator.concat(array), [])
-		.filter(processComment);
+	const unusedComments = flatten(
+		comments
+			.filter(token => token.type !== 'Shebang')
+			// Block comments come as one.
+			// Split for situations like this:
+			// /*
+			//  * TODO [2999-01-01]: Validate this
+			//  * TODO [2999-01-01]: And this
+			//  * TODO [2999-01-01]: Also this
+			//  */
+			.map(comment =>
+				comment.value.split('\n').map(line => ({
+					...comment,
+					value: line
+				}))
+			)
+	).filter(comment => processComment(comment));
 
 	// This is highly dependable on ESLint's `no-warning-comments` implementation.
 	// What we do is patch the parts we know the rule will use, `getAllComments`.
@@ -251,6 +260,10 @@ const create = context => {
 	const rules = baseRule.create(fakeContext);
 
 	function processComment(comment) {
+		if (ignoreRegexes.some(ignore => ignore.test(comment.value))) {
+			return;
+		}
+
 		const parsed = parseTodoWithArguments(comment.value, options);
 
 		if (!parsed) {
@@ -272,7 +285,6 @@ const create = context => {
 		if (dates.length > 1) {
 			uses++;
 			context.report({
-				node: null,
 				loc: comment.loc,
 				messageId: MESSAGE_ID_AVOID_MULTIPLE_DATES,
 				data: {
@@ -287,7 +299,6 @@ const create = context => {
 			const shouldIgnore = options.ignoreDatesOnPullRequests && ci.isPR;
 			if (!shouldIgnore && reachedDate(date)) {
 				context.report({
-					node: null,
 					loc: comment.loc,
 					messageId: MESSAGE_ID_EXPIRED_TODO,
 					data: {
@@ -301,7 +312,6 @@ const create = context => {
 		if (packageVersions.length > 1) {
 			uses++;
 			context.report({
-				node: null,
 				loc: comment.loc,
 				messageId: MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS,
 				data: {
@@ -321,7 +331,6 @@ const create = context => {
 			const compare = semverComparisonForOperator(condition);
 			if (packageVersion && compare(packageVersion, decidedPackageVersion)) {
 				context.report({
-					node: null,
 					loc: comment.loc,
 					messageId: MESSAGE_ID_REACHED_PACKAGE_VERSION,
 					data: {
@@ -348,7 +357,6 @@ const create = context => {
 
 				if (trigger) {
 					context.report({
-						node: null,
 						loc: comment.loc,
 						messageId,
 						data: {
@@ -373,7 +381,6 @@ const create = context => {
 
 			if (compare(targetPackageVersion, todoVersion)) {
 				context.report({
-					node: null,
 					loc: comment.loc,
 					messageId: MESSAGE_ID_VERSION_MATCHES,
 					data: {
@@ -405,7 +412,6 @@ const create = context => {
 
 			if (compare(targetPackageEngineVersion, todoEngine)) {
 				context.report({
-					node: null,
 					loc: comment.loc,
 					messageId: MESSAGE_ID_ENGINE_MATCHES,
 					data: {
@@ -430,7 +436,6 @@ const create = context => {
 				if (parseArgument(testString).type !== 'unknowns') {
 					uses++;
 					context.report({
-						node: null,
 						loc: comment.loc,
 						messageId: MESSAGE_ID_MISSING_AT_SYMBOL,
 						data: {
@@ -448,7 +453,6 @@ const create = context => {
 			if (parseArgument(withoutWhitespaces).type !== 'unknowns') {
 				uses++;
 				context.report({
-					node: null,
 					loc: comment.loc,
 					messageId: MESSAGE_ID_REMOVE_WHITESPACES,
 					data: {
@@ -480,6 +484,10 @@ const schema = [
 				items: {
 					type: 'string'
 				}
+			},
+			ignore: {
+				type: 'array',
+				uniqueItems: true
 			},
 			ignoreDatesOnPullRequests: {
 				type: 'boolean',
@@ -521,7 +529,8 @@ module.exports = {
 			[MESSAGE_ID_REMOVE_WHITESPACES]:
 				'Avoid using whitespaces on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
 			[MESSAGE_ID_MISSING_AT_SYMBOL]:
-				'Missing \'@\' on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}'
+				'Missing \'@\' on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
+			...baseRule.meta.messages
 		},
 		schema
 	}

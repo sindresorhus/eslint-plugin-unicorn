@@ -9,57 +9,46 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const expiredTodoError = (expirationDate, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `There is a TODO that is past due date: ${expirationDate}. ${message}`
 });
 
 const avoidMultipleDatesError = (expirationDates, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `Avoid using multiple expiration dates in TODO: ${expirationDates}. ${message}`
 });
 
 const havePackageError = (package_, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `There is a TODO that is deprecated since you installed: ${package_}. ${message}`
 });
 
 const dontHavePackageError = (package_, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `There is a TODO that is deprecated since you uninstalled: ${package_}. ${message}`
 });
 
 const versionMatchesError = (comparison, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `There is a TODO match for package version: ${comparison}. ${message}`
 });
 
 const engineMatchesError = (comparison, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `There is a TODO match for Node.js version: ${comparison}. ${message}`
 });
 
 const reachedPackageVersionError = (version, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `There is a TODO that is past due package version: ${version}. ${message}`
 });
 
 const avoidMultiplePackageVersionsError = (versions, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `Avoid using multiple package versions in TODO: ${versions}. ${message}`
 });
 
 const removeWhitespacesError = (argument, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `Avoid using whitespaces on TODO argument. On '${argument}' use '${argument.replace(/ /g, '')}'. ${message}`
 });
 
 const missingAtSymbolError = (bad, good, message) => ({
-	ruleId: 'expiring-todo-comments',
 	message: `Missing '@' on TODO argument. On '${bad}' use '${good}'. ${message}`
 });
 
 const noWarningCommentError = () => ({
-	ruleId: 'expiring-todo-comments',
 	message: 'Unexpected \'todo\' comment.'
 });
 
@@ -110,6 +99,22 @@ ruleTester.run('expiring-todo-comments', rule, {
 		{
 			code: '// TODO [but [it will]] [fallback] [[[ to the default ]]] rule [[',
 			errors: []
+		},
+		{
+			code: '// TODO ISSUE-123 fix later',
+			options: [{allowWarningComments: false, ignore: ['ISSUE-\\d+']}]
+		},
+		{
+			code: '// TODO [ISSUE-123] fix later',
+			options: [{allowWarningComments: false, ignore: ['ISSUE-\\d+']}]
+		},
+		{
+			code: '// TODO [1999-01-01, ISSUE-123] fix later',
+			options: [{allowWarningComments: false, ignore: ['ISSUE-\\d+']}]
+		},
+		{
+			code: '// TODO [Issue-123] fix later',
+			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}]
 		}
 	],
 	invalid: [
@@ -361,6 +366,33 @@ ruleTester.run('expiring-todo-comments', rule, {
 				removeWhitespacesError('semver @>=1', 'Big mix')
 			],
 			options: [{ignoreDatesOnPullRequests: false, terms: ['HUGETODO']}]
+		},
+		{
+			code: '// TODO [ISSUE-123] fix later',
+			options: [{allowWarningComments: false, ignore: []}],
+			errors: [
+				noWarningCommentError()
+			]
+		},
+		{
+			code: `
+			// TODO fix later
+			// TODO ISSUE-123 fix later
+			`,
+			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}],
+			errors: [
+				noWarningCommentError()
+			]
+		},
+		{
+			code: `/*
+			TODO Invalid
+			TODO ISSUE-123 Valid
+			*/`,
+			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}],
+			errors: [
+				noWarningCommentError()
+			]
 		}
 	]
 });

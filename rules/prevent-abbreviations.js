@@ -1,16 +1,18 @@
 'use strict';
 const path = require('path');
 const astUtils = require('eslint-ast-utils');
-const defaultsDeep = require('lodash.defaultsdeep');
+const {defaultsDeep, upperFirst, lowerFirst} = require('lodash');
 
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
+const isShorthandPropertyIdentifier = require('./utils/is-shorthand-property-identifier');
+const isShorthandImportIdentifier = require('./utils/is-shorthand-import-identifier');
+const getVariableIdentifiers = require('./utils/get-variable-identifiers');
+const renameIdentifier = require('./utils/rename-identifier');
 
 const isUpperCase = string => string === string.toUpperCase();
 const isUpperFirst = string => isUpperCase(string[0]);
-const lowerFirst = string => string[0].toLowerCase() + string.slice(1);
-const upperFirst = string => string[0].toUpperCase() + string.slice(1);
 
 // Keep this alphabetically sorted for easier maintenance
 const defaultReplacements = {
@@ -276,9 +278,10 @@ const getWordReplacements = (word, {replacements, whitelist}) => {
 
 	let wordReplacement = [];
 	if (replacement) {
+		const transform = isUpperFirst(word) ? upperFirst : lowerFirst;
 		wordReplacement = [...replacement.keys()]
 			.filter(name => replacement.get(name))
-			.map(isUpperFirst(word) ? upperFirst : lowerFirst);
+			.map(name => transform(name));
 	}
 
 	return wordReplacement.length > 0 ? wordReplacement.sort() : [];
@@ -360,13 +363,6 @@ const formatMessage = (discouragedName, replacements, nameTypeText) => {
 	return message.join(' ');
 };
 
-const variableIdentifiers = ({identifiers, references}) => [
-	...new Set([
-		...identifiers,
-		...references.map(({identifier}) => identifier)
-	])
-];
-
 const isExportedIdentifier = identifier => {
 	if (
 		identifier.parent.type === 'VariableDeclarator' &&
@@ -396,70 +392,7 @@ const isExportedIdentifier = identifier => {
 };
 
 const shouldFix = variable => {
-	return !variableIdentifiers(variable).some(isExportedIdentifier);
-};
-
-const isIdentifierKeyOfNode = (identifier, node) =>
-	node.key === identifier ||
-	// In `babel-eslint` parent.key is not reference of identifier
-	// https://github.com/babel/babel-eslint/issues/809
-	(
-		node.key.type === identifier.type &&
-		node.key.name === identifier.name
-	);
-
-const isShorthandPropertyIdentifier = identifier => {
-	return (
-		identifier.parent.type === 'Property' &&
-		identifier.parent.shorthand &&
-		isIdentifierKeyOfNode(identifier, identifier.parent)
-	);
-};
-
-const isAssignmentPatternShorthandPropertyIdentifier = identifier => {
-	return (
-		identifier.parent.type === 'AssignmentPattern' &&
-		identifier.parent.left === identifier &&
-		identifier.parent.parent.type === 'Property' &&
-		isIdentifierKeyOfNode(identifier, identifier.parent.parent) &&
-		identifier.parent.parent.value === identifier.parent &&
-		identifier.parent.parent.shorthand
-	);
-};
-
-const isShorthandImportIdentifier = identifier => {
-	return (
-		identifier.parent.type === 'ImportSpecifier' &&
-		identifier.parent.imported.name === identifier.name &&
-		identifier.parent.local.name === identifier.name
-	);
-};
-
-const isShorthandExportIdentifier = identifier => {
-	return (
-		identifier.parent.type === 'ExportSpecifier' &&
-		identifier.parent.exported.name === identifier.name &&
-		identifier.parent.local.name === identifier.name
-	);
-};
-
-const fixIdentifier = (fixer, replacement) => identifier => {
-	if (
-		isShorthandPropertyIdentifier(identifier) ||
-		isAssignmentPatternShorthandPropertyIdentifier(identifier)
-	) {
-		return fixer.replaceText(identifier, `${identifier.name}: ${replacement}`);
-	}
-
-	if (isShorthandImportIdentifier(identifier)) {
-		return fixer.replaceText(identifier, `${identifier.name} as ${replacement}`);
-	}
-
-	if (isShorthandExportIdentifier(identifier)) {
-		return fixer.replaceText(identifier, `${replacement} as ${identifier.name}`);
-	}
-
-	return fixer.replaceText(identifier, replacement);
+	return !getVariableIdentifiers(variable).some(identifier => isExportedIdentifier(identifier));
 };
 
 const isDefaultOrNamespaceImportName = identifier => {
@@ -574,6 +507,7 @@ const create = context => {
 	const {ecmaVersion} = context.parserOptions;
 	const options = prepareOptions(context.options[0]);
 	const filenameWithExtension = context.getFilename();
+	const sourceCode = context.getSourceCode();
 
 	// A `class` declaration produces two variables in two scopes:
 	// the inner class scope, and the outer one (whereever the class is declared).
@@ -670,6 +604,9 @@ const create = context => {
 		}
 
 		const scopes = variable.references.map(reference => reference.from).concat(variable.scope);
+		variableReplacements.samples = variableReplacements.samples.map(
+			name => avoidCapture(name, scopes, ecmaVersion, isSafeName)
+		);
 
 		const problem = {
 			node: definition.name,
@@ -678,7 +615,6 @@ const create = context => {
 
 		if (variableReplacements.total === 1 && shouldFix(variable)) {
 			const [replacement] = variableReplacements.samples;
-			const captureAvoidingReplacement = avoidCapture(replacement, scopes, ecmaVersion, isSafeName);
 
 			for (const scope of scopes) {
 				if (!scopeToNamesGeneratedByFixer.has(scope)) {
@@ -686,12 +622,13 @@ const create = context => {
 				}
 
 				const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
-				generatedNames.add(captureAvoidingReplacement);
+				generatedNames.add(replacement);
 			}
 
-			problem.fix = fixer => {
-				return variableIdentifiers(variable)
-					.map(fixIdentifier(fixer, captureAvoidingReplacement));
+			problem.fix = function * (fixer) {
+				for (const identifier of getVariableIdentifiers(variable)) {
+					yield renameIdentifier(identifier, replacement, fixer, sourceCode);
+				}
 			};
 		}
 
@@ -699,11 +636,11 @@ const create = context => {
 	};
 
 	const checkVariables = scope => {
-		scope.variables.forEach(checkPossiblyWeirdClassVariable);
+		scope.variables.forEach(variable => checkPossiblyWeirdClassVariable(variable));
 	};
 
 	const checkChildScopes = scope => {
-		scope.childScopes.forEach(checkScope);
+		scope.childScopes.forEach(scope => checkScope(scope));
 	};
 
 	const checkScope = scope => {

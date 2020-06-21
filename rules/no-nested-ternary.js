@@ -1,18 +1,6 @@
 'use strict';
+const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-
-const isParethesized = (sourceCode, node) => {
-	const previousToken = sourceCode.getTokenBefore(node);
-	const nextToken = sourceCode.getTokenAfter(node);
-
-	return (
-		Boolean(previousToken && nextToken) &&
-		previousToken.value === '(' &&
-		previousToken.end <= node.start &&
-		nextToken.value === ')' &&
-		nextToken.start >= node.end
-	);
-};
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
@@ -35,7 +23,7 @@ const create = context => {
 				) {
 					context.report({node, message});
 					break;
-				} else if (!isParethesized(sourceCode, childNode)) {
+				} else if (!isParenthesized(childNode, sourceCode)) {
 					context.report({
 						node: childNode,
 						message,

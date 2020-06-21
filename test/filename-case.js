@@ -31,7 +31,6 @@ function testCaseWithOptions(filename, errorMessage, options = []) {
 		options,
 		errors: errorMessage && [
 			{
-				ruleId: 'filename-case',
 				message: errorMessage
 			}
 		]
@@ -87,7 +86,7 @@ ruleTester.run('filename-case', rule, {
 		testCase('src/foo/___foo-bar.js', 'kebabCase'),
 		testCase('src/foo/_FooBar.js', 'pascalCase'),
 		testCase('src/foo/___FooBar.js', 'pascalCase'),
-		testManyCases('src/foo/foo-bar.js', undefined),
+		testManyCases('src/foo/foo-bar.js'),
 		testManyCases('src/foo/foo-bar.js', {}),
 		testManyCases('src/foo/fooBar.js', {camelCase: true}),
 		testManyCases('src/foo/FooBar.js', {kebabCase: true, pascalCase: true}),
@@ -177,13 +176,13 @@ ruleTester.run('filename-case', rule, {
 			{case: 'kebabCase', ignore: ['\\.(web|android|ios)\\.js$']}
 		]),
 		testCaseWithOptions('src/foo/FooBar.something.js', undefined, [
-			{case: 'kebabCase', ignore: [/\.(web|android|ios|something)\.js$/u]}
+			{case: 'kebabCase', ignore: [/\.(?:web|android|ios|something)\.js$/u]}
 		]),
 		testCaseWithOptions('src/foo/FooBar.js', undefined, [
 			{case: 'kebabCase', ignore: ['^(F|f)oo']}
 		]),
 		testCaseWithOptions('src/foo/FooBar.js', undefined, [
-			{case: 'kebabCase', ignore: [/^(F|f)oo/u]}
+			{case: 'kebabCase', ignore: [/^[Ff]oo/u]}
 		]),
 		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
 			{case: 'kebabCase', ignore: ['^FOO', 'BAZ\\.js$']}

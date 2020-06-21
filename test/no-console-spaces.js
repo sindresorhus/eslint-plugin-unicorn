@@ -11,7 +11,6 @@ const ruleTester = avaRuleTester(test, {
 
 function buildError({method, column, line}) {
 	const error = {
-		ruleId: 'no-console-spaces',
 		message: `Do not use leading/trailing space between \`console.${method}\` parameters.`
 	};
 
@@ -36,6 +35,15 @@ ruleTester.run('no-console-spaces', rule, {
 		'console.log(`\nabc\ndef\n`);',
 
 		'console.log(\' \', "def");',
+
+		// Exactly one space
+		'console.log(" ");',
+		'console.log(" ", "b");',
+		'console.log("a", " ");',
+		'console.log(" ", "b", "c");',
+		'console.log("a", " ", "c");',
+		'console.log("a", "b", " ");',
+
 		'console.log(\'  \', "def");',
 		'console.log("abc  ", "def");',
 		'console.log("abc\\t", "def");',
@@ -51,7 +59,46 @@ ruleTester.run('no-console-spaces', rule, {
 		'console.log(null);',
 		'console.log(undefined);',
 
-		'console.dir("abc ");'
+		'console.dir("abc ");',
+
+		// Not `CallExpression`
+		'new console.log(" a ", " b ");',
+		'new console.debug(" a ", " b ");',
+		'new console.info(" a ", " b ");',
+		'new console.warn(" a ", " b ");',
+		'new console.error(" a ", " b ");',
+		// Not `MemberExpression`
+		'log(" a ", " b ");',
+		'debug(" a ", " b ");',
+		'info(" a ", " b ");',
+		'warn(" a ", " b ");',
+		'error(" a ", " b ");',
+		// `callee.property` is not a `Identifier`
+		'console["log"](" a ", " b ");',
+		'console["debug"](" a ", " b ");',
+		'console["info"](" a ", " b ");',
+		'console["warn"](" a ", " b ");',
+		'console["error"](" a ", " b ");',
+		// Computed
+		'console[log](" a ", " b ");',
+		'console[debug](" a ", " b ");',
+		'console[info](" a ", " b ");',
+		'console[warn](" a ", " b ");',
+		'console[error](" a ", " b ");',
+		// Not listed method
+		'console.foo(" a ", " b ");',
+		// Not `console`
+		'foo.log(" a ", " b ");',
+		'foo.debug(" a ", " b ");',
+		'foo.info(" a ", " b ");',
+		'foo.warn(" a ", " b ");',
+		'foo.error(" a ", " b ");',
+		// `callee.object.type` is not a `Identifier`
+		'lib.console.log(" a ", " b ");',
+		'lib.console.debug(" a ", " b ");',
+		'lib.console.info(" a ", " b ");',
+		'lib.console.warn(" a ", " b ");',
+		'lib.console.error(" a ", " b ");'
 	],
 	invalid: [
 		{
@@ -135,6 +182,26 @@ ruleTester.run('no-console-spaces', rule, {
 					'abc',
 					'def',
 					'ghi'
+				);
+			`
+		},
+		// https://github.com/facebook/react/blob/dbb060d561b83ad901af3e1f60541e6c313cca4f/scripts/release/shared-commands/test-packaging-fixture.js#L69
+		{
+			code: outdent`
+				console.error(
+					theme.error('✗'),
+					'Verifying "packaging" fixture\\n ',
+					theme.error(errorMessage)
+				);
+			`,
+			errors: [
+				buildError({method: 'error'})
+			],
+			output: outdent`
+				console.error(
+					theme.error('✗'),
+					'Verifying "packaging" fixture\\n',
+					theme.error(errorMessage)
 				);
 			`
 		}

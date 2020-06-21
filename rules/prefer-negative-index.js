@@ -241,7 +241,7 @@ function parse(node) {
 
 		if (isApply) {
 			const [, secondArgument] = originalArguments;
-			if (secondArgument.type !== 'ArrayExpression') {
+			if (!secondArgument || secondArgument.type !== 'ArrayExpression') {
 				return;
 			}
 
@@ -288,13 +288,13 @@ const create = context => ({
 		context.report({
 			node,
 			message: `Prefer negative index over length minus index for \`${method}\`.`,
-			fix(fixer) {
+			* fix(fixer) {
 				const sourceCode = context.getSourceCode();
-				return removableNodes.map(
-					node => fixer.removeRange(
+				for (const node of removableNodes) {
+					yield fixer.removeRange(
 						getRemovalRange(node, sourceCode)
-					)
-				);
+					);
+				}
 			}
 		});
 	}

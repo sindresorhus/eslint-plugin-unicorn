@@ -11,23 +11,23 @@ const ruleTester = avaRuleTester(test, {
 		sourceType: 'module'
 	}
 });
-
+const babelRuleTester = avaRuleTester(test, {
+	parser: require.resolve('babel-eslint')
+});
 const typescriptRuleTester = avaRuleTester(test, {
 	parser: require.resolve('@typescript-eslint/parser')
 });
 
-const invalidClassNameError = {ruleId: 'custom-error-definition', message: 'Invalid class name, use `FooError`.'};
-const constructorError = {ruleId: 'custom-error-definition', message: 'Add a constructor to your error.'};
-const noSuperCallError = {ruleId: 'custom-error-definition', message: 'Missing call to `super()` in constructor.'};
-const invalidNameError = name => ({ruleId: 'custom-error-definition', message: `The \`name\` property should be set to \`${name}\`.`});
-const passMessageToSuperError = {ruleId: 'custom-error-definition', message: 'Pass the error message to `super()`.'};
-const invalidMessageAssignmentError = {ruleId: 'custom-error-definition', message: 'Pass the error message to `super()` instead of setting `this.message`.'};
+const invalidClassNameError = {message: 'Invalid class name, use `FooError`.'};
+const constructorError = {message: 'Add a constructor to your error.'};
+const noSuperCallError = {message: 'Missing call to `super()` in constructor.'};
+const invalidNameError = name => ({message: `The \`name\` property should be set to \`${name}\`.`});
+const passMessageToSuperError = {message: 'Pass the error message to `super()` instead of setting `this.message`.'};
 const invalidExportError = {
-	ruleId: 'custom-error-definition',
 	messageId: 'invalidExport'
 };
 
-ruleTester.run('custom-error-definition', rule, {
+const tests = {
 	valid: [
 		'class Foo { }',
 		'class Foo extends Bar { }',
@@ -123,7 +123,7 @@ ruleTester.run('custom-error-definition', rule, {
 		`
 			exports.whatever = class Whatever {};
 		`,
-		`
+		outdent`
 			class FooError extends Error {
 				constructor(error) {
 					super(error);
@@ -131,6 +131,15 @@ ruleTester.run('custom-error-definition', rule, {
 				}
 			};
 			exports.fooError = FooError;
+		`,
+		outdent`
+			class FooError extends Error {
+				constructor() {
+					super();
+					this.name = 'FooError';
+					someThingNotThis.message = 'My custom message';
+				}
+			}
 		`
 	],
 	invalid: [
@@ -225,8 +234,7 @@ ruleTester.run('custom-error-definition', rule, {
 			`,
 			errors: [
 				invalidNameError('FooError'),
-				passMessageToSuperError,
-				invalidMessageAssignmentError
+				passMessageToSuperError
 			],
 			output: outdent`
 				class FooError extends Error {
@@ -272,7 +280,7 @@ ruleTester.run('custom-error-definition', rule, {
 				}
 			`,
 			errors: [
-				invalidMessageAssignmentError
+				passMessageToSuperError
 			],
 			output: outdent`
 				class FooError extends Error {
@@ -294,8 +302,7 @@ ruleTester.run('custom-error-definition', rule, {
 				}
 			`,
 			errors: [
-				passMessageToSuperError,
-				invalidMessageAssignmentError
+				passMessageToSuperError
 			],
 			output: outdent`
 				class FooError extends Error {
@@ -317,8 +324,7 @@ ruleTester.run('custom-error-definition', rule, {
 			`,
 			errors: [
 				invalidNameError('FooError'),
-				passMessageToSuperError,
-				invalidMessageAssignmentError
+				passMessageToSuperError
 			],
 			output: outdent`
 				class FooError extends Error {
@@ -339,8 +345,7 @@ ruleTester.run('custom-error-definition', rule, {
 				}
 			`,
 			errors: [
-				passMessageToSuperError,
-				invalidMessageAssignmentError
+				passMessageToSuperError
 			],
 			output: outdent`
 				class FooError extends Error {
@@ -434,6 +439,80 @@ ruleTester.run('custom-error-definition', rule, {
 			errors: [
 				invalidNameError('FooError')
 			]
+		},
+
+		// #90
+		{
+			code: outdent`
+				class AbortError extends Error {
+					constructor(message) {
+						if (message instanceof Error) {
+							this.originalError = message;
+							message = message.message;
+						}
+
+						super();
+						this.name = 'AbortError';
+						this.message = message;
+					}
+				}
+			`,
+			output: outdent`
+				class AbortError extends Error {
+					constructor(message) {
+						if (message instanceof Error) {
+							this.originalError = message;
+							message = message.message;
+						}
+
+						super(message);
+						this.name = 'AbortError';
+					}
+				}
+			`,
+			errors: [passMessageToSuperError]
+		}
+	]
+};
+
+ruleTester.run('custom-error-definition', rule, tests);
+typescriptRuleTester.run('custom-error-definition', rule, tests);
+
+babelRuleTester.run('custom-error-definition', rule, {
+	valid: [
+		// #130
+		outdent`
+			export class ValidationError extends Error {
+				name = 'ValidationError';
+				constructor(message) {
+					super(message);
+				}
+			}
+		`
+	],
+	invalid: [
+		// #130
+		{
+			code: outdent`
+				export class ValidationError extends Error {
+					name = 'FOO';
+					constructor(message) {
+						super(message);
+					}
+				}
+			`,
+			errors: [invalidNameError('ValidationError')]
+		},
+		{
+			code: outdent`
+				export class ValidationError extends Error {
+					'name': SomeType;
+					constructor(message) {
+						super(message);
+					}
+				}
+			`,
+			errors: [invalidNameError('ValidationError')]
 		}
 	]
 });
