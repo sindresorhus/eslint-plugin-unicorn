@@ -14,7 +14,7 @@ function checkForLoop(context, node) {
 }
 
 function checkMultipleDeclaredVariables(node) {
-	return node.type === 'VariableDeclaration' && node.declarations.length > 1;
+	return node && node.type === 'VariableDeclaration' && node.declarations.length > 1;
 }
 
 function checkIteratorType(node) {
