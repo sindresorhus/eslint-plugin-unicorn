@@ -48,7 +48,7 @@ Configure it in `package.json`.
 			"unicorn/no-console-spaces": "error",
 			"unicorn/no-fn-reference-in-iterator": "off",
 			"unicorn/no-for-loop": "error",
-			"unicorn/no-for-loop-extra-variable": "error",
+			"unicorn/no-for-loop-extra-variables": "error",
 			"unicorn/no-hex-escape": "error",
 			"unicorn/no-keyword-prefix": "off",
 			"no-nested-ternary": "off",
@@ -103,7 +103,7 @@ Configure it in `package.json`.
 - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
 - [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevent passing a function reference directly to iterator methods. *(fixable)*
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(partly fixable)*
-- [no-for-loop-extra-variable](docs/rules/no-for-loop-extra-variable.md) - Do not declare an extra variable in a for-loop init. *(fixable)*
+- [no-for-loop-extra-variables](docs/rules/no-for-loop-extra-variables.md) - Do not declare any extra variables in a for-loop initializer. *(fixable)*
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of Unicode escapes instead of hexadecimal escapes. *(fixable)*
 - [no-keyword-prefix](docs/rules/no-keyword-prefix.md) - Disallow identifiers starting with `new` or `class`.
 - [no-nested-ternary](docs/rules/no-nested-ternary.md) - Disallow nested ternary expressions. *(partly fixable)*

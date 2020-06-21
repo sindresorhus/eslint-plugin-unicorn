@@ -1,7 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-for-loop-extra-variable';
+import rule from '../rules/no-for-loop-extra-variables';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -14,7 +14,7 @@ const error = {
 	message: 'Unnecessary variable in for-loop.'
 };
 
-ruleTester.run('no-for-loop-extra-variable', rule, {
+ruleTester.run('no-for-loop-extra-variables', rule, {
 	valid: [
 		outdent`
 			for(let i = 1; i < arr.length; i += 1) {

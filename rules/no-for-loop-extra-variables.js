@@ -2,7 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 function checkForLoop(context, node) {
-	if (checkTwoDeclaredVariables(node.init) && checkIteratorType(node)) {
+	if (checkMultipleDeclaredVariables(node.init) && checkIteratorType(node)) {
 		context.report({
 			node,
 			message: 'Unnecessary variable in for-loop.',
@@ -13,8 +13,8 @@ function checkForLoop(context, node) {
 	}
 }
 
-function checkTwoDeclaredVariables(node) {
-	return node.type === 'VariableDeclaration' && node.declarations.length === 2;
+function checkMultipleDeclaredVariables(node) {
+	return node.type === 'VariableDeclaration' && node.declarations.length > 1;
 }
 
 function checkIteratorType(node) {
