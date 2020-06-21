@@ -19,11 +19,12 @@ const typescriptRuleTester = avaRuleTester(test, {
 
 const MESSAGE_ID = 'consistent-function-scoping';
 
-const createError = functionNameWithKind => ({
+const createError = (functionNameWithKind, loc) => ({
 	messageId: MESSAGE_ID,
 	data: {
 		functionNameWithKind
-	}
+	},
+	...loc
 });
 
 ruleTester.run('consistent-function-scoping', rule, {
@@ -488,34 +489,34 @@ ruleTester.run('consistent-function-scoping', rule, {
 			`,
 			errors: [createError('function \'doBar\'')]
 		},
-		// Function kinds and names
+		// Function kinds and names, loc
 		{
 			code: 'function foo() { function bar() {} }',
-			errors: [createError('function \'bar\'')]
+			errors: [createError('function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 30})]
 		},
 		{
 			code: 'function foo() { async function bar() {} }',
-			errors: [createError('async function \'bar\'')]
+			errors: [createError('async function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 36})]
 		},
 		{
 			code: 'function foo() { function* bar() {} }',
-			errors: [createError('generator function \'bar\'')]
+			errors: [createError('generator function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 31})]
 		},
 		{
 			code: 'function foo() { async function* bar() {} }',
-			errors: [createError('async generator function \'bar\'')]
+			errors: [createError('async generator function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 37})]
 		},
 		{
 			code: 'function foo() { const bar = () => {} }',
-			errors: [createError('arrow function \'bar\'')]
+			errors: [createError('arrow function \'bar\'', {line: 1, column: 33, endLine: 1, endColumn: 35})]
 		},
 		{
 			code: 'const doFoo = () => bar => bar;',
-			errors: [createError('arrow function')]
+			errors: [createError('arrow function', {line: 1, column: 25, endLine: 1, endColumn: 27})]
 		},
 		{
 			code: 'function foo() { const bar = async () => {} }',
-			errors: [createError('async arrow function \'bar\'')]
+			errors: [createError('async arrow function \'bar\'', {line: 1, column: 39, endLine: 1, endColumn: 41})]
 		},
 		// Actual message
 		{

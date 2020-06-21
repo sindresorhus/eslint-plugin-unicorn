@@ -1,5 +1,5 @@
 'use strict';
-const {getFunctionNameWithKind} = require('eslint-utils');
+const {getFunctionHeadLocation, getFunctionNameWithKind} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const getReferences = require('./utils/get-references');
 
@@ -166,6 +166,7 @@ const create = context => {
 			if (!hasJsx && !checkNode(node, scopeManager)) {
 				context.report({
 					node,
+					loc: getFunctionHeadLocation(node, sourceCode),
 					messageId: MESSAGE_ID,
 					data: {
 						functionNameWithKind: getFunctionNameWithKind(node)
