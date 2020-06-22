@@ -281,10 +281,10 @@ ruleTester.run('better-regex', rule, {
 		// Actual message
 		{
 			code: '/[0-9]/',
-			output: '/\d/',
+			output: '/\\d/',
 			errors: [
 				{
-					message: '/[0-9]/ can be optimized to /\\\\d/.'
+					message: '/[0-9]/ can be optimized to /\\d/.'
 				}
 			],
 		},
