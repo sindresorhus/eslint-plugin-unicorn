@@ -66,6 +66,12 @@ ruleTester.run('prefer-default-parameters', rule, {
 			}
 		`,
 		outdent`
+			function abc(foo, bar) {
+				foo = foo || 'bar';
+				baz();
+			}
+		`,
+		outdent`
 			function abc(foo) {
 				foo = foo && 'bar';
 			}
@@ -148,14 +154,6 @@ ruleTester.run('prefer-default-parameters', rule, {
 				function abc(foo = true) {
 				}
 			`]
-		}),
-		invalidTestCase({
-			code: outdent`
-				function abc(foo, bar) {
-					foo = foo || 'bar';
-					baz();
-				}
-			`
 		}),
 		invalidTestCase({
 			code: outdent`

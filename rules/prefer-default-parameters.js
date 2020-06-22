@@ -88,17 +88,8 @@ const create = context => {
 		);
 		const lastParameter = currentFunction.params[currentFunction.params.length - 1];
 
-		if (!parameter) {
-			return;
-		}
-
 		// See 'default-param-last' rule
-		if (parameter !== lastParameter) {
-			context.report({
-				node,
-				messageId: MESSAGE_ID
-			});
-
+		if (!parameter || parameter !== lastParameter) {
 			return;
 		}
 
