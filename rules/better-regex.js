@@ -4,7 +4,7 @@ const {optimize} = require('regexp-tree');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 
-const message = '{{original}} can be optimized to {{optimized}}';
+const MESSAGE_ID = 'better-regex';
 
 const create = context => {
 	const {sortCharacterClasses} = context.options[0] || {};
@@ -37,7 +37,7 @@ const create = context => {
 
 			context.report({
 				node,
-				message,
+				messageId: MESSAGE_ID,
 				data: {
 					original,
 					optimized
@@ -64,7 +64,7 @@ const create = context => {
 			if (oldPattern !== newPattern) {
 				context.report({
 					node,
-					message,
+					messageId: MESSAGE_ID,
 					data: {
 						original: oldPattern,
 						optimized: newPattern
@@ -99,6 +99,9 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema
+		schema,
+		messages: {
+			[MESSAGE_ID]: '{{original}} can be optimized to {{optimized}}.'
+		}
 	}
 };
