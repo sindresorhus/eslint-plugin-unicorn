@@ -15,7 +15,6 @@ const invalidTestCase = ({code, suggestions}) => {
 			code,
 			output: code,
 			errors: [{
-				ruleId: 'consistent-destructuring',
 				messageId: 'consistentDestructuring'
 			}]
 		};
@@ -25,7 +24,6 @@ const invalidTestCase = ({code, suggestions}) => {
 		code,
 		output: code,
 		errors: suggestions.map(suggestion => ({
-			ruleId: 'consistent-destructuring',
 			messageId: 'consistentDestructuring',
 			suggestions: [{
 				messageId: 'consistentDestructuringSuggest',
