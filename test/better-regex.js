@@ -286,7 +286,7 @@ ruleTester.run('better-regex', rule, {
 				{
 					message: '/[0-9]/ can be optimized to /\\d/.'
 				}
-			],
-		},
+			]
+		}
 	]
 });
