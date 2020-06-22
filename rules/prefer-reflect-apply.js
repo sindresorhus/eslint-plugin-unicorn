@@ -3,6 +3,8 @@ const astUtils = require('eslint-ast-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 
+const MESSAGE_ID = 'prefer-prefer-reflect-apply';
+
 const isApplySignature = (argument1, argument2) => (
 	(
 		// eslint-disable-next-line unicorn/no-null
@@ -71,7 +73,7 @@ const create = context => {
 			if (fix) {
 				context.report({
 					node,
-					message: 'Prefer `Reflect.apply()` over `Function#apply()`.',
+					messageId: MESSAGE_ID,
 					fix
 				});
 			}
@@ -86,6 +88,9 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages: {
+			[MESSAGE_ID]: 'Prefer `Reflect.apply()` over `Function#apply()`.'
+		}
 	}
 };

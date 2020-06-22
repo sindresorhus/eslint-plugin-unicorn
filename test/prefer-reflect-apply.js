@@ -2,6 +2,8 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/prefer-reflect-apply';
 
+const MESSAGE_ID = 'prefer-prefer-reflect-apply';
+
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
@@ -10,6 +12,7 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [
 	{
+		messageId: MESSAGE_ID
 	}
 ];
 
