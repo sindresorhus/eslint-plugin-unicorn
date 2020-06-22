@@ -169,7 +169,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code',,
+		fixable: 'code',
 		messages: {
 			[MESSAGE_ID_SUBSTR]: 'Prefer `String#slice()` over `String#substr()`.',
 			[MESSAGE_ID_SUBSTRING]: 'Prefer `String#slice()` over `String#substring()`.'
