@@ -123,12 +123,44 @@ ruleTester.run('prefer-default-parameters', rule, {
 		outdent`
 			function abc(foo) {
 				const bar = foo = foo || 123;
-		   	}
+			}
 		`,
 		outdent`
 			function abc(foo) {
 				bar(foo = foo || 1);
 				baz(foo);
+			}
+		`,
+		// Used before assignment
+		outdent`
+			function abc(foo) {
+				console.log(foo);
+				foo = foo || 'bar';
+			}
+		`,
+		// Variable is used
+		outdent`
+			function abc(foo) {
+				const bar = foo || 'bar';
+				console.log(foo, bar);
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				const bar = foo || 'bar';
+				console.log(bar);
+			}
+		`,
+		// Last parameter is `RestElement`
+		outdent`
+			function abc(...foo) {
+				foo = foo || 'bar';
+			}
+		`,
+		// Last parameter is `AssignmentPattern`
+		outdent`
+			function abc(foo = 'bar') {
+				foo = foo || 'baz';
 			}
 		`
 	],
