@@ -107,7 +107,8 @@
 			}
 		],
 		"rules": {
-			"strict": "error"
+			"strict": "error",
+			"unicorn/no-null": "error"
 		}
 	}
 }

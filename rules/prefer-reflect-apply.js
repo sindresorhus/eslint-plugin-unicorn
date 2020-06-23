@@ -5,6 +5,7 @@ const isLiteralValue = require('./utils/is-literal-value');
 
 const isApplySignature = (argument1, argument2) => (
 	(
+		// eslint-disable-next-line unicorn/no-null
 		isLiteralValue(argument1, null) ||
 		argument1.type === 'ThisExpression'
 	) &&
