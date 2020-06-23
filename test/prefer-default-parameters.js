@@ -4,8 +4,8 @@ import {outdent} from 'outdent';
 import rule from '../rules/prefer-default-parameters';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
+	parserOptions: {
+		ecmaVersion: 2020
 	}
 });
 
@@ -280,6 +280,17 @@ ruleTester.run('prefer-default-parameters', rule, {
 				function abc(foo = 'bar') {
 					bar();
 					baz();
+				}
+			`]
+		}),
+		invalidTestCase({
+			code: outdent`
+				function abc(foo) {
+					foo = foo ?? 123;
+				}
+			`,
+			suggestions: [outdent`
+				function abc(foo = 123) {
 				}
 			`]
 		}),
