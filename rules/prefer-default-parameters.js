@@ -1,4 +1,5 @@
 'use strict';
+const {findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'preferDefaultParameters';
@@ -12,10 +13,6 @@ const assignmentSelector = [
 const declarationSelector = [
 	'VariableDeclaration',
 	'[declarations.0.type="VariableDeclarator"]'
-].join('');
-
-const callSelector = [
-	'CallExpression > Identifier'
 ].join('');
 
 const isDefaultExpression = (left, right) =>
@@ -67,8 +64,6 @@ const fixDefaultExpression = (fixer, source, node) => {
 const create = context => {
 	const source = context.getSourceCode();
 	const functionStack = [];
-	const usedIdentifiers = new Set();
-	const reportedIdentifiers = new Map();
 
 	const checkExpression = (node, left, right, assignment) => {
 		const currentFunction = functionStack[functionStack.length - 1];
@@ -88,6 +83,14 @@ const create = context => {
 			return;
 		}
 
+		const variable = findVariable(context.getScope(), secondId);
+		const maxReferences = assignment ? 2 : 1;
+
+		// Check if identifier is referenced elsewhere
+		if (variable.references.length > maxReferences) {
+			return;
+		}
+
 		const parameter = currentFunction.params.find(parameter =>
 			parameter.type === 'Identifier' &&
 			parameter.name === secondId
@@ -103,7 +106,7 @@ const create = context => {
 			`(${firstId} = ${literal})` :
 			`${firstId} = ${literal}`;
 
-		reportedIdentifiers.set(firstId, {
+		context.report({
 			node,
 			messageId: MESSAGE_ID,
 			suggest: [{
@@ -121,14 +124,6 @@ const create = context => {
 			functionStack.push(node);
 		},
 		':function:exit': () => {
-			for (const [id, report] of reportedIdentifiers) {
-				// Check if identifier can be removed
-				if (!usedIdentifiers.has(id)) {
-					context.report(report);
-				}
-			}
-
-			reportedIdentifiers.clear();
 			functionStack.pop();
 		},
 		[assignmentSelector]: node => {
@@ -140,9 +135,6 @@ const create = context => {
 			const {id, init} = node.declarations[0];
 
 			checkExpression(node, id, init, false);
-		},
-		[callSelector]: node => {
-			usedIdentifiers.add(node.name);
 		}
 	};
 };

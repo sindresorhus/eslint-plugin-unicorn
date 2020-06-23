@@ -145,12 +145,6 @@ ruleTester.run('prefer-default-parameters', rule, {
 				console.log(foo, bar);
 			}
 		`,
-		outdent`
-			function abc(foo) {
-				const bar = foo || 'bar';
-				console.log(bar);
-			}
-		`,
 		// Last parameter is `RestElement`
 		outdent`
 			function abc(...foo) {
@@ -294,6 +288,19 @@ ruleTester.run('prefer-default-parameters', rule, {
 				}
 			`]
 		}),
+		invalidTestCase({
+			code: outdent`
+				function abc(foo) {
+					const bar = foo || 'bar';
+					console.log(bar);
+				}
+			`,
+			suggestions: [outdent`
+				function abc(bar = 'bar') {
+					console.log(bar);
+				}
+			`]
+		}),
 		// The following tests verify the correct code formatting
 		invalidTestCase({
 			code: 'function abc(foo) { foo = foo || \'bar\'; }',
@@ -370,16 +377,6 @@ ruleTester.run('prefer-default-parameters', rule, {
 					function ghi(bay = 'bar') {
 					}
 					foo = foo || 'bar';
-				}
-			`, outdent`
-				function abc(foo = 'bar') {
-					foo += 'bar';
-					function def(bar) {
-						bar = bar || 'foo';
-					}
-					function ghi(baz) {
-						const bay = baz || 'bar';
-					}
 				}
 			`]
 		})
