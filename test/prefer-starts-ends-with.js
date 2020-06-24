@@ -27,7 +27,8 @@ const validRegex = [
 	/^foo/i,
 	/^foo/m,
 	/^foo/im,
-	/^A|B/
+	/^A|B/,
+	/A|B$/
 ];
 
 const invalidRegex = [
