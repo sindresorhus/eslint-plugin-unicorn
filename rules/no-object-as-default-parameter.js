@@ -4,9 +4,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const MESSAGE_ID = 'noObjectAsDefaultParameter';
 
 const objectParameterSelector = [
-	':matches(FunctionDeclaration, ArrowFunctionExpression)',
-	'>',
-	'AssignmentPattern',
+	':function > AssignmentPattern.params',
 	'[left.type="Identifier"]',
 	'[right.type="ObjectExpression"]',
 	'[right.properties.length>0]'
