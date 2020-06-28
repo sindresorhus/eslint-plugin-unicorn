@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import rule from '../rules/no-object-as-default-parameter';
 
 const ruleTester = avaRuleTester(test, {
@@ -35,9 +36,11 @@ ruleTester.run('no-object-as-default-parameter', rule, {
 		'const abc = (foo = 123, bar = \'foo\') => {};',
 		'const abc = (foo = {}) => {};',
 		'const abc = ({a = true, b = \'foo\'}) => {};',
-		'const {abc = {foo: 1}} = bar;',
+		'const abc = function(foo = 123) {}',
+		'const {abc = {foo: 123}} = bar;',
 		'const {abc = {null: \'baz\'}} = bar;',
-		'const {abc = {foo: undefined}} = undefined;'
+		'const {abc = {foo: undefined}} = undefined;',
+		'const abc = ([{foo = false, bar = 123}]) => {};'
 	],
 	invalid: [
 		{
@@ -66,6 +69,50 @@ ruleTester.run('no-object-as-default-parameter', rule, {
 		},
 		{
 			code: 'const abc = (foo = {a: false, b: 1, c: "test", d: null}) => {};',
+			errors: [error]
+		},
+		{
+			code: 'const abc = function(foo = {a: 123}) {}',
+			errors: [error]
+		},
+		{
+			code: outdent`
+				class A {
+					abc(foo = {a: 123}) {}
+				}
+			`,
+			errors: [error]
+		},
+		{
+			code: outdent`
+				class A {
+					constructor(foo = {a: 123}) {}
+				}
+			`,
+			errors: [error]
+		},
+		{
+			code: outdent`
+				class A {
+					set abc(foo = {a: 123}) {}
+				}
+			`,
+			errors: [error]
+		},
+		{
+			code: outdent`
+				const A = class {
+					abc(foo = {a: 123}) {}
+				}
+			`,
+			errors: [error]
+		},
+		{
+			code: outdent`
+				object = {
+					abc(foo = {a: 123}) {}
+				};
+			`,
 			errors: [error]
 		}
 	]
