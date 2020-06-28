@@ -34,7 +34,10 @@ ruleTester.run('no-object-as-default-parameter', rule, {
 		'const abc = (foo = \'bar\') => {};',
 		'const abc = (foo = 123, bar = \'foo\') => {};',
 		'const abc = (foo = {}) => {};',
-		'const abc = ({a = true, b = \'foo\'}) => {};'
+		'const abc = ({a = true, b = \'foo\'}) => {};',
+		'const {abc = {foo: 1}} = bar;',
+		'const {abc = {null: \'baz\'}} = bar;',
+		'const {abc = {foo: undefined}} = undefined;'
 	],
 	invalid: [
 		{
