@@ -30,7 +30,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		messages: {
-			[MESSAGE_ID]: 'Do not assign default object to parameter `{{parameter}}`.'
+			[MESSAGE_ID]: 'Do not use an object literal as default for parameter `{{parameter}}`.'
 		}
 	}
 };
