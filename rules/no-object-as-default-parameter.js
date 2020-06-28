@@ -1,7 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const MESSAGE_ID = 'noObjectAsDefault';
+const MESSAGE_ID = 'noObjectAsDefaultParameter';
 
 const objectParameterSelector = [
 	'AssignmentPattern',

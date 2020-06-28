@@ -1,6 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/no-object-as-default';
+import rule from '../rules/no-object-as-default-parameter';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -9,11 +9,11 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const error = {
-	messageId: 'noObjectAsDefault',
+	messageId: 'noObjectAsDefaultParameter',
 	data: {parameter: 'foo'}
 };
 
-ruleTester.run('no-object-as-default', rule, {
+ruleTester.run('no-object-as-default-parameter', rule, {
 	valid: [
 		'const abc = {};',
 		'const abc = {foo: 123};',
