@@ -156,27 +156,32 @@ const create = context => {
 	let hasJsx = false;
 
 	return {
-		'ArrowFunctionExpression, FunctionDeclaration': node => functions.push(node),
-		JSXElement: () => {
-			// Turn off this rule if we see a JSX element because scope
-			// references does not include JSXElement nodes.
+		JSXElement() {
 			hasJsx = true;
 		},
-		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
-			if (!hasJsx && !checkNode(node, scopeManager)) {
-				context.report({
-					node,
-					loc: getFunctionHeadLocation(node, sourceCode),
-					messageId: MESSAGE_ID,
-					data: {
-						functionNameWithKind: getFunctionNameWithKind(node)
-					}
-				});
+		'ArrowFunctionExpression, FunctionDeclaration'(node){
+			if (!hasJsx) {
+				functions.push(node);
+			}
+		},
+		'Program:exit'() {
+			// Turn off this rule if we see a JSX element because scope
+			// references does not include JSXElement nodes.
+			if (hasJsx) {
+				return;
 			}
 
-			functions.pop();
-			if (functions.length === 0) {
-				hasJsx = false;
+			for (const node of functions) {
+				if (!checkNode(node, scopeManager)) {
+					context.report({
+						node,
+						loc: getFunctionHeadLocation(node, sourceCode),
+						messageId: MESSAGE_ID,
+						data: {
+							functionNameWithKind: getFunctionNameWithKind(node)
+						}
+					});
+				}
 			}
 		}
 	};
