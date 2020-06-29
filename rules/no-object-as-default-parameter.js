@@ -14,7 +14,7 @@ const create = context => {
 	return {
 		[objectParameterSelector]: node => {
 			context.report({
-				node,
+				node: node.left,
 				messageId: MESSAGE_ID,
 				data: {parameter: node.left.name}
 			});
