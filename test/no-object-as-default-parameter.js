@@ -42,10 +42,10 @@ ruleTester.run('no-object-as-default-parameter', rule, {
 		'const {abc = {null: "baz"}} = bar;',
 		'const {abc = {foo: undefined}} = undefined;',
 		'const abc = ([{foo = false, bar = 123}]) => {};',
-		'const foo = ({bar = {a:1}}) => {};',
-		'const foo = ([bar = {a:1}]) => {};',
-		'const foo = ({bar: baz = {a:1}}) => {};',
-		'const adc = () => (foo = {bar: 1});',
+		'const abc = ({foo = {a: 123}}) => {};',
+		'const abc = ([foo = {a: 123}]) => {};',
+		'const abc = ({foo: bar = {a: 123}}) => {};',
+		'const abc = () => (foo = {a: 123});',
 		outdent`
 			class A {
 				[foo = {a: 123}]() {}
