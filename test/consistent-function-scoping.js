@@ -603,19 +603,21 @@ ruleTester.run('consistent-function-scoping', rule, {
 		},
 		// Jsx
 		{
+			// Function `c` is not used, but we can't tell
 			code: outdent`
 				function fn1() {
 					function a() {
 						return <JSX a={b()}/>;
 					}
 					function b() {}
+					function c() {}
 				}
 				function fn2() {
 					function foo() {}
 				}
 			`,
 			errors: [createError('function \'foo\'')]
-		},
+		}
 	]
 });
 
