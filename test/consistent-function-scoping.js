@@ -189,7 +189,13 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return <FooComponent />;
 				}
 				return Bar;
-			};
+			}
+		`,
+		outdent`
+			function doFoo(FooComponent) {
+				function bar() {}
+				return <FooComponent a={bar()}/>;
+			}
 		`,
 		// `this`
 		outdent`
