@@ -4,8 +4,8 @@ import {outdent} from 'outdent';
 import rule from '../rules/no-object-as-default-parameter';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
+	parserOptions: {
+		ecmaVersion: 2020
 	}
 });
 
@@ -23,24 +23,39 @@ ruleTester.run('no-object-as-default-parameter', rule, {
 		'function abc(foo = undefined) {}',
 		'function abc(foo = 123) {}',
 		'function abc(foo = true) {}',
-		'function abc(foo = \'bar\') {}',
-		'function abc(foo = 123, bar = \'foo\') {}',
+		'function abc(foo = "bar") {}',
+		'function abc(foo = 123, bar = "foo") {}',
 		'function abc(foo = {}) {}',
 		'function abc({foo = 123} = {}) {}',
+		'(function abc() {})(foo = {a: 123})',
 		'const abc = foo => {};',
 		'const abc = (foo = null) => {};',
 		'const abc = (foo = undefined) => {};',
 		'const abc = (foo = 123) => {};',
 		'const abc = (foo = true) => {};',
-		'const abc = (foo = \'bar\') => {};',
-		'const abc = (foo = 123, bar = \'foo\') => {};',
+		'const abc = (foo = "bar") => {};',
+		'const abc = (foo = 123, bar = "foo") => {};',
 		'const abc = (foo = {}) => {};',
-		'const abc = ({a = true, b = \'foo\'}) => {};',
+		'const abc = ({a = true, b = "foo"}) => {};',
 		'const abc = function(foo = 123) {}',
 		'const {abc = {foo: 123}} = bar;',
-		'const {abc = {null: \'baz\'}} = bar;',
+		'const {abc = {null: "baz"}} = bar;',
 		'const {abc = {foo: undefined}} = undefined;',
-		'const abc = ([{foo = false, bar = 123}]) => {};'
+		'const abc = ([{foo = false, bar = 123}]) => {};',
+		'const foo = ({bar = {a:1}}) => {};',
+		'const foo = ([bar = {a:1}]) => {};',
+		'const foo = ({bar: baz = {a:1}}) => {};',
+		'const adc = () => (foo = {bar: 1});',
+		outdent`
+			class A {
+				[foo = {a: 123}]() {}
+			}
+		`,
+		outdent`
+			class A extends (foo = {a: 123}) {
+				a() {}
+			}
+		`
 	],
 	invalid: [
 		{
@@ -48,15 +63,19 @@ ruleTester.run('no-object-as-default-parameter', rule, {
 			errors: [error]
 		},
 		{
+			code: 'async function * abc(foo = {a: 123}) {}',
+			errors: [error]
+		},
+		{
 			code: 'function abc(foo = {a: false}) {}',
 			errors: [error]
 		},
 		{
-			code: 'function abc(foo = {a: \'bar\'}) {}',
+			code: 'function abc(foo = {a: "bar"}) {}',
 			errors: [error]
 		},
 		{
-			code: 'function abc(foo = {a: \'bar\', b: {c: true}}) {}',
+			code: 'function abc(foo = {a: "bar", b: {c: true}}) {}',
 			errors: [error]
 		},
 		{
@@ -95,6 +114,38 @@ ruleTester.run('no-object-as-default-parameter', rule, {
 			code: outdent`
 				class A {
 					set abc(foo = {a: 123}) {}
+				}
+			`,
+			errors: [error]
+		},
+		{
+			code: outdent`
+				class A {
+					static abc(foo = {a: 123}) {}
+				}
+			`,
+			errors: [error]
+		},
+		{
+			code: outdent`
+				class A {
+					* abc(foo = {a: 123}) {}
+				}
+			`,
+			errors: [error]
+		},
+		{
+			code: outdent`
+				class A {
+					static async * abc(foo = {a: 123}) {}
+				}
+			`,
+			errors: [error]
+		},
+		{
+			code: outdent`
+				class A {
+					[foo = {a: 123}](foo = {a: 123}) {}
 				}
 			`,
 			errors: [error]
