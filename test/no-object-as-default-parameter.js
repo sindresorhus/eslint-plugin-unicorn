@@ -165,6 +165,13 @@ ruleTester.run('no-object-as-default-parameter', rule, {
 				};
 			`,
 			errors: [error]
+		},
+		// Actual message
+		{
+			code: 'function abc(foo = {a: 123}) {}',
+			errors: [{
+				message: 'Do not use an object literal as default for parameter `foo`.'
+			}]
 		}
 	]
 });
