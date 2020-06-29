@@ -198,6 +198,13 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 			}
 		`,
+		outdent`
+			function foo() {
+				function bar() {
+					return <JSX/>;
+				}
+			}
+		`,
 		// `this`
 		outdent`
 			function doFoo(Foo) {
