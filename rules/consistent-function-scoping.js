@@ -157,31 +157,28 @@ const create = context => {
 
 	return {
 		JSXElement() {
+			// Turn off this rule if we see a JSX element because scope
+			// references does not include JSXElement nodes.
 			hasJsx = true;
 		},
 		'ArrowFunctionExpression, FunctionDeclaration'(node) {
-			if (!hasJsx) {
-				functions.push(node);
-			}
+			functions.push(node);
 		},
-		'Program:exit'() {
-			// Turn off this rule if we see a JSX element because scope
-			// references does not include JSXElement nodes.
-			if (hasJsx) {
-				return;
+		':matches(ArrowFunctionExpression, FunctionDeclaration):exit'(node) {
+			if (!hasJsx && !checkNode(node, scopeManager)) {
+				context.report({
+					node,
+					loc: getFunctionHeadLocation(node, sourceCode),
+					messageId: MESSAGE_ID,
+					data: {
+						functionNameWithKind: getFunctionNameWithKind(node)
+					}
+				});
 			}
 
-			for (const node of functions) {
-				if (!checkNode(node, scopeManager)) {
-					context.report({
-						node,
-						loc: getFunctionHeadLocation(node, sourceCode),
-						messageId: MESSAGE_ID,
-						data: {
-							functionNameWithKind: getFunctionNameWithKind(node)
-						}
-					});
-				}
+			functions.pop();
+			if (functions.length === 0) {
+				hasJsx = false;
 			}
 		}
 	};
