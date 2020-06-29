@@ -159,7 +159,7 @@ const create = context => {
 		JSXElement() {
 			hasJsx = true;
 		},
-		'ArrowFunctionExpression, FunctionDeclaration'(node){
+		'ArrowFunctionExpression, FunctionDeclaration'(node) {
 			if (!hasJsx) {
 				functions.push(node);
 			}
