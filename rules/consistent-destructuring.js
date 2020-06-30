@@ -134,12 +134,12 @@ const create = context => {
 			context.report({
 				node,
 				messageId: MESSAGE_ID,
-				data: {
-					expression,
-					property: newMember
-				},
 				suggest: [{
 					messageId: MESSAGE_ID_SUGGEST,
+					data: {
+						expression,
+						property: newMember
+					},
 					fix: destructuredMember ?
 						fixer => [fixer.replaceText(node, newMember)] :
 						fixer => [

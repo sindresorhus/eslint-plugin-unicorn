@@ -391,6 +391,36 @@ ruleTester.run('consistent-destructuring', rule, {
 				const {a, ...b} = foo;
 				console.log(a);
 			`]
-		})
+		}),
+		// Actual message
+		{
+			code: outdent`
+				const {
+					a: {
+						b
+					}
+				} = foo;
+				console.log(foo.a.c);
+			`,
+			errors: [{
+				message: 'Use destructured variables over properties.'
+			}]
+		},
+		{
+			code: outdent`
+				const {a} = foo;
+				console.log(foo.a);
+			`,
+			errors: [{
+				message: 'Use destructured variables over properties.',
+				suggestions: [{
+					desc: 'Replace `foo.a` with destructured property `a`.',
+					output: outdent`
+						const {a} = foo;
+						console.log(a);
+					`
+				}]
+			}]
+		}
 	]
 });
