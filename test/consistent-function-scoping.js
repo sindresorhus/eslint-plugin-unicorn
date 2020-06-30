@@ -608,7 +608,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 			`,
 			errors: [createError('function \'baz\'')]
 		},
-		// Jsx
+		// JSX
 		{
 			// Function `c` is not used, but we can't tell
 			code: outdent`
