@@ -2,6 +2,7 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/consistent-function-scoping';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
@@ -647,3 +648,47 @@ typescriptRuleTester.run('consistent-function-scoping', rule, {
 	],
 	invalid: []
 });
+
+const visualizeTester = visualizeRuleTester(test, {
+	parserOptions: {
+		sourceType: 'module',
+		ecmaVersion: 2020,
+		ecmaFeatures: {
+			jsx: true
+		}
+	}
+});
+
+visualizeTester.run('consistent-function-scoping', rule, [
+	outdent`
+		function foo() {
+			function bar() {}
+		}
+	`,
+	outdent`
+		function foo() {
+			async function bar() {}
+		}
+	`,
+	outdent`
+		function foo() {
+			function * bar() {}
+		}
+	`,
+	outdent`
+		function foo() {
+			async function * bar() {}
+		}
+	`,
+	outdent`
+		function foo() {
+			const bar = () => {}
+		}
+	`,
+	'const doFoo = () => bar => bar;',
+	outdent`
+		function foo() {
+			const bar = async () => {}
+		}
+	`
+]);
