@@ -20,6 +20,22 @@ const memberSelector = [
 	')'
 ].join('');
 
+const isFunctionCall = expression => {
+	while (expression) {
+		if (expression.type === 'CallExpression') {
+			return true;
+		}
+
+		if (expression.type !== 'MemberExpression') {
+			return false;
+		}
+
+		expression = expression.object;
+	}
+
+	return false;
+};
+
 const isChildInParentScope = (child, parent) => {
 	while (child) {
 		if (child === parent) {
@@ -54,6 +70,10 @@ const create = context => {
 
 	return {
 		[declaratorSelector]: node => {
+			if (isFunctionCall(node.init)) {
+				return;
+			}
+
 			declarations.set(source.getText(node.init), {
 				scope: context.getScope(),
 				variables: context.getDeclaredVariables(node),
