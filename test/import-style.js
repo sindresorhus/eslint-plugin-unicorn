@@ -12,19 +12,27 @@ const ruleTester = avaRuleTester(test, {
 
 const options = {
 	styles: {
-		unassigned: 'unassigned',
-		default: 'default',
-		namespace: 'namespace',
-		named: 'named',
-	},
+		unassigned: {
+			unassigned: true
+		},
+		default: {
+			default: true
+		},
+		namespace: {
+			namespace: true
+		},
+		named: {
+			named: true
+		}
+	}
 };
 
 const unassignedError = {
 	messageId: 'importStyle',
 	data: {
 		allowedStyles: 'unassigned',
-		moduleName: 'unassigned',
-	},
+		moduleName: 'unassigned'
+	}
 };
 
 const defaultError = {
@@ -32,7 +40,7 @@ const defaultError = {
 	data: {
 		allowedStyles: 'default',
 		moduleName: 'default'
-	},
+	}
 };
 
 const namespaceError = {
@@ -40,7 +48,7 @@ const namespaceError = {
 	data: {
 		allowedStyles: 'namespace',
 		moduleName: 'namespace'
-	},
+	}
 };
 
 const namedError = {
@@ -48,49 +56,49 @@ const namedError = {
 	data: {
 		allowedStyles: 'named',
 		moduleName: 'named'
-	},
+	}
 };
 
-const addOptions = test => {
+const addDefaultOptions = test => {
 	if (typeof test === 'string') {
 		test = {
-			code: test,
+			code: test
 		};
 	}
 
 	return {
-		options: [ options ],
+		options: [options],
 		...test
 	};
-}
+};
 
 ruleTester.run('import-style', rule, {
 	valid: [
-		`require('unassigned')`,
-		`import 'unassigned'`,
-		`import('unassigned')`,
+		'require(\'unassigned\')',
+		'import \'unassigned\'',
+		'import(\'unassigned\')',
 
-		`const x = require('default')`,
-		`const {default: x} = require('default')`,
-		`import x from 'default'`,
+		'const x = require(\'default\')',
+		'const {default: x} = require(\'default\')',
+		'import x from \'default\'',
 		outdent`
 			async () => {
 				const {default: x} = await import('default');
 			}
 		`,
 
-		`const x = require('namespace')`,
-		`import * as x from 'namespace'`,
+		'const x = require(\'namespace\')',
+		'import * as x from \'namespace\'',
 		outdent`
 			async () => {
 				const x = await import('namespace');
 			}
 		`,
 
-		`const {x} = require('named')`,
-		`const {x: y} = require('named')`,
-		`import {x} from 'named'`,
-		`import {x as y} from 'named'`,
+		'const {x} = require(\'named\')',
+		'const {x: y} = require(\'named\')',
+		'import {x} from \'named\'',
+		'import {x as y} from \'named\'',
 		outdent`
 			async () => {
 				const {x} = await import('named');
@@ -101,19 +109,91 @@ ruleTester.run('import-style', rule, {
 				const {x: y} = await import('named');
 			}
 		`,
-	].map(addOptions),
+
+		{
+			code: 'import {inspect} from \'util\'',
+			options: []
+		},
+		{
+			code: 'const {inspect} = require(\'util\')',
+			options: []
+		},
+		{
+			code: 'import chalk from \'chalk\'',
+			options: []
+		},
+		{
+			code: 'import {default as chalk} from \'chalk\'',
+			options: []
+		},
+		{
+			code: 'const {inspect} = require(\'util\')',
+			options: []
+		},
+
+		{
+			code: 'require(\'chalk\')',
+			options: [{
+				styles: {},
+				extendDefaultStyles: false
+			}]
+		},
+		{
+			code: 'import \'chalk\'',
+			options: [{
+				checkImport: false
+			}]
+		},
+		{
+			code: outdent`
+				async () => {
+					const {red} = await import('chalk');
+				}
+			`,
+			options: [{
+				checkDynamicImport: false
+			}]
+		},
+		{
+			code: 'import(\'chalk\')',
+			options: [{
+				checkDynamicImport: false
+			}]
+		},
+		{
+			code: 'require(\'chalk\')',
+			options: [{
+				checkRequire: false
+			}]
+		},
+		{
+			code: 'const {red} = require(\'chalk\')',
+			options: [{
+				checkRequire: false
+			}]
+		},
+
+		'require(1, 2, 3)',
+		'require(variable)',
+		'const x = require(variable)',
+		outdent`
+			async () => {
+				const {red} = await import(variable);
+			}
+		`
+	].map(test => addDefaultOptions(test)),
 
 	invalid: [
 		{
-			code: `const {x} = require('unassigned')`,
+			code: 'const {x} = require(\'unassigned\')',
 			errors: [unassignedError]
 		},
 		{
-			code: `const {default: x} = require('unassigned')`,
+			code: 'const {default: x} = require(\'unassigned\')',
 			errors: [unassignedError]
 		},
 		{
-			code: `import x from 'unassigned'`,
+			code: 'import x from \'unassigned\'',
 			errors: [unassignedError]
 		},
 		{
@@ -125,11 +205,11 @@ ruleTester.run('import-style', rule, {
 			errors: [unassignedError]
 		},
 		{
-			code: `const x = require('unassigned')`,
+			code: 'const x = require(\'unassigned\')',
 			errors: [unassignedError]
 		},
 		{
-			code: `import * as x from 'unassigned'`,
+			code: 'import * as x from \'unassigned\'',
 			errors: [unassignedError]
 		},
 		{
@@ -141,19 +221,19 @@ ruleTester.run('import-style', rule, {
 			errors: [unassignedError]
 		},
 		{
-			code: `const {x} = require('unassigned')`,
+			code: 'const {x} = require(\'unassigned\')',
 			errors: [unassignedError]
 		},
 		{
-			code: `const {x: y} = require('unassigned')`,
+			code: 'const {x: y} = require(\'unassigned\')',
 			errors: [unassignedError]
 		},
 		{
-			code: `import {x} from 'unassigned'`,
+			code: 'import {x} from \'unassigned\'',
 			errors: [unassignedError]
 		},
 		{
-			code: `import {x as y} from 'unassigned'`,
+			code: 'import {x as y} from \'unassigned\'',
 			errors: [unassignedError]
 		},
 		{
@@ -174,7 +254,19 @@ ruleTester.run('import-style', rule, {
 		},
 
 		{
-			code: `import * as x from 'default'`,
+			code: 'require(\'default\')',
+			errors: [defaultError]
+		},
+		{
+			code: 'import \'default\'',
+			errors: [defaultError]
+		},
+		{
+			code: 'import(\'default\')',
+			errors: [defaultError]
+		},
+		{
+			code: 'import * as x from \'default\'',
 			errors: [defaultError]
 		},
 		{
@@ -186,19 +278,19 @@ ruleTester.run('import-style', rule, {
 			errors: [defaultError]
 		},
 		{
-			code: `const {x} = require('default')`,
+			code: 'const {x} = require(\'default\')',
 			errors: [defaultError]
 		},
 		{
-			code: `const {x: y} = require('default')`,
+			code: 'const {x: y} = require(\'default\')',
 			errors: [defaultError]
 		},
 		{
-			code: `import {x} from 'default'`,
+			code: 'import {x} from \'default\'',
 			errors: [defaultError]
 		},
 		{
-			code: `import {x as y} from 'default'`,
+			code: 'import {x as y} from \'default\'',
 			errors: [defaultError]
 		},
 		{
@@ -219,27 +311,39 @@ ruleTester.run('import-style', rule, {
 		},
 
 		{
-			code: `const {default: x} = require('namespace')`,
+			code: 'require(\'namespace\')',
 			errors: [namespaceError]
 		},
 		{
-			code: `import x from 'namespace'`,
+			code: 'import \'namespace\'',
 			errors: [namespaceError]
 		},
 		{
-			code: `const {x} = require('namespace')`,
+			code: 'import(\'namespace\')',
 			errors: [namespaceError]
 		},
 		{
-			code: `const {x: y} = require('namespace')`,
+			code: 'const {default: x} = require(\'namespace\')',
 			errors: [namespaceError]
 		},
 		{
-			code: `import {x} from 'namespace'`,
+			code: 'import x from \'namespace\'',
 			errors: [namespaceError]
 		},
 		{
-			code: `import {x as y} from 'namespace'`,
+			code: 'const {x} = require(\'namespace\')',
+			errors: [namespaceError]
+		},
+		{
+			code: 'const {x: y} = require(\'namespace\')',
+			errors: [namespaceError]
+		},
+		{
+			code: 'import {x} from \'namespace\'',
+			errors: [namespaceError]
+		},
+		{
+			code: 'import {x as y} from \'namespace\'',
 			errors: [namespaceError]
 		},
 		{
@@ -260,15 +364,27 @@ ruleTester.run('import-style', rule, {
 		},
 
 		{
-			code: `const x = require('named')`,
+			code: 'require(\'named\')',
 			errors: [namedError]
 		},
 		{
-			code: `const {default: x} = require('named')`,
+			code: 'import \'named\'',
 			errors: [namedError]
 		},
 		{
-			code: `import x from 'named'`,
+			code: 'import(\'named\')',
+			errors: [namedError]
+		},
+		{
+			code: 'const x = require(\'named\')',
+			errors: [namedError]
+		},
+		{
+			code: 'const {default: x} = require(\'named\')',
+			errors: [namedError]
+		},
+		{
+			code: 'import x from \'named\'',
 			errors: [namedError]
 		},
 		{
@@ -280,7 +396,7 @@ ruleTester.run('import-style', rule, {
 			errors: [namedError]
 		},
 		{
-			code: `import * as x from 'named'`,
+			code: 'import * as x from \'named\'',
 			errors: [namedError]
 		},
 		{
@@ -291,5 +407,59 @@ ruleTester.run('import-style', rule, {
 			`,
 			errors: [namedError]
 		},
-	].map(addOptions)
+
+		{
+			code: 'import util from \'util\'',
+			options: [],
+			errors: [{}]
+		},
+		{
+			code: 'import * as util from \'util\'',
+			options: [],
+			errors: [{}]
+		},
+		{
+			code: 'const util = require(\'util\')',
+			options: [],
+			errors: [{}]
+		},
+		{
+			code: 'require(\'util\')',
+			options: [],
+			errors: [{}]
+		},
+		{
+			code: 'import {red} from \'chalk\'',
+			options: [],
+			errors: [{}]
+		},
+		{
+			code: 'import {red as green} from \'chalk\'',
+			options: [],
+			errors: [{}]
+		},
+		{
+			code: outdent`
+				async () => {
+					const {red} = await import('chalk');
+				}
+			`,
+			options: [],
+			errors: [{}]
+		},
+
+		{
+			code: 'require(\'no-unassigned\')',
+			options: [{
+				styles: {
+					'no-unassigned': {
+						named: true,
+						namespace: true,
+						default: true
+					}
+				}
+			}],
+			errors: [{}]
+		}
+	].map(test => addDefaultOptions(test))
 });

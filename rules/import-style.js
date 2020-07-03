@@ -1,27 +1,15 @@
 'use strict';
+const {defaultsDeep} = require('lodash');
 const {getStringIfConstant} = require('eslint-utils');
+const eslintTemplateVisitor = require('eslint-template-visitor');
 
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const getAllowedImportStyles = (styles, moduleName) => {
-	const importStyles = styles[moduleName];
-
-	if (Array.isArray(importStyles)) {
-		return importStyles;
-	}
-
-	if (typeof importStyles === 'string') {
-		return [ importStyles ];
-	}
-
-	return null;
-}
-
 const getActualImportDeclarationStyles = importDeclaration => {
-	const { specifiers } = importDeclaration;
+	const {specifiers} = importDeclaration;
 
 	if (specifiers.length === 0) {
-		return [ 'unassigned' ];
+		return ['unassigned'];
 	}
 
 	const styles = new Set();
@@ -38,12 +26,41 @@ const getActualImportDeclarationStyles = importDeclaration => {
 		}
 
 		if (specifier.type === 'ImportSpecifier') {
+			if (specifier.imported.type === 'Identifier' && specifier.imported.name === 'default') {
+				styles.add('default');
+				continue;
+			}
+
 			styles.add('named');
 			continue;
 		}
 	}
 
-	return [ ...styles ];
+	return [...styles];
+};
+
+const getActualAssignmentTargetImportStyles = assignmentTarget => {
+	if (assignmentTarget.type === 'Identifier') {
+		return ['namespace'];
+	}
+
+	if (assignmentTarget.type === 'ObjectPattern') {
+		const styles = new Set();
+
+		for (const property of assignmentTarget.properties) {
+			if (property.key.type === 'Identifier') {
+				if (property.key.name === 'default') {
+					styles.add('default');
+				} else {
+					styles.add('named');
+				}
+			}
+		}
+
+		return [...styles];
+	}
+
+	return [];
 };
 
 const joinOr = words => {
@@ -60,65 +77,233 @@ const joinOr = words => {
 			return word + ',';
 		})
 		.join(' ');
-}
+};
 
 const MESSAGE_ID = 'importStyle';
 
-const defaultStyles =  {
-	util: 'named',
-	path: 'default',
-	chalk: 'default',
+// Keep this alphabetically sorted for easier maintenance
+const defaultStyles = {
+	chalk: {
+		default: true
+	},
+	path: {
+		default: true
+	},
+	util: {
+		named: true
+	}
 };
+
+const templates = eslintTemplateVisitor({
+	parserOptions: {
+		sourceType: 'module',
+		ecmaVersion: 2018
+	}
+});
+
+const variableDeclarationVariable = templates.variableDeclarationVariable();
+const assignmentTargetVariable = templates.variable();
+const moduleNameVariable = templates.variable();
+
+const assignedDynamicImportTemplate = templates.template`async () => {
+	${variableDeclarationVariable} ${assignmentTargetVariable} = await import(${moduleNameVariable});
+}`.narrow('BlockStatement > :has(AwaitExpression)');
+
+const assignedRequireTemplate = templates.template`
+	${variableDeclarationVariable} ${assignmentTargetVariable} = require(${moduleNameVariable});
+`;
 
 const create = context => {
 	let [
 		{
-			styles = {}
+			styles = {},
+			extendDefaultStyles = true,
+			checkImport = true,
+			checkDynamicImport = true,
+			checkRequire = true
 		} = {}
 	] = context.options;
 
-	styles = {
-		...defaultStyles,
-		...styles,
-	};
+	styles = extendDefaultStyles ?
+		defaultsDeep({}, styles, defaultStyles) :
+		styles;
 
-	const report = (node, moduleName, actualImportStyles, allowedImportStyles) => {
+	styles = new Map(
+		Object.entries(styles).map(
+			([moduleName, styles]) =>
+				[moduleName, new Map(Object.entries(styles))]
+		)
+	);
+
+	const report = (node, moduleName, actualImportStyles, allowedImportStyles, isRequire = false) => {
+		if (!allowedImportStyles || allowedImportStyles.size === 0) {
+			return;
+		}
+
+		let effectiveAllowedImportStyles = allowedImportStyles;
+
+		if (isRequire) {
+			// For `require`, `'default'` style allows both `x = require('x')` (`'namespace'` style) and
+			// `{default: x} = require('x')` (`'default'` style) since we don't know in advance
+			// whether `'x'` is a compiled ES6 module (with `default` key) or a CommonJS module and `require`
+			// does not provide any automatic interop for this, so the user may have to use either of theese.
+			if (allowedImportStyles.get('default') && !allowedImportStyles.get('namespace')) {
+				effectiveAllowedImportStyles = new Map(allowedImportStyles);
+				effectiveAllowedImportStyles.set('namespace', true);
+			}
+		}
+
+		if (actualImportStyles.every(style => effectiveAllowedImportStyles.get(style))) {
+			return;
+		}
+
 		const data = {
-			allowedStyles: joinOr(allowedImportStyles),
-			moduleName,
+			allowedStyles: joinOr([...allowedImportStyles.keys()]),
+			moduleName
 		};
 
 		context.report({
 			node,
 			messageId: MESSAGE_ID,
-			data,
+			data
 		});
 	};
 
-	return {
+	return templates.visitor({
 		ImportDeclaration(node) {
+			if (!checkImport) {
+				return;
+			}
+
 			const moduleName = getStringIfConstant(node.source, context.getScope());
 
 			if (!moduleName) {
 				return;
 			}
 
-			const allowedImportStyles = getAllowedImportStyles(styles, moduleName);
-
-			if (!allowedImportStyles || allowedImportStyles.length === 0) {
-				return;
-			}
-
+			const allowedImportStyles = styles.get(moduleName);
 			const actualImportStyles = getActualImportDeclarationStyles(node);
-
-			if (actualImportStyles.every(style => allowedImportStyles.includes(style))) {
-				return;
-			}
 
 			report(node, moduleName, actualImportStyles, allowedImportStyles);
 		},
-	};
+
+		'ExpressionStatement > ImportExpression'(node) {
+			if (!checkDynamicImport) {
+				return;
+			}
+
+			const moduleName = getStringIfConstant(node.source, context.getScope());
+			const allowedImportStyles = styles.get(moduleName);
+			const actualImportStyles = ['unassigned'];
+
+			report(node, moduleName, actualImportStyles, allowedImportStyles);
+		},
+
+		[assignedDynamicImportTemplate](node) {
+			if (!checkDynamicImport) {
+				return;
+			}
+
+			const assignmentTargetNode = assignedDynamicImportTemplate.context.getMatch(assignmentTargetVariable);
+			const moduleNameNode = assignedDynamicImportTemplate.context.getMatch(moduleNameVariable);
+			const moduleName = getStringIfConstant(moduleNameNode, context.getScope());
+
+			if (!moduleName) {
+				return;
+			}
+
+			const allowedImportStyles = styles.get(moduleName);
+			const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
+
+			report(node, moduleName, actualImportStyles, allowedImportStyles);
+		},
+
+		'ExpressionStatement > CallExpression[callee.name=\'require\']'(node) {
+			if (!checkRequire) {
+				return;
+			}
+
+			if (node.arguments.length !== 1) {
+				return;
+			}
+
+			const moduleName = getStringIfConstant(node.arguments[0], context.getScope());
+			const allowedImportStyles = styles.get(moduleName);
+			const actualImportStyles = ['unassigned'];
+
+			report(node, moduleName, actualImportStyles, allowedImportStyles, true);
+		},
+
+		[assignedRequireTemplate](node) {
+			if (!checkRequire) {
+				return;
+			}
+
+			const assignmentTargetNode = assignedRequireTemplate.context.getMatch(assignmentTargetVariable);
+			const moduleNameNode = assignedRequireTemplate.context.getMatch(moduleNameVariable);
+			const moduleName = getStringIfConstant(moduleNameNode, context.getScope());
+
+			if (!moduleName) {
+				return;
+			}
+
+			const allowedImportStyles = styles.get(moduleName);
+			const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
+
+			report(node, moduleName, actualImportStyles, allowedImportStyles, true);
+		}
+	});
 };
+
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			checkImport: {
+				type: 'boolean'
+			},
+			checkDynamicImport: {
+				type: 'boolean'
+			},
+			checkRequire: {
+				type: 'boolean'
+			},
+			extendDefaultStyles: {
+				type: 'boolean'
+			},
+			styles: {
+				$ref: '#/items/0/definitions/moduleStyles'
+			}
+		},
+		additionalProperties: false,
+		definitions: {
+			moduleStyles: {
+				type: 'object',
+				additionalProperties: {
+					$ref: '#/items/0/definitions/styles'
+				}
+			},
+			styles: {
+				anyOf: [
+					{
+						enum: [
+							false
+						]
+					},
+					{
+						$ref: '#/items/0/definitions/booleanObject'
+					}
+				]
+			},
+			booleanObject: {
+				type: 'object',
+				additionalProperties: {
+					type: 'boolean'
+				}
+			}
+		}
+	}
+];
 
 module.exports = {
 	create,
@@ -128,7 +313,8 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		messages: {
-			[MESSAGE_ID]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.',
-		}
+			[MESSAGE_ID]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.'
+		},
+		schema
 	}
 };
