@@ -42,7 +42,7 @@ Default options per module are:
 
 The example below:
 - disables any restrictions on the `utils` module imports
-- allows `named` import from the `path` module (by default only `default` import of `path` is allowed)
+- allows `named` import (leaving `default` allowed too) from the `path` module (by default only `default` import of `path` is allowed)
 
 ```js
 "unicorn/import-style": [
