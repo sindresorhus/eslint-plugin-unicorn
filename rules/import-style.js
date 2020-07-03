@@ -60,6 +60,10 @@ const getActualAssignmentTargetImportStyles = assignmentTarget => {
 		return [...styles];
 	}
 
+	// Next line is not test-coverable until unforceable changes to the language
+	// like an addition of new AST node types usable in `const __HERE__ = foo;`.
+	// An exotic custom parser or a bug in one could cover it too.
+	/* istanbul ignore next */
 	return [];
 };
 
@@ -176,10 +180,6 @@ const create = context => {
 			}
 
 			const moduleName = getStringIfConstant(node.source, context.getScope());
-
-			if (!moduleName) {
-				return;
-			}
 
 			const allowedImportStyles = styles.get(moduleName);
 			const actualImportStyles = getActualImportDeclarationStyles(node);
