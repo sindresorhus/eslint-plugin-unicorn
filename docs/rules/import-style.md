@@ -41,7 +41,7 @@ Default options per module are:
 * `chalk` - `default` only
 
 The example below:
-- disables any restrictions on the `utils` module imports
+- disables any restrictions on the `util` module imports
 - allows `named` import (leaving `default` allowed too) from the `path` module (by default only `default` import of `path` is allowed)
 
 ```js
@@ -49,7 +49,7 @@ The example below:
 	"error",
 	{
 		"styles": {
-			"utils": false,
+			"util": false,
 			"path": {
 				"named": true
 			}
