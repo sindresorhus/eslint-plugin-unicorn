@@ -459,7 +459,13 @@ ruleTester.run('import-style', rule, {
 					}
 				}
 			}],
-			errors: [{}]
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'named, namespace or default',
+					moduleName: 'no-unassigned'
+				}
+			}]
 		}
 	].map(test => addDefaultOptions(test))
 });
