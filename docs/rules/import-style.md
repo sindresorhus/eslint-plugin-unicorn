@@ -1,6 +1,6 @@
 # Enforce specific import styles per module
 
-Sometimes a module contains unrelated functions like `util`, thus it is a good practice to enforce destructuring or named imports here, other times in modules like `path` it is good to do default import as they have similar functions, all likely to be utilised.
+Sometimes a module contains unrelated functions like `util`, thus it is a good practice to enforce destructuring or named imports here, other times in modules like `path` it is good to use default import as they have similar functions, all likely to be utilized.
 
 This rule defines 4 import types:
 * `unassigned` - `import 'foo'` or `require('foo')`
@@ -17,7 +17,6 @@ import util from 'util';
 
 import * as util from 'util';
 ```
-
 
 ## Pass
 
@@ -41,8 +40,8 @@ Default options per module are:
 * `chalk` - `default` only
 
 The example below:
-- disables any restrictions on the `util` module imports
-- allows `named` import (leaving `default` allowed too) from the `path` module (by default only `default` import of `path` is allowed)
+- Disables any restrictions on the `util` module imports.
+- Allows `named` import (leaving `default` allowed too) from the `path` module (by default only `default` import of `path` is allowed).
 
 ```js
 "unicorn/import-style": [
@@ -60,28 +59,28 @@ The example below:
 
 ### extendDefaultStyles
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `true`
 
 Pass `"extendDefaultStyles": false` to override the default `styles` option completely.
 
 ### checkImport
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `true`
 
 Pass `"checkImport": false` to disable linting of static import statements (like `import ... from 'foo'` or `import 'foo'`) completely.
 
 ### checkDynamicImport
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `true`
 
 Pass `"checkDynamicImport": false` to disable linting of dynamic import statements (like `await import('foo')`) completely.
 
 ### checkRequire
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `true`
 
 Pass `"checkRequire": false` to disable linting of `require` calls completely.
