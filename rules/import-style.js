@@ -173,86 +173,82 @@ const create = context => {
 		});
 	};
 
-	return templates.visitor({
-		ImportDeclaration(node) {
-			if (!checkImport) {
-				return;
+	let visitor = {};
+
+	if (checkImport) {
+		visitor = {
+			...visitor,
+
+			ImportDeclaration(node) {
+				const moduleName = getStringIfConstant(node.source, context.getScope());
+
+				const allowedImportStyles = styles.get(moduleName);
+				const actualImportStyles = getActualImportDeclarationStyles(node);
+
+				report(node, moduleName, actualImportStyles, allowedImportStyles);
 			}
+		};
+	}
 
-			const moduleName = getStringIfConstant(node.source, context.getScope());
+	if (checkDynamicImport) {
+		visitor = {
+			...visitor,
 
-			const allowedImportStyles = styles.get(moduleName);
-			const actualImportStyles = getActualImportDeclarationStyles(node);
+			'ExpressionStatement > ImportExpression'(node) {
+				const moduleName = getStringIfConstant(node.source, context.getScope());
+				const allowedImportStyles = styles.get(moduleName);
+				const actualImportStyles = ['unassigned'];
 
-			report(node, moduleName, actualImportStyles, allowedImportStyles);
-		},
+				report(node, moduleName, actualImportStyles, allowedImportStyles);
+			},
 
-		'ExpressionStatement > ImportExpression'(node) {
-			if (!checkDynamicImport) {
-				return;
+			[assignedDynamicImportTemplate](node) {
+				const assignmentTargetNode = assignedDynamicImportTemplate.context.getMatch(assignmentTargetVariable);
+				const moduleNameNode = assignedDynamicImportTemplate.context.getMatch(moduleNameVariable);
+				const moduleName = getStringIfConstant(moduleNameNode, context.getScope());
+
+				if (!moduleName) {
+					return;
+				}
+
+				const allowedImportStyles = styles.get(moduleName);
+				const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
+
+				report(node, moduleName, actualImportStyles, allowedImportStyles);
 			}
+		};
+	}
 
-			const moduleName = getStringIfConstant(node.source, context.getScope());
-			const allowedImportStyles = styles.get(moduleName);
-			const actualImportStyles = ['unassigned'];
+	if (checkRequire) {
+		visitor = {
+			...visitor,
 
-			report(node, moduleName, actualImportStyles, allowedImportStyles);
-		},
+			'ExpressionStatement > CallExpression[callee.name=\'require\'][arguments.length=1]'(node) {
+				const moduleName = getStringIfConstant(node.arguments[0], context.getScope());
+				const allowedImportStyles = styles.get(moduleName);
+				const actualImportStyles = ['unassigned'];
 
-		[assignedDynamicImportTemplate](node) {
-			if (!checkDynamicImport) {
-				return;
+				report(node, moduleName, actualImportStyles, allowedImportStyles, true);
+			},
+
+			[assignedRequireTemplate](node) {
+				const assignmentTargetNode = assignedRequireTemplate.context.getMatch(assignmentTargetVariable);
+				const moduleNameNode = assignedRequireTemplate.context.getMatch(moduleNameVariable);
+				const moduleName = getStringIfConstant(moduleNameNode, context.getScope());
+
+				if (!moduleName) {
+					return;
+				}
+
+				const allowedImportStyles = styles.get(moduleName);
+				const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
+
+				report(node, moduleName, actualImportStyles, allowedImportStyles, true);
 			}
+		};
+	}
 
-			const assignmentTargetNode = assignedDynamicImportTemplate.context.getMatch(assignmentTargetVariable);
-			const moduleNameNode = assignedDynamicImportTemplate.context.getMatch(moduleNameVariable);
-			const moduleName = getStringIfConstant(moduleNameNode, context.getScope());
-
-			if (!moduleName) {
-				return;
-			}
-
-			const allowedImportStyles = styles.get(moduleName);
-			const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
-
-			report(node, moduleName, actualImportStyles, allowedImportStyles);
-		},
-
-		'ExpressionStatement > CallExpression[callee.name=\'require\']'(node) {
-			if (!checkRequire) {
-				return;
-			}
-
-			if (node.arguments.length !== 1) {
-				return;
-			}
-
-			const moduleName = getStringIfConstant(node.arguments[0], context.getScope());
-			const allowedImportStyles = styles.get(moduleName);
-			const actualImportStyles = ['unassigned'];
-
-			report(node, moduleName, actualImportStyles, allowedImportStyles, true);
-		},
-
-		[assignedRequireTemplate](node) {
-			if (!checkRequire) {
-				return;
-			}
-
-			const assignmentTargetNode = assignedRequireTemplate.context.getMatch(assignmentTargetVariable);
-			const moduleNameNode = assignedRequireTemplate.context.getMatch(moduleNameVariable);
-			const moduleName = getStringIfConstant(moduleNameNode, context.getScope());
-
-			if (!moduleName) {
-				return;
-			}
-
-			const allowedImportStyles = styles.get(moduleName);
-			const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
-
-			report(node, moduleName, actualImportStyles, allowedImportStyles, true);
-		}
-	});
+	return templates.visitor(visitor);
 };
 
 const schema = [
