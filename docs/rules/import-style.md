@@ -78,6 +78,13 @@ Default: `true`
 
 Pass `"checkDynamicImport": false` to disable linting of dynamic import statements (like `await import('foo')`) completely.
 
+### checkExportFrom
+
+Type: `boolean`\
+Default: `false`
+
+Pass `"checkExportFrom": true` to enable linting of export-from statements (like `export ... from 'foo'`).
+
 ### checkRequire
 
 Type: `boolean`\

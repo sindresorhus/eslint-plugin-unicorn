@@ -11,6 +11,7 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const options = {
+	checkExportFrom: true,
 	styles: {
 		unassigned: {
 			unassigned: true
@@ -77,6 +78,7 @@ ruleTester.run('import-style', rule, {
 		'require(\'unassigned\')',
 		'import \'unassigned\'',
 		'import(\'unassigned\')',
+		'export {} from \'unassigned\'',
 
 		'const x = require(\'default\')',
 		'const {default: x} = require(\'default\')',
@@ -86,6 +88,7 @@ ruleTester.run('import-style', rule, {
 				const {default: x} = await import('default');
 			}
 		`,
+		'export {default} from \'default\'',
 
 		'const x = require(\'namespace\')',
 		'import * as x from \'namespace\'',
@@ -94,6 +97,7 @@ ruleTester.run('import-style', rule, {
 				const x = await import('namespace');
 			}
 		`,
+		'export * from \'namespace\'',
 
 		'const {x} = require(\'named\')',
 		'const {x: y} = require(\'named\')',
@@ -109,6 +113,8 @@ ruleTester.run('import-style', rule, {
 				const {x: y} = await import('named');
 			}
 		`,
+		'export {x} from \'named\'',
+		'export {x as y} from \'named\'',
 
 		{
 			code: 'import {inspect} from \'util\'',
@@ -264,6 +270,22 @@ ruleTester.run('import-style', rule, {
 			`,
 			errors: [unassignedError]
 		},
+		{
+			code: 'export * from \'unassigned\'',
+			errors: [unassignedError]
+		},
+		{
+			code: 'export {x} from \'unassigned\'',
+			errors: [unassignedError]
+		},
+		{
+			code: 'export {x as y} from \'unassigned\'',
+			errors: [unassignedError]
+		},
+		{
+			code: 'export {default} from \'unassigned\'',
+			errors: [unassignedError]
+		},
 
 		{
 			code: 'require(\'default\')',
@@ -321,6 +343,18 @@ ruleTester.run('import-style', rule, {
 			`,
 			errors: [defaultError]
 		},
+		{
+			code: 'export * from \'default\'',
+			errors: [defaultError]
+		},
+		{
+			code: 'export {x} from \'default\'',
+			errors: [defaultError]
+		},
+		{
+			code: 'export {x as y} from \'default\'',
+			errors: [defaultError]
+		},
 
 		{
 			code: 'require(\'namespace\')',
@@ -374,6 +408,18 @@ ruleTester.run('import-style', rule, {
 			`,
 			errors: [namespaceError]
 		},
+		{
+			code: 'export {x} from \'namespace\'',
+			errors: [namespaceError]
+		},
+		{
+			code: 'export {x as y} from \'namespace\'',
+			errors: [namespaceError]
+		},
+		{
+			code: 'export {default} from \'namespace\'',
+			errors: [namespaceError]
+		},
 
 		{
 			code: 'require(\'named\')',
@@ -417,6 +463,14 @@ ruleTester.run('import-style', rule, {
 					const x = await import('named');
 				}
 			`,
+			errors: [namedError]
+		},
+		{
+			code: 'export * from \'named\'',
+			errors: [namedError]
+		},
+		{
+			code: 'export {default} from \'named\'',
 			errors: [namedError]
 		},
 

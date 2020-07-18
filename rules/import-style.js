@@ -39,6 +39,30 @@ const getActualImportDeclarationStyles = importDeclaration => {
 	return [...styles];
 };
 
+const getActualExportDeclarationStyles = exportDeclaration => {
+	const {specifiers} = exportDeclaration;
+
+	if (specifiers.length === 0) {
+		return ['unassigned'];
+	}
+
+	const styles = new Set();
+
+	for (const specifier of specifiers) {
+		if (specifier.type === 'ExportSpecifier') {
+			if (specifier.exported.type === 'Identifier' && specifier.exported.name === 'default') {
+				styles.add('default');
+				continue;
+			}
+
+			styles.add('named');
+			continue;
+		}
+	}
+
+	return [...styles];
+};
+
 const getActualAssignmentTargetImportStyles = assignmentTarget => {
 	if (assignmentTarget.type === 'Identifier') {
 		return ['namespace'];
@@ -124,6 +148,7 @@ const create = context => {
 			extendDefaultStyles = true,
 			checkImport = true,
 			checkDynamicImport = true,
+			checkExportFrom = false,
 			checkRequire = true
 		} = {}
 	] = context.options;
@@ -219,6 +244,30 @@ const create = context => {
 		};
 	}
 
+	if (checkExportFrom) {
+		visitor = {
+			...visitor,
+
+			ExportAllDeclaration(node) {
+				const moduleName = getStringIfConstant(node.source, context.getScope());
+
+				const allowedImportStyles = styles.get(moduleName);
+				const actualImportStyles = ['namespace'];
+
+				report(node, moduleName, actualImportStyles, allowedImportStyles);
+			},
+
+			ExportNamedDeclaration(node) {
+				const moduleName = getStringIfConstant(node.source, context.getScope());
+
+				const allowedImportStyles = styles.get(moduleName);
+				const actualImportStyles = getActualExportDeclarationStyles(node);
+
+				report(node, moduleName, actualImportStyles, allowedImportStyles);
+			}
+		};
+	}
+
 	if (checkRequire) {
 		visitor = {
 			...visitor,
@@ -259,6 +308,9 @@ const schema = [
 				type: 'boolean'
 			},
 			checkDynamicImport: {
+				type: 'boolean'
+			},
+			checkExportFrom: {
 				type: 'boolean'
 			},
 			checkRequire: {
