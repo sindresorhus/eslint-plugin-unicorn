@@ -173,6 +173,18 @@ ruleTester.run('import-style', rule, {
 			}]
 		},
 
+		{
+			code: 'import util, {inspect} from \'named-or-default\'',
+			options: [{
+				styles: {
+					'named-or-default': {
+						named: true,
+						default: true
+					}
+				}
+			}]
+		},
+
 		'require(1, 2, 3)',
 		'require(variable)',
 		'const x = require(variable)',
@@ -406,6 +418,15 @@ ruleTester.run('import-style', rule, {
 				}
 			`,
 			errors: [namedError]
+		},
+
+		{
+			code: 'import util, {inspect} from \'named\'',
+			errors: [namedError]
+		},
+		{
+			code: 'import util, {inspect} from \'default\'',
+			errors: [defaultError]
 		},
 
 		{
