@@ -136,6 +136,10 @@ ruleTester.run('import-style', rule, {
 			code: 'const {inspect} = require(\'util\')',
 			options: []
 		},
+		{
+			code: 'export {promisify, callbackify} from \'util\'',
+			options: []
+		},
 
 		{
 			code: 'require(\'chalk\')',
