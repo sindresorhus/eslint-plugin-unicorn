@@ -72,16 +72,11 @@ module.exports = [
 			'aio/content/examples/router/src/app/app-routing.module.9.ts'
 		]
 	},
-	{
-		repository: 'https://github.com/microsoft/typescript',
-		extraArguments: [
-			...typescriptArguments,
-
-			// `@typescript-eslint/parser` haven't support `typescript@v4` yet
-			'--ignore-pattern',
-			'src/compiler/checker.ts'
-		]
-	},
+	// TODO: enable this when ``@typescript-eslint/parser` support typescript 4.0
+	// {
+	// 	repository: 'https://github.com/microsoft/typescript',
+	// 	extraArguments: typescriptArguments
+	// },
 	{
 		repository: 'https://github.com/microsoft/vscode',
 		extraArguments: typescriptArguments
