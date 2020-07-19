@@ -74,7 +74,13 @@ module.exports = [
 	},
 	{
 		repository: 'https://github.com/microsoft/typescript',
-		extraArguments: typescriptArguments
+		extraArguments: [
+			...typescriptArguments,
+
+			// `@typescript-eslint/parser` haven't support `typescript@v4` yet
+			'--ignore-pattern',
+			'src/compiler/checker.ts'
+		]
 	},
 	{
 		repository: 'https://github.com/microsoft/vscode',
