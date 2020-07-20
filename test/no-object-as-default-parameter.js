@@ -2,6 +2,7 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/no-object-as-default-parameter';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
@@ -165,13 +166,17 @@ ruleTester.run('no-object-as-default-parameter', rule, {
 				};
 			`,
 			errors: [error]
-		},
-		// Actual message
-		{
-			code: 'function abc(foo = {a: 123}) {}',
-			errors: [{
-				message: 'Do not use an object literal as default for parameter `foo`.'
-			}]
 		}
 	]
 });
+
+const visualizeTester = visualizeRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 2020
+	}
+});
+
+visualizeTester.run('no-object-as-default-parameter', rule, [
+	'function abc(foo = {a: 123}) {}',
+	'const abc = (foo = {a: false}) => {};'
+]);
