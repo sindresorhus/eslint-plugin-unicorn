@@ -535,6 +535,11 @@ ruleTester.run('import-style', rule, {
 			errors: [{}]
 		},
 		{
+			code: 'require(\'ut\' + \'il\')',
+			options: [],
+			errors: [{}]
+		},
+		{
 			code: 'import {red} from \'chalk\'',
 			options: [],
 			errors: [{}]
