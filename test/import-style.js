@@ -2,6 +2,7 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/import-style';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
@@ -574,3 +575,24 @@ ruleTester.run('import-style', rule, {
 		}
 	].map(test => addDefaultOptions(test))
 });
+
+const visualizeTester = visualizeRuleTester(test, {
+	parserOptions: {
+		sourceType: 'module',
+		ecmaVersion: 2020
+	}
+});
+
+visualizeTester.run('consistent-function-scoping', rule, [
+	'import util from \'util\'',
+	'import * as util from \'util\'',
+	'const util = require(\'util\')',
+	'require(\'util\')',
+	'import {red} from \'chalk\'',
+	'import {red as green} from \'chalk\'',
+	outdent`
+		async () => {
+			const {red} = await import('chalk');
+		}
+	`,
+]);
