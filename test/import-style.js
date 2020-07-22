@@ -599,5 +599,5 @@ visualizeTester.run('consistent-function-scoping', rule, [
 		async () => {
 			const {red} = await import('chalk');
 		}
-	`,
+	`
 ]);
