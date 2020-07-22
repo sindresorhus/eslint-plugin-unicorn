@@ -69,6 +69,10 @@ const getActualAssignmentTargetImportStyles = assignmentTarget => {
 	}
 
 	if (assignmentTarget.type === 'ObjectPattern') {
+		if (assignmentTarget.properties.length === 0) {
+			return ['unassigned'];
+		}
+
 		const styles = new Set();
 
 		for (const property of assignmentTarget.properties) {

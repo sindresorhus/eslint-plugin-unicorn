@@ -76,7 +76,9 @@ const addDefaultOptions = test => {
 ruleTester.run('import-style', rule, {
 	valid: [
 		'require(\'unassigned\')',
+		'const {} = require(\'unassigned\')',
 		'import \'unassigned\'',
+		'import {} from \'unassigned\'',
 		'import(\'unassigned\')',
 		'export {} from \'unassigned\'',
 
@@ -296,7 +298,15 @@ ruleTester.run('import-style', rule, {
 			errors: [defaultError]
 		},
 		{
+			code: 'const {} = require(\'default\')',
+			errors: [defaultError]
+		},
+		{
 			code: 'import \'default\'',
+			errors: [defaultError]
+		},
+		{
+			code: 'import {} from \'default\'',
 			errors: [defaultError]
 		},
 		{
@@ -365,7 +375,15 @@ ruleTester.run('import-style', rule, {
 			errors: [namespaceError]
 		},
 		{
+			code: 'const {} = require(\'namespace\')',
+			errors: [namespaceError]
+		},
+		{
 			code: 'import \'namespace\'',
+			errors: [namespaceError]
+		},
+		{
+			code: 'import {} from \'namespace\'',
 			errors: [namespaceError]
 		},
 		{
@@ -430,7 +448,15 @@ ruleTester.run('import-style', rule, {
 			errors: [namedError]
 		},
 		{
+			code: 'const {} = require(\'named\')',
+			errors: [namedError]
+		},
+		{
 			code: 'import \'named\'',
+			errors: [namedError]
+		},
+		{
+			code: 'import {} from \'named\'',
 			errors: [namedError]
 		},
 		{
