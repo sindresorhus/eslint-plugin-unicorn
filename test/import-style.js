@@ -201,6 +201,7 @@ ruleTester.run('import-style', rule, {
 		'require(1, 2, 3)',
 		'require(variable)',
 		'const x = require(variable)',
+		'const x = require(\'unassigned\').x',
 		outdent`
 			async () => {
 				const {red} = await import(variable);
