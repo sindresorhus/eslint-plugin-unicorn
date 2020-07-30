@@ -2,7 +2,7 @@
 
 Sometimes a module contains unrelated functions, like `util`, thus it is a good practice to enforce destructuring or named imports here. Other times, in modules like `path`, it is good to use default import as they have similar functions, all likely to be utilized.
 
-This rule defines 4 import types:
+This rule defines 4 import styles:
 - `unassigned` - `import 'foo'` or `require('foo')`
 - `default` - `import path from 'path'` or `const path = require('path')`
 - `namespace` - `import * as path from 'path'` or `const path = require('path')`
