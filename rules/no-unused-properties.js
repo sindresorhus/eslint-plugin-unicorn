@@ -57,7 +57,7 @@ const propertyKeysEqual = (keyA, keyB) => {
 
 const objectPatternMatchesObjectExprPropertyKey = (pattern, key) => {
 	return pattern.properties.some(property => {
-		if (property.type === 'ExperimentalRestProperty') {
+		if (property.type === 'ExperimentalRestProperty' || property.type === 'RestElement') {
 			return true;
 		}
 
