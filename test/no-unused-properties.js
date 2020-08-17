@@ -8,6 +8,7 @@ const ruleTester = avaRuleTester(test, {
 		es6: true
 	},
 	parserOptions: {
+		ecmaVersion: 2020,
 		sourceType: 'module'
 	}
 });
@@ -280,6 +281,10 @@ ruleTester.run('no-unused-properties', rule, {
 				a: 1
 			};
 			exports.foo = foo;
+		`,
+		outdent`
+			const foo = {a: 1, b: 2};
+			const {a, ...rest} = foo;
 		`
 	],
 
