@@ -314,7 +314,7 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 					const fn = async () => {
 						await Promise.all(foo.map((element, index, array) => toPromise(element, index, array)));
 					}
-				`,
+				`
 			]
 		}),
 		invalidTestCase({
@@ -340,7 +340,7 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 					async function fn() {
 						for await (const foo of bar.map((element, index, array) => toPromise(element, index, array))) {}
 					}
-				`,
+				`
 			]
 		}),
 
