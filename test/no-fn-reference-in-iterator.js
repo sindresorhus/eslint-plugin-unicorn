@@ -99,6 +99,16 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 		'foo.map(function() {})',
 		'foo.map(function bar() {})',
 
+		// Exclude await expressions
+		...simpleMethods.map(method => `(async () => await foo.${method}(bar))()`),
+		...reduceLikeMethods.map(method => `(async () => await foo.${method}(bar))()`),
+
+		// #813
+		outdent`
+			const clientId = 20
+			const client = await oidc.Client.find(clientId)
+		`,
+
 		// #755
 		outdent`
 			const results = collection
