@@ -8,7 +8,7 @@ const ruleTester = avaRuleTester(test, {
 		es6: true
 	},
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 
@@ -16,7 +16,6 @@ const error = {
 	message: 'Invalid number literal casing.'
 };
 
-// TODO: Add numeric separator tests when ESLint supports it.
 ruleTester.run('number-literal-case', rule, {
 	valid: [
 		// Number
@@ -45,7 +44,17 @@ ruleTester.run('number-literal-case', rule, {
 
 		// Not number
 		'const foo = \'0Xff\'',
-		'const foo = \'0Xffn\''
+		'const foo = \'0Xffn\'',
+
+		// Numeric separator
+		'const foo = 123_456',
+		'const foo = 0b10_10',
+		'const foo = 0o1_234_567',
+		'const foo = 0xDEED_BEEF',
+		'const foo = 123_456n',
+		'const foo = 0b10_10n',
+		'const foo = 0o1_234_567n',
+		'const foo = 0xDEED_BEEFn'
 	],
 	invalid: [
 		// Number
@@ -114,6 +123,13 @@ ruleTester.run('number-literal-case', rule, {
 					console.log('invalid');
 				}
 			`
+		},
+
+		// Numeric separator
+		{
+			code: 'const foo = 0XdeEd_Beefn',
+			errors: [error],
+			output: 'const foo = 0xDEED_BEEFn'
 		}
 	]
 });
