@@ -40,8 +40,8 @@ const avoidMultiplePackageVersionsError = (versions, message) => ({
 	message: `Avoid using multiple package versions in TODO: ${versions}. ${message}`
 });
 
-const removeWhitespacesError = (argument, message) => ({
-	message: `Avoid using whitespaces on TODO argument. On '${argument}' use '${argument.replace(/ /g, '')}'. ${message}`
+const removeWhitespaceError = (argument, message) => ({
+	message: `Avoid using whitespace on TODO argument. On '${argument}' use '${argument.replace(/ /g, '')}'. ${message}`
 });
 
 const missingAtSymbolError = (bad, good, message) => ({
@@ -248,32 +248,32 @@ ruleTester.run('expiring-todo-comments', rule, {
 			errors: [missingAtSymbolError('semver>1', 'semver@>1', 'Missing @.')]
 		},
 		{
-			code: '// TODO [> 1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('> 1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [> 1]: Remove whitespace when it can fix.',
+			errors: [removeWhitespaceError('> 1', 'Remove whitespace when it can fix.')]
 		},
 		{
-			code: '// TODO [semver@> 1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('semver@> 1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [semver@> 1]: Remove whitespace when it can fix.',
+			errors: [removeWhitespaceError('semver@> 1', 'Remove whitespace when it can fix.')]
 		},
 		{
-			code: '// TODO [semver @>1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('semver @>1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [semver @>1]: Remove whitespace when it can fix.',
+			errors: [removeWhitespaceError('semver @>1', 'Remove whitespace when it can fix.')]
 		},
 		{
-			code: '// TODO [semver@>= 1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('semver@>= 1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [semver@>= 1]: Remove whitespace when it can fix.',
+			errors: [removeWhitespaceError('semver@>= 1', 'Remove whitespace when it can fix.')]
 		},
 		{
-			code: '// TODO [semver @>=1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('semver @>=1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [semver @>=1]: Remove whitespace when it can fix.',
+			errors: [removeWhitespaceError('semver @>=1', 'Remove whitespace when it can fix.')]
 		},
 		{
-			code: '// TODO [engine:node @>=1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('engine:node @>=1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [engine:node @>=1]: Remove whitespace when it can fix.',
+			errors: [removeWhitespaceError('engine:node @>=1', 'Remove whitespace when it can fix.')]
 		},
 		{
-			code: '// TODO [engine:node@>= 1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('engine:node@>= 1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [engine:node@>= 1]: Remove whitespace when it can fix.',
+			errors: [removeWhitespaceError('engine:node@>= 1', 'Remove whitespace when it can fix.')]
 		},
 		{
 			code: '// TODO',
@@ -348,10 +348,10 @@ ruleTester.run('expiring-todo-comments', rule, {
 			options: [{ignoreDatesOnPullRequests: false, terms: ['Expire Condition']}]
 		},
 		{
-			code: '// TODO [semver @>=1, -popura]: Package uninstalled and whitespaces error',
+			code: '// TODO [semver @>=1, -popura]: Package uninstalled and whitespace error',
 			errors: [
-				dontHavePackageError('popura', 'Package uninstalled and whitespaces error'),
-				removeWhitespacesError('semver @>=1', 'Package uninstalled and whitespaces error')
+				dontHavePackageError('popura', 'Package uninstalled and whitespace error'),
+				removeWhitespaceError('semver @>=1', 'Package uninstalled and whitespace error')
 			]
 		},
 		{
@@ -363,7 +363,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 				havePackageError('read-pkg-up', 'Big mix'),
 				versionMatchesError('read-pkg-up > 1', 'Big mix'),
 				engineMatchesError('node>=8', 'Big mix'),
-				removeWhitespacesError('semver @>=1', 'Big mix')
+				removeWhitespaceError('semver @>=1', 'Big mix')
 			],
 			options: [{ignoreDatesOnPullRequests: false, terms: ['HUGETODO']}]
 		},
