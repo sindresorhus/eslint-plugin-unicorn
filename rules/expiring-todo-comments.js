@@ -16,7 +16,7 @@ const MESSAGE_ID_HAVE_PACKAGE = 'unicorn/havePackage';
 const MESSAGE_ID_DONT_HAVE_PACKAGE = 'unicorn/dontHavePackage';
 const MESSAGE_ID_VERSION_MATCHES = 'unicorn/versionMatches';
 const MESSAGE_ID_ENGINE_MATCHES = 'unicorn/engineMatches';
-const MESSAGE_ID_REMOVE_WHITESPACES = 'unicorn/removeWhitespaces';
+const MESSAGE_ID_REMOVE_WHITESPACE = 'unicorn/removeWhitespaces';
 const MESSAGE_ID_MISSING_AT_SYMBOL = 'unicorn/missingAtSymbol';
 
 const packageResult = readPkgUp.sync();
@@ -448,16 +448,16 @@ const create = context => {
 				}
 			}
 
-			const withoutWhitespaces = unknown.replace(/ /g, '');
+			const withoutWhitespace = unknown.replace(/ /g, '');
 
-			if (parseArgument(withoutWhitespaces).type !== 'unknowns') {
+			if (parseArgument(withoutWhitespace).type !== 'unknowns') {
 				uses++;
 				context.report({
 					loc: comment.loc,
-					messageId: MESSAGE_ID_REMOVE_WHITESPACES,
+					messageId: MESSAGE_ID_REMOVE_WHITESPACE,
 					data: {
 						original: unknown,
-						fix: withoutWhitespaces,
+						fix: withoutWhitespace,
 						message: parseTodoMessage(comment.value)
 					}
 				});
@@ -526,8 +526,8 @@ module.exports = {
 				'There is a TODO match for package version: {{comparison}}. {{message}}',
 			[MESSAGE_ID_ENGINE_MATCHES]:
 				'There is a TODO match for Node.js version: {{comparison}}. {{message}}',
-			[MESSAGE_ID_REMOVE_WHITESPACES]:
-				'Avoid using whitespaces on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
+			[MESSAGE_ID_REMOVE_WHITESPACE]:
+				'Avoid using whitespace on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
 			[MESSAGE_ID_MISSING_AT_SYMBOL]:
 				'Missing \'@\' on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
 			...baseRule.meta.messages

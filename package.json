@@ -39,7 +39,7 @@
 		"eslint-template-visitor": "^2.2.1",
 		"eslint-utils": "^2.1.0",
 		"import-modules": "^2.0.0",
-		"lodash": "^4.17.15",
+		"lodash": "^4.17.20",
 		"pluralize": "^8.0.0",
 		"read-pkg-up": "^7.0.1",
 		"regexp-tree": "^0.1.21",
@@ -49,26 +49,26 @@
 	},
 	"devDependencies": {
 		"@ava/babel": "^1.0.1",
-		"@babel/code-frame": "7.10.3",
+		"@babel/code-frame": "7.10.4",
 		"@lubien/fixture-beta-package": "^1.0.0-beta.1",
-		"@typescript-eslint/parser": "^3.4.0",
-		"ava": "^3.9.0",
+		"@typescript-eslint/parser": "^4.0.1",
+		"ava": "^3.12.1",
 		"babel-eslint": "^10.1.0",
 		"chalk": "^4.1.0",
-		"eslint": "^7.3.0",
+		"eslint": "^7.8.0",
 		"eslint-ava-rule-tester": "^4.0.0",
 		"eslint-plugin-eslint-plugin": "^2.3.0",
-		"execa": "^4.0.2",
+		"execa": "^4.0.3",
 		"listr": "^0.14.3",
 		"nyc": "^15.1.0",
 		"outdent": "^0.7.1",
 		"pify": "^5.0.0",
-		"typescript": "^3.9.5",
+		"typescript": "^4.0.2",
 		"vue-eslint-parser": "^7.1.0",
-		"xo": "^0.32.0"
+		"xo": "^0.33.1"
 	},
 	"peerDependencies": {
-		"eslint": ">=7.3.0"
+		"eslint": ">=7.8.0"
 	},
 	"ava": {
 		"babel": true,
