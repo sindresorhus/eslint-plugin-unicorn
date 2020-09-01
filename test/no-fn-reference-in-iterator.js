@@ -105,8 +105,10 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 
 		// #813
 		outdent`
-			const clientId = 20
-			const client = await oidc.Client.find(clientId)
+			async function foo() {
+				const clientId = 20
+				const client = await oidc.Client.find(clientId)
+			}
 		`,
 
 		// #755
@@ -287,6 +289,60 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 				}
 			]
 		},
+
+		// `await`
+		invalidTestCase({
+			code: outdent`
+				const fn = async () => {
+					await Promise.all(foo.map(toPromise));
+				}
+			`,
+			method: 'map',
+			name: 'toPromise',
+			suggestions: [
+				outdent`
+					const fn = async () => {
+						await Promise.all(foo.map((element) => toPromise(element)));
+					}
+				`,
+				outdent`
+					const fn = async () => {
+						await Promise.all(foo.map((element, index) => toPromise(element, index)));
+					}
+				`,
+				outdent`
+					const fn = async () => {
+						await Promise.all(foo.map((element, index, array) => toPromise(element, index, array)));
+					}
+				`,
+			]
+		}),
+		invalidTestCase({
+			code: outdent`
+				async function fn() {
+					for await (const foo of bar.map(toPromise)) {}
+				}
+			`,
+			method: 'map',
+			name: 'toPromise',
+			suggestions: [
+				outdent`
+					async function fn() {
+						for await (const foo of bar.map((element) => toPromise(element))) {}
+					}
+				`,
+				outdent`
+					async function fn() {
+						for await (const foo of bar.map((element, index) => toPromise(element, index))) {}
+					}
+				`,
+				outdent`
+					async function fn() {
+						for await (const foo of bar.map((element, index, array) => toPromise(element, index, array))) {}
+					}
+				`,
+			]
+		}),
 
 		// #418
 		invalidTestCase({
