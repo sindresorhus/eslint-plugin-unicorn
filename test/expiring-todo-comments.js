@@ -48,8 +48,8 @@ const missingAtSymbolError = (bad, good, message) => ({
 	message: `Missing '@' on TODO argument. On '${bad}' use '${good}'. ${message}`
 });
 
-const noWarningCommentError = () => ({
-	message: 'Unexpected \'todo\' comment.'
+const noWarningCommentError = comment => ({
+	message: `Unexpected 'todo' comment: '${comment}'.`
 });
 
 ruleTester.run('expiring-todo-comments', rule, {
@@ -277,37 +277,37 @@ ruleTester.run('expiring-todo-comments', rule, {
 		},
 		{
 			code: '// TODO',
-			errors: [noWarningCommentError()],
+			errors: [noWarningCommentError('TODO')],
 			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO []',
-			errors: [noWarningCommentError()],
+			errors: [noWarningCommentError('TODO []')],
 			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [no meaning at all]',
-			errors: [noWarningCommentError()],
+			errors: [noWarningCommentError('TODO [no meaning at all]')],
 			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [] might have [some] that [try [to trick] me]',
-			errors: [noWarningCommentError()],
+			errors: [noWarningCommentError('TODO [] might have [some] that [try [to...')],
 			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [but [it will]] [fallback] [[[ to the default ]]] rule [[[',
-			errors: [noWarningCommentError()],
+			errors: [noWarningCommentError('TODO [but [it will]] [fallback] [[[ to...')],
 			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [engine:npm@>=10000]: Unsupported engine',
-			errors: [noWarningCommentError()],
+			errors: [noWarningCommentError('TODO [engine:npm@>=10000]: Unsupported...')],
 			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [engine:somethingrandom@>=10000]: Unsupported engine',
-			errors: [noWarningCommentError()],
+			errors: [noWarningCommentError('TODO [engine:somethingrandom@>=10000]:...')],
 			options: [{allowWarningComments: false}]
 		},
 		{
@@ -371,7 +371,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 			code: '// TODO [ISSUE-123] fix later',
 			options: [{allowWarningComments: false, ignore: []}],
 			errors: [
-				noWarningCommentError()
+				noWarningCommentError('TODO [ISSUE-123] fix later')
 			]
 		},
 		{
@@ -381,7 +381,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 			`,
 			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}],
 			errors: [
-				noWarningCommentError()
+				noWarningCommentError('TODO fix later')
 			]
 		},
 		{
@@ -391,7 +391,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 			*/`,
 			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}],
 			errors: [
-				noWarningCommentError()
+				noWarningCommentError('TODO Invalid')
 			]
 		}
 	]
