@@ -14,7 +14,12 @@ const ruleTester = avaRuleTester(test, {
 const babelRuleTester = avaRuleTester(test, {
 	parser: require.resolve('@babel/eslint-parser'),
 	parserOptions: {
-		requireConfigFile: false
+		requireConfigFile: false,
+		babelOptions: {
+			plugins: [
+				'classProperties'
+			]
+		}
 	}
 });
 const typescriptRuleTester = avaRuleTester(test, {
