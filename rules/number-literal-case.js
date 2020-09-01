@@ -1,13 +1,17 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const fix = (value, isBigInt) => {
-	value = value.toLowerCase();
-	if (value.startsWith('0x')) {
-		value = '0x' + value.slice(2).toUpperCase();
+const fix = (raw, isBigInt) => {
+	let fixed = raw.toLowerCase();
+	if (fixed.startsWith('0x')) {
+		fixed = '0x' + fixed.slice(2).toUpperCase();
+
+		if (isBigInt) {
+			fixed = fixed.slice(0, -1) + 'n';
+		}
 	}
 
-	return `${value}${isBigInt ? 'n' : ''}`;
+	return fixed;
 };
 
 const create = context => {
@@ -20,7 +24,7 @@ const create = context => {
 				return;
 			}
 
-			const fixed = fix(isBigInt ? bigint : raw, isBigInt);
+			const fixed = fix(raw, isBigInt);
 
 			if (raw !== fixed) {
 				context.report({
