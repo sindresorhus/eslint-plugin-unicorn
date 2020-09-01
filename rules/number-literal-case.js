@@ -2,15 +2,13 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const fix = (raw, isBigInt) => {
-	let fixed = raw;
-
-	fixed = fixed.toLowerCase();
+	let fixed = raw.toLowerCase();
 	if (fixed.startsWith('0x')) {
 		fixed = '0x' + fixed.slice(2).toUpperCase();
-	}
 
-	if (isBigInt) {
-		fixed = fixed.slice(0, -1) + 'n';
+		if (isBigInt) {
+			fixed = fixed.slice(0, -1) + 'n';
+		}
 	}
 
 	return fixed;
