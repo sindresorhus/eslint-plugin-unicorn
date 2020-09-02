@@ -6,7 +6,7 @@ import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 
@@ -172,7 +172,7 @@ ruleTester.run('no-object-as-default-parameter', rule, {
 
 const visualizeTester = visualizeRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 

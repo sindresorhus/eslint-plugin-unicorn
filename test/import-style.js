@@ -7,7 +7,7 @@ import visualizeRuleTester from './utils/visualize-rule-tester';
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
 		sourceType: 'module',
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 
@@ -585,7 +585,7 @@ ruleTester.run('import-style', rule, {
 const visualizeTester = visualizeRuleTester(test, {
 	parserOptions: {
 		sourceType: 'module',
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 

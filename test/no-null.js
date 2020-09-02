@@ -9,7 +9,7 @@ const SUGGESTION_REMOVE_MESSAGE_ID = 'remove';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020,
+		ecmaVersion: 2021,
 		sourceType: 'module'
 	}
 });

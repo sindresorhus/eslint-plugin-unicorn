@@ -14,7 +14,7 @@ const SUGGESTION_LOGICAL_OR_OPERATOR = 'suggest-logical-or-operator';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020,
+		ecmaVersion: 2021,
 		sourceType: 'module'
 	}
 });

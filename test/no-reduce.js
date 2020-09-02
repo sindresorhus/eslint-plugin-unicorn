@@ -10,7 +10,7 @@ const MESSAGE_ID_REDUCE_RIGHT = 'reduceRight';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 

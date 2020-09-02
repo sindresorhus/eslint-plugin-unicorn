@@ -8,7 +8,7 @@ const messageId = 'no-useless-undefined';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 
@@ -242,7 +242,7 @@ typescriptRuleTester.run('no-useless-undefined', rule, {
 
 const visualizeTester = visualizeRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 

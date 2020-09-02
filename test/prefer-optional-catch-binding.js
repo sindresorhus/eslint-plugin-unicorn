@@ -8,7 +8,7 @@ const generateError = name => ({messageId: ERROR_MESSAGE_ID, data: {name}});
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 
