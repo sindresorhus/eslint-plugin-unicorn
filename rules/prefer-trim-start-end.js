@@ -14,7 +14,7 @@ const selector = methodSelector({
 
 const messages = {};
 for (const [method, replacement] of methods.entries()) {
-	messages[method] = `Prefer \`String#${method}()\` over \`String#${replacement}()\`.`;
+	messages[method] = `Prefer \`String#${replacement}()\` over \`String#${method}()\`.`;
 }
 
 const create = context => {
