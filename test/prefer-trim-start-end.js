@@ -8,15 +8,7 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const errorTrimLeft = {
-	messageId: 'trimLeft'
-};
-
-const errorTrimRight = {
-	messageId: 'trimRight'
-};
-
-ruleTester.run('prefer-flat-map', rule, {
+ruleTester.run('prefer-trim-start-end', rule, {
 	valid: [
 		'foo.trimStart()',
 		'foo.trimEnd()',
@@ -38,17 +30,12 @@ ruleTester.run('prefer-flat-map', rule, {
 		{
 			code: 'foo.trimLeft()',
 			output: 'foo.trimStart()',
-			errors: [errorTrimLeft]
+			errors: ['Prefer `String#trimStart()` over `String#trimLeft()`.']
 		},
 		{
 			code: 'foo.trimRight()',
 			output: 'foo.trimEnd()',
-			errors: [errorTrimRight]
-		},
-		{
-			code: '"foo".trimLeft()',
-			output: '"foo".trimStart()',
-			errors: [errorTrimLeft]
+			errors: ['Prefer `String#trimEnd()` over `String#trimRight()`.']
 		}
 	]
 });
