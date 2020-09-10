@@ -94,6 +94,9 @@ const defaultReplacements = {
 	err: {
 		error: true
 	},
+	ev: {
+		event: true
+	},
 	evt: {
 		event: true
 	},

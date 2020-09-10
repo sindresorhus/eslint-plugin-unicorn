@@ -11,7 +11,7 @@ const doesNotContain = (string, characters) => characters.every(character => !st
 
 const isSimpleString = string => doesNotContain(
 	string,
-	['^', '$', '+', '[', '{', '(', '\\', '.', '?', '*']
+	['^', '$', '+', '[', '{', '(', '\\', '.', '?', '*', '|']
 );
 
 const regexTestSelector = [
