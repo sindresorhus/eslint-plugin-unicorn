@@ -7,7 +7,7 @@ const ERROR_MESSAGE_ID = 'error';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 

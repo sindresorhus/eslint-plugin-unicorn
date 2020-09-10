@@ -7,7 +7,7 @@ import visualizeRuleTester from './utils/visualize-rule-tester';
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
 		sourceType: 'module',
-		ecmaVersion: 2020,
+		ecmaVersion: 2021,
 		ecmaFeatures: {
 			jsx: true
 		}
@@ -652,7 +652,7 @@ typescriptRuleTester.run('consistent-function-scoping', rule, {
 const visualizeTester = visualizeRuleTester(test, {
 	parserOptions: {
 		sourceType: 'module',
-		ecmaVersion: 2020,
+		ecmaVersion: 2021,
 		ecmaFeatures: {
 			jsx: true
 		}

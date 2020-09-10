@@ -26,7 +26,7 @@ Configure it in `package.json`.
 			"es6": true
 		},
 		"parserOptions": {
-			"ecmaVersion": 2020,
+			"ecmaVersion": 2021,
 			"sourceType": "module"
 		},
 		"plugins": [
