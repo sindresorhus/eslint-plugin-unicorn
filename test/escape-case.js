@@ -11,7 +11,7 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [
 	{
-		message: 'Use uppercase characters for the value of the escape sequence.'
+		messageId: 'escape-case'
 	}
 ];
 
