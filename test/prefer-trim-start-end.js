@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 import rule from '../rules/prefer-trim-start-end';
 
 const ruleTester = avaRuleTester(test, {
@@ -52,3 +53,9 @@ ruleTester.run('prefer-trim-start-end', rule, {
 		}
 	]
 });
+
+const visualizeTester = visualizeRuleTester(test);
+visualizeTester.run('prefer-trim-start-end', rule, [
+	'foo.trimLeft()',
+	'foo.trimRight()'
+]);
