@@ -16,7 +16,7 @@ const errorTrimRight = {
 	messageId: 'trimRight'
 };
 
-ruleTester.run('prefer-flat-map', rule, {
+ruleTester.run('prefer-trim-start-end', rule, {
 	valid: [
 		'foo.trimStart()',
 		'foo.trimEnd()',
