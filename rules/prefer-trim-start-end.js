@@ -23,7 +23,7 @@ const create = context => {
 			const {property} = node.callee;
 			const method = property.name;
 			context.report({
-				node,
+				node: property,
 				messageId: method,
 				fix: fixer => fixer.replaceText(property, methods.get(method))
 			});
