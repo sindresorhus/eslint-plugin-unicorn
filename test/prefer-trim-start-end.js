@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {outdent} from 'outdent';
 import visualizeRuleTester from './utils/visualize-rule-tester';
 import rule from '../rules/prefer-trim-start-end';
 
@@ -50,6 +51,23 @@ ruleTester.run('prefer-trim-start-end', rule, {
 			code: '"foo".trimLeft()',
 			output: '"foo".trimStart()',
 			errors: [errorTrimLeft]
+		},
+		{
+			code: outdent`
+				foo
+					// comment
+					.trimRight/* comment */(
+						/* comment */
+					)
+			`,
+			output: outdent`
+				foo
+					// comment
+					.trimEnd/* comment */(
+						/* comment */
+					)
+			`,
+			errors: [errorTrimRight]
 		}
 	]
 });
@@ -57,5 +75,11 @@ ruleTester.run('prefer-trim-start-end', rule, {
 const visualizeTester = visualizeRuleTester(test);
 visualizeTester.run('prefer-trim-start-end', rule, [
 	'foo.trimLeft()',
-	'foo.trimRight()'
+	outdent`
+		foo
+			// comment
+			.trimRight/* comment */(
+				/* comment */
+			)
+	`
 ]);
