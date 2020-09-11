@@ -34,7 +34,11 @@ ruleTester.run('prefer-trim-start-end', rule, {
 		'foo.bar();',
 		// More argument(s)
 		'foo.trimLeft(extra);',
-		'foo.trimLeft(...argumentsArray)'
+		'foo.trimLeft(...argumentsArray)',
+		// `trimStart` is argument
+		'foo.bar(trimStart)',
+		// `trimStart` is not `MemberExpression.object`
+		`trimStart.foo()`
 	],
 	invalid: [
 		{
