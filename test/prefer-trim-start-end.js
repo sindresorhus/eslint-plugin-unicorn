@@ -35,10 +35,12 @@ ruleTester.run('prefer-trim-start-end', rule, {
 		// More argument(s)
 		'foo.trimLeft(extra);',
 		'foo.trimLeft(...argumentsArray)',
-		// `trimLeft` is argument
+		// `trimLeft` is in argument
 		'foo.bar(trimLeft)',
-		// `trimLeft` is not `MemberExpression.object`
-		'trimLeft.foo()'
+		'foo.bar(foo.trimLeft)',
+		// `trimLeft` is in `MemberExpression.object`
+		'trimLeft.foo()',
+		'foo.trimLeft.bar()'
 	],
 	invalid: [
 		{
@@ -54,6 +56,11 @@ ruleTester.run('prefer-trim-start-end', rule, {
 		{
 			code: 'trimLeft.trimRight()',
 			output: 'trimLeft.trimEnd()',
+			errors: [errorTrimRight]
+		},
+		{
+			code: 'foo.trimLeft.trimRight()',
+			output: 'foo.trimLeft.trimEnd()',
 			errors: [errorTrimRight]
 		},
 		{
