@@ -9,6 +9,7 @@ const numberRegex = /\d+/;
 const PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
 const PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
 const isIgnoredChar = char => !/^[a-z\d-_$]$/i.test(char);
+const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue']);
 
 function ignoreNumbers(fn) {
 	return string => {
@@ -159,7 +160,7 @@ const create = context => {
 			const filename = path.basename(filenameWithExtension, extension);
 			const base = filename + extension;
 
-			if (base === 'index.js' || ignore.some(regexp => regexp.test(base))) {
+			if (ignoredByDefault.has(base) || ignore.some(regexp => regexp.test(base))) {
 				return;
 			}
 
