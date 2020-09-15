@@ -60,6 +60,7 @@
 		"eslint-plugin-eslint-plugin": "^2.3.0",
 		"execa": "^4.0.3",
 		"listr": "^0.14.3",
+		"mem": "6.1.1",
 		"nyc": "^15.1.0",
 		"outdent": "^0.7.1",
 		"pify": "^5.0.0",
