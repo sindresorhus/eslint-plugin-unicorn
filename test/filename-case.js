@@ -1,5 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {flatten} from 'lodash';
 import rule from '../rules/filename-case';
 
 const ruleTester = avaRuleTester(test, {
@@ -73,7 +74,6 @@ ruleTester.run('filename-case', rule, {
 		testCase('spec/Iss47Spec.js', 'pascalCase'),
 		testCase('spec/Iss47.100Spec.js', 'pascalCase'),
 		testCase('spec/I18n.js', 'pascalCase'),
-		testCase('spec/index.js', 'pascalCase'),
 		testCase(undefined, 'camelCase'),
 		testCase(undefined, 'snakeCase'),
 		testCase(undefined, 'kebabCase'),
@@ -239,7 +239,13 @@ ruleTester.run('filename-case', rule, {
 				},
 				ignore: [/FOOBAR\.js/u, /BaRbAz\.js/u]
 			}
-		])
+		]),
+		// Ignored
+		...flatten(
+			['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue'].map(
+				filename => ['camelCase', 'snakeCase', 'kebabCase', 'pascalCase'].map(chosenCase => testCase(filename, chosenCase))
+			)
+		)
 	],
 	invalid: [
 		testCase(
