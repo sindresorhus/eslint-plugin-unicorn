@@ -114,11 +114,7 @@ module.exports = [
 			...typescriptArguments,
 
 			'--ignore-pattern',
-			'examples/**',
-
-			// These files use `>` in jsx
-			'--ignore-pattern',
-			'test/integration/**'
+			'examples/**'
 		]
 	},
 	{
