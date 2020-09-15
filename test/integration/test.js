@@ -6,6 +6,7 @@ const Listr = require('listr');
 const execa = require('execa');
 const chalk = require('chalk');
 const {isCI} = require('ci-info');
+const mem = require('mem');
 const allProjects = require('./projects');
 
 const projectsArguments = process.argv.slice(2);
@@ -80,6 +81,8 @@ const makeEslintTask = (project, destination) => {
 	});
 };
 
+const getBranch = mem(async dirname => (await execa('git', ['branch', '--show-current'], {cwd: dirname})).stdout);
+
 const execute = project => {
 	const destination = path.join(__dirname, 'fixtures', project.name);
 
@@ -136,7 +139,7 @@ const list = new Listr([
 });
 
 list.run()
-	.catch(error => {
+	.catch(async error => {
 		if (error.errors) {
 			for (const error2 of error.errors) {
 				console.error('\n', chalk.red.bold.underline(error2.packageName), chalk.gray('(' + error2.cliArgs.join(' ') + ')'));
@@ -149,9 +152,10 @@ list.run()
 				if (error2.eslintMessage) {
 					const {file, project, destination} = error2.eslintJob;
 					const {line} = error2.eslintMessage;
+					// eslint-disable-next-line no-await-in-loop
+					const branch = await getBranch(destination);
 
-					// TODO: The default branch of `next.js` is not master, find a way to link to the default branch
-					console.error(chalk.gray(`${project.repository}/tree/master/${path.relative(destination, file.filePath)}#L${line}`));
+					console.error(chalk.gray(`${project.repository}/tree/${branch}/${path.relative(destination, file.filePath)}#L${line}`));
 					console.error(chalk.gray(JSON.stringify(error2.eslintMessage, undefined, 2)));
 				}
 			}
