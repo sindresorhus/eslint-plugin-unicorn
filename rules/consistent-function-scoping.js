@@ -153,17 +153,16 @@ const create = context => {
 	const {scopeManager} = sourceCode;
 
 	const functions = [];
-	let hasJsx = false;
 
 	return {
-		'ArrowFunctionExpression, FunctionDeclaration': node => functions.push(node),
+		'ArrowFunctionExpression, FunctionDeclaration': () => functions.push(false),
 		JSXElement: () => {
 			// Turn off this rule if we see a JSX element because scope
 			// references does not include JSXElement nodes.
-			hasJsx = true;
+			functions[functions.length - 1] = true;
 		},
 		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
-			if (!hasJsx && !checkNode(node, scopeManager)) {
+			if (!functions[functions.length - 1] && !checkNode(node, scopeManager)) {
 				context.report({
 					node,
 					loc: getFunctionHeadLocation(node, sourceCode),
@@ -175,9 +174,6 @@ const create = context => {
 			}
 
 			functions.pop();
-			if (functions.length === 0) {
-				hasJsx = false;
-			}
 		}
 	};
 };

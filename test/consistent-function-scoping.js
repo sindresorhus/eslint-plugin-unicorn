@@ -192,6 +192,15 @@ ruleTester.run('consistent-function-scoping', rule, {
 				return Bar;
 			};
 		`,
+		// Functions that could be extracted are conservatively ignored due to JSX masking references
+		outdent`
+				function Foo() {
+					function Bar () {
+						return <div />
+					}
+					return <div>{ Bar() }</div>
+				}
+		`,
 		// `this`
 		outdent`
 			function doFoo(Foo) {
@@ -594,6 +603,32 @@ ruleTester.run('consistent-function-scoping', rule, {
 				)
 			`,
 			errors: [createError('function \'baz\'')]
+		},
+		{
+			code: outdent`
+				function Foo() {
+					const Bar = <div />
+					function doBaz() {
+						return 42
+					}
+					return <div>{ doBaz() }</div>
+				}
+			`,
+			errors: [createError('function \'doBaz\'')]
+		},
+		{
+			code: outdent`
+				function Foo() {
+					function Bar () {
+						return <div />
+					}
+					function doBaz() {
+						return 42
+					}
+					return <div>{ doBaz() }</div>
+				}
+			`,
+			errors: [createError('function \'doBaz\'')]
 		}
 	]
 });
