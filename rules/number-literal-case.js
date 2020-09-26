@@ -1,14 +1,10 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const fix = (raw, isBigInt) => {
+const fix = raw => {
 	let fixed = raw.toLowerCase();
 	if (fixed.startsWith('0x')) {
 		fixed = '0x' + fixed.slice(2).toUpperCase();
-
-		if (isBigInt) {
-			fixed = fixed.slice(0, -1) + 'n';
-		}
 	}
 
 	return fixed;
@@ -18,13 +14,13 @@ const create = context => {
 	return {
 		Literal: node => {
 			const {value, raw, bigint} = node;
-			const isBigInt = Boolean(bigint);
 
-			if (typeof value !== 'number' && !isBigInt) {
-				return;
+			let fixed = raw;
+			if (typeof value === 'number') {
+				fixed = fix(raw);
+			} else if (bigint) {
+				fixed = fix(raw.slice(0, -1)) + 'n';
 			}
-
-			const fixed = fix(raw, isBigInt);
 
 			if (raw !== fixed) {
 				context.report({
