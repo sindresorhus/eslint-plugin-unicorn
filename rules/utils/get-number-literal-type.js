@@ -9,10 +9,6 @@ function getNumberLiteralType(node) {
 		return;
 	}
 
-	if (node.bigint) {
-		return 'bigint';
-	}
-
 	if (node.raw.startsWith('0x')) {
 		return 'hexadecimal';
 	}
@@ -23,6 +19,10 @@ function getNumberLiteralType(node) {
 
 	if (node.raw.startsWith('0o')) {
 		return 'octal';
+	}
+
+	if (node.bigint) {
+		return 'bigint';
 	}
 
 	if (typeof node.value === 'number') {

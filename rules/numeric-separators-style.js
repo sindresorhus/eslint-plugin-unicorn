@@ -77,6 +77,9 @@ function getFixedValue(notation, string, {minimumThreshold, preferedGroupLength}
 	if (wholePart) {
 		if (wholePart.length < minimumThreshold) {
 			numberGroups[0] = [wholePart];
+		} else if (wholePart.endsWith('n')) {
+			numberGroups[0] = getChunks(wholePart.replace('n', ''), preferedGroupLength, false);
+			numberGroups[0][numberGroups[0].length - 1] += 'n';
 		} else {
 			numberGroups[0] = getChunks(wholePart, preferedGroupLength, false);
 		}

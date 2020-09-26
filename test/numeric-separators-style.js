@@ -65,6 +65,14 @@ ruleTester.run('numeric-separators-style', rule, {
 			options: [{binary: {minimumThreshold: 0, preferedGroupLength: 4}}]
 		},
 		{
+			code: 'var foo = 0b1010n',
+			options: [{binary: {minimumThreshold: 0, preferedGroupLength: 4}, bigint: {minimumThreshold: 5, preferedGroupLength: 3}}],
+		},
+		{
+			code: 'var foo = 0b1010_1010n',
+			options: [{binary: {minimumThreshold: 0, preferedGroupLength: 4}, bigint: {minimumThreshold: 5, preferedGroupLength: 3}}],
+		},
+		{
 			code: 'var foo = 9_223_372_036_854_775_807n',
 			options: [{bigint: {minimumThreshold: 5, preferedGroupLength: 3}}]
 		},
