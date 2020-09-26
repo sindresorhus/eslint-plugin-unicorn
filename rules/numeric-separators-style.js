@@ -102,11 +102,11 @@ function getFixedValue(notation, string, {minimumThreshold, preferedGroupLength}
 
 const create = context => ({
 	Literal: node => {
-		if (['number', 'bigint'].includes(typeof node.value) || node.bigint) {
+		if (typeof node.value === 'number' || node.bigint) {
 			const literalType = getNumberLiteralType(node);
 			const options = context.options[0] ? context.options[0][literalType] : defaultOptions[literalType];
 
-			const notation = literalNotations[getNumberLiteralType(node)];
+			const notation = literalNotations[literalType];
 			const unseparated = node.raw.replace(/_/g, '');
 			const fixed = getFixedValue(notation, unseparated, options);
 
