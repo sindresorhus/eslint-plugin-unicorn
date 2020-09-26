@@ -63,8 +63,8 @@ function parseNumber(string) {
 	const powerPart = groups.filter(grp => grp.startsWith('e'));
 	return {
 		wholePart: wholePart.shift(),
-		decimalPart: decimalPart.shift()?.slice(1),
-		powerPart: powerPart.shift()?.slice(1)
+		decimalPart: decimalPart.shift().slice(1),
+		powerPart: powerPart.shift().slice(1)
 	};
 }
 
@@ -104,7 +104,7 @@ const create = context => ({
 	Literal: node => {
 		if (['number', 'bigint'].includes(typeof node.value)) {
 			const literalType = getNumberLiteralType(node);
-			const options = context.options[0]?.[literalType] || defaultOptions[literalType];
+			const options = context.options[0] ? context.options[0][literalType] : defaultOptions[literalType];
 
 			const notation = literalNotations[getNumberLiteralType(node)];
 			const unseparated = node.raw.replace(/_/g, '');
