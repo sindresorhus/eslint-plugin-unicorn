@@ -62,7 +62,7 @@ function parseNumber(string) {
 	const decimalPart = groups.find(grp => grp.startsWith('.'));
 	const powerPart = groups.find(grp => grp.startsWith('e'));
 	return {
-		wholePart: wholePart,
+		wholePart,
 		decimalPart: decimalPart ? decimalPart.slice(1) : undefined,
 		powerPart: powerPart ? powerPart.slice(1) : undefined
 	};
