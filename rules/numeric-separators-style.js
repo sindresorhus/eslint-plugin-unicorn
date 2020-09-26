@@ -58,9 +58,9 @@ function getChunks(string, size, restAtEnd) {
 
 function parseNumber(string) {
 	const groups = string.split(/(?=\.|e)/);
-	const wholePart = groups.filter(grp => !grp.startsWith('.') && !grp.startsWith('e')).shift();
-	const decimalPart = groups.filter(grp => grp.startsWith('.')).shift();
-	const powerPart = groups.filter(grp => grp.startsWith('e')).shift();
+	const wholePart = groups.find(grp => !grp.startsWith('.') && !grp.startsWith('e'));
+	const decimalPart = groups.find(grp => grp.startsWith('.'));
+	const powerPart = groups.find(grp => grp.startsWith('e'));
 	return {
 		wholePart: wholePart,
 		decimalPart: decimalPart ? decimalPart.slice(1) : undefined,
