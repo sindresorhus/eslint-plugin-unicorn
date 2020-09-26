@@ -5,7 +5,7 @@
  * @returns {undefined|"bigint"|"hexadecimal"|"binary"|"octal"|"number"}
  */
 function getNumberLiteralType(node) {
-	if (!node?.type === 'Literal' || ['number', 'bigint'].includes(typeof node.value)) {
+	if (!node?.type === 'Literal' || !['number', 'bigint'].includes(typeof node.value)) {
 		return;
 	}
 
