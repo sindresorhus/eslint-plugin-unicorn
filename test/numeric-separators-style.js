@@ -130,28 +130,28 @@ ruleTester.run('numeric-separators-style', rule, {
 		},
 		{
 			code: 'var foo = 1e10_000',
-			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}],
+			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}]
 		},
 		{
 			code: 'var foo = 39_804e1000',
-			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}],
+			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}]
 		},
 		{
 			code: 'var foo = -123_456e100',
-			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}],
+			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}]
 		},
 		{
 			code: 'var foo = 3.6e12_000',
-			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}],
+			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}]
 		},
 		{
 			code: 'var foo = -1_200_000e5',
-			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}],
+			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}]
 		},
 		{
 			code: 'var foo = -282_932 - (1938 / 10_000) * .1 + 18.100_000_2',
-			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}],
-		},
+			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}]
+		}
 	],
 	invalid: [
 		{
@@ -303,6 +303,6 @@ ruleTester.run('numeric-separators-style', rule, {
 			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}],
 			errors: [error],
 			output: 'var foo = -1_200_000e5'
-		},
+		}
 	]
 });
