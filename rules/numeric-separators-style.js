@@ -102,7 +102,7 @@ function getFixedValue(notation, string, {minimumThreshold, preferedGroupLength}
 
 const create = context => ({
 	Literal: node => {
-		if (['number', 'bigint'].includes(typeof node.value)) {
+		if (['number', 'bigint'].includes(typeof node.value) || node.bigint) {
 			const literalType = getNumberLiteralType(node);
 			const options = context.options[0] ? context.options[0][literalType] : defaultOptions[literalType];
 
