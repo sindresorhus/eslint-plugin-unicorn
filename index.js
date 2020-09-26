@@ -49,6 +49,7 @@ module.exports = {
 				'unicorn/no-useless-undefined': 'error',
 				'unicorn/no-zero-fractions': 'error',
 				'unicorn/number-literal-case': 'error',
+				'unicorn/numeric-separators-style': 'error',
 				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/prefer-array-find': 'error',
 				'unicorn/prefer-dataset': 'error',
