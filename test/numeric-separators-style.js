@@ -141,6 +141,10 @@ ruleTester.run('numeric-separators-style', rule, {
 			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}]
 		},
 		{
+			code: 'var foo = -100_000e-100',
+			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}]
+		},
+		{
 			code: 'var foo = 3.6e12_000',
 			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}]
 		},
@@ -291,6 +295,12 @@ ruleTester.run('numeric-separators-style', rule, {
 			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}],
 			errors: [error],
 			output: 'var foo = -123_456e100'
+		},
+		{
+			code: 'var foo = -100000e-10000',
+			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}],
+			errors: [error],
+			output: 'var foo = -100_000e-10_000'
 		},
 		{
 			code: 'var foo = 3.6e12000',
