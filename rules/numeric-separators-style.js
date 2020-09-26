@@ -90,8 +90,11 @@ function getFixedValue(notation, string, {minimumThreshold, preferedGroupLength}
 	}
 
 	if (powerPart) {
-		if (powerPart.length < minimumThreshold) {
+		if (powerPart.replace('-', '').length < minimumThreshold) {
 			powerGroups.push(powerPart);
+		} else if (powerPart.startsWith('-')) {
+			powerGroups.push(...getChunks(powerPart.replace('-', ''), preferedGroupLength, false));
+			powerGroups[0] = '-' + powerGroups[0];
 		} else {
 			powerGroups.push(...getChunks(powerPart, preferedGroupLength, false));
 		}

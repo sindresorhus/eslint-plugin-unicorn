@@ -145,11 +145,11 @@ ruleTester.run('numeric-separators-style', rule, {
 			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}]
 		},
 		{
-			code: 'var foo = -123_456e100',
+			code: 'var foo = -123_456e-100',
 			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}]
 		},
 		{
-			code: 'var foo = -100_000e-100',
+			code: 'var foo = -100_000e-100_000',
 			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}]
 		},
 		{
