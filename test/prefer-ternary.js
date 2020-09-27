@@ -710,7 +710,7 @@ ruleTester.run('prefer-ternary', rule, {
 					throw error_;
 				}
 			`,
-			errors: errors
+			errors
 		},
 		// Multiple nested
 		// This will fix one by one, see next test
@@ -775,7 +775,7 @@ ruleTester.run('prefer-ternary', rule, {
 					}
 				}
 			`,
-			errors: errors
+			errors
 		},
 		// Need `{}`
 		{
@@ -788,7 +788,7 @@ ruleTester.run('prefer-ternary', rule, {
 				 throw error;
 				}
 			`,
-			errors: errors
+			errors
 		}
 	]
 });
