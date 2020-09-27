@@ -61,6 +61,10 @@ ruleTester.run('numeric-separators-style', rule, {
 			options: [{octal: {minimumDigits: 0, preferedGroupLength: 4}}]
 		},
 		{
+			code: 'var foo = 0999999',
+			options: [{octal: {minimumDigits: 0, preferedGroupLength: 4}}]
+		},
+		{
 			code: 'var foo = 0111222',
 			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}]
 		},
@@ -106,6 +110,10 @@ ruleTester.run('numeric-separators-style', rule, {
 		},
 		{
 			code: 'var foo = 9807n',
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}]
+		},
+		{
+			code: 'var foo = 0n',
 			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}]
 		},
 		{
@@ -186,6 +194,14 @@ ruleTester.run('numeric-separators-style', rule, {
 		},
 		{
 			code: 'var foo = -282_932 - (1938 / 10_000) * .1 + 18.100_000_2',
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}]
+		},
+		{
+			code: 'var foo = NaN',
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}]
+		},
+		{
+			code: 'var foo = Infinity',
 			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}]
 		}
 	],
@@ -305,6 +321,24 @@ ruleTester.run('numeric-separators-style', rule, {
 			output: 'var foo = .000_000_1'
 		},
 		{
+			code: 'var foo = 12345678..toSting()',
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}],
+			errors: [error],
+			output: 'var foo = 12_345_678..toSting()'
+		},
+		{
+			code: 'var foo = 12345678 .toSting()',
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}],
+			errors: [error],
+			output: 'var foo = 12_345_678 .toSting()'
+		},
+		{
+			code: 'var foo = .00000',
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}],
+			errors: [error],
+			output: 'var foo = .000_00'
+		},
+		{
 			code: 'var foo = -100000_1',
 			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}],
 			errors: [error],
@@ -339,6 +373,12 @@ ruleTester.run('numeric-separators-style', rule, {
 			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}],
 			errors: [error],
 			output: 'var foo = -1000e+10_000'
+		},
+		{
+			code: 'var foo = -1000e+00010000',
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}],
+			errors: [error],
+			output: 'var foo = -1000e+00_010_000'
 		},
 		{
 			code: 'var foo = 3.6e12000',

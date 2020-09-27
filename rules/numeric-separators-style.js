@@ -115,7 +115,8 @@ function getProperties(minimumDigits, preferedGroupLength) {
 				type: 'number',
 				default: preferedGroupLength
 			}
-		}
+		},
+		additionalProperties: false
 	};
 }
 
@@ -126,7 +127,8 @@ const schema = [{
 		binary: getProperties(0, 4),
 		octal: getProperties(0, 4),
 		number: getProperties(5, 3)
-	}
+	},
+	additionalProperties: false
 }];
 
 module.exports = {
