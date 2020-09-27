@@ -4,11 +4,11 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const getNumberLiteralType = require('./utils/get-number-literal-type');
 
 const defaultOptions = {
-	hexadecimal: {minimumThreshold: 0, preferedGroupLength: 2},
-	binary: {minimumThreshold: 0, preferedGroupLength: 4},
-	octal: {minimumThreshold: 0, preferedGroupLength: 4},
-	bigint: {minimumThreshold: 5, preferedGroupLength: 3},
-	number: {minimumThreshold: 5, preferedGroupLength: 3}
+	hexadecimal: {minimumDigits: 0, preferedGroupLength: 2},
+	binary: {minimumDigits: 0, preferedGroupLength: 4},
+	octal: {minimumDigits: 0, preferedGroupLength: 4},
+	bigint: {minimumDigits: 5, preferedGroupLength: 3},
+	number: {minimumDigits: 5, preferedGroupLength: 3}
 };
 
 const literalNotations = {
@@ -79,7 +79,7 @@ function parseNumber(string, isHex) {
 	};
 }
 
-function getFixedValue(notation, string, {minimumThreshold, preferedGroupLength}) {
+function getFixedValue(notation, string, {minimumDigits, preferedGroupLength}) {
 	string = removeLiteralNotation(notation, string);
 	const {wholePart, decimalPart, exp} = parseNumber(string, notation === literalNotations.hexadecimal);
 	const {powerPart, e} = exp;
@@ -87,7 +87,7 @@ function getFixedValue(notation, string, {minimumThreshold, preferedGroupLength}
 	const powerGroups = [];
 
 	if (wholePart) {
-		if (wholePart.length < minimumThreshold) {
+		if (wholePart.length < minimumDigits) {
 			numberGroups[0] = [wholePart];
 		} else if (wholePart.endsWith('n')) {
 			numberGroups[0] = getChunks(wholePart.replace('n', ''), preferedGroupLength, false);
@@ -102,7 +102,7 @@ function getFixedValue(notation, string, {minimumThreshold, preferedGroupLength}
 	}
 
 	if (powerPart) {
-		if (powerPart.replace('-', '').length < minimumThreshold) {
+		if (powerPart.replace('-', '').length < minimumDigits) {
 			powerGroups.push(powerPart);
 		} else if (powerPart.startsWith('-')) {
 			powerGroups.push(...getChunks(powerPart.replace('-', ''), preferedGroupLength, false));

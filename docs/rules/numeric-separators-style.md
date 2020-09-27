@@ -36,7 +36,7 @@ If you want a custom group size for a specific number type, you can specify it h
 There are 5 options, `hexadecimal`, `binary`, `octals`, `bigint`, `number`, which all
 refer to their corresponging type. Each of them has to be associated with an object
 containing 2 fields:
-- `minimumThreshold`: It has to be a number. It corresponds to the threshold of digits in
+- `minimumDigits`: It has to be a number. It corresponds to the threshold of digits in
 a number, where you shouldn't use numeric separator. For example, if you put 5 as the minimum
 threshold, then `1024` will pass because it has 4 digits, and `1_024` will fail. However
 `1_000_000` will still pass and `1000000` will still fail.
@@ -45,13 +45,13 @@ the size of the first one (which can be of any size as long as it is equal to or
 the number specified here).
 
 ```js
-// eslint unicorn/numeric-separators-style: ["error", {number: {minimumThreshold: 0, preferedGroupLength: 3}}]
+// eslint unicorn/numeric-separators-style: ["error", {number: {minimumDigits: 0, preferedGroupLength: 3}}]
 const foo = 100; // pass
 const foo = 1_000; // pass
 const foo = 1_000_000; // pass
 const foo = 0.000_0001; // fail
 
-// eslint unicorn/numeric-separators-style: ["error", {octal: {minimumThreshold: 0, preferedGroupLength3}}]
+// eslint unicorn/numeric-separators-style: ["error", {octal: {minimumDigits: 0, preferedGroupLength3}}]
 const foo = 0o123; // pass
 const foo = 0o1_123; // pass
 const foo = 0o1123; // fail
@@ -61,10 +61,10 @@ const foo = 0o123456; // fail
 The default is
 ```js
 {
-	hexadecimal: {minimumThreshold: 0, preferedGroupLength: 2},
-	binary: {minimumThreshold: 0, preferedGroupLength: 4},
-	octal: {minimumThreshold: 0, preferedGroupLength: 4},
-	bigint: {minimumThreshold: 5, preferedGroupLength: 3},
-	number: {minimumThreshold: 5, preferedGroupLength: 3}
+	hexadecimal: {minimumDigits: 0, preferedGroupLength: 2},
+	binary: {minimumDigits: 0, preferedGroupLength: 4},
+	octal: {minimumDigits: 0, preferedGroupLength: 4},
+	bigint: {minimumDigits: 5, preferedGroupLength: 3},
+	number: {minimumDigits: 5, preferedGroupLength: 3}
 };
 ```
