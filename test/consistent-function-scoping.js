@@ -661,7 +661,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 					function foo() {}
 				}
 			`,
-			errors: ['b', 'c', 'foo'].map(functionName => createError(`function \'${functionName}\'`))
+			errors: ['b', 'c', 'foo'].map(functionName => createError(`function '${functionName}'`))
 		}
 	]
 });
