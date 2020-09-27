@@ -156,13 +156,13 @@ const create = context => {
 	let hasJsx = false;
 
 	return {
-		'ArrowFunctionExpression, FunctionDeclaration': node => functions.push(node),
+		':function': node => functions.push(node),
 		JSXElement: () => {
 			// Turn off this rule if we see a JSX element because scope
 			// references does not include JSXElement nodes.
 			hasJsx = true;
 		},
-		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
+		':function:exit': node => {
 			if (!hasJsx && !checkNode(node, scopeManager)) {
 				context.report({
 					node,
