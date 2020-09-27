@@ -30,10 +30,23 @@ const foo = 1_294_287_712n;
 
 If you want a custom group size for a specific number type, you can specify it here.
 
-There are 4 options, `hexadecimal`, `binary`, `octals`, `number`, which all refer to their corresponding type. Each of them has to be associated with an object
+There are 4 options, `hexadecimal`, `binary`, `octal`, `number`, which all refer to their corresponding type. Each of them has to be associated with an object
 containing 2 fields:
-- `minimumDigits`: It has to be a number. It corresponds to the threshold of digits in a number, where you shouldn't use numeric separator. For example, if you put 5 as the minimum threshold, then `1024` will pass because it has 4 digits, and `1_024` will fail. However `1_000_000` will still pass and `1000000` will still fail.
-- `preferedGroupLength`: It has to be a number. It is the size of a group, if we don't count the size of the first one (which can be of any size as long as it is equal to or less than the number specified here).
+
+**`minimumDigits`**
+
+Type: `number`
+The minimum of digits in a number, where you shouldn't use numeric separator.
+
+Example: With 5 as the minimum digits, `1024` will pass because it has 4 digits, and `1_024` will fail.
+
+**`preferedGroupLength`**
+
+Type: `number`
+The size a group should be.
+The size of the first group can be of any length as long as it is equal to or less than the number specified here
+
+### Examples
 
 ```js
 // eslint unicorn/numeric-separators-style: ["error", {number: {minimumDigits: 0, preferedGroupLength: 3}}]
@@ -49,7 +62,7 @@ const foo = 0o1123; // Fail
 const foo = 0o123456; // Fail
 ```
 
-The default is:
+### Default
 
 ```js
 {
