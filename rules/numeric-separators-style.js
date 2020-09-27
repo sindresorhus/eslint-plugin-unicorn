@@ -19,6 +19,10 @@ const literalNotations = {
 	number: ''
 };
 
+function isLegacyOctal(node) {
+	return getNumberLiteralType(node) === 'number' && node.raw.startsWith('0');
+}
+
 const chunkString = (string, size) => chunk(string, size).map(elt => elt.join(''));
 
 function addLiteralNotation(notation, string) {
@@ -108,7 +112,7 @@ function getFixedValue(notation, string, {minimumThreshold, preferedGroupLength}
 
 const create = context => ({
 	Literal: node => {
-		if (typeof node.value === 'number' || node.bigint) {
+		if ((typeof node.value === 'number' || node.bigint) && !isLegacyOctal(node)) {
 			const literalType = getNumberLiteralType(node);
 			const options = context.options[0] ? context.options[0][literalType] : defaultOptions[literalType];
 

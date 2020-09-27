@@ -49,6 +49,14 @@ ruleTester.run('numeric-separators-style', rule, {
 			options: [{octal: {minimumThreshold: 0, preferedGroupLength: 4}}]
 		},
 		{
+			code: 'var foo = 0777777',
+			options: [{octal: {minimumThreshold: 0, preferedGroupLength: 4}}]
+		},
+		{
+			code: 'var foo = 0111222',
+			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}]
+		},
+		{
 			code: 'var foo = 0b1010_0001_1000_0101',
 			options: [{binary: {minimumThreshold: 0, preferedGroupLength: 4}}]
 		},
