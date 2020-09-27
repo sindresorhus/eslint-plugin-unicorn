@@ -106,6 +106,21 @@ const defaultReplacements = {
 	exts: {
 		extensions: true
 	},
+	fn: {
+		function: true
+	},
+	func: {
+		function: true
+	},
+	i: {
+		index: true
+	},
+	idx: {
+		index: true
+	},
+	j: {
+		index: true
+	},
 	len: {
 		length: true
 	},
