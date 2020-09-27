@@ -339,6 +339,12 @@ ruleTester.run('numeric-separators-style', rule, {
 			output: 'var foo = .000_00'
 		},
 		{
+			code: 'var foo = 0.00000',
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}],
+			errors: [error],
+			output: 'var foo = 0.000_00'
+		},
+		{
 			code: 'var foo = -100000_1',
 			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}],
 			errors: [error],
