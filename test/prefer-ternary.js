@@ -776,6 +776,19 @@ ruleTester.run('prefer-ternary', rule, {
 				}
 			`,
 			errors: errors
+		},
+		// Need `{}`
+		{
+			code: outdent`
+				while (foo) if (test) {throw a} else {throw b}
+			`,
+			output: outdent`
+				while (foo) {
+				 const error = test ? a : b;
+				 throw error;
+				}
+			`,
+			errors: errors
 		}
 	]
 });

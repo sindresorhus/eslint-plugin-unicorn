@@ -81,7 +81,8 @@ const create = context => {
 			before = '',
 			after = ';',
 			consequent,
-			alternate
+			alternate,
+			node
 		} = options;
 
 		const {
@@ -108,7 +109,8 @@ const create = context => {
 				before: `${before}return `,
 				after,
 				consequent: consequent.argument === null ? 'undefined' : consequent.argument,
-				alternate: alternate.argument === null ? 'undefined' : alternate.argument
+				alternate: alternate.argument === null ? 'undefined' : alternate.argument,
+				node
 			});
 		}
 
@@ -122,7 +124,8 @@ const create = context => {
 				before: `${before}yield${consequent.delegate ? '*' : ''} (`,
 				after: `)${after}`,
 				consequent: consequent.argument === null ? 'undefined' : consequent.argument,
-				alternate: alternate.argument === null ? 'undefined' : alternate.argument
+				alternate: alternate.argument === null ? 'undefined' : alternate.argument,
+				node
 			});
 		}
 
@@ -135,7 +138,8 @@ const create = context => {
 				before: `${before}await (`,
 				after: `)${after}`,
 				consequent: consequent.argument,
-				alternate: alternate.argument
+				alternate: alternate.argument,
+				node
 			});
 		}
 
@@ -146,10 +150,14 @@ const create = context => {
 			!isTernary(alternate.argument)
 		) {
 			// `ThrowStatement` don't check nested
+
+			// If `IfStatement` is not a `BlockStatement`, need add `{}`
+			const {parent} = node;
+			const needBraces = parent && parent.type !== 'BlockStatement';
 			return {
 				type,
-				before: `${before}const {{ERROR_NAME}} = `,
-				after: ';\n{{INDENT_STRING}}throw {{ERROR_NAME}};',
+				before: `${before}${needBraces ? '{\n{{INDENT_STRING}}' : ''}const {{ERROR_NAME}} = `,
+				after: `;\n{{INDENT_STRING}}throw {{ERROR_NAME}};${needBraces ? '\n}' : ''}`,
 				consequent: consequent.argument,
 				alternate: alternate.argument
 			};
@@ -168,7 +176,8 @@ const create = context => {
 				before: `${before}${sourceCode.getText(consequent.left)} ${consequent.operator} `,
 				after,
 				consequent: consequent.right,
-				alternate: alternate.right
+				alternate: alternate.right,
+				node
 			});
 		}
 
@@ -180,7 +189,7 @@ const create = context => {
 			const consequent = getNodeBody(node.consequent);
 			const alternate = getNodeBody(node.alternate);
 
-			const result = merge({consequent, alternate}, {
+			const result = merge({node, consequent, alternate}, {
 				checkThrowStatement: true,
 				returnFalseIfNotMergeable: true
 			});
@@ -225,7 +234,9 @@ const create = context => {
 						after = after
 							.replace('{{INDENT_STRING}}', indentString)
 							.replace('{{ERROR_NAME}}', errorName);
-						before = before.replace('{{ERROR_NAME}}', errorName);
+						before = before
+							.replace('{{INDENT_STRING}}', indentString)
+							.replace('{{ERROR_NAME}}', errorName);
 						generateNewVariables = true;
 					}
 
