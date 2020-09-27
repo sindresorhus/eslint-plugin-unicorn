@@ -1,6 +1,7 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
 const {flatten} = require('lodash');
+const FixTracker = require('eslint/lib/rules/utils/fix-tracker');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
 
@@ -189,6 +190,7 @@ const create = context => {
 			}
 
 			const scope = context.getScope();
+			const sourceCode = context.getSourceCode();
 
 			context.report({
 				node,
@@ -204,6 +206,7 @@ const create = context => {
 
 					let {type, before, after} = result;
 
+					let generateNewVariables = false;
 					if (type === 'ThrowStatement') {
 						const scopes = getScopes(scope);
 						const errorName = avoidCapture('error', scopes, context.parserOptions.ecmaVersion, isSafeName);
@@ -223,10 +226,17 @@ const create = context => {
 							.replace('{{INDENT_STRING}}', indentString)
 							.replace('{{ERROR_NAME}}', errorName);
 						before = before.replace('{{ERROR_NAME}}', errorName);
+						generateNewVariables = true;
 					}
 
 					const fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
-					return fixer.replaceText(node, fixed);
+					if (!generateNewVariables) {
+						return fixer.replaceText(node, fixed);
+					}
+
+					return new FixTracker(fixer, sourceCode)
+						.retainRange(sourceCode.ast.range)
+						.replaceTextRange(node.range, fixed);
 				}
 			});
 		}

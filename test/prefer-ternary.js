@@ -656,6 +656,7 @@ ruleTester.run('prefer-ternary', rule, {
 			errors
 		},
 		// Multiple
+		// This will fix one by one, see next test
 		{
 			code: outdent`
 				function unicorn() {
@@ -677,13 +678,42 @@ ruleTester.run('prefer-ternary', rule, {
 					const error = test ? a : b;
 					throw error;
 
-					const error_ = test ? a : b;
-					throw error_;
+					if (test) {
+						throw a;
+					} else {
+						throw b;
+					}
 				}
 			`,
 			errors: [...errors, ...errors]
 		},
+		// This `code` is `output` from previous test
+		{
+			code: outdent`
+				function unicorn() {
+					const error = test ? a : b;
+					throw error;
+
+					if (test) {
+						throw a;
+					} else {
+						throw b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					const error = test ? a : b;
+					throw error;
+
+					const error_ = test ? a : b;
+					throw error_;
+				}
+			`,
+			errors: errors
+		},
 		// Multiple nested
+		// This will fix one by one, see next test
 		{
 			code: outdent`
 				function outer() {
@@ -708,12 +738,44 @@ ruleTester.run('prefer-ternary', rule, {
 					throw error;
 
 					function inner() {
+						if (test) {
+							throw a;
+						} else {
+							throw b;
+						}
+					}
+				}
+			`,
+			errors: [...errors, ...errors]
+		},
+		// This `code` is `output` from previous test
+		{
+			code: outdent`
+				function outer() {
+					const error = test ? a : b;
+					throw error;
+
+					function inner() {
+						if (test) {
+							throw a;
+						} else {
+							throw b;
+						}
+					}
+				}
+			`,
+			output: outdent`
+				function outer() {
+					const error = test ? a : b;
+					throw error;
+
+					function inner() {
 						const error_ = test ? a : b;
 						throw error_;
 					}
 				}
 			`,
-			errors: [...errors, ...errors]
+			errors: errors
 		}
 	]
 });
