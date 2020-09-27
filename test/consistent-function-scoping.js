@@ -192,6 +192,9 @@ ruleTester.run('consistent-function-scoping', rule, {
 				return Bar;
 			};
 		`,
+		outdent`
+			const foo = <JSX/>;
+		`,
 		// Functions that could be extracted are conservatively ignored due to JSX masking references
 		outdent`
 				function Foo() {

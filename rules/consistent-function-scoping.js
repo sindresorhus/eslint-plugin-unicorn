@@ -161,7 +161,9 @@ const create = context => {
 		JSXElement: () => {
 			// Turn off this rule if we see a JSX element because scope
 			// references does not include JSXElement nodes.
-			functions[functions.length - 1] = true;
+			if (functions.length !== 0) {
+				functions[functions.length - 1] = true;
+			}
 		},
 		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
 			const lastFunction = functions.pop();
