@@ -155,14 +155,17 @@ const create = context => {
 	const functions = [];
 
 	return {
-		'ArrowFunctionExpression, FunctionDeclaration': () => functions.push(false),
+		'ArrowFunctionExpression, FunctionDeclaration': () => {
+			functions.push(false);
+		},
 		JSXElement: () => {
 			// Turn off this rule if we see a JSX element because scope
 			// references does not include JSXElement nodes.
 			functions[functions.length - 1] = true;
 		},
 		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
-			if (!functions[functions.length - 1] && !checkNode(node, scopeManager)) {
+			const lastFunction = functions.pop();
+			if (!lastFunction && !checkNode(node, scopeManager)) {
 				context.report({
 					node,
 					loc: getFunctionHeadLocation(node, sourceCode),
@@ -172,8 +175,6 @@ const create = context => {
 					}
 				});
 			}
-
-			functions.pop();
 		}
 	};
 };
