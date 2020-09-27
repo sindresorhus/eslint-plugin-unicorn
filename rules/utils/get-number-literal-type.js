@@ -1,9 +1,11 @@
 'use strict';
+
 /**
- * Return the type of the number in the node
- * @param {Node} node - The node to check. Its type must be "Literal", and its value must be a number.
- * @returns {undefined|"bigint"|"hexadecimal"|"binary"|"octal"|"number"}
- */
+Return the type of the number in the node
+
+@param {Node} node - The node to check. Its type must be `Literal` and its value must be a number.
+@returns {undefined | 'bigint' | 'hexadecimal' | 'binary' | 'octal' | 'number'}
+*/
 function getNumberLiteralType(node) {
 	if (!node || node.type !== 'Literal' || (typeof node.value !== 'number' && !node.bigint)) {
 		return;
