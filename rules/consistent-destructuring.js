@@ -20,20 +20,21 @@ const memberSelector = [
 	')'
 ].join('');
 
-const isFunctionCall = expression => {
+const isSimpleExpression = expression => {
 	while (expression) {
-		if (expression.type === 'CallExpression') {
-			return true;
+		if (expression.computed) {
+			return false;
 		}
 
 		if (expression.type !== 'MemberExpression') {
-			return false;
+			break;
 		}
 
 		expression = expression.object;
 	}
 
-	return false;
+	return expression.type === 'Identifier' ||
+		expression.type === 'ThisExpression';
 };
 
 const isChildInParentScope = (child, parent) => {
@@ -70,7 +71,8 @@ const create = context => {
 
 	return {
 		[declaratorSelector]: node => {
-			if (isFunctionCall(node.init)) {
+			// Ignore any complex expressions (e.g. arrays, functions)
+			if (!isSimpleExpression(node.init)) {
 				return;
 			}
 
