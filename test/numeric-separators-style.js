@@ -33,6 +33,10 @@ ruleTester.run('numeric-separators-style', rule, {
 			options: [{hexadecimal: {minimumThreshold: 0, preferedGroupLength: 2}}]
 		},
 		{
+			code: 'var foo = 0xab_e8_12',
+			options: [{hexadecimal: {minimumThreshold: 0, preferedGroupLength: 2}}]
+		},
+		{
 			code: 'var foo = 0o1234_5670',
 			options: [{octal: {minimumThreshold: 0, preferedGroupLength: 4}}]
 		},
@@ -162,6 +166,10 @@ ruleTester.run('numeric-separators-style', rule, {
 		},
 		{
 			code: 'var foo = 3.6e12_000',
+			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}]
+		},
+		{
+			code: 'var foo = 3.6E12_000',
 			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}]
 		},
 		{
@@ -329,6 +337,12 @@ ruleTester.run('numeric-separators-style', rule, {
 			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}],
 			errors: [error],
 			output: 'var foo = -1_200_000e5'
+		},
+		{
+			code: 'var foo = 3.65432E12000',
+			options: [{number: {minimumThreshold: 5, preferedGroupLength: 3}}],
+			errors: [error],
+			output: 'var foo = 3.654_32E12_000'
 		}
 	]
 });

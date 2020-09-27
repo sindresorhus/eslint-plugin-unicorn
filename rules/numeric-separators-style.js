@@ -60,21 +60,29 @@ function getChunks(string, size, restAtEnd) {
 	return chunks;
 }
 
-function parseNumber(string) {
-	const groups = string.split(/(?=\.|e)/);
-	const wholePart = groups.find(grp => !grp.startsWith('.') && !grp.startsWith('e'));
+function parseNumber(string, isHex) {
+	const groups = isHex ? [string] : string.split(/(?=\.|e|E)/);
+	const wholePart = groups.find(grp => !grp.startsWith('.') && !grp.toLowerCase().startsWith('e'));
 	const decimalPart = groups.find(grp => grp.startsWith('.'));
-	const powerPart = groups.find(grp => grp.startsWith('e'));
+	const powerPartLowercase = groups.find(grp => grp.startsWith('e'));
+	const powerPartUppercase = groups.find(grp => grp.startsWith('E'));
+	const powerPart = powerPartLowercase || powerPartUppercase;
 	return {
 		wholePart,
 		decimalPart: decimalPart ? decimalPart.slice(1) : undefined,
-		powerPart: powerPart ? powerPart.slice(1) : undefined
+		exp: {
+			powerPart: powerPart ? powerPart.slice(1) : undefined,
+			e: powerPart ?
+				(powerPart === powerPartUppercase ? 'E' : 'e') :
+				undefined
+		}
 	};
 }
 
 function getFixedValue(notation, string, {minimumThreshold, preferedGroupLength}) {
 	string = removeLiteralNotation(notation, string);
-	const {wholePart, decimalPart, powerPart} = parseNumber(string);
+	const {wholePart, decimalPart, exp} = parseNumber(string, notation === literalNotations.hexadecimal);
+	const {powerPart, e} = exp;
 	const numberGroups = [];
 	const powerGroups = [];
 
@@ -106,7 +114,7 @@ function getFixedValue(notation, string, {minimumThreshold, preferedGroupLength}
 
 	const base = numberGroups.map(part => part.join('_')).join('.');
 
-	const power = powerGroups.length > 0 ? 'e' + powerGroups.join('_') : '';
+	const power = powerGroups.length > 0 ? e + powerGroups.join('_') : '';
 	return addLiteralNotation(notation, base + power);
 }
 
