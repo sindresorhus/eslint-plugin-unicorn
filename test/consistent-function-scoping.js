@@ -201,6 +201,20 @@ ruleTester.run('consistent-function-scoping', rule, {
 					return <div>{ Bar() }</div>
 				}
 		`,
+		outdent`
+			function foo() {
+				function bar() {
+					return <JSX a={foo()}/>;
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				function bar() {
+					return <JSX/>;
+				}
+			}
+		`,
 		// `this`
 		outdent`
 			function doFoo(Foo) {
@@ -629,6 +643,22 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 			`,
 			errors: [createError('function \'doBaz\'')]
+		},
+		// JSX
+		{
+			code: outdent`
+				function fn1() {
+					function a() {
+						return <JSX a={b()}/>;
+					}
+					function b() {}
+					function c() {}
+				}
+				function fn2() {
+					function foo() {}
+				}
+			`,
+			errors: ['b', 'c', 'foo'].map(functionName => createError(`function \'${functionName}\'`))
 		}
 	]
 });
