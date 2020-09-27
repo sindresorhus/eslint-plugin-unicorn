@@ -8,6 +8,7 @@ const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';
 const declaratorSelector = [
 	'VariableDeclarator',
 	'[id.type="ObjectPattern"]',
+	'[init]',
 	'[init.type!="Literal"]'
 ].join('');
 
