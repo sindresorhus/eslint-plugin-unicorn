@@ -3,47 +3,16 @@ const {chunk, last} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const getNumberLiteralType = require('./utils/get-number-literal-type');
 
-const defaultOptions = {
-	hexadecimal: {minimumDigits: 0, preferedGroupLength: 2},
-	binary: {minimumDigits: 0, preferedGroupLength: 4},
-	octal: {minimumDigits: 0, preferedGroupLength: 4},
-	bigint: {minimumDigits: 5, preferedGroupLength: 3},
-	number: {minimumDigits: 5, preferedGroupLength: 3}
-};
-
-const literalNotations = {
-	hexadecimal: '0x',
-	binary: '0b',
-	octal: '0o',
-	bigint: 'n',
-	number: ''
-};
-
 function isLegacyOctal(node) {
 	return getNumberLiteralType(node) === 'number' && node.raw.startsWith('0');
 }
 
+function hasPrefix(raw) {
+	const rawLower = raw.toLowerCase();
+	return rawLower.startsWith('0x') || rawLower.startsWith('0b') || rawLower.startsWith('0o');
+}
+
 const chunkString = (string, size) => chunk(string, size).map(elt => elt.join(''));
-
-function addLiteralNotation(notation, string) {
-	if (notation === '') {
-		return string;
-	}
-
-	return notation === 'n' ?
-		string + notation :
-		notation + string;
-}
-
-function removeLiteralNotation(notation, string) {
-	if (notation === '') {
-		return string;
-	}
-
-	return notation === 'n' ?
-		string.replace(new RegExp(notation + '$'), '') :
-		string.replace(notation, '');
-}
 
 function getChunks(string, size, restAtEnd) {
 	let chunks = chunkString(string, size);
@@ -60,73 +29,60 @@ function getChunks(string, size, restAtEnd) {
 	return chunks;
 }
 
-function parseNumber(string, isHex) {
-	const groups = isHex ? [string] : string.split(/(?=\.|e|E)/);
-	const wholePart = groups.find(grp => !grp.startsWith('.') && !grp.toLowerCase().startsWith('e'));
-	const decimalPart = groups.find(grp => grp.startsWith('.'));
-	const powerPartLowercase = groups.find(grp => grp.startsWith('e'));
-	const powerPartUppercase = groups.find(grp => grp.startsWith('E'));
-	const powerPart = powerPartLowercase || powerPartUppercase;
-	return {
-		wholePart,
-		decimalPart: decimalPart ? decimalPart.slice(1) : undefined,
-		exp: {
-			powerPart: powerPart ? powerPart.slice(1) : undefined,
-			e: powerPart ?
-				(powerPart === powerPartUppercase ? 'E' : 'e') :
-				undefined
-		}
-	};
+function format(string, options, restAtEnd) {
+	if (string.includes('.')) {
+		const [lhs, rhs] = string.split('.');
+		let formattedLhs = lhs.length > 0 ? format(lhs, options, false) : '';
+		let formattedRhs = format(rhs, options, true);
+		return `${formattedLhs}.${formattedRhs}`;
+	}
+
+	if (string.startsWith('-') || string.startsWith('+')) {
+		const sign = string.slice(0, 1);
+		const numberPart = string.slice(1);
+		return sign + format(numberPart, options, restAtEnd);
+	}
+
+	if (string.length >= options.minimumDigits) {
+		return getChunks(string, options.preferedGroupLength, restAtEnd).join('_');
+	}
+
+	return string;
 }
 
-function getFixedValue(notation, string, {minimumDigits, preferedGroupLength}) {
-	string = removeLiteralNotation(notation, string);
-	const {wholePart, decimalPart, exp} = parseNumber(string, notation === literalNotations.hexadecimal);
-	const {powerPart, e} = exp;
-	const numberGroups = [];
-	const powerGroups = [];
+function getFixedValue(raw, node, options) {
+	if (node.bigint) {
+		raw = raw.replace('n', '');
+	}
 
-	if (wholePart) {
-		if (wholePart.length < minimumDigits) {
-			numberGroups[0] = [wholePart];
-		} else if (wholePart.endsWith('n')) {
-			numberGroups[0] = getChunks(wholePart.replace('n', ''), preferedGroupLength, false);
-			numberGroups[0][numberGroups[0].length - 1] += 'n';
+	let final = '';
+
+	if (hasPrefix(raw)) {
+		const prefix = raw.slice(0, 2);
+		const dataPart = raw.slice(2);
+		const formatted = format(dataPart, options, false);
+		final = prefix + formatted;
+	} else {
+		const [numberPart, powerPart] = raw.split(/e|E/);
+		if (powerPart) {
+			const e = raw.includes('E') ? 'E' : 'e';
+			final = format(numberPart, options, false) + e + format(powerPart, options, false);
 		} else {
-			numberGroups[0] = getChunks(wholePart, preferedGroupLength, false);
+			final = format(numberPart, options, false);
 		}
 	}
 
-	if (decimalPart) {
-		numberGroups[1] = getChunks(decimalPart, preferedGroupLength, true);
-	}
-
-	if (powerPart) {
-		if (powerPart.replace('-', '').length < minimumDigits) {
-			powerGroups.push(powerPart);
-		} else if (powerPart.startsWith('-')) {
-			powerGroups.push(...getChunks(powerPart.replace('-', ''), preferedGroupLength, false));
-			powerGroups[0] = '-' + powerGroups[0];
-		} else {
-			powerGroups.push(...getChunks(powerPart, preferedGroupLength, false));
-		}
-	}
-
-	const base = numberGroups.map(part => part.join('_')).join('.');
-
-	const power = powerGroups.length > 0 ? e + powerGroups.join('_') : '';
-	return addLiteralNotation(notation, base + power);
+	return node.bigint ? final + 'n' : final;
 }
 
 const create = context => ({
 	Literal: node => {
 		if ((typeof node.value === 'number' || node.bigint) && !isLegacyOctal(node)) {
-			const literalType = getNumberLiteralType(node);
-			const options = context.options[0] ? context.options[0][literalType] : defaultOptions[literalType];
+			const literalType = getNumberLiteralType(node) === 'bigint' ? 'number' : getNumberLiteralType(node);
+			const options = context.options[0][literalType];
 
-			const notation = literalNotations[literalType];
 			const unseparated = node.raw.replace(/_/g, '');
-			const fixed = getFixedValue(notation, unseparated, options);
+			const fixed = getFixedValue(unseparated, node, options);
 
 			if (node.raw !== fixed) {
 				context.report({
@@ -139,6 +95,32 @@ const create = context => ({
 	}
 });
 
+function getProperties(minimumDigits, preferedGroupLength) {
+	return {
+		type: 'object',
+		properties: {
+			minimumDigits: {
+				type: 'number',
+				default: minimumDigits
+			},
+			preferedGroupLength: {
+				type: 'number',
+				default: preferedGroupLength
+			}
+		}
+	};
+}
+
+const schema = [{
+	type: 'object',
+	properties: {
+		hexadecimal: getProperties(0, 2),
+		binary: getProperties(0, 4),
+		octal: getProperties(0, 4),
+		number: getProperties(5, 3)
+	}
+}];
+
 module.exports = {
 	create,
 	meta: {
@@ -146,6 +128,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		schema
 	}
 };

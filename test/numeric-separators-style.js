@@ -37,6 +37,10 @@ ruleTester.run('numeric-separators-style', rule, {
 			options: [{hexadecimal: {minimumDigits: 0, preferedGroupLength: 2}}]
 		},
 		{
+			code: 'var foo = 0xe',
+			options: [{hexadecimal: {minimumDigits: 0, preferedGroupLength: 2}}]
+		},
+		{
 			code: 'var foo = 0o1234_5670',
 			options: [{octal: {minimumDigits: 0, preferedGroupLength: 4}}]
 		},
@@ -78,31 +82,31 @@ ruleTester.run('numeric-separators-style', rule, {
 		},
 		{
 			code: 'var foo = 0b1010n',
-			options: [{binary: {minimumDigits: 0, preferedGroupLength: 4}, bigint: {minimumDigits: 5, preferedGroupLength: 3}}]
+			options: [{binary: {minimumDigits: 0, preferedGroupLength: 4}, number: {minimumDigits: 5, preferedGroupLength: 3}}]
 		},
 		{
 			code: 'var foo = 0b1010_1010n',
-			options: [{binary: {minimumDigits: 0, preferedGroupLength: 4}, bigint: {minimumDigits: 5, preferedGroupLength: 3}}]
+			options: [{binary: {minimumDigits: 0, preferedGroupLength: 4}, number: {minimumDigits: 5, preferedGroupLength: 3}}]
 		},
 		{
 			code: 'var foo = 9_223_372_036_854_775_807n',
-			options: [{bigint: {minimumDigits: 5, preferedGroupLength: 3}}]
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}]
 		},
 		{
 			code: 'var foo = 807n',
-			options: [{bigint: {minimumDigits: 5, preferedGroupLength: 3}}]
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}]
 		},
 		{
 			code: 'var foo = 1n',
-			options: [{bigint: {minimumDigits: 5, preferedGroupLength: 3}}]
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}]
 		},
 		{
 			code: 'var foo = 9_372_854_807n',
-			options: [{bigint: {minimumDigits: 5, preferedGroupLength: 3}}]
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}]
 		},
 		{
 			code: 'var foo = 9807n',
-			options: [{bigint: {minimumDigits: 5, preferedGroupLength: 3}}]
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}]
 		},
 		{
 			code: 'var foo = 12_345_678',
@@ -162,6 +166,10 @@ ruleTester.run('numeric-separators-style', rule, {
 		},
 		{
 			code: 'var foo = -100_000e-100_000',
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}]
+		},
+		{
+			code: 'var foo = -100_000e+100_000',
 			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}]
 		},
 		{
@@ -238,19 +246,19 @@ ruleTester.run('numeric-separators-style', rule, {
 		},
 		{
 			code: 'var foo = 1_9_223n',
-			options: [{bigint: {minimumDigits: 5, preferedGroupLength: 3}}],
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}],
 			errors: [error],
 			output: 'var foo = 19_223n'
 		},
 		{
 			code: 'var foo = 80_7n',
-			options: [{bigint: {minimumDigits: 5, preferedGroupLength: 3}}],
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}],
 			errors: [error],
 			output: 'var foo = 807n'
 		},
 		{
 			code: 'var foo = 123456789_100n',
-			options: [{bigint: {minimumDigits: 5, preferedGroupLength: 3}}],
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}],
 			errors: [error],
 			output: 'var foo = 123_456_789_100n'
 		},
@@ -325,6 +333,12 @@ ruleTester.run('numeric-separators-style', rule, {
 			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}],
 			errors: [error],
 			output: 'var foo = -100_000e-10_000'
+		},
+		{
+			code: 'var foo = -1000e+10000',
+			options: [{number: {minimumDigits: 5, preferedGroupLength: 3}}],
+			errors: [error],
+			output: 'var foo = -1000e+10_000'
 		},
 		{
 			code: 'var foo = 3.6e12000',

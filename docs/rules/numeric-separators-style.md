@@ -33,7 +33,7 @@ const foo = 1_294_287_712n;
 
 If you want a custom group size for a specific number type, you can specify it here.
 
-There are 5 options, `hexadecimal`, `binary`, `octals`, `bigint`, `number`, which all
+There are 4 options, `hexadecimal`, `binary`, `octals`, `number`, which all
 refer to their corresponging type. Each of them has to be associated with an object
 containing 2 fields:
 - `minimumDigits`: It has to be a number. It corresponds to the threshold of digits in
@@ -64,7 +64,6 @@ The default is
 	hexadecimal: {minimumDigits: 0, preferedGroupLength: 2},
 	binary: {minimumDigits: 0, preferedGroupLength: 4},
 	octal: {minimumDigits: 0, preferedGroupLength: 4},
-	bigint: {minimumDigits: 5, preferedGroupLength: 3},
 	number: {minimumDigits: 5, preferedGroupLength: 3}
 };
 ```
