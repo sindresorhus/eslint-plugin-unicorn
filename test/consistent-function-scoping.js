@@ -747,5 +747,12 @@ visualizeTester.run('consistent-function-scoping', rule, [
 		function foo() {
 			const bar = async () => {}
 		}
+	`,
+	outdent`
+		function doFoo() {
+			const doBar = function(bar) {
+				return bar;
+			};
+		}
 	`
 ]);
