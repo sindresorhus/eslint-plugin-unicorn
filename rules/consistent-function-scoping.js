@@ -166,8 +166,8 @@ const create = context => {
 			}
 		},
 		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
-			const lastFunction = functions.pop();
-			if (!lastFunction && !checkNode(node, scopeManager)) {
+			const currentFunctionHasJsx = functions.pop();
+			if (!currentFunctionHasJsx && !checkNode(node, scopeManager)) {
 				context.report({
 					node,
 					loc: getFunctionHeadLocation(node, sourceCode),
