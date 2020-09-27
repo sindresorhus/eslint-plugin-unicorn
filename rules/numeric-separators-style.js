@@ -12,7 +12,7 @@ function hasPrefix(raw) {
 	return rawLower.startsWith('0x') || rawLower.startsWith('0b') || rawLower.startsWith('0o');
 }
 
-const chunkString = (string, size) => chunk(string, size).map(elt => elt.join(''));
+const chunkString = (string, size) => chunk(string, size).map(group => group.join(''));
 
 function getChunks(string, size, restAtEnd) {
 	let chunks = chunkString(string, size);
