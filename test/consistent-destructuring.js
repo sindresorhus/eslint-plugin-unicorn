@@ -85,6 +85,62 @@ ruleTester.run('consistent-destructuring', rule, {
 			console.log(null);
 		`,
 		outdent`
+			const {a} = foo[bar];
+			console.log(foo[bar].a);
+		`,
+		outdent`
+			const {a} = foo[bar].baz;
+			console.log(foo[bar].baz.a);
+		`,
+		outdent`
+			const {a} = (foo, bar);
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = [foo, bar];
+			console.log([foo, bar].a);
+		`,
+		outdent`
+			const {a} = {foo: bar};
+			console.log({foo: bar}.a);
+		`,
+		outdent`
+			const {a} = function foo() {};
+			console.log((function foo() {}).a);
+		`,
+		outdent`
+			const {a} = foo => {};
+			console.log((foo => {}).a);
+		`,
+		outdent`
+			const {a} = !foo;
+			console.log((!foo).a);
+		`,
+		outdent`
+			const {a} = foo++;
+			console.log((foo++).a);
+		`,
+		outdent`
+			const {a} = foo == bar;
+			console.log((foo == bar).a);
+		`,
+		outdent`
+			const {a} = foo && bar;
+			console.log((foo && bar).a);
+		`,
+		outdent`
+			const {a} = foo = bar;
+			console.log((foo = bar).a);
+		`,
+		outdent`
+			const {a} = foo ? bar : baz;
+			console.log((foo ? bar : baz).a);
+		`,
+		outdent`
+			const {a} = new foo;
+			console.log((new foo).a);
+		`,
+		outdent`
 			const {a} = foo;
 			delete foo.a;
 		`,
