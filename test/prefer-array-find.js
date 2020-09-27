@@ -14,7 +14,7 @@ const SUGGESTION_LOGICAL_OR_OPERATOR = 'suggest-logical-or-operator';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020,
+		ecmaVersion: 2021,
 		sourceType: 'module'
 	}
 });
@@ -312,24 +312,23 @@ ruleTester.run('prefer-array-find', rule, {
 				]
 			}]
 		},
-		// // TODO:  enable this test when ESLint support `nullish coalescing operator`
-		// {
-		// 	code: 'const [foo = a ?? b] = array.filter(bar)',
-		// 	output: 'const [foo = a ?? b] = array.filter(bar)',
-		// 	errors: [{
-		// 		messageId: ERROR_DESTRUCTURING_DECLARATION,
-		// 		suggestions: [
-		// 			{
-		// 				messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-		// 				output: 'const foo = array.find(bar) ?? (a ?? b)'
-		// 			},
-		// 			{
-		// 				messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-		// 				output: 'const foo = array.find(bar) || (a ?? b)'
-		// 			}
-		// 		]
-		// 	}]
-		// },
+		{
+			code: 'const [foo = a ?? b] = array.filter(bar)',
+			output: 'const [foo = a ?? b] = array.filter(bar)',
+			errors: [{
+				messageId: ERROR_DESTRUCTURING_DECLARATION,
+				suggestions: [
+					{
+						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
+						output: 'const foo = array.find(bar) ?? (a ?? b)'
+					},
+					{
+						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
+						output: 'const foo = array.find(bar) || (a ?? b)'
+					}
+				]
+			}]
+		},
 		{
 			code: 'const [foo = a || b] = array.filter(bar)',
 			output: 'const [foo = a || b] = array.filter(bar)',

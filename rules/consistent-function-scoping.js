@@ -1,9 +1,9 @@
 'use strict';
+const {getFunctionHeadLocation, getFunctionNameWithKind} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const getReferences = require('./utils/get-references');
 
-const MESSAGE_ID_NAMED = 'named';
-const MESSAGE_ID_ANONYMOUS = 'anonymous';
+const MESSAGE_ID = 'consistent-function-scoping';
 
 const isSameScope = (scope1, scope2) =>
 	scope1 && scope2 && (scope1 === scope2 || scope1.block === scope2.block);
@@ -105,7 +105,8 @@ const iifeFunctionTypes = new Set([
 const isIife = node => node &&
 	iifeFunctionTypes.has(node.type) &&
 	node.parent &&
-	node.parent.type === 'CallExpression';
+	node.parent.type === 'CallExpression' &&
+	node.parent.callee === node;
 
 function checkNode(node, scopeManager) {
 	const scope = scopeManager.acquire(node);
@@ -163,25 +164,12 @@ const create = context => {
 		},
 		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
 			if (!hasJsx && !checkNode(node, scopeManager)) {
-				const functionType = node.type === 'ArrowFunctionExpression' ? 'arrow function' : 'function';
-				let functionName = '';
-				if (node.id) {
-					functionName = node.id.name;
-				} else if (
-					node.parent &&
-					node.parent.type === 'VariableDeclarator' &&
-					node.parent.id &&
-					node.parent.id.type === 'Identifier'
-				) {
-					functionName = node.parent.id.name;
-				}
-
 				context.report({
 					node,
-					messageId: functionName ? MESSAGE_ID_NAMED : MESSAGE_ID_ANONYMOUS,
+					loc: getFunctionHeadLocation(node, sourceCode),
+					messageId: MESSAGE_ID,
 					data: {
-						functionType,
-						functionName
+						functionNameWithKind: getFunctionNameWithKind(node)
 					}
 				});
 			}
@@ -202,8 +190,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		messages: {
-			[MESSAGE_ID_NAMED]: 'Move {{functionType}} `{{functionName}}` to the outer scope.',
-			[MESSAGE_ID_ANONYMOUS]: 'Move {{functionType}} to the outer scope.'
+			[MESSAGE_ID]: 'Move {{functionNameWithKind}} to the outer scope.'
 		}
 	}
 };

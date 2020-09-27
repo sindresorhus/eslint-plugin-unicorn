@@ -2,7 +2,7 @@
 
 Enforces all linted files to have their names in a certain case style. The default is `kebabCase`.
 
-Files named `index.js` are ignored as they can't change case (Only a problem with `pascalCase`).
+Files named `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, `index.vue` are ignored as they can't change case (Only a problem with `pascalCase`).
 
 Characters in the filename except `a-z`, `A-Z`, `0-9`, `-`, `_` and `$` are ignored.
 

@@ -10,7 +10,7 @@ module.exports = {
 				es6: true
 			},
 			parserOptions: {
-				ecmaVersion: 2020,
+				ecmaVersion: 2021,
 				sourceType: 'module'
 			},
 			plugins: [
@@ -27,6 +27,7 @@ module.exports = {
 				'unicorn/explicit-length-check': 'error',
 				'unicorn/filename-case': 'error',
 				'unicorn/import-index': 'error',
+				'unicorn/import-style': 'error',
 				'unicorn/new-for-builtins': 'error',
 				'unicorn/no-abusive-eslint-disable': 'error',
 				'unicorn/no-array-instanceof': 'error',
@@ -39,6 +40,7 @@ module.exports = {
 				'unicorn/no-nested-ternary': 'error',
 				'unicorn/no-new-buffer': 'error',
 				'unicorn/no-null': 'error',
+				'unicorn/no-object-as-default-parameter': 'error',
 				'unicorn/no-process-exit': 'error',
 				'unicorn/no-reduce': 'error',
 				'unicorn/no-unreadable-array-destructuring': 'error',
@@ -51,7 +53,8 @@ module.exports = {
 				'unicorn/prefer-array-find': 'error',
 				'unicorn/prefer-dataset': 'error',
 				'unicorn/prefer-event-key': 'error',
-				'unicorn/prefer-flat-map': 'error',
+				// TODO: Enable this by default when targeting Node.js 12.
+				'unicorn/prefer-flat-map': 'off',
 				'unicorn/prefer-includes': 'error',
 				'unicorn/prefer-modern-dom-apis': 'error',
 				'unicorn/prefer-negative-index': 'error',

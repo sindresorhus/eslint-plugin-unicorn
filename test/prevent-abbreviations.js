@@ -20,7 +20,7 @@ const browserES5RuleTester = avaRuleTester(test, {
 
 const moduleRuleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020,
+		ecmaVersion: 2021,
 		sourceType: 'module'
 	}
 });
@@ -1720,6 +1720,13 @@ typescriptRuleTester.run('prevent-abbreviations', rule, {
 			code,
 			output: code.replace('prop', 'property'),
 			errors: createErrors()
-		}))
+		})),
+
+		// #763
+		{
+			code: 'const foo = (extraParams?: string) => {}',
+			output: 'const foo = (extraParameters?: string) => {}',
+			errors: createErrors()
+		}
 	]
 });

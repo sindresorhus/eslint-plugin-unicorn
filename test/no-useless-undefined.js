@@ -2,12 +2,13 @@ import test from 'ava';
 import {outdent} from 'outdent';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/no-useless-undefined';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const messageId = 'no-useless-undefined';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 
@@ -238,3 +239,25 @@ typescriptRuleTester.run('no-useless-undefined', rule, {
 	],
 	invalid: []
 });
+
+const visualizeTester = visualizeRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 2021
+	}
+});
+
+visualizeTester.run('no-useless-undefined', rule, [
+	outdent`
+		foo(
+			undefined,
+			bar,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+		)
+	`,
+	'function foo([bar = undefined] = []) {}',
+	'foo(bar, undefined, undefined);',
+	'let a = undefined, b = 2;'
+]);

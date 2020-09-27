@@ -5,7 +5,7 @@ import {enforceNew, disallowNew} from '../rules/utils/builtins';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020,
+		ecmaVersion: 2021,
 		sourceType: 'module'
 	},
 	// Make sure globals don't effect shadowed check result

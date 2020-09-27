@@ -26,7 +26,7 @@ Configure it in `package.json`.
 			"es6": true
 		},
 		"parserOptions": {
-			"ecmaVersion": 2020,
+			"ecmaVersion": 2021,
 			"sourceType": "module"
 		},
 		"plugins": [
@@ -43,6 +43,7 @@ Configure it in `package.json`.
 			"unicorn/explicit-length-check": "error",
 			"unicorn/filename-case": "error",
 			"unicorn/import-index": "error",
+			"unicorn/import-style": "error",
 			"unicorn/new-for-builtins": "error",
 			"unicorn/no-abusive-eslint-disable": "error",
 			"unicorn/no-array-instanceof": "error",
@@ -55,6 +56,7 @@ Configure it in `package.json`.
 			"unicorn/no-nested-ternary": "error",
 			"unicorn/no-new-buffer": "error",
 			"unicorn/no-null": "error",
+			"unicorn/no-object-as-default-parameter": "error",
 			"unicorn/no-process-exit": "error",
 			"unicorn/no-reduce": "error",
 			"unicorn/no-unreadable-array-destructuring": "error",
@@ -106,6 +108,7 @@ Configure it in `package.json`.
 - [explicit-length-check](docs/rules/explicit-length-check.md) - Enforce explicitly comparing the `length` property of a value. *(partly fixable)*
 - [filename-case](docs/rules/filename-case.md) - Enforce a case style for filenames.
 - [import-index](docs/rules/import-index.md) - Enforce importing index files with `.`. *(fixable)*
+- [import-style](docs/rules/import-style.md) - Enforce specific import styles per module.
 - [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`. *(fixable)*
 - [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) - Enforce specifying rules to disable in `eslint-disable` comments.
 - [no-array-instanceof](docs/rules/no-array-instanceof.md) - Require `Array.isArray()` instead of `instanceof Array`. *(fixable)*
@@ -117,6 +120,7 @@ Configure it in `package.json`.
 - [no-nested-ternary](docs/rules/no-nested-ternary.md) - Disallow nested ternary expressions. *(partly fixable)*
 - [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 - [no-null](docs/rules/no-null.md) - Disallow the use of the `null` literal.
+- [no-object-as-default-parameter](docs/rules/no-object-as-default-parameter.md) - Disallow the use of objects as default parameters.
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
 - [no-reduce](docs/rules/no-reduce.md) - Disallow `Array#reduce()` and `Array#reduceRight()`.
 - [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.

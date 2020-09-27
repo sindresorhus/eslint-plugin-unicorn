@@ -6,6 +6,7 @@ const Listr = require('listr');
 const execa = require('execa');
 const chalk = require('chalk');
 const {isCI} = require('ci-info');
+const mem = require('mem');
 const allProjects = require('./projects');
 
 const projectsArguments = process.argv.slice(2);
@@ -80,6 +81,8 @@ const makeEslintTask = (project, destination) => {
 	});
 };
 
+const getBranch = mem(async dirname => (await execa('git', ['branch', '--show-current'], {cwd: dirname})).stdout);
+
 const execute = project => {
 	const destination = project.location || path.join(__dirname, 'fixtures', project.name);
 
@@ -136,7 +139,7 @@ const list = new Listr([
 });
 
 list.run()
-	.catch(error => {
+	.catch(async error => {
 		if (error.errors) {
 			for (const error2 of error.errors) {
 				console.error('\n', chalk.red.bold.underline(error2.packageName), chalk.gray('(' + error2.cliArgs.join(' ') + ')'));
@@ -151,7 +154,9 @@ list.run()
 					const {line} = error2.eslintMessage;
 
 					if (project.repository) {
-						console.error(chalk.gray(`${project.repository}/blob/master/${path.relative(destination, file.filePath)}#L${line}`));
+						// eslint-disable-next-line no-await-in-loop
+						const branch = await getBranch(destination);
+						console.error(chalk.gray(`${project.repository}/blob/${branch}/${path.relative(destination, file.filePath)}#L${line}`));
 					} else {
 						console.error(chalk.gray(`${path.relative(destination, file.filePath)}#L${line}`));
 					}

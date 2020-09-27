@@ -6,7 +6,7 @@ import rule from '../rules/prefer-node-append';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 

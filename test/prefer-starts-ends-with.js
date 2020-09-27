@@ -5,7 +5,7 @@ import rule from '../rules/prefer-starts-ends-with';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 
@@ -26,7 +26,9 @@ const validRegex = [
 	/\^foo/,
 	/^foo/i,
 	/^foo/m,
-	/^foo/im
+	/^foo/im,
+	/^A|B/,
+	/A|B$/
 ];
 
 const invalidRegex = [
