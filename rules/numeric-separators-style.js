@@ -32,8 +32,8 @@ function getChunks(string, size, restAtEnd) {
 function format(string, options, restAtEnd) {
 	if (string.includes('.')) {
 		const [lhs, rhs] = string.split('.');
-		let formattedLhs = lhs.length > 0 ? format(lhs, options, false) : '';
-		let formattedRhs = format(rhs, options, true);
+		const formattedLhs = lhs.length > 0 ? format(lhs, options, false) : '';
+		const formattedRhs = format(rhs, options, true);
 		return `${formattedLhs}.${formattedRhs}`;
 	}
 
@@ -65,8 +65,8 @@ function getFixedValue(raw, node, options) {
 	} else {
 		const [numberPart, powerPart] = raw.split(/e|E/);
 		if (powerPart) {
-			const e = raw.includes('E') ? 'E' : 'e';
-			final = format(numberPart, options, false) + e + format(powerPart, options, false);
+			const exp = raw.includes('E') ? 'E' : 'e';
+			final = format(numberPart, options, false) + exp + format(powerPart, options, false);
 		} else {
 			final = format(numberPart, options, false);
 		}
