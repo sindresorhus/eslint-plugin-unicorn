@@ -1,90 +1,98 @@
 'use strict';
-const {chunk, last} = require('lodash');
+
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const getNumberLiteralType = require('./utils/get-number-literal-type');
 
-function isLegacyOctal(node) {
-	return getNumberLiteralType(node) === 'number' && node.raw.startsWith('0');
-}
+function addSeparator(value, {minimumDigits, preferedGroupLength}, fromLeft) {
+	const {length} = value;
 
-function hasPrefix(raw) {
-	const rawLower = raw.toLowerCase();
-	return rawLower.startsWith('0x') || rawLower.startsWith('0b') || rawLower.startsWith('0o');
-}
-
-const chunkString = (string, size) => chunk(string, size).map(group => group.join(''));
-
-function getChunks(string, size, restAtEnd) {
-	let chunks = chunkString(string, size);
-	const lastElement = last(chunks);
-	if (restAtEnd || chunks.length === 1 || lastElement.length === size) {
-		return chunks;
+	if (length < minimumDigits) {
+		return value;
 	}
 
-	// Put the rest of the number, currently at the end, at the beginning
-	const offset = '0'.repeat(size - lastElement.length);
-	string = offset + string;
-	chunks = chunkString(string, size);
-	chunks[0] = chunks[0].replace(offset, '');
-	return chunks;
-}
-
-function format(string, options, restAtEnd) {
-	if (string.includes('.')) {
-		const [lhs, rhs] = string.split('.');
-		const formattedLhs = lhs.length > 0 ? format(lhs, options, false) : '';
-		const formattedRhs = format(rhs, options, true);
-		return `${formattedLhs}.${formattedRhs}`;
-	}
-
-	if (string.startsWith('-') || string.startsWith('+')) {
-		const sign = string.slice(0, 1);
-		const numberPart = string.slice(1);
-		return sign + format(numberPart, options, restAtEnd);
-	}
-
-	if (string.length >= options.minimumDigits) {
-		return getChunks(string, options.preferedGroupLength, restAtEnd).join('_');
-	}
-
-	return string;
-}
-
-function getFixedValue(raw, node, options) {
-	if (node.bigint) {
-		raw = raw.replace('n', '');
-	}
-
-	let final = '';
-
-	if (hasPrefix(raw)) {
-		const prefix = raw.slice(0, 2);
-		const dataPart = raw.slice(2);
-		const formatted = format(dataPart, options, false);
-		final = prefix + formatted;
+	const parts = [];
+	if (fromLeft) {
+		for (let start = 0; start < length; start += preferedGroupLength) {
+			const end = Math.min(start + preferedGroupLength, length);
+			parts.push(value.slice(start, end));
+		}
 	} else {
-		const [numberPart, powerPart] = raw.split(/e|E/);
-		if (powerPart) {
-			const exp = raw.includes('E') ? 'E' : 'e';
-			final = format(numberPart, options, false) + exp + format(powerPart, options, false);
-		} else {
-			final = format(numberPart, options, false);
+		for (let end = length; end > 0; end -= preferedGroupLength) {
+			const start = Math.max(end - preferedGroupLength, 0);
+			parts.unshift(value.slice(start, end));
 		}
 	}
 
-	return node.bigint ? final + 'n' : final;
+	return parts.join('_');
 }
 
-const create = context => ({
-	Literal: node => {
-		if ((typeof node.value === 'number' || node.bigint) && !isLegacyOctal(node)) {
-			const literalType = getNumberLiteralType(node) === 'bigint' ? 'number' : getNumberLiteralType(node);
-			const options = context.options[0][literalType];
+function addSeparatorFromLeft(value, options) {
+	return addSeparator(value, options, true);
+}
 
-			const unseparated = node.raw.replace(/_/g, '');
-			const fixed = getFixedValue(unseparated, node, options);
+function formatNumber(value, options) {
+	const parts = value.split('.');
+	const [decimal, fractional] = parts;
 
-			if (node.raw !== fixed) {
+	let formatted = addSeparator(decimal, options);
+	if (parts.length === 2) {
+		formatted += '.';
+		formatted += addSeparatorFromLeft(fractional, options);
+	}
+
+	return formatted;
+}
+
+function format(value, options) {
+	const {
+		prefix = '',
+		data
+	} = value.match(/^(?<prefix>0[box])?(?<data>.*)$/i).groups;
+
+	const formatOption = options[prefix.toLowerCase()];
+
+	if (prefix) {
+		return prefix + addSeparator(data, formatOption);
+	}
+
+	const {
+		number,
+		mark = '',
+		sign = '',
+		power = ''
+	} = value.match(/^(?<number>.*?)(?:(?<mark>e)(?<sign>[-+]?)?(?<power>\d+))?$/i).groups;
+
+	return formatNumber(number, formatOption) + mark + sign + addSeparator(power, options['']);
+}
+
+const create = context => {
+	const [rawOptions] = context.options;
+	const options = {
+		'0b': rawOptions.binary,
+		'0o': rawOptions.octal,
+		'0x': rawOptions.hexadecimal,
+		'': rawOptions.number
+	};
+
+	return {
+		Literal: node => {
+			const {value, bigint, raw} = node;
+			let number = raw;
+			let suffix = '';
+			if (typeof value === 'number') {
+				// Legacy octal
+				if (/^0\d+$/.test(raw)) {
+					return;
+				}
+			} else if (bigint) {
+				number = raw.slice(0, -1);
+				suffix = 'n';
+			} else {
+				return;
+			}
+
+			const fixed = format(number.replace(/_/g, ''), options) + suffix;
+
+			if (raw !== fixed) {
 				context.report({
 					node,
 					message: 'Invalid group length in numeric value.',
@@ -92,8 +100,8 @@ const create = context => ({
 				});
 			}
 		}
-	}
-});
+	};
+};
 
 function getProperties(minimumDigits, preferedGroupLength) {
 	return {
