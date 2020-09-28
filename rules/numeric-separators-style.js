@@ -59,7 +59,7 @@ function format(value, options) {
 		mark = '',
 		sign = '',
 		power = ''
-	} = value.match(/^(?<number>.*?)(?:(?<mark>e)(?<sign>[-+]?)?(?<power>\d+))?$/i).groups;
+	} = value.match(/^(?<number>.*?)(?:(?<mark>e)(?<sign>[+-]?)?(?<power>\d+))?$/i).groups;
 
 	return formatNumber(number, formatOption) + mark + sign + addSeparator(power, options['']);
 }
