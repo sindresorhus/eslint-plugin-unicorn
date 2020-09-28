@@ -70,6 +70,12 @@ function format(value, options) {
 }
 
 const create = context => {
+	const defaultOptions = {
+		hexadecimal: {minimumDigits: 0, groupLength: 2},
+		binary: {minimumDigits: 0, groupLength: 4},
+		octal: {minimumDigits: 0, groupLength: 4},
+		number: {minimumDigits: 5, groupLength: 3}
+	};
 	const rawOptions = merge(defaultOptions, context.options[0]);
 	const options = {
 		'0b': rawOptions.binary,
