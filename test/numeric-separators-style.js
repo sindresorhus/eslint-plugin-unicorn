@@ -35,6 +35,9 @@ ruleTester.run('numeric-separators-style', rule, {
 		{
 			code: 'var foo = 0xe'
 		},
+		{
+			code: 'var foo = 0Xab_e3_cd'
+		},
 		// Octal
 		{
 			code: 'var foo = 0o1234_5670'
@@ -47,6 +50,9 @@ ruleTester.run('numeric-separators-style', rule, {
 		},
 		{
 			code: 'var foo = 0o12_7000_0000'
+		},
+		{
+			code: 'var foo = 0O1111_1111'
 		},
 		// Legacy octal
 		{
@@ -72,6 +78,8 @@ ruleTester.run('numeric-separators-style', rule, {
 			code: 'var foo = 0b1_0111_0101_0101'
 		},
 		{
+			code: 'var foo = 0B1010'
+		},
 		// Binary with BigInt
 		{
 			code: 'var foo = 0b1010n'
@@ -160,7 +168,7 @@ ruleTester.run('numeric-separators-style', rule, {
 		{
 			code: 'var foo = -1_200_000e5'
 		},
-		// Miscellaneous
+		// Miscellaneous values
 		{
 			code: 'var foo = -282_932 - (1938 / 10_000) * .1 + 18.100_000_2'
 		},
@@ -172,6 +180,23 @@ ruleTester.run('numeric-separators-style', rule, {
 		},
 		{
 			code: 'var foo = "1234567n"'
+		},
+		// Varying options
+		{
+			code: 'var foo = 10000',
+			options: [{number: {minimumDigits: 6}}]
+		},
+		{
+			code: 'var foo = 100_0000_0000',
+			options: [{number: {groupLength: 4}}]
+		},
+		{
+			code: 'var foo = 0xA_B_C_D_E_1_2_3_4',
+			options: [{hexadecimal: {groupLength: 1}}]
+		},
+		{
+			code: 'var foo = 0b111',
+			options: [{number: {minimumDigits: 3, groupLength: 1}}]
 		}
 	],
 	invalid: [
@@ -191,6 +216,11 @@ ruleTester.run('numeric-separators-style', rule, {
 			errors: [error],
 			output: 'var foo = 0xAB'
 		},
+		{
+			code: 'var foo = 0XAB_C_D',
+			errors: [error],
+			output: 'var foo = 0XAB_CD'
+		},
 		// Octal
 		{
 			code: 'var foo = 0o12_34_5670',
@@ -207,6 +237,11 @@ ruleTester.run('numeric-separators-style', rule, {
 			errors: [error],
 			output: 'var foo = 0o0101_0101_0101'
 		},
+		{
+			code: 'var foo = 0O010101010101',
+			errors: [error],
+			output: 'var foo = 0O0101_0101_0101'
+		},
 		// Binary
 		{
 			code: 'var foo = 0b10_10_0001',
@@ -222,6 +257,11 @@ ruleTester.run('numeric-separators-style', rule, {
 			code: 'var foo = 0b10101010101010',
 			errors: [error],
 			output: 'var foo = 0b10_1010_1010_1010'
+		},
+		{
+			code: 'var foo = 0B10101010101010',
+			errors: [error],
+			output: 'var foo = 0B10_1010_1010_1010'
 		},
 		// BigInt
 		{
@@ -347,6 +387,31 @@ ruleTester.run('numeric-separators-style', rule, {
 			code: 'var foo = 3.65432E12000',
 			errors: [error],
 			output: 'var foo = 3.654_32E12_000'
+		},
+		// Varying options
+		{
+			code: 'var foo = 1000000',
+			options: [{number: {minimumDigits: 6}}],
+			errors: [error],
+			output: 'var foo = 1_000_000'
+		},
+		{
+			code: 'var foo = 10_000_000_000',
+			options: [{number: {groupLength: 4}}],
+			errors: [error],
+			output: 'var foo = 100_0000_0000'
+		},
+		{
+			code: 'var foo = 0xA_B_CD',
+			options: [{hexadecimal: {groupLength: 1}}],
+			errors: [error],
+			output: 'var foo = 0xA_B_C_D'
+		},
+		{
+			code: 'var foo = 0b1_11',
+			options: [{number: {minimumDigits: 3, groupLength: 2}}],
+			errors: [error],
+			output: 'var foo = 0b111'
 		}
 	]
 });
