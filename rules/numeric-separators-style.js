@@ -2,11 +2,9 @@
 const merge = require('lodash/merge');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const defaultOptions = {
-	hexadecimal: {minimumDigits: 0, groupLength: 2},
-	binary: {minimumDigits: 0, groupLength: 4},
-	octal: {minimumDigits: 0, groupLength: 4},
-	number: {minimumDigits: 5, groupLength: 3}
+const MESSAGE_ID = 'numeric-separators-style';
+const messages = {
+	[MESSAGE_ID]: 'Invalid group length in numeric value.'
 };
 
 function addSeparator(value, {minimumDigits, groupLength}, fromLeft) {
@@ -102,7 +100,7 @@ const create = context => {
 			if (raw !== fixed) {
 				context.report({
 					node,
-					message: 'Invalid group length in numeric value.',
+					messageId: MESSAGE_ID,
 					fix: fixer => fixer.replaceText(node, fixed)
 				});
 			}
@@ -138,6 +136,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema
+		schema,
+		messages
 	}
 };

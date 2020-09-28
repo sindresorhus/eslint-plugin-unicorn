@@ -9,7 +9,7 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const error = {
-	message: 'Invalid group length in numeric value.'
+	messageId: 'numeric-separators-style'
 };
 
 // Most of these test cases copied from:
