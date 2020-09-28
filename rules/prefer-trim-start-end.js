@@ -7,25 +7,28 @@ const methods = new Map([
 	['trimRight', 'trimEnd']
 ]);
 
-const selector = methodSelector({
-	names: ['trimLeft', 'trimRight'],
-	length: 0
-});
+const selector = [
+	methodSelector({
+		names: ['trimLeft', 'trimRight'],
+		length: 0
+	}),
+	'> MemberExpression.callee',
+	'> Identifier.property'
+].join(' ');
 
 const messages = {};
 for (const [method, replacement] of methods.entries()) {
-	messages[method] = `Prefer \`String#${method}()\` over \`String#${replacement}()\`.`;
+	messages[method] = `Prefer \`String#${replacement}()\` over \`String#${method}()\`.`;
 }
 
 const create = context => {
 	return {
 		[selector](node) {
-			const {property} = node.callee;
-			const method = property.name;
+			const method = node.name;
 			context.report({
 				node,
 				messageId: method,
-				fix: fixer => fixer.replaceText(property, methods.get(method))
+				fix: fixer => fixer.replaceText(node, methods.get(method))
 			});
 		}
 	};

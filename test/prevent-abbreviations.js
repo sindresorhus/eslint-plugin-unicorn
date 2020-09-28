@@ -20,7 +20,7 @@ const browserES5RuleTester = avaRuleTester(test, {
 
 const moduleRuleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020,
+		ecmaVersion: 2021,
 		sourceType: 'module'
 	}
 });
@@ -838,6 +838,86 @@ ruleTester.run('prevent-abbreviations', rule, {
 			code: 'let doc',
 			output: 'let document',
 			errors: createErrors()
+		},
+
+		// This test need run eslint 3 times to get the correct result
+		{
+			code: outdent`
+				function fn() {
+					for (let i = 0; i<10; i++) {
+						for (let j = 0; j<10; j++) {
+							console.log(i, j)
+						}
+					}
+				}
+				const func = fn;
+			`,
+			output: outdent`
+				function function_() {
+					for (let i = 0; i<10; i++) {
+						for (let j = 0; j<10; j++) {
+							console.log(i, j)
+						}
+					}
+				}
+				const func = function_;
+			`,
+			errors: [
+				...createErrors('The variable `fn` should be named `function_`. A more descriptive name will do too.'),
+				...createErrors('The variable `i` should be named `index`. A more descriptive name will do too.'),
+				...createErrors('The variable `j` should be named `index_`. A more descriptive name will do too.'),
+				...createErrors('The variable `func` should be named `function__`. A more descriptive name will do too.')
+			]
+		},
+		{
+			code: outdent`
+				function function_() {
+					for (let i = 0; i<10; i++) {
+						for (let j = 0; j<10; j++) {
+							console.log(i, j)
+						}
+					}
+				}
+				const func = function_;
+			`,
+			output: outdent`
+				function function_() {
+					for (let index = 0; index<10; index++) {
+						for (let j = 0; j<10; j++) {
+							console.log(index, j)
+						}
+					}
+				}
+				const function__ = function_;
+			`,
+			errors: [
+				...createErrors('The variable `i` should be named `index`. A more descriptive name will do too.'),
+				...createErrors('The variable `j` should be named `index_`. A more descriptive name will do too.'),
+				...createErrors('The variable `func` should be named `function__`. A more descriptive name will do too.')
+			]
+		},
+		{
+			code: outdent`
+				function function_() {
+					for (let index = 0; index<10; index++) {
+						for (let j = 0; j<10; j++) {
+							console.log(index, j)
+						}
+					}
+				}
+				const function__ = function_;
+			`,
+			output: outdent`
+				function function_() {
+					for (let index = 0; index<10; index++) {
+						for (let index_ = 0; index_<10; index_++) {
+							console.log(index, index_)
+						}
+					}
+				}
+				const function__ = function_;
+			`,
+			errors: createErrors('The variable `j` should be named `index_`. A more descriptive name will do too.')
 		},
 
 		// `package` is a reserved word in strict mode

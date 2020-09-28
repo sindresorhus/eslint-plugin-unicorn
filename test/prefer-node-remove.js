@@ -12,7 +12,7 @@ const ruleTester = avaRuleTester(test, {
 		es6: true
 	},
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 

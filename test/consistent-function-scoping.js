@@ -7,7 +7,7 @@ import visualizeRuleTester from './utils/visualize-rule-tester';
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
 		sourceType: 'module',
-		ecmaVersion: 2020,
+		ecmaVersion: 2021,
 		ecmaFeatures: {
 			jsx: true
 		}
@@ -191,6 +191,32 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 				return Bar;
 			};
+		`,
+		outdent`
+			const foo = <JSX/>;
+		`,
+		// Functions that could be extracted are conservatively ignored due to JSX masking references
+		outdent`
+				function Foo() {
+					function Bar () {
+						return <div />
+					}
+					return <div>{ Bar() }</div>
+				}
+		`,
+		outdent`
+			function foo() {
+				function bar() {
+					return <JSX a={foo()}/>;
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				function bar() {
+					return <JSX/>;
+				}
+			}
 		`,
 		// `this`
 		outdent`
@@ -594,6 +620,48 @@ ruleTester.run('consistent-function-scoping', rule, {
 				)
 			`,
 			errors: [createError('function \'baz\'')]
+		},
+		{
+			code: outdent`
+				function Foo() {
+					const Bar = <div />
+					function doBaz() {
+						return 42
+					}
+					return <div>{ doBaz() }</div>
+				}
+			`,
+			errors: [createError('function \'doBaz\'')]
+		},
+		{
+			code: outdent`
+				function Foo() {
+					function Bar () {
+						return <div />
+					}
+					function doBaz() {
+						return 42
+					}
+					return <div>{ doBaz() }</div>
+				}
+			`,
+			errors: [createError('function \'doBaz\'')]
+		},
+		// JSX
+		{
+			code: outdent`
+				function fn1() {
+					function a() {
+						return <JSX a={b()}/>;
+					}
+					function b() {}
+					function c() {}
+				}
+				function fn2() {
+					function foo() {}
+				}
+			`,
+			errors: ['b', 'c', 'foo'].map(functionName => createError(`function '${functionName}'`))
 		}
 	]
 });
@@ -652,7 +720,7 @@ typescriptRuleTester.run('consistent-function-scoping', rule, {
 const visualizeTester = visualizeRuleTester(test, {
 	parserOptions: {
 		sourceType: 'module',
-		ecmaVersion: 2020,
+		ecmaVersion: 2021,
 		ecmaFeatures: {
 			jsx: true
 		}

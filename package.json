@@ -1,6 +1,6 @@
 {
 	"name": "eslint-plugin-unicorn",
-	"version": "21.0.0",
+	"version": "22.0.0",
 	"description": "Various awesome ESLint rules",
 	"license": "MIT",
 	"repository": "sindresorhus/eslint-plugin-unicorn",
@@ -51,7 +51,7 @@
 		"@ava/babel": "^1.0.1",
 		"@babel/code-frame": "7.10.4",
 		"@lubien/fixture-beta-package": "^1.0.0-beta.1",
-		"@typescript-eslint/parser": "^4.0.1",
+		"@typescript-eslint/parser": "^4.1.0",
 		"ava": "^3.12.1",
 		"babel-eslint": "^10.1.0",
 		"chalk": "^4.1.0",
@@ -60,6 +60,7 @@
 		"eslint-plugin-eslint-plugin": "^2.3.0",
 		"execa": "^4.0.3",
 		"listr": "^0.14.3",
+		"mem": "6.1.1",
 		"nyc": "^15.1.0",
 		"outdent": "^0.7.1",
 		"pify": "^5.0.0",
@@ -109,7 +110,15 @@
 		],
 		"rules": {
 			"strict": "error",
-			"unicorn/no-null": "error"
+			"unicorn/no-null": "error",
+			"unicorn/prevent-abbreviations": [
+				"error",
+				{
+					"replacements": {
+						"fn": false
+					}
+				}
+			]
 		}
 	}
 }

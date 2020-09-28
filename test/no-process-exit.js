@@ -5,7 +5,7 @@ import rule from '../rules/no-process-exit';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020,
+		ecmaVersion: 2021,
 		sourceType: 'module'
 	}
 });

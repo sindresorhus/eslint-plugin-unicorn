@@ -60,6 +60,7 @@ const iteratorMethods = [
 const ignoredCallee = [
 	'Promise',
 	'React.children',
+	'Children',
 	'lodash',
 	'underscore',
 	'_',

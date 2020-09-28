@@ -7,7 +7,7 @@ const MESSAGE_ID = 'prefer-spread';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 

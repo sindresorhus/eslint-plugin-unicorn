@@ -24,7 +24,7 @@ const reduceLikeMethods = [
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 
@@ -88,7 +88,8 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 		'_.map(fn)',
 		'Async.map(list, fn)',
 		'async.map(list, fn)',
-		'React.children.forEach(children, fn)',
+		'React.Children.forEach(children, fn)',
+		'Children.forEach(children, fn)', // `import {Children} from 'react';`
 		'Vue.filter(name, fn)',
 
 		// First argument is not a function
