@@ -3,6 +3,10 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage';
 const MESSAGE_ID_EMPTY_MESSAGE = 'emptyMessage';
+const messages = {
+	[MESSAGE_ID_MISSING_MESSAGE]: 'Pass a message to the error constructor.',
+	[MESSAGE_ID_EMPTY_MESSAGE]: 'Error message should not be an empty string.'
+};
 
 const errorConstructors = new Set([
 	'Error',
@@ -103,9 +107,6 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		messages: {
-			[MESSAGE_ID_MISSING_MESSAGE]: 'Pass a message to the error constructor.',
-			[MESSAGE_ID_EMPTY_MESSAGE]: 'Error message should not be an empty string.'
-		}
+		messages
 	}
 };

@@ -9,11 +9,11 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-function testCase(code, nonZeroType, messageIds = [], output) {
+function testCase(code, nonZeroType, messageIds, output) {
 	return {
 		code,
 		output: output || code,
-		errors: messageIds.map(messageId => ({messageId})),
+		errors: (messageIds || []).map(messageId => ({messageId})),
 		options: nonZeroType ? [{
 			'non-zero': nonZeroType
 		}] : []

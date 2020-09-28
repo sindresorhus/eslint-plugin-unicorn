@@ -2,9 +2,13 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const replaceTemplateElement = require('./utils/replace-template-element');
 
+const MESSAGE_ID = 'escape-case';
+const messages = {
+	[MESSAGE_ID]: 'Use uppercase characters for the value of the escape sequence.'
+};
+
 const escapeWithLowercase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+})/g;
 const escapePatternWithLowercase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+}|c[a-z])/g;
-const MESSAGE_ID = 'escape-case';
 
 const create = context => {
 	const check = ({node, original, regex = escapeWithLowercase, fix}) => {
@@ -55,8 +59,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[MESSAGE_ID]: 'Use uppercase characters for the value of the escape sequence.'
-		}
+		messages
 	}
 };

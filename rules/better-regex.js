@@ -5,6 +5,9 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 
 const MESSAGE_ID = 'better-regex';
+const messages = {
+	[MESSAGE_ID]: '{{original}} can be optimized to {{optimized}}.'
+};
 
 const create = context => {
 	const {sortCharacterClasses} = context.options[0] || {};
@@ -100,8 +103,6 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
-		messages: {
-			[MESSAGE_ID]: '{{original}} can be optimized to {{optimized}}.'
-		}
+		messages
 	}
 };
