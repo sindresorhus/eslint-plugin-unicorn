@@ -15,8 +15,8 @@ module.exports = (combinations, length = Infinity) => {
 	const samples = Array.from({length: Math.min(total, length)}, (_, sampleIndex) => {
 		let indexRemaining = sampleIndex;
 		const combination = [];
-		for (let i = combinations.length - 1; i >= 0; i--) {
-			const items = combinations[i];
+		for (let combinationIndex = combinations.length - 1; combinationIndex >= 0; combinationIndex--) {
+			const items = combinations[combinationIndex];
 			const {length} = items;
 			const index = indexRemaining % length;
 			indexRemaining = (indexRemaining - index) / length;

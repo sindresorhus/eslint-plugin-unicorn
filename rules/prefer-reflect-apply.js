@@ -15,8 +15,8 @@ const isApplySignature = (argument1, argument2) => (
 	)
 );
 
-const getReflectApplyCall = (sourceCode, func, receiver, arguments_) => (
-	`Reflect.apply(${sourceCode.getText(func)}, ${sourceCode.getText(receiver)}, ${sourceCode.getText(arguments_)})`
+const getReflectApplyCall = (sourceCode, target, receiver, argumentsList) => (
+	`Reflect.apply(${sourceCode.getText(target)}, ${sourceCode.getText(receiver)}, ${sourceCode.getText(argumentsList)})`
 );
 
 const fixDirectApplyCall = (node, sourceCode) => {
