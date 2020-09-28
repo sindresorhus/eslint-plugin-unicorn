@@ -2,6 +2,7 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/prefer-event-key';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -10,7 +11,8 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const error = key => ({
-	message: `Use \`.key\` instead of \`.${key}\``
+	messageId: 'prefer-event-key',
+	data: {name: key}
 });
 
 ruleTester.run('prefer-event-key', rule, {
@@ -803,3 +805,25 @@ ruleTester.run('prefer-event-key', rule, {
 		}
 	]
 });
+
+const visualizeTester = visualizeRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 2021
+	}
+});
+
+visualizeTester.run('prefer-event-key', rule, [
+	outdent`
+		window.addEventListener('click', ({which, another}) => {
+			if (which === 23) {
+				console.log('Wrong!')
+			}
+		})
+	`,
+	outdent`
+		foo123.addEventListener('click', event => {
+			if (event.keyCode === 27) {
+			}
+		});
+	`
+]);

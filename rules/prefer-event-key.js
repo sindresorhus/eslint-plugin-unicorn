@@ -2,6 +2,11 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 
+const MESSAGE_ID = 'prefer-event-key';
+const messages = {
+	[MESSAGE_ID]: 'Use `.key` instead of `.{{name}}`.'
+};
+
 const keys = new Set([
 	'keyCode',
 	'charCode',
@@ -149,7 +154,8 @@ const fix = node => fixer => {
 const create = context => {
 	const report = node => {
 		context.report({
-			message: `Use \`.key\` instead of \`.${node.name}\``,
+			messageId: MESSAGE_ID,
+			data: {name: node.name},
 			node,
 			fix: fix(node)
 		});
@@ -222,6 +228,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };
