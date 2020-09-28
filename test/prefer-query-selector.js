@@ -12,7 +12,7 @@ const ruleTester = avaRuleTester(test, {
 const createError = (method, replacement) => ({
 	messageId: 'prefer-query-selector',
 	data: {method, replacement}
-})
+});
 
 ruleTester.run('prefer-query-selector', rule, {
 	valid: [
@@ -128,7 +128,6 @@ ruleTester.run('prefer-query-selector', rule, {
 		}
 	]
 });
-
 
 const visualizeTester = visualizeRuleTester(test, {
 	parserOptions: {

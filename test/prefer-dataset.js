@@ -97,7 +97,6 @@ ruleTester.run('prefer-dataset', rule, {
 	]
 });
 
-
 const visualizeTester = visualizeRuleTester(test, {
 	parserOptions: {
 		ecmaVersion: 2021

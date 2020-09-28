@@ -12,7 +12,7 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 const MESSAGE_ZERO_FRACTION = 'zero-fraction';
-const MESSAGE_DANGLING_DOT = 'dangling-dot'
+const MESSAGE_DANGLING_DOT = 'dangling-dot';
 const errorZeroFraction = {
 	messageId: MESSAGE_ZERO_FRACTION
 };
@@ -106,7 +106,6 @@ ruleTester.run('no-zero-fractions', rule, {
 		}
 	]
 });
-
 
 const visualizeTester = visualizeRuleTester(test, {
 	parserOptions: {

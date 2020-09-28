@@ -97,5 +97,5 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 
 const visualizeTester = visualizeRuleTester(test);
 visualizeTester.run('no-abusive-eslint-disable', rule, [
-	'eval(); // eslint-disable-line',
+	'eval(); // eslint-disable-line'
 ]);

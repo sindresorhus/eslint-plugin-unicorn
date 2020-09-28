@@ -62,5 +62,5 @@ ruleTester.run('no-array-instanceof', rule, {
 
 const visualizeTester = visualizeRuleTester(test);
 visualizeTester.run('no-array-instanceof', rule, [
-	'if (arr instanceof Array) {}',
+	'if (arr instanceof Array) {}'
 ]);

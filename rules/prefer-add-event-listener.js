@@ -5,7 +5,7 @@ const {flatten} = require('lodash');
 
 const MESSAGE_ID = 'prefer-add-event-listener';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{method}}`.{{extra}}',
+	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{method}}`.{{extra}}'
 };
 const extraMessages = {
 	beforeunload: 'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.',
