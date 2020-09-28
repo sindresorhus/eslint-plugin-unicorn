@@ -256,14 +256,14 @@ ruleTester.run('numeric-separators-style', rule, {
 			output: 'var foo = .000_000_1'
 		},
 		{
-			code: 'var foo = 12345678..toSting()',
+			code: 'var foo = 12345678..toString()',
 			errors: [error],
-			output: 'var foo = 12_345_678..toSting()'
+			output: 'var foo = 12_345_678..toString()'
 		},
 		{
-			code: 'var foo = 12345678 .toSting()',
+			code: 'var foo = 12345678 .toString()',
 			errors: [error],
-			output: 'var foo = 12_345_678 .toSting()'
+			output: 'var foo = 12_345_678 .toString()'
 		},
 		{
 			code: 'var foo = .00000',
