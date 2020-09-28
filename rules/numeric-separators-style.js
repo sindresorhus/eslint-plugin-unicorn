@@ -65,7 +65,13 @@ function format(value, options) {
 }
 
 const create = context => {
-	const [rawOptions] = context.options;
+	const defaultOptions = {
+		hexadecimal: {minimumDigits: 0, groupLength: 2},
+		binary: {minimumDigits: 0, groupLength: 4},
+		octal: {minimumDigits: 0, groupLength: 4},
+		number: {minimumDigits: 5, groupLength: 3}
+	};
+	const rawOptions = context.options[0] || defaultOptions;
 	const options = {
 		'0b': rawOptions.binary,
 		'0o': rawOptions.octal,
@@ -103,30 +109,22 @@ const create = context => {
 	};
 };
 
-function getProperties(minimumDigits, groupLength) {
-	return {
-		type: 'object',
-		properties: {
-			minimumDigits: {
-				type: 'number',
-				default: minimumDigits
-			},
-			groupLength: {
-				type: 'number',
-				default: groupLength
-			}
-		},
-		additionalProperties: false
-	};
-}
+const schemaObject = {
+	type: 'object',
+	properties: {
+		minimumDigits: {type: 'number'},
+		groupLength: {type: 'number'}
+	},
+	additionalProperties: false
+};
 
 const schema = [{
 	type: 'object',
 	properties: {
-		hexadecimal: getProperties(0, 2),
-		binary: getProperties(0, 4),
-		octal: getProperties(0, 4),
-		number: getProperties(5, 3)
+		hexadecimal: schemaObject,
+		binary: schemaObject,
+		octal: schemaObject,
+		number: schemaObject
 	},
 	additionalProperties: false
 }];
