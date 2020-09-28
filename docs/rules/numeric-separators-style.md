@@ -55,7 +55,7 @@ const foo = 1_000; // Pass
 const foo = 1_000_000; // Pass
 const foo = 0.000_0001; // Fail
 
-// eslint unicorn/numeric-separators-style: ["error", {octal: {minimumDigits: 0, groupLength3}}]
+// eslint unicorn/numeric-separators-style: ["error", {octal: {minimumDigits: 0, groupLength: 3}}]
 const foo = 0o123; // Pass
 const foo = 0o1_123; // Pass
 const foo = 0o1123; // Fail
