@@ -153,17 +153,21 @@ const create = context => {
 	const {scopeManager} = sourceCode;
 
 	const functions = [];
-	let hasJsx = false;
 
 	return {
-		'ArrowFunctionExpression, FunctionDeclaration': node => functions.push(node),
+		'ArrowFunctionExpression, FunctionDeclaration': () => {
+			functions.push(false);
+		},
 		JSXElement: () => {
 			// Turn off this rule if we see a JSX element because scope
 			// references does not include JSXElement nodes.
-			hasJsx = true;
+			if (functions.length !== 0) {
+				functions[functions.length - 1] = true;
+			}
 		},
 		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
-			if (!hasJsx && !checkNode(node, scopeManager)) {
+			const currentFunctionHasJsx = functions.pop();
+			if (!currentFunctionHasJsx && !checkNode(node, scopeManager)) {
 				context.report({
 					node,
 					loc: getFunctionHeadLocation(node, sourceCode),
@@ -172,11 +176,6 @@ const create = context => {
 						functionNameWithKind: getFunctionNameWithKind(node)
 					}
 				});
-			}
-
-			functions.pop();
-			if (functions.length === 0) {
-				hasJsx = false;
 			}
 		}
 	};

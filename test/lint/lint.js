@@ -19,7 +19,17 @@ const eslint = new ESLint({
 			'coverage',
 			'test/integration/fixtures',
 			'test/integration/unicorn'
-		]
+		],
+		rules: {
+			'unicorn/prevent-abbreviations': [
+				'error',
+				{
+					replacements: {
+						fn: false
+					}
+				}
+			]
+		}
 	}
 });
 
