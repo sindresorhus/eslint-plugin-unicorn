@@ -2,7 +2,11 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 
-const message = 'Only use `process.exit()` in CLI apps. Throw an error instead.';
+const MESSAGE_ID = 'no-process-exit';
+const messages = {
+	[MESSAGE_ID]: 'Only use `process.exit()` in CLI apps. Throw an error instead.'
+};
+
 const importWorkerThreadsSelector = [
 	// `require('worker_threads')`
 	[
@@ -68,7 +72,7 @@ const create = context => {
 				for (const node of problemNodes) {
 					context.report({
 						node,
-						message
+						messageId: MESSAGE_ID
 					});
 				}
 			}
@@ -82,6 +86,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			url: getDocumentationUrl(__filename)
-		}
+		},
+		messages
 	}
 };

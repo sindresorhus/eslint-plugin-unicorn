@@ -1,6 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const MESSAGE_ID = 'no-abusive-eslint-disable';
 const disableRegex = /^eslint-disable(?:-next-line|-line)?(?<ruleId>$|(?:\s+(?:@(?:[\w-]+\/){1,2})?[\w-]+)?)/;
 
 const create = context => ({
@@ -21,7 +22,7 @@ const create = context => ({
 						},
 						end: comment.loc.end
 					},
-					message: 'Specify the rules you want to disable.'
+					messageId: MESSAGE_ID
 				});
 			}
 		}
@@ -34,6 +35,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			url: getDocumentationUrl(__filename)
+		},
+		messages: {
+			[MESSAGE_ID]: 'Specify the rules you want to disable.'
 		}
 	}
 };

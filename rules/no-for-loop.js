@@ -5,6 +5,11 @@ const {flatten} = require('lodash');
 const avoidCapture = require('./utils/avoid-capture');
 const {singular} = require('pluralize');
 
+const MESSAGE_ID = 'no-for-loop';
+const messages = {
+	[MESSAGE_ID]: 'Use a `for-of` loop instead of this `for` loop.'
+};
+
 const defaultElementName = 'element';
 const isLiteralZero = node => isLiteralValue(node, 0);
 const isLiteralOne = node => isLiteralValue(node, 1);
@@ -326,7 +331,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				message: 'Use a `for-of` loop instead of this `for` loop.'
+				messageId: MESSAGE_ID
 			};
 
 			const elementReference = arrayReferences.find(reference => {
@@ -405,6 +410,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
+		messages,
 		fixable: 'code'
 	}
 };

@@ -2,6 +2,7 @@ import test from 'ava';
 import {outdent} from 'outdent';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/prefer-dataset';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -11,7 +12,7 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [
 	{
-		message: 'Prefer `.dataset` over `setAttribute(…)`.'
+		messageId: 'prefer-dataset'
 	}
 ];
 
@@ -95,3 +96,18 @@ ruleTester.run('prefer-dataset', rule, {
 		}
 	]
 });
+
+const visualizeTester = visualizeRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 2021
+	}
+});
+
+visualizeTester.run('no-useless-undefined', rule, [
+	outdent`
+		element.setAttribute(
+			\'data-foo\', // comment
+			\'bar\' // comment
+		);
+	`
+]);

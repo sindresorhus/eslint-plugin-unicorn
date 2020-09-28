@@ -2,6 +2,9 @@
 const eslintTemplateVisitor = require('eslint-template-visitor');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const MESSAGE_ID_SUBSTR = 'substr';
+const MESSAGE_ID_SUBSTRING = 'substring';
+
 const templates = eslintTemplateVisitor();
 
 const objectVariable = templates.variable();
@@ -57,7 +60,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				message: 'Prefer `String#slice()` over `String#substr()`.'
+				messageId: MESSAGE_ID_SUBSTR
 			};
 
 			const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
@@ -110,7 +113,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				message: 'Prefer `String#slice()` over `String#substring()`.'
+				messageId: MESSAGE_ID_SUBSTRING
 			};
 
 			const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
@@ -166,6 +169,10 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages: {
+			[MESSAGE_ID_SUBSTR]: 'Prefer `String#slice()` over `String#substr()`.',
+			[MESSAGE_ID_SUBSTRING]: 'Prefer `String#slice()` over `String#substring()`.'
+		}
 	}
 };

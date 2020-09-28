@@ -3,7 +3,10 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const isMethodNamed = require('./utils/is-method-named');
 const isLiteralValue = require('./utils/is-literal-value');
 
-const message = 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.';
+const MESSAGE_ID = 'prefer-includes';
+const messages = {
+	[MESSAGE_ID]: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.'
+};
 // Ignore {_,lodash,underscore}.indexOf
 const ignoredVariables = new Set(['_', 'lodash', 'underscore']);
 const isIgnoredTarget = node => node.type === 'Identifier' && ignoredVariables.has(node.name);
@@ -26,7 +29,7 @@ const report = (context, node, target, argumentsNodes) => {
 
 	context.report({
 		node,
-		message,
+		messageId: MESSAGE_ID,
 		fix: fixer => {
 			const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
 			return fixer.replaceText(node, replacement);
@@ -76,6 +79,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };

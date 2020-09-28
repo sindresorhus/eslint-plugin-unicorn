@@ -3,7 +3,10 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const domEventsJson = require('./utils/dom-events.json');
 const {flatten} = require('lodash');
 
-const message = 'Prefer `{{replacement}}` over `{{method}}`.{{extra}}';
+const MESSAGE_ID = 'prefer-add-event-listener';
+const messages = {
+	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{method}}`.{{extra}}'
+};
 const extraMessages = {
 	beforeunload: 'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.',
 	message: 'Note that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.'
@@ -130,7 +133,7 @@ const create = context => {
 
 			context.report({
 				node,
-				message,
+				messageId: MESSAGE_ID,
 				data: {
 					replacement,
 					method: eventMethodName,
@@ -166,6 +169,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema
+		schema,
+		messages
 	}
 };

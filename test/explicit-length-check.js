@@ -1,6 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/explicit-length-check';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -8,25 +9,11 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const error = message => {
-	return {
-		message
-	};
-};
-
-const errorMessages = {
-	compareToValue: error('`length` property should be compared to a value.'),
-	zeroEqual: error('Zero `.length` should be compared with `=== 0`.'),
-	nonZeroEqual: error('Non-zero `.length` should be compared with `!== 0`.'),
-	nonZeroGreater: error('Non-zero `.length` should be compared with `> 0`.'),
-	nonZeroGreaterEqual: error('Non-zero `.length` should be compared with `>= 1`.')
-};
-
-function testCase(code, nonZeroType, errors, output) {
+function testCase(code, nonZeroType, messageIds, output) {
 	return {
 		code,
 		output: output || code,
-		errors: errors || [],
+		errors: (messageIds || []).map(messageId => ({messageId})),
 		options: nonZeroType ? [{
 			'non-zero': nonZeroType
 		}] : []
@@ -81,113 +68,132 @@ ruleTester.run('explicit-length-check', rule, {
 		testCase(
 			'if ([].length) {}',
 			undefined,
-			[errorMessages.compareToValue]
+			['compareToValue']
 		),
 		testCase(
 			'if ("".length) {}',
 			undefined,
-			[errorMessages.compareToValue]
+			['compareToValue']
 		),
 		testCase(
 			'if (array.length) {}',
 			undefined,
-			[errorMessages.compareToValue]
+			['compareToValue']
 		),
 		testCase(
 			'if (!array.length) {}',
 			undefined,
-			[errorMessages.compareToValue]
+			['compareToValue']
 		),
 		testCase(
 			'if (array.foo.length) {}',
 			undefined,
-			[errorMessages.compareToValue]
+			['compareToValue']
 		),
 		testCase(
 			'if (!!array.length) {}',
 			undefined,
-			[errorMessages.compareToValue]
+			['compareToValue']
 		),
 		testCase(
 			'if (array.length && array[0] === 1) {}',
 			undefined,
-			[errorMessages.compareToValue]
+			['compareToValue']
 		),
 		testCase(
 			'if (array[0] === 1 || array.length) {}',
 			undefined,
-			[errorMessages.compareToValue]
+			['compareToValue']
 		),
 		testCase(
 			'if (array.length < 1) {}',
 			undefined,
-			[errorMessages.zeroEqual],
+			['zeroEqual'],
 			'if (array.length === 0) {}'
 		),
 		testCase(
 			'if (array.length<1) {}',
 			undefined,
-			[errorMessages.zeroEqual],
+			['zeroEqual'],
 			'if (array.length === 0) {}'
 		),
 		testCase(
 			'if (array.length > 0) {}',
 			'not-equal',
-			[errorMessages.nonZeroEqual],
+			['nonZeroEqual'],
 			'if (array.length !== 0) {}'
 		),
 		testCase(
 			'if (array.length >= 1) {}',
 			'not-equal',
-			[errorMessages.nonZeroEqual],
+			['nonZeroEqual'],
 			'if (array.length !== 0) {}'
 		),
 		testCase(
 			'if (array.length != 0) {}',
 			'greater-than',
-			[errorMessages.nonZeroGreater],
+			['nonZeroGreater'],
 			'if (array.length > 0) {}'
 		),
 		testCase(
 			'if (array.length !== 0) {}',
 			'greater-than',
-			[errorMessages.nonZeroGreater],
+			['nonZeroGreater'],
 			'if (array.length > 0) {}'
 		),
 		testCase(
 			'if (array.length >= 1) {}',
 			'greater-than',
-			[errorMessages.nonZeroGreater],
+			['nonZeroGreater'],
 			'if (array.length > 0) {}'
 		),
 		testCase(
 			'if (array.length != 0) {}',
 			'greater-than-or-equal',
-			[errorMessages.nonZeroGreaterEqual],
+			['nonZeroGreaterEqual'],
 			'if (array.length >= 1) {}'
 		),
 		testCase(
 			'if (array.length !== 0) {}',
 			'greater-than-or-equal',
-			[errorMessages.nonZeroGreaterEqual],
+			['nonZeroGreaterEqual'],
 			'if (array.length >= 1) {}'
 		),
 		testCase(
 			'if (array.length > 0) {}',
 			'greater-than-or-equal',
-			[errorMessages.nonZeroGreaterEqual],
+			['nonZeroGreaterEqual'],
 			'if (array.length >= 1) {}'
 		),
 		testCase(
 			'if (array.length < 1 || array.length >= 1) {}',
 			'not-equal',
-			[errorMessages.zeroEqual, errorMessages.nonZeroEqual],
+			['zeroEqual', 'nonZeroEqual'],
 			'if (array.length === 0 || array.length !== 0) {}'
 		),
 		testCase(
 			'const foo = [].length ? null : undefined',
 			undefined,
-			[errorMessages.compareToValue]
+			['compareToValue']
 		)
 	]
 });
+
+const visualizeTester = visualizeRuleTester(test);
+visualizeTester.run('explicit-length-check', rule, [
+	'if ([].length) {}',
+	'if (array.length < 1) {}'
+	// `visualizeRuleTester` don't support options
+	// {
+	// 	code: 'if (array.length > 0) {}',
+	// 	options: ['not-equal']
+	// },
+	// {
+	// 	code: 'if (array.length != 0) {}',
+	// 	options: ['greater-than']
+	// },
+	// {
+	// 	code: 'if (array.length != 0) {}',
+	// 	options: ['greater-than-or-equal']
+	// }
+]);

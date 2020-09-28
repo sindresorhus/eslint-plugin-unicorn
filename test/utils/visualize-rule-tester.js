@@ -56,7 +56,7 @@ class VisualizeRuleTester {
 				const results = linter.verify(code, verifyConfig);
 
 				if (results.length !== 1) {
-					throw new Error('Visualize test should has exactly one error.');
+					throw new Error(`Result: \n${JSON.stringify(results, undefined, 2)}\n\nVisualize test should has exactly one error.`);
 				}
 
 				const [error] = results;

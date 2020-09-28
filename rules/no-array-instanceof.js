@@ -1,7 +1,10 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const message = 'Use `Array.isArray()` instead of `instanceof Array`.';
+const MESSAGE_ID = 'no-array-instanceof';
+const messages = {
+	[MESSAGE_ID]: 'Use `Array.isArray()` instead of `instanceof Array`.'
+};
 const selector = [
 	'BinaryExpression',
 	'[operator="instanceof"]',
@@ -15,7 +18,7 @@ const create = context => {
 	return {
 		[selector]: node => context.report({
 			node,
-			message,
+			messageId: MESSAGE_ID,
 			fix: fixer => fixer.replaceText(
 				node,
 				`Array.isArray(${sourceCode.getText(node.left)})`
@@ -31,6 +34,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };

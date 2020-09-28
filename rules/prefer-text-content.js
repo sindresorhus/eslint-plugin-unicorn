@@ -1,7 +1,10 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const message = 'Prefer `.textContent` over `.innerText`.';
+const MESSAGE_ID = 'prefer-text-content';
+const messages = {
+	[MESSAGE_ID]: 'Prefer `.textContent` over `.innerText`.'
+};
 
 const selector = [
 	'MemberExpression',
@@ -16,7 +19,7 @@ const create = context => {
 		[selector]: node => {
 			context.report({
 				node,
-				message,
+				messageId: MESSAGE_ID,
 				fix: fixer => fixer.replaceText(node, 'textContent')
 			});
 		}
@@ -30,6 +33,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };

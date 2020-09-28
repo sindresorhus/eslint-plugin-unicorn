@@ -1,6 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/no-unreadable-array-destructuring';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -10,7 +11,7 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [
 	{
-		message: 'Array destructuring may not contain consecutive ignored values.'
+		messageId: 'no-unreadable-array-destructuring'
 	}
 ];
 
@@ -78,3 +79,12 @@ ruleTester.run('no-unreadable-array-destructuring', rule, {
 		}
 	]
 });
+const visualizeTester = visualizeRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 2021
+	}
+});
+
+visualizeTester.run('no-unreadable-array-destructuring', rule, [
+	'const [foo, bar,, baz ,,, qux] = parts;'
+]);

@@ -4,7 +4,10 @@ const isValueNotUsable = require('./utils/is-value-not-usable');
 const methodSelector = require('./utils/method-selector');
 const {notDomNodeSelector} = require('./utils/not-dom-node');
 
-const message = 'Prefer `Node#append()` over `Node#appendChild()`.';
+const MESSAGE_ID = 'prefer-node-append';
+const messages = {
+	[MESSAGE_ID]: 'Prefer `Node#append()` over `Node#appendChild()`.'
+};
 const selector = [
 	methodSelector({
 		name: 'appendChild',
@@ -23,7 +26,7 @@ const create = context => {
 
 			context.report({
 				node,
-				message,
+				messageId: MESSAGE_ID,
 				fix
 			});
 		}
@@ -37,6 +40,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };

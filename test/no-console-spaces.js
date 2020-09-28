@@ -2,6 +2,7 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/no-console-spaces';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
@@ -11,7 +12,8 @@ const ruleTester = avaRuleTester(test, {
 
 function buildError({method, column, line}) {
 	const error = {
-		message: `Do not use leading/trailing space between \`console.${method}\` parameters.`
+		messageId: 'no-console-spaces',
+		data: {method}
 	};
 
 	if (column) {
@@ -207,3 +209,15 @@ ruleTester.run('no-console-spaces', rule, {
 		}
 	]
 });
+
+const visualizeTester = visualizeRuleTester(test);
+visualizeTester.run('no-console-spaces', rule, [
+	'console.log("abc", " def ", "ghi");',
+	outdent`
+		console.error(
+			theme.error('✗'),
+			'Verifying "packaging" fixture\\n ',
+			theme.error(errorMessage)
+		);
+	`
+]);

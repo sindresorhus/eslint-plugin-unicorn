@@ -1,6 +1,11 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const MESSAGE_ID = 'import-index';
+const messages = {
+	[MESSAGE_ID]: 'Do not reference the index file directly..'
+};
+
 const regexp = /^(?<package>@.*?\/.*?|[./]+?.*?)\/(?:\.|(?:index(?:\.js)?))?$/;
 const isImportingIndex = value => regexp.test(value);
 const normalize = value => value.replace(regexp, '$<package>');
@@ -9,7 +14,7 @@ const importIndex = (context, node, argument) => {
 	if (argument && isImportingIndex(argument.value)) {
 		context.report({
 			node,
-			message: 'Do not reference the index file directly.',
+			messageId: MESSAGE_ID,
 			fix: fixer => fixer.replaceText(argument, `'${normalize(argument.value)}'`)
 		});
 	}
@@ -50,6 +55,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		schema,
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };

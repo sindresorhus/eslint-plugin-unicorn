@@ -3,6 +3,8 @@ import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/number-literal-case';
 
+const MESSAGE_ID = 'number-literal-case';
+
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
@@ -19,7 +21,7 @@ const typescriptRuleTester = avaRuleTester(test, {
 });
 
 const error = {
-	message: 'Invalid number literal casing.'
+	messageId: MESSAGE_ID
 };
 
 // Legacy octal literals

@@ -3,7 +3,11 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const replaceStringRaw = require('./utils/replace-string-raw');
 
-const message = 'Do not use leading/trailing space between `console.{{method}}` parameters.';
+const MESSAGE_ID = 'no-console-spaces';
+const messages = {
+	// TODO: Make `leading/trailing` more specify
+	[MESSAGE_ID]: 'Do not use leading/trailing space between `console.{{method}}` parameters.'
+};
 
 const methods = [
 	'log',
@@ -72,7 +76,7 @@ const create = context => {
 			for (const {node, fixed} of fixedParameters) {
 				context.report({
 					node,
-					message,
+					messageId: MESSAGE_ID,
 					data: {method},
 					fix: fixer => replaceStringRaw(fixer, node, fixed)
 				});
@@ -88,6 +92,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };
