@@ -157,6 +157,9 @@ ruleTester.run('numeric-separators-style', rule, {
 		},
 		{
 			code: 'var foo = Infinity'
+		},
+		{
+			code: 'var foo = "1234567n"'
 		}
 	],
 	invalid: [
