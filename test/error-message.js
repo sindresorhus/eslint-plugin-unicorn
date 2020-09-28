@@ -3,8 +3,8 @@ import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/error-message';
 
-const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage'
-const MESSAGE_ID_EMPTY_MESSAGE = 'emptyMessage'
+const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage';
+const MESSAGE_ID_EMPTY_MESSAGE = 'emptyMessage';
 
 const ruleTester = avaRuleTester(test, {
 	env: {

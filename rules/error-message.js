@@ -1,8 +1,8 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage'
-const MESSAGE_ID_EMPTY_MESSAGE = 'emptyMessage'
+const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage';
+const MESSAGE_ID_EMPTY_MESSAGE = 'emptyMessage';
 
 const errorConstructors = new Set([
 	'Error',
