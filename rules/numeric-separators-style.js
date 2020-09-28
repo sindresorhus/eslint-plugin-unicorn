@@ -1,5 +1,5 @@
 'use strict';
-
+const merge = require('lodash/merge');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 function addSeparator(value, {minimumDigits, groupLength}, fromLeft) {
@@ -71,7 +71,7 @@ const create = context => {
 		octal: {minimumDigits: 0, groupLength: 4},
 		number: {minimumDigits: 5, groupLength: 3}
 	};
-	const rawOptions = context.options[0] || defaultOptions;
+	const rawOptions = merge(defaultOptions, context.options[0]);
 	const options = {
 		'0b': rawOptions.binary,
 		'0o': rawOptions.octal,
