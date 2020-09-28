@@ -96,7 +96,6 @@ typescriptRuleTester.run('no-new-buffer', rule, {
 	]
 });
 
-
 const visualizeTester = visualizeRuleTester(test, {
 	parserOptions: {
 		ecmaVersion: 2021
