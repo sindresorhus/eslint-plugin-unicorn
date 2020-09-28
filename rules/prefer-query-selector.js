@@ -1,6 +1,11 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const MESSAGE_ID = 'prefer-query-selector';
+const messages = {
+	[MESSAGE_ID]: 'Prefer `.{{replacement}}()` over `.{{method}}()`.'
+};
+
 const forbiddenIdentifierNames = new Map([
 	['getElementById', 'querySelector'],
 	['getElementsByClassName', 'querySelectorAll'],
@@ -102,7 +107,11 @@ const create = context => {
 
 			const report = {
 				node,
-				message: `Prefer \`.${preferedSelector}()\` over \`.${identifierName}()\`.`
+				messageId: MESSAGE_ID,
+				data: {
+					replacement: preferedSelector,
+					method: identifierName
+				}
 			};
 
 			if (canBeFixed(node.arguments[0])) {
@@ -121,6 +130,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };
