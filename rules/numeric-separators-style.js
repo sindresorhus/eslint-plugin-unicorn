@@ -36,9 +36,9 @@ function addSeparatorFromLeft(value, options) {
 
 function formatNumber(value, options) {
 	const parts = value.split('.');
-	const [decimal, fractional] = parts;
+	const [integer, fractional] = parts;
 
-	let formatted = addSeparator(decimal, options);
+	let formatted = addSeparator(integer, options);
 	if (parts.length === 2) {
 		formatted += '.';
 		formatted += addSeparatorFromLeft(fractional, options);
