@@ -2,6 +2,11 @@
 const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const MESSAGE_ID = 'no-nested-ternary';
+const messages = {
+	[MESSAGE_ID]: 'Do not nest ternary expressions.'
+};
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
@@ -14,19 +19,18 @@ const create = context => {
 					continue;
 				}
 
-				const message = 'Do not nest ternary expressions.';
-
 				// Nesting more than one level not allowed.
 				if (
 					childNode.alternate.type === 'ConditionalExpression' ||
 					childNode.consequent.type === 'ConditionalExpression'
 				) {
-					context.report({node, message});
+					// TODO: Improve report location
+					context.report({node, messageId: MESSAGE_ID});
 					break;
 				} else if (!isParenthesized(childNode, sourceCode)) {
 					context.report({
 						node: childNode,
-						message,
+						messageId: MESSAGE_ID,
 						fix: fixer => [
 							fixer.insertTextBefore(childNode, '('),
 							fixer.insertTextAfter(childNode, ')')
@@ -45,6 +49,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
+		messages,
 		fixable: 'code'
 	}
 };

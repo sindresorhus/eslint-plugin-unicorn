@@ -1,7 +1,8 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/no-nested-ternary';
 import {outdent} from 'outdent';
+import rule from '../rules/no-nested-ternary';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -15,11 +16,11 @@ const typescriptRuleTester = avaRuleTester(test, {
 
 const errors = [
 	{
-		message: 'Do not nest ternary expressions.'
+		messageId: 'no-nested-ternary'
 	}
 ];
 
-ruleTester.run('new-error', rule, {
+ruleTester.run('no-nested-ternary', rule, {
 	valid: [
 		'const foo = i > 5 ? true : false;',
 		'const foo = i > 5 ? true : (i < 100 ? true : false);',
@@ -73,7 +74,7 @@ ruleTester.run('new-error', rule, {
 	]
 });
 
-typescriptRuleTester.run('new-error', rule, {
+typescriptRuleTester.run('no-nested-ternary', rule, {
 	valid: [
 		// #663
 		outdent`
@@ -88,3 +89,12 @@ typescriptRuleTester.run('new-error', rule, {
 	],
 	invalid: []
 });
+
+const visualizeTester = visualizeRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 2021
+	}
+});
+visualizeTester.run('no-nested-ternary', rule, [
+	'const foo = i > 5 ? true : (i < 100 ? true : (i < 1000 ? true : false));'
+]);
