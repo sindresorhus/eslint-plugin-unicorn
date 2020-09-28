@@ -2,6 +2,7 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/no-unused-properties';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -24,7 +25,7 @@ const babelEslintRuleTester = avaRuleTester(test, {
 });
 
 const error = {
-	message: 'Property `u` is defined but never used.'
+	messageId: 'no-unused-properties'
 };
 
 ruleTester.run('no-unused-properties', rule, {
@@ -432,3 +433,21 @@ babelEslintRuleTester.run('no-unused-properties', rule, {
 	],
 	invalid: []
 });
+
+const visualizeTester = visualizeRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 2021
+	}
+});
+
+visualizeTester.run('no-unused-properties', rule, [
+	outdent`
+		function foo() {
+			const bar = {
+				b: 2,
+				u: 3
+			};
+			console.log(bar.b);
+		}
+	`
+]);
