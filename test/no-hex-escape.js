@@ -17,7 +17,7 @@ const typescriptRuleTester = avaRuleTester(test, {
 });
 
 const error = {
-	message: 'no-hex-escape'
+	messageId: 'no-hex-escape'
 };
 
 const tests = {

@@ -4,7 +4,7 @@ const replaceTemplateElement = require('./utils/replace-template-element');
 
 const MESSAGE_ID = 'no-hex-escape';
 const messages = {
-	[MESSAGE_ID]: 'Use a `for-of` loop instead of this `for` loop.'
+	[MESSAGE_ID]: 'Use Unicode escapes instead of hexadecimal escapes.'
 };
 
 function checkEscape(context, node, value) {
