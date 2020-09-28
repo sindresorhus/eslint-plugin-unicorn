@@ -40,7 +40,7 @@ The minimum of digits in a number, where you shouldn't use numeric separator.
 
 Example: With 5 as the minimum digits, `1024` will pass because it has 4 digits, and `1_024` will fail.
 
-**`preferedGroupLength`**
+**`groupLength`**
 
 Type: `number`
 The size a group should be.
@@ -49,13 +49,13 @@ The size of the first group can be of any length as long as it is equal to or le
 ### Examples
 
 ```js
-// eslint unicorn/numeric-separators-style: ["error", {number: {minimumDigits: 0, preferedGroupLength: 3}}]
+// eslint unicorn/numeric-separators-style: ["error", {number: {minimumDigits: 0, groupLength: 3}}]
 const foo = 100; // Pass
 const foo = 1_000; // Pass
 const foo = 1_000_000; // Pass
 const foo = 0.000_0001; // Fail
 
-// eslint unicorn/numeric-separators-style: ["error", {octal: {minimumDigits: 0, preferedGroupLength3}}]
+// eslint unicorn/numeric-separators-style: ["error", {octal: {minimumDigits: 0, groupLength3}}]
 const foo = 0o123; // Pass
 const foo = 0o1_123; // Pass
 const foo = 0o1123; // Fail
@@ -68,19 +68,19 @@ const foo = 0o123456; // Fail
 {
 	hexadecimal: {
 		minimumDigits: 0,
-		preferedGroupLength: 2
+		groupLength: 2
 	},
 	binary: {
 		minimumDigits: 0,
-		preferedGroupLength: 4
+		groupLength: 4
 	},
 	octal: {
 		minimumDigits: 0,
-		preferedGroupLength: 4
+		groupLength: 4
 	},
 	number: {
 		minimumDigits: 5,
-		preferedGroupLength: 3
+		groupLength: 3
 	}
 };
 ```

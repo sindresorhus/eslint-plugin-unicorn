@@ -2,7 +2,7 @@
 
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-function addSeparator(value, {minimumDigits, preferedGroupLength}, fromLeft) {
+function addSeparator(value, {minimumDigits, groupLength}, fromLeft) {
 	const {length} = value;
 
 	if (length < minimumDigits) {
@@ -11,13 +11,13 @@ function addSeparator(value, {minimumDigits, preferedGroupLength}, fromLeft) {
 
 	const parts = [];
 	if (fromLeft) {
-		for (let start = 0; start < length; start += preferedGroupLength) {
-			const end = Math.min(start + preferedGroupLength, length);
+		for (let start = 0; start < length; start += groupLength) {
+			const end = Math.min(start + groupLength, length);
 			parts.push(value.slice(start, end));
 		}
 	} else {
-		for (let end = length; end > 0; end -= preferedGroupLength) {
-			const start = Math.max(end - preferedGroupLength, 0);
+		for (let end = length; end > 0; end -= groupLength) {
+			const start = Math.max(end - groupLength, 0);
 			parts.unshift(value.slice(start, end));
 		}
 	}
@@ -103,7 +103,7 @@ const create = context => {
 	};
 };
 
-function getProperties(minimumDigits, preferedGroupLength) {
+function getProperties(minimumDigits, groupLength) {
 	return {
 		type: 'object',
 		properties: {
@@ -111,9 +111,9 @@ function getProperties(minimumDigits, preferedGroupLength) {
 				type: 'number',
 				default: minimumDigits
 			},
-			preferedGroupLength: {
+			groupLength: {
 				type: 'number',
-				default: preferedGroupLength
+				default: groupLength
 			}
 		},
 		additionalProperties: false
