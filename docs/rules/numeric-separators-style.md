@@ -30,7 +30,7 @@ const foo = 1_294_287_712n;
 
 If you want a custom group size for a specific number type, you can specify it here.
 
-There are four group types, [`hexadecimal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Hexadecimal), [`binary`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Binary), [`octal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Octal) and [`number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type). Each of them has to be associated with an object containing the following options:
+There are four number types; [`hexadecimal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Hexadecimal), [`binary`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Binary), [`octal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Octal) and [`number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type). Each of them has to be associated with an object containing the following options:
 
 **`minimumDigits`**
 
