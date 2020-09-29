@@ -3,7 +3,7 @@ import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/catch-error-name';
 
-const ERROR_MESSAGE_ID = 'error';
+const MESSAGE_ID = 'catch-error-name';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
@@ -16,7 +16,7 @@ const typescriptRuleTester = avaRuleTester(test, {
 });
 
 const generateError = (originalName, fixedName) => ({
-	messageId: ERROR_MESSAGE_ID,
+	messageId: MESSAGE_ID,
 	data: {
 		originalName,
 		fixedName

@@ -2,6 +2,9 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'number-literal-case';
+const messages = {
+	[MESSAGE_ID]: 'Invalid number literal casing.'
+};
 
 const fix = raw => {
 	let fixed = raw.toLowerCase();
@@ -43,8 +46,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[MESSAGE_ID]: 'Invalid number literal casing.'
-		}
+		messages
 	}
 };

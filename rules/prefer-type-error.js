@@ -2,6 +2,9 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'prefer-type-error';
+const messages = {
+	[MESSAGE_ID]: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.'
+};
 
 const tcIdentifiers = new Set([
 	'isArguments',
@@ -134,8 +137,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[MESSAGE_ID]: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.'
-		}
+		messages
 	}
 };

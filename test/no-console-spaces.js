@@ -10,21 +10,11 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-function buildError({method, column, line}) {
-	const error = {
+function buildError({method, positions}) {
+	return {
 		messageId: 'no-console-spaces',
-		data: {method}
+		data: {method, positions}
 	};
-
-	if (column) {
-		error.column = column;
-	}
-
-	if (line) {
-		error.line = line;
-	}
-
-	return error;
 }
 
 ruleTester.run('no-console-spaces', rule, {
@@ -105,66 +95,66 @@ ruleTester.run('no-console-spaces', rule, {
 	invalid: [
 		{
 			code: 'console.log("abc ", "def");',
-			errors: [buildError({method: 'log'})],
+			errors: [buildError({method: 'log', positions: 'trailing'})],
 			output: 'console.log("abc", "def");'
 		},
 		{
 			code: 'console.log("abc", " def");',
-			errors: [buildError({method: 'log'})],
+			errors: [buildError({method: 'log', positions: 'leading'})],
 			output: 'console.log("abc", "def");'
 		},
 		{
 			code: 'console.log(" abc ", "def");',
-			errors: [buildError({method: 'log'})],
+			errors: [buildError({method: 'log', positions: 'trailing'})],
 			output: 'console.log(" abc", "def");'
 		},
 		{
 			code: 'console.debug("abc ", "def");',
-			errors: [buildError({method: 'debug'})],
+			errors: [buildError({method: 'debug', positions: 'trailing'})],
 			output: 'console.debug("abc", "def");'
 		},
 		{
 			code: 'console.info("abc ", "def");',
-			errors: [buildError({method: 'info'})],
+			errors: [buildError({method: 'info', positions: 'trailing'})],
 			output: 'console.info("abc", "def");'
 		},
 		{
 			code: 'console.warn("abc ", "def");',
-			errors: [buildError({method: 'warn'})],
+			errors: [buildError({method: 'warn', positions: 'trailing'})],
 			output: 'console.warn("abc", "def");'
 		},
 		{
 			code: 'console.error("abc ", "def");',
-			errors: [buildError({method: 'error'})],
+			errors: [buildError({method: 'error', positions: 'trailing'})],
 			output: 'console.error("abc", "def");'
 		},
 		{
 			code: 'console.log("abc", " def ", "ghi");',
-			errors: [buildError({method: 'log'})],
+			errors: [buildError({method: 'log', positions: 'leading and trailing'})],
 			output: 'console.log("abc", "def", "ghi");'
 		},
 		{
 			code: 'console.log("abc ", "def ", "ghi");',
 			errors: [
-				buildError({method: 'log', column: 13}),
-				buildError({method: 'log', column: 21})
+				buildError({method: 'log', positions: 'trailing'}),
+				buildError({method: 'log', positions: 'trailing'})
 			],
 			output: 'console.log("abc", "def", "ghi");'
 		},
 		{
 			code: 'console.log(\'abc \', "def");',
-			errors: [buildError({method: 'log'})],
+			errors: [buildError({method: 'log', positions: 'trailing'})],
 			output: 'console.log(\'abc\', "def");'
 		},
 		{
 			code: 'console.log(`abc `, "def");',
-			errors: [buildError({method: 'log'})],
+			errors: [buildError({method: 'log', positions: 'trailing'})],
 			output: 'console.log(`abc`, "def");'
 		},
 		{
 			// eslint-disable-next-line no-template-curly-in-string
 			code: 'console.log(`abc ${1 + 2} `, "def");',
-			errors: [buildError({method: 'log'})],
+			errors: [buildError({method: 'log', positions: 'trailing'})],
 			// eslint-disable-next-line no-template-curly-in-string
 			output: 'console.log(`abc ${1 + 2}`, "def");'
 		},
@@ -177,7 +167,7 @@ ruleTester.run('no-console-spaces', rule, {
 				);
 			`,
 			errors: [
-				buildError({method: 'log', column: 2, line: 3})
+				buildError({method: 'log', positions: 'trailing'})
 			],
 			output: outdent`
 				console.log(
@@ -197,7 +187,7 @@ ruleTester.run('no-console-spaces', rule, {
 				);
 			`,
 			errors: [
-				buildError({method: 'error'})
+				buildError({method: 'error', positions: 'trailing'})
 			],
 			output: outdent`
 				console.error(
@@ -219,5 +209,20 @@ visualizeTester.run('no-console-spaces', rule, [
 			'Verifying "packaging" fixture\\n ',
 			theme.error(errorMessage)
 		);
-	`
+	`,
+	outdent`
+		console.log(
+			'abc',
+			'def ',
+			'ghi'
+		);
+	`,
+	'console.log("_", " leading", "_")',
+	'console.log("_", "trailing ", "_")',
+	'console.log("_", " leading and trailing ", "_")',
+	'console.log("_", " log ", "_")',
+	'console.debug("_", " debug ", "_")',
+	'console.info("_", " info ", "_")',
+	'console.warn("_", " warn ", "_")',
+	'console.error("_", " error ", "_")'
 ]);

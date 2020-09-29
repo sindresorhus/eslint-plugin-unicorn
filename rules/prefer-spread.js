@@ -4,6 +4,9 @@ const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
 
 const MESSAGE_ID = 'prefer-spread';
+const messages = {
+	[MESSAGE_ID]: 'Prefer the spread operator over `Array.from()`.'
+};
 
 const selector = [
 	methodSelector({
@@ -51,8 +54,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[MESSAGE_ID]: 'Prefer the spread operator over `Array.from()`.'
-		}
+		messages
 	}
 };

@@ -1,6 +1,10 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+
 const MESSAGE_ID = 'no-new-buffer';
+const messages = {
+	[MESSAGE_ID]: '`new Buffer()` is deprecated, use `Buffer.{{method}}()` instead.'
+};
 
 const inferMethod = arguments_ => {
 	if (arguments_.length > 0) {
@@ -43,8 +47,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[MESSAGE_ID]: '`new Buffer()` is deprecated, use `Buffer.{{method}}()` instead.'
-		}
+		messages
 	}
 };
