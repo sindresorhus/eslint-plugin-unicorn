@@ -30,7 +30,7 @@ function visualizeEslintResult(text, result) {
 		};
 	}
 
-	return `\n${visualizeRange(text, location, message)}\n`;
+	return visualizeRange(text, location, message);
 }
 
 class VisualizeRuleTester {
@@ -52,20 +52,24 @@ class VisualizeRuleTester {
 		linter.defineRule(ruleId, rule);
 
 		for (const [index, code] of tests.entries()) {
-			test(`${ruleId} - #${index + 1}`, t => {
+			test(`${ruleId} - #${index}`, t => {
 				const results = linter.verify(code, verifyConfig);
-
-				if (results.length !== 1) {
-					throw new Error(`Result: \n${JSON.stringify(results, undefined, 2)}\n\nVisualize test should has exactly one error.`);
+				if (results.length === 0) {
+					throw new Error('No errors reported.');
 				}
 
-				const [error] = results;
-
-				if (error.fatal) {
-					throw new Error(error.message);
+				const fatalError = results.find(({fatal}) => fatal);
+				if (fatalError) {
+					throw new Error(fatalError);
 				}
 
-				t.snapshot(visualizeEslintResult(code, error));
+				let visualized = '\n';
+				for (const [index, error] of results.entries()) {
+					visualized += `Error #${index}:\n${visualizeEslintResult(code, error)}`
+				}
+				visualized += '\n';
+
+				t.snapshot(visualized);
 			});
 		}
 	}
