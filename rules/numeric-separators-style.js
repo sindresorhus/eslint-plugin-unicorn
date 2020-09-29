@@ -1,5 +1,5 @@
 'use strict';
-const defaultsDeep = require('lodash/defaultsDeep');
+const {defaultsDeep, fromPairs} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'numeric-separators-style';
@@ -133,7 +133,7 @@ const formatOptionsSchema = ({minimumDigits, groupLength}) => ({
 
 const schema = [{
 	type: 'object',
-	properties: Object.fromEntries(
+	properties: fromPairs(
 		Object.entries(defaultOptions).map(([type, options]) => [type, formatOptionsSchema(options)])
 	),
 	additionalProperties: false
