@@ -1,5 +1,5 @@
 'use strict';
-const merge = require('lodash/merge');
+const defaultsDeep = require('lodash/defaultsDeep');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'numeric-separators-style';
@@ -69,14 +69,14 @@ function format(value, options) {
 	return formatNumber(number, formatOption) + mark + sign + addSeparator(power, options['']);
 }
 
+const defaultOptions = {
+	hexadecimal: {minimumDigits: 0, groupLength: 2},
+	binary: {minimumDigits: 0, groupLength: 4},
+	octal: {minimumDigits: 0, groupLength: 4},
+	number: {minimumDigits: 5, groupLength: 3}
+};
 const create = context => {
-	const defaultOptions = {
-		hexadecimal: {minimumDigits: 0, groupLength: 2},
-		binary: {minimumDigits: 0, groupLength: 4},
-		octal: {minimumDigits: 0, groupLength: 4},
-		number: {minimumDigits: 5, groupLength: 3}
-	};
-	const rawOptions = merge(defaultOptions, context.options[0]);
+	const rawOptions = defaultsDeep({}, context.options[0], defaultOptions);
 	const options = {
 		'0b': rawOptions.binary,
 		'0o': rawOptions.octal,
