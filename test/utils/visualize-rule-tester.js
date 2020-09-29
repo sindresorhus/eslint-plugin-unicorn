@@ -30,7 +30,7 @@ function visualizeEslintResult(text, result) {
 		};
 	}
 
-	return `\n${visualizeRange(text, location, message)}\n`;
+	return visualizeRange(text, location, message);
 }
 
 const getVerifyConfig = (ruleId, testerConfig, options) => ({
@@ -57,18 +57,25 @@ class VisualizeRuleTester {
 
 			test(`${ruleId} - #${index + 1}`, t => {
 				const results = linter.verify(code, verifyConfig);
-
-				if (results.length !== 1) {
-					throw new Error(`Result: \n${JSON.stringify(results, undefined, 2)}\n\nVisualize test should has exactly one error.`);
+				if (results.length === 0) {
+					throw new Error('No errors reported.');
 				}
 
-				const [error] = results;
-
-				if (error.fatal) {
-					throw new Error(error.message);
+				const fatalError = results.find(({fatal}) => fatal);
+				if (fatalError) {
+					throw new Error(fatalError);
 				}
 
-				t.snapshot(visualizeEslintResult(code, error));
+				const visualized = `\n${
+					results
+						.map(
+							(error, index, results) =>
+								`Error ${index + 1}/${results.length}:\n${visualizeEslintResult(code, error)}`
+						)
+						.join('\n\n')
+				}\n`;
+
+				t.snapshot(visualized);
 			});
 		}
 	}
