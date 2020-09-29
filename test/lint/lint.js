@@ -18,7 +18,17 @@ const eslint = new ESLint({
 		ignorePatterns: [
 			'coverage',
 			'test/integration/fixtures'
-		]
+		],
+		rules: {
+			'unicorn/prevent-abbreviations': [
+				'error',
+				{
+					replacements: {
+						fn: false
+					}
+				}
+			]
+		}
 	}
 });
 

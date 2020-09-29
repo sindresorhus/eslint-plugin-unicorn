@@ -4,6 +4,12 @@ const quoteString = require('./utils/quote-string');
 const replaceTemplateElement = require('./utils/replace-template-element');
 const escapeTemplateElementRaw = require('./utils/escape-template-element-raw');
 
+const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
+const SUGGESTION_MESSAGE_ID = 'replace';
+const messages = {
+	[SUGGESTION_MESSAGE_ID]: 'Replace `{{match}}` with `{{suggest}}`.'
+};
+
 const ignoredIdentifier = new Set([
 	'gql',
 	'html',
@@ -37,9 +43,6 @@ const isIgnoredTag = node => {
 
 	return false;
 };
-
-const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
-const SUGGESTION_MESSAGE_ID = 'replace';
 
 function getReplacements(patterns) {
 	return Object.entries(patterns)
@@ -178,8 +181,6 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
-		messages: {
-			[SUGGESTION_MESSAGE_ID]: 'Replace `{{match}}` with `{{suggest}}`.'
-		}
+		messages
 	}
 };

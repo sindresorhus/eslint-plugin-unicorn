@@ -2,6 +2,7 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/prefer-negative-index';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -10,6 +11,7 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const error = {
+	messageId: 'prefer-negative-index'
 };
 
 ruleTester.run('prefer-negative-index', rule, {
@@ -365,3 +367,13 @@ ruleTester.run('prefer-negative-index', rule, {
 		}
 	]
 });
+
+const visualizeTester = visualizeRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 2021
+	}
+});
+visualizeTester.run('prefer-negative-index', rule, [
+	'foo.slice(foo.length - 2, foo.length - 1)',
+	'foo.splice(foo.length - 1, 1)'
+]);

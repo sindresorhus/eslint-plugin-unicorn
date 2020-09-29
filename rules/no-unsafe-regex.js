@@ -2,7 +2,10 @@
 const safeRegex = require('safe-regex');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const message = 'Unsafe regular expression.';
+const MESSAGE_ID = 'no-unsafe-regex';
+const messages = {
+	[MESSAGE_ID]: 'Unsafe regular expression.'
+};
 
 const create = context => {
 	return {
@@ -18,7 +21,7 @@ const create = context => {
 			if (!safeRegex(node.value)) {
 				context.report({
 					node,
-					message
+					messageId: MESSAGE_ID
 				});
 			}
 		},
@@ -44,7 +47,7 @@ const create = context => {
 			if (!safeRegex(`/${pattern}/${flags}`)) {
 				context.report({
 					node,
-					message
+					messageId: MESSAGE_ID
 				});
 			}
 		}
@@ -57,6 +60,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			url: getDocumentationUrl(__filename)
-		}
+		},
+		messages
 	}
 };

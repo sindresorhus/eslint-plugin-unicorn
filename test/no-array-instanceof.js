@@ -1,6 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/no-array-instanceof';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -10,11 +11,11 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [
 	{
-		message: 'Use `Array.isArray()` instead of `instanceof Array`.'
+		messageId: 'no-array-instanceof'
 	}
 ];
 
-ruleTester.run('avoid-array-instanceof', rule, {
+ruleTester.run('no-array-instanceof', rule, {
 	valid: [
 		'Array.isArray(arr)',
 		'arr instanceof Object',
@@ -58,3 +59,8 @@ ruleTester.run('avoid-array-instanceof', rule, {
 		}
 	]
 });
+
+const visualizeTester = visualizeRuleTester(test);
+visualizeTester.run('no-array-instanceof', rule, [
+	'if (arr instanceof Array) {}'
+]);

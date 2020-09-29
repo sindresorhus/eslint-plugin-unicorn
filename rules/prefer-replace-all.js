@@ -3,12 +3,15 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 const methodSelector = require('./utils/method-selector');
 
+const MESSAGE_ID = 'prefer-replace-all';
+const messages = {
+	[MESSAGE_ID]: 'Prefer `String#replaceAll()` over `String#replace()`.'
+};
+
 const selector = methodSelector({
 	name: 'replace',
 	length: 2
 });
-
-const message = 'Prefer `String#replaceAll()` over `String#replace()`.';
 
 function isRegexWithGlobalFlag(node) {
 	const {type, regex} = node;
@@ -47,7 +50,7 @@ const create = context => {
 
 			context.report({
 				node,
-				message,
+				messageId: MESSAGE_ID,
 				fix: fixer =>
 					[
 						fixer.insertTextAfter(node.callee, 'All'),
@@ -65,6 +68,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };

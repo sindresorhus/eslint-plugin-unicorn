@@ -3,6 +3,8 @@ import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/prefer-type-error';
 
+const MESSAGE_ID = 'prefer-type-error';
+
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
@@ -11,7 +13,7 @@ const ruleTester = avaRuleTester(test, {
 
 const errors = [
 	{
-		message: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.'
+		messageId: MESSAGE_ID
 	}
 ];
 

@@ -2,6 +2,7 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
 import rule from '../rules/no-new-buffer';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -17,11 +18,13 @@ const typescriptRuleTester = avaRuleTester(test, {
 });
 
 const allocError = {
-	message: '`new Buffer()` is deprecated, use `Buffer.alloc()` instead.'
+	messageId: 'no-new-buffer',
+	data: {method: 'alloc'}
 };
 
 const fromError = {
-	message: '`new Buffer()` is deprecated, use `Buffer.from()` instead.'
+	messageId: 'no-new-buffer',
+	data: {method: 'from'}
 };
 
 ruleTester.run('no-new-buffer', rule, {
@@ -92,3 +95,13 @@ typescriptRuleTester.run('no-new-buffer', rule, {
 		}
 	]
 });
+
+const visualizeTester = visualizeRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 2021
+	}
+});
+visualizeTester.run('no-new-buffer', rule, [
+	'const buf = new Buffer()',
+	'const buf = new Buffer([0x62, 0x75, 0x66, 0x66, 0x65, 0x72])'
+]);

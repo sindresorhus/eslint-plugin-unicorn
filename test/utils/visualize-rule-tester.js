@@ -30,8 +30,15 @@ function visualizeEslintResult(text, result) {
 		};
 	}
 
-	return `\n${visualizeRange(text, location, message)}\n`;
+	return visualizeRange(text, location, message);
 }
+
+const getVerifyConfig = (ruleId, testerConfig, options) => ({
+	...testerConfig,
+	rules: {
+		[ruleId]: ['error', ...(Array.isArray(options) ? options : [])]
+	}
+});
 
 class VisualizeRuleTester {
 	constructor(test, config) {
@@ -42,30 +49,33 @@ class VisualizeRuleTester {
 	run(ruleId, rule, tests) {
 		const {test, config} = this;
 		const linter = new Linter();
-		const verifyConfig = {
-			...config,
-			rules: {
-				[ruleId]: 'error'
-			}
-		};
-
 		linter.defineRule(ruleId, rule);
 
-		for (const [index, code] of tests.entries()) {
+		for (const [index, testCase] of tests.entries()) {
+			const {code, options} = typeof testCase === 'string' ? {code: testCase} : testCase;
+			const verifyConfig = getVerifyConfig(ruleId, config, options);
+
 			test(`${ruleId} - #${index + 1}`, t => {
 				const results = linter.verify(code, verifyConfig);
-
-				if (results.length !== 1) {
-					throw new Error('Visualize test should has exactly one error.');
+				if (results.length === 0) {
+					throw new Error('No errors reported.');
 				}
 
-				const [error] = results;
-
-				if (error.fatal) {
-					throw new Error(error.message);
+				const fatalError = results.find(({fatal}) => fatal);
+				if (fatalError) {
+					throw new Error(fatalError);
 				}
 
-				t.snapshot(visualizeEslintResult(code, error));
+				const visualized = `\n${
+					results
+						.map(
+							(error, index, results) =>
+								`Error ${index + 1}/${results.length}:\n${visualizeEslintResult(code, error)}`
+						)
+						.join('\n\n')
+				}\n`;
+
+				t.snapshot(visualized);
 			});
 		}
 	}

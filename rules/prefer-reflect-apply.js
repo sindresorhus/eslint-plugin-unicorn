@@ -3,6 +3,11 @@ const astUtils = require('eslint-ast-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 
+const MESSAGE_ID = 'prefer-reflect-apply';
+const messages = {
+	[MESSAGE_ID]: 'Prefer `Reflect.apply()` over `Function#apply()`.'
+};
+
 const isApplySignature = (argument1, argument2) => (
 	(
 		// eslint-disable-next-line unicorn/no-null
@@ -15,8 +20,8 @@ const isApplySignature = (argument1, argument2) => (
 	)
 );
 
-const getReflectApplyCall = (sourceCode, func, receiver, arguments_) => (
-	`Reflect.apply(${sourceCode.getText(func)}, ${sourceCode.getText(receiver)}, ${sourceCode.getText(arguments_)})`
+const getReflectApplyCall = (sourceCode, target, receiver, argumentsList) => (
+	`Reflect.apply(${sourceCode.getText(target)}, ${sourceCode.getText(receiver)}, ${sourceCode.getText(argumentsList)})`
 );
 
 const fixDirectApplyCall = (node, sourceCode) => {
@@ -71,7 +76,7 @@ const create = context => {
 			if (fix) {
 				context.report({
 					node,
-					message: 'Prefer `Reflect.apply()` over `Function#apply()`.',
+					messageId: MESSAGE_ID,
 					fix
 				});
 			}
@@ -86,6 +91,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };

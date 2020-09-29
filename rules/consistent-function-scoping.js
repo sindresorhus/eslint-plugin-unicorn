@@ -4,6 +4,9 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const getReferences = require('./utils/get-references');
 
 const MESSAGE_ID = 'consistent-function-scoping';
+const messages = {
+	[MESSAGE_ID]: 'Move {{functionNameWithKind}} to the outer scope.'
+};
 
 const isSameScope = (scope1, scope2) =>
 	scope1 && scope2 && (scope1 === scope2 || scope1.block === scope2.block);
@@ -153,17 +156,21 @@ const create = context => {
 	const {scopeManager} = sourceCode;
 
 	const functions = [];
-	let hasJsx = false;
 
 	return {
-		'ArrowFunctionExpression, FunctionDeclaration': node => functions.push(node),
+		'ArrowFunctionExpression, FunctionDeclaration': () => {
+			functions.push(false);
+		},
 		JSXElement: () => {
 			// Turn off this rule if we see a JSX element because scope
 			// references does not include JSXElement nodes.
-			hasJsx = true;
+			if (functions.length !== 0) {
+				functions[functions.length - 1] = true;
+			}
 		},
 		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
-			if (!hasJsx && !checkNode(node, scopeManager)) {
+			const currentFunctionHasJsx = functions.pop();
+			if (!currentFunctionHasJsx && !checkNode(node, scopeManager)) {
 				context.report({
 					node,
 					loc: getFunctionHeadLocation(node, sourceCode),
@@ -172,11 +179,6 @@ const create = context => {
 						functionNameWithKind: getFunctionNameWithKind(node)
 					}
 				});
-			}
-
-			functions.pop();
-			if (functions.length === 0) {
-				hasJsx = false;
 			}
 		}
 	};
@@ -189,8 +191,6 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		messages: {
-			[MESSAGE_ID]: 'Move {{functionNameWithKind}} to the outer scope.'
-		}
+		messages
 	}
 };

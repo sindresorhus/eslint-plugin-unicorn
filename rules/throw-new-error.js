@@ -2,6 +2,10 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const messageId = 'throw-new-error';
+const messages = {
+	[messageId]: 'Use `new` when throwing an error.'
+};
+
 const customError = /^(?:[A-Z][\da-z]*)*Error$/;
 
 const selector = [
@@ -43,9 +47,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		messages: {
-			[messageId]: 'Use `new` when throwing an error.'
-		},
+		messages,
 		fixable: 'code'
 	}
 };

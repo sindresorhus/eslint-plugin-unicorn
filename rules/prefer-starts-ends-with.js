@@ -6,6 +6,10 @@ const quoteString = require('./utils/quote-string');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
+const messages = {
+	[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
+	[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.'
+};
 
 const doesNotContain = (string, characters) => characters.every(character => !string.includes(character));
 
@@ -115,10 +119,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		messages: {
-			[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
-			[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.'
-		},
+		messages,
 		fixable: 'code'
 	}
 };

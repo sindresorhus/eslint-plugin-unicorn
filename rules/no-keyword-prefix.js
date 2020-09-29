@@ -3,6 +3,9 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'noKeywordPrefix';
+const messages = {
+	[MESSAGE_ID]: 'Do not prefix identifiers with keyword `{{keyword}}`.'
+};
 
 const prepareOptions = ({
 	blacklist,
@@ -195,8 +198,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		schema,
-		messages: {
-			[MESSAGE_ID]: 'Do not prefix identifiers with keyword `{{keyword}}`.'
-		}
+		messages
 	}
 };

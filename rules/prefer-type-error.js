@@ -1,6 +1,11 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const MESSAGE_ID = 'prefer-type-error';
+const messages = {
+	[MESSAGE_ID]: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.'
+};
+
 const tcIdentifiers = new Set([
 	'isArguments',
 	'isArray',
@@ -116,7 +121,7 @@ const create = context => {
 			) {
 				context.report({
 					node,
-					message: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.',
+					messageId: MESSAGE_ID,
 					fix: fixer => fixer.replaceText(node.argument.callee, 'TypeError')
 				});
 			}
@@ -131,6 +136,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };
