@@ -114,23 +114,28 @@ const create = context => {
 	};
 };
 
-const schemaObject = {
+const formatOptionsSchema = ({minimumDigits, groupLength}) => ({
 	type: 'object',
 	properties: {
-		minimumDigits: {type: 'number'},
-		groupLength: {type: 'number'}
+		minimumDigits: {
+			type: 'integer',
+			minimum: 0,
+			default: minimumDigits
+		},
+		groupLength: {
+			type: 'integer',
+			minimum: 1,
+			default: groupLength
+		}
 	},
 	additionalProperties: false
-};
+});
 
 const schema = [{
 	type: 'object',
-	properties: {
-		hexadecimal: schemaObject,
-		binary: schemaObject,
-		octal: schemaObject,
-		number: schemaObject
-	},
+	properties: Object.fromEntries(
+		Object.entries(defaultOptions).map(([type, options]) => [type, formatOptionsSchema(options)])
+	),
 	additionalProperties: false
 }];
 
