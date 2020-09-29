@@ -53,7 +53,7 @@ class VisualizeRuleTester {
 		linter.defineRule(ruleId, rule);
 
 		for (const [index, code] of tests.entries()) {
-			test(`Case ${index + 1}`, t => {
+			test(`${ruleId} - #${index + 1}`, t => {
 				const results = linter.verify(code, verifyConfig);
 				if (results.length === 0) {
 					throw new Error('No errors reported.');
