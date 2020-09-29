@@ -345,4 +345,4 @@ const visualizeTester = visualizeRuleTester(test, {
 visualizeTester.run('numeric-separators-style', rule, [
 	'console.log(0XdeEdBeeFn)',
 	'const foo = 12345678..toString()'
-])
+]);
