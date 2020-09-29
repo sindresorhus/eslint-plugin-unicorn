@@ -81,7 +81,7 @@ const create = context => {
 
 		context.report({
 			node,
-			messageId: ERROR_MESSAGE_ID,
+			messageId: MESSAGE_ID,
 			data: {
 				originalName,
 				fixedName
