@@ -6,6 +6,11 @@ const renameIdentifier = require('./utils/rename-identifier');
 const METHOD_ERROR_MESSAGE_ID = 'method-error';
 const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
 const PROPERTY_ERROR_MESSAGE_ID = 'property-error';
+const messages = {
+	[METHOD_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}()` over `{{name}}()`.',
+	[METHOD_SUGGESTION_MESSAGE_ID]: 'Replace `{{name}}()` with `Number.{{name}}()`.',
+	[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}` over `{{name}}`.'
+};
 
 const methods = {
 	// Safe
@@ -105,10 +110,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[METHOD_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}()` over `{{name}}()`.',
-			[METHOD_SUGGESTION_MESSAGE_ID]: 'Replace `{{name}}()` with `Number.{{name}}()`.',
-			[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}` over `{{name}}`.'
-		}
+		messages
 	}
 };

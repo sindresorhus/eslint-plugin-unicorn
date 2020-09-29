@@ -3,6 +3,9 @@ const {upperFirst} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
+const messages = {
+	[MESSAGE_ID_INVALID_EXPORT]: 'Exported error name should match error class'
+};
 
 const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
 
@@ -212,8 +215,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[MESSAGE_ID_INVALID_EXPORT]: 'Exported error name should match error class'
-		}
+		messages
 	}
 };

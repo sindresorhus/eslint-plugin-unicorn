@@ -3,7 +3,10 @@ const astUtils = require('eslint-ast-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 
-const MESSAGE_ID = 'prefer-prefer-reflect-apply';
+const MESSAGE_ID = 'prefer-reflect-apply';
+const messages = {
+	[MESSAGE_ID]: 'Prefer `Reflect.apply()` over `Function#apply()`.'
+};
 
 const isApplySignature = (argument1, argument2) => (
 	(
@@ -89,8 +92,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[MESSAGE_ID]: 'Prefer `Reflect.apply()` over `Function#apply()`.'
-		}
+		messages
 	}
 };

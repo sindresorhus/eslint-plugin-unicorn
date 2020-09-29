@@ -5,6 +5,10 @@ const {notFunctionSelector} = require('./utils/not-function');
 
 const MESSAGE_ID_REDUCE = 'reduce';
 const MESSAGE_ID_REDUCE_RIGHT = 'reduceRight';
+const messages = {
+	[MESSAGE_ID_REDUCE]: '`Array#reduce()` is not allowed',
+	[MESSAGE_ID_REDUCE_RIGHT]: '`Array#reduceRight()` is not allowed'
+};
 
 const prototypeSelector = method => [
 	methodSelector({name: method}),
@@ -74,9 +78,6 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		messages: {
-			[MESSAGE_ID_REDUCE]: '`Array#reduce()` is not allowed',
-			[MESSAGE_ID_REDUCE_RIGHT]: '`Array#reduceRight()` is not allowed'
-		}
+		messages
 	}
 };

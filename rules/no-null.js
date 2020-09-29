@@ -5,6 +5,11 @@ const methodSelector = require('./utils/method-selector');
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';
 const SUGGESTION_REMOVE_MESSAGE_ID = 'remove';
+const messages = {
+	[ERROR_MESSAGE_ID]: 'Use `undefined` instead of `null`.',
+	[SUGGESTION_REPLACE_MESSAGE_ID]: 'Replace `null` with `undefined`.',
+	[SUGGESTION_REMOVE_MESSAGE_ID]: 'Remove `null`.'
+};
 
 const objectCreateSelector = methodSelector({
 	object: 'Object',
@@ -97,11 +102,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		messages: {
-			[ERROR_MESSAGE_ID]: 'Use `undefined` instead of `null`.',
-			[SUGGESTION_REPLACE_MESSAGE_ID]: 'Replace `null` with `undefined`.',
-			[SUGGESTION_REMOVE_MESSAGE_ID]: 'Remove `null`.'
-		},
+		messages,
 		schema,
 		fixable: 'code'
 	}

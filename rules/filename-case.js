@@ -4,6 +4,11 @@ const {camelCase, kebabCase, snakeCase, upperFirst} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
 
+const messages = {
+	renameToCase: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.',
+	renameToCases: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.'
+};
+
 const pascalCase = string => upperFirst(camelCase(string));
 const numberRegex = /\d+/;
 const PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
@@ -246,9 +251,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		schema,
-		messages: {
-			renameToCase: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.',
-			renameToCases: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.'
-		}
+		messages
 	}
 };

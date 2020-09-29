@@ -3,6 +3,9 @@ const {isCommaToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const messageId = 'no-useless-undefined';
+const messages = {
+	[messageId]: 'Do not use useless `undefined`.'
+};
 
 const getSelector = (parent, property) =>
 	`${parent} > Identifier.${property}[name="undefined"]`;
@@ -159,9 +162,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		messages: {
-			[messageId]: 'Do not use useless `undefined`.'
-		},
+		messages,
 		fixable: 'code'
 	}
 };
