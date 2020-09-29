@@ -30,22 +30,23 @@ const foo = 1_294_287_712n;
 
 If you want a custom group size for a specific number type, you can specify it here.
 
-There are 4 group types, [`hexadecimal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Hexadecimal), [`binary`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Binary), [`octal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Octal) and [`number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type). Each of them has to be associated with an object
-containing 2 options:
+There are four group types, [`hexadecimal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Hexadecimal), [`binary`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Binary), [`octal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Octal) and [`number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type). Each of them has to be associated with an object containing the following options:
 
 **`minimumDigits`**
 
 Type: `number`
-The minimum of digits in a number, where you shouldn't use numeric separator.
 
-Example: With 5 as the minimum digits, `1024` will pass because it has 4 digits, and `1_024` will fail.
+The minimum of digits in a number where you shouldn't use numeric separator.
+
+Example: With `5` as the minimum digits, `1024` will pass because it has 4 digits, and `1_024` will fail.
 
 **`groupLength`**
 
 Type: `number`
+
 The size a group should be.
-The size of the first group can be of any length as long as it is equal to or less than the number specified here.\
-Prefixes and suffixes, such as `+`, `-`, `0x`, `n`... don't count in the group length. Notations like `e` and `.` don't count either.
+
+The size of the first group can be of any length as long as it is equal to or less than the number specified here. Prefixes and suffixes, such as `+`, `-`, `0x`, `n`, etc, don't count in the group length. Notations like `e` and `.` don't count either.
 
 ### Details
 
@@ -57,6 +58,7 @@ Numbers are split into 3 distinct parts:
 ### Examples
 
 #### Fail
+
 ```js
 // eslint unicorn/numeric-separators-style: ["error", {number: {minimumDigits: 0, groupLength: 3}}]
 const foo = 12345;
@@ -72,6 +74,7 @@ const foo = 0xA_B_CD_EF;
 ```
 
 #### Pass
+
 ```js
 // eslint unicorn/numeric-separators-style: ["error", {number: {minimumDigits: 0, groupLength: 3}}]
 const foo = 100;
