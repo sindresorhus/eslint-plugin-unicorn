@@ -33,6 +33,13 @@ function visualizeEslintResult(text, result) {
 	return `\n${visualizeRange(text, location, message)}\n`;
 }
 
+const getVerifyConfig = (ruleId, testerConfig, options) => ({
+	...testerConfig,
+	rules: {
+		[ruleId]: ['error', ...(Array.isArray(options) ? options : [])]
+	}
+});
+
 class VisualizeRuleTester {
 	constructor(test, config) {
 		this.test = test;
@@ -42,16 +49,12 @@ class VisualizeRuleTester {
 	run(ruleId, rule, tests) {
 		const {test, config} = this;
 		const linter = new Linter();
-		const verifyConfig = {
-			...config,
-			rules: {
-				[ruleId]: 'error'
-			}
-		};
-
 		linter.defineRule(ruleId, rule);
 
-		for (const [index, code] of tests.entries()) {
+		for (const [index, testCase] of tests.entries()) {
+			const {code, options} = typeof testCase === 'string' ? {code: testCase} : testCase;
+			const verifyConfig = getVerifyConfig(ruleId, config, options);
+
 			test(`${ruleId} - #${index + 1}`, t => {
 				const results = linter.verify(code, verifyConfig);
 
