@@ -30,8 +30,8 @@ const foo = 1_294_287_712n;
 
 If you want a custom group size for a specific number type, you can specify it here.
 
-There are 4 options, [`hexadecimal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Hexadecimal), [`binary`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Binary), [`octal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Octal) and [`number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type), which all refer to their corresponding type. Each of them has to be associated with an object
-containing 2 fields:
+There are 4 group types, [`hexadecimal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Hexadecimal), [`binary`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Binary), [`octal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Octal) and [`number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type). Each of them has to be associated with an object
+containing 2 options:
 
 **`minimumDigits`**
 
@@ -44,22 +44,47 @@ Example: With 5 as the minimum digits, `1024` will pass because it has 4 digits,
 
 Type: `number`
 The size a group should be.
-The size of the first group can be of any length as long as it is equal to or less than the number specified here
+The size of the first group can be of any length as long as it is equal to or less than the number specified here.\
+Prefixes and suffixes, such as `+`, `-`, `0x`, `n`... don't count in the group length. Notations like `e` and `.` don't count either.
+
+### Details
+
+Numbers are split into 3 distinct parts:
+- The integer part (**123**.456). The remaining digits (that do not fit in a group) have to be placed at the beginning: `12_345`.
+- The fractional part (123.**456**). The remaining digits have to be placed at the end of the number: `1.234_56`.
+- The exponential part (123.456e**789**). It acts exactly as the integer part: groups have to be at the beginning.
 
 ### Examples
 
+#### Fail
 ```js
 // eslint unicorn/numeric-separators-style: ["error", {number: {minimumDigits: 0, groupLength: 3}}]
-const foo = 100; // Pass
-const foo = 1_000; // Pass
-const foo = 1_000_000; // Pass
-const foo = 0.000_0001; // Fail
+const foo = 12345;
+const foo = 0.000_0001;
+const foo = 123.1_000_001;
 
-// eslint unicorn/numeric-separators-style: ["error", {octal: {minimumDigits: 0, groupLength: 3}}]
-const foo = 0o123; // Pass
-const foo = 0o1_123; // Pass
-const foo = 0o1123; // Fail
-const foo = 0o123456; // Fail
+// eslint unicorn/numeric-separators-style: ["error", {binary: {minimumDigits: 0, groupLength: 4}}]
+const foo = 0b101010;
+const foo = 0b1010_10001;
+
+// eslint unicorn/numeric-separators-style: ["error", {hexadecimal: {minimumDigits: 0, groupLength: 2}}]
+const foo = 0xA_B_CD_EF;
+```
+
+#### Pass
+```js
+// eslint unicorn/numeric-separators-style: ["error", {number: {minimumDigits: 0, groupLength: 3}}]
+const foo = 100;
+const foo = 1_000;
+const foo = 1_000_000;
+
+// eslint unicorn/numeric-separators-style: ["error", {number: {minimumDigits: 5, groupLength: 3}}]
+const foo = 1000;
+
+// eslint unicorn/numeric-separators-style: ["error", {octal: {minimumDigits: 0, groupLength: 4}}]
+const foo = 0o7777;
+const foo = 0o7777;
+const foo = 0o12_7777;
 ```
 
 ### Default
