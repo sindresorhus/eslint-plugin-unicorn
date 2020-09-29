@@ -1,6 +1,7 @@
 'use strict';
 const {Linter} = require('eslint');
 const {codeFrameColumns} = require('@babel/code-frame');
+const {outdent} = require('outdent');
 const codeFrameColumnsOptions = {linesAbove: Infinity, linesBelow: Infinity};
 
 function visualizeRange(text, location, message) {
@@ -52,7 +53,7 @@ class VisualizeRuleTester {
 		linter.defineRule(ruleId, rule);
 
 		for (const [index, code] of tests.entries()) {
-			test(`${ruleId} - #${index}`, t => {
+			test(`Case ${index + 1}`, t => {
 				const results = linter.verify(code, verifyConfig);
 				if (results.length === 0) {
 					throw new Error('No errors reported.');
@@ -63,13 +64,11 @@ class VisualizeRuleTester {
 					throw new Error(fatalError);
 				}
 
-				let visualized = '\n';
-				for (const [index, error] of results.entries()) {
-					visualized += `Error #${index}:\n${visualizeEslintResult(code, error)}`
-				}
-				visualized += '\n';
+				let visualized = results.map((error, index, results) => {
+					return `Error ${index + 1}/${results.length}:\n${visualizeEslintResult(code, error)}`;
+				});
 
-				t.snapshot(visualized);
+				t.snapshot(`\n${visualized.join('\n\n')}\n`);
 			});
 		}
 	}
