@@ -1,9 +1,14 @@
 'use strict';
+const path = require('path');
 
 const typescriptArguments = ['--parser', '@typescript-eslint/parser', '--ext', '.ts,.js'];
 const vueArguments = ['--parser', 'vue-eslint-parser', '--ext', '.vue,.js'];
 
 module.exports = [
+	{
+		name: 'unicorn',
+		location: path.join(__dirname, 'unicorn')
+	},
 	{
 		repository: 'https://github.com/avajs/ava',
 		extraArguments: [
