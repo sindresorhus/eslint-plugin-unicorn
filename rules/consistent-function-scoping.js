@@ -4,6 +4,9 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const getReferences = require('./utils/get-references');
 
 const MESSAGE_ID = 'consistent-function-scoping';
+const messages = {
+	[MESSAGE_ID]: 'Move {{functionNameWithKind}} to the outer scope.'
+};
 
 const isSameScope = (scope1, scope2) =>
 	scope1 && scope2 && (scope1 === scope2 || scope1.block === scope2.block);
@@ -188,8 +191,6 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		messages: {
-			[MESSAGE_ID]: 'Move {{functionNameWithKind}} to the outer scope.'
-		}
+		messages
 	}
 };

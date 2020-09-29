@@ -4,6 +4,10 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
+const messages = {
+	[MESSAGE_ID_SUBSTR]: 'Prefer `String#slice()` over `String#substr()`.',
+	[MESSAGE_ID_SUBSTRING]: 'Prefer `String#slice()` over `String#substring()`.'
+};
 
 const templates = eslintTemplateVisitor();
 
@@ -170,9 +174,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[MESSAGE_ID_SUBSTR]: 'Prefer `String#slice()` over `String#substr()`.',
-			[MESSAGE_ID_SUBSTRING]: 'Prefer `String#slice()` over `String#substring()`.'
-		}
+		messages
 	}
 };

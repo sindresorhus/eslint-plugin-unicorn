@@ -4,6 +4,10 @@ const isMethodNamed = require('./utils/is-method-named');
 
 const MESSAGE_ID_FLATMAP = 'flat-map';
 const MESSAGE_ID_SPREAD = 'spread';
+const messages = {
+	[MESSAGE_ID_FLATMAP]: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
+	[MESSAGE_ID_SPREAD]: 'Prefer `.flatMap(…)` over `[].concat(...foo.map(…))`.'
+};
 
 const SELECTOR_SPREAD = [
 	// [].concat(...bar.map((i) => i))
@@ -167,9 +171,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[MESSAGE_ID_FLATMAP]: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
-			[MESSAGE_ID_SPREAD]: 'Prefer `.flatMap(…)` over `[].concat(...foo.map(…))`.'
-		}
+		messages
 	}
 };
