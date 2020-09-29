@@ -1,7 +1,6 @@
 'use strict';
 const {Linter} = require('eslint');
 const {codeFrameColumns} = require('@babel/code-frame');
-const {outdent} = require('outdent');
 const codeFrameColumnsOptions = {linesAbove: Infinity, linesBelow: Infinity};
 
 function visualizeRange(text, location, message) {
@@ -64,11 +63,16 @@ class VisualizeRuleTester {
 					throw new Error(fatalError);
 				}
 
-				let visualized = results.map((error, index, results) => {
-					return `Error ${index + 1}/${results.length}:\n${visualizeEslintResult(code, error)}`;
-				});
+				const visualized = `\n${
+					results
+						.map(
+							(error, index, results) =>
+								`Error ${index + 1}/${results.length}:\n${visualizeEslintResult(code, error)}`
+						)
+						.join('\n\n')
+				}\n`;
 
-				t.snapshot(`\n${visualized.join('\n\n')}\n`);
+				t.snapshot(visualized);
 			});
 		}
 	}
