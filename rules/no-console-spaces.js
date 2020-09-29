@@ -5,7 +5,7 @@ const replaceStringRaw = require('./utils/replace-string-raw');
 
 const MESSAGE_ID = 'no-console-spaces';
 const messages = {
-	[MESSAGE_ID]: 'Do not use {{positions}} space between `console.{{method}}` parameters.',
+	[MESSAGE_ID]: 'Do not use {{positions}} space between `console.{{method}}` parameters.'
 };
 
 const methods = [
@@ -45,12 +45,12 @@ const create = context => {
 		let fixed = raw;
 
 		if (index !== 0 && hasLeadingSpace(fixed)) {
-			positions.push('leading')
+			positions.push('leading');
 			fixed = fixed.slice(1);
 		}
 
 		if (index !== parameters.length - 1 && hasTrailingSpace(fixed)) {
-			positions.push('trailing')
+			positions.push('trailing');
 			fixed = fixed.slice(0, -1);
 		}
 
