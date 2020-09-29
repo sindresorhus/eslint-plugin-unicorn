@@ -1,6 +1,7 @@
 # Enforce the style of numeric separators by correctly grouping digits
 
 Enforces a convention of grouping digits using [numeric separators](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Numeric_separators).
+Long numbers can become really hard to read, so cutting it into groups of digits, separated with a `_` is important to keep your code clear. This rule also enforce a proper usage of the numeric separator, by checking if the groups of digits are of the right size.
 
 This rule is fixable.
 
@@ -30,7 +31,7 @@ const foo = 1_294_287_712n;
 
 If you want a custom group size for a specific number type, you can specify it here.
 
-There are four number types; [`hexadecimal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Hexadecimal), [`binary`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Binary), [`octal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Octal) and [`number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type). Each of them has to be associated with an object containing the following options:
+There are four number types; [`hexadecimal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Hexadecimal), [`binary`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Binary), [`octal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Octal) and [`number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type). Each of them can be associated with an object containing the following options:
 
 **`minimumDigits`**
 
@@ -44,7 +45,7 @@ Example: With `5` as the minimum digits, `1024` will pass because it has 4 digit
 
 Type: `number`
 
-The size a group should be.
+The size a group of digits between two numeric separators should be.
 
 The size of the first group can be of any length as long as it is equal to or less than the number specified here. Prefixes and suffixes, such as `+`, `-`, `0x`, `n`, etc, don't count in the group length. Notations like `e` and `.` don't count either.
 
