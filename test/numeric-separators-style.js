@@ -17,170 +17,81 @@ const error = {
 ruleTester.run('numeric-separators-style', rule, {
 	valid: [
 		// Hexadecimal
-		{
-			code: 'var foo = 0xAB_CD'
-		},
-		{
-			code: 'var foo = 0xAB'
-		},
-		{
-			code: 'var foo = 0xA'
-		},
-		{
-			code: 'var foo = 0xA_BC_DE_F0'
-		},
-		{
-			code: 'var foo = 0xab_e8_12'
-		},
-		{
-			code: 'var foo = 0xe'
-		},
-		{
-			code: 'var foo = 0Xab_e3_cd'
-		},
+		'var foo = 0xAB_CD',
+		'var foo = 0xAB',
+		'var foo = 0xA',
+		'var foo = 0xA_BC_DE_F0',
+		'var foo = 0xab_e8_12',
+		'var foo = 0xe',
+		'var foo = 0Xab_e3_cd',
+
 		// Octal
-		{
-			code: 'var foo = 0o1234_5670'
-		},
-		{
-			code: 'var foo = 0o7777'
-		},
-		{
-			code: 'var foo = 0o01'
-		},
-		{
-			code: 'var foo = 0o12_7000_0000'
-		},
-		{
-			code: 'var foo = 0O1111_1111'
-		},
+		'var foo = 0o1234_5670',
+		'var foo = 0o7777',
+		'var foo = 0o01',
+		'var foo = 0o12_7000_0000',
+		'var foo = 0O1111_1111',
+
 		// Legacy octal
-		{
-			code: 'var foo = 0777777'
-		},
-		{
-			code: 'var foo = 0999999'
-		},
-		{
-			code: 'var foo = 0111222'
-		},
+		'var foo = 0777777',
+		'var foo = 0999999',
+		'var foo = 0111222',
+
 		// Binary
-		{
-			code: 'var foo = 0b1010_0001_1000_0101'
-		},
-		{
-			code: 'var foo = 0b0000'
-		},
-		{
-			code: 'var foo = 0b10'
-		},
-		{
-			code: 'var foo = 0b1_0111_0101_0101'
-		},
-		{
-			code: 'var foo = 0B1010'
-		},
+		'var foo = 0b1010_0001_1000_0101',
+		'var foo = 0b0000',
+		'var foo = 0b10',
+		'var foo = 0b1_0111_0101_0101',
+		'var foo = 0B1010',
+
 		// Binary with BigInt
-		{
-			code: 'var foo = 0b1010n'
-		},
-		{
-			code: 'var foo = 0b1010_1010n'
-		},
+		'var foo = 0b1010n',
+		'var foo = 0b1010_1010n',
+
 		// BigInt
-		{
-			code: 'var foo = 9_223_372_036_854_775_807n'
-		},
-		{
-			code: 'var foo = 807n'
-		},
-		{
-			code: 'var foo = 1n'
-		},
-		{
-			code: 'var foo = 9_372_854_807n'
-		},
-		{
-			code: 'var foo = 9807n'
-		},
-		{
-			code: 'var foo = 0n'
-		},
+		'var foo = 9_223_372_036_854_775_807n',
+		'var foo = 807n',
+		'var foo = 1n',
+		'var foo = 9_372_854_807n',
+		'var foo = 9807n',
+		'var foo = 0n',
+
 		// Numbers
-		{
-			code: 'var foo = 12_345_678'
-		},
-		{
-			code: 'var foo = 123'
-		},
-		{
-			code: 'var foo = 1'
-		},
+		'var foo = 12_345_678',
+		'var foo = 123',
+		'var foo = 1',
+		'var foo = 1234',
 		{
 			code: 'var foo = 1_234',
 			options: [{number: {minimumDigits: 0, groupLength: 3}}]
 		},
-		{
-			code: 'var foo = 1234'
-		},
+
 		// Decimal numbers
-		{
-			code: 'var foo = 9807.123'
-		},
-		{
-			code: 'var foo = 3819.123_432'
-		},
-		{
-			code: 'var foo = 138_789.123_432_42'
-		},
-		{
-			code: 'var foo = .000_000_1'
-		},
+		'var foo = 9807.123',
+		'var foo = 3819.123_432',
+		'var foo = 138_789.123_432_42',
+		'var foo = .000_000_1',
+
 		// Negative numbers
-		{
-			code: 'var foo = -3000'
-		},
-		{
-			code: 'var foo = -10_000_000'
-		},
+		'var foo = -3000',
+		'var foo = -10_000_000',
+
 		// Exponential notation
-		{
-			code: 'var foo = 1e10_000'
-		},
-		{
-			code: 'var foo = 39_804e1000'
-		},
-		{
-			code: 'var foo = -123_456e-100'
-		},
-		{
-			code: 'var foo = -100_000e-100_000'
-		},
-		{
-			code: 'var foo = -100_000e+100_000'
-		},
-		{
-			code: 'var foo = 3.6e12_000'
-		},
-		{
-			code: 'var foo = 3.6E12_000'
-		},
-		{
-			code: 'var foo = -1_200_000e5'
-		},
+		'var foo = 1e10_000',
+		'var foo = 39_804e1000',
+		'var foo = -123_456e-100',
+		'var foo = -100_000e-100_000',
+		'var foo = -100_000e+100_000',
+		'var foo = 3.6e12_000',
+		'var foo = 3.6E12_000',
+		'var foo = -1_200_000e5',
+
 		// Miscellaneous values
-		{
-			code: 'var foo = -282_932 - (1938 / 10_000) * .1 + 18.100_000_2'
-		},
-		{
-			code: 'var foo = NaN'
-		},
-		{
-			code: 'var foo = Infinity'
-		},
-		{
-			code: 'var foo = "1234567n"'
-		},
+		'var foo = -282_932 - (1938 / 10_000) * .1 + 18.100_000_2',
+		'var foo = NaN',
+		'var foo = Infinity',
+		'var foo = "1234567n"',
+
 		// Varying options
 		{
 			code: 'var foo = 10000',
@@ -221,6 +132,7 @@ ruleTester.run('numeric-separators-style', rule, {
 			errors: [error],
 			output: 'var foo = 0XAB_CD'
 		},
+
 		// Octal
 		{
 			code: 'var foo = 0o12_34_5670',
@@ -242,6 +154,7 @@ ruleTester.run('numeric-separators-style', rule, {
 			errors: [error],
 			output: 'var foo = 0O0101_0101_0101'
 		},
+
 		// Binary
 		{
 			code: 'var foo = 0b10_10_0001',
@@ -263,6 +176,7 @@ ruleTester.run('numeric-separators-style', rule, {
 			errors: [error],
 			output: 'var foo = 0B10_1010_1010_1010'
 		},
+
 		// BigInt
 		{
 			code: 'var foo = 1_9_223n',
@@ -279,6 +193,7 @@ ruleTester.run('numeric-separators-style', rule, {
 			errors: [error],
 			output: 'var foo = 123_456_789_100n'
 		},
+
 		// Numbers
 		{
 			code: 'var foo = 1_2_345_678',
@@ -295,6 +210,7 @@ ruleTester.run('numeric-separators-style', rule, {
 			errors: [error],
 			output: 'var foo = 1_234_567_890'
 		},
+
 		// Decimal numbers
 		{
 			code: 'var foo = 9807.1234567',
@@ -336,12 +252,14 @@ ruleTester.run('numeric-separators-style', rule, {
 			errors: [error],
 			output: 'var foo = 0.000_00'
 		},
+
 		// Negative numbers
 		{
 			code: 'var foo = -100000_1',
 			errors: [error],
 			output: 'var foo = -1_000_001'
 		},
+
 		// Exponential notation
 		{
 			code: 'var foo = 1e10000',
@@ -388,6 +306,7 @@ ruleTester.run('numeric-separators-style', rule, {
 			errors: [error],
 			output: 'var foo = 3.654_32E12_000'
 		},
+
 		// Varying options
 		{
 			code: 'var foo = 1000000',
