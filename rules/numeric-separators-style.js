@@ -101,13 +101,13 @@ const create = context => {
 				return;
 			}
 
-			const fixed = format(number.replace(/_/g, ''), options) + suffix;
+			const formatted = format(number.replace(/_/g, ''), options) + suffix;
 
-			if (raw !== fixed) {
+			if (raw !== formatted) {
 				context.report({
 					node,
 					messageId: MESSAGE_ID,
-					fix: fixer => fixer.replaceText(node, fixed)
+					fix: fixer => fixer.replaceText(node, formatted)
 				});
 			}
 		}
