@@ -182,18 +182,17 @@ ruleTester.run('explicit-length-check', rule, {
 const visualizeTester = visualizeRuleTester(test);
 visualizeTester.run('explicit-length-check', rule, [
 	'if ([].length) {}',
-	'if (array.length < 1) {}'
-	// `visualizeRuleTester` don't support options
-	// {
-	// 	code: 'if (array.length > 0) {}',
-	// 	options: ['not-equal']
-	// },
-	// {
-	// 	code: 'if (array.length != 0) {}',
-	// 	options: ['greater-than']
-	// },
-	// {
-	// 	code: 'if (array.length != 0) {}',
-	// 	options: ['greater-than-or-equal']
-	// }
+	'if (array.length < 1) {}',
+	{
+		code: 'if (array.length > 0) {}',
+		options: [{'non-zero': 'not-equal'}]
+	},
+	{
+		code: 'if (array.length != 0) {}',
+		options: [{'non-zero': 'greater-than'}]
+	},
+	{
+		code: 'if (array.length != 0) {}',
+		options: [{'non-zero': 'greater-than-or-equal'}]
+	}
 ]);
