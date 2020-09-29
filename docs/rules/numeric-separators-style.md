@@ -36,7 +36,7 @@ There are four group types, [`hexadecimal`](https://developer.mozilla.org/en-US/
 
 Type: `number`
 
-The minimum of digits in a number where you shouldn't use numeric separator.
+The minimum amount of digits in a number where you shouldn't use a numeric separator.
 
 Example: With `5` as the minimum digits, `1024` will pass because it has 4 digits, and `1_024` will fail.
 
