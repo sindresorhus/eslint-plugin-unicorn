@@ -57,7 +57,15 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 			eval();
 		`
 	],
-	invalid: []
+	invalid: [
+		{
+			code: outdent`
+				// eslint-disable-next-line @scopewithoutplugin
+				eval();
+			`,
+			errors: 1
+		}
+	]
 });
 
 const visualizeTester = visualizeRuleTester(test);
@@ -80,10 +88,6 @@ visualizeTester.run('no-abusive-eslint-disable', rule, [
 	`,
 	outdent`
 		// eslint-disable-next-line
-		eval();
-	`,
-	outdent`
-		// eslint-disable-next-line @scopewithoutplugin
 		eval();
 	`
 ]);
