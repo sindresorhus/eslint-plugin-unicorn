@@ -45,14 +45,7 @@ const getVerifyConfig = (ruleId, testerConfig, options) => ({
 const printCode = code => codeFrameColumns(code, {start: {line: 0, column:0}}, codeFrameColumnsOptions);
 
 function createSnapshot({fixable, code, options, fixed, output, messages}) {
-	const parts = [
-		outdent`
-			Input:
-			${
-				printCode(code)
-			}
-		`,
-	];
+	const parts = [];
 
 	if (Array.isArray(options)) {
 		parts.push(outdent`
@@ -62,14 +55,16 @@ function createSnapshot({fixable, code, options, fixed, output, messages}) {
 	}
 
 	if (fixable) {
-		parts.push(outdent`
-			Output:
-			${
-				output === code ?
-					'[Same as input]' :
-					printCode(output)
-			}
-		`);
+		parts.push(
+			outdent`
+				Input:
+				${printCode(code)}
+			`,
+			outdent`
+				Output:
+				${output === code ? '[Same as input]' : printCode(output)}
+			`
+		);
 	}
 
 	parts.push(outdent`
@@ -77,7 +72,7 @@ function createSnapshot({fixable, code, options, fixed, output, messages}) {
 			messages
 				.map(
 					(error, index, messages) =>
-						`Message ${index + 1}/${messages.length}:\n${visualizeEslintResult(code, error)}`
+						`Error ${index + 1}/${messages.length}:\n${visualizeEslintResult(code, error)}`
 				)
 				.join('\n')
 		}
