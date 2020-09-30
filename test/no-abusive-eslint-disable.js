@@ -11,20 +11,14 @@ const ruleTester = avaRuleTester(test, {
 });
 
 // Define rules for test
-[
+for (const rule of [
 	'plugin/rule',
 	'@scope/plugin/rule-name',
 	'@scope/rule-name',
 	'@scopewithoutplugin'
-].forEach(rule => {
+]) {
 	ruleTester.linter.defineRule(rule, {});
-});
-
-const error = [
-	{
-		messageId: 'no-abusive-eslint-disable'
-	}
-];
+}
 
 ruleTester.run('no-abusive-eslint-disable', rule, {
 	valid: [
@@ -65,37 +59,35 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 	],
 	invalid: [
 		{
-			code: 'eval(); // eslint-disable-line',
-			errors: error
-		},
-		{
-			code: 'foo();\neval(); // eslint-disable-line',
-			errors: error
-		},
-		{
-			code: '/* eslint-disable */',
-			errors: error
-		},
-		{
-			code: 'foo();\n/* eslint-disable */\neval();',
-			errors: error
-		},
-		{
-			code: 'foo();\n/* eslint-disable-next-line */\neval();',
-			errors: error
-		},
-		{
-			code: '// eslint-disable-next-line\neval();',
-			errors: error
-		},
-		{
-			code: '// eslint-disable-next-line @scopewithoutplugin\neval();',
-			errors: error
+			code: outdent`
+				// eslint-disable-next-line @scopewithoutplugin
+				eval();
+			`,
+			errors: 1
 		}
 	]
 });
 
 const visualizeTester = visualizeRuleTester(test);
 visualizeTester.run('no-abusive-eslint-disable', rule, [
-	'eval(); // eslint-disable-line'
+	'eval(); // eslint-disable-line',
+	outdent`
+		foo();
+		eval(); // eslint-disable-line
+	`,
+	'/* eslint-disable */',
+	outdent`
+		foo();
+		/* eslint-disable */
+		eval();
+	`,
+	outdent`
+		foo();
+			/* eslint-disable-next-line */
+				eval();
+	`,
+	outdent`
+		// eslint-disable-next-line
+		eval();
+	`
 ]);
