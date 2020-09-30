@@ -50,12 +50,13 @@ class VisualizeRuleTester {
 		const {test, config} = this;
 		const linter = new Linter();
 		linter.defineRule(ruleId, rule);
+		const indexDigits = String(tests.length).length;
 
 		for (const [index, testCase] of tests.entries()) {
 			const {code, options} = typeof testCase === 'string' ? {code: testCase} : testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, options);
 
-			test(`${ruleId} - #${index + 1}`, t => {
+			test(`${ruleId} - #${String(index + 1).padStart(indexDigits, '0')}`, t => {
 				const results = linter.verify(code, verifyConfig);
 				if (results.length === 0) {
 					throw new Error('No errors reported.');
