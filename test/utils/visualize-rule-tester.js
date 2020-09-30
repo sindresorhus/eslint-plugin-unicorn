@@ -42,7 +42,7 @@ const getVerifyConfig = (ruleId, testerConfig, options) => ({
 	}
 });
 
-const printCode = code => codeFrameColumns(code, {start: {line: 0, column:0}}, codeFrameColumnsOptions);
+const printCode = code => codeFrameColumns(code, {start: {line: 0, column: 0}}, codeFrameColumnsOptions);
 
 function createSnapshot({fixable, code, options, fixed, output, messages}) {
 	const parts = [];
@@ -62,23 +62,21 @@ function createSnapshot({fixable, code, options, fixed, output, messages}) {
 			`,
 			outdent`
 				Output:
-				${output === code ? '[Same as input]' : printCode(output)}
+				${fixed ? printCode(output) : '[Same as input]'}
 			`
 		);
 	}
 
-	parts.push(outdent`
-		${
-			messages
-				.map(
-					(error, index, messages) =>
-						`Error ${index + 1}/${messages.length}:\n${visualizeEslintResult(code, error)}`
-				)
-				.join('\n')
-		}
-	`);
+	parts.push(
+		messages
+			.map(
+				(error, index, messages) =>
+					`Error ${index + 1}/${messages.length}:\n${visualizeEslintResult(code, error)}`
+			)
+			.join('\n')
+	);
 
-	return `\n${parts.join('\n\n')}\n`
+	return `\n${parts.join('\n\n')}\n`;
 }
 
 class VisualizeRuleTester {
