@@ -57,56 +57,37 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 			eval();
 		`
 	],
-	invalid: [
-		{
-			code: 'eval(); // eslint-disable-line',
-			errors: 1
-		},
-		{
-			code: outdent`
-				foo();
-				eval(); // eslint-disable-line
-			`,
-			errors: 1
-		},
-		{
-			code: '/* eslint-disable */',
-			errors: 1
-		},
-		{
-			code: outdent`
-				foo();
-				/* eslint-disable */
-				eval();
-			`,
-			errors: 1
-		},
-		{
-			code: outdent`
-				foo();
-					/* eslint-disable-next-line */
-				eval();
-			`,
-			errors: 1
-		},
-		{
-			code: outdent`
-				// eslint-disable-next-line
-				eval();
-			`,
-			errors: 1
-		},
-		{
-			code: outdent`
-				// eslint-disable-next-line @scopewithoutplugin
-				eval();
-			`,
-			errors: 1
-		}
-	]
+	invalid: []
 });
 
 const visualizeTester = visualizeRuleTester(test);
 visualizeTester.run('no-abusive-eslint-disable', rule, [
-	'eval(); // eslint-disable-line'
+	'eval(); // eslint-disable-line',
+	outdent`
+		foo();
+		eval(); // eslint-disable-line
+	`,
+	'/* eslint-disable */',
+	outdent`
+		foo();
+		/* eslint-disable */
+		eval();
+	`,
+	outdent`
+		foo();
+			/* eslint-disable-next-line */
+				eval();
+	`,
+	outdent`
+		// eslint-disable-next-line
+		eval();
+	`,
+	outdent`
+		// eslint-disable-next-line @scopewithoutplugin
+		eval();
+	`,
+	outdent`
+		// eslint-disable-next-line @scopewithoutplugin
+		eval();
+	`
 ]);

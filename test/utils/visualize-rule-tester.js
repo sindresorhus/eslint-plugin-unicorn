@@ -64,7 +64,7 @@ class VisualizeRuleTester {
 
 				const fatalError = results.find(({fatal}) => fatal);
 				if (fatalError) {
-					throw new Error(fatalError);
+					throw fatalError;
 				}
 
 				const visualized = `\n${
