@@ -9,17 +9,17 @@ const messages = {
 	[MESSAGE_ID_SHOULD_PARENTHESIZED]: 'Nest ternary expression should be parenthesized.'
 };
 
-const THIRD_LEVEL_TERNARY_SELECTOR = `:not(ConditionalExpression)${' > ConditionalExpression'.repeat(3)}`;
+const nestTernarySelector = level => `:not(ConditionalExpression)${' > ConditionalExpression'.repeat(level)}`;
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
 	return {
-		[THIRD_LEVEL_TERNARY_SELECTOR]: node => {
+		[nestTernarySelector(3)]: node => {
 			// Nesting more than one level not allowed.
 			context.report({node, messageId: MESSAGE_ID_TOO_DEEP});
 		},
-		'ConditionalExpression > ConditionalExpression': node => {
+		[nestTernarySelector(2)]: node => {
 			if (!isParenthesized(node, sourceCode)) {
 				context.report({
 					node,
