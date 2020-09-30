@@ -4,6 +4,11 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 const methodSelector = require('./utils/method-selector');
 
+const MESSAGE_ID = 'preferSetHas';
+const messages = {
+	[MESSAGE_ID]: '`{{name}}` should be a `Set`, and use `{{name}}.has()` to check existence or non-existence.'
+};
+
 // `[]`
 const arrayExpressionSelector = [
 	'[init.type="ArrayExpression"]'
@@ -83,8 +88,6 @@ const selector = [
 	'>',
 	'Identifier.id'
 ].join('');
-
-const MESSAGE_ID = 'preferSetHas';
 
 const isIncludesCall = node => {
 	/* istanbul ignore next */
@@ -184,8 +187,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[MESSAGE_ID]: '`{{name}}` should be a `Set`, and use `{{name}}.has()` to check existence or non-existence.'
-		}
+		messages
 	}
 };

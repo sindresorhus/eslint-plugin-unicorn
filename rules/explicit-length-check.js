@@ -1,16 +1,24 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const messages = {
+	compareToValue: '`length` property should be compared to a value.',
+	zeroEqual: 'Zero `.length` should be compared with `=== 0`.',
+	nonZeroEqual: 'Non-zero `.length` should be compared with `!== 0`.',
+	nonZeroGreater: 'Non-zero `.length` should be compared with `> 0`.',
+	nonZeroGreaterEqual: 'Non-zero `.length` should be compared with `>= 1`.'
+};
+
 const operatorTypes = {
 	gt: ['>'],
 	gte: ['>='],
 	ne: ['!==', '!=']
 };
 
-function reportError(context, node, message, fixDetails) {
+function reportError(context, node, messageId, fixDetails) {
 	context.report({
 		node,
-		message,
+		messageId,
 		fix: fixDetails && (fixer => {
 			return fixer.replaceText(
 				node,
@@ -25,7 +33,7 @@ function checkZeroType(context, node) {
 		reportError(
 			context,
 			node,
-			'Zero `.length` should be compared with `=== 0`.',
+			'zeroEqual',
 			{
 				node: node.left,
 				operator: '===',
@@ -48,7 +56,7 @@ function checkNonZeroType(context, node, type) {
 				reportError(
 					context,
 					node,
-					'Non-zero `.length` should be compared with `> 0`.',
+					'nonZeroGreater',
 					{
 						node: node.left,
 						operator: '>',
@@ -66,7 +74,7 @@ function checkNonZeroType(context, node, type) {
 				reportError(
 					context,
 					node,
-					'Non-zero `.length` should be compared with `>= 1`.',
+					'nonZeroGreaterEqual',
 					{
 						node: node.left,
 						operator: '>=',
@@ -84,7 +92,7 @@ function checkNonZeroType(context, node, type) {
 				reportError(
 					context,
 					node,
-					'Non-zero `.length` should be compared with `!== 0`.',
+					'nonZeroEqual',
 					{
 						node: node.left,
 						operator: '!==',
@@ -134,7 +142,7 @@ function checkExpression(context, node) {
 		node.property.name === 'length' &&
 		!node.computed
 	) {
-		reportError(context, node, '`length` property should be compared to a value.');
+		reportError(context, node, 'compareToValue');
 	}
 }
 
@@ -168,6 +176,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema
+		schema,
+		messages
 	}
 };

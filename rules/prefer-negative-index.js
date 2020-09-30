@@ -2,6 +2,11 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 
+const MESSAGE_ID = 'prefer-negative-index';
+const messages = {
+	[MESSAGE_ID]: 'Prefer negative index over length minus index for `{{method}}`.'
+};
+
 const methods = new Map([
 	[
 		'slice',
@@ -287,7 +292,8 @@ const create = context => ({
 
 		context.report({
 			node,
-			message: `Prefer negative index over length minus index for \`${method}\`.`,
+			messageId: MESSAGE_ID,
+			data: {method},
 			* fix(fixer) {
 				const sourceCode = context.getSourceCode();
 				for (const node of removableNodes) {
@@ -307,6 +313,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };

@@ -1,6 +1,13 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage';
+const MESSAGE_ID_EMPTY_MESSAGE = 'emptyMessage';
+const messages = {
+	[MESSAGE_ID_MISSING_MESSAGE]: 'Pass a message to the error constructor.',
+	[MESSAGE_ID_EMPTY_MESSAGE]: 'Error message should not be an empty string.'
+};
+
 const errorConstructors = new Set([
 	'Error',
 	'EvalError',
@@ -55,14 +62,14 @@ const reportError = (expressionNode, context) => {
 		if (expressionNode.arguments.length === 0) {
 			context.report({
 				node: expressionNode.parent,
-				message: 'Pass a message to the error constructor.'
+				messageId: MESSAGE_ID_MISSING_MESSAGE
 			});
 		}
 
 		if (isEmptyMessageString(expressionNode)) {
 			context.report({
 				node: expressionNode.parent,
-				message: 'Error message should not be an empty string.'
+				messageId: MESSAGE_ID_EMPTY_MESSAGE
 			});
 		}
 	}
@@ -99,6 +106,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			url: getDocumentationUrl(__filename)
-		}
+		},
+		messages
 	}
 };

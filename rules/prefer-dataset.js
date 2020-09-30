@@ -4,6 +4,11 @@ const isValidVariableName = require('./utils/is-valid-variable-name');
 const quoteString = require('./utils/quote-string');
 const methodSelector = require('./utils/method-selector');
 
+const MESSAGE_ID = 'prefer-dataset';
+const messages = {
+	[MESSAGE_ID]: 'Prefer `.dataset` over `setAttribute(…)`.'
+};
+
 const selector = [
 	methodSelector({
 		name: 'setAttribute',
@@ -43,7 +48,7 @@ const create = context => {
 
 			context.report({
 				node,
-				message: 'Prefer `.dataset` over `setAttribute(…)`.',
+				messageId: MESSAGE_ID,
 				fix: fixer => fix(context, node, fixer)
 			});
 		}
@@ -57,6 +62,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };

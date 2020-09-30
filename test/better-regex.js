@@ -2,6 +2,8 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/better-regex';
 
+const MESSAGE_ID = 'better-regex';
+
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
 		ecmaVersion: 2021
@@ -10,7 +12,11 @@ const ruleTester = avaRuleTester(test, {
 
 const createError = (original, optimized) => [
 	{
-		message: `${original} can be optimized to ${optimized}`
+		messageId: MESSAGE_ID,
+		data: {
+			original,
+			optimized
+		}
 	}
 ];
 
@@ -271,6 +277,16 @@ ruleTester.run('better-regex', rule, {
 		testCase(
 			'/[ \\n\\t\\r\\f(){}:;@!\'"\\\\\\][#]|\\/(?=\\*)/g',
 			'/[\\t\\n\\f\\r !"#\'():;@[\\\\\\]{}]|\\/(?=\\*)/g'
-		)
+		),
+		// Actual message
+		{
+			code: '/[0-9]/',
+			output: '/\\d/',
+			errors: [
+				{
+					message: '/[0-9]/ can be optimized to /\\d/.'
+				}
+			]
+		}
 	]
 });

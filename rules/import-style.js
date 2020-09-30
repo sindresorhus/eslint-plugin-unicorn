@@ -3,6 +3,11 @@ const {defaultsDeep} = require('lodash');
 const {getStringIfConstant} = require('eslint-utils');
 const eslintTemplateVisitor = require('eslint-template-visitor');
 
+const MESSAGE_ID = 'importStyle';
+const messages = {
+	[MESSAGE_ID]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.'
+};
+
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const getActualImportDeclarationStyles = importDeclaration => {
@@ -110,8 +115,6 @@ const joinOr = words => {
 		})
 		.join(' ');
 };
-
-const MESSAGE_ID = 'importStyle';
 
 // Keep this alphabetically sorted for easier maintenance
 const defaultStyles = {
@@ -364,9 +367,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		messages: {
-			[MESSAGE_ID]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.'
-		},
+		messages,
 		schema
 	}
 };

@@ -93,6 +93,9 @@
 		"extends": [
 			"plugin:eslint-plugin/all"
 		],
+		"ignores": [
+			"test/integration/{fixtures,unicorn}/**"
+		],
 		"overrides": [
 			{
 				"files": "rules/utils/*.js",

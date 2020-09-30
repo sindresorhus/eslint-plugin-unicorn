@@ -3,6 +3,9 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const {findVariable, isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
 
 const ERROR_MESSAGE_ID = 'error';
+const messages = {
+	[ERROR_MESSAGE_ID]: 'Remove unused catch binding `{{name}}`.'
+};
 
 const selector = [
 	'CatchClause',
@@ -54,8 +57,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[ERROR_MESSAGE_ID]: 'Remove unused catch binding `{{name}}`.'
-		}
+		messages
 	}
 };

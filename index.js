@@ -70,6 +70,7 @@ module.exports = {
 				'unicorn/prefer-spread': 'error',
 				'unicorn/prefer-starts-ends-with': 'error',
 				'unicorn/prefer-string-slice': 'error',
+				'unicorn/prefer-ternary': 'error',
 				'unicorn/prefer-text-content': 'error',
 				'unicorn/prefer-trim-start-end': 'error',
 				'unicorn/prefer-type-error': 'error',

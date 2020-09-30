@@ -84,7 +84,7 @@ const makeEslintTask = (project, destination) => {
 const getBranch = mem(async dirname => (await execa('git', ['branch', '--show-current'], {cwd: dirname})).stdout);
 
 const execute = project => {
-	const destination = path.join(__dirname, 'fixtures', project.name);
+	const destination = project.location || path.join(__dirname, 'fixtures', project.name);
 
 	return new Listr([
 		{
@@ -152,10 +152,15 @@ list.run()
 				if (error2.eslintMessage) {
 					const {file, project, destination} = error2.eslintJob;
 					const {line} = error2.eslintMessage;
-					// eslint-disable-next-line no-await-in-loop
-					const branch = await getBranch(destination);
 
-					console.error(chalk.gray(`${project.repository}/tree/${branch}/${path.relative(destination, file.filePath)}#L${line}`));
+					if (project.repository) {
+						// eslint-disable-next-line no-await-in-loop
+						const branch = await getBranch(destination);
+						console.error(chalk.gray(`${project.repository}/blob/${branch}/${path.relative(destination, file.filePath)}#L${line}`));
+					} else {
+						console.error(chalk.gray(`${path.relative(destination, file.filePath)}#L${line}`));
+					}
+
 					console.error(chalk.gray(JSON.stringify(error2.eslintMessage, undefined, 2)));
 				}
 			}

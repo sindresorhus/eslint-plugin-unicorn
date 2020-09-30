@@ -1,6 +1,11 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const MESSAGE_ID = 'no-unused-properties';
+const messages = {
+	[MESSAGE_ID]: 'Property `{{name}}` is defined but never used.'
+};
+
 const getDeclaratorOrPropertyValue = declaratorOrProperty => {
 	return declaratorOrProperty.init || declaratorOrProperty.value;
 };
@@ -101,7 +106,7 @@ const create = context => {
 		if (references.length === 0) {
 			context.report({
 				node: property,
-				message: 'Property `{{name}}` is defined but never used.',
+				messageId: MESSAGE_ID,
 				data: {
 					name: getPropertyDisplayName(property)
 				}
@@ -240,6 +245,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			url: getDocumentationUrl(__filename)
-		}
+		},
+		messages
 	}
 };
