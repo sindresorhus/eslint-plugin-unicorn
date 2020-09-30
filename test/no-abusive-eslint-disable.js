@@ -85,9 +85,5 @@ visualizeTester.run('no-abusive-eslint-disable', rule, [
 	outdent`
 		// eslint-disable-next-line @scopewithoutplugin
 		eval();
-	`,
-	outdent`
-		// eslint-disable-next-line @scopewithoutplugin
-		eval();
 	`
 ]);

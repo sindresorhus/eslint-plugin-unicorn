@@ -19,6 +19,8 @@ const create = context => ({
 				!result.groups.ruleId // But it did not specify any rules
 			) {
 				context.report({
+					// Can't set it at the given location as the warning
+					// will be ignored due to the disable comment
 					loc: {
 						start: {
 							...comment.loc.start,
