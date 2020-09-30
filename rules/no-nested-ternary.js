@@ -9,11 +9,13 @@ const messages = {
 	[MESSAGE_ID_SHOULD_PARENTHESIZED]: 'Nest ternary expression should be parenthesized.'
 };
 
+const THIRD_LEVEL_TERNARY_SELECTOR = `:not(ConditionalExpression)${' > ConditionalExpression'.repeat(3)}`;
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
 	return {
-		'ConditionalExpression > ConditionalExpression > ConditionalExpression': node => {
+		[THIRD_LEVEL_TERNARY_SELECTOR]: node => {
 			// Nesting more than one level not allowed.
 			context.report({node, messageId: MESSAGE_ID_TOO_DEEP});
 		},
