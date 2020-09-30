@@ -41,6 +41,9 @@ ruleTester.run('consistent-function-scoping', rule, {
 			}
 		`,
 		outdent`
+			const doFoo = function() {};
+		`,
+		outdent`
 			const doFoo = foo => foo;
 		`,
 		outdent`
@@ -51,6 +54,30 @@ ruleTester.run('consistent-function-scoping', rule, {
 				function doBar(bar) {
 					return foo + bar;
 				}
+				return foo;
+			}
+		`,
+		outdent`
+			const doFoo = function(foo) {
+				function doBar(bar) {
+					return foo + bar;
+				}
+				return foo;
+			};
+		`,
+		outdent`
+			const doFoo = function(foo) {
+				const doBar = function(bar) {
+					return foo + bar;
+				};
+				return foo;
+			};
+		`,
+		outdent`
+			function doFoo(foo) {
+				const doBar = function(bar) {
+					return foo + bar;
+				};
 				return foo;
 			}
 		`,
@@ -281,6 +308,13 @@ ruleTester.run('consistent-function-scoping', rule, {
 				function bar() {}
 			})();
 		`,
+		outdent`
+			function doFoo() {
+				const doBar = (function(bar) {
+					return bar;
+				})();
+			}
+		`,
 		// #391
 		outdent`
 			const enrichErrors = (packageName, cliArgs, f) => async (...args) => {
@@ -381,6 +415,47 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 			`,
 			errors: [createError('function \'doBar\'')]
+		},
+		{
+			code: outdent`
+				const doFoo = function() {
+					function doBar(bar) {
+						return bar;
+					}
+				};
+			`,
+			errors: [createError('function \'doBar\'')]
+		},
+		{
+			code: outdent`
+				const doFoo = function() {
+					const doBar = function(bar) {
+						return bar;
+					};
+				};
+			`,
+			errors: [createError('function')]
+		},
+		{
+			code: outdent`
+				function doFoo() {
+					const doBar = function(bar) {
+						return bar;
+					};
+				}
+			`,
+			errors: [createError('function')]
+		},
+		{
+			code: outdent`
+				function doFoo() {
+					const doBar = function(bar) {
+						return bar;
+					};
+					doBar();
+				}
+			`,
+			errors: [createError('function')]
 		},
 		{
 			code: outdent`
@@ -757,6 +832,13 @@ visualizeTester.run('consistent-function-scoping', rule, [
 	outdent`
 		function foo() {
 			const bar = async () => {}
+		}
+	`,
+	outdent`
+		function doFoo() {
+			const doBar = function(bar) {
+				return bar;
+			};
 		}
 	`
 ]);
