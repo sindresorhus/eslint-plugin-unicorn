@@ -104,7 +104,7 @@ class VisualizeRuleTester {
 
 				const fatalError = messages.find(({fatal}) => fatal);
 				if (fatalError) {
-					throw new Error(fatalError);
+					throw fatalError;
 				}
 
 				const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig) : {fixed: false};
