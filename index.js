@@ -49,6 +49,8 @@ module.exports = {
 				'unicorn/no-useless-undefined': 'error',
 				'unicorn/no-zero-fractions': 'error',
 				'unicorn/number-literal-case': 'error',
+				// TODO: Enable this by default when it's shipping in a Node.js LTS version.
+				'unicorn/numeric-separators-style': 'off',
 				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/prefer-array-find': 'error',
 				'unicorn/prefer-dataset': 'error',

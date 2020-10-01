@@ -65,6 +65,7 @@ Configure it in `package.json`.
 			"unicorn/no-useless-undefined": "error",
 			"unicorn/no-zero-fractions": "error",
 			"unicorn/number-literal-case": "error",
+			"unicorn/numeric-separators-style": "off",
 			"unicorn/prefer-add-event-listener": "error",
 			"unicorn/prefer-array-find": "error",
 			"unicorn/prefer-dataset": "error",
@@ -129,6 +130,7 @@ Configure it in `package.json`.
 - [no-useless-undefined](docs/rules/no-useless-undefined.md) - Disallow useless `undefined`. *(fixable)*
 - [no-zero-fractions](docs/rules/no-zero-fractions.md) - Disallow number literals with zero fractions or dangling dots. *(fixable)*
 - [number-literal-case](docs/rules/number-literal-case.md) - Enforce proper case for numeric literals. *(fixable)*
+- [numeric-separators-style](docs/rules/numeric-separators-style.md) - Enforce the style of numeric separators by correctly grouping digits. *(fixable)*
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. *(partly fixable)*
 - [prefer-array-find](docs/rules/prefer-array-find.md) - Prefer `.find(…)` over the first element from `.filter(…)`. *(partly fixable)*
 - [prefer-dataset](docs/rules/prefer-dataset.md) - Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. *(fixable)*
