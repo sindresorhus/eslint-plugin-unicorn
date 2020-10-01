@@ -158,7 +158,7 @@ const create = context => {
 	const functions = [];
 
 	return {
-		'ArrowFunctionExpression, FunctionDeclaration': () => {
+		':function': () => {
 			functions.push(false);
 		},
 		JSXElement: () => {
@@ -168,7 +168,7 @@ const create = context => {
 				functions[functions.length - 1] = true;
 			}
 		},
-		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
+		':function:exit': node => {
 			const currentFunctionHasJsx = functions.pop();
 			if (!currentFunctionHasJsx && !checkNode(node, scopeManager)) {
 				context.report({

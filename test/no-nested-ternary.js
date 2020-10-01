@@ -14,12 +14,6 @@ const typescriptRuleTester = avaRuleTester(test, {
 	parser: require.resolve('@typescript-eslint/parser')
 });
 
-const errors = [
-	{
-		messageId: 'no-nested-ternary'
-	}
-];
-
 ruleTester.run('no-nested-ternary', rule, {
 	valid: [
 		'const foo = i > 5 ? true : false;',
@@ -33,43 +27,36 @@ ruleTester.run('no-nested-ternary', rule, {
 	invalid: [
 		{
 			code: 'const foo = i > 5 ? true : (i < 100 ? true : (i < 1000 ? true : false));',
-			errors
+			errors: 1
 		},
 		{
 			code: 'const foo = i > 5 ? true : (i < 100 ? (i > 50 ? false : true) : false);',
-			errors
+			errors: 1
 		},
 		{
 			code: 'const foo = i > 5 ? i < 100 ? true : false : true;',
 			output: 'const foo = i > 5 ? (i < 100 ? true : false) : true;',
-			errors
+			errors: 1
 		},
 		{
 			code: 'const foo = i > 5 ? i < 100 ? true : false : i < 100 ? true : false;',
 			output: 'const foo = i > 5 ? (i < 100 ? true : false) : (i < 100 ? true : false);',
-			errors: [
-				{
-					column: 21
-				},
-				{
-					column: 46
-				}
-			]
+			errors: 2
 		},
 		{
 			code: 'const foo = i > 5 ? true : i < 100 ? true : false;',
 			output: 'const foo = i > 5 ? true : (i < 100 ? true : false);',
-			errors
+			errors: 1
 		},
 		{
 			code: 'foo ? bar : baz === qux ? quxx : foobar;',
 			output: 'foo ? bar : (baz === qux ? quxx : foobar);',
-			errors
+			errors: 1
 		},
 		{
 			code: 'foo ? baz === qux ? quxx : foobar : bar;',
 			output: 'foo ? (baz === qux ? quxx : foobar) : bar;',
-			errors
+			errors: 1
 		}
 	]
 });
@@ -96,5 +83,19 @@ const visualizeTester = visualizeRuleTester(test, {
 	}
 });
 visualizeTester.run('no-nested-ternary', rule, [
-	'const foo = i > 5 ? true : (i < 100 ? true : (i < 1000 ? true : false));'
+	'const foo = i > 5 ? i < 100 ? true : false : i < 100 ? true : false;',
+	'const foo = i > 5 ? true : (i < 100 ? true : (i < 1000 ? true : false));',
+	outdent`
+		const foo = a ?
+			b :
+			(
+				c ?
+					d :
+					(
+						e ?
+							f :
+							(g ? h : i)
+					)
+			)
+	`
 ]);

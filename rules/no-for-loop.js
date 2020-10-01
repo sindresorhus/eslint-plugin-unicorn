@@ -389,11 +389,9 @@ const create = context => {
 					}
 
 					if (elementNode) {
-						if (removeDeclaration) {
-							yield fixer.removeRange(getRemovalRange(elementNode, sourceCode));
-						} else {
-							yield fixer.replaceText(elementNode.init, element);
-						}
+						yield removeDeclaration ?
+							fixer.removeRange(getRemovalRange(elementNode, sourceCode)) :
+							fixer.replaceText(elementNode.init, element);
 					}
 				};
 			}
