@@ -141,8 +141,10 @@ const create = context => ({
 
 		if (
 			node.arguments.length === 1 &&
-			node.arguments[0].type === 'Literal' &&
-			node.arguments[0].value !== 1
+			((node.arguments[0].type === 'Literal' &&
+			node.arguments[0].value !== 1) ||
+			(node.arguments[0].type === 'Identifier' &&
+			node.arguments[0].value === 'Infinity'))
 		) {
 			return;
 		}
