@@ -16,6 +16,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Label new rules
         uses: fregante/title-to-labels-action@v1
+        env:
+          ACTIONS_STEP_DEBUG: true
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           keywords: rule proposal
