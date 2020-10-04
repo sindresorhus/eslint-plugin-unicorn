@@ -5,8 +5,8 @@ import rule from '../rules/no-bitwise-trunc';
 import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
+	parserOptions: {
+		ecmaVersion: 2021
 	}
 });
 
@@ -24,6 +24,7 @@ ruleTester.run('no-bitwise-trunc', rule, {
 		`
 	],
 	invalid: [
+		// Basic "bitwise OR with 0" case
 		{
 			code: 'const foo = 1.1 | 0;',
 			errors: [error],
@@ -35,15 +36,40 @@ ruleTester.run('no-bitwise-trunc', rule, {
 			output: 'const foo = Math.trunc(111);'
 		},
 		{
-			code: 'const foo = 1.23 | 0 | 4;',
-			errors: [error],
-			output: 'const foo = Math.trunc(1.23) | 4;'
-		},
-		{
 			code: 'const foo = 1.23 | 0.0;',
 			errors: [error],
 			output: 'const foo = Math.trunc(1.23);'
 		},
+		// Multiple bitwise OR
+		{
+			code: 'const foo = 1.23 | 0 | 4;',
+			errors: [error],
+			output: 'const foo = Math.trunc(1.23) | 4;'
+		},
+		// Case with objects (MemberExpression and ChainExpression)
+		{
+			code: outdent`
+				const foo = {a: {b: {c: 3}}};
+				const bar = a.b.c | 0;
+			`,
+			errors: [error],
+			output: outdent`
+				const foo = {a: {b: {c: 3}}};
+				const bar = Math.trunc(a.b.c);
+			`
+		},
+		{
+			code: outdent`
+				const foo = {a: {b: {c: 3}}};
+				const bar = a.b?.c | 0;
+			`,
+			errors: [error],
+			output: outdent`
+				const foo = {a: {b: {c: 3}}};
+				const bar = Math.trunc(a.b?.c);
+			`
+		},
+		// With a variable on the left side
 		{
 			code: outdent`
 				const foo = 3;
@@ -55,6 +81,7 @@ ruleTester.run('no-bitwise-trunc', rule, {
 				const bar = Math.trunc(foo);
 			`
 		},
+		// With an AssignementExpression
 		{
 			code: outdent`
 				let foo = 2;
@@ -64,6 +91,17 @@ ruleTester.run('no-bitwise-trunc', rule, {
 			output: outdent`
 				let foo = 2;
 				foo = Math.trunc(foo);
+			`
+		},
+		{
+			code: outdent`
+				const foo = {a: {b: 3.4}};
+				foo.a.b |= 0;
+			`,
+			errors: [error],
+			output: outdent`
+				const foo = {a: {b: 3.4}};
+				foo.a.b = Math.trunc(foo.a.b);
 			`
 		}
 	]

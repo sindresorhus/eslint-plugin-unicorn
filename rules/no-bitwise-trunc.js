@@ -9,7 +9,6 @@ const messages = {
 const binaryExpressionSelector = [
 	'BinaryExpression',
 	'[operator="|"]',
-	'[left.type=/(Literal|Identifier)/]',
 	'[right.type="Literal"]',
 	'[right.value=0]'
 ].join('');
@@ -17,7 +16,6 @@ const binaryExpressionSelector = [
 const assignementExpressionSelector = [
 	'AssignmentExpression',
 	'[operator="|="]',
-	'[left.type=/(Literal|Identifier)/]',
 	'[right.type="Literal"]',
 	'[right.value=0]'
 ].join('');
@@ -25,17 +23,19 @@ const assignementExpressionSelector = [
 const create = context => {
 	return {
 		[binaryExpressionSelector]: node => {
+			const lhs = context.getSourceCode().getText(node.left);
 			context.report({
 				node,
 				messageId: MESSAGE_ID,
-				fix: fixer => fixer.replaceText(node, `Math.trunc(${node.left.value || node.left.name})`)
+				fix: fixer => fixer.replaceText(node, `Math.trunc(${lhs})`)
 			});
 		},
 		[assignementExpressionSelector]: node => {
+			const lhs = context.getSourceCode().getText(node.left);
 			context.report({
 				node,
 				messageId: MESSAGE_ID,
-				fix: fixer => fixer.replaceText(node, `${node.left.name} = Math.trunc(${node.left.name})`)
+				fix: fixer => fixer.replaceText(node, `${lhs} = Math.trunc(${lhs})`)
 			});
 		}
 	};
