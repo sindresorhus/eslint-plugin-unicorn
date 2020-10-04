@@ -31,6 +31,10 @@ ruleTester.run('prefer-flat-map', rule, {
 			bar = bar.flat();
 		`,
 		'const bar = [[1],[2],[3]].map(i => [i]).flat(2)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(Infinite)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(Number.POSITIVE_INFINITY)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(Number.MAX_VALUE)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(Number.MAX_SAFE_INTEGER)',
 		'const bar = [[1],[2],[3]].map(i => [i]).flat(1, null)',
 
 		// Spread: test `[].concat()` part

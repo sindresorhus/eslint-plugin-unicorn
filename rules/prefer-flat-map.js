@@ -1,6 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isMethodNamed = require('./utils/is-method-named');
+const isPositiveInfinity = require('./utils/is-positive-infinity');
 
 const MESSAGE_ID_FLATMAP = 'flat-map';
 const MESSAGE_ID_SPREAD = 'spread';
@@ -139,12 +140,27 @@ const create = context => ({
 			return;
 		}
 
-		if (
-			node.arguments.length === 1 &&
-			node.arguments[0].type === 'Literal' &&
-			node.arguments[0].value !== 1
-		) {
-			return;
+		if (node.arguments.length === 1) {
+			if (
+				node.arguments[0].type === 'Literal' &&
+				node.arguments[0].value !== 1
+			) {
+				return;
+			}
+
+			if (isPositiveInfinity(node.arguments[0])) {
+				return;
+			}
+
+			if (
+				node.arguments[0].type === 'MemberExpression' &&
+				node.arguments[0].object.type === 'Identifier' &&
+				node.arguments[0].object.name === 'Number' &&
+				node.arguments[0].property.type === 'Identifier' &&
+				['MAX_VALUE', 'MAX_SAFE_INTEGER'].includes(node.arguments[0].property.name)
+			) {
+				return true;
+			}
 		}
 
 		const parent = node.callee.object;
