@@ -19,7 +19,7 @@ const create = context => {
 			const scope = context.getScope();
 			const variable = findVariable(scope, node);
 
-			if (variable.references.length !== 0) {
+			if (variable.references.length > 0) {
 				return;
 			}
 
