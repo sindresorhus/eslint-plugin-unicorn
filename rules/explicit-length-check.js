@@ -43,7 +43,7 @@ function checkZeroType(context, node) {
 	}
 }
 
-function checkNonZeroType(context, node, type) {
+function checkNonZeroType(context, node, type = 'greater-than') {
 	const {value} = node.right;
 	const {operator} = node;
 
@@ -162,7 +162,8 @@ const schema = [
 		type: 'object',
 		properties: {
 			'non-zero': {
-				enum: ['not-equal', 'greater-than', 'greater-than-or-equal']
+				enum: ['not-equal', 'greater-than', 'greater-than-or-equal'],
+				default: 'greater-than'
 			}
 		}
 	}
