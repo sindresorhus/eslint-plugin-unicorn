@@ -35,11 +35,6 @@ ruleTester.run('prefer-math-trunc', rule, {
 			errors: [error],
 			output: 'const foo = Math.trunc(111);'
 		},
-		{
-			code: 'const foo = 1.23 | 0.0;',
-			errors: [error],
-			output: 'const foo = Math.trunc(1.23);'
-		},
 		// Multiple bitwise OR
 		{
 			code: 'const foo = 1.23 | 0 | 4;',

@@ -10,14 +10,14 @@ const binaryExpressionSelector = [
 	'BinaryExpression',
 	'[operator="|"]',
 	'[right.type="Literal"]',
-	'[right.value=0]'
+	'[right.raw=0]'
 ].join('');
 
 const assignementExpressionSelector = [
 	'AssignmentExpression',
 	'[operator="|="]',
 	'[right.type="Literal"]',
-	'[right.value=0]'
+	'[right.raw=0]'
 ].join('');
 
 const create = context => {
