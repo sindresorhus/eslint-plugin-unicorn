@@ -1,7 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const MESSAGE_ID = 'no-bitwise-trunc';
+const MESSAGE_ID = 'prefer-math-trunc';
 const messages = {
 	[MESSAGE_ID]: 'Use `Math.trunc` instead of `| 0`.'
 };

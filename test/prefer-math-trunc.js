@@ -1,7 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-bitwise-trunc';
+import rule from '../rules/prefer-math-trunc';
 import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
@@ -11,10 +11,10 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const error = {
-	messageId: 'no-bitwise-trunc'
+	messageId: 'prefer-math-trunc'
 };
 
-ruleTester.run('no-bitwise-trunc', rule, {
+ruleTester.run('prefer-math-trunc', rule, {
 	valid: [
 		'const foo = 1 | 1;',
 		'const foo = 0 | 1;',
@@ -113,6 +113,6 @@ const visualizeTester = visualizeRuleTester(test, {
 	}
 });
 
-visualizeTester.run('no-bitwise-trunc', rule, [
+visualizeTester.run('prefer-math-trunc', rule, [
 	'const foo = 10.01 | 0;'
 ]);

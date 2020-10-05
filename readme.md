@@ -47,7 +47,7 @@ Configure it in `package.json`.
 			"unicorn/new-for-builtins": "error",
 			"unicorn/no-abusive-eslint-disable": "error",
 			"unicorn/no-array-instanceof": "error",
-			"unicorn/no-bitwise-trunc": "error",
+			"unicorn/prefer-math-trunc": "error",
 			"unicorn/no-console-spaces": "error",
 			"unicorn/no-fn-reference-in-iterator": "error",
 			"unicorn/no-for-loop": "error",
@@ -114,7 +114,7 @@ Configure it in `package.json`.
 - [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`. *(fixable)*
 - [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) - Enforce specifying rules to disable in `eslint-disable` comments.
 - [no-array-instanceof](docs/rules/no-array-instanceof.md) - Require `Array.isArray()` instead of `instanceof Array`. *(fixable)*
-- [no-bitwise-trunc](docs/rules/no-bitwise-trunc.md) - Enforce the use of `Math.trunc` instead of `| 0`. *(fixable)*
+- [prefer-math-trunc](docs/rules/prefer-math-trunc.md) - Enforce the use of `Math.trunc` instead of `| 0`. *(fixable)*
 - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
 - [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevent passing a function reference directly to iterator methods.
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(partly fixable)*
