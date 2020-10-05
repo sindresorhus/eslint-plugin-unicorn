@@ -31,7 +31,6 @@ module.exports = {
 				'unicorn/new-for-builtins': 'error',
 				'unicorn/no-abusive-eslint-disable': 'error',
 				'unicorn/no-array-instanceof': 'error',
-				'unicorn/prefer-math-trunc': 'error',
 				'unicorn/no-console-spaces': 'error',
 				'unicorn/no-fn-reference-in-iterator': 'error',
 				'unicorn/no-for-loop': 'error',
@@ -59,6 +58,7 @@ module.exports = {
 				// TODO: Enable this by default when targeting Node.js 12.
 				'unicorn/prefer-flat-map': 'off',
 				'unicorn/prefer-includes': 'error',
+				'unicorn/prefer-math-trunc': 'error',
 				'unicorn/prefer-modern-dom-apis': 'error',
 				'unicorn/prefer-negative-index': 'error',
 				'unicorn/prefer-node-append': 'error',
