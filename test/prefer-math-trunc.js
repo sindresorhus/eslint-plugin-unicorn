@@ -120,6 +120,17 @@ ruleTester.run('prefer-math-trunc', rule, {
 			output: 'const foo = /* first comment */ Math.trunc(3.4); // A B C'
 		},
 		{
+			code: outdent`
+				const foo = {a: {b: 3.4}};
+				foo /* Comment 1 */ .a /* Comment 2 */ . /* Comment 3 */ b |= /* Comment 4 */ 0 /* Comment 5 */;
+			`,
+			errors: [error],
+			output: outdent`
+				const foo = {a: {b: 3.4}};
+				foo /* Comment 1 */ .a /* Comment 2 */ . /* Comment 3 */ b = Math.trunc(foo /* Comment 1 */ .a /* Comment 2 */ . /* Comment 3 */ b) /* Comment 5 */;
+			`
+		},
+		{
 			code: 'const foo = /* will keep */ 3.4 /* will remove 1 */ | /* will remove 2 */ 0;',
 			errors: [error],
 			output: 'const foo = /* will keep */ Math.trunc(3.4);'
