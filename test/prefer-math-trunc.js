@@ -21,6 +21,10 @@ ruleTester.run('prefer-math-trunc', rule, {
 		outdent`
 			let foo = 0;
 			foo |= 1;
+		`,
+		outdent`
+			let foo = 1.2; // comment 1
+			foo |= 1; // comment 2 and 1.2 | 0
 		`
 	],
 	invalid: [
@@ -34,6 +38,16 @@ ruleTester.run('prefer-math-trunc', rule, {
 			code: 'const foo = 111 | 0;',
 			errors: [error],
 			output: 'const foo = Math.trunc(111);'
+		},
+		{
+			code: 'const foo = (1 + 2 / 3.4) | 0;',
+			errors: [error],
+			output: 'const foo = Math.trunc(1 + 2 / 3.4);'
+		},
+		{
+			code: 'const foo = bar((1.4 | 0) + 2);',
+			errors: [error],
+			output: 'const foo = bar((Math.trunc(1.4)) + 2);'
 		},
 		// Multiple bitwise OR
 		{
@@ -98,7 +112,29 @@ ruleTester.run('prefer-math-trunc', rule, {
 				const foo = {a: {b: 3.4}};
 				foo.a.b = Math.trunc(foo.a.b);
 			`
-		}
+		},
+		// With comments
+		{
+			code: 'const foo = /* first comment */ 3.4 | 0; // A B C',
+			errors: [error],
+			output: 'const foo = /* first comment */ Math.trunc(3.4); // A B C'
+		},
+		{
+			code: 'const foo = /* will keep */ 3.4 /* will remove 1 */ | /* will remove 2 */ 0;',
+			errors: [error],
+			output: 'const foo = /* will keep */ Math.trunc(3.4);'
+		},
+		{
+			code: outdent`
+				const foo = 3.4; // comment 1
+				foo |= 0; // comment 2
+			`,
+			errors: [error],
+			output: outdent`
+				const foo = 3.4; // comment 1
+				foo = Math.trunc(foo); // comment 2
+			`
+		},
 	]
 });
 
