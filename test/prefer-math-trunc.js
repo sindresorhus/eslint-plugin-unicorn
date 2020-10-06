@@ -24,7 +24,7 @@ ruleTester.run('prefer-math-trunc', rule, {
 		`,
 		outdent`
 			let foo = 1.2; // comment 1
-			foo |= 1; // comment 2 and 1.2 | 0
+			foo |= 1; // comment 2 and 1.2 | 0
 		`
 	],
 	invalid: [
@@ -134,7 +134,7 @@ ruleTester.run('prefer-math-trunc', rule, {
 				const foo = 3.4; // comment 1
 				foo = Math.trunc(foo); // comment 2
 			`
-		},
+		}
 	]
 });
 
