@@ -21,9 +21,10 @@ const assignementExpressionSelector = [
 ].join('');
 
 const create = context => {
+	const source = context.getSourceCode();
 	return {
 		[binaryExpressionSelector]: node => {
-			const lhs = context.getSourceCode().getText(node.left);
+			const lhs = source.getText(node.left);
 			context.report({
 				node,
 				messageId: MESSAGE_ID,
@@ -31,7 +32,7 @@ const create = context => {
 			});
 		},
 		[assignementExpressionSelector]: node => {
-			const lhs = context.getSourceCode().getText(node.left);
+			const lhs = source.getText(node.left);
 			context.report({
 				node,
 				messageId: MESSAGE_ID,
