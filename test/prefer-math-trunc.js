@@ -109,5 +109,9 @@ const visualizeTester = visualizeRuleTester(test, {
 });
 
 visualizeTester.run('prefer-math-trunc', rule, [
-	'const foo = 10.01 | 0;'
+	'const foo = 10.01 | 0;',
+	outdent`
+		let foo = 10.01;
+		foo |= 0;
+	`
 ]);
