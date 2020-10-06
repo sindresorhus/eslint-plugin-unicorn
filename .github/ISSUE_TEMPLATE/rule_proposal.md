@@ -4,20 +4,22 @@ about: Have an idea for a new rule?
 labels: new rule, evaluating
 ---
 
-<!-- 1. Explain what the rule expects and why it's beneficial -->
-<!-- 2. Update the fail/pass examples -->
+<!-- 🍩 Please don't ignore this template -->
 
-## Description
-
+<!-- 1️⃣ Explain here why this rule would be beneficial -->
 
 ## Fail
 
-```js
+<!-- 2️⃣ Specify an example of code that should be detected -->
 
+```js
+var replace = `me`;
 ```
 
 ## Pass
 
-```js
+<!-- 3️⃣ Specify an example of code that would be accepted in its place -->
 
+```js
+const replace = 'me';
 ```
