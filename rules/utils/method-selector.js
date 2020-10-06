@@ -28,7 +28,7 @@ module.exports = options => {
 		selector.push(`[${prefix}callee.property.name="${name}"]`);
 	}
 
-	if (Array.isArray(names) && names.length !== 0) {
+	if (Array.isArray(names) && names.length > 0) {
 		selector.push(
 			':matches(' +
 			names.map(name => `[${prefix}callee.property.name="${name}"]`).join(', ') +

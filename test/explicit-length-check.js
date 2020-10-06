@@ -33,8 +33,6 @@ ruleTester.run('explicit-length-check', rule, {
 		testCase('if ("".length > 0) {}'),
 		testCase('if (array.length === 0) {}'),
 		testCase('if (array.length == 0) {}'),
-		testCase('if (array.length !== 0) {}'),
-		testCase('if (array.length !== 0 && array[0] === 1) {}'),
 		testCase('if (array.length === 1) {}'),
 		testCase('if (array.length <= 1) {}'),
 		testCase('if (array.length > 1) {}'),
@@ -116,6 +114,18 @@ ruleTester.run('explicit-length-check', rule, {
 			undefined,
 			['zeroEqual'],
 			'if (array.length === 0) {}'
+		),
+		testCase(
+			'if (array.length !== 0) {}',
+			undefined,
+			['nonZeroGreater'],
+			'if (array.length > 0) {}'
+		),
+		testCase(
+			'if (array.length !== 0 && array[0] === 1) {}',
+			undefined,
+			['nonZeroGreater'],
+			'if (array.length > 0 && array[0] === 1) {}'
 		),
 		testCase(
 			'if (array.length > 0) {}',

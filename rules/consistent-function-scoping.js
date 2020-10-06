@@ -164,7 +164,7 @@ const create = context => {
 		JSXElement: () => {
 			// Turn off this rule if we see a JSX element because scope
 			// references does not include JSXElement nodes.
-			if (functions.length !== 0) {
+			if (functions.length > 0) {
 				functions[functions.length - 1] = true;
 			}
 		},
