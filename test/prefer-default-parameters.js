@@ -131,6 +131,12 @@ ruleTester.run('prefer-default-parameters', rule, {
 				baz(foo);
 			}
 		`,
+		outdent`
+			function abc(foo) {
+				console.log(foo);
+				foo = foo || 123;
+			}
+		`,
 		// Used before assignment
 		outdent`
 			function abc(foo) {
@@ -178,6 +184,19 @@ ruleTester.run('prefer-default-parameters', rule, {
 			`,
 			suggestions: [outdent`
 				function abc(foo = true) {
+				}
+			`]
+		}),
+		invalidTestCase({
+			code: outdent`
+				function abc(foo) {
+					foo = foo || 123;
+					console.log(foo);
+				}
+			`,
+			suggestions: [outdent`
+				function abc(foo = 123) {
+					console.log(foo);
 				}
 			`]
 		}),

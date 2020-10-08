@@ -78,16 +78,20 @@ const create = context => {
 			right: {raw: literal}
 		} = right;
 
-		// Check if literal is assigned to the same identifier
+		// Parameter is reassigned to a different identifier
 		if (assignment && firstId !== secondId) {
 			return;
 		}
 
 		const variable = findVariable(context.getScope(), secondId);
-		const maxReferences = assignment ? 2 : 1;
 
-		// Check if identifier is referenced elsewhere
-		if (variable.references.length > maxReferences) {
+		// Parameter is referenced prior to default-assignment
+		if (assignment && variable.references[0].identifier !== left) {
+			return;
+		}
+
+		// Old parameter is still referenced somewhere else
+		if (!assignment && variable.references.length > 1) {
 			return;
 		}
 
