@@ -24,12 +24,12 @@ const isDefaultExpression = (left, right) =>
 	right.left.type === 'Identifier' &&
 	right.right.type === 'Literal';
 
-const needsParentheses = (source, func) => {
-	if (func.type !== 'ArrowFunctionExpression' || func.params.length > 1) {
+const needsParentheses = (source, function_) => {
+	if (function_.type !== 'ArrowFunctionExpression' || function_.params.length > 1) {
 		return false;
 	}
 
-	const [parameter] = func.params;
+	const [parameter] = function_.params;
 	const before = source.getTokenBefore(parameter);
 	const after = source.getTokenAfter(parameter);
 
