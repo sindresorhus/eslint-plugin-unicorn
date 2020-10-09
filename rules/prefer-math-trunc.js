@@ -1,42 +1,60 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const MESSAGE_ID = 'prefer-math-trunc';
+const MESSAGE_ID_BITWISE_OR = 'bitwiseOr';
+const MESSAGE_ID_BITWISE_NO = 'bitwiseNo';
 const messages = {
-	[MESSAGE_ID]: 'Use `Math.trunc` instead of `| 0`.'
+	[MESSAGE_ID_BITWISE_OR]: 'Use `Math.trunc` instead of `| 0`.',
+	[MESSAGE_ID_BITWISE_NO]: 'Use `Math.trunc` instead of `~~`.'
 };
 
-const binaryExpressionSelector = [
+// Bitwise OR with 0
+const bitwiseOrBinaryExpressionSelector = [
 	'BinaryExpression',
 	'[operator="|"]',
 	'[right.type="Literal"]',
 	'[right.raw=0]'
 ].join('');
 
-const assignementExpressionSelector = [
+const bitwiseOrAssignementExpressionSelector = [
 	'AssignmentExpression',
 	'[operator="|="]',
 	'[right.type="Literal"]',
 	'[right.raw=0]'
 ].join('');
 
+// 2 bitwise NO
+const bitwiseNoUnaryExpressionSelector = [
+	'UnaryExpression[operator="~"]',
+	'>',
+	'UnaryExpression[operator="~"]'
+].join('');
+
 const create = context => {
 	const source = context.getSourceCode();
 	return {
-		[binaryExpressionSelector]: node => {
+		[bitwiseOrBinaryExpressionSelector]: node => {
 			const lhs = source.getText(node.left);
 			context.report({
 				node,
-				messageId: MESSAGE_ID,
+				messageId: MESSAGE_ID_BITWISE_OR,
 				fix: fixer => fixer.replaceText(node, `Math.trunc(${lhs})`)
 			});
 		},
-		[assignementExpressionSelector]: node => {
+		[bitwiseOrAssignementExpressionSelector]: node => {
 			const lhs = source.getText(node.left);
 			context.report({
 				node,
-				messageId: MESSAGE_ID,
+				messageId: MESSAGE_ID_BITWISE_OR,
 				fix: fixer => fixer.replaceText(node, `${lhs} = Math.trunc(${lhs})`)
+			});
+		},
+		[bitwiseNoUnaryExpressionSelector]: node => {
+			const raw = source.getText(node.argument);
+			context.report({
+				node,
+				messageId: MESSAGE_ID_BITWISE_NO,
+				fix: fixer => fixer.replaceText(node.parent, `Math.trunc(${raw})`)
 			});
 		}
 	};
