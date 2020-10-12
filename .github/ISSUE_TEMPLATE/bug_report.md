@@ -4,5 +4,14 @@ about: A rule isn't working as it should?
 labels: bug
 ---
 
-<!-- 1. Explain what the problem is -->
-<!-- 2. Add an example of code that causes the issue -->
+<!-- ✨ Thanks for reporting a bug! ➡️ Please don't ignore this template -->
+
+<!-- 1️⃣ Explain here what's wrong -->
+
+<!-- 2️⃣ Specify which rule is buggy here and in the title -->
+
+<!-- 3️⃣ Add some examples where the issue appears -->
+
+```js
+const code = 'that should be ok';
+```
