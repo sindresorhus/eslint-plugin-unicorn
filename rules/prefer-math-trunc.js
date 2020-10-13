@@ -52,7 +52,7 @@ const create = context => {
 		[bitwiseNoUnaryExpressionSelector]: node => {
 			const raw = source.getText(node.argument);
 			context.report({
-				node,
+				node: node.parent,
 				messageId: MESSAGE_ID_BITWISE_NO,
 				fix: fixer => fixer.replaceText(node.parent, `Math.trunc(${raw})`)
 			});
