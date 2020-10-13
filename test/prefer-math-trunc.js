@@ -52,6 +52,11 @@ ruleTester.run('prefer-math-trunc', rule, {
 			errors: errorsBitwiseOr,
 			output: 'const foo = bar((Math.trunc(1.4)) + 2);'
 		},
+		{
+			code: 'const foo = (0, 1.4) | 0;',
+			errors: errorsBitwiseOr,
+			output: 'const foo = Math.trunc((0, 1.4));'
+		},
 		// Multiple bitwise OR
 		{
 			code: 'const foo = 1.23 | 0 | 4;',
@@ -78,6 +83,11 @@ ruleTester.run('prefer-math-trunc', rule, {
 			code: 'const foo = ~~1 + 2 / 3.4;',
 			errors: errorsBitwiseNo,
 			output: 'const foo = Math.trunc(1) + 2 / 3.4;'
+		},
+		{
+			code: 'const foo = ~~(0, 1.4);',
+			errors: errorsBitwiseNo,
+			output: 'const foo = Math.trunc((0, 1.4));'
 		},
 		// Case with objects (MemberExpression and ChainExpression)
 		{

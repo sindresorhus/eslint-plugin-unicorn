@@ -34,7 +34,10 @@ const create = context => {
 	const source = context.getSourceCode();
 	return {
 		[bitwiseOrBinaryExpressionSelector]: node => {
-			const lhs = source.getText(node.left);
+			let lhs = source.getText(node.left);
+			if (node.left.type === 'SequenceExpression') {
+				lhs = `(${lhs})`;
+			}
 			context.report({
 				node,
 				messageId: MESSAGE_ID_BITWISE_OR,
@@ -50,7 +53,10 @@ const create = context => {
 			});
 		},
 		[bitwiseNoUnaryExpressionSelector]: node => {
-			const raw = source.getText(node.argument);
+			let raw = source.getText(node.argument);
+			if (node.argument.type === 'SequenceExpression') {
+				raw = `(${raw})`;
+			}
 			context.report({
 				node: node.parent,
 				messageId: MESSAGE_ID_BITWISE_NO,
