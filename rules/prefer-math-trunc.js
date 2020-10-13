@@ -38,6 +38,7 @@ const create = context => {
 			if (node.left.type === 'SequenceExpression') {
 				lhs = `(${lhs})`;
 			}
+
 			context.report({
 				node,
 				messageId: MESSAGE_ID_BITWISE_OR,
@@ -57,6 +58,7 @@ const create = context => {
 			if (node.argument.type === 'SequenceExpression') {
 				raw = `(${raw})`;
 			}
+
 			context.report({
 				node: node.parent,
 				messageId: MESSAGE_ID_BITWISE_NO,
