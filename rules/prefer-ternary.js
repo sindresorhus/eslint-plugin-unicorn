@@ -244,7 +244,7 @@ const create = context => {
 					yield fixer.replaceText(node, fixed);
 
 					if (generateNewVariables) {
-						yield * extendFixRange(fixer, sourceCode.ast.range);
+						yield * extendFixRange();
 					}
 				}
 			});
