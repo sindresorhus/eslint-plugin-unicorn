@@ -1,6 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isMethodNamed = require('./utils/is-method-named');
+const isLiteralValue = require('./utils/is-literal-value');
 
 const MESSAGE_ID_FLATMAP = 'flat-map';
 const MESSAGE_ID_SPREAD = 'spread';
@@ -135,14 +136,13 @@ const create = context => ({
 			return;
 		}
 
-		if (node.arguments.length > 1) {
-			return;
-		}
-
 		if (
-			node.arguments.length === 1 &&
-			node.arguments[0].type === 'Literal' &&
-			node.arguments[0].value !== 1
+			!(
+				// `.flat()`
+				node.arguments.length === 0 ||
+				// `.flat(1)`
+				(node.arguments.length === 1 && isLiteralValue(node.arguments[0], 1))
+			)
 		) {
 			return;
 		}
