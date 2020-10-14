@@ -91,7 +91,6 @@ const create = context => {
 			if (reported.has(node) || isShadowed(context.getScope(), node)) {
 				return;
 			}
-			reported.add(node);
 
 			const {name} = node;
 			context.report({
@@ -102,6 +101,8 @@ const create = context => {
 				},
 				fix: fixer => renameIdentifier(node, `Number.${name}`, fixer, sourceCode)
 			});
+
+			reported.add(node);
 		}
 	};
 };
