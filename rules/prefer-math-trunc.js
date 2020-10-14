@@ -47,11 +47,11 @@ const create = context => {
 			});
 		},
 		[bitwiseOrAssignmentExpressionSelector]: node => {
-			const lhs = sourceCode.getText(node.left);
+			const leftHandSide = sourceCode.getText(node.left);
 			context.report({
 				node,
 				messageId: MESSAGE_ID_BITWISE_OR,
-				fix: fixer => fixer.replaceText(node, `${lhs} = Math.trunc(${lhs})`)
+				fix: fixer => fixer.replaceText(node, `${leftHandSide} = Math.trunc(${leftHandSide})`)
 			});
 		},
 		[bitwiseNoUnaryExpressionSelector]: node => {
