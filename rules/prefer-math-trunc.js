@@ -41,9 +41,10 @@ const bitwiseNotUnaryExpressionSelector = [
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
-	const getParenthesizedText = node => {
+	const mathTruncFunctionCall = node => {
 		const text = sourceCode.getText(node);
-		return node.type === 'SequenceExpression' ? `(${text})` : text;
+		const parenthesized = node.type === 'SequenceExpression' ? `(${text})` : text;
+		return `Math.trunc(${parenthesized})`;
 	};
 
 	return {
@@ -51,22 +52,21 @@ const create = context => {
 			context.report({
 				node,
 				messageId: MESSAGE_ID_BITWISE_OR,
-				fix: fixer => fixer.replaceText(node, `Math.trunc(${getParenthesizedText(node.left)})`)
+				fix: fixer => fixer.replaceText(node, mathTruncFunctionCall(node.left))
 			});
 		},
 		[bitwiseOrAssignmentExpressionSelector]: node => {
-			const leftHandSide = sourceCode.getText(node.left);
 			context.report({
 				node,
 				messageId: MESSAGE_ID_BITWISE_OR,
-				fix: fixer => fixer.replaceText(node, `${leftHandSide} = Math.trunc(${leftHandSide})`)
+				fix: fixer => fixer.replaceText(node, `${sourceCode.getText(node.left)} = ${mathTruncFunctionCall(node.left)}`)
 			});
 		},
 		[bitwiseNotUnaryExpressionSelector]: node => {
 			context.report({
 				node,
 				messageId: MESSAGE_ID_BITWISE_NOT,
-				fix: fixer => fixer.replaceText(node, `Math.trunc(${getParenthesizedText(node.argument.argument)})`)
+				fix: fixer => fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument))
 			});
 		}
 	};
