@@ -236,7 +236,7 @@ ruleTester.run('prefer-flat-map', rule, {
 
 const visualizeTester = visualizeRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2021,
+		ecmaVersion: 2021
 	}
 });
 
