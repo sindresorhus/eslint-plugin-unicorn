@@ -174,7 +174,7 @@ ruleTester.run(ruleId, rule, {
 		outdent`
 			const foo = [1, 2, 3];
 			function unicorn() {
-				return foo.?includes(1);
+				return foo?.includes(1);
 			}
 		`,
 		// Different scope
