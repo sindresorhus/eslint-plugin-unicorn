@@ -1,4 +1,4 @@
-# Enforce the use of `Math.trunc` instead of `| 0`
+# Enforce the use of `Math.trunc` instead of bitwise operators
 
 Enforces a convention of using [`Math.trunc()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/trunc) instead of `| 0` (`bitwise OR` with 0) or `~~x` (two `bitwise NOT`) for clarity and more reliable results.
 
