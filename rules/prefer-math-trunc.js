@@ -24,11 +24,18 @@ const bitwiseOrAssignmentExpressionSelector = [
 ].join('');
 
 // 2 bitwise NO
+const createBitwiseNoSelector = (property, isNegative) => {
+	const prefix = property ? `${property}.` : '';
+	const selector = [
+		`[${prefix}type="UnaryExpression"]`,
+		`[${prefix}operator="~"]`
+	].join('');
+	return isNegative ? `:not(${selector})` : selector;
+};
 const bitwiseNoUnaryExpressionSelector = [
-	'UnaryExpression[operator="~"]',
-	'>',
-	'UnaryExpression[operator="~"]',
-	':not([argument.type="UnaryExpression"][argument.operator="~"])'
+	createBitwiseNoSelector(),
+	createBitwiseNoSelector('argument'),
+	createBitwiseNoSelector('argument.argument', true)
 ].join('');
 
 const create = context => {
@@ -56,9 +63,9 @@ const create = context => {
 		},
 		[bitwiseNoUnaryExpressionSelector]: node => {
 			context.report({
-				node: node.parent,
+				node: node,
 				messageId: MESSAGE_ID_BITWISE_NO,
-				fix: fixer => fixer.replaceText(node.parent, `Math.trunc(${getParenthesizedText(node.argument)})`)
+				fix: fixer => fixer.replaceText(node, `Math.trunc(${getParenthesizedText(node.argument.argument)})`)
 			});
 		}
 	};
