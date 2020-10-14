@@ -2,7 +2,7 @@
 
 Enforces a convention of using [`Math.trunc()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/trunc) instead of `| 0` ([`bitwise OR`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_OR) with 0) or `~~x` (two [`bitwise NOT`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_NOT)) for clarity and more reliable results.
 
-These hacks helps truncate numbers but they are not clear and do not work in [some cases](https://stackoverflow.com/a/34706108/11687747).
+These hacks help truncate numbers but they are not clear and do not work in [some cases](https://stackoverflow.com/a/34706108/11687747).
 
 This rule is fixable.
 
