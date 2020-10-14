@@ -102,6 +102,7 @@ const isIncludesCall = node => {
 		callee &&
 		callee.type === 'MemberExpression' &&
 		!callee.computed &&
+		!callee.optional &&
 		callee.object === node &&
 		callee.property.type === 'Identifier' &&
 		callee.property.name === 'includes' &&
