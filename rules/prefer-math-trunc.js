@@ -16,7 +16,7 @@ const bitwiseOrBinaryExpressionSelector = [
 	'[right.raw=0]'
 ].join('');
 
-const bitwiseOrAssignementExpressionSelector = [
+const bitwiseOrAssignmentExpressionSelector = [
 	'AssignmentExpression',
 	'[operator="|="]',
 	'[right.type="Literal"]',
@@ -48,7 +48,7 @@ const create = context => {
 				fix: fixer => fixer.replaceText(node, `Math.trunc(${getParenthesizedText(node.left)})`)
 			});
 		},
-		[bitwiseOrAssignementExpressionSelector]: node => {
+		[bitwiseOrAssignmentExpressionSelector]: node => {
 			const lhs = source.getText(node.left);
 			context.report({
 				node,
