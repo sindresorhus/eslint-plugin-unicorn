@@ -257,5 +257,9 @@ visualizeTester.run('prefer-math-trunc', rule, [
 	'const foo = ~~~10.01;',
 	'const foo = ~~(~10.01);',
 	'const foo = ~(~~10.01);',
-	'const foo = ~~-10.01;'
+	'const foo = ~~-10.01;',
+	'const foo = ~~~~10.01;',
+	'const foo = ~~10.01 | 0;',
+	'const foo = ~~(10.01 | 0);',
+	'const foo = 10.01 | 0 | 0;'
 ]);
