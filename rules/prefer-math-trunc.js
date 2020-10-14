@@ -23,7 +23,7 @@ const bitwiseOrAssignmentExpressionSelector = [
 	'[right.raw=0]'
 ].join('');
 
-// 2 bitwise NOT
+// Inner-most 2 bitwise NOT
 const createBitwiseNotSelector = (level, isNegative) => {
 	const prefix = 'argument.'.repeat(level);
 	const selector = [
@@ -32,6 +32,7 @@ const createBitwiseNotSelector = (level, isNegative) => {
 	].join('');
 	return isNegative ? `:not(${selector})` : selector;
 };
+
 const bitwiseNotUnaryExpressionSelector = [
 	createBitwiseNotSelector(0),
 	createBitwiseNotSelector(1),
@@ -63,7 +64,7 @@ const create = context => {
 		},
 		[bitwiseNotUnaryExpressionSelector]: node => {
 			context.report({
-				node: node,
+				node,
 				messageId: MESSAGE_ID_BITWISE_NOT,
 				fix: fixer => fixer.replaceText(node, `Math.trunc(${getParenthesizedText(node.argument.argument)})`)
 			});
