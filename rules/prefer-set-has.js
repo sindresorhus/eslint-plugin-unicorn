@@ -98,7 +98,7 @@ const isIncludesCall = node => {
 	const {type, optional, callee, arguments: parameters} = node.parent.parent;
 	return (
 		type === 'CallExpression' &&
-		!optional,
+		!optional &&
 		callee &&
 		callee.type === 'MemberExpression' &&
 		!callee.computed &&

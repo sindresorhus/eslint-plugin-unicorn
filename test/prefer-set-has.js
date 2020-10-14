@@ -177,6 +177,18 @@ ruleTester.run(ruleId, rule, {
 				return foo?.includes(1);
 			}
 		`,
+		outdent`
+			const foo = [1, 2, 3];
+			function unicorn() {
+				return foo.includes?.(1);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			function unicorn() {
+				return foo?.includes?.(1);
+			}
+		`,
 		// Different scope
 		outdent`
 			function unicorn() {
