@@ -10,11 +10,18 @@ This rule is fixable.
 
 ```js
 const foo = 37.4 | 0;
-const foo = ~~37.4;
+```
 
+```js
+const foo = ~~37.4;
+```
+
+```js
 let foo = 3.3;
 foo |= 0;
+```
 
+```js
 const foo = 3.3;
 const bar = ~~foo;
 ```
@@ -23,6 +30,17 @@ const bar = ~~foo;
 
 ```js
 const foo = Math.trunc(37.4);
+```
+
+```js
 const foo = 3.3 | 1;
+```
+
+```js
+let foo = 3.3;
+foo = Math.trunc(3.3);
+```
+
+```js
 const foo = ~3.3;
 ```
