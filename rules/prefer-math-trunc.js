@@ -24,8 +24,8 @@ const bitwiseOrAssignmentExpressionSelector = [
 ].join('');
 
 // 2 bitwise NOT
-const createBitwiseNotSelector = (property, isNegative) => {
-	const prefix = property ? `${property}.` : '';
+const createBitwiseNotSelector = (level, isNegative) => {
+	const prefix = 'argument.'.repeat(level);
 	const selector = [
 		`[${prefix}type="UnaryExpression"]`,
 		`[${prefix}operator="~"]`
@@ -33,9 +33,9 @@ const createBitwiseNotSelector = (property, isNegative) => {
 	return isNegative ? `:not(${selector})` : selector;
 };
 const bitwiseNotUnaryExpressionSelector = [
-	createBitwiseNotSelector(),
-	createBitwiseNotSelector('argument'),
-	createBitwiseNotSelector('argument.argument', true)
+	createBitwiseNotSelector(0),
+	createBitwiseNotSelector(1),
+	createBitwiseNotSelector(2, true)
 ].join('');
 
 const create = context => {
