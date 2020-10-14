@@ -253,5 +253,9 @@ visualizeTester.run('prefer-math-trunc', rule, [
 	outdent`
 		const foo = 10.01;
 		const bar = ~~foo;
-	`
+	`,
+	'const foo = ~~~10.01;',
+	'const foo = ~~(~10.01);',
+	'const foo = ~(~~10.01);',
+	'const foo = ~~-10.01;'
 ]);

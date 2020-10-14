@@ -30,6 +30,8 @@ const bitwiseNoUnaryExpressionSelector = [
 	'UnaryExpression[operator="~"]'
 ].join('');
 
+const isBitWiseNoUnaryExpression = ({type, operator}) => type === 'UnaryExpression' && operator === '~';;
+
 const create = context => {
 	const source = context.getSourceCode();
 	return {
@@ -54,6 +56,10 @@ const create = context => {
 			});
 		},
 		[bitwiseNoUnaryExpressionSelector]: node => {
+			if (isBitWiseNoUnaryExpression(node.argument)) {
+				return;
+			}
+
 			let raw = source.getText(node.argument);
 			if (node.argument.type === 'SequenceExpression') {
 				raw = `(${raw})`;
