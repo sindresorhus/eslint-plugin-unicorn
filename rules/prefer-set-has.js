@@ -95,18 +95,19 @@ const isIncludesCall = node => {
 		return false;
 	}
 
-	const {type, optional, callee, arguments: parameters} = node.parent.parent;
+	const {type, optional, callee, arguments: includesArguments} = node.parent.parent;
 	return (
 		type === 'CallExpression' &&
-		!optional,
+		!optional &&
 		callee &&
 		callee.type === 'MemberExpression' &&
 		!callee.computed &&
+		!callee.optional &&
 		callee.object === node &&
 		callee.property.type === 'Identifier' &&
 		callee.property.name === 'includes' &&
-		parameters.length === 1 &&
-		parameters[0].type !== 'SpreadElement'
+		includesArguments.length === 1 &&
+		includesArguments[0].type !== 'SpreadElement'
 	);
 };
 

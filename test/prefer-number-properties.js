@@ -216,8 +216,7 @@ ruleTester.run(ruleId, rule, {
 		{
 			code: 'const foo = {NaN};',
 			output: 'const foo = {NaN: Number.NaN};',
-			// TODO: should be one error
-			errors: [...errorNaN, ...errorNaN]
+			errors: errorNaN
 		},
 		{
 			code: 'const foo = {NaN: NaN};',

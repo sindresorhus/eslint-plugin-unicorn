@@ -49,6 +49,9 @@ const propertiesSelector = [
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
+	// Cache `NaN` in `foo = {NaN}`
+	const reported = new WeakSet();
+
 	return {
 		[methodsSelector]: node => {
 			if (isShadowed(context.getScope(), node)) {
@@ -85,7 +88,7 @@ const create = context => {
 			context.report(problem);
 		},
 		[propertiesSelector]: node => {
-			if (isShadowed(context.getScope(), node)) {
+			if (reported.has(node) || isShadowed(context.getScope(), node)) {
 				return;
 			}
 
@@ -98,6 +101,8 @@ const create = context => {
 				},
 				fix: fixer => renameIdentifier(node, `Number.${name}`, fixer, sourceCode)
 			});
+
+			reported.add(node);
 		}
 	};
 };

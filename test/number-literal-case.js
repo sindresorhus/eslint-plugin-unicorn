@@ -34,7 +34,6 @@ ruleTester.run('number-literal-case', rule, {
 	invalid: []
 });
 
-// TODO: Add numeric separator tests when ESLint supports it.
 const tests = {
 	valid: [
 		// Number
