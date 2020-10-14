@@ -2,6 +2,7 @@ import test from 'ava';
 import {outdent} from 'outdent';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import rule from '../rules/prefer-flat-map';
+import visualizeRuleTester from './utils/visualize-rule-tester';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -32,6 +33,15 @@ ruleTester.run('prefer-flat-map', rule, {
 		`,
 		'const bar = [[1],[2],[3]].map(i => [i]).flat(2)',
 		'const bar = [[1],[2],[3]].map(i => [i]).flat(1, null)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(Infinity)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(Number.POSITIVE_INFINITY)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(Number.MAX_VALUE)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(Number.MAX_SAFE_INTEGER)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(...[1])',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(0.4 +.6)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(+1)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(foo)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(foo.bar)',
 
 		// Spread: test `[].concat()` part
 		// Not `CallExpression`
@@ -223,3 +233,16 @@ ruleTester.run('prefer-flat-map', rule, {
 		}
 	]
 });
+
+const visualizeTester = visualizeRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 2021
+	}
+});
+
+visualizeTester.run('prefer-flat-map', rule, [
+	'const bar = [[1],[2],[3]].map(i => [i]).flat()',
+	'const bar = [[1],[2],[3]].map(i => [i]).flat(1.00)',
+	'const bar = [[1],[2],[3]].map(i => [i]).flat(1,)',
+	'const foo = [].concat(...bar.map((i) => i));'
+]);
