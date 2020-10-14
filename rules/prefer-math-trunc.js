@@ -27,14 +27,12 @@ const bitwiseOrAssignmentExpressionSelector = [
 const bitwiseNoUnaryExpressionSelector = [
 	'UnaryExpression[operator="~"]',
 	'>',
-	'UnaryExpression[operator="~"]'
+	'UnaryExpression[operator="~"]',
+	':not([argument.type="UnaryExpression"][argument.operator="~"])'
 ].join('');
 
-const isBitWiseNoUnaryExpression = ({type, operator}) => type === 'UnaryExpression' && operator === '~';
-
-
 const create = context => {
-	const source = context.getSourceCode();
+	const sourceCode = context.getSourceCode();
 	const getParenthesizedText = node => {
 		const text = sourceCode.getText(node);
 		return node.type === 'SequenceExpression' ? `(${text})` : text;
@@ -49,7 +47,7 @@ const create = context => {
 			});
 		},
 		[bitwiseOrAssignmentExpressionSelector]: node => {
-			const lhs = source.getText(node.left);
+			const lhs = sourceCode.getText(node.left);
 			context.report({
 				node,
 				messageId: MESSAGE_ID_BITWISE_OR,
@@ -57,10 +55,6 @@ const create = context => {
 			});
 		},
 		[bitwiseNoUnaryExpressionSelector]: node => {
-			if (isBitWiseNoUnaryExpression(node.argument)) {
-				return;
-			}
-
 			context.report({
 				node: node.parent,
 				messageId: MESSAGE_ID_BITWISE_NO,
