@@ -11,10 +11,10 @@ const ruleTester = avaRuleTester(test, {
 });
 
 const MESSAGE_ID_BITWISE_OR = 'bitwiseOr';
-const MESSAGE_ID_BITWISE_NO = 'bitwiseNo';
+const MESSAGE_ID_BITWISE_NOT = 'bitwiseNot';
 
 const errorsBitwiseOr = [{messageId: MESSAGE_ID_BITWISE_OR}];
-const errorsBitwiseNo = [{messageId: MESSAGE_ID_BITWISE_NO}];
+const errorsBitwiseNo = [{messageId: MESSAGE_ID_BITWISE_NOT}];
 
 ruleTester.run('prefer-math-trunc', rule, {
 	valid: [

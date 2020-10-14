@@ -2,10 +2,10 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_BITWISE_OR = 'bitwiseOr';
-const MESSAGE_ID_BITWISE_NO = 'bitwiseNo';
+const MESSAGE_ID_BITWISE_NOT = 'bitwiseNot';
 const messages = {
 	[MESSAGE_ID_BITWISE_OR]: 'Use `Math.trunc` instead of `| 0`.',
-	[MESSAGE_ID_BITWISE_NO]: 'Use `Math.trunc` instead of `~~`.'
+	[MESSAGE_ID_BITWISE_NOT]: 'Use `Math.trunc` instead of `~~`.'
 };
 
 // Bitwise OR with 0
@@ -23,8 +23,8 @@ const bitwiseOrAssignmentExpressionSelector = [
 	'[right.raw=0]'
 ].join('');
 
-// 2 bitwise NO
-const createBitwiseNoSelector = (property, isNegative) => {
+// 2 bitwise NOT
+const createBitwiseNotSelector = (property, isNegative) => {
 	const prefix = property ? `${property}.` : '';
 	const selector = [
 		`[${prefix}type="UnaryExpression"]`,
@@ -32,10 +32,10 @@ const createBitwiseNoSelector = (property, isNegative) => {
 	].join('');
 	return isNegative ? `:not(${selector})` : selector;
 };
-const bitwiseNoUnaryExpressionSelector = [
-	createBitwiseNoSelector(),
-	createBitwiseNoSelector('argument'),
-	createBitwiseNoSelector('argument.argument', true)
+const bitwiseNotUnaryExpressionSelector = [
+	createBitwiseNotSelector(),
+	createBitwiseNotSelector('argument'),
+	createBitwiseNotSelector('argument.argument', true)
 ].join('');
 
 const create = context => {
@@ -61,10 +61,10 @@ const create = context => {
 				fix: fixer => fixer.replaceText(node, `${leftHandSide} = Math.trunc(${leftHandSide})`)
 			});
 		},
-		[bitwiseNoUnaryExpressionSelector]: node => {
+		[bitwiseNotUnaryExpressionSelector]: node => {
 			context.report({
 				node: node,
-				messageId: MESSAGE_ID_BITWISE_NO,
+				messageId: MESSAGE_ID_BITWISE_NOT,
 				fix: fixer => fixer.replaceText(node, `Math.trunc(${getParenthesizedText(node.argument.argument)})`)
 			});
 		}
