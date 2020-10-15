@@ -2,29 +2,13 @@
 const {hasSideEffect} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const MESSAGE_ID_BITWISE_OR = 'bitwiseOr';
+const MESSAGE_ID_BITWISE = 'bitwise';
 const MESSAGE_ID_BITWISE_NOT = 'bitwiseNot';
 const messages = {
-	[MESSAGE_ID_BITWISE_OR]: 'Use `Math.trunc` instead of `| 0`.',
+	[MESSAGE_ID_BITWISE]: 'Use `Math.trunc` instead of `{{operator}} {{value}}`.',
 	[MESSAGE_ID_BITWISE_NOT]: 'Use `Math.trunc` instead of `~~`.'
 };
 
-// Bitwise OR with 0
-const bitwiseOrBinaryExpressionSelector = [
-	'BinaryExpression',
-	'[operator="|"]',
-	'[right.type="Literal"]',
-	'[right.raw=0]'
-].join('');
-
-const bitwiseOrAssignmentExpressionSelector = [
-	'AssignmentExpression',
-	'[operator="|="]',
-	'[right.type="Literal"]',
-	'[right.raw=0]'
-].join('');
-
-// Inner-most 2 bitwise NOT
 const createBitwiseNotSelector = (level, isNegative) => {
 	const prefix = 'argument.'.repeat(level);
 	const selector = [
@@ -34,6 +18,9 @@ const createBitwiseNotSelector = (level, isNegative) => {
 	return isNegative ? `:not(${selector})` : selector;
 };
 
+// Bitwise operators
+const bitwiseOperators = new Set(['|', '>>', '<<', '^']);
+// Unary Expression Selector: Inner-most 2 bitwise NOT
 const bitwiseNotUnaryExpressionSelector = [
 	createBitwiseNotSelector(0),
 	createBitwiseNotSelector(1),
@@ -42,6 +29,7 @@ const bitwiseNotUnaryExpressionSelector = [
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
+
 	const mathTruncFunctionCall = node => {
 		const text = sourceCode.getText(node);
 		const parenthesized = node.type === 'SequenceExpression' ? `(${text})` : text;
@@ -49,22 +37,34 @@ const create = context => {
 	};
 
 	return {
-		[bitwiseOrBinaryExpressionSelector]: node => {
-			context.report({
-				node,
-				messageId: MESSAGE_ID_BITWISE_OR,
-				fix: fixer => fixer.replaceText(node, mathTruncFunctionCall(node.left))
-			});
-		},
-		[bitwiseOrAssignmentExpressionSelector]: node => {
-			const {left} = node;
+		':matches(BinaryExpression, AssignmentExpression)[right.type="Literal"]': node => {
+			const {type, operator, right, left} = node;
+			const isAssignment = type === 'AssignmentExpression';
+			if (
+				right.value !== 0 ||
+				!bitwiseOperators.has(isAssignment ? operator.slice(0, -1) : operator)
+			) {
+				return;
+			}
+
 			const problem = {
 				node,
-				messageId: MESSAGE_ID_BITWISE_OR
+				messageId: MESSAGE_ID_BITWISE,
+				data: {
+					operator,
+					value: right.raw
+				},
 			};
 
-			if (!hasSideEffect(left, sourceCode)) {
-				problem.fix = fixer => fixer.replaceText(node, `${sourceCode.getText(left)} = ${mathTruncFunctionCall(left)}`);
+			if (!isAssignment || !hasSideEffect(left, sourceCode)) {
+				problem.fix = fixer => {
+					let fixed = mathTruncFunctionCall(left);
+					if (isAssignment) {
+						fixed = `${sourceCode.getText(left)} = ${fixed}`;
+					}
+
+					return fixer.replaceText(node, fixed);
+				};
 			}
 
 			context.report(problem);
