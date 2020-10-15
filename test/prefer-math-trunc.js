@@ -20,6 +20,12 @@ ruleTester.run('prefer-math-trunc', rule, {
 	valid: [
 		'const foo = 1 | 1;',
 		'const foo = 0 | 1;',
+		'const foo = 1.4 | +0;',
+		'const foo = 1.4 | -0;',
+		'const foo = 1.4 | (.5 - .5);',
+		'const foo = 1.4 & 0xFFFFFFFF',
+		'const foo = 1.4 & 0xFF',
+		'const foo = 1.4 & 0x0',
 		'const foo = ~3.9;',
 		'const foo = 1.1 >> 1',
 		'const foo = 0 << 1',
@@ -58,6 +64,32 @@ ruleTester.run('prefer-math-trunc', rule, {
 			code: 'const foo = (0, 1.4) | 0;',
 			errors: errorsBitwise,
 			output: 'const foo = Math.trunc((0, 1.4));'
+		},
+		// Different "types" of 0
+		{
+			code: 'const foo = 1.4 | .0;',
+			errors: errorsBitwise,
+			output: 'const foo = Math.trunc(1.4);'
+		},
+		{
+			code: 'const foo = 1.4 | 0.0000_0000_0000;',
+			errors: errorsBitwise,
+			output: 'const foo = Math.trunc(1.4);'
+		},
+		{
+			code: 'const foo = 1.4 | 0b0;',
+			errors: errorsBitwise,
+			output: 'const foo = Math.trunc(1.4);'
+		},
+		{
+			code: 'const foo = 1.4 | 0x0000_0000_0000;',
+			errors: errorsBitwise,
+			output: 'const foo = Math.trunc(1.4);'
+		},
+		{
+			code: 'const foo = 1.4 | 0o0;',
+			errors: errorsBitwise,
+			output: 'const foo = Math.trunc(1.4);'
 		},
 		// Multiple bitwise OR
 		{

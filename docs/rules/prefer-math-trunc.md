@@ -7,7 +7,6 @@ It prevents the use of the following bitwise operations:
 - `x >> 0` ([`Signed Right Shift`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Right_shift) with 0)
 - `x << 0` ([`Left Shift`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Left_shift) with 0)
 - `x ^ 0` ([`bitwise XOR Shift`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_XOR) with 0)
-- `x & 0xF` ([`bitwise AND`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_AND) with 0xF)
 
 These hacks help truncate numbers but they are not clear and do not work in [some cases](https://stackoverflow.com/a/34706108/11687747).
 
@@ -45,10 +44,6 @@ const foo = 37.4 >> 0;
 const foo = 37.4 ^ 0;
 ```
 
-```js
-const foo = 37.4 & 0xFFFFFFFFFF;
-```
-
 ## Pass
 
 ```js
@@ -78,8 +73,4 @@ const foo = 0 << 3.3;
 
 ```js
 const foo = 0 ^ 3.3;
-```
-
-```js
-const foo = 3.3 & 0x0FA9;
 ```
