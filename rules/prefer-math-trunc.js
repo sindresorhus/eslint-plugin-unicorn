@@ -8,20 +8,6 @@ const messages = {
 	[MESSAGE_ID_BITWISE_NOT]: 'Use `Math.trunc` instead of `~~`.'
 };
 
-const createBinaryExpression = (operator, raw = 0) => [
-	'BinaryExpression',
-	`[operator="${operator}"]`,
-	'[right.type="Literal"]',
-	`[right.raw=${raw}]`
-].join('');
-
-const createAssignmentExpression = (operator, raw = 0) => [
-	'AssignmentExpression',
-	`[operator="${operator}="]`,
-	'[right.type="Literal"]',
-	`[right.raw=${raw}]`
-].join('');
-
 const createBitwiseNotSelector = (level, isNegative) => {
 	const prefix = 'argument.'.repeat(level);
 	const selector = [
@@ -31,8 +17,10 @@ const createBitwiseNotSelector = (level, isNegative) => {
 	return isNegative ? `:not(${selector})` : selector;
 };
 
-// All operators of the selectors
-const selectorOperators = ['|', '>>', '<<', '^'];
+// All binary-expression operators
+const binaryOperators = new Set(['|', '>>', '<<', '^']);
+// All assignment-expression operators
+const assignmentOperators = new Set(['|=', '>>=', '<<=', '^=']);
 // Unary Expression Selector: Inner-most 2 bitwise NOT
 const bitwiseNotUnaryExpressionSelector = [
 	createBitwiseNotSelector(0),
@@ -49,7 +37,35 @@ const create = context => {
 		return `Math.trunc(${parenthesized})`;
 	};
 
-	const selectors = {
+	return {
+		'BinaryExpression[right.type="Literal"]': node => {
+			const {operator, right} = node;
+			if (binaryOperators.has(operator) && right.value === 0) {
+				context.report({
+					node,
+					messageId: MESSAGE_ID_BITWISE,
+					data: {
+						operator,
+						value: right.raw
+					},
+					fix: fixer => fixer.replaceText(node, mathTruncFunctionCall(node.left))
+				});
+			}
+		},
+		'AssignmentExpression[right.type="Literal"]': node => {
+			const {operator, right, left} = node;
+			if (assignmentOperators.has(operator) && right.value === 0) {
+				context.report({
+					node,
+					messageId: MESSAGE_ID_BITWISE,
+					data: {
+						operator,
+						value: right.raw
+					},
+					fix: fixer => fixer.replaceText(node, `${sourceCode.getText(left)} = ${mathTruncFunctionCall(left)}`)
+				});
+			}
+		},
 		[bitwiseNotUnaryExpressionSelector]: node => {
 			context.report({
 				node,
@@ -58,30 +74,6 @@ const create = context => {
 			});
 		}
 	};
-
-	for (const operator of selectorOperators) {
-		selectors[createBinaryExpression(operator)] = node => context.report({
-			node,
-			messageId: MESSAGE_ID_BITWISE,
-			data: {
-				operator,
-				value: node.right.raw
-			},
-			fix: fixer => fixer.replaceText(node, mathTruncFunctionCall(node.left))
-		});
-
-		selectors[createAssignmentExpression(operator)] = node => context.report({
-			node,
-			messageId: MESSAGE_ID_BITWISE,
-			data: {
-				operator,
-				value: node.right.raw
-			},
-			fix: fixer => fixer.replaceText(node, `${sourceCode.getText(node.left)} = ${mathTruncFunctionCall(node.left)}`)
-		});
-	}
-
-	return selectors;
 };
 
 module.exports = {

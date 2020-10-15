@@ -10,7 +10,7 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const MESSAGE_ID_BITWISE = 'prefer-math-trunc';
+const MESSAGE_ID_BITWISE = 'bitwise';
 const MESSAGE_ID_BITWISE_NOT = 'bitwiseNot';
 
 const errorsBitwise = [{messageId: MESSAGE_ID_BITWISE}];
