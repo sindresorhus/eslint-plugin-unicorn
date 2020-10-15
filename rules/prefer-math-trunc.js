@@ -36,9 +36,13 @@ const create = context => {
 	};
 
 	return {
-		'BinaryExpression[right.type="Literal"]': node => {
-			const {operator, right, left} = node;
-			if (!bitwiseOperators.has(operator) || right.value !== 0) {
+		':matches(BinaryExpression, AssignmentExpression)[right.type="Literal"]': node => {
+			const {type, operator, right, left} = node;
+			const isAssignment = type === 'AssignmentExpression';
+			if (
+				right.value !== 0 ||
+				!bitwiseOperators.has(isAssignment ? operator.slice(0, -1) : operator)
+			) {
 				return;
 			}
 
@@ -49,23 +53,10 @@ const create = context => {
 					operator,
 					value: right.raw
 				},
-				fix: fixer => fixer.replaceText(node, mathTruncFunctionCall(left))
-			});
-		},
-		'AssignmentExpression[right.type="Literal"]': node => {
-			const {operator, right, left} = node;
-			if (!bitwiseOperators.has(operator.slice(0, -1)) || right.value !== 0) {
-				return;
-			}
-
-			context.report({
-				node,
-				messageId: MESSAGE_ID_BITWISE,
-				data: {
-					operator,
-					value: right.raw
-				},
-				fix: fixer => fixer.replaceText(node, `${sourceCode.getText(left)} = ${mathTruncFunctionCall(left)}`)
+				fix: fixer => fixer.replaceText(
+					node,
+					`${isAssignment ? `${sourceCode.getText(left)} = ` : ''}${mathTruncFunctionCall(left)}`
+				)
 			});
 		},
 		[bitwiseNotUnaryExpressionSelector]: node => {
