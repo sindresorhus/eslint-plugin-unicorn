@@ -10,19 +10,11 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-const MESSAGE_ID_BITWISE_OR = 'bitwiseOr';
+const MESSAGE_ID_BITWISE = 'prefer-math-trunc';
 const MESSAGE_ID_BITWISE_NOT = 'bitwiseNot';
-const MESSAGE_ID_BITWISE_SIGNED_RIGHT_SHIFT = 'bitwiseSignedRightShift';
-const MESSAGE_ID_BITWISE_LEFT_SHIFT = 'bitwiseLeftShift';
-const MESSAGE_ID_BITWISE_XOR = 'bitwiseXor';
-const MESSAGE_ID_BITWISE_AND = 'bitwiseAnd';
 
-const errorsBitwiseOr = [{messageId: MESSAGE_ID_BITWISE_OR}];
+const errorsBitwise = [{messageId: MESSAGE_ID_BITWISE}];
 const errorsBitwiseNot = [{messageId: MESSAGE_ID_BITWISE_NOT}];
-const errorsBitwiseSignedRightShift = [{messageId: MESSAGE_ID_BITWISE_SIGNED_RIGHT_SHIFT}];
-const errorsBitwiseLeftShift = [{messageId: MESSAGE_ID_BITWISE_LEFT_SHIFT}];
-const errorsBitwiseXor = [{messageId: MESSAGE_ID_BITWISE_XOR}];
-const errorsBitwiseAnd = [{messageId: MESSAGE_ID_BITWISE_AND}];
 
 ruleTester.run('prefer-math-trunc', rule, {
 	valid: [
@@ -31,7 +23,6 @@ ruleTester.run('prefer-math-trunc', rule, {
 		'const foo = ~3.9;',
 		'const foo = 1.1 >> 1',
 		'const foo = 0 << 1',
-		'const foo = 1.1 & 0xFFFFFFFFFFFFFF',
 		outdent`
 			let foo = 0;
 			foo |= 1;
@@ -45,33 +36,33 @@ ruleTester.run('prefer-math-trunc', rule, {
 		// Basic "bitwise OR with 0" case
 		{
 			code: 'const foo = 1.1 | 0;',
-			errors: errorsBitwiseOr,
+			errors: errorsBitwise,
 			output: 'const foo = Math.trunc(1.1);'
 		},
 		{
 			code: 'const foo = 111 | 0;',
-			errors: errorsBitwiseOr,
+			errors: errorsBitwise,
 			output: 'const foo = Math.trunc(111);'
 		},
 		{
 			code: 'const foo = (1 + 2 / 3.4) | 0;',
-			errors: errorsBitwiseOr,
+			errors: errorsBitwise,
 			output: 'const foo = Math.trunc(1 + 2 / 3.4);'
 		},
 		{
 			code: 'const foo = bar((1.4 | 0) + 2);',
-			errors: errorsBitwiseOr,
+			errors: errorsBitwise,
 			output: 'const foo = bar((Math.trunc(1.4)) + 2);'
 		},
 		{
 			code: 'const foo = (0, 1.4) | 0;',
-			errors: errorsBitwiseOr,
+			errors: errorsBitwise,
 			output: 'const foo = Math.trunc((0, 1.4));'
 		},
 		// Multiple bitwise OR
 		{
 			code: 'const foo = 1.23 | 0 | 4;',
-			errors: errorsBitwiseOr,
+			errors: errorsBitwise,
 			output: 'const foo = Math.trunc(1.23) | 4;'
 		},
 		// Basic "bitwise NOT" case
@@ -102,27 +93,17 @@ ruleTester.run('prefer-math-trunc', rule, {
 		},
 		{
 			code: 'const foo = 10.01 >> 0;',
-			errors: errorsBitwiseSignedRightShift,
+			errors: errorsBitwise,
 			output: 'const foo = Math.trunc(10.01);'
 		},
 		{
 			code: 'const foo = 10.01 << 0;',
-			errors: errorsBitwiseLeftShift,
-			output: 'const foo = Math.trunc(10.01);'
-		},
-		{
-			code: 'const foo = 10.01 & 0xF;',
-			errors: errorsBitwiseAnd,
-			output: 'const foo = Math.trunc(10.01);'
-		},
-		{
-			code: 'const foo = 10.01 & 0xFFFFFFFFFFFF;',
-			errors: errorsBitwiseAnd,
+			errors: errorsBitwise,
 			output: 'const foo = Math.trunc(10.01);'
 		},
 		{
 			code: 'const foo = 10.01 ^ 0;',
-			errors: errorsBitwiseXor,
+			errors: errorsBitwise,
 			output: 'const foo = Math.trunc(10.01);'
 		},
 		// Case with objects (MemberExpression and ChainExpression)
@@ -131,7 +112,7 @@ ruleTester.run('prefer-math-trunc', rule, {
 				const foo = {a: {b: {c: 3}}};
 				const bar = a.b.c | 0;
 			`,
-			errors: errorsBitwiseOr,
+			errors: errorsBitwise,
 			output: outdent`
 				const foo = {a: {b: {c: 3}}};
 				const bar = Math.trunc(a.b.c);
@@ -142,7 +123,7 @@ ruleTester.run('prefer-math-trunc', rule, {
 				const foo = {a: {b: {c: 3}}};
 				const bar = a.b?.c | 0;
 			`,
-			errors: errorsBitwiseOr,
+			errors: errorsBitwise,
 			output: outdent`
 				const foo = {a: {b: {c: 3}}};
 				const bar = Math.trunc(a.b?.c);
@@ -165,7 +146,7 @@ ruleTester.run('prefer-math-trunc', rule, {
 				const foo = 3;
 				const bar = foo | 0;
 			`,
-			errors: errorsBitwiseOr,
+			errors: errorsBitwise,
 			output: outdent`
 				const foo = 3;
 				const bar = Math.trunc(foo);
@@ -188,7 +169,7 @@ ruleTester.run('prefer-math-trunc', rule, {
 				let foo = 2;
 				foo |= 0;
 			`,
-			errors: errorsBitwiseOr,
+			errors: errorsBitwise,
 			output: outdent`
 				let foo = 2;
 				foo = Math.trunc(foo);
@@ -199,7 +180,7 @@ ruleTester.run('prefer-math-trunc', rule, {
 				const foo = {a: {b: 3.4}};
 				foo.a.b |= 0;
 			`,
-			errors: errorsBitwiseOr,
+			errors: errorsBitwise,
 			output: outdent`
 				const foo = {a: {b: 3.4}};
 				foo.a.b = Math.trunc(foo.a.b);
@@ -210,7 +191,7 @@ ruleTester.run('prefer-math-trunc', rule, {
 				let foo = 10.01;
 				foo >>= 0;
 			`,
-			errors: errorsBitwiseSignedRightShift,
+			errors: errorsBitwise,
 			output: outdent`
 				let foo = 10.01;
 				foo = Math.trunc(foo);
@@ -221,29 +202,7 @@ ruleTester.run('prefer-math-trunc', rule, {
 				let foo = 10.01;
 				foo <<= 0;
 			`,
-			errors: errorsBitwiseLeftShift,
-			output: outdent`
-				let foo = 10.01;
-				foo = Math.trunc(foo);
-			`
-		},
-		{
-			code: outdent`
-				let foo = 10.01;
-				foo &= 0xF;
-			`,
-			errors: errorsBitwiseAnd,
-			output: outdent`
-				let foo = 10.01;
-				foo = Math.trunc(foo);
-			`
-		},
-		{
-			code: outdent`
-				let foo = 10.01;
-				foo &= 0xFFFFFFFFFFFF;
-			`,
-			errors: errorsBitwiseAnd,
+			errors: errorsBitwise,
 			output: outdent`
 				let foo = 10.01;
 				foo = Math.trunc(foo);
@@ -254,7 +213,7 @@ ruleTester.run('prefer-math-trunc', rule, {
 				let foo = 10.01;
 				foo ^= 0;
 			`,
-			errors: errorsBitwiseXor,
+			errors: errorsBitwise,
 			output: outdent`
 				let foo = 10.01;
 				foo = Math.trunc(foo);
@@ -263,7 +222,7 @@ ruleTester.run('prefer-math-trunc', rule, {
 		// With comments
 		{
 			code: 'const foo = /* first comment */ 3.4 | 0; // A B C',
-			errors: errorsBitwiseOr,
+			errors: errorsBitwise,
 			output: 'const foo = /* first comment */ Math.trunc(3.4); // A B C'
 		},
 		{
@@ -276,7 +235,7 @@ ruleTester.run('prefer-math-trunc', rule, {
 				const foo = {a: {b: 3.4}};
 				foo /* Comment 1 */ .a /* Comment 2 */ . /* Comment 3 */ b |= /* Comment 4 */ 0 /* Comment 5 */;
 			`,
-			errors: errorsBitwiseOr,
+			errors: errorsBitwise,
 			output: outdent`
 				const foo = {a: {b: 3.4}};
 				foo /* Comment 1 */ .a /* Comment 2 */ . /* Comment 3 */ b = Math.trunc(foo /* Comment 1 */ .a /* Comment 2 */ . /* Comment 3 */ b) /* Comment 5 */;
@@ -295,7 +254,7 @@ ruleTester.run('prefer-math-trunc', rule, {
 		},
 		{
 			code: 'const foo = /* will keep */ 3.4 /* will remove 1 */ | /* will remove 2 */ 0;',
-			errors: errorsBitwiseOr,
+			errors: errorsBitwise,
 			output: 'const foo = /* will keep */ Math.trunc(3.4);'
 		},
 		{
@@ -308,7 +267,7 @@ ruleTester.run('prefer-math-trunc', rule, {
 				const foo = 3.4; // comment 1
 				foo |= 0; // comment 2
 			`,
-			errors: errorsBitwiseOr,
+			errors: errorsBitwise,
 			output: outdent`
 				const foo = 3.4; // comment 1
 				foo = Math.trunc(foo); // comment 2
@@ -355,7 +314,5 @@ visualizeTester.run('prefer-math-trunc', rule, [
 	'const foo = 10.01 | 0 | 0;',
 	'const foo = 10.01 >> 0;',
 	'const foo = 10.01 << 0;',
-	'const foo = 10.01 & 0xF;',
-	'const foo = 10.01 & 0xFFFFFFFFFFFF;',
 	'const foo = 10.01 ^ 0;'
 ]);

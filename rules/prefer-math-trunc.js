@@ -1,19 +1,11 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const MESSAGE_ID_BITWISE_OR = 'bitwiseOr';
+const MESSAGE_ID_BITWISE = 'bitwise';
 const MESSAGE_ID_BITWISE_NOT = 'bitwiseNot';
-const MESSAGE_ID_BITWISE_SIGNED_RIGHT_SHIFT = 'bitwiseSignedRightShift';
-const MESSAGE_ID_BITWISE_LEFT_SHIFT = 'bitwiseLeftShift';
-const MESSAGE_ID_BITWISE_XOR = 'bitwiseXor';
-const MESSAGE_ID_BITWISE_AND = 'bitwiseAnd';
 const messages = {
-	[MESSAGE_ID_BITWISE_OR]: 'Use `Math.trunc` instead of `| 0`.',
-	[MESSAGE_ID_BITWISE_NOT]: 'Use `Math.trunc` instead of `~~`.',
-	[MESSAGE_ID_BITWISE_SIGNED_RIGHT_SHIFT]: 'Use `Math.trunc` instead of `>> 0`.',
-	[MESSAGE_ID_BITWISE_LEFT_SHIFT]: 'Use `Math.trunc` instead of `<< 0`.',
-	[MESSAGE_ID_BITWISE_XOR]: 'Use `Math.trunc` instead of `^ 0`.',
-	[MESSAGE_ID_BITWISE_AND]: 'Use `Math.trunc` instead of `& 0xF`.'
+	[MESSAGE_ID_BITWISE]: 'Use `Math.trunc` instead of `{{operator}} {{value}}`.',
+	[MESSAGE_ID_BITWISE_NOT]: 'Use `Math.trunc` instead of `~~`.'
 };
 
 const createBinaryExpression = (operator, raw = 0) => [
@@ -39,23 +31,9 @@ const createBitwiseNotSelector = (level, isNegative) => {
 	return isNegative ? `:not(${selector})` : selector;
 };
 
-// All binary expressions
-const binarySelectors = [
-	[MESSAGE_ID_BITWISE_OR, createBinaryExpression('|')],
-	[MESSAGE_ID_BITWISE_SIGNED_RIGHT_SHIFT, createBinaryExpression('>>')],
-	[MESSAGE_ID_BITWISE_LEFT_SHIFT, createBinaryExpression('<<')],
-	[MESSAGE_ID_BITWISE_XOR, createBinaryExpression('^')],
-	[MESSAGE_ID_BITWISE_AND, createBinaryExpression('&', /^(0xF{0,13})$/)]
-];
-// All assignment expressions
-const assignmentSelectors = [
-	[MESSAGE_ID_BITWISE_OR, createAssignmentExpression('|')],
-	[MESSAGE_ID_BITWISE_SIGNED_RIGHT_SHIFT, createAssignmentExpression('>>')],
-	[MESSAGE_ID_BITWISE_LEFT_SHIFT, createAssignmentExpression('<<')],
-	[MESSAGE_ID_BITWISE_XOR, createAssignmentExpression('^')],
-	[MESSAGE_ID_BITWISE_AND, createAssignmentExpression('&', /^(0xF{0,13})$/)]
-];
-// Unary Expression: Inner-most 2 bitwise NOT
+// All operators of the selectors
+const selectorOperators = ['|', '>>', '<<', '^'];
+// Unary Expression Selector: Inner-most 2 bitwise NOT
 const bitwiseNotUnaryExpressionSelector = [
 	createBitwiseNotSelector(0),
 	createBitwiseNotSelector(1),
@@ -81,18 +59,24 @@ const create = context => {
 		}
 	};
 
-	for (const [messageId, selector] of binarySelectors) {
-		selectors[selector] = node => context.report({
+	for (const operator of selectorOperators) {
+		selectors[createBinaryExpression(operator)] = node => context.report({
 			node,
-			messageId,
+			messageId: MESSAGE_ID_BITWISE,
+			data: {
+				operator,
+				value: node.right.raw
+			},
 			fix: fixer => fixer.replaceText(node, mathTruncFunctionCall(node.left))
 		});
-	}
 
-	for (const [messageId, selector] of assignmentSelectors) {
-		selectors[selector] = node => context.report({
+		selectors[createAssignmentExpression(operator)] = node => context.report({
 			node,
-			messageId,
+			messageId: MESSAGE_ID_BITWISE,
+			data: {
+				operator,
+				value: node.right.raw
+			},
 			fix: fixer => fixer.replaceText(node, `${sourceCode.getText(node.left)} = ${mathTruncFunctionCall(node.left)}`)
 		});
 	}
