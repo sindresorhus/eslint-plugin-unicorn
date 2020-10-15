@@ -261,5 +261,13 @@ visualizeTester.run('prefer-math-trunc', rule, [
 	'const foo = ~~~~10.01;',
 	'const foo = ~~10.01 | 0;',
 	'const foo = ~~(10.01 | 0);',
-	'const foo = 10.01 | 0 | 0;'
+	'const foo = 10.01 | 0 | 0;',
+	// Left-hand side has side effect
+	outdent`
+		const foo = Array.from({length: 10}, () => Math.random() * 100);
+		let i = 0;
+		while (i < foo.length) {
+			foo[i++] |= 0;
+		}
+	`
 ]);
