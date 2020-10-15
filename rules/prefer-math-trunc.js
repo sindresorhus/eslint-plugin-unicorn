@@ -17,8 +17,8 @@ const createBitwiseNotSelector = (level, isNegative) => {
 	return isNegative ? `:not(${selector})` : selector;
 };
 
-// All binary-expression operators
-const binaryOperators = new Set(['|', '>>', '<<', '^']);
+// Bitwise operators
+const bitwiseOperators = new Set(['|', '>>', '<<', '^']);
 // Unary Expression Selector: Inner-most 2 bitwise NOT
 const bitwiseNotUnaryExpressionSelector = [
 	createBitwiseNotSelector(0),
@@ -38,7 +38,7 @@ const create = context => {
 	return {
 		'BinaryExpression[right.type="Literal"]': node => {
 			const {operator, right, left} = node;
-			if (!binaryOperators.has(operator) || right.value !== 0) {
+			if (!bitwiseOperators.has(operator) || right.value !== 0) {
 				return;
 			}
 
@@ -54,7 +54,7 @@ const create = context => {
 		},
 		'AssignmentExpression[right.type="Literal"]': node => {
 			const {operator, right, left} = node;
-			if (!binaryOperators.has(operator.slice(0, -1)) || right.value !== 0) {
+			if (!bitwiseOperators.has(operator.slice(0, -1)) || right.value !== 0) {
 				return;
 			}
 
