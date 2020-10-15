@@ -60,7 +60,7 @@ const create = context => {
 			const {left} = node;
 			const problem = {
 				node,
-				messageId: MESSAGE_ID_BITWISE_OR,
+				messageId: MESSAGE_ID_BITWISE_OR
 			};
 
 			if (!hasSideEffect(left, sourceCode)) {
