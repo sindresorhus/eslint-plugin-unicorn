@@ -53,10 +53,14 @@ const create = context => {
 					operator,
 					value: right.raw
 				},
-				fix: fixer => fixer.replaceText(
-					node,
-					`${isAssignment ? `${sourceCode.getText(left)} = ` : ''}${mathTruncFunctionCall(left)}`
-				)
+				fix: fixer => {
+					let fixed = mathTruncFunctionCall(left);
+					if (isAssignment) {
+						fixed = `${sourceCode.getText(left)} = ${fixed}`;
+					}
+
+					return fixer.replaceText(node, fixed);
+				}
 			});
 		},
 		[bitwiseNotUnaryExpressionSelector]: node => {
