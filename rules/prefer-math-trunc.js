@@ -37,32 +37,36 @@ const create = context => {
 
 	return {
 		'BinaryExpression[right.type="Literal"]': node => {
-			const {operator, right} = node;
-			if (binaryOperators.has(operator) && right.value === 0) {
-				context.report({
-					node,
-					messageId: MESSAGE_ID_BITWISE,
-					data: {
-						operator,
-						value: right.raw
-					},
-					fix: fixer => fixer.replaceText(node, mathTruncFunctionCall(node.left))
-				});
+			const {operator, right, left} = node;
+			if (!binaryOperators.has(operator) || right.value !== 0) {
+				return;
 			}
+
+			context.report({
+				node,
+				messageId: MESSAGE_ID_BITWISE,
+				data: {
+					operator,
+					value: right.raw
+				},
+				fix: fixer => fixer.replaceText(node, mathTruncFunctionCall(left))
+			});
 		},
 		'AssignmentExpression[right.type="Literal"]': node => {
 			const {operator, right, left} = node;
-			if (binaryOperators.has(operator.slice(0, -1)) && right.value === 0) {
-				context.report({
-					node,
-					messageId: MESSAGE_ID_BITWISE,
-					data: {
-						operator,
-						value: right.raw
-					},
-					fix: fixer => fixer.replaceText(node, `${sourceCode.getText(left)} = ${mathTruncFunctionCall(left)}`)
-				});
+			if (!binaryOperators.has(operator.slice(0, -1)) || right.value !== 0) {
+				return;
 			}
+
+			context.report({
+				node,
+				messageId: MESSAGE_ID_BITWISE,
+				data: {
+					operator,
+					value: right.raw
+				},
+				fix: fixer => fixer.replaceText(node, `${sourceCode.getText(left)} = ${mathTruncFunctionCall(left)}`)
+			});
 		},
 		[bitwiseNotUnaryExpressionSelector]: node => {
 			context.report({
