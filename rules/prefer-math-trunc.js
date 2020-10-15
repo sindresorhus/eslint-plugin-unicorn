@@ -1,4 +1,5 @@
 'use strict';
+const {hasSideEffect} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_BITWISE_OR = 'bitwiseOr';
@@ -56,11 +57,17 @@ const create = context => {
 			});
 		},
 		[bitwiseOrAssignmentExpressionSelector]: node => {
-			context.report({
+			const {left} = node;
+			const problem = {
 				node,
 				messageId: MESSAGE_ID_BITWISE_OR,
-				fix: fixer => fixer.replaceText(node, `${sourceCode.getText(node.left)} = ${mathTruncFunctionCall(node.left)}`)
-			});
+			};
+
+			if (!hasSideEffect(left, sourceCode)) {
+				problem.fix = fixer => fixer.replaceText(node, `${sourceCode.getText(left)} = ${mathTruncFunctionCall(left)}`);
+			}
+
+			context.report(problem);
 		},
 		[bitwiseNotUnaryExpressionSelector]: node => {
 			context.report({
