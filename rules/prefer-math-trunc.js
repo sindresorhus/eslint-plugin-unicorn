@@ -53,7 +53,7 @@ const create = context => {
 				data: {
 					operator,
 					value: right.raw
-				},
+				}
 			};
 
 			if (!isAssignment || !hasSideEffect(left, sourceCode)) {
