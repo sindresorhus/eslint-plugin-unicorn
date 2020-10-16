@@ -397,8 +397,8 @@ test({
 test.babel({
 	valid: [
 		outdent`
-			const foo = {a: 1, b: 2};
-			const {a, ...rest} = foo;
+			const foo1 = {a: 1, b: 2};
+			const {a, ...rest} = foo1;
 		`,
 
 		outdent`

@@ -725,11 +725,6 @@ ruleTesterEs5.run('no-for-loop', rule, {
 	invalid: []
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
 test.visualize([
 	outdent`
 		for (let i = 0; i < arr.length; i += 1) {

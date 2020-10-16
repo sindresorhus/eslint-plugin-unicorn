@@ -4,6 +4,8 @@ const error = {
 	messageId: 'numeric-separators-style'
 };
 
+const legacyOctalParserOptions = {ecmaVersion: 6, sourceType: 'script'};
+
 // Most of these test cases copied from:
 // https://github.com/eslint/eslint/blob/master/tests/lib/rules/camelcase.js
 test({
@@ -27,9 +29,9 @@ test({
 		// Legacy octal
 		...[
 			'const foo = 0777777',
-			'const foo = 0999999',
-			'const foo = 0111222',
-		].map(code => ({code, parserOptions: {}})),
+			'var foo = 0999999',
+			'let foo = 0111222',
+		].map(code => ({code, parserOptions: legacyParserOptions})),
 
 		// Binary
 		'const foo = 0b1010_0001_1000_0101',
