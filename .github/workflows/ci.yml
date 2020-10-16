@@ -23,9 +23,11 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node_version }}
-      - run: yarn
-      - run: npx xo
-      - run: npx nyc ava
+      - run: npm install
+      - run: npm run test
+        if: matrix.os != 'window-latest'
+      - run: npx ava
+        if: matrix.os == 'window-latest'
       - uses: codecov/codecov-action@v1.0.11
         if: matrix.os == 'ubuntu-latest' && matrix.node_version == 12
         with:
