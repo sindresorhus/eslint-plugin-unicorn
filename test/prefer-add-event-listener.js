@@ -9,6 +9,7 @@ test({
 		'foo.removeEventListener(\'click\', onClick)',
 		'foo.onclick',
 		'foo[onclick] = () => {}',
+		'foo["onclick"] = () => {}',
 		'foo.onunknown = () => {}',
 		'foo.setCallBack = () => {console.log(\'foo\')}',
 		'setCallBack = () => {console.log(\'foo\')}',
