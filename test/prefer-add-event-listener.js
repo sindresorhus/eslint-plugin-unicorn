@@ -1,13 +1,6 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test';
 
-const testCaseWithOptions = (code, options) => {
-	return {
-		code,
-		options
-	};
-};
-
 const invalidTestCase = (code, correctCode, eventType, message) => {
 	return {
 		code,
@@ -77,22 +70,22 @@ test({
 
 			parser.onerror = () => {};
 		`,
-		testCaseWithOptions(
-			outdent`
+		{
+			code: outdent`
 				const foo = require('foo');
 
 				foo.onerror = () => {};
 			`,
-			[{excludedPackages: ['foo']}]
-		),
-		testCaseWithOptions(
-			outdent`
+			options: [{excludedPackages: ['foo']}]
+		},
+		{
+			code: outdent`
 				import foo from 'foo';
 
 				foo.onclick = () => {};
 			`,
-			[{excludedPackages: ['foo']}]
-		)
+			options: [{excludedPackages: ['foo']}]
+		}
 	],
 
 	invalid: [
