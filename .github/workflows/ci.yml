@@ -24,7 +24,8 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
       - run: yarn
-      - run: yarn test
+      - run: npx xo
+      - run: npx ava
       - uses: codecov/codecov-action@v1.0.11
         if: matrix.os == 'ubuntu-latest' && matrix.node_version == 12
         with:
