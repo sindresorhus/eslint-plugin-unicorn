@@ -227,12 +227,6 @@ test.typescript({
 	invalid: []
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
 test.visualize([
 	outdent`
 		foo(

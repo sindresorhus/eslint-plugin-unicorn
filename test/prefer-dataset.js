@@ -88,12 +88,6 @@ test({
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
 test.visualize([
 	outdent`
 		element.setAttribute(

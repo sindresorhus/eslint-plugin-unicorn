@@ -359,11 +359,6 @@ test({
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
 test.visualize([
 	'foo.slice(foo.length - 2, foo.length - 1)',
 	'foo.splice(foo.length - 1, 1)'

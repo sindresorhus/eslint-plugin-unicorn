@@ -97,12 +97,6 @@ test({
 	].map(code => ({code, errors}))
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
 test.visualize([
 	'process.exit(1);'
 ]);

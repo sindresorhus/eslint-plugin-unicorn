@@ -225,12 +225,6 @@ test({
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
 test.visualize([
 	'const bar = [[1],[2],[3]].map(i => [i]).flat()',
 	'const bar = [[1],[2],[3]].map(i => [i]).flat(1.00)',

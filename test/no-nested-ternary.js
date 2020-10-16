@@ -48,7 +48,7 @@ test({
 	]
 });
 
-typescriptRuleTester.run('no-nested-ternary', rule, {
+test.typescript({
 	valid: [
 		// #663
 		outdent`
@@ -64,11 +64,6 @@ typescriptRuleTester.run('no-nested-ternary', rule, {
 	invalid: []
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
 test.visualize([
 	'const foo = i > 5 ? i < 100 ? true : false : i < 100 ? true : false;',
 	'const foo = i > 5 ? true : (i < 100 ? true : (i < 1000 ? true : false));',

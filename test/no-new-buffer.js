@@ -80,11 +80,6 @@ test.typescript({
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
 test.visualize([
 	'const buf = new Buffer()',
 	'const buf = new Buffer([0x62, 0x75, 0x66, 0x66, 0x65, 0x72])'

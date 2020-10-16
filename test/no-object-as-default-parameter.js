@@ -161,12 +161,6 @@ test({
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
 test.visualize([
 	'function abc(foo = {a: 123}) {}',
 	'const abc = (foo = {a: false}) => {};'

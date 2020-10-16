@@ -572,13 +572,6 @@ test({
 	].map(test => addDefaultOptions(test))
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		sourceType: 'module',
-		ecmaVersion: 2021
-	}
-});
-
 test.visualize([
 	'import util from \'util\'',
 	'import * as util from \'util\'',

@@ -43,12 +43,6 @@ test({
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
 test.visualize([
 	'const foo = /(x+x+)+y/g'
 ]);

@@ -97,12 +97,6 @@ test({
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
 test.visualize([
 	'const foo = 1.0',
 	'const foo = (1.).toString()'
