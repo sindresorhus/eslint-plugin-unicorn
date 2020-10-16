@@ -1,18 +1,10 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-const rule = require('../rules/prefer-replace-all');
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {test} from './utils/test';
 
 const error = {
 	message: 'Prefer `String#replaceAll()` over `String#replace()`.'
 };
 
-ruleTester.run('prefer-replace-all', rule, {
+test({
 	valid: [
 		// No global flag
 		'foo.replace(/a/, bar)',

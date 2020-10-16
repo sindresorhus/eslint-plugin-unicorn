@@ -1,14 +1,6 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/prefer-reflect-apply';
+import {test} from './utils/test';
 
 const MESSAGE_ID = 'prefer-reflect-apply';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
 
 const errors = [
 	{
@@ -16,7 +8,7 @@ const errors = [
 	}
 ];
 
-ruleTester.run('prefer-reflect-apply', rule, {
+test({
 	valid: [
 		'foo.apply();',
 		'foo.apply(null);',

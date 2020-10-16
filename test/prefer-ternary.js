@@ -1,24 +1,11 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-ternary';
+import {test} from './utils/test';
 
 const messageId = 'prefer-ternary';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2020
-	}
-});
-
-const babelRuleTester = avaRuleTester(test, {
-	parser: require.resolve('babel-eslint')
-});
-
 const errors = [{messageId}];
 
 // ReturnStatement
-ruleTester.run('prefer-ternary', rule, {
+test({
 	valid: [
 		// Test is Ternary
 		outdent`
@@ -176,7 +163,7 @@ ruleTester.run('prefer-ternary', rule, {
 });
 
 // YieldExpression
-ruleTester.run('prefer-ternary', rule, {
+test({
 	valid: [
 		// Different `delegate`
 		outdent`
@@ -343,7 +330,7 @@ ruleTester.run('prefer-ternary', rule, {
 });
 
 // AwaitExpression
-ruleTester.run('prefer-ternary', rule, {
+test({
 	valid: [
 		// Test is Ternary
 		outdent`
@@ -415,7 +402,7 @@ ruleTester.run('prefer-ternary', rule, {
 });
 
 // ThrowStatement
-ruleTester.run('prefer-ternary', rule, {
+test({
 	valid: [
 		// Test is Ternary
 		outdent`
@@ -794,7 +781,7 @@ ruleTester.run('prefer-ternary', rule, {
 });
 
 // AssignmentExpression
-ruleTester.run('prefer-ternary', rule, {
+test({
 	valid: [
 		// Different `left`
 		outdent`
@@ -970,7 +957,7 @@ ruleTester.run('prefer-ternary', rule, {
 	]
 });
 
-ruleTester.run('prefer-ternary', rule, {
+test({
 	valid: [
 		// No `consequent` / `alternate`
 		'if (a) {b}',
@@ -1162,7 +1149,7 @@ ruleTester.run('prefer-ternary', rule, {
 	]
 });
 
-babelRuleTester.run('prefer-ternary', rule, {
+test.babel({
 	valid: [],
 	invalid: [
 		// https://github.com/facebook/react/blob/7a1691cdff209249b49a4472ba87b542980a5f71/packages/react-dom/src/client/DOMPropertyOperations.js#L183

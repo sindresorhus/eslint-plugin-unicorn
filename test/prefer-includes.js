@@ -1,12 +1,4 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/prefer-includes';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {test} from './utils/test';
 
 const errors = [
 	{
@@ -14,7 +6,7 @@ const errors = [
 	}
 ];
 
-ruleTester.run('prefer-includes', rule, {
+test({
 	valid: [
 		'str.indexOf(\'foo\') !== -n',
 		'str.indexOf(\'foo\') !== 1',

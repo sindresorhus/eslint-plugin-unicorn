@@ -1,22 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/consistent-function-scoping';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		sourceType: 'module',
-		ecmaVersion: 2021,
-		ecmaFeatures: {
-			jsx: true
-		}
-	}
-});
-
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
+import {test} from './utils/test';
 
 const MESSAGE_ID = 'consistent-function-scoping';
 
@@ -28,7 +11,16 @@ const createError = (functionNameWithKind, loc) => ({
 	...loc
 });
 
-ruleTester.run('consistent-function-scoping', rule, {
+test({
+	testerOptions: {
+		parserOptions: {
+			sourceType: 'module',
+			ecmaVersion: 2021,
+			ecmaFeatures: {
+				jsx: true
+			}
+		}
+	},
 	valid: [
 		outdent`
 			function doFoo(foo) {
@@ -741,7 +733,7 @@ ruleTester.run('consistent-function-scoping', rule, {
 	]
 });
 
-typescriptRuleTester.run('consistent-function-scoping', rule, {
+test.typescript({
 	valid: [
 		// #372
 		outdent`
@@ -792,17 +784,7 @@ typescriptRuleTester.run('consistent-function-scoping', rule, {
 	invalid: []
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		sourceType: 'module',
-		ecmaVersion: 2021,
-		ecmaFeatures: {
-			jsx: true
-		}
-	}
-});
-
-visualizeTester.run('consistent-function-scoping', rule, [
+test.visualize([
 	outdent`
 		function foo() {
 			function bar() {}

@@ -1,13 +1,5 @@
-import test from 'ava';
 import {outdent} from 'outdent';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/prefer-starts-ends-with';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
+import {test} from './utils/test';
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
@@ -40,7 +32,7 @@ const invalidRegex = [
 	/ $/
 ];
 
-ruleTester.run('prefer-starts-ends-with', rule, {
+test({
 	valid: [
 		'foo.startsWith("bar")',
 		'foo.endsWith("bar")',

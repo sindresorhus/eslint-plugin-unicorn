@@ -25,6 +25,9 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - run: npm install
       - run: npm run test
+        if: matrix.os != 'windows-latest'
+      - run: npx ava
+        if: matrix.os == 'windows-latest'
       - uses: codecov/codecov-action@v1.0.11
         if: matrix.os == 'ubuntu-latest' && matrix.node_version == 12
         with:

@@ -1,16 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-add-event-listener';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
-	parserOptions: {
-		sourceType: 'module'
-	}
-});
+import {test} from './utils/test';
 
 const testCaseWithOptions = (code, options) => {
 	return {
@@ -48,7 +37,7 @@ const expectedMessageEventWithReturnMessage = [
 	'Note that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.'
 ].join(' ');
 
-ruleTester.run('prefer-add-event-listener', rule, {
+test({
 	valid: [
 		'foo.addEventListener(\'click\', () => {})',
 		'foo.removeEventListener(\'click\', onClick)',

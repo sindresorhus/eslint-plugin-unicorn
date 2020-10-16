@@ -1,16 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-set-has';
-
-const ruleId = 'prefer-set-has';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021,
-		sourceType: 'module'
-	}
-});
+import {test} from './utils/test';
 
 const createError = name => [
 	{
@@ -35,7 +24,7 @@ const methodsReturnsArray = [
 	'splice'
 ];
 
-ruleTester.run(ruleId, rule, {
+test({
 	valid: [
 		outdent`
 			const foo = new Set([1, 2, 3]);

@@ -1,13 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {flatten} from 'lodash';
-import rule from '../rules/filename-case';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {test} from './utils/test';
 
 function testCase(filename, chosenCase, errorMessage) {
 	return testCaseWithOptions(
@@ -38,7 +30,7 @@ function testCaseWithOptions(filename, errorMessage, options = []) {
 	};
 }
 
-ruleTester.run('filename-case', rule, {
+test({
 	valid: [
 		testCase('src/foo/bar.js', 'camelCase'),
 		testCase('src/foo/fooBar.js', 'camelCase'),

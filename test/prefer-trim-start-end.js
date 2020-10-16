@@ -1,14 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-import rule from '../rules/prefer-trim-start-end';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {test} from './utils/test';
 
 const errorTrimLeft = {
 	messageId: 'trimLeft'
@@ -18,7 +9,7 @@ const errorTrimRight = {
 	messageId: 'trimRight'
 };
 
-ruleTester.run('prefer-trim-start-end', rule, {
+test({
 	valid: [
 		'foo.trimStart()',
 		'foo.trimEnd()',
@@ -88,8 +79,7 @@ ruleTester.run('prefer-trim-start-end', rule, {
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test);
-visualizeTester.run('prefer-trim-start-end', rule, [
+test.visualize([
 	'foo.trimLeft()',
 	outdent`
 		foo

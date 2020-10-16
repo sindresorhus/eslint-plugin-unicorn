@@ -1,14 +1,6 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/better-regex';
+import {test} from './utils/test';
 
 const MESSAGE_ID = 'better-regex';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
 
 const createError = (original, optimized) => [
 	{
@@ -32,7 +24,7 @@ const testCase = (original, optimized) => ({
 	errors: createError(original, optimized)
 });
 
-ruleTester.run('better-regex', rule, {
+test({
 	valid: [
 		// Literal regex
 		'const foo = /\\d/',

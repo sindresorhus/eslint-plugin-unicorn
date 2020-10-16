@@ -1,12 +1,4 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/expiring-todo-comments';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {test} from './utils/test';
 
 const expiredTodoError = (expirationDate, message) => ({
 	message: `There is a TODO that is past due date: ${expirationDate}. ${message}`
@@ -52,7 +44,7 @@ const noWarningCommentError = comment => ({
 	message: `Unexpected 'todo' comment: '${comment}'.`
 });
 
-ruleTester.run('expiring-todo-comments', rule, {
+test({
 	valid: [
 		'// TODO [2200-12-12]: Too long... Can you feel it?',
 		'// FIXME [2200-12-12]: Too long... Can you feel it?',

@@ -1,18 +1,9 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/throw-new-error';
+import {test} from './utils/test';
 
 const messageId = 'throw-new-error';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
 const errors = [{messageId}];
 
-ruleTester.run('new-error', rule, {
+test({
 	valid: [
 		'throw new Error()',
 		'new Error()',

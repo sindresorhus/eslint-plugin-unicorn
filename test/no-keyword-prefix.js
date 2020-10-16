@@ -1,13 +1,4 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/no-keyword-prefix';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021,
-		sourceType: 'module'
-	}
-});
+import {test} from './utils/test';
 
 const errorNew = {
 	messageId: 'noKeywordPrefix',
@@ -24,7 +15,7 @@ const errorBlacklist = {
 
 // Most of these test cases copied from:
 // https://github.com/eslint/eslint/blob/master/tests/lib/rules/camelcase.js
-ruleTester.run('prevent-keyword-prefix', rule, {
+test({
 	valid: [
 		'const foo = "foo"',
 		'const fooNew = "foo"',

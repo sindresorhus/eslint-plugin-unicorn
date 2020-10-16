@@ -1,24 +1,11 @@
-import test from 'ava';
 import {outdent} from 'outdent';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/no-useless-undefined';
-import visualizeRuleTester from './utils/visualize-rule-tester';
+import {test} from './utils/test';
 
 const messageId = 'no-useless-undefined';
 
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
-
 const errors = [{messageId}];
 
-ruleTester.run('no-useless-undefined', rule, {
+test({
 	valid: [
 		'function foo() {return;}',
 		'const foo = () => {};',
@@ -232,7 +219,7 @@ ruleTester.run('no-useless-undefined', rule, {
 	]
 });
 
-typescriptRuleTester.run('no-useless-undefined', rule, {
+test.typescript({
 	valid: [
 		// https://github.com/zeit/next.js/blob/3af0fe5cf2542237f34d106872d104c3606b1858/packages/next/build/utils.ts#L620
 		'prerenderPaths?.add(entry)'
@@ -240,13 +227,7 @@ typescriptRuleTester.run('no-useless-undefined', rule, {
 	invalid: []
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
-visualizeTester.run('no-useless-undefined', rule, [
+test.visualize([
 	outdent`
 		foo(
 			undefined,
