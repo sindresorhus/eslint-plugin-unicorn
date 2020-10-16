@@ -1,7 +1,6 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test';
 
-const ruleId = 'prefer-number-properties';
 const METHOD_ERROR_MESSAGE_ID = 'method-error';
 const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
 const PROPERTY_ERROR_MESSAGE_ID = 'property-error';

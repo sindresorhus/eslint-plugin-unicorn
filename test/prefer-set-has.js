@@ -1,8 +1,6 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test';
 
-const ruleId = 'prefer-set-has';
-
 const createError = name => [
 	{
 		messageId: 'preferSetHas',

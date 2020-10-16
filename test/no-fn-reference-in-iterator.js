@@ -20,12 +20,6 @@ const reduceLikeMethods = [
 	'reduceRight'
 ];
 
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
 const generateError = (method, name) => ({
 	messageId: name ? ERROR_WITH_NAME_MESSAGE_ID : ERROR_WITHOUT_NAME_MESSAGE_ID,
 	data: {
@@ -48,7 +42,6 @@ const invalidTestCase = (({code, method, name, suggestions}) => ({
 			suggestions: suggestions.map(output => suggestionOutput(output))
 		}
 	]
-
 }));
 
 test({

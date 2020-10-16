@@ -4,12 +4,6 @@ import {test} from './utils/test';
 const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage';
 const MESSAGE_ID_EMPTY_MESSAGE = 'emptyMessage';
 
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
-
 const emptyStringError = {
 	messageId: MESSAGE_ID_EMPTY_MESSAGE
 };

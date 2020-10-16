@@ -2,8 +2,6 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test';
 
-import rule from '../rules/catch-error-name';
-
 const MESSAGE_ID = 'catch-error-name';
 
 const generateError = (originalName, fixedName) => ({
@@ -851,7 +849,7 @@ test.typescript({
 					console.log(error)
 				})
 			`,
-			errors: [generateError('err', 'error')],
+			errors: [generateError('err', 'error')]
 
 		})
 	]

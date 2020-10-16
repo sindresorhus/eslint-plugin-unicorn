@@ -1,4 +1,3 @@
-import {outdent} from 'outdent';
 import {test} from './utils/test';
 
 const expiredTodoError = (expirationDate, message) => ({

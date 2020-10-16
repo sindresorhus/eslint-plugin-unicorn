@@ -18,14 +18,6 @@ const browserES5RuleTester = avaRuleTester(test, {
 	}
 });
 
-const babelRuleTester = avaRuleTester(test, {
-	parser: require.resolve('babel-eslint')
-});
-
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
-
 const noFixingTestCase = test => ({...test, output: test.code});
 
 const createErrors = message => {

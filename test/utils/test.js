@@ -18,9 +18,9 @@ function runTest(tests) {
 }
 
 function createTester(options) {
-	let tester = avaRuleTester(test, {
+	const tester = avaRuleTester(test, {
 		parserOptions: defaultParserOptions,
-		...options,
+		...options
 	});
 	return tester;
 }
@@ -48,5 +48,5 @@ module.exports = {
 	defaultParserOptions,
 	ruleId,
 	rule,
-	test: runTest,
+	test: runTest
 };

@@ -1,11 +1,4 @@
-import {outdent} from 'outdent';
 import {test} from './utils/test';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
 
 const errors = [
 	{
@@ -78,6 +71,6 @@ test({
 	]
 });
 
-test.visualizeTester([
+test.visualize([
 	'const [foo, bar,, baz ,,, qux] = parts;'
 ]);

@@ -1,5 +1,4 @@
 /* eslint-disable no-template-curly-in-string, unicorn/escape-case */
-import {outdent} from 'outdent';
 import {test} from './utils/test';
 
 const errors = [

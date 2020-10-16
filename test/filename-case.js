@@ -1,12 +1,5 @@
 import {flatten} from 'lodash';
-import {outdent} from 'outdent';
 import {test} from './utils/test';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
 
 function testCase(filename, chosenCase, errorMessage) {
 	return testCaseWithOptions(

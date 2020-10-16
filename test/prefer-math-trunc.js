@@ -1,12 +1,6 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test';
 
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
 test({
 	valid: [
 		'const foo = 1 | 1;',

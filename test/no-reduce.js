@@ -1,3 +1,4 @@
+import {flatten} from 'lodash';
 import {outdent} from 'outdent';
 import {test} from './utils/test';
 import notFunctionTypes from './utils/not-function-types';

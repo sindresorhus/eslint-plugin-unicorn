@@ -10,13 +10,6 @@ const ERROR_DECLARATION = 'error-variable';
 const SUGGESTION_NULLISH_COALESCING_OPERATOR = 'suggest-nullish-coalescing-operator';
 const SUGGESTION_LOGICAL_OR_OPERATOR = 'suggest-logical-or-operator';
 
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021,
-		sourceType: 'module'
-	}
-});
-
 // `[0]`
 test({
 	valid: [

@@ -1,4 +1,3 @@
-import {outdent} from 'outdent';
 import {test} from './utils/test';
 
 const MESSAGE_ZERO_FRACTION = 'zero-fraction';
