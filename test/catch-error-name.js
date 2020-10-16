@@ -849,7 +849,6 @@ test.typescript({
 				})
 			`,
 			errors: [generateError('err', 'error')]
-
 		})
 	]
 });
