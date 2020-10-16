@@ -30,7 +30,7 @@ test({
 		...[
 			'const foo = 0777777',
 			'var foo = 0999999',
-			'let foo = 0111222',
+			'let foo = 0111222'
 		].map(code => ({code, parserOptions: legacyOctalParserOptions})),
 
 		// Binary
