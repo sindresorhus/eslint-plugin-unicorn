@@ -1,4 +1,5 @@
 'use strict';
+const {hasSideEffect} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_BITWISE = 'bitwise';
@@ -46,22 +47,27 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			const problem = {
 				node,
 				messageId: MESSAGE_ID_BITWISE,
 				data: {
 					operator,
 					value: right.raw
-				},
-				fix: fixer => {
+				}
+			};
+
+			if (!isAssignment || !hasSideEffect(left, sourceCode)) {
+				problem.fix = fixer => {
 					let fixed = mathTruncFunctionCall(left);
 					if (isAssignment) {
 						fixed = `${sourceCode.getText(left)} = ${fixed}`;
 					}
 
 					return fixer.replaceText(node, fixed);
-				}
-			});
+				};
+			}
+
+			context.report(problem);
 		},
 		[bitwiseNotUnaryExpressionSelector]: node => {
 			context.report({
