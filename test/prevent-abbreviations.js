@@ -1,7 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prevent-abbreviations';
+import {test as runTest, rule} from './utils/test';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -16,21 +16,6 @@ const browserES5RuleTester = avaRuleTester(test, {
 	env: {
 		browser: true
 	}
-});
-
-const moduleRuleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021,
-		sourceType: 'module'
-	}
-});
-
-const babelRuleTester = avaRuleTester(test, {
-	parser: require.resolve('babel-eslint')
-});
-
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
 });
 
 const noFixingTestCase = test => ({...test, output: test.code});
@@ -1164,13 +1149,13 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 		{
 			code: outdent`
-				function unicorn(unicorn) {
+				function unicorn (unicorn) {
 					const {prop = {}} = unicorn;
 					return property;
 				}
 			`,
 			output: outdent`
-				function unicorn(unicorn) {
+				function unicorn (unicorn) {
 					const {prop: property_ = {}} = unicorn;
 					return property;
 				}
@@ -1354,7 +1339,7 @@ browserES5RuleTester.run('prevent-abbreviations', rule, {
 	]
 });
 
-moduleRuleTester.run('prevent-abbreviations', rule, {
+runTest({
 	valid: [
 		'import {err as foo} from "foo"',
 
@@ -1650,7 +1635,7 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 	]
 });
 
-babelRuleTester.run('prevent-abbreviations', rule, {
+runTest.babel({
 	valid: [
 		// Whitelisted names
 		'Foo.defaultProps = {}',
@@ -1692,14 +1677,14 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 		{
-			code: '({err}) => err',
-			output: '({err: error}) => error',
+			code: '({err}) => err;',
+			output: '({err: error}) => error;',
 			options: customOptions,
 			errors: createErrors()
 		},
 		{
-			code: 'err => ({err})',
-			output: 'error => ({err: error})',
+			code: 'err => ({err});',
+			output: 'error => ({err: error});',
 			options: customOptions,
 			errors: createErrors()
 		},
@@ -1785,7 +1770,7 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 	]
 });
 
-typescriptRuleTester.run('prevent-abbreviations', rule, {
+runTest.typescript({
 	valid: [],
 	invalid: [
 		// Types

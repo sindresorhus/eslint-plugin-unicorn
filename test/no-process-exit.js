@@ -1,15 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-process-exit';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021,
-		sourceType: 'module'
-	}
-});
+import {test} from './utils/test';
 
 const errors = [
 	{
@@ -17,7 +7,7 @@ const errors = [
 	}
 ];
 
-ruleTester.run('no-process-exit', rule, {
+test({
 	valid: [
 		'#!/usr/bin/env node\n\nprocess.exit();',
 		'Process.exit()',
@@ -107,12 +97,6 @@ ruleTester.run('no-process-exit', rule, {
 	].map(code => ({code, errors}))
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
-visualizeTester.run('no-process-exit', rule, [
+test.visualize([
 	'process.exit(1);'
 ]);

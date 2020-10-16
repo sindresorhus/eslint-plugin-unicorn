@@ -1,21 +1,12 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-event-key';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {test} from './utils/test';
 
 const error = key => ({
 	messageId: 'prefer-event-key',
 	data: {name: key}
 });
 
-ruleTester.run('prefer-event-key', rule, {
+test({
 	valid: [
 		outdent`
 			window.addEventListener('click', e => {
@@ -806,13 +797,7 @@ ruleTester.run('prefer-event-key', rule, {
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
-visualizeTester.run('prefer-event-key', rule, [
+test.visualize([
 	outdent`
 		window.addEventListener('click', ({which, another}) => {
 			if (which === 23) {

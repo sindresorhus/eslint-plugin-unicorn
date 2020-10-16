@@ -1,14 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-console-spaces';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
+import {test} from './utils/test';
 
 function buildError({method, positions}) {
 	return {
@@ -17,7 +8,7 @@ function buildError({method, positions}) {
 	};
 }
 
-ruleTester.run('no-console-spaces', rule, {
+test({
 	valid: [
 		'console.log("abc");',
 		'console.log("abc", "def");',
@@ -200,8 +191,7 @@ ruleTester.run('no-console-spaces', rule, {
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test);
-visualizeTester.run('no-console-spaces', rule, [
+test.visualize([
 	'console.log("abc", " def ", "ghi");',
 	outdent`
 		console.error(

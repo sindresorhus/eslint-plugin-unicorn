@@ -1,8 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/number-literal-case';
-import visualizeRuleTester from './utils/visualize-rule-tester';
+import {test as runTest, rule} from './utils/test';
 
 const MESSAGE_ID = 'number-literal-case';
 
@@ -170,11 +169,6 @@ ruleTester.run('number-literal-case', rule, tests);
 babelRuleTester.run('number-literal-case', rule, tests);
 typescriptRuleTester.run('number-literal-case', rule, tests);
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-visualizeTester.run('number-literal-case', rule, [
+runTest.visualize([
 	'console.log(BigInt(0B10 + 1.2E+3) + 0XdeEd_Beefn)'
 ]);

@@ -1,16 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/no-zero-fractions';
-import visualizeRuleTester from './utils/visualize-rule-tester';
+import {test} from './utils/test';
 
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
-	parserOptions: {
-		sourceType: 'module'
-	}
-});
 const MESSAGE_ZERO_FRACTION = 'zero-fraction';
 const MESSAGE_DANGLING_DOT = 'dangling-dot';
 const errorZeroFraction = {
@@ -20,7 +9,7 @@ const errorDanglingDot = {
 	messageId: MESSAGE_DANGLING_DOT
 };
 
-ruleTester.run('no-zero-fractions', rule, {
+test({
 	valid: [
 		'const foo = "123.1000"',
 		'foo("123.1000")',
@@ -107,13 +96,7 @@ ruleTester.run('no-zero-fractions', rule, {
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
-visualizeTester.run('no-zero-fractions', rule, [
+test.visualize([
 	'const foo = 1.0',
 	'const foo = (1.).toString()'
 ]);

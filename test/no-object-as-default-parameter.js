@@ -1,21 +1,12 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-object-as-default-parameter';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
+import {test} from './utils/test';
 
 const error = {
 	messageId: 'noObjectAsDefaultParameter',
 	data: {parameter: 'foo'}
 };
 
-ruleTester.run('no-object-as-default-parameter', rule, {
+test({
 	valid: [
 		'const abc = {};',
 		'const abc = {foo: 123};',
@@ -170,13 +161,7 @@ ruleTester.run('no-object-as-default-parameter', rule, {
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
-visualizeTester.run('no-object-as-default-parameter', rule, [
+test.visualize([
 	'function abc(foo = {a: 123}) {}',
 	'const abc = (foo = {a: false}) => {};'
 ]);

@@ -1,9 +1,6 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-number-properties';
+import {test} from './utils/test';
 
-const ruleId = 'prefer-number-properties';
 const METHOD_ERROR_MESSAGE_ID = 'method-error';
 const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
 const PROPERTY_ERROR_MESSAGE_ID = 'property-error';
@@ -26,16 +23,6 @@ const methods = {
 		code: 'isFinite(10);'
 	}
 };
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
 
 const createError = (name, suggestionOutput) => {
 	const {safe} = methods[name];
@@ -76,7 +63,7 @@ const invalidMethodTest = ({code, output, name, suggestionOutput}) => {
 };
 
 // Methods
-ruleTester.run(ruleId, rule, {
+test({
 	valid: [
 		'Number.parseInt("10", 2);',
 		'Number.parseFloat("10.5");',
@@ -175,7 +162,7 @@ const errorNaN = [
 		}
 	}
 ];
-ruleTester.run(ruleId, rule, {
+test({
 	valid: [
 		'const foo = Number.NaN;',
 		'const foo = window.Number.NaN;',
@@ -236,7 +223,7 @@ ruleTester.run(ruleId, rule, {
 	]
 });
 
-typescriptRuleTester.run(ruleId, rule, {
+test.typescript({
 	valid: [
 		// https://github.com/angular/angular/blob/b4972fa1656101c02c92ddbf247db6e0de139937/packages/common/src/i18n/locale_data_api.ts#L178
 		{

@@ -1,20 +1,9 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-node-remove';
+import {test} from './utils/test';
 import notDomNodeTypes from './utils/not-dom-node-types';
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_MESSAGE_ID = 'suggestion';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
 
 const invalidTestCase = ({code, output, suggestionOutput}) => {
 	if (suggestionOutput) {
@@ -47,7 +36,7 @@ const invalidTestCase = ({code, output, suggestionOutput}) => {
 	};
 };
 
-ruleTester.run('prefer-node-remove', rule, {
+test({
 	valid: [
 		'foo.remove()',
 		'this.remove()',

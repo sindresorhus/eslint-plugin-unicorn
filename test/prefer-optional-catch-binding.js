@@ -1,18 +1,10 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-optional-catch-binding';
+import {test} from './utils/test';
 
 const ERROR_MESSAGE_ID = 'error';
 const generateError = name => ({messageId: ERROR_MESSAGE_ID, data: {name}});
 
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
-ruleTester.run('prefer-optional-catch-binding', rule, {
+test({
 	valid: [
 		'try {} catch {}',
 		outdent`

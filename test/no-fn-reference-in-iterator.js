@@ -1,7 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-fn-reference-in-iterator';
+import {rule} from './utils/test';
 import notFunctionTypes from './utils/not-function-types';
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';

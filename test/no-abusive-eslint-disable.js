@@ -1,8 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-abusive-eslint-disable';
-import visualizeRuleTester from './utils/visualize-rule-tester';
+import {test as runTest, rule} from './utils/test';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -68,8 +67,7 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test);
-visualizeTester.run('no-abusive-eslint-disable', rule, [
+runTest.visualize([
 	'eval(); // eslint-disable-line',
 	outdent`
 		foo();

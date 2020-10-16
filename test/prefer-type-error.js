@@ -1,16 +1,7 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-type-error';
+import {test} from './utils/test';
 
 const MESSAGE_ID = 'prefer-type-error';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
-
 const errors = [
 	{
 		messageId: MESSAGE_ID
@@ -73,7 +64,7 @@ const tcIdentifierInvalidTest = identifier => {
 	};
 };
 
-ruleTester.run('prefer-type-error', rule, {
+test({
 	valid: [
 		outdent`
 			if (MrFuManchu.name !== 'Fu Manchu' || MrFuManchu.isMale === false) {

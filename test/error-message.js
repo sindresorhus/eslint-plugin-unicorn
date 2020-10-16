@@ -1,16 +1,8 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/error-message';
+import {test} from './utils/test';
 
 const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage';
 const MESSAGE_ID_EMPTY_MESSAGE = 'emptyMessage';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
 
 const emptyStringError = {
 	messageId: MESSAGE_ID_EMPTY_MESSAGE
@@ -20,7 +12,14 @@ const noMessageError = {
 	messageId: MESSAGE_ID_MISSING_MESSAGE
 };
 
-ruleTester.run('error-message', rule, {
+test({
+	// TODO: Check how should the last two tests work on default parserOptions
+	testerOptions: {
+		env: {
+			es6: true
+		},
+		parserOptions: undefined
+	},
 	valid: [
 		'throw new Error(\'error\')',
 		'throw new TypeError(\'error\')',

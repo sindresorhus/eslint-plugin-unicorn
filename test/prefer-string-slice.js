@@ -1,20 +1,8 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-string-slice';
+import {test} from './utils/test';
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
-
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
 
 const errorsSubstr = [
 	{
@@ -27,7 +15,7 @@ const errorsSubstring = [
 	}
 ];
 
-ruleTester.run('prefer-string-slice', rule, {
+test({
 	valid: [
 		'const substr = foo.substr',
 		'const substring = foo.substring',
@@ -258,7 +246,7 @@ ruleTester.run('prefer-string-slice', rule, {
 	]
 });
 
-typescriptRuleTester.run('prefer-string-slice', rule, {
+test.typescript({
 	valid: [],
 	invalid: [
 		{

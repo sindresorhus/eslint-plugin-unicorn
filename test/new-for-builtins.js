@@ -1,23 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/new-for-builtins';
+import {test} from './utils/test';
 import {enforceNew, disallowNew} from '../rules/utils/builtins';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021,
-		sourceType: 'module'
-	},
-	// Make sure globals don't effect shadowed check result
-	globals: {
-		Map: 'writable',
-		Set: 'readonly',
-		WeakMap: 'off',
-		BigInt: 'writable',
-		Boolean: 'readonly',
-		Number: 'off'
-	}
-});
 
 const enforceNewError = builtin => ({
 	message: `Use \`new ${builtin}()\` instead of \`${builtin}()\`.`
@@ -27,7 +9,18 @@ const disallowNewError = builtin => ({
 	message: `Use \`${builtin}()\` instead of \`new ${builtin}()\`.`
 });
 
-ruleTester.run('new-for-builtins', rule, {
+test({
+	testerOptions: {
+		// Make sure globals don't effect shadowed check result
+		globals: {
+			Map: 'writable',
+			Set: 'readonly',
+			WeakMap: 'off',
+			BigInt: 'writable',
+			Boolean: 'readonly',
+			Number: 'off'
+		}
+	},
 	valid: [
 		'const foo = new Object()',
 		'const foo = new Array()',

@@ -1,15 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/import-style';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		sourceType: 'module',
-		ecmaVersion: 2021
-	}
-});
+import {test} from './utils/test';
 
 const options = {
 	checkExportFrom: true,
@@ -74,7 +64,7 @@ const addDefaultOptions = test => {
 	};
 };
 
-ruleTester.run('import-style', rule, {
+test({
 	valid: [
 		'require(\'unassigned\')',
 		'const {} = require(\'unassigned\')',
@@ -582,14 +572,7 @@ ruleTester.run('import-style', rule, {
 	].map(test => addDefaultOptions(test))
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		sourceType: 'module',
-		ecmaVersion: 2021
-	}
-});
-
-visualizeTester.run('consistent-function-scoping', rule, [
+test.visualize([
 	'import util from \'util\'',
 	'import * as util from \'util\'',
 	'const util = require(\'util\')',
