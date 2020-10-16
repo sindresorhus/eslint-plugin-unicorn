@@ -1,10 +1,10 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test';
 
-function buildError({method, positions}) {
+function buildError({method, position}) {
 	return {
 		messageId: 'no-console-spaces',
-		data: {method, positions}
+		data: {method, position}
 	};
 }
 
@@ -86,66 +86,69 @@ test({
 	invalid: [
 		{
 			code: 'console.log("abc ", "def");',
-			errors: [buildError({method: 'log', positions: 'trailing'})],
+			errors: [buildError({method: 'log', position: 'trailing'})],
 			output: 'console.log("abc", "def");'
 		},
 		{
 			code: 'console.log("abc", " def");',
-			errors: [buildError({method: 'log', positions: 'leading'})],
+			errors: [buildError({method: 'log', position: 'leading'})],
 			output: 'console.log("abc", "def");'
 		},
 		{
 			code: 'console.log(" abc ", "def");',
-			errors: [buildError({method: 'log', positions: 'trailing'})],
+			errors: [buildError({method: 'log', position: 'trailing'})],
 			output: 'console.log(" abc", "def");'
 		},
 		{
 			code: 'console.debug("abc ", "def");',
-			errors: [buildError({method: 'debug', positions: 'trailing'})],
+			errors: [buildError({method: 'debug', position: 'trailing'})],
 			output: 'console.debug("abc", "def");'
 		},
 		{
 			code: 'console.info("abc ", "def");',
-			errors: [buildError({method: 'info', positions: 'trailing'})],
+			errors: [buildError({method: 'info', position: 'trailing'})],
 			output: 'console.info("abc", "def");'
 		},
 		{
 			code: 'console.warn("abc ", "def");',
-			errors: [buildError({method: 'warn', positions: 'trailing'})],
+			errors: [buildError({method: 'warn', position: 'trailing'})],
 			output: 'console.warn("abc", "def");'
 		},
 		{
 			code: 'console.error("abc ", "def");',
-			errors: [buildError({method: 'error', positions: 'trailing'})],
+			errors: [buildError({method: 'error', position: 'trailing'})],
 			output: 'console.error("abc", "def");'
 		},
 		{
 			code: 'console.log("abc", " def ", "ghi");',
-			errors: [buildError({method: 'log', positions: 'leading and trailing'})],
+			errors: [
+				buildError({method: 'log', position: 'leading'}),
+				buildError({method: 'log', position: 'trailing'})
+			],
 			output: 'console.log("abc", "def", "ghi");'
 		},
 		{
 			code: 'console.log("abc ", "def ", "ghi");',
 			errors: [
-				buildError({method: 'log', positions: 'trailing'}),
-				buildError({method: 'log', positions: 'trailing'})
+				buildError({method: 'log', position: 'trailing'}),
+				buildError({method: 'log', position: 'trailing'})
 			],
 			output: 'console.log("abc", "def", "ghi");'
 		},
 		{
 			code: 'console.log(\'abc \', "def");',
-			errors: [buildError({method: 'log', positions: 'trailing'})],
+			errors: [buildError({method: 'log', position: 'trailing'})],
 			output: 'console.log(\'abc\', "def");'
 		},
 		{
 			code: 'console.log(`abc `, "def");',
-			errors: [buildError({method: 'log', positions: 'trailing'})],
+			errors: [buildError({method: 'log', position: 'trailing'})],
 			output: 'console.log(`abc`, "def");'
 		},
 		{
 			// eslint-disable-next-line no-template-curly-in-string
 			code: 'console.log(`abc ${1 + 2} `, "def");',
-			errors: [buildError({method: 'log', positions: 'trailing'})],
+			errors: [buildError({method: 'log', position: 'trailing'})],
 			// eslint-disable-next-line no-template-curly-in-string
 			output: 'console.log(`abc ${1 + 2}`, "def");'
 		},
@@ -158,7 +161,7 @@ test({
 				);
 			`,
 			errors: [
-				buildError({method: 'log', positions: 'trailing'})
+				buildError({method: 'log', position: 'trailing'})
 			],
 			output: outdent`
 				console.log(
@@ -178,7 +181,7 @@ test({
 				);
 			`,
 			errors: [
-				buildError({method: 'error', positions: 'trailing'})
+				buildError({method: 'error', position: 'trailing'})
 			],
 			output: outdent`
 				console.error(
