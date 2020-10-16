@@ -1683,8 +1683,8 @@ runTest.babel({
 			errors: createErrors()
 		},
 		{
-			code: 'err => ({err})',
-			output: 'error => ({err: error})',
+			code: 'err => ({err});',
+			output: 'error => ({err: error});',
 			options: customOptions,
 			errors: createErrors()
 		},
