@@ -1,5 +1,7 @@
+import test from 'ava';
+import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import {test} from './utils/test';
+import {rule} from './utils/test';
 import notFunctionTypes from './utils/not-function-types';
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
@@ -19,6 +21,12 @@ const reduceLikeMethods = [
 	'reduce',
 	'reduceRight'
 ];
+
+const ruleTester = avaRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 2021
+	}
+});
 
 const generateError = (method, name) => ({
 	messageId: name ? ERROR_WITH_NAME_MESSAGE_ID : ERROR_WITHOUT_NAME_MESSAGE_ID,
@@ -42,9 +50,10 @@ const invalidTestCase = (({code, method, name, suggestions}) => ({
 			suggestions: suggestions.map(output => suggestionOutput(output))
 		}
 	]
+
 }));
 
-test({
+ruleTester.run('no-fn-reference-in-iterator', rule, {
 	valid: [
 		...simpleMethods.map(method => `foo.${method}(element => fn(element))`),
 		...reduceLikeMethods.map(method => `foo.${method}((accumulator, element) => fn(element))`),

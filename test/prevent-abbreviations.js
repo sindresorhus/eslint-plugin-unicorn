@@ -1339,7 +1339,7 @@ browserES5RuleTester.run('prevent-abbreviations', rule, {
 	]
 });
 
-test({
+runTest({
 	valid: [
 		'import {err as foo} from "foo"',
 

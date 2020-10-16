@@ -1,5 +1,7 @@
+import test from 'ava';
 import {outdent} from 'outdent';
-import {test} from './utils/test';
+import avaRuleTester from 'eslint-ava-rule-tester';
+import {rule} from './utils/test';
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
@@ -10,8 +12,15 @@ const ERROR_DECLARATION = 'error-variable';
 const SUGGESTION_NULLISH_COALESCING_OPERATOR = 'suggest-nullish-coalescing-operator';
 const SUGGESTION_LOGICAL_OR_OPERATOR = 'suggest-logical-or-operator';
 
+const ruleTester = avaRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 2021,
+		sourceType: 'module'
+	}
+});
+
 // `[0]`
-test({
+ruleTester.run('prefer-array-find', rule, {
 	valid: [
 		'array.find(foo)',
 
@@ -54,7 +63,7 @@ test({
 });
 
 // `.shift()`
-test({
+ruleTester.run('prefer-array-find', rule, {
 	valid: [
 		// Test `.shift()`
 		// Not `CallExpression`
@@ -127,7 +136,7 @@ test({
 });
 
 // `const [foo] =`
-test({
+ruleTester.run('prefer-array-find', rule, {
 	valid: [
 		// Test `const [item] = …`
 		// Not `VariableDeclarator`
@@ -358,7 +367,7 @@ test({
 });
 
 // `[foo] =`
-test({
+ruleTester.run('prefer-array-find', rule, {
 	valid: [
 		// Test `[item] = …`
 		// Not `AssignmentExpression`
@@ -553,7 +562,7 @@ test({
 });
 
 // `const foo = array.filter(); foo[0]; [bar] = foo`
-test({
+ruleTester.run('prefer-array-find', rule, {
 	valid: [
 		'const foo = array.find(bar), first = foo[0];',
 		'const foo = array.filter(bar), first = notFoo[0];',
@@ -706,7 +715,7 @@ test({
 });
 
 // Mixed
-test({
+ruleTester.run('prefer-array-find', rule, {
 	valid: [],
 	invalid: [
 		{

@@ -247,5 +247,6 @@ test.typescript({
 			`
 		},
 		'declare function NaN(s: string, radix?: number): number;'
-	]
+	],
+	invalid: []
 });
