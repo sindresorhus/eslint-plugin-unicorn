@@ -1,47 +1,15 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test';
 
-const testCaseWithOptions = (code, options) => {
-	return {
-		code,
-		options
-	};
-};
-
-const invalidTestCase = (code, correctCode, eventType, message) => {
-	return {
-		code,
-		output: correctCode || code,
-		errors: eventType ?
-			[{message: `Prefer \`addEventListener\` over \`${eventType}\`.`}] :
-			[{message}]
-	};
-};
-
-const invalidTestCaseWithOptions = (code, correctCode, eventType, options) => {
-	return {
-		code,
-		output: correctCode || code,
-		errors: [{message: `Prefer \`addEventListener\` over \`${eventType}\`.`}],
-		options
-	};
-};
-
-const expectedBeforeUnloadWithReturnMessage = [
-	'Prefer `addEventListener` over `onbeforeunload`.',
-	'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.'
-].join(' ');
-
-const expectedMessageEventWithReturnMessage = [
-	'Prefer `addEventListener` over `onmessage`.',
-	'Note that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.'
-].join(' ');
+const excludeFooOptions = [{excludedPackages: ['foo']}];
 
 test({
 	valid: [
 		'foo.addEventListener(\'click\', () => {})',
 		'foo.removeEventListener(\'click\', onClick)',
 		'foo.onclick',
+		'foo[onclick] = () => {}',
+		'foo["onclick"] = () => {}',
 		'foo.onunknown = () => {}',
 		'foo.setCallBack = () => {console.log(\'foo\')}',
 		'setCallBack = () => {console.log(\'foo\')}',
@@ -77,267 +45,120 @@ test({
 
 			parser.onerror = () => {};
 		`,
-		testCaseWithOptions(
-			outdent`
+		{
+			code: outdent`
 				const foo = require('foo');
 
 				foo.onerror = () => {};
 			`,
-			[{excludedPackages: ['foo']}]
-		),
-		testCaseWithOptions(
-			outdent`
+			options: excludeFooOptions
+		},
+		{
+			code: outdent`
 				import foo from 'foo';
 
 				foo.onclick = () => {};
 			`,
-			[{excludedPackages: ['foo']}]
-		)
+			options: excludeFooOptions
+		}
 	],
-
-	invalid: [
-		invalidTestCase(
-			'foo.onclick = () => {}',
-			'foo.addEventListener(\'click\', () => {})',
-			'onclick'
-		),
-		invalidTestCase(
-			'foo.onclick = 1',
-			'foo.addEventListener(\'click\', 1)',
-			'onclick'
-		),
-		invalidTestCase(
-			'foo.bar.onclick = onClick',
-			'foo.bar.addEventListener(\'click\', onClick)',
-			'onclick'
-		),
-		invalidTestCase(
-			'const bar = null; foo.onclick = bar;',
-			'const bar = null; foo.addEventListener(\'click\', bar);',
-			'onclick'
-		),
-		invalidTestCase(
-			'foo.onkeydown = () => {}',
-			'foo.addEventListener(\'keydown\', () => {})',
-			'onkeydown'
-		),
-		invalidTestCase(
-			'foo.ondragend = () => {}',
-			'foo.addEventListener(\'dragend\', () => {})',
-			'ondragend'
-		),
-		invalidTestCase(
-			outdent`
-				foo.onclick = function (e) {
-					console.log(e);
-				}
-			`,
-			outdent`
-				foo.addEventListener('click', function (e) {
-					console.log(e);
-				})
-			`,
-			'onclick'
-		),
-		invalidTestCase(
-			'foo.onclick = null',
-			undefined,
-			undefined,
-			'Prefer `removeEventListener` over `onclick`.'
-		),
-		invalidTestCase(
-			'foo.onclick = undefined',
-			undefined,
-			undefined,
-			'Prefer `removeEventListener` over `onclick`.'
-		),
-		invalidTestCase(
-			'window.onbeforeunload = null',
-			undefined,
-			undefined,
-			'Prefer `removeEventListener` over `onbeforeunload`.'
-		),
-		invalidTestCase(
-			'window.onbeforeunload = undefined',
-			undefined,
-			undefined,
-			'Prefer `removeEventListener` over `onbeforeunload`.'
-		),
-		invalidTestCase(
-			'window.onbeforeunload = foo',
-			undefined,
-			undefined,
-			expectedBeforeUnloadWithReturnMessage
-		),
-		invalidTestCase(
-			'window.onbeforeunload = () => \'foo\'',
-			undefined,
-			undefined,
-			expectedBeforeUnloadWithReturnMessage
-		),
-		invalidTestCase(
-			outdent`
-				window.onbeforeunload = () => {
-					return bar;
-				}
-			`,
-			undefined,
-			undefined,
-			expectedBeforeUnloadWithReturnMessage
-		),
-		invalidTestCase(
-			outdent`
-				window.onbeforeunload = function () {
-					return 'bar';
-				}
-			`,
-			undefined,
-			undefined,
-			expectedBeforeUnloadWithReturnMessage
-		),
-		invalidTestCase(
-			outdent`
-				window.onbeforeunload = function () {
-					return;
-				}
-			`,
-			outdent`
-				window.addEventListener('beforeunload', function () {
-					return;
-				})
-			`,
-			'onbeforeunload'
-		),
-		invalidTestCase(
-			outdent`
-				window.onbeforeunload = function () {
-					(() => {
-						return 'foo';
-					})();
-				}
-			`,
-			outdent`
-				window.addEventListener('beforeunload', function () {
-					(() => {
-						return 'foo';
-					})();
-				})
-			`,
-			'onbeforeunload'
-		),
-		invalidTestCase(
-			outdent`
-				window.onbeforeunload = e => {
-					console.log(e);
-				}
-			`,
-			outdent`
-				window.addEventListener('beforeunload', e => {
-					console.log(e);
-				})
-			`,
-			'onbeforeunload'
-		),
-		invalidTestCase(
-			outdent`
-				const foo = require('foo');
-
-				foo.onerror = () => {};
-			`,
-			outdent`
-				const foo = require('foo');
-
-				foo.addEventListener('error', () => {});
-			`,
-			'onerror'
-		),
-		invalidTestCase(
-			outdent`
-				import foo from 'foo';
-
-				foo.onerror = () => {};
-			`,
-			outdent`
-				import foo from 'foo';
-
-				foo.addEventListener('error', () => {});
-			`,
-			'onerror'
-		),
-		invalidTestCase(
-			outdent`
-				foo.onerror = () => {};
-
-				function bar() {
-					const koa = require('koa');
-
-					koa.onerror = () => {};
-				}
-			`,
-			outdent`
-				foo.addEventListener('error', () => {});
-
-				function bar() {
-					const koa = require('koa');
-
-					koa.onerror = () => {};
-				}
-			`,
-			'onerror'
-		),
-		invalidTestCaseWithOptions(
-			outdent`
-				const Koa = require('koa');
-				const app = new Koa();
-
-				app.onerror = () => {};
-			`,
-			outdent`
-				const Koa = require('koa');
-				const app = new Koa();
-
-				app.addEventListener('error', () => {});
-			`,
-			'onerror',
-			[{excludedPackages: ['foo']}]
-		),
-		invalidTestCaseWithOptions(
-			outdent`
-				import {Koa as Foo} from 'koa';
-				const app = new Foo();
-
-				app.onerror = () => {};
-			`,
-			outdent`
-				import {Koa as Foo} from 'koa';
-				const app = new Foo();
-
-				app.addEventListener('error', () => {});
-			`,
-			'onerror',
-			[{excludedPackages: ['foo']}]
-		),
-		invalidTestCaseWithOptions(
-			outdent`
-				const sax = require('sax');
-				const parser = sax.parser();
-
-				parser.onerror = () => {};
-			`,
-			outdent`
-				const sax = require('sax');
-				const parser = sax.parser();
-
-				parser.addEventListener('error', () => {});
-			`,
-			'onerror',
-			[{excludedPackages: []}]
-		),
-		invalidTestCase(
-			'myWorker.port.onmessage = function(e) {}',
-			undefined,
-			undefined,
-			expectedMessageEventWithReturnMessage
-		)
-	]
+	invalid: []
 });
+
+test.visualize([
+	'foo.onclick = () => {}',
+	'foo.onclick = 1',
+	'foo.bar.onclick = onClick',
+	'const bar = null; foo.onclick = bar;',
+	'foo.onkeydown = () => {}',
+	'foo.ondragend = () => {}',
+	outdent`
+		foo.onclick = function (e) {
+			console.log(e);
+		}
+	`,
+	'foo.onclick = null',
+	'foo.onclick = undefined',
+	'window.onbeforeunload = null',
+	'window.onbeforeunload = undefined',
+	'window.onbeforeunload = foo',
+	'window.onbeforeunload = () => \'foo\'',
+	outdent`
+		window.onbeforeunload = () => {
+			return bar;
+		}
+	`,
+	outdent`
+		window.onbeforeunload = function () {
+			return 'bar';
+		}
+	`,
+	outdent`
+		window.onbeforeunload = function () {
+			return;
+		}
+	`,
+	outdent`
+		window.onbeforeunload = function () {
+			(() => {
+				return 'foo';
+			})();
+		}
+	`,
+	outdent`
+		window.onbeforeunload = e => {
+			console.log(e);
+		}
+	`,
+
+	outdent`
+		const foo = require('foo');
+
+		foo.onerror = () => {};
+	`,
+
+	outdent`
+		import foo from 'foo';
+
+		foo.onerror = () => {};
+	`,
+
+	outdent`
+		foo.onerror = () => {};
+
+		function bar() {
+			const koa = require('koa');
+
+			koa.onerror = () => {};
+		}
+	`,
+
+	{
+		code: outdent`
+			const Koa = require('koa');
+			const app = new Koa();
+
+			app.onerror = () => {};
+		`,
+		options: excludeFooOptions
+	},
+	{
+		code: outdent`
+			import {Koa as Foo} from 'koa';
+			const app = new Foo();
+
+			app.onerror = () => {};
+		`,
+		options: excludeFooOptions
+	},
+	{
+		code: outdent`
+			const sax = require('sax');
+			const parser = sax.parser();
+
+			parser.onerror = () => {};
+		`,
+		options: excludeFooOptions
+	},
+	'myWorker.port.onmessage = function(e) {}'
+]);

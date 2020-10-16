@@ -97,7 +97,10 @@ const create = context => {
 
 			const {left: memberExpression, right: assignedExpression} = node;
 
-			if (memberExpression.type !== 'MemberExpression') {
+			if (
+				memberExpression.type !== 'MemberExpression' ||
+				memberExpression.computed
+			) {
 				return;
 			}
 
@@ -132,7 +135,7 @@ const create = context => {
 			}
 
 			context.report({
-				node,
+				node: memberExpression.property,
 				messageId: MESSAGE_ID,
 				data: {
 					replacement,
