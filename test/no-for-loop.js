@@ -710,7 +710,8 @@ test({
 				}
 			};
 		`
-	]
+	],
+	invalid: []
 });
 
 test.visualize([

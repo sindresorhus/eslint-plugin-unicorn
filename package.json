@@ -121,8 +121,7 @@
 						"fn": false
 					}
 				}
-			],
-			"ava/no-identical-title": "off"
+			]
 		}
 	}
 }

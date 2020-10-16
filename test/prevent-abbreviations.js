@@ -1149,13 +1149,13 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 		{
 			code: outdent`
-				function unicorn(unicorn) {
+				function unicorn (unicorn) {
 					const {prop = {}} = unicorn;
 					return property;
 				}
 			`,
 			output: outdent`
-				function unicorn(unicorn) {
+				function unicorn (unicorn) {
 					const {prop: property_ = {}} = unicorn;
 					return property;
 				}
