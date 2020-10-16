@@ -1,20 +1,7 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-nested-ternary';
-import visualizeRuleTester from './utils/visualize-rule-tester';
+import {test} from './utils/test';
 
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
-
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
-
-ruleTester.run('no-nested-ternary', rule, {
+test({
 	valid: [
 		'const foo = i > 5 ? true : false;',
 		'const foo = i > 5 ? true : (i < 100 ? true : false);',
@@ -82,7 +69,7 @@ const visualizeTester = visualizeRuleTester(test, {
 		ecmaVersion: 2021
 	}
 });
-visualizeTester.run('no-nested-ternary', rule, [
+test.visualize([
 	'const foo = i > 5 ? i < 100 ? true : false : i < 100 ? true : false;',
 	'const foo = i > 5 ? true : (i < 100 ? true : (i < 1000 ? true : false));',
 	outdent`

@@ -1,22 +1,11 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/no-unsafe-regex';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
-	parserOptions: {
-		sourceType: 'module'
-	}
-});
+import {outdent} from 'outdent';
+import {test} from './utils/test';
 
 const error = {
 	messageId: 'no-unsafe-regex'
 };
 
-ruleTester.run('no-unsafe-regex', rule, {
+test({
 	valid: [
 		'const foo = /\bunicorn\b/',
 		'const foo = /\bunicorn\b/g',
@@ -60,6 +49,6 @@ const visualizeTester = visualizeRuleTester(test, {
 	}
 });
 
-visualizeTester.run('no-unsafe-regex', rule, [
+test.visualize([
 	'const foo = /(x+x+)+y/g'
 ]);

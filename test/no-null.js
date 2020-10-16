@@ -1,18 +1,9 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-null';
+import {test} from './utils/test';
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';
 const SUGGESTION_REMOVE_MESSAGE_ID = 'remove';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021,
-		sourceType: 'module'
-	}
-});
 
 const invalidTestCase = testCase => {
 	const {
@@ -64,7 +55,7 @@ const invalidTestCase = testCase => {
 	};
 };
 
-ruleTester.run('no-null', rule, {
+test({
 	valid: [
 		'let foo',
 		'Object.create(null)',

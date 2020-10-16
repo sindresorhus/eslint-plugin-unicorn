@@ -1,7 +1,5 @@
-import test from 'ava';
 import {outdent} from 'outdent';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/prefer-array-find';
+import {test} from './utils/test';
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
@@ -20,7 +18,7 @@ const ruleTester = avaRuleTester(test, {
 });
 
 // `[0]`
-ruleTester.run('prefer-array-find', rule, {
+test({
 	valid: [
 		'array.find(foo)',
 
@@ -63,7 +61,7 @@ ruleTester.run('prefer-array-find', rule, {
 });
 
 // `.shift()`
-ruleTester.run('prefer-array-find', rule, {
+test({
 	valid: [
 		// Test `.shift()`
 		// Not `CallExpression`
@@ -136,7 +134,7 @@ ruleTester.run('prefer-array-find', rule, {
 });
 
 // `const [foo] =`
-ruleTester.run('prefer-array-find', rule, {
+test({
 	valid: [
 		// Test `const [item] = …`
 		// Not `VariableDeclarator`
@@ -367,7 +365,7 @@ ruleTester.run('prefer-array-find', rule, {
 });
 
 // `[foo] =`
-ruleTester.run('prefer-array-find', rule, {
+test({
 	valid: [
 		// Test `[item] = …`
 		// Not `AssignmentExpression`
@@ -562,7 +560,7 @@ ruleTester.run('prefer-array-find', rule, {
 });
 
 // `const foo = array.filter(); foo[0]; [bar] = foo`
-ruleTester.run('prefer-array-find', rule, {
+test({
 	valid: [
 		'const foo = array.find(bar), first = foo[0];',
 		'const foo = array.filter(bar), first = notFoo[0];',
@@ -715,7 +713,7 @@ ruleTester.run('prefer-array-find', rule, {
 });
 
 // Mixed
-ruleTester.run('prefer-array-find', rule, {
+test({
 	valid: [],
 	invalid: [
 		{

@@ -1,7 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prevent-abbreviations';
+import {test as runTest} from './utils/test';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -15,13 +15,6 @@ const browserES5RuleTester = avaRuleTester(test, {
 	},
 	env: {
 		browser: true
-	}
-});
-
-const moduleRuleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021,
-		sourceType: 'module'
 	}
 });
 
@@ -1354,7 +1347,7 @@ browserES5RuleTester.run('prevent-abbreviations', rule, {
 	]
 });
 
-moduleRuleTester.run('prevent-abbreviations', rule, {
+test({
 	valid: [
 		'import {err as foo} from "foo"',
 
@@ -1650,7 +1643,7 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 	]
 });
 
-babelRuleTester.run('prevent-abbreviations', rule, {
+runTest.babel({
 	valid: [
 		// Whitelisted names
 		'Foo.defaultProps = {}',
@@ -1785,7 +1778,7 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 	]
 });
 
-typescriptRuleTester.run('prevent-abbreviations', rule, {
+runTest.typescript({
 	valid: [],
 	invalid: [
 		// Types

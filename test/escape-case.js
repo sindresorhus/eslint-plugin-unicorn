@@ -1,13 +1,6 @@
 /* eslint-disable no-template-curly-in-string, unicorn/escape-case */
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/escape-case';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {outdent} from 'outdent';
+import {test} from './utils/test';
 
 const errors = [
 	{
@@ -15,7 +8,7 @@ const errors = [
 	}
 ];
 
-ruleTester.run('escape-case', rule, {
+test({
 	valid: [
 		// Literal string
 		'const foo = "\\xA9";',

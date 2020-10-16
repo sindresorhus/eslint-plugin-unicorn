@@ -1,20 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-for-loop';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
-const ruleTesterEs5 = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 5
-	}
-});
+import {test} from './utils/test';
 
 function testCase(code, output) {
 	return {
@@ -24,7 +9,7 @@ function testCase(code, output) {
 	};
 }
 
-ruleTester.run('no-for-loop', rule, {
+test({
 	valid: [
 		'for (;;);',
 		'for (;;) {}',
@@ -705,7 +690,10 @@ ruleTester.run('no-for-loop', rule, {
 	]
 });
 
-ruleTesterEs5.run('no-for-loop', rule, {
+test({
+	testerOptions: {
+		ecmaVersion: 5
+	},
 	valid: [
 		'for (;;);',
 		'for (;;) {}',
@@ -722,16 +710,10 @@ ruleTesterEs5.run('no-for-loop', rule, {
 				}
 			};
 		`
-	],
-	invalid: []
+	]
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-visualizeTester.run('no-for-loop', rule, [
+test.visualize([
 	outdent`
 		for (let i = 0; i < arr.length; i += 1) {
 			console.log(arr[i])

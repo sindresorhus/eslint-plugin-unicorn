@@ -1,14 +1,5 @@
-import test from 'ava';
 import {outdent} from 'outdent';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/prefer-dataset';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {test} from './utils/test';
 
 const errors = [
 	{
@@ -16,7 +7,7 @@ const errors = [
 	}
 ];
 
-ruleTester.run('prefer-dataset', rule, {
+test({
 	valid: [
 		'element.dataset.unicorn = \'🦄\';',
 		'element.dataset[\'unicorn\'] = \'🦄\';',
@@ -103,7 +94,7 @@ const visualizeTester = visualizeRuleTester(test, {
 	}
 });
 
-visualizeTester.run('no-useless-undefined', rule, [
+test.visualize([
 	outdent`
 		element.setAttribute(
 			\'data-foo\', // comment

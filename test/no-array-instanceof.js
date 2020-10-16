@@ -1,13 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/no-array-instanceof';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {outdent} from 'outdent';
+import {test} from './utils/test';
 
 const errors = [
 	{
@@ -15,7 +7,7 @@ const errors = [
 	}
 ];
 
-ruleTester.run('no-array-instanceof', rule, {
+test({
 	valid: [
 		'Array.isArray(arr)',
 		'arr instanceof Object',
@@ -60,7 +52,6 @@ ruleTester.run('no-array-instanceof', rule, {
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test);
-visualizeTester.run('no-array-instanceof', rule, [
+test.visualize([
 	'if (arr instanceof Array) {}'
 ]);

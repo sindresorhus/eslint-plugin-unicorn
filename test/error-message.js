@@ -1,7 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/error-message';
+import {test} from './utils/test';
 
 const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage';
 const MESSAGE_ID_EMPTY_MESSAGE = 'emptyMessage';
@@ -20,7 +18,7 @@ const noMessageError = {
 	messageId: MESSAGE_ID_MISSING_MESSAGE
 };
 
-ruleTester.run('error-message', rule, {
+test({
 	valid: [
 		'throw new Error(\'error\')',
 		'throw new TypeError(\'error\')',

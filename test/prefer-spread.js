@@ -1,17 +1,9 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-spread';
+import {test} from './utils/test';
 
 const MESSAGE_ID = 'prefer-spread';
 
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
-ruleTester.run('prefer-spread', rule, {
+test({
 	valid: [
 		'[...set].map(() => {});',
 		// TypedArray.from

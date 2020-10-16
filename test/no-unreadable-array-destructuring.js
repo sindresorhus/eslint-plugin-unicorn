@@ -1,7 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/no-unreadable-array-destructuring';
-import visualizeRuleTester from './utils/visualize-rule-tester';
+import {outdent} from 'outdent';
+import {test} from './utils/test';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -15,7 +13,7 @@ const errors = [
 	}
 ];
 
-ruleTester.run('no-unreadable-array-destructuring', rule, {
+test({
 	valid: [
 		'const [, foo] = parts;',
 		'const [foo] = parts;',
@@ -79,12 +77,7 @@ ruleTester.run('no-unreadable-array-destructuring', rule, {
 		}
 	]
 });
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
 
-visualizeTester.run('no-unreadable-array-destructuring', rule, [
+test.visualizeTester([
 	'const [foo, bar,, baz ,,, qux] = parts;'
 ]);

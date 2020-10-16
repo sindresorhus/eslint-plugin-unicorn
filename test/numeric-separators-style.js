@@ -1,13 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/numeric-separators-style';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
+import {outdent} from 'outdent';
+import {test} from './utils/test';
 
 const error = {
 	messageId: 'numeric-separators-style'
@@ -15,7 +7,7 @@ const error = {
 
 // Most of these test cases copied from:
 // https://github.com/eslint/eslint/blob/master/tests/lib/rules/camelcase.js
-ruleTester.run('numeric-separators-style', rule, {
+test({
 	valid: [
 		// Hexadecimal
 		'const foo = 0xAB_CD',
@@ -336,13 +328,7 @@ ruleTester.run('numeric-separators-style', rule, {
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
-visualizeTester.run('numeric-separators-style', rule, [
+test.visualize([
 	'console.log(0XdeEdBeeFn)',
 	'const foo = 12345678..toString()'
 ]);

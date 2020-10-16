@@ -1,20 +1,12 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
+import {test} from './utils/test';
 import notDomNodeTypes from './utils/not-dom-node-types';
-import rule from '../rules/prefer-node-append';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
 
 const error = {
 	message: 'Prefer `Node#append()` over `Node#appendChild()`.'
 };
 
-ruleTester.run('prefer-node-append', rule, {
+test({
 	valid: [
 		// Already using `append`
 		'parent.append(child);',

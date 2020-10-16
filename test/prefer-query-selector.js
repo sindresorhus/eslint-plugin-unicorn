@@ -1,20 +1,12 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/prefer-query-selector';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {outdent} from 'outdent';
+import {test} from './utils/test';
 
 const createError = (method, replacement) => ({
 	messageId: 'prefer-query-selector',
 	data: {method, replacement}
 });
 
-ruleTester.run('prefer-query-selector', rule, {
+test({
 	valid: [
 		'document.querySelector("#foo");',
 		'document.querySelector(".bar");',
@@ -135,6 +127,6 @@ const visualizeTester = visualizeRuleTester(test, {
 	}
 });
 
-visualizeTester.run('prefer-query-selector', rule, [
+test.visualize([
 	'document.getElementById("foo");'
 ]);

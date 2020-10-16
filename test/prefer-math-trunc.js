@@ -1,8 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-math-trunc';
-import visualizeRuleTester from './utils/visualize-rule-tester';
+import {test} from './utils/test';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
@@ -10,7 +7,7 @@ const ruleTester = avaRuleTester(test, {
 	}
 });
 
-ruleTester.run('prefer-math-trunc', rule, {
+test({
 	valid: [
 		'const foo = 1 | 1;',
 		'const foo = 0 | 1;',
@@ -36,13 +33,7 @@ ruleTester.run('prefer-math-trunc', rule, {
 	invalid: []
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
-visualizeTester.run('prefer-math-trunc', rule, [
+test.visualize([
 	// Basic "bitwise OR with 0" case
 	'const foo = 1.1 | 0;',
 	'const foo = 111 | 0;',

@@ -1,14 +1,5 @@
-import test from 'ava';
 import {outdent} from 'outdent';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/prefer-flat-map';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {test} from './utils/test';
 
 const errorFlatMap = {
 	messageId: 'flat-map'
@@ -18,7 +9,7 @@ const errorSpread = {
 	messageId: 'spread'
 };
 
-ruleTester.run('prefer-flat-map', rule, {
+test({
 	valid: [
 		'const bar = [1,2,3].map()',
 		'const bar = [1,2,3].map(i => i)',
@@ -240,7 +231,7 @@ const visualizeTester = visualizeRuleTester(test, {
 	}
 });
 
-visualizeTester.run('prefer-flat-map', rule, [
+test.visualize([
 	'const bar = [[1],[2],[3]].map(i => [i]).flat()',
 	'const bar = [[1],[2],[3]].map(i => [i]).flat(1.00)',
 	'const bar = [[1],[2],[3]].map(i => [i]).flat(1,)',

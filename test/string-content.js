@@ -1,15 +1,7 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/string-content';
+import {test} from './utils/test';
 
 const SUGGESTION_MESSAGE_ID = 'replace';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
 
 const patterns = {
 	unicorn: {
@@ -50,7 +42,7 @@ const createSuggestionError = (match, suggest, output) => [
 	}
 ];
 
-ruleTester.run('string-content', rule, {
+test({
 	valid: [
 		'const foo = "";',
 		...[

@@ -1,13 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/explicit-length-check';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {outdent} from 'outdent';
+import {test} from './utils/test';
 
 function testCase(code, nonZeroType, messageIds, output) {
 	return {
@@ -20,7 +12,7 @@ function testCase(code, nonZeroType, messageIds, output) {
 	};
 }
 
-ruleTester.run('explicit-length-check', rule, {
+test({
 	valid: [
 		testCase('array.foo'),
 		testCase('array.length'),
@@ -189,8 +181,7 @@ ruleTester.run('explicit-length-check', rule, {
 	]
 });
 
-const visualizeTester = visualizeRuleTester(test);
-visualizeTester.run('explicit-length-check', rule, [
+test.visualize([
 	'if ([].length) {}',
 	'if (array.length < 1) {}',
 	{

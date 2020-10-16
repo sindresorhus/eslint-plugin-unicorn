@@ -1,34 +1,11 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-unused-properties';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
-	parserOptions: {
-		ecmaVersion: 2021,
-		sourceType: 'module'
-	}
-});
-
-const babelEslintRuleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
-	parser: require.resolve('babel-eslint'),
-	parserOptions: {
-		sourceType: 'module'
-	}
-});
+import {test} from './utils/test';
 
 const error = {
 	messageId: 'no-unused-properties'
 };
 
-ruleTester.run('no-unused-properties', rule, {
+test({
 	valid: [
 		outdent`
 			const foo = {a: 1, b: 2};
@@ -417,7 +394,7 @@ ruleTester.run('no-unused-properties', rule, {
 	]
 });
 
-babelEslintRuleTester.run('no-unused-properties', rule, {
+test.babel({
 	valid: [
 		outdent`
 			const foo = {a: 1, b: 2};
@@ -430,17 +407,10 @@ babelEslintRuleTester.run('no-unused-properties', rule, {
 			};
 			console.log(foo.a);
 		`
-	],
-	invalid: []
+	]
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
-visualizeTester.run('no-unused-properties', rule, [
+test.visualizeTester([
 	outdent`
 		function foo() {
 			const bar = {

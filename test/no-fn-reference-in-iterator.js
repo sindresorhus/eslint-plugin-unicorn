@@ -1,7 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-fn-reference-in-iterator';
+import {test} from './utils/test';
 import notFunctionTypes from './utils/not-function-types';
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
@@ -53,7 +51,7 @@ const invalidTestCase = (({code, method, name, suggestions}) => ({
 
 }));
 
-ruleTester.run('no-fn-reference-in-iterator', rule, {
+test({
 	valid: [
 		...simpleMethods.map(method => `foo.${method}(element => fn(element))`),
 		...reduceLikeMethods.map(method => `foo.${method}((accumulator, element) => fn(element))`),
