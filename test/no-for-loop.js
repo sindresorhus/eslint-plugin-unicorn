@@ -725,7 +725,7 @@ ruleTesterEs5.run('no-for-loop', rule, {
 	invalid: []
 });
 
-test.visualize([
+runTest.visualize([
 	outdent`
 		for (let i = 0; i < arr.length; i += 1) {
 			console.log(arr[i])

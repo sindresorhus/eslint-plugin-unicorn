@@ -411,7 +411,7 @@ test.babel({
 	invalid: []
 });
 
-test.visualizeTester([
+test.visualize([
 	outdent`
 		function foo() {
 			const bar = {
