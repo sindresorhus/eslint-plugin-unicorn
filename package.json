@@ -121,8 +121,7 @@
 						"fn": false
 					}
 				}
-			],
-			"no-identical-title": "off"
+			]
 		}
 	}
 }
