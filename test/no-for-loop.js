@@ -1,5 +1,19 @@
+import test from 'ava';
+import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import {test} from './utils/test';
+import {test as runTest, rule} from './utils/test';
+
+const ruleTester = avaRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 2021
+	}
+});
+
+const ruleTesterEs5 = avaRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 5
+	}
+});
 
 function testCase(code, output) {
 	return {
@@ -9,7 +23,7 @@ function testCase(code, output) {
 	};
 }
 
-test({
+ruleTester.run('no-for-loop', rule, {
 	valid: [
 		'for (;;);',
 		'for (;;) {}',
@@ -690,10 +704,7 @@ test({
 	]
 });
 
-test({
-	testerOptions: {
-		ecmaVersion: 5
-	},
+ruleTesterEs5.run('no-for-loop', rule, {
 	valid: [
 		'for (;;);',
 		'for (;;) {}',
@@ -714,6 +725,11 @@ test({
 	invalid: []
 });
 
+const visualizeTester = visualizeRuleTester(test, {
+	parserOptions: {
+		ecmaVersion: 2021
+	}
+});
 test.visualize([
 	outdent`
 		for (let i = 0; i < arr.length; i += 1) {

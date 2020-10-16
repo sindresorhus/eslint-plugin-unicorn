@@ -25,9 +25,11 @@ test({
 		'const foo = 0O1111_1111',
 
 		// Legacy octal
-		'const foo = 0777777',
-		'const foo = 0999999',
-		'const foo = 0111222',
+		...[
+			'const foo = 0777777',
+			'const foo = 0999999',
+			'const foo = 0111222',
+		].map(code => ({code, parserOptions: {}})),
 
 		// Binary
 		'const foo = 0b1010_0001_1000_0101',

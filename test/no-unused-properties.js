@@ -407,7 +407,8 @@ test.babel({
 			};
 			console.log(foo.a);
 		`
-	]
+	],
+	invalid: []
 });
 
 test.visualizeTester([
