@@ -132,7 +132,7 @@ const create = context => {
 			}
 
 			context.report({
-				node,
+				node: memberExpression.property,
 				messageId: MESSAGE_ID,
 				data: {
 					replacement,
