@@ -73,7 +73,6 @@
 	},
 	"ava": {
 		"babel": true,
-		"timeout": 6000000,
 		"files": [
 			"test/*.js"
 		]
