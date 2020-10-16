@@ -47,5 +47,6 @@ runTest.visualize = runVisualizeTest;
 module.exports = {
 	defaultParserOptions,
 	ruleId,
+	rule,
 	test: runTest,
 };

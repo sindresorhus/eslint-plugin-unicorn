@@ -1,7 +1,6 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/no-hex-escape';
-import {test as runTest} from './utils/test';
+import {test as runTest, rule} from './utils/test';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
