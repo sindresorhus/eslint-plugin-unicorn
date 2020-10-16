@@ -1,5 +1,20 @@
+import test from 'ava';
+import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import {test} from './utils/test';
+import {test as runTest, rule} from './utils/test';
+
+const ruleTester = avaRuleTester(test, {
+	env: {
+		es6: true
+	},
+	parserOptions: {
+		sourceType: 'module'
+	}
+});
+
+const typescriptRuleTester = avaRuleTester(test, {
+	parser: require.resolve('@typescript-eslint/parser')
+});
 
 const invalidClassNameError = {message: 'Invalid class name, use `FooError`.'};
 const constructorError = {message: 'Add a constructor to your error.'};
@@ -458,10 +473,10 @@ const tests = {
 	]
 };
 
-test(tests);
-test.typescript(tests);
+ruleTester.run('custom-error-definition', rule, tests);
+typescriptRuleTester.run('custom-error-definition', rule, tests);
 
-test.babel({
+runTest.babel({
 	valid: [
 		// #130
 		outdent`
@@ -500,12 +515,13 @@ test.babel({
 	]
 });
 
-test.typescript({
+runTest.typescript({
 	valid: [
 		outdent`
 			class CustomError extends Error {
 				constructor(type: string, text: string, reply?: any);
 			}
 		`
-	]
+	],
+	invalid: []
 });

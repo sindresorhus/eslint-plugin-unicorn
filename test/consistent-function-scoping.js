@@ -780,7 +780,8 @@ test.typescript({
 				return b(1)(2);
 			}
 		`
-	]
+	],
+	invalid: []
 });
 
 test.visualize([
