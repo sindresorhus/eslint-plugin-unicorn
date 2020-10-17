@@ -23,10 +23,10 @@ const selector = methodSelector({
 });
 
 // Find exactly one leading space, allow exactly one space
-const hasLeadingSpace = value => /^ [^ ]/.test(value);
+const hasLeadingSpace = value => value.length > 1 && value.charAt(0) === ' ' && value.charAt(1) !== ' ';
 
 // Find exactly one trailing space, allow exactly one space
-const hasTrailingSpace = value => /[^ ] $/.test(value);
+const hasTrailingSpace = value => value.length > 1 && value.charAt(value.length - 1) === ' ' && value.charAt(value.length - 2) !== ' ';
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
