@@ -30,18 +30,18 @@ const hasTrailingSpace = value => value.length > 1 && value.charAt(value.length 
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const report = (node, method, position) => {
-		const start = position === 'leading' ?
+		const index = position === 'leading' ?
 			node.range[0] + 1 :
 			node.range[1] - 2;
 
 		context.report({
 			loc: {
-				start: sourceCode.getLocFromIndex(start),
-				end: sourceCode.getLocFromIndex(start + 1)
+				start: sourceCode.getLocFromIndex(index),
+				end: sourceCode.getLocFromIndex(index + 1)
 			},
 			messageId: MESSAGE_ID,
 			data: {method, position},
-			fix: fixer => fixer.removeRange([start, start + 1])
+			fix: fixer => fixer.removeRange([index, index + 1])
 		});
 	};
 
