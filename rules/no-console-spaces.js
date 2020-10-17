@@ -1,7 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
-const replaceStringRaw = require('./utils/replace-string-raw');
 
 const MESSAGE_ID = 'no-console-spaces';
 const messages = {
@@ -54,6 +53,7 @@ const create = context => {
 			fix: fixer => fixer.removeRange([start, end])
 		});
 	};
+
 	return {
 		[selector](node) {
 			const method = node.callee.property.name;
