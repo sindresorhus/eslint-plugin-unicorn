@@ -65,11 +65,11 @@ const foo = ~3.3;
 ```
 
 ```js
-const foo = 0 >> 3.3;
+const foo = 3.3 >> 0;
 ```
 
 ```js
-const foo = 0 << 3.3;
+const foo = 3.3 << 0;
 ```
 
 ```js
