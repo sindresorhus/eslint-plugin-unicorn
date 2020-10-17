@@ -1,11 +1,10 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
-const replaceStringRaw = require('./utils/replace-string-raw');
 
 const MESSAGE_ID = 'no-console-spaces';
 const messages = {
-	[MESSAGE_ID]: 'Do not use {{positions}} space between `console.{{method}}` parameters.'
+	[MESSAGE_ID]: 'Do not use {{position}} space between `console.{{method}}` parameters.'
 };
 
 const methods = [
@@ -30,53 +29,45 @@ const hasTrailingSpace = value => value.length > 1 && value.charAt(value.length 
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
+	const report = (node, method, position) => {
+		const index = position === 'leading' ?
+			node.range[0] + 1 :
+			node.range[1] - 2;
 
-	const fixParamter = (node, index, parameters) => {
-		if (
-			!(node.type === 'Literal' && typeof node.value === 'string') &&
-			node.type !== 'TemplateLiteral'
-		) {
-			return;
-		}
-
-		const raw = sourceCode.getText(node).slice(1, -1);
-		const positions = [];
-
-		let fixed = raw;
-
-		if (index !== 0 && hasLeadingSpace(fixed)) {
-			positions.push('leading');
-			fixed = fixed.slice(1);
-		}
-
-		if (index !== parameters.length - 1 && hasTrailingSpace(fixed)) {
-			positions.push('trailing');
-			fixed = fixed.slice(0, -1);
-		}
-
-		if (raw !== fixed) {
-			return {
-				positions,
-				node,
-				fixed
-			};
-		}
+		context.report({
+			loc: {
+				start: sourceCode.getLocFromIndex(index),
+				end: sourceCode.getLocFromIndex(index + 1)
+			},
+			messageId: MESSAGE_ID,
+			data: {method, position},
+			fix: fixer => fixer.removeRange([index, index + 1])
+		});
 	};
 
 	return {
 		[selector](node) {
 			const method = node.callee.property.name;
-			const fixedParameters = node.arguments
-				.map((parameter, index) => fixParamter(parameter, index, node.arguments))
-				.filter(Boolean);
+			const {arguments: messages} = node;
+			const {length} = messages;
+			for (const [index, node] of messages.entries()) {
+				const {type, value} = node;
+				if (
+					!(type === 'Literal' && typeof value === 'string') &&
+					type !== 'TemplateLiteral'
+				) {
+					continue;
+				}
 
-			for (const {node, fixed, positions} of fixedParameters) {
-				context.report({
-					node,
-					messageId: MESSAGE_ID,
-					data: {method, positions: positions.join(' and ')},
-					fix: fixer => replaceStringRaw(fixer, node, fixed)
-				});
+				const raw = sourceCode.getText(node).slice(1, -1);
+
+				if (index !== 0 && hasLeadingSpace(raw)) {
+					report(node, method, 'leading');
+				}
+
+				if (index !== length - 1 && hasTrailingSpace(raw)) {
+					report(node, method, 'trailing');
+				}
 			}
 		}
 	};
