@@ -213,6 +213,9 @@ const defaultReplacements = {
 	},
 	val: {
 		value: true
+	},
+	ver: {
+		version: true
 	}
 };
 
