@@ -213,6 +213,9 @@ const defaultReplacements = {
 	},
 	val: {
 		value: true
+	},
+	ver: {
+		version: true
 	}
 };
 
@@ -544,7 +547,7 @@ const create = context => {
 				}
 
 				// Create a normal-looking variable (like a `var` or a `function`)
-				// For which a single `variable` holds all references, unline with `class`
+				// For which a single `variable` holds all references, unlike with a `class`
 				const combinedReferencesVariable = {
 					name: variable.name,
 					scope: variable.scope,
