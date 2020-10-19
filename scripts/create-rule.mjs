@@ -210,11 +210,13 @@ function updateReadme(data) {
 	updateIndex(id);
 	updateReadme(data);
 
-	await openEditor([
-		`docs/rules/${id}.md`,
-		`rules/${id}.js`,
-		`test/${id}.js`
-	]);
+	try {
+		await openEditor([
+			`docs/rules/${id}.md`,
+			`rules/${id}.js`,
+			`test/${id}.js`
+		]);
+	} catch {}
 })().catch((error) => {
 	console.error(error);
 	process.exit(1);
