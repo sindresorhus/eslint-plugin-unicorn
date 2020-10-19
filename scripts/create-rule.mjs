@@ -4,7 +4,6 @@ import path from "path";
 import url from "url";
 import enquirer from "enquirer";
 import lodash from "lodash";
-import openEditor from 'open-editor';
 
 const DIRNAME = path.dirname(url.fileURLToPath(import.meta.url));
 const ROOT = path.join(DIRNAME, "..");
@@ -209,14 +208,6 @@ function updateReadme(data) {
 	});
 	updateIndex(id);
 	updateReadme(data);
-
-	try {
-		await openEditor([
-			`docs/rules/${id}.md`,
-			`rules/${id}.js`,
-			`test/${id}.js`
-		]);
-	} catch {}
 })().catch((error) => {
 	console.error(error);
 	process.exit(1);
