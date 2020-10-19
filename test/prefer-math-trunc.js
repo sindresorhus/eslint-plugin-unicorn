@@ -59,9 +59,9 @@ test.visualize([
 	'const foo = ~~~~10.01;',
 
 	// Other operators
-	'const foo = 10.01 >> 0;',
-	'const foo = 10.01 << 0;',
-	'const foo = 10.01 ^ 0;',
+	'const foo = bar >> 0;',
+	'const foo = bar << 0;',
+	'const foo = bar ^ 0;',
 
 	// Case with objects (MemberExpression and ChainExpression)
 	outdent`
@@ -135,10 +135,10 @@ test.visualize([
 	`,
 
 	// Multiple errors
-	'const foo = ~~10.01 | 0;',
-	'const foo = ~~(10.01 | 0);',
-	'const foo = 10.01 | 0 | 0;',
-	'const foo = ~~~~((10.01 | 0 | 0) >> 0 >> 0 << 0 << 0 ^ 0 ^0);',
+	'const foo = ~~bar | 0;',
+	'const foo = ~~(bar| 0);',
+	'const foo = bar | 0 | 0;',
+	'const foo = ~~~~((bar | 0 | 0) >> 0 >> 0 << 0 << 0 ^ 0 ^0);',
 
 	// Left-hand side has side effect
 	outdent`

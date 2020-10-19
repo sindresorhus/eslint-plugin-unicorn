@@ -16,11 +16,11 @@ This rule is fixable, unless the left-hand side in assignment has side effect.
 ## Fail
 
 ```js
-const foo = 37.4 | 0;
+const foo = bar | 0;
 ```
 
 ```js
-const foo = ~~37.4;
+const foo = ~~bar;
 ```
 
 ```js
@@ -29,16 +29,15 @@ foo |= 0;
 ```
 
 ```js
-const foo = 3.3;
-const bar = ~~foo;
+const foo = bar << 0;
 ```
 
 ```js
-const foo = 37.4 << 0;
+const foo = bar >> 0;
 ```
 
 ```js
-const foo = 37.4 >> 0;
+const foo = bar ^ 0;
 ```
 
 ```js
@@ -48,30 +47,30 @@ const foo = 37.4 ^ 0;
 ## Pass
 
 ```js
-const foo = Math.trunc(37.4);
+const foo = Math.trunc(bar);
 ```
 
 ```js
-const foo = 3.3 | 1;
+const foo = bar | 1;
 ```
 
 ```js
 let foo = 3.3;
-foo = Math.trunc(3.3);
+foo = Math.trunc(foo);
 ```
 
 ```js
-const foo = ~3.3;
+const foo = ~bar;
 ```
 
 ```js
-const foo = 0 >> 3.3;
+const foo = bar >> 3;
 ```
 
 ```js
-const foo = 0 << 3.3;
+const foo = bar << 3;
 ```
 
 ```js
-const foo = 0 ^ 3.3;
+const foo = bar ^ 3;
 ```
