@@ -15,7 +15,12 @@ const selector = methodSelector({
 
 function isRegexWithGlobalFlag(node) {
 	const {type, regex} = node;
-	return type === 'Literal' && regex && regex.flags === 'g';
+	if (type !== 'Literal' || !regex) {
+		return false;
+	}
+
+	const {flags} = regex;
+	return flags.replace('u', '') === 'g';
 }
 
 function isLiteralCharactersOnly(node) {

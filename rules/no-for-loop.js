@@ -361,21 +361,37 @@ const create = context => {
 					let declarationElement = element;
 					let declarationType = 'const';
 					let removeDeclaration = true;
-					if (
-						elementNode &&
-						(elementNode.id.type === 'ObjectPattern' || elementNode.id.type === 'ArrayPattern')
-					) {
-						removeDeclaration = arrayReferences.length === 1;
+					let typeAnnotation;
+
+					if (elementNode) {
+						if (elementNode.id.type === 'ObjectPattern' || elementNode.id.type === 'ArrayPattern') {
+							removeDeclaration = arrayReferences.length === 1;
+						}
 
 						if (removeDeclaration) {
-							declarationType = elementNode.parent.kind;
-							declarationElement = sourceCode.getText(elementNode.id);
+							declarationType = element.type === 'VariableDeclarator' ? elementNode.kind : elementNode.parent.kind;
+							if (elementNode.id.typeAnnotation && shouldGenerateIndex) {
+								declarationElement = sourceCode.text.slice(elementNode.id.range[0], elementNode.id.typeAnnotation.range[0]);
+								typeAnnotation = sourceCode.getText(elementNode.id.typeAnnotation, -1).trim();
+							} else {
+								declarationElement = sourceCode.getText(elementNode.id);
+							}
 						}
 					}
 
-					const replacement = shouldGenerateIndex ?
-						`${declarationType} [${index}, ${declarationElement}] of ${array}.entries()` :
-						`${declarationType} ${declarationElement} of ${array}`;
+					const parts = [declarationType];
+					if (shouldGenerateIndex) {
+						parts.push(` [${index}, ${declarationElement}]`);
+						if (typeAnnotation) {
+							parts.push(`: [number, ${typeAnnotation}]`);
+						}
+
+						parts.push(` of ${array}.entries()`);
+					} else {
+						parts.push(` ${declarationElement} of ${array}`);
+					}
+
+					const replacement = parts.join('');
 
 					yield fixer.replaceTextRange([
 						node.init.range[0],

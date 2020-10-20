@@ -42,8 +42,9 @@ test({
 		't.notSame(foo, undefined)',
 		't.strictSame(foo, undefined)',
 		't.strictNotSame(foo, undefined)',
+		'expect(someFunction).toHaveBeenCalledWith(1, 2, undefined);',
 
-		// `ignoreArguments: true`
+		// `checkArguments: false`
 		{
 			code: 'foo(undefined, undefined);',
 			options: optionsIgnoreArguments

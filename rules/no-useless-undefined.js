@@ -47,6 +47,7 @@ const compareFunctionNames = new Set([
 	'include',
 	'property',
 	'toBe',
+	'toHaveBeenCalledWith',
 	'toContain',
 	'toContainEqual',
 	'toEqual',
