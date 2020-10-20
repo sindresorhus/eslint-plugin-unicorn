@@ -4,7 +4,7 @@ import {test} from './utils/test';
 const messageId = 'no-useless-undefined';
 
 const errors = [{messageId}];
-const optionsIgnoreArguments = [{ignoreArguments: true}];
+const optionsIgnoreArguments = [{checkArguments: false}];
 
 test({
 	valid: [

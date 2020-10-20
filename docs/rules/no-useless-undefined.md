@@ -86,24 +86,24 @@ foo();
 
 Type: `object`
 
-### ignoreArguments
+### checkArguments
 
-Type: `boolean`<br>
-Default: `false`
+Type: `boolean`\
+Default: `true`
 
-Pass `"ignoreArguments": true` to disable check on function call.
+Pass `checkArguments: false` to disable check on function call.
 
 #### Fail
 
 ```js
-// eslint unicorn/no-useless-undefined: ["error", {ignoreArguments: false}]
+// eslint unicorn/no-useless-undefined: ["error", {checkArguments: true}]
 foo(undefined);
 ```
 
 #### Pass
 
 ```js
-// eslint unicorn/no-useless-undefined: ["error", {ignoreArguments: true}]
+// eslint unicorn/no-useless-undefined: ["error", {checkArguments: false}]
 foo(undefined);
 ```
 

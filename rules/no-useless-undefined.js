@@ -83,7 +83,7 @@ const create = context => {
 
 	const code = context.getSourceCode().text;
 	const options = {
-		ignoreArguments: false,
+		checkArguments: true,
 		...context.options[0]
 	};
 
@@ -109,7 +109,7 @@ const create = context => {
 		)
 	};
 
-	if (!options.ignoreArguments) {
+	if (options.checkArguments) {
 		listeners.CallExpression = node => {
 			if (isCompareFunction(node.callee)) {
 				return;
@@ -168,7 +168,7 @@ const schema = [
 	{
 		type: 'object',
 		properties: {
-			ignoreArguments: {
+			checkArguments: {
 				type: 'boolean'
 			}
 		},
