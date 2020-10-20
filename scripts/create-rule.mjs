@@ -45,7 +45,7 @@ function updateIndex(id) {
 
 	let lines = rules.split("\n");
 	if (!lines.every((line) => line.startsWith(RULE_INDENT))) {
-		throw 'Unexpected content in "index.js".';
+		throw 'Unexpected content in “index.js”.';
 	}
 	const unicornRuleLines = lines.filter(line => line.startsWith(`${RULE_INDENT}'unicorn/`));
 	let insertIndex;
@@ -221,7 +221,7 @@ function updateReadme(data) {
 	});
 	updateIndex(id);
 	updateReadme(data);
-})().catch((error) => {
+})().catch(error => {
 	console.error(error);
 	process.exit(1);
 });
