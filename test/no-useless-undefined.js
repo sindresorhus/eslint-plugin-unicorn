@@ -40,7 +40,8 @@ test({
 		't.same(foo, undefined)',
 		't.notSame(foo, undefined)',
 		't.strictSame(foo, undefined)',
-		't.strictNotSame(foo, undefined)'
+		't.strictNotSame(foo, undefined)',
+		'expect(someFunction).toHaveBeenCalledWith(1, 2, undefined);'
 	],
 	invalid: [
 		{
