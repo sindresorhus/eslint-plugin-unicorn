@@ -13,8 +13,11 @@ test({
 		'foo.replace(/a?/g, bar)',
 		'foo.replace(/.*/g, bar)',
 		'foo.replace(/\\W/g, bar)',
+		'foo.replace(/\u{61}/g, bar)',
 		// Extra flag
 		'foo.replace(/a/gi, bar)',
+		'foo.replace(/a/gui, bar)',
+		'foo.replace(/a/uig, bar)',
 		// Not regex literal
 		'foo.replace(\'string\', bar)',
 		// Not 2 arguments
@@ -82,3 +85,8 @@ test({
 		}
 	]
 });
+
+test.visualize([
+	'foo.replace(/a/gu, bar)',
+	'foo.replace(/a/ug, bar)'
+]);
