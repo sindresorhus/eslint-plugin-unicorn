@@ -18,6 +18,7 @@ function isRegexWithGlobalFlag(node) {
 	if (type !== 'Literal' || !regex) {
 		return false;
 	}
+
 	const {flags} = regex;
 	return flags.replace('u', '') === 'g';
 }

@@ -14,6 +14,7 @@ test({
 		'foo.replace(/.*/g, bar)',
 		'foo.replace(/\\W/g, bar)',
 		'foo.replace(/\u{61}/g, bar)',
+		'foo.replace(/\u{61}/gu, bar)',
 		// Extra flag
 		'foo.replace(/a/gi, bar)',
 		'foo.replace(/a/gui, bar)',
