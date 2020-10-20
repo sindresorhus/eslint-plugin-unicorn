@@ -3,7 +3,7 @@ const {Linter} = require('eslint');
 const {codeFrameColumns} = require('@babel/code-frame');
 const {outdent} = require('outdent');
 
-const codeFrameColumnsOptions = {linesAbove: Infinity, linesBelow: Infinity};
+const codeFrameColumnsOptions = {linesAbove: Number.POSITIVE_INFINITY, linesBelow: Number.POSITIVE_INFINITY};
 
 function visualizeRange(text, location, message) {
 	return codeFrameColumns(

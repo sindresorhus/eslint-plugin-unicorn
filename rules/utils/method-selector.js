@@ -11,7 +11,7 @@ module.exports = options => {
 		property = ''
 	} = {
 		min: 0,
-		max: Infinity,
+		max: Number.POSITIVE_INFINITY,
 		...options
 	};
 

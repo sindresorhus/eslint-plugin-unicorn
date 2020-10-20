@@ -9,7 +9,7 @@ const getTotal = combinations => {
 	return total;
 };
 
-module.exports = (combinations, length = Infinity) => {
+module.exports = (combinations, length = Number.POSITIVE_INFINITY) => {
 	const total = getTotal(combinations);
 
 	const samples = Array.from({length: Math.min(total, length)}, (_, sampleIndex) => {

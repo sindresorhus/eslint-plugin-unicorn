@@ -9,7 +9,7 @@ const PROPERTY_ERROR_MESSAGE_ID = 'property-error';
 const messages = {
 	[METHOD_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}()` over `{{name}}()`.',
 	[METHOD_SUGGESTION_MESSAGE_ID]: 'Replace `{{name}}()` with `Number.{{name}}()`.',
-	[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}` over `{{name}}`.'
+	[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{property}}` over `{{identifier}}`.'
 };
 
 const methods = {
@@ -30,7 +30,7 @@ const methodsSelector = [
 
 const propertiesSelector = [
 	'Identifier',
-	'[name="NaN"]',
+	':matches([name="NaN"],[name="Infinity"])',
 	`:not(${
 		[
 			'MemberExpression[computed=false] > Identifier.property',
@@ -46,10 +46,19 @@ const propertiesSelector = [
 	})`
 ].join('');
 
+const isNegative = node => {
+	const {parent} = node;
+	return parent && parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
+};
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
+	const options = {
+		checkInfinity: true,
+		...context.options[0]
+	};
 
-	// Cache `NaN` in `foo = {NaN}`
+	// Cache `NaN` and `Infinity` in `foo = {NaN, Infinity}`
 	const reported = new WeakSet();
 
 	return {
@@ -93,19 +102,50 @@ const create = context => {
 			}
 
 			const {name} = node;
-			context.report({
+			if (name === 'Infinity' && !options.checkInfinity) {
+				return;
+			}
+
+			let property = name;
+			if (name === 'Infinity') {
+				property = isNegative(node) ? 'NEGATIVE_INFINITY' : 'POSITIVE_INFINITY';
+			}
+
+			const problem = {
 				node,
 				messageId: PROPERTY_ERROR_MESSAGE_ID,
 				data: {
-					name
-				},
-				fix: fixer => renameIdentifier(node, `Number.${name}`, fixer, sourceCode)
-			});
+					identifier: name,
+					property
+				}
+			};
 
+			if (property === 'NEGATIVE_INFINITY') {
+				problem.node = node.parent;
+				problem.data.identifier = '-Infinity';
+				problem.fix = fixer => fixer.replaceText(node.parent, 'Number.NEGATIVE_INFINITY');
+			} else {
+				problem.fix = fixer => renameIdentifier(node, `Number.${property}`, fixer, sourceCode);
+			}
+
+			context.report(problem);
 			reported.add(node);
 		}
 	};
 };
+
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			checkInfinity: {
+				type: 'boolean',
+				default: true
+			}
+		},
+		additionalProperties: false
+	}
+];
 
 module.exports = {
 	create,
@@ -115,6 +155,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
+		schema,
 		messages
 	}
 };
