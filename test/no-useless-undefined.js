@@ -47,7 +47,7 @@ test({
 		{
 			code: 'foo(undefined, undefined);',
 			options: optionsIgnoreArguments,
-		},
+		}
 	],
 	invalid: [
 		{

@@ -106,7 +106,7 @@ const create = context => {
 		),
 		[assignmentPatternSelector]: listener(
 			(node, fixer) => fixer.removeRange([node.parent.left.range[1], node.range[1]])
-		),
+		)
 	};
 
 	if (!options.ignoreArguments) {
@@ -158,8 +158,8 @@ const create = context => {
 					return fixer.removeRange([start, end]);
 				}
 			});
-		}
-	};
+		};
+	}
 
 	return listeners;
 };
@@ -170,9 +170,9 @@ const schema = [
 		properties: {
 			ignoreArguments: {
 				type: 'boolean'
-			},
+			}
 		},
-		additionalProperties: false,
+		additionalProperties: false
 	}
 ];
 
