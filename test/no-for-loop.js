@@ -725,6 +725,39 @@ ruleTesterEs5.run('no-for-loop', rule, {
 	invalid: []
 });
 
+runTest.typescript({
+	valid: [],
+	invalid: [
+		{
+			// https://github.com/microsoft/vscode/blob/cf9ac85214c3f1d3d0b80cc503ff7498f2b3ea2f/src/vs/workbench/api/common/extHostLanguageFeatures.ts#L1207
+			code: outdent`
+				for (let i = 0; i < positions.length; i++) {
+					let last: vscode.Position | vscode.Range = positions[i];
+					let selectionRange = allProviderRanges[i];
+				}
+			`,
+			output: outdent`
+				for (let [i, last]: [number, vscode.Position | vscode.Range] of positions.entries()) {
+					let selectionRange = allProviderRanges[i];
+				}
+			`,
+			errors: 1
+		},
+		{
+			code: outdent`
+				for (let i = 0; i < positions.length; i++) {
+					let last: vscode.Position | vscode.Range = positions[i];
+				}
+			`,
+			output: outdent`
+				for (let last: vscode.Position | vscode.Range of positions) {
+				}
+			`,
+			errors: 1
+		},
+	]
+});
+
 runTest.visualize([
 	outdent`
 		for (let i = 0; i < arr.length; i += 1) {
