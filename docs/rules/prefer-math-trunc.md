@@ -16,61 +16,68 @@ This rule is fixable, unless the left-hand side in assignment has side effect.
 ## Fail
 
 ```js
-const foo = bar | 0;
+const foo = 37.4;
+console.log(foo | 0);
 ```
 
 ```js
-const foo = ~~bar;
+const foo = 37.4;
+console.log(~~bar);
 ```
 
 ```js
-let foo = 3.3;
+let foo = 37.4;
 foo |= 0;
 ```
 
 ```js
-const foo = bar << 0;
+const foo = 37.4;
+console.log(foo << 0);
 ```
 
 ```js
-const foo = bar >> 0;
+const foo = 37.4;
+console.log(foo >> 0);
 ```
 
 ```js
-const foo = bar ^ 0;
-```
-
-```js
-const foo = 37.4 ^ 0;
+const foo = {bar: 37.4};
+console.log(foo.bar ^ 0);
 ```
 
 ## Pass
 
 ```js
-const foo = Math.trunc(bar);
+const foo = 37.4;
+console.log(Math.trunc(foo));
 ```
 
 ```js
-const foo = bar | 1;
+const foo = 37.4;
+console.log(foo | 3);
 ```
 
 ```js
-let foo = 3.3;
+let foo = 37.4;
 foo = Math.trunc(foo);
 ```
 
 ```js
-const foo = ~bar;
+const foo = 37.4;
+console.log(~foo);
 ```
 
 ```js
-const foo = bar >> 3;
+const foo = 37.4;
+console.log(foo >> 3);
 ```
 
 ```js
-const foo = bar << 3;
+const foo = 37.4;
+console.log(foo << 3);
 ```
 
 ```js
-const foo = bar ^ 3;
+const foo = 37.4;
+console.log(foo ^ 3);
 ```
