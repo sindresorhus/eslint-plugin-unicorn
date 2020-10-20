@@ -80,10 +80,11 @@ function updateReadmeUsage({id}) {
 	const [before, rest] = content.split(RULE_START);
 	const [rules, after] = rest.split(RULE_END);
 
-	let lines = rules.split('\n');
-	if (!lines.every((line) => line.startsWith(RULE_INDENT))) {
-		throw 'Unexpected content in “readme.md”.';
+	const lines = rules.split('\n');
+	if (!lines.every(line => line.startsWith(RULE_INDENT))) {
+		throw new Error('Unexpected content in “readme.md”.');
 	}
+
 	const unicornRuleLines = lines.filter(line => line.startsWith(`${RULE_INDENT}unicorn/`));
 	let insertIndex;
 	if (ruleContent.localeCompare(unicornRuleLines[0]) === -1) {
