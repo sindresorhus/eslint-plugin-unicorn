@@ -83,10 +83,10 @@ Type: `object`
 
 ### Infinity
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `true`
 
-Pass `"Infinity": false` to disable check on `Infinity`.
+Pass `Infinity: false` to disable check on `Infinity`.
 
 #### Fail
 
