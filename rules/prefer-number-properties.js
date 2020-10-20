@@ -46,6 +46,11 @@ const propertiesSelector = [
 	})`
 ].join('');
 
+const isNegative = node => {
+	const {parent} = node;
+	return parent && parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
+}
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const options = {
@@ -103,18 +108,27 @@ const create = context => {
 
 			let property = name;
 			if (name === 'Infinity') {
-				property = 'POSITIVE_INFINITY';
+				property = isNegative(node) ? 'NEGATIVE_INFINITY' : 'POSITIVE_INFINITY';
 			}
 
-			context.report({
+			const problem = {
 				node,
 				messageId: PROPERTY_ERROR_MESSAGE_ID,
 				data: {
 					identifier: name,
 					property
 				},
-				fix: fixer => renameIdentifier(node, `Number.${property}`, fixer, sourceCode)
-			});
+			};
+
+			if (property === 'NEGATIVE_INFINITY') {
+				problem.node = node.parent;
+				problem.data.identifier = '-Infinity';
+				problem.fix = fixer => fixer.replaceText(node.parent, 'Number.NEGATIVE_INFINITY');
+			} else {
+				problem.fix = fixer => renameIdentifier(node, `Number.${property}`, fixer, sourceCode);
+			}
+
+			context.report(problem);
 			reported.add(node);
 		}
 	};

@@ -281,6 +281,19 @@ test.visualize([
 	'const foo = bar[Infinity];',
 	'const foo = {Infinity};',
 	'const foo = {Infinity: Infinity};',
+	'const foo = {Infinity: -Infinity};',
 	'const {foo = Infinity} = {};',
-	'const foo = Infinity.toString();'
+	'const {foo = -Infinity} = {};',
+	'const foo = Infinity.toString();',
+	'const foo = -Infinity.toString();',
+	'const foo = (-Infinity).toString();',
+	'const foo = +Infinity;',
+	'const foo = ++Infinity;',
+	'const foo = +-Infinity;',
+	'const foo = -Infinity;',
+	'const foo = --Infinity;',
+	'const foo = -(-Infinity);',
+	'const foo = -(--Infinity);',
+	'const foo = 1 - Infinity;',
+	'const foo = 1 - -Infinity;'
 ]);
