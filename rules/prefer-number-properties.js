@@ -9,7 +9,7 @@ const PROPERTY_ERROR_MESSAGE_ID = 'property-error';
 const messages = {
 	[METHOD_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}()` over `{{name}}()`.',
 	[METHOD_SUGGESTION_MESSAGE_ID]: 'Replace `{{name}}()` with `Number.{{name}}()`.',
-	[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}` over `{{name}}`.'
+	[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{property}}` over `{{identifier}}`.'
 };
 
 const methods = {
@@ -30,7 +30,7 @@ const methodsSelector = [
 
 const propertiesSelector = [
 	'Identifier',
-	'[name="NaN"]',
+	':matches([name="NaN"],[name="Infinity"])',
 	`:not(${
 		[
 			'MemberExpression[computed=false] > Identifier.property',
@@ -48,8 +48,12 @@ const propertiesSelector = [
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
+	const options = {
+		Infinity: true,
+		...context.options[0]
+	};
 
-	// Cache `NaN` in `foo = {NaN}`
+	// Cache `NaN` and `Infinity` in `foo = {NaN, Infinity}`
 	const reported = new WeakSet();
 
 	return {
@@ -93,19 +97,41 @@ const create = context => {
 			}
 
 			const {name} = node;
+			if (options[name] === false) {
+				return;
+			}
+
+			let property = name;
+			if (name === 'Infinity') {
+				property = 'POSITIVE_INFINITY';
+			}
+
 			context.report({
 				node,
 				messageId: PROPERTY_ERROR_MESSAGE_ID,
 				data: {
-					name
+					identifier: name,
+					property
 				},
-				fix: fixer => renameIdentifier(node, `Number.${name}`, fixer, sourceCode)
+				fix: fixer => renameIdentifier(node, `Number.${property}`, fixer, sourceCode)
 			});
-
 			reported.add(node);
 		}
 	};
 };
+
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			Infinity: {
+				type: 'boolean',
+				default: true
+			}
+		},
+		additionalProperties: false
+	}
+];
 
 module.exports = {
 	create,
@@ -115,6 +141,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
+		schema,
 		messages
 	}
 };

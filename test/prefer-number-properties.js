@@ -153,12 +153,13 @@ test({
 	]
 });
 
-// NaN
+// `NaN` and `Infinity`
 const errorNaN = [
 	{
 		messageId: PROPERTY_ERROR_MESSAGE_ID,
 		data: {
-			name: 'NaN'
+			identifier: 'NaN',
+			property: 'NaN'
 		}
 	}
 ];
@@ -177,7 +178,29 @@ test({
 		'const {NaN} = {};',
 		'function NaN() {}',
 		'class NaN {}',
-		'class Foo { NaN(){}}'
+		'class Foo { NaN(){}}',
+
+		'const foo = Number.POSITIVE_INFINITY;',
+		'const foo = window.Number.POSITIVE_INFINITY;',
+		'const foo = bar.POSITIVE_INFINITY;',
+		'const foo = Number.Infinity;',
+		'const foo = window.Number.Infinity;',
+		'const foo = bar.Infinity;',
+		// Shadowed
+		outdent`
+			function foo () {
+				const Infinity = 2
+				return Infinity
+			}
+		`,
+		'const {Infinity} = {};',
+		'function Infinity() {}',
+		'class Infinity {}',
+		'class Foo { Infinity(){}}',
+		{
+			code: 'const foo = Infinity;',
+			options: [{Infinity: false}]
+		}
 	],
 	invalid: [
 		{
@@ -250,3 +273,14 @@ test.typescript({
 	],
 	invalid: []
 });
+
+test.visualize([
+	'const foo = Infinity;',
+	'if (Number.isNaN(Infinity)) {}',
+	'if (Object.is(foo, Infinity)) {}',
+	'const foo = bar[Infinity];',
+	'const foo = {Infinity};',
+	'const foo = {Infinity: Infinity};',
+	'const {foo = Infinity} = {};',
+	'const foo = Infinity.toString();'
+]);
