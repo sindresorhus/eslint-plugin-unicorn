@@ -46,7 +46,7 @@ test({
 		// `ignoreArguments: true`
 		{
 			code: 'foo(undefined, undefined);',
-			options: optionsIgnoreArguments,
+			options: optionsIgnoreArguments
 		}
 	],
 	invalid: [
