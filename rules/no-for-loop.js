@@ -366,6 +366,7 @@ const create = context => {
 						if (elementNode.id.type === 'ObjectPattern' || elementNode.id.type === 'ArrayPattern') {
 							removeDeclaration = arrayReferences.length === 1;
 						}
+
 						if (removeDeclaration) {
 							declarationType = element.type === 'VariableDeclarator' ? elementNode.kind : elementNode.parent.kind;
 							declarationElement = sourceCode.getText(elementNode.id);
