@@ -12,7 +12,7 @@ function checkFiles(ruleId) {
 	const files = [
 		`docs/rules/${ruleId}.md`,
 		`rules/${ruleId}.js`,
-		`test/${ruleId}.js`,
+		`test/${ruleId}.js`
 	];
 
 	for (const file of files) {
@@ -22,10 +22,10 @@ function checkFiles(ruleId) {
 	}
 }
 
-function renderTemplate({ source, target, data }) {
+function renderTemplate({source, target, data}) {
 	const templateFile = path.join(__dirname, `template/${source}`);
 	const targetFile = path.join(ROOT, target);
-	const templateContent = fs.readFileSync(templateFile, 'utf8')
+	const templateContent = fs.readFileSync(templateFile, 'utf8');
 
 	const compiled = template(templateContent);
 	const content = compiled(data);
@@ -43,10 +43,11 @@ function updateIndex(id) {
 	const [before, rest] = content.split(RULE_START);
 	const [rules, after] = rest.split(RULE_END);
 
-	let lines = rules.split('\n');
-	if (!lines.every((line) => line.startsWith(RULE_INDENT))) {
-		throw 'Unexpected content in “index.js”.';
+	const lines = rules.split('\n');
+	if (!lines.every(line => line.startsWith(RULE_INDENT))) {
+		throw new Error('Unexpected content in “index.js”.');
 	}
+
 	const unicornRuleLines = lines.filter(line => line.startsWith(`${RULE_INDENT}'unicorn/`));
 	let insertIndex;
 	if (ruleContent.localeCompare(unicornRuleLines[0]) === -1) {
@@ -181,7 +182,7 @@ function updateReadme(data) {
 				},
 				{
 					name: 'partly',
-					name: 'Partly'
+					message: 'Partly'
 				},
 				{
 					name: false,
@@ -198,10 +199,10 @@ function updateReadme(data) {
 				'suggestion',
 				'layout'
 			]
-		},
+		}
 	]);
 
-	const {id, description, fixable, type} = data;
+	const {id} = data;
 
 	checkFiles(id);
 	renderTemplate({
