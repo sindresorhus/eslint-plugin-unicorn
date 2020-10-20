@@ -204,11 +204,11 @@ test({
 		'class Foo { Infinity(){}}',
 		{
 			code: 'const foo = Infinity;',
-			options: [{Infinity: false}]
+			options: [{checkInfinity: false}]
 		},
 		{
 			code: 'const foo = -Infinity;',
-			options: [{Infinity: false}]
+			options: [{checkInfinity: false}]
 		}
 	],
 	invalid: [

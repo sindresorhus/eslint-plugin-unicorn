@@ -54,7 +54,7 @@ const isNegative = node => {
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const options = {
-		Infinity: true,
+		checkInfinity: true,
 		...context.options[0]
 	};
 
@@ -102,7 +102,7 @@ const create = context => {
 			}
 
 			const {name} = node;
-			if (options[name] === false) {
+			if (name === 'Infinity' && !options.checkInfinity) {
 				return;
 			}
 
@@ -138,7 +138,7 @@ const schema = [
 	{
 		type: 'object',
 		properties: {
-			Infinity: {
+			checkInfinity: {
 				type: 'boolean',
 				default: true
 			}

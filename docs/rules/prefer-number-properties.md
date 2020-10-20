@@ -81,33 +81,33 @@ const isNegativeZero = value => value === 0 && 1 / value === Number.NEGATIVE_INF
 
 Type: `object`
 
-### Infinity
+### checkInfinity
 
 Type: `boolean`\
 Default: `true`
 
-Pass `Infinity: false` to disable check on `Infinity`.
+Pass `checkInfinity: false` to disable check on `Infinity`.
 
 #### Fail
 
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {Infinity: true}]
+// eslint unicorn/prefer-number-properties: ["error", {checkInfinity: true}]
 const foo = Infinity;
 ```
 
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {Infinity: true}]
+// eslint unicorn/prefer-number-properties: ["error", {checkInfinity: true}]
 const foo = -Infinity;
 ```
 
 #### Pass
 
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {Infinity: false}]
+// eslint unicorn/prefer-number-properties: ["error", {checkInfinity: false}]
 const foo = Infinity;
 ```
 
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {Infinity: false}]
+// eslint unicorn/prefer-number-properties: ["error", {checkInfinity: false}]
 const foo = -Infinity;
 ```
