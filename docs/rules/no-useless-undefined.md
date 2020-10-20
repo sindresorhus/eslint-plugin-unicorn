@@ -91,7 +91,7 @@ Type: `object`
 Type: `boolean`\
 Default: `true`
 
-Pass `checkArguments: false` to disable check on function call.
+Pass `checkArguments: false` to disable check on function call arguments.
 
 #### Fail
 
