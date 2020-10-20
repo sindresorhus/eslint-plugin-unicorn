@@ -203,7 +203,7 @@ ruleTester.run('no-for-loop', rule, {
 				console.log(i, el);
 			}
 		`, outdent`
-			for (const [i, el] of arr.entries()) {
+			for (let [i, el] of arr.entries()) {
 				console.log(i, el);
 			}
 		`),
@@ -247,7 +247,7 @@ ruleTester.run('no-for-loop', rule, {
 				var x = xs[j];console.log(j, x);
 			}
 		`, outdent`
-			for (const [j, x] of xs.entries()) {
+			for (var [j, x] of xs.entries()) {
 				console.log(j, x);
 			}
 		`),
@@ -277,7 +277,7 @@ ruleTester.run('no-for-loop', rule, {
 				console.log(j, x, y);
 			}
 		`, outdent`
-			for (const [j, x] of xs.entries()) {
+			for (var [j, x] of xs.entries()) {
 				var y = ys[j];
 				console.log(j, x, y);
 			}
@@ -289,7 +289,7 @@ ruleTester.run('no-for-loop', rule, {
 				console.log(j, x, y);
 			}
 		`, outdent`
-			for (const [j, x] of xs.entries()) {
+			for (var [j, x] of xs.entries()) {
 				var y = ys[j];
 				console.log(j, x, y);
 			}
@@ -301,7 +301,7 @@ ruleTester.run('no-for-loop', rule, {
 				console.log(j, x, y);
 			}
 		`, outdent`
-			for (const [j, x] of xs.entries()) {
+			for (var [j, x] of xs.entries()) {
 				var y = ys[j], i = 10;
 				console.log(j, x, y);
 			}
@@ -729,6 +729,30 @@ runTest.visualize([
 	outdent`
 		for (let i = 0; i < arr.length; i += 1) {
 			console.log(arr[i])
+		}
+	`,
+	// #742
+	outdent`
+		for (let i = 0; i < plugins.length; i++) {
+			let plugin = plugins[i];
+			plugin = calculateSomeNewValue();
+			// ...
+		}
+	`,
+	outdent`
+		for (let i = 0; i < array.length; i++) {
+			var foo = array[i];
+			foo = bar();
+		}
+	`,
+	outdent`
+		for (let i = 0; i < array.length; i++) {
+			let foo = array[i];
+		}
+	`,
+	outdent`
+		for (let i = 0; i < array.length; i++) {
+			const foo = array[i];
 		}
 	`
 ]);
