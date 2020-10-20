@@ -754,7 +754,7 @@ runTest.typescript({
 				}
 			`,
 			errors: 1
-		},
+		}
 	]
 });
 

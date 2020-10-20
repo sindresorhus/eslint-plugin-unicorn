@@ -379,16 +379,18 @@ const create = context => {
 						}
 					}
 
-					let parts = [declarationType];
+					const parts = [declarationType];
 					if (shouldGenerateIndex) {
 						parts.push(` [${index}, ${declarationElement}]`);
 						if (typeAnnotation) {
 							parts.push(`: [number, ${typeAnnotation}]`);
 						}
+
 						parts.push(` of ${array}.entries()`);
 					} else {
 						parts.push(` ${declarationElement} of ${array}`);
 					}
+
 					const replacement = parts.join('');
 
 					yield fixer.replaceTextRange([
