@@ -168,6 +168,7 @@ test({
 		'const foo = Number.NaN;',
 		'const foo = window.Number.NaN;',
 		'const foo = bar.NaN;',
+		'const foo = nan;',
 		// Shadowed
 		outdent`
 			function foo () {
@@ -186,6 +187,7 @@ test({
 		'const foo = Number.Infinity;',
 		'const foo = window.Number.Infinity;',
 		'const foo = bar.Infinity;',
+		'const foo = infinity;',
 		// Shadowed
 		outdent`
 			function foo () {
@@ -199,6 +201,10 @@ test({
 		'class Foo { Infinity(){}}',
 		{
 			code: 'const foo = Infinity;',
+			options: [{Infinity: false}]
+		},
+		{
+			code: 'const foo = -Infinity;',
 			options: [{Infinity: false}]
 		}
 	],
@@ -295,5 +301,7 @@ test.visualize([
 	'const foo = -(-Infinity);',
 	'const foo = -(--Infinity);',
 	'const foo = 1 - Infinity;',
-	'const foo = 1 - -Infinity;'
+	'const foo = 1 - -Infinity;',
+	'const isPositiveZero = value => value === 0 && 1 / value === Infinity;',
+	'const isNegativeZero = value => value === 0 && 1 / value === -Infinity;'
 ]);
