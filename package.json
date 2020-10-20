@@ -15,7 +15,7 @@
 	},
 	"scripts": {
 		"test": "xo && nyc ava",
-		"create-rule": "node ./scripts/create-rule.mjs",
+		"create-rule": "node ./scripts/create-rule.js",
 		"lint": "node ./test/lint/lint.js",
 		"integration": "node ./test/integration/test.js"
 	},

@@ -10,12 +10,12 @@ const errors = [
 
 test({
 	valid: [
-		'const foo = "🦄";'
+		'const foo = \'🦄\';'
 	],
 	invalid: [
 		{
 			code: outdent`
-				const foo = "unicorn";
+				const foo = 'unicorn';
 			`,
 			output: outdent`
 				const foo = '🦄';
@@ -26,5 +26,5 @@ test({
 });
 
 test.visualize([
-	'const foo = "unicorn";'
+	'const foo = \'unicorn\';'
 ]);
