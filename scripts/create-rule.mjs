@@ -156,7 +156,7 @@ function updateReadme(data) {
 				}
 
 				return true;
-			},
+			}
 		},
 		{
 			type: "input",
@@ -168,23 +168,36 @@ function updateReadme(data) {
 				}
 
 				return true;
-			},
+			}
 		},
 		{
 			type: "select",
 			name: "fixable",
 			message: "Is it fixable?",
 			choices: [
-				{ name: true, message: "No" },
-				{ name: true, message: "Yes" },
-				{ name: "partly", name: "Partly" },
-			],
+				{
+					name: true,
+					message: "No"
+				},
+				{
+					name: true,
+					message: "Yes"
+				},
+				{
+					name: "partly",
+					name: "Partly"
+				}
+			]
 		},
 		{
 			type: "select",
 			name: "type",
 			message: "Type:",
-			choices: ["problem", "suggestion", "layout"],
+			choices: [
+				"problem",
+				"suggestion",
+				"layout"
+			]
 		},
 	]);
 
