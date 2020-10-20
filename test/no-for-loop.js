@@ -754,5 +754,10 @@ runTest.visualize([
 		for (let i = 0; i < array.length; i++) {
 			const foo = array[i];
 		}
+	`,
+	outdent`
+		for (let i = 0; i < array.length; i++) {
+			var foo = array[i], bar = 1;
+		}
 	`
 ]);
