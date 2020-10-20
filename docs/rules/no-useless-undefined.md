@@ -82,6 +82,31 @@ function foo({bar}) {
 foo();
 ```
 
+## Options
+
+Type: `object`
+
+### ignoreArguments
+
+Type: `boolean`<br>
+Default: `false`
+
+Pass `"ignoreArguments": true` to disable check on function call.
+
+#### Fail
+
+```js
+// eslint unicorn/no-useless-undefined: ["error", {ignoreArguments: false}]
+foo(undefined);
+```
+
+#### Pass
+
+```js
+// eslint unicorn/no-useless-undefined: ["error", {ignoreArguments: true}]
+foo(undefined);
+```
+
 ## Conflict with ESLint `array-callback-return` rule
 
 We recommend setting the ESLint [`array-callback-return`](https://eslint.org/docs/rules/array-callback-return#top) rule option [`allowImplicit`](https://eslint.org/docs/rules/array-callback-return#options) to `true`:

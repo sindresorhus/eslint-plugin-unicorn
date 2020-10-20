@@ -4,6 +4,7 @@ import {test} from './utils/test';
 const messageId = 'no-useless-undefined';
 
 const errors = [{messageId}];
+const optionsIgnoreArguments = [{ignoreArguments: true}];
 
 test({
 	valid: [
@@ -40,7 +41,13 @@ test({
 		't.same(foo, undefined)',
 		't.notSame(foo, undefined)',
 		't.strictSame(foo, undefined)',
-		't.strictNotSame(foo, undefined)'
+		't.strictNotSame(foo, undefined)',
+
+		// `ignoreArguments: true`
+		{
+			code: 'foo(undefined, undefined);',
+			options: optionsIgnoreArguments,
+		},
 	],
 	invalid: [
 		{
