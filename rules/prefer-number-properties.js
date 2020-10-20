@@ -49,7 +49,7 @@ const propertiesSelector = [
 const isNegative = node => {
 	const {parent} = node;
 	return parent && parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
-}
+};
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
@@ -117,7 +117,7 @@ const create = context => {
 				data: {
 					identifier: name,
 					property
-				},
+				}
 			};
 
 			if (property === 'NEGATIVE_INFINITY') {

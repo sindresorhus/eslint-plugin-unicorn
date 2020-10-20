@@ -169,6 +169,7 @@ test({
 		'const foo = window.Number.NaN;',
 		'const foo = bar.NaN;',
 		'const foo = nan;',
+		'const foo = "NaN";',
 		// Shadowed
 		outdent`
 			function foo () {
@@ -188,6 +189,8 @@ test({
 		'const foo = window.Number.Infinity;',
 		'const foo = bar.Infinity;',
 		'const foo = infinity;',
+		'const foo = "Infinity";',
+		'const foo = "-Infinity";',
 		// Shadowed
 		outdent`
 			function foo () {
