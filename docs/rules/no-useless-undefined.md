@@ -91,20 +91,20 @@ Type: `object`
 Type: `boolean`\
 Default: `true`
 
-Pass `checkArguments: false` to disable check on function call arguments.
+Forbid use `undefined` at the end of function call arguments, pass `checkArguments: false` to disable check on them.
 
 #### Fail
 
 ```js
-// eslint unicorn/no-useless-undefined: ["error", {checkArguments: true}]
-foo(undefined);
+// eslint unicorn/no-useless-undefined: ["error", {"checkArguments": true}]
+foo(bar, baz, undefined);
 ```
 
 #### Pass
 
 ```js
-// eslint unicorn/no-useless-undefined: ["error", {checkArguments: false}]
-foo(undefined);
+// eslint unicorn/no-useless-undefined: ["error", {"checkArguments": false}]
+foo(bar, baz, undefined);
 ```
 
 ## Conflict with ESLint `array-callback-return` rule
