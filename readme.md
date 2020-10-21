@@ -33,7 +33,6 @@ Configure it in `package.json`.
 			"unicorn"
 		],
 		"rules": {
-			"unicorn/prefer-array-some": "error",
 			"unicorn/better-regex": "error",
 			"unicorn/catch-error-name": "error",
 			"unicorn/consistent-function-scoping": "error",
@@ -69,6 +68,7 @@ Configure it in `package.json`.
 			"unicorn/numeric-separators-style": "off",
 			"unicorn/prefer-add-event-listener": "error",
 			"unicorn/prefer-array-find": "error",
+			"unicorn/prefer-array-some": "error",
 			"unicorn/prefer-dataset": "error",
 			"unicorn/prefer-event-key": "error",
 			"unicorn/prefer-flat-map": "error",
