@@ -249,3 +249,27 @@ Type: `boolean`<br>
 Default: `true`
 
 Pass `"checkFilenames": false` to disable checking file names.
+
+### ignore
+
+Type: `Array<string | RegExp>`\
+Default: `[]`
+
+This option lets you specify a regex pattern for matches to ignore.
+
+When a string is given, it's interpreted as a regular expressions inside a string. Needed for ESLint config in JSON.
+
+
+```js
+"unicorn/prevent-abbreviations": [
+	"error",
+	{
+		"ignore": [
+			"\\.e2e$",
+			/^ignore/i
+		]
+	}
+]
+```
+
+When checking filenames, only basename is tested, file named `foo.e2e.js`,with `ignore: [/\.e2e$/]` would pass, with `ignore: [/\.e2e\.js/]` would fail, .
