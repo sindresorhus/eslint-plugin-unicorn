@@ -33,6 +33,7 @@ Configure it in `package.json`.
 			"unicorn"
 		],
 		"rules": {
+			"unicorn/prefer-array-some": "error",
 			"unicorn/better-regex": "error",
 			"unicorn/catch-error-name": "error",
 			"unicorn/consistent-function-scoping": "error",
@@ -134,6 +135,7 @@ Configure it in `package.json`.
 - [numeric-separators-style](docs/rules/numeric-separators-style.md) - Enforce the style of numeric separators by correctly grouping digits. *(fixable)*
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. *(partly fixable)*
 - [prefer-array-find](docs/rules/prefer-array-find.md) - Prefer `.find(…)` over the first element from `.filter(…)`. *(partly fixable)*
+- [prefer-array-some](docs/rules/prefer-array-some.md) - Prefer `.some(…)` over `.find(…)`.
 - [prefer-dataset](docs/rules/prefer-dataset.md) - Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. *(fixable)*
 - [prefer-event-key](docs/rules/prefer-event-key.md) - Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. *(partly fixable)*
 - [prefer-flat-map](docs/rules/prefer-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
