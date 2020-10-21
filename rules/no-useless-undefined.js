@@ -83,6 +83,10 @@ const create = context => {
 	};
 
 	const code = context.getSourceCode().text;
+	const options = {
+		checkArguments: true,
+		...context.options[0]
+	};
 
 	const removeNodeAndLeadingSpace = (node, fixer) => {
 		const textBefore = code.slice(0, node.range[0]);
@@ -92,7 +96,7 @@ const create = context => {
 		]);
 	};
 
-	return {
+	const listeners = {
 		[returnSelector]: listener(removeNodeAndLeadingSpace),
 		[yieldSelector]: listener(removeNodeAndLeadingSpace),
 		[arrowFunctionSelector]: listener(
@@ -103,8 +107,11 @@ const create = context => {
 		),
 		[assignmentPatternSelector]: listener(
 			(node, fixer) => fixer.removeRange([node.parent.left.range[1], node.range[1]])
-		),
-		CallExpression: node => {
+		)
+	};
+
+	if (options.checkArguments) {
+		listeners.CallExpression = node => {
 			if (isCompareFunction(node.callee)) {
 				return;
 			}
@@ -152,9 +159,23 @@ const create = context => {
 					return fixer.removeRange([start, end]);
 				}
 			});
-		}
-	};
+		};
+	}
+
+	return listeners;
 };
+
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			checkArguments: {
+				type: 'boolean'
+			}
+		},
+		additionalProperties: false
+	}
+];
 
 module.exports = {
 	create,
@@ -164,6 +185,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		messages,
+		schema,
 		fixable: 'code'
 	}
 };
