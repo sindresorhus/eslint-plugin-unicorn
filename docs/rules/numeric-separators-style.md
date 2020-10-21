@@ -61,31 +61,31 @@ Numbers are split into 3 distinct parts:
 #### Fail
 
 ```js
-// eslint unicorn/numeric-separators-style: ["error", {number: {minimumDigits: 0, groupLength: 3}}]
+// eslint unicorn/numeric-separators-style: ["error", {"number": {"minimumDigits": 0, "groupLength": 3}}]
 const foo = 12345;
 const foo = 0.000_0001;
 const foo = 123.1_000_001;
 
-// eslint unicorn/numeric-separators-style: ["error", {binary: {minimumDigits: 0, groupLength: 4}}]
+// eslint unicorn/numeric-separators-style: ["error", {"binary": {"minimumDigits": 0, "groupLength": 4}}]
 const foo = 0b101010;
 const foo = 0b1010_10001;
 
-// eslint unicorn/numeric-separators-style: ["error", {hexadecimal: {minimumDigits: 0, groupLength: 2}}]
+// eslint unicorn/numeric-separators-style: ["error", {"hexadecimal": {"minimumDigits": 0, "groupLength": 2}}]
 const foo = 0xA_B_CD_EF;
 ```
 
 #### Pass
 
 ```js
-// eslint unicorn/numeric-separators-style: ["error", {number: {minimumDigits: 0, groupLength: 3}}]
+// eslint unicorn/numeric-separators-style: ["error", {"number": {"minimumDigits": 0, "groupLength": 3}}]
 const foo = 100;
 const foo = 1_000;
 const foo = 1_000_000;
 
-// eslint unicorn/numeric-separators-style: ["error", {number: {minimumDigits: 5, groupLength: 3}}]
+// eslint unicorn/numeric-separators-style: ["error", {"number": {"minimumDigits": 5, "groupLength": 3}}]
 const foo = 1000;
 
-// eslint unicorn/numeric-separators-style: ["error", {octal: {minimumDigits: 0, groupLength: 4}}]
+// eslint unicorn/numeric-separators-style: ["error", {"octal": {"minimumDigits": 0, "groupLength": 4}}]
 const foo = 0o7777;
 const foo = 0o7777;
 const foo = 0o12_7777;

@@ -91,23 +91,23 @@ Pass `checkInfinity: false` to disable check on `Infinity`.
 #### Fail
 
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {checkInfinity: true}]
+// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
 const foo = Infinity;
 ```
 
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {checkInfinity: true}]
+// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
 const foo = -Infinity;
 ```
 
 #### Pass
 
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {checkInfinity: false}]
+// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": false}]
 const foo = Infinity;
 ```
 
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {checkInfinity: false}]
+// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": false}]
 const foo = -Infinity;
 ```
