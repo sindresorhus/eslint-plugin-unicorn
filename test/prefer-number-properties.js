@@ -270,7 +270,7 @@ test.babel({
 			errors: 1
 		}
 	]
-})
+});
 
 test.typescript({
 	valid: [
