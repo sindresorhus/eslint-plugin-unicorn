@@ -91,7 +91,7 @@ Type: `object`
 Type: `boolean`\
 Default: `true`
 
-Forbid the use of `undefined` at the end of function call arguments. Pass `checkArguments: false` to disable check on them.
+Forbid the use of `undefined` at the end of function call arguments. Pass `checkArguments: false` to disable checking them.
 
 #### Fail
 
