@@ -1,9 +1,10 @@
 'use strict';
+const {singular} = require('pluralize');
+const {isClosingParenToken} = require('eslint-utils');
+const {flatten} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
-const {flatten} = require('lodash');
 const avoidCapture = require('./utils/avoid-capture');
-const {singular} = require('pluralize');
 
 const MESSAGE_ID = 'no-for-loop';
 const messages = {
@@ -329,8 +330,14 @@ const create = context => {
 				return;
 			}
 
+			const [start] = node.range;
+			const [, end] = sourceCode.getTokenBefore(node.body, isClosingParenToken).range;
+
 			const problem = {
-				node,
+				loc: {
+					start: sourceCode.getLocFromIndex(start),
+					end: sourceCode.getLocFromIndex(end)
+				},
 				messageId: MESSAGE_ID
 			};
 
