@@ -371,8 +371,11 @@ const create = context => {
 						if (removeDeclaration) {
 							declarationType = element.type === 'VariableDeclarator' ? elementNode.kind : elementNode.parent.kind;
 							if (elementNode.id.typeAnnotation && shouldGenerateIndex) {
-								declarationElement = sourceCode.text.slice(elementNode.id.range[0], elementNode.id.typeAnnotation.range[0]);
-								typeAnnotation = sourceCode.getText(elementNode.id.typeAnnotation, -1).trim();
+								declarationElement = sourceCode.text.slice(elementNode.id.range[0], elementNode.id.typeAnnotation.range[0]).trim();
+								typeAnnotation = sourceCode.getText(
+									elementNode.id.typeAnnotation,
+									-1 // Skip leading `:`
+								).trim();
 							} else {
 								declarationElement = sourceCode.getText(elementNode.id);
 							}
