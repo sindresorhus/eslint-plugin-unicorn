@@ -17,8 +17,8 @@ const objectCreateSelector = methodSelector({
 	length: 1
 });
 
-// eslint unicorn/prevent-abbreviations: ["error", {"replacements": {"ref": false}}]
 // `useRef(null)`
+// eslint-disable-next-line unicorn/prevent-abbreviations
 const useRefSelector = [
 	'CallExpression',
 	'[callee.type="Identifier"]',
@@ -28,6 +28,7 @@ const useRefSelector = [
 ].join('');
 
 // `React.useRef(null)`
+// eslint-disable-next-line unicorn/prevent-abbreviations
 const reactUseRefSelector = methodSelector({
 	object: 'React',
 	name: 'useRef',
