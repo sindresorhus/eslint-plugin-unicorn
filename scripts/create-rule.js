@@ -110,9 +110,9 @@ function updateReadmeRules(data) {
 	const RULE_START = '## Rules\n\n';
 	const RULE_END = '\n\n## Deprecated Rules';
 	let ruleContent = `- [${data.id}](docs/rules/${data.id}.md) - ${data.description}`;
-	if (data.fixable === true) {
+	if (data.isFixable === true) {
 		ruleContent += ' *(fixable)*';
-	} else if (data.fixable === 'partly') {
+	} else if (data.isFixable === 'partly') {
 		ruleContent += ' *(partly fixable)*';
 	}
 
@@ -174,7 +174,7 @@ function updateReadme(data) {
 		},
 		{
 			type: 'select',
-			name: 'fixable',
+			name: 'isFixable',
 			message: 'Is it fixable?',
 			choices: [
 				{
