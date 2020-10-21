@@ -17,7 +17,7 @@ const objectCreateSelector = methodSelector({
 	length: 1
 });
 
-// eslint unicorn/prevent-abbreviations: ["error": {"replacements": {"ref": false}}]
+// eslint unicorn/prevent-abbreviations: ["error", {"replacements": {"ref": false}}]
 // `useRef(null)`
 const useRefSelector = [
 	'CallExpression',
