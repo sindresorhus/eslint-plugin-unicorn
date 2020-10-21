@@ -773,11 +773,16 @@ runTest.visualize([
 		}
 	`,
 	outdent`
-		for (let i = 0; i < array.length; i++) // comment (foo)
-		{
-			var foo = array[i];
-			foo = bar();
-		}
+		for (
+			let i = 0;
+			i < array.length;
+			i++
+		)
+		// comment (foo)
+			{
+				var foo = array[i];
+				foo = bar();
+			}
 	`,
 	outdent`
 		for (let i = 0; i < array.length; i++) {
