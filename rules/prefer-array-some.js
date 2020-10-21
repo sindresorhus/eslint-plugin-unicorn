@@ -6,7 +6,7 @@ const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer `.some(…)` over `.find(…)`.',
-	[MESSAGE_ID_SUGGESTION]: 'Replace `.find(…)` with `.some(…)`.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace `.find(…)` with `.some(…)`.'
 };
 
 const selector = [
@@ -21,7 +21,7 @@ const selector = [
 	'>',
 	'.callee',
 	'>',
-	'.property',
+	'.property'
 ].join('');
 
 const create = context => {
@@ -38,7 +38,7 @@ const create = context => {
 				]
 			});
 		}
-	}
+	};
 };
 
 module.exports = {

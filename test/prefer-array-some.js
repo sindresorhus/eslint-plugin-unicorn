@@ -26,7 +26,7 @@ test({
 		'if (foo.some(fn)) {}',
 		'if (foo.every(fn)) {}',
 
-		// Not `IfStatement`/`ConditionalExpression` `.test`
+		// Not `{IfStatement,ConditionalExpression}.test`
 		'true ? foo.find(fn) : foo.find(fn)',
 		'if (true) foo.find(fn); else foo.find(fn);',
 		'if (true) { foo.find(fn); } else { foo.find(fn); }',
@@ -52,7 +52,7 @@ test({
 				'foo.find(...argumentsArray)'
 			].map(code => [
 				`${code} ? 1 : 2`,
-				`if (${code}) {}`,
+				`if (${code}) {}`
 			])
 		)
 	],
@@ -82,7 +82,7 @@ test({
 		// Nobody use it in `IfStatement.test`
 		invalidCase({
 			code: 'if(jQuery.find(".outer > div")) {}',
-			suggestionOutput: `if(jQuery.some(".outer > div")) {}`
+			suggestionOutput: 'if(jQuery.some(".outer > div")) {}'
 		}),
 		// Actual messages
 		{
@@ -99,7 +99,7 @@ test({
 					]
 				}
 			]
-		},
+		}
 	]
 });
 
