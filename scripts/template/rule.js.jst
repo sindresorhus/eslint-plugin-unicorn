@@ -4,7 +4,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = '<%= id %>';
 const messages = {
-	[MESSAGE_ID]: 'Prefer "{{replacement}}" over "{{value}}".'
+	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{value}}`.'
 };
 
 const create = context => {
@@ -27,8 +27,7 @@ const create = context => {
 	}
 };
 
-const schema = [
-];
+const schema = [];
 
 module.exports = {
 	create,
