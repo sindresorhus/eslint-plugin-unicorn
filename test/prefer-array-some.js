@@ -48,7 +48,7 @@ test({
 				'foo["fi" + "nd"](fn)',
 				'foo[`find`](fn)',
 				// Computed
-				'foo[map](fn)',
+				'foo[find](fn)',
 				// Not `.find`
 				'foo.notFind(fn)',
 				// More or less argument(s)
