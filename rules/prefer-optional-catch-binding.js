@@ -14,6 +14,8 @@ const selector = [
 ].join('');
 
 const create = context => {
+	const sourceCode = context.getSourceCode();
+
 	return {
 		[selector]: node => {
 			const scope = context.getScope();
@@ -29,7 +31,7 @@ const create = context => {
 				node,
 				messageId: ERROR_MESSAGE_ID,
 				data: {name},
-				fix: fixer => {
+				* fix(fixer) {
 					const tokenBefore = context.getTokenBefore(node);
 					const tokenAfter = context.getTokenAfter(node);
 
@@ -38,11 +40,17 @@ const create = context => {
 						throw new Error('Unexpected token.');
 					}
 
-					return [
-						tokenBefore,
-						node,
-						tokenAfter
-					].map(nodeOrToken => fixer.remove(nodeOrToken));
+					yield fixer.remove(tokenBefore);
+					yield fixer.remove(node);
+					yield fixer.remove(tokenAfter);
+
+					const [, endOfClosingParenthesis] = tokenAfter.range;
+					const [startOfCatchClauseBody] = node.parent.body.range;
+					const text = sourceCode.text.slice(endOfClosingParenthesis, startOfCatchClauseBody);
+					const leadingSpacesLength = text.length - text.trimStart().length;
+					if (leadingSpacesLength !== 0) {
+						yield fixer.removeRange([endOfClosingParenthesis, endOfClosingParenthesis + leadingSpacesLength]);
+					}
 				}
 			});
 		}
