@@ -746,12 +746,12 @@ runTest.typescript({
 		{
 			code: outdent`
 				for (let i = 0; i < positions.length; i++) {
-					const last /* comment */    : /* comment */ Position = positions[i];
+					const    last   /* comment */    : /* comment */ Position = positions[i];
 					console.log(i);
 				}
 			`,
 			output: outdent`
-				for (const [i, last /* comment */]: [number, /* comment */ Position] of positions.entries()) {
+				for (const [i, last   /* comment */]: [number, /* comment */ Position] of positions.entries()) {
 					console.log(i);
 				}
 			`,
