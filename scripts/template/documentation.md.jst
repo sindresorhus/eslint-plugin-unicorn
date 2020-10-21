@@ -1,0 +1,19 @@
+# <%= description %>
+
+<!-- More detailed description. Remove this comment. -->
+<% if (isFixable === true) { %>
+This rule is fixable.
+<% } else if (isFixable === 'partly') { %>
+This rule is partly fixable.
+<% } %>
+## Fail
+
+```js
+const foo = 'unicorn';
+```
+
+## Pass
+
+```js
+const foo = '🦄';
+```

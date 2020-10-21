@@ -5,23 +5,18 @@
 - [Read the ESLint docs on creating a new rule.](https://eslint.org/docs/developer-guide/working-with-rules)
 - Look at the commit for how previous rules were added as inspiration. For example, the [`no-unused-properties` rule](https://github.com/sindresorhus/eslint-plugin-unicorn/commit/0179443f24326fb01342a0bf799f7ac66e0e2c23).
 
-
 ## Tip
 
 Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser and `ESLint v4` transform to interactively create the initial rule implementation. It lets you inspect the full AST as you would get from ESLint and you can even see the result of your auto-fixer implementation.
 
-
 ## Steps
 
-- Go to the `test` directory and duplicate the `no-hex-escape.js` file and rename it to the name of your rule. Then write some tests before starting to implement the rule.
-- Go to the `rules` directory and duplicate the `no-hex-escape.js` file and rename it to the name of your rule. Then start implementing the new rule logic.
+- Run `$ npm run create-rule` to create files for the new rule.
+- Open “test/{RULE_ID}.js” and write some tests before implementing the rule.
+- Open “rules/{RULE_ID}.js” and implement the rule logic.
 - Add the correct [`meta.type`](https://eslint.org/docs/developer-guide/working-with-rules#rule-basics) to the rule.
-- Go to the `docs/rules` directory and duplicate the `no-hex-escape.md` file and rename it to the name of your rule. Then write some documentation.
-- Add the rule in alphabetically sorted order to:
-	- [The recommended config](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/352ba4a0291f9210ca5c8e2e61c7e3ad14028e77/index.js#L19)
-	- [The recommended config in the readme](https://github.com/sindresorhus/eslint-plugin-unicorn/blame/352ba4a0291f9210ca5c8e2e61c7e3ad14028e77/readme.md#L35)
-	- [The rule listing in the readme](https://github.com/sindresorhus/eslint-plugin-unicorn/blame/352ba4a0291f9210ca5c8e2e61c7e3ad14028e77/readme.md#L77)<br>
-	*(The description should be the same as the heading of the documentation file).*
+- Open “docs/rules/{RULE_ID}.js” and write some documentation.
+- Double check `index.js` and `readme.md`, make sure the new rule is correctly added.
 - Run `$ npm test` to ensure the tests pass.
 - Run `$ npm run integration` to run the rules against real projects to ensure your rule does not fail on real-world code.
 - Open a pull request with a title in exactly the format `` Add `rule-name` rule ``, for example, `` Add `no-unused-properties` rule ``.
