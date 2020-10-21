@@ -163,6 +163,10 @@ const errorNaN = [
 		}
 	}
 ];
+
+// TODO: Add following tests whenESLint support `proposal-class-fields`
+// 'class Foo {NaN = 1}',
+// 'class Foo {[NaN] = 1}',
 test({
 	valid: [
 		'const foo = Number.NaN;',
@@ -180,7 +184,7 @@ test({
 		'const {NaN} = {};',
 		'function NaN() {}',
 		'class NaN {}',
-		'class Foo { NaN(){}}',
+		'class Foo {NaN(){}}',
 
 		'const foo = Number.POSITIVE_INFINITY;',
 		'const foo = window.Number.POSITIVE_INFINITY;',
@@ -255,6 +259,19 @@ test({
 	]
 });
 
+test.babel({
+	valid: [
+		'class Foo2 {NaN = 1}'
+	],
+	invalid: [
+		{
+			code: 'class Foo2 {[NaN] = 1}',
+			output: 'class Foo2 {[Number.NaN] = 1}',
+			errors: 1
+		}
+	]
+});
+
 test.typescript({
 	valid: [
 		// https://github.com/angular/angular/blob/b4972fa1656101c02c92ddbf247db6e0de139937/packages/common/src/i18n/locale_data_api.ts#L178
@@ -278,18 +295,33 @@ test.typescript({
 				}
 			`
 		},
-		'declare function NaN(s: string, radix?: number): number;'
+		'declare function NaN(s: string, radix?: number): number;',
+		'class Foo {NaN = 1}'
 	],
-	invalid: []
+	invalid: [
+		{
+			code: 'class Foo {[NaN] = 1}',
+			output: 'class Foo {[Number.NaN] = 1}',
+			errors: 1
+		}
+	]
 });
 
 test.visualize([
+	'const foo = {[NaN]: 1}',
+	'const foo = {[NaN]() {}}',
+	'foo[NaN] = 1;',
+	'class A {[NaN](){}}',
+	'foo = {[NaN]: 1}',
+
 	'const foo = Infinity;',
 	'if (Number.isNaN(Infinity)) {}',
 	'if (Object.is(foo, Infinity)) {}',
 	'const foo = bar[Infinity];',
 	'const foo = {Infinity};',
 	'const foo = {Infinity: Infinity};',
+	'const foo = {[Infinity]: -Infinity};',
+	'const foo = {[-Infinity]: Infinity};',
 	'const foo = {Infinity: -Infinity};',
 	'const {foo = Infinity} = {};',
 	'const {foo = -Infinity} = {};',

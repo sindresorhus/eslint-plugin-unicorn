@@ -36,9 +36,10 @@ const propertiesSelector = [
 			'MemberExpression[computed=false] > Identifier.property',
 			'FunctionDeclaration > Identifier.id',
 			'ClassDeclaration > Identifier.id',
-			'MethodDefinition > Identifier.key',
+			'ClassProperty[computed=false] > Identifier.key',
+			'MethodDefinition[computed=false] > Identifier.key',
 			'VariableDeclarator > Identifier.id',
-			'Property[shorthand=false] > Identifier.key',
+			'Property[shorthand=false][computed=false] > Identifier.key',
 			'TSDeclareFunction > Identifier.id',
 			'TSEnumMember > Identifier.id',
 			'TSPropertySignature > Identifier.key'
