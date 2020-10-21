@@ -156,7 +156,17 @@ test({
 		{
 			code: 'try    {    } catch    (e)  \n  \t  {    }',
 			//                               ^^^^^^^^^^ spaces after param will be removed.
-			output: 'try    {    } catch    {    }'
+			output: 'try    {    } catch    {    }',
+			errors: 1
+		},
+		{
+			code: 'try {} catch(e) {}',
+			output: 'try {} catch{}',
+			errors: 1
+		},
+		{
+			code: 'try {} catch (e){}',
+			output: 'try {} catch {}',
 			errors: 1
 		}
 	]
