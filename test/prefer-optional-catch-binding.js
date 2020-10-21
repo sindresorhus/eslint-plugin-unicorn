@@ -32,13 +32,13 @@ test({
 	],
 	invalid: [
 		{
-			code: 'try {} catch(_) {}',
+			code: 'try {} catch (_) {}',
 			output: 'try {} catch {}',
 			errors: [generateError('_')]
 		},
 		{
 			code: outdent`
-				try {} catch(foo) {
+				try {} catch (foo) {
 					function bar(foo) {}
 				}
 			`,
@@ -52,18 +52,18 @@ test({
 		// Many
 		{
 			code: outdent`
-				try {} catch(outer) {
-					try {} catch(inner) {
+				try {} catch (outer) {
+					try {} catch (inner) {
 					}
 				}
 				try {
-					try {} catch(inTry) {
+					try {} catch (inTry) {
 					}
-				} catch(another) {
-					try {} catch(inCatch) {
+				} catch (another) {
+					try {} catch (inCatch) {
 					}
 				} finally {
-					try {} catch(inFinally) {
+					try {} catch (inFinally) {
 					}
 				}
 			`,
@@ -94,7 +94,7 @@ test({
 		},
 		// Actual message
 		{
-			code: 'try {} catch(theRealErrorName) {}',
+			code: 'try {} catch (theRealErrorName) {}',
 			output: 'try {} catch {}',
 			errors: [{message: 'Remove unused catch binding `theRealErrorName`.'}]
 		},
@@ -102,7 +102,7 @@ test({
 		// {
 		// 	code: outdent`
 		// 		try {
-		// 		} catch(foo) {
+		// 		} catch (foo) {
 		// 			var foo = 1;
 		// 		}
 		// 	`,
@@ -144,13 +144,30 @@ test({
 				{TAB}
 					/* comment */
 					// comment
-				 {
+				{
 					/* comment */
 					// comment
 				}
 				/* comment */
 			`.replace('{SPACE}', ' ').replace('{TAB}', '\t'),
 			errors: [generateError('unused')]
+		},
+		// Spaces
+		{
+			code: 'try    {    } catch    (e)  \n  \t  {    }',
+			//                               ^^^^^^^^^^ spaces after param will be removed.
+			output: 'try    {    } catch    {    }',
+			errors: 1
+		},
+		{
+			code: 'try {} catch(e) {}',
+			output: 'try {} catch{}',
+			errors: 1
+		},
+		{
+			code: 'try {} catch (e){}',
+			output: 'try {} catch {}',
+			errors: 1
 		}
 	]
 });
