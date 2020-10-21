@@ -26,10 +26,15 @@ test({
 		'if (foo.some(fn)) {}',
 		'if (foo.every(fn)) {}',
 
-		// Not `{IfStatement,ConditionalExpression}.test`
-		'true ? foo.find(fn) : foo.find(fn)',
+		// Not `{IfStatement, ConditionalExpression, ForStatement, WhileStatement, DoWhileStatement}.test`
 		'if (true) foo.find(fn); else foo.find(fn);',
 		'if (true) { foo.find(fn); } else { foo.find(fn); }',
+		'true ? foo.find(fn) : foo.find(fn)',
+		'for (foo.find(fn); true; foo.find(fn)) foo.find(fn);',
+		'while(true) foo.find(fn);',
+		'do foo.find(fn) ; while(true)',
+		// `SwitchCase.test`
+		'switch (foo.find(fn)){ case foo.find(fn): foo.find(fn)}',
 
 		// Not matched `CallExpression`
 		...flatten(
@@ -62,16 +67,28 @@ test({
 			suggestionOutput: 'if (foo.some(fn)) {}'
 		}),
 		invalidCase({
+			code: 'console.log(foo.find(fn) ? a : b)',
+			suggestionOutput: 'console.log(foo.some(fn) ? a : b)'
+		}),
+		invalidCase({
+			code: 'for(;foo.find(fn);) foo.shift();',
+			suggestionOutput: 'for(;foo.some(fn);) foo.shift();'
+		}),
+		invalidCase({
+			code: 'while(foo.find(fn)) foo.shift();',
+			suggestionOutput: 'while(foo.some(fn)) foo.shift();'
+		}),
+		invalidCase({
+			code: 'do {foo.shift();} while(foo.find(fn));',
+			suggestionOutput: 'do {foo.shift();} while(foo.some(fn));'
+		}),
+		invalidCase({
 			code: 'if (foo.find(fn, thisArgument)) {}',
 			suggestionOutput: 'if (foo.some(fn, thisArgument)) {}'
 		}),
 		invalidCase({
 			code: 'if (foo().bar.find(fn)) {}',
 			suggestionOutput: 'if (foo().bar.some(fn)) {}'
-		}),
-		invalidCase({
-			code: 'console.log(foo.find(fn) ? a : b)',
-			suggestionOutput: 'console.log(foo.some(fn) ? a : b)'
 		}),
 		// Comments
 		invalidCase({

@@ -13,6 +13,12 @@ if (array.find(element => element === '🦄')) {
 const foo = array.find(element => element === '🦄') ? bar : baz;
 ```
 
+```js
+while (array.find(element => element === '🦄')) {
+	array.shift();
+}
+```
+
 ## Pass
 
 ```js
@@ -26,4 +32,10 @@ const foo = array.some(element => element === '🦄') ? bar : baz;
 
 ```js
 const foo = bar ? array.find(element => element === '🦄') : '';
+```
+
+```js
+while (array.some(element => element === '🦄')) {
+	array.shift();
+}
 ```

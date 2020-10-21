@@ -10,7 +10,7 @@ const messages = {
 };
 
 const selector = [
-	':matches(IfStatement, ConditionalExpression)',
+	':matches(IfStatement, ConditionalExpression, ForStatement, WhileStatement, DoWhileStatement)',
 	'>',
 	methodSelector({
 		name: 'find',
