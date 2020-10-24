@@ -24,6 +24,68 @@ const isDefaultExpression = (left, right) =>
 	right.left.type === 'Identifier' &&
 	right.right.type === 'Literal';
 
+const containsCallExpression = (source, node) => {
+	if (!node) {
+		return false;
+	}
+
+	if (node.type === 'CallExpression') {
+		return true;
+	}
+
+	for (const key of source.visitorKeys[node.type]) {
+		const value = node[key];
+
+		if (Array.isArray(value)) {
+			for (const element of value) {
+				if (containsCallExpression(source, element)) {
+					return true;
+				}
+			}
+		} else if (containsCallExpression(source, value)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+const hasSideEffects = (source, function_, node) => {
+	for (const element of function_.body.body) {
+		if (element === node) {
+			break;
+		}
+
+		// Function call before default-assignment
+		if (containsCallExpression(source, element)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+const hasExtraReferences = (assignment, references, left) => {
+	// Parameter is referenced prior to default-assignment
+	if (assignment && references[0].identifier !== left) {
+		return true;
+	}
+
+	// Old parameter is still referenced somewhere else
+	if (!assignment && references.length > 1) {
+		return true;
+	}
+
+	return false;
+};
+
+const isLastParameter = (parameters, parameter) => {
+	const lastParameter = parameters[parameters.length - 1];
+
+	// See 'default-param-last' rule
+	return parameter && parameter === lastParameter;
+};
+
 const needsParentheses = (source, function_) => {
 	if (function_.type !== 'ArrowFunctionExpression' || function_.params.length > 1) {
 		return false;
@@ -83,26 +145,18 @@ const create = context => {
 			return;
 		}
 
-		const variable = findVariable(context.getScope(), secondId);
-
-		// Parameter is referenced prior to default-assignment
-		if (assignment && variable.references[0].identifier !== left) {
-			return;
-		}
-
-		// Old parameter is still referenced somewhere else
-		if (!assignment && variable.references.length > 1) {
-			return;
-		}
-
-		const parameter = currentFunction.params.find(parameter =>
+		const {references} = findVariable(context.getScope(), secondId);
+		const {params} = currentFunction;
+		const parameter = params.find(parameter =>
 			parameter.type === 'Identifier' &&
 			parameter.name === secondId
 		);
-		const lastParameter = currentFunction.params[currentFunction.params.length - 1];
 
-		// See 'default-param-last' rule
-		if (!parameter || parameter !== lastParameter) {
+		if (
+			hasSideEffects(source, currentFunction, node) ||
+			hasExtraReferences(assignment, references, left) ||
+			!isLastParameter(params, parameter)
+		) {
 			return;
 		}
 

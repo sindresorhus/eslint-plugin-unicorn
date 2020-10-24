@@ -45,6 +45,9 @@ ruleTester.run('prefer-default-parameters', rule, {
 		'const abc = (foo = \'bar\') => { };',
 		'foo = foo || \'bar\';',
 		'const bar = foo || \'bar\';',
+		'const abc = function(foo = { bar: 123 }) { }',
+		'const abc = function({ bar } = { bar: 123 }) { }',
+		'const abc = function({ bar = 123 } = {}) { }',
 		outdent`
 			function abc(foo) {
 				foo = foo || bar();
@@ -114,6 +117,16 @@ ruleTester.run('prefer-default-parameters', rule, {
 			};
 		`,
 		outdent`
+			const abc = function(foo, bar) {
+				bar = foo || 'bar';
+			}
+		`,
+		outdent`
+			const abc = function(foo) {
+				foo = foo || bar();
+			}
+		`,
+		outdent`
 			function abc(foo) {
 				function def(bar) {
 					foo = foo || 'bar';
@@ -131,24 +144,96 @@ ruleTester.run('prefer-default-parameters', rule, {
 				baz(foo);
 			}
 		`,
+		// The following tests check references and side effects
 		outdent`
 			function abc(foo) {
 				console.log(foo);
 				foo = foo || 123;
 			}
 		`,
-		// Used before assignment
 		outdent`
 			function abc(foo) {
 				console.log(foo);
 				foo = foo || 'bar';
 			}
 		`,
-		// Variable is used
 		outdent`
 			function abc(foo) {
 				const bar = foo || 'bar';
 				console.log(foo, bar);
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				let bar = 123;
+				bar = foo;
+				foo = foo || 123;
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				bar();
+				foo = foo || 123;
+			}
+		`,
+		outdent`
+			const abc = (foo) => {
+				bar();
+				foo = foo || 123;
+			};
+		`,
+		outdent`
+			const abc = function(foo) {
+				bar();
+				foo = foo || 123;
+			};
+		`,
+		outdent`
+			function abc(foo) {
+				sideEffects();
+				foo = foo || 123;
+			
+				function sideEffects() {
+					foo = 456;
+				}
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				const bar = sideEffects();
+				foo = foo || 123;
+			
+				function sideEffects() {
+					foo = 456;
+				}
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				const bar = sideEffects() + 123;
+				foo = foo || 123;
+			
+				function sideEffects() {
+					foo = 456;
+				}
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				const bar = !sideEffects();
+				foo = foo || 123;
+			
+				function sideEffects() {
+					foo = 456;
+				}
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				const bar = function() {
+					foo = 456;
+				}
+				foo = foo || 123;
 			}
 		`,
 		// Last parameter is `RestElement`
@@ -224,14 +309,12 @@ ruleTester.run('prefer-default-parameters', rule, {
 		}),
 		invalidTestCase({
 			code: outdent`
-				function abc(bar) {
-					foo();
-					bar = bar || 123;
+				const abc = function(foo) {
+					foo = foo || 123;
 				}
 			`,
 			suggestions: [outdent`
-				function abc(bar = 123) {
-					foo();
+				const abc = function(foo = 123) {
 				}
 			`]
 		}),
@@ -254,19 +337,6 @@ ruleTester.run('prefer-default-parameters', rule, {
 			`,
 			suggestions: [outdent`
 				const abc = (foo = 'bar') => {
-				};
-			`]
-		}),
-		invalidTestCase({
-			code: outdent`
-				const abc = (bar) => {
-					foo();
-					bar = bar || 'bar';
-				};
-			`,
-			suggestions: [outdent`
-				const abc = (bar = 'bar') => {
-					foo();
 				};
 			`]
 		}),
@@ -320,6 +390,83 @@ ruleTester.run('prefer-default-parameters', rule, {
 				}
 			`]
 		}),
+		invalidTestCase({
+			code: outdent`
+				const abc = function(foo) {
+					const bar = foo || 'bar';
+					console.log(bar);
+				}
+			`,
+			suggestions: [outdent`
+				const abc = function(bar = 'bar') {
+					console.log(bar);
+				}
+			`]
+		}),
+		invalidTestCase({
+			code: outdent`
+				foo = {
+					abc(foo) {
+						foo = foo || 123;
+					}
+				};
+			`,
+			suggestions: [outdent`
+				foo = {
+					abc(foo = 123) {
+					}
+				};
+			`]
+		}),
+		invalidTestCase({
+			code: outdent`
+				foo = {
+					abc(foo) {
+						foo = foo || 123;
+					},
+					def(foo) { }
+				};
+			`,
+			suggestions: [outdent`
+				foo = {
+					abc(foo = 123) {
+					},
+					def(foo) { }
+				};
+			`]
+		}),
+		invalidTestCase({
+			code: outdent`
+				class Foo {
+					abc(foo) {
+						foo = foo || 123;
+					}
+				}
+			`,
+			suggestions: [outdent`
+				class Foo {
+					abc(foo = 123) {
+					}
+				}
+			`]
+		}),
+		invalidTestCase({
+			code: outdent`
+				class Foo {
+					abc(foo) {
+						foo = foo || 123;
+					}
+					def(foo) { }
+				}
+			`,
+			suggestions: [outdent`
+				class Foo {
+					abc(foo = 123) {
+					}
+					def(foo) { }
+				}
+			`]
+		}),
 		// The following tests verify the correct code formatting
 		invalidTestCase({
 			code: 'function abc(foo) { foo = foo || \'bar\'; }',
@@ -328,6 +475,10 @@ ruleTester.run('prefer-default-parameters', rule, {
 		invalidTestCase({
 			code: 'function abc(foo) { foo = foo || \'bar\';}',
 			suggestions: ['function abc(foo = \'bar\') { }']
+		}),
+		invalidTestCase({
+			code: 'const abc = function(foo) { foo = foo || \'bar\';}',
+			suggestions: ['const abc = function(foo = \'bar\') { }']
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -396,6 +547,109 @@ ruleTester.run('prefer-default-parameters', rule, {
 					function ghi(bay = 'bar') {
 					}
 					foo = foo || 'bar';
+				}
+			`]
+		}),
+		invalidTestCase({
+			code: outdent`
+				foo = {
+					abc(foo) {
+						foo = foo || 123;
+					},
+					def(foo) {
+						foo = foo || 123;
+					}
+				};
+			`,
+			suggestions: [outdent`
+				foo = {
+					abc(foo = 123) {
+					},
+					def(foo) {
+						foo = foo || 123;
+					}
+				};
+			`, outdent`
+				foo = {
+					abc(foo) {
+						foo = foo || 123;
+					},
+					def(foo = 123) {
+					}
+				};
+			`]
+		}),
+		invalidTestCase({
+			code: outdent`
+				class Foo {
+					abc(foo) {
+						foo = foo || 123;
+					}
+					def(foo) {
+						foo = foo || 123;
+					}
+				}
+			`,
+			suggestions: [outdent`
+				class Foo {
+					abc(foo = 123) {
+					}
+					def(foo) {
+						foo = foo || 123;
+					}
+				}
+			`, outdent`
+				class Foo {
+					abc(foo) {
+						foo = foo || 123;
+					}
+					def(foo = 123) {
+					}
+				}
+			`]
+		}),
+		invalidTestCase({
+			code: outdent`
+				function abc(foo) {
+					const noSideEffects = 123;
+					foo = foo || 123;
+				}
+			`,
+			suggestions: [outdent`
+				function abc(foo = 123) {
+					const noSideEffects = 123;
+				}
+			`]
+		}),
+		invalidTestCase({
+			code: outdent`
+				const abc = function(foo) {
+					let bar = true;
+					bar = false;
+				
+					foo = foo || 123;
+					console.log(foo);
+				}
+			`,
+			suggestions: [outdent`
+				const abc = function(foo = 123) {
+					let bar = true;
+					bar = false;
+
+					console.log(foo);
+				}
+			`]
+		}),
+		invalidTestCase({
+			code: outdent`
+				function abc(foo) {
+					const bar = function() {};
+					foo = foo || 123;
+				}
+			`,
+			suggestions: [outdent`
+				function abc(foo = 123) {
+					const bar = function() {};
 				}
 			`]
 		})
