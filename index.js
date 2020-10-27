@@ -49,7 +49,8 @@ module.exports = {
 				'unicorn/no-useless-undefined': 'error',
 				'unicorn/no-zero-fractions': 'error',
 				'unicorn/number-literal-case': 'error',
-				'unicorn/numeric-separators-style': 'error',
+				// TODO: Enable this by default when NodeJS 10 is deprecated.
+				'unicorn/numeric-separators-style': 'off',
 				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/prefer-array-find': 'error',
 				'unicorn/prefer-dataset': 'error',
