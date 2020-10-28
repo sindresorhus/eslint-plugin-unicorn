@@ -49,7 +49,7 @@ module.exports = {
 				'unicorn/no-useless-undefined': 'error',
 				'unicorn/no-zero-fractions': 'error',
 				'unicorn/number-literal-case': 'error',
-				// TODO: Enable this by default when it's shipping in a Node.js LTS version.
+				// TODO: Enable this by default when targeting Node.js 12.
 				'unicorn/numeric-separators-style': 'off',
 				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/prefer-array-find': 'error',
@@ -67,7 +67,7 @@ module.exports = {
 				'unicorn/prefer-optional-catch-binding': 'error',
 				'unicorn/prefer-query-selector': 'error',
 				'unicorn/prefer-reflect-apply': 'error',
-				// TODO: Enable this by default when it's shipping in a Node.js LTS version.
+				// TODO: Enable this by default when targeting Node.js 16.
 				'unicorn/prefer-replace-all': 'off',
 				'unicorn/prefer-set-has': 'error',
 				'unicorn/prefer-spread': 'error',
