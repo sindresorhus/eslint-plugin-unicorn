@@ -309,21 +309,21 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: outdent`
 				const a = 1;
-				const var_ = 1;
+				const variable_ = 1;
 				const used = 1;
 			`,
 			options: [
 				{
 					replacements: {
 						a: {
-							var: true,
+							variable: true,
 							const: true,
 							used: true
 						}
 					}
 				}
 			],
-			errors: createErrors('Please rename the variable `a`. Suggested names are: `const_`, `used_`, `var__`. A more descriptive name will do too.')
+			errors: createErrors('Please rename the variable `a`. Suggested names are: `const_`, `used_`, `variable__`. A more descriptive name will do too.')
 		},
 
 		{
