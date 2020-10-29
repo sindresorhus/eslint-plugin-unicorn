@@ -319,7 +319,8 @@ ruleTester.run('prevent-abbreviations', rule, {
 							var: true,
 							const: true,
 							used: true
-						}
+						},
+						var: false
 					}
 				}
 			],
