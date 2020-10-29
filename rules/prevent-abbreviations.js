@@ -214,6 +214,12 @@ const defaultReplacements = {
 	val: {
 		value: true
 	},
+	var: {
+		variable: true
+	},
+	vars: {
+		variables: true
+	},
 	ver: {
 		version: true
 	}
