@@ -15,6 +15,12 @@ const options = {
 		},
 		named: {
 			named: true
+		},
+		none: {
+			unassigned: false,
+			default: false,
+			namespace: false,
+			named: false
 		}
 	}
 };
@@ -48,6 +54,13 @@ const namedError = {
 	data: {
 		allowedStyles: 'named',
 		moduleName: 'named'
+	}
+};
+
+const noneError = {
+	messageId: 'importStyleNone',
+	data: {
+		moduleName: 'none'
 	}
 };
 
@@ -494,6 +507,107 @@ test({
 		{
 			code: 'export {default} from \'named\'',
 			errors: [namedError]
+		},
+
+		{
+			code: 'require(\'none\')',
+			errors: [noneError]
+		},
+		{
+			code: 'const {} = require(\'none\')',
+			errors: [noneError]
+		},
+		{
+			code: 'import \'none\'',
+			errors: [noneError]
+		},
+		{
+			code: 'import {} from \'none\'',
+			errors: [noneError]
+		},
+		{
+			code: 'import(\'none\')',
+			errors: [noneError]
+		},
+		{
+			code: 'const x = require(\'none\')',
+			errors: [noneError]
+		},
+		{
+			code: 'const {default: x} = require(\'none\')',
+			errors: [noneError]
+		},
+		{
+			code: 'import x from \'none\'',
+			errors: [noneError]
+		},
+		{
+			code: outdent`
+				async () => {
+					const {default: x} = await import('none');
+				}
+			`,
+			errors: [noneError]
+		},
+		{
+			code: 'import * as x from \'none\'',
+			errors: [noneError]
+		},
+		{
+			code: outdent`
+				async () => {
+					const x = await import('none');
+				}
+			`,
+			errors: [noneError]
+		},
+		{
+			code: 'export * from \'none\'',
+			errors: [noneError]
+		},
+		{
+			code: 'export {default} from \'none\'',
+			errors: [noneError]
+		},
+		{
+			code: 'const {x} = require(\'none\')',
+			errors: [noneError]
+		},
+		{
+			code: 'const {x: y} = require(\'none\')',
+			errors: [noneError]
+		},
+		{
+			code: 'import {x} from \'none\'',
+			errors: [noneError]
+		},
+		{
+			code: 'import {x as y} from \'none\'',
+			errors: [noneError]
+		},
+		{
+			code: outdent`
+				async () => {
+					const {x} = await import('none');
+				}
+			`,
+			errors: [noneError]
+		},
+		{
+			code: outdent`
+				async () => {
+					const {x: y} = await import('none');
+				}
+			`,
+			errors: [noneError]
+		},
+		{
+			code: 'export {x} from \'none\'',
+			errors: [noneError]
+		},
+		{
+			code: 'export {x as y} from \'none\'',
+			errors: [noneError]
 		},
 
 		{
