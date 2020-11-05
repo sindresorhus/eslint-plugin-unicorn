@@ -3,9 +3,11 @@ const {defaultsDeep} = require('lodash');
 const {getStringIfConstant} = require('eslint-utils');
 const eslintTemplateVisitor = require('eslint-template-visitor');
 
-const MESSAGE_ID = 'importStyle';
+const MESSAGE_ID_IMPORT_STYLE = 'importStyle';
+const MESSAGE_ID_IMPORT_STYLE_NONE = 'importStyleNone';
 const messages = {
-	[MESSAGE_ID]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.'
+	[MESSAGE_ID_IMPORT_STYLE]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.',
+	[MESSAGE_ID_IMPORT_STYLE_NONE]: 'Importing module `{{moduleName}}` is not allowed.'
 };
 
 const getDocumentationUrl = require('./utils/get-documentation-url');
@@ -193,15 +195,28 @@ const create = context => {
 			return;
 		}
 
-		const data = {
-			allowedStyles: joinOr([...allowedImportStyles.keys()]),
-			moduleName
-		};
+		const allowedStyles = [...allowedImportStyles.keys()].filter(
+			style => allowedImportStyles.get(style)
+		);
+
+		if (allowedStyles.length === 0) {
+			context.report({
+				node,
+				messageId: MESSAGE_ID_IMPORT_STYLE_NONE,
+				data: {
+					moduleName
+				}
+			});
+			return;
+		}
 
 		context.report({
 			node,
-			messageId: MESSAGE_ID,
-			data
+			messageId: MESSAGE_ID_IMPORT_STYLE,
+			data: {
+				allowedStyles: joinOr(allowedStyles),
+				moduleName
+			}
 		});
 	};
 
