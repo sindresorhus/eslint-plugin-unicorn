@@ -93,6 +93,7 @@ test({
 		'export * from \'namespace\'',
 
 		'const {x} = require(\'named\')',
+		'const {...rest} = require("named")',
 		'const {x: y} = require(\'named\')',
 		'import {x} from \'named\'',
 		'import {x as y} from \'named\'',
@@ -269,6 +270,10 @@ test({
 			errors: [unassignedError]
 		},
 		{
+			code: 'const {...rest} = require("unassigned")',
+			errors: [unassignedError]
+		},
+		{
 			code: 'export * from \'unassigned\'',
 			errors: [unassignedError]
 		},
@@ -291,6 +296,10 @@ test({
 		},
 		{
 			code: 'const {} = require(\'default\')',
+			errors: [defaultError]
+		},
+		{
+			code: 'const {...rest} = require("default")',
 			errors: [defaultError]
 		},
 		{
@@ -384,6 +393,10 @@ test({
 		},
 		{
 			code: 'const {default: x} = require(\'namespace\')',
+			errors: [namespaceError]
+		},
+		{
+			code: 'const {...rest} = require("namespace")',
 			errors: [namespaceError]
 		},
 		{
