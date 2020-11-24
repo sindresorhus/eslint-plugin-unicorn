@@ -69,7 +69,7 @@ const getActualExportDeclarationStyles = exportDeclaration => {
 };
 
 const getActualAssignmentTargetImportStyles = assignmentTarget => {
-	if (assignmentTarget.type === 'Identifier') {
+	if (assignmentTarget.type === 'Identifier' || assignmentTarget.type === 'ArrayPattern') {
 		return ['namespace'];
 	}
 
