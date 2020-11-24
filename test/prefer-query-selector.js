@@ -1,4 +1,5 @@
 import {test} from './utils/test';
+import notDomNodeTypes from './utils/not-dom-node-types';
 
 const createError = (method, replacement) => ({
 	messageId: 'prefer-query-selector',
@@ -7,7 +8,17 @@ const createError = (method, replacement) => ({
 
 test({
 	valid: [
-		// More or less arguments
+		// Not `CallExpression`
+		'new document.getElementById(foo);',
+		// Not `MemberExpression`
+		'getElementById(foo);',
+		// `callee.property` is not a `Identifier`
+		'document[\'getElementById\'](bar);',
+		// Computed
+		'document[getElementById](bar);',
+		// Not listed method
+		'document.foo(bar);',
+		// More or less argument(s)
 		'document.getElementById();',
 		'document.getElementsByClassName("foo", "bar");',
 		'document.getElementById(...["id"]);',
