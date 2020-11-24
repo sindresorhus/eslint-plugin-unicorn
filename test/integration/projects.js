@@ -74,7 +74,10 @@ module.exports = [
 			'aio/tools/transforms/templates/data-module.template.js',
 
 			'--ignore-pattern',
-			'aio/content/examples/router/src/app/app-routing.module.9.ts'
+			'aio/content/examples/router/src/app/app-routing.module.9.ts',
+
+			'--ignore-pattern',
+			'packages/compiler-cli/test/compliance/test_cases/r3_compiler_compliance/elements/**'
 		]
 	},
 	{
