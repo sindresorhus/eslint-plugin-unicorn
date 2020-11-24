@@ -35,7 +35,7 @@ const create = context => {
 					node,
 					messageId: 'disallow',
 					data: {name}
-				}
+				};
 
 				if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
 					problem.fix = fixer => fixer.removeRange([
