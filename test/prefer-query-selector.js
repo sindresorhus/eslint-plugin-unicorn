@@ -7,6 +7,11 @@ const createError = (method, replacement) => ({
 
 test({
 	valid: [
+		// More or less arguments
+		'document.getElementById();',
+		'document.getElementsByClassName("foo", "bar");',
+		'document.getElementById(...["id"]);',
+
 		'document.querySelector("#foo");',
 		'document.querySelector(".bar");',
 		'document.querySelector("main #foo .bar");',
