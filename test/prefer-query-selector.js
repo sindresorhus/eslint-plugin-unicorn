@@ -23,6 +23,9 @@ test({
 		'document.getElementsByClassName("foo", "bar");',
 		'document.getElementById(...["id"]);',
 
+		// `callee.object` is not a DOM Node,
+		...notDomNodeTypes.map(data => `(${data}).getElementById(foo)`),
+
 		'document.querySelector("#foo");',
 		'document.querySelector(".bar");',
 		'document.querySelector("main #foo .bar");',

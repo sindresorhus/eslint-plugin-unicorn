@@ -1,16 +1,20 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
+const {notDomNodeSelector} = require('./utils/not-dom-node');
 
 const MESSAGE_ID = 'prefer-query-selector';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `.{{replacement}}()` over `.{{method}}()`.'
 };
 
-const selector = methodSelector({
-  names: ['getElementById', 'getElementsByClassName', 'getElementsByTagName'],
-  length: 1,
-})
+const selector = [
+	methodSelector({
+		names: ['getElementById', 'getElementsByClassName', 'getElementsByTagName'],
+		length: 1,
+	}),
+	notDomNodeSelector('callee.object')
+].join('');
 
 const forbiddenIdentifierNames = new Map([
 	['getElementById', 'querySelector'],
