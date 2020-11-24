@@ -75,6 +75,7 @@ test({
 
 		'const x = require(\'default\')',
 		'const {default: x} = require(\'default\')',
+		'const [] = require("default")',
 		'import x from \'default\'',
 		outdent`
 			async () => {
@@ -84,6 +85,7 @@ test({
 		'export {default} from \'default\'',
 
 		'const x = require(\'namespace\')',
+		'const [] = require("namespace")',
 		'import * as x from \'namespace\'',
 		outdent`
 			async () => {
@@ -93,6 +95,7 @@ test({
 		'export * from \'namespace\'',
 
 		'const {x} = require(\'named\')',
+		'const {...rest} = require("named")',
 		'const {x: y} = require(\'named\')',
 		'import {x} from \'named\'',
 		'import {x as y} from \'named\'',
@@ -269,6 +272,14 @@ test({
 			errors: [unassignedError]
 		},
 		{
+			code: 'const {...rest} = require("unassigned")',
+			errors: [unassignedError]
+		},
+		{
+			code: 'const [] = require("unassigned")',
+			errors: [unassignedError]
+		},
+		{
 			code: 'export * from \'unassigned\'',
 			errors: [unassignedError]
 		},
@@ -291,6 +302,10 @@ test({
 		},
 		{
 			code: 'const {} = require(\'default\')',
+			errors: [defaultError]
+		},
+		{
+			code: 'const {...rest} = require("default")',
 			errors: [defaultError]
 		},
 		{
@@ -387,6 +402,10 @@ test({
 			errors: [namespaceError]
 		},
 		{
+			code: 'const {...rest} = require("namespace")',
+			errors: [namespaceError]
+		},
+		{
 			code: 'import x from \'namespace\'',
 			errors: [namespaceError]
 		},
@@ -441,6 +460,10 @@ test({
 		},
 		{
 			code: 'const {} = require(\'named\')',
+			errors: [namedError]
+		},
+		{
+			code: 'const [] = require("named")',
 			errors: [namedError]
 		},
 		{
