@@ -249,22 +249,22 @@ test({
 		{
 			code: 'const foo = new Boolean()',
 			errors: [disallowNewError('Boolean')],
-			output: 'const foo = Boolean()'
+			output: 'const foo = new Boolean()'
 		},
 		{
 			code: 'const foo = new Number()',
 			errors: [disallowNewError('Number')],
-			output: 'const foo = Number()'
+			output: 'const foo = new Number()'
 		},
 		{
 			code: 'const foo = new Number(\'123\')',
 			errors: [disallowNewError('Number')],
-			output: 'const foo = Number(\'123\')'
+			output: 'const foo = new Number(\'123\')'
 		},
 		{
 			code: 'const foo = new String()',
 			errors: [disallowNewError('String')],
-			output: 'const foo = String()'
+			output: 'const foo = new String()'
 		},
 		{
 			code: 'const foo = new Symbol()',
