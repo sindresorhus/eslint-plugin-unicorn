@@ -105,6 +105,11 @@ const create = context => {
 				return;
 			}
 
+			const [firstArgument] = node.arguments;
+			if (node.arguments.length !== 1 || firstArgument.type === 'SpreadElement') {
+				return;
+			}
+
 			const report = {
 				node,
 				messageId: MESSAGE_ID,
