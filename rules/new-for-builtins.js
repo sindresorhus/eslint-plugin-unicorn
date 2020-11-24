@@ -37,7 +37,7 @@ const create = context => {
 					data: {name}
 				}
 
-				if (name !=== 'String' && name !== 'Boolean' && name !== 'Number') {
+				if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
 					problem.fix = fixer => fixer.removeRange([
 						node.range[0],
 						node.callee.range[0]
