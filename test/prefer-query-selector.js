@@ -1,5 +1,6 @@
 import {test} from './utils/test';
 import notDomNodeTypes from './utils/not-dom-node-types';
+import {outdent} from 'outdent';
 
 const createError = (method, replacement) => ({
 	messageId: 'prefer-query-selector',
@@ -58,5 +59,10 @@ test.visualize([
 	'document.getElementsByTagName(null);',
 	'document.getElementsByClassName(fn());',
 	'document.getElementsByClassName("foo" + fn());',
-	'document.getElementsByClassName(foo + "bar");'
+	'document.getElementsByClassName(foo + "bar");',
+	outdent`
+		for (const div of document.body.getElementById("id").getElementsByClassName("class")) {
+			console.log(div.getElementsByTagName("div"));
+		}
+	`
 ]);
