@@ -111,7 +111,7 @@ const create = context => {
 			}
 
 			const report = {
-				node,
+				node: node.callee.property,
 				messageId: MESSAGE_ID,
 				data: {
 					replacement: preferedSelector,
