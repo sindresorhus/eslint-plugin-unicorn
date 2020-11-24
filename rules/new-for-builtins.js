@@ -31,15 +31,20 @@ const create = context => {
 			const {name} = callee;
 
 			if (disallowNew.has(name) && !isShadowed(context.getScope(), callee)) {
-				context.report({
+				const problem = {
 					node,
 					messageId: 'disallow',
-					data: {name},
-					fix: fixer => fixer.removeRange([
+					data: {name}
+				};
+
+				if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
+					problem.fix = fixer => fixer.removeRange([
 						node.range[0],
 						node.callee.range[0]
-					])
-				});
+					]);
+				}
+
+				context.report(problem);
 			}
 		}
 	};
