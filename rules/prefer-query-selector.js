@@ -11,7 +11,7 @@ const messages = {
 const selector = [
 	methodSelector({
 		names: ['getElementById', 'getElementsByClassName', 'getElementsByTagName'],
-		length: 1,
+		length: 1
 	}),
 	notDomNodeSelector('callee.object')
 ].join('');

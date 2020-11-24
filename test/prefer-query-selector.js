@@ -2,11 +2,6 @@ import {test} from './utils/test';
 import notDomNodeTypes from './utils/not-dom-node-types';
 import {outdent} from 'outdent';
 
-const createError = (method, replacement) => ({
-	messageId: 'prefer-query-selector',
-	data: {method, replacement}
-});
-
 test({
 	valid: [
 		// Not `CallExpression`
