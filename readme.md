@@ -1,4 +1,4 @@
-# eslint-plugin-unicorn [![Build Status](https://github.com/sindresorhus/eslint-plugin-unicorn/workflows/CI/badge.svg?branch=master)](https://github.com/sindresorhus/eslint-plugin-unicorn/actions?query=branch%3Amaster+workflow%3ACI) [![Coverage Status](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/master/graph/badge.svg)](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/master)
+# eslint-plugin-unicorn [![Coverage Status](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/master/graph/badge.svg)](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/master)
 
 <img src="https://cloud.githubusercontent.com/assets/170270/18659176/1cc373d0-7f33-11e6-890f-0ba35362ee7e.jpg" width="180" align="right">
 
