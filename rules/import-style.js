@@ -85,6 +85,7 @@ const getActualAssignmentTargetImportStyles = assignmentTarget => {
 				styles.add('named');
 				continue;
 			}
+
 			if (property.key.type === 'Identifier') {
 				if (property.key.name === 'default') {
 					styles.add('default');
