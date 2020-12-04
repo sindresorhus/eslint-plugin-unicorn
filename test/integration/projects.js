@@ -69,6 +69,7 @@ module.exports = [
 	'https://github.com/microsoft/typescript',
 	'https://github.com/microsoft/vscode',
 	'https://github.com/ElemeFE/element',
+	'https://github.com/element-plus/element-plus',
 	'https://github.com/iview/iview',
 	'https://github.com/sindresorhus/create-dmg',
 	'https://github.com/sindresorhus/cp-file',
