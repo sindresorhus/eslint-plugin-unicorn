@@ -34,6 +34,6 @@ module.exports = {
 		{
 			files: ['*.vue'],
 			parser: 'vue-eslint-parser'
-		},
+		}
 	]
 };

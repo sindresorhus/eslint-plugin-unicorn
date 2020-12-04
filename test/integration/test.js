@@ -172,7 +172,7 @@ list.run()
 
 		process.exit(1);
 	})
-	// catch errors in last `.catch`
+	// Catch errors in last `.catch`
 	.catch(error => {
 		console.error(error);
 		process.exit(1);
