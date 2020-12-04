@@ -138,7 +138,11 @@ module.exports = [
 	},
 	'https://github.com/ReactTraining/react-router',
 	'https://github.com/facebook/relay',
-	'https://github.com/mozilla/pdf.js'
+	'https://github.com/mozilla/pdf.js',
+	{
+		repository: 'https://github.com/microsoft/fluentui',
+		extraArguments: typescriptArguments
+	}
 ].map(project => {
 	if (typeof project === 'string') {
 		project = {repository: project};
