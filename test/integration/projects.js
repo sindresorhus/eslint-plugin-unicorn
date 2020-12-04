@@ -112,7 +112,12 @@ module.exports = [
 	'https://github.com/ReactTraining/react-router',
 	'https://github.com/facebook/relay',
 	'https://github.com/mozilla/pdf.js',
-	'https://github.com/microsoft/fluentui'
+	// #912
+	'https://github.com/microsoft/fluentui',
+	// #902
+	'https://github.com/reakit/reakit',
+	// #903
+	'https://github.com/mattermost/mattermost-webapp'
 ].map(project => {
 	if (typeof project === 'string') {
 		project = {repository: project};
