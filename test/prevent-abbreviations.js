@@ -1793,6 +1793,34 @@ runTest.typescript({
 			code: 'const foo = (extraParams?: string) => {}',
 			output: 'const foo = (extraParameters?: string) => {}',
 			errors: createErrors()
+		},
+		{
+			code: 'const foo = (extr\u0061Params     ?    :    string) => {}',
+			output: 'const foo = (extraParameters?:    string) => {}',
+			errors: 1
+		},
+
+		// #912
+		{
+			code: outdent`
+				interface Prop {
+						id: number;
+				}
+
+				const Prop: Prop = { id: 1 };
+
+				export default Prop;
+			`,
+			output: outdent`
+				interface Property {
+						id: number;
+				}
+
+				const Property: Property = { id: 1 };
+
+				export default Property;
+			`,
+			errors: 1
 		}
 	]
 });
