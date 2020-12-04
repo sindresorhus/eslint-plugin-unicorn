@@ -63,7 +63,7 @@ module.exports = [
 			'aio/content/examples/router/src/app/app-routing.module.9.ts',
 
 			'--ignore-pattern',
-			'packages/compiler-cli/test/compliance/test_cases/r3_compiler_compliance/elements/**'
+			'packages/compiler-cli/test/compliance/test_cases/r3_compiler_compliance/**'
 		]
 	},
 	'https://github.com/microsoft/typescript',
