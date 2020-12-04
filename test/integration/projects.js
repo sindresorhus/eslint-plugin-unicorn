@@ -46,7 +46,13 @@ module.exports = [
 	'https://github.com/sindresorhus/pretty-bytes',
 	'https://github.com/sindresorhus/normalize-url',
 	'https://github.com/sindresorhus/pageres',
-	'https://github.com/sindresorhus/got',
+	{
+		repository: 'https://github.com/sindresorhus/got',
+		extraArguments: [
+			'--ignore-pattern',
+			'documentation/examples/gh-got.js' // This file use `package` keyword as variable
+		]
+	},
 	'https://github.com/eslint/eslint',
 	'https://github.com/prettier/prettier',
 	'https://github.com/facebook/react',
@@ -55,18 +61,26 @@ module.exports = [
 		extraArguments: [
 			'--ignore-pattern',
 			'aio/content/examples/animations/src/app/open-close.component.3.ts',
+			'--ignore-pattern',
+			'aio/content/examples/router/src/app/app-routing.module.9.ts',
 
 			'--ignore-pattern',
 			'aio/tools/transforms/templates/data-module.template.js',
-
 			'--ignore-pattern',
-			'aio/content/examples/router/src/app/app-routing.module.9.ts',
+			'aio/tools/transforms/authors-package/index.js', // This file use `package` keyword as variable
 
 			'--ignore-pattern',
 			'packages/compiler-cli/test/compliance/test_cases/r3_compiler_compliance/**'
 		]
 	},
-	'https://github.com/microsoft/typescript',
+	{
+		repository: 'https://github.com/microsoft/typescript',
+		extraArguments: [
+			// This file use `'\033'`
+			'--ignore-pattern',
+			'build/npm/preinstall.js'
+		]
+	},
 	'https://github.com/microsoft/vscode',
 	'https://github.com/ElemeFE/element',
 	'https://github.com/element-plus/element-plus',
