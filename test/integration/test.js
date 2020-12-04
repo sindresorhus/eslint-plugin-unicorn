@@ -29,6 +29,8 @@ const makeEslintTask = (project, destination) => {
 		'eslint',
 		'--fix-dry-run',
 		'--no-eslintrc',
+		'--ext',
+		'.js,.ts,.vue',
 		'--format',
 		'json',
 		'--config',

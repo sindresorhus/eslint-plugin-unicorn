@@ -1,9 +1,6 @@
 'use strict';
 const path = require('path');
 
-const typescriptArguments = ['--parser', '@typescript-eslint/parser', '--ext', '.ts,.js'];
-const vueArguments = ['--parser', 'vue-eslint-parser', '--ext', '.vue,.js'];
-
 module.exports = [
 	{
 		name: 'unicorn',
@@ -45,28 +42,17 @@ module.exports = [
 	'https://github.com/sindresorhus/meow',
 	'https://github.com/sindresorhus/globby',
 	'https://github.com/sindresorhus/emittery',
-	{
-		repository: 'https://github.com/sindresorhus/p-queue',
-		extraArguments: typescriptArguments
-	},
+	'https://github.com/sindresorhus/p-queue',
 	'https://github.com/sindresorhus/pretty-bytes',
 	'https://github.com/sindresorhus/normalize-url',
-	{
-		repository: 'https://github.com/sindresorhus/pageres',
-		extraArguments: typescriptArguments
-	},
-	{
-		repository: 'https://github.com/sindresorhus/got',
-		extraArguments: typescriptArguments
-	},
+	'https://github.com/sindresorhus/pageres',
+	'https://github.com/sindresorhus/got',
 	'https://github.com/eslint/eslint',
 	'https://github.com/prettier/prettier',
 	'https://github.com/facebook/react',
 	{
 		repository: 'https://github.com/angular/angular',
 		extraArguments: [
-			...typescriptArguments,
-
 			'--ignore-pattern',
 			'aio/content/examples/animations/src/app/open-close.component.3.ts',
 
@@ -80,22 +66,10 @@ module.exports = [
 			'packages/compiler-cli/test/compliance/test_cases/r3_compiler_compliance/elements/**'
 		]
 	},
-	{
-		repository: 'https://github.com/microsoft/typescript',
-		extraArguments: typescriptArguments
-	},
-	{
-		repository: 'https://github.com/microsoft/vscode',
-		extraArguments: typescriptArguments
-	},
-	{
-		repository: 'https://github.com/ElemeFE/element',
-		extraArguments: vueArguments
-	},
-	{
-		repository: 'https://github.com/iview/iview',
-		extraArguments: vueArguments
-	},
+	'https://github.com/microsoft/typescript',
+	'https://github.com/microsoft/vscode',
+	'https://github.com/ElemeFE/element',
+	'https://github.com/iview/iview',
 	'https://github.com/sindresorhus/create-dmg',
 	'https://github.com/sindresorhus/cp-file',
 	'https://github.com/sindresorhus/capture-website',
@@ -119,8 +93,6 @@ module.exports = [
 	{
 		repository: 'https://github.com/vercel/next.js',
 		extraArguments: [
-			...typescriptArguments,
-
 			'--ignore-pattern',
 			'examples/**',
 
@@ -139,10 +111,7 @@ module.exports = [
 	'https://github.com/ReactTraining/react-router',
 	'https://github.com/facebook/relay',
 	'https://github.com/mozilla/pdf.js',
-	{
-		repository: 'https://github.com/microsoft/fluentui',
-		extraArguments: typescriptArguments
-	}
+	'https://github.com/microsoft/fluentui'
 ].map(project => {
 	if (typeof project === 'string') {
 		project = {repository: project};
