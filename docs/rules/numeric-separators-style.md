@@ -33,6 +33,19 @@ If you want a custom group size for a specific number type, you can specify it h
 
 There are four number types; [`hexadecimal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Hexadecimal), [`binary`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Binary), [`octal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Octal) and [`number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type). Each of them can be associated with an object containing the following options:
 
+**`checkOnlyIfSeparator`**
+
+Type: `boolean`
+
+Check only if the group sizes are valid **only** if there are groups, separated with an `_`.
+
+Example:
+```js
+const foo = 100000; // Pass, because there are no groups, so no check was performed.
+const bar = 1_000_000; // Pass, because the group sizes are correct.
+const baz = 10_0_000_0; // Fail, because there are groups, but they are incorrect.
+```
+
 **`minimumDigits`**
 
 Type: `number`
@@ -96,18 +109,22 @@ const foo = 0o12_7777;
 ```js
 {
 	hexadecimal: {
+		checkOnlyIfSeparator: false,
 		minimumDigits: 0,
 		groupLength: 2
 	},
 	binary: {
+		checkOnlyIfSeparator: false,
 		minimumDigits: 0,
 		groupLength: 4
 	},
 	octal: {
+		checkOnlyIfSeparator: false,
 		minimumDigits: 0,
 		groupLength: 4
 	},
 	number: {
+		checkOnlyIfSeparator: false,
 		minimumDigits: 5,
 		groupLength: 3
 	}

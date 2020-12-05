@@ -104,6 +104,18 @@ test({
 		{
 			code: 'const foo = 0b111',
 			options: [{number: {minimumDigits: 3, groupLength: 1}}]
+		},
+		{
+			code: 'const foo = 12345',
+			options: [{number: {checkOnlyIfSeparator: true}}]
+		},
+		{
+			code: 'const foo = 12_345',
+			options: [{number: {checkOnlyIfSeparator: true}}]
+		},
+		{
+			code: 'const foo = 0xA_B_C_D_E',
+			options: [{hexadecimal: {checkOnlyIfSeparator: true, groupLength: 1}}]
 		}
 	],
 	invalid: [
