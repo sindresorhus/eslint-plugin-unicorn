@@ -98,7 +98,7 @@ const create = context => {
 
 			const strippedNumber = number.replace(/_/g, '');
 			const {prefix = '', data} = strippedNumber.match(/^(?<prefix>0[box])?(?<data>.*)$/i).groups;
-			if (options[prefix]?.checkOnlyIfSeparator && !raw.includes('_')) {
+			if (options[prefix.toLowerCase()].checkOnlyIfSeparator && !raw.includes('_')) {
 				return;
 			}
 
