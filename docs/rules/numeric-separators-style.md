@@ -37,7 +37,7 @@ There are four number types; [`hexadecimal`](https://developer.mozilla.org/en-US
 
 Type: `boolean`
 
-Check only if the group sizes are valid **only** if there are groups, separated with an `_`.
+Check if the group sizes are valid **only** if there are groups separated with an `_`.
 
 Example:
 ```js
