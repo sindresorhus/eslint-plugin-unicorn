@@ -40,12 +40,6 @@ test({
 			code: 'values.findIndex(function (x) {return x === "foo";})',
 			output: 'values.indexOf("foo")',
 			errors: errorsFindIndex
-		},
-		// Extra arguments
-		{
-			code: 'foo.findIndex(x => x === "foo", 2)',
-			output: 'foo.findIndex(x => x === "foo", 2)',
-			errors: errorsFindIndex
 		}
 	]
 });
