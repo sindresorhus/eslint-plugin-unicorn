@@ -10,6 +10,8 @@ This rule is fixable.
 ```js
 [].findIndex(x => x === 'foo');
 values.findIndex(x => 'foo' === x);
+values.findIndex(x => {return x === 'foo';});
+['foobar'].findIndex(x => {return 'foo' === x;});
 values.findIndex(function (x) {return x === 'foo';});
 ['foobar'].findIndex(function (x) {return 'foo' === x;});
 ```
