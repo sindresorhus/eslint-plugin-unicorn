@@ -62,5 +62,6 @@ test.visualize([
 	'throw new Error({})',
 	'throw new Error({foo})',
 	'throw new Error({foo: 0}.foo)',
-	'throw new Error(lineNumber=2)'
+	'throw new Error(lineNumber=2)',
+	'const error = new AggregateError;'
 ]);
