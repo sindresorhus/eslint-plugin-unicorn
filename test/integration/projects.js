@@ -54,7 +54,13 @@ module.exports = [
 		]
 	},
 	'https://github.com/eslint/eslint',
-	'https://github.com/prettier/prettier',
+	{
+		repository: 'https://github.com/prettier/prettier',
+		extraArguments: [
+			'--ignore-pattern',
+			'tests/typescript/conformance/types/functions/functionImplementations.ts' // #915
+		]
+	},
 	'https://github.com/facebook/react',
 	{
 		repository: 'https://github.com/angular/angular',
