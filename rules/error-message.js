@@ -69,7 +69,7 @@ const create = context => {
 				return;
 			}
 
-			if (value === ''){
+			if (value === '') {
 				context.report({
 					node,
 					messageId: MESSAGE_ID_EMPTY_MESSAGE

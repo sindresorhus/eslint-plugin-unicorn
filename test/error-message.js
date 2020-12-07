@@ -1,17 +1,6 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test';
 
-const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage';
-const MESSAGE_ID_EMPTY_MESSAGE = 'emptyMessage';
-
-const emptyStringError = {
-	messageId: MESSAGE_ID_EMPTY_MESSAGE
-};
-
-const noMessageError = {
-	messageId: MESSAGE_ID_MISSING_MESSAGE
-};
-
 test({
 	valid: [
 		'throw new Error(\'error\')',
@@ -39,8 +28,8 @@ test({
 		`
 	],
 	invalid: [
-	],
-})
+	]
+});
 
 test.visualize([
 	'throw new Error()',
