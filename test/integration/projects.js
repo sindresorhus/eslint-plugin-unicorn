@@ -76,7 +76,10 @@ module.exports = [
 			'aio/tools/transforms/authors-package/index.js', // This file use `package` keyword as variable
 
 			'--ignore-pattern',
-			'packages/compiler-cli/test/**'
+			'packages/compiler-cli/test/**',
+
+			'--ignore-pattern',
+			'tools/**'
 		]
 	},
 	{
