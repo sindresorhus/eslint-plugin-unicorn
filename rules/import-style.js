@@ -172,7 +172,7 @@ const create = context => {
 	styles = new Map(
 		Object.entries(styles).map(
 			([moduleName, styles]) =>
-				[moduleName, new Map(Object.entries(styles))]
+				[moduleName, new Set(Object.entries(styles).filter(([, isAllowed]) => isAllowed).map(([style]) => style))]
 		)
 	);
 
@@ -188,13 +188,13 @@ const create = context => {
 			// `{default: x} = require('x')` (`'default'` style) since we don't know in advance
 			// whether `'x'` is a compiled ES6 module (with `default` key) or a CommonJS module and `require`
 			// does not provide any automatic interop for this, so the user may have to use either of theese.
-			if (allowedImportStyles.get('default') && !allowedImportStyles.get('namespace')) {
-				effectiveAllowedImportStyles = new Map(allowedImportStyles);
-				effectiveAllowedImportStyles.set('namespace', true);
+			if (allowedImportStyles.has('default') && !allowedImportStyles.has('namespace')) {
+				effectiveAllowedImportStyles = new Set(allowedImportStyles);
+				effectiveAllowedImportStyles.add('namespace');
 			}
 		}
 
-		if (actualImportStyles.every(style => effectiveAllowedImportStyles.get(style))) {
+		if (actualImportStyles.every(style => effectiveAllowedImportStyles.has(style))) {
 			return;
 		}
 
