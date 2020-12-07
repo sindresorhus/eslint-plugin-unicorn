@@ -20,7 +20,6 @@ const errorConstructors = [
 	'SyntaxError',
 	'TypeError',
 	'URIError',
-	'AggregateError',
 	'InternalError'
 ];
 
