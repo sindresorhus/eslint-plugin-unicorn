@@ -5,13 +5,16 @@ const options = {
 	checkExportFrom: true,
 	styles: {
 		unassigned: {
-			unassigned: true
+			unassigned: true,
+			named: false
 		},
 		default: {
-			default: true
+			default: true,
+			named: false
 		},
 		namespace: {
-			namespace: true
+			namespace: true,
+			named: false
 		},
 		named: {
 			named: true
