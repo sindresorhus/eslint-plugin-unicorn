@@ -34,6 +34,18 @@ module.exports = {
 		{
 			files: ['*.vue'],
 			parser: 'vue-eslint-parser'
+		},
+		{
+			files: ['fixtures/element-plus/**/*.vue'],
+			parser: 'vue-eslint-parser',
+			parserOptions: {
+				parser: '@typescript-eslint/parser',
+				sourceType: 'module',
+				ecmaFeatures: {
+					jsx: true,
+					tsx: true
+				}
+			}
 		}
 	]
 };
