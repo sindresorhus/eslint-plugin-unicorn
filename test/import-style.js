@@ -614,9 +614,9 @@ test.babel({
 		{
 			code: 'const {...rest2} = require("namespace")',
 			errors: [namespaceError]
-		},
+		}
 	].map(test => addDefaultOptions(test))
-})
+});
 
 test.visualize([
 	'import util from \'util\'',
