@@ -17,7 +17,6 @@ const errorConstructors = new Set([
 	'SyntaxError',
 	'TypeError',
 	'URIError',
-	'AggregateError',
 	'InternalError'
 ]);
 
