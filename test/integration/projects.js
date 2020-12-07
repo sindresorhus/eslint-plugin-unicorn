@@ -151,7 +151,7 @@ module.exports = [
 	},
 	// #902
 	{
-		repository: 'https://github.com/reakit/reakit/',
+		repository: 'https://github.com/reakit/reakit',
 		extraArguments: [
 			'--ignore-pattern',
 			'packages/reakit/jest.config.js' // This file use `package` keyword as variable
