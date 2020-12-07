@@ -70,18 +70,25 @@ module.exports = [
 			'aio/tools/transforms/authors-package/index.js', // This file use `package` keyword as variable
 
 			'--ignore-pattern',
-			'packages/compiler-cli/test/compliance/test_cases/r3_compiler_compliance/**'
+			'packages/compiler-cli/test/**'
 		]
 	},
 	{
 		repository: 'https://github.com/microsoft/typescript',
 		extraArguments: [
-			// This file use `'\033'`
+			// These file use `'\033'`
 			'--ignore-pattern',
-			'build/npm/preinstall.js'
+			'build/**'
 		]
 	},
-	'https://github.com/microsoft/vscode',
+	{
+		repository: 'https://github.com/microsoft/vscode',
+		extraArguments: [
+			// This file use `'\033'`
+			'--ignore-pattern',
+			'build/**'
+		]
+	},
 	'https://github.com/ElemeFE/element',
 	'https://github.com/element-plus/element-plus',
 	'https://github.com/iview/iview',
@@ -127,7 +134,13 @@ module.exports = [
 	'https://github.com/facebook/relay',
 	'https://github.com/mozilla/pdf.js',
 	// #912
-	'https://github.com/microsoft/fluentui',
+	{
+		repository: 'https://github.com/microsoft/fluentui',
+		extraArguments: [
+			'--ignore-pattern',
+			'scripts/publish-beta.js' // This file use `package` keyword as variable
+		]
+	},
 	// #902
 	'https://github.com/reakit/reakit',
 	// #903
