@@ -148,7 +148,13 @@ module.exports = [
 		]
 	},
 	// #902
-	'https://github.com/reakit/reakit',
+	{
+		repository: 'https://github.com/reakit/reakit/',
+		extraArguments: [
+			'--ignore-pattern',
+			'packages/reakit/jest.config.js' // This file use `package` keyword as variable
+		]
+	},
 	// #903
 	'https://github.com/mattermost/mattermost-webapp'
 ].map(project => {
