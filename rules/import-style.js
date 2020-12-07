@@ -81,7 +81,7 @@ const getActualAssignmentTargetImportStyles = assignmentTarget => {
 		const styles = new Set();
 
 		for (const property of assignmentTarget.properties) {
-			if (property.type === 'RestElement') {
+			if (property.type === 'RestElement' || property.type === 'ExperimentalRestProperty') {
 				styles.add('named');
 				continue;
 			}
