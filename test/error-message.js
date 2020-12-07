@@ -35,6 +35,7 @@ test.visualize([
 	'throw new Error()',
 	'throw Error()',
 	'throw new Error(\'\')',
+	'throw new Error(``)',
 	outdent`
 		const err = new Error();
 		throw err;
