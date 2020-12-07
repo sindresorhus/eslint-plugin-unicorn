@@ -90,13 +90,12 @@ class VisualizeRuleTester {
 		const fixable = rule.meta && rule.meta.fixable;
 		const linter = new Linter();
 		linter.defineRule(ruleId, rule);
-		const indexDigits = String(tests.length).length;
 
 		for (const [index, testCase] of tests.entries()) {
 			const {code, options} = typeof testCase === 'string' ? {code: testCase} : testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, options);
 
-			test(`${ruleId} - #${String(index + 1).padStart(indexDigits, '0')}`, t => {
+			test(`${ruleId} - #${index + 1}`, t => {
 				const messages = linter.verify(code, verifyConfig);
 				if (messages.length === 0) {
 					throw new Error('No errors reported.');
