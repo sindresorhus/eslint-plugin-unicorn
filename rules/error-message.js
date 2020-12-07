@@ -6,7 +6,7 @@ const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage';
 const MESSAGE_ID_EMPTY_MESSAGE = 'emptyMessage';
 const MESSAGE_ID_NOT_STRING = 'message-is-not-a-string';
 const messages = {
-	[MESSAGE_ID_MISSING_MESSAGE]: 'Pass a message to the error constructor.',
+	[MESSAGE_ID_MISSING_MESSAGE]: 'Pass a message to the `{{constructor}}` constructor.',
 	[MESSAGE_ID_EMPTY_MESSAGE]: 'Error message should not be an empty string.',
 	[MESSAGE_ID_NOT_STRING]: 'Error message should be a string.'
 };
@@ -37,7 +37,10 @@ const create = context => {
 		[noArgumentsExpressionSelector](node) {
 			context.report({
 				node,
-				messageId: MESSAGE_ID_MISSING_MESSAGE
+				messageId: MESSAGE_ID_MISSING_MESSAGE,
+				data: {
+					constructor: node.callee.name
+				}
 			});
 		},
 		[errorMessageSelector](expression) {
