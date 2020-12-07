@@ -24,10 +24,7 @@ module.exports = {
 		...enableAllRules,
 
 		// This rule crashing on replace string inside `jsx` or `Unicode escape sequence`
-		'unicorn/string-content': 'off',
-
-		// #922 will fix it
-		'unicorn/error-message': 'off'
+		'unicorn/string-content': 'off'
 	},
 	overrides: [
 		{
