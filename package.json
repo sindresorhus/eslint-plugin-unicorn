@@ -46,32 +46,32 @@
 		"regexp-tree": "^0.1.21",
 		"reserved-words": "^0.1.2",
 		"safe-regex": "^2.1.1",
-		"semver": "^7.3.2"
+		"semver": "^7.3.4"
 	},
 	"devDependencies": {
 		"@ava/babel": "^1.0.1",
 		"@babel/code-frame": "7.10.4",
 		"@lubien/fixture-beta-package": "^1.0.0-beta.1",
-		"@typescript-eslint/parser": "^4.4.1",
+		"@typescript-eslint/parser": "^4.9.0",
 		"ava": "^3.14.0",
 		"babel-eslint": "^10.1.0",
 		"chalk": "^4.1.0",
 		"enquirer": "2.3.6",
-		"eslint": "^7.11.0",
+		"eslint": "^7.15.0",
 		"eslint-ava-rule-tester": "^4.0.0",
 		"eslint-plugin-eslint-plugin": "^2.3.0",
-		"execa": "^4.0.3",
+		"execa": "^5.0.0",
 		"listr": "^0.14.3",
 		"mem": "8.0.0",
 		"nyc": "^15.1.0",
 		"outdent": "^0.7.1",
 		"pify": "^5.0.0",
-		"typescript": "^4.0.3",
-		"vue-eslint-parser": "^7.1.1",
-		"xo": "^0.33.1"
+		"typescript": "^4.1.2",
+		"vue-eslint-parser": "^7.2.0",
+		"xo": "^0.35.0"
 	},
 	"peerDependencies": {
-		"eslint": ">=7.11.0"
+		"eslint": ">=7.15.0"
 	},
 	"ava": {
 		"babel": true,
