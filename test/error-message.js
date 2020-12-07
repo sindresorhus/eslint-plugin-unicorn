@@ -29,42 +29,26 @@ test({
 			throw err;
 		`
 	],
-
 	invalid: [
-		{
-			code: 'throw new Error()',
-			errors: [noMessageError]
-		},
-		{
-			code: 'throw Error()',
-			errors: [noMessageError]
-		},
-		{
-			code: 'throw new Error(\'\')',
-			errors: [emptyStringError]
-		},
-		{
-			code: outdent`
-			const err = new Error();
-			throw err;
-			`,
-			errors: [noMessageError]
-		},
-		{
-			code: outdent`
-			let err = 1;
-			err = new Error();
-			throw err;
-			`,
-			errors: [noMessageError]
-		},
-		{
-			code: outdent`
-			let err = new Error();
-			err = 1;
-			throw err;
-			`,
-			errors: [noMessageError]
-		}
-	]
-});
+	],
+})
+
+test.visualize([
+	'throw new Error()',
+	'throw Error()',
+	'throw new Error(\'\')',
+	outdent`
+		const err = new Error();
+		throw err;
+	`,
+	outdent`
+		let err = 1;
+		err = new Error();
+		throw err;
+	`,
+	outdent`
+		let err = new Error();
+		err = 1;
+		throw err;
+	`,
+]);
