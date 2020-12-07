@@ -18,7 +18,7 @@ const errorConstructors = new Set([
 	'TypeError',
 	'URIError',
 	'AggregateError',
-	'InternalError',
+	'InternalError'
 ]);
 
 const isReferenceAssigned = expression => {
