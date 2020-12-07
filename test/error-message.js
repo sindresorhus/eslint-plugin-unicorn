@@ -51,4 +51,6 @@ test.visualize([
 		err = 1;
 		throw err;
 	`,
+	'const foo = new TypeError()',
+	'const foo = new SyntaxError()'
 ]);
