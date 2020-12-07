@@ -13,13 +13,6 @@ const noMessageError = {
 };
 
 test({
-	// TODO: Check how should the last two tests work on default parserOptions
-	testerOptions: {
-		env: {
-			es6: true
-		},
-		parserOptions: undefined
-	},
 	valid: [
 		'throw new Error(\'error\')',
 		'throw new TypeError(\'error\')',
