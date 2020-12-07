@@ -30,7 +30,13 @@ test({
 		'new Error("message", 0, 0)',
 		// We don't know the value
 		'new Error(foo)',
-		'new Error(...foo)'
+		'new Error(...foo)',
+		// #915, not a issue anymore, we don't track `ThrowStatement`
+		outdent`
+			/* global x */
+			const a = x;
+			throw x;
+		`
 	],
 	invalid: [
 	],
