@@ -172,7 +172,7 @@ const create = context => {
 	styles = new Map(
 		Object.entries(styles).map(
 			([moduleName, styles]) =>
-				[moduleName, new Set(Object.entries(styles).filter(([_, isAllowed]) => isAllowed).map(([moduleName]) => moduleName))]
+				[moduleName, new Set(Object.entries(styles).filter(([, isAllowed]) => isAllowed).map(([style]) => style))]
 		)
 	);
 
