@@ -58,7 +58,7 @@ module.exports = [
 		repository: 'https://github.com/prettier/prettier',
 		extraArguments: [
 			'--ignore-pattern',
-			'tests/typescript/conformance/types/functions/functionImplementations.ts' // #915
+			'tests/**'
 		]
 	},
 	'https://github.com/facebook/react',
