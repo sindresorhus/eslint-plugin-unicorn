@@ -19,15 +19,18 @@ test({
 		'throw new MyCustomError(\'error\')',
 		'throw new MyCustomError()',
 		'throw generateError()',
-		'throw new Error(lineNumber=2)',
-		'throw new Error([])',
 		'throw foo()',
 		'throw err',
 		'throw 1',
 		outdent`
 			const err = TypeError('error');
 			throw err;
-		`
+		`,
+		// Should not check other argument
+		'new Error("message", 0, 0)',
+		// We don't know the value
+		'new Error(foo)',
+		'new Error(...foo)'
 	],
 	invalid: [
 	],
@@ -52,5 +55,16 @@ test.visualize([
 		throw err;
 	`,
 	'const foo = new TypeError()',
-	'const foo = new SyntaxError()'
+	'const foo = new SyntaxError()',
+	outdent`
+		const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;
+		throw new Error(errorMessage)
+	`,
+	'throw new Error([])',
+	'throw new Error([foo])',
+	'throw new Error([0][0])',
+	'throw new Error({})',
+	'throw new Error({foo})',
+	'throw new Error({foo: 0}.foo)',
+	'throw new Error(lineNumber=2)'
 ]);
