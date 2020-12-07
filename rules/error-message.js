@@ -12,14 +12,16 @@ const messages = {
 };
 
 const errorConstructors = [
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
 	'Error',
 	'EvalError',
-	'InternalError',
 	'RangeError',
 	'ReferenceError',
 	'SyntaxError',
 	'TypeError',
-	'URIError'
+	'URIError',
+	'AggregateError',
+	'InternalError'
 ];
 
 const selector = [
