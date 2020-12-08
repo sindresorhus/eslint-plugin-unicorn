@@ -1,18 +1,42 @@
 'use strict';
-const eslintTemplateVisitor = require('eslint-template-visitor');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const methodSelector = require('./utils/method-selector');
 
 const MESSAGE_ID_FINDINDEX = 'findIndex';
 const messages = {
 	[MESSAGE_ID_FINDINDEX]: 'Use `.indexOf()`, rather than `.findIndex()`, when searching the index of an item.'
 };
 
-const templates = eslintTemplateVisitor();
-
-const objectVariable = templates.variable();
-const argumentsVariable = templates.spreadVariable();
-
-const findIndexCallTemplate = templates.template`${objectVariable}.findIndex(${argumentsVariable})`;
+const selector = [
+	methodSelector({
+		name: 'findIndex',
+		length: 1
+	}),
+	`:matches(${
+		[
+			// Matches `foo.findIndex(bar => bar === baz)`
+			[
+				'[arguments.0.type="ArrowFunctionExpression"]',
+				'[arguments.0.params.length=1]',
+				'[arguments.0.params.0.type="Identifier"]',
+				'[arguments.0.body.type="BinaryExpression"]',
+				'[arguments.0.body.operator="==="]'
+			].join(''),
+			// Matches `foo.findIndex(bar => {return bar === baz})`
+			// Matches `foo.findIndex(function (bar) {return bar === baz})`
+			[
+				':matches([arguments.0.type="ArrowFunctionExpression"], [arguments.0.type="FunctionExpression"])',
+				'[arguments.0.params.length=1]',
+				'[arguments.0.params.0.type="Identifier"]',
+				'[arguments.0.body.type="BlockStatement"]',
+				'[arguments.0.body.body.length=1]',
+				'[arguments.0.body.body.0.type="ReturnStatement"]',
+				'[arguments.0.body.body.0.argument.type="BinaryExpression"]',
+				'[arguments.0.body.body.0.argument.operator="==="]',
+			].join('')
+		].join(', ')
+	})`
+].join('');
 
 const getSearchedConstant = node => {
 	if (
@@ -94,38 +118,41 @@ const create = context => {
 		return text;
 	};
 
-	return templates.visitor({
-		[findIndexCallTemplate](node) {
-			const objectNode = findIndexCallTemplate.context.getMatch(objectVariable);
-			const argumentNodes = findIndexCallTemplate.context.getMatch(argumentsVariable);
+	return {
+		[selector](node) {
+			const [callback] = node.arguments;
+			const binaryExpression = callback.body.type === "BinaryExpression" ?
+				callback.body :
+				callback.body.body[0].argument;
+			const [element] = callback.params;
+			const {left, right} = binaryExpression;
 
-			if (
-				argumentNodes.length !== 1
-			) {
-				return;
-			}
+console.log({left, right, element})
 
-			const searchedConstant = getSearchedConstant(argumentNodes[0]);
+			// const objectNode = findIndexCallTemplate.context.getMatch(objectVariable);
+			// const argumentNodes = findIndexCallTemplate.context.getMatch(argumentsVariable);
 
-			if (
-				searchedConstant === null ||
-				searchedConstant === undefined
-			) {
-				return;
-			}
+			// const searchedConstant = getSearchedConstant(argumentNodes[0]);
 
-			const problem = {
-				node,
-				messageId: MESSAGE_ID_FINDINDEX
-			};
+			// if (
+			// 	searchedConstant === null ||
+			// 	searchedConstant === undefined
+			// ) {
+			// 	return;
+			// }
 
-			const searchedConstantText = sourceCode.getText(searchedConstant);
-			const objectText = getNodeText(objectNode);
-			problem.fix = fixer => fixer.replaceText(node, `${objectText}.indexOf(${searchedConstantText})`);
+			// const problem = {
+			// 	node,
+			// 	messageId: MESSAGE_ID_FINDINDEX
+			// };
 
-			context.report(problem);
+			// const searchedConstantText = sourceCode.getText(searchedConstant);
+			// const objectText = getNodeText(objectNode);
+			// problem.fix = fixer => fixer.replaceText(node, `${objectText}.indexOf(${searchedConstantText})`);
+
+			// context.report(problem);
 		}
-	});
+	};
 };
 
 module.exports = {
