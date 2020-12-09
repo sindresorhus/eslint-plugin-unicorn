@@ -97,7 +97,7 @@ const create = context => {
 			};
 
 			const searchedConstantText = sourceCode.getText(constant);
-			const objectText = getNodeText(node.callee);
+			const objectText = getNodeText(node.callee.object);
 			problem.fix = fixer => fixer.replaceText(node, `${objectText}.indexOf(${searchedConstantText})`);
 
 			context.report(problem);
