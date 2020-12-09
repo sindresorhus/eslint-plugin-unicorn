@@ -87,7 +87,7 @@ const create = context => {
 				!passiveExpressionScope ||
 				passiveExpressionScope.references.some(reference => reference.identifier.name === item.name)
 			) {
-				sourceCode.getText(passiveExpression);//return;
+				sourceCode.getText(passiveExpression);
 			}
 
 			const problem = {
