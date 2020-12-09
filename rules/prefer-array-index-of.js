@@ -79,7 +79,10 @@ const create = context => {
 			};
 
 			const passiveExpressionText = sourceCode.getText(constant);
-			problem.fix = fixer => fixer.replaceText(node.arguments[0], passiveExpressionText);
+			problem.fix = function * (fixer) {
+				yield fixer.replaceText(node.callee.property, 'indexOf');
+				yield fixer.replaceText(node.arguments[0], passiveExpressionText);
+			};
 
 			context.report(problem);
 		}
