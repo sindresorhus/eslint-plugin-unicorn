@@ -40,6 +40,7 @@ const selector = [
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
+	const {scopeManager} = sourceCode;
 
 	return {
 		[selector](node) {
@@ -51,24 +52,39 @@ const create = context => {
 			const {left, right} = binaryExpression;
 
 			let item;
-			let constant;
+			let passiveExpression;
 
-			if (right.type === 'Literal') {
+			if (
+				left.type === 'Identifier' &&
+				Boolean(left.callee) &&
+				parameter.name === left.name
+			) {
 				item = left;
-				constant = right;
-			} else if (left.type === 'Literal') {
+				passiveExpression = right;
+			} else if (
+				right.type === 'Identifier' &&
+				Boolean(right.callee) &&
+				parameter.name === right.name
+			) {
 				item = right;
-				constant = left;
+				passiveExpression = left;
 			} else {
 				return;
 			}
 
 			if (
-				!constant ||
-				Boolean(item.callee) ||
 				parameter.type !== 'Identifier' ||
-				item.type !== 'Identifier' ||
-				parameter.name !== item.name
+				hasSideEffect(passiveExpression, sourceCode) ||
+				!passiveExpression
+			) {
+				return;
+			}
+
+			const passiveExpressionScope = scopeManager.acquire(passiveExpression);
+
+			if (
+				!passiveExpressionScope ||
+				passiveExpressionScope.references.some(reference => reference.identifier.name === item.name)
 			) {
 				return;
 			}
