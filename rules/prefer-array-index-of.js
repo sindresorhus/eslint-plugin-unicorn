@@ -32,7 +32,7 @@ const selector = [
 				'[arguments.0.body.body.length=1]',
 				'[arguments.0.body.body.0.type="ReturnStatement"]',
 				'[arguments.0.body.body.0.argument.type="BinaryExpression"]',
-				'[arguments.0.body.body.0.argument.operator="==="]',
+				'[arguments.0.body.body.0.argument.operator="==="]'
 			].join('')
 		].join(', ')
 	})`
@@ -62,7 +62,7 @@ const create = context => {
 	return {
 		[selector](node) {
 			const [callback] = node.arguments;
-			const binaryExpression = callback.body.type === "BinaryExpression" ?
+			const binaryExpression = callback.body.type === 'BinaryExpression' ?
 				callback.body :
 				callback.body.body[0].argument;
 			const [parameter] = callback.params;
@@ -91,15 +91,13 @@ const create = context => {
 				return;
 			}
 
-			const objectNode = findIndexCallTemplate.context.getMatch(objectVariable);
-
 			const problem = {
 				node,
 				messageId: MESSAGE_ID_FINDINDEX
 			};
 
 			const searchedConstantText = sourceCode.getText(constant);
-			const objectText = getNodeText(objectNode);
+			const objectText = getNodeText(node.callee);
 			problem.fix = fixer => fixer.replaceText(node, `${objectText}.indexOf(${searchedConstantText})`);
 
 			context.report(problem);
