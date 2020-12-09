@@ -96,9 +96,12 @@ const create = context => {
 				messageId: MESSAGE_ID_FINDINDEX
 			};
 
-			const searchedConstantText = sourceCode.getText(constant);
+			const passiveExpressionText = sourceCode.getText(constant);
 			const objectText = getNodeText(node.callee.object);
-			problem.fix = fixer => fixer.replaceText(node, `${objectText}.indexOf(${searchedConstantText})`);
+			problem.fix = fixer => {
+				fixer.replaceText(node.callee.property, 'indexOf');
+				fixer.replaceText(node.arguments[0], passiveExpressionText);
+			};
 
 			context.report(problem);
 		}
