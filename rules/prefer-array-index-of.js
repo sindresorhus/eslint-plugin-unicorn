@@ -38,69 +38,6 @@ const selector = [
 	})`
 ].join('');
 
-const getSearchedConstant = node => {
-	if (
-		!node ||
-		(node.type !== 'ArrowFunctionExpression' && node.type !== 'FunctionExpression')
-	) {
-		return;
-	}
-
-	const {params, body} = node;
-	let statement = body;
-
-	if (
-		body.type === 'BlockStatement'
-	) {
-		const statements = body.body;
-
-		if (
-			statements.length !== 1 ||
-			statements[0].type !== 'ReturnStatement' ||
-			!statements[0].argument
-		) {
-			return;
-		}
-
-		statement = statements[0].argument;
-	}
-
-	if (
-		params.length !== 1 ||
-		!statement ||
-		statement.type !== 'BinaryExpression' ||
-		statement.operator !== '==='
-	) {
-		return;
-	}
-
-	const parameter = params[0];
-	let item;
-	let constant;
-
-	if (statement.right.type === 'Literal') {
-		item = statement.left;
-		constant = statement.right;
-	} else if (statement.left.type === 'Literal') {
-		item = statement.right;
-		constant = statement.left;
-	} else {
-		return;
-	}
-
-	if (
-		!constant ||
-		Boolean(item.callee) ||
-		parameter.type !== 'Identifier' ||
-		item.type !== 'Identifier' ||
-		parameter.name !== item.name
-	) {
-		return;
-	}
-
-	return constant;
-};
-
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
@@ -109,8 +46,12 @@ const create = context => {
 		const before = sourceCode.getTokenBefore(node);
 		const after = sourceCode.getTokenAfter(node);
 		if (
-			(before && before.type === 'Punctuator' && before.value === '(') &&
-			(after && after.type === 'Punctuator' && after.value === ')')
+			before &&
+			before.type === 'Punctuator' &&
+			before.value === '(' &&
+			after &&
+			after.type === 'Punctuator' &&
+			after.value === ')'
 		) {
 			return `(${text})`;
 		}
@@ -124,33 +65,44 @@ const create = context => {
 			const binaryExpression = callback.body.type === "BinaryExpression" ?
 				callback.body :
 				callback.body.body[0].argument;
-			const [element] = callback.params;
+			const [parameter] = callback.params;
 			const {left, right} = binaryExpression;
 
-console.log({left, right, element})
+			let item;
+			let constant;
 
-			// const objectNode = findIndexCallTemplate.context.getMatch(objectVariable);
-			// const argumentNodes = findIndexCallTemplate.context.getMatch(argumentsVariable);
+			if (right.type === 'Literal') {
+				item = left;
+				constant = right;
+			} else if (left.type === 'Literal') {
+				item = right;
+				constant = left;
+			} else {
+				return;
+			}
 
-			// const searchedConstant = getSearchedConstant(argumentNodes[0]);
+			if (
+				!constant ||
+				Boolean(item.callee) ||
+				parameter.type !== 'Identifier' ||
+				item.type !== 'Identifier' ||
+				parameter.name !== item.name
+			) {
+				return;
+			}
 
-			// if (
-			// 	searchedConstant === null ||
-			// 	searchedConstant === undefined
-			// ) {
-			// 	return;
-			// }
+			const objectNode = findIndexCallTemplate.context.getMatch(objectVariable);
 
-			// const problem = {
-			// 	node,
-			// 	messageId: MESSAGE_ID_FINDINDEX
-			// };
+			const problem = {
+				node,
+				messageId: MESSAGE_ID_FINDINDEX
+			};
 
-			// const searchedConstantText = sourceCode.getText(searchedConstant);
-			// const objectText = getNodeText(objectNode);
-			// problem.fix = fixer => fixer.replaceText(node, `${objectText}.indexOf(${searchedConstantText})`);
+			const searchedConstantText = sourceCode.getText(constant);
+			const objectText = getNodeText(objectNode);
+			problem.fix = fixer => fixer.replaceText(node, `${objectText}.indexOf(${searchedConstantText})`);
 
-			// context.report(problem);
+			context.report(problem);
 		}
 	};
 };
