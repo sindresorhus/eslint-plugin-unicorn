@@ -124,6 +124,17 @@ const noExtendDefaultWhitelistOptions = [
 	}
 ];
 
+const ignoreOptions = [
+	{
+		ignore: [
+			/^e_/,
+			// eslint-disable-next-line prefer-regex-literals
+			new RegExp('_e$', 'i'),
+			'\\.e2e\\.'
+		]
+	}
+];
+
 ruleTester.run('prevent-abbreviations', rule, {
 	valid: [
 		'let x',
@@ -267,6 +278,16 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'const propTypes = 2;const err = 2;',
 			options: extendDefaultWhitelistOptions
+		},
+
+		// `ignore` option
+		{
+			code: outdent`
+				const e_at_start = 1;
+				const end_with_e = 2;
+			`,
+			filename: 'some.spec.e2e.test.js',
+			options: ignoreOptions
 		}
 	],
 
@@ -1632,7 +1653,21 @@ runTest({
 			`,
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		})
+		}),
+
+		// `ignore` option
+		{
+			code: outdent`
+				const e_at_start = 1;
+				const end_with_e = 2;
+			`,
+			filename: 'some.spec.e2e.test.js',
+			errors: [
+				...createErrors('Please rename the filename `some.spec.e2e.test.js`. Suggested names are: `some.spec.error2error.test.js`, `some.spec.error2event.test.js`, `some.spec.event2error.test.js`, ... (1 more omitted). A more descriptive name will do too.'),
+				...createErrors('Please rename the variable `e_at_start`. Suggested names are: `error_at_start`, `event_at_start`. A more descriptive name will do too.'),
+				...createErrors('Please rename the variable `end_with_e`. Suggested names are: `end_with_error`, `end_with_event`. A more descriptive name will do too.')
+			]
+		}
 	]
 });
 
