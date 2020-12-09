@@ -94,7 +94,7 @@ const create = context => {
 				messageId: MESSAGE_ID_FINDINDEX
 			};
 
-			const passiveExpressionText = sourceCode.getText(constant);
+			const passiveExpressionText = sourceCode.getText(passiveExpression);
 			problem.fix = function * (fixer) {
 				yield fixer.replaceText(node.callee.property, 'indexOf');
 				yield fixer.replaceText(node.arguments[0], passiveExpressionText);
