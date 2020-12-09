@@ -75,10 +75,13 @@ const create = context => {
 
 			if (
 				parameter.type !== 'Identifier' ||
-				hasSideEffect(passiveExpression, sourceCode) ||
 				!passiveExpression
 			) {
 				return;
+			}
+
+			if (hasSideEffect(passiveExpression, sourceCode)) {
+				sourceCode.getText(passiveExpression);
 			}
 
 			const passiveExpressionScope = scopeManager.acquire(passiveExpression);
