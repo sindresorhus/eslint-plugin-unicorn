@@ -97,7 +97,6 @@ const create = context => {
 			};
 
 			const passiveExpressionText = sourceCode.getText(constant);
-			const objectText = getNodeText(node.callee.object);
 			problem.fix = fixer => {
 				fixer.replaceText(node.callee.property, 'indexOf');
 				fixer.replaceText(node.arguments[0], passiveExpressionText);
