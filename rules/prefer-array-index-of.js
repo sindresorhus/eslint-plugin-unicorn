@@ -1,5 +1,5 @@
 'use strict';
-const {hasSideEffect} = require('eslint-utils');
+const {hasSideEffect, isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 
@@ -89,6 +89,9 @@ const create = context => {
 
 			const method = node.callee.property;
 			let passiveExpressionText = sourceCode.getText(passiveExpression);
+			if (isParenthesized(passiveExpression, sourceCode) && !isParenthesized(callback, sourceCode)) {
+				passiveExpressionText = `(${passiveExpressionText})`;
+			}
 			context.report({
 				node: method,
 				messageId: MESSAGE_ID_FINDINDEX,

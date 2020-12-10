@@ -127,5 +127,7 @@ test.visualize([
 		foo.findIndex(function (element) {
 			return element === bar.findIndex(x => x === 1);
 		});
-	`
+	`,
+	'values.findIndex(x => x === (0, "foo"))',
+	'values.findIndex((x => x === (0, "foo")))'
 ]);
