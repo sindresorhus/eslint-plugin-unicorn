@@ -13,7 +13,10 @@ const getBinaryExpressionSelector = path => [
 	`[${path}.operator="==="]`,
 	`:matches([${path}.left.type="Identifier"], [${path}.right.type="Identifier"])`
 ].join('');
-
+const getFunctionSelector = path => [
+	`[${path}.params.length=1]`,
+	`[${path}.params.0.type="Identifier"]`
+].join('');
 const selector = [
 	methodSelector({
 		name: 'findIndex',
@@ -24,16 +27,14 @@ const selector = [
 			// Matches `foo.findIndex(bar => bar === baz)`
 			[
 				'[arguments.0.type="ArrowFunctionExpression"]',
-				'[arguments.0.params.length=1]',
-				'[arguments.0.params.0.type="Identifier"]',
+				getFunctionSelector('arguments.0'),
 				getBinaryExpressionSelector('arguments.0.body')
 			].join(''),
 			// Matches `foo.findIndex(bar => {return bar === baz})`
 			// Matches `foo.findIndex(function (bar) {return bar === baz})`
 			[
 				':matches([arguments.0.type="ArrowFunctionExpression"], [arguments.0.type="FunctionExpression"])',
-				'[arguments.0.params.length=1]',
-				'[arguments.0.params.0.type="Identifier"]',
+				getFunctionSelector('arguments.0'),
 				'[arguments.0.body.type="BlockStatement"]',
 				'[arguments.0.body.body.length=1]',
 				'[arguments.0.body.body.0.type="ReturnStatement"]',
