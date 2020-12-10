@@ -78,7 +78,7 @@ const create = context => {
 				return;
 			}
 
-			const passiveExpressionScope = scopeManager.acquire(callback.body);
+			const passiveExpressionScope = scopeManager.acquire(binaryExpression);
 
 			if (
 				!passiveExpressionScope
