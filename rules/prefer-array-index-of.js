@@ -81,13 +81,7 @@ const create = context => {
 			const passiveExpressionScope = scopeManager.acquire(passiveExpression);
 
 			if (
-				!passiveExpressionScope
-			) {
-				// Should return here but it's not working
-				hasSideEffect(passiveExpression, sourceCode);
-			}
-
-			if (
+				!passiveExpressionScope ||
 				passiveExpressionScope.references.some(reference => reference.identifier.name === item.name)
 			) {
 				// Should return here but it's not working
