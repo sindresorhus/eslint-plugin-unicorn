@@ -8,6 +8,11 @@ const messages = {
 	[MESSAGE_ID_FINDINDEX]: 'Use `.indexOf()`, rather than `.findIndex()`, when searching the index of an item.'
 };
 
+const getBinaryExpressionSelector = path =>[
+	`[${path}.type="BinaryExpression"]`,
+	`[${path}.operator="==="]`
+].join('');
+
 const selector = [
 	methodSelector({
 		name: 'findIndex',
@@ -20,8 +25,7 @@ const selector = [
 				'[arguments.0.type="ArrowFunctionExpression"]',
 				'[arguments.0.params.length=1]',
 				'[arguments.0.params.0.type="Identifier"]',
-				'[arguments.0.body.type="BinaryExpression"]',
-				'[arguments.0.body.operator="==="]'
+				getBinaryExpressionSelector('arguments.0.body')
 			].join(''),
 			// Matches `foo.findIndex(bar => {return bar === baz})`
 			// Matches `foo.findIndex(function (bar) {return bar === baz})`
@@ -32,8 +36,7 @@ const selector = [
 				'[arguments.0.body.type="BlockStatement"]',
 				'[arguments.0.body.body.length=1]',
 				'[arguments.0.body.body.0.type="ReturnStatement"]',
-				'[arguments.0.body.body.0.argument.type="BinaryExpression"]',
-				'[arguments.0.body.body.0.argument.operator="==="]'
+				getBinaryExpressionSelector('arguments.0.body.body.0.argument')
 			].join('')
 		].join(', ')
 	})`
