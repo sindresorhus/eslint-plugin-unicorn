@@ -152,6 +152,7 @@ function checkNode(node, scopeManager) {
 }
 
 const create = context => {
+	const {checkArrowFunctions} = {checkArrowFunctions: true, ...context.options[0]};
 	const sourceCode = context.getSourceCode();
 	const {scopeManager} = sourceCode;
 
@@ -170,19 +171,41 @@ const create = context => {
 		},
 		':function:exit': node => {
 			const currentFunctionHasJsx = functions.pop();
-			if (!currentFunctionHasJsx && !checkNode(node, scopeManager)) {
-				context.report({
-					node,
-					loc: getFunctionHeadLocation(node, sourceCode),
-					messageId: MESSAGE_ID,
-					data: {
-						functionNameWithKind: getFunctionNameWithKind(node)
-					}
-				});
+			if (currentFunctionHasJsx) {
+				return;
 			}
+
+			if (node.type === 'ArrowFunctionExpression' && !checkArrowFunctions) {
+				return;
+			}
+
+			if (checkNode(node, scopeManager)) {
+				return;
+			}
+
+			context.report({
+				node,
+				loc: getFunctionHeadLocation(node, sourceCode),
+				messageId: MESSAGE_ID,
+				data: {
+					functionNameWithKind: getFunctionNameWithKind(node)
+				}
+			});
 		}
 	};
 };
+
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			checkArrowFunctions: {
+				type: 'boolean',
+				default: true
+			}
+		}
+	}
+];
 
 module.exports = {
 	create,
@@ -191,6 +214,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
+		schema,
 		messages
 	}
 };
