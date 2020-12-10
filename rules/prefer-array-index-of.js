@@ -90,8 +90,7 @@ const create = context => {
 				!passiveExpressionScope ||
 				passiveExpressionScope.references.filter(reference => reference.identifier.name === item.name).length !== 2
 			) {
-				// Should return here but it's not working
-				hasSideEffect(passiveExpression, sourceCode);
+				return;
 			}
 
 			const problem = {
