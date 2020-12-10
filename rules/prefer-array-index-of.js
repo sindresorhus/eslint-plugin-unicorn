@@ -88,7 +88,7 @@ const create = context => {
 
 			if (
 				!passiveExpressionScope ||
-				passiveExpressionScope.references.filter(reference => reference.identifier.name === item.name).length === 0
+				passiveExpressionScope.references.filter(reference => reference.identifier.name === item.name).length < 2
 			) {
 				return;
 			}
