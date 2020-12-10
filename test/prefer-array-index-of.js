@@ -107,5 +107,14 @@ test.visualize([
 	'values.findIndex(x => x === "foo")',
 	'values.findIndex(x => "foo" === x)',
 	'values.findIndex(x => {return x === "foo";})',
-	'values.findIndex(function (x) {return x === "foo";})'
+	'values.findIndex(function (x) {return x === "foo";})',
+	outdent`
+		// 1
+		(0, values)
+			// 2
+			./* 3 */findIndex /* 3 */ (
+				/* 4 */
+				x /* 5 */ => /* 6 */ x /* 7 */ === /* 8 */ "foo" /* 9 */
+			) /* 10 */
+	`
 ]);
