@@ -116,5 +116,10 @@ test.visualize([
 				/* 4 */
 				x /* 5 */ => /* 6 */ x /* 7 */ === /* 8 */ "foo" /* 9 */
 			) /* 10 */
+	`,
+	outdent`
+		foo.findIndex(function (element) {
+			return element === bar.findIndex(x => x === 1);
+		});
 	`
 ]);
