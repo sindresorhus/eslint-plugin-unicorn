@@ -40,6 +40,12 @@ test({
 		'foo.findIndex(({x}) => x === 1)',
 		'foo.findIndex(({x}) => {return x === 1})',
 		'foo.findIndex(function({x}) {return x === 1})',
+		// `generator`
+		'foo.findIndex(function * (x) {return x === 1})',
+		// `async`
+		'foo.findIndex(async (x) => x === 1)',
+		'foo.findIndex(async (x) => {return x === 1})',
+		'foo.findIndex(async function(x) {return x === 1})',
 
 		// Test `callback` body
 		// Not only `return`
