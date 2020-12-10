@@ -57,14 +57,14 @@ const create = context => {
 
 			if (
 				left.type === 'Identifier' &&
-				Boolean(left.callee) &&
+				!left.callee &&
 				parameter.name === left.name
 			) {
 				item = left;
 				passiveExpression = right;
 			} else if (
 				right.type === 'Identifier' &&
-				Boolean(right.callee) &&
+				!right.callee &&
 				parameter.name === right.name
 			) {
 				item = right;
