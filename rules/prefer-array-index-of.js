@@ -57,14 +57,12 @@ const create = context => {
 
 			if (
 				left.type === 'Identifier' &&
-				!left.callee &&
 				parameter.name === left.name
 			) {
 				item = left;
 				passiveExpression = right;
 			} else if (
 				right.type === 'Identifier' &&
-				!right.callee &&
 				parameter.name === right.name
 			) {
 				item = right;
@@ -76,17 +74,23 @@ const create = context => {
 			if (
 				parameter.type !== 'Identifier' ||
 				!passiveExpression ||
-				hasSideEffect(passiveExpression, sourceCode)) {
+				hasSideEffect(passiveExpression, sourceCode)
+			) {
 				return;
 			}
 
 			const passiveExpressionScope = scopeManager.acquire(passiveExpression);
 
 			if (
-				!passiveExpressionScope ||
-				passiveExpressionScope.references.some(reference => reference.identifier.name === item.name)
+				!passiveExpressionScope
 			) {
 				return;
+			}
+
+			if (
+				passiveExpressionScope.references.some(reference => reference.identifier.name === item.name)
+			) {
+				hasSideEffect(passiveExpression, sourceCode);
 			}
 
 			const problem = {
