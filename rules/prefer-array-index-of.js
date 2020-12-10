@@ -8,7 +8,7 @@ const messages = {
 	[MESSAGE_ID_FINDINDEX]: 'Use `.indexOf()`, rather than `.findIndex()`, when searching the index of an item.'
 };
 
-const getBinaryExpressionSelector = path =>[
+const getBinaryExpressionSelector = path => [
 	`[${path}.type="BinaryExpression"]`,
 	`[${path}.operator="==="]`,
 	`:matches([${path}.left.type="Identifier"], [${path}.right.type="Identifier"])`
