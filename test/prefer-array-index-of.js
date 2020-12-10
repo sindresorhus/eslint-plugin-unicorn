@@ -81,26 +81,6 @@ test({
 	],
 
 	invalid: [
-		{
-			code: 'values.findIndex(x => x === "foo")',
-			output: 'values.indexOf("foo")',
-			errors: errorsFindIndex
-		},
-		{
-			code: 'values.findIndex(x => "foo" === x)',
-			output: 'values.indexOf("foo")',
-			errors: errorsFindIndex
-		},
-		{
-			code: 'values.findIndex(x => {return x === "foo";})',
-			output: 'values.indexOf("foo")',
-			errors: errorsFindIndex
-		},
-		{
-			code: 'values.findIndex(function (x) {return x === "foo";})',
-			output: 'values.indexOf("foo")',
-			errors: errorsFindIndex
-		}
 	]
 });
 
@@ -122,3 +102,10 @@ test.typescript({
 		}
 	]
 });
+
+test.visualize([
+	'values.findIndex(x => x === "foo")',
+	'values.findIndex(x => "foo" === x)',
+	'values.findIndex(x => {return x === "foo";})',
+	'values.findIndex(function (x) {return x === "foo";})'
+]);
