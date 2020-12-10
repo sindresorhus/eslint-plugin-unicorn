@@ -70,7 +70,7 @@ test({
 		// Parameter is used
 		'foo.findIndex(x => x === "foo" + x)',
 		// FunctionName is used
-		'foo.findIndex(function fn(x) {return x === fn(x.a)})',
+		'foo.findIndex(function fn(x) {return x === fn(y)})',
 		// `arguments` is used
 		'foo.findIndex(function fn(x) {return x === arguments.length})',
 		// `this` is used
