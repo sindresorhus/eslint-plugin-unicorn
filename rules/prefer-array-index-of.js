@@ -87,18 +87,16 @@ const create = context => {
 				return;
 			}
 
-			const problem = {
-				node: node.callee.property,
-				messageId: MESSAGE_ID_FINDINDEX
-			};
-
-			const passiveExpressionText = sourceCode.getText(passiveExpression);
-			problem.fix = function * (fixer) {
-				yield fixer.replaceText(node.callee.property, 'indexOf');
-				yield fixer.replaceText(node.arguments[0], passiveExpressionText);
-			};
-
-			context.report(problem);
+			const method = node.callee.property;
+			let passiveExpressionText = sourceCode.getText(passiveExpression);
+			context.report({
+				node: method,
+				messageId: MESSAGE_ID_FINDINDEX,
+				* fix (fixer) {
+					yield fixer.replaceText(method, 'indexOf');
+					yield fixer.replaceText(callback, passiveExpressionText);
+				}
+			});
 		}
 	};
 };
