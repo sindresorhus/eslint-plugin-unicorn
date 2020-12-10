@@ -85,7 +85,7 @@ const create = context => {
 			}
 
 			const problem = {
-				node,
+				node: node.callee.property,
 				messageId: MESSAGE_ID_FINDINDEX
 			};
 
