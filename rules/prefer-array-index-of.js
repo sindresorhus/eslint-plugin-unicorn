@@ -75,12 +75,8 @@ const create = context => {
 
 			if (
 				parameter.type !== 'Identifier' ||
-				!passiveExpression
-			) {
-				return;
-			}
-
-			if (hasSideEffect(passiveExpression, sourceCode)) {
+				!passiveExpression ||
+				hasSideEffect(passiveExpression, sourceCode)) {
 				return;
 			}
 
@@ -90,7 +86,7 @@ const create = context => {
 				!passiveExpressionScope ||
 				passiveExpressionScope.references.some(reference => reference.identifier.name === item.name)
 			) {
-				sourceCode.getText(passiveExpression);
+				return;
 			}
 
 			const problem = {
