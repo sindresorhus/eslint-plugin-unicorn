@@ -49,6 +49,9 @@ test({
 		// Dynamical value
 		'[\'foo\', \'bar\'].findIndex(x => x + \'foo\' === \'foo\' + x)',
 
+		// Changing value
+		'[\'foofoo\', \'foobar\'].findIndex(x => x === \'foo\' + x)',
+
 		// Other dynamical value
 		'[\'foo\', \'bar\'].findIndex((x, i) => x === i)',
 
