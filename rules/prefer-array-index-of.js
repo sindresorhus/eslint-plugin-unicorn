@@ -3,9 +3,9 @@ const {hasSideEffect, isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 
-const MESSAGE_ID_FINDINDEX = 'findIndex';
+const MESSAGE_ID_FIND_INDEX = 'findIndex';
 const messages = {
-	[MESSAGE_ID_FINDINDEX]: 'Use `.indexOf()`, rather than `.findIndex()`, when searching the index of an item.'
+	[MESSAGE_ID_FIND_INDEX]: 'Use `.indexOf()`, rather than `.findIndex()`, when searching the index of an item.'
 };
 
 const getBinaryExpressionSelector = path => [
@@ -92,10 +92,11 @@ const create = context => {
 			if (isParenthesized(passiveExpression, sourceCode) && !isParenthesized(callback, sourceCode)) {
 				passiveExpressionText = `(${passiveExpressionText})`;
 			}
+
 			context.report({
 				node: method,
-				messageId: MESSAGE_ID_FINDINDEX,
-				* fix (fixer) {
+				messageId: MESSAGE_ID_FIND_INDEX,
+				* fix(fixer) {
 					yield fixer.replaceText(method, 'indexOf');
 					yield fixer.replaceText(callback, passiveExpressionText);
 				}
