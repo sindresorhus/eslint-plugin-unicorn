@@ -43,6 +43,8 @@ const selector = [
 	})`
 ].join('');
 
+const isIdentifierNamed = ({type, name}, expectName) => type === 'Identifier' && name === expectName;
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const {scopeManager} = sourceCode;
@@ -56,23 +58,14 @@ const create = context => {
 			const [parameter] = callback.params;
 			const {left, right} = binaryExpression;
 
-			let item;
+			const {name} = parameter;
+
 			let passiveExpression;
 
-			if (
-				left.type === 'Identifier' &&
-				parameter.name === left.name
-			) {
-				item = left;
+			if (isIdentifierNamed(left, name)) {
 				passiveExpression = right;
-			} else if (
-				right.type === 'Identifier' &&
-				parameter.name === right.name
-			) {
-				item = right;
+			} else if (isIdentifierNamed(right, name)) {
 				passiveExpression = left;
-			} else {
-				return;
 			}
 
 			if (
@@ -86,7 +79,7 @@ const create = context => {
 
 			if (
 				!passiveExpressionScope ||
-				passiveExpressionScope.references.filter(reference => reference.identifier.name === item.name).length !== 1
+				passiveExpressionScope.references.filter(reference => reference.identifier.name === name).length !== 1
 			) {
 				return;
 			}
