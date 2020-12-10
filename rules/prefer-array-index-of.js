@@ -81,12 +81,6 @@ const create = context => {
 			const passiveExpressionScope = scopeManager.acquire(callback);
 
 			if (
-				!passiveExpressionScope
-			) {
-				return;
-			}
-
-			if (
 				!passiveExpressionScope ||
 				passiveExpressionScope.references.filter(reference => reference.identifier.name === item.name).length !== 1
 			) {
