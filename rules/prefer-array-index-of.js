@@ -10,7 +10,8 @@ const messages = {
 
 const getBinaryExpressionSelector = path =>[
 	`[${path}.type="BinaryExpression"]`,
-	`[${path}.operator="==="]`
+	`[${path}.operator="==="]`,
+	`:matches([${path}.left.type="Identifier"], [${path}.right.type="Identifier"])`
 ].join('');
 
 const selector = [
