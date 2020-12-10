@@ -81,7 +81,7 @@ const create = context => {
 			}
 
 			if (hasSideEffect(passiveExpression, sourceCode)) {
-				sourceCode.getText(passiveExpression);
+				return;
 			}
 
 			const passiveExpressionScope = scopeManager.acquire(passiveExpression);
