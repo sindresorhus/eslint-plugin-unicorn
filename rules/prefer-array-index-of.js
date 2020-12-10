@@ -78,7 +78,7 @@ const create = context => {
 				return;
 			}
 
-			const passiveExpressionScope = scopeManager.acquire(binaryExpression);
+			const passiveExpressionScope = scopeManager.acquire(callback);
 
 			if (
 				!passiveExpressionScope
@@ -88,7 +88,7 @@ const create = context => {
 
 			if (
 				!passiveExpressionScope ||
-				passiveExpressionScope.references.some(reference => reference.identifier.name === item.name)
+				passiveExpressionScope.references.filter(reference => reference.identifier.name === item.name).length !== 2
 			) {
 				// Should return here but it's not working
 				hasSideEffect(passiveExpression, sourceCode);
