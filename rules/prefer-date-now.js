@@ -2,11 +2,13 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 
+const MESSAGE_ID_DEFAULT = 'prefer-date';
 const MESSAGE_ID_METHOD = 'prefer-date-now-over-methods';
 const MESSAGE_ID_NUMBER = 'prefer-date-now-over-number-data-object';
 const messages = {
+	[MESSAGE_ID_DEFAULT]: 'Prefer `Date.now()`.',
 	[MESSAGE_ID_METHOD]: 'Prefer `Date.now()` over `Date#{{name}}()`.',
-	[MESSAGE_ID_NUMBER]: 'Prefer `Date.now()` over `Number(new Date())`.'
+	[MESSAGE_ID_NUMBER]: 'Prefer `Date.now()` over `Number(new Date())`.',
 };
 
 const createNewDateSelector = path => {
@@ -18,6 +20,7 @@ const createNewDateSelector = path => {
 		`[${prefix}callee.arguments.length=0]`
 	].join('');
 };
+const newDateSelector = createNewDateSelector();
 const methodsSelector = [
 	methodSelector({
 		names: ['getTime', 'valueOf'],
@@ -25,31 +28,56 @@ const methodsSelector = [
 	}),
 	createNewDateSelector('callee.object'),
 ].join('');
-const numberSelector = [
+const constructorsSelector = [
 	'CallExpression',
 	'[callee.type="Identifier"]',
-	'[callee.name="Number"]',
+	':matches([callee.name="Number"], [callee.name="BigInt"])',
 	'[arguments.length=1]',
 	createNewDateSelector('arguments.0')
+].join('');
+// https://github.com/estree/estree/blob/master/es5.md#unaryoperator
+const unaryExpressionsSelector = [
+	'UnaryExpression',
+	':matches([operator="+"], [operator="-"])',
+	newDateSelector('argument')
 ].join('');
 
 
 const create = context => {
+	const report = (node, problem) => context.report({
+			node,
+			messageId: MESSAGE_ID_DEFAULT,
+			fix: fixer => fixer.replaceText(node, 'Date.now()'),
+			...problem
+		})
+
 	return {
 		[methodsSelector](node) {
 			const method = node.callee.property;
-			context.report({
+			report(node, {
 				node: method,
 				messageId: MESSAGE_ID_METHOD,
-				data: {method: method.name},
-				fix: fixer => fixer.replaceText(node, 'Date.now()')
 			});
 		}
-		[numberSelector](node) {
-			context.report({
-				node,
+		[constructorsSelector](node) {
+			const {name} = node.callee;
+			if (name === 'number') {
+				report(node, {
+					node: method,
+					messageId: MESSAGE_ID_NUMBER,
+				});
+			} else {
+				report(node.arguments[0], {
+					node: method,
+					messageId: MESSAGE_ID_NUMBER,
+				});
+			}
+		},
+		[unaryExpressionsSelector](node) {
+			node = node.operator === '-' ? node.argument : node;
+			report(node, {
+				node: method,
 				messageId: MESSAGE_ID_NUMBER,
-				fix: fixer => fixer.replaceText(node, 'Date.now()')
 			});
 		}
 	}

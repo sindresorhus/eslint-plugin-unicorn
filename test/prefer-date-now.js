@@ -18,7 +18,7 @@ test.visualize([
 	'const ts = (new Date()).valueOf();',
 
 	// Constructor
-	'const ts = Number(new Date())',
+	'const ts = / * 1 */ Number(/* 2 */ new / * 3 */ Date( /* 4 */ ) /* 5 */) /* 6 */',
 	'const tsBigInt = / * 1 */ BigInt(/* 2 */ new / * 3 */ Date( /* 4 */ ) /* 5 */) /* 6 */',
 
 	// `UnaryExpression`
