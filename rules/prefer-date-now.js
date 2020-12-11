@@ -32,7 +32,7 @@ const methodsSelector = [
 	}),
 	createNewDateSelector('callee.object')
 ].join('');
-const constructorsSelector = [
+const builtinObjectSelector = [
 	'CallExpression',
 	'[callee.type="Identifier"]',
 	':matches([callee.name="Number"], [callee.name="BigInt"])',
@@ -76,7 +76,7 @@ const create = context => {
 				data: {method: method.name}
 			});
 		},
-		[constructorsSelector](node) {
+		[builtinObjectSelector](node) {
 			const {name} = node.callee;
 			if (name === 'Number') {
 				report(node, {
