@@ -1,30 +1,42 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test';
 
-const MESSAGE_ID = 'prefer-date-now';
-const errors = [
-	{
-		messageId: MESSAGE_ID
-	}
-];
-
 test({
 	valid: [
-		'const foo = \'🦄\';'
 	],
 	invalid: [
-		{
-			code: outdent`
-				const foo = 'unicorn';
-			`,
-			output: outdent`
-				const foo = '🦄';
-			`,
-			errors
-		}
 	]
 });
 
 test.visualize([
-	'const foo = \'unicorn\';'
+	// `Date` methods
+	'const ts = new Date().getTime();',
+	'const ts = (new Date).getTime();',
+	'const ts = (new Date()).getTime();',
+	'const ts = new Date().valueOf();',
+	'const ts = (new Date).valueOf();',
+	'const ts = (new Date()).valueOf();',
+
+	// Constructor
+	'const ts = Number(new Date())',
+	'const tsBigInt = / * 1 */ BigInt(/* 2 */ new / * 3 */ Date( /* 4 */ ) /* 5 */) /* 6 */',
+
+	// `UnaryExpression`
+	'const ts = +new Date;',
+	'const ts = -  new Date();',
+
+	// `BinaryExpression`
+	'const ts = new Date() - 0',
+	'const foo = bar - new Date',
+	'const foo = new Date() * bar',
+	'const ts = new Date() / 1',
+	'const ts = new Date() % Infinity',
+	'const ts = new Date() ** 1',
+
+	// `AssignmentExpression`
+	'foo -= new Date()',
+	'foo *= new Date()',
+	'foo /= new Date()',
+	'foo %= new Date()',
+	'foo **= new Date()'
 ]);
