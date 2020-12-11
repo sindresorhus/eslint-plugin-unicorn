@@ -1,4 +1,5 @@
 import {outdent} from 'outdent';
+import {flatten} from 'lodash';
 import {test} from './utils/test';
 
 const SPACES_PLACEHOLDER = '/* */';
@@ -39,11 +40,11 @@ const ignoredCases = [
 
 test({
 	valid: [
-		...[
+		...flatten([
 			'',
 			'/* comment */',
 			'\n\t// comment \n'
-		].map(body => allCases.map(code => code.replace(SPACES_PLACEHOLDER, body))).flat(),
+		].map(body => allCases.map(code => code.replace(SPACES_PLACEHOLDER, body)))),
 		// Not empty
 		...cases.map(code => code.replace(SPACES_PLACEHOLDER, 'unicorn')),
 		...classBodyCases.map(code => code.replace(SPACES_PLACEHOLDER, 'bar() {}')),
@@ -56,7 +57,7 @@ test({
 		...ignoredCases.map(code => code.replace(SPACES_PLACEHOLDER, '   '))
 	],
 	invalid: [
-		...[
+		...flatten([
 			' ',
 			'\t',
 			' \t \t ',
@@ -66,7 +67,7 @@ test({
 			code: code.replace(SPACES_PLACEHOLDER, spaces),
 			output: code.replace(SPACES_PLACEHOLDER, ''),
 			errors: 1
-		}))).flat(),
+		})))),
 		// `with`
 		{
 			code: 'with (foo) {     }',
