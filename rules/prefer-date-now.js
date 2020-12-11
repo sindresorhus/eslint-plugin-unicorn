@@ -20,6 +20,9 @@ const createNewDateSelector = path => {
 		`[${prefix}callee.arguments.length=0]`
 	].join('');
 };
+const operatorsSelector = (...operators) => `:matches(${
+	operators.map(operator => `[operator="${operator}"]`)
+})`
 const newDateSelector = createNewDateSelector();
 const methodsSelector = [
 	methodSelector({
@@ -38,10 +41,14 @@ const constructorsSelector = [
 // https://github.com/estree/estree/blob/master/es5.md#unaryoperator
 const unaryExpressionsSelector = [
 	'UnaryExpression',
-	':matches([operator="+"], [operator="-"])',
+	operatorsSelector('+', '-'),
 	newDateSelector('argument')
 ].join('');
-
+const assignmentExpression = [
+	'AssignmentExpression',
+	operatorsSelector('-=', '*=', '/=', '%=', '**='),
+	`${newDateSelector}.right`
+].join('');
 
 const create = context => {
 	const report = (node, problem) => context.report({
@@ -75,11 +82,11 @@ const create = context => {
 		},
 		[unaryExpressionsSelector](node) {
 			node = node.operator === '-' ? node.argument : node;
-			report(node, {
-				node: method,
-				messageId: MESSAGE_ID_NUMBER,
-			});
-		}
+			report(node);
+		},
+		[assignmentExpression](node) {
+			report(node);
+		},
 	}
 };
 
