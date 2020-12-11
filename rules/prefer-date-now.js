@@ -7,7 +7,7 @@ const MESSAGE_ID_METHOD = 'prefer-date-now-over-methods';
 const MESSAGE_ID_NUMBER = 'prefer-date-now-over-number-data-object';
 const messages = {
 	[MESSAGE_ID_DEFAULT]: 'Prefer `Date.now()` over `new Date()`.',
-	[MESSAGE_ID_METHOD]: 'Prefer `Date.now()` over `Date#{{name}}()`.',
+	[MESSAGE_ID_METHOD]: 'Prefer `Date.now()` over `Date#{{method}}()`.',
 	[MESSAGE_ID_NUMBER]: 'Prefer `Date.now()` over `Number(new Date())`.',
 };
 
@@ -72,6 +72,7 @@ const create = context => {
 			report(node, {
 				node: method,
 				messageId: MESSAGE_ID_METHOD,
+				data: {method: method.name}
 			});
 		},
 		[constructorsSelector](node) {
