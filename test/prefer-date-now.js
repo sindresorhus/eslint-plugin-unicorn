@@ -85,8 +85,8 @@ test.visualize([
 	'const tsBigInt = /* 1 */ BigInt(/* 2 */ new /* 3 */ Date( /* 4 */ ) /* 5 */) /* 6 */',
 
 	// `UnaryExpression`
-	'const ts = +new Date;',
-	'const ts = -  new Date();',
+	'const ts = + /* 1 */ new Date;',
+	'const ts = - /* 1 */ new Date();',
 
 	// `BinaryExpression`
 	'const ts = new Date() - 0',
@@ -95,7 +95,7 @@ test.visualize([
 	'const ts = new Date() / 1',
 	'const ts = new Date() % Infinity',
 	'const ts = new Date() ** 1',
-	'const zero = new Date - new Date',
+	'const zero = (new Date(/* 1 */) /* 2 */) /* 3 */ - /* 4 */new Date',
 
 	// `AssignmentExpression`
 	'foo -= new Date()',
