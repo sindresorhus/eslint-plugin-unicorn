@@ -8,7 +8,7 @@ const MESSAGE_ID_NUMBER = 'prefer-date-now-over-number-data-object';
 const messages = {
 	[MESSAGE_ID_DEFAULT]: 'Prefer `Date.now()` over `new Date()`.',
 	[MESSAGE_ID_METHOD]: 'Prefer `Date.now()` over `Date#{{method}}()`.',
-	[MESSAGE_ID_NUMBER]: 'Prefer `Date.now()` over `Number(new Date())`.',
+	[MESSAGE_ID_NUMBER]: 'Prefer `Date.now()` over `Number(new Date())`.'
 };
 
 const createNewDateSelector = path => {
@@ -20,6 +20,7 @@ const createNewDateSelector = path => {
 		`[${prefix}arguments.length=0]`
 	].join('');
 };
+
 const operatorsSelector = (...operators) => `:matches(${
 	operators.map(operator => `[operator="${operator}"]`).join(', ')
 })`;
@@ -29,7 +30,7 @@ const methodsSelector = [
 		names: ['getTime', 'valueOf'],
 		length: 0
 	}),
-	createNewDateSelector('callee.object'),
+	createNewDateSelector('callee.object')
 ].join('');
 const constructorsSelector = [
 	'CallExpression',
@@ -60,11 +61,11 @@ const binaryExpressionSelector = [
 
 const create = context => {
 	const report = (node, problem) => context.report({
-			node,
-			messageId: MESSAGE_ID_DEFAULT,
-			fix: fixer => fixer.replaceText(node, 'Date.now()'),
-			...problem
-		})
+		node,
+		messageId: MESSAGE_ID_DEFAULT,
+		fix: fixer => fixer.replaceText(node, 'Date.now()'),
+		...problem
+	});
 
 	return {
 		[methodsSelector](node) {
@@ -79,7 +80,7 @@ const create = context => {
 			const {name} = node.callee;
 			if (name === 'Number') {
 				report(node, {
-					messageId: MESSAGE_ID_NUMBER,
+					messageId: MESSAGE_ID_NUMBER
 				});
 			} else {
 				report(node.arguments[0]);
@@ -94,7 +95,7 @@ const create = context => {
 		[binaryExpressionSelector](node) {
 			report(node);
 		}
-	}
+	};
 };
 
 const schema = [];
