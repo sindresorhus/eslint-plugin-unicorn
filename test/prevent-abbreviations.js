@@ -21,8 +21,7 @@ const browserES5RuleTester = avaRuleTester(test, {
 const noFixingTestCase = test => ({...test, output: test.code});
 
 const createErrors = message => {
-	const error = {
-	};
+	const error = {};
 
 	if (message) {
 		error.message = message;
