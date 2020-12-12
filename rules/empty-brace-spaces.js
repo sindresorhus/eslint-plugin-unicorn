@@ -38,8 +38,6 @@ const create = context => {
 	};
 };
 
-const schema = [];
-
 module.exports = {
 	create,
 	meta: {
@@ -48,7 +46,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'whitespace',
-		schema,
 		messages
 	}
 };
