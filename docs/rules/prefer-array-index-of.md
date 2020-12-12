@@ -4,7 +4,6 @@ All built-ins have [`Array#indexOf()`](https://developer.mozilla.org/en-US/docs/
 
 This rule is fixable.
 
-
 ## Fail
 
 ```js
@@ -15,7 +14,6 @@ values.findIndex(x => {return x === 'foo';});
 values.findIndex(function (x) {return x === 'foo';});
 ['foobar'].findIndex(function (x) {return 'foo' === x;});
 ```
-
 
 ## Pass
 
