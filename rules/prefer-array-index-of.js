@@ -5,7 +5,7 @@ const methodSelector = require('./utils/method-selector');
 
 const MESSAGE_ID_FIND_INDEX = 'findIndex';
 const messages = {
-	[MESSAGE_ID_FIND_INDEX]: 'Use `.indexOf()`, rather than `.findIndex()`, when searching the index of an item.'
+	[MESSAGE_ID_FIND_INDEX]: 'Use `.indexOf()` instead of `.findIndex()` when looking for the index of an item.'
 };
 
 const getBinaryExpressionSelector = path => [
