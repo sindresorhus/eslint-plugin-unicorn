@@ -66,8 +66,7 @@ test({
 		'foo &= new Date()',
 		'foo = new Date() >> 0'
 	],
-	invalid: [
-	]
+	invalid: []
 });
 
 test.visualize([
