@@ -372,7 +372,16 @@ test({
 
 				inner();
 			}
-		`
+		`,
+		// Should ignore functions inside arrow functions
+		{
+			code: outdent`
+				function outer () {
+					const inner = () => {}
+				}
+			`,
+			options: [{checkArrowFunctions: false}]
+		}
 	],
 	invalid: [
 		{
@@ -729,6 +738,16 @@ test({
 				}
 			`,
 			errors: ['b', 'c', 'foo'].map(functionName => createError(`function '${functionName}'`))
+		},
+		// Should check functions inside arrow functions
+		{
+			code: outdent`
+				const outer = () => {
+					function inner() {}
+				}
+			`,
+			errors: [createError('function \'inner\'')],
+			options: [{checkArrowFunctions: false}]
 		}
 	]
 });
