@@ -36,6 +36,7 @@ const selector = [
 			// Matches `foo.findIndex(function (bar) {return bar === baz})`
 			[
 				':matches([arguments.0.type="ArrowFunctionExpression"], [arguments.0.type="FunctionExpression"])',
+				':matches([arguments.0.id=undefined], [arguments.0.id=null])',
 				getFunctionSelector('arguments.0'),
 				'[arguments.0.body.type="BlockStatement"]',
 				'[arguments.0.body.body.length=1]',
