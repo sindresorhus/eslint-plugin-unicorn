@@ -24,9 +24,20 @@ const selector = `:matches(${
 	].join(', ')
 })`;
 
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
+// Lower precedence than `&&`
+const needParenthesis = node => (
+	(node.type === 'LogicalExpression' && (node.operator === '||' || node.operator === '??')) ||
+	node.type === 'ConditionalExpression' ||
+	node.type === 'AssignmentExpression' ||
+	node.type === 'YieldExpression' ||
+	node.type === 'SequenceExpression'
+);
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const getText = node => sourceCode.getText(node);
+	const getTestNodeText = node => needParenthesis(node) ? `(${getText(node)})` : getText(node);
 
 	return {
 		[selector](inner) {
@@ -38,7 +49,7 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				* fix(fixer) {
 					// Merge `test`
-					yield fixer.replaceText(outer.test, `(${getText(outer.test)}) && (${getText(inner.test)})`);
+					yield fixer.replaceText(outer.test, `${getTestNodeText(outer.test)} && ${getTestNodeText(inner.test)}`);
 
 					// Replace `consequent`
 					yield fixer.replaceText(outer.consequent, getText(inner.consequent));

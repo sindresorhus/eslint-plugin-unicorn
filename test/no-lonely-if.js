@@ -30,6 +30,7 @@ test.visualize([
 	'if (a) if (b) foo();',
 	// `EmptyStatement`
 	'if (a) if (b);',
+	// Nested
 	outdent`
 		if (a) {
 			if (b) {
@@ -39,5 +40,30 @@ test.visualize([
 			if (d) {
 			}
 		}
-	`
+	`,
+	// Need parenthesis
+	outdent`
+		function * foo() {
+			if (a || b)
+			if (a ?? b)
+			if (a ? b : c)
+			if (a = b)
+			if (a += b)
+			if (a -= b)
+			if (a &&= b)
+			if (yield a)
+			if (a, b);
+		}
+	`,
+	// Should not add parenthesis
+	outdent`
+		async function foo() {
+			if (a)
+			if (await a)
+			if (a.b)
+			if (a && b);
+		}
+	`,
+	// Don't case parenthesis in outer test
+	'if (((a || b))) if (((c || d)));'
 ]);
