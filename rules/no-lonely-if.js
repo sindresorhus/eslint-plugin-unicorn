@@ -1,5 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const needsSemicolon = require('./utils/needs-semicolon');
 
 const MESSAGE_ID = 'no-lonely-if';
 const messages = {
@@ -62,8 +63,9 @@ const create = context => {
 						outer.consequent.type === 'BlockStatement' &&
 						!consequentText.endsWith(';')
 					) {
+						const lastToken = sourceCode.getLastToken(consequent);
 						const nextToken = sourceCode.getTokenAfter(outer);
-						if (/^[([/+`-]/u.test(nextToken.value)) {
+						if (needsSemicolon(lastToken, sourceCode, nextToken.value)) {
 							consequentText += ';';
 						}
 					}
