@@ -28,6 +28,8 @@ test.visualize([
 	`,
 	// No `BlockStatement`
 	'if (a) if (b) foo();',
+	// `EmptyStatement`
+	'if (a) if (b);',
 	outdent`
 		if (a) {
 			if (b) {

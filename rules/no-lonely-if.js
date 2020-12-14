@@ -3,42 +3,46 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'no-lonely-if';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{value}}`.'
+	[MESSAGE_ID]: 'Unexpected `if` as the only statement in a `if` block without `else`.'
 };
 
-const ifStatementWithoutAlternate = 'IfStatement[:not([alternate])]';
-const selector = [
-	ifStatementWithoutAlternate,
-	'>',
-	`:matches(${
+const ifStatementWithoutAlternate = 'IfStatement:not([alternate])';
+const selector = `:matches(${
+	[
+		// `if (a) { if (b) {} }`
 		[
-			// `if (a) { if (b) {} }`
-			[
-				'BlockStatement.consequent',
-				'[body.length=1]',
-				'>',
-				`${ifStatementWithoutAlternate}.body`
-			].join('')
+			ifStatementWithoutAlternate,
+			'>',
+			'BlockStatement.consequent',
+			'[body.length=1]',
+			'>',
+			`${ifStatementWithoutAlternate}.body`
+		].join(''),
 
-			// `if (a) if (b) {}`
-			`${ifStatementWithoutAlternate}.consequent`
-		].join(', ')
-	})`
-].join('');
+		// `if (a) if (b) {}`
+		`${ifStatementWithoutAlternate} > ${ifStatementWithoutAlternate}.consequent`
+	].join(', ')
+})`;
 
 const create = context => {
+	const sourceCode = context.getSourceCode();
+	const getText = node => sourceCode.getText(node);
+
 	return {
-		[selector](node) {
-			console.log(node)
+		[selector](inner) {
+			const parent = inner.parent;
+			const outer = parent.type === 'BlockStatement' ? parent.parent : parent;
 
 			context.report({
-				node,
+				node: inner,
 				messageId: MESSAGE_ID,
-				data: {
-					value: 'unicorn',
-					replacement: '🦄'
-				},
-				fix: fixer => fixer.replaceText(node, '\'🦄\'')
+				*fix(fixer) {
+					// Merge `test`
+					yield fixer.replaceText(outer.test, `(${getText(outer.test)}) && (${getText(inner.test)})`);
+
+					// Replace `consequent`
+					yield fixer.replaceText(outer.consequent, getText(inner.consequent))
+				}
 			});
 		}
 	}
