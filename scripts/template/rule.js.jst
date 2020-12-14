@@ -35,7 +35,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},<% if (isFixable) { %>
-		fixable: 'code',<% } %>
+		fixable: '<%= isFixable.type %>',<% } %>
 		schema,
 		messages
 	}

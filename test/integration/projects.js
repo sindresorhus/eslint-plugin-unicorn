@@ -1,9 +1,6 @@
 'use strict';
 const path = require('path');
 
-const typescriptArguments = ['--parser', '@typescript-eslint/parser', '--ext', '.ts,.js'];
-const vueArguments = ['--parser', 'vue-eslint-parser', '--ext', '.vue,.js'];
-
 module.exports = [
 	{
 		name: 'unicorn',
@@ -45,57 +42,64 @@ module.exports = [
 	'https://github.com/sindresorhus/meow',
 	'https://github.com/sindresorhus/globby',
 	'https://github.com/sindresorhus/emittery',
-	{
-		repository: 'https://github.com/sindresorhus/p-queue',
-		extraArguments: typescriptArguments
-	},
+	'https://github.com/sindresorhus/p-queue',
 	'https://github.com/sindresorhus/pretty-bytes',
 	'https://github.com/sindresorhus/normalize-url',
-	{
-		repository: 'https://github.com/sindresorhus/pageres',
-		extraArguments: typescriptArguments
-	},
+	'https://github.com/sindresorhus/pageres',
 	{
 		repository: 'https://github.com/sindresorhus/got',
-		extraArguments: typescriptArguments
+		extraArguments: [
+			'--ignore-pattern',
+			'documentation/examples/gh-got.js' // This file use `package` keyword as variable
+		]
 	},
 	'https://github.com/eslint/eslint',
-	'https://github.com/prettier/prettier',
+	{
+		repository: 'https://github.com/prettier/prettier',
+		extraArguments: [
+			'--ignore-pattern',
+			'tests/**'
+		]
+	},
 	'https://github.com/facebook/react',
 	{
 		repository: 'https://github.com/angular/angular',
 		extraArguments: [
-			...typescriptArguments,
-
 			'--ignore-pattern',
 			'aio/content/examples/animations/src/app/open-close.component.3.ts',
-
-			'--ignore-pattern',
-			'aio/tools/transforms/templates/data-module.template.js',
-
 			'--ignore-pattern',
 			'aio/content/examples/router/src/app/app-routing.module.9.ts',
 
 			'--ignore-pattern',
-			'packages/compiler-cli/test/compliance/test_cases/r3_compiler_compliance/elements/**'
+			'aio/tools/transforms/templates/data-module.template.js',
+			'--ignore-pattern',
+			'aio/tools/transforms/authors-package/index.js', // This file use `package` keyword as variable
+
+			'--ignore-pattern',
+			'packages/compiler-cli/test/**',
+
+			'--ignore-pattern',
+			'tools/**'
 		]
 	},
 	{
 		repository: 'https://github.com/microsoft/typescript',
-		extraArguments: typescriptArguments
+		extraArguments: [
+			// These file use `'\033'`
+			'--ignore-pattern',
+			'build/**'
+		]
 	},
 	{
 		repository: 'https://github.com/microsoft/vscode',
-		extraArguments: typescriptArguments
+		extraArguments: [
+			// This file use `'\033'`
+			'--ignore-pattern',
+			'build/**'
+		]
 	},
-	{
-		repository: 'https://github.com/ElemeFE/element',
-		extraArguments: vueArguments
-	},
-	{
-		repository: 'https://github.com/iview/iview',
-		extraArguments: vueArguments
-	},
+	'https://github.com/ElemeFE/element',
+	'https://github.com/iview/iview',
 	'https://github.com/sindresorhus/create-dmg',
 	'https://github.com/sindresorhus/cp-file',
 	'https://github.com/sindresorhus/capture-website',
@@ -119,8 +123,6 @@ module.exports = [
 	{
 		repository: 'https://github.com/vercel/next.js',
 		extraArguments: [
-			...typescriptArguments,
-
 			'--ignore-pattern',
 			'examples/**',
 
@@ -138,7 +140,25 @@ module.exports = [
 	},
 	'https://github.com/ReactTraining/react-router',
 	'https://github.com/facebook/relay',
-	'https://github.com/mozilla/pdf.js'
+	'https://github.com/mozilla/pdf.js',
+	// #912
+	{
+		repository: 'https://github.com/microsoft/fluentui',
+		extraArguments: [
+			'--ignore-pattern',
+			'scripts/publish-beta.js' // This file use `package` keyword as variable
+		]
+	},
+	// #902
+	{
+		repository: 'https://github.com/reakit/reakit',
+		extraArguments: [
+			'--ignore-pattern',
+			'packages/reakit/jest.config.js' // This file use `package` keyword as variable
+		]
+	},
+	// #903
+	'https://github.com/mattermost/mattermost-webapp'
 ].map(project => {
 	if (typeof project === 'string') {
 		project = {repository: project};

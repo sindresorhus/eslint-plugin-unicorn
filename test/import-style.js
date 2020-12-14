@@ -5,13 +5,16 @@ const options = {
 	checkExportFrom: true,
 	styles: {
 		unassigned: {
-			unassigned: true
+			unassigned: true,
+			named: false
 		},
 		default: {
-			default: true
+			default: true,
+			named: false
 		},
 		namespace: {
-			namespace: true
+			namespace: true,
+			named: false
 		},
 		named: {
 			named: true
@@ -591,6 +594,26 @@ test({
 					moduleName: 'no-unassigned'
 				}
 			}]
+		}
+	].map(test => addDefaultOptions(test))
+});
+
+test.babel({
+	valid: [
+		'const {...rest2} = require("named")'
+	],
+	invalid: [
+		{
+			code: 'const {...rest2} = require("unassigned")',
+			errors: [unassignedError]
+		},
+		{
+			code: 'const {...rest2} = require("default")',
+			errors: [defaultError]
+		},
+		{
+			code: 'const {...rest2} = require("namespace")',
+			errors: [namespaceError]
 		}
 	].map(test => addDefaultOptions(test))
 });

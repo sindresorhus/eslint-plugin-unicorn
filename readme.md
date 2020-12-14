@@ -37,6 +37,7 @@ Configure it in `package.json`.
 			"unicorn/catch-error-name": "error",
 			"unicorn/consistent-function-scoping": "error",
 			"unicorn/custom-error-definition": "off",
+			"unicorn/empty-brace-spaces": "error",
 			"unicorn/error-message": "error",
 			"unicorn/escape-case": "error",
 			"unicorn/expiring-todo-comments": "error",
@@ -70,6 +71,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-array-find": "error",
 			"unicorn/prefer-array-index-of": "error",
 			"unicorn/prefer-dataset": "error",
+			"unicorn/prefer-date-now": "error",
 			"unicorn/prefer-event-key": "error",
 			"unicorn/prefer-flat-map": "error",
 			"unicorn/prefer-includes": "error",
@@ -105,7 +107,8 @@ Configure it in `package.json`.
 - [catch-error-name](docs/rules/catch-error-name.md) - Enforce a specific parameter name in catch clauses. *(fixable)*
 - [consistent-function-scoping](docs/rules/consistent-function-scoping.md) - Move function definitions to the highest possible scope.
 - [custom-error-definition](docs/rules/custom-error-definition.md) - Enforce correct `Error` subclassing. *(fixable)*
-- [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
+- [empty-brace-spaces](docs/rules/empty-brace-spaces.md) - Enforce no spaces between braces. *(fixable)*
+- [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when creating a built-in error.
 - [escape-case](docs/rules/escape-case.md) - Require escape sequences to use uppercase values. *(fixable)*
 - [expiring-todo-comments](docs/rules/expiring-todo-comments.md) - Add expiration conditions to TODO comments.
 - [explicit-length-check](docs/rules/explicit-length-check.md) - Enforce explicitly comparing the `length` property of a value. *(partly fixable)*
@@ -137,6 +140,7 @@ Configure it in `package.json`.
 - [prefer-array-find](docs/rules/prefer-array-find.md) - Prefer `.find(…)` over the first element from `.filter(…)`. *(partly fixable)*
 - [prefer-array-index-of](docs/rules/prefer-array-index-of.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
 - [prefer-dataset](docs/rules/prefer-dataset.md) - Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. *(fixable)*
+- [prefer-date-now](docs/rules/prefer-date-now.md) - Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. *(fixable)*
 - [prefer-event-key](docs/rules/prefer-event-key.md) - Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. *(partly fixable)*
 - [prefer-flat-map](docs/rules/prefer-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
 - [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
