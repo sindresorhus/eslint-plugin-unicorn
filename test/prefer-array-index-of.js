@@ -7,11 +7,14 @@ function suggestionCase({code, output}) {
 	return {
 		code,
 		output: code,
-		errors: 1,
-		suggestions: [
+		errors: [
 			{
-				messageId: MESSAGE_ID_REPLACE,
-				output
+				suggestions: [
+					{
+						messageId: MESSAGE_ID_REPLACE,
+						output
+					}
+				]
 			}
 		]
 	};
@@ -102,15 +105,15 @@ test({
 		suggestionCase({
 			code: outdent`
 				foo.findIndex(function a(x) {
-					return x === (function () {
-						return a(this) === arguments[0]
-					})()
+					return x === (function (a) {
+						return a(this) === arguments[1]
+					}).call(thisObject, anotherFunctionNamedA, secondArgument)
 				})
 			`,
 			output: outdent`
-				foo.indexOf((function () {
-						return a(this) === arguments[0]
-					})())
+				foo.indexOf((function (a) {
+						return a(this) === arguments[1]
+					}).call(thisObject, anotherFunctionNamedA, secondArgument))
 			`
 		})
 	]
