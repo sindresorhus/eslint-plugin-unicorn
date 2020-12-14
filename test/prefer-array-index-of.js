@@ -77,6 +77,8 @@ test({
 		'foo.findIndex(x => 1 === 1.0)',
 		'foo.findIndex(x => {return 1 === 1.0})',
 		'foo.findIndex(function (x){return 1 === 1.0})',
+		// Both `left` and `right` are same as `parameter`
+		'foo.findIndex(x => x === x)',
 
 		// Not the same identifier
 		'foo.findIndex(x => y === 1)',
