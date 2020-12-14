@@ -30,25 +30,23 @@ const create = context => {
 
 	return {
 		[selector](inner) {
-			const parent = inner.parent;
+			const {parent} = inner;
 			const outer = parent.type === 'BlockStatement' ? parent.parent : parent;
 
 			context.report({
 				node: inner,
 				messageId: MESSAGE_ID,
-				*fix(fixer) {
+				* fix(fixer) {
 					// Merge `test`
 					yield fixer.replaceText(outer.test, `(${getText(outer.test)}) && (${getText(inner.test)})`);
 
 					// Replace `consequent`
-					yield fixer.replaceText(outer.consequent, getText(inner.consequent))
+					yield fixer.replaceText(outer.consequent, getText(inner.consequent));
 				}
 			});
 		}
-	}
+	};
 };
-
-const schema = [];
 
 module.exports = {
 	create,
@@ -58,7 +56,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema,
 		messages
 	}
 };
