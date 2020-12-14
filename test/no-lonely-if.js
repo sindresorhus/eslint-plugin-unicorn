@@ -2,7 +2,32 @@ import {outdent} from 'outdent';
 import {test} from './utils/test';
 
 test({
-	valid: [],
+	valid: [
+		outdent`
+			if (a) {
+				if (b) {
+				}
+			} else {}
+		`,
+		outdent`
+			if (a) {
+				if (b) {
+				}
+				foo();
+			} else {}
+		`,
+		outdent`
+			if (a) {
+			} else {
+				if (y) {}
+			}
+		`,
+		outdent`
+			if (a) {
+				b ? c() : d()
+			}
+		`
+	],
 	invalid: [
 	]
 });
