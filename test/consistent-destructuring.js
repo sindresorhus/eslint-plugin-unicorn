@@ -187,12 +187,32 @@ ruleTester.run('consistent-destructuring', rule, {
 			}
 			console.log(foo.a);
 		`,
-		'const {a:{b}} = foo; (new foo.a).b',
-		'const {a} = foo; foo.a++',
-		'const {a} = foo; ++foo.a',
-		'const {a} = foo; foo.a+=1',
-		'const {a:{b}} = foo; foo.a = {b: 1}; console.log(foo.b)',
-		'const {a} = foo; foo = {}; console.log(foo.b)'
+		outdent`
+			const {a} = foo;
+			foo.a++;
+		`,
+		outdent`
+			const {a} = foo;
+			++foo.a;
+		`,
+		outdent`
+			const {a} = foo;
+			foo.a += 1;
+		`,
+		outdent`
+			const {a: {b}} = foo;
+			(new foo.a).b;
+		`,
+		outdent`
+			const {a: {b}} = foo;
+			foo.a = {b: 1};
+			console.log(foo.b);
+		`,
+		outdent`
+			const {a} = foo;
+			foo = {};
+			console.log(foo.b);
+		`
 	],
 	invalid: [
 		invalidTestCase({
