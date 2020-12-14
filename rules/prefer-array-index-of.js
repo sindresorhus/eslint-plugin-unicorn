@@ -8,7 +8,7 @@ const MESSAGE_ID_FIND_INDEX = 'findIndex';
 const MESSAGE_ID_REPLACE = 'replaceFindIndex';
 const messages = {
 	[MESSAGE_ID_FIND_INDEX]: 'Use `.indexOf()` instead of `.findIndex()` when looking for the index of an item.',
-	[MESSAGE_ID_REPLACE]: 'Replace `.findIndex()` with `.idexOf()`.'
+	[MESSAGE_ID_REPLACE]: 'Replace `.findIndex()` with `.indexOf()`.'
 };
 
 const getBinaryExpressionSelector = path => [
