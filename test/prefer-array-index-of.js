@@ -86,6 +86,8 @@ test({
 
 		// Parameter is used
 		'foo.findIndex(x => x === "foo" + x)',
+		// Parameter is used in a deeper scope
+		'foo.findIndex(x => x === (function (){return x === "1"})())',
 		// FunctionName is used
 		'foo.findIndex(function fn(x) {return x === fn(y)})',
 		// `arguments` is used
