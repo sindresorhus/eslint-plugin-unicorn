@@ -1,30 +1,41 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test';
 
-const MESSAGE_ID = 'no-lonely-if';
-const errors = [
-	{
-		messageId: MESSAGE_ID
-	}
-];
-
 test({
-	valid: [
-		'const foo = \'🦄\';'
-	],
+	valid: [],
 	invalid: [
-		{
-			code: outdent`
-				const foo = 'unicorn';
-			`,
-			output: outdent`
-				const foo = '🦄';
-			`,
-			errors
-		}
 	]
 });
 
 test.visualize([
-	'const foo = \'unicorn\';'
+	outdent`
+		if (a) {
+			if (b) {
+			}
+		}
+	`,
+	// Inner one is `BlockStatement`
+	outdent`
+		if (a) if (b) {
+			foo();
+		}
+	`,
+	// Outer one is `BlockStatement`
+	outdent`
+		if (a) {
+			if (b) foo();
+		}
+	`,
+	// No `BlockStatement`
+	'if (a) if (b) foo();',
+	outdent`
+		if (a) {
+			if (b) {
+				// Should not report
+			}
+		} else if (c) {
+			if (d) {
+			}
+		}
+	`
 ]);
