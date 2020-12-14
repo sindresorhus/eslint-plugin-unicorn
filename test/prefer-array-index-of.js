@@ -1,13 +1,21 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test';
 
-const MESSAGE_ID_FINDINDEX = 'findIndex';
+const MESSAGE_ID_REPLACE = 'replaceFindIndex';
 
-const errorsFindIndex = [
-	{
-		messageId: MESSAGE_ID_FINDINDEX
-	}
-];
+function suggestionCase({code, output}) {
+	return {
+		code,
+		output: code,
+		errors: 1,
+		suggestions: [
+			{
+				messageId: MESSAGE_ID_REPLACE,
+				output
+			}
+		]
+	};
+}
 
 test({
 	valid: [
@@ -78,15 +86,33 @@ test({
 		// FunctionName is used
 		'foo.findIndex(function fn(x) {return x === fn(y)})',
 		// `arguments` is used
-		'foo.findIndex(function fn(x) {return x === arguments.length})',
+		'foo.findIndex(function(x) {return x === arguments.length})',
 		// `this` is used
-		'foo.findIndex(function fn(x) {return x === this.length})',
+		'foo.findIndex(function(x) {return x === this.length})',
 
 		// Already valid case
 		'foo.indexOf(0)'
 	],
 
 	invalid: [
+		suggestionCase({
+			code: 'values.findIndex(x => x === foo())',
+			output: 'values.indexOf(foo())'
+		}),
+		suggestionCase({
+			code: outdent`
+				foo.findIndex(function a(x) {
+					return x === (function () {
+						return a(this) === arguments[0]
+					})()
+				})
+			`,
+			output: outdent`
+				foo.indexOf((function () {
+						return a(this) === arguments[0]
+					})())
+			`
+		})
 	]
 });
 
@@ -104,7 +130,7 @@ test.typescript({
 					return (bar as string).indexOf("foo");
 				}
 			`,
-			errors: errorsFindIndex
+			errors: 1
 		}
 	]
 });
@@ -129,5 +155,16 @@ test.visualize([
 		});
 	`,
 	'values.findIndex(x => x === (0, "foo"))',
-	'values.findIndex((x => x === (0, "foo")))'
+	'values.findIndex((x => x === (0, "foo")))',
+	// `this`/`arguments` in arrow functions
+	outdent`
+		function fn() {
+			foo.findIndex(x => x === arguments.length)
+		}
+	`,
+	outdent`
+		function fn() {
+			foo.findIndex(x => x === this[1])
+		}
+	`
 ]);
