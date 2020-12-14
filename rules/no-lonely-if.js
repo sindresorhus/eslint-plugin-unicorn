@@ -57,7 +57,11 @@ const create = context => {
 					// If the `if` statement has no block, and is not followed by a semicolon,
 					// make sure that fixing the issue would not change semantics due to ASI.
 					// Similar logic https://github.com/eslint/eslint/blob/2124e1b5dad30a905dc26bde9da472bf622d3f50/lib/rules/no-lonely-if.js#L61-L77
-					if (consequent.type !== 'BlockStatement' && !consequentText.endsWith(';')) {
+					if (
+						consequent.type !== 'BlockStatement' &&
+						outer.consequent.type === 'BlockStatement' &&
+						!consequentText.endsWith(';')
+					) {
 						const nextToken = sourceCode.getTokenAfter(outer);
 						if (/^[([/+`-]/u.test(nextToken.value)) {
 							consequentText += ';';
