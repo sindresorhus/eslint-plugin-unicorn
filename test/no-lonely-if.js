@@ -111,5 +111,17 @@ test.visualize([
 			}
 			/* will remove */
 		}
+	`,
+	// Semicolon
+	outdent`
+		if (a) {
+			if (b) foo()
+		}
+		[].forEach(bar)
+	`,
+	outdent`
+		if (a)
+			if (b) foo()
+		;[].forEach(bar)
 	`
 ]);
