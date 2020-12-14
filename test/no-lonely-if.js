@@ -90,5 +90,26 @@ test.visualize([
 		}
 	`,
 	// Don't case parenthesis in outer test
-	'if (((a || b))) if (((c || d)));'
+	'if (((a || b))) if (((c || d)));',
+	// Comments
+	outdent`
+		if /* will keep */
+		(
+			/* will keep */
+			a /* will keep */
+				.b /* will keep */
+		) /* keep */{
+			/* will remove */
+			if (
+				/* will remove */
+				c /* will keep */
+					.d /* will remove */
+			) {
+				/* will keep */
+				foo();
+				/* will keep */
+			}
+			/* will remove */
+		}
+	`
 ]);
