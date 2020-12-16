@@ -8,10 +8,25 @@ This rule is partly fixable.
 
 ```js
 [].findIndex(x => x === 'foo');
+```
+
+```js
 values.findIndex(x => 'foo' === x);
+```
+
+```js
 values.findIndex(x => {return x === 'foo';});
+```
+
+```js
 ['foobar'].findIndex(x => {return 'foo' === x;});
+```
+
+```js
 values.findIndex(function (x) {return x === 'foo';});
+```
+
+```js
 ['foobar'].findIndex(function (x) {return 'foo' === x;});
 ```
 
@@ -19,11 +34,32 @@ values.findIndex(function (x) {return x === 'foo';});
 
 ```js
 [].findIndex(i => i === list[i]);
-[].findIndex(x => x === 'foo' && isValid);
+```
+
+```js
+[].findIndex(x => (x === 'foo') && isValid);
+```
+
+```js
 [].findIndex(x => y === 'foo');
+```
+
+```js
 [].findIndex(x => y.x === 'foo');
+```
+
+```js
 [].findIndex(x => x == 'foo');
+```
+
+```js
 ['foobar'].findIndex(function (x) {return 'foo' == x;});
+```
+
+```js
 [].findIndex(x => x !== 'foo');
+```
+
+```js
 values.findIndex(function (x) {return x !== 'foo';});
 ```
