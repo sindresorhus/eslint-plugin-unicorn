@@ -28,8 +28,7 @@ test({
 			}
 		`
 	],
-	invalid: [
-	]
+	invalid: []
 });
 
 test.visualize([
