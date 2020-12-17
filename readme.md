@@ -53,6 +53,7 @@ Configure it in `package.json`.
 			"unicorn/no-for-loop": "error",
 			"unicorn/no-hex-escape": "error",
 			"unicorn/no-keyword-prefix": "off",
+			"unicorn/no-lonely-if": "error",
 			"no-nested-ternary": "off",
 			"unicorn/no-nested-ternary": "error",
 			"unicorn/no-new-buffer": "error",
@@ -122,6 +123,7 @@ Configure it in `package.json`.
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(partly fixable)*
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of Unicode escapes instead of hexadecimal escapes. *(fixable)*
 - [no-keyword-prefix](docs/rules/no-keyword-prefix.md) - Disallow identifiers starting with `new` or `class`.
+- [no-lonely-if](docs/rules/no-lonely-if.md) - Disallow `if` statements as the only statement in `if` blocks without `else`. *(fixable)*
 - [no-nested-ternary](docs/rules/no-nested-ternary.md) - Disallow nested ternary expressions. *(partly fixable)*
 - [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 - [no-null](docs/rules/no-null.md) - Disallow the use of the `null` literal.
