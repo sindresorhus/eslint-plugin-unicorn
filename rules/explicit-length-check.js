@@ -64,7 +64,7 @@ function getNonZeroLengthNode(node) {
 	}
 
 	// `!!foo.length`
-	if (isLogicNotLength(node) && isLogicNotLength(node.argument)) {
+	if (node.type === 'UnaryExpression' && node.operator === '!' && isLogicNotLength(node.argument)) {
 		return node.argument.argument;
 	}
 
@@ -149,7 +149,7 @@ const create = context => {
 			context.report({
 				node,
 				messageId: 'non-zero',
-				data: { code: nonZeroStyle.code },
+				data: {code: nonZeroStyle.code},
 				fix: fixer => fixer.replaceText(node, `${sourceCode.getText(nonZeroLengthNode)} ${nonZeroStyle.code}`)
 			});
 			return;
@@ -160,7 +160,7 @@ const create = context => {
 			context.report({
 				node,
 				messageId: 'zero',
-				data: { code: zeroStyle.code },
+				data: {code: zeroStyle.code},
 				fix: fixer => fixer.replaceText(node, `${sourceCode.getText(zeroLengthNode)} ${zeroStyle.code}`)
 			});
 			return;
