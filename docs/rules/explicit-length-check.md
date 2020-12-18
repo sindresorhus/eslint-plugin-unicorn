@@ -1,6 +1,6 @@
 # Enforce explicitly comparing the `length` property of a value
 
-Enforce explicitly checking the length of a value array in an `if` condition, rather than checking the truthiness of the length, and enforce comparison style.
+Enforce explicitly checking the length of a value array in an `if` condition or ternary, enforce comparison style.
 
 This rule is fixable.
 
@@ -10,34 +10,47 @@ Enforce comparison with `=== 0` when checking for zero length.
 ### Fail
 
 ```js
-const unicorn = foo.length < 1 ? 1 : 2;
-```
-
-```js
-if (!(foo.length > 0)) {}
-```
-
-```js
 if (!foo.length) {}
+```
+
+```js
+if (foo.length == 0) {}
+```
+
+```js
+if (foo.length < 1) {}
 ```
 
 ```js
 if (0 === foo.length) {}
 ```
 
-### Pass
+```js
+if (0 == foo.length) {}
+```
 
 ```js
-const unicorn = foo.length === 0 ? 1 : 2;
+if (1 > foo.length) {}
 ```
+
+```js
+// Negative style is forbid too
+if (!(foo.length > 0)) {}
+```
+
+### Pass
 
 ```js
 if (foo.length === 0) {}
 ```
 
+```js
+const unicorn = foo.length === 0 ? 1 : 2;
+```
+
 ## Non-zero comparisons
 
-By default, enforce comparison with `> 0` when checking for non-zero length.
+Enforce comparison with `> 0` when checking for non-zero length.
 
 ### Fail
 
@@ -54,21 +67,34 @@ if (foo.length >= 1) {}
 ```
 
 ```js
-const unicorn = foo.length ? 1 : 2;
+if (0 !== foo.length) {}
 ```
 
 ```js
+if (0 != foo.length) {}
+```
+
+```js
+if (0 < foo.length) {}
+```
+
+```js
+if (1 <= foo.length) {}
+```
+
+```js
+// Negative style is forbid too
 if (!(foo.length === 0)) {}
 ```
 
 ### Pass
 
 ```js
-const unicorn = foo.length > 0 ? 1 : 2;
+if (foo.length > 0) {}
 ```
 
 ```js
-if (foo.length > 0) {}
+const unicorn = foo.length > 0 ? 1 : 2;
 ```
 
 ### Options
