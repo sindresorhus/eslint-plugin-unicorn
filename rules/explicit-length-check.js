@@ -18,12 +18,12 @@ const isLiteralNumber = (node, value) =>
 	node.type === 'Literal' &&
 	typeof node.value === 'number' &&
 	node.value === value;
-const isRightSide = (node, operator, value) =>
+const isCompareRight = (node, operator, value) =>
 	node.type === 'BinaryExpression' &&
 	node.operator === operator &&
 	isLengthProperty(node.left) &&
 	isLiteralNumber(node.right, value);
-const isLeftSide = (node, operator, value) =>
+const isCompareLeft = (node, operator, value) =>
 	node.type === 'BinaryExpression' &&
 	node.operator === operator &&
 	isLengthProperty(node.right) &&
@@ -33,52 +33,52 @@ const nonZeroStyles = new Map([
 		'greater-than',
 		{
 			code: '> 0',
-			test: node => isRightSide(node, '>', 0)
+			test: node => isCompareRight(node, '>', 0)
 		}
 	],
 	[
 		'not-equal',
 		{
 			code: '!== 0',
-			test: node => isRightSide(node, '!==', 0)
+			test: node => isCompareRight(node, '!==', 0)
 		}
 	],
 	[
 		'greater-than-or-equal',
 		{
 			code: '>= 1',
-			test: node => isRightSide(node, '>=', 1)
+			test: node => isCompareRight(node, '>=', 1)
 		}
 	]
 ]);
 const zeroStyle = {
 	code: '=== 0',
-	test: node => isRightSide(node, '===', 0)
+	test: node => isCompareRight(node, '===', 0)
 };
 
 function getNonZeroLengthNode(node) {
 	if (
 		// `foo.length !== 0`
-		isRightSide(node, '!==', 0) ||
+		isCompareRight(node, '!==', 0) ||
 		// `foo.length != 0`
-		isRightSide(node, '!=', 0) ||
+		isCompareRight(node, '!=', 0) ||
 		// `foo.length > 0`
-		isRightSide(node, '>', 0) ||
+		isCompareRight(node, '>', 0) ||
 		// `foo.length >= 1`
-		isRightSide(node, '>=', 1)
+		isCompareRight(node, '>=', 1)
 	) {
 		return node.left;
 	}
 
 	if (
 		// `0 !== foo.length`
-		isLeftSide(node, '!==', 0) ||
+		isCompareLeft(node, '!==', 0) ||
 		// `0 !== foo.length`
-		isLeftSide(node, '!=', 0) ||
+		isCompareLeft(node, '!=', 0) ||
 		// `0 < foo.length`
-		isLeftSide(node, '<', 0) ||
+		isCompareLeft(node, '<', 0) ||
 		// `1 <= foo.length`
-		isLeftSide(node, '<=', 1)
+		isCompareLeft(node, '<=', 1)
 	) {
 		return node.right;
 	}
@@ -87,22 +87,22 @@ function getNonZeroLengthNode(node) {
 function getZeroLengthNode(node) {
 	if (
 		// `foo.length === 0`
-		isRightSide(node, '===', 0) ||
+		isCompareRight(node, '===', 0) ||
 		// `foo.length == 0`
-		isRightSide(node, '==', 0) ||
+		isCompareRight(node, '==', 0) ||
 		// `foo.length < 1`
-		isRightSide(node, '<', 1)
+		isCompareRight(node, '<', 1)
 	) {
 		return node.left;
 	}
 
 	if (
 		// `0 === foo.length`
-		isLeftSide(node, '===', 0) ||
+		isCompareLeft(node, '===', 0) ||
 		// `0 == foo.length`
-		isLeftSide(node, '==', 0) ||
+		isCompareLeft(node, '==', 0) ||
 		// `1 > foo.length`
-		isLeftSide(node, '>', 1)
+		isCompareLeft(node, '>', 1)
 	) {
 		return node.right;
 	}
