@@ -122,10 +122,10 @@ const create = context => {
 			return;
 		}
 
-		let isCheckingZero = false;
+		let isNegative = false;
 		let expression = node;
 		while (isLogicNot(expression)) {
-			isCheckingZero = !isCheckingZero;
+			isNegative = !isNegative;
 			expression = expression.argument;
 		}
 
@@ -136,19 +136,18 @@ const create = context => {
 		}
 
 		let lengthNode;
+		let isCheckingZero = isNegative;
 		if (isLengthProperty(expression)) {
 			lengthNode = expression;
 		} else {
-			const nonZeroLengthNode = getNonZeroLengthNode(node);
-			if (nonZeroLengthNode) {
-				lengthNode = nonZeroLengthNode;
-				isCheckingZero = false;
+			const zeroLengthNode = getZeroLengthNode(expression);
+			if (zeroLengthNode) {
+				lengthNode = zeroLengthNode;
+				isCheckingZero = !isCheckingZero;
 			} else {
-				const zeroLengthNode = getZeroLengthNode(node);
-
-				if (zeroLengthNode) {
-					lengthNode = zeroLengthNode;
-					isCheckingZero = true;
+				const nonZeroLengthNode = getNonZeroLengthNode(expression);
+				if (nonZeroLengthNode) {
+					lengthNode = nonZeroLengthNode;
 				} else {
 					return;
 				}
