@@ -7,6 +7,7 @@ This rule is fixable.
 ## Zero comparisons
 
 Enforce comparison with `=== 0` when checking for zero length.
+
 ### Fail
 
 ```js
