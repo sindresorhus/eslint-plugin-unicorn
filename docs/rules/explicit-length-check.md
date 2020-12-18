@@ -2,7 +2,7 @@
 
 Enforce explicitly checking the length of a value array in an `if` condition, rather than checking the truthiness of the length, and enforce comparison style.
 
-This rule is partly fixable.
+This rule is fixable.
 
 ### Fail
 
@@ -21,6 +21,7 @@ if (!array.length) {}
 ```js
 if (array.length !== 0) {}
 ```
+
 ### Pass
 
 ```js
