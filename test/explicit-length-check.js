@@ -68,10 +68,10 @@ test({
 test.visualize([
 	outdent`
 		if (
-			(
+			!!!(
 				${zeroCases.filter(code => code !== 'foo.length === 0').join(' &&\n\t\t')}
 			) ||
-			(
+			!(
 				${nonZeroCases.filter(code => code !== 'foo.length > 0').join(' ||\n\t\t')}
 			)
 		) {}

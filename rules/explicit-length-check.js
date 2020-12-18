@@ -11,10 +11,9 @@ const isLengthProperty = node =>
 	node.computed === false &&
 	node.property.type === 'Identifier' &&
 	node.property.name === 'length';
-const isLogicNotLength = node =>
+const isLogicNot = node =>
 	node.type === 'UnaryExpression' &&
-	node.operator === '!' &&
-	isLengthProperty(node.argument);
+	node.operator === '!';
 const isLiteralNumber = (node, value) =>
 	node.type === 'Literal' &&
 	typeof node.value === 'number' &&
@@ -64,7 +63,11 @@ function getNonZeroLengthNode(node) {
 	}
 
 	// `!!foo.length`
-	if (node.type === 'UnaryExpression' && node.operator === '!' && isLogicNotLength(node.argument)) {
+	if (
+		isLogicNot(node) &&
+		isLogicNot(node.argument) &&
+		isLengthProperty(node.argument.argument)
+	) {
 		return node.argument.argument;
 	}
 
@@ -97,7 +100,10 @@ function getNonZeroLengthNode(node) {
 
 function getZeroLengthNode(node) {
 	// `!foo.length`
-	if (isLogicNotLength(node)) {
+	if (
+		isLogicNot(node) &&
+		isLengthProperty(node.argument)
+	) {
 		return node.argument;
 	}
 
@@ -133,9 +139,14 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 
 	function checkExpression(node) {
-		if (node.type === 'LogicalExpression') {
-			checkExpression(node.left);
-			checkExpression(node.right);
+		let expression = node;
+		while (isLogicNot(expression)) {
+			expression = expression.argument;
+		}
+
+		if (expression.type === 'LogicalExpression') {
+			checkExpression(expression.left);
+			checkExpression(expression.right);
 			return;
 		}
 
