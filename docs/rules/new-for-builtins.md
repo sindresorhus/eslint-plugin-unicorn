@@ -39,7 +39,7 @@ Disallows the use of `new` for following builtins.
 
 > These should not use `new` as that would create object wrappers for the primitive values, which is not what you want. However, without `new` they can be useful for coercing a value to that type.
 
-This rule is fixable, except `new String()`, `new Number()`, and `new Boolean()`, [they returns wrapped object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#String_primitives_and_String_objects#String_primitives_and_String_objects).
+This rule is fixable, except `new String()`, `new Number()`, and `new Boolean()`, [they return wrapped object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#String_primitives_and_String_objects).
 
 ## Fail
 
