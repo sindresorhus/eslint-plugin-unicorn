@@ -57,6 +57,11 @@ const zeroStyle = {
 };
 
 function getNonZeroLengthNode(node) {
+	// `foo.length`
+	if (isLengthProperty(node)) {
+		return node;
+	}
+
 	if (
 		// `foo.length !== 0`
 		isCompareRight(node, '!==', 0) ||
@@ -137,20 +142,17 @@ const create = context => {
 
 		let lengthNode;
 		let isCheckingZero = isNegative;
-		if (isLengthProperty(expression)) {
-			lengthNode = expression;
+
+		const zeroLengthNode = getZeroLengthNode(expression);
+		if (zeroLengthNode) {
+			lengthNode = zeroLengthNode;
+			isCheckingZero = !isCheckingZero;
 		} else {
-			const zeroLengthNode = getZeroLengthNode(expression);
-			if (zeroLengthNode) {
-				lengthNode = zeroLengthNode;
-				isCheckingZero = !isCheckingZero;
+			const nonZeroLengthNode = getNonZeroLengthNode(expression);
+			if (nonZeroLengthNode) {
+				lengthNode = nonZeroLengthNode;
 			} else {
-				const nonZeroLengthNode = getNonZeroLengthNode(expression);
-				if (nonZeroLengthNode) {
-					lengthNode = nonZeroLengthNode;
-				} else {
-					return;
-				}
+				return;
 			}
 		}
 
