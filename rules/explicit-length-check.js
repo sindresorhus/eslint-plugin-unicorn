@@ -11,6 +11,10 @@ const isLengthProperty = node =>
 	node.computed === false &&
 	node.property.type === 'Identifier' &&
 	node.property.name === 'length';
+const isLogicNotLength = node =>
+	node.type === 'UnaryExpression' &&
+	node.operator === '!' &&
+	isLengthProperty(node.argument)
 const isLiteralNumber = (node, value) =>
 	node.type === 'Literal' &&
 	typeof node.value === 'number' &&
@@ -59,6 +63,11 @@ function getNonZeroLengthNode(node) {
 		return node;
 	}
 
+	// `!!foo.length`
+	if (isLogicNotLength(node) && isLogicNotLength(node.argument)) {
+		return node.argument.argument;
+	}
+
 	if (
 		// `foo.length !== 0`
 		isRightSide(node, '!==', 0) ||
@@ -88,7 +97,7 @@ function getNonZeroLengthNode(node) {
 
 function getZeroLengthNode(node) {
 	// `!foo.length`
-	if (node.type === 'UnaryExpression' && isLengthProperty(node.argument)) {
+	if (isLogicNotLength(node)) {
 		return node.argument;
 	}
 
@@ -165,13 +174,11 @@ const create = context => {
 	};
 };
 
-
 const schema = [
 	{
 		type: 'object',
 		properties: {
 			'non-zero': {
-				type: 'string',
 				enum: [...nonZeroStyles.keys()],
 				default: 'greater-than'
 			}

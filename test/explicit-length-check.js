@@ -3,6 +3,7 @@ import {test} from './utils/test';
 
 const nonZeroCases = [
 	'foo.length',
+	'!!foo.length',
 	'foo.length !== 0',
 	'foo.length != 0',
 	'foo.length > 0',
@@ -56,7 +57,10 @@ test({
 		'if (foo.length === 0) {}',
 
 		// `ConditionalExpression`
-		'const bar = foo.length === 0 ? 1 : 2'
+		'const bar = foo.length === 0 ? 1 : 2',
+
+		// Not handled
+		'if (!!!foo.length) {}'
 	],
 	invalid: []
 });
@@ -87,5 +91,7 @@ test.visualize([
 			) ? 1 : 2;
 		`,
 		options: [{'non-zero': 'greater-than-or-equal'}]
-	}
+	},
+	'if (foo.bar && foo.bar.length) {}',
+	'if (foo.length || foo.bar()) {}'
 ]);
