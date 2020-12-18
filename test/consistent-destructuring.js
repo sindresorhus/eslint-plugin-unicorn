@@ -202,16 +202,6 @@ ruleTester.run('consistent-destructuring', rule, {
 		outdent`
 			const {a: {b}} = foo;
 			(new foo.a).b;
-		`,
-		outdent`
-			const {a: {b}} = foo;
-			foo.a = {b: 1};
-			console.log(foo.b);
-		`,
-		outdent`
-			const {a} = foo;
-			foo = {};
-			console.log(foo.b);
 		`
 	],
 	invalid: [
