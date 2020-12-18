@@ -8,19 +8,32 @@ This rule is partly fixable.
 
 ```js
 if (string.length) {}
-if (array.length) {}
-if (!array.length) {}
-if (array.length !== 0) {}
 ```
 
+```js
+if (array.length) {}
+```
+
+```js
+if (!array.length) {}
+```
+
+```js
+if (array.length !== 0) {}
+```
 ### Pass
 
 ```js
 if (string.length > 0) {}
-if (array.length > 0) {}
-if (array.length === 0) {}
 ```
 
+```js
+if (array.length > 0) {}
+```
+
+```
+if (array.length === 0) {}
+```
 
 ## Zero comparisons
 
@@ -45,9 +58,12 @@ You can define your preferred way of checking non-zero length by providing a `no
 
 ```js
 {
-	'unicorn/explicit-length-check': ['error', {
-		'non-zero': 'not-equal'
-	}]
+	'unicorn/explicit-length-check': [
+		'error',
+		{
+			'non-zero': 'not-equal'
+		}
+	]
 }
 ```
 
