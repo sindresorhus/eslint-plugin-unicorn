@@ -4,56 +4,74 @@ Enforce explicitly checking the length of a value array in an `if` condition, ra
 
 This rule is fixable.
 
-### Fail
-
-```js
-if (string.length) {}
-```
-
-```js
-if (array.length) {}
-```
-
-```js
-if (!array.length) {}
-```
-
-```js
-if (array.length !== 0) {}
-```
-
-### Pass
-
-```js
-if (string.length > 0) {}
-```
-
-```js
-if (array.length > 0) {}
-```
-
-```
-if (array.length === 0) {}
-```
-
 ## Zero comparisons
 
 Enforce comparison with `=== 0` when checking for zero length.
-
 ### Fail
 
 ```js
-if (string.length < 1) {}
+const unicorn = foo.length < 1 ? 1 : 2;
+```
+
+```js
+if (!(foo.length > 0)) {}
+```
+
+```js
+if (!foo.length) {}
+```
+
+```js
+if (0 === foo.length) {}
 ```
 
 ### Pass
 
 ```js
-if (array.length === 0) {}
+const unicorn = foo.length === 0 ? 1 : 2;
 ```
 
+```js
+if (foo.length === 0) {}
+```
 
 ## Non-zero comparisons
+
+By default, enforce comparison with `> 0` when checking for non-zero length.
+
+### Fail
+
+```js
+if (foo.length !== 0) {}
+```
+
+```js
+if (foo.length != 0) {}
+```
+
+```js
+if (foo.length >= 1) {}
+```
+
+```js
+const unicorn = foo.length ? 1 : 2;
+```
+
+```js
+if (!(foo.length === 0)) {}
+```
+
+### Pass
+
+```js
+const unicorn = foo.length > 0 ? 1 : 2;
+```
+
+```js
+if (foo.length > 0) {}
+```
+
+### Options
 
 You can define your preferred way of checking non-zero length by providing a `non-zero` option (`greater-than` by default):
 
@@ -71,8 +89,10 @@ You can define your preferred way of checking non-zero length by providing a `no
 The `non-zero` option can be configured with one of the following:
 
 - `greater-than` (default)
-	- Enforces non-zero to be checked with: `array.length > 0`
+	- Enforces non-zero to be checked with: `foo.length > 0`
 - `not-equal`
-	- Enforces non-zero to be checked with: `array.length !== 0`
+	- Enforces non-zero to be checked with: `foo.length !== 0`
 - `greater-than-or-equal`
-	- Enforces non-zero to be checked with: `array.length >= 1`
+	- Enforces non-zero to be checked with: `foo.length >= 1`
+
+
