@@ -18,6 +18,7 @@ const memberSelector = [
 	':not(',
 	'AssignmentExpression > MemberExpression.left,',
 	'CallExpression > MemberExpression.callee,',
+	'NewExpression > MemberExpression.callee,',
 	'UpdateExpression > MemberExpression.argument,',
 	'UnaryExpression[operator="delete"] > MemberExpression.argument',
 	')'
