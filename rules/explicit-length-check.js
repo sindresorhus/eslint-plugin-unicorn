@@ -3,7 +3,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const messages = {
 	'non-zero': 'Use `.length {{code}}` when checking length is not zero.',
-	'zero': 'Use `.length {{code}}` when checking length is zero.'
+	zero: 'Use `.length {{code}}` when checking length is zero.'
 };
 
 const isLengthProperty = node =>
@@ -14,18 +14,18 @@ const isLengthProperty = node =>
 const isLogicNotLength = node =>
 	node.type === 'UnaryExpression' &&
 	node.operator === '!' &&
-	isLengthProperty(node.argument)
+	isLengthProperty(node.argument);
 const isLiteralNumber = (node, value) =>
 	node.type === 'Literal' &&
 	typeof node.value === 'number' &&
 	node.value === value;
 const isRightSide = (node, operator, value) =>
-	node.type ==='BinaryExpression' &&
+	node.type === 'BinaryExpression' &&
 	node.operator === operator &&
 	isLengthProperty(node.left) &&
 	isLiteralNumber(node.right, value);
 const isLeftSide = (node, operator, value) =>
-	node.type ==='BinaryExpression' &&
+	node.type === 'BinaryExpression' &&
 	node.operator === operator &&
 	isLengthProperty(node.right) &&
 	isLiteralNumber(node.left, value);
@@ -59,7 +59,7 @@ const zeroStyle = {
 
 function getNonZeroLengthNode(node) {
 	// `foo.length`
-	if (isLengthProperty(node) ) {
+	if (isLengthProperty(node)) {
 		return node;
 	}
 
@@ -163,7 +163,6 @@ const create = context => {
 				data: {code: zeroStyle.code},
 				fix: fixer => fixer.replaceText(node, `${sourceCode.getText(zeroLengthNode)} ${zeroStyle.code}`)
 			});
-			return;
 		}
 	}
 
