@@ -91,5 +91,6 @@ test.visualize([
 	},
 	'if (foo.bar && foo.bar.length) {}',
 	'if (foo.length || foo.bar()) {}',
-	'if (!!(!!foo.length)) {}'
+	'if (!!(!!foo.length)) {}',
+	'if (!(foo.length === 0)) {}'
 ]);
