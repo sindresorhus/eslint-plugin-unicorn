@@ -53,11 +53,15 @@ test({
 			options: [{'non-zero': 'greater-than-or-equal'}]
 		},
 
-		// Checking non-'non-zero'
+		// Checking 'non-zero'
 		'if (foo.length === 0) {}',
 
 		// `ConditionalExpression`
-		'const bar = foo.length === 0 ? 1 : 2'
+		'const bar = foo.length === 0 ? 1 : 2',
+
+		'if (foo.length !== 1) {}',
+		'if (foo.length > 1) {}',
+		'if (foo.length < 2) {}'
 	],
 	invalid: []
 });
