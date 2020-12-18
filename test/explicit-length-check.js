@@ -1,3 +1,4 @@
+import {outdent} from 'outdent';
 import {test} from './utils/test';
 
 const nonZeroCases = [
@@ -19,7 +20,7 @@ const zeroCases = [
 	'foo.length < 1',
 	'0 === foo.length',
 	'0 == foo.length',
-	'1 > foo.length',
+	'1 > foo.length'
 ];
 
 test({
@@ -61,12 +62,30 @@ test({
 });
 
 test.visualize([
-	...[
-		...nonZeroCases.filter(code => code !== 'foo.length > 0'),
-		...zeroCases.filter(code => code !== 'foo.length === 0')
-	].map(code => `if (${code}) {}`),
-	...[
-		...nonZeroCases.filter(code => code !== 'foo.length > 0'),
-		...zeroCases.filter(code => code !== 'foo.length === 0')
-	].map(code => `${code} ? 1 : 2`),
+	outdent`
+		if (
+			(
+				${zeroCases.filter(code => code !== 'foo.length === 0').join(' &&\n\t\t')}
+			) ||
+			(
+				${nonZeroCases.filter(code => code !== 'foo.length > 0').join(' ||\n\t\t')}
+			)
+		) {}
+	`,
+	{
+		code: outdent`
+			if (
+				${nonZeroCases.filter(code => code !== 'foo.length !== 0').join(' ||\n\t')}
+			) {}
+		`,
+		options: [{'non-zero': 'not-equal'}]
+	},
+	{
+		code: outdent`
+			const foo = (
+				${nonZeroCases.filter(code => code !== 'foo.length >= 1').join(' &&\n\t')}
+			) ? 1 : 2;
+		`,
+		options: [{'non-zero': 'greater-than-or-equal'}]
+	}
 ]);

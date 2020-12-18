@@ -2,13 +2,13 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const messages = {
-	existence: 'Use `.length {{style}}` when checking existence.'
-	nonExistence: 'Use `.length {{style}}` when checking non-existence.'
+	'non-zero': 'Use `.length {{code}}` when checking length is not zero.',
+	'zero': 'Use `.length {{code}}` when checking length is zero.'
 };
 
 const isLengthProperty = node =>
 	node.type === 'MemberExpression' &&
-	node.computed = false &&
+	node.computed === false &&
 	node.property.type === 'Identifier' &&
 	node.property.name === 'length';
 const isLiteralNumber = (node, value) =>
@@ -25,36 +25,35 @@ const isLeftSide = (node, operator, value) =>
 	node.operator === operator &&
 	isLengthProperty(node.right) &&
 	isLiteralNumber(node.left, value);
-const existenceStyles = new Map([
+const nonZeroStyles = new Map([
 	[
-		'> 0',
-		node => isRightSide(node, '>', 0)
+		'greater-than',
+		{
+			code: '> 0',
+			test: node => isRightSide(node, '>', 0)
+		}
 	],
 	[
-		'!== 0',
-		node => isRightSide(node, '!==', 0)
+		'not-equal',
+		{
+			code: '!== 0',
+			test: node => isRightSide(node, '!==', 0)
+		}
 	],
 	[
-		'>= 1',
-		node => isRightSide(node, '>=', 0)
-	],
+		'greater-than-or-equal',
+		{
+			code: '>= 1',
+			test: node => isRightSide(node, '>=', 1)
+		}
+	]
 ]);
-const nonExistenceStyles = new Map([
-	[
-		'=== 0',
-		node => isRightSide(node, '===', 0)
-	],
-	[
-		'< 1',
-		node => isRightSide(node, '<', 1)
-	],
-	[
-		'<= 0',
-		node => isRightSide(node, '<=', 0)
-	],
-]);
+const zeroStyle = {
+	code: '=== 0',
+	test: node => isRightSide(node, '===', 0)
+};
 
-function getExistenceLengthNode(node, style) {
+function getNonZeroLengthNode(node) {
 	// `foo.length`
 	if (isLengthProperty(node) ) {
 		return node;
@@ -81,13 +80,13 @@ function getExistenceLengthNode(node, style) {
 		// `0 < foo.length`
 		isLeftSide(node, '<', 0) ||
 		// `1 <= foo.length`
-		isLeftSide(node, '>=', 1)
+		isLeftSide(node, '<=', 1)
 	) {
 		return node.right;
 	}
 }
 
-function getNonExistenceLengthNode(node, style) {
+function getZeroLengthNode(node) {
 	// `!foo.length`
 	if (node.type === 'UnaryExpression' && isLengthProperty(node.argument)) {
 		return node.argument;
@@ -117,53 +116,43 @@ function getNonExistenceLengthNode(node, style) {
 }
 
 const create = context => {
-	const {
-		existence: existenceStyle,
-		nonExistence: nonExistenceStyle
-	} = {
-		existence: '> 0',
-		nonExistence: '=== 0',
+	const options = {
+		'non-zero': 'greater-than',
 		...context.options[0]
 	};
+	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
 	const sourceCode = context.getSourceCode();
-	const existenceCheckFunction = existenceStyles.get(existenceStyle);
-	const nonExistenceCheckFunction = nonExistenceStyles.get(existenceStyle);
 
 	function checkExpression(node) {
-		// Is matched style
-		if (
-			existenceCheckFunction(node) ||
-			nonExistenceCheckFunction(node)
-		) {
-			return;
-		}
-
 		if (node.type === 'LogicalExpression') {
 			checkExpression(node.left);
 			checkExpression(node.right);
 			return;
 		}
 
-		// Is checking existence
-		const existenceLengthNode = getExistenceLengthNode(node);
-		if (existenceLengthNode) {
+		// Is matched style
+		if (nonZeroStyle.test(node) || zeroStyle.test(node)) {
+			return;
+		}
+
+		const nonZeroLengthNode = getNonZeroLengthNode(node);
+		if (nonZeroLengthNode) {
 			context.report({
 				node,
-				messageId: existence,
-				data: { style },
-				fix: fixer => fixer.replaceText(node, `${sourceCode.getText(existenceLengthNode)} ${style}`)
+				messageId: 'non-zero',
+				data: { code: nonZeroStyle.code },
+				fix: fixer => fixer.replaceText(node, `${sourceCode.getText(nonZeroLengthNode)} ${nonZeroStyle.code}`)
 			});
 			return;
 		}
 
-		// Is checking non-existence
-		const nonExistenceLengthNode = getNonExistenceLengthNode(node);
-		if (nonExistenceLengthNode) {
+		const zeroLengthNode = getZeroLengthNode(node);
+		if (zeroLengthNode) {
 			context.report({
 				node,
-				messageId: nonExistence,
-				data: { style },
-				fix: fixer => fixer.replaceText(node, `${sourceCode.getText(nonExistenceLengthNode)} ${style}`)
+				messageId: 'zero',
+				data: { code: zeroStyle.code },
+				fix: fixer => fixer.replaceText(node, `${sourceCode.getText(zeroLengthNode)} ${zeroStyle.code}`)
 			});
 			return;
 		}
@@ -181,15 +170,10 @@ const schema = [
 	{
 		type: 'object',
 		properties: {
-			existence: {
+			'non-zero': {
 				type: 'string',
-				enum: [...existenceStyles.keys()],
-				default: '> 0'
-			},
-			nonExistence: {
-				type: 'string',
-				enum: [...nonExistenceStyles.keys()],
-				default: '=== 0'
+				enum: [...nonZeroStyles.keys()],
+				default: 'greater-than'
 			}
 		}
 	}
