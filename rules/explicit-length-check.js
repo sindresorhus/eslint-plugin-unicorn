@@ -57,20 +57,6 @@ const zeroStyle = {
 };
 
 function getNonZeroLengthNode(node) {
-	// `foo.length`
-	if (isLengthProperty(node)) {
-		return node;
-	}
-
-	// `!!foo.length`
-	if (
-		isLogicNot(node) &&
-		isLogicNot(node.argument) &&
-		isLengthProperty(node.argument.argument)
-	) {
-		return node.argument.argument;
-	}
-
 	if (
 		// `foo.length !== 0`
 		isRightSide(node, '!==', 0) ||
@@ -99,14 +85,6 @@ function getNonZeroLengthNode(node) {
 }
 
 function getZeroLengthNode(node) {
-	// `!foo.length`
-	if (
-		isLogicNot(node) &&
-		isLengthProperty(node.argument)
-	) {
-		return node.argument;
-	}
-
 	if (
 		// `foo.length === 0`
 		isRightSide(node, '===', 0) ||
@@ -139,8 +117,15 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 
 	function checkExpression(node) {
+		// Is matched style
+		if (nonZeroStyle.test(node) || zeroStyle.test(node)) {
+			return;
+		}
+
+		let isCheckingZero = false;
 		let expression = node;
 		while (isLogicNot(expression)) {
+			isCheckingZero = !isCheckingZero;
 			expression = expression.argument;
 		}
 
@@ -150,31 +135,34 @@ const create = context => {
 			return;
 		}
 
-		// Is matched style
-		if (nonZeroStyle.test(node) || zeroStyle.test(node)) {
-			return;
+		let lengthNode;
+		if (isLengthProperty(expression)) {
+			lengthNode = expression;
+		} else {
+			const nonZeroLengthNode = getNonZeroLengthNode(node);
+			if (nonZeroLengthNode) {
+				lengthNode = nonZeroLengthNode;
+				isCheckingZero = false;
+			} else {
+				const zeroLengthNode = getZeroLengthNode(node);
+
+				if (zeroLengthNode) {
+					lengthNode = zeroLengthNode;
+					isCheckingZero = true;
+				} else {
+					return;
+				}
+			}
 		}
 
-		const nonZeroLengthNode = getNonZeroLengthNode(node);
-		if (nonZeroLengthNode) {
-			context.report({
-				node,
-				messageId: 'non-zero',
-				data: {code: nonZeroStyle.code},
-				fix: fixer => fixer.replaceText(node, `${sourceCode.getText(nonZeroLengthNode)} ${nonZeroStyle.code}`)
-			});
-			return;
-		}
-
-		const zeroLengthNode = getZeroLengthNode(node);
-		if (zeroLengthNode) {
-			context.report({
-				node,
-				messageId: 'zero',
-				data: {code: zeroStyle.code},
-				fix: fixer => fixer.replaceText(node, `${sourceCode.getText(zeroLengthNode)} ${zeroStyle.code}`)
-			});
-		}
+		const {code} = isCheckingZero ? zeroStyle : nonZeroStyle;
+		const messageId = isCheckingZero ? 'zero' : 'non-zero';
+		context.report({
+			node,
+			messageId,
+			data: {code},
+			fix: fixer => fixer.replaceText(node, `${sourceCode.getText(lengthNode)} ${code}`)
+		});
 	}
 
 	return {

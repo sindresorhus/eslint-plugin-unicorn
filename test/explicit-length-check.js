@@ -57,10 +57,7 @@ test({
 		'if (foo.length === 0) {}',
 
 		// `ConditionalExpression`
-		'const bar = foo.length === 0 ? 1 : 2',
-
-		// Not handled
-		'if (!!!foo.length) {}'
+		'const bar = foo.length === 0 ? 1 : 2'
 	],
 	invalid: []
 });
@@ -93,5 +90,6 @@ test.visualize([
 		options: [{'non-zero': 'greater-than-or-equal'}]
 	},
 	'if (foo.bar && foo.bar.length) {}',
-	'if (foo.length || foo.bar()) {}'
+	'if (foo.length || foo.bar()) {}',
+	'if (!!(!!foo.length)) {}'
 ]);
