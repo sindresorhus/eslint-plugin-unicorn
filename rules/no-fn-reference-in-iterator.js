@@ -79,7 +79,7 @@ const toSelector = name => {
 	return `[callee.${'object.'.repeat(splitted.length)}name!="${splitted.shift()}"]`;
 };
 
-// Select all the call expressions except the ones present in the blacklist
+// Select all the call expressions except the ones present in the ignore list.
 const ignoredCalleeSelector = [
 	// `this.{map, filter, …}()`
 	'[callee.object.type!="ThisExpression"]',
