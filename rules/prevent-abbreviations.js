@@ -225,7 +225,7 @@ const defaultReplacements = {
 	}
 };
 
-const defaultWhitelist = {
+const defaultAllowList = {
 	// React PropTypes
 	// https://reactjs.org/docs/typechecking-with-proptypes.html
 	propTypes: true,
@@ -272,7 +272,7 @@ const prepareOptions = ({
 		replacements;
 
 	const mergedWhitelist = extendDefaultWhitelist ?
-		defaultsDeep({}, whitelist, defaultWhitelist) :
+		defaultsDeep({}, whitelist, defaultAllowList) :
 		whitelist;
 
 	ignore = ignore.map(

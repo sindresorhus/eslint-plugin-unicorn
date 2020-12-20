@@ -80,7 +80,7 @@ ruleTester.run('no-fn-reference-in-iterator', rule, {
 		'foo.map(fn, extraArgument1, extraArgument2);',
 		'foo.map(...argumentsArray)',
 
-		// Whitelisted
+		// Allowed
 		'Promise.map(fn)',
 		'Promise.forEach(fn)',
 		'lodash.map(fn)',
