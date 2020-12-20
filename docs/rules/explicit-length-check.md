@@ -1,6 +1,6 @@
 # Enforce explicitly comparing the `length` property of a value
 
-Enforce explicitly checking the length of a value array in an `if` condition or ternary, enforce comparison style.
+Enforce explicitly checking the length of an array in an `if` condition or ternary and enforce the comparison style.
 
 This rule is fixable.
 
@@ -121,5 +121,3 @@ The `non-zero` option can be configured with one of the following:
 	- Enforces non-zero to be checked with: `foo.length !== 0`
 - `greater-than-or-equal`
 	- Enforces non-zero to be checked with: `foo.length >= 1`
-
-
