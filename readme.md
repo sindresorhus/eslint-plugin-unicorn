@@ -72,6 +72,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-array-find": "error",
 			"unicorn/prefer-dataset": "error",
 			"unicorn/prefer-date-now": "error",
+			"unicorn/prefer-default-parameters": "error",
 			"unicorn/prefer-event-key": "error",
 			"unicorn/prefer-flat-map": "error",
 			"unicorn/prefer-includes": "error",
@@ -141,6 +142,7 @@ Configure it in `package.json`.
 - [prefer-array-find](docs/rules/prefer-array-find.md) - Prefer `.find(…)` over the first element from `.filter(…)`. *(partly fixable)*
 - [prefer-dataset](docs/rules/prefer-dataset.md) - Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. *(fixable)*
 - [prefer-date-now](docs/rules/prefer-date-now.md) - Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. *(fixable)*
+- [prefer-default-parameters](docs/rules/prefer-default-parameters.md) - Prefer default parameters over reassignment. *(fixable)*
 - [prefer-event-key](docs/rules/prefer-event-key.md) - Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. *(partly fixable)*
 - [prefer-flat-map](docs/rules/prefer-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
 - [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
