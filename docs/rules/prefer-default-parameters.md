@@ -4,24 +4,28 @@ Instead of reassigning a function parameter, default parameters should be used. 
 
 This rule is fixable.
 
-
 ## Fail
 
 ```js
-function abc(foo) { foo = foo || 'bar'; }
+function abc(foo) {
+	foo = foo || 'bar';
+}
 ```
 
 ```js
-function abc(foo) { const bar = foo || \'bar\'; }
+function abc(foo) {
+	const bar = foo || 'bar';
+}
 ```
-
 
 ## Pass
 
 ```js
-function abc(foo = 'bar') { }
+function abc(foo = 'bar') {}
 ```
 
 ```js
-function abc(foo) { foo = foo || bar(); }
+function abc(foo) {
+	foo = foo || bar();
+}
 ```
