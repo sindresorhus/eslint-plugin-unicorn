@@ -1,198 +1,100 @@
+import {outdent} from 'outdent';
 import {test} from './utils/test';
 
-function testCase(code, nonZeroType, messageIds, output) {
-	return {
-		code,
-		output: output || code,
-		errors: (messageIds || []).map(messageId => ({messageId})),
-		options: nonZeroType ? [{
-			'non-zero': nonZeroType
-		}] : []
-	};
-}
+const nonZeroCases = [
+	'foo.length',
+	'!!foo.length',
+	'foo.length !== 0',
+	'foo.length != 0',
+	'foo.length > 0',
+	'foo.length >= 1',
+	'0 !== foo.length',
+	'0 != foo.length',
+	'0 < foo.length',
+	'1 <= foo.length'
+];
+
+const zeroCases = [
+	'!foo.length',
+	'foo.length === 0',
+	'foo.length == 0',
+	'foo.length < 1',
+	'0 === foo.length',
+	'0 == foo.length',
+	'1 > foo.length'
+];
 
 test({
 	valid: [
-		testCase('array.foo'),
-		testCase('array.length'),
-		testCase('array.length === 0'),
-		testCase('array.length !== 0'),
-		testCase('array.length > 0'),
-		testCase('if (array.foo) {}'),
-		testCase('if (length) {}'),
-		testCase('if ([].length > 0) {}'),
-		testCase('if ("".length > 0) {}'),
-		testCase('if (array.length === 0) {}'),
-		testCase('if (array.length == 0) {}'),
-		testCase('if (array.length === 1) {}'),
-		testCase('if (array.length <= 1) {}'),
-		testCase('if (array.length > 1) {}'),
-		testCase('if (array.length < 2) {}'),
-		testCase('const foo = [].length === 0 ? null : undefined'),
-		testCase('array.length', 'not-equal'),
-		testCase('array.length > 0', 'not-equal'),
-		testCase('array.length >= 1', 'not-equal'),
-		testCase('if ("".length !== 0) {}', 'not-equal'),
-		testCase('if ([].length === 0) {}', 'not-equal'),
-		testCase('if ([].length === 1) {}', 'not-equal'),
-		testCase('if ([].length <= 1) {}', 'not-equal'),
-		testCase('if ("".length == 0) {}', 'not-equal'),
-		testCase('array.length !== 0', 'greater-than'),
-		testCase('array.length >= 1', 'greater-than'),
-		testCase('if ("".length > 0) {}', 'greater-than'),
-		testCase('if ("".length >= 0) {}', 'greater-than'),
-		testCase('if ("".length >= 2) {}', 'greater-than'),
-		testCase('if ("".length >= 1) {}', 'greater-than-or-equal'),
-		testCase('array.length !== 0', 'greater-than-or-equal'),
-		testCase('array.length > 0', 'greater-than-or-equal'),
-		testCase('if ("".length === 0) {}', 'greater-than-or-equal'),
-		testCase('if ("".length > 2) {}', 'greater-than-or-equal'),
-		testCase('if ("".length === 2) {}', 'greater-than-or-equal'),
-		testCase('if ("".length === 0 && array.length >= 1) {}', 'greater-than-or-equal'),
-		testCase('if ("".length === 0 && array.length > 0) {}', 'greater-than'),
-		testCase('if ("".length === 0 && array.length !== 0) {}', 'not-equal'),
-		testCase('if (foo[length]) {}')
+		// Not `.length`
+		'if (foo.notLength) {}',
+		'if (length) {}',
+		'if (foo[length]) {}',
+		'if (foo["length"]) {}',
+
+		// Not in `IfStatement` or `ConditionalExpression`
+		'foo.length',
+		'foo.length === 0',
+		'foo.length !== 0',
+		'foo.length > 0',
+
+		// Checking 'non-zero'
+		'if (foo.length > 0) {}',
+		{
+			code: 'if (foo.length > 0) {}',
+			options: [{'non-zero': 'greater-than'}]
+		},
+		{
+			code: 'if (foo.length !== 0) {}',
+			options: [{'non-zero': 'not-equal'}]
+		},
+		{
+			code: 'if (foo.length >= 1) {}',
+			options: [{'non-zero': 'greater-than-or-equal'}]
+		},
+
+		// Checking 'non-zero'
+		'if (foo.length === 0) {}',
+
+		// `ConditionalExpression`
+		'const bar = foo.length === 0 ? 1 : 2',
+
+		'if (foo.length !== 1) {}',
+		'if (foo.length > 1) {}',
+		'if (foo.length < 2) {}'
 	],
-	invalid: [
-		testCase(
-			'if ([].length) {}',
-			undefined,
-			['compareToValue']
-		),
-		testCase(
-			'if ("".length) {}',
-			undefined,
-			['compareToValue']
-		),
-		testCase(
-			'if (array.length) {}',
-			undefined,
-			['compareToValue']
-		),
-		testCase(
-			'if (!array.length) {}',
-			undefined,
-			['compareToValue']
-		),
-		testCase(
-			'if (array.foo.length) {}',
-			undefined,
-			['compareToValue']
-		),
-		testCase(
-			'if (!!array.length) {}',
-			undefined,
-			['compareToValue']
-		),
-		testCase(
-			'if (array.length && array[0] === 1) {}',
-			undefined,
-			['compareToValue']
-		),
-		testCase(
-			'if (array[0] === 1 || array.length) {}',
-			undefined,
-			['compareToValue']
-		),
-		testCase(
-			'if (array.length < 1) {}',
-			undefined,
-			['zeroEqual'],
-			'if (array.length === 0) {}'
-		),
-		testCase(
-			'if (array.length<1) {}',
-			undefined,
-			['zeroEqual'],
-			'if (array.length === 0) {}'
-		),
-		testCase(
-			'if (array.length !== 0) {}',
-			undefined,
-			['nonZeroGreater'],
-			'if (array.length > 0) {}'
-		),
-		testCase(
-			'if (array.length !== 0 && array[0] === 1) {}',
-			undefined,
-			['nonZeroGreater'],
-			'if (array.length > 0 && array[0] === 1) {}'
-		),
-		testCase(
-			'if (array.length > 0) {}',
-			'not-equal',
-			['nonZeroEqual'],
-			'if (array.length !== 0) {}'
-		),
-		testCase(
-			'if (array.length >= 1) {}',
-			'not-equal',
-			['nonZeroEqual'],
-			'if (array.length !== 0) {}'
-		),
-		testCase(
-			'if (array.length != 0) {}',
-			'greater-than',
-			['nonZeroGreater'],
-			'if (array.length > 0) {}'
-		),
-		testCase(
-			'if (array.length !== 0) {}',
-			'greater-than',
-			['nonZeroGreater'],
-			'if (array.length > 0) {}'
-		),
-		testCase(
-			'if (array.length >= 1) {}',
-			'greater-than',
-			['nonZeroGreater'],
-			'if (array.length > 0) {}'
-		),
-		testCase(
-			'if (array.length != 0) {}',
-			'greater-than-or-equal',
-			['nonZeroGreaterEqual'],
-			'if (array.length >= 1) {}'
-		),
-		testCase(
-			'if (array.length !== 0) {}',
-			'greater-than-or-equal',
-			['nonZeroGreaterEqual'],
-			'if (array.length >= 1) {}'
-		),
-		testCase(
-			'if (array.length > 0) {}',
-			'greater-than-or-equal',
-			['nonZeroGreaterEqual'],
-			'if (array.length >= 1) {}'
-		),
-		testCase(
-			'if (array.length < 1 || array.length >= 1) {}',
-			'not-equal',
-			['zeroEqual', 'nonZeroEqual'],
-			'if (array.length === 0 || array.length !== 0) {}'
-		),
-		testCase(
-			'const foo = [].length ? null : undefined',
-			undefined,
-			['compareToValue']
-		)
-	]
+	invalid: []
 });
 
 test.visualize([
-	'if ([].length) {}',
-	'if (array.length < 1) {}',
+	outdent`
+		if (
+			!!!(
+				${zeroCases.filter(code => code !== 'foo.length === 0').join(' &&\n\t\t')}
+			) ||
+			!(
+				${nonZeroCases.filter(code => code !== 'foo.length > 0').join(' ||\n\t\t')}
+			)
+		) {}
+	`,
 	{
-		code: 'if (array.length > 0) {}',
+		code: outdent`
+			if (
+				${nonZeroCases.filter(code => code !== 'foo.length !== 0').join(' ||\n\t')}
+			) {}
+		`,
 		options: [{'non-zero': 'not-equal'}]
 	},
 	{
-		code: 'if (array.length != 0) {}',
-		options: [{'non-zero': 'greater-than'}]
-	},
-	{
-		code: 'if (array.length != 0) {}',
+		code: outdent`
+			const foo = (
+				${nonZeroCases.filter(code => code !== 'foo.length >= 1').join(' &&\n\t')}
+			) ? 1 : 2;
+		`,
 		options: [{'non-zero': 'greater-than-or-equal'}]
-	}
+	},
+	'if (foo.bar && foo.bar.length) {}',
+	'if (foo.length || foo.bar()) {}',
+	'if (!!(!!foo.length)) {}',
+	'if (!(foo.length === 0)) {}'
 ]);
