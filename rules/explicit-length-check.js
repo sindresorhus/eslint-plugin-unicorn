@@ -2,157 +2,173 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const messages = {
-	compareToValue: '`length` property should be compared to a value.',
-	zeroEqual: 'Zero `.length` should be compared with `=== 0`.',
-	nonZeroEqual: 'Non-zero `.length` should be compared with `!== 0`.',
-	nonZeroGreater: 'Non-zero `.length` should be compared with `> 0`.',
-	nonZeroGreaterEqual: 'Non-zero `.length` should be compared with `>= 1`.'
+	'non-zero': 'Use `.length {{code}}` when checking length is not zero.',
+	zero: 'Use `.length {{code}}` when checking length is zero.'
 };
 
-const operatorTypes = {
-	gt: ['>'],
-	gte: ['>='],
-	ne: ['!==', '!=']
+const isLengthProperty = node =>
+	node.type === 'MemberExpression' &&
+	node.computed === false &&
+	node.property.type === 'Identifier' &&
+	node.property.name === 'length';
+const isLogicNot = node =>
+	node.type === 'UnaryExpression' &&
+	node.operator === '!';
+const isLiteralNumber = (node, value) =>
+	node.type === 'Literal' &&
+	typeof node.value === 'number' &&
+	node.value === value;
+const isCompareRight = (node, operator, value) =>
+	node.type === 'BinaryExpression' &&
+	node.operator === operator &&
+	isLengthProperty(node.left) &&
+	isLiteralNumber(node.right, value);
+const isCompareLeft = (node, operator, value) =>
+	node.type === 'BinaryExpression' &&
+	node.operator === operator &&
+	isLengthProperty(node.right) &&
+	isLiteralNumber(node.left, value);
+const nonZeroStyles = new Map([
+	[
+		'greater-than',
+		{
+			code: '> 0',
+			test: node => isCompareRight(node, '>', 0)
+		}
+	],
+	[
+		'not-equal',
+		{
+			code: '!== 0',
+			test: node => isCompareRight(node, '!==', 0)
+		}
+	],
+	[
+		'greater-than-or-equal',
+		{
+			code: '>= 1',
+			test: node => isCompareRight(node, '>=', 1)
+		}
+	]
+]);
+const zeroStyle = {
+	code: '=== 0',
+	test: node => isCompareRight(node, '===', 0)
 };
 
-function reportError(context, node, messageId, fixDetails) {
-	context.report({
-		node,
-		messageId,
-		fix: fixDetails && (fixer => {
-			return fixer.replaceText(
-				node,
-				`${context.getSourceCode().getText(fixDetails.node)} ${fixDetails.operator} ${fixDetails.value}`
-			);
-		})
-	});
-}
-
-function checkZeroType(context, node) {
-	if (node.operator === '<' && node.right.value === 1) {
-		reportError(
-			context,
-			node,
-			'zeroEqual',
-			{
-				node: node.left,
-				operator: '===',
-				value: 0
-			}
-		);
-	}
-}
-
-function checkNonZeroType(context, node, type = 'greater-than') {
-	const {value} = node.right;
-	const {operator} = node;
-
-	switch (type) {
-		case 'greater-than':
-			if (
-				(operatorTypes.gte.includes(operator) && value === 1) ||
-				(operatorTypes.ne.includes(operator) && value === 0)
-			) {
-				reportError(
-					context,
-					node,
-					'nonZeroGreater',
-					{
-						node: node.left,
-						operator: '>',
-						value: 0
-					}
-				);
-			}
-
-			break;
-		case 'greater-than-or-equal':
-			if (
-				(operatorTypes.gt.includes(operator) && value === 0) ||
-				(operatorTypes.ne.includes(operator) && value === 0)
-			) {
-				reportError(
-					context,
-					node,
-					'nonZeroGreaterEqual',
-					{
-						node: node.left,
-						operator: '>=',
-						value: 1
-					}
-				);
-			}
-
-			break;
-		case 'not-equal':
-			if (
-				(operatorTypes.gt.includes(operator) && value === 0) ||
-				(operatorTypes.gte.includes(operator) && value === 1)
-			) {
-				reportError(
-					context,
-					node,
-					'nonZeroEqual',
-					{
-						node: node.left,
-						operator: '!==',
-						value: 0
-					}
-				);
-			}
-
-			break;
-		default:
-			break;
-	}
-}
-
-function checkBinaryExpression(context, node, options) {
-	if (
-		node.right.type === 'Literal' &&
-		node.left.type === 'MemberExpression' &&
-		node.left.property.type === 'Identifier' &&
-		node.left.property.name === 'length'
-	) {
-		checkZeroType(context, node);
-		checkNonZeroType(context, node, options['non-zero']);
-	}
-}
-
-function checkExpression(context, node) {
-	if (node.type === 'LogicalExpression') {
-		checkExpression(context, node.left);
-		checkExpression(context, node.right);
-		return;
-	}
-
-	if (node.type === 'UnaryExpression' && node.operator === '!') {
-		checkExpression(context, node.argument);
-		return;
-	}
-
-	if (node.type === 'BinaryExpression') {
-		checkBinaryExpression(context, node, context.options[0] || {});
-		return;
+function getNonZeroLengthNode(node) {
+	// `foo.length`
+	if (isLengthProperty(node)) {
+		return node;
 	}
 
 	if (
-		node.type === 'MemberExpression' &&
-		node.property.type === 'Identifier' &&
-		node.property.name === 'length' &&
-		!node.computed
+		// `foo.length !== 0`
+		isCompareRight(node, '!==', 0) ||
+		// `foo.length != 0`
+		isCompareRight(node, '!=', 0) ||
+		// `foo.length > 0`
+		isCompareRight(node, '>', 0) ||
+		// `foo.length >= 1`
+		isCompareRight(node, '>=', 1)
 	) {
-		reportError(context, node, 'compareToValue');
+		return node.left;
+	}
+
+	if (
+		// `0 !== foo.length`
+		isCompareLeft(node, '!==', 0) ||
+		// `0 !== foo.length`
+		isCompareLeft(node, '!=', 0) ||
+		// `0 < foo.length`
+		isCompareLeft(node, '<', 0) ||
+		// `1 <= foo.length`
+		isCompareLeft(node, '<=', 1)
+	) {
+		return node.right;
+	}
+}
+
+function getZeroLengthNode(node) {
+	if (
+		// `foo.length === 0`
+		isCompareRight(node, '===', 0) ||
+		// `foo.length == 0`
+		isCompareRight(node, '==', 0) ||
+		// `foo.length < 1`
+		isCompareRight(node, '<', 1)
+	) {
+		return node.left;
+	}
+
+	if (
+		// `0 === foo.length`
+		isCompareLeft(node, '===', 0) ||
+		// `0 == foo.length`
+		isCompareLeft(node, '==', 0) ||
+		// `1 > foo.length`
+		isCompareLeft(node, '>', 1)
+	) {
+		return node.right;
 	}
 }
 
 const create = context => {
+	const options = {
+		'non-zero': 'greater-than',
+		...context.options[0]
+	};
+	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
+	const sourceCode = context.getSourceCode();
+
+	function checkExpression(node) {
+		// Is matched style
+		if (nonZeroStyle.test(node) || zeroStyle.test(node)) {
+			return;
+		}
+
+		let isNegative = false;
+		let expression = node;
+		while (isLogicNot(expression)) {
+			isNegative = !isNegative;
+			expression = expression.argument;
+		}
+
+		if (expression.type === 'LogicalExpression') {
+			checkExpression(expression.left);
+			checkExpression(expression.right);
+			return;
+		}
+
+		let lengthNode;
+		let isCheckingZero = isNegative;
+
+		const zeroLengthNode = getZeroLengthNode(expression);
+		if (zeroLengthNode) {
+			lengthNode = zeroLengthNode;
+			isCheckingZero = !isCheckingZero;
+		} else {
+			const nonZeroLengthNode = getNonZeroLengthNode(expression);
+			if (nonZeroLengthNode) {
+				lengthNode = nonZeroLengthNode;
+			} else {
+				return;
+			}
+		}
+
+		const {code} = isCheckingZero ? zeroStyle : nonZeroStyle;
+		const messageId = isCheckingZero ? 'zero' : 'non-zero';
+		context.report({
+			node,
+			messageId,
+			data: {code},
+			fix: fixer => fixer.replaceText(node, `${sourceCode.getText(lengthNode)} ${code}`)
+		});
+	}
+
 	return {
-		IfStatement: node => {
-			checkExpression(context, node.test);
-		},
-		ConditionalExpression: node => {
-			checkExpression(context, node.test);
+		'IfStatement, ConditionalExpression': node => {
+			checkExpression(node.test);
 		}
 	};
 };
@@ -162,7 +178,7 @@ const schema = [
 		type: 'object',
 		properties: {
 			'non-zero': {
-				enum: ['not-equal', 'greater-than', 'greater-than-or-equal'],
+				enum: [...nonZeroStyles.keys()],
 				default: 'greater-than'
 			}
 		}
