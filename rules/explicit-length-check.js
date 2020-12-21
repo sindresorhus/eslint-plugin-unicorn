@@ -137,7 +137,7 @@ function create(context) {
 	};
 	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
 	const sourceCode = context.getSourceCode();
-	const reportedLengthNodes = new Set();
+	const reportedBinaryExpressions = new Set();
 
 	function reportProblem({node, type, lengthNode}, isNegative) {
 		if (isNegative) {
@@ -151,7 +151,6 @@ function create(context) {
 			data: {code},
 			fix: fixer => fixer.replaceText(node, `${sourceCode.getText(lengthNode)} ${code}`)
 		});
-		reportedLengthNodes.add(lengthNode);
 	}
 
 	function checkBooleanNode(node) {
@@ -190,6 +189,7 @@ function create(context) {
 			const result = getCheckTypeAndLengthNode(expression);
 			if (result) {
 				reportProblem({...result, node}, isNegative);
+				reportedBinaryExpressions.add(result.lengthNode);
 			}
 		},
 		[booleanNodeSelector](node) {
@@ -203,7 +203,7 @@ function create(context) {
 		'Program:exit'() {
 			for (const node of binaryExpressions) {
 				if (
-					reportedLengthNodes.has(node) ||
+					reportedBinaryExpressions.has(node) ||
 					zeroStyle.test(node) ||
 					nonZeroStyle.test(node)
 				) {
