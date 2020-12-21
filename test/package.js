@@ -16,6 +16,7 @@ const ignoredRules = [
 ];
 
 const deprecatedRules = [
+	'no-fn-reference-in-iterator',
 	'prefer-exponentiation-operator',
 	'regex-shorthand'
 ];
