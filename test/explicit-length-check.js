@@ -32,10 +32,13 @@ test({
 		'if (foo[length]) {}',
 		'if (foo["length"]) {}',
 
-		// Not in `IfStatement` or `ConditionalExpression`
-		'foo.length',
+		// Already in wanted style
 		'foo.length === 0',
 		'foo.length > 0',
+
+		// Not boolean
+		'const bar = foo.length',
+		'const bar = +foo.length',
 
 		// Checking 'non-zero'
 		'if (foo.length > 0) {}',
