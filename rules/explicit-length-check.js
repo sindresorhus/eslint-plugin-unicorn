@@ -123,7 +123,7 @@ const selector = `:matches(${
 	].join(', ')
 }) > *.test`;
 
-const create = context => {
+function create(context) {
 	const options = {
 		'non-zero': 'greater-than',
 		...context.options[0]
