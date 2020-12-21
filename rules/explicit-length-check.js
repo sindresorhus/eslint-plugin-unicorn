@@ -168,7 +168,7 @@ function create(context) {
 	const binaryExpressions = [];
 	return {
 		// The outer `!` expression
-		'UnaryExpression[operator="!"]:not(UnaryExpression.argument)'(node) {
+		'UnaryExpression[operator="!"]:not(UnaryExpression[operator="!"] > *.argument)'(node) {
 			let isNegative = false;
 			let expression = node;
 			while (isLogicNot(expression)) {
