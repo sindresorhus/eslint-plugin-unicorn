@@ -147,8 +147,11 @@ function create(context) {
 
 		const {code} = type === TYPE_NON_ZERO ? nonZeroStyle : zeroStyle;
 		let fixed = `${sourceCode.getText(lengthNode)} ${code}`;
-		// TODO: Check if other node need parentheses
-		if (!isParenthesized(node, sourceCode) && node.parent.type === 'UnaryExpression') {
+		if (
+			!isParenthesized(node, sourceCode) &&
+			node.type === 'UnaryExpression' &&
+			node.parent.type === 'UnaryExpression'
+		) {
 			fixed = `(${fixed})`;
 		}
 
