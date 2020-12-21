@@ -141,8 +141,9 @@ function create(context) {
 
 	function reportProblem({node, type, lengthNode}, isNegative) {
 		if (isNegative) {
-			type = type === TYPE_NON_ZERO ? TYPE_ZERO : TYPE_NON_ZERO
+			type = type === TYPE_NON_ZERO ? TYPE_ZERO : TYPE_NON_ZERO;
 		}
+
 		const {code} = type === TYPE_NON_ZERO ? nonZeroStyle : zeroStyle;
 		context.report({
 			node,
@@ -150,7 +151,7 @@ function create(context) {
 			data: {code},
 			fix: fixer => fixer.replaceText(node, `${sourceCode.getText(lengthNode)} ${code}`)
 		});
-		reportedLengthNodes.add(lengthNode)
+		reportedLengthNodes.add(lengthNode);
 	}
 
 	function checkBooleanNode(node) {
