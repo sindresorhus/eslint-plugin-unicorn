@@ -11,42 +11,38 @@ Enforce comparison with `=== 0` when checking for zero length.
 ### Fail
 
 ```js
-if (!foo.length) {}
+const isEmpty = !foo.length;
 ```
 
 ```js
-while (foo.length == 0) {}
+const isEmpty = foo.length == 0;
 ```
 
 ```js
-do {} while (foo.length < 1);
+const isEmpty = foo.length < 1;
 ```
 
 ```js
-if (; 0 === foo.length;) {}
+const isEmpty = 0 === foo.length;
 ```
 
 ```js
-const unicorn = 0 == foo.length ? 1 : 2;
+const isEmpty = 0 == foo.length;
 ```
 
 ```js
-if (1 > foo.length) {}
+const isEmpty = 1 > foo.length;
 ```
 
 ```js
-// Negative style is forbid too
-if (!(foo.length > 0)) {}
+// Negative style is forbidden too
+const isEmpty = !(foo.length > 0);
 ```
 
 ### Pass
 
 ```js
-if (foo.length === 0) {}
-```
-
-```js
-const unicorn = foo.length === 0 ? 1 : 2;
+const isEmpty = foo.length === 0;
 ```
 
 ## Non-zero comparisons
@@ -56,46 +52,66 @@ Enforce comparison with `> 0` when checking for non-zero length.
 ### Fail
 
 ```js
-if (foo.length !== 0) {}
+const isNotEmpty = foo.length !== 0;
 ```
 
 ```js
-while (foo.length != 0) {}
+const isNotEmpty = foo.length != 0;
 ```
 
 ```js
-do {} while (foo.length >= 1);
+const isNotEmpty = foo.length >= 1;
 ```
 
 ```js
-for (; 0 !== foo.length; ) {}
+const isNotEmpty = 0 !== foo.length;
 ```
 
 ```js
-const unicorn = 0 != foo.length ? 1 : 2;
+const isNotEmpty = 0 != foo.length;
 ```
 
 ```js
-if (0 < foo.length) {}
+const isNotEmpty = 0 < foo.length;
 ```
 
 ```js
-if (1 <= foo.length) {}
+const isNotEmpty = 1 <= foo.length;
 ```
 
 ```js
-// Negative style is forbid too
-if (!(foo.length === 0)) {}
+// Negative style is forbidden too
+const isNotEmpty = !(foo.length === 0);
+```
+
+```js
+if (foo.length || bar.length) {}
+```
+
+```js
+const unicorn = foo.length ? 1 : 2;
+```
+
+```js
+while (foo.length) {}
+```
+
+```js
+do {} while (foo.length);
+```
+
+```js
+for (; foo.length; ) {};
 ```
 
 ### Pass
 
 ```js
-if (foo.length > 0) {}
+const isNotEmpty = foo.length > 0;
 ```
 
 ```js
-const unicorn = foo.length > 0 ? 1 : 2;
+if (foo.length > 0 || bar.length > 0) {}
 ```
 
 ### Options
