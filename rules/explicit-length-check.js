@@ -113,6 +113,16 @@ function getZeroLengthNode(node) {
 	}
 }
 
+const selector = `:matches(${
+	[
+		'IfStatement',
+		'ConditionalExpression',
+		'WhileStatement',
+		'DoWhileStatement',
+		'ForStatement'
+	].join(', ')
+}) > *.test`;
+
 const create = context => {
 	const options = {
 		'non-zero': 'greater-than',
@@ -167,8 +177,8 @@ const create = context => {
 	}
 
 	return {
-		'IfStatement, ConditionalExpression': node => {
-			checkExpression(node.test);
+		[selector](node) {
+			checkExpression(node);
 		}
 	};
 };
