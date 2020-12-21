@@ -1,4 +1,5 @@
 'use strict';
+const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const TYPE_NON_ZERO = 'non-zero';
@@ -145,11 +146,17 @@ function create(context) {
 		}
 
 		const {code} = type === TYPE_NON_ZERO ? nonZeroStyle : zeroStyle;
+		let fixed = `${sourceCode.getText(lengthNode)} ${code}`;
+		// TODO: Check if other node need parentheses
+		if (!isParenthesized(node, sourceCode) && node.parent.type === 'UnaryExpression') {
+			fixed = `(${fixed})`;
+		}
+
 		context.report({
 			node,
 			messageId: type,
 			data: {code},
-			fix: fixer => fixer.replaceText(node, `${sourceCode.getText(lengthNode)} ${code}`)
+			fix: fixer => fixer.replaceText(node, fixed)
 		});
 	}
 
