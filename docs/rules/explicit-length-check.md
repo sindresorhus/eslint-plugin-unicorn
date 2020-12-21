@@ -1,6 +1,6 @@
 # Enforce explicitly comparing the `length` property of a value
 
-Enforce explicitly checking the length of an array in an `if` condition or ternary and enforce the comparison style.
+Enforce explicitly checking the length of an object and enforce the comparison style.
 
 This rule is fixable.
 
@@ -15,19 +15,19 @@ if (!foo.length) {}
 ```
 
 ```js
-if (foo.length == 0) {}
+while (foo.length == 0) {}
 ```
 
 ```js
-if (foo.length < 1) {}
+do {} while (foo.length < 1);
 ```
 
 ```js
-if (0 === foo.length) {}
+if (; 0 === foo.length;) {}
 ```
 
 ```js
-if (0 == foo.length) {}
+const unicorn = 0 == foo.length ? 1 : 2;
 ```
 
 ```js
@@ -60,19 +60,19 @@ if (foo.length !== 0) {}
 ```
 
 ```js
-if (foo.length != 0) {}
+while (foo.length != 0) {}
 ```
 
 ```js
-if (foo.length >= 1) {}
+do {} while (foo.length >= 1);
 ```
 
 ```js
-if (0 !== foo.length) {}
+for (; 0 !== foo.length; ) {}
 ```
 
 ```js
-if (0 != foo.length) {}
+const unicorn = 0 != foo.length ? 1 : 2;
 ```
 
 ```js

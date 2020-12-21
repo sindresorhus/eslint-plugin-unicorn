@@ -58,6 +58,20 @@ test({
 
 		// `ConditionalExpression`
 		'const bar = foo.length === 0 ? 1 : 2',
+		// `WhileStatement`
+		outdent`
+			while (foo.length > 0) {
+				foo.pop();
+			}
+		`,
+		// `DoWhileStatement`
+		outdent`
+			do {
+				foo.pop();
+			} while (foo.length > 0);
+		`,
+		// `ForStatement`
+		'for (; foo.length > 0; foo.pop());',
 
 		'if (foo.length !== 1) {}',
 		'if (foo.length > 1) {}',
@@ -96,5 +110,8 @@ test.visualize([
 	'if (foo.bar && foo.bar.length) {}',
 	'if (foo.length || foo.bar()) {}',
 	'if (!!(!!foo.length)) {}',
-	'if (!(foo.length === 0)) {}'
+	'if (!(foo.length === 0)) {}',
+	'while (foo.length >= 1) {}',
+	'do {} while (foo.length);',
+	'for (let i = 0; (bar && !foo.length); i ++) {}'
 ]);
