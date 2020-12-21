@@ -1,11 +1,5 @@
 import {test} from './utils/test';
 
-const errors = [
-	{
-		messageId: 'no-unreadable-array-destructuring'
-	}
-];
-
 test({
 	valid: [
 		'const [, foo] = parts;',
