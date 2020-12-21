@@ -112,5 +112,8 @@ test.visualize([
 	'if (!(foo.length === 0)) {}',
 	'while (foo.length >= 1) {}',
 	'do {} while (foo.length);',
-	'for (let i = 0; (bar && !foo.length); i ++) {}'
+	'for (let i = 0; (bar && !foo.length); i ++) {}',
+	'const isEmpty = foo.length < 1;',
+	'bar(foo.length >= 1)',
+	'bar(!foo.length || foo.length)'
 ]);
