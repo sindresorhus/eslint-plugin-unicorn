@@ -120,7 +120,7 @@ function getCheckTypeAndLengthNodeWithoutCache(node) {
 }
 
 // TODO: check other `LogicalExpression`s
-const logicalExpressionSelector = `:matches(${
+const booleanNodeSelector = `:matches(${
 	[
 		'IfStatement',
 		'ConditionalExpression',
@@ -191,7 +191,7 @@ function create(context) {
 				reportProblem({...result, node}, isNegative);
 			}
 		},
-		[logicalExpressionSelector](node) {
+		[booleanNodeSelector](node) {
 			checkBooleanNode(node);
 		},
 		BinaryExpression(node) {
