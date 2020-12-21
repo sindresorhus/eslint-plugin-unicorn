@@ -1,9 +1,11 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
+const TYPE_NON_ZERO = 'non-zero';
+const TYPE_ZERO = 'zero';
 const messages = {
-	'non-zero': 'Use `.length {{code}}` when checking length is not zero.',
-	zero: 'Use `.length {{code}}` when checking length is zero.'
+	[TYPE_NON_ZERO]: 'Use `.length {{code}}` when checking length is not zero.',
+	[TYPE_ZERO]: 'Use `.length {{code}}` when checking length is zero.'
 };
 
 const isLengthProperty = node =>
@@ -56,12 +58,17 @@ const zeroStyle = {
 	test: node => isCompareRight(node, '===', 0)
 };
 
-function getNonZeroLengthNode(node) {
-	// `foo.length`
-	if (isLengthProperty(node)) {
-		return node;
+const cache = new WeakMap();
+function getCheckTypeAndLengthNode(node) {
+	if (!cache.has(node)) {
+		cache.set(node, getCheckTypeAndLengthNodeWithoutCache(node));
 	}
 
+	return cache.get(node);
+}
+
+function getCheckTypeAndLengthNodeWithoutCache(node) {
+	// Non-Zero length check
 	if (
 		// `foo.length !== 0`
 		isCompareRight(node, '!==', 0) ||
@@ -72,7 +79,7 @@ function getNonZeroLengthNode(node) {
 		// `foo.length >= 1`
 		isCompareRight(node, '>=', 1)
 	) {
-		return node.left;
+		return {type: TYPE_NON_ZERO, node, lengthNode: node.left};
 	}
 
 	if (
@@ -85,11 +92,10 @@ function getNonZeroLengthNode(node) {
 		// `1 <= foo.length`
 		isCompareLeft(node, '<=', 1)
 	) {
-		return node.right;
+		return {type: TYPE_NON_ZERO, node, lengthNode: node.right};
 	}
-}
 
-function getZeroLengthNode(node) {
+	// Zero length check
 	if (
 		// `foo.length === 0`
 		isCompareRight(node, '===', 0) ||
@@ -98,7 +104,7 @@ function getZeroLengthNode(node) {
 		// `foo.length < 1`
 		isCompareRight(node, '<', 1)
 	) {
-		return node.left;
+		return {type: TYPE_ZERO, node, lengthNode: node.left};
 	}
 
 	if (
@@ -109,11 +115,12 @@ function getZeroLengthNode(node) {
 		// `1 > foo.length`
 		isCompareLeft(node, '>', 1)
 	) {
-		return node.right;
+		return {type: TYPE_ZERO, node, lengthNode: node.right};
 	}
 }
 
-const selector = `:matches(${
+// TODO: check other `LogicalExpression`s
+const logicalExpressionSelector = `:matches(${
 	[
 		'IfStatement',
 		'ConditionalExpression',
@@ -130,58 +137,86 @@ function create(context) {
 	};
 	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
 	const sourceCode = context.getSourceCode();
+	const reportedLengthNodes = new Set();
 
-	function checkExpression(node) {
-		// Is matched style
-		if (nonZeroStyle.test(node) || zeroStyle.test(node)) {
-			return;
+	function reportProblem({node, type, lengthNode}, isNegative) {
+		if (isNegative) {
+			type = type === TYPE_NON_ZERO ? TYPE_ZERO : TYPE_NON_ZERO
 		}
-
-		let isNegative = false;
-		let expression = node;
-		while (isLogicNot(expression)) {
-			isNegative = !isNegative;
-			expression = expression.argument;
-		}
-
-		if (expression.type === 'LogicalExpression') {
-			checkExpression(expression.left);
-			checkExpression(expression.right);
-			return;
-		}
-
-		let lengthNode;
-		let isCheckingZero = isNegative;
-
-		const zeroLengthNode = getZeroLengthNode(expression);
-		if (zeroLengthNode) {
-			lengthNode = zeroLengthNode;
-			isCheckingZero = !isCheckingZero;
-		} else {
-			const nonZeroLengthNode = getNonZeroLengthNode(expression);
-			if (nonZeroLengthNode) {
-				lengthNode = nonZeroLengthNode;
-			} else {
-				return;
-			}
-		}
-
-		const {code} = isCheckingZero ? zeroStyle : nonZeroStyle;
-		const messageId = isCheckingZero ? 'zero' : 'non-zero';
+		const {code} = type === TYPE_NON_ZERO ? nonZeroStyle : zeroStyle;
 		context.report({
 			node,
-			messageId,
+			messageId: type,
 			data: {code},
 			fix: fixer => fixer.replaceText(node, `${sourceCode.getText(lengthNode)} ${code}`)
 		});
+		reportedLengthNodes.add(lengthNode)
 	}
 
+	function checkBooleanNode(node) {
+		if (node.type === 'LogicalExpression') {
+			checkBooleanNode(node.left);
+			checkBooleanNode(node.right);
+			return;
+		}
+
+		if (isLengthProperty(node)) {
+			reportProblem({node, type: TYPE_NON_ZERO, lengthNode: node});
+		}
+	}
+
+	const binaryExpressions = [];
 	return {
-		[selector](node) {
-			checkExpression(node);
+		// The outer `!` expression
+		'UnaryExpression[operator="!"]:not(UnaryExpression.argument)'(node) {
+			let isNegative = false;
+			let expression = node;
+			while (isLogicNot(expression)) {
+				isNegative = !isNegative;
+				expression = expression.argument;
+			}
+
+			if (expression.type === 'LogicalExpression') {
+				checkBooleanNode(expression);
+				return;
+			}
+
+			if (isLengthProperty(expression)) {
+				reportProblem({type: TYPE_NON_ZERO, node, lengthNode: expression}, isNegative);
+				return;
+			}
+
+			const result = getCheckTypeAndLengthNode(expression);
+			if (result) {
+				reportProblem({...result, node}, isNegative);
+			}
+		},
+		[logicalExpressionSelector](node) {
+			checkBooleanNode(node);
+		},
+		BinaryExpression(node) {
+			// Delay check on this, so we don't need take two steps for this case
+			// `const isEmpty = !(foo.length >= 1);`
+			binaryExpressions.push(node);
+		},
+		'Program:exit'() {
+			for (const node of binaryExpressions) {
+				if (
+					reportedLengthNodes.has(node) ||
+					zeroStyle.test(node) ||
+					nonZeroStyle.test(node)
+				) {
+					continue;
+				}
+
+				const result = getCheckTypeAndLengthNode(node);
+				if (result) {
+					reportProblem(result);
+				}
+			}
 		}
 	};
-};
+}
 
 const schema = [
 	{

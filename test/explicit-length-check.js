@@ -35,7 +35,6 @@ test({
 		// Not in `IfStatement` or `ConditionalExpression`
 		'foo.length',
 		'foo.length === 0',
-		'foo.length !== 0',
 		'foo.length > 0',
 
 		// Checking 'non-zero'
