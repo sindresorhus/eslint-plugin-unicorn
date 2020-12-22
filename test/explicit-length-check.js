@@ -1,6 +1,21 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test';
 
+const suggestionCase = ({code, output, desc, options = []}) => {
+	const suggestion = {output};
+	if (message) {
+		suggestion.desc = desc;
+	}
+	return {
+		code,
+		output: code,
+		options,
+		errors: [
+			{suggestions: [suggestion]}
+		]
+	};
+};
+
 const nonZeroCases = [
 	'foo.length',
 	'!!foo.length',
@@ -79,7 +94,33 @@ test({
 		'if (foo.length > 1) {}',
 		'if (foo.length < 2) {}'
 	],
-	invalid: []
+	invalid: [
+		suggestionCase({
+			code: 'const x = foo.length || bar()',
+			output: 'const x = foo.length > 0 || bar()',
+			desc: 'Replace `.length` with `.length > 0`.'
+		}),
+		suggestionCase({
+			code: 'const x = foo.length || bar()',
+			output: 'const x = foo.length !== 0 || bar()',
+			desc: 'Replace `.length` with `.length !== 0`.',
+			options: [{'non-zero': 'not-equal'}]
+		}),
+		suggestionCase({
+			code: 'const x = foo.length || bar()',
+			output: 'const x = foo.length >= 1 || bar()',
+			desc: 'Replace `.length` with `.length >= 1`.',
+			options: [{'non-zero': 'greater-than-or-equal'}]
+		}),
+		suggestionCase({
+			code: '() => foo.length && bar()',
+			output: '() => foo.length > 0 && bar()',
+		}),
+		suggestionCase({
+			code: 'alert(foo.length && bar())',
+			output: 'alert(foo.length > 0 && bar())'
+		})
+	]
 });
 
 test.visualize([
