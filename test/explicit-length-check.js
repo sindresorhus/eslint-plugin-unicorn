@@ -119,5 +119,10 @@ test.visualize([
 	'const isEmpty = foo.length < 1;',
 	'bar(foo.length >= 1)',
 	'bar(!foo.length || foo.length)',
-	'const bar = void !foo.length;'
+	'const bar = void !foo.length;',
+	'const isNotEmpty = Boolean(foo.length)',
+	'const x = Boolean(false, foo.length)',
+	'const isNotEmpty = Boolean(foo.length || bar)',
+	'const isEmpty = Boolean(!foo.length)',
+	'const isNotEmpty = !Boolean(foo.length < 1)'
 ]);
