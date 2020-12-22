@@ -17,6 +17,10 @@ const isLengthProperty = node =>
 const isLogicNot = node =>
 	node.type === 'UnaryExpression' &&
 	node.operator === '!';
+const isLogicNotArgument = node =>
+	node.parent &&
+	isLogicNot(node.parent) &&
+	node.parent.argument = node;
 const isLiteralNumber = (node, value) =>
 	node.type === 'Literal' &&
 	typeof node.value === 'number' &&
@@ -130,7 +134,7 @@ const lengthPropertySelector = [
 
 function getRemovableBooleanParent(node) {
 	let isNegative = false;
-	while (node.parent && isLogicNot(node.parent) && node.parent.argument === node) {
+	while (isLogicNotArgument(node)) {
 		isNegative = !isNegative;
 		node = node.parent;
 	}
@@ -186,7 +190,8 @@ function create(context) {
 	}
 
 	return {
-		[lengthPropertySelector](node) {
+		[lengthPropertySelector](lengthNode) {
+			const {isNegative, node} = getRemovableBooleanParent(lengthNode);
 
 		},
 
