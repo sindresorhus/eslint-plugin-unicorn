@@ -122,14 +122,6 @@ function isBooleanNode(node) {
 	}
 
 	const {parent} = node;
-	if (!parent) {
-		return false;
-	}
-
-	if (parent.type === 'LogicalExpression') {
-		return isBooleanNode(parent);
-	}
-
 	if (
 		(
 			parent.type === 'IfStatement' ||
@@ -141,6 +133,10 @@ function isBooleanNode(node) {
 		parent.test === node
 	) {
 		return true;
+	}
+
+	if (parent.type === 'LogicalExpression') {
+		return isBooleanNode(parent);
 	}
 
 	return false;
