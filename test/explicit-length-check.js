@@ -3,9 +3,10 @@ import {test} from './utils/test';
 
 const suggestionCase = ({code, output, desc, options = []}) => {
 	const suggestion = {output};
-	if (message) {
+	if (desc) {
 		suggestion.desc = desc;
 	}
+
 	return {
 		code,
 		output: code,
@@ -114,7 +115,7 @@ test({
 		}),
 		suggestionCase({
 			code: '() => foo.length && bar()',
-			output: '() => foo.length > 0 && bar()',
+			output: '() => foo.length > 0 && bar()'
 		}),
 		suggestionCase({
 			code: 'alert(foo.length && bar())',
