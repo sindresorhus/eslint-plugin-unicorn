@@ -180,8 +180,9 @@ function create(context) {
 
 	return {
 		[lengthPropertySelector](lengthNode) {
-			let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
 			let node;
+
+			let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
 			if (lengthCheckNode) {
 				const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode);
 				node = ancestor;
