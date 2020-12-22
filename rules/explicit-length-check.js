@@ -18,9 +18,11 @@ const isLogicNotArgument = node =>
 	isLogicNot(node.parent) &&
 	node.parent.argument === node;
 const isCompareRight = (node, operator, value) =>
+	node.type === 'BinaryExpression' &&
 	node.operator === operator &&
 	isLiteralValue(node.right, value);
 const isCompareLeft = (node, operator, value) =>
+	node.type === 'BinaryExpression' &&
 	node.operator === operator &&
 	isLiteralValue(node.left, value);
 const nonZeroStyles = new Map([
@@ -70,12 +72,9 @@ function getBooleanAncestor(node) {
 
 function getLengthCheckNode(node) {
 	node = node.parent;
-	if (node.type !== 'BinaryExpression') {
-		return {};
-	}
 
+	// Zero length check
 	if (
-		// Zero length check
 		// `foo.length === 0`
 		isCompareRight(node, '===', 0) ||
 		// `foo.length == 0`
@@ -92,8 +91,8 @@ function getLengthCheckNode(node) {
 		return {isZeroLengthCheck: true, node};
 	}
 
+	// Non-Zero length check
 	if (
-		// Non-Zero length check
 		// `foo.length !== 0`
 		isCompareRight(node, '!==', 0) ||
 		// `foo.length != 0`
