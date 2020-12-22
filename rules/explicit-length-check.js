@@ -59,16 +59,7 @@ const zeroStyle = {
 	test: node => isCompareRight(node, '===', 0)
 };
 
-const cache = new WeakMap();
 function getCheckTypeAndLengthNode(node) {
-	if (!cache.has(node)) {
-		cache.set(node, getCheckTypeAndLengthNodeWithoutCache(node));
-	}
-
-	return cache.get(node);
-}
-
-function getCheckTypeAndLengthNodeWithoutCache(node) {
 	// Non-Zero length check
 	if (
 		// `foo.length !== 0`
@@ -80,7 +71,7 @@ function getCheckTypeAndLengthNodeWithoutCache(node) {
 		// `foo.length >= 1`
 		isCompareRight(node, '>=', 1)
 	) {
-		return {type: TYPE_NON_ZERO, node, lengthNode: node.left};
+		return {zeroLength: false, lengthNode: node.left};
 	}
 
 	if (
@@ -93,7 +84,7 @@ function getCheckTypeAndLengthNodeWithoutCache(node) {
 		// `1 <= foo.length`
 		isCompareLeft(node, '<=', 1)
 	) {
-		return {type: TYPE_NON_ZERO, node, lengthNode: node.right};
+		return {zeroLength: false, lengthNode: node.right};
 	}
 
 	// Zero length check
@@ -105,7 +96,7 @@ function getCheckTypeAndLengthNodeWithoutCache(node) {
 		// `foo.length < 1`
 		isCompareRight(node, '<', 1)
 	) {
-		return {type: TYPE_ZERO, node, lengthNode: node.left};
+		return {zeroLength: true, lengthNode: node.left};
 	}
 
 	if (
@@ -116,7 +107,7 @@ function getCheckTypeAndLengthNodeWithoutCache(node) {
 		// `1 > foo.length`
 		isCompareLeft(node, '>', 1)
 	) {
-		return {type: TYPE_ZERO, node, lengthNode: node.right};
+		return {zeroLength: true, lengthNode: node.right};
 	}
 }
 
@@ -140,12 +131,16 @@ function create(context) {
 	const sourceCode = context.getSourceCode();
 	const reportedBinaryExpressions = new Set();
 
-	function reportProblem({node, type, lengthNode}, isNegative) {
+	function reportProblem(node, {zeroLength, lengthNode}, isNegative) {
 		if (isNegative) {
-			type = type === TYPE_NON_ZERO ? TYPE_ZERO : TYPE_NON_ZERO;
+			zeroLength = !zeroLength;
 		}
 
-		const {code} = type === TYPE_NON_ZERO ? nonZeroStyle : zeroStyle;
+		const {code, test} = zeroLength ? zeroStyle : nonZeroStyle;
+		if (test(node)) {
+			return;
+		}
+
 		let fixed = `${sourceCode.getText(lengthNode)} ${code}`;
 		if (
 			!isParenthesized(node, sourceCode) &&
@@ -157,13 +152,13 @@ function create(context) {
 
 		context.report({
 			node,
-			messageId: type,
+			messageId: zeroLength ? TYPE_ZERO : TYPE_NON_ZERO,
 			data: {code},
 			fix: fixer => fixer.replaceText(node, fixed)
 		});
 	}
 
-	function checkBooleanNode(node) {
+	function checkBooleanNode(node, isNegative) {
 		if (node.type === 'LogicalExpression') {
 			checkBooleanNode(node.left);
 			checkBooleanNode(node.right);
@@ -171,7 +166,7 @@ function create(context) {
 		}
 
 		if (isLengthProperty(node)) {
-			reportProblem({node, type: TYPE_NON_ZERO, lengthNode: node});
+			reportProblem(node, {zeroLength: false, lengthNode: node});
 		}
 	}
 
@@ -192,39 +187,26 @@ function create(context) {
 			}
 
 			if (isLengthProperty(expression)) {
-				reportProblem({type: TYPE_NON_ZERO, node, lengthNode: expression}, isNegative);
+				reportProblem(node, {zeroLength: false, lengthNode: expression}, isNegative);
 				return;
-			}
-
-			const result = getCheckTypeAndLengthNode(expression);
-			if (result) {
-				reportProblem({...result, node}, isNegative);
-				reportedBinaryExpressions.add(result.lengthNode);
 			}
 		},
 		[booleanNodeSelector](node) {
 			checkBooleanNode(node);
 		},
 		BinaryExpression(node) {
-			// Delay check on this, so we don't need take two steps for this case
-			// `const isEmpty = !(foo.length >= 1);`
-			binaryExpressions.push(node);
-		},
-		'Program:exit'() {
-			for (const node of binaryExpressions) {
-				if (
-					reportedBinaryExpressions.has(node) ||
-					zeroStyle.test(node) ||
-					nonZeroStyle.test(node)
-				) {
-					continue;
-				}
-
-				const result = getCheckTypeAndLengthNode(node);
-				if (result) {
-					reportProblem(result);
-				}
+			const result = getCheckTypeAndLengthNode(node);
+			if (!result) {
+				return;
 			}
+
+			let isNegative = false;
+			while (isLogicNot(node.parent) && node.parent.argument === node) {
+				isNegative = !isNegative;
+				node = node.parent;
+			}
+
+			reportProblem(node, result, isNegative);
 		}
 	};
 }
