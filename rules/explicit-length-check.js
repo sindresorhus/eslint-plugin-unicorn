@@ -20,7 +20,7 @@ const isLogicNot = node =>
 const isLogicNotArgument = node =>
 	node.parent &&
 	isLogicNot(node.parent) &&
-	node.parent.argument = node;
+	node.parent.argument === node;
 const isLiteralNumber = (node, value) =>
 	node.type === 'Literal' &&
 	typeof node.value === 'number' &&
@@ -129,7 +129,7 @@ const lengthPropertySelector = [
 	'MemberExpression',
 	'[computed=false]',
 	'[property.type="Identifier"]',
-	'[property.name="length]'
+	'[property.name="length"]'
 ].join('');
 
 function getRemovableBooleanParent(node) {
@@ -138,8 +138,41 @@ function getRemovableBooleanParent(node) {
 		isNegative = !isNegative;
 		node = node.parent;
 	}
-
 	return {node, isNegative};
+}
+
+function isBooleanNode(node) {
+	if (isLogicNot(node)) {
+		return true;
+	}
+
+	let {parent} = node;
+	if (!parent) {
+		return false;
+	}
+
+	if (isLogicNotArgument(node)) {
+		return true;
+	}
+
+	if (parent.type === 'LogicalExpression') {
+		return isBooleanNode(parent);
+	}
+
+	if (
+		(
+			parent.type === 'IfStatement' ||
+			parent.type === 'ConditionalExpression' ||
+			parent.type === 'WhileStatement' ||
+			parent.type === 'DoWhileStatement' ||
+			parent.type === 'ForStatement'
+		) &&
+		parent.test === node
+	) {
+		return true;
+	}
+
+	return false;
 }
 
 function create(context) {
@@ -192,32 +225,13 @@ function create(context) {
 	return {
 		[lengthPropertySelector](lengthNode) {
 			const {isNegative, node} = getRemovableBooleanParent(lengthNode);
-
-		},
-
-		// The outer `!` expression
-		'UnaryExpression[operator="!"]:not(UnaryExpression[operator="!"] > .argument)'(node) {
-			let isNegative = false;
-			let expression = node;
-			while (isLogicNot(expression)) {
-				isNegative = !isNegative;
-				expression = expression.argument;
-			}
-
-			if (expression.type === 'LogicalExpression') {
-				checkBooleanNode(expression);
+			if (!isBooleanNode(node)) {
 				return;
 			}
 
-			if (isLengthProperty(expression)) {
-				reportProblem(node, {zeroLength: false, lengthNode: expression}, isNegative);
-			}
-		},
-		[booleanNodeSelector](node) {
-			checkBooleanNode(node);
+			reportProblem(node, {zeroLength: false, lengthNode}, isNegative);
 		},
 		BinaryExpression(node) {
-			const result = getCheckTypeAndLengthNode(node);
 			if (!result) {
 				return;
 			}
