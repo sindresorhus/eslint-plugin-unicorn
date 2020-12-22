@@ -1,6 +1,7 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const isLiteralValue = require('./utils/is-literal-value');
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -21,20 +22,12 @@ const isLogicNotArgument = node =>
 	node.parent &&
 	isLogicNot(node.parent) &&
 	node.parent.argument === node;
-const isLiteralNumber = (node, value) =>
-	node.type === 'Literal' &&
-	typeof node.value === 'number' &&
-	node.value === value;
 const isCompareRight = (node, operator, value) =>
-	node.type === 'BinaryExpression' &&
 	node.operator === operator &&
-	isLengthProperty(node.left) &&
-	isLiteralNumber(node.right, value);
+	isLiteralValue(node.right, value);
 const isCompareLeft = (node, operator, value) =>
-	node.type === 'BinaryExpression' &&
 	node.operator === operator &&
-	isLengthProperty(node.right) &&
-	isLiteralNumber(node.left, value);
+	isLiteralValue(node.left, value);
 const nonZeroStyles = new Map([
 	[
 		'greater-than',
