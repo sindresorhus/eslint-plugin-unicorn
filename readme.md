@@ -112,7 +112,7 @@ Configure it in `package.json`.
 - [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when creating a built-in error.
 - [escape-case](docs/rules/escape-case.md) - Require escape sequences to use uppercase values. *(fixable)*
 - [expiring-todo-comments](docs/rules/expiring-todo-comments.md) - Add expiration conditions to TODO comments.
-- [explicit-length-check](docs/rules/explicit-length-check.md) - Enforce explicitly comparing the `length` property of a value. *(fixable)*
+- [explicit-length-check](docs/rules/explicit-length-check.md) - Enforce explicitly comparing the `length` property of a value. *(partly fixable)*
 - [filename-case](docs/rules/filename-case.md) - Enforce a case style for filenames.
 - [import-index](docs/rules/import-index.md) - Enforce importing index files with `.`. *(fixable)*
 - [import-style](docs/rules/import-style.md) - Enforce specific import styles per module.
