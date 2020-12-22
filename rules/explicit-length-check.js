@@ -63,70 +63,6 @@ const zeroStyle = {
 	test: node => isCompareRight(node, '===', 0)
 };
 
-function isNonZeroLengthCheck(node) {
-	// Non-Zero length check
-	if (
-		// `foo.length !== 0`
-		isCompareRight(node, '!==', 0) ||
-		// `foo.length != 0`
-		isCompareRight(node, '!=', 0) ||
-		// `foo.length > 0`
-		isCompareRight(node, '>', 0) ||
-		// `foo.length >= 1`
-		isCompareRight(node, '>=', 1)
-	) {
-		return true;
-	}
-
-	if (
-		// `0 !== foo.length`
-		isCompareLeft(node, '!==', 0) ||
-		// `0 !== foo.length`
-		isCompareLeft(node, '!=', 0) ||
-		// `0 < foo.length`
-		isCompareLeft(node, '<', 0) ||
-		// `1 <= foo.length`
-		isCompareLeft(node, '<=', 1)
-	) {
-		return true;
-	}
-}
-
-function isZeroLengthCheck(node) {
-	// Zero length check
-	if (
-		// `foo.length === 0`
-		isCompareRight(node, '===', 0) ||
-		// `foo.length == 0`
-		isCompareRight(node, '==', 0) ||
-		// `foo.length < 1`
-		isCompareRight(node, '<', 1)
-	) {
-		return true;
-	}
-
-	if (
-		// `0 === foo.length`
-		isCompareLeft(node, '===', 0) ||
-		// `0 == foo.length`
-		isCompareLeft(node, '==', 0) ||
-		// `1 > foo.length`
-		isCompareLeft(node, '>', 1)
-	) {
-		return true;
-	}
-}
-
-// TODO: check other `LogicalExpression`s
-const booleanNodeSelector = `:matches(${
-	[
-		'IfStatement',
-		'ConditionalExpression',
-		'WhileStatement',
-		'DoWhileStatement',
-		'ForStatement'
-	].join(', ')
-}) > *.test`;
 const lengthPropertySelector = [
 	'MemberExpression',
 	'[computed=false]',
@@ -212,27 +148,49 @@ function create(context) {
 		});
 	}
 
-	function checkBooleanNode(node) {
-		if (node.type === 'LogicalExpression') {
-			checkBooleanNode(node.left);
-			checkBooleanNode(node.right);
-			return;
-		}
-
-		if (isLengthProperty(node)) {
-			reportProblem(node, {zeroLength: false, lengthNode: node});
-		}
-	}
-
 	return {
 		[lengthPropertySelector](lengthNode) {
 			const {parent} = lengthNode;
 			let zeroLength;
-			if (isZeroLengthCheck(parent)) {
+
+			if (
+				// Zero length check
+				// `foo.length === 0`
+				isCompareRight(parent, '===', 0) ||
+				// `foo.length == 0`
+				isCompareRight(parent, '==', 0) ||
+				// `foo.length < 1`
+				isCompareRight(parent, '<', 1) ||
+				// `0 === foo.length`
+				isCompareLeft(parent, '===', 0) ||
+				// `0 == foo.length`
+				isCompareLeft(parent, '==', 0) ||
+				// `1 > foo.length`
+				isCompareLeft(parent, '>', 1)
+			) {
 				zeroLength = true;
-			} else if (isNonZeroLengthCheck(parent)) {
+			} else if (
+				// Non-Zero length check
+				// `foo.length !== 0`
+				isCompareRight(parent, '!==', 0) ||
+				// `foo.length != 0`
+				isCompareRight(parent, '!=', 0) ||
+				// `foo.length > 0`
+				isCompareRight(parent, '>', 0) ||
+				// `foo.length >= 1`
+				isCompareRight(parent, '>=', 1) ||
+				// `0 !== foo.length`
+				isCompareLeft(parent, '!==', 0) ||
+				// `0 !== foo.length`
+				isCompareLeft(parent, '!=', 0) ||
+				// `0 < foo.length`
+				isCompareLeft(parent, '<', 0) ||
+				// `1 <= foo.length`
+				isCompareLeft(parent, '<=', 1)
+			) {
 				zeroLength = false;
 			}
+
 			if (typeof zeroLength === 'boolean') {
 				const {isNegative, node} = getRemovableBooleanParent(parent);
 				reportProblem(node, {zeroLength, lengthNode}, isNegative);
