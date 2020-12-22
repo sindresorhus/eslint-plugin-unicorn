@@ -129,7 +129,6 @@ function create(context) {
 	};
 	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
 	const sourceCode = context.getSourceCode();
-	const reportedBinaryExpressions = new Set();
 
 	function reportProblem(node, {zeroLength, lengthNode}, isNegative) {
 		if (isNegative) {
@@ -158,7 +157,7 @@ function create(context) {
 		});
 	}
 
-	function checkBooleanNode(node, isNegative) {
+	function checkBooleanNode(node) {
 		if (node.type === 'LogicalExpression') {
 			checkBooleanNode(node.left);
 			checkBooleanNode(node.right);
@@ -170,7 +169,6 @@ function create(context) {
 		}
 	}
 
-	const binaryExpressions = [];
 	return {
 		// The outer `!` expression
 		'UnaryExpression[operator="!"]:not(UnaryExpression[operator="!"] > .argument)'(node) {
@@ -188,7 +186,6 @@ function create(context) {
 
 			if (isLengthProperty(expression)) {
 				reportProblem(node, {zeroLength: false, lengthNode: expression}, isNegative);
-				return;
 			}
 		},
 		[booleanNodeSelector](node) {
