@@ -121,6 +121,22 @@ const booleanNodeSelector = `:matches(${
 		'ForStatement'
 	].join(', ')
 }) > *.test`;
+const lengthPropertySelector = [
+	'MemberExpression',
+	'[computed=false]',
+	'[property.type="Identifier"]',
+	'[property.name="length]'
+].join('');
+
+function getRemovableBooleanParent(node) {
+	let isNegative = false;
+	while (node.parent && isLogicNot(node.parent) && node.parent.argument === node) {
+		isNegative = !isNegative;
+		node = node.parent;
+	}
+
+	return {node, isNegative};
+}
 
 function create(context) {
 	const options = {
@@ -170,6 +186,10 @@ function create(context) {
 	}
 
 	return {
+		[lengthPropertySelector](node) {
+
+		},
+
 		// The outer `!` expression
 		'UnaryExpression[operator="!"]:not(UnaryExpression[operator="!"] > .argument)'(node) {
 			let isNegative = false;
@@ -197,13 +217,8 @@ function create(context) {
 				return;
 			}
 
-			let isNegative = false;
-			while (isLogicNot(node.parent) && node.parent.argument === node) {
-				isNegative = !isNegative;
-				node = node.parent;
-			}
-
-			reportProblem(node, result, isNegative);
+			const {isNegative, node: replaceNode} = getRemovableBooleanParent(node);
+			reportProblem(replaceNode, result, isNegative);
 		}
 	};
 }
