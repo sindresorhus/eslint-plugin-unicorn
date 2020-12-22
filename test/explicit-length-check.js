@@ -39,6 +39,9 @@ test({
 		// Not boolean
 		'const bar = foo.length',
 		'const bar = +foo.length',
+		'const x = Boolean(foo.length, foo.length)',
+		'const x = new Boolean(foo.length)',
+		'const x = NotBoolean(foo.length)',
 
 		// Checking 'non-zero'
 		'if (foo.length > 0) {}',
@@ -121,8 +124,9 @@ test.visualize([
 	'bar(!foo.length || foo.length)',
 	'const bar = void !foo.length;',
 	'const isNotEmpty = Boolean(foo.length)',
-	'const x = Boolean(false, foo.length)',
 	'const isNotEmpty = Boolean(foo.length || bar)',
 	'const isEmpty = Boolean(!foo.length)',
-	'const isNotEmpty = !Boolean(foo.length < 1)'
+	'const isEmpty = Boolean(foo.length === 0)',
+	'const isNotEmpty = !Boolean(foo.length === 0)',
+	'const isEmpty = !Boolean(!Boolean(foo.length === 0))'
 ]);
