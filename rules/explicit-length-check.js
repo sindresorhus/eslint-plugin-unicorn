@@ -72,6 +72,7 @@ const lengthSelector = [
 
 function getBooleanAncestor(node) {
 	let isNegative = false;
+	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		if (isLogicNotArgument(node)) {
 			isNegative = !isNegative;
