@@ -53,7 +53,7 @@ const zeroStyle = {
 	test: node => isCompareRight(node, '===', 0)
 };
 
-const lengthPropertySelector = [
+const lengthSelector = [
 	'MemberExpression',
 	'[computed=false]',
 	'[property.type="Identifier"]',
@@ -174,7 +174,7 @@ function create(context) {
 	}
 
 	return {
-		[lengthPropertySelector](lengthNode) {
+		[lengthSelector](lengthNode) {
 			let node;
 
 			let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
