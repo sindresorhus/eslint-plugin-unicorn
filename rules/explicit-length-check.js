@@ -5,9 +5,11 @@ const isLiteralValue = require('./utils/is-literal-value');
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
+const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
 	[TYPE_NON_ZERO]: 'Use `.length {{code}}` when checking length is not zero.',
-	[TYPE_ZERO]: 'Use `.length {{code}}` when checking length is zero.'
+	[TYPE_ZERO]: 'Use `.length {{code}}` when checking length is zero.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace `.length` with `.length {{code}}`.'
 };
 
 const isLogicNot = node =>
@@ -172,7 +174,7 @@ function create(context) {
 	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
 	const sourceCode = context.getSourceCode();
 
-	function reportProblem({node, isZeroLengthCheck, lengthNode}) {
+	function reportProblem({node, isZeroLengthCheck, lengthNode, autoFix}) {
 		const {code, test} = isZeroLengthCheck ? zeroStyle : nonZeroStyle;
 		if (test(node)) {
 			return;
@@ -187,17 +189,33 @@ function create(context) {
 			fixed = `(${fixed})`;
 		}
 
-		context.report({
+		const fix = fixer => fixer.replaceText(node, fixed);
+
+		const problem = {
 			node,
 			messageId: isZeroLengthCheck ? TYPE_ZERO : TYPE_NON_ZERO,
-			data: {code},
-			fix: fixer => fixer.replaceText(node, fixed)
-		});
+			data: {code}
+		};
+
+		if (autoFix) {
+			problem.fix = fix;
+		} else {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					data: {code},
+					fix
+				}
+			];
+		}
+
+		context.report(problem);
 	}
 
 	return {
 		[lengthSelector](lengthNode) {
 			let node;
+			let autoFix = true;
 
 			let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
 			if (lengthCheckNode) {
@@ -211,11 +229,15 @@ function create(context) {
 				if (isBooleanNode(ancestor)) {
 					isZeroLengthCheck = isNegative;
 					node = ancestor;
+				} else if (lengthNode.parent.type === 'LogicalExpression') {
+					isZeroLengthCheck = isNegative;
+					node = lengthNode;
+					autoFix = false;
 				}
 			}
 
 			if (node) {
-				reportProblem({node, isZeroLengthCheck, lengthNode});
+				reportProblem({node, isZeroLengthCheck, lengthNode, autoFix});
 			}
 		}
 	};
