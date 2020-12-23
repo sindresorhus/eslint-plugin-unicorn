@@ -1,9 +1,18 @@
 'use strict';
 const path = require('path');
 const importModules = require('import-modules');
+const createDeprecatedRules = require('./rules/utils/create-deprecated-rules');
+
+const deprecatedRules = createDeprecatedRules({
+	'prefer-exponentiation-operator': 'prefer-exponentiation-operator',
+	'regex-shorthand': 'unicorn/better-regex'
+});
 
 module.exports = {
-	rules: importModules(path.resolve(__dirname, 'rules'), {camelize: false}),
+	rules: {
+		...importModules(path.resolve(__dirname, 'rules'), {camelize: false}),
+		...deprecatedRules
+	},
 	configs: {
 		recommended: {
 			env: {
