@@ -47,8 +47,8 @@ Configure it in `package.json`.
 			"unicorn/import-style": "error",
 			"unicorn/new-for-builtins": "error",
 			"unicorn/no-abusive-eslint-disable": "error",
+			"unicorn/no-array-callback-reference": "error",
 			"unicorn/no-console-spaces": "error",
-			"unicorn/no-fn-reference-in-iterator": "error",
 			"unicorn/no-for-loop": "error",
 			"unicorn/no-hex-escape": "error",
 			"unicorn/no-instanceof-array": "error",
@@ -118,9 +118,9 @@ Configure it in `package.json`.
 - [import-style](docs/rules/import-style.md) - Enforce specific import styles per module.
 - [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`. *(partly fixable)*
 - [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) - Enforce specifying rules to disable in `eslint-disable` comments.
+- [no-array-callback-reference](docs/rules/no-array-callback-reference.md) - Prevent passing a function reference directly to iterator methods.
 - [no-array-instanceof](docs/rules/no-array-instanceof.md) - Require `Array.isArray()` instead of `instanceof Array`. *(fixable)*
 - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
-- [no-fn-reference-in-iterator](docs/rules/no-fn-reference-in-iterator.md) - Prevent passing a function reference directly to iterator methods.
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(partly fixable)*
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of Unicode escapes instead of hexadecimal escapes. *(fixable)*
 - [no-keyword-prefix](docs/rules/no-keyword-prefix.md) - Disallow identifiers starting with `new` or `class`.

@@ -5,6 +5,7 @@ const createDeprecatedRules = require('./rules/utils/create-deprecated-rules');
 
 const deprecatedRules = createDeprecatedRules({
 	// {ruleId: ReplacementRuleId | ReplacementRuleId[]}, if no replacement, use `{ruleId: []}`
+	'no-fn-reference-in-iterator': 'unicorn/no-array-callback-reference',
 	'prefer-exponentiation-operator': 'prefer-exponentiation-operator',
 	'regex-shorthand': 'unicorn/better-regex'
 });
@@ -41,8 +42,8 @@ module.exports = {
 				'unicorn/import-style': 'error',
 				'unicorn/new-for-builtins': 'error',
 				'unicorn/no-abusive-eslint-disable': 'error',
+				'unicorn/no-array-callback-reference': 'error',
 				'unicorn/no-console-spaces': 'error',
-				'unicorn/no-fn-reference-in-iterator': 'error',
 				'unicorn/no-for-loop': 'error',
 				'unicorn/no-hex-escape': 'error',
 				'unicorn/no-instanceof-array': 'error',
