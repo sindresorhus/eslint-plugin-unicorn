@@ -25,7 +25,7 @@ const create = context => {
 				return;
 			}
 
-			const {name} = node;
+			const {name, parent} = node;
 
 			context.report({
 				node,
@@ -45,7 +45,7 @@ const create = context => {
 					yield fixer.remove(tokenAfter);
 
 					const [, endOfClosingParenthesis] = tokenAfter.range;
-					const [startOfCatchClauseBody] = node.parent.body.range;
+					const [startOfCatchClauseBody] = parent.body.range;
 					const text = sourceCode.text.slice(endOfClosingParenthesis, startOfCatchClauseBody);
 					const leadingSpacesLength = text.length - text.trimStart().length;
 					if (leadingSpacesLength !== 0) {

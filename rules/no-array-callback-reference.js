@@ -87,9 +87,9 @@ const ignoredCalleeSelector = [
 ].join('');
 
 function check(context, node, method, options) {
-	const {type} = node;
+	const {type, name: name_} = node;
 
-	const name = type === 'Identifier' ? node.name : '';
+	const name = type === 'Identifier' ? name_ : '';
 
 	if (type === 'Identifier' && options.ignore.includes(name)) {
 		return;

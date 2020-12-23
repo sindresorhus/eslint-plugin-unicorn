@@ -58,7 +58,7 @@ const create = context => {
 			};
 
 			/* istanbul ignore next */
-			const {parent = {}} = node;
+			const {parent = {}, range} = node;
 
 			if (!checkStrictEquality && isStrictEqual(parent)) {
 				return;
@@ -84,7 +84,7 @@ const create = context => {
 				problem.suggest = [
 					{
 						messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-						fix: fixer => fixer.removeRange([parent.id.range[1], node.range[1]])
+						fix: fixer => fixer.removeRange([parent.id.range[1], range[1]])
 					},
 					replaceSuggestion
 				];
