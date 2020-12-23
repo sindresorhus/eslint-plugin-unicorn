@@ -48,6 +48,7 @@ Configure it in `package.json`.
 			"unicorn/new-for-builtins": "error",
 			"unicorn/no-abusive-eslint-disable": "error",
 			"unicorn/no-array-callback-reference": "error",
+			"unicorn/no-array-reduce": "error",
 			"unicorn/no-console-spaces": "error",
 			"unicorn/no-for-loop": "error",
 			"unicorn/no-hex-escape": "error",
@@ -60,7 +61,6 @@ Configure it in `package.json`.
 			"unicorn/no-null": "error",
 			"unicorn/no-object-as-default-parameter": "error",
 			"unicorn/no-process-exit": "error",
-			"unicorn/no-reduce": "error",
 			"unicorn/no-unreadable-array-destructuring": "error",
 			"unicorn/no-unsafe-regex": "off",
 			"unicorn/no-unused-properties": "off",
@@ -130,7 +130,7 @@ Configure it in `package.json`.
 - [no-null](docs/rules/no-null.md) - Disallow the use of the `null` literal.
 - [no-object-as-default-parameter](docs/rules/no-object-as-default-parameter.md) - Disallow the use of objects as default parameters.
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
-- [no-reduce](docs/rules/no-reduce.md) - Disallow `Array#reduce()` and `Array#reduceRight()`.
+- [no-array-reduce](docs/rules/no-array-reduce.md) - Disallow `Array#reduce()` and `Array#reduceRight()`.
 - [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
 - [no-unsafe-regex](docs/rules/no-unsafe-regex.md) - Disallow unsafe regular expressions.
 - [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
