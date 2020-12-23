@@ -138,7 +138,7 @@ Configure it in `package.json`.
 - [numeric-separators-style](docs/rules/numeric-separators-style.md) - Enforce the style of numeric separators by correctly grouping digits. *(fixable)*
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. *(partly fixable)*
 - [prefer-array-find](docs/rules/prefer-array-find.md) - Prefer `.find(…)` over the first element from `.filter(…)`. *(partly fixable)*
-- [prefer-array-index-of](docs/rules/prefer-array-index-of.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
+- [prefer-array-index-of](docs/rules/prefer-array-index-of.md) - Prefer `Array#indexOf()` over `Array#findIndex()` when looking for the index of an item. *(partly fixable)*
 - [prefer-dataset](docs/rules/prefer-dataset.md) - Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. *(fixable)*
 - [prefer-date-now](docs/rules/prefer-date-now.md) - Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. *(fixable)*
 - [prefer-event-key](docs/rules/prefer-event-key.md) - Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. *(partly fixable)*
