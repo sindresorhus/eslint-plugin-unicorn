@@ -4,6 +4,7 @@ const importModules = require('import-modules');
 const createDeprecatedRules = require('./rules/utils/create-deprecated-rules');
 
 const deprecatedRules = createDeprecatedRules({
+	// {ruleId: ReplacementRuleId | ReplacementRuleId[]}, if no replacement, use `{ruleId: []}`
 	'prefer-exponentiation-operator': 'prefer-exponentiation-operator',
 	'regex-shorthand': 'unicorn/better-regex'
 });
