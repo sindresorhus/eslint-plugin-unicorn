@@ -63,3 +63,7 @@ values.findIndex(function (x) {return x === 'foo';});
 ```js
 values.findIndex(function (x) {return x !== 'foo';});
 ```
+
+```js
+const index = foo.indexOf('foo');
+```
