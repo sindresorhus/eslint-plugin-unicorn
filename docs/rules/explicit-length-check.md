@@ -2,7 +2,7 @@
 
 Enforce explicitly checking the length of an object and enforce the comparison style.
 
-This rule is fixable.
+This rule is fixable, unless it's [unsafe to fix](#unsafe-to-fix-case).
 
 ## Zero comparisons
 
@@ -141,3 +141,25 @@ The `non-zero` option can be configured with one of the following:
 	- Enforces non-zero to be checked with: `foo.length !== 0`
 - `greater-than-or-equal`
 	- Enforces non-zero to be checked with: `foo.length >= 1`
+
+## Unsafe to fix case
+
+`.length` check inside `LogicalExpression`s are not safe to fix.
+
+Example:
+
+```js
+const bothNotEmpty = (a, b) => a.length && b.length;
+
+if (bothNotEmpty(foo, bar)) {}
+```
+
+In this case, the `bothNotEmpty` function returns a `number`, but it will most likely be used as a `boolean`. The rule will still report this as an error, but without an auto-fix. You can apply a [suggestion](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions) in your editor, which will fix it to:
+
+```js
+const bothNotEmpty = (a, b) => a.length > 0 && b.length > 0;
+
+if (bothNotEmpty(foo, bar)) {}
+```
+
+The rule is smart enough to know some `LogicalExpression`s are safe to fix, like when it's inside `if`, `while`, etc.
