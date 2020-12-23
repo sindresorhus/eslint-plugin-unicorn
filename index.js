@@ -5,11 +5,16 @@ const createDeprecatedRules = require('./rules/utils/create-deprecated-rules');
 
 const deprecatedRules = createDeprecatedRules({
 	// {ruleId: ReplacementRuleId | ReplacementRuleId[]}, if no replacement, use `{ruleId: []}`
+	'no-array-instanceof': 'unicorn/no-instanceof-array',
 	'no-fn-reference-in-iterator': 'unicorn/no-array-callback-reference',
 	'no-reduce': 'unicorn/no-array-reduce',
 	'prefer-exponentiation-operator': 'prefer-exponentiation-operator',
 	'prefer-dataset': 'unicorn/prefer-node-dataset',
 	'prefer-flat-map': 'unicorn/prefer-array-flat-map',
+	'prefer-replace-all': 'unicorn/prefer-string-replace-all',
+	'prefer-starts-ends-with': 'unicorn/prefer-string-starts-ends-with',
+	'prefer-text-content': 'unicorn/prefer-node-text-content',
+	'prefer-trim-start-end': 'unicorn/prefer-string-trim-start-end',
 	'regex-shorthand': 'unicorn/better-regex'
 });
 
@@ -70,7 +75,7 @@ module.exports = {
 				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/prefer-array-find': 'error',
 				// TODO: Enable this by default when targeting Node.js 12.
-				'unicorn/prefer-flat-map': 'off',
+				'unicorn/prefer-array-flat-map': 'off',
 				'unicorn/prefer-date-now': 'error',
 				'unicorn/prefer-default-parameters': 'error',
 				'unicorn/prefer-event-key': 'error',
@@ -89,9 +94,9 @@ module.exports = {
 				'unicorn/prefer-set-has': 'error',
 				'unicorn/prefer-spread': 'error',
 				// TODO: Enable this by default when targeting Node.js 16.
-				'unicorn/prefer-starts-replace-all': 'off',
-				'unicorn/prefer-starts-starts-ends-with': 'error',
+				'unicorn/prefer-string-replace-all': 'off',
 				'unicorn/prefer-string-slice': 'error',
+				'unicorn/prefer-string-starts-ends-with': 'error',
 				'unicorn/prefer-string-trim-start-end': 'error',
 				'unicorn/prefer-ternary': 'error',
 				'unicorn/prefer-type-error': 'error',
