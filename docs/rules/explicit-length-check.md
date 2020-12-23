@@ -80,6 +80,10 @@ const isNotEmpty = 1 <= foo.length;
 ```
 
 ```js
+const isNotEmpty = Boolean(foo.length);
+```
+
+```js
 // Negative style is forbidden too
 const isNotEmpty = !(foo.length === 0);
 ```
