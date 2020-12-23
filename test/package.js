@@ -15,10 +15,9 @@ const ignoredRules = [
 	'no-nested-ternary'
 ];
 
-const deprecatedRules = [
-	'prefer-exponentiation-operator',
-	'regex-shorthand'
-];
+const deprecatedRules = Object.entries(index.rules)
+	.filter(([, {meta: {deprecated}}]) => deprecated)
+	.map(([ruleId]) => ruleId);
 
 const testSorted = (t, actualOrder, sourceName) => {
 	actualOrder = actualOrder.filter(x => !ignoredRules.includes(x));
