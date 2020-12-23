@@ -49,7 +49,7 @@ test('Every rule is defined in index file in alphabetical order', t => {
 		'There are more exported rules than rule files.'
 	);
 	t.is(
-		Object.keys(index.configs.recommended.rules).length - ignoredRules.length,
+		Object.keys(index.configs.recommended.rules).length - deprecatedRules.length - ignoredRules.length,
 		ruleFiles.length - deprecatedRules.length,
 		'There are more exported rules in the recommended config than rule files.'
 	);
