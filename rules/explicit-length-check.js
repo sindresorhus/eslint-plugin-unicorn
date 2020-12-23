@@ -11,12 +11,22 @@ const messages = {
 };
 
 const isLogicNot = node =>
+	node &&
 	node.type === 'UnaryExpression' &&
 	node.operator === '!';
 const isLogicNotArgument = node =>
-	node.parent &&
 	isLogicNot(node.parent) &&
 	node.parent.argument === node;
+const isBooleanCall = node =>
+	node &&
+	node.type === 'CallExpression' &&
+	node.callee &&
+	node.callee.type === 'Identifier' &&
+	node.callee.name === 'Boolean' &&
+	node.arguments.length === 1;
+const isBooleanCallArgument = node =>
+	isBooleanCall(node.parent) &&
+	node.parent.arguments[0] === node;
 const isCompareRight = (node, operator, value) =>
 	node.type === 'BinaryExpression' &&
 	node.operator === operator &&
@@ -62,9 +72,16 @@ const lengthSelector = [
 
 function getBooleanAncestor(node) {
 	let isNegative = false;
-	while (isLogicNotArgument(node)) {
-		isNegative = !isNegative;
-		node = node.parent;
+	// eslint-disable-next-line no-constant-condition
+	while (true) {
+		if (isLogicNotArgument(node)) {
+			isNegative = !isNegative;
+			node = node.parent;
+		} else if (isBooleanCallArgument(node)) {
+			node = node.parent;
+		} else {
+			break;
+		}
 	}
 
 	return {node, isNegative};
@@ -117,7 +134,12 @@ function getLengthCheckNode(node) {
 }
 
 function isBooleanNode(node) {
-	if (isLogicNot(node) || isLogicNotArgument(node)) {
+	if (
+		isLogicNot(node) ||
+		isLogicNotArgument(node) ||
+		isBooleanCall(node) ||
+		isBooleanCallArgument(node)
+	) {
 		return true;
 	}
 
