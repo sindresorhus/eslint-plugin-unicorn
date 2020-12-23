@@ -2,7 +2,7 @@
 
 Enforce explicitly checking the length of an object and enforce the comparison style.
 
-This rule is fixable.
+This rule is fixable, unless it's [unsafe to fix](#unsafe-to-fix-case).
 
 ## Zero comparisons
 
@@ -11,42 +11,38 @@ Enforce comparison with `=== 0` when checking for zero length.
 ### Fail
 
 ```js
-if (!foo.length) {}
+const isEmpty = !foo.length;
 ```
 
 ```js
-while (foo.length == 0) {}
+const isEmpty = foo.length == 0;
 ```
 
 ```js
-do {} while (foo.length < 1);
+const isEmpty = foo.length < 1;
 ```
 
 ```js
-if (; 0 === foo.length;) {}
+const isEmpty = 0 === foo.length;
 ```
 
 ```js
-const unicorn = 0 == foo.length ? 1 : 2;
+const isEmpty = 0 == foo.length;
 ```
 
 ```js
-if (1 > foo.length) {}
+const isEmpty = 1 > foo.length;
 ```
 
 ```js
-// Negative style is forbid too
-if (!(foo.length > 0)) {}
+// Negative style is forbidden too
+const isEmpty = !(foo.length > 0);
 ```
 
 ### Pass
 
 ```js
-if (foo.length === 0) {}
-```
-
-```js
-const unicorn = foo.length === 0 ? 1 : 2;
+const isEmpty = foo.length === 0;
 ```
 
 ## Non-zero comparisons
@@ -56,46 +52,70 @@ Enforce comparison with `> 0` when checking for non-zero length.
 ### Fail
 
 ```js
-if (foo.length !== 0) {}
+const isNotEmpty = foo.length !== 0;
 ```
 
 ```js
-while (foo.length != 0) {}
+const isNotEmpty = foo.length != 0;
 ```
 
 ```js
-do {} while (foo.length >= 1);
+const isNotEmpty = foo.length >= 1;
 ```
 
 ```js
-for (; 0 !== foo.length; ) {}
+const isNotEmpty = 0 !== foo.length;
 ```
 
 ```js
-const unicorn = 0 != foo.length ? 1 : 2;
+const isNotEmpty = 0 != foo.length;
 ```
 
 ```js
-if (0 < foo.length) {}
+const isNotEmpty = 0 < foo.length;
 ```
 
 ```js
-if (1 <= foo.length) {}
+const isNotEmpty = 1 <= foo.length;
 ```
 
 ```js
-// Negative style is forbid too
-if (!(foo.length === 0)) {}
+const isNotEmpty = Boolean(foo.length);
+```
+
+```js
+// Negative style is forbidden too
+const isNotEmpty = !(foo.length === 0);
+```
+
+```js
+if (foo.length || bar.length) {}
+```
+
+```js
+const unicorn = foo.length ? 1 : 2;
+```
+
+```js
+while (foo.length) {}
+```
+
+```js
+do {} while (foo.length);
+```
+
+```js
+for (; foo.length; ) {};
 ```
 
 ### Pass
 
 ```js
-if (foo.length > 0) {}
+const isNotEmpty = foo.length > 0;
 ```
 
 ```js
-const unicorn = foo.length > 0 ? 1 : 2;
+if (foo.length > 0 || bar.length > 0) {}
 ```
 
 ### Options
@@ -121,3 +141,25 @@ The `non-zero` option can be configured with one of the following:
 	- Enforces non-zero to be checked with: `foo.length !== 0`
 - `greater-than-or-equal`
 	- Enforces non-zero to be checked with: `foo.length >= 1`
+
+## Unsafe to fix case
+
+`.length` check inside `LogicalExpression`s are not safe to fix.
+
+Example:
+
+```js
+const bothNotEmpty = (a, b) => a.length && b.length;
+
+if (bothNotEmpty(foo, bar)) {}
+```
+
+In this case, the `bothNotEmpty` function returns a `number`, but it will most likely be used as a `boolean`. The rule will still report this as an error, but without an auto-fix. You can apply a [suggestion](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions) in your editor, which will fix it to:
+
+```js
+const bothNotEmpty = (a, b) => a.length > 0 && b.length > 0;
+
+if (bothNotEmpty(foo, bar)) {}
+```
+
+The rule is smart enough to know some `LogicalExpression`s are safe to fix, like when it's inside `if`, `while`, etc.

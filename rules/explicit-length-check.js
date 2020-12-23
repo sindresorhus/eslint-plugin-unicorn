@@ -1,33 +1,42 @@
 'use strict';
+const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const isLiteralValue = require('./utils/is-literal-value');
 
+const TYPE_NON_ZERO = 'non-zero';
+const TYPE_ZERO = 'zero';
+const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
-	'non-zero': 'Use `.length {{code}}` when checking length is not zero.',
-	zero: 'Use `.length {{code}}` when checking length is zero.'
+	[TYPE_NON_ZERO]: 'Use `.length {{code}}` when checking length is not zero.',
+	[TYPE_ZERO]: 'Use `.length {{code}}` when checking length is zero.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace `.length` with `.length {{code}}`.'
 };
 
-const isLengthProperty = node =>
-	node.type === 'MemberExpression' &&
-	node.computed === false &&
-	node.property.type === 'Identifier' &&
-	node.property.name === 'length';
 const isLogicNot = node =>
+	node &&
 	node.type === 'UnaryExpression' &&
 	node.operator === '!';
-const isLiteralNumber = (node, value) =>
-	node.type === 'Literal' &&
-	typeof node.value === 'number' &&
-	node.value === value;
+const isLogicNotArgument = node =>
+	isLogicNot(node.parent) &&
+	node.parent.argument === node;
+const isBooleanCall = node =>
+	node &&
+	node.type === 'CallExpression' &&
+	node.callee &&
+	node.callee.type === 'Identifier' &&
+	node.callee.name === 'Boolean' &&
+	node.arguments.length === 1;
+const isBooleanCallArgument = node =>
+	isBooleanCall(node.parent) &&
+	node.parent.arguments[0] === node;
 const isCompareRight = (node, operator, value) =>
 	node.type === 'BinaryExpression' &&
 	node.operator === operator &&
-	isLengthProperty(node.left) &&
-	isLiteralNumber(node.right, value);
+	isLiteralValue(node.right, value);
 const isCompareLeft = (node, operator, value) =>
 	node.type === 'BinaryExpression' &&
 	node.operator === operator &&
-	isLengthProperty(node.right) &&
-	isLiteralNumber(node.left, value);
+	isLiteralValue(node.left, value);
 const nonZeroStyles = new Map([
 	[
 		'greater-than',
@@ -56,12 +65,52 @@ const zeroStyle = {
 	test: node => isCompareRight(node, '===', 0)
 };
 
-function getNonZeroLengthNode(node) {
-	// `foo.length`
-	if (isLengthProperty(node)) {
-		return node;
+const lengthSelector = [
+	'MemberExpression',
+	'[computed=false]',
+	'[property.type="Identifier"]',
+	'[property.name="length"]'
+].join('');
+
+function getBooleanAncestor(node) {
+	let isNegative = false;
+	// eslint-disable-next-line no-constant-condition
+	while (true) {
+		if (isLogicNotArgument(node)) {
+			isNegative = !isNegative;
+			node = node.parent;
+		} else if (isBooleanCallArgument(node)) {
+			node = node.parent;
+		} else {
+			break;
+		}
 	}
 
+	return {node, isNegative};
+}
+
+function getLengthCheckNode(node) {
+	node = node.parent;
+
+	// Zero length check
+	if (
+		// `foo.length === 0`
+		isCompareRight(node, '===', 0) ||
+		// `foo.length == 0`
+		isCompareRight(node, '==', 0) ||
+		// `foo.length < 1`
+		isCompareRight(node, '<', 1) ||
+		// `0 === foo.length`
+		isCompareLeft(node, '===', 0) ||
+		// `0 == foo.length`
+		isCompareLeft(node, '==', 0) ||
+		// `1 > foo.length`
+		isCompareLeft(node, '>', 1)
+	) {
+		return {isZeroLengthCheck: true, node};
+	}
+
+	// Non-Zero length check
 	if (
 		// `foo.length !== 0`
 		isCompareRight(node, '!==', 0) ||
@@ -70,12 +119,7 @@ function getNonZeroLengthNode(node) {
 		// `foo.length > 0`
 		isCompareRight(node, '>', 0) ||
 		// `foo.length >= 1`
-		isCompareRight(node, '>=', 1)
-	) {
-		return node.left;
-	}
-
-	if (
+		isCompareRight(node, '>=', 1) ||
 		// `0 !== foo.length`
 		isCompareLeft(node, '!==', 0) ||
 		// `0 !== foo.length`
@@ -85,45 +129,44 @@ function getNonZeroLengthNode(node) {
 		// `1 <= foo.length`
 		isCompareLeft(node, '<=', 1)
 	) {
-		return node.right;
+		return {isZeroLengthCheck: false, node};
 	}
+
+	return {};
 }
 
-function getZeroLengthNode(node) {
+function isBooleanNode(node) {
 	if (
-		// `foo.length === 0`
-		isCompareRight(node, '===', 0) ||
-		// `foo.length == 0`
-		isCompareRight(node, '==', 0) ||
-		// `foo.length < 1`
-		isCompareRight(node, '<', 1)
+		isLogicNot(node) ||
+		isLogicNotArgument(node) ||
+		isBooleanCall(node) ||
+		isBooleanCallArgument(node)
 	) {
-		return node.left;
+		return true;
 	}
 
+	const {parent} = node;
 	if (
-		// `0 === foo.length`
-		isCompareLeft(node, '===', 0) ||
-		// `0 == foo.length`
-		isCompareLeft(node, '==', 0) ||
-		// `1 > foo.length`
-		isCompareLeft(node, '>', 1)
+		(
+			parent.type === 'IfStatement' ||
+			parent.type === 'ConditionalExpression' ||
+			parent.type === 'WhileStatement' ||
+			parent.type === 'DoWhileStatement' ||
+			parent.type === 'ForStatement'
+		) &&
+		parent.test === node
 	) {
-		return node.right;
+		return true;
 	}
+
+	if (parent.type === 'LogicalExpression') {
+		return isBooleanNode(parent);
+	}
+
+	return false;
 }
 
-const selector = `:matches(${
-	[
-		'IfStatement',
-		'ConditionalExpression',
-		'WhileStatement',
-		'DoWhileStatement',
-		'ForStatement'
-	].join(', ')
-}) > *.test`;
-
-const create = context => {
+function create(context) {
 	const options = {
 		'non-zero': 'greater-than',
 		...context.options[0]
@@ -131,57 +174,74 @@ const create = context => {
 	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
 	const sourceCode = context.getSourceCode();
 
-	function checkExpression(node) {
-		// Is matched style
-		if (nonZeroStyle.test(node) || zeroStyle.test(node)) {
+	function reportProblem({node, isZeroLengthCheck, lengthNode, autoFix}) {
+		const {code, test} = isZeroLengthCheck ? zeroStyle : nonZeroStyle;
+		if (test(node)) {
 			return;
 		}
 
-		let isNegative = false;
-		let expression = node;
-		while (isLogicNot(expression)) {
-			isNegative = !isNegative;
-			expression = expression.argument;
+		let fixed = `${sourceCode.getText(lengthNode)} ${code}`;
+		if (
+			!isParenthesized(node, sourceCode) &&
+			node.type === 'UnaryExpression' &&
+			node.parent.type === 'UnaryExpression'
+		) {
+			fixed = `(${fixed})`;
 		}
 
-		if (expression.type === 'LogicalExpression') {
-			checkExpression(expression.left);
-			checkExpression(expression.right);
-			return;
-		}
+		const fix = fixer => fixer.replaceText(node, fixed);
 
-		let lengthNode;
-		let isCheckingZero = isNegative;
-
-		const zeroLengthNode = getZeroLengthNode(expression);
-		if (zeroLengthNode) {
-			lengthNode = zeroLengthNode;
-			isCheckingZero = !isCheckingZero;
-		} else {
-			const nonZeroLengthNode = getNonZeroLengthNode(expression);
-			if (nonZeroLengthNode) {
-				lengthNode = nonZeroLengthNode;
-			} else {
-				return;
-			}
-		}
-
-		const {code} = isCheckingZero ? zeroStyle : nonZeroStyle;
-		const messageId = isCheckingZero ? 'zero' : 'non-zero';
-		context.report({
+		const problem = {
 			node,
-			messageId,
-			data: {code},
-			fix: fixer => fixer.replaceText(node, `${sourceCode.getText(lengthNode)} ${code}`)
-		});
+			messageId: isZeroLengthCheck ? TYPE_ZERO : TYPE_NON_ZERO,
+			data: {code}
+		};
+
+		if (autoFix) {
+			problem.fix = fix;
+		} else {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					data: {code},
+					fix
+				}
+			];
+		}
+
+		context.report(problem);
 	}
 
 	return {
-		[selector](node) {
-			checkExpression(node);
+		[lengthSelector](lengthNode) {
+			let node;
+			let autoFix = true;
+
+			let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
+			if (lengthCheckNode) {
+				const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode);
+				node = ancestor;
+				if (isNegative) {
+					isZeroLengthCheck = !isZeroLengthCheck;
+				}
+			} else {
+				const {isNegative, node: ancestor} = getBooleanAncestor(lengthNode);
+				if (isBooleanNode(ancestor)) {
+					isZeroLengthCheck = isNegative;
+					node = ancestor;
+				} else if (lengthNode.parent.type === 'LogicalExpression') {
+					isZeroLengthCheck = isNegative;
+					node = lengthNode;
+					autoFix = false;
+				}
+			}
+
+			if (node) {
+				reportProblem({node, isZeroLengthCheck, lengthNode, autoFix});
+			}
 		}
 	};
-};
+}
 
 const schema = [
 	{
