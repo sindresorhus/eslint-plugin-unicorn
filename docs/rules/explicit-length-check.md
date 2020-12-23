@@ -150,14 +150,16 @@ Example:
 
 ```js
 const bothNotEmpty = (a, b) => a.length && b.length;
+
 if (bothNotEmpty(foo, bar)) {}
 ```
 
-In this case `bothNotEmpty` function return a `Number`, but most likely this will use as a `Boolean`, we'll still report this as an error, but no auto-fix, you can apply [suggestion](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions) in your editor, it will fix to:
+In this case, the `bothNotEmpty` function returns a `number`, but it will most likely be used as a `boolean`. The rule will still report this as an error, but without an auto-fix. You can apply a [suggestion](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions) in your editor, which will fix it to:
 
 ```js
 const bothNotEmpty = (a, b) => a.length > 0 && b.length > 0;
+
 if (bothNotEmpty(foo, bar)) {}
 ```
 
-The rule is smart enough to know some `LogicalExpression`s are safe to fix, like it's inside `if`, `while` etc.
+The rule is smart enough to know some `LogicalExpression`s are safe to fix, like when it's inside `if`, `while`, etc.
