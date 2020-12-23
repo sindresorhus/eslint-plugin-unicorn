@@ -70,29 +70,29 @@ Configure it in `package.json`.
 			"unicorn/numeric-separators-style": "off",
 			"unicorn/prefer-add-event-listener": "error",
 			"unicorn/prefer-array-find": "error",
-			"unicorn/prefer-dataset": "error",
+			"unicorn/prefer-array-flat-map": "error",
 			"unicorn/prefer-date-now": "error",
 			"unicorn/prefer-default-parameters": "error",
 			"unicorn/prefer-event-key": "error",
-			"unicorn/prefer-flat-map": "error",
 			"unicorn/prefer-includes": "error",
 			"unicorn/prefer-math-trunc": "error",
 			"unicorn/prefer-modern-dom-apis": "error",
 			"unicorn/prefer-negative-index": "error",
 			"unicorn/prefer-node-append": "error",
+			"unicorn/prefer-node-dataset": "error",
 			"unicorn/prefer-node-remove": "error",
+			"unicorn/prefer-node-text-content": "error",
 			"unicorn/prefer-number-properties": "error",
 			"unicorn/prefer-optional-catch-binding": "error",
 			"unicorn/prefer-query-selector": "error",
 			"unicorn/prefer-reflect-apply": "error",
-			"unicorn/prefer-replace-all": "off",
 			"unicorn/prefer-set-has": "error",
 			"unicorn/prefer-spread": "error",
-			"unicorn/prefer-starts-ends-with": "error",
+			"unicorn/prefer-string-replace-all": "off",
+			"unicorn/prefer-string-starts-ends-with": "error",
 			"unicorn/prefer-string-slice": "error",
+			"unicorn/prefer-string-trim-start-end": "error",
 			"unicorn/prefer-ternary": "off",
-			"unicorn/prefer-text-content": "error",
-			"unicorn/prefer-trim-start-end": "error",
 			"unicorn/prefer-type-error": "error",
 			"unicorn/prevent-abbreviations": "error",
 			"unicorn/string-content": "off",
@@ -140,29 +140,29 @@ Configure it in `package.json`.
 - [numeric-separators-style](docs/rules/numeric-separators-style.md) - Enforce the style of numeric separators by correctly grouping digits. *(fixable)*
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. *(partly fixable)*
 - [prefer-array-find](docs/rules/prefer-array-find.md) - Prefer `.find(…)` over the first element from `.filter(…)`. *(partly fixable)*
-- [prefer-dataset](docs/rules/prefer-dataset.md) - Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. *(fixable)*
+- [prefer-array-flat-map](docs/rules/prefer-array-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
 - [prefer-date-now](docs/rules/prefer-date-now.md) - Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. *(fixable)*
 - [prefer-default-parameters](docs/rules/prefer-default-parameters.md) - Prefer default parameters over reassignment. *(fixable)*
 - [prefer-event-key](docs/rules/prefer-event-key.md) - Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. *(partly fixable)*
-- [prefer-flat-map](docs/rules/prefer-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
 - [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
 - [prefer-math-trunc](docs/rules/prefer-math-trunc.md) - Enforce the use of `Math.trunc` instead of bitwise operators. *(partly fixable)*
 - [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md) - Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`. *(fixable)*
 - [prefer-negative-index](docs/rules/prefer-negative-index.md) - Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()` and `Array#splice()`. *(fixable)*
 - [prefer-node-append](docs/rules/prefer-node-append.md) - Prefer `Node#append()` over `Node#appendChild()`. *(fixable)*
+- [prefer-node-dataset](docs/rules/prefer-node-dataset.md) - Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. *(fixable)*
 - [prefer-node-remove](docs/rules/prefer-node-remove.md) - Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`. *(fixable)*
+- [prefer-node-text-content](docs/rules/prefer-node-text-content.md) - Prefer `.textContent` over `.innerText`. *(fixable)*
 - [prefer-number-properties](docs/rules/prefer-number-properties.md) - Prefer `Number` static properties over global ones. *(fixable)*
 - [prefer-optional-catch-binding](docs/rules/prefer-optional-catch-binding.md) - Prefer omitting the `catch` binding parameter. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. *(partly fixable)*
 - [prefer-reflect-apply](docs/rules/prefer-reflect-apply.md) - Prefer `Reflect.apply()` over `Function#apply()`. *(fixable)*
-- [prefer-replace-all](docs/rules/prefer-replace-all.md) - Prefer `String#replaceAll()` over regex searches with the global flag. *(fixable)*
 - [prefer-set-has](docs/rules/prefer-set-has.md) - Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence. *(fixable)*
 - [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
-- [prefer-starts-ends-with](docs/rules/prefer-starts-ends-with.md) - Prefer `String#startsWith()` & `String#endsWith()` over more complex alternatives. *(partly fixable)*
+- [prefer-string-replace-all](docs/rules/prefer-string-replace-all.md) - Prefer `String#replaceAll()` over regex searches with the global flag. *(fixable)*
 - [prefer-string-slice](docs/rules/prefer-string-slice.md) - Prefer `String#slice()` over `String#substr()` and `String#substring()`. *(partly fixable)*
+- [prefer-string-starts-ends-with](docs/rules/prefer-string-starts-ends-with.md) - Prefer `String#startsWith()` & `String#endsWith()` over more complex alternatives. *(partly fixable)*
+- [prefer-string-trim-start-end](docs/rules/prefer-string-trim-start-end.md) - Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`. *(fixable)*
 - [prefer-ternary](docs/rules/prefer-ternary.md) - Prefer ternary expressions over simple `if-else` statements. *(fixable)*
-- [prefer-text-content](docs/rules/prefer-text-content.md) - Prefer `.textContent` over `.innerText`. *(fixable)*
-- [prefer-trim-start-end](docs/rules/prefer-trim-start-end.md) - Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`. *(fixable)*
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
 - [prevent-abbreviations](docs/rules/prevent-abbreviations.md) - Prevent abbreviations. *(partly fixable)*
 - [string-content](docs/rules/string-content.md) - Enforce better string content. *(fixable)*

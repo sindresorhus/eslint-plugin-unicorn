@@ -8,6 +8,8 @@ const deprecatedRules = createDeprecatedRules({
 	'no-fn-reference-in-iterator': 'unicorn/no-array-callback-reference',
 	'no-reduce': 'unicorn/no-array-reduce',
 	'prefer-exponentiation-operator': 'prefer-exponentiation-operator',
+	'prefer-dataset': 'unicorn/prefer-node-dataset',
+	'prefer-flat-map': 'unicorn/prefer-array-flat-map',
 	'regex-shorthand': 'unicorn/better-regex'
 });
 
@@ -67,31 +69,31 @@ module.exports = {
 				'unicorn/numeric-separators-style': 'off',
 				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/prefer-array-find': 'error',
-				'unicorn/prefer-dataset': 'error',
+				// TODO: Enable this by default when targeting Node.js 12.
+				'unicorn/prefer-flat-map': 'off',
 				'unicorn/prefer-date-now': 'error',
 				'unicorn/prefer-default-parameters': 'error',
 				'unicorn/prefer-event-key': 'error',
-				// TODO: Enable this by default when targeting Node.js 12.
-				'unicorn/prefer-flat-map': 'off',
 				'unicorn/prefer-includes': 'error',
 				'unicorn/prefer-math-trunc': 'error',
 				'unicorn/prefer-modern-dom-apis': 'error',
 				'unicorn/prefer-negative-index': 'error',
 				'unicorn/prefer-node-append': 'error',
+				'unicorn/prefer-node-dataset': 'error',
 				'unicorn/prefer-node-remove': 'error',
+				'unicorn/prefer-node-text-content': 'error',
 				'unicorn/prefer-number-properties': 'error',
 				'unicorn/prefer-optional-catch-binding': 'error',
 				'unicorn/prefer-query-selector': 'error',
 				'unicorn/prefer-reflect-apply': 'error',
-				// TODO: Enable this by default when targeting Node.js 16.
-				'unicorn/prefer-replace-all': 'off',
 				'unicorn/prefer-set-has': 'error',
 				'unicorn/prefer-spread': 'error',
-				'unicorn/prefer-starts-ends-with': 'error',
+				// TODO: Enable this by default when targeting Node.js 16.
+				'unicorn/prefer-starts-replace-all': 'off',
+				'unicorn/prefer-starts-starts-ends-with': 'error',
 				'unicorn/prefer-string-slice': 'error',
+				'unicorn/prefer-string-trim-start-end': 'error',
 				'unicorn/prefer-ternary': 'error',
-				'unicorn/prefer-text-content': 'error',
-				'unicorn/prefer-trim-start-end': 'error',
 				'unicorn/prefer-type-error': 'error',
 				'unicorn/prevent-abbreviations': 'error',
 				'unicorn/string-content': 'off',
