@@ -65,6 +65,7 @@ module.exports = {
 				'unicorn/numeric-separators-style': 'off',
 				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/prefer-array-find': 'error',
+				'unicorn/prefer-array-some': 'error',
 				'unicorn/prefer-dataset': 'error',
 				'unicorn/prefer-date-now': 'error',
 				'unicorn/prefer-default-parameters': 'error',
