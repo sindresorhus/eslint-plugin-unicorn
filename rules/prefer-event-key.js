@@ -171,7 +171,7 @@ const create = context => {
 
 			if (
 				references &&
-				references.find(reference => isPropertyOf(node, reference.identifier))
+				references.some(reference => isPropertyOf(node, reference.identifier))
 			) {
 				report(node);
 			}
@@ -201,7 +201,7 @@ const create = context => {
 			// Make sure initObject is a reference of eventVariable
 			if (
 				references &&
-				references.find(reference => reference.identifier === initObject)
+				references.some(reference => reference.identifier === initObject)
 			) {
 				report(node.value);
 				return;

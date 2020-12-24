@@ -71,6 +71,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-add-event-listener": "error",
 			"unicorn/prefer-array-find": "error",
 			"unicorn/prefer-array-flat-map": "error",
+			"unicorn/prefer-array-some": "error",
 			"unicorn/prefer-date-now": "error",
 			"unicorn/prefer-default-parameters": "error",
 			"unicorn/prefer-event-key": "error",
@@ -141,6 +142,7 @@ Configure it in `package.json`.
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. *(partly fixable)*
 - [prefer-array-find](docs/rules/prefer-array-find.md) - Prefer `.find(…)` over the first element from `.filter(…)`. *(partly fixable)*
 - [prefer-array-flat-map](docs/rules/prefer-array-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
+- [prefer-array-some](docs/rules/prefer-array-some.md) - Prefer `.some(…)` over `.find(…)`.
 - [prefer-date-now](docs/rules/prefer-date-now.md) - Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. *(fixable)*
 - [prefer-default-parameters](docs/rules/prefer-default-parameters.md) - Prefer default parameters over reassignment. *(fixable)*
 - [prefer-event-key](docs/rules/prefer-event-key.md) - Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. *(partly fixable)*
