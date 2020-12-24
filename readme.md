@@ -70,6 +70,7 @@ Configure it in `package.json`.
 			"unicorn/numeric-separators-style": "off",
 			"unicorn/prefer-add-event-listener": "error",
 			"unicorn/prefer-array-find": "error",
+			"unicorn/prefer-array-some": "error",
 			"unicorn/prefer-dataset": "error",
 			"unicorn/prefer-date-now": "error",
 			"unicorn/prefer-default-parameters": "error",
@@ -140,6 +141,7 @@ Configure it in `package.json`.
 - [numeric-separators-style](docs/rules/numeric-separators-style.md) - Enforce the style of numeric separators by correctly grouping digits. *(fixable)*
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. *(partly fixable)*
 - [prefer-array-find](docs/rules/prefer-array-find.md) - Prefer `.find(…)` over the first element from `.filter(…)`. *(partly fixable)*
+- [prefer-array-some](docs/rules/prefer-array-some.md) - Prefer `.some(…)` over `.find(…)`.
 - [prefer-dataset](docs/rules/prefer-dataset.md) - Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. *(fixable)*
 - [prefer-date-now](docs/rules/prefer-date-now.md) - Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. *(fixable)*
 - [prefer-default-parameters](docs/rules/prefer-default-parameters.md) - Prefer default parameters over reassignment. *(fixable)*
