@@ -8,6 +8,7 @@ const deprecatedRules = createDeprecatedRules({
 	'no-array-instanceof': 'unicorn/no-instanceof-array',
 	'no-fn-reference-in-iterator': 'unicorn/no-array-callback-reference',
 	'no-reduce': 'unicorn/no-array-reduce',
+	'prefer-event-key': 'unicorn/prefer-keyboard-event-key',
 	'prefer-exponentiation-operator': 'prefer-exponentiation-operator',
 	'prefer-dataset': 'unicorn/prefer-node-dataset',
 	'prefer-flat-map': 'unicorn/prefer-array-flat-map',
