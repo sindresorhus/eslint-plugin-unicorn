@@ -1,11 +1,12 @@
 # Prefer `.some(…)` over `.find(…)`.
 
-Prefer use [`Array#some`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some) over [`Array#find`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) when testing array.
+Prefer using [`Array#some`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some) over [`Array#find`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) when testing array.
 
 ## Fail
 
 ```js
 if (array.find(element => element === '🦄')) {
+	// …
 }
 ```
 
@@ -23,6 +24,7 @@ while (array.find(element => element === '🦄')) {
 
 ```js
 if (array.some(element => element === '🦄')) {
+	// …
 }
 ```
 
