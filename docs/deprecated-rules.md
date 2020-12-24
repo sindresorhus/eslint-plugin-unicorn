@@ -2,11 +2,11 @@
 
 ## no-fn-reference-in-iterator
 
-This rule was renamed to [`no-array-callback-reference`](rules/no-array-callback-reference.md) to avoid using abbreviation `fn` in name.
+This rule was renamed to [`no-array-callback-reference`](rules/no-array-callback-reference.md) to avoid using the abbreviation `fn` in the name.
 
 ## no-array-instanceof
 
-This rule was renamed to [`no-instanceof-array`](rules/no-instanceof-array.md).
+This rule was renamed to [`no-instanceof-array`](rules/no-instanceof-array.md) to be more correct.
 
 ## no-reduce
 
@@ -46,4 +46,4 @@ This rule was renamed to [`prefer-string-trim-start-end`](rules/prefer-string-tr
 
 ## regex-shorthand
 
-This rule was renamed to [`better-regex`](rules/better-regex.md) as it do more than just prefer shorthand.
+This rule was renamed to [`better-regex`](rules/better-regex.md) as it does more than just preferring the shorthand.
