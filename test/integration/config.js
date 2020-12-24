@@ -19,7 +19,13 @@ module.exports = {
 		requireConfigFile: false,
 		sourceType: 'module',
 		allowImportExportEverywhere: true,
-		babelOptions: {}
+		babelOptions: {
+			parserOpts: {
+				plugins: [
+					'jsx'
+				]
+			}
+		}
 	},
 	plugins: [
 		'unicorn'
