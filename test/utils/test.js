@@ -43,7 +43,8 @@ runTest.babel = tests => runTest({
 			babelOptions: {
 				parserOpts: {
 					plugins: [
-						'jsx'
+						'jsx',
+						'classProperties'
 					]
 				}
 			}

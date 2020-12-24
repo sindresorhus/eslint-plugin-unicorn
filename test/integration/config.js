@@ -22,7 +22,8 @@ module.exports = {
 		babelOptions: {
 			parserOpts: {
 				plugins: [
-					'jsx'
+					'jsx',
+					'classProperties'
 				]
 			}
 		}
