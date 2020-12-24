@@ -24,7 +24,7 @@ const invalidCase = ({code, suggestionOutput}) => ({
 test({
 	valid: [
 		// Not `boolean`
-		'const hasValue = foo.find(fn)',
+		'const bar = foo.find(fn)',
 
 		// Not matched `CallExpression`
 		...[
