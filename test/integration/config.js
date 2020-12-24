@@ -47,6 +47,17 @@ module.exports = {
 		{
 			files: ['*.vue'],
 			parser: 'vue-eslint-parser'
+		},
+		{
+			files: [
+				// These repo use special config/syntax, new babel parser can't parse
+				'fixtures/iview/**/*.js',
+				'fixtures/ava/**/*.js',
+				'fixtures/gatsby/**/*.js',
+				'fixtures/relay/**/*.js',
+				'fixtures/react/**/*.js'
+			],
+			parser: 'babel-eslint'
 		}
 	]
 };
