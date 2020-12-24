@@ -7,63 +7,58 @@ This rule is partly fixable.
 ## Fail
 
 ```js
-[].findIndex(x => x === 'foo');
+const index = foo.findIndex(x => x === 'foo');
 ```
 
 ```js
-values.findIndex(x => 'foo' === x);
+const index = foo.findIndex(x => 'foo' === x);
 ```
 
 ```js
-values.findIndex(x => {return x === 'foo';});
+const index = foo.findIndex(x => {
+	return x === 'foo';
+});
 ```
 
 ```js
-['foobar'].findIndex(x => {return 'foo' === x;});
-```
-
-```js
-values.findIndex(function (x) {return x === 'foo';});
-```
-
-```js
-['foobar'].findIndex(function (x) {return 'foo' === x;});
+const index = foo.findIndex(function (x) {
+	return x === 'foo';
+});
 ```
 
 ## Pass
 
 ```js
-[].findIndex(i => i === list[i]);
-```
-
-```js
-[].findIndex(x => (x === 'foo') && isValid);
-```
-
-```js
-[].findIndex(x => y === 'foo');
-```
-
-```js
-[].findIndex(x => y.x === 'foo');
-```
-
-```js
-[].findIndex(x => x == 'foo');
-```
-
-```js
-['foobar'].findIndex(function (x) {return 'foo' == x;});
-```
-
-```js
-[].findIndex(x => x !== 'foo');
-```
-
-```js
-values.findIndex(function (x) {return x !== 'foo';});
-```
-
-```js
 const index = foo.indexOf('foo');
+```
+
+```js
+const index = foo.findIndex(x => x == undefined);
+```
+
+```js
+const index = foo.findIndex(x => x !== 'foo');
+```
+
+```js
+const index = foo.findIndex((x, index) => x === index);
+```
+
+```js
+const index = foo.findIndex(x => (x === 'foo') && isValid());
+```
+
+```js
+const index = foo.findIndex(x => y === 'foo');
+```
+
+```js
+const index = foo.findIndex(x => y.x === 'foo');
+```
+
+```js
+const index = foo.findIndex(function (x) {
+	const bar = getBar();
+	return x === bar;
+});
 ```
