@@ -2,7 +2,7 @@ import {outdent} from 'outdent';
 import {test} from './utils/test';
 
 const error = key => ({
-	messageId: 'prefer-event-key',
+	messageId: 'prefer-keyboard-event-key',
 	data: {name: key}
 });
 

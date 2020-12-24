@@ -16,6 +16,10 @@ This rule was renamed to [`no-array-reduce`](rules/no-array-reduce.md).
 
 This rule was renamed to [`prefer-node-dataset`](rules/prefer-node-dataset.md).
 
+## prefer-event-key
+
+This rule was renamed to [`prefer-keyboard-event-key`](rules/prefer-keyboard-event-key.md).
+
 ## prefer-exponentiation-operator
 
 This rule is deprecated in favor of the built-in ESLint [`prefer-exponentiation-operator`](https://eslint.org/docs/rules/prefer-exponentiation-operator) rule.
