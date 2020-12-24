@@ -52,6 +52,7 @@
 	"devDependencies": {
 		"@ava/babel": "^1.0.1",
 		"@babel/code-frame": "7.12.11",
+		"@babel/eslint-parser": "7.12.1",
 		"@lubien/fixture-beta-package": "^1.0.0-beta.1",
 		"@typescript-eslint/parser": "^4.10.0",
 		"ava": "^3.14.0",
