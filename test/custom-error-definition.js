@@ -512,7 +512,7 @@ runTest.typescript({
 			}
 		`
 	],
-	invalid: [,
+	invalid: [
 		{
 			code: outdent`
 				export class ValidationError extends Error {
