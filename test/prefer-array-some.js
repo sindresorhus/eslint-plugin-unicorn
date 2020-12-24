@@ -54,8 +54,7 @@ test({
 			'const bar = foo.find(fn) ? 1 : 2',
 			'while (foo.find(fn)) foo.shift();',
 			'do {foo.shift();} while (foo.find(fn));',
-			'for (; foo.find(fn); ) foo.shift();',
-			'const bar = foo.find(fn) || baz'
+			'for (; foo.find(fn); ) foo.shift();'
 		].map(code => invalidCase({
 			code,
 			suggestionOutput: code.replace('find', 'some')
