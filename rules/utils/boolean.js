@@ -56,7 +56,7 @@ function isBooleanNode(node) {
 }
 
 /**
-Check if value a node is a `boolean`.
+Get the boolean type-casting ancestor.
 
 @typedef {{ node: Node, isNegative: boolean }} Result
 
