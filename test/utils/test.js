@@ -32,7 +32,23 @@ runTest.typescript = tests => runTest({
 
 runTest.babel = tests => runTest({
 	...tests,
-	testerOptions: {parser: require.resolve('babel-eslint')}
+	testerOptions: {
+		parser: require.resolve('@babel/eslint-parser'),
+		parserOptions: {
+			...defaultParserOptions,
+
+			requireConfigFile: false,
+			sourceType: 'module',
+			allowImportExportEverywhere: true,
+			babelOptions: {
+				parserOpts: {
+					plugins: [
+						'jsx'
+					]
+				}
+			}
+		}
+	}
 });
 
 function runVisualizeTest(invalidCases) {
