@@ -1,6 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
+const {isBooleanNode} = require('./utils/boolean');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -9,34 +10,28 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace `.find(…)` with `.some(…)`.'
 };
 
-const selector = [
-	':matches(IfStatement, ConditionalExpression, ForStatement, WhileStatement, DoWhileStatement)',
-	'>',
-	methodSelector({
-		name: 'find',
-		min: 1,
-		max: 2
-	}),
-	'.test',
-	'>',
-	'.callee',
-	'>',
-	'.property'
-].join('');
+const arrayFindCallSelector = methodSelector({
+	name: 'find',
+	min: 1,
+	max: 2
+});
 
 const create = context => {
 	return {
-		[selector](node) {
-			context.report({
-				node,
-				messageId: MESSAGE_ID_ERROR,
-				suggest: [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						fix: fixer => fixer.replaceText(node, 'some')
-					}
-				]
-			});
+		[arrayFindCallSelector](node) {
+			if (isBooleanNode(node) || node.parent.type === 'LogicalExpression') {
+				node = node.callee.property;
+				context.report({
+					node,
+					messageId: MESSAGE_ID_ERROR,
+					suggest: [
+						{
+							messageId: MESSAGE_ID_SUGGESTION,
+							fix: fixer => fixer.replaceText(node, 'some')
+						}
+					]
+				});
+			}
 		}
 	};
 };

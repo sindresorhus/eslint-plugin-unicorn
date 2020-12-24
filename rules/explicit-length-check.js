@@ -2,7 +2,7 @@
 const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
-const {isBooleanNode, getBooleanAncestor} = require('./boolean');
+const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean');
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';

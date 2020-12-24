@@ -23,83 +23,53 @@ const invalidCase = ({code, suggestionOutput}) => ({
 
 test({
 	valid: [
-		'if (foo.some(fn)) {}',
-		'if (foo.every(fn)) {}',
-
-		// Not `{IfStatement, ConditionalExpression, ForStatement, WhileStatement, DoWhileStatement}.test`
-		'if (true) foo.find(fn); else foo.find(fn);',
-		'if (true) { foo.find(fn); } else { foo.find(fn); }',
-		'true ? foo.find(fn) : foo.find(fn)',
-		'for (foo.find(fn); true; foo.find(fn)) foo.find(fn);',
-		'while(true) foo.find(fn);',
-		'do foo.find(fn) ; while(true)',
-		// `SwitchCase.test`
-		'switch (foo.find(fn)){ case foo.find(fn): foo.find(fn)}',
+		// Not `boolean`
+		'const hasValue = foo.find(fn)',
 
 		// Not matched `CallExpression`
-		...flatten(
-			[
-				// Not `CallExpression`
-				'new foo.find(fn)',
-				// Not `MemberExpression`
-				'find(fn)',
-				// `callee.property` is not a `Identifier`
-				'foo["find"](fn)',
-				'foo["fi" + "nd"](fn)',
-				'foo[`find`](fn)',
-				// Computed
-				'foo[find](fn)',
-				// Not `.find`
-				'foo.notFind(fn)',
-				// More or less argument(s)
-				'foo.find()',
-				'foo.find(fn, thisArgument, extraArgument)',
-				'foo.find(...argumentsArray)'
-			].map(code => [
-				`${code} ? 1 : 2`,
-				`if (${code}) {}`
-			])
-		)
+		...[
+			// Not `CallExpression`
+			'new foo.find(fn)',
+			// Not `MemberExpression`
+			'find(fn)',
+			// `callee.property` is not a `Identifier`
+			'foo["find"](fn)',
+			'foo["fi" + "nd"](fn)',
+			'foo[`find`](fn)',
+			// Computed
+			'foo[find](fn)',
+			// Not `.find`
+			'foo.notFind(fn)',
+			// More or less argument(s)
+			'foo.find()',
+			'foo.find(fn, thisArgument, extraArgument)',
+			'foo.find(...argumentsArray)'
+		].map(code => `if (${code}) {}`)
 	],
 	invalid: [
-		invalidCase({
-			code: 'if (foo.find(fn)) {}',
-			suggestionOutput: 'if (foo.some(fn)) {}'
-		}),
-		invalidCase({
-			code: 'console.log(foo.find(fn) ? a : b)',
-			suggestionOutput: 'console.log(foo.some(fn) ? a : b)'
-		}),
-		invalidCase({
-			code: 'for(;foo.find(fn);) foo.shift();',
-			suggestionOutput: 'for(;foo.some(fn);) foo.shift();'
-		}),
-		invalidCase({
-			code: 'while(foo.find(fn)) foo.shift();',
-			suggestionOutput: 'while(foo.some(fn)) foo.shift();'
-		}),
-		invalidCase({
-			code: 'do {foo.shift();} while(foo.find(fn));',
-			suggestionOutput: 'do {foo.shift();} while(foo.some(fn));'
-		}),
-		invalidCase({
-			code: 'if (foo.find(fn, thisArgument)) {}',
-			suggestionOutput: 'if (foo.some(fn, thisArgument)) {}'
-		}),
-		invalidCase({
-			code: 'if (foo().bar.find(fn)) {}',
-			suggestionOutput: 'if (foo().bar.some(fn)) {}'
-		}),
+		...[
+			'const bar = !foo.find(fn)',
+			'const bar = Boolean(foo.find(fn))',
+			'if (foo.find(fn)) {}',
+			'const bar = foo.find(fn) ? 1 : 2',
+			'while (foo.find(fn)) foo.shift();',
+			'do {foo.shift();} while (foo.find(fn));',
+			'for (; foo.find(fn); ) foo.shift();',
+			'const bar = foo.find(fn) || baz'
+		].map(code => invalidCase({
+			code,
+			suggestionOutput: code.replace('find', 'some')
+		})),
 		// Comments
 		invalidCase({
 			code: 'console.log(foo /* comment 1 */ . /* comment 2 */ find /* comment 3 */ (fn) ? a : b)',
 			suggestionOutput: 'console.log(foo /* comment 1 */ . /* comment 2 */ some /* comment 3 */ (fn) ? a : b)'
 		}),
 		// This should not be reported, but `jQuery.find()` is always `truly`,
-		// Nobody use it in `IfStatement.test`
+		// It should not use in a LogicalExpression
 		invalidCase({
-			code: 'if(jQuery.find(".outer > div")) {}',
-			suggestionOutput: 'if(jQuery.some(".outer > div")) {}'
+			code: 'const el = anotherElement || jQuery.find(".outer > div");',
+			suggestionOutput: 'const el = anotherElement || jQuery.some(".outer > div");'
 		}),
 		// Actual messages
 		{
@@ -126,12 +96,11 @@ test.visualize([
 	outdent`
 		if (
 			array
-				/* correct */.find(element => Array.isArray(element))
-				/* incorrect */.find(element => element/* incorrect */.find(fn) ? 1 : 0)
+				.find(element => Array.isArray(element))
+			// ^^^^ This should NOT report
+				.find(x => x === 0)
+			// ^^^^ This should report
 		) {
-			console.log(jQuery/* correct */.find('div'));
-		} else {
-			console.log(array/* incorrect */.find(fn) ? 'yes' : 'no');
 		}
 	`
 ]);
