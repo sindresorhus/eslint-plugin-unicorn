@@ -1,5 +1,4 @@
 import {outdent} from 'outdent';
-import {flatten} from 'lodash';
 import {test} from './utils/test';
 
 const MESSAGE_ID_ERROR = 'error';
