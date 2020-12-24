@@ -52,6 +52,11 @@ runTest.babel = tests => runTest({
 	}
 });
 
+runTest.babelLegacy = tests => runTest({
+	...tests,
+	testerOptions: {parser: require.resolve('babel-eslint')}
+});
+
 function runVisualizeTest(invalidCases) {
 	const tester = visualizeRuleTester(test, {
 		parserOptions: defaultParserOptions
