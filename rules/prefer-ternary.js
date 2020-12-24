@@ -1,9 +1,9 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
 const {flatten} = require('lodash');
-const FixTracker = require('eslint/lib/rules/utils/fix-tracker');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
+const extendFixRange = require('./utils/extend-fix-range');
 
 const messageId = 'prefer-ternary';
 
@@ -204,7 +204,7 @@ const create = context => {
 			context.report({
 				node,
 				messageId,
-				fix: fixer => {
+				* fix(fixer) {
 					const testText = getParenthesizedText(node.test);
 					const consequentText = typeof result.consequent === 'string' ?
 						result.consequent :
@@ -241,13 +241,11 @@ const create = context => {
 					}
 
 					const fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
-					if (!generateNewVariables) {
-						return fixer.replaceText(node, fixed);
-					}
+					yield fixer.replaceText(node, fixed);
 
-					return new FixTracker(fixer, sourceCode)
-						.retainRange(sourceCode.ast.range)
-						.replaceTextRange(node.range, fixed);
+					if (generateNewVariables) {
+						yield * extendFixRange(fixer, sourceCode.ast.range);
+					}
 				}
 			});
 		}

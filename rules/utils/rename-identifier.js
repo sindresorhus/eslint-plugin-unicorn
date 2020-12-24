@@ -28,7 +28,10 @@ function renameIdentifier(identifier, name, fixer, sourceCode) {
 
 	// `typeAnnotation`
 	if (identifier.typeAnnotation) {
-		return fixer.replaceText(identifier, `${name}${identifier.optional ? '?' : ''}${sourceCode.getText(identifier.typeAnnotation)}`);
+		return fixer.replaceTextRange(
+			[identifier.range[0], identifier.typeAnnotation.range[0]],
+			`${name}${identifier.optional ? '?' : ''}`
+		);
 	}
 
 	return fixer.replaceText(identifier, name);

@@ -82,6 +82,31 @@ function foo({bar}) {
 foo();
 ```
 
+## Options
+
+Type: `object`
+
+### checkArguments
+
+Type: `boolean`\
+Default: `true`
+
+Forbid the use of `undefined` at the end of function call arguments. Pass `checkArguments: false` to disable checking them.
+
+#### Fail
+
+```js
+// eslint unicorn/no-useless-undefined: ["error", {"checkArguments": true}]
+foo(bar, baz, undefined);
+```
+
+#### Pass
+
+```js
+// eslint unicorn/no-useless-undefined: ["error", {"checkArguments": false}]
+foo(bar, baz, undefined);
+```
+
 ## Conflict with ESLint `array-callback-return` rule
 
 We recommend setting the ESLint [`array-callback-return`](https://eslint.org/docs/rules/array-callback-return#top) rule option [`allowImplicit`](https://eslint.org/docs/rules/array-callback-return#options) to `true`:

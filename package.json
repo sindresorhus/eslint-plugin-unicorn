@@ -1,6 +1,6 @@
 {
 	"name": "eslint-plugin-unicorn",
-	"version": "23.0.0",
+	"version": "24.0.0",
 	"description": "Various awesome ESLint rules",
 	"license": "MIT",
 	"repository": "sindresorhus/eslint-plugin-unicorn",
@@ -15,8 +15,10 @@
 	},
 	"scripts": {
 		"test": "xo && nyc ava",
+		"create-rule": "node ./scripts/create-rule.js",
 		"lint": "node ./test/lint/lint.js",
-		"integration": "node ./test/integration/test.js"
+		"integration": "node ./test/integration/test.js",
+		"smoke": "eslint-remote-tester --config ./test/smoke/eslint-remote-tester.config.js"
 	},
 	"files": [
 		"index.js",
@@ -45,31 +47,33 @@
 		"regexp-tree": "^0.1.21",
 		"reserved-words": "^0.1.2",
 		"safe-regex": "^2.1.1",
-		"semver": "^7.3.2"
+		"semver": "^7.3.4"
 	},
 	"devDependencies": {
 		"@ava/babel": "^1.0.1",
-		"@babel/code-frame": "7.10.4",
+		"@babel/code-frame": "7.12.11",
 		"@lubien/fixture-beta-package": "^1.0.0-beta.1",
-		"@typescript-eslint/parser": "^4.4.1",
-		"ava": "^3.13.0",
+		"@typescript-eslint/parser": "^4.10.0",
+		"ava": "^3.14.0",
 		"babel-eslint": "^10.1.0",
 		"chalk": "^4.1.0",
-		"eslint": "^7.11.0",
+		"enquirer": "2.3.6",
+		"eslint": "^7.15.0",
 		"eslint-ava-rule-tester": "^4.0.0",
 		"eslint-plugin-eslint-plugin": "^2.3.0",
-		"execa": "^4.0.3",
+		"eslint-remote-tester": "^0.3.5",
+		"execa": "^5.0.0",
 		"listr": "^0.14.3",
 		"mem": "8.0.0",
 		"nyc": "^15.1.0",
-		"outdent": "^0.7.1",
+		"outdent": "^0.8.0",
 		"pify": "^5.0.0",
-		"typescript": "^4.0.3",
-		"vue-eslint-parser": "^7.1.1",
-		"xo": "^0.33.1"
+		"typescript": "^4.1.3",
+		"vue-eslint-parser": "^7.3.0",
+		"xo": "^0.36.1"
 	},
 	"peerDependencies": {
-		"eslint": ">=7.11.0"
+		"eslint": ">=7.15.0"
 	},
 	"ava": {
 		"babel": true,
@@ -94,7 +98,9 @@
 			"plugin:eslint-plugin/all"
 		],
 		"ignores": [
-			"test/integration/{fixtures,unicorn}/**"
+			"test/integration/{fixtures,unicorn}/**",
+			".cache-eslint-remote-tester",
+			"eslint-remote-tester-results"
 		],
 		"overrides": [
 			{
@@ -105,7 +111,10 @@
 				}
 			},
 			{
-				"files": "test/*.js",
+				"files": [
+					"test/*.js",
+					"**/*.mjs"
+				],
 				"parserOptions": {
 					"sourceType": "module"
 				}

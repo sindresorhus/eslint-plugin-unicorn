@@ -1,4 +1,4 @@
-# eslint-plugin-unicorn [![Build Status](https://github.com/sindresorhus/eslint-plugin-unicorn/workflows/CI/badge.svg?branch=master)](https://github.com/sindresorhus/eslint-plugin-unicorn/actions?query=branch%3Amaster+workflow%3ACI) [![Coverage Status](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/master/graph/badge.svg)](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/master)
+# eslint-plugin-unicorn [![Coverage Status](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/master/graph/badge.svg)](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/master)
 
 <img src="https://cloud.githubusercontent.com/assets/170270/18659176/1cc373d0-7f33-11e6-890f-0ba35362ee7e.jpg" width="180" align="right">
 
@@ -37,6 +37,7 @@ Configure it in `package.json`.
 			"unicorn/catch-error-name": "error",
 			"unicorn/consistent-function-scoping": "error",
 			"unicorn/custom-error-definition": "off",
+			"unicorn/empty-brace-spaces": "error",
 			"unicorn/error-message": "error",
 			"unicorn/escape-case": "error",
 			"unicorn/expiring-todo-comments": "error",
@@ -52,6 +53,7 @@ Configure it in `package.json`.
 			"unicorn/no-for-loop": "error",
 			"unicorn/no-hex-escape": "error",
 			"unicorn/no-keyword-prefix": "off",
+			"unicorn/no-lonely-if": "error",
 			"no-nested-ternary": "off",
 			"unicorn/no-nested-ternary": "error",
 			"unicorn/no-new-buffer": "error",
@@ -70,6 +72,8 @@ Configure it in `package.json`.
 			"unicorn/prefer-array-find": "error",
 			"unicorn/prefer-array-some": "error",
 			"unicorn/prefer-dataset": "error",
+			"unicorn/prefer-date-now": "error",
+			"unicorn/prefer-default-parameters": "error",
 			"unicorn/prefer-event-key": "error",
 			"unicorn/prefer-flat-map": "error",
 			"unicorn/prefer-includes": "error",
@@ -105,14 +109,15 @@ Configure it in `package.json`.
 - [catch-error-name](docs/rules/catch-error-name.md) - Enforce a specific parameter name in catch clauses. *(fixable)*
 - [consistent-function-scoping](docs/rules/consistent-function-scoping.md) - Move function definitions to the highest possible scope.
 - [custom-error-definition](docs/rules/custom-error-definition.md) - Enforce correct `Error` subclassing. *(fixable)*
-- [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when throwing a built-in error.
+- [empty-brace-spaces](docs/rules/empty-brace-spaces.md) - Enforce no spaces between braces. *(fixable)*
+- [error-message](docs/rules/error-message.md) - Enforce passing a `message` value when creating a built-in error.
 - [escape-case](docs/rules/escape-case.md) - Require escape sequences to use uppercase values. *(fixable)*
 - [expiring-todo-comments](docs/rules/expiring-todo-comments.md) - Add expiration conditions to TODO comments.
 - [explicit-length-check](docs/rules/explicit-length-check.md) - Enforce explicitly comparing the `length` property of a value. *(partly fixable)*
 - [filename-case](docs/rules/filename-case.md) - Enforce a case style for filenames.
 - [import-index](docs/rules/import-index.md) - Enforce importing index files with `.`. *(fixable)*
 - [import-style](docs/rules/import-style.md) - Enforce specific import styles per module.
-- [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`. *(fixable)*
+- [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`. *(partly fixable)*
 - [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) - Enforce specifying rules to disable in `eslint-disable` comments.
 - [no-array-instanceof](docs/rules/no-array-instanceof.md) - Require `Array.isArray()` instead of `instanceof Array`. *(fixable)*
 - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
@@ -120,6 +125,7 @@ Configure it in `package.json`.
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(partly fixable)*
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of Unicode escapes instead of hexadecimal escapes. *(fixable)*
 - [no-keyword-prefix](docs/rules/no-keyword-prefix.md) - Disallow identifiers starting with `new` or `class`.
+- [no-lonely-if](docs/rules/no-lonely-if.md) - Disallow `if` statements as the only statement in `if` blocks without `else`. *(fixable)*
 - [no-nested-ternary](docs/rules/no-nested-ternary.md) - Disallow nested ternary expressions. *(partly fixable)*
 - [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 - [no-null](docs/rules/no-null.md) - Disallow the use of the `null` literal.
@@ -137,6 +143,8 @@ Configure it in `package.json`.
 - [prefer-array-find](docs/rules/prefer-array-find.md) - Prefer `.find(…)` over the first element from `.filter(…)`. *(partly fixable)*
 - [prefer-array-some](docs/rules/prefer-array-some.md) - Prefer `.some(…)` over `.find(…)`.
 - [prefer-dataset](docs/rules/prefer-dataset.md) - Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. *(fixable)*
+- [prefer-date-now](docs/rules/prefer-date-now.md) - Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. *(fixable)*
+- [prefer-default-parameters](docs/rules/prefer-default-parameters.md) - Prefer default parameters over reassignment. *(fixable)*
 - [prefer-event-key](docs/rules/prefer-event-key.md) - Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. *(partly fixable)*
 - [prefer-flat-map](docs/rules/prefer-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
 - [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
@@ -164,8 +172,7 @@ Configure it in `package.json`.
 
 ## Deprecated Rules
 
-- [prefer-exponentiation-operator](docs/rules/prefer-exponentiation-operator.md) - Use the built-in ESLint [`prefer-exponentiation-operator`](https://eslint.org/docs/rules/prefer-exponentiation-operator) rule instead.
-- [regex-shorthand](docs/rules/regex-shorthand.md) - Renamed to [`better-regex`](docs/rules/better-regex.md).
+See [docs/deprecated-rules.md](docs/deprecated-rules.md)
 
 ## Recommended config
 

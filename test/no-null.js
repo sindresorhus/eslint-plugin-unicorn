@@ -67,6 +67,10 @@ test({
 		'Object.create(bar)',
 		'Object.create("null")',
 
+		// `React.useRef(null)`
+		'useRef(null)',
+		'React.useRef(null)',
+
 		// Ignored
 		'if (foo === null) {}',
 		'if (null === foo) {}',

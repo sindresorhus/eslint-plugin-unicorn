@@ -12,10 +12,10 @@ const messages = {
 const create = context => {
 	const {sortCharacterClasses} = context.options[0] || {};
 
-	const blacklist = [];
+	const ignoreList = [];
 
 	if (sortCharacterClasses === false) {
-		blacklist.push('charClassClassrangesMerge');
+		ignoreList.push('charClassClassrangesMerge');
 	}
 
 	return {
@@ -31,7 +31,7 @@ const create = context => {
 			let optimized = original;
 
 			try {
-				optimized = optimize(original, undefined, {blacklist}).toString();
+				optimized = optimize(original, undefined, {blacklist: ignoreList}).toString();
 			} catch {}
 
 			if (original === optimized) {

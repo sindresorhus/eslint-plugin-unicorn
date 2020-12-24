@@ -17,11 +17,28 @@ const objectCreateSelector = methodSelector({
 	length: 1
 });
 
+// `useRef(null)`
+// eslint-disable-next-line unicorn/prevent-abbreviations
+const useRefSelector = [
+	'CallExpression',
+	'[callee.type="Identifier"]',
+	'[callee.name="useRef"]',
+	'[arguments.length=1]',
+	'[arguments.0.type!="SpreadElement"]'
+].join('');
+
+// `React.useRef(null)`
+// eslint-disable-next-line unicorn/prevent-abbreviations
+const reactUseRefSelector = methodSelector({
+	object: 'React',
+	name: 'useRef',
+	length: 1
+});
+
 const selector = [
-	`:not(${objectCreateSelector})`,
-	'>',
 	'Literal',
-	'[raw="null"]'
+	'[raw="null"]',
+	`:not(:matches(${[objectCreateSelector, useRefSelector, reactUseRefSelector].join(', ')}) > .arguments)`
 ].join('');
 
 const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].includes(node.operator);

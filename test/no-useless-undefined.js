@@ -4,6 +4,7 @@ import {test} from './utils/test';
 const messageId = 'no-useless-undefined';
 
 const errors = [{messageId}];
+const optionsIgnoreArguments = [{checkArguments: false}];
 
 test({
 	valid: [
@@ -41,7 +42,13 @@ test({
 		't.notSame(foo, undefined)',
 		't.strictSame(foo, undefined)',
 		't.strictNotSame(foo, undefined)',
-		'expect(someFunction).toHaveBeenCalledWith(1, 2, undefined);'
+		'expect(someFunction).toHaveBeenCalledWith(1, 2, undefined);',
+
+		// `checkArguments: false`
+		{
+			code: 'foo(undefined, undefined);',
+			options: optionsIgnoreArguments
+		}
 	],
 	invalid: [
 		{

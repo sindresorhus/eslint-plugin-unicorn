@@ -1,9 +1,19 @@
 'use strict';
 const path = require('path');
 const importModules = require('import-modules');
+const createDeprecatedRules = require('./rules/utils/create-deprecated-rules');
+
+const deprecatedRules = createDeprecatedRules({
+	// {ruleId: ReplacementRuleId | ReplacementRuleId[]}, if no replacement, use `{ruleId: []}`
+	'prefer-exponentiation-operator': 'prefer-exponentiation-operator',
+	'regex-shorthand': 'unicorn/better-regex'
+});
 
 module.exports = {
-	rules: importModules(path.resolve(__dirname, 'rules'), {camelize: false}),
+	rules: {
+		...importModules(path.resolve(__dirname, 'rules'), {camelize: false}),
+		...deprecatedRules
+	},
 	configs: {
 		recommended: {
 			env: {
@@ -21,6 +31,7 @@ module.exports = {
 				'unicorn/catch-error-name': 'error',
 				'unicorn/consistent-function-scoping': 'error',
 				'unicorn/custom-error-definition': 'off',
+				'unicorn/empty-brace-spaces': 'error',
 				'unicorn/error-message': 'error',
 				'unicorn/escape-case': 'error',
 				'unicorn/expiring-todo-comments': 'error',
@@ -36,6 +47,7 @@ module.exports = {
 				'unicorn/no-for-loop': 'error',
 				'unicorn/no-hex-escape': 'error',
 				'unicorn/no-keyword-prefix': 'off',
+				'unicorn/no-lonely-if': 'error',
 				'no-nested-ternary': 'off',
 				'unicorn/no-nested-ternary': 'error',
 				'unicorn/no-new-buffer': 'error',
@@ -49,12 +61,14 @@ module.exports = {
 				'unicorn/no-useless-undefined': 'error',
 				'unicorn/no-zero-fractions': 'error',
 				'unicorn/number-literal-case': 'error',
-				// TODO: Enable this by default when it's shipping in a Node.js LTS version.
+				// TODO: Enable this by default when targeting Node.js 12.
 				'unicorn/numeric-separators-style': 'off',
 				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/prefer-array-find': 'error',
 				'unicorn/prefer-array-some': 'error',
 				'unicorn/prefer-dataset': 'error',
+				'unicorn/prefer-date-now': 'error',
+				'unicorn/prefer-default-parameters': 'error',
 				'unicorn/prefer-event-key': 'error',
 				// TODO: Enable this by default when targeting Node.js 12.
 				'unicorn/prefer-flat-map': 'off',
@@ -68,7 +82,7 @@ module.exports = {
 				'unicorn/prefer-optional-catch-binding': 'error',
 				'unicorn/prefer-query-selector': 'error',
 				'unicorn/prefer-reflect-apply': 'error',
-				// TODO: Enable this by default when it's shipping in a Node.js LTS version.
+				// TODO: Enable this by default when targeting Node.js 16.
 				'unicorn/prefer-replace-all': 'off',
 				'unicorn/prefer-set-has': 'error',
 				'unicorn/prefer-spread': 'error',

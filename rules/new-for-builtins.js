@@ -17,6 +17,16 @@ const create = context => {
 			const {callee} = node;
 			const {name} = callee;
 
+			if (
+				name === 'Object' &&
+				node.parent &&
+				node.parent.type === 'BinaryExpression' &&
+				(node.parent.operator === '===' || node.parent.operator === '!==') &&
+				(node.parent.left === node || node.parent.right === node)
+			) {
+				return;
+			}
+
 			if (enforceNew.has(name) && !isShadowed(context.getScope(), callee)) {
 				context.report({
 					node,
@@ -31,15 +41,20 @@ const create = context => {
 			const {name} = callee;
 
 			if (disallowNew.has(name) && !isShadowed(context.getScope(), callee)) {
-				context.report({
+				const problem = {
 					node,
 					messageId: 'disallow',
-					data: {name},
-					fix: fixer => fixer.removeRange([
+					data: {name}
+				};
+
+				if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
+					problem.fix = fixer => fixer.removeRange([
 						node.range[0],
 						node.callee.range[0]
-					])
-				});
+					]);
+				}
+
+				context.report(problem);
 			}
 		}
 	};

@@ -746,6 +746,20 @@ runTest.typescript({
 		{
 			code: outdent`
 				for (let i = 0; i < positions.length; i++) {
+					const    last   /* comment */    : /* comment */ Position = positions[i];
+					console.log(i);
+				}
+			`,
+			output: outdent`
+				for (const [i, last   /* comment */]: [number, /* comment */ Position] of positions.entries()) {
+					console.log(i);
+				}
+			`,
+			errors: 1
+		},
+		{
+			code: outdent`
+				for (let i = 0; i < positions.length; i++) {
 					let last: vscode.Position | vscode.Range = positions[i];
 				}
 			`,
@@ -773,10 +787,16 @@ runTest.visualize([
 		}
 	`,
 	outdent`
-		for (let i = 0; i < array.length; i++) {
-			var foo = array[i];
-			foo = bar();
-		}
+		for (
+			let i = 0;
+			i < array.length;
+			i++
+		)
+		// comment (foo)
+			{
+				var foo = array[i];
+				foo = bar();
+			}
 	`,
 	outdent`
 		for (let i = 0; i < array.length; i++) {

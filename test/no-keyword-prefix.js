@@ -8,7 +8,7 @@ const errorClass = {
 	messageId: 'noKeywordPrefix',
 	data: {keyword: 'class'}
 };
-const errorBlacklist = {
+const errorIgnoreList = {
 	messageId: 'noKeywordPrefix',
 	data: {keyword: 'old'}
 };
@@ -243,7 +243,7 @@ test({
 		{
 			code: 'const oldFoo = "foo"',
 			options: [{blacklist: ['old']}],
-			errors: [errorBlacklist]
+			errors: [errorIgnoreList]
 		},
 		{
 			code: 'const new_foo = "foo"',
