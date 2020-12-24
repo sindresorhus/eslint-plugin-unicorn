@@ -20,6 +20,7 @@ module.exports = {
 		sourceType: 'module',
 		allowImportExportEverywhere: true,
 		babelOptions: {
+			configFile: '',
 			parserOpts: {
 				plugins: [
 					'jsx',
