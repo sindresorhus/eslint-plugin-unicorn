@@ -4,6 +4,7 @@ const {codeFrameColumns} = require('@babel/code-frame');
 const {outdent} = require('outdent');
 
 const codeFrameColumnsOptions = {linesAbove: Number.POSITIVE_INFINITY, linesBelow: Number.POSITIVE_INFINITY};
+const INDENT = ' '.repeat(4);
 
 function visualizeRange(text, location, message) {
 	return codeFrameColumns(
@@ -57,10 +58,6 @@ function createSnapshot({fixable, code, options, fixed, output, messages}) {
 	if (fixable) {
 		parts.push(
 			outdent`
-				Input:
-				${printCode(code)}
-			`,
-			outdent`
 				Output:
 				${fixed ? printCode(output) : '[Same as input]'}
 			`
@@ -91,27 +88,67 @@ class VisualizeRuleTester {
 		const linter = new Linter();
 		linter.defineRule(ruleId, rule);
 
-		for (const [index, testCase] of tests.entries()) {
+		tests = Array.isArray(tests) ? {valid: [], invalid: tests} : tests;
+
+		for (const [index, testCase] of tests.valid.entries()) {
 			const {code, options} = typeof testCase === 'string' ? {code: testCase} : testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, options);
 
-			test(`${ruleId} - #${index + 1}`, t => {
-				const messages = linter.verify(code, verifyConfig);
-				if (messages.length === 0) {
-					throw new Error('No errors reported.');
+			test(
+				outdent`
+					Valid: ${ruleId} #${index + 1}
+					${INDENT}Input:
+					${INDENT}${printCode(code)}
+				`,
+				t => {
+					const messages = linter.verify(code, verifyConfig);
+					if (messages.length > 0) {
+						console.log(messages);
+
+						throw new Error(outdent`
+							Errors reported for "valid" case:
+
+							${code}
+						`);
+					}
+
+					t.pass();
 				}
+			);
+		}
 
-				const fatalError = messages.find(({fatal}) => fatal);
-				if (fatalError) {
-					throw fatalError;
+		for (const [index, testCase] of tests.invalid.entries()) {
+			const {code, options} = typeof testCase === 'string' ? {code: testCase} : testCase;
+			const verifyConfig = getVerifyConfig(ruleId, config, options);
+
+			test(
+				outdent`
+					Invalid: ${ruleId} #${index + 1}
+					${INDENT}Input:
+					${INDENT}${printCode(code)}
+				`,
+				t => {
+					const messages = linter.verify(code, verifyConfig);
+					if (messages.length === 0) {
+						throw new Error(outdent`
+							No errors reported for "invalid" case:
+
+							${code}
+						`);
+					}
+
+					const fatalError = messages.find(({fatal}) => fatal);
+					if (fatalError) {
+						throw fatalError;
+					}
+
+					const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig) : {fixed: false};
+
+					t.snapshot(
+						createSnapshot({fixable, code, options, fixed, output, messages})
+					);
 				}
-
-				const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig) : {fixed: false};
-
-				t.snapshot(
-					createSnapshot({fixable, code, options, fixed, output, messages})
-				);
-			});
+			);
 		}
 	}
 }
