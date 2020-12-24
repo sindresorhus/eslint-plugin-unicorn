@@ -19,7 +19,7 @@ const arrayFindCallSelector = methodSelector({
 const create = context => {
 	return {
 		[arrayFindCallSelector](node) {
-			if (isBooleanNode(node) || node.parent.type === 'LogicalExpression') {
+			if (isBooleanNode(node)) {
 				node = node.callee.property;
 				context.report({
 					node,

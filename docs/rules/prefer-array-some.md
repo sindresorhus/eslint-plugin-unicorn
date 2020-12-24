@@ -14,14 +14,14 @@ if (array.find(element => element === '🦄')) {
 const foo = array.find(element => element === '🦄') ? bar : baz;
 ```
 
-```js
-const foo = array.find(element => element === '🦄') || bar;
-```
-
 ## Pass
 
 ```js
 if (array.some(element => element === '🦄')) {
 	// …
 }
+```
+
+```js
+const foo = array.find(element => element === '🦄') || bar;
 ```

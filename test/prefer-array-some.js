@@ -24,6 +24,7 @@ test({
 	valid: [
 		// Not `boolean`
 		'const bar = foo.find(fn)',
+		'const bar = foo.find(fn) || baz',
 
 		// Not matched `CallExpression`
 		...[
@@ -65,10 +66,10 @@ test({
 			suggestionOutput: 'console.log(foo /* comment 1 */ . /* comment 2 */ some /* comment 3 */ (fn) ? a : b)'
 		}),
 		// This should not be reported, but `jQuery.find()` is always `truly`,
-		// It should not use in a LogicalExpression
+		// It should not use as a boolean
 		invalidCase({
-			code: 'const el = anotherElement || jQuery.find(".outer > div");',
-			suggestionOutput: 'const el = anotherElement || jQuery.some(".outer > div");'
+			code: 'if (jQuery.find(".outer > div")) {}',
+			suggestionOutput: 'if (jQuery.some(".outer > div")) {}'
 		}),
 		// Actual messages
 		{
