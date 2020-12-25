@@ -100,7 +100,7 @@
 			"plugin:eslint-plugin/all"
 		],
 		"ignores": [
-			"test/integration/{fixtures,unicorn}/**",
+			"test/integration/{fixtures,fixtures-local}/**",
 			".cache-eslint-remote-tester",
 			"eslint-remote-tester-results"
 		],
