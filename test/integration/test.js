@@ -35,7 +35,7 @@ const makeEslintTask = (project, destination) => {
 		'json',
 		'--config',
 		path.join(__dirname, 'config.js'),
-		project.path || '.',
+		destination,
 		...project.extraArguments
 	];
 
@@ -43,7 +43,7 @@ const makeEslintTask = (project, destination) => {
 		let stdout;
 		let processError;
 		try {
-			({stdout} = await execa('npx', arguments_, {cwd: destination, localDir: __dirname}));
+			({stdout} = await execa('npx', arguments_, {cwd: __dirname, localDir: __dirname}));
 		} catch (error) {
 			({stdout} = error);
 			processError = error;
