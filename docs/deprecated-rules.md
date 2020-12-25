@@ -14,7 +14,7 @@ This rule was renamed to [`no-array-reduce`](rules/no-array-reduce.md) to be mor
 
 ## prefer-dataset
 
-This rule was renamed to [`prefer-node-dataset`](rules/prefer-node-dataset.md) to be more specific.
+This rule was renamed to [`prefer-dom-node-dataset`](rules/prefer-dom-node-dataset.md) to be more specific.
 
 ## prefer-event-key
 
@@ -28,6 +28,14 @@ This rule was deprecated in favor of the built-in ESLint [`prefer-exponentiation
 
 This rule was renamed to [`prefer-array-flat-map`](rules/prefer-array-flat-map.md) to be more specific.
 
+## prefer-node-append
+
+This rule was renamed to [`prefer-dom-node-append`](rules/prefer-dom-node-append.md) to be less ambiguous.
+
+## prefer-node-remove
+
+This rule was renamed to [`prefer-dom-node-remove`](rules/prefer-dom-node-remove.md) to be less ambiguous.
+
 ## prefer-replace-all
 
 This rule was renamed to [`prefer-string-replace-all`](rules/prefer-string-replace-all.md) to be more specific.
@@ -38,7 +46,7 @@ This rule was renamed to [`prefer-string-starts-ends-with`](rules/prefer-string-
 
 ## prefer-text-content
 
-This rule was renamed to [`prefer-node-text-content`](rules/prefer-node-text-content.md) to be more specific.
+This rule was renamed to [`prefer-dom-node-text-content`](rules/prefer-dom-node-text-content.md) to be more specific.
 
 ## prefer-trim-start-end
 
