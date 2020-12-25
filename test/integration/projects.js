@@ -147,7 +147,7 @@ module.exports = [
 	const {
 		repository,
 		name = repository.split('/').pop(),
-		ignore = [],
+		ignore = []
 	} = project;
 
 	return {
