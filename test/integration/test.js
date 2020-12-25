@@ -43,12 +43,12 @@ const makeEslintTask = (project, destination) => {
 		arguments_.push('--ignore-pattern', `${directory}/${pattern}`);
 	}
 
-	const eslintignoreFile = path.join(destination, '.eslintignore');
-	if (fs.existsSync(eslintignoreFile)) {
-		arguments_.push('--ignore-path', eslintignoreFile);
-	}
-
 	return enrichErrors(project.name, arguments_, async () => {
+		const eslintignoreFile = path.join(destination, '.eslintignore');
+		if (fs.existsSync(eslintignoreFile)) {
+			arguments_.push('--ignore-path', eslintignoreFile);
+		}
+
 		let stdout;
 		let processError;
 		try {
