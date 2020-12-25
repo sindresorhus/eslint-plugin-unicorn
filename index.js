@@ -12,6 +12,8 @@ const deprecatedRules = createDeprecatedRules({
 	'prefer-exponentiation-operator': 'prefer-exponentiation-operator',
 	'prefer-dataset': 'unicorn/prefer-dom-node-dataset',
 	'prefer-flat-map': 'unicorn/prefer-array-flat-map',
+	'prefer-node-append': 'unicorn/prefer-dom-node-append',
+	'prefer-node-remove': 'unicorn/prefer-dom-node-remove',
 	'prefer-replace-all': 'unicorn/prefer-string-replace-all',
 	'prefer-starts-ends-with': 'unicorn/prefer-string-starts-ends-with',
 	'prefer-text-content': 'unicorn/prefer-dom-node-text-content',
