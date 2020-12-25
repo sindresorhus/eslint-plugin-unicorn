@@ -4,7 +4,6 @@ const {codeFrameColumns} = require('@babel/code-frame');
 const {outdent} = require('outdent');
 
 const codeFrameColumnsOptions = {linesAbove: Number.POSITIVE_INFINITY, linesBelow: Number.POSITIVE_INFINITY};
-const INDENT = ' '.repeat(4);
 
 function visualizeRange(text, location, message) {
 	return codeFrameColumns(
@@ -44,6 +43,8 @@ const getVerifyConfig = (ruleId, testerConfig, options) => ({
 });
 
 const printCode = code => codeFrameColumns(code, {start: {line: 0, column: 0}}, codeFrameColumnsOptions);
+const INDENT = ' '.repeat(4);
+const indentCode = code => code.replace(/^/gm, INDENT);
 
 function createSnapshot({fixable, code, options, fixed, output, messages}) {
 	const parts = [];
@@ -96,9 +97,8 @@ class VisualizeRuleTester {
 
 			test(
 				outdent`
-					Valid: ${ruleId} #${index + 1}
-					${INDENT}Input:
-					${INDENT}${printCode(code)}
+					Valid #${index + 1}
+					${indentCode(printCode(code))}
 				`,
 				t => {
 					const messages = linter.verify(code, verifyConfig);
@@ -123,9 +123,8 @@ class VisualizeRuleTester {
 
 			test(
 				outdent`
-					Invalid: ${ruleId} #${index + 1}
-					${INDENT}Input:
-					${INDENT}${printCode(code)}
+					Invalid #${index + 1}
+					${indentCode(printCode(code))}
 				`,
 				t => {
 					const messages = linter.verify(code, verifyConfig);
