@@ -3,7 +3,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 const methodSelector = require('./utils/method-selector');
 
-const MESSAGE_ID = 'prefer-replace-all';
+const MESSAGE_ID = 'prefer-string-replace-all';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `String#replaceAll()` over `String#replace()`.'
 };

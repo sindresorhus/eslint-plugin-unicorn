@@ -50,10 +50,9 @@ const invalidTestCase = (({code, method, name, suggestions}) => ({
 			suggestions: suggestions.map(output => suggestionOutput(output))
 		}
 	]
-
 }));
 
-ruleTester.run('no-fn-reference-in-iterator', rule, {
+ruleTester.run('no-array-callback-reference', rule, {
 	valid: [
 		...simpleMethods.map(method => `foo.${method}(element => fn(element))`),
 		...reduceLikeMethods.map(method => `foo.${method}((accumulator, element) => fn(element))`),

@@ -4,7 +4,7 @@ const isValidVariableName = require('./utils/is-valid-variable-name');
 const quoteString = require('./utils/quote-string');
 const methodSelector = require('./utils/method-selector');
 
-const MESSAGE_ID = 'prefer-dataset';
+const MESSAGE_ID = 'prefer-dom-node-dataset';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `.dataset` over `setAttribute(…)`.'
 };
