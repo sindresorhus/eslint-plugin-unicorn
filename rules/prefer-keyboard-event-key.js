@@ -2,7 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 
-const MESSAGE_ID = 'prefer-event-key';
+const MESSAGE_ID = 'prefer-keyboard-event-key';
 const messages = {
 	[MESSAGE_ID]: 'Use `.key` instead of `.{{name}}`.'
 };

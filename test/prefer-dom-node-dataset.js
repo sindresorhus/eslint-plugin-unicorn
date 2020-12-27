@@ -3,7 +3,7 @@ import {test} from './utils/test';
 
 const errors = [
 	{
-		messageId: 'prefer-dataset'
+		messageId: 'prefer-dom-node-dataset'
 	}
 ];
 
