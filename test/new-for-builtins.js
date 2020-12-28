@@ -108,7 +108,10 @@ test({
 		`,
 		// Not builtin
 		'new Foo();Bar();',
-		'Foo();new Bar();'
+		'Foo();new Bar();',
+		// Ignored
+		'const isObject = v => Object(v) === v;',
+		'(x) !== Object(x)'
 	],
 	invalid: [
 		{

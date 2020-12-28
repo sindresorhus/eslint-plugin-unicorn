@@ -1672,7 +1672,7 @@ runTest({
 
 runTest.babel({
 	valid: [
-		// Whitelisted names
+		// Allowed names
 		'Foo.defaultProps = {}',
 		outdent`
 			class Foo {

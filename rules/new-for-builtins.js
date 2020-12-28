@@ -17,6 +17,16 @@ const create = context => {
 			const {callee} = node;
 			const {name} = callee;
 
+			if (
+				name === 'Object' &&
+				node.parent &&
+				node.parent.type === 'BinaryExpression' &&
+				(node.parent.operator === '===' || node.parent.operator === '!==') &&
+				(node.parent.left === node || node.parent.right === node)
+			) {
+				return;
+			}
+
 			if (enforceNew.has(name) && !isShadowed(context.getScope(), callee)) {
 				context.report({
 					node,
