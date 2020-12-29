@@ -31,46 +31,46 @@ function findKeywordPrefix(name, options) {
 }
 
 function checkMemberExpression(report, node, options) {
-	const {name} = node;
+	const {name, parent} = node;
 	const keyword = findKeywordPrefix(name, options);
-	const effectiveParent = (node.parent.type === 'MemberExpression') ? node.parent.parent : node.parent;
+	const effectiveParent = (parent.type === 'MemberExpression') ? parent.parent : parent;
 
 	if (!options.checkProperties) {
 		return;
 	}
 
-	if (node.parent.object.type === 'Identifier' && node.parent.object.name === node.name && Boolean(keyword)) {
+	if (parent.object.type === 'Identifier' && parent.object.name === name && Boolean(keyword)) {
 		report(node, keyword);
 	} else if (
 		effectiveParent.type === 'AssignmentExpression' &&
 		Boolean(keyword) &&
 		(effectiveParent.right.type !== 'MemberExpression' || effectiveParent.left.type === 'MemberExpression') &&
-		effectiveParent.left.property.name === node.name
+		effectiveParent.left.property.name === name
 	) {
 		report(node, keyword);
 	}
 }
 
 function checkObjectPattern(report, node, options) {
-	const {name} = node;
+	const {name, parent} = node;
 	const keyword = findKeywordPrefix(name, options);
 
-	if (node.parent.shorthand && node.parent.value.left && Boolean(keyword)) {
+	if (parent.shorthand && parent.value.left && Boolean(keyword)) {
 		report(node, keyword);
 	}
 
-	const assignmentKeyEqualsValue = node.parent.key.name === node.parent.value.name;
+	const assignmentKeyEqualsValue = parent.key.name === parent.value.name;
 
-	if (Boolean(keyword) && node.parent.computed) {
+	if (Boolean(keyword) && parent.computed) {
 		report(node, keyword);
 	}
 
 	// Prevent checking righthand side of destructured object
-	if (node.parent.key === node && node.parent.value !== node) {
+	if (parent.key === node && parent.value !== node) {
 		return true;
 	}
 
-	const valueIsInvalid = node.parent.value.name && Boolean(keyword);
+	const valueIsInvalid = parent.value.name && Boolean(keyword);
 
 	// Ignore destructuring if the option is set, unless a new identifier is created
 	if (valueIsInvalid && !assignmentKeyEqualsValue) {
@@ -105,17 +105,17 @@ const create = context => {
 
 	return {
 		Identifier: node => {
-			const {name} = node;
+			const {name, parent} = node;
 			const keyword = findKeywordPrefix(name, options);
-			const effectiveParent = (node.parent.type === 'MemberExpression') ? node.parent.parent : node.parent;
+			const effectiveParent = (parent.type === 'MemberExpression') ? parent.parent : parent;
 
-			if (node.parent.type === 'MemberExpression') {
+			if (parent.type === 'MemberExpression') {
 				checkMemberExpression(report, node, options);
 			} else if (
-				node.parent.type === 'Property' ||
-				node.parent.type === 'AssignmentPattern'
+				parent.type === 'Property' ||
+				parent.type === 'AssignmentPattern'
 			) {
-				if (node.parent.parent && node.parent.parent.type === 'ObjectPattern') {
+				if (parent.parent && parent.parent.type === 'ObjectPattern') {
 					const finished = checkObjectPattern(report, node, options);
 					if (finished) {
 						return;
@@ -132,7 +132,7 @@ const create = context => {
 				if (
 					Boolean(keyword) &&
 					!ALLOWED_PARENT_TYPES.has(effectiveParent.type) &&
-					!(node.parent.right === node)
+					!(parent.right === node)
 				) {
 					report(node, keyword);
 				}
@@ -143,13 +143,13 @@ const create = context => {
 					'ImportSpecifier',
 					'ImportNamespaceSpecifier',
 					'ImportDefaultSpecifier'
-				].includes(node.parent.type)
+				].includes(parent.type)
 			) {
 				// Report only if the local imported identifier is invalid
 				if (
 					Boolean(keyword) &&
-					node.parent.local &&
-					node.parent.local.name === node.name
+					parent.local &&
+					parent.local.name === name
 				) {
 					report(node, keyword);
 				}

@@ -75,13 +75,13 @@ const create = context => {
 
 	return {
 		'Literal, TemplateElement': node => {
-			const {type} = node;
+			const {type, value, raw} = node;
 
 			let string;
 			if (type === 'Literal') {
-				string = node.value;
+				string = value;
 			} else if (!isIgnoredTag(node)) {
-				string = node.value.raw;
+				string = value.raw;
 			}
 
 			if (!string || typeof string !== 'string') {
@@ -94,7 +94,7 @@ const create = context => {
 				return;
 			}
 
-			const {fix: autoFix, message = defaultMessage, match, suggest} = replacement;
+			const {fix: autoFix, message = defaultMessage, match, suggest, regex} = replacement;
 			const messageData = {
 				match,
 				suggest
@@ -105,11 +105,11 @@ const create = context => {
 				data: messageData
 			};
 
-			const fixed = string.replace(replacement.regex, suggest);
+			const fixed = string.replace(regex, suggest);
 			const fix = type === 'Literal' ?
 				fixer => fixer.replaceText(
 					node,
-					quoteString(fixed, node.raw[0])
+					quoteString(fixed, raw[0])
 				) :
 				fixer => replaceTemplateElement(
 					fixer,
