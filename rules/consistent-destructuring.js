@@ -53,21 +53,6 @@ const isChildInParentScope = (child, parent) => {
 	return false;
 };
 
-const fixDestructuring = (fixer, objectPattern, member, newMember) => {
-	// Check if member needs to be renamed
-	const property = member === newMember ?
-		`${member}` :
-		`${member}: ${newMember}`;
-	const {properties} = objectPattern;
-	const lastProperty = properties[properties.length - 1];
-
-	if (lastProperty) {
-		return fixer.insertTextAfter(lastProperty, `, ${property}`);
-	}
-
-	return fixer.replaceText(objectPattern, `{${property}}`);
-};
-
 const create = context => {
 	const {ecmaVersion} = context.parserOptions;
 	const source = context.getSourceCode();
@@ -101,17 +86,6 @@ const create = context => {
 				return;
 			}
 
-			const isNested = node.parent.type === 'MemberExpression';
-
-			if (isNested) {
-				context.report({
-					node,
-					messageId: MESSAGE_ID
-				});
-
-				return;
-			}
-
 			const destructurings = objectPattern.properties.filter(property =>
 				property.type === 'Property' &&
 				property.key.type === 'Identifier' &&
@@ -128,14 +102,29 @@ const create = context => {
 				property.key.name === member
 			);
 
-			// Don't destructure additional members when rest is used
-			if (hasRest && !destructuredMember) {
+			if (!destructuredMember) {
+				// Don't destructure additional members when rest is used
+				if (hasRest) {
+					return;
+				}
+
+				// Destructured member collides with an existing identifier
+				if (avoidCapture(member, [memberScope], ecmaVersion) !== member) {
+					return;
+				}
+			}
+
+			// Don't try to fix nested member expressions
+			if (node.parent.type === 'MemberExpression') {
+				context.report({
+					node,
+					messageId: MESSAGE_ID
+				});
+
 				return;
 			}
 
-			const newMember = destructuredMember ?
-				destructuredMember.value.name :
-				avoidCapture(member, [memberScope], ecmaVersion);
+			const newMember = destructuredMember ? destructuredMember.value.name : member;
 
 			context.report({
 				node,
@@ -146,12 +135,18 @@ const create = context => {
 						expression,
 						property: newMember
 					},
-					fix: destructuredMember ?
-						fixer => [fixer.replaceText(node, newMember)] :
-						fixer => [
-							fixer.replaceText(node, newMember),
-							fixDestructuring(fixer, objectPattern, member, newMember)
-						]
+					* fix(fixer) {
+						const {properties} = objectPattern;
+						const lastProperty = properties[properties.length - 1];
+
+						yield fixer.replaceText(node, newMember);
+
+						if (!destructuredMember) {
+							yield lastProperty ?
+								fixer.insertTextAfter(lastProperty, `, ${newMember}`) :
+								fixer.replaceText(objectPattern, `{${newMember}}`);
+						}
+					}
 				}]
 			});
 		}

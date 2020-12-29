@@ -202,6 +202,21 @@ ruleTester.run('consistent-destructuring', rule, {
 		outdent`
 			const {a: {b}} = foo;
 			(new foo.a).b;
+		`,
+		outdent`
+			const c = 123;
+			const {a} = foo;
+			const {b} = foo;
+			console.log(foo.c);
+		`,
+		outdent`
+			const {a} = foo;
+			const b = 'bar';
+			console.log(foo.b);
+		`,
+		outdent`
+			const {a: b} = foo;
+			console.log(foo.b);
 		`
 	],
 	invalid: [
@@ -349,16 +364,6 @@ ruleTester.run('consistent-destructuring', rule, {
 		}),
 		invalidTestCase({
 			code: outdent`
-				const {a: b} = foo;
-				console.log(foo.b);
-			`,
-			suggestions: [outdent`
-				const {a: b, b: b_} = foo;
-				console.log(b_);
-			`]
-		}),
-		invalidTestCase({
-			code: outdent`
 				const {a: b, c} = foo;
 				console.log(foo.d);
 			`,
@@ -410,18 +415,6 @@ ruleTester.run('consistent-destructuring', rule, {
 		invalidTestCase({
 			code: outdent`
 				const {a} = foo;
-				const b = 'bar';
-				console.log(foo.b);
-			`,
-			suggestions: [outdent`
-				const {a, b: b_} = foo;
-				const b = 'bar';
-				console.log(b_);
-			`]
-		}),
-		invalidTestCase({
-			code: outdent`
-				const {a} = foo;
 				const {b} = foo;
 				console.log(foo.c);
 			`,
@@ -429,20 +422,6 @@ ruleTester.run('consistent-destructuring', rule, {
 				const {a} = foo;
 				const {b, c} = foo;
 				console.log(c);
-			`]
-		}),
-		invalidTestCase({
-			code: outdent`
-				const c = 123;
-				const {a} = foo;
-				const {b} = foo;
-				console.log(foo.c);
-			`,
-			suggestions: [outdent`
-				const c = 123;
-				const {a} = foo;
-				const {b, c: c_} = foo;
-				console.log(c_);
 			`]
 		}),
 		invalidTestCase({
