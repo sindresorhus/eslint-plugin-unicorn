@@ -1,12 +1,12 @@
 # Deprecated Rules
 
-## no-fn-reference-in-iterator
-
-This rule was renamed to [`no-array-callback-reference`](rules/no-array-callback-reference.md) to avoid using the abbreviation `fn` in the name.
-
 ## no-array-instanceof
 
 This rule was renamed to [`no-instanceof-array`](rules/no-instanceof-array.md) to be more correct.
+
+## no-fn-reference-in-iterator
+
+This rule was renamed to [`no-array-callback-reference`](rules/no-array-callback-reference.md) to avoid using the abbreviation `fn` in the name.
 
 ## no-reduce
 
