@@ -1,30 +1,57 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test';
 
-const MESSAGE_ID = 'prefer-regexp-test';
-const errors = [
-	{
-		messageId: MESSAGE_ID
-	}
-];
-
 test({
 	valid: [
-		'const foo = \'🦄\';'
+		'const bar = !re.test(foo)',
+		// Not `boolean`
+		'const matches = foo.match(re) || []',
+		'const matches = foo.match(re)',
+		'const matches = re.exec(foo)',
+		'while (foo = re.exec(bar)) {}',
+		'while ((foo = re.exec(bar))) {}',
+
+		// Method not match
+		'if (foo.notMatch(re)) {}',
+		'if (re.notExec(foo)) {}',
+		// Not `CallExpression`
+		'if (foo.match) {}',
+		'if (re.exec) {}',
+		// Computed
+		'if (foo[match](re)) {}',
+		'if (re[exec](foo)) {}',
+		'if (foo["match"](re)) {}',
+		'if (re["exec"](foo)) {}',
+		// Not `MemberExpression`
+		'if (match(re)) {}',
+		'if (exec(foo)) {}',
+		// More/Less arguments
+		'if (foo.match()) {}',
+		'if (re.exec()) {}',
+		'if (foo.match(re, another)) {}',
+		'if (re.exec(foo, another)) {}',
+		'if (foo.match(...[regexp])) {}',
+		'if (re.exec(...[string])) {}'
 	],
-	invalid: [
-		{
-			code: outdent`
-				const foo = 'unicorn';
-			`,
-			output: outdent`
-				const foo = '🦄';
-			`,
-			errors
-		}
-	]
+	invalid: []
 });
 
 test.visualize([
-	'const foo = \'unicorn\';'
+	// `String#match()`
+	'const bar = !foo.match(re)',
+	'const bar = Boolean(foo.match(re))',
+	'if (foo.match(re)) {}',
+	'const bar = foo.match(re) ? 1 : 2',
+	'while (foo.match(re)) foo = foo.slice(1);',
+	'do {foo = foo.slice(1)} while (foo.match(re));',
+	'for (; foo.match(re); ) foo = foo.slice(1);',
+
+	// `RegExp#exec()`
+	'const bar = !re.exec(foo)',
+	'const bar = Boolean(re.exec(foo))',
+	'if (re.exec(foo)) {}',
+	'const bar = re.exec(foo) ? 1 : 2',
+	'while (re.exec(foo)) foo = foo.slice(1);',
+	'do {foo = foo.slice(1)} while (re.exec(foo));',
+	'for (; re.exec(foo); ) foo = foo.slice(1);'
 ]);
