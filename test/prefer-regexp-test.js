@@ -92,5 +92,19 @@ test.visualize([
 		}
 	`,
 	// Should not need handle ASI problem
-	'if (foo.match([re][0])) {}'
+	'if (foo.match([re][0])) {}',
+
+	// Comments
+	outdent`
+		async function a() {
+			if (
+				/* 1 */ foo() /* 2 */
+					./* 3 */ match /* 4 */ (
+						/* 5 */ await /* 6 */ bar() /* 7 */
+						,
+						/* 8 */
+					)
+			) {}
+		}
+	`
 ]);
