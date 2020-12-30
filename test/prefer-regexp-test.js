@@ -31,7 +31,13 @@ test({
 		'if (foo.match(re, another)) {}',
 		'if (re.exec(foo, another)) {}',
 		'if (foo.match(...[regexp])) {}',
-		'if (re.exec(...[string])) {}'
+		'if (re.exec(...[string])) {}',
+		// Not regex
+		'if (foo.match(1)) {}',
+		'if (foo.match("1")) {}',
+		'if (foo.match(null)) {}',
+		'if (foo.match(1n)) {}',
+		'if (foo.match(true)) {}'
 	],
 	invalid: []
 });

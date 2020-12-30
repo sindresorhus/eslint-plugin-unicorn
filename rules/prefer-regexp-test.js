@@ -40,8 +40,13 @@ const create = context => {
 				return;
 			}
 
-			const stringNode = node.callee.object;
 			const regexpNode = node.arguments[0];
+
+			if (regexpNode.type === 'Literal' && !regexpNode.regex) {
+				return;
+			}
+
+			const stringNode = node.callee.object;
 
 			context.report({
 				node,
