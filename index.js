@@ -82,6 +82,7 @@ module.exports = {
 				'unicorn/prefer-optional-catch-binding': 'error',
 				'unicorn/prefer-query-selector': 'error',
 				'unicorn/prefer-reflect-apply': 'error',
+				'unicorn/prefer-regexp-test': 'error',
 				// TODO: Enable this by default when targeting Node.js 16.
 				'unicorn/prefer-replace-all': 'off',
 				'unicorn/prefer-set-has': 'error',
