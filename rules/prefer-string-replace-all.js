@@ -3,7 +3,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 const methodSelector = require('./utils/method-selector');
 
-const MESSAGE_ID = 'prefer-replace-all';
+const MESSAGE_ID = 'prefer-string-replace-all';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `String#replaceAll()` over `String#replace()`.'
 };
@@ -46,7 +46,7 @@ function removeEscapeCharacters(regexString) {
 const create = context => {
 	return {
 		[selector]: node => {
-			const {arguments: arguments_} = node;
+			const {arguments: arguments_, callee} = node;
 			const [search] = arguments_;
 
 			if (!isRegexWithGlobalFlag(search) || !isLiteralCharactersOnly(search)) {
@@ -58,7 +58,7 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				fix: fixer =>
 					[
-						fixer.insertTextAfter(node.callee, 'All'),
+						fixer.insertTextAfter(callee, 'All'),
 						fixer.replaceText(search, quoteString(removeEscapeCharacters(search.regex.pattern)))
 					]
 			});

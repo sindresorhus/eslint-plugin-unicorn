@@ -42,7 +42,7 @@ function needsSemicolon(tokenBefore, sourceCode, code) {
 		return false;
 	}
 
-	const {type, value} = tokenBefore;
+	const {type, value, range} = tokenBefore;
 	if (type === 'Punctuator') {
 		if (value === ';') {
 			return false;
@@ -61,7 +61,7 @@ function needsSemicolon(tokenBefore, sourceCode, code) {
 		return value.endsWith('`');
 	}
 
-	const lastBlockNode = sourceCode.getNodeByRangeIndex(tokenBefore.range[0]);
+	const lastBlockNode = sourceCode.getNodeByRangeIndex(range[0]);
 	if (lastBlockNode && lastBlockNode.type === 'ObjectExpression') {
 		return true;
 	}

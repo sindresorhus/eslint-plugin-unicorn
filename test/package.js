@@ -15,10 +15,9 @@ const ignoredRules = [
 	'no-nested-ternary'
 ];
 
-const deprecatedRules = [
-	'prefer-exponentiation-operator',
-	'regex-shorthand'
-];
+const deprecatedRules = Object.entries(index.rules)
+	.filter(([, {meta: {deprecated}}]) => deprecated)
+	.map(([ruleId]) => ruleId);
 
 const testSorted = (t, actualOrder, sourceName) => {
 	actualOrder = actualOrder.filter(x => !ignoredRules.includes(x));
@@ -44,7 +43,7 @@ test('Every rule is defined in index file in alphabetical order', t => {
 	}
 
 	t.is(
-		Object.keys(index.rules).length,
+		Object.keys(index.rules).length - deprecatedRules.length,
 		ruleFiles.length,
 		'There are more exported rules than rule files.'
 	);
@@ -111,4 +110,10 @@ test('Every rule has valid meta.type', t => {
 		t.is(typeof rule.meta.type, 'string', `${name} meta.type is not string`);
 		t.true(validTypes.includes(rule.meta.type), `${name} meta.type is not one of [${validTypes.join(', ')}]`);
 	}
+});
+
+test('Every deprecated rules listed in docs/deprecated-rules.md', t => {
+	const content = fs.readFileSync('docs/deprecated-rules.md', 'utf8');
+	const rulesInMarkdown = content.match(/(?<=^## ).*?$/gm);
+	t.deepEqual(deprecatedRules, rulesInMarkdown);
 });

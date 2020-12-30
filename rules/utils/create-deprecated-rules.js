@@ -16,6 +16,8 @@ function createDeprecatedRules(data) {
 			}
 		};
 	}
+
+	return rules;
 }
 
 module.exports = createDeprecatedRules;
