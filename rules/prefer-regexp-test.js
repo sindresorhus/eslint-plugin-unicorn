@@ -8,7 +8,7 @@ const MESSAGE_ID_REGEXP_EXEC = 'regexp-exec';
 const MESSAGE_ID_STRING_MATCH = 'string-match';
 const messages = {
 	[MESSAGE_ID_REGEXP_EXEC]: 'Prefer `.test(…)` over `.exec(…)`.',
-	[MESSAGE_ID_STRING_MATCH]: 'Prefer `RegExp#test(…)` over `String#match(…)`.',
+	[MESSAGE_ID_STRING_MATCH]: 'Prefer `RegExp#test(…)` over `String#match(…)`.'
 };
 
 const regExpExecCallSelector = methodSelector({
@@ -57,6 +57,7 @@ const create = context => {
 					) {
 						stringText = `(${stringText})`;
 					}
+
 					yield fixer.replaceText(regexpNode, stringText);
 
 					let regexpText = sourceCode.getText(regexpNode);
@@ -79,10 +80,8 @@ const create = context => {
 				}
 			});
 		}
-	}
+	};
 };
-
-const schema = [];
 
 module.exports = {
 	create,
@@ -92,7 +91,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema,
 		messages
 	}
 };
