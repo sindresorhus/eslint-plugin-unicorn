@@ -53,5 +53,38 @@ test.visualize([
 	'const bar = re.exec(foo) ? 1 : 2',
 	'while (re.exec(foo)) foo = foo.slice(1);',
 	'do {foo = foo.slice(1)} while (re.exec(foo));',
-	'for (; re.exec(foo); ) foo = foo.slice(1);'
+	'for (; re.exec(foo); ) foo = foo.slice(1);',
+
+	// Parentheses
+	'if ((0, foo).match(re)) {}',
+	'if ((0, foo).match((re))) {}',
+	'if ((foo).match(re)) {}',
+	'if ((foo).match((re))) {}',
+	'if (foo.match(/re/)) {}',
+	'if (foo.match(bar)) {}',
+	'if (foo.match(bar.baz)) {}',
+	'if (foo.match(bar.baz())) {}',
+	'if (foo.match(new RegExp("re", "g"))) {}',
+	'if (foo.match(new SomeRegExp())) {}',
+	'if (foo.match(new SomeRegExp)) {}',
+	'if (foo.match(bar?.baz)) {}',
+	'if (foo.match(bar?.baz())) {}',
+	'if (foo.match(bar || baz)) {}',
+	outdent`
+		async function a() {
+			if (foo.match(await bar())) {}
+		}
+	`,
+	'if ((foo).match(/re/)) {}',
+	'if ((foo).match(new SomeRegExp)) {}',
+	'if ((foo).match(bar?.baz)) {}',
+	'if ((foo).match(bar?.baz())) {}',
+	'if ((foo).match(bar || baz)) {}',
+	outdent`
+		async function a() {
+			if ((foo).match(await bar())) {}
+		}
+	`,
+	// Should not need handle ASI problem
+	'if (foo.match([re][0])) {}'
 ]);

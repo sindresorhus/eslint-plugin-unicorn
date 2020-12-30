@@ -1,4 +1,5 @@
 'use strict';
+const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const {isBooleanNode} = require('./utils/boolean');
@@ -46,9 +47,35 @@ const create = context => {
 				node,
 				messageId: MESSAGE_ID_STRING_MATCH,
 				* fix(fixer) {
-					yield fixer.replaceText(stringNode, sourceCode.getText(regexpNode));
 					yield fixer.replaceText(node.callee.property, 'test');
-					yield fixer.replaceText(regexpNode, sourceCode.getText(stringNode));
+
+					let stringText = sourceCode.getText(stringNode);
+					if (
+						!isParenthesized(regexpNode, sourceCode) &&
+						// Only `SequenceExpression` need add parentheses
+						stringNode.type === 'SequenceExpression'
+					) {
+						stringText = `(${stringText})`;
+					}
+					yield fixer.replaceText(regexpNode, stringText);
+
+					let regexpText = sourceCode.getText(regexpNode);
+					if (
+						!isParenthesized(stringNode, sourceCode) &&
+						!(
+							regexpNode.type === 'Literal' ||
+							regexpNode.type === 'Identifier' ||
+							regexpNode.type === 'MemberExpression' ||
+							regexpNode.type === 'CallExpression' ||
+							(regexpNode.type === 'NewExpression' && regexpText.endsWith(')'))
+						)
+					) {
+						regexpText = `(${regexpText})`;
+					}
+
+					// All nodes pass `isBooleanNode` can't have ASI problem
+
+					yield fixer.replaceText(stringNode, regexpText);
 				}
 			});
 		}
