@@ -102,17 +102,7 @@ class VisualizeRuleTester {
 				`,
 				t => {
 					const messages = linter.verify(code, verifyConfig);
-					if (messages.length > 0) {
-						console.log(messages);
-
-						throw new Error(outdent`
-							Errors reported for "valid" case:
-
-							${code}
-						`);
-					}
-
-					t.pass();
+					t.deepEqual(messages, [], 'Valid case should not has errors.');
 				}
 			);
 		}
@@ -128,13 +118,7 @@ class VisualizeRuleTester {
 				`,
 				t => {
 					const messages = linter.verify(code, verifyConfig);
-					if (messages.length === 0) {
-						throw new Error(outdent`
-							No errors reported for "invalid" case:
-
-							${code}
-						`);
-					}
+					t.notDeepEqual(messages, [], 'Invalid case should has at least one error.');
 
 					const fatalError = messages.find(({fatal}) => fatal);
 					if (fatalError) {
