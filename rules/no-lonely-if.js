@@ -42,7 +42,7 @@ const create = context => {
 
 	return {
 		[selector](inner) {
-			const {parent} = inner;
+			const {parent, test} = inner;
 			const outer = parent.type === 'BlockStatement' ? parent.parent : parent;
 
 			context.report({
@@ -50,7 +50,7 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				* fix(fixer) {
 					// Merge `test`
-					yield fixer.replaceText(outer.test, `${getTestNodeText(outer.test)} && ${getTestNodeText(inner.test)}`);
+					yield fixer.replaceText(outer.test, `${getTestNodeText(outer.test)} && ${getTestNodeText(test)}`);
 
 					// Replace `consequent`
 					const {consequent} = inner;

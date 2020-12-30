@@ -1,7 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {flatten} from 'lodash';
-import rule from '../rules/no-reduce';
+import rule from '../rules/no-array-reduce';
 import {outdent} from 'outdent';
 import notFunctionTypes from './utils/not-function-types';
 
@@ -133,4 +133,4 @@ const tests = {
 	].map(code => [{code, errors: errorsReduce}, {code: code.replace('reduce', 'reduceRight'), errors: errorsReduceRight}]))
 };
 
-ruleTester.run('no-reduce', rule, tests);
+ruleTester.run('no-array-reduce', rule, tests);

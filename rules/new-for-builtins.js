@@ -14,15 +14,15 @@ const disallowNew = new Set(builtins.disallowNew);
 const create = context => {
 	return {
 		CallExpression: node => {
-			const {callee} = node;
+			const {callee, parent} = node;
 			const {name} = callee;
 
 			if (
 				name === 'Object' &&
-				node.parent &&
-				node.parent.type === 'BinaryExpression' &&
-				(node.parent.operator === '===' || node.parent.operator === '!==') &&
-				(node.parent.left === node || node.parent.right === node)
+				parent &&
+				parent.type === 'BinaryExpression' &&
+				(parent.operator === '===' || parent.operator === '!==') &&
+				(parent.left === node || parent.right === node)
 			) {
 				return;
 			}
@@ -37,8 +37,8 @@ const create = context => {
 			}
 		},
 		NewExpression: node => {
-			const {callee} = node;
-			const {name} = callee;
+			const {callee, range} = node;
+			const {name, range: calleeRange} = callee;
 
 			if (disallowNew.has(name) && !isShadowed(context.getScope(), callee)) {
 				const problem = {
@@ -49,8 +49,8 @@ const create = context => {
 
 				if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
 					problem.fix = fixer => fixer.removeRange([
-						node.range[0],
-						node.callee.range[0]
+						range[0],
+						calleeRange[0]
 					]);
 				}
 

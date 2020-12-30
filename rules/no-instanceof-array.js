@@ -1,7 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const MESSAGE_ID = 'no-array-instanceof';
+const MESSAGE_ID = 'no-instanceof-array';
 const messages = {
 	[MESSAGE_ID]: 'Use `Array.isArray()` instead of `instanceof Array`.'
 };

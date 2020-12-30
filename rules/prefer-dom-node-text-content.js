@@ -1,7 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const MESSAGE_ID = 'prefer-text-content';
+const MESSAGE_ID = 'prefer-dom-node-text-content';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `.textContent` over `.innerText`.'
 };

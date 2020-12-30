@@ -2,7 +2,7 @@ import {test} from './utils/test';
 
 const errors = [
 	{
-		messageId: 'no-array-instanceof'
+		messageId: 'no-instanceof-array'
 	}
 ];
 
