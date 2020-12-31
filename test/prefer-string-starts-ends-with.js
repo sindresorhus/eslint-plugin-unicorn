@@ -133,3 +133,15 @@ test({
 		})
 	]
 });
+
+test.visualize([
+	'/^a/.test((0, "string"))',
+	'async function a() {return /^a/.test(await foo())}',
+	'/^a/.test(foo + bar)',
+	'/^a/.test(foo || bar)',
+	'/^a/.test(new SomeString)',
+	'/^a/.test(new SomeString())',
+	'/^a/.test(foo?.bar)',
+	'/^a/.test(foo?.bar())',
+	'(/^a/).test((0, "string"))'
+]);
