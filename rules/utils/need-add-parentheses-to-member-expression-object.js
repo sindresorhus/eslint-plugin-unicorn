@@ -18,6 +18,7 @@ function needAddParenthesesToMemberExpressionObject(node, sourceCode) {
 		case "MemberExpression":
 		case "CallExpression":
 		case "ChainExpression":
+		case "TemplateLiteral":
 			return false;
 		case "NewExpression": {
 			// `new Foo.bar` is different with `new Foo().bar`

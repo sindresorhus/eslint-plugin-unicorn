@@ -143,5 +143,7 @@ test.visualize([
 	'/^a/.test(new SomeString())',
 	'/^a/.test(foo?.bar)',
 	'/^a/.test(foo?.bar())',
+	'/^a/.test(`string`)',
+	'/^a/.test(tagged`string`)',
 	'(/^a/).test((0, "string"))'
 ]);
