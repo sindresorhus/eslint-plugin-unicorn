@@ -1,5 +1,7 @@
 'use strict';
 
+const {isNotOpeningParenToken, isNotClosingParenToken} = require('eslint-utils');
+
 /**
 Check if need add parentheses to node, when it's used as `object` of `MemberExpression`.
 
@@ -20,8 +22,15 @@ function needAddParenthesesToMemberExpressionObject(node, sourceCode) {
 			return false;
 
 		case 'NewExpression': {
-			// `new Foo.bar` is different with `new Foo().bar`
-			return !sourceCode.getText(node).endsWith(')');
+			// `new Foo` and `new (Foo)` need add `()`
+			if (node.arguments.length === 0) {
+				const [maybeOpeningParenthesisToken, maybeClosingParenthesisToken] = sourceCode.getLastTokens(node, 2);
+				if (isNotOpeningParenToken(maybeOpeningParenthesisToken) || isNotClosingParenToken(maybeClosingParenthesisToken)) {
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		case 'Literal': {
