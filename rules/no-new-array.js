@@ -1,6 +1,7 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const needsSemicolon = require('./utils/needs-semicolon');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_LENGTH = 'array-length';
@@ -33,12 +34,16 @@ function getProblem(context, node) {
 		text = `(${text})`;
 	}
 
+	const maybeSemiColon = needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[') ?
+		';' :
+		'';
+
 	// We are not sure how many `arguments` passed
 	if (argumentNode.type === 'SpreadElement') {
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SPREAD,
-				fix: fixer => fixer.replaceText(node, `[${text}]`)
+				fix: fixer => fixer.replaceText(node, `${maybeSemiColon}[${text}]`)
 			}
 		];
 		return problem;
@@ -46,7 +51,7 @@ function getProblem(context, node) {
 
 	const result = getStaticValue(argumentNode, context.getScope());
 	const fromLengthText = `Array.from(${text === 'length' ? '{length}' : `{length: ${text}}`})`;
-	const onlyElementText = `[${text}]`;
+	const onlyElementText = `${maybeSemiColon}[${text}]`;
 
 	// We don't know the argument is number or not
 	if (result === null) {

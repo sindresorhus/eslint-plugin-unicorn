@@ -57,6 +57,28 @@ test({
 				}
 			]
 		}),
+		suggestionCase({
+			code: outdent`
+				const foo = []
+				new Array(bar).forEach(baz)
+			`,
+			suggestions: [
+				{
+					messageId: MESSAGE_ID_LENGTH,
+					output: outdent`
+						const foo = []
+						Array.from({length: bar}).forEach(baz)
+					`
+				},
+				{
+					messageId: MESSAGE_ID_ONLY_ELEMENT,
+					output: outdent`
+						const foo = []
+						;[bar].forEach(baz)
+					`
+				}
+			]
+		}),
 		...[
 			'...[foo]',
 			'...foo',
@@ -82,6 +104,21 @@ test({
 					}
 				]
 			};
+		}),
+		suggestionCase({
+			code: outdent`
+				const foo = []
+				new Array(...bar).forEach(baz)
+			`,
+			suggestions: [
+				{
+					messageId: MESSAGE_ID_SPREAD,
+					output: outdent`
+						const foo = []
+						;[...bar].forEach(baz)
+					`
+				}
+			]
 		})
 	]
 });
@@ -103,5 +140,9 @@ test.visualize([
 	'const array = new Array("1")',
 	'const array = new Array(null)',
 	'const array = new Array(("1"))',
-	'const array = new Array((0, 1))'
+	'const array = new Array((0, 1))',
+	outdent`
+		const foo = []
+		new Array("bar").forEach(baz)
+	`
 ]);
