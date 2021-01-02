@@ -19,7 +19,6 @@ function needAddParenthesesToMemberExpressionObject(node, sourceCode) {
 		case 'ChainExpression':
 		case 'TemplateLiteral':
 			return false;
-
 		case 'NewExpression': {
 			// `new Foo` and `new (Foo)` need add `()`
 			if (node.arguments.length === 0) {
@@ -46,4 +45,4 @@ function needAddParenthesesToMemberExpressionObject(node, sourceCode) {
 	}
 }
 
-module.exports = needAddParenthesesToMemberExpressionObject;
+module.exports = shouldAddParenthesesToMemberExpressionObject;
