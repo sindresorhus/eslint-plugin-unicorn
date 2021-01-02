@@ -143,6 +143,7 @@ test.visualize([
 	'/^a/.test(new SomeString)',
 	'/^a/.test(new (SomeString))',
 	'/^a/.test(new SomeString())',
+	'/^a/.test(new new SomeClassReturnsAStringSubClass())',
 	'/^a/.test(new SomeString(/* comment */))',
 	'/^a/.test(new SomeString("string"))',
 	'/^a/.test(foo.bar)',
