@@ -1,5 +1,7 @@
 'use strict';
 
+const isLogicalExpression = require('./is-logical-expression');
+
 const isLogicNot = node =>
 	node &&
 	node.type === 'UnaryExpression' &&
@@ -48,7 +50,7 @@ function isBooleanNode(node) {
 		return true;
 	}
 
-	if (parent.type === 'LogicalExpression') {
+	if (isLogicalExpression(parent)) {
 		return isBooleanNode(parent);
 	}
 

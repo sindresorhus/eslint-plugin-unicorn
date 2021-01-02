@@ -25,6 +25,7 @@ test({
 		// Not `boolean`
 		'const bar = foo.find(fn)',
 		'const bar = foo.find(fn) || baz',
+		'if (foo.find(fn) ?? bar) {}',
 
 		// Not matched `CallExpression`
 		...[
