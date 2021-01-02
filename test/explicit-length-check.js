@@ -58,6 +58,8 @@ test({
 		'const x = Boolean(foo.length, foo.length)',
 		'const x = new Boolean(foo.length)',
 		'const x = NotBoolean(foo.length)',
+		'const length = foo.length ?? 0',
+		'if (foo.length ?? bar) {}',
 
 		// Checking 'non-zero'
 		'if (foo.length > 0) {}',
