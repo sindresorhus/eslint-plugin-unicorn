@@ -40,6 +40,11 @@ function create(context) {
 		return isParenthesized(node, sourceCode) ? `(${text})` : text;
 	};
 
+	const fixLength = (node, text) => fixer => {
+		const arrayLike = text === 'length' ? '{length}' : `{length: ${text}}`;
+		return fixer.replaceText(node, `Array.from(${arrayLike})`)
+	};
+
 	return {
 		[newArraySelector](node) {
 			const [argumentNode] = node.arguments;
@@ -60,7 +65,7 @@ function create(context) {
 					suggest: [
 						{
 							messageId: MESSAGE_ID_LENGTH,
-							fix: fixer => fixer.replaceText(node, `Array.from({length: ${text}})`)
+							fix: fixLength(node, text)
 						},
 						{
 							messageId: MESSAGE_ID_FIRST_ELEMENT,
@@ -78,7 +83,7 @@ function create(context) {
 				context.report({
 					node,
 					messageId: MESSAGE_ID_ERROR,
-					fix: fixer => fixer.replaceText(node, `Array.from({length: ${text}}`)
+					fix: fixLength(node, text)
 				});
 				return;
 			}

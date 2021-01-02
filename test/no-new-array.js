@@ -44,6 +44,19 @@ test({
 				}
 			]
 		}),
+		suggestionCase({
+			code: 'const array = new Array(length)',
+			suggestions: [
+				{
+					messageId: MESSAGE_ID_LENGTH,
+					output: 'const array = Array.from({length})'
+				},
+				{
+					messageId: MESSAGE_ID_FIRST_ELEMENT,
+					output: 'const array = [length]'
+				}
+			]
+		}),
 		...[
 			'...[foo]',
 			'...foo',
@@ -79,6 +92,11 @@ test.visualize([
 	outdent`
 		const zero = 0;
 		const array = new Array(zero);
+	`,
+	// Use shorthand
+	outdent`
+		const length = 1;
+		const array = new Array(length);
 	`,
 	'const array = new Array(1.5)',
 	'const array = new Array(Number("1"))',
