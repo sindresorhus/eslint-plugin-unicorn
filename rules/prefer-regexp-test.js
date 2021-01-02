@@ -79,7 +79,7 @@ const create = context => {
 						regexpText = `(${regexpText})`;
 					}
 
-					// All nodes pass `isBooleanNode` can't have ASI problem
+					// The nodes that pass `isBooleanNode` cannot have an ASI problem.
 
 					yield fixer.replaceText(stringNode, regexpText);
 				}
