@@ -26,14 +26,16 @@ const create = context => {
 
 	return {
 		[regExpExecCallSelector](node) {
-			if (isBooleanNode(node)) {
-				node = node.callee.property;
-				context.report({
-					node,
-					messageId: MESSAGE_ID_REGEXP_EXEC,
-					fix: fixer => fixer.replaceText(node, 'test')
-				});
+			if (!isBooleanNode(node)) {
+				return;
 			}
+
+			node = node.callee.property;
+			context.report({
+				node,
+				messageId: MESSAGE_ID_REGEXP_EXEC,
+				fix: fixer => fixer.replaceText(node, 'test')
+			});
 		},
 		[stringMatchCallSelector](node) {
 			if (!isBooleanNode(node)) {
