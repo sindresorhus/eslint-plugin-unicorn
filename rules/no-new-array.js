@@ -16,19 +16,11 @@ const newArraySelector = [
 	'NewExpression',
 	'[callee.type="Identifier"]',
 	'[callee.name="Array"]',
-	'[arguments.length<2]'
+	'[arguments.length=1]'
 ].join('');
 
 function create(context) {
 	const sourceCode = context.getSourceCode();
-
-	const reportEmptyArray = node => {
-		context.report({
-			node,
-			messageId: MESSAGE_ID_ERROR,
-			fix: fixer => fixer.replaceText(node, '[]')
-		});
-	};
 
 	const reportSpreadElementArray = node => {
 		context.report({
@@ -50,12 +42,6 @@ function create(context) {
 
 	return {
 		[newArraySelector](node) {
-			// Empty array
-			if (node.arguments.length === 0) {
-				reportEmptyArray(node);
-				return;
-			}
-
 			const [argumentNode] = node.arguments;
 			// We are not sure how many `arguments` passed
 			if (argumentNode.type === 'SpreadElement') {

@@ -22,6 +22,8 @@ test({
 		'const array = Array.from({length: 1})',
 
 		// ESLint builtin rule `no-array-constructor` cases
+		'const array = new Array()',
+		'const array = new Array',
 		'const array = new Array(1, 2)',
 		'const array = Array(1, 2)',
 
@@ -72,8 +74,6 @@ test({
 });
 
 test.visualize([
-	'const array = new Array()',
-	'const array = new Array',
 	'const array = new Array(1)',
 	// This is actually `[]`, but we fix to `Array.from({length: zero})`
 	outdent`
