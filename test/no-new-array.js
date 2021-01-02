@@ -3,7 +3,7 @@ import {test} from './utils/test';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_LENGTH = 'array-length';
-const MESSAGE_ID_FIRST_ELEMENT = 'first-element';
+const MESSAGE_ID_ONLY_ELEMENT = 'only-element';
 const MESSAGE_ID_SPREAD = 'spread';
 
 const suggestionCase = ({code, suggestions}) => ({
@@ -39,7 +39,7 @@ test({
 					output: 'const array = Array.from({length: foo})'
 				},
 				{
-					messageId: MESSAGE_ID_FIRST_ELEMENT,
+					messageId: MESSAGE_ID_ONLY_ELEMENT,
 					output: 'const array = [foo]'
 				}
 			]
@@ -52,7 +52,7 @@ test({
 					output: 'const array = Array.from({length})'
 				},
 				{
-					messageId: MESSAGE_ID_FIRST_ELEMENT,
+					messageId: MESSAGE_ID_ONLY_ELEMENT,
 					output: 'const array = [length]'
 				}
 			]
