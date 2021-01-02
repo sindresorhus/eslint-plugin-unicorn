@@ -16,6 +16,10 @@ const array = new Array(length);
 const array = new Array(onlyElement);
 ```
 
+```js
+const array = new Array(...unknownArgumentsList);
+```
+
 ## Pass
 
 ```js
@@ -24,4 +28,8 @@ const array = Array.from({length});
 
 ```js
 const array = [onlyElement];
+```
+
+```js
+const array = [...items];
 ```
