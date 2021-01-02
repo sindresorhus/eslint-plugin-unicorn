@@ -8,8 +8,8 @@ const MESSAGE_ID_ONLY_ELEMENT = 'only-element';
 const MESSAGE_ID_SPREAD = 'spread';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Do not use `new Array()`.',
-	[MESSAGE_ID_LENGTH]: 'The argument is length of array.',
-	[MESSAGE_ID_ONLY_ELEMENT]: 'The argument is first element of array.',
+	[MESSAGE_ID_LENGTH]: 'The argument is the length of array.',
+	[MESSAGE_ID_ONLY_ELEMENT]: 'The argument is the only element of array.',
 	[MESSAGE_ID_SPREAD]: 'Spread the argument.'
 };
 const newArraySelector = [
