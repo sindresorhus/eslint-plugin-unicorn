@@ -14,6 +14,6 @@ This function rejects coalesce expressions of `LogicalExpression` node.
 const isLogicalExpression = node =>
 	node &&
 	node.type === 'LogicalExpression' &&
-	node.operator === '&&' || node.operator === '||';
+	(node.operator === '&&' || node.operator === '||');
 
 module.exports = isLogicalExpression;
