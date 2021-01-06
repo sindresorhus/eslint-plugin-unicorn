@@ -2,7 +2,7 @@
 
 const {isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
 
-// Determines whether this node is a decimal integer literal.
+// Determine whether this node is a decimal integer literal.
 // Copied from https://github.com/eslint/eslint/blob/cc4871369645c3409dc56ded7a555af8a9f63d51/lib/rules/utils/ast-utils.js#L1237
 const DECIMAL_INTEGER_PATTERN = /^(?:0|0[0-7]*[89]\d*|[1-9](?:_?\d)*)$/u;
 const isDecimalInteger = node =>
@@ -11,10 +11,11 @@ const isDecimalInteger = node =>
 	DECIMAL_INTEGER_PATTERN.test(node.raw);
 
 /**
-Determines if a constructor function is newed-up with parens
-@param {Node} node - The NewExpression node to be checked.
+Determine if a constructor function is newed-up with parens.
+
+@param {Node} node - The `NewExpression` node to be checked.
 @param {SourceCode} sourceCode - The source code object.
-@returns {boolean} - True if the constructor is called with parens.
+@returns {boolean} True if the constructor is called with parens.
 
 Copied from https://github.com/eslint/eslint/blob/cc4871369645c3409dc56ded7a555af8a9f63d51/lib/rules/no-extra-parens.js#L252
 */
@@ -24,7 +25,7 @@ function isNewExpressionWithParentheses(node, sourceCode) {
 	}
 
 	const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
-	// The expression should end with its own parens, e.g., new new Foo() is not a new expression with parens
+	// The expression should end with its own parens, for example, `new new Foo()` is not a new expression with parens.
 	return isOpeningParenToken(penultimateToken) &&
 		isClosingParenToken(lastToken) &&
 		node.callee.range[1] < node.range[1];
