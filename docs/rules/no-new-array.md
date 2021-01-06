@@ -1,10 +1,10 @@
 # Disallow `new Array()`
 
-The ESLint builtin rule [`no-array-constructor`](https://eslint.org/docs/rules/no-array-constructor) enforce use array literal notation instead of use of the `Array` constructor, but it allow use the `Array` constructor with **one** argument, this rule fills that gap.
+The ESLint built-in rule [`no-array-constructor`](https://eslint.org/docs/rules/no-array-constructor) enforces using an array literal instead of the `Array` constructor, but it still allows using the `Array` constructor with **one** argument. This rule fills that gap.
 
-When use the `Array` constructor with one argument, it not clear that the argument is the length of array or the only element.
+When using the `Array` constructor with one argument, it's not clear whether the argument is meant to be the length of the array or the only element.
 
-This rule is fixable, if the value type of the argument is known.
+This rule is fixable if the value type of the argument is known.
 
 ## Fail
 
