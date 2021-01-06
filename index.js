@@ -64,6 +64,7 @@ module.exports = {
 				'unicorn/no-lonely-if': 'error',
 				'no-nested-ternary': 'off',
 				'unicorn/no-nested-ternary': 'error',
+				'unicorn/no-new-array': 'error',
 				'unicorn/no-new-buffer': 'error',
 				'unicorn/no-null': 'error',
 				'unicorn/no-object-as-default-parameter': 'error',
