@@ -3,6 +3,7 @@ const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const quoteString = require('./utils/quote-string');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
@@ -79,7 +80,7 @@ const create = context => {
 					if (
 						// If regex is parenthesized, we can use it, so we don't need add again
 						!isParenthesized(regexNode, sourceCode) &&
-						(isParenthesized(target, sourceCode) || target.type === 'AwaitExpression')
+						(isParenthesized(target, sourceCode) || shouldAddParenthesesToMemberExpressionObject(target, sourceCode))
 					) {
 						targetString = `(${targetString})`;
 					}
