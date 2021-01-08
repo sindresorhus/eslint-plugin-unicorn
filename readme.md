@@ -89,6 +89,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-optional-catch-binding": "error",
 			"unicorn/prefer-query-selector": "error",
 			"unicorn/prefer-reflect-apply": "error",
+			"unicorn/prefer-regexp-test": "error",
 			"unicorn/prefer-set-has": "error",
 			"unicorn/prefer-spread": "error",
 			"unicorn/prefer-string-replace-all": "off",
@@ -162,6 +163,7 @@ Configure it in `package.json`.
 - [prefer-optional-catch-binding](docs/rules/prefer-optional-catch-binding.md) - Prefer omitting the `catch` binding parameter. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. *(partly fixable)*
 - [prefer-reflect-apply](docs/rules/prefer-reflect-apply.md) - Prefer `Reflect.apply()` over `Function#apply()`. *(fixable)*
+- [prefer-regexp-test](docs/rules/prefer-regexp-test.md) - Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`. *(fixable)*
 - [prefer-set-has](docs/rules/prefer-set-has.md) - Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence. *(fixable)*
 - [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
 - [prefer-string-replace-all](docs/rules/prefer-string-replace-all.md) - Prefer `String#replaceAll()` over regex searches with the global flag. *(fixable)*

@@ -97,6 +97,7 @@ module.exports = {
 				'unicorn/prefer-optional-catch-binding': 'error',
 				'unicorn/prefer-query-selector': 'error',
 				'unicorn/prefer-reflect-apply': 'error',
+				'unicorn/prefer-regexp-test': 'error',
 				'unicorn/prefer-set-has': 'error',
 				'unicorn/prefer-spread': 'error',
 				// TODO: Enable this by default when targeting Node.js 16.
