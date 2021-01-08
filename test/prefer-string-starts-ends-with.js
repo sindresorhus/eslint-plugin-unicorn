@@ -133,3 +133,24 @@ test({
 		})
 	]
 });
+
+test.visualize([
+	'/^a/.test("string")',
+	'/^a/.test((0, "string"))',
+	'async function a() {return /^a/.test(await foo())}',
+	'/^a/.test(foo + bar)',
+	'/^a/.test(foo || bar)',
+	'/^a/.test(new SomeString)',
+	'/^a/.test(new (SomeString))',
+	'/^a/.test(new SomeString())',
+	'/^a/.test(new new SomeClassReturnsAStringSubClass())',
+	'/^a/.test(new SomeString(/* comment */))',
+	'/^a/.test(new SomeString("string"))',
+	'/^a/.test(foo.bar)',
+	'/^a/.test(foo.bar())',
+	'/^a/.test(foo?.bar)',
+	'/^a/.test(foo?.bar())',
+	'/^a/.test(`string`)',
+	'/^a/.test(tagged`string`)',
+	'(/^a/).test((0, "string"))'
+]);

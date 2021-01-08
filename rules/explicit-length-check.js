@@ -2,6 +2,7 @@
 const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
+const isLogicalExpression = require('./utils/is-logical-expression');
 const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean');
 
 const TYPE_NON_ZERO = 'non-zero';
@@ -165,7 +166,7 @@ function create(context) {
 				if (isBooleanNode(ancestor)) {
 					isZeroLengthCheck = isNegative;
 					node = ancestor;
-				} else if (lengthNode.parent.type === 'LogicalExpression') {
+				} else if (isLogicalExpression(lengthNode.parent)) {
 					isZeroLengthCheck = isNegative;
 					node = lengthNode;
 					autoFix = false;
