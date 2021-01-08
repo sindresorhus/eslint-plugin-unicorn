@@ -3,6 +3,7 @@ const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const {isBooleanNode} = require('./utils/boolean');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 
 const MESSAGE_ID_REGEXP_EXEC = 'regexp-exec';
 const MESSAGE_ID_STRING_MATCH = 'string-match';
@@ -70,13 +71,7 @@ const create = context => {
 					let regexpText = sourceCode.getText(regexpNode);
 					if (
 						!isParenthesized(stringNode, sourceCode) &&
-						!(
-							regexpNode.type === 'Literal' ||
-							regexpNode.type === 'Identifier' ||
-							regexpNode.type === 'MemberExpression' ||
-							regexpNode.type === 'CallExpression' ||
-							(regexpNode.type === 'NewExpression' && regexpText.endsWith(')'))
-						)
+						shouldAddParenthesesToMemberExpressionObject(regexpNode, sourceCode)
 					) {
 						regexpText = `(${regexpText})`;
 					}
