@@ -170,7 +170,7 @@ Configure it in `package.json`.
 - [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
 - [prefer-string-replace-all](docs/rules/prefer-string-replace-all.md) - Prefer `String#replaceAll()` over regex searches with the global flag. *(fixable)*
 - [prefer-string-slice](docs/rules/prefer-string-slice.md) - Prefer `String#slice()` over `String#substr()` and `String#substring()`. *(partly fixable)*
-- [prefer-string-starts-ends-with](docs/rules/prefer-string-starts-ends-with.md) - Prefer `String#startsWith()` & `String#endsWith()` over more complex alternatives. *(partly fixable)*
+- [prefer-string-starts-ends-with](docs/rules/prefer-string-starts-ends-with.md) - Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`. *(fixable)*
 - [prefer-string-trim-start-end](docs/rules/prefer-string-trim-start-end.md) - Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`. *(fixable)*
 - [prefer-ternary](docs/rules/prefer-ternary.md) - Prefer ternary expressions over simple `if-else` statements. *(fixable)*
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*
