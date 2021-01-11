@@ -24,11 +24,6 @@ const regexTestSelector = [
 	'[callee.object.regex]'
 ].join('');
 
-const stringMatchSelector = [
-	methodSelector({name: 'match', length: 1}),
-	'[arguments.0.regex]'
-].join('');
-
 const checkRegex = ({pattern, flags}) => {
 	if (flags.includes('i') || flags.includes('m')) {
 		return;
@@ -96,18 +91,6 @@ const create = context => {
 						fixer.replaceText(target, quoteString(result.string))
 					];
 				}
-			});
-		},
-		[stringMatchSelector](node) {
-			const {regex} = node.arguments[0];
-			const result = checkRegex(regex);
-			if (!result) {
-				return;
-			}
-
-			context.report({
-				node,
-				messageId: result.messageId
 			});
 		}
 	};
