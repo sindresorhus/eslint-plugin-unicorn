@@ -1,4 +1,4 @@
-import {test} from './utils/test';
+import {test} from './utils/test.js';
 
 const MESSAGE_ZERO_FRACTION = 'zero-fraction';
 const MESSAGE_DANGLING_DOT = 'dangling-dot';

@@ -1,5 +1,5 @@
 import {outdent} from 'outdent';
-import {test} from './utils/test';
+import {test} from './utils/test.js';
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';

@@ -1,5 +1,5 @@
 import {outdent} from 'outdent';
-import {test} from './utils/test';
+import {test} from './utils/test.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';

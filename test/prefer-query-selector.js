@@ -1,6 +1,6 @@
-import {test} from './utils/test';
-import notDomNodeTypes from './utils/not-dom-node-types';
 import {outdent} from 'outdent';
+import {test} from './utils/test.js';
+import notDomNodeTypes from './utils/not-dom-node-types.js';
 
 test({
 	valid: [

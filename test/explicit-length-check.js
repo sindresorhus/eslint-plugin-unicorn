@@ -1,5 +1,5 @@
 import {outdent} from 'outdent';
-import {test} from './utils/test';
+import {test} from './utils/test.js';
 
 const suggestionCase = ({code, output, desc, options = []}) => {
 	const suggestion = {output};
