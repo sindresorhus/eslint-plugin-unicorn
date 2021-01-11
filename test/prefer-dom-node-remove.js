@@ -1,6 +1,6 @@
 import {outdent} from 'outdent';
-import {test} from './utils/test';
-import notDomNodeTypes from './utils/not-dom-node-types';
+import {test} from './utils/test.js';
+import notDomNodeTypes from './utils/not-dom-node-types.js';
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_MESSAGE_ID = 'suggestion';

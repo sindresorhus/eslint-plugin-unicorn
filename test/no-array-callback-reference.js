@@ -1,8 +1,8 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import {rule} from './utils/test';
-import notFunctionTypes from './utils/not-function-types';
+import {rule} from './utils/test.js';
+import notFunctionTypes from './utils/not-function-types.js';
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';

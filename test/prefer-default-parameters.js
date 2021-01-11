@@ -1,7 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-default-parameters';
+import rule from '../rules/prefer-default-parameters.js';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
@@ -192,7 +192,7 @@ ruleTester.run('prefer-default-parameters', rule, {
 			function abc(foo) {
 				sideEffects();
 				foo = foo || 123;
-			
+
 				function sideEffects() {
 					foo = 456;
 				}
@@ -202,7 +202,7 @@ ruleTester.run('prefer-default-parameters', rule, {
 			function abc(foo) {
 				const bar = sideEffects();
 				foo = foo || 123;
-			
+
 				function sideEffects() {
 					foo = 456;
 				}
@@ -212,7 +212,7 @@ ruleTester.run('prefer-default-parameters', rule, {
 			function abc(foo) {
 				const bar = sideEffects() + 123;
 				foo = foo || 123;
-			
+
 				function sideEffects() {
 					foo = 456;
 				}
@@ -222,7 +222,7 @@ ruleTester.run('prefer-default-parameters', rule, {
 			function abc(foo) {
 				const bar = !sideEffects();
 				foo = foo || 123;
-			
+
 				function sideEffects() {
 					foo = 456;
 				}
@@ -626,7 +626,7 @@ ruleTester.run('prefer-default-parameters', rule, {
 				const abc = function(foo) {
 					let bar = true;
 					bar = false;
-				
+
 					foo = foo || 123;
 					console.log(foo);
 				}

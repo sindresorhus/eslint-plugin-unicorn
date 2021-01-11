@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import test from 'ava';
 import pify from 'pify';
-import index from '..';
+import index from '../index.js';
 
 let ruleFiles;
 
