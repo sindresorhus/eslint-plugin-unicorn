@@ -147,6 +147,7 @@ const create = context => {
 
 	for (const [method, options] of iteratorMethods) {
 		const selector = [
+			method === 'reduce' || method === 'reduceRight' ? '' : ':not(AwaitExpression) > ',
 			methodSelector({
 				name: method,
 				min: 1,
@@ -156,6 +157,7 @@ const create = context => {
 			ignoredCalleeSelector,
 			ignoredFirstArgumentSelector
 		].join('');
+
 		rules[selector] = node => {
 			const [iterator] = node.arguments;
 			check(context, iterator, method, options, sourceCode);
