@@ -8,7 +8,8 @@ module.exports = options => {
 		object,
 		min,
 		max,
-		property = ''
+		property = '',
+		includeOptional = false
 	} = {
 		min: 0,
 		max: Number.POSITIVE_INFINITY,
@@ -20,9 +21,12 @@ module.exports = options => {
 	const selector = [
 		`[${prefix}type="CallExpression"]`,
 		`[${prefix}callee.type="MemberExpression"]`,
-		`[${prefix}callee.computed=false]`,
 		`[${prefix}callee.property.type="Identifier"]`
 	];
+
+	if (!includeOptional) {
+		selector.push(`[${prefix}callee.computed=false]`);
+	}
 
 	if (name) {
 		selector.push(`[${prefix}callee.property.name="${name}"]`);
