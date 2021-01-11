@@ -101,7 +101,6 @@ ruleTester.run('no-array-callback-reference', rule, {
 
 		// Exclude await expressions
 		...simpleMethods.map(method => `(async () => await foo.${method}(bar))()`),
-		...reduceLikeMethods.map(method => `(async () => await foo.${method}(bar))()`),
 
 		// #813
 		outdent`
@@ -339,6 +338,32 @@ ruleTester.run('no-array-callback-reference', rule, {
 				outdent`
 					async function fn() {
 						for await (const foo of bar.map((element, index, array) => toPromise(element, index, array))) {}
+					}
+				`
+			]
+		}),
+		invalidTestCase({
+			code: outdent`
+				async function fn() {
+					await foo.reduce(foo, Promise.resolve())
+				}
+			`,
+			method: 'reduce',
+			name: 'foo',
+			suggestions: [
+				outdent`
+					async function fn() {
+						await foo.reduce((accumulator, element) => foo(accumulator, element), Promise.resolve())
+					}
+				`,
+				outdent`
+					async function fn() {
+						await foo.reduce((accumulator, element, index) => foo(accumulator, element, index), Promise.resolve())
+					}
+				`,
+				outdent`
+					async function fn() {
+						await foo.reduce((accumulator, element, index, array) => foo(accumulator, element, index, array), Promise.resolve())
 					}
 				`
 			]
