@@ -1,9 +1,6 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-number-properties';
+import {test} from './utils/test';
 
-const ruleId = 'prefer-number-properties';
 const METHOD_ERROR_MESSAGE_ID = 'method-error';
 const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
 const PROPERTY_ERROR_MESSAGE_ID = 'property-error';
@@ -26,16 +23,6 @@ const methods = {
 		code: 'isFinite(10);'
 	}
 };
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2020
-	}
-});
-
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
 
 const createError = (name, suggestionOutput) => {
 	const {safe} = methods[name];
@@ -76,7 +63,7 @@ const invalidMethodTest = ({code, output, name, suggestionOutput}) => {
 };
 
 // Methods
-ruleTester.run(ruleId, rule, {
+test({
 	valid: [
 		'Number.parseInt("10", 2);',
 		'Number.parseFloat("10.5");',
@@ -166,20 +153,27 @@ ruleTester.run(ruleId, rule, {
 	]
 });
 
-// NaN
+// `NaN` and `Infinity`
 const errorNaN = [
 	{
 		messageId: PROPERTY_ERROR_MESSAGE_ID,
 		data: {
-			name: 'NaN'
+			identifier: 'NaN',
+			property: 'NaN'
 		}
 	}
 ];
-ruleTester.run(ruleId, rule, {
+
+// TODO: Add following tests whenESLint support `proposal-class-fields`
+// 'class Foo {NaN = 1}',
+// 'class Foo {[NaN] = 1}',
+test({
 	valid: [
 		'const foo = Number.NaN;',
 		'const foo = window.Number.NaN;',
 		'const foo = bar.NaN;',
+		'const foo = nan;',
+		'const foo = "NaN";',
 		// Shadowed
 		outdent`
 			function foo () {
@@ -190,7 +184,36 @@ ruleTester.run(ruleId, rule, {
 		'const {NaN} = {};',
 		'function NaN() {}',
 		'class NaN {}',
-		'class Foo { NaN(){}}'
+		'class Foo {NaN(){}}',
+
+		'const foo = Number.POSITIVE_INFINITY;',
+		'const foo = window.Number.POSITIVE_INFINITY;',
+		'const foo = bar.POSITIVE_INFINITY;',
+		'const foo = Number.Infinity;',
+		'const foo = window.Number.Infinity;',
+		'const foo = bar.Infinity;',
+		'const foo = infinity;',
+		'const foo = "Infinity";',
+		'const foo = "-Infinity";',
+		// Shadowed
+		outdent`
+			function foo () {
+				const Infinity = 2
+				return Infinity
+			}
+		`,
+		'const {Infinity} = {};',
+		'function Infinity() {}',
+		'class Infinity {}',
+		'class Foo { Infinity(){}}',
+		{
+			code: 'const foo = Infinity;',
+			options: [{checkInfinity: false}]
+		},
+		{
+			code: 'const foo = -Infinity;',
+			options: [{checkInfinity: false}]
+		}
 	],
 	invalid: [
 		{
@@ -216,8 +239,7 @@ ruleTester.run(ruleId, rule, {
 		{
 			code: 'const foo = {NaN};',
 			output: 'const foo = {NaN: Number.NaN};',
-			// TODO: should be one error
-			errors: [...errorNaN, ...errorNaN]
+			errors: errorNaN
 		},
 		{
 			code: 'const foo = {NaN: NaN};',
@@ -237,7 +259,20 @@ ruleTester.run(ruleId, rule, {
 	]
 });
 
-typescriptRuleTester.run(ruleId, rule, {
+test.babel({
+	valid: [
+		'class Foo2 {NaN = 1}'
+	],
+	invalid: [
+		{
+			code: 'class Foo2 {[NaN] = 1}',
+			output: 'class Foo2 {[Number.NaN] = 1}',
+			errors: 1
+		}
+	]
+});
+
+test.typescript({
 	valid: [
 		// https://github.com/angular/angular/blob/b4972fa1656101c02c92ddbf247db6e0de139937/packages/common/src/i18n/locale_data_api.ts#L178
 		{
@@ -260,7 +295,48 @@ typescriptRuleTester.run(ruleId, rule, {
 				}
 			`
 		},
-		'declare function NaN(s: string, radix?: number): number;'
+		'declare function NaN(s: string, radix?: number): number;',
+		'class Foo {NaN = 1}'
 	],
-	invalid: []
+	invalid: [
+		{
+			code: 'class Foo {[NaN] = 1}',
+			output: 'class Foo {[Number.NaN] = 1}',
+			errors: 1
+		}
+	]
 });
+
+test.visualize([
+	'const foo = {[NaN]: 1}',
+	'const foo = {[NaN]() {}}',
+	'foo[NaN] = 1;',
+	'class A {[NaN](){}}',
+	'foo = {[NaN]: 1}',
+
+	'const foo = Infinity;',
+	'if (Number.isNaN(Infinity)) {}',
+	'if (Object.is(foo, Infinity)) {}',
+	'const foo = bar[Infinity];',
+	'const foo = {Infinity};',
+	'const foo = {Infinity: Infinity};',
+	'const foo = {[Infinity]: -Infinity};',
+	'const foo = {[-Infinity]: Infinity};',
+	'const foo = {Infinity: -Infinity};',
+	'const {foo = Infinity} = {};',
+	'const {foo = -Infinity} = {};',
+	'const foo = Infinity.toString();',
+	'const foo = -Infinity.toString();',
+	'const foo = (-Infinity).toString();',
+	'const foo = +Infinity;',
+	'const foo = ++Infinity;',
+	'const foo = +-Infinity;',
+	'const foo = -Infinity;',
+	'const foo = --Infinity;',
+	'const foo = -(-Infinity);',
+	'const foo = -(--Infinity);',
+	'const foo = 1 - Infinity;',
+	'const foo = 1 - -Infinity;',
+	'const isPositiveZero = value => value === 0 && 1 / value === Infinity;',
+	'const isNegativeZero = value => value === 0 && 1 / value === -Infinity;'
+]);

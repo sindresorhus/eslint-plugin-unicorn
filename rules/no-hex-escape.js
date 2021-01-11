@@ -2,13 +2,18 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const replaceTemplateElement = require('./utils/replace-template-element');
 
+const MESSAGE_ID = 'no-hex-escape';
+const messages = {
+	[MESSAGE_ID]: 'Use Unicode escapes instead of hexadecimal escapes.'
+};
+
 function checkEscape(context, node, value) {
 	const fixedValue = value.replace(/(?<=(?:^|[^\\])(?:\\\\)*\\)x/g, 'u00');
 
 	if (value !== fixedValue) {
 		context.report({
 			node,
-			message: 'Use Unicode escapes instead of hexadecimal escapes.',
+			messageId: MESSAGE_ID,
 			fix: fixer =>
 				node.type === 'TemplateElement' ?
 					replaceTemplateElement(fixer, node, fixedValue) :
@@ -37,6 +42,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
+		messages,
 		fixable: 'code'
 	}
 };

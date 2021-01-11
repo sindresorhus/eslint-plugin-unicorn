@@ -1,7 +1,9 @@
 'use strict';
 const {Linter} = require('eslint');
 const {codeFrameColumns} = require('@babel/code-frame');
-const codeFrameColumnsOptions = {linesAbove: Infinity, linesBelow: Infinity};
+const {outdent} = require('outdent');
+
+const codeFrameColumnsOptions = {linesAbove: Number.POSITIVE_INFINITY, linesBelow: Number.POSITIVE_INFINITY};
 
 function visualizeRange(text, location, message) {
 	return codeFrameColumns(
@@ -30,7 +32,51 @@ function visualizeEslintResult(text, result) {
 		};
 	}
 
-	return `\n${visualizeRange(text, location, message)}\n`;
+	return visualizeRange(text, location, message);
+}
+
+const getVerifyConfig = (ruleId, testerConfig, options) => ({
+	...testerConfig,
+	rules: {
+		[ruleId]: ['error', ...(Array.isArray(options) ? options : [])]
+	}
+});
+
+const printCode = code => codeFrameColumns(code, {start: {line: 0, column: 0}}, codeFrameColumnsOptions);
+
+function createSnapshot({fixable, code, options, fixed, output, messages}) {
+	const parts = [];
+
+	if (Array.isArray(options)) {
+		parts.push(outdent`
+			Options:
+			${JSON.stringify(options, undefined, 2)}
+		`);
+	}
+
+	if (fixable) {
+		parts.push(
+			outdent`
+				Input:
+				${printCode(code)}
+			`,
+			outdent`
+				Output:
+				${fixed ? printCode(output) : '[Same as input]'}
+			`
+		);
+	}
+
+	parts.push(
+		messages
+			.map(
+				(error, index, messages) =>
+					`Error ${index + 1}/${messages.length}:\n${visualizeEslintResult(code, error)}`
+			)
+			.join('\n')
+	);
+
+	return `\n${parts.join('\n\n')}\n`;
 }
 
 class VisualizeRuleTester {
@@ -41,31 +87,30 @@ class VisualizeRuleTester {
 
 	run(ruleId, rule, tests) {
 		const {test, config} = this;
+		const fixable = rule.meta && rule.meta.fixable;
 		const linter = new Linter();
-		const verifyConfig = {
-			...config,
-			rules: {
-				[ruleId]: 'error'
-			}
-		};
-
 		linter.defineRule(ruleId, rule);
 
-		for (const [index, code] of tests.entries()) {
+		for (const [index, testCase] of tests.entries()) {
+			const {code, options} = typeof testCase === 'string' ? {code: testCase} : testCase;
+			const verifyConfig = getVerifyConfig(ruleId, config, options);
+
 			test(`${ruleId} - #${index + 1}`, t => {
-				const results = linter.verify(code, verifyConfig);
-
-				if (results.length !== 1) {
-					throw new Error('Visualize test should has exactly one error.');
+				const messages = linter.verify(code, verifyConfig);
+				if (messages.length === 0) {
+					throw new Error('No errors reported.');
 				}
 
-				const [error] = results;
-
-				if (error.fatal) {
-					throw new Error(error.message);
+				const fatalError = messages.find(({fatal}) => fatal);
+				if (fatalError) {
+					throw fatalError;
 				}
 
-				t.snapshot(visualizeEslintResult(code, error));
+				const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig) : {fixed: false};
+
+				t.snapshot(
+					createSnapshot({fixable, code, options, fixed, output, messages})
+				);
 			});
 		}
 	}

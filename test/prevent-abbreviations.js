@@ -1,7 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prevent-abbreviations';
+import {test as runTest, rule} from './utils/test';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -18,26 +18,10 @@ const browserES5RuleTester = avaRuleTester(test, {
 	}
 });
 
-const moduleRuleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2020,
-		sourceType: 'module'
-	}
-});
-
-const babelRuleTester = avaRuleTester(test, {
-	parser: require.resolve('babel-eslint')
-});
-
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
-
 const noFixingTestCase = test => ({...test, output: test.code});
 
 const createErrors = message => {
-	const error = {
-	};
+	const error = {};
 
 	if (message) {
 		error.message = message;
@@ -136,6 +120,17 @@ const noExtendDefaultWhitelistOptions = [
 			err: true
 		},
 		extendDefaultWhitelist: false
+	}
+];
+
+const ignoreOptions = [
+	{
+		ignore: [
+			/^e_/,
+			// eslint-disable-next-line prefer-regex-literals
+			new RegExp('_e$', 'i'),
+			'\\.e2e\\.'
+		]
 	}
 ];
 
@@ -282,6 +277,16 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'const propTypes = 2;const err = 2;',
 			options: extendDefaultWhitelistOptions
+		},
+
+		// `ignore` option
+		{
+			code: outdent`
+				const e_at_start = 1;
+				const end_with_e = 2;
+			`,
+			filename: 'some.spec.e2e.test.js',
+			options: ignoreOptions
 		}
 	],
 
@@ -334,7 +339,8 @@ ruleTester.run('prevent-abbreviations', rule, {
 							var: true,
 							const: true,
 							used: true
-						}
+						},
+						var: false
 					}
 				}
 			],
@@ -840,6 +846,86 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 
+		// This test need run eslint 3 times to get the correct result
+		{
+			code: outdent`
+				function fn() {
+					for (let i = 0; i<10; i++) {
+						for (let j = 0; j<10; j++) {
+							console.log(i, j)
+						}
+					}
+				}
+				const func = fn;
+			`,
+			output: outdent`
+				function function_() {
+					for (let i = 0; i<10; i++) {
+						for (let j = 0; j<10; j++) {
+							console.log(i, j)
+						}
+					}
+				}
+				const func = function_;
+			`,
+			errors: [
+				...createErrors('The variable `fn` should be named `function_`. A more descriptive name will do too.'),
+				...createErrors('The variable `i` should be named `index`. A more descriptive name will do too.'),
+				...createErrors('The variable `j` should be named `index_`. A more descriptive name will do too.'),
+				...createErrors('The variable `func` should be named `function__`. A more descriptive name will do too.')
+			]
+		},
+		{
+			code: outdent`
+				function function_() {
+					for (let i = 0; i<10; i++) {
+						for (let j = 0; j<10; j++) {
+							console.log(i, j)
+						}
+					}
+				}
+				const func = function_;
+			`,
+			output: outdent`
+				function function_() {
+					for (let index = 0; index<10; index++) {
+						for (let j = 0; j<10; j++) {
+							console.log(index, j)
+						}
+					}
+				}
+				const function__ = function_;
+			`,
+			errors: [
+				...createErrors('The variable `i` should be named `index`. A more descriptive name will do too.'),
+				...createErrors('The variable `j` should be named `index_`. A more descriptive name will do too.'),
+				...createErrors('The variable `func` should be named `function__`. A more descriptive name will do too.')
+			]
+		},
+		{
+			code: outdent`
+				function function_() {
+					for (let index = 0; index<10; index++) {
+						for (let j = 0; j<10; j++) {
+							console.log(index, j)
+						}
+					}
+				}
+				const function__ = function_;
+			`,
+			output: outdent`
+				function function_() {
+					for (let index = 0; index<10; index++) {
+						for (let index_ = 0; index_<10; index_++) {
+							console.log(index, index_)
+						}
+					}
+				}
+				const function__ = function_;
+			`,
+			errors: createErrors('The variable `j` should be named `index_`. A more descriptive name will do too.')
+		},
+
 		// `package` is a reserved word in strict mode
 		{
 			code: 'let pkg',
@@ -1084,13 +1170,13 @@ ruleTester.run('prevent-abbreviations', rule, {
 		},
 		{
 			code: outdent`
-				function unicorn(unicorn) {
+				function unicorn (unicorn) {
 					const {prop = {}} = unicorn;
 					return property;
 				}
 			`,
 			output: outdent`
-				function unicorn(unicorn) {
+				function unicorn (unicorn) {
 					const {prop: property_ = {}} = unicorn;
 					return property;
 				}
@@ -1274,7 +1360,7 @@ browserES5RuleTester.run('prevent-abbreviations', rule, {
 	]
 });
 
-moduleRuleTester.run('prevent-abbreviations', rule, {
+runTest({
 	valid: [
 		'import {err as foo} from "foo"',
 
@@ -1566,13 +1652,27 @@ moduleRuleTester.run('prevent-abbreviations', rule, {
 			`,
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		})
+		}),
+
+		// `ignore` option
+		{
+			code: outdent`
+				const e_at_start = 1;
+				const end_with_e = 2;
+			`,
+			filename: 'some.spec.e2e.test.js',
+			errors: [
+				...createErrors('Please rename the filename `some.spec.e2e.test.js`. Suggested names are: `some.spec.error2error.test.js`, `some.spec.error2event.test.js`, `some.spec.event2error.test.js`, ... (1 more omitted). A more descriptive name will do too.'),
+				...createErrors('Please rename the variable `e_at_start`. Suggested names are: `error_at_start`, `event_at_start`. A more descriptive name will do too.'),
+				...createErrors('Please rename the variable `end_with_e`. Suggested names are: `end_with_error`, `end_with_event`. A more descriptive name will do too.')
+			]
+		}
 	]
 });
 
-babelRuleTester.run('prevent-abbreviations', rule, {
+runTest.babel({
 	valid: [
-		// Whitelisted names
+		// Allowed names
 		'Foo.defaultProps = {}',
 		outdent`
 			class Foo {
@@ -1612,14 +1712,14 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		},
 		{
-			code: '({err}) => err',
-			output: '({err: error}) => error',
+			code: '({err}) => err;',
+			output: '({err: error}) => error;',
 			options: customOptions,
 			errors: createErrors()
 		},
 		{
-			code: 'err => ({err})',
-			output: 'error => ({err: error})',
+			code: 'err => ({err});',
+			output: 'error => ({err: error});',
 			options: customOptions,
 			errors: createErrors()
 		},
@@ -1705,7 +1805,7 @@ babelRuleTester.run('prevent-abbreviations', rule, {
 	]
 });
 
-typescriptRuleTester.run('prevent-abbreviations', rule, {
+runTest.typescript({
 	valid: [],
 	invalid: [
 		// Types
@@ -1727,6 +1827,34 @@ typescriptRuleTester.run('prevent-abbreviations', rule, {
 			code: 'const foo = (extraParams?: string) => {}',
 			output: 'const foo = (extraParameters?: string) => {}',
 			errors: createErrors()
+		},
+		{
+			code: 'const foo = (extr\u0061Params     ?    :    string) => {}',
+			output: 'const foo = (extraParameters?:    string) => {}',
+			errors: 1
+		},
+
+		// #912
+		{
+			code: outdent`
+				interface Prop {
+						id: number;
+				}
+
+				const Prop: Prop = { id: 1 };
+
+				export default Prop;
+			`,
+			output: outdent`
+				interface Property {
+						id: number;
+				}
+
+				const Property: Property = { id: 1 };
+
+				export default Property;
+			`,
+			errors: 1
 		}
 	]
 });

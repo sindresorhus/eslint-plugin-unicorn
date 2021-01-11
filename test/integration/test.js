@@ -6,6 +6,7 @@ const Listr = require('listr');
 const execa = require('execa');
 const chalk = require('chalk');
 const {isCI} = require('ci-info');
+const mem = require('mem');
 const allProjects = require('./projects');
 
 const projectsArguments = process.argv.slice(2);
@@ -28,6 +29,8 @@ const makeEslintTask = (project, destination) => {
 		'eslint',
 		'--fix-dry-run',
 		'--no-eslintrc',
+		'--ext',
+		'.js,.ts,.vue',
 		'--format',
 		'json',
 		'--config',
@@ -80,8 +83,10 @@ const makeEslintTask = (project, destination) => {
 	});
 };
 
+const getBranch = mem(async dirname => (await execa('git', ['branch', '--show-current'], {cwd: dirname})).stdout);
+
 const execute = project => {
-	const destination = path.join(__dirname, 'fixtures', project.name);
+	const destination = project.location || path.join(__dirname, 'fixtures', project.name);
 
 	return new Listr([
 		{
@@ -136,7 +141,7 @@ const list = new Listr([
 });
 
 list.run()
-	.catch(error => {
+	.catch(async error => {
 		if (error.errors) {
 			for (const error2 of error.errors) {
 				console.error('\n', chalk.red.bold.underline(error2.packageName), chalk.gray('(' + error2.cliArgs.join(' ') + ')'));
@@ -150,8 +155,14 @@ list.run()
 					const {file, project, destination} = error2.eslintJob;
 					const {line} = error2.eslintMessage;
 
-					// TODO: The default branch of `next.js` is not master, find a way to link to the default branch
-					console.error(chalk.gray(`${project.repository}/tree/master/${path.relative(destination, file.filePath)}#L${line}`));
+					if (project.repository) {
+						// eslint-disable-next-line no-await-in-loop
+						const branch = await getBranch(destination);
+						console.error(chalk.gray(`${project.repository}/blob/${branch}/${path.relative(destination, file.filePath)}#L${line}`));
+					} else {
+						console.error(chalk.gray(`${path.relative(destination, file.filePath)}#L${line}`));
+					}
+
 					console.error(chalk.gray(JSON.stringify(error2.eslintMessage, undefined, 2)));
 				}
 			}
@@ -159,5 +170,10 @@ list.run()
 			console.error(error);
 		}
 
+		process.exit(1);
+	})
+	// Catch errors in last `.catch`
+	.catch(error => {
+		console.error(error);
 		process.exit(1);
 	});

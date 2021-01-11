@@ -1,21 +1,13 @@
 /* eslint-disable no-template-curly-in-string, unicorn/escape-case */
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/escape-case';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {test} from './utils/test';
 
 const errors = [
 	{
-		message: 'Use uppercase characters for the value of the escape sequence.'
+		messageId: 'escape-case'
 	}
 ];
 
-ruleTester.run('escape-case', rule, {
+test({
 	valid: [
 		// Literal string
 		'const foo = "\\xA9";',

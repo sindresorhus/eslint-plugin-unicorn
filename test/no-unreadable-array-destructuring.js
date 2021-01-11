@@ -1,20 +1,6 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/no-unreadable-array-destructuring';
+import {test} from './utils/test';
 
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
-
-const errors = [
-	{
-		message: 'Array destructuring may not contain consecutive ignored values.'
-	}
-];
-
-ruleTester.run('no-unreadable-array-destructuring', rule, {
+test({
 	valid: [
 		'const [, foo] = parts;',
 		'const [foo] = parts;',
@@ -23,6 +9,8 @@ ruleTester.run('no-unreadable-array-destructuring', rule, {
 		'const [foo,] = parts;',
 		'const [foo,,] = parts;',
 		'const [foo,, bar,, baz] = parts;',
+		'[,foo] = bar;',
+		'({parts: [,foo]} = bar);',
 		'function foo([, bar]) {}',
 		'function foo([bar]) {}',
 		'function foo([bar,,baz]) {}',
@@ -34,47 +22,21 @@ ruleTester.run('no-unreadable-array-destructuring', rule, {
 		// This is stupid, but valid code
 		'const [,,] = parts;'
 	],
-	invalid: [
-		{
-			code: 'const [,, foo] = parts;',
-			errors
-		},
-		{
-			code: 'const [foo,,, bar] = parts;',
-			errors
-		},
-		{
-			code: 'const [foo,,,] = parts;',
-			errors
-		},
-		{
-			code: 'const [foo, bar,, baz ,,, qux] = parts;',
-			errors
-		},
-		{
-			code: 'function foo([,, bar]) {}',
-			errors
-		},
-		{
-			code: 'function foo([bar,,, baz]) {}',
-			errors
-		},
-		{
-			code: 'function foo([bar,,,]) {}',
-			errors
-		},
-		{
-			code: 'function foo([bar, baz,, qux ,,, quux]) {}',
-			errors
-		},
-		{
-			code: 'const [,,...rest] = parts;',
-			errors
-		},
-		// This is stupid, but valid code
-		{
-			code: 'const [,,,] = parts;',
-			errors
-		}
-	]
+	invalid: []
 });
+
+test.visualize([
+	'const [,, foo] = parts;',
+	'const [foo,,, bar] = parts;',
+	'const [foo,,,] = parts;',
+	'const [foo, bar,, baz ,,, qux] = parts;',
+	'[,, foo] = bar;',
+	'({parts: [,, foo]} = bar);',
+	'function foo([,, bar]) {}',
+	'function foo([bar,,, baz]) {}',
+	'function foo([bar,,,]) {}',
+	'function foo([bar, baz,, qux ,,, quux]) {}',
+	'const [,,...rest] = parts;',
+	// This is stupid, but valid code
+	'const [,,,] = parts;'
+]);

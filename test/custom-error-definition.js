@@ -1,7 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/custom-error-definition';
+import {test as runTest, rule} from './utils/test';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -11,9 +11,7 @@ const ruleTester = avaRuleTester(test, {
 		sourceType: 'module'
 	}
 });
-const babelRuleTester = avaRuleTester(test, {
-	parser: require.resolve('babel-eslint')
-});
+
 const typescriptRuleTester = avaRuleTester(test, {
 	parser: require.resolve('@typescript-eslint/parser')
 });
@@ -478,7 +476,7 @@ const tests = {
 ruleTester.run('custom-error-definition', rule, tests);
 typescriptRuleTester.run('custom-error-definition', rule, tests);
 
-babelRuleTester.run('custom-error-definition', rule, {
+runTest.babel({
 	valid: [
 		// #130
 		outdent`
@@ -517,7 +515,7 @@ babelRuleTester.run('custom-error-definition', rule, {
 	]
 });
 
-typescriptRuleTester.run('custom-error-definition', rule, {
+runTest.typescript({
 	valid: [
 		outdent`
 			class CustomError extends Error {

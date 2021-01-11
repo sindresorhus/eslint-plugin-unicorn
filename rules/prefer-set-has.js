@@ -4,6 +4,11 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 const methodSelector = require('./utils/method-selector');
 
+const MESSAGE_ID = 'preferSetHas';
+const messages = {
+	[MESSAGE_ID]: '`{{name}}` should be a `Set`, and use `{{name}}.has()` to check existence or non-existence.'
+};
+
 // `[]`
 const arrayExpressionSelector = [
 	'[init.type="ArrayExpression"]'
@@ -84,26 +89,25 @@ const selector = [
 	'Identifier.id'
 ].join('');
 
-const MESSAGE_ID = 'preferSetHas';
-
 const isIncludesCall = node => {
 	/* istanbul ignore next */
 	if (!node.parent || !node.parent.parent) {
 		return false;
 	}
 
-	const {type, optional, callee, arguments: parameters} = node.parent.parent;
+	const {type, optional, callee, arguments: includesArguments} = node.parent.parent;
 	return (
 		type === 'CallExpression' &&
-		!optional,
+		!optional &&
 		callee &&
 		callee.type === 'MemberExpression' &&
 		!callee.computed &&
+		!callee.optional &&
 		callee.object === node &&
 		callee.property.type === 'Identifier' &&
 		callee.property.name === 'includes' &&
-		parameters.length === 1 &&
-		parameters[0].type !== 'SpreadElement'
+		includesArguments.length === 1 &&
+		includesArguments[0].type !== 'SpreadElement'
 	);
 };
 
@@ -184,8 +188,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[MESSAGE_ID]: '`{{name}}` should be a `Set`, and use `{{name}}.has()` to check existence or non-existence.'
-		}
+		messages
 	}
 };

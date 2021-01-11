@@ -1,28 +1,42 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/number-literal-case';
+import {test as runTest, rule} from './utils/test';
+
+const MESSAGE_ID = 'number-literal-case';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
 		es6: true
 	},
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
+});
+const babelRuleTester = avaRuleTester(test, {
+	parser: require.resolve('babel-eslint')
+});
+const typescriptRuleTester = avaRuleTester(test, {
+	parser: require.resolve('@typescript-eslint/parser')
 });
 
 const error = {
-	message: 'Invalid number literal casing.'
+	messageId: MESSAGE_ID
 };
 
-// TODO: Add numeric separator tests when ESLint supports it.
+// Legacy octal literals
 ruleTester.run('number-literal-case', rule, {
+	valid: [
+		'const foo = 0777',
+		'const foo = 0888'
+	],
+	invalid: []
+});
+
+const tests = {
 	valid: [
 		// Number
 		'const foo = 1234',
-		'const foo = 0777',
-		'const foo = 0888',
 		'const foo = 0b10',
 		'const foo = 0o1234567',
 		'const foo = 0xABCDEF',
@@ -45,7 +59,17 @@ ruleTester.run('number-literal-case', rule, {
 
 		// Not number
 		'const foo = \'0Xff\'',
-		'const foo = \'0Xffn\''
+		'const foo = \'0Xffn\'',
+
+		// Numeric separator
+		'const foo = 123_456',
+		'const foo = 0b10_10',
+		'const foo = 0o1_234_567',
+		'const foo = 0xDEED_BEEF',
+		'const foo = 123_456n',
+		'const foo = 0b10_10n',
+		'const foo = 0o1_234_567n',
+		'const foo = 0xDEED_BEEFn'
 	],
 	invalid: [
 		// Number
@@ -81,6 +105,22 @@ ruleTester.run('number-literal-case', rule, {
 			errors: [error],
 			output: 'const foo = 0xABCDEFn'
 		},
+		// `0n`
+		{
+			code: 'const foo = 0B0n',
+			errors: [error],
+			output: 'const foo = 0b0n'
+		},
+		{
+			code: 'const foo = 0O0n',
+			errors: [error],
+			output: 'const foo = 0o0n'
+		},
+		{
+			code: 'const foo = 0X0n',
+			errors: [error],
+			output: 'const foo = 0x0n'
+		},
 
 		// Exponential notation
 		{
@@ -114,6 +154,21 @@ ruleTester.run('number-literal-case', rule, {
 					console.log('invalid');
 				}
 			`
+		},
+
+		// Numeric separator
+		{
+			code: 'const foo = 0XdeEd_Beefn',
+			errors: [error],
+			output: 'const foo = 0xDEED_BEEFn'
 		}
 	]
-});
+};
+
+ruleTester.run('number-literal-case', rule, tests);
+babelRuleTester.run('number-literal-case', rule, tests);
+typescriptRuleTester.run('number-literal-case', rule, tests);
+
+runTest.visualize([
+	'console.log(BigInt(0B10 + 1.2E+3) + 0XdeEd_Beefn)'
+]);

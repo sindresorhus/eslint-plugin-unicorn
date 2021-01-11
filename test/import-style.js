@@ -1,27 +1,20 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/import-style';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		sourceType: 'module',
-		ecmaVersion: 2020
-	}
-});
+import {test} from './utils/test';
 
 const options = {
 	checkExportFrom: true,
 	styles: {
 		unassigned: {
-			unassigned: true
+			unassigned: true,
+			named: false
 		},
 		default: {
-			default: true
+			default: true,
+			named: false
 		},
 		namespace: {
-			namespace: true
+			namespace: true,
+			named: false
 		},
 		named: {
 			named: true
@@ -74,7 +67,7 @@ const addDefaultOptions = test => {
 	};
 };
 
-ruleTester.run('import-style', rule, {
+test({
 	valid: [
 		'require(\'unassigned\')',
 		'const {} = require(\'unassigned\')',
@@ -85,6 +78,7 @@ ruleTester.run('import-style', rule, {
 
 		'const x = require(\'default\')',
 		'const {default: x} = require(\'default\')',
+		'const [] = require("default")',
 		'import x from \'default\'',
 		outdent`
 			async () => {
@@ -94,6 +88,7 @@ ruleTester.run('import-style', rule, {
 		'export {default} from \'default\'',
 
 		'const x = require(\'namespace\')',
+		'const [] = require("namespace")',
 		'import * as x from \'namespace\'',
 		outdent`
 			async () => {
@@ -103,6 +98,7 @@ ruleTester.run('import-style', rule, {
 		'export * from \'namespace\'',
 
 		'const {x} = require(\'named\')',
+		'const {...rest} = require("named")',
 		'const {x: y} = require(\'named\')',
 		'import {x} from \'named\'',
 		'import {x as y} from \'named\'',
@@ -279,6 +275,14 @@ ruleTester.run('import-style', rule, {
 			errors: [unassignedError]
 		},
 		{
+			code: 'const {...rest} = require("unassigned")',
+			errors: [unassignedError]
+		},
+		{
+			code: 'const [] = require("unassigned")',
+			errors: [unassignedError]
+		},
+		{
 			code: 'export * from \'unassigned\'',
 			errors: [unassignedError]
 		},
@@ -301,6 +305,10 @@ ruleTester.run('import-style', rule, {
 		},
 		{
 			code: 'const {} = require(\'default\')',
+			errors: [defaultError]
+		},
+		{
+			code: 'const {...rest} = require("default")',
 			errors: [defaultError]
 		},
 		{
@@ -397,6 +405,10 @@ ruleTester.run('import-style', rule, {
 			errors: [namespaceError]
 		},
 		{
+			code: 'const {...rest} = require("namespace")',
+			errors: [namespaceError]
+		},
+		{
 			code: 'import x from \'namespace\'',
 			errors: [namespaceError]
 		},
@@ -451,6 +463,10 @@ ruleTester.run('import-style', rule, {
 		},
 		{
 			code: 'const {} = require(\'named\')',
+			errors: [namedError]
+		},
+		{
+			code: 'const [] = require("named")',
 			errors: [namedError]
 		},
 		{
@@ -582,14 +598,27 @@ ruleTester.run('import-style', rule, {
 	].map(test => addDefaultOptions(test))
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		sourceType: 'module',
-		ecmaVersion: 2020
-	}
+test.babel({
+	valid: [
+		'const {...rest2} = require("named")'
+	],
+	invalid: [
+		{
+			code: 'const {...rest2} = require("unassigned")',
+			errors: [unassignedError]
+		},
+		{
+			code: 'const {...rest2} = require("default")',
+			errors: [defaultError]
+		},
+		{
+			code: 'const {...rest2} = require("namespace")',
+			errors: [namespaceError]
+		}
+	].map(test => addDefaultOptions(test))
 });
 
-visualizeTester.run('consistent-function-scoping', rule, [
+test.visualize([
 	'import util from \'util\'',
 	'import * as util from \'util\'',
 	'const util = require(\'util\')',

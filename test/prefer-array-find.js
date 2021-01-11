@@ -1,7 +1,7 @@
 import test from 'ava';
 import {outdent} from 'outdent';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/prefer-array-find';
+import {rule} from './utils/test';
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
@@ -14,7 +14,7 @@ const SUGGESTION_LOGICAL_OR_OPERATOR = 'suggest-logical-or-operator';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020,
+		ecmaVersion: 2021,
 		sourceType: 'module'
 	}
 });

@@ -1,15 +1,9 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-spread';
+import {test} from './utils/test';
 
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2020
-	}
-});
+const MESSAGE_ID = 'prefer-spread';
 
-ruleTester.run('prefer-spread', rule, {
+test({
 	valid: [
 		'[...set].map(() => {});',
 		// TypedArray.from
@@ -52,7 +46,7 @@ ruleTester.run('prefer-spread', rule, {
 			code: 'const x = Array.from(set);',
 			errors: [
 				{
-					message: 'Prefer the spread operator over `Array.from()`.',
+					messageId: MESSAGE_ID,
 					column: 11,
 					line: 1
 				}
@@ -63,7 +57,7 @@ ruleTester.run('prefer-spread', rule, {
 			code: 'Array.from(set).map(() => {});',
 			errors: [
 				{
-					message: 'Prefer the spread operator over `Array.from()`.',
+					messageId: MESSAGE_ID,
 					column: 1,
 					line: 1
 				}
@@ -74,7 +68,7 @@ ruleTester.run('prefer-spread', rule, {
 			code: 'Array.from(set, mapFn).reduce(() => {});',
 			errors: [
 				{
-					message: 'Prefer the spread operator over `Array.from()`.',
+					messageId: MESSAGE_ID,
 					column: 1,
 					line: 1
 				}
@@ -85,7 +79,7 @@ ruleTester.run('prefer-spread', rule, {
 			code: 'Array.from(set, mapFn, thisArg).reduce(() => {});',
 			errors: [
 				{
-					message: 'Prefer the spread operator over `Array.from()`.',
+					messageId: MESSAGE_ID,
 					column: 1,
 					line: 1
 				}
@@ -96,7 +90,7 @@ ruleTester.run('prefer-spread', rule, {
 			code: 'Array.from(set, () => {}, thisArg).reduce(() => {});',
 			errors: [
 				{
-					message: 'Prefer the spread operator over `Array.from()`.',
+					messageId: MESSAGE_ID,
 					column: 1,
 					line: 1
 				}
@@ -107,7 +101,7 @@ ruleTester.run('prefer-spread', rule, {
 			code: 'Array.from(new Set([1, 2])).map(() => {});',
 			errors: [
 				{
-					message: 'Prefer the spread operator over `Array.from()`.',
+					messageId: MESSAGE_ID,
 					column: 1,
 					line: 1
 				}
@@ -118,7 +112,7 @@ ruleTester.run('prefer-spread', rule, {
 			code: 'Array.from(document.querySelectorAll("*")).map(() => {});',
 			errors: [
 				{
-					message: 'Prefer the spread operator over `Array.from()`.',
+					messageId: MESSAGE_ID,
 					column: 1,
 					line: 1
 				}
@@ -135,7 +129,7 @@ ruleTester.run('prefer-spread', rule, {
 			`,
 			errors: [
 				{
-					message: 'Prefer the spread operator over `Array.from()`.'
+					messageId: MESSAGE_ID
 				}
 			],
 			output: outdent`
@@ -322,7 +316,7 @@ ruleTester.run('prefer-spread', rule, {
 			`,
 			errors: [
 				{
-					message: 'Prefer the spread operator over `Array.from()`.'
+					messageId: MESSAGE_ID
 				}
 			],
 			output: outdent`
@@ -338,7 +332,7 @@ ruleTester.run('prefer-spread', rule, {
 			`,
 			errors: [
 				{
-					message: 'Prefer the spread operator over `Array.from()`.'
+					messageId: MESSAGE_ID
 				}
 			],
 			output: outdent`

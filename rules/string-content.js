@@ -4,6 +4,12 @@ const quoteString = require('./utils/quote-string');
 const replaceTemplateElement = require('./utils/replace-template-element');
 const escapeTemplateElementRaw = require('./utils/escape-template-element-raw');
 
+const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
+const SUGGESTION_MESSAGE_ID = 'replace';
+const messages = {
+	[SUGGESTION_MESSAGE_ID]: 'Replace `{{match}}` with `{{suggest}}`.'
+};
+
 const ignoredIdentifier = new Set([
 	'gql',
 	'html',
@@ -38,9 +44,6 @@ const isIgnoredTag = node => {
 	return false;
 };
 
-const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
-const SUGGESTION_MESSAGE_ID = 'replace';
-
 function getReplacements(patterns) {
 	return Object.entries(patterns)
 		.map(([match, options]) => {
@@ -72,13 +75,13 @@ const create = context => {
 
 	return {
 		'Literal, TemplateElement': node => {
-			const {type} = node;
+			const {type, value, raw} = node;
 
 			let string;
 			if (type === 'Literal') {
-				string = node.value;
+				string = value;
 			} else if (!isIgnoredTag(node)) {
-				string = node.value.raw;
+				string = value.raw;
 			}
 
 			if (!string || typeof string !== 'string') {
@@ -91,7 +94,7 @@ const create = context => {
 				return;
 			}
 
-			const {fix: autoFix, message = defaultMessage, match, suggest} = replacement;
+			const {fix: autoFix, message = defaultMessage, match, suggest, regex} = replacement;
 			const messageData = {
 				match,
 				suggest
@@ -102,11 +105,11 @@ const create = context => {
 				data: messageData
 			};
 
-			const fixed = string.replace(replacement.regex, suggest);
+			const fixed = string.replace(regex, suggest);
 			const fix = type === 'Literal' ?
 				fixer => fixer.replaceText(
 					node,
-					quoteString(fixed, node.raw[0])
+					quoteString(fixed, raw[0])
 				) :
 				fixer => replaceTemplateElement(
 					fixer,
@@ -178,8 +181,6 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
-		messages: {
-			[SUGGESTION_MESSAGE_ID]: 'Replace `{{match}}` with `{{suggest}}`.'
-		}
+		messages
 	}
 };

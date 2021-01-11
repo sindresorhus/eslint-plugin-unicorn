@@ -1,9 +1,15 @@
 'use strict';
+const {singular} = require('pluralize');
+const {isClosingParenToken} = require('eslint-utils');
+const {flatten} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
-const {flatten} = require('lodash');
 const avoidCapture = require('./utils/avoid-capture');
-const {singular} = require('pluralize');
+
+const MESSAGE_ID = 'no-for-loop';
+const messages = {
+	[MESSAGE_ID]: 'Use a `for-of` loop instead of this `for` loop.'
+};
 
 const defaultElementName = 'element';
 const isLiteralZero = node => isLiteralValue(node, 0);
@@ -277,7 +283,7 @@ const getSingularName = originalName => {
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
-	const {scopeManager} = sourceCode;
+	const {scopeManager, text: sourceCodeText} = sourceCode;
 
 	return {
 		ForStatement(node) {
@@ -324,9 +330,15 @@ const create = context => {
 				return;
 			}
 
+			const [start] = node.range;
+			const [, end] = sourceCode.getTokenBefore(node.body, isClosingParenToken).range;
+
 			const problem = {
-				node,
-				message: 'Use a `for-of` loop instead of this `for` loop.'
+				loc: {
+					start: sourceCode.getLocFromIndex(start),
+					end: sourceCode.getLocFromIndex(end)
+				},
+				messageId: MESSAGE_ID
 			};
 
 			const elementReference = arrayReferences.find(reference => {
@@ -356,21 +368,40 @@ const create = context => {
 					let declarationElement = element;
 					let declarationType = 'const';
 					let removeDeclaration = true;
-					if (
-						elementNode &&
-						(elementNode.id.type === 'ObjectPattern' || elementNode.id.type === 'ArrayPattern')
-					) {
-						removeDeclaration = arrayReferences.length === 1;
+					let typeAnnotation;
+
+					if (elementNode) {
+						if (elementNode.id.type === 'ObjectPattern' || elementNode.id.type === 'ArrayPattern') {
+							removeDeclaration = arrayReferences.length === 1;
+						}
 
 						if (removeDeclaration) {
-							declarationType = elementNode.parent.kind;
-							declarationElement = sourceCode.getText(elementNode.id);
+							declarationType = element.type === 'VariableDeclarator' ? elementNode.kind : elementNode.parent.kind;
+							if (elementNode.id.typeAnnotation && shouldGenerateIndex) {
+								declarationElement = sourceCodeText.slice(elementNode.id.range[0], elementNode.id.typeAnnotation.range[0]).trim();
+								typeAnnotation = sourceCode.getText(
+									elementNode.id.typeAnnotation,
+									-1 // Skip leading `:`
+								).trim();
+							} else {
+								declarationElement = sourceCode.getText(elementNode.id);
+							}
 						}
 					}
 
-					const replacement = shouldGenerateIndex ?
-						`${declarationType} [${index}, ${declarationElement}] of ${array}.entries()` :
-						`${declarationType} ${declarationElement} of ${array}`;
+					const parts = [declarationType];
+					if (shouldGenerateIndex) {
+						parts.push(` [${index}, ${declarationElement}]`);
+						if (typeAnnotation) {
+							parts.push(`: [number, ${typeAnnotation}]`);
+						}
+
+						parts.push(` of ${array}.entries()`);
+					} else {
+						parts.push(` ${declarationElement} of ${array}`);
+					}
+
+					const replacement = parts.join('');
 
 					yield fixer.replaceTextRange([
 						node.init.range[0],
@@ -384,11 +415,9 @@ const create = context => {
 					}
 
 					if (elementNode) {
-						if (removeDeclaration) {
-							yield fixer.removeRange(getRemovalRange(elementNode, sourceCode));
-						} else {
-							yield fixer.replaceText(elementNode.init, element);
-						}
+						yield removeDeclaration ?
+							fixer.removeRange(getRemovalRange(elementNode, sourceCode)) :
+							fixer.replaceText(elementNode.init, element);
 					}
 				};
 			}
@@ -405,6 +434,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
+		messages,
 		fixable: 'code'
 	}
 };

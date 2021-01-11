@@ -3,6 +3,11 @@ const {defaultsDeep} = require('lodash');
 const {getStringIfConstant} = require('eslint-utils');
 const eslintTemplateVisitor = require('eslint-template-visitor');
 
+const MESSAGE_ID = 'importStyle';
+const messages = {
+	[MESSAGE_ID]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.'
+};
+
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const getActualImportDeclarationStyles = importDeclaration => {
@@ -64,7 +69,7 @@ const getActualExportDeclarationStyles = exportDeclaration => {
 };
 
 const getActualAssignmentTargetImportStyles = assignmentTarget => {
-	if (assignmentTarget.type === 'Identifier') {
+	if (assignmentTarget.type === 'Identifier' || assignmentTarget.type === 'ArrayPattern') {
 		return ['namespace'];
 	}
 
@@ -76,6 +81,11 @@ const getActualAssignmentTargetImportStyles = assignmentTarget => {
 		const styles = new Set();
 
 		for (const property of assignmentTarget.properties) {
+			if (property.type === 'RestElement' || property.type === 'ExperimentalRestProperty') {
+				styles.add('named');
+				continue;
+			}
+
 			if (property.key.type === 'Identifier') {
 				if (property.key.name === 'default') {
 					styles.add('default');
@@ -110,8 +120,6 @@ const joinOr = words => {
 		})
 		.join(' ');
 };
-
-const MESSAGE_ID = 'importStyle';
 
 // Keep this alphabetically sorted for easier maintenance
 const defaultStyles = {
@@ -164,7 +172,7 @@ const create = context => {
 	styles = new Map(
 		Object.entries(styles).map(
 			([moduleName, styles]) =>
-				[moduleName, new Map(Object.entries(styles))]
+				[moduleName, new Set(Object.entries(styles).filter(([, isAllowed]) => isAllowed).map(([style]) => style))]
 		)
 	);
 
@@ -175,18 +183,16 @@ const create = context => {
 
 		let effectiveAllowedImportStyles = allowedImportStyles;
 
-		if (isRequire) {
-			// For `require`, `'default'` style allows both `x = require('x')` (`'namespace'` style) and
-			// `{default: x} = require('x')` (`'default'` style) since we don't know in advance
-			// whether `'x'` is a compiled ES6 module (with `default` key) or a CommonJS module and `require`
-			// does not provide any automatic interop for this, so the user may have to use either of theese.
-			if (allowedImportStyles.get('default') && !allowedImportStyles.get('namespace')) {
-				effectiveAllowedImportStyles = new Map(allowedImportStyles);
-				effectiveAllowedImportStyles.set('namespace', true);
-			}
+		// For `require`, `'default'` style allows both `x = require('x')` (`'namespace'` style) and
+		// `{default: x} = require('x')` (`'default'` style) since we don't know in advance
+		// whether `'x'` is a compiled ES6 module (with `default` key) or a CommonJS module and `require`
+		// does not provide any automatic interop for this, so the user may have to use either of theese.
+		if (isRequire && allowedImportStyles.has('default') && !allowedImportStyles.has('namespace')) {
+			effectiveAllowedImportStyles = new Set(allowedImportStyles);
+			effectiveAllowedImportStyles.add('namespace');
 		}
 
-		if (actualImportStyles.every(style => effectiveAllowedImportStyles.get(style))) {
+		if (actualImportStyles.every(style => effectiveAllowedImportStyles.has(style))) {
 			return;
 		}
 
@@ -364,9 +370,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		messages: {
-			[MESSAGE_ID]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.'
-		},
+		messages,
 		schema
 	}
 };

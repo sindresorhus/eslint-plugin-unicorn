@@ -1,18 +1,7 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/import-index';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
-	parserOptions: {
-		sourceType: 'module'
-	}
-});
+import {test} from './utils/test';
 
 const error = {
-	message: 'Do not reference the index file directly.'
+	messageId: 'import-index'
 };
 
 const ignoreImportsOptions = [
@@ -21,7 +10,7 @@ const ignoreImportsOptions = [
 	}
 ];
 
-ruleTester.run('import-index', rule, {
+test({
 	valid: [
 		'const m = require()',
 		'const m = require(\'.\')',

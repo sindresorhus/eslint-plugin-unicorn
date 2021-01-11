@@ -3,6 +3,11 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
 
+const MESSAGE_ID = 'prefer-spread';
+const messages = {
+	[MESSAGE_ID]: 'Prefer the spread operator over `Array.from()`.'
+};
+
 const selector = [
 	methodSelector({
 		object: 'Array',
@@ -22,7 +27,7 @@ const create = context => {
 		[selector](node) {
 			context.report({
 				node,
-				message: 'Prefer the spread operator over `Array.from()`.',
+				messageId: MESSAGE_ID,
 				fix: fixer => {
 					const [arrayLikeArgument, mapFn, thisArgument] = node.arguments.map(node => getSource(node));
 					let replacement = `${
@@ -48,6 +53,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };

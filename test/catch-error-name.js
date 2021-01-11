@@ -1,22 +1,10 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/catch-error-name';
+import {test} from './utils/test';
 
-const ERROR_MESSAGE_ID = 'error';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2020
-	}
-});
-
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
+const MESSAGE_ID = 'catch-error-name';
 
 const generateError = (originalName, fixedName) => ({
-	messageId: ERROR_MESSAGE_ID,
+	messageId: MESSAGE_ID,
 	data: {
 		originalName,
 		fixedName
@@ -37,7 +25,7 @@ function invalidTestCase(options) {
 	};
 }
 
-ruleTester.run('catch-error-name', rule, {
+test({
 	valid: [
 		'try {} catch (error) {}',
 		{
@@ -846,7 +834,7 @@ ruleTester.run('catch-error-name', rule, {
 	]
 });
 
-typescriptRuleTester.run('catch-error-name', rule, {
+test.typescript({
 	valid: [],
 	invalid: [
 		invalidTestCase({

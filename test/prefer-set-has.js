@@ -1,16 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-set-has';
-
-const ruleId = 'prefer-set-has';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2020,
-		sourceType: 'module'
-	}
-});
+import {test} from './utils/test';
 
 const createError = name => [
 	{
@@ -35,7 +24,7 @@ const methodsReturnsArray = [
 	'splice'
 ];
 
-ruleTester.run(ruleId, rule, {
+test({
 	valid: [
 		outdent`
 			const foo = new Set([1, 2, 3]);
@@ -170,14 +159,25 @@ ruleTester.run(ruleId, rule, {
 				return foo.includes(...[1]);
 			}
 		`,
-		// TODO: enable this test when eslint support optional-chaining
-		// // Optional
-		// outdent`
-		// 	const foo = [1, 2, 3];
-		// 	function unicorn() {
-		// 		return foo.?includes(1);
-		// 	}
-		// `,
+		// Optional
+		outdent`
+			const foo = [1, 2, 3];
+			function unicorn() {
+				return foo?.includes(1);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			function unicorn() {
+				return foo.includes?.(1);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			function unicorn() {
+				return foo?.includes?.(1);
+			}
+		`,
 		// Different scope
 		outdent`
 			function unicorn() {

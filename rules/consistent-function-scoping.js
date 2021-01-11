@@ -4,6 +4,9 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const getReferences = require('./utils/get-references');
 
 const MESSAGE_ID = 'consistent-function-scoping';
+const messages = {
+	[MESSAGE_ID]: 'Move {{functionNameWithKind}} to the outer scope.'
+};
 
 const isSameScope = (scope1, scope2) =>
 	scope1 && scope2 && (scope1 === scope2 || scope1.block === scope2.block);
@@ -149,38 +152,60 @@ function checkNode(node, scopeManager) {
 }
 
 const create = context => {
+	const {checkArrowFunctions} = {checkArrowFunctions: true, ...context.options[0]};
 	const sourceCode = context.getSourceCode();
 	const {scopeManager} = sourceCode;
 
 	const functions = [];
-	let hasJsx = false;
 
 	return {
-		'ArrowFunctionExpression, FunctionDeclaration': node => functions.push(node),
+		':function': () => {
+			functions.push(false);
+		},
 		JSXElement: () => {
 			// Turn off this rule if we see a JSX element because scope
 			// references does not include JSXElement nodes.
-			hasJsx = true;
+			if (functions.length > 0) {
+				functions[functions.length - 1] = true;
+			}
 		},
-		':matches(ArrowFunctionExpression, FunctionDeclaration):exit': node => {
-			if (!hasJsx && !checkNode(node, scopeManager)) {
-				context.report({
-					node,
-					loc: getFunctionHeadLocation(node, sourceCode),
-					messageId: MESSAGE_ID,
-					data: {
-						functionNameWithKind: getFunctionNameWithKind(node)
-					}
-				});
+		':function:exit': node => {
+			const currentFunctionHasJsx = functions.pop();
+			if (currentFunctionHasJsx) {
+				return;
 			}
 
-			functions.pop();
-			if (functions.length === 0) {
-				hasJsx = false;
+			if (node.type === 'ArrowFunctionExpression' && !checkArrowFunctions) {
+				return;
 			}
+
+			if (checkNode(node, scopeManager)) {
+				return;
+			}
+
+			context.report({
+				node,
+				loc: getFunctionHeadLocation(node, sourceCode),
+				messageId: MESSAGE_ID,
+				data: {
+					functionNameWithKind: getFunctionNameWithKind(node)
+				}
+			});
 		}
 	};
 };
+
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			checkArrowFunctions: {
+				type: 'boolean',
+				default: true
+			}
+		}
+	}
+];
 
 module.exports = {
 	create,
@@ -189,8 +214,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		messages: {
-			[MESSAGE_ID]: 'Move {{functionNameWithKind}} to the outer scope.'
-		}
+		schema,
+		messages
 	}
 };

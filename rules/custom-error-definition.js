@@ -3,6 +3,9 @@ const {upperFirst} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
+const messages = {
+	[MESSAGE_ID_INVALID_EXPORT]: 'Exported error name should match error class'
+};
 
 const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
 
@@ -20,10 +23,10 @@ const hasValidSuperClass = node => {
 		return false;
 	}
 
-	let {name} = node.superClass;
+	let {name, type, property} = node.superClass;
 
-	if (node.superClass.type === 'MemberExpression') {
-		({name} = node.superClass.property);
+	if (type === 'MemberExpression') {
+		({name} = property);
 	}
 
 	return nameRegexp.test(name);
@@ -84,7 +87,7 @@ const customErrorDefinition = (context, node) => {
 		});
 	}
 
-	const {body} = node.body;
+	const {body, range} = node.body;
 	const constructor = body.find(x => x.kind === 'constructor');
 
 	if (!constructor) {
@@ -92,8 +95,8 @@ const customErrorDefinition = (context, node) => {
 			node,
 			message: 'Add a constructor to your error.',
 			fix: fixer => fixer.insertTextAfterRange([
-				node.body.range[0],
-				node.body.range[0] + 1
+				range[0],
+				range[0] + 1
 			], getConstructorMethod(name))
 		});
 		return;
@@ -141,7 +144,7 @@ const customErrorDefinition = (context, node) => {
 
 	const nameExpression = constructorBody.find(x => isAssignmentExpression(x, 'name'));
 	if (!nameExpression) {
-		const nameProperty = node.body.body.find(node => isClassProperty(node, 'name'));
+		const nameProperty = body.find(node => isClassProperty(node, 'name'));
 
 		if (!nameProperty || !nameProperty.value || nameProperty.value.value !== name) {
 			context.report({
@@ -212,8 +215,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[MESSAGE_ID_INVALID_EXPORT]: 'Exported error name should match error class'
-		}
+		messages
 	}
 };

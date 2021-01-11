@@ -1,22 +1,13 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-process-exit';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2020,
-		sourceType: 'module'
-	}
-});
+import {test} from './utils/test';
 
 const errors = [
 	{
-		message: 'Only use `process.exit()` in CLI apps. Throw an error instead.'
+		messageId: 'no-process-exit'
 	}
 ];
 
-ruleTester.run('no-process-exit', rule, {
+test({
 	valid: [
 		'#!/usr/bin/env node\n\nprocess.exit();',
 		'Process.exit()',
@@ -105,3 +96,7 @@ ruleTester.run('no-process-exit', rule, {
 		'lib.process.once("SIGINT", function() { process.exit(1); })'
 	].map(code => ({code, errors}))
 });
+
+test.visualize([
+	'process.exit(1);'
+]);

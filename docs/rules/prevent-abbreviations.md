@@ -8,7 +8,6 @@ You can find the default replacements [here](https://github.com/sindresorhus/esl
 
 This rule is fixable only for variable names with exactly one replacement defined.
 
-
 ## Fail
 
 ```js
@@ -22,7 +21,6 @@ const e = document.createEvent('Event');
 ```js
 class Btn {}
 ```
-
 
 ## Pass
 
@@ -59,7 +57,6 @@ const levels = {
 // Property is not checked by default
 this.evt = 'click';
 ```
-
 
 ## Options
 
@@ -105,7 +102,7 @@ The example below:
 
 ### extendDefaultReplacements
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `true`
 
 Pass `"extendDefaultReplacements": false` to override the default `replacements` completely.
@@ -149,14 +146,14 @@ For example, if you want to report `props` → `properties` (enabled by default)
 
 ### extendDefaultWhitelist
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `true`
 
 Pass `"extendDefaultWhitelist": false` to override the default `whitelist` completely.
 
 ### checkDefaultAndNamespaceImports
 
-Type: `'internal' | boolean`<br>
+Type: `'internal' | boolean`\
 Default: `'internal'`
 
 - `'internal'` - Check variables declared in default or namespace import, **but only for internal modules**.
@@ -189,7 +186,7 @@ const err = require('err');
 
 ### checkShorthandImports
 
-Type: `'internal'` | `boolean`<br>
+Type: `'internal'` | `boolean`\
 Default: `'internal'`
 
 - `'internal'` - Check variables declared in shorthand import, **but only for internal modules**.
@@ -210,7 +207,7 @@ import {prop} from 'ramda';
 
 ### checkShorthandProperties
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `false`
 
 Pass `"checkShorthandProperties": true` to check variables declared as shorhand properties in object destructuring.
@@ -231,21 +228,44 @@ function f({err}) {}
 
 ### checkProperties
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `false`
 
 Pass `"checkProperties": true` to enable checking property names.
 
 ### checkVariables
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `true`
 
 Pass `"checkVariables": false` to disable checking variable names.
 
 ### checkFilenames
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `true`
 
 Pass `"checkFilenames": false` to disable checking file names.
+
+### ignore
+
+Type: `Array<string | RegExp>`\
+Default: `[]`
+
+This option lets you specify a regex pattern for matches to ignore.
+
+When a string is given, it's interpreted as a regular expressions inside a string. Needed for ESLint config in JSON.
+
+```js
+"unicorn/prevent-abbreviations": [
+	"error",
+	{
+		"ignore": [
+			"\\.e2e$",
+			/^ignore/i
+		]
+	}
+]
+```
+
+When checking filenames, only the basename is tested. For example, with a file named `foo.e2e.js`, `ignore: [/\.e2e$/]` would pass and `ignore: [/\.e2e\.js/]` would fail.

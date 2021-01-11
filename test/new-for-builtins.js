@@ -1,23 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/new-for-builtins';
+import {test} from './utils/test';
 import {enforceNew, disallowNew} from '../rules/utils/builtins';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2020,
-		sourceType: 'module'
-	},
-	// Make sure globals don't effect shadowed check result
-	globals: {
-		Map: 'writable',
-		Set: 'readonly',
-		WeakMap: 'off',
-		BigInt: 'writable',
-		Boolean: 'readonly',
-		Number: 'off'
-	}
-});
 
 const enforceNewError = builtin => ({
 	message: `Use \`new ${builtin}()\` instead of \`${builtin}()\`.`
@@ -27,7 +9,18 @@ const disallowNewError = builtin => ({
 	message: `Use \`${builtin}()\` instead of \`new ${builtin}()\`.`
 });
 
-ruleTester.run('new-for-builtins', rule, {
+test({
+	testerOptions: {
+		// Make sure globals don't effect shadowed check result
+		globals: {
+			Map: 'writable',
+			Set: 'readonly',
+			WeakMap: 'off',
+			BigInt: 'writable',
+			Boolean: 'readonly',
+			Number: 'off'
+		}
+	},
 	valid: [
 		'const foo = new Object()',
 		'const foo = new Array()',
@@ -115,7 +108,10 @@ ruleTester.run('new-for-builtins', rule, {
 		`,
 		// Not builtin
 		'new Foo();Bar();',
-		'Foo();new Bar();'
+		'Foo();new Bar();',
+		// Ignored
+		'const isObject = v => Object(v) === v;',
+		'(x) !== Object(x)'
 	],
 	invalid: [
 		{
@@ -256,22 +252,22 @@ ruleTester.run('new-for-builtins', rule, {
 		{
 			code: 'const foo = new Boolean()',
 			errors: [disallowNewError('Boolean')],
-			output: 'const foo = Boolean()'
+			output: 'const foo = new Boolean()'
 		},
 		{
 			code: 'const foo = new Number()',
 			errors: [disallowNewError('Number')],
-			output: 'const foo = Number()'
+			output: 'const foo = new Number()'
 		},
 		{
 			code: 'const foo = new Number(\'123\')',
 			errors: [disallowNewError('Number')],
-			output: 'const foo = Number(\'123\')'
+			output: 'const foo = new Number(\'123\')'
 		},
 		{
 			code: 'const foo = new String()',
 			errors: [disallowNewError('String')],
-			output: 'const foo = String()'
+			output: 'const foo = new String()'
 		},
 		{
 			code: 'const foo = new Symbol()',

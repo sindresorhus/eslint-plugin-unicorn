@@ -1,30 +1,17 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-new-buffer';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
-	parserOptions: {
-		sourceType: 'module'
-	}
-});
-
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
+import {test} from './utils/test';
 
 const allocError = {
-	message: '`new Buffer()` is deprecated, use `Buffer.alloc()` instead.'
+	messageId: 'no-new-buffer',
+	data: {method: 'alloc'}
 };
 
 const fromError = {
-	message: '`new Buffer()` is deprecated, use `Buffer.from()` instead.'
+	messageId: 'no-new-buffer',
+	data: {method: 'from'}
 };
 
-ruleTester.run('no-new-buffer', rule, {
+test({
 	valid: [
 		'const buf = Buffer.from(\'buf\')',
 		'const buf = Buffer.from(\'7468697320697320612074c3a97374\', \'hex\')',
@@ -82,7 +69,7 @@ ruleTester.run('no-new-buffer', rule, {
 	]
 });
 
-typescriptRuleTester.run('no-new-buffer', rule, {
+test.typescript({
 	valid: [],
 	invalid: [
 		{
@@ -92,3 +79,8 @@ typescriptRuleTester.run('no-new-buffer', rule, {
 		}
 	]
 });
+
+test.visualize([
+	'const buf = new Buffer()',
+	'const buf = new Buffer([0x62, 0x75, 0x66, 0x66, 0x65, 0x72])'
+]);

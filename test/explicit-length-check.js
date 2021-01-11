@@ -1,193 +1,176 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/explicit-length-check';
+import {outdent} from 'outdent';
+import {test} from './utils/test';
 
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
+const suggestionCase = ({code, output, desc, options = []}) => {
+	const suggestion = {output};
+	if (desc) {
+		suggestion.desc = desc;
 	}
-});
 
-const error = message => {
-	return {
-		message
-	};
-};
-
-const errorMessages = {
-	compareToValue: error('`length` property should be compared to a value.'),
-	zeroEqual: error('Zero `.length` should be compared with `=== 0`.'),
-	nonZeroEqual: error('Non-zero `.length` should be compared with `!== 0`.'),
-	nonZeroGreater: error('Non-zero `.length` should be compared with `> 0`.'),
-	nonZeroGreaterEqual: error('Non-zero `.length` should be compared with `>= 1`.')
-};
-
-function testCase(code, nonZeroType, errors, output) {
 	return {
 		code,
-		output: output || code,
-		errors: errors || [],
-		options: nonZeroType ? [{
-			'non-zero': nonZeroType
-		}] : []
+		output: code,
+		options,
+		errors: [
+			{suggestions: [suggestion]}
+		]
 	};
-}
+};
 
-ruleTester.run('explicit-length-check', rule, {
+const nonZeroCases = [
+	'foo.length',
+	'!!foo.length',
+	'foo.length !== 0',
+	'foo.length != 0',
+	'foo.length > 0',
+	'foo.length >= 1',
+	'0 !== foo.length',
+	'0 != foo.length',
+	'0 < foo.length',
+	'1 <= foo.length'
+];
+
+const zeroCases = [
+	'!foo.length',
+	'foo.length === 0',
+	'foo.length == 0',
+	'foo.length < 1',
+	'0 === foo.length',
+	'0 == foo.length',
+	'1 > foo.length'
+];
+
+test({
 	valid: [
-		testCase('array.foo'),
-		testCase('array.length'),
-		testCase('array.length === 0'),
-		testCase('array.length !== 0'),
-		testCase('array.length > 0'),
-		testCase('if (array.foo) {}'),
-		testCase('if (length) {}'),
-		testCase('if ([].length > 0) {}'),
-		testCase('if ("".length > 0) {}'),
-		testCase('if (array.length === 0) {}'),
-		testCase('if (array.length == 0) {}'),
-		testCase('if (array.length !== 0) {}'),
-		testCase('if (array.length !== 0 && array[0] === 1) {}'),
-		testCase('if (array.length === 1) {}'),
-		testCase('if (array.length <= 1) {}'),
-		testCase('if (array.length > 1) {}'),
-		testCase('if (array.length < 2) {}'),
-		testCase('const foo = [].length === 0 ? null : undefined'),
-		testCase('array.length', 'not-equal'),
-		testCase('array.length > 0', 'not-equal'),
-		testCase('array.length >= 1', 'not-equal'),
-		testCase('if ("".length !== 0) {}', 'not-equal'),
-		testCase('if ([].length === 0) {}', 'not-equal'),
-		testCase('if ([].length === 1) {}', 'not-equal'),
-		testCase('if ([].length <= 1) {}', 'not-equal'),
-		testCase('if ("".length == 0) {}', 'not-equal'),
-		testCase('array.length !== 0', 'greater-than'),
-		testCase('array.length >= 1', 'greater-than'),
-		testCase('if ("".length > 0) {}', 'greater-than'),
-		testCase('if ("".length >= 0) {}', 'greater-than'),
-		testCase('if ("".length >= 2) {}', 'greater-than'),
-		testCase('if ("".length >= 1) {}', 'greater-than-or-equal'),
-		testCase('array.length !== 0', 'greater-than-or-equal'),
-		testCase('array.length > 0', 'greater-than-or-equal'),
-		testCase('if ("".length === 0) {}', 'greater-than-or-equal'),
-		testCase('if ("".length > 2) {}', 'greater-than-or-equal'),
-		testCase('if ("".length === 2) {}', 'greater-than-or-equal'),
-		testCase('if ("".length === 0 && array.length >= 1) {}', 'greater-than-or-equal'),
-		testCase('if ("".length === 0 && array.length > 0) {}', 'greater-than'),
-		testCase('if ("".length === 0 && array.length !== 0) {}', 'not-equal'),
-		testCase('if (foo[length]) {}')
+		// Not `.length`
+		'if (foo.notLength) {}',
+		'if (length) {}',
+		'if (foo[length]) {}',
+		'if (foo["length"]) {}',
+
+		// Already in wanted style
+		'foo.length === 0',
+		'foo.length > 0',
+
+		// Not boolean
+		'const bar = foo.length',
+		'const bar = +foo.length',
+		'const x = Boolean(foo.length, foo.length)',
+		'const x = new Boolean(foo.length)',
+		'const x = NotBoolean(foo.length)',
+		'const length = foo.length ?? 0',
+		'if (foo.length ?? bar) {}',
+
+		// Checking 'non-zero'
+		'if (foo.length > 0) {}',
+		{
+			code: 'if (foo.length > 0) {}',
+			options: [{'non-zero': 'greater-than'}]
+		},
+		{
+			code: 'if (foo.length !== 0) {}',
+			options: [{'non-zero': 'not-equal'}]
+		},
+		{
+			code: 'if (foo.length >= 1) {}',
+			options: [{'non-zero': 'greater-than-or-equal'}]
+		},
+
+		// Checking 'non-zero'
+		'if (foo.length === 0) {}',
+
+		// `ConditionalExpression`
+		'const bar = foo.length === 0 ? 1 : 2',
+		// `WhileStatement`
+		outdent`
+			while (foo.length > 0) {
+				foo.pop();
+			}
+		`,
+		// `DoWhileStatement`
+		outdent`
+			do {
+				foo.pop();
+			} while (foo.length > 0);
+		`,
+		// `ForStatement`
+		'for (; foo.length > 0; foo.pop());',
+
+		'if (foo.length !== 1) {}',
+		'if (foo.length > 1) {}',
+		'if (foo.length < 2) {}'
 	],
 	invalid: [
-		testCase(
-			'if ([].length) {}',
-			undefined,
-			[errorMessages.compareToValue]
-		),
-		testCase(
-			'if ("".length) {}',
-			undefined,
-			[errorMessages.compareToValue]
-		),
-		testCase(
-			'if (array.length) {}',
-			undefined,
-			[errorMessages.compareToValue]
-		),
-		testCase(
-			'if (!array.length) {}',
-			undefined,
-			[errorMessages.compareToValue]
-		),
-		testCase(
-			'if (array.foo.length) {}',
-			undefined,
-			[errorMessages.compareToValue]
-		),
-		testCase(
-			'if (!!array.length) {}',
-			undefined,
-			[errorMessages.compareToValue]
-		),
-		testCase(
-			'if (array.length && array[0] === 1) {}',
-			undefined,
-			[errorMessages.compareToValue]
-		),
-		testCase(
-			'if (array[0] === 1 || array.length) {}',
-			undefined,
-			[errorMessages.compareToValue]
-		),
-		testCase(
-			'if (array.length < 1) {}',
-			undefined,
-			[errorMessages.zeroEqual],
-			'if (array.length === 0) {}'
-		),
-		testCase(
-			'if (array.length<1) {}',
-			undefined,
-			[errorMessages.zeroEqual],
-			'if (array.length === 0) {}'
-		),
-		testCase(
-			'if (array.length > 0) {}',
-			'not-equal',
-			[errorMessages.nonZeroEqual],
-			'if (array.length !== 0) {}'
-		),
-		testCase(
-			'if (array.length >= 1) {}',
-			'not-equal',
-			[errorMessages.nonZeroEqual],
-			'if (array.length !== 0) {}'
-		),
-		testCase(
-			'if (array.length != 0) {}',
-			'greater-than',
-			[errorMessages.nonZeroGreater],
-			'if (array.length > 0) {}'
-		),
-		testCase(
-			'if (array.length !== 0) {}',
-			'greater-than',
-			[errorMessages.nonZeroGreater],
-			'if (array.length > 0) {}'
-		),
-		testCase(
-			'if (array.length >= 1) {}',
-			'greater-than',
-			[errorMessages.nonZeroGreater],
-			'if (array.length > 0) {}'
-		),
-		testCase(
-			'if (array.length != 0) {}',
-			'greater-than-or-equal',
-			[errorMessages.nonZeroGreaterEqual],
-			'if (array.length >= 1) {}'
-		),
-		testCase(
-			'if (array.length !== 0) {}',
-			'greater-than-or-equal',
-			[errorMessages.nonZeroGreaterEqual],
-			'if (array.length >= 1) {}'
-		),
-		testCase(
-			'if (array.length > 0) {}',
-			'greater-than-or-equal',
-			[errorMessages.nonZeroGreaterEqual],
-			'if (array.length >= 1) {}'
-		),
-		testCase(
-			'if (array.length < 1 || array.length >= 1) {}',
-			'not-equal',
-			[errorMessages.zeroEqual, errorMessages.nonZeroEqual],
-			'if (array.length === 0 || array.length !== 0) {}'
-		),
-		testCase(
-			'const foo = [].length ? null : undefined',
-			undefined,
-			[errorMessages.compareToValue]
-		)
+		suggestionCase({
+			code: 'const x = foo.length || bar()',
+			output: 'const x = foo.length > 0 || bar()',
+			desc: 'Replace `.length` with `.length > 0`.'
+		}),
+		suggestionCase({
+			code: 'const x = foo.length || bar()',
+			output: 'const x = foo.length !== 0 || bar()',
+			desc: 'Replace `.length` with `.length !== 0`.',
+			options: [{'non-zero': 'not-equal'}]
+		}),
+		suggestionCase({
+			code: 'const x = foo.length || bar()',
+			output: 'const x = foo.length >= 1 || bar()',
+			desc: 'Replace `.length` with `.length >= 1`.',
+			options: [{'non-zero': 'greater-than-or-equal'}]
+		}),
+		suggestionCase({
+			code: '() => foo.length && bar()',
+			output: '() => foo.length > 0 && bar()'
+		}),
+		suggestionCase({
+			code: 'alert(foo.length && bar())',
+			output: 'alert(foo.length > 0 && bar())'
+		})
 	]
 });
+
+test.visualize([
+	outdent`
+		if (
+			!!!(
+				${zeroCases.filter(code => code !== 'foo.length === 0').join(' &&\n\t\t')}
+			) ||
+			!(
+				${nonZeroCases.filter(code => code !== 'foo.length > 0').join(' ||\n\t\t')}
+			)
+		) {}
+	`,
+	{
+		code: outdent`
+			if (
+				${nonZeroCases.filter(code => code !== 'foo.length !== 0').join(' ||\n\t')}
+			) {}
+		`,
+		options: [{'non-zero': 'not-equal'}]
+	},
+	{
+		code: outdent`
+			const foo = (
+				${nonZeroCases.filter(code => code !== 'foo.length >= 1').join(' &&\n\t')}
+			) ? 1 : 2;
+		`,
+		options: [{'non-zero': 'greater-than-or-equal'}]
+	},
+	'if (foo.bar && foo.bar.length) {}',
+	'if (foo.length || foo.bar()) {}',
+	'if (!!(!!foo.length)) {}',
+	'if (!(foo.length === 0)) {}',
+	'while (foo.length >= 1) {}',
+	'do {} while (foo.length);',
+	'for (let i = 0; (bar && !foo.length); i ++) {}',
+	'const isEmpty = foo.length < 1;',
+	'bar(foo.length >= 1)',
+	'bar(!foo.length || foo.length)',
+	'const bar = void !foo.length;',
+	'const isNotEmpty = Boolean(foo.length)',
+	'const isNotEmpty = Boolean(foo.length || bar)',
+	'const isEmpty = Boolean(!foo.length)',
+	'const isEmpty = Boolean(foo.length === 0)',
+	'const isNotEmpty = !Boolean(foo.length === 0)',
+	'const isEmpty = !Boolean(!Boolean(foo.length === 0))'
+]);

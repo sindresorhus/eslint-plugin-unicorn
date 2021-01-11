@@ -3,6 +3,9 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const {findVariable, isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
 
 const ERROR_MESSAGE_ID = 'error';
+const messages = {
+	[ERROR_MESSAGE_ID]: 'Remove unused catch binding `{{name}}`.'
+};
 
 const selector = [
 	'CatchClause',
@@ -11,22 +14,24 @@ const selector = [
 ].join('');
 
 const create = context => {
+	const sourceCode = context.getSourceCode();
+
 	return {
 		[selector]: node => {
 			const scope = context.getScope();
 			const variable = findVariable(scope, node);
 
-			if (variable.references.length !== 0) {
+			if (variable.references.length > 0) {
 				return;
 			}
 
-			const {name} = node;
+			const {name, parent} = node;
 
 			context.report({
 				node,
 				messageId: ERROR_MESSAGE_ID,
 				data: {name},
-				fix: fixer => {
+				* fix(fixer) {
 					const tokenBefore = context.getTokenBefore(node);
 					const tokenAfter = context.getTokenAfter(node);
 
@@ -35,11 +40,17 @@ const create = context => {
 						throw new Error('Unexpected token.');
 					}
 
-					return [
-						tokenBefore,
-						node,
-						tokenAfter
-					].map(nodeOrToken => fixer.remove(nodeOrToken));
+					yield fixer.remove(tokenBefore);
+					yield fixer.remove(node);
+					yield fixer.remove(tokenAfter);
+
+					const [, endOfClosingParenthesis] = tokenAfter.range;
+					const [startOfCatchClauseBody] = parent.body.range;
+					const text = sourceCode.text.slice(endOfClosingParenthesis, startOfCatchClauseBody);
+					const leadingSpacesLength = text.length - text.trimStart().length;
+					if (leadingSpacesLength !== 0) {
+						yield fixer.removeRange([endOfClosingParenthesis, endOfClosingParenthesis + leadingSpacesLength]);
+					}
 				}
 			});
 		}
@@ -54,8 +65,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[ERROR_MESSAGE_ID]: 'Remove unused catch binding `{{name}}`.'
-		}
+		messages
 	}
 };

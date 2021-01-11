@@ -1,12 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/filename-case';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {flatten} from 'lodash';
+import {test} from './utils/test';
 
 function testCase(filename, chosenCase, errorMessage) {
 	return testCaseWithOptions(
@@ -37,7 +30,7 @@ function testCaseWithOptions(filename, errorMessage, options = []) {
 	};
 }
 
-ruleTester.run('filename-case', rule, {
+test({
 	valid: [
 		testCase('src/foo/bar.js', 'camelCase'),
 		testCase('src/foo/fooBar.js', 'camelCase'),
@@ -73,7 +66,6 @@ ruleTester.run('filename-case', rule, {
 		testCase('spec/Iss47Spec.js', 'pascalCase'),
 		testCase('spec/Iss47.100Spec.js', 'pascalCase'),
 		testCase('spec/I18n.js', 'pascalCase'),
-		testCase('spec/index.js', 'pascalCase'),
 		testCase(undefined, 'camelCase'),
 		testCase(undefined, 'snakeCase'),
 		testCase(undefined, 'kebabCase'),
@@ -239,7 +231,13 @@ ruleTester.run('filename-case', rule, {
 				},
 				ignore: [/FOOBAR\.js/u, /BaRbAz\.js/u]
 			}
-		])
+		]),
+		// Ignored
+		...flatten(
+			['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue'].map(
+				filename => ['camelCase', 'snakeCase', 'kebabCase', 'pascalCase'].map(chosenCase => testCase(filename, chosenCase))
+			)
+		)
 	],
 	invalid: [
 		testCase(

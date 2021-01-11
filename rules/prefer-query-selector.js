@@ -1,5 +1,20 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const methodSelector = require('./utils/method-selector');
+const {notDomNodeSelector} = require('./utils/not-dom-node');
+
+const MESSAGE_ID = 'prefer-query-selector';
+const messages = {
+	[MESSAGE_ID]: 'Prefer `.{{replacement}}()` over `.{{method}}()`.'
+};
+
+const selector = [
+	methodSelector({
+		names: ['getElementById', 'getElementsByClassName', 'getElementsByTagName'],
+		length: 1
+	}),
+	notDomNodeSelector('callee.object')
+].join('');
 
 const forbiddenIdentifierNames = new Map([
 	['getElementById', 'querySelector'],
@@ -88,28 +103,27 @@ const fix = (node, identifierName, preferedSelector) => {
 
 const create = context => {
 	return {
-		CallExpression(node) {
-			const {callee: {property, type}} = node;
-			if (!property || type !== 'MemberExpression') {
-				return;
-			}
-
-			const identifierName = property.name;
-			const preferedSelector = forbiddenIdentifierNames.get(identifierName);
+		[selector](node) {
+			const method = node.callee.property.name;
+			const preferedSelector = forbiddenIdentifierNames.get(method);
 			if (!preferedSelector) {
 				return;
 			}
 
-			const report = {
-				node,
-				message: `Prefer \`.${preferedSelector}()\` over \`.${identifierName}()\`.`
+			const problem = {
+				node: node.callee.property,
+				messageId: MESSAGE_ID,
+				data: {
+					replacement: preferedSelector,
+					method
+				}
 			};
 
 			if (canBeFixed(node.arguments[0])) {
-				report.fix = fix(node, identifierName, preferedSelector);
+				problem.fix = fix(node, method, preferedSelector);
 			}
 
-			context.report(report);
+			context.report(problem);
 		}
 	};
 };
@@ -121,6 +135,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code'
+		fixable: 'code',
+		messages
 	}
 };

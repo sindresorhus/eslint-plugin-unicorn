@@ -1,22 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/consistent-function-scoping';
-import visualizeRuleTester from './utils/visualize-rule-tester';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		sourceType: 'module',
-		ecmaVersion: 2020,
-		ecmaFeatures: {
-			jsx: true
-		}
-	}
-});
-
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
+import {test} from './utils/test';
 
 const MESSAGE_ID = 'consistent-function-scoping';
 
@@ -28,7 +11,16 @@ const createError = (functionNameWithKind, loc) => ({
 	...loc
 });
 
-ruleTester.run('consistent-function-scoping', rule, {
+test({
+	testerOptions: {
+		parserOptions: {
+			sourceType: 'module',
+			ecmaVersion: 2021,
+			ecmaFeatures: {
+				jsx: true
+			}
+		}
+	},
 	valid: [
 		outdent`
 			function doFoo(foo) {
@@ -41,6 +33,9 @@ ruleTester.run('consistent-function-scoping', rule, {
 			}
 		`,
 		outdent`
+			const doFoo = function() {};
+		`,
+		outdent`
 			const doFoo = foo => foo;
 		`,
 		outdent`
@@ -51,6 +46,30 @@ ruleTester.run('consistent-function-scoping', rule, {
 				function doBar(bar) {
 					return foo + bar;
 				}
+				return foo;
+			}
+		`,
+		outdent`
+			const doFoo = function(foo) {
+				function doBar(bar) {
+					return foo + bar;
+				}
+				return foo;
+			};
+		`,
+		outdent`
+			const doFoo = function(foo) {
+				const doBar = function(bar) {
+					return foo + bar;
+				};
+				return foo;
+			};
+		`,
+		outdent`
+			function doFoo(foo) {
+				const doBar = function(bar) {
+					return foo + bar;
+				};
 				return foo;
 			}
 		`,
@@ -192,6 +211,32 @@ ruleTester.run('consistent-function-scoping', rule, {
 				return Bar;
 			};
 		`,
+		outdent`
+			const foo = <JSX/>;
+		`,
+		// Functions that could be extracted are conservatively ignored due to JSX masking references
+		outdent`
+				function Foo() {
+					function Bar () {
+						return <div />
+					}
+					return <div>{ Bar() }</div>
+				}
+		`,
+		outdent`
+			function foo() {
+				function bar() {
+					return <JSX a={foo()}/>;
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				function bar() {
+					return <JSX/>;
+				}
+			}
+		`,
 		// `this`
 		outdent`
 			function doFoo(Foo) {
@@ -254,6 +299,13 @@ ruleTester.run('consistent-function-scoping', rule, {
 			(async function * () {
 				function bar() {}
 			})();
+		`,
+		outdent`
+			function doFoo() {
+				const doBar = (function(bar) {
+					return bar;
+				})();
+			}
 		`,
 		// #391
 		outdent`
@@ -320,7 +372,16 @@ ruleTester.run('consistent-function-scoping', rule, {
 
 				inner();
 			}
-		`
+		`,
+		// Should ignore functions inside arrow functions
+		{
+			code: outdent`
+				function outer () {
+					const inner = () => {}
+				}
+			`,
+			options: [{checkArrowFunctions: false}]
+		}
 	],
 	invalid: [
 		{
@@ -355,6 +416,47 @@ ruleTester.run('consistent-function-scoping', rule, {
 				}
 			`,
 			errors: [createError('function \'doBar\'')]
+		},
+		{
+			code: outdent`
+				const doFoo = function() {
+					function doBar(bar) {
+						return bar;
+					}
+				};
+			`,
+			errors: [createError('function \'doBar\'')]
+		},
+		{
+			code: outdent`
+				const doFoo = function() {
+					const doBar = function(bar) {
+						return bar;
+					};
+				};
+			`,
+			errors: [createError('function')]
+		},
+		{
+			code: outdent`
+				function doFoo() {
+					const doBar = function(bar) {
+						return bar;
+					};
+				}
+			`,
+			errors: [createError('function')]
+		},
+		{
+			code: outdent`
+				function doFoo() {
+					const doBar = function(bar) {
+						return bar;
+					};
+					doBar();
+				}
+			`,
+			errors: [createError('function')]
 		},
 		{
 			code: outdent`
@@ -594,11 +696,63 @@ ruleTester.run('consistent-function-scoping', rule, {
 				)
 			`,
 			errors: [createError('function \'baz\'')]
+		},
+		{
+			code: outdent`
+				function Foo() {
+					const Bar = <div />
+					function doBaz() {
+						return 42
+					}
+					return <div>{ doBaz() }</div>
+				}
+			`,
+			errors: [createError('function \'doBaz\'')]
+		},
+		{
+			code: outdent`
+				function Foo() {
+					function Bar () {
+						return <div />
+					}
+					function doBaz() {
+						return 42
+					}
+					return <div>{ doBaz() }</div>
+				}
+			`,
+			errors: [createError('function \'doBaz\'')]
+		},
+		// JSX
+		{
+			code: outdent`
+				function fn1() {
+					function a() {
+						return <JSX a={b()}/>;
+					}
+					function b() {}
+					function c() {}
+				}
+				function fn2() {
+					function foo() {}
+				}
+			`,
+			errors: ['b', 'c', 'foo'].map(functionName => createError(`function '${functionName}'`))
+		},
+		// Should check functions inside arrow functions
+		{
+			code: outdent`
+				const outer = () => {
+					function inner() {}
+				}
+			`,
+			errors: [createError('function \'inner\'')],
+			options: [{checkArrowFunctions: false}]
 		}
 	]
 });
 
-typescriptRuleTester.run('consistent-function-scoping', rule, {
+test.typescript({
 	valid: [
 		// #372
 		outdent`
@@ -649,17 +803,7 @@ typescriptRuleTester.run('consistent-function-scoping', rule, {
 	invalid: []
 });
 
-const visualizeTester = visualizeRuleTester(test, {
-	parserOptions: {
-		sourceType: 'module',
-		ecmaVersion: 2020,
-		ecmaFeatures: {
-			jsx: true
-		}
-	}
-});
-
-visualizeTester.run('consistent-function-scoping', rule, [
+test.visualize([
 	outdent`
 		function foo() {
 			function bar() {}
@@ -689,6 +833,13 @@ visualizeTester.run('consistent-function-scoping', rule, [
 	outdent`
 		function foo() {
 			const bar = async () => {}
+		}
+	`,
+	outdent`
+		function doFoo() {
+			const doBar = function(bar) {
+				return bar;
+			};
 		}
 	`
 ]);

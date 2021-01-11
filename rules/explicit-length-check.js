@@ -1,160 +1,192 @@
 'use strict';
+const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const isLiteralValue = require('./utils/is-literal-value');
+const isLogicalExpression = require('./utils/is-logical-expression');
+const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean');
 
-const operatorTypes = {
-	gt: ['>'],
-	gte: ['>='],
-	ne: ['!==', '!=']
+const TYPE_NON_ZERO = 'non-zero';
+const TYPE_ZERO = 'zero';
+const MESSAGE_ID_SUGGESTION = 'suggestion';
+const messages = {
+	[TYPE_NON_ZERO]: 'Use `.length {{code}}` when checking length is not zero.',
+	[TYPE_ZERO]: 'Use `.length {{code}}` when checking length is zero.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace `.length` with `.length {{code}}`.'
 };
 
-function reportError(context, node, message, fixDetails) {
-	context.report({
-		node,
-		message,
-		fix: fixDetails && (fixer => {
-			return fixer.replaceText(
-				node,
-				`${context.getSourceCode().getText(fixDetails.node)} ${fixDetails.operator} ${fixDetails.value}`
-			);
-		})
-	});
+const isCompareRight = (node, operator, value) =>
+	node.type === 'BinaryExpression' &&
+	node.operator === operator &&
+	isLiteralValue(node.right, value);
+const isCompareLeft = (node, operator, value) =>
+	node.type === 'BinaryExpression' &&
+	node.operator === operator &&
+	isLiteralValue(node.left, value);
+const nonZeroStyles = new Map([
+	[
+		'greater-than',
+		{
+			code: '> 0',
+			test: node => isCompareRight(node, '>', 0)
+		}
+	],
+	[
+		'not-equal',
+		{
+			code: '!== 0',
+			test: node => isCompareRight(node, '!==', 0)
+		}
+	],
+	[
+		'greater-than-or-equal',
+		{
+			code: '>= 1',
+			test: node => isCompareRight(node, '>=', 1)
+		}
+	]
+]);
+const zeroStyle = {
+	code: '=== 0',
+	test: node => isCompareRight(node, '===', 0)
+};
+
+const lengthSelector = [
+	'MemberExpression',
+	'[computed=false]',
+	'[property.type="Identifier"]',
+	'[property.name="length"]'
+].join('');
+
+function getLengthCheckNode(node) {
+	node = node.parent;
+
+	// Zero length check
+	if (
+		// `foo.length === 0`
+		isCompareRight(node, '===', 0) ||
+		// `foo.length == 0`
+		isCompareRight(node, '==', 0) ||
+		// `foo.length < 1`
+		isCompareRight(node, '<', 1) ||
+		// `0 === foo.length`
+		isCompareLeft(node, '===', 0) ||
+		// `0 == foo.length`
+		isCompareLeft(node, '==', 0) ||
+		// `1 > foo.length`
+		isCompareLeft(node, '>', 1)
+	) {
+		return {isZeroLengthCheck: true, node};
+	}
+
+	// Non-Zero length check
+	if (
+		// `foo.length !== 0`
+		isCompareRight(node, '!==', 0) ||
+		// `foo.length != 0`
+		isCompareRight(node, '!=', 0) ||
+		// `foo.length > 0`
+		isCompareRight(node, '>', 0) ||
+		// `foo.length >= 1`
+		isCompareRight(node, '>=', 1) ||
+		// `0 !== foo.length`
+		isCompareLeft(node, '!==', 0) ||
+		// `0 !== foo.length`
+		isCompareLeft(node, '!=', 0) ||
+		// `0 < foo.length`
+		isCompareLeft(node, '<', 0) ||
+		// `1 <= foo.length`
+		isCompareLeft(node, '<=', 1)
+	) {
+		return {isZeroLengthCheck: false, node};
+	}
+
+	return {};
 }
 
-function checkZeroType(context, node) {
-	if (node.operator === '<' && node.right.value === 1) {
-		reportError(
-			context,
+function create(context) {
+	const options = {
+		'non-zero': 'greater-than',
+		...context.options[0]
+	};
+	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
+	const sourceCode = context.getSourceCode();
+
+	function reportProblem({node, isZeroLengthCheck, lengthNode, autoFix}) {
+		const {code, test} = isZeroLengthCheck ? zeroStyle : nonZeroStyle;
+		if (test(node)) {
+			return;
+		}
+
+		let fixed = `${sourceCode.getText(lengthNode)} ${code}`;
+		if (
+			!isParenthesized(node, sourceCode) &&
+			node.type === 'UnaryExpression' &&
+			node.parent.type === 'UnaryExpression'
+		) {
+			fixed = `(${fixed})`;
+		}
+
+		const fix = fixer => fixer.replaceText(node, fixed);
+
+		const problem = {
 			node,
-			'Zero `.length` should be compared with `=== 0`.',
-			{
-				node: node.left,
-				operator: '===',
-				value: 0
-			}
-		);
-	}
-}
+			messageId: isZeroLengthCheck ? TYPE_ZERO : TYPE_NON_ZERO,
+			data: {code}
+		};
 
-function checkNonZeroType(context, node, type) {
-	const {value} = node.right;
-	const {operator} = node;
+		if (autoFix) {
+			problem.fix = fix;
+		} else {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					data: {code},
+					fix
+				}
+			];
+		}
 
-	switch (type) {
-		case 'greater-than':
-			if (
-				(operatorTypes.gte.includes(operator) && value === 1) ||
-				(operatorTypes.ne.includes(operator) && value === 0)
-			) {
-				reportError(
-					context,
-					node,
-					'Non-zero `.length` should be compared with `> 0`.',
-					{
-						node: node.left,
-						operator: '>',
-						value: 0
-					}
-				);
-			}
-
-			break;
-		case 'greater-than-or-equal':
-			if (
-				(operatorTypes.gt.includes(operator) && value === 0) ||
-				(operatorTypes.ne.includes(operator) && value === 0)
-			) {
-				reportError(
-					context,
-					node,
-					'Non-zero `.length` should be compared with `>= 1`.',
-					{
-						node: node.left,
-						operator: '>=',
-						value: 1
-					}
-				);
-			}
-
-			break;
-		case 'not-equal':
-			if (
-				(operatorTypes.gt.includes(operator) && value === 0) ||
-				(operatorTypes.gte.includes(operator) && value === 1)
-			) {
-				reportError(
-					context,
-					node,
-					'Non-zero `.length` should be compared with `!== 0`.',
-					{
-						node: node.left,
-						operator: '!==',
-						value: 0
-					}
-				);
-			}
-
-			break;
-		default:
-			break;
-	}
-}
-
-function checkBinaryExpression(context, node, options) {
-	if (
-		node.right.type === 'Literal' &&
-		node.left.type === 'MemberExpression' &&
-		node.left.property.type === 'Identifier' &&
-		node.left.property.name === 'length'
-	) {
-		checkZeroType(context, node);
-		checkNonZeroType(context, node, options['non-zero']);
-	}
-}
-
-function checkExpression(context, node) {
-	if (node.type === 'LogicalExpression') {
-		checkExpression(context, node.left);
-		checkExpression(context, node.right);
-		return;
+		context.report(problem);
 	}
 
-	if (node.type === 'UnaryExpression' && node.operator === '!') {
-		checkExpression(context, node.argument);
-		return;
-	}
-
-	if (node.type === 'BinaryExpression') {
-		checkBinaryExpression(context, node, context.options[0] || {});
-		return;
-	}
-
-	if (
-		node.type === 'MemberExpression' &&
-		node.property.type === 'Identifier' &&
-		node.property.name === 'length' &&
-		!node.computed
-	) {
-		reportError(context, node, '`length` property should be compared to a value.');
-	}
-}
-
-const create = context => {
 	return {
-		IfStatement: node => {
-			checkExpression(context, node.test);
-		},
-		ConditionalExpression: node => {
-			checkExpression(context, node.test);
+		[lengthSelector](lengthNode) {
+			let node;
+			let autoFix = true;
+
+			let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
+			if (lengthCheckNode) {
+				const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode);
+				node = ancestor;
+				if (isNegative) {
+					isZeroLengthCheck = !isZeroLengthCheck;
+				}
+			} else {
+				const {isNegative, node: ancestor} = getBooleanAncestor(lengthNode);
+				if (isBooleanNode(ancestor)) {
+					isZeroLengthCheck = isNegative;
+					node = ancestor;
+				} else if (isLogicalExpression(lengthNode.parent)) {
+					isZeroLengthCheck = isNegative;
+					node = lengthNode;
+					autoFix = false;
+				}
+			}
+
+			if (node) {
+				reportProblem({node, isZeroLengthCheck, lengthNode, autoFix});
+			}
 		}
 	};
-};
+}
 
 const schema = [
 	{
 		type: 'object',
 		properties: {
 			'non-zero': {
-				enum: ['not-equal', 'greater-than', 'greater-than-or-equal']
+				enum: [...nonZeroStyles.keys()],
+				default: 'greater-than'
 			}
 		}
 	}
@@ -168,6 +200,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema
+		schema,
+		messages
 	}
 };

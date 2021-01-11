@@ -1,25 +1,7 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/no-nested-ternary';
 import {outdent} from 'outdent';
+import {test} from './utils/test';
 
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
-
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
-
-const errors = [
-	{
-		message: 'Do not nest ternary expressions.'
-	}
-];
-
-ruleTester.run('new-error', rule, {
+test({
 	valid: [
 		'const foo = i > 5 ? true : false;',
 		'const foo = i > 5 ? true : (i < 100 ? true : false);',
@@ -32,48 +14,41 @@ ruleTester.run('new-error', rule, {
 	invalid: [
 		{
 			code: 'const foo = i > 5 ? true : (i < 100 ? true : (i < 1000 ? true : false));',
-			errors
+			errors: 1
 		},
 		{
 			code: 'const foo = i > 5 ? true : (i < 100 ? (i > 50 ? false : true) : false);',
-			errors
+			errors: 1
 		},
 		{
 			code: 'const foo = i > 5 ? i < 100 ? true : false : true;',
 			output: 'const foo = i > 5 ? (i < 100 ? true : false) : true;',
-			errors
+			errors: 1
 		},
 		{
 			code: 'const foo = i > 5 ? i < 100 ? true : false : i < 100 ? true : false;',
 			output: 'const foo = i > 5 ? (i < 100 ? true : false) : (i < 100 ? true : false);',
-			errors: [
-				{
-					column: 21
-				},
-				{
-					column: 46
-				}
-			]
+			errors: 2
 		},
 		{
 			code: 'const foo = i > 5 ? true : i < 100 ? true : false;',
 			output: 'const foo = i > 5 ? true : (i < 100 ? true : false);',
-			errors
+			errors: 1
 		},
 		{
 			code: 'foo ? bar : baz === qux ? quxx : foobar;',
 			output: 'foo ? bar : (baz === qux ? quxx : foobar);',
-			errors
+			errors: 1
 		},
 		{
 			code: 'foo ? baz === qux ? quxx : foobar : bar;',
 			output: 'foo ? (baz === qux ? quxx : foobar) : bar;',
-			errors
+			errors: 1
 		}
 	]
 });
 
-typescriptRuleTester.run('new-error', rule, {
+test.typescript({
 	valid: [
 		// #663
 		outdent`
@@ -88,3 +63,21 @@ typescriptRuleTester.run('new-error', rule, {
 	],
 	invalid: []
 });
+
+test.visualize([
+	'const foo = i > 5 ? i < 100 ? true : false : i < 100 ? true : false;',
+	'const foo = i > 5 ? true : (i < 100 ? true : (i < 1000 ? true : false));',
+	outdent`
+		const foo = a ?
+			b :
+			(
+				c ?
+					d :
+					(
+						e ?
+							f :
+							(g ? h : i)
+					)
+			)
+	`
+]);

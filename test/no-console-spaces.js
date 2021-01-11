@@ -1,31 +1,14 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-console-spaces';
+import {test} from './utils/test';
 
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2020
-	}
-});
-
-function buildError({method, column, line}) {
-	const error = {
-		message: `Do not use leading/trailing space between \`console.${method}\` parameters.`
+function buildError({method, position}) {
+	return {
+		messageId: 'no-console-spaces',
+		data: {method, position}
 	};
-
-	if (column) {
-		error.column = column;
-	}
-
-	if (line) {
-		error.line = line;
-	}
-
-	return error;
 }
 
-ruleTester.run('no-console-spaces', rule, {
+test({
 	valid: [
 		'console.log("abc");',
 		'console.log("abc", "def");',
@@ -103,66 +86,69 @@ ruleTester.run('no-console-spaces', rule, {
 	invalid: [
 		{
 			code: 'console.log("abc ", "def");',
-			errors: [buildError({method: 'log'})],
+			errors: [buildError({method: 'log', position: 'trailing'})],
 			output: 'console.log("abc", "def");'
 		},
 		{
 			code: 'console.log("abc", " def");',
-			errors: [buildError({method: 'log'})],
+			errors: [buildError({method: 'log', position: 'leading'})],
 			output: 'console.log("abc", "def");'
 		},
 		{
 			code: 'console.log(" abc ", "def");',
-			errors: [buildError({method: 'log'})],
+			errors: [buildError({method: 'log', position: 'trailing'})],
 			output: 'console.log(" abc", "def");'
 		},
 		{
 			code: 'console.debug("abc ", "def");',
-			errors: [buildError({method: 'debug'})],
+			errors: [buildError({method: 'debug', position: 'trailing'})],
 			output: 'console.debug("abc", "def");'
 		},
 		{
 			code: 'console.info("abc ", "def");',
-			errors: [buildError({method: 'info'})],
+			errors: [buildError({method: 'info', position: 'trailing'})],
 			output: 'console.info("abc", "def");'
 		},
 		{
 			code: 'console.warn("abc ", "def");',
-			errors: [buildError({method: 'warn'})],
+			errors: [buildError({method: 'warn', position: 'trailing'})],
 			output: 'console.warn("abc", "def");'
 		},
 		{
 			code: 'console.error("abc ", "def");',
-			errors: [buildError({method: 'error'})],
+			errors: [buildError({method: 'error', position: 'trailing'})],
 			output: 'console.error("abc", "def");'
 		},
 		{
 			code: 'console.log("abc", " def ", "ghi");',
-			errors: [buildError({method: 'log'})],
+			errors: [
+				buildError({method: 'log', position: 'leading'}),
+				buildError({method: 'log', position: 'trailing'})
+			],
 			output: 'console.log("abc", "def", "ghi");'
 		},
 		{
 			code: 'console.log("abc ", "def ", "ghi");',
 			errors: [
-				buildError({method: 'log', column: 13}),
-				buildError({method: 'log', column: 21})
+				buildError({method: 'log', position: 'trailing'}),
+				buildError({method: 'log', position: 'trailing'})
 			],
 			output: 'console.log("abc", "def", "ghi");'
 		},
 		{
 			code: 'console.log(\'abc \', "def");',
-			errors: [buildError({method: 'log'})],
+			errors: [buildError({method: 'log', position: 'trailing'})],
 			output: 'console.log(\'abc\', "def");'
 		},
 		{
 			code: 'console.log(`abc `, "def");',
-			errors: [buildError({method: 'log'})],
+			errors: [buildError({method: 'log', position: 'trailing'})],
 			output: 'console.log(`abc`, "def");'
 		},
 		{
 			// eslint-disable-next-line no-template-curly-in-string
 			code: 'console.log(`abc ${1 + 2} `, "def");',
-			errors: [buildError({method: 'log'})],
+			errors: [buildError({method: 'log', position: 'trailing'})],
 			// eslint-disable-next-line no-template-curly-in-string
 			output: 'console.log(`abc ${1 + 2}`, "def");'
 		},
@@ -175,7 +161,7 @@ ruleTester.run('no-console-spaces', rule, {
 				);
 			`,
 			errors: [
-				buildError({method: 'log', column: 2, line: 3})
+				buildError({method: 'log', position: 'trailing'})
 			],
 			output: outdent`
 				console.log(
@@ -195,7 +181,7 @@ ruleTester.run('no-console-spaces', rule, {
 				);
 			`,
 			errors: [
-				buildError({method: 'error'})
+				buildError({method: 'error', position: 'trailing'})
 			],
 			output: outdent`
 				console.error(
@@ -207,3 +193,29 @@ ruleTester.run('no-console-spaces', rule, {
 		}
 	]
 });
+
+test.visualize([
+	'console.log("abc", " def ", "ghi");',
+	outdent`
+		console.error(
+			theme.error('✗'),
+			'Verifying "packaging" fixture\\n ',
+			theme.error(errorMessage)
+		);
+	`,
+	outdent`
+		console.log(
+			'abc',
+			'def ',
+			'ghi'
+		);
+	`,
+	'console.log("_", " leading", "_")',
+	'console.log("_", "trailing ", "_")',
+	'console.log("_", " leading and trailing ", "_")',
+	'console.log("_", " log ", "_")',
+	'console.debug("_", " debug ", "_")',
+	'console.info("_", " info ", "_")',
+	'console.warn("_", " warn ", "_")',
+	'console.error("_", " error ", "_")'
+]);

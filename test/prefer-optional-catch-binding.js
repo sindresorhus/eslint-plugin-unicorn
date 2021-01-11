@@ -1,18 +1,10 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-optional-catch-binding';
+import {test} from './utils/test';
 
 const ERROR_MESSAGE_ID = 'error';
 const generateError = name => ({messageId: ERROR_MESSAGE_ID, data: {name}});
 
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2020
-	}
-});
-
-ruleTester.run('prefer-optional-catch-binding', rule, {
+test({
 	valid: [
 		'try {} catch {}',
 		outdent`
@@ -40,13 +32,13 @@ ruleTester.run('prefer-optional-catch-binding', rule, {
 	],
 	invalid: [
 		{
-			code: 'try {} catch(_) {}',
+			code: 'try {} catch (_) {}',
 			output: 'try {} catch {}',
 			errors: [generateError('_')]
 		},
 		{
 			code: outdent`
-				try {} catch(foo) {
+				try {} catch (foo) {
 					function bar(foo) {}
 				}
 			`,
@@ -60,18 +52,18 @@ ruleTester.run('prefer-optional-catch-binding', rule, {
 		// Many
 		{
 			code: outdent`
-				try {} catch(outer) {
-					try {} catch(inner) {
+				try {} catch (outer) {
+					try {} catch (inner) {
 					}
 				}
 				try {
-					try {} catch(inTry) {
+					try {} catch (inTry) {
 					}
-				} catch(another) {
-					try {} catch(inCatch) {
+				} catch (another) {
+					try {} catch (inCatch) {
 					}
 				} finally {
-					try {} catch(inFinally) {
+					try {} catch (inFinally) {
 					}
 				}
 			`,
@@ -102,7 +94,7 @@ ruleTester.run('prefer-optional-catch-binding', rule, {
 		},
 		// Actual message
 		{
-			code: 'try {} catch(theRealErrorName) {}',
+			code: 'try {} catch (theRealErrorName) {}',
 			output: 'try {} catch {}',
 			errors: [{message: 'Remove unused catch binding `theRealErrorName`.'}]
 		},
@@ -110,7 +102,7 @@ ruleTester.run('prefer-optional-catch-binding', rule, {
 		// {
 		// 	code: outdent`
 		// 		try {
-		// 		} catch(foo) {
+		// 		} catch (foo) {
 		// 			var foo = 1;
 		// 		}
 		// 	`,
@@ -152,13 +144,30 @@ ruleTester.run('prefer-optional-catch-binding', rule, {
 				{TAB}
 					/* comment */
 					// comment
-				 {
+				{
 					/* comment */
 					// comment
 				}
 				/* comment */
 			`.replace('{SPACE}', ' ').replace('{TAB}', '\t'),
 			errors: [generateError('unused')]
+		},
+		// Spaces
+		{
+			code: 'try    {    } catch    (e)  \n  \t  {    }',
+			//                               ^^^^^^^^^^ spaces after param will be removed.
+			output: 'try    {    } catch    {    }',
+			errors: 1
+		},
+		{
+			code: 'try {} catch(e) {}',
+			output: 'try {} catch{}',
+			errors: 1
+		},
+		{
+			code: 'try {} catch (e){}',
+			output: 'try {} catch {}',
+			errors: 1
 		}
 	]
 });

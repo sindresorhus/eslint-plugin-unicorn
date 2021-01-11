@@ -5,6 +5,11 @@ const methodSelector = require('./utils/method-selector');
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';
 const SUGGESTION_REMOVE_MESSAGE_ID = 'remove';
+const messages = {
+	[ERROR_MESSAGE_ID]: 'Use `undefined` instead of `null`.',
+	[SUGGESTION_REPLACE_MESSAGE_ID]: 'Replace `null` with `undefined`.',
+	[SUGGESTION_REMOVE_MESSAGE_ID]: 'Remove `null`.'
+};
 
 const objectCreateSelector = methodSelector({
 	object: 'Object',
@@ -12,11 +17,28 @@ const objectCreateSelector = methodSelector({
 	length: 1
 });
 
+// `useRef(null)`
+// eslint-disable-next-line unicorn/prevent-abbreviations
+const useRefSelector = [
+	'CallExpression',
+	'[callee.type="Identifier"]',
+	'[callee.name="useRef"]',
+	'[arguments.length=1]',
+	'[arguments.0.type!="SpreadElement"]'
+].join('');
+
+// `React.useRef(null)`
+// eslint-disable-next-line unicorn/prevent-abbreviations
+const reactUseRefSelector = methodSelector({
+	object: 'React',
+	name: 'useRef',
+	length: 1
+});
+
 const selector = [
-	`:not(${objectCreateSelector})`,
-	'>',
 	'Literal',
-	'[raw="null"]'
+	'[raw="null"]',
+	`:not(:matches(${[objectCreateSelector, useRefSelector, reactUseRefSelector].join(', ')}) > .arguments)`
 ].join('');
 
 const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].includes(node.operator);
@@ -36,7 +58,7 @@ const create = context => {
 			};
 
 			/* istanbul ignore next */
-			const {parent = {}} = node;
+			const {parent = {}, range} = node;
 
 			if (!checkStrictEquality && isStrictEqual(parent)) {
 				return;
@@ -62,7 +84,7 @@ const create = context => {
 				problem.suggest = [
 					{
 						messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-						fix: fixer => fixer.removeRange([parent.id.range[1], node.range[1]])
+						fix: fixer => fixer.removeRange([parent.id.range[1], range[1]])
 					},
 					replaceSuggestion
 				];
@@ -97,11 +119,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		messages: {
-			[ERROR_MESSAGE_ID]: 'Use `undefined` instead of `null`.',
-			[SUGGESTION_REPLACE_MESSAGE_ID]: 'Replace `null` with `undefined`.',
-			[SUGGESTION_REMOVE_MESSAGE_ID]: 'Remove `null`.'
-		},
+		messages,
 		schema,
 		fixable: 'code'
 	}

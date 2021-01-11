@@ -106,6 +106,21 @@ const defaultReplacements = {
 	exts: {
 		extensions: true
 	},
+	fn: {
+		function: true
+	},
+	func: {
+		function: true
+	},
+	i: {
+		index: true
+	},
+	idx: {
+		index: true
+	},
+	j: {
+		index: true
+	},
 	len: {
 		length: true
 	},
@@ -198,10 +213,19 @@ const defaultReplacements = {
 	},
 	val: {
 		value: true
+	},
+	var: {
+		variable: true
+	},
+	vars: {
+		variables: true
+	},
+	ver: {
+		version: true
 	}
 };
 
-const defaultWhitelist = {
+const defaultAllowList = {
 	// React PropTypes
 	// https://reactjs.org/docs/typechecking-with-proptypes.html
 	propTypes: true,
@@ -239,15 +263,21 @@ const prepareOptions = ({
 	replacements = {},
 
 	extendDefaultWhitelist = true,
-	whitelist = {}
+	whitelist = {},
+
+	ignore = []
 } = {}) => {
 	const mergedReplacements = extendDefaultReplacements ?
 		defaultsDeep({}, replacements, defaultReplacements) :
 		replacements;
 
 	const mergedWhitelist = extendDefaultWhitelist ?
-		defaultsDeep({}, whitelist, defaultWhitelist) :
+		defaultsDeep({}, whitelist, defaultAllowList) :
 		whitelist;
+
+	ignore = ignore.map(
+		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u')
+	);
 
 	return {
 		checkProperties,
@@ -265,7 +295,9 @@ const prepareOptions = ({
 					[discouragedName, new Map(Object.entries(replacements))]
 			)
 		),
-		whitelist: new Map(Object.entries(mergedWhitelist))
+		whitelist: new Map(Object.entries(mergedWhitelist)),
+
+		ignore
 	};
 };
 
@@ -291,10 +323,10 @@ const getWordReplacements = (word, {replacements, whitelist}) => {
 };
 
 const getNameReplacements = (name, options, limit = 3) => {
-	const {whitelist} = options;
+	const {whitelist, ignore} = options;
 
 	// Skip constants and whitelist
-	if (isUpperCase(name) || whitelist.get(name)) {
+	if (isUpperCase(name) || whitelist.get(name) || ignore.some(regexp => regexp.test(name))) {
 		return {total: 0};
 	}
 
@@ -529,7 +561,7 @@ const create = context => {
 				}
 
 				// Create a normal-looking variable (like a `var` or a `function`)
-				// For which a single `variable` holds all references, unline with `class`
+				// For which a single `variable` holds all references, unlike with a `class`
 				const combinedReferencesVariable = {
 					name: variable.name,
 					scope: variable.scope,
@@ -694,7 +726,6 @@ const create = context => {
 
 			const extension = path.extname(filenameWithExtension);
 			const filename = path.basename(filenameWithExtension, extension);
-
 			const filenameReplacements = getNameReplacements(filename, options);
 
 			if (filenameReplacements.total === 0) {
@@ -760,6 +791,10 @@ const schema = [
 			},
 			whitelist: {
 				$ref: '#/items/0/definitions/booleanObject'
+			},
+			ignore: {
+				type: 'array',
+				uniqueItems: true
 			}
 		},
 		additionalProperties: false,

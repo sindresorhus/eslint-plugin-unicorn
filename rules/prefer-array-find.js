@@ -9,9 +9,18 @@ const ERROR_SHIFT = 'error-shift';
 const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
 const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
 const ERROR_DECLARATION = 'error-variable';
-
 const SUGGESTION_NULLISH_COALESCING_OPERATOR = 'suggest-nullish-coalescing-operator';
 const SUGGESTION_LOGICAL_OR_OPERATOR = 'suggest-logical-or-operator';
+const messages = {
+	[ERROR_DECLARATION]: 'Prefer `.find(…)` over `.filter(…)`.',
+	[ERROR_ZERO_INDEX]: 'Prefer `.find(…)` over `.filter(…)[0]`.',
+	[ERROR_SHIFT]: 'Prefer `.find(…)` over `.filter(…).shift()`.',
+	[ERROR_DESTRUCTURING_DECLARATION]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
+	// Same message as `ERROR_DESTRUCTURING_DECLARATION`, but different case
+	[ERROR_DESTRUCTURING_ASSIGNMENT]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
+	[SUGGESTION_NULLISH_COALESCING_OPERATOR]: 'Replace `.filter(…)` with `.find(…) ?? …`.',
+	[SUGGESTION_LOGICAL_OR_OPERATOR]: 'Replace `.filter(…)` with `.find(…) || …`.'
+};
 
 const filterMethodSelectorOptions = {
 	name: 'filter',
@@ -302,15 +311,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages: {
-			[ERROR_DECLARATION]: 'Prefer `.find(…)` over `.filter(…)`.',
-			[ERROR_ZERO_INDEX]: 'Prefer `.find(…)` over `.filter(…)[0]`.',
-			[ERROR_SHIFT]: 'Prefer `.find(…)` over `.filter(…).shift()`.',
-			[ERROR_DESTRUCTURING_DECLARATION]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
-			// Same message as `ERROR_DESTRUCTURING_DECLARATION`, but different case
-			[ERROR_DESTRUCTURING_ASSIGNMENT]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
-			[SUGGESTION_NULLISH_COALESCING_OPERATOR]: 'Replace `.filter(…)` with `.find(…) ?? …`.',
-			[SUGGESTION_LOGICAL_OR_OPERATOR]: 'Replace `.filter(…)` with `.find(…) || …`.'
-		}
+		messages
 	}
 };

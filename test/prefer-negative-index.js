@@ -1,18 +1,11 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-negative-index';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {test} from './utils/test';
 
 const error = {
+	messageId: 'prefer-negative-index'
 };
 
-ruleTester.run('prefer-negative-index', rule, {
+test({
 	valid: [
 		// Docs example (1)
 		'foo.slice(-2, -1)',
@@ -365,3 +358,8 @@ ruleTester.run('prefer-negative-index', rule, {
 		}
 	]
 });
+
+test.visualize([
+	'foo.slice(foo.length - 2, foo.length - 1)',
+	'foo.splice(foo.length - 1, 1)'
+]);

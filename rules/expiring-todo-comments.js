@@ -16,8 +16,31 @@ const MESSAGE_ID_HAVE_PACKAGE = 'unicorn/havePackage';
 const MESSAGE_ID_DONT_HAVE_PACKAGE = 'unicorn/dontHavePackage';
 const MESSAGE_ID_VERSION_MATCHES = 'unicorn/versionMatches';
 const MESSAGE_ID_ENGINE_MATCHES = 'unicorn/engineMatches';
-const MESSAGE_ID_REMOVE_WHITESPACES = 'unicorn/removeWhitespaces';
+const MESSAGE_ID_REMOVE_WHITESPACE = 'unicorn/removeWhitespaces';
 const MESSAGE_ID_MISSING_AT_SYMBOL = 'unicorn/missingAtSymbol';
+const messages = {
+	[MESSAGE_ID_AVOID_MULTIPLE_DATES]:
+		'Avoid using multiple expiration dates in TODO: {{expirationDates}}. {{message}}',
+	[MESSAGE_ID_EXPIRED_TODO]:
+		'There is a TODO that is past due date: {{expirationDate}}. {{message}}',
+	[MESSAGE_ID_REACHED_PACKAGE_VERSION]:
+		'There is a TODO that is past due package version: {{comparison}}. {{message}}',
+	[MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS]:
+		'Avoid using multiple package versions in TODO: {{versions}}. {{message}}',
+	[MESSAGE_ID_HAVE_PACKAGE]:
+		'There is a TODO that is deprecated since you installed: {{package}}. {{message}}',
+	[MESSAGE_ID_DONT_HAVE_PACKAGE]:
+		'There is a TODO that is deprecated since you uninstalled: {{package}}. {{message}}',
+	[MESSAGE_ID_VERSION_MATCHES]:
+		'There is a TODO match for package version: {{comparison}}. {{message}}',
+	[MESSAGE_ID_ENGINE_MATCHES]:
+		'There is a TODO match for Node.js version: {{comparison}}. {{message}}',
+	[MESSAGE_ID_REMOVE_WHITESPACE]:
+		'Avoid using whitespace on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
+	[MESSAGE_ID_MISSING_AT_SYMBOL]:
+		'Missing \'@\' on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
+	...baseRule.meta.messages
+};
 
 const packageResult = readPkgUp.sync();
 const hasPackage = Boolean(packageResult);
@@ -448,16 +471,16 @@ const create = context => {
 				}
 			}
 
-			const withoutWhitespaces = unknown.replace(/ /g, '');
+			const withoutWhitespace = unknown.replace(/ /g, '');
 
-			if (parseArgument(withoutWhitespaces).type !== 'unknowns') {
+			if (parseArgument(withoutWhitespace).type !== 'unknowns') {
 				uses++;
 				context.report({
 					loc: comment.loc,
-					messageId: MESSAGE_ID_REMOVE_WHITESPACES,
+					messageId: MESSAGE_ID_REMOVE_WHITESPACE,
 					data: {
 						original: unknown,
-						fix: withoutWhitespaces,
+						fix: withoutWhitespace,
 						message: parseTodoMessage(comment.value)
 					}
 				});
@@ -509,29 +532,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		messages: {
-			[MESSAGE_ID_AVOID_MULTIPLE_DATES]:
-				'Avoid using multiple expiration dates in TODO: {{expirationDates}}. {{message}}',
-			[MESSAGE_ID_EXPIRED_TODO]:
-				'There is a TODO that is past due date: {{expirationDate}}. {{message}}',
-			[MESSAGE_ID_REACHED_PACKAGE_VERSION]:
-				'There is a TODO that is past due package version: {{comparison}}. {{message}}',
-			[MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS]:
-				'Avoid using multiple package versions in TODO: {{versions}}. {{message}}',
-			[MESSAGE_ID_HAVE_PACKAGE]:
-				'There is a TODO that is deprecated since you installed: {{package}}. {{message}}',
-			[MESSAGE_ID_DONT_HAVE_PACKAGE]:
-				'There is a TODO that is deprecated since you uninstalled: {{package}}. {{message}}',
-			[MESSAGE_ID_VERSION_MATCHES]:
-				'There is a TODO match for package version: {{comparison}}. {{message}}',
-			[MESSAGE_ID_ENGINE_MATCHES]:
-				'There is a TODO match for Node.js version: {{comparison}}. {{message}}',
-			[MESSAGE_ID_REMOVE_WHITESPACES]:
-				'Avoid using whitespaces on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
-			[MESSAGE_ID_MISSING_AT_SYMBOL]:
-				'Missing \'@\' on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
-			...baseRule.meta.messages
-		},
+		messages,
 		schema
 	}
 };

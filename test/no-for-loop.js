@@ -1,11 +1,11 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/no-for-loop';
+import {test as runTest, rule} from './utils/test';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
-		ecmaVersion: 2020
+		ecmaVersion: 2021
 	}
 });
 
@@ -19,7 +19,7 @@ function testCase(code, output) {
 	return {
 		code,
 		output: output || code,
-		errors: [{}]
+		errors: [{messageId: 'no-for-loop'}]
 	};
 }
 
@@ -203,7 +203,7 @@ ruleTester.run('no-for-loop', rule, {
 				console.log(i, el);
 			}
 		`, outdent`
-			for (const [i, el] of arr.entries()) {
+			for (let [i, el] of arr.entries()) {
 				console.log(i, el);
 			}
 		`),
@@ -247,7 +247,7 @@ ruleTester.run('no-for-loop', rule, {
 				var x = xs[j];console.log(j, x);
 			}
 		`, outdent`
-			for (const [j, x] of xs.entries()) {
+			for (var [j, x] of xs.entries()) {
 				console.log(j, x);
 			}
 		`),
@@ -277,7 +277,7 @@ ruleTester.run('no-for-loop', rule, {
 				console.log(j, x, y);
 			}
 		`, outdent`
-			for (const [j, x] of xs.entries()) {
+			for (var [j, x] of xs.entries()) {
 				var y = ys[j];
 				console.log(j, x, y);
 			}
@@ -289,7 +289,7 @@ ruleTester.run('no-for-loop', rule, {
 				console.log(j, x, y);
 			}
 		`, outdent`
-			for (const [j, x] of xs.entries()) {
+			for (var [j, x] of xs.entries()) {
 				var y = ys[j];
 				console.log(j, x, y);
 			}
@@ -301,7 +301,7 @@ ruleTester.run('no-for-loop', rule, {
 				console.log(j, x, y);
 			}
 		`, outdent`
-			for (const [j, x] of xs.entries()) {
+			for (var [j, x] of xs.entries()) {
 				var y = ys[j], i = 10;
 				console.log(j, x, y);
 			}
@@ -724,3 +724,93 @@ ruleTesterEs5.run('no-for-loop', rule, {
 	],
 	invalid: []
 });
+
+runTest.typescript({
+	valid: [],
+	invalid: [
+		{
+			// https://github.com/microsoft/vscode/blob/cf9ac85214c3f1d3d0b80cc503ff7498f2b3ea2f/src/vs/workbench/api/common/extHostLanguageFeatures.ts#L1207
+			code: outdent`
+				for (let i = 0; i < positions.length; i++) {
+					let last: vscode.Position | vscode.Range = positions[i];
+					let selectionRange = allProviderRanges[i];
+				}
+			`,
+			output: outdent`
+				for (let [i, last]: [number, vscode.Position | vscode.Range] of positions.entries()) {
+					let selectionRange = allProviderRanges[i];
+				}
+			`,
+			errors: 1
+		},
+		{
+			code: outdent`
+				for (let i = 0; i < positions.length; i++) {
+					const    last   /* comment */    : /* comment */ Position = positions[i];
+					console.log(i);
+				}
+			`,
+			output: outdent`
+				for (const [i, last   /* comment */]: [number, /* comment */ Position] of positions.entries()) {
+					console.log(i);
+				}
+			`,
+			errors: 1
+		},
+		{
+			code: outdent`
+				for (let i = 0; i < positions.length; i++) {
+					let last: vscode.Position | vscode.Range = positions[i];
+				}
+			`,
+			output: outdent`
+				for (let last: vscode.Position | vscode.Range of positions) {
+				}
+			`,
+			errors: 1
+		}
+	]
+});
+
+runTest.visualize([
+	outdent`
+		for (let i = 0; i < arr.length; i += 1) {
+			console.log(arr[i])
+		}
+	`,
+	// #742
+	outdent`
+		for (let i = 0; i < plugins.length; i++) {
+			let plugin = plugins[i];
+			plugin = calculateSomeNewValue();
+			// ...
+		}
+	`,
+	outdent`
+		for (
+			let i = 0;
+			i < array.length;
+			i++
+		)
+		// comment (foo)
+			{
+				var foo = array[i];
+				foo = bar();
+			}
+	`,
+	outdent`
+		for (let i = 0; i < array.length; i++) {
+			let foo = array[i];
+		}
+	`,
+	outdent`
+		for (let i = 0; i < array.length; i++) {
+			const foo = array[i];
+		}
+	`,
+	outdent`
+		for (let i = 0; i < array.length; i++) {
+			var foo = array[i], bar = 1;
+		}
+	`
+]);

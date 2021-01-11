@@ -4,11 +4,17 @@ const {camelCase, kebabCase, snakeCase, upperFirst} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
 
+const messages = {
+	renameToCase: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.',
+	renameToCases: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.'
+};
+
 const pascalCase = string => upperFirst(camelCase(string));
 const numberRegex = /\d+/;
 const PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
 const PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
 const isIgnoredChar = char => !/^[a-z\d-_$]$/i.test(char);
+const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue']);
 
 function ignoreNumbers(fn) {
 	return string => {
@@ -159,7 +165,7 @@ const create = context => {
 			const filename = path.basename(filenameWithExtension, extension);
 			const base = filename + extension;
 
-			if (base === 'index.js' || ignore.some(regexp => regexp.test(base))) {
+			if (ignoredByDefault.has(base) || ignore.some(regexp => regexp.test(base))) {
 				return;
 			}
 
@@ -245,9 +251,6 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		schema,
-		messages: {
-			renameToCase: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.',
-			renameToCases: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.'
-		}
+		messages
 	}
 };

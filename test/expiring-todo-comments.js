@@ -1,12 +1,4 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/expiring-todo-comments';
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
+import {test} from './utils/test';
 
 const expiredTodoError = (expirationDate, message) => ({
 	message: `There is a TODO that is past due date: ${expirationDate}. ${message}`
@@ -40,19 +32,19 @@ const avoidMultiplePackageVersionsError = (versions, message) => ({
 	message: `Avoid using multiple package versions in TODO: ${versions}. ${message}`
 });
 
-const removeWhitespacesError = (argument, message) => ({
-	message: `Avoid using whitespaces on TODO argument. On '${argument}' use '${argument.replace(/ /g, '')}'. ${message}`
+const removeWhitespaceError = (argument, message) => ({
+	message: `Avoid using whitespace on TODO argument. On '${argument}' use '${argument.replace(/ /g, '')}'. ${message}`
 });
 
 const missingAtSymbolError = (bad, good, message) => ({
 	message: `Missing '@' on TODO argument. On '${bad}' use '${good}'. ${message}`
 });
 
-const noWarningCommentError = () => ({
-	message: 'Unexpected \'todo\' comment.'
+const noWarningCommentError = comment => ({
+	message: `Unexpected 'todo' comment: '${comment}'.`
 });
 
-ruleTester.run('expiring-todo-comments', rule, {
+test({
 	valid: [
 		'// TODO [2200-12-12]: Too long... Can you feel it?',
 		'// FIXME [2200-12-12]: Too long... Can you feel it?',
@@ -248,66 +240,66 @@ ruleTester.run('expiring-todo-comments', rule, {
 			errors: [missingAtSymbolError('semver>1', 'semver@>1', 'Missing @.')]
 		},
 		{
-			code: '// TODO [> 1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('> 1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [> 1]: Remove whitespace when it can fix.',
+			errors: [removeWhitespaceError('> 1', 'Remove whitespace when it can fix.')]
 		},
 		{
-			code: '// TODO [semver@> 1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('semver@> 1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [semver@> 1]: Remove whitespace when it can fix.',
+			errors: [removeWhitespaceError('semver@> 1', 'Remove whitespace when it can fix.')]
 		},
 		{
-			code: '// TODO [semver @>1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('semver @>1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [semver @>1]: Remove whitespace when it can fix.',
+			errors: [removeWhitespaceError('semver @>1', 'Remove whitespace when it can fix.')]
 		},
 		{
-			code: '// TODO [semver@>= 1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('semver@>= 1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [semver@>= 1]: Remove whitespace when it can fix.',
+			errors: [removeWhitespaceError('semver@>= 1', 'Remove whitespace when it can fix.')]
 		},
 		{
-			code: '// TODO [semver @>=1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('semver @>=1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [semver @>=1]: Remove whitespace when it can fix.',
+			errors: [removeWhitespaceError('semver @>=1', 'Remove whitespace when it can fix.')]
 		},
 		{
-			code: '// TODO [engine:node @>=1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('engine:node @>=1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [engine:node @>=1]: Remove whitespace when it can fix.',
+			errors: [removeWhitespaceError('engine:node @>=1', 'Remove whitespace when it can fix.')]
 		},
 		{
-			code: '// TODO [engine:node@>= 1]: Remove whitespaces when it can fix.',
-			errors: [removeWhitespacesError('engine:node@>= 1', 'Remove whitespaces when it can fix.')]
+			code: '// TODO [engine:node@>= 1]: Remove whitespace when it can fix.',
+			errors: [removeWhitespaceError('engine:node@>= 1', 'Remove whitespace when it can fix.')]
 		},
 		{
 			code: '// TODO',
-			errors: [noWarningCommentError()],
+			errors: [noWarningCommentError('TODO')],
 			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO []',
-			errors: [noWarningCommentError()],
+			errors: [noWarningCommentError('TODO []')],
 			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [no meaning at all]',
-			errors: [noWarningCommentError()],
+			errors: [noWarningCommentError('TODO [no meaning at all]')],
 			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [] might have [some] that [try [to trick] me]',
-			errors: [noWarningCommentError()],
+			errors: [noWarningCommentError('TODO [] might have [some] that [try [to...')],
 			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [but [it will]] [fallback] [[[ to the default ]]] rule [[[',
-			errors: [noWarningCommentError()],
+			errors: [noWarningCommentError('TODO [but [it will]] [fallback] [[[ to...')],
 			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [engine:npm@>=10000]: Unsupported engine',
-			errors: [noWarningCommentError()],
+			errors: [noWarningCommentError('TODO [engine:npm@>=10000]: Unsupported...')],
 			options: [{allowWarningComments: false}]
 		},
 		{
 			code: '// TODO [engine:somethingrandom@>=10000]: Unsupported engine',
-			errors: [noWarningCommentError()],
+			errors: [noWarningCommentError('TODO [engine:somethingrandom@>=10000]:...')],
 			options: [{allowWarningComments: false}]
 		},
 		{
@@ -348,10 +340,10 @@ ruleTester.run('expiring-todo-comments', rule, {
 			options: [{ignoreDatesOnPullRequests: false, terms: ['Expire Condition']}]
 		},
 		{
-			code: '// TODO [semver @>=1, -popura]: Package uninstalled and whitespaces error',
+			code: '// TODO [semver @>=1, -popura]: Package uninstalled and whitespace error',
 			errors: [
-				dontHavePackageError('popura', 'Package uninstalled and whitespaces error'),
-				removeWhitespacesError('semver @>=1', 'Package uninstalled and whitespaces error')
+				dontHavePackageError('popura', 'Package uninstalled and whitespace error'),
+				removeWhitespaceError('semver @>=1', 'Package uninstalled and whitespace error')
 			]
 		},
 		{
@@ -363,7 +355,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 				havePackageError('read-pkg-up', 'Big mix'),
 				versionMatchesError('read-pkg-up > 1', 'Big mix'),
 				engineMatchesError('node>=8', 'Big mix'),
-				removeWhitespacesError('semver @>=1', 'Big mix')
+				removeWhitespaceError('semver @>=1', 'Big mix')
 			],
 			options: [{ignoreDatesOnPullRequests: false, terms: ['HUGETODO']}]
 		},
@@ -371,7 +363,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 			code: '// TODO [ISSUE-123] fix later',
 			options: [{allowWarningComments: false, ignore: []}],
 			errors: [
-				noWarningCommentError()
+				noWarningCommentError('TODO [ISSUE-123] fix later')
 			]
 		},
 		{
@@ -381,7 +373,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 			`,
 			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}],
 			errors: [
-				noWarningCommentError()
+				noWarningCommentError('TODO fix later')
 			]
 		},
 		{
@@ -391,7 +383,7 @@ ruleTester.run('expiring-todo-comments', rule, {
 			*/`,
 			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}],
 			errors: [
-				noWarningCommentError()
+				noWarningCommentError('TODO Invalid')
 			]
 		}
 	]

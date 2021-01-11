@@ -1,15 +1,7 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-modern-dom-apis';
+import {test} from './utils/test';
 
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
-
-ruleTester.run('prefer-modern-dom-apis', rule, {
+test({
 	valid: [
 		'oldChildNode.replaceWith(newChildNode);',
 		'referenceNode.before(newNode);',

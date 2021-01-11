@@ -1,15 +1,27 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import rule from '../rules/prefer-query-selector';
+import {test} from './utils/test';
+import notDomNodeTypes from './utils/not-dom-node-types';
+import {outdent} from 'outdent';
 
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
-
-ruleTester.run('prefer-query-selector', rule, {
+test({
 	valid: [
+		// Not `CallExpression`
+		'new document.getElementById(foo);',
+		// Not `MemberExpression`
+		'getElementById(foo);',
+		// `callee.property` is not a `Identifier`
+		'document[\'getElementById\'](bar);',
+		// Computed
+		'document[getElementById](bar);',
+		// Not listed method
+		'document.foo(bar);',
+		// More or less argument(s)
+		'document.getElementById();',
+		'document.getElementsByClassName("foo", "bar");',
+		'document.getElementById(...["id"]);',
+
+		// `callee.object` is not a DOM Node,
+		...notDomNodeTypes.map(data => `(${data}).getElementById(foo)`),
+
 		'document.querySelector("#foo");',
 		'document.querySelector(".bar");',
 		'document.querySelector("main #foo .bar");',
@@ -17,108 +29,35 @@ ruleTester.run('prefer-query-selector', rule, {
 		'document.querySelectorAll("li a");',
 		'document.querySelector("li").querySelectorAll("a");'
 	],
-	invalid: [
-		{
-			code: 'document.getElementById("foo");',
-			errors: [{message: 'Prefer `.querySelector()` over `.getElementById()`.'}],
-			output: 'document.querySelector("#foo");'
-		},
-		{
-			code: 'document.getElementsByClassName("foo");',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByClassName()`.'}],
-			output: 'document.querySelectorAll(".foo");'
-		},
-		{
-			code: 'document.getElementsByClassName("foo bar");',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByClassName()`.'}],
-			output: 'document.querySelectorAll(".foo.bar");'
-		},
-		{
-			code: 'document.getElementsByTagName("foo");',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByTagName()`.'}],
-			output: 'document.querySelectorAll("foo");'
-		},
-		{
-			code: 'document.getElementById("");',
-			errors: [{message: 'Prefer `.querySelector()` over `.getElementById()`.'}]
-		},
-		{
-			code: 'document.getElementById(\'foo\');',
-			errors: [{message: 'Prefer `.querySelector()` over `.getElementById()`.'}],
-			output: 'document.querySelector(\'#foo\');'
-		},
-		{
-			code: 'document.getElementsByClassName(\'foo\');',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByClassName()`.'}],
-			output: 'document.querySelectorAll(\'.foo\');'
-		},
-		{
-			code: 'document.getElementsByClassName(\'foo bar\');',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByClassName()`.'}],
-			output: 'document.querySelectorAll(\'.foo.bar\');'
-		},
-		{
-			code: 'document.getElementsByTagName(\'foo\');',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByTagName()`.'}],
-			output: 'document.querySelectorAll(\'foo\');'
-		},
-		{
-			code: 'document.getElementsByClassName(\'\');',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByClassName()`.'}]
-		},
-		{
-			code: 'document.getElementById(`foo`);',
-			errors: [{message: 'Prefer `.querySelector()` over `.getElementById()`.'}],
-			output: 'document.querySelector(`#foo`);'
-		},
-		{
-			code: 'document.getElementsByClassName(`foo`);',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByClassName()`.'}],
-			output: 'document.querySelectorAll(`.foo`);'
-		},
-		{
-			code: 'document.getElementsByClassName(`foo bar`);',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByClassName()`.'}],
-			output: 'document.querySelectorAll(`.foo.bar`);'
-		},
-		{
-			code: 'document.getElementsByTagName(`foo`);',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByTagName()`.'}],
-			output: 'document.querySelectorAll(`foo`);'
-		},
-		{
-			code: 'document.getElementsByTagName(``);',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByTagName()`.'}]
-		},
-		{
-			code: 'document.getElementsByClassName(`${fn()}`);', // eslint-disable-line no-template-curly-in-string
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByClassName()`.'}]
-		},
-		{
-			code: 'document.getElementsByClassName(`foo ${undefined}`);', // eslint-disable-line no-template-curly-in-string
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByClassName()`.'}]
-		},
-		{
-			code: 'document.getElementsByClassName(null);',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByClassName()`.'}],
-			output: 'document.querySelectorAll(null);'
-		},
-		{
-			code: 'document.getElementsByTagName(null);',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByTagName()`.'}],
-			output: 'document.querySelectorAll(null);'
-		},
-		{
-			code: 'document.getElementsByClassName(fn());',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByClassName()`.'}]
-		},
-		{
-			code: 'document.getElementsByClassName("foo" + fn());',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByClassName()`.'}]
-		},
-		{
-			code: 'document.getElementsByClassName(foo + "bar");',
-			errors: [{message: 'Prefer `.querySelectorAll()` over `.getElementsByClassName()`.'}]
-		}
-	]
+	invalid: []
 });
+
+test.visualize([
+	'document.getElementById("foo");',
+	'document.getElementsByClassName("foo");',
+	'document.getElementsByClassName("foo bar");',
+	'document.getElementsByTagName("foo");',
+	'document.getElementById("");',
+	'document.getElementById(\'foo\');',
+	'document.getElementsByClassName(\'foo\');',
+	'document.getElementsByClassName(\'foo bar\');',
+	'document.getElementsByTagName(\'foo\');',
+	'document.getElementsByClassName(\'\');',
+	'document.getElementById(`foo`);',
+	'document.getElementsByClassName(`foo`);',
+	'document.getElementsByClassName(`foo bar`);',
+	'document.getElementsByTagName(`foo`);',
+	'document.getElementsByTagName(``);',
+	'document.getElementsByClassName(`${fn()}`);', // eslint-disable-line no-template-curly-in-string
+	'document.getElementsByClassName(`foo ${undefined}`);', // eslint-disable-line no-template-curly-in-string
+	'document.getElementsByClassName(null);',
+	'document.getElementsByTagName(null);',
+	'document.getElementsByClassName(fn());',
+	'document.getElementsByClassName("foo" + fn());',
+	'document.getElementsByClassName(foo + "bar");',
+	outdent`
+		for (const div of document.body.getElementById("id").getElementsByClassName("class")) {
+			console.log(div.getElementsByTagName("div"));
+		}
+	`
+]);

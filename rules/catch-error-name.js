@@ -5,7 +5,10 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const renameVariable = require('./utils/rename-variable');
 const methodSelector = require('./utils/method-selector');
 
-const ERROR_MESSAGE_ID = 'error';
+const MESSAGE_ID = 'catch-error-name';
+const messages = {
+	[MESSAGE_ID]: 'The catch parameter `{{originalName}}` should be named `{{fixedName}}`.'
+};
 
 const promiseMethodSelector = (method, argumentsLength, argumentIndex) => [
 	methodSelector({
@@ -78,7 +81,7 @@ const create = context => {
 
 		context.report({
 			node,
-			messageId: ERROR_MESSAGE_ID,
+			messageId: MESSAGE_ID,
 			data: {
 				originalName,
 				fixedName
@@ -124,8 +127,6 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
-		messages: {
-			[ERROR_MESSAGE_ID]: 'The catch parameter `{{originalName}}` should be named `{{fixedName}}`.'
-		}
+		messages
 	}
 };
