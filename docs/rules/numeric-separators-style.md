@@ -41,6 +41,7 @@ Default: `false`
 Check if the group sizes are valid **only** if there are groups separated with an `_`.
 
 Example:
+
 ```js
 const foo = 100000; // Pass, because there are no groups, so no check was performed.
 const bar = 1_000_000; // Pass, because the group sizes are correct.
