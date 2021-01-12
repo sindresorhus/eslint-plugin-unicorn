@@ -1,5 +1,5 @@
 import {outdent} from 'outdent';
-import {test} from './utils/test';
+import {test} from './utils/test.js';
 
 const suggestionCase = ({code, output, desc, options = []}) => {
 	const suggestion = {output};
@@ -58,6 +58,8 @@ test({
 		'const x = Boolean(foo.length, foo.length)',
 		'const x = new Boolean(foo.length)',
 		'const x = NotBoolean(foo.length)',
+		'const length = foo.length ?? 0',
+		'if (foo.length ?? bar) {}',
 
 		// Checking 'non-zero'
 		'if (foo.length > 0) {}',

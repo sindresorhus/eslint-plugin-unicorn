@@ -1,5 +1,5 @@
 import {flatten} from 'lodash';
-import {test} from './utils/test';
+import {test} from './utils/test.js';
 
 function testCase(filename, chosenCase, errorMessage) {
 	return testCaseWithOptions(

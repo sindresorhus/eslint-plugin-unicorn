@@ -1,19 +1,29 @@
-# Prefer `String#startsWith()` & `String#endsWith()` over more complex alternatives
+# Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`
 
-There are several ways of checking whether a string starts or ends with a certain string, such as `string.indexOf('foo') === 0` or using a regex with `/^foo/` or `/foo$/`. ES2015 introduced simpler alternatives named [`String#startsWith()`](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith) and [`String#endsWith()`](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith). This rule enforces the use of those whenever possible.
+Prefer [`String#startsWith()`](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith) and [`String#endsWith()`](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith) over using a regex with `/^foo/` or `/foo$/`.
 
-This rule is partly fixable.
+This rule is fixable.
 
 ## Fail
 
 ```js
-/^bar/.test(foo);
-/bar$/.test(foo);
+const foo = /^bar/.test(baz);
+```
+
+```js
+const foo = /bar$/.test(baz);
 ```
 
 ## Pass
 
 ```js
-foo.startsWith('bar');
-foo.endsWith('bar');
+const foo = baz.startsWith('bar');
+```
+
+```js
+const foo = baz.endsWith('bar');
+```
+
+```js
+const foo = /^bar/i.test(baz);
 ```

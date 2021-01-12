@@ -1,5 +1,5 @@
 /* eslint-disable no-template-curly-in-string, unicorn/escape-case */
-import {test} from './utils/test';
+import {test} from './utils/test.js';
 
 const errors = [
 	{

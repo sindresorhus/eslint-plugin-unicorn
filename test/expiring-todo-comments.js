@@ -1,4 +1,4 @@
-import {test} from './utils/test';
+import {test} from './utils/test.js';
 
 const expiredTodoError = (expirationDate, message) => ({
 	message: `There is a TODO that is past due date: ${expirationDate}. ${message}`

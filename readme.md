@@ -44,7 +44,7 @@ Configure it in `package.json`.
 			"unicorn/expiring-todo-comments": "error",
 			"unicorn/explicit-length-check": "error",
 			"unicorn/filename-case": "error",
-			"unicorn/import-index": "error",
+			"unicorn/import-index": "off",
 			"unicorn/import-style": "error",
 			"unicorn/new-for-builtins": "error",
 			"unicorn/no-abusive-eslint-disable": "error",
@@ -58,6 +58,7 @@ Configure it in `package.json`.
 			"unicorn/no-lonely-if": "error",
 			"no-nested-ternary": "off",
 			"unicorn/no-nested-ternary": "error",
+			"unicorn/no-new-array": "error",
 			"unicorn/no-new-buffer": "error",
 			"unicorn/no-null": "error",
 			"unicorn/no-object-as-default-parameter": "error",
@@ -72,6 +73,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-add-event-listener": "error",
 			"unicorn/prefer-array-find": "error",
 			"unicorn/prefer-array-flat-map": "error",
+			"unicorn/prefer-array-index-of": "error",
 			"unicorn/prefer-array-some": "error",
 			"unicorn/prefer-date-now": "error",
 			"unicorn/prefer-default-parameters": "error",
@@ -88,6 +90,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-optional-catch-binding": "error",
 			"unicorn/prefer-query-selector": "error",
 			"unicorn/prefer-reflect-apply": "error",
+			"unicorn/prefer-regexp-test": "error",
 			"unicorn/prefer-set-has": "error",
 			"unicorn/prefer-spread": "error",
 			"unicorn/prefer-string-replace-all": "off",
@@ -130,6 +133,7 @@ Configure it in `package.json`.
 - [no-keyword-prefix](docs/rules/no-keyword-prefix.md) - Disallow identifiers starting with `new` or `class`.
 - [no-lonely-if](docs/rules/no-lonely-if.md) - Disallow `if` statements as the only statement in `if` blocks without `else`. *(fixable)*
 - [no-nested-ternary](docs/rules/no-nested-ternary.md) - Disallow nested ternary expressions. *(partly fixable)*
+- [no-new-array](docs/rules/no-new-array.md) - Disallow `new Array()`. *(partly fixable)*
 - [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
 - [no-null](docs/rules/no-null.md) - Disallow the use of the `null` literal.
 - [no-object-as-default-parameter](docs/rules/no-object-as-default-parameter.md) - Disallow the use of objects as default parameters.
@@ -144,6 +148,7 @@ Configure it in `package.json`.
 - [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) - Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. *(partly fixable)*
 - [prefer-array-find](docs/rules/prefer-array-find.md) - Prefer `.find(…)` over the first element from `.filter(…)`. *(partly fixable)*
 - [prefer-array-flat-map](docs/rules/prefer-array-flat-map.md) - Prefer `.flatMap(…)` over `.map(…).flat()`. *(fixable)*
+- [prefer-array-index-of](docs/rules/prefer-array-index-of.md) - Prefer `Array#indexOf()` over `Array#findIndex()` when looking for the index of an item. *(partly fixable)*
 - [prefer-array-some](docs/rules/prefer-array-some.md) - Prefer `.some(…)` over `.find(…)`.
 - [prefer-date-now](docs/rules/prefer-date-now.md) - Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. *(fixable)*
 - [prefer-default-parameters](docs/rules/prefer-default-parameters.md) - Prefer default parameters over reassignment. *(fixable)*
@@ -160,11 +165,12 @@ Configure it in `package.json`.
 - [prefer-optional-catch-binding](docs/rules/prefer-optional-catch-binding.md) - Prefer omitting the `catch` binding parameter. *(fixable)*
 - [prefer-query-selector](docs/rules/prefer-query-selector.md) - Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. *(partly fixable)*
 - [prefer-reflect-apply](docs/rules/prefer-reflect-apply.md) - Prefer `Reflect.apply()` over `Function#apply()`. *(fixable)*
+- [prefer-regexp-test](docs/rules/prefer-regexp-test.md) - Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`. *(fixable)*
 - [prefer-set-has](docs/rules/prefer-set-has.md) - Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence. *(fixable)*
 - [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
 - [prefer-string-replace-all](docs/rules/prefer-string-replace-all.md) - Prefer `String#replaceAll()` over regex searches with the global flag. *(fixable)*
 - [prefer-string-slice](docs/rules/prefer-string-slice.md) - Prefer `String#slice()` over `String#substr()` and `String#substring()`. *(partly fixable)*
-- [prefer-string-starts-ends-with](docs/rules/prefer-string-starts-ends-with.md) - Prefer `String#startsWith()` & `String#endsWith()` over more complex alternatives. *(partly fixable)*
+- [prefer-string-starts-ends-with](docs/rules/prefer-string-starts-ends-with.md) - Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`. *(fixable)*
 - [prefer-string-trim-start-end](docs/rules/prefer-string-trim-start-end.md) - Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`. *(fixable)*
 - [prefer-ternary](docs/rules/prefer-ternary.md) - Prefer ternary expressions over simple `if-else` statements. *(fixable)*
 - [prefer-type-error](docs/rules/prefer-type-error.md) - Enforce throwing `TypeError` in type checking conditions. *(fixable)*

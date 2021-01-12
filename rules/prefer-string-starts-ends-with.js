@@ -3,6 +3,7 @@ const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const quoteString = require('./utils/quote-string');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
@@ -21,11 +22,6 @@ const isSimpleString = string => doesNotContain(
 const regexTestSelector = [
 	methodSelector({name: 'test', length: 1}),
 	'[callee.object.regex]'
-].join('');
-
-const stringMatchSelector = [
-	methodSelector({name: 'match', length: 1}),
-	'[arguments.0.regex]'
 ].join('');
 
 const checkRegex = ({pattern, flags}) => {
@@ -79,7 +75,7 @@ const create = context => {
 					if (
 						// If regex is parenthesized, we can use it, so we don't need add again
 						!isParenthesized(regexNode, sourceCode) &&
-						(isParenthesized(target, sourceCode) || target.type === 'AwaitExpression')
+						(isParenthesized(target, sourceCode) || shouldAddParenthesesToMemberExpressionObject(target, sourceCode))
 					) {
 						targetString = `(${targetString})`;
 					}
@@ -95,18 +91,6 @@ const create = context => {
 						fixer.replaceText(target, quoteString(result.string))
 					];
 				}
-			});
-		},
-		[stringMatchSelector](node) {
-			const {regex} = node.arguments[0];
-			const result = checkRegex(regex);
-			if (!result) {
-				return;
-			}
-
-			context.report({
-				node,
-				messageId: result.messageId
 			});
 		}
 	};

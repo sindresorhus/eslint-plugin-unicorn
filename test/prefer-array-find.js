@@ -1,7 +1,7 @@
 import test from 'ava';
 import {outdent} from 'outdent';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import {rule} from './utils/test';
+import {rule} from './utils/test.js';
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
