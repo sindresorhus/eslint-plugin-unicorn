@@ -1356,6 +1356,12 @@ browserES5RuleTester.run('prevent-abbreviations', rule, {
 			`,
 			options: customOptions,
 			errors: createErrors()
+		},
+		{
+			code: 'function a() {try {} catch(args) {}}',
+			output: 'function a() {try {} catch(arguments_) {}}',
+			options: customOptions,
+			errors: createErrors()
 		}
 	]
 });
