@@ -33,26 +33,29 @@ const create = context => {
 				parent.id === node &&
 				nonNullElements.length === 1
 			) {
-				problem.fix = function * (fixer) {
-					const [element] = nonNullElements;
-					const index = elements.indexOf(element);
-					const isSlice = element.type === 'RestElement';
-					const variable = isSlice ? element.argument : element;
+				const [element] = nonNullElements;
 
-					yield fixer.replaceText(node, sourceCode.getText(variable));
+				if (element.type !== 'AssignmentPattern') {
+					problem.fix = function * (fixer) {
+						const index = elements.indexOf(element);
+						const isSlice = element.type === 'RestElement';
+						const variable = isSlice ? element.argument : element;
 
-					const code = isSlice ? `.slice(${index})` : `[${index}]`;
-					const array = parent.init;
-					if (
-						!isParenthesized(array, sourceCode) &&
-						shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
-					) {
-						yield fixer.insertTextBefore(array, '(');
-						yield fixer.insertTextAfter(parent, `)${code}`);
-					} else {
-						yield fixer.insertTextAfter(parent, code);
-					}
-				};
+						yield fixer.replaceText(node, sourceCode.getText(variable));
+
+						const code = isSlice ? `.slice(${index})` : `[${index}]`;
+						const array = parent.init;
+						if (
+							!isParenthesized(array, sourceCode) &&
+							shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+						) {
+							yield fixer.insertTextBefore(array, '(');
+							yield fixer.insertTextAfter(parent, `)${code}`);
+						} else {
+							yield fixer.insertTextAfter(parent, code);
+						}
+					};
+				}
 			}
 
 			context.report(problem);

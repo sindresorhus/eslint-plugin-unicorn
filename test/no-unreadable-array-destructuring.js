@@ -45,6 +45,8 @@ test.visualize({
 		'let [,,[,,thirdElementInThirdElement]] = foo',
 		'let [,,{propertyOfThirdElement}] = foo',
 		// Multiple declarations
-		'let [,,thirdElement] = foo, anotherVariable = bar;'
+		'let [,,thirdElement] = foo, anotherVariable = bar;',
+		// Default value
+		'let [,,thirdElement = {}] = foo;'
 	]
 });
