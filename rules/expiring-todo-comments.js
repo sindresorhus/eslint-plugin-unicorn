@@ -187,6 +187,7 @@ function reachedDate(past) {
 }
 
 function tryToCoerceVersion(rawVersion) {
+	/* istanbul ignore next: version in `package.json` and comment can't be empty */
 	if (!rawVersion) {
 		return false;
 	}
