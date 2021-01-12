@@ -225,6 +225,7 @@ function tryToCoerceVersion(rawVersion) {
 		// But coerce can't parse pre-releases.
 		return semver.parse(version) || semver.coerce(version);
 	} catch {
+		/* istanbul ignore next: We don't have this `package.json` to test */
 		return false;
 	}
 }
