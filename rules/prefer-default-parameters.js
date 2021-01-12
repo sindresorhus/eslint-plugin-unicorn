@@ -35,7 +35,8 @@ const containsCallExpression = (source, node) => {
 
 	const keys = source.visitorKeys[node.type];
 
-	// Assume it contains a call expression if no visitor keys exist
+	// The Babel AST has an `ExperimentalRestProperty` node without visitor keys.
+	// We have to assume that the node might contain a call expression.
 	if (!keys) {
 		return true;
 	}
