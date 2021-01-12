@@ -390,6 +390,15 @@ test({
 				console.log(foo.b);
 			`,
 			errors: [error]
+		},
+
+		{
+			code: outdent`
+				const foo = {
+					[foo.bar]: 1
+				};
+			`,
+			errors: [error]
 		}
 	]
 });

@@ -119,7 +119,7 @@ test({
 			code: `/*
 			* TODO [2000-01-01]: Yet
 			* TODO [2000-01-01]: Another
-			* TODO [2000-01-01]: Way
+			* TODO [2000-01-01] Way
 			*/`,
 			errors: [
 				expiredTodoError('2000-01-01', 'Yet'),
