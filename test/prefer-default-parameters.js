@@ -1,13 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-default-parameters.js';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2020
-	}
-});
+import {test} from './utils/test.js';
 
 const invalidTestCase = ({code, suggestions}) => {
 	if (!suggestions) {
@@ -33,7 +25,7 @@ const invalidTestCase = ({code, suggestions}) => {
 	};
 };
 
-ruleTester.run('prefer-default-parameters', rule, {
+test({
 	valid: [
 		'function abc(foo = { bar: 123 }) { }',
 		'function abc({ bar } = { bar: 123 }) { }',
@@ -654,4 +646,17 @@ ruleTester.run('prefer-default-parameters', rule, {
 			`]
 		})
 	]
+});
+
+test.babel({
+	valid: [
+		// See 'containsCallExpression' in rule
+		outdent`
+			function abc(foo, bar) {
+				const { baz, ...rest } = bar;
+				foo = foo || 123;
+			}
+		`
+	],
+	invalid: []
 });
