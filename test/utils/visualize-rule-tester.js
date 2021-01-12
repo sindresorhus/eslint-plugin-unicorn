@@ -43,6 +43,8 @@ const getVerifyConfig = (ruleId, testerConfig, options) => ({
 });
 
 const printCode = code => codeFrameColumns(code, {start: {line: 0, column: 0}}, codeFrameColumnsOptions);
+const INDENT = ' '.repeat(4);
+const indentCode = code => code.replace(/^/gm, INDENT);
 
 function createSnapshot({fixable, code, options, fixed, output, messages}) {
 	const parts = [];
@@ -56,10 +58,6 @@ function createSnapshot({fixable, code, options, fixed, output, messages}) {
 
 	if (fixable) {
 		parts.push(
-			outdent`
-				Input:
-				${printCode(code)}
-			`,
 			outdent`
 				Output:
 				${fixed ? printCode(output) : '[Same as input]'}
@@ -91,27 +89,49 @@ class VisualizeRuleTester {
 		const linter = new Linter();
 		linter.defineRule(ruleId, rule);
 
-		for (const [index, testCase] of tests.entries()) {
+		tests = Array.isArray(tests) ? {valid: [], invalid: tests} : tests;
+
+		for (const [index, testCase] of tests.valid.entries()) {
 			const {code, options} = typeof testCase === 'string' ? {code: testCase} : testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, options);
 
-			test(`${ruleId} - #${index + 1}`, t => {
-				const messages = linter.verify(code, verifyConfig);
-				if (messages.length === 0) {
-					throw new Error('No errors reported.');
+			test(
+				outdent`
+					Valid #${index + 1}
+					${indentCode(printCode(code))}
+				`,
+				t => {
+					const messages = linter.verify(code, verifyConfig);
+					t.deepEqual(messages, [], 'Valid case should not has errors.');
 				}
+			);
+		}
 
-				const fatalError = messages.find(({fatal}) => fatal);
-				if (fatalError) {
-					throw fatalError;
+		for (const [index, testCase] of tests.invalid.entries()) {
+			const {code, options} = typeof testCase === 'string' ? {code: testCase} : testCase;
+			const verifyConfig = getVerifyConfig(ruleId, config, options);
+
+			test(
+				outdent`
+					Invalid #${index + 1}
+					${indentCode(printCode(code))}
+				`,
+				t => {
+					const messages = linter.verify(code, verifyConfig);
+					t.notDeepEqual(messages, [], 'Invalid case should has at least one error.');
+
+					const fatalError = messages.find(({fatal}) => fatal);
+					if (fatalError) {
+						throw fatalError;
+					}
+
+					const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig) : {fixed: false};
+
+					t.snapshot(
+						createSnapshot({fixable, code, options, fixed, output, messages})
+					);
 				}
-
-				const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig) : {fixed: false};
-
-				t.snapshot(
-					createSnapshot({fixable, code, options, fixed, output, messages})
-				);
-			});
+			);
 		}
 	}
 }
