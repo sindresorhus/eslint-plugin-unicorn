@@ -187,7 +187,7 @@ function reachedDate(past) {
 }
 
 function tryToCoerceVersion(rawVersion) {
-	/* istanbul ignore next: version in `package.json` and comment can't be empty */
+	/* istanbul ignore if: version in `package.json` and comment can't be empty */
 	if (!rawVersion) {
 		return false;
 	}
@@ -210,10 +210,12 @@ function tryToCoerceVersion(rawVersion) {
 
 	// Get only the first member for cases such as `1.0.0 - 2.9999.9999`
 	const parts = version.split(' ');
+	/* istanbul ignore if: We don't have this `package.json` to test */
 	if (parts.length > 1) {
 		version = parts[0];
 	}
 
+	/* istanbul ignore if: We don't have this `package.json` to test */
 	if (semver.valid(version)) {
 		return version;
 	}
