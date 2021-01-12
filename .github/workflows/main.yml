@@ -27,7 +27,7 @@ jobs:
       - run: npx ava
         if: matrix.os == 'windows-latest'
       - uses: codecov/codecov-action@v1
-        if: matrix.os == 'ubuntu-latest' && matrix.node-version == 14
+        if: matrix.os == 'ubuntu-latest' && matrix.node-version == '14'
         with:
           fail_ci_if_error: true
   lint:
