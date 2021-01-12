@@ -1,5 +1,5 @@
 'use strict';
-const {Linter} = require('eslint');
+const {Linter, SourceCodeFixer} = require('eslint/lib/linter');
 const {codeFrameColumns} = require('@babel/code-frame');
 const {outdent} = require('outdent');
 
@@ -104,7 +104,20 @@ class VisualizeRuleTester {
 					}
 
 					for (const [index, message] of messages.entries()) {
-						t.snapshot(`\n${visualizeEslintResult(code, message)}\n`, `Error ${index + 1}/${messages.length}`);
+						let messageForSnapshot = visualizeEslintResult(code, message);
+
+						const {suggestions = []} = message;
+						for (const [index, suggestion] of suggestions.entries()) {
+							const {output} = SourceCodeFixer.applyFixes(code, [suggestion]);
+							messageForSnapshot += outdent`
+								\n
+								${'-'.repeat(80)}
+								Suggestion ${index + 1}/${suggestions.length}: ${suggestion.desc}
+								${printCode(output)}
+							`;
+						}
+
+						t.snapshot(`\n${messageForSnapshot}\n`, `Error ${index + 1}/${messages.length}`);
 					}
 				}
 			);
