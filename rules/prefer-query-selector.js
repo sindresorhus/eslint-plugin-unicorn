@@ -106,9 +106,6 @@ const create = context => {
 		[selector](node) {
 			const method = node.callee.property.name;
 			const preferedSelector = forbiddenIdentifierNames.get(method);
-			if (!preferedSelector) {
-				return;
-			}
 
 			const problem = {
 				node: node.callee.property,
