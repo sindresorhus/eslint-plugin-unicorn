@@ -106,10 +106,10 @@ class VisualizeRuleTester {
 					for (const [index, message] of messages.entries()) {
 						t.snapshot(`\n${visualizeEslintResult(code, message)}\n`, `Error ${index + 1}/${messages.length}`);
 
-						const {suggestions} = message;
+						const {suggestions = []} = message;
 						for (const [index, suggestion] of suggestions.entries()) {
 							const {output} = SourceCodeFixer.applyFixes(code, [suggestion]);
-							t.snapshot(`\n${suggestion.desc}\n${printCode(output)}`, `Suggestion ${index + 1}/${suggestions.length}`);
+							t.snapshot(`${suggestion.desc}\n\n${printCode(output)}\n`, `Suggestion ${index + 1}/${suggestions.length}`);
 						}
 					}
 				}
