@@ -43,6 +43,8 @@ test.visualize({
 		'var [,,thirdElement] = (((0, foo)));',
 		// Variable is not `Identifier`
 		'let [,,[,,thirdElementInThirdElement]] = foo',
-		'let [,,{propertyOfThirdElement}] = foo'
+		'let [,,{propertyOfThirdElement}] = foo',
+		// Multiple declarations
+		'let [,,thirdElement] = foo, anotherVariable = bar;'
 	]
 });
