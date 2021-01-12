@@ -711,8 +711,8 @@ ruleTesterEs5.run('no-for-loop', rule, {
 		'for (var j = 0; j < 10; j++) {}',
 		outdent`
 			for (i = 0; i < arr.length; i++) {
-				el = arr[i];
 				console.log(i, el);
+				el = arr[i];
 			}
 		`,
 		outdent`
