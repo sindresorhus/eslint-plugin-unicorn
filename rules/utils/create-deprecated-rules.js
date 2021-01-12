@@ -6,7 +6,6 @@ function createDeprecatedRules(data) {
 	const rules = {};
 	for (const [ruleId, replacedBy = []] of Object.entries(data)) {
 		rules[ruleId] = {
-			/* istanbul ignore next: ESLint require `create` to be a function */
 			create: () => ({}),
 			meta: {
 				docs: {
