@@ -6,6 +6,7 @@ const indexifyName = (name, index) => name + '_'.repeat(index);
 
 const scopeHasArgumentsSpecial = scope => {
 	while (scope) {
+		/* istanbul ignore next: `someScopeHasVariableName` seems already handle this */
 		if (scope.taints.get('arguments')) {
 			return true;
 		}
