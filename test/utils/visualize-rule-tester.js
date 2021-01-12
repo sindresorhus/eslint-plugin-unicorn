@@ -43,53 +43,8 @@ const getVerifyConfig = (ruleId, testerConfig, options) => ({
 });
 
 const printCode = code => codeFrameColumns(code, {start: {line: 0, column: 0}}, codeFrameColumnsOptions);
-
-function createSnapshot({fixable, code, options, fixed, output, messages}) {
-	const parts = [];
-
-	if (Array.isArray(options)) {
-		parts.push(outdent`
-			Options:
-			${JSON.stringify(options, undefined, 2)}
-		`);
-	}
-
-
-	if (fixable) {
-		parts.push(
-			outdent`
-				Input:
-				${printCode(code)}
-			`,
-			outdent`
-				Output:
-				${fixed ? printCode(output) : '[Same as input]'}
-			`
-		);
-	}
-
-	parts.push(
-		messages
-			.map(
-				(error, index, messages) => {
-				let text = `Error ${index + 1}/${messages.length}:\n${visualizeEslintResult(code, error)}`;
-
-const {suggestions} = error;
-for (const [index, suggestion] of suggestions.entries()) {
-const {output} = SourceCodeFixer.applyFixes(code, [suggestion]);
-text += `\nSuggestion ${index + 1}/${suggestions.length}: ${suggestion.desc}\n${printCode(output)}`
-console.log({suggestion})
-}
-
-                                        //
-return text;
-			})
-			.join('\n')
-	);
-
-	return `\n${parts.join('\n\n')}\n`;
-}
-
+const INDENT = ' '.repeat(4);
+const indentCode = code => code.replace(/^/gm, INDENT);
 class VisualizeRuleTester {
 	constructor(test, config) {
 		this.test = test;
@@ -102,27 +57,63 @@ class VisualizeRuleTester {
 		const linter = new Linter();
 		linter.defineRule(ruleId, rule);
 
-		for (const [index, testCase] of tests.entries()) {
+		tests = Array.isArray(tests) ? {valid: [], invalid: tests} : tests;
+
+		for (const [index, testCase] of tests.valid.entries()) {
 			const {code, options} = typeof testCase === 'string' ? {code: testCase} : testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, options);
 
-			test(`${ruleId} - #${index + 1}`, t => {
-				const messages = linter.verify(code, verifyConfig);
-				if (messages.length === 0) {
-					throw new Error('No errors reported.');
+			test(
+				outdent`
+					Valid #${index + 1}
+					${indentCode(printCode(code))}
+				`,
+				t => {
+					const messages = linter.verify(code, verifyConfig);
+					t.deepEqual(messages, [], 'Valid case should not has errors.');
 				}
+			);
+		}
 
-				const fatalError = messages.find(({fatal}) => fatal);
-				if (fatalError) {
-					throw fatalError;
+		for (const [index, testCase] of tests.invalid.entries()) {
+			const {code, options} = typeof testCase === 'string' ? {code: testCase} : testCase;
+			const verifyConfig = getVerifyConfig(ruleId, config, options);
+
+			test(
+				outdent`
+					Invalid #${index + 1}
+					${indentCode(printCode(code))}
+				`,
+				t => {
+					const messages = linter.verify(code, verifyConfig);
+					t.notDeepEqual(messages, [], 'Invalid case should has at least one error.');
+
+					const fatalError = messages.find(({fatal}) => fatal);
+					if (fatalError) {
+						throw fatalError;
+					}
+
+					const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig) : {fixed: false};
+
+					if (Array.isArray(options)) {
+						t.snapshot(`\n${JSON.stringify(options, undefined, 2)}\n`, 'Options');
+					}
+
+					if (fixable && fixed) {
+						t.snapshot(`\n${printCode(output)}\n`, 'Output');
+					}
+
+					for (const [index, message] of messages.entries()) {
+						t.snapshot(`\n${visualizeEslintResult(code, message)}\n`, `Error ${index + 1}/${messages.length}`);
+
+						const {suggestions} = message;
+						for (const [index, suggestion] of suggestions.entries()) {
+							const {output} = SourceCodeFixer.applyFixes(code, [suggestion]);
+							t.snapshot(`\n${suggestion.desc}\n${printCode(output)}`, `Suggestion ${index + 1}/${suggestions.length}`);
+						}
+					}
 				}
-
-				const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig) : {fixed: false};
-
-				t.snapshot(
-					createSnapshot({fixable, code, options, fixed, output, messages})
-				);
-			});
+			);
 		}
 	}
 }
