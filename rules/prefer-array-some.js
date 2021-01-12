@@ -43,6 +43,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		messages
+		messages,
+		fixable: true
 	}
 };

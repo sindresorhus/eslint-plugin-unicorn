@@ -1,5 +1,5 @@
 'use strict';
-const {Linter} = require('eslint');
+const {Linter, SourceCodeFixer} = require('eslint/lib/linter');
 const {codeFrameColumns} = require('@babel/code-frame');
 const {outdent} = require('outdent');
 
@@ -54,6 +54,7 @@ function createSnapshot({fixable, code, options, fixed, output, messages}) {
 		`);
 	}
 
+
 	if (fixable) {
 		parts.push(
 			outdent`
@@ -70,9 +71,19 @@ function createSnapshot({fixable, code, options, fixed, output, messages}) {
 	parts.push(
 		messages
 			.map(
-				(error, index, messages) =>
-					`Error ${index + 1}/${messages.length}:\n${visualizeEslintResult(code, error)}`
-			)
+				(error, index, messages) => {
+				let text = `Error ${index + 1}/${messages.length}:\n${visualizeEslintResult(code, error)}`;
+
+const {suggestions} = error;
+for (const [index, suggestion] of suggestions.entries()) {
+const {output} = SourceCodeFixer.applyFixes(code, [suggestion]);
+text += `\nSuggestion ${index + 1}/${suggestions.length}: ${suggestion.desc}\n${printCode(output)}`
+console.log({suggestion})
+}
+
+                                        //
+return text;
+			})
 			.join('\n')
 	);
 
