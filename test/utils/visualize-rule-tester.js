@@ -112,8 +112,7 @@ class VisualizeRuleTester {
 							messageForSnapshot += outdent`
 								\n
 								${'-'.repeat(80)}
-								Suggestion ${index + 1}/${suggestions.length}
-								${suggestion.desc}
+								Suggestion ${index + 1}/${suggestions.length}: ${suggestion.desc}
 								${printCode(output)}
 							`;
 						}
