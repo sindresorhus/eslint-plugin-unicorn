@@ -399,6 +399,7 @@ const create = context => {
 			const todoVersion = tryToCoerceVersion(dependency.version);
 			const targetPackageVersion = tryToCoerceVersion(targetPackageRawVersion);
 
+			/* istanbul ignore if: Can't test in Node.js */
 			if (!hasTargetPackage || !targetPackageVersion) {
 				// Can't compare `¯\_(ツ)_/¯`
 				continue;
@@ -426,6 +427,7 @@ const create = context => {
 			const targetPackageRawEngineVersion = packageEngines.node;
 			const hasTargetEngine = Boolean(targetPackageRawEngineVersion);
 
+			/* istanbul ignore if: Can't test in this repo */
 			if (!hasTargetEngine) {
 				continue;
 			}
