@@ -182,6 +182,15 @@ ruleTester.run('no-for-loop', rule, {
 			for (let i = 0; i < arr.length; i++) {
 				arr[i] = i + 2;
 			}
+		`,
+
+		// Child scope
+		outdent`
+			for (let i = 0; i < cities.length; i++) {
+				const foo = function () {
+					console.log(cities)
+				}
+			}
 		`
 	],
 
@@ -711,8 +720,8 @@ ruleTesterEs5.run('no-for-loop', rule, {
 		'for (var j = 0; j < 10; j++) {}',
 		outdent`
 			for (i = 0; i < arr.length; i++) {
-				console.log(i, el);
 				el = arr[i];
+				console.log(i, el);
 			}
 		`,
 		outdent`
