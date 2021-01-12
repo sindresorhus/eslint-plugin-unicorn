@@ -33,7 +33,14 @@ const containsCallExpression = (source, node) => {
 		return true;
 	}
 
-	for (const key of source.visitorKeys[node.type]) {
+	const keys = source.visitorKeys[node.type];
+
+	// Assume it contains a call expression if no visitor keys exist
+	if (!keys) {
+		return true;
+	}
+
+	for (const key of keys) {
 		const value = node[key];
 
 		if (Array.isArray(value)) {
