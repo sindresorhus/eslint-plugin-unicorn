@@ -45,38 +45,6 @@ const getVerifyConfig = (ruleId, testerConfig, options) => ({
 const printCode = code => codeFrameColumns(code, {start: {line: 0, column: 0}}, codeFrameColumnsOptions);
 const INDENT = ' '.repeat(4);
 const indentCode = code => code.replace(/^/gm, INDENT);
-
-function createSnapshot({fixable, code, options, fixed, output, messages}) {
-	const parts = [];
-
-	if (Array.isArray(options)) {
-		parts.push(outdent`
-			Options:
-			${JSON.stringify(options, undefined, 2)}
-		`);
-	}
-
-	if (fixable) {
-		parts.push(
-			outdent`
-				Output:
-				${fixed ? printCode(output) : '[Same as input]'}
-			`
-		);
-	}
-
-	parts.push(
-		messages
-			.map(
-				(error, index, messages) =>
-					`Error ${index + 1}/${messages.length}:\n${visualizeEslintResult(code, error)}`
-			)
-			.join('\n')
-	);
-
-	return `\n${parts.join('\n\n')}\n`;
-}
-
 class VisualizeRuleTester {
 	constructor(test, config) {
 		this.test = test;
@@ -127,9 +95,17 @@ class VisualizeRuleTester {
 
 					const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig) : {fixed: false};
 
-					t.snapshot(
-						createSnapshot({fixable, code, options, fixed, output, messages})
-					);
+					if (Array.isArray(options)) {
+						t.snapshot(`\n${JSON.stringify(options, undefined, 2)}\n`, 'Options');
+					}
+
+					if (fixable && fixed) {
+						t.snapshot(`\n${printCode(output)}\n`, 'Output');
+					}
+
+					for (const [index, message] of messages.entries()) {
+						t.snapshot(`\n${visualizeEslintResult(code, message)}\n`, `Error ${index + 1}/${messages.length}`);
+					}
 				}
 			);
 		}
