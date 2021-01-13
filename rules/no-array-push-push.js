@@ -1,5 +1,5 @@
 'use strict';
-const {hasSideEffect, isCommaToken, isOpeningParenToken} = require('eslint-utils');
+const {hasSideEffect, isCommaToken, isOpeningParenToken, isSemicolonToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 
@@ -83,9 +83,12 @@ function create(context) {
 					));
 				}
 
+				const shouldKeepSemicolon = !isSemicolonToken(sourceCode.getLastToken(firstExpression)) &&
+					isSemicolonToken(sourceCode.getLastToken(secondExpression));
+
 				yield fixer.replaceTextRange(
 					[firstExpression.range[1], secondExpression.range[1]],
-					''
+					shouldKeepSemicolon ? ';' : ''
 				);
 			};
 

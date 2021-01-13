@@ -136,6 +136,12 @@ test.visualize({
 				foo.push(1);
 				foo.push(2);
 			}
+		`,
+		// ASI
+		outdent`
+			foo.push(1)
+			foo.push(2)
+			;[foo].forEach(bar)
 		`
 	]
 });
