@@ -75,7 +75,7 @@ test.visualize({
 		`,
 		outdent`
 			foo.push(1, 2);
-			foo.push(3, 4);
+			foo.push((3), (4));
 		`,
 		outdent`
 			foo.push(1, 2,);
