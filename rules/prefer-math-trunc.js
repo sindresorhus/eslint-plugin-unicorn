@@ -58,16 +58,16 @@ const create = context => {
 				}
 			};
 
-			const fix = fixer => {
-				let fixed = mathTruncFunctionCall(left);
-				if (isAssignment) {
-					fixed = `${sourceCode.getText(left)} = ${fixed}`;
-				}
-
-				return fixer.replaceText(node, fixed);
-			};
-
 			if (!isAssignment || !hasSideEffect(left, sourceCode)) {
+				const fix = fixer => {
+					let fixed = mathTruncFunctionCall(left);
+					if (isAssignment) {
+						fixed = `${sourceCode.getText(left)} = ${fixed}`;
+					}
+
+					return fixer.replaceText(node, fixed);
+				};
+
 				if (operator === '|') {
 					problem.suggest = [
 						{
