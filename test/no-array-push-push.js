@@ -120,21 +120,21 @@ test.visualize({
 		// Should be able to find the previous expression
 		outdent`
 			if (a) {
-				foo().push(1);
-				foo().push(2);
+				foo.push(1);
+				foo.push(2);
 			}
 		`,
 		outdent`
 			switch (a) {
 				default:
-					foo().push(1);
-					foo().push(2);
+					foo.push(1);
+					foo.push(2);
 			}
 		`,
 		outdent`
 			function a() {
-				foo().push(1);
-				foo().push(2);
+				foo.push(1);
+				foo.push(2);
 			}
 		`
 	]
