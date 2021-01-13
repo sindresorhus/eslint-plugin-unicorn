@@ -12,7 +12,7 @@ function checkFiles(ruleId) {
 	const files = [
 		`docs/rules/${ruleId}.md`,
 		`rules/${ruleId}.js`,
-		`test/${ruleId}.js`
+		`test/${ruleId}.mjs`
 	];
 
 	for (const file of files) {
@@ -225,8 +225,8 @@ function updateReadme(data) {
 		data
 	});
 	renderTemplate({
-		source: 'test.js.jst',
-		target: `test/${id}.js`,
+		source: 'test.mjs.jst',
+		target: `test/${id}.mjs`,
 		data
 	});
 	updateIndex(id);

@@ -1,0 +1,20 @@
+import {outdent} from 'outdent';
+import {test} from './utils/test.js';
+
+const MESSAGE_ID = '<%= id %>';
+const errors = [
+	{
+		messageId: MESSAGE_ID
+	}
+];
+
+test.visualize({
+	valid: [
+		'const foo = \'🦄\';'
+	],
+	invalid: [
+		{
+			'const foo = \'unicorn\'
+		}
+	]
+});

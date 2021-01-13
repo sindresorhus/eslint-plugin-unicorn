@@ -1,52 +1,67 @@
 'use strict';
 
 const path = require('path');
+const url = require('url');
 const test = require('ava');
 const avaRuleTester = require('eslint-ava-rule-tester');
 const visualizeRuleTester = require('./visualize-rule-tester');
 
 const defaultParserOptions = require('./default-parser-options');
 
-const filename = module.parent.id;
-const ruleId = path.basename(filename, '.js');
-const rule = require(`../../rules/${ruleId}`);
+class Tester {
+	constructor(ruleId) {
+		this.ruleId = ruleId;
+		this.rule = require(`../../rules/${ruleId}`);
+	}
 
-function runTest(tests) {
-	const {testerOptions, invalid, valid} = tests;
-	const tester = createTester(testerOptions);
-	return tester.run(ruleId, rule, {invalid, valid});
+	runTest(tests) {
+		const {testerOptions, invalid, valid} = tests;
+		const tester = avaRuleTester(test, {
+			parserOptions: defaultParserOptions,
+			...testerOptions
+		});
+		return tester.run(this.ruleId, this.rule, {invalid, valid});
+	}
+
+	typescript(tests) {
+		return this.runTest({
+			...tests,
+			testerOptions: {parser: require.resolve('@typescript-eslint/parser')}
+		});
+	}
+
+	babel(tests) {
+		return this.runTest({
+			...tests,
+			testerOptions: {parser: require.resolve('babel-eslint')}
+		});
+	}
+
+	visualize(tests) {
+		const tester = visualizeRuleTester(test, {
+			parserOptions: defaultParserOptions
+		});
+		return tester.run(this.ruleId, this.rule, tests);
+	}
 }
 
-function createTester(options) {
-	const tester = avaRuleTester(test, {
-		parserOptions: defaultParserOptions,
-		...options
-	});
-	return tester;
+function getTester(importMeta) {
+	const filename = url.fileURLToPath(importMeta.url);
+	const ruleId = path.basename(filename, '.mjs');
+	const tester = new Tester(ruleId);
+	const test = tester.runTest.bind(tester);
+	test.typescript = tester.typescript.bind(tester);
+	test.babel = tester.babel.bind(tester);
+	test.visualize = tester.visualize.bind(tester);
+
+	return {
+		ruleId,
+		rule: tester.rule,
+		test
+	};
 }
-
-runTest.typescript = tests => runTest({
-	...tests,
-	testerOptions: {parser: require.resolve('@typescript-eslint/parser')}
-});
-
-runTest.babel = tests => runTest({
-	...tests,
-	testerOptions: {parser: require.resolve('babel-eslint')}
-});
-
-function runVisualizeTest(cases) {
-	const tester = visualizeRuleTester(test, {
-		parserOptions: defaultParserOptions
-	});
-	return tester.run(ruleId, rule, cases);
-}
-
-runTest.visualize = runVisualizeTest;
 
 module.exports = {
 	defaultParserOptions,
-	ruleId,
-	rule,
-	test: runTest
+	getTester
 };
