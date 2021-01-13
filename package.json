@@ -130,7 +130,8 @@
 						"fn": false
 					}
 				}
-			]
+			],
+			"import/extensions": "off"
 		}
 	}
 }
