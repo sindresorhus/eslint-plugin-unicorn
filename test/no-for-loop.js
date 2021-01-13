@@ -182,6 +182,15 @@ ruleTester.run('no-for-loop', rule, {
 			for (let i = 0; i < arr.length; i++) {
 				arr[i] = i + 2;
 			}
+		`,
+
+		// Child scope
+		outdent`
+			for (let i = 0; i < cities.length; i++) {
+				const foo = function () {
+					console.log(cities)
+				}
+			}
 		`
 	],
 

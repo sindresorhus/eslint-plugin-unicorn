@@ -88,16 +88,16 @@ const hasValue = node => {
 	return true;
 };
 
-const fix = (node, identifierName, preferedSelector) => {
+const fix = (node, identifierName, preferredSelector) => {
 	const nodeToBeFixed = node.arguments[0];
 	if (identifierName === 'getElementsByTagName' || !hasValue(nodeToBeFixed)) {
-		return fixer => fixer.replaceText(node.callee.property, preferedSelector);
+		return fixer => fixer.replaceText(node.callee.property, preferredSelector);
 	}
 
 	const getArgumentFix = nodeToBeFixed.type === 'Literal' ? getLiteralFix : getTemplateLiteralFix;
 	return function * (fixer) {
 		yield * getArgumentFix(fixer, nodeToBeFixed, identifierName);
-		yield fixer.replaceText(node.callee.property, preferedSelector);
+		yield fixer.replaceText(node.callee.property, preferredSelector);
 	};
 };
 
@@ -105,22 +105,19 @@ const create = context => {
 	return {
 		[selector](node) {
 			const method = node.callee.property.name;
-			const preferedSelector = forbiddenIdentifierNames.get(method);
-			if (!preferedSelector) {
-				return;
-			}
+			const preferredSelector = forbiddenIdentifierNames.get(method);
 
 			const problem = {
 				node: node.callee.property,
 				messageId: MESSAGE_ID,
 				data: {
-					replacement: preferedSelector,
+					replacement: preferredSelector,
 					method
 				}
 			};
 
 			if (canBeFixed(node.arguments[0])) {
-				problem.fix = fix(node, method, preferedSelector);
+				problem.fix = fix(node, method, preferredSelector);
 			}
 
 			context.report(problem);

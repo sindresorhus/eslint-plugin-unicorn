@@ -161,14 +161,6 @@ const customErrorDefinition = (context, node) => {
 };
 
 const customErrorExport = (context, node) => {
-	if (!node.left.object || node.left.object.name !== 'exports') {
-		return;
-	}
-
-	if (!node.left.property) {
-		return;
-	}
-
 	const exportsName = node.left.property.name;
 
 	const maybeError = node.right;
@@ -203,7 +195,7 @@ const create = context => {
 	return {
 		ClassDeclaration: node => customErrorDefinition(context, node),
 		'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
-		'AssignmentExpression[left.type="MemberExpression"]': node => customErrorExport(context, node)
+		'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node)
 	};
 };
 
