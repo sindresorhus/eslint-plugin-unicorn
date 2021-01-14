@@ -2,6 +2,7 @@
 const { hasSideEffect, isParenthesized } = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
+const avoidCapture = require('./avoid-capture');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
@@ -42,6 +43,8 @@ function getFix(node, getParenthesizedText, functions) {
   }
 
   const [callback] = callArguments;
+	const returnStatements = functions.get(callback);
+	const parameters = callback.params;
 
   if (
   	// Leave non-function type to `no-array-callback-reference` rule
@@ -49,64 +52,77 @@ function getFix(node, getParenthesizedText, functions) {
     callback.type !== 'ArrowFunctionExpression' ||
     callback.async ||
     callback.generator ||
-		!functions.get(callback)
+		returnStatements.some(returnStatement => isReturnStatementInBreakableStatements(returnStatement, callback)) ||
+		parameters.length > 2 ||
+		parameters.some(parameter => parameters.type === 'RestElement')
   ) {
     return;
   }
 
-	const parameters = callback.params;
+	// TODO: check `FunctionExpression`'s `.id` `arguments` `this`
 
-	if (
-	parameters.length > 3 ||
-	parameters.some(
-		parameter => parameters.type === 'RestElement'
-	)
-	) {
-		return;
+	return function * (fixer) {
+		const scopes = [];
+
+		let useEntries = parameters.length === 2;
+		const variables = (
+			parameters.length === 2 ? ['index', 'element'] : ['element']
+		).map(name => avoidCapture(name, scopes, ecmaVersion));
+
+		const forOfLoopHead = [
+			'for (const '
+		];
+		if (useEntries) {
+			forOfLoopHead.push(`[${variables.join(', ')}]`)
+		} else {
+			forOfLoopHead.push(variables[0])
+		}
+
+		forOfLoopHead.push(' of ');
+		if (useEntries) {
+			forOfLoopHead.push(`${getParenthesizedText(array)}.entries()`);
+		} else {
+			forOfLoopHead.push(getParenthesizedText(array));
+		}
+
+		forOfLoopHead.push(')');
+
+		const [start] = node.range;
+		const [end] = callback.body.range;
+
+		yield fixer.replaceTextRange([start, end], forOfLoopHead.join(''));
+
+		// Remove call expression trailing comma
+	const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
+  if (isCommaTOken(penultimateToken)) {
+		yield fixer.remove(penultimateToken);
 	}
 
+	yield fixer.remove(lastToken);
 
-	return function(fixer) {
+	for(const returnStatement of returnStatements) {
+		const returnToken = sourceCode.getFirstToken(returnStatement);
+		if (returnStatement.argument) {
+			// Remove `return`
+			yield fixer.remove(returnToken);
 
-
+			// If `returnStatement` has no semi
+			const lastToken = sourceCode.getLastTokens(returnStatement);
+			yield fixer.insertTextAfter(returnStatement,
+				`${isSemiToken(lastToken) ? '' : ';'}break;`
+			);
+		} else {
+			yield fixer.replace(returnStatement, 'break');
+		}
 	}
-
-	// TODO: check if parameter name available
-	const arrayText = getParenthesizedText(array);
-	const fixed = [];
-	if (parameters.length > 1) {
-		fixed.push(`const [${getParenthesizedText(parameter[0])}, ${getParenthesizedText(parameter[1])}] of ${getParenthesizedText(array)}.entries()) {`)
-	} else {
-		fixed.push(`const [${getParenthesizedText(parameter[0])}] of ${getParenthesizedText(array)}) {`)
-	}
-
-	const {body} = callback;
-	if (!Array.isArray(body)) {
-		fixed.push(`{${getParenthesizedText(body)}}`);
-	}
-
 }
 
 const create = (context) => {
-	const callExpressions = [];
 	const functionStacks = [];
-	const functions = new Map();
+	const functionReturnStatements = new Map();
+	const callExpressions = [];
+
 	const sourceCode = context.getSourceCode();
-
-	const markFunctionNotFixable = () => {
-		const currentFunction = functionStacks[functionStacks.length - 1];
-		// Top level `return`
-		if (!currentFunction) {
-			return;
-		}
-
-		const canFix = functionReturnStatements.get(currentFunction);
-		if (!canFix) {
-			return;
-		}
-
-		functionReturnStatements.set(currentFunction, false);
-	};
 
 	const getParenthesizedText = node => {
 		const text = sourceCode.getText(node);
@@ -116,34 +132,20 @@ const create = (context) => {
   return {
 		':function'(node) {
 			functionStacks.push(node);
-			functionReturnStatements.set(node, true);
+			functionReturnStatements.set(node, []);
 		},
 		':function:exit'(node) {
 			functionStacks.pop();
 		},
 		ReturnStatement(node) {
 			const currentFunction = functionStacks[functionStacks.length - 1];
-			if (!currentFunction || !isReturnStatementInBreakableStatements(node, currentFunction)) {
+			// Global return
+			if (!currentFunction) {
 				return;
 			}
 
-			markFunctionNotFixable();
-		},
-		ThisExpression(node) {
-			const currentFunction = functionStacks[functionStacks.length - 1];
-			if (!currentFunction || currentFunction.type === 'FunctionExpression') {
-				return;
-			}
-
-			markFunctionNotFixable();
-		},
-		'Identifier[name="arguments"]'(node) {
-			const currentFunction = functionStacks[functionStacks.length - 1];
-			if (!currentFunction || currentFunction.type === 'FunctionExpression') {
-				return;
-			}
-
-			markFunctionNotFixable();
+			const returnStatements = functionReturnStatements.get(currentFunction);
+			returnStatements.push(node);
 		},
     [arrayForEachCallSelector](node) {
 			callExpressions.push(node);
