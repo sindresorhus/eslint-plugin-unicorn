@@ -19,13 +19,13 @@ test.visualize({
 		'const self = false || this;',
 		'const self = false ?? this;',
 		'foo.bar = this;',
-		'foo = this;',
 		'function foo(a = this) {}',
 		'function foo({a = this}) {}',
 		'function foo([a = this]) {}'
 	],
 	invalid: [
 		'const foo = this;',
+		'let foo;foo = this;',
 		'var foo = bar, baz = this;'
 	]
 });

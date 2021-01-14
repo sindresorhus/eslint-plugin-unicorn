@@ -12,11 +12,20 @@ const variableDeclaratorSelector = [
 	'[id.type="Identifier"]'
 ].join('');
 
+const assignmentExpressionSelector = [
+	'AssignmentExpression',
+	'[right.type="ThisExpression"]',
+	'[left.type="Identifier"]'
+].join('');
+
+const selector = `:matches(${variableDeclaratorSelector}, ${assignmentExpressionSelector})`;
+
 const create = context => ({
-	[variableDeclaratorSelector](node) {
+	[selector](node) {
+		const variable = node.type === 'AssignmentExpression' ? node.left : node.id;
 		context.report({
 			node,
-			data: {name: node.id.name},
+			data: {name: variable.name},
 			messageId: MESSAGE_ID
 		});
 	}
