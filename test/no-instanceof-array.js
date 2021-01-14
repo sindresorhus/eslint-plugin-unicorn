@@ -17,6 +17,7 @@ test.visualize({
 		'[1,2,3] instanceof Array === true',
 		'fun.call(1, 2, 3) instanceof Array',
 		'obj.arr instanceof Array',
-		'foo.bar[2] instanceof Array'
+		'foo.bar[2] instanceof Array',
+		'(0, array) instanceof Array'
 	]
 });
