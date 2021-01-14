@@ -389,8 +389,10 @@ const formatMessage = (discouragedName, replacements, nameTypeText) => {
 			replacementsText += `, ... (${omittedReplacementsCount > 99 ? '99+' : omittedReplacementsCount} more omitted)`;
 		}
 
-		message.push(`Please rename the ${nameTypeText} \`${discouragedName}\`.`);
-		message.push(`Suggested names are: ${replacementsText}.`);
+		message.push(
+			`Please rename the ${nameTypeText} \`${discouragedName}\`.`,
+			`Suggested names are: ${replacementsText}.`
+		);
 	}
 
 	message.push(anotherNameMessage);

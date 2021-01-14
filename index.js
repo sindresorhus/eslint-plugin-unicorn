@@ -55,6 +55,7 @@ module.exports = {
 				'unicorn/new-for-builtins': 'error',
 				'unicorn/no-abusive-eslint-disable': 'error',
 				'unicorn/no-array-callback-reference': 'error',
+				'unicorn/no-array-push-push': 'error',
 				'unicorn/no-array-reduce': 'error',
 				'unicorn/no-console-spaces': 'error',
 				'unicorn/no-for-loop': 'error',
