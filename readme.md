@@ -126,7 +126,7 @@ Configure it in `package.json`.
 - [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`. *(partly fixable)*
 - [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) - Enforce specifying rules to disable in `eslint-disable` comments.
 - [no-array-callback-reference](docs/rules/no-array-callback-reference.md) - Prevent passing a function reference directly to iterator methods.
-- [no-array-push-push](docs/rules/no-array-push-push.md) - Enforce combine multiple `Array#push()` into one call. *(partly fixable)*
+- [no-array-push-push](docs/rules/no-array-push-push.md) - Enforce combining multiple `Array#push()` into one call. *(partly fixable)*
 - [no-array-reduce](docs/rules/no-array-reduce.md) - Disallow `Array#reduce()` and `Array#reduceRight()`.
 - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(partly fixable)*
