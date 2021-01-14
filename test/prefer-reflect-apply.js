@@ -1,4 +1,4 @@
-import {test} from './utils/test';
+import {test} from './utils/test.js';
 
 const MESSAGE_ID = 'prefer-reflect-apply';
 

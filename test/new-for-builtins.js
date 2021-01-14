@@ -1,5 +1,5 @@
-import {test} from './utils/test';
-import {enforceNew, disallowNew} from '../rules/utils/builtins';
+import {test} from './utils/test.js';
+import {enforceNew, disallowNew} from '../rules/utils/builtins.js';
 
 const enforceNewError = builtin => ({
 	message: `Use \`new ${builtin}()\` instead of \`${builtin}()\`.`

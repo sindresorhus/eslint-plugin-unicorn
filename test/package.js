@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import test from 'ava';
 import pify from 'pify';
-import index from '..';
+import index from '../index.js';
 
 let ruleFiles;
 
@@ -116,4 +116,11 @@ test('Every deprecated rules listed in docs/deprecated-rules.md', t => {
 	const content = fs.readFileSync('docs/deprecated-rules.md', 'utf8');
 	const rulesInMarkdown = content.match(/(?<=^## ).*?$/gm);
 	t.deepEqual(deprecatedRules, rulesInMarkdown);
+
+	for (const name of deprecatedRules) {
+		const rule = index.rules[name];
+		t.is(typeof rule.create, 'function', `${name} create is not function`);
+		t.deepEqual(rule.create(), {}, `${name} create should return empty object`);
+		t.true(rule.meta.deprecated, `${name} meta.deprecated should be true`);
+	}
 });

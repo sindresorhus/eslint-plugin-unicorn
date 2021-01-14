@@ -1,6 +1,6 @@
 import {outdent} from 'outdent';
 import {flatten} from 'lodash';
-import {test} from './utils/test';
+import {test} from './utils/test.js';
 
 const SPACES_PLACEHOLDER = '/* */';
 const cases = [

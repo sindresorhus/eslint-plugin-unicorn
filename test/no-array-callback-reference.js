@@ -1,8 +1,8 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import {rule} from './utils/test';
-import notFunctionTypes from './utils/not-function-types';
+import {rule} from './utils/test.js';
+import notFunctionTypes from './utils/not-function-types.js';
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
@@ -98,6 +98,17 @@ ruleTester.run('no-array-callback-reference', rule, {
 		'foo.map(() => {})',
 		'foo.map(function() {})',
 		'foo.map(function bar() {})',
+
+		// Exclude await expressions
+		...simpleMethods.map(method => `(async () => await foo.${method}(bar))()`),
+
+		// #813
+		outdent`
+			async function foo() {
+				const clientId = 20
+				const client = await oidc.Client.find(clientId)
+			}
+		`,
 
 		// #755
 		outdent`
@@ -277,6 +288,86 @@ ruleTester.run('no-array-callback-reference', rule, {
 				}
 			]
 		},
+
+		// `await`
+		invalidTestCase({
+			code: outdent`
+				const fn = async () => {
+					await Promise.all(foo.map(toPromise));
+				}
+			`,
+			method: 'map',
+			name: 'toPromise',
+			suggestions: [
+				outdent`
+					const fn = async () => {
+						await Promise.all(foo.map((element) => toPromise(element)));
+					}
+				`,
+				outdent`
+					const fn = async () => {
+						await Promise.all(foo.map((element, index) => toPromise(element, index)));
+					}
+				`,
+				outdent`
+					const fn = async () => {
+						await Promise.all(foo.map((element, index, array) => toPromise(element, index, array)));
+					}
+				`
+			]
+		}),
+		invalidTestCase({
+			code: outdent`
+				async function fn() {
+					for await (const foo of bar.map(toPromise)) {}
+				}
+			`,
+			method: 'map',
+			name: 'toPromise',
+			suggestions: [
+				outdent`
+					async function fn() {
+						for await (const foo of bar.map((element) => toPromise(element))) {}
+					}
+				`,
+				outdent`
+					async function fn() {
+						for await (const foo of bar.map((element, index) => toPromise(element, index))) {}
+					}
+				`,
+				outdent`
+					async function fn() {
+						for await (const foo of bar.map((element, index, array) => toPromise(element, index, array))) {}
+					}
+				`
+			]
+		}),
+		invalidTestCase({
+			code: outdent`
+				async function fn() {
+					await foo.reduce(foo, Promise.resolve())
+				}
+			`,
+			method: 'reduce',
+			name: 'foo',
+			suggestions: [
+				outdent`
+					async function fn() {
+						await foo.reduce((accumulator, element) => foo(accumulator, element), Promise.resolve())
+					}
+				`,
+				outdent`
+					async function fn() {
+						await foo.reduce((accumulator, element, index) => foo(accumulator, element, index), Promise.resolve())
+					}
+				`,
+				outdent`
+					async function fn() {
+						await foo.reduce((accumulator, element, index, array) => foo(accumulator, element, index, array), Promise.resolve())
+					}
+				`
+			]
+		}),
 
 		// #418
 		invalidTestCase({

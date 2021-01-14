@@ -1,7 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/consistent-destructuring';
+import rule from '../rules/consistent-destructuring.js';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {

@@ -1,9 +1,9 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {flatten} from 'lodash';
-import rule from '../rules/no-array-reduce';
 import {outdent} from 'outdent';
-import notFunctionTypes from './utils/not-function-types';
+import rule from '../rules/no-array-reduce.js';
+import notFunctionTypes from './utils/not-function-types.js';
 
 const MESSAGE_ID_REDUCE = 'reduce';
 const MESSAGE_ID_REDUCE_RIGHT = 'reduceRight';
