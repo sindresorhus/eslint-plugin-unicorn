@@ -1,6 +1,4 @@
-import {outdent} from 'outdent';
 import {test} from './utils/test.js';
-
 
 test.visualize({
 	valid: [
