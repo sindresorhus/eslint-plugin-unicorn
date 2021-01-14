@@ -24,7 +24,7 @@ const continueAbleNodeTypes = new Set([
 	'ForInStatement',
 ]);
 
-function isReturnStatementInBreakableStatements(returnStatement, callbackFunction) {
+function isReturnStatementInContinueAbleNodes(returnStatement, callbackFunction) {
 	for (let node = returnStatement; node && node !== callbackFunction; node = node.parent) {
 		if (continueAbleNodeTypes.has(node.type)) {
 			return true;
@@ -217,7 +217,7 @@ function isFixable(callExpression, sourceCode, functionReturnStatements) {
 
 	// Check `ReturnStatement`s in `callback`
 	const returnStatements = functionReturnStatements.get(callback);
-	if (returnStatements.some(returnStatement => isReturnStatementInBreakableStatements(returnStatement, callback))) {
+	if (returnStatements.some(returnStatement => isReturnStatementInContinueAbleNodes(returnStatement, callback))) {
 		return false;
 	}
 
