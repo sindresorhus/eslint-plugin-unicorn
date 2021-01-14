@@ -1,7 +1,7 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test';
 
-test.visualize([
+test.visualize({
 	valid: [
 		'new foo.forEach(element => bar())',
 		'forEach(element => bar())',
@@ -131,13 +131,6 @@ test.visualize([
 					return;
 				}
 			}
-		`,
-		outdent`
-			foo.forEach((element) => {
-				bar(element);
-			});
-			// GlobalReturn
-			return
-		`,
+		`
 	]
-]);
+});

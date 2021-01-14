@@ -1,5 +1,5 @@
 'use strict';
-const { hasSideEffect, isParenthesized } = require('eslint-utils');
+const { hasSideEffect, isParenthesized, isArrowToken } = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
@@ -22,6 +22,7 @@ const continueAbleNodeTypes = new Set([
 	'ForOfStatement',
 	'ForInStatement',
 ]);
+
 function isReturnStatementInBreakableStatements(returnStatement, callbackFunction) {
 	for (let node = returnStatement; node && node !== callbackFunction; node = node.parent) {
 		if (continueAbleNodeTypes.has(node.type)) {
@@ -32,7 +33,7 @@ function isReturnStatementInBreakableStatements(returnStatement, callbackFunctio
 	return false;
 }
 
-function * getFixFunction(callExpression, sourceCode) {
+function getFixFunction(callExpression, sourceCode) {
 	const [callback] = callExpression.arguments;
 	const {parameters} = callback;
 	const array = callExpression.callee.object;
@@ -75,7 +76,7 @@ function * getFixFunction(callExpression, sourceCode) {
 		if (callback.body.type === 'BlockStatement') {
 			end = callback.body.range[0];
 		} else {
-			const arrowToken = sourceCode.getFirstToken(callback, (token) => '=>');
+			const arrowToken = sourceCode.getFirstToken(callback, isArrowToken);
 			end = arrowToken.range[1];
 		}
 
@@ -122,7 +123,7 @@ function * getFixFunction(callExpression, sourceCode) {
 	};
 
 
-	return (fixer) => {
+	return function * (fixer) {
 		yield fixer.replaceTextRange(getForOfLoopHeadRange(), getForOfLoopHeadText());
 
 		// Remove call expression trailing comma
@@ -222,7 +223,8 @@ const create = (context) => {
 		},
 		ReturnStatement(node) {
 			const currentFunction = functionStacks[functionStacks.length - 1];
-			// Global return
+			// `globalReturn `
+			/* istanbul ignore next: ESLint deprecated `ecmaFeatures`, can't test */
 			if (!currentFunction) {
 				return;
 			}
