@@ -2,7 +2,7 @@
 const {isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
 const getParenthesizedTimes = require('./get-parenthesized-times');
 
-function * replaceNodeOrTokenAndSpacesAround(nodeOrToken, replacement, fixer, sourceCode) {
+function * replaceNodeOrTokenAndSpacesBefore(nodeOrToken, replacement, fixer, sourceCode) {
 	const parenthesizedTimes = getParenthesizedTimes(nodeOrToken, sourceCode);
 
 	if (parenthesizedTimes > 0) {
@@ -11,8 +11,8 @@ function * replaceNodeOrTokenAndSpacesAround(nodeOrToken, replacement, fixer, so
 		for (let index = 0; index < parenthesizedTimes; index++) {
 			const openingParenthesisToken = sourceCode.getTokenBefore(lastBefore, isOpeningParenToken);
 			const closingParenthesisToken = sourceCode.getTokenAfter(lastAfter, isClosingParenToken);
-			yield * replaceNodeOrTokenAndSpacesAround(openingParenthesisToken, '', fixer, sourceCode);
-			yield * replaceNodeOrTokenAndSpacesAround(closingParenthesisToken, '', fixer, sourceCode);
+			yield * replaceNodeOrTokenAndSpacesBefore(openingParenthesisToken, '', fixer, sourceCode);
+			yield * replaceNodeOrTokenAndSpacesBefore(closingParenthesisToken, '', fixer, sourceCode);
 			lastBefore = openingParenthesisToken;
 			lastAfter = closingParenthesisToken;
 		}
@@ -28,4 +28,4 @@ function * replaceNodeOrTokenAndSpacesAround(nodeOrToken, replacement, fixer, so
 	yield fixer.replaceTextRange([start, end], `${lineBreak}${replacement}`);
 }
 
-module.exports = replaceNodeOrTokenAndSpacesAround;
+module.exports = replaceNodeOrTokenAndSpacesBefore;
