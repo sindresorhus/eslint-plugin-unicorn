@@ -2,7 +2,8 @@
 const { hasSideEffect, isParenthesized } = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
-const avoidCapture = require('./avoid-capture');
+const needsSemicolon = require('./utils/needs-semicolon');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
@@ -25,83 +26,64 @@ function isReturnStatementInBreakableStatements(node, callbackFunction) {
 	return false;
 }
 
-function getFix(node, getParenthesizedText, functions) {
-  const {
-    parent,
-    arguments: callArguments,
-    callee: { object: array, property: method },
-  } = node;
+function * getFixFunction(callExpression, sourceCode) {
+	const [callback] = callExpression.arguments;
+	const {parameters} = callback;
+	const array = callExpression.callee.object;
 
-  if (
-    parent.type !== 'ExpressionStatement' ||
-    isParenthesized(node) ||
-    callArguments.length !== 1 ||
-    callee.optional ||
-    hasSideEffect(callee)
-  ) {
-    return;
-  }
-
-  const [callback] = callArguments;
-	const returnStatements = functions.get(callback);
-	const parameters = callback.params;
-
-  if (
-  	// Leave non-function type to `no-array-callback-reference` rule
-    callback.type !== 'FunctionExpression' ||
-    callback.type !== 'ArrowFunctionExpression' ||
-    callback.async ||
-    callback.generator ||
-		returnStatements.some(returnStatement => isReturnStatementInBreakableStatements(returnStatement, callback)) ||
-		parameters.length > 2 ||
-		parameters.some(parameter => parameters.type === 'RestElement')
-  ) {
-    return;
-  }
-
-	// TODO: check `FunctionExpression`'s `.id` `arguments` `this`
-
-	return function * (fixer) {
-		const scopes = [];
-
+	const getForOfLoopHeadText = () => {
+		const parametersText = parameters.map(parameter => sourceCode.getText(parameter));
 		let useEntries = parameters.length === 2;
-		const variables = (
-			parameters.length === 2 ? ['index', 'element'] : ['element']
-		).map(name => avoidCapture(name, scopes, ecmaVersion));
 
-		const forOfLoopHead = [
-			'for (const '
-		];
+		let text = 'for (const ';
 		if (useEntries) {
-			forOfLoopHead.push(`[${variables.join(', ')}]`)
+			text += `[${parametersText.join(', ')}]`;
 		} else {
-			forOfLoopHead.push(variables[0])
+			text += parametersText[0];
 		}
 
-		forOfLoopHead.push(' of ');
-		if (useEntries) {
-			forOfLoopHead.push(`${getParenthesizedText(array)}.entries()`);
-		} else {
-			forOfLoopHead.push(getParenthesizedText(array));
+		text += ' of ';
+
+		let arrayText = sourceCode.getText(array);
+		if (
+			isParenthesized(node, sourceCode) ||
+			(useEntries && shouldAddParenthesesToMemberExpressionObject(array, sourceCode))
+		) {
+			arrayText = `(${arrayText})`;
 		}
 
-		forOfLoopHead.push(')');
+		text += arrayText;
 
+		if (useEntries) {
+			text += '.entries()';
+		}
+
+		text += ') ';
+
+		return text;
+	};
+
+	const getForOfLoopHeadRange = () => {
 		const [start] = node.range;
-		const [end] = callback.body.range;
+		let end;
+		if (callback.body.type === 'BlockStatement') {
+			end = callback.body.range[0];
+		} else {
+			const arrowToken = sourceCode.getFirstToken(callback, (token) => '=>');
+			end = arrowToken.range[1];
+		}
 
-		yield fixer.replaceTextRange([start, end], forOfLoopHead.join(''));
+		return [start, end];
+	};
 
-		// Remove call expression trailing comma
-	const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
-  if (isCommaTOken(penultimateToken)) {
-		yield fixer.remove(penultimateToken);
-	}
-
-	yield fixer.remove(lastToken);
-
-	for(const returnStatement of returnStatements) {
+	function * replaceReturnStatement(returnStatement) {
 		const returnToken = sourceCode.getFirstToken(returnStatement);
+
+		/* istanbul ignore next: `ReturnStatement` firstToken should be `return` */
+		if (returnToken.value !== 'return') {
+			throw new Error(`Unexpected token ${returnToken.value}.`)
+		}
+
 		if (returnStatement.argument) {
 			// Remove `return`
 			yield fixer.remove(returnToken);
@@ -109,12 +91,107 @@ function getFix(node, getParenthesizedText, functions) {
 			// If `returnStatement` has no semi
 			const lastToken = sourceCode.getLastTokens(returnStatement);
 			yield fixer.insertTextAfter(returnStatement,
-				`${isSemiToken(lastToken) ? '' : ';'}break;`
+				`${isSemiToken(lastToken) ? '' : '; '}break;`
 			);
 		} else {
 			yield fixer.replace(returnStatement, 'break');
 		}
 	}
+
+	const shouldRemoveExpressionStatementLastToken = token => {
+		if (!isSemiToken(expressionStatementLastToken)) {
+			return false;
+		}
+
+		if (callback.body.type === 'BlockStatement') {
+			return true;
+		}
+
+		const nextToken = sourceCode.getTokenAfter(token);
+		if (nextToken && needsSemicolon(token, sourceCode, nextToken.value)) {
+			return false;
+		}
+
+		return true;
+	};
+
+
+	return (fixer) => {
+		yield fixer.replaceTextRange(getForOfLoopHeadRange(), getForOfLoopHeadText());
+
+		// Remove call expression trailing comma
+		const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
+		if (isCommaToken(penultimateToken)) {
+			yield fixer.remove(penultimateToken);
+		}
+		yield fixer.remove(lastToken);
+
+		for(const returnStatement of returnStatements) {
+			yield * replaceReturnStatement(returnStatement);
+		}
+
+		const expressionStatementLastToken = sourceCode.getLastToken(callExpression.parent);
+		if (shouldRemoveLastSemicolonToken(expressionStatementLastToken)) {
+			yield fixer.remove(expressionStatementLastToken);
+		}
+	};
+}
+
+function isFixable(callExpression, sourceCode, functionReturnStatements) {
+	// Check `CallExpression`
+	if (
+		callExpression.optional ||
+		isParenthesized(callExpression, sourceCode) ||
+		callExpression.arguments.length !== 1
+	) {
+    return false;
+	}
+
+	// Check `CallExpression.parent`
+	if (callExpression.parent.type !== 'ExpressionStatement') {
+    return false;
+	}
+
+	// Check `CallExpression.callee`
+	if (callExpression.callee.optional) {
+    return false;
+	}
+
+	// Check `CallExpression.arguments[0]`;
+	const [callback] = callExpression.arguments;
+	if (
+		// Leave non-function type to `no-array-callback-reference` rule
+		callback.type !== 'FunctionExpression' ||
+		callback.type !== 'ArrowFunctionExpression' ||
+    callback.async ||
+    callback.generator
+	) {
+    return false;
+	}
+
+	// Check `callback.parameters`
+	const {parameters} = callback;
+	if (
+		!(parameters.length === 1 || parameters.length === 2) ||
+		parameters.some(parameter => parameters.type !== 'Identifier')
+	) {
+		return false;
+	}
+
+	// TODO: check parameters conflicts
+
+	// Check `ReturnStatement`s in `callback`
+	const returnStatements = functionReturnStatements.get(callback);
+	if (returnStatements.some(returnStatement => isReturnStatementInBreakableStatements(returnStatement, callback))) {
+		return false;
+	}
+
+	// Check `callback` self
+	if (callback.type === 'FunctionExpression') {
+		// TODO: check `.id` `arguments` `this` of `FunctionExpression`
+	}
+
+  return true;
 }
 
 const create = (context) => {
@@ -151,12 +228,17 @@ const create = (context) => {
 			callExpressions.push(node);
     },
 		'Program:exit'() {
-			for (const node of callExpressions) {
-				context.report({
-					node: node.callee.property,
-					messageId: MESSAGE_ID,
-					fix: getFix(node, getParenthesizedText, functions)
-				});
+			for (const callExpression of callExpressions) {
+				const problem = {
+					node: callExpression.callee.property,
+					messageId: MESSAGE_ID
+				};
+
+				if (isFixable(callExpression, sourceCode, functionReturnStatements)) {
+					problem.fix = getFixFunction(callExpression, sourceCode);
+				}
+
+				context.report(problem);
 			}
 		}
   };
