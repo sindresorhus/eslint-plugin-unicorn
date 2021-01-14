@@ -1,6 +1,6 @@
-# Enforce combine multiple `Array#push()` into one call
+# Enforce combining multiple `Array#push()` into one call
 
-[`Array#push()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push) accepts multiple arguments, multiple calls should combine into one.
+[`Array#push()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push) accepts multiple arguments. Multiple calls should be combined into one.
 
 This rule is partly fixable.
 

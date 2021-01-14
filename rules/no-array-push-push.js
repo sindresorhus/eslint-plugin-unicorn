@@ -46,7 +46,7 @@ function getFirstExpression(node, sourceCode) {
 	}
 
 	/* istanbul ignore next */
-	throw new Error('Can not find the first `Array#push()` call.');
+	throw new Error('Cannot find the first `Array#push()` call.');
 }
 
 function create(context) {
