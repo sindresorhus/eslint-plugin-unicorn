@@ -121,6 +121,23 @@ test.visualize([
 		outdent`
 			foo.forEach((element) => bar(element))
 			;[foo].pop();
-		`
+		`,
+		outdent`
+			foo.forEach((element) => {
+				bar(element);
+			});
+			function noneRelatedFunction() {
+				while (element) {
+					return;
+				}
+			}
+		`,
+		outdent`
+			foo.forEach((element) => {
+				bar(element);
+			});
+			// GlobalReturn
+			return
+		`,
 	]
 ]);
