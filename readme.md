@@ -138,7 +138,7 @@ Configure it in `package.json`.
 - [no-null](docs/rules/no-null.md) - Disallow the use of the `null` literal.
 - [no-object-as-default-parameter](docs/rules/no-object-as-default-parameter.md) - Disallow the use of objects as default parameters.
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
-- [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
+- [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring. *(partly fixable)*
 - [no-unsafe-regex](docs/rules/no-unsafe-regex.md) - Disallow unsafe regular expressions.
 - [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
 - [no-useless-undefined](docs/rules/no-useless-undefined.md) - Disallow useless `undefined`. *(fixable)*
