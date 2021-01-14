@@ -1,3 +1,4 @@
+import {outdent} from 'outdent';
 import {test} from './utils/test.js';
 
 test.visualize({
@@ -26,4 +27,20 @@ test.visualize({
 		'let foo;foo = this;',
 		'var foo = bar, baz = this;'
 	]
+});
+
+test.babel({
+	valid: [
+		outdent`
+			class A {
+				foo = this;
+			}
+		`,
+		outdent`
+			class A {
+				static foo = this;
+			}
+		`
+	],
+	invalid: []
 });
