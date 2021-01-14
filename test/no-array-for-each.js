@@ -131,6 +131,40 @@ test.visualize({
 					return;
 				}
 			}
+		`,
+		outdent`
+			foo.forEach((element) => {
+				if (1) {
+					return;
+				}
+				if (1) {
+					return
+				}
+				if (1) {
+					return!true;
+				}
+				if (1) {
+					return!true
+				}
+				if (1) {
+					return bar();
+				}
+				if (1) {
+					return bar()
+					unreachable();
+				}
+				if (1) {
+					return {};
+				}
+				if (1) {
+					foo
+					return []
+				}
+				if (1) {
+					foo
+					return [foo] = bar;
+				}
+			});
 		`
 	]
 });
