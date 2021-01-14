@@ -1,3 +1,4 @@
+import {outdent} from 'outdent';
 import {test} from './utils/test.js';
 
 test.visualize({
@@ -18,6 +19,41 @@ test.visualize({
 		'fun.call(1, 2, 3) instanceof Array',
 		'obj.arr instanceof Array',
 		'foo.bar[2] instanceof Array',
-		'(0, array) instanceof Array'
+		'(0, array) instanceof Array',
+		outdent`
+			(
+				// comment
+				((
+					// comment
+					(
+						// comment
+						foo
+						// comment
+					)
+					// comment
+				))
+				// comment
+			)
+			// comment before instanceof\r      instanceof
+
+			// comment after instanceof
+
+			(
+				// comment
+
+				(
+
+					// comment
+
+					Array
+
+					// comment
+				)
+
+					// comment
+			)
+
+			// comment
+		`
 	]
 });

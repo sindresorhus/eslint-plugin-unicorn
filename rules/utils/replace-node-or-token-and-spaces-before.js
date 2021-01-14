@@ -9,8 +9,8 @@ function * replaceNodeOrTokenAndSpacesAround(nodeOrToken, replacement, fixer, so
 		let lastBefore = nodeOrToken;
 		let lastAfter = nodeOrToken;
 		for (let i = 0; i < parenthesizedTimes; i++) {
-			const openingParenthesisToken = sourceCode.getTokensBefore(lastBefore, isOpeningParenToken);
-			const closingParenthesisToken = sourceCode.getTokensAfter(lastAfter, isClosingParenToken);
+			const openingParenthesisToken = sourceCode.getTokenBefore(lastBefore, isOpeningParenToken);
+			const closingParenthesisToken = sourceCode.getTokenAfter(lastAfter, isClosingParenToken);
 			yield * replaceNodeOrTokenAndSpacesAround(openingParenthesisToken, '', fixer, sourceCode);
 			yield * replaceNodeOrTokenAndSpacesAround(closingParenthesisToken, '', fixer, sourceCode);
 			lastBefore = openingParenthesisToken;
@@ -22,15 +22,10 @@ function * replaceNodeOrTokenAndSpacesAround(nodeOrToken, replacement, fixer, so
 
 	const textBefore = sourceCode.text.slice(0, start);
 	const [trailingSpaces] = textBefore.match(/\s*$/);
-	const [leadingLineBreak] = trailingSpaces.match(/(?:\r?\n|\r)*/);
+	const [lineBreak] = trailingSpaces.match(/(?:\r?\n|\r){0,1}/);
 	start -= trailingSpaces.length;
 
-	// const textAfter = sourceCode.text.slice(0, end);
-	// const [leadingSpaces] = textBefore.match(/^\s*/);
-	// const [trailingLineBreak] = leadingSpaces.match(/(?:\r?\n|\r)*/);
-	// end += trailingSpaces.length;
-
-	yield fixer.replaceTextRange([start, end], `${leadingLineBreak}${replacement}`);
+	yield fixer.replaceTextRange([start, end], `${lineBreak}${replacement}`);
 }
 
 module.exports = replaceNodeOrTokenAndSpacesAround;
