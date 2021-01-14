@@ -1,7 +1,5 @@
 'use strict';
 
-const {isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
-
 /**
 Check if parentheses should to be added to a `node` when it's used as an `expression` of `ExpressionStatement`.
 

@@ -1,5 +1,5 @@
 'use strict';
-const {hasSideEffect, isParenthesized, isArrowToken, isCommaToken, isSemicolonToken} = require('eslint-utils');
+const {isParenthesized, isArrowToken, isCommaToken, isSemicolonToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
@@ -8,12 +8,12 @@ const shouldAddParenthesesToExpressionStatementExpression = require('./utils/sho
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
-  [MESSAGE_ID]: 'Do not use `Array#forEach(…)`.',
+	[MESSAGE_ID]: 'Do not use `Array#forEach(…)`.'
 };
 
 const arrayForEachCallSelector = methodSelector({
-  name: 'forEach',
-  includeOptional: true,
+	name: 'forEach',
+	includeOptional: true
 });
 
 const continueAbleNodeTypes = new Set([
@@ -21,7 +21,7 @@ const continueAbleNodeTypes = new Set([
 	'DoWhileStatement',
 	'ForStatement',
 	'ForOfStatement',
-	'ForInStatement',
+	'ForInStatement'
 ]);
 
 function isReturnStatementInContinueAbleNodes(returnStatement, callbackFunction) {
@@ -42,14 +42,10 @@ function getFixFunction(callExpression, sourceCode, functionReturnStatements) {
 
 	const getForOfLoopHeadText = () => {
 		const parametersText = parameters.map(parameter => sourceCode.getText(parameter));
-		let useEntries = parameters.length === 2;
+		const useEntries = parameters.length === 2;
 
 		let text = 'for (const ';
-		if (useEntries) {
-			text += `[${parametersText.join(', ')}]`;
-		} else {
-			text += parametersText[0];
-		}
+		text += useEntries ? `[${parametersText.join(', ')}]` : parametersText[0];
 
 		text += ' of ';
 
@@ -90,7 +86,7 @@ function getFixFunction(callExpression, sourceCode, functionReturnStatements) {
 
 		/* istanbul ignore next: `ReturnStatement` firstToken should be `return` */
 		if (returnToken.value !== 'return') {
-			throw new Error(`Unexpected token ${returnToken.value}.`)
+			throw new Error(`Unexpected token ${returnToken.value}.`);
 		}
 
 		if (!returnStatement.argument) {
@@ -134,7 +130,7 @@ function getFixFunction(callExpression, sourceCode, functionReturnStatements) {
 		);
 	}
 
-	const shouldRemoveExpressionStatementLastToken = (token, fixer) => {
+	const shouldRemoveExpressionStatementLastToken = (token) => {
 		if (!isSemicolonToken(token)) {
 			return false;
 		}
@@ -151,7 +147,6 @@ function getFixFunction(callExpression, sourceCode, functionReturnStatements) {
 		return true;
 	};
 
-
 	return function * (fixer) {
 		yield fixer.replaceTextRange(getForOfLoopHeadRange(), getForOfLoopHeadText());
 
@@ -160,9 +155,10 @@ function getFixFunction(callExpression, sourceCode, functionReturnStatements) {
 		if (isCommaToken(penultimateToken)) {
 			yield fixer.remove(penultimateToken);
 		}
+
 		yield fixer.remove(lastToken);
 
-		for(const returnStatement of returnStatements) {
+		for (const returnStatement of returnStatements) {
 			yield * replaceReturnStatement(returnStatement, fixer);
 		}
 
@@ -180,17 +176,17 @@ function isFixable(callExpression, sourceCode, functionReturnStatements) {
 		isParenthesized(callExpression, sourceCode) ||
 		callExpression.arguments.length !== 1
 	) {
-    return false;
+		return false;
 	}
 
 	// Check `CallExpression.parent`
 	if (callExpression.parent.type !== 'ExpressionStatement') {
-    return false;
+		return false;
 	}
 
 	// Check `CallExpression.callee`
 	if (callExpression.callee.optional) {
-    return false;
+		return false;
 	}
 
 	// Check `CallExpression.arguments[0]`;
@@ -201,7 +197,7 @@ function isFixable(callExpression, sourceCode, functionReturnStatements) {
     callback.async ||
     callback.generator
 	) {
-    return false;
+		return false;
 	}
 
 	// Check `callback.params`
@@ -226,27 +222,22 @@ function isFixable(callExpression, sourceCode, functionReturnStatements) {
 		// TODO: check `.id` `arguments` `this` of `FunctionExpression`
 	}
 
-  return true;
+	return true;
 }
 
-const create = (context) => {
+const create = context => {
 	const functionStacks = [];
 	const functionReturnStatements = new Map();
 	const callExpressions = [];
 
 	const sourceCode = context.getSourceCode();
 
-	const getParenthesizedText = node => {
-		const text = sourceCode.getText(node);
-		return isParenthesized(node, sourceCode) ? `(${text})` : text;
-	};
-
-  return {
+	return {
 		':function'(node) {
 			functionStacks.push(node);
 			functionReturnStatements.set(node, []);
 		},
-		':function:exit'(node) {
+		':function:exit'() {
 			functionStacks.pop();
 		},
 		ReturnStatement(node) {
@@ -260,9 +251,9 @@ const create = (context) => {
 			const returnStatements = functionReturnStatements.get(currentFunction);
 			returnStatements.push(node);
 		},
-    [arrayForEachCallSelector](node) {
+		[arrayForEachCallSelector](node) {
 			callExpressions.push(node);
-    },
+		},
 		'Program:exit'() {
 			for (const callExpression of callExpressions) {
 				const problem = {
@@ -277,17 +268,17 @@ const create = (context) => {
 				context.report(problem);
 			}
 		}
-  };
+	};
 };
 
 module.exports = {
-  create,
-  meta: {
-    type: 'suggestion',
-    docs: {
-      url: getDocumentationUrl(__filename),
-    },
-    fixable: 'code',
-    messages,
-  },
+	create,
+	meta: {
+		type: 'suggestion',
+		docs: {
+			url: getDocumentationUrl(__filename)
+		},
+		fixable: 'code',
+		messages
+	}
 };
