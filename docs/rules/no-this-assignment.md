@@ -12,11 +12,13 @@ setTimeout(function () {
 
 ```js
 const foo = this;
+
 class Bar {
 	method() {
 		foo.baz();
 	}
 }
+
 new Bar().method();
 ```
 
@@ -43,5 +45,6 @@ class Bar {
 		this.fooInstance.baz();
 	}
 }
+
 new Bar(this).method();
 ```
