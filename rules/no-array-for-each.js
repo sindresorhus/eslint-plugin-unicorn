@@ -15,10 +15,16 @@ const arrayForEachCallSelector = methodSelector({
   includeOptional: true,
 });
 
-const breakableTypePattern = /^(?:(?:Do)?While|For(?:In|Of)?|Switch)Statement$/u;
-function isReturnStatementInBreakableStatements(node, callbackFunction) {
-	for (let parent = node; parent && parent !== callbackFunction; parent = node.parent) {
-		if (breakableTypePattern.test(node.type)) {
+const continueAbleNodeTypes = new Set([
+	'WhileStatement',
+	'DoWhileStatement',
+	'ForStatement',
+	'ForOfStatement',
+	'ForInStatement',
+]);
+function isReturnStatementInBreakableStatements(returnStatement, callbackFunction) {
+	for (let node = returnStatement; node && node !== callbackFunction; node = node.parent) {
+		if (continueAbleNodeTypes.has(node.type)) {
 			return true;
 		}
 	}
@@ -91,10 +97,10 @@ function * getFixFunction(callExpression, sourceCode) {
 			// If `returnStatement` has no semi
 			const lastToken = sourceCode.getLastTokens(returnStatement);
 			yield fixer.insertTextAfter(returnStatement,
-				`${isSemiToken(lastToken) ? '' : '; '}break;`
+				`${isSemiToken(lastToken) ? '' : '; '}continue;`
 			);
 		} else {
-			yield fixer.replace(returnStatement, 'break');
+			yield fixer.replace(returnStatement, 'continue');
 		}
 	}
 

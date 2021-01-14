@@ -24,6 +24,8 @@ test.visualize([
 		'foo.forEach(({property}) => bar(property))',
 		// TODO: check parameters conflicts
 		// 'foo.forEach(foo => bar())',
+
+		// Can't turn `return` to `continue`
 		outdent`
 			foo.forEach(element => {
 				do {
@@ -59,14 +61,7 @@ test.visualize([
 				}
 			});
 		`,
-		outdent`
-			foo.forEach(element => {
-				switch (element) {
-					default:
-						return;
-				}
-			});
-		`,
+
 		// TODO: check parameters conflicts
 		// 'foo.forEach(function a(element) {bar(a)})',
 		// 'foo.forEach(function a(element) {bar(this)})',
