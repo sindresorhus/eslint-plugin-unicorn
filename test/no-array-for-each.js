@@ -157,6 +157,15 @@ test.visualize({
 					return {};
 				}
 				if (1) {
+					return ({});
+				}
+				if (1) {
+					return {a} = a;
+				}
+				if (1) {
+					return [a] = a;
+				}
+				if (1) {
 					foo
 					return []
 				}

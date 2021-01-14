@@ -4,6 +4,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
+const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
@@ -92,21 +93,45 @@ function getFixFunction(callExpression, sourceCode, functionReturnStatements) {
 			throw new Error(`Unexpected token ${returnToken.value}.`)
 		}
 
-		if (returnStatement.argument) {
-			// Remove `return`
-			yield fixer.remove(returnToken);
-
-			// TODO: `.argument` might need `;` or `()`
-
-			// If `returnStatement` has no semi
-			const lastToken = sourceCode.getLastToken(returnStatement);
-			yield fixer.insertTextAfter(
-				returnStatement,
-				`${isSemicolonToken(lastToken) ? '' : ';'} continue;`
-			);
-		} else {
+		if (!returnStatement.argument) {
 			yield fixer.replaceText(returnToken, 'continue');
+			return;
 		}
+
+		// Remove `return`
+		yield fixer.remove(returnToken);
+
+		const previousToken = sourceCode.getTokenBefore(returnToken);
+		const nextToken = sourceCode.getTokenAfter(returnToken);
+		let textBefore = '';
+		let textAfter = '';
+		const shouldAddParentheses =
+			!isParenthesized(returnStatement.argument, sourceCode) &&
+			shouldAddParenthesesToExpressionStatementExpression(returnStatement.argument);
+		if (shouldAddParentheses) {
+			textBefore = '(';
+			textAfter = ')';
+		}
+
+		const shouldAddSemicolonBefore = needsSemicolon(previousToken, sourceCode, shouldAddParentheses ? '(' : nextToken.value);
+		if (shouldAddSemicolonBefore) {
+			textBefore = `;${textBefore}`;
+		}
+
+		if (textBefore) {
+			yield fixer.insertTextBefore(nextToken, textBefore);
+		}
+
+		if (textAfter) {
+			yield fixer.insertTextAfter(returnStatement.argument, textAfter);
+		}
+
+		// If `returnStatement` has no semi
+		const lastToken = sourceCode.getLastToken(returnStatement);
+		yield fixer.insertTextAfter(
+			returnStatement,
+			`${isSemicolonToken(lastToken) ? '' : ';'} continue;`
+		);
 	}
 
 	const shouldRemoveExpressionStatementLastToken = (token, fixer) => {
