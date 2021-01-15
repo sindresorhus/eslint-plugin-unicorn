@@ -1083,9 +1083,9 @@ test({
 			output: 'a = test ? foo : bar;',
 			options: onlySingleLineOptions,
 			errors
-		},
+		}
 	]
-})
+});
 
 test({
 	valid: [
