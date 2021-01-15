@@ -1024,7 +1024,7 @@ test({
 			options: onlySingleLineOptions,
 			errors
 		},
-		// Parentheses is not considered part of `Node`
+		// Parentheses are not considered part of `Node`
 		{
 			code: outdent`
 				if (
@@ -1069,7 +1069,7 @@ test({
 			options: onlySingleLineOptions,
 			errors
 		},
-		// `EmptyStatement`s is excluded
+		// `EmptyStatement`s are excluded
 		{
 			code: outdent`
 				if (test) {
