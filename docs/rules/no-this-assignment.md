@@ -1,13 +1,13 @@
-# Disallow assign `this` to variable
+# Disallow assigning `this` to a variable
 
 ## Fail
 
 ```js
 const foo = this;
+
 setTimeout(function () {
 	foo.bar();
 }, 1000);
-
 ```
 
 ```js
