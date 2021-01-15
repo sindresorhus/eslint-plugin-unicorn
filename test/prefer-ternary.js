@@ -4,6 +4,8 @@ import {test} from './utils/test.js';
 const messageId = 'prefer-ternary';
 const errors = [{messageId}];
 
+const onlySingleLineOptions = ['only-single-line'];
+
 // ReturnStatement
 test({
 	valid: [
@@ -956,6 +958,134 @@ test({
 		}
 	]
 });
+
+// `only-single-line`
+test({
+	valid: [
+		{
+			code: outdent`
+				if (test) {
+					a = {
+						multiline: 'in consequent'
+					};
+				} else{
+					a = foo;
+				}
+			`,
+			options: onlySingleLineOptions
+		},
+		{
+			code: outdent`
+				if (test) {
+					a = foo;
+				} else{
+					a = {
+						multiline: 'in alternate'
+					};
+				}
+			`,
+			options: onlySingleLineOptions
+		},
+		{
+			code: outdent`
+				if (
+					test({
+						multiline: 'in test'
+					})
+				) {
+					a = foo;
+				} else{
+					a = bar;
+				}
+			`,
+			options: onlySingleLineOptions
+		},
+		{
+			code: outdent`
+				if (test) {
+					a = foo; b = 1;
+				} else{
+					a = bar;
+				}
+			`,
+			options: onlySingleLineOptions
+		}
+	],
+	invalid: [
+		{
+			code: outdent`
+				if (test) {
+					a = foo;
+				} else {
+					a = bar;
+				}
+			`,
+			output: 'a = test ? foo : bar;',
+			options: onlySingleLineOptions,
+			errors
+		},
+		// Parentheses is not considered part of `Node`
+		{
+			code: outdent`
+				if (
+					(
+						test
+					)
+				) {
+					a = foo;
+				} else {
+					a = bar;
+				}
+			`,
+			output: 'a = (test) ? foo : bar;',
+			options: onlySingleLineOptions,
+			errors
+		},
+		{
+			code: outdent`
+				if (test) {
+					(
+						a = foo
+					);
+				} else {
+					a = bar;
+				}
+			`,
+			output: 'a = test ? foo : bar;',
+			options: onlySingleLineOptions,
+			errors
+		},
+		// Semicolon of `ExpressionStatement` is not considered part of `Node`
+		{
+			code: outdent`
+				if (test) {
+					a = foo
+					;
+				} else {
+					a = bar;
+				}
+			`,
+			output: 'a = test ? foo : bar;',
+			options: onlySingleLineOptions,
+			errors
+		},
+		// `EmptyStatement`s is excluded
+		{
+			code: outdent`
+				if (test) {
+					;;;;;;
+					a = foo;
+					;;;;;;
+				} else {
+					a = bar;
+				}
+			`,
+			output: 'a = test ? foo : bar;',
+			options: onlySingleLineOptions,
+			errors
+		},
+	]
+})
 
 test({
 	valid: [
