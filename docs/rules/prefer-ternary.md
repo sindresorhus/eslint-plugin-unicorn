@@ -120,3 +120,26 @@ if (test) {
 	baz = 2;
 }
 ```
+
+## Options
+
+Type: `string`\
+Default: `always`
+
+- `always` (default)
+	- Always check `IfStatement`
+- `only-single-line`
+	- Only check if `test`, `consequent`, and `alternate` of `IfStatement` are single line
+
+The following case is considered valid:
+
+```js
+// eslint unicorn/prefer-ternary: ["error", "only-single-line"]
+if (test) {
+	foo = [
+		'multiple line array'
+	];
+} else {
+	bar = baz;
+}
+```
