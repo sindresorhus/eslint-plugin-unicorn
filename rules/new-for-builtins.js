@@ -40,8 +40,8 @@ const create = context => {
 			}
 		},
 		NewExpression: node => {
-			const {callee, range} = node;
-			const {name, range: calleeRange} = callee;
+			const {callee} = node;
+			const {name} = callee;
 
 			if (disallowNew.has(name) && !isShadowed(context.getScope(), callee)) {
 				const problem = {
