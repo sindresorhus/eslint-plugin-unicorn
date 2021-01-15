@@ -40,7 +40,7 @@ const create = context => {
 			}
 		},
 		NewExpression: node => {
-			const {callee} = node;
+			const {callee, range} = node;
 			const {name} = callee;
 
 			if (disallowNew.has(name) && !isShadowed(context.getScope(), callee)) {
@@ -52,7 +52,7 @@ const create = context => {
 
 				if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
 					problem.fix = function * (fixer) {
-						const [start] = node.range;
+						const [start] = range;
 						let end = start + 3; // `3` = length of `new`
 						const textAfter = sourceCode.text.slice(end);
 						const [leadingSpaces] = textAfter.match(/^\s*/);
