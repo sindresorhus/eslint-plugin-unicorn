@@ -138,35 +138,35 @@ test({
 				try {
 					/* comment */
 					// comment
-				} catch{SPACE}
+				} catch
 					/* comment */
 					// comment
-				{TAB}
+
 					/* comment */
 					// comment
-				{
+				{SPACE}{
 					/* comment */
 					// comment
 				}
 				/* comment */
-			`.replace('{SPACE}', ' ').replace('{TAB}', '\t'),
+			`.replace('{SPACE}', ' '),
 			errors: [generateError('unused')]
 		},
 		// Spaces
 		{
-			code: 'try    {    } catch    (e)  \n  \t  {    }',
-			//                               ^^^^^^^^^^ spaces after param will be removed.
+			code: 'try    {    } catch  \n  \t  (e)    {    }',
+			//                        ^^^^^^^^^^ spaces before param will be removed.
 			output: 'try    {    } catch    {    }',
 			errors: 1
 		},
 		{
 			code: 'try {} catch(e) {}',
-			output: 'try {} catch{}',
+			output: 'try {} catch {}',
 			errors: 1
 		},
 		{
 			code: 'try {} catch (e){}',
-			output: 'try {} catch {}',
+			output: 'try {} catch{}',
 			errors: 1
 		}
 	]

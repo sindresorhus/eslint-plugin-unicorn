@@ -1,6 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {findVariable, isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
+const {findVariable} = require('eslint-utils');
+const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before');
 
 const ERROR_MESSAGE_ID = 'error';
 const messages = {
@@ -25,32 +26,12 @@ const create = context => {
 				return;
 			}
 
-			const {name, parent} = node;
-
 			context.report({
 				node,
 				messageId: ERROR_MESSAGE_ID,
-				data: {name},
+				data: {name: node.name},
 				* fix(fixer) {
-					const tokenBefore = context.getTokenBefore(node);
-					const tokenAfter = context.getTokenAfter(node);
-
-					/* istanbul ignore next */
-					if (!isOpeningParenToken(tokenBefore) || !isClosingParenToken(tokenAfter)) {
-						throw new Error('Unexpected token.');
-					}
-
-					yield fixer.remove(tokenBefore);
-					yield fixer.remove(node);
-					yield fixer.remove(tokenAfter);
-
-					const [, endOfClosingParenthesis] = tokenAfter.range;
-					const [startOfCatchClauseBody] = parent.body.range;
-					const text = sourceCode.text.slice(endOfClosingParenthesis, startOfCatchClauseBody);
-					const leadingSpacesLength = text.length - text.trimStart().length;
-					if (leadingSpacesLength !== 0) {
-						yield fixer.removeRange([endOfClosingParenthesis, endOfClosingParenthesis + leadingSpacesLength]);
-					}
+					yield * replaceNodeOrTokenAndSpacesBefore(node, '', fixer, sourceCode);
 				}
 			});
 		}
