@@ -35,7 +35,7 @@ Array.prototype.reduce.call(array, reducer);
 ## Pass
 
 ```js
-// eslint-disable-next-line
+// eslint-disable-next-line unicorn/no-array-reduce
 array.reduce(reducer, initialValue);
 ```
 
