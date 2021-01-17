@@ -12,7 +12,10 @@ const messages = {
 const create = context => {
 	const {sortCharacterClasses} = context.options[0] || {};
 
-	const ignoreList = ['combineRepeatingPatterns'];
+	const ignoreList = [
+		// #994
+		'combineRepeatingPatterns'
+	];
 
 	if (sortCharacterClasses === false) {
 		ignoreList.push('charClassClassrangesMerge');
