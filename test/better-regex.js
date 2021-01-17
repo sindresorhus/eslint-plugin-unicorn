@@ -70,7 +70,10 @@ test({
 		'new RegExp()',
 
 		// #472
-		'/[ ;-]/g'
+		'/[ ;-]/g',
+
+		// #994
+		'/\\s?\\s?/'
 	],
 	invalid: [
 		// Literal regex
