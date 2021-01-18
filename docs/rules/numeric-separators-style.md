@@ -39,6 +39,7 @@ Type: `boolean`\
 Default: `false`
 
 Check if the group sizes are valid **only** if there are groups separated with an `_`.
+You can set it for each specific number type, or set the top-level one which will override others.
 
 Example:
 
@@ -110,6 +111,7 @@ const foo = 0o12_7777;
 
 ```js
 {
+	onlyIfContainsSeparator: undefined,
 	hexadecimal: {
 		onlyIfContainsSeparator: false,
 		minimumDigits: 0,
