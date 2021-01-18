@@ -141,6 +141,7 @@ test.visualize({
 		'concat(1)',
 		'array[concat](1)',
 		'"foo".concat("bar")',
+		// eslint-disable-next-line no-template-curly-in-string
 		'`${foo}`.concat("bar")',
 		outdent`
 			const string = 'foo';

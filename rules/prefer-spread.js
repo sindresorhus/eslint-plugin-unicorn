@@ -36,7 +36,7 @@ const arrayConcatCallSelector = [
 		[
 			'Literal',
 			'TemplateLiteral'
-		].map(type=> `[callee.object.type="${type}"]`).join(', ')
+		].map(type => `[callee.object.type="${type}"]`).join(', ')
 	})`
 ].join('');
 
