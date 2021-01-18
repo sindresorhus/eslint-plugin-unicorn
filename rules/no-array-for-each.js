@@ -4,12 +4,14 @@ const {
 	isArrowToken,
 	isCommaToken,
 	isSemicolonToken,
+	isClosingParenToken,
 	findVariable
 } = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression');
+const getParenthesizedTimes = require('./utils/get-parenthesized-times');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
@@ -151,8 +153,26 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		return true;
 	};
 
+	function * removeCallbackParenthesis(fixer) {
+		const parenthesizedTimes = getParenthesizedTimes(callback, sourceCode);
+		if (parenthesizedTimes > 0) {
+			// Opening parenthesis tokens already included in `getForOfLoopHeadRange`
+
+			const closingParenthesisTokens = sourceCode.getTokensAfter(
+				callback,
+				{count: parenthesizedTimes, filter: isClosingParenToken}
+			);
+
+			for (const closingParenthesisToken of closingParenthesisTokens) {
+				yield fixer.remove(closingParenthesisToken);
+			}
+		}
+	};
+
 	return function * (fixer) {
 		yield fixer.replaceTextRange(getForOfLoopHeadRange(), getForOfLoopHeadText());
+
+		yield * removeCallbackParenthesis(fixer);
 
 		// Remove call expression trailing comma
 		const [
