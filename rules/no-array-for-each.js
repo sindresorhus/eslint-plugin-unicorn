@@ -12,6 +12,7 @@ const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression');
 const getParenthesizedTimes = require('./utils/get-parenthesized-times');
+const extendFixRange = require('./utils/extend-fix-range');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
@@ -187,6 +188,9 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		if (shouldRemoveExpressionStatementLastToken(expressionStatementLastToken)) {
 			yield fixer.remove(expressionStatementLastToken, fixer);
 		}
+
+		// Prevent possible conflicts
+		yield * extendFixRange(fixer, callExpression.parent.range);
 	};
 }
 
