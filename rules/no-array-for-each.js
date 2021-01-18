@@ -142,7 +142,9 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		}
 
 		const nextToken = sourceCode.getTokenAfter(token);
-		if (nextToken && needsSemicolon(token, sourceCode, nextToken.value)) {
+		const lastTokenInCallback = sourceCode.getLastToken(callback);
+
+		if (nextToken && needsSemicolon(lastTokenInCallback, sourceCode, nextToken.value)) {
 			return false;
 		}
 
@@ -153,7 +155,11 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		yield fixer.replaceTextRange(getForOfLoopHeadRange(), getForOfLoopHeadText());
 
 		// Remove call expression trailing comma
-		const [penultimateToken, lastToken] = sourceCode.getLastTokens(callExpression, 2);
+		const [
+			penultimateToken,
+			lastToken
+		] = sourceCode.getLastTokens(callExpression, 2);
+
 		if (isCommaToken(penultimateToken)) {
 			yield fixer.remove(penultimateToken);
 		}

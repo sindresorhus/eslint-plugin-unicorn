@@ -211,7 +211,7 @@ test.visualize({
 			},);
 		`,
 		'foo.forEach((element) => bar(element),);',
-		// Can't remove semi
+		// Last semi token
 		outdent`
 			foo.forEach((element) => bar(element))
 			;[foo].pop();
