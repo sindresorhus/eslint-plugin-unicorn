@@ -242,6 +242,7 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 	}
 
 	// Check `CallExpression.callee`
+	/* istanbul ignore next: Because of `ChainExpression` wrapper, `foo?.forEach()` is already failed on previous check, keep this just for safety */
 	if (callExpression.callee.optional) {
 		return false;
 	}
