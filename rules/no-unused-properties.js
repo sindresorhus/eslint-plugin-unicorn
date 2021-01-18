@@ -129,7 +129,7 @@ const create = context => {
 				return;
 			}
 
-			const nextPath = path.concat(key);
+			const nextPath = [...path, key];
 
 			const nextReferences = references
 				.map(reference => {

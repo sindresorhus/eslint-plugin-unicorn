@@ -987,12 +987,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'let errCb, errorCb',
 			output: 'let errorCallback, errorCallback_',
-			errors: createErrors().concat(createErrors())
+			errors: 2
 		},
 		{
 			code: '{ let errCb }; { let errorCb }',
 			output: '{ let errorCallback }; { let errorCallback }',
-			errors: createErrors().concat(createErrors())
+			errors: 2
 		},
 
 		// The following test should have looked like this (commented one), but eslint's `RuleTester`
@@ -1031,7 +1031,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 					console.log(errorCallback, errorCb);
 				}
 			`,
-			errors: createErrors().concat(createErrors())
+			errors: 2
 		},
 
 		{
