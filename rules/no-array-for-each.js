@@ -160,7 +160,7 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 				yield fixer.remove(closingParenthesisToken);
 			}
 		}
-	};
+	}
 
 	return function * (fixer) {
 		yield fixer.replaceTextRange(getForOfLoopHeadRange(), getForOfLoopHeadText());

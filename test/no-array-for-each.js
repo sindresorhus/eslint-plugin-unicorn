@@ -256,7 +256,7 @@ test.visualize({
 			}
 		`,
 		// `callback` is parenthesized
-		`foo.forEach((((((element => bar(element)))))));`,
+		'foo.forEach((((((element => bar(element)))))));',
 		outdent`
 			foo.forEach((element) => {
 				if (1) {
