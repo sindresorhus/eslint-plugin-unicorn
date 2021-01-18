@@ -141,6 +141,7 @@ const create = context => {
 			const [item] = node.arguments;
 			if (node.arguments.length !== 1 || item.type === 'SpreadElement') {
 				context.report(problem);
+				return;
 			}
 
 			let isItemArray;

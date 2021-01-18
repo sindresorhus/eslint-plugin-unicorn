@@ -182,6 +182,8 @@ test.visualize({
 		// `String#concat` is wrongly detected, but people should use `+` to concat string
 		'string.concat("bar")',
 		// Currently not fixing multiple arguments
-		'foo.concat(2, 3)'
+		'foo.concat(2, 3)',
+		'foo.concat(2, bar)',
+		'let sortedScores = scores.concat().sort((a, b) => b[0] - a[0]);',
 	]
 });
