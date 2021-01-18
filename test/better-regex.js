@@ -73,7 +73,8 @@ test({
 		'/[ ;-]/g',
 
 		// #994
-		'/\\s?\\s?/'
+		'/\\s?\\s?/', // https://github.com/DmitrySoshnikov/regexp-tree/issues/216#issuecomment-762073297
+		'/\\s{0,2}/'
 	],
 	invalid: [
 		// Literal regex
