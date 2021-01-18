@@ -255,6 +255,8 @@ test.visualize({
 				}
 			}
 		`,
+		// A test to make sure function head part range correctly calculated
+		'foo.forEach(element => ({}))',
 		// `callback` is parenthesized
 		'foo.forEach((((((element => bar(element)))))));',
 		outdent`
