@@ -110,12 +110,52 @@ test({
 			options: [{number: {checkOnlyIfSeparator: true}}]
 		},
 		{
+			code: 'const foo = 12345678',
+			options: [{number: {checkOnlyIfSeparator: true}}]
+		},
+		{
 			code: 'const foo = 12_345',
+			options: [{number: {checkOnlyIfSeparator: true}}]
+		},
+		{
+			code: 'const foo = 1789.123_432_42',
+			options: [{number: {checkOnlyIfSeparator: true}}]
+		},
+		{
+			code: 'const foo = -100_000e+100_000',
+			options: [{number: {checkOnlyIfSeparator: true}}]
+		},
+		{
+			code: 'const foo = -100000e+100000',
+			options: [{number: {checkOnlyIfSeparator: true}}]
+		},
+		{
+			code: 'const foo = -282_932 - (1938 / 10_000) * .1 + 18.100_000_2',
 			options: [{number: {checkOnlyIfSeparator: true}}]
 		},
 		{
 			code: 'const foo = 0xA_B_C_D_E',
 			options: [{hexadecimal: {checkOnlyIfSeparator: true, groupLength: 1}}]
+		},
+		{
+			code: 'const foo = 0o7777',
+			options: [{octal: {checkOnlyIfSeparator: true, minimumDigits: 4}}]
+		},
+		{
+			code: 'const foo = 0xABCDEF012',
+			options: [{hexadecimal: {checkOnlyIfSeparator: true}}]
+		},,
+		{
+			code: 'const foo = 0o777777',
+			options: [{octal: {checkOnlyIfSeparator: true, minimumDigits: 3}}]
+		},
+		{
+			code: 'const foo = 0o777777',
+			options: [{octal: {checkOnlyIfSeparator: true, minimumDigits: 3, groupLength: 2}}]
+		},
+		{
+			code: 'const foo = 0o777_777',
+			options: [{octal: {checkOnlyIfSeparator: true, minimumDigits: 2, groupLength: 3}}]
 		}
 	],
 	invalid: [
@@ -339,6 +379,12 @@ test({
 			options: [{number: {minimumDigits: 3, groupLength: 2}}],
 			errors: [error],
 			output: 'const foo = 0b111'
+		},
+		{
+			code: 'const foo = -100000e+100000',
+			options: [{number: {checkOnlyIfSeparator: false}}],
+			errors: [error],
+			output: 'const foo = -100_000e+100_000'
 		}
 	]
 });
