@@ -64,7 +64,8 @@ test.visualize({
 
 		// TODO: check parameters conflicts
 		// 'foo.forEach(function a(element) {bar(a)})',
-		// 'foo.forEach(function a(element) {bar(this)})',
+		'foo.forEach(function a(element) {bar(this)})',
+		'foo.forEach((element) => {bar(this)})',
 		// 'foo.forEach(function a(element) {bar(arguments)})',
 
 		// Auto-fix

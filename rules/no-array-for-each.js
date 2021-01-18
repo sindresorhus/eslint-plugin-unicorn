@@ -34,11 +34,11 @@ function isReturnStatementInContinueAbleNodes(returnStatement, callbackFunction)
 	return false;
 }
 
-function getFixFunction(callExpression, sourceCode, functionReturnStatements) {
+function getFixFunction(callExpression, sourceCode, functionInfo) {
 	const [callback] = callExpression.arguments;
 	const parameters = callback.params;
 	const array = callExpression.callee.object;
-	const returnStatements = functionReturnStatements.get(callback);
+	const {returnStatements} = functionInfo.get(callback);
 
 	const getForOfLoopHeadText = () => {
 		const parametersText = parameters.map(parameter => sourceCode.getText(parameter));
@@ -169,7 +169,7 @@ function getFixFunction(callExpression, sourceCode, functionReturnStatements) {
 	};
 }
 
-function isFixable(callExpression, sourceCode, functionReturnStatements) {
+function isFixable(callExpression, sourceCode, functionInfo) {
 	// Check `CallExpression`
 	if (
 		callExpression.optional ||
@@ -212,8 +212,11 @@ function isFixable(callExpression, sourceCode, functionReturnStatements) {
 	// TODO: check parameters conflicts
 
 	// Check `ReturnStatement`s in `callback`
-	const returnStatements = functionReturnStatements.get(callback);
-	if (returnStatements.some(returnStatement => isReturnStatementInContinueAbleNodes(returnStatement, callback))) {
+	const {returnStatements, thisFound} = functionInfo.get(callback);
+	if (
+		thisFound ||
+		returnStatements.some(returnStatement => isReturnStatementInContinueAbleNodes(returnStatement, callback))
+	) {
 		return false;
 	}
 
@@ -227,7 +230,8 @@ function isFixable(callExpression, sourceCode, functionReturnStatements) {
 
 const create = context => {
 	const functionStacks = [];
-	const functionReturnStatements = new Map();
+	const nonArrowFunctionStacks = [];
+	const functionInfo = new Map();
 	const callExpressions = [];
 
 	const sourceCode = context.getSourceCode();
@@ -235,10 +239,29 @@ const create = context => {
 	return {
 		':function'(node) {
 			functionStacks.push(node);
-			functionReturnStatements.set(node, []);
+			functionInfo.set(node, {
+				returnStatements: [],
+				thisFound: false
+			});
+
+			if (node.type !== 'ArrowFunctionExpression') {
+				nonArrowFunctionStacks.push(node);
+			}
 		},
-		':function:exit'() {
+		':function:exit'(node) {
 			functionStacks.pop();
+
+			if (node.type !== 'ArrowFunctionExpression') {
+				nonArrowFunctionStacks.pop();
+			}
+		},
+		ThisExpression(node) {
+			const currentNonArrowFunction = nonArrowFunctionStacks[functionStacks.length - 1];
+			if (!currentNonArrowFunction) {
+				return;
+			}
+			const currentFunctionInfo = functionInfo.get(currentNonArrowFunction);
+			currentFunctionInfo.thisFound = true;
 		},
 		ReturnStatement(node) {
 			const currentFunction = functionStacks[functionStacks.length - 1];
@@ -248,7 +271,7 @@ const create = context => {
 				return;
 			}
 
-			const returnStatements = functionReturnStatements.get(currentFunction);
+			const {returnStatements} = functionInfo.get(currentFunction);
 			returnStatements.push(node);
 		},
 		[arrayForEachCallSelector](node) {
@@ -261,8 +284,8 @@ const create = context => {
 					messageId: MESSAGE_ID
 				};
 
-				if (isFixable(callExpression, sourceCode, functionReturnStatements)) {
-					problem.fix = getFixFunction(callExpression, sourceCode, functionReturnStatements);
+				if (isFixable(callExpression, sourceCode, functionInfo)) {
+					problem.fix = getFixFunction(callExpression, sourceCode, functionInfo);
 				}
 
 				context.report(problem);
