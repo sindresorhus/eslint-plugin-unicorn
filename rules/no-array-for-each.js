@@ -282,7 +282,7 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 		const argumentsVariable = findVariable(callbackScope, 'arguments');
 		if (
 			argumentsVariable &&
-			argumentsVariable.references.some(reference => reference.from === scope)
+			argumentsVariable.references.some(reference => reference.from === callbackScope)
 		) {
 			return false;
 		}
