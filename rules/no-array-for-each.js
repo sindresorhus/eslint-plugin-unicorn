@@ -139,14 +139,7 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 			return false;
 		}
 
-		if (callback.body.type === 'BlockStatement') {
-			return true;
-		}
-
-		const nextToken = sourceCode.getTokenAfter(token);
-		const lastTokenInCallback = sourceCode.getLastToken(callback);
-
-		if (nextToken && needsSemicolon(lastTokenInCallback, sourceCode, nextToken.value)) {
+		if (callback.body.type !== 'BlockStatement') {
 			return false;
 		}
 
