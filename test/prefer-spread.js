@@ -179,6 +179,8 @@ test.visualize({
 		'Array.from(set).concat([2, 3])',
 		'foo.concat([2, 3]).concat(4)',
 		// `String#concat` is wrongly detected, but people should use `+` to concat string
-		'string.concat("bar")'
+		'string.concat("bar")',
+		// Currently not fixing multiple arguments
+		'foo.concat(2, 3)'
 	]
 });
