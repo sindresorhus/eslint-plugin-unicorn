@@ -147,7 +147,7 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		return true;
 	};
 
-	function * removeCallbackParenthesis(fixer) {
+	function * removeCallbackParentheses(fixer) {
 		const parenthesizedTimes = getParenthesizedTimes(callback, sourceCode);
 		if (parenthesizedTimes > 0) {
 			// Opening parenthesis tokens already included in `getForOfLoopHeadRange`
@@ -166,7 +166,7 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 	return function * (fixer) {
 		yield fixer.replaceTextRange(getForOfLoopHeadRange(), getForOfLoopHeadText());
 
-		yield * removeCallbackParenthesis(fixer);
+		yield * removeCallbackParentheses(fixer);
 
 		// Remove call expression trailing comma
 		const [
