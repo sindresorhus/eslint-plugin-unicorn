@@ -139,7 +139,13 @@ test.visualize({
 	valid: [
 		'new Array.concat(1)',
 		'concat(1)',
-		'array[concat](1)'
+		'array[concat](1)',
+		'"foo".concat("bar")',
+		'`${foo}`.concat("bar")',
+		outdent`
+			const string = 'foo';
+			foo = string.concat("bar");
+		`
 	],
 	invalid: [
 		'[1].concat(2)',
@@ -171,6 +177,8 @@ test.visualize({
 		'foo.concat([bar])',
 		'foo.concat(bar)',
 		'Array.from(set).concat([2, 3])',
-		'foo.concat([2, 3]).concat(4)'
+		'foo.concat([2, 3]).concat(4)',
+		// `String#concat` is wrongly detected, but people should use `+` to concat string
+		'string.concat("bar")'
 	]
 });

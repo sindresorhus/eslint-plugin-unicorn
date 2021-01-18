@@ -28,9 +28,17 @@ const arrayFromCallSelector = [
 	'[arguments.0.type!="ObjectExpression"]'
 ].join('');
 
-const arrayConcatCallSelector = methodSelector({
-	name: 'concat'
-});
+const arrayConcatCallSelector = [
+	methodSelector({
+		name: 'concat'
+	}),
+	`:not(${
+		[
+			'Literal',
+			'TemplateLiteral'
+		].map(type=> `[callee.object.type="${type}"]`).join(', ')
+	})`
+].join('');
 
 const isArrayLiteral = node => node.type === 'ArrayExpression';
 
@@ -118,6 +126,13 @@ const create = context => {
 			});
 		},
 		[arrayConcatCallSelector](node) {
+			const scope = context.getScope();
+			const staticResult = getStaticValue(node.callee.object, scope);
+
+			if (staticResult && !Array.isArray(staticResult.value)) {
+				return;
+			}
+
 			const problem = {
 				node: node.callee.property,
 				messageId: ERROR_ARRAY_CONCAT
@@ -132,7 +147,7 @@ const create = context => {
 			if (isArrayLiteral(item)) {
 				isItemArray = true;
 			} else {
-				const result = getStaticValue(item, context.getScope());
+				const result = getStaticValue(item, scope);
 
 				if (result) {
 					isItemArray = Array.isArray(result.value);
