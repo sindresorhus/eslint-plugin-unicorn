@@ -144,7 +144,7 @@ test({
 		{
 			code: 'const foo = 0xABCDEF012',
 			options: [{hexadecimal: {checkOnlyIfSeparator: true}}]
-		},,
+		},
 		{
 			code: 'const foo = 0o777777',
 			options: [{octal: {checkOnlyIfSeparator: true, minimumDigits: 3}}]
