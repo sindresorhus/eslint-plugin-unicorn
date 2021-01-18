@@ -367,4 +367,4 @@ test.typescript({
 			errors: 1
 		}
 	]
-})
+});

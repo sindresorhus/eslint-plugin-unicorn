@@ -270,7 +270,8 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 	) {
 		return false;
 	}
-	// `foo.forEach((element: Type, index: number) => foo())`, should fix to `const [index, element]: [number, Type] of`, not handled
+
+	// `foo.forEach((element: Type, index: number) => bar())`, should fix to `for (const [index, element]: [number, Type] of …`, not handled
 	if (parameters.length === 2 && parameters.some(node => node.typeAnnotation)) {
 		return false;
 	}
