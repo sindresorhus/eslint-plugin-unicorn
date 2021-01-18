@@ -100,7 +100,7 @@ const create = context => {
 			const strippedNumber = number.replace(/_/g, '');
 			const {prefix = '', data} = strippedNumber.match(/^(?<prefix>0[box])?(?<data>.*)$/i).groups;
 
-			const { onlyIfContainsSeparator } = typeof options.onlyIfContainsSeparator === 'undefined' ?
+			const {onlyIfContainsSeparator} = typeof options.onlyIfContainsSeparator === 'undefined' ?
 				options[prefix.toLowerCase()] :
 				options;
 			if (onlyIfContainsSeparator && !raw.includes('_')) {
@@ -150,7 +150,7 @@ const schema = [{
 		onlyIfContainsSeparator: {
 			type: 'boolean',
 			// Default to undefined to avoid overriding properties' settings
-			default: undefined,
+			default: undefined
 		}
 	},
 	additionalProperties: false
