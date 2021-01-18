@@ -70,7 +70,11 @@ test({
 		'new RegExp()',
 
 		// #472
-		'/[ ;-]/g'
+		'/[ ;-]/g',
+
+		// #994
+		'/\\s?\\s?/', // https://github.com/DmitrySoshnikov/regexp-tree/issues/216#issuecomment-762073297
+		'/\\s{0,2}/'
 	],
 	invalid: [
 		// Literal regex
@@ -269,6 +273,11 @@ test({
 		testCase(
 			'/[ \\n\\t\\r\\f(){}:;@!\'"\\\\\\][#]|\\/(?=\\*)/g',
 			'/[\\t\\n\\f\\r !"#\'():;@[\\\\\\]{}]|\\/(?=\\*)/g'
+		),
+		// #994
+		testCase(
+			'/\\s?\\s?\\s?/',
+			'/\\s{0,3}/'
 		),
 		// Actual message
 		{
