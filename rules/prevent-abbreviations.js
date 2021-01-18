@@ -673,11 +673,15 @@ const create = context => {
 	};
 
 	const checkVariables = scope => {
-		scope.variables.forEach(variable => checkPossiblyWeirdClassVariable(variable));
+		for (const variable of scope.variables) {
+			checkPossiblyWeirdClassVariable(variable);
+		}
 	};
 
 	const checkChildScopes = scope => {
-		scope.childScopes.forEach(scope => checkScope(scope));
+		for (const childScope of scope.childScopes) {
+			checkScope(childScope);
+		}
 	};
 
 	const checkScope = scope => {
