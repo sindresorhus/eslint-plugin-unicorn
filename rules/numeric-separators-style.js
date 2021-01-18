@@ -73,6 +73,7 @@ const defaultOptions = {
 const create = context => {
 	const rawOptions = defaultsDeep({}, context.options[0], defaultOptions);
 	const options = {
+		onlyIfContainsSeparator: rawOptions.onlyIfContainsSeparator,
 		'0b': rawOptions.binary,
 		'0o': rawOptions.octal,
 		'0x': rawOptions.hexadecimal,
@@ -98,7 +99,11 @@ const create = context => {
 
 			const strippedNumber = number.replace(/_/g, '');
 			const {prefix = '', data} = strippedNumber.match(/^(?<prefix>0[box])?(?<data>.*)$/i).groups;
-			if (options[prefix.toLowerCase()].onlyIfContainsSeparator && !raw.includes('_')) {
+
+			const { onlyIfContainsSeparator } = typeof options.onlyIfContainsSeparator === 'undefined' ?
+				options[prefix.toLowerCase()] :
+				options;
+			if (onlyIfContainsSeparator && !raw.includes('_')) {
 				return;
 			}
 
@@ -138,9 +143,16 @@ const formatOptionsSchema = ({minimumDigits, groupLength}) => ({
 
 const schema = [{
 	type: 'object',
-	properties: fromPairs(
-		Object.entries(defaultOptions).map(([type, options]) => [type, formatOptionsSchema(options)])
-	),
+	properties: {
+		...fromPairs(
+			Object.entries(defaultOptions).map(([type, options]) => [type, formatOptionsSchema(options)])
+		),
+		onlyIfContainsSeparator: {
+			type: 'boolean',
+			// Default to undefined to avoid overriding properties' settings
+			default: undefined,
+		}
+	},
 	additionalProperties: false
 }];
 
