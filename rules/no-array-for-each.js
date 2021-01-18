@@ -175,7 +175,29 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 	};
 }
 
-function isFixable(callExpression, sourceCode, functionInfo) {
+function isParameterSafeToFix(parameter, {scope, array}) {
+	const {type, name} = parameter;
+	if (type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(scope, name);
+	if (!variable) {
+		return true;
+	}
+
+	const [arrayStart, arrayEnd] = array;
+	for (const {identifier} of variable.references) {
+		const [start, end] = identifier;
+		if (start >= arrayStart && end <= arrayEnd) {
+			return false;
+		}
+	}
+
+	return false;
+}
+
+function isFixable({callExpression, scope}, sourceCode, functionInfo) {
 	// Check `CallExpression`
 	if (
 		callExpression.optional ||
@@ -210,15 +232,13 @@ function isFixable(callExpression, sourceCode, functionInfo) {
 	const parameters = callback.params;
 	if (
 		!(parameters.length === 1 || parameters.length === 2) ||
-		parameters.some(parameter => parameter.type !== 'Identifier')
+		parameters.some(parameter => !isParameterSafeToFix(parameter, {scope, array: callExpression}))
 	) {
 		return false;
 	}
 
-	// TODO: check parameters conflicts
-
 	// Check `ReturnStatement`s in `callback`
-	const {returnStatements, thisFound, scope} = functionInfo.get(callback);
+	const {returnStatements, thisFound, scope: callbackScope} = functionInfo.get(callback);
 	if (returnStatements.some(returnStatement => isReturnStatementInContinueAbleNodes(returnStatement, callback))) {
 		return false;
 	}
@@ -229,7 +249,7 @@ function isFixable(callExpression, sourceCode, functionInfo) {
 			return false;
 		}
 
-		const argumentsVariable = findVariable(scope, 'arguments');
+		const argumentsVariable = findVariable(callbackScope, 'arguments');
 		if (
 			argumentsVariable &&
 			argumentsVariable.references.some(reference => reference.from == scope)
@@ -238,7 +258,7 @@ function isFixable(callExpression, sourceCode, functionInfo) {
 		}
 
 		if (callback.id) {
-			const idVariable = findVariable(scope, callback.id);
+			const idVariable = findVariable(callbackScope, callback.id);
 
 			if (idVariable && idVariable.references.length > 0) {
 				return false;
@@ -297,16 +317,19 @@ const create = context => {
 			returnStatements.push(node);
 		},
 		[arrayForEachCallSelector](node) {
-			callExpressions.push(node);
+			callExpressions.push({
+				node,
+				scope: context.getScope()
+			});
 		},
 		'Program:exit'() {
-			for (const callExpression of callExpressions) {
+			for (const {node: callExpression, scope} of callExpressions) {
 				const problem = {
 					node: callExpression.callee.property,
 					messageId: MESSAGE_ID
 				};
 
-				if (isFixable(callExpression, sourceCode, functionInfo)) {
+				if (isFixable({callExpression, scope}, sourceCode, functionInfo)) {
 					problem.fix = getFixFunction(callExpression, sourceCode, functionInfo);
 				}
 

@@ -41,8 +41,10 @@ module.exports = options => {
 	}
 
 	if (object) {
-		selector.push(`[${prefix}callee.object.type="Identifier"]`);
-		selector.push(`[${prefix}callee.object.name="${object}"]`);
+		selector.push(
+			`[${prefix}callee.object.type="Identifier"]`,
+			`[${prefix}callee.object.name="${object}"]`
+		);
 	}
 
 	if (typeof length === 'number') {

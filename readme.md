@@ -50,6 +50,7 @@ Configure it in `package.json`.
 			"unicorn/no-abusive-eslint-disable": "error",
 			"unicorn/no-array-callback-reference": "error",
 			"unicorn/no-array-for-each": "error",
+			"unicorn/no-array-push-push": "error",
 			"unicorn/no-array-reduce": "error",
 			"unicorn/no-console-spaces": "error",
 			"unicorn/no-for-loop": "error",
@@ -64,6 +65,7 @@ Configure it in `package.json`.
 			"unicorn/no-null": "error",
 			"unicorn/no-object-as-default-parameter": "error",
 			"unicorn/no-process-exit": "error",
+			"unicorn/no-this-assignment": "error",
 			"unicorn/no-unreadable-array-destructuring": "error",
 			"unicorn/no-unsafe-regex": "off",
 			"unicorn/no-unused-properties": "off",
@@ -127,6 +129,7 @@ Configure it in `package.json`.
 - [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) - Enforce specifying rules to disable in `eslint-disable` comments.
 - [no-array-callback-reference](docs/rules/no-array-callback-reference.md) - Prevent passing a function reference directly to iterator methods.
 - [no-array-for-each](docs/rules/no-array-for-each.md) - Prefer `for…of` over `Array#forEach(…)`. *(partly fixable)*
+- [no-array-push-push](docs/rules/no-array-push-push.md) - Enforce combining multiple `Array#push()` into one call. *(partly fixable)*
 - [no-array-reduce](docs/rules/no-array-reduce.md) - Disallow `Array#reduce()` and `Array#reduceRight()`.
 - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(partly fixable)*
@@ -140,7 +143,8 @@ Configure it in `package.json`.
 - [no-null](docs/rules/no-null.md) - Disallow the use of the `null` literal.
 - [no-object-as-default-parameter](docs/rules/no-object-as-default-parameter.md) - Disallow the use of objects as default parameters.
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
-- [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
+- [no-this-assignment](docs/rules/no-this-assignment.md) - Disallow assigning `this` to a variable.
+- [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring. *(partly fixable)*
 - [no-unsafe-regex](docs/rules/no-unsafe-regex.md) - Disallow unsafe regular expressions.
 - [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
 - [no-useless-undefined](docs/rules/no-useless-undefined.md) - Disallow useless `undefined`. *(fixable)*
