@@ -240,10 +240,7 @@ function isFixable(callExpression, sourceCode, functionInfo) {
 		if (callback.id) {
 			const idVariable = findVariable(scope, callback.id);
 
-			if (
-				idVariable &&
-				idVariable.references.some(reference => reference.from == scope)
-			) {
+			if (idVariable && idVariable.references.length > 0) {
 				return false;
 			}
 		}
