@@ -175,29 +175,41 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 	};
 }
 
-function isParameterSafeToFix(parameter, {scope, array}) {
+const isChildScope = (child, parent) => {
+	for (let scope = child; scope; scope = scope.upper) {
+		if (scope === parent) {
+			return true;
+		}
+	}
+	return false;
+};
+
+function isParameterSafeToFix(parameter, {scope, array, identifiers}) {
 	const {type, name} = parameter;
 	if (type !== 'Identifier') {
 		return false;
 	}
 
-	const variable = findVariable(scope, name);
-	if (!variable) {
-		return true;
-	}
+	const [arrayStart, arrayEnd] = array.range;
+	const identifiersInArray = identifiers.filter(
+		({name, range: [start, end]}) => name === parameter.name && start >= arrayStart && end <= arrayEnd
+	);
 
-	const [arrayStart, arrayEnd] = array;
-	for (const {identifier} of variable.references) {
-		const [start, end] = identifier;
-		if (start >= arrayStart && end <= arrayEnd) {
+	for (const identifier of identifiersInArray) {
+		const variable = findVariable(scope, identifier);
+		if (!variable) {
+			return false;
+		}
+
+		if (!isChildScope(variable.scope, scope)) {
 			return false;
 		}
 	}
 
-	return false;
+	return true;
 }
 
-function isFixable({callExpression, scope}, sourceCode, functionInfo) {
+function isFixable({callExpression, scope, identifiers}, sourceCode, functionInfo) {
 	// Check `CallExpression`
 	if (
 		callExpression.optional ||
@@ -232,7 +244,7 @@ function isFixable({callExpression, scope}, sourceCode, functionInfo) {
 	const parameters = callback.params;
 	if (
 		!(parameters.length === 1 || parameters.length === 2) ||
-		parameters.some(parameter => !isParameterSafeToFix(parameter, {scope, array: callExpression}))
+		parameters.some(parameter => !isParameterSafeToFix(parameter, {scope, array: callExpression, identifiers}))
 	) {
 		return false;
 	}
@@ -272,8 +284,9 @@ function isFixable({callExpression, scope}, sourceCode, functionInfo) {
 const create = context => {
 	const functionStacks = [];
 	const nonArrowFunctionStacks = [];
-	const functionInfo = new Map();
 	const callExpressions = [];
+	const identifiers = [];
+	const functionInfo = new Map();
 
 	const sourceCode = context.getSourceCode();
 
@@ -305,6 +318,9 @@ const create = context => {
 			const currentFunctionInfo = functionInfo.get(currentNonArrowFunction);
 			currentFunctionInfo.thisFound = true;
 		},
+		Identifier(node) {
+			identifiers.push(node);
+		},
 		ReturnStatement(node) {
 			const currentFunction = functionStacks[functionStacks.length - 1];
 			// `globalReturn `
@@ -329,7 +345,7 @@ const create = context => {
 					messageId: MESSAGE_ID
 				};
 
-				if (isFixable({callExpression, scope}, sourceCode, functionInfo)) {
+				if (isFixable({callExpression, scope, identifiers}, sourceCode, functionInfo)) {
 					problem.fix = getFixFunction(callExpression, sourceCode, functionInfo);
 				}
 
