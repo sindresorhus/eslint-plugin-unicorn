@@ -59,6 +59,17 @@ test.visualize({
 				}
 			});
 		`,
+		// `ReturnStatement` in `switch` is fixable
+		outdent`
+			foo.forEach(element => {
+				switch (element) {
+					case 1:
+						break;
+					case 2:
+						return;
+				}
+			});
+		`,
 
 		// `parameters`
 		'foo.forEach(foo => bar());',
@@ -66,15 +77,33 @@ test.visualize({
 			const foo = [];
 			foo.forEach(foo => bar());
 		`,
+		outdent`
+			const foo = [];
+			function unicorn() {
+				foo.forEach(foo => bar());
+			}
+		`,
 		'index.forEach((a, index) => bar());',
 		outdent`
 			const index = [];
 			index.forEach((a, index) => bar());
 		`,
+		outdent`
+			const index = [];
+			function unicorn() {
+				index.forEach((a, index) => bar());
+			}
+		`,
 		'a[foo].forEach(foo => bar());',
 		outdent`
 			const foo = 1;
 			a[foo].forEach(foo => bar());
+		`,
+		outdent`
+			const foo = 1;
+			function unicorn() {
+				a[foo].forEach(foo => bar());
+			}
 		`,
 		'a[index].forEach((b, index) => bar());',
 		'a((foo) => foo).forEach(foo => bar());',
