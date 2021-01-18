@@ -191,6 +191,9 @@ test.visualize({
 			});
 		`,
 		'foo.forEach((element, index) => bar(element, index));',
+		// Array is parenthesized
+		'(foo).forEach((element, index) => bar(element, index))',
+		'(0, foo).forEach((element, index) => bar(element, index))',
 		// Trailing comma
 		outdent`
 			foo.forEach(function (element) {

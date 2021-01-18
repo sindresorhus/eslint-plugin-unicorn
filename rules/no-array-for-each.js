@@ -9,7 +9,6 @@ const {
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression');
 
 const MESSAGE_ID = 'no-array-for-each';
@@ -56,10 +55,7 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		text += ' of ';
 
 		let arrayText = sourceCode.getText(array);
-		if (
-			isParenthesized(callExpression, sourceCode) ||
-			(useEntries && shouldAddParenthesesToMemberExpressionObject(array, sourceCode))
-		) {
+		if (isParenthesized(array, sourceCode)) {
 			arrayText = `(${arrayText})`;
 		}
 
