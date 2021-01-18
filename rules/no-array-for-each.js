@@ -136,7 +136,7 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		);
 	}
 
-	const shouldRemoveExpressionStatementLastToken = (token) => {
+	const shouldRemoveExpressionStatementLastToken = token => {
 		if (!isSemicolonToken(token)) {
 			return false;
 		}
@@ -181,18 +181,19 @@ const isChildScope = (child, parent) => {
 			return true;
 		}
 	}
+
 	return false;
 };
 
 function isParameterSafeToFix(parameter, {scope, array, identifiers}) {
-	const {type, name} = parameter;
+	const {type, name: parameterName} = parameter;
 	if (type !== 'Identifier') {
 		return false;
 	}
 
 	const [arrayStart, arrayEnd] = array.range;
 	const identifiersInArray = identifiers.filter(
-		({name, range: [start, end]}) => name === parameter.name && start >= arrayStart && end <= arrayEnd
+		({name, range: [start, end]}) => name === parameterName && start >= arrayStart && end <= arrayEnd
 	);
 
 	for (const identifier of identifiersInArray) {
@@ -264,7 +265,7 @@ function isFixable({callExpression, scope, identifiers}, sourceCode, functionInf
 		const argumentsVariable = findVariable(callbackScope, 'arguments');
 		if (
 			argumentsVariable &&
-			argumentsVariable.references.some(reference => reference.from == scope)
+			argumentsVariable.references.some(reference => reference.from === scope)
 		) {
 			return false;
 		}
@@ -310,11 +311,12 @@ const create = context => {
 				nonArrowFunctionStacks.pop();
 			}
 		},
-		ThisExpression(node) {
+		ThisExpression() {
 			const currentNonArrowFunction = nonArrowFunctionStacks[functionStacks.length - 1];
 			if (!currentNonArrowFunction) {
 				return;
 			}
+
 			const currentFunctionInfo = functionInfo.get(currentNonArrowFunction);
 			currentFunctionInfo.thisFound = true;
 		},

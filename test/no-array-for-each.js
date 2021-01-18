@@ -62,10 +62,12 @@ test.visualize({
 			});
 		`,
 
-		// TODO: check parameters conflicts
 		'foo.forEach(foo => bar());',
+		'index.forEach((a, index) => bar());',
 		'a[foo].forEach(foo => bar());',
+		'a[index].forEach((b, index) => bar());',
 		'a((foo) => foo).forEach(foo => bar());',
+		'a((foo, index) => foo + index).forEach((foo, index) => bar());',
 
 		// `FunctionExpression.id`
 		outdent`
