@@ -22,8 +22,6 @@ test.visualize({
 		'foo.forEach((element, index, array) => bar())',
 		// Ideally this should be fixable, but hard to know variable conflicts
 		'foo.forEach(({property}) => bar(property))',
-		// TODO: check parameters conflicts
-		// 'foo.forEach(foo => bar())',
 
 		// Can't turn `return` to `continue`
 		outdent`
@@ -62,12 +60,30 @@ test.visualize({
 			});
 		`,
 
+		// `parameters`
 		'foo.forEach(foo => bar());',
+		outdent`
+			const foo = [];
+			foo.forEach(foo => bar());
+		`,
 		'index.forEach((a, index) => bar());',
+		outdent`
+			const index = [];
+			index.forEach((a, index) => bar());
+		`,
 		'a[foo].forEach(foo => bar());',
+		outdent`
+			const foo = 1;
+			a[foo].forEach(foo => bar());
+		`,
 		'a[index].forEach((b, index) => bar());',
 		'a((foo) => foo).forEach(foo => bar());',
 		'a((foo, index) => foo + index).forEach((foo, index) => bar());',
+		outdent`
+			const foo = [];
+			const index = 1;
+			a.forEach((foo, index) => foo[index]);
+		`,
 
 		// `FunctionExpression.id`
 		outdent`
