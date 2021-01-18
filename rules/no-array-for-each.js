@@ -205,11 +205,7 @@ function isParameterSafeToFix(parameter, {scope, array, allIdentifiers}) {
 		}
 
 		const variable = findVariable(scope, identifier);
-		if (!variable) {
-			return false;
-		}
-
-		if (!isChildScope(variable.scope, scope)) {
+		if (!variable || variable.scope === scope || isChildScope(scope, variable.scope)) {
 			return false;
 		}
 	}
