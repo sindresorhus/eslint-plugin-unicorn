@@ -65,10 +65,10 @@ function format(value, {prefix, data}, options) {
 }
 
 const defaultOptions = {
-	hexadecimal: {checkOnlyIfSeparator: false, minimumDigits: 0, groupLength: 2},
-	binary: {checkOnlyIfSeparator: false, minimumDigits: 0, groupLength: 4},
-	octal: {checkOnlyIfSeparator: false, minimumDigits: 0, groupLength: 4},
-	number: {checkOnlyIfSeparator: false, minimumDigits: 5, groupLength: 3}
+	hexadecimal: {onlyIfContainsSeparator: false, minimumDigits: 0, groupLength: 2},
+	binary: {onlyIfContainsSeparator: false, minimumDigits: 0, groupLength: 4},
+	octal: {onlyIfContainsSeparator: false, minimumDigits: 0, groupLength: 4},
+	number: {onlyIfContainsSeparator: false, minimumDigits: 5, groupLength: 3}
 };
 const create = context => {
 	const rawOptions = defaultsDeep({}, context.options[0], defaultOptions);
@@ -98,7 +98,7 @@ const create = context => {
 
 			const strippedNumber = number.replace(/_/g, '');
 			const {prefix = '', data} = strippedNumber.match(/^(?<prefix>0[box])?(?<data>.*)$/i).groups;
-			if (options[prefix.toLowerCase()].checkOnlyIfSeparator && !raw.includes('_')) {
+			if (options[prefix.toLowerCase()].onlyIfContainsSeparator && !raw.includes('_')) {
 				return;
 			}
 
@@ -118,7 +118,7 @@ const create = context => {
 const formatOptionsSchema = ({minimumDigits, groupLength}) => ({
 	type: 'object',
 	properties: {
-		checkOnlyIfSeparator: {
+		onlyIfContainsSeparator: {
 			type: 'boolean',
 			default: false
 		},
