@@ -185,18 +185,23 @@ const isChildScope = (child, parent) => {
 	return false;
 };
 
-function isParameterSafeToFix(parameter, {scope, array, identifiers}) {
+function isParameterSafeToFix(parameter, {scope, array, allIdentifiers}) {
 	const {type, name: parameterName} = parameter;
 	if (type !== 'Identifier') {
 		return false;
 	}
 
 	const [arrayStart, arrayEnd] = array.range;
-	const identifiersInArray = identifiers.filter(
-		({name, range: [start, end]}) => name === parameterName && start >= arrayStart && end <= arrayEnd
-	);
+	for (const identifier of allIdentifiers) {
+		const {name, range: [start, end]} = identifier;
+		if (
+			name !== parameterName ||
+			start < arrayStart ||
+			end > arrayEnd
+		) {
+			continue;
+		}
 
-	for (const identifier of identifiersInArray) {
 		const variable = findVariable(scope, identifier);
 		if (!variable) {
 			return false;
@@ -210,7 +215,7 @@ function isParameterSafeToFix(parameter, {scope, array, identifiers}) {
 	return true;
 }
 
-function isFixable({callExpression, scope, identifiers}, sourceCode, functionInfo) {
+function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifiers}) {
 	// Check `CallExpression`
 	if (
 		callExpression.optional ||
@@ -245,7 +250,7 @@ function isFixable({callExpression, scope, identifiers}, sourceCode, functionInf
 	const parameters = callback.params;
 	if (
 		!(parameters.length === 1 || parameters.length === 2) ||
-		parameters.some(parameter => !isParameterSafeToFix(parameter, {scope, array: callExpression, identifiers}))
+		parameters.some(parameter => !isParameterSafeToFix(parameter, {scope, array: callExpression, allIdentifiers}))
 	) {
 		return false;
 	}
@@ -283,17 +288,17 @@ function isFixable({callExpression, scope, identifiers}, sourceCode, functionInf
 }
 
 const create = context => {
-	const functionStacks = [];
-	const nonArrowFunctionStacks = [];
+	const functionStack = [];
+	const nonArrowFunctionStack = [];
 	const callExpressions = [];
-	const identifiers = [];
+	const allIdentifiers = [];
 	const functionInfo = new Map();
 
 	const sourceCode = context.getSourceCode();
 
 	return {
 		':function'(node) {
-			functionStacks.push(node);
+			functionStack.push(node);
 			functionInfo.set(node, {
 				returnStatements: [],
 				thisFound: false,
@@ -301,18 +306,18 @@ const create = context => {
 			});
 
 			if (node.type !== 'ArrowFunctionExpression') {
-				nonArrowFunctionStacks.push(node);
+				nonArrowFunctionStack.push(node);
 			}
 		},
 		':function:exit'(node) {
-			functionStacks.pop();
+			functionStack.pop();
 
 			if (node.type !== 'ArrowFunctionExpression') {
-				nonArrowFunctionStacks.pop();
+				nonArrowFunctionStack.pop();
 			}
 		},
 		ThisExpression() {
-			const currentNonArrowFunction = nonArrowFunctionStacks[functionStacks.length - 1];
+			const currentNonArrowFunction = nonArrowFunctionStack[functionStack.length - 1];
 			if (!currentNonArrowFunction) {
 				return;
 			}
@@ -321,10 +326,10 @@ const create = context => {
 			currentFunctionInfo.thisFound = true;
 		},
 		Identifier(node) {
-			identifiers.push(node);
+			allIdentifiers.push(node);
 		},
 		ReturnStatement(node) {
-			const currentFunction = functionStacks[functionStacks.length - 1];
+			const currentFunction = functionStack[functionStack.length - 1];
 			// `globalReturn `
 			/* istanbul ignore next: ESLint deprecated `ecmaFeatures`, can't test */
 			if (!currentFunction) {
@@ -341,14 +346,14 @@ const create = context => {
 			});
 		},
 		'Program:exit'() {
-			for (const {node: callExpression, scope} of callExpressions) {
+			for (const {node, scope} of callExpressions) {
 				const problem = {
-					node: callExpression.callee.property,
+					node: node.callee.property,
 					messageId: MESSAGE_ID
 				};
 
-				if (isFixable({callExpression, scope, identifiers}, sourceCode, functionInfo)) {
-					problem.fix = getFixFunction(callExpression, sourceCode, functionInfo);
+				if (isFixable(node, sourceCode, {scope, allIdentifiers, functionInfo})) {
+					problem.fix = getFixFunction(node, sourceCode, functionInfo);
 				}
 
 				context.report(problem);
