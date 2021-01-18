@@ -63,10 +63,79 @@ test.visualize({
 		`,
 
 		// TODO: check parameters conflicts
-		// 'foo.forEach(function a(element) {bar(a)})',
-		'foo.forEach(function a(element) {bar(this)})',
-		'foo.forEach((element) => {bar(this)})',
-		// 'foo.forEach(function a(element) {bar(arguments)})',
+
+		// `FunctionExpression.id`
+		outdent`
+			foo.forEach(function a(element) {
+				bar(a)
+			})
+		`,
+		outdent`
+			foo.forEach(function a(element) {
+				function b() {
+					bar(a)
+				}
+			})
+		`,
+		outdent`
+			foo.forEach(function a(element) {
+				function b(a) {
+					bar(a)
+				}
+			})
+		`,
+
+		// This
+		outdent`
+			foo.forEach(function(element) {
+				bar(this)
+			})
+		`,
+		outdent`
+			foo.forEach(function(element) {
+				function b() {
+					bar(this)
+				}
+			})
+		`,
+		outdent`
+			foo.forEach(function(element) {
+				const x = b => {
+					bar(this)
+				}
+			})
+		`,
+		outdent`
+			foo.forEach((element) => {
+				bar(this)
+			})
+		`,
+
+		// `arguments`
+		outdent`
+			foo.forEach(function(element) {
+				bar(arguments)
+			})
+		`,
+		outdent`
+			foo.forEach(function(element) {
+				function b() {
+					bar(arguments)
+				}
+			})
+		`,
+		outdent`
+			foo.forEach(function(element) {
+				const b = () => {
+					bar(arguments)
+				}
+			})
+		`,
+		outdent`
+			foo.forEach((element) => {
+				bar(arguments)
+			})
+		`,
 
 		// Auto-fix
 		outdent`

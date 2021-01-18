@@ -1,5 +1,11 @@
 'use strict';
-const {isParenthesized, isArrowToken, isCommaToken, isSemicolonToken} = require('eslint-utils');
+const {
+	isParenthesized,
+	isArrowToken,
+	isCommaToken,
+	isSemicolonToken,
+	findVariable
+} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
@@ -212,17 +218,35 @@ function isFixable(callExpression, sourceCode, functionInfo) {
 	// TODO: check parameters conflicts
 
 	// Check `ReturnStatement`s in `callback`
-	const {returnStatements, thisFound} = functionInfo.get(callback);
-	if (
-		thisFound ||
-		returnStatements.some(returnStatement => isReturnStatementInContinueAbleNodes(returnStatement, callback))
-	) {
+	const {returnStatements, thisFound, scope} = functionInfo.get(callback);
+	if (returnStatements.some(returnStatement => isReturnStatementInContinueAbleNodes(returnStatement, callback))) {
 		return false;
 	}
 
 	// Check `callback` self
 	if (callback.type === 'FunctionExpression') {
-		// TODO: check `.id` `arguments` `this` of `FunctionExpression`
+		if (thisFound) {
+			return false;
+		}
+
+		const argumentsVariable = findVariable(scope, 'arguments');
+		if (
+			argumentsVariable &&
+			argumentsVariable.references.some(reference => reference.from == scope)
+		) {
+			return false;
+		}
+
+		if (callback.id) {
+			const idVariable = findVariable(scope, callback.id);
+
+			if (
+				idVariable &&
+				idVariable.references.some(reference => reference.from == scope)
+			) {
+				return false;
+			}
+		}
 	}
 
 	return true;
@@ -241,7 +265,8 @@ const create = context => {
 			functionStacks.push(node);
 			functionInfo.set(node, {
 				returnStatements: [],
-				thisFound: false
+				thisFound: false,
+				scope: context.getScope()
 			});
 
 			if (node.type !== 'ArrowFunctionExpression') {
