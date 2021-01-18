@@ -79,7 +79,7 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		if (callback.body.type === 'BlockStatement') {
 			end = callback.body.range[0];
 		} else {
-			const arrowToken = sourceCode.getFirstToken(callback, isArrowToken);
+			const arrowToken = sourceCode.getTokenBefore(callback.body, isArrowToken);
 			end = arrowToken.range[1];
 		}
 
@@ -268,6 +268,10 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 		!(parameters.length === 1 || parameters.length === 2) ||
 		parameters.some(parameter => !isParameterSafeToFix(parameter, {scope, array: callExpression, allIdentifiers}))
 	) {
+		return false;
+	}
+	// `foo.forEach((element: Type, index: number) => foo())`, should fix to `const [index, element]: [number, Type] of`, not handled
+	if (parameters.length === 2 && parameters.some(node => node.typeAnnotation)) {
 		return false;
 	}
 

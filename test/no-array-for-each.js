@@ -302,3 +302,69 @@ test.visualize({
 		`
 	]
 });
+
+test.typescript({
+	valid: [],
+	invalid: [
+		// https://github.com/vercel/next.js/blob/699a7aeaaa48a6c3611ede7a35af2d9676421de0/packages/next/build/index.ts#L1358
+		{
+			code: outdent`
+				staticPages.forEach((pg) => allStaticPages.add(pg))
+				pageInfos.forEach((info: PageInfo, key: string) => {
+					allPageInfos.set(key, info)
+				})
+			`,
+			output: outdent`
+				for (const pg of staticPages)  allStaticPages.add(pg)
+				pageInfos.forEach((info: PageInfo, key: string) => {
+					allPageInfos.set(key, info)
+				})
+			`,
+			errors: 2
+		},
+		// https://github.com/gatsbyjs/gatsby/blob/3163ca67d44b79c727dd3e331fb56b21707877a5/packages/gatsby/src/bootstrap/remove-stale-jobs.ts#L14
+		{
+			code: outdent`
+				const actions: Array<IRemoveStaleJobAction> = []
+
+				state.jobsV2.complete.forEach(
+					(job: IGatsbyCompleteJobV2, contentDigest: string): void => {
+						if (isJobStale(job)) {
+							actions.push(internalActions.removeStaleJob(contentDigest))
+						}
+					}
+				)
+			`,
+			output: outdent`
+				const actions: Array<IRemoveStaleJobAction> = []
+
+				state.jobsV2.complete.forEach(
+					(job: IGatsbyCompleteJobV2, contentDigest: string): void => {
+						if (isJobStale(job)) {
+							actions.push(internalActions.removeStaleJob(contentDigest))
+						}
+					}
+				)
+			`,
+			errors: 1
+		},
+		// https://github.com/microsoft/fluentui/blob/20f3d664a36c93174dc32786a9d465dd343dabe5/apps/todo-app/src/DataProvider.ts#L157
+		{
+			code: 'this._listeners.forEach((listener: () => void) => listener());',
+			output: 'for (const listener: () => void of this._listeners)  listener();',
+			errors: 1
+		},
+		// https://github.com/angular/angular/blob/4e8198d60f421ce120e3a6b57afe60a9332d2692/packages/animations/browser/src/render/transition_animation_engine.ts#L1636
+		{
+			code: outdent`
+				const cloakVals: string[] = [];
+				elements.forEach(element => cloakVals.push(cloakElement(element)));
+			`,
+			output: outdent`
+				const cloakVals: string[] = [];
+				for (const element of elements)  cloakVals.push(cloakElement(element));
+			`,
+			errors: 1
+		}
+	]
+})
