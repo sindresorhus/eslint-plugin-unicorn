@@ -39,14 +39,15 @@ Type: `boolean`\
 Default: `false`
 
 Check if the group sizes are valid **only** if there are groups separated with an `_`.
-You can set it for each specific number type, or set the top-level one which will override others.
+You can set it at top-level, or override for each specific number type.
 
 Example:
 
 ```js
-const foo = 100000; // Pass, because there are no groups, so no check was performed.
-const bar = 1_000_000; // Pass, because the group sizes are correct.
-const baz = 10_0_000_0; // Fail, because there are groups, but they are incorrect.
+// eslint unicorn/numeric-separators-style: ["error", {"onlyIfContainsSeparator": true, {"binary": "onlyIfContainsSeparator": false}]
+const number = 100000; // Pass, this number does not contains separators
+const binary = 0b101010001; // Fail, `binary` type don't require separators
+const hexadecimal = 0xD_EED_BEE_F; // Fail, it contain separators, and it's incorrectly grouped
 ```
 
 **`minimumDigits`**

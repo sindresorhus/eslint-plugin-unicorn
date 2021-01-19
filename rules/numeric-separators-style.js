@@ -1,5 +1,5 @@
 'use strict';
-const {defaultsDeep, fromPairs} = require('lodash');
+const {fromPairs} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'numeric-separators-style';
@@ -65,19 +65,44 @@ function format(value, {prefix, data}, options) {
 }
 
 const defaultOptions = {
-	hexadecimal: {onlyIfContainsSeparator: false, minimumDigits: 0, groupLength: 2},
-	binary: {onlyIfContainsSeparator: false, minimumDigits: 0, groupLength: 4},
-	octal: {onlyIfContainsSeparator: false, minimumDigits: 0, groupLength: 4},
-	number: {onlyIfContainsSeparator: false, minimumDigits: 5, groupLength: 3}
+	binary: {minimumDigits: 0, groupLength: 4},
+	octal: {minimumDigits: 0, groupLength: 4},
+	hexadecimal: {minimumDigits: 0, groupLength: 2},
+	number: {minimumDigits: 5, groupLength: 3}
 };
 const create = context => {
-	const rawOptions = defaultsDeep({}, context.options[0], defaultOptions);
+	const {
+		onlyIfContainsSeparator,
+		binary,
+		octal,
+		hexadecimal,
+		number
+	} = {
+		onlyIfContainsSeparator: false,
+		...context.options[0]
+	};
+
 	const options = {
-		onlyIfContainsSeparator: rawOptions.onlyIfContainsSeparator,
-		'0b': rawOptions.binary,
-		'0o': rawOptions.octal,
-		'0x': rawOptions.hexadecimal,
-		'': rawOptions.number
+		'0b': {
+			onlyIfContainsSeparator,
+			...defaultOptions.binary,
+			...binary
+		},
+		'0o': {
+			onlyIfContainsSeparator,
+			...defaultOptions.octal,
+			...octal
+		},
+		'0x': {
+			onlyIfContainsSeparator,
+			...defaultOptions.hexadecimal,
+			...hexadecimal
+		},
+		'': {
+			onlyIfContainsSeparator,
+			...defaultOptions.number,
+			...number
+		}
 	};
 
 	return {
@@ -100,9 +125,7 @@ const create = context => {
 			const strippedNumber = number.replace(/_/g, '');
 			const {prefix = '', data} = strippedNumber.match(/^(?<prefix>0[box])?(?<data>.*)$/i).groups;
 
-			const {onlyIfContainsSeparator} = typeof options.onlyIfContainsSeparator === 'undefined' ?
-				options[prefix.toLowerCase()] :
-				options;
+			const {onlyIfContainsSeparator} = options[prefix.toLowerCase()];
 			if (onlyIfContainsSeparator && !raw.includes('_')) {
 				return;
 			}
@@ -124,8 +147,7 @@ const formatOptionsSchema = ({minimumDigits, groupLength}) => ({
 	type: 'object',
 	properties: {
 		onlyIfContainsSeparator: {
-			type: 'boolean',
-			default: false
+			type: 'boolean'
 		},
 		minimumDigits: {
 			type: 'integer',
@@ -149,8 +171,7 @@ const schema = [{
 		),
 		onlyIfContainsSeparator: {
 			type: 'boolean',
-			// Default to undefined to avoid overriding properties' settings
-			default: undefined
+			default: false
 		}
 	},
 	additionalProperties: false

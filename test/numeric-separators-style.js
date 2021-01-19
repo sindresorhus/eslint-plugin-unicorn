@@ -162,10 +162,6 @@ test({
 			options: [{onlyIfContainsSeparator: true, binary: {onlyIfContainsSeparator: true}}]
 		},
 		{
-			code: 'const foo = 0b01010101',
-			options: [{onlyIfContainsSeparator: true, binary: {onlyIfContainsSeparator: false}}]
-		},
-		{
 			code: 'const foo = 0b0101_0101',
 			options: [{onlyIfContainsSeparator: false, binary: {onlyIfContainsSeparator: true}}]
 		},
