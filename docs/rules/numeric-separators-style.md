@@ -33,6 +33,23 @@ If you want a custom group size for a specific number type, you can specify it h
 
 There are four number types; [`hexadecimal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Hexadecimal), [`binary`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Binary), [`octal`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Octal) and [`number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type). Each of them can be associated with an object containing the following options:
 
+**`onlyIfContainsSeparator`**
+
+Type: `boolean`\
+Default: `false`
+
+Check if the group sizes are valid **only** if there are groups separated with an `_`.
+You can set it at top-level, or override for each specific number type.
+
+Example:
+
+```js
+// eslint unicorn/numeric-separators-style: ["error", {"onlyIfContainsSeparator": true, "binary": {"onlyIfContainsSeparator": false}]
+const number = 100000; // Pass, this number does not contains separators
+const binary = 0b101010001; // Fail, `binary` type don't require separators
+const hexadecimal = 0xD_EED_BEE_F; // Fail, it contain separators and it's incorrectly grouped
+```
+
 **`minimumDigits`**
 
 Type: `number`
@@ -95,6 +112,7 @@ const foo = 0o12_7777;
 
 ```js
 {
+	onlyIfContainsSeparator: false,
 	hexadecimal: {
 		minimumDigits: 0,
 		groupLength: 2

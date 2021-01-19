@@ -1,5 +1,5 @@
 'use strict';
-const {defaultsDeep, fromPairs} = require('lodash');
+const {fromPairs} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'numeric-separators-style';
@@ -47,12 +47,7 @@ function formatNumber(value, options) {
 	return formatted;
 }
 
-function format(value, options) {
-	const {
-		prefix = '',
-		data
-	} = value.match(/^(?<prefix>0[box])?(?<data>.*)$/i).groups;
-
+function format(value, {prefix, data}, options) {
 	const formatOption = options[prefix.toLowerCase()];
 
 	if (prefix) {
@@ -70,18 +65,44 @@ function format(value, options) {
 }
 
 const defaultOptions = {
-	hexadecimal: {minimumDigits: 0, groupLength: 2},
 	binary: {minimumDigits: 0, groupLength: 4},
 	octal: {minimumDigits: 0, groupLength: 4},
+	hexadecimal: {minimumDigits: 0, groupLength: 2},
 	number: {minimumDigits: 5, groupLength: 3}
 };
 const create = context => {
-	const rawOptions = defaultsDeep({}, context.options[0], defaultOptions);
+	const {
+		onlyIfContainsSeparator,
+		binary,
+		octal,
+		hexadecimal,
+		number
+	} = {
+		onlyIfContainsSeparator: false,
+		...context.options[0]
+	};
+
 	const options = {
-		'0b': rawOptions.binary,
-		'0o': rawOptions.octal,
-		'0x': rawOptions.hexadecimal,
-		'': rawOptions.number
+		'0b': {
+			onlyIfContainsSeparator,
+			...defaultOptions.binary,
+			...binary
+		},
+		'0o': {
+			onlyIfContainsSeparator,
+			...defaultOptions.octal,
+			...octal
+		},
+		'0x': {
+			onlyIfContainsSeparator,
+			...defaultOptions.hexadecimal,
+			...hexadecimal
+		},
+		'': {
+			onlyIfContainsSeparator,
+			...defaultOptions.number,
+			...number
+		}
 	};
 
 	return {
@@ -101,7 +122,15 @@ const create = context => {
 				return;
 			}
 
-			const formatted = format(number.replace(/_/g, ''), options) + suffix;
+			const strippedNumber = number.replace(/_/g, '');
+			const {prefix = '', data} = strippedNumber.match(/^(?<prefix>0[box])?(?<data>.*)$/i).groups;
+
+			const {onlyIfContainsSeparator} = options[prefix.toLowerCase()];
+			if (onlyIfContainsSeparator && !raw.includes('_')) {
+				return;
+			}
+
+			const formatted = format(strippedNumber, {prefix, data}, options) + suffix;
 
 			if (raw !== formatted) {
 				context.report({
@@ -117,6 +146,9 @@ const create = context => {
 const formatOptionsSchema = ({minimumDigits, groupLength}) => ({
 	type: 'object',
 	properties: {
+		onlyIfContainsSeparator: {
+			type: 'boolean'
+		},
 		minimumDigits: {
 			type: 'integer',
 			minimum: 0,
@@ -133,9 +165,15 @@ const formatOptionsSchema = ({minimumDigits, groupLength}) => ({
 
 const schema = [{
 	type: 'object',
-	properties: fromPairs(
-		Object.entries(defaultOptions).map(([type, options]) => [type, formatOptionsSchema(options)])
-	),
+	properties: {
+		...fromPairs(
+			Object.entries(defaultOptions).map(([type, options]) => [type, formatOptionsSchema(options)])
+		),
+		onlyIfContainsSeparator: {
+			type: 'boolean',
+			default: false
+		}
+	},
 	additionalProperties: false
 }];
 
