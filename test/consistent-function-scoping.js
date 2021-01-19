@@ -803,7 +803,7 @@ test.typescript({
 	invalid: []
 });
 
-test.visualize([
+test.snapshot([
 	outdent`
 		function foo() {
 			function bar() {}

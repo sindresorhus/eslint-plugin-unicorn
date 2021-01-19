@@ -31,7 +31,7 @@ test({
 	invalid: []
 });
 
-test.visualize([
+test.snapshot([
 	outdent`
 		if (a) {
 			if (b) {

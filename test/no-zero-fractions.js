@@ -96,7 +96,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	'const foo = 1.0',
 	'const foo = (1.).toString()'
 ]);
