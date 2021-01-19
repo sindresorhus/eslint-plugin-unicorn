@@ -21,5 +21,5 @@ const array = array1.concat(array2);
 ```
 
 ```js
-const array = [...array1, array2];
+const array = [...array1, ...array2];
 ```
