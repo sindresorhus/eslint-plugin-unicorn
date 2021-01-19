@@ -121,7 +121,16 @@
 			}
 		],
 		"rules": {
-			"strict": "error"
+			"strict": "error",
+			"unicorn/no-null": "error",
+			"unicorn/prevent-abbreviations": [
+				"error",
+				{
+					"replacements": {
+						"fn": false
+					}
+				}
+			]
 		}
 	}
 }
