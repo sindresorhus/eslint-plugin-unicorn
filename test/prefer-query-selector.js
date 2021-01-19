@@ -2,7 +2,7 @@ import {outdent} from 'outdent';
 import {test} from './utils/test.js';
 import notDomNodeTypes from './utils/not-dom-node-types.js';
 
-test({
+test.snapshot({
 	valid: [
 		// Not `CallExpression`
 		'new document.getElementById(foo);',
@@ -29,35 +29,35 @@ test({
 		'document.querySelectorAll("li a");',
 		'document.querySelector("li").querySelectorAll("a");'
 	],
-	invalid: []
+	invalid: [
+		'document.getElementById("foo");',
+		'document.getElementsByClassName("foo");',
+		'document.getElementsByClassName("foo bar");',
+		'document.getElementsByTagName("foo");',
+		'document.getElementById("");',
+		'document.getElementById(\'foo\');',
+		'document.getElementsByClassName(\'foo\');',
+		'document.getElementsByClassName(\'foo bar\');',
+		'document.getElementsByTagName(\'foo\');',
+		'document.getElementsByClassName(\'\');',
+		'document.getElementById(`foo`);',
+		'document.getElementsByClassName(`foo`);',
+		'document.getElementsByClassName(`foo bar`);',
+		'document.getElementsByTagName(`foo`);',
+		'document.getElementsByTagName(``);',
+		'document.getElementsByClassName(`${fn()}`);', // eslint-disable-line no-template-curly-in-string
+		'document.getElementsByClassName(`foo ${undefined}`);', // eslint-disable-line no-template-curly-in-string
+		'document.getElementsByClassName(null);',
+		'document.getElementsByTagName(null);',
+		'document.getElementsByClassName(fn());',
+		'document.getElementsByClassName("foo" + fn());',
+		'document.getElementsByClassName(foo + "bar");',
+		outdent`
+			for (const div of document.body.getElementById("id").getElementsByClassName("class")) {
+				console.log(div.getElementsByTagName("div"));
+			}
+		`,
+		// #1030
+		'e.getElementById(3)'
+	]
 });
-
-test.snapshot([
-	'document.getElementById("foo");',
-	'document.getElementsByClassName("foo");',
-	'document.getElementsByClassName("foo bar");',
-	'document.getElementsByTagName("foo");',
-	'document.getElementById("");',
-	'document.getElementById(\'foo\');',
-	'document.getElementsByClassName(\'foo\');',
-	'document.getElementsByClassName(\'foo bar\');',
-	'document.getElementsByTagName(\'foo\');',
-	'document.getElementsByClassName(\'\');',
-	'document.getElementById(`foo`);',
-	'document.getElementsByClassName(`foo`);',
-	'document.getElementsByClassName(`foo bar`);',
-	'document.getElementsByTagName(`foo`);',
-	'document.getElementsByTagName(``);',
-	'document.getElementsByClassName(`${fn()}`);', // eslint-disable-line no-template-curly-in-string
-	'document.getElementsByClassName(`foo ${undefined}`);', // eslint-disable-line no-template-curly-in-string
-	'document.getElementsByClassName(null);',
-	'document.getElementsByTagName(null);',
-	'document.getElementsByClassName(fn());',
-	'document.getElementsByClassName("foo" + fn());',
-	'document.getElementsByClassName(foo + "bar");',
-	outdent`
-		for (const div of document.body.getElementById("id").getElementsByClassName("class")) {
-			console.log(div.getElementsByTagName("div"));
-		}
-	`
-]);
