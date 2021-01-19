@@ -2,13 +2,23 @@
 
 Destructuring is very useful, but it can also make some code harder to read. This rule prevents ignoring consecutive values when destructuring from an array.
 
+This rule is partly fixable.
 
 ## Fail
 
 ```js
 const [,, foo] = parts;
+```
+
+```js
 const [,,, foo] = parts;
+```
+
+```js
 const [,,,, foo] = parts;
+```
+
+```js
 const [,,...rest] = parts;
 ```
 
@@ -17,11 +27,23 @@ const [,,...rest] = parts;
 
 ```js
 const [, foo] = parts;
+```
+
+```js
 const [foo] = parts;
+```
+
+```js
 const foo = parts[3];
+```
+
+```js
 const [,...rest] = parts;
 ```
 
+```js
+const foo = parts.slice(3);
+```
 
 ## Note
 

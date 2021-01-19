@@ -1,4 +1,5 @@
-import {test} from './utils/test';
+import {outdent} from 'outdent';
+import {test} from './utils/test.js';
 
 const errorNew = {
 	messageId: 'noKeywordPrefix',
@@ -85,6 +86,23 @@ test({
 		{
 			code: 'const newFoo = "foo"',
 			options: [{blacklist: ['old']}]
+		},
+		outdent`
+			function Foo() {
+				console.log(new.target, new.target.name);
+			}
+		`,
+		outdent`
+			class Foo {
+				constructor() {
+					console.log(new.target, new.target.name);
+				}
+			}
+		`,
+		'const foo = {new: 1};',
+		{
+			code: 'var foo = {new: 1}',
+			options: [{checkProperties: false}]
 		}
 	],
 	invalid: [

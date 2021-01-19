@@ -1,7 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import {test as runTest, rule} from './utils/test';
+import {test as runTest, rule} from './utils/test.js';
 
 const MESSAGE_ID = 'number-literal-case';
 

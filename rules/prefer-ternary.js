@@ -98,17 +98,17 @@ const create = context => {
 			return returnFalseIfNotMergeable ? false : options;
 		}
 
-		const {type} = consequent;
+		const {type, argument, delegate, left, right, operator} = consequent;
 
 		if (
 			type === 'ReturnStatement' &&
-			!isTernary(consequent.argument) &&
+			!isTernary(argument) &&
 			!isTernary(alternate.argument)
 		) {
 			return merge({
 				before: `${before}return `,
 				after,
-				consequent: consequent.argument === null ? 'undefined' : consequent.argument,
+				consequent: argument === null ? 'undefined' : argument,
 				alternate: alternate.argument === null ? 'undefined' : alternate.argument,
 				node
 			});
@@ -116,14 +116,14 @@ const create = context => {
 
 		if (
 			type === 'YieldExpression' &&
-			consequent.delegate === alternate.delegate &&
-			!isTernary(consequent.argument) &&
+			delegate === alternate.delegate &&
+			!isTernary(argument) &&
 			!isTernary(alternate.argument)
 		) {
 			return merge({
-				before: `${before}yield${consequent.delegate ? '*' : ''} (`,
+				before: `${before}yield${delegate ? '*' : ''} (`,
 				after: `)${after}`,
-				consequent: consequent.argument === null ? 'undefined' : consequent.argument,
+				consequent: argument === null ? 'undefined' : argument,
 				alternate: alternate.argument === null ? 'undefined' : alternate.argument,
 				node
 			});
@@ -131,13 +131,13 @@ const create = context => {
 
 		if (
 			type === 'AwaitExpression' &&
-			!isTernary(consequent.argument) &&
+			!isTernary(argument) &&
 			!isTernary(alternate.argument)
 		) {
 			return merge({
 				before: `${before}await (`,
 				after: `)${after}`,
-				consequent: consequent.argument,
+				consequent: argument,
 				alternate: alternate.argument,
 				node
 			});
@@ -146,7 +146,7 @@ const create = context => {
 		if (
 			checkThrowStatement &&
 			type === 'ThrowStatement' &&
-			!isTernary(consequent.argument) &&
+			!isTernary(argument) &&
 			!isTernary(alternate.argument)
 		) {
 			// `ThrowStatement` don't check nested
@@ -158,24 +158,24 @@ const create = context => {
 				type,
 				before: `${before}${needBraces ? '{\n{{INDENT_STRING}}' : ''}const {{ERROR_NAME}} = `,
 				after: `;\n{{INDENT_STRING}}throw {{ERROR_NAME}};${needBraces ? '\n}' : ''}`,
-				consequent: consequent.argument,
+				consequent: argument,
 				alternate: alternate.argument
 			};
 		}
 
 		if (
 			type === 'AssignmentExpression' &&
-			isSameAssignmentLeft(consequent.left, alternate.left) &&
-			consequent.operator === alternate.operator &&
-			!isTernary(consequent.left) &&
+			isSameAssignmentLeft(left, alternate.left) &&
+			operator === alternate.operator &&
+			!isTernary(left) &&
 			!isTernary(alternate.left) &&
-			!isTernary(consequent.right) &&
+			!isTernary(right) &&
 			!isTernary(alternate.right)
 		) {
 			return merge({
-				before: `${before}${sourceCode.getText(consequent.left)} ${consequent.operator} `,
+				before: `${before}${sourceCode.getText(left)} ${operator} `,
 				after,
-				consequent: consequent.right,
+				consequent: right,
 				alternate: alternate.right,
 				node
 			});

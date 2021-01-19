@@ -46,11 +46,13 @@ function checkReferences(scope, parent, scopeManager) {
 		const identifierScope = scopeManager.acquire(identifier);
 
 		// If we have a scope, the earlier checks should have worked so ignore them here
+		/* istanbul ignore next: Hard to test */
 		if (identifierScope) {
 			return false;
 		}
 
 		const identifierParentScope = scopeManager.acquire(identifier.parent);
+		/* istanbul ignore next: Hard to test */
 		if (!identifierParentScope) {
 			return false;
 		}
@@ -119,9 +121,6 @@ function checkNode(node, scopeManager) {
 	}
 
 	let parentNode = node.parent;
-	if (!parentNode) {
-		return true;
-	}
 
 	// Skip over junk like the block statement inside of a function declaration
 	// or the various pieces of an arrow function.

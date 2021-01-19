@@ -1,5 +1,5 @@
 import {outdent} from 'outdent';
-import {test} from './utils/test';
+import {test} from './utils/test.js';
 
 const messageId = 'prefer-ternary';
 const errors = [{messageId}];

@@ -1,7 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import {test as runTest, rule} from './utils/test';
+import {test as runTest, rule} from './utils/test.js';
 
 const ruleTester = avaRuleTester(test, {
 	env: {
@@ -1354,6 +1354,12 @@ browserES5RuleTester.run('prevent-abbreviations', rule, {
 				"use strict";
 				var yield_;
 			`,
+			options: customOptions,
+			errors: createErrors()
+		},
+		{
+			code: 'function a() {try {} catch(args) {}}',
+			output: 'function a() {try {} catch(arguments_) {}}',
 			options: customOptions,
 			errors: createErrors()
 		}

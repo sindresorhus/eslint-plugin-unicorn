@@ -102,7 +102,7 @@ const create = context => {
 				return;
 			}
 
-			const {name} = node;
+			const {name, parent} = node;
 			if (name === 'Infinity' && !options.checkInfinity) {
 				return;
 			}
@@ -122,9 +122,9 @@ const create = context => {
 			};
 
 			if (property === 'NEGATIVE_INFINITY') {
-				problem.node = node.parent;
+				problem.node = parent;
 				problem.data.identifier = '-Infinity';
-				problem.fix = fixer => fixer.replaceText(node.parent, 'Number.NEGATIVE_INFINITY');
+				problem.fix = fixer => fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
 			} else {
 				problem.fix = fixer => renameIdentifier(node, `Number.${property}`, fixer, sourceCode);
 			}
