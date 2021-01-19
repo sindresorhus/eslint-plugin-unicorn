@@ -1,6 +1,6 @@
 # Prefer `for…of` over `Array#forEach(…)`
 
-[`for…of` statement](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of) is more readable than [`Array#forEach(…)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach).
+A [`for…of` statement](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of) is more readable than [`Array#forEach(…)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach).
 
 This rule is partly fixable.
 
@@ -39,7 +39,7 @@ for (const [index, element] of array.entries()) {
 ```
 
 ```js
-for (const [index, element] of array.entries) {
+for (const [index, element] of array.entries()) {
 	bar(element, index, array);
 }
 ```
