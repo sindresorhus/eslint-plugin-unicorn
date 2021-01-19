@@ -123,7 +123,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	'const array = new Array(1)',
 	// This is actually `[]`, but we fix to `Array.from({length: zero})`
 	outdent`

@@ -321,3 +321,13 @@ test({
 		}
 	]
 });
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const object = (Object)();',
+		'const symbol = new (Symbol)("");',
+		'const symbol = new /* comment */ Symbol("");',
+		'const symbol = new Symbol;'
+	]
+});

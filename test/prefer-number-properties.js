@@ -307,7 +307,7 @@ test.typescript({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	'const foo = {[NaN]: 1}',
 	'const foo = {[NaN]() {}}',
 	'foo[NaN] = 1;',

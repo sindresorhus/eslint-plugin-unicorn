@@ -87,7 +87,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	'foo.replace(/a/gu, bar)',
 	'foo.replace(/a/ug, bar)'
 ]);
