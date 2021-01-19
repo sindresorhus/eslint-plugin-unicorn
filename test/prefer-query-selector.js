@@ -59,5 +59,7 @@ test.snapshot([
 		for (const div of document.body.getElementById("id").getElementsByClassName("class")) {
 			console.log(div.getElementsByTagName("div"));
 		}
-	`
+	`,
+	// #1030
+	'e.getElementById(3)'
 ]);

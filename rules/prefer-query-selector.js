@@ -67,7 +67,7 @@ function * getTemplateLiteralFix(fixer, node, identifierName) {
 
 const canBeFixed = node => {
 	if (node.type === 'Literal') {
-		return node.value === null || Boolean(node.value.trim());
+		return node.raw === 'null' || (typeof node.value === 'string' && Boolean(node.value.trim()));
 	}
 
 	if (node.type === 'TemplateLiteral') {
