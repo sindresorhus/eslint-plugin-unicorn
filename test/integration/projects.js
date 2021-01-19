@@ -8,8 +8,7 @@ module.exports = [
 	},
 	{
 		repository: 'https://github.com/avajs/ava',
-		extraArguments: [
-			'--ignore-pattern',
+		ignore: [
 			'test/node_modules'
 		]
 	},
@@ -48,53 +47,41 @@ module.exports = [
 	'https://github.com/sindresorhus/pageres',
 	{
 		repository: 'https://github.com/sindresorhus/got',
-		extraArguments: [
-			'--ignore-pattern',
-			'documentation/examples/gh-got.js' // This file use `package` keyword as variable
+		ignore: [
+			// This file use `package` keyword as variable
+			'documentation/examples/gh-got.js'
 		]
 	},
 	'https://github.com/eslint/eslint',
 	{
 		repository: 'https://github.com/prettier/prettier',
-		extraArguments: [
-			'--ignore-pattern',
+		ignore: [
 			'tests/**'
 		]
 	},
 	'https://github.com/facebook/react',
 	{
 		repository: 'https://github.com/angular/angular',
-		extraArguments: [
-			'--ignore-pattern',
+		ignore: [
 			'aio/content/examples/animations/src/app/open-close.component.3.ts',
-			'--ignore-pattern',
 			'aio/content/examples/router/src/app/app-routing.module.9.ts',
-
-			'--ignore-pattern',
 			'aio/tools/transforms/templates/data-module.template.js',
-			'--ignore-pattern',
 			'aio/tools/transforms/authors-package/index.js', // This file use `package` keyword as variable
-
-			'--ignore-pattern',
 			'packages/compiler-cli/test/**',
-
-			'--ignore-pattern',
 			'tools/**'
 		]
 	},
 	{
 		repository: 'https://github.com/microsoft/typescript',
-		extraArguments: [
+		ignore: [
 			// These file use `'\033'`
-			'--ignore-pattern',
 			'build/**'
 		]
 	},
 	{
 		repository: 'https://github.com/microsoft/vscode',
-		extraArguments: [
+		ignore: [
 			// This file use `'\033'`
-			'--ignore-pattern',
 			'build/**'
 		]
 	},
@@ -108,33 +95,28 @@ module.exports = [
 	'https://github.com/gatsbyjs/gatsby',
 	{
 		repository: 'https://github.com/puppeteer/puppeteer',
-		extraArguments: [
+		ignore: [
 			// Parser error on `await page.evaluate(() => delete Node);`
 			// https://github.com/puppeteer/puppeteer/blob/0b1a9ceee2f05f534f0d50079ece172d627a93c7/test/jshandle.spec.js#L151
-			'--ignore-pattern',
 			'test/jshandle.spec.js',
 
 			// `package` keyword
 			// https://github.com/puppeteer/puppeteer/blob/0b1a9ceee2f05f534f0d50079ece172d627a93c7/utils/apply_next_version.js#L17
-			'--ignore-pattern',
 			'utils/apply_next_version.js'
 		]
 	},
 	{
 		repository: 'https://github.com/vercel/next.js',
-		extraArguments: [
-			'--ignore-pattern',
+		ignore: [
 			'examples/**',
 
 			// These files use `>` in jsx
-			'--ignore-pattern',
 			'test/integration/**'
 		]
 	},
 	{
 		repository: 'https://github.com/chakra-ui/chakra-ui',
-		extraArguments: [
-			'--ignore-pattern',
+		ignore: [
 			'scripts/create-package.js' // This file use `package` keyword as variable
 		]
 	},
@@ -144,16 +126,14 @@ module.exports = [
 	// #912
 	{
 		repository: 'https://github.com/microsoft/fluentui',
-		extraArguments: [
-			'--ignore-pattern',
+		ignore: [
 			'scripts/publish-beta.js' // This file use `package` keyword as variable
 		]
 	},
 	// #902
 	{
 		repository: 'https://github.com/reakit/reakit',
-		extraArguments: [
-			'--ignore-pattern',
+		ignore: [
 			'packages/reakit/jest.config.js' // This file use `package` keyword as variable
 		]
 	},
@@ -169,15 +149,13 @@ module.exports = [
 	const {
 		repository,
 		name = repository.split('/').pop(),
-		path = '',
-		extraArguments = []
+		ignore = []
 	} = project;
 
 	return {
 		...project,
 		name,
 		repository,
-		path,
-		extraArguments
+		ignore
 	};
 });

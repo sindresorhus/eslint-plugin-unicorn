@@ -1279,7 +1279,7 @@ test({
 	]
 });
 
-test.babel({
+test.babelLegacy({
 	valid: [],
 	invalid: [
 		// https://github.com/facebook/react/blob/7a1691cdff209249b49a4472ba87b542980a5f71/packages/react-dom/src/client/DOMPropertyOperations.js#L183
