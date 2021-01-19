@@ -322,7 +322,7 @@ test({
 	]
 });
 
-test.visualize({
+test.snapshot({
 	valid: [],
 	invalid: [
 		'const object = (Object)();',

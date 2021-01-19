@@ -331,7 +331,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	'console.log(0XdeEdBeeFn)',
 	'const foo = 12345678..toString()'
 ]);

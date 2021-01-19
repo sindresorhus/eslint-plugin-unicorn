@@ -42,6 +42,6 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	'const foo = /(x+x+)+y/g'
 ]);

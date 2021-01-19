@@ -67,7 +67,7 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 	]
 });
 
-runTest.visualize([
+runTest.snapshot([
 	'eval(); // eslint-disable-line',
 	outdent`
 		foo();

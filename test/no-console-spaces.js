@@ -194,7 +194,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	'console.log("abc", " def ", "ghi");',
 	outdent`
 		console.error(

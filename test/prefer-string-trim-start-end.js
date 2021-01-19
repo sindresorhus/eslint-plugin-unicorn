@@ -79,7 +79,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	'foo.trimLeft()',
 	outdent`
 		foo
