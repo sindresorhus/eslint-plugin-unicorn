@@ -142,7 +142,7 @@ test.typescript({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	'values.findIndex(x => x === "foo")',
 	'values.findIndex(x => "foo" === x)',
 	'values.findIndex(x => {return x === "foo";})',

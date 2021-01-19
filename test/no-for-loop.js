@@ -781,7 +781,7 @@ runTest.typescript({
 	]
 });
 
-runTest.visualize([
+runTest.snapshot([
 	outdent`
 		for (let i = 0; i < arr.length; i += 1) {
 			console.log(arr[i])
