@@ -351,7 +351,7 @@ const create = context => {
 		},
 		ReturnStatement(node) {
 			const currentFunction = functionStack[functionStack.length - 1];
-			// `globalReturn `
+			// `globalReturn`
 			/* istanbul ignore next: ESLint deprecated `ecmaFeatures`, can't test */
 			if (!currentFunction) {
 				return;
