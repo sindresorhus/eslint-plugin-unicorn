@@ -90,7 +90,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	'if (array.find(element => element === "🦄")) {}',
 	'const foo = array.find(element => element === "🦄") ? bar : baz;',
 	outdent`

@@ -1,7 +1,7 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test.js';
 
-test.visualize({
+test.snapshot({
 	valid: [
 		'const foo = 1 | 1;',
 		'const foo = 0 | 1;',
