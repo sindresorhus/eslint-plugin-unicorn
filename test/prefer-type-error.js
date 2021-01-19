@@ -420,8 +420,7 @@ test({
 				}
 			`,
 			errors
-		}
-	].concat(
-		[...tcIdentifiers].map(identifier => tcIdentifierInvalidTest(identifier))
-	)
+		},
+		...[...tcIdentifiers].map(identifier => tcIdentifierInvalidTest(identifier))
+	]
 });
