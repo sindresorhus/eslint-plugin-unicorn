@@ -59,7 +59,7 @@ test.snapshot({
 
 		// Misc
 		'const buffer = new /* comment */ Buffer()',
-		'const buffer = new /* comment */ Buffer',
+		'const buffer = new /* comment */ Buffer'
 	]
 });
 
