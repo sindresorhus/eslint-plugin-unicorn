@@ -1,7 +1,7 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test.js';
 
-test.visualize({
+test.snapshot({
 	valid: [
 		'new foo.forEach(element => bar())',
 		'forEach(element => bar())',
