@@ -52,7 +52,7 @@ const makeEslintTask = (project, destination) => {
 		let stdout;
 		let processError;
 		try {
-			({stdout} = await execa('npx', arguments_, {cwd: __dirname, localDir: __dirname}));
+			({stdout} = await execa('npx', arguments_, {cwd: destination, localDir: __dirname}));
 		} catch (error) {
 			({stdout} = error);
 			processError = error;

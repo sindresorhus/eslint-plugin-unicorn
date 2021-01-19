@@ -9,24 +9,11 @@ const enableAllRules = Object.fromEntries(
 
 module.exports = {
 	root: true,
-	parser: '@babel/eslint-parser',
+	parser: 'babel-eslint',
 	parserOptions: {
 		ecmaVersion: 2021,
 		ecmaFeatures: {
 			jsx: true
-		},
-		// Babel
-		requireConfigFile: false,
-		sourceType: 'module',
-		allowImportExportEverywhere: true,
-		babelOptions: {
-			configFile: require.resolve('./babel.config.js'),
-			parserOpts: {
-				plugins: [
-					'jsx',
-					'classProperties'
-				]
-			}
 		}
 	},
 	plugins: [
@@ -47,17 +34,6 @@ module.exports = {
 		{
 			files: ['*.vue'],
 			parser: 'vue-eslint-parser'
-		},
-		{
-			files: [
-				// These repo use special config/syntax, new babel parser can't parse
-				'fixtures/iview/**/*.js',
-				'fixtures/ava/**/*.js',
-				'fixtures/gatsby/**/*.js',
-				'fixtures/relay/**/*.js',
-				'fixtures/react/**/*.js'
-			],
-			parser: 'babel-eslint'
 		}
 	]
 };

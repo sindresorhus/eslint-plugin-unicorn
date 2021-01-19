@@ -18,7 +18,7 @@ const eslint = new ESLint({
 		ignorePatterns: [
 			'coverage',
 			'test/integration/fixtures',
-			'test/integration/fixtures-local'
+			'test/integration/unicorn'
 		],
 		rules: {
 			'unicorn/prevent-abbreviations': [
