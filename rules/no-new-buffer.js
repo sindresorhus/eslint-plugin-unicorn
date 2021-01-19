@@ -22,7 +22,7 @@ const inferMethod = (bufferArguments, scope) => {
 		return;
 	}
 
-	if (firstArgument.type === 'ArrayExpression') {
+	if (firstArgument.type === 'ArrayExpression' || firstArgument.type === 'TemplateLiteral') {
 		return 'from';
 	}
 

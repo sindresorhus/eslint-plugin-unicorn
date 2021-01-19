@@ -51,6 +51,8 @@ test.snapshot({
 			const string = "string";
 			const buffer = new Buffer(string);
 		`,
+		// eslint-disable-next-line no-template-curly-in-string
+		'const buffer = new Buffer(`${unknown}`)',
 
 		// Unknown
 		'const buffer = new (Buffer)(unknown)',
