@@ -112,24 +112,20 @@ const foo = 0o12_7777;
 
 ```js
 {
-	onlyIfContainsSeparator: undefined,
+	onlyIfContainsSeparator: false,
 	hexadecimal: {
-		onlyIfContainsSeparator: false,
 		minimumDigits: 0,
 		groupLength: 2
 	},
 	binary: {
-		onlyIfContainsSeparator: false,
 		minimumDigits: 0,
 		groupLength: 4
 	},
 	octal: {
-		onlyIfContainsSeparator: false,
 		minimumDigits: 0,
 		groupLength: 4
 	},
 	number: {
-		onlyIfContainsSeparator: false,
 		minimumDigits: 5,
 		groupLength: 3
 	}
