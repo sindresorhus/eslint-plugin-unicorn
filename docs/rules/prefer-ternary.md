@@ -120,3 +120,26 @@ if (test) {
 	baz = 2;
 }
 ```
+
+## Options
+
+Type: `string`\
+Default: `'always'`
+
+- `'always'` (default)
+	- Always report when using an `IfStatement` where a ternary expression can be used.
+- `'only-single-line'`
+	- Only check if the content of the `if` and/or `else` block is less than one line long.
+
+The following case is considered valid:
+
+```js
+// eslint unicorn/prefer-ternary: ["error", "only-single-line"]
+if (test) {
+	foo = [
+		'multiple line array'
+	];
+} else {
+	bar = baz;
+}
+```
