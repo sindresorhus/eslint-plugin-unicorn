@@ -36,7 +36,7 @@ const makeEslintTask = (project, destination) => {
 		'--format',
 		'json',
 		'--config',
-		'config.js'
+		path.join(__dirname, 'config.js')
 	];
 
 	for (const pattern of project.ignore) {
