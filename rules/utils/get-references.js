@@ -1,10 +1,9 @@
 'use strict';
-const {uniq} = require('lodash');
+const {uniq, flatten} = require('lodash');
 
-const getReferences = scope => uniq(
-	scope.references.concat(
-		...scope.childScopes.map(scope => getReferences(scope))
-	)
-);
+const getReferences = scope => uniq([
+	...scope.references,
+	...flatten(scope.childScopes.map(scope => getReferences(scope)))
+]);
 
 module.exports = getReferences;

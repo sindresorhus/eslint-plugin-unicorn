@@ -1,7 +1,8 @@
 'use strict';
-const {hasSideEffect, isCommaToken, isOpeningParenToken, isSemicolonToken} = require('eslint-utils');
+const {hasSideEffect, isCommaToken, isSemicolonToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
+const getCallExpressionArgumentsText = require('./utils/get-call-expression-arguments-text');
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -19,16 +20,6 @@ const arrayPushExpressionStatement = [
 ].join('');
 
 const selector = `${arrayPushExpressionStatement} + ${arrayPushExpressionStatement}`;
-
-const getCallExpressionArgumentsText = (node, sourceCode) => {
-	const openingParenthesisToken = sourceCode.getTokenAfter(node.callee, isOpeningParenToken);
-	const closingParenthesisToken = sourceCode.getLastToken(node);
-
-	return sourceCode.text.slice(
-		openingParenthesisToken.range[1],
-		closingParenthesisToken.range[0]
-	);
-};
 
 function getFirstExpression(node, sourceCode) {
 	const {parent} = node;

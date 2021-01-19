@@ -569,7 +569,7 @@ const create = context => {
 					scope: variable.scope,
 					defs: variable.defs,
 					identifiers: variable.identifiers,
-					references: variable.references.concat(outerClassVariable.references)
+					references: [...variable.references, ...outerClassVariable.references]
 				};
 
 				// Call the common checker with the newly forged normalized class variable
@@ -640,7 +640,10 @@ const create = context => {
 			return;
 		}
 
-		const scopes = variable.references.map(reference => reference.from).concat(variable.scope);
+		const scopes = [
+			...variable.references.map(reference => reference.from),
+			variable.scope
+		];
 		variableReplacements.samples = variableReplacements.samples.map(
 			name => avoidCapture(name, scopes, ecmaVersion, isSafeName)
 		);

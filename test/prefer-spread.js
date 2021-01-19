@@ -1,6 +1,7 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test.js';
 
+// `Array.from`
 test.snapshot({
 	valid: [
 		'[...set].map(() => {});',
@@ -130,5 +131,59 @@ test.snapshot({
 			const foo = {}
 			Array.from(arrayLike).forEach(doSomething)
 		`
+	]
+});
+
+// `Array#concat`
+test.snapshot({
+	valid: [
+		'new Array.concat(1)',
+		'concat(1)',
+		'array[concat](1)',
+		'"foo".concat("bar")',
+		// eslint-disable-next-line no-template-curly-in-string
+		'`${foo}`.concat("bar")',
+		outdent`
+			const string = 'foo';
+			foo = string.concat("bar");
+		`
+	],
+	invalid: [
+		'[1].concat(2)',
+		'[1].concat([2, 3])',
+		'[1].concat(2,)',
+		'[1].concat([2, ...bar],)',
+		'[1,].concat(2)',
+		'[1,].concat([2, 3])',
+		'[1,].concat(2,)',
+		'[1,].concat([2, 3],)',
+		'((((((([1,]))).concat((((([2, 3])))),)))))',
+		'foo.concat(2)',
+		'foo.concat([2, 3])',
+		'foo.concat(2,)',
+		'foo.concat([2, 3],)',
+		'(((((((foo)))).concat((((([2, 3])))),))))',
+		outdent`
+			bar()
+			foo.concat(2)
+		`,
+		outdent`
+			const five = 2 + 3;
+			foo.concat(five);
+		`,
+		outdent`
+			const array = [2 + 3];
+			foo.concat(array);
+		`,
+		'foo.concat([bar])',
+		'foo.concat(bar)',
+		'Array.from(set).concat([2, 3])',
+		'foo.concat([2, 3]).concat(4)',
+		// `String#concat` is wrongly detected, but people should use `+` to concat string
+		'string.concat("bar")',
+		// Currently not fixing multiple arguments
+		'foo.concat(2, 3)',
+		'foo.concat(2, bar)',
+		'let sortedScores = scores.concat().sort((a, b) => b[0] - a[0]);'
 	]
 });
