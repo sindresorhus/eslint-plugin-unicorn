@@ -1,71 +1,67 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test.js';
 
-const allocError = {
-	messageId: 'no-new-buffer',
-	data: {method: 'alloc'}
-};
-
-const fromError = {
-	messageId: 'no-new-buffer',
-	data: {method: 'from'}
-};
-
-test({
+test.snapshot({
 	valid: [
-		'const buf = Buffer.from(\'buf\')',
-		'const buf = Buffer.from(\'7468697320697320612074c3a97374\', \'hex\')',
-		'const buf = Buffer.from([0x62, 0x75, 0x66, 0x66, 0x65, 0x72])',
-		'const buf = Buffer.alloc(10)'
+		'const buffer = Buffer',
+		'const buffer = new NotBuffer(1)',
+		'const buffer = Buffer.from(\'buf\')',
+		'const buffer = Buffer.from(\'7468697320697320612074c3a97374\', \'hex\')',
+		'const buffer = Buffer.from([0x62, 0x75, 0x66, 0x66, 0x65, 0x72])',
+		'const buffer = Buffer.alloc(10)'
 	],
 	invalid: [
-		{
-			code: 'const buf = new Buffer()',
-			errors: [fromError],
-			output: 'const buf = Buffer.from()'
-		},
-		{
-			code: 'const buf = new Buffer(\'buf\')',
-			errors: [fromError],
-			output: 'const buf = Buffer.from(\'buf\')'
-		},
-		{
-			code: 'const buf = new Buffer(\'7468697320697320612074c3a97374\', \'hex\')',
-			errors: [fromError],
-			output: 'const buf = Buffer.from(\'7468697320697320612074c3a97374\', \'hex\')'
-		},
-		{
-			code: 'const buf = new Buffer([0x62, 0x75, 0x66, 0x66, 0x65, 0x72])',
-			errors: [fromError],
-			output: 'const buf = Buffer.from([0x62, 0x75, 0x66, 0x66, 0x65, 0x72])'
-		},
-		{
-			code: 'const buf = new Buffer(10)',
-			errors: [allocError],
-			output: 'const buf = Buffer.alloc(10)'
-		},
-		{
-			code: outdent`
-				const ab = new ArrayBuffer(10);
-				const buf = new Buffer(ab, 0, 2);
-			`,
-			errors: [fromError],
-			output: outdent`
-				const ab = new ArrayBuffer(10);
-				const buf = Buffer.from(ab, 0, 2);
-			`
-		},
-		{
-			code: outdent`
-				const buf1 = new Buffer('buf');
-				const buf2 = new Buffer(buf1);
-			`,
-			errors: [fromError, fromError],
-			output: outdent`
-				const buf1 = Buffer.from('buf');
-				const buf2 = Buffer.from(buf1);
-			`
-		}
+		// `new Buffer(array)`
+		// https://nodejs.org/api/buffer.html#buffer_new_buffer_array
+		'const buffer = new Buffer([0x62, 0x75, 0x66, 0x66, 0x65, 0x72])',
+		'const buffer = new Buffer([0x62, bar])',
+		outdent`
+			const array = [0x62];
+			const buffer = new Buffer(array);
+		`,
+
+		// `new Buffer(arrayBuffer[, byteOffset[, length]])`
+		// https://nodejs.org/api/buffer.html#buffer_new_buffer_arraybuffer_byteoffset_length
+		outdent`
+			const arrayBuffer = new ArrayBuffer(10);
+			const buffer = new Buffer(arrayBuffer);
+		`,
+		outdent`
+			const arrayBuffer = new ArrayBuffer(10);
+			const buffer = new Buffer(arrayBuffer, 0, );
+		`,
+		outdent`
+			const arrayBuffer = new ArrayBuffer(10);
+			const buffer = new Buffer(arrayBuffer, 0, 2);
+		`,
+
+		// `new Buffer(size)`
+		// https://nodejs.org/api/buffer.html#buffer_new_buffer_size
+		'const buffer = new Buffer(10);',
+		outdent`
+			const size = 10;
+			const buffer = new Buffer(size);
+		`,
+
+		// `new Buffer(string[, encoding])`
+		// https://nodejs.org/api/buffer.html#buffer_new_buffer_string_encoding
+		'const buffer = new Buffer("string");',
+		'const buffer = new Buffer("7468697320697320612074c3a97374", "hex")',
+		outdent`
+			const string = "string";
+			const buffer = new Buffer(string);
+		`,
+		// eslint-disable-next-line no-template-curly-in-string
+		'const buffer = new Buffer(`${unknown}`)',
+
+		// Unknown
+		'const buffer = new (Buffer)(unknown)',
+		'const buffer = new Buffer(unknown, 2)',
+		'const buffer = new Buffer(...unknown)',
+
+		// Misc
+		'const buffer = new /* comment */ Buffer()',
+		'const buffer = new /* comment */ Buffer'
 	]
 });
 
@@ -74,13 +70,8 @@ test.typescript({
 	invalid: [
 		{
 			code: 'new Buffer(input, encoding);',
-			errors: [fromError],
-			output: 'Buffer.from(input, encoding);'
+			output: 'Buffer.from(input, encoding);',
+			errors: 1
 		}
 	]
 });
-
-test.snapshot([
-	'const buf = new Buffer()',
-	'const buf = new Buffer([0x62, 0x75, 0x66, 0x66, 0x65, 0x72])'
-]);
