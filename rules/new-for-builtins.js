@@ -2,7 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const builtins = require('./utils/builtins');
 const isShadowed = require('./utils/is-shadowed');
-const isNewExpressionWithParentheses = require('./utils/is-new-expression-with-parentheses');
+const switchNewExpressionToCallExpression = require('./utils/switch-new-expression-to-call-expression');
 
 const messages = {
 	enforce: 'Use `new {{name}}()` instead of `{{name}}()`.',
@@ -40,7 +40,7 @@ const create = context => {
 			}
 		},
 		NewExpression: node => {
-			const {callee, range} = node;
+			const {callee} = node;
 			const {name} = callee;
 
 			if (disallowNew.has(name) && !isShadowed(context.getScope(), callee)) {
@@ -52,17 +52,7 @@ const create = context => {
 
 				if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
 					problem.fix = function * (fixer) {
-						const [start] = range;
-						let end = start + 3; // `3` = length of `new`
-						const textAfter = sourceCode.text.slice(end);
-						const [leadingSpaces] = textAfter.match(/^\s*/);
-						end += leadingSpaces.length;
-
-						yield fixer.removeRange([start, end]);
-
-						if (!isNewExpressionWithParentheses(node, sourceCode)) {
-							yield fixer.insertTextAfter(node, '()');
-						}
+						yield * switchNewExpressionToCallExpression(node, sourceCode, fixer);
 					};
 				}
 
