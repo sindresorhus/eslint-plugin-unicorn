@@ -49,13 +49,11 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 	const {returnStatements} = functionInfo.get(callback);
 
 	const getForOfLoopHeadText = () => {
-		const parametersText = parameters
-			.map(parameter => sourceCode.getText(parameter))
-			.reverse();
+		const parametersText = parameters.map(parameter => sourceCode.getText(parameter));
 		const useEntries = parameters.length === 2;
 
 		let text = 'for (const ';
-		text += useEntries ? `[${parametersText.join(', ')}]` : parametersText[0];
+		text += useEntries ? `[${parametersText.reverse().join(', ')}]` : parametersText[0];
 
 		text += ' of ';
 
