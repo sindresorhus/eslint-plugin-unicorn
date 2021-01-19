@@ -97,6 +97,6 @@ test({
 	].map(code => ({code, errors}))
 });
 
-test.visualize([
+test.snapshot([
 	'process.exit(1);'
 ]);

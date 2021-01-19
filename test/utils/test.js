@@ -3,7 +3,7 @@
 const path = require('path');
 const test = require('ava');
 const avaRuleTester = require('eslint-ava-rule-tester');
-const visualizeRuleTester = require('./visualize-rule-tester');
+const snapshotRuleTester = require('./snapshot-rule-tester');
 
 const defaultParserOptions = require('./default-parser-options');
 
@@ -35,14 +35,14 @@ runTest.babel = tests => runTest({
 	testerOptions: {parser: require.resolve('babel-eslint')}
 });
 
-function runVisualizeTest(cases) {
-	const tester = visualizeRuleTester(test, {
+function runSnapshotTest(cases) {
+	const tester = snapshotRuleTester(test, {
 		parserOptions: defaultParserOptions
 	});
 	return tester.run(ruleId, rule, cases);
 }
 
-runTest.visualize = runVisualizeTest;
+runTest.snapshot = runSnapshotTest;
 
 module.exports = {
 	defaultParserOptions,

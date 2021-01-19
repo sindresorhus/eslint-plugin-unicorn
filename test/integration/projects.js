@@ -3,8 +3,8 @@ const path = require('path');
 
 module.exports = [
 	{
-		name: 'unicorn',
-		location: path.join(__dirname, 'unicorn')
+		name: 'fixtures-local',
+		location: path.join(__dirname, 'fixtures-local')
 	},
 	{
 		repository: 'https://github.com/avajs/ava',

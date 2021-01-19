@@ -359,7 +359,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	'foo.slice(foo.length - 2, foo.length - 1)',
 	'foo.splice(foo.length - 1, 1)'
 ]);

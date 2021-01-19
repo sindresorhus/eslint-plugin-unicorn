@@ -31,7 +31,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	'throw new Error()',
 	'throw Error()',
 	'throw new Error(\'\')',

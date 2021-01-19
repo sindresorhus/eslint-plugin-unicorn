@@ -32,7 +32,7 @@ test({
 	invalid: []
 });
 
-test.visualize([
+test.snapshot([
 	'document.getElementById("foo");',
 	'document.getElementsByClassName("foo");',
 	'document.getElementsByClassName("foo bar");',

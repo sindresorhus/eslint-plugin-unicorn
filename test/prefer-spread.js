@@ -2,7 +2,7 @@ import {outdent} from 'outdent';
 import {test} from './utils/test.js';
 
 // `Array.from`
-test.visualize({
+test.snapshot({
 	valid: [
 		'[...set].map(() => {});',
 		// TypedArray.from
@@ -135,7 +135,7 @@ test.visualize({
 });
 
 // `Array#concat`
-test.visualize({
+test.snapshot({
 	valid: [
 		'new Array.concat(1)',
 		'concat(1)',

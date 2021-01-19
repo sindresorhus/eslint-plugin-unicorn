@@ -16,7 +16,7 @@ function visualizeRange(text, location, message) {
 	);
 }
 
-function visualizeEslintResult(text, result) {
+function visualizeEslintMessage(text, result) {
 	const {line, column, endLine, endColumn, message} = result;
 	const location = {
 		start: {
@@ -45,7 +45,7 @@ const getVerifyConfig = (ruleId, testerConfig, options) => ({
 const printCode = code => codeFrameColumns(code, {start: {line: 0, column: 0}}, codeFrameColumnsOptions);
 const INDENT = ' '.repeat(4);
 const indentCode = code => code.replace(/^/gm, INDENT);
-class VisualizeRuleTester {
+class SnapshotRuleTester {
 	constructor(test, config) {
 		this.test = test;
 		this.config = config;
@@ -104,7 +104,7 @@ class VisualizeRuleTester {
 					}
 
 					for (const [index, message] of messages.entries()) {
-						let messageForSnapshot = visualizeEslintResult(code, message);
+						let messageForSnapshot = visualizeEslintMessage(code, message);
 
 						const {suggestions = []} = message;
 						for (const [index, suggestion] of suggestions.entries()) {
@@ -125,8 +125,8 @@ class VisualizeRuleTester {
 	}
 }
 
-function visualizeRuleTester(test, config) {
-	return new VisualizeRuleTester(test, config);
+function snapshotRuleTester(test, config) {
+	return new SnapshotRuleTester(test, config);
 }
 
-module.exports = visualizeRuleTester;
+module.exports = snapshotRuleTester;

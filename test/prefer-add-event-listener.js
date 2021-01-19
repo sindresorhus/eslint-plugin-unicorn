@@ -65,7 +65,7 @@ test({
 	invalid: []
 });
 
-test.visualize([
+test.snapshot([
 	'foo.onclick = () => {}',
 	'foo.onclick = 1',
 	'foo.bar.onclick = onClick',
