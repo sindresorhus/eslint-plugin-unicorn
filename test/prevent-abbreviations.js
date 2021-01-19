@@ -1753,42 +1753,6 @@ runTest.babel({
 			errors: createErrors()
 		},
 
-		// #347
-		{
-			code: outdent`
-				function onKeyDown(e: KeyboardEvent) {
-					if (e.keyCode) {}
-				}
-			`,
-			output: outdent`
-				function onKeyDown(event: KeyboardEvent) {
-					if (event.keyCode) {}
-				}
-			`,
-			options: [
-				{
-					extendDefaultReplacements: false,
-					replacements: {
-						e: {
-							event: true
-						}
-					}
-				}
-			],
-			errors: createErrors()
-		},
-
-		// https://github.com/facebook/relay/blob/597d2a17aa29d401830407b6814a5f8d148f632d/packages/relay-experimental/EntryPointTypes.flow.js#L138
-		{
-			code: outdent`
-				export type PreloadProps<TExtraProps = null> = {}
-			`,
-			output: outdent`
-				export type PreloadProperties<TExtraProperties = null> = {}
-			`,
-			errors: [...createErrors(), ...createErrors()]
-		},
-
 		noFixingTestCase({
 			code: '(class {e = 1})',
 			options: checkPropertiesOptions,
@@ -1861,6 +1825,58 @@ runTest.typescript({
 				export default Property;
 			`,
 			errors: 1
+		},
+
+		// #347
+		{
+			code: outdent`
+				function onKeyDown(e: KeyboardEvent) {
+					if (e.keyCode) {}
+				}
+			`,
+			output: outdent`
+				function onKeyDown(event: KeyboardEvent) {
+					if (event.keyCode) {}
+				}
+			`,
+			options: [
+				{
+					extendDefaultReplacements: false,
+					replacements: {
+						e: {
+							event: true
+						}
+					}
+				}
+			],
+			errors: createErrors()
+		},
+
+		// https://github.com/facebook/relay/blob/597d2a17aa29d401830407b6814a5f8d148f632d/packages/relay-experimental/EntryPointTypes.flow.js#L138
+		{
+			code: outdent`
+				export type PreloadProps<TExtraProps = null> = {}
+			`,
+			output: outdent`
+				export type PreloadProperties<TExtraProperties = null> = {}
+			`,
+			errors: [...createErrors(), ...createErrors()]
+		}
+	]
+});
+
+runTest.babelLegacy({
+	valid: [],
+	invalid: [
+		// https://github.com/facebook/relay/blob/597d2a17aa29d401830407b6814a5f8d148f632d/packages/relay-experimental/EntryPointTypes.flow.js#L138
+		{
+			code: outdent`
+				export type PreloadProps<TExtraProps = null> = {};
+			`,
+			output: outdent`
+				export type PreloadProperties<TExtraProperties = null> = {};
+			`,
+			errors: [...createErrors(), ...createErrors()]
 		}
 	]
 });
