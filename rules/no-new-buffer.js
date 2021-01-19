@@ -1,7 +1,7 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const isNewExpressionWithParentheses = require('./utils/is-new-expression-with-parentheses');
+const switchNewExpressionToCallExpression = require('./utils/switch-new-expression-to-call-expression');
 
 const ERROR = 'error';
 const ERROR_UNKNOWN = 'error-unknown';
@@ -44,18 +44,8 @@ const inferMethod = (bufferArguments, scope) => {
 
 function fix(node, sourceCode, method) {
 	return function * (fixer) {
-		const [start] = node.range;
-		let end = start + 3; // `3` = length of `new`
-		const textAfter = sourceCode.text.slice(end);
-		const [leadingSpaces] = textAfter.match(/^\s*/);
-		end += leadingSpaces.length;
-		yield fixer.removeRange([start, end]);
-
+		yield * switchNewExpressionToCallExpression(node, sourceCode, fixer);
 		yield fixer.insertTextAfter(node.callee, `.${method}`);
-
-		if (!isNewExpressionWithParentheses(node, sourceCode)) {
-			yield fixer.insertTextAfter(node, '()');
-		}
 	};
 }
 
