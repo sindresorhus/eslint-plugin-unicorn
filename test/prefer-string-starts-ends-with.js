@@ -127,7 +127,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	'/^a/.test("string")',
 	'/^a/.test((0, "string"))',
 	'async function a() {return /^a/.test(await foo())}',

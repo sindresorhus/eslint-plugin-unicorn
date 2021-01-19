@@ -1,6 +1,6 @@
 import {test} from './utils/test.js';
 
-test.visualize({
+test.snapshot({
 	valid: [
 		'const [, foo] = parts;',
 		'const [foo] = parts;',

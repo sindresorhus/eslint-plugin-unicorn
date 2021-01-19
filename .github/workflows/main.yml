@@ -30,7 +30,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.node-version == 14
         with:
           fail_ci_if_error: true
-  lint:
+  run-rules-on-codebase:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -38,7 +38,7 @@ jobs:
         with:
           node-version: 14
       - run: npm install
-      - run: npm run lint
+      - run: npm run run-rules-on-codebase
   integration:
     runs-on: ubuntu-latest
     steps:

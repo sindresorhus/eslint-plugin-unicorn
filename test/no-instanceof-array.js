@@ -1,7 +1,7 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test.js';
 
-test.visualize({
+test.snapshot({
 	valid: [
 		'Array.isArray(arr)',
 		'arr instanceof Object',

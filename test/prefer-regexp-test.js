@@ -42,7 +42,7 @@ test({
 	invalid: []
 });
 
-test.visualize([
+test.snapshot([
 	// `String#match()`
 	'const bar = !foo.match(re)',
 	'const bar = Boolean(foo.match(re))',
