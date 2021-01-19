@@ -256,8 +256,8 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 	if (
 		// Leave non-function type to `no-array-callback-reference` rule
 		(callback.type !== 'FunctionExpression' && callback.type !== 'ArrowFunctionExpression') ||
-    callback.async ||
-    callback.generator
+			callback.async ||
+			callback.generator
 	) {
 		return false;
 	}
