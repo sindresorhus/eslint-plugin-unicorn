@@ -118,15 +118,15 @@ const create = context => {
 	};
 
 	const checkProperties = (objectExpression, references, path = []) => {
-		objectExpression.properties.forEach(property => {
+		for (const property of objectExpression.properties) {
 			const {key} = property;
 
 			if (!key) {
-				return;
+				continue;
 			}
 
 			if (propertyKeysEqual(key, specialProtoPropertyKey)) {
-				return;
+				continue;
 			}
 
 			const nextPath = path.concat(key);
@@ -187,7 +187,7 @@ const create = context => {
 				.filter(Boolean);
 
 			checkProperty(property, nextReferences, nextPath);
-		});
+		}
 	};
 
 	const checkObject = (declaratorOrProperty, references, path) => {
@@ -215,11 +215,15 @@ const create = context => {
 	};
 
 	const checkVariables = scope => {
-		scope.variables.forEach(variable => checkVariable(variable));
+		for (const variable of scope.variables) {
+			checkVariable(variable);
+		}
 	};
 
 	const checkChildScopes = scope => {
-		scope.childScopes.forEach(scope => checkScope(scope));
+		for (const childScope of scope.childScopes) {
+			checkScope(childScope);
+		}
 	};
 
 	const checkScope = scope => {
