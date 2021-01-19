@@ -1,2 +1,12 @@
 'use strict';
-module.exports = (node, value) => node && node.type === 'Literal' && node.value === value;
+module.exports = (node, value) => {
+	if (!node || node.type !== 'Literal') {
+		return false;
+	}
+
+	if (value === null) {
+		return node.raw === 'null';
+	}
+
+	return node.value === value;
+};
