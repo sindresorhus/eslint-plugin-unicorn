@@ -43,6 +43,14 @@ export function doFoo(foo) {
 }
 ```
 
+## Options
+
+### checkArrowFunctions
+
+Type: `boolean`\
+Default: `true`
+
+Pass `"checkArrowFunctions": false` to disable linting of arrow functions.
 
 ## Limitations
 

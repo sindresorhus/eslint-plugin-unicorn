@@ -1,5 +1,5 @@
 import {outdent} from 'outdent';
-import {test} from './utils/test';
+import {test} from './utils/test.js';
 
 const error = {
 	messageId: 'no-unused-properties'
@@ -388,6 +388,15 @@ test({
 					u: 3
 				};
 				console.log(foo.b);
+			`,
+			errors: [error]
+		},
+
+		{
+			code: outdent`
+				const foo = {
+					[foo.bar]: 1
+				};
 			`,
 			errors: [error]
 		}

@@ -39,7 +39,7 @@ const report = (context, node, target, argumentsNodes) => {
 
 const create = context => ({
 	BinaryExpression: node => {
-		const {left, right} = node;
+		const {left, right, operator} = node;
 
 		if (!isMethodNamed(left, 'indexOf')) {
 			return;
@@ -59,8 +59,8 @@ const create = context => ({
 		}
 
 		if (
-			(['!==', '!=', '>', '===', '=='].includes(node.operator) && isNegativeOne(right)) ||
-			(['>=', '<'].includes(node.operator) && isLiteralZero(right))
+			(['!==', '!=', '>', '===', '=='].includes(operator) && isNegativeOne(right)) ||
+			(['>=', '<'].includes(operator) && isLiteralZero(right))
 		) {
 			report(
 				context,

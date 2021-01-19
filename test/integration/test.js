@@ -29,6 +29,8 @@ const makeEslintTask = (project, destination) => {
 		'eslint',
 		'--fix-dry-run',
 		'--no-eslintrc',
+		'--ext',
+		'.js,.ts,.vue',
 		'--format',
 		'json',
 		'--config',
@@ -168,5 +170,10 @@ list.run()
 			console.error(error);
 		}
 
+		process.exit(1);
+	})
+	// Catch errors in last `.catch`
+	.catch(error => {
+		console.error(error);
 		process.exit(1);
 	});

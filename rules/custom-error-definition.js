@@ -23,10 +23,10 @@ const hasValidSuperClass = node => {
 		return false;
 	}
 
-	let {name} = node.superClass;
+	let {name, type, property} = node.superClass;
 
-	if (node.superClass.type === 'MemberExpression') {
-		({name} = node.superClass.property);
+	if (type === 'MemberExpression') {
+		({name} = property);
 	}
 
 	return nameRegexp.test(name);
@@ -87,7 +87,7 @@ const customErrorDefinition = (context, node) => {
 		});
 	}
 
-	const {body} = node.body;
+	const {body, range} = node.body;
 	const constructor = body.find(x => x.kind === 'constructor');
 
 	if (!constructor) {
@@ -95,8 +95,8 @@ const customErrorDefinition = (context, node) => {
 			node,
 			message: 'Add a constructor to your error.',
 			fix: fixer => fixer.insertTextAfterRange([
-				node.body.range[0],
-				node.body.range[0] + 1
+				range[0],
+				range[0] + 1
 			], getConstructorMethod(name))
 		});
 		return;
@@ -144,7 +144,7 @@ const customErrorDefinition = (context, node) => {
 
 	const nameExpression = constructorBody.find(x => isAssignmentExpression(x, 'name'));
 	if (!nameExpression) {
-		const nameProperty = node.body.body.find(node => isClassProperty(node, 'name'));
+		const nameProperty = body.find(node => isClassProperty(node, 'name'));
 
 		if (!nameProperty || !nameProperty.value || nameProperty.value.value !== name) {
 			context.report({
@@ -161,14 +161,6 @@ const customErrorDefinition = (context, node) => {
 };
 
 const customErrorExport = (context, node) => {
-	if (!node.left.object || node.left.object.name !== 'exports') {
-		return;
-	}
-
-	if (!node.left.property) {
-		return;
-	}
-
 	const exportsName = node.left.property.name;
 
 	const maybeError = node.right;
@@ -203,7 +195,7 @@ const create = context => {
 	return {
 		ClassDeclaration: node => customErrorDefinition(context, node),
 		'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
-		'AssignmentExpression[left.type="MemberExpression"]': node => customErrorExport(context, node)
+		'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node)
 	};
 };
 

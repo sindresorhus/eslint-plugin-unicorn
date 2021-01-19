@@ -2,11 +2,13 @@
 const {hasSideEffect} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const MESSAGE_ID_BITWISE = 'bitwise';
-const MESSAGE_ID_BITWISE_NOT = 'bitwiseNot';
+const ERROR_BITWISE = 'error-bitwise';
+const ERROR_BITWISE_NOT = 'error-bitwise-not';
+const SUGGESTION_BITWISE = 'suggestion-bitwise';
 const messages = {
-	[MESSAGE_ID_BITWISE]: 'Use `Math.trunc` instead of `{{operator}} {{value}}`.',
-	[MESSAGE_ID_BITWISE_NOT]: 'Use `Math.trunc` instead of `~~`.'
+	[ERROR_BITWISE]: 'Use `Math.trunc` instead of `{{operator}} {{value}}`.',
+	[ERROR_BITWISE_NOT]: 'Use `Math.trunc` instead of `~~`.',
+	[SUGGESTION_BITWISE]: 'Replace `{{operator}} {{value}}` with `Math.trunc`.'
 };
 
 const createBitwiseNotSelector = (level, isNegative) => {
@@ -49,7 +51,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				messageId: MESSAGE_ID_BITWISE,
+				messageId: ERROR_BITWISE,
 				data: {
 					operator,
 					value: right.raw
@@ -57,7 +59,7 @@ const create = context => {
 			};
 
 			if (!isAssignment || !hasSideEffect(left, sourceCode)) {
-				problem.fix = fixer => {
+				const fix = fixer => {
 					let fixed = mathTruncFunctionCall(left);
 					if (isAssignment) {
 						fixed = `${sourceCode.getText(left)} = ${fixed}`;
@@ -65,6 +67,21 @@ const create = context => {
 
 					return fixer.replaceText(node, fixed);
 				};
+
+				if (operator === '|') {
+					problem.suggest = [
+						{
+							messageId: SUGGESTION_BITWISE,
+							data: {
+								operator,
+								value: right.raw
+							},
+							fix
+						}
+					];
+				} else {
+					problem.fix = fix;
+				}
 			}
 
 			context.report(problem);
@@ -72,7 +89,7 @@ const create = context => {
 		[bitwiseNotUnaryExpressionSelector]: node => {
 			context.report({
 				node,
-				messageId: MESSAGE_ID_BITWISE_NOT,
+				messageId: ERROR_BITWISE_NOT,
 				fix: fixer => fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument))
 			});
 		}

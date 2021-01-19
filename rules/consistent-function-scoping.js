@@ -46,11 +46,13 @@ function checkReferences(scope, parent, scopeManager) {
 		const identifierScope = scopeManager.acquire(identifier);
 
 		// If we have a scope, the earlier checks should have worked so ignore them here
+		/* istanbul ignore next: Hard to test */
 		if (identifierScope) {
 			return false;
 		}
 
 		const identifierParentScope = scopeManager.acquire(identifier.parent);
+		/* istanbul ignore next: Hard to test */
 		if (!identifierParentScope) {
 			return false;
 		}
@@ -119,9 +121,6 @@ function checkNode(node, scopeManager) {
 	}
 
 	let parentNode = node.parent;
-	if (!parentNode) {
-		return true;
-	}
 
 	// Skip over junk like the block statement inside of a function declaration
 	// or the various pieces of an arrow function.
@@ -152,6 +151,7 @@ function checkNode(node, scopeManager) {
 }
 
 const create = context => {
+	const {checkArrowFunctions} = {checkArrowFunctions: true, ...context.options[0]};
 	const sourceCode = context.getSourceCode();
 	const {scopeManager} = sourceCode;
 
@@ -170,19 +170,41 @@ const create = context => {
 		},
 		':function:exit': node => {
 			const currentFunctionHasJsx = functions.pop();
-			if (!currentFunctionHasJsx && !checkNode(node, scopeManager)) {
-				context.report({
-					node,
-					loc: getFunctionHeadLocation(node, sourceCode),
-					messageId: MESSAGE_ID,
-					data: {
-						functionNameWithKind: getFunctionNameWithKind(node)
-					}
-				});
+			if (currentFunctionHasJsx) {
+				return;
 			}
+
+			if (node.type === 'ArrowFunctionExpression' && !checkArrowFunctions) {
+				return;
+			}
+
+			if (checkNode(node, scopeManager)) {
+				return;
+			}
+
+			context.report({
+				node,
+				loc: getFunctionHeadLocation(node, sourceCode),
+				messageId: MESSAGE_ID,
+				data: {
+					functionNameWithKind: getFunctionNameWithKind(node)
+				}
+			});
 		}
 	};
 };
+
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			checkArrowFunctions: {
+				type: 'boolean',
+				default: true
+			}
+		}
+	}
+];
 
 module.exports = {
 	create,
@@ -191,6 +213,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
+		schema,
 		messages
 	}
 };

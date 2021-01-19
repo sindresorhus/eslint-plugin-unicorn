@@ -1,12 +1,6 @@
-import {test} from './utils/test';
+import {test} from './utils/test.js';
 
-const errors = [
-	{
-		messageId: 'no-unreadable-array-destructuring'
-	}
-];
-
-test({
+test.visualize({
 	valid: [
 		'const [, foo] = parts;',
 		'const [foo] = parts;',
@@ -15,6 +9,8 @@ test({
 		'const [foo,] = parts;',
 		'const [foo,,] = parts;',
 		'const [foo,, bar,, baz] = parts;',
+		'[,foo] = bar;',
+		'({parts: [,foo]} = bar);',
 		'function foo([, bar]) {}',
 		'function foo([bar]) {}',
 		'function foo([bar,,baz]) {}',
@@ -27,50 +23,30 @@ test({
 		'const [,,] = parts;'
 	],
 	invalid: [
-		{
-			code: 'const [,, foo] = parts;',
-			errors
-		},
-		{
-			code: 'const [foo,,, bar] = parts;',
-			errors
-		},
-		{
-			code: 'const [foo,,,] = parts;',
-			errors
-		},
-		{
-			code: 'const [foo, bar,, baz ,,, qux] = parts;',
-			errors
-		},
-		{
-			code: 'function foo([,, bar]) {}',
-			errors
-		},
-		{
-			code: 'function foo([bar,,, baz]) {}',
-			errors
-		},
-		{
-			code: 'function foo([bar,,,]) {}',
-			errors
-		},
-		{
-			code: 'function foo([bar, baz,, qux ,,, quux]) {}',
-			errors
-		},
-		{
-			code: 'const [,,...rest] = parts;',
-			errors
-		},
+		'const [,, foo] = parts;',
+		'const [foo,,, bar] = parts;',
+		'const [foo,,,] = parts;',
+		'const [foo, bar,, baz ,,, qux] = parts;',
+		'[,, foo] = bar;',
+		'({parts: [,, foo]} = bar);',
+		'function foo([,, bar]) {}',
+		'function foo([bar,,, baz]) {}',
+		'function foo([bar,,,]) {}',
+		'function foo([bar, baz,, qux ,,, quux]) {}',
+		'const [,,...rest] = parts;',
 		// This is stupid, but valid code
-		{
-			code: 'const [,,,] = parts;',
-			errors
-		}
+		'const [,,,] = parts;',
+		// Should add parentheses to array
+		'const [,,...rest] = new Array;',
+		'const [,,...rest] = (0, foo);',
+		'let [,,thirdElement] = new Array;',
+		'var [,,thirdElement] = (((0, foo)));',
+		// Variable is not `Identifier`
+		'let [,,[,,thirdElementInThirdElement]] = foo',
+		'let [,,{propertyOfThirdElement}] = foo',
+		// Multiple declarations
+		'let [,,thirdElement] = foo, anotherVariable = bar;',
+		// Default value
+		'let [,,thirdElement = {}] = foo;'
 	]
 });
-
-test.visualize([
-	'const [foo, bar,, baz ,,, qux] = parts;'
-]);

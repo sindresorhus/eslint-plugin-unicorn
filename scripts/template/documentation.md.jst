@@ -1,10 +1,10 @@
 # <%= description %>
 
 <!-- More detailed description. Remove this comment. -->
-<% if (isFixable === true) { %>
-This rule is fixable.
-<% } else if (isFixable === 'partly') { %>
+<% if (isFixable && isFixable.partly) { %>
 This rule is partly fixable.
+<% } else if (isFixable) { %>
+This rule is fixable.
 <% } %>
 ## Fail
 

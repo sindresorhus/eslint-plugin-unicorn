@@ -4,3 +4,5 @@ yarn.lock
 coverage
 package-lock.json
 /test/integration/fixtures
+.cache-eslint-remote-tester
+eslint-remote-tester-results

@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import test from 'ava';
 import pify from 'pify';
-import index from '..';
+import index from '../index.js';
 
 let ruleFiles;
 
@@ -15,10 +15,9 @@ const ignoredRules = [
 	'no-nested-ternary'
 ];
 
-const deprecatedRules = [
-	'prefer-exponentiation-operator',
-	'regex-shorthand'
-];
+const deprecatedRules = Object.entries(index.rules)
+	.filter(([, {meta: {deprecated}}]) => deprecated)
+	.map(([ruleId]) => ruleId);
 
 const testSorted = (t, actualOrder, sourceName) => {
 	actualOrder = actualOrder.filter(x => !ignoredRules.includes(x));
@@ -44,12 +43,12 @@ test('Every rule is defined in index file in alphabetical order', t => {
 	}
 
 	t.is(
-		Object.keys(index.rules).length,
+		Object.keys(index.rules).length - deprecatedRules.length,
 		ruleFiles.length,
 		'There are more exported rules than rule files.'
 	);
 	t.is(
-		Object.keys(index.configs.recommended.rules).length - ignoredRules.length,
+		Object.keys(index.configs.recommended.rules).length - deprecatedRules.length - ignoredRules.length,
 		ruleFiles.length - deprecatedRules.length,
 		'There are more exported rules in the recommended config than rule files.'
 	);
@@ -110,5 +109,18 @@ test('Every rule has valid meta.type', t => {
 		t.true(rule.meta !== null && rule.meta !== undefined, `${name} has no meta`);
 		t.is(typeof rule.meta.type, 'string', `${name} meta.type is not string`);
 		t.true(validTypes.includes(rule.meta.type), `${name} meta.type is not one of [${validTypes.join(', ')}]`);
+	}
+});
+
+test('Every deprecated rules listed in docs/deprecated-rules.md', t => {
+	const content = fs.readFileSync('docs/deprecated-rules.md', 'utf8');
+	const rulesInMarkdown = content.match(/(?<=^## ).*?$/gm);
+	t.deepEqual(deprecatedRules, rulesInMarkdown);
+
+	for (const name of deprecatedRules) {
+		const rule = index.rules[name];
+		t.is(typeof rule.create, 'function', `${name} create is not function`);
+		t.deepEqual(rule.create(), {}, `${name} create should return empty object`);
+		t.true(rule.meta.deprecated, `${name} meta.deprecated should be true`);
 	}
 });

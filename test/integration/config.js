@@ -25,5 +25,15 @@ module.exports = {
 
 		// This rule crashing on replace string inside `jsx` or `Unicode escape sequence`
 		'unicorn/string-content': 'off'
-	}
+	},
+	overrides: [
+		{
+			files: ['*.ts'],
+			parser: '@typescript-eslint/parser'
+		},
+		{
+			files: ['*.vue'],
+			parser: 'vue-eslint-parser'
+		}
+	]
 };

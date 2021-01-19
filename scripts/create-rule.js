@@ -110,10 +110,10 @@ function updateReadmeRules(data) {
 	const RULE_START = '## Rules\n\n';
 	const RULE_END = '\n\n## Deprecated Rules';
 	let ruleContent = `- [${data.id}](docs/rules/${data.id}.md) - ${data.description}`;
-	if (data.isFixable === true) {
-		ruleContent += ' *(fixable)*';
-	} else if (data.isFixable === 'partly') {
+	if (data.isFixable && data.isFixable.partly) {
 		ruleContent += ' *(partly fixable)*';
+	} else if (data.isFixable) {
+		ruleContent += ' *(fixable)*';
 	}
 
 	const file = path.join(ROOT, 'readme.md');
@@ -178,16 +178,24 @@ function updateReadme(data) {
 			message: 'Is it fixable?',
 			choices: [
 				{
-					name: true,
-					message: 'Yes'
+					message: 'Code',
+					value: {type: 'code'}
 				},
 				{
-					name: 'partly',
-					message: 'Partly'
+					message: 'Code (Partly)',
+					value: {type: 'code', partly: true}
 				},
 				{
-					name: false,
-					message: 'No'
+					message: 'Whitespace',
+					value: {type: 'whitespace'}
+				},
+				{
+					message: 'Whitespace (Partly)',
+					value: {type: 'whitespace', partly: true}
+				},
+				{
+					message: 'No',
+					value: false
 				}
 			]
 		},

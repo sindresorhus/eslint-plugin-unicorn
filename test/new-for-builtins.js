@@ -1,5 +1,5 @@
-import {test} from './utils/test';
-import {enforceNew, disallowNew} from '../rules/utils/builtins';
+import {test} from './utils/test.js';
+import {enforceNew, disallowNew} from '../rules/utils/builtins.js';
 
 const enforceNewError = builtin => ({
 	message: `Use \`new ${builtin}()\` instead of \`${builtin}()\`.`
@@ -108,7 +108,10 @@ test({
 		`,
 		// Not builtin
 		'new Foo();Bar();',
-		'Foo();new Bar();'
+		'Foo();new Bar();',
+		// Ignored
+		'const isObject = v => Object(v) === v;',
+		'(x) !== Object(x)'
 	],
 	invalid: [
 		{
@@ -316,5 +319,15 @@ test({
 				}
 			`
 		}
+	]
+});
+
+test.visualize({
+	valid: [],
+	invalid: [
+		'const object = (Object)();',
+		'const symbol = new (Symbol)("");',
+		'const symbol = new /* comment */ Symbol("");',
+		'const symbol = new Symbol;'
 	]
 });

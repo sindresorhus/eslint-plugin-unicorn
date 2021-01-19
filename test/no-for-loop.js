@@ -1,7 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import {test as runTest, rule} from './utils/test';
+import {test as runTest, rule} from './utils/test.js';
 
 const ruleTester = avaRuleTester(test, {
 	parserOptions: {
@@ -181,6 +181,15 @@ ruleTester.run('no-for-loop', rule, {
 		outdent`
 			for (let i = 0; i < arr.length; i++) {
 				arr[i] = i + 2;
+			}
+		`,
+
+		// Child scope
+		outdent`
+			for (let i = 0; i < cities.length; i++) {
+				const foo = function () {
+					console.log(cities)
+				}
 			}
 		`
 	],
