@@ -3,7 +3,7 @@ const {isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
 const getParenthesizedTimes = require('./get-parenthesized-times');
 
 /*
-Get first opening parenthesis token and last closing parenthesis token of parenthesized node.
+Get the first opening parenthesis token and the last closing parenthesis token of a parenthesized node.
 
 @param {Node} node - The node to be checked.
 @param {SourceCode} sourceCode - The source code object.
