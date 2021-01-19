@@ -42,7 +42,7 @@ const arrayConcatCallSelector = [
 
 const isArrayLiteral = node => node.type === 'ArrayExpression';
 
-function fixConcat(node, sourceCode, {isSpreadable}) {
+function fixConcat(node, sourceCode, isSpreadable) {
 	const array = node.callee.object;
 	const [item] = node.arguments;
 
@@ -156,18 +156,18 @@ const create = context => {
 			}
 
 			if (isItemArray === true) {
-				problem.fix = fixConcat(node, sourceCode, {isSpreadable: true});
+				problem.fix = fixConcat(node, sourceCode, /* isSpreadable */ true);
 			} else if (isItemArray === false) {
-				problem.fix = fixConcat(node, sourceCode, {isSpreadable: false});
+				problem.fix = fixConcat(node, sourceCode, /* isSpreadable */ false);
 			} else {
 				problem.suggest = [
 					{
 						messageId: SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE,
-						fix: fixConcat(node, sourceCode, {isSpreadable: true})
+						fix: fixConcat(node, sourceCode, /* isSpreadable */ true)
 					},
 					{
 						messageId: SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE,
-						fix: fixConcat(node, sourceCode, {isSpreadable: false})
+						fix: fixConcat(node, sourceCode, /* isSpreadable */ false)
 					}
 				];
 			}
