@@ -124,12 +124,12 @@ if (test) {
 ## Options
 
 Type: `string`\
-Default: `always`
+Default: `'always'`
 
 - `always` (default)
-	- Always check `IfStatement`
+	- Always report when using an `IfStatement` where a ternary expression can be used.
 - `only-single-line`
-	- Only check if `test`, `consequent`, and `alternate` of `IfStatement` are single line
+	- Only check if the content of the `if` and/or `else` block is less than one line long.
 
 The following case is considered valid:
 
