@@ -1,3 +1,4 @@
+import {outdent} from 'outdent';
 import {test} from './utils/test';
 
 const error = {
@@ -104,6 +105,59 @@ test({
 		{
 			code: 'const foo = 0b111',
 			options: [{number: {minimumDigits: 3, groupLength: 1}}]
+		},
+		{
+			code: outdent`
+				const binary = 0b10101010;
+				const octal = 0o76543210;
+				const hexadecimal = 0xfedcba97;
+				const number = 12345678.12345678e12345678;
+			`,
+			options: [{
+				onlyIfContainsSeparator: true
+			}]
+		},
+		{
+			code: outdent`
+				const binary = 0b1010_1010;
+				const octal = 0o76543210;
+				const hexadecimal = 0xfedcba97;
+				const number = 12345678.12345678e12345678;
+			`,
+			options: [{
+				onlyIfContainsSeparator: true,
+				binary: {
+					onlyIfContainsSeparator: false
+				}
+			}]
+		},
+		{
+			code: outdent`
+				const binary = 0b10_10_10_10;
+				const octal = 0o76543210;
+				const hexadecimal = 0xfedcba97;
+				const number = 12345678.12345678e12345678;
+			`,
+			options: [{
+				onlyIfContainsSeparator: true,
+				binary: {
+					onlyIfContainsSeparator: false,
+					groupLength: 2
+				}
+			}]
+		},
+		{
+			code: outdent`
+				const binary = 0b10101010;
+				const octal = 0o7654_3210;
+				const hexadecimal = 0xfe_dc_ba_97;
+				const number = 12_345_678.123_456_78e12_345_678;
+			`,
+			options: [{
+				binary: {
+					onlyIfContainsSeparator: true
+				}
+			}]
 		},
 		{
 			code: 'const foo = 12345',
@@ -397,6 +451,87 @@ test({
 			options: [{number: {onlyIfContainsSeparator: false}}],
 			errors: [error],
 			output: 'const foo = -100_000e+100_000'
+		},
+		{
+			code: outdent`
+				const binary = 0b10_101010;
+				const octal = 0o76_543210;
+				const hexadecimal = 0xfe_dcba97;
+				const number = 12_345678.12345678e12345678;
+			`,
+			output: outdent`
+				const binary = 0b1010_1010;
+				const octal = 0o7654_3210;
+				const hexadecimal = 0xfe_dc_ba_97;
+				const number = 12_345_678.123_456_78e12_345_678;
+			`,
+			options: [{
+				onlyIfContainsSeparator: true
+			}],
+			errors: 4
+		},
+		{
+			code: outdent`
+				const binary = 0b10101010;
+				const octal = 0o76_543210;
+				const hexadecimal = 0xfe_dcba97;
+				const number = 12_345678.12345678e12345678;
+			`,
+			output: outdent`
+				const binary = 0b1010_1010;
+				const octal = 0o7654_3210;
+				const hexadecimal = 0xfe_dc_ba_97;
+				const number = 12_345_678.123_456_78e12_345_678;
+			`,
+			options: [{
+				onlyIfContainsSeparator: true,
+				binary: {
+					onlyIfContainsSeparator: false
+				}
+			}],
+			errors: 4
+		},
+		{
+			code: outdent`
+				const binary = 0b10101010;
+				const octal = 0o76_543210;
+				const hexadecimal = 0xfe_dcba97;
+				const number = 12_345678.12345678e12345678;
+			`,
+			output: outdent`
+				const binary = 0b10_10_10_10;
+				const octal = 0o7654_3210;
+				const hexadecimal = 0xfe_dc_ba_97;
+				const number = 12_345_678.123_456_78e12_345_678;
+			`,
+			options: [{
+				onlyIfContainsSeparator: true,
+				binary: {
+					onlyIfContainsSeparator: false,
+					groupLength: 2
+				}
+			}],
+			errors: 4
+		},
+		{
+			code: outdent`
+				const binary = 0b10_101010;
+				const octal = 0o76543210;
+				const hexadecimal = 0xfedcba97;
+				const number = 12345678.12345678e12345678;
+			`,
+			output: outdent`
+				const binary = 0b1010_1010;
+				const octal = 0o7654_3210;
+				const hexadecimal = 0xfe_dc_ba_97;
+				const number = 12_345_678.123_456_78e12_345_678;
+			`,
+			options: [{
+				binary: {
+					onlyIfContainsSeparator: true
+				}
+			}],
+			errors: 4
 		}
 	]
 });
