@@ -28,7 +28,7 @@ const makeEslintTask = (project, destination) => {
 	const directory = project.location || `fixtures/${project.name}`;
 	const arguments_ = [
 		'eslint',
-		directory,
+		project.path || '.',
 		'--fix-dry-run',
 		'--no-eslintrc',
 		'--ext',
