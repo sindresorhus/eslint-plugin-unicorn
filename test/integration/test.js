@@ -44,11 +44,6 @@ const makeEslintTask = (project, destination) => {
 	}
 
 	return enrichErrors(project.name, arguments_, async () => {
-		const eslintignoreFile = path.join(destination, '.eslintignore');
-		if (fs.existsSync(eslintignoreFile)) {
-			arguments_.push('--ignore-path', eslintignoreFile);
-		}
-
 		let stdout;
 		let processError;
 		try {
