@@ -301,6 +301,13 @@ test.snapshot({
 					return [foo] = bar;
 				}
 			});
+		`,
+
+		// Destructuring parameters
+		outdent`
+			array.forEach(([{foo = bar}], index = baz) => {
+				a(foo, index);
+			});
 		`
 	]
 });

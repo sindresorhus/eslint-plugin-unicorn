@@ -204,30 +204,27 @@ const isChildScope = (child, parent) => {
 	return false;
 };
 
-function isParameterSafeToFix(parameter, {scope, array, allIdentifiers}) {
-	const {type, name: parameterName} = parameter;
-	if (type !== 'Identifier') {
-		return false;
-	}
+const getNodesInRange = (nodes, [rangeStart, rangeEnd]) =>
+	nodes.filter(({range: [start, end]}) => start >= rangeStart && end <= rangeEnd);
 
-	const [arrayStart, arrayEnd] = array.range;
-	for (const identifier of allIdentifiers) {
-		const {name, range: [start, end]} = identifier;
-		if (
-			name !== parameterName ||
-			start < arrayStart ||
-			end > arrayEnd
-		) {
-			continue;
+function isParameterSafeToFix(parameter, {scope, array, allIdentifiers, identifiersInArray}) {
+	const identifiers = getNodesInRange(allIdentifiers, parameter.range);
+
+	// Check identifiers in parameter don't have the same identifier in array
+	return identifiers.every(({name}) => {
+		for (const identifierInArray of identifiersInArray) {
+			if (identifierInArray.name !== name) {
+				continue;
+			}
+
+			const variable = findVariable(scope, identifierInArray);
+			if (!variable || variable.scope === scope || isChildScope(scope, variable.scope)) {
+				return false;
+			}
 		}
 
-		const variable = findVariable(scope, identifier);
-		if (!variable || variable.scope === scope || isChildScope(scope, variable.scope)) {
-			return false;
-		}
-	}
-
-	return true;
+		return true;
+	});
 }
 
 function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifiers}) {
@@ -264,15 +261,19 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 
 	// Check `callback.params`
 	const parameters = callback.params;
-	if (
-		!(parameters.length === 1 || parameters.length === 2) ||
-		parameters.some(parameter => !isParameterSafeToFix(parameter, {scope, array: callExpression, allIdentifiers}))
-	) {
+	if (parameters.length !== 1 && parameters.length !== 2) {
 		return false;
 	}
 
 	// `foo.forEach((element: Type, index: number) => bar())`, should fix to `for (const [index, element]: [number, Type] of …`, not handled
 	if (parameters.length === 2 && parameters.some(node => node.typeAnnotation)) {
+		return false;
+	}
+
+	const identifiersInArray = getNodesInRange(allIdentifiers, callExpression.callee.object.range);
+	if (parameters.some(parameter =>
+		!isParameterSafeToFix(parameter, {scope, array: callExpression, allIdentifiers, identifiersInArray})
+	)) {
 		return false;
 	}
 
@@ -351,7 +352,7 @@ const create = context => {
 		},
 		ReturnStatement(node) {
 			const currentFunction = functionStack[functionStack.length - 1];
-			// `globalReturn `
+			// `globalReturn`
 			/* istanbul ignore next: ESLint deprecated `ecmaFeatures`, can't test */
 			if (!currentFunction) {
 				return;
