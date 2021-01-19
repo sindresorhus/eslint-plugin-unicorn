@@ -2,7 +2,7 @@
 const {isOpeningParenToken} = require('eslint-utils');
 
 /**
-Get text of arguments list of `CallExpression`
+Get the text of the arguments list of `CallExpression`.
 
 @param {Node} node - The `CallExpression` node.
 @param {SourceCode} sourceCode - The source code object.
