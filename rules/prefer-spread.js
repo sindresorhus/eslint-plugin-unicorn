@@ -96,10 +96,11 @@ function fixConcat(node, sourceCode, fixableArguments) {
 					) {
 						text = `(${text})`;
 					}
+
 					text = `...${text}`;
 				}
 
-				return text;
+				return text || ' ';
 			})
 			.join(', ');
 

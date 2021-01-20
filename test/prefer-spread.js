@@ -194,5 +194,12 @@ test.snapshot({
 		'async function a() {return [].concat(((await bar)))}',
 		'foo.concat((0, 1))',
 		'async function a() {return (await bar).concat(1)}',
+		// No fix, no suggestions
+		'[].concat(...bar)',
+		// Should keep holes
+		'[].concat([,], [])',
+		'[,].concat([,], [,])',
+		// Should not insert extra holes
+		'[].concat([], [])'
 	]
 });
