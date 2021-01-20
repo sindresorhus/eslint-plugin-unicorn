@@ -163,10 +163,13 @@ test.snapshot({
 		'foo.concat(2,)',
 		'foo.concat([2, 3],)',
 		'(((((((foo)))).concat((((([2, 3])))),))))',
+		// Semicolon
 		outdent`
 			bar()
 			foo.concat(2)
 		`,
+		'const foo = foo.concat(2)',
+		'const foo = () => foo.concat(2)',
 		outdent`
 			const five = 2 + 3;
 			foo.concat(five);
