@@ -112,7 +112,9 @@ function fixConcat(node, sourceCode, fixableArguments) {
 			if (array.elements.length > 0) {
 				text = ` ${text}`;
 
-				if (!isArrayLiteralHasTrailingComma(array, sourceCode)) {
+				if (isArrayLiteralHasTrailingComma(array, sourceCode)) {
+					text = `${text},`;
+				} else {
 					text = `,${text}`;
 				}
 			}
