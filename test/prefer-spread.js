@@ -211,6 +211,20 @@ test.snapshot({
 		'[1,].concat([2,], [3,])',
 		'[1,].concat([2,,], [3,,])',
 		// Should not insert extra holes
-		'[].concat([], [])'
+		'[].concat([], [])',
+		outdent`
+			const EMPTY_STRING = ""
+			const EMPTY_STRING_IN_ARRAY = ""
+			const EMPTY_STRING_IN_ARRAY_OF_ARRAY = ""
+			const array = [].concat(
+				undefined,
+				null,
+				EMPTY_STRING,
+				false,
+				0,
+				[EMPTY_STRING_IN_ARRAY],
+				[[EMPTY_STRING_IN_ARRAY_OF_ARRAY]]
+			)
+		`
 	]
 });
