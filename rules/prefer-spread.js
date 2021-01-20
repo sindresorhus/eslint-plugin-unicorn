@@ -62,7 +62,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 	const concatCallArguments = node.arguments;
 	const arrayParenthesizedRange = getParenthesizedRange(array, sourceCode);
 	const arrayIsArrayLiteral = isArrayLiteral(array);
-	const arrayHasTrailingComma = arrayIsArrayLiteral && isArrayLiteralHasTrailingComma(array, sourceCode)
+	const arrayHasTrailingComma = arrayIsArrayLiteral && isArrayLiteralHasTrailingComma(array, sourceCode);
 
 	const getRangeAfterArray = () => {
 		const [, start] = arrayParenthesizedRange;
