@@ -181,9 +181,13 @@ test.snapshot({
 		'foo.concat([2, 3]).concat(4)',
 		// `String#concat` is wrongly detected, but people should use `+` to concat string
 		'string.concat("bar")',
-		// Currently not fixing multiple arguments
 		'foo.concat(2, 3)',
 		'foo.concat(2, bar)',
-		'let sortedScores = scores.concat().sort((a, b) => b[0] - a[0]);'
+		// This is output of last case
+		'[...foo, 2].concat(bar)',
+		'let sortedScores = scores.concat().sort((a, b) => b[0] - a[0]);',
+		// Suggestion output should include fixable arguments after the first one
+		'foo.concat(bar, 2, 3)',
+		'foo.concat(bar, 2, 3, baz)',
 	]
 });
