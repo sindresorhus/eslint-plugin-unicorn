@@ -500,17 +500,6 @@ runTest.babel({
 				}
 			`,
 			errors: [invalidNameError('ValidationError')]
-		},
-		{
-			code: outdent`
-				export class ValidationError extends Error {
-					'name': SomeType;
-					constructor(message) {
-						super(message);
-					}
-				}
-			`,
-			errors: [invalidNameError('ValidationError')]
 		}
 	]
 });
@@ -523,5 +512,17 @@ runTest.typescript({
 			}
 		`
 	],
-	invalid: []
+	invalid: [
+		{
+			code: outdent`
+				export class ValidationError extends Error {
+					'name': SomeType;
+					constructor(message) {
+						super(message);
+					}
+				}
+			`,
+			errors: [invalidNameError('ValidationError')]
+		}
+	]
 });

@@ -27,6 +27,7 @@ const enrichErrors = (packageName, cliArguments, f) => async (...arguments_) => 
 const makeEslintTask = (project, destination) => {
 	const arguments_ = [
 		'eslint',
+		project.path || '.',
 		'--fix-dry-run',
 		'--no-eslintrc',
 		'--ext',
@@ -34,10 +35,12 @@ const makeEslintTask = (project, destination) => {
 		'--format',
 		'json',
 		'--config',
-		path.join(__dirname, 'config.js'),
-		project.path || '.',
-		...project.extraArguments
+		path.join(__dirname, 'config.js')
 	];
+
+	for (const pattern of project.ignore) {
+		arguments_.push('--ignore-pattern', pattern);
+	}
 
 	return enrichErrors(project.name, arguments_, async () => {
 		let stdout;
