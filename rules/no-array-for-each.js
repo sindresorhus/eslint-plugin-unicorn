@@ -212,11 +212,36 @@ function isParameterSafeToFix(parameter, {scope, array, allIdentifiers}) {
 
 	const [arrayStart, arrayEnd] = array.range;
 	for (const identifier of allIdentifiers) {
-		const {name, range: [start, end]} = identifier;
+		const {name, range: [start, end], parent} = identifier;
 		if (
 			name !== parameterName ||
 			start < arrayStart ||
 			end > arrayEnd
+		) {
+			continue;
+		}
+
+		if (
+			(
+				(
+					parent.type === 'FunctionExpression' ||
+					parent.type === 'ClassExpression' ||
+					parent.type === 'FunctionDeclaration' ||
+					parent.type === 'ClassDeclaration'
+				) &&
+				parent.id === identifier
+			) ||
+			(
+				parent.type === 'MemberExpression' &&
+				!parent.computed &&
+				parent.property === identifier
+			) ||
+			(
+				parent.type === 'Property' &&
+				!parent.shorthand &&
+				!parent.computed &&
+				parent.key === identifier
+			)
 		) {
 			continue;
 		}
