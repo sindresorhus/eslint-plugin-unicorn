@@ -85,12 +85,14 @@ function fixConcat(node, sourceCode, fixableArguments) {
 	};
 
 	const getFixedText = () => {
-		let text = fixableArguments
-			.filter(({node, isArrayLiteral}) => (!isArrayLiteral || node.elements.length > 0))
-			.map(({node, isArrayLiteral, isSpreadable}, index, nonEmptyFixableArguments) => {
+		const nonEmptyArguments = fixableArguments
+			.filter(({node, isArrayLiteral}) => (!isArrayLiteral || node.elements.length > 0));
+		const lastArgument = nonEmptyArguments[nonEmptyArguments.length - 1];
+
+		let text = nonEmptyArguments
+			.map(({node, isArrayLiteral, isSpreadable}, index) => {
 				if (isArrayLiteral) {
-					const isLastArgument = index === nonEmptyFixableArguments.length - 1;
-					return getArrayLiteralElementsText(node, isLastArgument);
+					return getArrayLiteralElementsText(node, node === lastArgument.node);
 				}
 
 				const [start, end] = getParenthesizedRange(node, sourceCode);
@@ -120,6 +122,13 @@ function fixConcat(node, sourceCode, fixableArguments) {
 
 				if (!arrayHasTrailingComma) {
 					text = `,${text}`;
+				}
+
+				if (
+					arrayHasTrailingComma &&
+					(!lastArgument.isArrayLiteral || !isArrayLiteralHasTrailingComma(lastArgument.node, sourceCode))
+				) {
+					text = `${text},`;
 				}
 			}
 		} else {
