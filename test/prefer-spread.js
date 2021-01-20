@@ -202,6 +202,12 @@ test.snapshot({
 		// Should keep holes
 		'[].concat([,], [])',
 		'[,].concat([,], [,])',
+		'[,].concat([,,], [,])',
+		'[,].concat([,], [,,])',
+		'[1].concat([2,], [3,])',
+		'[1].concat([2,,], [3,,])',
+		'[1,].concat([2,], [3,])',
+		'[1,].concat([2,,], [3,,])',
 		// Should not insert extra holes
 		'[].concat([], [])'
 	]

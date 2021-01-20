@@ -61,6 +61,8 @@ function fixConcat(node, sourceCode, fixableArguments) {
 	const array = node.callee.object;
 	const concatCallArguments = node.arguments;
 	const arrayParenthesizedRange = getParenthesizedRange(array, sourceCode);
+	const arrayIsArrayLiteral = isArrayLiteral(array);
+	const arrayHasTrailingComma = arrayIsArrayLiteral && isArrayLiteralHasTrailingComma(array, sourceCode)
 
 	const getRangeAfterArray = () => {
 		const [, start] = arrayParenthesizedRange;
@@ -70,7 +72,10 @@ function fixConcat(node, sourceCode, fixableArguments) {
 	};
 
 	const getArrayLiteralElementsText = (node, keepTrailingComma) => {
-		if (keepTrailingComma && isArrayLiteralHasTrailingComma(node, sourceCode)) {
+		if (
+			!keepTrailingComma &&
+			isArrayLiteralHasTrailingComma(node, sourceCode)
+		) {
 			const start = node.range[0] + 1;
 			const end = sourceCode.getLastToken(node, 1).range[0];
 			return sourceCode.text.slice(start, end);
@@ -82,9 +87,10 @@ function fixConcat(node, sourceCode, fixableArguments) {
 	const getFixedText = () => {
 		let text = fixableArguments
 			.filter(({node, isArrayLiteral}) => (!isArrayLiteral || node.elements.length > 0))
-			.map(({node, isArrayLiteral, isSpreadable}, index) => {
+			.map(({node, isArrayLiteral, isSpreadable}, index, nonEmptyFixableArguments) => {
 				if (isArrayLiteral) {
-					return getArrayLiteralElementsText(node, index === fixableArguments.length - 1);
+					const isLastArgument = index === nonEmptyFixableArguments.length - 1;
+					return getArrayLiteralElementsText(node, isLastArgument);
 				}
 
 				const [start, end] = getParenthesizedRange(node, sourceCode);
@@ -108,13 +114,11 @@ function fixConcat(node, sourceCode, fixableArguments) {
 			return '';
 		}
 
-		if (isArrayLiteral(array)) {
+		if (arrayIsArrayLiteral) {
 			if (array.elements.length > 0) {
 				text = ` ${text}`;
 
-				if (isArrayLiteralHasTrailingComma(array, sourceCode)) {
-					text = `${text},`;
-				} else {
+				if (!arrayHasTrailingComma) {
 					text = `,${text}`;
 				}
 			}
@@ -142,7 +146,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 	return function * (fixer) {
 		// Fixed code always starts with `[`
 		if (
-			!isArrayLiteral(array) &&
+			!arrayIsArrayLiteral &&
 			needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')
 		) {
 			yield fixer.insertTextBefore(node, ';');
@@ -156,7 +160,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 
 		const text = getFixedText();
 
-		if (isArrayLiteral(array)) {
+		if (arrayIsArrayLiteral) {
 			const closingBracketToken = sourceCode.getLastToken(array);
 			yield fixer.insertTextBefore(closingBracketToken, text);
 		} else {
