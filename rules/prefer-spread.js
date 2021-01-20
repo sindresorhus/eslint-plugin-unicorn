@@ -148,8 +148,8 @@ function fixConcat(node, sourceCode, fixableArguments) {
 
 		yield (
 			concatCallArguments.length - fixableArguments.length === 0 ?
-			fixer.replaceTextRange(getRangeAfterArray(), '') :
-			removeArguments(fixer)
+				fixer.replaceTextRange(getRangeAfterArray(), '') :
+				removeArguments(fixer)
 		);
 
 		const text = getFixedText();

@@ -1,6 +1,6 @@
 'use strict';
 
-const nodeTypesDoNotNeedParentheses  = new Set([
+const nodeTypesDoNotNeedParentheses = new Set([
 	'CallExpression',
 	'Identifier',
 	'Literal',
