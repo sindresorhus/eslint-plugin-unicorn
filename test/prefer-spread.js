@@ -189,5 +189,10 @@ test.snapshot({
 		// Suggestion output should include fixable arguments after the first one
 		'foo.concat(bar, 2, 3)',
 		'foo.concat(bar, 2, 3, baz)',
+		// Parentheses
+		'async function a() {return [].concat(await bar)}',
+		'async function a() {return [].concat(((await bar)))}',
+		'foo.concat((0, 1))',
+		'async function a() {return (await bar).concat(1)}',
 	]
 });

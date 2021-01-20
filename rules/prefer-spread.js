@@ -1,9 +1,10 @@
 'use strict';
-const {getStaticValue, isCommaToken} = require('eslint-utils');
+const {isParenthesized, getStaticValue, isCommaToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
 const getParentheses = require('./utils/get-parentheses');
+const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument');
 
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
@@ -86,8 +87,19 @@ function fixConcat(node, sourceCode, fixableArguments) {
 					return getArrayLiteralElementsText(node, index === fixableArguments.length - 1);
 				}
 
-				const text = sourceCode.getText(node);
-				return isSpreadable ? `...(${text})` : text;
+				const [start, end] = getParenthesizedRange(node, sourceCode);
+				let text = sourceCode.text.slice(start, end);
+				if (isSpreadable) {
+					if (
+						!isParenthesized(node, sourceCode) &&
+						shouldAddParenthesesToSpreadElementArgument(node)
+					) {
+						text = `(${text})`;
+					}
+					text = `...${text}`;
+				}
+
+				return text;
 			})
 			.join(', ');
 
@@ -145,6 +157,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 			const closingBracketToken = sourceCode.getLastToken(array);
 			yield fixer.insertTextBefore(closingBracketToken, text);
 		} else {
+			// The array is already accessing `.concat`, there should not any case need add extra `()`
 			yield fixer.insertTextBeforeRange(arrayParenthesizedRange, '[...');
 			yield fixer.insertTextAfterRange(arrayParenthesizedRange, text);
 			yield fixer.insertTextAfterRange(arrayParenthesizedRange, ']');
