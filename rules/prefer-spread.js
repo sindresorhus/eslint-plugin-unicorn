@@ -145,9 +145,9 @@ function fixConcat(node, sourceCode, fixableArguments) {
 			const closingBracketToken = sourceCode.getLastToken(array);
 			yield fixer.insertTextBefore(closingBracketToken, text);
 		} else {
-			yield fixer.insertTextBefore(node, '[...');
+			yield fixer.insertTextBeforeRange(arrayParenthesizedRange, '[...');
 			yield fixer.insertTextAfterRange(arrayParenthesizedRange, text);
-			yield fixer.insertTextAfter(node, ']');
+			yield fixer.insertTextAfterRange(arrayParenthesizedRange, ']');
 		}
 	};
 }
