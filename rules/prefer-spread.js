@@ -90,7 +90,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 		const lastArgument = nonEmptyArguments[nonEmptyArguments.length - 1];
 
 		let text = nonEmptyArguments
-			.map(({node, isArrayLiteral, isSpreadable}, index) => {
+			.map(({node, isArrayLiteral, isSpreadable}) => {
 				if (isArrayLiteral) {
 					return getArrayLiteralElementsText(node, node === lastArgument.node);
 				}
