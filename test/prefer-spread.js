@@ -157,12 +157,14 @@ test.snapshot({
 		'[1,].concat([2, 3])',
 		'[1,].concat(2,)',
 		'[1,].concat([2, 3],)',
-		'((((((([1,]))).concat((((([2, 3])))),)))))',
+		'(( (([1,])).concat( (([2, 3])) ,) ))',
+		'(( (([1,])).concat( (([2, 3])) , bar )))',
 		'foo.concat(2)',
 		'foo.concat([2, 3])',
 		'foo.concat(2,)',
 		'foo.concat([2, 3],)',
-		'(((((((foo)))).concat((((([2, 3])))),))))',
+		'(( ((foo)).concat( (([2, 3])) ,) ))',
+		'(( ((foo)).concat( (([2, 3])) , bar )))',
 		// Semicolon
 		outdent`
 			bar()
