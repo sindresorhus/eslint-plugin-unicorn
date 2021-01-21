@@ -28,7 +28,7 @@ test.snapshot({
 		'const foo = bar => bar.baz ||= true',
 		'const foo = bar => ++bar.baz',
 		'const foo = bar => bar.baz++',
-		'const foo = bar => bar[0]++',
+		'const foo = bar => bar[0]++'
 	],
 	invalid: [
 		'const foo = bar => bar[0]',
@@ -47,6 +47,13 @@ test.snapshot({
 		'const foo = bar => x(bar[0])',
 		'const foo = bar => new X(bar.baz)',
 		'const foo = bar => new X(bar[0])',
-		'const foo = bar => x += bar.baz'
+		'const foo = bar => x += bar.baz',
+		outdent`
+			class X {
+				foo(bar) {
+					this.baz = bar.baz;
+				}
+			}
+		`
 	]
 });

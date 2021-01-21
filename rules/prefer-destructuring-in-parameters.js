@@ -47,7 +47,6 @@ function isModifyingNode(node) {
 		return true;
 	}
 
-
 	return false;
 }
 
@@ -119,7 +118,7 @@ function fix({sourceCode, parameter, memberExpressions, isIndex}) {
 		} else {
 			const variables = [...memberExpressions.keys()];
 
-			text = `{${variables.join(', ')}}`
+			text = `{${variables.join(', ')}}`;
 		}
 
 		return fixer.replaceText(parameter, text);
@@ -170,8 +169,8 @@ const create = context => {
 
 				lastPropertyType = propertyType;
 				firstExpression = (
-						firstExpression && firstExpression.node.range[0] < memberExpression.range[0]
-					) ?
+					firstExpression && firstExpression.node.range[0] < memberExpression.range[0]
+				) ?
 					firstExpression :
 					{node: memberExpression, property};
 			}
@@ -216,7 +215,7 @@ const create = context => {
 				})
 			});
 		}
-	}
+	};
 };
 
 module.exports = {
