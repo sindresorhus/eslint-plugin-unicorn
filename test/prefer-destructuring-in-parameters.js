@@ -250,3 +250,14 @@ test.babel({
 		}
 	]
 });
+
+test.typescript({
+	valid: [],
+	invalid: [
+		{
+			code: 'const foo = <Event extends React.KeyboardEvent>(e) => e.key',
+			output: 'const foo = <Event extends React.KeyboardEvent>({key}) => key',
+			errors: 1
+		}
+	]
+});
