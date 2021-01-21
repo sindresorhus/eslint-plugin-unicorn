@@ -20,12 +20,12 @@ const ignoredMemberExpressionObject = new Set([
 	'styled'
 ]);
 
-const isIgnoredTag = node => {
-	if (!node.parent || !node.parent.parent || !node.parent.parent.tag) {
+const isIgnoredTag = ({parent}) => {
+	if (!parent || !parent.parent || !parent.parent.tag) {
 		return false;
 	}
 
-	const {tag} = node.parent.parent;
+	const {tag} = parent.parent;
 
 	if (tag.type === 'Identifier' && ignoredIdentifier.has(tag.name)) {
 		return true;

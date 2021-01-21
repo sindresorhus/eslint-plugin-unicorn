@@ -8,15 +8,15 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `Reflect.apply()` over `Function#apply()`.'
 };
 
-const isApplySignature = (argument1, argument2) => (
+const isApplySignature = (argument1, {type, name}) => (
 	(
 		// eslint-disable-next-line unicorn/no-null
 		isLiteralValue(argument1, null) ||
 		argument1.type === 'ThisExpression'
 	) &&
 	(
-		argument2.type === 'ArrayExpression' ||
-		(argument2.type === 'Identifier' && argument2.name === 'arguments')
+		type === 'ArrayExpression' ||
+		(type === 'Identifier' && name === 'arguments')
 	)
 );
 

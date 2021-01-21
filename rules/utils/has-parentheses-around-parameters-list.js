@@ -8,19 +8,19 @@ Check if function has parentheses around parameters list.
 @param {SourceCode} sourceCode - The source code object.
 @returns {boolean}
 */
-function hasParenthesesAroundParametersList(node, sourceCode) {
+function hasParenthesesAroundParametersList({type, params, range}, sourceCode) {
 	if (
-		node.type !== 'ArrowFunctionExpression' ||
-		node.params.length !== 1
+		type !== 'ArrowFunctionExpression' ||
+		params.length !== 1
 	) {
 		return true;
 	}
 
-	const [onlyArgument] = node.params;
+	const [onlyArgument] = params;
 	const tokenBefore = sourceCode.getTokenBefore(onlyArgument);
 	return tokenBefore &&
 		// `(` maybe not belong to function, example `array.map(x => x)`
-		tokenBefore.range[0] >= node.range[0] &&
+		tokenBefore.range[0] >= range[0] &&
 		isOpeningParenToken(tokenBefore);
 }
 

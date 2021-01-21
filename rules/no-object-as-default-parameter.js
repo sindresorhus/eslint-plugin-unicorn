@@ -15,11 +15,11 @@ const objectParameterSelector = [
 
 const create = context => {
 	return {
-		[objectParameterSelector]: node => {
+		[objectParameterSelector]: ({left}) => {
 			context.report({
-				node: node.left,
+				node: left,
 				messageId: MESSAGE_ID,
-				data: {parameter: node.left.name}
+				data: {parameter: left.name}
 			});
 		}
 	};

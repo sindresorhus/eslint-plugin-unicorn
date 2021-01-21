@@ -106,13 +106,13 @@ function updateReadmeUsage({id}) {
 	fs.writeFileSync(file, updated);
 }
 
-function updateReadmeRules(data) {
+function updateReadmeRules({id, description, isFixable}) {
 	const RULE_START = '## Rules\n\n';
 	const RULE_END = '\n\n## Deprecated Rules';
-	let ruleContent = `- [${data.id}](docs/rules/${data.id}.md) - ${data.description}`;
-	if (data.isFixable && data.isFixable.partly) {
+	let ruleContent = `- [${id}](docs/rules/${id}.md) - ${description}`;
+	if (isFixable && isFixable.partly) {
 		ruleContent += ' *(partly fixable)*';
-	} else if (data.isFixable) {
+	} else if (isFixable) {
 		ruleContent += ' *(fixable)*';
 	}
 

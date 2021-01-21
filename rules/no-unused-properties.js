@@ -6,8 +6,8 @@ const messages = {
 	[MESSAGE_ID]: 'Property `{{name}}` is defined but never used.'
 };
 
-const getDeclaratorOrPropertyValue = declaratorOrProperty => {
-	return declaratorOrProperty.init || declaratorOrProperty.value;
+const getDeclaratorOrPropertyValue = ({init, value}) => {
+	return init || value;
 };
 
 const isMemberExpressionCall = memberExpression => {
@@ -18,16 +18,16 @@ const isMemberExpressionCall = memberExpression => {
 	);
 };
 
-const isMemberExpressionAssignment = memberExpression => {
+const isMemberExpressionAssignment = ({parent}) => {
 	return (
-		memberExpression.parent &&
-		memberExpression.parent.type === 'AssignmentExpression'
+		parent &&
+		parent.type === 'AssignmentExpression'
 	);
 };
 
-const isMemberExpressionComputedBeyondPrediction = memberExpression => {
+const isMemberExpressionComputedBeyondPrediction = ({computed, property}) => {
 	return (
-		memberExpression.computed && memberExpression.property.type !== 'Literal'
+		computed && property.type !== 'Literal'
 	);
 };
 
@@ -36,32 +36,32 @@ const specialProtoPropertyKey = {
 	name: '__proto__'
 };
 
-const propertyKeysEqual = (keyA, keyB) => {
-	if (keyA.type === 'Identifier') {
+const propertyKeysEqual = ({type, name, value}, keyB) => {
+	if (type === 'Identifier') {
 		if (keyB.type === 'Identifier') {
-			return keyA.name === keyB.name;
+			return name === keyB.name;
 		}
 
 		if (keyB.type === 'Literal') {
-			return keyA.name === keyB.value;
+			return name === keyB.value;
 		}
 	}
 
-	if (keyA.type === 'Literal') {
+	if (type === 'Literal') {
 		if (keyB.type === 'Identifier') {
-			return keyA.value === keyB.name;
+			return value === keyB.name;
 		}
 
 		if (keyB.type === 'Literal') {
-			return keyA.value === keyB.value;
+			return value === keyB.value;
 		}
 	}
 
 	return false;
 };
 
-const objectPatternMatchesObjectExprPropertyKey = (pattern, key) => {
-	return pattern.properties.some(property => {
+const objectPatternMatchesObjectExprPropertyKey = ({properties}, key) => {
+	return properties.some(property => {
 		if (property.type === 'ExperimentalRestProperty' || property.type === 'RestElement') {
 			return true;
 		}
@@ -84,22 +84,22 @@ const isLeafDeclaratorOrProperty = declaratorOrProperty => {
 	return false;
 };
 
-const isUnusedVariable = variable => {
-	const hasReadReference = variable.references.some(reference => reference.isRead());
+const isUnusedVariable = ({references}) => {
+	const hasReadReference = references.some(reference => reference.isRead());
 	return !hasReadReference;
 };
 
 const create = context => {
-	const getPropertyDisplayName = property => {
-		if (property.key.type === 'Identifier') {
-			return property.key.name;
+	const getPropertyDisplayName = ({key}) => {
+		if (key.type === 'Identifier') {
+			return key.name;
 		}
 
-		if (property.key.type === 'Literal') {
-			return property.key.value;
+		if (key.type === 'Literal') {
+			return key.value;
 		}
 
-		return context.getSource(property.key);
+		return context.getSource(key);
 	};
 
 	const checkProperty = (property, references, path) => {
@@ -117,8 +117,8 @@ const create = context => {
 		checkObject(property, references, path);
 	};
 
-	const checkProperties = (objectExpression, references, path = []) => {
-		for (const property of objectExpression.properties) {
+	const checkProperties = ({properties}, references, path = []) => {
+		for (const property of properties) {
 			const {key} = property;
 
 			if (!key) {
@@ -214,14 +214,14 @@ const create = context => {
 		checkObject(definition.node, variable.references);
 	};
 
-	const checkVariables = scope => {
-		for (const variable of scope.variables) {
+	const checkVariables = ({variables}) => {
+		for (const variable of variables) {
 			checkVariable(variable);
 		}
 	};
 
-	const checkChildScopes = scope => {
-		for (const childScope of scope.childScopes) {
+	const checkChildScopes = ({childScopes}) => {
+		for (const childScope of childScopes) {
 			checkScope(childScope);
 		}
 	};

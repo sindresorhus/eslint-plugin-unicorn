@@ -224,23 +224,23 @@ const create = context => {
 	const source = context.getSourceCode();
 
 	return {
-		[zeroIndexSelector](node) {
+		[zeroIndexSelector]({object, range}) {
 			context.report({
-				node: node.object.callee.property,
+				node: object.callee.property,
 				messageId: ERROR_ZERO_INDEX,
 				fix: fixer => [
-					fixer.replaceText(node.object.callee.property, 'find'),
-					fixer.removeRange([node.object.range[1], node.range[1]])
+					fixer.replaceText(object.callee.property, 'find'),
+					fixer.removeRange([object.range[1], range[1]])
 				]
 			});
 		},
-		[shiftSelector](node) {
+		[shiftSelector]({callee, range}) {
 			context.report({
-				node: node.callee.object.callee.property,
+				node: callee.object.callee.property,
 				messageId: ERROR_SHIFT,
 				fix: fixer => [
-					fixer.replaceText(node.callee.object.callee.property, 'find'),
-					fixer.removeRange([node.callee.object.range[1], node.range[1]])
+					fixer.replaceText(callee.object.callee.property, 'find'),
+					fixer.removeRange([callee.object.range[1], range[1]])
 				]
 			});
 		},
@@ -258,9 +258,9 @@ const create = context => {
 				...fixDestructuringAndReplaceFilter(source, node)
 			});
 		},
-		[filterVariableSelector](node) {
-			const variable = findVariable(context.getScope(), node.id);
-			const identifiers = getVariableIdentifiers(variable).filter(identifier => identifier !== node.id);
+		[filterVariableSelector]({id, init}) {
+			const variable = findVariable(context.getScope(), id);
+			const identifiers = getVariableIdentifiers(variable).filter(identifier => identifier !== id);
 
 			if (identifiers.length === 0) {
 				return;
@@ -279,14 +279,14 @@ const create = context => {
 			}
 
 			const problem = {
-				node: node.init.callee.property,
+				node: init.callee.property,
 				messageId: ERROR_DECLARATION
 			};
 
 			// `const [foo = bar] = baz` is not fixable
 			if (!destructuringNodes.some(node => hasDefaultValue(node))) {
 				problem.fix = function * (fixer) {
-					yield fixer.replaceText(node.init.callee.property, 'find');
+					yield fixer.replaceText(init.callee.property, 'find');
 
 					for (const node of zeroIndexNodes) {
 						yield fixer.removeRange([node.object.range[1], node.range[1]]);

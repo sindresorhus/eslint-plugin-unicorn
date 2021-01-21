@@ -37,13 +37,13 @@ function getNodeBody(node) {
 	return node;
 }
 
-function isSameAssignmentLeft(node1, node2) {
+function isSameAssignmentLeft({type, name}, node2) {
 	// [TODO]: Allow more types of left
-	return node1.type === node2.type && node1.type === 'Identifier' && node1.name === node2.name;
+	return type === node2.type && type === 'Identifier' && name === node2.name;
 }
 
-const getIndentString = (node, sourceCode) => {
-	const {line, column} = sourceCode.getLocFromIndex(node.range[0]);
+const getIndentString = ({range}, sourceCode) => {
+	const {line, column} = sourceCode.getLocFromIndex(range[0]);
 	const lines = sourceCode.getLines();
 	const before = lines[line - 1].slice(0, column);
 
@@ -77,8 +77,8 @@ const create = context => {
 			`(${text})` : text;
 	};
 
-	const isSingleLineNode = node => {
-		const [start, end] = node.range.map(index => sourceCode.getLocFromIndex(index));
+	const isSingleLineNode = ({range}) => {
+		const [start, end] = range.map(index => sourceCode.getLocFromIndex(index));
 		return start.line === end.line;
 	};
 

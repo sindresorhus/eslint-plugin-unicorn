@@ -1,11 +1,11 @@
 'use strict';
 
-const isMethodNamed = (node, name) => {
+const isMethodNamed = ({type, callee}, name) => {
 	return (
-		node.type === 'CallExpression' &&
-		node.callee.type === 'MemberExpression' &&
-		node.callee.property.type === 'Identifier' &&
-		node.callee.property.name === name
+		type === 'CallExpression' &&
+		callee.type === 'MemberExpression' &&
+		callee.property.type === 'Identifier' &&
+		callee.property.name === name
 	);
 };
 

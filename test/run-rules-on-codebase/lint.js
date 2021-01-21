@@ -28,10 +28,7 @@ const eslint = new ESLint({
 						fn: false
 					}
 				}
-			],
-
-			// TODO: enable this after #1045 merge
-			'unicorn/prefer-destructuring-in-parameters': 'off'
+			]
 		}
 	}
 });

@@ -86,10 +86,10 @@ const create = context => {
 				return;
 			}
 
-			const destructurings = objectPattern.properties.filter(property =>
-				property.type === 'Property' &&
-				property.key.type === 'Identifier' &&
-				property.value.type === 'Identifier'
+			const destructurings = objectPattern.properties.filter(({type, key, value}) =>
+				type === 'Property' &&
+				key.type === 'Identifier' &&
+				value.type === 'Identifier'
 			);
 			const lastProperty = objectPattern.properties[objectPattern.properties.length - 1];
 			const hasRest = lastProperty && lastProperty.type === 'RestElement';
@@ -98,8 +98,8 @@ const create = context => {
 			const member = source.getText(node.property);
 
 			// Member might already be destructured
-			const destructuredMember = destructurings.find(property =>
-				property.key.name === member
+			const destructuredMember = destructurings.find(({key}) =>
+				key.name === member
 			);
 
 			if (!destructuredMember) {

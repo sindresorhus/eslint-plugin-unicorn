@@ -9,8 +9,8 @@ const messages = {
 const disableRegex = /^eslint-disable(?:-next-line|-line)?(?<ruleId>$|(?:\s+(?:@(?:[\w-]+\/){1,2})?[\w-]+)?)/;
 
 const create = context => ({
-	Program: node => {
-		for (const comment of node.comments) {
+	Program: ({comments}) => {
+		for (const comment of comments) {
 			const value = comment.value.trim();
 			const result = disableRegex.exec(value);
 

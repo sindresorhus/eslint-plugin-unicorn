@@ -25,9 +25,9 @@ const forbiddenIdentifierNames = new Map([
 const getReplacementForId = value => `#${value}`;
 const getReplacementForClass = value => value.match(/\S+/g).map(className => `.${className}`).join('');
 
-const getQuotedReplacement = (node, value) => {
-	const leftQuote = node.raw.charAt(0);
-	const rightQuote = node.raw.charAt(node.raw.length - 1);
+const getQuotedReplacement = ({raw}, value) => {
+	const leftQuote = raw.charAt(0);
+	const rightQuote = raw.charAt(raw.length - 1);
 	return `${leftQuote}${value}${rightQuote}`;
 };
 
@@ -65,24 +65,24 @@ function * getTemplateLiteralFix(fixer, node, identifierName) {
 	}
 }
 
-const canBeFixed = node => {
-	if (node.type === 'Literal') {
-		return node.raw === 'null' || (typeof node.value === 'string' && Boolean(node.value.trim()));
+const canBeFixed = ({type, raw, value, expressions, quasis}) => {
+	if (type === 'Literal') {
+		return raw === 'null' || (typeof value === 'string' && Boolean(value.trim()));
 	}
 
-	if (node.type === 'TemplateLiteral') {
+	if (type === 'TemplateLiteral') {
 		return (
-			node.expressions.length === 0 &&
-			node.quasis.some(templateElement => templateElement.value.cooked.trim())
+			expressions.length === 0 &&
+			quasis.some(({value}) => value.cooked.trim())
 		);
 	}
 
 	return false;
 };
 
-const hasValue = node => {
-	if (node.type === 'Literal') {
-		return node.value;
+const hasValue = ({type, value}) => {
+	if (type === 'Literal') {
+		return value;
 	}
 
 	return true;

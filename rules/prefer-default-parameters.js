@@ -50,8 +50,8 @@ const containsCallExpression = (source, node) => {
 	return false;
 };
 
-const hasSideEffects = (source, function_, node) => {
-	for (const element of function_.body.body) {
+const hasSideEffects = (source, {body}, node) => {
+	for (const element of body.body) {
 		if (element === node) {
 			break;
 		}
@@ -86,12 +86,12 @@ const isLastParameter = (parameters, parameter) => {
 	return parameter && parameter === lastParameter;
 };
 
-const needsParentheses = (source, function_) => {
-	if (function_.type !== 'ArrowFunctionExpression' || function_.params.length > 1) {
+const needsParentheses = (source, {type, params}) => {
+	if (type !== 'ArrowFunctionExpression' || params.length > 1) {
 		return false;
 	}
 
-	const [parameter] = function_.params;
+	const [parameter] = params;
 	const before = source.getTokenBefore(parameter);
 	const after = source.getTokenAfter(parameter);
 
@@ -147,9 +147,9 @@ const create = context => {
 
 		const {references} = findVariable(context.getScope(), secondId);
 		const {params} = currentFunction;
-		const parameter = params.find(parameter =>
-			parameter.type === 'Identifier' &&
-			parameter.name === secondId
+		const parameter = params.find(({type, name}) =>
+			type === 'Identifier' &&
+			name === secondId
 		);
 
 		if (

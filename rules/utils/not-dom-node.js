@@ -15,9 +15,9 @@ const impossibleNodeTypes = [
 
 // We might need this later
 /* istanbul ignore next */
-const isNotDomNode = node =>
-	impossibleNodeTypes.includes(node.type) ||
-	(node.type === 'Identifier' && node.name === 'undefined');
+const isNotDomNode = ({type, name}) =>
+	impossibleNodeTypes.includes(type) ||
+	(type === 'Identifier' && name === 'undefined');
 
 const notDomNodeSelector = node => [
 	...impossibleNodeTypes.map(type => `[${node}.type!="${type}"]`),

@@ -19,7 +19,7 @@ const scopeHasArgumentsSpecial = scope => {
 
 const someScopeHasVariableName = (name, scopes) => scopes.some(scope => resolveVariableName(name, scope));
 
-const someScopeIsStrict = scopes => scopes.some(scope => scope.isStrict);
+const someScopeIsStrict = scopes => scopes.some(({isStrict}) => isStrict);
 
 const nameCollidesWithArgumentsSpecial = (name, scopes, isStrict) => {
 	if (name !== 'arguments') {
@@ -46,9 +46,9 @@ function unicorn() {
 }
 ```
 */
-const isUnresolvedName = (name, scopes) => scopes.some(scope =>
-	scope.references.some(reference => reference.identifier && reference.identifier.name === name && !reference.resolved) ||
-	isUnresolvedName(name, scope.childScopes)
+const isUnresolvedName = (name, scopes) => scopes.some(({references, childScopes}) =>
+	references.some(({identifier, resolved}) => identifier && identifier.name === name && !resolved) ||
+	isUnresolvedName(name, childScopes)
 );
 
 const isSafeName = (name, scopes, ecmaVersion, isStrict) => {

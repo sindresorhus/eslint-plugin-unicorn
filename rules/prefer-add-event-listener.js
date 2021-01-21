@@ -14,7 +14,7 @@ const extraMessages = {
 
 const nestedEvents = Object.values(domEventsJson);
 const eventTypes = new Set(flatten(nestedEvents));
-const getEventMethodName = memberExpression => memberExpression.property.name;
+const getEventMethodName = ({property}) => property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 
 const fixCode = (fixer, sourceCode, assignmentNode, memberExpression) => {
@@ -40,13 +40,13 @@ const shouldFixBeforeUnload = (assignedExpression, nodeReturnsSomething) => {
 	return !nodeReturnsSomething.get(assignedExpression);
 };
 
-const isClearing = node => {
-	if (node.type === 'Literal') {
-		return node.raw === 'null';
+const isClearing = ({type, raw, name}) => {
+	if (type === 'Literal') {
+		return raw === 'null';
 	}
 
-	if (node.type === 'Identifier') {
-		return node.name === 'undefined';
+	if (type === 'Identifier') {
+		return name === 'undefined';
 	}
 
 	return false;
@@ -74,20 +74,20 @@ const create = context => {
 			codePathInfo = codePathInfo.upper;
 		},
 
-		'CallExpression[callee.name="require"] > Literal'(node) {
-			if (!isDisabled && excludedPackages.has(node.value)) {
+		'CallExpression[callee.name="require"] > Literal'({value}) {
+			if (!isDisabled && excludedPackages.has(value)) {
 				isDisabled = true;
 			}
 		},
 
-		'ImportDeclaration > Literal'(node) {
-			if (!isDisabled && excludedPackages.has(node.value)) {
+		'ImportDeclaration > Literal'({value}) {
+			if (!isDisabled && excludedPackages.has(value)) {
 				isDisabled = true;
 			}
 		},
 
-		ReturnStatement(node) {
-			codePathInfo.returnsSomething = codePathInfo.returnsSomething || Boolean(node.argument);
+		ReturnStatement({argument}) {
+			codePathInfo.returnsSomething = codePathInfo.returnsSomething || Boolean(argument);
 		},
 
 		'AssignmentExpression:exit'(node) {

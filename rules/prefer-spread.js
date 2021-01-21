@@ -40,7 +40,7 @@ const arrayConcatCallSelector = [
 	})`
 ].join('');
 
-const isArrayLiteral = node => node.type === 'ArrayExpression';
+const isArrayLiteral = ({type}) => type === 'ArrayExpression';
 
 function fixConcat(node, sourceCode, isSpreadable) {
 	const array = node.callee.object;

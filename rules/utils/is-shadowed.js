@@ -8,7 +8,7 @@
  */
 function findReference(scope, node) {
 	const references = scope.references
-		.filter(reference => reference.identifier === node);
+		.filter(({identifier}) => identifier === node);
 
 	if (references.length === 1) {
 		return references[0];

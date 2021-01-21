@@ -88,11 +88,11 @@ const create = context => {
 		...context.options[0]
 	};
 
-	const removeNodeAndLeadingSpace = (node, fixer) => {
-		const textBefore = code.slice(0, node.range[0]);
+	const removeNodeAndLeadingSpace = ({range}, fixer) => {
+		const textBefore = code.slice(0, range[0]);
 		return fixer.removeRange([
-			node.range[0] - (textBefore.length - textBefore.trim().length),
-			node.range[1]
+			range[0] - (textBefore.length - textBefore.trim().length),
+			range[1]
 		]);
 	};
 
@@ -103,10 +103,10 @@ const create = context => {
 			(node, fixer) => fixer.replaceText(node, '{}')
 		),
 		[variableInitSelector]: listener(
-			(node, fixer) => fixer.removeRange([node.parent.id.range[1], node.range[1]])
+			({parent, range}, fixer) => fixer.removeRange([parent.id.range[1], range[1]])
 		),
 		[assignmentPatternSelector]: listener(
-			(node, fixer) => fixer.removeRange([node.parent.left.range[1], node.range[1]])
+			({parent, range}, fixer) => fixer.removeRange([parent.left.range[1], range[1]])
 		)
 	};
 

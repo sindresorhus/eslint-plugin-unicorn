@@ -3,7 +3,7 @@ const {isParenthesized, isOpeningParenToken, isClosingParenToken} = require('esl
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before');
 
-const isInstanceofToken = token => token.value === 'instanceof' && token.type === 'Keyword';
+const isInstanceofToken = ({value, type}) => value === 'instanceof' && type === 'Keyword';
 
 const MESSAGE_ID = 'no-instanceof-array';
 const messages = {

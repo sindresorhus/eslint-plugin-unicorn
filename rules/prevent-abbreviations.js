@@ -12,7 +12,7 @@ const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 const renameIdentifier = require('./utils/rename-identifier');
 
 const isUpperCase = string => string === string.toUpperCase();
-const isUpperFirst = string => isUpperCase(string[0]);
+const isUpperFirst = ([firstElementOfString]) => isUpperCase(firstElementOfString);
 
 // Keep this alphabetically sorted for easier maintenance
 const defaultReplacements = {
@@ -467,12 +467,12 @@ const isDefaultOrNamespaceImportName = identifier => {
 	return false;
 };
 
-const isClassVariable = variable => {
-	if (variable.defs.length !== 1) {
+const isClassVariable = ({defs}) => {
+	if (defs.length !== 1) {
 		return false;
 	}
 
-	const [definition] = variable.defs;
+	const [definition] = defs;
 
 	return definition.type === 'ClassName';
 };
@@ -641,7 +641,7 @@ const create = context => {
 		}
 
 		const scopes = [
-			...variable.references.map(reference => reference.from),
+			...variable.references.map(({from}) => from),
 			variable.scope
 		];
 		variableReplacements.samples = variableReplacements.samples.map(
@@ -675,14 +675,14 @@ const create = context => {
 		context.report(problem);
 	};
 
-	const checkVariables = scope => {
-		for (const variable of scope.variables) {
+	const checkVariables = ({variables}) => {
+		for (const variable of variables) {
 			checkPossiblyWeirdClassVariable(variable);
 		}
 	};
 
-	const checkChildScopes = scope => {
-		for (const childScope of scope.childScopes) {
+	const checkChildScopes = ({childScopes}) => {
+		for (const childScope of childScopes) {
 			checkScope(childScope);
 		}
 	};

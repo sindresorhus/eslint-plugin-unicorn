@@ -18,12 +18,12 @@ const getConstructorMethod = className => `
 	}
 `;
 
-const hasValidSuperClass = node => {
-	if (!node.superClass) {
+const hasValidSuperClass = ({superClass}) => {
+	if (!superClass) {
 		return false;
 	}
 
-	let {name, type, property} = node.superClass;
+	let {name, type, property} = superClass;
 
 	if (type === 'MemberExpression') {
 		({name} = property);
@@ -32,20 +32,20 @@ const hasValidSuperClass = node => {
 	return nameRegexp.test(name);
 };
 
-const isSuperExpression = node =>
-	node.type === 'ExpressionStatement' &&
-	node.expression.type === 'CallExpression' &&
-	node.expression.callee.type === 'Super';
+const isSuperExpression = ({type, expression}) =>
+	type === 'ExpressionStatement' &&
+	expression.type === 'CallExpression' &&
+	expression.callee.type === 'Super';
 
-const isAssignmentExpression = (node, name) => {
+const isAssignmentExpression = ({type, expression}, name) => {
 	if (
-		node.type !== 'ExpressionStatement' ||
-		node.expression.type !== 'AssignmentExpression'
+		type !== 'ExpressionStatement' ||
+		expression.type !== 'AssignmentExpression'
 	) {
 		return false;
 	}
 
-	const lhs = node.expression.left;
+	const lhs = expression.left;
 
 	if (!lhs.object || lhs.object.type !== 'ThisExpression') {
 		return false;
@@ -88,7 +88,7 @@ const customErrorDefinition = (context, node) => {
 	}
 
 	const {body, range} = node.body;
-	const constructor = body.find(x => x.kind === 'constructor');
+	const constructor = body.find(({kind}) => kind === 'constructor');
 
 	if (!constructor) {
 		context.report({
@@ -160,10 +160,10 @@ const customErrorDefinition = (context, node) => {
 	}
 };
 
-const customErrorExport = (context, node) => {
-	const exportsName = node.left.property.name;
+const customErrorExport = (context, {left, right}) => {
+	const exportsName = left.property.name;
 
-	const maybeError = node.right;
+	const maybeError = right;
 
 	if (maybeError.type !== 'ClassExpression') {
 		return;
@@ -185,16 +185,16 @@ const customErrorExport = (context, node) => {
 	}
 
 	context.report({
-		node: node.left.property,
+		node: left.property,
 		messageId: MESSAGE_ID_INVALID_EXPORT,
-		fix: fixer => fixer.replaceText(node.left.property, errorName)
+		fix: fixer => fixer.replaceText(left.property, errorName)
 	});
 };
 
 const create = context => {
 	return {
 		ClassDeclaration: node => customErrorDefinition(context, node),
-		'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
+		'AssignmentExpression[right.type="ClassExpression"]': ({right}) => customErrorDefinition(context, right),
 		'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node)
 	};
 };

@@ -23,8 +23,8 @@ function isRegexWithGlobalFlag(node) {
 	return flags.replace('u', '') === 'g';
 }
 
-function isLiteralCharactersOnly(node) {
-	const searchPattern = node.regex.pattern;
+function isLiteralCharactersOnly({regex}) {
+	const searchPattern = regex.pattern;
 	return !/[$()*+.?[\\\]^{}]/.test(searchPattern.replace(/\\[$()*+.?[\\\]^{}]/g, ''));
 }
 

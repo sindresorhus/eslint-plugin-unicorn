@@ -27,12 +27,12 @@ const selector = `:matches(${
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
 // Lower precedence than `&&`
-const needParenthesis = node => (
-	(node.type === 'LogicalExpression' && (node.operator === '||' || node.operator === '??')) ||
-	node.type === 'ConditionalExpression' ||
-	node.type === 'AssignmentExpression' ||
-	node.type === 'YieldExpression' ||
-	node.type === 'SequenceExpression'
+const needParenthesis = ({type, operator}) => (
+	(type === 'LogicalExpression' && (operator === '||' || operator === '??')) ||
+	type === 'ConditionalExpression' ||
+	type === 'AssignmentExpression' ||
+	type === 'YieldExpression' ||
+	type === 'SequenceExpression'
 );
 
 const create = context => {

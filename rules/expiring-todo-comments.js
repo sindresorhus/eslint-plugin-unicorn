@@ -254,7 +254,7 @@ const create = context => {
 	const comments = sourceCode.getAllComments();
 	const unusedComments = flatten(
 		comments
-			.filter(token => token.type !== 'Shebang')
+			.filter(({type}) => type !== 'Shebang')
 			// Block comments come as one.
 			// Split for situations like this:
 			// /*
@@ -286,12 +286,12 @@ const create = context => {
 	};
 	const rules = baseRule.create(fakeContext);
 
-	function processComment(comment) {
-		if (ignoreRegexes.some(ignore => ignore.test(comment.value))) {
+	function processComment({value, loc}) {
+		if (ignoreRegexes.some(ignore => ignore.test(value))) {
 			return;
 		}
 
-		const parsed = parseTodoWithArguments(comment.value, options);
+		const parsed = parseTodoWithArguments(value, options);
 
 		if (!parsed) {
 			return true;
@@ -312,11 +312,11 @@ const create = context => {
 		if (dates.length > 1) {
 			uses++;
 			context.report({
-				loc: comment.loc,
+				loc: loc,
 				messageId: MESSAGE_ID_AVOID_MULTIPLE_DATES,
 				data: {
 					expirationDates: dates.join(', '),
-					message: parseTodoMessage(comment.value)
+					message: parseTodoMessage(value)
 				}
 			});
 		} else if (dates.length === 1) {
@@ -326,11 +326,11 @@ const create = context => {
 			const shouldIgnore = options.ignoreDatesOnPullRequests && ci.isPR;
 			if (!shouldIgnore && reachedDate(date)) {
 				context.report({
-					loc: comment.loc,
+					loc: loc,
 					messageId: MESSAGE_ID_EXPIRED_TODO,
 					data: {
 						expirationDate: date,
-						message: parseTodoMessage(comment.value)
+						message: parseTodoMessage(value)
 					}
 				});
 			}
@@ -339,13 +339,13 @@ const create = context => {
 		if (packageVersions.length > 1) {
 			uses++;
 			context.report({
-				loc: comment.loc,
+				loc: loc,
 				messageId: MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS,
 				data: {
 					versions: packageVersions
 						.map(({condition, version}) => `${condition}${version}`)
 						.join(', '),
-					message: parseTodoMessage(comment.value)
+					message: parseTodoMessage(value)
 				}
 			});
 		} else if (packageVersions.length === 1) {
@@ -358,11 +358,11 @@ const create = context => {
 			const compare = semverComparisonForOperator(condition);
 			if (packageVersion && compare(packageVersion, decidedPackageVersion)) {
 				context.report({
-					loc: comment.loc,
+					loc: loc,
 					messageId: MESSAGE_ID_REACHED_PACKAGE_VERSION,
 					data: {
 						comparison: `${condition}${version}`,
-						message: parseTodoMessage(comment.value)
+						message: parseTodoMessage(value)
 					}
 				});
 			}
@@ -384,11 +384,11 @@ const create = context => {
 
 				if (trigger) {
 					context.report({
-						loc: comment.loc,
+						loc: loc,
 						messageId,
 						data: {
 							package: dependency.name,
-							message: parseTodoMessage(comment.value)
+							message: parseTodoMessage(value)
 						}
 					});
 				}
@@ -409,11 +409,11 @@ const create = context => {
 
 			if (compare(targetPackageVersion, todoVersion)) {
 				context.report({
-					loc: comment.loc,
+					loc: loc,
 					messageId: MESSAGE_ID_VERSION_MATCHES,
 					data: {
 						comparison: `${dependency.name} ${dependency.condition} ${dependency.version}`,
-						message: parseTodoMessage(comment.value)
+						message: parseTodoMessage(value)
 					}
 				});
 			}
@@ -441,11 +441,11 @@ const create = context => {
 
 			if (compare(targetPackageEngineVersion, todoEngine)) {
 				context.report({
-					loc: comment.loc,
+					loc: loc,
 					messageId: MESSAGE_ID_ENGINE_MATCHES,
 					data: {
 						comparison: `node${engine.condition}${engine.version}`,
-						message: parseTodoMessage(comment.value)
+						message: parseTodoMessage(value)
 					}
 				});
 			}
@@ -465,12 +465,12 @@ const create = context => {
 				if (parseArgument(testString).type !== 'unknowns') {
 					uses++;
 					context.report({
-						loc: comment.loc,
+						loc: loc,
 						messageId: MESSAGE_ID_MISSING_AT_SYMBOL,
 						data: {
 							original: unknown,
 							fix: testString,
-							message: parseTodoMessage(comment.value)
+							message: parseTodoMessage(value)
 						}
 					});
 					continue;
@@ -482,12 +482,12 @@ const create = context => {
 			if (parseArgument(withoutWhitespace).type !== 'unknowns') {
 				uses++;
 				context.report({
-					loc: comment.loc,
+					loc: loc,
 					messageId: MESSAGE_ID_REMOVE_WHITESPACE,
 					data: {
 						original: unknown,
 						fix: withoutWhitespace,
-						message: parseTodoMessage(comment.value)
+						message: parseTodoMessage(value)
 					}
 				});
 				continue;
