@@ -20,4 +20,4 @@ function hasParenthesesAroundParametersList(node, sourceCode) {
 	return isOpeningParenToken(sourceCode.getTokenBefore(onlyArgument));
 }
 
-module.exports = hasParenthesesAroundParameterList;
+module.exports = hasParenthesesAroundParametersList;

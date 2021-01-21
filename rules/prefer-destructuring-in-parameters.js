@@ -24,7 +24,7 @@ function isNodeEffectThis(node) {
 	}
 
 	if (
-		(parent.type === 'CallExpression' || parent.type === 'NewExpression') &&
+		parent.type === 'CallExpression' &&
 		parent.callee === node
 	) {
 		return true;
