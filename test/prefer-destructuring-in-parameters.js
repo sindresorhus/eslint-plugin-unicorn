@@ -26,6 +26,7 @@ test.snapshot({
 		'const foo = bar => x[bar]',
 		'const foo = bar => bar.default',
 		'const foo = bar => bar.function',
+		'const foo = bar => bar.null',
 		'const foo = bar => bar.x()',
 		'const foo = bar => bar[0]()',
 		'const foo = bar => new bar.X()',
@@ -41,7 +42,10 @@ test.snapshot({
 		'const foo = bar => bar[0]++',
 		// Not sure if we should only allow `0`/`1` or just not against `no-unreadable-array-destructuring` rule
 		// Following case can write as `const foo = ([, second, third] => second + third)`
-		'const foo = bar => bar[1] + bar[3]'
+		'const foo = bar => bar[1] + bar[3]',
+		// Should we allow rename?
+		// Following case can write as `const foo = ({x: xOfBar}, x) => xOfBar === x`
+		'const foo = (bar, x) => bar.x === x'
 	],
 	invalid: [
 		'const foo = bar => bar[0]',
