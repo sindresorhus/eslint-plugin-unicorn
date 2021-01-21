@@ -13,6 +13,8 @@ const indexVariableNamePrefixes = ['first', 'second'];
 
 function isNodeEffectThis(node) {
 	const {parent} = node;
+
+	/* istanbul ignore next: Not sure if this is needed */
 	if (
 		parent.type === 'ChainExpression' &&
 		parent.expression === node

@@ -4,6 +4,9 @@ import {test} from './utils/test.js';
 test.snapshot({
 	valid: [
 		'const foo = bar => bar',
+		'const foo = () => {}',
+		'const foo = () => foo.x',
+		'const foo = (bar, baz) => foo.x',
 		'const foo = function bar(baz) {return bar.name}',
 		'const foo = ({bar}) => bar',
 		'const foo = bar => bar[2]',
@@ -12,22 +15,24 @@ test.snapshot({
 		'const foo = bar => bar[0xFF]',
 		'const foo = bar => bar[null]',
 		'const foo = bar => bar[1n]',
-		'const foo = bar => bar["baz"]',
+		'const foo = bar => bar["x"]',
 		'const foo = bar => bar.length && bar[0]',
+		'const foo = bar => bar?.x',
+		'const foo = bar => x[bar]',
 		'const foo = bar => bar.default',
 		'const foo = bar => bar.function',
-		'const foo = bar => bar.baz()',
+		'const foo = bar => bar.x()',
 		'const foo = bar => bar[0]()',
-		'const foo = bar => new bar.Baz()',
+		'const foo = bar => new bar.X()',
 		'const foo = bar => new bar[0]()',
-		'const foo = bar => bar.baz = 1',
+		'const foo = bar => bar.x = 1',
 		'const foo = bar => bar[0] = 1',
-		'const foo = bar => bar.baz += 1',
-		'const foo = bar => bar.baz *= 1',
-		'const foo = bar => bar.baz **= 1',
-		'const foo = bar => bar.baz ||= true',
-		'const foo = bar => ++bar.baz',
-		'const foo = bar => bar.baz++',
+		'const foo = bar => bar.x += 1',
+		'const foo = bar => bar.x *= 1',
+		'const foo = bar => bar.x **= 1',
+		'const foo = bar => bar.x ||= true',
+		'const foo = bar => ++bar.x',
+		'const foo = bar => bar.x++',
 		'const foo = bar => bar[0]++'
 	],
 	invalid: [
@@ -36,23 +41,59 @@ test.snapshot({
 		'const foo = bar => bar[(1)]',
 		'const foo = bar => bar[0] === firstElementOfBar',
 		'const foo = (bar, baz) => bar[0] === baz.firstElementOfBar',
-		'const foo = (bar, {baz}) => bar[0] === baz',
+		'const foo = (bar, {x}) => bar[0] === x',
 		'const foo = bar => bar[0b01]',
 		'const foo = bar => bar.length',
-		'const foo = bar => bar.baz',
-		'const foo = bar => x = bar.baz',
+		'const foo = bar => bar.x',
+		'const foo = bar => bar.$ === bar._',
+		'const foo = bar => a = bar.x',
+		'const foo = bar => {const a = a = bar.x;}',
 		'const foo = bar => bar.baz.x = 1',
 		'const foo = bar => x = bar[0]',
-		'const foo = bar => x(bar.baz)',
-		'const foo = bar => x(bar[0])',
-		'const foo = bar => new X(bar.baz)',
-		'const foo = bar => new X(bar[0])',
-		'const foo = bar => x += bar.baz',
+		'const foo = bar => a(bar.x)',
+		'const foo = bar => a(bar[0])',
+		'const foo = bar => new A(bar.x)',
+		'const foo = bar => new A(bar[0])',
+		'const foo = bar => a += bar.x',
+		'function foo (bar) {return bar.x}',
+		'const foo = function (bar) {return bar.x}',
 		outdent`
-			class X {
+			class A {
 				foo(bar) {
-					this.baz = bar.baz;
+					this.x = bar.x;
 				}
+			}
+		`,
+		outdent`
+			const A = class {
+				foo(bar) {
+					this.x = bar.x;
+				}
+			}
+		`,
+		outdent`
+			const a = {
+				foo(bar) {
+					a.x = bar.x;
+				}
+			}
+		`,
+		// Not sure if we should have a limitation on property numbers
+		outdent`
+			function foo(bar, baz) {
+				return [
+					bar.$,
+					bar.a, bar.b, bar.c, bar.d, bar.e, bar.f, bar.g, bar.h,
+					bar.i, bar.j, bar.k, bar.l, bar.m, bar.n, bar.o, bar.p,
+					bar.q, bar.r, bar.s, bar.t, bar.u, bar.v, bar.w, bar.x,
+					bar.y, bar.z,
+
+					baz._,
+					baz.A, baz.B, baz.C, baz.D, baz.E, baz.F, baz.G, baz.H,
+					baz.I, baz.J, baz.K, baz.L, baz.M, baz.N, baz.O, baz.P,
+					baz.Q, baz.R, baz.S, baz.T, baz.U, baz.V, baz.W, baz.X,
+					baz.Y, baz.Z
+				]
 			}
 		`
 	]
