@@ -131,3 +131,108 @@ test.snapshot({
 		`
 	]
 });
+
+// `babel` throws if these functions use destructed parameters, but `espree` don't, so we use it to run run tests.
+test.babel({
+	valid: [
+		outdent`
+			function foo(bar) {
+				'use strict';
+
+				return bar.x;
+			}
+		`,
+		outdent`
+			function foo(_, bar) {
+				"use strict"; // Double quoted, the same
+
+				return bar.x;
+			}
+		`,
+		outdent`
+			const foo = bar => {
+				'use strict';
+
+				return bar.x;
+			}
+		`
+	],
+	invalid: [
+		{
+			code: outdent`
+				function outer() {
+					'use strict';
+
+					function inner(bar) {
+						return bar.x;
+					}
+				}
+			`,
+			output: outdent`
+				function outer() {
+					'use strict';
+
+					function inner({x}) {
+						return x;
+					}
+				}
+			`,
+			errors: 1
+		},
+		{
+			code: outdent`
+				function outer(bar) {
+					function inner() {
+						'use strict';
+
+						return bar.x;
+					}
+				}
+			`,
+			output: outdent`
+				function outer({x}) {
+					function inner() {
+						'use strict';
+
+						return x;
+					}
+				}
+			`,
+			errors: 1
+		},
+		{
+			code: outdent`
+				function foo(bar) {
+					('use strict'); // This is not a directive
+
+					return bar.x;
+				}
+			`,
+			output: outdent`
+				function foo({x}) {
+					('use strict'); // This is not a directive
+
+					return x;
+				}
+			`,
+			errors: 1
+		},
+		{
+			code: outdent`
+				function foo(bar) {
+					'use strong'; // This is a directive, but not "use strict"
+
+					return bar.x;
+				}
+			`,
+			output: outdent`
+				function foo({x}) {
+					'use strong'; // This is a directive, but not "use strict"
+
+					return x;
+				}
+			`,
+			errors: 1
+		}
+	]
+})

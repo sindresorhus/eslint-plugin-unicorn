@@ -99,9 +99,8 @@ function getMemberExpression(node) {
 	return data;
 }
 
-function fix({sourceCode, parameter, properties, type}) {
+function fix({sourceCode, functionNode, parameter, properties, type}) {
 	function * fixArrowFunctionParentheses(fixer) {
-		const functionNode = parameter.parent;
 		if (
 			functionNode.type === 'ArrowFunctionExpression' &&
 			functionNode.params.length === 1 &&
@@ -139,13 +138,29 @@ function fix({sourceCode, parameter, properties, type}) {
 	};
 }
 
+function hasDirectiveInFunction(functionNode) {
+	const {body} = functionNode;
+	if (body.type !== 'BlockStatement') {
+		return false;
+	}
+
+	return body.body.some(({directive}) => directive === 'use strict')
+}
+
 const create = context => {
 	const {ecmaVersion} = context.parserOptions;
 	const sourceCode = context.getSourceCode();
 	return {
 		':function > Identifier.params'(parameter) {
+			const {name, parent: functionNode} = parameter;
+
+			// If "use strict" directive used, it should not reported
+			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Strict_Non_Simple_Params
+			if (hasDirectiveInFunction(functionNode)) {
+				return;
+			}
+
 			const scope = context.getScope();
-			const {name} = parameter;
 			const variable = findVariable(scope, parameter);
 			const identifiers = variable.references.map(({identifier}) => identifier);
 
@@ -218,6 +233,7 @@ const create = context => {
 				},
 				fix: fix({
 					sourceCode,
+					functionNode,
 					parameter,
 					properties,
 					type: propertyType
