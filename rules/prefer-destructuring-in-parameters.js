@@ -4,6 +4,7 @@ const {findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
 const hasParenthesesAroundParametersList = require('./utils/has-parentheses-around-parameters-list');
+const extendFixRange = require('./utils/extend-fix-range');
 
 const MESSAGE_ID = 'prefer-destructuring-in-parameters';
 const messages = {
@@ -139,6 +140,9 @@ function fix({sourceCode, functionNode, parameter, properties, type}) {
 				yield fixer.replaceText(node, variable);
 			}
 		}
+
+		// Prevent possible conflicts
+		yield * extendFixRange(fixer, functionNode.range);
 	};
 }
 
