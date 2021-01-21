@@ -12,6 +12,8 @@ test.snapshot({
 		'const foo = ({bar}) => bar.x',
 		'const foo = ([,bar]) => bar',
 		'const foo = ([bar]) => bar.x',
+		'const foo = (bar = {}) => bar.x',
+		'const foo = (bar = baz) => bar.x',
 		'const foo = bar => bar[2]',
 		'const foo = bar => bar[1.5]',
 		'const foo = bar => bar[-1]',
