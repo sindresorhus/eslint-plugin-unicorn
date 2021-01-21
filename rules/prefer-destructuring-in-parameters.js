@@ -166,6 +166,12 @@ const create = context => {
 
 			const scope = context.getScope();
 			const variable = findVariable(scope, parameter);
+
+			/* istanbul ignore next: This should not happen, but integration test fails on some typescript project, and can't reproduce in tests */
+			if (!variable) {
+				return;
+			}
+
 			const identifiers = variable.references.map(({identifier}) => identifier);
 
 			const properties = new Map();
