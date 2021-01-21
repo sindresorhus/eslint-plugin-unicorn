@@ -78,6 +78,8 @@ test.snapshot({
 		'const foo = bar => baz => bar.x === baz.x',
 		'const foo = async bar => await bar.x',
 		'const foo = async (bar) => await bar.x',
+		'array.map(foo => foo.x)',
+		'foo => foo.x',
 		outdent`
 			class A {
 				foo(bar) {

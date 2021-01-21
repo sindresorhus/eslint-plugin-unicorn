@@ -17,7 +17,11 @@ function hasParenthesesAroundParametersList(node, sourceCode) {
 	}
 
 	const [onlyArgument] = node.params;
-	return isOpeningParenToken(sourceCode.getTokenBefore(onlyArgument));
+	const tokenBefore = sourceCode.getTokenBefore(onlyArgument);
+	return tokenBefore &&
+		// `(` maybe not belong to function, example `array.map(x => x)`
+		tokenBefore.range[0] >= node.range[0] &&
+		isOpeningParenToken(tokenBefore);
 }
 
 module.exports = hasParenthesesAroundParametersList;
