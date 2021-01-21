@@ -84,8 +84,29 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			class A {
+				constructor(bar) {
+					this.x = bar.x;
+				}
+			}
+		`,
+		outdent`
+			class A {
+				set a(bar) {
+					this.x = bar.x;
+				}
+			}
+		`,
+		outdent`
 			const a = {
 				foo(bar) {
+					a.x = bar.x;
+				}
+			}
+		`,
+		outdent`
+			const a = {
+				set foo(bar) {
 					a.x = bar.x;
 				}
 			}
