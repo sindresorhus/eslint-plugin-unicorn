@@ -134,8 +134,8 @@ function fix({sourceCode, functionNode, parameter, properties, type}) {
 		yield * fixArrowFunctionParentheses(fixer);
 		yield fixParameter(fixer);
 
-		for (const {variable, expressions} of properties.values()) {
-			for (const {node} of expressions) {
+		for (const {variable, memberExpressions} of properties.values()) {
+			for (const node of memberExpressions) {
 				yield fixer.replaceText(node, variable);
 			}
 		}
@@ -196,9 +196,9 @@ const create = context => {
 
 				const indexOrProperty = memberExpression[type];
 				if (properties.has(indexOrProperty)) {
-					properties.get(indexOrProperty).expressions.push(memberExpression);
+					properties.get(indexOrProperty).memberExpressions.push(node);
 				} else {
-					properties.set(indexOrProperty, {expressions: [memberExpression]});
+					properties.set(indexOrProperty, {memberExpressions: [node]});
 				}
 			}
 
