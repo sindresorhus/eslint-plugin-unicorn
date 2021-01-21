@@ -88,6 +88,7 @@ module.exports = {
 				'unicorn/prefer-array-some': 'error',
 				'unicorn/prefer-date-now': 'error',
 				'unicorn/prefer-default-parameters': 'error',
+				'unicorn/prefer-destructuring-in-parameters': 'error',
 				'unicorn/prefer-dom-node-append': 'error',
 				'unicorn/prefer-dom-node-dataset': 'error',
 				'unicorn/prefer-dom-node-remove': 'error',
