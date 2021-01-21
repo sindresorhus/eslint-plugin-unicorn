@@ -49,6 +49,14 @@ function isModifyingNode(node) {
 		return true;
 	}
 
+	if (
+		parent.type === 'UnaryExpression' &&
+		parent.operator === 'delete' &&
+		parent.argument === node
+	) {
+		return true;
+	}
+
 	return false;
 }
 

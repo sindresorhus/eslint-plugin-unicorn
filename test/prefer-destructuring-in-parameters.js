@@ -40,6 +40,7 @@ test.snapshot({
 		'const foo = bar => ++bar.x',
 		'const foo = bar => bar.x++',
 		'const foo = bar => bar[0]++',
+		'const foo = bar => delete bar.x',
 		// Not sure if we should only allow `0`/`1` or just not against `no-unreadable-array-destructuring` rule
 		// Following case can write as `const foo = ([, second, third] => second + third)`
 		'const foo = bar => bar[1] + bar[3]',
@@ -67,6 +68,8 @@ test.snapshot({
 		'const foo = bar => new A(bar.x)',
 		'const foo = bar => new A(bar[0])',
 		'const foo = bar => a += bar.x',
+		'const foo = bar => +bar.x',
+		'const foo = bar => typeof bar.x',
 		'function foo (bar) {return bar.x}',
 		'const foo = function (bar) {return bar.x}',
 		outdent`
