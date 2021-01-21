@@ -10,6 +10,8 @@ test.snapshot({
 		'const foo = function bar(baz) {return bar.name}',
 		'const foo = ({bar}) => bar',
 		'const foo = ({bar}) => bar.x',
+		'const foo = ([,bar]) => bar',
+		'const foo = ([bar]) => bar.x',
 		'const foo = bar => bar[2]',
 		'const foo = bar => bar[1.5]',
 		'const foo = bar => bar[-1]',
