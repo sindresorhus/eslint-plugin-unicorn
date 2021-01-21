@@ -33,7 +33,10 @@ test.snapshot({
 		'const foo = bar => bar.x ||= true',
 		'const foo = bar => ++bar.x',
 		'const foo = bar => bar.x++',
-		'const foo = bar => bar[0]++'
+		'const foo = bar => bar[0]++',
+		// Not sure if we should only allow `0`/`1` or just not against `no-unreadable-array-destructuring` rule
+		// Following case can write as `const foo = ([, second, third] => second + third)`
+		'const foo = bar => bar[1] + bar[3]'
 	],
 	invalid: [
 		'const foo = bar => bar[0]',
