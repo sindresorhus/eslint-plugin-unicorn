@@ -74,6 +74,8 @@ test.snapshot({
 		'const foo = bar => delete bar.x.y',
 		'function foo (bar) {return bar.x}',
 		'const foo = function (bar) {return bar.x}',
+		'const foo = bar => baz => bar.x === baz.y',
+		'const foo = bar => baz => bar.x === baz.x',
 		outdent`
 			class A {
 				foo(bar) {
