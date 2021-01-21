@@ -86,6 +86,7 @@ function getMemberExpression(node) {
 		data.type = 'index';
 		data.index = index;
 	} else {
+		/* istanbul ignore next: `MemberExpression[computed=false].object` seems always `Identifier` */
 		if (property.type !== 'Identifier') {
 			return;
 		}
