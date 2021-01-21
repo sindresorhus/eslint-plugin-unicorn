@@ -160,6 +160,15 @@ test.babel({
 
 				return bar.x;
 			}
+		`,
+		outdent`
+			class A {
+				#x = 1;
+
+				foo(bar) {
+					return bar.#x;
+				};
+			}
 		`
 	],
 	invalid: [
