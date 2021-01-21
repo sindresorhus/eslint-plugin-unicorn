@@ -50,7 +50,7 @@ function isModifyingNode(node) {
 	return false;
 }
 
-function getMemberExpressionProperty(node) {
+function getMemberExpression(node) {
 	const memberExpression = node.parent;
 	if (
 		memberExpression.type !== 'MemberExpression' ||
@@ -66,7 +66,7 @@ function getMemberExpressionProperty(node) {
 		return;
 	}
 
-	let propertyOrIndex;
+	const data = {};
 	if (computed) {
 		if (property.type !== 'Literal') {
 			return;
@@ -81,19 +81,22 @@ function getMemberExpressionProperty(node) {
 			return;
 		}
 
-		propertyOrIndex = index;
+		data.type = 'index';
+		data.index = index;
 	} else {
 		if (property.type !== 'Identifier') {
 			return;
 		}
 
-		propertyOrIndex = property.name;
+		data.type = 'property';
+		data.property = property.name;
 	}
 
-	return propertyOrIndex;
+	data.node = memberExpression;
+	return data;
 }
 
-function fix({sourceCode, parameter, memberExpressions, isIndex}) {
+function fix({sourceCode, parameter, properties, type}) {
 	function * fixArrowFunctionParentheses(fixer) {
 		const functionNode = parameter.parent;
 		if (
@@ -107,30 +110,27 @@ function fix({sourceCode, parameter, memberExpressions, isIndex}) {
 	}
 
 	function fixParameter(fixer) {
-		let text;
-		if (isIndex) {
-			const variables = [];
-			for (const [index, {variable}] of memberExpressions.entries()) {
-				variables[index] = variable;
+		const variables = [];
+		for (const [indexOrProperty, {variable}] of properties.entries()) {
+			if (type === 'index') {
+				variables[indexOrProperty] = variable;
+			} else {
+				variables.push(variable);
 			}
-
-			text = `[${variables.join(', ')}]`;
-		} else {
-			const variables = [...memberExpressions.keys()];
-
-			text = `{${variables.join(', ')}}`;
 		}
 
-		return fixer.replaceText(parameter, text);
+		const text = variables.join(', ');
+
+		return fixer.replaceText(parameter, type === 'index' ? `[${text}]` : `{${text}}`);
 	}
 
 	return function * (fixer) {
 		yield * fixArrowFunctionParentheses(fixer);
 		yield fixParameter(fixer);
 
-		for (const {variable, expressions} of memberExpressions.values()) {
-			for (const expression of expressions) {
-				yield fixer.replaceText(expression, variable);
+		for (const {variable, expressions} of properties.values()) {
+			for (const {node} of expressions) {
+				yield fixer.replaceText(node, variable);
 			}
 		}
 	};
@@ -146,52 +146,59 @@ const create = context => {
 			const variable = findVariable(scope, parameter);
 			const identifiers = variable.references.map(({identifier}) => identifier);
 
-			const memberExpressions = new Map();
-			let lastPropertyType;
+			const properties = new Map();
+			let propertyType;
 			let firstExpression;
 			for (const identifier of identifiers) {
-				const property = getMemberExpressionProperty(identifier);
-				const propertyType = typeof property;
-				if (
-					propertyType === 'undefined' ||
-					(lastPropertyType && propertyType !== lastPropertyType)
-				) {
+				const memberExpression = getMemberExpression(identifier);
+				if (!memberExpression) {
 					return;
 				}
 
-				const memberExpression = identifier.parent;
-
-				if (memberExpressions.has(property)) {
-					memberExpressions.get(property).expressions.push(memberExpression);
+				const {node, type} = memberExpression;
+				if (propertyType) {
+					// Avoid case like `foo[0] === foo.length`
+					if (type !== propertyType) {
+						return;
+					}
 				} else {
-					memberExpressions.set(property, {expressions: [memberExpression]});
+					propertyType = type;
 				}
 
-				lastPropertyType = propertyType;
-				firstExpression = (
-					firstExpression && firstExpression.node.range[0] < memberExpression.range[0]
-				) ?
-					firstExpression :
-					{node: memberExpression, property};
+				if (
+					!firstExpression ||
+					node.range[0] < firstExpression.node.range[0]
+				) {
+					firstExpression = memberExpression;
+				}
+
+				const indexOrProperty = memberExpression[type];
+				if (properties.has(indexOrProperty)) {
+					properties.get(indexOrProperty).expressions.push(memberExpression);
+				} else {
+					properties.set(indexOrProperty, {expressions: [memberExpression]});
+				}
 			}
 
-			if (memberExpressions.size === 0) {
+			if (properties.size === 0) {
 				return;
 			}
 
-			const isIndex = lastPropertyType === 'number';
 			const scopes = [
 				variable.scope,
 				...variable.references.map(({from}) => from)
 			];
-			for (const [property, data] of memberExpressions.entries()) {
+			for (const [indexOrProperty, data] of properties.entries()) {
 				let variableName;
-				if (isIndex) {
-					const index = indexVariableNamePrefixes[property];
-					variableName = avoidCapture(`${index}ElementOf${upperFirst(name)}`, scopes, ecmaVersion);
+				if (propertyType === 'index') {
+					variableName = avoidCapture(
+						`${indexVariableNamePrefixes[indexOrProperty]}ElementOf${upperFirst(name)}`,
+						scopes,
+						ecmaVersion
+					);
 				} else {
-					variableName = avoidCapture(property, scopes, ecmaVersion);
-					if (variableName !== property) {
+					variableName = avoidCapture(indexOrProperty, scopes, ecmaVersion);
+					if (variableName !== indexOrProperty) {
 						return;
 					}
 				}
@@ -199,19 +206,18 @@ const create = context => {
 				data.variable = variableName;
 			}
 
-			const {node, property} = firstExpression;
 			context.report({
-				node,
+				node: firstExpression.node,
 				messageId: MESSAGE_ID,
 				data: {
-					member: isIndex ? `${name}[${property}]` : `${name}.${property}`,
+					member: `${name}${propertyType === 'index' ? `[${firstExpression.index}]` : `.${firstExpression.property}`}`,
 					parameter: name
 				},
 				fix: fix({
 					sourceCode,
 					parameter,
-					memberExpressions,
-					isIndex
+					properties,
+					type: propertyType
 				})
 			});
 		}
