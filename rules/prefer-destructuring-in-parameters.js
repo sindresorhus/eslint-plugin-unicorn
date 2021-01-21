@@ -111,11 +111,8 @@ function fix({sourceCode, functionNode, parameter, properties, type}) {
 		if (
 			functionNode.type === 'ArrowFunctionExpression' &&
 			functionNode.params.length === 1 &&
-			isNotOpeningParenToken(
-				functionNode.typeParameters ?
-					sourceCode.getTokenAfter(functionNode.typeParameters) :
-					sourceCode.getFirstToken(functionNode)
-			)
+			!functionNode.typeParameters &&
+			isNotOpeningParenToken(sourceCode.getFirstToken(functionNode))
 		) {
 			yield fixer.insertTextBefore(parameter, '(');
 			yield fixer.insertTextAfter(parameter, ')');
