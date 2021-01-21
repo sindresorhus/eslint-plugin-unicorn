@@ -11,18 +11,63 @@ const messages = {
 
 const indexVariableNamePrefixes = ['first', 'second'];
 
-function getMemberExpressionProperty(node) {
+function isNodeEffectThis(node) {
 	const {parent} = node;
-	if (parent.type !== 'MemberExpression') {
+	if (
+		parent.type === 'ChainExpression' &&
+		parent.expression === node
+	) {
+		return isNodeEffectThis(parent);
+	}
+
+	if (
+		(parent.type === 'CallExpression' || parent.type === 'NewExpression') &&
+		parent.callee === node
+	) {
+		return true;
+	}
+
+	return false;
+}
+
+function isModifyingNode(node) {
+	const {parent} = node;
+
+	if (
+		parent.type === 'AssignmentExpression' &&
+		parent.left === node
+	) {
+		return true;
+	}
+
+	if (
+		parent.type === 'UpdateExpression' &&
+		parent.argument === node
+	) {
+		return true;
+	}
+
+
+	return false;
+}
+
+function getMemberExpressionProperty(node) {
+	const memberExpression = node.parent;
+	if (
+		memberExpression.type !== 'MemberExpression' ||
+		isNodeEffectThis(memberExpression) ||
+		isModifyingNode(memberExpression)
+	) {
 		return;
 	}
 
-	const {computed, optional, object, property} = parent;
+	const {computed, optional, object, property} = memberExpression;
 
 	if (optional || object !== node) {
 		return;
 	}
 
+	let propertyOrIndex;
 	if (computed) {
 		if (property.type !== 'Literal') {
 			return;
@@ -37,12 +82,16 @@ function getMemberExpressionProperty(node) {
 			return;
 		}
 
-		return index;
+		propertyOrIndex = index;
+	} else {
+		if (property.type !== 'Identifier') {
+			return;
+		}
+
+		propertyOrIndex = property.name;
 	}
 
-	if (property.type === 'Identifier') {
-		return property.name;
-	}
+	return propertyOrIndex;
 }
 
 function fix({sourceCode, parameter, memberExpressions, isIndex}) {
