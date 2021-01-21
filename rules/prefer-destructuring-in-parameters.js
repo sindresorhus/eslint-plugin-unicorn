@@ -1,6 +1,6 @@
 'use strict';
 const {upperFirst} = require('lodash');
-const {findVariable, isNotOpeningParenToken} = require('eslint-utils');
+const {findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
 const hasParenthesesAroundParameterList = require('./utils/has-parentheses-around-parameter-list');
