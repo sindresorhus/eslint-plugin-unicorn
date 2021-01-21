@@ -59,6 +59,7 @@ test.snapshot({
 		'const foo = bar => bar.length',
 		'const foo = bar => bar.x',
 		'const foo = bar => bar.$ === bar._',
+		'const foo = bar => bar.x + bar.x',
 		'const foo = bar => a = bar.x',
 		'const foo = bar => {const a = a = bar.x;}',
 		'const foo = bar => bar.baz.x = 1',
