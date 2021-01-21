@@ -152,7 +152,7 @@ function hasDirectiveInFunction(functionNode) {
 		return false;
 	}
 
-	return body.body.some(({directive}) => directive === 'use strict')
+	return body.body.some(({directive}) => directive === 'use strict');
 }
 
 const create = context => {

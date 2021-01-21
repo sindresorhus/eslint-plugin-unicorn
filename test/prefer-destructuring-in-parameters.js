@@ -70,6 +70,7 @@ test.snapshot({
 		'const foo = bar => a += bar.x',
 		'const foo = bar => +bar.x',
 		'const foo = bar => typeof bar.x',
+		'const foo = bar => delete bar.x.y',
 		'function foo (bar) {return bar.x}',
 		'const foo = function (bar) {return bar.x}',
 		outdent`
@@ -238,4 +239,4 @@ test.babel({
 			errors: 1
 		}
 	]
-})
+});
