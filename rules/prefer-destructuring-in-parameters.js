@@ -3,7 +3,7 @@ const {upperFirst} = require('lodash');
 const {findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
-const hasParenthesesAroundParameterList = require('./utils/has-parentheses-around-parameter-list');
+const hasParenthesesAroundParametersList = require('./utils/has-parentheses-around-parameters-list');
 
 const MESSAGE_ID = 'prefer-destructuring-in-parameters';
 const messages = {
@@ -109,7 +109,7 @@ function getMemberExpression(node) {
 
 function fix({sourceCode, functionNode, parameter, properties, type}) {
 	function * fixArrowFunctionParentheses(fixer) {
-		if (!hasParenthesesAroundParameterList(functionNode, sourceCode)) {
+		if (!hasParenthesesAroundParametersList(functionNode, sourceCode)) {
 			yield fixer.insertTextBefore(parameter, '(');
 			yield fixer.insertTextAfter(parameter, ')');
 		}

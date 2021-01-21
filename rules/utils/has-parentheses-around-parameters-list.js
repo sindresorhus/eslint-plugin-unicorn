@@ -8,7 +8,7 @@ Check if function has parentheses around parameters list.
 @param {SourceCode} sourceCode - The source code object.
 @returns {boolean}
 */
-function hasParenthesesAroundParameterList(node, sourceCode) {
+function hasParenthesesAroundParametersList(node, sourceCode) {
 	if (
 		node.type !== 'ArrowFunctionExpression' ||
 		node.params.length !== 1
