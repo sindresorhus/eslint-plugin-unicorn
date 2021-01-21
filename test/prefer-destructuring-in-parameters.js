@@ -76,6 +76,8 @@ test.snapshot({
 		'const foo = function (bar) {return bar.x}',
 		'const foo = bar => baz => bar.x === baz.y',
 		'const foo = bar => baz => bar.x === baz.x',
+		'const foo = async bar => await bar.x',
+		'const foo = async (bar) => await bar.x',
 		outdent`
 			class A {
 				foo(bar) {
