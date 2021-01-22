@@ -56,8 +56,6 @@ function getIfStatementTokens(node, sourceCode) {
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
-	const getText = node => sourceCode.getText(node);
-	const getTestNodeText = node => needParenthesis(node) ? `(${getText(node)})` : getText(node);
 
 	return {
 		[selector](innerIfStatement) {
@@ -120,7 +118,7 @@ const create = context => {
 						if (isNotSemicolonToken(lastToken)) {
 							const nextToken = sourceCode.getTokenAfter(outer);
 							if (needsSemicolon(lastToken, sourceCode, nextToken.value)) {
-								yield fixer.insertTextAfter(outer, ';')
+								yield fixer.insertTextAfter(outer, ';');
 							}
 						}
 					}
