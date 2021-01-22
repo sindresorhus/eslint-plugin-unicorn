@@ -9,14 +9,14 @@ const messages = {
 };
 // Ignore {_,lodash,underscore}.indexOf
 const ignoredVariables = new Set(['_', 'lodash', 'underscore']);
-const isIgnoredTarget = node => node.type === 'Identifier' && ignoredVariables.has(node.name);
-const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator === '-' && node.argument && node.argument.type === 'Literal' && node.argument.value === 1;
+const isIgnoredTarget = ({type, name}) => type === 'Identifier' && ignoredVariables.has(name);
+const isNegativeOne = ({type, operator, argument}) => type === 'UnaryExpression' && operator === '-' && argument && argument.type === 'Literal' && argument.value === 1;
 const isLiteralZero = node => isLiteralValue(node, 0);
-const isNegativeResult = node => ['===', '==', '<'].includes(node.operator);
+const isNegativeResult = ({operator}) => ['===', '==', '<'].includes(operator);
 
-const report = (context, node, target, argumentsNodes) => {
+const report = (context, node, {parent}, argumentsNodes) => {
 	const sourceCode = context.getSourceCode();
-	const memberExpressionNode = target.parent;
+	const memberExpressionNode = parent;
 	const dotToken = sourceCode.getTokenBefore(memberExpressionNode.property);
 	const targetSource = sourceCode.getText().slice(memberExpressionNode.range[0], dotToken.range[0]);
 

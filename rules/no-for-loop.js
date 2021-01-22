@@ -44,18 +44,18 @@ const getIndexIdentifierName = forStatement => {
 	return variableDeclarator.id.name;
 };
 
-const getStrictComparisonOperands = binaryExpression => {
-	if (binaryExpression.operator === '<') {
+const getStrictComparisonOperands = ({operator, left, right}) => {
+	if (operator === '<') {
 		return {
-			lesser: binaryExpression.left,
-			greater: binaryExpression.right
+			lesser: left,
+			greater: right
 		};
 	}
 
-	if (binaryExpression.operator === '>') {
+	if (operator === '>') {
 		return {
-			lesser: binaryExpression.right,
-			greater: binaryExpression.left
+			lesser: right,
+			greater: left
 		};
 	}
 };
@@ -138,8 +138,8 @@ const checkUpdateExpression = (forStatement, indexIdentifierName) => {
 };
 
 const isOnlyArrayOfIndexVariableRead = (arrayReferences, indexIdentifierName) => {
-	return arrayReferences.every(reference => {
-		const node = reference.identifier.parent;
+	return arrayReferences.every(({identifier}) => {
+		const node = identifier.parent;
 
 		if (node.type !== 'MemberExpression') {
 			return false;
@@ -226,11 +226,11 @@ const nodeContains = (ancestor, descendant) => {
 	return false;
 };
 
-const isIndexVariableUsedElsewhereInTheLoopBody = (indexVariable, bodyScope, arrayIdentifierName) => {
-	const inBodyReferences = indexVariable.references.filter(reference => scopeContains(bodyScope, reference.from));
+const isIndexVariableUsedElsewhereInTheLoopBody = ({references}, bodyScope, arrayIdentifierName) => {
+	const inBodyReferences = references.filter(({from}) => scopeContains(bodyScope, from));
 
-	const referencesOtherThanArrayAccess = inBodyReferences.filter(reference => {
-		const node = reference.identifier.parent;
+	const referencesOtherThanArrayAccess = inBodyReferences.filter(({identifier}) => {
+		const node = identifier.parent;
 
 		if (node.type !== 'MemberExpression') {
 			return true;
@@ -246,23 +246,23 @@ const isIndexVariableUsedElsewhereInTheLoopBody = (indexVariable, bodyScope, arr
 	return referencesOtherThanArrayAccess.length > 0;
 };
 
-const isIndexVariableAssignedToInTheLoopBody = (indexVariable, bodyScope) => {
-	return indexVariable.references
-		.filter(reference => scopeContains(bodyScope, reference.from))
+const isIndexVariableAssignedToInTheLoopBody = ({references}, bodyScope) => {
+	return references
+		.filter(({from}) => scopeContains(bodyScope, from))
 		.some(inBodyReference => inBodyReference.isWrite());
 };
 
 const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) => {
-	return variables.some(variable => {
-		return !variable.references.every(reference => {
-			return scopeContains(forScope, reference.from) ||
-				nodeContains(forStatement, reference.identifier);
+	return variables.some(({references}) => {
+		return !references.every(({from, identifier}) => {
+			return scopeContains(forScope, from) ||
+				nodeContains(forStatement, identifier);
 		});
 	});
 };
 
 const getReferencesInChildScopes = (scope, name) => {
-	const references = scope.references.filter(reference => reference.identifier.name === name);
+	const references = scope.references.filter(({identifier}) => identifier.name === name);
 	return [
 		...references,
 		...flatten(scope.childScopes.map(s => getReferencesInChildScopes(s, name)))
@@ -341,8 +341,8 @@ const create = context => {
 				messageId: MESSAGE_ID
 			};
 
-			const elementReference = arrayReferences.find(reference => {
-				const node = reference.identifier.parent;
+			const elementReference = arrayReferences.find(({identifier}) => {
+				const node = identifier.parent;
 
 				if (node.parent.type !== 'VariableDeclarator') {
 					return false;

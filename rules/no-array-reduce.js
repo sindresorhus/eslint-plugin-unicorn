@@ -56,17 +56,17 @@ const METHOD_SELECTOR = [
 
 const create = context => {
 	return {
-		[METHOD_SELECTOR](node) {
+		[METHOD_SELECTOR]({callee}) {
 			// For arr.reduce()
-			context.report({node: node.callee.property, messageId: node.callee.property.name});
+			context.report({node: callee.property, messageId: callee.property.name});
 		},
-		[PROTOTYPE_CALL_SELECTOR](node) {
+		[PROTOTYPE_CALL_SELECTOR]({callee}) {
 			// For cases [].reduce.call() and Array.prototype.reduce.call()
-			context.report({node: node.callee.object.property, messageId: node.callee.object.property.name});
+			context.report({node: callee.object.property, messageId: callee.object.property.name});
 		},
-		[PROTOTYPE_APPLY_SELECTOR](node) {
+		[PROTOTYPE_APPLY_SELECTOR]({callee}) {
 			// For cases [].reduce.apply() and Array.prototype.reduce.apply()
-			context.report({node: node.callee.object.property, messageId: node.callee.object.property.name});
+			context.report({node: callee.object.property, messageId: callee.object.property.name});
 		}
 	};
 };

@@ -41,8 +41,8 @@ const selector = [
 	`:not(:matches(${[objectCreateSelector, useRefSelector, reactUseRefSelector].join(', ')}) > .arguments)`
 ].join('');
 
-const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].includes(node.operator);
-const isStrictEqual = node => node.type === 'BinaryExpression' && ['===', '!=='].includes(node.operator);
+const isLooseEqual = ({type, operator}) => type === 'BinaryExpression' && ['==', '!='].includes(operator);
+const isStrictEqual = ({type, operator}) => type === 'BinaryExpression' && ['===', '!=='].includes(operator);
 
 const create = context => {
 	const {checkStrictEquality} = {

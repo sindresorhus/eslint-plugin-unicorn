@@ -17,8 +17,8 @@ const selector = `:matches(${
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	return {
-		[selector](node) {
-			let [start, end] = node.range;
+		[selector]({range}) {
+			let [start, end] = range;
 			start += 1;
 			end -= 1;
 

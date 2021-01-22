@@ -297,7 +297,7 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 	}
 
 	// `foo.forEach((element: Type, index: number) => bar())`, should fix to `for (const [index, element]: [number, Type] of …`, not handled
-	if (parameters.length === 2 && parameters.some(node => node.typeAnnotation)) {
+	if (parameters.length === 2 && parameters.some(({typeAnnotation}) => typeAnnotation)) {
 		return false;
 	}
 
@@ -316,7 +316,7 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 		const argumentsVariable = findVariable(callbackScope, 'arguments');
 		if (
 			argumentsVariable &&
-			argumentsVariable.references.some(reference => reference.from === callbackScope)
+			argumentsVariable.references.some(({from}) => from === callbackScope)
 		) {
 			return false;
 		}
@@ -355,10 +355,10 @@ const create = context => {
 				nonArrowFunctionStack.push(node);
 			}
 		},
-		':function:exit'(node) {
+		':function:exit'({type}) {
 			functionStack.pop();
 
-			if (node.type !== 'ArrowFunctionExpression') {
+			if (type !== 'ArrowFunctionExpression') {
 				nonArrowFunctionStack.pop();
 			}
 		},

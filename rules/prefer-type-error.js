@@ -51,29 +51,29 @@ const tcGlobalIdentifiers = new Set([
 	'isFinite'
 ]);
 
-const isTypecheckingIdentifier = (node, callExpression, isMemberExpression) =>
+const isTypecheckingIdentifier = ({type, name}, callExpression, isMemberExpression) =>
 	callExpression !== undefined &&
 	callExpression.arguments.length > 0 &&
-	node.type === 'Identifier' &&
+	type === 'Identifier' &&
 	((isMemberExpression === true &&
-	tcIdentifiers.has(node.name)) ||
+	tcIdentifiers.has(name)) ||
 	(isMemberExpression === false &&
-	tcGlobalIdentifiers.has(node.name)));
+	tcGlobalIdentifiers.has(name)));
 
-const throwsErrorObject = node =>
-	node.argument.type === 'NewExpression' &&
-	node.argument.callee.type === 'Identifier' &&
-	node.argument.callee.name === 'Error';
+const throwsErrorObject = ({argument}) =>
+	argument.type === 'NewExpression' &&
+	argument.callee.type === 'Identifier' &&
+	argument.callee.name === 'Error';
 
-const isLone = node => node.parent && node.parent.body && node.parent.body.length === 1;
+const isLone = ({parent}) => parent && parent.body && parent.body.length === 1;
 
-const isTypecheckingMemberExpression = (node, callExpression) => {
-	if (isTypecheckingIdentifier(node.property, callExpression, true)) {
+const isTypecheckingMemberExpression = ({property, object}, callExpression) => {
+	if (isTypecheckingIdentifier(property, callExpression, true)) {
 		return true;
 	}
 
-	if (node.object.type === 'MemberExpression') {
-		return isTypecheckingMemberExpression(node.object, callExpression);
+	if (object.type === 'MemberExpression') {
+		return isTypecheckingMemberExpression(object, callExpression);
 	}
 
 	return false;
@@ -108,7 +108,7 @@ const isTypecheckingExpression = (node, callExpression) => {
 	}
 };
 
-const isTypechecking = node => node.type === 'IfStatement' && isTypecheckingExpression(node.test);
+const isTypechecking = ({type, test}) => type === 'IfStatement' && isTypecheckingExpression(test);
 
 const create = context => {
 	return {

@@ -29,10 +29,10 @@ const hasTrailingSpace = value => value.length > 1 && value.charAt(value.length 
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
-	const report = (node, method, position) => {
+	const report = ({range}, method, position) => {
 		const index = position === 'leading' ?
-			node.range[0] + 1 :
-			node.range[1] - 2;
+			range[0] + 1 :
+			range[1] - 2;
 
 		context.report({
 			loc: {

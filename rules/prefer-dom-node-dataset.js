@@ -19,7 +19,7 @@ const selector = [
 
 const parseNodeText = (context, argument) => context.getSourceCode().getText(argument);
 
-const dashToCamelCase = string => string.replace(/-[a-z]/g, s => s[1].toUpperCase());
+const dashToCamelCase = string => string.replace(/-[a-z]/g, ([, secondElementOfS]) => secondElementOfS.toUpperCase());
 
 const fix = (context, node, fixer) => {
 	let [name, value] = node.arguments;

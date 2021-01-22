@@ -22,9 +22,9 @@ const prepareOptions = ({
 	};
 };
 
-function findKeywordPrefix(name, options) {
-	return options.blacklist.find(keyword => {
-		const suffix = options.onlyCamelCase ? '[A-Z]' : '.';
+function findKeywordPrefix(name, {blacklist, onlyCamelCase}) {
+	return blacklist.find(keyword => {
+		const suffix = onlyCamelCase ? '[A-Z]' : '.';
 		const regex = new RegExp(`^${keyword}${suffix}`);
 		return name.match(regex);
 	});

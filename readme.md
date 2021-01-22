@@ -80,6 +80,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-array-some": "error",
 			"unicorn/prefer-date-now": "error",
 			"unicorn/prefer-default-parameters": "error",
+			"unicorn/prefer-destructuring-in-parameters": "error",
 			"unicorn/prefer-dom-node-append": "error",
 			"unicorn/prefer-dom-node-dataset": "error",
 			"unicorn/prefer-dom-node-remove": "error",
@@ -158,6 +159,7 @@ Configure it in `package.json`.
 - [prefer-array-some](docs/rules/prefer-array-some.md) - Prefer `.some(…)` over `.find(…)`.
 - [prefer-date-now](docs/rules/prefer-date-now.md) - Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. *(fixable)*
 - [prefer-default-parameters](docs/rules/prefer-default-parameters.md) - Prefer default parameters over reassignment. *(fixable)*
+- [prefer-destructuring-in-parameters](docs/rules/prefer-destructuring-in-parameters.md) - Prefer destructuring in parameters over accessing properties. *(fixable)*
 - [prefer-dom-node-append](docs/rules/prefer-dom-node-append.md) - Prefer `Node#append()` over `Node#appendChild()`. *(fixable)*
 - [prefer-dom-node-dataset](docs/rules/prefer-dom-node-dataset.md) - Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. *(fixable)*
 - [prefer-dom-node-remove](docs/rules/prefer-dom-node-remove.md) - Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`. *(fixable)*

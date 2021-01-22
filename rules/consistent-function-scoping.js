@@ -28,8 +28,8 @@ function checkReferences(scope, parent, scopeManager) {
 		return isSameScope(parent, resolved.scope);
 	});
 
-	const hitDefinitions = definitions => definitions.some(definition => {
-		const scope = scopeManager.acquire(definition.node);
+	const hitDefinitions = definitions => definitions.some(({node}) => {
+		const scope = scopeManager.acquire(node);
 		return isSameScope(parent, scope);
 	});
 
@@ -70,10 +70,10 @@ function checkReferences(scope, parent, scopeManager) {
 	return getReferences(scope)
 		.map(({resolved}) => resolved)
 		.filter(Boolean)
-		.some(variable =>
-			hitReference(variable.references) ||
-			hitDefinitions(variable.defs) ||
-			hitIdentifier(variable.identifiers)
+		.some(({references, defs, identifiers}) =>
+			hitReference(references) ||
+			hitDefinitions(defs) ||
+			hitIdentifier(identifiers)
 		);
 }
 
@@ -90,18 +90,18 @@ const reactHooks = new Set([
 	'useLayoutEffect',
 	'useDebugValue'
 ]);
-const isReactHook = scope =>
-	scope.block &&
-	scope.block.parent &&
-	scope.block.parent.callee &&
-	scope.block.parent.callee.type === 'Identifier' &&
-	reactHooks.has(scope.block.parent.callee.name);
+const isReactHook = ({block}) =>
+	block &&
+	block.parent &&
+	block.parent.callee &&
+	block.parent.callee.type === 'Identifier' &&
+	reactHooks.has(block.parent.callee.name);
 
-const isArrowFunctionWithThis = scope =>
-	scope.type === 'function' &&
-	scope.block &&
-	scope.block.type === 'ArrowFunctionExpression' &&
-	(scope.thisFound || scope.childScopes.some(scope => isArrowFunctionWithThis(scope)));
+const isArrowFunctionWithThis = ({type, block, thisFound, childScopes}) =>
+	type === 'function' &&
+	block &&
+	block.type === 'ArrowFunctionExpression' &&
+	(thisFound || childScopes.some(scope => isArrowFunctionWithThis(scope)));
 
 const iifeFunctionTypes = new Set([
 	'FunctionExpression',

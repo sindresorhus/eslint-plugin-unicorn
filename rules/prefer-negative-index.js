@@ -50,12 +50,12 @@ const isPropertiesEqual = (node1, node2) => properties => {
 	return properties.every(property => isEqual(node1[property], node2[property]));
 };
 
-const isTemplateElementEqual = (node1, node2) => {
+const isTemplateElementEqual = ({value, tail}, node2) => {
 	return (
-		node1.value &&
+		value &&
 		node2.value &&
-		node1.tail === node2.tail &&
-		isPropertiesEqual(node1.value, node2.value)(['cooked', 'raw'])
+		tail === node2.tail &&
+		isPropertiesEqual(value, node2.value)(['cooked', 'raw'])
 	);
 };
 

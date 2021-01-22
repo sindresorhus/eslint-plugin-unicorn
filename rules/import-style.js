@@ -68,19 +68,19 @@ const getActualExportDeclarationStyles = exportDeclaration => {
 	return [...styles];
 };
 
-const getActualAssignmentTargetImportStyles = assignmentTarget => {
-	if (assignmentTarget.type === 'Identifier' || assignmentTarget.type === 'ArrayPattern') {
+const getActualAssignmentTargetImportStyles = ({type, properties}) => {
+	if (type === 'Identifier' || type === 'ArrayPattern') {
 		return ['namespace'];
 	}
 
-	if (assignmentTarget.type === 'ObjectPattern') {
-		if (assignmentTarget.properties.length === 0) {
+	if (type === 'ObjectPattern') {
+		if (properties.length === 0) {
 			return ['unassigned'];
 		}
 
 		const styles = new Set();
 
-		for (const property of assignmentTarget.properties) {
+		for (const property of properties) {
 			if (property.type === 'RestElement' || property.type === 'ExperimentalRestProperty') {
 				styles.add('named');
 				continue;
