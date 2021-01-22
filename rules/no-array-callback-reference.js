@@ -25,7 +25,11 @@ const iteratorMethods = [
 	['find'],
 	['findIndex'],
 	['flatMap'],
-	['forEach'],
+	[
+		'forEach', {
+			returnsUndefined: true
+		}
+	],
 	['map'],
 	[
 		'reduce', {
@@ -58,6 +62,7 @@ const iteratorMethods = [
 		ignore: ['Boolean'],
 		minParameters: 1,
 		extraSelector: '',
+		returnsUndefined: false,
 		...options
 	};
 	return [method, options];
@@ -105,7 +110,7 @@ function check(context, node, method, options) {
 		suggest: []
 	};
 
-	const {parameters, minParameters} = options;
+	const {parameters, minParameters, returnsUndefined} = options;
 	for (let parameterLength = minParameters; parameterLength <= parameters.length; parameterLength++) {
 		const suggestionParameters = parameters.slice(0, parameterLength).join(', ');
 
@@ -124,7 +129,9 @@ function check(context, node, method, options) {
 
 				return fixer.replaceText(
 					node,
-					`(${suggestionParameters}) => ${nodeText}(${suggestionParameters})`
+					returnsUndefined ?
+						`(${suggestionParameters}) => { ${nodeText}(${suggestionParameters}); }` :
+						`(${suggestionParameters}) => ${nodeText}(${suggestionParameters})`
 				);
 			}
 		};
