@@ -157,16 +157,21 @@ test.snapshot({
 		'[1,].concat([2, 3])',
 		'[1,].concat(2,)',
 		'[1,].concat([2, 3],)',
-		'((((((([1,]))).concat((((([2, 3])))),)))))',
+		'(( (([1,])).concat( (([2, 3])) ,) ))',
+		'(( (([1,])).concat( (([2, 3])) , bar ) ))',
 		'foo.concat(2)',
 		'foo.concat([2, 3])',
 		'foo.concat(2,)',
 		'foo.concat([2, 3],)',
-		'(((((((foo)))).concat((((([2, 3])))),))))',
+		'(( ((foo)).concat( (([2, 3])) ,) ))',
+		'(( ((foo)).concat( (([2, 3])) , bar ) ))',
+		// Semicolon
 		outdent`
 			bar()
 			foo.concat(2)
 		`,
+		'const foo = foo.concat(2)',
+		'const foo = () => foo.concat(2)',
 		outdent`
 			const five = 2 + 3;
 			foo.concat(five);
@@ -181,9 +186,45 @@ test.snapshot({
 		'foo.concat([2, 3]).concat(4)',
 		// `String#concat` is wrongly detected, but people should use `+` to concat string
 		'string.concat("bar")',
-		// Currently not fixing multiple arguments
 		'foo.concat(2, 3)',
 		'foo.concat(2, bar)',
-		'let sortedScores = scores.concat().sort((a, b) => b[0] - a[0]);'
+		// This is output of last case
+		'[...foo, 2].concat(bar)',
+		'let sortedScores = scores.concat().sort((a, b) => b[0] - a[0]);',
+		// Suggestion output should include fixable arguments after the first one
+		'foo.concat(bar, 2, 3)',
+		'foo.concat(bar, 2, 3, baz)',
+		// Parentheses
+		'async function a() {return [].concat(await bar)}',
+		'async function a() {return [].concat(((await bar)))}',
+		'foo.concat((0, 1))',
+		'async function a() {return (await bar).concat(1)}',
+		// No fix, no suggestions
+		'[].concat(...bar)',
+		// Should keep holes
+		'[].concat([,], [])',
+		'[,].concat([,], [,])',
+		'[,].concat([,,], [,])',
+		'[,].concat([,], [,,])',
+		'[1].concat([2,], [3,])',
+		'[1].concat([2,,], [3,,])',
+		'[1,].concat([2,], [3,])',
+		'[1,].concat([2,,], [3,,])',
+		// Should not insert extra holes
+		'[].concat([], [])',
+		outdent`
+			const EMPTY_STRING = ""
+			const EMPTY_STRING_IN_ARRAY = ""
+			const EMPTY_STRING_IN_ARRAY_OF_ARRAY = ""
+			const array = [].concat(
+				undefined,
+				null,
+				EMPTY_STRING,
+				false,
+				0,
+				[EMPTY_STRING_IN_ARRAY],
+				[[EMPTY_STRING_IN_ARRAY_OF_ARRAY]]
+			)
+		`
 	]
 });
