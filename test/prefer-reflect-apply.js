@@ -23,7 +23,7 @@ test({
 		'apply;',
 		'Reflect.apply(foo, null);',
 		'Reflect.apply(foo, null, [bar]);',
-		// Currently we are not passing `scope` to `getStaticValue`, so method is unknown
+		// Currently, we are not passing `scope` to `getStaticValue`, so the method is unknown
 		'const apply = "apply"; foo[apply](null, [42]);'
 	],
 	invalid: [
