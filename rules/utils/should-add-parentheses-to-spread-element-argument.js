@@ -9,8 +9,9 @@ const nodeTypesDoNotNeedParentheses = new Set([
 	'TemplateLiteral',
 	'ThisExpression'
 ]);
+
 /**
-Check if parentheses should to be added to a `node` when it's used as `argument` of `SpreadElement`.
+Check if parentheses should be added to a `node` when it's used as `argument` of `SpreadElement`.
 
 @param {Node} node - The AST node to check.
 @returns {boolean}
