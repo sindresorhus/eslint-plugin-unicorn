@@ -58,8 +58,8 @@ function fix(innerIfStatement, sourceCode) {
 	return function * (fixer) {
 		const outerIfStatement = (
 			innerIfStatement.parent.type === 'BlockStatement' ?
-			innerIfStatement.parent :
-			innerIfStatement
+				innerIfStatement.parent :
+				innerIfStatement
 		).parent;
 		const outer = {
 			...outerIfStatement,
