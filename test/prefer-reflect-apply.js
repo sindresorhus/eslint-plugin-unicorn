@@ -22,7 +22,9 @@ test({
 		'foo.apply;',
 		'apply;',
 		'Reflect.apply(foo, null);',
-		'Reflect.apply(foo, null, [bar]);'
+		'Reflect.apply(foo, null, [bar]);',
+		// Currently, we are not passing `scope` to `getStaticValue`, so the method is unknown
+		'const apply = "apply"; foo[apply](null, [42]);'
 	],
 	invalid: [
 		{
@@ -73,6 +75,11 @@ test({
 		{
 			code: 'Function.prototype.apply.call(foo, this, arguments);',
 			output: 'Reflect.apply(foo, this, arguments);',
+			errors
+		},
+		{
+			code: 'foo["apply"](null, [42]);',
+			output: 'Reflect.apply(foo, null, [42]);',
 			errors
 		}
 	]
