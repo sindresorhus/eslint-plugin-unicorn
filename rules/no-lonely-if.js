@@ -59,7 +59,7 @@ const create = context => {
 
 	return {
 		[selector](innerIfStatement) {
-			const {parent, test} = innerIfStatement;
+			const {parent} = innerIfStatement;
 			const outerIfStatement = parent.type === 'BlockStatement' ? parent.parent : parent;
 
 			context.report({
