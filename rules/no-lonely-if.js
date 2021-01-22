@@ -100,18 +100,16 @@ const create = context => {
 					yield fixer.insertTextAfter(outer.closingParenthesisToken, ' && ');
 
 					// Remove `()` if `test` don't need it
-					for (const {node, tokens} of [
-						{node: outer.test, tokens: outer},
-						{node: inner.test, tokens: inner}
-					]) {
+					for (const {test, openingParenthesisToken, closingParenthesisToken} of [outer, inner]) {
 						if (
-							isParenthesized(node, sourceCode) ||
-							!needParenthesis(node)
+							isParenthesized(test, sourceCode) ||
+							!needParenthesis(test)
 						) {
-							yield fixer.remove(tokens.openingParenthesisToken);
-							yield fixer.remove(tokens.closingParenthesisToken);
-							yield removeSpacesAfter(tokens.closingParenthesisToken, sourceCode, fixer);
+							yield fixer.remove(openingParenthesisToken);
+							yield fixer.remove(closingParenthesisToken);
 						}
+
+						yield removeSpacesAfter(closingParenthesisToken, sourceCode, fixer);
 					}
 
 					// If the `if` statement has no block, and is not followed by a semicolon,
