@@ -1,5 +1,5 @@
 'use strict';
-const astUtils = require('eslint-ast-utils');
+const {getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 
@@ -24,9 +24,27 @@ const getReflectApplyCall = (sourceCode, target, receiver, argumentsList) => (
 	`Reflect.apply(${sourceCode.getText(target)}, ${sourceCode.getText(receiver)}, ${sourceCode.getText(argumentsList)})`
 );
 
+const getPropertyName = node => {
+	const {type, property, computed} = node;
+	if (type !== 'MemberExpression') {
+		return;
+	}
+
+	if (!computed) {
+		if (property.type === 'Identifier') {
+			return property.name;
+		}
+
+		return;
+	}
+
+	const result = getStaticValue(property);
+	return result && result.value;
+};
+
 const fixDirectApplyCall = (node, sourceCode) => {
 	if (
-		astUtils.getPropertyName(node.callee) === 'apply' &&
+		getPropertyName(node.callee) === 'apply' &&
 		node.arguments.length === 2 &&
 		isApplySignature(node.arguments[0], node.arguments[1])
 	) {
@@ -41,9 +59,9 @@ const fixDirectApplyCall = (node, sourceCode) => {
 
 const fixFunctionPrototypeCall = (node, sourceCode) => {
 	if (
-		astUtils.getPropertyName(node.callee) === 'call' &&
-		astUtils.getPropertyName(node.callee.object) === 'apply' &&
-		astUtils.getPropertyName(node.callee.object.object) === 'prototype' &&
+		getPropertyName(node.callee) === 'call' &&
+		getPropertyName(node.callee.object) === 'apply' &&
+		getPropertyName(node.callee.object.object) === 'prototype' &&
 		node.callee.object.object.object &&
 		node.callee.object.object.object.type === 'Identifier' &&
 		node.callee.object.object.object.name === 'Function' &&

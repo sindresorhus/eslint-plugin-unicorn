@@ -1,6 +1,5 @@
 'use strict';
 const path = require('path');
-const astUtils = require('eslint-ast-utils');
 const {defaultsDeep, upperFirst, lowerFirst} = require('lodash');
 
 const getDocumentationUrl = require('./utils/get-documentation-url');
@@ -432,6 +431,16 @@ const shouldFix = variable => {
 	return !getVariableIdentifiers(variable).some(identifier => isExportedIdentifier(identifier));
 };
 
+const isStaticRequire = node => Boolean(
+	node &&
+	node.callee &&
+	node.callee.type === 'Identifier' &&
+	node.callee.name === 'require' &&
+	node.arguments.length === 1 &&
+	node.arguments[0].type === 'Literal' &&
+	typeof node.arguments[0].value === 'string'
+);
+
 const isDefaultOrNamespaceImportName = identifier => {
 	if (
 		identifier.parent.type === 'ImportDefaultSpecifier' &&
@@ -459,7 +468,7 @@ const isDefaultOrNamespaceImportName = identifier => {
 	if (
 		identifier.parent.type === 'VariableDeclarator' &&
 		identifier.parent.id === identifier &&
-		astUtils.isStaticRequire(identifier.parent.init)
+		isStaticRequire(identifier.parent.init)
 	) {
 		return true;
 	}
