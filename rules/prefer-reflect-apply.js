@@ -1,7 +1,7 @@
 'use strict';
-const {getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
+const getPropertyName = require('./utils/get-property-name');
 
 const MESSAGE_ID = 'prefer-reflect-apply';
 const messages = {
@@ -23,24 +23,6 @@ const isApplySignature = (argument1, argument2) => (
 const getReflectApplyCall = (sourceCode, target, receiver, argumentsList) => (
 	`Reflect.apply(${sourceCode.getText(target)}, ${sourceCode.getText(receiver)}, ${sourceCode.getText(argumentsList)})`
 );
-
-const getPropertyName = node => {
-	const {type, property, computed} = node;
-	if (type !== 'MemberExpression') {
-		return;
-	}
-
-	if (!computed) {
-		if (property.type === 'Identifier') {
-			return property.name;
-		}
-
-		return;
-	}
-
-	const result = getStaticValue(property);
-	return result && result.value;
-};
 
 const fixDirectApplyCall = (node, sourceCode) => {
 	if (
