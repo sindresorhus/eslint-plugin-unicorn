@@ -54,77 +54,83 @@ function getIfStatementTokens(node, sourceCode) {
 	return tokens;
 }
 
+function fix(innerIfStatement, sourceCode) {
+	return function * (fixer) {
+		const outerIfStatement = (
+			innerIfStatement.parent.type === 'BlockStatement' ?
+			innerIfStatement.parent :
+			innerIfStatement
+		).parent;
+		const outer = {
+			...outerIfStatement,
+			...getIfStatementTokens(outerIfStatement, sourceCode)
+		};
+		const inner = {
+			...innerIfStatement,
+			...getIfStatementTokens(innerIfStatement, sourceCode)
+		};
+
+		// Remove inner `if` token
+		yield fixer.remove(inner.ifToken);
+		yield removeSpacesAfter(inner.ifToken, sourceCode, fixer);
+
+		// Remove outer `{}`
+		if (outer.openingBraceToken) {
+			yield fixer.remove(outer.openingBraceToken);
+			yield removeSpacesAfter(outer.openingBraceToken, sourceCode, fixer);
+			yield fixer.remove(outer.closingBraceToken);
+
+			const tokenBefore = sourceCode.getTokenBefore(outer.closingBraceToken, {includeComments: true});
+			yield removeSpacesAfter(tokenBefore, sourceCode, fixer);
+		}
+
+		// Add new `()`
+		yield fixer.insertTextBefore(outer.openingParenthesisToken, '(');
+		yield fixer.insertTextAfter(
+			inner.closingParenthesisToken,
+			`)${inner.consequent.type === 'EmptyStatement' ? '' : ' '}`
+		);
+
+		// Add ` && `
+		yield fixer.insertTextAfter(outer.closingParenthesisToken, ' && ');
+
+		// Remove `()` if `test` don't need it
+		for (const {test, openingParenthesisToken, closingParenthesisToken} of [outer, inner]) {
+			if (
+				isParenthesized(test, sourceCode) ||
+				!needParenthesis(test)
+			) {
+				yield fixer.remove(openingParenthesisToken);
+				yield fixer.remove(closingParenthesisToken);
+			}
+
+			yield removeSpacesAfter(closingParenthesisToken, sourceCode, fixer);
+		}
+
+		// If the `if` statement has no block, and is not followed by a semicolon,
+		// make sure that fixing the issue would not change semantics due to ASI.
+		// Similar logic https://github.com/eslint/eslint/blob/2124e1b5dad30a905dc26bde9da472bf622d3f50/lib/rules/no-lonely-if.js#L61-L77
+		if (inner.consequent.type !== 'BlockStatement') {
+			const lastToken = sourceCode.getLastToken(inner.consequent);
+			if (isNotSemicolonToken(lastToken)) {
+				const nextToken = sourceCode.getTokenAfter(outer);
+				if (needsSemicolon(lastToken, sourceCode, nextToken.value)) {
+					yield fixer.insertTextBefore(nextToken, ';');
+				}
+			}
+		}
+	};
+}
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
 	return {
-		[selector](innerIfStatement) {
-			const {parent} = innerIfStatement;
-			const outerIfStatement = parent.type === 'BlockStatement' ? parent.parent : parent;
-
+		[selector](node) {
 			context.report({
-				node: innerIfStatement,
+				node,
 				messageId: MESSAGE_ID,
-				* fix(fixer) {
-					const outer = {
-						...outerIfStatement,
-						...getIfStatementTokens(outerIfStatement, sourceCode)
-					};
-					const inner = {
-						...innerIfStatement,
-						...getIfStatementTokens(innerIfStatement, sourceCode)
-					};
-
-					// Remove inner `if` token
-					yield fixer.remove(inner.ifToken);
-					yield removeSpacesAfter(inner.ifToken, sourceCode, fixer);
-
-					// Remove outer `{}`
-					if (outer.openingBraceToken) {
-						yield fixer.remove(outer.openingBraceToken);
-						yield removeSpacesAfter(outer.openingBraceToken, sourceCode, fixer);
-						yield fixer.remove(outer.closingBraceToken);
-
-						const tokenBefore = sourceCode.getTokenBefore(outer.closingBraceToken, {includeComments: true});
-						yield removeSpacesAfter(tokenBefore, sourceCode, fixer);
-					}
-
-					// Add new `()`
-					yield fixer.insertTextBefore(outer.openingParenthesisToken, '(');
-					yield fixer.insertTextAfter(
-						inner.closingParenthesisToken,
-						`)${inner.consequent.type === 'EmptyStatement' ? '' : ' '}`
-					);
-
-					// Add ` && `
-					yield fixer.insertTextAfter(outer.closingParenthesisToken, ' && ');
-
-					// Remove `()` if `test` don't need it
-					for (const {test, openingParenthesisToken, closingParenthesisToken} of [outer, inner]) {
-						if (
-							isParenthesized(test, sourceCode) ||
-							!needParenthesis(test)
-						) {
-							yield fixer.remove(openingParenthesisToken);
-							yield fixer.remove(closingParenthesisToken);
-						}
-
-						yield removeSpacesAfter(closingParenthesisToken, sourceCode, fixer);
-					}
-
-					// If the `if` statement has no block, and is not followed by a semicolon,
-					// make sure that fixing the issue would not change semantics due to ASI.
-					// Similar logic https://github.com/eslint/eslint/blob/2124e1b5dad30a905dc26bde9da472bf622d3f50/lib/rules/no-lonely-if.js#L61-L77
-					if (inner.consequent.type !== 'BlockStatement') {
-						const lastToken = sourceCode.getLastToken(inner.consequent);
-						if (isNotSemicolonToken(lastToken)) {
-							const nextToken = sourceCode.getTokenAfter(outer);
-							if (needsSemicolon(lastToken, sourceCode, nextToken.value)) {
-								yield fixer.insertTextBefore(nextToken, ';');
-							}
-						}
-					}
-				}
+				fix: fix(node, sourceCode)
 			});
 		}
 	};
