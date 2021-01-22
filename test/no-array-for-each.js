@@ -301,6 +301,39 @@ test.snapshot({
 					return [foo] = bar;
 				}
 			});
+		`,
+		'node.children.index.forEach((children, index) => process(children, index))',
+		'(node?.children?.index).forEach((children, index) => process(children, index))',
+		'node[children].index.forEach((children, index) => process(children, index))',
+		'(node.children?.[index]).forEach((children, index) => process(children, index))',
+		'[{children: 1, index: 1}].forEach((children, index) => process(children, index))',
+		'[{[children]: 1, index: 1}].forEach((children, index) => process(children, index))',
+		'[{[children]: 1, [index]: 1}].forEach((children, index) => process(children, index))',
+		'[{children, index: 1}].forEach((children, index) => process(children, index))',
+		'[{children: 1, index}].forEach((children, index) => process(children, index))',
+		'[function name() {}].forEach((name, index) => process(name, index))',
+		outdent`
+			[
+				function () {
+					function index() {}
+				}
+			].forEach((name, index) => process(name, index))
+		`,
+		outdent`
+			[
+				function () {
+					class index {}
+				}
+			].forEach((name, index) => process(name, index))
+		`,
+		'[class Foo{}].forEach((Foo, index) => process(Foo, index))',
+		'[class Foo{}].forEach((X, Foo) => process(X, Foo))',
+		outdent`
+			[
+				class Foo {
+					bar() {}
+				}
+			].forEach((Foo, bar) => process(Foo, bar))
 		`
 	]
 });
