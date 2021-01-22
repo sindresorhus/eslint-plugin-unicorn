@@ -81,10 +81,12 @@ const create = context => {
 
 					// Remove outer `{}`
 					if (outer.openingBraceToken) {
-						yield removeSpacesAfter(inner, sourceCode, fixer);
 						yield fixer.remove(outer.openingBraceToken);
-						yield fixer.remove(outer.closingBraceToken);
 						yield removeSpacesAfter(outer.openingBraceToken, sourceCode, fixer);
+						yield fixer.remove(outer.closingBraceToken);
+
+						const tokenBefore = sourceCode.getTokenBefore(outer.closingBraceToken, {includeComments: true});
+						yield removeSpacesAfter(tokenBefore, sourceCode, fixer);
 					}
 
 					// Add new `()`
@@ -118,7 +120,7 @@ const create = context => {
 						if (isNotSemicolonToken(lastToken)) {
 							const nextToken = sourceCode.getTokenAfter(outer);
 							if (needsSemicolon(lastToken, sourceCode, nextToken.value)) {
-								yield fixer.insertTextAfter(outer, ';');
+								yield fixer.insertTextBefore(nextToken, ';');
 							}
 						}
 					}
