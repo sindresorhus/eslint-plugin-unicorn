@@ -225,6 +225,8 @@ test.snapshot({
 				[EMPTY_STRING_IN_ARRAY],
 				[[EMPTY_STRING_IN_ARRAY_OF_ARRAY]]
 			)
-		`
+		`,
+		'[].concat((a.b.c), 2)',
+		'[].concat(a.b(), 2)'
 	]
 });
