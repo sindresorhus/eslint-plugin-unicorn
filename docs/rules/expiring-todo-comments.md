@@ -151,9 +151,9 @@ Since by default the option `allowWarningComments` is `true`, both rules can coe
 
 ## Legacy Branches
 
-Although this rule works just fine when you maintain a `master` branch, it gets trickier when you have legacy branches that happen to have unclosed TODOs.
+Although this rule works just fine when you maintain a `main` branch, it gets trickier when you have legacy branches that happen to have unclosed TODOs.
 
-Imagine you maintain a `master` branch at a version such as 10 and always keep working on it and also keep fixing your TODOs. But your package happens to **publish and support** legacy branches such as 8 and 9 for [long term support](https://en.wikipedia.org/wiki/Long-term_support) with code such as security patches, meaning you might have stray TODOs that won't get fixed and will cause your build to break unless you either fix or drop the TODO.
+Imagine you maintain a `main` branch at a version such as 10 and always keep working on it and also keep fixing your TODOs. But your package happens to **publish and support** legacy branches such as 8 and 9 for [long term support](https://en.wikipedia.org/wiki/Long-term_support) with code such as security patches, meaning you might have stray TODOs that won't get fixed and will cause your build to break unless you either fix or drop the TODO.
 
 ## Conditions Overview
 
