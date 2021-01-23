@@ -101,7 +101,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 				let text = sourceCode.text.slice(start, end);
 
 				if (testArgument) {
-					return `...(Array.isArray(${text}) ? ${text} : [text])`;
+					return `...(Array.isArray(${text}) ? ${text} : [${text}])`;
 				}
 
 				if (isSpreadable) {
