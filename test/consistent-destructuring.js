@@ -1,13 +1,5 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/consistent-destructuring.js';
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2020
-	}
-});
+import {test} from './utils/test.js';
 
 const invalidTestCase = ({code, suggestions}) => {
 	if (!suggestions) {
@@ -33,7 +25,7 @@ const invalidTestCase = ({code, suggestions}) => {
 	};
 };
 
-ruleTester.run('consistent-destructuring', rule, {
+test({
 	valid: [
 		'console.log(foo.a, foo.b);',
 		'const foo = 10;',
@@ -474,5 +466,26 @@ ruleTester.run('consistent-destructuring', rule, {
 				}]
 			}]
 		}
+	]
+});
+
+test.babelLegacy({
+	valid: [
+		outdent`
+			const {a, ...b} = bar;
+			console.log(bar.c);
+		`
+	],
+	invalid: [
+		invalidTestCase({
+			code: outdent`
+				const {a, ...b} = bar;
+				console.log(bar.a);
+			`,
+			suggestions: [outdent`
+				const {a, ...b} = bar;
+				console.log(a);
+			`]
+		})
 	]
 });
