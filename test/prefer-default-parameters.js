@@ -650,11 +650,22 @@ test({
 
 test.babelLegacy({
 	valid: [
-		// `ExperimentalRestProperty` doesn't have a corresponding entry in `source.visitorKeys`
-		// This test verifies that the fallback to `eslint-visitor-keys` is working correctly
+		// These tests verify that the fallback to `eslint-visitor-keys` is working correctly
 		outdent`
 			function abc(foo, bar) {
 				const { baz, ...rest } = bar;
+				foo = foo || 123;
+			}
+		`,
+		outdent`
+			function abc(foo, bar) {
+				const baz = foo?.bar;
+				foo = foo || 123;
+			}
+		`,
+		outdent`
+			function abc(foo, bar) {
+				import('foo');
 				foo = foo || 123;
 			}
 		`

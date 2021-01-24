@@ -35,7 +35,7 @@ const containsCallExpression = (source, node) => {
 	}
 
 	// The Babel AST doesn't have visitor keys for certain types of nodes
-	// Use `getKeys` from `eslint-visitor-keys` in those cases
+	// Use `eslint-visitor-keys` in those cases
 	// TODO: Remove this when we drop support for `babel-eslint` #1040
 	const keys = source.visitorKeys[node.type] || eslintVisitorKeys.KEYS[node.type];
 
