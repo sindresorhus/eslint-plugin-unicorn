@@ -648,7 +648,7 @@ test({
 	]
 });
 
-test.babel({
+test.babelLegacy({
 	valid: [
 		// `ExperimentalRestProperty` doesn't have a corresponding entry in `source.visitorKeys`
 		// This test verifies that the fallback to `eslint-visitor-keys` is working correctly
