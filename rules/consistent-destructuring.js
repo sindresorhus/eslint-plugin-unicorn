@@ -92,6 +92,8 @@ const create = context => {
 				property.value.type === 'Identifier'
 			);
 			const lastProperty = objectPattern.properties[objectPattern.properties.length - 1];
+
+			// TODO: Remove `ExperimentalRestProperty` check when we drop support for `babel-eslint` #1040
 			const hasRest = lastProperty &&
 				(lastProperty.type === 'RestElement' || lastProperty.type === 'ExperimentalRestProperty');
 
