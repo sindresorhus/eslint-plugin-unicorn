@@ -28,7 +28,7 @@ const report = (context, node, target, argumentsNodes) => {
 	const argumentsSource = argumentsNodes.map(argument => sourceCode.getText(argument));
 
 	context.report({
-		node,
+		node: memberExpressionNode.property,
 		messageId: MESSAGE_ID,
 		fix: fixer => {
 			const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
