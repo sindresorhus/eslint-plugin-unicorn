@@ -92,7 +92,8 @@ const create = context => {
 				property.value.type === 'Identifier'
 			);
 			const lastProperty = objectPattern.properties[objectPattern.properties.length - 1];
-			const hasRest = lastProperty && lastProperty.type === 'RestElement';
+			const hasRest = lastProperty &&
+				(lastProperty.type === 'RestElement' || lastProperty.type === 'ExperimentalRestProperty');
 
 			const expression = source.getText(node);
 			const member = source.getText(node.property);
