@@ -1,4 +1,5 @@
 'use strict';
+const evk = require('eslint-visitor-keys');
 const {findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
@@ -33,13 +34,9 @@ const containsCallExpression = (source, node) => {
 		return true;
 	}
 
-	const keys = source.visitorKeys[node.type];
-
-	// The Babel AST has an `ExperimentalRestProperty` node without visitor keys.
-	// We have to assume that the node might contain a call expression.
-	if (!keys) {
-		return true;
-	}
+	// The Babel AST doesn't have visitor keys for certain types of nodes
+	// Use `getKeys` from `eslint-visitor-keys` in those cases
+	const keys = source.visitorKeys[node.type] || evk.getKeys(node);
 
 	for (const key of keys) {
 		const value = node[key];

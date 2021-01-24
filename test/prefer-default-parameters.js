@@ -650,7 +650,8 @@ test({
 
 test.babel({
 	valid: [
-		// See 'containsCallExpression' in rule
+		// `ExperimentalRestProperty` doesn't have a corresponding entry in `source.visitorKeys`
+		// This test verifies that the fallback to `eslint-visitor-keys` is working correctly
 		outdent`
 			function abc(foo, bar) {
 				const { baz, ...rest } = bar;
