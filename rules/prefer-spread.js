@@ -16,7 +16,7 @@ const messages = {
 	[ERROR_ARRAY_CONCAT]: 'Prefer the spread operator over `Array#concat(…)`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE]: 'First argument is an `array`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE]: 'First argument is not an `array`.',
-	[SUGGESTION_CONCAT_TEST_ARGUMENT]: 'Use `Array.isArray(…)` test first argument.'
+	[SUGGESTION_CONCAT_TEST_ARGUMENT]: 'Test first argument with `Array.isArray(…)`.'
 };
 
 const arrayFromCallSelector = [
