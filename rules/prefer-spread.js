@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized, getStaticValue, isCommaToken} = require('eslint-utils');
+const {isParenthesized, getStaticValue, isCommaToken, hasSideEffect} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
@@ -10,11 +10,15 @@ const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
 const SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE = 'argument-is-spreadable';
 const SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE = 'argument-is-not-spreadable';
+const SUGGESTION_CONCAT_TEST_ARGUMENT = 'test-argument';
+const SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS = 'spread-all-arguments';
 const messages = {
 	[ERROR_ARRAY_FROM]: 'Prefer the spread operator over `Array.from(…)`.',
 	[ERROR_ARRAY_CONCAT]: 'Prefer the spread operator over `Array#concat(…)`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE]: 'First argument is an `array`.',
-	[SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE]: 'First argument is not an `array`.'
+	[SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE]: 'First argument is not an `array`.',
+	[SUGGESTION_CONCAT_TEST_ARGUMENT]: 'Test first argument with `Array.isArray(…)`.',
+	[SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS]: 'Spread all unknown arguments`.'
 };
 
 const arrayFromCallSelector = [
@@ -90,13 +94,18 @@ function fixConcat(node, sourceCode, fixableArguments) {
 		const lastArgument = nonEmptyArguments[nonEmptyArguments.length - 1];
 
 		let text = nonEmptyArguments
-			.map(({node, isArrayLiteral, isSpreadable}) => {
+			.map(({node, isArrayLiteral, isSpreadable, testArgument}) => {
 				if (isArrayLiteral) {
 					return getArrayLiteralElementsText(node, node === lastArgument.node);
 				}
 
 				const [start, end] = getParenthesizedRange(node, sourceCode);
 				let text = sourceCode.text.slice(start, end);
+
+				if (testArgument) {
+					return `...(Array.isArray(${text}) ? ${text} : [${text}])`;
+				}
+
 				if (isSpreadable) {
 					if (
 						!isParenthesized(node, sourceCode) &&
@@ -269,7 +278,7 @@ const create = context => {
 			}
 
 			const fixableArgumentsAfterFirstArgument = getConcatFixableArguments(restArguments, scope);
-			problem.suggest = [
+			const suggestions = [
 				{
 					messageId: SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE,
 					isSpreadable: true
@@ -278,7 +287,16 @@ const create = context => {
 					messageId: SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE,
 					isSpreadable: false
 				}
-			].map(({messageId, isSpreadable}) => ({
+			];
+
+			if (!hasSideEffect(firstArgument, sourceCode)) {
+				suggestions.push({
+					messageId: SUGGESTION_CONCAT_TEST_ARGUMENT,
+					testArgument: true
+				});
+			}
+
+			problem.suggest = suggestions.map(({messageId, isSpreadable, testArgument}) => ({
 				messageId,
 				fix: fixConcat(
 					node,
@@ -287,12 +305,27 @@ const create = context => {
 					[
 						{
 							node: firstArgument,
-							isSpreadable
+							isSpreadable,
+							testArgument
 						},
 						...fixableArgumentsAfterFirstArgument
 					]
 				)
 			}));
+
+			if (
+				fixableArgumentsAfterFirstArgument.length < restArguments.length &&
+				restArguments.every(({type}) => type !== 'SpreadElement')
+			) {
+				problem.suggest.push({
+					messageId: SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS,
+					fix: fixConcat(
+						node,
+						sourceCode,
+						node.arguments.map(node => getConcatArgumentSpreadable(node, scope) || {node, isSpreadable: true})
+					)
+				});
+			}
 
 			context.report(problem);
 		}
