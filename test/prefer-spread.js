@@ -227,6 +227,8 @@ test.snapshot({
 			)
 		`,
 		'[].concat((a.b.c), 2)',
-		'[].concat(a.b(), 2)'
+		'[].concat(a.b(), 2)',
+		'foo.concat(bar, 2, [3, 4], baz, 5, [6, 7])',
+		'foo.concat(bar, 2, 3, ...baz)'
 	]
 });

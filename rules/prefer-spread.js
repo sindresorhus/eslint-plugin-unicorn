@@ -313,7 +313,10 @@ const create = context => {
 				)
 			}));
 
-			if (fixableArgumentsAfterFirstArgument.length < restArguments.length) {
+			if (
+				fixableArgumentsAfterFirstArgument.length < restArguments.length &&
+				restArguments.every(({type}) => type !== 'SpreadElement')
+			) {
 				problem.suggest.push({
 					messageId: SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS,
 					fix: fixConcat(
