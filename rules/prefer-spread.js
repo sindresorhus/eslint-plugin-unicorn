@@ -296,32 +296,33 @@ const create = context => {
 				});
 			}
 
-			problem.suggest = [
-				...suggestions.map(({messageId, isSpreadable, testArgument}) => ({
-					messageId,
-					fix: fixConcat(
-						node,
-						sourceCode,
-						// When apply suggestion, we also merge fixable arguments after the first one
-						[
-							{
-								node: firstArgument,
-								isSpreadable,
-								testArgument
-							},
-							...fixableArgumentsAfterFirstArgument
-						]
-					)
-				})),
-				{
+			problem.suggest = suggestions.map(({messageId, isSpreadable, testArgument}) => ({
+				messageId,
+				fix: fixConcat(
+					node,
+					sourceCode,
+					// When apply suggestion, we also merge fixable arguments after the first one
+					[
+						{
+							node: firstArgument,
+							isSpreadable,
+							testArgument
+						},
+						...fixableArgumentsAfterFirstArgument
+					]
+				)
+			}));
+
+			if (fixableArgumentsAfterFirstArgument.length < restArguments.length) {
+				problem.suggest.push({
 					messageId: SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS,
 					fix: fixConcat(
 						node,
 						sourceCode,
 						node.arguments.map(node => getConcatArgumentSpreadable(node, scope) || {node, isSpreadable: true})
 					)
-				}
-			];
+				});
+			}
 
 			context.report(problem);
 		}
