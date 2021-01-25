@@ -11,12 +11,14 @@ const ERROR_ARRAY_CONCAT = 'array-concat';
 const SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE = 'argument-is-spreadable';
 const SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE = 'argument-is-not-spreadable';
 const SUGGESTION_CONCAT_TEST_ARGUMENT = 'test-argument';
+const SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS = 'spread-all-arguments';
 const messages = {
 	[ERROR_ARRAY_FROM]: 'Prefer the spread operator over `Array.from(…)`.',
 	[ERROR_ARRAY_CONCAT]: 'Prefer the spread operator over `Array#concat(…)`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE]: 'First argument is an `array`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE]: 'First argument is not an `array`.',
-	[SUGGESTION_CONCAT_TEST_ARGUMENT]: 'Test first argument with `Array.isArray(…)`.'
+	[SUGGESTION_CONCAT_TEST_ARGUMENT]: 'Test first argument with `Array.isArray(…)`.',
+	[SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS]: 'Spread all unknown arguments`.'
 };
 
 const arrayFromCallSelector = [
@@ -294,22 +296,32 @@ const create = context => {
 				});
 			}
 
-			problem.suggest = suggestions.map(({messageId, isSpreadable, testArgument}) => ({
-				messageId,
-				fix: fixConcat(
-					node,
-					sourceCode,
-					// When apply suggestion, we also merge fixable arguments after the first one
-					[
-						{
-							node: firstArgument,
-							isSpreadable,
-							testArgument
-						},
-						...fixableArgumentsAfterFirstArgument
-					]
-				)
-			}));
+			problem.suggest = [
+				...suggestions.map(({messageId, isSpreadable, testArgument}) => ({
+					messageId,
+					fix: fixConcat(
+						node,
+						sourceCode,
+						// When apply suggestion, we also merge fixable arguments after the first one
+						[
+							{
+								node: firstArgument,
+								isSpreadable,
+								testArgument
+							},
+							...fixableArgumentsAfterFirstArgument
+						]
+					)
+				})),
+				{
+					messageId: SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS,
+					fix: fixConcat(
+						node,
+						sourceCode,
+						node.arguments.map(node => getConcatArgumentSpreadable(node, scope) || {node, isSpreadable: true})
+					)
+				}
+			];
 
 			context.report(problem);
 		}
