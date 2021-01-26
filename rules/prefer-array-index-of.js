@@ -79,7 +79,7 @@ const create = context => {
 
 			const callbackScope = scopeManager.acquire(callback);
 			if (
-				// `parameter` is used on somewhere else
+				// `parameter` is used somewhere else
 				findVariable(callbackScope, parameter).references.some(({identifier}) => identifier !== parameterInBinaryExpression) ||
 				isFunctionSelfUsedInside(callback, callbackScope)
 			) {
