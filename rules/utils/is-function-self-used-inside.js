@@ -29,7 +29,7 @@ function isFunctionSelfUsedInside(functionNode, functionScope) {
 		return true;
 	}
 
-	if (getReferences(functionScope, 'arguments').some(reference => reference.from === functionScope)) {
+	if (getReferences(functionScope, 'arguments').some(({from}) => from === functionScope)) {
 		return true;
 	}
 

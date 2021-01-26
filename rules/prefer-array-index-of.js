@@ -2,7 +2,7 @@
 const {hasSideEffect, isParenthesized, findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
-const getVariableIdentifiers = require('./utils/get-variable-identifiers');
+const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside');
 
 const MESSAGE_ID_FIND_INDEX = 'findIndex';
 const MESSAGE_ID_REPLACE = 'replaceFindIndex';
@@ -51,40 +51,6 @@ const selector = [
 
 const isIdentifierNamed = ({type, name}, expectName) => type === 'Identifier' && name === expectName;
 
-function isVariablesInCallbackUsed(scopeManager, callback, parameterInBinaryExpression) {
-	const scope = scopeManager.acquire(callback);
-
-	// `parameter` is used on somewhere else
-	const [parameter] = callback.params;
-	if (
-		getVariableIdentifiers(findVariable(scope, parameter))
-			.some(identifier => identifier !== parameter && identifier !== parameterInBinaryExpression)
-	) {
-		return true;
-	}
-
-	if (callback.type === 'FunctionExpression') {
-		// `this` is used
-		if (scope.thisFound) {
-			return true;
-		}
-
-		// The function name is used
-		if (
-			callback.id &&
-			getVariableIdentifiers(findVariable(scope, callback.id))
-				.some(identifier => identifier !== callback.id)
-		) {
-			return true;
-		}
-
-		// `arguments` is used
-		if (scope.references.some(({identifier: {name}}) => name === 'arguments')) {
-			return true;
-		}
-	}
-}
-
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const {scopeManager} = sourceCode;
@@ -111,7 +77,12 @@ const create = context => {
 				return;
 			}
 
-			if (isVariablesInCallbackUsed(scopeManager, callback, parameterInBinaryExpression)) {
+			const callbackScope = scopeManager.acquire(callback);
+			if (
+				// `parameter` is used on somewhere else
+				findVariable(callbackScope, parameter).references.some(({identifier}) => identifier !== parameterInBinaryExpression) ||
+				isFunctionSelfUsedInside(callback, callbackScope)
+			) {
 				return;
 			}
 
