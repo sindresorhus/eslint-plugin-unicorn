@@ -93,7 +93,7 @@ const create = context => {
 				suggest: []
 			};
 
-			function * fix(fixer) {
+			const fix = function * (fixer) {
 				let text = sourceCode.getText(searchValueNode);
 				if (isParenthesized(searchValueNode, sourceCode) && !isParenthesized(callback, sourceCode)) {
 					text = `(${text})`;
@@ -101,7 +101,7 @@ const create = context => {
 
 				yield fixer.replaceText(method, 'indexOf');
 				yield fixer.replaceText(callback, text);
-			}
+			};
 
 			if (hasSideEffect(searchValueNode, sourceCode)) {
 				problem.suggest.push({messageId: MESSAGE_ID_REPLACE, fix});
