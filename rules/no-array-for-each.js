@@ -303,7 +303,7 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 	}
 
 	// Check `ReturnStatement`s in `callback`
-	const {returnStatements, thisFound, scope: callbackScope} = functionInfo.get(callback);
+	const {returnStatements, scope: callbackScope} = functionInfo.get(callback);
 	if (returnStatements.some(returnStatement => isReturnStatementInContinueAbleNodes(returnStatement, callback))) {
 		return false;
 	}
@@ -329,7 +329,6 @@ const create = context => {
 			functionStack.push(node);
 			functionInfo.set(node, {
 				returnStatements: [],
-				thisFound: false,
 				scope: context.getScope()
 			});
 
@@ -343,15 +342,6 @@ const create = context => {
 			if (node.type !== 'ArrowFunctionExpression') {
 				nonArrowFunctionStack.pop();
 			}
-		},
-		ThisExpression() {
-			const currentNonArrowFunction = nonArrowFunctionStack[functionStack.length - 1];
-			if (!currentNonArrowFunction) {
-				return;
-			}
-
-			const currentFunctionInfo = functionInfo.get(currentNonArrowFunction);
-			currentFunctionInfo.thisFound = true;
 		},
 		Identifier(node) {
 			allIdentifiers.push(node);
