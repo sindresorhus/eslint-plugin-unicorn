@@ -111,6 +111,34 @@ test({
 		suggestionCase({
 			code: 'values.some(x => foo() === x)',
 			output: 'values.includes(foo())'
+		}),
+		suggestionCase({
+			code: 'values.some(x => {return x === foo();})',
+			output: 'values.includes(foo())'
+		}),
+		suggestionCase({
+			code: 'values.some(x => {return foo() === x;})',
+			output: 'values.includes(foo())'
+		}),
+		suggestionCase({
+			code: '/* 1 */values/* 2 */./* 3 */some/* 4 */(x => x === foo())',
+			output: '/* 1 */values/* 2 */./* 3 */includes/* 4 */(foo())'
+		}),
+		suggestionCase({
+			code: 'values.some(function(x) {return x === foo();})',
+			output: 'values.includes(foo())'
+		}),
+		suggestionCase({
+			code: 'values.some(function(x) {return foo() === x;})',
+			output: 'values.includes(foo())'
+		}),
+		suggestionCase({
+			code: 'values.some(x => (x === foo()))',
+			output: 'values.includes(foo())'
+		}),
+		suggestionCase({
+			code: 'values.some((x => foo() === x))',
+			output: 'values.includes((foo()))'
 		})
 	]
 });
