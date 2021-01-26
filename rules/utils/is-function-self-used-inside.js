@@ -16,7 +16,7 @@ Check if `this`, `arguments`, or `id` of function is used inside it self.
 function isFunctionSelfUsedInside(functionNode, functionScope) {
 	/* istanbul ignore next */
 	if (functionScope.block !== functionNode) {
-		throw new Error('"functionScope" should be the scope of "functionNode".')
+		throw new Error('"functionScope" should be the scope of "functionNode".');
 	}
 
 	const {type, id} = functionNode;
