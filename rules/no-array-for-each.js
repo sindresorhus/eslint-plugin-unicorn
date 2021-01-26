@@ -317,7 +317,6 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 
 const create = context => {
 	const functionStack = [];
-	const nonArrowFunctionStack = [];
 	const callExpressions = [];
 	const allIdentifiers = [];
 	const functionInfo = new Map();
@@ -331,17 +330,9 @@ const create = context => {
 				returnStatements: [],
 				scope: context.getScope()
 			});
-
-			if (node.type !== 'ArrowFunctionExpression') {
-				nonArrowFunctionStack.push(node);
-			}
 		},
-		':function:exit'(node) {
+		':function:exit'() {
 			functionStack.pop();
-
-			if (node.type !== 'ArrowFunctionExpression') {
-				nonArrowFunctionStack.pop();
-			}
 		},
 		Identifier(node) {
 			allIdentifiers.push(node);
