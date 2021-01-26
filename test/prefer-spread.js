@@ -146,7 +146,11 @@ test.snapshot({
 		outdent`
 			const string = 'foo';
 			foo = string.concat("bar");
-		`
+		`,
+		// #1068
+		'const bufA = Buffer.concat([buf1, buf2, buf3], totalLength);',
+		'Foo.concat(1)',
+		'A.concat(1)'
 	],
 	invalid: [
 		'[1].concat(2)',
