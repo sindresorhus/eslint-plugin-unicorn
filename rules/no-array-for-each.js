@@ -13,6 +13,7 @@ const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression');
 const getParenthesizedTimes = require('./utils/get-parenthesized-times');
 const extendFixRange = require('./utils/extend-fix-range');
+const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
@@ -307,27 +308,8 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 		return false;
 	}
 
-	// Check `callback` self
-	if (callback.type === 'FunctionExpression') {
-		if (thisFound) {
-			return false;
-		}
-
-		const argumentsVariable = findVariable(callbackScope, 'arguments');
-		if (
-			argumentsVariable &&
-			argumentsVariable.references.some(reference => reference.from === callbackScope)
-		) {
-			return false;
-		}
-
-		if (callback.id) {
-			const idVariable = findVariable(callbackScope, callback.id);
-
-			if (idVariable && idVariable.references.length > 0) {
-				return false;
-			}
-		}
+	if (isFunctionSelfUsedInside(callback, callbackScope)) {
+		return false;
 	}
 
 	return true;
