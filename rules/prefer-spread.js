@@ -38,9 +38,13 @@ const arrayConcatCallSelector = [
 	}),
 	`:not(${
 		[
-			'Literal',
-			'TemplateLiteral'
-		].map(type => `[callee.object.type="${type}"]`).join(', ')
+			...[
+				'Literal',
+				'TemplateLiteral'
+			].map(type => `[callee.object.type="${type}"]`),
+			// Most likely it's a static method of a class
+			'[callee.object.name=/^[A-Z]/]'
+		].join(', ')
 	})`
 ].join('');
 
