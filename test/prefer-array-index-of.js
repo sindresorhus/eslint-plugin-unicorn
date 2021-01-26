@@ -1,26 +1,7 @@
 import {outdent} from 'outdent';
 import {test} from './utils/test.js';
 
-const MESSAGE_ID_REPLACE = 'replaceFindIndex';
-
-function suggestionCase({code, output}) {
-	return {
-		code,
-		output: code,
-		errors: [
-			{
-				suggestions: [
-					{
-						messageId: MESSAGE_ID_REPLACE,
-						output
-					}
-				]
-			}
-		]
-	};
-}
-
-test({
+test.snapshot({
 	valid: [
 		'const findIndex = foo.findIndex',
 
@@ -102,24 +83,45 @@ test({
 	],
 
 	invalid: [
-		suggestionCase({
-			code: 'values.findIndex(x => x === foo())',
-			output: 'values.indexOf(foo())'
-		}),
-		suggestionCase({
-			code: outdent`
-				foo.findIndex(function a(x) {
-					return x === (function (a) {
-						return a(this) === arguments[1]
-					}).call(thisObject, anotherFunctionNamedA, secondArgument)
-				})
-			`,
-			output: outdent`
-				foo.indexOf((function (a) {
-						return a(this) === arguments[1]
-					}).call(thisObject, anotherFunctionNamedA, secondArgument))
-			`
-		})
+		'values.findIndex(x => x === "foo")',
+		'values.findIndex(x => "foo" === x)',
+		'values.findIndex(x => {return x === "foo";})',
+		'values.findIndex(function (x) {return x === "foo";})',
+		outdent`
+			// 1
+			(0, values)
+				// 2
+				./* 3 */findIndex /* 3 */ (
+					/* 4 */
+					x /* 5 */ => /* 6 */ x /* 7 */ === /* 8 */ "foo" /* 9 */
+				) /* 10 */
+		`,
+		outdent`
+			foo.findIndex(function (element) {
+				return element === bar.findIndex(x => x === 1);
+			});
+		`,
+		'values.findIndex(x => x === (0, "foo"))',
+		'values.findIndex((x => x === (0, "foo")))',
+		// `this`/`arguments` in arrow functions
+		outdent`
+			function fn() {
+				foo.findIndex(x => x === arguments.length)
+			}
+		`,
+		outdent`
+			function fn() {
+				foo.findIndex(x => x === this[1])
+			}
+		`,
+		'values.findIndex(x => x === foo())',
+		outdent`
+			foo.findIndex(function a(x) {
+				return x === (function (a) {
+					return a(this) === arguments[1]
+				}).call(thisObject, anotherFunctionNamedA, secondArgument)
+			})
+		`
 	]
 });
 
@@ -141,37 +143,3 @@ test.typescript({
 		}
 	]
 });
-
-test.snapshot([
-	'values.findIndex(x => x === "foo")',
-	'values.findIndex(x => "foo" === x)',
-	'values.findIndex(x => {return x === "foo";})',
-	'values.findIndex(function (x) {return x === "foo";})',
-	outdent`
-		// 1
-		(0, values)
-			// 2
-			./* 3 */findIndex /* 3 */ (
-				/* 4 */
-				x /* 5 */ => /* 6 */ x /* 7 */ === /* 8 */ "foo" /* 9 */
-			) /* 10 */
-	`,
-	outdent`
-		foo.findIndex(function (element) {
-			return element === bar.findIndex(x => x === 1);
-		});
-	`,
-	'values.findIndex(x => x === (0, "foo"))',
-	'values.findIndex((x => x === (0, "foo")))',
-	// `this`/`arguments` in arrow functions
-	outdent`
-		function fn() {
-			foo.findIndex(x => x === arguments.length)
-		}
-	`,
-	outdent`
-		function fn() {
-			foo.findIndex(x => x === this[1])
-		}
-	`
-]);
