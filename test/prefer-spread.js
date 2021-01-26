@@ -150,6 +150,8 @@ test.snapshot({
 		// #1068
 		'const bufA = Buffer.concat([buf1, buf2, buf3], totalLength);',
 		'Foo.concat(1)',
+		'FooBar.concat(1)',
+		'FOO.concat(1)',
 		'A.concat(1)'
 	],
 	invalid: [
