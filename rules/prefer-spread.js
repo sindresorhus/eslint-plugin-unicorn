@@ -38,7 +38,7 @@ const arrayConcatCallSelector = [
 	}),
 	`:not(${
 		[
-		...[
+			...[
 				'Literal',
 				'TemplateLiteral'
 			].map(type => `[callee.object.type="${type}"]`),
