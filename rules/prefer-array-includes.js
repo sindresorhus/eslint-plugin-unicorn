@@ -64,11 +64,6 @@ function isVariablesInCallbackUsed(scopeManager, callback, parameterInBinaryExpr
 		return true;
 	}
 
-	// `call` is done
-	if (getReferences(scope).some(reference => reference.identifier.name === 'call' && !reference.resolved)) {
-		return true;
-	}
-
 	if (callback.type === 'FunctionExpression') {
 		// `this` is used
 		if (scope.thisFound) {
