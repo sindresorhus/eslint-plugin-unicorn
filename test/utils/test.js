@@ -25,32 +25,56 @@ function createTester(options) {
 	return tester;
 }
 
-runTest.typescript = tests => runTest({
-	...tests,
-	testerOptions: {parser: require.resolve('@typescript-eslint/parser')}
-});
+runTest.typescript = tests => {
+	const {testerOptions = {}} = tests;
+	testerOptions.parserOptions = testerOptions.parserOptions || {};
 
-runTest.babel = tests => runTest({
-	...tests,
-	testerOptions: {
-		parser: require.resolve('@babel/eslint-parser'),
-		parserOptions: {
-			...defaultParserOptions,
+	return runTest({
+		...tests,
+		testerOptions: {
+			...testerOptions,
+			parser: require.resolve('@typescript-eslint/parser'),
+			parserOptions: {
+				...defaultParserOptions,
+				...testerOptions.parserOptions
+			}
+		}
+	});
+};
 
-			requireConfigFile: false,
-			sourceType: 'module',
-			allowImportExportEverywhere: true,
-			babelOptions: {
-				parserOpts: {
-					plugins: [
-						'jsx',
-						'classProperties'
-					]
+runTest.babel = tests => {
+	const {testerOptions = {}} = tests;
+	testerOptions.parserOptions = testerOptions.parserOptions || {};
+	testerOptions.parserOptions.babelOptions = testerOptions.parserOptions.babelOptions || {};
+	testerOptions.parserOptions.babelOptions.parserOpts = testerOptions.parserOptions.babelOptions.parserOpts || {};
+	testerOptions.parserOptions.babelOptions.parserOpts.plugins = testerOptions.parserOptions.babelOptions.parserOpts.plugins || [];
+
+	return runTest({
+		...tests,
+		testerOptions: {
+			...testerOptions,
+			parser: require.resolve('@babel/eslint-parser'),
+			parserOptions: {
+				...defaultParserOptions,
+				requireConfigFile: false,
+				sourceType: 'module',
+				allowImportExportEverywhere: true,
+				...testerOptions.parserOptions,
+				babelOptions: {
+					...testerOptions.parserOptions.babelOptions,
+					parserOpts: {
+						...testerOptions.parserOptions.babelOptions.parserOpts,
+						plugins: [
+							'jsx',
+							'classProperties',
+							...testerOptions.parserOptions.babelOptions.parserOpts.plugins
+						]
+					}
 				}
 			}
 		}
-	}
-});
+	});
+};
 
 runTest.babelLegacy = tests => runTest({
 	...tests,
