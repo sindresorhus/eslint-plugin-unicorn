@@ -11,7 +11,162 @@ const messages = {
 const isSameScope = (scope1, scope2) =>
 	scope1 && scope2 && (scope1 === scope2 || scope1.block === scope2.block);
 
-function checkReferences(scope, parent, scopeManager) {
+// https://reactjs.org/docs/hooks-reference.html
+const reactHooks = new Set([
+	'useState',
+	'useEffect',
+	'useContext',
+	'useReducer',
+	'useCallback',
+	'useMemo',
+	'useRef',
+	'useImperativeHandle',
+	'useLayoutEffect',
+	'useDebugValue'
+]);
+const isReactHook = node =>
+	node &&
+	node.parent &&
+	node.parent.callee &&
+	node.parent.callee.type === 'Identifier' &&
+	reactHooks.has(node.parent.callee.name);
+
+const isArrowFunctionWithThis = scope =>
+	scope.type === 'function' &&
+	scope.block &&
+	scope.block.type === 'ArrowFunctionExpression' &&
+	(scope.thisFound || scope.childScopes.some(scope => isArrowFunctionWithThis(scope)));
+
+const iifeFunctionTypes = new Set([
+	'FunctionExpression',
+	'ArrowFunctionExpression'
+]);
+const isIife = node => node &&
+	iifeFunctionTypes.has(node.type) &&
+	node.parent &&
+	node.parent.type === 'CallExpression' &&
+	node.parent.callee === node;
+const isCurriedArrayFunction = node => node &&
+	node.type === 'ArrowFunctionExpression' &&
+	node.parent &&
+	node.parent.type === 'ArrowFunctionExpression' &&
+	node.parent.body === node;
+
+const getUpperScope = scope => {
+	let {upper} = scope;
+
+	const {type, block} = upper;
+
+	if (
+		type === 'block' &&
+		(
+			block.parent.type === 'ForStatement' ||
+			block.parent.type === 'ForOfStatement' ||
+			block.parent.type === 'ForInStatement'
+		) &&
+		block.parent.body === block
+	) {
+		return getUpperScope(upper);
+	}
+
+	return scope.upper;
+};
+
+const isTopScope = scope =>
+	!scope ||
+	scope.type === 'global' ||
+	scope.type === 'module';
+
+function shouldReport(node, scope, sourceCode) {
+	if (isArrowFunctionWithThis(scope)) {
+		return false;
+	}
+
+	// if (isCurriedArrayFunction(node)) {
+	// 	return false;
+	// }
+
+	if (isIife(node)) {
+		return false;
+	}
+
+	const upperScope = getUpperScope(scope);
+	if (isTopScope(upperScope)) {
+		return false;
+	}
+
+	const {type, block} = upperScope;
+
+// console.log({type, block})
+	if (
+		type === 'function' &&
+		(isReactHook(block) || isIife(block))
+	) {
+		return false;
+	}
+
+	if (
+		type === 'function-expression-name' &&
+		isTopScope(upperScope.upper)
+	) {
+		return false;
+	}
+
+	// Some reference in function is from upperScope
+	for (const reference of getReferences(scope)) {
+		const {resolved} = reference;
+		if (
+			resolved &&
+			resolved.scope === upperScope &&
+			// `scope` of function name is upperScope
+			resolved.identifiers.every(identifier => identifier !== node.id)
+		) {
+			return false;
+		}
+	}
+
+	const [start, end] = node.range;
+	// Some reference in upperScope used in function
+	for (const reference of getReferences(upperScope)) {
+		const {resolved} = reference;
+
+		if (!resolved) {
+			continue;
+		}
+
+		const identifiersInUpperScopeBlock = resolved.references.map(({identifier}) => identifier)
+			.filter(({range}) => range[0] >= block.range[0] && range[0] <= block.range[1]);
+		const identifiersInFunction = identifiersInUpperScopeBlock
+			.filter(({range}) => range[0] >= start && range[0] <= end);
+
+		if (
+			identifiersInFunction.length > 0 &&
+			identifiersInUpperScopeBlock.length > identifiersInFunction.length
+		) {
+			return false;
+		}
+	}
+
+	return true;
+
+
+process.exit(1);
+return false;
+
+
+	// Skip over junk like the block statement inside of a function declaration
+	// or the various pieces of an arrow function.
+
+	return getReferences(scope)
+		.map(({resolved}) => resolved)
+		.filter(Boolean)
+		.some(variable =>
+			hitReference(variable.references) ||
+			hitDefinitions(variable.defs) ||
+			hitIdentifier(variable.identifiers)
+		);
+
+
 	const hitReference = references => references.some(reference => {
 		if (isSameScope(parent, reference.from)) {
 			return true;
@@ -67,94 +222,11 @@ function checkReferences(scope, parent, scopeManager) {
 		return isSameScope(parent, identifierParentScope.upper);
 	});
 
-	return getReferences(scope)
-		.map(({resolved}) => resolved)
-		.filter(Boolean)
-		.some(variable =>
-			hitReference(variable.references) ||
-			hitDefinitions(variable.defs) ||
-			hitIdentifier(variable.identifiers)
-		);
-}
-
-// https://reactjs.org/docs/hooks-reference.html
-const reactHooks = new Set([
-	'useState',
-	'useEffect',
-	'useContext',
-	'useReducer',
-	'useCallback',
-	'useMemo',
-	'useRef',
-	'useImperativeHandle',
-	'useLayoutEffect',
-	'useDebugValue'
-]);
-const isReactHook = scope =>
-	scope.block &&
-	scope.block.parent &&
-	scope.block.parent.callee &&
-	scope.block.parent.callee.type === 'Identifier' &&
-	reactHooks.has(scope.block.parent.callee.name);
-
-const isArrowFunctionWithThis = scope =>
-	scope.type === 'function' &&
-	scope.block &&
-	scope.block.type === 'ArrowFunctionExpression' &&
-	(scope.thisFound || scope.childScopes.some(scope => isArrowFunctionWithThis(scope)));
-
-const iifeFunctionTypes = new Set([
-	'FunctionExpression',
-	'ArrowFunctionExpression'
-]);
-const isIife = node => node &&
-	iifeFunctionTypes.has(node.type) &&
-	node.parent &&
-	node.parent.type === 'CallExpression' &&
-	node.parent.callee === node;
-
-function checkNode(node, scopeManager) {
-	const scope = scopeManager.acquire(node);
-
-	if (!scope || isArrowFunctionWithThis(scope)) {
-		return true;
-	}
-
-	let parentNode = node.parent;
-
-	// Skip over junk like the block statement inside of a function declaration
-	// or the various pieces of an arrow function.
-
-	if (parentNode.type === 'VariableDeclarator') {
-		parentNode = parentNode.parent;
-	}
-
-	if (parentNode.type === 'VariableDeclaration') {
-		parentNode = parentNode.parent;
-	}
-
-	if (parentNode.type === 'BlockStatement') {
-		parentNode = parentNode.parent;
-	}
-
-	const parentScope = scopeManager.acquire(parentNode);
-	if (
-		!parentScope ||
-		parentScope.type === 'global' ||
-		isReactHook(parentScope) ||
-		isIife(parentNode)
-	) {
-		return true;
-	}
-
-	return checkReferences(scope, parentScope, scopeManager);
 }
 
 const create = context => {
 	const {checkArrowFunctions} = {checkArrowFunctions: true, ...context.options[0]};
 	const sourceCode = context.getSourceCode();
-	const {scopeManager} = sourceCode;
-
 	const functions = [];
 
 	return {
@@ -170,15 +242,11 @@ const create = context => {
 		},
 		':function:exit': node => {
 			const currentFunctionHasJsx = functions.pop();
-			if (currentFunctionHasJsx) {
-				return;
-			}
-
-			if (node.type === 'ArrowFunctionExpression' && !checkArrowFunctions) {
-				return;
-			}
-
-			if (checkNode(node, scopeManager)) {
+			if (
+				currentFunctionHasJsx ||
+				(node.type === 'ArrowFunctionExpression' && !checkArrowFunctions) ||
+				!shouldReport(node, context.getScope(), sourceCode)
+			) {
 				return;
 			}
 
