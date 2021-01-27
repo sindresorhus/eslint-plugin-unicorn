@@ -181,11 +181,6 @@ test({
 			};
 		`,
 		outdent`
-			function doFoo() {
-				return function doBar() {};
-			}
-		`,
-		outdent`
 			function doFoo(Foo) {
 				function doBar() {
 					return new Foo();
@@ -748,6 +743,14 @@ test({
 			code: outdent`
 				const doFoo = () => {
 					return bar => bar;
+				}
+			`,
+			errors: 1
+		},
+		{
+			code: outdent`
+				function doFoo() {
+					return function doBar() {};
 				}
 			`,
 			errors: 1
