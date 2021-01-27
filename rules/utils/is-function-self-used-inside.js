@@ -7,7 +7,7 @@ const getReferences = (scope, nodeOrName) => {
 };
 
 /**
-Check if `this`, `arguments`, or `id` of function is used inside it self.
+Check if `this`, `arguments`, or `id` of the function is used inside of itself.
 
 @param {Node} node - The function node.
 @param {Scope} [scope] - The scope of the function node.
