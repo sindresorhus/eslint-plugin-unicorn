@@ -96,8 +96,6 @@ test({
 		'foo.some(function(x) {return x === arguments.length})',
 		// `this` is used
 		'foo.some(function(x) {return x === this.length})',
-		// `call` is done
-		'foo.some(function(x) {return x === call()})',
 
 		// Already valid case
 		'foo.includes(0)'
