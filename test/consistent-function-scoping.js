@@ -155,16 +155,6 @@ test({
 		`,
 		outdent`
 			function doFoo(foo) {
-				{
-					function doBar(bar) {
-						return bar;
-					}
-				}
-				return foo;
-			}
-		`,
-		outdent`
-			function doFoo(foo) {
 				function doBar(bar) {
 					foo.bar = bar;
 				}
@@ -754,6 +744,19 @@ test({
 			code: outdent`
 				function doFoo() {
 					return function doBar() {};
+				}
+			`,
+			errors: 1
+		},
+		{
+			code: outdent`
+				function doFoo(foo) {
+					{
+						function doBar(bar) {
+							return bar;
+						}
+					}
+					return foo;
 				}
 			`,
 			errors: 1
