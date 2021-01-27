@@ -31,6 +31,7 @@ const create = context => {
 			if (
 				parent.type === 'VariableDeclarator' &&
 				parent.id === node &&
+				parent.init !== null &&
 				nonNullElements.length === 1
 			) {
 				const [element] = nonNullElements;
