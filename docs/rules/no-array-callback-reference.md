@@ -30,7 +30,6 @@ const unicorn = require('unicorn');
 //=> [2, 3, 5]
 ```
 
-
 ## Fail
 
 ```js
@@ -88,11 +87,8 @@ const fn = (a, b) => a.concat(b);
 ```
 
 ```js
-const fn = x => x === 2;
-
-[1, 2, 3].map(m({foo: 'bar'}));
+[1, 2, 3].map(someFunction({foo: 'bar'}));
 ```
-
 
 ## Pass
 
@@ -161,9 +157,7 @@ const fn = (a, b) => a.concat(b);
 ```
 
 ```js
-const fn = x => x === 2;
-
-[1, 2, 3].map(x => m({foo: 'bar'})(x));
+[1, 2, 3].map(x => someFunction({foo: 'bar'})(x));
 ```
 
 ```js
