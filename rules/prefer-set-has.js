@@ -145,6 +145,14 @@ const create = context => {
 	return {
 		[selector]: node => {
 			const variable = findVariable(context.getScope(), node);
+
+			// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768073342
+			// But can't reproduce, just ignore this case
+			/* istanbul ignore next */
+			if (!variable) {
+				return;
+			}
+
 			const identifiers = getVariableIdentifiers(variable).filter(identifier => identifier !== node);
 
 			if (
