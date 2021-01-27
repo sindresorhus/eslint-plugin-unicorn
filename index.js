@@ -92,6 +92,7 @@ module.exports = {
 				'unicorn/prefer-dom-node-dataset': 'error',
 				'unicorn/prefer-dom-node-remove': 'error',
 				'unicorn/prefer-dom-node-text-content': 'error',
+				'unicorn/prefer-https': 'error',
 				'unicorn/prefer-includes': 'error',
 				'unicorn/prefer-keyboard-event-key': 'error',
 				'unicorn/prefer-math-trunc': 'error',
