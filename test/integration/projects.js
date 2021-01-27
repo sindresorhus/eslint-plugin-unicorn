@@ -142,7 +142,7 @@ module.exports = [
 	// #1030
 	'https://github.com/astrofox-io/astrofox',
 	// #1075
-	'https://github.com/jaredLunde/masonic',
+	'https://github.com/jaredLunde/masonic'
 ].map(project => {
 	if (typeof project === 'string') {
 		project = {repository: project};
