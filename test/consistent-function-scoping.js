@@ -136,11 +136,6 @@ test({
 				foo + bar;
 		`,
 		outdent`
-			const doFoo = () => {
-				return bar => bar;
-			}
-		`,
-		outdent`
 			function doFoo() {
 				return bar => bar;
 			}
@@ -748,6 +743,14 @@ test({
 			`,
 			errors: [createError('function \'inner\'')],
 			options: [{checkArrowFunctions: false}]
+		},
+		{
+			code: outdent`
+				const doFoo = () => {
+					return bar => bar;
+				}
+			`,
+			errors: 1
 		}
 	]
 });
