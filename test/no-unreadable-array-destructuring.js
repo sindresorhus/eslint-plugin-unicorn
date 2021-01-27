@@ -47,6 +47,7 @@ test.snapshot({
 		// Multiple declarations
 		'let [,,thirdElement] = foo, anotherVariable = bar;',
 		// Default value
-		'let [,,thirdElement = {}] = foo;'
+		'let [,,thirdElement = {}] = foo;',
+		'for (const [, , id] of shuffle(list)) {}'
 	]
 });

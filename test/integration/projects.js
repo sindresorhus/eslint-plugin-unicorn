@@ -140,7 +140,9 @@ module.exports = [
 	// #903
 	'https://github.com/mattermost/mattermost-webapp',
 	// #1030
-	'https://github.com/astrofox-io/astrofox'
+	'https://github.com/astrofox-io/astrofox',
+	// #1075
+	'https://github.com/jaredLunde/masonic'
 ].map(project => {
 	if (typeof project === 'string') {
 		project = {repository: project};
