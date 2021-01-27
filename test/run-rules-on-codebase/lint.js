@@ -61,11 +61,11 @@ const sum = (collection, fieldName) => {
 		console.log(format(results));
 
 		console.log();
-		console.log(`You need to fix the failed test${errorCount + warningCount > 1 ? 's' : ''} above and run \`npm run lint <file>\` to check again.`);
+		console.log(`You need to fix the failed test${errorCount + warningCount > 1 ? 's' : ''} above and run \`npm run run-rules-on-codebase <file>\` to check again.`);
 
 		if (hasFixable) {
 			console.log();
-			console.log('You may also want run `npm run lint <file> --fix` to fix fixable problems.');
+			console.log('You may also want run `npm run run-rules-on-codebase <file> --fix` to fix fixable problems.');
 		}
 
 		console.log();
