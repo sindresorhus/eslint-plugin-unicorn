@@ -36,10 +36,10 @@ runTest.typescript = tests => {
 			parser: require.resolve('@typescript-eslint/parser'),
 			parserOptions: {
 				...defaultParserOptions,
-				...testerOptions.parserOptions,
+				...testerOptions.parserOptions
 			}
 		}
-	})
+	});
 };
 
 runTest.babel = tests => {
