@@ -900,7 +900,7 @@ test.babel({
 					async endDrag(props, monitor, component) {
 						try {
 						} catch (e) {
-							alert("There was a problem moving these items: " + e);
+							alert("1There was a problem moving these items: " + e);
 						}
 					}
 				})
@@ -911,7 +911,7 @@ test.babel({
 					async endDrag(props, monitor, component) {
 						try {
 						} catch (error) {
-							alert("There was a problem moving these items: " + error);
+							alert("1There was a problem moving these items: " + error);
 						}
 					}
 				})
