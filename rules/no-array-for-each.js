@@ -13,6 +13,7 @@ const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression');
 const getParenthesizedTimes = require('./utils/get-parenthesized-times');
 const extendFixRange = require('./utils/extend-fix-range');
+const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
@@ -302,32 +303,13 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 	}
 
 	// Check `ReturnStatement`s in `callback`
-	const {returnStatements, thisFound, scope: callbackScope} = functionInfo.get(callback);
+	const {returnStatements, scope: callbackScope} = functionInfo.get(callback);
 	if (returnStatements.some(returnStatement => isReturnStatementInContinueAbleNodes(returnStatement, callback))) {
 		return false;
 	}
 
-	// Check `callback` self
-	if (callback.type === 'FunctionExpression') {
-		if (thisFound) {
-			return false;
-		}
-
-		const argumentsVariable = findVariable(callbackScope, 'arguments');
-		if (
-			argumentsVariable &&
-			argumentsVariable.references.some(reference => reference.from === callbackScope)
-		) {
-			return false;
-		}
-
-		if (callback.id) {
-			const idVariable = findVariable(callbackScope, callback.id);
-
-			if (idVariable && idVariable.references.length > 0) {
-				return false;
-			}
-		}
+	if (isFunctionSelfUsedInside(callback, callbackScope)) {
+		return false;
 	}
 
 	return true;
@@ -335,7 +317,6 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 
 const create = context => {
 	const functionStack = [];
-	const nonArrowFunctionStack = [];
 	const callExpressions = [];
 	const allIdentifiers = [];
 	const functionInfo = new Map();
@@ -347,29 +328,11 @@ const create = context => {
 			functionStack.push(node);
 			functionInfo.set(node, {
 				returnStatements: [],
-				thisFound: false,
 				scope: context.getScope()
 			});
-
-			if (node.type !== 'ArrowFunctionExpression') {
-				nonArrowFunctionStack.push(node);
-			}
 		},
-		':function:exit'(node) {
+		':function:exit'() {
 			functionStack.pop();
-
-			if (node.type !== 'ArrowFunctionExpression') {
-				nonArrowFunctionStack.pop();
-			}
-		},
-		ThisExpression() {
-			const currentNonArrowFunction = nonArrowFunctionStack[functionStack.length - 1];
-			if (!currentNonArrowFunction) {
-				return;
-			}
-
-			const currentFunctionInfo = functionInfo.get(currentNonArrowFunction);
-			currentFunctionInfo.thisFound = true;
 		},
 		Identifier(node) {
 			allIdentifiers.push(node);
