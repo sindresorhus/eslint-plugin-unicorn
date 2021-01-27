@@ -115,6 +115,43 @@ test({
 			}
 		`,
 		outdent`
+			for (const foo of []) {
+				function doBar(bar) {
+					return bar + foo;
+				}
+			}
+		`,
+		outdent`
+			for (const foo in {}) {
+				function doBar(bar) {
+					return bar + foo;
+				}
+			}
+		`,
+		outdent`
+			try {
+				const foo = 1;
+				function doBar(bar) {
+					return bar + foo;
+				}
+			} catch {}
+		`,
+		outdent`
+			try {} catch {
+				const foo = 1;
+				function doBar(bar) {
+					return bar + foo;
+				}
+			}
+		`,
+		outdent`
+			try {} catch (foo) {
+				function doBar(bar) {
+					return bar + foo;
+				}
+			}
+		`,
+		outdent`
 			let foo = 0;
 			function doFoo() {
 				foo = 1;
