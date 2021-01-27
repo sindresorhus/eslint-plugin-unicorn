@@ -62,7 +62,8 @@ const getUpperScope = scope => {
 		(
 			block.parent.type === 'ForStatement' ||
 			block.parent.type === 'ForOfStatement' ||
-			block.parent.type === 'ForInStatement'
+			block.parent.type === 'ForInStatement' ||
+			block.parent.type === 'CatchClause'
 		) &&
 		block.parent.body === block
 	) {
@@ -97,7 +98,7 @@ function shouldReport(node, scope, sourceCode) {
 
 	const {type, block} = upperScope;
 
-// console.log({type, block})
+console.log({type, block})
 	if (
 		type === 'function' &&
 		(isReactHook(block) || isIife(block))
@@ -246,9 +247,12 @@ const create = context => {
 				currentFunctionHasJsx ||
 				(node.type === 'ArrowFunctionExpression' && !checkArrowFunctions) ||
 				!shouldReport(node, context.getScope(), sourceCode)
+// && process.exit(1)
 			) {
 				return;
 			}
+
+
 
 			context.report({
 				node,
