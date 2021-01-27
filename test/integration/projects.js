@@ -140,11 +140,11 @@ module.exports = [
 	// #903
 	'https://github.com/mattermost/mattermost-webapp',
 	// #1030
-	'https://github.com/astrofox-io/astrofox',
+	'https://github.com/astrofox-io/astrofox'
 	// #1075
 	// These two project use `decorator`, try to enable when we use `@babel/eslint-parser`
 	// 'https://github.com/untitled-labs/metabase-custom',
-	// 'https://github.com/TheThingsNetwork/lorawan-stack'
+	// 'https://github.com/TheThingsNetwork/lorawan-stack',
 ].map(project => {
 	if (typeof project === 'string') {
 		project = {repository: project};
