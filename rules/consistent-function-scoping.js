@@ -8,9 +8,6 @@ const messages = {
 	[MESSAGE_ID]: 'Move {{functionNameWithKind}} to the outer scope.'
 };
 
-const isSameScope = (scope1, scope2) =>
-	scope1 && scope2 && (scope1 === scope2 || scope1.block === scope2.block);
-
 // https://reactjs.org/docs/hooks-reference.html
 const reactHooks = new Set([
 	'useState',
@@ -46,14 +43,14 @@ const isIife = node => node &&
 	node.parent &&
 	node.parent.type === 'CallExpression' &&
 	node.parent.callee === node;
-const isCurriedArrayFunction = node => node &&
-	node.type === 'ArrowFunctionExpression' &&
-	node.parent &&
-	node.parent.type === 'ArrowFunctionExpression' &&
-	node.parent.body === node;
+// const isCurriedArrayFunction = node => node &&
+// 	node.type === 'ArrowFunctionExpression' &&
+// 	node.parent &&
+// 	node.parent.type === 'ArrowFunctionExpression' &&
+// 	node.parent.body === node;
 
 const getUpperScope = scope => {
-	let {upper} = scope;
+	const {upper} = scope;
 
 	const {type, block} = upper;
 
@@ -78,12 +75,12 @@ const isTopScope = scope =>
 	scope.type === 'global' ||
 	scope.type === 'module';
 
-function shouldReport(node, scope, sourceCode) {
+function shouldReport(node, scope) {
 	if (isArrowFunctionWithThis(scope)) {
 		return false;
 	}
 
-	// if (isCurriedArrayFunction(node)) {
+	// If (isCurriedArrayFunction(node)) {
 	// 	return false;
 	// }
 
@@ -98,7 +95,7 @@ function shouldReport(node, scope, sourceCode) {
 
 	const {type, block} = upperScope;
 
-console.log({type, block})
+	console.log({type, block});
 	if (
 		type === 'function' &&
 		(isReactHook(block) || isIife(block))
@@ -149,80 +146,6 @@ console.log({type, block})
 	}
 
 	return true;
-
-
-process.exit(1);
-return false;
-
-
-	// Skip over junk like the block statement inside of a function declaration
-	// or the various pieces of an arrow function.
-
-	return getReferences(scope)
-		.map(({resolved}) => resolved)
-		.filter(Boolean)
-		.some(variable =>
-			hitReference(variable.references) ||
-			hitDefinitions(variable.defs) ||
-			hitIdentifier(variable.identifiers)
-		);
-
-
-	const hitReference = references => references.some(reference => {
-		if (isSameScope(parent, reference.from)) {
-			return true;
-		}
-
-		const {resolved} = reference;
-		const [definition] = resolved.defs;
-
-		// Skip recursive function name
-		if (definition && definition.type === 'FunctionName' && resolved.name === definition.name.name) {
-			return false;
-		}
-
-		return isSameScope(parent, resolved.scope);
-	});
-
-	const hitDefinitions = definitions => definitions.some(definition => {
-		const scope = scopeManager.acquire(definition.node);
-		return isSameScope(parent, scope);
-	});
-
-	// This check looks for neighboring function definitions
-	const hitIdentifier = identifiers => identifiers.some(identifier => {
-		// Only look at identifiers that live in a FunctionDeclaration
-		if (
-			!identifier.parent ||
-				identifier.parent.type !== 'FunctionDeclaration'
-		) {
-			return false;
-		}
-
-		const identifierScope = scopeManager.acquire(identifier);
-
-		// If we have a scope, the earlier checks should have worked so ignore them here
-		/* istanbul ignore next: Hard to test */
-		if (identifierScope) {
-			return false;
-		}
-
-		const identifierParentScope = scopeManager.acquire(identifier.parent);
-		/* istanbul ignore next: Hard to test */
-		if (!identifierParentScope) {
-			return false;
-		}
-
-		// Ignore identifiers from our own scope
-		if (isSameScope(scope, identifierParentScope)) {
-			return false;
-		}
-
-		// Look at the scope above the function definition to see if lives
-		// next to the reference being checked
-		return isSameScope(parent, identifierParentScope.upper);
-	});
-
 }
 
 const create = context => {
@@ -246,13 +169,10 @@ const create = context => {
 			if (
 				currentFunctionHasJsx ||
 				(node.type === 'ArrowFunctionExpression' && !checkArrowFunctions) ||
-				!shouldReport(node, context.getScope(), sourceCode)
-// && process.exit(1)
+				!shouldReport(node, context.getScope())
 			) {
 				return;
 			}
-
-
 
 			context.report({
 				node,

@@ -152,6 +152,14 @@ test({
 			}
 		`,
 		outdent`
+			if (false) {
+				const foo = 1;
+				function doBar(bar) {
+					return bar + foo;
+				}
+			}
+		`,
+		outdent`
 			let foo = 0;
 			function doFoo() {
 				foo = 1;
