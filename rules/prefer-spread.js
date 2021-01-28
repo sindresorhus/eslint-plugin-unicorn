@@ -257,7 +257,7 @@ function fixArrayFrom(node, sourceCode) {
 		yield * replaceNodeOrTokenAndSpacesBefore(object, '', fixer, sourceCode);
 		const commaToken = sourceCode.getTokenAfter(object, isCommaToken);
 		yield * replaceNodeOrTokenAndSpacesBefore(commaToken, '', fixer, sourceCode);
-		yield removeSpacesAfter(commaToken, sourceCode, fixer)
+		yield removeSpacesAfter(commaToken, sourceCode, fixer);
 	}
 
 	return function * (fixer) {
@@ -277,12 +277,11 @@ function fixArrayFrom(node, sourceCode) {
 		yield fixer.replaceText(node.callee.object, objectText);
 		yield fixer.replaceText(node.callee.property, 'map');
 		yield * removeObject(fixer);
-	}
+	};
 }
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
-	const getSource = node => sourceCode.getText(node);
 
 	return {
 		[arrayFromCallSelector](node) {
