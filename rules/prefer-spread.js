@@ -236,6 +236,10 @@ function fixArrayFrom(node, sourceCode) {
 	const [object, mapFunction, thisArgument] = node.arguments;
 
 	function getObjectText() {
+		if (isArrayLiteral(object)) {
+			return sourceCode.getText(object);
+		}
+
 		const [start, end] = getParenthesizedRange(object, sourceCode);
 		let text = sourceCode.text.slice(start, end);
 
