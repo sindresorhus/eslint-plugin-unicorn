@@ -233,7 +233,7 @@ function getConcatFixableArguments(argumentsList, scope) {
 }
 
 function fixArrayFrom(node, sourceCode) {
-	const [object, mapFunction, thisArgument] = node.arguments;
+	const [object] = node.arguments;
 
 	function getObjectText() {
 		if (isArrayLiteral(object)) {
@@ -268,7 +268,7 @@ function fixArrayFrom(node, sourceCode) {
 
 		const objectText = getObjectText();
 
-		if (!mapFunction) {
+		if (node.arguments.length === 1) {
 			yield fixer.replaceText(node, objectText);
 			return;
 		}
