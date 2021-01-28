@@ -130,7 +130,28 @@ test.snapshot({
 		outdent`
 			const foo = {}
 			Array.from(arrayLike).forEach(doSomething)
-		`
+		`,
+
+		'(Array).from(foo)',
+		'(Array.from)(foo)',
+		'((Array).from)(foo)',
+		'(Array).from((0, foo))',
+		'(Array.from)((0, foo))',
+		'((Array).from)((0, foo))',
+		'(Array).from(foo, bar)',
+		'(Array.from)(foo, bar)',
+		'((Array).from)(foo, bar)',
+		'(Array).from((0, foo), bar)',
+		'(Array.from)((0, foo), bar)',
+		'((Array).from)((0, foo), bar)',
+		'(Array).from(foo, bar, baz)',
+		'(Array.from)(foo, bar, baz)',
+		'((Array).from)(foo, bar, baz)',
+		'(Array).from((0, foo), bar, baz)',
+		'(Array.from)((0, foo), bar, baz)',
+		'((Array).from)((0, foo), bar, baz)',
+		'Array.from(a, (0, bar), (0, baz))',
+		'Array.from(a ? b : c)'
 	]
 });
 

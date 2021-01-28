@@ -5,6 +5,8 @@ const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
 const getParentheses = require('./utils/get-parentheses');
 const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument');
+const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before');
+const removeSpacesAfter = require('./utils/remove-spaces-after');
 
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
@@ -230,6 +232,50 @@ function getConcatFixableArguments(argumentsList, scope) {
 	return fixableArguments;
 }
 
+function fixArrayFrom(node, sourceCode) {
+	const [object, mapFunction, thisArgument] = node.arguments;
+
+	function getObjectText() {
+		const [start, end] = getParenthesizedRange(object, sourceCode);
+		let text = sourceCode.text.slice(start, end);
+
+		if (
+			!isParenthesized(object, sourceCode) &&
+			shouldAddParenthesesToSpreadElementArgument(object)
+		) {
+			text = `(${text})`;
+		}
+
+		return `[...${text}]`;
+	}
+
+	function * removeObject(fixer) {
+		yield * replaceNodeOrTokenAndSpacesBefore(object, '', fixer, sourceCode);
+		const commaToken = sourceCode.getTokenAfter(object, isCommaToken);
+		yield * replaceNodeOrTokenAndSpacesBefore(commaToken, '', fixer, sourceCode);
+		yield removeSpacesAfter(commaToken, sourceCode, fixer)
+	}
+
+	return function * (fixer) {
+		// Fixed code always starts with `[`
+		if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')) {
+			yield fixer.insertTextBefore(node, ';');
+		}
+
+		const objectText = getObjectText();
+
+		if (!mapFunction) {
+			yield fixer.replaceText(node, objectText);
+			return;
+		}
+
+		// `Array.from(object, mapFunction, thisArgument)` -> `[...object].map(mapFunction, thisArgument)`
+		yield fixer.replaceText(node.callee.object, objectText);
+		yield fixer.replaceText(node.callee.property, 'map');
+		yield * removeObject(fixer);
+	}
+}
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const getSource = node => sourceCode.getText(node);
@@ -239,19 +285,7 @@ const create = context => {
 			context.report({
 				node,
 				messageId: ERROR_ARRAY_FROM,
-				fix: fixer => {
-					const [arrayLikeArgument, mapFn, thisArgument] = node.arguments.map(node => getSource(node));
-					let replacement = `${
-						needsSemicolon(sourceCode.getTokenBefore(node), sourceCode) ? ';' : ''
-					}[...${arrayLikeArgument}]`;
-
-					if (mapFn) {
-						const mapArguments = [mapFn, thisArgument].filter(Boolean);
-						replacement += `.map(${mapArguments.join(', ')})`;
-					}
-
-					return fixer.replaceText(node, replacement);
-				}
+				fix: fixArrayFrom(node, sourceCode)
 			});
 		},
 		[arrayConcatCallSelector](node) {
