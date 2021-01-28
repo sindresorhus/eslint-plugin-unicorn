@@ -150,8 +150,10 @@ test.snapshot({
 		'(Array).from((0, foo), bar, baz)',
 		'(Array.from)((0, foo), bar, baz)',
 		'((Array).from)((0, foo), bar, baz)',
-		'Array.from(a, (0, bar), (0, baz))',
-		'Array.from(a ? b : c)'
+		'Array.from(a, (0, bar), (0, baz),)',
+		'Array.from(a ? b : c)',
+		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */, /* 6 */ b /* 7 */, /* 8 */ c /* 9 */,)',
+		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */,)'
 	]
 });
 
