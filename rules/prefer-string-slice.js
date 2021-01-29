@@ -104,8 +104,9 @@ const create = context => {
 
 			if (sliceArguments) {
 				const objectText = getNodeText(objectNode);
+				const optionalSuffix = node.callee.optional ? '?' : '';
 
-				problem.fix = fixer => fixer.replaceText(node, `${objectText}.slice(${sliceArguments.join(', ')})`);
+				problem.fix = fixer => fixer.replaceText(node, `${objectText}${optionalSuffix}.slice(${sliceArguments.join(', ')})`);
 			}
 
 			context.report(problem);
@@ -158,7 +159,8 @@ const create = context => {
 
 			if (sliceArguments) {
 				const objectText = getNodeText(objectNode);
-				problem.fix = fixer => fixer.replaceText(node, `${objectText}.slice(${sliceArguments.join(', ')})`);
+				const optionalSuffix = node.callee.optional ? '?' : '';
+				problem.fix = fixer => fixer.replaceText(node, `${objectText}${optionalSuffix}.slice(${sliceArguments.join(', ')})`);
 			}
 
 			context.report(problem);
