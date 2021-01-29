@@ -130,7 +130,33 @@ test.snapshot({
 		outdent`
 			const foo = {}
 			Array.from(arrayLike).forEach(doSomething)
-		`
+		`,
+
+		'(Array).from(foo)',
+		'(Array.from)(foo)',
+		'((Array).from)(foo)',
+		'(Array).from((0, foo))',
+		'(Array.from)((0, foo))',
+		'((Array).from)((0, foo))',
+		'(Array).from(foo, bar)',
+		'(Array.from)(foo, bar)',
+		'((Array).from)(foo, bar)',
+		'(Array).from((0, foo), bar)',
+		'(Array.from)((0, foo), bar)',
+		'((Array).from)((0, foo), bar)',
+		'(Array).from(foo, bar, baz)',
+		'(Array.from)(foo, bar, baz)',
+		'((Array).from)(foo, bar, baz)',
+		'(Array).from((0, foo), bar, baz)',
+		'(Array.from)((0, foo), bar, baz)',
+		'((Array).from)((0, foo), bar, baz)',
+		'Array.from(a, (0, bar), (0, baz),)',
+		'Array.from(a ? b : c)',
+		'Array.from([...a, ...b], b, c)',
+		'Array.from([1])',
+		'Array.from([...a, ...b])',
+		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */, /* 6 */ b /* 7 */, /* 8 */ c /* 9 */,)',
+		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */,)'
 	]
 });
 
