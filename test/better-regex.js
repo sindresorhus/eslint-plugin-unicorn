@@ -41,6 +41,9 @@ test({
 		'/(\\s|\\.|@|_|-)/u',
 		'/[\\s.@_-]/u',
 
+		// Should not remove repeating patterns too easily (#769)
+		'/http:\\/\\/[^/]+\\/pull\\/commits/gi',
+
 		{
 			code: '/[GgHhIiå.Z:a-f"0-8%A*ä]/',
 			options: disableSortCharacterClassesOptions
