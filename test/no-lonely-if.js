@@ -92,23 +92,24 @@ test.snapshot([
 	'if (((a || b))) if (((c || d)));',
 	// Comments
 	outdent`
-		if /* will keep */
+		if // 1
 		(
-			/* will keep */
-			a /* will keep */
-				.b /* will keep */
-		) /* keep */{
-			/* will remove */
+			// 2
+			a // 3
+				.b // 4
+		) // 5
+		{
+			// 6
 			if (
-				/* will remove */
-				c /* will keep */
-					.d /* will remove */
+				// 7
+				c // 8
+					.d // 9
 			) {
-				/* will keep */
+				// 10
 				foo();
-				/* will keep */
+				// 11
 			}
-			/* will remove */
+			// 12
 		}
 	`,
 	// Semicolon
@@ -121,6 +122,12 @@ test.snapshot([
 	outdent`
 		if (a)
 			if (b) foo()
+		;[].forEach(bar)
+	`,
+	outdent`
+		if (a) {
+			if (b) foo()
+		}
 		;[].forEach(bar)
 	`
 ]);
