@@ -151,12 +151,6 @@ const fn = (a, b) => a.concat(b);
 ```
 
 ```js
-const fn = (a, b) => a.concat(b);
-
-[1, 2, 3].reduceRight(fn, []);
-```
-
-```js
 [1, 2, 3].map(x => someFunction({foo: 'bar'})(x));
 ```
 
