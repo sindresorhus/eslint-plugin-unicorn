@@ -109,20 +109,20 @@ const foo = array.filter(Boolean);
 ```
 
 ```js
-const foo = array.find(element => callback(callback));
+const foo = array.find(element => callback(element));
 ```
 
 ```js
-const index = array.findIndex(element => callback(callback));
+const index = array.findIndex(element => callback(element));
 ```
 
 ```js
-const foo = array.some(element => callback(callback));
+const foo = array.some(element => callback(element));
 ```
 
 ```js
 const foo = array.reduce(
-	(accumulator, element) => accumulator + callback(callback),
+	(accumulator, element) => accumulator + callback(element),
 	0
 );
 ```
@@ -131,7 +131,7 @@ const foo = array.reduce(
 const foo = array.reduceRight(
 	(accumulator, element) => [
 		...accumulator,
-		callback(callback)
+		callback(element)
 	],
 	[]
 );
