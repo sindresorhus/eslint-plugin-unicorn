@@ -349,6 +349,19 @@ const create = context => {
 			returnStatements.push(node);
 		},
 		[arrayForEachCallSelector](node) {
+			const {callee} = node;
+			// Ignore `React.Children.forEach()`
+			if (
+				callee.type === 'MemberExpression' &&
+				callee.object.type === 'MemberExpression' &&
+				callee.object.object.type === 'Identifier' &&
+				callee.object.object.name === 'React' &&
+				callee.object.property.type === 'Identifier' &&
+				callee.object.property.name === 'Children'
+			) {
+				return;
+			}
+
 			callExpressions.push({
 				node,
 				scope: context.getScope()

@@ -5,7 +5,9 @@ test.snapshot({
 	valid: [
 		'new foo.forEach(element => bar())',
 		'forEach(element => bar())',
-		'foo.notForEach(element => bar())'
+		'foo.notForEach(element => bar())',
+		// #1087
+		'React.Children.forEach(children, (child) => {});'
 	],
 	invalid: [
 		// Not fixable
