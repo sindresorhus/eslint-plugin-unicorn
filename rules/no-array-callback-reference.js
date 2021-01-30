@@ -69,6 +69,7 @@ const iteratorMethods = [
 });
 
 const ignoredCallee = [
+	// http://bluebirdjs.com/docs/api/promise.map.html
 	'Promise',
 	'React.children',
 	'Children',
