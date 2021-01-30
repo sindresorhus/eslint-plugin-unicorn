@@ -14,6 +14,7 @@ const shouldAddParenthesesToExpressionStatementExpression = require('./utils/sho
 const getParenthesizedTimes = require('./utils/get-parenthesized-times');
 const extendFixRange = require('./utils/extend-fix-range');
 const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside');
+const isNodeMatches = require('./utils/is-node-matches')
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
@@ -315,6 +316,11 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 	return true;
 }
 
+const ignoredObjects = [
+	'React.Children',
+	'Children'
+];
+
 const create = context => {
 	const functionStack = [];
 	const callExpressions = [];
@@ -349,16 +355,7 @@ const create = context => {
 			returnStatements.push(node);
 		},
 		[arrayForEachCallSelector](node) {
-			const {callee} = node;
-			// Ignore `React.Children.forEach()`
-			if (
-				callee.type === 'MemberExpression' &&
-				callee.object.type === 'MemberExpression' &&
-				callee.object.object.type === 'Identifier' &&
-				callee.object.object.name === 'React' &&
-				callee.object.property.type === 'Identifier' &&
-				callee.object.property.name === 'Children'
-			) {
+			if (isNodeMatches(node.callee.object, ignoredObjects)) {
 				return;
 			}
 
