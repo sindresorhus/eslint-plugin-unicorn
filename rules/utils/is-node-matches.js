@@ -1,7 +1,7 @@
 'use strict';
 
-function isNodeMatchesNameOrPaths(node, nameOrPaths) {
-	const names = nameOrPaths.split('.');
+function isNodeMatchesNameOrPath(node, nameOrPath) {
+	const names = nameOrPath.split('.');
 	for (let index = names.length - 1; index >= 0; index--) {
 		const name = names[index];
 		if (index === 0) {
@@ -31,7 +31,7 @@ Check if node matches any object name or key path.
 @returns {boolean}
 */
 function isNodeMatches(node, nameOrPaths) {
-	return nameOrPaths.some(nameOrPath => isNodeMatchesNameOrPaths(node, nameOrPath));
+	return nameOrPaths.some(nameOrPath => isNodeMatchesNameOrPath(node, nameOrPath));
 }
 
 module.exports = isNodeMatches;
