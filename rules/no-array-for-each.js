@@ -14,7 +14,7 @@ const shouldAddParenthesesToExpressionStatementExpression = require('./utils/sho
 const getParenthesizedTimes = require('./utils/get-parenthesized-times');
 const extendFixRange = require('./utils/extend-fix-range');
 const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside');
-const isNodeMatches = require('./utils/is-node-matches')
+const isNodeMatches = require('./utils/is-node-matches');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {

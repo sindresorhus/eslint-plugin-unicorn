@@ -23,7 +23,7 @@ function isNodeMatchesDescription(node, description) {
 }
 
 function isNodeMatches(node, descriptions) {
-	return descriptions.some(description => isNodeMatchesDescription(node, description))
+	return descriptions.some(description => isNodeMatchesDescription(node, description));
 }
 
 module.exports = isNodeMatches;
