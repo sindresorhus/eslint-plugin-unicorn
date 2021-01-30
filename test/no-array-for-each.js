@@ -337,7 +337,11 @@ test.snapshot({
 					bar() {}
 				}
 			].forEach((Foo, bar) => process(Foo, bar))
-		`
+		`,
+		'foo.React.Children.forEach(bar)',
+		'NotReact.Children.forEach(bar)',
+		'React.NotChildren.forEach(bar)',
+		'React?.Children.forEach(bar)'
 	]
 });
 
