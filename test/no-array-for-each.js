@@ -341,7 +341,8 @@ test.snapshot({
 		'foo.React.Children.forEach(bar)',
 		'NotReact.Children.forEach(bar)',
 		'React.NotChildren.forEach(bar)',
-		'React?.Children.forEach(bar)'
+		'React?.Children.forEach(bar)',
+		'NotChildren.forEach(bar)'
 	]
 });
 
