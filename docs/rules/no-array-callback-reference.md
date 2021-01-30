@@ -83,7 +83,7 @@ array.forEach(callback, thisArgument);
 ## Pass
 
 ```js
-const foo = array.map(element = > callback(element));
+const foo = array.map(element => callback(element));
 ```
 
 ```js
