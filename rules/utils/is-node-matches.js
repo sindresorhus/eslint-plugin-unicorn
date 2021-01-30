@@ -1,9 +1,9 @@
 'use strict';
 
-function isNodeMatchesPath(node, path) {
-	const names = path.split('.');
-	for (let index = names.length; index >= 0; index--) {
-		const name = names[indx];
+function isNodeMatchesNameOrPaths(node, nameOrPaths) {
+	const names = nameOrPaths.split('.');
+	for (let index = names.length - 1; index >= 0; index--) {
+		const name = names[index];
 		if (index === 0) {
 			return node.type === 'Identifier' && node.name === name;
 		}
@@ -24,14 +24,14 @@ function isNodeMatchesPath(node, path) {
 }
 
 /**
-Check if node matches any object path.
+Check if node matches any object name or key path.
 
 @param {Node} node - The AST node to check.
-@param {string[]} paths - The object paths.
+@param {string[]} nameOrPaths - The object name or key paths.
 @returns {boolean}
 */
-function isNodeMatches(node, paths) {
-	return paths.some(path => isNodeMatchesPath(node, path));
+function isNodeMatches(node, nameOrPaths) {
+	return nameOrPaths.some(nameOrPath => isNodeMatchesNameOrPaths(node, nameOrPath));
 }
 
 module.exports = isNodeMatches;
