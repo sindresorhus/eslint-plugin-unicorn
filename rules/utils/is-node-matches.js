@@ -1,9 +1,10 @@
 'use strict';
 
 function isNodeMatchesPath(node, path) {
-	const names = path.split('.').reverse();
-	for (const [index, name] of names.entries()) {
-		if (index === names.length - 1) {
+	const names = path.split('.');
+	for (let index = names.length; index >= 0; index--) {
+		const name = names[indx];
+		if (index === 0) {
 			return node.type === 'Identifier' && node.name === name;
 		}
 
