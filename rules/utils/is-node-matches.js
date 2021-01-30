@@ -4,6 +4,7 @@ function isNodeMatchesNameOrPath(node, nameOrPath) {
 	const names = nameOrPath.split('.');
 	for (let index = names.length - 1; index >= 0; index--) {
 		const name = names[index];
+
 		if (index === 0) {
 			return node.type === 'Identifier' && node.name === name;
 		}
@@ -19,8 +20,6 @@ function isNodeMatchesNameOrPath(node, nameOrPath) {
 
 		node = node.object;
 	}
-
-	return true;
 }
 
 /**
