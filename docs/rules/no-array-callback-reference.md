@@ -33,129 +33,132 @@ const unicorn = require('unicorn');
 ## Fail
 
 ```js
-const fn = x => x + 1;
-
-[1, 2, 3].map(fn);
+const foo = array.map(callback);
 ```
 
 ```js
-const fn = x => console.log(x);
-
-[1, 2, 3].forEach(fn);
+array.forEach(callback);
 ```
 
 ```js
-const fn = x => x < 10;
-
-[1, 2, 3].every(fn);
+const foo = array.every(callback);
 ```
 
 ```js
-const fn = x => x % 2;
-
-[1, 2, 3].filter(fn);
+const foo = array.filter(callback);
 ```
 
 ```js
-const fn = x => x === 1;
-
-[1, 2, 3].find(fn);
+const foo = array.find(callback);
 ```
 
 ```js
-const fn = x => x === 1;
-
-[1, 2, 3].findIndex(fn);
+const index = array.findIndex(callback);
 ```
 
 ```js
-const fn = x => x === 2;
-
-[1, 2, 3].some(fn);
+const foo = array.some(callback);
 ```
 
 ```js
-const fn = (a, b) => a + b;
-
-[1, 2, 3].reduce(fn, 0);
+const foo = array.reduce(callback, 0);
 ```
 
 ```js
-const fn = (a, b) => a.concat(b);
-
-[1, 2, 3].reduceRight(fn, []);
+const foo = array.reduceRight(callback, []);
 ```
 
 ```js
-[1, 2, 3].map(someFunction({foo: 'bar'}));
+const foo = array.flatMap(callback);
+```
+
+```js
+array.forEach(someFunction({foo: 'bar'}));
+```
+
+```js
+array.forEach(callback, thisArgument);
 ```
 
 ## Pass
 
 ```js
-const fn = x => x + 1;
-
-[1, 2, 3].map(x => fn(x));
+const foo = array.map(element => callback(element));
 ```
 
 ```js
-const fn = x => console.log(x);
-
-[1, 2, 3].forEach(x => fn(x));
+const foo = array.map(Boolean);
 ```
 
 ```js
-const fn = x => x < 10;
-
-[1, 2, 3].every(x => fn(x));
+array.forEach(element => {
+	callback(element);
+});
 ```
 
 ```js
-const fn = x => x % 2;
-
-[1, 2, 3].filter(x => fn(x));
+const foo = array.every(element => callback(element));
 ```
 
 ```js
-[undefined, 2, 3].filter(Boolean);
+const foo = array.filter(element => callback(element));
 ```
 
 ```js
-const fn = x => x === 1;
-
-[1, 2, 3].find(x => fn(x));
+const foo = array.filter(Boolean);
 ```
 
 ```js
-const fn = x => x === 1;
-
-[1, 2, 3].findIndex(x => fn(x));
+const foo = array.find(element => callback(element));
 ```
 
 ```js
-const fn = x => x === 2;
-
-[1, 2, 3].some(x => fn(x));
+const index = array.findIndex(element => callback(element));
 ```
 
 ```js
-const fn = (a, b) => a + b;
-
-[1, 2, 3].reduce((a, b) => fn(a, b), 0);
+const foo = array.some(element => callback(element));
 ```
 
 ```js
-const fn = (a, b) => a.concat(b);
-
-[1, 2, 3].reduceRight((a, b) => fn(a, b), []);
+const foo = array.reduce(
+	(accumulator, element) => accumulator + callback(element),
+	0
+);
 ```
 
 ```js
-[1, 2, 3].map(x => someFunction({foo: 'bar'})(x));
+const foo = array.reduceRight(
+	(accumulator, element) => [
+		...accumulator,
+		callback(element)
+	],
+	[]
+);
 ```
 
 ```js
-const fn = x => x === 2;
+const foo = array.flatMap(element => callback(element));
+```
 
-Promise.map(filenames, fn);
+```js
+const callback = someFunction({foo: 'bar'});
+
+array.forEach(element => {
+	callback(element);
+});
+```
+
+```js
+array.forEach(function (element) {
+	callback(element, this);
+}, thisArgument);
+```
+
+```js
+function readFile(filename) {
+	return fs.readFile(filename, 'utf8');
+}
+
+Promise.map(filenames, readFile);
 ```
