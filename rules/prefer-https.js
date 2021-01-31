@@ -7,7 +7,7 @@ const messages = {
 };
 
 //	Helper to determine if a string is an unsafe URL.
-const containsHttp = nodeValue => /http:\/\/(www\.)?[-\w@:%.+~#=]{2,256}\.[a-z]{2,4}\b([-\w@:%+.~#?&/=]*)/.test(nodeValue);
+const containsHttp = nodeValue => /http:\/\/(www\.)?[\w#%+.:=@~-]{2,256}\.[a-z]{2,4}\b([\w#%&+./:=?@~-]*)/.test(nodeValue);
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
