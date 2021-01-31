@@ -1,27 +1,28 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
-
 const MESSAGE_ID = 'prefer-https';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{value}}`.'
 };
 
-//	Helper to determine if a string literal contains
-const httpRegExp = new RegExp('http://'); // eslint-disable-line unicorn/prefer-https
-const containsHttp = (nodeValue) => httpRegExp.test(nodeValue);
+//	Helper to determine if a string is an unsafe URL.
+const containsHttp = nodeValue => /http:\/\/(www\.)?[-\w@:%.+~#=]{2,256}\.[a-z]{2,4}\b([-\w@:%+.~#?&/=]*)/.test(nodeValue);
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
-	const reportPreferHttp = node => context.report({
-		node,
-		messageId: MESSAGE_ID,
-		data: {
-			value: 'http',
-			replacement: 'https'
-		},
-		fix: fixer => fixer.replaceText(node, 'https')
-	});
+	const reportPreferHttp = node => {
+		const fixed = node.value.replace('http', 'https');
+		return context.report({
+			node,
+			messageId: MESSAGE_ID,
+			data: {
+				value: 'http',
+				replacement: 'https'
+			},
+			fix: fixer => fixer.replaceText(node, fixed)
+		});
+	};
 
 	return {
 		Program() {
@@ -38,7 +39,7 @@ const create = context => {
 				reportPreferHttp(node);
 			}
 		}
-	}
+	};
 };
 
 module.exports = {

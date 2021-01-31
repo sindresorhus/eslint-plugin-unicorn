@@ -19,6 +19,6 @@ const foo = 'https://sindresorhus.com';
 new URL('https://sindresorhus.com');
 // https://sindresorhus.com
 
-// Localhost/domains without a TLD are ignored:
+// Localhost/URLs without a TLD are ignored:
 const foo = 'http://localhost';
 ```
