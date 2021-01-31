@@ -1,3 +1,4 @@
+// eslint-disable unicorn/prefer-https
 import {test} from './utils/test.js';
 
 test.snapshot({
