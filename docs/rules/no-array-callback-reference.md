@@ -143,6 +143,7 @@ const foo = array.flatMap(element => callback(element));
 
 ```js
 const callback = someFunction({foo: 'bar'});
+
 array.forEach(element => {
 	callback(element);
 });
@@ -158,5 +159,6 @@ array.forEach(function (element) {
 function readFile(filename) {
 	return fs.readFile(filename, 'utf8');
 }
+
 Promise.map(filenames, readFile);
 ```
