@@ -8,7 +8,9 @@ This rule is fixable.
 
 ```js
 const foo = 'http://sindresorhus.com';
+
 new URL('http://sindresorhus.com');
+
 // http://sindresorhus.com
 
 // Foo bar http is good: https://sindresorhus.com
@@ -18,10 +20,14 @@ new URL('http://sindresorhus.com');
 
 ```js
 const foo = 'https://sindresorhus.com';
-new URL('https://sindresorhus.com');
-// https://sindresorhus.com
 
-// Localhost/URLs without a TLD are ignored:
+new URL('https://sindresorhus.com');
+
+// https://sindresorhus.com
+```
+
+```js
+// Localhost and URLs without a TLD are ignored.
 const foo = 'http://localhost';
 
 // Foo bar http is good: https://sindresorhus.com
