@@ -3,6 +3,7 @@ const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const {notFunctionSelector} = require('./utils/not-function');
+const isNodeMatches = require('./utils/is-node-matches');
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
@@ -71,7 +72,7 @@ const iteratorMethods = [
 const ignoredCallee = [
 	// http://bluebirdjs.com/docs/api/promise.map.html
 	'Promise',
-	'React.children',
+	'React.Children',
 	'Children',
 	'lodash',
 	'underscore',
@@ -79,18 +80,6 @@ const ignoredCallee = [
 	'Async',
 	'async'
 ];
-
-const toSelector = name => {
-	const splitted = name.split('.');
-	return `[callee.${'object.'.repeat(splitted.length)}name!="${splitted.shift()}"]`;
-};
-
-// Select all the call expressions except the ones present in the ignore list.
-const ignoredCalleeSelector = [
-	// `this.{map, filter, …}()`
-	'[callee.object.type!="ThisExpression"]',
-	...ignoredCallee.map(name => toSelector(name))
-].join('');
 
 function check(context, node, method, options) {
 	const {type} = node;
@@ -162,11 +151,17 @@ const create = context => {
 				max: 2
 			}),
 			options.extraSelector,
-			ignoredCalleeSelector,
 			ignoredFirstArgumentSelector
 		].join('');
 
 		rules[selector] = node => {
+			if (
+				isNodeMatches(node.callee.object, ignoredCallee) ||
+				node.callee.object.type === 'ThisExpression'
+			) {
+				return;
+			}
+
 			const [iterator] = node.arguments;
 			check(context, iterator, method, options, sourceCode);
 		};

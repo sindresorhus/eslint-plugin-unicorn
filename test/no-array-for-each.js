@@ -5,7 +5,10 @@ test.snapshot({
 	valid: [
 		'new foo.forEach(element => bar())',
 		'forEach(element => bar())',
-		'foo.notForEach(element => bar())'
+		'foo.notForEach(element => bar())',
+		// #1087
+		'React.Children.forEach(children, (child) => {});',
+		'Children.forEach(children, (child) => {});'
 	],
 	invalid: [
 		// Not fixable
@@ -334,7 +337,12 @@ test.snapshot({
 					bar() {}
 				}
 			].forEach((Foo, bar) => process(Foo, bar))
-		`
+		`,
+		'foo.React.Children.forEach(bar)',
+		'NotReact.Children.forEach(bar)',
+		'React.NotChildren.forEach(bar)',
+		'React?.Children.forEach(bar)',
+		'NotChildren.forEach(bar)'
 	]
 });
 
