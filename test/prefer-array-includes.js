@@ -109,34 +109,6 @@ test({
 		suggestionCase({
 			code: 'values.some(x => foo() === x)',
 			output: 'values.includes(foo())'
-		}),
-		suggestionCase({
-			code: 'values.some(x => {return x === foo();})',
-			output: 'values.includes(foo())'
-		}),
-		suggestionCase({
-			code: 'values.some(x => {return foo() === x;})',
-			output: 'values.includes(foo())'
-		}),
-		suggestionCase({
-			code: '/* 1 */values/* 2 */./* 3 */some/* 4 */(x => x === foo())',
-			output: '/* 1 */values/* 2 */./* 3 */includes/* 4 */(foo())'
-		}),
-		suggestionCase({
-			code: 'values.some(function(x) {return x === foo();})',
-			output: 'values.includes(foo())'
-		}),
-		suggestionCase({
-			code: 'values.some(function(x) {return foo() === x;})',
-			output: 'values.includes(foo())'
-		}),
-		suggestionCase({
-			code: 'values.some(x => (x === foo()))',
-			output: 'values.includes(foo())'
-		}),
-		suggestionCase({
-			code: 'values.some((x => foo() === x))',
-			output: 'values.includes((foo()))'
 		})
 	]
 });
@@ -159,3 +131,37 @@ test.typescript({
 		}
 	]
 });
+
+test.snapshot([
+	'values.some(x => x === "foo")',
+	'values.some(x => "foo" === x)',
+	'values.some(x => {return x === "foo";})',
+	'values.some(function (x) {return x === "foo";})',
+	outdent`
+		// 1
+		(0, values)
+			// 2
+			./* 3 */some /* 3 */ (
+				/* 4 */
+				x /* 5 */ => /* 6 */ x /* 7 */ === /* 8 */ "foo" /* 9 */
+			) /* 10 */
+	`,
+	outdent`
+		foo.some(function (element) {
+			return element === bar.some(x => x === 1);
+		});
+	`,
+	'values.some(x => x === (0, "foo"))',
+	'values.some((x => x === (0, "foo")))',
+	// `this`/`arguments` in arrow functions
+	outdent`
+		function fn() {
+			foo.some(x => x === arguments.length)
+		}
+	`,
+	outdent`
+		function fn() {
+			foo.some(x => x === this[1])
+		}
+	`
+]);
