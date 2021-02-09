@@ -19,11 +19,16 @@ const isIdentifierNamed = ({type, name}, expectName) => type === 'Identifier' &&
 
 function simpleArraySearchRule({method, replacement}) {
 	// Add prefix to avoid conflicts in `prefer-includes` rule
-	const MESSAGE_ID_PREFIX = `prefer-${replacement}-over-${method}/`;
+	const MESSAGE_ID_PREFIX = `prefer-${replacement}-over-${method}/`
 	const ERROR = `${MESSAGE_ID_PREFIX}/error`;
 	const SUGGESTION = `${MESSAGE_ID_PREFIX}/suggestion`;
+	const ERROR_MESSAGES = {
+		findIndex: 'Use `.indexOf()` instead of `.findIndex()` when looking for the index of an item.',
+		some: `Use \`.${replacement}()\` instead of \`.${method}()\` when checking value existence.`
+	}
+
 	const messages = {
-		[ERROR]: `Use \`.${replacement}()\` instead of \`.${method}()\` when looking for the index of an item.`,
+		[ERROR]: ERROR_MESSAGES[method],
 		[SUGGESTION]: `Replace \`.${method}()\` with \`.${replacement}()\`.`
 	};
 
