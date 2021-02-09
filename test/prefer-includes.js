@@ -1,4 +1,5 @@
 import {test} from './utils/test.js';
+import tests from './shared/simple-array-search-rule-tests.js';
 
 test.snapshot({
 	valid: [
@@ -31,3 +32,11 @@ test.snapshot({
 		'foo.indexOf(bar, 1) !== -1'
 	]
 });
+
+const {snapshot, typescript} = tests({
+	method: 'some',
+	replacement: 'includes'
+});
+
+test.snapshot(snapshot);
+test.typescript(typescript);

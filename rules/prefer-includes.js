@@ -2,6 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isMethodNamed = require('./utils/is-method-named');
 const isLiteralValue = require('./utils/is-literal-value');
+const simpleArraySearchRule = require('./shared/simple-array-search-rule');
 
 const MESSAGE_ID = 'prefer-includes';
 const messages = {
@@ -37,6 +38,11 @@ const report = (context, node, target, argumentsNodes) => {
 	});
 };
 
+const includesOverSomeRule = simpleArraySearchRule({
+	method: 'some',
+	replacement: 'includes'
+});
+
 const create = context => ({
 	BinaryExpression: node => {
 		const {left, right, operator} = node;
@@ -69,7 +75,8 @@ const create = context => ({
 				argumentsNodes
 			);
 		}
-	}
+	},
+	...includesOverSomeRule.createListeners(context)
 });
 
 module.exports = {
@@ -80,6 +87,9 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages
+		messages: {
+			...messages,
+			...includesOverSomeRule.messages
+		}
 	}
 };

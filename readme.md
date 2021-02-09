@@ -162,7 +162,7 @@ Configure it in `package.json`.
 - [prefer-dom-node-dataset](docs/rules/prefer-dom-node-dataset.md) - Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. *(fixable)*
 - [prefer-dom-node-remove](docs/rules/prefer-dom-node-remove.md) - Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`. *(fixable)*
 - [prefer-dom-node-text-content](docs/rules/prefer-dom-node-text-content.md) - Prefer `.textContent` over `.innerText`. *(fixable)*
-- [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
+- [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence. *(partly fixable)*
 - [prefer-keyboard-event-key](docs/rules/prefer-keyboard-event-key.md) - Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. *(partly fixable)*
 - [prefer-math-trunc](docs/rules/prefer-math-trunc.md) - Enforce the use of `Math.trunc` instead of bitwise operators. *(partly fixable)*
 - [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md) - Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`. *(fixable)*
