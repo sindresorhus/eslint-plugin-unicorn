@@ -2,10 +2,15 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const simpleArraySearchRule = require('./shared/simple-array-search-rule');
 
-const {messages, createListeners} = simpleArraySearchRule();
+const {messages, createListeners} = simpleArraySearchRule({
+	method: 'findIndex',
+	replacement: 'indexOf'
+});
+
+const create = context => createListeners(context)
 
 module.exports = {
-	create: context => createListeners(context),
+	create,
 	meta: {
 		type: 'suggestion',
 		docs: {

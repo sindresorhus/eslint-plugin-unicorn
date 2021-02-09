@@ -17,17 +17,19 @@ const getFunctionSelector = path => [
 ].join('');
 const isIdentifierNamed = ({type, name}, expectName) => type === 'Identifier' && name === expectName;
 
-function simpleArraySearchRule() {
-	const MESSAGE_ID_FIND_INDEX = 'findIndex';
-	const MESSAGE_ID_REPLACE = 'replaceFindIndex';
+function simpleArraySearchRule({method, replacement}) {
+	// Add prefix to avoid conflicts in `prefer-includes` rule
+	const MESSAGE_ID_PREFIX = `prefer-${replacement}-over-${method}/`
+	const ERROR = `${MESSAGE_ID_PREFIX}/error`;
+	const SUGGESTION = `${MESSAGE_ID_PREFIX}/suggestion`;
 	const messages = {
-		[MESSAGE_ID_FIND_INDEX]: 'Use `.indexOf()` instead of `.findIndex()` when looking for the index of an item.',
-		[MESSAGE_ID_REPLACE]: 'Replace `.findIndex()` with `.indexOf()`.'
+		[ERROR]: `Use \`.${replacement}()\` instead of \`.${method}()\` when looking for the index of an item.`,
+		[SUGGESTION]: `Replace \`.${method}()\` with \`.${replacement}()\`.`
 	};
 
 	const selector = [
 		methodSelector({
-			name: 'findIndex',
+			name: method,
 			length: 1
 		}),
 		`:matches(${
@@ -90,7 +92,7 @@ function simpleArraySearchRule() {
 				const method = node.callee.property;
 				const problem = {
 					node: method,
-					messageId: MESSAGE_ID_FIND_INDEX,
+					messageId: ERROR,
 					suggest: []
 				};
 
@@ -100,12 +102,12 @@ function simpleArraySearchRule() {
 						text = `(${text})`;
 					}
 
-					yield fixer.replaceText(method, 'indexOf');
+					yield fixer.replaceText(method, replacement);
 					yield fixer.replaceText(callback, text);
 				};
 
 				if (hasSideEffect(searchValueNode, sourceCode)) {
-					problem.suggest.push({messageId: MESSAGE_ID_REPLACE, fix});
+					problem.suggest.push({messageId: SUGGESTION, fix});
 				} else {
 					problem.fix = fix;
 				}
@@ -118,4 +120,4 @@ function simpleArraySearchRule() {
 	return {messages, createListeners};
 }
 
-module.exports = simpleArraySearchRule
+module.exports = simpleArraySearchRule;
