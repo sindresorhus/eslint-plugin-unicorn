@@ -15,6 +15,26 @@ const getFunctionSelector = path => [
 	`[${path}.params.length=1]`,
 	`[${path}.params.0.type="Identifier"]`
 ].join('');
+const callbackFunctionSelector = path => `:matches(${
+	[
+		// Matches `foo.findIndex(bar => bar === baz)`
+		[
+			`[${path}.type="ArrowFunctionExpression"]`,
+			getFunctionSelector(path),
+			getBinaryExpressionSelector(`${path}.body`)
+		].join(''),
+		// Matches `foo.findIndex(bar => {return bar === baz})`
+		// Matches `foo.findIndex(function (bar) {return bar === baz})`
+		[
+			`:matches([${path}.type="ArrowFunctionExpression"], [${path}.type="FunctionExpression"])`,
+			getFunctionSelector(path),
+			`[${path}.body.type="BlockStatement"]`,
+			`[${path}.body.body.length=1]`,
+			`[${path}.body.body.0.type="ReturnStatement"]`,
+			getBinaryExpressionSelector(`${path}.body.body.0.argument`)
+		].join('')
+	].join(', ')
+})`;
 const isIdentifierNamed = ({type, name}, expectName) => type === 'Identifier' && name === expectName;
 
 function simpleArraySearchRule({method, replacement}) {
@@ -37,26 +57,7 @@ function simpleArraySearchRule({method, replacement}) {
 			name: method,
 			length: 1
 		}),
-		`:matches(${
-			[
-				// Matches `foo.findIndex(bar => bar === baz)`
-				[
-					'[arguments.0.type="ArrowFunctionExpression"]',
-					getFunctionSelector('arguments.0'),
-					getBinaryExpressionSelector('arguments.0.body')
-				].join(''),
-				// Matches `foo.findIndex(bar => {return bar === baz})`
-				// Matches `foo.findIndex(function (bar) {return bar === baz})`
-				[
-					':matches([arguments.0.type="ArrowFunctionExpression"], [arguments.0.type="FunctionExpression"])',
-					getFunctionSelector('arguments.0'),
-					'[arguments.0.body.type="BlockStatement"]',
-					'[arguments.0.body.body.length=1]',
-					'[arguments.0.body.body.0.type="ReturnStatement"]',
-					getBinaryExpressionSelector('arguments.0.body.body.0.argument')
-				].join('')
-			].join(', ')
-		})`
+		callbackFunctionSelector('arguments.0')
 	].join('');
 
 	function createListeners(context) {
