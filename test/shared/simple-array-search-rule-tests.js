@@ -1,5 +1,5 @@
-`use strict`;
-const {outdent} = require(`outdent`);
+'use strict';
+const {outdent} = require('outdent');
 
 function snapshotTests({method, replacement}) {
 	return {
@@ -20,7 +20,7 @@ function snapshotTests({method, replacement}) {
 			// Computed
 			`foo[${method}](x => x === 1)`,
 			// Not `findIndex`
-			`foo.notListedMethod(x => x === 1)`,
+			'foo.notListedMethod(x => x === 1)',
 
 			// Test `callback` part
 			// Not function
@@ -124,7 +124,7 @@ function snapshotTests({method, replacement}) {
 				})
 			`
 		]
-	}
+	};
 }
 
 function typescriptTests({method, replacement}) {
@@ -151,8 +151,8 @@ function typescriptTests({method, replacement}) {
 function tests(options) {
 	return {
 		snapshot: snapshotTests(options),
-		typescript: typescriptTests(options),
-	}
+		typescript: typescriptTests(options)
+	};
 }
 
-module.exports = tests
+module.exports = tests;

@@ -19,7 +19,7 @@ const isIdentifierNamed = ({type, name}, expectName) => type === 'Identifier' &&
 
 function simpleArraySearchRule({method, replacement}) {
 	// Add prefix to avoid conflicts in `prefer-includes` rule
-	const MESSAGE_ID_PREFIX = `prefer-${replacement}-over-${method}/`
+	const MESSAGE_ID_PREFIX = `prefer-${replacement}-over-${method}/`;
 	const ERROR = `${MESSAGE_ID_PREFIX}/error`;
 	const SUGGESTION = `${MESSAGE_ID_PREFIX}/suggestion`;
 	const messages = {

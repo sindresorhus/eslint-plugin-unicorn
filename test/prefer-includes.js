@@ -1,5 +1,5 @@
 import {test} from './utils/test.js';
-import tests from './shared/simple-array-search-rule-tests';
+import tests from './shared/simple-array-search-rule-tests.js';
 
 test.snapshot({
 	valid: [
