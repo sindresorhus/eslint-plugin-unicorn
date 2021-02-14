@@ -39,6 +39,7 @@
 		"clean-regexp": "^1.0.0",
 		"eslint-template-visitor": "^2.2.2",
 		"eslint-utils": "^2.1.0",
+		"eslint-visitor-keys": "^2.0.0",
 		"import-modules": "^2.1.0",
 		"lodash": "^4.17.20",
 		"pluralize": "^8.0.0",
