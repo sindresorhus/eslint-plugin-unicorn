@@ -1827,6 +1827,12 @@ runTest.typescript({
 			errors: 1
 		},
 
+		// #1102
+		noFixingTestCase({
+			code: 'export type Props = string',
+			errors: createErrors()
+		}),
+
 		// #347
 		{
 			code: outdent`
@@ -1858,7 +1864,7 @@ runTest.typescript({
 				export type PreloadProps<TExtraProps = null> = {}
 			`,
 			output: outdent`
-				export type PreloadProperties<TExtraProperties = null> = {}
+				export type PreloadProps<TExtraProperties = null> = {}
 			`,
 			errors: [...createErrors(), ...createErrors()]
 		}
