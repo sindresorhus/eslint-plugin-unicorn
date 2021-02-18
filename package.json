@@ -125,6 +125,14 @@
 		],
 		"rules": {
 			"strict": "error",
+			"node/no-unsupported-features/node-builtins": [
+				"off",
+				{
+					"ignores": [
+						"module.createRequire"
+					]
+				}
+			],
 			"unicorn/no-null": "error",
 			"unicorn/prevent-abbreviations": [
 				"error",

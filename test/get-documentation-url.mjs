@@ -1,8 +1,6 @@
-import { createRequire } from 'module';
+import {createRequire} from 'module';
 import test from 'ava';
-import fs from 'fs';
 import url from 'url';
-import path from 'path';
 import getDocumentationUrl from '../rules/utils/get-documentation-url.js';
 
 const require = createRequire(import.meta.url);
