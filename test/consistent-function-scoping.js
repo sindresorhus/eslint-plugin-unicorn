@@ -115,6 +115,51 @@ test({
 			}
 		`,
 		outdent`
+			for (const foo of []) {
+				function doBar(bar) {
+					return bar + foo;
+				}
+			}
+		`,
+		outdent`
+			for (const foo in {}) {
+				function doBar(bar) {
+					return bar + foo;
+				}
+			}
+		`,
+		outdent`
+			try {
+				const foo = 1;
+				function doBar(bar) {
+					return bar + foo;
+				}
+			} catch {}
+		`,
+		outdent`
+			try {} catch {
+				const foo = 1;
+				function doBar(bar) {
+					return bar + foo;
+				}
+			}
+		`,
+		outdent`
+			try {} catch (foo) {
+				function doBar(bar) {
+					return bar + foo;
+				}
+			}
+		`,
+		outdent`
+			if (false) {
+				const foo = 1;
+				function doBar(bar) {
+					return bar + foo;
+				}
+			}
+		`,
+		outdent`
 			let foo = 0;
 			function doFoo() {
 				foo = 1;
@@ -136,16 +181,6 @@ test({
 				foo + bar;
 		`,
 		outdent`
-			const doFoo = () => {
-				return bar => bar;
-			}
-		`,
-		outdent`
-			function doFoo() {
-				return bar => bar;
-			}
-		`,
-		outdent`
 			const doFoo = foo => {
 				const doBar = bar => {
 					return foo + bar;
@@ -165,16 +200,6 @@ test({
 		`,
 		outdent`
 			function doFoo(foo) {
-				{
-					function doBar(bar) {
-						return bar;
-					}
-				}
-				return foo;
-			}
-		`,
-		outdent`
-			function doFoo(foo) {
 				function doBar(bar) {
 					foo.bar = bar;
 				}
@@ -184,11 +209,6 @@ test({
 
 				doZaz('zaz');
 			};
-		`,
-		outdent`
-			function doFoo() {
-				return function doBar() {};
-			}
 		`,
 		outdent`
 			function doFoo(Foo) {
@@ -748,6 +768,43 @@ test({
 			`,
 			errors: [createError('function \'inner\'')],
 			options: [{checkArrowFunctions: false}]
+		},
+		{
+			code: outdent`
+				const doFoo = () => {
+					return bar => bar;
+				}
+			`,
+			errors: 1
+		},
+		{
+			code: outdent`
+			function doFoo() {
+				return bar => bar;
+			}
+			`,
+			errors: 1
+		},
+		{
+			code: outdent`
+				function doFoo() {
+					return function doBar() {};
+				}
+			`,
+			errors: 1
+		},
+		{
+			code: outdent`
+				function doFoo(foo) {
+					{
+						function doBar(bar) {
+							return bar;
+						}
+					}
+					return foo;
+				}
+			`,
+			errors: 1
 		}
 	]
 });
