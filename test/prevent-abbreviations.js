@@ -1880,7 +1880,7 @@ runTest.babelLegacy({
 				export type PreloadProps<TExtraProps = null> = {};
 			`,
 			output: outdent`
-				export type PreloadProperties<TExtraProperties = null> = {};
+				export type PreloadProps<TExtraProperties = null> = {};
 			`,
 			errors: [...createErrors(), ...createErrors()]
 		}

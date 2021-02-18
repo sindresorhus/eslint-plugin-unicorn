@@ -431,6 +431,13 @@ const isExportedIdentifier = identifier => {
 		return identifier.parent.parent.type === 'ExportNamedDeclaration';
 	}
 
+	if (
+		identifier.parent.type === 'TypeAlias' &&
+		identifier.parent.id === identifier
+	) {
+		return identifier.parent.parent.type === 'ExportNamedDeclaration';
+	}
+
 	return false;
 };
 
