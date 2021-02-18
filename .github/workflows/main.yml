@@ -12,7 +12,6 @@ jobs:
         node-version:
           - 14
           - 12
-          - 10
         os:
           - ubuntu-latest
           - windows-latest
