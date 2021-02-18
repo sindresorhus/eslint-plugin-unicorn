@@ -1,4 +1,3 @@
-
 import {getTester} from './utils/test.js';
 import tests from './shared/simple-array-search-rule-tests.js';
 
