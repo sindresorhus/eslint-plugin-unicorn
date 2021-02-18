@@ -50,7 +50,6 @@
 		"semver": "^7.3.4"
 	},
 	"devDependencies": {
-		"@ava/babel": "^1.0.1",
 		"@babel/code-frame": "7.12.13",
 		"@babel/core": "7.12.10",
 		"@babel/eslint-parser": "7.12.1",
@@ -66,6 +65,7 @@
 		"eslint-remote-tester": "^1.1.0",
 		"execa": "^5.0.0",
 		"listr": "^0.14.3",
+		"lodash-es": "4.17.20",
 		"mem": "8.0.0",
 		"nyc": "^15.1.0",
 		"outdent": "^0.8.0",
@@ -78,9 +78,8 @@
 		"eslint": ">=7.17.0"
 	},
 	"ava": {
-		"babel": true,
 		"files": [
-			"test/*.js"
+			"test/*.mjs"
 		]
 	},
 	"nyc": {
@@ -99,6 +98,9 @@
 		"extends": [
 			"plugin:eslint-plugin/all"
 		],
+		"extensions": [
+			"mjs"
+		],
 		"ignores": [
 			"test/integration/{fixtures,fixtures-local}/**",
 			".cache-eslint-remote-tester",
@@ -114,7 +116,6 @@
 			},
 			{
 				"files": [
-					"test/*.js",
 					"**/*.mjs"
 				],
 				"parserOptions": {
@@ -124,6 +125,14 @@
 		],
 		"rules": {
 			"strict": "error",
+			"node/no-unsupported-features/node-builtins": [
+				"off",
+				{
+					"ignores": [
+						"module.createRequire"
+					]
+				}
+			],
 			"unicorn/no-null": "error",
 			"unicorn/prevent-abbreviations": [
 				"error",
