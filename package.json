@@ -98,6 +98,9 @@
 		"extends": [
 			"plugin:eslint-plugin/all"
 		],
+		"extensions": [
+			"mjs"
+		],
 		"ignores": [
 			"test/integration/{fixtures,fixtures-local}/**",
 			".cache-eslint-remote-tester",
@@ -113,7 +116,6 @@
 			},
 			{
 				"files": [
-					"test/*.js",
 					"**/*.mjs"
 				],
 				"parserOptions": {
