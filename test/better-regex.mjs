@@ -42,6 +42,9 @@ test({
 		'/(\\s|\\.|@|_|-)/u',
 		'/[\\s.@_-]/u',
 
+		// Should not remove repeating patterns too easily (#769)
+		'/http:\\/\\/[^/]+\\/pull\\/commits/gi',
+
 		{
 			code: '/[GgHhIiå.Z:a-f"0-8%A*ä]/',
 			options: disableSortCharacterClassesOptions
@@ -71,7 +74,11 @@ test({
 		'new RegExp()',
 
 		// #472
-		'/[ ;-]/g'
+		'/[ ;-]/g',
+
+		// #994
+		'/\\s?\\s?/', // https://github.com/DmitrySoshnikov/regexp-tree/issues/216#issuecomment-762073297
+		'/\\s{0,2}/'
 	],
 	invalid: [
 		// Literal regex
@@ -270,6 +277,11 @@ test({
 		testCase(
 			'/[ \\n\\t\\r\\f(){}:;@!\'"\\\\\\][#]|\\/(?=\\*)/g',
 			'/[\\t\\n\\f\\r !"#\'():;@[\\\\\\]{}]|\\/(?=\\*)/g'
+		),
+		// #994
+		testCase(
+			'/\\s?\\s?\\s?/',
+			'/\\s{0,3}/'
 		),
 		// Actual message
 		{

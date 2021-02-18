@@ -1,6 +1,5 @@
 'use strict';
 const path = require('path');
-const astUtils = require('eslint-ast-utils');
 const {defaultsDeep, upperFirst, lowerFirst} = require('lodash');
 
 const getDocumentationUrl = require('./utils/get-documentation-url');
@@ -389,8 +388,10 @@ const formatMessage = (discouragedName, replacements, nameTypeText) => {
 			replacementsText += `, ... (${omittedReplacementsCount > 99 ? '99+' : omittedReplacementsCount} more omitted)`;
 		}
 
-		message.push(`Please rename the ${nameTypeText} \`${discouragedName}\`.`);
-		message.push(`Suggested names are: ${replacementsText}.`);
+		message.push(
+			`Please rename the ${nameTypeText} \`${discouragedName}\`.`,
+			`Suggested names are: ${replacementsText}.`
+		);
 	}
 
 	message.push(anotherNameMessage);
@@ -423,12 +424,36 @@ const isExportedIdentifier = identifier => {
 		return identifier.parent.parent.type === 'ExportNamedDeclaration';
 	}
 
+	if (
+		identifier.parent.type === 'TSTypeAliasDeclaration' &&
+		identifier.parent.id === identifier
+	) {
+		return identifier.parent.parent.type === 'ExportNamedDeclaration';
+	}
+
+	if (
+		identifier.parent.type === 'TypeAlias' &&
+		identifier.parent.id === identifier
+	) {
+		return identifier.parent.parent.type === 'ExportNamedDeclaration';
+	}
+
 	return false;
 };
 
 const shouldFix = variable => {
 	return !getVariableIdentifiers(variable).some(identifier => isExportedIdentifier(identifier));
 };
+
+const isStaticRequire = node => Boolean(
+	node &&
+	node.callee &&
+	node.callee.type === 'Identifier' &&
+	node.callee.name === 'require' &&
+	node.arguments.length === 1 &&
+	node.arguments[0].type === 'Literal' &&
+	typeof node.arguments[0].value === 'string'
+);
 
 const isDefaultOrNamespaceImportName = identifier => {
 	if (
@@ -457,7 +482,7 @@ const isDefaultOrNamespaceImportName = identifier => {
 	if (
 		identifier.parent.type === 'VariableDeclarator' &&
 		identifier.parent.id === identifier &&
-		astUtils.isStaticRequire(identifier.parent.init)
+		isStaticRequire(identifier.parent.init)
 	) {
 		return true;
 	}
@@ -567,7 +592,7 @@ const create = context => {
 					scope: variable.scope,
 					defs: variable.defs,
 					identifiers: variable.identifiers,
-					references: variable.references.concat(outerClassVariable.references)
+					references: [...variable.references, ...outerClassVariable.references]
 				};
 
 				// Call the common checker with the newly forged normalized class variable
@@ -638,7 +663,10 @@ const create = context => {
 			return;
 		}
 
-		const scopes = variable.references.map(reference => reference.from).concat(variable.scope);
+		const scopes = [
+			...variable.references.map(reference => reference.from),
+			variable.scope
+		];
 		variableReplacements.samples = variableReplacements.samples.map(
 			name => avoidCapture(name, scopes, ecmaVersion, isSafeName)
 		);
@@ -671,11 +699,15 @@ const create = context => {
 	};
 
 	const checkVariables = scope => {
-		scope.variables.forEach(variable => checkPossiblyWeirdClassVariable(variable));
+		for (const variable of scope.variables) {
+			checkPossiblyWeirdClassVariable(variable);
+		}
 	};
 
 	const checkChildScopes = scope => {
-		scope.childScopes.forEach(scope => checkScope(scope));
+		for (const childScope of scope.childScopes) {
+			checkScope(childScope);
+		}
 	};
 
 	const checkScope = scope => {

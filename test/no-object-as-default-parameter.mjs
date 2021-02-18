@@ -163,7 +163,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	'function abc(foo = {a: 123}) {}',
 	'const abc = (foo = {a: false}) => {};'
 ]);

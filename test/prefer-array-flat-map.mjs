@@ -227,7 +227,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	'const bar = [[1],[2],[3]].map(i => [i]).flat()',
 	'const bar = [[1],[2],[3]].map(i => [i]).flat(1.00)',
 	'const bar = [[1],[2],[3]].map(i => [i]).flat(1,)',

@@ -1,4 +1,4 @@
-# eslint-plugin-unicorn [![Coverage Status](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/master/graph/badge.svg)](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/master)
+# eslint-plugin-unicorn [![Coverage Status](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/main/graph/badge.svg)](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/main)
 
 <img src="https://cloud.githubusercontent.com/assets/170270/18659176/1cc373d0-7f33-11e6-890f-0ba35362ee7e.jpg" width="180" align="right">
 
@@ -49,6 +49,8 @@ Configure it in `package.json`.
 			"unicorn/new-for-builtins": "error",
 			"unicorn/no-abusive-eslint-disable": "error",
 			"unicorn/no-array-callback-reference": "error",
+			"unicorn/no-array-for-each": "error",
+			"unicorn/no-array-push-push": "error",
 			"unicorn/no-array-reduce": "error",
 			"unicorn/no-console-spaces": "error",
 			"unicorn/no-for-loop": "error",
@@ -63,6 +65,7 @@ Configure it in `package.json`.
 			"unicorn/no-null": "error",
 			"unicorn/no-object-as-default-parameter": "error",
 			"unicorn/no-process-exit": "error",
+			"unicorn/no-this-assignment": "error",
 			"unicorn/no-unreadable-array-destructuring": "error",
 			"unicorn/no-unsafe-regex": "off",
 			"unicorn/no-unused-properties": "off",
@@ -125,6 +128,8 @@ Configure it in `package.json`.
 - [new-for-builtins](docs/rules/new-for-builtins.md) - Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`. *(partly fixable)*
 - [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) - Enforce specifying rules to disable in `eslint-disable` comments.
 - [no-array-callback-reference](docs/rules/no-array-callback-reference.md) - Prevent passing a function reference directly to iterator methods.
+- [no-array-for-each](docs/rules/no-array-for-each.md) - Prefer `for…of` over `Array#forEach(…)`. *(partly fixable)*
+- [no-array-push-push](docs/rules/no-array-push-push.md) - Enforce combining multiple `Array#push()` into one call. *(partly fixable)*
 - [no-array-reduce](docs/rules/no-array-reduce.md) - Disallow `Array#reduce()` and `Array#reduceRight()`.
 - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(partly fixable)*
@@ -134,11 +139,12 @@ Configure it in `package.json`.
 - [no-lonely-if](docs/rules/no-lonely-if.md) - Disallow `if` statements as the only statement in `if` blocks without `else`. *(fixable)*
 - [no-nested-ternary](docs/rules/no-nested-ternary.md) - Disallow nested ternary expressions. *(partly fixable)*
 - [no-new-array](docs/rules/no-new-array.md) - Disallow `new Array()`. *(partly fixable)*
-- [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(fixable)*
+- [no-new-buffer](docs/rules/no-new-buffer.md) - Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. *(partly fixable)*
 - [no-null](docs/rules/no-null.md) - Disallow the use of the `null` literal.
 - [no-object-as-default-parameter](docs/rules/no-object-as-default-parameter.md) - Disallow the use of objects as default parameters.
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
-- [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring.
+- [no-this-assignment](docs/rules/no-this-assignment.md) - Disallow assigning `this` to a variable.
+- [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring. *(partly fixable)*
 - [no-unsafe-regex](docs/rules/no-unsafe-regex.md) - Disallow unsafe regular expressions.
 - [no-unused-properties](docs/rules/no-unused-properties.md) - Disallow unused object properties.
 - [no-useless-undefined](docs/rules/no-useless-undefined.md) - Disallow useless `undefined`. *(fixable)*
@@ -156,7 +162,7 @@ Configure it in `package.json`.
 - [prefer-dom-node-dataset](docs/rules/prefer-dom-node-dataset.md) - Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. *(fixable)*
 - [prefer-dom-node-remove](docs/rules/prefer-dom-node-remove.md) - Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`. *(fixable)*
 - [prefer-dom-node-text-content](docs/rules/prefer-dom-node-text-content.md) - Prefer `.textContent` over `.innerText`. *(fixable)*
-- [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` when checking for existence or non-existence. *(fixable)*
+- [prefer-includes](docs/rules/prefer-includes.md) - Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence. *(partly fixable)*
 - [prefer-keyboard-event-key](docs/rules/prefer-keyboard-event-key.md) - Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. *(partly fixable)*
 - [prefer-math-trunc](docs/rules/prefer-math-trunc.md) - Enforce the use of `Math.trunc` instead of bitwise operators. *(partly fixable)*
 - [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md) - Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`. *(fixable)*
@@ -167,7 +173,7 @@ Configure it in `package.json`.
 - [prefer-reflect-apply](docs/rules/prefer-reflect-apply.md) - Prefer `Reflect.apply()` over `Function#apply()`. *(fixable)*
 - [prefer-regexp-test](docs/rules/prefer-regexp-test.md) - Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`. *(fixable)*
 - [prefer-set-has](docs/rules/prefer-set-has.md) - Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence. *(fixable)*
-- [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()`. *(fixable)*
+- [prefer-spread](docs/rules/prefer-spread.md) - Prefer the spread operator over `Array.from()` and `Array#concat()`. *(partly fixable)*
 - [prefer-string-replace-all](docs/rules/prefer-string-replace-all.md) - Prefer `String#replaceAll()` over regex searches with the global flag. *(fixable)*
 - [prefer-string-slice](docs/rules/prefer-string-slice.md) - Prefer `String#slice()` over `String#substr()` and `String#substring()`. *(partly fixable)*
 - [prefer-string-starts-ends-with](docs/rules/prefer-string-starts-ends-with.md) - Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`. *(fixable)*

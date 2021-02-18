@@ -1,6 +1,6 @@
 'use strict';
 
-const {isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
+const isNewExpressionWithParentheses = require('./is-new-expression-with-parentheses');
 
 // Determine whether this node is a decimal integer literal.
 // Copied from https://github.com/eslint/eslint/blob/cc4871369645c3409dc56ded7a555af8a9f63d51/lib/rules/utils/ast-utils.js#L1237
@@ -9,27 +9,6 @@ const isDecimalInteger = node =>
 	node.type === 'Literal' &&
 	typeof node.value === 'number' &&
 	DECIMAL_INTEGER_PATTERN.test(node.raw);
-
-/**
-Determine if a constructor function is newed-up with parens.
-
-@param {Node} node - The `NewExpression` node to be checked.
-@param {SourceCode} sourceCode - The source code object.
-@returns {boolean} True if the constructor is called with parens.
-
-Copied from https://github.com/eslint/eslint/blob/cc4871369645c3409dc56ded7a555af8a9f63d51/lib/rules/no-extra-parens.js#L252
-*/
-function isNewExpressionWithParentheses(node, sourceCode) {
-	if (node.arguments.length > 0) {
-		return true;
-	}
-
-	const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
-	// The expression should end with its own parens, for example, `new new Foo()` is not a new expression with parens.
-	return isOpeningParenToken(penultimateToken) &&
-		isClosingParenToken(lastToken) &&
-		node.callee.range[1] < node.range[1];
-}
 
 /**
 Check if parentheses should to be added to a `node` when it's used as an `object` of `MemberExpression`.

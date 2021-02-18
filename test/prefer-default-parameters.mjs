@@ -1,13 +1,7 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {outdent} from 'outdent';
-import rule from '../rules/prefer-default-parameters.js';
+import {getTester} from './utils/test.js';
 
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2020
-	}
-});
+const {test} = getTester(import.meta);
 
 const invalidTestCase = ({code, suggestions}) => {
 	if (!suggestions) {
@@ -33,7 +27,7 @@ const invalidTestCase = ({code, suggestions}) => {
 	};
 };
 
-ruleTester.run('prefer-default-parameters', rule, {
+test({
 	valid: [
 		'function abc(foo = { bar: 123 }) { }',
 		'function abc({ bar } = { bar: 123 }) { }',
@@ -654,4 +648,29 @@ ruleTester.run('prefer-default-parameters', rule, {
 			`]
 		})
 	]
+});
+
+test.babelLegacy({
+	valid: [
+		// These tests verify that the fallback to `eslint-visitor-keys` is working correctly
+		outdent`
+			function abc(foo, bar) {
+				const { baz, ...rest } = bar;
+				foo = foo || 123;
+			}
+		`,
+		outdent`
+			function abc(foo, bar) {
+				const baz = foo?.bar;
+				foo = foo || 123;
+			}
+		`,
+		outdent`
+			function abc(foo, bar) {
+				import('foo');
+				foo = foo || 123;
+			}
+		`
+	],
+	invalid: []
 });

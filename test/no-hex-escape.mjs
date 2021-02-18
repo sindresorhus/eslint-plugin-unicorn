@@ -217,6 +217,6 @@ ruleTester.run('no-hex-escape', rule, tests);
 babelRuleTester.run('no-hex-escape', rule, tests);
 typescriptRuleTester.run('no-hex-escape', rule, tests);
 
-runTest.visualize([
+runTest.snapshot([
 	'const foo = "\\xb1"'
 ]);

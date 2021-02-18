@@ -2,6 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isMethodNamed = require('./utils/is-method-named');
 const isLiteralValue = require('./utils/is-literal-value');
+const simpleArraySearchRule = require('./shared/simple-array-search-rule');
 
 const MESSAGE_ID = 'prefer-includes';
 const messages = {
@@ -28,7 +29,7 @@ const report = (context, node, target, argumentsNodes) => {
 	const argumentsSource = argumentsNodes.map(argument => sourceCode.getText(argument));
 
 	context.report({
-		node,
+		node: memberExpressionNode.property,
 		messageId: MESSAGE_ID,
 		fix: fixer => {
 			const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
@@ -36,6 +37,11 @@ const report = (context, node, target, argumentsNodes) => {
 		}
 	});
 };
+
+const includesOverSomeRule = simpleArraySearchRule({
+	method: 'some',
+	replacement: 'includes'
+});
 
 const create = context => ({
 	BinaryExpression: node => {
@@ -69,7 +75,8 @@ const create = context => ({
 				argumentsNodes
 			);
 		}
-	}
+	},
+	...includesOverSomeRule.createListeners(context)
 });
 
 module.exports = {
@@ -80,6 +87,9 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages
+		messages: {
+			...messages,
+			...includesOverSomeRule.messages
+		}
 	}
 };

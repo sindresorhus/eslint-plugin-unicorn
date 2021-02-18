@@ -2,7 +2,7 @@ import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
-test.visualize({
+test.snapshot({
 	valid: [
 		'const ts = Date.now()',
 

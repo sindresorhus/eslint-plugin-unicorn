@@ -6,6 +6,8 @@ const {test} = getTester(import.meta);
 const messageId = 'prefer-ternary';
 const errors = [{messageId}];
 
+const onlySingleLineOptions = ['only-single-line'];
+
 // ReturnStatement
 test({
 	valid: [
@@ -959,6 +961,134 @@ test({
 	]
 });
 
+// `only-single-line`
+test({
+	valid: [
+		{
+			code: outdent`
+				if (test) {
+					a = {
+						multiline: 'in consequent'
+					};
+				} else{
+					a = foo;
+				}
+			`,
+			options: onlySingleLineOptions
+		},
+		{
+			code: outdent`
+				if (test) {
+					a = foo;
+				} else{
+					a = {
+						multiline: 'in alternate'
+					};
+				}
+			`,
+			options: onlySingleLineOptions
+		},
+		{
+			code: outdent`
+				if (
+					test({
+						multiline: 'in test'
+					})
+				) {
+					a = foo;
+				} else{
+					a = bar;
+				}
+			`,
+			options: onlySingleLineOptions
+		},
+		{
+			code: outdent`
+				if (test) {
+					a = foo; b = 1;
+				} else{
+					a = bar;
+				}
+			`,
+			options: onlySingleLineOptions
+		}
+	],
+	invalid: [
+		{
+			code: outdent`
+				if (test) {
+					a = foo;
+				} else {
+					a = bar;
+				}
+			`,
+			output: 'a = test ? foo : bar;',
+			options: onlySingleLineOptions,
+			errors
+		},
+		// Parentheses are not considered part of `Node`
+		{
+			code: outdent`
+				if (
+					(
+						test
+					)
+				) {
+					a = foo;
+				} else {
+					a = bar;
+				}
+			`,
+			output: 'a = (test) ? foo : bar;',
+			options: onlySingleLineOptions,
+			errors
+		},
+		{
+			code: outdent`
+				if (test) {
+					(
+						a = foo
+					);
+				} else {
+					a = bar;
+				}
+			`,
+			output: 'a = test ? foo : bar;',
+			options: onlySingleLineOptions,
+			errors
+		},
+		// Semicolon of `ExpressionStatement` is not considered part of `Node`
+		{
+			code: outdent`
+				if (test) {
+					a = foo
+					;
+				} else {
+					a = bar;
+				}
+			`,
+			output: 'a = test ? foo : bar;',
+			options: onlySingleLineOptions,
+			errors
+		},
+		// `EmptyStatement`s are excluded
+		{
+			code: outdent`
+				if (test) {
+					;;;;;;
+					a = foo;
+					;;;;;;
+				} else {
+					a = bar;
+				}
+			`,
+			output: 'a = test ? foo : bar;',
+			options: onlySingleLineOptions,
+			errors
+		}
+	]
+});
+
 test({
 	valid: [
 		// No `consequent` / `alternate`
@@ -1151,7 +1281,7 @@ test({
 	]
 });
 
-test.babel({
+test.babelLegacy({
 	valid: [],
 	invalid: [
 		// https://github.com/facebook/react/blob/7a1691cdff209249b49a4472ba87b542980a5f71/packages/react-dom/src/client/DOMPropertyOperations.js#L183

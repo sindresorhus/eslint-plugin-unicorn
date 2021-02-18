@@ -4,7 +4,7 @@ const path = require('path');
 const url = require('url');
 const test = require('ava');
 const avaRuleTester = require('eslint-ava-rule-tester');
-const visualizeRuleTester = require('./visualize-rule-tester');
+const snapshotRuleTester = require('./snapshot-rule-tester');
 
 const defaultParserOptions = require('./default-parser-options');
 
@@ -24,24 +24,68 @@ class Tester {
 	}
 
 	typescript(tests) {
+		const {testerOptions = {}} = tests;
+		testerOptions.parserOptions = testerOptions.parserOptions || {};
+
 		return this.runTest({
 			...tests,
-			testerOptions: {parser: require.resolve('@typescript-eslint/parser')}
+			testerOptions: {
+				...testerOptions,
+				parser: require.resolve('@typescript-eslint/parser'),
+				parserOptions: {
+					...defaultParserOptions,
+					...testerOptions.parserOptions
+				}
+			}
 		});
 	}
 
 	babel(tests) {
+		const {testerOptions = {}} = tests;
+		testerOptions.parserOptions = testerOptions.parserOptions || {};
+		testerOptions.parserOptions.babelOptions = testerOptions.parserOptions.babelOptions || {};
+		testerOptions.parserOptions.babelOptions.parserOpts = testerOptions.parserOptions.babelOptions.parserOpts || {};
+		testerOptions.parserOptions.babelOptions.parserOpts.plugins = testerOptions.parserOptions.babelOptions.parserOpts.plugins || [];
+
+		return this.runTest({
+			...tests,
+			testerOptions: {
+				...testerOptions,
+				parser: require.resolve('@babel/eslint-parser'),
+				parserOptions: {
+					...defaultParserOptions,
+					requireConfigFile: false,
+					sourceType: 'module',
+					allowImportExportEverywhere: true,
+					...testerOptions.parserOptions,
+					babelOptions: {
+						...testerOptions.parserOptions.babelOptions,
+						parserOpts: {
+							...testerOptions.parserOptions.babelOptions.parserOpts,
+							plugins: [
+								'jsx',
+								'classProperties',
+								...testerOptions.parserOptions.babelOptions.parserOpts.plugins
+							]
+						}
+					}
+				}
+			}
+		});
+	}
+
+	snapshot(tests) {
+		const tester = snapshotRuleTester(test, {
+			parserOptions: defaultParserOptions
+		});
+		return tester.run(this.ruleId, this.rule, tests);
+	}
+
+	babelLegacy(tests) {
 		return this.runTest({
 			...tests,
 			testerOptions: {parser: require.resolve('babel-eslint')}
 		});
-	}
-
-	visualize(tests) {
-		const tester = visualizeRuleTester(test, {
-			parserOptions: defaultParserOptions
-		});
-		return tester.run(this.ruleId, this.rule, tests);
 	}
 }
 
@@ -52,7 +96,8 @@ function getTester(importMeta) {
 	const test = tester.runTest.bind(tester);
 	test.typescript = tester.typescript.bind(tester);
 	test.babel = tester.babel.bind(tester);
-	test.visualize = tester.visualize.bind(tester);
+	test.snapshot = tester.snapshot.bind(tester);
+	test.babelLegacy = tester.babelLegacy.bind(tester);
 
 	return {
 		ruleId,

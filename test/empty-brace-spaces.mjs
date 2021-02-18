@@ -80,7 +80,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	outdent`
 		try {
 			foo();

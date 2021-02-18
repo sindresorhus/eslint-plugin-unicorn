@@ -19,6 +19,8 @@ const simpleMethods = [
 	'map'
 ];
 
+const simpleMethodsExceptForEach = simpleMethods.filter(name => name !== 'forEach');
+
 const reduceLikeMethods = [
 	'reduce',
 	'reduceRight'
@@ -127,7 +129,7 @@ ruleTester.run('no-array-callback-reference', rule, {
 	],
 	invalid: [
 		// Suggestions
-		...simpleMethods.map(
+		...simpleMethodsExceptForEach.map(
 			method => invalidTestCase({
 				code: `foo.${method}(fn)`,
 				method,
@@ -139,6 +141,16 @@ ruleTester.run('no-array-callback-reference', rule, {
 				]
 			})
 		),
+		invalidTestCase({
+			code: 'foo.forEach(fn)',
+			method: 'forEach',
+			name: 'fn',
+			suggestions: [
+				'foo.forEach((element) => { fn(element); })',
+				'foo.forEach((element, index) => { fn(element, index); })',
+				'foo.forEach((element, index, array) => { fn(element, index, array); })'
+			]
+		}),
 		...reduceLikeMethods.map(
 			method => invalidTestCase({
 				code: `foo.${method}(fn)`,
@@ -153,7 +165,7 @@ ruleTester.run('no-array-callback-reference', rule, {
 		),
 
 		// 2 arguments
-		...simpleMethods.map(
+		...simpleMethodsExceptForEach.map(
 			method => invalidTestCase({
 				code: `foo.${method}(fn, thisArgument)`,
 				method,
@@ -165,6 +177,16 @@ ruleTester.run('no-array-callback-reference', rule, {
 				]
 			})
 		),
+		invalidTestCase({
+			code: 'foo.forEach(fn, thisArgument)',
+			method: 'forEach',
+			name: 'fn',
+			suggestions: [
+				'foo.forEach((element) => { fn(element); }, thisArgument)',
+				'foo.forEach((element, index) => { fn(element, index); }, thisArgument)',
+				'foo.forEach((element, index, array) => { fn(element, index, array); }, thisArgument)'
+			]
+		}),
 		...reduceLikeMethods.map(
 			method => invalidTestCase({
 				code: `foo.${method}(fn, initialValue)`,
@@ -193,7 +215,7 @@ ruleTester.run('no-array-callback-reference', rule, {
 		),
 
 		// Not `Identifier`
-		...simpleMethods.map(
+		...simpleMethodsExceptForEach.map(
 			method => invalidTestCase({
 				code: `foo.${method}(lib.fn)`,
 				method,

@@ -1,14 +1,9 @@
 import {getTester} from './utils/test.js';
+import tests from './shared/simple-array-search-rule-tests.js';
 
 const {test} = getTester(import.meta);
 
-const errors = [
-	{
-		message: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.'
-	}
-];
-
-test({
+test.snapshot({
 	valid: [
 		'str.indexOf(\'foo\') !== -n',
 		'str.indexOf(\'foo\') !== 1',
@@ -26,60 +21,24 @@ test({
 		'underscore.indexOf(foo, bar) !== -1'
 	],
 	invalid: [
-		{
-			code: '\'foobar\'.indexOf(\'foo\') !== -1',
-			output: '\'foobar\'.includes(\'foo\')',
-			errors
-		},
-		{
-			code: 'str.indexOf(\'foo\') != -1',
-			output: 'str.includes(\'foo\')',
-			errors
-		},
-		{
-			code: 'str.indexOf(\'foo\') > -1',
-			output: 'str.includes(\'foo\')',
-			errors
-		},
-		{
-			code: 'str.indexOf(\'foo\') == -1',
-			output: '!str.includes(\'foo\')',
-			errors
-		},
-		{
-			code: '\'foobar\'.indexOf(\'foo\') >= 0',
-			output: '\'foobar\'.includes(\'foo\')',
-			errors
-		},
-		{
-			code: '[1,2,3].indexOf(4) !== -1',
-			output: '[1,2,3].includes(4)',
-			errors
-		},
-		{
-			code: 'str.indexOf(\'foo\') < 0',
-			output: '!str.includes(\'foo\')',
-			errors
-		},
-		{
-			code: '\'\'.indexOf(\'foo\') < 0',
-			output: '!\'\'.includes(\'foo\')',
-			errors
-		},
-		{
-			code: '(a || b).indexOf(\'foo\') === -1',
-			output: '!(a || b).includes(\'foo\')',
-			errors
-		},
-		{
-			code: 'foo.indexOf(bar, 0) !== -1',
-			output: 'foo.includes(bar)',
-			errors
-		},
-		{
-			code: 'foo.indexOf(bar, 1) !== -1',
-			output: 'foo.includes(bar, 1)',
-			errors
-		}
+		'\'foobar\'.indexOf(\'foo\') !== -1',
+		'str.indexOf(\'foo\') != -1',
+		'str.indexOf(\'foo\') > -1',
+		'str.indexOf(\'foo\') == -1',
+		'\'foobar\'.indexOf(\'foo\') >= 0',
+		'[1,2,3].indexOf(4) !== -1',
+		'str.indexOf(\'foo\') < 0',
+		'\'\'.indexOf(\'foo\') < 0',
+		'(a || b).indexOf(\'foo\') === -1',
+		'foo.indexOf(bar, 0) !== -1',
+		'foo.indexOf(bar, 1) !== -1'
 	]
 });
+
+const {snapshot, typescript} = tests({
+	method: 'some',
+	replacement: 'includes'
+});
+
+test.snapshot(snapshot);
+test.typescript(typescript);

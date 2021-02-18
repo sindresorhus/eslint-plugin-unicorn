@@ -1,3 +1,4 @@
+import {outdent} from 'outdent';
 import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -87,6 +88,23 @@ test({
 		{
 			code: 'const newFoo = "foo"',
 			options: [{blacklist: ['old']}]
+		},
+		outdent`
+			function Foo() {
+				console.log(new.target, new.target.name);
+			}
+		`,
+		outdent`
+			class Foo {
+				constructor() {
+					console.log(new.target, new.target.name);
+				}
+			}
+		`,
+		'const foo = {new: 1};',
+		{
+			code: 'var foo = {new: 1}',
+			options: [{checkProperties: false}]
 		}
 	],
 	invalid: [

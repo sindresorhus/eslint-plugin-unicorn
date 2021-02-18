@@ -131,7 +131,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	outdent`
 		if (
 			!!!(

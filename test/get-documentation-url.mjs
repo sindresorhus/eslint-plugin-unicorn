@@ -7,11 +7,7 @@ import getDocumentationUrl from '../rules/utils/get-documentation-url.js';
 
 const require = createRequire(import.meta.url);
 
-const p = require('../package.json');
-console.log({p})
-const filename = url.fileURLToPath(import.meta.url);
-const packageJsonFile = path.join(path.dirname(filename), '../package.json');
-const packageJson = JSON.parse(fs.readFileSync(packageJsonFile, 'utf8'));
+const packageJson = require('../package.json');
 
 test('returns the URL of the a named rule\'s documentation', t => {
 	const url = `https://github.com/sindresorhus/eslint-plugin-unicorn/blob/v${packageJson.version}/docs/rules/foo.md`;

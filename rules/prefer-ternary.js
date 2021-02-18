@@ -56,6 +56,7 @@ const getScopes = scope => [
 ];
 
 const create = context => {
+	const onlySingleLine = context.options[0] === 'only-single-line';
 	const sourceCode = context.getSourceCode();
 	const scopeToNamesGeneratedByFixer = new WeakMap();
 	const isSafeName = (name, scopes) => scopes.every(scope => {
@@ -74,6 +75,11 @@ const create = context => {
 			node.type === 'SequenceExpression'
 		) ?
 			`(${text})` : text;
+	};
+
+	const isSingleLineNode = node => {
+		const [start, end] = node.range.map(index => sourceCode.getLocFromIndex(index));
+		return start.line === end.line;
 	};
 
 	function merge(options, mergeOptions) {
@@ -189,6 +195,13 @@ const create = context => {
 			const consequent = getNodeBody(node.consequent);
 			const alternate = getNodeBody(node.alternate);
 
+			if (
+				onlySingleLine &&
+				[consequent, alternate, node.test].some(node => !isSingleLineNode(node))
+			) {
+				return;
+			}
+
 			const result = merge({node, consequent, alternate}, {
 				checkThrowStatement: true,
 				returnFalseIfNotMergeable: true
@@ -199,7 +212,6 @@ const create = context => {
 			}
 
 			const scope = context.getScope();
-			const sourceCode = context.getSourceCode();
 
 			context.report({
 				node,
@@ -252,6 +264,13 @@ const create = context => {
 	};
 };
 
+const schema = [
+	{
+		enum: ['always', 'only-single-line'],
+		default: 'always'
+	}
+];
+
 module.exports = {
 	create,
 	meta: {
@@ -262,6 +281,7 @@ module.exports = {
 		messages: {
 			[messageId]: 'This `if` statement can be replaced by a ternary expression.'
 		},
+		schema,
 		fixable: 'code'
 	}
 };

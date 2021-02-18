@@ -989,12 +989,12 @@ ruleTester.run('prevent-abbreviations', rule, {
 		{
 			code: 'let errCb, errorCb',
 			output: 'let errorCallback, errorCallback_',
-			errors: createErrors().concat(createErrors())
+			errors: 2
 		},
 		{
 			code: '{ let errCb }; { let errorCb }',
 			output: '{ let errorCallback }; { let errorCallback }',
-			errors: createErrors().concat(createErrors())
+			errors: 2
 		},
 
 		// The following test should have looked like this (commented one), but eslint's `RuleTester`
@@ -1033,7 +1033,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 					console.log(errorCallback, errorCb);
 				}
 			`,
-			errors: createErrors().concat(createErrors())
+			errors: 2
 		},
 
 		{
@@ -1755,42 +1755,6 @@ runTest.babel({
 			errors: createErrors()
 		},
 
-		// #347
-		{
-			code: outdent`
-				function onKeyDown(e: KeyboardEvent) {
-					if (e.keyCode) {}
-				}
-			`,
-			output: outdent`
-				function onKeyDown(event: KeyboardEvent) {
-					if (event.keyCode) {}
-				}
-			`,
-			options: [
-				{
-					extendDefaultReplacements: false,
-					replacements: {
-						e: {
-							event: true
-						}
-					}
-				}
-			],
-			errors: createErrors()
-		},
-
-		// https://github.com/facebook/relay/blob/597d2a17aa29d401830407b6814a5f8d148f632d/packages/relay-experimental/EntryPointTypes.flow.js#L138
-		{
-			code: outdent`
-				export type PreloadProps<TExtraProps = null> = {}
-			`,
-			output: outdent`
-				export type PreloadProperties<TExtraProperties = null> = {}
-			`,
-			errors: [...createErrors(), ...createErrors()]
-		},
-
 		noFixingTestCase({
 			code: '(class {e = 1})',
 			options: checkPropertiesOptions,
@@ -1863,6 +1827,64 @@ runTest.typescript({
 				export default Property;
 			`,
 			errors: 1
+		},
+
+		// #1102
+		noFixingTestCase({
+			code: 'export type Props = string',
+			errors: createErrors()
+		}),
+
+		// #347
+		{
+			code: outdent`
+				function onKeyDown(e: KeyboardEvent) {
+					if (e.keyCode) {}
+				}
+			`,
+			output: outdent`
+				function onKeyDown(event: KeyboardEvent) {
+					if (event.keyCode) {}
+				}
+			`,
+			options: [
+				{
+					extendDefaultReplacements: false,
+					replacements: {
+						e: {
+							event: true
+						}
+					}
+				}
+			],
+			errors: createErrors()
+		},
+
+		// https://github.com/facebook/relay/blob/597d2a17aa29d401830407b6814a5f8d148f632d/packages/relay-experimental/EntryPointTypes.flow.js#L138
+		{
+			code: outdent`
+				export type PreloadProps<TExtraProps = null> = {}
+			`,
+			output: outdent`
+				export type PreloadProps<TExtraProperties = null> = {}
+			`,
+			errors: [...createErrors(), ...createErrors()]
+		}
+	]
+});
+
+runTest.babelLegacy({
+	valid: [],
+	invalid: [
+		// https://github.com/facebook/relay/blob/597d2a17aa29d401830407b6814a5f8d148f632d/packages/relay-experimental/EntryPointTypes.flow.js#L138
+		{
+			code: outdent`
+				export type PreloadProps<TExtraProps = null> = {};
+			`,
+			output: outdent`
+				export type PreloadProps<TExtraProperties = null> = {};
+			`,
+			errors: [...createErrors(), ...createErrors()]
 		}
 	]
 });

@@ -25,6 +25,9 @@ test({
 		'foo.slice()',
 		'foo.slice(0)',
 		'foo.slice(1, 2)',
+		'foo?.slice(1, 2)',
+		'foo?.slice?.(1, 2)',
+		'foo?.bar.baz.slice(1, 2)',
 		'foo.slice(-3, -2)'
 	],
 
@@ -32,6 +35,46 @@ test({
 		{
 			code: 'foo.substr()',
 			output: 'foo.slice()',
+			errors: errorsSubstr
+		},
+		{
+			code: 'foo?.substr()',
+			output: 'foo?.slice()',
+			errors: errorsSubstr
+		},
+		{
+			code: 'foo.bar?.substring()',
+			output: 'foo.bar?.slice()',
+			errors: errorsSubstring
+		},
+		{
+			code: 'foo?.[0]?.substring()',
+			output: 'foo?.[0]?.slice()',
+			errors: errorsSubstring
+		},
+		{
+			code: 'foo.bar.substr?.()',
+			output: 'foo.bar.slice?.()',
+			errors: errorsSubstr
+		},
+		{
+			code: 'foo.bar?.substring?.()',
+			output: 'foo.bar?.slice?.()',
+			errors: errorsSubstring
+		},
+		{
+			code: 'foo.bar?.baz?.substr()',
+			output: 'foo.bar?.baz?.slice()',
+			errors: errorsSubstr
+		},
+		{
+			code: 'foo.bar?.baz.substring()',
+			output: 'foo.bar?.baz.slice()',
+			errors: errorsSubstring
+		},
+		{
+			code: 'foo.bar.baz?.substr()',
+			output: 'foo.bar.baz?.slice()',
 			errors: errorsSubstr
 		},
 		{

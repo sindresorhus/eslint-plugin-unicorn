@@ -620,7 +620,7 @@ test.babel({
 	].map(test => addDefaultOptions(test))
 });
 
-test.visualize([
+test.snapshot([
 	'import util from \'util\'',
 	'import * as util from \'util\'',
 	'const util = require(\'util\')',

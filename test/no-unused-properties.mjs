@@ -422,7 +422,7 @@ test.babel({
 	invalid: []
 });
 
-test.visualize([
+test.snapshot([
 	outdent`
 		function foo() {
 			const bar = {

@@ -90,7 +90,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	outdent`
 		element.setAttribute(
 			\'data-foo\', // comment

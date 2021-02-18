@@ -799,7 +799,7 @@ test({
 	]
 });
 
-test.visualize([
+test.snapshot([
 	outdent`
 		window.addEventListener('click', ({which, another}) => {
 			if (which === 23) {
