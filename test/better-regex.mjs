@@ -1,4 +1,5 @@
 import {getTester} from './utils/test.js';
+
 const {test} = getTester(import.meta);
 
 const MESSAGE_ID = 'better-regex';
