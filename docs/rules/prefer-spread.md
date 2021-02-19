@@ -43,5 +43,9 @@ const array = [...array1, ...array2];
 ```
 
 ```js
+const tail = array.slice(1);
+```
+
+```js
 const copy = [...array];
 ```
