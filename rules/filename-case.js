@@ -137,9 +137,7 @@ function englishishJoinWords(words) {
 		return `${words[0]} or ${words[1]}`;
 	}
 
-	words = words.slice();
-	const last = words.pop();
-	return `${words.join(', ')}, or ${last}`;
+	return `${words.slice(0, -1).join(', ')}, or ${words[words.length - 1]}`;
 }
 
 const create = context => {
