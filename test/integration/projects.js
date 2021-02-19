@@ -127,7 +127,9 @@ module.exports = [
 	{
 		repository: 'https://github.com/microsoft/fluentui',
 		ignore: [
-			'scripts/publish-beta.js' // This file use `package` keyword as variable
+			// These files use `package` keyword as variable
+			'scripts/publish-beta.js',
+			'apps/test-bundles/webpack.config.js'
 		]
 	},
 	// #902
