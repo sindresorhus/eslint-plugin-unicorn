@@ -78,7 +78,7 @@ const getParenthesizedRange = (node, sourceCode) => {
 };
 
 const getRangeAfterCalleeObject = (node, sourceCode) => {
-	const object = node.callee.object;
+	const {object} = node.callee;
 	const parenthesizedRange = getParenthesizedRange(object, sourceCode);
 	const [, start] = parenthesizedRange;
 	const [, end] = node.range;
@@ -293,8 +293,6 @@ function fixArrayFrom(node, sourceCode) {
 }
 
 function fixSlice(node, sourceCode) {
-	const array = node.callee.object;
-
 	return function * (fixer) {
 		// Fixed code always starts with `[`
 		if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')) {
@@ -306,9 +304,8 @@ function fixSlice(node, sourceCode) {
 
 		// The array is already accessing `.slice`, there should not any case need add extra `()`
 
-		yield fixer.replaceTextRange(getRangeAfterCalleeObject(node, sourceCode), '')
+		yield fixer.replaceTextRange(getRangeAfterCalleeObject(node, sourceCode), '');
 	};
-
 }
 
 const create = context => {

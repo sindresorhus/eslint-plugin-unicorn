@@ -282,7 +282,7 @@ test.snapshot({
 		'array.notSlice()',
 		// Why would someone write these
 		'[...foo].slice()',
-		'[foo].slice()',
+		'[foo].slice()'
 	],
 	invalid: [
 		'array.slice()',
@@ -298,6 +298,6 @@ test.snapshot({
 		`,
 		// `{String,TypedArray}#slice` are wrongly detected
 		'"".slice()',
-		'new Uint8Array([10, 20, 30, 40, 50]).slice()',
+		'new Uint8Array([10, 20, 30, 40, 50]).slice()'
 	]
 });
