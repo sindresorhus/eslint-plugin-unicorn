@@ -1,4 +1,4 @@
-# Forbid classes only have static members
+# Forbid classes that only have static members
 
 A class with only static members could just be an object instead.
 
