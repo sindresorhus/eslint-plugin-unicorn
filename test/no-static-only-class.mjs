@@ -199,7 +199,7 @@ test.babel({
 			code: 'class A { static a() {} }',
 			output: 'const A = { a() {}, };',
 			errors: 1
-		},
+		}
 	]
 });
 
@@ -210,6 +210,6 @@ test.babelLegacy({
 			code: 'class A2 { static a() {} }',
 			output: 'const A2 = { a() {}, };',
 			errors: 1
-		},
+		}
 	]
 });
