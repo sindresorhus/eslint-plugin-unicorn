@@ -98,7 +98,11 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 }
 
 function switchClassToObject(node, sourceCode) {
-	const {type, id, body, parent} = node;
+	const {type, id, body, declare: isDeclare, parent} = node;
+
+	if (isDeclare) {
+		return;
+	}
 
 	if (type === 'ClassExpression' && id) {
 		return;
