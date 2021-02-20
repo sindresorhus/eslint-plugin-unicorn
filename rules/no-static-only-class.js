@@ -22,12 +22,13 @@ const assertToken = ({type, value}, expected) => {
 		type !== expected.type ||
 		value !== expected.value
 	) {
-		throw new Error(`Expect token "${JSON.stringify(expected)}", got "${JSON.stringify({type, value})}".`);
+		throw new Error(
+			`Expect token "${JSON.stringify(expected)}", got "${JSON.stringify({type, value})}".`
+		);
 	}
 };
 
-const isEqualToken = ({type, value}) =>
-	type === 'Punctuator' && value === '=';
+const isEqualToken = ({type, value}) => type === 'Punctuator' && value === '=';
 
 function isStaticMember(node) {
 	const {
@@ -41,9 +42,9 @@ function isStaticMember(node) {
 		key
 	} = node;
 
-	if (
-		type !== 'ClassProperty' &&
-		type !== 'MethodDefinition') {
+	// Avoid match unexpected node, eg: https://github.com/tc39/proposal-class-static-block
+	/* istanbul ignore next */
+	if (type !== 'ClassProperty' && type !== 'MethodDefinition') {
 		return false;
 	}
 
@@ -74,10 +75,9 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 	yield fixer.remove(staticToken);
 	yield removeSpacesAfter(staticToken, sourceCode, fixer);
 
-	const maybeSemicolonToken =
-		type === 'ClassProperty' ?
-			sourceCode.getLastToken(node) :
-			sourceCode.getTokenAfter(node);
+	const maybeSemicolonToken = type === 'ClassProperty' ?
+		sourceCode.getLastToken(node) :
+		sourceCode.getTokenAfter(node);
 	const hasSemicolonToken = isSemicolonToken(maybeSemicolonToken);
 
 	if (type === 'ClassProperty') {
