@@ -94,7 +94,11 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 		}
 	}
 
-	yield (hasSemicolonToken ? fixer.replaceText(maybeSemicolonToken, ',') : fixer.insertTextAfter(node, ','));
+	yield (
+		hasSemicolonToken ?
+			fixer.replaceText(maybeSemicolonToken, ',') :
+			fixer.insertTextAfter(node, ',')
+	);
 }
 
 function switchClassToObject(node, sourceCode) {
