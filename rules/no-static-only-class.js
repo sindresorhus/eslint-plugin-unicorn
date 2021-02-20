@@ -20,7 +20,16 @@ const isEqualToken = ({type, value}) =>
 	type === 'Punctuator' && value === '=';
 
 function isStaticMember(node) {
-	const {type, private: isPrivate, static: isStatic, key} = node;
+	const {
+		type,
+		private: isPrivate,
+		static: isStatic,
+		declare: isDeclare,
+		readonly: isReadonly,
+		accessibility,
+		decorators,
+		key
+	} = node;
 
 	if (
 		type !== 'ClassProperty' &&
@@ -32,7 +41,14 @@ function isStaticMember(node) {
 		return false;
 	}
 
-	if (key.type === 'TSPrivateIdentifier') {
+	// Typescript class
+	if (
+		isDeclare ||
+		isReadonly ||
+		typeof accessibility !== 'undefined' ||
+		(Array.isArray(decorators) && decorators.length > 0) ||
+		key.type === 'TSPrivateIdentifier'
+	) {
 		return false;
 	}
 

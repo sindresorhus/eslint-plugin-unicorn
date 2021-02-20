@@ -12,10 +12,21 @@ const noFixingCase = code => ({
 test.typescript({
 	valid: [
 		// `private`
-		'class A{ static #a() {}; }',
+		'class A { static #a() {}; }',
 		'class A { static #a = 1; }',
 		'const A = class { static #a() {}; }',
-		'const A = class { static #a = 1; }'
+		'const A = class { static #a = 1; }',
+		// TS class
+		'class A { static public a = 1; }',
+		'class A { static private a = 1; }',
+		'class A { static readonly a = 1; }',
+		'class A { static declare a = 1; }',
+		outdent`
+			class A {
+				@decorator
+				static a = 1;
+			}
+		`,
 	],
 	invalid: [
 		{
