@@ -31,6 +31,10 @@ const assertToken = (token, expected) => {
 };
 
 const isEqualToken = ({type, value}) => type === 'Punctuator' && value === '=';
+const isDeclarationOfExportDefaultDeclaration = node =>
+	node.type === 'ClassDeclaration' &&
+	node.parent.type === 'ExportDefaultDeclaration' &&
+	node.parent.declaration === node;
 
 function isStaticMember(node) {
 	const {
@@ -129,6 +133,12 @@ function switchClassToObject(node, sourceCode) {
 		return;
 	}
 
+	const isExportDefault = isDeclarationOfExportDefaultDeclaration(node);
+
+	if (isExportDefault && id) {
+		return;
+	}
+
 	for (const node of body.body) {
 		if (
 			node.type === 'ClassProperty' &&
@@ -166,15 +176,10 @@ function switchClassToObject(node, sourceCode) {
 	}
 
 	return function * (fixer) {
-		// Class `id` to `const`
-		if (type === 'ClassDeclaration') {
-			yield fixer.replaceText(classToken, 'const');
-			yield fixer.insertTextBefore(body, '= ');
-			yield fixer.insertTextAfter(body, ';');
-		} else {
-			// eslint-disable-next-line no-lonely-if
+		if (isExportDefault || type === 'ClassExpression') {
 			if (needMoveBodyOpeningBraceToken) {
 				yield fixer.replaceText(classToken, '{');
+
 				const openingBraceToken = sourceCode.getFirstToken(body);
 				yield fixer.remove(openingBraceToken);
 			} else {
@@ -189,6 +194,10 @@ function switchClassToObject(node, sourceCode) {
 			}
 
 			// There should not be ASI problem
+		} else {
+			yield fixer.replaceText(classToken, 'const');
+			yield fixer.insertTextBefore(body, '= ');
+			yield fixer.insertTextAfter(body, ';');
 		}
 
 		for (const node of body.body) {

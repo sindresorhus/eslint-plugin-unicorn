@@ -23,6 +23,9 @@ test.snapshot({
 		'const A = class A { static a() {}; }',
 		'const A = class { static a() {}; }',
 		'class A { static constructor() {}; }',
+		'export default class A { static a() {}; }',
+		'export default class { static a() {}; }',
+		'export class A { static a() {}; }',
 		outdent`
 			function a() {
 				return class
