@@ -3,13 +3,11 @@ import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
-test.visualize({
+test.snapshot({
 	valid: [
-		'const foo = \'🦄\';'
+		'const foo = "🦄";'
 	],
 	invalid: [
-		{
-			'const foo = \'unicorn\'
-		}
+		'const foo = "unicorn";'
 	]
 });
