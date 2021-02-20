@@ -268,3 +268,36 @@ test.snapshot({
 		'_A.concat(1)'
 	]
 });
+
+// `Array#slice`
+test.snapshot({
+	valid: [
+		'new Array.slice()',
+		'slice()',
+		'array[slice]()',
+		'array.slice',
+		'array.slice(1)',
+		'array.slice(...[])',
+		'array.slice(0)',
+		'array.notSlice()',
+		// Why would someone write these
+		'[...foo].slice()',
+		'[foo].slice()'
+	],
+	invalid: [
+		'array.slice()',
+		'array.slice().slice()',
+		'array.slice(1).slice()',
+		'array.slice().slice(1)',
+		'const copy = array.slice()',
+		'(( ((array)).slice() ))',
+		// Semicolon
+		outdent`
+			bar()
+			foo.slice()
+		`,
+		// `{String,TypedArray}#slice` are wrongly detected
+		'"".slice()',
+		'new Uint8Array([10, 20, 30, 40, 50]).slice()'
+	]
+});

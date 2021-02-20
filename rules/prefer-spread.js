@@ -10,6 +10,7 @@ const removeSpacesAfter = require('./utils/remove-spaces-after');
 
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
+const ERROR_ARRAY_SLICE = 'array-slice';
 const SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE = 'argument-is-spreadable';
 const SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE = 'argument-is-not-spreadable';
 const SUGGESTION_CONCAT_TEST_ARGUMENT = 'test-argument';
@@ -17,6 +18,7 @@ const SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS = 'spread-all-arguments';
 const messages = {
 	[ERROR_ARRAY_FROM]: 'Prefer the spread operator over `Array.from(…)`.',
 	[ERROR_ARRAY_CONCAT]: 'Prefer the spread operator over `Array#concat(…)`.',
+	[ERROR_ARRAY_SLICE]: 'Prefer the spread operator over `Array#slice()`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE]: 'First argument is an `array`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE]: 'First argument is not an `array`.',
 	[SUGGESTION_CONCAT_TEST_ARGUMENT]: 'Test first argument with `Array.isArray(…)`.',
@@ -50,6 +52,14 @@ const arrayConcatCallSelector = [
 	})`
 ].join('');
 
+const arraySliceCallSelector = [
+	methodSelector({
+		name: 'slice',
+		length: 0
+	}),
+	'[callee.object.type!="ArrayExpression"]'
+].join('');
+
 const isArrayLiteral = node => node.type === 'ArrayExpression';
 const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
 	if (node.elements.length === 0) {
@@ -67,19 +77,21 @@ const getParenthesizedRange = (node, sourceCode) => {
 	return [start, end];
 };
 
+const getRangeAfterCalleeObject = (node, sourceCode) => {
+	const {object} = node.callee;
+	const parenthesizedRange = getParenthesizedRange(object, sourceCode);
+	const [, start] = parenthesizedRange;
+	const [, end] = node.range;
+
+	return [start, end];
+};
+
 function fixConcat(node, sourceCode, fixableArguments) {
 	const array = node.callee.object;
 	const concatCallArguments = node.arguments;
 	const arrayParenthesizedRange = getParenthesizedRange(array, sourceCode);
 	const arrayIsArrayLiteral = isArrayLiteral(array);
 	const arrayHasTrailingComma = arrayIsArrayLiteral && isArrayLiteralHasTrailingComma(array, sourceCode);
-
-	const getRangeAfterArray = () => {
-		const [, start] = arrayParenthesizedRange;
-		const [, end] = node.range;
-
-		return [start, end];
-	};
 
 	const getArrayLiteralElementsText = (node, keepTrailingComma) => {
 		if (
@@ -178,7 +190,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 
 		yield (
 			concatCallArguments.length - fixableArguments.length === 0 ?
-				fixer.replaceTextRange(getRangeAfterArray(), '') :
+				fixer.replaceTextRange(getRangeAfterCalleeObject(node, sourceCode), '') :
 				removeArguments(fixer)
 		);
 
@@ -280,6 +292,22 @@ function fixArrayFrom(node, sourceCode) {
 	};
 }
 
+function fixSlice(node, sourceCode) {
+	return function * (fixer) {
+		// Fixed code always starts with `[`
+		if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')) {
+			yield fixer.insertTextBefore(node, ';');
+		}
+
+		yield fixer.insertTextBefore(node, '[...');
+		yield fixer.insertTextAfter(node, ']');
+
+		// The array is already accessing `.slice`, there should not any case need add extra `()`
+
+		yield fixer.replaceTextRange(getRangeAfterCalleeObject(node, sourceCode), '');
+	};
+}
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
@@ -369,6 +397,13 @@ const create = context => {
 			}
 
 			context.report(problem);
+		},
+		[arraySliceCallSelector](node) {
+			context.report({
+				node: node.callee.property,
+				messageId: ERROR_ARRAY_SLICE,
+				fix: fixSlice(node, sourceCode)
+			});
 		}
 	};
 };
