@@ -61,7 +61,7 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 	const staticToken = sourceCode.getFirstToken(node);
 	/* istanbul ignore next */
 	if (!(staticToken.type === 'Keyword' && staticToken.value === 'static')) {
-		throw new Error(`Expect "static" token, got "${staticToken.value}".`);
+		throw new Error(`Expect keyword "static", got "${JSON.stringify({type: staticToken.type, value: staticToken.value})}".`);
 	}
 
 	yield fixer.remove(staticToken);
