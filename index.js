@@ -41,6 +41,7 @@ module.exports = {
 			rules: {
 				'unicorn/better-regex': 'error',
 				'unicorn/catch-error-name': 'error',
+				'unicorn/class-reference-in-static-methods': 'error',
 				'unicorn/consistent-destructuring': 'error',
 				'unicorn/consistent-function-scoping': 'error',
 				'unicorn/custom-error-definition': 'off',

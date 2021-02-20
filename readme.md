@@ -35,6 +35,7 @@ Configure it in `package.json`.
 		"rules": {
 			"unicorn/better-regex": "error",
 			"unicorn/catch-error-name": "error",
+			"unicorn/class-reference-in-static-methods": "error",
 			"unicorn/consistent-destructuring": "error",
 			"unicorn/consistent-function-scoping": "error",
 			"unicorn/custom-error-definition": "off",
@@ -114,6 +115,7 @@ Configure it in `package.json`.
 
 - [better-regex](docs/rules/better-regex.md) - Improve regexes by making them shorter, consistent, and safer. *(fixable)*
 - [catch-error-name](docs/rules/catch-error-name.md) - Enforce a specific parameter name in catch clauses. *(fixable)*
+- [class-reference-in-static-methods](docs/rules/class-reference-in-static-methods.md) - Disallow `this` and `super` in static methods. *(partly fixable)*
 - [consistent-destructuring](docs/rules/consistent-destructuring.md) - Use destructured variables over properties. *(partly fixable)*
 - [consistent-function-scoping](docs/rules/consistent-function-scoping.md) - Move function definitions to the highest possible scope.
 - [custom-error-definition](docs/rules/custom-error-definition.md) - Enforce correct `Error` subclassing. *(fixable)*
