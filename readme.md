@@ -144,7 +144,7 @@ Configure it in `package.json`.
 - [no-null](docs/rules/no-null.md) - Disallow the use of the `null` literal.
 - [no-object-as-default-parameter](docs/rules/no-object-as-default-parameter.md) - Disallow the use of objects as default parameters.
 - [no-process-exit](docs/rules/no-process-exit.md) - Disallow `process.exit()`.
-- [no-static-only-class](docs/rules/no-static-only-class.md) - Forbid classes only have static members. *(partly fixable)*
+- [no-static-only-class](docs/rules/no-static-only-class.md) - Forbid classes that only have static members. *(partly fixable)*
 - [no-this-assignment](docs/rules/no-this-assignment.md) - Disallow assigning `this` to a variable.
 - [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) - Disallow unreadable array destructuring. *(partly fixable)*
 - [no-unsafe-regex](docs/rules/no-unsafe-regex.md) - Disallow unsafe regular expressions.
