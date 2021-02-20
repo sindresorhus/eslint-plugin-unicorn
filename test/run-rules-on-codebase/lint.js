@@ -28,7 +28,9 @@ const eslint = new ESLint({
 						fn: false
 					}
 				}
-			]
+			],
+			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1109#issuecomment-782689255
+			'unicorn/consistent-destructuring': 'off'
 		}
 	}
 });

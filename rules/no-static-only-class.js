@@ -100,9 +100,7 @@ function switchClassToObject(node, sourceCode) {
 	// This is a stupid way check if `value` of `ClassProperty` uses `this`
 	for (const node of body.body) {
 		if (
-			// eslint-disable-next-line unicorn/consistent-destructuring
 			node.type === 'ClassProperty' &&
-			// eslint-disable-next-line unicorn/consistent-destructuring
 			node.value &&
 			sourceCode.getText(node).includes('this')
 		) {
