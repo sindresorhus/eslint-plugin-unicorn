@@ -108,13 +108,13 @@ function switchClassToObject(node, sourceCode) {
 		return;
 	}
 
-	// This is a stupid way check if `value` of `ClassProperty` uses `this`
 	for (const node of body.body) {
 		if (
 			node.type === 'ClassProperty' &&
 			(
 				node.typeAnnotation ||
-				node.value && sourceCode.getText(node).includes('this')
+				// This is a stupid way check if `value` of `ClassProperty` uses `this`
+				(node.value && sourceCode.getText(node).includes('this'))
 			)
 		) {
 			return;
