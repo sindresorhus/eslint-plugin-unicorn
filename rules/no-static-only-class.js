@@ -48,7 +48,7 @@ function isStaticMember(node) {
 		key
 	} = node;
 
-	// Avoid match unexpected node, eg: https://github.com/tc39/proposal-class-static-block
+	// Avoid matching unexpected node. For example: https://github.com/tc39/proposal-class-static-block
 	/* istanbul ignore next */
 	if (type !== 'ClassProperty' && type !== 'MethodDefinition') {
 		return false;
@@ -58,7 +58,7 @@ function isStaticMember(node) {
 		return false;
 	}
 
-	// Typescript class
+	// TypeScript class
 	if (
 		isDeclare ||
 		isReadonly ||
@@ -144,7 +144,7 @@ function switchClassToObject(node, sourceCode) {
 			node.type === 'ClassProperty' &&
 			(
 				node.typeAnnotation ||
-				// This is a stupid way check if `value` of `ClassProperty` uses `this`
+				// This is a stupid way to check if `value` of `ClassProperty` uses `this`
 				(node.value && sourceCode.getText(node).includes('this'))
 			)
 		) {
