@@ -165,7 +165,7 @@ test.snapshot({
 		`,
 		outdent`
 			function a() {
-				return class // comment
+				return class /* comment */
 				{
 					static a() {}
 				}
