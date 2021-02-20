@@ -11,10 +11,20 @@ const messages = {
 
 const selector = [
 	':matches(ClassDeclaration, ClassExpression)',
-	':not([superClass])',
+	':not([superClass], [decorators.length>0])',
 	'[body.type="ClassBody"]',
 	'[body.body.length>0]'
 ].join('');
+
+const assertToken = ({type, value}, expected) => {
+	/* istanbul ignore next */
+	if (
+		type !== expected.type ||
+		value !== expected.value
+	) {
+		throw new Error(`Expect token "${JSON.stringify(expected)}", got "${JSON.stringify({type, value})}".`);
+	}
+};
 
 const isEqualToken = ({type, value}) =>
 	type === 'Punctuator' && value === '=';
@@ -59,10 +69,7 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 	const {type} = node;
 
 	const staticToken = sourceCode.getFirstToken(node);
-	/* istanbul ignore next */
-	if (!(staticToken.type === 'Keyword' && staticToken.value === 'static')) {
-		throw new Error(`Expect keyword "static", got "${JSON.stringify({type: staticToken.type, value: staticToken.value})}".`);
-	}
+	assertToken(staticToken, {type: 'Keyword', value: 'static'});
 
 	yield fixer.remove(staticToken);
 	yield removeSpacesAfter(staticToken, sourceCode, fixer);
@@ -118,6 +125,9 @@ function switchClassToObject(node, sourceCode) {
 	// }
 	// ```
 	const classToken = sourceCode.getFirstToken(node);
+	/* istanbul ignore next */
+	assertToken(classToken, {type: 'Keyword', value: 'class'});
+
 	let needMoveBodyOpeningBraceToken = false;
 	if (
 		type === 'ClassExpression' &&

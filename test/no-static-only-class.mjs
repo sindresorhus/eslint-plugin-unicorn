@@ -16,6 +16,8 @@ test.typescript({
 		'class A { static #a = 1; }',
 		'const A = class { static #a() {}; }',
 		'const A = class { static #a = 1; }',
+		// Decorator
+		'@decorator class A { static  a = 1; }',
 		// TS class
 		'class A { static public a = 1; }',
 		'class A { static private a = 1; }',
@@ -26,7 +28,7 @@ test.typescript({
 				@decorator
 				static a = 1;
 			}
-		`,
+		`
 	],
 	invalid: [
 		{
