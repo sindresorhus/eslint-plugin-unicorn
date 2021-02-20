@@ -3,6 +3,66 @@ import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test.snapshot({
+	valid: [
+		// Empty class
+		'class A {}',
+		'const A = class {}',
+		// `superClass`
+		'class A extends B { static a() {}; }',
+		'const A = class extends B { static a() {}; }',
+		// Not static
+		'class A { a() {} }',
+		'class A { constructor() {} }',
+		'class A { get a() {} }',
+		'class A { set a(value) {} }'
+	],
+	invalid: [
+		'class A { static a() {}; }',
+		'class A { static a() {} }',
+		'const A = class A { static a() {}; }',
+		'const A = class { static a() {}; }',
+		'class A { static constructor() {}; }',
+		outdent`
+			function a() {
+				return class
+				{
+					static a() {}
+				}
+			}
+		`,
+		outdent`
+			function a() {
+				return class /* comment */
+				{
+					static a() {}
+				}
+			}
+		`,
+		outdent`
+			function a() {
+				return class // comment
+				{
+					static a() {}
+				}
+			}
+		`,
+		// Breaking edge cases
+		outdent`
+			class A {static a(){}}
+			class B extends A {}
+		`,
+		outdent`
+			class A {static a(){}}
+			console.log(typeof A)
+		`,
+		outdent`
+			class A {static a(){}}
+			const a = new A;
+		`
+	]
+});
+
 const noFixingCase = code => ({
 	code,
 	output: code,
@@ -132,62 +192,24 @@ test.typescript({
 	]
 });
 
-test.snapshot({
-	valid: [
-		// Empty class
-		'class A {}',
-		'const A = class {}',
-		// `superClass`
-		'class A extends B { static a() {}; }',
-		'const A = class extends B { static a() {}; }',
-		// Not static
-		'class A { a() {} }',
-		'class A { constructor() {} }',
-		'class A { get a() {} }',
-		'class A { set a(value) {} }'
-	],
+test.babel({
+	valid: [],
 	invalid: [
-		'class A { static a() {}; }',
-		'class A { static a() {} }',
-		'const A = class A { static a() {}; }',
-		'const A = class { static a() {}; }',
-		'class A { static constructor() {}; }',
-		outdent`
-			function a() {
-				return class
-				{
-					static a() {}
-				}
-			}
-		`,
-		outdent`
-			function a() {
-				return class /* comment */
-				{
-					static a() {}
-				}
-			}
-		`,
-		outdent`
-			function a() {
-				return class // comment
-				{
-					static a() {}
-				}
-			}
-		`,
-		// Breaking edge cases
-		outdent`
-			class A {static a(){}}
-			class B extends A {}
-		`,
-		outdent`
-			class A {static a(){}}
-			console.log(typeof A)
-		`,
-		outdent`
-			class A {static a(){}}
-			const a = new A;
-		`
+		{
+			code: 'class A { static a() {} }',
+			output: 'const A = { a() {}, };',
+			errors: 1
+		},
+	]
+});
+
+test.babelLegacy({
+	valid: [],
+	invalid: [
+		{
+			code: 'class A2 { static a() {} }',
+			output: 'const A2 = { a() {}, };',
+			errors: 1
+		},
 	]
 });

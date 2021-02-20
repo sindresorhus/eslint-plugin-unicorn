@@ -16,7 +16,8 @@ const selector = [
 	'[body.body.length>0]'
 ].join('');
 
-const assertToken = ({type, value}, expected) => {
+const assertToken = (token, expected) => {
+	const {type, value} = token;
 	/* istanbul ignore next */
 	if (
 		type !== expected.type ||
@@ -70,7 +71,10 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 	const {type} = node;
 
 	const staticToken = sourceCode.getFirstToken(node);
-	assertToken(staticToken, {type: 'Keyword', value: 'static'});
+	// `babel-eslint` and `@babel/eslint-parser` use `{type: 'Identifier', value: 'static'}`
+	if (!(staticToken.value === 'static' && staticToken.type === 'Identifier')) {
+		assertToken(staticToken, {type: 'Keyword', value: 'static'});
+	}
 
 	yield fixer.remove(staticToken);
 	yield removeSpacesAfter(staticToken, sourceCode, fixer);
@@ -108,7 +112,7 @@ function switchClassToObject(node, sourceCode) {
 		body,
 		declare: isDeclare,
 		abstract: isAbstract,
-		implements: classImplements
+		implements: classImplements,
 		parent
 	} = node;
 
