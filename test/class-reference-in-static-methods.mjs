@@ -177,6 +177,18 @@ test.snapshot({
 					alert(super.a);
 				}
 			}
+		`,
+		// Replace `super` with B will break this
+		outdent`
+			let B = Array;
+			class A extends B {
+				static b() {
+					return super.name;
+				}
+			}
+			// SuperClass is reassigned
+			B = Object;
+			console.log(A.b());
 		`
 	]
 });
