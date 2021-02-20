@@ -4,17 +4,17 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 
 - `Array.from(…)`
 
-	Convert `iterable` to `array`.
+	Convert `Iterable` to `Array`.
 
 	This rule adds on to the built-in [prefer-spread](https://eslint.org/docs/rules/prefer-spread) rule, which only flags uses of `.apply()`. Does not enforce for `TypedArray.from()`.
 
 - `Array#concat(…)`
 
-	Concat `array` with element(s) or `array`(s).
+	Concat an `Array` with one or more `Array`'s or `Array` elements.
 
 - `Array#slice()`
 
-	Shallow copy an `array`.
+	Shallow copy an `Array`.
 
 This rule is partly fixable.
 
