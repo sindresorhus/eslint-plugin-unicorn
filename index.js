@@ -71,6 +71,7 @@ module.exports = {
 				'unicorn/no-null': 'error',
 				'unicorn/no-object-as-default-parameter': 'error',
 				'unicorn/no-process-exit': 'error',
+				'unicorn/no-static-only-class': 'error',
 				'unicorn/no-this-assignment': 'error',
 				'unicorn/no-unreadable-array-destructuring': 'error',
 				'unicorn/no-unsafe-regex': 'off',

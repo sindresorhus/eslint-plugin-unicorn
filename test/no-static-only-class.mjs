@@ -1,0 +1,170 @@
+import {outdent} from 'outdent';
+import {getTester} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+const noFixingCase = code => ({
+	code,
+	output: code,
+	errors: 1
+});
+
+test.typescript({
+	valid: [
+		// `private`
+		'class A{ static #a() {}; }',
+		'class A { static #a = 1; }',
+		'const A = class { static #a() {}; }',
+		'const A = class { static #a = 1; }'
+	],
+	invalid: [
+		{
+			code: outdent`
+				class A {
+					static a
+					static b = 1
+					static [c] = 2
+					static [d]
+					static e() {}
+					static [f]() {}
+				}
+			`,
+			output: outdent`
+				const A = {
+					a: undefined,
+					b : 1,
+					[c] : 2,
+					[d]: undefined,
+					e() {},
+					[f]() {},
+				};
+			`,
+			errors: 1
+		},
+		{
+			code: outdent`
+				class A {
+					static a;
+					static b = 1;
+					static [((c))] = ((2));
+					static [d];
+					static e() {};
+					static [f]() {};
+				}
+			`,
+			output: outdent`
+				const A = {
+					a: undefined,
+					b : 1,
+					[((c))] : ((2)),
+					[d]: undefined,
+					e() {},
+					[f]() {},
+				};
+			`,
+			errors: 1
+		},
+		// Comments
+		{
+			code: outdent`
+				/* */
+				class /* */ A /* */ {
+					/* */ static /* */ a /* */; /* */
+					/* */ static /* */ b /* */ = /* */ 1 /* */; /* */
+					/* */ static /* */ [ /* */ c /* */ ] /* */ = /* */ 2 /* */;  /* */
+					/* */ static /* */ [/* */ d /* */] /* */;  /* */
+					/* */ static /* */ /* */ e /* */ ( /* */ ) {/* */}/* */;  /* */
+					/* */ static /* */ [/* */ f /* */ ] /* */ ( /* */ ) {/* */ }/* */ ;  /* */
+				}
+				/* */
+			`,
+			output: outdent`
+				/* */
+				const /* */ A /* */ = {
+					/* */ /* */ a /* */: undefined, /* */
+					/* */ /* */ b /* */ : /* */ 1 /* */, /* */
+					/* */ /* */ [ /* */ c /* */ ] /* */ : /* */ 2 /* */,  /* */
+					/* */ /* */ [/* */ d /* */] /* */: undefined,  /* */
+					/* */ /* */ /* */ e /* */ ( /* */ ) {/* */}/* */,  /* */
+					/* */ /* */ [/* */ f /* */ ] /* */ ( /* */ ) {/* */ }/* */ ,  /* */
+				};
+				/* */
+			`,
+			errors: 1
+		},
+		// `this`
+		noFixingCase(outdent`
+			class A {
+				static a = 1;
+				static b = this.a;
+			}
+		`),
+		// This case should be fixable, but we simply check code of value includes `this`
+		noFixingCase(outdent`
+			class A {
+				static a = 1;
+				static b = "this";
+			}
+		`)
+	]
+});
+
+test.snapshot({
+	valid: [
+		// Empty class
+		'class A {}',
+		'const A = class {}',
+		// `superClass`
+		'class A extends B { static a() {}; }',
+		'const A = class extends B { static a() {}; }',
+		// Not static
+		'class A { a() {} }',
+		'class A { constructor() {} }',
+		'class A { get a() {} }',
+		'class A { set a(value) {} }'
+	],
+	invalid: [
+		'class A { static a() {}; }',
+		'class A { static a() {} }',
+		'const A = class A { static a() {}; }',
+		'const A = class { static a() {}; }',
+		'class A { static constructor() {}; }',
+		outdent`
+			function a() {
+				return class
+				{
+					static a() {}
+				}
+			}
+		`,
+		outdent`
+			function a() {
+				return class // comment
+				{
+					static a() {}
+				}
+			}
+		`,
+		outdent`
+			function a() {
+				return class // comment
+				{
+					static a() {}
+				}
+			}
+		`,
+		// Breaking edge cases
+		outdent`
+			class A {static a(){}}
+			class B extends A {}
+		`,
+		outdent`
+			class A {static a(){}}
+			console.log(typeof A)
+		`,
+		outdent`
+			class A {static a(){}}
+			const a = new A;
+		`
+	]
+});
