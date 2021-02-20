@@ -108,8 +108,10 @@ function switchClassToObject(node, sourceCode) {
 	for (const node of body.body) {
 		if (
 			node.type === 'ClassProperty' &&
-			node.value &&
-			sourceCode.getText(node).includes('this')
+			(
+				node.typeAnnotation ||
+				node.value && sourceCode.getText(node).includes('this')
+			)
 		) {
 			return;
 		}
