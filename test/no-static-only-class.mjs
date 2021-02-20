@@ -119,12 +119,9 @@ test.typescript({
 				static b = "this";
 			}
 		`),
-		// https://github.com/microsoft/vscode/blob/11cd76005bc7516dcc726d7389d0bce1744e5c85/src/vs/workbench/contrib/notebook/browser/notebookKernelAssociation.ts#L12
-		noFixingCase(outdent`
-			declare class A {
-				static a = 1;
-			}
-		`),
+		noFixingCase('declare class A { static a = 1; }'),
+		noFixingCase('abstract class A { static a = 1; }'),
+		noFixingCase('class A implements B { static a = 1; }'),
 		// https://github.com/microsoft/vscode/blob/11cd76005bc7516dcc726d7389d0bce1744e5c85/src/vs/workbench/contrib/notebook/browser/notebookKernelAssociation.ts#L12
 		noFixingCase(outdent`
 			class NotebookKernelProviderAssociationRegistry {

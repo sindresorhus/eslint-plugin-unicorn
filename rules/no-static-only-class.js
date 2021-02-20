@@ -102,9 +102,21 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 }
 
 function switchClassToObject(node, sourceCode) {
-	const {type, id, body, declare: isDeclare, parent} = node;
+	const {
+		type,
+		id,
+		body,
+		declare: isDeclare,
+		abstract: isAbstract,
+		implements: classImplements
+		parent
+	} = node;
 
-	if (isDeclare) {
+	if (
+		isDeclare ||
+		isAbstract ||
+		(Array.isArray(classImplements) && classImplements.length > 0)
+	) {
 		return;
 	}
 
