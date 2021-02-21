@@ -25,7 +25,7 @@ const assertToken = (token, expected) => {
 	) {
 		const issueLink = 'https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?title=%60no-static-only-class%60%3A%20Unexpected%20token%20error';
 		throw new Error(
-			`Expect token '${JSON.stringify(expected)}', got '${JSON.stringify({type, value})}', Please open an issue at ${issueLink}.`
+			`Expected token '${JSON.stringify(expected)}', got '${JSON.stringify({type, value})}', Please open an issue at ${issueLink}.`
 		);
 	}
 };
