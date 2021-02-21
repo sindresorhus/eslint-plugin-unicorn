@@ -1,10 +1,10 @@
 import {createRequire} from 'module';
 import test from 'ava';
 import url from 'url';
-import getDocumentationUrl from '../rules/utils/get-documentation-url.js';
+import getDocumentationUrl from '../../rules/utils/get-documentation-url.js';
 
 const require = createRequire(import.meta.url);
-const packageJson = require('../package.json');
+const packageJson = require('../../package.json');
 const filename = url.fileURLToPath(import.meta.url).replace(/\.mjs$/, '.js');
 
 test('returns the URL of the a named rule\'s documentation', t => {

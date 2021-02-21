@@ -79,7 +79,8 @@
 	},
 	"ava": {
 		"files": [
-			"test/*.mjs"
+			"test/*.mjs",
+			"test/unit/*.mjs"
 		]
 	},
 	"nyc": {

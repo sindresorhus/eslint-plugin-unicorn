@@ -24,7 +24,7 @@ function assertToken(token, {test, expected, ruleId}) {
 	expected = expected.map(expectedToken => `'${JSON.stringify(expectedToken)}'`).join(' or ');
 	const title = `\`${ruleId}\`: Unexpected token ${actual}`;
 	const issueLink = `${ISSUE_LINK_PREFIX}?title=${encodeURIComponent(title)}`;
-	const message = `Expected token ${expected}, got ${actual}, Please open an issue at ${issueLink}.`
+	const message = `Expected token ${expected}, got ${actual}, Please open an issue at ${issueLink}.`;
 
 	throw new Error(message);
 }

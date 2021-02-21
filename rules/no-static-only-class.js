@@ -67,7 +67,7 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 		expected: [
 			{type: 'Keyword', value: 'static'},
 			// `babel-eslint` and `@babel/eslint-parser` use `{type: 'Identifier', value: 'static'}`
-			{type: 'Identifier', value: 'static'},
+			{type: 'Identifier', value: 'static'}
 		],
 		ruleId: 'no-static-only-class'
 	});
