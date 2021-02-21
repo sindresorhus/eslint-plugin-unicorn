@@ -6,13 +6,28 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{value}}`.'
 };
 
+const unsafeURLRegExp = /http:\/\/[\w#%+.:=@~-]{2,256}\.[a-z]{2,4}/g;
+const httpRegExp = /http:\/\//;
+
 //	Helper to determine if a string is an unsafe URL.
-const containsHttp = nodeValue => /http:\/\/(www\.)?[\w#%+.:=@~-]{2,256}\.[a-z]{2,4}\b([\w#%&+./:=?@~-]*)/.test(nodeValue);
+const containsHttp = nodeValue => unsafeURLRegExp.test(nodeValue);
+
+//	Returns a function which iterates through each unsafe use of http, and replaces it with https.
+const getFixer = node => fixer => {
+	let fixed = node.value || '';
+	for (const match in fixed.match(unsafeURLRegExp)) {
+		if (match) {
+			const fixedMatch = match.replace(httpRegExp, 'https://');
+			fixed = fixed.replace(match, fixedMatch);
+		}
+	}
+
+	return fixer.replaceText(node, fixed);
+};
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const reportPreferHttp = node => {
-		const fixed = node.value.replace('http', 'https');
 		return context.report({
 			node,
 			messageId: MESSAGE_ID,
@@ -20,7 +35,7 @@ const create = context => {
 				value: 'http',
 				replacement: 'https'
 			},
-			fix: fixer => fixer.replaceText(node, fixed)
+			fix: getFixer(node)
 		});
 	};
 
