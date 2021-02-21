@@ -6,7 +6,7 @@ const removeSpacesAfter = require('./utils/remove-spaces-after');
 
 const MESSAGE_ID = 'no-static-only-class';
 const messages = {
-	[MESSAGE_ID]: 'Use object instead of class with only static members.'
+	[MESSAGE_ID]: 'Use an object instead of a class with only static members.'
 };
 
 const selector = [
