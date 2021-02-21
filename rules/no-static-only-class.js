@@ -152,32 +152,30 @@ function switchClassToObject(node, sourceCode) {
 		}
 	}
 
-	// There are comments after return, and `{` is not on same line
-	// ```js
-	// function a() {
-	// 	return class // comment
-	// 	{
-	// 		static a() {}
-	// 	}
-	// }
-	// ```
-	const classToken = sourceCode.getFirstToken(node);
-	/* istanbul ignore next */
-	assertToken(classToken, {type: 'Keyword', value: 'class'});
-
-	let needMoveBodyOpeningBraceToken = false;
-	if (
-		type === 'ClassExpression' &&
-		parent.type === 'ReturnStatement' &&
-		body.loc.start.line !== parent.loc.start.line &&
-		sourceCode.text.slice(classToken.range[1], body.range[0]).trim()
-	) {
-		needMoveBodyOpeningBraceToken = true;
-	}
-
 	return function * (fixer) {
+		const classToken = sourceCode.getFirstToken(node);
+		/* istanbul ignore next */
+		assertToken(classToken, {type: 'Keyword', value: 'class'});
+
 		if (isExportDefault || type === 'ClassExpression') {
-			if (needMoveBodyOpeningBraceToken) {
+			/*
+				There are comments after return, and `{` is not on same line
+
+				```js
+				function a() {
+					return class // comment
+					{
+						static a() {}
+					}
+				}
+				```
+			*/
+			if (
+				type === 'ClassExpression' &&
+				parent.type === 'ReturnStatement' &&
+				body.loc.start.line !== parent.loc.start.line &&
+				sourceCode.text.slice(classToken.range[1], body.range[0]).trim()
+			) {
 				yield fixer.replaceText(classToken, '{');
 
 				const openingBraceToken = sourceCode.getFirstToken(body);
@@ -185,11 +183,14 @@ function switchClassToObject(node, sourceCode) {
 			} else {
 				yield fixer.replaceText(classToken, '');
 
-				// Avoid breaking case like
-				// ```js
-				// return class
-				// {};
-				// ```
+				/*
+						Avoid breaking case like
+
+						```js
+						return class
+						{};
+						```
+				*/
 				yield removeSpacesAfter(classToken, sourceCode, fixer);
 			}
 
