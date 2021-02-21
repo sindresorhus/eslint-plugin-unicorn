@@ -1,6 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const {findVariable, isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
+const assertToken = require('./utils/assert-token');
 
 const ERROR_MESSAGE_ID = 'error';
 const messages = {
@@ -33,12 +34,18 @@ const create = context => {
 				data: {name},
 				* fix(fixer) {
 					const tokenBefore = context.getTokenBefore(node);
-					const tokenAfter = context.getTokenAfter(node);
+					assertToken(tokenBefore, {
+						test: isOpeningParenToken,
+						expected: '(',
+						ruleId: 'prefer-optional-catch-binding'
+					});
 
-					/* istanbul ignore next */
-					if (!isOpeningParenToken(tokenBefore) || !isClosingParenToken(tokenAfter)) {
-						throw new Error('Unexpected token.');
-					}
+					const tokenAfter = context.getTokenAfter(node);
+					assertToken(tokenAfter, {
+						test: isClosingParenToken,
+						expected: ')',
+						ruleId: 'prefer-optional-catch-binding'
+					});
 
 					yield fixer.remove(tokenBefore);
 					yield fixer.remove(node);

@@ -15,6 +15,7 @@ const getParenthesizedTimes = require('./utils/get-parenthesized-times');
 const extendFixRange = require('./utils/extend-fix-range');
 const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside');
 const isNodeMatches = require('./utils/is-node-matches');
+const assertToken = require('./utils/assert-token');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
@@ -90,11 +91,10 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 
 	function * replaceReturnStatement(returnStatement, fixer) {
 		const returnToken = sourceCode.getFirstToken(returnStatement);
-
-		/* istanbul ignore next: `ReturnStatement` firstToken should be `return` */
-		if (returnToken.value !== 'return') {
-			throw new Error(`Unexpected token ${returnToken.value}.`);
-		}
+		assertToken(returnToken, {
+			expected: 'return',
+			ruleId: 'no-array-for-each'
+		});
 
 		if (!returnStatement.argument) {
 			yield fixer.replaceText(returnToken, 'continue');

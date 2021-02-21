@@ -3,6 +3,7 @@ const {isSemicolonToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const getClassHeadLocation = require('./utils/get-class-head-location');
 const removeSpacesAfter = require('./utils/remove-spaces-after');
+const assertToken = require('./utils/assert-token');
 
 const MESSAGE_ID = 'no-static-only-class';
 const messages = {
@@ -15,20 +16,6 @@ const selector = [
 	'[body.type="ClassBody"]',
 	'[body.body.length>0]'
 ].join('');
-
-const assertToken = (token, expected) => {
-	const {type, value} = token;
-	/* istanbul ignore next */
-	if (
-		type !== expected.type ||
-		value !== expected.value
-	) {
-		const issueLink = 'https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?title=%60no-static-only-class%60%3A%20Unexpected%20token%20error';
-		throw new Error(
-			`Expected token '${JSON.stringify(expected)}', got '${JSON.stringify({type, value})}', Please open an issue at ${issueLink}.`
-		);
-	}
-};
 
 const isEqualToken = ({type, value}) => type === 'Punctuator' && value === '=';
 const isDeclarationOfExportDefaultDeclaration = node =>
@@ -76,10 +63,14 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 	const {type} = node;
 
 	const staticToken = sourceCode.getFirstToken(node);
-	// `babel-eslint` and `@babel/eslint-parser` use `{type: 'Identifier', value: 'static'}`
-	if (!(staticToken.value === 'static' && staticToken.type === 'Identifier')) {
-		assertToken(staticToken, {type: 'Keyword', value: 'static'});
-	}
+	assertToken(staticToken, {
+		expected: [
+			{type: 'Keyword', value: 'static'},
+			// `babel-eslint` and `@babel/eslint-parser` use `{type: 'Identifier', value: 'static'}`
+			{type: 'Identifier', value: 'static'},
+		],
+		ruleId: 'no-static-only-class'
+	});
 
 	yield fixer.remove(staticToken);
 	yield removeSpacesAfter(staticToken, sourceCode, fixer);
@@ -155,7 +146,10 @@ function switchClassToObject(node, sourceCode) {
 	return function * (fixer) {
 		const classToken = sourceCode.getFirstToken(node);
 		/* istanbul ignore next */
-		assertToken(classToken, {type: 'Keyword', value: 'class'});
+		assertToken(classToken, {
+			expected: {type: 'Keyword', value: 'class'},
+			ruleId: 'no-static-only-class'
+		});
 
 		if (isExportDefault || type === 'ClassExpression') {
 			/*
