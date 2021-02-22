@@ -45,10 +45,12 @@ function getStaticPropertyName(node) {
 		case 'ChainExpression':
 			return getStaticPropertyName(node.expression);
 
-		/* istanbul ignore next: Not reachable */
+		/* istanbul ignore next: Only reachable when use this to get class/object member key */
 		case 'Property':
 		case 'MethodDefinition':
+			/* istanbul ignore next */
 			property = node.key;
+			/* istanbul ignore next */
 			break;
 
 			// No default
