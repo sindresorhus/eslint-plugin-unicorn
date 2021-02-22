@@ -40,10 +40,14 @@ test.snapshot({
 			foo.push(1);
 			const length = foo.push(2);
 		`,
-		// We are comparing array with source code
+		// Not considered same array
 		outdent`
-			foo.bar.push(1);
-			(foo).bar.push(2);
+			foo().push(1);
+			foo().push(2);
+		`,
+		outdent`
+			foo().bar.push(1);
+			foo().bar.push(2);
 		`
 	],
 	invalid: [
@@ -104,15 +108,6 @@ test.snapshot({
 			foo.push(1);
 			foo.push(bar());
 		`,
-		// Array has side effect
-		outdent`
-			foo().push(1);
-			foo().push(2);
-		`,
-		outdent`
-			foo().bar.push(1);
-			foo().bar.push(2);
-		`,
 		// Multiple
 		outdent`
 			foo.push(1,);
@@ -144,6 +139,93 @@ test.snapshot({
 			foo.push(1)
 			foo.push(2)
 			;[foo].forEach(bar)
+		`,
+		// Still same array
+		outdent`
+			foo.bar.push(1);
+			(foo)['bar'].push(2);
 		`
+	]
+});
+
+// `isSameReference` coverage
+test({
+	valid: [
+		outdent`
+			a[x].push(1);
+			a[x].push(2);
+
+			'1'.someMagicPropertyReturnsAnArray.push(1);
+			(1).someMagicPropertyReturnsAnArray.push(2);
+
+			/a/i.someMagicPropertyReturnsAnArray.push(1);
+			/b/g.someMagicPropertyReturnsAnArray.push(2);
+
+			1n.someMagicPropertyReturnsAnArray.push(1);
+			2n.someMagicPropertyReturnsAnArray.push(2);
+
+			(true).someMagicPropertyReturnsAnArray.push(1);
+			(false).someMagicPropertyReturnsAnArray.push(2);
+		`
+	],
+	invalid: [
+		{
+			code: outdent`
+				class A extends B {
+					foo() {
+						this.push(1);
+						this.push(2);
+
+						super.x.push(1);
+						super.x.push(2);
+
+						((a?.x).y).push(1);
+						(a.x?.y).push(1);
+
+						((a?.x.y).z).push(1);
+						((a.x?.y).z).push(1);
+
+						a[null].push(1);
+						a['null'].push(1);
+
+						'1'.someMagicPropertyReturnsAnArray.push(1);
+						'1'.someMagicPropertyReturnsAnArray.push(2);
+
+						/a/i.someMagicPropertyReturnsAnArray.push(1);
+						/a/i.someMagicPropertyReturnsAnArray.push(2);
+
+						1n.someMagicPropertyReturnsAnArray.push(1);
+						1n.someMagicPropertyReturnsAnArray.push(2);
+
+						(true).someMagicPropertyReturnsAnArray.push(1);
+						(true).someMagicPropertyReturnsAnArray.push(2);
+					}
+				}
+			`,
+			output: outdent`
+				class A extends B {
+					foo() {
+						this.push(1, 2);
+
+						super.x.push(1, 2);
+
+						((a?.x).y).push(1, 1);
+
+						((a?.x.y).z).push(1, 1);
+
+						a[null].push(1, 1);
+
+						'1'.someMagicPropertyReturnsAnArray.push(1, 2);
+
+						/a/i.someMagicPropertyReturnsAnArray.push(1, 2);
+
+						1n.someMagicPropertyReturnsAnArray.push(1, 2);
+
+						(true).someMagicPropertyReturnsAnArray.push(1, 2);
+					}
+				}
+			`,
+			errors: 9
+		}
 	]
 });
