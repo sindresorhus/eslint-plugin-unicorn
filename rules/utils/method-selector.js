@@ -29,7 +29,7 @@ module.exports = options => {
 		`[${prefix}type="CallExpression"]`,
 		`[${prefix}callee.type="MemberExpression"]`,
 		`[${prefix}callee.property.type="Identifier"]`,
-		`[${prefix}callee.computed=false]`,
+		`[${prefix}callee.computed=false]`
 	];
 
 	if (!includeOptionalCall) {
