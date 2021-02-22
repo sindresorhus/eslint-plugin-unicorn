@@ -6,10 +6,12 @@ module.exports = options => {
 		names,
 		length,
 		object,
+		objects,
 		min,
 		max,
 		property = '',
-		includeOptional = false
+		includeOptional = false,
+		allowSpreadElement = false
 	} = {
 		min: 0,
 		max: Number.POSITIVE_INFINITY,
@@ -20,7 +22,9 @@ module.exports = options => {
 
 	const selector = [
 		`[${prefix}type="CallExpression"]`,
+		`[${prefix}optional=false]`,
 		`[${prefix}callee.type="MemberExpression"]`,
+		`[${prefix}callee.optional=false]`,
 		`[${prefix}callee.property.type="Identifier"]`
 	];
 
@@ -47,6 +51,15 @@ module.exports = options => {
 		);
 	}
 
+	if (Array.isArray(objects) && objects.length > 0) {
+		selector.push(
+			`[${prefix}callee.object.type="Identifier"]`,
+			':matches(' +
+			objects.map(object => `[${prefix}callee.object.name="${object}"]`).join(', ') +
+			')'
+		);
+	}
+
 	if (typeof length === 'number') {
 		selector.push(`[${prefix}arguments.length=${length}]`);
 	}
@@ -59,11 +72,13 @@ module.exports = options => {
 		selector.push(`[${prefix}arguments.length<=${max}]`);
 	}
 
-	const maxArguments = Number.isFinite(max) ? max : length;
-	if (typeof maxArguments === 'number') {
-		// Exclude arguments with `SpreadElement` type
-		for (let index = 0; index < maxArguments; index += 1) {
-			selector.push(`[${prefix}arguments.${index}.type!="SpreadElement"]`);
+	if (!allowSpreadElement) {
+		const maxArguments = Number.isFinite(max) ? max : length;
+		if (typeof maxArguments === 'number') {
+			// Exclude arguments with `SpreadElement` type
+			for (let index = 0; index < maxArguments; index += 1) {
+				selector.push(`[${prefix}arguments.${index}.type!="SpreadElement"]`);
+			}
 		}
 	}
 

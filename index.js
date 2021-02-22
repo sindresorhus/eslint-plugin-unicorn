@@ -85,6 +85,7 @@ module.exports = {
 				'unicorn/prefer-array-find': 'error',
 				// TODO: Enable this by default when targeting Node.js 12.
 				'unicorn/prefer-array-flat-map': 'off',
+				'unicorn/prefer-array-flat': 'error',
 				'unicorn/prefer-array-index-of': 'error',
 				'unicorn/prefer-array-some': 'error',
 				'unicorn/prefer-date-now': 'error',
