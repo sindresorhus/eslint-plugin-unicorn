@@ -1,7 +1,6 @@
-'use strict';
-const {Linter, SourceCodeFixer} = require('eslint/lib/linter');
-const {codeFrameColumns} = require('@babel/code-frame');
-const {outdent} = require('outdent');
+import {Linter, SourceCodeFixer} from 'eslint/lib/linter/index.js';
+import {codeFrameColumns} from '@babel/code-frame';
+import outdent from 'outdent';
 
 const codeFrameColumnsOptions = {linesAbove: Number.POSITIVE_INFINITY, linesBelow: Number.POSITIVE_INFINITY};
 
@@ -129,4 +128,4 @@ function snapshotRuleTester(test, config) {
 	return new SnapshotRuleTester(test, config);
 }
 
-module.exports = snapshotRuleTester;
+export default snapshotRuleTester;

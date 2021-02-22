@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = [
+const notDomNodeTypes = [
 	// ArrayExpression
 	'[]',
 	'[element]',
@@ -30,3 +28,5 @@ module.exports = [
 	// Undefined
 	'undefined'
 ];
+
+export default notDomNodeTypes;

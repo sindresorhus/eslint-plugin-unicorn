@@ -1,5 +1,5 @@
-import {outdent} from 'outdent';
-import {getTester} from './utils/test.js';
+import outdent from 'outdent';
+import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
@@ -807,13 +807,13 @@ test({
 				}
 			}
 		`,
-		// Same `left`, but not handled
+		// Not same `left`
 		outdent`
 			function unicorn() {
 				if(test){
-					foo.bar = a;
+					foo().bar = a;
 				} else{
-					foo.bar = b;
+					foo().bar = b;
 				}
 			}
 		`,
@@ -913,6 +913,43 @@ test({
 			output: outdent`
 				async function unicorn() {
 					foo = await (test ? a : b);
+				}
+			`,
+			errors
+		},
+		// Same `left`
+		{
+			code: outdent`
+				function unicorn() {
+					if (test) {
+						foo.bar = a;
+					} else{
+						foo.bar = b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					foo.bar = test ? a : b;
+				}
+			`,
+			errors
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					a()
+					if (test) {
+						(foo)['b' + 'ar'] = a
+					} else{
+						foo.bar = b
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					a()
+					;(foo)['b' + 'ar'] = test ? a : b;
 				}
 			`,
 			errors

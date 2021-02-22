@@ -1,7 +1,7 @@
 import test from 'ava';
-import {outdent} from 'outdent';
+import outdent from 'outdent';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import {getTester} from './utils/test.js';
+import {getTester} from './utils/test.mjs';
 
 const {rule} = getTester(import.meta);
 

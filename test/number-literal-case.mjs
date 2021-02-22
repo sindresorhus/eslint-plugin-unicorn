@@ -1,8 +1,8 @@
 import {createRequire} from 'module';
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import {outdent} from 'outdent';
-import {getTester} from './utils/test.js';
+import outdent from 'outdent';
+import {getTester} from './utils/test.mjs';
 
 const {test: runTest, rule} = getTester(import.meta);
 const require = createRequire(import.meta.url);

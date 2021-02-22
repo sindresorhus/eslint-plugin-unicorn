@@ -1,6 +1,6 @@
-import {outdent} from 'outdent';
-import {getTester} from './utils/test.js';
-import notDomNodeTypes from './utils/not-dom-node-types.js';
+import outdent from 'outdent';
+import {getTester} from './utils/test.mjs';
+import notDomNodeTypes from './utils/not-dom-node-types.mjs';
 
 const {test} = getTester(import.meta);
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-'use strict';
-const {ESLint} = require('eslint');
-const unicorn = require('../..');
+import {ESLint} from 'eslint';
+import unicorn from '../../index.js';
 
 const {recommended} = unicorn.configs;
 const files = [process.argv[2] || '.'];
@@ -10,6 +9,7 @@ const fix = process.argv.includes('--fix');
 const eslint = new ESLint({
 	baseConfig: recommended,
 	useEslintrc: false,
+	extensions: ['.js', '.mjs'],
 	plugins: {
 		unicorn
 	},

@@ -4,6 +4,8 @@ const {flatten} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
 const extendFixRange = require('./utils/extend-fix-range');
+const needsSemicolon = require('./utils/needs-semicolon');
+const isSameReference = require('./utils/is-same-reference');
 
 const messageId = 'prefer-ternary';
 
@@ -35,11 +37,6 @@ function getNodeBody(node) {
 	}
 
 	return node;
-}
-
-function isSameAssignmentLeft(node1, node2) {
-	// [TODO]: Allow more types of left
-	return node1.type === node2.type && node1.type === 'Identifier' && node1.name === node2.name;
 }
 
 const getIndentString = (node, sourceCode) => {
@@ -171,12 +168,12 @@ const create = context => {
 
 		if (
 			type === 'AssignmentExpression' &&
-			isSameAssignmentLeft(left, alternate.left) &&
 			operator === alternate.operator &&
 			!isTernary(left) &&
 			!isTernary(alternate.left) &&
 			!isTernary(right) &&
-			!isTernary(alternate.right)
+			!isTernary(alternate.right) &&
+			isSameReference(left, alternate.left)
 		) {
 			return merge({
 				before: `${before}${sourceCode.getText(left)} ${operator} `,
@@ -252,7 +249,13 @@ const create = context => {
 						generateNewVariables = true;
 					}
 
-					const fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
+					let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
+					const tokenBefore = sourceCode.getTokenBefore(node);
+					const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, sourceCode, fixed);
+					if (shouldAddSemicolonBefore) {
+						fixed = `;${fixed}`;
+					}
+
 					yield fixer.replaceText(node, fixed);
 
 					if (generateNewVariables) {

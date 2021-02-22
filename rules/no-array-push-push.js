@@ -3,6 +3,7 @@ const {hasSideEffect, isCommaToken, isSemicolonToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const getCallExpressionArgumentsText = require('./utils/get-call-expression-arguments-text');
+const isSameReference = require('./utils/is-same-reference');
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -53,7 +54,7 @@ function create(context) {
 			const secondCallArray = secondCall.callee.object;
 
 			// Not same array
-			if (sourceCode.getText(firstCallArray) !== sourceCode.getText(secondCallArray)) {
+			if (!isSameReference(firstCallArray, secondCallArray)) {
 				return;
 			}
 
@@ -83,10 +84,7 @@ function create(context) {
 				);
 			};
 
-			if (
-				hasSideEffect(firstCallArray, sourceCode) ||
-				secondCallArguments.some(element => hasSideEffect(element, sourceCode))
-			) {
+			if (secondCallArguments.some(element => hasSideEffect(element, sourceCode))) {
 				problem.suggest = [
 					{
 						messageId: SUGGESTION,
