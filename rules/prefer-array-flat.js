@@ -167,54 +167,55 @@ const cases = [
 	lodashFlatten
 ];
 
+function fix(node, array, sourceCode) {
+	return fixer => {
+		let fixed = sourceCode.getText(array);
+		if (shouldAddParenthesesToMemberExpressionObject(array, sourceCode)) {
+			fixed = `(${fixed})`;
+		}
+
+		fixed = `${fixed}.flat()`;
+
+		const tokenBefore = sourceCode.getTokenBefore(node);
+		if (needsSemicolon(tokenBefore, sourceCode, fixed)) {
+			fixed = `;${fixed}`;
+		}
+
+		return fixer.replaceText(node, fixed);
+	};
+}
+
 function create(context) {
 	const sourceCode = context.getSourceCode();
 	const listeners = {};
 
-	for (const {
-		selector,
-		testFunction,
-		description, getArrayNode} of cases) {
+	for (const {selector, testFunction, description, getArrayNode} of cases) {
 		listeners[selector] = function (node) {
 			if (testFunction && !testFunction(node)) {
 				return;
 			}
 
+			const array = getArrayNode(node);
+
 			const data = {
 				description: typeof description === 'string' ? description : description(node)
 			};
 
-			context.report({
+			const problem = {
 				node,
 				messageId: MESSAGE_ID,
-				data,
-				fix(fixer) {
-					const array = getArrayNode(node);
-					const text = sourceCode.getText(array);
+				data
+			};
 
-					// If has comments, do not fix
-					if (
-						sourceCode.getCommentsInside(node).length >
-						sourceCode.getCommentsInside(array).length
-					) {
-						return;
-					}
+			// If has comments, do not fix
+			if (
+				sourceCode.getCommentsInside(node).length ===
+				sourceCode.getCommentsInside(array).length
+			) {
+				problem.fix = fix(node, array, sourceCode);
+			}
 
-					let fixed = text;
-					if (shouldAddParenthesesToMemberExpressionObject(array, sourceCode)) {
-						fixed = `(${fixed})`;
-					}
-
-					fixed = `${fixed}.flat()`;
-
-					const tokenBefore = sourceCode.getTokenBefore(node);
-					if (needsSemicolon(tokenBefore, sourceCode, fixed)) {
-						fixed = `;${fixed}`;
-					}
-
-					return fixer.replaceText(node, fixed);
-				}
-			});
+			context.report(problem);
 		};
 	}
 
