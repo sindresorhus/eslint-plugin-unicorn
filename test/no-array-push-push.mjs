@@ -48,7 +48,7 @@ test.snapshot({
 		outdent`
 			foo().bar.push(1);
 			foo().bar.push(2);
-		`,
+		`
 	],
 	invalid: [
 		outdent`
