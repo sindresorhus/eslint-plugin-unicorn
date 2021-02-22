@@ -149,7 +149,7 @@ test.snapshot({
 });
 
 // `isSameReference` coverage
-test.snapshot({
+test({
 	valid: [
 		outdent`
 			a[x].push(1);
@@ -169,37 +169,63 @@ test.snapshot({
 		`
 	],
 	invalid: [
-		outdent`
-			class A extends B {
-				foo() {
-					this.push(1);
-					this.push(2);
+		{
+			code: outdent`
+				class A extends B {
+					foo() {
+						this.push(1);
+						this.push(2);
 
-					super.x.push(1);
-					super.x.push(2);
+						super.x.push(1);
+						super.x.push(2);
 
-					((a?.x).y).push(1);
-					(a.x?.y).push(1);
+						((a?.x).y).push(1);
+						(a.x?.y).push(1);
 
-					((a?.x.y).z).push(1);
-					((a.x?.y).z).push(1);
+						((a?.x.y).z).push(1);
+						((a.x?.y).z).push(1);
 
-					a[null].push(1);
-					a['null'].push(1);
+						a[null].push(1);
+						a['null'].push(1);
 
-					'1'.someMagicPropertyReturnsAnArray.push(1);
-					'1'.someMagicPropertyReturnsAnArray.push(2);
+						'1'.someMagicPropertyReturnsAnArray.push(1);
+						'1'.someMagicPropertyReturnsAnArray.push(2);
 
-					/a/i.someMagicPropertyReturnsAnArray.push(1);
-					/a/i.someMagicPropertyReturnsAnArray.push(2);
+						/a/i.someMagicPropertyReturnsAnArray.push(1);
+						/a/i.someMagicPropertyReturnsAnArray.push(2);
 
-					1n.someMagicPropertyReturnsAnArray.push(1);
-					1n.someMagicPropertyReturnsAnArray.push(2);
+						1n.someMagicPropertyReturnsAnArray.push(1);
+						1n.someMagicPropertyReturnsAnArray.push(2);
 
-					(true).someMagicPropertyReturnsAnArray.push(1);
-					(true).someMagicPropertyReturnsAnArray.push(2);
+						(true).someMagicPropertyReturnsAnArray.push(1);
+						(true).someMagicPropertyReturnsAnArray.push(2);
+					}
 				}
-			}
-		`
+			`,
+			output: outdent`
+				class A extends B {
+					foo() {
+						this.push(1, 2);
+
+						super.x.push(1, 2);
+
+						((a?.x).y).push(1, 1);
+
+						((a?.x.y).z).push(1, 1);
+
+						a[null].push(1, 1);
+
+						'1'.someMagicPropertyReturnsAnArray.push(1, 2);
+
+						/a/i.someMagicPropertyReturnsAnArray.push(1, 2);
+
+						1n.someMagicPropertyReturnsAnArray.push(1, 2);
+
+						(true).someMagicPropertyReturnsAnArray.push(1, 2);
+					}
+				}
+			`,
+			errors: 9
+		}
 	]
 });
