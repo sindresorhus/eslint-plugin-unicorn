@@ -9,13 +9,17 @@ module.exports = options => {
 		objects,
 		min,
 		max,
-		property = '',
-		includeOptionalCall = false,
-		includeOptionalMember = false,
-		allowSpreadElement = false
+		property,
+		includeOptionalCall,
+		includeOptionalMember,
+		allowSpreadElement
 	} = {
 		min: 0,
 		max: Number.POSITIVE_INFINITY,
+		includeOptionalCall: false,
+		includeOptionalMember: false,
+		allowSpreadElement: false,
+		property: '',
 		...options
 	};
 
