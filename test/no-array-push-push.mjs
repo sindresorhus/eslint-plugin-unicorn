@@ -172,8 +172,8 @@ test.snapshot({
 					this.push(2);
 					super.x.push(1);
 					super.x.push(2);
-					(a?.x).push(1);
-					a.x.push(1);
+					((a?.x).y).push(1);
+					(a.x?.y).push(1);
 					'1'.someMagicPropertyReturnsAnArray.push(1);
 					'1'.someMagicPropertyReturnsAnArray.push(2);
 					/a/i.someMagicPropertyReturnsAnArray.push(1);
