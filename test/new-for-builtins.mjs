@@ -1,5 +1,5 @@
 
-import {getTester} from './utils/test.js';
+import {getTester} from './utils/test.mjs';
 import {enforceNew, disallowNew} from '../rules/utils/builtins.js';
 
 const {test} = getTester(import.meta);

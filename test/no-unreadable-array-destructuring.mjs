@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 

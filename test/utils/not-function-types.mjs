@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = [
+const notFunctionTypes = [
 	// ArrayExpression
 	'[]',
 	'[element]',
@@ -50,3 +48,5 @@ module.exports = [
 	'fn``', // Same as `CallExpression`
 	'this' // Could be a function
 ];
+
+export default notFunctionTypes;

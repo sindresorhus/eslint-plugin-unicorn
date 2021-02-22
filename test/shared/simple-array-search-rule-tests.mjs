@@ -1,5 +1,4 @@
-'use strict';
-const {outdent} = require('outdent');
+import outdent from 'outdent';
 
 function snapshotTests({method, replacement}) {
 	return {
@@ -155,4 +154,4 @@ function tests(options) {
 	};
 }
 
-module.exports = tests;
+export default tests;
