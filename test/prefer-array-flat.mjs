@@ -12,7 +12,7 @@ test.snapshot({
 		'array.notFlatMap(x => x)',
 		'array[flatMap](x => x)',
 		'array.flatMap(x => x, thisArgument)',
-		'array.flatMap([...(x => x)])',
+		'array.flatMap(...[x => x])',
 		'array.flatMap(function (x) { return x; })', // Can be detected
 		'array.flatMap(async x => x)',
 		'array.flatMap(function * (x) { return x;})',
