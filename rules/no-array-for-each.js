@@ -24,7 +24,8 @@ const messages = {
 
 const arrayForEachCallSelector = methodSelector({
 	name: 'forEach',
-	includeOptional: true
+	includeOptionalCall: true,
+	includeOptionalMember: true
 });
 
 const continueAbleNodeTypes = new Set([

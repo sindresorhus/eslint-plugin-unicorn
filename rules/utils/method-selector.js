@@ -10,7 +10,8 @@ module.exports = options => {
 		min,
 		max,
 		property = '',
-		includeOptional = false,
+		includeOptionalCall = false,
+		includeOptionalMember = false,
 		allowSpreadElement = false
 	} = {
 		min: 0,
@@ -22,14 +23,17 @@ module.exports = options => {
 
 	const selector = [
 		`[${prefix}type="CallExpression"]`,
-		`[${prefix}optional=false]`,
 		`[${prefix}callee.type="MemberExpression"]`,
-		`[${prefix}callee.optional=false]`,
-		`[${prefix}callee.property.type="Identifier"]`
+		`[${prefix}callee.property.type="Identifier"]`,
+		`[${prefix}callee.computed=false]`,
 	];
 
-	if (!includeOptional) {
-		selector.push(`[${prefix}callee.computed=false]`);
+	if (!includeOptionalCall) {
+		selector.push(`[${prefix}optional=false]`);
+	}
+
+	if (!includeOptionalMember) {
+		selector.push(`[${prefix}callee.optional=false]`);
 	}
 
 	if (name) {
