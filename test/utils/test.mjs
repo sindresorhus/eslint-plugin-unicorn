@@ -1,12 +1,12 @@
-'use strict';
+import path from 'path';
+import url from 'url';
+import test from 'ava';
+import {createRequire} from 'module';
+import avaRuleTester from 'eslint-ava-rule-tester';
+import snapshotRuleTester from './snapshot-rule-tester.mjs';
+import defaultParserOptions from './default-parser-options.mjs';
 
-const path = require('path');
-const url = require('url');
-const test = require('ava');
-const avaRuleTester = require('eslint-ava-rule-tester');
-const snapshotRuleTester = require('./snapshot-rule-tester');
-
-const defaultParserOptions = require('./default-parser-options');
+const require = createRequire(import.meta.url);
 
 class Tester {
 	constructor(ruleId) {
@@ -106,7 +106,7 @@ function getTester(importMeta) {
 	};
 }
 
-module.exports = {
+export {
 	defaultParserOptions,
 	getTester
 };
