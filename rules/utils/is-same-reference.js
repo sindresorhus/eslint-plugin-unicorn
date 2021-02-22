@@ -37,16 +37,18 @@ function getStaticPropertyName(node) {
 	let property;
 
 	switch (node && node.type) {
+		case 'MemberExpression':
+			property = node.property;
+			break;
+
+		/* istanbul ignore next: Hard to test */
 		case 'ChainExpression':
 			return getStaticPropertyName(node.expression);
 
+		/* istanbul ignore next: Not reachable */
 		case 'Property':
 		case 'MethodDefinition':
 			property = node.key;
-			break;
-
-		case 'MemberExpression':
-			property = node.property;
 			break;
 
 			// No default

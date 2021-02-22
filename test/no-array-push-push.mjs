@@ -181,6 +181,9 @@ test.snapshot({
 					((a?.x).y).push(1);
 					(a.x?.y).push(1);
 
+					((a?.x.y).z).push(1);
+					((a.x?.y).z).push(1);
+
 					a[null].push(1);
 					a['null'].push(1);
 
