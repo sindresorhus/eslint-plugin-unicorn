@@ -154,12 +154,16 @@ test.snapshot({
 		outdent`
 			a[x].push(1);
 			a[x].push(2);
+
 			'1'.someMagicPropertyReturnsAnArray.push(1);
 			(1).someMagicPropertyReturnsAnArray.push(2);
+
 			/a/i.someMagicPropertyReturnsAnArray.push(1);
 			/b/g.someMagicPropertyReturnsAnArray.push(2);
+
 			1n.someMagicPropertyReturnsAnArray.push(1);
 			2n.someMagicPropertyReturnsAnArray.push(2);
+
 			(true).someMagicPropertyReturnsAnArray.push(1);
 			(false).someMagicPropertyReturnsAnArray.push(2);
 		`
@@ -170,16 +174,25 @@ test.snapshot({
 				foo() {
 					this.push(1);
 					this.push(2);
+
 					super.x.push(1);
 					super.x.push(2);
+
 					((a?.x).y).push(1);
 					(a.x?.y).push(1);
+
+					a[null].push(1);
+					a['null'].push(1);
+
 					'1'.someMagicPropertyReturnsAnArray.push(1);
 					'1'.someMagicPropertyReturnsAnArray.push(2);
+
 					/a/i.someMagicPropertyReturnsAnArray.push(1);
 					/a/i.someMagicPropertyReturnsAnArray.push(2);
+
 					1n.someMagicPropertyReturnsAnArray.push(1);
 					1n.someMagicPropertyReturnsAnArray.push(2);
+
 					(true).someMagicPropertyReturnsAnArray.push(1);
 					(true).someMagicPropertyReturnsAnArray.push(2);
 				}
