@@ -40,11 +40,15 @@ test.snapshot({
 			foo.push(1);
 			const length = foo.push(2);
 		`,
-		// We are comparing array with source code
+		// Not considered same array
 		outdent`
-			foo.bar.push(1);
-			(foo).bar.push(2);
-		`
+			foo().push(1);
+			foo().push(2);
+		`,
+		outdent`
+			foo().bar.push(1);
+			foo().bar.push(2);
+		`,
 	],
 	invalid: [
 		outdent`
@@ -104,15 +108,6 @@ test.snapshot({
 			foo.push(1);
 			foo.push(bar());
 		`,
-		// Array has side effect
-		outdent`
-			foo().push(1);
-			foo().push(2);
-		`,
-		outdent`
-			foo().bar.push(1);
-			foo().bar.push(2);
-		`,
 		// Multiple
 		outdent`
 			foo.push(1,);
@@ -144,6 +139,11 @@ test.snapshot({
 			foo.push(1)
 			foo.push(2)
 			;[foo].forEach(bar)
+		`,
+		// Still same array
+		outdent`
+			foo.bar.push(1);
+			(foo)['bar'].push(2);
 		`
 	]
 });
