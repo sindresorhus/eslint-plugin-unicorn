@@ -19,6 +19,7 @@ const emptyArraySelector = path => {
 
 const memberExpressionSelector = (path, {property, object}) => {
 	const prefix = `${path}.`;
+
 	const parts = [
 		`[${prefix}type="MemberExpression"]`,
 		`[${prefix}computed=false]`,
@@ -26,6 +27,7 @@ const memberExpressionSelector = (path, {property, object}) => {
 		`[${prefix}property.type="Identifier"]`,
 		`[${prefix}property.name="${property}"]`
 	];
+
 	if (object) {
 		parts.push(
 			`[${prefix}object.type="Identifier"]`,
@@ -207,7 +209,7 @@ function create(context) {
 				data
 			};
 
-			// If has comments, do not fix
+			// Don't fix if it has comments.
 			if (
 				sourceCode.getCommentsInside(node).length ===
 				sourceCode.getCommentsInside(array).length
