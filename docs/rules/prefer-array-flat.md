@@ -64,14 +64,14 @@ You can also check custom functions that flatten arrays.
 
 Example:
 
-```json
+```js
 {
-	"unicorn/prefer-array-flat": [
-		"error",
+	'unicorn/prefer-array-flat': [
+		'error',
 		{
-			"functions": [
-				"flatArray",
-				"utils.flat"
+			functions: [
+				'flatArray',
+				'utils.flat'
 			]
 		}
 	]
