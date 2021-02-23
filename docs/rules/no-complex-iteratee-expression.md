@@ -29,7 +29,8 @@ for (const value of obj.property) {
 ```
 
 ```js
-for (const value of obj.method()) {
+const values = array.filter(element => shouldKeep(element))
+for (const value of values) {
 	console.log(value);
 }
 ```
