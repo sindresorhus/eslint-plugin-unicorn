@@ -58,6 +58,7 @@ module.exports = {
 				'unicorn/no-array-for-each': 'error',
 				'unicorn/no-array-push-push': 'error',
 				'unicorn/no-array-reduce': 'error',
+				'unicorn/no-complex-iteratee-expression': 'error',
 				'unicorn/no-console-spaces': 'error',
 				'unicorn/no-for-loop': 'error',
 				'unicorn/no-hex-escape': 'error',

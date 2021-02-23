@@ -52,6 +52,7 @@ Configure it in `package.json`.
 			"unicorn/no-array-for-each": "error",
 			"unicorn/no-array-push-push": "error",
 			"unicorn/no-array-reduce": "error",
+			"unicorn/no-complex-iteratee-expression": "error",
 			"unicorn/no-console-spaces": "error",
 			"unicorn/no-for-loop": "error",
 			"unicorn/no-hex-escape": "error",
@@ -132,6 +133,7 @@ Configure it in `package.json`.
 - [no-array-for-each](docs/rules/no-array-for-each.md) - Prefer `for…of` over `Array#forEach(…)`. *(partly fixable)*
 - [no-array-push-push](docs/rules/no-array-push-push.md) - Enforce combining multiple `Array#push()` into one call. *(partly fixable)*
 - [no-array-reduce](docs/rules/no-array-reduce.md) - Disallow `Array#reduce()` and `Array#reduceRight()`.
+- [no-complex-iteratee-expression](docs/rules/no-complex-iteratee-expression.md) - Move complex iteratee expressions outside of `for..of` headers. *(fixable)*
 - [no-console-spaces](docs/rules/no-console-spaces.md) - Do not use leading/trailing space between `console.log` parameters. *(fixable)*
 - [no-for-loop](docs/rules/no-for-loop.md) - Do not use a `for` loop that can be replaced with a `for-of` loop. *(partly fixable)*
 - [no-hex-escape](docs/rules/no-hex-escape.md) - Enforce the use of Unicode escapes instead of hexadecimal escapes. *(fixable)*
