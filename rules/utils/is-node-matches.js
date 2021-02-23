@@ -33,4 +33,7 @@ function isNodeMatches(node, nameOrPaths) {
 	return nameOrPaths.some(nameOrPath => isNodeMatchesNameOrPath(node, nameOrPath));
 }
 
-module.exports = isNodeMatches;
+module.exports = {
+	isNodeMatchesNameOrPath,
+	isNodeMatches
+};

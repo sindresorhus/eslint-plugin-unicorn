@@ -51,3 +51,30 @@ const foo = underscore.flatten(bar);
 ```js
 const foo = bar.flat();
 ```
+
+## Options
+
+### functions
+
+You can also check custom functions that flattens arrays.
+
+Example:
+
+```json
+{
+	"unicorn/prefer-array-flat": [
+		"error",
+		{
+			"functions": [
+				"flatArray",
+				"utils.flat"
+			]
+		}
+	]
+}
+```
+
+```js
+// eslint unicorn/prefer-array-flat: ["error", {"functions": ["utils.flat"]}]
+const foo = utils.flat(bar); // Fails
+```

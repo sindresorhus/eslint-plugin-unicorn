@@ -3,6 +3,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
+const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
 
 const MESSAGE_ID = 'prefer-array-flat';
 const messages = {
@@ -160,14 +161,15 @@ const lodashFlatten = {
 	description: node => `${node.callee.object.name}.flatten()`
 };
 
-const cases = [
-	arrayFlatMap,
-	arrayReduce,
-	arrayReduce2,
-	emptyArrayConcat,
-	arrayPrototypeConcat,
-	lodashFlatten
-];
+const anyCall = {
+	selector: [
+		'CallExpression',
+		'[optional=false]',
+		'[arguments.length=1]',
+		'[arguments.0.type!="SpreadElement"]'
+	].join(''),
+	getArrayNode: node => node.arguments[0]
+};
 
 function fix(node, array, sourceCode) {
 	return fixer => {
@@ -188,8 +190,29 @@ function fix(node, array, sourceCode) {
 }
 
 function create(context) {
+	const {functions} = {
+		functions: [],
+		...context.options[0]
+	};
 	const sourceCode = context.getSourceCode();
 	const listeners = {};
+
+	const cases = [
+		arrayFlatMap,
+		arrayReduce,
+		arrayReduce2,
+		emptyArrayConcat,
+		arrayPrototypeConcat,
+		lodashFlatten
+	];
+
+	if (functions.length > 0) {
+		cases.push({
+			...anyCall,
+			testFunction: node => isNodeMatches(node.callee, functions),
+			description: node => `${functions.find(nameOrPath => isNodeMatchesNameOrPath(node.callee, nameOrPath))}()`
+		});
+	}
 
 	for (const {selector, testFunction, description, getArrayNode} of cases) {
 		listeners[selector] = function (node) {
@@ -224,6 +247,19 @@ function create(context) {
 	return listeners;
 }
 
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			functions: {
+				type: 'array',
+				uniqueItems: true
+			}
+		},
+		additionalProperties: false
+	}
+];
+
 module.exports = {
 	create,
 	meta: {
@@ -232,6 +268,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages
+		messages,
+		schema
 	}
 };

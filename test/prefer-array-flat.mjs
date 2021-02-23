@@ -163,7 +163,8 @@ test.snapshot({
 		'Array.prototype.concat.apply?.([], array)',
 		'Array.prototype.concat?.apply([], array)',
 		'Array.prototype?.concat.apply([], array)',
-		'Array?.prototype.concat.apply([], array)'
+		'Array?.prototype.concat.apply([], array)',
+		'object.Array.prototype.concat.apply([], array)'
 	],
 	invalid: [
 		'Array.prototype.concat.apply([], array)'
@@ -181,13 +182,57 @@ test.snapshot({
 		'_.notFlatten(array)',
 		'NOT_LODASH.flatten(array)',
 		'_.flatten?.(array)',
-		'_?.flatten(array)'
+		'_?.flatten(array)',
+		'object._.flatten(array)'
 	],
 	invalid: [
 		'_.flatten(array)',
 		'lodash.flatten(array)',
 		'underscore.flatten(array)'
 	]
+});
+
+// `options`
+const options = [{functions: ['flat', 'utils.flat', 'globalThis.lodash.flatten']}];
+test.snapshot({
+	valid: [
+		'flat',
+		'new flat(array)',
+		'flat?.(array)',
+		'object.flat?.(array)',
+		'utils.flat',
+		'new utils.flat(array)',
+		'utils.flat?.(array)',
+		'utils?.flat(array)',
+		'object.utils.flat(array)',
+		'globalThis.lodash.flatten',
+		'new globalThis.lodash.flatten(array)',
+		'globalThis.lodash.flatten?.(array)',
+		'globalThis.lodash?.flatten(array)',
+		'globalThis?.lodash.flatten(array)',
+		'object.globalThis.lodash.flatten(array)',
+		'GLOBALTHIS.lodash.flatten(array)',
+		'globalthis.lodash.flatten(array)',
+		'GLOBALTHIS.LODASH.FLATTEN(array)',
+		'flat(array, EXTRA_ARGUMENT)',
+		'flat(...array)'
+	].map(code => ({
+		code,
+		options,
+	})),
+	invalid: [
+		'flat(array)',
+		'flat(array,)',
+		'utils.flat(array)',
+		'globalThis.lodash.flatten(array)',
+		'flat(array).map(array => utils.flat(array))',
+		// Should not effect other cases
+		'_.flatten(array).length',
+		'Array.prototype.concat.apply([], array)'
+	].map(code => ({
+		code,
+		options,
+	}))
 });
 
 test.snapshot({
@@ -209,6 +254,5 @@ test.snapshot({
 		'[/**/].concat(some./**/array)',
 		'[/**/].concat(some.array)'
 	]
-
 });
 
