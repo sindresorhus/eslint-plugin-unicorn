@@ -259,7 +259,7 @@ test.snapshot({
 		code,
 		options: spacesInFunctions
 	}))
-})
+});
 
 test.snapshot({
 	valid: [
