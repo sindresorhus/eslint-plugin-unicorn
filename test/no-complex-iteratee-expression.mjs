@@ -173,5 +173,5 @@ test.snapshot([
 	'for (const value of something.values(var_)) {}',
 	'for (const value of something.entries(var_)) {}',
 	'for (const value of /* A */ something /* B */ .method( /* C */ var_ /* D */) /* E */) {}',
-	'for (const [x, y] of something.method(var_)) {}',
+	'for (const [x, y] of something.method(var_)) {}'
 ]);
