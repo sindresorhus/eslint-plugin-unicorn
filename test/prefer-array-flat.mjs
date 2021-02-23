@@ -218,7 +218,7 @@ test.snapshot({
 		'flat(...array)'
 	].map(code => ({
 		code,
-		options,
+		options
 	})),
 	invalid: [
 		'flat(array)',
@@ -226,12 +226,16 @@ test.snapshot({
 		'utils.flat(array)',
 		'globalThis.lodash.flatten(array)',
 		'flat(array).map(array => utils.flat(array))',
+		outdent`
+			import {flatten} from 'lodash-es';
+			const foo = flatten(bar);
+		`,
 		// Should not effect other cases
 		'_.flatten(array).length',
 		'Array.prototype.concat.apply([], array)'
 	].map(code => ({
 		code,
-		options,
+		options
 	}))
 });
 
