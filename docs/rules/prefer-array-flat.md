@@ -1,6 +1,6 @@
 # Prefer `Array#flat()` over legacy techniques to flatten arrays
 
-ES2019 introduced a new method [`Array#flat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) that flattens arrays.
+ES2019 introduced a new method [`Array#flat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) that flatten arrays.
 
 This rule is fixable.
 
@@ -54,9 +54,13 @@ const foo = bar.flat();
 
 ## Options
 
+Type: `object`
+
 ### functions
 
-You can also check custom functions that flattens arrays.
+Type: `string[]`
+
+You can also check custom functions that flatten arrays.
 
 Example:
 
