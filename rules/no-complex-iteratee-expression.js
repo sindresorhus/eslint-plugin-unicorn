@@ -30,7 +30,7 @@ const messages = {
 // 	return true;
 // }
 
-const forSelector = [
+const complexForSelector = [
 	'ForOfStatement',
 	`:matches(${
 		[
@@ -58,7 +58,7 @@ const forSelector = [
 
 const create = context => {
 	return {
-		[forSelector](node) {
+		[complexForSelector](node) {
 			context.report({
 				node,
 				messageId: MESSAGE_ID
