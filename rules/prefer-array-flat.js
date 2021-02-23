@@ -210,7 +210,7 @@ function create(context) {
 		cases.push({
 			...anyCall,
 			testFunction: node => isNodeMatches(node.callee, functions),
-			description: node => `${functions.find(nameOrPath => isNodeMatchesNameOrPath(node.callee, nameOrPath))}()`
+			description: node => `${functions.find(nameOrPath => isNodeMatchesNameOrPath(node.callee, nameOrPath)).trim()}()`
 		});
 	}
 

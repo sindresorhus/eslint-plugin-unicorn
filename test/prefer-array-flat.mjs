@@ -204,6 +204,8 @@ test.snapshot({
 		'new utils.flat(array)',
 		'utils.flat?.(array)',
 		'utils?.flat(array)',
+		'utils.flat2(array)',
+		'utils2.flat(array)',
 		'object.utils.flat(array)',
 		'globalThis.lodash.flatten',
 		'new globalThis.lodash.flatten(array)',
@@ -227,8 +229,8 @@ test.snapshot({
 		'globalThis.lodash.flatten(array)',
 		'flat(array).map(array => utils.flat(array))',
 		outdent`
-			import {flatten} from 'lodash-es';
-			const foo = flatten(bar);
+			import {flatten as flat} from 'lodash-es';
+			const foo = flat(bar);
 		`,
 		// Should not effect other cases
 		'_.flatten(array).length',
@@ -238,6 +240,26 @@ test.snapshot({
 		options
 	}))
 });
+
+const spacesInFunctions = [{functions: ['', ' ', ' flat1 ', 'utils..flat2', 'utils . flat3', 'utils.fl at4', 'utils.flat5  ', '  utils.flat6']}];
+test.snapshot({
+	valid: [
+		'utils.flat2(x)',
+		'utils.flat3(x)',
+		'utils.flat4(x)'
+	].map(code => ({
+		code,
+		options: spacesInFunctions
+	})),
+	invalid: [
+		'flat1(x)',
+		'utils.flat5(x)',
+		'utils.flat6(x)'
+	].map(code => ({
+		code,
+		options: spacesInFunctions
+	}))
+})
 
 test.snapshot({
 	valid: [
