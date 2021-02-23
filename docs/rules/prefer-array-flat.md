@@ -1,6 +1,6 @@
 # Prefer `Array#flat()` over legacy techniques to flatten arrays
 
-ES2019 introduced a new method [`Array#flat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) that flattens arrays, and there's a [`depth` parameter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat#parameters), so you can flatten deep nesting arrays with it.
+ES2019 introduced a new method [`Array#flat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) that flattens arrays.
 
 This rule is fixable.
 
