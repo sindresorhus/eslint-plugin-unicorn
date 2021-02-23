@@ -1,34 +1,12 @@
 'use strict';
+const pluralize = require('pluralize');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const resolveVariableName = require('./utils/resolve-variable-name');
 
 const MESSAGE_ID = 'no-complex-iteratee-expression';
 const messages = {
 	[MESSAGE_ID]: 'Move the complex iteratee expression out of the "for-of" header.'
 };
-
-// Keep either the function or the selector
-// function isComplexIteratee(node) {
-// 	if (
-// 		// Allow variables
-// 		node.type === 'Identifier' ||
-// 		// Allow property access (`a.b.c`)
-// 		node.type === 'MemberExpression' ||
-// 		// Allow function calls with no arguments (`fun()` and `a.b.c()`)
-// 		(node.type === 'CallExpression' && node.arguments.length === 0)
-// 	) {
-// 		return false;
-// 	}
-// 	// Allow some built-ins function calls (`Object.keys/values/entries()`)
-// 	if (node.type === 'CallExpression' &&
-// 		node.callee.type === 'MemberExpression' &&
-// 		node.callee.object.type === 'Identifier' &&
-// 		node.callee.object.name === 'Object' &&
-// 		node.callee.property.type === 'Identifier' &&
-// 		['keys', 'values', 'entries'].includes(node.callee.property.name)) {
-// 		return false;
-// 	}
-// 	return true;
-// }
 
 const complexForSelector = [
 	'ForOfStatement',
@@ -57,13 +35,33 @@ const complexForSelector = [
 ].join('');
 
 const create = context => {
+	const source = context.getSourceCode();
 	return {
 		[complexForSelector](node) {
+			if (node.left.type === 'VariableDeclaration' &&
+				node.left.declarations.length === 1 &&
+				node.left.declarations[0].id.type === 'Identifier') {
+				const iterateeName = pluralize(node.left.declarations[0].id.name);
+
+				if (!resolveVariableName(iterateeName, context.getScope())) {
+					const iteratee = source.getText(node.right);
+
+					context.report({
+						node: node.right,
+						messageId: MESSAGE_ID,
+						fix: fixer => {
+							// FIXME: handle ";"
+							fixer.insertTextBefore(node, `const ${iterateeName} = ${iteratee};`);
+							fixer.replaceText(node.right, iterateeName);
+						}
+					});
+					return;
+				}
+			}
+
 			context.report({
-				node,
+				node: node.right,
 				messageId: MESSAGE_ID
-				// TODO: Add an auto-fixer
-				// fix: fixer => fixer.replaceText(node, '\'🦄\'')
 			});
 		}
 	};

@@ -4,7 +4,7 @@ Having complex expressions inside of `for..of` headers damages the readability a
 
 This rule disallowes function calls with arguments in the iteratee slot of the for loop, except for a few common built-in methods such as `Object.keys()`, `Object.values()` and `Object.entries()`.
 
-This rule is fixable.
+This rule is partly fixable.
 
 ## Fail
 
