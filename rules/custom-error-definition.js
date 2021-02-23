@@ -54,12 +54,15 @@ const isAssignmentExpression = (node, name) => {
 	return lhs.property.name === name;
 };
 
-const isClassProperty = (node, name) => {
-	if (node.type !== 'ClassProperty' || node.computed) {
+const isPropertyDefinition = (node, name) => {
+	const {type, computed, key} = node;
+	if (type !== 'PropertyDefinition' && type !== 'ClassProperty') {
 		return false;
 	}
 
-	const {key} = node;
+	if (computed) {
+		return false;
+	}
 
 	if (key.type !== 'Identifier') {
 		return false;
@@ -144,7 +147,7 @@ const customErrorDefinition = (context, node) => {
 
 	const nameExpression = constructorBody.find(x => isAssignmentExpression(x, 'name'));
 	if (!nameExpression) {
-		const nameProperty = body.find(node => isClassProperty(node, 'name'));
+		const nameProperty = body.find(node => isPropertyDefinition(node, 'name'));
 
 		if (!nameProperty || !nameProperty.value || nameProperty.value.value !== name) {
 			context.report({
