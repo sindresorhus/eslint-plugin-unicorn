@@ -5,7 +5,7 @@ const {test} = getTester(import.meta);
 
 const MESSAGE_ID = 'no-complex-iteratee-expression';
 
-test({
+test.snapshot({
 	valid: [
 		'for (const x of array) {}',
 		'for (const x of obj.prop) {}',
@@ -156,22 +156,3 @@ test({
 		}
 	]
 });
-
-test.snapshot([
-	'for (const value of array.prop.prop.filter(shouldKeep)) {}',
-	'for (const value of array.prop.prop.method(...someVariable)) {}',
-	'for (const value of array.prop.prop.method(var1, { var2 })) {}',
-	'for (const value of array.filter(x => shouldKeep(x))) {}',
-	'for (const value of array.filter(shouldKeep)) {}',
-	'for (const value of array.prop.prop.filter(x => shouldKeep(x))) {}',
-	'for (const value of func(abc)) {}',
-	'for (const value of Object.disallowed(var_)) {}',
-	'for (const value of keys(var_)) {}',
-	'for (const value of values(var_)) {}',
-	'for (const value of entries(var_)) {}',
-	'for (const value of something.keys(var_)) {}',
-	'for (const value of something.values(var_)) {}',
-	'for (const value of something.entries(var_)) {}',
-	'for (const value of /* A */ something /* B */ .method( /* C */ var_ /* D */) /* E */) {}',
-	'for (const [x, y] of something.method(var_)) {}'
-]);
