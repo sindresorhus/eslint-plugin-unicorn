@@ -102,8 +102,8 @@ test.snapshot({
 			code: 'for (const value of values(var_)) {}',
 			errors: [{messageId: MESSAGE_ID}],
 			output: outdent`
-				const values = values(var_);
-				for (const value of values) {}
+				const values_ = values(var_);
+				for (const value of values_) {}
 			`
 		},
 		{
@@ -184,11 +184,7 @@ test.snapshot({
 		// Can't auto-fix because of invalid iterated element
 		{
 			code: 'for (const [x, y] of something.method(var_)) {}',
-			errors: [{messageId: MESSAGE_ID}],
-			output: outdent`
-				const values = something /* B */ .method( /* C */ var_ /* D */);
-				for (const value of /* A */ values /* E */) {}
-			`
+			errors: [{messageId: MESSAGE_ID}]
 		},
 
 		// Autofix with new variable name
@@ -202,7 +198,7 @@ test.snapshot({
 				const values = [];
 				const values_ = invalid(var_);
 				for (const value of values_) {}
-			`,
+			`
 		},
 		{
 			code: outdent`
@@ -218,7 +214,7 @@ test.snapshot({
 					const values_ = invalid(var_);
 					for (const value of values_) {}
 				}
-			`,
+			`
 		},
 		{
 			code: outdent`
@@ -234,7 +230,7 @@ test.snapshot({
 					const values_ = invalid(var_);
 					for (const value of values_) {}
 				}
-			`,
+			`
 		}
 	]
 });
