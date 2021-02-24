@@ -149,10 +149,92 @@ test.snapshot({
 			`
 		},
 
-		// Can't auto-fix
+		// Autofix adds braces
+		{
+			code: outdent`
+				if (something)
+					for (const value of invalid(var_)) {}
+			`,
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				if (something) {
+					const values = invalid(var_);
+					for (const value of values) {}
+				}
+			`
+		},
+		{
+			code: outdent`
+				switch (something) {
+					case 'a':
+						for (const value of invalid(var_)) {}
+				}
+			`,
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				switch (something) {
+					case 'a': {
+						const values = invalid(var_);
+						for (const value of values) {}
+					}
+				}
+			`
+		},
+
+		// Can't auto-fix because of invalid iterated element
 		{
 			code: 'for (const [x, y] of something.method(var_)) {}',
-			errors: [{messageId: MESSAGE_ID}]
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				const values = something /* B */ .method( /* C */ var_ /* D */);
+				for (const value of /* A */ values /* E */) {}
+			`
+		},
+
+		// Autofix with new variable name
+		{
+			code: outdent`
+				const values = [];
+				for (const value of invalid(var_)) {}
+			`,
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				const values = [];
+				const values_ = invalid(var_);
+				for (const value of values_) {}
+			`,
+		},
+		{
+			code: outdent`
+				const values = [];
+				if (something) {
+					for (const value of invalid(var_)) {}
+				}
+			`,
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				const values = [];
+				if (something) {
+					const values_ = invalid(var_);
+					for (const value of values_) {}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				const values = [];
+				function a() {
+					for (const value of invalid(var_)) {}
+				}
+			`,
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				const values = [];
+				function a() {
+					const values_ = invalid(var_);
+					for (const value of values_) {}
+				}
+			`,
 		}
 	]
 });

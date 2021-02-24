@@ -1,7 +1,8 @@
 'use strict';
+const {flatten} = require('lodash');
 const pluralize = require('pluralize');
+const avoidCapture = require('./utils/avoid-capture');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const resolveVariableName = require('./utils/resolve-variable-name');
 
 const MESSAGE_ID = 'no-complex-iteratee-expression';
 const messages = {
@@ -27,6 +28,19 @@ const complexForSelector = [
 	})`
 ].join('');
 
+const getScopes = scope => [
+	scope,
+	...flatten(scope.childScopes.map(scope => getScopes(scope)))
+];
+
+const getIndentString = (node, sourceCode) => {
+	const {line, column} = sourceCode.getLocFromIndex(node.range[0]);
+	const lines = sourceCode.getLines();
+	const before = lines[line - 1].slice(0, column);
+
+	return before.match(/\s*$/)[0];
+};
+
 const create = context => {
 	const source = context.getSourceCode();
 	return {
@@ -35,21 +49,23 @@ const create = context => {
 			if (node.left.type === 'VariableDeclaration' &&
 				node.left.declarations.length === 1 &&
 				node.left.declarations[0].id.type === 'Identifier') {
-				const iterateeName = pluralize(node.left.declarations[0].id.name);
+				const scopes = getScopes(context.getScope());
 
-				if (!resolveVariableName(iterateeName, context.getScope())) {
-					const iteratee = source.getText(node.right);
+				const iterateeNameCandidate = pluralize(node.left.declarations[0].id.name);
+				const iterateeName = avoidCapture(iterateeNameCandidate, scopes, context.parserOptions.ecmaVersion);
 
-					context.report({
-						node: node.right,
-						messageId: MESSAGE_ID,
-						* fix(fixer) {
-							yield fixer.insertTextBefore(node, `const ${iterateeName} = ${iteratee};\n`);
-							yield fixer.replaceText(node.right, iterateeName);
-						}
-					});
-					return;
-				}
+				const iteratee = source.getText(node.right);
+
+				context.report({
+					node: node.right,
+					messageId: MESSAGE_ID,
+					* fix(fixer) {
+						const indents = getIndentString(node, source);
+						yield fixer.insertTextBefore(node, `const ${iterateeName} = ${iteratee};\n${indents}`);
+						yield fixer.replaceText(node.right, iterateeName);
+					}
+				});
+				return;
 			}
 
 			context.report({
