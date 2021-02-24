@@ -21,7 +21,7 @@ const complexForSelector = [
 				'[right.callee.object.type="Identifier"]',
 				'[right.callee.object.name="Object"]',
 				'[right.callee.property.type="Identifier"]',
-				'[right.callee.property.name=/(keys|values|entries)/]',
+				'[right.callee.property.name=/(keys|values|entries)/]'
 			].join('')
 		].join(', ')
 	})`
@@ -43,7 +43,7 @@ const create = context => {
 					context.report({
 						node: node.right,
 						messageId: MESSAGE_ID,
-						fix: function * (fixer) {
+						* fix(fixer) {
 							yield fixer.insertTextBefore(node, `const ${iterateeName} = ${iteratee};\n`);
 							yield fixer.replaceText(node.right, iterateeName);
 						}
