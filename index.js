@@ -84,6 +84,8 @@ module.exports = {
 				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/prefer-array-find': 'error',
 				// TODO: Enable this by default when targeting Node.js 12.
+				'unicorn/prefer-array-flat': 'off',
+				// TODO: Enable this by default when targeting Node.js 12.
 				'unicorn/prefer-array-flat-map': 'off',
 				'unicorn/prefer-array-index-of': 'error',
 				'unicorn/prefer-array-some': 'error',

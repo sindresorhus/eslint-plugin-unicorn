@@ -14,7 +14,7 @@ const shouldAddParenthesesToExpressionStatementExpression = require('./utils/sho
 const getParenthesizedTimes = require('./utils/get-parenthesized-times');
 const extendFixRange = require('./utils/extend-fix-range');
 const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside');
-const isNodeMatches = require('./utils/is-node-matches');
+const {isNodeMatches} = require('./utils/is-node-matches');
 const assertToken = require('./utils/assert-token');
 
 const MESSAGE_ID = 'no-array-for-each';
@@ -24,7 +24,8 @@ const messages = {
 
 const arrayForEachCallSelector = methodSelector({
 	name: 'forEach',
-	includeOptional: true
+	includeOptionalCall: true,
+	includeOptionalMember: true
 });
 
 const continueAbleNodeTypes = new Set([
