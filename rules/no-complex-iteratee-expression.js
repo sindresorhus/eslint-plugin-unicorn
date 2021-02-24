@@ -41,18 +41,23 @@ const getIndentString = (node, sourceCode) => {
 	return before.match(/\s*$/)[0];
 };
 
-const scopeStatements = ['DoWhileStatement', 'ForInStatement', 'ForOfStatement', 'ForStatement', 'WhileStatement', 'WithStatement'];
+const scopeStatements = new Set(['DoWhileStatement', 'ForInStatement', 'ForOfStatement', 'ForStatement', 'WhileStatement', 'WithStatement']);
 const shouldAddBraces = node => {
 	if (node.parent.type === 'IfStatement') {
 		const nodeType = node.parent.consequent === node ? 'consequent' : 'alternate';
 		return node.parent[nodeType].type !== 'BlockStatement';
-	} else if (node.parent.type === 'SwitchCase') {
+	}
+
+	if (node.parent.type === 'SwitchCase') {
 		return node.parent.consequent.type !== 'BlockStatement';
-	} else if (scopeStatements.includes(node.parent.type)) {
+	}
+
+	if (scopeStatements.has(node.parent.type)) {
 		return node.parent.body.type !== 'BlockStatement';
 	}
+
 	return false;
-}
+};
 
 const create = context => {
 	const source = context.getSourceCode();
