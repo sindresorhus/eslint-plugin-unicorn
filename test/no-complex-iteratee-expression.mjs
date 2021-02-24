@@ -5,7 +5,7 @@ const {test} = getTester(import.meta);
 
 const MESSAGE_ID = 'no-complex-iteratee-expression';
 
-test.snapshot({
+test({
 	valid: [
 		'for (const x of array) {}',
 		'for (const x of obj.prop) {}',
@@ -150,6 +150,7 @@ test.snapshot({
 		},
 
 		// Autofix adds braces
+		// We can't test "with ()" because of the strict mode
 		{
 			code: outdent`
 				if (something)
@@ -157,10 +158,114 @@ test.snapshot({
 			`,
 			errors: [{messageId: MESSAGE_ID}],
 			output: outdent`
-				if (something) {
-					const values = invalid(var_);
-					for (const value of values) {}
-				}
+				if (something)
+					{const values = invalid(var_);
+					for (const value of values) {}}
+			`
+		},
+		{
+			code: outdent`
+				if (something)
+					for (const value of invalid(var_)) {}
+				else
+					somethingElse();
+			`,
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				if (something)
+					{const values = invalid(var_);
+					for (const value of values) {}}
+				else
+					somethingElse();
+			`
+		},
+		{
+			code: outdent`
+				if (something)
+					somethingElse();
+				else
+					for (const value of invalid(var_)) {}
+			`,
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				if (something)
+					somethingElse();
+				else
+					{const values = invalid(var_);
+					for (const value of values) {}}
+			`
+		},
+		{
+			code: outdent`
+				if (something) for (const value of invalid(var_)) {}
+			`,
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				if (something) {const values = invalid(var_);
+				 for (const value of values) {}}
+			`
+		},
+		{
+			code: outdent`
+				for (const val of vals)
+					for (const value of invalid(var_)) {}
+			`,
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				for (const val of vals)
+					{const values = invalid(var_);
+					for (const value of values) {}}
+			`
+		},
+		{
+			code: outdent`
+				while (true)
+					for (const value of invalid(var_)) {}
+			`,
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				while (true)
+					{const values = invalid(var_);
+					for (const value of values) {}}
+			`
+		},
+		{
+			code: outdent`
+				do
+					for (const value of invalid(var_)) {}
+				while (true);
+			`,
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				do
+					{const values = invalid(var_);
+					for (const value of values) {}}
+				while (true);
+			`
+		},
+		{
+			code: outdent`
+				if (something) for (const value of invalid(var_)) {}
+				else somethingElse();
+			`,
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				if (something) {const values = invalid(var_);
+				 for (const value of values) {}}
+				else somethingElse();
+			`
+		},
+		{
+			code: outdent`
+				if (something) for (const value of invalid(var_)) {}
+				else for (const value of invalid(var_)) {}
+			`,
+			errors: [{messageId: MESSAGE_ID}, {messageId: MESSAGE_ID}],
+			output: outdent`
+				if (something) {const values = invalid(var_);
+				 for (const value of values) {}}
+				else {const values = invalid(var_);
+				 for (const value of values) {}}
 			`
 		},
 		{
@@ -173,10 +278,9 @@ test.snapshot({
 			errors: [{messageId: MESSAGE_ID}],
 			output: outdent`
 				switch (something) {
-					case 'a': {
-						const values = invalid(var_);
-						for (const value of values) {}
-					}
+					case 'a':
+						{const values = invalid(var_);
+						for (const value of values) {}}
 				}
 			`
 		},

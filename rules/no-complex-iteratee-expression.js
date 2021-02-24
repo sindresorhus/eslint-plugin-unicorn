@@ -41,6 +41,19 @@ const getIndentString = (node, sourceCode) => {
 	return before.match(/\s*$/)[0];
 };
 
+const scopeStatements = ['DoWhileStatement', 'ForInStatement', 'ForOfStatement', 'ForStatement', 'WhileStatement', 'WithStatement'];
+const shouldAddBraces = node => {
+	if (node.parent.type === 'IfStatement') {
+		const nodeType = node.parent.consequent === node ? 'consequent' : 'alternate';
+		return node.parent[nodeType].type !== 'BlockStatement';
+	} else if (node.parent.type === 'SwitchCase') {
+		return node.parent.consequent.type !== 'BlockStatement';
+	} else if (scopeStatements.includes(node.parent.type)) {
+		return node.parent.body.type !== 'BlockStatement';
+	}
+	return false;
+}
+
 const create = context => {
 	const source = context.getSourceCode();
 	return {
@@ -61,9 +74,9 @@ const create = context => {
 					messageId: MESSAGE_ID,
 					* fix(fixer) {
 						const indents = getIndentString(node, source);
-						if ((node.parent.type === 'IfStatement' || node.parent.type === 'SwitchCase') && node.parent.consequent.type !== 'BlockStatement') {
-							yield fixer.insertTextBefore(node.parent.consequent, `{\n${indents}`);
-							yield fixer.insertTextAfter(node.parent.consequent, `${indents}}`);
+						if (shouldAddBraces(node)) {
+							yield fixer.insertTextBefore(node, '{');
+							yield fixer.insertTextAfter(node, '}');
 						}
 
 						yield fixer.insertTextBefore(node, `const ${iterateeName} = ${iteratee};\n${indents}`);
