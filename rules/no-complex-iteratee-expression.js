@@ -10,25 +10,18 @@ const messages = {
 
 const complexForSelector = [
 	'ForOfStatement',
-	`:matches(${
+	`:not(${
 		[
-			// Allow some specific `Object` methods (`Object.keys/values/entries`)
+			'[right.type="Identifier"]',
+			'[right.type="MemberExpression"]',
+			'[right.type="CallExpression"][right.arguments.length=0]',
 			[
 				'[right.type="CallExpression"]',
 				'[right.callee.type="MemberExpression"]',
 				'[right.callee.object.type="Identifier"]',
 				'[right.callee.object.name="Object"]',
 				'[right.callee.property.type="Identifier"]',
-				'[right.callee.property.name!="keys"]',
-				'[right.callee.property.name!="values"]',
-				'[right.callee.property.name!="entries"]',
-				'[right.arguments.length>0]'
-			].join(''),
-			// Disallow every call with arguments (except if they are object, in that case it is already handled above)
-			[
-				'[right.type="CallExpression"]',
-				'[right.callee.object.name!="Object"]',
-				'[right.arguments.length>0]'
+				'[right.callee.property.name=/(keys|values|entries)/]',
 			].join('')
 		].join(', ')
 	})`
@@ -38,6 +31,7 @@ const create = context => {
 	const source = context.getSourceCode();
 	return {
 		[complexForSelector](node) {
+			// Checks if we can deduce a name for the iteratee from the iterated value
 			if (node.left.type === 'VariableDeclaration' &&
 				node.left.declarations.length === 1 &&
 				node.left.declarations[0].id.type === 'Identifier') {
