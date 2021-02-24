@@ -61,6 +61,11 @@ const create = context => {
 					messageId: MESSAGE_ID,
 					* fix(fixer) {
 						const indents = getIndentString(node, source);
+						if ((node.parent.type === 'IfStatement' || node.parent.type === 'SwitchCase') && node.parent.consequent.type !== 'BlockStatement') {
+							yield fixer.insertTextBefore(node.parent.consequent, `{\n${indents}`);
+							yield fixer.insertTextAfter(node.parent.consequent, `${indents}}`);
+						}
+
 						yield fixer.insertTextBefore(node, `const ${iterateeName} = ${iteratee};\n${indents}`);
 						yield fixer.replaceText(node.right, iterateeName);
 					}
