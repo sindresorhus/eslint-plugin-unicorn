@@ -144,8 +144,8 @@ test({
 			code: 'for (const value of /* A */ something /* B */ .method( /* C */ var_ /* D */) /* E */) {}',
 			errors: [{messageId: MESSAGE_ID}],
 			output: outdent`
-				const values = /* A */ something /* B */ .method( /* C */ var_ /* D */) /* E */;
-				for (const value of values) {}
+				const values = something /* B */ .method( /* C */ var_ /* D */);
+				for (const value of /* A */ values /* E */) {}
 			`
 		},
 

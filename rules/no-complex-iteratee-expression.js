@@ -49,10 +49,9 @@ const create = context => {
 					context.report({
 						node: node.right,
 						messageId: MESSAGE_ID,
-						fix: fixer => {
-							// FIXME: handle ";"
-							fixer.insertTextBefore(node, `const ${iterateeName} = ${iteratee};`);
-							fixer.replaceText(node.right, iterateeName);
+						fix: function * (fixer) {
+							yield fixer.insertTextBefore(node, `const ${iterateeName} = ${iteratee};\n`);
+							yield fixer.replaceText(node.right, iterateeName);
 						}
 					});
 					return;
@@ -76,7 +75,7 @@ module.exports = {
 		docs: {
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: '',
+		fixable: 'code',
 		schema,
 		messages
 	}
