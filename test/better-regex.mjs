@@ -1,6 +1,8 @@
+import {createRequire} from 'module';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
+const require = createRequire(import.meta.url);
 
 const MESSAGE_ID = 'better-regex';
 
@@ -293,6 +295,16 @@ test({
 					message: '/[0-9]/ can be optimized to /\\d/.'
 				}
 			]
+		},
+
+		{
+			code: '/(/',
+			errors: [
+				{
+					message: 'Problem parsing /(/: \n\n/(/\n  ^\nUnexpected token: "/" at 1:2.'
+				}
+			],
+			parser: require.resolve('@typescript-eslint/parser')
 		}
 	]
 });
