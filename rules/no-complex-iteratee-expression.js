@@ -22,7 +22,7 @@ const complexForSelector = [
 				'[right.callee.object.type="Identifier"]',
 				'[right.callee.object.name="Object"]',
 				'[right.callee.property.type="Identifier"]',
-				'[right.callee.property.name=/(keys|values|entries)/]'
+				'[right.callee.property.name=/^(?:keys|values|entries)$/]'
 			].join('')
 		].join(', ')
 	})`
