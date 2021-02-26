@@ -84,7 +84,17 @@ const create = context => {
 							yield fixer.insertTextAfter(node, '}');
 						}
 
-						yield fixer.insertTextBefore(node, `const ${iterateeName} = ${iteratee};\n${indents}`);
+						yield fixer.insertTextBefore(node, `const ${iterateeName} = `);
+
+						if (node.right.type === 'SequenceExpression') {
+							yield fixer.replaceTextRange([node.right.range[0] - 1, node.right.range[0]], '');
+							yield fixer.replaceTextRange([node.right.range[1], node.right.range[1] + 1], '');
+							yield fixer.insertTextBefore(node, `(${iteratee})`);
+						} else {
+							yield fixer.insertTextBefore(node, iteratee);
+						}
+
+						yield fixer.insertTextBefore(node, `;\n${indents}`);
 						yield fixer.replaceText(node.right, iterateeName);
 					}
 				});

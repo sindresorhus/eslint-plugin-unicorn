@@ -79,6 +79,24 @@ test({
 			`
 		},
 
+		// Sequence expressions
+		{
+			code: 'for (const value of (0, [1, 2])) {}',
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				const values = (0, [1, 2]);
+				for (const value of values) {}
+			`
+		},
+		{
+			code: 'for (const value of (0, 1, [1, 2], [1, 2])) {}',
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				const values = (0, 1, [1, 2], [1, 2]);
+				for (const value of values) {}
+			`
+		},
+
 		// Not-whitelisted Object methods
 		{
 			code: 'for (const value of Object.disallowed(var_)) {}',
@@ -88,8 +106,6 @@ test({
 				for (const value of values) {}
 			`
 		},
-
-		// Forbid non-object methods
 		{
 			code: 'for (const value of Object.mykeys(var_)) {}',
 			errors: [{messageId: MESSAGE_ID}],
@@ -122,6 +138,8 @@ test({
 				for (const value of values) {}
 			`
 		},
+
+		// Forbid non-object methods
 		{
 			code: 'for (const value of values(var_)) {}',
 			errors: [{messageId: MESSAGE_ID}],
