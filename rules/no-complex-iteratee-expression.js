@@ -14,6 +14,7 @@ const complexForSelector = [
 	`:not(${
 		[
 			'[right.type="Identifier"]',
+			'[right.type="ArrayExpression"]',
 			'[right.type="MemberExpression"]',
 			'[right.type="CallExpression"][right.arguments.length=0]',
 			[
