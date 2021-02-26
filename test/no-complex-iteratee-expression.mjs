@@ -89,12 +89,36 @@ test({
 			`
 		},
 
-		// Allow non-object methods
+		// Forbid non-object methods
 		{
-			code: 'for (const value of keys(var_)) {}',
+			code: 'for (const value of Object.mykeys(var_)) {}',
 			errors: [{messageId: MESSAGE_ID}],
 			output: outdent`
-				const values = keys(var_);
+				const values = Object.mykeys(var_);
+				for (const value of values) {}
+			`
+		},
+		{
+			code: 'for (const value of Object.keysXx(var_)) {}',
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				const values = Object.keysXx(var_);
+				for (const value of values) {}
+			`
+		},
+		{
+			code: 'for (const value of Object.Values(var_)) {}',
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				const values = Object.Values(var_);
+				for (const value of values) {}
+			`
+		},
+		{
+			code: 'for (const value of Object.myEntries(var_)) {}',
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				const values = Object.myEntries(var_);
 				for (const value of values) {}
 			`
 		},
