@@ -49,7 +49,7 @@ const getParenthesizedRange = (node, sourceCode) => {
 	const [start] = firstToken.range;
 	const [, end] = lastToken.range;
 	return [start, end];
-}
+};
 
 const scopeStatements = new Set(['DoWhileStatement', 'ForInStatement', 'ForOfStatement', 'ForStatement', 'WhileStatement', 'WithStatement']);
 const shouldAddBraces = node => {
@@ -92,7 +92,6 @@ const create = context => {
 							yield fixer.insertTextBefore(node, '{');
 							yield fixer.insertTextAfter(node, '}');
 						}
-
 
 						if (node.right.type === 'SequenceExpression') {
 							const range = getParenthesizedRange(node.right, sourceCode);
