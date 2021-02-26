@@ -2,7 +2,7 @@
 
 Having complex expressions inside of `for..of` headers damages the readability and can lengthen the line. You should extract it to a constant variable before the `for` loop, and use that variable as the iteratee.
 
-This rule disallowes function calls with arguments in the iteratee slot of the for loop, except for a few common built-in methods such as `Object.keys()`, `Object.values()` and `Object.entries()`.
+This rule enforces you to use only variables, array literals or function calls with no arguments as the iteratee expression, and to move other complex expression such as function calls with multiple arguments in a new variable.
 
 This rule is partly fixable.
 
