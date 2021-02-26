@@ -45,7 +45,7 @@ const getIndentString = (node, sourceCode) => {
 const scopeStatements = new Set(['DoWhileStatement', 'ForInStatement', 'ForOfStatement', 'ForStatement', 'WhileStatement', 'WithStatement']);
 const shouldAddBraces = node => {
 	if (node.parent.type === 'IfStatement') {
-		return node.parent.consequent === node;
+		return node.parent.consequent === node || node.parent.alternate === node;
 	}
 
 	if (node.parent.type === 'SwitchCase') {
