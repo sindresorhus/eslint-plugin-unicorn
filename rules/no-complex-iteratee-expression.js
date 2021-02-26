@@ -3,6 +3,7 @@ const {flatten} = require('lodash');
 const pluralize = require('pluralize');
 const avoidCapture = require('./utils/avoid-capture');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const getParentheses = require('./utils/get-parentheses');
 
 const MESSAGE_ID = 'no-complex-iteratee-expression';
 const messages = {
@@ -42,6 +43,14 @@ const getIndentString = (node, sourceCode) => {
 	return before.match(/\s*$/)[0];
 };
 
+const getParenthesizedRange = (node, sourceCode) => {
+	const [firstToken = node, lastToken = node] = getParentheses(node, sourceCode);
+
+	const [start] = firstToken.range;
+	const [, end] = lastToken.range;
+	return [start, end];
+}
+
 const scopeStatements = new Set(['DoWhileStatement', 'ForInStatement', 'ForOfStatement', 'ForStatement', 'WhileStatement', 'WithStatement']);
 const shouldAddBraces = node => {
 	if (node.parent.type === 'IfStatement') {
@@ -60,7 +69,7 @@ const shouldAddBraces = node => {
 };
 
 const create = context => {
-	const source = context.getSourceCode();
+	const sourceCode = context.getSourceCode();
 	return {
 		[complexForSelector](node) {
 			// Checks if we can deduce a name for the iteratee from the iterated value
@@ -72,30 +81,27 @@ const create = context => {
 				const iterateeNameCandidate = pluralize(node.left.declarations[0].id.name);
 				const iterateeName = avoidCapture(iterateeNameCandidate, scopes, context.parserOptions.ecmaVersion);
 
-				const iteratee = source.getText(node.right);
+				const iteratee = sourceCode.getText(node.right);
 
 				context.report({
 					node: node.right,
 					messageId: MESSAGE_ID,
 					* fix(fixer) {
-						const indents = getIndentString(node, source);
+						const indents = getIndentString(node, sourceCode);
 						if (shouldAddBraces(node)) {
 							yield fixer.insertTextBefore(node, '{');
 							yield fixer.insertTextAfter(node, '}');
 						}
 
-						yield fixer.insertTextBefore(node, `const ${iterateeName} = `);
 
 						if (node.right.type === 'SequenceExpression') {
-							yield fixer.replaceTextRange([node.right.range[0] - 1, node.right.range[0]], '');
-							yield fixer.replaceTextRange([node.right.range[1], node.right.range[1] + 1], '');
-							yield fixer.insertTextBefore(node, `(${iteratee})`);
+							const range = getParenthesizedRange(node.right, sourceCode);
+							yield fixer.replaceTextRange(range, iterateeName);
+							yield fixer.insertTextBefore(node, `const ${iterateeName} = (${iteratee});\n${indents}`);
 						} else {
-							yield fixer.insertTextBefore(node, iteratee);
+							yield fixer.replaceText(node.right, iterateeName);
+							yield fixer.insertTextBefore(node, `const ${iterateeName} = ${iteratee};\n${indents}`);
 						}
-
-						yield fixer.insertTextBefore(node, `;\n${indents}`);
-						yield fixer.replaceText(node.right, iterateeName);
 					}
 				});
 				return;

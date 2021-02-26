@@ -96,6 +96,22 @@ test({
 				for (const value of values) {}
 			`
 		},
+		{
+			code: 'for (const value of ( 0, [1])) {}',
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				const values = (0, [1]);
+				for (const value of values) {}
+			`
+		},
+		{
+			code: 'for (const value of ((0, [1]))) {}',
+			errors: [{messageId: MESSAGE_ID}],
+			output: outdent`
+				const values = (0, [1]);
+				for (const value of values) {}
+			`
+		},
 
 		// Not-whitelisted Object methods
 		{
