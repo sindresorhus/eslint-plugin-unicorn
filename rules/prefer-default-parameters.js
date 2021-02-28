@@ -151,7 +151,16 @@ const create = context => {
 			return;
 		}
 
-		const {references} = findVariable(context.getScope(), secondId);
+		const variable = findVariable(context.getScope(), secondId);
+
+		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1122
+		// But can't reproduce, just ignore this case
+		/* istanbul ignore next */
+		if (!variable) {
+			return;
+		}
+
+		const {references} = variable;
 		const {params} = currentFunction;
 		const parameter = params.find(parameter =>
 			parameter.type === 'Identifier' &&
