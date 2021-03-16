@@ -171,6 +171,7 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 	}
 
 	return function * (fixer) {
+		// Replace these with `for (const … of …) `
 		// foo.forEach(bar =>    bar)
 		// ^^^^^^^^^^^^^^^^^^ (space after `=>` didn't included)
 		// foo.forEach(bar =>    {})
@@ -179,6 +180,7 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 		yield fixer.replaceTextRange(getForOfLoopHeadRange(), getForOfLoopHeadText());
 
+		// Parenthesized callback function
 		// foo.forEach( ((bar => {})) )
 		//                         ^^
 		yield * removeCallbackParentheses(fixer);
@@ -205,6 +207,7 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		}
 
 		const expressionStatementLastToken = sourceCode.getLastToken(callExpression.parent);
+		// Remove semicolon if it's not needed anymore
 		// foo.forEach(bar => {});
 		//                       ^
 		if (shouldRemoveExpressionStatementLastToken(expressionStatementLastToken)) {
