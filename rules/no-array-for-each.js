@@ -168,20 +168,33 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 	}
 
 	return function * (fixer) {
+		// foo.forEach(bar =>    bar)
+		// ^^^^^^^^^^^^^^^^^^ (space after `=>` didn't included)
+		// foo.forEach(bar =>    {})
+		// ^^^^^^^^^^^^^^^^^^^^^^
+		// foo.forEach(function(bar)    {})
+		// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 		yield fixer.replaceTextRange(getForOfLoopHeadRange(), getForOfLoopHeadText());
 
+		// foo.forEach( ((bar => {})) )
+		//                         ^^
 		yield * removeCallbackParentheses(fixer);
 
-		// Remove call expression trailing comma
 		const [
 			penultimateToken,
 			lastToken
 		] = sourceCode.getLastTokens(callExpression, 2);
 
+		// The possible trailing comma token of `Array#forEach()` CallExpression
+		// foo.forEach(bar => {},)
+		//                      ^
 		if (isCommaToken(penultimateToken)) {
 			yield fixer.remove(penultimateToken);
 		}
 
+		// The closing parenthesis token of `Array#forEach()` CallExpression
+		// foo.forEach(bar => {})
+		//                      ^
 		yield fixer.remove(lastToken);
 
 		for (const returnStatement of returnStatements) {
@@ -189,11 +202,13 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		}
 
 		const expressionStatementLastToken = sourceCode.getLastToken(callExpression.parent);
+		// foo.forEach(bar => {});
+		//                       ^
 		if (shouldRemoveExpressionStatementLastToken(expressionStatementLastToken)) {
 			yield fixer.remove(expressionStatementLastToken, fixer);
 		}
 
-		// Prevent possible conflicts
+		// Prevent possible variable conflicts
 		yield * extendFixRange(fixer, callExpression.parent.range);
 	};
 }
