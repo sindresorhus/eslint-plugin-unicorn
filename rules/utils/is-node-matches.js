@@ -30,8 +30,6 @@ function isNodeMatchesNameOrPath(node, nameOrPath) {
 
 		node = node.object;
 	}
-
-	return true;
 }
 
 /**
