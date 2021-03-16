@@ -50,15 +50,22 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 	const [callback] = callExpression.arguments;
 	const parameters = callback.params;
 	const array = callExpression.callee.object;
-	const {returnStatements} = functionInfo.get(callback);
+	const {returnStatements, scope} = functionInfo.get(callback);
 
 	const getForOfLoopHeadText = () => {
 		const [elementText, indexText] = parameters.map(parameter => sourceCode.getText(parameter));
 		const useEntries = parameters.length === 2;
 
-		let text = 'for (const ';
-		text += useEntries ? `[${indexText}, ${elementText}]` : elementText;
+		let text = 'for (';
 
+		if (parameters.some(parameter => isParameterReassigned(parameter, scope))) {
+			text += 'let';
+		} else {
+			text += 'const';
+		}
+
+		text += ' ';
+		text += useEntries ? `[${indexText}, ${elementText}]` : elementText;
 		text += ' of ';
 
 		let arrayText = sourceCode.getText(array);
@@ -256,6 +263,18 @@ function isParameterSafeToFix(parameter, {scope, array, allIdentifiers}) {
 	}
 
 	return true;
+}
+
+function isParameterReassigned(parameter, scope) {
+	const variable = findVariable(scope, parameter);
+	const {references} = variable;
+	return references.some(reference => {
+		const node = reference.identifier;
+		const {parent} = node;
+		return parent.type === 'UpdateExpression' || (
+			node.parent.type === 'AssignmentExpression' && node.parent.left === node
+		);
+	});
 }
 
 function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifiers}) {
