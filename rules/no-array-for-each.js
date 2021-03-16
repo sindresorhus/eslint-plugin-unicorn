@@ -84,6 +84,9 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		if (callback.body.type === 'BlockStatement') {
 			end = callback.body.range[0];
 		} else {
+			// In this case, parentheses are not included in body location, so we look for `=>` token
+			// foo.forEach(bar => ({bar}))
+			//                     ^
 			const arrowToken = sourceCode.getTokenBefore(callback.body, isArrowToken);
 			end = arrowToken.range[1];
 		}
