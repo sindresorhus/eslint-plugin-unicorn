@@ -57,13 +57,7 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		const useEntries = parameters.length === 2;
 
 		let text = 'for (';
-
-		if (parameters.some(parameter => isParameterReassigned(parameter, scope))) {
-			text += 'let';
-		} else {
-			text += 'const';
-		}
-
+		text += parameters.some(parameter => isParameterReassigned(parameter, scope)) ? 'let' : 'const';
 		text += ' ';
 		text += useEntries ? `[${indexText}, ${elementText}]` : elementText;
 		text += ' of ';
@@ -271,9 +265,8 @@ function isParameterReassigned(parameter, scope) {
 	return references.some(reference => {
 		const node = reference.identifier;
 		const {parent} = node;
-		return parent.type === 'UpdateExpression' || (
-			node.parent.type === 'AssignmentExpression' && node.parent.left === node
-		);
+		return parent.type === 'UpdateExpression' ||
+			(parent.type === 'AssignmentExpression' && parent.left === node);
 	});
 }
 

@@ -399,7 +399,7 @@ test({
 			`,
 			errors: 1,
 			parserOptions: {
-				sourceType: 'script',
+				sourceType: 'script'
 			}
 		}
 	]
