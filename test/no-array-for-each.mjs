@@ -344,7 +344,64 @@ test.snapshot({
 		'NotReact.Children.forEach(bar)',
 		'React.NotChildren.forEach(bar)',
 		'React?.Children.forEach(bar)',
-		'NotChildren.forEach(bar)'
+		'NotChildren.forEach(bar)',
+		// Parameters are reassigned
+		outdent`
+			foo.forEach(element => {
+				element ++;
+			})
+		`,
+		outdent`
+			foo.forEach(element => {
+				const a = -- element;
+			})
+		`,
+		outdent`
+			foo.forEach((element, index) => {
+				index ++;
+				element = 2
+			});
+		`,
+		outdent`
+			foo.forEach((element, index) => {
+				element >>>= 2;
+			});
+		`,
+		outdent`
+			foo.forEach((element, index) => {
+				const a = element = 1;
+			});
+		`,
+		outdent`
+			foo.forEach((element, index) => {
+				let a;
+				a >>>= element;
+			});
+		`
+	]
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				foo.forEach(function(element) {
+					delete element;
+					console.log(element)
+				});
+			`,
+			output: outdent`
+				for (const element of foo) {
+					delete element;
+					console.log(element)
+				}
+			`,
+			errors: 1,
+			parserOptions: {
+				sourceType: 'script'
+			}
+		}
 	]
 });
 
