@@ -1,4 +1,5 @@
 'use strict';
+const {ReferenceTracker, READ, CALL} = require("eslint-utils");
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isShadowed = require('./utils/is-shadowed');
 const renameIdentifier = require('./utils/rename-identifier');
@@ -7,130 +8,97 @@ const METHOD_ERROR_MESSAGE_ID = 'method-error';
 const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
 const PROPERTY_ERROR_MESSAGE_ID = 'property-error';
 const messages = {
-	[METHOD_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}()` over `{{name}}()`.',
-	[METHOD_SUGGESTION_MESSAGE_ID]: 'Replace `{{name}}()` with `Number.{{name}}()`.',
-	[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{property}}` over `{{identifier}}`.'
+	[METHOD_ERROR_MESSAGE_ID]: 'Prefer `Number.{{property}}()` over `{{name}}()`.',
+	[METHOD_SUGGESTION_MESSAGE_ID]: 'Replace `{{name}}()` with `Number.{{property}}()`.',
+	[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{property}}` over `{{name}}`.'
 };
 
-const methods = {
-	// Safe
-	parseInt: true,
-	parseFloat: true,
-	// Unsafe
-	isNaN: false,
-	isFinite: false
+const properties = {
+	// Properties
+	NaN: {type: 'property'},
+	Infinity: {type: 'property'},
+	// Safe method
+	parseInt: {type: 'method'},
+	parseFloat: {type: 'method'},
+	// Unsafe method
+	isNaN: {type: 'method', safeToFix: false},
+	isFinite: {type: 'method', safeToFix: false}
 };
-
-const methodsSelector = [
-	'CallExpression',
-	'>',
-	'Identifier.callee',
-	`:matches(${Object.keys(methods).map(name => `[name="${name}"]`).join(', ')})`
-].join('');
-
-const propertiesSelector = [
-	'Identifier',
-	':matches([name="NaN"],[name="Infinity"])',
-	`:not(${
-		[
-			'MemberExpression[computed=false] > Identifier.property',
-			'FunctionDeclaration > Identifier.id',
-			'ClassDeclaration > Identifier.id',
-			'ClassProperty[computed=false] > Identifier.key',
-			'MethodDefinition[computed=false] > Identifier.key',
-			'VariableDeclarator > Identifier.id',
-			'Property[shorthand=false][computed=false] > Identifier.key',
-			'TSDeclareFunction > Identifier.id',
-			'TSEnumMember > Identifier.id',
-			'TSPropertySignature > Identifier.key'
-		].join(', ')
-	})`
-].join('');
 
 const isNegative = node => {
 	const {parent} = node;
 	return parent && parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
 };
 
+function getProblem(node, context) {
+	const {name, parent} = node;
+	const {type, safeToFix = true} = properties[name];
+	let property = name;
+	if (name === 'Infinity') {
+		property = isNegative(node) ? 'NEGATIVE_INFINITY' : 'POSITIVE_INFINITY';
+	}
+
+	const messageId = type === 'property' ? PROPERTY_ERROR_MESSAGE_ID : METHOD_ERROR_MESSAGE_ID;
+
+	const problem = {
+		node,
+		messageId,
+		data: {
+			name,
+			property
+		}
+	};
+
+	if (property === 'NEGATIVE_INFINITY') {
+		problem.node = parent;
+		problem.data.name = '-Infinity';
+		problem.fix = fixer => fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
+		return problem;
+	}
+
+	const fix = fixer => renameIdentifier(node, `Number.${property}`, fixer, context.getSourceCode());
+
+	if (!safeToFix) {
+		problem.suggest = [
+			{
+				messageId: METHOD_SUGGESTION_MESSAGE_ID,
+				data: problem.data,
+				fix
+			}
+		];
+		return problem;
+	}
+
+	problem.fix = fix;
+	return problem;
+}
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
-	const options = {
+	const {checkInfinity} = {
 		checkInfinity: true,
 		...context.options[0]
 	};
 
-	// Cache `NaN` and `Infinity` in `foo = {NaN, Infinity}`
-	const reported = new WeakSet();
+	const trackMap = Object.fromEntries(
+		Object.entries(properties).map(([property, {type}]) =>
+			[
+				property,
+				type === 'method' ? {[CALL]: true} : {[READ]: true}
+			]
+		)
+	);
+	if (!checkInfinity) {
+		delete trackMap.Infinity;
+	}
 
 	return {
-		[methodsSelector]: node => {
-			if (isShadowed(context.getScope(), node)) {
-				return;
+		Program() {
+			const tracker = new ReferenceTracker(context.getScope());
+			for (const {node, type} of tracker.iterateGlobalReferences(trackMap)) {
+				const problem = getProblem(type === CALL ? node.callee : node, context);
+				context.report(problem);
 			}
-
-			const {name} = node;
-			const isSafe = methods[name];
-
-			const problem = {
-				node,
-				messageId: METHOD_ERROR_MESSAGE_ID,
-				data: {
-					name
-				}
-			};
-
-			const fix = fixer => renameIdentifier(node, `Number.${name}`, fixer, sourceCode);
-
-			if (isSafe) {
-				problem.fix = fix;
-			} else {
-				problem.suggest = [
-					{
-						messageId: METHOD_SUGGESTION_MESSAGE_ID,
-						data: {
-							name
-						},
-						fix
-					}
-				];
-			}
-
-			context.report(problem);
-		},
-		[propertiesSelector]: node => {
-			if (reported.has(node) || isShadowed(context.getScope(), node)) {
-				return;
-			}
-
-			const {name, parent} = node;
-			if (name === 'Infinity' && !options.checkInfinity) {
-				return;
-			}
-
-			let property = name;
-			if (name === 'Infinity') {
-				property = isNegative(node) ? 'NEGATIVE_INFINITY' : 'POSITIVE_INFINITY';
-			}
-
-			const problem = {
-				node,
-				messageId: PROPERTY_ERROR_MESSAGE_ID,
-				data: {
-					identifier: name,
-					property
-				}
-			};
-
-			if (property === 'NEGATIVE_INFINITY') {
-				problem.node = parent;
-				problem.data.identifier = '-Infinity';
-				problem.fix = fixer => fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
-			} else {
-				problem.fix = fixer => renameIdentifier(node, `Number.${property}`, fixer, sourceCode);
-			}
-
-			context.report(problem);
-			reported.add(node);
 		}
 	};
 };

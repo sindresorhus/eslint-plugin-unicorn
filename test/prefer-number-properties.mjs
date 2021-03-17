@@ -32,7 +32,8 @@ const createError = (name, suggestionOutput) => {
 	const error = {
 		messageId: METHOD_ERROR_MESSAGE_ID,
 		data: {
-			name
+			name,
+			property: name
 		}
 	};
 
@@ -40,7 +41,8 @@ const createError = (name, suggestionOutput) => {
 		{
 			messageId: METHOD_SUGGESTION_MESSAGE_ID,
 			data: {
-				name
+				name,
+				property: name
 			},
 			output: suggestionOutput
 		}
@@ -160,7 +162,7 @@ const errorNaN = [
 	{
 		messageId: PROPERTY_ERROR_MESSAGE_ID,
 		data: {
-			identifier: 'NaN',
+			name: 'NaN',
 			property: 'NaN'
 		}
 	}
@@ -215,7 +217,11 @@ test({
 		{
 			code: 'const foo = -Infinity;',
 			options: [{checkInfinity: false}]
-		}
+		},
+		// Assign
+		'const foo = ++Infinity;',
+		'const foo = --Infinity;',
+		'const foo = -(--Infinity);'
 	],
 	invalid: [
 		{
@@ -331,12 +337,9 @@ test.snapshot([
 	'const foo = -Infinity.toString();',
 	'const foo = (-Infinity).toString();',
 	'const foo = +Infinity;',
-	'const foo = ++Infinity;',
 	'const foo = +-Infinity;',
 	'const foo = -Infinity;',
-	'const foo = --Infinity;',
 	'const foo = -(-Infinity);',
-	'const foo = -(--Infinity);',
 	'const foo = 1 - Infinity;',
 	'const foo = 1 - -Infinity;',
 	'const isPositiveZero = value => value === 0 && 1 / value === Infinity;',
