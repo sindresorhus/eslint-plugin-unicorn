@@ -1,7 +1,7 @@
 'use strict';
-const {ReferenceTracker, READ, CALL} = require("eslint-utils");
+const {ReferenceTracker, READ, CALL} = require('eslint-utils');
+const {fromPairs} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const isShadowed = require('./utils/is-shadowed');
 const renameIdentifier = require('./utils/rename-identifier');
 
 const METHOD_ERROR_MESSAGE_ID = 'method-error';
@@ -74,19 +74,16 @@ function getProblem(node, context) {
 }
 
 const create = context => {
-	const sourceCode = context.getSourceCode();
 	const {checkInfinity} = {
 		checkInfinity: true,
 		...context.options[0]
 	};
 
-	const trackMap = Object.fromEntries(
-		Object.entries(properties).map(([property, {type}]) =>
-			[
-				property,
-				type === 'method' ? {[CALL]: true} : {[READ]: true}
-			]
-		)
+	const trackMap = fromPairs(
+		Object.entries(properties).map(([property, {type}]) => [
+			property,
+			{[type === 'method' ? CALL : READ]: true}
+		])
 	);
 	if (!checkInfinity) {
 		delete trackMap.Infinity;
