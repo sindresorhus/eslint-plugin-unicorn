@@ -50,15 +50,16 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 	const [callback] = callExpression.arguments;
 	const parameters = callback.params;
 	const array = callExpression.callee.object;
-	const {returnStatements} = functionInfo.get(callback);
+	const {returnStatements, scope} = functionInfo.get(callback);
 
 	const getForOfLoopHeadText = () => {
 		const [elementText, indexText] = parameters.map(parameter => sourceCode.getText(parameter));
 		const useEntries = parameters.length === 2;
 
-		let text = 'for (const ';
+		let text = 'for (';
+		text += parameters.some(parameter => isParameterReassigned(parameter, scope)) ? 'let' : 'const';
+		text += ' ';
 		text += useEntries ? `[${indexText}, ${elementText}]` : elementText;
-
 		text += ' of ';
 
 		let arrayText = sourceCode.getText(array);
@@ -83,6 +84,9 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		if (callback.body.type === 'BlockStatement') {
 			end = callback.body.range[0];
 		} else {
+			// In this case, parentheses are not included in body location, so we look for `=>` token
+			// foo.forEach(bar => ({bar}))
+			//                     ^
 			const arrowToken = sourceCode.getTokenBefore(callback.body, isArrowToken);
 			end = arrowToken.range[1];
 		}
@@ -167,20 +171,35 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 	}
 
 	return function * (fixer) {
+		// Replace these with `for (const … of …) `
+		// foo.forEach(bar =>    bar)
+		// ^^^^^^^^^^^^^^^^^^ (space after `=>` didn't included)
+		// foo.forEach(bar =>    {})
+		// ^^^^^^^^^^^^^^^^^^^^^^
+		// foo.forEach(function(bar)    {})
+		// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 		yield fixer.replaceTextRange(getForOfLoopHeadRange(), getForOfLoopHeadText());
 
+		// Parenthesized callback function
+		// foo.forEach( ((bar => {})) )
+		//                         ^^
 		yield * removeCallbackParentheses(fixer);
 
-		// Remove call expression trailing comma
 		const [
 			penultimateToken,
 			lastToken
 		] = sourceCode.getLastTokens(callExpression, 2);
 
+		// The possible trailing comma token of `Array#forEach()` CallExpression
+		// foo.forEach(bar => {},)
+		//                      ^
 		if (isCommaToken(penultimateToken)) {
 			yield fixer.remove(penultimateToken);
 		}
 
+		// The closing parenthesis token of `Array#forEach()` CallExpression
+		// foo.forEach(bar => {})
+		//                      ^
 		yield fixer.remove(lastToken);
 
 		for (const returnStatement of returnStatements) {
@@ -188,11 +207,14 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		}
 
 		const expressionStatementLastToken = sourceCode.getLastToken(callExpression.parent);
+		// Remove semicolon if it's not needed anymore
+		// foo.forEach(bar => {});
+		//                       ^
 		if (shouldRemoveExpressionStatementLastToken(expressionStatementLastToken)) {
 			yield fixer.remove(expressionStatementLastToken, fixer);
 		}
 
-		// Prevent possible conflicts
+		// Prevent possible variable conflicts
 		yield * extendFixRange(fixer, callExpression.parent.range);
 	};
 }
@@ -256,6 +278,17 @@ function isParameterSafeToFix(parameter, {scope, array, allIdentifiers}) {
 	}
 
 	return true;
+}
+
+function isParameterReassigned(parameter, scope) {
+	const variable = findVariable(scope, parameter);
+	const {references} = variable;
+	return references.some(reference => {
+		const node = reference.identifier;
+		const {parent} = node;
+		return parent.type === 'UpdateExpression' ||
+			(parent.type === 'AssignmentExpression' && parent.left === node);
+	});
 }
 
 function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifiers}) {
