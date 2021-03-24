@@ -1,6 +1,10 @@
 # Prefer `for…of` over `Array#forEach(…)`
 
-A [`for…of` statement](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of) is more readable than [`Array#forEach(…)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach).
+Benefits of [`for…of` statement](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of) over [`Array#forEach(…)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach) can include:
+
+* Better readability
+* No additional scope, can mean easier debugging
+* Ability to early exit with `break` / `return`
 
 This rule is partly fixable.
 
