@@ -189,7 +189,7 @@ test({
 			code: 'Array.prototype.concat.apply([], array)',
 			output: 'array.flat()',
 			errors: 1
-		},
+		}
 	]
 });
 

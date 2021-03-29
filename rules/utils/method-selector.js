@@ -91,6 +91,6 @@ function methodSelector(options) {
 	}
 
 	return selector.join('');
-};
+}
 
 module.exports = methodSelector;
