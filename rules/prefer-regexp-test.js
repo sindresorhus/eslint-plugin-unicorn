@@ -51,7 +51,7 @@ const create = context => {
 			const problem = {
 				node,
 				messageId: MESSAGE_ID_STRING_MATCH
-			}
+			};
 
 			const staticResult = getStaticValue(regexpNode, context.getScope());
 			if (staticResult) {
@@ -59,7 +59,7 @@ const create = context => {
 
 				if (Object.prototype.toString.call(value) !== '[object RegExp]') {
 					context.report(problem);
-					return
+					return;
 				}
 			}
 
@@ -91,6 +91,7 @@ const create = context => {
 
 				yield fixer.replaceText(stringNode, regexpText);
 			};
+
 			context.report(problem);
 		}
 	};
