@@ -108,5 +108,17 @@ test.snapshot([
 					)
 			) {}
 		}
-	`
+	`,
+	// Should not fix, #1150
+	outdent`
+		const string = '[.!?]\\s*$';
+		if (foo.match(string)) {
+		}
+	`,
+	// This will still fix to `.test()`
+	outdent`
+		const regex = new RegExp('[.!?]\\s*$');
+		if (foo.match(regex)) {}
+	`,
+	'if (foo.match(unknown)) {}'
 ]);
