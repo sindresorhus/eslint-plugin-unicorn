@@ -162,5 +162,17 @@ test.snapshot([
 		`,
 		options: excludeFooOptions
 	},
-	'myWorker.port.onmessage = function(e) {}'
+	'myWorker.port.onmessage = function(e) {}',
+	'((foo)).onclick = ((0, listener))'
 ]);
+
+test.typescript({
+	valid: [],
+	invalid: [
+		{
+			code: '(el as HTMLElement).onmouseenter = onAnchorMouseEnter;',
+			output: '(el as HTMLElement).addEventListener(\'mouseenter\', onAnchorMouseEnter);',
+			errors: 1
+		}
+	]
+});
