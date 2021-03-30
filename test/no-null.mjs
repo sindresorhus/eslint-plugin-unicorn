@@ -231,7 +231,7 @@ test({
 		}
 	},
 	valid: [
-		'Object.create(null)'
+		'foo = Object.create(null)'
 	],
 	invalid: []
 });
