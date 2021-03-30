@@ -171,6 +171,28 @@ test.snapshot({
 	]
 });
 
+// #1146
+test({
+	testerOptions: {
+		parserOptions: {
+			ecmaVersion: 2019
+		}
+	},
+	valid: [],
+	invalid: [
+		{
+			code: '[].concat.apply([], array)',
+			output: 'array.flat()',
+			errors: 1
+		},
+		{
+			code: 'Array.prototype.concat.apply([], array)',
+			output: 'array.flat()',
+			errors: 1
+		}
+	]
+});
+
 // `_.flatten(array)`
 test.snapshot({
 	valid: [

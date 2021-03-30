@@ -24,7 +24,7 @@ const memberExpressionSelector = (path, {property, object}) => {
 	const parts = [
 		`[${prefix}type="MemberExpression"]`,
 		`[${prefix}computed=false]`,
-		`[${prefix}optional=false]`,
+		`[${prefix}optional!=true]`,
 		`[${prefix}property.type="Identifier"]`,
 		`[${prefix}property.name="${property}"]`
 	];

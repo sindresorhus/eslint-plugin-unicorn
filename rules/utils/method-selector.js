@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = options => {
+function methodSelector(options) {
 	const {
 		name,
 		names,
@@ -33,11 +33,11 @@ module.exports = options => {
 	];
 
 	if (!includeOptionalCall) {
-		selector.push(`[${prefix}optional=false]`);
+		selector.push(`[${prefix}optional!=true]`);
 	}
 
 	if (!includeOptionalMember) {
-		selector.push(`[${prefix}callee.optional=false]`);
+		selector.push(`[${prefix}callee.optional!=true]`);
 	}
 
 	if (name) {
@@ -91,4 +91,6 @@ module.exports = options => {
 	}
 
 	return selector.join('');
-};
+}
+
+module.exports = methodSelector;
