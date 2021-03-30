@@ -32,7 +32,17 @@ const create = context => {
 
 			try {
 				optimized = optimize(original, undefined, {blacklist: ignoreList}).toString();
-			} catch {}
+			} catch (error) {
+				context.report({
+					node,
+					data: {
+						original,
+						error: error.message
+					},
+					message: 'Problem parsing {{original}}: {{error}}'
+				});
+				return;
+			}
 
 			if (original === optimized) {
 				return;

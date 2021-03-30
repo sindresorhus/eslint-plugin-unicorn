@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized} = require('eslint-utils');
+const {isParenthesized, getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const {isBooleanNode} = require('./utils/boolean');
@@ -44,43 +44,55 @@ const create = context => {
 			}
 
 			const regexpNode = node.arguments[0];
-
 			if (regexpNode.type === 'Literal' && !regexpNode.regex) {
 				return;
 			}
 
+			const problem = {
+				node,
+				messageId: MESSAGE_ID_STRING_MATCH
+			};
+
+			const staticResult = getStaticValue(regexpNode, context.getScope());
+			if (staticResult) {
+				const {value} = staticResult;
+
+				if (Object.prototype.toString.call(value) !== '[object RegExp]') {
+					context.report(problem);
+					return;
+				}
+			}
+
 			const stringNode = node.callee.object;
 
-			context.report({
-				node,
-				messageId: MESSAGE_ID_STRING_MATCH,
-				* fix(fixer) {
-					yield fixer.replaceText(node.callee.property, 'test');
+			problem.fix = function * (fixer) {
+				yield fixer.replaceText(node.callee.property, 'test');
 
-					let stringText = sourceCode.getText(stringNode);
-					if (
-						!isParenthesized(regexpNode, sourceCode) &&
-						// Only `SequenceExpression` need add parentheses
-						stringNode.type === 'SequenceExpression'
-					) {
-						stringText = `(${stringText})`;
-					}
-
-					yield fixer.replaceText(regexpNode, stringText);
-
-					let regexpText = sourceCode.getText(regexpNode);
-					if (
-						!isParenthesized(stringNode, sourceCode) &&
-						shouldAddParenthesesToMemberExpressionObject(regexpNode, sourceCode)
-					) {
-						regexpText = `(${regexpText})`;
-					}
-
-					// The nodes that pass `isBooleanNode` cannot have an ASI problem.
-
-					yield fixer.replaceText(stringNode, regexpText);
+				let stringText = sourceCode.getText(stringNode);
+				if (
+					!isParenthesized(regexpNode, sourceCode) &&
+					// Only `SequenceExpression` need add parentheses
+					stringNode.type === 'SequenceExpression'
+				) {
+					stringText = `(${stringText})`;
 				}
-			});
+
+				yield fixer.replaceText(regexpNode, stringText);
+
+				let regexpText = sourceCode.getText(regexpNode);
+				if (
+					!isParenthesized(stringNode, sourceCode) &&
+					shouldAddParenthesesToMemberExpressionObject(regexpNode, sourceCode)
+				) {
+					regexpText = `(${regexpText})`;
+				}
+
+				// The nodes that pass `isBooleanNode` cannot have an ASI problem.
+
+				yield fixer.replaceText(stringNode, regexpText);
+			};
+
+			context.report(problem);
 		}
 	};
 };
