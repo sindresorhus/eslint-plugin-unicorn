@@ -109,6 +109,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Improve regexes by making them shorter, consistent, and safer.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

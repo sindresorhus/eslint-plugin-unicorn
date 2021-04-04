@@ -36,6 +36,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Disallow assigning `this` to a variable.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages

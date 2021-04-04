@@ -60,6 +60,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer using `.dataset` on DOM elements over `.setAttribute(…)`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

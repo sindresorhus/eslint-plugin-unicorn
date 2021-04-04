@@ -279,6 +279,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer ternary expressions over simple `if-else` statements.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages: {

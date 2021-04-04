@@ -117,6 +117,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Disallow the use of the `null` literal.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages,

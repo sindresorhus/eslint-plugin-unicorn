@@ -169,6 +169,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

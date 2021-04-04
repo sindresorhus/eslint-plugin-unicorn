@@ -70,7 +70,7 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 	const rulesMatch = /## Rules(?<rulesText>.*?)## Deprecated Rules/ms.exec(readme);
 	t.truthy(rulesMatch, 'List of rules should be defined in readme.md in ## Rules before ## Recommended config');
 	const {rulesText} = rulesMatch.groups;
-	const re = /- \[(?<id>.*?)]\((?<link>.*?)\) - (?<description>.*)\n/gm;
+	const re = /\| (?<emojis>.*?) \| \[(?<id>.*?)]\((?<link>.*?)\) \| (?<description>.*) \|\n/gm;
 	const rules = [];
 	let match;
 	do {

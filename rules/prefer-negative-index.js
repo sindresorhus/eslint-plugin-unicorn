@@ -311,6 +311,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()` and `Array#splice()`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

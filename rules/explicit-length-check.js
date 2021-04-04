@@ -197,6 +197,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
+			description: 'Enforce explicitly comparing the `length` property of a value.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

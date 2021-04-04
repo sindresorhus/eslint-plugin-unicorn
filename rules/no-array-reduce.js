@@ -76,6 +76,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Disallow `Array#reduce()` and `Array#reduceRight()`.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages

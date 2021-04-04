@@ -43,6 +43,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Enforce proper case for numeric literals.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

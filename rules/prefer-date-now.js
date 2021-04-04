@@ -105,6 +105,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

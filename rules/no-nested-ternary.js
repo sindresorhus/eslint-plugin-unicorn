@@ -39,6 +39,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Disallow nested ternary expressions.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages,

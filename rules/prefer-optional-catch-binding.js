@@ -69,6 +69,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer omitting the `catch` binding parameter.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

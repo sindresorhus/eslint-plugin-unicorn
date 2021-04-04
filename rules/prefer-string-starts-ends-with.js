@@ -101,6 +101,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages,

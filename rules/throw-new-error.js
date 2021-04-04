@@ -45,6 +45,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Require `new` when throwing an error.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages,

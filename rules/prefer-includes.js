@@ -84,6 +84,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

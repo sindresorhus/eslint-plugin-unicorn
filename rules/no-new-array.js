@@ -87,6 +87,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Disallow `new Array()`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

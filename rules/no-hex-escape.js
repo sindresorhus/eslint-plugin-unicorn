@@ -40,6 +40,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Enforce the use of Unicode escapes instead of hexadecimal escapes.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages,

@@ -30,6 +30,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
+			description: 'Disallow the use of objects as default parameters.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages

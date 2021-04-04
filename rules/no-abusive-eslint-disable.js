@@ -40,6 +40,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Enforce specifying rules to disable in `eslint-disable` comments.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages

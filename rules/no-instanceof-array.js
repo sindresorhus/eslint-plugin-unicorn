@@ -49,6 +49,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Require `Array.isArray()` instead of `instanceof Array`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

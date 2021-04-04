@@ -176,6 +176,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer `String#slice()` over `String#substr()` and `String#substring()`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

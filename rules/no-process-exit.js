@@ -85,6 +85,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Disallow `process.exit()`.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages

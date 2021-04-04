@@ -101,6 +101,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Enforce the use of `Math.trunc` instead of bitwise operators.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages,

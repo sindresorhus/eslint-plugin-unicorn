@@ -420,6 +420,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer `for…of` over `Array#forEach(…)`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

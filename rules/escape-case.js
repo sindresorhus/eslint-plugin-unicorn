@@ -56,6 +56,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Require escape sequences to use uppercase values.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

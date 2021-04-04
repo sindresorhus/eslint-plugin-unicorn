@@ -38,6 +38,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer `Node#append()` over `Node#appendChild()`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
