@@ -19,7 +19,7 @@
 		"run-rules-on-codebase": "node ./test/run-rules-on-codebase/lint.mjs",
 		"integration": "node ./test/integration/test.js",
 		"smoke": "eslint-remote-tester --config ./test/smoke/eslint-remote-tester.config.js",
-		"update-rules-in-readme": "node ./scripts/update-rules-in-readme.js"
+		"generate-rules-table": "node ./scripts/generate-rules-table.js"
 	},
 	"files": [
 		"index.js",
