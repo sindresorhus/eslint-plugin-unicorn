@@ -116,86 +116,86 @@ Configure it in `package.json`.
 
 Each rule has emojis denoting:
 
-* :white_check_mark: if it belongs to the `recommended` configuration
-* :wrench: if some problems reported by the rule are automatically fixable by the `--fix` [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) option
+* ✅ if it belongs to the `recommended` configuration
+* 🔧 if some problems reported by the rule are automatically fixable by the `--fix` [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) option
 
 <!--RULES_TABLE_START-->
 
-|    | Name | Description |
-|:---|:--------|:--------|
-| :white_check_mark::wrench: | [better-regex](docs/rules/better-regex.md) | Improve regexes by making them shorter, consistent, and safer. |
-| :white_check_mark::wrench: | [catch-error-name](docs/rules/catch-error-name.md) | Enforce a specific parameter name in catch clauses. |
-| :white_check_mark::wrench: | [consistent-destructuring](docs/rules/consistent-destructuring.md) | Use destructured variables over properties. |
-| :white_check_mark: | [consistent-function-scoping](docs/rules/consistent-function-scoping.md) | Move function definitions to the highest possible scope. |
-| :white_check_mark::wrench: | [custom-error-definition](docs/rules/custom-error-definition.md) | Enforce correct `Error` subclassing. |
-| :white_check_mark::wrench: | [empty-brace-spaces](docs/rules/empty-brace-spaces.md) | Enforce no spaces between braces. |
-| :white_check_mark: | [error-message](docs/rules/error-message.md) | Enforce passing a `message` value when creating a built-in error. |
-| :white_check_mark::wrench: | [escape-case](docs/rules/escape-case.md) | Require escape sequences to use uppercase values. |
-| :white_check_mark: | [expiring-todo-comments](docs/rules/expiring-todo-comments.md) | Add expiration conditions to TODO comments. |
-| :white_check_mark::wrench: | [explicit-length-check](docs/rules/explicit-length-check.md) | Enforce explicitly comparing the `length` property of a value. |
-| :white_check_mark: | [filename-case](docs/rules/filename-case.md) | Enforce a case style for filenames. |
-| :white_check_mark::wrench: | [import-index](docs/rules/import-index.md) | Enforce importing index files with `.`. |
-| :white_check_mark: | [import-style](docs/rules/import-style.md) | Enforce specific import styles per module. |
-| :white_check_mark::wrench: | [new-for-builtins](docs/rules/new-for-builtins.md) | Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`. |
-| :white_check_mark: | [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) | Enforce specifying rules to disable in `eslint-disable` comments. |
-| :white_check_mark: | [no-array-callback-reference](docs/rules/no-array-callback-reference.md) | Prevent passing a function reference directly to iterator methods. |
-| :white_check_mark::wrench: | [no-array-for-each](docs/rules/no-array-for-each.md) | Prefer `for…of` over `Array#forEach(…)`. |
-| :white_check_mark::wrench: | [no-array-push-push](docs/rules/no-array-push-push.md) | Enforce combining multiple `Array#push()` into one call. |
-| :white_check_mark: | [no-array-reduce](docs/rules/no-array-reduce.md) | Disallow `Array#reduce()` and `Array#reduceRight()`. |
-| :white_check_mark::wrench: | [no-console-spaces](docs/rules/no-console-spaces.md) | Do not use leading/trailing space between `console.log` parameters. |
-| :white_check_mark::wrench: | [no-for-loop](docs/rules/no-for-loop.md) | Do not use a `for` loop that can be replaced with a `for-of` loop. |
-| :white_check_mark::wrench: | [no-hex-escape](docs/rules/no-hex-escape.md) | Enforce the use of Unicode escapes instead of hexadecimal escapes. |
-| :white_check_mark::wrench: | [no-instanceof-array](docs/rules/no-instanceof-array.md) | Require `Array.isArray()` instead of `instanceof Array`. |
-| :white_check_mark: | [no-keyword-prefix](docs/rules/no-keyword-prefix.md) | Disallow identifiers starting with `new` or `class`. |
-| :white_check_mark::wrench: | [no-lonely-if](docs/rules/no-lonely-if.md) | Disallow `if` statements as the only statement in `if` blocks without `else`. |
-| :white_check_mark::wrench: | [no-nested-ternary](docs/rules/no-nested-ternary.md) | Disallow nested ternary expressions. |
-| :white_check_mark::wrench: | [no-new-array](docs/rules/no-new-array.md) | Disallow `new Array()`. |
-| :white_check_mark::wrench: | [no-new-buffer](docs/rules/no-new-buffer.md) | Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. |
-| :white_check_mark::wrench: | [no-null](docs/rules/no-null.md) | Disallow the use of the `null` literal. |
-| :white_check_mark: | [no-object-as-default-parameter](docs/rules/no-object-as-default-parameter.md) | Disallow the use of objects as default parameters. |
-| :white_check_mark: | [no-process-exit](docs/rules/no-process-exit.md) | Disallow `process.exit()`. |
-| :white_check_mark::wrench: | [no-static-only-class](docs/rules/no-static-only-class.md) | Forbid classes that only have static members. |
-| :white_check_mark: | [no-this-assignment](docs/rules/no-this-assignment.md) | Disallow assigning `this` to a variable. |
-| :white_check_mark::wrench: | [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) | Disallow unreadable array destructuring. |
-| :white_check_mark: | [no-unsafe-regex](docs/rules/no-unsafe-regex.md) | Disallow unsafe regular expressions. |
-| :white_check_mark: | [no-unused-properties](docs/rules/no-unused-properties.md) | Disallow unused object properties. |
-| :white_check_mark::wrench: | [no-useless-undefined](docs/rules/no-useless-undefined.md) | Disallow useless `undefined`. |
-| :white_check_mark::wrench: | [no-zero-fractions](docs/rules/no-zero-fractions.md) | Disallow number literals with zero fractions or dangling dots. |
-| :white_check_mark::wrench: | [number-literal-case](docs/rules/number-literal-case.md) | Enforce proper case for numeric literals. |
-| :white_check_mark::wrench: | [numeric-separators-style](docs/rules/numeric-separators-style.md) | Enforce the style of numeric separators by correctly grouping digits. |
-| :white_check_mark::wrench: | [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) | Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. |
-| :white_check_mark::wrench: | [prefer-array-find](docs/rules/prefer-array-find.md) | Prefer `.find(…)` over the first element from `.filter(…)`. |
-| :white_check_mark::wrench: | [prefer-array-flat](docs/rules/prefer-array-flat.md) | Prefer `.flatMap(…)` over `.map(…).flat()`. |
-| :white_check_mark::wrench: | [prefer-array-flat-map](docs/rules/prefer-array-flat-map.md) | Prefer `Array#flat()` over legacy techniques to flatten arrays. |
-| :white_check_mark::wrench: | [prefer-array-index-of](docs/rules/prefer-array-index-of.md) | Prefer `Array#indexOf()` over `Array#findIndex()` when looking for the index of an item. |
-| :white_check_mark: | [prefer-array-some](docs/rules/prefer-array-some.md) | Prefer `.some(…)` over `.find(…)`. |
-| :white_check_mark::wrench: | [prefer-date-now](docs/rules/prefer-date-now.md) | Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. |
-| :white_check_mark::wrench: | [prefer-default-parameters](docs/rules/prefer-default-parameters.md) | Prefer default parameters over reassignment. |
-| :white_check_mark::wrench: | [prefer-dom-node-append](docs/rules/prefer-dom-node-append.md) | Prefer `Node#append()` over `Node#appendChild()`. |
-| :white_check_mark::wrench: | [prefer-dom-node-dataset](docs/rules/prefer-dom-node-dataset.md) | Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. |
-| :white_check_mark::wrench: | [prefer-dom-node-remove](docs/rules/prefer-dom-node-remove.md) | Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`. |
-| :white_check_mark::wrench: | [prefer-dom-node-text-content](docs/rules/prefer-dom-node-text-content.md) | Prefer `.textContent` over `.innerText`. |
-| :white_check_mark::wrench: | [prefer-includes](docs/rules/prefer-includes.md) | Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence. |
-| :white_check_mark::wrench: | [prefer-keyboard-event-key](docs/rules/prefer-keyboard-event-key.md) | Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. |
-| :white_check_mark::wrench: | [prefer-math-trunc](docs/rules/prefer-math-trunc.md) | Enforce the use of `Math.trunc` instead of bitwise operators. |
-| :white_check_mark::wrench: | [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md) | Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`. |
-| :white_check_mark::wrench: | [prefer-negative-index](docs/rules/prefer-negative-index.md) | Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()` and `Array#splice()`. |
-| :white_check_mark::wrench: | [prefer-number-properties](docs/rules/prefer-number-properties.md) | Prefer `Number` static properties over global ones. |
-| :white_check_mark::wrench: | [prefer-optional-catch-binding](docs/rules/prefer-optional-catch-binding.md) | Prefer omitting the `catch` binding parameter. |
-| :white_check_mark::wrench: | [prefer-query-selector](docs/rules/prefer-query-selector.md) | Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. |
-| :white_check_mark::wrench: | [prefer-reflect-apply](docs/rules/prefer-reflect-apply.md) | Prefer `Reflect.apply()` over `Function#apply()`. |
-| :white_check_mark::wrench: | [prefer-regexp-test](docs/rules/prefer-regexp-test.md) | Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`. |
-| :white_check_mark::wrench: | [prefer-set-has](docs/rules/prefer-set-has.md) | Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence. |
-| :white_check_mark::wrench: | [prefer-spread](docs/rules/prefer-spread.md) | Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`. |
-| :white_check_mark::wrench: | [prefer-string-replace-all](docs/rules/prefer-string-replace-all.md) | Prefer `String#replaceAll()` over regex searches with the global flag. |
-| :white_check_mark::wrench: | [prefer-string-slice](docs/rules/prefer-string-slice.md) | Prefer `String#slice()` over `String#substr()` and `String#substring()`. |
-| :white_check_mark::wrench: | [prefer-string-starts-ends-with](docs/rules/prefer-string-starts-ends-with.md) | Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`. |
-| :white_check_mark::wrench: | [prefer-string-trim-start-end](docs/rules/prefer-string-trim-start-end.md) | Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`. |
-| :white_check_mark::wrench: | [prefer-ternary](docs/rules/prefer-ternary.md) | Prefer ternary expressions over simple `if-else` statements. |
-| :white_check_mark::wrench: | [prefer-type-error](docs/rules/prefer-type-error.md) | Enforce throwing `TypeError` in type checking conditions. |
-| :white_check_mark::wrench: | [prevent-abbreviations](docs/rules/prevent-abbreviations.md) | Prevent abbreviations. |
-| :white_check_mark::wrench: | [string-content](docs/rules/string-content.md) | Enforce better string content. |
-| :white_check_mark::wrench: | [throw-new-error](docs/rules/throw-new-error.md) | Require `new` when throwing an error. |
+| Name | Description | ✅ | 🔧 |
+|:--------|:--------|:---|:---|
+| [better-regex](docs/rules/better-regex.md) | Improve regexes by making them shorter, consistent, and safer. | ✅ | 🔧 |
+| [catch-error-name](docs/rules/catch-error-name.md) | Enforce a specific parameter name in catch clauses. | ✅ | 🔧 |
+| [consistent-destructuring](docs/rules/consistent-destructuring.md) | Use destructured variables over properties. | ✅ | 🔧 |
+| [consistent-function-scoping](docs/rules/consistent-function-scoping.md) | Move function definitions to the highest possible scope. | ✅ |  |
+| [custom-error-definition](docs/rules/custom-error-definition.md) | Enforce correct `Error` subclassing. | ✅ | 🔧 |
+| [empty-brace-spaces](docs/rules/empty-brace-spaces.md) | Enforce no spaces between braces. | ✅ | 🔧 |
+| [error-message](docs/rules/error-message.md) | Enforce passing a `message` value when creating a built-in error. | ✅ |  |
+| [escape-case](docs/rules/escape-case.md) | Require escape sequences to use uppercase values. | ✅ | 🔧 |
+| [expiring-todo-comments](docs/rules/expiring-todo-comments.md) | Add expiration conditions to TODO comments. | ✅ |  |
+| [explicit-length-check](docs/rules/explicit-length-check.md) | Enforce explicitly comparing the `length` property of a value. | ✅ | 🔧 |
+| [filename-case](docs/rules/filename-case.md) | Enforce a case style for filenames. | ✅ |  |
+| [import-index](docs/rules/import-index.md) | Enforce importing index files with `.`. | ✅ | 🔧 |
+| [import-style](docs/rules/import-style.md) | Enforce specific import styles per module. | ✅ |  |
+| [new-for-builtins](docs/rules/new-for-builtins.md) | Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`. | ✅ | 🔧 |
+| [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) | Enforce specifying rules to disable in `eslint-disable` comments. | ✅ |  |
+| [no-array-callback-reference](docs/rules/no-array-callback-reference.md) | Prevent passing a function reference directly to iterator methods. | ✅ |  |
+| [no-array-for-each](docs/rules/no-array-for-each.md) | Prefer `for…of` over `Array#forEach(…)`. | ✅ | 🔧 |
+| [no-array-push-push](docs/rules/no-array-push-push.md) | Enforce combining multiple `Array#push()` into one call. | ✅ | 🔧 |
+| [no-array-reduce](docs/rules/no-array-reduce.md) | Disallow `Array#reduce()` and `Array#reduceRight()`. | ✅ |  |
+| [no-console-spaces](docs/rules/no-console-spaces.md) | Do not use leading/trailing space between `console.log` parameters. | ✅ | 🔧 |
+| [no-for-loop](docs/rules/no-for-loop.md) | Do not use a `for` loop that can be replaced with a `for-of` loop. | ✅ | 🔧 |
+| [no-hex-escape](docs/rules/no-hex-escape.md) | Enforce the use of Unicode escapes instead of hexadecimal escapes. | ✅ | 🔧 |
+| [no-instanceof-array](docs/rules/no-instanceof-array.md) | Require `Array.isArray()` instead of `instanceof Array`. | ✅ | 🔧 |
+| [no-keyword-prefix](docs/rules/no-keyword-prefix.md) | Disallow identifiers starting with `new` or `class`. | ✅ |  |
+| [no-lonely-if](docs/rules/no-lonely-if.md) | Disallow `if` statements as the only statement in `if` blocks without `else`. | ✅ | 🔧 |
+| [no-nested-ternary](docs/rules/no-nested-ternary.md) | Disallow nested ternary expressions. | ✅ | 🔧 |
+| [no-new-array](docs/rules/no-new-array.md) | Disallow `new Array()`. | ✅ | 🔧 |
+| [no-new-buffer](docs/rules/no-new-buffer.md) | Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`. | ✅ | 🔧 |
+| [no-null](docs/rules/no-null.md) | Disallow the use of the `null` literal. | ✅ | 🔧 |
+| [no-object-as-default-parameter](docs/rules/no-object-as-default-parameter.md) | Disallow the use of objects as default parameters. | ✅ |  |
+| [no-process-exit](docs/rules/no-process-exit.md) | Disallow `process.exit()`. | ✅ |  |
+| [no-static-only-class](docs/rules/no-static-only-class.md) | Forbid classes that only have static members. | ✅ | 🔧 |
+| [no-this-assignment](docs/rules/no-this-assignment.md) | Disallow assigning `this` to a variable. | ✅ |  |
+| [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) | Disallow unreadable array destructuring. | ✅ | 🔧 |
+| [no-unsafe-regex](docs/rules/no-unsafe-regex.md) | Disallow unsafe regular expressions. | ✅ |  |
+| [no-unused-properties](docs/rules/no-unused-properties.md) | Disallow unused object properties. | ✅ |  |
+| [no-useless-undefined](docs/rules/no-useless-undefined.md) | Disallow useless `undefined`. | ✅ | 🔧 |
+| [no-zero-fractions](docs/rules/no-zero-fractions.md) | Disallow number literals with zero fractions or dangling dots. | ✅ | 🔧 |
+| [number-literal-case](docs/rules/number-literal-case.md) | Enforce proper case for numeric literals. | ✅ | 🔧 |
+| [numeric-separators-style](docs/rules/numeric-separators-style.md) | Enforce the style of numeric separators by correctly grouping digits. | ✅ | 🔧 |
+| [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) | Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. | ✅ | 🔧 |
+| [prefer-array-find](docs/rules/prefer-array-find.md) | Prefer `.find(…)` over the first element from `.filter(…)`. | ✅ | 🔧 |
+| [prefer-array-flat](docs/rules/prefer-array-flat.md) | Prefer `.flatMap(…)` over `.map(…).flat()`. | ✅ | 🔧 |
+| [prefer-array-flat-map](docs/rules/prefer-array-flat-map.md) | Prefer `Array#flat()` over legacy techniques to flatten arrays. | ✅ | 🔧 |
+| [prefer-array-index-of](docs/rules/prefer-array-index-of.md) | Prefer `Array#indexOf()` over `Array#findIndex()` when looking for the index of an item. | ✅ | 🔧 |
+| [prefer-array-some](docs/rules/prefer-array-some.md) | Prefer `.some(…)` over `.find(…)`. | ✅ |  |
+| [prefer-date-now](docs/rules/prefer-date-now.md) | Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. | ✅ | 🔧 |
+| [prefer-default-parameters](docs/rules/prefer-default-parameters.md) | Prefer default parameters over reassignment. | ✅ | 🔧 |
+| [prefer-dom-node-append](docs/rules/prefer-dom-node-append.md) | Prefer `Node#append()` over `Node#appendChild()`. | ✅ | 🔧 |
+| [prefer-dom-node-dataset](docs/rules/prefer-dom-node-dataset.md) | Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. | ✅ | 🔧 |
+| [prefer-dom-node-remove](docs/rules/prefer-dom-node-remove.md) | Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`. | ✅ | 🔧 |
+| [prefer-dom-node-text-content](docs/rules/prefer-dom-node-text-content.md) | Prefer `.textContent` over `.innerText`. | ✅ | 🔧 |
+| [prefer-includes](docs/rules/prefer-includes.md) | Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence. | ✅ | 🔧 |
+| [prefer-keyboard-event-key](docs/rules/prefer-keyboard-event-key.md) | Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. | ✅ | 🔧 |
+| [prefer-math-trunc](docs/rules/prefer-math-trunc.md) | Enforce the use of `Math.trunc` instead of bitwise operators. | ✅ | 🔧 |
+| [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md) | Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`. | ✅ | 🔧 |
+| [prefer-negative-index](docs/rules/prefer-negative-index.md) | Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()` and `Array#splice()`. | ✅ | 🔧 |
+| [prefer-number-properties](docs/rules/prefer-number-properties.md) | Prefer `Number` static properties over global ones. | ✅ | 🔧 |
+| [prefer-optional-catch-binding](docs/rules/prefer-optional-catch-binding.md) | Prefer omitting the `catch` binding parameter. | ✅ | 🔧 |
+| [prefer-query-selector](docs/rules/prefer-query-selector.md) | Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. | ✅ | 🔧 |
+| [prefer-reflect-apply](docs/rules/prefer-reflect-apply.md) | Prefer `Reflect.apply()` over `Function#apply()`. | ✅ | 🔧 |
+| [prefer-regexp-test](docs/rules/prefer-regexp-test.md) | Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`. | ✅ | 🔧 |
+| [prefer-set-has](docs/rules/prefer-set-has.md) | Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence. | ✅ | 🔧 |
+| [prefer-spread](docs/rules/prefer-spread.md) | Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`. | ✅ | 🔧 |
+| [prefer-string-replace-all](docs/rules/prefer-string-replace-all.md) | Prefer `String#replaceAll()` over regex searches with the global flag. | ✅ | 🔧 |
+| [prefer-string-slice](docs/rules/prefer-string-slice.md) | Prefer `String#slice()` over `String#substr()` and `String#substring()`. | ✅ | 🔧 |
+| [prefer-string-starts-ends-with](docs/rules/prefer-string-starts-ends-with.md) | Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`. | ✅ | 🔧 |
+| [prefer-string-trim-start-end](docs/rules/prefer-string-trim-start-end.md) | Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`. | ✅ | 🔧 |
+| [prefer-ternary](docs/rules/prefer-ternary.md) | Prefer ternary expressions over simple `if-else` statements. | ✅ | 🔧 |
+| [prefer-type-error](docs/rules/prefer-type-error.md) | Enforce throwing `TypeError` in type checking conditions. | ✅ | 🔧 |
+| [prevent-abbreviations](docs/rules/prevent-abbreviations.md) | Prevent abbreviations. | ✅ | 🔧 |
+| [string-content](docs/rules/string-content.md) | Enforce better string content. | ✅ | 🔧 |
+| [throw-new-error](docs/rules/throw-new-error.md) | Require `new` when throwing an error. | ✅ | 🔧 |
 
 <!--RULES_TABLE_END-->
 
