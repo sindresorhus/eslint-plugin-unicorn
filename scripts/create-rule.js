@@ -106,40 +106,8 @@ function updateReadmeUsage({id}) {
 	fs.writeFileSync(file, updated);
 }
 
-function updateReadmeRules(data) {
-	const RULE_START = '## Rules\n\n';
-	const RULE_END = '\n\n## Deprecated Rules';
-	let ruleContent = `- [${data.id}](docs/rules/${data.id}.md) - ${data.description}`;
-	if (data.isFixable && data.isFixable.partly) {
-		ruleContent += ' *(partly fixable)*';
-	} else if (data.isFixable) {
-		ruleContent += ' *(fixable)*';
-	}
-
-	const file = path.join(ROOT, 'readme.md');
-	const content = fs.readFileSync(file, 'utf8');
-	const [before, rest] = content.split(RULE_START);
-	const [rules, after] = rest.split(RULE_END);
-
-	const lines = rules.split('\n');
-	let insertIndex;
-	if (ruleContent.localeCompare(lines[0]) === -1) {
-		insertIndex = 0;
-	} else if (ruleContent.localeCompare(lines[lines.length - 1]) === 1) {
-		insertIndex = lines.length;
-	} else {
-		insertIndex = lines.findIndex(line => line.localeCompare(ruleContent) === 1);
-	}
-
-	lines.splice(insertIndex, 0, ruleContent);
-
-	const updated = `${before}${RULE_START}${lines.join('\n')}${RULE_END}${after}`;
-	fs.writeFileSync(file, updated);
-}
-
 function updateReadme(data) {
 	updateReadmeUsage(data);
-	updateReadmeRules(data);
 }
 
 (async () => {
