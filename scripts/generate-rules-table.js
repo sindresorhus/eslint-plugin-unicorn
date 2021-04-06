@@ -2,12 +2,12 @@
 
 // Automatically regenerates the rules table in readme.md.
 
-const fs = require('fs');
+const {readFileSync, writeFileSync} = require('fs');
 const path = require('path');
 const {rules, configs} = require('../');
 
 const pathReadme = path.resolve(__dirname, '../readme.md');
-const readmeContents = fs.readFileSync(pathReadme, 'utf8');
+const readmeContents = readFileSync(pathReadme, 'utf8');
 const tablePlaceholder = /<!--RULES_TABLE_START-->[\S\s]*<!--RULES_TABLE_END-->/;
 
 // Config/preset/fixable emojis.
@@ -31,7 +31,7 @@ const rulesTableContent = Object.keys(rules).filter(ruleName => !rules[ruleName]
 	})
 	.join('\n');
 
-fs.writeFileSync(
+writeFileSync(
 	pathReadme,
 	readmeContents.replace(
 		tablePlaceholder,
