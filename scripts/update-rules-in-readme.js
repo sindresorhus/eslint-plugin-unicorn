@@ -19,7 +19,7 @@ const rulesTableContent = Object.keys(rules).filter(ruleName => !rules[ruleName]
 	.sort()
 	.map(ruleName => {
 		// Check which emojis to show for this rule.
-		const isRecommended = configs.recommended.rules[`unicorn/${ruleName}`];
+		const isRecommended = configs.recommended.rules[`unicorn/${ruleName}`] === 'error';
 		const isFixable = rules[ruleName].meta.fixable;
 
 		const url = `docs/rules/${ruleName}.md`;

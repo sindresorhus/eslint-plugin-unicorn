@@ -127,14 +127,14 @@ Each rule has emojis denoting:
 | [catch-error-name](docs/rules/catch-error-name.md) | Enforce a specific parameter name in catch clauses. | ✅ | 🔧 |
 | [consistent-destructuring](docs/rules/consistent-destructuring.md) | Use destructured variables over properties. | ✅ | 🔧 |
 | [consistent-function-scoping](docs/rules/consistent-function-scoping.md) | Move function definitions to the highest possible scope. | ✅ |  |
-| [custom-error-definition](docs/rules/custom-error-definition.md) | Enforce correct `Error` subclassing. | ✅ | 🔧 |
+| [custom-error-definition](docs/rules/custom-error-definition.md) | Enforce correct `Error` subclassing. |  | 🔧 |
 | [empty-brace-spaces](docs/rules/empty-brace-spaces.md) | Enforce no spaces between braces. | ✅ | 🔧 |
 | [error-message](docs/rules/error-message.md) | Enforce passing a `message` value when creating a built-in error. | ✅ |  |
 | [escape-case](docs/rules/escape-case.md) | Require escape sequences to use uppercase values. | ✅ | 🔧 |
 | [expiring-todo-comments](docs/rules/expiring-todo-comments.md) | Add expiration conditions to TODO comments. | ✅ |  |
 | [explicit-length-check](docs/rules/explicit-length-check.md) | Enforce explicitly comparing the `length` property of a value. | ✅ | 🔧 |
 | [filename-case](docs/rules/filename-case.md) | Enforce a case style for filenames. | ✅ |  |
-| [import-index](docs/rules/import-index.md) | Enforce importing index files with `.`. | ✅ | 🔧 |
+| [import-index](docs/rules/import-index.md) | Enforce importing index files with `.`. |  | 🔧 |
 | [import-style](docs/rules/import-style.md) | Enforce specific import styles per module. | ✅ |  |
 | [new-for-builtins](docs/rules/new-for-builtins.md) | Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`. | ✅ | 🔧 |
 | [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) | Enforce specifying rules to disable in `eslint-disable` comments. | ✅ |  |
@@ -146,7 +146,7 @@ Each rule has emojis denoting:
 | [no-for-loop](docs/rules/no-for-loop.md) | Do not use a `for` loop that can be replaced with a `for-of` loop. | ✅ | 🔧 |
 | [no-hex-escape](docs/rules/no-hex-escape.md) | Enforce the use of Unicode escapes instead of hexadecimal escapes. | ✅ | 🔧 |
 | [no-instanceof-array](docs/rules/no-instanceof-array.md) | Require `Array.isArray()` instead of `instanceof Array`. | ✅ | 🔧 |
-| [no-keyword-prefix](docs/rules/no-keyword-prefix.md) | Disallow identifiers starting with `new` or `class`. | ✅ |  |
+| [no-keyword-prefix](docs/rules/no-keyword-prefix.md) | Disallow identifiers starting with `new` or `class`. |  |  |
 | [no-lonely-if](docs/rules/no-lonely-if.md) | Disallow `if` statements as the only statement in `if` blocks without `else`. | ✅ | 🔧 |
 | [no-nested-ternary](docs/rules/no-nested-ternary.md) | Disallow nested ternary expressions. | ✅ | 🔧 |
 | [no-new-array](docs/rules/no-new-array.md) | Disallow `new Array()`. | ✅ | 🔧 |
@@ -157,16 +157,16 @@ Each rule has emojis denoting:
 | [no-static-only-class](docs/rules/no-static-only-class.md) | Forbid classes that only have static members. | ✅ | 🔧 |
 | [no-this-assignment](docs/rules/no-this-assignment.md) | Disallow assigning `this` to a variable. | ✅ |  |
 | [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) | Disallow unreadable array destructuring. | ✅ | 🔧 |
-| [no-unsafe-regex](docs/rules/no-unsafe-regex.md) | Disallow unsafe regular expressions. | ✅ |  |
-| [no-unused-properties](docs/rules/no-unused-properties.md) | Disallow unused object properties. | ✅ |  |
+| [no-unsafe-regex](docs/rules/no-unsafe-regex.md) | Disallow unsafe regular expressions. |  |  |
+| [no-unused-properties](docs/rules/no-unused-properties.md) | Disallow unused object properties. |  |  |
 | [no-useless-undefined](docs/rules/no-useless-undefined.md) | Disallow useless `undefined`. | ✅ | 🔧 |
 | [no-zero-fractions](docs/rules/no-zero-fractions.md) | Disallow number literals with zero fractions or dangling dots. | ✅ | 🔧 |
 | [number-literal-case](docs/rules/number-literal-case.md) | Enforce proper case for numeric literals. | ✅ | 🔧 |
-| [numeric-separators-style](docs/rules/numeric-separators-style.md) | Enforce the style of numeric separators by correctly grouping digits. | ✅ | 🔧 |
+| [numeric-separators-style](docs/rules/numeric-separators-style.md) | Enforce the style of numeric separators by correctly grouping digits. |  | 🔧 |
 | [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) | Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. | ✅ | 🔧 |
 | [prefer-array-find](docs/rules/prefer-array-find.md) | Prefer `.find(…)` over the first element from `.filter(…)`. | ✅ | 🔧 |
-| [prefer-array-flat](docs/rules/prefer-array-flat.md) | Prefer `.flatMap(…)` over `.map(…).flat()`. | ✅ | 🔧 |
-| [prefer-array-flat-map](docs/rules/prefer-array-flat-map.md) | Prefer `Array#flat()` over legacy techniques to flatten arrays. | ✅ | 🔧 |
+| [prefer-array-flat](docs/rules/prefer-array-flat.md) | Prefer `.flatMap(…)` over `.map(…).flat()`. |  | 🔧 |
+| [prefer-array-flat-map](docs/rules/prefer-array-flat-map.md) | Prefer `Array#flat()` over legacy techniques to flatten arrays. |  | 🔧 |
 | [prefer-array-index-of](docs/rules/prefer-array-index-of.md) | Prefer `Array#indexOf()` over `Array#findIndex()` when looking for the index of an item. | ✅ | 🔧 |
 | [prefer-array-some](docs/rules/prefer-array-some.md) | Prefer `.some(…)` over `.find(…)`. | ✅ |  |
 | [prefer-date-now](docs/rules/prefer-date-now.md) | Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. | ✅ | 🔧 |
@@ -187,14 +187,14 @@ Each rule has emojis denoting:
 | [prefer-regexp-test](docs/rules/prefer-regexp-test.md) | Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`. | ✅ | 🔧 |
 | [prefer-set-has](docs/rules/prefer-set-has.md) | Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence. | ✅ | 🔧 |
 | [prefer-spread](docs/rules/prefer-spread.md) | Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`. | ✅ | 🔧 |
-| [prefer-string-replace-all](docs/rules/prefer-string-replace-all.md) | Prefer `String#replaceAll()` over regex searches with the global flag. | ✅ | 🔧 |
+| [prefer-string-replace-all](docs/rules/prefer-string-replace-all.md) | Prefer `String#replaceAll()` over regex searches with the global flag. |  | 🔧 |
 | [prefer-string-slice](docs/rules/prefer-string-slice.md) | Prefer `String#slice()` over `String#substr()` and `String#substring()`. | ✅ | 🔧 |
 | [prefer-string-starts-ends-with](docs/rules/prefer-string-starts-ends-with.md) | Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`. | ✅ | 🔧 |
 | [prefer-string-trim-start-end](docs/rules/prefer-string-trim-start-end.md) | Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`. | ✅ | 🔧 |
 | [prefer-ternary](docs/rules/prefer-ternary.md) | Prefer ternary expressions over simple `if-else` statements. | ✅ | 🔧 |
 | [prefer-type-error](docs/rules/prefer-type-error.md) | Enforce throwing `TypeError` in type checking conditions. | ✅ | 🔧 |
 | [prevent-abbreviations](docs/rules/prevent-abbreviations.md) | Prevent abbreviations. | ✅ | 🔧 |
-| [string-content](docs/rules/string-content.md) | Enforce better string content. | ✅ | 🔧 |
+| [string-content](docs/rules/string-content.md) | Enforce better string content. |  | 🔧 |
 | [throw-new-error](docs/rules/throw-new-error.md) | Require `new` when throwing an error. | ✅ | 🔧 |
 
 <!--RULES_TABLE_END-->
