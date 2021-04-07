@@ -15,13 +15,15 @@ const declaratorSelector = [
 const memberSelector = [
 	'MemberExpression',
 	'[computed=false]',
-	`:not(${[
-		'AssignmentExpression > .left',
-		'CallExpression > .callee',
-		'NewExpression > .callee',
-		'UpdateExpression > .argument',
-		'UnaryExpression[operator="delete"] > .argument'
-	].join(', ')})`
+	`:not(${
+		[
+			'AssignmentExpression > .left',
+			'CallExpression > .callee',
+			'NewExpression > .callee',
+			'UpdateExpression > .argument',
+			'UnaryExpression[operator="delete"] > .argument'
+		].join(', ')
+	})`
 ].join('');
 
 const isSimpleExpression = expression => {
