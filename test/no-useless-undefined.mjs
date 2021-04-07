@@ -225,6 +225,17 @@ test({
 			code: 'function foo([bar = undefined] = []) {}',
 			output: 'function foo([bar] = []) {}',
 			errors
+		},
+		{
+			code: 'return undefined;',
+			output: 'return;',
+			errors,
+			parserOptions: {
+				sourceType: 'script',
+				ecmaFeatures: {
+					globalReturn: true
+				}
+			}
 		}
 	]
 });
@@ -232,9 +243,113 @@ test({
 test.typescript({
 	valid: [
 		// https://github.com/zeit/next.js/blob/3af0fe5cf2542237f34d106872d104c3606b1858/packages/next/build/utils.ts#L620
-		'prerenderPaths?.add(entry)'
+		'prerenderPaths?.add(entry)',
+		// #880
+		outdent`
+			function getThing(): string | undefined {
+				if (someCondition) {
+					return "hello world";
+				}
+
+				return undefined;
+			}
+		`,
+		outdent`
+			function getThing(): string | undefined {
+				if (someCondition) {
+					return "hello world";
+				} else if (anotherCondition) {
+					return undefined;
+				}
+
+				return undefined;
+			}
+		`,
+		'const foo = (): undefined => {return undefined;}',
+		'const foo = (): undefined => undefined;',
+		'const foo = (): string => undefined;',
+		'const foo = function (): undefined {return undefined}',
+		'export function foo(): undefined {return undefined}',
+		outdent`
+			const object = {
+				method(): undefined {
+					return undefined;
+				}
+			}
+		`,
+		outdent`
+			class A {
+				method(): undefined {
+					return undefined;
+				}
+			}
+		`,
+		outdent`
+			const A = class A {
+				method(): undefined {
+					return undefined
+				}
+			};
+		`,
+		outdent`
+			class A {
+				static method(): undefined {
+					return undefined
+				}
+			}
+		`,
+		outdent`
+			class A {
+				get method(): undefined {
+					return undefined;
+				}
+			}
+		`,
+		outdent`
+			class A {
+				static get method(): undefined {
+					return undefined;
+				}
+			}
+		`,
+		outdent`
+			class A {
+				#method(): undefined {
+					return undefined;
+				}
+			}
+		`,
+		outdent`
+			class A {
+				private method(): undefined {
+					return undefined;
+				}
+			}
+		`
 	],
-	invalid: []
+	invalid: [
+		{
+			code: outdent`
+				function foo():undefined {
+					function nested() {
+						return undefined;
+					}
+
+					return nested();
+				}
+			`,
+			output: outdent`
+				function foo():undefined {
+					function nested() {
+						return;
+					}
+
+					return nested();
+				}
+			`,
+			errors: 1
+		}
+	]
 });
 
 test.snapshot({
