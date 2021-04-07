@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 const {rules, configs} = package_;
 const pathReadme = path.resolve(__dirname, '../readme.md');
 const readmeContents = readFileSync(pathReadme, 'utf8');
-const tablePlaceholder = /<!--RULES_TABLE_START-->.*<!--RULES_TABLE_END-->/s;
+const tablePlaceholder = /<!-- RULES_TABLE_START -->.*<!-- RULES_TABLE_END -->/s;
 
 // Config/preset/fixable emojis.
 const EMOJI_RECOMMENDED = '✅';
@@ -40,12 +40,13 @@ writeFileSync(
 	readmeContents.replace(
 		tablePlaceholder,
 		outdent`
-		<!--RULES_TABLE_START-->
+			<!-- RULES_TABLE_START -->
 
-		| Name | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} |
-		| :--- | :---------- | :------------------- | :--------------- |
-		${rulesTableContent}
+			| Name | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} |
+			| :--- | :---------- | :------------------- | :--------------- |
+			${rulesTableContent}
 
-		<!--RULES_TABLE_END-->`
+			<!-- RULES_TABLE_END -->
+		`
 	)
 );

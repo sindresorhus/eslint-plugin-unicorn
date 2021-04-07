@@ -119,8 +119,8 @@ Each rule has emojis denoting:
 * ✅ if it belongs to the `recommended` configuration
 * 🔧 if some problems reported by the rule are automatically fixable by the `--fix` [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) option
 
-<!--Do not manually modify this rules table. Run: `npm run generate-rules-table` >
-<!--RULES_TABLE_START-->
+<!-- Do not manually modify this table. Run: `npm run generate-rules-table` -->
+<!-- RULES_TABLE_START -->
 
 | Name | Description | ✅ | 🔧 |
 | :--- | :---------- | :------------------- | :--------------- |
@@ -198,7 +198,7 @@ Each rule has emojis denoting:
 | [string-content](docs/rules/string-content.md) | Enforce better string content. |  | 🔧 |
 | [throw-new-error](docs/rules/throw-new-error.md) | Require `new` when throwing an error. | ✅ | 🔧 |
 
-<!--RULES_TABLE_END-->
+<!-- RULES_TABLE_END -->
 
 ## Deprecated Rules
 
