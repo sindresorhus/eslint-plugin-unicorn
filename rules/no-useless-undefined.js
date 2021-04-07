@@ -73,8 +73,23 @@ const isCompareFunction = node => {
 	return compareFunctionNames.has(name);
 };
 
+const getFunction = scope => {
+	for (; scope; scope = scope.upper) {
+		if (scope.type === 'function') {
+			return scope.block;
+		}
+	}
+};
+
 const create = context => {
-	const listener = fix => node => {
+	const listener = (fix, checkFunctionReturnType) => node => {
+		if (checkFunctionReturnType) {
+			const functionNode = getFunction(context.getScope());
+			if (functionNode && functionNode.returnType) {
+				return;
+			}
+		}
+
 		context.report({
 			node,
 			messageId,
@@ -97,10 +112,14 @@ const create = context => {
 	};
 
 	const listeners = {
-		[returnSelector]: listener(removeNodeAndLeadingSpace),
+		[returnSelector]: listener(
+			removeNodeAndLeadingSpace,
+			/* CheckFunctionReturnType */ true
+		),
 		[yieldSelector]: listener(removeNodeAndLeadingSpace),
 		[arrowFunctionSelector]: listener(
-			(node, fixer) => fixer.replaceText(node, '{}')
+			(node, fixer) => fixer.replaceText(node, '{}'),
+			/* CheckFunctionReturnType */ true
 		),
 		[variableInitSelector]: listener(
 			(node, fixer) => fixer.removeRange([node.parent.id.range[1], node.range[1]])
