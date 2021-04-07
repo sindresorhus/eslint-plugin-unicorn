@@ -91,7 +91,7 @@ function fixFilename(words, caseFunctions, {leading, extension}) {
 		samples: combinations
 	} = cartesianProductSamples(replacements);
 
-	return combinations.map(parts => `${leading}${parts.join('')}${extension}`);
+	return [...new Set(combinations.map(parts => `${leading}${parts.join('')}${extension}`))];
 }
 
 const leadingUnderscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;

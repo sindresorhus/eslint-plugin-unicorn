@@ -4,9 +4,11 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 const methodSelector = require('./utils/method-selector');
 
-const MESSAGE_ID = 'preferSetHas';
+const MESSAGE_ID_ERROR = 'error';
+const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
-	[MESSAGE_ID]: '`{{name}}` should be a `Set`, and use `{{name}}.has()` to check existence or non-existence.'
+	[MESSAGE_ID_ERROR]: '`{{name}}` should be a `Set`, and use `{{name}}.has()` to check existence or non-existence.',
+	[MESSAGE_ID_SUGGESTION]: 'Switch `{{name}}` to `Set`.'
 };
 
 // `[]`
@@ -169,21 +171,38 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			const problem = {
 				node,
-				messageId: MESSAGE_ID,
+				messageId: MESSAGE_ID_ERROR,
 				data: {
 					name: node.name
-				},
-				* fix(fixer) {
-					yield fixer.insertTextBefore(node.parent.init, 'new Set(');
-					yield fixer.insertTextAfter(node.parent.init, ')');
-
-					for (const identifier of identifiers) {
-						yield fixer.replaceText(identifier.parent.property, 'has');
-					}
 				}
-			});
+			};
+
+			const fix = function * (fixer) {
+				yield fixer.insertTextBefore(node.parent.init, 'new Set(');
+				yield fixer.insertTextAfter(node.parent.init, ')');
+
+				for (const identifier of identifiers) {
+					yield fixer.replaceText(identifier.parent.property, 'has');
+				}
+			};
+
+			if (node.typeAnnotation) {
+				problem.suggest = [
+					{
+						messageId: MESSAGE_ID_SUGGESTION,
+						data: {
+							name: node.name
+						},
+						fix
+					}
+				];
+			} else {
+				problem.fix = fix;
+			}
+
+			context.report(problem);
 		}
 	};
 };

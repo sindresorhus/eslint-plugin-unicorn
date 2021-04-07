@@ -64,7 +64,11 @@ test({
 		'const foo = [].concat(...bar["map"]((i) => i));',
 		// Not `map`
 		'const foo = [].concat(...bar.notMap((i) => i));',
-		'const foo = [].concat(...[[4,5],6].flat());'
+		'const foo = [].concat(...[[4,5],6].flat());',
+
+		// Allowed
+		'Children.map(children, fn).flat()', // `import {Children} from 'react';`
+		'React.Children.map(children, fn).flat()'
 	],
 	invalid: [
 		{
@@ -227,9 +231,12 @@ test({
 	]
 });
 
-test.snapshot([
-	'const bar = [[1],[2],[3]].map(i => [i]).flat()',
-	'const bar = [[1],[2],[3]].map(i => [i]).flat(1.00)',
-	'const bar = [[1],[2],[3]].map(i => [i]).flat(1,)',
-	'const foo = [].concat(...bar.map((i) => i));'
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const bar = [[1],[2],[3]].map(i => [i]).flat()',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(1.00)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(1,)',
+		'const foo = [].concat(...bar.map((i) => i));'
+	]
+});

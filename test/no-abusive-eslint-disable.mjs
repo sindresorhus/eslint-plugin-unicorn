@@ -69,25 +69,28 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 	]
 });
 
-runTest.snapshot([
-	'eval(); // eslint-disable-line',
-	outdent`
-		foo();
-		eval(); // eslint-disable-line
-	`,
-	'/* eslint-disable */',
-	outdent`
-		foo();
-		/* eslint-disable */
-		eval();
-	`,
-	outdent`
-		foo();
-			/* eslint-disable-next-line */
-				eval();
-	`,
-	outdent`
-		// eslint-disable-next-line
-		eval();
-	`
-]);
+runTest.snapshot({
+	valid: [],
+	invalid: [
+		'eval(); // eslint-disable-line',
+		outdent`
+			foo();
+			eval(); // eslint-disable-line
+		`,
+		'/* eslint-disable */',
+		outdent`
+			foo();
+			/* eslint-disable */
+			eval();
+		`,
+		outdent`
+			foo();
+				/* eslint-disable-next-line */
+					eval();
+		`,
+		outdent`
+			// eslint-disable-next-line
+			eval();
+		`
+	]
+});

@@ -90,11 +90,14 @@ test({
 	]
 });
 
-test.snapshot([
-	outdent`
-		element.setAttribute(
-			\'data-foo\', // comment
-			\'bar\' // comment
-		);
-	`
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
+			element.setAttribute(
+				\'data-foo\', // comment
+				\'bar\' // comment
+			);
+		`
+	]
+});
