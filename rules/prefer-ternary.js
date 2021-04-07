@@ -11,7 +11,7 @@ const messageId = 'prefer-ternary';
 
 const selector = [
 	'IfStatement',
-	':not(IfStatement > IfStatement.alternate)',
+	':not(IfStatement > .alternate)',
 	'[test.type!="ConditionalExpression"]',
 	'[consequent]',
 	'[alternate]'
