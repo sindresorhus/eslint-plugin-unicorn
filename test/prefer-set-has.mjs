@@ -5,7 +5,7 @@ const {test} = getTester(import.meta);
 
 const createError = name => [
 	{
-		messageId: 'preferSetHas',
+		messageId: 'error',
 		data: {
 			name
 		}
@@ -25,6 +25,11 @@ const methodsReturnsArray = [
 	'sort',
 	'splice'
 ];
+
+const noFixCase = testCase => ({
+	...testCase,
+	output: testCase.code
+});
 
 test({
 	valid: [
@@ -958,5 +963,35 @@ test.typescript({
 		`
 	],
 	invalid: [
+		noFixCase({
+			code: outdent`
+				const a: Array<'foo' | 'bar'> = ['foo', 'bar']
+
+				for (let i = 0; i < 3; i++) {
+					if (a.includes(someString)) {
+						console.log(123)
+					}
+				}
+			`,
+			errors: [
+				{
+					message: '`a` should be a `Set`, and use `a.has()` to check existence or non-existence.',
+					suggestions: [
+						{
+							desc: 'Switch `a` to `Set`.',
+							output: outdent`
+								const a: Array<'foo' | 'bar'> = new Set(['foo', 'bar'])
+
+								for (let i = 0; i < 3; i++) {
+									if (a.has(someString)) {
+										console.log(123)
+									}
+								}
+							`
+						}
+					]
+				}
+			]
+		})
 	]
 });
