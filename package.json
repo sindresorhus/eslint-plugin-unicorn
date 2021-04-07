@@ -136,7 +136,9 @@
 				"error",
 				{
 					"replacements": {
-						"fn": false
+						"ref": {
+							"reference": true
+						}
 					}
 				}
 			]

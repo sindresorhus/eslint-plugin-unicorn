@@ -261,8 +261,8 @@ const prepareOptions = ({
 	extendDefaultReplacements = true,
 	replacements = {},
 
-	extendDefaultWhitelist = true,
-	whitelist = {},
+	extendDefaultAllowList = true,
+	allowList = {},
 
 	ignore = []
 } = {}) => {
@@ -270,9 +270,9 @@ const prepareOptions = ({
 		defaultsDeep({}, replacements, defaultReplacements) :
 		replacements;
 
-	const mergedWhitelist = extendDefaultWhitelist ?
-		defaultsDeep({}, whitelist, defaultAllowList) :
-		whitelist;
+	const mergedAllowList = extendDefaultAllowList ?
+		defaultsDeep({}, allowList, defaultAllowList) :
+		allowList;
 
 	ignore = ignore.map(
 		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u')
@@ -294,15 +294,15 @@ const prepareOptions = ({
 					[discouragedName, new Map(Object.entries(replacements))]
 			)
 		),
-		whitelist: new Map(Object.entries(mergedWhitelist)),
+		allowList: new Map(Object.entries(mergedAllowList)),
 
 		ignore
 	};
 };
 
-const getWordReplacements = (word, {replacements, whitelist}) => {
-	// Skip constants and whitelist
-	if (isUpperCase(word) || whitelist.get(word)) {
+const getWordReplacements = (word, {replacements, allowList}) => {
+	// Skip constants and allowList
+	if (isUpperCase(word) || allowList.get(word)) {
 		return [];
 	}
 
@@ -322,10 +322,10 @@ const getWordReplacements = (word, {replacements, whitelist}) => {
 };
 
 const getNameReplacements = (name, options, limit = 3) => {
-	const {whitelist, ignore} = options;
+	const {allowList, ignore} = options;
 
-	// Skip constants and whitelist
-	if (isUpperCase(name) || whitelist.get(name) || ignore.some(regexp => regexp.test(name))) {
+	// Skip constants and allowList
+	if (isUpperCase(name) || allowList.get(name) || ignore.some(regexp => regexp.test(name))) {
 		return {total: 0};
 	}
 
@@ -818,10 +818,10 @@ const schema = [
 			replacements: {
 				$ref: '#/items/0/definitions/abbreviations'
 			},
-			extendDefaultWhitelist: {
+			extendDefaultAllowList: {
 				type: 'boolean'
 			},
-			whitelist: {
+			allowList: {
 				$ref: '#/items/0/definitions/booleanObject'
 			},
 			ignore: {

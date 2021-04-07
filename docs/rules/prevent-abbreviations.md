@@ -123,13 +123,13 @@ The example below disables all the default replacements and enables a custom `cm
 ]
 ```
 
-### whitelist
+### allowList
 
 Type: `object`
 
-You can extend the default whitelist by passing the `whitelist` option.
+You can extend the default allowList by passing the `allowList` option.
 
-Unlike the `replacements` option, `whitelist` matches full identifier names case-sensitively.
+Unlike the `replacements` option, `allowList` matches full identifier names case-sensitively.
 
 For example, if you want to report `props` → `properties` (enabled by default), but allow `getInitialProps`, you could use the following configuration.
 
@@ -137,19 +137,19 @@ For example, if you want to report `props` → `properties` (enabled by default)
 "unicorn/prevent-abbreviations": [
 	"error",
 	{
-		"whitelist": {
+		"allowList": {
 			"getInitialProps": true
 		}
 	}
 ]
 ```
 
-### extendDefaultWhitelist
+### extendDefaultAllowList
 
 Type: `boolean`\
 Default: `true`
 
-Pass `"extendDefaultWhitelist": false` to override the default `whitelist` completely.
+Pass `"extendDefaultAllowList": false` to override the default `allowList` completely.
 
 ### checkDefaultAndNamespaceImports
 
