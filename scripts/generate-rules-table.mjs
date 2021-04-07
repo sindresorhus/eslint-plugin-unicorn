@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 const {rules, configs} = package_;
 const pathReadme = path.resolve(__dirname, '../readme.md');
 const readmeContents = readFileSync(pathReadme, 'utf8');
-const tablePlaceholder = new RegExp('<!--RULES_TABLE_START-->.*<!--RULES_TABLE_END-->','s');
+const tablePlaceholder = /<!--RULES_TABLE_START-->.*<!--RULES_TABLE_END-->/s;
 
 // Config/preset/fixable emojis.
 const EMOJI_RECOMMENDED = '✅';
