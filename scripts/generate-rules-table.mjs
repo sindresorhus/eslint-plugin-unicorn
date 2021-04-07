@@ -43,7 +43,7 @@ writeFileSync(
 		<!--RULES_TABLE_START-->
 
 		| Name | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} |
-		|:--------|:--------|:---|:---|
+		| :--- | :---------- | :------------------- | :--------------- |
 		${rulesTableContent}
 
 		<!--RULES_TABLE_END-->`

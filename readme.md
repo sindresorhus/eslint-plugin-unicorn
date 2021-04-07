@@ -123,7 +123,7 @@ Each rule has emojis denoting:
 <!--RULES_TABLE_START-->
 
 | Name | Description | ✅ | 🔧 |
-|:--------|:--------|:---|:---|
+| :--- | :---------- | :------------------- | :--------------- |
 | [better-regex](docs/rules/better-regex.md) | Improve regexes by making them shorter, consistent, and safer. | ✅ | 🔧 |
 | [catch-error-name](docs/rules/catch-error-name.md) | Enforce a specific parameter name in catch clauses. | ✅ | 🔧 |
 | [consistent-destructuring](docs/rules/consistent-destructuring.md) | Use destructured variables over properties. | ✅ | 🔧 |
