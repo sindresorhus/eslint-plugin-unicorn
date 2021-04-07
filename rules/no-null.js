@@ -43,7 +43,7 @@ const selector = [
 
 const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].includes(node.operator);
 const isStrictEqual = node => node.type === 'BinaryExpression' && ['===', '!=='].includes(node.operator);
-const isSecondArgumentOfInsertBefore = node => 
+const isSecondArgumentOfInsertBefore = node =>
 	node.parent.type === 'CallExpression' &&
 	!node.parent.optional &&
 	node.parent.arguments.length === 2 &&
