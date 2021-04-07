@@ -352,18 +352,21 @@ test.typescript({
 	]
 });
 
-test.snapshot([
-	outdent`
-		foo(
-			undefined,
-			bar,
-			undefined,
-			undefined,
-			undefined,
-			undefined,
-		)
-	`,
-	'function foo([bar = undefined] = []) {}',
-	'foo(bar, undefined, undefined);',
-	'let a = undefined, b = 2;'
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
+			foo(
+				undefined,
+				bar,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+			)
+		`,
+		'function foo([bar = undefined] = []) {}',
+		'foo(bar, undefined, undefined);',
+		'let a = undefined, b = 2;'
+	]
+});
