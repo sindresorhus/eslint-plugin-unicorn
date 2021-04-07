@@ -1,11 +1,14 @@
-'use strict';
-
 // Automatically regenerates the rules table in readme.md.
 
-const {readFileSync, writeFileSync} = require('fs');
-const path = require('path');
-const {rules, configs} = require('../');
+import {readFileSync, writeFileSync} from 'fs';
+import path from 'path';
+import package_ from '../index.js';
+import {fileURLToPath} from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const {rules, configs} = package_;
 const pathReadme = path.resolve(__dirname, '../readme.md');
 const readmeContents = readFileSync(pathReadme, 'utf8');
 const tablePlaceholder = /<!--RULES_TABLE_START-->[\S\s]*<!--RULES_TABLE_END-->/;
