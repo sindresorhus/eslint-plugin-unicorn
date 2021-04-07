@@ -4,6 +4,7 @@ import {readFileSync, writeFileSync} from 'fs';
 import path from 'path';
 import package_ from '../index.js';
 import {fileURLToPath} from 'url';
+import outdent from 'outdent';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,6 +39,13 @@ writeFileSync(
 	pathReadme,
 	readmeContents.replace(
 		tablePlaceholder,
-		`<!--RULES_TABLE_START-->\n\n| Name | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} |\n|:--------|:--------|:---|:---|\n${rulesTableContent}\n\n<!--RULES_TABLE_END-->`
+		outdent`
+		<!--RULES_TABLE_START-->
+
+		| Name | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} |
+		|:--------|:--------|:---|:---|
+		${rulesTableContent}
+
+		<!--RULES_TABLE_END-->`
 	)
 );
