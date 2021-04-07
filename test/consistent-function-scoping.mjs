@@ -805,43 +805,46 @@ test.typescript({
 	invalid: []
 });
 
-test.snapshot([
-	outdent`
-		function foo() {
-			function bar() {}
-		}
-	`,
-	outdent`
-		function foo() {
-			async function bar() {}
-		}
-	`,
-	outdent`
-		function foo() {
-			function * bar() {}
-		}
-	`,
-	outdent`
-		function foo() {
-			async function * bar() {}
-		}
-	`,
-	outdent`
-		function foo() {
-			const bar = () => {}
-		}
-	`,
-	'const doFoo = () => bar => bar;',
-	outdent`
-		function foo() {
-			const bar = async () => {}
-		}
-	`,
-	outdent`
-		function doFoo() {
-			const doBar = function(bar) {
-				return bar;
-			};
-		}
-	`
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
+			function foo() {
+				function bar() {}
+			}
+		`,
+		outdent`
+			function foo() {
+				async function bar() {}
+			}
+		`,
+		outdent`
+			function foo() {
+				function * bar() {}
+			}
+		`,
+		outdent`
+			function foo() {
+				async function * bar() {}
+			}
+		`,
+		outdent`
+			function foo() {
+				const bar = () => {}
+			}
+		`,
+		'const doFoo = () => bar => bar;',
+		outdent`
+			function foo() {
+				const bar = async () => {}
+			}
+		`,
+		outdent`
+			function doFoo() {
+				const doBar = function(bar) {
+					return bar;
+				};
+			}
+		`
+	]
+});

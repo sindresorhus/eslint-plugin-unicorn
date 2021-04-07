@@ -131,48 +131,51 @@ test({
 	]
 });
 
-test.snapshot([
-	outdent`
-		if (
-			!!!(
-				${zeroCases.filter(code => code !== 'foo.length === 0').join(' &&\n\t\t')}
-			) ||
-			!(
-				${nonZeroCases.filter(code => code !== 'foo.length > 0').join(' ||\n\t\t')}
-			)
-		) {}
-	`,
-	{
-		code: outdent`
+test.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
 			if (
-				${nonZeroCases.filter(code => code !== 'foo.length !== 0').join(' ||\n\t')}
+				!!!(
+					${zeroCases.filter(code => code !== 'foo.length === 0').join(' &&\n\t\t')}
+				) ||
+				!(
+					${nonZeroCases.filter(code => code !== 'foo.length > 0').join(' ||\n\t\t')}
+				)
 			) {}
 		`,
-		options: [{'non-zero': 'not-equal'}]
-	},
-	{
-		code: outdent`
-			const foo = (
-				${nonZeroCases.filter(code => code !== 'foo.length >= 1').join(' &&\n\t')}
-			) ? 1 : 2;
-		`,
-		options: [{'non-zero': 'greater-than-or-equal'}]
-	},
-	'if (foo.bar && foo.bar.length) {}',
-	'if (foo.length || foo.bar()) {}',
-	'if (!!(!!foo.length)) {}',
-	'if (!(foo.length === 0)) {}',
-	'while (foo.length >= 1) {}',
-	'do {} while (foo.length);',
-	'for (let i = 0; (bar && !foo.length); i ++) {}',
-	'const isEmpty = foo.length < 1;',
-	'bar(foo.length >= 1)',
-	'bar(!foo.length || foo.length)',
-	'const bar = void !foo.length;',
-	'const isNotEmpty = Boolean(foo.length)',
-	'const isNotEmpty = Boolean(foo.length || bar)',
-	'const isEmpty = Boolean(!foo.length)',
-	'const isEmpty = Boolean(foo.length === 0)',
-	'const isNotEmpty = !Boolean(foo.length === 0)',
-	'const isEmpty = !Boolean(!Boolean(foo.length === 0))'
-]);
+		{
+			code: outdent`
+				if (
+					${nonZeroCases.filter(code => code !== 'foo.length !== 0').join(' ||\n\t')}
+				) {}
+			`,
+			options: [{'non-zero': 'not-equal'}]
+		},
+		{
+			code: outdent`
+				const foo = (
+					${nonZeroCases.filter(code => code !== 'foo.length >= 1').join(' &&\n\t')}
+				) ? 1 : 2;
+			`,
+			options: [{'non-zero': 'greater-than-or-equal'}]
+		},
+		'if (foo.bar && foo.bar.length) {}',
+		'if (foo.length || foo.bar()) {}',
+		'if (!!(!!foo.length)) {}',
+		'if (!(foo.length === 0)) {}',
+		'while (foo.length >= 1) {}',
+		'do {} while (foo.length);',
+		'for (let i = 0; (bar && !foo.length); i ++) {}',
+		'const isEmpty = foo.length < 1;',
+		'bar(foo.length >= 1)',
+		'bar(!foo.length || foo.length)',
+		'const bar = void !foo.length;',
+		'const isNotEmpty = Boolean(foo.length)',
+		'const isNotEmpty = Boolean(foo.length || bar)',
+		'const isEmpty = Boolean(!foo.length)',
+		'const isEmpty = Boolean(foo.length === 0)',
+		'const isNotEmpty = !Boolean(foo.length === 0)',
+		'const isEmpty = !Boolean(!Boolean(foo.length === 0))'
+	]
+});

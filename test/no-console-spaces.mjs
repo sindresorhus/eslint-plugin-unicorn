@@ -196,28 +196,31 @@ test({
 	]
 });
 
-test.snapshot([
-	'console.log("abc", " def ", "ghi");',
-	outdent`
-		console.error(
-			theme.error('✗'),
-			'Verifying "packaging" fixture\\n ',
-			theme.error(errorMessage)
-		);
-	`,
-	outdent`
-		console.log(
-			'abc',
-			'def ',
-			'ghi'
-		);
-	`,
-	'console.log("_", " leading", "_")',
-	'console.log("_", "trailing ", "_")',
-	'console.log("_", " leading and trailing ", "_")',
-	'console.log("_", " log ", "_")',
-	'console.debug("_", " debug ", "_")',
-	'console.info("_", " info ", "_")',
-	'console.warn("_", " warn ", "_")',
-	'console.error("_", " error ", "_")'
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		'console.log("abc", " def ", "ghi");',
+		outdent`
+			console.error(
+				theme.error('✗'),
+				'Verifying "packaging" fixture\\n ',
+				theme.error(errorMessage)
+			);
+		`,
+		outdent`
+			console.log(
+				'abc',
+				'def ',
+				'ghi'
+			);
+		`,
+		'console.log("_", " leading", "_")',
+		'console.log("_", "trailing ", "_")',
+		'console.log("_", " leading and trailing ", "_")',
+		'console.log("_", " log ", "_")',
+		'console.debug("_", " debug ", "_")',
+		'console.info("_", " info ", "_")',
+		'console.warn("_", " warn ", "_")',
+		'console.error("_", " error ", "_")'
+	]
+});

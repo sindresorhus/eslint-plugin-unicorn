@@ -80,12 +80,15 @@ test({
 	]
 });
 
-test.snapshot([
-	outdent`
-		try {
-			foo();
-		} catch (error) {
-			\u0020\u0020\u0020\u0020\u0020\u0020\u0020
-		}
-	`
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
+			try {
+				foo();
+			} catch (error) {
+				\u0020\u0020\u0020\u0020\u0020\u0020\u0020
+			}
+		`
+	]
+});

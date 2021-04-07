@@ -231,9 +231,12 @@ test({
 	]
 });
 
-test.snapshot([
-	'const bar = [[1],[2],[3]].map(i => [i]).flat()',
-	'const bar = [[1],[2],[3]].map(i => [i]).flat(1.00)',
-	'const bar = [[1],[2],[3]].map(i => [i]).flat(1,)',
-	'const foo = [].concat(...bar.map((i) => i));'
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const bar = [[1],[2],[3]].map(i => [i]).flat()',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(1.00)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(1,)',
+		'const foo = [].concat(...bar.map((i) => i));'
+	]
+});

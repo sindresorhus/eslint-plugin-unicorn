@@ -99,6 +99,9 @@ test({
 	].map(code => ({code, errors}))
 });
 
-test.snapshot([
-	'process.exit(1);'
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		'process.exit(1);'
+	]
+});

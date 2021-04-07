@@ -361,7 +361,10 @@ test({
 	]
 });
 
-test.snapshot([
-	'foo.slice(foo.length - 2, foo.length - 1)',
-	'foo.splice(foo.length - 1, 1)'
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		'foo.slice(foo.length - 2, foo.length - 1)',
+		'foo.splice(foo.length - 1, 1)'
+	]
+});
