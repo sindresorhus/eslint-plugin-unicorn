@@ -43,6 +43,17 @@ const selector = [
 
 const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].includes(node.operator);
 const isStrictEqual = node => node.type === 'BinaryExpression' && ['===', '!=='].includes(node.operator);
+const isSecondArgumentOfInsertBefore = node =>
+	node.parent.type === 'CallExpression' &&
+	!node.parent.optional &&
+	node.parent.arguments.length === 2 &&
+	node.parent.arguments[0].type !== 'SpreadElement' &&
+	node.parent.arguments[1] === node &&
+	node.parent.callee.type === 'MemberExpression' &&
+	!node.parent.callee.computed &&
+	!node.parent.callee.optional &&
+	node.parent.callee.property.type === 'Identifier' &&
+	node.parent.callee.property.name === 'insertBefore';
 
 const create = context => {
 	const {checkStrictEquality} = {
@@ -61,6 +72,10 @@ const create = context => {
 			const {parent = {}, range} = node;
 
 			if (!checkStrictEquality && isStrictEqual(parent)) {
+				return;
+			}
+
+			if (isSecondArgumentOfInsertBefore(node)) {
 				return;
 			}
 

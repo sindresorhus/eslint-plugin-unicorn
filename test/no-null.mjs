@@ -61,6 +61,7 @@ test({
 	valid: [
 		'let foo',
 		'Object.create(null)',
+		'let insertedNode = parentNode.insertBefore(newNode, null)',
 		// Not `null`
 		'const foo = "null";',
 		// More/Less arguments
@@ -201,25 +202,35 @@ test({
 
 		// Not `CallExpression`
 		invalidTestCase('new Object.create(null)'),
+		invalidTestCase('new foo.insertBefore(bar, null)'),
 		// Not `MemberExpression`
 		invalidTestCase('create(null)'),
+		invalidTestCase('insertBefore(bar, null)'),
 		// `callee.property` is not a `Identifier`
 		invalidTestCase('Object["create"](null)'),
+		invalidTestCase('foo["insertBefore"](bar, null)'),
 		// Computed
 		invalidTestCase('Object[create](null)'),
+		invalidTestCase('foo[insertBefore](bar, null)'),
 		{
 			code: 'Object[null](null)',
 			errors: [{}, {}]
 		},
-		// Not `create`
+		// Not matching method
 		invalidTestCase('Object.notCreate(null)'),
+		invalidTestCase('foo.notInsertBefore(foo, null)'),
 		// Not `Object`
 		invalidTestCase('NotObject.create(null)'),
 		// `callee.object.type` is not a `Identifier`
 		invalidTestCase('lib.Object.create(null)'),
 		// More/Less arguments
 		invalidTestCase('Object.create(null, "")'),
-		invalidTestCase('Object.create(...[null])')
+		invalidTestCase('Object.create(...[null])'),
+		invalidTestCase('foo.insertBefore(null)'),
+		invalidTestCase('foo.insertBefore(foo, null, bar)'),
+		invalidTestCase('foo.insertBefore(...[foo], null)'),
+		// Not in right position
+		invalidTestCase('foo.insertBefore(null, bar)')
 	]
 });
 
