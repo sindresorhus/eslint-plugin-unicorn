@@ -783,45 +783,48 @@ runTest.typescript({
 	]
 });
 
-runTest.snapshot([
-	outdent`
-		for (let i = 0; i < arr.length; i += 1) {
-			console.log(arr[i])
-		}
-	`,
-	// #742
-	outdent`
-		for (let i = 0; i < plugins.length; i++) {
-			let plugin = plugins[i];
-			plugin = calculateSomeNewValue();
-			// ...
-		}
-	`,
-	outdent`
-		for (
-			let i = 0;
-			i < array.length;
-			i++
-		)
-		// comment (foo)
-			{
-				var foo = array[i];
-				foo = bar();
+runTest.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
+			for (let i = 0; i < arr.length; i += 1) {
+				console.log(arr[i])
 			}
-	`,
-	outdent`
-		for (let i = 0; i < array.length; i++) {
-			let foo = array[i];
-		}
-	`,
-	outdent`
-		for (let i = 0; i < array.length; i++) {
-			const foo = array[i];
-		}
-	`,
-	outdent`
-		for (let i = 0; i < array.length; i++) {
-			var foo = array[i], bar = 1;
-		}
-	`
-]);
+		`,
+		// #742
+		outdent`
+			for (let i = 0; i < plugins.length; i++) {
+				let plugin = plugins[i];
+				plugin = calculateSomeNewValue();
+				// ...
+			}
+		`,
+		outdent`
+			for (
+				let i = 0;
+				i < array.length;
+				i++
+			)
+			// comment (foo)
+				{
+					var foo = array[i];
+					foo = bar();
+				}
+		`,
+		outdent`
+			for (let i = 0; i < array.length; i++) {
+				let foo = array[i];
+			}
+		`,
+		outdent`
+			for (let i = 0; i < array.length; i++) {
+				const foo = array[i];
+			}
+		`,
+		outdent`
+			for (let i = 0; i < array.length; i++) {
+				var foo = array[i], bar = 1;
+			}
+		`
+	]
+});

@@ -3,7 +3,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-test({
+test.snapshot({
 	valid: [
 		'throw new Error(\'error\')',
 		'throw new TypeError(\'error\')',
@@ -30,40 +30,37 @@ test({
 		`
 	],
 	invalid: [
+		'throw new Error()',
+		'throw Error()',
+		'throw new Error(\'\')',
+		'throw new Error(``)',
+		outdent`
+			const err = new Error();
+			throw err;
+		`,
+		outdent`
+			let err = 1;
+			err = new Error();
+			throw err;
+		`,
+		outdent`
+			let err = new Error();
+			err = 1;
+			throw err;
+		`,
+		'const foo = new TypeError()',
+		'const foo = new SyntaxError()',
+		outdent`
+			const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;
+			throw new Error(errorMessage)
+		`,
+		'throw new Error([])',
+		'throw new Error([foo])',
+		'throw new Error([0][0])',
+		'throw new Error({})',
+		'throw new Error({foo})',
+		'throw new Error({foo: 0}.foo)',
+		'throw new Error(lineNumber=2)',
+		'const error = new RangeError;'
 	]
 });
-
-test.snapshot([
-	'throw new Error()',
-	'throw Error()',
-	'throw new Error(\'\')',
-	'throw new Error(``)',
-	outdent`
-		const err = new Error();
-		throw err;
-	`,
-	outdent`
-		let err = 1;
-		err = new Error();
-		throw err;
-	`,
-	outdent`
-		let err = new Error();
-		err = 1;
-		throw err;
-	`,
-	'const foo = new TypeError()',
-	'const foo = new SyntaxError()',
-	outdent`
-		const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;
-		throw new Error(errorMessage)
-	`,
-	'throw new Error([])',
-	'throw new Error([foo])',
-	'throw new Error([0][0])',
-	'throw new Error({})',
-	'throw new Error({foo})',
-	'throw new Error({foo: 0}.foo)',
-	'throw new Error(lineNumber=2)',
-	'const error = new RangeError;'
-]);

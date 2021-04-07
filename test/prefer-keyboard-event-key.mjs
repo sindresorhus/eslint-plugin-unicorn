@@ -799,18 +799,21 @@ test({
 	]
 });
 
-test.snapshot([
-	outdent`
-		window.addEventListener('click', ({which, another}) => {
-			if (which === 23) {
-				console.log('Wrong!')
-			}
-		})
-	`,
-	outdent`
-		foo123.addEventListener('click', event => {
-			if (event.keyCode === 27) {
-			}
-		});
-	`
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
+			window.addEventListener('click', ({which, another}) => {
+				if (which === 23) {
+					console.log('Wrong!')
+				}
+			})
+		`,
+		outdent`
+			foo123.addEventListener('click', event => {
+				if (event.keyCode === 27) {
+				}
+			});
+		`
+	]
+});

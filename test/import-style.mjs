@@ -620,16 +620,19 @@ test.babel({
 	].map(test => addDefaultOptions(test))
 });
 
-test.snapshot([
-	'import util from \'util\'',
-	'import * as util from \'util\'',
-	'const util = require(\'util\')',
-	'require(\'util\')',
-	'import {red} from \'chalk\'',
-	'import {red as green} from \'chalk\'',
-	outdent`
-		async () => {
-			const {red} = await import('chalk');
-		}
-	`
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		'import util from \'util\'',
+		'import * as util from \'util\'',
+		'const util = require(\'util\')',
+		'require(\'util\')',
+		'import {red} from \'chalk\'',
+		'import {red as green} from \'chalk\'',
+		outdent`
+			async () => {
+				const {red} = await import('chalk');
+			}
+		`
+	]
+});
