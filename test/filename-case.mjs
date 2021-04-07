@@ -528,6 +528,16 @@ test({
 					ignore: [/^foo/, /^bar/]
 				}
 			]
+		),
+		// #1136
+		testManyCases(
+			'src/foo/1_.js',
+			{
+				camelCase: true,
+				pascalCase: true,
+				kebabCase: true
+			},
+			'Filename is not in camel case, pascal case, or kebab case. Rename it to `1.js`.'
 		)
 	]
 });
