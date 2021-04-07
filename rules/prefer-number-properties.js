@@ -33,16 +33,16 @@ const propertiesSelector = [
 	':matches([name="NaN"],[name="Infinity"])',
 	`:not(${
 		[
-			'MemberExpression[computed=false] > Identifier.property',
-			'FunctionDeclaration > Identifier.id',
-			'ClassDeclaration > Identifier.id',
-			'ClassProperty[computed=false] > Identifier.key',
-			'MethodDefinition[computed=false] > Identifier.key',
-			'VariableDeclarator > Identifier.id',
-			'Property[shorthand=false][computed=false] > Identifier.key',
-			'TSDeclareFunction > Identifier.id',
-			'TSEnumMember > Identifier.id',
-			'TSPropertySignature > Identifier.key'
+			'MemberExpression[computed=false] > .property',
+			'FunctionDeclaration > .id',
+			'ClassDeclaration > .id',
+			'ClassProperty[computed=false] > .key',
+			'MethodDefinition[computed=false] > .key',
+			'VariableDeclarator > .id',
+			'Property[shorthand=false][computed=false] > .key',
+			'TSDeclareFunction > .id',
+			'TSEnumMember > .id',
+			'TSPropertySignature > .key'
 		].join(', ')
 	})`
 ].join('');
