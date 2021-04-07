@@ -64,7 +64,11 @@ test({
 		'const foo = [].concat(...bar["map"]((i) => i));',
 		// Not `map`
 		'const foo = [].concat(...bar.notMap((i) => i));',
-		'const foo = [].concat(...[[4,5],6].flat());'
+		'const foo = [].concat(...[[4,5],6].flat());',
+
+		// Allowed
+		'Children.map(children, fn).flat()', // `import {Children} from 'react';`
+		'React.Children.map(children, fn).flat()'
 	],
 	invalid: [
 		{
