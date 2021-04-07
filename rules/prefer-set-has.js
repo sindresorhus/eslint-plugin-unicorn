@@ -189,7 +189,7 @@ const create = context => {
 			};
 
 			if (node.typeAnnotation) {
-				context.suggest = [
+				problem.suggest = [
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
 						data: {
