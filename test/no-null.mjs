@@ -222,3 +222,16 @@ test({
 		invalidTestCase('Object.create(...[null])')
 	]
 });
+
+// #1146
+test({
+	testerOptions: {
+		parserOptions: {
+			ecmaVersion: 2019
+		}
+	},
+	valid: [
+		'foo = Object.create(null)'
+	],
+	invalid: []
+});
