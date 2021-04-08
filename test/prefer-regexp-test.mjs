@@ -133,6 +133,7 @@ test.snapshot({
 		'if (/a/y.exec(foo));',
 		'if (/a/gy.exec(foo));',
 		'if (/a/yi.exec(foo));',
+		'if (new RegExp("a", "g").exec(foo));',
 		'if (new RegExp("a", "y").exec(foo));',
 		outdent`
 			const regex = /weird/g;
