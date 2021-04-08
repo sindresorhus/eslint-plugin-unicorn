@@ -66,6 +66,21 @@ const cases = [
 	}
 ];
 
+const isRegExpNode = node => {
+	if (node.type === 'Literal' && node.regex) {
+		return true;
+	}
+
+	if (
+		node.type === 'NewExpression' &&
+		node.callee.type === 'Identifier' &&
+		node.callee.name === 'RegExp'
+	) {
+		return true;
+	}
+
+	return false;
+};
 
 function getProblem(node, checkCase, context) {
 	if (!isBooleanNode(node)) {
@@ -80,16 +95,19 @@ function getProblem(node, checkCase, context) {
 		messageId: type
 	};
 
-	if (regexpNode.type === 'Literal') {
-		if (!regexpNode.regex) {
+	if (regexpNode.type === 'Literal' && !regexpNode.regex) {
 			return;
-		}
-	} else {
+	}
+
+	if (!isRegExpNode(regexpNode)) {
 		const staticResult = getStaticValue(regexpNode, context.getScope());
 		if (staticResult) {
 			const {value} = staticResult;
-
-			if (Object.prototype.toString.call(value) !== '[object RegExp]') {
+			if (
+				Object.prototype.toString.call(value) !== '[object RegExp]' ||
+				value.flags.includes('g') ||
+				value.flags.includes('y')
+			) {
 				return problem;
 			}
 		}
