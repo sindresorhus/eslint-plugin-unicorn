@@ -38,7 +38,7 @@ function getParentheses(node, sourceCode) {
 }
 
 /*
-Get parenthesized range token of node.
+Get parenthesized range of node.
 
 @param {Node} node - The node to be checked.
 @param {SourceCode} sourceCode - The source code object.
