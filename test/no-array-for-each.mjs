@@ -453,7 +453,7 @@ test.typescript({
 		// https://github.com/microsoft/fluentui/blob/20f3d664a36c93174dc32786a9d465dd343dabe5/apps/todo-app/src/DataProvider.ts#L157
 		{
 			code: 'this._listeners.forEach((listener: () => void) => listener());',
-			output: 'for (const listener: () => void of this._listeners)  listener();',
+			output: 'this._listeners.forEach((listener: () => void) => listener());',
 			errors: 1
 		},
 		// https://github.com/angular/angular/blob/4e8198d60f421ce120e3a6b57afe60a9332d2692/packages/animations/browser/src/render/transition_animation_engine.ts#L1636
