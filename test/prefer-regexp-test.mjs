@@ -139,6 +139,10 @@ test.snapshot({
 			if (foo.match(regex));
 		`,
 		outdent`
+			const regex = /weird/g;
+			if (regex.exec(foo));
+		`,
+		outdent`
 			const regex = /weird/y;
 			if (regex.exec(foo));
 		`,

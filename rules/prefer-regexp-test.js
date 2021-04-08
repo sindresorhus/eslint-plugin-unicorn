@@ -106,8 +106,7 @@ function getProblem(node, checkCase, context) {
 			const {value} = staticResult;
 			if (
 				Object.prototype.toString.call(value) !== '[object RegExp]' ||
-				value.flags.includes('g') ||
-				value.flags.includes('y')
+				value.flags.includes('g')
 			) {
 				return problem;
 			}
