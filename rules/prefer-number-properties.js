@@ -40,9 +40,19 @@ const propertiesSelector = [
 			'MethodDefinition[computed=false] > .key',
 			'VariableDeclarator > .id',
 			'Property[shorthand=false][computed=false] > .key',
+			'LabeledStatement > .label',
+			'ContinueStatement > .label',
+			'BreakStatement > .label',
+			'ExportSpecifier > .local',
+			'ExportSpecifier > .exported',
+			'ExportAllDeclaration > .exported',
+			'ImportSpecifier > .local',
+			'ImportSpecifier > .imported',
+			'ImportNamespaceSpecifier > .local',
+			'ImportDefaultSpecifier > .local',
 			'TSDeclareFunction > .id',
 			'TSEnumMember > .id',
-			'TSPropertySignature > .key'
+			'TSPropertySignature > .key',
 		].join(', ')
 	})`
 ].join('');
