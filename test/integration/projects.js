@@ -59,7 +59,6 @@ module.exports = [
 			'tests/**'
 		]
 	},
-	'https://github.com/facebook/react',
 	{
 		repository: 'https://github.com/angular/angular',
 		ignore: [
@@ -94,7 +93,13 @@ module.exports = [
 	'https://github.com/sindresorhus/capture-website',
 	'https://github.com/sindresorhus/file-type',
 	'https://github.com/sindresorhus/slugify',
-	'https://github.com/gatsbyjs/gatsby',
+	{
+		repository: 'https://github.com/gatsbyjs/gatsby',
+		ignore: [
+			// These files use `flow`
+			'**/*.js'
+		]
+	},
 	{
 		repository: 'https://github.com/puppeteer/puppeteer',
 		ignore: [
@@ -123,7 +128,6 @@ module.exports = [
 		]
 	},
 	'https://github.com/ReactTraining/react-router',
-	'https://github.com/facebook/relay',
 	'https://github.com/mozilla/pdf.js',
 	// #912
 	{

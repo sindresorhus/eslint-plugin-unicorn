@@ -9,16 +9,27 @@ const enableAllRules = Object.fromEntries(
 
 module.exports = {
 	root: true,
-	parser: 'babel-eslint',
+	parser: '@babel/eslint-parser',
 	parserOptions: {
 		ecmaVersion: 2021,
 		ecmaFeatures: {
 			jsx: true
+		},
+		requireConfigFile: false,
+		babelOptions: {
+			babelrc: false,
+			configFile: false,
+			parserOpts: {
+				plugins: [
+					'jsx',
+					'classProperties',
+					'doExpressions',
+					'exportDefaultFrom'
+				]
+			}
 		}
 	},
-	plugins: [
-		'unicorn'
-	],
+	plugins: ['unicorn'],
 	extends: 'plugin:unicorn/recommended',
 	rules: {
 		...enableAllRules,
