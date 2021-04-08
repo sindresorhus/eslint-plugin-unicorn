@@ -187,6 +187,22 @@ test({
 		'function NaN() {}',
 		'class NaN {}',
 		'class Foo {NaN(){}}',
+		outdent`
+			NaN: for (const foo of bar) {
+				if (a) {
+					continue NaN;
+				} else {
+					break NaN;
+				}
+			}
+		`,
+		'import {NaN} from "foo"',
+		'import {NaN as NaN} from "foo"',
+		'import NaN from "foo"',
+		'import * as NaN from "foo"',
+		'export {NaN} from "foo"',
+		'export {NaN as NaN} from "foo"',
+		'export * as NaN from "foo"',
 
 		'const foo = Number.POSITIVE_INFINITY;',
 		'const foo = window.Number.POSITIVE_INFINITY;',
