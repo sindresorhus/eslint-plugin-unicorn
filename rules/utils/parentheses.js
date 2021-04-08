@@ -2,7 +2,7 @@
 const {isParenthesized, isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
 
 /*
-Get how many times node is parenthesized.
+Get how many times the node is parenthesized.
 
 @param {Node} node - The node to be checked.
 @param {SourceCode} sourceCode - The source code object.
@@ -18,7 +18,7 @@ function getParenthesizedTimes(node, sourceCode) {
 }
 
 /*
-Get all parentheses token around node.
+Get all parentheses tokens around the node.
 
 @param {Node} node - The node to be checked.
 @param {SourceCode} sourceCode - The source code object.
@@ -38,7 +38,7 @@ function getParentheses(node, sourceCode) {
 }
 
 /*
-Get parenthesized range of node.
+Get the parenthesized range of the node.
 
 @param {Node} node - The node to be checked.
 @param {SourceCode} sourceCode - The source code object.
