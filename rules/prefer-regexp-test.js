@@ -1,5 +1,6 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
+const {fromPairs} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const {isBooleanNode} = require('./utils/boolean');
@@ -37,7 +38,7 @@ const cases = [
 			methodNode: node.callee.property,
 			regexpNode: node.arguments[0]
 		}),
-		* fix (fixer, {stringNode, methodNode, regexpNode}, sourceCode) {
+		* fix(fixer, {stringNode, methodNode, regexpNode}, sourceCode) {
 			yield fixer.replaceText(methodNode, 'test');
 
 			let stringText = sourceCode.getText(stringNode);
@@ -89,14 +90,14 @@ function getProblem(node, checkCase, context) {
 
 	const {type, getNodes, fix} = checkCase;
 	const nodes = getNodes(node);
-	const {stringNode, methodNode, regexpNode} = nodes;
+	const {methodNode, regexpNode} = nodes;
 	const problem = {
 		node: type === REGEXP_EXEC ? methodNode : node,
 		messageId: type
 	};
 
 	if (regexpNode.type === 'Literal' && !regexpNode.regex) {
-			return;
+		return;
 	}
 
 	if (!isRegExpNode(regexpNode)) {
@@ -113,14 +114,14 @@ function getProblem(node, checkCase, context) {
 		}
 	}
 
-	problem.fix = (fixer) => fix(fixer, nodes, context.getSourceCode());
+	problem.fix = fixer => fix(fixer, nodes, context.getSourceCode());
 	return problem;
 }
 
-const create = context => Object.fromEntries(
+const create = context => fromPairs(
 	cases.map(checkCase => [
 		checkCase.selector,
-		(node) => {
+		node => {
 			const problem = getProblem(node, checkCase, context);
 			if (problem) {
 				context.report(problem);
