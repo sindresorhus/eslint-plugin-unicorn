@@ -11,7 +11,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression');
-const getParenthesizedTimes = require('./utils/get-parenthesized-times');
+const {getParentheses} = require('./utils/parentheses');
 const extendFixRange = require('./utils/extend-fix-range');
 const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside');
 const {isNodeMatches} = require('./utils/is-node-matches');
@@ -155,18 +155,12 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 	};
 
 	function * removeCallbackParentheses(fixer) {
-		const parenthesizedTimes = getParenthesizedTimes(callback, sourceCode);
-		if (parenthesizedTimes > 0) {
-			// Opening parenthesis tokens already included in `getForOfLoopHeadRange`
+		// Opening parenthesis tokens already included in `getForOfLoopHeadRange`
+		const closingParenthesisTokens = getParentheses(callback, sourceCode)
+			.filter(token => isClosingParenToken(token));
 
-			const closingParenthesisTokens = sourceCode.getTokensAfter(
-				callback,
-				{count: parenthesizedTimes, filter: isClosingParenToken}
-			);
-
-			for (const closingParenthesisToken of closingParenthesisTokens) {
-				yield fixer.remove(closingParenthesisToken);
-			}
+		for (const closingParenthesisToken of closingParenthesisTokens) {
+			yield fixer.remove(closingParenthesisToken);
 		}
 	}
 
