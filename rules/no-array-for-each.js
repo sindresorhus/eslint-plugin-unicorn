@@ -327,13 +327,11 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 	const parameters = callback.params;
 	if (
 		!(parameters.length === 1 || parameters.length === 2) ||
-		parameters.some(parameter => !isParameterSafeToFix(parameter, {scope, array: callExpression, allIdentifiers}))
+		parameters.some(parameter =>
+			parameter.typeAnnotation ||
+			!isParameterSafeToFix(parameter, {scope, array: callExpression, allIdentifiers})
+		)
 	) {
-		return false;
-	}
-
-	// `foo.forEach((element: Type, index: number) => bar())`, should fix to `for (const [index, element]: [number, Type] of …`, not handled
-	if (parameters.length === 2 && parameters.some(node => node.typeAnnotation)) {
 		return false;
 	}
 
