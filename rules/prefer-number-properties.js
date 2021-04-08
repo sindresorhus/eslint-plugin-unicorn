@@ -54,7 +54,7 @@ const propertiesSelector = [
 			'ImportDefaultSpecifier > .local',
 			'TSDeclareFunction > .id',
 			'TSEnumMember > .id',
-			'TSPropertySignature > .key',
+			'TSPropertySignature > .key'
 		].join(', ')
 	})`
 ].join('');
