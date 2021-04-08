@@ -122,6 +122,34 @@ test.snapshot({
 			const regex = new RegExp('[.!?]\\s*$');
 			if (foo.match(regex)) {}
 		`,
-		'if (foo.match(unknown)) {}'
+		'if (foo.match(unknown)) {}',
+		// `g` and `y` flags
+		'if (foo.match(/a/g));',
+		'if (foo.match(/a/y));',
+		'if (foo.match(/a/gy));',
+		'if (foo.match(/a/ig));',
+		'if (foo.match(new RegExp("a", "g")));',
+		'if (/a/g.exec(foo));',
+		'if (/a/y.exec(foo));',
+		'if (/a/gy.exec(foo));',
+		'if (/a/yi.exec(foo));',
+		'if (new RegExp("a", "g").exec(foo));',
+		'if (new RegExp("a", "y").exec(foo));',
+		outdent`
+			const regex = /weird/g;
+			if (foo.match(regex));
+		`,
+		outdent`
+			const regex = /weird/g;
+			if (regex.exec(foo));
+		`,
+		outdent`
+			const regex = /weird/y;
+			if (regex.exec(foo));
+		`,
+		outdent`
+			const regex = /weird/gyi;
+			if (regex.exec(foo));
+		`
 	]
 });
