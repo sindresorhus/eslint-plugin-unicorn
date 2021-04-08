@@ -4,9 +4,9 @@ const {camelCase, kebabCase, snakeCase, upperFirst} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
 
+const MESSAGE_ID = 'filename-case';
 const messages = {
-	renameToCase: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.',
-	renameToCases: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.'
+	[MESSAGE_ID]: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.'
 };
 
 const pascalCase = string => upperFirst(camelCase(string));
@@ -16,7 +16,7 @@ const PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
 const isIgnoredChar = char => !/^[a-z\d-_$]$/i.test(char);
 const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue']);
 
-function ignoreNumbers(fn) {
+function ignoreNumbers(caseFunction) {
 	return string => {
 		const stack = [];
 		let execResult = numberRegex.exec(string);
@@ -27,7 +27,7 @@ function ignoreNumbers(fn) {
 			execResult = numberRegex.exec(string);
 		}
 
-		let withCase = fn(string);
+		let withCase = caseFunction(string);
 
 		while (stack.length > 0) {
 			withCase = withCase.replace(PLACEHOLDER_REGEX, stack.shift());
@@ -80,12 +80,12 @@ function getChosenCases(options) {
 function validateFilename(words, caseFunctions) {
 	return words
 		.filter(({ignored}) => !ignored)
-		.every(({word}) => caseFunctions.some(fn => fn(word) === word));
+		.every(({word}) => caseFunctions.some(caseFunction => caseFunction(word) === word));
 }
 
 function fixFilename(words, caseFunctions, {leading, extension}) {
 	const replacements = words
-		.map(({word, ignored}) => ignored ? [word] : caseFunctions.map(fn => fn(word)));
+		.map(({word, ignored}) => ignored ? [word] : caseFunctions.map(caseFunction => caseFunction(word)));
 
 	const {
 		samples: combinations
@@ -181,7 +181,7 @@ const create = context => {
 
 			context.report({
 				node,
-				messageId: chosenCases.length > 1 ? 'renameToCases' : 'renameToCase',
+				messageId: MESSAGE_ID,
 				data: {
 					chosenCases: englishishJoinWords(chosenCases.map(x => cases[x].name)),
 					renamedFilenames: englishishJoinWords(renamedFilenames.map(x => `\`${x}\``))
