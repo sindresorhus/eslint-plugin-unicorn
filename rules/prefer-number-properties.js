@@ -35,7 +35,9 @@ const propertiesSelector = [
 		[
 			'MemberExpression[computed=false] > .property',
 			'FunctionDeclaration > .id',
+			'FunctionExpression > .id',
 			'ClassDeclaration > .id',
+			'ClassExpression > .id',
 			// TODO: remove `ClassProperty` when `babel` and `typescript` support `PropertyDefinition`
 			'ClassProperty[computed=false] > .key',
 			'PropertyDefinition[computed=false] > .key',

@@ -188,6 +188,7 @@ test({
 		'const {[a]: NaN} = {};',
 		'const [NaN] = [];',
 		'function NaN() {}',
+		'const foo = function NaN() {}',
 		'function foo(NaN) {}',
 		'foo = function (NaN) {}',
 		'foo = (NaN) => {}',
@@ -196,6 +197,7 @@ test({
 		'function foo({[a]: NaN}) {}',
 		'function foo([NaN]) {}',
 		'class NaN {}',
+		'const Foo = class NaN {}',
 		'class Foo {NaN(){}}',
 		outdent`
 			NaN: for (const foo of bar) {
