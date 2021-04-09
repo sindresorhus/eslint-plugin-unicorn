@@ -184,7 +184,17 @@ test({
 			}
 		`,
 		'const {NaN} = {};',
+		'const {a: NaN} = {};',
+		'const {[a]: NaN} = {};',
+		'const [NaN] = [];',
 		'function NaN() {}',
+		'function foo(NaN) {}',
+		'foo = function (NaN) {}',
+		'foo = (NaN) => {}',
+		'function foo({NaN}) {}',
+		'function foo({a: NaN}) {}',
+		'function foo({[a]: NaN}) {}',
+		'function foo([NaN]) {}',
 		'class NaN {}',
 		'class Foo {NaN(){}}',
 		outdent`
@@ -358,6 +368,13 @@ test.snapshot({
 		'const foo = 1 - Infinity;',
 		'const foo = 1 - -Infinity;',
 		'const isPositiveZero = value => value === 0 && 1 / value === Infinity;',
-		'const isNegativeZero = value => value === 0 && 1 / value === -Infinity;'
+		'const isNegativeZero = value => value === 0 && 1 / value === -Infinity;',
+
+		'const {a = NaN} = {};',
+		'const {[NaN]: a = NaN} = {};',
+		'const [a = NaN] = [];',
+		'function foo({a = NaN}) {}',
+		'function foo({[NaN]: a = NaN}) {}',
+		'function foo([a = NaN]) {}'
 	]
 });
