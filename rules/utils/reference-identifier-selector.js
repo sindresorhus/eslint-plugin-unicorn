@@ -71,6 +71,7 @@ function referenceIdentifierSelector(nameOrNames) {
 		`:not(${nonReferenceSelector})`
 	];
 
+	/* istanbul ignore else: no rule use single name yet */
 	if (Array.isArray(nameOrNames)) {
 		selector.push(`:matches(${nameOrNames.map(name => `[name="${name}"]`).join(', ')})`);
 	} else {
