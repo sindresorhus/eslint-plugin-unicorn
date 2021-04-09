@@ -36,7 +36,7 @@ Type: `object`
 
 Type: `string[]`
 
-Ignore objects.
+Ignore objects, `stream`, `this`, `this.stream` are ignored by default.
 
 Example:
 
