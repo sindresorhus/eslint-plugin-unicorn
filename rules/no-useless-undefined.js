@@ -1,7 +1,6 @@
 'use strict';
 const {isCommaToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {getParentheses} = require('./utils/parentheses');
 const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before');
 
 const messageId = 'no-useless-undefined';
@@ -115,24 +114,7 @@ const create = context => {
 		),
 		[yieldSelector]: listener(removeNodeAndLeadingSpace),
 		[arrowFunctionSelector]: listener(
-			function * (node, fixer) {
-				const parentheses = getParentheses(node, sourceCode);
-				if (parentheses.length === 0) {
-					yield fixer.replaceText(node, '{}');
-					return;
-				}
-
-				yield fixer.remove(node);
-				for (const [index, token] of parentheses.entries()) {
-					if (index === 0) {
-						yield fixer.replaceText(token, '{');
-					} else if (index === parentheses.length - 1) {
-						yield fixer.replaceText(token, '}');
-					} else {
-						yield fixer.remove(token);
-					}
-				}
-			},
+			(node, fixer) => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, sourceCode),
 			/* CheckFunctionReturnType */ true
 		),
 		[variableInitSelector]: listener(
