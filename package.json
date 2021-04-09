@@ -124,7 +124,7 @@
 		"rules": {
 			"strict": "error",
 			"node/no-unsupported-features/node-builtins": [
-				"off",
+				"error",
 				{
 					"ignores": [
 						"module.createRequire"

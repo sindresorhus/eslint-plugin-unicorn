@@ -3,7 +3,7 @@ const {isParenthesized, getStaticValue, isCommaToken, hasSideEffect} = require('
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
-const getParentheses = require('./utils/get-parentheses');
+const {getParenthesizedRange} = require('./utils/parentheses');
 const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument');
 const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before');
 const removeSpacesAfter = require('./utils/remove-spaces-after');
@@ -67,14 +67,6 @@ const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
 	}
 
 	return isCommaToken(sourceCode.getLastToken(node, 1));
-};
-
-const getParenthesizedRange = (node, sourceCode) => {
-	const [firstToken = node, lastToken = node] = getParentheses(node, sourceCode);
-
-	const [start] = firstToken.range;
-	const [, end] = lastToken.range;
-	return [start, end];
 };
 
 const getRangeAfterCalleeObject = (node, sourceCode) => {

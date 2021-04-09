@@ -184,9 +184,37 @@ test({
 			}
 		`,
 		'const {NaN} = {};',
+		'const {a: NaN} = {};',
+		'const {[a]: NaN} = {};',
+		'const [NaN] = [];',
 		'function NaN() {}',
+		'const foo = function NaN() {}',
+		'function foo(NaN) {}',
+		'foo = function (NaN) {}',
+		'foo = (NaN) => {}',
+		'function foo({NaN}) {}',
+		'function foo({a: NaN}) {}',
+		'function foo({[a]: NaN}) {}',
+		'function foo([NaN]) {}',
 		'class NaN {}',
+		'const Foo = class NaN {}',
 		'class Foo {NaN(){}}',
+		outdent`
+			NaN: for (const foo of bar) {
+				if (a) {
+					continue NaN;
+				} else {
+					break NaN;
+				}
+			}
+		`,
+		'import {NaN} from "foo"',
+		'import {NaN as NaN} from "foo"',
+		'import NaN from "foo"',
+		'import * as NaN from "foo"',
+		'export {NaN} from "foo"',
+		'export {NaN as NaN} from "foo"',
+		'export * as NaN from "foo"',
 
 		'const foo = Number.POSITIVE_INFINITY;',
 		'const foo = window.Number.POSITIVE_INFINITY;',
@@ -342,6 +370,13 @@ test.snapshot({
 		'const foo = 1 - Infinity;',
 		'const foo = 1 - -Infinity;',
 		'const isPositiveZero = value => value === 0 && 1 / value === Infinity;',
-		'const isNegativeZero = value => value === 0 && 1 / value === -Infinity;'
+		'const isNegativeZero = value => value === 0 && 1 / value === -Infinity;',
+
+		'const {a = NaN} = {};',
+		'const {[NaN]: a = NaN} = {};',
+		'const [a = NaN] = [];',
+		'function foo({a = NaN}) {}',
+		'function foo({[NaN]: a = NaN}) {}',
+		'function foo([a = NaN]) {}'
 	]
 });

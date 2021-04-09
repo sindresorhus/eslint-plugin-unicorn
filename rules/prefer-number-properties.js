@@ -2,6 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isShadowed = require('./utils/is-shadowed');
 const renameIdentifier = require('./utils/rename-identifier');
+const referenceIdentifierSelector = require('./utils/reference-identifier-selector');
 
 const METHOD_ERROR_MESSAGE_ID = 'method-error';
 const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
@@ -28,24 +29,7 @@ const methodsSelector = [
 	`:matches(${Object.keys(methods).map(name => `[name="${name}"]`).join(', ')})`
 ].join('');
 
-const propertiesSelector = [
-	'Identifier',
-	':matches([name="NaN"],[name="Infinity"])',
-	`:not(${
-		[
-			'MemberExpression[computed=false] > .property',
-			'FunctionDeclaration > .id',
-			'ClassDeclaration > .id',
-			'ClassProperty[computed=false] > .key',
-			'MethodDefinition[computed=false] > .key',
-			'VariableDeclarator > .id',
-			'Property[shorthand=false][computed=false] > .key',
-			'TSDeclareFunction > .id',
-			'TSEnumMember > .id',
-			'TSPropertySignature > .key'
-		].join(', ')
-	})`
-].join('');
+const propertiesSelector = referenceIdentifierSelector(['NaN', 'Infinity']);
 
 const isNegative = node => {
 	const {parent} = node;
