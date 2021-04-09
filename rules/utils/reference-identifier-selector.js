@@ -59,7 +59,7 @@ const nonReferenceSelector = [
 	// `import Identifier from 'foo'`
 	'ImportDefaultSpecifier > .local',
 
-	// Typescript
+	// TypeScript
 	'TSDeclareFunction > .id',
 	'TSEnumMember > .id',
 	'TSPropertySignature > .key'
