@@ -16,6 +16,7 @@ const extendFixRange = require('./utils/extend-fix-range');
 const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside');
 const {isNodeMatches} = require('./utils/is-node-matches');
 const assertToken = require('./utils/assert-token');
+const referenceIdentifierSelector = require('./utils/reference-identifier-selector');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
@@ -240,31 +241,6 @@ function isParameterSafeToFix(parameter, {scope, array, allIdentifiers}) {
 			continue;
 		}
 
-		if (
-			(
-				(
-					parent.type === 'FunctionExpression' ||
-					parent.type === 'ClassExpression' ||
-					parent.type === 'FunctionDeclaration' ||
-					parent.type === 'ClassDeclaration'
-				) &&
-				parent.id === identifier
-			) ||
-			(
-				parent.type === 'MemberExpression' &&
-				!parent.computed &&
-				parent.property === identifier
-			) ||
-			(
-				parent.type === 'Property' &&
-				!parent.shorthand &&
-				!parent.computed &&
-				parent.key === identifier
-			)
-		) {
-			continue;
-		}
-
 		const variable = findVariable(scope, identifier);
 		if (!variable || variable.scope === scope || isChildScope(scope, variable.scope)) {
 			return false;
@@ -366,7 +342,7 @@ const create = context => {
 		':function:exit'() {
 			functionStack.pop();
 		},
-		Identifier(node) {
+		[referenceIdentifierSelector()](node) {
 			allIdentifiers.push(node);
 		},
 		ReturnStatement(node) {
