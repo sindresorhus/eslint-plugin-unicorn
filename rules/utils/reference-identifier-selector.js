@@ -18,7 +18,7 @@ const nonReferenceSelector = [
 	// `class Foo {Identifier() {}}`
 	'MethodDefinition[computed=false] > .key',
 	// `const Identifier = 1`
-	'VariableDeclarator > .id',,
+	'VariableDeclarator > .id',
 	// `const foo = {Identifier: 1}`
 	'ObjectExpression > Property[shorthand=false][computed=false].properties > .key',
 	// `const {Identifier} = {}`
@@ -77,7 +77,7 @@ function referenceIdentifierSelector(nameOrNames) {
 		selector.push(`[name="${nameOrNames}"]`);
 	}
 
-	return selector.join('')
+	return selector.join('');
 }
 
 module.exports = referenceIdentifierSelector;
