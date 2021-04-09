@@ -1,21 +1,11 @@
 'use strict';
-const {isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
-const getParenthesizedTimes = require('./get-parenthesized-times');
+const {getParentheses} = require('./parentheses');
 
 function * replaceNodeOrTokenAndSpacesBefore(nodeOrToken, replacement, fixer, sourceCode) {
-	const parenthesizedTimes = getParenthesizedTimes(nodeOrToken, sourceCode);
+	const tokens = getParentheses(nodeOrToken, sourceCode);
 
-	if (parenthesizedTimes > 0) {
-		let lastBefore = nodeOrToken;
-		let lastAfter = nodeOrToken;
-		for (let index = 0; index < parenthesizedTimes; index++) {
-			const openingParenthesisToken = sourceCode.getTokenBefore(lastBefore, isOpeningParenToken);
-			const closingParenthesisToken = sourceCode.getTokenAfter(lastAfter, isClosingParenToken);
-			yield * replaceNodeOrTokenAndSpacesBefore(openingParenthesisToken, '', fixer, sourceCode);
-			yield * replaceNodeOrTokenAndSpacesBefore(closingParenthesisToken, '', fixer, sourceCode);
-			lastBefore = openingParenthesisToken;
-			lastAfter = closingParenthesisToken;
-		}
+	for (const token of tokens) {
+		yield * replaceNodeOrTokenAndSpacesBefore(token, '', fixer, sourceCode);
 	}
 
 	let [start, end] = nodeOrToken.range;

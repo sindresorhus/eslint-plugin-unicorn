@@ -81,13 +81,16 @@ test({
 	]
 });
 
-test.snapshot([
-	'foo.trimLeft()',
-	outdent`
-		foo
-			// comment
-			.trimRight/* comment */(
-				/* comment */
-			)
-	`
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		'foo.trimLeft()',
+		outdent`
+			foo
+				// comment
+				.trimRight/* comment */(
+					/* comment */
+				)
+		`
+	]
+});

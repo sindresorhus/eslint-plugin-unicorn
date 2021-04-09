@@ -56,10 +56,8 @@ class SnapshotRuleTester {
 		const linter = new Linter();
 		linter.defineRule(ruleId, rule);
 
-		tests = Array.isArray(tests) ? {valid: [], invalid: tests} : tests;
-
 		for (const [index, testCase] of tests.valid.entries()) {
-			const {code, options} = typeof testCase === 'string' ? {code: testCase} : testCase;
+			const {code, options, filename} = typeof testCase === 'string' ? {code: testCase} : testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, options);
 
 			test(
@@ -68,23 +66,22 @@ class SnapshotRuleTester {
 					${indentCode(printCode(code))}
 				`,
 				t => {
-					const messages = linter.verify(code, verifyConfig);
+					const messages = linter.verify(code, verifyConfig, {filename});
 					t.deepEqual(messages, [], 'Valid case should not has errors.');
 				}
 			);
 		}
 
 		for (const [index, testCase] of tests.invalid.entries()) {
-			const {code, options} = typeof testCase === 'string' ? {code: testCase} : testCase;
+			const {code, options, filename} = typeof testCase === 'string' ? {code: testCase} : testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, options);
-
 			test(
 				outdent`
 					Invalid #${index + 1}
 					${indentCode(printCode(code))}
 				`,
 				t => {
-					const messages = linter.verify(code, verifyConfig);
+					const messages = linter.verify(code, verifyConfig, {filename});
 					t.notDeepEqual(messages, [], 'Invalid case should has at least one error.');
 
 					const fatalError = messages.find(({fatal}) => fatal);
@@ -92,7 +89,7 @@ class SnapshotRuleTester {
 						throw fatalError;
 					}
 
-					const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig) : {fixed: false};
+					const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig, {filename}) : {fixed: false};
 
 					if (Array.isArray(options)) {
 						t.snapshot(`\n${JSON.stringify(options, undefined, 2)}\n`, 'Options');

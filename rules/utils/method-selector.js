@@ -1,18 +1,25 @@
 'use strict';
 
-module.exports = options => {
+function methodSelector(options) {
 	const {
 		name,
 		names,
 		length,
 		object,
+		objects,
 		min,
 		max,
-		property = '',
-		includeOptional = false
+		property,
+		includeOptionalCall,
+		includeOptionalMember,
+		allowSpreadElement
 	} = {
 		min: 0,
 		max: Number.POSITIVE_INFINITY,
+		includeOptionalCall: false,
+		includeOptionalMember: false,
+		allowSpreadElement: false,
+		property: '',
 		...options
 	};
 
@@ -21,11 +28,16 @@ module.exports = options => {
 	const selector = [
 		`[${prefix}type="CallExpression"]`,
 		`[${prefix}callee.type="MemberExpression"]`,
-		`[${prefix}callee.property.type="Identifier"]`
+		`[${prefix}callee.property.type="Identifier"]`,
+		`[${prefix}callee.computed=false]`
 	];
 
-	if (!includeOptional) {
-		selector.push(`[${prefix}callee.computed=false]`);
+	if (!includeOptionalCall) {
+		selector.push(`[${prefix}optional!=true]`);
+	}
+
+	if (!includeOptionalMember) {
+		selector.push(`[${prefix}callee.optional!=true]`);
 	}
 
 	if (name) {
@@ -47,6 +59,15 @@ module.exports = options => {
 		);
 	}
 
+	if (Array.isArray(objects) && objects.length > 0) {
+		selector.push(
+			`[${prefix}callee.object.type="Identifier"]`,
+			':matches(' +
+			objects.map(object => `[${prefix}callee.object.name="${object}"]`).join(', ') +
+			')'
+		);
+	}
+
 	if (typeof length === 'number') {
 		selector.push(`[${prefix}arguments.length=${length}]`);
 	}
@@ -59,13 +80,17 @@ module.exports = options => {
 		selector.push(`[${prefix}arguments.length<=${max}]`);
 	}
 
-	const maxArguments = Number.isFinite(max) ? max : length;
-	if (typeof maxArguments === 'number') {
-		// Exclude arguments with `SpreadElement` type
-		for (let index = 0; index < maxArguments; index += 1) {
-			selector.push(`[${prefix}arguments.${index}.type!="SpreadElement"]`);
+	if (!allowSpreadElement) {
+		const maxArguments = Number.isFinite(max) ? max : length;
+		if (typeof maxArguments === 'number') {
+			// Exclude arguments with `SpreadElement` type
+			for (let index = 0; index < maxArguments; index += 1) {
+				selector.push(`[${prefix}arguments.${index}.type!="SpreadElement"]`);
+			}
 		}
 	}
 
 	return selector.join('');
-};
+}
+
+module.exports = methodSelector;

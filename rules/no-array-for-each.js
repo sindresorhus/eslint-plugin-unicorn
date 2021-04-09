@@ -11,10 +11,10 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression');
-const getParenthesizedTimes = require('./utils/get-parenthesized-times');
+const {getParentheses} = require('./utils/parentheses');
 const extendFixRange = require('./utils/extend-fix-range');
 const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside');
-const isNodeMatches = require('./utils/is-node-matches');
+const {isNodeMatches} = require('./utils/is-node-matches');
 const assertToken = require('./utils/assert-token');
 
 const MESSAGE_ID = 'no-array-for-each';
@@ -24,7 +24,8 @@ const messages = {
 
 const arrayForEachCallSelector = methodSelector({
 	name: 'forEach',
-	includeOptional: true
+	includeOptionalCall: true,
+	includeOptionalMember: true
 });
 
 const continueAbleNodeTypes = new Set([
@@ -49,15 +50,16 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 	const [callback] = callExpression.arguments;
 	const parameters = callback.params;
 	const array = callExpression.callee.object;
-	const {returnStatements} = functionInfo.get(callback);
+	const {returnStatements, scope} = functionInfo.get(callback);
 
 	const getForOfLoopHeadText = () => {
 		const [elementText, indexText] = parameters.map(parameter => sourceCode.getText(parameter));
 		const useEntries = parameters.length === 2;
 
-		let text = 'for (const ';
+		let text = 'for (';
+		text += parameters.some(parameter => isParameterReassigned(parameter, scope)) ? 'let' : 'const';
+		text += ' ';
 		text += useEntries ? `[${indexText}, ${elementText}]` : elementText;
-
 		text += ' of ';
 
 		let arrayText = sourceCode.getText(array);
@@ -82,6 +84,9 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		if (callback.body.type === 'BlockStatement') {
 			end = callback.body.range[0];
 		} else {
+			// In this case, parentheses are not included in body location, so we look for `=>` token
+			// foo.forEach(bar => ({bar}))
+			//                     ^
 			const arrowToken = sourceCode.getTokenBefore(callback.body, isArrowToken);
 			end = arrowToken.range[1];
 		}
@@ -150,36 +155,45 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 	};
 
 	function * removeCallbackParentheses(fixer) {
-		const parenthesizedTimes = getParenthesizedTimes(callback, sourceCode);
-		if (parenthesizedTimes > 0) {
-			// Opening parenthesis tokens already included in `getForOfLoopHeadRange`
+		// Opening parenthesis tokens already included in `getForOfLoopHeadRange`
+		const closingParenthesisTokens = getParentheses(callback, sourceCode)
+			.filter(token => isClosingParenToken(token));
 
-			const closingParenthesisTokens = sourceCode.getTokensAfter(
-				callback,
-				{count: parenthesizedTimes, filter: isClosingParenToken}
-			);
-
-			for (const closingParenthesisToken of closingParenthesisTokens) {
-				yield fixer.remove(closingParenthesisToken);
-			}
+		for (const closingParenthesisToken of closingParenthesisTokens) {
+			yield fixer.remove(closingParenthesisToken);
 		}
 	}
 
 	return function * (fixer) {
+		// Replace these with `for (const … of …) `
+		// foo.forEach(bar =>    bar)
+		// ^^^^^^^^^^^^^^^^^^ (space after `=>` didn't included)
+		// foo.forEach(bar =>    {})
+		// ^^^^^^^^^^^^^^^^^^^^^^
+		// foo.forEach(function(bar)    {})
+		// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 		yield fixer.replaceTextRange(getForOfLoopHeadRange(), getForOfLoopHeadText());
 
+		// Parenthesized callback function
+		// foo.forEach( ((bar => {})) )
+		//                         ^^
 		yield * removeCallbackParentheses(fixer);
 
-		// Remove call expression trailing comma
 		const [
 			penultimateToken,
 			lastToken
 		] = sourceCode.getLastTokens(callExpression, 2);
 
+		// The possible trailing comma token of `Array#forEach()` CallExpression
+		// foo.forEach(bar => {},)
+		//                      ^
 		if (isCommaToken(penultimateToken)) {
 			yield fixer.remove(penultimateToken);
 		}
 
+		// The closing parenthesis token of `Array#forEach()` CallExpression
+		// foo.forEach(bar => {})
+		//                      ^
 		yield fixer.remove(lastToken);
 
 		for (const returnStatement of returnStatements) {
@@ -187,11 +201,14 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		}
 
 		const expressionStatementLastToken = sourceCode.getLastToken(callExpression.parent);
+		// Remove semicolon if it's not needed anymore
+		// foo.forEach(bar => {});
+		//                       ^
 		if (shouldRemoveExpressionStatementLastToken(expressionStatementLastToken)) {
 			yield fixer.remove(expressionStatementLastToken, fixer);
 		}
 
-		// Prevent possible conflicts
+		// Prevent possible variable conflicts
 		yield * extendFixRange(fixer, callExpression.parent.range);
 	};
 }
@@ -257,6 +274,17 @@ function isParameterSafeToFix(parameter, {scope, array, allIdentifiers}) {
 	return true;
 }
 
+function isParameterReassigned(parameter, scope) {
+	const variable = findVariable(scope, parameter);
+	const {references} = variable;
+	return references.some(reference => {
+		const node = reference.identifier;
+		const {parent} = node;
+		return parent.type === 'UpdateExpression' ||
+			(parent.type === 'AssignmentExpression' && parent.left === node);
+	});
+}
+
 function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifiers}) {
 	// Check `CallExpression`
 	if (
@@ -293,13 +321,11 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 	const parameters = callback.params;
 	if (
 		!(parameters.length === 1 || parameters.length === 2) ||
-		parameters.some(parameter => !isParameterSafeToFix(parameter, {scope, array: callExpression, allIdentifiers}))
+		parameters.some(parameter =>
+			parameter.typeAnnotation ||
+			!isParameterSafeToFix(parameter, {scope, array: callExpression, allIdentifiers})
+		)
 	) {
-		return false;
-	}
-
-	// `foo.forEach((element: Type, index: number) => bar())`, should fix to `for (const [index, element]: [number, Type] of …`, not handled
-	if (parameters.length === 2 && parameters.some(node => node.typeAnnotation)) {
 		return false;
 	}
 

@@ -3,7 +3,7 @@ const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const {notFunctionSelector} = require('./utils/not-function');
-const isNodeMatches = require('./utils/is-node-matches');
+const {isNodeMatches} = require('./utils/is-node-matches');
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';

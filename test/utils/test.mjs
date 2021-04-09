@@ -45,7 +45,15 @@ class Tester {
 		testerOptions.parserOptions = testerOptions.parserOptions || {};
 		testerOptions.parserOptions.babelOptions = testerOptions.parserOptions.babelOptions || {};
 		testerOptions.parserOptions.babelOptions.parserOpts = testerOptions.parserOptions.babelOptions.parserOpts || {};
-		testerOptions.parserOptions.babelOptions.parserOpts.plugins = testerOptions.parserOptions.babelOptions.parserOpts.plugins || [];
+		let babelPlugins = testerOptions.parserOptions.babelOptions.parserOpts.plugins || [];
+		babelPlugins = [
+			// `estree` plugin must be the first plugin
+			// see https://github.com/babel/babel/pull/12891/files#diff-290770df6e6f19b4a301103852c99ec45f2c838d539160cbff7d85042f8dc080R40
+			['estree', {classFeatures: true}],
+			'jsx',
+			'classProperties',
+			...babelPlugins
+		];
 
 		return this.runTest({
 			...tests,
@@ -62,11 +70,7 @@ class Tester {
 						...testerOptions.parserOptions.babelOptions,
 						parserOpts: {
 							...testerOptions.parserOptions.babelOptions.parserOpts,
-							plugins: [
-								'jsx',
-								'classProperties',
-								...testerOptions.parserOptions.babelOptions.parserOpts.plugins
-							]
+							plugins: babelPlugins
 						}
 					}
 				}
