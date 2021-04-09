@@ -2,6 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isShadowed = require('./utils/is-shadowed');
 const renameIdentifier = require('./utils/rename-identifier');
+const referenceIdentifierSelector = require('./utils/reference-identifier-selector');
 
 const METHOD_ERROR_MESSAGE_ID = 'method-error';
 const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
@@ -28,42 +29,7 @@ const methodsSelector = [
 	`:matches(${Object.keys(methods).map(name => `[name="${name}"]`).join(', ')})`
 ].join('');
 
-const propertiesSelector = [
-	'Identifier',
-	':matches([name="NaN"],[name="Infinity"])',
-	`:not(${
-		[
-			'MemberExpression[computed=false] > .property',
-			'FunctionDeclaration > .id',
-			'FunctionExpression > .id',
-			'ClassDeclaration > .id',
-			'ClassExpression > .id',
-			// TODO: remove `ClassProperty` when `babel` and `typescript` support `PropertyDefinition`
-			'ClassProperty[computed=false] > .key',
-			'PropertyDefinition[computed=false] > .key',
-			'MethodDefinition[computed=false] > .key',
-			'VariableDeclarator > .id',
-			'ObjectExpression > Property[shorthand=false][computed=false].properties > .key',
-			'ObjectPattern > Property[computed=false].properties > .key',
-			'ObjectPattern > Property.properties > .value',
-			'ArrayPattern > .elements',
-			':function > .params',
-			'LabeledStatement > .label',
-			'ContinueStatement > .label',
-			'BreakStatement > .label',
-			'ExportSpecifier > .local',
-			'ExportSpecifier > .exported',
-			'ExportAllDeclaration > .exported',
-			'ImportSpecifier > .local',
-			'ImportSpecifier > .imported',
-			'ImportNamespaceSpecifier > .local',
-			'ImportDefaultSpecifier > .local',
-			'TSDeclareFunction > .id',
-			'TSEnumMember > .id',
-			'TSPropertySignature > .key'
-		].join(', ')
-	})`
-].join('');
+const propertiesSelector = referenceIdentifierSelector(['NaN', 'Infinity']);
 
 const isNegative = node => {
 	const {parent} = node;
