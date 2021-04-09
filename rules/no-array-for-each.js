@@ -232,7 +232,7 @@ function isParameterSafeToFix(parameter, {scope, array, allIdentifiers}) {
 
 	const [arrayStart, arrayEnd] = array.range;
 	for (const identifier of allIdentifiers) {
-		const {name, range: [start, end], parent} = identifier;
+		const {name, range: [start, end]} = identifier;
 		if (
 			name !== parameterName ||
 			start < arrayStart ||
