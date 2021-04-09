@@ -4,6 +4,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const getCallExpressionArgumentsText = require('./utils/get-call-expression-arguments-text');
 const isSameReference = require('./utils/is-same-reference');
+const {isNodeMatches} = require('./utils/is-node-matches');
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -42,16 +43,25 @@ function getFirstExpression(node, sourceCode) {
 }
 
 function create(context) {
+	const {ignore} = {
+		ignore: [],
+		...context.options[0]
+	};
+	const ignoredObjects = ['stream', 'this', 'this.stream', ...ignore];
 	const sourceCode = context.getSourceCode();
 
 	return {
 		[selector](secondExpression) {
+			const secondCall = secondExpression.expression;
+			const secondCallArray = secondCall.callee.object;
+
+			if (isNodeMatches(secondCallArray, ignoredObjects)) {
+				return;
+			}
+
 			const firstExpression = getFirstExpression(secondExpression, sourceCode);
 			const firstCall = firstExpression.expression;
-			const secondCall = secondExpression.expression;
-
 			const firstCallArray = firstCall.callee.object;
-			const secondCallArray = secondCall.callee.object;
 
 			// Not same array
 			if (!isSameReference(firstCallArray, secondCallArray)) {
@@ -100,6 +110,19 @@ function create(context) {
 	};
 }
 
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			ignore: {
+				type: 'array',
+				uniqueItems: true
+			}
+		},
+		additionalProperties: false
+	}
+];
+
 module.exports = {
 	create,
 	meta: {
@@ -108,6 +131,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages
+		messages,
+		schema
 	}
 };
