@@ -16,6 +16,7 @@ const extendFixRange = require('./utils/extend-fix-range');
 const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside');
 const {isNodeMatches} = require('./utils/is-node-matches');
 const assertToken = require('./utils/assert-token');
+const referenceIdentifierSelector = require('./utils/reference-identifier-selector');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
@@ -231,36 +232,11 @@ function isParameterSafeToFix(parameter, {scope, array, allIdentifiers}) {
 
 	const [arrayStart, arrayEnd] = array.range;
 	for (const identifier of allIdentifiers) {
-		const {name, range: [start, end], parent} = identifier;
+		const {name, range: [start, end]} = identifier;
 		if (
 			name !== parameterName ||
 			start < arrayStart ||
 			end > arrayEnd
-		) {
-			continue;
-		}
-
-		if (
-			(
-				(
-					parent.type === 'FunctionExpression' ||
-					parent.type === 'ClassExpression' ||
-					parent.type === 'FunctionDeclaration' ||
-					parent.type === 'ClassDeclaration'
-				) &&
-				parent.id === identifier
-			) ||
-			(
-				parent.type === 'MemberExpression' &&
-				!parent.computed &&
-				parent.property === identifier
-			) ||
-			(
-				parent.type === 'Property' &&
-				!parent.shorthand &&
-				!parent.computed &&
-				parent.key === identifier
-			)
 		) {
 			continue;
 		}
@@ -366,7 +342,7 @@ const create = context => {
 		':function:exit'() {
 			functionStack.pop();
 		},
-		Identifier(node) {
+		[referenceIdentifierSelector()](node) {
 			allIdentifiers.push(node);
 		},
 		ReturnStatement(node) {

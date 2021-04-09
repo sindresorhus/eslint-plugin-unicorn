@@ -71,11 +71,13 @@ function referenceIdentifierSelector(nameOrNames) {
 		`:not(${nonReferenceSelector})`
 	];
 
-	/* istanbul ignore else: no rule use single name yet */
-	if (Array.isArray(nameOrNames)) {
-		selector.push(`:matches(${nameOrNames.map(name => `[name="${name}"]`).join(', ')})`);
-	} else {
-		selector.push(`[name="${nameOrNames}"]`);
+	if (nameOrNames) {
+		/* istanbul ignore else: no rule use single name yet */
+		if (Array.isArray(nameOrNames)) {
+			selector.push(`:matches(${nameOrNames.map(name => `[name="${name}"]`).join(', ')})`);
+		} else {
+			selector.push(`[name="${nameOrNames}"]`);
+		}
 	}
 
 	return selector.join('');
