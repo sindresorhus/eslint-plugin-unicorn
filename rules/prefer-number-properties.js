@@ -36,9 +36,9 @@ const propertiesSelector = [
 			'MemberExpression[computed=false] > .property',
 			'FunctionDeclaration > .id',
 			'ClassDeclaration > .id',
-			// TODO: remove `ClassProperty` when `babel` and `typescript` support `FieldDefinition`
+			// TODO: remove `ClassProperty` when `babel` and `typescript` support `PropertyDefinition`
 			'ClassProperty[computed=false] > .key',
-			'FieldDefinition[computed=false] > .key',
+			'PropertyDefinition[computed=false] > .key',
 			'MethodDefinition[computed=false] > .key',
 			'VariableDeclarator > .id',
 			'Property[shorthand=false][computed=false] > .key',
