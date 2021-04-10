@@ -689,7 +689,8 @@ const create = context => {
 			}
 
 			problem.fix = function * (fixer) {
-				for (const identifier of getVariableIdentifiers(variable)) {
+				const identifiers = getVariableIdentifiers(variable);
+				for (const identifier of identifiers) {
 					yield renameIdentifier(identifier, replacement, fixer, sourceCode);
 				}
 			};
