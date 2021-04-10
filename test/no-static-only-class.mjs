@@ -175,6 +175,12 @@ test.typescript({
 				static b = this.a;
 			}
 		`),
+		// `this` in `key` should fixable
+		{
+			code: 'class A {static [this.a] = 1}',
+			output: 'const A = {[this.a] : 1,};',
+			errors: 1
+		},
 		// This case should be fixable, but we simply check code of value includes `this`
 		noFixingCase(outdent`
 			class A {
