@@ -29,7 +29,9 @@ module.exports = {
 			}
 		}
 	},
-	plugins: ['unicorn'],
+	plugins: [
+		'unicorn'
+	],
 	extends: 'plugin:unicorn/recommended',
 	rules: {
 		...enableAllRules,
