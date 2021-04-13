@@ -504,6 +504,28 @@ runTest.babel({
 				}
 			`,
 			errors: [invalidNameError('ValidationError')]
+		},
+		// `computed`
+		{
+			code: outdent`
+				const name = 'computed-name';
+				class FooError extends Error {
+					[name] = 'FooError';
+					constructor(message) {
+						super(message);
+					}
+				}
+			`,
+			output: outdent`
+				const name = 'computed-name';
+				class FooError extends Error {
+					[name] = 'FooError';
+					constructor(message) {
+						super(message);
+					}
+				}
+			`,
+			errors: [invalidNameError('FooError')]
 		}
 	]
 });

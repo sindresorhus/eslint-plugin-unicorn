@@ -98,7 +98,10 @@ test({
 	]
 });
 
-test.snapshot([
-	'const foo = 1.0',
-	'const foo = (1.).toString()'
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const foo = 1.0',
+		'const foo = (1.).toString()'
+	]
+});

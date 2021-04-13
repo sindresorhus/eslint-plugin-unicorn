@@ -66,20 +66,23 @@ test.typescript({
 	invalid: []
 });
 
-test.snapshot([
-	'const foo = i > 5 ? i < 100 ? true : false : i < 100 ? true : false;',
-	'const foo = i > 5 ? true : (i < 100 ? true : (i < 1000 ? true : false));',
-	outdent`
-		const foo = a ?
-			b :
-			(
-				c ?
-					d :
-					(
-						e ?
-							f :
-							(g ? h : i)
-					)
-			)
-	`
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const foo = i > 5 ? i < 100 ? true : false : i < 100 ? true : false;',
+		'const foo = i > 5 ? true : (i < 100 ? true : (i < 1000 ? true : false));',
+		outdent`
+			const foo = a ?
+				b :
+				(
+					c ?
+						d :
+						(
+							e ?
+								f :
+								(g ? h : i)
+						)
+				)
+		`
+	]
+});

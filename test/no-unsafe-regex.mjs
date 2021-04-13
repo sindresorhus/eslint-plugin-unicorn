@@ -44,6 +44,9 @@ test({
 	]
 });
 
-test.snapshot([
-	'const foo = /(x+x+)+y/g'
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const foo = /(x+x+)+y/g'
+	]
+});

@@ -2,6 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isMethodNamed = require('./utils/is-method-named');
 const isLiteralValue = require('./utils/is-literal-value');
+const {isNodeMatches} = require('./utils/is-node-matches');
 
 const MESSAGE_ID_FLATMAP = 'flat-map';
 const MESSAGE_ID_SPREAD = 'spread';
@@ -147,13 +148,15 @@ const create = context => ({
 			return;
 		}
 
-		const parent = node.callee.object;
-
-		if (!isMethodNamed(parent, 'map')) {
+		const calleeObject = node.callee.object;
+		if (
+			!isMethodNamed(calleeObject, 'map') ||
+			isNodeMatches(calleeObject.callee.object, ['React.Children', 'Children'])
+		) {
 			return;
 		}
 
-		reportFlatMap(context, node, parent);
+		reportFlatMap(context, node, calleeObject);
 	},
 	[SELECTOR_SPREAD]: node => {
 		context.report({

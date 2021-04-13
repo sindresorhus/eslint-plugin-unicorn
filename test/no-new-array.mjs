@@ -125,26 +125,29 @@ test({
 	]
 });
 
-test.snapshot([
-	'const array = new Array(1)',
-	// This is actually `[]`, but we fix to `Array.from({length: zero})`
-	outdent`
-		const zero = 0;
-		const array = new Array(zero);
-	`,
-	// Use shorthand
-	outdent`
-		const length = 1;
-		const array = new Array(length);
-	`,
-	'const array = new Array(1.5)',
-	'const array = new Array(Number("1"))',
-	'const array = new Array("1")',
-	'const array = new Array(null)',
-	'const array = new Array(("1"))',
-	'const array = new Array((0, 1))',
-	outdent`
-		const foo = []
-		new Array("bar").forEach(baz)
-	`
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const array = new Array(1)',
+		// This is actually `[]`, but we fix to `Array.from({length: zero})`
+		outdent`
+			const zero = 0;
+			const array = new Array(zero);
+		`,
+		// Use shorthand
+		outdent`
+			const length = 1;
+			const array = new Array(length);
+		`,
+		'const array = new Array(1.5)',
+		'const array = new Array(Number("1"))',
+		'const array = new Array("1")',
+		'const array = new Array(null)',
+		'const array = new Array(("1"))',
+		'const array = new Array((0, 1))',
+		outdent`
+			const foo = []
+			new Array("bar").forEach(baz)
+		`
+	]
+});

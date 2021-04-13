@@ -78,13 +78,15 @@ module.exports = [
 			'build/**'
 		]
 	},
-	{
-		repository: 'https://github.com/microsoft/vscode',
-		ignore: [
-			// This file use `'\033'`
-			'build/**'
-		]
-	},
+	// This repo use `override` keyword which is not avaiable before TS4.3, temporary disable
+	// https://github.com/microsoft/vscode/pull/120690/files
+	// {
+	// 	repository: 'https://github.com/microsoft/vscode',
+	// 	ignore: [
+	// 		// This file use `'\033'`
+	// 		'build/**'
+	// 	]
+	// },
 	'https://github.com/ElemeFE/element',
 	'https://github.com/iview/iview',
 	'https://github.com/sindresorhus/create-dmg',

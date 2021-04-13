@@ -23,9 +23,14 @@ const isDeclarationOfExportDefaultDeclaration = node =>
 	node.parent.type === 'ExportDefaultDeclaration' &&
 	node.parent.declaration === node;
 
+// https://github.com/estree/estree/blob/master/stage3/class-features.md#propertydefinition
+const isPropertyDefinition = node => node.type === 'PropertyDefinition' ||
+	// Legacy node type
+	node.type === 'ClassProperty';
+const isMethodDefinition = node => node.type === 'MethodDefinition';
+
 function isStaticMember(node) {
 	const {
-		type,
 		private: isPrivate,
 		static: isStatic,
 		declare: isDeclare,
@@ -37,7 +42,7 @@ function isStaticMember(node) {
 
 	// Avoid matching unexpected node. For example: https://github.com/tc39/proposal-class-static-block
 	/* istanbul ignore next */
-	if (type !== 'ClassProperty' && type !== 'MethodDefinition') {
+	if (!isPropertyDefinition(node) && !isMethodDefinition(node)) {
 		return false;
 	}
 
@@ -60,8 +65,6 @@ function isStaticMember(node) {
 }
 
 function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
-	const {type} = node;
-
 	const staticToken = sourceCode.getFirstToken(node);
 	assertToken(staticToken, {
 		expected: [
@@ -75,12 +78,12 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 	yield fixer.remove(staticToken);
 	yield removeSpacesAfter(staticToken, sourceCode, fixer);
 
-	const maybeSemicolonToken = type === 'ClassProperty' ?
+	const maybeSemicolonToken = isPropertyDefinition(node) ?
 		sourceCode.getLastToken(node) :
 		sourceCode.getTokenAfter(node);
 	const hasSemicolonToken = isSemicolonToken(maybeSemicolonToken);
 
-	if (type === 'ClassProperty') {
+	if (isPropertyDefinition(node)) {
 		const {key, value} = node;
 
 		if (value) {
@@ -132,11 +135,11 @@ function switchClassToObject(node, sourceCode) {
 
 	for (const node of body.body) {
 		if (
-			node.type === 'ClassProperty' &&
+			isPropertyDefinition(node) &&
 			(
 				node.typeAnnotation ||
-				// This is a stupid way to check if `value` of `ClassProperty` uses `this`
-				(node.value && sourceCode.getText(node).includes('this'))
+				// This is a stupid way to check if `value` of `PropertyDefinition` uses `this`
+				(node.value && sourceCode.getText(node.value).includes('this'))
 			)
 		) {
 			return;

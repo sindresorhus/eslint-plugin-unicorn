@@ -11,11 +11,12 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression');
-const getParenthesizedTimes = require('./utils/get-parenthesized-times');
+const {getParentheses} = require('./utils/parentheses');
 const extendFixRange = require('./utils/extend-fix-range');
 const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside');
 const {isNodeMatches} = require('./utils/is-node-matches');
 const assertToken = require('./utils/assert-token');
+const referenceIdentifierSelector = require('./utils/reference-identifier-selector');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
@@ -155,18 +156,12 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 	};
 
 	function * removeCallbackParentheses(fixer) {
-		const parenthesizedTimes = getParenthesizedTimes(callback, sourceCode);
-		if (parenthesizedTimes > 0) {
-			// Opening parenthesis tokens already included in `getForOfLoopHeadRange`
+		// Opening parenthesis tokens already included in `getForOfLoopHeadRange`
+		const closingParenthesisTokens = getParentheses(callback, sourceCode)
+			.filter(token => isClosingParenToken(token));
 
-			const closingParenthesisTokens = sourceCode.getTokensAfter(
-				callback,
-				{count: parenthesizedTimes, filter: isClosingParenToken}
-			);
-
-			for (const closingParenthesisToken of closingParenthesisTokens) {
-				yield fixer.remove(closingParenthesisToken);
-			}
+		for (const closingParenthesisToken of closingParenthesisTokens) {
+			yield fixer.remove(closingParenthesisToken);
 		}
 	}
 
@@ -237,36 +232,11 @@ function isParameterSafeToFix(parameter, {scope, array, allIdentifiers}) {
 
 	const [arrayStart, arrayEnd] = array.range;
 	for (const identifier of allIdentifiers) {
-		const {name, range: [start, end], parent} = identifier;
+		const {name, range: [start, end]} = identifier;
 		if (
 			name !== parameterName ||
 			start < arrayStart ||
 			end > arrayEnd
-		) {
-			continue;
-		}
-
-		if (
-			(
-				(
-					parent.type === 'FunctionExpression' ||
-					parent.type === 'ClassExpression' ||
-					parent.type === 'FunctionDeclaration' ||
-					parent.type === 'ClassDeclaration'
-				) &&
-				parent.id === identifier
-			) ||
-			(
-				parent.type === 'MemberExpression' &&
-				!parent.computed &&
-				parent.property === identifier
-			) ||
-			(
-				parent.type === 'Property' &&
-				!parent.shorthand &&
-				!parent.computed &&
-				parent.key === identifier
-			)
 		) {
 			continue;
 		}
@@ -327,13 +297,11 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 	const parameters = callback.params;
 	if (
 		!(parameters.length === 1 || parameters.length === 2) ||
-		parameters.some(parameter => !isParameterSafeToFix(parameter, {scope, array: callExpression, allIdentifiers}))
+		parameters.some(parameter =>
+			parameter.typeAnnotation ||
+			!isParameterSafeToFix(parameter, {scope, array: callExpression, allIdentifiers})
+		)
 	) {
-		return false;
-	}
-
-	// `foo.forEach((element: Type, index: number) => bar())`, should fix to `for (const [index, element]: [number, Type] of …`, not handled
-	if (parameters.length === 2 && parameters.some(node => node.typeAnnotation)) {
 		return false;
 	}
 
@@ -374,7 +342,7 @@ const create = context => {
 		':function:exit'() {
 			functionStack.pop();
 		},
-		Identifier(node) {
+		[referenceIdentifierSelector()](node) {
 			allIdentifiers.push(node);
 		},
 		ReturnStatement(node) {

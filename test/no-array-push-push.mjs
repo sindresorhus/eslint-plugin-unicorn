@@ -48,7 +48,42 @@ test.snapshot({
 		outdent`
 			foo().bar.push(1);
 			foo().bar.push(2);
-		`
+		`,
+		// Ignored
+		outdent`
+			const stream = new Readable();
+			stream.push('one string');
+			stream.push('another string');
+		`,
+		outdent`
+			class FooReadable extends Readable {
+				pushAndEnd(chunk) {
+					this.push(chunk);
+					this.push(null);
+				}
+			}
+		`,
+		outdent`
+			class Foo {
+				pushAndEnd(chunk) {
+					this.stream.push(chunk);
+					this.stream.push(null);
+				}
+			}
+		`,
+		{
+			code: outdent`
+				foo.push(1);
+				foo.push(2);
+				foo.bar.push(1);
+				foo.bar.push(2);
+			`,
+			options: [
+				{
+					ignore: ['foo', 'foo.bar']
+				}
+			]
+		}
 	],
 	invalid: [
 		outdent`
@@ -144,7 +179,29 @@ test.snapshot({
 		outdent`
 			foo.bar.push(1);
 			(foo)['bar'].push(2);
-		`
+		`,
+		// Ignored
+		outdent`
+			foo.push(1);
+			foo.push(2);
+			stream.push(1);
+			stream.push(2);
+		`,
+		{
+			code: outdent`
+				foo.bar.push(1);
+				foo.bar.push(2);
+				foo.push(1);
+				foo.push(2);
+				bar.foo.push(1);
+				bar.foo.push(2);
+			`,
+			options: [
+				{
+					ignore: ['foo', 'foo.bar']
+				}
+			]
+		}
 	]
 });
 
@@ -173,8 +230,8 @@ test({
 			code: outdent`
 				class A extends B {
 					foo() {
-						this.push(1);
-						this.push(2);
+						this.x.push(1);
+						this.x.push(2);
 
 						super.x.push(1);
 						super.x.push(2);
@@ -205,7 +262,7 @@ test({
 			output: outdent`
 				class A extends B {
 					foo() {
-						this.push(1, 2);
+						this.x.push(1, 2);
 
 						super.x.push(1, 2);
 

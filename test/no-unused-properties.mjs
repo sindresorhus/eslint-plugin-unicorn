@@ -422,14 +422,17 @@ test.babel({
 	invalid: []
 });
 
-test.snapshot([
-	outdent`
-		function foo() {
-			const bar = {
-				b: 2,
-				u: 3
-			};
-			console.log(bar.b);
-		}
-	`
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
+			function foo() {
+				const bar = {
+					b: 2,
+					u: 3
+				};
+				console.log(bar.b);
+			}
+		`
+	]
+});

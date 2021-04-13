@@ -172,6 +172,9 @@ ruleTester.run('number-literal-case', rule, tests);
 babelRuleTester.run('number-literal-case', rule, tests);
 typescriptRuleTester.run('number-literal-case', rule, tests);
 
-runTest.snapshot([
-	'console.log(BigInt(0B10 + 1.2E+3) + 0XdeEd_Beefn)'
-]);
+runTest.snapshot({
+	valid: [],
+	invalid: [
+		'console.log(BigInt(0B10 + 1.2E+3) + 0XdeEd_Beefn)'
+	]
+});

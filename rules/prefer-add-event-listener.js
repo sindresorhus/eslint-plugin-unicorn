@@ -1,4 +1,5 @@
 'use strict';
+const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const domEventsJson = require('./utils/dom-events.json');
 const {flatten} = require('lodash');
@@ -19,8 +20,16 @@ const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 
 const fixCode = (fixer, sourceCode, assignmentNode, memberExpression) => {
 	const eventTypeName = getEventTypeName(getEventMethodName(memberExpression));
-	const eventObjectCode = sourceCode.getText(memberExpression.object);
-	const fncCode = sourceCode.getText(assignmentNode.right);
+	let eventObjectCode = sourceCode.getText(memberExpression.object);
+	if (isParenthesized(memberExpression.object, sourceCode)) {
+		eventObjectCode = `(${eventObjectCode})`;
+	}
+
+	let fncCode = sourceCode.getText(assignmentNode.right);
+	if (isParenthesized(assignmentNode.right, sourceCode)) {
+		fncCode = `(${fncCode})`;
+	}
+
 	const fixedCodeStatement = `${eventObjectCode}.addEventListener('${eventTypeName}', ${fncCode})`;
 	return fixer.replaceText(assignmentNode, fixedCodeStatement);
 };

@@ -89,7 +89,10 @@ test({
 	]
 });
 
-test.snapshot([
-	'foo.replace(/a/gu, bar)',
-	'foo.replace(/a/ug, bar)'
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		'foo.replace(/a/gu, bar)',
+		'foo.replace(/a/ug, bar)'
+	]
+});

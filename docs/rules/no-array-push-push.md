@@ -27,3 +27,39 @@ foo.push(1);
 bar();
 foo.push(2);
 ```
+
+## Options
+
+Type: `object`
+
+### ignore
+
+Type: `string[]`
+
+Ignore objects, `stream`, `this`, `this.stream` are ignored by default.
+
+Example:
+
+```js
+{
+	'unicorn/no-array-push-push': [
+		'error',
+		{
+			ignore: [
+				'readable',
+				'foo.stream'
+			]
+		}
+	]
+}
+```
+
+```js
+// eslint unicorn/no-array-push-push: ["error", {"ignore": ["readable"]}]
+const {Readable} = require('stream');
+
+const readable = new Readable();
+readable.push('one');
+readable.push('another');
+readable.push(null);
+```

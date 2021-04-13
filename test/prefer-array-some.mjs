@@ -92,17 +92,20 @@ test({
 	]
 });
 
-test.snapshot([
-	'if (array.find(element => element === "🦄")) {}',
-	'const foo = array.find(element => element === "🦄") ? bar : baz;',
-	outdent`
-		if (
-			array
-				.find(element => Array.isArray(element))
-			// ^^^^ This should NOT report
-				.find(x => x === 0)
-			// ^^^^ This should report
-		) {
-		}
-	`
-]);
+test.snapshot({
+	valid: [],
+	invalid: [
+		'if (array.find(element => element === "🦄")) {}',
+		'const foo = array.find(element => element === "🦄") ? bar : baz;',
+		outdent`
+			if (
+				array
+					.find(element => Array.isArray(element))
+				// ^^^^ This should NOT report
+					.find(x => x === 0)
+				// ^^^^ This should report
+			) {
+			}
+		`
+	]
+});
