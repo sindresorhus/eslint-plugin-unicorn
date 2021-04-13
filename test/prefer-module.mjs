@@ -200,6 +200,18 @@ test.snapshot({
 		'const {[foo]: foo} = require("foo");',
 		'const {["foo"]: foo} = require("foo");',
 		'if (foo) require("foo");',
+		'const foo = require`foo`;',
+		outdent`
+			function loadModule() {
+				return require("foo");
+			}
+		`,
+		outdent`
+			function loadModule() {
+				const foo = require("foo");
+				return foo;
+			}
+		`,
 		'const foo = require("foo"), bar = 1;',
 		'const foo = require("foo"), bar = require("bar");'
 	]
@@ -246,6 +258,13 @@ test.snapshot({
 		'module.exports = function() {};',
 		'module.exports.foo = foo || bar;',
 		'exports += foo;',
-		'module.exports &= foo;'
+		'const foo = module.children',
+		'const parentModule = module.parent',
+		outdent`
+			function foo() {
+				exports.foo = foo;
+				module.exports.foo = foo;
+			}
+		`
 	]
 });

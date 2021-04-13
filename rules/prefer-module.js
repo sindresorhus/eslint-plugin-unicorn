@@ -34,6 +34,15 @@ const identifierSelector = referenceIdentifierSelector([
 	'__dirname'
 ]);
 
+function * removeParentheses(nodeOrNodes, fixer, sourceCode) {
+	for (const node of Array.isArray(nodeOrNodes) ? nodeOrNodes : [nodeOrNodes]) {
+		const parentheses = getParentheses(node, sourceCode);
+		for (const token of parentheses) {
+			yield fixer.remove(token);
+		}
+	}
+}
+
 function fixRequireCall(node, sourceCode) {
 	if (!isStaticRequire(node.parent) || node.parent.callee !== node) {
 		return;
@@ -57,14 +66,7 @@ function fixRequireCall(node, sourceCode) {
 			yield fixer.replaceText(openingParenthesisToken, ' ');
 			const closingParenthesisToken = sourceCode.getLastToken(requireCall);
 			yield fixer.remove(closingParenthesisToken);
-
-			// Remove parentheses
-			for (const node of [callee, requireCall, source]) {
-				const parentheses = getParentheses(node, sourceCode);
-				for (const token of parentheses) {
-					yield fixer.remove(token);
-				}
-			}
+			yield* removeParentheses([callee, requireCall, source], fixer, sourceCode);
 		};
 	}
 
@@ -122,12 +124,7 @@ function fixRequireCall(node, sourceCode) {
 			const closingParenthesisToken = sourceCode.getLastToken(requireCall);
 			yield fixer.remove(closingParenthesisToken);
 
-			for (const node of [callee, requireCall, source]) {
-				const parentheses = getParentheses(node, sourceCode);
-				for (const token of parentheses) {
-					yield fixer.remove(token);
-				}
-			}
+			yield* removeParentheses([callee, requireCall, source], fixer, sourceCode);
 
 			if (id.type === 'Identifier') {
 				return;
@@ -183,12 +180,7 @@ function fixDefaultExport(node, sourceCode) {
 		yield fixer.remove(equalToken);
 		yield removeSpacesAfter(equalToken, sourceCode, fixer);
 
-		for (const nodeToRemove of [node.parent, node]) {
-			const parentheses = getParentheses(nodeToRemove, sourceCode);
-			for (const token of parentheses) {
-				yield fixer.remove(token);
-			}
-		}
+		yield* removeParentheses([node.parent, node], fixer, sourceCode);
 	};
 }
 
@@ -199,12 +191,7 @@ function fixNamedExport(node, sourceCode) {
 		const local = assignmentExpression.right.name;
 		yield fixer.replaceText(assignmentExpression, `export {${local} as ${exported}}`);
 
-		for (const node of [assignmentExpression]) {
-			const parentheses = getParentheses(node, sourceCode);
-			for (const token of parentheses) {
-				yield fixer.remove(token);
-			}
-		}
+		yield* removeParentheses(assignmentExpression, fixer, sourceCode);
 	};
 }
 

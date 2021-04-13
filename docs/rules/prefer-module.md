@@ -14,14 +14,23 @@ Prefer use ESM over legacy CommonJS module.
 
 	It's not available in ESM.
 
+	Replacements:
+
+	```js
+	import {fileURLToPath} from 'url';
+	import path from 'path';
+
+	const __filename = fileURLToPath(import.meta.url);
+	const __dirname = path.dirname(fileURLToPath(import.meta.url));
+	```
+
 1. Forbid `require(…)`
 
-	`import …` is preferred in ESM.
+	`require(…)` can be replaced by `import …` or `import(…)`.
 
 1. Forbid `exports` and `module.exports`
 
 	`export …` is preferred in ESM.
-
 
 ## Fail
 
@@ -44,6 +53,10 @@ const file = path.join(__dirname, 'foo.js');
 ```
 
 ```js
+const content = fs.readFileSync(__filename, 'utf8');
+```
+
+```js
 const {fromPairs} = require('lodash');
 ```
 
@@ -56,7 +69,6 @@ exports.foo = foo;
 ```
 
 ## Pass
-
 
 ```js
 function run() {
