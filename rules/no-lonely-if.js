@@ -141,6 +141,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Disallow `if` statements as the only statement in `if` blocks without `else`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

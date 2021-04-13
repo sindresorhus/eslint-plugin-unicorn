@@ -59,6 +59,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
+			description: 'Disallow unsafe regular expressions.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages

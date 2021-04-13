@@ -128,6 +128,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Enforce combining multiple `Array#push()` into one call.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

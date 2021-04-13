@@ -217,6 +217,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer default parameters over reassignment.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

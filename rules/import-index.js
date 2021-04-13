@@ -52,6 +52,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Enforce importing index files with `.`.',
 			url: getDocumentationUrl(__filename)
 		},
 		schema,

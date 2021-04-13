@@ -33,6 +33,7 @@ module.exports = {
 	meta: {
 		type: '<%= type %>',
 		docs: {
+			description: '<%= description %>',
 			url: getDocumentationUrl(__filename)
 		},<% if (isFixable) { %>
 		fixable: '<%= isFixable.type %>',<% } %>

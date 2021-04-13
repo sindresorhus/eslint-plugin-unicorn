@@ -368,6 +368,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
+			description: 'Enforce specific import styles per module.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages,

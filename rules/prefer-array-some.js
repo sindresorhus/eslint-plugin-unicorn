@@ -41,6 +41,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer `.some(…)` over `.find(…)`.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages

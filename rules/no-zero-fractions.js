@@ -58,6 +58,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Disallow number literals with zero fractions or dangling dots.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages,

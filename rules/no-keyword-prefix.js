@@ -196,6 +196,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Disallow identifiers starting with `new` or `class`.',
 			url: getDocumentationUrl(__filename)
 		},
 		schema,

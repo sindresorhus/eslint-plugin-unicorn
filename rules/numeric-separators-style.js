@@ -182,6 +182,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Enforce the style of numeric separators by correctly grouping digits.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

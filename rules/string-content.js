@@ -177,6 +177,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Enforce better string content.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

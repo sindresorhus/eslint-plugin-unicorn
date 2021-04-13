@@ -31,6 +31,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer `.textContent` over `.innerText`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

@@ -67,10 +67,10 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 
 	t.truthy(usageRules, 'List of rules should be defined in readme.md ## Usage and be valid JSON');
 
-	const rulesMatch = /## Rules(?<rulesText>.*?)## Deprecated Rules/ms.exec(readme);
+	const rulesMatch = /<!-- RULES_TABLE_START -->(?<rulesText>.*?)<!-- RULES_TABLE_END -->/ms.exec(readme);
 	t.truthy(rulesMatch, 'List of rules should be defined in readme.md in ## Rules before ## Recommended config');
 	const {rulesText} = rulesMatch.groups;
-	const re = /- \[(?<id>.*?)]\((?<link>.*?)\) - (?<description>.*)\n/gm;
+	const re = /\| \[(?<id>.*?)]\((?<link>.*?)\) \| (?<description>.*) \| (?<recommended>.*?) \| (?<fixable>.*?) \|\n/gm;
 	const rules = [];
 	let match;
 	do {

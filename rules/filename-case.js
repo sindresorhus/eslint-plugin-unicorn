@@ -246,6 +246,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Enforce a case style for filenames.',
 			url: getDocumentationUrl(__filename)
 		},
 		schema,

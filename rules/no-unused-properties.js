@@ -248,6 +248,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Disallow unused object properties.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages

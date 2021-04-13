@@ -47,3 +47,4 @@ jobs:
           node-version: 14
       - run: npm install
       - run: npm run integration
+      - run: npm run generate-rules-table && git diff --exit-code

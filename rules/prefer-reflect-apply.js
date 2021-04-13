@@ -89,6 +89,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer `Reflect.apply()` over `Function#apply()`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

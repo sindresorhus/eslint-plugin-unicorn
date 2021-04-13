@@ -69,6 +69,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Disallow unreadable array destructuring.',
 			url: getDocumentationUrl(__filename)
 		},
 		messages,

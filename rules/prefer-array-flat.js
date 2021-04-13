@@ -265,6 +265,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

@@ -134,6 +134,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Enforce throwing `TypeError` in type checking conditions.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

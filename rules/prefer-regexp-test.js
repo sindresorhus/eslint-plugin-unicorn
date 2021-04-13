@@ -134,6 +134,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

@@ -207,6 +207,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
+			description: 'Enforce correct `Error` subclassing.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

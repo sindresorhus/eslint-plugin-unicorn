@@ -67,6 +67,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

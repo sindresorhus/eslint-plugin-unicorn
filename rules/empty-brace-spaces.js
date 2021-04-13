@@ -43,6 +43,7 @@ module.exports = {
 	meta: {
 		type: 'layout',
 		docs: {
+			description: 'Enforce no spaces between braces.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'whitespace',

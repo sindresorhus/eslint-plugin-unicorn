@@ -69,6 +69,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

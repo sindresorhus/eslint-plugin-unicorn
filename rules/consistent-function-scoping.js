@@ -211,6 +211,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Move function definitions to the highest possible scope.',
 			url: getDocumentationUrl(__filename)
 		},
 		schema,

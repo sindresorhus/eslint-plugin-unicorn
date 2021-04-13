@@ -78,6 +78,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Do not use leading/trailing space between `console.log` parameters.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

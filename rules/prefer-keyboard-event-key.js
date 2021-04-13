@@ -226,6 +226,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

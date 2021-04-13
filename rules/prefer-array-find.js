@@ -308,6 +308,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
+			description: 'Prefer `.find(…)` over the first element from `.filter(…)`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
