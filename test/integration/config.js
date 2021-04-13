@@ -18,7 +18,6 @@ module.exports = {
 		requireConfigFile: false,
 		babelOptions: {
 			babelrc: false,
-			configFile: false,
 			parserOpts: {
 				plugins: [
 					'jsx',
