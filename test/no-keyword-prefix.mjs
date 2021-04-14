@@ -87,7 +87,7 @@ test({
 		},
 		{
 			code: 'const newFoo = "foo"',
-			options: [{keywords: ['old']}]
+			options: [{disallowedPrefixes: ['old']}]
 		},
 		outdent`
 			function Foo() {
@@ -262,7 +262,7 @@ test({
 		},
 		{
 			code: 'const oldFoo = "foo"',
-			options: [{keywords: ['old']}],
+			options: [{disallowedPrefixes: ['old']}],
 			errors: [errorIgnoreList]
 		},
 		{
