@@ -22,15 +22,15 @@ const fooNew = 'foo';
 
 ## Options
 
-### `blacklist`
+### `keywords`
 
-If you want a custom list of forbidden prefixes you can set them with `blacklist`:
+If you want a custom list of forbidden prefixes you can set them with `keywords`:
 
 ```js
-// eslint unicorn/no-keyword-prefix: ["error", {"blacklist": ["new", "for"]}]
+// eslint unicorn/no-keyword-prefix: ["error", {"keywords": ["new", "for"]}]
 const classFoo = "a"; // pass
 
-// eslint unicorn/no-keyword-prefix: ["error", {"blacklist": ["new", "for"]}]
+// eslint unicorn/no-keyword-prefix: ["error", {"keywords": ["new", "for"]}]
 const forFoo = "a"; // fail
 ```
 
