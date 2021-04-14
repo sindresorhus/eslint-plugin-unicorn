@@ -101,18 +101,14 @@ const getBreakTarget = node => {
 
 const isNodeInsideNode = (inner, outer) =>
 	inner.range[0] >= outer.range[0] && inner.range[1] <= outer.range[1];
-function hasBreakInside(breakStatements, nodes) {
+function hasBreakInside(breakStatements, node) {
 	for (const breakStatement of breakStatements) {
-		if (!nodes.some(node => isNodeInsideNode(breakStatement, node))) {
+		if (!isNodeInsideNode(breakStatement, node)) {
 			continue;
 		}
 
 		const breakTarget = getBreakTarget(breakStatement);
-		if (!breakTarget) {
-			return true;
-		}
-
-		if (nodes.some(node => isNodeInsideNode(node, breakTarget))) {
+		if (isNodeInsideNode(node, breakTarget)) {
 			return true;
 		}
 	}
@@ -165,7 +161,6 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 					if (options.breakStatementInDefaultCase) {
 						yield fixer.insertTextAfter(firstStatement, `\n${indent}break;`);
 					}
-
 					break;
 				}
 				// No default
@@ -242,7 +237,7 @@ const create = context => {
 
 				if (
 					!hasSideEffect(discriminant, sourceCode) &&
-					!hasBreakInside(breakStatements, ifStatements.map(({statement}) => statement))
+					!ifStatements.some(({statement}) => hasBreakInside(breakStatements, statement))
 				) {
 					problem.fix = fix({discriminant, ifStatements}, sourceCode, options);
 				}
