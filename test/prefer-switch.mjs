@@ -351,3 +351,23 @@ test.snapshot({
 		}
 	]
 });
+
+test.typescript({
+	valid: [],
+	invalid: [
+		// TypeScript allow `break` here
+		{
+			code: outdent`
+				if (foo === 1) {}
+				else if (foo === 2) {}
+				else if (foo === 3) {break;}
+			`,
+			output: outdent`
+				if (foo === 1) {}
+				else if (foo === 2) {}
+				else if (foo === 3) {break;}
+			`,
+			errors: 1
+		}
+	]
+});

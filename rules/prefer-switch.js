@@ -108,6 +108,11 @@ function hasBreakInside(breakStatements, node) {
 		}
 
 		const breakTarget = getBreakTarget(breakStatement);
+
+		if (!breakTarget) {
+			return true;
+		}
+
 		if (isNodeInsideNode(node, breakTarget)) {
 			return true;
 		}
@@ -161,6 +166,7 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 					if (options.breakStatementInDefaultCase) {
 						yield fixer.insertTextAfter(firstStatement, `\n${indent}break;`);
 					}
+
 					break;
 				}
 				// No default
