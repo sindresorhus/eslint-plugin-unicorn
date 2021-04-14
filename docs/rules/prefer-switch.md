@@ -55,8 +55,8 @@ Type: `object`
 #### `minimumCases`
 
 Type: `integer`\
-Minimum value: `2`\
-Default value: `3`
+Minimum: `2`\
+Default: `3`
 
 The minimum cases to report, the `default` branch doesn't count, multiple comparisons on same `if` block is considered one case.
 
@@ -97,3 +97,22 @@ else if (foo === 2) {}
 
 // Fails
 ```
+
+#### `emptyDefaultCase`
+
+Type: `string`\
+Default: `'no-default-comment'`
+
+- `'no-default-comment'` (default)
+	Insert `// No default` comment after last case.
+- `'do-nothing-comment'`
+	Insert `default` case and add `// Do nothing` comment.
+- `'no-default-case'`
+	Don't insert default case or comment.
+
+#### `breakStatementInDefaultCase`
+
+Type: `boolean`\
+Default: `false`
+
+Set to `true`, to insert `break;` to the default case.

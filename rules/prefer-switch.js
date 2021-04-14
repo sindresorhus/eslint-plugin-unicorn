@@ -137,20 +137,50 @@ function * insertBracesIfNotBlockStatement(node, fixer, indent) {
 	yield fixer.insertTextAfter(node, `\n${indent}}`);
 }
 
-function fix({discriminant, ifStatements}, sourceCode) {
+function * insertBreakStatement(node, fixer, sourceCode, indent) {
+	if (node.type === 'BlockStatement') {
+		const lastToken = sourceCode.getLastToken(node);
+		yield fixer.insertTextBefore(lastToken, `\n${indent}break;\n${indent}`);
+	} else {
+		yield fixer.insertTextAfter(node, `\n${indent}break;`);
+	}
+}
+
+function fix({discriminant, ifStatements}, sourceCode, options) {
 	const discriminantText = sourceCode.getText(discriminant);
 
 	return function * (fixer) {
 		const firstStatement = ifStatements[0].statement;
 		const indent = getIndentString(firstStatement, sourceCode);
 		yield fixer.insertTextBefore(firstStatement, `switch (${discriminantText}) {`);
-		yield fixer.insertTextAfter(firstStatement, `\n${indent}}`);
 
 		const lastStatement = ifStatements[ifStatements.length - 1].statement;
 		if (lastStatement.alternate) {
-			yield fixer.insertTextBefore(lastStatement.alternate, `\n${indent}default: `);
-			yield * insertBracesIfNotBlockStatement(lastStatement.alternate, fixer, indent);
+			const {alternate} = lastStatement;
+			yield fixer.insertTextBefore(alternate, `\n${indent}default: `);
+			if (options.breakStatementInDefaultCase) {
+				yield * insertBreakStatement(alternate, fixer, sourceCode, indent);
+			}
+
+			yield * insertBracesIfNotBlockStatement(alternate, fixer, indent);
+		} else {
+			switch (options.emptyDefaultCase) {
+				case 'no-default-comment':
+					yield fixer.insertTextAfter(firstStatement, `\n${indent}// No default`);
+					break;
+				case 'do-nothing-comment': {
+					yield fixer.insertTextAfter(firstStatement, `\n${indent}default:\n${indent}// Do nothing`);
+					if (options.breakStatementInDefaultCase) {
+						yield fixer.insertTextAfter(firstStatement, `\n${indent}break;`);
+					}
+
+					break;
+				}
+				// No default
+			}
 		}
+
+		yield fixer.insertTextAfter(firstStatement, `\n${indent}}`);
 
 		for (const {statement, compareExpressions} of ifStatements) {
 			const {consequent, alternate, range} = statement;
@@ -169,21 +199,17 @@ function fix({discriminant, ifStatements}, sourceCode) {
 				yield fixer.insertTextBefore(consequent, `\n${indent}case ${text}: `);
 			}
 
-			if (consequent.type === 'BlockStatement') {
-				const lastToken = sourceCode.getLastToken(consequent);
-				yield fixer.insertTextBefore(lastToken, `\n${indent}break;\n${indent}`);
-			} else {
-				yield fixer.insertTextAfter(consequent, `\n${indent}break;`);
-			}
-
+			yield * insertBreakStatement(consequent, fixer, sourceCode, indent);
 			yield * insertBracesIfNotBlockStatement(consequent, fixer, indent);
 		}
 	};
 }
 
 const create = context => {
-	const {minimumCases} = {
+	const options = {
 		minimumCases: 3,
+		emptyDefaultCase: 'no-default-comment',
+		insertBreakInDefaultCase: false,
 		...context.options[0]
 	};
 	const sourceCode = context.getSourceCode();
@@ -206,7 +232,7 @@ const create = context => {
 
 				const {discriminant, ifStatements} = getStatements(node);
 
-				if (!discriminant || ifStatements.length < minimumCases) {
+				if (!discriminant || ifStatements.length < options.minimumCases) {
 					continue;
 				}
 
@@ -226,7 +252,7 @@ const create = context => {
 					!hasSideEffect(discriminant, sourceCode) &&
 					!hasBreakInside(breakStatements, ifStatements.map(({statement}) => statement))
 				) {
-					problem.fix = fix({discriminant, ifStatements}, sourceCode);
+					problem.fix = fix({discriminant, ifStatements}, sourceCode, options);
 				}
 
 				context.report(problem);
@@ -243,6 +269,18 @@ const schema = [
 				type: 'integer',
 				minimum: 2,
 				default: 3
+			},
+			emptyDefaultCase: {
+				enum: [
+					'no-default-comment',
+					'do-nothing-comment',
+					'no-default-case'
+				],
+				default: 'no-default-comment'
+			},
+			breakStatementInDefaultCase: {
+				type: 'boolean',
+				default: false
 			}
 		},
 		additionalProperties: false
