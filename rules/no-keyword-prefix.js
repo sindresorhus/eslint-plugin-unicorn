@@ -8,12 +8,12 @@ const messages = {
 };
 
 const prepareOptions = ({
-	blacklist,
+	disallowedPrefixes,
 	checkProperties = true,
 	onlyCamelCase = true
 } = {}) => {
 	return {
-		blacklist: (blacklist || [
+		disallowedPrefixes: (disallowedPrefixes || [
 			'new',
 			'class'
 		]),
@@ -23,7 +23,7 @@ const prepareOptions = ({
 };
 
 function findKeywordPrefix(name, options) {
-	return options.blacklist.find(keyword => {
+	return options.disallowedPrefixes.find(keyword => {
 		const suffix = options.onlyCamelCase ? '[A-Z]' : '.';
 		const regex = new RegExp(`^${keyword}${suffix}`);
 		return name.match(regex);
@@ -170,7 +170,7 @@ const schema = [
 	{
 		type: 'object',
 		properties: {
-			blacklist: {
+			disallowedPrefixes: {
 				type: 'array',
 				items: [
 					{
