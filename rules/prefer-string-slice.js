@@ -72,34 +72,45 @@ const create = context => {
 
 			let sliceArguments;
 
-			if (argumentNodes.length === 0) {
-				sliceArguments = [];
-			} else if (argumentNodes.length === 1) {
-				sliceArguments = [firstArgument];
-			} else if (argumentNodes.length === 2) {
-				if (firstArgument === '0') {
-					sliceArguments = [firstArgument];
-					if (isLiteralNumber(secondArgument) || isLengthProperty(argumentNodes[1])) {
-						sliceArguments.push(secondArgument);
-					} else if (typeof getNumericValue(argumentNodes[1]) === 'number') {
-						sliceArguments.push(Math.max(0, getNumericValue(argumentNodes[1])));
-					} else {
-						sliceArguments.push(`Math.max(0, ${secondArgument})`);
-					}
-				} else if (
-					isLiteralNumber(argumentNodes[0]) &&
-					isLiteralNumber(argumentNodes[1])
-				) {
-					sliceArguments = [
-						firstArgument,
-						argumentNodes[0].value + argumentNodes[1].value
-					];
-				} else if (
-					isLikelyNumeric(argumentNodes[0]) &&
-					isLikelyNumeric(argumentNodes[1])
-				) {
-					sliceArguments = [firstArgument, firstArgument + ' + ' + secondArgument];
+			switch (argumentNodes.length) {
+				case 0: {
+					sliceArguments = [];
+					break;
 				}
+
+				case 1: {
+					sliceArguments = [firstArgument];
+					break;
+				}
+
+				case 2: {
+					if (firstArgument === '0') {
+						sliceArguments = [firstArgument];
+						if (isLiteralNumber(secondArgument) || isLengthProperty(argumentNodes[1])) {
+							sliceArguments.push(secondArgument);
+						} else if (typeof getNumericValue(argumentNodes[1]) === 'number') {
+							sliceArguments.push(Math.max(0, getNumericValue(argumentNodes[1])));
+						} else {
+							sliceArguments.push(`Math.max(0, ${secondArgument})`);
+						}
+					} else if (
+						isLiteralNumber(argumentNodes[0]) &&
+						isLiteralNumber(argumentNodes[1])
+					) {
+						sliceArguments = [
+							firstArgument,
+							argumentNodes[0].value + argumentNodes[1].value
+						];
+					} else if (
+						isLikelyNumeric(argumentNodes[0]) &&
+					isLikelyNumeric(argumentNodes[1])
+					) {
+						sliceArguments = [firstArgument, firstArgument + ' + ' + secondArgument];
+					}
+
+					break;
+				}
+				// No default
 			}
 
 			if (sliceArguments) {
@@ -129,33 +140,45 @@ const create = context => {
 
 			let sliceArguments;
 
-			if (argumentNodes.length === 0) {
-				sliceArguments = [];
-			} else if (argumentNodes.length === 1) {
-				if (firstNumber !== undefined) {
-					sliceArguments = [Math.max(0, firstNumber)];
-				} else if (isLengthProperty(argumentNodes[0])) {
-					sliceArguments = [firstArgument];
-				} else {
-					sliceArguments = [`Math.max(0, ${firstArgument})`];
+			switch (argumentNodes.length) {
+				case 0: {
+					sliceArguments = [];
+					break;
 				}
-			} else if (argumentNodes.length === 2) {
-				const secondNumber = getNumericValue(argumentNodes[1]);
 
-				if (firstNumber !== undefined && secondNumber !== undefined) {
-					sliceArguments = firstNumber > secondNumber ?
-						[Math.max(0, secondNumber), Math.max(0, firstNumber)] :
-						[Math.max(0, firstNumber), Math.max(0, secondNumber)];
-				} else if (firstNumber === 0 || secondNumber === 0) {
-					sliceArguments = [0, `Math.max(0, ${firstNumber === 0 ? secondArgument : firstArgument})`];
-				} else {
+				case 1: {
+					if (firstNumber !== undefined) {
+						sliceArguments = [Math.max(0, firstNumber)];
+					} else if (isLengthProperty(argumentNodes[0])) {
+						sliceArguments = [firstArgument];
+					} else {
+						sliceArguments = [`Math.max(0, ${firstArgument})`];
+					}
+
+					break;
+				}
+
+				case 2: {
+					const secondNumber = getNumericValue(argumentNodes[1]);
+
+					if (firstNumber !== undefined && secondNumber !== undefined) {
+						sliceArguments = firstNumber > secondNumber ?
+							[Math.max(0, secondNumber), Math.max(0, firstNumber)] :
+							[Math.max(0, firstNumber), Math.max(0, secondNumber)];
+					} else if (firstNumber === 0 || secondNumber === 0) {
+						sliceArguments = [0, `Math.max(0, ${firstNumber === 0 ? secondArgument : firstArgument})`];
+					} else {
 					// As values aren't Literal, we can not know whether secondArgument will become smaller than the first or not, causing an issue:
 					//   .substring(0, 2) and .substring(2, 0) returns the same result
 					//   .slice(0, 2) and .slice(2, 0) doesn't return the same result
 					// There's also an issue with us now knowing whether the value will be negative or not, due to:
 					//   .substring() treats a negative number the same as it treats a zero.
 					// The latter issue could be solved by wrapping all dynamic numbers in Math.max(0, <value>), but the resulting code would not be nice
+					}
+
+					break;
 				}
+				// No default
 			}
 
 			if (sliceArguments) {
