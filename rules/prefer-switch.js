@@ -2,6 +2,7 @@
 const {hasSideEffect} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isSameReference = require('./utils/is-same-reference');
+const getIndentString = require('./utils/get-indent-string');
 
 const MESSAGE_ID = 'prefer-switch';
 const messages = {
@@ -118,15 +119,6 @@ function hasBreakInside(breakStatements, nodes) {
 
 	return false;
 }
-
-// Copied from prefer-ternary.js
-const getIndentString = (node, sourceCode) => {
-	const {line, column} = sourceCode.getLocFromIndex(node.range[0]);
-	const lines = sourceCode.getLines();
-	const before = lines[line - 1].slice(0, column);
-
-	return before.match(/\s*$/)[0];
-};
 
 function * insertBracesIfNotBlockStatement(node, fixer, indent) {
 	if (!node || node.type === 'BlockStatement') {
