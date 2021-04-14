@@ -102,6 +102,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-string-slice": "error",
 			"unicorn/prefer-string-starts-ends-with": "error",
 			"unicorn/prefer-string-trim-start-end": "error",
+			"unicorn/prefer-switch": "error",
 			"unicorn/prefer-ternary": "off",
 			"unicorn/prefer-type-error": "error",
 			"unicorn/prevent-abbreviations": "error",
@@ -192,6 +193,7 @@ Each rule has emojis denoting:
 | [prefer-string-slice](docs/rules/prefer-string-slice.md) | Prefer `String#slice()` over `String#substr()` and `String#substring()`. | ✅ | 🔧 |
 | [prefer-string-starts-ends-with](docs/rules/prefer-string-starts-ends-with.md) | Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`. | ✅ | 🔧 |
 | [prefer-string-trim-start-end](docs/rules/prefer-string-trim-start-end.md) | Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`. | ✅ | 🔧 |
+| [prefer-switch](docs/rules/prefer-switch.md) | Prefer `switch` over multiple `else-if`. | ✅ | 🔧 |
 | [prefer-ternary](docs/rules/prefer-ternary.md) | Prefer ternary expressions over simple `if-else` statements. | ✅ | 🔧 |
 | [prefer-type-error](docs/rules/prefer-type-error.md) | Enforce throwing `TypeError` in type checking conditions. | ✅ | 🔧 |
 | [prevent-abbreviations](docs/rules/prevent-abbreviations.md) | Prevent abbreviations. | ✅ | 🔧 |
