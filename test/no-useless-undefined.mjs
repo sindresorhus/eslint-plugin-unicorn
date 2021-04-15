@@ -367,6 +367,43 @@ test.snapshot({
 		`,
 		'function foo([bar = undefined] = []) {}',
 		'foo(bar, undefined, undefined);',
-		'let a = undefined, b = 2;'
+		'let a = undefined, b = 2;',
+		outdent`
+			function foo() {
+				return /* */ (
+					/* */
+					(
+						/* */
+						undefined
+						/* */
+					)
+					/* */
+				) /* */ ;
+			}
+		`,
+		outdent`
+			function * foo() {
+				yield /* */ (
+					/* */
+					(
+						/* */
+						undefined
+						/* */
+					)
+					/* */
+				) /* */ ;
+			}
+		`,
+		outdent`
+			const foo = () => /* */ (
+				/* */
+				(
+					/* */
+					undefined
+					/* */
+				)
+				/* */
+			);
+		`
 	]
 });
