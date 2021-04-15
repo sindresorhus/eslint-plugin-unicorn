@@ -15,10 +15,10 @@ function getEqualityComparisons(node) {
 	const nodes = [node];
 	const compareExpressions = [];
 	while (nodes.length > 0) {
-		node = nodes.shift();
+		node = nodes.pop();
 
 		if (node.type === 'LogicalExpression' && node.operator === '||') {
-			nodes.push(node.left, node.right);
+			nodes.push(node.right, node.left);
 			continue;
 		}
 
@@ -186,7 +186,7 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 			}
 
 			yield fixer.replaceTextRange(headRange, '');
-			for (const {left, right} of compareExpressions.sort((nodeA, nodeB) => nodeA.range[0] - nodeB.range[0])) {
+			for (const {left, right} of compareExpressions) {
 				const node = isSame(left, discriminant) ? right : left;
 				const text = sourceCode.getText(node);
 				yield fixer.insertTextBefore(consequent, `\n${indent}case ${text}: `);
