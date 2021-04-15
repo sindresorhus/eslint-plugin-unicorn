@@ -7,6 +7,7 @@ const {getParenthesizedRange} = require('./utils/parentheses');
 const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument');
 const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before');
 const removeSpacesAfter = require('./utils/remove-spaces-after');
+const isLiteralValue = require('./utils/is-literal-value');
 
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
@@ -55,7 +56,8 @@ const arrayConcatCallSelector = [
 const arraySliceCallSelector = [
 	methodSelector({
 		name: 'slice',
-		length: 0
+		min: 0,
+		max: 1
 	}),
 	'[callee.object.type!="ArrayExpression"]'
 ].join('');
@@ -391,6 +393,11 @@ const create = context => {
 			context.report(problem);
 		},
 		[arraySliceCallSelector](node) {
+			const [firstArgument] = node.arguments;
+			if (firstArgument && !isLiteralValue(firstArgument, 0)) {
+				return;
+			}
+
 			context.report({
 				node: node.callee.property,
 				messageId: ERROR_ARRAY_SLICE,
