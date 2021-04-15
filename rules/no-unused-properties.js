@@ -251,6 +251,7 @@ module.exports = {
 			description: 'Disallow unused object properties.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages
+		messages,
+		schema: []
 	}
 };

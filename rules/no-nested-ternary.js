@@ -43,6 +43,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		messages,
-		fixable: 'code'
+		fixable: 'code',
+		schema: []
 	}
 };

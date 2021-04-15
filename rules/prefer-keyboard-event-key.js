@@ -230,6 +230,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages
+		messages,
+		schema: []
 	}
 };
