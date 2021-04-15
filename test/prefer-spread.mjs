@@ -284,6 +284,7 @@ test.snapshot({
 		'array.slice(null)',
 		'const ZERO = 0;array.slice(ZERO)',
 		'array.slice(0, array.length)',
+		'array.slice(0, 0)',
 		'array.notSlice()',
 		// Why would someone write these
 		'[...foo].slice()',
