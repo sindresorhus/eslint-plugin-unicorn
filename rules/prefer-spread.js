@@ -393,8 +393,8 @@ const create = context => {
 			context.report(problem);
 		},
 		[arraySliceCallSelector](node) {
-			const [firstArguments] = node.arguments;
-			if (firstArguments && !isLiteralValue(firstArguments, 0)) {
+			const [firstArgument] = node.arguments;
+			if (firstArgument && !isLiteralValue(firstArgument, 0)) {
 				return;
 			}
 
