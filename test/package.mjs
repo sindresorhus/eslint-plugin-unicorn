@@ -21,7 +21,7 @@ const deprecatedRules = Object.entries(index.rules)
 
 const testSorted = (t, actualOrder, sourceName) => {
 	actualOrder = actualOrder.filter(x => !ignoredRules.includes(x));
-	const sortedOrder = actualOrder.slice(0).sort();
+	const sortedOrder = [...actualOrder].sort();
 
 	for (const [wantedIndex, name] of sortedOrder.entries()) {
 		const actualIndex = actualOrder.indexOf(name);
