@@ -19,7 +19,7 @@ const create = context => {
 				data: {
 					value: 'unicorn',
 					replacement: '🦄'
-				}<% if (isFixable) { %>,
+				}<% if (fixableType) { %>,
 				fix: fixer => fixer.replaceText(node, '\'🦄\'')<% } %>
 			});
 		}
@@ -35,8 +35,8 @@ module.exports = {
 		docs: {
 			description: '<%= description %>',
 			url: getDocumentationUrl(__filename)
-		},<% if (isFixable) { %>
-		fixable: '<%= isFixable.type %>',<% } %>
+		},<% if (fixableType) { %>
+		fixable: '<%= fixableType %>',<% } %>
 		schema,
 		messages
 	}

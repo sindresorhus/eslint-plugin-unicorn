@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const enquirer = require('enquirer');
 const {template} = require('lodash');
+const execa = require('execa');
 
 const ROOT = path.join(__dirname, '..');
 
@@ -142,28 +143,20 @@ function updateReadme(data) {
 		},
 		{
 			type: 'select',
-			name: 'isFixable',
+			name: 'fixableType',
 			message: 'Is it fixable?',
 			choices: [
 				{
 					message: 'Code',
-					value: {type: 'code'}
-				},
-				{
-					message: 'Code (Partly)',
-					value: {type: 'code', partly: true}
+					value: 'code'
 				},
 				{
 					message: 'Whitespace',
-					value: {type: 'whitespace'}
-				},
-				{
-					message: 'Whitespace (Partly)',
-					value: {type: 'whitespace', partly: true}
+					value: 'whitespace'
 				},
 				{
 					message: 'No',
-					value: false
+					value: ''
 				}
 			]
 		},
@@ -199,6 +192,16 @@ function updateReadme(data) {
 	});
 	updateIndex(id);
 	updateReadme(data);
+
+	try {
+		await execa('code', [
+			'--new-window',
+			'.',
+			`docs/rules/${id}.md`,
+			`rules/${id}.js`,
+			`test/${id}.mjs`
+		], {cwd: ROOT});
+	} catch {}
 })().catch(error => {
 	console.error(error);
 	process.exit(1);
