@@ -280,6 +280,8 @@ test.snapshot({
 		'array.slice(...[])',
 		'array.slice(...[0])',
 		'array.slice(0 + 0)',
+		'array.slice("")',
+		'array.slice(null)',
 		'const ZERO = 0;array.slice(ZERO)',
 		'array.slice(0, array.length)',
 		'array.notSlice()',
@@ -303,6 +305,7 @@ test.snapshot({
 		'"".slice()',
 		'new Uint8Array([10, 20, 30, 40, 50]).slice()',
 		'array.slice(0)',
+		'array.slice(0b0)',
 		'array.slice(0.00)',
 		'array.slice(0.00, )'
 	]
