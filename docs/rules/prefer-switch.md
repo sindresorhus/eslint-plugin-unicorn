@@ -58,7 +58,9 @@ Type: `integer`\
 Minimum: `2`\
 Default: `3`
 
-The minimum cases to report, the `default` branch doesn't count, multiple comparisons on same `if` block is considered one case.
+The minimum number of cases before reporting.
+
+The `default` branch doesn't count. Multiple comparisons on the same `if` block is considered one case.
 
 Examples:
 
@@ -115,4 +117,4 @@ Default: `'no-default-comment'`
 Type: `boolean`\
 Default: `false`
 
-Set to `true`, to insert `break;` to the default case.
+Insert `break;` into the default case.
