@@ -151,10 +151,6 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 		if (lastStatement.alternate) {
 			const {alternate} = lastStatement;
 			yield fixer.insertTextBefore(alternate, `\n${indent}default: `);
-			if (options.breakStatementInDefaultCase) {
-				yield * insertBreakStatement(alternate, fixer, sourceCode, indent);
-			}
-
 			yield * insertBracesIfNotBlockStatement(alternate, fixer, indent);
 		} else {
 			switch (options.emptyDefaultCase) {
@@ -163,10 +159,6 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 					break;
 				case 'do-nothing-comment': {
 					yield fixer.insertTextAfter(firstStatement, `\n${indent}default:\n${indent}// Do nothing`);
-					if (options.breakStatementInDefaultCase) {
-						yield fixer.insertTextAfter(firstStatement, `\n${indent}break;`);
-					}
-
 					break;
 				}
 				// No default
@@ -270,10 +262,6 @@ const schema = [
 					'no-default-case'
 				],
 				default: 'no-default-comment'
-			},
-			breakStatementInDefaultCase: {
-				type: 'boolean',
-				default: false
 			}
 		},
 		additionalProperties: false

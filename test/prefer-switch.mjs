@@ -312,42 +312,6 @@ test.snapshot({
 				}
 			`,
 			options: [{emptyDefaultCase: 'no-default-case'}]
-		},
-		{
-			code: outdent`
-				function foo() {
-					if (foo === 1) {}
-					else if (foo === 2) {}
-					else if (foo === 3) {}
-					else {
-						call();
-					}
-				}
-			`,
-			options: [{breakStatementInDefaultCase: true}]
-		},
-		{
-			code: outdent`
-				function foo() {
-					if (foo === 1) {}
-					else if (foo === 2) {}
-					else if (foo === 3) {}
-					else {
-						call();
-					}
-				}
-			`,
-			options: [{breakStatementInDefaultCase: false}]
-		},
-		{
-			code: outdent`
-				function foo() {
-					if (foo === 1) {}
-					else if (foo === 2) {}
-					else if (foo === 3) {}
-				}
-			`,
-			options: [{emptyDefaultCase: 'do-nothing-comment', breakStatementInDefaultCase: true}]
 		}
 	]
 });

@@ -111,10 +111,3 @@ Default: `'no-default-comment'`
 	Insert `default` case and add `// Do nothing` comment.
 - `'no-default-case'`
 	Don't insert default case or comment.
-
-#### `breakStatementInDefaultCase`
-
-Type: `boolean`\
-Default: `false`
-
-Insert `break;` into the default case.
