@@ -19,8 +19,8 @@ module.exports = {
 		babelOptions: {
 			babelrc: false,
 			configFile: false,
-			allowAwaitOutsideFunction: true,
 			parserOpts: {
+				allowAwaitOutsideFunction: true,
 				plugins: [
 					'jsx',
 					'classProperties',
@@ -28,7 +28,7 @@ module.exports = {
 					'exportDefaultFrom',
 					'classPrivateProperties',
 					'classPrivateMethods',
-					'importMeta',
+					'importMeta'
 				]
 			}
 		}

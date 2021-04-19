@@ -71,9 +71,9 @@ class Tester {
 					babelOptions: {
 						babelrc: false,
 						configFile: false,
-						allowAwaitOutsideFunction: true,
 						...testerOptions.parserOptions.babelOptions,
 						parserOpts: {
+							allowAwaitOutsideFunction: true,
 							...testerOptions.parserOptions.babelOptions.parserOpts,
 							plugins: babelPlugins
 						}
