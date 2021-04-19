@@ -6,6 +6,7 @@ const avoidCapture = require('./utils/avoid-capture');
 const extendFixRange = require('./utils/extend-fix-range');
 const needsSemicolon = require('./utils/needs-semicolon');
 const isSameReference = require('./utils/is-same-reference');
+const getIndentString = require('./utils/get-indent-string');
 
 const messageId = 'prefer-ternary';
 
@@ -38,14 +39,6 @@ function getNodeBody(node) {
 
 	return node;
 }
-
-const getIndentString = (node, sourceCode) => {
-	const {line, column} = sourceCode.getLocFromIndex(node.range[0]);
-	const lines = sourceCode.getLines();
-	const before = lines[line - 1].slice(0, column);
-
-	return before.match(/\s*$/)[0];
-};
 
 const getScopes = scope => [
 	scope,
