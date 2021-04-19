@@ -19,12 +19,16 @@ module.exports = {
 		babelOptions: {
 			babelrc: false,
 			configFile: false,
+			allowAwaitOutsideFunction: true,
 			parserOpts: {
 				plugins: [
 					'jsx',
 					'classProperties',
 					'doExpressions',
-					'exportDefaultFrom'
+					'exportDefaultFrom',
+          'classPrivateProperties',
+          'classPrivateMethods',
+          'importMeta',
 				]
 			}
 		}
