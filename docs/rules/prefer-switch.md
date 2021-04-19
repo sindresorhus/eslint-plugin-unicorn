@@ -105,9 +105,67 @@ else if (foo === 2) {}
 Type: `string`\
 Default: `'no-default-comment'`
 
+To avoid conflict with [`default-case`](https://eslint.org/docs/rules/default-case) rule, choose the fix style you prefer:
+
 - `'no-default-comment'` (default)
 	Insert `// No default` comment after last case.
 - `'do-nothing-comment'`
 	Insert `default` case and add `// Do nothing` comment.
 - `'no-default-case'`
 	Don't insert default case or comment.
+
+```js
+if (foo === 1) {}
+else (foo === 2) {}
+else (foo === 3) {}
+```
+
+Fixed
+
+```js
+/*eslint unicorn/prefer-switch: ["error", { "emptyDefaultCase": "no-default-comment" }]*/
+switch (foo) {
+	case 1: {
+		break;
+	}
+	case 2: {
+		break;
+	}
+	case 3: {
+		break;
+	}
+	// No default
+}
+```
+
+```js
+/*eslint unicorn/prefer-switch: ["error", { "emptyDefaultCase": "do-nothing-comment" }]*/
+switch (foo) {
+	case 1: {
+		break;
+	}
+	case 2: {
+		break;
+	}
+	case 3: {
+		break;
+	}
+	default:
+		// Do nothing
+}
+```
+
+```js
+/*eslint unicorn/prefer-switch: ["error", { "emptyDefaultCase": "no-default-case" }]*/
+switch (foo) {
+	case 1: {
+		break;
+	}
+	case 2: {
+		break;
+	}
+	case 3: {
+		break;
+	}
+}
+```
