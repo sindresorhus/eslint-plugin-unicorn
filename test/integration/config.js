@@ -26,9 +26,9 @@ module.exports = {
 					'classProperties',
 					'doExpressions',
 					'exportDefaultFrom',
-          'classPrivateProperties',
-          'classPrivateMethods',
-          'importMeta',
+					'classPrivateProperties',
+					'classPrivateMethods',
+					'importMeta',
 				]
 			}
 		}
