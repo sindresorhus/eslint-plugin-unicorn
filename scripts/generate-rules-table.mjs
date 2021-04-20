@@ -18,6 +18,8 @@ const tablePlaceholder = /<!-- RULES_TABLE_START -->.*<!-- RULES_TABLE_END -->/s
 const EMOJI_RECOMMENDED = '✅';
 const EMOJI_FIXABLE = '🔧';
 
+const MAX_DESCRIPTION_LENGTH = 100; // To avoid making the description column too wide at the expense of the name column.
+
 // Generate rule table contents.
 const rulesTableContent = Object.keys(rules).filter(ruleName => !rules[ruleName].meta.deprecated)
 	.sort()
@@ -30,8 +32,9 @@ const rulesTableContent = Object.keys(rules).filter(ruleName => !rules[ruleName]
 		const link = `[${ruleName}](${url})`;
 
 		const {description} = rules[ruleName].meta.docs;
+		const descriptionTrimmed = description.length > MAX_DESCRIPTION_LENGTH ? description.slice(0, MAX_DESCRIPTION_LENGTH) + '...' : description;
 
-		return `| ${link} | ${description} | ${isRecommended ? EMOJI_RECOMMENDED : ''} | ${isFixable ? EMOJI_FIXABLE : ''} |`;
+		return `| ${link} | ${descriptionTrimmed} | ${isRecommended ? EMOJI_RECOMMENDED : ''} | ${isFixable ? EMOJI_FIXABLE : ''} |`;
 	})
 	.join('\n');
 
