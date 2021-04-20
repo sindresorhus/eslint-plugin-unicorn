@@ -1,18 +1,18 @@
 # Prefer ES modules over CommonJS
 
-Prefer use ESM over legacy CommonJS module.
+Prefer use [ESM](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) over legacy CommonJS module.
 
-1. Forbid `use strict` directive.
+1. Forbids `'use strict'` directive.
 
-	ESM scripts use Strict Mode by default.
+	ESM scripts use “Strict Mode” by default.
 
-1. Forbid `Global Return`
+1. Forbids “Global Return”
 
 	This is a CommonJS-only feature.
 
-1. Forbid global variables `__dirname` and `__filename`.
+1. Forbids the global variables `__dirname` and `__filename`.
 
-	It's not available in ESM.
+	They are not available in ESM.
 
 	Replacements:
 
@@ -24,13 +24,13 @@ Prefer use ESM over legacy CommonJS module.
 	const __dirname = path.dirname(fileURLToPath(import.meta.url));
 	```
 
-1. Forbid `require(…)`
+1. Forbids `require(…)`
 
 	`require(…)` can be replaced by `import …` or `import(…)`.
 
-1. Forbid `exports` and `module.exports`
+1. Forbids `exports` and `module.exports`
 
-	`export …` is preferred in ESM.
+	`export …` should be used in ESM.
 
 ## Fail
 
