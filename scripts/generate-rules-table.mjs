@@ -31,7 +31,7 @@ const rulesTableContent = Object.keys(rules).filter(ruleName => !rules[ruleName]
 
 		const {description} = rules[ruleName].meta.docs;
 
-		return `<tr><td width="250">${link}</td><td>${description}</td><td>${isRecommended ? EMOJI_RECOMMENDED : ''}</td><td>${isFixable ? EMOJI_FIXABLE : ''}</td></tr>`;
+		return `<tr><td>${link}</td><td>${description}</td><td>${isRecommended ? EMOJI_RECOMMENDED : ''}</td><td>${isFixable ? EMOJI_FIXABLE : ''}</td></tr>`;
 	})
 	.join('\n');
 
@@ -45,7 +45,7 @@ writeFileSync(
 			<table>
 				<thead>
 					<tr>
-						<th>Name</th>
+						<th width="250">Name</th>
 						<th>Description</th>
 						<th>${EMOJI_RECOMMENDED}</th>
 						<th>${EMOJI_FIXABLE}</th>
