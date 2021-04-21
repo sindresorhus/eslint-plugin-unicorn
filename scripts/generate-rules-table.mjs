@@ -32,9 +32,9 @@ const rulesTableContent = Object.keys(rules).filter(ruleName => !rules[ruleName]
 		const link = `[${ruleName}](${url})`;
 
 		const {description} = rules[ruleName].meta.docs;
-		const descriptionTrimmed = truncateString(description, MAX_DESCRIPTION_LENGTH);
+		const descriptionTruncated = truncateString(description, MAX_DESCRIPTION_LENGTH);
 
-		return `| ${link} | ${descriptionTrimmed} | ${isRecommended ? EMOJI_RECOMMENDED : ''} | ${isFixable ? EMOJI_FIXABLE : ''} |`;
+		return `| ${link} | ${descriptionTruncated} | ${isRecommended ? EMOJI_RECOMMENDED : ''} | ${isFixable ? EMOJI_FIXABLE : ''} |`;
 	})
 	.join('\n');
 
@@ -59,11 +59,11 @@ function truncateString(string, maxLength) {
 		return string;
 	}
 
-	const trimmed = string.slice(0, maxLength).trim();
+	const truncated = string.slice(0, maxLength).trim();
 
 	// If we break the string in the middle of a code sample, be sure to close it.
-	const countBackticks = (trimmed.match(/`/g) || []).length;
+	const countBackticks = (truncated.match(/`/g) || []).length;
 	const hasUnclosedBackticks = countBackticks % 2 === 1;
 
-	return trimmed + (hasUnclosedBackticks ? '`' : '') + '…';
+	return truncated + (hasUnclosedBackticks ? '`' : '') + '…';
 }
