@@ -23,6 +23,20 @@ Prefer using the [JavaScript module](https://developer.mozilla.org/en-US/docs/We
 	const __filename = fileURLToPath(import.meta.url);
 	const __dirname = path.dirname(fileURLToPath(import.meta.url));
 	```
+	
+	However, in most cases, this is better:
+	
+	```js
+	import {fileURLToPath} from 'url';
+
+	const foo = fileURLToPath(new URL('foo.js', import.meta.url));
+	```
+	
+	And many Node.js APIs accept `URL` directly, so you can just do this:
+	
+	```js
+	const foo = new URL('foo.js', import.meta.url);
+	```
 
 1. Forbids `require(…)`.
 
