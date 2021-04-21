@@ -175,8 +175,8 @@ Each rule has emojis denoting:
 <tr><td width="250"><a href="docs/rules/numeric-separators-style.md">numeric-separators-style</a></td><td>Enforce the style of numeric separators by correctly grouping digits.</td><td></td><td>🔧</td></tr>
 <tr><td width="250"><a href="docs/rules/prefer-add-event-listener.md">prefer-add-event-listener</a></td><td>Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.</td><td>✅</td><td>🔧</td></tr>
 <tr><td width="250"><a href="docs/rules/prefer-array-find.md">prefer-array-find</a></td><td>Prefer `.find(…)` over the first element from `.filter(…)`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td width="250"><a href="docs/rules/prefer-array-flat.md">prefer-array-flat</a></td><td>Prefer `.flatMap(…)` over `.map(…).flat()`.</td><td></td><td>🔧</td></tr>
-<tr><td width="250"><a href="docs/rules/prefer-array-flat-map.md">prefer-array-flat-map</a></td><td>Prefer `Array#flat()` over legacy techniques to flatten arrays.</td><td></td><td>🔧</td></tr>
+<tr><td width="250"><a href="docs/rules/prefer-array-flat.md">prefer-array-flat</a></td><td>Prefer `Array#flat()` over legacy techniques to flatten arrays.</td><td></td><td>🔧</td></tr>
+<tr><td width="250"><a href="docs/rules/prefer-array-flat-map.md">prefer-array-flat-map</a></td><td>Prefer `.flatMap(…)` over `.map(…).flat()`.</td><td></td><td>🔧</td></tr>
 <tr><td width="250"><a href="docs/rules/prefer-array-index-of.md">prefer-array-index-of</a></td><td>Prefer `Array#indexOf()` over `Array#findIndex()` when looking for the index of an item.</td><td>✅</td><td>🔧</td></tr>
 <tr><td width="250"><a href="docs/rules/prefer-array-some.md">prefer-array-some</a></td><td>Prefer `.some(…)` over `.find(…)`.</td><td>✅</td><td></td></tr>
 <tr><td width="250"><a href="docs/rules/prefer-date-now.md">prefer-date-now</a></td><td>Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch.</td><td>✅</td><td>🔧</td></tr>

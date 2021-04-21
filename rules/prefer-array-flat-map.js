@@ -171,7 +171,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Array#flat()` over legacy techniques to flatten arrays.',
+			description: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
