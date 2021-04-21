@@ -133,80 +133,80 @@ Each rule has emojis denoting:
 		</tr>
 	</thead>
 	<tbody>
-		<tr><td><a href="docs/rules/better-regex.md">better-regex</a></td><td markdown=1>Improve regexes by making them shorter, consistent, and safer.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/catch-error-name.md">catch-error-name</a></td><td markdown=1>Enforce a specific parameter name in catch clauses.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/consistent-destructuring.md">consistent-destructuring</a></td><td markdown=1>Use destructured variables over properties.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/consistent-function-scoping.md">consistent-function-scoping</a></td><td markdown=1>Move function definitions to the highest possible scope.</td><td>✅</td><td></td></tr>
-<tr><td><a href="docs/rules/custom-error-definition.md">custom-error-definition</a></td><td markdown=1>Enforce correct `Error` subclassing.</td><td></td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/empty-brace-spaces.md">empty-brace-spaces</a></td><td markdown=1>Enforce no spaces between braces.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/error-message.md">error-message</a></td><td markdown=1>Enforce passing a `message` value when creating a built-in error.</td><td>✅</td><td></td></tr>
-<tr><td><a href="docs/rules/escape-case.md">escape-case</a></td><td markdown=1>Require escape sequences to use uppercase values.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/expiring-todo-comments.md">expiring-todo-comments</a></td><td markdown=1>Add expiration conditions to TODO comments.</td><td>✅</td><td></td></tr>
-<tr><td><a href="docs/rules/explicit-length-check.md">explicit-length-check</a></td><td markdown=1>Enforce explicitly comparing the `length` property of a value.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/filename-case.md">filename-case</a></td><td markdown=1>Enforce a case style for filenames.</td><td>✅</td><td></td></tr>
-<tr><td><a href="docs/rules/import-index.md">import-index</a></td><td markdown=1>Enforce importing index files with `.`.</td><td></td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/import-style.md">import-style</a></td><td markdown=1>Enforce specific import styles per module.</td><td>✅</td><td></td></tr>
-<tr><td><a href="docs/rules/new-for-builtins.md">new-for-builtins</a></td><td markdown=1>Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/no-abusive-eslint-disable.md">no-abusive-eslint-disable</a></td><td markdown=1>Enforce specifying rules to disable in `eslint-disable` comments.</td><td>✅</td><td></td></tr>
-<tr><td><a href="docs/rules/no-array-callback-reference.md">no-array-callback-reference</a></td><td markdown=1>Prevent passing a function reference directly to iterator methods.</td><td>✅</td><td></td></tr>
-<tr><td><a href="docs/rules/no-array-for-each.md">no-array-for-each</a></td><td markdown=1>Prefer `for…of` over `Array#forEach(…)`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/no-array-push-push.md">no-array-push-push</a></td><td markdown=1>Enforce combining multiple `Array#push()` into one call.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/no-array-reduce.md">no-array-reduce</a></td><td markdown=1>Disallow `Array#reduce()` and `Array#reduceRight()`.</td><td>✅</td><td></td></tr>
-<tr><td><a href="docs/rules/no-console-spaces.md">no-console-spaces</a></td><td markdown=1>Do not use leading/trailing space between `console.log` parameters.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/no-for-loop.md">no-for-loop</a></td><td markdown=1>Do not use a `for` loop that can be replaced with a `for-of` loop.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/no-hex-escape.md">no-hex-escape</a></td><td markdown=1>Enforce the use of Unicode escapes instead of hexadecimal escapes.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/no-instanceof-array.md">no-instanceof-array</a></td><td markdown=1>Require `Array.isArray()` instead of `instanceof Array`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/no-keyword-prefix.md">no-keyword-prefix</a></td><td markdown=1>Disallow identifiers starting with `new` or `class`.</td><td></td><td></td></tr>
-<tr><td><a href="docs/rules/no-lonely-if.md">no-lonely-if</a></td><td markdown=1>Disallow `if` statements as the only statement in `if` blocks without `else`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/no-nested-ternary.md">no-nested-ternary</a></td><td markdown=1>Disallow nested ternary expressions.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/no-new-array.md">no-new-array</a></td><td markdown=1>Disallow `new Array()`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/no-new-buffer.md">no-new-buffer</a></td><td markdown=1>Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/no-null.md">no-null</a></td><td markdown=1>Disallow the use of the `null` literal.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/no-object-as-default-parameter.md">no-object-as-default-parameter</a></td><td markdown=1>Disallow the use of objects as default parameters.</td><td>✅</td><td></td></tr>
-<tr><td><a href="docs/rules/no-process-exit.md">no-process-exit</a></td><td markdown=1>Disallow `process.exit()`.</td><td>✅</td><td></td></tr>
-<tr><td><a href="docs/rules/no-static-only-class.md">no-static-only-class</a></td><td markdown=1>Forbid classes that only have static members.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/no-this-assignment.md">no-this-assignment</a></td><td markdown=1>Disallow assigning `this` to a variable.</td><td>✅</td><td></td></tr>
-<tr><td><a href="docs/rules/no-unreadable-array-destructuring.md">no-unreadable-array-destructuring</a></td><td markdown=1>Disallow unreadable array destructuring.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/no-unsafe-regex.md">no-unsafe-regex</a></td><td markdown=1>Disallow unsafe regular expressions.</td><td></td><td></td></tr>
-<tr><td><a href="docs/rules/no-unused-properties.md">no-unused-properties</a></td><td markdown=1>Disallow unused object properties.</td><td></td><td></td></tr>
-<tr><td><a href="docs/rules/no-useless-undefined.md">no-useless-undefined</a></td><td markdown=1>Disallow useless `undefined`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/no-zero-fractions.md">no-zero-fractions</a></td><td markdown=1>Disallow number literals with zero fractions or dangling dots.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/number-literal-case.md">number-literal-case</a></td><td markdown=1>Enforce proper case for numeric literals.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/numeric-separators-style.md">numeric-separators-style</a></td><td markdown=1>Enforce the style of numeric separators by correctly grouping digits.</td><td></td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-add-event-listener.md">prefer-add-event-listener</a></td><td markdown=1>Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-array-find.md">prefer-array-find</a></td><td markdown=1>Prefer `.find(…)` over the first element from `.filter(…)`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-array-flat.md">prefer-array-flat</a></td><td markdown=1>Prefer `Array#flat()` over legacy techniques to flatten arrays.</td><td></td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-array-flat-map.md">prefer-array-flat-map</a></td><td markdown=1>Prefer `.flatMap(…)` over `.map(…).flat()`.</td><td></td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-array-index-of.md">prefer-array-index-of</a></td><td markdown=1>Prefer `Array#indexOf()` over `Array#findIndex()` when looking for the index of an item.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-array-some.md">prefer-array-some</a></td><td markdown=1>Prefer `.some(…)` over `.find(…)`.</td><td>✅</td><td></td></tr>
-<tr><td><a href="docs/rules/prefer-date-now.md">prefer-date-now</a></td><td markdown=1>Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-default-parameters.md">prefer-default-parameters</a></td><td markdown=1>Prefer default parameters over reassignment.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-dom-node-append.md">prefer-dom-node-append</a></td><td markdown=1>Prefer `Node#append()` over `Node#appendChild()`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-dom-node-dataset.md">prefer-dom-node-dataset</a></td><td markdown=1>Prefer using `.dataset` on DOM elements over `.setAttribute(…)`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-dom-node-remove.md">prefer-dom-node-remove</a></td><td markdown=1>Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-dom-node-text-content.md">prefer-dom-node-text-content</a></td><td markdown=1>Prefer `.textContent` over `.innerText`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-includes.md">prefer-includes</a></td><td markdown=1>Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-keyboard-event-key.md">prefer-keyboard-event-key</a></td><td markdown=1>Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-math-trunc.md">prefer-math-trunc</a></td><td markdown=1>Enforce the use of `Math.trunc` instead of bitwise operators.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-modern-dom-apis.md">prefer-modern-dom-apis</a></td><td markdown=1>Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-negative-index.md">prefer-negative-index</a></td><td markdown=1>Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()` and `Array#splice()`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-number-properties.md">prefer-number-properties</a></td><td markdown=1>Prefer `Number` static properties over global ones.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-optional-catch-binding.md">prefer-optional-catch-binding</a></td><td markdown=1>Prefer omitting the `catch` binding parameter.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-query-selector.md">prefer-query-selector</a></td><td markdown=1>Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-reflect-apply.md">prefer-reflect-apply</a></td><td markdown=1>Prefer `Reflect.apply()` over `Function#apply()`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-regexp-test.md">prefer-regexp-test</a></td><td markdown=1>Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-set-has.md">prefer-set-has</a></td><td markdown=1>Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-spread.md">prefer-spread</a></td><td markdown=1>Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-string-replace-all.md">prefer-string-replace-all</a></td><td markdown=1>Prefer `String#replaceAll()` over regex searches with the global flag.</td><td></td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-string-slice.md">prefer-string-slice</a></td><td markdown=1>Prefer `String#slice()` over `String#substr()` and `String#substring()`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-string-starts-ends-with.md">prefer-string-starts-ends-with</a></td><td markdown=1>Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-string-trim-start-end.md">prefer-string-trim-start-end</a></td><td markdown=1>Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-switch.md">prefer-switch</a></td><td markdown=1>Prefer `switch` over multiple `else-if`.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-ternary.md">prefer-ternary</a></td><td markdown=1>Prefer ternary expressions over simple `if-else` statements.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prefer-type-error.md">prefer-type-error</a></td><td markdown=1>Enforce throwing `TypeError` in type checking conditions.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/prevent-abbreviations.md">prevent-abbreviations</a></td><td markdown=1>Prevent abbreviations.</td><td>✅</td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/string-content.md">string-content</a></td><td markdown=1>Enforce better string content.</td><td></td><td>🔧</td></tr>
-<tr><td><a href="docs/rules/throw-new-error.md">throw-new-error</a></td><td markdown=1>Require `new` when throwing an error.</td><td>✅</td><td>🔧</td></tr>
+		<tr><td><a href="docs/rules/better-regex.md">better-regex</a></td><td><span markdown=1>Improve regexes by making them shorter, consistent, and safer.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/catch-error-name.md">catch-error-name</a></td><td><span markdown=1>Enforce a specific parameter name in catch clauses.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/consistent-destructuring.md">consistent-destructuring</a></td><td><span markdown=1>Use destructured variables over properties.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/consistent-function-scoping.md">consistent-function-scoping</a></td><td><span markdown=1>Move function definitions to the highest possible scope.</span></td><td>✅</td><td></td></tr>
+<tr><td><a href="docs/rules/custom-error-definition.md">custom-error-definition</a></td><td><span markdown=1>Enforce correct `Error` subclassing.</span></td><td></td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/empty-brace-spaces.md">empty-brace-spaces</a></td><td><span markdown=1>Enforce no spaces between braces.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/error-message.md">error-message</a></td><td><span markdown=1>Enforce passing a `message` value when creating a built-in error.</span></td><td>✅</td><td></td></tr>
+<tr><td><a href="docs/rules/escape-case.md">escape-case</a></td><td><span markdown=1>Require escape sequences to use uppercase values.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/expiring-todo-comments.md">expiring-todo-comments</a></td><td><span markdown=1>Add expiration conditions to TODO comments.</span></td><td>✅</td><td></td></tr>
+<tr><td><a href="docs/rules/explicit-length-check.md">explicit-length-check</a></td><td><span markdown=1>Enforce explicitly comparing the `length` property of a value.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/filename-case.md">filename-case</a></td><td><span markdown=1>Enforce a case style for filenames.</span></td><td>✅</td><td></td></tr>
+<tr><td><a href="docs/rules/import-index.md">import-index</a></td><td><span markdown=1>Enforce importing index files with `.`.</span></td><td></td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/import-style.md">import-style</a></td><td><span markdown=1>Enforce specific import styles per module.</span></td><td>✅</td><td></td></tr>
+<tr><td><a href="docs/rules/new-for-builtins.md">new-for-builtins</a></td><td><span markdown=1>Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/no-abusive-eslint-disable.md">no-abusive-eslint-disable</a></td><td><span markdown=1>Enforce specifying rules to disable in `eslint-disable` comments.</span></td><td>✅</td><td></td></tr>
+<tr><td><a href="docs/rules/no-array-callback-reference.md">no-array-callback-reference</a></td><td><span markdown=1>Prevent passing a function reference directly to iterator methods.</span></td><td>✅</td><td></td></tr>
+<tr><td><a href="docs/rules/no-array-for-each.md">no-array-for-each</a></td><td><span markdown=1>Prefer `for…of` over `Array#forEach(…)`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/no-array-push-push.md">no-array-push-push</a></td><td><span markdown=1>Enforce combining multiple `Array#push()` into one call.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/no-array-reduce.md">no-array-reduce</a></td><td><span markdown=1>Disallow `Array#reduce()` and `Array#reduceRight()`.</span></td><td>✅</td><td></td></tr>
+<tr><td><a href="docs/rules/no-console-spaces.md">no-console-spaces</a></td><td><span markdown=1>Do not use leading/trailing space between `console.log` parameters.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/no-for-loop.md">no-for-loop</a></td><td><span markdown=1>Do not use a `for` loop that can be replaced with a `for-of` loop.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/no-hex-escape.md">no-hex-escape</a></td><td><span markdown=1>Enforce the use of Unicode escapes instead of hexadecimal escapes.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/no-instanceof-array.md">no-instanceof-array</a></td><td><span markdown=1>Require `Array.isArray()` instead of `instanceof Array`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/no-keyword-prefix.md">no-keyword-prefix</a></td><td><span markdown=1>Disallow identifiers starting with `new` or `class`.</span></td><td></td><td></td></tr>
+<tr><td><a href="docs/rules/no-lonely-if.md">no-lonely-if</a></td><td><span markdown=1>Disallow `if` statements as the only statement in `if` blocks without `else`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/no-nested-ternary.md">no-nested-ternary</a></td><td><span markdown=1>Disallow nested ternary expressions.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/no-new-array.md">no-new-array</a></td><td><span markdown=1>Disallow `new Array()`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/no-new-buffer.md">no-new-buffer</a></td><td><span markdown=1>Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/no-null.md">no-null</a></td><td><span markdown=1>Disallow the use of the `null` literal.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/no-object-as-default-parameter.md">no-object-as-default-parameter</a></td><td><span markdown=1>Disallow the use of objects as default parameters.</span></td><td>✅</td><td></td></tr>
+<tr><td><a href="docs/rules/no-process-exit.md">no-process-exit</a></td><td><span markdown=1>Disallow `process.exit()`.</span></td><td>✅</td><td></td></tr>
+<tr><td><a href="docs/rules/no-static-only-class.md">no-static-only-class</a></td><td><span markdown=1>Forbid classes that only have static members.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/no-this-assignment.md">no-this-assignment</a></td><td><span markdown=1>Disallow assigning `this` to a variable.</span></td><td>✅</td><td></td></tr>
+<tr><td><a href="docs/rules/no-unreadable-array-destructuring.md">no-unreadable-array-destructuring</a></td><td><span markdown=1>Disallow unreadable array destructuring.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/no-unsafe-regex.md">no-unsafe-regex</a></td><td><span markdown=1>Disallow unsafe regular expressions.</span></td><td></td><td></td></tr>
+<tr><td><a href="docs/rules/no-unused-properties.md">no-unused-properties</a></td><td><span markdown=1>Disallow unused object properties.</span></td><td></td><td></td></tr>
+<tr><td><a href="docs/rules/no-useless-undefined.md">no-useless-undefined</a></td><td><span markdown=1>Disallow useless `undefined`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/no-zero-fractions.md">no-zero-fractions</a></td><td><span markdown=1>Disallow number literals with zero fractions or dangling dots.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/number-literal-case.md">number-literal-case</a></td><td><span markdown=1>Enforce proper case for numeric literals.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/numeric-separators-style.md">numeric-separators-style</a></td><td><span markdown=1>Enforce the style of numeric separators by correctly grouping digits.</span></td><td></td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-add-event-listener.md">prefer-add-event-listener</a></td><td><span markdown=1>Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-array-find.md">prefer-array-find</a></td><td><span markdown=1>Prefer `.find(…)` over the first element from `.filter(…)`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-array-flat.md">prefer-array-flat</a></td><td><span markdown=1>Prefer `Array#flat()` over legacy techniques to flatten arrays.</span></td><td></td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-array-flat-map.md">prefer-array-flat-map</a></td><td><span markdown=1>Prefer `.flatMap(…)` over `.map(…).flat()`.</span></td><td></td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-array-index-of.md">prefer-array-index-of</a></td><td><span markdown=1>Prefer `Array#indexOf()` over `Array#findIndex()` when looking for the index of an item.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-array-some.md">prefer-array-some</a></td><td><span markdown=1>Prefer `.some(…)` over `.find(…)`.</span></td><td>✅</td><td></td></tr>
+<tr><td><a href="docs/rules/prefer-date-now.md">prefer-date-now</a></td><td><span markdown=1>Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-default-parameters.md">prefer-default-parameters</a></td><td><span markdown=1>Prefer default parameters over reassignment.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-dom-node-append.md">prefer-dom-node-append</a></td><td><span markdown=1>Prefer `Node#append()` over `Node#appendChild()`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-dom-node-dataset.md">prefer-dom-node-dataset</a></td><td><span markdown=1>Prefer using `.dataset` on DOM elements over `.setAttribute(…)`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-dom-node-remove.md">prefer-dom-node-remove</a></td><td><span markdown=1>Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-dom-node-text-content.md">prefer-dom-node-text-content</a></td><td><span markdown=1>Prefer `.textContent` over `.innerText`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-includes.md">prefer-includes</a></td><td><span markdown=1>Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-keyboard-event-key.md">prefer-keyboard-event-key</a></td><td><span markdown=1>Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-math-trunc.md">prefer-math-trunc</a></td><td><span markdown=1>Enforce the use of `Math.trunc` instead of bitwise operators.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-modern-dom-apis.md">prefer-modern-dom-apis</a></td><td><span markdown=1>Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-negative-index.md">prefer-negative-index</a></td><td><span markdown=1>Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()` and `Array#splice()`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-number-properties.md">prefer-number-properties</a></td><td><span markdown=1>Prefer `Number` static properties over global ones.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-optional-catch-binding.md">prefer-optional-catch-binding</a></td><td><span markdown=1>Prefer omitting the `catch` binding parameter.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-query-selector.md">prefer-query-selector</a></td><td><span markdown=1>Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-reflect-apply.md">prefer-reflect-apply</a></td><td><span markdown=1>Prefer `Reflect.apply()` over `Function#apply()`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-regexp-test.md">prefer-regexp-test</a></td><td><span markdown=1>Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-set-has.md">prefer-set-has</a></td><td><span markdown=1>Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-spread.md">prefer-spread</a></td><td><span markdown=1>Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-string-replace-all.md">prefer-string-replace-all</a></td><td><span markdown=1>Prefer `String#replaceAll()` over regex searches with the global flag.</span></td><td></td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-string-slice.md">prefer-string-slice</a></td><td><span markdown=1>Prefer `String#slice()` over `String#substr()` and `String#substring()`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-string-starts-ends-with.md">prefer-string-starts-ends-with</a></td><td><span markdown=1>Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-string-trim-start-end.md">prefer-string-trim-start-end</a></td><td><span markdown=1>Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-switch.md">prefer-switch</a></td><td><span markdown=1>Prefer `switch` over multiple `else-if`.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-ternary.md">prefer-ternary</a></td><td><span markdown=1>Prefer ternary expressions over simple `if-else` statements.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-type-error.md">prefer-type-error</a></td><td><span markdown=1>Enforce throwing `TypeError` in type checking conditions.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prevent-abbreviations.md">prevent-abbreviations</a></td><td><span markdown=1>Prevent abbreviations.</span></td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/string-content.md">string-content</a></td><td><span markdown=1>Enforce better string content.</span></td><td></td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/throw-new-error.md">throw-new-error</a></td><td><span markdown=1>Require `new` when throwing an error.</span></td><td>✅</td><td>🔧</td></tr>
 	</tbody>
 </table>
 
