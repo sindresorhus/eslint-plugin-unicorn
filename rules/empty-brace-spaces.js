@@ -47,6 +47,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'whitespace',
-		messages
+		messages,
+		schema: []
 	}
 };

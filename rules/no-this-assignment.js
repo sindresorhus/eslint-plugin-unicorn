@@ -39,6 +39,7 @@ module.exports = {
 			description: 'Disallow assigning `this` to a variable.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages
+		messages,
+		schema: []
 	}
 };

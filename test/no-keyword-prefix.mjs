@@ -87,7 +87,7 @@ test({
 		},
 		{
 			code: 'const newFoo = "foo"',
-			options: [{blacklist: ['old']}]
+			options: [{disallowedPrefixes: ['old']}]
 		},
 		outdent`
 			function Foo() {
@@ -262,7 +262,7 @@ test({
 		},
 		{
 			code: 'const oldFoo = "foo"',
-			options: [{blacklist: ['old']}],
+			options: [{disallowedPrefixes: ['old']}],
 			errors: [errorIgnoreList]
 		},
 		{

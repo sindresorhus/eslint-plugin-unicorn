@@ -50,6 +50,10 @@ class Tester {
 			['estree', {classFeatures: true}],
 			'jsx',
 			'classProperties',
+			'exportDefaultFrom',
+			'classPrivateProperties',
+			'classPrivateMethods',
+			'importMeta',
 			...babelPlugins
 		];
 
@@ -65,8 +69,11 @@ class Tester {
 					allowImportExportEverywhere: true,
 					...testerOptions.parserOptions,
 					babelOptions: {
+						babelrc: false,
+						configFile: false,
 						...testerOptions.parserOptions.babelOptions,
 						parserOpts: {
+							allowAwaitOutsideFunction: true,
 							...testerOptions.parserOptions.babelOptions.parserOpts,
 							plugins: babelPlugins
 						}

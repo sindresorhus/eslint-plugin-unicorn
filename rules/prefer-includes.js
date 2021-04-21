@@ -91,6 +91,7 @@ module.exports = {
 		messages: {
 			...messages,
 			...includesOverSomeRule.messages
-		}
+		},
+		schema: []
 	}
 };

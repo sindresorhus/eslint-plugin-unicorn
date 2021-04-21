@@ -278,7 +278,13 @@ test.snapshot({
 		'array.slice',
 		'array.slice(1)',
 		'array.slice(...[])',
-		'array.slice(0)',
+		'array.slice(...[0])',
+		'array.slice(0 + 0)',
+		'array.slice("")',
+		'array.slice(null)',
+		'const ZERO = 0;array.slice(ZERO)',
+		'array.slice(0, array.length)',
+		'array.slice(0, 0)',
 		'array.notSlice()',
 		// Why would someone write these
 		'[...foo].slice()',
@@ -298,6 +304,10 @@ test.snapshot({
 		`,
 		// `{String,TypedArray}#slice` are wrongly detected
 		'"".slice()',
-		'new Uint8Array([10, 20, 30, 40, 50]).slice()'
+		'new Uint8Array([10, 20, 30, 40, 50]).slice()',
+		'array.slice(0)',
+		'array.slice(0b0)',
+		'array.slice(0.00)',
+		'array.slice(0.00, )'
 	]
 });

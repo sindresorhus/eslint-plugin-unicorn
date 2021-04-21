@@ -170,6 +170,7 @@ module.exports = {
 		messages: {
 			[MESSAGE_ID]: 'Use destructured variables over properties.',
 			[MESSAGE_ID_SUGGEST]: 'Replace `{{expression}}` with destructured property `{{property}}`.'
-		}
+		},
+		schema: []
 	}
 };

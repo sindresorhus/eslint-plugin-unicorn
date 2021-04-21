@@ -1,6 +1,7 @@
 'use strict';
 const {isCommaToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before');
 
 const messageId = 'no-useless-undefined';
 const messages = {
@@ -97,19 +98,14 @@ const create = context => {
 		});
 	};
 
-	const code = context.getSourceCode().text;
+	const sourceCode = context.getSourceCode();
 	const options = {
 		checkArguments: true,
 		...context.options[0]
 	};
 
-	const removeNodeAndLeadingSpace = (node, fixer) => {
-		const textBefore = code.slice(0, node.range[0]);
-		return fixer.removeRange([
-			node.range[0] - (textBefore.length - textBefore.trim().length),
-			node.range[1]
-		]);
-	};
+	const removeNodeAndLeadingSpace = (node, fixer) =>
+		replaceNodeOrTokenAndSpacesBefore(node, '', fixer, sourceCode);
 
 	const listeners = {
 		[returnSelector]: listener(
@@ -118,7 +114,7 @@ const create = context => {
 		),
 		[yieldSelector]: listener(removeNodeAndLeadingSpace),
 		[arrowFunctionSelector]: listener(
-			(node, fixer) => fixer.replaceText(node, '{}'),
+			(node, fixer) => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, sourceCode),
 			/* CheckFunctionReturnType */ true
 		),
 		[variableInitSelector]: listener(

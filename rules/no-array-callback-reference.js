@@ -178,6 +178,7 @@ module.exports = {
 			description: 'Prevent passing a function reference directly to iterator methods.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages
+		messages,
+		schema: []
 	}
 };
