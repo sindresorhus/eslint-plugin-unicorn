@@ -31,7 +31,7 @@ const rulesTableContent = Object.keys(rules).filter(ruleName => !rules[ruleName]
 
 		const {description} = rules[ruleName].meta.docs;
 
-		return `<tr><td>${link}</td><td>${description}</td><td>${isRecommended ? EMOJI_RECOMMENDED : ''}</td><td>${isFixable ? EMOJI_FIXABLE : ''}</td></tr>`;
+		return `<tr><td>${link}</td><td><span>${description}</span></td><td>${isRecommended ? EMOJI_RECOMMENDED : ''}</td><td>${isFixable ? EMOJI_FIXABLE : ''}</td></tr>`;
 	})
 	.join('\n');
 
