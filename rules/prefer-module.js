@@ -309,10 +309,11 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer ES modules over CommonJS.',
+			description: 'Prefer JavaScript modules (ESM) over CommonJS.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages
+		messages,
+		schema: []
 	}
 };

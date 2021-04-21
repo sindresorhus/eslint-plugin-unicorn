@@ -1,4 +1,4 @@
-# Prefer ES modules over CommonJS
+# Prefer JavaScript modules (ESM) over CommonJS
 
 Prefer use [ESM](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) over legacy CommonJS module.
 
