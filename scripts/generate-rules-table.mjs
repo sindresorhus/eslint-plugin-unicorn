@@ -32,7 +32,7 @@ const rulesTableContent = Object.keys(rules).filter(ruleName => !rules[ruleName]
 		const link = `[${ruleName}](${url})`;
 
 		const {description} = rules[ruleName].meta.docs;
-		const descriptionTrimmed = trimString(description, MAX_DESCRIPTION_LENGTH);
+		const descriptionTrimmed = truncateString(description, MAX_DESCRIPTION_LENGTH);
 
 		return `| ${link} | ${descriptionTrimmed} | ${isRecommended ? EMOJI_RECOMMENDED : ''} | ${isFixable ? EMOJI_FIXABLE : ''} |`;
 	})
@@ -54,7 +54,7 @@ writeFileSync(
 	)
 );
 
-function trimString(string, maxLength) {
+function truncateString(string, maxLength) {
 	if (string.length <= maxLength) {
 		return string;
 	}
@@ -65,5 +65,5 @@ function trimString(string, maxLength) {
 	const countBackticks = (trimmed.match(/`/g) || []).length;
 	const hasUnclosedBackticks = countBackticks % 2 === 1;
 
-	return trimmed + (hasUnclosedBackticks ? '`' : '') + '...';
+	return trimmed + (hasUnclosedBackticks ? '`' : '') + '…';
 }
