@@ -138,7 +138,7 @@ Each rule has emojis denoting:
 | [filename-case](docs/rules/filename-case.md) | Enforce a case style for filenames. | ✅ |  |
 | [import-index](docs/rules/import-index.md) | Enforce importing index files with `.`. |  | 🔧 |
 | [import-style](docs/rules/import-style.md) | Enforce specific import styles per module. | ✅ |  |
-| [new-for-builtins](docs/rules/new-for-builtins.md) | Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigIn... | ✅ | 🔧 |
+| [new-for-builtins](docs/rules/new-for-builtins.md) | Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigIn`... | ✅ | 🔧 |
 | [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) | Enforce specifying rules to disable in `eslint-disable` comments. | ✅ |  |
 | [no-array-callback-reference](docs/rules/no-array-callback-reference.md) | Prevent passing a function reference directly to iterator methods. | ✅ |  |
 | [no-array-for-each](docs/rules/no-array-for-each.md) | Prefer `for…of` over `Array#forEach(…)`. | ✅ | 🔧 |
@@ -180,11 +180,11 @@ Each rule has emojis denoting:
 | [prefer-includes](docs/rules/prefer-includes.md) | Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existen... | ✅ | 🔧 |
 | [prefer-keyboard-event-key](docs/rules/prefer-keyboard-event-key.md) | Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. | ✅ | 🔧 |
 | [prefer-math-trunc](docs/rules/prefer-math-trunc.md) | Enforce the use of `Math.trunc` instead of bitwise operators. | ✅ | 🔧 |
-| [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md) | Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.... | ✅ | 🔧 |
-| [prefer-negative-index](docs/rules/prefer-negative-index.md) | Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()` and `Array#spli... | ✅ | 🔧 |
+| [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md) | Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.`... | ✅ | 🔧 |
+| [prefer-negative-index](docs/rules/prefer-negative-index.md) | Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()` and `Array#spli`... | ✅ | 🔧 |
 | [prefer-number-properties](docs/rules/prefer-number-properties.md) | Prefer `Number` static properties over global ones. | ✅ | 🔧 |
 | [prefer-optional-catch-binding](docs/rules/prefer-optional-catch-binding.md) | Prefer omitting the `catch` binding parameter. | ✅ | 🔧 |
-| [prefer-query-selector](docs/rules/prefer-query-selector.md) | Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassN... | ✅ | 🔧 |
+| [prefer-query-selector](docs/rules/prefer-query-selector.md) | Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassN`... | ✅ | 🔧 |
 | [prefer-reflect-apply](docs/rules/prefer-reflect-apply.md) | Prefer `Reflect.apply()` over `Function#apply()`. | ✅ | 🔧 |
 | [prefer-regexp-test](docs/rules/prefer-regexp-test.md) | Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`. | ✅ | 🔧 |
 | [prefer-set-has](docs/rules/prefer-set-has.md) | Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence. | ✅ | 🔧 |

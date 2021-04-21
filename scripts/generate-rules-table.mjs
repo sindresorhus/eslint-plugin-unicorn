@@ -32,7 +32,7 @@ const rulesTableContent = Object.keys(rules).filter(ruleName => !rules[ruleName]
 		const link = `[${ruleName}](${url})`;
 
 		const {description} = rules[ruleName].meta.docs;
-		const descriptionTrimmed = description.length > MAX_DESCRIPTION_LENGTH ? description.slice(0, MAX_DESCRIPTION_LENGTH) + '...' : description;
+		const descriptionTrimmed = trimString(description, MAX_DESCRIPTION_LENGTH);
 
 		return `| ${link} | ${descriptionTrimmed} | ${isRecommended ? EMOJI_RECOMMENDED : ''} | ${isFixable ? EMOJI_FIXABLE : ''} |`;
 	})
@@ -53,3 +53,17 @@ writeFileSync(
 		`
 	)
 );
+
+function trimString(string, maxLength) {
+	if (string.length <= maxLength) {
+		return string;
+	}
+
+	const trimmed = string.slice(0, maxLength).trim();
+
+	// If we break the string in the middle of a code sample, be sure to close it.
+	const countBackticks = (trimmed.match(/`/g) || []).length;
+	const hasUnclosedBackticks = countBackticks % 2 === 1;
+
+	return trimmed + (hasUnclosedBackticks ? '`' : '') + '...';
+}
