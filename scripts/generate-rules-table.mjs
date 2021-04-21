@@ -27,11 +27,11 @@ const rulesTableContent = Object.keys(rules).filter(ruleName => !rules[ruleName]
 		const isFixable = rules[ruleName].meta.fixable;
 
 		const url = `docs/rules/${ruleName}.md`;
-		const link = `[${ruleName}](${url})`;
+		const link = `<a href="${url}">${ruleName}</a>`;
 
 		const {description} = rules[ruleName].meta.docs;
 
-		return `| ${link} | ${description} | ${isRecommended ? EMOJI_RECOMMENDED : ''} | ${isFixable ? EMOJI_FIXABLE : ''} |`;
+		return `<tr><td style="white-space: nowrap">${link}</td><td>${description}</td><td>${isRecommended ? EMOJI_RECOMMENDED : ''}</td><td>${isFixable ? EMOJI_FIXABLE : ''}</td></tr>`;
 	})
 	.join('\n');
 
@@ -42,9 +42,19 @@ writeFileSync(
 		outdent`
 			<!-- RULES_TABLE_START -->
 
-			| Name | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} |
-			| :--- | :---------- | :------------------- | :--------------- |
-			${rulesTableContent}
+			<table>
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Description</th>
+						<th>${EMOJI_RECOMMENDED}</th>
+						<th>${EMOJI_FIXABLE}</th>
+					</tr>
+				</thead>
+				<tbody>
+					${rulesTableContent}
+				</tbody>
+			</table>
 
 			<!-- RULES_TABLE_END -->
 		`
