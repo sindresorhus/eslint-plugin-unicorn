@@ -90,6 +90,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-keyboard-event-key": "error",
 			"unicorn/prefer-math-trunc": "error",
 			"unicorn/prefer-modern-dom-apis": "error",
+			"unicorn/prefer-module": "error",
 			"unicorn/prefer-negative-index": "error",
 			"unicorn/prefer-number-properties": "error",
 			"unicorn/prefer-optional-catch-binding": "error",
@@ -411,6 +412,11 @@ Enforce the use of `Math.trunc` instead of bitwise operators.
 <tr><td><a href="docs/rules/prefer-modern-dom-apis.md">prefer-modern-dom-apis</a></td><td>
 
 Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`.
+
+</td><td>✅</td><td>🔧</td></tr>
+<tr><td><a href="docs/rules/prefer-module.md">prefer-module</a></td><td>
+
+Prefer JavaScript modules (ESM) over CommonJS.
 
 </td><td>✅</td><td>🔧</td></tr>
 <tr><td><a href="docs/rules/prefer-negative-index.md">prefer-negative-index</a></td><td>

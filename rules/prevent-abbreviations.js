@@ -9,6 +9,7 @@ const isShorthandPropertyIdentifier = require('./utils/is-shorthand-property-ide
 const isShorthandImportIdentifier = require('./utils/is-shorthand-import-identifier');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 const renameIdentifier = require('./utils/rename-identifier');
+const isStaticRequire = require('./utils/is-static-require');
 
 const isUpperCase = string => string === string.toUpperCase();
 const isUpperFirst = string => isUpperCase(string[0]);
@@ -444,16 +445,6 @@ const isExportedIdentifier = identifier => {
 const shouldFix = variable => {
 	return !getVariableIdentifiers(variable).some(identifier => isExportedIdentifier(identifier));
 };
-
-const isStaticRequire = node => Boolean(
-	node &&
-	node.callee &&
-	node.callee.type === 'Identifier' &&
-	node.callee.name === 'require' &&
-	node.arguments.length === 1 &&
-	node.arguments[0].type === 'Literal' &&
-	typeof node.arguments[0].value === 'string'
-);
 
 const isDefaultOrNamespaceImportName = identifier => {
 	if (

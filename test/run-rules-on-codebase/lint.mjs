@@ -31,7 +31,24 @@ const eslint = new ESLint({
 			],
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1109#issuecomment-782689255
 			'unicorn/consistent-destructuring': 'off'
-		}
+		},
+		overrides: [
+			{
+				files: [
+					// ESLint don't support module
+					'rules/**/*.js',
+					'index.js',
+					// `eslint-remote-tester` only support cjs config
+					'test/smoke/eslint-remote-tester.config.js',
+					// TODO: Switch to module
+					'scripts/create-rule.js',
+					'test/integration/**/*'
+				],
+				rules: {
+					'unicorn/prefer-module': 'off'
+				}
+			}
+		]
 	}
 });
 
