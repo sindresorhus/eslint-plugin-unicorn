@@ -90,6 +90,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-keyboard-event-key": "error",
 			"unicorn/prefer-math-trunc": "error",
 			"unicorn/prefer-modern-dom-apis": "error",
+			"unicorn/prefer-module": "error",
 			"unicorn/prefer-negative-index": "error",
 			"unicorn/prefer-number-properties": "error",
 			"unicorn/prefer-optional-catch-binding": "error",
@@ -167,8 +168,8 @@ Each rule has emojis denoting:
 | [numeric-separators-style](docs/rules/numeric-separators-style.md) | Enforce the style of numeric separators by correctly grouping digits. |  | 🔧 |
 | [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) | Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. | ✅ | 🔧 |
 | [prefer-array-find](docs/rules/prefer-array-find.md) | Prefer `.find(…)` over the first element from `.filter(…)`. | ✅ | 🔧 |
-| [prefer-array-flat](docs/rules/prefer-array-flat.md) | Prefer `.flatMap(…)` over `.map(…).flat()`. |  | 🔧 |
-| [prefer-array-flat-map](docs/rules/prefer-array-flat-map.md) | Prefer `Array#flat()` over legacy techniques to flatten arrays. |  | 🔧 |
+| [prefer-array-flat](docs/rules/prefer-array-flat.md) | Prefer `Array#flat()` over legacy techniques to flatten arrays. |  | 🔧 |
+| [prefer-array-flat-map](docs/rules/prefer-array-flat-map.md) | Prefer `.flatMap(…)` over `.map(…).flat()`. |  | 🔧 |
 | [prefer-array-index-of](docs/rules/prefer-array-index-of.md) | Prefer `Array#indexOf()` over `Array#findIndex()` when looking for the index of an item. | ✅ | 🔧 |
 | [prefer-array-some](docs/rules/prefer-array-some.md) | Prefer `.some(…)` over `.find(…)`. | ✅ |  |
 | [prefer-date-now](docs/rules/prefer-date-now.md) | Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. | ✅ | 🔧 |
@@ -181,6 +182,7 @@ Each rule has emojis denoting:
 | [prefer-keyboard-event-key](docs/rules/prefer-keyboard-event-key.md) | Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. | ✅ | 🔧 |
 | [prefer-math-trunc](docs/rules/prefer-math-trunc.md) | Enforce the use of `Math.trunc` instead of bitwise operators. | ✅ | 🔧 |
 | [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md) | Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.`… | ✅ | 🔧 |
+| [prefer-module](docs/rules/prefer-module.md) | Prefer JavaScript modules (ESM) over CommonJS. | ✅ | 🔧 |
 | [prefer-negative-index](docs/rules/prefer-negative-index.md) | Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()` and `Array#spli`… | ✅ | 🔧 |
 | [prefer-number-properties](docs/rules/prefer-number-properties.md) | Prefer `Number` static properties over global ones. | ✅ | 🔧 |
 | [prefer-optional-catch-binding](docs/rules/prefer-optional-catch-binding.md) | Prefer omitting the `catch` binding parameter. | ✅ | 🔧 |
