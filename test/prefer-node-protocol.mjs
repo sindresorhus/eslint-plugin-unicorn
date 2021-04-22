@@ -51,7 +51,7 @@ test.snapshot({
 		`,
 		outdent`
 			async function foo() {
-				const fs = await import("\u{66}s/promises");
+				const fs = await import(/* escaped */"\\u{66}s/promises");
 			}
 		`,
 		'import "buffer";',
