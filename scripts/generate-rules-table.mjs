@@ -35,7 +35,7 @@ const rulesTableContent = ruleNames
 	})
 	.join('\n');
 
-const padSpaces = Math.max(...ruleNames.map(({length}) => length));
+const padSpaces = Math.max(...ruleNames.map(({length}) => length)) + 5;
 
 writeFileSync(
 	pathReadme,
