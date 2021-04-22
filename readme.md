@@ -124,7 +124,7 @@ Each rule has emojis denoting:
 <!-- Do not manually modify this table. Run: `npm run generate-rules-table` -->
 <!-- RULES_TABLE_START -->
 
-| Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | ✅ | 🔧 |
+| Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | ✅ | 🔧 |
 | :-- | :-- | :-- | :-- |
 | [better-regex](docs/rules/better-regex.md) | Improve regexes by making them shorter, consistent, and safer. | ✅ | 🔧 |
 | [catch-error-name](docs/rules/catch-error-name.md) | Enforce a specific parameter name in catch clauses. | ✅ | 🔧 |
