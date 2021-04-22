@@ -42,7 +42,7 @@ writeFileSync(
 		outdent`
 			<!-- RULES_TABLE_START -->
 
-			| Name | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} |
+			| Name${'&nbsp;'.repeat(50)} | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} |
 			| :--- | :---------- | :------------------- | :--------------- |
 			${rulesTableContent}
 
