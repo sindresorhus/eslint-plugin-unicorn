@@ -1,6 +1,6 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
 const isBuiltinModule = require('is-builtin-module');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'prefer-node-protocol';
 const messages = {
