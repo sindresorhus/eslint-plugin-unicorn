@@ -19,8 +19,8 @@ const EMOJI_RECOMMENDED = '✅';
 const EMOJI_FIXABLE = '🔧';
 
 // Generate rule table contents.
-const rulesTableContent = Object.keys(rules).filter(ruleName => !rules[ruleName].meta.deprecated)
-	.sort()
+const ruleNames = Object.keys(rules).filter(ruleName => !rules[ruleName].meta.deprecated).sort();
+const rulesTableContent = ruleNames
 	.map(ruleName => {
 		// Check which emojis to show for this rule.
 		const isRecommended = configs.recommended.rules[`unicorn/${ruleName}`] === 'error';
@@ -35,6 +35,8 @@ const rulesTableContent = Object.keys(rules).filter(ruleName => !rules[ruleName]
 	})
 	.join('\n');
 
+const padSpaces = Math.max(...ruleNames.map(({length}) => length)) - 4;
+
 writeFileSync(
 	pathReadme,
 	readmeContents.replace(
@@ -42,7 +44,7 @@ writeFileSync(
 		outdent`
 			<!-- RULES_TABLE_START -->
 
-			| Name${'&nbsp;'.repeat(50)} | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} |
+			| Name${'&nbsp;'.repeat(padSpaces)} | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} |
 			| :--- | :---------- | :------------------- | :--------------- |
 			${rulesTableContent}
 
