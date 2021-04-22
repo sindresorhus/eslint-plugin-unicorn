@@ -45,7 +45,7 @@ writeFileSync(
 			<!-- RULES_TABLE_START -->
 
 			| Name${'&nbsp;'.repeat(padSpaces)} | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} |
-			| :--- | :---------- | :------------------- | :--------------- |
+			| :-- | :-- | :-- | :-- |
 			${rulesTableContent}
 
 			<!-- RULES_TABLE_END -->
