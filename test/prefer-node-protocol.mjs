@@ -62,7 +62,7 @@ test.snapshot({
 
 test.babel({
 	valid: [
-		'export fs from "node:fs";',
+		'export fs from "node:fs";'
 	],
 	invalid: [
 		{

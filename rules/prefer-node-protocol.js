@@ -35,7 +35,7 @@ const create = context => {
 				fix: fixer => fixer.insertTextBeforeRange([firstCharacterIndex, firstCharacterIndex], 'node:')
 			});
 		}
-	}
+	};
 };
 
 module.exports = {
