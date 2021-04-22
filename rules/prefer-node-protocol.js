@@ -43,7 +43,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer use `node:` protocol when importing Node.js builtin modules.',
+			description: 'Prefer using the `node:` protocol when importing Node.js builtin modules.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',

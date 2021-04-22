@@ -1,4 +1,4 @@
-# Prefer use `node:` protocol when importing Node.js builtin modules
+# Prefer using the `node:` protocol when importing Node.js builtin modules
 
 When importing builtin modules, it's more clear with [`node:` protocol](https://nodejs.org/api/esm.html#esm_node_imports).
 
