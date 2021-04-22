@@ -101,6 +101,7 @@ module.exports = {
 				'unicorn/prefer-modern-dom-apis': 'error',
 				'unicorn/prefer-module': 'error',
 				'unicorn/prefer-negative-index': 'error',
+				'unicorn/prefer-node-protocol': 'error',
 				'unicorn/prefer-number-properties': 'error',
 				'unicorn/prefer-optional-catch-binding': 'error',
 				'unicorn/prefer-query-selector': 'error',

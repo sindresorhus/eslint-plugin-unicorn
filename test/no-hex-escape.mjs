@@ -1,4 +1,4 @@
-import {createRequire} from 'module';
+import {createRequire} from 'node:module';
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {getTester} from './utils/test.mjs';
