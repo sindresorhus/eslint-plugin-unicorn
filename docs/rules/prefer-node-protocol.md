@@ -1,6 +1,6 @@
 # Prefer using the `node:` protocol when importing Node.js builtin modules
 
-When importing builtin modules, it's more clear with [`node:` protocol](https://nodejs.org/api/esm.html#esm_node_imports).
+When importing builtin modules, it's better to use the [`node:` protocol](https://nodejs.org/api/esm.html#esm_node_imports) as it makes it perfectly clear that the package is a Node.js builtin module.
 
 This rule is fixable.
 
