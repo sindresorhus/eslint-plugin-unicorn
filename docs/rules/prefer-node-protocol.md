@@ -45,3 +45,21 @@ import _ from 'lodash';
 ```js
 import fs from './fs.js';
 ```
+
+## Options
+
+Type: `object`
+
+### `checkRequire`
+
+Type: `boolean`\
+Default: `false`
+
+Currently, `require(…)` with the `node:` protocol is only available on Node.js 16. If you don't care about old versions, you can set this to `true`.
+
+We'll remove this option and check `require(…)` by default once this feature get backported to v12.
+
+```js
+// eslint unicorn/prefer-node-protocol: ["error", {"checkRequire": true}]
+const fs = require('fs'); // Fails
+```

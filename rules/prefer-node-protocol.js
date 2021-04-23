@@ -7,14 +7,32 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `node:{{moduleName}}` over `{{moduleName}}`.'
 };
 
-const selector = [
+const importExportSelector = [
 	':matches(ImportDeclaration, ExportNamedDeclaration, ImportExpression)',
 	' > ',
 	'Literal.source'
 ].join('');
 
+const requireSelector = [
+	'CallExpression',
+	'[optional!=true]',
+	'[callee.type="Identifier"]',
+	'[callee.name="require"]',
+	'[arguments.length=1]',
+	' > ',
+	'Literal.arguments'
+].join('');
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {checkRequire} = {
+		checkRequire: false,
+		...context.options[0]
+	};
+	const selector = checkRequire ?
+		`:matches(${importExportSelector}, ${requireSelector})` :
+		importExportSelector;
+
 	return {
 		[selector](node) {
 			const {value} = node;
@@ -38,6 +56,19 @@ const create = context => {
 	};
 };
 
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			checkRequire: {
+				type: 'boolean',
+				default: false
+			}
+		},
+		additionalProperties: false
+	}
+];
+
 module.exports = {
 	create,
 	meta: {
@@ -47,7 +78,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
+		schema,
 		messages
 	}
 };
