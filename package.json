@@ -42,6 +42,7 @@
 		"eslint-utils": "^2.1.0",
 		"eslint-visitor-keys": "^2.0.0",
 		"import-modules": "^2.1.0",
+		"is-builtin-module": "^3.1.0",
 		"lodash": "^4.17.21",
 		"pluralize": "^8.0.0",
 		"read-pkg-up": "^7.0.1",

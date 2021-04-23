@@ -1,4 +1,4 @@
-import {createRequire} from 'module';
+import {createRequire} from 'node:module';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);

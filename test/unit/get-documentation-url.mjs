@@ -1,6 +1,6 @@
-import {createRequire} from 'module';
+import {createRequire} from 'node:module';
+import url from 'node:url';
 import test from 'ava';
-import url from 'url';
 import getDocumentationUrl from '../../rules/utils/get-documentation-url.js';
 
 const require = createRequire(import.meta.url);

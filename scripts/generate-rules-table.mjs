@@ -1,10 +1,10 @@
 // Automatically regenerates the rules table in readme.md.
 
-import {readFileSync, writeFileSync} from 'fs';
-import path from 'path';
-import package_ from '../index.js';
-import {fileURLToPath} from 'url';
+import {readFileSync, writeFileSync} from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 import outdent from 'outdent';
+import package_ from '../index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
