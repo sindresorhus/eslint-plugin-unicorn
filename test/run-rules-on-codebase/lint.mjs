@@ -41,7 +41,6 @@ const eslint = new ESLint({
 					// `eslint-remote-tester` only support cjs config
 					'test/smoke/eslint-remote-tester.config.js',
 					// TODO: Switch to module
-					'scripts/create-rule.js',
 					'test/integration/**/*'
 				],
 				rules: {
