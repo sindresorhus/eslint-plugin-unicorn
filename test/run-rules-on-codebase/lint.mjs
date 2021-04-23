@@ -38,10 +38,9 @@ const eslint = new ESLint({
 					// ESLint don't support module
 					'rules/**/*.js',
 					'index.js',
+					'test/integration/config.js',
 					// `eslint-remote-tester` only support cjs config
-					'test/smoke/eslint-remote-tester.config.js',
-					// TODO: Switch to module
-					'test/integration/**/*'
+					'test/smoke/eslint-remote-tester.config.js'
 				],
 				rules: {
 					'unicorn/prefer-module': 'off'
