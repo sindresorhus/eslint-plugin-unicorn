@@ -1,10 +1,12 @@
-'use strict';
-const path = require('path');
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 
-module.exports = [
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default [
 	{
 		name: 'fixtures-local',
-		location: path.join(__dirname, 'fixtures-local')
+		location: path.join(dirname, 'fixtures-local')
 	},
 	{
 		repository: 'https://github.com/avajs/ava',

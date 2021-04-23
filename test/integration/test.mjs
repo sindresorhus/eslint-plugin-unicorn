@@ -1,14 +1,15 @@
 #!/usr/bin/env node
-'use strict';
-const fs = require('fs');
-const path = require('path');
-const Listr = require('listr');
-const execa = require('execa');
-const chalk = require('chalk');
-const {isCI} = require('ci-info');
-const mem = require('mem');
-const allProjects = require('./projects');
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import Listr from 'listr';
+import execa from 'execa';
+import chalk from 'chalk';
+import {isCI} from 'ci-info';
+import mem from 'mem';
+import allProjects from './projects.mjs';
 
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectsArguments = process.argv.slice(2);
 const projects = projectsArguments.length === 0 ?
 	allProjects :
@@ -35,7 +36,7 @@ const makeEslintTask = (project, destination) => {
 		'--format',
 		'json',
 		'--config',
-		path.join(__dirname, 'config.js')
+		path.join(dirname, 'config.js')
 	];
 
 	for (const pattern of project.ignore) {
@@ -46,7 +47,7 @@ const makeEslintTask = (project, destination) => {
 		let stdout;
 		let processError;
 		try {
-			({stdout} = await execa('npx', arguments_, {cwd: destination, localDir: __dirname}));
+			({stdout} = await execa('npx', arguments_, {cwd: destination, localDir: dirname}));
 		} catch (error) {
 			({stdout} = error);
 			processError = error;
@@ -89,7 +90,7 @@ const makeEslintTask = (project, destination) => {
 const getBranch = mem(async dirname => (await execa('git', ['branch', '--show-current'], {cwd: dirname})).stdout);
 
 const execute = project => {
-	const destination = project.location || path.join(__dirname, 'fixtures', project.name);
+	const destination = project.location || path.join(dirname, 'fixtures', project.name);
 
 	return new Listr([
 		{
@@ -120,7 +121,7 @@ const execute = project => {
 const list = new Listr([
 	{
 		title: 'Setup',
-		task: () => execa('npm', ['install'], {cwd: __dirname})
+		task: () => execa('npm', ['install'], {cwd: dirname})
 	},
 	{
 		title: 'Integration tests',

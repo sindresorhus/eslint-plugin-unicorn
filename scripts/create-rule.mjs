@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-'use strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import enquirer from 'enquirer';
+import {template} from 'lodash-es';
+import execa from 'execa';
 
-const fs = require('fs');
-const path = require('path');
-const enquirer = require('enquirer');
-const {template} = require('lodash');
-const execa = require('execa');
-
-const ROOT = path.join(__dirname, '..');
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.join(dirname, '..');
 
 function checkFiles(ruleId) {
 	const files = [
@@ -24,7 +24,7 @@ function checkFiles(ruleId) {
 }
 
 function renderTemplate({source, target, data}) {
-	const templateFile = path.join(__dirname, `template/${source}`);
+	const templateFile = path.join(dirname, `template/${source}`);
 	const targetFile = path.join(ROOT, target);
 	const templateContent = fs.readFileSync(templateFile, 'utf8');
 
