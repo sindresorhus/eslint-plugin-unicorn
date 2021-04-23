@@ -34,8 +34,7 @@ const rulesTableContent = ruleNames
 		return `| ${link} | ${description} | ${isRecommended ? EMOJI_RECOMMENDED : ''} | ${isFixable ? EMOJI_FIXABLE : ''} |`;
 	})
 	.join('\n');
-
-const padSpaces = Math.max(...ruleNames.map(({length}) => length)) + 8;
+const spaces = '&nbsp;'.repeat(Math.max(...ruleNames.map(({length}) => length)) + 8);
 
 writeFileSync(
 	pathReadme,
@@ -44,7 +43,7 @@ writeFileSync(
 		outdent`
 			<!-- RULES_TABLE_START -->
 
-			| Name${'&nbsp;'.repeat(padSpaces)} | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} |
+			| Name${spaces} | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} |
 			| :-- | :-- | :-- | :-- |
 			${rulesTableContent}
 
