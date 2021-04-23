@@ -55,7 +55,7 @@ Type: `object`
 Type: `boolean`\
 Default: `false`
 
-Currently `require(…)` with the `node:` protocol only available in Node.js v16, if you don't care about old versions, you can set it to `true`.
+Currently, `require(…)` with the `node:` protocol is only available on Node.js 16. If you don't care about old versions, you can set this to `true`.
 
 We'll remove this option and check `require(…)` by default once this feature get backported to v12.
 
