@@ -15,11 +15,12 @@
 	},
 	"scripts": {
 		"test": "xo && nyc ava",
-		"create-rule": "node ./scripts/create-rule.mjs && npm run generate-rules-table",
+		"create-rule": "node ./scripts/create-rule.mjs && npm run generate-rules-table && npm run generate-usage-example",
 		"run-rules-on-codebase": "node ./test/run-rules-on-codebase/lint.mjs",
 		"integration": "node ./test/integration/test.mjs",
 		"smoke": "eslint-remote-tester --config ./test/smoke/eslint-remote-tester.config.js",
-		"generate-rules-table": "node ./scripts/generate-rules-table.mjs"
+		"generate-rules-table": "node ./scripts/generate-rules-table.mjs",
+		"generate-usage-example": "node ./scripts/generate-usage-example.mjs"
 	},
 	"files": [
 		"index.js",
