@@ -89,13 +89,6 @@ class Tester {
 		});
 		return tester.run(this.ruleId, this.rule, tests);
 	}
-
-	babelLegacy(tests) {
-		return this.runTest({
-			...tests,
-			testerOptions: {parser: require.resolve('babel-eslint')}
-		});
-	}
 }
 
 function getTester(importMeta) {
@@ -106,7 +99,6 @@ function getTester(importMeta) {
 	test.typescript = tester.typescript.bind(tester);
 	test.babel = tester.babel.bind(tester);
 	test.snapshot = tester.snapshot.bind(tester);
-	test.babelLegacy = tester.babelLegacy.bind(tester);
 
 	return {
 		ruleId,
