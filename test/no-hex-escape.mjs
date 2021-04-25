@@ -1,4 +1,3 @@
-import {createRequire} from 'node:module';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
@@ -199,22 +198,24 @@ const tests = {
 
 const addComment = (test, comment) => {
 	if (typeof test === 'string') {
-		return `${test}\n/* ${comment} */`
+		return `${test}\n/* ${comment} */`;
 	}
+
 	const {code, output} = test;
 	return {
 		...test,
 		code: `${code}\n/* ${comment} */`,
 		output: `${output}\n/* ${comment} */`
-	}
+	};
 };
+
 const avoidTestTitleConflict = (tests, comment) => {
 	const {valid, invalid} = tests;
 	return {
 		...tests,
 		valid: valid.map(test => addComment(test, comment)),
 		invalid: invalid.map(test => addComment(test, comment))
-	}
+	};
 };
 
 test(tests);
