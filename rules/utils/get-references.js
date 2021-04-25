@@ -1,5 +1,5 @@
 'use strict';
-const {uniq, flatten} = require('lodash');
+const {uniq} = require('lodash');
 
 const getReferences = scope => uniq([
 	...scope.references,

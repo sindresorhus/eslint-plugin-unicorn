@@ -1,6 +1,5 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import {flatten} from 'lodash-es';
 import outdent from 'outdent';
 import rule from '../rules/no-array-reduce.js';
 import notFunctionTypes from './utils/not-function-types.mjs';

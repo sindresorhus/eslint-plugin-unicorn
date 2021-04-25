@@ -1,7 +1,6 @@
 'use strict';
 const {singular} = require('pluralize');
 const {isClosingParenToken} = require('eslint-utils');
-const {flatten} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 const avoidCapture = require('./utils/avoid-capture');

@@ -2,7 +2,6 @@
 const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const domEventsJson = require('./utils/dom-events.json');
-const {flatten} = require('lodash');
 
 const MESSAGE_ID = 'prefer-add-event-listener';
 const messages = {

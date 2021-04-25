@@ -1,4 +1,3 @@
-import {flatten} from 'lodash-es';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
@@ -236,8 +235,8 @@ test({
 		]),
 		// Ignored
 		...['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue'].flatMap(
-				filename => ['camelCase', 'snakeCase', 'kebabCase', 'pascalCase'].map(chosenCase => testCase(filename, chosenCase))
-			)
+			filename => ['camelCase', 'snakeCase', 'kebabCase', 'pascalCase'].map(chosenCase => testCase(filename, chosenCase))
+		)
 	],
 	invalid: [
 		testCase(
