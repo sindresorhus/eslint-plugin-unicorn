@@ -1,6 +1,5 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import {flatten} from 'lodash-es';
 import outdent from 'outdent';
 import rule from '../rules/no-array-reduce.js';
 import notFunctionTypes from './utils/not-function-types.mjs';
@@ -18,7 +17,7 @@ const errorsReduce = [{messageId: MESSAGE_ID_REDUCE}];
 const errorsReduceRight = [{messageId: MESSAGE_ID_REDUCE_RIGHT}];
 
 const tests = {
-	valid: flatten([
+	valid: [
 		'a[b.reduce]()',
 		'a(b.reduce)',
 		'a.reduce()',
@@ -103,8 +102,8 @@ const tests = {
 		// Second argument is not a function
 		...notFunctionTypes.map(data => `Array.prototype.reduce.call(foo, ${data})`)
 
-	].map(code => [code, code.replace('reduce', 'reduceRight')])),
-	invalid: flatten([
+	].flatMap(code => [code, code.replace('reduce', 'reduceRight')]),
+	invalid: [
 		'arr.reduce((total, item) => total + item)',
 		'arr.reduce((total, item) => total + item, 0)',
 		'arr.reduce(function (total, item) { return total + item }, 0)',
@@ -130,7 +129,7 @@ const tests = {
 		'[].reduce.apply(arr, [sum]);',
 		'Array.prototype.reduce.apply(arr, [(s, i) => s + i])',
 		'Array.prototype.reduce.apply(arr, [sum]);'
-	].map(code => [{code, errors: errorsReduce}, {code: code.replace('reduce', 'reduceRight'), errors: errorsReduceRight}]))
+	].flatMap(code => [{code, errors: errorsReduce}, {code: code.replace('reduce', 'reduceRight'), errors: errorsReduceRight}])
 };
 
 ruleTester.run('no-array-reduce', rule, tests);

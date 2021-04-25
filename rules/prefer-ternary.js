@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const {flatten} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
 const extendFixRange = require('./utils/extend-fix-range');
@@ -42,7 +41,7 @@ function getNodeBody(node) {
 
 const getScopes = scope => [
 	scope,
-	...flatten(scope.childScopes.map(scope => getScopes(scope)))
+	...scope.childScopes.flatMap(scope => getScopes(scope))
 ];
 
 const create = context => {

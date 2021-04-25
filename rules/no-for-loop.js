@@ -1,7 +1,6 @@
 'use strict';
 const {singular} = require('pluralize');
 const {isClosingParenToken} = require('eslint-utils');
-const {flatten} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 const avoidCapture = require('./utils/avoid-capture');
@@ -265,13 +264,13 @@ const getReferencesInChildScopes = (scope, name) => {
 	const references = scope.references.filter(reference => reference.identifier.name === name);
 	return [
 		...references,
-		...flatten(scope.childScopes.map(s => getReferencesInChildScopes(s, name)))
+		...scope.childScopes.flatMap(s => getReferencesInChildScopes(s, name))
 	];
 };
 
 const getChildScopesRecursive = scope => [
 	scope,
-	...flatten(scope.childScopes.map(scope => getChildScopesRecursive(scope)))
+	...scope.childScopes.flatMap(scope => getChildScopesRecursive(scope))
 ];
 
 const getSingularName = originalName => {

@@ -4,7 +4,6 @@ const semver = require('semver');
 const ci = require('ci-info');
 const baseRule = require('eslint/lib/rules/no-warning-comments');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {flatten} = require('lodash');
 
 // `unicorn/` prefix is added to avoid conflicts with core rule
 const MESSAGE_ID_AVOID_MULTIPLE_DATES = 'unicorn/avoidMultipleDates';
@@ -252,23 +251,21 @@ const create = context => {
 
 	const sourceCode = context.getSourceCode();
 	const comments = sourceCode.getAllComments();
-	const unusedComments = flatten(
-		comments
-			.filter(token => token.type !== 'Shebang')
-			// Block comments come as one.
-			// Split for situations like this:
-			// /*
-			//  * TODO [2999-01-01]: Validate this
-			//  * TODO [2999-01-01]: And this
-			//  * TODO [2999-01-01]: Also this
-			//  */
-			.map(comment =>
-				comment.value.split('\n').map(line => ({
-					...comment,
-					value: line
-				}))
-			)
-	).filter(comment => processComment(comment));
+	const unusedComments = comments
+		.filter(token => token.type !== 'Shebang')
+		// Block comments come as one.
+		// Split for situations like this:
+		// /*
+		//  * TODO [2999-01-01]: Validate this
+		//  * TODO [2999-01-01]: And this
+		//  * TODO [2999-01-01]: Also this
+		//  */
+		.flatMap(comment =>
+			comment.value.split('\n').map(line => ({
+				...comment,
+				value: line
+			}))
+		).filter(comment => processComment(comment));
 
 	// This is highly dependable on ESLint's `no-warning-comments` implementation.
 	// What we do is patch the parts we know the rule will use, `getAllComments`.

@@ -2,7 +2,6 @@
 const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const domEventsJson = require('./utils/dom-events.json');
-const {flatten} = require('lodash');
 
 const MESSAGE_ID = 'prefer-add-event-listener';
 const messages = {
@@ -14,7 +13,7 @@ const extraMessages = {
 };
 
 const nestedEvents = Object.values(domEventsJson);
-const eventTypes = new Set(flatten(nestedEvents));
+const eventTypes = new Set(nestedEvents.flat());
 const getEventMethodName = memberExpression => memberExpression.property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 

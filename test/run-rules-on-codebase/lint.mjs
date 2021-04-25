@@ -30,7 +30,16 @@ const eslint = new ESLint({
 				}
 			],
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1109#issuecomment-782689255
-			'unicorn/consistent-destructuring': 'off'
+			'unicorn/consistent-destructuring': 'off',
+			'unicorn/prefer-array-flat': [
+				'error',
+				{
+					functions: [
+						'flat',
+						'flatten'
+					]
+				}
+			]
 		},
 		overrides: [
 			{
