@@ -7,7 +7,7 @@ module.exports = identifier =>
 	identifier.parent.shorthand &&
 	(
 		identifier === identifier.parent.key ||
-		// In `babel-eslint` parent.key is not reference of identifier, #444
-		// issue https://github.com/babel/babel-eslint/issues/809
+		// TODO: Report this to `@babel/eslint-parser`
+		// Original issue on `babel-eslint` https://github.com/babel/babel-eslint/issues/809
 		hasSameRange(identifier, identifier.parent.key)
 	);
