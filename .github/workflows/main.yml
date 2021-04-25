@@ -48,3 +48,4 @@ jobs:
       - run: npm install
       - run: npm run integration
       - run: npm run generate-rules-table && git diff --exit-code
+      - run: npm run generate-usage-example && git diff --exit-code

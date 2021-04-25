@@ -70,47 +70,6 @@ function updateIndex(id) {
 	fs.writeFileSync(file, updated);
 }
 
-function updateReadmeUsage({id}) {
-	const RULE_START = '\t\t"rules": {\n';
-	const RULE_END = '\n\t\t}';
-	const RULE_INDENT = '\t'.repeat(3);
-	let ruleContent = `${RULE_INDENT}"unicorn/${id}": "error",`;
-
-	const file = path.join(ROOT, 'readme.md');
-	const content = fs.readFileSync(file, 'utf8');
-	const [before, rest] = content.split(RULE_START);
-	const [rules, after] = rest.split(RULE_END);
-
-	const lines = rules.split('\n');
-	if (!lines.every(line => line.startsWith(RULE_INDENT))) {
-		throw new Error('Unexpected content in “readme.md”.');
-	}
-
-	const unicornRuleLines = lines.filter(line => line.startsWith(`${RULE_INDENT}"unicorn/`));
-	let insertIndex;
-	if (ruleContent.localeCompare(unicornRuleLines[0]) === -1) {
-		insertIndex = 0;
-	} else if (ruleContent.localeCompare(unicornRuleLines[unicornRuleLines.length - 1]) === 1) {
-		insertIndex = lines.length;
-		lines[lines.length - 1] += ',';
-		ruleContent = ruleContent.slice(0, -1);
-	} else {
-		const lineBefore = unicornRuleLines[
-			unicornRuleLines.findIndex(line => line.localeCompare(ruleContent) === 1) - 1
-		];
-		insertIndex = lines.indexOf(lineBefore) + 1;
-	}
-
-	lines.splice(insertIndex, 0, ruleContent);
-
-	const updated = `${before}${RULE_START}${lines.join('\n')}${RULE_END}${after}`;
-	fs.writeFileSync(file, updated);
-}
-
-function updateReadme(data) {
-	updateReadmeUsage(data);
-}
-
 (async () => {
 	const data = await enquirer.prompt([
 		{
@@ -191,7 +150,6 @@ function updateReadme(data) {
 		data
 	});
 	updateIndex(id);
-	updateReadme(data);
 
 	try {
 		await execa('code', [

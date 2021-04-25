@@ -60,7 +60,7 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 	const readme = await pify(fs.readFile)('readme.md', 'utf8');
 	let usageRules;
 	try {
-		const usageRulesMatch = /## Usage.*?"rules": (?<rules>{.*?})/ms.exec(readme);
+		const usageRulesMatch = /<!-- USAGE_EXAMPLE_START -->.*?"rules": (?<rules>{.*?}).*?<!-- USAGE_EXAMPLE_END -->/ms.exec(readme);
 		t.truthy(usageRulesMatch, 'List of rules should be defined in readme.md ## Usage');
 		usageRules = JSON.parse(usageRulesMatch.groups.rules);
 	} catch {}

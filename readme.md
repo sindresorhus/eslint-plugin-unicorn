@@ -18,6 +18,8 @@ $ npm install --save-dev eslint eslint-plugin-unicorn
 
 Configure it in `package.json`.
 
+<!-- Do not manually modify this table. Run: `npm run generate-usage-example` -->
+<!-- USAGE_EXAMPLE_START -->
 ```json
 {
 	"name": "my-awesome-project",
@@ -76,8 +78,8 @@ Configure it in `package.json`.
 			"unicorn/numeric-separators-style": "off",
 			"unicorn/prefer-add-event-listener": "error",
 			"unicorn/prefer-array-find": "error",
-			"unicorn/prefer-array-flat": "error",
-			"unicorn/prefer-array-flat-map": "error",
+			"unicorn/prefer-array-flat": "off",
+			"unicorn/prefer-array-flat-map": "off",
 			"unicorn/prefer-array-index-of": "error",
 			"unicorn/prefer-array-some": "error",
 			"unicorn/prefer-date-now": "error",
@@ -105,7 +107,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-string-starts-ends-with": "error",
 			"unicorn/prefer-string-trim-start-end": "error",
 			"unicorn/prefer-switch": "error",
-			"unicorn/prefer-ternary": "off",
+			"unicorn/prefer-ternary": "error",
 			"unicorn/prefer-type-error": "error",
 			"unicorn/prevent-abbreviations": "error",
 			"unicorn/string-content": "off",
@@ -114,6 +116,7 @@ Configure it in `package.json`.
 	}
 }
 ```
+<!-- USAGE_EXAMPLE_END -->
 
 ## Rules
 
