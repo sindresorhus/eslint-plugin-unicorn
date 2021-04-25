@@ -20,7 +20,7 @@ const invalidTestCase = testCase => {
 	if (suggestions) {
 		return {
 			code,
-			output: code,
+			output: null,
 			options,
 			errors: [
 				{
@@ -47,7 +47,7 @@ const invalidTestCase = testCase => {
 
 	return {
 		code,
-		output: code,
+		output: null,
 		options,
 		errors: [
 			{

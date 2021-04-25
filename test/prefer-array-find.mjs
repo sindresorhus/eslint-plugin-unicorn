@@ -263,7 +263,7 @@ ruleTester.run('prefer-array-find', rule, {
 		// Suggestions
 		{
 			code: 'const [foo = baz] = array.filter(bar)',
-			output: 'const [foo = baz] = array.filter(bar)',
+			output: null,
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
@@ -281,7 +281,7 @@ ruleTester.run('prefer-array-find', rule, {
 		// Default value is parenthesized
 		{
 			code: 'const [foo = (bar)] = array.filter(bar)',
-			output: 'const [foo = (bar)] = array.filter(bar)',
+			output: null,
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
@@ -299,7 +299,7 @@ ruleTester.run('prefer-array-find', rule, {
 		// Default value has lower precedence
 		{
 			code: 'const [foo = a ? b : c] = array.filter(bar)',
-			output: 'const [foo = a ? b : c] = array.filter(bar)',
+			output: null,
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
@@ -316,7 +316,7 @@ ruleTester.run('prefer-array-find', rule, {
 		},
 		{
 			code: 'const [foo = a ?? b] = array.filter(bar)',
-			output: 'const [foo = a ?? b] = array.filter(bar)',
+			output: null,
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
@@ -333,7 +333,7 @@ ruleTester.run('prefer-array-find', rule, {
 		},
 		{
 			code: 'const [foo = a || b] = array.filter(bar)',
-			output: 'const [foo = a || b] = array.filter(bar)',
+			output: null,
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
@@ -350,7 +350,7 @@ ruleTester.run('prefer-array-find', rule, {
 		},
 		{
 			code: 'const [foo = a && b] = array.filter(bar)',
-			output: 'const [foo = a && b] = array.filter(bar)',
+			output: null,
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
@@ -458,7 +458,7 @@ ruleTester.run('prefer-array-find', rule, {
 		// Suggestions
 		{
 			code: '[foo = baz] = array.filter(bar)',
-			output: '[foo = baz] = array.filter(bar)',
+			output: null,
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
@@ -475,7 +475,7 @@ ruleTester.run('prefer-array-find', rule, {
 		},
 		{
 			code: '[{foo} = baz] = array.filter(bar)',
-			output: '[{foo} = baz] = array.filter(bar)',
+			output: null,
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
@@ -492,7 +492,7 @@ ruleTester.run('prefer-array-find', rule, {
 		},
 		{
 			code: ';([{foo} = baz] = array.filter(bar))',
-			output: ';([{foo} = baz] = array.filter(bar))',
+			output: null,
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
@@ -510,7 +510,7 @@ ruleTester.run('prefer-array-find', rule, {
 		// Default value is parenthesized
 		{
 			code: '[foo = (bar)] = array.filter(bar)',
-			output: '[foo = (bar)] = array.filter(bar)',
+			output: null,
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
@@ -528,7 +528,7 @@ ruleTester.run('prefer-array-find', rule, {
 		// Default value has lower precedence
 		{
 			code: '[foo = a ? b : c] = array.filter(bar)',
-			output: '[foo = a ? b : c] = array.filter(bar)',
+			output: null,
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
@@ -545,7 +545,7 @@ ruleTester.run('prefer-array-find', rule, {
 		},
 		{
 			code: '[foo = a || b] = array.filter(bar)',
-			output: '[foo = a || b] = array.filter(bar)',
+			output: null,
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [

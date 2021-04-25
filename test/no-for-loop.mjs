@@ -20,7 +20,7 @@ const ruleTesterEs5 = avaRuleTester(test, {
 function testCase(code, output) {
 	return {
 		code,
-		output: output || code,
+		output: output || null,
 		errors: [{messageId: 'no-for-loop'}]
 	};
 }

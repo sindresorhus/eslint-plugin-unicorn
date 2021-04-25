@@ -3,7 +3,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-test({
+test.snapshot({
 	valid: [
 		'const bar = !re.test(foo)',
 		// Not `boolean`
@@ -41,11 +41,6 @@ test({
 		'if (foo.match(1n)) {}',
 		'if (foo.match(true)) {}'
 	],
-	invalid: []
-});
-
-test.snapshot({
-	valid: [],
 	invalid: [
 		// `String#match()`
 		'const bar = !foo.match(re)',

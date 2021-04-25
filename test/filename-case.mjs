@@ -22,6 +22,7 @@ function testManyCases(filename, chosenCases, errorMessage) {
 function testCaseWithOptions(filename, errorMessage, options = []) {
 	return {
 		code: 'foo()',
+		output: null,
 		filename,
 		options,
 		errors: errorMessage && [

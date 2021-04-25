@@ -65,6 +65,7 @@ const addDefaultOptions = test => {
 
 	return {
 		options: [options],
+		output: null,
 		...test
 	};
 };

@@ -16,7 +16,7 @@ const invalidTestCase = ({code, suggestions}) => {
 
 	return {
 		code,
-		output: code,
+		output: null,
 		errors: suggestions.map(suggestion => ({
 			messageId: 'preferDefaultParameters',
 			suggestions: [{

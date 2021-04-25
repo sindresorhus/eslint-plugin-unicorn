@@ -395,6 +395,7 @@ test({
 					return foo;
 				}
 			`,
+			output: null,
 			errors: [createError('function \'doBar\'')]
 		},
 		{
@@ -407,6 +408,7 @@ test({
 					return foo;
 				}
 			`,
+			output: null,
 			errors: [createError('function \'doBar\'')]
 		},
 		{
@@ -417,6 +419,7 @@ test({
 					}
 				}
 			`,
+			output: null,
 			errors: [createError('function \'doBar\'')]
 		},
 		{
@@ -427,6 +430,7 @@ test({
 					}
 				};
 			`,
+			output: null,
 			errors: [createError('function \'doBar\'')]
 		},
 		{
@@ -437,6 +441,7 @@ test({
 					};
 				};
 			`,
+			output: null,
 			errors: [createError('function')]
 		},
 		{
@@ -447,6 +452,7 @@ test({
 					};
 				}
 			`,
+			output: null,
 			errors: [createError('function')]
 		},
 		{
@@ -458,6 +464,7 @@ test({
 					doBar();
 				}
 			`,
+			output: null,
 			errors: [createError('function')]
 		},
 		{
@@ -468,12 +475,14 @@ test({
 					}
 				}
 			`,
+			output: null,
 			errors: [createError('arrow function \'doBar\'')]
 		},
 		{
 			code: outdent`
 				const doFoo = () => bar => bar;
 			`,
+			output: null,
 			errors: [createError('arrow function')]
 		},
 		// `this`
@@ -486,6 +495,7 @@ test({
 					return doBar();
 				};
 			`,
+			output: null,
 			errors: [createError('function \'doBar\'')]
 		},
 		{
@@ -495,6 +505,7 @@ test({
 					return doBar();
 				};
 			`,
+			output: null,
 			errors: [createError('arrow function \'doBar\'')]
 		},
 		{
@@ -504,6 +515,7 @@ test({
 					return doBar();
 				};
 			`,
+			output: null,
 			errors: [createError('arrow function \'doBar\'')]
 		},
 		// `arguments`
@@ -516,6 +528,7 @@ test({
 					return doBar();
 				};
 			`,
+			output: null,
 			errors: [createError('function \'doBar\'')]
 		},
 		{
@@ -525,6 +538,7 @@ test({
 					return doBar();
 				};
 			`,
+			output: null,
 			errors: [createError('arrow function \'doBar\'')]
 		},
 		{
@@ -536,6 +550,7 @@ test({
 					return foo;
 				}
 			`,
+			output: null,
 			errors: [createError('function \'doBar\'')]
 		},
 		{
@@ -547,6 +562,7 @@ test({
 					return doBar;
 				}
 			`,
+			output: null,
 			errors: [createError('function \'doBar\'')]
 		},
 		{
@@ -555,6 +571,7 @@ test({
 					function doBar() {}
 				}
 			`,
+			output: null,
 			errors: [createError('function \'doBar\'')]
 		},
 		{
@@ -570,6 +587,7 @@ test({
 					return foo;
 				}
 			`,
+			output: null,
 			errors: [createError('function \'doBar\'')]
 		},
 		{
@@ -582,6 +600,7 @@ test({
 					}
 				}
 			`,
+			output: null,
 			errors: [createError('function \'doBar\'')]
 		},
 		{
@@ -592,40 +611,49 @@ test({
 					}
 				}
 			`,
+			output: null,
 			errors: [createError('function \'doBar\'')]
 		},
 		// Function kinds and names, loc
 		{
 			code: 'function foo() { function bar() {} }',
+			output: null,
 			errors: [createError('function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 30})]
 		},
 		{
 			code: 'function foo() { async function bar() {} }',
+			output: null,
 			errors: [createError('async function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 36})]
 		},
 		{
 			code: 'function foo() { function* bar() {} }',
+			output: null,
 			errors: [createError('generator function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 31})]
 		},
 		{
 			code: 'function foo() { async function* bar() {} }',
+			output: null,
 			errors: [createError('async generator function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 37})]
 		},
 		{
 			code: 'function foo() { const bar = () => {} }',
+			output: null,
 			errors: [createError('arrow function \'bar\'', {line: 1, column: 33, endLine: 1, endColumn: 35})]
 		},
 		{
 			code: 'const doFoo = () => bar => bar;',
+			output: null,
 			errors: [createError('arrow function', {line: 1, column: 25, endLine: 1, endColumn: 27})]
 		},
 		{
 			code: 'function foo() { const bar = async () => {} }',
+			output: null,
 			errors: [createError('async arrow function \'bar\'', {line: 1, column: 39, endLine: 1, endColumn: 41})]
 		},
 		// Actual message
 		{
 			code: 'function foo() { async function* bar() {} }',
+			output: null,
 			errors: [{
 				message: 'Move async generator function \'bar\' to the outer scope.'
 			}]
@@ -640,6 +668,7 @@ test({
 					}
 				}, [])
 			`,
+			output: null,
 			errors: [createError('function \'bar\'')]
 		},
 		// IIFE
@@ -652,6 +681,7 @@ test({
 					}
 				})();
 			`,
+			output: null,
 			errors: [createError('function \'bar\'')]
 		},
 		// #770
@@ -664,6 +694,7 @@ test({
 					process.exitCode = returnsZero();
 				});
 			`,
+			output: null,
 			errors: [createError('function \'returnsZero\'')]
 		},
 		{
@@ -681,6 +712,7 @@ test({
 					})(),
 				)
 			`,
+			output: null,
 			errors: [createError('function \'bar\'')]
 		},
 		{
@@ -697,6 +729,7 @@ test({
 					},
 				)
 			`,
+			output: null,
 			errors: [createError('function \'baz\'')]
 		},
 		{
@@ -709,6 +742,7 @@ test({
 					return <div>{ doBaz() }</div>
 				}
 			`,
+			output: null,
 			errors: [createError('function \'doBaz\'')]
 		},
 		{
@@ -723,6 +757,7 @@ test({
 					return <div>{ doBaz() }</div>
 				}
 			`,
+			output: null,
 			errors: [createError('function \'doBaz\'')]
 		},
 		// JSX
@@ -739,6 +774,7 @@ test({
 					function foo() {}
 				}
 			`,
+			output: null,
 			errors: ['b', 'c', 'foo'].map(functionName => createError(`function '${functionName}'`))
 		},
 		// Should check functions inside arrow functions
@@ -748,6 +784,7 @@ test({
 					function inner() {}
 				}
 			`,
+			output: null,
 			errors: [createError('function \'inner\'')],
 			options: [{checkArrowFunctions: false}]
 		}

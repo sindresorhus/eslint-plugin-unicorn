@@ -19,26 +19,32 @@ test({
 	invalid: [
 		{
 			code: 'const foo = /(x+x+)+y/',
+			output: null,
 			errors: [error]
 		},
 		{
 			code: 'const foo = /(x+x+)+y/g',
+			output: null,
 			errors: [error]
 		},
 		{
 			code: 'const foo = new RegExp(\'(x+x+)+y\')',
+			output: null,
 			errors: [error]
 		},
 		{
 			code: 'const foo = new RegExp(\'(x+x+)+y\', \'g\')',
+			output: null,
 			errors: [error]
 		},
 		{
 			code: 'const foo = new RegExp(/(x+x+)+y/)',
+			output: null,
 			errors: [error]
 		},
 		{
 			code: 'const foo = new RegExp(/(x+x+)+y/g)',
+			output: null,
 			errors: [error]
 		}
 	]

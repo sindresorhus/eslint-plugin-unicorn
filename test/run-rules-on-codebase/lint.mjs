@@ -45,6 +45,15 @@ const eslint = new ESLint({
 				rules: {
 					'unicorn/prefer-module': 'off'
 				}
+			},
+			// EslintRuleTester use `null` to assert no autofixes tests
+			{
+				files: [
+					'test/*.mjs'
+				],
+				rules: {
+					'unicorn/no-null': 'off'
+				}
 			}
 		]
 	}

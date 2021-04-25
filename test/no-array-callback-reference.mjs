@@ -47,7 +47,7 @@ const suggestionOutput = output => ({
 
 const invalidTestCase = (({code, method, name, suggestions}) => ({
 	code,
-	output: code,
+	output: null,
 	errors: [
 		{
 			...generateError(method, name),

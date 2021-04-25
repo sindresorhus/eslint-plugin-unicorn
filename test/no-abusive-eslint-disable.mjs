@@ -64,6 +64,7 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 				// eslint-disable-next-line @scopewithoutplugin
 				eval();
 			`,
+			output: null,
 			errors: 1
 		}
 	]

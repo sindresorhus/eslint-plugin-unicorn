@@ -11,7 +11,7 @@ const invalidTestCase = ({code, output, suggestionOutput}) => {
 	if (suggestionOutput) {
 		return {
 			code,
-			output: code,
+			output: null,
 			errors: [
 				{
 					messageId: ERROR_MESSAGE_ID,
@@ -174,6 +174,7 @@ test({
 		// Value of `parentNode.removeChild` call is use
 		{
 			code: 'if (parentNode.removeChild(foo)) {}',
+			output: null,
 			suggestionOutput: 'if (foo.remove()) {}'
 		},
 		{

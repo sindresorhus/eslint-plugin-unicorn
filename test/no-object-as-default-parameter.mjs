@@ -54,38 +54,47 @@ test({
 	invalid: [
 		{
 			code: 'function abc(foo = {a: 123}) {}',
+			output: null,
 			errors: [error]
 		},
 		{
 			code: 'async function * abc(foo = {a: 123}) {}',
+			output: null,
 			errors: [error]
 		},
 		{
 			code: 'function abc(foo = {a: false}) {}',
+			output: null,
 			errors: [error]
 		},
 		{
 			code: 'function abc(foo = {a: "bar"}) {}',
+			output: null,
 			errors: [error]
 		},
 		{
 			code: 'function abc(foo = {a: "bar", b: {c: true}}) {}',
+			output: null,
 			errors: [error]
 		},
 		{
 			code: 'const abc = (foo = {a: false}) => {};',
+			output: null,
 			errors: [error]
 		},
 		{
 			code: 'const abc = (foo = {a: 123, b: false}) => {};',
+			output: null,
 			errors: [error]
 		},
 		{
 			code: 'const abc = (foo = {a: false, b: 1, c: "test", d: null}) => {};',
+			output: null,
 			errors: [error]
 		},
 		{
 			code: 'const abc = function(foo = {a: 123}) {}',
+			output: null,
 			errors: [error]
 		},
 		{
@@ -94,6 +103,7 @@ test({
 					abc(foo = {a: 123}) {}
 				}
 			`,
+			output: null,
 			errors: [error]
 		},
 		{
@@ -102,6 +112,7 @@ test({
 					constructor(foo = {a: 123}) {}
 				}
 			`,
+			output: null,
 			errors: [error]
 		},
 		{
@@ -110,6 +121,7 @@ test({
 					set abc(foo = {a: 123}) {}
 				}
 			`,
+			output: null,
 			errors: [error]
 		},
 		{
@@ -118,6 +130,7 @@ test({
 					static abc(foo = {a: 123}) {}
 				}
 			`,
+			output: null,
 			errors: [error]
 		},
 		{
@@ -126,6 +139,7 @@ test({
 					* abc(foo = {a: 123}) {}
 				}
 			`,
+			output: null,
 			errors: [error]
 		},
 		{
@@ -134,6 +148,7 @@ test({
 					static async * abc(foo = {a: 123}) {}
 				}
 			`,
+			output: null,
 			errors: [error]
 		},
 		{
@@ -142,6 +157,7 @@ test({
 					[foo = {a: 123}](foo = {a: 123}) {}
 				}
 			`,
+			output: null,
 			errors: [error]
 		},
 		{
@@ -150,6 +166,7 @@ test({
 					abc(foo = {a: 123}) {}
 				}
 			`,
+			output: null,
 			errors: [error]
 		},
 		{
@@ -158,6 +175,7 @@ test({
 					abc(foo = {a: 123}) {}
 				};
 			`,
+			output: null,
 			errors: [error]
 		}
 	]

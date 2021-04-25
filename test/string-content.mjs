@@ -130,6 +130,7 @@ test({
 		// Not fix
 		{
 			code: 'const foo = "unicorn"',
+			output: null,
 			options: [{patterns: {unicorn: {...patterns.unicorn, fix: false}}}],
 			errors: createSuggestionError(
 				'unicorn',

@@ -20,7 +20,7 @@ const browserES5RuleTester = avaRuleTester(test, {
 	}
 });
 
-const noFixingTestCase = test => ({...test, output: test.code});
+const noFixingTestCase = test => ({...test, output: null});
 
 const createErrors = message => {
 	const error = {};

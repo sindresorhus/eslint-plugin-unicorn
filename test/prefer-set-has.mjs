@@ -28,7 +28,7 @@ const methodsReturnsArray = [
 
 const noFixCase = testCase => ({
 	...testCase,
-	output: testCase.code
+	output: null
 });
 
 test({

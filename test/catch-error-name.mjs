@@ -21,7 +21,7 @@ function invalidTestCase(options) {
 	const {code, name, output, errors} = options;
 	return {
 		code,
-		output: output || code,
+		output: output || null,
 		options: name ? [{name}] : [],
 		errors
 	};

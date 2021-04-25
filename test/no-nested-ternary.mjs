@@ -16,10 +16,12 @@ test({
 	invalid: [
 		{
 			code: 'const foo = i > 5 ? true : (i < 100 ? true : (i < 1000 ? true : false));',
+			output: null,
 			errors: 1
 		},
 		{
 			code: 'const foo = i > 5 ? true : (i < 100 ? (i > 50 ? false : true) : false);',
+			output: null,
 			errors: 1
 		},
 		{

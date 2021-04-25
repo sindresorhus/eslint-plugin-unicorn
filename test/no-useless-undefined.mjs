@@ -338,15 +338,7 @@ test.typescript({
 					return nested();
 				}
 			`,
-			output: outdent`
-				function foo():undefined {
-					function nested() {
-						return;
-					}
-
-					return nested();
-				}
-			`,
+			output: null,
 			errors: 1
 		}
 	]

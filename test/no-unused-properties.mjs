@@ -274,6 +274,7 @@ test({
 				const foo = {a: 1, u: 2};
 				console.log(foo.a);
 			`,
+			output: null,
 			errors: [error]
 		},
 		{
@@ -281,6 +282,7 @@ test({
 				const foo = {"a": 1, "u": 2};
 				console.log(foo.a);
 			`,
+			output: null,
 			errors: [error]
 		},
 		{
@@ -288,6 +290,7 @@ test({
 				const foo = {a: 1, u: 2};
 				console.log(foo['a']);
 			`,
+			output: null,
 			errors: [error]
 		},
 		{
@@ -297,6 +300,7 @@ test({
 					console.log(foo.a);
 				}
 			`,
+			output: null,
 			errors: [error]
 		},
 
@@ -305,6 +309,7 @@ test({
 				const foo = {a: 1, u: 2};
 				const {a} = foo;
 			`,
+			output: null,
 			errors: [error]
 		},
 
@@ -313,6 +318,7 @@ test({
 				const foo = {a: 1, u: 2};
 				({a} = foo);
 			`,
+			output: null,
 			errors: [error]
 		},
 
@@ -327,6 +333,7 @@ test({
 				};
 				console.log(foo.a);
 			`,
+			output: null,
 			errors: [error]
 		},
 
@@ -341,6 +348,7 @@ test({
 				};
 				console.log(foo.a, foo.b.c);
 			`,
+			output: null,
 			errors: [error]
 		},
 		{
@@ -356,6 +364,7 @@ test({
 					console.log(foo.a, foo.b.c);
 				}
 			`,
+			output: null,
 			errors: [error]
 		},
 		{
@@ -368,6 +377,7 @@ test({
 				};
 				foo.a.f = function () { return this };
 			`,
+			output: null,
 			errors: [error]
 		},
 
@@ -379,6 +389,7 @@ test({
 				};
 				console.log(foo.a);
 			`,
+			output: null,
 			errors: [error]
 		},
 
@@ -391,6 +402,7 @@ test({
 				};
 				console.log(foo.b);
 			`,
+			output: null,
 			errors: [error]
 		},
 
@@ -400,6 +412,7 @@ test({
 					[foo.bar]: 1
 				};
 			`,
+			output: null,
 			errors: [error]
 		}
 	]

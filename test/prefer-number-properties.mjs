@@ -57,7 +57,7 @@ const invalidMethodTest = ({code, output, name, suggestionOutput}) => {
 
 	return {
 		code,
-		output: safe ? output : code,
+		output: safe ? output : null,
 		errors: [
 			createError(name, suggestionOutput)
 		]

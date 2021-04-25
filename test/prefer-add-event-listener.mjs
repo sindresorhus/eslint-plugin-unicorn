@@ -5,7 +5,7 @@ const {test} = getTester(import.meta);
 
 const excludeFooOptions = [{excludedPackages: ['foo']}];
 
-test({
+test.snapshot({
 	valid: [
 		'foo.addEventListener(\'click\', () => {})',
 		'foo.removeEventListener(\'click\', onClick)',
@@ -64,11 +64,6 @@ test({
 			options: excludeFooOptions
 		}
 	],
-	invalid: []
-});
-
-test.snapshot({
-	valid: [],
 	invalid: [
 		'foo.onclick = () => {}',
 		'foo.onclick = 1',

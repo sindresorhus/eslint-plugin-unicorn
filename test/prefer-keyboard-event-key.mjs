@@ -112,6 +112,7 @@ test({
 					console.log(e.keyCode);
 				})
 			`,
+			output: null,
 			errors: [error('keyCode')]
 		},
 		{
@@ -120,6 +121,7 @@ test({
 					console.log(keyCode);
 				})
 			`,
+			output: null,
 			errors: [error('keyCode')]
 		},
 		{
@@ -130,6 +132,7 @@ test({
 					}
 				})
 			`,
+			output: null,
 			errors: [error('which')]
 		},
 		{
@@ -140,6 +143,7 @@ test({
 					}
 				})
 			`,
+			output: null,
 			errors: [error('which')]
 		},
 		{
@@ -263,6 +267,7 @@ test({
 					const {keyCode, a, b} = e;
 				});
 			`,
+			output: null,
 			errors: [error('keyCode')]
 		},
 		{
@@ -271,6 +276,7 @@ test({
 					const {a: keyCode, a, b} = e;
 				});
 			`,
+			output: null,
 			errors: [error('keyCode')]
 		},
 		{
@@ -282,6 +288,7 @@ test({
 					})
 				})
 			`,
+			output: null,
 			errors: [error('keyCode')]
 		},
 		{
@@ -290,6 +297,7 @@ test({
 					console.log(e.charCode);
 				})
 			`,
+			output: null,
 			errors: [error('charCode')]
 		},
 		{
@@ -373,6 +381,7 @@ test({
 					const {charCode, a, b} = e;
 				});
 			`,
+			output: null,
 			errors: [error('charCode')]
 		},
 		{
@@ -381,6 +390,7 @@ test({
 					const {a: charCode, a, b} = e;
 				});
 			`,
+			output: null,
 			errors: [error('charCode')]
 		},
 		{
@@ -389,6 +399,7 @@ test({
 					console.log(e.which);
 				})
 			`,
+			output: null,
 			errors: [error('which')]
 		},
 		{
@@ -472,6 +483,7 @@ test({
 					const {which, a, b} = e;
 				});
 			`,
+			output: null,
 			errors: [error('which')]
 		},
 		{
@@ -480,6 +492,7 @@ test({
 					const {a: which, a, b} = e;
 				});
 			`,
+			output: null,
 			errors: [error('which')]
 		},
 		{
