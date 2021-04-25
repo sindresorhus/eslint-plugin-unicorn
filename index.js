@@ -79,14 +79,11 @@ module.exports = {
 				'unicorn/no-useless-undefined': 'error',
 				'unicorn/no-zero-fractions': 'error',
 				'unicorn/number-literal-case': 'error',
-				// TODO: Enable this by default when targeting Node.js 12.
-				'unicorn/numeric-separators-style': 'off',
+				'unicorn/numeric-separators-style': 'error',
 				'unicorn/prefer-add-event-listener': 'error',
 				'unicorn/prefer-array-find': 'error',
-				// TODO: Enable this by default when targeting Node.js 12.
-				'unicorn/prefer-array-flat': 'off',
-				// TODO: Enable this by default when targeting Node.js 12.
-				'unicorn/prefer-array-flat-map': 'off',
+				'unicorn/prefer-array-flat': 'error',
+				'unicorn/prefer-array-flat-map': 'error',
 				'unicorn/prefer-array-index-of': 'error',
 				'unicorn/prefer-array-some': 'error',
 				'unicorn/prefer-date-now': 'error',
