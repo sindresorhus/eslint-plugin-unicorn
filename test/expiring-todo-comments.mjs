@@ -203,7 +203,6 @@ test({
 			code: '// TODO [2200-12-12, 2200-12-12]: Multiple dates',
 			output: null,
 			errors: [avoidMultipleDatesError('2200-12-12, 2200-12-12', 'Multiple dates')],
-			output: '// TODO [2200-12-12, 2200-12-12]: Multiple dates'
 		},
 		{
 			code: '// TODO [>1]: if your package.json version is >1',
