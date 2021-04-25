@@ -42,7 +42,7 @@ function getNodeBody(node) {
 
 const getScopes = scope => [
 	scope,
-	...flatten(scope.childScopes.map(scope => getScopes(scope)))
+	...scope.childScopes.flatMap(scope => getScopes(scope))
 ];
 
 const create = context => {

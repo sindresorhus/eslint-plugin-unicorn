@@ -235,11 +235,9 @@ test({
 			}
 		]),
 		// Ignored
-		...flatten(
-			['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue'].map(
+		...['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue'].flatMap(
 				filename => ['camelCase', 'snakeCase', 'kebabCase', 'pascalCase'].map(chosenCase => testCase(filename, chosenCase))
 			)
-		)
 	],
 	invalid: [
 		testCase(

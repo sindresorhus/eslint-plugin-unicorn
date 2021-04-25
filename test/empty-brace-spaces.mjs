@@ -42,11 +42,11 @@ const ignoredCases = [
 
 test({
 	valid: [
-		...flatten([
+		...[
 			'',
 			'/* comment */',
 			'\n\t// comment \n'
-		].map(body => allCases.map(code => code.replace(SPACES_PLACEHOLDER, body)))),
+		].flatMap(body => allCases.map(code => code.replace(SPACES_PLACEHOLDER, body))),
 		// Not empty
 		...cases.map(code => code.replace(SPACES_PLACEHOLDER, 'unicorn')),
 		...classBodyCases.map(code => code.replace(SPACES_PLACEHOLDER, 'bar() {}')),
@@ -59,17 +59,17 @@ test({
 		...ignoredCases.map(code => code.replace(SPACES_PLACEHOLDER, '   '))
 	],
 	invalid: [
-		...flatten([
+		...[
 			' ',
 			'\t',
 			' \t \t ',
 			'\n\n',
 			'\r\n'
-		].map(spaces => allCases.map(code => ({
+		].flatMap(spaces => allCases.map(code => ({
 			code: code.replace(SPACES_PLACEHOLDER, spaces),
 			output: code.replace(SPACES_PLACEHOLDER, ''),
 			errors: 1
-		})))),
+		}))),
 		// `with`
 		{
 			code: 'with (foo) {     }',

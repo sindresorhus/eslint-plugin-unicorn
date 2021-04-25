@@ -252,8 +252,7 @@ const create = context => {
 
 	const sourceCode = context.getSourceCode();
 	const comments = sourceCode.getAllComments();
-	const unusedComments = flatten(
-		comments
+	const unusedComments = comments
 			.filter(token => token.type !== 'Shebang')
 			// Block comments come as one.
 			// Split for situations like this:
@@ -262,13 +261,12 @@ const create = context => {
 			//  * TODO [2999-01-01]: And this
 			//  * TODO [2999-01-01]: Also this
 			//  */
-			.map(comment =>
+			.flatMap(comment =>
 				comment.value.split('\n').map(line => ({
 					...comment,
 					value: line
 				}))
-			)
-	).filter(comment => processComment(comment));
+			).filter(comment => processComment(comment));
 
 	// This is highly dependable on ESLint's `no-warning-comments` implementation.
 	// What we do is patch the parts we know the rule will use, `getAllComments`.

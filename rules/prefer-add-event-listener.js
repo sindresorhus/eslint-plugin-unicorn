@@ -14,7 +14,7 @@ const extraMessages = {
 };
 
 const nestedEvents = Object.values(domEventsJson);
-const eventTypes = new Set(flatten(nestedEvents));
+const eventTypes = new Set(nestedEvents.flat());
 const getEventMethodName = memberExpression => memberExpression.property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 
