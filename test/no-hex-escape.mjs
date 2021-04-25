@@ -1,23 +1,7 @@
 import {createRequire} from 'node:module';
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {getTester} from './utils/test.mjs';
 
-const {test: runTest, rule} = getTester(import.meta);
-const require = createRequire(import.meta.url);
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
-
-const babelRuleTester = avaRuleTester(test, {
-	parser: require.resolve('babel-eslint')
-});
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
+const {test} = getTester(import.meta);
 
 const error = {
 	messageId: 'no-hex-escape'
@@ -213,11 +197,31 @@ const tests = {
 	]
 };
 
-ruleTester.run('no-hex-escape', rule, tests);
-babelRuleTester.run('no-hex-escape', rule, tests);
-typescriptRuleTester.run('no-hex-escape', rule, tests);
+const addComment = (test, comment) => {
+	if (typeof test === 'string') {
+		return `${test}\n/* ${comment} */`
+	}
+	const {code, output} = test;
+	return {
+		...test,
+		code: `${code}\n/* ${comment} */`,
+		output: `${output}\n/* ${comment} */`
+	}
+};
+const avoidTestTitleConflict = (tests, comment) => {
+	const {valid, invalid} = tests;
+	return {
+		...tests,
+		valid: valid.map(test => addComment(test, comment)),
+		invalid: invalid.map(test => addComment(test, comment))
+	}
+};
 
-runTest.snapshot({
+test(tests);
+test.babel(avoidTestTitleConflict(tests, 'babel'));
+test.typescript(avoidTestTitleConflict(tests, 'typescript'));
+
+test.snapshot({
 	valid: [],
 	invalid: [
 		'const foo = "\\xb1"'
