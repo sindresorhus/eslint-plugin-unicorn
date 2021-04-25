@@ -650,9 +650,8 @@ test({
 	]
 });
 
-test.babelLegacy({
+test.babel({
 	valid: [
-		// These tests verify that the fallback to `eslint-visitor-keys` is working correctly
 		outdent`
 			function abc(foo, bar) {
 				const { baz, ...rest } = bar;
