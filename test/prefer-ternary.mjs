@@ -1317,23 +1317,3 @@ test({
 		}
 	]
 });
-
-test.babelLegacy({
-	valid: [],
-	invalid: [
-		// https://github.com/facebook/react/blob/7a1691cdff209249b49a4472ba87b542980a5f71/packages/react-dom/src/client/DOMPropertyOperations.js#L183
-		{
-			code: outdent`
-				if (enableTrustedTypesIntegration) {
-					attributeValue = (value: any);
-				} else {
-					attributeValue = '' + (value: any);
-				}
-			`,
-			output: outdent`
-				attributeValue = enableTrustedTypesIntegration ? (value: any) : '' + (value: any);
-			`,
-			errors
-		}
-	]
-});
