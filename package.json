@@ -121,6 +121,14 @@
 				"parserOptions": {
 					"sourceType": "module"
 				}
+			},
+			{
+				"files": [
+					"test/*.mjs"
+				],
+				"rules": {
+					"unicorn/no-null": "off"
+				}
 			}
 		],
 		"rules": {
