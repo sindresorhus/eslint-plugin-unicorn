@@ -471,7 +471,7 @@ test({
 	]
 });
 
-test.babelLegacy({
+test.babel({
 	valid: [
 		outdent`
 			const {a, ...b} = bar;

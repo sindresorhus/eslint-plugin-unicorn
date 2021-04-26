@@ -432,13 +432,6 @@ const isExportedIdentifier = identifier => {
 		return identifier.parent.parent.type === 'ExportNamedDeclaration';
 	}
 
-	if (
-		identifier.parent.type === 'TypeAlias' &&
-		identifier.parent.id === identifier
-	) {
-		return identifier.parent.parent.type === 'ExportNamedDeclaration';
-	}
-
 	return false;
 };
 
@@ -558,7 +551,6 @@ const create = context => {
 	const {ecmaVersion} = context.parserOptions;
 	const options = prepareOptions(context.options[0]);
 	const filenameWithExtension = context.getFilename();
-	const sourceCode = context.getSourceCode();
 
 	// A `class` declaration produces two variables in two scopes:
 	// the inner class scope, and the outer one (whereever the class is declared).
@@ -681,7 +673,7 @@ const create = context => {
 
 			problem.fix = function * (fixer) {
 				for (const identifier of getVariableIdentifiers(variable)) {
-					yield renameIdentifier(identifier, replacement, fixer, sourceCode);
+					yield renameIdentifier(identifier, replacement, fixer);
 				}
 			};
 		}

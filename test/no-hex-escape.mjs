@@ -1,23 +1,6 @@
-import {createRequire} from 'node:module';
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
-import {getTester} from './utils/test.mjs';
+import {getTester, avoidTestTitleConflict} from './utils/test.mjs';
 
-const {test: runTest, rule} = getTester(import.meta);
-const require = createRequire(import.meta.url);
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
-
-const babelRuleTester = avaRuleTester(test, {
-	parser: require.resolve('babel-eslint')
-});
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
+const {test} = getTester(import.meta);
 
 const error = {
 	messageId: 'no-hex-escape'
@@ -213,11 +196,11 @@ const tests = {
 	]
 };
 
-ruleTester.run('no-hex-escape', rule, tests);
-babelRuleTester.run('no-hex-escape', rule, tests);
-typescriptRuleTester.run('no-hex-escape', rule, tests);
+test(tests);
+test.babel(avoidTestTitleConflict(tests, 'babel'));
+test.typescript(avoidTestTitleConflict(tests, 'typescript'));
 
-runTest.snapshot({
+test.snapshot({
 	valid: [],
 	invalid: [
 		'const foo = "\\xb1"'

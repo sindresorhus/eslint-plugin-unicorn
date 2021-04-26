@@ -89,13 +89,6 @@ class Tester {
 		});
 		return tester.run(this.ruleId, this.rule, tests);
 	}
-
-	babelLegacy(tests) {
-		return this.runTest({
-			...tests,
-			testerOptions: {parser: require.resolve('babel-eslint')}
-		});
-	}
 }
 
 function getTester(importMeta) {
@@ -106,7 +99,6 @@ function getTester(importMeta) {
 	test.typescript = tester.typescript.bind(tester);
 	test.babel = tester.babel.bind(tester);
 	test.snapshot = tester.snapshot.bind(tester);
-	test.babelLegacy = tester.babelLegacy.bind(tester);
 
 	return {
 		ruleId,
@@ -115,7 +107,30 @@ function getTester(importMeta) {
 	};
 }
 
+const addComment = (test, comment) => {
+	if (typeof test === 'string') {
+		return `${test}\n/* ${comment} */`;
+	}
+
+	const {code, output} = test;
+	return {
+		...test,
+		code: `${code}\n/* ${comment} */`,
+		output: `${output}\n/* ${comment} */`
+	};
+};
+
+const avoidTestTitleConflict = (tests, comment) => {
+	const {valid, invalid} = tests;
+	return {
+		...tests,
+		valid: valid.map(test => addComment(test, comment)),
+		invalid: invalid.map(test => addComment(test, comment))
+	};
+};
+
 export {
 	defaultParserOptions,
-	getTester
+	getTester,
+	avoidTestTitleConflict
 };

@@ -1,37 +1,25 @@
-import {createRequire} from 'node:module';
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, avoidTestTitleConflict} from './utils/test.mjs';
 
-const {test: runTest, rule} = getTester(import.meta);
-const require = createRequire(import.meta.url);
+const {test} = getTester(import.meta);
 
 const MESSAGE_ID = 'number-literal-case';
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-const babelRuleTester = avaRuleTester(test, {
-	parser: require.resolve('babel-eslint')
-});
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
 
 const error = {
 	messageId: MESSAGE_ID
 };
 
 // Legacy octal literals
-ruleTester.run('number-literal-case', rule, {
+test({
+	testerOptions: {
+		parserOptions: {
+			ecmaVersion: 5,
+			sourceType: 'script'
+		}
+	},
 	valid: [
-		'const foo = 0777',
-		'const foo = 0888'
+		'var foo = 0777',
+		'var foo = 0888'
 	],
 	invalid: []
 });
@@ -168,11 +156,11 @@ const tests = {
 	]
 };
 
-ruleTester.run('number-literal-case', rule, tests);
-babelRuleTester.run('number-literal-case', rule, tests);
-typescriptRuleTester.run('number-literal-case', rule, tests);
+test(tests);
+test.babel(avoidTestTitleConflict(tests, 'babel'));
+test.typescript(avoidTestTitleConflict(tests, 'typescript'));
 
-runTest.snapshot({
+test.snapshot({
 	valid: [],
 	invalid: [
 		'console.log(BigInt(0B10 + 1.2E+3) + 0XdeEd_Beefn)'

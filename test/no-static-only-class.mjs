@@ -211,14 +211,3 @@ test.babel({
 		}
 	]
 });
-
-test.babelLegacy({
-	valid: [],
-	invalid: [
-		{
-			code: 'class A2 { static a() {} }',
-			output: 'const A2 = { a() {}, };',
-			errors: 1
-		}
-	]
-});

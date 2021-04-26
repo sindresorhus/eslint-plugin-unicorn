@@ -1,5 +1,4 @@
 'use strict';
-const eslintVisitorKeys = require('eslint-visitor-keys');
 const {findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
@@ -34,10 +33,7 @@ const containsCallExpression = (source, node) => {
 		return true;
 	}
 
-	// The Babel AST doesn't have visitor keys for certain types of nodes
-	// Use `eslint-visitor-keys` in those cases
-	// TODO: Remove this when we drop support for `babel-eslint` #1040
-	const keys = source.visitorKeys[node.type] || eslintVisitorKeys.KEYS[node.type];
+	const keys = source.visitorKeys[node.type];
 
 	for (const key of keys) {
 		const value = node[key];

@@ -5,7 +5,7 @@ const isAssignmentPatternShorthandPropertyIdentifier = require('./is-assignment-
 const isShorthandImportIdentifier = require('./is-shorthand-import-identifier');
 const isShorthandExportIdentifier = require('./is-shorthand-export-identifier');
 
-function renameIdentifier(identifier, name, fixer, sourceCode) {
+function renameIdentifier(identifier, name, fixer) {
 	if (
 		isShorthandPropertyIdentifier(identifier) ||
 		isAssignmentPatternShorthandPropertyIdentifier(identifier)
@@ -19,11 +19,6 @@ function renameIdentifier(identifier, name, fixer, sourceCode) {
 
 	if (isShorthandExportIdentifier(identifier)) {
 		return fixer.replaceText(identifier, `${name} as ${identifier.name}`);
-	}
-
-	// `TypeParameter` default value
-	if (identifier.default) {
-		return fixer.replaceText(identifier, `${name} = ${sourceCode.getText(identifier.default)}`);
 	}
 
 	// `typeAnnotation`
