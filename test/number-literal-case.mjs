@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, avoidTestTitleConflict} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
@@ -10,10 +10,16 @@ const error = {
 };
 
 // Legacy octal literals
-ruleTester.run('number-literal-case', rule, {
+test({
+	testerOptions: {
+		parserOptions: {
+			ecmaVersion: 5,
+			sourceType: 'script'
+		}
+	},
 	valid: [
-		'const foo = 0777',
-		'const foo = 0888'
+		'var foo = 0777',
+		'var foo = 0888'
 	],
 	invalid: []
 });
