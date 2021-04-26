@@ -1,6 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
+const isSameReference = require('./utils/is-same-reference');
 
 const MESSAGE_ID = 'prefer-negative-index';
 const messages = {
@@ -45,63 +46,6 @@ const methods = new Map([
 ]);
 
 const OPERATOR_MINUS = '-';
-
-const isPropertiesEqual = (node1, node2) => properties => {
-	return properties.every(property => isEqual(node1[property], node2[property]));
-};
-
-const isTemplateElementEqual = (node1, node2) => {
-	return (
-		node1.value &&
-		node2.value &&
-		node1.tail === node2.tail &&
-		isPropertiesEqual(node1.value, node2.value)(['cooked', 'raw'])
-	);
-};
-
-const isTemplateLiteralEqual = (node1, node2) => {
-	const {quasis: quasis1} = node1;
-	const {quasis: quasis2} = node2;
-
-	return (
-		quasis1.length === quasis2.length &&
-		quasis1.every((templateElement, index) =>
-			isEqual(templateElement, quasis2[index])
-		)
-	);
-};
-
-const isEqual = (node1, node2) => {
-	if (node1 === node2) {
-		return true;
-	}
-
-	const compare = isPropertiesEqual(node1, node2);
-
-	if (!compare(['type'])) {
-		return false;
-	}
-
-	const {type} = node1;
-
-	switch (type) {
-		case 'Identifier':
-			return compare(['name', 'computed']);
-		case 'Literal':
-			return compare(['value', 'raw']);
-		case 'TemplateLiteral':
-			return isTemplateLiteralEqual(node1, node2);
-		case 'TemplateElement':
-			return isTemplateElementEqual(node1, node2);
-		case 'BinaryExpression':
-			return compare(['operator', 'left', 'right']);
-		case 'MemberExpression':
-			return compare(['object', 'property']);
-		default:
-			return false;
-	}
-};
-
 const isLengthMemberExpression = node => node &&
 	node.type === 'MemberExpression' &&
 	node.property &&
@@ -144,7 +88,7 @@ const getRemoveAbleNode = (target, argument) => {
 
 	if (
 		lengthMemberExpression &&
-		isEqual(target, lengthMemberExpression.object)
+		isSameReference(target, lengthMemberExpression.object)
 	) {
 		return lengthMemberExpression;
 	}

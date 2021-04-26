@@ -47,16 +47,12 @@ test({
 		'foo.slice(foo.length - 1 / 1)',
 		// ArrayExpression
 		'[1, 2, 3].slice([1, 2, 3].length - 1)',
-		// Foo.bar and foo["bar"]
-		'foo.bar.slice(foo["bar"].length - 1)',
-		// Foo[`bar`] and foo["bar"]
-		'foo[`bar`].slice(foo["bar"].length - 1)',
-		// Foo[1] and foo["1"]
-		'foo[1].slice(foo["1"].length - 1)',
 		// Foo[bar++]
 		'foo[bar++].slice(foo[bar++].length - 1)',
-		// Foo['bar'] & foo["bar"]
-		'foo[\'bar\'].slice(foo["bar"].length - 1)',
+		// Foo[a + b]
+		'foo[a + b].slice(foo[a + b].length - 1)',
+		// eslint-disable-next-line no-template-curly-in-string
+		'foo[`${bar}`].slice(foo[`${bar}`].length - 1)',
 		// Should not crash
 		// https://github.com/gatsbyjs/gatsby/blob/e720d8efe58eba0f6fae9f26ec8879128967d0b5/packages/gatsby/src/bootstrap/log-line-function.js#L9
 		'function foo() {return [].slice.apply(arguments);}'
@@ -109,20 +105,6 @@ test({
 			code: 'foo[1].slice(foo[1].length - 1)',
 			errors: [error],
 			output: 'foo[1].slice(- 1)'
-		},
-		// Foo[`${bar}`]
-		{
-			// eslint-disable-next-line no-template-curly-in-string
-			code: 'foo[`${bar}`].slice(foo[`${bar}`].length - 1)',
-			errors: [error],
-			// eslint-disable-next-line no-template-curly-in-string
-			output: 'foo[`${bar}`].slice(- 1)'
-		},
-		// Foo[a + b]
-		{
-			code: 'foo[a + b].slice(foo[a + b].length - 1)',
-			errors: [error],
-			output: 'foo[a + b].slice(- 1)'
 		},
 		// Comment
 		{
@@ -365,6 +347,14 @@ test.snapshot({
 	valid: [],
 	invalid: [
 		'foo.slice(foo.length - 2, foo.length - 1)',
-		'foo.splice(foo.length - 1, 1)'
+		'foo.splice(foo.length - 1, 1)',
+		// Foo.bar and foo["bar"]
+		'foo.bar.slice(foo["bar"].length - 1)',
+		// Foo[`bar`] and foo["bar"]
+		'foo[`bar`].slice(foo["bar"].length - 1)',
+		// Foo[1] and foo["1"]
+		'foo[1].slice(foo["1"].length - 1)',
+		// Foo['bar'] & foo["bar"]
+		'foo[\'bar\'].slice(foo["bar"].length - 1)'
 	]
 });
