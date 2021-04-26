@@ -107,7 +107,30 @@ function getTester(importMeta) {
 	};
 }
 
+const addComment = (test, comment) => {
+	if (typeof test === 'string') {
+		return `${test}\n/* ${comment} */`;
+	}
+
+	const {code, output} = test;
+	return {
+		...test,
+		code: `${code}\n/* ${comment} */`,
+		output: `${output}\n/* ${comment} */`
+	};
+};
+
+const avoidTestTitleConflict = (tests, comment) => {
+	const {valid, invalid} = tests;
+	return {
+		...tests,
+		valid: valid.map(test => addComment(test, comment)),
+		invalid: invalid.map(test => addComment(test, comment))
+	};
+};
+
 export {
 	defaultParserOptions,
-	getTester
+	getTester,
+	avoidTestTitleConflict
 };
