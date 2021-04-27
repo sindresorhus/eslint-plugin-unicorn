@@ -6,7 +6,8 @@ const extendFixRange = require('./utils/extend-fix-range');
 const needsSemicolon = require('./utils/needs-semicolon');
 const isSameReference = require('./utils/is-same-reference');
 const getIndentString = require('./utils/get-indent-string');
-const findPreviousNode = require('./utils/find-previous-node')
+const findPreviousNode = require('./utils/find-previous-node');
+const getIfStatementHeadLocation = require('./utils/get-if-statement-head-location');
 
 const messageId = 'prefer-ternary';
 
@@ -212,7 +213,7 @@ const create = context => {
 		const scope = context.getScope();
 
 		context.report({
-			node,
+			loc: getIfStatementHeadLocation(node, sourceCode),
 			messageId,
 			* fix(fixer) {
 				const testText = getParenthesizedText(node.test);
