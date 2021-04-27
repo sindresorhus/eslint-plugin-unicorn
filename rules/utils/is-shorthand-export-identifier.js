@@ -1,6 +1,8 @@
 'use strict';
 
-module.exports = identifier =>
+const isShorthandExportIdentifier = identifier =>
 	identifier.parent.type === 'ExportSpecifier' &&
-	identifier.parent.exported.name === identifier.name &&
-	identifier.parent.local.name === identifier.name;
+	identifier.parent.exported === identifier &&
+	identifier.parent.local === identifier;
+
+module.exports = isShorthandExportIdentifier;
