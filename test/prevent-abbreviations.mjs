@@ -1492,6 +1492,12 @@ runTest({
 			errors: createErrors()
 		},
 		{
+			code: 'import {err as err} from "err";',
+			output: 'import {err as error} from "err";',
+			options: customOptions,
+			errors: createErrors()
+		},
+		{
 			code: outdent`
 				import {
 					bar,
@@ -1580,6 +1586,18 @@ runTest({
 			code: outdent`
 				let err;
 				export {err};
+			`,
+			output: outdent`
+				let error;
+				export {error as err};
+			`,
+			errors: createErrors()
+		},
+
+		{
+			code: outdent`
+				let err;
+				export {err as err};
 			`,
 			output: outdent`
 				let error;
