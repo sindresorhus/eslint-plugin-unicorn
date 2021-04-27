@@ -1,6 +1,7 @@
 ---
 name: Rule proposal
 about: Have an idea for a new rule?
+title: "Rule proposal: "
 labels: new rule, evaluating
 ---
 
