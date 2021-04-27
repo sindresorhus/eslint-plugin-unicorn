@@ -5,10 +5,10 @@ const {defaultsDeep, upperFirst, lowerFirst} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const avoidCapture = require('./utils/avoid-capture');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
-const isShorthandPropertyIdentifier = require('./utils/is-shorthand-property-identifier');
-const isShorthandImportIdentifier = require('./utils/is-shorthand-import-identifier');
+const isShorthandPropertyValue = require('./utils/is-shorthand-property-value');
+const isShorthandImportLocal = require('./utils/is-shorthand-import-local');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
-const renameIdentifier = require('./utils/rename-identifier');
+const renameVariable = require('./utils/rename-variable');
 const isStaticRequire = require('./utils/is-static-require');
 
 const isUpperCase = string => string === string.toUpperCase();
@@ -620,7 +620,7 @@ const create = context => {
 			}
 		}
 
-		if (isShorthandImportIdentifier(definition.name)) {
+		if (isShorthandImportLocal(definition.name)) {
 			if (!options.checkShorthandImports) {
 				return;
 			}
@@ -635,7 +635,7 @@ const create = context => {
 
 		if (
 			!options.checkShorthandProperties &&
-			isShorthandPropertyIdentifier(definition.name)
+			isShorthandPropertyValue(definition.name)
 		) {
 			return;
 		}
@@ -671,11 +671,7 @@ const create = context => {
 				generatedNames.add(replacement);
 			}
 
-			problem.fix = function * (fixer) {
-				for (const identifier of getVariableIdentifiers(variable)) {
-					yield renameIdentifier(identifier, replacement, fixer);
-				}
-			};
+			problem.fix = fixer => renameVariable(variable, replacement, fixer);
 		}
 
 		context.report(problem);

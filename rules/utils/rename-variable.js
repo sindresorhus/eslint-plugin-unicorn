@@ -1,7 +1,8 @@
 'use strict';
 const getVariableIdentifiers = require('./get-variable-identifiers');
-const renameIdentifier = require('./rename-identifier');
-
-module.exports = (variable, name, fixer, sourceCode) =>
+const replaceReferenceIdentifier = require('./replace-reference-identifier');
+const renameVariable = (variable, name, fixer) =>
 	getVariableIdentifiers(variable)
-		.map(identifier => renameIdentifier(identifier, name, fixer, sourceCode));
+		.map(identifier => replaceReferenceIdentifier(identifier, name, fixer));
+
+module.exports = renameVariable;

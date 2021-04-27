@@ -210,7 +210,7 @@ import {prop} from 'ramda';
 Type: `boolean`\
 Default: `false`
 
-Pass `"checkShorthandProperties": true` to check variables declared as shorhand properties in object destructuring.
+Pass `"checkShorthandProperties": true` to check variables declared as shorthand properties in object destructuring.
 
 With this set to `true` the following code will be reported.
 

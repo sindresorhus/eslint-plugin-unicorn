@@ -1132,6 +1132,39 @@ const tests = {
 			`,
 			errors: createErrors()
 		},
+
+		{
+			code: 'const {prop} = {};',
+			output: 'const {prop: property} = {};',
+			options: [{checkShorthandProperties: true}],
+			errors: 1
+		},
+		{
+			code: 'const [prop] = [];',
+			output: 'const [property] = [];',
+			errors: 1
+		},
+		{
+			code: 'const {prop: prop} = {};',
+			output: 'const {prop: property} = {};',
+			errors: 1
+		},
+		{
+			code: 'const {prop = 1} = {};',
+			output: 'const {prop: property = 1} = {};',
+			errors: 1
+		},
+		{
+			code: 'const [prop = 1] = [];',
+			output: 'const [property = 1] = [];',
+			errors: 1
+		},
+		{
+			code: 'const {prop: prop = 1} = {};',
+			output: 'const {prop: property = 1} = {};',
+			errors: 1
+		},
+
 		{
 			code: outdent`
 				const property = '';
