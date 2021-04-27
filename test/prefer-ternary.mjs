@@ -1317,3 +1317,109 @@ test({
 		}
 	]
 });
+
+// `IfStatement + ReturnStatement | ThrowStatement`
+test.snapshot({
+	valid: [
+		outdent`
+			if (test) {
+				const a = 1;
+			}
+			const a = 2;
+		`,
+		outdent`
+			function foo() {
+				if (test) {
+					throw a;
+				}
+
+				return b;
+			}
+		`,
+		outdent`
+			function foo() {
+				if (test) {
+					return true;
+				}
+
+				{
+					return false;
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				while(true) if (test) {
+					return true;
+				}
+
+				return false;
+			}
+		`,
+		outdent`
+			function foo() {
+				if (test) {
+					return true;
+				} else;
+
+				return false;
+			}
+		`,
+		outdent`
+			function foo() {
+				if (test) {
+					return true;
+				}
+			}
+		`,
+		{
+			code: outdent`
+				function foo() {
+					if (test) {
+						return {
+							a: 1,
+						};
+					}
+
+					return {
+						a: 2,
+					};
+				}
+			`,
+			options: onlySingleLineOptions
+		}
+	],
+	invalid: [
+		outdent`
+			function foo() {
+				if (test) {
+					return true;
+				}
+
+				return false;
+			}
+		`,
+		outdent`
+			function foo() {
+				if (test) {
+					throw a;
+				}
+
+				throw b;
+			}
+		`,
+		outdent`
+			function foo() {
+				if (test) {
+					return {
+						a: 1,
+					};
+				}
+
+				return {
+					a: 2,
+				};
+			}
+		`,
+	]
+});

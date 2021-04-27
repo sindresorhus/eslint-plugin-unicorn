@@ -6,15 +6,24 @@ const extendFixRange = require('./utils/extend-fix-range');
 const needsSemicolon = require('./utils/needs-semicolon');
 const isSameReference = require('./utils/is-same-reference');
 const getIndentString = require('./utils/get-indent-string');
+const findPreviousNode = require('./utils/find-previous-node')
 
 const messageId = 'prefer-ternary';
 
-const selector = [
+const ifElseSelector = [
 	'IfStatement',
 	':not(IfStatement > .alternate)',
 	'[test.type!="ConditionalExpression"]',
 	'[consequent]',
 	'[alternate]'
+].join('');
+
+const ifAndReturnOrThrowSelector = [
+	'IfStatement',
+	'[consequent]',
+	'[alternate=null]',
+	'+',
+	':matches(ReturnStatement, ThrowStatement)'
 ].join('');
 
 const isTernary = node => node && node.type === 'ConditionalExpression';
@@ -179,81 +188,99 @@ const create = context => {
 		return returnFalseIfNotMergeable ? false : options;
 	}
 
-	return {
-		[selector](node) {
-			const consequent = getNodeBody(node.consequent);
-			const alternate = getNodeBody(node.alternate);
+	function check(node) {
+		const {isFakeIfStatement} = node;
+		const consequent = getNodeBody(node.consequent);
+		const alternate = isFakeIfStatement ? node.alternate : getNodeBody(node.alternate);
 
-			if (
-				onlySingleLine &&
-				[consequent, alternate, node.test].some(node => !isSingleLineNode(node))
-			) {
-				return;
-			}
+		if (
+			onlySingleLine &&
+			[consequent, alternate, node.test].some(node => !isSingleLineNode(node))
+		) {
+			return;
+		}
 
-			const result = merge({node, consequent, alternate}, {
-				checkThrowStatement: true,
-				returnFalseIfNotMergeable: true
-			});
+		const result = merge({node, consequent, alternate}, {
+			checkThrowStatement: true,
+			returnFalseIfNotMergeable: true
+		});
 
-			if (!result) {
-				return;
-			}
+		if (!result) {
+			return;
+		}
 
-			const scope = context.getScope();
+		const scope = context.getScope();
 
-			context.report({
-				node,
-				messageId,
-				* fix(fixer) {
-					const testText = getParenthesizedText(node.test);
-					const consequentText = typeof result.consequent === 'string' ?
-						result.consequent :
-						getParenthesizedText(result.consequent);
-					const alternateText = typeof result.alternate === 'string' ?
-						result.alternate :
-						getParenthesizedText(result.alternate);
+		context.report({
+			node,
+			messageId,
+			* fix(fixer) {
+				const testText = getParenthesizedText(node.test);
+				const consequentText = typeof result.consequent === 'string' ?
+					result.consequent :
+					getParenthesizedText(result.consequent);
+				const alternateText = typeof result.alternate === 'string' ?
+					result.alternate :
+					getParenthesizedText(result.alternate);
 
-					let {type, before, after} = result;
+				let {type, before, after} = result;
 
-					let generateNewVariables = false;
-					if (type === 'ThrowStatement') {
-						const scopes = getScopes(scope);
-						const errorName = avoidCapture('error', scopes, context.parserOptions.ecmaVersion, isSafeName);
+				let generateNewVariables = false;
+				if (type === 'ThrowStatement') {
+					const scopes = getScopes(scope);
+					const errorName = avoidCapture('error', scopes, context.parserOptions.ecmaVersion, isSafeName);
 
-						for (const scope of scopes) {
-							if (!scopeToNamesGeneratedByFixer.has(scope)) {
-								scopeToNamesGeneratedByFixer.set(scope, new Set());
-							}
-
-							const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
-							generatedNames.add(errorName);
+					for (const scope of scopes) {
+						if (!scopeToNamesGeneratedByFixer.has(scope)) {
+							scopeToNamesGeneratedByFixer.set(scope, new Set());
 						}
 
-						const indentString = getIndentString(node, sourceCode);
-
-						after = after
-							.replace('{{INDENT_STRING}}', indentString)
-							.replace('{{ERROR_NAME}}', errorName);
-						before = before
-							.replace('{{INDENT_STRING}}', indentString)
-							.replace('{{ERROR_NAME}}', errorName);
-						generateNewVariables = true;
+						const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
+						generatedNames.add(errorName);
 					}
 
-					let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
-					const tokenBefore = sourceCode.getTokenBefore(node);
-					const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, sourceCode, fixed);
-					if (shouldAddSemicolonBefore) {
-						fixed = `;${fixed}`;
-					}
+					const indentString = getIndentString(node, sourceCode);
 
-					yield fixer.replaceText(node, fixed);
-
-					if (generateNewVariables) {
-						yield * extendFixRange(fixer, sourceCode.ast.range);
-					}
+					after = after
+						.replace('{{INDENT_STRING}}', indentString)
+						.replace('{{ERROR_NAME}}', errorName);
+					before = before
+						.replace('{{INDENT_STRING}}', indentString)
+						.replace('{{ERROR_NAME}}', errorName);
+					generateNewVariables = true;
 				}
+
+				let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
+				const tokenBefore = sourceCode.getTokenBefore(node);
+				const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, sourceCode, fixed);
+				if (shouldAddSemicolonBefore) {
+					fixed = `;${fixed}`;
+				}
+
+				yield fixer.replaceText(node, fixed);
+
+				if (generateNewVariables) {
+					yield * extendFixRange(fixer, sourceCode.ast.range);
+				}
+			}
+		});
+	}
+
+	return {
+		[ifElseSelector]: check,
+		[ifAndReturnOrThrowSelector](node) {
+			const ifStatement = findPreviousNode(node, sourceCode);
+			/* istanbul ignore next */
+			if (!ifStatement) {
+				throw new Error('Cannot find the if statement.\nPlease open an issue at https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?title=%60prefer-ternary%60%3A%20Cannot%20find%20if%20statement');
+			}
+
+			check({
+				...ifStatement,
+				isFakeIfStatement: true,
+				alternate: node,
+				parent: null,
+				range: [ifStatement.range[0], node.range[1]]
 			});
 		}
 	};

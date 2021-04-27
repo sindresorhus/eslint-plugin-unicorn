@@ -5,6 +5,7 @@ const methodSelector = require('./utils/method-selector');
 const getCallExpressionArgumentsText = require('./utils/get-call-expression-arguments-text');
 const isSameReference = require('./utils/is-same-reference');
 const {isNodeMatches} = require('./utils/is-node-matches');
+const findPreviousNode = require('./utils/find-previous-node');
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -23,25 +24,6 @@ const arrayPushExpressionStatement = [
 
 const selector = `${arrayPushExpressionStatement} + ${arrayPushExpressionStatement}`;
 
-function getFirstExpression(node, sourceCode) {
-	const {parent} = node;
-	const visitorKeys = sourceCode.visitorKeys[parent.type] || Object.keys(parent);
-
-	for (const property of visitorKeys) {
-		const value = parent[property];
-		if (Array.isArray(value)) {
-			const index = value.indexOf(node);
-
-			if (index !== -1) {
-				return value[index - 1];
-			}
-		}
-	}
-
-	/* istanbul ignore next */
-	throw new Error('Cannot find the first `Array#push()` call.\nPlease open an issue at https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?title=%60no-array-push-push%60%3A%20Cannot%20find%20first%20%60push()%60');
-}
-
 function create(context) {
 	const {ignore} = {
 		ignore: [],
@@ -59,7 +41,11 @@ function create(context) {
 				return;
 			}
 
-			const firstExpression = getFirstExpression(secondExpression, sourceCode);
+			const firstExpression = findPreviousNode(secondExpression, sourceCode);
+			/* istanbul ignore next */
+			if (!firstExpression) {
+				throw new Error('Cannot find the first `Array#push()` call.\nPlease open an issue at https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?title=%60no-array-push-push%60%3A%20Cannot%20find%20first%20%60push()%60');
+			}
 			const firstCall = firstExpression.expression;
 			const firstCallArray = firstCall.callee.object;
 
