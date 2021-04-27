@@ -115,10 +115,10 @@ const addComment = (test, comment) => {
 	const {code, output} = test;
 	const fixedTest = {
 		...test,
-		code: `${code}\n/* ${comment} */`,
+		code: `${code}\n/* ${comment} */`
 	};
-	if (fixedTest.hasOwnProperty('output') && typeof output === 'string') {
-		fixedTest.output = `${output}\n/* ${comment} */`
+	if (Object.prototype.hasOwnProperty.call(fixedTest, 'output') && typeof output === 'string') {
+		fixedTest.output = `${output}\n/* ${comment} */`;
 	}
 
 	return fixedTest;

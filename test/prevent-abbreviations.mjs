@@ -1,9 +1,7 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import outdent from 'outdent';
 import {getTester, avoidTestTitleConflict} from './utils/test.mjs';
 
-const {test: runTest, rule} = getTester(import.meta);
+const {test} = getTester(import.meta);
 
 const noFixingTestCase = test => ({...test, output: test.code});
 
@@ -1232,18 +1230,18 @@ const tests = {
 	]
 };
 
-runTest(tests);
-runTest.babel(avoidTestTitleConflict(tests, 'babel'));
-runTest.typescript(avoidTestTitleConflict(tests, 'typescript'));
+test(tests);
+test.babel(avoidTestTitleConflict(tests, 'babel'));
+test.typescript(avoidTestTitleConflict(tests, 'typescript'));
 
-runTest({
+test({
 	testerOptions: {
-	parserOptions: {
-		ecmaVersion: 5
-	},
-	env: {
-		browser: true
-	}
+		parserOptions: {
+			ecmaVersion: 5
+		},
+		env: {
+			browser: true
+		}
 	},
 	valid: [],
 	invalid: [
@@ -1291,7 +1289,7 @@ runTest({
 	]
 });
 
-runTest({
+test({
 	valid: [
 		'import {err as foo} from "foo"',
 
@@ -1606,7 +1604,7 @@ runTest({
 	]
 });
 
-runTest.babel({
+test.babel({
 	valid: [
 		// Allowed names
 		'Foo.defaultProps = {}',
@@ -1705,7 +1703,7 @@ runTest.babel({
 	]
 });
 
-runTest.typescript({
+test.typescript({
 	valid: [],
 	invalid: [
 		// Types
@@ -1808,12 +1806,12 @@ runTest.typescript({
 				export type PreloadProps<TExtraProperties = null> = {};
 			`,
 			errors: [...createErrors(), ...createErrors()]
-		},
+		}
 	]
 });
 
 // Filename
-runTest({
+test({
 	valid: [
 		{
 			code: 'foo();',
@@ -1822,7 +1820,7 @@ runTest({
 		{
 			code: 'foo();',
 			filename: 'http-err.js',
-			options: [{checkFilenames: false,}]
+			options: [{checkFilenames: false}]
 		},
 		{
 			code: 'foo();',
