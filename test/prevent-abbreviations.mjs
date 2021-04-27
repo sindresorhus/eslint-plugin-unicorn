@@ -1791,7 +1791,24 @@ runTest.babel({
 			`,
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		})
+		}),
+		{
+			code: 'import {err as err} from "err";//2',
+			output: 'import {err as error} from "err";//2',
+			options: customOptions,
+			errors: createErrors()
+		},
+		{
+			code: outdent`
+				let err;
+				export {err as err};//2
+			`,
+			output: outdent`
+				let error;
+				export {error as err};//2
+			`,
+			errors: createErrors()
+		}
 	]
 });
 
@@ -1898,6 +1915,24 @@ runTest.typescript({
 				export type PreloadProps<TExtraProperties = null> = {};
 			`,
 			errors: [...createErrors(), ...createErrors()]
+		},
+
+		{
+			code: 'import {err as err} from "err";//',
+			output: 'import {err as error} from "err";//',
+			options: customOptions,
+			errors: createErrors()
+		},
+		{
+			code: outdent`
+				let err;
+				export {err as err};//
+			`,
+			output: outdent`
+				let error;
+				export {error as err};//
+			`,
+			errors: createErrors()
 		}
 	]
 });
