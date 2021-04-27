@@ -1420,6 +1420,14 @@ test.snapshot({
 					a: 2,
 				};
 			}
+		`,
+		outdent`
+			if (test) {
+				throw a;
+			}
+
+			throw b;
+			throw c;
 		`
 	]
 });
