@@ -16,4 +16,4 @@ function findPreviousNode(node, sourceCode) {
 	}
 }
 
-module.exports = findPreviousNode
+module.exports = findPreviousNode;

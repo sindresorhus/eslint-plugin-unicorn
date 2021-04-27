@@ -280,7 +280,7 @@ const create = context => {
 				...ifStatement,
 				isFakeIfStatement: true,
 				alternate: node,
-				parent: null,
+				parent: undefined,
 				range: [ifStatement.range[0], node.range[1]]
 			});
 		}
