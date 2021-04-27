@@ -1,8 +1,8 @@
 'use strict';
 
-const isShorthandPropertyIdentifier = identifier =>
+const isShorthandPropertyValue = identifier =>
 	identifier.parent.type === 'Property' &&
 	identifier.parent.shorthand &&
 	identifier === identifier.parent.value;
 
-module.exports = isShorthandPropertyIdentifier;
+module.exports = isShorthandPropertyValue;

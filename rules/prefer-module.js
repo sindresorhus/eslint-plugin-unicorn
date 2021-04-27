@@ -4,7 +4,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const isShadowed = require('./utils/is-shadowed');
 const removeSpacesAfter = require('./utils/remove-spaces-after');
 const isStaticRequire = require('./utils/is-static-require');
-const renameIdentifier = require('./utils/rename-identifier');
+const replaceReferenceIdentifier = require('./utils/replace-reference-identifier');
 const {getParentheses} = require('./utils/parentheses');
 const assertToken = require('./utils/assert-token');
 const referenceIdentifierSelector = require('./utils/reference-identifier-selector');
@@ -255,7 +255,7 @@ function create(context) {
 						'url.fileURLToPath(import.meta.url)';
 					problem.suggest = [{
 						messageId,
-						fix: fixer => renameIdentifier(node, replacement, fixer, sourceCode)
+						fix: fixer => replaceReferenceIdentifier(node, replacement, fixer)
 					}];
 					break;
 				}

@@ -39,7 +39,6 @@ const catchSelector = [
 
 const create = context => {
 	const {ecmaVersion} = context.parserOptions;
-	const sourceCode = context.getSourceCode();
 
 	const options = {
 		name: 'error',
@@ -93,7 +92,7 @@ const create = context => {
 				originalName,
 				fixedName
 			},
-			fix: fixer => renameVariable(variable, fixedName, fixer, sourceCode)
+			fix: fixer => renameVariable(variable, fixedName, fixer)
 		});
 	}
 

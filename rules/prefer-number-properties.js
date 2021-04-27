@@ -1,7 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isShadowed = require('./utils/is-shadowed');
-const renameIdentifier = require('./utils/rename-identifier');
+const replaceReferenceIdentifier = require('./utils/replace-reference-identifier');
 const referenceIdentifierSelector = require('./utils/reference-identifier-selector');
 
 const METHOD_ERROR_MESSAGE_ID = 'method-error';
@@ -63,7 +63,7 @@ const create = context => {
 				}
 			};
 
-			const fix = fixer => renameIdentifier(node, `Number.${name}`, fixer, sourceCode);
+			const fix = fixer => replaceReferenceIdentifier(node, `Number.${name}`, fixer, sourceCode);
 
 			if (isSafe) {
 				problem.fix = fix;
@@ -110,7 +110,7 @@ const create = context => {
 				problem.data.identifier = '-Infinity';
 				problem.fix = fixer => fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
 			} else {
-				problem.fix = fixer => renameIdentifier(node, `Number.${property}`, fixer, sourceCode);
+				problem.fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
 			}
 
 			context.report(problem);
