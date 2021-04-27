@@ -1,7 +1,7 @@
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, avoidTestTitleConflict} from './utils/test.mjs';
 
 const {test: runTest, rule} = getTester(import.meta);
 
@@ -123,7 +123,7 @@ const noExtendDefaultAllowListOptions = [
 	}
 ];
 
-ruleTester.run('prevent-abbreviations', rule, {
+const tests = {
 	valid: [
 		'let x',
 		'({x: 1})',
@@ -309,6 +309,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 					}
 				}
 			],
+
 			errors: createErrors('Please rename the variable `a`. Suggested names are: `const_`, `used_`, `var__`. A more descriptive name will do too.')
 		},
 
@@ -401,18 +402,18 @@ ruleTester.run('prevent-abbreviations', rule, {
 		// Testing that options apply
 		{
 			code: 'let args',
-			output: 'let arguments',
+			output: 'let arguments_',
 			errors: createErrors()
 		},
 		{
 			code: 'let args',
-			output: 'let arguments',
+			output: 'let arguments_',
 			options: extendedOptions,
 			errors: createErrors()
 		},
 		{
 			code: 'let args',
-			output: 'let arguments',
+			output: 'let arguments_',
 			options: customOptions,
 			errors: createErrors()
 		},
@@ -894,7 +895,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		// `package` is a reserved word in strict mode
 		{
 			code: 'let pkg',
-			output: 'let package',
+			output: 'let package_',
 			errors: createErrors()
 		},
 		{
@@ -1065,8 +1066,8 @@ ruleTester.run('prevent-abbreviations', rule, {
 				}
 			`,
 			output: outdent`
-				const f = (...arguments) => {
-					return arguments;
+				const f = (...arguments_) => {
+					return arguments_;
 				}
 			`,
 			errors: createErrors()
@@ -1079,9 +1080,9 @@ ruleTester.run('prevent-abbreviations', rule, {
 				}
 			`,
 			output: outdent`
-				let arguments;
+				let arguments_;
 				const f = () => {
-					return arguments;
+					return arguments_;
 				}
 			`,
 			errors: createErrors()
@@ -1244,7 +1245,11 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		}
 	]
-});
+};
+
+runTest(tests);
+runTest.babel(avoidTestTitleConflict(tests, 'babel'));
+runTest.typescript(avoidTestTitleConflict(tests, 'typescript'));
 
 browserES5RuleTester.run('prevent-abbreviations', rule, {
 	valid: [],
@@ -1703,24 +1708,7 @@ runTest.babel({
 			`,
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		}),
-		{
-			code: 'import {err as err} from "err";//2',
-			output: 'import {err as error} from "err";//2',
-			options: customOptions,
-			errors: createErrors()
-		},
-		{
-			code: outdent`
-				let err;
-				export {err as err};//2
-			`,
-			output: outdent`
-				let error;
-				export {error as err};//2
-			`,
-			errors: createErrors()
-		}
+		})
 	]
 });
 
@@ -1828,24 +1816,6 @@ runTest.typescript({
 			`,
 			errors: [...createErrors(), ...createErrors()]
 		},
-
-		{
-			code: 'import {err as err} from "err";//',
-			output: 'import {err as error} from "err";//',
-			options: customOptions,
-			errors: createErrors()
-		},
-		{
-			code: outdent`
-				let err;
-				export {err as err};//
-			`,
-			output: outdent`
-				let error;
-				export {error as err};//
-			`,
-			errors: createErrors()
-		}
 	]
 });
 
@@ -1885,7 +1855,6 @@ runTest({
 		}
 	],
 	invalid: [
-		// `checkFilenames` option
 		{
 			code: 'foo();',
 			filename: 'err/http-err.js',
