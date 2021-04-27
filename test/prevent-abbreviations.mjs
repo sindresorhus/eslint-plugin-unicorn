@@ -5,21 +5,6 @@ import {getTester, avoidTestTitleConflict} from './utils/test.mjs';
 
 const {test: runTest, rule} = getTester(import.meta);
 
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
-
-const browserES5RuleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 5
-	},
-	env: {
-		browser: true
-	}
-});
-
 const noFixingTestCase = test => ({...test, output: test.code});
 
 const createErrors = message => {
@@ -1251,7 +1236,15 @@ runTest(tests);
 runTest.babel(avoidTestTitleConflict(tests, 'babel'));
 runTest.typescript(avoidTestTitleConflict(tests, 'typescript'));
 
-browserES5RuleTester.run('prevent-abbreviations', rule, {
+runTest({
+	testerOptions: {
+	parserOptions: {
+		ecmaVersion: 5
+	},
+	env: {
+		browser: true
+	}
+	},
 	valid: [],
 	invalid: [
 		{
