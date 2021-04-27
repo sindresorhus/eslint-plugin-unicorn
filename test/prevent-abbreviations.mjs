@@ -67,8 +67,6 @@ const customOptions = [
 		checkShorthandImports: true,
 		checkShorthandProperties: true,
 
-		checkFilenames: false,
-
 		extendDefaultReplacements: false,
 		replacements: {
 			args: {
@@ -122,17 +120,6 @@ const noExtendDefaultAllowListOptions = [
 			err: true
 		},
 		extendDefaultAllowList: false
-	}
-];
-
-const ignoreOptions = [
-	{
-		ignore: [
-			/^e_/,
-			// eslint-disable-next-line prefer-regex-literals
-			new RegExp('_e$', 'i'),
-			'\\.e2e\\.'
-		]
 	}
 ];
 
@@ -260,35 +247,11 @@ ruleTester.run('prevent-abbreviations', rule, {
 			code: '({__proto__: null})',
 			options: customOptions
 		},
-		// `checkFilenames` option
-		{
-			code: 'foo();',
-			filename: 'http-error.js'
-		},
-		{
-			code: 'foo();',
-			filename: 'http-err.js',
-			options: customOptions
-		},
-		{
-			code: 'foo();',
-			filename: 'err/http-error.js'
-		},
 
 		// `extendDefaultAllowList` option
 		{
 			code: 'const propTypes = 2;const err = 2;',
 			options: extendDefaultAllowListOptions
-		},
-
-		// `ignore` option
-		{
-			code: outdent`
-				const e_at_start = 1;
-				const end_with_e = 2;
-			`,
-			filename: 'some.spec.e2e.test.js',
-			options: ignoreOptions
 		}
 	],
 
@@ -1272,44 +1235,6 @@ ruleTester.run('prevent-abbreviations', rule, {
 			`,
 			errors: createErrors()
 		},
-		// `checkFilenames` option
-		{
-			code: 'foo();',
-			filename: 'err/http-err.js',
-			errors: createErrors()
-		},
-		{
-			code: 'foo();',
-			filename: 'http-err.js',
-			errors: createErrors()
-		},
-		{
-			code: 'foo();',
-			filename: '/path/to/doc/__prev-Attr$1Err__.conf.js',
-			errors: createErrors('The filename `/path/to/doc/__prev-Attr$1Err__.conf.js` should be named `__previous-Attribute$1Error__.config.js`. A more descriptive name will do too.')
-		},
-		{
-			code: 'foo();',
-			filename: '.http.err.js',
-			errors: createErrors('The filename `.http.err.js` should be named `.http.error.js`. A more descriptive name will do too.')
-		},
-		{
-			code: 'foo();',
-			filename: 'e.js',
-			errors: createErrors('Please rename the filename `e.js`. Suggested names are: `error.js`, `event.js`. A more descriptive name will do too.')
-		},
-		{
-			code: 'foo();',
-			filename: 'c.js',
-			options: extendedOptions,
-			errors: createErrors('The filename `c.js` should be named `custom.js`. A more descriptive name will do too.')
-		},
-		{
-			code: 'foo();',
-			filename: 'cb.js',
-			options: extendedOptions,
-			errors: createErrors('The filename `cb.js` should be named `circuitBreacker.js`. A more descriptive name will do too.')
-		},
 
 		// `extendDefaultAllowList` option
 		{
@@ -1678,21 +1603,8 @@ runTest({
 			`,
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		}),
+		})
 
-		// `ignore` option
-		{
-			code: outdent`
-				const e_at_start = 1;
-				const end_with_e = 2;
-			`,
-			filename: 'some.spec.e2e.test.js',
-			errors: [
-				...createErrors('Please rename the filename `some.spec.e2e.test.js`. Suggested names are: `some.spec.error2error.test.js`, `some.spec.error2event.test.js`, `some.spec.event2error.test.js`, ... (1 more omitted). A more descriptive name will do too.'),
-				...createErrors('Please rename the variable `e_at_start`. Suggested names are: `error_at_start`, `event_at_start`. A more descriptive name will do too.'),
-				...createErrors('Please rename the variable `end_with_e`. Suggested names are: `end_with_error`, `end_with_event`. A more descriptive name will do too.')
-			]
-		}
 	]
 });
 
@@ -1935,4 +1847,95 @@ runTest.typescript({
 			errors: createErrors()
 		}
 	]
+});
+
+// Filename
+runTest({
+	valid: [
+		{
+			code: 'foo();',
+			filename: 'http-error.js'
+		},
+		{
+			code: 'foo();',
+			filename: 'http-err.js',
+			options: [{checkFilenames: false,}]
+		},
+		{
+			code: 'foo();',
+			filename: 'err/http-error.js'
+		},
+		// `ignore` option
+		{
+			code: outdent`
+				const e_at_start = 1;
+				const end_with_e = 2;
+			`,
+			filename: 'some.spec.e2e.test.js',
+			options: [
+				{
+					ignore: [
+						/^e_/,
+						// eslint-disable-next-line prefer-regex-literals
+						new RegExp('_e$', 'i'),
+						'\\.e2e\\.'
+					]
+				}
+			]
+		}
+	],
+	invalid: [
+		// `checkFilenames` option
+		{
+			code: 'foo();',
+			filename: 'err/http-err.js',
+			errors: createErrors()
+		},
+		{
+			code: 'foo();',
+			filename: 'http-err.js',
+			errors: createErrors()
+		},
+		{
+			code: 'foo();',
+			filename: '/path/to/doc/__prev-Attr$1Err__.conf.js',
+			errors: createErrors('The filename `/path/to/doc/__prev-Attr$1Err__.conf.js` should be named `__previous-Attribute$1Error__.config.js`. A more descriptive name will do too.')
+		},
+		{
+			code: 'foo();',
+			filename: '.http.err.js',
+			errors: createErrors('The filename `.http.err.js` should be named `.http.error.js`. A more descriptive name will do too.')
+		},
+		{
+			code: 'foo();',
+			filename: 'e.js',
+			errors: createErrors('Please rename the filename `e.js`. Suggested names are: `error.js`, `event.js`. A more descriptive name will do too.')
+		},
+		{
+			code: 'foo();',
+			filename: 'c.js',
+			options: extendedOptions,
+			errors: createErrors('The filename `c.js` should be named `custom.js`. A more descriptive name will do too.')
+		},
+		{
+			code: 'foo();',
+			filename: 'cb.js',
+			options: extendedOptions,
+			errors: createErrors('The filename `cb.js` should be named `circuitBreacker.js`. A more descriptive name will do too.')
+		},
+		// `ignore` option
+		{
+			code: outdent`
+				const e_at_start = 1;
+				const end_with_e = 2;
+			`,
+			filename: 'some.spec.e2e.test.js',
+			errors: [
+				...createErrors('Please rename the filename `some.spec.e2e.test.js`. Suggested names are: `some.spec.error2error.test.js`, `some.spec.error2event.test.js`, `some.spec.event2error.test.js`, ... (1 more omitted). A more descriptive name will do too.'),
+				...createErrors('Please rename the variable `e_at_start`. Suggested names are: `error_at_start`, `event_at_start`. A more descriptive name will do too.'),
+				...createErrors('Please rename the variable `end_with_e`. Suggested names are: `end_with_error`, `end_with_event`. A more descriptive name will do too.')
+			]
+		}
+	]
+
 });
