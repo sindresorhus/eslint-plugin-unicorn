@@ -1,24 +1,7 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, avoidTestTitleConflict} from './utils/test.mjs';
 
-const {test: runTest, rule} = getTester(import.meta);
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
-
-const browserES5RuleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 5
-	},
-	env: {
-		browser: true
-	}
-});
+const {test} = getTester(import.meta);
 
 const noFixingTestCase = test => ({...test, output: test.code});
 
@@ -66,8 +49,6 @@ const customOptions = [
 		checkDefaultAndNamespaceImports: true,
 		checkShorthandImports: true,
 		checkShorthandProperties: true,
-
-		checkFilenames: false,
 
 		extendDefaultReplacements: false,
 		replacements: {
@@ -125,18 +106,7 @@ const noExtendDefaultAllowListOptions = [
 	}
 ];
 
-const ignoreOptions = [
-	{
-		ignore: [
-			/^e_/,
-			// eslint-disable-next-line prefer-regex-literals
-			new RegExp('_e$', 'i'),
-			'\\.e2e\\.'
-		]
-	}
-];
-
-ruleTester.run('prevent-abbreviations', rule, {
+const tests = {
 	valid: [
 		'let x',
 		'({x: 1})',
@@ -260,35 +230,11 @@ ruleTester.run('prevent-abbreviations', rule, {
 			code: '({__proto__: null})',
 			options: customOptions
 		},
-		// `checkFilenames` option
-		{
-			code: 'foo();',
-			filename: 'http-error.js'
-		},
-		{
-			code: 'foo();',
-			filename: 'http-err.js',
-			options: customOptions
-		},
-		{
-			code: 'foo();',
-			filename: 'err/http-error.js'
-		},
 
 		// `extendDefaultAllowList` option
 		{
 			code: 'const propTypes = 2;const err = 2;',
 			options: extendDefaultAllowListOptions
-		},
-
-		// `ignore` option
-		{
-			code: outdent`
-				const e_at_start = 1;
-				const end_with_e = 2;
-			`,
-			filename: 'some.spec.e2e.test.js',
-			options: ignoreOptions
 		}
 	],
 
@@ -346,6 +292,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 					}
 				}
 			],
+
 			errors: createErrors('Please rename the variable `a`. Suggested names are: `const_`, `used_`, `var__`. A more descriptive name will do too.')
 		},
 
@@ -438,18 +385,18 @@ ruleTester.run('prevent-abbreviations', rule, {
 		// Testing that options apply
 		{
 			code: 'let args',
-			output: 'let arguments',
+			output: 'let arguments_',
 			errors: createErrors()
 		},
 		{
 			code: 'let args',
-			output: 'let arguments',
+			output: 'let arguments_',
 			options: extendedOptions,
 			errors: createErrors()
 		},
 		{
 			code: 'let args',
-			output: 'let arguments',
+			output: 'let arguments_',
 			options: customOptions,
 			errors: createErrors()
 		},
@@ -931,7 +878,7 @@ ruleTester.run('prevent-abbreviations', rule, {
 		// `package` is a reserved word in strict mode
 		{
 			code: 'let pkg',
-			output: 'let package',
+			output: 'let package_',
 			errors: createErrors()
 		},
 		{
@@ -1102,8 +1049,8 @@ ruleTester.run('prevent-abbreviations', rule, {
 				}
 			`,
 			output: outdent`
-				const f = (...arguments) => {
-					return arguments;
+				const f = (...arguments_) => {
+					return arguments_;
 				}
 			`,
 			errors: createErrors()
@@ -1116,9 +1063,9 @@ ruleTester.run('prevent-abbreviations', rule, {
 				}
 			`,
 			output: outdent`
-				let arguments;
+				let arguments_;
 				const f = () => {
-					return arguments;
+					return arguments_;
 				}
 			`,
 			errors: createErrors()
@@ -1272,44 +1219,6 @@ ruleTester.run('prevent-abbreviations', rule, {
 			`,
 			errors: createErrors()
 		},
-		// `checkFilenames` option
-		{
-			code: 'foo();',
-			filename: 'err/http-err.js',
-			errors: createErrors()
-		},
-		{
-			code: 'foo();',
-			filename: 'http-err.js',
-			errors: createErrors()
-		},
-		{
-			code: 'foo();',
-			filename: '/path/to/doc/__prev-Attr$1Err__.conf.js',
-			errors: createErrors('The filename `/path/to/doc/__prev-Attr$1Err__.conf.js` should be named `__previous-Attribute$1Error__.config.js`. A more descriptive name will do too.')
-		},
-		{
-			code: 'foo();',
-			filename: '.http.err.js',
-			errors: createErrors('The filename `.http.err.js` should be named `.http.error.js`. A more descriptive name will do too.')
-		},
-		{
-			code: 'foo();',
-			filename: 'e.js',
-			errors: createErrors('Please rename the filename `e.js`. Suggested names are: `error.js`, `event.js`. A more descriptive name will do too.')
-		},
-		{
-			code: 'foo();',
-			filename: 'c.js',
-			options: extendedOptions,
-			errors: createErrors('The filename `c.js` should be named `custom.js`. A more descriptive name will do too.')
-		},
-		{
-			code: 'foo();',
-			filename: 'cb.js',
-			options: extendedOptions,
-			errors: createErrors('The filename `cb.js` should be named `circuitBreacker.js`. A more descriptive name will do too.')
-		},
 
 		// `extendDefaultAllowList` option
 		{
@@ -1319,9 +1228,21 @@ ruleTester.run('prevent-abbreviations', rule, {
 			errors: createErrors()
 		}
 	]
-});
+};
 
-browserES5RuleTester.run('prevent-abbreviations', rule, {
+test(tests);
+test.babel(avoidTestTitleConflict(tests, 'babel'));
+test.typescript(avoidTestTitleConflict(tests, 'typescript'));
+
+test({
+	testerOptions: {
+		parserOptions: {
+			ecmaVersion: 5
+		},
+		env: {
+			browser: true
+		}
+	},
 	valid: [],
 	invalid: [
 		{
@@ -1368,7 +1289,7 @@ browserES5RuleTester.run('prevent-abbreviations', rule, {
 	]
 });
 
-runTest({
+test({
 	valid: [
 		'import {err as foo} from "foo"',
 
@@ -1678,25 +1599,12 @@ runTest({
 			`,
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		}),
+		})
 
-		// `ignore` option
-		{
-			code: outdent`
-				const e_at_start = 1;
-				const end_with_e = 2;
-			`,
-			filename: 'some.spec.e2e.test.js',
-			errors: [
-				...createErrors('Please rename the filename `some.spec.e2e.test.js`. Suggested names are: `some.spec.error2error.test.js`, `some.spec.error2event.test.js`, `some.spec.event2error.test.js`, ... (1 more omitted). A more descriptive name will do too.'),
-				...createErrors('Please rename the variable `e_at_start`. Suggested names are: `error_at_start`, `event_at_start`. A more descriptive name will do too.'),
-				...createErrors('Please rename the variable `end_with_e`. Suggested names are: `end_with_error`, `end_with_event`. A more descriptive name will do too.')
-			]
-		}
 	]
 });
 
-runTest.babel({
+test.babel({
 	valid: [
 		// Allowed names
 		'Foo.defaultProps = {}',
@@ -1791,28 +1699,11 @@ runTest.babel({
 			`,
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		}),
-		{
-			code: 'import {err as err} from "err";//2',
-			output: 'import {err as error} from "err";//2',
-			options: customOptions,
-			errors: createErrors()
-		},
-		{
-			code: outdent`
-				let err;
-				export {err as err};//2
-			`,
-			output: outdent`
-				let error;
-				export {error as err};//2
-			`,
-			errors: createErrors()
-		}
+		})
 	]
 });
 
-runTest.typescript({
+test.typescript({
 	valid: [],
 	invalid: [
 		// Types
@@ -1915,24 +1806,96 @@ runTest.typescript({
 				export type PreloadProps<TExtraProperties = null> = {};
 			`,
 			errors: [...createErrors(), ...createErrors()]
-		},
-
-		{
-			code: 'import {err as err} from "err";//',
-			output: 'import {err as error} from "err";//',
-			options: customOptions,
-			errors: createErrors()
-		},
-		{
-			code: outdent`
-				let err;
-				export {err as err};//
-			`,
-			output: outdent`
-				let error;
-				export {error as err};//
-			`,
-			errors: createErrors()
 		}
 	]
+});
+
+// Filename
+test({
+	valid: [
+		{
+			code: 'foo();',
+			filename: 'http-error.js'
+		},
+		{
+			code: 'foo();',
+			filename: 'http-err.js',
+			options: [{checkFilenames: false}]
+		},
+		{
+			code: 'foo();',
+			filename: 'err/http-error.js'
+		},
+		// `ignore` option
+		{
+			code: outdent`
+				const e_at_start = 1;
+				const end_with_e = 2;
+			`,
+			filename: 'some.spec.e2e.test.js',
+			options: [
+				{
+					ignore: [
+						/^e_/,
+						// eslint-disable-next-line prefer-regex-literals
+						new RegExp('_e$', 'i'),
+						'\\.e2e\\.'
+					]
+				}
+			]
+		}
+	],
+	invalid: [
+		{
+			code: 'foo();',
+			filename: 'err/http-err.js',
+			errors: createErrors()
+		},
+		{
+			code: 'foo();',
+			filename: 'http-err.js',
+			errors: createErrors()
+		},
+		{
+			code: 'foo();',
+			filename: '/path/to/doc/__prev-Attr$1Err__.conf.js',
+			errors: createErrors('The filename `/path/to/doc/__prev-Attr$1Err__.conf.js` should be named `__previous-Attribute$1Error__.config.js`. A more descriptive name will do too.')
+		},
+		{
+			code: 'foo();',
+			filename: '.http.err.js',
+			errors: createErrors('The filename `.http.err.js` should be named `.http.error.js`. A more descriptive name will do too.')
+		},
+		{
+			code: 'foo();',
+			filename: 'e.js',
+			errors: createErrors('Please rename the filename `e.js`. Suggested names are: `error.js`, `event.js`. A more descriptive name will do too.')
+		},
+		{
+			code: 'foo();',
+			filename: 'c.js',
+			options: extendedOptions,
+			errors: createErrors('The filename `c.js` should be named `custom.js`. A more descriptive name will do too.')
+		},
+		{
+			code: 'foo();',
+			filename: 'cb.js',
+			options: extendedOptions,
+			errors: createErrors('The filename `cb.js` should be named `circuitBreacker.js`. A more descriptive name will do too.')
+		},
+		// `ignore` option
+		{
+			code: outdent`
+				const e_at_start = 1;
+				const end_with_e = 2;
+			`,
+			filename: 'some.spec.e2e.test.js',
+			errors: [
+				...createErrors('Please rename the filename `some.spec.e2e.test.js`. Suggested names are: `some.spec.error2error.test.js`, `some.spec.error2event.test.js`, `some.spec.event2error.test.js`, ... (1 more omitted). A more descriptive name will do too.'),
+				...createErrors('Please rename the variable `e_at_start`. Suggested names are: `error_at_start`, `event_at_start`. A more descriptive name will do too.'),
+				...createErrors('Please rename the variable `end_with_e`. Suggested names are: `end_with_error`, `end_with_event`. A more descriptive name will do too.')
+			]
+		}
+	]
+
 });

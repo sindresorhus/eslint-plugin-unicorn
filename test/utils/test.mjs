@@ -113,11 +113,15 @@ const addComment = (test, comment) => {
 	}
 
 	const {code, output} = test;
-	return {
+	const fixedTest = {
 		...test,
-		code: `${code}\n/* ${comment} */`,
-		output: `${output}\n/* ${comment} */`
+		code: `${code}\n/* ${comment} */`
 	};
+	if (Object.prototype.hasOwnProperty.call(fixedTest, 'output') && typeof output === 'string') {
+		fixedTest.output = `${output}\n/* ${comment} */`;
+	}
+
+	return fixedTest;
 };
 
 const avoidTestTitleConflict = (tests, comment) => {
