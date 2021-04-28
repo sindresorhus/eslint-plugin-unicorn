@@ -9,9 +9,9 @@ const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
-	[TYPE_NON_ZERO]: 'Use `.length {{code}}` when checking length is not zero.',
-	[TYPE_ZERO]: 'Use `.length {{code}}` when checking length is zero.',
-	[MESSAGE_ID_SUGGESTION]: 'Replace `.length` with `.length {{code}}`.'
+	[TYPE_NON_ZERO]: 'Use `.{{property}} {{code}}` when checking {{property}} is not zero.',
+	[TYPE_ZERO]: 'Use `.{{property}} {{code}}` when checking {{property}} is zero.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace `.{{property}}` with `.{{property}} {{code}}`.'
 };
 
 const isCompareRight = (node, operator, value) =>
@@ -54,7 +54,7 @@ const lengthSelector = [
 	'MemberExpression',
 	'[computed=false]',
 	'[property.type="Identifier"]',
-	'[property.name="length"]'
+	':matches([property.name="length"], [property.name="size"])'
 ].join('');
 
 function getLengthCheckNode(node) {
@@ -131,7 +131,7 @@ function create(context) {
 		const problem = {
 			node,
 			messageId: isZeroLengthCheck ? TYPE_ZERO : TYPE_NON_ZERO,
-			data: {code}
+			data: {code, property: lengthNode.property.name}
 		};
 
 		if (autoFix) {
@@ -140,7 +140,7 @@ function create(context) {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
-					data: {code},
+					data: problem.data,
 					fix
 				}
 			];
@@ -197,7 +197,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce explicitly comparing the `length` property of a value.',
+			description: 'Enforce explicitly comparing the `length` or `size` property of a value.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
