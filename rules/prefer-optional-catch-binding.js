@@ -17,8 +17,6 @@ const selector = [
 ].join('');
 
 const create = context => {
-	const sourceCode = context.getSourceCode();
-
 	return {
 		[selector]: node => {
 			const variables = context.getDeclaredVariables(node.parent);
@@ -54,7 +52,7 @@ const create = context => {
 
 					const [, endOfClosingParenthesis] = tokenAfter.range;
 					const [startOfCatchClauseBody] = parent.body.range;
-					const text = sourceCode.text.slice(endOfClosingParenthesis, startOfCatchClauseBody);
+					const text = context.getSourceCode().text.slice(endOfClosingParenthesis, startOfCatchClauseBody);
 					const leadingSpacesLength = text.length - text.trimStart().length;
 					if (leadingSpacesLength !== 0) {
 						yield fixer.removeRange([endOfClosingParenthesis, endOfClosingParenthesis + leadingSpacesLength]);
