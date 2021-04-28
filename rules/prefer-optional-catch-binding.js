@@ -3,15 +3,17 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const {findVariable, isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
 const assertToken = require('./utils/assert-token');
 
-const ERROR_MESSAGE_ID = 'error';
+const MESSAGE_ID_WITH_NAME = 'named';
+const MESSAGE_ID_WITHOUT_NAME = 'non-identifier';
 const messages = {
-	[ERROR_MESSAGE_ID]: 'Remove unused catch binding `{{name}}`.'
+	[MESSAGE_ID_WITH_NAME]: 'Remove unused catch binding `{{name}}`.',
+	[MESSAGE_ID_WITHOUT_NAME]: 'Remove unused catch binding.'
 };
 
 const selector = [
 	'CatchClause',
 	'>',
-	'Identifier.param'
+	'.param'
 ].join('');
 
 const create = context => {
@@ -20,17 +22,17 @@ const create = context => {
 	return {
 		[selector]: node => {
 			const scope = context.getScope();
-			const variable = findVariable(scope, node);
+			const variables = context.getDeclaredVariables(node.parent);
 
-			if (variable.references.length > 0) {
+			if (variables.some(variable => variable.references.length > 0)) {
 				return;
 			}
 
-			const {name, parent} = node;
+			const {type, name, parent} = node;
 
 			context.report({
 				node,
-				messageId: ERROR_MESSAGE_ID,
+				messageId: type === 'Identifier' ? MESSAGE_ID_WITH_NAME : MESSAGE_ID_WITHOUT_NAME,
 				data: {name},
 				* fix(fixer) {
 					const tokenBefore = context.getTokenBefore(node);
