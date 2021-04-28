@@ -3,7 +3,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const generateError = name => ({messageId: 'named', data: {name}});
+const generateError = name => ({messageId: 'with-name', data: {name}});
 
 test({
 	valid: [

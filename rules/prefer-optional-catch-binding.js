@@ -1,10 +1,10 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {findVariable, isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
+const {isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
 const assertToken = require('./utils/assert-token');
 
-const MESSAGE_ID_WITH_NAME = 'named';
-const MESSAGE_ID_WITHOUT_NAME = 'non-identifier';
+const MESSAGE_ID_WITH_NAME = 'with-name';
+const MESSAGE_ID_WITHOUT_NAME = 'without-name';
 const messages = {
 	[MESSAGE_ID_WITH_NAME]: 'Remove unused catch binding `{{name}}`.',
 	[MESSAGE_ID_WITHOUT_NAME]: 'Remove unused catch binding.'
@@ -21,7 +21,6 @@ const create = context => {
 
 	return {
 		[selector]: node => {
-			const scope = context.getScope();
 			const variables = context.getDeclaredVariables(node.parent);
 
 			if (variables.some(variable => variable.references.length > 0)) {
