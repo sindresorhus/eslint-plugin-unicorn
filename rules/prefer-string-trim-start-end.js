@@ -2,10 +2,10 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 
-const methods = new Map([
-	['trimLeft', 'trimStart'],
-	['trimRight', 'trimEnd']
-]);
+const MESSAGE_ID = 'prefer-string-trim-start-end';
+const messages = {
+	[MESSAGE_ID]: 'Prefer `String#{{replacement}}()` over `String#{{method}}()`.'
+};
 
 const selector = [
 	methodSelector({
@@ -16,19 +16,17 @@ const selector = [
 	'> Identifier.property'
 ].join(' ');
 
-const messages = {};
-for (const [method, replacement] of methods.entries()) {
-	messages[method] = `Prefer \`String#${replacement}()\` over \`String#${method}()\`.`;
-}
-
 const create = context => {
 	return {
 		[selector](node) {
 			const method = node.name;
+			const replacement = method === 'trimLeft' ? 'trimStart' : 'trimEnd';
+
 			context.report({
 				node,
-				messageId: method,
-				fix: fixer => fixer.replaceText(node, methods.get(method))
+				messageId: MESSAGE_ID,
+				data: {method, replacement},
+				fix: fixer => fixer.replaceText(node, replacement)
 			});
 		}
 	};
