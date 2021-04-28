@@ -355,6 +355,11 @@ test.snapshot({
 		// Foo[1] and foo["1"]
 		'foo[1].slice(foo["1"].length - 1)',
 		// Foo['bar'] & foo["bar"]
-		'foo[\'bar\'].slice(foo["bar"].length - 1)'
+		'foo[\'bar\'].slice(foo["bar"].length - 1)',
+		outdent`
+			foo.at(foo.length - 1);
+			Array.prototype.at.call(foo, foo.length - 2);
+			Array.prototype.at.apply(foo, [foo.length - 3]);
+		`
 	]
 });
