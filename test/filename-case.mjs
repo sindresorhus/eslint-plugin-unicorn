@@ -538,3 +538,13 @@ test({
 		)
 	]
 });
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		{
+			code: 'foo();\n'.repeat(10),
+			filename: 'src/foo/foo_bar.js'
+		}
+	]
+});

@@ -158,7 +158,7 @@ const create = context => {
 	}
 
 	return {
-		Program: node => {
+		Program() {
 			const extension = path.extname(filenameWithExtension);
 			const filename = path.basename(filenameWithExtension, extension);
 			const base = filename + extension;
@@ -180,7 +180,9 @@ const create = context => {
 			});
 
 			context.report({
-				node,
+				// Report on first character like `unicode-bom` rule
+				// https://github.com/eslint/eslint/blob/8a77b661bc921c3408bae01b3aa41579edfc6e58/lib/rules/unicode-bom.js#L46
+				loc: {column: 0, line: 1},
 				messageId: MESSAGE_ID,
 				data: {
 					chosenCases: englishishJoinWords(chosenCases.map(x => cases[x].name)),
