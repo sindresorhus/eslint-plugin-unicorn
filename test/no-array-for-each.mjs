@@ -376,7 +376,16 @@ test.snapshot({
 				let a;
 				a >>>= element;
 			});
-		`
+		`,
+
+		// Complicated parameters
+		'foo.forEach(({property}) => {bar(property)})',
+		'foo.forEach(({foo: {foo: [property]}}) => {bar(property, index)})',
+		'foo.forEach((element, {bar: {bar: [index]}}) => {bar(element, index)})',
+		'foo.forEach((element = elementDefaultValue, index = indexDefaultValue) => {})',
+		'foo.forEach(({}) => {})',
+		'foo.forEach(function foo({a, b, c, d}) {})',
+		'foo.forEach(function foo({a, b, c, d, foo}) {})'
 	]
 });
 
