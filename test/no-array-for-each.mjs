@@ -25,8 +25,7 @@ test.snapshot({
 		'foo.forEach(function * (element) {})',
 		'foo.forEach(() => bar())',
 		'foo.forEach((element, index, array) => bar())',
-		// Ideally this should be fixable, but hard to know variable conflicts
-		'foo.forEach(({property}) => bar(property))',
+		'property.forEach(({property}) => bar(property))',
 
 		// Can't turn `return` to `continue`
 		outdent`

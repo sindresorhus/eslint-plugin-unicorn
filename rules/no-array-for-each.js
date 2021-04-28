@@ -47,7 +47,7 @@ function isReturnStatementInContinueAbleNodes(returnStatement, callbackFunction)
 	return false;
 }
 
-function getFixFunction(callExpression, sourceCode, functionInfo) {
+function getFixFunction(callExpression, sourceCode, functionInfo, context) {
 	const [callback] = callExpression.arguments;
 	const parameters = callback.params;
 	const array = callExpression.callee.object;
@@ -58,7 +58,7 @@ function getFixFunction(callExpression, sourceCode, functionInfo) {
 		const useEntries = parameters.length === 2;
 
 		let text = 'for (';
-		text += parameters.some(parameter => isParameterReassigned(parameter, scope)) ? 'let' : 'const';
+		text += isFunctionParameterVariableReassigned(callback, context) ? 'let' : 'const';
 		text += ' ';
 		text += useEntries ? `[${indexText}, ${elementText}]` : elementText;
 		text += ' of ';
@@ -224,44 +224,56 @@ const isChildScope = (child, parent) => {
 	return false;
 };
 
-function isParameterSafeToFix(parameter, {scope, array, allIdentifiers}) {
-	const {type, name: parameterName} = parameter;
-	if (type !== 'Identifier') {
-		return false;
-	}
+function isFunctionParametersSafeToFix(callbackFunction, {scope, array, allIdentifiers, context}) {
+	const variables = context.getDeclaredVariables(callbackFunction);
 
-	const [arrayStart, arrayEnd] = array.range;
-	for (const identifier of allIdentifiers) {
-		const {name, range: [start, end]} = identifier;
-		if (
-			name !== parameterName ||
-			start < arrayStart ||
-			end > arrayEnd
-		) {
+	for (const variable of variables) {
+		if (variable.defs.length !== 1) {
+			return false;
+		}
+
+		const [definition] = variable.defs;
+		if (definition.type !== 'Parameter') {
 			continue;
 		}
 
-		const variable = findVariable(scope, identifier);
-		if (!variable || variable.scope === scope || isChildScope(scope, variable.scope)) {
-			return false;
+		const variableName = definition.name.name;
+		const [arrayStart, arrayEnd] = array.range;
+		for (const identifier of allIdentifiers) {
+			const {name, range: [start, end]} = identifier;
+			if (
+				name !== variableName ||
+				start < arrayStart ||
+				end > arrayEnd
+			) {
+				continue;
+			}
+
+			const variable = findVariable(scope, identifier);
+			if (!variable || variable.scope === scope || isChildScope(scope, variable.scope)) {
+				return false;
+			}
 		}
 	}
 
 	return true;
 }
 
-function isParameterReassigned(parameter, scope) {
-	const variable = findVariable(scope, parameter);
-	const {references} = variable;
-	return references.some(reference => {
-		const node = reference.identifier;
-		const {parent} = node;
-		return parent.type === 'UpdateExpression' ||
-			(parent.type === 'AssignmentExpression' && parent.left === node);
+function isFunctionParameterVariableReassigned(callbackFunction, context) {
+	const variables = context.getDeclaredVariables(callbackFunction)
+		.filter(variable => variable.defs[0].type === 'Parameter');
+	return variables.some(variable => {
+		const {references} = variable;
+		return references.some(reference => {
+			const node = reference.identifier;
+			const {parent} = node;
+			return parent.type === 'UpdateExpression' ||
+				(parent.type === 'AssignmentExpression' && parent.left === node);
+		});
 	});
 }
 
-function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifiers}) {
+function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifiers, context}) {
 	// Check `CallExpression`
 	if (
 		callExpression.optional ||
@@ -297,10 +309,8 @@ function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifi
 	const parameters = callback.params;
 	if (
 		!(parameters.length === 1 || parameters.length === 2) ||
-		parameters.some(parameter =>
-			parameter.typeAnnotation ||
-			!isParameterSafeToFix(parameter, {scope, array: callExpression, allIdentifiers})
-		)
+		parameters.some(({type, typeAnnotation}) => type === 'RestElement' || typeAnnotation) ||
+		!isFunctionParametersSafeToFix(callback, {scope, array: callExpression, allIdentifiers, context})
 	) {
 		return false;
 	}
@@ -373,8 +383,8 @@ const create = context => {
 					messageId: MESSAGE_ID
 				};
 
-				if (isFixable(node, sourceCode, {scope, allIdentifiers, functionInfo})) {
-					problem.fix = getFixFunction(node, sourceCode, functionInfo);
+				if (isFixable(node, sourceCode, {scope, allIdentifiers, functionInfo, context})) {
+					problem.fix = getFixFunction(node, sourceCode, functionInfo, context);
 				}
 
 				context.report(problem);
