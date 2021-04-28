@@ -261,17 +261,17 @@ function isFunctionParametersSafeToFix(callbackFunction, {context, scope, array,
 }
 
 function isFunctionParameterVariableReassigned(callbackFunction, context) {
-	const variables = context.getDeclaredVariables(callbackFunction)
-		.filter(variable => variable.defs[0].type === 'Parameter');
-	return variables.some(variable => {
-		const {references} = variable;
-		return references.some(reference => {
-			const node = reference.identifier;
-			const {parent} = node;
-			return parent.type === 'UpdateExpression' ||
-				(parent.type === 'AssignmentExpression' && parent.left === node);
+	return context.getDeclaredVariables(callbackFunction)
+		.filter(variable => variable.defs[0].type === 'Parameter')
+		.some(variable => {
+			const {references} = variable;
+			return references.some(reference => {
+				const node = reference.identifier;
+				const {parent} = node;
+				return parent.type === 'UpdateExpression' ||
+					(parent.type === 'AssignmentExpression' && parent.left === node);
+			});
 		});
-	});
 }
 
 function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
