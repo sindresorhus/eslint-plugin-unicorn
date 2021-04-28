@@ -386,6 +386,8 @@ test.snapshot({
 		'foo.forEach(({}) => {})',
 		'foo.forEach(function foo({a, b, c, d}) {})',
 		'foo.forEach(function foo({a, b, c, d, foo}) {})',
+		'foo.forEach(({foo: property}) => {bar(property)})',
+		'foo.forEach(({[foo]: property}) => {bar(property)})',
 		outdent`
 			foo.forEach(({element}, index) => {
 				element &&= 2;
@@ -418,6 +420,14 @@ test({
 		{
 			code: 'foo.forEach(function(element, element) {})',
 			output: 'foo.forEach(function(element, element) {})',
+			errors: 1,
+			parserOptions: {
+				sourceType: 'script'
+			}
+		},
+		{
+			code: 'foo.forEach(function element(element, element) {})',
+			output: 'foo.forEach(function element(element, element) {})',
 			errors: 1,
 			parserOptions: {
 				sourceType: 'script'
