@@ -7,7 +7,11 @@ This rule is fixable.
 ## Fail
 
 ```js
-try {} catch (usedError) {}
+try {} catch (notUsedError) {}
+```
+
+```js
+try {} catch ({message}) {}
 ```
 
 ## Pass

@@ -3,8 +3,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const ERROR_MESSAGE_ID = 'error';
-const generateError = name => ({messageId: ERROR_MESSAGE_ID, data: {name}});
+const generateError = name => ({messageId: 'with-name', data: {name}});
 
 test({
 	valid: [
@@ -27,10 +26,7 @@ test({
 					}
 				}
 			}
-		`,
-		// We are not checking destructuring
-		'try {} catch({message}) {}',
-		'try {} catch({nonExistsProperty = thisWillExecute()}) {}'
+		`
 	],
 	invalid: [
 		{
@@ -171,5 +167,20 @@ test({
 			output: 'try {} catch {}',
 			errors: 1
 		}
+	]
+});
+
+test.snapshot({
+	valid: [
+		'try {} catch ({message}) {alert(message)}',
+		'try {} catch ({cause: {message}}) {alert(message)}',
+		// Not sure about this case
+		'try {} catch({nonExistsProperty = thisWillExecute()}) {}'
+	],
+	invalid: [
+		'try {} catch ({}) {}',
+		'try {} catch ({message}) {}',
+		'try {} catch ({message: notUsedMessage}) {}',
+		'try {} catch ({cause: {message}}) {}'
 	]
 });
