@@ -385,7 +385,12 @@ test.snapshot({
 		'foo.forEach((element = elementDefaultValue, index = indexDefaultValue) => {})',
 		'foo.forEach(({}) => {})',
 		'foo.forEach(function foo({a, b, c, d}) {})',
-		'foo.forEach(function foo({a, b, c, d, foo}) {})'
+		'foo.forEach(function foo({a, b, c, d, foo}) {})',
+		outdent`
+			foo.forEach(({element}, index) => {
+				element &&= 2;
+			});
+		`
 	]
 });
 
@@ -405,6 +410,14 @@ test({
 					console.log(element)
 				}
 			`,
+			errors: 1,
+			parserOptions: {
+				sourceType: 'script'
+			}
+		},
+		{
+			code: 'foo.forEach(function(element, element) {})',
+			output: 'foo.forEach(function(element, element) {})',
 			errors: 1,
 			parserOptions: {
 				sourceType: 'script'
