@@ -1,4 +1,4 @@
-# Enforce explicitly comparing the `length` property of a value
+# Enforce explicitly comparing the `length` or `size` property of a value
 
 Enforce explicitly checking the length of an object and enforce the comparison style.
 
@@ -37,6 +37,10 @@ const isEmpty = 1 > foo.length;
 ```js
 // Negative style is forbidden too
 const isEmpty = !(foo.length > 0);
+```
+
+```js
+const isEmptySet = !foo.size;
 ```
 
 ### Pass
