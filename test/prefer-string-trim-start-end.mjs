@@ -3,15 +3,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const errorTrimLeft = {
-	messageId: 'trimLeft'
-};
-
-const errorTrimRight = {
-	messageId: 'trimRight'
-};
-
-test({
+test.snapshot({
 	valid: [
 		'foo.trimStart()',
 		'foo.trimEnd()',
@@ -36,61 +28,18 @@ test({
 		'foo.trimLeft.bar()'
 	],
 	invalid: [
-		{
-			code: 'foo.trimLeft()',
-			output: 'foo.trimStart()',
-			errors: [errorTrimLeft]
-		},
-		{
-			code: 'foo.trimRight()',
-			output: 'foo.trimEnd()',
-			errors: [errorTrimRight]
-		},
-		{
-			code: 'trimLeft.trimRight()',
-			output: 'trimLeft.trimEnd()',
-			errors: [errorTrimRight]
-		},
-		{
-			code: 'foo.trimLeft.trimRight()',
-			output: 'foo.trimLeft.trimEnd()',
-			errors: [errorTrimRight]
-		},
-		{
-			code: '"foo".trimLeft()',
-			output: '"foo".trimStart()',
-			errors: [errorTrimLeft]
-		},
-		{
-			code: outdent`
-				foo
-					// comment
-					.trimRight/* comment */(
-						/* comment */
-					)
-			`,
-			output: outdent`
-				foo
-					// comment
-					.trimEnd/* comment */(
-						/* comment */
-					)
-			`,
-			errors: [errorTrimRight]
-		}
-	]
-});
-
-test.snapshot({
-	valid: [],
-	invalid: [
 		'foo.trimLeft()',
+		'foo.trimRight()',
+		'trimLeft.trimRight()',
+		'foo.trimLeft.trimRight()',
+		'"foo".trimLeft()',
 		outdent`
 			foo
 				// comment
 				.trimRight/* comment */(
 					/* comment */
 				)
-		`
+		`,
+		'foo.trimLeft()'
 	]
 });
