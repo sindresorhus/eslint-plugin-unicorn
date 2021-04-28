@@ -47,11 +47,12 @@ function isReturnStatementInContinueAbleNodes(returnStatement, callbackFunction)
 	return false;
 }
 
-function getFixFunction(callExpression, sourceCode, functionInfo, context) {
+function getFixFunction(callExpression, functionInfo, context) {
+	const sourceCode = context.getSourceCode();
 	const [callback] = callExpression.arguments;
 	const parameters = callback.params;
 	const array = callExpression.callee.object;
-	const {returnStatements, scope} = functionInfo.get(callback);
+	const {returnStatements} = functionInfo.get(callback);
 
 	const getForOfLoopHeadText = () => {
 		const [elementText, indexText] = parameters.map(parameter => sourceCode.getText(parameter));
@@ -224,7 +225,7 @@ const isChildScope = (child, parent) => {
 	return false;
 };
 
-function isFunctionParametersSafeToFix(callbackFunction, {scope, array, allIdentifiers, context}) {
+function isFunctionParametersSafeToFix(callbackFunction, {context, scope, array, allIdentifiers}) {
 	const variables = context.getDeclaredVariables(callbackFunction);
 
 	for (const variable of variables) {
@@ -273,7 +274,8 @@ function isFunctionParameterVariableReassigned(callbackFunction, context) {
 	});
 }
 
-function isFixable(callExpression, sourceCode, {scope, functionInfo, allIdentifiers, context}) {
+function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
+	const sourceCode = context.getSourceCode();
 	// Check `CallExpression`
 	if (
 		callExpression.optional ||
@@ -339,8 +341,6 @@ const create = context => {
 	const allIdentifiers = [];
 	const functionInfo = new Map();
 
-	const sourceCode = context.getSourceCode();
-
 	return {
 		':function'(node) {
 			functionStack.push(node);
@@ -383,8 +383,8 @@ const create = context => {
 					messageId: MESSAGE_ID
 				};
 
-				if (isFixable(node, sourceCode, {scope, allIdentifiers, functionInfo, context})) {
-					problem.fix = getFixFunction(node, sourceCode, functionInfo, context);
+				if (isFixable(node, {scope, allIdentifiers, functionInfo, context})) {
+					problem.fix = getFixFunction(node, functionInfo, context);
 				}
 
 				context.report(problem);
