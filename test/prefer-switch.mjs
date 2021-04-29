@@ -268,8 +268,8 @@ test.snapshot({
 				}
 				else if (foo === 9) {
 					return 9;
-					// FunctionDeclaration after return
-					const afterReturn = function afterReturn() {}
+					// FunctionExpression after return
+					const afterReturn = function afterReturn() {return 9}
 				}
 				else if (foo === 10) {
 					{{{
@@ -284,6 +284,18 @@ test.snapshot({
 						function afterReturn() {}
 						;;;
 					}}}
+				}
+				else if (foo === 12) {
+					return twelve;
+					var twelve = 12;
+				}
+				else if (foo === 13) {
+					// We are not checking this case
+					if (a) {
+						return 'a';
+					} else {
+						return 'b';
+					}
 				}
 				else return 'default';
 			}

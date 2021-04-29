@@ -139,6 +139,42 @@ function * insertBreakStatement(node, fixer, sourceCode, indent) {
 	}
 }
 
+function getBlockStatementLastNode(blockStatement) {
+	const {body} = blockStatement;
+	for (let index = body.length - 1; index >= 0; index--) {
+		const node = body[index];
+		if (node.type === 'FunctionDeclaration' || node.type === 'EmptyStatement') {
+			continue;
+		}
+
+		if (node.type === 'BlockStatement') {
+			const last = getBlockStatementLastNode(node);
+			if (last) {
+				return last;
+			}
+
+			continue;
+		}
+
+		return node;
+	}
+}
+
+function shouldInsertBreakStatement(node) {
+	switch (node.type) {
+		case 'ReturnStatement':
+		case 'ThrowStatement':
+			return false;
+		case 'BlockStatement': {
+			const lastNode = getBlockStatementLastNode(node);
+			return !lastNode || shouldInsertBreakStatement(lastNode);
+		}
+
+		default:
+			return true;
+	}
+}
+
 function fix({discriminant, ifStatements}, sourceCode, options) {
 	const discriminantText = sourceCode.getText(discriminant);
 
@@ -184,8 +220,10 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 				yield fixer.insertTextBefore(consequent, `\n${indent}case ${text}: `);
 			}
 
-			yield * insertBreakStatement(consequent, fixer, sourceCode, indent);
-			yield * insertBracesIfNotBlockStatement(consequent, fixer, indent);
+			if (shouldInsertBreakStatement(consequent)) {
+				yield * insertBreakStatement(consequent, fixer, sourceCode, indent);
+				yield * insertBracesIfNotBlockStatement(consequent, fixer, indent);
+			}
 		}
 	};
 }
