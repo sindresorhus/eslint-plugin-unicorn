@@ -151,7 +151,6 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 		if (lastStatement.alternate) {
 			const {alternate} = lastStatement;
 			yield fixer.insertTextBefore(alternate, `\n${indent}default: `);
-			yield * insertBracesIfNotBlockStatement(alternate, fixer, indent);
 		} else {
 			switch (options.emptyDefaultCase) {
 				case 'no-default-comment':
