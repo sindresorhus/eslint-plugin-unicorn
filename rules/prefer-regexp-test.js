@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
-const {fromPairs} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const {isBooleanNode} = require('./utils/boolean');
@@ -117,7 +116,7 @@ function getProblem(node, checkCase, context) {
 	return problem;
 }
 
-const create = context => fromPairs(
+const create = context => Object.fromEntries(
 	cases.map(checkCase => [
 		checkCase.selector,
 		node => {

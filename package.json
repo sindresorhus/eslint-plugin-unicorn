@@ -91,9 +91,6 @@
 		]
 	},
 	"xo": {
-		"parserOptions": {
-			"sourceType": "script"
-		},
 		"plugins": [
 			"eslint-plugin"
 		],
@@ -115,23 +112,17 @@
 			},
 			{
 				"files": [
-					"**/*.mjs"
+					"**/*.js"
 				],
 				"parserOptions": {
-					"sourceType": "module"
+					"sourceType": "script"
+				},
+				"rules": {
+					"strict": "error"
 				}
 			}
 		],
 		"rules": {
-			"strict": "error",
-			"node/no-unsupported-features/node-builtins": [
-				"error",
-				{
-					"ignores": [
-						"module.createRequire"
-					]
-				}
-			],
 			"unicorn/no-null": "error",
 			"unicorn/prevent-abbreviations": [
 				"error",
