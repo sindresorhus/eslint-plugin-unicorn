@@ -280,8 +280,10 @@ test.snapshot({
 					return 11;
 
 					{{{
-						;;;;;;
+						;;;
 						function afterReturn() {}
+						;;;
+						function afterReturn2() {}
 						;;;
 					}}}
 				}
