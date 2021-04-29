@@ -289,15 +289,98 @@ test.snapshot({
 					return twelve;
 					var twelve = 12;
 				}
-				else if (foo === 13) {
-					// We are not checking this case
-					if (a) {
-						return 'a';
+				else return 'default';
+			}
+		`,
+		outdent`
+			function unicorn() {
+				if (foo === 1) {
+					if (true) {
+						throw error;
 					} else {
-						return 'b';
+						return false;
 					}
 				}
-				else return 'default';
+				else if (foo === 2) {
+					if (true) {
+						throw error;
+					}
+				// no else, need break
+				}
+				else if (foo === 3) {
+					if (a) {
+						return a;
+					} else if (b) {
+						return b;
+					} else if (c) {
+						return c;
+					} else if (d) {
+						if (dd) {
+							return dd;
+						} else {
+							return dd;
+						}
+					} else {
+						return f;
+					}
+				}
+				else if (foo === 4) {
+					if (a) {
+						return a;
+					} else if (b) {
+						return b;
+					} else if (c) {
+						return c;
+					} else if (d) {
+						return e;
+					} // here
+				// missing else deep inside, need break
+				}
+				else if (foo === 5) {
+					if (a) {
+						return a;
+					} else if (b) {
+						return b;
+					} else if (c) {
+						return c;
+					} else if (d) {
+						if (dd) {
+							return dd;
+						} else if (de) {
+							return de;
+						} // here
+					} else {
+						return f;
+					}
+				// missing else deep inside, need break
+				}
+				else if (foo === 6) {
+					if (a) {
+						return a;
+					} else if (b) {
+						return b;
+					} else if (c) {
+						// here
+					} else if (d) {
+						return e;
+					} else {
+						return f;
+					}
+				// missing one return, need break
+				}
+				else if (foo === 7) {
+					if (a) return a;
+					else if (b) {
+						return b;;;;;
+					} else if (c) {
+						return c;
+						function x() {}
+					} else if (d) {
+						return e;
+					} else {
+						return f;
+					}
+				}
 			}
 		`
 	]

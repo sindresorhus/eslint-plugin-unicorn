@@ -165,6 +165,12 @@ function shouldInsertBreakStatement(node) {
 		case 'ReturnStatement':
 		case 'ThrowStatement':
 			return false;
+
+		case 'IfStatement':
+			return !node.alternate ||
+				shouldInsertBreakStatement(node.consequent) ||
+				shouldInsertBreakStatement(node.alternate);
+
 		case 'BlockStatement': {
 			const lastNode = getBlockStatementLastNode(node);
 			return !lastNode || shouldInsertBreakStatement(lastNode);
