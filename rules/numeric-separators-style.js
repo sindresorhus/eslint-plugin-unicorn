@@ -1,5 +1,4 @@
 'use strict';
-const {fromPairs} = require('lodash');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'numeric-separators-style';
@@ -166,7 +165,7 @@ const formatOptionsSchema = ({minimumDigits, groupLength}) => ({
 const schema = [{
 	type: 'object',
 	properties: {
-		...fromPairs(
+		...Object.fromEntries(
 			Object.entries(defaultOptions).map(([type, options]) => [type, formatOptionsSchema(options)])
 		),
 		onlyIfContainsSeparator: {
