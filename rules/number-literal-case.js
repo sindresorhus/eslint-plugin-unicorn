@@ -1,5 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const {isNumber, isBigInt} = require('./utils/numeric');
 
 const MESSAGE_ID = 'number-literal-case';
 const messages = {
@@ -18,12 +19,12 @@ const fix = raw => {
 const create = context => {
 	return {
 		Literal: node => {
-			const {value, raw, bigint} = node;
+			const {raw} = node;
 
 			let fixed = raw;
-			if (typeof value === 'number') {
+			if (isNumber(node)) {
 				fixed = fix(raw);
-			} else if (bigint) {
+			} else if (isBigInt(node)) {
 				fixed = fix(raw.slice(0, -1)) + 'n';
 			}
 

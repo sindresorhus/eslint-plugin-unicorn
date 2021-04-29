@@ -1,14 +1,7 @@
 'use strict';
 
 const isNewExpressionWithParentheses = require('./is-new-expression-with-parentheses');
-
-// Determine whether this node is a decimal integer literal.
-// Copied from https://github.com/eslint/eslint/blob/cc4871369645c3409dc56ded7a555af8a9f63d51/lib/rules/utils/ast-utils.js#L1237
-const DECIMAL_INTEGER_PATTERN = /^(?:0|0[0-7]*[89]\d*|[1-9](?:_?\d)*)$/u;
-const isDecimalInteger = node =>
-	node.type === 'Literal' &&
-	typeof node.value === 'number' &&
-	DECIMAL_INTEGER_PATTERN.test(node.raw);
+const {isDecimalInteger} = require('./numeric');
 
 /**
 Check if parentheses should to be added to a `node` when it's used as an `object` of `MemberExpression`.

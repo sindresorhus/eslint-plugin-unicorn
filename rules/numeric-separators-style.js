@@ -1,5 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const numeric = require('./utils/numeric');
 
 const MESSAGE_ID = 'numeric-separators-style';
 const messages = {
@@ -34,16 +35,8 @@ function addSeparatorFromLeft(value, options) {
 }
 
 function formatNumber(value, options) {
-	const parts = value.split('.');
-	const [integer, fractional] = parts;
-
-	let formatted = addSeparator(integer, options);
-	if (parts.length === 2) {
-		formatted += '.';
-		formatted += addSeparatorFromLeft(fractional, options);
-	}
-
-	return formatted;
+	const {integer, dot, fractional} = numeric.parseFloat(value);
+	return addSeparator(integer, options) + dot + addSeparatorFromLeft(fractional, options);
 }
 
 function format(value, {prefix, data}, options) {
@@ -55,10 +48,10 @@ function format(value, {prefix, data}, options) {
 
 	const {
 		number,
-		mark = '',
-		sign = '',
-		power = ''
-	} = value.match(/^(?<number>.*?)(?:(?<mark>e)(?<sign>[+-])?(?<power>\d+))?$/i).groups;
+		mark,
+		sign,
+		power
+	} = numeric.parseNumber(value);
 
 	return formatNumber(number, formatOption) + mark + sign + addSeparator(power, options['']);
 }
@@ -106,23 +99,20 @@ const create = context => {
 
 	return {
 		Literal: node => {
-			const {value, bigint, raw} = node;
-			let number = raw;
-			let suffix = '';
-			if (typeof value === 'number') {
-				// Legacy octal
-				if (/^0\d+$/.test(raw)) {
-					return;
-				}
-			} else if (bigint) {
-				number = raw.slice(0, -1);
-				suffix = 'n';
-			} else {
+			if (!numeric.isNumberic(node) || numeric.isLegacyOctal(node)) {
 				return;
 			}
 
+			const {raw} = node;
+			let number = raw;
+			let suffix = '';
+			if (numeric.isBigInt(node)) {
+				number = raw.slice(0, -1);
+				suffix = 'n';
+			}
+
 			const strippedNumber = number.replace(/_/g, '');
-			const {prefix = '', data} = strippedNumber.match(/^(?<prefix>0[box])?(?<data>.*)$/i).groups;
+			const {prefix, data} = numeric.getPrefix(strippedNumber);
 
 			const {onlyIfContainsSeparator} = options[prefix.toLowerCase()];
 			if (onlyIfContainsSeparator && !raw.includes('_')) {
