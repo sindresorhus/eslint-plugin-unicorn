@@ -242,6 +242,148 @@ test.snapshot({
 						break;
 					}
 			}
+		`,
+		// Should not insert `break`, #1232
+		outdent`
+			function unicorn() {
+				if (foo === 1) return 1;
+				else if (foo === 2) throw new Error("");
+				else if (foo === 3) process.exit(1);
+				else if (foo === 4) {}
+				else if (foo === 5) ;
+				else if (foo === 6) {
+					return 6;
+					// Already unreachable
+					call();
+				}
+				else if (foo === 7) {
+					return 7;
+					// EmptyStatement after return
+					;;;;;;
+				}
+				else if (foo === 8) {
+					return 8;
+					// FunctionDeclaration after return
+					function afterReturn() {}
+				}
+				else if (foo === 9) {
+					return 9;
+					// FunctionExpression after return
+					const afterReturn = function afterReturn() {return 9}
+				}
+				else if (foo === 10) {
+					{{{
+						return 10;
+					};};};
+				}
+				else if (foo === 11) {
+					return 11;
+
+					{{{
+						;;;
+						function afterReturn() {}
+						;;;
+						function afterReturn2() {}
+						;;;
+					}}}
+				}
+				else if (foo === 12) {
+					return twelve;
+					var twelve = 12;
+				}
+				else return 'default';
+			}
+		`,
+		outdent`
+			function unicorn() {
+				if (foo === 1) {
+					if (true) {
+						throw error;
+					} else {
+						return false;
+					}
+				}
+				else if (foo === 2) {
+					if (true) {
+						throw error;
+					}
+				// no else, need break
+				}
+				else if (foo === 3) {
+					if (a) {
+						return a;
+					} else if (b) {
+						return b;
+					} else if (c) {
+						return c;
+					} else if (d) {
+						if (dd) {
+							return dd;
+						} else {
+							return dd;
+						}
+					} else {
+						return f;
+					}
+				}
+				else if (foo === 4) {
+					if (a) {
+						return a;
+					} else if (b) {
+						return b;
+					} else if (c) {
+						return c;
+					} else if (d) {
+						return e;
+					} // here
+				// missing else deep inside, need break
+				}
+				else if (foo === 5) {
+					if (a) {
+						return a;
+					} else if (b) {
+						return b;
+					} else if (c) {
+						return c;
+					} else if (d) {
+						if (dd) {
+							return dd;
+						} else if (de) {
+							return de;
+						} // here
+					} else {
+						return f;
+					}
+				// missing else deep inside, need break
+				}
+				else if (foo === 6) {
+					if (a) {
+						return a;
+					} else if (b) {
+						return b;
+					} else if (c) {
+						// here
+					} else if (d) {
+						return e;
+					} else {
+						return f;
+					}
+				// missing one return, need break
+				}
+				else if (foo === 7) {
+					if (a) return a;
+					else if (b) {
+						return b;;;;;
+					} else if (c) {
+						return c;
+						function x() {}
+					} else if (d) {
+						return e;
+					} else {
+						return f;
+					}
+				}
+			}
 		`
 	]
 });
