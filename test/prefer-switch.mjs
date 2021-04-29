@@ -242,6 +242,51 @@ test.snapshot({
 						break;
 					}
 			}
+		`,
+		// Should not insert `break`, #1232
+		outdent`
+			function unicorn() {
+				if (foo === 1) return 1;
+				else if (foo === 2) throw new Error("");
+				else if (foo === 3) process.exit(1);
+				else if (foo === 4) {}
+				else if (foo === 5) ;
+				else if (foo === 6) {
+					return 6;
+					// Already unreachable
+					call();
+				}
+				else if (foo === 7) {
+					return 7;
+					// EmptyStatement after return
+					;;;;;;
+				}
+				else if (foo === 8) {
+					return 8;
+					// FunctionDeclaration after return
+					function afterReturn() {}
+				}
+				else if (foo === 9) {
+					return 9;
+					// FunctionDeclaration after return
+					const afterReturn = function afterReturn() {}
+				}
+				else if (foo === 10) {
+					{{{
+						return 10;
+					};};};
+				}
+				else if (foo === 11) {
+					return 11;
+
+					{{{
+						;;;;;;
+						function afterReturn() {}
+						;;;
+					}}}
+				}
+				else return 'default';
+			}
 		`
 	]
 });
