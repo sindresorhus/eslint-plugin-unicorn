@@ -1,17 +1,9 @@
+import outdent from 'outdent';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const MESSAGE_ZERO_FRACTION = 'zero-fraction';
-const MESSAGE_DANGLING_DOT = 'dangling-dot';
-const errorZeroFraction = {
-	messageId: MESSAGE_ZERO_FRACTION
-};
-const errorDanglingDot = {
-	messageId: MESSAGE_DANGLING_DOT
-};
-
-test({
+test.snapshot({
 	valid: [
 		'const foo = "123.1000"',
 		'foo("123.1000")',
@@ -22,86 +14,71 @@ test({
 		'const foo = 1.1',
 		'const foo = -1.1',
 		'const foo = 123123123.4',
-		'const foo = 1e3'
+		'const foo = 1e3',
+		'1 .toString()'
 	],
 	invalid: [
-		{
-			code: 'const foo = 1.0',
-			output: 'const foo = 1',
-			errors: [errorZeroFraction]
-		},
-		{
-			code: 'const foo = 1.0 + 1',
-			output: 'const foo = 1 + 1',
-			errors: [errorZeroFraction]
-		},
-		{
-			code: 'foo(1.0 + 1)',
-			output: 'foo(1 + 1)',
-			errors: [errorZeroFraction]
-		},
-		{
-			code: 'const foo = 1.00',
-			output: 'const foo = 1',
-			errors: [errorZeroFraction]
-		},
-		{
-			code: 'const foo = 1.00000',
-			output: 'const foo = 1',
-			errors: [errorZeroFraction]
-		},
-		{
-			code: 'const foo = -1.0',
-			output: 'const foo = -1',
-			errors: [errorZeroFraction]
-		},
-		{
-			code: 'const foo = 123123123.0',
-			output: 'const foo = 123123123',
-			errors: [errorZeroFraction]
-		},
-		{
-			code: 'const foo = 123.11100000000',
-			output: 'const foo = 123.111',
-			errors: [errorZeroFraction]
-		},
-		{
-			code: 'const foo = 1.',
-			output: 'const foo = 1',
-			errors: [errorDanglingDot]
-		},
-		{
-			code: 'const foo = +1.',
-			output: 'const foo = +1',
-			errors: [errorDanglingDot]
-		},
-		{
-			code: 'const foo = -1.',
-			output: 'const foo = -1',
-			errors: [errorDanglingDot]
-		},
-		{
-			code: 'const foo = 1.e10',
-			output: 'const foo = 1e10',
-			errors: [errorDanglingDot]
-		},
-		{
-			code: 'const foo = +1.e-10',
-			output: 'const foo = +1e-10',
-			errors: [errorDanglingDot]
-		},
-		{
-			code: 'const foo = -1.e+10',
-			output: 'const foo = -1e+10',
-			errors: [errorDanglingDot]
-		}
-	]
-});
-
-test.snapshot({
-	valid: [],
-	invalid: [
 		'const foo = 1.0',
-		'const foo = (1.).toString()'
+		'const foo = 1.0 + 1',
+		'foo(1.0 + 1)',
+		'const foo = 1.00',
+		'const foo = 1.00000',
+		'const foo = -1.0',
+		'const foo = 123123123.0',
+		'const foo = 123.11100000000',
+		'const foo = 1.',
+		'const foo = +1.',
+		'const foo = -1.',
+		'const foo = 1.e10',
+		'const foo = +1.e-10',
+		'const foo = -1.e+10',
+		'const foo = (1.).toString()',
+		...[
+			'123_000.',
+			'123_000.0',
+			'123_000.000',
+			'123_000.000_000',
+			'123_000.123_000',
+			'123_000.000_400'
+		]
+			.flatMap(number => [
+				number,
+				`${number}e1`,
+				`${number}e+1`,
+				`${number}e-1`,
+				`${number}e0`,
+				`${number}e+0`,
+				`${number}e-0`,
+				`${number}e10`,
+				`${number}e+10`,
+				`${number}e-10`,
+				`${number}E-10`,
+				`${number}E-10_10`
+			])
+			.flatMap(number => [
+				`+${number}`,
+				`-${number}`
+			])
+			.map(number => `${number};`),
+		'1.00.toFixed(2)',
+		'1.00 .toFixed(2)',
+		'(1.00).toFixed(2)',
+		'1.00?.toFixed(2)',
+		outdent`
+			console.log()
+			1..toString()
+		`,
+		outdent`
+			console.log()
+			a[1.].toString()
+		`,
+		outdent`
+			console.log()
+			1.00e10.toString()
+		`,
+		outdent`
+			console.log()
+			a[1.00e10].toString()
+		`
 	]
 });

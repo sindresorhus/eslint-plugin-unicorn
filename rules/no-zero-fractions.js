@@ -1,5 +1,8 @@
 'use strict';
+const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const needsSemicolon = require('./utils/needs-semicolon');
+const {isNumber, isDecimalInteger} = require('./utils/numeric');
 
 const MESSAGE_ZERO_FRACTION = 'zero-fraction';
 const MESSAGE_DANGLING_DOT = 'dangling-dot';
@@ -8,45 +11,54 @@ const messages = {
 	[MESSAGE_DANGLING_DOT]: 'Don\'t use a dangling dot in the number.'
 };
 
-// Groups:
-// 1. Integer part.
-// 2. Dangling dot or dot with zeroes.
-// 3. Dot with digits except last zeroes.
-// 4. Scientific notation.
-const RE_DANGLINGDOT_OR_ZERO_FRACTIONS = /^(?<integerPart>[+-]?\d*)(?:(?<dotAndZeroes>\.0*)|(?<dotAndDigits>\.\d*[1-9])0+)(?<scientificNotationSuffix>e[+-]?\d+)?$/;
-
 const create = context => {
 	return {
 		Literal: node => {
-			if (typeof node.value !== 'number') {
+			if (!isNumber(node)) {
 				return;
 			}
 
-			const match = RE_DANGLINGDOT_OR_ZERO_FRACTIONS.exec(node.raw);
-			if (match === null) {
+			// Legacy octal number `0777` and prefixed number `0o1234` cannot have a dot.
+			const {raw} = node;
+			const match = raw.match(/^(?<before>[\d_]*)(?<dotAndFractions>\.[\d_]*)(?<after>.*)$/);
+			if (!match) {
 				return;
 			}
 
-			const {
-				integerPart,
-				dotAndZeroes,
-				dotAndDigits,
-				scientificNotationSuffix
-			} = match.groups;
+			const {before, dotAndFractions, after} = match.groups;
+			const formatted = before + dotAndFractions.replace(/[.0_]+$/g, '') + after;
 
-			const isDanglingDot = dotAndZeroes === '.';
+			if (formatted === raw) {
+				return;
+			}
 
+			const isDanglingDot = dotAndFractions === '.';
+			// End of fractions
+			const end = node.range[0] + before.length + dotAndFractions.length;
+			const start = end - (raw.length - formatted.length);
+			const sourceCode = context.getSourceCode();
 			context.report({
-				node,
+				loc: {
+					start: sourceCode.getLocFromIndex(start),
+					end: sourceCode.getLocFromIndex(end)
+				},
 				messageId: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
 				fix: fixer => {
-					let wantedString = dotAndZeroes === undefined ? integerPart + dotAndDigits : integerPart;
+					let fixed = formatted;
+					if (
+						node.parent.type === 'MemberExpression' &&
+						node.parent.object === node &&
+						isDecimalInteger(formatted) &&
+						!isParenthesized(node, sourceCode)
+					) {
+						fixed = `(${fixed})`;
 
-					if (scientificNotationSuffix !== undefined) {
-						wantedString += scientificNotationSuffix;
+						if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, fixed)) {
+							fixed = `;${fixed}`;
+						}
 					}
 
-					return fixer.replaceText(node, wantedString);
+					return fixer.replaceText(node, fixed);
 				}
 			});
 		}

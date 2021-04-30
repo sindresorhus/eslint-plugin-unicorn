@@ -35,7 +35,7 @@ function addSeparatorFromLeft(value, options) {
 }
 
 function formatNumber(value, options) {
-	const {integer, dot, fractional} = numeric.parseFloat(value);
+	const {integer, dot, fractional} = numeric.parseFloatNumber(value);
 	return addSeparator(integer, options) + dot + addSeparatorFromLeft(fractional, options);
 }
 
@@ -99,7 +99,7 @@ const create = context => {
 
 	return {
 		Literal: node => {
-			if (!numeric.isNumberic(node) || numeric.isLegacyOctal(node)) {
+			if (!numeric.isNumeric(node) || numeric.isLegacyOctal(node)) {
 				return;
 			}
 

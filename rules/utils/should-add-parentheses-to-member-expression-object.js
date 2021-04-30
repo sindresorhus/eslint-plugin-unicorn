@@ -1,7 +1,7 @@
 'use strict';
 
 const isNewExpressionWithParentheses = require('./is-new-expression-with-parentheses');
-const {isDecimalInteger} = require('./numeric');
+const {isDecimalIntegerNode} = require('./numeric');
 
 /**
 Check if parentheses should to be added to a `node` when it's used as an `object` of `MemberExpression`.
@@ -24,7 +24,7 @@ function shouldAddParenthesesToMemberExpressionObject(node, sourceCode) {
 			return !isNewExpressionWithParentheses(node, sourceCode);
 		case 'Literal': {
 			/* istanbul ignore next */
-			if (isDecimalInteger(node)) {
+			if (isDecimalIntegerNode(node)) {
 				return true;
 			}
 
