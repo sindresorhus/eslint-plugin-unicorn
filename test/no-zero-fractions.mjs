@@ -1,3 +1,4 @@
+import outdent from 'outdent';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
@@ -13,7 +14,8 @@ test.snapshot({
 		'const foo = 1.1',
 		'const foo = -1.1',
 		'const foo = 123123123.4',
-		'const foo = 1e3'
+		'const foo = 1e3',
+		'1 .toString()'
 	],
 	invalid: [
 		'const foo = 1.0',
@@ -57,9 +59,26 @@ test.snapshot({
 				`+${number}`,
 				`-${number}`
 			])
-			.flatMap(number => [
-				`${number};`
-			])
-
+			.map(number => `${number};`),
+		'1.00.toFixed(2)',
+		'1.00 .toFixed(2)',
+		'(1.00).toFixed(2)',
+		'1.00?.toFixed(2)',
+		outdent`
+			console.log()
+			1..toString()
+		`,
+		outdent`
+			console.log()
+			a[1.].toString()
+		`,
+		outdent`
+			console.log()
+			1.00e10.toString()
+		`,
+		outdent`
+			console.log()
+			a[1.00e10].toString()
+		`
 	]
 });

@@ -1,6 +1,8 @@
 'use strict';
+const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {isNumber} = require('./utils/numeric');
+const needsSemicolon = require('./utils/needs-semicolon');
+const {isNumber, isDecimalInteger} = require('./utils/numeric');
 
 const MESSAGE_ZERO_FRACTION = 'zero-fraction';
 const MESSAGE_DANGLING_DOT = 'dangling-dot';
@@ -41,7 +43,23 @@ const create = context => {
 					end: sourceCode.getLocFromIndex(end)
 				},
 				messageId: hasDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
-				fix: fixer => fixer.replaceText(node, formatted)
+				fix: fixer => {
+					let fixed = formatted;
+					if (
+						node.parent.type === 'MemberExpression' &&
+						node.parent.object === node &&
+						isDecimalInteger(formatted) &&
+						!isParenthesized(node, sourceCode)
+					) {
+						fixed = `(${fixed})`;
+
+						if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, fixed)) {
+							fixed = `;${fixed}`;
+						}
+					}
+
+					return fixer.replaceText(node, fixed);
+				}
 			});
 		}
 	};

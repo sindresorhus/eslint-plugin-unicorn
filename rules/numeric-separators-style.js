@@ -99,7 +99,7 @@ const create = context => {
 
 	return {
 		Literal: node => {
-			if (!numeric.isNumberic(node) || numeric.isLegacyOctal(node)) {
+			if (!numeric.isNumeric(node) || numeric.isLegacyOctal(node)) {
 				return;
 			}
 
