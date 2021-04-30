@@ -30,6 +30,36 @@ test.snapshot({
 		'const foo = 1.e10',
 		'const foo = +1.e-10',
 		'const foo = -1.e+10',
-		'const foo = (1.).toString()'
+		'const foo = (1.).toString()',
+		...[
+			'123_000.',
+			'123_000.0',
+			'123_000.000',
+			'123_000.000_000',
+			'123_000.123_000',
+			'123_000.000_400'
+		]
+			.flatMap(number => [
+				number,
+				`${number}e1`,
+				`${number}e+1`,
+				`${number}e-1`,
+				`${number}e0`,
+				`${number}e+0`,
+				`${number}e-0`,
+				`${number}e10`,
+				`${number}e+10`,
+				`${number}e-10`,
+				`${number}E-10`,
+				`${number}E-10_10`
+			])
+			.flatMap(number => [
+				`+${number}`,
+				`-${number}`
+			])
+			.flatMap(number => [
+				`${number};`
+			])
+
 	]
 });

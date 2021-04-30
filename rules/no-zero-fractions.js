@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {isNumber, parseNumber} = require('./utils/numeric');
+const {isNumber, parseNumber, parseFloat} = require('./utils/numeric');
 
 const MESSAGE_ZERO_FRACTION = 'zero-fraction';
 const MESSAGE_DANGLING_DOT = 'dangling-dot';
@@ -12,9 +12,10 @@ const messages = {
 const format = text => {
 	// Legacy octal number `0777` and prefixed number `0o1234` can't has dot.
 	const {number, mark, sign, power} = parseNumber(text);
+	const {integer, dot, fractional} = parseFloat(number);
 	return {
-		hasDanglingDot: number.endsWith('.'),
-		formatted: number.replace(/[0_.]$/g, '') + mark + sign + power
+		hasDanglingDot: !fractional,
+		formatted: integer + (dot + fractional).replace(/[0_.]+$/g, '') + mark + sign + power
 	};
 }
 
