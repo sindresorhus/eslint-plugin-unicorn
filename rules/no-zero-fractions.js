@@ -32,7 +32,7 @@ const create = context => {
 				return;
 			}
 
-			const hasDanglingDot = dotAndFraction.length === 1;
+			const isDanglingDot = dotAndFraction === '.';
 			// End of fractional
 			const end = node.range[0] + before.length + dotAndFraction.length;
 			const start = end - (raw.length - formatted.length);
@@ -42,7 +42,7 @@ const create = context => {
 					start: sourceCode.getLocFromIndex(start),
 					end: sourceCode.getLocFromIndex(end)
 				},
-				messageId: hasDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
+				messageId: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
 				fix: fixer => {
 					let fixed = formatted;
 					if (
