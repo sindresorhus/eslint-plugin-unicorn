@@ -18,7 +18,7 @@ const create = context => {
 				return;
 			}
 
-			// Legacy octal number `0777` and prefixed number `0o1234` can't has dot.
+			// Legacy octal number `0777` and prefixed number `0o1234` cannot have a dot.
 			const {raw} = node;
 			const match = raw.match(/^(?<before>[\d_]*)(?<dotAndFractions>\.[\d_]*)(?<after>.*)$/);
 			if (!match) {
