@@ -1,5 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const {isNumber, parseNumber} = require('./utils/numeric');
 
 const MESSAGE_ZERO_FRACTION = 'zero-fraction';
 const MESSAGE_DANGLING_DOT = 'dangling-dot';
@@ -8,46 +9,32 @@ const messages = {
 	[MESSAGE_DANGLING_DOT]: 'Don\'t use a dangling dot in the number.'
 };
 
-// Groups:
-// 1. Integer part.
-// 2. Dangling dot or dot with zeroes.
-// 3. Dot with digits except last zeroes.
-// 4. Scientific notation.
-const RE_DANGLINGDOT_OR_ZERO_FRACTIONS = /^(?<integerPart>[+-]?\d*)(?:(?<dotAndZeroes>\.0*)|(?<dotAndDigits>\.\d*[1-9])0+)(?<scientificNotationSuffix>e[+-]?\d+)?$/;
+const format = text => {
+	// Legacy octal number `0777` and prefixed number `0o1234` can't has dot.
+	const {number, mark, sign, power} = parseNumber(text);
+	return {
+		hasDanglingDot: number.endsWith('.'),
+		formatted: number.replace(/[0_.]$/g, '') + mark + sign + power
+	};
+}
 
 const create = context => {
 	return {
 		Literal: node => {
-			if (typeof node.value !== 'number') {
+			const {raw} = node;
+			if (!isNumber(node) || !raw.includes('.')) {
 				return;
 			}
 
-			const match = RE_DANGLINGDOT_OR_ZERO_FRACTIONS.exec(node.raw);
-			if (match === null) {
+			const {hasDanglingDot, formatted} = format(raw);
+			if (formatted === raw) {
 				return;
 			}
-
-			const {
-				integerPart,
-				dotAndZeroes,
-				dotAndDigits,
-				scientificNotationSuffix
-			} = match.groups;
-
-			const isDanglingDot = dotAndZeroes === '.';
 
 			context.report({
 				node,
-				messageId: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
-				fix: fixer => {
-					let wantedString = dotAndZeroes === undefined ? integerPart + dotAndDigits : integerPart;
-
-					if (scientificNotationSuffix !== undefined) {
-						wantedString += scientificNotationSuffix;
-					}
-
-					return fixer.replaceText(node, wantedString);
-				}
+				messageId: hasDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
+				fix: fixer => fixer.replaceText(node, formatted)
 			});
 		}
 	};
