@@ -194,8 +194,8 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 			const {alternate} = lastStatement;
 			yield fixer.insertTextBefore(alternate, `\n${indent}default: `);
 			/*
-			Technically, we should insert braces for the following case
-			But who writes like this? And using `let`/`const` is invalid.
+			Technically, we should insert braces for the following case,
+			but who writes like this? And using `let`/`const` is invalid.
 
 			```js
 			if (foo === 1) {}
