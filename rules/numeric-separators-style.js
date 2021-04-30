@@ -35,7 +35,7 @@ function addSeparatorFromLeft(value, options) {
 }
 
 function formatNumber(value, options) {
-	const {integer, dot, fractional} = numeric.parseFloat(value);
+	const {integer, dot, fractional} = numeric.parseFloatNumber(value);
 	return addSeparator(integer, options) + dot + addSeparatorFromLeft(fractional, options);
 }
 

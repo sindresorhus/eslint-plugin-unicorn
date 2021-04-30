@@ -29,12 +29,12 @@ function parseNumber(text) {
 		mark = '',
 		sign = '',
 		power = ''
-	} = text.match(/^(?<number>.*?)(?:(?<mark>e)(?<sign>[+-])?(?<power>.+))?$/i).groups;
+	} = text.match(/^(?<number>[\d_.]*?)(?:(?<mark>e)(?<sign>[+-])?(?<power>[\d_]+))?$/i).groups;
 
 	return {number, mark, sign, power};
 }
 
-function parseFloat(text) {
+function parseFloatNumber(text) {
 	const parts = text.split('.');
 	const [integer, fractional = ''] = parts;
 	const dot = parts.length === 2 ? '.' : '';
@@ -51,5 +51,5 @@ module.exports = {
 	isLegacyOctal,
 	getPrefix,
 	parseNumber,
-	parseFloat
+	parseFloatNumber
 };
