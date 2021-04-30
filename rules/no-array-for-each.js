@@ -20,7 +20,7 @@ const referenceIdentifierSelector = require('./utils/reference-identifier-select
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
-	[MESSAGE_ID]: 'Do not use `Array#forEach(…)`.'
+	[MESSAGE_ID]: 'Use `for…of` instead of `Array#forEach(…)`.'
 };
 
 const arrayForEachCallSelector = methodSelector({
