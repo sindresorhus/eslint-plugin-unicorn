@@ -20,21 +20,21 @@ const create = context => {
 
 			// Legacy octal number `0777` and prefixed number `0o1234` can't has dot.
 			const {raw} = node;
-			const match = raw.match(/^(?<before>[\d_]*)(?<dotAndFraction>\.[\d_]*)(?<after>.*)$/);
+			const match = raw.match(/^(?<before>[\d_]*)(?<dotAndFractions>\.[\d_]*)(?<after>.*)$/);
 			if (!match) {
 				return;
 			}
 
-			const {before, dotAndFraction, after} = match.groups;
-			const formatted = before + dotAndFraction.replace(/[.0_]+$/g, '') + after;
+			const {before, dotAndFractions, after} = match.groups;
+			const formatted = before + dotAndFractions.replace(/[.0_]+$/g, '') + after;
 
 			if (formatted === raw) {
 				return;
 			}
 
-			const isDanglingDot = dotAndFraction === '.';
-			// End of fractional
-			const end = node.range[0] + before.length + dotAndFraction.length;
+			const isDanglingDot = dotAndFractions === '.';
+			// End of fractions
+			const end = node.range[0] + before.length + dotAndFractions.length;
 			const start = end - (raw.length - formatted.length);
 			const sourceCode = context.getSourceCode();
 			context.report({
