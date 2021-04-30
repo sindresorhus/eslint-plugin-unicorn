@@ -29,7 +29,7 @@ function parseNumber(text) {
 		mark = '',
 		sign = '',
 		power = ''
-	} = text.match(/^(?<number>[\d_.]*?)(?:(?<mark>e)(?<sign>[+-])?(?<power>[\d_]+))?$/i).groups;
+	} = text.match(/^(?<number>[\d_.]*?)(?:(?<mark>[eE])(?<sign>[+-])?(?<power>[\d_]+))?$/).groups;
 
 	return {number, mark, sign, power};
 }
