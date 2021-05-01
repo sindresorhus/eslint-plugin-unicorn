@@ -1,5 +1,7 @@
 # Improve regexes by making them shorter, consistent, and safer
 
+Note: This rule uses [`regexp-tree`](https://github.com/DmitrySoshnikov/regexp-tree) and [`clean-regexp`](https://github.com/samverschueren/clean-regexp) under the hood.
+
 This rule is fixable.
 
 ## Fail
