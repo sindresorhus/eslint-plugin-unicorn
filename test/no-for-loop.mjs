@@ -193,7 +193,12 @@ ruleTester.run('no-for-loop', rule, {
 					console.log(cities)
 				}
 			}
-		`
+		`,
+
+		// With variable containing static, non-array value.
+		'const notArray = "abc"; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }',
+		'const notArray = 123; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }',
+		'const notArray = true; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }'
 	],
 
 	invalid: [
@@ -710,6 +715,32 @@ ruleTester.run('no-for-loop', rule, {
 		`, outdent`
 			for (const [i, city] of cities.entries()) {
 				console.log(i, city);
+			}
+		`),
+
+		// With static array variable.
+		testCase(outdent`
+			const someArray = [1,2,3];
+			for (let i = 0; i < someArray.length; i++) {
+				console.log(someArray[i]);
+			}
+		`, outdent`
+			const someArray = [1,2,3];
+			for (const element of someArray) {
+				console.log(element);
+			}
+		`),
+
+		// With non-static variable.
+		testCase(outdent`
+			const someArray = getSomeArray();
+			for (let i = 0; i < someArray.length; i++) {
+				console.log(someArray[i]);
+			}
+		`, outdent`
+			const someArray = getSomeArray();
+			for (const element of someArray) {
+				console.log(element);
 			}
 		`)
 	]
