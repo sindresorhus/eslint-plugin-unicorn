@@ -23,12 +23,8 @@ module.exports = {
 				allowAwaitOutsideFunction: true,
 				plugins: [
 					'jsx',
-					'classProperties',
 					'doExpressions',
-					'exportDefaultFrom',
-					'classPrivateProperties',
-					'classPrivateMethods',
-					'importMeta'
+					'exportDefaultFrom'
 				]
 			}
 		}
