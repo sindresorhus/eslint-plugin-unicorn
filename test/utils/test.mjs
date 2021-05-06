@@ -49,11 +49,7 @@ class Tester {
 		babelPlugins = [
 			['estree', {classFeatures: true}],
 			'jsx',
-			'classProperties',
 			'exportDefaultFrom',
-			'classPrivateProperties',
-			'classPrivateMethods',
-			'importMeta',
 			...babelPlugins
 		];
 
