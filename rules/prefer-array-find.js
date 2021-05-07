@@ -3,6 +3,10 @@ const {isParenthesized, findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
+const renameVariable = require('./utils/rename-variable');
+const avoidCapture = require('./utils/avoid-capture');
+const getChildScopesRecursive = require('./utils/get-child-scopes-recursive');
+const singular = require('./utils/singular');
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
@@ -287,6 +291,14 @@ const create = context => {
 			if (!destructuringNodes.some(node => hasDefaultValue(node))) {
 				problem.fix = function * (fixer) {
 					yield fixer.replaceText(node.init.callee.property, 'find');
+
+					const singularName = singular(node.id.name);
+					if (singularName) {
+						// Rename variable to be singularized now that it refers to a single item in the array instead of the entire array.
+						const singularizedName = avoidCapture(singularName, getChildScopesRecursive(context.getScope()), context.parserOptions.ecmaVersion);
+						const scope = context.getScope();
+						yield * renameVariable(findVariable(scope, node.id), singularizedName, fixer);
+					}
 
 					for (const node of zeroIndexNodes) {
 						yield fixer.removeRange([node.object.range[1], node.range[1]]);
