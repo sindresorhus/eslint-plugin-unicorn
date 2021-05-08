@@ -263,7 +263,8 @@ const create = context => {
 			});
 		},
 		[filterVariableSelector](node) {
-			const variable = findVariable(context.getScope(), node.id);
+			const scope = context.getScope();
+			const variable = findVariable(scope, node.id);
 			const identifiers = getVariableIdentifiers(variable).filter(identifier => identifier !== node.id);
 
 			if (identifiers.length === 0) {
@@ -295,9 +296,8 @@ const create = context => {
 					const singularName = singular(node.id.name);
 					if (singularName) {
 						// Rename variable to be singularized now that it refers to a single item in the array instead of the entire array.
-						const singularizedName = avoidCapture(singularName, getChildScopesRecursive(context.getScope()), context.parserOptions.ecmaVersion);
-						const scope = context.getScope();
-						yield * renameVariable(findVariable(scope, node.id), singularizedName, fixer);
+						const singularizedName = avoidCapture(singularName, getChildScopesRecursive(scope), context.parserOptions.ecmaVersion);
+						yield * renameVariable(variable, singularizedName, fixer);
 					}
 
 					for (const node of zeroIndexNodes) {
