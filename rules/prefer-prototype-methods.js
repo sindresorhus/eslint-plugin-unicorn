@@ -17,7 +17,9 @@ const selector = [
 	' > ',
 	'.callee',
 	' > ',
-	'MemberExpression.object'
+	'MemberExpression.object',
+	// Most likely it's a static method of a class
+	':not([object.name=/^[A-Z]/])'
 ].join('');
 
 function getConstructorName(node) {
@@ -72,7 +74,7 @@ const create = context => {
 			};
 
 			if (constructorName && isSafeToFix(object)) {
-				problem.fix = fixer => fixer.replaceText(object, `${constructorName}.prototype`)
+				problem.fix = fixer => fixer.replaceText(object, `${constructorName}.prototype`);
 			}
 
 			context.report(problem);

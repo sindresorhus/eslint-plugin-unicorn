@@ -11,7 +11,13 @@ test.snapshot({
 		'const foo = Object.prototype.hasOwnProperty.call(bar, "property");',
 		'const foo = Object.prototype.propertyIsEnumerable.call(bar, "property");',
 		'Array.prototype.forEach.call(foo, () => {})',
-		'const push = Array.prototype.push.bind(foo)'
+		'const push = Array.prototype.push.bind(foo)',
+		'const push = [].push',
+		'const {push} = []',
+		'Math.max.apply(null, numbers)',
+		'foo.apply(null, args)',
+		// This better use `Foo.prototype.bar.call(baz)`, not handled
+		'foo.constructor.prototype.bar.call(baz)'
 	],
 	invalid: [
 		'const foo = [].push.apply(bar, elements);',
@@ -27,5 +33,7 @@ test.snapshot({
 		'const foo = [][method].call(foo)',
 		'const method = "realMethodName";const foo = [][method].call(foo)',
 		'const foo = [1].push.apply(bar, elements);',
+		// False positive
+		'window.Math.max.apply(null, numbers)'
 	]
 });
