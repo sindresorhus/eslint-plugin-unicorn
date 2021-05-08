@@ -1,17 +1,41 @@
-# Prefer use methods from prototype instead of methods from a instance.
+# Prefer use methods from the prototype instead of methods from an instance.
 
-<!-- More detailed description. Remove this comment. -->
+When "borrow" a method from different objects (especially generic methods from `Array`), it's more clear to use it from the constructor prototype.
 
-This rule is fixable.
+This rule is fixable when using method from `[]` or `{}`.
 
 ## Fail
 
 ```js
-const foo = 'unicorn';
+const array = [].slice.apply(bar);
+```
+
+```js
+const hasProperty = {}.hasOwnProperty.call(foo, 'property');
+```
+
+```js
+foo.bar.call(baz);
 ```
 
 ## Pass
 
 ```js
-const foo = '🦄';
+const array = Array.prototype.slice.apply(bar);
+```
+
+```js
+const hasProperty = Object.prototype.hasOwnProperty.call(foo, 'property');
+```
+
+```js
+Foo.prototype.bar.call(baz);
+```
+
+```js
+foo.constructor.prototype.bar.call(baz);
+```
+
+```js
+const maxValue = Math.max.apply(Math, numbers);
 ```

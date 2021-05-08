@@ -89,7 +89,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer use methods from prototype instead of methods from a instance.',
+			description: 'Prefer use methods from the prototype instead of methods from an instance.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
