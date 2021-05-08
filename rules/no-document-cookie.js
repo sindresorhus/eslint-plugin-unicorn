@@ -12,7 +12,7 @@ const selector = [
 	'>',
 	'MemberExpression.left',
 	'[object.type="Identifier"]',
-	'[object.name="document"]',
+	'[object.name="document"]'
 ].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -28,7 +28,7 @@ const create = context => {
 				messageId: MESSAGE_ID
 			});
 		}
-	}
+	};
 };
 
 module.exports = {
