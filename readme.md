@@ -151,7 +151,7 @@ Each rule has emojis denoting:
 | [no-array-push-push](docs/rules/no-array-push-push.md) | Enforce combining multiple `Array#push()` into one call. | ✅ | 🔧 |
 | [no-array-reduce](docs/rules/no-array-reduce.md) | Disallow `Array#reduce()` and `Array#reduceRight()`. | ✅ |  |
 | [no-console-spaces](docs/rules/no-console-spaces.md) | Do not use leading/trailing space between `console.log` parameters. | ✅ | 🔧 |
-| [no-document-cookie](docs/rules/no-document-cookie.md) | Do not use `document.cookie` directly. | ✅ | 🔧 |
+| [no-document-cookie](docs/rules/no-document-cookie.md) | Do not use `document.cookie` directly. | ✅ |  |
 | [no-for-loop](docs/rules/no-for-loop.md) | Do not use a `for` loop that can be replaced with a `for-of` loop. | ✅ | 🔧 |
 | [no-hex-escape](docs/rules/no-hex-escape.md) | Enforce the use of Unicode escapes instead of hexadecimal escapes. | ✅ | 🔧 |
 | [no-instanceof-array](docs/rules/no-instanceof-array.md) | Require `Array.isArray()` instead of `instanceof Array`. | ✅ | 🔧 |

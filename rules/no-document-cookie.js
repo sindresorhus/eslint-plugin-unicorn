@@ -39,7 +39,6 @@ module.exports = {
 			description: 'Do not use `document.cookie` directly.',
 			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code',
 		schema: [],
 		messages
 	}
