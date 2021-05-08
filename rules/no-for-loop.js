@@ -1,5 +1,5 @@
 'use strict';
-const {isClosingParenToken} = require('eslint-utils');
+const {isClosingParenToken, getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 const avoidCapture = require('./utils/avoid-capture');
@@ -60,7 +60,7 @@ const getStrictComparisonOperands = binaryExpression => {
 	}
 };
 
-const getArrayIdentifierNameFromBinaryExpression = (binaryExpression, indexIdentifierName) => {
+const getArrayIdentifierFromBinaryExpression = (binaryExpression, indexIdentifierName) => {
 	const operands = getStrictComparisonOperands(binaryExpression);
 
 	if (!operands) {
@@ -88,17 +88,17 @@ const getArrayIdentifierNameFromBinaryExpression = (binaryExpression, indexIdent
 		return;
 	}
 
-	return greater.object.name;
+	return greater.object;
 };
 
-const getArrayIdentifierName = (forStatement, indexIdentifierName) => {
+const getArrayIdentifier = (forStatement, indexIdentifierName) => {
 	const {test} = forStatement;
 
 	if (!test || test.type !== 'BinaryExpression') {
 		return;
 	}
 
-	return getArrayIdentifierNameFromBinaryExpression(test, indexIdentifierName);
+	return getArrayIdentifierFromBinaryExpression(test, indexIdentifierName);
 };
 
 const isLiteralOnePlusIdentifierWithName = (node, identifierName) => {
@@ -281,9 +281,17 @@ const create = context => {
 				return;
 			}
 
-			const arrayIdentifierName = getArrayIdentifierName(node, indexIdentifierName);
+			const arrayIdentifier = getArrayIdentifier(node, indexIdentifierName);
+			if (!arrayIdentifier) {
+				return;
+			}
 
-			if (!arrayIdentifierName) {
+			const arrayIdentifierName = arrayIdentifier.name;
+
+			const scope = context.getScope();
+			const staticResult = getStaticValue(arrayIdentifier, scope);
+			if (staticResult && !Array.isArray(staticResult.value)) {
+				// Bail out if we can tell that the array variable has a non-array value (i.e. we're looping through the characters of a string constant).
 				return;
 			}
 
