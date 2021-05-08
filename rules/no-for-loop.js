@@ -1,9 +1,10 @@
 'use strict';
-const {singular} = require('pluralize');
 const {isClosingParenToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 const avoidCapture = require('./utils/avoid-capture');
+const getChildScopesRecursive = require('./utils/get-child-scopes-recursive');
+const singular = require('./utils/singular');
 
 const MESSAGE_ID = 'no-for-loop';
 const messages = {
@@ -268,18 +269,6 @@ const getReferencesInChildScopes = (scope, name) => {
 	];
 };
 
-const getChildScopesRecursive = scope => [
-	scope,
-	...scope.childScopes.flatMap(scope => getChildScopesRecursive(scope))
-];
-
-const getSingularName = originalName => {
-	const singularName = singular(originalName);
-	if (singularName !== originalName) {
-		return singularName;
-	}
-};
-
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const {scopeManager, text: sourceCodeText} = sourceCode;
@@ -361,7 +350,7 @@ const create = context => {
 
 					const index = indexIdentifierName;
 					const element = elementIdentifierName ||
-						avoidCapture(getSingularName(arrayIdentifierName) || defaultElementName, getChildScopesRecursive(bodyScope), context.parserOptions.ecmaVersion);
+						avoidCapture(singular(arrayIdentifierName) || defaultElementName, getChildScopesRecursive(bodyScope), context.parserOptions.ecmaVersion);
 					const array = arrayIdentifierName;
 
 					let declarationElement = element;
