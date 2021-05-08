@@ -34,6 +34,8 @@ test.snapshot({
 		'const method = "realMethodName";const foo = [][method].call(foo)',
 		'const foo = [1].push.apply(bar, elements);',
 		// False positive
+		'Array["prototype"].slice.call();',
+		'Array?.prototype.slice.call();',
 		'window.Math.max.apply(null, numbers)'
 	]
 });
