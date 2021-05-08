@@ -18,6 +18,10 @@ const hasProperty = {}.hasOwnProperty.call(foo, 'property');
 foo.bar.call(baz);
 ```
 
+```js
+Reflect.apply([].forEach, arrayLike, [callback]);
+```
+
 ## Pass
 
 ```js
@@ -30,6 +34,10 @@ const hasProperty = Object.prototype.hasOwnProperty.call(foo, 'property');
 
 ```js
 Foo.prototype.bar.call(baz);
+```
+
+```js
+Reflect.apply(Array.prototype.forEach, arrayLike, [callback]);
 ```
 
 ```js

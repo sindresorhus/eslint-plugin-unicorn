@@ -10,17 +10,21 @@ const messages = {
 	'unknown-constructor-unknown-method': 'Prefer use method from the constructor prototype.'
 };
 
-const selector = [
+const functionMethodsSelector = [
 	methodSelector({
 		names: ['apply', 'bind', 'call']
 	}),
 	' > ',
 	'.callee',
 	' > ',
-	'MemberExpression.object',
-	// Most likely it's a static method of a class
-	':not([object.name=/^[A-Z]/])'
+	'.object'
 ].join('');
+
+const reflectApplySelector = methodSelector({
+	object: 'Reflect',
+	name: 'apply',
+	min: 1
+});
 
 function getConstructorName(node) {
 	switch (node.type) {
@@ -43,42 +47,55 @@ function isSafeToFix(node) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	return {
-		[selector](method) {
-			const scope = context.getScope();
-			const {object} = method;
-			if (
-				object.type === 'MemberExpression' &&
-				!object.computed &&
-				!object.optional &&
-				object.property.type === 'Identifier' &&
-				object.property.name === 'prototype'
-			) {
-				return;
-			}
-
-			const constructorName = getConstructorName(object);
-			const methodName = getPropertyName(method, scope);
-			const messageId = [
-				constructorName ? 'known' : 'unknown',
-				'constructor',
-				methodName ? 'known' : 'unknown',
-				'method'
-			].join('-');
-
-			const problem = {
-				node: method,
-				messageId,
-				data: {constructorName, methodName}
-			};
-
-			if (constructorName && isSafeToFix(object)) {
-				problem.fix = fixer => fixer.replaceText(object, `${constructorName}.prototype`);
-			}
-
-			context.report(problem);
+function create(context) {
+	function check(method) {
+		if (
+			method.type !== 'MemberExpression' ||
+			// Most likely it's a static method of a class
+			(method.object.type === 'Identifier' && /^[A-Z]/.test(method.object.name))
+		) {
+			return;
 		}
+
+		const scope = context.getScope();
+		const {object} = method;
+		if (
+			object.type === 'MemberExpression' &&
+			!object.computed &&
+			!object.optional &&
+			object.property.type === 'Identifier' &&
+			object.property.name === 'prototype'
+		) {
+			return;
+		}
+
+		const constructorName = getConstructorName(object);
+		const methodName = getPropertyName(method, scope);
+		const messageId = [
+			constructorName ? 'known' : 'unknown',
+			'constructor',
+			methodName ? 'known' : 'unknown',
+			'method'
+		].join('-');
+
+		const problem = {
+			node: method,
+			messageId,
+			data: {constructorName, methodName}
+		};
+
+		if (constructorName && isSafeToFix(object)) {
+			problem.fix = fixer => fixer.replaceText(object, `${constructorName}.prototype`);
+		}
+
+		context.report(problem);
+	}
+
+	return {
+		[reflectApplySelector](node) {
+			check(node.arguments[0]);
+		},
+		[functionMethodsSelector]: check
 	};
 };
 

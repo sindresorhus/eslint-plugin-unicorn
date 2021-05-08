@@ -15,6 +15,13 @@ test.snapshot({
 		'const {push} = []',
 		'Math.max.apply(null, numbers)',
 		'foo.apply(null, args)',
+		'Reflect.apply(...[].slice)',
+		'Reflect.apply(foo, [].slice)',
+		'Reflect.apply(Math.max, Math, numbers)',
+		'Reflect.apply()',
+		'Reflect["apply"]([].slice, foo, [])',
+		'NotReflect.apply([].slice, foo, [])',
+		'Reflect.notApply([].slice, foo, [])',
 		// This better use `Foo.prototype.bar.call(baz)`, not handled
 		'foo.constructor.prototype.bar.call(baz)'
 	],
@@ -32,6 +39,8 @@ test.snapshot({
 		'const foo = [][method].call(foo)',
 		'const method = "realMethodName";const foo = [][method].call(foo)',
 		'const foo = [1].push.apply(bar, elements);',
+		'const array = Reflect.apply([].slice, foo, [])',
+		'Reflect.apply(foo.bar, baz, [])',
 		// False positive
 		'Array["prototype"].slice.call();',
 		'Array?.prototype.slice.call();',
