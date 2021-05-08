@@ -779,6 +779,27 @@ ruleTester.run('prefer-array-find', rule, {
 			`,
 			errors: [{messageId: ERROR_DECLARATION}]
 		},
+		{
+			code: outdent`
+				function f() {
+					const items = array.filter(bar);
+					console.log(items[0]);
+				}
+				function f2(item) {
+					return item;
+				}
+			`,
+			output: outdent`
+				function f() {
+					const item = array.find(bar);
+					console.log(item);
+				}
+				function f2(item) {
+					return item;
+				}
+			`,
+			errors: [{messageId: ERROR_DECLARATION}]
+		},
 
 		// Not fixable
 		{
