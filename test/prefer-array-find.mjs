@@ -711,6 +711,57 @@ ruleTester.run('prefer-array-find', rule, {
 			output: 'let item = array.find(bar); console.log(item);',
 			errors: [{messageId: ERROR_DECLARATION}]
 		},
+		{
+			code: outdent`
+				const item = 1;
+				function f() {
+					const items = array.filter(bar);
+					console.log(items[0]);
+				}
+			`,
+			output: outdent`
+				const item = 1;
+				function f() {
+					const item_ = array.find(bar);
+					console.log(item_);
+				}
+			`,
+			errors: [{messageId: ERROR_DECLARATION}]
+		},
+		{
+			code: outdent`
+				const items = array.filter(bar);
+				function f() {
+					const item = 1;
+					const item_ = 2;
+					console.log(items[0]);
+				}
+			`,
+			output: outdent`
+				const item__ = array.find(bar);
+				function f() {
+					const item = 1;
+					const item_ = 2;
+					console.log(item__);
+				}
+			`,
+			errors: [{messageId: ERROR_DECLARATION}]
+		},
+		{
+			code: outdent`
+				const items = array.filter(bar);
+				function f() {
+					console.log(items[0], item);
+				}
+			`,
+			output: outdent`
+				const item_ = array.find(bar);
+				function f() {
+					console.log(item_, item);
+				}
+			`,
+			errors: [{messageId: ERROR_DECLARATION}]
+		},
 
 		// Not fixable
 		{
