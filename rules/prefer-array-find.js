@@ -7,6 +7,7 @@ const renameVariable = require('./utils/rename-variable');
 const avoidCapture = require('./utils/avoid-capture');
 const getChildScopesRecursive = require('./utils/get-child-scopes-recursive');
 const singular = require('./utils/singular');
+const extendFixRange = require('./utils/extend-fix-range');
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
@@ -98,10 +99,10 @@ const destructuringAssignmentSelector = [
 // Need add `()` to the `AssignmentExpression`
 // - `ObjectExpression`: `[{foo}] = array.filter(bar)` fix to `{foo} = array.find(bar)`
 // - `ObjectPattern`: `[{foo = baz}] = array.filter(bar)`
-const assignmentNeedParenthesize = (node, source) => {
+const assignmentNeedParenthesize = (node, sourceCode) => {
 	const isAssign = node.type === 'AssignmentExpression';
 
-	if (!isAssign || isParenthesized(node, source)) {
+	if (!isAssign || isParenthesized(node, sourceCode)) {
 		return false;
 	}
 
@@ -147,15 +148,15 @@ const getDestructuringLeftAndRight = node => {
 	return {};
 };
 
-function * fixDestructuring(node, source, fixer) {
+function * fixDestructuring(node, sourceCode, fixer) {
 	const {left} = getDestructuringLeftAndRight(node);
 	const [element] = left.elements;
 
-	const leftText = source.getText(element.type === 'AssignmentPattern' ? element.left : element);
+	const leftText = sourceCode.getText(element.type === 'AssignmentPattern' ? element.left : element);
 	yield fixer.replaceText(left, leftText);
 
 	// `AssignmentExpression` always starts with `[` or `(`, so we don't need check ASI
-	if (assignmentNeedParenthesize(node, source)) {
+	if (assignmentNeedParenthesize(node, sourceCode)) {
 		yield fixer.insertTextBefore(node, '(');
 		yield fixer.insertTextAfter(node, ')');
 	}
@@ -163,20 +164,20 @@ function * fixDestructuring(node, source, fixer) {
 
 const hasDefaultValue = node => getDestructuringLeftAndRight(node).left.elements[0].type === 'AssignmentPattern';
 
-const fixDestructuringDefaultValue = (node, source, fixer, operator) => {
+const fixDestructuringDefaultValue = (node, sourceCode, fixer, operator) => {
 	const {left, right} = getDestructuringLeftAndRight(node);
 	const [element] = left.elements;
 	const defaultValue = element.right;
-	let defaultValueText = source.getText(defaultValue);
+	let defaultValueText = sourceCode.getText(defaultValue);
 
-	if (isParenthesized(defaultValue, source) || hasLowerPrecedence(defaultValue, operator)) {
+	if (isParenthesized(defaultValue, sourceCode) || hasLowerPrecedence(defaultValue, operator)) {
 		defaultValueText = `(${defaultValueText})`;
 	}
 
 	return fixer.insertTextAfter(right, ` ${operator} ${defaultValueText}`);
 };
 
-const fixDestructuringAndReplaceFilter = (source, node) => {
+const fixDestructuringAndReplaceFilter = (sourceCode, node) => {
 	const {property} = getDestructuringLeftAndRight(node).right.callee;
 
 	let suggest;
@@ -190,14 +191,14 @@ const fixDestructuringAndReplaceFilter = (source, node) => {
 			messageId,
 			* fix(fixer) {
 				yield fixer.replaceText(property, 'find');
-				yield fixDestructuringDefaultValue(node, source, fixer, operator);
-				yield * fixDestructuring(node, source, fixer);
+				yield fixDestructuringDefaultValue(node, sourceCode, fixer, operator);
+				yield * fixDestructuring(node, sourceCode, fixer);
 			}
 		}));
 	} else {
 		fix = function * (fixer) {
 			yield fixer.replaceText(property, 'find');
-			yield * fixDestructuring(node, source, fixer);
+			yield * fixDestructuring(node, sourceCode, fixer);
 		};
 	}
 
@@ -225,7 +226,7 @@ const isDestructuringFirstElement = node => {
 };
 
 const create = context => {
-	const source = context.getSourceCode();
+	const sourceCode = context.getSourceCode();
 
 	return {
 		[zeroIndexSelector](node) {
@@ -252,14 +253,14 @@ const create = context => {
 			context.report({
 				node: node.init.callee.property,
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
-				...fixDestructuringAndReplaceFilter(source, node)
+				...fixDestructuringAndReplaceFilter(sourceCode, node)
 			});
 		},
 		[destructuringAssignmentSelector](node) {
 			context.report({
 				node: node.right.callee.property,
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
-				...fixDestructuringAndReplaceFilter(source, node)
+				...fixDestructuringAndReplaceFilter(sourceCode, node)
 			});
 		},
 		[filterVariableSelector](node) {
@@ -298,6 +299,9 @@ const create = context => {
 						// Rename variable to be singularized now that it refers to a single item in the array instead of the entire array.
 						const singularizedName = avoidCapture(singularName, getChildScopesRecursive(scope), context.parserOptions.ecmaVersion);
 						yield * renameVariable(variable, singularizedName, fixer);
+
+						// Prevent possible variable conflicts
+						yield * extendFixRange(fixer, sourceCode.ast.range);
 					}
 
 					for (const node of zeroIndexNodes) {
@@ -305,7 +309,7 @@ const create = context => {
 					}
 
 					for (const node of destructuringNodes) {
-						yield * fixDestructuring(node, source, fixer);
+						yield * fixDestructuring(node, sourceCode, fixer);
 					}
 				};
 			}
