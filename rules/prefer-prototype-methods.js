@@ -28,7 +28,7 @@ function getConstructorName(node) {
 			return 'Array';
 		case 'ObjectExpression':
 			return 'Object';
-			// No default
+		// No default
 	}
 }
 
@@ -38,7 +38,7 @@ function isSafeToFix(node) {
 			return node.elements.length === 0;
 		case 'ObjectExpression':
 			return node.properties.length === 0;
-			// No default
+		// No default
 	}
 }
 
