@@ -1,7 +1,7 @@
 'use strict';
+const {getPropertyName} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
-const getPropertyName = require('./utils/get-property-name');
 
 const messages = {
 	'known-constructor-known-method': 'Prefer use `{{constructorName}}.prototype.{{methodName}}`.',
