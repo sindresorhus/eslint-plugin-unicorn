@@ -49,28 +49,24 @@ function isSafeToFix(node) {
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
 	function check(method) {
+		const {type, object} = method;
 		if (
-			method.type !== 'MemberExpression' ||
+			type !== 'MemberExpression' ||
 			// Most likely it's a static method of a class
-			(method.object.type === 'Identifier' && /^[A-Z]/.test(method.object.name))
-		) {
-			return;
-		}
-
-		const scope = context.getScope();
-		const {object} = method;
-		if (
-			object.type === 'MemberExpression' &&
-			!object.computed &&
-			!object.optional &&
-			object.property.type === 'Identifier' &&
-			object.property.name === 'prototype'
+			(object.type === 'Identifier' && /^[A-Z]/.test(object.name)) ||
+			(
+				object.type === 'MemberExpression' &&
+				!object.computed &&
+				!object.optional &&
+				object.property.type === 'Identifier' &&
+				object.property.name === 'prototype'
+			)
 		) {
 			return;
 		}
 
 		const constructorName = getConstructorName(object);
-		const methodName = getPropertyName(method, scope);
+		const methodName = getPropertyName(method, context.getScope());
 		const messageId = [
 			constructorName ? 'known' : 'unknown',
 			'constructor',
