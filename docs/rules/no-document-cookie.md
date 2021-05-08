@@ -29,7 +29,7 @@ await cookieStore.set({
 ```
 
 ```js
-const array = document.cookie.split('; ')
+const array = document.cookie.split('; ');
 ```
 
 ```js
