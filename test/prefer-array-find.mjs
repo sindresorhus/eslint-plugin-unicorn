@@ -145,6 +145,7 @@ ruleTester.run('prefer-array-find', rule, {
 		'function a([foo] = array.filter(bar)) {}',
 		// Not `ArrayPattern`
 		'const foo = array.filter(bar)',
+		'const items = array.filter(bar)', // Plural variable name.
 		'const {0: foo} = array.filter(bar)',
 		// `elements`
 		'const [] = array.filter(bar)',
@@ -173,6 +174,12 @@ ruleTester.run('prefer-array-find', rule, {
 		{
 			code: 'const [foo] = array.filter(bar)',
 			output: 'const foo = array.find(bar)',
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
+		},
+		{
+			// Plural variable name.
+			code: 'const [items] = array.filter(bar)',
+			output: 'const items = array.find(bar)',
 			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
 		},
 		{
@@ -376,6 +383,7 @@ ruleTester.run('prefer-array-find', rule, {
 		'function a([foo] = array.filter(bar)) {}',
 		// Not `ArrayPattern`
 		'foo = array.filter(bar)',
+		'items = array.filter(bar)', // Plural variable name.
 		'({foo} = array.filter(bar))',
 		// `elements`
 		'[] = array.filter(bar)',
@@ -626,7 +634,11 @@ ruleTester.run('prefer-array-find', rule, {
 		// More or less argument(s)
 		'const foo = array.filter(); const first = foo[0]',
 		'const foo = array.filter(bar, thisArgument, extraArgument); const first = foo[0]',
-		'const foo = array.filter(...bar); const first = foo[0]'
+		'const foo = array.filter(...bar); const first = foo[0]',
+
+		// Singularization
+		'const item = array.find(bar), first = item;', // Already singular variable name.
+		'let items = array.filter(bar); console.log(items[0]); items = [1,2,3]; console.log(items[0]);' // Reassigning array variable.
 	],
 	invalid: [
 		{
@@ -669,6 +681,126 @@ ruleTester.run('prefer-array-find', rule, {
 			output: 'const foo = array.find(bar); ({propOfFirst = unicorn} = foo);',
 			errors: [{messageId: ERROR_DECLARATION}]
 		},
+
+		// Singularization
+		{
+			// Multiple usages and child scope.
+			code: outdent`
+				const items = array.filter(bar);
+				const first = items[0];
+				console.log(items[0]);
+				function foo() { return items[0]; }
+			`,
+			output: outdent`
+				const item = array.find(bar);
+				const first = item;
+				console.log(item);
+				function foo() { return item; }
+			`,
+			errors: [{messageId: ERROR_DECLARATION}]
+		},
+		{
+			// Variable name collision.
+			code: 'const item = {}; const items = array.filter(bar); console.log(items[0]);',
+			output: 'const item = {}; const item_ = array.find(bar); console.log(item_);',
+			errors: [{messageId: ERROR_DECLARATION}]
+		},
+		{
+			// Variable defined with `let`.
+			code: 'let items = array.filter(bar); console.log(items[0]);',
+			output: 'let item = array.find(bar); console.log(item);',
+			errors: [{messageId: ERROR_DECLARATION}]
+		},
+		{
+			code: outdent`
+				const item = 1;
+				function f() {
+					const items = array.filter(bar);
+					console.log(items[0]);
+				}
+			`,
+			output: outdent`
+				const item = 1;
+				function f() {
+					const item_ = array.find(bar);
+					console.log(item_);
+				}
+			`,
+			errors: [{messageId: ERROR_DECLARATION}]
+		},
+		{
+			code: outdent`
+				const items = array.filter(bar);
+				function f() {
+					const item = 1;
+					const item_ = 2;
+					console.log(items[0]);
+				}
+			`,
+			output: outdent`
+				const item__ = array.find(bar);
+				function f() {
+					const item = 1;
+					const item_ = 2;
+					console.log(item__);
+				}
+			`,
+			errors: [{messageId: ERROR_DECLARATION}]
+		},
+		{
+			code: outdent`
+				const items = array.filter(bar);
+				function f() {
+					console.log(items[0], item);
+				}
+			`,
+			output: outdent`
+				const item_ = array.find(bar);
+				function f() {
+					console.log(item_, item);
+				}
+			`,
+			errors: [{messageId: ERROR_DECLARATION}]
+		},
+		{
+			code: outdent`
+				const items = array.filter(bar);
+				console.log(items[0]);
+				function f(item) {
+					return item;
+				}
+			`,
+			output: outdent`
+				const item_ = array.find(bar);
+				console.log(item_);
+				function f(item) {
+					return item;
+				}
+			`,
+			errors: [{messageId: ERROR_DECLARATION}]
+		},
+		{
+			code: outdent`
+				function f() {
+					const items = array.filter(bar);
+					console.log(items[0]);
+				}
+				function f2(item) {
+					return item;
+				}
+			`,
+			output: outdent`
+				function f() {
+					const item = array.find(bar);
+					console.log(item);
+				}
+				function f2(item) {
+					return item;
+				}
+			`,
+			errors: [{messageId: ERROR_DECLARATION}]
+		},
+
 		// Not fixable
 		{
 			code: 'const foo = array.filter(bar); const [first = bar] = foo;',
