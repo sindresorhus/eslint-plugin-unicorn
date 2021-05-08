@@ -97,9 +97,7 @@ function create(context) {
 		},
 		[functionMethodsSelector]: check
 	};
-};
-
-const schema = [];
+}
 
 module.exports = {
 	create,
@@ -110,7 +108,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema,
+		schema: [],
 		messages
 	}
 };

@@ -22,6 +22,7 @@ test.snapshot({
 		'Reflect["apply"]([].slice, foo, [])',
 		'NotReflect.apply([].slice, foo, [])',
 		'Reflect.notApply([].slice, foo, [])',
+		'Reflect.apply([]?.slice, foo, [])',
 		// This better use `Foo.prototype.bar.call(baz)`, not handled
 		'foo.constructor.prototype.bar.call(baz)'
 	],
