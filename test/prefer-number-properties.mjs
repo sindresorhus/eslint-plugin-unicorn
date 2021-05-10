@@ -63,6 +63,7 @@ const invalidMethodTest = ({code, output, name, suggestionOutput}) => {
 	if (safe) {
 		test.output = output;
 	}
+
 	return test;
 };
 

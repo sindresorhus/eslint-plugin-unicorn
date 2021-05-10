@@ -107,7 +107,7 @@ test({
 					message:
 						'Prefer `oldChildNode.replaceWith(newChildNode)` over `parentNode.replaceChild(newChildNode, oldChildNode)`.'
 				}
-			],
+			]
 		},
 		{
 			code: 'foo = parentNode.replaceChild(newChildNode, oldChildNode);',
@@ -116,7 +116,7 @@ test({
 					message:
 						'Prefer `oldChildNode.replaceWith(newChildNode)` over `parentNode.replaceChild(newChildNode, oldChildNode)`.'
 				}
-			],
+			]
 		},
 		// Tests for .insertBefore()
 		{
