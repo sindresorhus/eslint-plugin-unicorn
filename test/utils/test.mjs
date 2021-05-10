@@ -8,6 +8,19 @@ import defaultParserOptions from './default-parser-options.mjs';
 
 const require = createRequire(import.meta.url);
 
+function normalizeInvalidTest(test) {
+	const {code, output} = test;
+	if (code === output) {
+		throw new Error('Remove output if your test do not fix code.');
+	}
+
+	return {
+		// eslint-disable-next-line unicorn/no-null
+		output: null,
+		...test
+	};
+}
+
 class Tester {
 	constructor(ruleId) {
 		this.ruleId = ruleId;
@@ -15,12 +28,19 @@ class Tester {
 	}
 
 	runTest(tests) {
-		const {testerOptions, invalid, valid} = tests;
+		const {testerOptions, valid, invalid} = tests;
 		const tester = avaRuleTester(test, {
 			parserOptions: defaultParserOptions,
 			...testerOptions
 		});
-		return tester.run(this.ruleId, this.rule, {invalid, valid});
+		return tester.run(
+			this.ruleId,
+			this.rule,
+			{
+				valid,
+				invalid: invalid.map(test => normalizeInvalidTest(test))
+			}
+		);
 	}
 
 	typescript(tests) {
