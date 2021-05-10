@@ -88,7 +88,7 @@ module.exports = {
 			description: 'Disallow `process.exit()`.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages,
-		schema: []
+		schema: [],
+		messages
 	}
 };

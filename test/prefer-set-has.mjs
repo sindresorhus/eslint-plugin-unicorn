@@ -633,7 +633,6 @@ test({
 			errors: createError('foo')
 		},
 
-		// `ObjectMethod`
 		{
 			code: outdent`
 				const foo = [1, 2, 3];
@@ -654,7 +653,6 @@ test({
 			errors: createError('foo')
 		},
 
-		// `ClassMethod`
 		{
 			code: outdent`
 				const foo = [1, 2, 3];
