@@ -89,7 +89,7 @@ module.exports = {
 			description: 'Enforce passing a `message` value when creating a built-in error.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages,
-		schema: []
+		schema: [],
+		messages
 	}
 };

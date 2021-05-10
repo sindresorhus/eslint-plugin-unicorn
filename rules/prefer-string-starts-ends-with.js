@@ -104,8 +104,8 @@ module.exports = {
 			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages,
 		fixable: 'code',
-		schema: []
+		schema: [],
+		messages
 	}
 };

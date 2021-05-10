@@ -48,8 +48,8 @@ module.exports = {
 			description: 'Require `new` when throwing an error.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages,
 		fixable: 'code',
-		schema: []
+		schema: [],
+		messages
 	}
 };

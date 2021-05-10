@@ -104,8 +104,8 @@ module.exports = {
 			description: 'Enforce the use of `Math.trunc` instead of bitwise operators.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages,
 		fixable: 'code',
-		schema: []
+		schema: [],
+		messages
 	}
 };

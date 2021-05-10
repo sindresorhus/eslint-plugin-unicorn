@@ -88,10 +88,10 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
+		schema: [],
 		messages: {
 			...messages,
 			...includesOverSomeRule.messages
-		},
-		schema: []
+		}
 	}
 };

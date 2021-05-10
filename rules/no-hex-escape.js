@@ -43,8 +43,8 @@ module.exports = {
 			description: 'Enforce the use of Unicode escapes instead of hexadecimal escapes.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages,
 		fixable: 'code',
-		schema: []
+		schema: [],
+		messages
 	}
 };

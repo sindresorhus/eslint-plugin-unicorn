@@ -72,8 +72,8 @@ module.exports = {
 			description: 'Disallow unreadable array destructuring.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages,
 		fixable: 'code',
-		schema: []
+		schema: [],
+		messages
 	}
 };
