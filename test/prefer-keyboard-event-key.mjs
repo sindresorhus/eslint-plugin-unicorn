@@ -190,11 +190,6 @@ test({
 					if (!event.keyCode) {}
 				});
 			`,
-			output: outdent`
-				foo.addEventListener('click', event => {
-					if (!event.keyCode) {}
-				});
-			`,
 			errors: [error('keyCode')]
 		},
 		{
@@ -510,15 +505,7 @@ test({
 					if (keyCode === 32) return 4;
 				});
 			`,
-			errors: [error('which'), error('keyCode')],
-			output: outdent`
-				foo.addEventListener('click', function(b) {
-					if (b.which > 27) {
-					}
-					const {keyCode} = b;
-					if (keyCode === 32) return 4;
-				});
-			`
+			errors: [error('which'), error('keyCode')]
 		},
 		{
 			code: outdent`
@@ -536,22 +523,7 @@ test({
 				}
 			});
 			`,
-			errors: [error('charCode'), error('keyCode')],
-			output: outdent`
-			const e = {}
-			foo.addEventListener('click', (e, r, fg) => {
-				function a() {
-					if (true) {
-						{
-							{
-								const { charCode } = e;
-								console.log(e.keyCode, charCode);
-							}
-						}
-					}
-				}
-			});
-			`
+			errors: [error('charCode'), error('keyCode')]
 		},
 		{
 			code: outdent`
@@ -569,22 +541,7 @@ test({
 				}
 			});
 			`,
-			errors: [error('charCode'), error('keyCode')],
-			output: outdent`
-			const e = {}
-			foo.addEventListener('click', (e, r, fg) => {
-				function a() {
-					if (true) {
-						{
-							{
-								const { charCode } = e;
-								console.log(e.keyCode, charCode);
-							}
-						}
-					}
-				}
-			});
-			`
+			errors: [error('charCode'), error('keyCode')]
 		},
 		{
 			code: outdent`

@@ -75,7 +75,6 @@ test({
 		// Actual messages
 		{
 			code: 'if (foo.find(fn)) {}',
-			output: 'if (foo.find(fn)) {}',
 			errors: [
 				{
 					message: 'Prefer `.some(…)` over `.find(…)`.',

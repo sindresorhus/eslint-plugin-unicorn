@@ -46,7 +46,6 @@ const invalidTestCase = testCase => {
 
 	return {
 		code,
-		output: code,
 		options,
 		errors: [
 			{

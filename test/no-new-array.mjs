@@ -92,7 +92,6 @@ test({
 			const code = `const array = new Array(${argumentText})`;
 			return {
 				code,
-				output: code,
 				errors: [
 					{
 						messageId: MESSAGE_ID_ERROR,
