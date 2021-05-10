@@ -1,6 +1,6 @@
 
-import {getTester} from './utils/test.mjs';
 import {enforceNew, disallowNew} from '../rules/utils/builtins.js';
+import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
