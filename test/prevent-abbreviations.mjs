@@ -984,7 +984,7 @@ const tests = {
 		{
 			code: outdent`
 				let err;
-				{a: err = 1} = 2);
+				({a: err = 1} = 2);
 			`,
 			output: outdent`
 				let error;
