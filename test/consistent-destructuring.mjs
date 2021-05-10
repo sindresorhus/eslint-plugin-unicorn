@@ -7,7 +7,6 @@ const invalidTestCase = ({code, suggestions}) => {
 	if (!suggestions) {
 		return {
 			code,
-			output: code,
 			errors: [{
 				messageId: 'consistentDestructuring'
 			}]
@@ -16,7 +15,6 @@ const invalidTestCase = ({code, suggestions}) => {
 
 	return {
 		code,
-		output: code,
 		errors: suggestions.map(suggestion => ({
 			messageId: 'consistentDestructuring',
 			suggestions: [{

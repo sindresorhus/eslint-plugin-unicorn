@@ -220,12 +220,10 @@ test({
 		},
 		{
 			code: 'const foo = [].concat(...bar.map((i) => i));',
-			output: 'const foo = [].concat(...bar.map((i) => i));',
 			errors: [errorSpread]
 		},
 		{
 			code: 'const foo = [].concat(...[1,2,3].map((i) => i));',
-			output: 'const foo = [].concat(...[1,2,3].map((i) => i));',
 			errors: [errorSpread]
 		}
 	]

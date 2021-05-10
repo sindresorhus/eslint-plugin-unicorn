@@ -10,11 +10,15 @@ const require = createRequire(import.meta.url);
 
 function normalizeInvalidTest(test) {
 	const {code, output} = test;
+
 	if (code === output) {
+		console.log(JSON.stringify(test, undefined, 2));
 		throw new Error('Remove output if your test do not fix code.');
 	}
 
 	return {
+		// Use `null` instead of `code` to get a better message
+		// See https://github.com/eslint/eslint/blob/8a77b661bc921c3408bae01b3aa41579edfc6e58/lib/rule-tester/rule-tester.js#L847-L853
 		// eslint-disable-next-line unicorn/no-null
 		output: null,
 		...test

@@ -48,11 +48,6 @@ test({
 					return;
 				}
 			`,
-			output: outdent`
-				if (foo) {
-					return;
-				}
-			`,
 			errors: 1,
 			parserOptions: {
 				sourceType: 'script',

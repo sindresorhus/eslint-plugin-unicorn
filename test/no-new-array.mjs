@@ -10,7 +10,6 @@ const MESSAGE_ID_SPREAD = 'spread';
 
 const suggestionCase = ({code, suggestions}) => ({
 	code,
-	output: code,
 	errors: [
 		{
 			messageId: MESSAGE_ID_ERROR,

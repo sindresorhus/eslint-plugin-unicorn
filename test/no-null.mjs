@@ -20,7 +20,6 @@ const invalidTestCase = testCase => {
 	if (suggestions) {
 		return {
 			code,
-			output: code,
 			options,
 			errors: [
 				{

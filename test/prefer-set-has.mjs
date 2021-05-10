@@ -26,11 +26,6 @@ const methodsReturnsArray = [
 	'splice'
 ];
 
-const noFixCase = testCase => ({
-	...testCase,
-	output: testCase.code
-});
-
 test({
 	valid: [
 		outdent`
@@ -961,7 +956,7 @@ test.typescript({
 		`
 	],
 	invalid: [
-		noFixCase({
+		{
 			code: outdent`
 				const a: Array<'foo' | 'bar'> = ['foo', 'bar']
 
@@ -990,6 +985,6 @@ test.typescript({
 					]
 				}
 			]
-		})
+		}
 	]
 });

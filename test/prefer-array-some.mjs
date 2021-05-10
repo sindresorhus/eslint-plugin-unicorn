@@ -8,7 +8,6 @@ const MESSAGE_ID_SUGGESTION = 'suggestion';
 
 const invalidCase = ({code, suggestionOutput}) => ({
 	code,
-	output: code,
 	errors: [
 		{
 			messageId: MESSAGE_ID_ERROR,
