@@ -1,8 +1,9 @@
 'use strict';
+const hasSameRange = require('./has-same-range');
 
-const isShorthandImportIdentifier = identifier =>
-	identifier.parent.type === 'ImportSpecifier' &&
-	identifier.parent.imported === identifier &&
-	identifier.parent.local === identifier;
+const isShorthandImportLocal = node => {
+	const {type, local, imported} = node.parent;
+	return type === 'ImportSpecifier' && hasSameRange(local, imported) && local === node;
+};
 
-module.exports = isShorthandImportIdentifier;
+module.exports = isShorthandImportLocal;
