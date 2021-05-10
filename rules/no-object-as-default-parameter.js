@@ -33,7 +33,7 @@ module.exports = {
 			description: 'Disallow the use of objects as default parameters.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages,
-		schema: []
+		schema: [],
+		messages
 	}
 };

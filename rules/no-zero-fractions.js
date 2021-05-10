@@ -73,8 +73,8 @@ module.exports = {
 			description: 'Disallow number literals with zero fractions or dangling dots.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages,
 		fixable: 'code',
-		schema: []
+		schema: [],
+		messages
 	}
 };

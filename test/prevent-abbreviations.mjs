@@ -1322,7 +1322,7 @@ test({
 	]
 });
 
-test({
+const importExportTests = {
 	valid: [
 		'import {err as foo} from "foo"',
 
@@ -1635,7 +1635,10 @@ test({
 		})
 
 	]
-});
+};
+test(importExportTests);
+test.babel(avoidTestTitleConflict(importExportTests, 'babel'));
+test.typescript(avoidTestTitleConflict(importExportTests, 'typescript'));
 
 test.babel({
 	valid: [
