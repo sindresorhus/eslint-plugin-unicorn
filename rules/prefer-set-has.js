@@ -121,9 +121,7 @@ const multipleCallNodeTypes = new Set([
 	'DoWhileStatement',
 	'FunctionDeclaration',
 	'FunctionExpression',
-	'ArrowFunctionExpression',
-	'ObjectMethod',
-	'ClassMethod'
+	'ArrowFunctionExpression'
 ]);
 
 const isMultipleCall = (identifier, node) => {
