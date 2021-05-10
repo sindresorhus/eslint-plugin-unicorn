@@ -536,7 +536,7 @@ module.exports = {
 			description: 'Add expiration conditions to TODO comments.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages,
-		schema
+		schema,
+		messages
 	}
 };

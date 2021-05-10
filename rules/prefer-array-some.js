@@ -44,7 +44,7 @@ module.exports = {
 			description: 'Prefer `.some(…)` over `.find(…)`.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages,
-		schema: []
+		schema: [],
+		messages
 	}
 };
