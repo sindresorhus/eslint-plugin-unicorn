@@ -235,7 +235,7 @@ const tests = {
 		{
 			code: 'const propTypes = 2;const err = 2;',
 			options: extendDefaultAllowListOptions
-		},
+		}
 	],
 
 	invalid: [
