@@ -150,9 +150,9 @@ test({
 		},
 		// Comment inside parentheses
 		{
-			code: 'foo.slice(/* will keep */(/* will remove 1 */(/* will remove 2 */(foo.length)) - 1) - 1)',
+			code: 'foo.slice(/* will keep */(/* will keep 1 */(/* will remove 2 */(foo.length)) - 1) - 1)',
 			errors: [error],
-			output: 'foo.slice(/* will keep */(- 1) - 1)'
+			output: 'foo.slice(/* will keep */(/* will keep 1 */- 1) - 1)'
 		},
 		// [].{slice,splice}
 		{
