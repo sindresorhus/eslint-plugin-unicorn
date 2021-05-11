@@ -1,6 +1,6 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
 const {isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
+const getDocumentationUrl = require('./utils/get-documentation-url');
 const assertToken = require('./utils/assert-token');
 
 const MESSAGE_ID_WITH_NAME = 'with-name';
