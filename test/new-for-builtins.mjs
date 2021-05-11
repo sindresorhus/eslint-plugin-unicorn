@@ -254,23 +254,19 @@ test({
 		},
 		{
 			code: 'const foo = new Boolean()',
-			errors: [disallowNewError('Boolean')],
-			output: 'const foo = new Boolean()'
+			errors: [disallowNewError('Boolean')]
 		},
 		{
 			code: 'const foo = new Number()',
-			errors: [disallowNewError('Number')],
-			output: 'const foo = new Number()'
+			errors: [disallowNewError('Number')]
 		},
 		{
 			code: 'const foo = new Number(\'123\')',
-			errors: [disallowNewError('Number')],
-			output: 'const foo = new Number(\'123\')'
+			errors: [disallowNewError('Number')]
 		},
 		{
 			code: 'const foo = new String()',
-			errors: [disallowNewError('String')],
-			output: 'const foo = new String()'
+			errors: [disallowNewError('String')]
 		},
 		{
 			code: 'const foo = new Symbol()',
