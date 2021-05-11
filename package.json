@@ -73,7 +73,7 @@
 		"pify": "^5.0.0",
 		"typescript": "^4.2.3",
 		"vue-eslint-parser": "^7.6.0",
-		"xo": "^0.38.2"
+		"xo": "^0.40.1"
 	},
 	"peerDependencies": {
 		"eslint": ">=7.23.0"
@@ -118,6 +118,7 @@
 				},
 				"rules": {
 					"strict": "error",
+					"unicorn/prefer-module": "off",
 					"eslint-plugin/require-meta-docs-url": "off",
 					"eslint-plugin/require-meta-docs-description": [
 						"error",
