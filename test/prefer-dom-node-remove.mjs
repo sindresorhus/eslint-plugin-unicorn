@@ -11,7 +11,6 @@ const invalidTestCase = ({code, output, suggestionOutput}) => {
 	if (suggestionOutput) {
 		return {
 			code,
-			output: code,
 			errors: [
 				{
 					messageId: ERROR_MESSAGE_ID,

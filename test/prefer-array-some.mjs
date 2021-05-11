@@ -8,7 +8,6 @@ const MESSAGE_ID_SUGGESTION = 'suggestion';
 
 const invalidCase = ({code, suggestionOutput}) => ({
 	code,
-	output: code,
 	errors: [
 		{
 			messageId: MESSAGE_ID_ERROR,
@@ -76,7 +75,6 @@ test({
 		// Actual messages
 		{
 			code: 'if (foo.find(fn)) {}',
-			output: 'if (foo.find(fn)) {}',
 			errors: [
 				{
 					message: 'Prefer `.some(…)` over `.find(…)`.',

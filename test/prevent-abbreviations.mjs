@@ -3,8 +3,6 @@ import {getTester, avoidTestTitleConflict} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const noFixingTestCase = test => ({...test, output: test.code});
-
 const createErrors = message => {
 	const error = {};
 
@@ -239,39 +237,39 @@ const tests = {
 	],
 
 	invalid: [
-		noFixingTestCase({
+		{
 			code: 'let e',
 			errors: createErrors('Please rename the variable `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'let eCbOpts',
 			errors: createErrors('Please rename the variable `eCbOpts`. Suggested names are: `errorCallbackOptions`, `eventCallbackOptions`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: '({e: 1})',
 			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'this.e = 1',
 			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: '({e() {}})',
 			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: '(class {e() {}})',
 			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'this.eResDir = 1',
 			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResponseDirection`, `errorResponseDirectory`, `errorResultDirection`, ... (5 more omitted). A more descriptive name will do too.')
-		}),
+		},
 
 		// All suggested names should avoid capture
 		{
@@ -311,31 +309,31 @@ const tests = {
 			output: 'let standardDeviation',
 			errors: createErrors('The variable `stdDev` should be named `standardDeviation`. A more descriptive name will do too.')
 		},
-		noFixingTestCase({
+		{
 			code: '({err: 1})',
 			options: checkPropertiesOptions,
 			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'this.err = 1',
 			options: checkPropertiesOptions,
 			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: '({err() {}})',
 			options: checkPropertiesOptions,
 			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: '(class {err() {}})',
 			options: checkPropertiesOptions,
 			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'this.errCbOptsObj = 1',
 			options: checkPropertiesOptions,
 			errors: createErrors('The property `errCbOptsObj` should be named `errorCallbackOptionsObject`. A more descriptive name will do too.')
-		}),
+		},
 
 		{
 			code: 'let successCb',
@@ -348,16 +346,16 @@ const tests = {
 			errors: createErrors()
 		},
 
-		noFixingTestCase({
+		{
 			code: 'this.successCb = 1',
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'this.btnColor = 1',
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		}),
+		},
 
 		// This tests that the rule does not hang up on combinatoric explosion of possible replacements
 		{
@@ -371,16 +369,16 @@ const tests = {
 			output: 'let event',
 			errors: createErrors('The variable `evt` should be named `event`. A more descriptive name will do too.')
 		},
-		noFixingTestCase({
+		{
 			code: '({evt: 1})',
 			options: checkPropertiesOptions,
 			errors: createErrors('The property `evt` should be named `event`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'foo.evt = 1',
 			options: checkPropertiesOptions,
 			errors: createErrors('The property `evt` should be named `event`. A more descriptive name will do too.')
-		}),
+		},
 
 		// Testing that options apply
 		{
@@ -420,15 +418,15 @@ const tests = {
 			errors: createErrors()
 		},
 
-		noFixingTestCase({
+		{
 			code: 'let e',
 			errors: createErrors()
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'let e',
 			options: customOptions,
 			errors: createErrors()
-		}),
+		},
 
 		{
 			code: 'let err',
@@ -448,11 +446,11 @@ const tests = {
 			errors: createErrors()
 		},
 
-		noFixingTestCase({
+		{
 			code: '({err: 1})',
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		}),
+		},
 
 		{
 			code: 'let errCb',
@@ -515,13 +513,13 @@ const tests = {
 			errors: createErrors()
 		},
 
-		noFixingTestCase({
+		{
 			code: outdent`
 				let e;
 				console.log(e);
 			`,
 			errors: createErrors()
-		}),
+		},
 
 		{
 			code: outdent`
@@ -683,12 +681,12 @@ const tests = {
 			errors: createErrors()
 		},
 
-		noFixingTestCase({
+		{
 			code: 'const foo = {err: 1}',
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: outdent`
 				const foo = {
 					err() {}
@@ -696,24 +694,24 @@ const tests = {
 			`,
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'foo.err = 1',
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'foo.bar.err = 1',
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'this.err = 1',
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		}),
+		},
 
-		noFixingTestCase({
+		{
 			code: outdent`
 				class C {
 					err() {}
@@ -721,23 +719,23 @@ const tests = {
 			`,
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		}),
+		},
 
-		noFixingTestCase({
+		{
 			code: 'this._err = 1',
 			options: checkPropertiesOptions,
 			errors: createErrors('The property `_err` should be named `_error`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'this.__err__ = 1',
 			options: checkPropertiesOptions,
 			errors: createErrors('The property `__err__` should be named `__error__`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'this.e_ = 1',
 			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `e_`. Suggested names are: `error_`, `event_`. A more descriptive name will do too.')
-		}),
+		},
 
 		{
 			code: 'let err_',
@@ -749,10 +747,10 @@ const tests = {
 			output: 'let __error__',
 			errors: createErrors()
 		},
-		noFixingTestCase({
+		{
 			code: 'let _e',
 			errors: createErrors('Please rename the variable `_e`. Suggested names are: `_error`, `_event`. A more descriptive name will do too.')
-		}),
+		},
 
 		{
 			code: 'class Err {}',
@@ -764,10 +762,10 @@ const tests = {
 			output: 'class Callback {}',
 			errors: createErrors('The variable `Cb` should be named `Callback`. A more descriptive name will do too.')
 		},
-		noFixingTestCase({
+		{
 			code: 'class Res {}',
 			errors: createErrors('Please rename the variable `Res`. Suggested names are: `Response`, `Result`. A more descriptive name will do too.')
-		}),
+		},
 		{
 			code: 'const Err = 1;',
 			output: 'const Error_ = 1;',
@@ -778,16 +776,16 @@ const tests = {
 			output: 'const _Error_ = 1;',
 			errors: createErrors()
 		},
-		noFixingTestCase({
+		{
 			code: '({Err: 1})',
 			options: checkPropertiesOptions,
 			errors: createErrors('The property `Err` should be named `Error`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: '({Res: 1})',
 			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `Res`. Suggested names are: `Response`, `Result`. A more descriptive name will do too.')
-		}),
+		},
 
 		{
 			code: 'let doc',
@@ -1560,26 +1558,26 @@ const importExportTests = {
 			errors: createErrors()
 		},
 
-		noFixingTestCase({
+		{
 			code: 'export const err = {}',
 			errors: createErrors()
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'export let err',
 			errors: createErrors()
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'export var err',
 			errors: createErrors()
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'export function err() {}',
 			errors: createErrors()
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: 'export class err {}',
 			errors: createErrors()
-		}),
+		},
 
 		{
 			code: outdent`
@@ -1625,14 +1623,14 @@ const importExportTests = {
 			errors: createErrors()
 		},
 
-		noFixingTestCase({
+		{
 			code: outdent`
 				let foo;
 				export {foo as err};
 			`,
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		})
+		}
 
 	]
 };
@@ -1717,17 +1715,17 @@ test.babel({
 			errors: createErrors()
 		},
 
-		noFixingTestCase({
+		{
 			code: '(class {e = 1})',
 			options: checkPropertiesOptions,
 			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: '(class {err = 1})',
 			options: checkPropertiesOptions,
 			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
-		}),
-		noFixingTestCase({
+		},
+		{
 			code: outdent`
 				class C {
 					err = () => {}
@@ -1735,7 +1733,7 @@ test.babel({
 			`,
 			options: checkPropertiesOptions,
 			errors: createErrors()
-		})
+		}
 	]
 });
 
@@ -1792,10 +1790,10 @@ test.typescript({
 		},
 
 		// #1102
-		noFixingTestCase({
+		{
 			code: 'export type Props = string',
 			errors: createErrors()
-		}),
+		},
 
 		// #347
 		{

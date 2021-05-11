@@ -11,7 +11,6 @@ const suggestionCase = ({code, output, desc, options = []}) => {
 
 	return {
 		code,
-		output: code,
 		options,
 		errors: [
 			{suggestions: [suggestion]}
