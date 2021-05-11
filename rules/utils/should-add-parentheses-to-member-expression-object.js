@@ -19,6 +19,7 @@ function shouldAddParenthesesToMemberExpressionObject(node, sourceCode) {
 		case 'CallExpression':
 		case 'ChainExpression':
 		case 'TemplateLiteral':
+		case 'ThisExpression':
 			return false;
 		case 'NewExpression':
 			return !isNewExpressionWithParentheses(node, sourceCode);
