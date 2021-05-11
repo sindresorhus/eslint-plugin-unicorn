@@ -99,7 +99,10 @@ test({
 
 		'if (foo.length !== 1) {}',
 		'if (foo.length > 1) {}',
-		'if (foo.length < 2) {}'
+		'if (foo.length < 2) {}',
+
+		// With known, non-number static value
+		'const foo = { size: "small" }; if (foo.size) {}'
 	],
 	invalid: [
 		suggestionCase({
@@ -157,6 +160,11 @@ test.snapshot({
 					${nonZeroCases.filter(code => code !== 'foo.length >= 1').join(' &&\n\t')}
 				) ? 1 : 2;
 			`,
+			options: [{'non-zero': 'greater-than-or-equal'}]
+		},
+		{
+			// Known, number static value
+			code: 'const foo = { length: 123 }; if (foo.length) {}',
 			options: [{'non-zero': 'greater-than-or-equal'}]
 		},
 		'if (foo.bar && foo.bar.length) {}',
