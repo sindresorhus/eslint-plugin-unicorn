@@ -51,8 +51,21 @@ function getParenthesizedRange(node, sourceCode) {
 	return [start, end];
 }
 
+/*
+Get the parenthesized text of the node.
+
+@param {Node} node - The node to be checked.
+@param {SourceCode} sourceCode - The source code object.
+@returns {string}
+*/
+function getParenthesizedText(node, sourceCode) {
+	const [start, end] = getParenthesizedRange(node, sourceCode);
+	return sourceCode.text.slice(start, end);
+}
+
 module.exports = {
 	getParenthesizedTimes,
 	getParentheses,
-	getParenthesizedRange
+	getParenthesizedRange,
+	getParenthesizedText
 };

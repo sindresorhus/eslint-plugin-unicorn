@@ -126,6 +126,14 @@ test({
 			code: 'parentNode.removeChild((0, child))',
 			output: '(0, child).remove()'
 		},
+		{
+			code: 'parentNode.removeChild( (  (new Image)) )',
+			output: '(  (new Image)).remove()'
+		},
+		{
+			code: 'parentNode.removeChild( new Audio )',
+			output: '(new Audio).remove()'
+		},
 
 		// Need semicolon
 		{

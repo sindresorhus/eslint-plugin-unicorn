@@ -5,6 +5,8 @@ const methodSelector = require('./utils/method-selector');
 const {notDomNodeSelector} = require('./utils/not-dom-node');
 const needsSemicolon = require('./utils/needs-semicolon');
 const isValueNotUsable = require('./utils/is-value-not-usable');
+const {getParenthesizedText} = require('./utils/parentheses');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_MESSAGE_ID = 'suggestion';
@@ -36,8 +38,11 @@ const create = context => {
 			};
 
 			const fix = fixer => {
-				let childNodeText = sourceCode.getText(childNode);
-				if (isParenthesized(childNode, sourceCode) || childNode.type === 'AwaitExpression') {
+				let childNodeText = getParenthesizedText(childNode, sourceCode);
+				if (
+					!isParenthesized(childNode, sourceCode) &&
+					shouldAddParenthesesToMemberExpressionObject(childNode, sourceCode)
+				) {
 					childNodeText = `(${childNodeText})`;
 				}
 
