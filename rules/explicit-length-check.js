@@ -155,8 +155,8 @@ function create(context) {
 			let autoFix = true;
 
 			const staticValue = getStaticValue(lengthNode, context.getScope());
-			if (staticValue && typeof staticValue.value !== 'number') {
-				// Ignore known, non-number length properties.
+			if (staticValue && (typeof staticValue.value !== 'number' || staticValue.value < 0)) {
+				// Ignore known, non-number or negative number length properties.
 				return;
 			}
 

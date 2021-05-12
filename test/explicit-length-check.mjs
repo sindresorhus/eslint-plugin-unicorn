@@ -101,8 +101,9 @@ test({
 		'if (foo.length > 1) {}',
 		'if (foo.length < 2) {}',
 
-		// With known, non-number static value
-		'const foo = { size: "small" }; if (foo.size) {}'
+		// With known static length value
+		'const foo = { size: "small" }; if (foo.size) {}', // Not a number
+		'const foo = { length: -1 }; if (foo.length) {}' // Array lengths cannot be negative
 	],
 	invalid: [
 		suggestionCase({
