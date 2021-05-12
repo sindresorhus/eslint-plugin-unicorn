@@ -3,8 +3,8 @@
 // https://github.com/facebook/react/blob/b87aabd/packages/react-dom/src/events/getEventKey.js#L36
 // Only meta characters which can't be deciphered from `String.fromCharCode()`
 module.exports = {
-	9: 'Tab',
 	8: 'Backspace',
+	9: 'Tab',
 	12: 'Clear',
 	13: 'Enter',
 	16: 'Shift',

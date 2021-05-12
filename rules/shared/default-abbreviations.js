@@ -16,11 +16,11 @@ module.exports = {
 	attr: {
 		attribute: true
 	},
-	btn: {
-		button: true
-	},
 	attrs: {
 		attributes: true
+	},
+	btn: {
+		button: true
 	},
 	cb: {
 		callback: true
@@ -47,8 +47,8 @@ module.exports = {
 		development: true
 	},
 	dir: {
-		directory: true,
-		direction: true
+		direction: true,
+		directory: true
 	},
 	dirs: {
 		directories: true
