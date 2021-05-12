@@ -1,6 +1,6 @@
-/* eslint sort-keys: ["error", "asc", {natural: true}] */
+/* eslint sort-keys: ["error", "asc", {"caseSensitive": false}] */
 'use strict';
-module.exports = {
+module.exports.defaultReplacements = {
 	acc: {
 		accumulator: true
 	},
@@ -208,4 +208,28 @@ module.exports = {
 	ver: {
 		version: true
 	}
+};
+
+module.exports.defaultAllowList = {
+	// React.Component Class property
+	// https://reactjs.org/docs/react-component.html#defaultprops
+	defaultProps: true,
+	// `package.json` field
+	// https://docs.npmjs.com/specifying-dependencies-and-devdependencies-in-a-package-json-file
+	devDependencies: true,
+	// Ember class name
+	// https://api.emberjs.com/ember/3.10/classes/Ember.EmberENV/properties
+	EmberENV: true,
+	// React.Component static method
+	// https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
+	getDerivedStateFromProps: true,
+	// Next.js function
+	// https://nextjs.org/learn/basics/fetching-data-for-pages
+	getInitialProps: true,
+	// React PropTypes
+	// https://reactjs.org/docs/typechecking-with-proptypes.html
+	propTypes: true,
+	// Jest configuration
+	// https://jestjs.io/docs/en/configuration#setupfilesafterenv-array
+	setupFilesAfterEnv: true
 };

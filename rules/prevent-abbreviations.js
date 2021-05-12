@@ -10,34 +10,10 @@ const isShorthandImportLocal = require('./utils/is-shorthand-import-local');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 const renameVariable = require('./utils/rename-variable');
 const isStaticRequire = require('./utils/is-static-require');
-const defaultReplacements = require('./shared/default-abbreviations');
+const {defaultReplacements, defaultAllowList} = require('./shared/abbreviations');
 
 const isUpperCase = string => string === string.toUpperCase();
 const isUpperFirst = string => isUpperCase(string[0]);
-
-const defaultAllowList = {
-	// React PropTypes
-	// https://reactjs.org/docs/typechecking-with-proptypes.html
-	propTypes: true,
-	// React.Component Class property
-	// https://reactjs.org/docs/react-component.html#defaultprops
-	defaultProps: true,
-	// React.Component static method
-	// https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
-	getDerivedStateFromProps: true,
-	// Ember class name
-	// https://api.emberjs.com/ember/3.10/classes/Ember.EmberENV/properties
-	EmberENV: true,
-	// `package.json` field
-	// https://docs.npmjs.com/specifying-dependencies-and-devdependencies-in-a-package-json-file
-	devDependencies: true,
-	// Jest configuration
-	// https://jestjs.io/docs/en/configuration#setupfilesafterenv-array
-	setupFilesAfterEnv: true,
-	// Next.js function
-	// https://nextjs.org/learn/basics/fetching-data-for-pages
-	getInitialProps: true
-};
 
 const prepareOptions = ({
 	checkProperties = false,
