@@ -156,7 +156,7 @@ function create(context) {
 
 			const staticValue = getStaticValue(lengthNode, context.getScope());
 			if (staticValue && (typeof staticValue.value !== 'number' || !Number.isInteger(staticValue.value) || staticValue.value < 0)) {
-				// Ignore known, non-number or negative number length properties.
+				// Ignore known, non-positive-integer length properties.
 				return;
 			}
 
