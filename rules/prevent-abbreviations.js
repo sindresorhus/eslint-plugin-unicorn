@@ -1,5 +1,3 @@
-/* eslint sort-keys: "error" */
-/* eslint-disable sort-keys */
 'use strict';
 const path = require('path');
 const {defaultsDeep, upperFirst, lowerFirst} = require('lodash');
