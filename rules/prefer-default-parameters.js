@@ -100,6 +100,7 @@ const needsParentheses = (sourceCode, function_) => {
 	return !after || !before || before.value !== '(' || after.value !== ')';
 };
 
+/** @param {import('eslint').Rule.RuleFixer} fixer */
 const fixDefaultExpression = (fixer, sourceCode, node) => {
 	const {line} = node.loc.start;
 	const {column} = node.loc.end;
@@ -122,7 +123,7 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 		]);
 	}
 
-	return fixer.removeText(node);
+	return fixer.remove(node);
 };
 
 const create = context => {
