@@ -35,8 +35,10 @@ const create = context => {
 					if (firstTwoCharacters === '{|') {
 						endOffset = -2;
 					}
+
 					break;
 				}
+
 				case 'StaticBlock': {
 					const openingBraceToken = sourceCode.getFirstToken(node, isOpeningBraceToken);
 					startOffset = openingBraceToken.range[1] - node.range[0];
