@@ -1076,7 +1076,11 @@ test({
 					a = bar;
 				}
 			`,
-			output: 'a = (test) ? foo : bar;',
+			output: outdent`
+				a = (
+						test
+					) ? foo : bar;
+			`,
 			options: onlySingleLineOptions,
 			errors
 		},
