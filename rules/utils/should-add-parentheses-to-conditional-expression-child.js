@@ -1,7 +1,7 @@
 'use strict';
 
 /**
-Check if parentheses should be added to a `node` when it's used as `argument` of `SpreadElement`.
+Check if parentheses should be added to a `node` when it's used as child of `ConditionalExpression`.
 
 @param {Node} node - The AST node to check.
 @returns {boolean}
