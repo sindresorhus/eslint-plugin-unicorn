@@ -55,8 +55,8 @@ module.exports = {
 			description: 'Enforce importing index files with `.`.',
 			url: getDocumentationUrl(__filename)
 		},
-		schema,
 		fixable: 'code',
+		schema,
 		messages
 	}
 };

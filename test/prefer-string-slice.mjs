@@ -94,7 +94,6 @@ test({
 		},
 		{
 			code: '"foo".substr(1, length)',
-			output: '"foo".substr(1, length)',
 			errors: errorsSubstr
 		},
 		{
@@ -104,15 +103,10 @@ test({
 		},
 		{
 			code: '"foo".substr("1", 2)',
-			output: '"foo".substr("1", 2)',
 			errors: errorsSubstr
 		},
 		{
 			code: outdent`
-				const length = 123;
-				"foo".substr(1, length)
-			`,
-			output: outdent`
 				const length = 123;
 				"foo".substr(1, length)
 			`,
@@ -134,10 +128,6 @@ test({
 				const length = 123;
 				"foo".substr('0', length)
 			`,
-			output: outdent`
-				const length = 123;
-				"foo".substr('0', length)
-			`,
 			errors: errorsSubstr
 		},
 		{
@@ -152,10 +142,6 @@ test({
 		},
 		{
 			code: outdent`
-				const length = 123;
-				"foo".substr(1, length - 4)
-			`,
-			output: outdent`
 				const length = 123;
 				"foo".substr(1, length - 4)
 			`,
@@ -185,7 +171,6 @@ test({
 		},
 		{
 			code: 'foo.substr(start, length)',
-			output: 'foo.substr(start, length)',
 			errors: errorsSubstr
 		},
 		{
@@ -196,7 +181,6 @@ test({
 		// Extra arguments
 		{
 			code: 'foo.substr(1, 2, 3)',
-			output: 'foo.substr(1, 2, 3)',
 			errors: errorsSubstr
 		},
 		// #700
@@ -274,7 +258,6 @@ test({
 		},
 		{
 			code: 'foo.substring(start, end)',
-			output: 'foo.substring(start, end)',
 			errors: errorsSubstring
 		},
 		{
@@ -285,7 +268,6 @@ test({
 		// Extra arguments
 		{
 			code: 'foo.substring(1, 2, 3)',
-			output: 'foo.substring(1, 2, 3)',
 			errors: errorsSubstring
 		}
 	]

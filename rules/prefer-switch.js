@@ -193,7 +193,17 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 		if (lastStatement.alternate) {
 			const {alternate} = lastStatement;
 			yield fixer.insertTextBefore(alternate, `\n${indent}default: `);
-			yield * insertBracesIfNotBlockStatement(alternate, fixer, indent);
+			/*
+			Technically, we should insert braces for the following case,
+			but who writes like this? And using `let`/`const` is invalid.
+
+			```js
+			if (foo === 1) {}
+			else if (foo === 2) {}
+			else if (foo === 3) {}
+			else var a = 1;
+			```
+			*/
 		} else {
 			switch (options.emptyDefaultCase) {
 				case 'no-default-comment':

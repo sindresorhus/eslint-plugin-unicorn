@@ -264,10 +264,10 @@ module.exports = {
 			description: 'Prefer ternary expressions over simple `if-else` statements.',
 			url: getDocumentationUrl(__filename)
 		},
+		fixable: 'code',
+		schema,
 		messages: {
 			[messageId]: 'This `if` statement can be replaced by a ternary expression.'
-		},
-		schema,
-		fixable: 'code'
+		}
 	}
 };

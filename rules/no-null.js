@@ -135,8 +135,8 @@ module.exports = {
 			description: 'Disallow the use of the `null` literal.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages,
+		fixable: 'code',
 		schema,
-		fixable: 'code'
+		messages
 	}
 };

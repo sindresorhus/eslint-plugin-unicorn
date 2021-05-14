@@ -140,8 +140,8 @@ module.exports = {
 			url: getDocumentationUrl(__filename),
 			suggest: true
 		},
-		messages,
 		fixable: 'code',
-		schema: []
+		schema: [],
+		messages
 	}
 };

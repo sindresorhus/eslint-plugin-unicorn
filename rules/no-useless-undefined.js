@@ -200,8 +200,8 @@ module.exports = {
 			description: 'Disallow useless `undefined`.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages,
+		fixable: 'code',
 		schema,
-		fixable: 'code'
+		messages
 	}
 };

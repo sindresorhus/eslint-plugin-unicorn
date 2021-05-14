@@ -26,11 +26,6 @@ const methodsReturnsArray = [
 	'splice'
 ];
 
-const noFixCase = testCase => ({
-	...testCase,
-	output: testCase.code
-});
-
 test({
 	valid: [
 		outdent`
@@ -633,7 +628,6 @@ test({
 			errors: createError('foo')
 		},
 
-		// `ObjectMethod`
 		{
 			code: outdent`
 				const foo = [1, 2, 3];
@@ -654,7 +648,6 @@ test({
 			errors: createError('foo')
 		},
 
-		// `ClassMethod`
 		{
 			code: outdent`
 				const foo = [1, 2, 3];
@@ -963,7 +956,7 @@ test.typescript({
 		`
 	],
 	invalid: [
-		noFixCase({
+		{
 			code: outdent`
 				const a: Array<'foo' | 'bar'> = ['foo', 'bar']
 
@@ -992,6 +985,6 @@ test.typescript({
 					]
 				}
 			]
-		})
+		}
 	]
 });

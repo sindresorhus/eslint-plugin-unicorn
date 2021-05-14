@@ -516,15 +516,6 @@ runTest.babel({
 					}
 				}
 			`,
-			output: outdent`
-				const name = 'computed-name';
-				class FooError extends Error {
-					[name] = 'FooError';
-					constructor(message) {
-						super(message);
-					}
-				}
-			`,
 			errors: [invalidNameError('FooError')]
 		}
 	]

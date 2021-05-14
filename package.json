@@ -1,6 +1,6 @@
 {
 	"name": "eslint-plugin-unicorn",
-	"version": "31.0.0",
+	"version": "32.0.1",
 	"description": "Various awesome ESLint rules",
 	"license": "MIT",
 	"repository": "sindresorhus/eslint-plugin-unicorn",
@@ -53,7 +53,7 @@
 	},
 	"devDependencies": {
 		"@babel/code-frame": "7.12.13",
-		"@babel/core": "7.13.14",
+		"@babel/core": "7.14.0",
 		"@babel/eslint-parser": "7.13.14",
 		"@lubien/fixture-beta-package": "^1.0.0-beta.1",
 		"@typescript-eslint/parser": "^4.21.0",
@@ -62,7 +62,7 @@
 		"enquirer": "2.3.6",
 		"eslint": "^7.23.0",
 		"eslint-ava-rule-tester": "^4.0.0",
-		"eslint-plugin-eslint-plugin": "^3.0.2",
+		"eslint-plugin-eslint-plugin": "^3.0.3",
 		"eslint-remote-tester": "^1.1.0",
 		"execa": "^5.0.0",
 		"listr": "^0.14.3",
@@ -73,7 +73,7 @@
 		"pify": "^5.0.0",
 		"typescript": "^4.2.3",
 		"vue-eslint-parser": "^7.6.0",
-		"xo": "^0.38.2"
+		"xo": "^0.40.1"
 	},
 	"peerDependencies": {
 		"eslint": ">=7.23.0"
@@ -102,26 +102,6 @@
 			".cache-eslint-remote-tester",
 			"eslint-remote-tester-results"
 		],
-		"overrides": [
-			{
-				"files": "rules/utils/*.js",
-				"rules": {
-					"eslint-plugin/prefer-object-rule": "off",
-					"eslint-plugin/require-meta-docs-url": "off"
-				}
-			},
-			{
-				"files": [
-					"**/*.js"
-				],
-				"parserOptions": {
-					"sourceType": "script"
-				},
-				"rules": {
-					"strict": "error"
-				}
-			}
-		],
 		"rules": {
 			"unicorn/no-null": "error",
 			"unicorn/prevent-abbreviations": [
@@ -134,12 +114,34 @@
 					}
 				}
 			],
-			"eslint-plugin/require-meta-docs-description": [
-				"error",
-				{
-					"pattern": ".+"
+			"import/extensions": "off"
+		},
+		"overrides": [
+			{
+				"files": "rules/utils/*.js",
+				"rules": {
+					"eslint-plugin/prefer-object-rule": "off"
 				}
-			]
-		}
+			},
+			{
+				"files": [
+					"**/*.js"
+				],
+				"parserOptions": {
+					"sourceType": "script"
+				},
+				"rules": {
+					"strict": "error",
+					"unicorn/prefer-module": "off",
+					"eslint-plugin/require-meta-docs-url": "off",
+					"eslint-plugin/require-meta-docs-description": [
+						"error",
+						{
+							"pattern": ".+"
+						}
+					]
+				}
+			}
+		]
 	}
 }

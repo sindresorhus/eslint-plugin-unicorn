@@ -54,14 +54,17 @@ const createError = (name, suggestionOutput) => {
 
 const invalidMethodTest = ({code, output, name, suggestionOutput}) => {
 	const {safe} = methods[name];
-
-	return {
+	const test = {
 		code,
-		output: safe ? output : code,
 		errors: [
 			createError(name, suggestionOutput)
 		]
 	};
+	if (safe) {
+		test.output = output;
+	}
+
+	return test;
 };
 
 // Methods
