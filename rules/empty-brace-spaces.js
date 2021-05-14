@@ -17,7 +17,6 @@ const selector = `:matches(${
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
-
 	return {
 		[selector](node) {
 			if (!/^\s+$/.test(sourceCode.getText(node, 1, -1))) {
