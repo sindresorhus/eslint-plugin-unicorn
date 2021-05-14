@@ -17,19 +17,19 @@ const selector = `:matches(${
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
-	const START_OFFSET = 1;
-	const END_OFFSET = -1;
 
 	return {
 		[selector](node) {
-			if (!/^\s+$/.test(sourceCode.getText(node, START_OFFSET, END_OFFSET))) {
+			if (!/^\s+$/.test(sourceCode.getText(node, 1, -1))) {
 				return;
 			}
 
+			const [start, end] = node.range;
+			const range = [start + 1, end - 1];
 			context.report({
-				loc: toLocation(node, sourceCode, START_OFFSET, END_OFFSET),
+				loc: toLocation(range, sourceCode),
 				messageId: MESSAGE_ID,
-				fix: fixer => fixer.replaceTextRange([start, end], '')
+				fix: fixer => fixer.removeRange(range)
 			});
 		}
 	};
