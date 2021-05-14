@@ -86,7 +86,11 @@ const create = context => {
 					}
 				} else if (useStringCasting) {
 					// String(target).startsWith(pattern)
-					targetString = 'String' + (isTargetParenthesized ? getParenthesizedText(target, sourceCode) : `(${targetString})`);
+					targetString = (isTargetParenthesized ? getParenthesizedText(target, sourceCode) : `(${targetString})`);
+					if (target.type === 'SequenceExpression') {
+						targetString = `(${targetString})`;
+					}
+					targetString = 'String' + targetString;
 				} else if (!isRegexParenthesized && (isTargetParenthesized || shouldAddParenthesesToMemberExpressionObject(target, sourceCode))) {
 					targetString = `(${targetString})`;
 				}
