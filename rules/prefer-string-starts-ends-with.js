@@ -14,9 +14,9 @@ const SUGGEST_NULLISH_COALESCING = 'suggest-nullish-coalescing';
 const messages = {
 	[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
 	[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.',
-	[SUGGEST_STRING_CAST]: 'For strings that may be `undefined` / `null`, use string casting.',
-	[SUGGEST_OPTIONAL_CHAINING]: 'For strings that may be `undefined` / `null`, use optional chaining.',
-	[SUGGEST_NULLISH_COALESCING]: 'For strings that may be `undefined` / `null`, use nullish coalescing.'
+	[SUGGEST_STRING_CAST]: 'When testing against a value that may not be a string, use string casting.',
+	[SUGGEST_OPTIONAL_CHAINING]: 'When testing against a value that may not be a string, use optional chaining.',
+	[SUGGEST_NULLISH_COALESCING]: 'When testing against a value that may not be a string, use nullish coalescing.'
 };
 
 const doesNotContain = (string, characters) => characters.every(character => !string.includes(character));
