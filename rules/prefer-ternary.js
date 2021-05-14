@@ -6,6 +6,7 @@ const extendFixRange = require('./utils/extend-fix-range');
 const needsSemicolon = require('./utils/needs-semicolon');
 const isSameReference = require('./utils/is-same-reference');
 const getIndentString = require('./utils/get-indent-string');
+const getParenthesizedText = require('./utils/get-parenthesized-text');
 
 const messageId = 'prefer-ternary';
 
@@ -53,18 +54,7 @@ const create = context => {
 		return !generatedNames || !generatedNames.has(name);
 	});
 
-	const getParenthesizedText = node => {
-		const text = sourceCode.getText(node);
-		return (
-			isParenthesized(node, sourceCode) ||
-			node.type === 'AwaitExpression' ||
-			// Lower precedence, see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
-			node.type === 'AssignmentExpression' ||
-			node.type === 'YieldExpression' ||
-			node.type === 'SequenceExpression'
-		) ?
-			`(${text})` : text;
-	};
+
 
 	const isSingleLineNode = node => {
 		const [start, end] = node.range.map(index => sourceCode.getLocFromIndex(index));
@@ -206,13 +196,13 @@ const create = context => {
 				node,
 				messageId,
 				* fix(fixer) {
-					const testText = getParenthesizedText(node.test);
+					const testText = getParenthesizedText(node.test, sourceCode);
 					const consequentText = typeof result.consequent === 'string' ?
 						result.consequent :
-						getParenthesizedText(result.consequent);
+						getParenthesizedText(result.consequent, sourceCode);
 					const alternateText = typeof result.alternate === 'string' ?
 						result.alternate :
-						getParenthesizedText(result.alternate);
+						getParenthesizedText(result.alternate, sourceCode);
 
 					let {type, before, after} = result;
 

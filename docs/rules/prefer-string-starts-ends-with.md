@@ -4,7 +4,7 @@ Prefer [`String#startsWith()`](https://developer.mozilla.org/en/docs/Web/JavaScr
 
 This rule is fixable.
 
-Note: the autofix will throw an exception when the string being tested is `null` or `undefined`. Several safer but more verbose automatic suggestions are provided for this situation.
+Note: the autofixed code will throw an exception when the value being tested is not a string. Several safer but more verbose automatic suggestions are provided for this situation.
 
 ## Fail
 

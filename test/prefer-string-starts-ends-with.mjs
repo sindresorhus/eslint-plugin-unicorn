@@ -109,7 +109,7 @@ test({
 					},
 					{
 						messageId: SUGGEST_NULLISH_COALESCING,
-						output: '(("a") ?? \'\').startsWith((\'b\'))'
+						output: '("a" ?? \'\').startsWith((\'b\'))'
 					}
 				]
 			}]
@@ -122,7 +122,7 @@ test({
 				suggestions: [
 					{
 						messageId: SUGGEST_STRING_CAST,
-						output: '(String("a")).startsWith((\'b\'))' // TODO: remove extra parens around String()
+						output: '(String("a")).startsWith((\'b\'))'
 					},
 					{
 						messageId: SUGGEST_OPTIONAL_CHAINING,
@@ -151,7 +151,7 @@ test({
 					},
 					{
 						messageId: SUGGEST_NULLISH_COALESCING,
-						output: 'const fn = async () => ((await foo) ?? \'\').startsWith(\'b\')'
+						output: 'const fn = async () => (await foo ?? \'\').startsWith(\'b\')'
 					}
 				]
 			}]

@@ -4,6 +4,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const quoteString = require('./utils/quote-string');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
+const getParenthesizedText = require('./utils/get-parenthesized-text');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
@@ -70,42 +71,41 @@ const create = context => {
 				return;
 			}
 
-			function fix(fixer, {useNullishCoalescing, useOptionalChaining, useStringCasting} = {}) {
+			function * fix(fixer, {useNullishCoalescing, useOptionalChaining, useStringCasting} = {}) {
 				const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 				const [target] = node.arguments;
 				let targetString = sourceCode.getText(target);
 				const isRegexParenthesized = isParenthesized(regexNode, sourceCode);
 				const isTargetParenthesized = isParenthesized(target, sourceCode);
 
-				if (
-					// If regex is parenthesized, we can use it, so we don't need add again
-					!isRegexParenthesized &&
-					(isTargetParenthesized || shouldAddParenthesesToMemberExpressionObject(target, sourceCode))
-				) {
-					targetString = `(${targetString})`;
-				}
-
 				if (useNullishCoalescing) {
 					// (target ?? '').startsWith(pattern)
-					targetString = (isRegexParenthesized ? '' : '(') + targetString + ' ?? \'\'' + (isRegexParenthesized ? '' : ')');
+					targetString = targetString + ' ?? \'\'';
+					if (!isRegexParenthesized) {
+						targetString = `(${targetString})`;
+					}
 				} else if (useStringCasting) {
 					// String(target).startsWith(pattern)
-					const isTargetStringParenthesized = targetString.startsWith('(');
-					targetString = 'String' + (isTargetStringParenthesized ? '' : '(') + targetString + (isTargetStringParenthesized ? '' : ')');
+					targetString = 'String' + (isTargetParenthesized ? getParenthesizedText(target, sourceCode) : `(${targetString})`);
+				} else if (!isRegexParenthesized && (isTargetParenthesized || shouldAddParenthesesToMemberExpressionObject(target, sourceCode))) {
+					targetString = `(${targetString})`;
 				}
 
 				// The regex literal always starts with `/` or `(`, so we don't need check ASI
 
-				return [
-					// Replace regex with string
-					fixer.replaceText(regexNode, targetString),
-					// `.test` => `.startsWith` / `.endsWith`
-					fixer.replaceText(node.callee.property, method),
-					// Optional chaining: target.startsWith => target?.startsWith
-					useOptionalChaining ? fixer.replaceText(sourceCode.getTokenBefore(node.callee.property), '?.') : undefined,
-					// Replace argument with result.string
-					fixer.replaceText(target, quoteString(result.string))
-				].filter(Boolean);
+				// Replace regex with string
+				yield fixer.replaceText(regexNode, targetString);
+
+				// `.test` => `.startsWith` / `.endsWith`
+				yield fixer.replaceText(node.callee.property, method);
+
+				// Optional chaining: target.startsWith => target?.startsWith
+				if (useOptionalChaining) {
+					yield fixer.replaceText(sourceCode.getTokenBefore(node.callee.property), '?.');
+				}
+
+				// Replace argument with result.string
+				yield fixer.replaceText(target, quoteString(result.string))
 			}
 
 			context.report({
