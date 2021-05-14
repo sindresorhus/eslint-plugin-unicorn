@@ -27,7 +27,7 @@ const create = context => {
 			}
 
 			context.report({
-				loc: toLocation(sourceCode, node, START_OFFSET, END_OFFSET),
+				loc: toLocation(node, sourceCode, START_OFFSET, END_OFFSET),
 				messageId: MESSAGE_ID,
 				fix: fixer => fixer.replaceTextRange([start, end], '')
 			});

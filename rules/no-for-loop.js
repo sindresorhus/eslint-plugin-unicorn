@@ -331,7 +331,7 @@ const create = context => {
 			const [, end] = sourceCode.getTokenBefore(node.body, isClosingParenToken).range;
 
 			const problem = {
-				loc: toLocation(sourceCode, [start, end]),
+				loc: toLocation([start, end], sourceCode),
 				messageId: MESSAGE_ID
 			};
 

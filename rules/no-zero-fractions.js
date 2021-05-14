@@ -39,7 +39,7 @@ const create = context => {
 			const start = end - (raw.length - formatted.length);
 			const sourceCode = context.getSourceCode();
 			context.report({
-				loc: toLocation(sourceCode, [start, end]),
+				loc: toLocation([start, end], sourceCode),
 				messageId: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
 				fix: fixer => {
 					let fixed = formatted;

@@ -37,7 +37,7 @@ const create = context => {
 		const range = [index, index + 1];
 
 		context.report({
-			loc: toLocation(sourceCode, range),
+			loc: toLocation(range, sourceCode),
 			messageId: MESSAGE_ID,
 			data: {method, position},
 			fix: fixer => fixer.removeRange(range)
