@@ -104,7 +104,9 @@ test({
 		// With known static length value
 		'const foo = { size: "small" }; if (foo.size) {}', // Not a number
 		'const foo = { length: -1 }; if (foo.length) {}', // Array lengths cannot be negative
-		'const foo = { length: 1.5 }; if (foo.length) {}' // Array lengths must be integers
+		'const foo = { length: 1.5 }; if (foo.length) {}', // Array lengths must be integers
+		'const foo = { length: NaN }; if (foo.length) {}', // Array lengths cannot be NaN
+		'const foo = { length: Infinity }; if (foo.length) {}' // Array lengths cannot be Infinity
 	],
 	invalid: [
 		suggestionCase({
