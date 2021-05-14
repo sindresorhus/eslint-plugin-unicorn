@@ -4,6 +4,8 @@ Prefer [`String#startsWith()`](https://developer.mozilla.org/en/docs/Web/JavaScr
 
 This rule is fixable.
 
+Note: the autofix will throw an exception when the string being tested is `null` or `undefined`. Several safer but more verbose automatic suggestions are provided for this situation.
+
 ## Fail
 
 ```js
@@ -22,6 +24,18 @@ const foo = baz.startsWith('bar');
 
 ```js
 const foo = baz.endsWith('bar');
+```
+
+```js
+const foo = baz?.startsWith('bar');
+```
+
+```js
+const foo = (baz ?? '').startsWith('bar');
+```
+
+```js
+const foo = String(baz).startsWith('bar');
 ```
 
 ```js

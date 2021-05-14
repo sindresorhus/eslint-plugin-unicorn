@@ -7,9 +7,15 @@ const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
+const SUGGEST_STRING_CAST = 'suggest-string-cast';
+const SUGGEST_OPTIONAL_CHAINING = 'suggest-optional-chaining';
+const SUGGEST_NULLISH_COALESCING = 'suggest-nullish-coalescing';
 const messages = {
 	[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
-	[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.'
+	[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.',
+	[SUGGEST_STRING_CAST]: 'For strings that may be `undefined` / `null`, use string casting.',
+	[SUGGEST_OPTIONAL_CHAINING]: 'For strings that may be `undefined` / `null`, use optional chaining.',
+	[SUGGEST_NULLISH_COALESCING]: 'For strings that may be `undefined` / `null`, use nullish coalescing.'
 };
 
 const doesNotContain = (string, characters) => characters.every(character => !string.includes(character));
@@ -64,33 +70,62 @@ const create = context => {
 				return;
 			}
 
+			function fix(fixer, {useNullishCoalescing, useOptionalChaining, useStringCasting} = {}) {
+				const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
+				const [target] = node.arguments;
+				let targetString = sourceCode.getText(target);
+				const isRegexParenthesized = isParenthesized(regexNode, sourceCode);
+				const isTargetParenthesized = isParenthesized(target, sourceCode);
+
+				if (
+					// If regex is parenthesized, we can use it, so we don't need add again
+					!isRegexParenthesized &&
+					(isTargetParenthesized || shouldAddParenthesesToMemberExpressionObject(target, sourceCode))
+				) {
+					targetString = `(${targetString})`;
+				}
+
+				if (useNullishCoalescing) {
+					// (target ?? '').startsWith(pattern)
+					targetString = (isRegexParenthesized ? '' : '(') + targetString + ' ?? \'\'' + (isRegexParenthesized ? '' : ')');
+				} else if (useStringCasting) {
+					// String(target).startsWith(pattern)
+					const isTargetStringParenthesized = targetString.startsWith('(');
+					targetString = 'String' + (isTargetStringParenthesized ? '' : '(') + targetString + (isTargetStringParenthesized ? '' : ')');
+				}
+
+				// The regex literal always starts with `/` or `(`, so we don't need check ASI
+
+				return [
+					// Replace regex with string
+					fixer.replaceText(regexNode, targetString),
+					// `.test` => `.startsWith` / `.endsWith`
+					fixer.replaceText(node.callee.property, method),
+					// Optional chaining: target.startsWith => target?.startsWith
+					useOptionalChaining ? fixer.replaceText(sourceCode.getTokenBefore(node.callee.property), '?.') : undefined,
+					// Replace argument with result.string
+					fixer.replaceText(target, quoteString(result.string))
+				].filter(Boolean);
+			}
+
 			context.report({
 				node,
 				messageId: result.messageId,
-				fix: fixer => {
-					const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
-					const [target] = node.arguments;
-					let targetString = sourceCode.getText(target);
-
-					if (
-						// If regex is parenthesized, we can use it, so we don't need add again
-						!isParenthesized(regexNode, sourceCode) &&
-						(isParenthesized(target, sourceCode) || shouldAddParenthesesToMemberExpressionObject(target, sourceCode))
-					) {
-						targetString = `(${targetString})`;
+				suggest: [
+					{
+						messageId: SUGGEST_STRING_CAST,
+						fix: fixer => fix(fixer, {useStringCasting: true})
+					},
+					{
+						messageId: SUGGEST_OPTIONAL_CHAINING,
+						fix: fixer => fix(fixer, {useOptionalChaining: true})
+					},
+					{
+						messageId: SUGGEST_NULLISH_COALESCING,
+						fix: fixer => fix(fixer, {useNullishCoalescing: true})
 					}
-
-					// The regex literal always starts with `/` or `(`, so we don't need check ASI
-
-					return [
-						// Replace regex with string
-						fixer.replaceText(regexNode, targetString),
-						// `.test` => `.startsWith` / `.endsWith`
-						fixer.replaceText(node.callee.property, method),
-						// Replace argument with result.string
-						fixer.replaceText(target, quoteString(result.string))
-					];
-				}
+				],
+				fix
 			});
 		}
 	};
@@ -102,7 +137,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.',
-			url: getDocumentationUrl(__filename)
+			url: getDocumentationUrl(__filename),
+			suggest: true
 		},
 		messages,
 		fixable: 'code',

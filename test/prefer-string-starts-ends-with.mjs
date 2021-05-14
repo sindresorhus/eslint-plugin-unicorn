@@ -5,6 +5,9 @@ const {test} = getTester(import.meta);
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
+const SUGGEST_STRING_CAST = 'suggest-string-cast';
+const SUGGEST_OPTIONAL_CHAINING = 'suggest-optional-chaining';
+const SUGGEST_NULLISH_COALESCING = 'suggest-nullish-coalescing';
 
 const validRegex = [
 	/foo/,
@@ -70,29 +73,109 @@ test({
 			return {
 				code: `${re}.test(bar)`,
 				output: `bar.${method}('${string}')`,
-				errors: [{messageId}]
+				errors: [{
+					messageId,
+					suggestions: [
+						{
+							messageId: SUGGEST_STRING_CAST,
+							output: `String(bar).${method}('${string}')`
+						},
+						{
+							messageId: SUGGEST_OPTIONAL_CHAINING,
+							output: `bar?.${method}('${string}')`
+						},
+						{
+							messageId: SUGGEST_NULLISH_COALESCING,
+							output: `(bar ?? '').${method}('${string}')`
+						}
+					]
+				}]
 			};
 		}),
 		// Parenthesized
 		{
 			code: '/^b/.test(("a"))',
 			output: '("a").startsWith((\'b\'))',
-			errors: [{messageId: MESSAGE_STARTS_WITH}]
+			errors: [{
+				messageId: MESSAGE_STARTS_WITH,
+				suggestions: [
+					{
+						messageId: SUGGEST_STRING_CAST,
+						output: 'String("a").startsWith((\'b\'))'
+					},
+					{
+						messageId: SUGGEST_OPTIONAL_CHAINING,
+						output: '("a")?.startsWith((\'b\'))'
+					},
+					{
+						messageId: SUGGEST_NULLISH_COALESCING,
+						output: '(("a") ?? \'\').startsWith((\'b\'))'
+					}
+				]
+			}]
 		},
 		{
 			code: '(/^b/).test(("a"))',
 			output: '("a").startsWith((\'b\'))',
-			errors: [{messageId: MESSAGE_STARTS_WITH}]
+			errors: [{
+				messageId: MESSAGE_STARTS_WITH,
+				suggestions: [
+					{
+						messageId: SUGGEST_STRING_CAST,
+						output: '(String("a")).startsWith((\'b\'))' // TODO: remove extra parens around String()
+					},
+					{
+						messageId: SUGGEST_OPTIONAL_CHAINING,
+						output: '("a")?.startsWith((\'b\'))'
+					},
+					{
+						messageId: SUGGEST_NULLISH_COALESCING,
+						output: '("a" ?? \'\').startsWith((\'b\'))'
+					}
+				]
+			}]
 		},
 		{
 			code: 'const fn = async () => /^b/.test(await foo)',
 			output: 'const fn = async () => (await foo).startsWith(\'b\')',
-			errors: [{messageId: MESSAGE_STARTS_WITH}]
+			errors: [{
+				messageId: MESSAGE_STARTS_WITH,
+				suggestions: [
+					{
+						messageId: SUGGEST_STRING_CAST,
+						output: 'const fn = async () => String(await foo).startsWith(\'b\')'
+					},
+					{
+						messageId: SUGGEST_OPTIONAL_CHAINING,
+						output: 'const fn = async () => (await foo)?.startsWith(\'b\')'
+					},
+					{
+						messageId: SUGGEST_NULLISH_COALESCING,
+						output: 'const fn = async () => ((await foo) ?? \'\').startsWith(\'b\')'
+					}
+				]
+			}]
 		},
 		{
 			code: 'const fn = async () => (/^b/).test(await foo)',
 			output: 'const fn = async () => (await foo).startsWith(\'b\')',
-			errors: [{messageId: MESSAGE_STARTS_WITH}]
+			errors: [{
+				messageId: MESSAGE_STARTS_WITH,
+				suggestions: [
+					{
+						messageId: SUGGEST_STRING_CAST,
+						output: 'const fn = async () => (String(await foo)).startsWith(\'b\')'
+					},
+					{
+						messageId: SUGGEST_OPTIONAL_CHAINING,
+						output: 'const fn = async () => (await foo)?.startsWith(\'b\')'
+					},
+					{
+						messageId: SUGGEST_NULLISH_COALESCING,
+						output: 'const fn = async () => (await foo ?? \'\').startsWith(\'b\')'
+					}
+				]
+			}]
 		},
 		// Comments
 		{
@@ -124,7 +207,62 @@ test({
 					)
 				) {}
 			`,
-			errors: [{messageId: MESSAGE_STARTS_WITH}]
+			errors: [{
+				messageId: MESSAGE_STARTS_WITH,
+				suggestions: [
+					{
+						messageId: SUGGEST_STRING_CAST,
+						output: outdent`
+							if (
+								/* comment 1 */
+								String(foo)
+								/* comment 2 */
+								.startsWith
+								/* comment 3 */
+								(
+									/* comment 4 */
+									'b'
+									/* comment 5 */
+								)
+							) {}
+						`
+					},
+					{
+						messageId: SUGGEST_OPTIONAL_CHAINING,
+						output: outdent`
+							if (
+								/* comment 1 */
+								foo
+								/* comment 2 */
+								?.startsWith
+								/* comment 3 */
+								(
+									/* comment 4 */
+									'b'
+									/* comment 5 */
+								)
+							) {}
+						`
+					},
+					{
+						messageId: SUGGEST_NULLISH_COALESCING,
+						output: outdent`
+							if (
+								/* comment 1 */
+								(foo ?? '')
+								/* comment 2 */
+								.startsWith
+								/* comment 3 */
+								(
+									/* comment 4 */
+									'b'
+									/* comment 5 */
+								)
+							) {}
+						`
+					}
+				]
+			}]
 		}
 	]
 });
