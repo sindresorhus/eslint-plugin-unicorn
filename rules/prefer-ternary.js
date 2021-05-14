@@ -44,6 +44,8 @@ const getScopes = scope => [
 	...scope.childScopes.flatMap(scope => getScopes(scope))
 ];
 
+const isSingleLineNode = node => node.loc.start.line === node.loc.end.line;
+
 const create = context => {
 	const onlySingleLine = context.options[0] === 'only-single-line';
 	const sourceCode = context.getSourceCode();
@@ -64,11 +66,6 @@ const create = context => {
 			node.type === 'SequenceExpression'
 		) ?
 			`(${text})` : text;
-	};
-
-	const isSingleLineNode = node => {
-		const [start, end] = node.range.map(index => sourceCode.getLocFromIndex(index));
-		return start.line === end.line;
 	};
 
 	function merge(options, mergeOptions) {

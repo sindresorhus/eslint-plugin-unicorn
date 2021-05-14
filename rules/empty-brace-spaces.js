@@ -1,5 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const toLocation = require('./utils/to-location');
 
 const MESSAGE_ID = 'empty-brace-spaces';
 const messages = {
@@ -16,21 +17,17 @@ const selector = `:matches(${
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
+	const START_OFFSET = 1;
+	const END_OFFSET = -1;
+
 	return {
 		[selector](node) {
-			let [start, end] = node.range;
-			start += 1;
-			end -= 1;
-
-			if (!/^\s+$/.test(sourceCode.text.slice(start, end))) {
+			if (!/^\s+$/.test(sourceCode.getText(node, START_OFFSET, END_OFFSET))) {
 				return;
 			}
 
 			context.report({
-				loc: {
-					start: sourceCode.getLocFromIndex(start),
-					end: sourceCode.getLocFromIndex(end)
-				},
+				loc: toLocation(sourceCode, node, START_OFFSET, END_OFFSET),
 				messageId: MESSAGE_ID,
 				fix: fixer => fixer.replaceTextRange([start, end], '')
 			});
