@@ -102,6 +102,20 @@
 			".cache-eslint-remote-tester",
 			"eslint-remote-tester-results"
 		],
+		"rules": {
+			"unicorn/no-null": "error",
+			"unicorn/prevent-abbreviations": [
+				"error",
+				{
+					"replacements": {
+						"ref": {
+							"reference": true
+						}
+					}
+				}
+			],
+			"import/extensions": "off"
+		},
 		"overrides": [
 			{
 				"files": "rules/utils/*.js",
@@ -128,19 +142,6 @@
 					]
 				}
 			}
-		],
-		"rules": {
-			"unicorn/no-null": "error",
-			"unicorn/prevent-abbreviations": [
-				"error",
-				{
-					"replacements": {
-						"ref": {
-							"reference": true
-						}
-					}
-				}
-			]
-		}
+		]
 	}
 }
