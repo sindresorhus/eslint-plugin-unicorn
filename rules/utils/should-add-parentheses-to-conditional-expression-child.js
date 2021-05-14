@@ -1,6 +1,5 @@
 'use strict';
 
-
 /**
 Check if parentheses should be added to a `node` when it's used as `argument` of `SpreadElement`.
 
