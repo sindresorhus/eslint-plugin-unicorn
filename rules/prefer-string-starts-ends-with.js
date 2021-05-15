@@ -81,7 +81,7 @@ const create = context => {
 
 				switch (fixType) {
 					case FIX_NULLISH_COALESCING:
-						// (target ?? '').startsWith(pattern)
+						// Goal: (target ?? '').startsWith(pattern)
 						if (shouldAddParenthesesToLogicalExpressionChild(target, sourceCode)) {
 							targetString = `(${targetString})`;
 						}
@@ -93,17 +93,17 @@ const create = context => {
 
 						break;
 					case FIX_STRING_CAST:
-						// String(target).startsWith(pattern)
+						// Goal: String(target).startsWith(pattern)
 						targetString = (isTargetParenthesized ? getParenthesizedText(target, sourceCode) : `(${targetString})`);
 						if (target.type === 'SequenceExpression') {
 							targetString = `(${targetString})`;
 						}
-
 						targetString = 'String' + targetString;
+
 						break;
 					case FIX_OPTIONAL_CHAINING:
 					default:
-						// target.startsWith(pattern)
+						// Standard autofix: target.startsWith(pattern)
 						if (!isRegexParenthesized && (isTargetParenthesized || shouldAddParenthesesToMemberExpressionObject(target, sourceCode))) {
 							targetString = `(${targetString})`;
 						}
