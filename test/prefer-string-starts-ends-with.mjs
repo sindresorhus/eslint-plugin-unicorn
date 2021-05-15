@@ -5,9 +5,9 @@ const {test} = getTester(import.meta);
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
-const SUGGEST_STRING_CAST = 'suggest-string-cast';
-const SUGGEST_OPTIONAL_CHAINING = 'suggest-optional-chaining';
-const SUGGEST_NULLISH_COALESCING = 'suggest-nullish-coalescing';
+const SUGGEST_STRING_CAST = 'useStringCasting';
+const SUGGEST_OPTIONAL_CHAINING = 'useOptionalChaining';
+const SUGGEST_NULLISH_COALESCING = 'useNullishCoalescing';
 
 const validRegex = [
 	/foo/,

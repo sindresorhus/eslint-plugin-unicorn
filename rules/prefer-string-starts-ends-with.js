@@ -9,9 +9,10 @@ const {getParenthesizedText} = require('./utils/parentheses');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
-const SUGGEST_STRING_CAST = 'suggest-string-cast';
-const SUGGEST_OPTIONAL_CHAINING = 'suggest-optional-chaining';
-const SUGGEST_NULLISH_COALESCING = 'suggest-nullish-coalescing';
+const SUGGEST_STRING_CAST = 'useStringCasting';
+const SUGGEST_OPTIONAL_CHAINING = 'useOptionalChaining';
+const SUGGEST_NULLISH_COALESCING = 'useNullishCoalescing';
+const SUGGESTIONS = [SUGGEST_STRING_CAST, SUGGEST_OPTIONAL_CHAINING, SUGGEST_NULLISH_COALESCING];
 const messages = {
 	[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
 	[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.',
@@ -121,20 +122,7 @@ const create = context => {
 			context.report({
 				node,
 				messageId: result.messageId,
-				suggest: [
-					{
-						messageId: SUGGEST_STRING_CAST,
-						fix: fixer => fix(fixer, {useStringCasting: true})
-					},
-					{
-						messageId: SUGGEST_OPTIONAL_CHAINING,
-						fix: fixer => fix(fixer, {useOptionalChaining: true})
-					},
-					{
-						messageId: SUGGEST_NULLISH_COALESCING,
-						fix: fixer => fix(fixer, {useNullishCoalescing: true})
-					}
-				],
+				suggest: SUGGESTIONS.map(type => ({messageId: type, fix: fixer => fix(fixer, {[type]: true})})),
 				fix
 			});
 		}
