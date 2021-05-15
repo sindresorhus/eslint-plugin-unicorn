@@ -4,6 +4,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const quoteString = require('./utils/quote-string');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
+const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child');
 const {getParenthesizedText} = require('./utils/parentheses');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
@@ -80,6 +81,9 @@ const create = context => {
 
 				if (useNullishCoalescing) {
 					// (target ?? '').startsWith(pattern)
+					if (shouldAddParenthesesToLogicalExpressionChild(target, sourceCode)) {
+						targetString = `(${targetString})`
+					}
 					targetString = targetString + ' ?? \'\'';
 					if (!isRegexParenthesized) {
 						targetString = `(${targetString})`;

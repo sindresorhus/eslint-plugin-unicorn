@@ -1,0 +1,16 @@
+'use strict';
+
+/**
+Check if parentheses should be added to a `node` when it's used as child of `LogicalExpression`.
+@param {Node} node - The AST node to check.
+@returns {boolean}
+*/
+function shouldAddParenthesesToLogicalExpressionChild(node) {
+	return node.type === 'AwaitExpression' ||
+		// Lower precedence, see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
+		node.type === 'AssignmentExpression' ||
+		node.type === 'YieldExpression' ||
+		node.type === 'SequenceExpression';
+}
+
+module.exports = shouldAddParenthesesToLogicalExpressionChild;

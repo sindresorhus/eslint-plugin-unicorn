@@ -151,7 +151,7 @@ test({
 					},
 					{
 						messageId: SUGGEST_NULLISH_COALESCING,
-						output: 'const fn = async () => (await foo ?? \'\').startsWith(\'b\')'
+						output: 'const fn = async () => ((await foo) ?? \'\').startsWith(\'b\')'
 					}
 				]
 			}]
@@ -172,7 +172,7 @@ test({
 					},
 					{
 						messageId: SUGGEST_NULLISH_COALESCING,
-						output: 'const fn = async () => (await foo ?? \'\').startsWith(\'b\')'
+						output: 'const fn = async () => ((await foo) ?? \'\').startsWith(\'b\')'
 					}
 				]
 			}]
