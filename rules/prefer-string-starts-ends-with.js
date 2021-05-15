@@ -9,16 +9,15 @@ const {getParenthesizedText} = require('./utils/parentheses');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
-const SUGGEST_STRING_CAST = 'useStringCasting';
-const SUGGEST_OPTIONAL_CHAINING = 'useOptionalChaining';
-const SUGGEST_NULLISH_COALESCING = 'useNullishCoalescing';
-const SUGGESTIONS = [SUGGEST_STRING_CAST, SUGGEST_OPTIONAL_CHAINING, SUGGEST_NULLISH_COALESCING];
+const FIX_STRING_CAST = 'useStringCasting';
+const FIX_OPTIONAL_CHAINING = 'useOptionalChaining';
+const FIX_NULLISH_COALESCING = 'useNullishCoalescing';
 const messages = {
 	[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
 	[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.',
-	[SUGGEST_STRING_CAST]: 'When testing against a value that may not be a string, use string casting.',
-	[SUGGEST_OPTIONAL_CHAINING]: 'When testing against a value that may not be a string, use optional chaining.',
-	[SUGGEST_NULLISH_COALESCING]: 'When testing against a value that may not be a string, use nullish coalescing.'
+	[FIX_STRING_CAST]: 'When testing against a value that may not be a string, use string casting.',
+	[FIX_OPTIONAL_CHAINING]: 'When testing against a value that may not be a string, use optional chaining.',
+	[FIX_NULLISH_COALESCING]: 'When testing against a value that may not be a string, use nullish coalescing.'
 };
 
 const doesNotContain = (string, characters) => characters.every(character => !string.includes(character));
@@ -73,13 +72,23 @@ const create = context => {
 				return;
 			}
 
-			function * fix(fixer, {useNullishCoalescing, useOptionalChaining, useStringCasting} = {}) {
+			function * fix(fixer, fixType) {
 				const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 				const [target] = node.arguments;
 				let targetString = sourceCode.getText(target);
 				const isRegexParenthesized = isParenthesized(regexNode, sourceCode);
 				const isTargetParenthesized = isParenthesized(target, sourceCode);
 
+				switch (fixType) {
+					case FIX_NULLISH_COALESCING:
+						break;
+					case FIX_OPTIONAL_CHAINING:
+						break;
+					case FIX_STRING_CAST:
+						break;
+					default:
+						// auto fix
+				}
 				if (useNullishCoalescing) {
 					// (target ?? '').startsWith(pattern)
 					if (shouldAddParenthesesToLogicalExpressionChild(target, sourceCode)) {
@@ -122,7 +131,7 @@ const create = context => {
 			context.report({
 				node,
 				messageId: result.messageId,
-				suggest: SUGGESTIONS.map(type => ({messageId: type, fix: fixer => fix(fixer, {[type]: true})})),
+				suggest: [FIX_STRING_CAST, FIX_OPTIONAL_CHAINING, FIX_NULLISH_COALESCING].map(type => ({messageId: type, fix: fixer => fix(fixer, type)),
 				fix
 			});
 		}
