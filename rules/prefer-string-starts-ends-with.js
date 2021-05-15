@@ -82,9 +82,10 @@ const create = context => {
 				if (useNullishCoalescing) {
 					// (target ?? '').startsWith(pattern)
 					if (shouldAddParenthesesToLogicalExpressionChild(target, sourceCode)) {
-						targetString = `(${targetString})`
+						targetString = `(${targetString})`;
 					}
-					targetString = targetString + ' ?? \'\'';
+
+					targetString += ' ?? \'\'';
 					if (!isRegexParenthesized) {
 						targetString = `(${targetString})`;
 					}
@@ -94,6 +95,7 @@ const create = context => {
 					if (target.type === 'SequenceExpression') {
 						targetString = `(${targetString})`;
 					}
+
 					targetString = 'String' + targetString;
 				} else if (!isRegexParenthesized && (isTargetParenthesized || shouldAddParenthesesToMemberExpressionObject(target, sourceCode))) {
 					targetString = `(${targetString})`;
@@ -113,7 +115,7 @@ const create = context => {
 				}
 
 				// Replace argument with result.string
-				yield fixer.replaceText(target, quoteString(result.string))
+				yield fixer.replaceText(target, quoteString(result.string));
 			}
 
 			context.report({
