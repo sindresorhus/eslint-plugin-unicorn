@@ -81,34 +81,32 @@ const create = context => {
 
 				switch (fixType) {
 					case FIX_NULLISH_COALESCING:
-						break;
-					case FIX_OPTIONAL_CHAINING:
+						// (target ?? '').startsWith(pattern)
+						if (shouldAddParenthesesToLogicalExpressionChild(target, sourceCode)) {
+							targetString = `(${targetString})`;
+						}
+
+						targetString += ' ?? \'\'';
+						if (!isRegexParenthesized) {
+							targetString = `(${targetString})`;
+						}
+
 						break;
 					case FIX_STRING_CAST:
+						// String(target).startsWith(pattern)
+						targetString = (isTargetParenthesized ? getParenthesizedText(target, sourceCode) : `(${targetString})`);
+						if (target.type === 'SequenceExpression') {
+							targetString = `(${targetString})`;
+						}
+
+						targetString = 'String' + targetString;
 						break;
+					case FIX_OPTIONAL_CHAINING:
 					default:
-						// auto fix
-				}
-				if (useNullishCoalescing) {
-					// (target ?? '').startsWith(pattern)
-					if (shouldAddParenthesesToLogicalExpressionChild(target, sourceCode)) {
-						targetString = `(${targetString})`;
-					}
-
-					targetString += ' ?? \'\'';
-					if (!isRegexParenthesized) {
-						targetString = `(${targetString})`;
-					}
-				} else if (useStringCasting) {
-					// String(target).startsWith(pattern)
-					targetString = (isTargetParenthesized ? getParenthesizedText(target, sourceCode) : `(${targetString})`);
-					if (target.type === 'SequenceExpression') {
-						targetString = `(${targetString})`;
-					}
-
-					targetString = 'String' + targetString;
-				} else if (!isRegexParenthesized && (isTargetParenthesized || shouldAddParenthesesToMemberExpressionObject(target, sourceCode))) {
-					targetString = `(${targetString})`;
+						// target.startsWith(pattern)
+						if (!isRegexParenthesized && (isTargetParenthesized || shouldAddParenthesesToMemberExpressionObject(target, sourceCode))) {
+							targetString = `(${targetString})`;
+						}
 				}
 
 				// The regex literal always starts with `/` or `(`, so we don't need check ASI
@@ -120,7 +118,7 @@ const create = context => {
 				yield fixer.replaceText(node.callee.property, method);
 
 				// Optional chaining: target.startsWith => target?.startsWith
-				if (useOptionalChaining) {
+				if (fixType === FIX_OPTIONAL_CHAINING) {
 					yield fixer.replaceText(sourceCode.getTokenBefore(node.callee.property), '?.');
 				}
 
@@ -131,7 +129,7 @@ const create = context => {
 			context.report({
 				node,
 				messageId: result.messageId,
-				suggest: [FIX_STRING_CAST, FIX_OPTIONAL_CHAINING, FIX_NULLISH_COALESCING].map(type => ({messageId: type, fix: fixer => fix(fixer, type)),
+				suggest: [FIX_STRING_CAST, FIX_OPTIONAL_CHAINING, FIX_NULLISH_COALESCING].map(type => ({messageId: type, fix: fixer => fix(fixer, type)})),
 				fix
 			});
 		}
