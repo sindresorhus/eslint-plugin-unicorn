@@ -51,6 +51,10 @@ test({
 		'if (foo.match(/^foo/)) {}',
 		'if (/^foo/.exec(foo)) {}',
 
+		// Ignore known, non-strings which don't have a startsWith/endsWith function
+		'const foo = {}; /^abc/.test(foo)',
+		'const foo = 123; /^abc/.test(foo)',
+
 		...validRegex.map(re => `${re}.test(bar)`)
 	],
 	invalid: [
@@ -73,6 +77,12 @@ test({
 				errors: [{messageId}]
 			};
 		}),
+		// String in variable.
+		{
+			code: 'const foo = "hello"; /^abc/.test(foo);',
+			output: 'const foo = "hello"; foo.startsWith(\'abc\');',
+			errors: [{messageId: MESSAGE_STARTS_WITH}]
+		},
 		// Parenthesized
 		{
 			code: '/^b/.test(("a"))',
