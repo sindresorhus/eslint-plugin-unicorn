@@ -155,7 +155,7 @@ function create(context) {
 			let autoFix = true;
 
 			const staticValue = getStaticValue(lengthNode, context.getScope());
-			if (staticValue && (typeof staticValue.value !== 'number' || !Number.isInteger(staticValue.value) || staticValue.value < 0)) {
+			if (staticValue && (!Number.isInteger(staticValue.value) || staticValue.value < 0)) {
 				// Ignore known, non-positive-integer length properties.
 				return;
 			}
