@@ -98,6 +98,7 @@ const create = context => {
 						if (target.type === 'SequenceExpression') {
 							targetString = `(${targetString})`;
 						}
+
 						targetString = 'String' + targetString;
 
 						break;
