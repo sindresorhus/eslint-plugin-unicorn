@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized} = require('eslint-utils');
+const {isParenthesized, getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const quoteString = require('./utils/quote-string');
@@ -68,8 +68,14 @@ const create = context => {
 				node,
 				messageId: result.messageId,
 				fix: fixer => {
-					const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 					const [target] = node.arguments;
+					const staticValue = getStaticValue(target, context.getScope());
+					if (staticValue && typeof staticValue.value !== 'string') {
+						// Ignore known, non-string value which won't have a startsWith/endsWith function.
+						return;
+					}
+
+					const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 					let targetString = sourceCode.getText(target);
 
 					if (

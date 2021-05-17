@@ -73,6 +73,20 @@ test({
 				errors: [{messageId}]
 			};
 		}),
+		// String in variable. Don't autofix known, non-strings which don't have a startsWith/endsWith function.
+		{
+			code: 'const foo = {}; /^abc/.test(foo);',
+			errors: [{messageId: MESSAGE_STARTS_WITH}]
+		},
+		{
+			code: 'const foo = 123; /^abc/.test(foo);',
+			errors: [{messageId: MESSAGE_STARTS_WITH}]
+		},
+		{
+			code: 'const foo = "hello"; /^abc/.test(foo);',
+			output: 'const foo = "hello"; foo.startsWith(\'abc\');',
+			errors: [{messageId: MESSAGE_STARTS_WITH}]
+		},
 		// Parenthesized
 		{
 			code: '/^b/.test(("a"))',
