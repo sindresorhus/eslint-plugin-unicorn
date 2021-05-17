@@ -91,3 +91,69 @@ test.snapshot({
 		`
 	]
 });
+
+const enableBabelPlugins = plugins => ({
+	babelOptions: {
+		parserOpts: {
+			plugins
+		}
+	}
+});
+const enableBabelPlugin = plugin => enableBabelPlugins([plugin]);
+test.babel({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				const foo = do     {
+				};
+			`,
+			output: 'const foo = do     {};',
+			parserOptions: enableBabelPlugin('doExpressions'),
+			errors: 1
+		},
+		{
+			code: 'const record = #{    };',
+			output: 'const record = #{};',
+			parserOptions: enableBabelPlugin(['recordAndTuple', {syntaxType: 'hash'}]),
+			errors: 1
+		},
+		{
+			code: 'const record = {|    |};',
+			output: 'const record = {||};',
+			parserOptions: enableBabelPlugin(['recordAndTuple', {syntaxType: 'bar'}]),
+			errors: 1
+		},
+		{
+			code: outdent`
+				class Foo {
+					static    {
+					}
+				}
+			`,
+			output: outdent`
+				class Foo {
+					static    {}
+				}
+			`,
+			parserOptions: enableBabelPlugin('classStaticBlock'),
+			errors: 1
+		},
+		// ESLint can't parse this now
+		// {
+		// 	code: 'const foo = module     {    };',
+		// 	output: 'const foo = module     {};',
+		// 	parserOptions: enableBabelPlugin('moduleBlocks'),
+		// 	errors: 1
+		// },
+		{
+			code: outdent`
+				const foo = async    do    {
+				};
+			`,
+			output: 'const foo = async    do    {};',
+			parserOptions: enableBabelPlugins(['doExpressions', 'asyncDoExpressions']),
+			errors: 1
+		}
+	]
+});

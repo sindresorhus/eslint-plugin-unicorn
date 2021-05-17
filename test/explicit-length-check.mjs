@@ -99,7 +99,14 @@ test({
 
 		'if (foo.length !== 1) {}',
 		'if (foo.length > 1) {}',
-		'if (foo.length < 2) {}'
+		'if (foo.length < 2) {}',
+
+		// With known static length value
+		'const foo = { size: "small" }; if (foo.size) {}', // Not a number
+		'const foo = { length: -1 }; if (foo.length) {}', // Array lengths cannot be negative
+		'const foo = { length: 1.5 }; if (foo.length) {}', // Array lengths must be integers
+		'const foo = { length: NaN }; if (foo.length) {}', // Array lengths cannot be NaN
+		'const foo = { length: Infinity }; if (foo.length) {}' // Array lengths cannot be Infinity
 	],
 	invalid: [
 		suggestionCase({
@@ -157,6 +164,11 @@ test.snapshot({
 					${nonZeroCases.filter(code => code !== 'foo.length >= 1').join(' &&\n\t')}
 				) ? 1 : 2;
 			`,
+			options: [{'non-zero': 'greater-than-or-equal'}]
+		},
+		{
+			// Known, number static value
+			code: 'const foo = { length: 123 }; if (foo.length) {}',
 			options: [{'non-zero': 'greater-than-or-equal'}]
 		},
 		'if (foo.bar && foo.bar.length) {}',
