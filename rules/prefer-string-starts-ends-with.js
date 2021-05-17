@@ -5,7 +5,8 @@ const methodSelector = require('./utils/method-selector');
 const quoteString = require('./utils/quote-string');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child');
-const {getParenthesizedText} = require('./utils/parentheses');
+const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before');
+const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
@@ -21,11 +22,11 @@ const messages = {
 };
 
 const doesNotContain = (string, characters) => characters.every(character => !string.includes(character));
-
 const isSimpleString = string => doesNotContain(
 	string,
 	['^', '$', '+', '[', '{', '(', '\\', '.', '?', '*', '|']
 );
+const addParentheses = text => `(${text})`;
 
 const regexTestSelector = [
 	methodSelector({name: 'test', length: 1}),
@@ -75,56 +76,62 @@ const create = context => {
 			function * fix(fixer, fixType) {
 				const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 				const [target] = node.arguments;
-				let targetString = sourceCode.getText(target);
+				let targetText = getParenthesizedText(target, sourceCode);
 				const isRegexParenthesized = isParenthesized(regexNode, sourceCode);
 				const isTargetParenthesized = isParenthesized(target, sourceCode);
 
 				switch (fixType) {
+					// Goal: `(target ?? '').startsWith(pattern)`
 					case FIX_NULLISH_COALESCING:
-						// Goal: (target ?? '').startsWith(pattern)
-						if (shouldAddParenthesesToLogicalExpressionChild(target, sourceCode)) {
-							targetString = `(${targetString})`;
+						if (
+							!isTargetParenthesized &&
+							shouldAddParenthesesToLogicalExpressionChild(target, {operator: '??', property: 'left'})
+						) {
+							targetText = addParentheses(targetText);
 						}
 
-						targetString += ' ?? \'\'';
+						targetText += ' ?? \'\'';
+
+						// `LogicalExpression` need add parentheses to call `.startsWith()`,
+						// but if regex is parenthesized, we can reuse it
 						if (!isRegexParenthesized) {
-							targetString = `(${targetString})`;
+							targetText = addParentheses(targetText);
 						}
 
 						break;
+
+					// Goal: `String(target).startsWith(pattern)`
 					case FIX_STRING_CAST:
-						// Goal: String(target).startsWith(pattern)
-						targetString = (isTargetParenthesized ? getParenthesizedText(target, sourceCode) : `(${targetString})`);
-						if (target.type === 'SequenceExpression') {
-							targetString = `(${targetString})`;
-						}
-
-						targetString = 'String' + targetString;
-
+						// `target` was a call argument, don't need check parentheses
+						targetText = `String(${targetText})`;
+						// `CallExpression` don't need add parentheses to call `.startsWith()`
 						break;
+
+					// Goal: `target.startsWith(pattern)` or `target?.startsWith(pattern)`
 					case FIX_OPTIONAL_CHAINING:
+						// Optional chaining: `target.startsWith` => `target?.startsWith`
+						yield fixer.replaceText(sourceCode.getTokenBefore(node.callee.property), '?.');
+						// fallthrough
 					default:
-						// Standard autofix: target.startsWith(pattern)
-						if (!isRegexParenthesized && (isTargetParenthesized || shouldAddParenthesesToMemberExpressionObject(target, sourceCode))) {
-							targetString = `(${targetString})`;
+						if (
+							!isRegexParenthesized &&
+							!isTargetParenthesized &&
+							shouldAddParenthesesToMemberExpressionObject(target, sourceCode)
+						) {
+							targetText = addParentheses(targetText);
 						}
 				}
 
 				// The regex literal always starts with `/` or `(`, so we don't need check ASI
 
 				// Replace regex with string
-				yield fixer.replaceText(regexNode, targetString);
+				yield fixer.replaceText(regexNode, targetText);
 
 				// `.test` => `.startsWith` / `.endsWith`
 				yield fixer.replaceText(node.callee.property, method);
 
-				// Optional chaining: target.startsWith => target?.startsWith
-				if (fixType === FIX_OPTIONAL_CHAINING) {
-					yield fixer.replaceText(sourceCode.getTokenBefore(node.callee.property), '?.');
-				}
-
 				// Replace argument with result.string
-				yield fixer.replaceText(target, quoteString(result.string));
+				yield fixer.replaceTextRange(getParenthesizedRange(target, sourceCode), quoteString(result.string));
 			}
 
 			context.report({
