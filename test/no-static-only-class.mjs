@@ -68,7 +68,6 @@ test.snapshot({
 
 const noFixingCase = code => ({
 	code,
-	output: code,
 	errors: 1
 });
 

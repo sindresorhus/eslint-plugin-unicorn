@@ -437,7 +437,7 @@ test({
 					};
 				};
 			`,
-			errors: [createError('function')]
+			errors: [createError('function \'doBar\'')]
 		},
 		{
 			code: outdent`
@@ -447,7 +447,7 @@ test({
 					};
 				}
 			`,
-			errors: [createError('function')]
+			errors: [createError('function \'doBar\'')]
 		},
 		{
 			code: outdent`
@@ -458,7 +458,7 @@ test({
 					doBar();
 				}
 			`,
-			errors: [createError('function')]
+			errors: [createError('function \'doBar\'')]
 		},
 		{
 			code: outdent`

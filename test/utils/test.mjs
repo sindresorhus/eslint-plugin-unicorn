@@ -8,6 +8,23 @@ import defaultParserOptions from './default-parser-options.mjs';
 
 const require = createRequire(import.meta.url);
 
+function normalizeInvalidTest(test) {
+	const {code, output} = test;
+
+	if (code === output) {
+		console.log(JSON.stringify(test, undefined, 2));
+		throw new Error('Remove output if your test do not fix code.');
+	}
+
+	return {
+		// Use `null` instead of `code` to get a better message
+		// See https://github.com/eslint/eslint/blob/8a77b661bc921c3408bae01b3aa41579edfc6e58/lib/rule-tester/rule-tester.js#L847-L853
+		// eslint-disable-next-line unicorn/no-null
+		output: null,
+		...test
+	};
+}
+
 class Tester {
 	constructor(ruleId) {
 		this.ruleId = ruleId;
@@ -15,12 +32,19 @@ class Tester {
 	}
 
 	runTest(tests) {
-		const {testerOptions, invalid, valid} = tests;
+		const {testerOptions, valid, invalid} = tests;
 		const tester = avaRuleTester(test, {
 			parserOptions: defaultParserOptions,
 			...testerOptions
 		});
-		return tester.run(this.ruleId, this.rule, {invalid, valid});
+		return tester.run(
+			this.ruleId,
+			this.rule,
+			{
+				valid,
+				invalid: invalid.map(test => normalizeInvalidTest(test))
+			}
+		);
 	}
 
 	typescript(tests) {

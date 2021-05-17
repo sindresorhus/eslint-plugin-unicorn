@@ -371,7 +371,7 @@ module.exports = {
 			description: 'Enforce specific import styles per module.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages,
-		schema
+		schema,
+		messages
 	}
 };

@@ -121,9 +121,7 @@ const multipleCallNodeTypes = new Set([
 	'DoWhileStatement',
 	'FunctionDeclaration',
 	'FunctionExpression',
-	'ArrowFunctionExpression',
-	'ObjectMethod',
-	'ClassMethod'
+	'ArrowFunctionExpression'
 ]);
 
 const isMultipleCall = (identifier, node) => {
@@ -216,7 +214,7 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages,
-		schema: []
+		schema: [],
+		messages
 	}
 };

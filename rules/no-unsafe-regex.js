@@ -62,7 +62,7 @@ module.exports = {
 			description: 'Disallow unsafe regular expressions.',
 			url: getDocumentationUrl(__filename)
 		},
-		messages,
-		schema: []
+		schema: [],
+		messages
 	}
 };

@@ -62,12 +62,10 @@ test({
 		},
 		{
 			code: 'const foo = node.appendChild(child);',
-			output: 'const foo = node.appendChild(child);',
 			errors: [error]
 		},
 		{
 			code: 'console.log(node.appendChild(child));',
-			output: 'console.log(node.appendChild(child));',
 			errors: [error]
 		},
 		{
@@ -77,57 +75,46 @@ test({
 		},
 		{
 			code: 'node.appendChild(child) || "foo";',
-			output: 'node.appendChild(child) || "foo";',
 			errors: [error]
 		},
 		{
 			code: 'node.appendChild(child) + 0;',
-			output: 'node.appendChild(child) + 0;',
 			errors: [error]
 		},
 		{
 			code: 'node.appendChild(child) + 0;',
-			output: 'node.appendChild(child) + 0;',
 			errors: [error]
 		},
 		{
 			code: '+node.appendChild(child);',
-			output: '+node.appendChild(child);',
 			errors: [error]
 		},
 		{
 			code: 'node.appendChild(child) ? "foo" : "bar";',
-			output: 'node.appendChild(child) ? "foo" : "bar";',
 			errors: [error]
 		},
 		{
 			code: 'if (node.appendChild(child)) {}',
-			output: 'if (node.appendChild(child)) {}',
 			errors: [error]
 		},
 		{
 			code: 'const foo = [node.appendChild(child)]',
-			output: 'const foo = [node.appendChild(child)]',
 			errors: [error]
 		},
 		{
 			code: 'const foo = { bar: node.appendChild(child) }',
-			output: 'const foo = { bar: node.appendChild(child) }',
 			errors: [error]
 		},
 		{
 			code: 'function foo() { return node.appendChild(child); }',
-			output: 'function foo() { return node.appendChild(child); }',
 			errors: [error]
 		},
 		{
 			code: 'const foo = () => { return node.appendChild(child); }',
-			output: 'const foo = () => { return node.appendChild(child); }',
 			errors: [error]
 		},
 		{
 			code: 'foo(bar = node.appendChild(child))',
-			output: 'foo(bar = node.appendChild(child))',
 			errors: [error]
 		}
 	]

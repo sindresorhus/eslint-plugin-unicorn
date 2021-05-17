@@ -217,10 +217,10 @@ module.exports = {
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
+		schema: [],
 		messages: {
 			[MESSAGE_ID]: 'Prefer default parameters over reassignment.',
 			[MESSAGE_ID_SUGGEST]: 'Replace reassignment with default parameter.'
-		},
-		schema: []
+		}
 	}
 };

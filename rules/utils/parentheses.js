@@ -9,7 +9,13 @@ Get how many times the node is parenthesized.
 @returns {number}
 */
 function getParenthesizedTimes(node, sourceCode) {
+	// Workaround for https://github.com/mysticatea/eslint-utils/pull/25
+	if (!node.parent) {
+		return 0;
+	}
+
 	let times = 0;
+
 	while (isParenthesized(times + 1, node, sourceCode)) {
 		times++;
 	}
@@ -51,8 +57,21 @@ function getParenthesizedRange(node, sourceCode) {
 	return [start, end];
 }
 
+/*
+Get the parenthesized text of the node.
+
+@param {Node} node - The node to be checked.
+@param {SourceCode} sourceCode - The source code object.
+@returns {string}
+*/
+function getParenthesizedText(node, sourceCode) {
+	const [start, end] = getParenthesizedRange(node, sourceCode);
+	return sourceCode.text.slice(start, end);
+}
+
 module.exports = {
 	getParenthesizedTimes,
 	getParentheses,
-	getParenthesizedRange
+	getParenthesizedRange,
+	getParenthesizedText
 };

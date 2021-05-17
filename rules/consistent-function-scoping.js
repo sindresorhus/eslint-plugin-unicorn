@@ -187,7 +187,7 @@ const create = context => {
 				loc: getFunctionHeadLocation(node, sourceCode),
 				messageId: MESSAGE_ID,
 				data: {
-					functionNameWithKind: getFunctionNameWithKind(node)
+					functionNameWithKind: getFunctionNameWithKind(node, sourceCode)
 				}
 			});
 		}
