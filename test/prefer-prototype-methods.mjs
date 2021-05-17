@@ -78,5 +78,5 @@ test.babel({
 			output: 'Array.prototype[Symbol.iterator].call(foo)',
 			errors: [{message: 'Prefer using `Array.prototype.Symbol(Symbol.iterator)`.'}]
 		}
-	].map(test => ({output: test.code, ...test}))
+	]
 });
