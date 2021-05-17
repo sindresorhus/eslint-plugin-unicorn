@@ -40,7 +40,7 @@
 		"ci-info": "^3.1.1",
 		"clean-regexp": "^1.0.0",
 		"eslint-template-visitor": "^2.3.2",
-		"eslint-utils": "^2.1.0",
+		"eslint-utils": "^3.0.0",
 		"import-modules": "^2.1.0",
 		"is-builtin-module": "^3.1.0",
 		"lodash": "^4.17.21",
