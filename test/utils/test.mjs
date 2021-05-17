@@ -115,10 +115,10 @@ function getTester(importMeta) {
 	const filename = url.fileURLToPath(importMeta.url);
 	const ruleId = path.basename(filename, '.mjs');
 	const tester = new Tester(ruleId);
-	const test = tester.runTest.bind(tester);
-	test.typescript = tester.typescript.bind(tester);
-	test.babel = tester.babel.bind(tester);
-	test.snapshot = tester.snapshot.bind(tester);
+	const test = Tester.prototype.runTest.bind(tester);
+	test.typescript = Tester.prototype.typescript.bind(tester);
+	test.babel = Tester.prototype.babel.bind(tester);
+	test.snapshot = Tester.prototype.snapshot.bind(tester);
 
 	return {
 		ruleId,

@@ -102,6 +102,7 @@ module.exports = {
 				'unicorn/prefer-node-protocol': 'error',
 				'unicorn/prefer-number-properties': 'error',
 				'unicorn/prefer-optional-catch-binding': 'error',
+				'unicorn/prefer-prototype-methods': 'error',
 				'unicorn/prefer-query-selector': 'error',
 				'unicorn/prefer-reflect-apply': 'error',
 				'unicorn/prefer-regexp-test': 'error',
