@@ -76,12 +76,10 @@ test({
 		// String in variable. Don't autofix known, non-strings which don't have a startsWith/endsWith function.
 		{
 			code: 'const foo = {}; /^abc/.test(foo);',
-			output: null,
 			errors: [{messageId: MESSAGE_STARTS_WITH}]
 		},
 		{
 			code: 'const foo = 123; /^abc/.test(foo);',
-			output: null,
 			errors: [{messageId: MESSAGE_STARTS_WITH}]
 		},
 		{

@@ -64,8 +64,6 @@ const create = context => {
 				return;
 			}
 
-
-
 			context.report({
 				node,
 				messageId: result.messageId,
