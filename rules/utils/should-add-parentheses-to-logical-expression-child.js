@@ -26,7 +26,7 @@ function shouldAddParenthesesToLogicalExpressionChild(node, {operator, property}
 
 	/* istanbul ignore next: When operator or property is different, need more logic here, not implemented */
 	if (operator !== '??' || property !== 'left') {
-		throw new Error('Unsupported.')
+		throw new Error('Not supported.');
 	}
 
 	return false;

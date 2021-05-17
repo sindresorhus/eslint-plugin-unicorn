@@ -5,7 +5,6 @@ const methodSelector = require('./utils/method-selector');
 const quoteString = require('./utils/quote-string');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child');
-const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before');
 const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
@@ -111,7 +110,7 @@ const create = context => {
 					case FIX_OPTIONAL_CHAINING:
 						// Optional chaining: `target.startsWith` => `target?.startsWith`
 						yield fixer.replaceText(sourceCode.getTokenBefore(node.callee.property), '?.');
-						// fallthrough
+						// Fallthrough
 					default:
 						if (
 							!isRegexParenthesized &&
