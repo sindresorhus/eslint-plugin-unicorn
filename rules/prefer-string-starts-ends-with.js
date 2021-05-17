@@ -64,17 +64,19 @@ const create = context => {
 				return;
 			}
 
-			const [target] = node.arguments;
-			const staticValue = getStaticValue(target, context.getScope());
-			if (staticValue && typeof staticValue.value !== 'string') {
-				// Ignore known, non-string value which won't have a startsWith/endsWith function.
-				return;
-			}
+
 
 			context.report({
 				node,
 				messageId: result.messageId,
 				fix: fixer => {
+					const [target] = node.arguments;
+					const staticValue = getStaticValue(target, context.getScope());
+					if (staticValue && typeof staticValue.value !== 'string') {
+						// Ignore known, non-string value which won't have a startsWith/endsWith function.
+						return;
+					}
+
 					const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 					let targetString = sourceCode.getText(target);
 
