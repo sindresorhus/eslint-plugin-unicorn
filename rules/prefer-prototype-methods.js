@@ -4,7 +4,7 @@ const methodSelector = require('./utils/method-selector');
 const getPropertyName = require('./utils/get-property-name');
 
 const messages = {
-	'known-constructor-known-method': 'Prefer use `{{constructorName}}.prototype.{{methodName}}`.',
+	'known-constructor-known-method': 'Prefer using `{{constructorName}}.prototype.{{methodName}}`.',
 	'known-constructor-unknown-method': 'Prefer use method from `{{constructorName}}.prototype`.',
 	'unknown-constructor-known-method': 'Prefer use `{{methodName}}` method from the constructor prototype.',
 	'unknown-constructor-unknown-method': 'Prefer use method from the constructor prototype.'
@@ -100,7 +100,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer use methods from the prototype instead of methods from an instance.',
+			description: 'Prefer borrowing methods from the prototype instead of the instance.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
