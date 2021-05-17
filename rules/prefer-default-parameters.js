@@ -24,7 +24,7 @@ const isDefaultExpression = (left, right) =>
 	right.left.type === 'Identifier' &&
 	right.right.type === 'Literal';
 
-const containsCallExpression = (source, node) => {
+const containsCallExpression = (sourceCode, node) => {
 	if (!node) {
 		return false;
 	}
@@ -33,18 +33,18 @@ const containsCallExpression = (source, node) => {
 		return true;
 	}
 
-	const keys = source.visitorKeys[node.type];
+	const keys = sourceCode.visitorKeys[node.type];
 
 	for (const key of keys) {
 		const value = node[key];
 
 		if (Array.isArray(value)) {
 			for (const element of value) {
-				if (containsCallExpression(source, element)) {
+				if (containsCallExpression(sourceCode, element)) {
 					return true;
 				}
 			}
-		} else if (containsCallExpression(source, value)) {
+		} else if (containsCallExpression(sourceCode, value)) {
 			return true;
 		}
 	}
@@ -52,14 +52,14 @@ const containsCallExpression = (source, node) => {
 	return false;
 };
 
-const hasSideEffects = (source, function_, node) => {
+const hasSideEffects = (sourceCode, function_, node) => {
 	for (const element of function_.body.body) {
 		if (element === node) {
 			break;
 		}
 
 		// Function call before default-assignment
-		if (containsCallExpression(source, element)) {
+		if (containsCallExpression(sourceCode, element)) {
 			return true;
 		}
 	}
@@ -88,30 +88,31 @@ const isLastParameter = (parameters, parameter) => {
 	return parameter && parameter === lastParameter;
 };
 
-const needsParentheses = (source, function_) => {
+const needsParentheses = (sourceCode, function_) => {
 	if (function_.type !== 'ArrowFunctionExpression' || function_.params.length > 1) {
 		return false;
 	}
 
 	const [parameter] = function_.params;
-	const before = source.getTokenBefore(parameter);
-	const after = source.getTokenAfter(parameter);
+	const before = sourceCode.getTokenBefore(parameter);
+	const after = sourceCode.getTokenAfter(parameter);
 
 	return !after || !before || before.value !== '(' || after.value !== ')';
 };
 
-const fixDefaultExpression = (fixer, source, node) => {
-	const {line} = source.getLocFromIndex(node.range[0]);
-	const {column} = source.getLocFromIndex(node.range[1]);
-	const nodeText = source.getText(node);
-	const lineText = source.lines[line - 1];
+/** @param {import('eslint').Rule.RuleFixer} fixer */
+const fixDefaultExpression = (fixer, sourceCode, node) => {
+	const {line} = node.loc.start;
+	const {column} = node.loc.end;
+	const nodeText = sourceCode.getText(node);
+	const lineText = sourceCode.lines[line - 1];
 	const isOnlyNodeOnLine = lineText.trim() === nodeText;
 	const endsWithWhitespace = lineText[column] === ' ';
 
 	if (isOnlyNodeOnLine) {
 		return fixer.removeRange([
-			source.getIndexFromLoc({line, column: 0}),
-			source.getIndexFromLoc({line: line + 1, column: 0})
+			sourceCode.getIndexFromLoc({line, column: 0}),
+			sourceCode.getIndexFromLoc({line: line + 1, column: 0})
 		]);
 	}
 
@@ -122,11 +123,11 @@ const fixDefaultExpression = (fixer, source, node) => {
 		]);
 	}
 
-	return fixer.removeRange(node.range);
+	return fixer.remove(node);
 };
 
 const create = context => {
-	const source = context.getSourceCode();
+	const sourceCode = context.getSourceCode();
 	const functionStack = [];
 
 	const checkExpression = (node, left, right, assignment) => {
@@ -164,14 +165,14 @@ const create = context => {
 		);
 
 		if (
-			hasSideEffects(source, currentFunction, node) ||
+			hasSideEffects(sourceCode, currentFunction, node) ||
 			hasExtraReferences(assignment, references, left) ||
 			!isLastParameter(params, parameter)
 		) {
 			return;
 		}
 
-		const replacement = needsParentheses(source, currentFunction) ?
+		const replacement = needsParentheses(sourceCode, currentFunction) ?
 			`(${firstId} = ${literal})` :
 			`${firstId} = ${literal}`;
 
@@ -182,7 +183,7 @@ const create = context => {
 				messageId: MESSAGE_ID_SUGGEST,
 				fix: fixer => [
 					fixer.replaceText(parameter, replacement),
-					fixDefaultExpression(fixer, source, node)
+					fixDefaultExpression(fixer, sourceCode, node)
 				]
 			}]
 		});

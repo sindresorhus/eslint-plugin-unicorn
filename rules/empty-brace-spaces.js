@@ -1,6 +1,7 @@
 'use strict';
 const {isOpeningBraceToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const toLocation = require('./utils/to-location');
 
 const MESSAGE_ID = 'empty-brace-spaces';
 const messages = {
@@ -24,15 +25,14 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 	return {
 		[selector](node) {
+			const text = sourceCode.getText(node);
+
 			let startOffset = 1;
 			let endOffset = -1;
-
 			switch (node.type) {
 				case 'RecordExpression': {
 					startOffset = 2;
-					const [start] = node.range;
-					const firstTwoCharacters = sourceCode.text.slice(start, start + 2);
-					if (firstTwoCharacters === '{|') {
+					if (text.startsWith('{|')) {
 						endOffset = -2;
 					}
 
@@ -47,20 +47,17 @@ const create = context => {
 				// No default
 			}
 
-			const start = node.range[0] + startOffset;
-			const end = node.range[1] + endOffset;
-
-			if (!/^\s+$/.test(sourceCode.text.slice(start, end))) {
+			if (!/^\s+$/.test(text.slice(startOffset, endOffset))) {
 				return;
 			}
 
+			const start = node.range[0] + startOffset;
+			const end = node.range[1] + endOffset;
+			const range = [start, end];
 			context.report({
-				loc: {
-					start: sourceCode.getLocFromIndex(start),
-					end: sourceCode.getLocFromIndex(end)
-				},
+				loc: toLocation(range, sourceCode),
 				messageId: MESSAGE_ID,
-				fix: fixer => fixer.replaceTextRange([start, end], '')
+				fix: fixer => fixer.removeRange(range)
 			});
 		}
 	};

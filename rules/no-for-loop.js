@@ -5,6 +5,7 @@ const isLiteralValue = require('./utils/is-literal-value');
 const avoidCapture = require('./utils/avoid-capture');
 const getChildScopesRecursive = require('./utils/get-child-scopes-recursive');
 const singular = require('./utils/singular');
+const toLocation = require('./utils/to-location');
 
 const MESSAGE_ID = 'no-for-loop';
 const messages = {
@@ -164,7 +165,7 @@ const getRemovalRange = (node, sourceCode) => {
 	const declarationNode = node.parent;
 
 	if (declarationNode.declarations.length === 1) {
-		const {line} = sourceCode.getLocFromIndex(declarationNode.range[0]);
+		const {line} = declarationNode.loc.start;
 		const lineText = sourceCode.lines[line - 1];
 
 		const isOnlyNodeOnLine = lineText.trim() === sourceCode.getText(declarationNode);
@@ -330,10 +331,7 @@ const create = context => {
 			const [, end] = sourceCode.getTokenBefore(node.body, isClosingParenToken).range;
 
 			const problem = {
-				loc: {
-					start: sourceCode.getLocFromIndex(start),
-					end: sourceCode.getLocFromIndex(end)
-				},
+				loc: toLocation([start, end], sourceCode),
 				messageId: MESSAGE_ID
 			};
 
