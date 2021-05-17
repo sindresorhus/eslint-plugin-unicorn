@@ -176,93 +176,6 @@ test({
 					}
 				]
 			}]
-		},
-		// Comments
-		{
-			code: outdent`
-				if (
-					/* comment 1 */
-					/^b/
-					/* comment 2 */
-					.test
-					/* comment 3 */
-					(
-						/* comment 4 */
-						foo
-						/* comment 5 */
-					)
-				) {}
-			`,
-			output: outdent`
-				if (
-					/* comment 1 */
-					foo
-					/* comment 2 */
-					.startsWith
-					/* comment 3 */
-					(
-						/* comment 4 */
-						'b'
-						/* comment 5 */
-					)
-				) {}
-			`,
-			errors: [{
-				messageId: MESSAGE_STARTS_WITH,
-				suggestions: [
-					{
-						messageId: SUGGEST_STRING_CAST,
-						output: outdent`
-							if (
-								/* comment 1 */
-								String(foo)
-								/* comment 2 */
-								.startsWith
-								/* comment 3 */
-								(
-									/* comment 4 */
-									'b'
-									/* comment 5 */
-								)
-							) {}
-						`
-					},
-					{
-						messageId: SUGGEST_OPTIONAL_CHAINING,
-						output: outdent`
-							if (
-								/* comment 1 */
-								foo
-								/* comment 2 */
-								?.startsWith
-								/* comment 3 */
-								(
-									/* comment 4 */
-									'b'
-									/* comment 5 */
-								)
-							) {}
-						`
-					},
-					{
-						messageId: SUGGEST_NULLISH_COALESCING,
-						output: outdent`
-							if (
-								/* comment 1 */
-								(foo ?? '')
-								/* comment 2 */
-								.startsWith
-								/* comment 3 */
-								(
-									/* comment 4 */
-									'b'
-									/* comment 5 */
-								)
-							) {}
-						`
-					}
-				]
-			}]
 		}
 	]
 });
@@ -291,6 +204,32 @@ test.snapshot({
 		'/^a/.test(true ? a : b)',
 		'/^a/.test(a ??= b)',
 		'/^a/.test(a || b)',
-		'/^a/.test(a && b)'
+		'/^a/.test(a && b)',
+		outdent`
+			/* 1 */
+			(
+				/* 2 */
+				(
+					/* 3 */
+					/^a/
+					/* 4 */
+				)
+				/* 5 */
+			)
+			/* 6 */
+			. /* 7 */ test /* 8 */ (
+				/* 9 */
+				(
+					/* 10 */
+					(
+						/* 11 */
+						a
+						/* 12 */
+					)
+					/* 13 */
+				)
+				/* 14 */
+			) /* 15 */
+		`
 	]
 });
