@@ -1,7 +1,7 @@
 'use strict';
 
 /**
-Get location info for given node or range.
+Get location info for the given node or range.
 
 @param {import('estree').Node | number[]} nodeOrRange - The AST node or range to get the location for.
 @param {import('eslint').SourceCode} sourceCode - The source code object.
