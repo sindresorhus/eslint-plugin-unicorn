@@ -1,6 +1,6 @@
 # Prefer borrowing methods from the prototype instead of methods from an instance.
 
-When "borrow" a method from different objects (especially generic methods from `Array`), it's more clear to use it from the constructor prototype.
+When “borrowing” a method from a different object (especially generic methods from `Array`), it‘s clearer to get it from the prototype than from an instance.
 
 This rule is fixable when using method from `[]` or `{}`.
 
