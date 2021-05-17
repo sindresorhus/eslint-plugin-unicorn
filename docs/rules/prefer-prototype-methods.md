@@ -1,4 +1,4 @@
-# Prefer use methods from the prototype instead of methods from an instance.
+# Prefer borrowing methods from the prototype instead of methods from an instance.
 
 When "borrow" a method from different objects (especially generic methods from `Array`), it's more clear to use it from the constructor prototype.
 
@@ -37,11 +37,11 @@ Foo.prototype.bar.call(baz);
 ```
 
 ```js
-Reflect.apply(Array.prototype.forEach, arrayLike, [callback]);
+foo.constructor.prototype.bar.call(baz);
 ```
 
 ```js
-foo.constructor.prototype.bar.call(baz);
+Reflect.apply(Array.prototype.forEach, arrayLike, [callback]);
 ```
 
 ```js

@@ -5,9 +5,9 @@ const getPropertyName = require('./utils/get-property-name');
 
 const messages = {
 	'known-constructor-known-method': 'Prefer using `{{constructorName}}.prototype.{{methodName}}`.',
-	'known-constructor-unknown-method': 'Prefer use method from `{{constructorName}}.prototype`.',
-	'unknown-constructor-known-method': 'Prefer use `{{methodName}}` method from the constructor prototype.',
-	'unknown-constructor-unknown-method': 'Prefer use method from the constructor prototype.'
+	'known-constructor-unknown-method': 'Prefer using method from `{{constructorName}}.prototype`.',
+	'unknown-constructor-known-method': 'Prefer using `{{methodName}}` method from the constructor prototype.',
+	'unknown-constructor-unknown-method': 'Prefer using method from the constructor prototype.'
 };
 
 const functionMethodsSelector = [
