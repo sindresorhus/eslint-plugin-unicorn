@@ -7,8 +7,11 @@ Check if parentheses should be added to a `node` when it's used as child of `Log
 @returns {boolean}
 */
 function shouldAddParenthesesToLogicalExpressionChild(node, {operator, property}) {
-	// This is not really needed, but more readable
-	if (node.type === 'AwaitExpression') {
+	// Not really needed, but more readable
+	if (
+		node.type === 'AwaitExpression' ||
+		node.type === 'BinaryExpression'
+	) {
 		return true;
 	}
 
