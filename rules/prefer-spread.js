@@ -401,7 +401,7 @@ const create = context => {
 			context.report(problem);
 		},
 		[arraySliceCallSelector](node) {
-			if (isNodeMatches(node.callee, ignoredSliceCallee)) {
+			if (isNodeMatches(node.callee.object, ignoredSliceCallee)) {
 				return;
 			}
 
