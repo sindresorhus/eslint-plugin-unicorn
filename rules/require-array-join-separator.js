@@ -3,7 +3,7 @@ const {isCommaToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 
-const MESSAGE_ID = 'array-join-separator';
+const MESSAGE_ID = 'require-array-join-separator';
 const messages = {
 	[MESSAGE_ID]: 'Missing the separator argument.'
 };
