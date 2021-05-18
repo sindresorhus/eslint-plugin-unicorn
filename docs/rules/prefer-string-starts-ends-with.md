@@ -2,7 +2,7 @@
 
 Prefer [`String#startsWith()`](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith) and [`String#endsWith()`](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith) over using a regex with `/^foo/` or `/foo$/`.
 
-This rule is fixable.
+This rule is fixable, unless the matching object is known not a string.
 
 ## Fail
 
@@ -22,6 +22,18 @@ const foo = baz.startsWith('bar');
 
 ```js
 const foo = baz.endsWith('bar');
+```
+
+```js
+const foo = baz?.startsWith('bar');
+```
+
+```js
+const foo = (baz ?? '').startsWith('bar');
+```
+
+```js
+const foo = String(baz).startsWith('bar');
 ```
 
 ```js

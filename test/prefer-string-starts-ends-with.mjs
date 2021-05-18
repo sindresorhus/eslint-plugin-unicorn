@@ -5,6 +5,9 @@ const {test} = getTester(import.meta);
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
+const FIX_TYPE_STRING_CASTING = 'useStringCasting';
+const FIX_TYPE_OPTIONAL_CHAINING = 'useOptionalChaining';
+const FIX_TYPE_NULLISH_COALESCING = 'useNullishCoalescing';
 
 const validRegex = [
 	/foo/,
@@ -70,7 +73,23 @@ test({
 			return {
 				code: `${re}.test(bar)`,
 				output: `bar.${method}('${string}')`,
-				errors: [{messageId}]
+				errors: [{
+					messageId,
+					suggestions: [
+						{
+							messageId: FIX_TYPE_STRING_CASTING,
+							output: `String(bar).${method}('${string}')`
+						},
+						{
+							messageId: FIX_TYPE_OPTIONAL_CHAINING,
+							output: `bar?.${method}('${string}')`
+						},
+						{
+							messageId: FIX_TYPE_NULLISH_COALESCING,
+							output: `(bar ?? '').${method}('${string}')`
+						}
+					]
+				}]
 			};
 		}),
 		// String in variable. Don't autofix known, non-strings which don't have a startsWith/endsWith function.
@@ -89,56 +108,88 @@ test({
 		},
 		// Parenthesized
 		{
-			code: '/^b/.test(("a"))',
-			output: '("a").startsWith((\'b\'))',
-			errors: [{messageId: MESSAGE_STARTS_WITH}]
+			code: '/^b/.test((a))',
+			output: '(a).startsWith(\'b\')',
+			errors: [{
+				messageId: MESSAGE_STARTS_WITH,
+				suggestions: [
+					{
+						messageId: FIX_TYPE_STRING_CASTING,
+						output: 'String((a)).startsWith(\'b\')'
+					},
+					{
+						messageId: FIX_TYPE_OPTIONAL_CHAINING,
+						output: '(a)?.startsWith(\'b\')'
+					},
+					{
+						messageId: FIX_TYPE_NULLISH_COALESCING,
+						output: '((a) ?? \'\').startsWith(\'b\')'
+					}
+				]
+			}]
 		},
 		{
-			code: '(/^b/).test(("a"))',
-			output: '("a").startsWith((\'b\'))',
-			errors: [{messageId: MESSAGE_STARTS_WITH}]
+			code: '(/^b/).test((a))',
+			output: '((a)).startsWith(\'b\')',
+			errors: [{
+				messageId: MESSAGE_STARTS_WITH,
+				suggestions: [
+					{
+						messageId: FIX_TYPE_STRING_CASTING,
+						output: '(String((a))).startsWith(\'b\')'
+					},
+					{
+						messageId: FIX_TYPE_OPTIONAL_CHAINING,
+						output: '((a))?.startsWith(\'b\')'
+					},
+					{
+						messageId: FIX_TYPE_NULLISH_COALESCING,
+						output: '((a) ?? \'\').startsWith(\'b\')'
+					}
+				]
+			}]
 		},
 		{
 			code: 'const fn = async () => /^b/.test(await foo)',
 			output: 'const fn = async () => (await foo).startsWith(\'b\')',
-			errors: [{messageId: MESSAGE_STARTS_WITH}]
+			errors: [{
+				messageId: MESSAGE_STARTS_WITH,
+				suggestions: [
+					{
+						messageId: FIX_TYPE_STRING_CASTING,
+						output: 'const fn = async () => String(await foo).startsWith(\'b\')'
+					},
+					{
+						messageId: FIX_TYPE_OPTIONAL_CHAINING,
+						output: 'const fn = async () => (await foo)?.startsWith(\'b\')'
+					},
+					{
+						messageId: FIX_TYPE_NULLISH_COALESCING,
+						output: 'const fn = async () => ((await foo) ?? \'\').startsWith(\'b\')'
+					}
+				]
+			}]
 		},
 		{
 			code: 'const fn = async () => (/^b/).test(await foo)',
 			output: 'const fn = async () => (await foo).startsWith(\'b\')',
-			errors: [{messageId: MESSAGE_STARTS_WITH}]
-		},
-		// Comments
-		{
-			code: outdent`
-				if (
-					/* comment 1 */
-					/^b/
-					/* comment 2 */
-					.test
-					/* comment 3 */
-					(
-						/* comment 4 */
-						foo
-						/* comment 5 */
-					)
-				) {}
-			`,
-			output: outdent`
-				if (
-					/* comment 1 */
-					foo
-					/* comment 2 */
-					.startsWith
-					/* comment 3 */
-					(
-						/* comment 4 */
-						'b'
-						/* comment 5 */
-					)
-				) {}
-			`,
-			errors: [{messageId: MESSAGE_STARTS_WITH}]
+			errors: [{
+				messageId: MESSAGE_STARTS_WITH,
+				suggestions: [
+					{
+						messageId: FIX_TYPE_STRING_CASTING,
+						output: 'const fn = async () => (String(await foo)).startsWith(\'b\')'
+					},
+					{
+						messageId: FIX_TYPE_OPTIONAL_CHAINING,
+						output: 'const fn = async () => (await foo)?.startsWith(\'b\')'
+					},
+					{
+						messageId: FIX_TYPE_NULLISH_COALESCING,
+						output: 'const fn = async () => ((await foo) ?? \'\').startsWith(\'b\')'
+					}
+				]
+			}]
 		}
 	]
 });
@@ -163,6 +214,39 @@ test.snapshot({
 		'/^a/.test(foo?.bar())',
 		'/^a/.test(`string`)',
 		'/^a/.test(tagged`string`)',
-		'(/^a/).test((0, "string"))'
+		'(/^a/).test((0, "string"))',
+		'/^a/.test(true ? a : b)',
+		'/a$/.test(a ??= b)',
+		'/^a/.test(a || b)',
+		'/^a/.test(a && b)',
+		// eslint-disable-next-line no-template-curly-in-string
+		'/a$/.test(`${unknown}`)',
+		'/a$/.test(String(unknown))',
+		outdent`
+			/* 1 */
+			(
+				/* 2 */
+				(
+					/* 3 */
+					/^a/
+					/* 4 */
+				)
+				/* 5 */
+			)
+			/* 6 */
+			. /* 7 */ test /* 8 */ (
+				/* 9 */
+				(
+					/* 10 */
+					(
+						/* 11 */
+						a
+						/* 12 */
+					)
+					/* 13 */
+				)
+				/* 14 */
+			) /* 15 */
+		`
 	]
 });
