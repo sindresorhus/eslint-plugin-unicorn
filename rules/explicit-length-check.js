@@ -151,7 +151,7 @@ function create(context) {
 
 	return {
 		[lengthSelector](lengthNode) {
-			if (lengthCheckNode.object.type === 'ThisExpression') {
+			if (lengthNode.object.type === 'ThisExpression') {
 				return;
 			}
 
