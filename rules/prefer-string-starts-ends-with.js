@@ -73,13 +73,13 @@ const create = context => {
 			}
 
 			function * fix(fixer, fixType) {
-       	const [target] = node.arguments;
+				const [target] = node.arguments;
 				const staticValue = getStaticValue(target, context.getScope());
 				if (staticValue && typeof staticValue.value !== 'string') {
 					// Ignore known, non-string value which won't have a startsWith/endsWith function.
-			  	return;
-			  }
-        
+					return;
+				}
+
 				const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 				let targetText = getParenthesizedText(target, sourceCode);
 				const isRegexParenthesized = isParenthesized(regexNode, sourceCode);
