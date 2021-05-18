@@ -10,23 +10,36 @@ jobs:
       fail-fast: false
       matrix:
         node-version:
+          - 16
           - 14
           - 12
         os:
           - ubuntu-latest
           - windows-latest
+        exclude:
+          - os: ubuntu-latest
+          - node-version: 16
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
-      - run: npm test
-        if: matrix.os != 'windows-latest'
       - run: npx ava
-        if: matrix.os == 'windows-latest'
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16
+      - run: npm install
+      - run: npx xo
+      - run: npx nyc ava -u
+      - run: npm run generate-rules-table
+      - run: npm run generate-usage-example
+      - run: git diff --exit-code --name-only
       - uses: codecov/codecov-action@v1
-        if: matrix.os == 'ubuntu-latest' && matrix.node-version == 14
         with:
           fail_ci_if_error: true
   run-rules-on-codebase:
@@ -34,8 +47,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
-        with:
-          node-version: 14
       - run: npm install
       - run: npm run run-rules-on-codebase
   integration:
@@ -43,9 +54,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
-        with:
-          node-version: 14
       - run: npm install
       - run: npm run integration
-      - run: npm run generate-rules-table && git diff --exit-code
-      - run: npm run generate-usage-example && git diff --exit-code
