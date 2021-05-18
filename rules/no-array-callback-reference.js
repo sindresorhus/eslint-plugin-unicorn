@@ -78,7 +78,8 @@ const ignoredCallee = [
 	'underscore',
 	'_',
 	'Async',
-	'async'
+	'async',
+	'this'
 ];
 
 function check(context, node, method, options) {
@@ -155,10 +156,7 @@ const create = context => {
 		].join('');
 
 		rules[selector] = node => {
-			if (
-				isNodeMatches(node.callee.object, ignoredCallee) ||
-				node.callee.object.type === 'ThisExpression'
-			) {
+			if (isNodeMatches(node.callee.object, ignoredCallee)) {
 				return;
 			}
 
