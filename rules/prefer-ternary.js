@@ -6,6 +6,8 @@ const extendFixRange = require('./utils/extend-fix-range');
 const needsSemicolon = require('./utils/needs-semicolon');
 const isSameReference = require('./utils/is-same-reference');
 const getIndentString = require('./utils/get-indent-string');
+const {getParenthesizedText} = require('./utils/parentheses');
+const shouldAddParenthesesToConditionalExpressionChild = require('./utils/should-add-parentheses-to-conditional-expression-child');
 
 const messageId = 'prefer-ternary';
 
@@ -44,6 +46,8 @@ const getScopes = scope => [
 	...scope.childScopes.flatMap(scope => getScopes(scope))
 ];
 
+const isSingleLineNode = node => node.loc.start.line === node.loc.end.line;
+
 const create = context => {
 	const onlySingleLine = context.options[0] === 'only-single-line';
 	const sourceCode = context.getSourceCode();
@@ -53,22 +57,16 @@ const create = context => {
 		return !generatedNames || !generatedNames.has(name);
 	});
 
-	const getParenthesizedText = node => {
-		const text = sourceCode.getText(node);
-		return (
-			isParenthesized(node, sourceCode) ||
-			node.type === 'AwaitExpression' ||
-			// Lower precedence, see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
-			node.type === 'AssignmentExpression' ||
-			node.type === 'YieldExpression' ||
-			node.type === 'SequenceExpression'
-		) ?
-			`(${text})` : text;
-	};
+	const getText = node => {
+		let text = getParenthesizedText(node, sourceCode);
+		if (
+			!isParenthesized(node, sourceCode) &&
+			shouldAddParenthesesToConditionalExpressionChild(node)
+		) {
+			text = `(${text})`;
+		}
 
-	const isSingleLineNode = node => {
-		const [start, end] = node.range.map(index => sourceCode.getLocFromIndex(index));
-		return start.line === end.line;
+		return text;
 	};
 
 	function merge(options, mergeOptions) {
@@ -206,13 +204,13 @@ const create = context => {
 				node,
 				messageId,
 				* fix(fixer) {
-					const testText = getParenthesizedText(node.test);
+					const testText = getText(node.test);
 					const consequentText = typeof result.consequent === 'string' ?
 						result.consequent :
-						getParenthesizedText(result.consequent);
+						getText(result.consequent);
 					const alternateText = typeof result.alternate === 'string' ?
 						result.alternate :
-						getParenthesizedText(result.alternate);
+						getText(result.alternate);
 
 					let {type, before, after} = result;
 

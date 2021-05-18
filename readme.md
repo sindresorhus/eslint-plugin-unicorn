@@ -98,6 +98,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-node-protocol": "error",
 			"unicorn/prefer-number-properties": "error",
 			"unicorn/prefer-optional-catch-binding": "error",
+			"unicorn/prefer-prototype-methods": "error",
 			"unicorn/prefer-query-selector": "error",
 			"unicorn/prefer-reflect-apply": "error",
 			"unicorn/prefer-regexp-test": "error",
@@ -193,6 +194,7 @@ Each rule has emojis denoting:
 | [prefer-node-protocol](docs/rules/prefer-node-protocol.md) | Prefer using the `node:` protocol when importing Node.js builtin modules. | ✅ | 🔧 |
 | [prefer-number-properties](docs/rules/prefer-number-properties.md) | Prefer `Number` static properties over global ones. | ✅ | 🔧 |
 | [prefer-optional-catch-binding](docs/rules/prefer-optional-catch-binding.md) | Prefer omitting the `catch` binding parameter. | ✅ | 🔧 |
+| [prefer-prototype-methods](docs/rules/prefer-prototype-methods.md) | Prefer borrowing methods from the prototype instead of the instance. | ✅ | 🔧 |
 | [prefer-query-selector](docs/rules/prefer-query-selector.md) | Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. | ✅ | 🔧 |
 | [prefer-reflect-apply](docs/rules/prefer-reflect-apply.md) | Prefer `Reflect.apply()` over `Function#apply()`. | ✅ | 🔧 |
 | [prefer-regexp-test](docs/rules/prefer-regexp-test.md) | Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`. | ✅ | 🔧 |

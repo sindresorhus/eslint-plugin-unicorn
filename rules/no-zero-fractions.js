@@ -3,6 +3,7 @@ const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const needsSemicolon = require('./utils/needs-semicolon');
 const {isNumber, isDecimalInteger} = require('./utils/numeric');
+const toLocation = require('./utils/to-location');
 
 const MESSAGE_ZERO_FRACTION = 'zero-fraction';
 const MESSAGE_DANGLING_DOT = 'dangling-dot';
@@ -38,10 +39,7 @@ const create = context => {
 			const start = end - (raw.length - formatted.length);
 			const sourceCode = context.getSourceCode();
 			context.report({
-				loc: {
-					start: sourceCode.getLocFromIndex(start),
-					end: sourceCode.getLocFromIndex(end)
-				},
+				loc: toLocation([start, end], sourceCode),
 				messageId: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
 				fix: fixer => {
 					let fixed = formatted;

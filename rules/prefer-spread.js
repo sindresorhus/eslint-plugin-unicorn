@@ -3,7 +3,7 @@ const {isParenthesized, getStaticValue, isCommaToken, hasSideEffect} = require('
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
-const {getParenthesizedRange} = require('./utils/parentheses');
+const {getParenthesizedRange, getParenthesizedText} = require('./utils/parentheses');
 const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument');
 const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before');
 const removeSpacesAfter = require('./utils/remove-spaces-after');
@@ -111,8 +111,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 					return getArrayLiteralElementsText(node, node === lastArgument.node);
 				}
 
-				const [start, end] = getParenthesizedRange(node, sourceCode);
-				let text = sourceCode.text.slice(start, end);
+				let text = getParenthesizedText(node, sourceCode);
 
 				if (testArgument) {
 					return `...(Array.isArray(${text}) ? ${text} : [${text}])`;

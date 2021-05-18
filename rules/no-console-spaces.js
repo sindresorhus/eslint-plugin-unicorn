@@ -1,6 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
+const toLocation = require('./utils/to-location');
 
 const MESSAGE_ID = 'no-console-spaces';
 const messages = {
@@ -33,15 +34,13 @@ const create = context => {
 		const index = position === 'leading' ?
 			node.range[0] + 1 :
 			node.range[1] - 2;
+		const range = [index, index + 1];
 
 		context.report({
-			loc: {
-				start: sourceCode.getLocFromIndex(index),
-				end: sourceCode.getLocFromIndex(index + 1)
-			},
+			loc: toLocation(range, sourceCode),
 			messageId: MESSAGE_ID,
 			data: {method, position},
-			fix: fixer => fixer.removeRange([index, index + 1])
+			fix: fixer => fixer.removeRange(range)
 		});
 	};
 

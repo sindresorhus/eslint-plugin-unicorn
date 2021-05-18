@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized} = require('eslint-utils');
+const {isParenthesized, getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 const isLogicalExpression = require('./utils/is-logical-expression');
@@ -153,6 +153,12 @@ function create(context) {
 		[lengthSelector](lengthNode) {
 			let node;
 			let autoFix = true;
+
+			const staticValue = getStaticValue(lengthNode, context.getScope());
+			if (staticValue && (!Number.isInteger(staticValue.value) || staticValue.value < 0)) {
+				// Ignore known, non-positive-integer length properties.
+				return;
+			}
 
 			let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
 			if (lengthCheckNode) {
