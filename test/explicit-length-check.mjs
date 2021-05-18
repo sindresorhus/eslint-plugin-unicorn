@@ -144,7 +144,7 @@ test.snapshot({
 			class A {
 				a() {
 					if (this.length);
-					if (!this.size);
+					while (!this.size || foo);
 				}
 			}
 		`
