@@ -72,14 +72,30 @@ const create = context => {
 				return;
 			}
 
-			function * fix(fixer, fixType) {
-				const [target] = node.arguments;
-				const staticValue = getStaticValue(target, context.getScope());
-				if (staticValue && typeof staticValue.value !== 'string') {
-					// Ignore known, non-string value which won't have a startsWith/endsWith function.
-					return;
-				}
+			const [target] = node.arguments;
 
+			let isString = target.type === 'TemplateLiteral' ||
+				(
+					target.type === 'CallExpression' &&
+					target.callee.type === 'Identifier' &&
+					target.callee.name === 'String'
+				);
+			let isNonString = false;
+			if (!isString) {
+				const staticValue = getStaticValue(target, context.getScope());
+
+				if (staticValue) {
+					isString = typeof staticValue.value === 'string';
+					isNonString = !isString;
+				}
+			}
+
+			const problem = {
+				node,
+				messageId: result.messageId
+			};
+
+			function * fix(fixer, fixType) {
 				const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 				let targetText = getParenthesizedText(target, sourceCode);
 				const isRegexParenthesized = isParenthesized(regexNode, sourceCode);
@@ -139,12 +155,19 @@ const create = context => {
 				yield fixer.replaceTextRange(getParenthesizedRange(target, sourceCode), quoteString(result.string));
 			}
 
-			context.report({
-				node,
-				messageId: result.messageId,
-				suggest: [FIX_STRING_CAST, FIX_OPTIONAL_CHAINING, FIX_NULLISH_COALESCING].map(type => ({messageId: type, fix: fixer => fix(fixer, type)})),
-				fix
-			});
+			if (isString || !isNonString) {
+				problem.fix = fix;
+			}
+
+			if (!isString) {
+				problem.suggest = [
+					FIX_STRING_CAST,
+					FIX_OPTIONAL_CHAINING,
+					FIX_NULLISH_COALESCING
+				].map(type => ({messageId: type, fix: fixer => fix(fixer, type)}));
+			}
+
+			context.report(problem);
 		}
 	};
 };

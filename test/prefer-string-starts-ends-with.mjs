@@ -108,43 +108,43 @@ test({
 		},
 		// Parenthesized
 		{
-			code: '/^b/.test(("a"))',
-			output: '("a").startsWith(\'b\')',
+			code: '/^b/.test((a))',
+			output: '(a).startsWith(\'b\')',
 			errors: [{
 				messageId: MESSAGE_STARTS_WITH,
 				suggestions: [
 					{
 						messageId: SUGGEST_STRING_CAST,
-						output: 'String(("a")).startsWith(\'b\')'
+						output: 'String((a)).startsWith(\'b\')'
 					},
 					{
 						messageId: SUGGEST_OPTIONAL_CHAINING,
-						output: '("a")?.startsWith(\'b\')'
+						output: '(a)?.startsWith(\'b\')'
 					},
 					{
 						messageId: SUGGEST_NULLISH_COALESCING,
-						output: '(("a") ?? \'\').startsWith(\'b\')'
+						output: '((a) ?? \'\').startsWith(\'b\')'
 					}
 				]
 			}]
 		},
 		{
-			code: '(/^b/).test(("a"))',
-			output: '(("a")).startsWith(\'b\')',
+			code: '(/^b/).test((a))',
+			output: '((a)).startsWith(\'b\')',
 			errors: [{
 				messageId: MESSAGE_STARTS_WITH,
 				suggestions: [
 					{
 						messageId: SUGGEST_STRING_CAST,
-						output: '(String(("a"))).startsWith(\'b\')'
+						output: '(String((a))).startsWith(\'b\')'
 					},
 					{
 						messageId: SUGGEST_OPTIONAL_CHAINING,
-						output: '(("a"))?.startsWith(\'b\')'
+						output: '((a))?.startsWith(\'b\')'
 					},
 					{
 						messageId: SUGGEST_NULLISH_COALESCING,
-						output: '(("a") ?? \'\').startsWith(\'b\')'
+						output: '((a) ?? \'\').startsWith(\'b\')'
 					}
 				]
 			}]
@@ -219,6 +219,9 @@ test.snapshot({
 		'/^a/.test(a ??= b)',
 		'/^a/.test(a || b)',
 		'/^a/.test(a && b)',
+		// eslint-disable-next-line no-template-curly-in-string
+		'/a$/.test(`${unknown}`)',
+		'/a$/.test(String(unknown))',
 		outdent`
 			/* 1 */
 			(
