@@ -18,7 +18,7 @@ jobs:
           - windows-latest
         exclude:
           - os: ubuntu-latest
-          - node-version: 16
+            node-version: 16
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
