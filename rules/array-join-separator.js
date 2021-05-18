@@ -2,7 +2,6 @@
 const {isCommaToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
-const toLocation = require('./utils/to-location');
 
 const MESSAGE_ID = 'array-join-separator';
 const messages = {
@@ -65,17 +64,19 @@ const selector = `:matches(${arrayJoin}, ${arrayPrototypeJoin})`;
 const create = context => {
 	return {
 		[selector](node) {
-
+			const [penultimateToken, lastToken] = context.getSourceCode().getLastTokens(node, 2);
+			const isPrototypeMethod = node.arguments.length === 1;
 			context.report({
-				node,
+				loc: {
+					start: penultimateToken.loc[isPrototypeMethod ? 'end' : 'start'],
+					end: lastToken.loc.end
+				},
 				messageId: MESSAGE_ID,
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
 				fix(fixer) {
-					const [penultimateToken, lastToken] = context.getSourceCode().getLastTokens(node, 2);
-
 					let text = '\',\'';
 
-					if (node.arguments.length > 0) {
+					if (isPrototypeMethod) {
 						text = isCommaToken(penultimateToken) ? `${text},` : `, ${text}`;
 					}
 
