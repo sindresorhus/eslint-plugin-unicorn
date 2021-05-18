@@ -94,7 +94,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce using the separator argument when concatenating elements in an array.',
+			description: 'Enforce using the separator argument with `Array#join()`.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
