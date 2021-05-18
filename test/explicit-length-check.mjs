@@ -138,7 +138,17 @@ test({
 });
 
 test.snapshot({
-	valid: [],
+	valid: [
+		// Ignored
+		outdent`
+			class A {
+				a() {
+					if (this.length);
+					if (!this.size);
+				}
+			}
+		`
+	],
 	invalid: [
 		outdent`
 			if (

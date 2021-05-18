@@ -151,6 +151,11 @@ function create(context) {
 
 	return {
 		[lengthSelector](lengthNode) {
+			if (lengthCheckNode.object.type === 'ThisExpression') {
+				return;
+			}
+
+
 			let node;
 			let autoFix = true;
 
