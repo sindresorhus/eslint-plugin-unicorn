@@ -33,7 +33,8 @@ test.snapshot({
 		'Array.prototype.join.notCall(foo)',
 		'Array.prototype.notJoin.call(foo)',
 		'Array.notPrototype.join.call(foo)',
-		'NotArray.prototype.join.call(foo)'
+		'NotArray.prototype.join.call(foo)',
+		'path.join(__dirname, "./foo.js")'
 	],
 	invalid: [
 		'foo.join()',
