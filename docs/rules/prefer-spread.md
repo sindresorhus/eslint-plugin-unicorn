@@ -16,7 +16,7 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 
 	Shallow copy an `Array`.
 
-	Variables named `arrayBuffer`, `blob`, `buffer`, `file` and `this` are ignored.
+	Variables named `arrayBuffer`, `blob`, `buffer`, `file`, and `this` are ignored.
 
 This rule is partly fixable.
 
