@@ -7,6 +7,11 @@ Check if parentheses should be added to a `node` when it's used as child of `Log
 @returns {boolean}
 */
 function shouldAddParenthesesToLogicalExpressionChild(node, {operator, property}) {
+	/* istanbul ignore next: When operator or property is different, need check `LogicalExpression` operator precedence, not implemented */
+	if (operator !== '??' || property !== 'left') {
+		throw new Error('Not supported.');
+	}
+
 	// Not really needed, but more readable
 	if (
 		node.type === 'AwaitExpression' ||
@@ -25,11 +30,6 @@ function shouldAddParenthesesToLogicalExpressionChild(node, {operator, property}
 		node.type === 'SequenceExpression'
 	) {
 		return true;
-	}
-
-	/* istanbul ignore next: When operator or property is different, need more logic here, not implemented */
-	if (operator !== '??' || property !== 'left') {
-		throw new Error('Not supported.');
 	}
 
 	return false;
