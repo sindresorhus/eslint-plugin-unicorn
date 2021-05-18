@@ -155,7 +155,6 @@ function create(context) {
 				return;
 			}
 
-
 			let node;
 			let autoFix = true;
 
