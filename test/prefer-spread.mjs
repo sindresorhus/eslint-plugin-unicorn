@@ -289,8 +289,8 @@ test.snapshot({
 		// Why would someone write these
 		'[...foo].slice()',
 		'[foo].slice()',
-		'arrayBuffer.slice()',
 		// Ignored
+		'arrayBuffer.slice()',
 		'blob.slice()',
 		'buffer.slice()',
 		'file.slice()',
