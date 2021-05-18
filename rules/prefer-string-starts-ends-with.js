@@ -9,15 +9,15 @@ const {getParenthesizedText, getParenthesizedRange} = require('./utils/parenthes
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
-const FIX_STRING_CAST = 'useStringCasting';
-const FIX_OPTIONAL_CHAINING = 'useOptionalChaining';
-const FIX_NULLISH_COALESCING = 'useNullishCoalescing';
+const FIX_TYPE_STRING_CASTING = 'useStringCasting';
+const FIX_TYPE_OPTIONAL_CHAINING = 'useOptionalChaining';
+const FIX_TYPE_NULLISH_COALESCING = 'useNullishCoalescing';
 const messages = {
 	[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
 	[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.',
-	[FIX_STRING_CAST]: 'When testing against a value that may not be a string, use string casting.',
-	[FIX_OPTIONAL_CHAINING]: 'When testing against a value that may not be a string, use optional chaining.',
-	[FIX_NULLISH_COALESCING]: 'When testing against a value that may not be a string, use nullish coalescing.'
+	[FIX_TYPE_STRING_CASTING]: 'When testing against a value that may not be a string, use string casting.',
+	[FIX_TYPE_OPTIONAL_CHAINING]: 'When testing against a value that may not be a string, use optional chaining.',
+	[FIX_TYPE_NULLISH_COALESCING]: 'When testing against a value that may not be a string, use nullish coalescing.'
 };
 
 const doesNotContain = (string, characters) => characters.every(character => !string.includes(character));
@@ -103,7 +103,7 @@ const create = context => {
 
 				switch (fixType) {
 					// Goal: `(target ?? '').startsWith(pattern)`
-					case FIX_NULLISH_COALESCING:
+					case FIX_TYPE_NULLISH_COALESCING:
 						if (
 							!isTargetParenthesized &&
 							shouldAddParenthesesToLogicalExpressionChild(target, {operator: '??', property: 'left'})
@@ -122,14 +122,14 @@ const create = context => {
 						break;
 
 					// Goal: `String(target).startsWith(pattern)`
-					case FIX_STRING_CAST:
+					case FIX_TYPE_STRING_CASTING:
 						// `target` was a call argument, don't need check parentheses
 						targetText = `String(${targetText})`;
 						// `CallExpression` don't need add parentheses to call `.startsWith()`
 						break;
 
 					// Goal: `target.startsWith(pattern)` or `target?.startsWith(pattern)`
-					case FIX_OPTIONAL_CHAINING:
+					case FIX_TYPE_OPTIONAL_CHAINING:
 						// Optional chaining: `target.startsWith` => `target?.startsWith`
 						yield fixer.replaceText(sourceCode.getTokenBefore(node.callee.property), '?.');
 						// Fallthrough
@@ -161,9 +161,9 @@ const create = context => {
 
 			if (!isString) {
 				problem.suggest = [
-					FIX_STRING_CAST,
-					FIX_OPTIONAL_CHAINING,
-					FIX_NULLISH_COALESCING
+					FIX_TYPE_STRING_CASTING,
+					FIX_TYPE_OPTIONAL_CHAINING,
+					FIX_TYPE_NULLISH_COALESCING
 				].map(type => ({messageId: type, fix: fixer => fix(fixer, type)}));
 			}
 

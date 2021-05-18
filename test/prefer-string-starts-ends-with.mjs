@@ -5,9 +5,9 @@ const {test} = getTester(import.meta);
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
-const SUGGEST_STRING_CAST = 'useStringCasting';
-const SUGGEST_OPTIONAL_CHAINING = 'useOptionalChaining';
-const SUGGEST_NULLISH_COALESCING = 'useNullishCoalescing';
+const FIX_TYPE_STRING_CASTING = 'useStringCasting';
+const FIX_TYPE_OPTIONAL_CHAINING = 'useOptionalChaining';
+const FIX_TYPE_NULLISH_COALESCING = 'useNullishCoalescing';
 
 const validRegex = [
 	/foo/,
@@ -77,15 +77,15 @@ test({
 					messageId,
 					suggestions: [
 						{
-							messageId: SUGGEST_STRING_CAST,
+							messageId: FIX_TYPE_STRING_CASTING,
 							output: `String(bar).${method}('${string}')`
 						},
 						{
-							messageId: SUGGEST_OPTIONAL_CHAINING,
+							messageId: FIX_TYPE_OPTIONAL_CHAINING,
 							output: `bar?.${method}('${string}')`
 						},
 						{
-							messageId: SUGGEST_NULLISH_COALESCING,
+							messageId: FIX_TYPE_NULLISH_COALESCING,
 							output: `(bar ?? '').${method}('${string}')`
 						}
 					]
@@ -114,15 +114,15 @@ test({
 				messageId: MESSAGE_STARTS_WITH,
 				suggestions: [
 					{
-						messageId: SUGGEST_STRING_CAST,
+						messageId: FIX_TYPE_STRING_CASTING,
 						output: 'String((a)).startsWith(\'b\')'
 					},
 					{
-						messageId: SUGGEST_OPTIONAL_CHAINING,
+						messageId: FIX_TYPE_OPTIONAL_CHAINING,
 						output: '(a)?.startsWith(\'b\')'
 					},
 					{
-						messageId: SUGGEST_NULLISH_COALESCING,
+						messageId: FIX_TYPE_NULLISH_COALESCING,
 						output: '((a) ?? \'\').startsWith(\'b\')'
 					}
 				]
@@ -135,15 +135,15 @@ test({
 				messageId: MESSAGE_STARTS_WITH,
 				suggestions: [
 					{
-						messageId: SUGGEST_STRING_CAST,
+						messageId: FIX_TYPE_STRING_CASTING,
 						output: '(String((a))).startsWith(\'b\')'
 					},
 					{
-						messageId: SUGGEST_OPTIONAL_CHAINING,
+						messageId: FIX_TYPE_OPTIONAL_CHAINING,
 						output: '((a))?.startsWith(\'b\')'
 					},
 					{
-						messageId: SUGGEST_NULLISH_COALESCING,
+						messageId: FIX_TYPE_NULLISH_COALESCING,
 						output: '((a) ?? \'\').startsWith(\'b\')'
 					}
 				]
@@ -156,15 +156,15 @@ test({
 				messageId: MESSAGE_STARTS_WITH,
 				suggestions: [
 					{
-						messageId: SUGGEST_STRING_CAST,
+						messageId: FIX_TYPE_STRING_CASTING,
 						output: 'const fn = async () => String(await foo).startsWith(\'b\')'
 					},
 					{
-						messageId: SUGGEST_OPTIONAL_CHAINING,
+						messageId: FIX_TYPE_OPTIONAL_CHAINING,
 						output: 'const fn = async () => (await foo)?.startsWith(\'b\')'
 					},
 					{
-						messageId: SUGGEST_NULLISH_COALESCING,
+						messageId: FIX_TYPE_NULLISH_COALESCING,
 						output: 'const fn = async () => ((await foo) ?? \'\').startsWith(\'b\')'
 					}
 				]
@@ -177,15 +177,15 @@ test({
 				messageId: MESSAGE_STARTS_WITH,
 				suggestions: [
 					{
-						messageId: SUGGEST_STRING_CAST,
+						messageId: FIX_TYPE_STRING_CASTING,
 						output: 'const fn = async () => (String(await foo)).startsWith(\'b\')'
 					},
 					{
-						messageId: SUGGEST_OPTIONAL_CHAINING,
+						messageId: FIX_TYPE_OPTIONAL_CHAINING,
 						output: 'const fn = async () => (await foo)?.startsWith(\'b\')'
 					},
 					{
-						messageId: SUGGEST_NULLISH_COALESCING,
+						messageId: FIX_TYPE_NULLISH_COALESCING,
 						output: 'const fn = async () => ((await foo) ?? \'\').startsWith(\'b\')'
 					}
 				]
