@@ -288,7 +288,13 @@ test.snapshot({
 		'array.notSlice()',
 		// Why would someone write these
 		'[...foo].slice()',
-		'[foo].slice()'
+		'[foo].slice()',
+		// Ignored
+		'arrayBuffer.slice()',
+		'blob.slice()',
+		'buffer.slice()',
+		'file.slice()',
+		'class A {foo() {this.slice()}}'
 	],
 	invalid: [
 		'array.slice()',

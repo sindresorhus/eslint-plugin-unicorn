@@ -8,6 +8,7 @@ const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-
 const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before');
 const removeSpacesAfter = require('./utils/remove-spaces-after');
 const isLiteralValue = require('./utils/is-literal-value');
+const {isNodeMatches} = require('./utils/is-node-matches');
 
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
@@ -61,6 +62,14 @@ const arraySliceCallSelector = [
 	}),
 	'[callee.object.type!="ArrayExpression"]'
 ].join('');
+
+const ignoredSliceCallee = [
+	'arrayBuffer',
+	'blob',
+	'buffer',
+	'file',
+	'this'
+];
 
 const isArrayLiteral = node => node.type === 'ArrayExpression';
 const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
@@ -392,6 +401,10 @@ const create = context => {
 			context.report(problem);
 		},
 		[arraySliceCallSelector](node) {
+			if (isNodeMatches(node.callee.object, ignoredSliceCallee)) {
+				return;
+			}
+
 			const [firstArgument] = node.arguments;
 			if (firstArgument && !isLiteralValue(firstArgument, 0)) {
 				return;
