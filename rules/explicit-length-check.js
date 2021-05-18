@@ -155,15 +155,14 @@ function create(context) {
 				return;
 			}
 
-			let node;
-			let autoFix = true;
-
 			const staticValue = getStaticValue(lengthNode, context.getScope());
 			if (staticValue && (!Number.isInteger(staticValue.value) || staticValue.value < 0)) {
 				// Ignore known, non-positive-integer length properties.
 				return;
 			}
 
+			let node;
+			let autoFix = true;
 			let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
 			if (lengthCheckNode) {
 				const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode);
