@@ -39,6 +39,7 @@ module.exports = {
 				'unicorn'
 			],
 			rules: {
+				'unicorn/array-join-separator': 'error',
 				'unicorn/better-regex': 'error',
 				'unicorn/catch-error-name': 'error',
 				'unicorn/consistent-destructuring': 'error',
