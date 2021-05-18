@@ -533,5 +533,5 @@ test({
 			errors: 1,
 			parserOptions: globalReturnOptions
 		}
-	],
-})
+	]
+});
