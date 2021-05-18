@@ -106,7 +106,19 @@ test({
 		'const foo = { length: -1 }; if (foo.length) {}', // Array lengths cannot be negative
 		'const foo = { length: 1.5 }; if (foo.length) {}', // Array lengths must be integers
 		'const foo = { length: NaN }; if (foo.length) {}', // Array lengths cannot be NaN
-		'const foo = { length: Infinity }; if (foo.length) {}' // Array lengths cannot be Infinity
+		'const foo = { length: Infinity }; if (foo.length) {}', // Array lengths cannot be Infinity
+
+		// Ignored since it has non-Array properties/functions.
+		'const foo = getFoo(); if (foo.width && foo.height && foo.length) {}', // `length` accessed last
+		'const foo = getFoo(); if (foo.length && foo.width) {}', // `length` accessed first
+		'const foo = getFoo(); if (foo.nonArrayFunction() && foo.length) {}',
+		'const foo = getFoo(); if (foo.has() && foo.length) {}', // `has` is a Set function but not an Array function.
+
+		// Ignored since it has non-Set properties/functions.
+		'const foo = getFoo(); if (foo.width && foo.height && foo.size) {}', // `size` accessed last
+		'const foo = getFoo(); if (foo.size && foo.width) {}', // `size` accessed first
+		'const foo = getFoo(); if (foo.nonSetFunction() && foo.size) {}',
+		'const foo = getFoo(); if (foo.push() && foo.size) {}' // `push` is an Array function but not a Set function.
 	],
 	invalid: [
 		suggestionCase({
@@ -179,6 +191,16 @@ test.snapshot({
 		{
 			// Known, number static value
 			code: 'const foo = { length: 123 }; if (foo.length) {}',
+			options: [{'non-zero': 'greater-than-or-equal'}]
+		},
+		{
+			// Calling lots of real Array / Object functions.
+			code: 'const foo = getFoo(); foo.concat(); foo.some(); foo[0]; foo.toString(); if (foo.length) {}',
+			options: [{'non-zero': 'greater-than-or-equal'}]
+		},
+		{
+			// Calling lots of real Set / Object functions.
+			code: 'const foo = getFoo(); foo.add(); foo.has(); foo.toString(); if (foo.size) {}',
 			options: [{'non-zero': 'greater-than-or-equal'}]
 		},
 		'if (foo.bar && foo.bar.length) {}',
