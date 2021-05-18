@@ -11,10 +11,6 @@ const string = array.join();
 ```
 
 ```js
-const string = array.join('|');
-```
-
-```js
 const string = Array.prototype.join.call(arrayLike);
 ```
 
@@ -29,11 +25,11 @@ const string = array.join(',');
 ```
 
 ```js
-const string = array.join('');
+const string = array.join('|');
 ```
 
 ```js
-const string = Array.prototype.join.call(arrayLike, ';');
+const string = Array.prototype.join.call(arrayLike, '');
 ```
 
 ```js

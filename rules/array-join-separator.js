@@ -82,9 +82,9 @@ const create = context => {
 
 					return fixer.insertTextBefore(lastToken, text);
 				}
-			})
+			});
 		}
-	}
+	};
 };
 
 const schema = [];
