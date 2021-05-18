@@ -15,9 +15,9 @@ const FIX_TYPE_NULLISH_COALESCING = 'useNullishCoalescing';
 const messages = {
 	[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
 	[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.',
-	[FIX_TYPE_STRING_CASTING]: 'When testing against a value that may not be a string, use string casting.',
-	[FIX_TYPE_OPTIONAL_CHAINING]: 'When testing against a value that may not be a string, use optional chaining.',
-	[FIX_TYPE_NULLISH_COALESCING]: 'When testing against a value that may not be a string, use nullish coalescing.'
+	[FIX_TYPE_STRING_CASTING]: 'Convert to string `String(…).{{method}}()`.',
+	[FIX_TYPE_OPTIONAL_CHAINING]: 'Use optional chaining `…?.{{method}}()`.',
+	[FIX_TYPE_NULLISH_COALESCING]: 'Use nullish coalescing `(… ?? \'\').{{method}}()`.'
 };
 
 const doesNotContain = (string, characters) => characters.every(character => !string.includes(character));
@@ -73,6 +73,7 @@ const create = context => {
 			}
 
 			const [target] = node.arguments;
+			const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 
 			let isString = target.type === 'TemplateLiteral' ||
 				(
@@ -96,7 +97,6 @@ const create = context => {
 			};
 
 			function * fix(fixer, fixType) {
-				const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 				let targetText = getParenthesizedText(target, sourceCode);
 				const isRegexParenthesized = isParenthesized(regexNode, sourceCode);
 				const isTargetParenthesized = isParenthesized(target, sourceCode);
@@ -164,7 +164,7 @@ const create = context => {
 					FIX_TYPE_STRING_CASTING,
 					FIX_TYPE_OPTIONAL_CHAINING,
 					FIX_TYPE_NULLISH_COALESCING
-				].map(type => ({messageId: type, fix: fixer => fix(fixer, type)}));
+				].map(type => ({messageId: type, data: {method}, fix: fixer => fix(fixer, type)}));
 			}
 
 			context.report(problem);

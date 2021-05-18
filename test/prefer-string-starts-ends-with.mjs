@@ -216,7 +216,7 @@ test.snapshot({
 		'/^a/.test(tagged`string`)',
 		'(/^a/).test((0, "string"))',
 		'/^a/.test(true ? a : b)',
-		'/^a/.test(a ??= b)',
+		'/a$/.test(a ??= b)',
 		'/^a/.test(a || b)',
 		'/^a/.test(a && b)',
 		// eslint-disable-next-line no-template-curly-in-string
