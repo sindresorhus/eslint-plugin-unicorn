@@ -1,6 +1,6 @@
-# Enforce using the separator argument when concatenating elements in an array
+# Enforce using the separator argument with `Array#join()`
 
-Enforce using [the separator argument](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/join#parameters) when calling [Array#join()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/join), it's more obvious what the separator is.
+It's better to make it clear what the separator is when calling [Array#join()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/join).
 
 This rule is fixable.
 
