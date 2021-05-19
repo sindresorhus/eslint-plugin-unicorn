@@ -54,7 +54,7 @@ async function renameRule(from, to) {
 		`test/${to}.mjs`,
 		`test/snapshots/${to}.mjs.md`,
 	].map((file) => resolveFile(file))) {
-		if (!fs.existsSync(source)) {
+		if (!fs.existsSync(file)) {
 			continue;
 		}
 
@@ -89,10 +89,7 @@ async function renameRule(from, to) {
 	}
 
 	checkFiles(ruleId);
-
-	if (confirmed) {
-		renameRule(originalRuleId, ruleId);
-	}
+	renameRule(originalRuleId, ruleId);
 
 })().catch((error) => {
 	console.error(error);
