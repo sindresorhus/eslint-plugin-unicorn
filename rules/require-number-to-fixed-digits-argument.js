@@ -1,13 +1,13 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const {methodCallSelector} = require('./selectors');
 
 const MESSAGE_ID = 'require-number-to-fixed-digits-argument';
 const messages = {
 	[MESSAGE_ID]: 'Missing the digits argument.'
 };
 
-const mathToFixed = methodSelector({
+const mathToFixed = methodCallSelector({
 	name: 'toFixed',
 	length: 0
 });
