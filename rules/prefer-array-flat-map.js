@@ -71,6 +71,7 @@ const reportFlatMap = (context, nodeFlat) => {
 
 	context.report({
 		node: nodeFlat,
+		loc: {start: mapProperty.loc.start, end: nodeFlat.loc.end},
 		messageId: MESSAGE_ID,
 		* fix(fixer) {
 			// Removes:
