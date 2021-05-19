@@ -67,7 +67,7 @@ const nonReferenceSelectors = [
 	'TSPropertySignature > .key'
 ];
 
-function referenceIdentifierSelector(nameOrNames) {
+function referenceIdentifierSelector(nameOrNames = []) {
 	const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames];
 
 	return [

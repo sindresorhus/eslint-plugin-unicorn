@@ -7,8 +7,8 @@ const {
 	isClosingParenToken,
 	findVariable
 } = require('eslint-utils');
+const {methodCallSelector, referenceIdentifierSelector} = require('./selectors');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression');
 const {getParentheses} = require('./utils/parentheses');
@@ -16,7 +16,6 @@ const extendFixRange = require('./utils/extend-fix-range');
 const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside');
 const {isNodeMatches} = require('./utils/is-node-matches');
 const assertToken = require('./utils/assert-token');
-const referenceIdentifierSelector = require('./utils/reference-identifier-selector');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
