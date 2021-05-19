@@ -1,6 +1,6 @@
 # Enforce using the digits argument with `Number#toFixed()`
 
-It's better to make it clear what the value of the `digits` argument is when calling [Number#toFixed()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed).
+It's better to make it clear what the value of the `digits` argument is when calling [Number#toFixed()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed), instead of relying on the default digits (`0`).
 
 This rule is fixable.
 
