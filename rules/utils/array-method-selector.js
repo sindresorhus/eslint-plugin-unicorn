@@ -43,4 +43,4 @@ function arrayPrototypeMethodSelector(options) {
 	].join('');
 }
 
-module.exports = {arrayPrototypeMethodSelector};
+module.exports = {arrayPrototypeMethodSelector, emptyArraySelector};

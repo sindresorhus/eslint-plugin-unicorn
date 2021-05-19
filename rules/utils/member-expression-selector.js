@@ -2,9 +2,9 @@
 
 function memberExpressionSelector(options) {
 	let {
-		path, 
-		property, 
-		properties, 
+		path,
+		property,
+		properties,
 		object
 	} = {
 		path: '',
@@ -24,9 +24,8 @@ function memberExpressionSelector(options) {
 		`[${prefix}property.type="Identifier"]`
 	];
 
-
 	if (Array.isArray(properties) && properties.length > 0) {
-		parts.push(`:matches(${properties.map(property =>`[${prefix}property.name="${property}"]`)})`);
+		parts.push(`:matches(${properties.map(property => `[${prefix}property.name="${property}"]`)})`);
 	}
 
 	if (object) {
@@ -37,6 +36,6 @@ function memberExpressionSelector(options) {
 	}
 
 	return parts.join('');
-};
+}
 
 module.exports = memberExpressionSelector;
