@@ -1,7 +1,7 @@
 'use strict';
 const matches = require('./matches-any');
 const memberExpressionSelector = require('./member-expression-selector');
-const emptyArraySelector = require('./empty-selector');
+const emptyArraySelector = require('./empty-array-selector');
 
 // `[].method` or `Array.prototype.method`
 function arrayPrototypeMethodSelector(options) {
