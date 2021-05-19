@@ -15,10 +15,7 @@ const messages = {
 
 const arrayPushExpressionStatement = [
 	'ExpressionStatement',
-	methodCallSelector({
-		name: 'push',
-		path: 'expression'
-	})
+	methodCallSelector({path: 'expression', name: 'push'})
 ].join('');
 
 const selector = `${arrayPushExpressionStatement} + ${arrayPushExpressionStatement}`;
