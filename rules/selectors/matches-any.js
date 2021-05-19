@@ -1,8 +1,15 @@
 'use strict';
 
-// Make selectors more readable
 function matches(selectors) {
-	return selectors.length === 1 ? selectors[0] : `:matches(${selectors.join(', ')})`;
+	switch (selectors.length) {
+		case 0:
+			return '';
+		case 1:
+			// Make selectors more readable
+			return selectors[0];
+		default: 
+			return `:matches(${selectors.join(', ')})`
+	}
 }
 
 module.exports = matches;
