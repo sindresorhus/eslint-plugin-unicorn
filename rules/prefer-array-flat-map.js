@@ -19,7 +19,7 @@ const selector = [
 
 const reportFlatMap = (context, nodeFlat) => {
 	const nodeMap = nodeFlat.callee.object;
-	const source = context.getSourceCode();
+	const sourceCode = context.getSourceCode();
 
 	// Node covers:
 	//   map(…).flat();
@@ -33,20 +33,20 @@ const reportFlatMap = (context, nodeFlat) => {
 	//         ^
 	//   (map(…)).flat();
 	//           ^
-	const dot = source.getTokenBefore(flatIdentifer);
+	const dot = sourceCode.getTokenBefore(flatIdentifer);
 
 	// Location will be:
 	//   map(…).flat();
 	//                ^
 	//   (map(…)).flat();
 	//                  ^
-	const maybeSemicolon = source.getTokenAfter(nodeFlat);
+	const maybeSemicolon = sourceCode.getTokenAfter(nodeFlat);
 	const hasSemicolon = Boolean(maybeSemicolon) && maybeSemicolon.value === ';';
 
 	// Location will be:
 	//   (map(…)).flat();
 	//          ^
-	const tokenBetween = source.getLastTokenBetween(nodeMap, dot);
+	const tokenBetween = sourceCode.getLastTokenBetween(nodeMap, dot);
 
 	// Location will be:
 	//   map(…).flat();
