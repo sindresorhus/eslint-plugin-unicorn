@@ -2,6 +2,7 @@
 const methodSelector = require('./utils/method-selector');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const {notFunctionSelector} = require('./utils/not-function');
+const arrayPrototypeMethodSelector = require('./utils/array-prototype-method-selector');
 
 const MESSAGE_ID_REDUCE = 'reduce';
 const MESSAGE_ID_REDUCE_RIGHT = 'reduceRight';
@@ -12,34 +13,16 @@ const messages = {
 
 const prototypeSelector = method => [
 	methodSelector({name: method}),
-	'[callee.object.type="MemberExpression"]',
-	'[callee.object.computed=false]',
-	`:matches(${
-		['reduce', 'reduceRight'].map(method => `[callee.object.property.name="${method}"]`).join(', ')
-	})`,
-	'[callee.object.property.type="Identifier"]',
-	`:matches(${
-		[
-			// `[].reduce`
-			[
-				'type="ArrayExpression"',
-				'elements.length=0'
-			],
-			// `Array.prototype.reduce`
-			[
-				'type="MemberExpression"',
-				'computed=false',
-				'property.type="Identifier"',
-				'property.name="prototype"',
-				'object.type="Identifier"',
-				'object.name="Array"'
-			]
-		].map(
-			selectors => selectors
-				.map(selector => `[callee.object.object.${selector}]`)
-				.join('')
-		).join(', ')
-	})`
+	`:matches(${[
+		arrayPrototypeMethodSelector({
+			name: 'reduce',
+			path: 'callee.object'
+		}),
+		arrayPrototypeMethodSelector({
+			name: 'reduceRight',
+			path: 'callee.object'
+		})
+	].join(', ')})`
 ].join('');
 
 const PROTOTYPE_CALL_SELECTOR = [
