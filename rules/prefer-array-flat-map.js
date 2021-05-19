@@ -5,11 +5,9 @@ const isLiteralValue = require('./utils/is-literal-value');
 const {isNodeMatches} = require('./utils/is-node-matches');
 const {methodCallSelector} = require('./selectors');
 
-const MESSAGE_ID_FLATMAP = 'flat-map';
-const MESSAGE_ID_SPREAD = 'spread';
+const MESSAGE_ID = 'prefer-array-flat-map';
 const messages = {
-	[MESSAGE_ID_FLATMAP]: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
-	[MESSAGE_ID_SPREAD]: 'Prefer `.flatMap(…)` over `[].concat(...foo.map(…))`.'
+	[MESSAGE_ID]: 'Prefer `.flatMap(…)` over `.map(…).flat()`.'
 };
 
 const selector = [
@@ -73,7 +71,7 @@ const reportFlatMap = (context, nodeFlat) => {
 
 	context.report({
 		node: nodeFlat,
-		messageId: MESSAGE_ID_FLATMAP,
+		messageId: MESSAGE_ID,
 		* fix(fixer) {
 			// Removes:
 			//   map(…).flat();
