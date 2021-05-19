@@ -1,8 +1,7 @@
 'use strict';
 const {isParenthesized, hasSideEffect} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodCallSelector = require('./utils/method-call-selector');
-const {notDomNodeSelector} = require('./utils/not-dom-node');
+const {methodCallSelector, notDomNodeSelector} = require('./selectors');
 const needsSemicolon = require('./utils/needs-semicolon');
 const isValueNotUsable = require('./utils/is-value-not-usable');
 const {getParenthesizedText} = require('./utils/parentheses');

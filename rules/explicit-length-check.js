@@ -4,7 +4,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 const isLogicalExpression = require('./utils/is-logical-expression');
 const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean');
-const memberExpressionSelector = require('./utils/member-expression-selector');
+const {memberExpressionSelector} = require('./selectors');
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';

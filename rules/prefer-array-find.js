@@ -1,7 +1,7 @@
 'use strict';
 const {isParenthesized, findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodCallSelector = require('./utils/method-call-selector');
+const {methodCallSelector} = require('./selectors');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 const renameVariable = require('./utils/rename-variable');
 const avoidCapture = require('./utils/avoid-capture');

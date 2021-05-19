@@ -1,7 +1,7 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodCallSelector = require('./utils/method-call-selector');
+const {methodCallSelector} = require('./selectors');
 const quoteString = require('./utils/quote-string');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child');

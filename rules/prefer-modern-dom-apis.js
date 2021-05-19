@@ -1,7 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValueNotUsable = require('./utils/is-value-not-usable');
-const methodCallSelector = require('./utils/method-call-selector');
+const {methodCallSelector} = require('./selectors');
 
 const messages = {
 	replaceChildOrInsertBefore:

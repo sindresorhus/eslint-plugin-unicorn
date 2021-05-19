@@ -1,7 +1,7 @@
 'use strict';
 const {hasSideEffect, isCommaToken, isSemicolonToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodCallSelector = require('./utils/method-call-selector');
+const {methodCallSelector} = require('./selectors');
 const getCallExpressionArgumentsText = require('./utils/get-call-expression-arguments-text');
 const isSameReference = require('./utils/is-same-reference');
 const {isNodeMatches} = require('./utils/is-node-matches');

@@ -1,7 +1,7 @@
 'use strict';
 
 const {hasSideEffect, isParenthesized, findVariable} = require('eslint-utils');
-const methodCallSelector = require('../utils/method-call-selector');
+const {methodCallSelector} = require('../selectors');
 const isFunctionSelfUsedInside = require('../utils/is-function-self-used-inside');
 
 const getBinaryExpressionSelector = path => [

@@ -2,7 +2,7 @@
 const {findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
-const methodCallSelector = require('./utils/method-call-selector');
+const {methodCallSelector} = require('./selectors');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';

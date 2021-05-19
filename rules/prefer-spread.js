@@ -1,7 +1,7 @@
 'use strict';
 const {isParenthesized, getStaticValue, isCommaToken, hasSideEffect} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodCallSelector = require('./utils/method-call-selector');
+const {methodCallSelector} = require('./selectors');
 const needsSemicolon = require('./utils/needs-semicolon');
 const {getParenthesizedRange, getParenthesizedText} = require('./utils/parentheses');
 const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument');

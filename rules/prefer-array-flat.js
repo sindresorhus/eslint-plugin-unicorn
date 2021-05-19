@@ -1,10 +1,13 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodCallSelector = require('./utils/method-call-selector');
+const {
+	methodCallSelector,
+	arrayPrototypeMethodSelector,
+	emptyArraySelector
+} = require('./selectors');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
-const {arrayPrototypeMethodSelector, emptyArraySelector} = require('./utils/array-method-selector');
 
 const MESSAGE_ID = 'prefer-array-flat';
 const messages = {

@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodCallSelector = require('./utils/method-call-selector');
+const {methodCallSelector} = require('./selectors');
 const {isBooleanNode} = require('./utils/boolean');
 
 const MESSAGE_ID_ERROR = 'error';

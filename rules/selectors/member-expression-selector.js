@@ -1,4 +1,5 @@
 'use strict';
+const matches = require('./matches-any');
 
 function memberExpressionSelector(options) {
 	if (typeof options === 'string') {
@@ -44,17 +45,13 @@ function memberExpressionSelector(options) {
 	}
 
 	if (Array.isArray(names) && names.length > 0) {
-		parts.push(`:matches(${
-			names.map(property => `[${prefix}property.name="${property}"]`).join(', ')
-		})`);
+		parts.push(matches(names.map(property => `[${prefix}property.name="${property}"]`)));
 	}
 
 	if (Array.isArray(objects) && objects.length > 0) {
 		parts.push(
 			`[${prefix}object.type="Identifier"]`,
-			`:matches(${
-				objects.map(object => `[${prefix}object.name="${object}"]`).join(', ')
-			})`
+			matches(objects.map(object => `[${prefix}object.name="${object}"]`))
 		);
 	}
 

@@ -3,7 +3,7 @@ const {findVariable} = require('eslint-utils');
 const avoidCapture = require('./utils/avoid-capture');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const renameVariable = require('./utils/rename-variable');
-const methodCallSelector = require('./utils/method-call-selector');
+const {methodCallSelector} = require('./selectors');
 
 const MESSAGE_ID = 'catch-error-name';
 const messages = {

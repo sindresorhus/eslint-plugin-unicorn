@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodCallSelector = require('./utils/method-call-selector');
+const {methodCallSelector} = require('./selectors');
 
 const MESSAGE_ID_DEFAULT = 'prefer-date';
 const MESSAGE_ID_METHOD = 'prefer-date-now-over-methods';

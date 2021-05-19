@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodCallSelector = require('./utils/method-call-selector');
+const {methodCallSelector} = require('./selectors');
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';

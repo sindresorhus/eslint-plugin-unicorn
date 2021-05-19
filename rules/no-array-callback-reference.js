@@ -1,8 +1,7 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodCallSelector = require('./utils/method-call-selector');
-const {notFunctionSelector} = require('./utils/not-function');
+const {methodCallSelector, notFunctionSelector} = require('./selectors');
 const {isNodeMatches} = require('./utils/is-node-matches');
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';

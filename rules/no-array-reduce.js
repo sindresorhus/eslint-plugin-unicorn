@@ -1,8 +1,7 @@
 'use strict';
-const methodCallSelector = require('./utils/method-call-selector');
+const {methodCallSelector} = require('./selectors');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {notFunctionSelector} = require('./utils/not-function');
-const {arrayPrototypeMethodSelector} = require('./utils/array-method-selector');
+const {arrayPrototypeMethodSelector, notFunctionSelector} = require('./selectors');
 
 const MESSAGE_ID_REDUCE = 'reduce';
 const MESSAGE_ID_REDUCE_RIGHT = 'reduceRight';

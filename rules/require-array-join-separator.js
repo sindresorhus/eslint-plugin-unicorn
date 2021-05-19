@@ -1,8 +1,7 @@
 'use strict';
 const {isCommaToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodCallSelector = require('./utils/method-call-selector');
-const {arrayPrototypeMethodSelector} = require('./utils/array-method-selector');
+const {methodCallSelector, arrayPrototypeMethodSelector} = require('./selectors');
 
 const MESSAGE_ID = 'require-array-join-separator';
 const messages = {
