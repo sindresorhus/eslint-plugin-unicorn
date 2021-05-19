@@ -4,20 +4,28 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 const quoteString = require('./utils/quote-string');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
+const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child');
+const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
+const FIX_TYPE_STRING_CASTING = 'useStringCasting';
+const FIX_TYPE_OPTIONAL_CHAINING = 'useOptionalChaining';
+const FIX_TYPE_NULLISH_COALESCING = 'useNullishCoalescing';
 const messages = {
 	[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
-	[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.'
+	[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.',
+	[FIX_TYPE_STRING_CASTING]: 'Convert to string `String(…).{{method}}()`.',
+	[FIX_TYPE_OPTIONAL_CHAINING]: 'Use optional chaining `…?.{{method}}()`.',
+	[FIX_TYPE_NULLISH_COALESCING]: 'Use nullish coalescing `(… ?? \'\').{{method}}()`.'
 };
 
 const doesNotContain = (string, characters) => characters.every(character => !string.includes(character));
-
 const isSimpleString = string => doesNotContain(
 	string,
 	['^', '$', '+', '[', '{', '(', '\\', '.', '?', '*', '|']
 );
+const addParentheses = text => `(${text})`;
 
 const regexTestSelector = [
 	methodSelector({name: 'test', length: 1}),
@@ -64,40 +72,102 @@ const create = context => {
 				return;
 			}
 
-			context.report({
-				node,
-				messageId: result.messageId,
-				fix: fixer => {
-					const [target] = node.arguments;
-					const staticValue = getStaticValue(target, context.getScope());
-					if (staticValue && typeof staticValue.value !== 'string') {
-						// Ignore known, non-string value which won't have a startsWith/endsWith function.
-						return;
-					}
+			const [target] = node.arguments;
+			const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 
-					const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
-					let targetString = sourceCode.getText(target);
+			let isString = target.type === 'TemplateLiteral' ||
+				(
+					target.type === 'CallExpression' &&
+					target.callee.type === 'Identifier' &&
+					target.callee.name === 'String'
+				);
+			let isNonString = false;
+			if (!isString) {
+				const staticValue = getStaticValue(target, context.getScope());
 
-					if (
-						// If regex is parenthesized, we can use it, so we don't need add again
-						!isParenthesized(regexNode, sourceCode) &&
-						(isParenthesized(target, sourceCode) || shouldAddParenthesesToMemberExpressionObject(target, sourceCode))
-					) {
-						targetString = `(${targetString})`;
-					}
-
-					// The regex literal always starts with `/` or `(`, so we don't need check ASI
-
-					return [
-						// Replace regex with string
-						fixer.replaceText(regexNode, targetString),
-						// `.test` => `.startsWith` / `.endsWith`
-						fixer.replaceText(node.callee.property, method),
-						// Replace argument with result.string
-						fixer.replaceText(target, quoteString(result.string))
-					];
+				if (staticValue) {
+					isString = typeof staticValue.value === 'string';
+					isNonString = !isString;
 				}
-			});
+			}
+
+			const problem = {
+				node,
+				messageId: result.messageId
+			};
+
+			function * fix(fixer, fixType) {
+				let targetText = getParenthesizedText(target, sourceCode);
+				const isRegexParenthesized = isParenthesized(regexNode, sourceCode);
+				const isTargetParenthesized = isParenthesized(target, sourceCode);
+
+				switch (fixType) {
+					// Goal: `(target ?? '').startsWith(pattern)`
+					case FIX_TYPE_NULLISH_COALESCING:
+						if (
+							!isTargetParenthesized &&
+							shouldAddParenthesesToLogicalExpressionChild(target, {operator: '??', property: 'left'})
+						) {
+							targetText = addParentheses(targetText);
+						}
+
+						targetText += ' ?? \'\'';
+
+						// `LogicalExpression` need add parentheses to call `.startsWith()`,
+						// but if regex is parenthesized, we can reuse it
+						if (!isRegexParenthesized) {
+							targetText = addParentheses(targetText);
+						}
+
+						break;
+
+					// Goal: `String(target).startsWith(pattern)`
+					case FIX_TYPE_STRING_CASTING:
+						// `target` was a call argument, don't need check parentheses
+						targetText = `String(${targetText})`;
+						// `CallExpression` don't need add parentheses to call `.startsWith()`
+						break;
+
+					// Goal: `target.startsWith(pattern)` or `target?.startsWith(pattern)`
+					case FIX_TYPE_OPTIONAL_CHAINING:
+						// Optional chaining: `target.startsWith` => `target?.startsWith`
+						yield fixer.replaceText(sourceCode.getTokenBefore(node.callee.property), '?.');
+						// Fallthrough
+					default:
+						if (
+							!isRegexParenthesized &&
+							!isTargetParenthesized &&
+							shouldAddParenthesesToMemberExpressionObject(target, sourceCode)
+						) {
+							targetText = addParentheses(targetText);
+						}
+				}
+
+				// The regex literal always starts with `/` or `(`, so we don't need check ASI
+
+				// Replace regex with string
+				yield fixer.replaceText(regexNode, targetText);
+
+				// `.test` => `.startsWith` / `.endsWith`
+				yield fixer.replaceText(node.callee.property, method);
+
+				// Replace argument with result.string
+				yield fixer.replaceTextRange(getParenthesizedRange(target, sourceCode), quoteString(result.string));
+			}
+
+			if (isString || !isNonString) {
+				problem.fix = fix;
+			}
+
+			if (!isString) {
+				problem.suggest = [
+					FIX_TYPE_STRING_CASTING,
+					FIX_TYPE_OPTIONAL_CHAINING,
+					FIX_TYPE_NULLISH_COALESCING
+				].map(type => ({messageId: type, data: {method}, fix: fixer => fix(fixer, type)}));
+			}
+
+			context.report(problem);
 		}
 	};
 };
@@ -108,7 +178,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.',
-			url: getDocumentationUrl(__filename)
+			url: getDocumentationUrl(__filename),
+			suggest: true
 		},
 		fixable: 'code',
 		schema: [],

@@ -151,8 +151,9 @@ function create(context) {
 
 	return {
 		[lengthSelector](lengthNode) {
-			let node;
-			let autoFix = true;
+			if (lengthNode.object.type === 'ThisExpression') {
+				return;
+			}
 
 			const staticValue = getStaticValue(lengthNode, context.getScope());
 			if (staticValue && (!Number.isInteger(staticValue.value) || staticValue.value < 0)) {
@@ -160,6 +161,8 @@ function create(context) {
 				return;
 			}
 
+			let node;
+			let autoFix = true;
 			let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
 			if (lengthCheckNode) {
 				const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode);

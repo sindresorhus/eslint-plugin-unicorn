@@ -355,14 +355,8 @@ const create = context => {
 		[referenceIdentifierSelector()](node) {
 			allIdentifiers.push(node);
 		},
-		ReturnStatement(node) {
+		':function ReturnStatement'(node) {
 			const currentFunction = functionStack[functionStack.length - 1];
-			// `globalReturn`
-			/* istanbul ignore next: ESLint deprecated `ecmaFeatures`, can't test */
-			if (!currentFunction) {
-				return;
-			}
-
 			const {returnStatements} = functionInfo.get(currentFunction);
 			returnStatements.push(node);
 		},

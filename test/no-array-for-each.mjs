@@ -487,3 +487,51 @@ test.typescript({
 		}
 	]
 });
+
+const globalReturnOptions = {
+	sourceType: 'script',
+	ecmaFeatures: {
+		globalReturn: true
+	}
+};
+test({
+	valid: [
+		{
+			code: outdent`
+				foo.notForEach(element => bar(element));
+				while (true) return;
+			`,
+			parserOptions: globalReturnOptions
+		}
+	],
+	invalid: [
+		{
+			code: outdent`
+				while (true) return;
+				foo.forEach(element => bar(element));
+			`,
+			output: outdent`
+				while (true) return;
+				for (const element of foo)  bar(element);
+			`,
+			errors: 1,
+			parserOptions: globalReturnOptions
+		},
+		{
+			code: outdent`
+				foo.forEach(element => {
+					bar(element)
+					while (true) return;
+				});
+				while (true) return;
+			`,
+			errors: 1,
+			parserOptions: globalReturnOptions
+		},
+		{
+			code: 'return foo.forEach(element => {bar(element)});',
+			errors: 1,
+			parserOptions: globalReturnOptions
+		}
+	]
+});

@@ -113,6 +113,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-ternary": "error",
 			"unicorn/prefer-type-error": "error",
 			"unicorn/prevent-abbreviations": "error",
+			"unicorn/require-array-join-separator": "error",
 			"unicorn/string-content": "off",
 			"unicorn/throw-new-error": "error"
 		}
@@ -209,6 +210,7 @@ Each rule has emojis denoting:
 | [prefer-ternary](docs/rules/prefer-ternary.md) | Prefer ternary expressions over simple `if-else` statements. | ✅ | 🔧 |
 | [prefer-type-error](docs/rules/prefer-type-error.md) | Enforce throwing `TypeError` in type checking conditions. | ✅ | 🔧 |
 | [prevent-abbreviations](docs/rules/prevent-abbreviations.md) | Prevent abbreviations. | ✅ | 🔧 |
+| [require-array-join-separator](docs/rules/require-array-join-separator.md) | Enforce using the separator argument with `Array#join()`. | ✅ | 🔧 |
 | [require-number-to-fixed-digit-argument](docs/rules/require-number-to-fixed-digit-argument.md) | Enforce using the digits argument with `Number#toFixed()`. | ✅ | 🔧 |
 | [string-content](docs/rules/string-content.md) | Enforce better string content. |  | 🔧 |
 | [throw-new-error](docs/rules/throw-new-error.md) | Require `new` when throwing an error. | ✅ | 🔧 |
