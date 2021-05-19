@@ -1,5 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const {matches} = require('./selectors');
 
 const MESSAGE_ID = 'no-this-assignment';
 const messages = {
@@ -18,7 +19,7 @@ const assignmentExpressionSelector = [
 	'[left.type="Identifier"]'
 ].join('');
 
-const selector = `:matches(${variableDeclaratorSelector}, ${assignmentExpressionSelector})`;
+const selector = matches([variableDeclaratorSelector, assignmentExpressionSelector]);
 
 const create = context => ({
 	[selector](node) {

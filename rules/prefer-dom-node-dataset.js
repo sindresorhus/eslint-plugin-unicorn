@@ -2,7 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValidVariableName = require('./utils/is-valid-variable-name');
 const quoteString = require('./utils/quote-string');
-const methodSelector = require('./utils/method-selector');
+const {methodCallSelector} = require('./selectors');
 
 const MESSAGE_ID = 'prefer-dom-node-dataset';
 const messages = {
@@ -10,7 +10,7 @@ const messages = {
 };
 
 const selector = [
-	methodSelector({
+	methodCallSelector({
 		name: 'setAttribute',
 		length: 2
 	}),

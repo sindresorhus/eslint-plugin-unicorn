@@ -1,15 +1,14 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValueNotUsable = require('./utils/is-value-not-usable');
-const methodSelector = require('./utils/method-selector');
-const {notDomNodeSelector} = require('./utils/not-dom-node');
+const {methodCallSelector, notDomNodeSelector} = require('./selectors');
 
 const MESSAGE_ID = 'prefer-dom-node-append';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Node#append()` over `Node#appendChild()`.'
 };
 const selector = [
-	methodSelector({
+	methodCallSelector({
 		name: 'appendChild',
 		length: 1
 	}),

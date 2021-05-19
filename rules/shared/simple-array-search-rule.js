@@ -1,7 +1,7 @@
 'use strict';
 
 const {hasSideEffect, isParenthesized, findVariable} = require('eslint-utils');
-const methodSelector = require('../utils/method-selector');
+const {methodCallSelector} = require('../selectors');
 const isFunctionSelfUsedInside = require('../utils/is-function-self-used-inside');
 
 const getBinaryExpressionSelector = path => [
@@ -53,7 +53,7 @@ function simpleArraySearchRule({method, replacement}) {
 	};
 
 	const selector = [
-		methodSelector({
+		methodCallSelector({
 			name: method,
 			length: 1
 		}),

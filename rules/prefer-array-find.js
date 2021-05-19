@@ -1,7 +1,7 @@
 'use strict';
 const {isParenthesized, findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const {not, methodCallSelector} = require('./selectors');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 const renameVariable = require('./utils/rename-variable');
 const avoidCapture = require('./utils/avoid-capture');
@@ -36,19 +36,13 @@ const filterMethodSelectorOptions = {
 const filterVariableSelector = [
 	'VariableDeclaration',
 	// Exclude `export const foo = [];`
-	`:not(${
-		[
-			'ExportNamedDeclaration',
-			'>',
-			'VariableDeclaration.declaration'
-		].join('')
-	})`,
-	'>',
+	not('ExportNamedDeclaration > .declaration'),
+	' > ',
 	'VariableDeclarator.declarations',
 	'[id.type="Identifier"]',
-	methodSelector({
+	methodCallSelector({
 		...filterMethodSelectorOptions,
-		property: 'init'
+		path: 'init'
 	})
 ].join('');
 
@@ -57,20 +51,20 @@ const zeroIndexSelector = [
 	'[computed=true]',
 	'[property.type="Literal"]',
 	'[property.raw="0"]',
-	methodSelector({
+	methodCallSelector({
 		...filterMethodSelectorOptions,
-		property: 'object'
+		path: 'object'
 	})
 ].join('');
 
 const shiftSelector = [
-	methodSelector({
+	methodCallSelector({
 		name: 'shift',
 		length: 0
 	}),
-	methodSelector({
+	methodCallSelector({
 		...filterMethodSelectorOptions,
-		property: 'callee.object'
+		path: 'callee.object'
 	})
 ].join('');
 
@@ -79,9 +73,9 @@ const destructuringDeclaratorSelector = [
 	'[id.type="ArrayPattern"]',
 	'[id.elements.length=1]',
 	'[id.elements.0.type!="RestElement"]',
-	methodSelector({
+	methodCallSelector({
 		...filterMethodSelectorOptions,
-		property: 'init'
+		path: 'init'
 	})
 ].join('');
 
@@ -90,9 +84,9 @@ const destructuringAssignmentSelector = [
 	'[left.type="ArrayPattern"]',
 	'[left.elements.length=1]',
 	'[left.elements.0.type!="RestElement"]',
-	methodSelector({
+	methodCallSelector({
 		...filterMethodSelectorOptions,
-		property: 'right'
+		path: 'right'
 	})
 ].join('');
 

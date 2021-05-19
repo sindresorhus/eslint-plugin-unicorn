@@ -1,6 +1,7 @@
 'use strict';
 const isBuiltinModule = require('is-builtin-module');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const {matches} = require('./selectors');
 
 const MESSAGE_ID = 'prefer-node-protocol';
 const messages = {
@@ -29,12 +30,13 @@ const create = context => {
 		checkRequire: false,
 		...context.options[0]
 	};
-	const selector = checkRequire ?
-		`:matches(${importExportSelector}, ${requireSelector})` :
-		importExportSelector;
+	const selectors = [importExportSelector];
+	if (checkRequire) {
+		selectors.push(requireSelector);
+	}
 
 	return {
-		[selector](node) {
+		[matches(selectors)](node) {
 			const {value} = node;
 			if (
 				typeof value !== 'string' ||

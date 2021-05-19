@@ -1,7 +1,7 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const {methodCallSelector} = require('./selectors');
 const {isBooleanNode} = require('./utils/boolean');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 
@@ -15,7 +15,7 @@ const messages = {
 const cases = [
 	{
 		type: REGEXP_EXEC,
-		selector: methodSelector({
+		selector: methodCallSelector({
 			name: 'exec',
 			length: 1
 		}),
@@ -28,7 +28,7 @@ const cases = [
 	},
 	{
 		type: STRING_MATCH,
-		selector: methodSelector({
+		selector: methodCallSelector({
 			name: 'match',
 			length: 1
 		}),

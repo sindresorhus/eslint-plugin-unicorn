@@ -12,7 +12,7 @@ const messages = {
 
 const selector = [
 	'CatchClause',
-	'>',
+	' > ',
 	'.param'
 ].join('');
 

@@ -1,7 +1,7 @@
 'use strict';
 const {hasSideEffect, isCommaToken, isSemicolonToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const {methodCallSelector} = require('./selectors');
 const getCallExpressionArgumentsText = require('./utils/get-call-expression-arguments-text');
 const isSameReference = require('./utils/is-same-reference');
 const {isNodeMatches} = require('./utils/is-node-matches');
@@ -15,10 +15,7 @@ const messages = {
 
 const arrayPushExpressionStatement = [
 	'ExpressionStatement',
-	methodSelector({
-		name: 'push',
-		property: 'expression'
-	})
+	methodCallSelector({path: 'expression', name: 'push'})
 ].join('');
 
 const selector = `${arrayPushExpressionStatement} + ${arrayPushExpressionStatement}`;

@@ -7,7 +7,7 @@ const isStaticRequire = require('./utils/is-static-require');
 const replaceReferenceIdentifier = require('./utils/replace-reference-identifier');
 const {getParentheses} = require('./utils/parentheses');
 const assertToken = require('./utils/assert-token');
-const referenceIdentifierSelector = require('./utils/reference-identifier-selector');
+const {referenceIdentifierSelector} = require('./selectors');
 
 const ERROR_USE_STRICT_DIRECTIVE = 'error/use-strict-directive';
 const ERROR_GLOBAL_RETURN = 'error/global-return';

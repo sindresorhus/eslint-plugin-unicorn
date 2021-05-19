@@ -1,7 +1,7 @@
 'use strict';
-const methodSelector = require('./utils/method-selector');
+const {methodCallSelector} = require('./selectors');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {notFunctionSelector} = require('./utils/not-function');
+const {arrayPrototypeMethodSelector, notFunctionSelector} = require('./selectors');
 
 const MESSAGE_ID_REDUCE = 'reduce';
 const MESSAGE_ID_REDUCE_RIGHT = 'reduceRight';
@@ -11,60 +11,37 @@ const messages = {
 };
 
 const prototypeSelector = method => [
-	methodSelector({name: method}),
-	'[callee.object.type="MemberExpression"]',
-	'[callee.object.computed=false]',
-	`:matches(${
-		['reduce', 'reduceRight'].map(method => `[callee.object.property.name="${method}"]`).join(', ')
-	})`,
-	'[callee.object.property.type="Identifier"]',
-	`:matches(${
-		[
-			// `[].reduce`
-			[
-				'type="ArrayExpression"',
-				'elements.length=0'
-			],
-			// `Array.prototype.reduce`
-			[
-				'type="MemberExpression"',
-				'computed=false',
-				'property.type="Identifier"',
-				'property.name="prototype"',
-				'object.type="Identifier"',
-				'object.name="Array"'
-			]
-		].map(
-			selectors => selectors
-				.map(selector => `[callee.object.object.${selector}]`)
-				.join('')
-		).join(', ')
-	})`
+	methodCallSelector({name: method}),
+	arrayPrototypeMethodSelector({
+		path: 'callee.object',
+		names: ['reduce', 'reduceRight']
+	})
 ].join('');
 
-const PROTOTYPE_CALL_SELECTOR = [
+// `array.{reduce,reduceRight}()`
+const arrayReduce = [
+	methodCallSelector({names: ['reduce', 'reduceRight'], min: 1, max: 2}),
+	notFunctionSelector('arguments.0')
+].join('');
+// `[].{reduce,reduceRight}.call()` and `Array.{reduce,reduceRight}.call()`
+const arrayPrototypeReduceCall = [
 	prototypeSelector('call'),
 	notFunctionSelector('arguments.1')
 ].join('');
-
-const PROTOTYPE_APPLY_SELECTOR = prototypeSelector('apply');
-
-const METHOD_SELECTOR = [
-	methodSelector({names: ['reduce', 'reduceRight'], min: 1, max: 2}),
-	notFunctionSelector('arguments.0')
-].join('');
+// `[].{reduce,reduceRight}.apply()` and `Array.{reduce,reduceRight}.apply()`
+const arrayPrototypeReduceApply = prototypeSelector('apply');
 
 const create = context => {
 	return {
-		[METHOD_SELECTOR](node) {
+		[arrayReduce](node) {
 			// For arr.reduce()
 			context.report({node: node.callee.property, messageId: node.callee.property.name});
 		},
-		[PROTOTYPE_CALL_SELECTOR](node) {
+		[arrayPrototypeReduceCall](node) {
 			// For cases [].reduce.call() and Array.prototype.reduce.call()
 			context.report({node: node.callee.object.property, messageId: node.callee.object.property.name});
 		},
-		[PROTOTYPE_APPLY_SELECTOR](node) {
+		[arrayPrototypeReduceApply](node) {
 			// For cases [].reduce.apply() and Array.prototype.reduce.apply()
 			context.report({node: node.callee.object.property, messageId: node.callee.object.property.name});
 		}

@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const {methodCallSelector} = require('./selectors');
 
 const MESSAGE_ID = 'no-process-exit';
 const messages = {
@@ -24,12 +24,12 @@ const importWorkerThreadsSelector = [
 		'[source.value="worker_threads"]'
 	].join('')
 ].join(', ');
-const processOnOrOnceCallSelector = methodSelector({
+const processOnOrOnceCallSelector = methodCallSelector({
 	object: 'process',
 	names: ['on', 'once'],
 	min: 1
 });
-const processExitCallSelector = methodSelector({
+const processExitCallSelector = methodCallSelector({
 	object: 'process',
 	name: 'exit'
 });

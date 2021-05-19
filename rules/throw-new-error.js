@@ -1,5 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const {matches} = require('./selectors');
 
 const messageId = 'throw-new-error';
 const messages = {
@@ -10,24 +11,22 @@ const customError = /^(?:[A-Z][\da-z]*)*Error$/;
 
 const selector = [
 	'ThrowStatement',
-	'>',
+	' > ',
 	'CallExpression.argument',
-	`:matches(${
+	matches([
+		// `throw FooError()`
 		[
-			// `throw FooError()`
-			[
-				'[callee.type="Identifier"]',
-				`[callee.name=/${customError.source}/]`
-			],
-			// `throw lib.FooError()`
-			[
-				'[callee.type="MemberExpression"]',
-				'[callee.computed=false]',
-				'[callee.property.type="Identifier"]',
-				`[callee.property.name=/${customError.source}/]`
-			]
-		].map(selector => selector.join('')).join(', ')
-	})`
+			'[callee.type="Identifier"]',
+			`[callee.name=/${customError.source}/]`
+		].join(''),
+		// `throw lib.FooError()`
+		[
+			'[callee.type="MemberExpression"]',
+			'[callee.computed=false]',
+			'[callee.property.type="Identifier"]',
+			`[callee.property.name=/${customError.source}/]`
+		].join('')
+	])
 ].join('');
 
 const create = context => ({

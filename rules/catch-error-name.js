@@ -3,7 +3,7 @@ const {findVariable} = require('eslint-utils');
 const avoidCapture = require('./utils/avoid-capture');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const renameVariable = require('./utils/rename-variable');
-const methodSelector = require('./utils/method-selector');
+const {matches, methodCallSelector} = require('./selectors');
 
 const MESSAGE_ID = 'catch-error-name';
 const messages = {
@@ -11,16 +11,16 @@ const messages = {
 };
 
 const promiseMethodSelector = (method, argumentsLength, argumentIndex) => [
-	methodSelector({
+	methodCallSelector({
 		name: method,
 		length: argumentsLength
 	}),
-	`:matches(${
+	matches(
 		[
 			'FunctionExpression',
 			'ArrowFunctionExpression'
-		].map(type => `[arguments.${argumentIndex}.type="${type}"]`).join(', ')
-	})`,
+		].map(type => `[arguments.${argumentIndex}.type="${type}"]`)
+	),
 	`[arguments.${argumentIndex}.params.length=1]`,
 	`[arguments.${argumentIndex}.params.0.type="Identifier"]`
 ].join('');
@@ -33,7 +33,7 @@ const promiseThenSelector = promiseMethodSelector('then', 2, 1);
 
 const catchSelector = [
 	'CatchClause',
-	'>',
+	' > ',
 	'Identifier.param'
 ].join('');
 

@@ -1,7 +1,7 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const {methodCallSelector} = require('./selectors');
 const quoteString = require('./utils/quote-string');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child');
@@ -28,7 +28,7 @@ const isSimpleString = string => doesNotContain(
 const addParentheses = text => `(${text})`;
 
 const regexTestSelector = [
-	methodSelector({name: 'test', length: 1}),
+	methodCallSelector({name: 'test', length: 1}),
 	'[callee.object.regex]'
 ].join('');
 
