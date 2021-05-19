@@ -2,7 +2,7 @@
 const {findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
-const {methodCallSelector} = require('./selectors');
+const {matches, not, methodCallSelector} = require('./selectors');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -69,24 +69,16 @@ const arrayMethodSelector = methodCallSelector({
 const selector = [
 	'VariableDeclaration',
 	// Exclude `export const foo = [];`
-	`:not(${
-		[
-			'ExportNamedDeclaration',
-			'>',
-			'VariableDeclaration.declaration'
-		].join('')
-	})`,
-	'>',
+	not('ExportNamedDeclaration > .declaration'),
+	' > ',
 	'VariableDeclarator.declarations',
-	`:matches(${
-		[
-			arrayExpressionSelector,
-			ArraySelector,
-			newArraySelector,
-			arrayStaticMethodSelector,
-			arrayMethodSelector
-		].join(',')
-	})`,
+	matches([
+		arrayExpressionSelector,
+		ArraySelector,
+		newArraySelector,
+		arrayStaticMethodSelector,
+		arrayMethodSelector
+	]),
 	'>',
 	'Identifier.id'
 ].join('');

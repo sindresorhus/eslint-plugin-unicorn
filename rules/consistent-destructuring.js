@@ -1,6 +1,7 @@
 'use strict';
 const avoidCapture = require('./utils/avoid-capture');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const {not} = require('./selectors');
 
 const MESSAGE_ID = 'consistentDestructuring';
 const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';
@@ -15,15 +16,13 @@ const declaratorSelector = [
 const memberSelector = [
 	'MemberExpression',
 	'[computed=false]',
-	`:not(${
-		[
-			'AssignmentExpression > .left',
-			'CallExpression > .callee',
-			'NewExpression > .callee',
-			'UpdateExpression > .argument',
-			'UnaryExpression[operator="delete"] > .argument'
-		].join(', ')
-	})`
+	not([
+		'AssignmentExpression > .left',
+		'CallExpression > .callee',
+		'NewExpression > .callee',
+		'UpdateExpression > .argument',
+		'UnaryExpression[operator="delete"] > .argument'
+	])
 ].join('');
 
 const isSimpleExpression = expression => {

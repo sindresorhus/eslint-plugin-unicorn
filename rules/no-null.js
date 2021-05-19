@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
+const {not, matches, methodCallSelector} = require('./selectors');
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';
@@ -38,7 +38,7 @@ const reactUseRefSelector = methodCallSelector({
 const selector = [
 	'Literal',
 	'[raw="null"]',
-	`:not(:matches(${[objectCreateSelector, useRefSelector, reactUseRefSelector].join(', ')}) > .arguments)`
+	not(`${matches([objectCreateSelector, useRefSelector, reactUseRefSelector])} > .arguments`)
 ].join('');
 
 const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].includes(node.operator);

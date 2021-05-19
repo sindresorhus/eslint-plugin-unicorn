@@ -1,7 +1,7 @@
 'use strict';
 const {isParenthesized, findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
+const {not, methodCallSelector} = require('./selectors');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 const renameVariable = require('./utils/rename-variable');
 const avoidCapture = require('./utils/avoid-capture');
@@ -36,14 +36,8 @@ const filterMethodSelectorOptions = {
 const filterVariableSelector = [
 	'VariableDeclaration',
 	// Exclude `export const foo = [];`
-	`:not(${
-		[
-			'ExportNamedDeclaration',
-			'>',
-			'VariableDeclaration.declaration'
-		].join('')
-	})`,
-	'>',
+	not('ExportNamedDeclaration > .declaration'),
+	' > ',
 	'VariableDeclarator.declarations',
 	'[id.type="Identifier"]',
 	methodCallSelector({
