@@ -8,7 +8,7 @@ const {
 	findVariable
 } = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const methodCallSelector = require('./utils/method-call-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression');
 const {getParentheses} = require('./utils/parentheses');
@@ -23,7 +23,7 @@ const messages = {
 	[MESSAGE_ID]: 'Use `for…of` instead of `Array#forEach(…)`.'
 };
 
-const arrayForEachCallSelector = methodSelector({
+const arrayForEachCallSelector = methodCallSelector({
 	name: 'forEach',
 	includeOptionalCall: true,
 	includeOptionalMember: true

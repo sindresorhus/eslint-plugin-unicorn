@@ -1,5 +1,5 @@
 'use strict';
-const methodSelector = require('./utils/method-selector');
+const methodCallSelector = require('./utils/method-call-selector');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const {notFunctionSelector} = require('./utils/not-function');
 const {arrayPrototypeMethodSelector} = require('./utils/array-method-selector');
@@ -12,7 +12,7 @@ const messages = {
 };
 
 const prototypeSelector = method => [
-	methodSelector({name: method}),
+	methodCallSelector({name: method}),
 	arrayPrototypeMethodSelector({
 		path: 'callee.object',
 		names: ['reduce', 'reduceRight']
@@ -21,7 +21,7 @@ const prototypeSelector = method => [
 
 // `array.{reduce,reduceRight}()`
 const arrayReduce = [
-	methodSelector({names: ['reduce', 'reduceRight'], min: 1, max: 2}),
+	methodCallSelector({names: ['reduce', 'reduceRight'], min: 1, max: 2}),
 	notFunctionSelector('arguments.0')
 ].join('');
 // `[].{reduce,reduceRight}.call()` and `Array.{reduce,reduceRight}.call()`

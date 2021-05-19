@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const methodCallSelector = require('./utils/method-call-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
@@ -14,7 +14,7 @@ const messages = {
 // `array.flatMap(x => x)`
 const arrayFlatMap = {
 	selector: [
-		methodSelector({
+		methodCallSelector({
 			name: 'flatMap',
 			length: 1
 		}),
@@ -33,7 +33,7 @@ const arrayFlatMap = {
 // `array.reduce((a, b) => a.concat(b), [])`
 const arrayReduce = {
 	selector: [
-		methodSelector({
+		methodCallSelector({
 			name: 'reduce',
 			length: 2
 		}),
@@ -43,10 +43,10 @@ const arrayReduce = {
 		'[arguments.0.params.length=2]',
 		'[arguments.0.params.0.type="Identifier"]',
 		'[arguments.0.params.1.type="Identifier"]',
-		methodSelector({
+		methodCallSelector({
 			name: 'concat',
 			length: 1,
-			property: 'arguments.0.body'
+			path: 'arguments.0.body'
 		}),
 		'[arguments.0.body.callee.object.type="Identifier"]',
 		'[arguments.0.body.arguments.0.type="Identifier"]',
@@ -61,7 +61,7 @@ const arrayReduce = {
 // `array.reduce((a, b) => [...a, ...b], [])`
 const arrayReduce2 = {
 	selector: [
-		methodSelector({
+		methodCallSelector({
 			name: 'reduce',
 			length: 2
 		}),
@@ -88,7 +88,7 @@ const arrayReduce2 = {
 // `[].concat(array)` and `[].concat(...array)`
 const emptyArrayConcat = {
 	selector: [
-		methodSelector({
+		methodCallSelector({
 			name: 'concat',
 			length: 1,
 			allowSpreadElement: true
@@ -105,7 +105,7 @@ const emptyArrayConcat = {
 // `[].concat.apply([], array)` and `Array.prototype.concat.apply([], array)`
 const arrayPrototypeConcat = {
 	selector: [
-		methodSelector({
+		methodCallSelector({
 			name: 'apply',
 			length: 2
 		}),
@@ -121,7 +121,7 @@ const arrayPrototypeConcat = {
 
 // `_.flatten(array)`
 const lodashFlatten = {
-	selector: methodSelector({
+	selector: methodCallSelector({
 		objects: ['_', 'lodash', 'underscore'],
 		name: 'flatten',
 		length: 1

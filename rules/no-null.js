@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const methodCallSelector = require('./utils/method-call-selector');
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';
@@ -11,7 +11,7 @@ const messages = {
 	[SUGGESTION_REMOVE_MESSAGE_ID]: 'Remove `null`.'
 };
 
-const objectCreateSelector = methodSelector({
+const objectCreateSelector = methodCallSelector({
 	object: 'Object',
 	name: 'create',
 	length: 1
@@ -29,7 +29,7 @@ const useRefSelector = [
 
 // `React.useRef(null)`
 // eslint-disable-next-line unicorn/prevent-abbreviations
-const reactUseRefSelector = methodSelector({
+const reactUseRefSelector = methodCallSelector({
 	object: 'React',
 	name: 'useRef',
 	length: 1

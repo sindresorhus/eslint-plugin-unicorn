@@ -1,7 +1,7 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const methodCallSelector = require('./utils/method-call-selector');
 const {notFunctionSelector} = require('./utils/not-function');
 const {isNodeMatches} = require('./utils/is-node-matches');
 
@@ -146,7 +146,7 @@ const create = context => {
 	for (const [method, options] of iteratorMethods) {
 		const selector = [
 			method === 'reduce' || method === 'reduceRight' ? '' : ':not(AwaitExpression) > ',
-			methodSelector({
+			methodCallSelector({
 				name: method,
 				min: 1,
 				max: 2

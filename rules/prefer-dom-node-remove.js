@@ -1,7 +1,7 @@
 'use strict';
 const {isParenthesized, hasSideEffect} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const methodCallSelector = require('./utils/method-call-selector');
 const {notDomNodeSelector} = require('./utils/not-dom-node');
 const needsSemicolon = require('./utils/needs-semicolon');
 const isValueNotUsable = require('./utils/is-value-not-usable');
@@ -16,7 +16,7 @@ const messages = {
 };
 
 const selector = [
-	methodSelector({
+	methodCallSelector({
 		name: 'removeChild',
 		length: 1
 	}),

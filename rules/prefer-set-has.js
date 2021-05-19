@@ -2,7 +2,7 @@
 const {findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
-const methodSelector = require('./utils/method-selector');
+const methodCallSelector = require('./utils/method-call-selector');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -32,10 +32,10 @@ const newArraySelector = [
 
 // `Array.from()`
 // `Array.of()`
-const arrayStaticMethodSelector = methodSelector({
+const arrayStaticMethodSelector = methodCallSelector({
 	object: 'Array',
 	names: ['from', 'of'],
-	property: 'init'
+	path: 'init'
 });
 
 // `array.concat()`
@@ -49,7 +49,7 @@ const arrayStaticMethodSelector = methodSelector({
 // `array.slice()`
 // `array.sort()`
 // `array.splice()`
-const arrayMethodSelector = methodSelector({
+const arrayMethodSelector = methodCallSelector({
 	names: [
 		'concat',
 		'copyWithin',
@@ -63,7 +63,7 @@ const arrayMethodSelector = methodSelector({
 		'sort',
 		'splice'
 	],
-	property: 'init'
+	path: 'init'
 });
 
 const selector = [

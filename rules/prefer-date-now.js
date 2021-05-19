@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const methodCallSelector = require('./utils/method-call-selector');
 
 const MESSAGE_ID_DEFAULT = 'prefer-date';
 const MESSAGE_ID_METHOD = 'prefer-date-now-over-methods';
@@ -26,7 +26,7 @@ const operatorsSelector = (...operators) => `:matches(${
 })`;
 const newDateSelector = createNewDateSelector();
 const methodsSelector = [
-	methodSelector({
+	methodCallSelector({
 		names: ['getTime', 'valueOf'],
 		length: 0
 	}),

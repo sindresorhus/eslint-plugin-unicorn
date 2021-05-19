@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const methodCallSelector = require('./utils/method-call-selector');
 const {notDomNodeSelector} = require('./utils/not-dom-node');
 
 const MESSAGE_ID = 'prefer-query-selector';
@@ -9,7 +9,7 @@ const messages = {
 };
 
 const selector = [
-	methodSelector({
+	methodCallSelector({
 		names: ['getElementById', 'getElementsByClassName', 'getElementsByTagName'],
 		length: 1
 	}),

@@ -3,35 +3,50 @@
 function memberExpressionSelector(options) {
 	let {
 		path,
-		property,
-		properties,
-		object
+		name,
+		names,
+		object,
+		objects,
+		includeOptional
 	} = {
 		path: '',
 		property: '',
+		object: '',
+		includeOptional: false,
 		...options
 	};
 
-	const prefix = `${path}.`;
-	if (property) {
-		properties = [property];
+	const prefix = path ? `${path}.` : '';
+	if (name) {
+		names = [name];
+	}
+
+	if (object) {
+		objects = [object];
 	}
 
 	const parts = [
 		`[${prefix}type="MemberExpression"]`,
 		`[${prefix}computed=false]`,
-		`[${prefix}optional!=true]`,
 		`[${prefix}property.type="Identifier"]`
 	];
 
-	if (Array.isArray(properties) && properties.length > 0) {
-		parts.push(`:matches(${properties.map(property => `[${prefix}property.name="${property}"]`)})`);
+	if (!includeOptional) {
+		parts.push(`[${prefix}optional!=true]`);
 	}
 
-	if (object) {
+	if (Array.isArray(names) && names.length > 0) {
+		parts.push(`:matches(${
+			names.map(property => `[${prefix}property.name="${property}"]`).join(', ')
+		})`);
+	}
+
+	if (Array.isArray(objects) && objects.length > 0) {
 		parts.push(
 			`[${prefix}object.type="Identifier"]`,
-			`[${prefix}object.name="${object}"]`
+			`:matches(${
+				objects.map(object => `[${prefix}object.name="${object}"]`).join(', ')
+			})`
 		);
 	}
 

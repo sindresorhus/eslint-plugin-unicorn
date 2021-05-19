@@ -1,7 +1,7 @@
 'use strict';
 const {isCommaToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const methodCallSelector = require('./utils/method-call-selector');
 const {arrayPrototypeMethodSelector} = require('./utils/array-method-selector');
 
 const MESSAGE_ID = 'require-array-join-separator';
@@ -12,10 +12,10 @@ const messages = {
 const selector = `:matches(${
 	[
 		// `foo.join()`
-		methodSelector({name: 'join', length: 0}),
+		methodCallSelector({name: 'join', length: 0}),
 		// `[].join.call(foo)` and `Array.prototype.join.call(foo)`
 		[
-			methodSelector({name: 'call', length: 1}),
+			methodCallSelector({name: 'call', length: 1}),
 			arrayPrototypeMethodSelector({path: 'callee.object', name: 'join'})
 		].join('')
 	].join(', ')
