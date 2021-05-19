@@ -11,7 +11,7 @@ const selector = memberExpressionSelector('innerText');
 
 const create = context => {
 	return {
-		[selector]: ({property: node}) => {
+		[selector]({property: node}) {
 			context.report({
 				node,
 				messageId: MESSAGE_ID,
