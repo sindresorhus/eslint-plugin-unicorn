@@ -79,7 +79,7 @@ const selector = [
 		arrayStaticMethodSelector,
 		arrayMethodSelector
 	]),
-	'>',
+	' > ',
 	'Identifier.id'
 ].join('');
 

@@ -11,7 +11,7 @@ const customError = /^(?:[A-Z][\da-z]*)*Error$/;
 
 const selector = [
 	'ThrowStatement',
-	'>',
+	' > ',
 	'CallExpression.argument',
 	matches([
 		// `throw FooError()`

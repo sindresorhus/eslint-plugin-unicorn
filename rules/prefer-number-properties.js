@@ -24,7 +24,7 @@ const methods = {
 
 const methodsSelector = [
 	'CallExpression',
-	'>',
+	' > ',
 	'Identifier.callee',
 	matches(Object.keys(methods).map(name => `[name="${name}"]`))
 ].join('');

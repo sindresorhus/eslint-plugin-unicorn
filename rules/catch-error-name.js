@@ -33,7 +33,7 @@ const promiseThenSelector = promiseMethodSelector('then', 2, 1);
 
 const catchSelector = [
 	'CatchClause',
-	'>',
+	' > ',
 	'Identifier.param'
 ].join('');
 
