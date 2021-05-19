@@ -1,6 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const {methodCallSelector} = require('./selectors');
+const {appendArgument} = require('./fix');
 
 const MESSAGE_ID = 'require-number-to-fixed-digits-argument';
 const messages = {
@@ -28,7 +29,7 @@ const create = context => {
 				},
 				messageId: MESSAGE_ID,
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => fixer.insertTextBefore(closingParenthesis, '0')
+				fix: fixer => appendArgument(fixer, node, '0', sourceCode)
 			});
 		}
 	};

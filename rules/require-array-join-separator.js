@@ -1,7 +1,7 @@
 'use strict';
-const {isCommaToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const {matches, methodCallSelector, arrayPrototypeMethodSelector} = require('./selectors');
+const {appendArgument} = require('./fix');
 
 const MESSAGE_ID = 'require-array-join-separator';
 const messages = {
@@ -31,16 +31,8 @@ const create = context => {
 				},
 				messageId: MESSAGE_ID,
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix(fixer) {
-					let text = '\',\'';
-
-					if (isPrototypeMethod) {
-						text = isCommaToken(penultimateToken) ? `${text},` : `, ${text}`;
-					}
-
-					return fixer.insertTextBefore(lastToken, text);
-				}
-			});
+				fix: fixer => appendArgument(node, '\',\'', sourceCode)
+			})
 		}
 	};
 };
