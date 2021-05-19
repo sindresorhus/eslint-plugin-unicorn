@@ -7,8 +7,8 @@ function matches(selectors) {
 		case 1:
 			// Make selectors more readable
 			return selectors[0];
-		default: 
-			return `:matches(${selectors.join(', ')})`
+		default:
+			return `:matches(${selectors.join(', ')})`;
 	}
 }
 
