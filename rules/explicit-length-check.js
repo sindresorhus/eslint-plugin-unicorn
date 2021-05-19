@@ -1,9 +1,10 @@
 'use strict';
-const {isParenthesized, getStaticValue} = require('eslint-utils');
+const {isParenthesized, getStaticValue, findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 const isLogicalExpression = require('./utils/is-logical-expression');
 const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean');
+const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -103,6 +104,11 @@ function getLengthCheckNode(node) {
 	return {};
 }
 
+function isExpectedPropertyForPrototype(property, prototype) {
+	// eslint-disable-next-line no-prototype-builtins
+	return prototype.hasOwnProperty(property) || Object.prototype.hasOwnProperty(property);
+}
+
 function create(context) {
 	const options = {
 		'non-zero': 'greater-than',
@@ -159,6 +165,32 @@ function create(context) {
 			if (staticValue && (!Number.isInteger(staticValue.value) || staticValue.value < 0)) {
 				// Ignore known, non-positive-integer length properties.
 				return;
+			}
+
+			const variable = findVariable(context.getScope(), lengthNode.object);
+			if (variable) {
+				const identifiers = getVariableIdentifiers(variable).filter(identifier => identifier !== lengthNode.object);
+				let expectedPrototype;
+				if (lengthNode.property.name === 'length') {
+					expectedPrototype = Array.prototype;
+				} else if (lengthNode.property.name === 'size') {
+					expectedPrototype = Set.prototype;
+				} else {
+					/* istanbul ignore next */
+					throw new Error('Unhandled lengthNode property name');
+				}
+
+				if (
+					identifiers.some(identifier =>
+						identifier.parent.type === 'MemberExpression' &&
+						identifier.parent.object === identifier &&
+						identifier.parent.property.type === 'Identifier' &&
+						!isExpectedPropertyForPrototype(identifier.parent.property.name, expectedPrototype)
+					)
+				) {
+					// A non-Array/Set property or function is being accessed on this variable, so it may not be an actual Array/Set.
+					return;
+				}
 			}
 
 			let node;
