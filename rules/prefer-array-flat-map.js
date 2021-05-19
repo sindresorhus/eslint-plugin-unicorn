@@ -11,42 +11,6 @@ const messages = {
 	[MESSAGE_ID_SPREAD]: 'Prefer `.flatMap(…)` over `[].concat(...foo.map(…))`.'
 };
 
-const SELECTOR_SPREAD = [
-	// [].concat(...bar.map((i) => i))
-	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	'CallExpression',
-
-	// [].concat(...bar.map((i) => i))
-	// ^^
-	'[callee.object.type="ArrayExpression"]',
-	'[callee.object.elements.length=0]',
-
-	// [].concat(...bar.map((i) => i))
-	//    ^^^^^^
-	'[callee.type="MemberExpression"]',
-	'[callee.computed=false]',
-	'[callee.property.type="Identifier"]',
-	'[callee.property.name="concat"]',
-
-	// [].concat(...bar.map((i) => i))
-	//           ^^^^^^^^^^^^^^^^^^^^
-	'[arguments.0.type="SpreadElement"]',
-
-	// [].concat(...bar.map((i) => i))
-	//              ^^^^^^^^^^^^^^^^^
-	'[arguments.0.argument.type="CallExpression"]',
-
-	// [].concat(...bar.map((i) => i))
-	//              ^^^^^^^
-	'[arguments.0.argument.callee.type="MemberExpression"]',
-	'[arguments.0.argument.callee.computed=false]',
-
-	// [].concat(...bar.map((i) => i))
-	//                  ^^^
-	'[arguments.0.argument.callee.property.type="Identifier"]',
-	'[arguments.0.argument.callee.property.name="map"]'
-].join('');
-
 const reportFlatMap = (context, nodeFlat, nodeMap) => {
 	const source = context.getSourceCode();
 
@@ -157,12 +121,6 @@ const create = context => ({
 		}
 
 		reportFlatMap(context, node, calleeObject);
-	},
-	[SELECTOR_SPREAD]: node => {
-		context.report({
-			node,
-			messageId: MESSAGE_ID_SPREAD
-		});
 	}
 });
 
