@@ -1,6 +1,5 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const isMethodNamed = require('./utils/is-method-named');
 const isLiteralValue = require('./utils/is-literal-value');
 const {isNodeMatches} = require('./utils/is-node-matches');
 const {methodCallSelector} = require('./selectors');
