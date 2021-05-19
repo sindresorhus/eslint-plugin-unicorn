@@ -76,7 +76,7 @@ Configure it in `package.json`.
 			"unicorn/no-useless-undefined": "error",
 			"unicorn/no-zero-fractions": "error",
 			"unicorn/number-literal-case": "error",
-			"unicorn/number-to-fixed-digits": "error",
+			"unicorn/require-number-to-fixed-digit-argument": "error",
 			"unicorn/numeric-separators-style": "error",
 			"unicorn/prefer-add-event-listener": "error",
 			"unicorn/prefer-array-find": "error",
@@ -131,7 +131,7 @@ Each rule has emojis denoting:
 <!-- Do not manually modify this table. Run: `npm run generate-rules-table` -->
 <!-- RULES_TABLE_START -->
 
-| Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | ✅ | 🔧 |
+| Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | ✅ | 🔧 |
 | :-- | :-- | :-- | :-- |
 | [better-regex](docs/rules/better-regex.md) | Improve regexes by making them shorter, consistent, and safer. | ✅ | 🔧 |
 | [catch-error-name](docs/rules/catch-error-name.md) | Enforce a specific parameter name in catch clauses. | ✅ | 🔧 |
@@ -173,7 +173,6 @@ Each rule has emojis denoting:
 | [no-useless-undefined](docs/rules/no-useless-undefined.md) | Disallow useless `undefined`. | ✅ | 🔧 |
 | [no-zero-fractions](docs/rules/no-zero-fractions.md) | Disallow number literals with zero fractions or dangling dots. | ✅ | 🔧 |
 | [number-literal-case](docs/rules/number-literal-case.md) | Enforce proper case for numeric literals. | ✅ | 🔧 |
-| [number-to-fixed-digits](docs/rules/number-to-fixed-digits.md) | Enforce using the digits argument with `Number#toFixed()`. | ✅ | 🔧 |
 | [numeric-separators-style](docs/rules/numeric-separators-style.md) | Enforce the style of numeric separators by correctly grouping digits. | ✅ | 🔧 |
 | [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) | Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. | ✅ | 🔧 |
 | [prefer-array-find](docs/rules/prefer-array-find.md) | Prefer `.find(…)` over the first element from `.filter(…)`. | ✅ | 🔧 |
@@ -210,6 +209,7 @@ Each rule has emojis denoting:
 | [prefer-ternary](docs/rules/prefer-ternary.md) | Prefer ternary expressions over simple `if-else` statements. | ✅ | 🔧 |
 | [prefer-type-error](docs/rules/prefer-type-error.md) | Enforce throwing `TypeError` in type checking conditions. | ✅ | 🔧 |
 | [prevent-abbreviations](docs/rules/prevent-abbreviations.md) | Prevent abbreviations. | ✅ | 🔧 |
+| [require-number-to-fixed-digit-argument](docs/rules/require-number-to-fixed-digit-argument.md) | Enforce using the digits argument with `Number#toFixed()`. | ✅ | 🔧 |
 | [string-content](docs/rules/string-content.md) | Enforce better string content. |  | 🔧 |
 | [throw-new-error](docs/rules/throw-new-error.md) | Require `new` when throwing an error. | ✅ | 🔧 |
 
