@@ -1,6 +1,14 @@
 'use strict';
 
 function memberExpressionSelector(options) {
+	if (typeof options === 'string') {
+		options = {names: [options]};
+	}
+
+	if (Array.isArray(options)) {
+		options = {names: options};
+	}
+
 	let {
 		path,
 		name,
