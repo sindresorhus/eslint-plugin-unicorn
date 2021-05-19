@@ -61,6 +61,50 @@ test.snapshot({
 		'const buffer = new Buffer(unknown, 2)',
 		'const buffer = new Buffer(...unknown)',
 
+		// `ReturnStatement`
+		outdent`
+			() => {
+				return new // 1
+					Buffer();
+			}
+		`,
+		outdent`
+			() => {
+				return (
+					new // 2
+						Buffer()
+				);
+			}
+		`,
+		outdent`
+			() => {
+				return new // 3
+					(Buffer);
+			}
+		`,
+		outdent`
+			() => {
+				return new // 4
+					Buffer;
+			}
+		`,
+		outdent`
+			() => {
+				return (
+					new // 5
+						Buffer
+				);
+			}
+		`,
+		outdent`
+			() => {
+				return (
+					new // 6
+						(Buffer)
+				);
+			}
+		`,
+
 		// Misc
 		'const buffer = new /* comment */ Buffer()',
 		'const buffer = new /* comment */ Buffer'

@@ -70,6 +70,7 @@ function getParenthesizedText(node, sourceCode) {
 }
 
 module.exports = {
+	isParenthesized,
 	getParenthesizedTimes,
 	getParentheses,
 	getParenthesizedRange,
