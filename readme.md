@@ -76,7 +76,6 @@ Configure it in `package.json`.
 			"unicorn/no-useless-undefined": "error",
 			"unicorn/no-zero-fractions": "error",
 			"unicorn/number-literal-case": "error",
-			"unicorn/require-number-to-fixed-digit-argument": "error",
 			"unicorn/numeric-separators-style": "error",
 			"unicorn/prefer-add-event-listener": "error",
 			"unicorn/prefer-array-find": "error",
@@ -114,6 +113,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-type-error": "error",
 			"unicorn/prevent-abbreviations": "error",
 			"unicorn/require-array-join-separator": "error",
+			"unicorn/require-number-to-fixed-digit-argument": "error",
 			"unicorn/string-content": "off",
 			"unicorn/throw-new-error": "error"
 		}
