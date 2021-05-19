@@ -2,7 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const methodSelector = require('./utils/method-selector');
 
-const MESSAGE_ID = 'require-number-to-fixed-digit-argument';
+const MESSAGE_ID = 'require-number-to-fixed-digits-argument';
 const messages = {
 	[MESSAGE_ID]: 'Missing the digits argument.'
 };
