@@ -3,6 +3,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const isMethodNamed = require('./utils/is-method-named');
 const isLiteralValue = require('./utils/is-literal-value');
 const {isNodeMatches} = require('./utils/is-node-matches');
+const {methodCallSelector} = require('./selectors');
 
 const MESSAGE_ID_FLATMAP = 'flat-map';
 const MESSAGE_ID_SPREAD = 'spread';
@@ -11,7 +12,13 @@ const messages = {
 	[MESSAGE_ID_SPREAD]: 'Prefer `.flatMap(…)` over `[].concat(...foo.map(…))`.'
 };
 
-const reportFlatMap = (context, nodeFlat, nodeMap) => {
+const selector = [
+	methodCallSelector({name: 'flat', max: 1}),
+	methodCallSelector({path: 'callee.object', name: 'map'})
+].join('');
+
+const reportFlatMap = (context, nodeFlat) => {
+	const nodeMap = nodeFlat.callee.object;
 	const source = context.getSourceCode();
 
 	// Node covers:
@@ -95,32 +102,23 @@ const reportFlatMap = (context, nodeFlat, nodeMap) => {
 	});
 };
 
-const create = context => ({
-	CallExpression: node => {
-		if (!isMethodNamed(node, 'flat')) {
-			return;
-		}
+const ignored = ['React.Children', 'Children'];
 
+const create = context => ({
+	[selector]: node => {
 		if (
 			!(
 				// `.flat()`
 				node.arguments.length === 0 ||
 				// `.flat(1)`
 				(node.arguments.length === 1 && isLiteralValue(node.arguments[0], 1))
-			)
+			) ||
+			isNodeMatches(node.callee.object.callee.object, ignored)
 		) {
 			return;
 		}
 
-		const calleeObject = node.callee.object;
-		if (
-			!isMethodNamed(calleeObject, 'map') ||
-			isNodeMatches(calleeObject.callee.object, ['React.Children', 'Children'])
-		) {
-			return;
-		}
-
-		reportFlatMap(context, node, calleeObject);
+		reportFlatMap(context, node);
 	}
 });
 
