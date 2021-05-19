@@ -21,7 +21,7 @@ const createNewDateSelector = path => {
 	].join('');
 };
 
-const operatorsSelector = (...operators) => matches(operators.map(operator => `[operator="${operator}"]`);
+const operatorsSelector = (...operators) => matches(operators.map(operator => `[operator="${operator}"]`));
 const newDateSelector = createNewDateSelector();
 const methodsSelector = [
 	methodCallSelector({
