@@ -4,6 +4,7 @@ const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
+const arrayPrototypeMethodSelector = require('./utils/array-prototype-method-selector');
 
 const MESSAGE_ID = 'prefer-array-flat';
 const messages = {
@@ -138,13 +139,10 @@ const arrayPrototypeConcat = {
 			length: 2
 		}),
 		emptyArraySelector('arguments.0'),
-		memberExpressionSelector('callee.object', {property: 'concat'}),
-		`:matches(${
-			[
-				emptyArraySelector('callee.object.object'),
-				memberExpressionSelector('callee.object.object', {property: 'prototype', object: 'Array'})
-			].join(', ')
-		})`
+		arrayPrototypeMethodSelector({
+			path: 'callee.object',
+			name: 'concat'
+		})
 	].join(''),
 	getArrayNode: node => node.arguments[1],
 	description: 'Array.prototype.concat()'

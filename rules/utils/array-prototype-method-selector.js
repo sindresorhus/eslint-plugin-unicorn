@@ -33,7 +33,7 @@ const emptyArraySelector = path => {
 function arrayPrototypeMethodSelector(options) {
 	const {
 		name,
-		path,
+		path
 	} = {
 		path: '',
 		...options
@@ -44,14 +44,14 @@ function arrayPrototypeMethodSelector(options) {
 	return [
 		memberExpressionSelector({
 			path,
-			property: name,
+			property: name
 		}),
 		`:matches(${
 			[
 				emptyArraySelector(`${prefix}object`),
 				memberExpressionSelector({
 					path: `${prefix}object`,
-					property: 'prototype', 
+					property: 'prototype',
 					object: 'Array'
 				})
 			].join(', ')
