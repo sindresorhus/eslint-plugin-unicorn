@@ -1,25 +1,5 @@
 'use strict';
-
-const memberExpressionSelector = ({path, property, object}) => {
-	const prefix = `${path}.`;
-
-	const parts = [
-		`[${prefix}type="MemberExpression"]`,
-		`[${prefix}computed=false]`,
-		`[${prefix}optional!=true]`,
-		`[${prefix}property.type="Identifier"]`,
-		`[${prefix}property.name="${property}"]`
-	];
-
-	if (object) {
-		parts.push(
-			`[${prefix}object.type="Identifier"]`,
-			`[${prefix}object.name="${object}"]`
-		);
-	}
-
-	return parts.join('');
-};
+const memberExpressionSelector = require('./member-expression-selector');
 
 const emptyArraySelector = path => {
 	const prefix = `${path}.`;
@@ -31,8 +11,9 @@ const emptyArraySelector = path => {
 
 // `[].method` or `Array.prototype.method`
 function arrayPrototypeMethodSelector(options) {
-	const {
+	let {
 		name,
+		names,
 		path
 	} = {
 		path: '',
@@ -40,11 +21,14 @@ function arrayPrototypeMethodSelector(options) {
 	};
 
 	const prefix = path ? `${path}.` : '';
+	if (name) {
+		names = [name];
+	}
 
 	return [
 		memberExpressionSelector({
 			path,
-			property: name
+			properties: names
 		}),
 		`:matches(${
 			[
@@ -59,4 +43,4 @@ function arrayPrototypeMethodSelector(options) {
 	].join('');
 }
 
-module.exports = arrayPrototypeMethodSelector;
+module.exports = {arrayPrototypeMethodSelector};

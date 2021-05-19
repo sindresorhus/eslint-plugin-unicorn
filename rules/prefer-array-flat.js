@@ -4,40 +4,11 @@ const methodSelector = require('./utils/method-selector');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
-const arrayPrototypeMethodSelector = require('./utils/array-prototype-method-selector');
+const {arrayPrototypeMethodSelector, emptyArraySelector} = require('./utils/array-method-selector');
 
 const MESSAGE_ID = 'prefer-array-flat';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Array#flat()` over `{{description}}` to flatten an array.'
-};
-
-const emptyArraySelector = path => {
-	const prefix = `${path}.`;
-	return [
-		`[${prefix}type="ArrayExpression"]`,
-		`[${prefix}elements.length=0]`
-	].join('');
-};
-
-const memberExpressionSelector = (path, {property, object}) => {
-	const prefix = `${path}.`;
-
-	const parts = [
-		`[${prefix}type="MemberExpression"]`,
-		`[${prefix}computed=false]`,
-		`[${prefix}optional!=true]`,
-		`[${prefix}property.type="Identifier"]`,
-		`[${prefix}property.name="${property}"]`
-	];
-
-	if (object) {
-		parts.push(
-			`[${prefix}object.type="Identifier"]`,
-			`[${prefix}object.name="${object}"]`
-		);
-	}
-
-	return parts.join('');
 };
 
 // `array.flatMap(x => x)`
