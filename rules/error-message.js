@@ -27,7 +27,7 @@ const errorConstructors = [
 const selector = [
 	matches(['NewExpression', 'CallExpression']),
 	'[callee.type="Identifier"]',
-	matches(errorConstructors.map(name => `[callee.name="${name}"]`)),
+	matches(errorConstructors.map(name => `[callee.name="${name}"]`))
 ].join('');
 const noArgumentsExpressionSelector = `${selector}[arguments.length=0]`;
 const errorMessageSelector = `${selector}[arguments.length>0]`;

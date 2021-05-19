@@ -12,8 +12,8 @@ const selector = [
 		names: ['trimLeft', 'trimRight'],
 		length: 0
 	}),
-	'> .callee',
-	'> .property'
+	' > .callee',
+	' > .property'
 ].join(' ');
 
 const create = context => {

@@ -18,15 +18,15 @@ const selector = [
 		[
 			'[callee.type="Identifier"]',
 			`[callee.name=/${customError.source}/]`
-		],
+		].join(''),
 		// `throw lib.FooError()`
 		[
 			'[callee.type="MemberExpression"]',
 			'[callee.computed=false]',
 			'[callee.property.type="Identifier"]',
 			`[callee.property.name=/${customError.source}/]`
-		]
-	].map(selector => selector.join('')))
+		].join('')
+	])
 ].join('');
 
 const create = context => ({

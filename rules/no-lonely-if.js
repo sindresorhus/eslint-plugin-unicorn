@@ -15,10 +15,10 @@ const selector = matches([
 	// `if (a) { if (b) {} }`
 	[
 		ifStatementWithoutAlternate,
-		'>',
+		' > ',
 		'BlockStatement.consequent',
 		'[body.length=1]',
-		'>',
+		' > ',
 		`${ifStatementWithoutAlternate}.body`
 	].join(''),
 
