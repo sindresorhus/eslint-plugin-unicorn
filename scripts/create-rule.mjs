@@ -13,7 +13,9 @@ function checkFiles(ruleId) {
 	const files = [
 		`docs/rules/${ruleId}.md`,
 		`rules/${ruleId}.js`,
-		`test/${ruleId}.mjs`
+		`test/${ruleId}.mjs`,
+		`test/snapshots/${ruleId}.mjs.md`,
+		`test/snapshots/${ruleId}.mjs.snap`
 	];
 
 	for (const file of files) {
