@@ -1,6 +1,11 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {not, matches, methodCallSelector} = require('./selectors');
+const {
+	not,
+	matches,
+	methodCallSelector,
+	callExpressionSelector
+} = require('./selectors');
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';
@@ -19,13 +24,7 @@ const objectCreateSelector = methodCallSelector({
 
 // `useRef(null)`
 // eslint-disable-next-line unicorn/prevent-abbreviations
-const useRefSelector = [
-	'CallExpression',
-	'[callee.type="Identifier"]',
-	'[callee.name="useRef"]',
-	'[arguments.length=1]',
-	'[arguments.0.type!="SpreadElement"]'
-].join('');
+const useRefSelector = callExpressionSelector({name: 'useRef', length: 1});
 
 // `React.useRef(null)`
 // eslint-disable-next-line unicorn/prevent-abbreviations

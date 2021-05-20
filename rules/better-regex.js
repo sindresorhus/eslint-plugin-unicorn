@@ -11,7 +11,7 @@ const messages = {
 };
 
 const newRegExp = [
-	newExpressionSelector({name: 'RegExp', min: 1, }),
+	newExpressionSelector({name: 'RegExp', min: 1}),
 	'[arguments.0.type="Literal"]'
 ].join('');
 

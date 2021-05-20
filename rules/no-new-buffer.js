@@ -53,7 +53,7 @@ function fix(node, sourceCode, method) {
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	return {
-		[newExpressionSelector("Buffer")]: node => {
+		[newExpressionSelector('Buffer')]: node => {
 			const method = inferMethod(node.arguments, context.getScope());
 
 			if (method) {

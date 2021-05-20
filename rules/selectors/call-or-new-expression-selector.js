@@ -19,7 +19,7 @@ function create(options, types) {
 		min,
 		max,
 		includeOptional,
-		allowSpreadElement,
+		allowSpreadElement
 	} = {
 		path: '',
 		min: 0,
@@ -81,5 +81,5 @@ const callOrNewExpressionSelector = options => create(options, ['CallExpression'
 module.exports = {
 	newExpressionSelector,
 	callExpressionSelector,
-	callOrNewExpressionSelector,
+	callOrNewExpressionSelector
 };
