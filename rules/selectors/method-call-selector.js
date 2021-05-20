@@ -39,7 +39,7 @@ function methodCallSelector(options) {
 	const {
 		path,
 		includeOptionalCall,
-		includeOptionalMember,
+		includeOptionalMember
 	} = {
 		path: '',
 		includeOptionalCall: false,
