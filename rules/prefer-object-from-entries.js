@@ -48,7 +48,8 @@ const arrayReduceCases = [
 			methodCallSelector({path: 'arguments.0.body', object: 'Object', name: 'assign', length: 2}),
 			'[arguments.0.body.arguments.0.type="Identifier"]',
 			'[arguments.0.body.arguments.1.type="ObjectExpression"]',
-			'[arguments.0.body.arguments.1.properties.length=1]'
+			'[arguments.0.body.arguments.1.properties.length=1]',
+			'[arguments.0.body.arguments.1.properties.0.type="Property"]'
 		].join(''),
 		getObject: node => node.arguments[0].body.arguments[0],
 		getKey: node => node.arguments[0].body.arguments[1].properties[0].key,
@@ -61,7 +62,8 @@ const arrayReduceCases = [
 			'[arguments.0.body.type="ObjectExpression"]',
 			'[arguments.0.body.properties.length=2]',
 			'[arguments.0.body.properties.0.type="SpreadElement"]',
-			'[arguments.0.body.properties.0.argument.type="Identifier"]'
+			'[arguments.0.body.properties.0.argument.type="Identifier"]',
+			'[arguments.0.body.properties.1.type="Property"]'
 		].join(''),
 		getObject: node => node.arguments[0].body.properties[0].argument,
 		getKey: node => node.arguments[0].body.properties[1].key,
@@ -189,7 +191,6 @@ function create(context) {
 		};
 	}
 
-console.log({functions})
 	listeners[anyCall] = function(node) {
 		if (!isNodeMatches(node, functions)) {
 			return;

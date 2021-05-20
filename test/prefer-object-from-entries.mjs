@@ -6,6 +6,50 @@ const {test} = getTester(import.meta);
 // `Array#reduce()`
 test.snapshot({
 	valid: [
+		'pairs.reduce(object => ({...object, key}));',
+		'pairs.reduce(object => ({...object, key}), {}, extraArgument);',
+		'pairs.reduce({}, object => ({...object, key}));',
+		'reduce(object => ({...object, key}), {});',
+		'new reduce(object => ({...object, key}), {});',
+		'pairs.reduce?.(object => ({...object, key}), {});',
+		'pairs?.reduce(object => ({...object, key}), {});',
+		'pairs.notReduce(object => ({...object, key}), {});',
+		'pairs.reduce(object => ({...object, key}), {notEmpty});',
+		'pairs.reduce(object => ({...object, key}), []);',
+		'pairs.reduce(object => ({...object, key}), {}, extraArgument);',
+		'pairs.reduce(...[(object => ({...object, key}))], {});',
+		'pairs.reduce(object => ({...object, key}), ...[{}]);',
+		// `Object.create(null)`
+		'pairs.reduce(object => ({...object, key}), Object.create());',
+		'pairs.reduce(object => ({...object, key}), Object.create(null, extraArgument));',
+		'pairs.reduce(object => ({...object, key}), Object.create?.(null));',
+		'pairs.reduce(object => ({...object, key}), Object?.create(null));',
+		'pairs.reduce(object => ({...object, key}), window.Object.create(null));',
+		'pairs.reduce(object => ({...object, key}), Object.notCreate(null));',
+		'pairs.reduce(object => ({...object, key}), NotObject.create(null));',
+		'pairs.reduce(object => ({...object, key}), object.create(null));',
+		'pairs.reduce(object => ({...object, key}), object.CREATE(null));',
+		'pairs.reduce(object => ({...object, key}), Object.create("null"));',
+		// Callback function
+		'pairs.reduce(function(object) {Object.assign(object, {key})}, {});',
+		'pairs.reduce(object => ({...object, key} + 1), {});',
+		'pairs.reduce((object = {}) => ({...object, key}), {});',
+		'pairs.reduce((object) => ({...NotSameObject, key}), {});',
+		'pairs.reduce(object => ({...object, key, anotherKey}), {});',
+		'pairs.reduce(object => ({}), {});',
+		'pairs.reduce(object => ({keyFirst, ...object}), {});',
+		'pairs.reduce(async object => ({...object, key}), {});',
+		'pairs.reduce(async object => await {...object, key}, {});',
+		'pairs.reduce((...object) => ({...object, key}), {});',
+		'pairs.reduce(({object}) => ({...object, key}), {});',
+		'pairs.reduce(object => ({...object, ...key}), {});',
+		'pairs.reduce(object => Object.assign(NotSameObject, {key}), {});',
+		'pairs.reduce(object => Object.assign(object, {}), {});',
+		'pairs.reduce(object => Object.assign(object, {...key}), {});',
+		'pairs.reduce(object => Object.assign?.(object, {key}), {});',
+		'pairs.reduce(object => Object?.assign(object, {key}), {});',
+		'pairs.reduce(object => Object.notAssign(object, {key}), {});',
+		'pairs.reduce(object => NotObject.assign(object, {key}), {});'
 	],
 	invalid: [
 		'pairs.reduce(object => ({...object, key}), {});',
@@ -76,6 +120,9 @@ test.snapshot({
 		// `.reduce` has multiple parameters
 		'pairs.reduce((object, element, index, array) => ({...object, key}), {});',
 		'pairs.reduce((object, [key, value], index, array,) => ({...object, [key]: value + index + array.length}), {});',
+		// [TODO]: FIX THIS, These should not be fixable or reported
+		'pairs.reduce(object => ({...object, object}), {});',
+		'pairs.reduce(object => ({...object, key: Object.keys(object)}), {});',
 	]
 });
 
