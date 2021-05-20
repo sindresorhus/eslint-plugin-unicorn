@@ -24,7 +24,7 @@ const SELECTOR_SPREAD = [
 	// [].concat(...bar.map((i) => i))
 	//    ^^^^^^
 	'[callee.type="MemberExpression"]',
-	'[callee.computed=false]',
+	'[callee.computed!=true]',
 	'[callee.property.type="Identifier"]',
 	'[callee.property.name="concat"]',
 
@@ -39,7 +39,7 @@ const SELECTOR_SPREAD = [
 	// [].concat(...bar.map((i) => i))
 	//              ^^^^^^^
 	'[arguments.0.argument.callee.type="MemberExpression"]',
-	'[arguments.0.argument.callee.computed=false]',
+	'[arguments.0.argument.callee.computed!=true]',
 
 	// [].concat(...bar.map((i) => i))
 	//                  ^^^
