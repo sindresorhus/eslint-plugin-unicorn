@@ -1,7 +1,7 @@
 'use strict';
 
 const {hasSideEffect, isParenthesized, findVariable} = require('eslint-utils');
-const {methodCallSelector} = require('../selectors');
+const {matches, methodCallSelector} = require('../selectors');
 const isFunctionSelfUsedInside = require('../utils/is-function-self-used-inside');
 
 const getBinaryExpressionSelector = path => [
@@ -15,26 +15,24 @@ const getFunctionSelector = path => [
 	`[${path}.params.length=1]`,
 	`[${path}.params.0.type="Identifier"]`
 ].join('');
-const callbackFunctionSelector = path => `:matches(${
+const callbackFunctionSelector = path => matches([
+	// Matches `foo.findIndex(bar => bar === baz)`
 	[
-		// Matches `foo.findIndex(bar => bar === baz)`
-		[
-			`[${path}.type="ArrowFunctionExpression"]`,
-			getFunctionSelector(path),
-			getBinaryExpressionSelector(`${path}.body`)
-		].join(''),
-		// Matches `foo.findIndex(bar => {return bar === baz})`
-		// Matches `foo.findIndex(function (bar) {return bar === baz})`
-		[
-			`:matches([${path}.type="ArrowFunctionExpression"], [${path}.type="FunctionExpression"])`,
-			getFunctionSelector(path),
-			`[${path}.body.type="BlockStatement"]`,
-			`[${path}.body.body.length=1]`,
-			`[${path}.body.body.0.type="ReturnStatement"]`,
-			getBinaryExpressionSelector(`${path}.body.body.0.argument`)
-		].join('')
-	].join(', ')
-})`;
+		`[${path}.type="ArrowFunctionExpression"]`,
+		getFunctionSelector(path),
+		getBinaryExpressionSelector(`${path}.body`)
+	].join(''),
+	// Matches `foo.findIndex(bar => {return bar === baz})`
+	// Matches `foo.findIndex(function (bar) {return bar === baz})`
+	[
+		`:matches([${path}.type="ArrowFunctionExpression"], [${path}.type="FunctionExpression"])`,
+		getFunctionSelector(path),
+		`[${path}.body.type="BlockStatement"]`,
+		`[${path}.body.body.length=1]`,
+		`[${path}.body.body.0.type="ReturnStatement"]`,
+		getBinaryExpressionSelector(`${path}.body.body.0.argument`)
+	].join('')
+]);
 const isIdentifierNamed = ({type, name}, expectName) => type === 'Identifier' && name === expectName;
 
 function simpleArraySearchRule({method, replacement}) {
