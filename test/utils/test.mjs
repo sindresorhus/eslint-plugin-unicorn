@@ -18,7 +18,7 @@ function normalizeInvalidTest(test, rule) {
 
 	if (Array.isArray(errors) && errors.some(error => error.suggestions) && rule.meta.docs.suggest !== true) {
 		// This check will no longer be necessary if this change lands in ESLint 8: https://github.com/eslint/eslint/issues/14312
-		throw new Error('Rule with suggestion is missing `meta.docs.suggestion`.');
+		throw new Error('Rule with suggestion is missing `meta.docs.suggest`.');
 	}
 
 	return {
