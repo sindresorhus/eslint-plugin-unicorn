@@ -15,6 +15,7 @@ function appendArgument(fixer, node, text, sourceCode) {
 	if (hasArgument && !hasTrailingComma) {
 		text = `, ${text}`;
 	}
+
 	if (hasTrailingComma) {
 		text = `${text},`;
 	}
