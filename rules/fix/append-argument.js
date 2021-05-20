@@ -10,14 +10,8 @@ function appendArgument(fixer, node, text, sourceCode) {
 	}
 
 	const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
-	const hasArgument = node.arguments.length > 0;
-	const hasTrailingComma = hasArgument && isCommaToken(penultimateToken);
-	if (hasArgument && !hasTrailingComma) {
-		text = `, ${text}`;
-	}
-
-	if (hasTrailingComma) {
-		text = `${text},`;
+	if (node.arguments.length > 0) {
+		text = isCommaToken(penultimateToken) ? `${text},` : `, ${text}`;
 	}
 
 	return fixer.insertTextBefore(lastToken, text);
