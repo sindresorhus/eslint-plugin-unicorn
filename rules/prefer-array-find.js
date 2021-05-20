@@ -48,7 +48,7 @@ const filterVariableSelector = [
 
 const zeroIndexSelector = [
 	'MemberExpression',
-	'[computed=true]',
+	'[computed!=false]',
 	'[property.type="Literal"]',
 	'[property.raw="0"]',
 	methodCallSelector({

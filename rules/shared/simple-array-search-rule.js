@@ -10,8 +10,8 @@ const getBinaryExpressionSelector = path => [
 	`:matches([${path}.left.type="Identifier"], [${path}.right.type="Identifier"])`
 ].join('');
 const getFunctionSelector = path => [
-	`[${path}.generator=false]`,
-	`[${path}.async=false]`,
+	`[${path}.generator!=true]`,
+	`[${path}.async!=true]`,
 	`[${path}.params.length=1]`,
 	`[${path}.params.0.type="Identifier"]`
 ].join('');

@@ -15,7 +15,7 @@ const declaratorSelector = [
 
 const memberSelector = [
 	'MemberExpression',
-	'[computed=false]',
+	'[computed!=true]',
 	not([
 		'AssignmentExpression > .left',
 		'CallExpression > .callee',
