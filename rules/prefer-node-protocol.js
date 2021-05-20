@@ -1,7 +1,7 @@
 'use strict';
 const isBuiltinModule = require('is-builtin-module');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {matches, requireSelector} = require('./selectors');
+const {matches, STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors');
 
 const MESSAGE_ID = 'prefer-node-protocol';
 const messages = {
@@ -14,8 +14,6 @@ const importExportSourceSelector = [
 	'Literal.source'
 ].join('');
 
-const requireSourceSelector = `${requireSelector()} > .arguments`;
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {checkRequire} = {
@@ -24,7 +22,7 @@ const create = context => {
 	};
 	const selectors = [importExportSourceSelector];
 	if (checkRequire) {
-		selectors.push(requireSourceSelector);
+		selectors.push(STATIC_REQUIRE_SOURCE_SELECTOR);
 	}
 
 	return {

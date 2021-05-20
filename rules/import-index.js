@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {callExpressionSelector} = require('./selectors');
+const {STATIC_REQUIRE_SELECTOR} = require('./selectors');
 
 const MESSAGE_ID = 'import-index';
 const messages = {
@@ -25,7 +25,7 @@ const create = context => {
 	const options = context.options[0] || {};
 
 	const rules = {
-		[callExpressionSelector('require')]: node => importIndex(context, node, node.arguments[0])
+		[STATIC_REQUIRE_SELECTOR]: node => importIndex(context, node, node.arguments[0])
 	};
 
 	if (!options.ignoreImports) {

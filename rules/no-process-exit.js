@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector, callExpressionSelector} = require('./selectors');
+const {methodCallSelector, STATIC_REQUIRE_SELECTOR} = require('./selectors');
 
 const MESSAGE_ID = 'no-process-exit';
 const messages = {
@@ -10,8 +10,7 @@ const messages = {
 const importWorkerThreadsSelector = [
 	// `require('worker_threads')`
 	[
-		callExpressionSelector({name: 'require', length: 1}),
-		'[arguments.0.type="Literal"]',
+		STATIC_REQUIRE_SELECTOR,
 		'[arguments.0.value="worker_threads"]'
 	].join(''),
 	// `import workerThreads from 'worker_threads'`
