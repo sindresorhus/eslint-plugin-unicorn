@@ -2,7 +2,7 @@
 const {defaultsDeep} = require('lodash');
 const {getStringIfConstant} = require('eslint-utils');
 const eslintTemplateVisitor = require('eslint-template-visitor');
-const {STATIC_REQUIRE_SELECTOR} = require('./selectors');
+const {callExpressionSelector} = require('./selectors');
 
 const MESSAGE_ID = 'importStyle';
 const messages = {
@@ -283,7 +283,7 @@ const create = context => {
 		visitor = {
 			...visitor,
 
-			[`ExpressionStatement > ${STATIC_REQUIRE_SELECTOR}.expression`](node) {
+			[`ExpressionStatement > ${callExpressionSelector({name: 'require', length: 1})}.expression`](node) {
 				const moduleName = getStringIfConstant(node.arguments[0], context.getScope());
 				const allowedImportStyles = styles.get(moduleName);
 				const actualImportStyles = ['unassigned'];
