@@ -38,34 +38,12 @@ function methodCallSelector(options) {
 
 	const {
 		path,
-
-		// `CallExpression` options
-		length,
-		min,
-		max,
 		includeOptionalCall,
-		allowSpreadElement,
-
-		// `MemberExpression` options
-		name,
-		names,
-		object,
-		objects,
 		includeOptionalMember,
-		allowComputed
 	} = {
 		path: '',
-
-		min: 0,
-		max: Number.POSITIVE_INFINITY,
 		includeOptionalCall: false,
-		allowSpreadElement: false,
-
-		property: '',
-		object: '',
 		includeOptionalMember: false,
-		allowComputed: false,
-
 		...options
 	};
 
