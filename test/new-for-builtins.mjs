@@ -377,6 +377,11 @@ test.snapshot({
 				throw new // 1
 					Symbol();
 			}
+		`,
+		outdent`
+			() => {
+				return new /**/ Symbol;
+			}
 		`
 	]
 });
