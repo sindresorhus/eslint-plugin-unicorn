@@ -119,6 +119,7 @@ const create = context => {
 				node.parent.parent &&
 				isTypechecking(node.parent.parent)
 			) {
+				// TODO[@fisker]: Report on `Error`, not `ThrowStatement`
 				context.report({
 					node,
 					messageId: MESSAGE_ID,
