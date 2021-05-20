@@ -97,6 +97,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-negative-index": "error",
 			"unicorn/prefer-node-protocol": "error",
 			"unicorn/prefer-number-properties": "error",
+			"unicorn/prefer-object-from-entries": "error",
 			"unicorn/prefer-optional-catch-binding": "error",
 			"unicorn/prefer-prototype-methods": "error",
 			"unicorn/prefer-query-selector": "error",
@@ -195,6 +196,7 @@ Each rule has emojis denoting:
 | [prefer-negative-index](docs/rules/prefer-negative-index.md) | Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()`, `Array#splice()` and `Array#at()`. | ✅ | 🔧 |
 | [prefer-node-protocol](docs/rules/prefer-node-protocol.md) | Prefer using the `node:` protocol when importing Node.js builtin modules. | ✅ | 🔧 |
 | [prefer-number-properties](docs/rules/prefer-number-properties.md) | Prefer `Number` static properties over global ones. | ✅ | 🔧 |
+| [prefer-object-from-entries](docs/rules/prefer-object-from-entries.md) | Prefer use `Object.fromEntries(…)` to transform a list of key-value pairs into an object. | ✅ | 🔧 |
 | [prefer-optional-catch-binding](docs/rules/prefer-optional-catch-binding.md) | Prefer omitting the `catch` binding parameter. | ✅ | 🔧 |
 | [prefer-prototype-methods](docs/rules/prefer-prototype-methods.md) | Prefer borrowing methods from the prototype instead of the instance. | ✅ | 🔧 |
 | [prefer-query-selector](docs/rules/prefer-query-selector.md) | Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. | ✅ | 🔧 |
