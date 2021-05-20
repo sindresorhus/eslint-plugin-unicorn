@@ -33,3 +33,7 @@ const foo = bar.map(element => unicorn(element)).foo().flat();
 ```js
 const foo = bar.flat().map(element => unicorn(element));
 ```
+
+## Related Rules
+
+- [prefer-array-flat](./prefer-array-flat.md)
