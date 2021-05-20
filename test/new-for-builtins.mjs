@@ -377,6 +377,6 @@ test.snapshot({
 				throw new // 1
 					Symbol();
 			}
-		`,
+		`
 	]
 });

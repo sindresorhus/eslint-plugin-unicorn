@@ -1,6 +1,6 @@
 'use strict';
 const isNewExpressionWithParentheses = require('../utils/is-new-expression-with-parentheses');
-const {isParenthesized, getParentheses} = require('../utils/parentheses');
+const {isParenthesized} = require('../utils/parentheses');
 
 function * fixReturnStatementArgument(newExpression, sourceCode, fixer) {
 	const {parent} = newExpression;
