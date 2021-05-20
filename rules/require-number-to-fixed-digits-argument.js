@@ -15,12 +15,13 @@ const mathToFixed = methodCallSelector({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const sourceCode = context.getSourceCode();
 	return {
 		[mathToFixed](node) {
 			const [
 				openingParenthesis,
 				closingParenthesis
-			] = context.getSourceCode().getLastTokens(node, 2);
+			] = sourceCode.getLastTokens(node, 2);
 
 			context.report({
 				loc: {
