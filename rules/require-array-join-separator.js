@@ -1,7 +1,7 @@
 'use strict';
-const {isCommaToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const {matches, methodCallSelector, arrayPrototypeMethodSelector} = require('./selectors');
+const {appendArgument} = require('./fix');
 
 const MESSAGE_ID = 'require-array-join-separator';
 const messages = {
@@ -20,9 +20,10 @@ const selector = matches([
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const sourceCode = context.getSourceCode();
 	return {
 		[selector](node) {
-			const [penultimateToken, lastToken] = context.getSourceCode().getLastTokens(node, 2);
+			const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
 			const isPrototypeMethod = node.arguments.length === 1;
 			context.report({
 				loc: {
@@ -31,15 +32,7 @@ const create = context => {
 				},
 				messageId: MESSAGE_ID,
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix(fixer) {
-					let text = '\',\'';
-
-					if (isPrototypeMethod) {
-						text = isCommaToken(penultimateToken) ? `${text},` : `, ${text}`;
-					}
-
-					return fixer.insertTextBefore(lastToken, text);
-				}
+				fix: fixer => appendArgument(fixer, node, '\',\'', sourceCode)
 			});
 		}
 	};

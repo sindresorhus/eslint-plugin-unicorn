@@ -36,7 +36,7 @@ function memberExpressionSelector(options) {
 
 	const parts = [
 		`[${prefix}type="MemberExpression"]`,
-		`[${prefix}computed=false]`,
+		`[${prefix}computed!=true]`,
 		`[${prefix}property.type="Identifier"]`
 	];
 
