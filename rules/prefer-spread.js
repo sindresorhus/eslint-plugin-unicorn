@@ -39,9 +39,7 @@ const arrayFromCallSelector = [
 ].join('');
 
 const arrayConcatCallSelector = [
-	methodCallSelector({
-		name: 'concat'
-	}),
+	methodCallSelector('concat'),
 	`:not(${
 		[
 			...[
