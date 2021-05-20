@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const {methodCallSelector} = require('./selectors');
 const {isBooleanNode} = require('./utils/boolean');
 
 const MESSAGE_ID_ERROR = 'error';
@@ -10,7 +10,7 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace `.find(…)` with `.some(…)`.'
 };
 
-const arrayFindCallSelector = methodSelector({
+const arrayFindCallSelector = methodCallSelector({
 	name: 'find',
 	min: 1,
 	max: 2

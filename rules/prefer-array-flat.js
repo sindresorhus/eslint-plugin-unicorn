@@ -1,6 +1,10 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const {
+	methodCallSelector,
+	arrayPrototypeMethodSelector,
+	emptyArraySelector
+} = require('./selectors');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
@@ -10,39 +14,10 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `Array#flat()` over `{{description}}` to flatten an array.'
 };
 
-const emptyArraySelector = path => {
-	const prefix = `${path}.`;
-	return [
-		`[${prefix}type="ArrayExpression"]`,
-		`[${prefix}elements.length=0]`
-	].join('');
-};
-
-const memberExpressionSelector = (path, {property, object}) => {
-	const prefix = `${path}.`;
-
-	const parts = [
-		`[${prefix}type="MemberExpression"]`,
-		`[${prefix}computed=false]`,
-		`[${prefix}optional!=true]`,
-		`[${prefix}property.type="Identifier"]`,
-		`[${prefix}property.name="${property}"]`
-	];
-
-	if (object) {
-		parts.push(
-			`[${prefix}object.type="Identifier"]`,
-			`[${prefix}object.name="${object}"]`
-		);
-	}
-
-	return parts.join('');
-};
-
 // `array.flatMap(x => x)`
 const arrayFlatMap = {
 	selector: [
-		methodSelector({
+		methodCallSelector({
 			name: 'flatMap',
 			length: 1
 		}),
@@ -61,7 +36,7 @@ const arrayFlatMap = {
 // `array.reduce((a, b) => a.concat(b), [])`
 const arrayReduce = {
 	selector: [
-		methodSelector({
+		methodCallSelector({
 			name: 'reduce',
 			length: 2
 		}),
@@ -71,10 +46,10 @@ const arrayReduce = {
 		'[arguments.0.params.length=2]',
 		'[arguments.0.params.0.type="Identifier"]',
 		'[arguments.0.params.1.type="Identifier"]',
-		methodSelector({
+		methodCallSelector({
 			name: 'concat',
 			length: 1,
-			property: 'arguments.0.body'
+			path: 'arguments.0.body'
 		}),
 		'[arguments.0.body.callee.object.type="Identifier"]',
 		'[arguments.0.body.arguments.0.type="Identifier"]',
@@ -89,7 +64,7 @@ const arrayReduce = {
 // `array.reduce((a, b) => [...a, ...b], [])`
 const arrayReduce2 = {
 	selector: [
-		methodSelector({
+		methodCallSelector({
 			name: 'reduce',
 			length: 2
 		}),
@@ -116,7 +91,7 @@ const arrayReduce2 = {
 // `[].concat(array)` and `[].concat(...array)`
 const emptyArrayConcat = {
 	selector: [
-		methodSelector({
+		methodCallSelector({
 			name: 'concat',
 			length: 1,
 			allowSpreadElement: true
@@ -133,18 +108,15 @@ const emptyArrayConcat = {
 // `[].concat.apply([], array)` and `Array.prototype.concat.apply([], array)`
 const arrayPrototypeConcat = {
 	selector: [
-		methodSelector({
+		methodCallSelector({
 			name: 'apply',
 			length: 2
 		}),
 		emptyArraySelector('arguments.0'),
-		memberExpressionSelector('callee.object', {property: 'concat'}),
-		`:matches(${
-			[
-				emptyArraySelector('callee.object.object'),
-				memberExpressionSelector('callee.object.object', {property: 'prototype', object: 'Array'})
-			].join(', ')
-		})`
+		arrayPrototypeMethodSelector({
+			path: 'callee.object',
+			name: 'concat'
+		})
 	].join(''),
 	getArrayNode: node => node.arguments[1],
 	description: 'Array.prototype.concat()'
@@ -152,7 +124,7 @@ const arrayPrototypeConcat = {
 
 // `_.flatten(array)`
 const lodashFlatten = {
-	selector: methodSelector({
+	selector: methodCallSelector({
 		objects: ['_', 'lodash', 'underscore'],
 		name: 'flatten',
 		length: 1

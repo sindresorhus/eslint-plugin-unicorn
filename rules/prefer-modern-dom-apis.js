@@ -1,7 +1,7 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isValueNotUsable = require('./utils/is-value-not-usable');
-const methodSelector = require('./utils/method-selector');
+const {methodCallSelector} = require('./selectors');
 
 const messages = {
 	replaceChildOrInsertBefore:
@@ -11,7 +11,7 @@ const messages = {
 };
 
 const replaceChildOrInsertBeforeSelector = [
-	methodSelector({
+	methodCallSelector({
 		names: ['replaceChild', 'insertBefore'],
 		length: 2
 	}),
@@ -57,7 +57,7 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 };
 
 const insertAdjacentTextOrInsertAdjacentElementSelector = [
-	methodSelector({
+	methodCallSelector({
 		names: ['insertAdjacentText', 'insertAdjacentElement'],
 		length: 2
 	}),

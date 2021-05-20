@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const {methodCallSelector} = require('./selectors');
 
 const MESSAGE_ID = 'prefer-string-trim-start-end';
 const messages = {
@@ -8,12 +8,12 @@ const messages = {
 };
 
 const selector = [
-	methodSelector({
+	methodCallSelector({
 		names: ['trimLeft', 'trimRight'],
 		length: 0
 	}),
-	'> MemberExpression.callee',
-	'> Identifier.property'
+	' > .callee',
+	' > .property'
 ].join(' ');
 
 const create = context => {

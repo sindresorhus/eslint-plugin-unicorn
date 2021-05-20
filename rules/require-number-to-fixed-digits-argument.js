@@ -1,25 +1,27 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const {methodCallSelector} = require('./selectors');
+const {appendArgument} = require('./fix');
 
 const MESSAGE_ID = 'require-number-to-fixed-digits-argument';
 const messages = {
 	[MESSAGE_ID]: 'Missing the digits argument.'
 };
 
-const mathToFixed = methodSelector({
+const mathToFixed = methodCallSelector({
 	name: 'toFixed',
 	length: 0
 });
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const sourceCode = context.getSourceCode();
 	return {
 		[mathToFixed](node) {
 			const [
 				openingParenthesis,
 				closingParenthesis
-			] = context.getSourceCode().getLastTokens(node, 2);
+			] = sourceCode.getLastTokens(node, 2);
 
 			context.report({
 				loc: {
@@ -28,7 +30,7 @@ const create = context => {
 				},
 				messageId: MESSAGE_ID,
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => fixer.insertTextBefore(closingParenthesis, '0')
+				fix: fixer => appendArgument(fixer, node, '0', sourceCode)
 			});
 		}
 	};

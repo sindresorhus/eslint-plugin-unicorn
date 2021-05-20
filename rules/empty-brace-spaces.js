@@ -2,23 +2,22 @@
 const {isOpeningBraceToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const toLocation = require('./utils/to-location');
+const {matches} = require('./selectors');
 
 const MESSAGE_ID = 'empty-brace-spaces';
 const messages = {
 	[MESSAGE_ID]: 'Do not add spaces between braces.'
 };
 
-const selector = `:matches(${
-	[
-		'BlockStatement[body.length=0]',
-		'ClassBody[body.length=0]',
-		'ObjectExpression[properties.length=0]',
-		// Experimental https://github.com/tc39/proposal-record-tuple
-		'RecordExpression[properties.length=0]',
-		// Experimental https://github.com/tc39/proposal-class-static-block
-		'StaticBlock[body.length=0]'
-	].join(', ')
-})`;
+const selector = matches([
+	'BlockStatement[body.length=0]',
+	'ClassBody[body.length=0]',
+	'ObjectExpression[properties.length=0]',
+	// Experimental https://github.com/tc39/proposal-record-tuple
+	'RecordExpression[properties.length=0]',
+	// Experimental https://github.com/tc39/proposal-class-static-block
+	'StaticBlock[body.length=0]'
+]);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {

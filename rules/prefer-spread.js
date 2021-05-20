@@ -1,7 +1,7 @@
 'use strict';
 const {isParenthesized, getStaticValue, isCommaToken, hasSideEffect} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const {methodCallSelector} = require('./selectors');
 const needsSemicolon = require('./utils/needs-semicolon');
 const {getParenthesizedRange, getParenthesizedText} = require('./utils/parentheses');
 const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument');
@@ -28,7 +28,7 @@ const messages = {
 };
 
 const arrayFromCallSelector = [
-	methodSelector({
+	methodCallSelector({
 		object: 'Array',
 		name: 'from',
 		min: 1,
@@ -39,7 +39,7 @@ const arrayFromCallSelector = [
 ].join('');
 
 const arrayConcatCallSelector = [
-	methodSelector({
+	methodCallSelector({
 		name: 'concat'
 	}),
 	`:not(${
@@ -55,7 +55,7 @@ const arrayConcatCallSelector = [
 ].join('');
 
 const arraySliceCallSelector = [
-	methodSelector({
+	methodCallSelector({
 		name: 'slice',
 		min: 0,
 		max: 1

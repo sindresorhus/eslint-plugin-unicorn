@@ -3,6 +3,7 @@ const {isParenthesized, isNotSemicolonToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const needsSemicolon = require('./utils/needs-semicolon');
 const removeSpacesAfter = require('./utils/remove-spaces-after');
+const {matches} = require('./selectors');
 
 const MESSAGE_ID = 'no-lonely-if';
 const messages = {
@@ -10,22 +11,20 @@ const messages = {
 };
 
 const ifStatementWithoutAlternate = 'IfStatement:not([alternate])';
-const selector = `:matches(${
+const selector = matches([
+	// `if (a) { if (b) {} }`
 	[
-		// `if (a) { if (b) {} }`
-		[
-			ifStatementWithoutAlternate,
-			'>',
-			'BlockStatement.consequent',
-			'[body.length=1]',
-			'>',
-			`${ifStatementWithoutAlternate}.body`
-		].join(''),
+		ifStatementWithoutAlternate,
+		' > ',
+		'BlockStatement.consequent',
+		'[body.length=1]',
+		' > ',
+		`${ifStatementWithoutAlternate}.body`
+	].join(''),
 
-		// `if (a) if (b) {}`
-		`${ifStatementWithoutAlternate} > ${ifStatementWithoutAlternate}.consequent`
-	].join(', ')
-})`;
+	// `if (a) if (b) {}`
+	`${ifStatementWithoutAlternate} > ${ifStatementWithoutAlternate}.consequent`
+]);
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
 // Lower precedence than `&&`

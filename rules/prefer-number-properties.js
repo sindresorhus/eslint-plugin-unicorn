@@ -2,7 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isShadowed = require('./utils/is-shadowed');
 const replaceReferenceIdentifier = require('./utils/replace-reference-identifier');
-const referenceIdentifierSelector = require('./utils/reference-identifier-selector');
+const {matches, referenceIdentifierSelector} = require('./selectors');
 
 const METHOD_ERROR_MESSAGE_ID = 'method-error';
 const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
@@ -24,9 +24,9 @@ const methods = {
 
 const methodsSelector = [
 	'CallExpression',
-	'>',
+	' > ',
 	'Identifier.callee',
-	`:matches(${Object.keys(methods).map(name => `[name="${name}"]`).join(', ')})`
+	matches(Object.keys(methods).map(name => `[name="${name}"]`))
 ].join('');
 
 const propertiesSelector = referenceIdentifierSelector(['NaN', 'Infinity']);

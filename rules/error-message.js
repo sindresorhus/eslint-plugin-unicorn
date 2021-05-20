@@ -1,6 +1,7 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const {matches} = require('./selectors');
 
 const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage';
 const MESSAGE_ID_EMPTY_MESSAGE = 'emptyMessage';
@@ -24,9 +25,9 @@ const errorConstructors = [
 ];
 
 const selector = [
-	':matches(NewExpression, CallExpression)',
+	matches(['NewExpression', 'CallExpression']),
 	'[callee.type="Identifier"]',
-	`:matches(${errorConstructors.map(name => `[callee.name="${name}"]`).join(', ')})`
+	matches(errorConstructors.map(name => `[callee.name="${name}"]`))
 ].join('');
 const noArgumentsExpressionSelector = `${selector}[arguments.length=0]`;
 const errorMessageSelector = `${selector}[arguments.length>0]`;

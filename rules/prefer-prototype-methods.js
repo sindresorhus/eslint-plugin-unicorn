@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const {methodCallSelector} = require('./selectors');
 const getPropertyName = require('./utils/get-property-name');
 
 const messages = {
@@ -11,7 +11,7 @@ const messages = {
 };
 
 const functionMethodsSelector = [
-	methodSelector({
+	methodCallSelector({
 		names: ['apply', 'bind', 'call']
 	}),
 	' > ',
@@ -20,7 +20,7 @@ const functionMethodsSelector = [
 	'.object'
 ].join('');
 
-const reflectApplySelector = methodSelector({
+const reflectApplySelector = methodCallSelector({
 	object: 'Reflect',
 	name: 'apply',
 	min: 1

@@ -1,6 +1,8 @@
 'use strict';
+const not = require('./negation');
+const matches = require('./matches-any');
 
-const nonReferenceSelector = [
+const nonReferenceSelectors = [
 	// `foo.Identifier`
 	'MemberExpression[computed=false] > .property',
 	// `function Identifier() {}`
@@ -63,24 +65,16 @@ const nonReferenceSelector = [
 	'TSDeclareFunction > .id',
 	'TSEnumMember > .id',
 	'TSPropertySignature > .key'
-].join(', ');
+];
 
-function referenceIdentifierSelector(nameOrNames) {
-	const selector = [
+function referenceIdentifierSelector(nameOrNames = []) {
+	const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames];
+
+	return [
 		'Identifier',
-		`:not(${nonReferenceSelector})`
-	];
-
-	if (nameOrNames) {
-		/* istanbul ignore else: no rule use single name yet */
-		if (Array.isArray(nameOrNames)) {
-			selector.push(`:matches(${nameOrNames.map(name => `[name="${name}"]`).join(', ')})`);
-		} else {
-			selector.push(`[name="${nameOrNames}"]`);
-		}
-	}
-
-	return selector.join('');
+		matches(names.map(name => `[name="${name}"]`)),
+		not(nonReferenceSelectors)
+	].join('');
 }
 
 module.exports = referenceIdentifierSelector;

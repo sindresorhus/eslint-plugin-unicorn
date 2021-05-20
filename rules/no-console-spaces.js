@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodSelector = require('./utils/method-selector');
+const {methodCallSelector} = require('./selectors');
 const toLocation = require('./utils/to-location');
 
 const MESSAGE_ID = 'no-console-spaces';
@@ -16,7 +16,7 @@ const methods = [
 	'error'
 ];
 
-const selector = methodSelector({
+const selector = methodCallSelector({
 	names: methods,
 	min: 1,
 	object: 'console'

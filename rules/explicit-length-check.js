@@ -4,6 +4,7 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 const isLogicalExpression = require('./utils/is-logical-expression');
 const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean');
+const {memberExpressionSelector} = require('./selectors');
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -50,12 +51,7 @@ const zeroStyle = {
 	test: node => isCompareRight(node, '===', 0)
 };
 
-const lengthSelector = [
-	'MemberExpression',
-	'[computed=false]',
-	'[property.type="Identifier"]',
-	':matches([property.name="length"], [property.name="size"])'
-].join('');
+const lengthSelector = memberExpressionSelector(['length', 'size']);
 
 function getLengthCheckNode(node) {
 	node = node.parent;
