@@ -10,7 +10,7 @@ const messages = {
 };
 
 const selector = [
-	methodCallSelector({includeComputed: true}),
+	methodCallSelector({allowComputed: true}),
 	not(['Literal', 'ArrayExpression', 'ObjectExpression'].map(type => `[callee.object.type=${type}]`))
 ].join('');
 
