@@ -42,7 +42,7 @@ function memberExpressionSelector(options) {
 
 	if (!allowComputed) {
 		parts.push(
-			`[${prefix}computed=false]`,
+			`[${prefix}computed!=true]`,
 			`[${prefix}property.type="Identifier"]`
 		);
 	}

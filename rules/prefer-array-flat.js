@@ -23,8 +23,8 @@ const arrayFlatMap = {
 			length: 1
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
-		'[arguments.0.async=false]',
-		'[arguments.0.generator=false]',
+		'[arguments.0.async!=true]',
+		'[arguments.0.generator!=true]',
 		'[arguments.0.params.length=1]',
 		'[arguments.0.params.0.type="Identifier"]',
 		'[arguments.0.body.type="Identifier"]'
@@ -42,8 +42,8 @@ const arrayReduce = {
 			length: 2
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
-		'[arguments.0.async=false]',
-		'[arguments.0.generator=false]',
+		'[arguments.0.async!=true]',
+		'[arguments.0.generator!=true]',
 		'[arguments.0.params.length=2]',
 		'[arguments.0.params.0.type="Identifier"]',
 		'[arguments.0.params.1.type="Identifier"]',
@@ -70,8 +70,8 @@ const arrayReduce2 = {
 			length: 2
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
-		'[arguments.0.async=false]',
-		'[arguments.0.generator=false]',
+		'[arguments.0.async!=true]',
+		'[arguments.0.generator!=true]',
 		'[arguments.0.params.length=2]',
 		'[arguments.0.params.0.type="Identifier"]',
 		'[arguments.0.params.1.type="Identifier"]',

@@ -4,7 +4,7 @@ const matches = require('./matches-any');
 
 const nonReferenceSelectors = [
 	// `foo.Identifier`
-	'MemberExpression[computed=false] > .property',
+	'MemberExpression[computed!=true] > .property',
 	// `function Identifier() {}`
 	'FunctionDeclaration > .id',
 	// `const foo = function Identifier() {}`
@@ -14,18 +14,18 @@ const nonReferenceSelectors = [
 	// `const foo = class Identifier() {}`
 	'ClassExpression > .id',
 	// TODO: remove `ClassProperty` when `babel` and `typescript` support `PropertyDefinition`
-	'ClassProperty[computed=false] > .key',
+	'ClassProperty[computed!=true] > .key',
 	// `class Foo {Identifier = 1}`
-	'PropertyDefinition[computed=false] > .key',
+	'PropertyDefinition[computed!=true] > .key',
 	// `class Foo {Identifier() {}}`
-	'MethodDefinition[computed=false] > .key',
+	'MethodDefinition[computed!=true] > .key',
 	// `const Identifier = 1`
 	'VariableDeclarator > .id',
 	// `const foo = {Identifier: 1}`
-	'ObjectExpression > Property[shorthand=false][computed=false].properties > .key',
+	'ObjectExpression > Property[shorthand!=true][computed!=true].properties > .key',
 	// `const {Identifier} = {}`
 	// `const {Identifier: foo} = {}`
-	'ObjectPattern > Property[computed=false].properties > .key',
+	'ObjectPattern > Property[computed!=true].properties > .key',
 	// `const {Identifier} = {}`
 	// `const {foo: Identifier} = {}`
 	'ObjectPattern > Property.properties > .value',
