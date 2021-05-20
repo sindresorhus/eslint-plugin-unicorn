@@ -42,7 +42,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.some(…)` over `.find(…)`.',
-			url: getDocumentationUrl(__filename)
+			url: getDocumentationUrl(__filename),
+			suggest: true
 		},
 		schema: [],
 		messages

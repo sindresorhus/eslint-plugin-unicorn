@@ -70,7 +70,7 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 	const rulesMatch = /<!-- RULES_TABLE_START -->(?<rulesText>.*?)<!-- RULES_TABLE_END -->/ms.exec(readme);
 	t.truthy(rulesMatch, 'List of rules should be defined in readme.md in ## Rules before ## Recommended config');
 	const {rulesText} = rulesMatch.groups;
-	const re = /\| \[(?<id>.*?)]\((?<link>.*?)\) \| (?<description>.*) \| (?<recommended>.*?) \| (?<fixable>.*?) \|\n/gm;
+	const re = /\| \[(?<id>.*?)]\((?<link>.*?)\) \| (?<description>.*) \| (?<recommended>.*?) \| (?<fixable>.*?) \| (?<hasSuggestions>.*?)\n/gm;
 	const rules = [];
 	let match;
 	do {

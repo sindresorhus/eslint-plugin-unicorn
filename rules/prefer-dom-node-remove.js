@@ -74,7 +74,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
-			url: getDocumentationUrl(__filename)
+			url: getDocumentationUrl(__filename),
+			suggest: true
 		},
 		fixable: 'code',
 		schema: [],
