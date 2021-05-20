@@ -14,5 +14,6 @@ module.exports = {
 	referenceIdentifierSelector: require('./reference-identifier-selector'),
 	callExpressionSelector: require('./call-or-new-expression-selector').callExpressionSelector,
 	newExpressionSelector: require('./call-or-new-expression-selector').newExpressionSelector,
-	callOrNewExpressionSelector: require('./call-or-new-expression-selector').callOrNewExpressionSelector
+	callOrNewExpressionSelector: require('./call-or-new-expression-selector').callOrNewExpressionSelector,
+	requireSelector: require('./require-selector')
 };

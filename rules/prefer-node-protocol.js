@@ -1,28 +1,20 @@
 'use strict';
 const isBuiltinModule = require('is-builtin-module');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {matches} = require('./selectors');
+const {matches, requireSelector} = require('./selectors');
 
 const MESSAGE_ID = 'prefer-node-protocol';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `node:{{moduleName}}` over `{{moduleName}}`.'
 };
 
-const importExportSelector = [
+const importExportSourceSelector = [
 	':matches(ImportDeclaration, ExportNamedDeclaration, ImportExpression)',
 	' > ',
 	'Literal.source'
 ].join('');
 
-const requireSelector = [
-	'CallExpression',
-	'[optional!=true]',
-	'[callee.type="Identifier"]',
-	'[callee.name="require"]',
-	'[arguments.length=1]',
-	' > ',
-	'Literal.arguments'
-].join('');
+const requireSourceSelector = `${requireSelector()} > .arguments`;
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -30,9 +22,9 @@ const create = context => {
 		checkRequire: false,
 		...context.options[0]
 	};
-	const selectors = [importExportSelector];
+	const selectors = [importExportSourceSelector];
 	if (checkRequire) {
-		selectors.push(requireSelector);
+		selectors.push(requireSourceSelector);
 	}
 
 	return {

@@ -18,7 +18,8 @@ function methodCallSelector(options) {
 		names,
 		object,
 		objects,
-		includeOptionalMember
+		includeOptionalMember,
+		allowComputed
 	} = {
 		path: '',
 
@@ -30,6 +31,7 @@ function methodCallSelector(options) {
 		property: '',
 		object: '',
 		includeOptionalMember: false,
+		allowComputed: false,
 
 		...options
 	};
@@ -51,7 +53,8 @@ function methodCallSelector(options) {
 			names,
 			object,
 			objects,
-			includeOptional: includeOptionalMember
+			includeOptional: includeOptionalMember,
+			allowComputed
 		})
 	].join('');
 }
