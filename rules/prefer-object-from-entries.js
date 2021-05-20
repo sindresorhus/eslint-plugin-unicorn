@@ -3,10 +3,13 @@ const {isCommaToken, isArrowToken, isClosingParenToken} = require('eslint-utils'
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const {matches, methodCallSelector} = require('./selectors');
 const {getParentheses, getParenthesizedText} = require('./utils/parentheses');
+const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
 
 const MESSAGE_ID_REDUCE = 'reduce';
+const MESSAGE_ID_FUNCTION = 'function';
 const messages = {
-	[MESSAGE_ID_REDUCE]: 'Prefer `Object.fromEntries()` over `Array#reduce()`.'
+	[MESSAGE_ID_REDUCE]: 'Prefer `Object.fromEntries()` over `Array#reduce()`.',
+	[MESSAGE_ID_FUNCTION]: 'Prefer `Object.fromEntries()` over `{{functionName}}()`.'
 };
 
 const createEmptyObjectSelector = path => {
@@ -37,7 +40,7 @@ const reduceEmptyObjectSelector = [
 	createEmptyObjectSelector('arguments.1')
 ].join('');
 
-const simpleCases = [
+const arrayReduceCases = [
 	{
 		selector: [
 			reduceEmptyObjectSelector,
@@ -66,7 +69,19 @@ const simpleCases = [
 	}
 ];
 
-// Console.log(simpleCases[1].selector)
+// `_.flatten(array)`
+const lodashPairsFunctions = [
+	'_.pairs',
+	'lodash.pairs',
+	'underscore.pairs'
+];
+const anyCall = [
+	'CallExpression',
+	'[optional!=true]',
+	'[arguments.length=1]',
+	'[arguments.0.type!="SpreadElement"]',
+	' > .callee'
+].join('');
 
 function fixReduceAssignOrSpread({sourceCode, node, key, value}) {
 	function removeInitObject(fixer) {
@@ -144,10 +159,15 @@ function fixReduceAssignOrSpread({sourceCode, node, key, value}) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
+	const {functions: configFunctions} = {
+		functions: [],
+		...context.options[0]
+	};
+	const functions = [...configFunctions, ...lodashPairsFunctions];
 	const sourceCode = context.getSourceCode();
-
 	const listeners = {};
-	for (const {selector, getObject, getKey, getValue} of simpleCases) {
+
+	for (const {selector, getObject, getKey, getValue} of arrayReduceCases) {
 		listeners[selector] = function (node) {
 			const objectParameter = node.arguments[0].params[0];
 			const objectAssigning = getObject(node);
@@ -169,10 +189,37 @@ function create(context) {
 		};
 	}
 
-	return listeners;
-}
+console.log({functions})
+	listeners[anyCall] = function(node) {
+		if (!isNodeMatches(node, functions)) {
+			return;
+		}
 
-const schema = [];
+		const functionName = functions.find(nameOrPath => isNodeMatchesNameOrPath(node, nameOrPath)).trim();
+		context.report({
+			node,
+			messageId: MESSAGE_ID_FUNCTION,
+			data: {functionName},
+			fix: fixer => fixer.replaceText(node, 'Object.fromEntries')
+		})
+	};
+
+
+	return listeners;
+};
+
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			functions: {
+				type: 'array',
+				uniqueItems: true
+			}
+		},
+		additionalProperties: false
+	}
+];
 
 module.exports = {
 	create,

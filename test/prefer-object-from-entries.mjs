@@ -3,6 +3,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
+// `Array#reduce()`
 test.snapshot({
 	valid: [
 	],
@@ -77,3 +78,39 @@ test.snapshot({
 		'pairs.reduce((object, [key, value], index, array,) => ({...object, [key]: value + index + array.length}), {});',
 	]
 });
+
+// Functions
+test.snapshot({
+	valid: [
+		'_.pairs',
+		'_.pairs()',
+		'new _.pairs(pairs)',
+		'_.pairs(...[pairs])',
+		'_?.pairs(pairs)',
+		{
+			code: '_.foo(pairs)',
+			options: [{functions: ['foo']}]
+		},
+		{
+			code: 'foo(pairs)',
+			options: [{functions: ['utils.object.foo']}]
+		},
+		{
+			code: 'object.foo(pairs)',
+			options: [{functions: ['utils.object.foo']}]
+		}
+	],
+	invalid: [
+		'_.pairs(pairs)',
+		'lodash.pairs(pairs)',
+		'underscore.pairs(pairs)',
+		{
+			code: 'myFromPairsFunction(pairs)',
+			options: [{functions: ['myFromPairsFunction']}]
+		},
+		{
+			code: 'utils.object.foo(pairs)',
+			options: [{functions: ['utils.object.foo']}]
+		}
+	]
+})
