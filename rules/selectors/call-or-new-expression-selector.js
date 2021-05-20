@@ -3,8 +3,10 @@
 const matches = require('./matches-any');
 
 function create(options, types) {
-	const {
+	let {
 		path,
+		name,
+		names,
 		length,
 		min,
 		max,
@@ -20,6 +22,10 @@ function create(options, types) {
 	};
 
 	const prefix = path ? `${path}.` : '';
+	if (name) {
+		names = [name];
+	}
+
 	const parts = [
 		matches(types.map(type => `[${prefix}type="${type}"]`))
 	];
@@ -48,6 +54,13 @@ function create(options, types) {
 				parts.push(`[${prefix}arguments.${index}.type!="SpreadElement"]`);
 			}
 		}
+	}
+
+	if (Array.isArray(names) && names.length > 0) {
+		parts.push(
+			`[${prefix}callee.type="Identifier"]`,
+			matches(names.map(property => `[${prefix}callee.name="${property}"]`))
+		);
 	}
 
 	return parts.join('');

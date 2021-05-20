@@ -11,5 +11,6 @@ module.exports = {
 	methodCallSelector: require('./method-call-selector'),
 	notDomNodeSelector: require('./not-dom-node').notDomNodeSelector,
 	notFunctionSelector: require('./not-function').notFunctionSelector,
-	referenceIdentifierSelector: require('./reference-identifier-selector')
+	referenceIdentifierSelector: require('./reference-identifier-selector'),
+	newExpressionSelector: require('./call-or-new-expression-selector').newExpressionSelector
 };

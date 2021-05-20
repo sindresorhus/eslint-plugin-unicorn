@@ -19,7 +19,7 @@ function memberExpressionSelector(options) {
 		includeOptional
 	} = {
 		path: '',
-		property: '',
+		name: '',
 		object: '',
 		includeOptional: false,
 		...options
