@@ -31,7 +31,7 @@ const create = context => {
 				},
 				messageId: MESSAGE_ID,
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => appendArgument(node, '\',\'', sourceCode)
+				fix: fixer => appendArgument(fixer, node, '\',\'', sourceCode)
 			})
 		}
 	};
