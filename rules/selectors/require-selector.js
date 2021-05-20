@@ -5,7 +5,7 @@ function requireSelector() {
 	return [
 		callExpressionSelector({name: 'require', length: 1}),
 		'[arguments.0.type="Literal"]'
-	].join('')
+	].join('');
 }
 
 module.exports = requireSelector;

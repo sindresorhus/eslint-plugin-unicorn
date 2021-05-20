@@ -3,7 +3,6 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const isShadowed = require('./utils/is-shadowed');
 const replaceReferenceIdentifier = require('./utils/replace-reference-identifier');
 const {
-	matches,
 	referenceIdentifierSelector,
 	callExpressionSelector
 } = require('./selectors');

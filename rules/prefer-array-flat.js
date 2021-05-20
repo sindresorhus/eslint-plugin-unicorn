@@ -4,7 +4,7 @@ const {
 	methodCallSelector,
 	arrayPrototypeMethodSelector,
 	emptyArraySelector,
-	callExpressionSelector,
+	callExpressionSelector
 } = require('./selectors');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');

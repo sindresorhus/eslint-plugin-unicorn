@@ -283,7 +283,7 @@ const create = context => {
 		visitor = {
 			...visitor,
 
-			[`ExpressionStatement > ${callExpressionSelector({name:'require',length: 1})}.expression`](node) {
+			[`ExpressionStatement > ${callExpressionSelector({name: 'require', length: 1})}.expression`](node) {
 				const moduleName = getStringIfConstant(node.arguments[0], context.getScope());
 				const allowedImportStyles = styles.get(moduleName);
 				const actualImportStyles = ['unassigned'];

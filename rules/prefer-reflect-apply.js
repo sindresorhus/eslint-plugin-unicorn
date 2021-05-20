@@ -12,7 +12,7 @@ const messages = {
 const selector = [
 	methodCallSelector({includeComputed: true}),
 	not(['Literal', 'ArrayExpression', 'ObjectExpression'].map(type => `[callee.object.type=${type}]`))
-].join('')
+].join('');
 
 const isApplySignature = (argument1, argument2) => (
 	(
