@@ -107,6 +107,7 @@ class SnapshotRuleTester {
 							// This check will no longer be necessary if this change lands in ESLint 8: https://github.com/eslint/eslint/issues/14312
 							throw new Error('Rule with suggestion is missing `meta.docs.suggestion`.');
 						}
+
 						for (const [index, suggestion] of suggestions.entries()) {
 							const {output} = SourceCodeFixer.applyFixes(code, [suggestion]);
 							messageForSnapshot += outdent`
