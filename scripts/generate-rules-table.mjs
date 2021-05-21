@@ -33,7 +33,13 @@ const rulesTableContent = ruleNames
 
 		const {description} = rules[ruleName].meta.docs;
 
-		return `| ${link} | ${description} | ${isRecommended ? EMOJI_RECOMMENDED : ''} | ${isFixable ? EMOJI_FIXABLE : ''} | ${hasSuggestions ? EMOJI_HAS_SUGGESTIONS : ''} |`;
+		return `| ${[
+			link,
+			description,
+			isRecommended ? EMOJI_RECOMMENDED : '',
+			isFixable ? EMOJI_FIXABLE : '',
+			hasSuggestions ? EMOJI_HAS_SUGGESTIONS : ''
+		].join(' | ')} |`;
 	})
 	.join('\n');
 
