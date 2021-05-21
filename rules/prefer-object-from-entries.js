@@ -14,7 +14,6 @@ const messages = {
 
 const createEmptyObjectSelector = path => {
 	const prefix = path ? `${path}.` : '';
-
 	return matches([
 		// `{}`
 		`[${prefix}type="ObjectExpression"][${prefix}properties.length=0]`,
@@ -259,7 +258,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer use `Object.fromEntries(…)` to transform a list of key-value pairs into an object.',
+			description: 'Prefer using `Object.fromEntries(…)` to transform a list of key-value pairs into an object.',
 			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
