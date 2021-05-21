@@ -1,7 +1,7 @@
 'use strict';
 const {isCommaToken, isArrowToken, isClosingParenToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {matches, methodCallSelector} = require('./selectors');
+const {not, matches, methodCallSelector} = require('./selectors');
 const {getParentheses, getParenthesizedText} = require('./utils/parentheses');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
 
@@ -37,6 +37,15 @@ const createArrowCallbackSelector = path => {
 	].join('');
 };
 
+const createPropertySelector = path => {
+	const prefix = path ? `${path}.` : '';
+	return [
+		`[${prefix}type="Property"]`,
+		`[${prefix}kind="init"]`,
+		`[${prefix}method!=true]`
+	].join('')
+};
+
 // - `pairs.reduce(…, {})`
 // - `pairs.reduce(…, Object.create(null))`
 const arrayReduceWithEmptyObject = [
@@ -54,7 +63,7 @@ const fixableArrayReduceCases = [
 			'[arguments.0.body.arguments.0.type="Identifier"]',
 			'[arguments.0.body.arguments.1.type="ObjectExpression"]',
 			'[arguments.0.body.arguments.1.properties.length=1]',
-			'[arguments.0.body.arguments.1.properties.0.type="Property"]'
+			createPropertySelector('arguments.0.body.arguments.1.properties.0')
 		].join(''),
 		test: callback => callback.params[0].name === callback.body.arguments[0].name,
 		getKey: callback => callback.body.arguments[1].properties[0].key,
@@ -69,7 +78,7 @@ const fixableArrayReduceCases = [
 			'[arguments.0.body.properties.length=2]',
 			'[arguments.0.body.properties.0.type="SpreadElement"]',
 			'[arguments.0.body.properties.0.argument.type="Identifier"]',
-			'[arguments.0.body.properties.1.type="Property"]'
+			createPropertySelector('arguments.0.body.properties.1')
 		].join(''),
 		test: callback => callback.params[0].name === callback.body.properties[0].argument.name,
 		getKey: callback => callback.body.properties[1].key,

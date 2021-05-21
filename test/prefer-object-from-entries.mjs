@@ -134,7 +134,7 @@ test.snapshot({
 		'pairs.reduce(object => ({...object, * method() {}}), {});',
 		'pairs.reduce(object => ({...object, async * method() {}}), {});',
 		'pairs.reduce(object => ({...object, method: async () => {}}), {});',
-		'pairs.reduce(object => ({...object, method: async function * {}}), {});',
+		'pairs.reduce(object => ({...object, method: async function * (){}}), {});',
 		'pairs.reduce(object => ({...object, get key() {}}), {});',
 		'pairs.reduce(object => ({...object, set key(v) {}}), {});'
 	]
