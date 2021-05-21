@@ -8,21 +8,17 @@ import defaultParserOptions from './default-parser-options.mjs';
 
 const require = createRequire(import.meta.url);
 
-function verifySuggestionPropertyConsistency(rule, invalidTests) {
-	for (const invalidTest of invalidTests) {
-		if (Array.isArray(invalidTest.errors) && invalidTest.errors.some(error => error.suggestions) && !(rule.meta && rule.meta.docs && rule.meta.docs.suggestion === true)) {
-			// This check will no longer be necessary if this change lands in ESLint 8: https://github.com/eslint/eslint/issues/14312
-			throw new Error('Rule with suggestion is missing `meta.docs.suggestion`.');
-		}
-	}
-}
-
-function normalizeInvalidTest(test) {
+function normalizeInvalidTest(test, rule) {
 	const {code, output} = test;
 
 	if (code === output) {
 		console.log(JSON.stringify(test, undefined, 2));
 		throw new Error('Remove output if your test do not fix code.');
+	}
+
+	if (Array.isArray(test.errors) && test.errors.some(error => error.suggestions) && rule.meta.docs.suggestion !== true) {
+		// This check will no longer be necessary if this change lands in ESLint 8: https://github.com/eslint/eslint/issues/14312
+		throw new Error('Rule with suggestion is missing `meta.docs.suggestion`.');
 	}
 
 	return {
@@ -46,13 +42,12 @@ class Tester {
 			parserOptions: defaultParserOptions,
 			...testerOptions
 		});
-		verifySuggestionPropertyConsistency(this.rule, invalid);
 		return tester.run(
 			this.ruleId,
 			this.rule,
 			{
 				valid,
-				invalid: invalid.map(test => normalizeInvalidTest(test))
+				invalid: invalid.map(test => normalizeInvalidTest(test, this.rule))
 			}
 		);
 	}
@@ -117,7 +112,6 @@ class Tester {
 		const tester = snapshotRuleTester(test, {
 			parserOptions: defaultParserOptions
 		});
-		verifySuggestionPropertyConsistency(this.rule, tests.invalid);
 		return tester.run(this.ruleId, this.rule, tests);
 	}
 }
