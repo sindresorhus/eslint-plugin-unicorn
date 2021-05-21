@@ -173,6 +173,7 @@ function create(context) {
 	const functions = [...configFunctions, ...lodashFromPairsFunctions];
 	const sourceCode = context.getSourceCode();
 	const listeners = {};
+	const arrayReduce = new Map();
 
 	for (const {selector, test, getKey, getValue} of fixableArrayReduceCases) {
 		listeners[selector] = function (node) {
@@ -181,18 +182,34 @@ function create(context) {
 				return;
 			}
 
-			context.report({
-				node: node.callee.property,
-				messageId: MESSAGE_ID_REDUCE,
-				fix: fixReduceAssignOrSpread({
+			arrayReduce.set(
+				node,
+				fixReduceAssignOrSpread({
 					sourceCode,
 					node,
 					key: getKey(callbackFunction),
 					value: getValue(callbackFunction)
 				})
-			});
+			);
 		};
 	}
+
+	listeners[arrayReduceWithEmptyObject] = function(node) {
+		if (!arrayReduce.has(node)) {
+			// eslint-disable-next-line unicorn/no-null
+			arrayReduce.set(node, null);
+		}
+	};
+
+	listeners['Program:exit'] = function() {
+		for (const [node, fix] of arrayReduce.entries()) {
+			context.report({
+				node: node.callee.property,
+				messageId: MESSAGE_ID_REDUCE,
+				fix
+			});
+		}
+	};
 
 	listeners[anyCall] = function(node) {
 		if (!isNodeMatches(node, functions)) {

@@ -3,7 +3,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-// `Array#reduce()`
+// Fixable `Array#reduce()`
 test.snapshot({
 	valid: [
 		'pairs.reduce(object => ({...object, key}));',
@@ -29,27 +29,7 @@ test.snapshot({
 		'pairs.reduce(object => ({...object, key}), NotObject.create(null));',
 		'pairs.reduce(object => ({...object, key}), object.create(null));',
 		'pairs.reduce(object => ({...object, key}), object.CREATE(null));',
-		'pairs.reduce(object => ({...object, key}), Object.create("null"));',
-		// Callback function
-		'pairs.reduce(function(object) {Object.assign(object, {key})}, {});',
-		'pairs.reduce(object => ({...object, key} + 1), {});',
-		'pairs.reduce((object = {}) => ({...object, key}), {});',
-		'pairs.reduce((object) => ({...NotSameObject, key}), {});',
-		'pairs.reduce(object => ({...object, key, anotherKey}), {});',
-		'pairs.reduce(object => ({}), {});',
-		'pairs.reduce(object => ({keyFirst, ...object}), {});',
-		'pairs.reduce(async object => ({...object, key}), {});',
-		'pairs.reduce(async object => await {...object, key}, {});',
-		'pairs.reduce((...object) => ({...object, key}), {});',
-		'pairs.reduce(({object}) => ({...object, key}), {});',
-		'pairs.reduce(object => ({...object, ...key}), {});',
-		'pairs.reduce(object => Object.assign(NotSameObject, {key}), {});',
-		'pairs.reduce(object => Object.assign(object, {}), {});',
-		'pairs.reduce(object => Object.assign(object, {...key}), {});',
-		'pairs.reduce(object => Object.assign?.(object, {key}), {});',
-		'pairs.reduce(object => Object?.assign(object, {key}), {});',
-		'pairs.reduce(object => Object.notAssign(object, {key}), {});',
-		'pairs.reduce(object => NotObject.assign(object, {key}), {});'
+		'pairs.reduce(object => ({...object, key}), Object.create("null"));'
 	],
 	invalid: [
 		'pairs.reduce(object => ({...object, key}), {});',
@@ -120,9 +100,47 @@ test.snapshot({
 		// `.reduce` has multiple parameters
 		'pairs.reduce((object, element, index, array) => ({...object, key}), {});',
 		'pairs.reduce((object, [key, value], index, array,) => ({...object, [key]: value + index + array.length}), {});',
+		// Callback function, not fixable, but should still be caught by another listener
+		'pairs.reduce(function(object) {Object.assign(object, {key})}, {});',
+		'pairs.reduce(object => ({...object, key} + 1), {});',
+		'pairs.reduce((object = {}) => ({...object, key}), {});',
+		'pairs.reduce((object) => ({...NotSameObject, key}), {});',
+		'pairs.reduce(object => ({...object, key, anotherKey}), {});',
+		'pairs.reduce(object => ({}), {});',
+		'pairs.reduce(object => ({keyFirst, ...object}), {});',
+		'pairs.reduce(async object => ({...object, key}), {});',
+		'pairs.reduce(async object => await {...object, key}, {});',
+		'pairs.reduce((...object) => ({...object, key}), {});',
+		'pairs.reduce(({object}) => ({...object, key}), {});',
+		'pairs.reduce(object => ({...object, ...key}), {});',
+		'pairs.reduce(object => Object.assign(NotSameObject, {key}), {});',
+		'pairs.reduce(object => Object.assign(object, {}), {});',
+		'pairs.reduce(object => Object.assign(object, {...key}), {});',
+		'pairs.reduce(object => Object.assign?.(object, {key}), {});',
+		'pairs.reduce(object => Object?.assign(object, {key}), {});',
+		'pairs.reduce(object => Object.notAssign(object, {key}), {});',
+		'pairs.reduce(object => NotObject.assign(object, {key}), {});',
 		// [TODO]: FIX THIS, These should not be fixable or reported
 		'pairs.reduce(object => ({...object, object}), {});',
 		'pairs.reduce(object => ({...object, key: Object.keys(object)}), {});',
+	]
+});
+
+// Non-fixable `Array#reduce()`
+test.snapshot({
+	valid: [
+		'pairs.reduce()',
+		'pairs.reduce(callback, {}, extraArgument)',
+		'pairs.reduce?.(callback, {})',
+		'pairs?.reduce(callback, {})',
+		'pairs.notReduce(callback, {})',
+		'pairs[reduce](callback, {})',
+		'pairs.reduce(...callback, {})',
+	],
+	invalid: [
+		'pairs.reduce(callback, {})',
+		'pairs.reduce(callback, Object.create(null))',
+		'pairs.reduce(async function * () {}, {})',
 	]
 });
 
