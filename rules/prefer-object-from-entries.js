@@ -179,7 +179,8 @@ function create(context) {
 		listeners[selector] = function (node) {
 			// If this listener exit without adding fix, the `arrayReduceWithEmptyObject` listener
 			// should still add it into the `arrayReduce` map, to be safer, add it here too
-			arrayReduce.set(node);
+			// eslint-disable-next-line unicorn/no-null
+			arrayReduce.set(node, null);
 
 			const [callbackFunction] = node.arguments;
 			if (!test(callbackFunction)) {
