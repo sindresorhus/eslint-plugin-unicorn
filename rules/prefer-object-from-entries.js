@@ -1,7 +1,7 @@
 'use strict';
 const {isCommaToken, isArrowToken, isClosingParenToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {not, matches, methodCallSelector} = require('./selectors');
+const {matches, methodCallSelector} = require('./selectors');
 const {getParentheses, getParenthesizedText} = require('./utils/parentheses');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
 
@@ -43,7 +43,7 @@ const createPropertySelector = path => {
 		`[${prefix}type="Property"]`,
 		`[${prefix}kind="init"]`,
 		`[${prefix}method!=true]`
-	].join('')
+	].join('');
 };
 
 // - `pairs.reduce(…, {})`
