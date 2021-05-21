@@ -16,8 +16,7 @@ function * fixReturnStatementArgument(newExpression, sourceCode, fixer) {
 	const returnToken = sourceCode.getFirstToken(returnStatement);
 	const classNode = newExpression.callee;
 
-	// Ideally, we should use first parenthesis of the `callee`,
-	// and check should check spaces after `new` token
+	// Ideally, we should use first parenthesis of the `callee`, and should check spaces after the `new` token
 	// But adding extra parentheses is harmless, no need to be too complicated
 	if (returnToken.loc.start.line === classNode.loc.start.line) {
 		return;
