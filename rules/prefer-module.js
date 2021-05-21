@@ -311,7 +311,7 @@ module.exports = {
 		docs: {
 			description: 'Prefer JavaScript modules (ESM) over CommonJS.',
 			url: getDocumentationUrl(__filename),
-			suggest: true
+			suggestion: true
 		},
 		fixable: 'code',
 		schema: [],

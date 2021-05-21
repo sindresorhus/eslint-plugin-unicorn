@@ -127,7 +127,7 @@ module.exports = {
 		docs: {
 			description: 'Enforce combining multiple `Array#push()` into one call.',
 			url: getDocumentationUrl(__filename),
-			suggest: true
+			suggestion: true
 		},
 		fixable: 'code',
 		schema,

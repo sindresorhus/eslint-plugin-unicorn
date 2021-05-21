@@ -216,7 +216,7 @@ module.exports = {
 		docs: {
 			description: 'Prefer default parameters over reassignment.',
 			url: getDocumentationUrl(__filename),
-			suggest: true
+			suggestion: true
 		},
 		fixable: 'code',
 		schema: [],

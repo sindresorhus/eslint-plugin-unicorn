@@ -320,7 +320,7 @@ module.exports = {
 		docs: {
 			description: 'Prefer `.find(…)` over the first element from `.filter(…)`.',
 			url: getDocumentationUrl(__filename),
-			suggest: true
+			suggestion: true
 		},
 		fixable: 'code',
 		schema: [],

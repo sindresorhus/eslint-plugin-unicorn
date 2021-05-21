@@ -26,7 +26,7 @@ const rulesTableContent = ruleNames
 		// Check which emojis to show for this rule.
 		const isRecommended = configs.recommended.rules[`unicorn/${ruleName}`] === 'error';
 		const isFixable = rules[ruleName].meta.fixable;
-		const hasSuggestions = rules[ruleName].meta.docs.suggest; // Property likely to change in ESLint 8: https://github.com/eslint/eslint/issues/14312
+		const hasSuggestions = rules[ruleName].meta.docs.suggestion; // Property likely to change in ESLint 8: https://github.com/eslint/eslint/issues/14312
 
 		const url = `docs/rules/${ruleName}.md`;
 		const link = `[${ruleName}](${url})`;

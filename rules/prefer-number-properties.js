@@ -139,7 +139,7 @@ module.exports = {
 		docs: {
 			description: 'Prefer `Number` static properties over global ones.',
 			url: getDocumentationUrl(__filename),
-			suggest: true
+			suggestion: true
 		},
 		fixable: 'code',
 		schema,

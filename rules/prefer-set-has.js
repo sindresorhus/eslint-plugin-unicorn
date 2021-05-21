@@ -204,7 +204,7 @@ module.exports = {
 		docs: {
 			description: 'Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence.',
 			url: getDocumentationUrl(__filename),
-			suggest: true
+			suggestion: true
 		},
 		fixable: 'code',
 		schema: [],

@@ -103,7 +103,7 @@ module.exports = {
 		docs: {
 			description: 'Enforce the use of `Math.trunc` instead of bitwise operators.',
 			url: getDocumentationUrl(__filename),
-			suggest: true
+			suggestion: true
 		},
 		fixable: 'code',
 		schema: [],

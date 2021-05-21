@@ -43,7 +43,7 @@ module.exports = {
 		docs: {
 			description: 'Prefer `.some(…)` over `.find(…)`.',
 			url: getDocumentationUrl(__filename),
-			suggest: true
+			suggestion: true
 		},
 		schema: [],
 		messages

@@ -179,7 +179,7 @@ module.exports = {
 		docs: {
 			description: 'Enforce better string content.',
 			url: getDocumentationUrl(__filename),
-			suggest: true
+			suggestion: true
 		},
 		fixable: 'code',
 		schema,

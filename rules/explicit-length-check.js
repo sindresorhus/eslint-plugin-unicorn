@@ -204,7 +204,7 @@ module.exports = {
 		docs: {
 			description: 'Enforce explicitly comparing the `length` or `size` property of a value.',
 			url: getDocumentationUrl(__filename),
-			suggest: true
+			suggestion: true
 		},
 		fixable: 'code',
 		schema,

@@ -89,7 +89,7 @@ module.exports = {
 		docs: {
 			description: 'Disallow `new Array()`.',
 			url: getDocumentationUrl(__filename),
-			suggest: true
+			suggestion: true
 		},
 		fixable: 'code',
 		schema: [],
