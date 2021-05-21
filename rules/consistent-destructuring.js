@@ -161,7 +161,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Use destructured variables over properties.',
-			url: getDocumentationUrl(__filename)
+			url: getDocumentationUrl(__filename),
+			suggestion: true
 		},
 		fixable: 'code',
 		schema: [],

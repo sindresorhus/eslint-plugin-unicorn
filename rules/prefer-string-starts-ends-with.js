@@ -179,7 +179,7 @@ module.exports = {
 		docs: {
 			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.',
 			url: getDocumentationUrl(__filename),
-			suggest: true
+			suggestion: true
 		},
 		fixable: 'code',
 		schema: [],

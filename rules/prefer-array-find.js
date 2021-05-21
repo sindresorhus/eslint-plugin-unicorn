@@ -319,7 +319,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.find(…)` over the first element from `.filter(…)`.',
-			url: getDocumentationUrl(__filename)
+			url: getDocumentationUrl(__filename),
+			suggestion: true
 		},
 		fixable: 'code',
 		schema: [],

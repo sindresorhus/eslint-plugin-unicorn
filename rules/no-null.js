@@ -133,7 +133,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow the use of the `null` literal.',
-			url: getDocumentationUrl(__filename)
+			url: getDocumentationUrl(__filename),
+			suggestion: true
 		},
 		fixable: 'code',
 		schema,
