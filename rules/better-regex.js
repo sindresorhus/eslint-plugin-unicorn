@@ -3,11 +3,17 @@ const cleanRegexp = require('clean-regexp');
 const {optimize} = require('regexp-tree');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
+const {newExpressionSelector} = require('./selectors');
 
 const MESSAGE_ID = 'better-regex';
 const messages = {
 	[MESSAGE_ID]: '{{original}} can be optimized to {{optimized}}.'
 };
+
+const newRegExp = [
+	newExpressionSelector({name: 'RegExp', min: 1}),
+	'[arguments.0.type="Literal"]'
+].join('');
 
 const create = context => {
 	const {sortCharacterClasses} = context.options[0] || {};
@@ -58,7 +64,7 @@ const create = context => {
 				fix: fixer => fixer.replaceText(node, optimized)
 			});
 		},
-		'NewExpression[callee.type="Identifier"][callee.name="RegExp"][arguments.length>=1][arguments.0.type="Literal"]': node => {
+		[newRegExp]: node => {
 			const [patternNode, flagsNode] = node.arguments;
 
 			if (typeof patternNode.value !== 'string') {

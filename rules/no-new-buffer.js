@@ -2,6 +2,7 @@
 const {getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const switchNewExpressionToCallExpression = require('./utils/switch-new-expression-to-call-expression');
+const {newExpressionSelector} = require('./selectors');
 
 const ERROR = 'error';
 const ERROR_UNKNOWN = 'error-unknown';
@@ -52,7 +53,7 @@ function fix(node, sourceCode, method) {
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	return {
-		'NewExpression[callee.name="Buffer"]': node => {
+		[newExpressionSelector('Buffer')]: node => {
 			const method = inferMethod(node.arguments, context.getScope());
 
 			if (method) {

@@ -3,7 +3,8 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const {
 	methodCallSelector,
 	arrayPrototypeMethodSelector,
-	emptyArraySelector
+	emptyArraySelector,
+	callExpressionSelector
 } = require('./selectors');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
@@ -134,12 +135,7 @@ const lodashFlatten = {
 };
 
 const anyCall = {
-	selector: [
-		'CallExpression',
-		'[optional!=true]',
-		'[arguments.length=1]',
-		'[arguments.0.type!="SpreadElement"]'
-	].join(''),
+	selector: callExpressionSelector({length: 1}),
 	getArrayNode: node => node.arguments[0]
 };
 

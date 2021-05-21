@@ -2,7 +2,12 @@
 const {findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
-const {matches, not, methodCallSelector} = require('./selectors');
+const {
+	matches,
+	not,
+	methodCallSelector,
+	callOrNewExpressionSelector
+} = require('./selectors');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -16,22 +21,10 @@ const arrayExpressionSelector = [
 	'[init.type="ArrayExpression"]'
 ].join('');
 
-// `Array()`
-const ArraySelector = [
-	'[init.type="CallExpression"]',
-	'[init.callee.type="Identifier"]',
-	'[init.callee.name="Array"]'
-].join('');
+// `Array()` and `new Array()`
+const newArraySelector = callOrNewExpressionSelector({name: 'Array', path: 'init'});
 
-// `new Array()`
-const newArraySelector = [
-	'[init.type="NewExpression"]',
-	'[init.callee.type="Identifier"]',
-	'[init.callee.name="Array"]'
-].join('');
-
-// `Array.from()`
-// `Array.of()`
+// `Array.from()` and `Array.of()`
 const arrayStaticMethodSelector = methodCallSelector({
 	object: 'Array',
 	names: ['from', 'of'],
@@ -74,7 +67,6 @@ const selector = [
 	'VariableDeclarator.declarations',
 	matches([
 		arrayExpressionSelector,
-		ArraySelector,
 		newArraySelector,
 		arrayStaticMethodSelector,
 		arrayMethodSelector

@@ -2,6 +2,7 @@
 const {isParenthesized, getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const needsSemicolon = require('./utils/needs-semicolon');
+const {newExpressionSelector} = require('./selectors');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_LENGTH = 'array-length';
@@ -13,12 +14,7 @@ const messages = {
 	[MESSAGE_ID_ONLY_ELEMENT]: 'The argument is the only element of array.',
 	[MESSAGE_ID_SPREAD]: 'Spread the argument.'
 };
-const newArraySelector = [
-	'NewExpression',
-	'[callee.type="Identifier"]',
-	'[callee.name="Array"]',
-	'[arguments.length=1]'
-].join('');
+const newArraySelector = newExpressionSelector({name: 'Array', length: 1, allowSpreadElement: true});
 
 function getProblem(context, node) {
 	const problem = {

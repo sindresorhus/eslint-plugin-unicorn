@@ -1,11 +1,17 @@
 'use strict';
 const safeRegex = require('safe-regex');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const {newExpressionSelector} = require('./selectors');
 
 const MESSAGE_ID = 'no-unsafe-regex';
 const messages = {
 	[MESSAGE_ID]: 'Unsafe regular expression.'
 };
+
+const newRegExpSelector = [
+	newExpressionSelector('RegExp'),
+	'[arguments.0.type="Literal"]'
+].join('');
 
 const create = context => {
 	return {
@@ -25,13 +31,8 @@ const create = context => {
 				});
 			}
 		},
-		'NewExpression[callee.name="RegExp"]': node => {
+		[newRegExpSelector]: node => {
 			const arguments_ = node.arguments;
-
-			if (arguments_.length === 0 || arguments_[0].type !== 'Literal') {
-				return;
-			}
-
 			const hasRegExp = arguments_[0].regex;
 
 			let pattern;

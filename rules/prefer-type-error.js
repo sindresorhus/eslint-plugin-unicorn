@@ -1,5 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const {newExpressionSelector} = require('./selectors');
 
 const MESSAGE_ID = 'prefer-type-error';
 const messages = {
@@ -51,6 +52,11 @@ const tcGlobalIdentifiers = new Set([
 	'isFinite'
 ]);
 
+const selector = [
+	'ThrowStatement',
+	newExpressionSelector({name: 'Error', path: 'argument'})
+].join('');
+
 const isTypecheckingIdentifier = (node, callExpression, isMemberExpression) =>
 	callExpression !== undefined &&
 	callExpression.arguments.length > 0 &&
@@ -59,11 +65,6 @@ const isTypecheckingIdentifier = (node, callExpression, isMemberExpression) =>
 	tcIdentifiers.has(node.name)) ||
 	(isMemberExpression === false &&
 	tcGlobalIdentifiers.has(node.name)));
-
-const throwsErrorObject = node =>
-	node.argument.type === 'NewExpression' &&
-	node.argument.callee.type === 'Identifier' &&
-	node.argument.callee.name === 'Error';
 
 const isLone = node => node.parent && node.parent.body && node.parent.body.length === 1;
 
@@ -112,13 +113,13 @@ const isTypechecking = node => node.type === 'IfStatement' && isTypecheckingExpr
 
 const create = context => {
 	return {
-		ThrowStatement: node => {
+		[selector]: node => {
 			if (
-				throwsErrorObject(node) &&
 				isLone(node) &&
 				node.parent.parent &&
 				isTypechecking(node.parent.parent)
 			) {
+				// TODO[@fisker]: Report on `Error`, not `ThrowStatement`
 				context.report({
 					node,
 					messageId: MESSAGE_ID,

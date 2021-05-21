@@ -16,12 +16,14 @@ function memberExpressionSelector(options) {
 		names,
 		object,
 		objects,
-		includeOptional
+		includeOptional,
+		allowComputed
 	} = {
 		path: '',
-		property: '',
+		name: '',
 		object: '',
 		includeOptional: false,
+		allowComputed: false,
 		...options
 	};
 
@@ -35,10 +37,15 @@ function memberExpressionSelector(options) {
 	}
 
 	const parts = [
-		`[${prefix}type="MemberExpression"]`,
-		`[${prefix}computed!=true]`,
-		`[${prefix}property.type="Identifier"]`
+		`[${prefix}type="MemberExpression"]`
 	];
+
+	if (!allowComputed) {
+		parts.push(
+			`[${prefix}computed!=true]`,
+			`[${prefix}property.type="Identifier"]`
+		);
+	}
 
 	if (!includeOptional) {
 		parts.push(`[${prefix}optional!=true]`);

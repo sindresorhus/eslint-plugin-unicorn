@@ -2,6 +2,7 @@
 const {isParenthesized} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const domEventsJson = require('./utils/dom-events.json');
+const {STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors');
 
 const MESSAGE_ID = 'prefer-add-event-listener';
 const messages = {
@@ -82,7 +83,7 @@ const create = context => {
 			codePathInfo = codePathInfo.upper;
 		},
 
-		'CallExpression[callee.name="require"] > Literal'(node) {
+		[STATIC_REQUIRE_SOURCE_SELECTOR](node) {
 			if (!isDisabled && excludedPackages.has(node.value)) {
 				isDisabled = true;
 			}
