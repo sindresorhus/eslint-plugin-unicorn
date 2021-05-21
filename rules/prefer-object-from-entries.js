@@ -26,6 +26,7 @@ const createEmptyObjectSelector = path => {
 		].join('')
 	]);
 };
+
 const createArrowCallbackSelector = path => {
 	const prefix = path ? `${path}.` : '';
 	return [
@@ -34,7 +35,7 @@ const createArrowCallbackSelector = path => {
 		`[${prefix}generator!=true]`,
 		`[${prefix}params.length>=1]`,
 		`[${prefix}params.0.type="Identifier"]`
-	].join('')
+	].join('');
 };
 
 // - `pairs.reduce(…, {})`
@@ -177,13 +178,25 @@ function create(context) {
 
 	for (const {selector, test, getKey, getValue} of fixableArrayReduceCases) {
 		listeners[selector] = function (node) {
+			// If this listener exit without adding fix, the `arrayReduceWithEmptyObject` listener
+			// should still add it into the `arrayReduce` map, to be safer, add it here too
+			arrayReduce.set(node);
+
 			const [callbackFunction] = node.arguments;
 			if (!test(callbackFunction)) {
 				return;
 			}
 
+			const [firstParameter] = callbackFunction.params;
+			const variables = context.getDeclaredVariables(callbackFunction);
+			const firstParameterVariable = variables.find(variable => variable.identifiers.length === 1 && variable.identifiers[0] === firstParameter);
+			if (!firstParameterVariable || firstParameterVariable.references.length !== 1) {
+				return;
+			}
+
 			arrayReduce.set(
 				node,
+				// The fix function
 				fixReduceAssignOrSpread({
 					sourceCode,
 					node,
@@ -194,14 +207,14 @@ function create(context) {
 		};
 	}
 
-	listeners[arrayReduceWithEmptyObject] = function(node) {
+	listeners[arrayReduceWithEmptyObject] = function (node) {
 		if (!arrayReduce.has(node)) {
 			// eslint-disable-next-line unicorn/no-null
 			arrayReduce.set(node, null);
 		}
 	};
 
-	listeners['Program:exit'] = function() {
+	listeners['Program:exit'] = function () {
 		for (const [node, fix] of arrayReduce.entries()) {
 			context.report({
 				node: node.callee.property,
@@ -211,7 +224,7 @@ function create(context) {
 		}
 	};
 
-	listeners[anyCall] = function(node) {
+	listeners[anyCall] = function (node) {
 		if (!isNodeMatches(node, functions)) {
 			return;
 		}
@@ -222,11 +235,11 @@ function create(context) {
 			messageId: MESSAGE_ID_FUNCTION,
 			data: {functionName},
 			fix: fixer => fixer.replaceText(node, 'Object.fromEntries')
-		})
+		});
 	};
 
 	return listeners;
-};
+}
 
 const schema = [
 	{

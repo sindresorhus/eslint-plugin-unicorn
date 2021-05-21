@@ -120,9 +120,14 @@ test.snapshot({
 		'pairs.reduce(object => Object?.assign(object, {key}), {});',
 		'pairs.reduce(object => Object.notAssign(object, {key}), {});',
 		'pairs.reduce(object => NotObject.assign(object, {key}), {});',
-		// [TODO]: FIX THIS, These should not be fixable or reported
+		// `object` is used somewhere else
 		'pairs.reduce(object => ({...object, object}), {});',
 		'pairs.reduce(object => ({...object, key: Object.keys(object)}), {});',
+		'pairs.reduce((object, [key, value = object]) => ({...object, [key]: value}), {});',
+		'pairs.reduce((object) => Object.assign(object, {object}), {});',
+		'pairs.reduce(object => ({...object, key: function () { return object; }}), {});',
+		// This is fixable
+		'pairs.reduce(object => ({...object, key: function (object) { return object; }}), {});'
 	]
 });
 
@@ -135,12 +140,12 @@ test.snapshot({
 		'pairs?.reduce(callback, {})',
 		'pairs.notReduce(callback, {})',
 		'pairs[reduce](callback, {})',
-		'pairs.reduce(...callback, {})',
+		'pairs.reduce(...callback, {})'
 	],
 	invalid: [
 		'pairs.reduce(callback, {})',
 		'pairs.reduce(callback, Object.create(null))',
-		'pairs.reduce(async function * () {}, {})',
+		'pairs.reduce(async function * () {}, {})'
 	]
 });
 
