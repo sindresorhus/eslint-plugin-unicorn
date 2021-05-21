@@ -66,8 +66,7 @@ const fixableArrayReduceCases = [
 			createPropertySelector('arguments.0.body.arguments.1.properties.0')
 		].join(''),
 		test: callback => callback.params[0].name === callback.body.arguments[0].name,
-		getKey: callback => callback.body.arguments[1].properties[0].key,
-		getValue: callback => callback.body.arguments[1].properties[0].value
+		getProperty: callback => callback.body.arguments[1].properties[0]
 	},
 	{
 		selector: [
@@ -81,8 +80,7 @@ const fixableArrayReduceCases = [
 			createPropertySelector('arguments.0.body.properties.1')
 		].join(''),
 		test: callback => callback.params[0].name === callback.body.properties[0].argument.name,
-		getKey: callback => callback.body.properties[1].key,
-		getValue: callback => callback.body.properties[1].value
+		getProperty: callback => callback.body.properties[1]
 	}
 ];
 
@@ -99,7 +97,7 @@ const anyCall = [
 	' > .callee'
 ].join('');
 
-function fixReduceAssignOrSpread({sourceCode, node, key, value}) {
+function fixReduceAssignOrSpread({sourceCode, node, property}) {
 	function removeInitObject(fixer) {
 		const initObject = node.arguments[1];
 		const parentheses = getParentheses(initObject, sourceCode);
@@ -134,10 +132,11 @@ function fixReduceAssignOrSpread({sourceCode, node, key, value}) {
 	}
 
 	function getKeyValueText() {
+		const {key, value} = property;
 		let keyText = getParenthesizedText(key, sourceCode);
 		const valueText = getParenthesizedText(value, sourceCode);
 
-		if (!key.parent.computed && key.type === 'Identifier') {
+		if (!property.computed && key.type === 'Identifier') {
 			keyText = `'${keyText}'`;
 		}
 
@@ -184,7 +183,7 @@ function create(context) {
 	const listeners = {};
 	const arrayReduce = new Map();
 
-	for (const {selector, test, getKey, getValue} of fixableArrayReduceCases) {
+	for (const {selector, test, getProperty} of fixableArrayReduceCases) {
 		listeners[selector] = function (node) {
 			// If this listener exit without adding fix, the `arrayReduceWithEmptyObject` listener
 			// should still add it into the `arrayReduce` map, to be safer, add it here too
@@ -209,8 +208,7 @@ function create(context) {
 				fixReduceAssignOrSpread({
 					sourceCode,
 					node,
-					key: getKey(callbackFunction),
-					value: getValue(callbackFunction)
+					property: getProperty(callbackFunction)
 				})
 			);
 		};
