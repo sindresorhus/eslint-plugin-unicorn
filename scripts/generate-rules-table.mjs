@@ -51,7 +51,7 @@ writeFileSync(
 			<!-- RULES_TABLE_START -->
 
 			| Name${'&nbsp;'.repeat(40)} | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} | ${EMOJI_HAS_SUGGESTIONS} |
-			| :-- | :-- | :-- | :-- | :-- |
+			|${' :-- |'.repeat(5)}
 			${rulesTableContent}
 
 			<!-- RULES_TABLE_END -->
