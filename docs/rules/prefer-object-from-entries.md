@@ -31,6 +31,10 @@ const object = pairs.reduce(
 const object = pairs.reduce(addPairToObject, {});
 ```
 
+```js
+const object = _.fromPairs(pairs);
+```
+
 ## Pass
 
 ```js
@@ -40,3 +44,37 @@ const object = Object.fromEntries(pairs);
 ```js
 const object = new Map(pairs);
 ```
+
+## Options
+
+Type: `object`
+
+### functions
+
+Type: `string[]`
+
+You can also check custom functions that transforms pairs.
+
+`lodash.fromPairs()` and `_.fromPairs()` are checked by default.
+
+Example:
+
+```js
+{
+	'unicorn/prefer-object-from-entries': [
+		'error',
+		{
+			functions: [
+				'getObjectFromKeyValue',
+				'utils.fromPairs'
+			]
+		}
+	]
+}
+```
+
+```js
+// eslint unicorn/prefer-object-from-entries: ["error", {"functions": ["utils.fromPairs"]}]
+const object = utils.fromPairs(pairs); // Fails
+```
+
