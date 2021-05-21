@@ -126,8 +126,17 @@ test.snapshot({
 		'pairs.reduce((object, [key, value = object]) => ({...object, [key]: value}), {});',
 		'pairs.reduce((object) => Object.assign(object, {object}), {});',
 		'pairs.reduce(object => ({...object, key: function () { return object; }}), {});',
-		// This is fixable
-		'pairs.reduce(object => ({...object, key: function (object) { return object; }}), {});'
+		'pairs.reduce(object => ({...object, key: function (object) { return object; }}), {});', // This is fixable
+		// Complicated key value
+		'pairs.reduce(object => ({...object, method() {}}), {});',
+		'pairs.reduce(object => Object.assign(object, {async * method() {}}), {});',
+		'pairs.reduce(object => ({...object, async method() {}}), {});',
+		'pairs.reduce(object => ({...object, * method() {}}), {});',
+		'pairs.reduce(object => ({...object, async * method() {}}), {});',
+		'pairs.reduce(object => ({...object, method: async () => {}}), {});',
+		'pairs.reduce(object => ({...object, method: async function * {}}), {});',
+		'pairs.reduce(object => ({...object, get key() {}}), {});',
+		'pairs.reduce(object => ({...object, set key(v) {}}), {});'
 	]
 });
 
