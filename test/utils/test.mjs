@@ -9,14 +9,14 @@ import defaultParserOptions from './default-parser-options.mjs';
 const require = createRequire(import.meta.url);
 
 function normalizeInvalidTest(test, rule) {
-	const {code, output} = test;
+	const {code, output, errors} = test;
 
 	if (code === output) {
 		console.log(JSON.stringify(test, undefined, 2));
 		throw new Error('Remove output if your test do not fix code.');
 	}
 
-	if (Array.isArray(test.errors) && test.errors.some(error => error.suggestions) && rule.meta.docs.suggestion !== true) {
+	if (Array.isArray(errors) && errors.some(error => error.suggestions) && rule.meta.docs.suggestion !== true) {
 		// This check will no longer be necessary if this change lands in ESLint 8: https://github.com/eslint/eslint/issues/14312
 		throw new Error('Rule with suggestion is missing `meta.docs.suggestion`.');
 	}
