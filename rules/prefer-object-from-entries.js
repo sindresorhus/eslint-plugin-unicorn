@@ -26,56 +26,61 @@ const createEmptyObjectSelector = path => {
 		].join('')
 	]);
 };
+const createArrowCallbackSelector = path => {
+	const prefix = path ? `${path}.` : '';
+	return [
+		`[${prefix}type="ArrowFunctionExpression"]`,
+		`[${prefix}async!=true]`,
+		`[${prefix}generator!=true]`,
+		`[${prefix}params.length>=1]`,
+		`[${prefix}params.0.type="Identifier"]`
+	].join('')
+};
 
-// - `pairs.reduce((object) => {}, {})`
-// - `pairs.reduce((object) => {}, Object.create(null))`
-// - `pairs.reduce((object, element) => Object.assign(object, {[key]: value}), Object.create(null))`
-const reduceEmptyObjectSelector = [
+// - `pairs.reduce(…, {})`
+// - `pairs.reduce(…, Object.create(null))`
+const arrayReduceWithEmptyObject = [
 	methodCallSelector({name: 'reduce', length: 2}),
-	'[arguments.0.type="ArrowFunctionExpression"]',
-	'[arguments.0.async!=true]',
-	'[arguments.0.generator!=true]',
-	'[arguments.0.params.length>=1]',
-	'[arguments.0.params.0.type="Identifier"]',
 	createEmptyObjectSelector('arguments.1')
 ].join('');
 
-const arrayReduceCases = [
+const fixableArrayReduceCases = [
 	{
 		selector: [
-			reduceEmptyObjectSelector,
-			// () => Object.assign(object, {[key]: value})
+			arrayReduceWithEmptyObject,
+			// () => Object.assign(object, {key})
+			createArrowCallbackSelector('arguments.0'),
 			methodCallSelector({path: 'arguments.0.body', object: 'Object', name: 'assign', length: 2}),
 			'[arguments.0.body.arguments.0.type="Identifier"]',
 			'[arguments.0.body.arguments.1.type="ObjectExpression"]',
 			'[arguments.0.body.arguments.1.properties.length=1]',
 			'[arguments.0.body.arguments.1.properties.0.type="Property"]'
 		].join(''),
-		getObject: node => node.arguments[0].body.arguments[0],
-		getKey: node => node.arguments[0].body.arguments[1].properties[0].key,
-		getValue: node => node.arguments[0].body.arguments[1].properties[0].value
+		test: callback => callback.params[0].name === callback.body.arguments[0].name,
+		getKey: callback => callback.body.arguments[1].properties[0].key,
+		getValue: callback => callback.body.arguments[1].properties[0].value
 	},
 	{
 		selector: [
-			reduceEmptyObjectSelector,
-			// () => ({...object, [key]: value})
+			arrayReduceWithEmptyObject,
+			// () => ({...object, key})
+			createArrowCallbackSelector('arguments.0'),
 			'[arguments.0.body.type="ObjectExpression"]',
 			'[arguments.0.body.properties.length=2]',
 			'[arguments.0.body.properties.0.type="SpreadElement"]',
 			'[arguments.0.body.properties.0.argument.type="Identifier"]',
 			'[arguments.0.body.properties.1.type="Property"]'
 		].join(''),
-		getObject: node => node.arguments[0].body.properties[0].argument,
-		getKey: node => node.arguments[0].body.properties[1].key,
-		getValue: node => node.arguments[0].body.properties[1].value
+		test: callback => callback.params[0].name === callback.body.properties[0].argument.name,
+		getKey: callback => callback.body.properties[1].key,
+		getValue: callback => callback.body.properties[1].value
 	}
 ];
 
 // `_.flatten(array)`
-const lodashPairsFunctions = [
-	'_.pairs',
-	'lodash.pairs',
-	'underscore.pairs'
+const lodashFromPairsFunctions = [
+	'_.fromPairs',
+	'lodash.fromPairs'
 ];
 const anyCall = [
 	'CallExpression',
@@ -165,16 +170,14 @@ function create(context) {
 		functions: [],
 		...context.options[0]
 	};
-	const functions = [...configFunctions, ...lodashPairsFunctions];
+	const functions = [...configFunctions, ...lodashFromPairsFunctions];
 	const sourceCode = context.getSourceCode();
 	const listeners = {};
 
-	for (const {selector, getObject, getKey, getValue} of arrayReduceCases) {
+	for (const {selector, test, getKey, getValue} of fixableArrayReduceCases) {
 		listeners[selector] = function (node) {
-			const objectParameter = node.arguments[0].params[0];
-			const objectAssigning = getObject(node);
-
-			if (objectParameter.name !== objectAssigning.name) {
+			const [callbackFunction] = node.arguments;
+			if (!test(callbackFunction)) {
 				return;
 			}
 
@@ -184,8 +187,8 @@ function create(context) {
 				fix: fixReduceAssignOrSpread({
 					sourceCode,
 					node,
-					key: getKey(node),
-					value: getValue(node)
+					key: getKey(callbackFunction),
+					value: getValue(callbackFunction)
 				})
 			});
 		};
@@ -204,7 +207,6 @@ function create(context) {
 			fix: fixer => fixer.replaceText(node, 'Object.fromEntries')
 		})
 	};
-
 
 	return listeners;
 };

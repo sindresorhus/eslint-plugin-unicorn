@@ -129,11 +129,13 @@ test.snapshot({
 // Functions
 test.snapshot({
 	valid: [
-		'_.pairs',
-		'_.pairs()',
-		'new _.pairs(pairs)',
-		'_.pairs(...[pairs])',
-		'_?.pairs(pairs)',
+		// `underscore` don't have `fromPairs` method
+		'underscore.fromPairs(pairs)',
+		'_.fromPairs',
+		'_.fromPairs()',
+		'new _.fromPairs(pairs)',
+		'_.fromPairs(...[pairs])',
+		'_?.fromPairs(pairs)',
 		{
 			code: '_.foo(pairs)',
 			options: [{functions: ['foo']}]
@@ -148,9 +150,8 @@ test.snapshot({
 		}
 	],
 	invalid: [
-		'_.pairs(pairs)',
-		'lodash.pairs(pairs)',
-		'underscore.pairs(pairs)',
+		'_.fromPairs(pairs)',
+		'lodash.fromPairs(pairs)',
 		{
 			code: 'myFromPairsFunction(pairs)',
 			options: [{functions: ['myFromPairsFunction']}]
@@ -160,4 +161,4 @@ test.snapshot({
 			options: [{functions: ['utils.object.foo']}]
 		}
 	]
-})
+});
