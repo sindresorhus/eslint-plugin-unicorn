@@ -1,54 +1,22 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const isMethodNamed = require('./utils/is-method-named');
 const isLiteralValue = require('./utils/is-literal-value');
 const {isNodeMatches} = require('./utils/is-node-matches');
+const {methodCallSelector} = require('./selectors');
 
-const MESSAGE_ID_FLATMAP = 'flat-map';
-const MESSAGE_ID_SPREAD = 'spread';
+const MESSAGE_ID = 'prefer-array-flat-map';
 const messages = {
-	[MESSAGE_ID_FLATMAP]: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
-	[MESSAGE_ID_SPREAD]: 'Prefer `.flatMap(…)` over `[].concat(...foo.map(…))`.'
+	[MESSAGE_ID]: 'Prefer `.flatMap(…)` over `.map(…).flat()`.'
 };
 
-const SELECTOR_SPREAD = [
-	// [].concat(...bar.map((i) => i))
-	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	'CallExpression',
-
-	// [].concat(...bar.map((i) => i))
-	// ^^
-	'[callee.object.type="ArrayExpression"]',
-	'[callee.object.elements.length=0]',
-
-	// [].concat(...bar.map((i) => i))
-	//    ^^^^^^
-	'[callee.type="MemberExpression"]',
-	'[callee.computed!=true]',
-	'[callee.property.type="Identifier"]',
-	'[callee.property.name="concat"]',
-
-	// [].concat(...bar.map((i) => i))
-	//           ^^^^^^^^^^^^^^^^^^^^
-	'[arguments.0.type="SpreadElement"]',
-
-	// [].concat(...bar.map((i) => i))
-	//              ^^^^^^^^^^^^^^^^^
-	'[arguments.0.argument.type="CallExpression"]',
-
-	// [].concat(...bar.map((i) => i))
-	//              ^^^^^^^
-	'[arguments.0.argument.callee.type="MemberExpression"]',
-	'[arguments.0.argument.callee.computed!=true]',
-
-	// [].concat(...bar.map((i) => i))
-	//                  ^^^
-	'[arguments.0.argument.callee.property.type="Identifier"]',
-	'[arguments.0.argument.callee.property.name="map"]'
+const selector = [
+	methodCallSelector({name: 'flat', max: 1}),
+	methodCallSelector({path: 'callee.object', name: 'map'})
 ].join('');
 
-const reportFlatMap = (context, nodeFlat, nodeMap) => {
-	const source = context.getSourceCode();
+const reportFlatMap = (context, nodeFlat) => {
+	const nodeMap = nodeFlat.callee.object;
+	const sourceCode = context.getSourceCode();
 
 	// Node covers:
 	//   map(…).flat();
@@ -62,20 +30,20 @@ const reportFlatMap = (context, nodeFlat, nodeMap) => {
 	//         ^
 	//   (map(…)).flat();
 	//           ^
-	const dot = source.getTokenBefore(flatIdentifer);
+	const dot = sourceCode.getTokenBefore(flatIdentifer);
 
 	// Location will be:
 	//   map(…).flat();
 	//                ^
 	//   (map(…)).flat();
 	//                  ^
-	const maybeSemicolon = source.getTokenAfter(nodeFlat);
+	const maybeSemicolon = sourceCode.getTokenAfter(nodeFlat);
 	const hasSemicolon = Boolean(maybeSemicolon) && maybeSemicolon.value === ';';
 
 	// Location will be:
 	//   (map(…)).flat();
 	//          ^
-	const tokenBetween = source.getLastTokenBetween(nodeMap, dot);
+	const tokenBetween = sourceCode.getLastTokenBetween(nodeMap, dot);
 
 	// Location will be:
 	//   map(…).flat();
@@ -102,7 +70,8 @@ const reportFlatMap = (context, nodeFlat, nodeMap) => {
 
 	context.report({
 		node: nodeFlat,
-		messageId: MESSAGE_ID_FLATMAP,
+		loc: {start: mapProperty.loc.start, end: nodeFlat.loc.end},
+		messageId: MESSAGE_ID,
 		* fix(fixer) {
 			// Removes:
 			//   map(…).flat();
@@ -131,38 +100,23 @@ const reportFlatMap = (context, nodeFlat, nodeMap) => {
 	});
 };
 
-const create = context => ({
-	CallExpression: node => {
-		if (!isMethodNamed(node, 'flat')) {
-			return;
-		}
+const ignored = ['React.Children', 'Children'];
 
+const create = context => ({
+	[selector]: node => {
 		if (
 			!(
 				// `.flat()`
 				node.arguments.length === 0 ||
 				// `.flat(1)`
 				(node.arguments.length === 1 && isLiteralValue(node.arguments[0], 1))
-			)
+			) ||
+			isNodeMatches(node.callee.object.callee.object, ignored)
 		) {
 			return;
 		}
 
-		const calleeObject = node.callee.object;
-		if (
-			!isMethodNamed(calleeObject, 'map') ||
-			isNodeMatches(calleeObject.callee.object, ['React.Children', 'Children'])
-		) {
-			return;
-		}
-
-		reportFlatMap(context, node, calleeObject);
-	},
-	[SELECTOR_SPREAD]: node => {
-		context.report({
-			node,
-			messageId: MESSAGE_ID_SPREAD
-		});
+		reportFlatMap(context, node);
 	}
 });
 

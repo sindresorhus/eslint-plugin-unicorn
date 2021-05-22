@@ -82,3 +82,7 @@ Example:
 // eslint unicorn/prefer-array-flat: ["error", {"functions": ["utils.flat"]}]
 const foo = utils.flat(bar); // Fails
 ```
+
+## Related rules
+
+- [prefer-array-flat-map](./prefer-array-flat-map.md)
