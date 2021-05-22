@@ -15,7 +15,7 @@ const declaratorSelector = [
 
 const memberSelector = [
 	'MemberExpression',
-	'[computed=false]',
+	'[computed!=true]',
 	not([
 		'AssignmentExpression > .left',
 		'CallExpression > .callee',
@@ -161,7 +161,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Use destructured variables over properties.',
-			url: getDocumentationUrl(__filename)
+			url: getDocumentationUrl(__filename),
+			suggestion: true
 		},
 		fixable: 'code',
 		schema: [],

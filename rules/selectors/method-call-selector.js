@@ -1,71 +1,65 @@
 'use strict';
+const {pick} = require('lodash');
 const memberExpressionSelector = require('./member-expression-selector');
+const {callExpressionSelector} = require('./call-or-new-expression-selector');
+
+/**
+@param {
+	{
+		path?: string,
+
+		// `CallExpression` options
+		length?: string,
+		min?: number,
+		max?: number,
+		includeOptionalCall?: boolean,
+		allowSpreadElement?: boolean,
+
+		// `MemberExpression` options
+		name?: string,
+		names?: string[],
+		object?: string,
+		objects?: string[],
+		includeOptionalMember?: boolean,
+		allowComputed?: boolean
+	} | string | string[]
+} [options]
+@returns {string}
+*/
 
 function methodCallSelector(options) {
+	if (typeof options === 'string') {
+		options = {names: [options]};
+	}
+
+	if (Array.isArray(options)) {
+		options = {names: options};
+	}
+
 	const {
-		name,
-		names,
-		length,
-		object,
-		objects,
-		min,
-		max,
 		path,
 		includeOptionalCall,
-		includeOptionalMember,
-		allowSpreadElement
+		includeOptionalMember
 	} = {
-		min: 0,
-		max: Number.POSITIVE_INFINITY,
+		path: '',
 		includeOptionalCall: false,
 		includeOptionalMember: false,
-		allowSpreadElement: false,
-		path: '',
 		...options
 	};
 
 	const prefix = path ? `${path}.` : '';
 
-	const parts = [
-		`[${prefix}type="CallExpression"]`
-	];
-
-	if (!includeOptionalCall) {
-		parts.push(`[${prefix}optional!=true]`);
-	}
-
-	parts.push(memberExpressionSelector({
-		path: `${prefix}callee`,
-		name,
-		names,
-		object,
-		objects,
-		includeOptional: includeOptionalMember
-	}));
-
-	if (typeof length === 'number') {
-		parts.push(`[${prefix}arguments.length=${length}]`);
-	}
-
-	if (min !== 0) {
-		parts.push(`[${prefix}arguments.length>=${min}]`);
-	}
-
-	if (Number.isFinite(max)) {
-		parts.push(`[${prefix}arguments.length<=${max}]`);
-	}
-
-	if (!allowSpreadElement) {
-		const maxArguments = Number.isFinite(max) ? max : length;
-		if (typeof maxArguments === 'number') {
-			// Exclude arguments with `SpreadElement` type
-			for (let index = 0; index < maxArguments; index += 1) {
-				parts.push(`[${prefix}arguments.${index}.type!="SpreadElement"]`);
-			}
-		}
-	}
-
-	return parts.join('');
+	return [
+		callExpressionSelector({
+			...pick(options, ['path', 'length', 'min', 'max', 'allowSpreadElement']),
+			includeOptional: includeOptionalCall
+		}),
+		memberExpressionSelector({
+			...pick(options, ['name', 'names', 'min', 'object', 'objects', 'allowComputed']),
+			path: `${prefix}callee`,
+			includeOptional: includeOptionalMember
+		})
+	].join('');
 }
 
 module.exports = methodCallSelector;

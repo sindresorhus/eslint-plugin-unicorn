@@ -15,7 +15,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Array#indexOf()` over `Array#findIndex()` when looking for the index of an item.',
-			url: getDocumentationUrl(__filename)
+			url: getDocumentationUrl(__filename),
+			suggestion: true
 		},
 		fixable: 'code',
 		schema: [],

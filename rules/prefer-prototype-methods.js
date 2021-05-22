@@ -11,9 +11,7 @@ const messages = {
 };
 
 const functionMethodsSelector = [
-	methodCallSelector({
-		names: ['apply', 'bind', 'call']
-	}),
+	methodCallSelector(['apply', 'bind', 'call']),
 	' > ',
 	'.callee',
 	' > ',

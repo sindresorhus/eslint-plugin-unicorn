@@ -1,7 +1,7 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {matches} = require('./selectors');
+const {callOrNewExpressionSelector} = require('./selectors');
 
 const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage';
 const MESSAGE_ID_EMPTY_MESSAGE = 'emptyMessage';
@@ -23,14 +23,8 @@ const errorConstructors = [
 	'URIError',
 	'InternalError'
 ];
-
-const selector = [
-	matches(['NewExpression', 'CallExpression']),
-	'[callee.type="Identifier"]',
-	matches(errorConstructors.map(name => `[callee.name="${name}"]`))
-].join('');
-const noArgumentsExpressionSelector = `${selector}[arguments.length=0]`;
-const errorMessageSelector = `${selector}[arguments.length>0]`;
+const noArgumentsExpressionSelector = callOrNewExpressionSelector({names: errorConstructors, length: 0});
+const errorMessageSelector = callOrNewExpressionSelector({names: errorConstructors, min: 1});
 
 const create = context => {
 	return {

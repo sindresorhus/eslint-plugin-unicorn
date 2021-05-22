@@ -1,6 +1,11 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {matches, methodCallSelector} = require('./selectors');
+const {
+	matches,
+	methodCallSelector,
+	newExpressionSelector,
+	callExpressionSelector
+} = require('./selectors');
 
 const MESSAGE_ID_DEFAULT = 'prefer-date';
 const MESSAGE_ID_METHOD = 'prefer-date-now-over-methods';
@@ -11,18 +16,11 @@ const messages = {
 	[MESSAGE_ID_NUMBER]: 'Prefer `Date.now()` over `Number(new Date())`.'
 };
 
-const createNewDateSelector = path => {
-	const prefix = path ? `${path}.` : '';
-	return [
-		`[${prefix}type="NewExpression"]`,
-		`[${prefix}callee.type="Identifier"]`,
-		`[${prefix}callee.name="Date"]`,
-		`[${prefix}arguments.length=0]`
-	].join('');
-};
-
+const createNewDateSelector = path => newExpressionSelector({path, name: 'Date', length: 0});
 const operatorsSelector = (...operators) => matches(operators.map(operator => `[operator="${operator}"]`));
+// `new Date()`
 const newDateSelector = createNewDateSelector();
+// `new Date().{getTime,valueOf}()`
 const methodsSelector = [
 	methodCallSelector({
 		names: ['getTime', 'valueOf'],
@@ -30,11 +28,9 @@ const methodsSelector = [
 	}),
 	createNewDateSelector('callee.object')
 ].join('');
+// `{Number,BigInt}(new Date())`
 const builtinObjectSelector = [
-	'CallExpression',
-	'[callee.type="Identifier"]',
-	':matches([callee.name="Number"], [callee.name="BigInt"])',
-	'[arguments.length=1]',
+	callExpressionSelector({names: ['Number', 'BigInt'], length: 1}),
 	createNewDateSelector('arguments.0')
 ].join('');
 // https://github.com/estree/estree/blob/master/es5.md#unaryoperator

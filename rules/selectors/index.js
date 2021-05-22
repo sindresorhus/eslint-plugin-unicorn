@@ -11,5 +11,10 @@ module.exports = {
 	methodCallSelector: require('./method-call-selector'),
 	notDomNodeSelector: require('./not-dom-node').notDomNodeSelector,
 	notFunctionSelector: require('./not-function').notFunctionSelector,
-	referenceIdentifierSelector: require('./reference-identifier-selector')
+	referenceIdentifierSelector: require('./reference-identifier-selector'),
+	callExpressionSelector: require('./call-or-new-expression-selector').callExpressionSelector,
+	newExpressionSelector: require('./call-or-new-expression-selector').newExpressionSelector,
+	callOrNewExpressionSelector: require('./call-or-new-expression-selector').callOrNewExpressionSelector,
+	STATIC_REQUIRE_SELECTOR: require('./require-selector').STATIC_REQUIRE_SELECTOR,
+	STATIC_REQUIRE_SOURCE_SELECTOR: require('./require-selector').STATIC_REQUIRE_SOURCE_SELECTOR
 };

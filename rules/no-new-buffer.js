@@ -1,6 +1,7 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
+const {newExpressionSelector} = require('./selectors');
 const {switchNewExpressionToCallExpression} = require('./fix');
 
 const ERROR = 'error';
@@ -52,7 +53,7 @@ function fix(node, sourceCode, method) {
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	return {
-		'NewExpression[callee.name="Buffer"]': node => {
+		[newExpressionSelector('Buffer')]: node => {
 			const method = inferMethod(node.arguments, context.getScope());
 
 			if (method) {
@@ -86,7 +87,8 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`.',
-			url: getDocumentationUrl(__filename)
+			url: getDocumentationUrl(__filename),
+			suggestion: true
 		},
 		fixable: 'code',
 		schema: [],

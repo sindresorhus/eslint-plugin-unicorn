@@ -48,7 +48,7 @@ const filterVariableSelector = [
 
 const zeroIndexSelector = [
 	'MemberExpression',
-	'[computed=true]',
+	'[computed!=false]',
 	'[property.type="Literal"]',
 	'[property.raw="0"]',
 	methodCallSelector({
@@ -319,7 +319,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.find(…)` over the first element from `.filter(…)`.',
-			url: getDocumentationUrl(__filename)
+			url: getDocumentationUrl(__filename),
+			suggestion: true
 		},
 		fixable: 'code',
 		schema: [],

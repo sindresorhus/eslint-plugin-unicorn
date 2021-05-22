@@ -11,7 +11,7 @@ const messages = {
 };
 
 const prototypeSelector = method => [
-	methodCallSelector({name: method}),
+	methodCallSelector(method),
 	arrayPrototypeMethodSelector({
 		path: 'callee.object',
 		names: ['reduce', 'reduceRight']

@@ -39,9 +39,7 @@ const arrayFromCallSelector = [
 ].join('');
 
 const arrayConcatCallSelector = [
-	methodCallSelector({
-		name: 'concat'
-	}),
+	methodCallSelector('concat'),
 	`:not(${
 		[
 			...[
@@ -425,7 +423,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`.',
-			url: getDocumentationUrl(__filename)
+			url: getDocumentationUrl(__filename),
+			suggestion: true
 		},
 		fixable: 'code',
 		schema: [],
