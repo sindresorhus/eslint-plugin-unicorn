@@ -123,17 +123,11 @@ const arrayPrototypeConcat = {
 	description: 'Array.prototype.concat()'
 };
 
-// `_.flatten(array)`
-const lodashFlatten = {
-	selector: methodCallSelector({
-		objects: ['_', 'lodash', 'underscore'],
-		name: 'flatten',
-		length: 1
-	}),
-	getArrayNode: node => node.arguments[0],
-	description: node => `${node.callee.object.name}.flatten()`
-};
-
+const lodashFlattenFunctions = [
+	'_.flatten',
+	'lodash.flatten',
+	'underscore.flatten'
+];
 const anyCall = {
 	selector: callExpressionSelector({length: 1}),
 	getArrayNode: node => node.arguments[0]
@@ -158,10 +152,11 @@ function fix(node, array, sourceCode) {
 }
 
 function create(context) {
-	const {functions} = {
+	const {functions: configFunctions} = {
 		functions: [],
 		...context.options[0]
 	};
+	const functions = [...configFunctions, ...lodashFlattenFunctions];
 	const sourceCode = context.getSourceCode();
 	const listeners = {};
 
@@ -171,16 +166,12 @@ function create(context) {
 		arrayReduce2,
 		emptyArrayConcat,
 		arrayPrototypeConcat,
-		lodashFlatten
-	];
-
-	if (functions.length > 0) {
-		cases.push({
+		{
 			...anyCall,
 			testFunction: node => isNodeMatches(node.callee, functions),
 			description: node => `${functions.find(nameOrPath => isNodeMatchesNameOrPath(node.callee, nameOrPath)).trim()}()`
-		});
-	}
+		}
+	];
 
 	for (const {selector, testFunction, description, getArrayNode} of cases) {
 		listeners[selector] = function (node) {
