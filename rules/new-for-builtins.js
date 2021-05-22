@@ -2,8 +2,8 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const builtins = require('./utils/builtins');
 const isShadowed = require('./utils/is-shadowed');
-const switchNewExpressionToCallExpression = require('./utils/switch-new-expression-to-call-expression');
 const {callExpressionSelector, newExpressionSelector} = require('./selectors');
+const {switchNewExpressionToCallExpression} = require('./fix');
 
 const messages = {
 	enforce: 'Use `new {{name}}()` instead of `{{name}}()`.',

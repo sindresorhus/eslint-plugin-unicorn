@@ -1,5 +1,6 @@
 'use strict';
 
 module.exports = {
-	appendArgument: require('./append-argument')
+	appendArgument: require('./append-argument'),
+	switchNewExpressionToCallExpression: require('./switch-new-expression-to-call-expression')
 };

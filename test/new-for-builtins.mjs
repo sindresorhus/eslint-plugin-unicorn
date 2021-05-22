@@ -1,4 +1,5 @@
 
+import outdent from 'outdent';
 import {enforceNew, disallowNew} from '../rules/utils/builtins.js';
 import {getTester} from './utils/test.mjs';
 
@@ -327,6 +328,60 @@ test.snapshot({
 		'const object = (Object)();',
 		'const symbol = new (Symbol)("");',
 		'const symbol = new /* comment */ Symbol("");',
-		'const symbol = new Symbol;'
+		'const symbol = new Symbol;',
+		// `ReturnStatement`
+		outdent`
+			() => {
+				return new // 1
+					Symbol();
+			}
+		`,
+		outdent`
+			() => {
+				return (
+					new // 2
+						Symbol()
+				);
+			}
+		`,
+		outdent`
+			() => {
+				return new // 3
+					(Symbol);
+			}
+		`,
+		outdent`
+			() => {
+				return new // 4
+					Symbol;
+			}
+		`,
+		outdent`
+			() => {
+				return (
+					new // 5
+						Symbol
+				);
+			}
+		`,
+		outdent`
+			() => {
+				return (
+					new // 6
+						(Symbol)
+				);
+			}
+		`,
+		outdent`
+			() => {
+				throw new // 1
+					Symbol();
+			}
+		`,
+		outdent`
+			() => {
+				return new /**/ Symbol;
+			}
+		`
 	]
 });
