@@ -83,6 +83,6 @@ Example:
 const foo = utils.flat(bar); // Fails
 ```
 
-## Related Rules
+## Related rules
 
 - [prefer-array-flat-map](./prefer-array-flat-map.md)
