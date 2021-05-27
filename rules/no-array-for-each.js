@@ -46,6 +46,12 @@ function isReturnStatementInContinueAbleNodes(returnStatement, callbackFunction)
 	return false;
 }
 
+function shouldSwitchReturnStatementToBlockStatement(returnStatement) {
+	const {parent} = returnStatement;
+
+	return false;
+}
+
 function getFixFunction(callExpression, functionInfo, context) {
 	const sourceCode = context.getSourceCode();
 	const [callback] = callExpression.arguments;
@@ -110,6 +116,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		// Remove `return`
 		yield fixer.remove(returnToken);
 
+		let insertBraces = shouldSwitchReturnStatementToBlockStatement(returnStatement);
 		const previousToken = sourceCode.getTokenBefore(returnToken);
 		const nextToken = sourceCode.getTokenAfter(returnToken);
 		let textBefore = '';
@@ -118,13 +125,19 @@ function getFixFunction(callExpression, functionInfo, context) {
 			!isParenthesized(returnStatement.argument, sourceCode) &&
 			shouldAddParenthesesToExpressionStatementExpression(returnStatement.argument);
 		if (shouldAddParentheses) {
-			textBefore = '(';
-			textAfter = ')';
+			textBefore = `(${textBefore}`;
+			textAfter = `${textAfter})`;
 		}
 
-		const shouldAddSemicolonBefore = needsSemicolon(previousToken, sourceCode, shouldAddParentheses ? '(' : nextToken.value);
-		if (shouldAddSemicolonBefore) {
+		if (
+			!insertBraces &&
+			needsSemicolon(previousToken, sourceCode, shouldAddParentheses ? '(' : nextToken.value)
+		) {
 			textBefore = `;${textBefore}`;
+		}
+
+		if (insertBraces) {
+			textBefore = `{ ${textBefore}`;
 		}
 
 		if (textBefore) {
@@ -139,7 +152,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		const lastToken = sourceCode.getLastToken(returnStatement);
 		yield fixer.insertTextAfter(
 			returnStatement,
-			`${isSemicolonToken(lastToken) ? '' : ';'} continue;`
+			`${isSemicolonToken(lastToken) ? '' : ';'} continue;${insertBraces ? ' }' : ''}`
 		);
 	}
 
