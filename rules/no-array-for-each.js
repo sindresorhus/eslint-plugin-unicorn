@@ -49,7 +49,22 @@ function isReturnStatementInContinueAbleNodes(returnStatement, callbackFunction)
 function shouldSwitchReturnStatementToBlockStatement(returnStatement) {
 	const {parent} = returnStatement;
 
-	return false;
+	switch (parent.type) {
+		case 'IfStatement':
+			return parent.consequent == returnStatement || parent.alternate == returnStatement;
+
+		// These parent's body need use `BlockStatement` too, but since they are "continueAble", won't fix
+		// case 'ForStatement':
+		// case 'ForInStatement':
+		// case 'ForOfStatement':
+		// case 'WhileStatement':
+		// case 'DoWhileStatement':
+		case 'WithStatement':
+			return parent.body === returnStatement;
+
+		default:
+			return false;
+	}
 }
 
 function getFixFunction(callExpression, functionInfo, context) {

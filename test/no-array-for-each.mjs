@@ -554,7 +554,7 @@ test({
 			`,
 			output: outdent`
 				for (const _ of foo) {
-					with (a)  ({}); continue;
+					with (a)  { ({}); continue; }
 				}
 			`,
 			errors: 1,
