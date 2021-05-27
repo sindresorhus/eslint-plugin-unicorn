@@ -105,7 +105,7 @@ const emptyArrayConcat = {
 		return argumentNode.type === 'SpreadElement' ? argumentNode.argument : argumentNode;
 	},
 	description: '[].concat()',
-	shouldSwitchToArray: (node) => node.arguments[0].type !== 'SpreadElement'
+	shouldSwitchToArray: node => node.arguments[0].type !== 'SpreadElement'
 };
 
 // `[].concat.apply([], array)` and `Array.prototype.concat.apply([], array)`
@@ -124,7 +124,7 @@ const arrayPrototypeConcat = {
 	].join(''),
 	getArrayNode: node => node.arguments[1],
 	description: 'Array.prototype.concat()',
-	shouldSwitchToArray: (node) => node.callee.property.name === 'call'
+	shouldSwitchToArray: node => node.callee.property.name === 'call'
 };
 
 const lodashFlattenFunctions = [

@@ -126,7 +126,8 @@ test.snapshot({
 	]
 });
 
-// `[].concat.apply([], array)`
+// - `[].concat.apply([], array)`
+// - `[].concat.call([], maybeArray)`
 test.snapshot({
 	valid: [
 		'new [].concat.apply([], array)',
@@ -146,15 +147,21 @@ test.snapshot({
 		'[]?.concat.apply([], array)'
 	],
 	invalid: [
-		'[].concat.apply([], maybeArray)',
-		'[].concat.apply([], ((0, maybeArray)))',
-		'[].concat.apply([], ((maybeArray)))',
+		'[].concat.apply([], array)',
+		'[].concat.apply([], ((0, array)))',
+		'[].concat.apply([], ((array)))',
 		'[].concat.apply([], [foo])',
-		'[].concat.apply([], [[foo]])'
+		'[].concat.apply([], [[foo]])',
+		'[].concat.call([], maybeArray)',
+		'[].concat.call([], ((0, maybeArray)))',
+		'[].concat.call([], ((maybeArray)))',
+		'[].concat.call([], [foo])',
+		'[].concat.call([], [[foo]])'
 	]
 });
 
-// `Array.prototype.concat.apply([], array)`
+// - `Array.prototype.concat.apply([], array)`
+// - `Array.prototype.concat.call([], maybeArray)`
 test.snapshot({
 	valid: [
 		'new Array.prototype.concat.apply([], array)',
