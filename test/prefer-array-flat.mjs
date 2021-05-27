@@ -336,6 +336,38 @@ test.snapshot({
 		'_.flatten((0, array))',
 		'async function a() { return _.flatten(await getArray()); }',
 		'async function a() { return _.flatten((await getArray())); }',
+		outdent`
+			before()
+			Array.prototype.concat.apply([], 1)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.call([], 1)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.apply([], 1.)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.call([], 1.)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.apply([], .1)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.call([], .1)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.apply([], 1.0)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.call([], 1.0)
+		`,
 		// Comment
 		'[].concat(some./**/array)',
 		'[/**/].concat(some./**/array)',
