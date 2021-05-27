@@ -105,7 +105,7 @@ const emptyArrayConcat = {
 		return argumentNode.type === 'SpreadElement' ? argumentNode.argument : argumentNode;
 	},
 	description: '[].concat()',
-	isConcat: true
+	shouldSwitchToArray: (node) => node.arguments[0].type !== 'SpreadElement'
 };
 
 // `[].concat.apply([], array)` and `Array.prototype.concat.apply([], array)`
@@ -123,7 +123,7 @@ const arrayPrototypeConcat = {
 	].join(''),
 	getArrayNode: node => node.arguments[1],
 	description: 'Array.prototype.concat()',
-	isConcat: true
+	shouldSwitchToArray: true
 };
 
 const lodashFlattenFunctions = [
@@ -136,14 +136,21 @@ const anyCall = {
 	getArrayNode: node => node.arguments[0]
 };
 
-function fix(node, array, sourceCode, isConcat) {
+function fix(node, array, sourceCode, shouldSwitchToArray) {
+	if (typeof shouldSwitchToArray === 'function') {
+		shouldSwitchToArray = shouldSwitchToArray(node);
+	}
+
 	return fixer => {
 		let fixed = getParenthesizedText(array, sourceCode);
-		if (isConcat) {
+		if (shouldSwitchToArray) {
 			// `array` is an argument, when it change to `[array]`, don't need add extra parentheses
 			fixed = `[${fixed}]`;
 			// And don't need add parentheses to the new array to call `.flat()`
-		} else if (!isParenthesized(array, sourceCode) && shouldAddParenthesesToMemberExpressionObject(array, sourceCode)) {
+		} else if (
+			!isParenthesized(array, sourceCode) &&
+			shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+		) {
 			fixed = `(${fixed})`;
 		}
 
@@ -180,7 +187,7 @@ function create(context) {
 		}
 	];
 
-	for (const {selector, testFunction, description, getArrayNode, isConcat} of cases) {
+	for (const {selector, testFunction, description, getArrayNode, shouldSwitchToArray} of cases) {
 		listeners[selector] = function (node) {
 			if (testFunction && !testFunction(node)) {
 				return;
@@ -203,7 +210,7 @@ function create(context) {
 				sourceCode.getCommentsInside(node).length ===
 				sourceCode.getCommentsInside(array).length
 			) {
-				problem.fix = fix(node, array, sourceCode, isConcat);
+				problem.fix = fix(node, array, sourceCode, shouldSwitchToArray);
 			}
 
 			context.report(problem);
