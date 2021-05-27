@@ -131,7 +131,6 @@ function getFixFunction(callExpression, functionInfo, context) {
 		// Remove `return`
 		yield fixer.remove(returnToken);
 
-		const insertBraces = shouldSwitchReturnStatementToBlockStatement(returnStatement);
 		const previousToken = sourceCode.getTokenBefore(returnToken);
 		const nextToken = sourceCode.getTokenAfter(returnToken);
 		let textBefore = '';
@@ -144,15 +143,11 @@ function getFixFunction(callExpression, functionInfo, context) {
 			textAfter = `${textAfter})`;
 		}
 
-		if (
-			!insertBraces &&
-			needsSemicolon(previousToken, sourceCode, shouldAddParentheses ? '(' : nextToken.value)
-		) {
-			textBefore = `;${textBefore}`;
-		}
-
+		const insertBraces = shouldSwitchReturnStatementToBlockStatement(returnStatement);
 		if (insertBraces) {
 			textBefore = `{ ${textBefore}`;
+		} else if (needsSemicolon(previousToken, sourceCode, shouldAddParentheses ? '(' : nextToken.value)) {
+			textBefore = `;${textBefore}`;
 		}
 
 		if (textBefore) {
@@ -163,12 +158,16 @@ function getFixFunction(callExpression, functionInfo, context) {
 			yield fixer.insertTextAfter(returnStatement.argument, textAfter);
 		}
 
-		// If `returnStatement` has no semi
-		const lastToken = sourceCode.getLastToken(returnStatement);
-		yield fixer.insertTextAfter(
-			returnStatement,
-			`${isSemicolonToken(lastToken) ? '' : ';'} continue;${insertBraces ? ' }' : ''}`
-		);
+		const returnStatementHasSemicolon = isSemicolonToken(sourceCode.getLastToken(returnStatement));
+		if (!returnStatementHasSemicolon) {
+			yield fixer.insertTextAfter(returnStatement, ';');
+		}
+
+		yield fixer.insertTextAfter(returnStatement, ' continue;');
+
+		if (insertBraces) {
+			yield fixer.insertTextAfter(returnStatement, ' }');
+		}
 	}
 
 	const shouldRemoveExpressionStatementLastToken = token => {
