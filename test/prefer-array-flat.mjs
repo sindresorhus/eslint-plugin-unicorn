@@ -128,6 +128,7 @@ test.snapshot({
 
 // - `[].concat.apply([], array)`
 // - `[].concat.call([], maybeArray)`
+// - `[].concat.call([], ...array)`
 test.snapshot({
 	valid: [
 		'new [].concat.apply([], array)',
