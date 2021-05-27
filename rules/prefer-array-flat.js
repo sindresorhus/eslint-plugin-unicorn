@@ -90,7 +90,7 @@ const arrayReduce2 = {
 	description: 'Array#reduce()'
 };
 
-// `[].concat(array)` and `[].concat(...array)`
+// `[].concat(maybeArray)` and `[].concat(...array)`
 const emptyArrayConcat = {
 	selector: [
 		methodCallSelector({
@@ -109,10 +109,11 @@ const emptyArrayConcat = {
 };
 
 // `[].concat.apply([], array)` and `Array.prototype.concat.apply([], array)`
+// `[].concat.call([], maybeArray)` and `Array.prototype.concat.call([], maybeArray)`
 const arrayPrototypeConcat = {
 	selector: [
 		methodCallSelector({
-			name: 'apply',
+			names: ['apply', 'call'],
 			length: 2
 		}),
 		emptyArraySelector('arguments.0'),
@@ -123,7 +124,7 @@ const arrayPrototypeConcat = {
 	].join(''),
 	getArrayNode: node => node.arguments[1],
 	description: 'Array.prototype.concat()',
-	shouldSwitchToArray: true
+	shouldSwitchToArray: (node) => node.callee.property.name === 'call'
 };
 
 const lodashFlattenFunctions = [

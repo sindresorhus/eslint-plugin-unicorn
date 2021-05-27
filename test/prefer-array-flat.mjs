@@ -197,12 +197,12 @@ test({
 	invalid: [
 		{
 			code: '[].concat.apply([], array)',
-			output: '[array].flat()',
+			output: 'array.flat()',
 			errors: 1
 		},
 		{
 			code: 'Array.prototype.concat.apply([], array)',
-			output: '[array].flat()',
+			output: 'array.flat()',
 			errors: 1
 		}
 	]
