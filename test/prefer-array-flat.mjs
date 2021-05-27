@@ -97,7 +97,11 @@ test.snapshot({
 		'[].concat?.(array)'
 	],
 	invalid: [
-		'[].concat(array)'
+		'[].concat(maybeArray)',
+		'[].concat( ((0, maybeArray)) )',
+		'[].concat( ((maybeArray)) )',
+		'[].concat( [foo] )',
+		'[].concat( [[foo]] )'
 	]
 });
 
@@ -115,7 +119,10 @@ test.snapshot({
 		'[].concat?.(...array)'
 	],
 	invalid: [
-		'[].concat(...array)'
+		'[].concat(...array)',
+		'[].concat(...(( array )))',
+		'[].concat(...(( [foo] )))',
+		'[].concat(...(( [[foo]] )))'
 	]
 });
 
@@ -139,7 +146,11 @@ test.snapshot({
 		'[]?.concat.apply([], array)'
 	],
 	invalid: [
-		'[].concat.apply([], array)'
+		'[].concat.apply([], maybeArray)',
+		'[].concat.apply([], ((0, maybeArray)))',
+		'[].concat.apply([], ((maybeArray)))',
+		'[].concat.apply([], [foo])',
+		'[].concat.apply([], [[foo]])'
 	]
 });
 
@@ -167,7 +178,11 @@ test.snapshot({
 		'object.Array.prototype.concat.apply([], array)'
 	],
 	invalid: [
-		'Array.prototype.concat.apply([], array)'
+		'Array.prototype.concat.apply([], maybeArray)',
+		'Array.prototype.concat.apply([], ((0, maybeArray)))',
+		'Array.prototype.concat.apply([], ((maybeArray)))',
+		'Array.prototype.concat.apply([], (([foo])))',
+		'Array.prototype.concat.apply([], (([[foo]])))'
 	]
 });
 
@@ -294,9 +309,14 @@ test.snapshot({
 			before()
 			Array.prototype.concat.apply([], [array].concat(array))
 		`,
+		outdent`
+			before()
+			Array.prototype.concat.apply([], +1)
+		`,
 		// Parentheses
-		'Array.prototype.concat.apply([], (0, array))',
-		'async function a() { return [].concat(await getArray()); }',
+		'_.flatten((0, array))',
+		'async function a() { return _.flatten(await getArray()); }',
+		'async function a() { return _.flatten((await getArray())); }',
 		// Comment
 		'[].concat(some./**/array)',
 		'[/**/].concat(some./**/array)',
