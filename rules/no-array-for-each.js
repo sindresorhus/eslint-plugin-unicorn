@@ -51,9 +51,9 @@ function shouldSwitchReturnStatementToBlockStatement(returnStatement) {
 
 	switch (parent.type) {
 		case 'IfStatement':
-			return parent.consequent == returnStatement || parent.alternate == returnStatement;
+			return parent.consequent === returnStatement || parent.alternate === returnStatement;
 
-		// These parent's body need use `BlockStatement` too, but since they are "continueAble", won't fix
+		// These parent's body need switch to `BlockStatement` too, but since they are "continueAble", won't fix
 		// case 'ForStatement':
 		// case 'ForInStatement':
 		// case 'ForOfStatement':
@@ -131,7 +131,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		// Remove `return`
 		yield fixer.remove(returnToken);
 
-		let insertBraces = shouldSwitchReturnStatementToBlockStatement(returnStatement);
+		const insertBraces = shouldSwitchReturnStatementToBlockStatement(returnStatement);
 		const previousToken = sourceCode.getTokenBefore(returnToken);
 		const nextToken = sourceCode.getTokenAfter(returnToken);
 		let textBefore = '';

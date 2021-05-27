@@ -57,14 +57,15 @@ function needsSemicolon(tokenBefore, sourceCode, code) {
 			switch (lastBlockNode.type) {
 				case 'IfStatement': {
 					if (
-						lastBlockNode.consequent && sourceCode.getTokenBefore(lastBlockNode.consequent) === tokenBefore ||
-						lastBlockNode.alternate && sourceCode.getTokenBefore(lastBlockNode.alternate) === tokenBefore
+						(lastBlockNode.consequent && sourceCode.getTokenBefore(lastBlockNode.consequent) === tokenBefore) ||
+						(lastBlockNode.alternate && sourceCode.getTokenBefore(lastBlockNode.alternate) === tokenBefore)
 					) {
 						return false;
 					}
 
 					break;
 				}
+
 				case 'ForStatement':
 				case 'ForInStatement':
 				case 'ForOfStatement':
@@ -74,6 +75,7 @@ function needsSemicolon(tokenBefore, sourceCode, code) {
 					if (lastBlockNode.body && sourceCode.getTokenBefore(lastBlockNode.body) === tokenBefore) {
 						return false;
 					}
+
 					break;
 				}
 				// No default

@@ -394,7 +394,7 @@ test.snapshot({
 			});
 		`,
 
-		// Need switch to `BlockStatement`
+		// Need switch to `BlockStatement`, #1318
 		outdent`
 			foo.forEach(_ => {
 				if (true) return {};
