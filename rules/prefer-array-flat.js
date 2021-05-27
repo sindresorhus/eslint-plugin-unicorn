@@ -9,6 +9,7 @@ const {
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
+const {getParenthesizedText, isParenthesized} = require('./utils/parentheses');
 
 const MESSAGE_ID = 'prefer-array-flat';
 const messages = {
@@ -89,7 +90,7 @@ const arrayReduce2 = {
 	description: 'Array#reduce()'
 };
 
-// `[].concat(array)` and `[].concat(...array)`
+// `[].concat(maybeArray)` and `[].concat(...array)`
 const emptyArrayConcat = {
 	selector: [
 		methodCallSelector({
@@ -103,15 +104,19 @@ const emptyArrayConcat = {
 		const argumentNode = node.arguments[0];
 		return argumentNode.type === 'SpreadElement' ? argumentNode.argument : argumentNode;
 	},
-	description: '[].concat()'
+	description: '[].concat()',
+	shouldSwitchToArray: node => node.arguments[0].type !== 'SpreadElement'
 };
 
-// `[].concat.apply([], array)` and `Array.prototype.concat.apply([], array)`
+// - `[].concat.apply([], array)` and `Array.prototype.concat.apply([], array)`
+// - `[].concat.call([], maybeArray)` and `Array.prototype.concat.call([], maybeArray)`
+// - `[].concat.call([], ...array)` and `Array.prototype.concat.call([], ...array)`
 const arrayPrototypeConcat = {
 	selector: [
 		methodCallSelector({
-			name: 'apply',
-			length: 2
+			names: ['apply', 'call'],
+			length: 2,
+			allowSpreadElement: true
 		}),
 		emptyArraySelector('arguments.0'),
 		arrayPrototypeMethodSelector({
@@ -119,8 +124,13 @@ const arrayPrototypeConcat = {
 			name: 'concat'
 		})
 	].join(''),
-	getArrayNode: node => node.arguments[1],
-	description: 'Array.prototype.concat()'
+	testFunction: node => node.arguments[1].type !== 'SpreadElement' || node.callee.property.name === 'call',
+	getArrayNode: node => {
+		const argumentNode = node.arguments[1];
+		return argumentNode.type === 'SpreadElement' ? argumentNode.argument : argumentNode;
+	},
+	description: 'Array.prototype.concat()',
+	shouldSwitchToArray: node => node.arguments[1].type !== 'SpreadElement' && node.callee.property.name === 'call'
 };
 
 const lodashFlattenFunctions = [
@@ -133,10 +143,21 @@ const anyCall = {
 	getArrayNode: node => node.arguments[0]
 };
 
-function fix(node, array, sourceCode) {
+function fix(node, array, sourceCode, shouldSwitchToArray) {
+	if (typeof shouldSwitchToArray === 'function') {
+		shouldSwitchToArray = shouldSwitchToArray(node);
+	}
+
 	return fixer => {
-		let fixed = sourceCode.getText(array);
-		if (shouldAddParenthesesToMemberExpressionObject(array, sourceCode)) {
+		let fixed = getParenthesizedText(array, sourceCode);
+		if (shouldSwitchToArray) {
+			// `array` is an argument, when it changes to `array[]`, we don't need add extra parentheses
+			fixed = `[${fixed}]`;
+			// And we don't need to add parentheses to the new array to call `.flat()`
+		} else if (
+			!isParenthesized(array, sourceCode) &&
+			shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+		) {
 			fixed = `(${fixed})`;
 		}
 
@@ -173,7 +194,7 @@ function create(context) {
 		}
 	];
 
-	for (const {selector, testFunction, description, getArrayNode} of cases) {
+	for (const {selector, testFunction, description, getArrayNode, shouldSwitchToArray} of cases) {
 		listeners[selector] = function (node) {
 			if (testFunction && !testFunction(node)) {
 				return;
@@ -196,7 +217,7 @@ function create(context) {
 				sourceCode.getCommentsInside(node).length ===
 				sourceCode.getCommentsInside(array).length
 			) {
-				problem.fix = fix(node, array, sourceCode);
+				problem.fix = fix(node, array, sourceCode, shouldSwitchToArray);
 			}
 
 			context.report(problem);
