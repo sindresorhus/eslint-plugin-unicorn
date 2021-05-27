@@ -151,9 +151,9 @@ function fix(node, array, sourceCode, shouldSwitchToArray) {
 	return fixer => {
 		let fixed = getParenthesizedText(array, sourceCode);
 		if (shouldSwitchToArray) {
-			// `array` is an argument, when it change to `[array]`, don't need add extra parentheses
+			// `array` is an argument, when it changes to `array[]`, we don't need add extra parentheses
 			fixed = `[${fixed}]`;
-			// And don't need add parentheses to the new array to call `.flat()`
+			// And we don't need to add parentheses to the new array to call `.flat()`
 		} else if (
 			!isParenthesized(array, sourceCode) &&
 			shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
