@@ -152,11 +152,18 @@ test.snapshot({
 		'[].concat.apply([], ((array)))',
 		'[].concat.apply([], [foo])',
 		'[].concat.apply([], [[foo]])',
+
 		'[].concat.call([], maybeArray)',
 		'[].concat.call([], ((0, maybeArray)))',
 		'[].concat.call([], ((maybeArray)))',
 		'[].concat.call([], [foo])',
-		'[].concat.call([], [[foo]])'
+		'[].concat.call([], [[foo]])',
+
+		'[].concat.call([], ...array)',
+		'[].concat.call([], ...((0, array)))',
+		'[].concat.call([], ...((array)))',
+		'[].concat.call([], ...[foo])',
+		'[].concat.call([], ...[[foo]])'
 	]
 });
 
