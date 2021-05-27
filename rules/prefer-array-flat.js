@@ -108,13 +108,15 @@ const emptyArrayConcat = {
 	shouldSwitchToArray: node => node.arguments[0].type !== 'SpreadElement'
 };
 
-// `[].concat.apply([], array)` and `Array.prototype.concat.apply([], array)`
-// `[].concat.call([], maybeArray)` and `Array.prototype.concat.call([], maybeArray)`
+// - `[].concat.apply([], array)` and `Array.prototype.concat.apply([], array)`
+// - `[].concat.call([], maybeArray)` and `Array.prototype.concat.call([], maybeArray)`
+// - `[].concat.call([], ...array)` and `Array.prototype.concat.call([], ...array)`
 const arrayPrototypeConcat = {
 	selector: [
 		methodCallSelector({
 			names: ['apply', 'call'],
-			length: 2
+			length: 2,
+			allowSpreadElement: true
 		}),
 		emptyArraySelector('arguments.0'),
 		arrayPrototypeMethodSelector({
@@ -122,9 +124,13 @@ const arrayPrototypeConcat = {
 			name: 'concat'
 		})
 	].join(''),
-	getArrayNode: node => node.arguments[1],
+	testFunction: node => node.arguments[1].type !== 'SpreadElement' || node.callee.property.name === 'call',
+	getArrayNode: node => {
+		const argumentNode = node.arguments[1];
+		return argumentNode.type === 'SpreadElement' ? argumentNode.argument : argumentNode;
+	},
 	description: 'Array.prototype.concat()',
-	shouldSwitchToArray: node => node.callee.property.name === 'call'
+	shouldSwitchToArray: node => node.arguments[1].type !== 'SpreadElement' && node.callee.property.name === 'call'
 };
 
 const lodashFlattenFunctions = [

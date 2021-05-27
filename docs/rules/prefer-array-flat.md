@@ -39,6 +39,10 @@ const foo = Array.prototype.concat.call([], maybeArray);
 ```
 
 ```js
+const foo = Array.prototype.concat.call([], ...array);
+```
+
+```js
 const foo = _.flatten(array);
 ```
 
