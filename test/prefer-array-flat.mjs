@@ -178,11 +178,16 @@ test.snapshot({
 		'object.Array.prototype.concat.apply([], array)'
 	],
 	invalid: [
-		'Array.prototype.concat.apply([], maybeArray)',
-		'Array.prototype.concat.apply([], ((0, maybeArray)))',
-		'Array.prototype.concat.apply([], ((maybeArray)))',
-		'Array.prototype.concat.apply([], (([foo])))',
-		'Array.prototype.concat.apply([], (([[foo]])))'
+		'Array.prototype.concat.apply([], array)',
+		'Array.prototype.concat.apply([], ((0, array)))',
+		'Array.prototype.concat.apply([], ((array)))',
+		'Array.prototype.concat.apply([], [foo])',
+		'Array.prototype.concat.apply([], [[foo]])',
+		'Array.prototype.concat.call([], maybeArray)',
+		'Array.prototype.concat.call([], ((0, maybeArray)))',
+		'Array.prototype.concat.call([], ((maybeArray)))',
+		'Array.prototype.concat.call([], [foo])',
+		'Array.prototype.concat.call([], [[foo]])'
 	]
 });
 
