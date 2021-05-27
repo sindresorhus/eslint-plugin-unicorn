@@ -9,6 +9,7 @@ const {
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
+const {getParenthesizedText, isParenthesized} = require('./utils/parentheses');
 
 const MESSAGE_ID = 'prefer-array-flat';
 const messages = {
@@ -103,7 +104,8 @@ const emptyArrayConcat = {
 		const argumentNode = node.arguments[0];
 		return argumentNode.type === 'SpreadElement' ? argumentNode.argument : argumentNode;
 	},
-	description: '[].concat()'
+	description: '[].concat()',
+	isConcat: true
 };
 
 // `[].concat.apply([], array)` and `Array.prototype.concat.apply([], array)`
@@ -120,7 +122,8 @@ const arrayPrototypeConcat = {
 		})
 	].join(''),
 	getArrayNode: node => node.arguments[1],
-	description: 'Array.prototype.concat()'
+	description: 'Array.prototype.concat()',
+	isConcat: true
 };
 
 const lodashFlattenFunctions = [
@@ -133,10 +136,14 @@ const anyCall = {
 	getArrayNode: node => node.arguments[0]
 };
 
-function fix(node, array, sourceCode) {
+function fix(node, array, sourceCode, isConcat) {
 	return fixer => {
-		let fixed = sourceCode.getText(array);
-		if (shouldAddParenthesesToMemberExpressionObject(array, sourceCode)) {
+		let fixed = getParenthesizedText(array, sourceCode);
+		if (isConcat) {
+			// `array` is an argument, when it change to `[array]`, don't need add extra parentheses
+			fixed = `[${fixed}]`;
+			// And don't need add parentheses to the new array to call `.flat()`
+		} else if (!isParenthesized(array, sourceCode) && shouldAddParenthesesToMemberExpressionObject(array, sourceCode)) {
 			fixed = `(${fixed})`;
 		}
 
@@ -173,7 +180,7 @@ function create(context) {
 		}
 	];
 
-	for (const {selector, testFunction, description, getArrayNode} of cases) {
+	for (const {selector, testFunction, description, getArrayNode, isConcat} of cases) {
 		listeners[selector] = function (node) {
 			if (testFunction && !testFunction(node)) {
 				return;
@@ -196,7 +203,7 @@ function create(context) {
 				sourceCode.getCommentsInside(node).length ===
 				sourceCode.getCommentsInside(array).length
 			) {
-				problem.fix = fix(node, array, sourceCode);
+				problem.fix = fix(node, array, sourceCode, isConcat);
 			}
 
 			context.report(problem);
