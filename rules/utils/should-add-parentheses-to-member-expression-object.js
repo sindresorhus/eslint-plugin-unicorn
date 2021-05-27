@@ -20,6 +20,7 @@ function shouldAddParenthesesToMemberExpressionObject(node, sourceCode) {
 		case 'ChainExpression':
 		case 'TemplateLiteral':
 		case 'ThisExpression':
+		case 'ArrayExpression':
 			return false;
 		case 'NewExpression':
 			return !isNewExpressionWithParentheses(node, sourceCode);

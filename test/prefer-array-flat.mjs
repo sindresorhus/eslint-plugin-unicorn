@@ -325,7 +325,14 @@ test.snapshot({
 			before()
 			Array.prototype.concat.apply([], +1)
 		`,
+		outdent`
+			before()
+			Array.prototype.concat.call([], +1)
+		`,
 		// Parentheses
+		'Array.prototype.concat.apply([], (0, array))',
+		'Array.prototype.concat.call([], (0, array))',
+		'async function a() { return [].concat(await getArray()); }',
 		'_.flatten((0, array))',
 		'async function a() { return _.flatten(await getArray()); }',
 		'async function a() { return _.flatten((await getArray())); }',
