@@ -392,6 +392,19 @@ test.snapshot({
 			foo.forEach(({element}, index) => {
 				element &&= 2;
 			});
+		`,
+
+		// Need switch to `BlockStatement`, #1318
+		outdent`
+			foo.forEach(_ => {
+				if (true) return {};
+			})
+		`,
+		outdent`
+			foo.forEach(_ => {
+				if (true);
+				else return {};
+			})
 		`
 	]
 });
@@ -530,6 +543,20 @@ test({
 		},
 		{
 			code: 'return foo.forEach(element => {bar(element)});',
+			errors: 1,
+			parserOptions: globalReturnOptions
+		},
+		{
+			code: outdent`
+				foo.forEach(_ => {
+					with (a) return {};
+				})
+			`,
+			output: outdent`
+				for (const _ of foo) {
+					with (a)  { ({}); continue; }
+				}
+			`,
 			errors: 1,
 			parserOptions: globalReturnOptions
 		}

@@ -46,6 +46,27 @@ function isReturnStatementInContinueAbleNodes(returnStatement, callbackFunction)
 	return false;
 }
 
+function shouldSwitchReturnStatementToBlockStatement(returnStatement) {
+	const {parent} = returnStatement;
+
+	switch (parent.type) {
+		case 'IfStatement':
+			return parent.consequent === returnStatement || parent.alternate === returnStatement;
+
+		// These parent's body need switch to `BlockStatement` too, but since they are "continueAble", won't fix
+		// case 'ForStatement':
+		// case 'ForInStatement':
+		// case 'ForOfStatement':
+		// case 'WhileStatement':
+		// case 'DoWhileStatement':
+		case 'WithStatement':
+			return parent.body === returnStatement;
+
+		default:
+			return false;
+	}
+}
+
 function getFixFunction(callExpression, functionInfo, context) {
 	const sourceCode = context.getSourceCode();
 	const [callback] = callExpression.arguments;
@@ -118,12 +139,14 @@ function getFixFunction(callExpression, functionInfo, context) {
 			!isParenthesized(returnStatement.argument, sourceCode) &&
 			shouldAddParenthesesToExpressionStatementExpression(returnStatement.argument);
 		if (shouldAddParentheses) {
-			textBefore = '(';
-			textAfter = ')';
+			textBefore = `(${textBefore}`;
+			textAfter = `${textAfter})`;
 		}
 
-		const shouldAddSemicolonBefore = needsSemicolon(previousToken, sourceCode, shouldAddParentheses ? '(' : nextToken.value);
-		if (shouldAddSemicolonBefore) {
+		const insertBraces = shouldSwitchReturnStatementToBlockStatement(returnStatement);
+		if (insertBraces) {
+			textBefore = `{ ${textBefore}`;
+		} else if (needsSemicolon(previousToken, sourceCode, shouldAddParentheses ? '(' : nextToken.value)) {
 			textBefore = `;${textBefore}`;
 		}
 
@@ -135,12 +158,16 @@ function getFixFunction(callExpression, functionInfo, context) {
 			yield fixer.insertTextAfter(returnStatement.argument, textAfter);
 		}
 
-		// If `returnStatement` has no semi
-		const lastToken = sourceCode.getLastToken(returnStatement);
-		yield fixer.insertTextAfter(
-			returnStatement,
-			`${isSemicolonToken(lastToken) ? '' : ';'} continue;`
-		);
+		const returnStatementHasSemicolon = isSemicolonToken(sourceCode.getLastToken(returnStatement));
+		if (!returnStatementHasSemicolon) {
+			yield fixer.insertTextAfter(returnStatement, ';');
+		}
+
+		yield fixer.insertTextAfter(returnStatement, ' continue;');
+
+		if (insertBraces) {
+			yield fixer.insertTextAfter(returnStatement, ' }');
+		}
 	}
 
 	const shouldRemoveExpressionStatementLastToken = token => {
