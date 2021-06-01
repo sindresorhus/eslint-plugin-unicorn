@@ -54,10 +54,19 @@ class SnapshotRuleTester {
 		const {test, config} = this;
 		const fixable = rule.meta && rule.meta.fixable;
 		const linter = new Linter();
+		const {valid, invalid, ...additionalProperties} = tests;
+		if (Object.keys(additionalProperties).length > 0) {
+			throw new Error('Unexpected snapshot test properties: ' + Object.keys(additionalProperties));
+		}
+
 		linter.defineRule(ruleId, rule);
 
-		for (const [index, testCase] of tests.valid.entries()) {
-			const {code, options, filename} = typeof testCase === 'string' ? {code: testCase} : testCase;
+		for (const [index, testCase] of valid.entries()) {
+			const {code, options, filename, ...additionalProperties} = typeof testCase === 'string' ? {code: testCase} : testCase;
+			if (Object.keys(additionalProperties).length > 0) {
+				throw new Error('Unexpected valid snapshot test case properties: ' + Object.keys(additionalProperties));
+			}
+
 			const verifyConfig = getVerifyConfig(ruleId, config, options);
 
 			test(
@@ -72,9 +81,14 @@ class SnapshotRuleTester {
 			);
 		}
 
-		for (const [index, testCase] of tests.invalid.entries()) {
-			const {code, options, filename} = typeof testCase === 'string' ? {code: testCase} : testCase;
+		for (const [index, testCase] of invalid.entries()) {
+			const {code, options, filename, ...additionalProperties} = typeof testCase === 'string' ? {code: testCase} : testCase;
+			if (Object.keys(additionalProperties).length > 0) {
+				throw new Error('Unexpected invalid snapshot test case properties: ' + Object.keys(additionalProperties));
+			}
+
 			const verifyConfig = getVerifyConfig(ruleId, config, options);
+
 			test(
 				outdent`
 					Invalid #${index + 1}
