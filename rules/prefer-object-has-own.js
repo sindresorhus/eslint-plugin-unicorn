@@ -1,6 +1,6 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
+const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
 const {
 	objectPrototypeMethodSelector,
 	methodCallSelector,
@@ -9,7 +9,7 @@ const {
 
 const MESSAGE_ID = 'prefer-object-has-own';
 const messages = {
-	[MESSAGE_ID]: 'Use `Object.hasOwn(…)` instead of `{{description}}`.'
+	[MESSAGE_ID]: 'Use `Object.hasOwn(…)` instead of `{{description}}(…)`.'
 };
 
 const objectPrototypeHasOwnProperty = [
@@ -36,31 +36,36 @@ const create = context => {
 	};
 	const functions = [...configFunctions, ...lodashHasFunctions];
 
-	return {
-		[objectPrototypeHasOwnProperty](node) {
-			context.report({
-				node,
-				messageId: MESSAGE_ID,
-				data: {description: 'Object.prototype.hasOwnProperty.call(…)'},
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => fixer.replaceText(node, 'Object.hasOwn')
-			});
-		},
-		[callExpressionSelector({length: 2})]({callee: node}) {
-			const matchedFunction = functions.find(nameOrPath => isNodeMatchesNameOrPath(node, nameOrPath));
-			if (!matchedFunction) {
-				return;
+	return Object.fromEntries(
+		[
+			{
+				selector: objectPrototypeHasOwnProperty,
+				description: 'Object.prototype.hasOwnProperty.call'
+			},
+			{
+				selector: `${callExpressionSelector({length: 2})} > .callee`,
+				test: node => isNodeMatches(node, functions),
+				description: node => functions.find(nameOrPath => isNodeMatchesNameOrPath(node, nameOrPath)).trim()
 			}
+		].map(({selector, test, description}) => [
+			selector,
+			node => {
+				if (test && !test(node)) {
+					return;
+				}
 
-			context.report({
-				node,
-				messageId: MESSAGE_ID,
-				data: {description: `${matchedFunction.trim()}(…)`},
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => fixer.replaceText(node, 'Object.hasOwn')
-			});
-		}
-	};
+				context.report({
+					node,
+					messageId: MESSAGE_ID,
+					data: {
+						description: typeof description === 'string' ? description : description(node)
+					},
+					/** @param {import('eslint').Rule.RuleFixer} fixer */
+					fix: fixer => fixer.replaceText(node, 'Object.hasOwn')
+				});
+			}
+		])
+	);
 };
 
 const schema = [
