@@ -55,7 +55,7 @@ const create = context => {
 			context.report({
 				node,
 				messageId: MESSAGE_ID,
-				data: {description: `${matchedFunction.trim()}.call(…)`},
+				data: {description: `${matchedFunction.trim()}(…)`},
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
 				fix: fixer => fixer.replaceText(node, 'Object.hasOwn')
 			});
