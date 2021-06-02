@@ -54,32 +54,29 @@ function needsSemicolon(tokenBefore, sourceCode, code) {
 		}
 
 		if (value === ')') {
-			// Switch (lastBlockNode.type) {
-			// 	case 'IfStatement': {
-			// 		if (
-			// 			sourceCode.getTokenBefore(lastBlockNode.consequent) === tokenBefore ||
-			// 			(lastBlockNode.alternate && sourceCode.getTokenBefore(lastBlockNode.alternate) === tokenBefore)
-			// 		) {
-			// 			return false;
-			// 		}
+			switch (lastBlockNode.type) {
+				case 'IfStatement': {
+					if (sourceCode.getTokenBefore(lastBlockNode.consequent) === tokenBefore) {
+						return false;
+					}
 
-			// 		break;
-			// 	}
+					break;
+				}
 
-			// 	case 'ForStatement':
-			// 	case 'ForInStatement':
-			// 	case 'ForOfStatement':
-			// 	case 'WhileStatement':
-			// 	case 'DoWhileStatement':
-			// 	case 'WithStatement': {
-			// 		if (lastBlockNode.body && sourceCode.getTokenBefore(lastBlockNode.body) === tokenBefore) {
-			// 			return false;
-			// 		}
+				case 'ForStatement':
+				case 'ForInStatement':
+				case 'ForOfStatement':
+				case 'WhileStatement':
+				case 'DoWhileStatement':
+				case 'WithStatement': {
+					if (lastBlockNode.body && sourceCode.getTokenBefore(lastBlockNode.body) === tokenBefore) {
+						return false;
+					}
 
-			// 		break;
-			// 	}
-			// 	// No default
-			// }
+					break;
+				}
+				// No default
+			}
 
 			return true;
 		}
