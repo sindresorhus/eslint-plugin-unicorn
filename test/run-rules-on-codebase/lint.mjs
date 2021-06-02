@@ -55,6 +55,7 @@ const eslint = new ESLint({
 			'unicorn/import-index': 'off',
 			// Not ready yet
 			'unicorn/prefer-string-replace-all': 'off',
+			'unicorn/prefer-top-level-await': 'off'
 		},
 		overrides: [
 			{
