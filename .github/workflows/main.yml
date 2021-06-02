@@ -38,7 +38,7 @@ jobs:
       # Force update snapshots, https://github.com/avajs/ava/discussions/2754
       - run: npx nyc ava --update-snapshots
         env:
-          AVA_FORCE_CI: no-ci
+          AVA_FORCE_CI: not-ci
       - run: npm run generate-rules-table
       - run: npm run generate-usage-example
       - run: git diff --exit-code --name-only
