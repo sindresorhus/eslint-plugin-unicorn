@@ -37,6 +37,38 @@ function visualizeEslintMessage(text, result) {
 const printCode = code => codeFrameColumns(code, {start: {line: 0, column: 0}}, codeFrameColumnsOptions);
 const INDENT = ' '.repeat(4);
 const indentCode = code => code.replace(/^/gm, INDENT);
+const getAdditionalProperties = (object, properties) =>
+	Object.keys(object).filter(property => !properties.includes(property));
+
+function normalizeTests(tests) {
+	const additionalProperties = getAdditionalProperties(tests, ['valid', 'invalid']);
+	if (additionalProperties.length > 0) {
+		throw new Error(`Unexpected snapshot test properties: ${additionalProperties.join(', ')}`);
+	}
+
+	for (const type of ['valid', 'invalid']) {
+		const cases = tests[type];
+
+		for (const [index, testCase] of cases.entries()) {
+			if (typeof testCase === 'string') {
+				cases[index] = {code: testCase};
+				continue;
+			}
+
+			const additionalProperties = getAdditionalProperties(
+				testCase,
+				['code', 'options', 'filename', 'parserOptions']
+			);
+
+			if (additionalProperties.length > 0) {
+				throw new Error(`Unexpected ${type} snapshot test case properties: ${additionalProperties.join(', ')}`);
+			}
+		}
+	}
+
+	return tests;
+}
+
 class SnapshotRuleTester {
 	constructor(test, config) {
 		this.test = test;
@@ -47,19 +79,12 @@ class SnapshotRuleTester {
 		const {test} = this;
 		const fixable = rule.meta && rule.meta.fixable;
 		const linter = new Linter();
-		const {valid, invalid, ...additionalProperties} = tests;
-		if (Object.keys(additionalProperties).length > 0) {
-			throw new Error('Unexpected snapshot test properties: ' + Object.keys(additionalProperties));
-		}
-
+		const {valid, invalid} = normalizeTests(tests);
 		linter.defineRule(ruleId, rule);
 
 		for (const [index, testCase] of valid.entries()) {
-			const {
-				code,
-				filename,
-				verifyConfig
-			} = this.normalizeTestCase(ruleId, testCase, 'valid');
+			const {code, filename} = testCase;
+			const verifyConfig = this._getVerifyConfig(ruleId, testCase);
 
 			test(
 				outdent`
@@ -74,12 +99,8 @@ class SnapshotRuleTester {
 		}
 
 		for (const [index, testCase] of invalid.entries()) {
-			const {
-				code,
-				options,
-				filename,
-				verifyConfig
-			} = this.normalizeTestCase(ruleId, testCase, 'invalid');
+			const {code, options, filename} = testCase;
+			const verifyConfig = this._getVerifyConfig(ruleId, testCase);
 
 			test(
 				outdent`
@@ -131,20 +152,11 @@ class SnapshotRuleTester {
 		}
 	}
 
-	normalizeTestCase(ruleId, testCase, type) {
-		const {
-			code,
-			options,
-			filename,
-			parserOptions,
-			...additionalProperties
-		} = typeof testCase === 'string' ? {code: testCase} : testCase;
+	// TODO: use private method
+	_getVerifyConfig(ruleId, testCase) {
+		const {options, parserOptions} = testCase;
 
-		if (Object.keys(additionalProperties).length > 0) {
-			throw new Error(`Unexpected ${type} snapshot test case properties: ${Object.keys(additionalProperties)}`);
-		}
-
-		const verifyConfig = {
+		return {
 			...this.config,
 			parserOptions: {
 				...this.config.parserOptions,
@@ -153,14 +165,6 @@ class SnapshotRuleTester {
 			rules: {
 				[ruleId]: ['error', ...(Array.isArray(options) ? options : [])]
 			}
-		};
-
-		return {
-			code,
-			options,
-			filename,
-			parserOptions,
-			verifyConfig
 		};
 	}
 }
