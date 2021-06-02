@@ -1,6 +1,6 @@
 {
 	"name": "eslint-plugin-unicorn",
-	"version": "32.0.1",
+	"version": "33.0.0",
 	"description": "Various awesome ESLint rules",
 	"license": "MIT",
 	"repository": "sindresorhus/eslint-plugin-unicorn",
