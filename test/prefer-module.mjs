@@ -61,12 +61,6 @@ test({
 
 // `__dirname` and `__filename`
 test.snapshot({
-	testerOptions: {
-		globals: {
-			__dirname: true,
-			__filename: true
-		}
-	},
 	valid: [
 		outdent`
 			const __filename = 1;
