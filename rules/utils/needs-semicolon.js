@@ -56,10 +56,7 @@ function needsSemicolon(tokenBefore, sourceCode, code) {
 		if (value === ')') {
 			switch (lastBlockNode.type) {
 				case 'IfStatement': {
-					if (
-						sourceCode.getTokenBefore(lastBlockNode.consequent) === tokenBefore ||
-						(lastBlockNode.alternate && sourceCode.getTokenBefore(lastBlockNode.alternate) === tokenBefore)
-					) {
+					if (sourceCode.getTokenBefore(lastBlockNode.consequent) === tokenBefore) {
 						return false;
 					}
 
