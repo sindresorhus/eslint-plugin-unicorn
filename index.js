@@ -101,6 +101,8 @@ module.exports = {
 				'unicorn/prefer-negative-index': 'error',
 				'unicorn/prefer-node-protocol': 'error',
 				'unicorn/prefer-number-properties': 'error',
+				// TODO: Enable this by default when targeting Node.js support `Object.hasOwn`.
+				'unicorn/prefer-object-has-own': 'off',
 				'unicorn/prefer-optional-catch-binding': 'error',
 				'unicorn/prefer-prototype-methods': 'error',
 				'unicorn/prefer-query-selector': 'error',
