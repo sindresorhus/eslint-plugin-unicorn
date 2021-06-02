@@ -33,7 +33,10 @@ test.snapshot({
 	valid: [
 		'foo.then',
 		'foo.then().toString()',
-		'!foo.then()'
+		'!foo.then()',
+		'foo.then?.(bar)',
+		'foo?.then(bar)',
+		'foo?.then(bar).finally(qux)'
 	],
 	invalid: [
 		'foo.then(bar)',
@@ -41,6 +44,7 @@ test.snapshot({
 		'foo.finally(bar)',
 		'foo.then(bar, baz)',
 		'foo.then(bar, baz).finally(qux)',
+		'(foo.then(bar, baz)).finally(qux)',
 		'(async () => {})().catch(() => process.exit(1))',
 		'(async function() {}()).finally(() => {})'
 	]
@@ -101,7 +105,20 @@ test.snapshot({
 				async function foo() {}
 			`,
 			parserOptions: {sourceType: 'script'}
-		}
+		},
+		outdent`
+			const foo = async () => {};
+			foo?.();
+		`,
+		outdent`
+			const program = {async run () {}};
+			program.run()
+		`,
+		outdent`
+			const program = {async run () {}};
+			const {run} = program;
+			run()
+		`
 	],
 	invalid: [
 		outdent`
