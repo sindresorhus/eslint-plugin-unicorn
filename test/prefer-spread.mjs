@@ -265,7 +265,21 @@ test.snapshot({
 		'foo.concat(bar, 2, [3, 4], baz, 5, [6, 7])',
 		'foo.concat(bar, 2, 3, ...baz)',
 		'notClass.concat(1)',
-		'_A.concat(1)'
+		'_A.concat(1)',
+		// Semicolon
+		'if (test) foo.concat(1)',
+		'if (test) {} else foo.concat(1)',
+		'if (test) {} else foo.concat(1)',
+		'for (;;) foo.concat(1)',
+		'for (a in b) foo.concat(1)',
+		'for (a in b) foo.concat(1)',
+		'for (const a of b) foo.concat(1)',
+		'while (test) foo.concat(1)',
+		'do foo.concat(1); while (test)',
+		{
+			code: 'with (foo) foo.concat(1)',
+			parserOptions: {ecmaVersion: 5, sourceType: 'script'}
+		}
 	]
 });
 
