@@ -69,6 +69,20 @@ function normalizeTests(tests) {
 	return tests;
 }
 
+function getVerifyConfig(ruleId, testerConfig, testCase) {
+	const {options, parserOptions} = testCase;
+	return {
+		testerConfig,
+		parserOptions: {
+			...testerConfig.parserOptions,
+			...parserOptions
+		},
+		rules: {
+			[ruleId]: ['error', ...(Array.isArray(options) ? options : [])]
+		}
+	};
+}
+
 class SnapshotRuleTester {
 	constructor(test, config) {
 		this.test = test;
@@ -76,7 +90,7 @@ class SnapshotRuleTester {
 	}
 
 	run(ruleId, rule, tests) {
-		const {test} = this;
+		const {test, config} = this;
 		const fixable = rule.meta && rule.meta.fixable;
 		const linter = new Linter();
 		const {valid, invalid} = normalizeTests(tests);
@@ -84,7 +98,7 @@ class SnapshotRuleTester {
 
 		for (const [index, testCase] of valid.entries()) {
 			const {code, filename} = testCase;
-			const verifyConfig = this._getVerifyConfig(ruleId, testCase);
+			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
 
 			test(
 				outdent`
@@ -100,7 +114,7 @@ class SnapshotRuleTester {
 
 		for (const [index, testCase] of invalid.entries()) {
 			const {code, options, filename} = testCase;
-			const verifyConfig = this._getVerifyConfig(ruleId, testCase);
+			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
 
 			test(
 				outdent`
@@ -150,22 +164,6 @@ class SnapshotRuleTester {
 				}
 			);
 		}
-	}
-
-	// TODO: use private method
-	_getVerifyConfig(ruleId, testCase) {
-		const {options, parserOptions} = testCase;
-
-		return {
-			...this.config,
-			parserOptions: {
-				...this.config.parserOptions,
-				...parserOptions
-			},
-			rules: {
-				[ruleId]: ['error', ...(Array.isArray(options) ? options : [])]
-			}
-		};
 	}
 }
 
