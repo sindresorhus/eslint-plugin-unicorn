@@ -34,13 +34,6 @@ function visualizeEslintMessage(text, result) {
 	return visualizeRange(text, location, message);
 }
 
-const getVerifyConfig = (ruleId, testerConfig, options) => ({
-	...testerConfig,
-	rules: {
-		[ruleId]: ['error', ...(Array.isArray(options) ? options : [])]
-	}
-});
-
 const printCode = code => codeFrameColumns(code, {start: {line: 0, column: 0}}, codeFrameColumnsOptions);
 const INDENT = ' '.repeat(4);
 const indentCode = code => code.replace(/^/gm, INDENT);
@@ -51,7 +44,7 @@ class SnapshotRuleTester {
 	}
 
 	run(ruleId, rule, tests) {
-		const {test, config} = this;
+		const {test} = this;
 		const fixable = rule.meta && rule.meta.fixable;
 		const linter = new Linter();
 		const {valid, invalid, ...additionalProperties} = tests;
@@ -62,12 +55,11 @@ class SnapshotRuleTester {
 		linter.defineRule(ruleId, rule);
 
 		for (const [index, testCase] of valid.entries()) {
-			const {code, options, filename, ...additionalProperties} = typeof testCase === 'string' ? {code: testCase} : testCase;
-			if (Object.keys(additionalProperties).length > 0) {
-				throw new Error('Unexpected valid snapshot test case properties: ' + Object.keys(additionalProperties));
-			}
-
-			const verifyConfig = getVerifyConfig(ruleId, config, options);
+			const {
+				code,
+				filename,
+				verifyConfig
+			} = this.normalizeTestCase(ruleId, testCase, 'valid');
 
 			test(
 				outdent`
@@ -82,12 +74,12 @@ class SnapshotRuleTester {
 		}
 
 		for (const [index, testCase] of invalid.entries()) {
-			const {code, options, filename, ...additionalProperties} = typeof testCase === 'string' ? {code: testCase} : testCase;
-			if (Object.keys(additionalProperties).length > 0) {
-				throw new Error('Unexpected invalid snapshot test case properties: ' + Object.keys(additionalProperties));
-			}
-
-			const verifyConfig = getVerifyConfig(ruleId, config, options);
+			const {
+				code,
+				options,
+				filename,
+				verifyConfig
+			} = this.normalizeTestCase(ruleId, testCase, 'invalid');
 
 			test(
 				outdent`
@@ -137,6 +129,39 @@ class SnapshotRuleTester {
 				}
 			);
 		}
+	}
+
+	normalizeTestCase(ruleId, testCase, type) {
+		const {
+			code,
+			options,
+			filename,
+			parserOptions,
+			...additionalProperties
+		} = typeof testCase === 'string' ? {code: testCase} : testCase;
+
+		if (Object.keys(additionalProperties).length > 0) {
+			throw new Error(`Unexpected ${type} snapshot test case properties: ${Object.keys(additionalProperties)}`);
+		}
+
+		const verifyConfig = {
+			...this.config,
+			parserOptions: {
+				...this.config.parserOptions,
+				...parserOptions
+			},
+			rules: {
+				[ruleId]: ['error', ...(Array.isArray(options) ? options : [])]
+			}
+		};
+
+		return {
+			code,
+			options,
+			filename,
+			parserOptions,
+			verifyConfig
+		};
 	}
 }
 
