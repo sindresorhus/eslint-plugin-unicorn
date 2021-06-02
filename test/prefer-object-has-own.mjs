@@ -9,8 +9,7 @@ test.snapshot({
 		// CallExpression
 		'Object.prototype.hasOwnProperty.call',
 		'({}).hasOwnProperty.call',
-		'foo.call(Object.prototype.hasOwnProperty)',
-		'foo.call(Object.prototype.hasOwnProperty.call)',
+		'foo.call(Object.prototype.hasOwnProperty, Object.prototype.hasOwnProperty.call)',
 
 		// Arguments
 		'Object.prototype.hasOwnProperty.call(object)',
