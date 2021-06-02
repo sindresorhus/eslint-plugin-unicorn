@@ -117,7 +117,7 @@ function updateIndex(id) {
 				},
 				{
 					message: 'No',
-					value: ''
+					value: false
 				}
 			]
 		},
@@ -132,6 +132,10 @@ function updateIndex(id) {
 			]
 		}
 	]);
+
+	if (data.fixableType === 'No') {
+		data.fixableType = false;
+	}
 
 	const {id} = data;
 
