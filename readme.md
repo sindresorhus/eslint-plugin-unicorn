@@ -114,7 +114,7 @@ Configure it in `package.json`.
 			"unicorn/prevent-abbreviations": "error",
 			"unicorn/require-array-join-separator": "error",
 			"unicorn/require-number-to-fixed-digits-argument": "error",
-			"unicorn/string-content": 0,
+			"unicorn/string-content": "off",
 			"unicorn/throw-new-error": "error"
 		}
 	}
