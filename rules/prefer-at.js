@@ -57,6 +57,7 @@ const isZeroIndexAccess = node => {
 		parent.object === node &&
 		isLiteralValue(parent.property, 0);
 };
+
 const isArrayPopOrShiftCall = (node, method) => {
 	const {parent} = node;
 	return parent.type === 'MemberExpression' &&
@@ -70,6 +71,7 @@ const isArrayPopOrShiftCall = (node, method) => {
 		!parent.parent.optional &&
 		parent.parent.arguments.length === 0;
 };
+
 const isArrayPopCall = node => isArrayPopOrShiftCall(node, 'pop');
 const isArrayShiftCall = node => isArrayPopOrShiftCall(node, 'shift');
 
