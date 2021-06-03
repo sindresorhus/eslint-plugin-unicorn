@@ -46,8 +46,8 @@ function isSafeToFix(node) {
 }
 
 function isObjectOwnProperty(property) {
-	// eslint-disable-next-line no-prototype-builtins
-	return Object.prototype.hasOwnProperty(property);
+	// eslint-disable-next-line no-useless-call
+	return Object.prototype.hasOwnProperty.call(Object.prototype, property);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
