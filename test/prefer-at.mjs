@@ -183,6 +183,7 @@ test.snapshot({
 		'array[1n]'
 	]),
 	invalid: setCheckAllIndexAccessTrue([
+		'array[0]',
 		'array[1]',
 		'array[5 + 9]',
 		'const offset = 5;array[offset + 9]',
