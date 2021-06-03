@@ -27,6 +27,10 @@ const foo = array.slice(-5).shift();
 ```
 
 ```js
+const foo = string.charAt(string.length - 5);
+```
+
+```js
 const foo = lodash.last(array);
 ```
 

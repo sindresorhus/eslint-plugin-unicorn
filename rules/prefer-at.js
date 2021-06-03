@@ -17,22 +17,25 @@ const {
 const {methodCallSelector, callExpressionSelector} = require('./selectors');
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
+const MESSAGE_ID_STRING_CHAR_AT = 'string-char-at';
 const MESSAGE_ID_SLICE = 'slice';
 const MESSAGE_ID_GET_LAST_FUNCTION = 'get-last-function';
 const SUGGESTION_ID = 'use-at';
 const messages = {
 	[MESSAGE_ID_NEGATIVE_INDEX]: 'Prefer `.at(…)` over length minus index accessing.',
+	[MESSAGE_ID_STRING_CHAR_AT]: 'Prefer `String#at(…)` over `String#charAt(.length - index)`.',
 	[MESSAGE_ID_SLICE]: 'Prefer `.at(…)` over the first element from `.slice(…)`.',
 	[MESSAGE_ID_GET_LAST_FUNCTION]: 'Prefer `.at(-1)` over `{{description}}(…)` to get the last element.',
 	[SUGGESTION_ID]: 'Use `.at(…)`.'
 };
 
-const arrayIndexAccess = [
+const indexAccess = [
 	'MemberExpression',
 	'[optional!=true]',
 	'[computed!=false]'
 ].join('');
-const arraySliceCall = methodCallSelector({name: 'slice', min: 1, max: 2});
+const sliceCall = methodCallSelector({name: 'slice', min: 1, max: 2});
+const stringCharAt = methodCallSelector({name: 'charAt', length: 1});
 
 const isLiteralNegativeInteger = node =>
 	node.type === 'UnaryExpression' &&
@@ -133,7 +136,7 @@ function create(context) {
 	const sourceCode = context.getSourceCode();
 
 	return {
-		[arrayIndexAccess](node) {
+		[indexAccess](node) {
 			const indexNode = node.property;
 			const lengthNode = getNegativeIndexLengthNode(indexNode, node.object);
 			if (!lengthNode) {
@@ -154,7 +157,26 @@ function create(context) {
 				}
 			});
 		},
-		[arraySliceCall](sliceCall) {
+		[stringCharAt](node) {
+			const [indexNode] = node.arguments;
+			const lengthNode = getNegativeIndexLengthNode(indexNode, node.callee.object);
+			if (!lengthNode) {
+				return;
+			}
+
+			context.report({
+				node: indexNode,
+				messageId: MESSAGE_ID_STRING_CHAR_AT,
+				suggest: [{
+					messageId: SUGGESTION_ID,
+					* fix(fixer) {
+						yield removeLengthNode(lengthNode, fixer, sourceCode);
+						yield fixer.replaceText(node.callee.property, 'at');
+					}
+				}]
+			});
+		},
+		[sliceCall](sliceCall) {
 			const result = checkSliceCall(sliceCall);
 			if (!result) {
 				return;

@@ -26,6 +26,29 @@ test.snapshot({
 	]
 });
 
+// `String#charAt`
+test.snapshot({
+	valid: [
+		'string.charAt(string.length - 0);',
+		'string.charAt(string.length + 1)',
+		'string.charAt(string.length + -1)',
+		'foo.charAt(bar.length - 1)',
+		'string?.charAt?.(string.length - 1);',
+		'string?.charAt(string.length - 1);'
+	],
+	invalid: [
+		'string.charAt(string.length - 1);',
+		'string.charAt(string.length - 0o11);',
+		'some.string.charAt(some.string.length - 1);',
+		'string.charAt((( string.length )) - 0xFF);',
+		'string.charAt(string.length - (( 1 )));',
+		'string.charAt((( string.length - 1 )));',
+		'(( string )).charAt(string.length - 1);',
+		'(( string.charAt ))(string.length - 1);',
+		'(( string.charAt(string.length - 1) ));'
+	]
+});
+
 // `.slice()` with one argument
 test.snapshot({
 	valid: [
