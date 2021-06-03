@@ -1,3 +1,4 @@
+import outdent from 'outdent';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
@@ -46,6 +47,81 @@ test.snapshot({
 		'Array["prototype"].slice.call();',
 		'Array?.prototype.slice.call();',
 		'window.Math.max.apply(null, numbers)'
+	]
+});
+
+// Object method
+test.snapshot({
+	valid: [
+		outdent`
+			const foo = {
+				a() {
+					this.method = this.method.bind(this);
+				},
+				b: function() {
+					this.method = this.method.bind(this);
+				},
+				c() {
+					const foo = () => this.method.bind(this);
+				},
+				d: {
+					d1() {
+						this.method.call(this);
+					}
+				}
+			}
+		`,
+		outdent`
+			const foo = {};
+			const bar = foo.method.call(foo, 'property');
+		`,
+		'({method() {}}).method.call(foo)'
+	],
+	invalid: [
+		outdent`
+			const foo = {
+				a: () => {
+					this.method = this.method.bind(this);
+				}
+			}
+		`,
+		outdent`
+			const {foo} = {foo: {}};
+			const bar = foo.method.call(foo, 'property');
+		`,
+		outdent`
+			const [foo] = [{}];
+			const bar = foo.method.call(foo, 'property');
+		`,
+		outdent`
+			const foo = {
+				a() {
+					this.propertyIsEnumerable.apply(this, []);
+				}
+			}
+		`,
+		outdent`
+			const foo = {
+				a() {
+					function fn() {
+						// this is not the object foo
+						this.method.call(this);
+					}
+					return fn;
+				}
+			}
+		`,
+		'this.method = this.method.bind(this)',
+		outdent`
+			const foo = {};
+			const bar = foo.hasOwnProperty.call(foo, 'property');
+		`,
+		'for (const foo of []) foo.bar.call(foo)',
+		outdent`
+			let foo = {};
+			const bar = foo.method.call(foo, 'property');
+		`,
+		'({method() {}}).propertyIsEnumerable.call(foo)'
 	]
 });
 
