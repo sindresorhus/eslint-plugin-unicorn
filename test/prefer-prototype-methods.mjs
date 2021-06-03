@@ -60,8 +60,20 @@ test.snapshot({
 				},
 				b: function() {
 					this.method = this.method.bind(this);
+				},
+				c() {
+					const foo = () => this.method.bind(this);
+				},
+				d: {
+					d1() {
+						this.method.call(this);
+					}
 				}
 			}
+		`,
+		outdent`
+			const foo = {};
+			const bar = foo.method.call(foo, 'property');
 		`
 	],
 	invalid: [
@@ -75,15 +87,31 @@ test.snapshot({
 		outdent`
 			const foo = {
 				a() {
+					this.propertyIsEnumerable.apply(this, []);
+				}
+			}
+		`,
+		outdent`
+			const foo = {
+				a() {
 					function fn() {
 						// this is not the object foo
-						this.method = this.method.bind(this);
+						this.method.call(this);
 					}
 					return fn;
 				}
 			}
 		`,
-		'this.method = this.method.bind(this)'
+		'this.method = this.method.bind(this)',
+		outdent`
+			const foo = {};
+			const bar = foo.hasOwnProperty.call(foo, 'property');
+		`,
+		'for (const foo of []) foo.bar.call(foo)',
+		outdent`
+			let foo = {};
+			const bar = foo.method.call(foo, 'property');
+		`
 	]
 });
 
