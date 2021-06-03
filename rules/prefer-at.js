@@ -277,7 +277,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer .at() method for negative index access.',
+			description: 'Prefer `.at()` method for negative index access',
 			url: getDocumentationUrl(__filename),
 			suggestion: true
 		},
