@@ -53,6 +53,10 @@ const foo = array[100];
 const foo = array.at(array.length - 1);
 ```
 
+```js
+array[array.length - 1] = foo;
+```
+
 ## Options
 
 Type: `object`
