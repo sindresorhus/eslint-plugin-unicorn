@@ -1,4 +1,5 @@
 'use strict';
+const {findVariable} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const {methodCallSelector} = require('./selectors');
 const getPropertyName = require('./utils/get-property-name');
@@ -44,9 +45,18 @@ function isSafeToFix(node) {
 	}
 }
 
+function isObjectOwnProperty(property) {
+	// eslint-disable-next-line no-useless-call
+	return Object.prototype.hasOwnProperty.call(Object.prototype, property);
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
-	function check(method) {
+	const methods = new Set();
+	const nonArrowFunctionStack = [];
+	const thisExpressions = new Map();
+
+	function check(method, scope) {
 		const {type, object} = method;
 		if (
 			type !== 'MemberExpression' ||
@@ -63,8 +73,42 @@ function create(context) {
 			return;
 		}
 
+		const methodName = getPropertyName(method, scope);
+		if (!isObjectOwnProperty(methodName)) {
+			if (object.type === 'ObjectExpression' && object.properties.length > 0) {
+				return;
+			}
+
+			if (object.type === 'ThisExpression') {
+				const functionNode = thisExpressions.get(object);
+				if (
+					functionNode &&
+					functionNode.parent.type === 'Property' &&
+					functionNode.parent.parent.type === 'ObjectExpression'
+				) {
+					return;
+				}
+			}
+
+			if (object.type === 'Identifier') {
+				const variable = findVariable(scope, object);
+				if (variable && variable.defs.length === 1) {
+					const [definition] = variable.defs;
+					if (
+						definition.type === 'Variable' &&
+						definition.kind === 'const' &&
+						definition.node.id === definition.name &&
+						definition.node.type === 'VariableDeclarator' &&
+						definition.node.init &&
+						definition.node.init.type === 'ObjectExpression'
+					) {
+						return;
+					}
+				}
+			}
+		}
+
 		const constructorName = getConstructorName(object);
-		const methodName = getPropertyName(method, context.getScope());
 		const messageId = [
 			constructorName ? 'known' : 'unknown',
 			'constructor',
@@ -86,10 +130,26 @@ function create(context) {
 	}
 
 	return {
-		[reflectApplySelector](node) {
-			check(node.arguments[0]);
+		'FunctionExpression,FunctionDeclaration'(node) {
+			nonArrowFunctionStack.push(node);
 		},
-		[functionMethodsSelector]: check
+		'FunctionExpression,FunctionDeclaration:exit'() {
+			nonArrowFunctionStack.pop();
+		},
+		'ThisExpression'(node) {
+			thisExpressions.set(node, nonArrowFunctionStack[nonArrowFunctionStack.length - 1]);
+		},
+		[reflectApplySelector](node) {
+			methods.add({method: node.arguments[0], scope: context.getScope()});
+		},
+		[functionMethodsSelector](node) {
+			methods.add({method: node, scope: context.getScope()});
+		},
+		'Program:exit'() {
+			for (const {method, scope} of methods) {
+				check(method, scope);
+			}
+		}
 	};
 }
 
