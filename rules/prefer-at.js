@@ -1,5 +1,5 @@
 'use strict';
-const {isOpeningBracketToken, isClosingBracketToken} = require('eslint-utils');
+const {isOpeningBracketToken, isClosingBracketToken, getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const isLiteralValue = require('./utils/is-literal-value');
 const {
@@ -128,9 +128,11 @@ const lodashLastFunctions = [
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
 	const {
-		getLastElementFunctions
+		getLastElementFunctions,
+		checkAllIndexAccess
 	} = {
 		getLastElementFunctions: [],
+		checkAllIndexAccess: false,
 		...context.options[0]
 	};
 	const getLastFunctions = [...getLastElementFunctions, ...lodashLastFunctions];
@@ -140,15 +142,25 @@ function create(context) {
 		[indexAccess](node) {
 			const indexNode = node.property;
 			const lengthNode = getNegativeIndexLengthNode(indexNode, node.object);
+
 			if (!lengthNode) {
-				return;
+				if (!checkAllIndexAccess) {
+					return;
+				}
+
+				const staticValue = getStaticValue(indexNode, context.getScope());
+				if (!staticValue || !Number.isInteger(staticValue.value) || staticValue.value < 0) {
+					return;
+				}
 			}
 
 			context.report({
 				node: indexNode,
 				messageId: MESSAGE_ID_NEGATIVE_INDEX,
 				* fix(fixer) {
-					yield removeLengthNode(lengthNode, fixer, sourceCode);
+					if (lengthNode) {
+						yield removeLengthNode(lengthNode, fixer, sourceCode);
+					}
 
 					const openingBracketToken = sourceCode.getTokenBefore(indexNode, isOpeningBracketToken);
 					yield fixer.replaceText(openingBracketToken, '.at(');
@@ -161,7 +173,8 @@ function create(context) {
 		[stringCharAt](node) {
 			const [indexNode] = node.arguments;
 			const lengthNode = getNegativeIndexLengthNode(indexNode, node.callee.object);
-			if (!lengthNode) {
+console.log({indexNode})
+			if (!lengthNode && !checkAllIndexAccess) {
 				return;
 			}
 
@@ -171,7 +184,9 @@ function create(context) {
 				suggest: [{
 					messageId: SUGGESTION_ID,
 					* fix(fixer) {
-						yield removeLengthNode(lengthNode, fixer, sourceCode);
+						if (lengthNode) {
+							yield removeLengthNode(lengthNode, fixer, sourceCode);
+						}
 						yield fixer.replaceText(node.callee.property, 'at');
 					}
 				}]
@@ -266,6 +281,10 @@ const schema = [
 			getLastElementFunctions: {
 				type: 'array',
 				uniqueItems: true
+			},
+			checkAllIndexAccess: {
+				type: 'boolean',
+				default: false
 			}
 		},
 		additionalProperties: false

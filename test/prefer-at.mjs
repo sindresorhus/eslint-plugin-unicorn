@@ -44,7 +44,8 @@ test.snapshot({
 		'string.charAt(string.length + -1)',
 		'foo.charAt(bar.length - 1)',
 		'string?.charAt?.(string.length - 1);',
-		'string?.charAt(string.length - 1);'
+		'string?.charAt(string.length - 1);',
+		'string.charAt(9);'
 	],
 	invalid: [
 		'string.charAt(string.length - 1);',
@@ -165,4 +166,36 @@ test.snapshot({
 			options: [{getLastElementFunctions: ['getLast', '  utils.lastOne  ']}]
 		}
 	]
+});
+
+// `checkAllIndexAccess` option
+const setCheckAllIndexAccessTrue = cases => cases.map(testCase => {
+	testCase = typeof testCase === 'string' ? {code: testCase} : testCase;
+	return {...testCase, options: [{checkAllIndexAccess: true}]}
+});
+test.snapshot({
+	valid: setCheckAllIndexAccessTrue([
+		'++array[1]',
+		'const offset = 5;const extraArgument = 6;string.charAt(offset + 9, extraArgument)',
+		'array[unknown]',
+		'array[-1]',
+		'array[1.5]',
+		'array[1n]'
+	]),
+	invalid: setCheckAllIndexAccessTrue([
+		'array[1]',
+		'array[5 + 9]',
+		'const offset = 5;array[offset + 9]',
+		'array[array.length - 1]',
+		// `charAt` don't care about value
+		'string.charAt(9)',
+		'string.charAt(5 + 9)',
+		'const offset = 5;string.charAt(offset + 9)',
+		'string.charAt(unknown)',
+		'string.charAt(-1)',
+		'string.charAt(1.5)',
+		'string.charAt(1n)',
+		'string.charAt(string.length - 1)',
+		'foo.charAt(bar.length - 1)',
+	])
 });
