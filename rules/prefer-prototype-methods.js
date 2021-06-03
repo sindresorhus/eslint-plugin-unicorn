@@ -75,6 +75,10 @@ function create(context) {
 
 		const methodName = getPropertyName(method, scope);
 		if (!isObjectOwnProperty(methodName)) {
+			if (object.type === 'ObjectExpression' && object.properties.length !== 0) {
+				return;
+			}
+
 			if (object.type === 'ThisExpression') {
 				const functionNode = thisExpressions.get(object);
 				if (
@@ -91,7 +95,9 @@ function create(context) {
 				if (variable && variable.defs.length === 1) {
 					const [definition] = variable.defs;
 					if (
+						definition.type === 'Variable' &&
 						definition.kind === 'const' &&
+						definition.node.id === definition.name &&
 						definition.node.type === 'VariableDeclarator' &&
 						definition.node.init &&
 						definition.node.init.type === 'ObjectExpression'

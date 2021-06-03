@@ -74,7 +74,8 @@ test.snapshot({
 		outdent`
 			const foo = {};
 			const bar = foo.method.call(foo, 'property');
-		`
+		`,
+		'({method() {}}).method.call(foo)'
 	],
 	invalid: [
 		outdent`
@@ -83,6 +84,14 @@ test.snapshot({
 					this.method = this.method.bind(this);
 				}
 			}
+		`,
+		outdent`
+			const {foo} = {foo: {}};
+			const bar = foo.method.call(foo, 'property');
+		`,
+		outdent`
+			const [foo] = [{}];
+			const bar = foo.method.call(foo, 'property');
 		`,
 		outdent`
 			const foo = {
@@ -111,7 +120,8 @@ test.snapshot({
 		outdent`
 			let foo = {};
 			const bar = foo.method.call(foo, 'property');
-		`
+		`,
+		'({method() {}}).propertyIsEnumerable.call(foo)'
 	]
 });
 
