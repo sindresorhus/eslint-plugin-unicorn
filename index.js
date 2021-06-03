@@ -87,7 +87,7 @@ module.exports = {
 				'unicorn/prefer-array-flat-map': 'error',
 				'unicorn/prefer-array-index-of': 'error',
 				'unicorn/prefer-array-some': 'error',
-				// TODO: Enable this by default when targeting Node.js support `Array#hasOwn`.
+				// TODO: Enable this by default when targeting Node.js support `Array#at`.
 				'unicorn/prefer-at': 'off',
 				'unicorn/prefer-date-now': 'error',
 				'unicorn/prefer-default-parameters': 'error',
