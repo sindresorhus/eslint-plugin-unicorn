@@ -18,14 +18,14 @@ const {methodCallSelector, callExpressionSelector, notLeftHandSideSelector} = re
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
 const MESSAGE_ID_INDEX = 'index';
-const MESSAGE_ID_STRING_CHAR_AT_NEGATIVE= 'string-char-at-negative';
+const MESSAGE_ID_STRING_CHAR_AT_NEGATIVE = 'string-char-at-negative';
 const MESSAGE_ID_STRING_CHAR_AT = 'string-char-at';
 const MESSAGE_ID_SLICE = 'slice';
 const MESSAGE_ID_GET_LAST_FUNCTION = 'get-last-function';
 const SUGGESTION_ID = 'use-at';
 const messages = {
 	[MESSAGE_ID_NEGATIVE_INDEX]: 'Prefer `.at(…)` over `[….length - index]`.',
-	[MESSAGE_ID_INDEX]: 'Prefer `.at(…)` over index accessing.',
+	[MESSAGE_ID_INDEX]: 'Prefer `.at(…)` over index access.',
 	[MESSAGE_ID_STRING_CHAR_AT_NEGATIVE]: 'Prefer `String#at(…)` over `String#charAt(.length - index)`.',
 	[MESSAGE_ID_STRING_CHAR_AT]: 'Prefer `String#at(…)` over `String#charAt(…)`.',
 	[MESSAGE_ID_SLICE]: 'Prefer `.at(…)` over the first element from `.slice(…)`.',
@@ -57,7 +57,6 @@ const isZeroIndexAccess = node => {
 		parent.object === node &&
 		isLiteralValue(parent.property, 0);
 };
-
 const isArrayPopOrShiftCall = (node, method) => {
 	const {parent} = node;
 	return parent.type === 'MemberExpression' &&
@@ -71,7 +70,6 @@ const isArrayPopOrShiftCall = (node, method) => {
 		!parent.parent.optional &&
 		parent.parent.arguments.length === 0;
 };
-
 const isArrayPopCall = node => isArrayPopOrShiftCall(node, 'pop');
 const isArrayShiftCall = node => isArrayPopOrShiftCall(node, 'shift');
 
@@ -303,7 +301,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.at()` method for index accessing.',
+			description: 'Prefer `.at()` method for index access and `String#charAt()`.',
 			url: getDocumentationUrl(__filename),
 			suggestion: true
 		},
