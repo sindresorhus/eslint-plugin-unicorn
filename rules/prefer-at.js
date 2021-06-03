@@ -17,13 +17,17 @@ const {
 const {methodCallSelector, callExpressionSelector, notLeftHandSideSelector} = require('./selectors');
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
+const MESSAGE_ID_INDEX = 'index';
+const MESSAGE_ID_STRING_CHAR_AT_NEGATIVE= 'string-char-at-negative';
 const MESSAGE_ID_STRING_CHAR_AT = 'string-char-at';
 const MESSAGE_ID_SLICE = 'slice';
 const MESSAGE_ID_GET_LAST_FUNCTION = 'get-last-function';
 const SUGGESTION_ID = 'use-at';
 const messages = {
-	[MESSAGE_ID_NEGATIVE_INDEX]: 'Prefer `.at(…)` over length minus index accessing.',
-	[MESSAGE_ID_STRING_CHAR_AT]: 'Prefer `String#at(…)` over `String#charAt(.length - index)`.',
+	[MESSAGE_ID_NEGATIVE_INDEX]: 'Prefer `.at(…)` over `[….length - index]`.',
+	[MESSAGE_ID_INDEX]: 'Prefer `.at(…)` over index accessing.',
+	[MESSAGE_ID_STRING_CHAR_AT_NEGATIVE]: 'Prefer `String#at(…)` over `String#charAt(.length - index)`.',
+	[MESSAGE_ID_STRING_CHAR_AT]: 'Prefer `String#at(…)` over `String#charAt(…)`.',
 	[MESSAGE_ID_SLICE]: 'Prefer `.at(…)` over the first element from `.slice(…)`.',
 	[MESSAGE_ID_GET_LAST_FUNCTION]: 'Prefer `.at(-1)` over `{{description}}(…)` to get the last element.',
 	[SUGGESTION_ID]: 'Use `.at(…)`.'
@@ -157,7 +161,7 @@ function create(context) {
 
 			context.report({
 				node: indexNode,
-				messageId: MESSAGE_ID_NEGATIVE_INDEX,
+				messageId: lengthNode ? MESSAGE_ID_NEGATIVE_INDEX : MESSAGE_ID_INDEX,
 				* fix(fixer) {
 					if (lengthNode) {
 						yield removeLengthNode(lengthNode, fixer, sourceCode);
@@ -182,7 +186,7 @@ function create(context) {
 
 			context.report({
 				node: indexNode,
-				messageId: MESSAGE_ID_STRING_CHAR_AT,
+				messageId: lengthNode ? MESSAGE_ID_STRING_CHAR_AT_NEGATIVE : MESSAGE_ID_STRING_CHAR_AT,
 				suggest: [{
 					messageId: SUGGESTION_ID,
 					* fix(fixer) {
@@ -299,7 +303,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.at()` method for negative index access',
+			description: 'Prefer `.at()` method for index accessing.',
 			url: getDocumentationUrl(__filename),
 			suggestion: true
 		},

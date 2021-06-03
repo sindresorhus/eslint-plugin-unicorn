@@ -1,6 +1,6 @@
-# Prefer `.at()` method for negative index access
+# Prefer `.at()` method for index accessing
 
-Prefer [`Array#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at), [`String#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/at), and `{TypedArray,NodeList,CSSRuleList,…}#at()` over `.length - index` access.
+Prefer [`Array#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at), [`String#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/at), and `{TypedArray,NodeList,CSSRuleList,…}#at()` for index accessing.
 
 This rule is fixable.
 
@@ -66,7 +66,7 @@ Type: `object`
 Type: `boolean`\
 Default: `false`
 
-You can also check positive index access.
+This rule only check negative indexes by default, but you can also check positive indexes by setting `checkAllIndexAccess` to `true`.
 
 Example:
 
