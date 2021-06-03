@@ -1,0 +1,135 @@
+import outdent from 'outdent';
+import {getTester} from './utils/test.mjs';
+
+const {test} = getTester(import.meta);
+
+// Index access
+test.snapshot({
+	valid: [
+		'array.at(-1)',
+		'array[array.length - 0];',
+		'array[array.length + 1]',
+		'array[array.length + -1]',
+		'foo[bar.length - 1]',
+		'array?.[array.length - 1];'
+	],
+	invalid: [
+		'array[array.length - 1];',
+		'array[array.length - 9];',
+		'array[0][array[0].length - 1];',
+		'array[(( array.length )) - 1];',
+		'array[array.length - (( 1 ))];',
+		'array[(( array.length - 1 ))];',
+		'(( array ))[array.length - 1];',
+		'(( array[array.length - 1] ));',
+		'array[array.length - 1].pop().shift()[0];'
+	]
+});
+
+// `.slice()` with one argument
+test.snapshot({
+	valid: [
+		'array.slice(-1)',
+		'new array.slice(-1)',
+		'array.slice(-0)[0]',
+		'array.slice(-9).pop()',
+		'array.slice(-1.1)[0]',
+		'array.slice(-1)?.[0]',
+		'array.slice?.(-1)[0]',
+		'array?.slice(-1)[0]',
+		'array.notSlice(-1)[0]',
+		'array.slice()[0]',
+		'array.slice(...[-1])[0]',
+		'array.slice(-1).shift?.()',
+		'array.slice(-1)?.shift()',
+		'array.slice(-1).shift(...[])',
+		'new array.slice(-1).shift()'
+	],
+	invalid: [
+		'array.slice(-1)[0]',
+		'array.slice(-1).pop()',
+		'array.slice(-1.0).shift()',
+		'array.slice(-9)[0]',
+		'array.slice(-0xA)[0b000]',
+		'array.slice(-9).shift()',
+		'array.slice(-1)[(( 0 ))];',
+		'array.slice(-(( 1 )))[0];',
+		'array.slice((( -1 )))[0];',
+		'(( array.slice(-1) ))[0];',
+		'(( array )).slice(-1)[0];',
+		'(( array.slice(-1)[0] ));',
+		'(( array.slice(-1) )).pop();',
+		'(( array.slice(-1).pop ))();',
+		'(( array.slice(-1).pop() ));',
+		'array.slice(-1)[0].pop().shift().slice(-1)'
+	]
+});
+
+// `.slice()` with 2 arguments, and `endIndex` is 1 greater than `startIndex`
+test.snapshot({
+	valid: [
+		'array.slice(-9.1, -8.1)[0]'
+	],
+	invalid: [
+		'array.slice(-9, -8)[0]',
+		'array.slice(-9, -0o10)[0]',
+		'array.slice(-9, -8).pop()',
+		'array.slice(-9, -8).shift()',
+		'array.slice((( -9 )), (( -8 )), ).shift()',
+		'(( array.slice(-9, -8).shift ))()'
+	]
+});
+
+// `.slice()` with 2 arguments
+test.snapshot({
+	valid: [
+		'array.slice(-unknown, -unknown2)[0]',
+		'array.slice(-9.1, unknown)[0]',
+		'array.slice(-9, unknown).pop()',
+		'array.slice(-9, ...unknown)[0]',
+		'array.slice(...[-9], unknown)[0]'
+	],
+	invalid: [
+		'array.slice(-9, unknown)[0]',
+		'array.slice(-0o11, -7)[0]',
+		'array.slice(-9, unknown).shift()',
+		'const KNOWN = -8; array.slice(-9, KNOWN).shift()',
+		'array.slice(-9, 0)[0]',
+		'(( (( array.slice( ((-9)), ((unknown)), ).shift ))() ));',
+		'array.slice(-9, (a, really, _really, complicated, second) => argument)[0]'
+	]
+});
+
+// Functions to get last element
+test.snapshot({
+	valid: [
+		'new _.last(array)',
+		'_.last(array, 2)',
+		'_.last(...array)'
+	],
+	invalid: [
+		'_.last(array)',
+		'lodash.last(array)',
+		'underscore.last(array)',
+		// Should add `()` to `new Array`
+		'_.last(new Array)',
+		// Semicolon
+		outdent`
+			const foo = []
+			_.last([bar])
+		`,
+		outdent`
+			const foo = []
+			_.last( new Array )
+		`,
+		outdent`
+			const foo = []
+			_.last( (( new Array )) )
+		`,
+		'if (foo) _.last([bar])',
+		{
+			code: '_.last(getLast(utils.lastOne(array)))',
+			options: [{getLastElementFunctions: ['getLast', '  utils.lastOne  ']}]
+		}
+	]
+});
