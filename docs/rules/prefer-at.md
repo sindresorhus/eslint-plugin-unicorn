@@ -1,6 +1,6 @@
 # Prefer `.at()` method for negative index access
 
-When access "negative indexing" of objects, prefer [`Array#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at), [`String#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/at), and `{Uint8Array,NodeList,CSSRuleList,…}#at()` over `.length - index`.
+Prefer [`Array#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at), [`String#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/at), and `{TypedArray,NodeList,CSSRuleList,…}#at()` over `.length - index` access.
 
 This rule is fixable.
 
@@ -44,6 +44,11 @@ const foo = array.at(-5);
 const foo = array[100];
 ```
 
+```js
+// This rule is not checking this case, but `unicorn/prefer-negative-index` rule will fix it.
+const foo = array.at(array.length - 1);
+```
+
 ## Options
 
 Type: `object`
@@ -76,3 +81,7 @@ Example:
 // eslint unicorn/prefer-at: ["error", {"getLastElementFunctions": ["utils.lastElement"]}]
 const foo = utils.lastElement(bar); // Fails
 ```
+
+## Related rules
+
+- [unicorn/prefer-negative-index](./prefer-negative-index.md)

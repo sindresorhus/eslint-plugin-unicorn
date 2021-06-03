@@ -36,4 +36,4 @@ const foo = bar.flat().map(element => unicorn(element));
 
 ## Related rules
 
-- [prefer-array-flat](./prefer-array-flat.md)
+- [unicorn/prefer-array-flat](./prefer-array-flat.md)
