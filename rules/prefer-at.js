@@ -26,7 +26,7 @@ const SUGGESTION_ID = 'use-at';
 const messages = {
 	[MESSAGE_ID_NEGATIVE_INDEX]: 'Prefer `.at(…)` over `[….length - index]`.',
 	[MESSAGE_ID_INDEX]: 'Prefer `.at(…)` over index access.',
-	[MESSAGE_ID_STRING_CHAR_AT_NEGATIVE]: 'Prefer `String#at(…)` over `String#charAt(.length - index)`.',
+	[MESSAGE_ID_STRING_CHAR_AT_NEGATIVE]: 'Prefer `String#at(…)` over `String#charAt(….length - index)`.',
 	[MESSAGE_ID_STRING_CHAR_AT]: 'Prefer `String#at(…)` over `String#charAt(…)`.',
 	[MESSAGE_ID_SLICE]: 'Prefer `.at(…)` over the first element from `.slice(…)`.',
 	[MESSAGE_ID_GET_LAST_FUNCTION]: 'Prefer `.at(-1)` over `{{description}}(…)` to get the last element.',
