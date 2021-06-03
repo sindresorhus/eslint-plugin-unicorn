@@ -139,6 +139,21 @@ test.babel({
 			parserOptions: enableBabelPlugin('classStaticBlock'),
 			errors: 1
 		},
+		{
+			code: outdent`
+				class Foo {
+					async    static    {
+					}
+				}
+			`,
+			output: outdent`
+				class Foo {
+					async    static    {}
+				}
+			`,
+			parserOptions: enableBabelPlugin('classStaticBlock'),
+			errors: 1
+		},
 		// ESLint can't parse this now
 		// {
 		// 	code: 'const foo = module     {    };',
