@@ -46,6 +46,10 @@ function isSafeToFix(node) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
+	const methods = new Set();
+	const nonArrowFunctionStack = [];
+	const thisExpressions = new Map();
+
 	function check(method) {
 		const {type, object} = method;
 		if (
@@ -61,6 +65,17 @@ function create(context) {
 			)
 		) {
 			return;
+		}
+
+		if (object.type === 'ThisExpression') {
+			const functionNode = thisExpressions.get(object);
+			if (
+				functionNode &&
+				functionNode.parent.type === 'Property' &&
+				functionNode.parent.parent.type === 'ObjectExpression'
+			) {
+				return;
+			}
 		}
 
 		const constructorName = getConstructorName(object);
@@ -86,10 +101,26 @@ function create(context) {
 	}
 
 	return {
-		[reflectApplySelector](node) {
-			check(node.arguments[0]);
+		'FunctionExpression,FunctionDeclaration'(node) {
+			nonArrowFunctionStack.push(node);
 		},
-		[functionMethodsSelector]: check
+		'FunctionExpression,FunctionDeclaration:exit'(node) {
+			nonArrowFunctionStack.pop();
+		},
+		'ThisExpression'(node) {
+			thisExpressions.set(node, nonArrowFunctionStack[nonArrowFunctionStack.length - 1]);
+		},
+		[reflectApplySelector](node) {
+			methods.add(node.arguments[0])
+		},
+		[functionMethodsSelector](node) {
+			methods.add(node);
+		},
+		'Program:exit'() {
+			for (const method of methods) {
+				check(method)
+			}
+		}
 	};
 }
 

@@ -1,3 +1,4 @@
+import outdent from 'outdent';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
@@ -46,6 +47,43 @@ test.snapshot({
 		'Array["prototype"].slice.call();',
 		'Array?.prototype.slice.call();',
 		'window.Math.max.apply(null, numbers)'
+	]
+});
+
+// Object method
+test.snapshot({
+	valid: [
+		outdent`
+			const foo = {
+				a() {
+					this.method = this.method.bind(this);
+				},
+				b: function() {
+					this.method = this.method.bind(this);
+				}
+			}
+		`
+	],
+	invalid: [
+		outdent`
+			const foo = {
+				a: () => {
+					this.method = this.method.bind(this);
+				}
+			}
+		`,
+		outdent`
+			const foo = {
+				a() {
+					function fn() {
+						// this is not the object foo
+						this.method = this.method.bind(this);
+					}
+					return fn;
+				}
+			}
+		`,
+		'this.method = this.method.bind(this)'
 	]
 });
 
