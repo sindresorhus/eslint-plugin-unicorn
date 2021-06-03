@@ -148,6 +148,7 @@ function create(context) {
 					return;
 				}
 
+				// Only if we are sure it's an positive integer
 				const staticValue = getStaticValue(indexNode, context.getScope());
 				if (!staticValue || !Number.isInteger(staticValue.value) || staticValue.value < 0) {
 					return;
@@ -173,7 +174,8 @@ function create(context) {
 		[stringCharAt](node) {
 			const [indexNode] = node.arguments;
 			const lengthNode = getNegativeIndexLengthNode(indexNode, node.callee.object);
-console.log({indexNode})
+
+			// `String#charAt` don't care about index value, we assume it's always number
 			if (!lengthNode && !checkAllIndexAccess) {
 				return;
 			}
@@ -187,6 +189,7 @@ console.log({indexNode})
 						if (lengthNode) {
 							yield removeLengthNode(lengthNode, fixer, sourceCode);
 						}
+
 						yield fixer.replaceText(node.callee.property, 'at');
 					}
 				}]

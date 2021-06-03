@@ -61,6 +61,33 @@ array[array.length - 1] = foo;
 
 Type: `object`
 
+### checkAllIndexAccess
+
+Type: `boolean`\
+Default: `false`
+
+You can also check positive index access.
+
+Example:
+
+```js
+{
+	'unicorn/prefer-at': [
+		'error',
+		{
+			checkAllIndexAccess: true
+		}
+	]
+}
+```
+
+```js
+// eslint unicorn/prefer-at: ["error", {"checkAllIndexAccess": true}]
+const foo = bar[10]; // Fails, will fix to `bar.at(10)`
+const foo = bar[unknownProperty]; // Passes
+const foo = string.chatAt(unknownIndex); // Fails
+```
+
 ### getLastElementFunctions
 
 Type: `string[]`

@@ -171,7 +171,7 @@ test.snapshot({
 // `checkAllIndexAccess` option
 const setCheckAllIndexAccessTrue = cases => cases.map(testCase => {
 	testCase = typeof testCase === 'string' ? {code: testCase} : testCase;
-	return {...testCase, options: [{checkAllIndexAccess: true}]}
+	return {...testCase, options: [{checkAllIndexAccess: true}]};
 });
 test.snapshot({
 	valid: setCheckAllIndexAccessTrue([
@@ -196,6 +196,6 @@ test.snapshot({
 		'string.charAt(1.5)',
 		'string.charAt(1n)',
 		'string.charAt(string.length - 1)',
-		'foo.charAt(bar.length - 1)',
+		'foo.charAt(bar.length - 1)'
 	])
 });
