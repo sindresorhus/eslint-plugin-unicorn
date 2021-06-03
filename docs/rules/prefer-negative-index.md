@@ -47,3 +47,7 @@ Array.prototype.slice.call(foo, -2, -1);
 ```js
 Array.prototype.slice.apply(foo, [-2, -1]);
 ```
+
+## Related rules
+
+- [unicorn/prefer-at](./prefer-at.md)
