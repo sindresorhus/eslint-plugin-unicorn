@@ -14,7 +14,7 @@ const {
 	getNegativeIndexLengthNode,
 	removeLengthNode
 } = require('./shared/negative-index');
-const {methodCallSelector, callExpressionSelector} = require('./selectors');
+const {methodCallSelector, callExpressionSelector, notLeftHandSideSelector} = require('./selectors');
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
 const MESSAGE_ID_STRING_CHAR_AT = 'string-char-at';
@@ -32,7 +32,8 @@ const messages = {
 const indexAccess = [
 	'MemberExpression',
 	'[optional!=true]',
-	'[computed!=false]'
+	'[computed!=false]',
+	notLeftHandSideSelector()
 ].join('');
 const sliceCall = methodCallSelector({name: 'slice', min: 1, max: 2});
 const stringCharAt = methodCallSelector({name: 'charAt', length: 1});

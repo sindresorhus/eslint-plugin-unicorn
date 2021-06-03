@@ -11,7 +11,13 @@ test.snapshot({
 		'array[array.length + 1]',
 		'array[array.length + -1]',
 		'foo[bar.length - 1]',
-		'array?.[array.length - 1];'
+		'array?.[array.length - 1];',
+		// LHS
+		'array[array.length - 1] = 1',
+		'array[array.length - 1] %= 1',
+		'++ array[array.length - 1]',
+		'array[array.length - 1] --',
+		'delete array[array.length - 1]'
 	],
 	invalid: [
 		'array[array.length - 1];',
@@ -22,7 +28,11 @@ test.snapshot({
 		'array[(( array.length - 1 ))];',
 		'(( array ))[array.length - 1];',
 		'(( array[array.length - 1] ));',
-		'array[array.length - 1].pop().shift()[0];'
+		'array[array.length - 1].pop().shift()[0];',
+		'a = array[array.length - 1]',
+		'const a = array[array.length - 1]',
+		'const {a = array[array.length - 1]} = {}',
+		'typeof array[array.length - 1]'
 	]
 });
 
