@@ -1,6 +1,6 @@
 # Enforce using the targetOrigin argument with `Window.postMessage()`
 
-When calling [`window.postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) without `targetOrigin` argument, message can't be received by any window.
+When calling [`window.postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) without the `targetOrigin` argument, the message cannot be received by any window.
 
 ## Fail
 
