@@ -86,6 +86,11 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			const foo = {
+				[function() {this.method.bind(this);}]: 1
+			}
+		`,
+		outdent`
 			const {foo} = {foo: {}};
 			const bar = foo.method.call(foo, 'property');
 		`,

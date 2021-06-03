@@ -84,6 +84,7 @@ function create(context) {
 				if (
 					functionNode &&
 					functionNode.parent.type === 'Property' &&
+					functionNode.parent.value === functionNode &&
 					functionNode.parent.parent.type === 'ObjectExpression'
 				) {
 					return;
