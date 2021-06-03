@@ -75,7 +75,7 @@ function create(context) {
 
 		const methodName = getPropertyName(method, scope);
 		if (!isObjectOwnProperty(methodName)) {
-			if (object.type === 'ObjectExpression' && object.properties.length !== 0) {
+			if (object.type === 'ObjectExpression' && object.properties.length > 0) {
 				return;
 			}
 
