@@ -101,7 +101,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`',
+			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`.',
 			url: getDocumentationUrl(__filename),
 			suggestion: true
 		},
