@@ -1,6 +1,6 @@
 # Prefer top-level await over top-level promises and async function calls
 
-Prefer [top level await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await#top-level-await) over floating promises, async IIFE, and function call to an async function.
+[Top-level await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await#top-level-await) is more readable and can prevent unhandled rejections.
 
 ## Fail
 
