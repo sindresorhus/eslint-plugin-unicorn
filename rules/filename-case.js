@@ -5,8 +5,10 @@ const getDocumentationUrl = require('./utils/get-documentation-url');
 const cartesianProductSamples = require('./utils/cartesian-product-samples');
 
 const MESSAGE_ID = 'filename-case';
+const MESSAGE_ID_EXTENSION = 'filename-extension';
 const messages = {
-	[MESSAGE_ID]: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.'
+	[MESSAGE_ID]: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.',
+	[MESSAGE_ID_EXTENSION]: 'File extension `{{extension}}` is not in lowercase. Rename it to `{{filename}}`.'
 };
 
 const pascalCase = string => upperFirst(camelCase(string));
@@ -15,6 +17,7 @@ const PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
 const PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
 const isIgnoredChar = char => !/^[a-z\d-_$]$/i.test(char);
 const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue']);
+const isLowerCase = string => string === string.toLowerCase();
 
 function ignoreNumbers(caseFunction) {
 	return string => {
@@ -91,7 +94,7 @@ function fixFilename(words, caseFunctions, {leading, extension}) {
 		samples: combinations
 	} = cartesianProductSamples(replacements);
 
-	return [...new Set(combinations.map(parts => `${leading}${parts.join('')}${extension}`))];
+	return [...new Set(combinations.map(parts => `${leading}${parts.join('')}${extension.toLowerCase()}`))];
 }
 
 const leadingUnderscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;
@@ -171,6 +174,14 @@ const create = context => {
 			const isValid = validateFilename(words, chosenCasesFunctions);
 
 			if (isValid) {
+				if (!isLowerCase(extension)) {
+					context.report({
+						loc: {column: 0, line: 1},
+						messageId: MESSAGE_ID_EXTENSION,
+						data: {filename: filename + extension.toLowerCase(), extension}
+					});
+				}
+
 				return;
 			}
 
