@@ -8,7 +8,7 @@ const {
 	findVariable
 } = require('eslint-utils');
 const {methodCallSelector, referenceIdentifierSelector} = require('./selectors');
-const getDocumentationUrl = require('./utils/get-documentation-url');
+const createRule = require('./utils/create-rule');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression');
 const {getParentheses} = require('./utils/parentheses');
@@ -396,7 +396,7 @@ const create = context => {
 				scope: context.getScope()
 			});
 		},
-		'Program:exit'() {
+		* 'Program:exit'() {
 			for (const {node, scope} of callExpressions) {
 				const problem = {
 					node: node.callee.property,
@@ -407,22 +407,23 @@ const create = context => {
 					problem.fix = getFixFunction(node, functionInfo, context);
 				}
 
-				context.report(problem);
+				yield problem;
 			}
 		}
 	};
 };
 
-module.exports = {
-	create,
-	meta: {
-		type: 'suggestion',
-		docs: {
-			description: 'Prefer `for…of` over `Array#forEach(…)`.',
-			url: getDocumentationUrl(__filename)
-		},
-		fixable: 'code',
-		schema: [],
-		messages
+module.exports = createRule(
+	__filename,
+	{
+		create,
+		meta: {
+			type: 'suggestion',
+			docs: {
+				description: 'Prefer `for…of` over `Array#forEach(…)`.'
+			},
+			fixable: 'code',
+			messages
+		}
 	}
-};
+);
