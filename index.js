@@ -87,6 +87,8 @@ module.exports = {
 				'unicorn/prefer-array-flat-map': 'error',
 				'unicorn/prefer-array-index-of': 'error',
 				'unicorn/prefer-array-some': 'error',
+				// TODO: Enable this by default when targeting a Node.js version that supports `Array#at`.
+				'unicorn/prefer-at': 'off',
 				'unicorn/prefer-date-now': 'error',
 				'unicorn/prefer-default-parameters': 'error',
 				'unicorn/prefer-dom-node-append': 'error',
@@ -101,7 +103,7 @@ module.exports = {
 				'unicorn/prefer-negative-index': 'error',
 				'unicorn/prefer-node-protocol': 'error',
 				'unicorn/prefer-number-properties': 'error',
-				// TODO: Enable this by default when targeting Node.js support `Object.hasOwn`.
+				// TODO: Enable this by default when targeting a Node.js version that supports `Object.hasOwn`.
 				'unicorn/prefer-object-has-own': 'off',
 				'unicorn/prefer-optional-catch-binding': 'error',
 				'unicorn/prefer-prototype-methods': 'error',

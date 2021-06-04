@@ -99,4 +99,4 @@ const foo = utils.flat(bar); // Fails
 
 ## Related rules
 
-- [prefer-array-flat-map](./prefer-array-flat-map.md)
+- [unicorn/prefer-array-flat-map](./prefer-array-flat-map.md)
