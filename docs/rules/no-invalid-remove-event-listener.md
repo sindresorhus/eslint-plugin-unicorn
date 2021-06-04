@@ -8,7 +8,7 @@ The [removeEventListener] function must be called with a reference to the same f
 ## Fail
 
 ```js
-window.removeEventListener('click', fn.bind(null));
+window.removeEventListener('click', fn.bind(window));
 ```
 
 ```js
@@ -32,7 +32,7 @@ class MyElement extends HTMLElement {
 ## Pass
 
 ```js
-window.removeEventListener('click', fn);
+window.removeEventListener('click', listener);
 ```
 
 ```js
