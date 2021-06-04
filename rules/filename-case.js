@@ -8,7 +8,7 @@ const MESSAGE_ID = 'filename-case';
 const MESSAGE_ID_EXTENSION = 'filename-extension';
 const messages = {
 	[MESSAGE_ID]: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.',
-	[MESSAGE_ID_EXTENSION]: 'File extension `{{extension}}` is not in lower-case. Rename it to `{{filename}}`.'
+	[MESSAGE_ID_EXTENSION]: 'File extension `{{extension}}` is not in lowercase. Rename it to `{{filename}}`.'
 };
 
 const pascalCase = string => upperFirst(camelCase(string));
