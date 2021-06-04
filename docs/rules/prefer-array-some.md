@@ -1,11 +1,11 @@
 # Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`
 
-Prefer using [`Array#some`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some) over
+Prefer using [`Array#some`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some) over:
 
-- Non-zero length check from [`Array#filter()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter) result.
-- Using [`Array#find()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) to ensuring at least one element in the array passes a given check.
+- Non-zero length check on the result of [`Array#filter()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter).
+- Using [`Array#find()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) to ensure at least one element in the array passes a given check.
 
-This rule is fixable for `.filter(…).length` check, and has suggestion for `.find(…)`.
+This rule is fixable for `.filter(…).length` check and has a suggestion for `.find(…)`.
 
 ## Fail
 
