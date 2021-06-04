@@ -1,11 +1,10 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const methodCallSelector = require('./selectors/method-call-selector');
+const {methodCallSelector, matches} = require('./selectors');
 
 const MESSAGE_ID = 'no-invalid-remove-event-listener';
 const messages = {
-	[MESSAGE_ID]:
-		'The listener argument should be a function reference.'
+	[MESSAGE_ID]: 'The listener argument should be a function reference.'
 };
 
 const isBindCall = node =>
@@ -14,46 +13,39 @@ const isBindCall = node =>
 	node.callee.property.name === 'bind' &&
 	!node.callee.computed;
 
-const removeEventListenerSelector = methodCallSelector({
-	name: 'removeEventListener',
-	min: 2
-});
+const removeEventListenerSelector = [
+	methodCallSelector({
+		name: 'removeEventListener',
+		min: 2
+	}),
+	matches([
+		'[arguments.1.type="FunctionExpression"]',
+		'[arguments.1.type="ArrowFunctionExpression"]',
+		methodCallSelector({name: 'bind', path: 'arguments.1'})
+	])
+].join('')
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	return {
 		[removeEventListenerSelector]: node => {
-			const secondArgument = node.arguments[1];
-			if (!secondArgument) {
-				return;
-			}
-
-			if (
-				isBindCall(secondArgument) ||
-				secondArgument.type === 'FunctionExpression' ||
-				secondArgument.type === 'ArrowFunctionExpression'
-			) {
-				context.report({
-					node: secondArgument,
-					messageId: MESSAGE_ID
-				});
-			}
+			context.report({
+				node: node.arguments[1],
+				messageId: MESSAGE_ID
+			});
 		}
 	};
 };
-
-const schema = [];
 
 module.exports = {
 	create,
 	meta: {
 		type: 'problem',
 		docs: {
-			description:
-				'Prevent calling `EventTarget#removeEventListener()` with the result of an expression',
+			description: 'Prevent calling `EventTarget#removeEventListener()` with the result of an expression',
 			url: getDocumentationUrl(__filename)
 		},
-		schema,
+		schema: [],
 		messages
 	}
 };
