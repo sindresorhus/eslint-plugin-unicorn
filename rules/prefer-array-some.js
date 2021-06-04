@@ -1,13 +1,16 @@
 'use strict';
 const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
+const {methodCallSelector, matches, memberExpressionSelector} = require('./selectors');
 const {isBooleanNode} = require('./utils/boolean');
+const {getParenthesizedRange} = require('./utils/parentheses');
 
-const MESSAGE_ID_ERROR = 'error';
-const MESSAGE_ID_SUGGESTION = 'suggestion';
+const ERROR_ID_ARRAY_SOME = 'some';
+const SUGGESTION_ID_ARRAY_SOME = 'some-suggestion';
+const ERROR_ID_ARRAY_FILTER = 'filter';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Prefer `.some(…)` over `.find(…)`.',
-	[MESSAGE_ID_SUGGESTION]: 'Replace `.find(…)` with `.some(…)`.'
+	[ERROR_ID_ARRAY_SOME]: 'Prefer `.some(…)` over `.find(…)`.',
+	[SUGGESTION_ID_ARRAY_SOME]: 'Replace `.find(…)` with `.some(…)`.',
+	[ERROR_ID_ARRAY_FILTER]: 'Prefer `.some(…)` over non-zero length check from `.filter(…)`.'
 };
 
 const arrayFindCallSelector = methodCallSelector({
@@ -16,22 +19,75 @@ const arrayFindCallSelector = methodCallSelector({
 	max: 2
 });
 
+const arrayFilterCallSelector = [
+	'BinaryExpression',
+	'[right.type="Literal"]',
+	// We assume the user already follows `unicorn/explicit-length-check`, these are allowed in that rule
+	matches([
+		'[operator=">"][right.raw="0"]',
+		'[operator="!=="][right.raw="0"]',
+		'[operator=">="][right.raw="1"]'
+	]),
+	' > ',
+	`${memberExpressionSelector('length')}.left`,
+	' > ',
+	`${methodCallSelector('filter')}.object`
+].join('');
+
 const create = context => {
 	return {
-		[arrayFindCallSelector](node) {
-			if (isBooleanNode(node)) {
-				node = node.callee.property;
-				context.report({
-					node,
-					messageId: MESSAGE_ID_ERROR,
-					suggest: [
-						{
-							messageId: MESSAGE_ID_SUGGESTION,
-							fix: fixer => fixer.replaceText(node, 'some')
-						}
-					]
-				});
+		[arrayFindCallSelector](findCall) {
+			if (!isBooleanNode(findCall)) {
+				return;
 			}
+
+			const findProperty = findCall.callee.property;
+			context.report({
+				node: findProperty,
+				messageId: ERROR_ID_ARRAY_SOME,
+				suggest: [
+					{
+						messageId: SUGGESTION_ID_ARRAY_SOME,
+						fix: fixer => fixer.replaceText(findProperty, 'some')
+					}
+				]
+			});
+		},
+		[arrayFilterCallSelector](filterCall) {
+			const filterProperty = filterCall.callee.property;
+			context.report({
+				node: filterProperty,
+				messageId: ERROR_ID_ARRAY_FILTER,
+				* fix(fixer) {
+					// `.filter` to `.some`
+					yield fixer.replaceText(filterProperty, 'some');
+
+					const sourceCode = context.getSourceCode();
+					const lengthNode = filterCall.parent;
+					/*
+						Remove `.length`
+						`(( (( array.filter() )).length )) > (( 0 ))`
+						------------------------^^^^^^^
+					*/
+					yield fixer.removeRange([
+						getParenthesizedRange(filterCall, sourceCode)[1],
+						lengthNode.range[1]
+					]);
+
+					const compareNode = lengthNode.parent;
+					/*
+						Remove `> 0`
+						`(( (( array.filter() )).length )) > (( 0 ))`
+						----------------------------------^^^^^^^^^^
+					*/
+					yield fixer.removeRange([
+						getParenthesizedRange(lengthNode, sourceCode)[1],
+						compareNode.range[1]
+					]);
+
+					// The `BinaryExpression` always ends with a number or `)`, no need check for ASI
+				}
+			});
 		}
 	};
 };
@@ -41,10 +97,11 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.some(…)` over `.find(…)`.',
+			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`.',
 			url: getDocumentationUrl(__filename),
 			suggestion: true
 		},
+		fixable: 'code',
 		schema: [],
 		messages
 	}
