@@ -18,6 +18,7 @@ test.snapshot({
 		'el.removeEventListener(() => {})',
 		'el.removeEventListener(...["click", () => {}], () => {})',
 		'el.removeEventListener(() => {}, "click")',
+		'window.removeEventListener("click", bind())',
 		'window.removeEventListener("click", handler.notBind())',
 		'window.removeEventListener("click", handler[bind]())',
 		'window.removeEventListener("click", handler.bind?.())',
