@@ -2,11 +2,7 @@
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const {methodCallSelector, matches, memberExpressionSelector} = require('./selectors');
 const {isBooleanNode} = require('./utils/boolean');
-const {
-	isParenthesized,
-	getParenthesizedRange,
-	getParenthesizedText
-} = require('./utils/parentheses');
+const {getParenthesizedRange} = require('./utils/parentheses');
 
 const ERROR_ID_ARRAY_SOME = 'some';
 const SUGGESTION_ID_ARRAY_SOME = 'some-suggestion';
@@ -36,7 +32,7 @@ const arrayFilterCallSelector = [
 	`${memberExpressionSelector('length')}.left`,
 	' > ',
 	`${methodCallSelector('filter')}.object`
-].join('')
+].join('');
 
 const create = context => {
 	return {
@@ -105,8 +101,8 @@ module.exports = {
 			url: getDocumentationUrl(__filename),
 			suggestion: true
 		},
-		schema: [],
 		fixable: 'code',
+		schema: [],
 		messages
 	}
 };
