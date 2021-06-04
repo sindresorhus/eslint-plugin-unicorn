@@ -123,6 +123,7 @@ module.exports = {
 				'unicorn/prevent-abbreviations': 'error',
 				'unicorn/require-array-join-separator': 'error',
 				'unicorn/require-number-to-fixed-digits-argument': 'error',
+				'unicorn/require-post-message-target-origin': 'error',
 				'unicorn/string-content': 'off',
 				'unicorn/throw-new-error': 'error'
 			}
