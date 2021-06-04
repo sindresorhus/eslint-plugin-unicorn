@@ -8,7 +8,7 @@ const SUGGESTION_TARGET_LOCATION_ORIGIN = 'target-location-origin';
 const SUGGESTION_SELF_LOCATION_ORIGIN = 'self-location-origin';
 const SUGGESTION_STAR = 'star';
 const messages = {
-	[ERROR]: 'Missing the targetOrigin argument.',
+	[ERROR]: 'Missing the `targetOrigin` argument.',
 	[SUGGESTION_TARGET_LOCATION_ORIGIN]: 'Use `{{target}}.location.origin`.',
 	[SUGGESTION_SELF_LOCATION_ORIGIN]: 'Use `self.location.origin`.',
 	[SUGGESTION_STAR]: 'Use `"*"`.'
@@ -62,7 +62,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce using the targetOrigin argument with `Window.postMessage()`.',
+			description: 'Enforce using the `targetOrigin` argument with `window.postMessage()`.',
 			url: getDocumentationUrl(__filename),
 			suggestion: true
 		},
