@@ -544,7 +544,7 @@ test.snapshot({
 		undefined,
 		'src/foo.JS/bar.js',
 		'src/foo.JS/bar'
-	].map(filename => ({code: 'foo();', filename})),
+	].map(filename => ({code: `const filename = ${JSON.stringify(filename)};`, filename})),
 	invalid: [
 		{
 			code: 'foo();\n'.repeat(10),
@@ -564,6 +564,6 @@ test.snapshot({
 			'foo.jS',
 			'index.JS',
 			'foo..JS'
-		].map(filename => ({code: 'foo();', filename}))
+		].map(filename => ({code: `const filename = ${JSON.stringify(filename)};`, filename}))
 	]
 });
