@@ -18,6 +18,7 @@ const removeEventListenerSelector = [
 		name: 'removeEventListener',
 		min: 2
 	}),
+	'[arguments.0.type!="SpreadElement"]',
 	matches([
 		'[arguments.1.type="FunctionExpression"]',
 		'[arguments.1.type="ArrowFunctionExpression"]',
