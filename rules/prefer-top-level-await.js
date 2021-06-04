@@ -8,9 +8,9 @@ const ERROR_IIFE = 'iife';
 const ERROR_IDENTIFIER = 'identifier';
 const SUGGESTION_ADD_AWAIT = 'add-await';
 const messages = {
-	[ERROR_PROMISE]: 'Prefer top-level await over using promise.',
-	[ERROR_IIFE]: 'Prefer top-level await over async IIFE.',
-	[ERROR_IDENTIFIER]: 'Prefer top-level await over async function `{{name}}` call.',
+	[ERROR_PROMISE]: 'Prefer top-level await over using a promise chain.',
+	[ERROR_IIFE]: 'Prefer top-level await over an async IIFE.',
+	[ERROR_IDENTIFIER]: 'Prefer top-level await over an async function `{{name}}` call.',
 	[SUGGESTION_ADD_AWAIT]: 'Insert `await`.'
 };
 
