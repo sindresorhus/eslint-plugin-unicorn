@@ -22,7 +22,7 @@ const arrayFindCallSelector = methodCallSelector({
 const arrayFilterCallSelector = [
 	'BinaryExpression',
 	'[right.type="Literal"]',
-	// We assume user already follow `unicorn/explicit-length-check`, these are allowed in that rule
+	// We assume the user already follows `unicorn/explicit-length-check`, these are allowed in that rule
 	matches([
 		'[operator=">"][right.raw="0"]',
 		'[operator="!=="][right.raw="0"]',
@@ -85,7 +85,7 @@ const create = context => {
 						compareNode.range[1]
 					]);
 
-					// The `BinaryExpression` always ends with a number or `)`, no need check ASI
+					// The `BinaryExpression` always ends with a number or `)`, no need check for ASI
 				}
 			});
 		}
