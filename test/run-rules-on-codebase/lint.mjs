@@ -57,7 +57,8 @@ const eslint = new ESLint({
 			// Not ready yet
 			'unicorn/prefer-string-replace-all': 'off',
 			'unicorn/prefer-top-level-await': 'off',
-			'unicorn/prefer-object-has-own': 'off'
+			'unicorn/prefer-object-has-own': 'off',
+			'unicorn/prefer-at': 'off'
 		},
 		overrides: [
 			{
