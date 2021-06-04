@@ -82,48 +82,41 @@ const isRegExpNode = node => {
 	return false;
 };
 
-function getProblem(node, checkCase, context) {
-	if (!isBooleanNode(node)) {
-		return;
-	}
-
-	const {type, getNodes, fix} = checkCase;
-	const nodes = getNodes(node);
-	const {methodNode, regexpNode} = nodes;
-	const problem = {
-		node: type === REGEXP_EXEC ? methodNode : node,
-		messageId: type
-	};
-
-	if (regexpNode.type === 'Literal' && !regexpNode.regex) {
-		return;
-	}
-
-	if (!isRegExpNode(regexpNode)) {
-		const staticResult = getStaticValue(regexpNode, context.getScope());
-		if (staticResult) {
-			const {value} = staticResult;
-			if (
-				Object.prototype.toString.call(value) !== '[object RegExp]' ||
-				value.flags.includes('g')
-			) {
-				return problem;
-			}
-		}
-	}
-
-	problem.fix = fixer => fix(fixer, nodes, context.getSourceCode());
-	return problem;
-}
-
 const create = context => Object.fromEntries(
 	cases.map(checkCase => [
 		checkCase.selector,
 		node => {
-			const problem = getProblem(node, checkCase, context);
-			if (problem) {
-				context.report(problem);
+			if (!isBooleanNode(node)) {
+				return;
 			}
+
+			const {type, getNodes, fix} = checkCase;
+			const nodes = getNodes(node);
+			const {methodNode, regexpNode} = nodes;
+			const problem = {
+				node: type === REGEXP_EXEC ? methodNode : node,
+				messageId: type
+			};
+
+			if (regexpNode.type === 'Literal' && !regexpNode.regex) {
+				return;
+			}
+
+			if (!isRegExpNode(regexpNode)) {
+				const staticResult = getStaticValue(regexpNode, context.getScope());
+				if (staticResult) {
+					const {value} = staticResult;
+					if (
+						Object.prototype.toString.call(value) !== '[object RegExp]' ||
+						value.flags.includes('g')
+					) {
+						return problem;
+					}
+				}
+			}
+
+			problem.fix = fixer => fix(fixer, nodes, context.getSourceCode());
+			return problem;
 		}
 	])
 );
