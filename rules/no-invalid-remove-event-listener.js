@@ -1,4 +1,5 @@
 'use strict';
+const {getFunctionHeadLocation} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url');
 const {methodCallSelector, matches} = require('./selectors');
 
@@ -6,12 +7,6 @@ const MESSAGE_ID = 'no-invalid-remove-event-listener';
 const messages = {
 	[MESSAGE_ID]: 'The listener argument should be a function reference.'
 };
-
-const isBindCall = node =>
-	node.type === 'CallExpression' &&
-	node.callee.type === 'MemberExpression' &&
-	node.callee.property.name === 'bind' &&
-	!node.callee.computed;
 
 const removeEventListenerSelector = [
 	methodCallSelector({
@@ -30,10 +25,19 @@ const removeEventListenerSelector = [
 const create = context => {
 	return {
 		[removeEventListenerSelector]: node => {
-			context.report({
-				node: node.arguments[1],
-				messageId: MESSAGE_ID
-			});
+			const listener = node.arguments[1];
+			if (['ArrowFunctionExpression', 'FunctionExpression'].includes(listener.type)) {
+				context.report({
+					node: listener,
+					loc: getFunctionHeadLocation(listener, context.getSourceCode()),
+					messageId: MESSAGE_ID
+				});
+			} else {
+				context.report({
+					node: listener.callee.property,
+					messageId: MESSAGE_ID
+				});
+		  }
 		}
 	};
 };
