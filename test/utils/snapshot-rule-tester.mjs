@@ -132,6 +132,10 @@ class SnapshotRuleTester {
 
 					const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig, {filename}) : {fixed: false};
 
+					if (filename) {
+						t.snapshot(`\n${filename}\n`, 'Filename');
+					}
+
 					if (Array.isArray(options)) {
 						t.snapshot(`\n${JSON.stringify(options, undefined, 2)}\n`, 'Options');
 					}
