@@ -119,6 +119,8 @@ module.exports = {
 				'unicorn/prefer-string-trim-start-end': 'error',
 				'unicorn/prefer-switch': 'error',
 				'unicorn/prefer-ternary': 'error',
+				// TODO: Enable this by default when targeting Node.js 14.
+				'unicorn/prefer-top-level-await': 'off',
 				'unicorn/prefer-type-error': 'error',
 				'unicorn/prevent-abbreviations': 'error',
 				'unicorn/require-array-join-separator': 'error',
