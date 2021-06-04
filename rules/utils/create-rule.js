@@ -27,10 +27,6 @@ function wrapCreateFunction(create) {
 	return function (context) {
 		const listeners = create(context);
 
-		if (!listeners) {
-			return;
-		}
-
 		return Object.fromEntries(
 			Object.entries(listeners)
 				.map(([selector, listener]) => [selector, reportProblems(listener, context)])
