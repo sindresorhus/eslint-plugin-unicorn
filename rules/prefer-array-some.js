@@ -14,7 +14,7 @@ const ERROR_ID_ARRAY_FILTER = 'filter';
 const messages = {
 	[ERROR_ID_ARRAY_SOME]: 'Prefer `.some(…)` over `.find(…)`.',
 	[SUGGESTION_ID_ARRAY_SOME]: 'Replace `.find(…)` with `.some(…)`.',
-	[ERROR_ID_ARRAY_FILTER]: 'Prefer `.some(…) over non-zero length check from `.filter(…)`.'
+	[ERROR_ID_ARRAY_FILTER]: 'Prefer `.some(…)` over non-zero length check from `.filter(…)`.'
 };
 
 const arrayFindCallSelector = methodCallSelector({
