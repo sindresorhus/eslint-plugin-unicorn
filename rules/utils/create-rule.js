@@ -37,13 +37,13 @@ function wrapCreateFunction(create) {
 function createRule(importMeta, rule) {
 	return {
 		meta: {
-			// If there is no options add `[]`, so eslint can validate that no data is passed to the rule.
+			// If there is are, options add `[]` so ESLint can validate that no data is passed to the rule.
 			// https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/blob/master/docs/rules/require-meta-schema.md
 			schema: [],
 			...rule.meta,
 			docs: {
 				...rule.meta.docs,
-				// TODO: Use `importMeta.url` when ESLint support Module
+				// TODO: Use `importMeta.url` when ESLint supports ESM.
 				url: getDocumentationUrl(importMeta)
 			}
 		},
