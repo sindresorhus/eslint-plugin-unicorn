@@ -19,7 +19,7 @@ const removeEventListenerSelector = [
 		'[arguments.1.type="ArrowFunctionExpression"]',
 		methodCallSelector({name: 'bind', path: 'arguments.1'})
 	])
-].join('')
+].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -37,7 +37,7 @@ const create = context => {
 					node: listener.callee.property,
 					messageId: MESSAGE_ID
 				});
-		  }
+			}
 		}
 	};
 };
