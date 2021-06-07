@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
 const {methodCallSelector} = require('./selectors');
 const {appendArgument} = require('./fix');
 
@@ -23,7 +22,7 @@ const create = context => {
 				closingParenthesis
 			] = sourceCode.getLastTokens(node, 2);
 
-			context.report({
+			return {
 				loc: {
 					start: openingParenthesis.loc.start,
 					end: closingParenthesis.loc.end
@@ -31,7 +30,7 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
 				fix: fixer => appendArgument(fixer, node, '0', sourceCode)
-			});
+			};
 		}
 	};
 };
@@ -42,10 +41,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce using the digits argument with `Number#toFixed()`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

@@ -1,6 +1,5 @@
 'use strict';
 const avoidCapture = require('./utils/avoid-capture');
-const getDocumentationUrl = require('./utils/get-documentation-url');
 const {not, notLeftHandSideSelector} = require('./selectors');
 
 const MESSAGE_ID = 'consistentDestructuring';
@@ -116,17 +115,15 @@ const create = context => {
 
 			// Don't try to fix nested member expressions
 			if (node.parent.type === 'MemberExpression') {
-				context.report({
+				return {
 					node,
 					messageId: MESSAGE_ID
-				});
-
-				return;
+				};
 			}
 
 			const newMember = destructuredMember ? destructuredMember.value.name : member;
 
-			context.report({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				suggest: [{
@@ -148,7 +145,7 @@ const create = context => {
 						}
 					}
 				}]
-			});
+			};
 		}
 	};
 };
@@ -159,11 +156,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Use destructured variables over properties.',
-			url: getDocumentationUrl(__filename),
 			suggestion: true
 		},
 		fixable: 'code',
-		schema: [],
 		messages: {
 			[MESSAGE_ID]: 'Use destructured variables over properties.',
 			[MESSAGE_ID_SUGGEST]: 'Replace `{{expression}}` with destructured property `{{property}}`.'

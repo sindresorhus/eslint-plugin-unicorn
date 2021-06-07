@@ -1,6 +1,5 @@
 'use strict';
 const {findVariable} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
 const {methodCallSelector} = require('./selectors');
 const getPropertyName = require('./utils/get-property-name');
 
@@ -127,7 +126,7 @@ function create(context) {
 			problem.fix = fixer => fixer.replaceText(object, `${constructorName}.prototype`);
 		}
 
-		context.report(problem);
+		return problem;
 	}
 
 	return {
@@ -146,9 +145,9 @@ function create(context) {
 		[functionMethodsSelector](node) {
 			methods.add({method: node, scope: context.getScope()});
 		},
-		'Program:exit'() {
+		* 'Program:exit'() {
 			for (const {method, scope} of methods) {
-				check(method, scope);
+				yield check(method, scope);
 			}
 		}
 	};
@@ -159,11 +158,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer borrowing methods from the prototype instead of the instance.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer borrowing methods from the prototype instead of the instance.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

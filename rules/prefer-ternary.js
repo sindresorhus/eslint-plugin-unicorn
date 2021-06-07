@@ -200,7 +200,7 @@ const create = context => {
 
 			const scope = context.getScope();
 
-			context.report({
+			return ({
 				node,
 				messageId,
 				* fix(fixer) {
@@ -270,7 +270,6 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer ternary expressions over simple `if-else` statements.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,

@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
 const {methodCallSelector, notDomNodeSelector} = require('./selectors');
 
 const MESSAGE_ID = 'prefer-query-selector';
@@ -119,7 +118,7 @@ const create = context => {
 				problem.fix = fix(node, method, preferredSelector);
 			}
 
-			context.report(problem);
+			return problem;
 		}
 	};
 };
@@ -129,11 +128,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

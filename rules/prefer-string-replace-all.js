@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 const {methodCallSelector} = require('./selectors');
 
@@ -53,7 +52,7 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				fix: fixer =>
@@ -61,7 +60,7 @@ const create = context => {
 						fixer.insertTextAfter(callee, 'All'),
 						fixer.replaceText(search, quoteString(removeEscapeCharacters(search.regex.pattern)))
 					]
-			});
+			};
 		}
 	};
 };
@@ -71,11 +70,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `String#replaceAll()` over regex searches with the global flag.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `String#replaceAll()` over regex searches with the global flag.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

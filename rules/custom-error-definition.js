@@ -187,11 +187,11 @@ const customErrorExport = (context, node) => {
 		return;
 	}
 
-	context.report({
+	return {
 		node: node.left.property,
 		messageId: MESSAGE_ID_INVALID_EXPORT,
 		fix: fixer => fixer.replaceText(node.left.property, errorName)
-	});
+	};
 };
 
 const create = context => {

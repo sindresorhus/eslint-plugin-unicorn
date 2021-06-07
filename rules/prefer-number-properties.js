@@ -81,7 +81,7 @@ const create = context => {
 				];
 			}
 
-			context.report(problem);
+			return problem;
 		},
 		[propertiesSelector]: node => {
 			if (reported.has(node) || isShadowed(context.getScope(), node)) {
@@ -115,8 +115,8 @@ const create = context => {
 				problem.fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
 			}
 
-			context.report(problem);
 			reported.add(node);
+			return problem;
 		}
 	};
 };
@@ -140,7 +140,6 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Number` static properties over global ones.',
-			url: getDocumentationUrl(__filename),
 			suggestion: true
 		},
 		fixable: 'code',

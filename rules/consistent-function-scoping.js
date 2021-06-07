@@ -182,14 +182,14 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			return {
 				node,
 				loc: getFunctionHeadLocation(node, sourceCode),
 				messageId: MESSAGE_ID,
 				data: {
 					functionNameWithKind: getFunctionNameWithKind(node, sourceCode)
 				}
-			});
+			};
 		}
 	};
 };
@@ -212,7 +212,6 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Move function definitions to the highest possible scope.',
-			url: getDocumentationUrl(__filename)
 		},
 		schema,
 		messages

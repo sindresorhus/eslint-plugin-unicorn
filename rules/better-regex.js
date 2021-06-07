@@ -1,7 +1,6 @@
 'use strict';
 const cleanRegexp = require('clean-regexp');
 const {optimize} = require('regexp-tree');
-const getDocumentationUrl = require('./utils/get-documentation-url');
 const quoteString = require('./utils/quote-string');
 const {newExpressionSelector} = require('./selectors');
 
@@ -54,7 +53,7 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			return{
 				node,
 				messageId: MESSAGE_ID,
 				data: {
@@ -62,7 +61,7 @@ const create = context => {
 					optimized
 				},
 				fix: fixer => fixer.replaceText(node, optimized)
-			});
+			};
 		},
 		[newRegExp]: node => {
 			const [patternNode, flagsNode] = node.arguments;
@@ -81,7 +80,7 @@ const create = context => {
 			const newPattern = cleanRegexp(oldPattern, flags);
 
 			if (oldPattern !== newPattern) {
-				context.report({
+				return {
 					node,
 					messageId: MESSAGE_ID,
 					data: {
@@ -92,7 +91,7 @@ const create = context => {
 						patternNode,
 						quoteString(newPattern)
 					)
-				});
+				};
 			}
 		}
 	};
@@ -116,7 +115,6 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Improve regexes by making them shorter, consistent, and safer.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,

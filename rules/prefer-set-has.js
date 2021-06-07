@@ -1,6 +1,5 @@
 'use strict';
 const {findVariable} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers');
 const {
 	matches,
@@ -184,7 +183,7 @@ const create = context => {
 				problem.fix = fix;
 			}
 
-			context.report(problem);
+			return problem;
 		}
 	};
 };
@@ -195,11 +194,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence.',
-			url: getDocumentationUrl(__filename),
 			suggestion: true
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

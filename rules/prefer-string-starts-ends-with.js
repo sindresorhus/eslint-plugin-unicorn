@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
 const {methodCallSelector} = require('./selectors');
 const quoteString = require('./utils/quote-string');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
@@ -167,7 +166,7 @@ const create = context => {
 				].map(type => ({messageId: type, data: {method}, fix: fixer => fix(fixer, type)}));
 			}
 
-			context.report(problem);
+			return problem;
 		}
 	};
 };
@@ -178,11 +177,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.',
-			url: getDocumentationUrl(__filename),
 			suggestion: true
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
 const {matches, methodCallSelector, arrayPrototypeMethodSelector} = require('./selectors');
 const {appendArgument} = require('./fix');
 
@@ -25,7 +24,7 @@ const create = context => {
 		[selector](node) {
 			const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
 			const isPrototypeMethod = node.arguments.length === 1;
-			context.report({
+			return {
 				loc: {
 					start: penultimateToken.loc[isPrototypeMethod ? 'end' : 'start'],
 					end: lastToken.loc.end
@@ -33,7 +32,7 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
 				fix: fixer => appendArgument(fixer, node, '\',\'', sourceCode)
-			});
+			};
 		}
 	};
 };
@@ -46,7 +45,6 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce using the separator argument with `Array#join()`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,

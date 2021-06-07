@@ -20,7 +20,9 @@ function reportProblems(listener, context) {
 
 		// TODO: Allow `fix` function to abort
 		for (const problem of problems) {
-			context.report(problem);
+			if (problem) {
+				context.report(problem);
+			}
 		}
 	};
 }
@@ -56,7 +58,7 @@ function loadRule(ruleId) {
 
 function loadRules() {
 	return Object.fromEntries(
-		fs.readdirSync(path.join(__dirname, '../rules'), {withFileTypes: true})
+		fs.readdirSync(path.join(__dirname, '..'), {withFileTypes: true})
 			.filter(file => file.isFile())
 			.map(file => {
 				const ruleId = path.basename(file.name, '.js');

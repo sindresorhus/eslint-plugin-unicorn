@@ -440,7 +440,7 @@ const create = context => {
 			problem.fix = fixer => renameVariable(variable, replacement, fixer);
 		}
 
-		context.report(problem);
+		return problem;
 	};
 
 	const checkVariables = scope => {
@@ -486,7 +486,7 @@ const create = context => {
 				message: formatMessage(node.name, identifierReplacements, 'property')
 			};
 
-			context.report(problem);
+			return problem
 		},
 
 		Program(node) {
@@ -511,10 +511,10 @@ const create = context => {
 
 			filenameReplacements.samples = filenameReplacements.samples.map(replacement => `${replacement}${extension}`);
 
-			context.report({
+			return {
 				node,
 				message: formatMessage(filenameWithExtension, filenameReplacements, 'filename')
-			});
+			};
 		},
 
 		'Program:exit'() {
@@ -610,7 +610,6 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prevent abbreviations.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema

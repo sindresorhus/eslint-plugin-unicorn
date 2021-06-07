@@ -55,7 +55,7 @@ const create = context => {
 		name.endsWith(expectedName) ||
 		name.endsWith(expectedName.charAt(0).toUpperCase() + expectedName.slice(1));
 
-	function check(node) {
+	function getProblem(node) {
 		const originalName = node.name;
 
 		if (
@@ -85,7 +85,7 @@ const create = context => {
 		];
 		const fixedName = avoidCapture(expectedName, scopes, ecmaVersion);
 
-		context.report({
+		return {
 			node,
 			messageId: MESSAGE_ID,
 			data: {
@@ -93,18 +93,18 @@ const create = context => {
 				fixedName
 			},
 			fix: fixer => renameVariable(variable, fixedName, fixer)
-		});
+		};
 	}
 
 	return {
 		[promiseCatchSelector]: node => {
-			check(node.arguments[0].params[0]);
+			return getProblem(node.arguments[0].params[0]);
 		},
 		[promiseThenSelector]: node => {
-			check(node.arguments[1].params[0]);
+			return getProblem(node.arguments[1].params[0]);
 		},
 		[catchSelector]: node => {
-			check(node);
+			return getProblem(node);
 		}
 	};
 };
