@@ -55,11 +55,14 @@ function loadRule(ruleId) {
 }
 
 function loadRules() {
-	const files = fs.readdirSync('./rules', {withFileTypes: true}).filter(file => file.isFile());
-	return Object.fromEntries(files.map(file => {
-		const ruleId = path.basename(file.name, '.js');
-		return [ruleId, loadRule(ruleId)];
-	}));
+	return Object.fromEntries(
+		fs.readdirSync(path.join(__dirname, '../rules'), {withFileTypes: true})
+			.filter(file => file.isFile())
+			.map(file => {
+				const ruleId = path.basename(file.name, '.js');
+				return [ruleId, loadRule(ruleId)];
+			})
+	);
 }
 
 module.exports = {loadRule, loadRules};
