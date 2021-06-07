@@ -92,14 +92,15 @@ const create = context => Object.fromEntries(
 			const {type, getNodes, fix} = checkCase;
 			const nodes = getNodes(node);
 			const {methodNode, regexpNode} = nodes;
-			const problem = {
-				node: type === REGEXP_EXEC ? methodNode : node,
-				messageId: type
-			};
 
 			if (regexpNode.type === 'Literal' && !regexpNode.regex) {
 				return;
 			}
+
+			const problem = {
+				node: type === REGEXP_EXEC ? methodNode : node,
+				messageId: type
+			};
 
 			if (!isRegExpNode(regexpNode)) {
 				const staticResult = getStaticValue(regexpNode, context.getScope());
