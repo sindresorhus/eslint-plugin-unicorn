@@ -1,5 +1,4 @@
 'use strict';
-const createRule = require('./utils/create-rule');
 const {
 	not,
 	matches,
@@ -129,19 +128,16 @@ const schema = [
 	}
 ];
 
-module.exports = createRule(
-	__filename,
-	{
-		create,
-		meta: {
-			type: 'suggestion',
-			docs: {
-				description: 'Disallow the use of the `null` literal.',
-				suggestion: true
-			},
-			fixable: 'code',
-			schema,
-			messages
-		}
+module.exports = {
+	create,
+	meta: {
+		type: 'suggestion',
+		docs: {
+			description: 'Disallow the use of the `null` literal.',
+			suggestion: true
+		},
+		fixable: 'code',
+		schema,
+		messages
 	}
-);
+};

@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
-const createRule = require('./utils/create-rule');
 const {methodCallSelector} = require('./selectors');
 const {isBooleanNode} = require('./utils/boolean');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
@@ -121,17 +120,14 @@ const create = context => Object.fromEntries(
 	])
 );
 
-module.exports = createRule(
-	__filename,
-	{
-		create,
-		meta: {
-			type: 'suggestion',
-			docs: {
-				description: 'Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.'
-			},
-			fixable: 'code',
-			messages
-		}
+module.exports = {
+	create,
+	meta: {
+		type: 'suggestion',
+		docs: {
+			description: 'Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.'
+		},
+		fixable: 'code',
+		messages
 	}
-);
+};

@@ -1,4 +1,6 @@
 'use strict';
+const path = require('path');
+const fs = require('fs');
 const getDocumentationUrl = require('./get-documentation-url');
 
 const isIterable = object => typeof object[Symbol.iterator] === 'function';
@@ -34,7 +36,9 @@ function wrapCreateFunction(create) {
 	};
 }
 
-function createRule(importMeta, rule) {
+function loadRule(ruleId) {
+	const rule = require(`../${ruleId}`);
+
 	return {
 		meta: {
 			// If there is are, options add `[]` so ESLint can validate that no data is passed to the rule.
@@ -43,12 +47,19 @@ function createRule(importMeta, rule) {
 			...rule.meta,
 			docs: {
 				...rule.meta.docs,
-				// TODO: Use `importMeta.url` when ESLint supports ESM.
-				url: getDocumentationUrl(importMeta)
+				url: getDocumentationUrl(ruleId)
 			}
 		},
 		create: wrapCreateFunction(rule.create)
 	};
 }
 
-module.exports = createRule;
+function loadRules() {
+	const files = fs.readdirSync('./rules', {withFileTypes: true}).filter(file => file.isFile());
+	return Object.fromEntries(files.map(file => {
+		const ruleId = path.basename(file.name, '.js');
+		return [ruleId, loadRule(ruleId)];
+	}));
+}
+
+module.exports = {loadRule, loadRules};

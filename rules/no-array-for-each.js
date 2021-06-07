@@ -8,7 +8,6 @@ const {
 	findVariable
 } = require('eslint-utils');
 const {methodCallSelector, referenceIdentifierSelector} = require('./selectors');
-const createRule = require('./utils/create-rule');
 const needsSemicolon = require('./utils/needs-semicolon');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression');
 const {getParentheses} = require('./utils/parentheses');
@@ -413,17 +412,14 @@ const create = context => {
 	};
 };
 
-module.exports = createRule(
-	__filename,
-	{
-		create,
-		meta: {
-			type: 'suggestion',
-			docs: {
-				description: 'Prefer `for…of` over `Array#forEach(…)`.'
-			},
-			fixable: 'code',
-			messages
-		}
+module.exports = {
+	create,
+	meta: {
+		type: 'suggestion',
+		docs: {
+			description: 'Prefer `for…of` over `Array#forEach(…)`.'
+		},
+		fixable: 'code',
+		messages
 	}
-);
+};
