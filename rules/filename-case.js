@@ -154,7 +154,7 @@ const create = context => {
 		return new RegExp(item, 'u');
 	});
 	const chosenCasesFunctions = chosenCases.map(case_ => ignoreNumbers(cases[case_].fn));
-	const filenameWithExtension = context.getFilename();
+	const filenameWithExtension = context.getPhysicalFilename();
 
 	if (filenameWithExtension === '<input>' || filenameWithExtension === '<text>') {
 		return {};
