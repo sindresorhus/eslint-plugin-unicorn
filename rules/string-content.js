@@ -1,8 +1,8 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const quoteString = require('./utils/quote-string');
-const replaceTemplateElement = require('./utils/replace-template-element');
-const escapeTemplateElementRaw = require('./utils/escape-template-element-raw');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const quoteString = require('./utils/quote-string.js');
+const replaceTemplateElement = require('./utils/replace-template-element.js');
+const escapeTemplateElementRaw = require('./utils/escape-template-element-raw.js');
 
 const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
 const SUGGESTION_MESSAGE_ID = 'replace';

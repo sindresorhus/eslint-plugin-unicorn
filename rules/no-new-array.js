@@ -1,8 +1,8 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const needsSemicolon = require('./utils/needs-semicolon');
-const {newExpressionSelector} = require('./selectors');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
+const {newExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_LENGTH = 'array-length';

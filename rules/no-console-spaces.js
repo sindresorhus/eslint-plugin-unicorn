@@ -1,7 +1,7 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
-const toLocation = require('./utils/to-location');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {methodCallSelector} = require('./selectors/index.js');
+const toLocation = require('./utils/to-location.js');
 
 const MESSAGE_ID = 'no-console-spaces';
 const messages = {

@@ -1,7 +1,7 @@
 'use strict';
-const avoidCapture = require('./utils/avoid-capture');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {not, notLeftHandSideSelector} = require('./selectors');
+const avoidCapture = require('./utils/avoid-capture.js');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {not, notLeftHandSideSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'consistentDestructuring';
 const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';

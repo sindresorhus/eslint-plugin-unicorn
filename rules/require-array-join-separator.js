@@ -1,7 +1,7 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {matches, methodCallSelector, arrayPrototypeMethodSelector} = require('./selectors');
-const {appendArgument} = require('./fix');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {matches, methodCallSelector, arrayPrototypeMethodSelector} = require('./selectors/index.js');
+const {appendArgument} = require('./fix/index.js');
 
 const MESSAGE_ID = 'require-array-join-separator';
 const messages = {

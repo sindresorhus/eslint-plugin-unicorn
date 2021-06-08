@@ -1,6 +1,6 @@
 'use strict';
 const reservedWords = require('reserved-words');
-const resolveVariableName = require('./resolve-variable-name');
+const resolveVariableName = require('./resolve-variable-name.js');
 
 const indexifyName = (name, index) => name + '_'.repeat(index);
 

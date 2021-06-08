@@ -1,13 +1,13 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const avoidCapture = require('./utils/avoid-capture');
-const extendFixRange = require('./utils/extend-fix-range');
-const needsSemicolon = require('./utils/needs-semicolon');
-const isSameReference = require('./utils/is-same-reference');
-const getIndentString = require('./utils/get-indent-string');
-const {getParenthesizedText} = require('./utils/parentheses');
-const shouldAddParenthesesToConditionalExpressionChild = require('./utils/should-add-parentheses-to-conditional-expression-child');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const avoidCapture = require('./utils/avoid-capture.js');
+const extendFixRange = require('./utils/extend-fix-range.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
+const isSameReference = require('./utils/is-same-reference.js');
+const getIndentString = require('./utils/get-indent-string.js');
+const {getParenthesizedText} = require('./utils/parentheses.js');
+const shouldAddParenthesesToConditionalExpressionChild = require('./utils/should-add-parentheses-to-conditional-expression-child.js');
 
 const messageId = 'prefer-ternary';
 

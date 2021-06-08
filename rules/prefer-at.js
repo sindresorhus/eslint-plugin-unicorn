@@ -1,20 +1,20 @@
 'use strict';
 const {isOpeningBracketToken, isClosingBracketToken, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isLiteralValue = require('./utils/is-literal-value');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const isLiteralValue = require('./utils/is-literal-value.js');
 const {
 	isParenthesized,
 	getParenthesizedRange,
 	getParenthesizedText
-} = require('./utils/parentheses');
-const {isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
-const needsSemicolon = require('./utils/needs-semicolon');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
+} = require('./utils/parentheses.js');
+const {isNodeMatchesNameOrPath} = require('./utils/is-node-matches.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 const {
 	getNegativeIndexLengthNode,
 	removeLengthNode
-} = require('./shared/negative-index');
-const {methodCallSelector, callExpressionSelector, notLeftHandSideSelector} = require('./selectors');
+} = require('./shared/negative-index.js');
+const {methodCallSelector, callExpressionSelector, notLeftHandSideSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
 const MESSAGE_ID_INDEX = 'index';

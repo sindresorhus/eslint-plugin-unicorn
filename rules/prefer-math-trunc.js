@@ -1,6 +1,6 @@
 'use strict';
 const {hasSideEffect} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
 
 const ERROR_BITWISE = 'error-bitwise';
 const ERROR_BITWISE_NOT = 'error-bitwise-not';

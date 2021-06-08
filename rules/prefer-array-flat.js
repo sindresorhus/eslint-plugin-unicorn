@@ -1,15 +1,15 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {
 	methodCallSelector,
 	arrayPrototypeMethodSelector,
 	emptyArraySelector,
 	callExpressionSelector
-} = require('./selectors');
-const needsSemicolon = require('./utils/needs-semicolon');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
-const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
-const {getParenthesizedText, isParenthesized} = require('./utils/parentheses');
+} = require('./selectors/index.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
+const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches.js');
+const {getParenthesizedText, isParenthesized} = require('./utils/parentheses.js');
 
 const MESSAGE_ID = 'prefer-array-flat';
 const messages = {

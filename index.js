@@ -1,7 +1,7 @@
 'use strict';
 const path = require('path');
 const importModules = require('import-modules');
-const createDeprecatedRules = require('./rules/utils/create-deprecated-rules');
+const createDeprecatedRules = require('./rules/utils/create-deprecated-rules.js');
 
 const deprecatedRules = createDeprecatedRules({
 	// {ruleId: ReplacementRuleId | ReplacementRuleId[]}, if no replacement, use `{ruleId: []}`

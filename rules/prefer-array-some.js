@@ -1,8 +1,8 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector, matches, memberExpressionSelector} = require('./selectors');
-const {isBooleanNode} = require('./utils/boolean');
-const {getParenthesizedRange} = require('./utils/parentheses');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {methodCallSelector, matches, memberExpressionSelector} = require('./selectors/index.js');
+const {isBooleanNode} = require('./utils/boolean.js');
+const {getParenthesizedRange} = require('./utils/parentheses.js');
 
 const ERROR_ID_ARRAY_SOME = 'some';
 const SUGGESTION_ID_ARRAY_SOME = 'some-suggestion';

@@ -1,11 +1,11 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {
 	matches,
 	methodCallSelector,
 	newExpressionSelector,
 	callExpressionSelector
-} = require('./selectors');
+} = require('./selectors/index.js');
 
 const MESSAGE_ID_DEFAULT = 'prefer-date';
 const MESSAGE_ID_METHOD = 'prefer-date-now-over-methods';

@@ -1,7 +1,7 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const quoteString = require('./utils/quote-string');
-const translateToKey = require('./shared/event-keys');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const quoteString = require('./utils/quote-string.js');
+const translateToKey = require('./shared/event-keys.js');
 
 const MESSAGE_ID = 'prefer-keyboard-event-key';
 const messages = {

@@ -1,8 +1,8 @@
 'use strict';
 const path = require('path');
 const {camelCase, kebabCase, snakeCase, upperFirst} = require('lodash');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const cartesianProductSamples = require('./utils/cartesian-product-samples');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
 
 const MESSAGE_ID = 'filename-case';
 const MESSAGE_ID_EXTENSION = 'filename-extension';

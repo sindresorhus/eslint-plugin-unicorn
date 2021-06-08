@@ -1,6 +1,6 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const getPropertyName = require('./utils/get-property-name');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const getPropertyName = require('./utils/get-property-name.js');
 
 const MESSAGE_ID = 'no-document-cookie';
 const messages = {

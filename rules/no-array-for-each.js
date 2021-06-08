@@ -7,15 +7,15 @@ const {
 	isClosingParenToken,
 	findVariable
 } = require('eslint-utils');
-const {methodCallSelector, referenceIdentifierSelector} = require('./selectors');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const needsSemicolon = require('./utils/needs-semicolon');
-const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression');
-const {getParentheses} = require('./utils/parentheses');
-const extendFixRange = require('./utils/extend-fix-range');
-const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside');
-const {isNodeMatches} = require('./utils/is-node-matches');
-const assertToken = require('./utils/assert-token');
+const {methodCallSelector, referenceIdentifierSelector} = require('./selectors/index.js');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
+const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression.js');
+const {getParentheses} = require('./utils/parentheses.js');
+const extendFixRange = require('./utils/extend-fix-range.js');
+const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside.js');
+const {isNodeMatches} = require('./utils/is-node-matches.js');
+const assertToken = require('./utils/assert-token.js');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {

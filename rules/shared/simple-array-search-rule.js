@@ -1,8 +1,8 @@
 'use strict';
 
 const {hasSideEffect, isParenthesized, findVariable} = require('eslint-utils');
-const {matches, methodCallSelector} = require('../selectors');
-const isFunctionSelfUsedInside = require('../utils/is-function-self-used-inside');
+const {matches, methodCallSelector} = require('../selectors/index.js');
+const isFunctionSelfUsedInside = require('../utils/is-function-self-used-inside.js');
 
 const getBinaryExpressionSelector = path => [
 	`[${path}.type="BinaryExpression"]`,

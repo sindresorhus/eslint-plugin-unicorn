@@ -113,8 +113,7 @@
 						}
 					}
 				}
-			],
-			"import/extensions": "off"
+			]
 		},
 		"overrides": [
 			{

@@ -1,8 +1,8 @@
 'use strict';
-const matches = require('./matches-any');
-const memberExpressionSelector = require('./member-expression-selector');
-const emptyArraySelector = require('./empty-array-selector');
-const emptyObjectSelector = require('./empty-object-selector');
+const matches = require('./matches-any.js');
+const memberExpressionSelector = require('./member-expression-selector.js');
+const emptyArraySelector = require('./empty-array-selector.js');
+const emptyObjectSelector = require('./empty-object-selector.js');
 
 function prototypeMethodSelector(options) {
 	const {

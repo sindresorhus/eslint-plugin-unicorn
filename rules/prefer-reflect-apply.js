@@ -1,8 +1,8 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isLiteralValue = require('./utils/is-literal-value');
-const getPropertyName = require('./utils/get-property-name');
-const {not, methodCallSelector} = require('./selectors');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const isLiteralValue = require('./utils/is-literal-value.js');
+const getPropertyName = require('./utils/get-property-name.js');
+const {not, methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-reflect-apply';
 const messages = {

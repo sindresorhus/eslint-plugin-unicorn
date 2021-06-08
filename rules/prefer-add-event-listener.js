@@ -1,8 +1,8 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const domEventsJson = require('./utils/dom-events.json');
-const {STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors');
+const {STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-add-event-listener';
 const messages = {

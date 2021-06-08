@@ -1,11 +1,11 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {
 	not,
 	matches,
 	methodCallSelector,
 	callExpressionSelector
-} = require('./selectors');
+} = require('./selectors/index.js');
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';

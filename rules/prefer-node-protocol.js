@@ -1,7 +1,7 @@
 'use strict';
 const isBuiltinModule = require('is-builtin-module');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {matches, STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {matches, STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-node-protocol';
 const messages = {

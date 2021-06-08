@@ -1,11 +1,11 @@
 'use strict';
 const {isClosingParenToken, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isLiteralValue = require('./utils/is-literal-value');
-const avoidCapture = require('./utils/avoid-capture');
-const getChildScopesRecursive = require('./utils/get-child-scopes-recursive');
-const singular = require('./utils/singular');
-const toLocation = require('./utils/to-location');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const isLiteralValue = require('./utils/is-literal-value.js');
+const avoidCapture = require('./utils/avoid-capture.js');
+const getChildScopesRecursive = require('./utils/get-child-scopes-recursive.js');
+const singular = require('./utils/singular.js');
+const toLocation = require('./utils/to-location.js');
 
 const MESSAGE_ID = 'no-for-loop';
 const messages = {

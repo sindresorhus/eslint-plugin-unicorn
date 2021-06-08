@@ -2,14 +2,14 @@
 const {defaultsDeep} = require('lodash');
 const {getStringIfConstant} = require('eslint-utils');
 const eslintTemplateVisitor = require('eslint-template-visitor');
-const {callExpressionSelector} = require('./selectors');
+const {callExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'importStyle';
 const messages = {
 	[MESSAGE_ID]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.'
 };
 
-const getDocumentationUrl = require('./utils/get-documentation-url');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
 
 const getActualImportDeclarationStyles = importDeclaration => {
 	const {specifiers} = importDeclaration;

@@ -1,11 +1,11 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isShadowed = require('./utils/is-shadowed');
-const replaceReferenceIdentifier = require('./utils/replace-reference-identifier');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const isShadowed = require('./utils/is-shadowed.js');
+const replaceReferenceIdentifier = require('./utils/replace-reference-identifier.js');
 const {
 	referenceIdentifierSelector,
 	callExpressionSelector
-} = require('./selectors');
+} = require('./selectors/index.js');
 
 const METHOD_ERROR_MESSAGE_ID = 'method-error';
 const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';

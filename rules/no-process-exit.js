@@ -1,6 +1,6 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector, STATIC_REQUIRE_SELECTOR} = require('./selectors');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {methodCallSelector, STATIC_REQUIRE_SELECTOR} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'no-process-exit';
 const messages = {
