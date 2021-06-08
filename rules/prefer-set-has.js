@@ -1,13 +1,13 @@
 'use strict';
 const {findVariable} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const getVariableIdentifiers = require('./utils/get-variable-identifiers');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
 const {
 	matches,
 	not,
 	methodCallSelector,
 	callOrNewExpressionSelector
-} = require('./selectors');
+} = require('./selectors/index.js');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';

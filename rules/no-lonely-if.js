@@ -1,9 +1,9 @@
 'use strict';
 const {isParenthesized, isNotSemicolonToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const needsSemicolon = require('./utils/needs-semicolon');
-const removeSpacesAfter = require('./utils/remove-spaces-after');
-const {matches} = require('./selectors');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
+const removeSpacesAfter = require('./utils/remove-spaces-after.js');
+const {matches} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'no-lonely-if';
 const messages = {

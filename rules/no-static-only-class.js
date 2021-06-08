@@ -1,9 +1,9 @@
 'use strict';
 const {isSemicolonToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const getClassHeadLocation = require('./utils/get-class-head-location');
-const removeSpacesAfter = require('./utils/remove-spaces-after');
-const assertToken = require('./utils/assert-token');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const getClassHeadLocation = require('./utils/get-class-head-location.js');
+const removeSpacesAfter = require('./utils/remove-spaces-after.js');
+const assertToken = require('./utils/assert-token.js');
 
 const MESSAGE_ID = 'no-static-only-class';
 const messages = {

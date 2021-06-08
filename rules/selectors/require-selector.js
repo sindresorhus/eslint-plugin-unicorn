@@ -1,5 +1,5 @@
 'use strict';
-const {callExpressionSelector} = require('./call-or-new-expression-selector');
+const {callExpressionSelector} = require('./call-or-new-expression-selector.js');
 
 const requireCallSelector = callExpressionSelector({
 	name: 'require',

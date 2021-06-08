@@ -1,14 +1,14 @@
 'use strict';
 const {isParenthesized, getStaticValue, isCommaToken, hasSideEffect} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
-const needsSemicolon = require('./utils/needs-semicolon');
-const {getParenthesizedRange, getParenthesizedText} = require('./utils/parentheses');
-const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument');
-const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before');
-const removeSpacesAfter = require('./utils/remove-spaces-after');
-const isLiteralValue = require('./utils/is-literal-value');
-const {isNodeMatches} = require('./utils/is-node-matches');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {methodCallSelector} = require('./selectors/index.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
+const {getParenthesizedRange, getParenthesizedText} = require('./utils/parentheses.js');
+const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument.js');
+const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before.js');
+const removeSpacesAfter = require('./utils/remove-spaces-after.js');
+const isLiteralValue = require('./utils/is-literal-value.js');
+const {isNodeMatches} = require('./utils/is-node-matches.js');
 
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';

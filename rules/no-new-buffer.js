@@ -1,8 +1,8 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {newExpressionSelector} = require('./selectors');
-const {switchNewExpressionToCallExpression} = require('./fix');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {newExpressionSelector} = require('./selectors/index.js');
+const {switchNewExpressionToCallExpression} = require('./fix/index.js');
 
 const ERROR = 'error';
 const ERROR_UNKNOWN = 'error-unknown';

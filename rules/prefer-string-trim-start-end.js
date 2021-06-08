@@ -1,6 +1,6 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-string-trim-start-end';
 const messages = {

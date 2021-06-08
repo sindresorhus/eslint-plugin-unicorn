@@ -1,6 +1,6 @@
 'use strict';
 
-const matches = require('./matches-any');
+const matches = require('./matches-any.js');
 
 function create(options, types) {
 	if (typeof options === 'string') {

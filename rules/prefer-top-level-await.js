@@ -1,7 +1,7 @@
 'use strict';
 const {findVariable, getFunctionHeadLocation} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {matches, memberExpressionSelector} = require('./selectors');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {matches, memberExpressionSelector} = require('./selectors/index.js');
 
 const ERROR_PROMISE = 'promise';
 const ERROR_IIFE = 'iife';

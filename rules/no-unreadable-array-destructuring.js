@@ -1,7 +1,7 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 
 const MESSAGE_ID = 'no-unreadable-array-destructuring';
 const messages = {

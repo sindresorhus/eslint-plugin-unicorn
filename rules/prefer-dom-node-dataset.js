@@ -1,8 +1,8 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isValidVariableName = require('./utils/is-valid-variable-name');
-const quoteString = require('./utils/quote-string');
-const {methodCallSelector} = require('./selectors');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const isValidVariableName = require('./utils/is-valid-variable-name.js');
+const quoteString = require('./utils/quote-string.js');
+const {methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-dom-node-dataset';
 const messages = {

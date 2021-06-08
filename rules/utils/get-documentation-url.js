@@ -1,6 +1,6 @@
 'use strict';
 const path = require('path');
-const packageJson = require('../../package');
+const packageJson = require('../../package.json');
 
 const repoUrl = 'https://github.com/sindresorhus/eslint-plugin-unicorn';
 

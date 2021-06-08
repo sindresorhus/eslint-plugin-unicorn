@@ -1,5 +1,5 @@
 'use strict';
-const matches = require('./matches-any');
+const matches = require('./matches-any.js');
 
 function memberExpressionSelector(options) {
 	if (typeof options === 'string') {

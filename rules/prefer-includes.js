@@ -1,8 +1,8 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isMethodNamed = require('./utils/is-method-named');
-const isLiteralValue = require('./utils/is-literal-value');
-const simpleArraySearchRule = require('./shared/simple-array-search-rule');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const isMethodNamed = require('./utils/is-method-named.js');
+const isLiteralValue = require('./utils/is-literal-value.js');
+const simpleArraySearchRule = require('./shared/simple-array-search-rule.js');
 
 const MESSAGE_ID = 'prefer-includes';
 const messages = {

@@ -1,8 +1,8 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isLiteralValue = require('./utils/is-literal-value');
-const {isNodeMatches} = require('./utils/is-node-matches');
-const {methodCallSelector} = require('./selectors');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const isLiteralValue = require('./utils/is-literal-value.js');
+const {isNodeMatches} = require('./utils/is-node-matches.js');
+const {methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-array-flat-map';
 const messages = {

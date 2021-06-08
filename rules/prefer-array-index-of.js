@@ -1,6 +1,6 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const simpleArraySearchRule = require('./shared/simple-array-search-rule');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const simpleArraySearchRule = require('./shared/simple-array-search-rule.js');
 
 const {messages, createListeners} = simpleArraySearchRule({
 	method: 'findIndex',

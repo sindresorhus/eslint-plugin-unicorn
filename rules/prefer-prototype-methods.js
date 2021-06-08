@@ -1,8 +1,8 @@
 'use strict';
 const {findVariable} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
-const getPropertyName = require('./utils/get-property-name');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {methodCallSelector} = require('./selectors/index.js');
+const getPropertyName = require('./utils/get-property-name.js');
 
 const messages = {
 	'known-constructor-known-method': 'Prefer using `{{constructorName}}.prototype.{{methodName}}`.',

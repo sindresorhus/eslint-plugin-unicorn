@@ -1,13 +1,13 @@
 'use strict';
 const {isParenthesized, findVariable} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {not, methodCallSelector} = require('./selectors');
-const getVariableIdentifiers = require('./utils/get-variable-identifiers');
-const renameVariable = require('./utils/rename-variable');
-const avoidCapture = require('./utils/avoid-capture');
-const getChildScopesRecursive = require('./utils/get-child-scopes-recursive');
-const singular = require('./utils/singular');
-const extendFixRange = require('./utils/extend-fix-range');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {not, methodCallSelector} = require('./selectors/index.js');
+const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
+const renameVariable = require('./utils/rename-variable.js');
+const avoidCapture = require('./utils/avoid-capture.js');
+const getChildScopesRecursive = require('./utils/get-child-scopes-recursive.js');
+const singular = require('./utils/singular.js');
+const extendFixRange = require('./utils/extend-fix-range.js');
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';

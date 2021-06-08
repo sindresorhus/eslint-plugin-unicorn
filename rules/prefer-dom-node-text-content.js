@@ -1,6 +1,6 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {memberExpressionSelector} = require('./selectors');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {memberExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-dom-node-text-content';
 const messages = {

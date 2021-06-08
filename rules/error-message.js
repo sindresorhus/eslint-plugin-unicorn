@@ -1,7 +1,7 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {callOrNewExpressionSelector} = require('./selectors');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {callOrNewExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage';
 const MESSAGE_ID_EMPTY_MESSAGE = 'emptyMessage';

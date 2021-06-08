@@ -1,5 +1,5 @@
 'use strict';
-const hasSameRange = require('./has-same-range');
+const hasSameRange = require('./has-same-range.js');
 
 const isShorthandExportLocal = node => {
 	const {type, local, exported} = node.parent;

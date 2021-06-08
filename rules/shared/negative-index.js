@@ -1,6 +1,6 @@
 'use strict';
-const isSameReference = require('../utils/is-same-reference');
-const {getParenthesizedRange} = require('../utils/parentheses');
+const isSameReference = require('../utils/is-same-reference.js');
+const {getParenthesizedRange} = require('../utils/parentheses.js');
 
 const isLengthMemberExpression = node =>
 	node.type === 'MemberExpression' &&

@@ -1,6 +1,6 @@
 'use strict';
 const eslintTemplateVisitor = require('eslint-template-visitor');
-const getDocumentationUrl = require('./utils/get-documentation-url');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';

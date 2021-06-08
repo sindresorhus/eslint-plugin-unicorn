@@ -1,5 +1,5 @@
 'use strict';
-const {getParentheses} = require('./parentheses');
+const {getParentheses} = require('./parentheses.js');
 
 function * replaceNodeOrTokenAndSpacesBefore(nodeOrToken, replacement, fixer, sourceCode) {
 	const tokens = getParentheses(nodeOrToken, sourceCode);

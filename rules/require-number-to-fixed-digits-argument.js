@@ -1,7 +1,7 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
-const {appendArgument} = require('./fix');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {methodCallSelector} = require('./selectors/index.js');
+const {appendArgument} = require('./fix/index.js');
 
 const MESSAGE_ID = 'require-number-to-fixed-digits-argument';
 const messages = {

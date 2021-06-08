@@ -1,7 +1,7 @@
 'use strict';
 const {getFunctionHeadLocation, getFunctionNameWithKind} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const getReferences = require('./utils/get-references');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const getReferences = require('./utils/get-references.js');
 
 const MESSAGE_ID = 'consistent-function-scoping';
 const messages = {

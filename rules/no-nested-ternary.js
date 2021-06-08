@@ -1,6 +1,6 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
 
 const MESSAGE_ID_TOO_DEEP = 'too-deep';
 const MESSAGE_ID_SHOULD_PARENTHESIZED = 'should-parenthesized';

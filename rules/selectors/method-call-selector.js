@@ -1,7 +1,7 @@
 'use strict';
 const {pick} = require('lodash');
-const memberExpressionSelector = require('./member-expression-selector');
-const {callExpressionSelector} = require('./call-or-new-expression-selector');
+const memberExpressionSelector = require('./member-expression-selector.js');
+const {callExpressionSelector} = require('./call-or-new-expression-selector.js');
 
 /**
 @param {

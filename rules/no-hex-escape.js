@@ -1,6 +1,6 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const replaceTemplateElement = require('./utils/replace-template-element');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const replaceTemplateElement = require('./utils/replace-template-element.js');
 
 const MESSAGE_ID = 'no-hex-escape';
 const messages = {
