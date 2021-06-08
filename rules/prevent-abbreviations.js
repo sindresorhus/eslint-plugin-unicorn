@@ -316,7 +316,7 @@ const isInternalImport = node => {
 const create = context => {
 	const {ecmaVersion} = context.parserOptions;
 	const options = prepareOptions(context.options[0]);
-	const filenameWithExtension = context.getFilename();
+	const filenameWithExtension = context.getPhysicalFilename();
 
 	// A `class` declaration produces two variables in two scopes:
 	// the inner class scope, and the outer one (whereever the class is declared).
