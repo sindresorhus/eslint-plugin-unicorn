@@ -30,7 +30,8 @@ test.snapshot({
 		'class Foo {bar() { this.baz.bind(this) }}',
 		'const a = {bar() { this.baz.bind(this) }}',
 		'foo.bar.bind(foo)',
-		'foo.bar.bind(bar)'
+		'foo.bar.bind(bar)',
+		'foo[{}].call(bar)'
 	],
 	invalid: [
 		'const foo = [].push.apply(bar, elements);',

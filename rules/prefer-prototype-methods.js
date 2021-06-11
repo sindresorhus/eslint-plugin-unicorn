@@ -13,46 +13,39 @@ const messages = {
 	'unknown-method': 'Prefer using method from `{{constructorName}}.prototype`.'
 };
 
-const emptyObjectOrArraySelector = matches([emptyObjectSelector(), emptyArraySelector()]);
+const emptyObjectOrArrayMethodSelector = [
+	'MemberExpression',
+	matches([emptyObjectSelector('object'), emptyArraySelector('object')])
+].join('');
 const functionMethodsSelector = [
 	methodCallSelector(['apply', 'bind', 'call']),
 	' > ',
 	'.callee',
 	' > ',
-	'MemberExpression.object',
-	' > ',
-	`${emptyObjectOrArraySelector}.object`
+	`${emptyObjectOrArrayMethodSelector}.object`
 ].join('');
 
 const reflectApplySelector = [
 	methodCallSelector({object: 'Reflect', name: 'apply', min: 1}),
 	' > ',
-	'MemberExpression.arguments:first-child',
-	' > ',
-	`${emptyObjectOrArraySelector}.object`
+	`${emptyObjectOrArrayMethodSelector}.arguments:first-child`
 ].join('');
 
-const selector = matches([
-	functionMethodsSelector,
-	reflectApplySelector
-]);
+const selector = matches([functionMethodsSelector, reflectApplySelector]);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
 	return {
 		[selector](node) {
-			const constructorName = node.type === 'ArrayExpression' ? 'Array' : 'Object';
-			const methodName = getPropertyName(node.parent, context.getScope());
-			const problem = {
-				node: node.parent,
-				messageId: methodName ? 'known-method' : 'unknown-method',
-				data: {
-					constructorName, methodName: String(methodName)
-				},
-				fix: fixer => fixer.replaceText(node, `${constructorName}.prototype`)
-			};
+			const constructorName = node.object.type === 'ArrayExpression' ? 'Array' : 'Object';
+			const methodName = getPropertyName(node, context.getScope());
 
-			context.report(problem);
+			context.report({
+				node,
+				messageId: methodName ? 'known-method' : 'unknown-method',
+				data: {constructorName, methodName: String(methodName)},
+				fix: fixer => fixer.replaceText(node.object, `${constructorName}.prototype`)
+			});
 		}
 	};
 }
