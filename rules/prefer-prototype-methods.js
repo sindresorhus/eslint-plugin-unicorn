@@ -17,21 +17,24 @@ const emptyObjectOrArrayMethodSelector = [
 	'MemberExpression',
 	matches([emptyObjectSelector('object'), emptyArraySelector('object')])
 ].join('');
-const functionMethodsSelector = [
-	methodCallSelector(['apply', 'bind', 'call']),
-	' > ',
-	'.callee',
-	' > ',
-	`${emptyObjectOrArrayMethodSelector}.object`
-].join('');
-
-const reflectApplySelector = [
-	methodCallSelector({object: 'Reflect', name: 'apply', min: 1}),
-	' > ',
-	`${emptyObjectOrArrayMethodSelector}.arguments:first-child`
-].join('');
-
-const selector = matches([functionMethodsSelector, reflectApplySelector]);
+const selector = matches([
+	// `[].foo.{apply,bind,call}(…)`
+	// `({}).foo.{apply,bind,call}(…)`
+	[
+		methodCallSelector(['apply', 'bind', 'call']),
+		' > ',
+		'.callee',
+		' > ',
+		`${emptyObjectOrArrayMethodSelector}.object`
+	].join(''),
+	// `Reflect.apply([].foo, …)`
+	// `Reflect.apply({}.foo, …)`
+	[
+		methodCallSelector({object: 'Reflect', name: 'apply', min: 1}),
+		' > ',
+		`${emptyObjectOrArrayMethodSelector}.arguments:first-child`
+	].join('')
+]);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
