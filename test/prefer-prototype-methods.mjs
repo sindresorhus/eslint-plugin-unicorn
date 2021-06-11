@@ -26,7 +26,11 @@ test.snapshot({
 		'NotReflect.apply([].slice, foo, [])',
 		'Reflect.notApply([].slice, foo, [])',
 		'Reflect.apply([]?.slice, foo, [])',
-		'Reflect.apply(foo, [].bar, [].bar)'
+		'Reflect.apply(foo, [].bar, [].bar)',
+		'class Foo {bar() { this.baz.bind(this) }}',
+		'const a = {bar() { this.baz.bind(this) }}',
+		'foo.bar.bind(foo)',
+		'foo.bar.bind(bar)'
 	],
 	invalid: [
 		'const foo = [].push.apply(bar, elements);',
