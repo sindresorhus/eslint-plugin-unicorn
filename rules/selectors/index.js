@@ -8,6 +8,7 @@ module.exports = {
 	arrayPrototypeMethodSelector: require('./prototype-method-selector.js').arrayPrototypeMethodSelector,
 	objectPrototypeMethodSelector: require('./prototype-method-selector.js').objectPrototypeMethodSelector,
 	emptyArraySelector: require('./empty-array-selector.js'),
+	emptyObjectSelector: require('./empty-object-selector.js'),
 	memberExpressionSelector: require('./member-expression-selector.js'),
 	methodCallSelector: require('./method-call-selector.js'),
 	notDomNodeSelector: require('./not-dom-node.js').notDomNodeSelector,
