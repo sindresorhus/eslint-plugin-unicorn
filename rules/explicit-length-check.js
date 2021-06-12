@@ -203,11 +203,11 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce explicitly comparing the `length` or `size` property of a value.',
-			url: getDocumentationUrl(__filename),
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,
-		messages
+		messages,
+		hasSuggestions: true
 	}
 };

@@ -98,11 +98,11 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`.',
-			url: getDocumentationUrl(__filename),
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema: [],
-		messages
+		messages,
+		hasSuggestions: true
 	}
 };

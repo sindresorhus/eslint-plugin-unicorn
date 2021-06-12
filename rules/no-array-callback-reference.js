@@ -173,10 +173,10 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Prevent passing a function reference directly to iterator methods.',
-			url: getDocumentationUrl(__filename),
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		schema: [],
-		messages
+		messages,
+		hasSuggestions: true
 	}
 };

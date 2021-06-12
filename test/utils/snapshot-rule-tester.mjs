@@ -148,9 +148,9 @@ class SnapshotRuleTester {
 						let messageForSnapshot = visualizeEslintMessage(code, message);
 
 						const {suggestions = []} = message;
-						if (suggestions.length > 0 && rule.meta.docs.suggestion !== true) {
+						if (suggestions.length > 0 && rule.meta.hasSuggestions !== true) {
 							// This check will no longer be necessary if this change lands in ESLint 8: https://github.com/eslint/eslint/issues/14312
-							throw new Error('Rule with suggestion is missing `meta.docs.suggestion`.');
+							throw new Error('Rule with suggestion is missing `meta.hasSuggestions`.');
 						}
 
 						for (const [index, suggestion] of suggestions.entries()) {
