@@ -15,11 +15,11 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Array#indexOf()` over `Array#findIndex()` when looking for the index of an item.',
-			url: getDocumentationUrl(__filename),
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema: [],
-		messages
+		messages,
+		hasSuggestions: true
 	}
 };

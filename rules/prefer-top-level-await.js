@@ -95,10 +95,10 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer top-level await over top-level promises and async function calls.',
-			url: getDocumentationUrl(__filename),
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		schema: [],
-		messages
+		messages,
+		hasSuggestions: true
 	}
 };

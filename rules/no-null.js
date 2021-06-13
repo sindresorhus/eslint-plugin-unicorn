@@ -132,11 +132,11 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow the use of the `null` literal.',
-			url: getDocumentationUrl(__filename),
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,
-		messages
+		messages,
+		hasSuggestions: true
 	}
 };

@@ -85,14 +85,14 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence.',
-			url: getDocumentationUrl(__filename),
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema: [],
 		messages: {
 			...messages,
 			...includesOverSomeRule.messages
-		}
+		},
+		hasSuggestions: true
 	}
 };

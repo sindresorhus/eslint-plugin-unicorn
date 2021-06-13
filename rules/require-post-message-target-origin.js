@@ -63,10 +63,10 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce using the `targetOrigin` argument with `window.postMessage()`.',
-			url: getDocumentationUrl(__filename),
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		schema: [],
-		messages
+		messages,
+		hasSuggestions: true
 	}
 };
