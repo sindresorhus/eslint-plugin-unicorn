@@ -10,32 +10,37 @@ const messages = {
 	[MESSAGE_ID]: 'The catch parameter `{{originalName}}` should be named `{{fixedName}}`.'
 };
 
-const promiseMethodSelector = (method, argumentsLength, argumentIndex) => [
-	methodCallSelector({
-		name: method,
-		length: argumentsLength
-	}),
-	matches(
-		[
-			'FunctionExpression',
-			'ArrowFunctionExpression'
-		].map(type => `[arguments.${argumentIndex}.type="${type}"]`)
-	),
-	`[arguments.${argumentIndex}.params.length=1]`,
-	`[arguments.${argumentIndex}.params.0.type="Identifier"]`
-].join('');
-
-// Matches `promise.catch([FunctionExpression | ArrowFunctionExpression])`
-const promiseCatchSelector = promiseMethodSelector('catch', 1, 0);
-
-// Matches `promise.then(any, [FunctionExpression | ArrowFunctionExpression])`
-const promiseThenSelector = promiseMethodSelector('then', 2, 1);
-
-const catchSelector = [
-	'CatchClause',
-	' > ',
-	'Identifier.param'
-].join('');
+const selector = matches([
+	/*
+		`try {} catch (foo) {}`
+		---------------^^^
+	*/
+	[
+		'CatchClause',
+		' > ',
+		'Identifier.param'
+	].join(''),
+	/*
+		`promise.then(any, (foo) => {})`
+		--------------------^^^
+		`promise.then(any, function(foo) {})`
+		----------------------------^^^
+		`promise.catch((foo) => {})`
+		----------------^^^
+		`promise.catch(function(foo) {})`
+		------------------------^^^
+	*/
+	[
+		matches([
+			methodCallSelector({name: 'then', length: 2}),
+			methodCallSelector({name: 'catch', length: 1})
+		]),
+		' > ',
+		':matches(FunctionExpression, ArrowFunctionExpression).arguments:last-child',
+		' > ',
+		'Identifier.params:first-child'
+	].join('')
+]);
 
 const create = context => {
 	const {ecmaVersion} = context.parserOptions;
@@ -97,13 +102,7 @@ const create = context => {
 	}
 
 	return {
-		[promiseCatchSelector]: node => {
-			check(node.arguments[0].params[0]);
-		},
-		[promiseThenSelector]: node => {
-			check(node.arguments[1].params[0]);
-		},
-		[catchSelector]: node => {
+		[selector]: node => {
 			check(node);
 		}
 	};
