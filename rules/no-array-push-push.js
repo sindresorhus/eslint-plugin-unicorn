@@ -75,9 +75,10 @@ function create(context) {
 					const text = getCallExpressionArgumentsText(secondCall, sourceCode);
 
 					const [penultimateToken, lastToken] = sourceCode.getLastTokens(firstCall, 2);
-					yield isCommaToken(penultimateToken) ? fixer.insertTextAfter(penultimateToken, ` ${text}`) : fixer.insertTextBefore(
-						lastToken,
-						firstCall.arguments.length > 0 ? `, ${text}` : text
+					yield (
+						isCommaToken(penultimateToken) ?
+							fixer.insertTextAfter(penultimateToken, ` ${text}`) :
+							fixer.insertTextBefore(lastToken, firstCall.arguments.length > 0 ? `, ${text}` : text)
 					);
 				}
 

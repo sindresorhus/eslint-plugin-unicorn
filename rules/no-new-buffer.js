@@ -67,10 +67,7 @@ const create = context => {
 			return {
 				node,
 				messageId: ERROR_UNKNOWN,
-				suggest: [
-					'from',
-					'alloc'
-				].map(method => ({
+				suggest: ['from', 'alloc'].map(method => ({
 					messageId: SUGGESTION,
 					data: {method},
 					fix: fix(node, sourceCode, method)
