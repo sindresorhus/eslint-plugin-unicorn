@@ -40,7 +40,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce using the digits argument with `Number#toFixed()`.',
+			description: 'Enforce using the digits argument with `Number#toFixed()`.'
 		},
 		fixable: 'code',
 		messages

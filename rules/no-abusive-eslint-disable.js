@@ -7,8 +7,8 @@ const messages = {
 
 const disableRegex = /^eslint-disable(?:-next-line|-line)?(?<ruleId>$|(?:\s+(?:@(?:[\w-]+\/){1,2})?[\w-]+)?)/;
 
-const create = context => ({
-	Program: node => {
+const create = () => ({
+	* Program(node) {
 		for (const comment of node.comments) {
 			const value = comment.value.trim();
 			const result = disableRegex.exec(value);
@@ -17,7 +17,7 @@ const create = context => ({
 				result && // It's a eslint-disable comment
 				!result.groups.ruleId // But it did not specify any rules
 			) {
-				context.report({
+				yield ({
 					// Can't set it at the given location as the warning
 					// will be ignored due to the disable comment
 					loc: {
@@ -39,8 +39,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce specifying rules to disable in `eslint-disable` comments.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce specifying rules to disable in `eslint-disable` comments.'
 		},
 		schema: [],
 		messages

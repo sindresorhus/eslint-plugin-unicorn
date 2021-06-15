@@ -210,7 +210,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Move function definitions to the highest possible scope.',
+			description: 'Move function definitions to the highest possible scope.'
 		},
 		schema,
 		messages

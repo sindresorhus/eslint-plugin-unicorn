@@ -39,13 +39,13 @@ const identifier = [
 function create(context) {
 	return {
 		[promise](node) {
-			context.report({
+			return ({
 				node: node.callee.property,
 				messageId: ERROR_PROMISE
 			});
 		},
 		[iife](node) {
-			context.report({
+			return ({
 				node,
 				loc: getFunctionHeadLocation(node.callee, context.getSourceCode()),
 				messageId: ERROR_IIFE
@@ -73,7 +73,7 @@ function create(context) {
 				return;
 			}
 
-			context.report({
+			return ({
 				node,
 				messageId: ERROR_IDENTIFIER,
 				data: {name: node.callee.name},
@@ -93,8 +93,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer top-level await over top-level promises and async function calls.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer top-level await over top-level promises and async function calls.'
 		},
 		schema: [],
 		messages,

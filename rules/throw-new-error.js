@@ -43,7 +43,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Require `new` when throwing an error.',
+			description: 'Require `new` when throwing an error.'
 		},
 		fixable: 'code',
 		messages

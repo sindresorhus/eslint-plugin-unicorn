@@ -70,7 +70,7 @@ const isPropertyDefinition = (node, name) => {
 	return key.name === name;
 };
 
-const customErrorDefinition = (context, node) => {
+function * customErrorDefinition(context, node) {
 	if (!hasValidSuperClass(node)) {
 		return;
 	}
@@ -83,7 +83,7 @@ const customErrorDefinition = (context, node) => {
 	const className = getClassName(name);
 
 	if (name !== className) {
-		context.report({
+		yield ({
 			node: node.id,
 			message: `Invalid class name, use \`${className}\`.`
 		});
@@ -93,7 +93,7 @@ const customErrorDefinition = (context, node) => {
 	const constructor = body.find(x => x.kind === 'constructor');
 
 	if (!constructor) {
-		context.report({
+		yield ({
 			node,
 			message: 'Add a constructor to your error.',
 			fix: fixer => fixer.insertTextAfterRange([
@@ -117,14 +117,14 @@ const customErrorDefinition = (context, node) => {
 	const messageExpressionIndex = constructorBody.findIndex(x => isAssignmentExpression(x, 'message'));
 
 	if (!superExpression) {
-		context.report({
+		yield ({
 			node: constructorBodyNode,
 			message: 'Missing call to `super()` in constructor.'
 		});
 	} else if (messageExpressionIndex !== -1) {
 		const expression = constructorBody[messageExpressionIndex];
 
-		context.report({
+		yield ({
 			node: superExpression,
 			message: 'Pass the error message to `super()` instead of setting `this.message`.',
 			* fix(fixer) {
@@ -149,18 +149,18 @@ const customErrorDefinition = (context, node) => {
 		const nameProperty = body.find(node => isPropertyDefinition(node, 'name'));
 
 		if (!nameProperty || !nameProperty.value || nameProperty.value.value !== name) {
-			context.report({
+			yield ({
 				node: nameProperty && nameProperty.value ? nameProperty.value : constructorBodyNode,
 				message: `The \`name\` property should be set to \`${name}\`.`
 			});
 		}
 	} else if (nameExpression.expression.right.value !== name) {
-		context.report({
+		yield ({
 			node: nameExpression ? nameExpression.expression.right : constructorBodyNode,
 			message: `The \`name\` property should be set to \`${name}\`.`
 		});
 	}
-};
+}
 
 const customErrorExport = (context, node) => {
 	const exportsName = node.left.property.name;
@@ -206,8 +206,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce correct `Error` subclassing.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce correct `Error` subclassing.'
 		},
 		fixable: 'code',
 		schema: [],

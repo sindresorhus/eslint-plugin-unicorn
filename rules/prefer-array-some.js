@@ -41,7 +41,7 @@ const create = context => {
 			}
 
 			const findProperty = findCall.callee.property;
-			context.report({
+			return ({
 				node: findProperty,
 				messageId: ERROR_ID_ARRAY_SOME,
 				suggest: [
@@ -54,7 +54,7 @@ const create = context => {
 		},
 		[arrayFilterCallSelector](filterCall) {
 			const filterProperty = filterCall.callee.property;
-			context.report({
+			return ({
 				node: filterProperty,
 				messageId: ERROR_ID_ARRAY_FILTER,
 				* fix(fixer) {
@@ -96,8 +96,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`.'
 		},
 		fixable: 'code',
 		schema: [],

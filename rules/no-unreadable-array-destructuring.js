@@ -58,7 +58,7 @@ const create = context => {
 				}
 			}
 
-			context.report(problem);
+			return (problem);
 		}
 	};
 };
@@ -68,8 +68,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow unreadable array destructuring.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow unreadable array destructuring.'
 		},
 		fixable: 'code',
 		schema: [],

@@ -62,7 +62,7 @@ const create = context => {
 				];
 			}
 
-			context.report(problem);
+			return (problem);
 		}
 	};
 };
@@ -72,8 +72,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.'
 		},
 		fixable: 'code',
 		schema: [],

@@ -175,7 +175,7 @@ const create = context => {
 			`(${firstId} = ${literal})` :
 			`${firstId} = ${literal}`;
 
-		context.report({
+		return ({
 			node,
 			messageId: MESSAGE_ID,
 			suggest: [{
@@ -198,12 +198,12 @@ const create = context => {
 		[assignmentSelector]: node => {
 			const {left, right} = node.expression;
 
-			checkExpression(node, left, right, true);
+			return checkExpression(node, left, right, true);
 		},
 		[declarationSelector]: node => {
 			const {id, init} = node.declarations[0];
 
-			checkExpression(node, id, init, false);
+			return checkExpression(node, id, init, false);
 		}
 	};
 };
@@ -213,8 +213,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer default parameters over reassignment.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer default parameters over reassignment.'
 		},
 		fixable: 'code',
 		schema: [],

@@ -138,8 +138,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Number` static properties over global ones.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `Number` static properties over global ones.'
 		},
 		fixable: 'code',
 		schema,

@@ -419,8 +419,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`.'
 		},
 		fixable: 'code',
 		schema: [],

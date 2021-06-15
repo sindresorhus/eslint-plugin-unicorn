@@ -110,7 +110,7 @@ const isTypecheckingExpression = (node, callExpression) => {
 
 const isTypechecking = node => node.type === 'IfStatement' && isTypecheckingExpression(node.test);
 
-const create = context => {
+const create = () => {
 	return {
 		[selector]: node => {
 			if (
@@ -123,7 +123,7 @@ const create = context => {
 					node,
 					messageId: MESSAGE_ID,
 					fix: fixer => fixer.replaceText(node.argument.callee, 'TypeError')
-				})
+				};
 			}
 		}
 	};
@@ -134,7 +134,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce throwing `TypeError` in type checking conditions.',
+			description: 'Enforce throwing `TypeError` in type checking conditions.'
 		},
 		fixable: 'code',
 		messages

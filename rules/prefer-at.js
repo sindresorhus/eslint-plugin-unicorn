@@ -158,7 +158,7 @@ function create(context) {
 				}
 			}
 
-			context.report({
+			return ({
 				node: indexNode,
 				messageId: lengthNode ? MESSAGE_ID_NEGATIVE_INDEX : MESSAGE_ID_INDEX,
 				* fix(fixer) {
@@ -183,7 +183,7 @@ function create(context) {
 				return;
 			}
 
-			context.report({
+			return ({
 				node: indexNode,
 				messageId: lengthNode ? MESSAGE_ID_STRING_CHAR_AT_NEGATIVE : MESSAGE_ID_STRING_CHAR_AT,
 				suggest: [{
@@ -242,7 +242,7 @@ function create(context) {
 				problem.suggest = [{messageId: SUGGESTION_ID, fix}];
 			}
 
-			context.report(problem);
+			return (problem);
 		},
 		[callExpressionSelector({length: 1})](node) {
 			const matchedFunction = getLastFunctions.find(nameOrPath => isNodeMatchesNameOrPath(node.callee, nameOrPath));
@@ -250,7 +250,7 @@ function create(context) {
 				return;
 			}
 
-			context.report({
+			return ({
 				node: node.callee,
 				messageId: MESSAGE_ID_GET_LAST_FUNCTION,
 				data: {description: matchedFunction.trim()},
@@ -302,8 +302,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.at()` method for index access and `String#charAt()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `.at()` method for index access and `String#charAt()`.'
 		},
 		fixable: 'code',
 		schema,

@@ -311,8 +311,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer JavaScript modules (ESM) over CommonJS.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer JavaScript modules (ESM) over CommonJS.'
 		},
 		fixable: 'code',
 		schema: [],

@@ -42,7 +42,7 @@ function removeEscapeCharacters(regexString) {
 	return fixedString;
 }
 
-const create = context => {
+const create = () => {
 	return {
 		[selector]: node => {
 			const {arguments: arguments_, callee} = node;
@@ -55,11 +55,10 @@ const create = context => {
 			return {
 				node,
 				messageId: MESSAGE_ID,
-				fix: fixer =>
-					[
-						fixer.insertTextAfter(callee, 'All'),
-						fixer.replaceText(search, quoteString(removeEscapeCharacters(search.regex.pattern)))
-					]
+				fix: fixer => [
+					fixer.insertTextAfter(callee, 'All'),
+					fixer.replaceText(search, quoteString(removeEscapeCharacters(search.regex.pattern)))
+				]
 			};
 		}
 	};

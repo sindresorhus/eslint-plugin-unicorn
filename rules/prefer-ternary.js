@@ -268,7 +268,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer ternary expressions over simple `if-else` statements.',
+			description: 'Prefer ternary expressions over simple `if-else` statements.'
 		},
 		fixable: 'code',
 		schema,

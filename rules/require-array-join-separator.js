@@ -44,7 +44,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce using the separator argument with `Array#join()`.',
+			description: 'Enforce using the separator argument with `Array#join()`.'
 		},
 		fixable: 'code',
 		schema,

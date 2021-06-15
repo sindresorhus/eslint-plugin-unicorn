@@ -90,7 +90,7 @@ const create = context => {
 			}
 		}
 
-		context.report({
+		return ({
 			node,
 			messageId,
 			fix: fixer => fix(node, fixer)
@@ -148,7 +148,7 @@ const create = context => {
 			const firstUndefined = undefinedArguments[0];
 			const lastUndefined = undefinedArguments[undefinedArguments.length - 1];
 
-			context.report({
+			return ({
 				messageId,
 				loc: {
 					start: firstUndefined.loc.start,
@@ -196,8 +196,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow useless `undefined`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow useless `undefined`.'
 		},
 		fixable: 'code',
 		schema,

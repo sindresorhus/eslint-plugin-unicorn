@@ -101,8 +101,8 @@ const fix = node => fixer => {
 };
 
 const create = context => {
-	const report = node => {
-		context.report({
+	const getProblem = node => {
+		return ({
 			messageId: MESSAGE_ID,
 			data: {name: node.name},
 			node,
@@ -122,7 +122,7 @@ const create = context => {
 				references &&
 				references.some(reference => isPropertyOf(node, reference.identifier))
 			) {
-				report(node);
+				return getProblem(node);
 			}
 		},
 
@@ -152,8 +152,7 @@ const create = context => {
 				references &&
 				references.some(reference => reference.identifier === initObject)
 			) {
-				report(node.value);
-				return;
+				return getProblem(node.value);
 			}
 
 			// When the event parameter itself is destructured directly
@@ -162,7 +161,7 @@ const create = context => {
 				// Check for properties
 				for (const property of event.properties) {
 					if (property === node) {
-						report(node.value);
+						return getProblem(node.value);
 					}
 				}
 			}
@@ -175,8 +174,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.'
 		},
 		fixable: 'code',
 		schema: [],

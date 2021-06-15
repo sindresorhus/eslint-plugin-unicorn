@@ -485,7 +485,7 @@ const create = context => {
 				message: formatMessage(node.name, identifierReplacements, 'property')
 			};
 
-			return problem
+			return problem;
 		},
 
 		Program(node) {
@@ -608,7 +608,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prevent abbreviations.',
+			description: 'Prevent abbreviations.'
 		},
 		fixable: 'code',
 		schema

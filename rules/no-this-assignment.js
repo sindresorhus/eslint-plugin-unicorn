@@ -20,10 +20,10 @@ const assignmentExpressionSelector = [
 
 const selector = matches([variableDeclaratorSelector, assignmentExpressionSelector]);
 
-const create = context => ({
+const create = () => ({
 	[selector](node) {
 		const variable = node.type === 'AssignmentExpression' ? node.left : node.id;
-		context.report({
+		return ({
 			node,
 			data: {name: variable.name},
 			messageId: MESSAGE_ID
@@ -36,8 +36,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow assigning `this` to a variable.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow assigning `this` to a variable.'
 		},
 		schema: [],
 		messages

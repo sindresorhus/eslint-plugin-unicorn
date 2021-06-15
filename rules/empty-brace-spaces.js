@@ -66,7 +66,7 @@ module.exports = {
 	meta: {
 		type: 'layout',
 		docs: {
-			description: 'Enforce no spaces between braces.',
+			description: 'Enforce no spaces between braces.'
 		},
 		fixable: 'whitespace',
 		messages

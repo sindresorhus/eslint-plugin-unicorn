@@ -193,8 +193,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence.'
 		},
 		fixable: 'code',
 		schema: [],

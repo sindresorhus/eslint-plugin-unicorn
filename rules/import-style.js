@@ -9,7 +9,6 @@ const messages = {
 	[MESSAGE_ID]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.'
 };
 
-
 const getActualImportDeclarationStyles = importDeclaration => {
 	const {specifiers} = importDeclaration;
 
@@ -176,7 +175,7 @@ const create = context => {
 		)
 	);
 
-	const report = (node, moduleName, actualImportStyles, allowedImportStyles, isRequire = false) => {
+	const getProblem = (node, moduleName, actualImportStyles, allowedImportStyles, isRequire = false) => {
 		if (!allowedImportStyles || allowedImportStyles.size === 0) {
 			return;
 		}
@@ -201,7 +200,7 @@ const create = context => {
 			moduleName
 		};
 
-		context.report({
+		return ({
 			node,
 			messageId: MESSAGE_ID,
 			data
@@ -220,7 +219,7 @@ const create = context => {
 				const allowedImportStyles = styles.get(moduleName);
 				const actualImportStyles = getActualImportDeclarationStyles(node);
 
-				report(node, moduleName, actualImportStyles, allowedImportStyles);
+				return getProblem(node, moduleName, actualImportStyles, allowedImportStyles);
 			}
 		};
 	}
@@ -234,7 +233,7 @@ const create = context => {
 				const allowedImportStyles = styles.get(moduleName);
 				const actualImportStyles = ['unassigned'];
 
-				report(node, moduleName, actualImportStyles, allowedImportStyles);
+				return getProblem(node, moduleName, actualImportStyles, allowedImportStyles);
 			},
 
 			[assignedDynamicImportTemplate](node) {
@@ -249,7 +248,7 @@ const create = context => {
 				const allowedImportStyles = styles.get(moduleName);
 				const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
 
-				report(node, moduleName, actualImportStyles, allowedImportStyles);
+				return getProblem(node, moduleName, actualImportStyles, allowedImportStyles);
 			}
 		};
 	}
@@ -264,7 +263,7 @@ const create = context => {
 				const allowedImportStyles = styles.get(moduleName);
 				const actualImportStyles = ['namespace'];
 
-				report(node, moduleName, actualImportStyles, allowedImportStyles);
+				return getProblem(node, moduleName, actualImportStyles, allowedImportStyles);
 			},
 
 			ExportNamedDeclaration(node) {
@@ -273,7 +272,7 @@ const create = context => {
 				const allowedImportStyles = styles.get(moduleName);
 				const actualImportStyles = getActualExportDeclarationStyles(node);
 
-				report(node, moduleName, actualImportStyles, allowedImportStyles);
+				return getProblem(node, moduleName, actualImportStyles, allowedImportStyles);
 			}
 		};
 	}
@@ -287,7 +286,7 @@ const create = context => {
 				const allowedImportStyles = styles.get(moduleName);
 				const actualImportStyles = ['unassigned'];
 
-				report(node, moduleName, actualImportStyles, allowedImportStyles, true);
+				return getProblem(node, moduleName, actualImportStyles, allowedImportStyles, true);
 			},
 
 			[assignedRequireTemplate](node) {
@@ -302,7 +301,7 @@ const create = context => {
 				const allowedImportStyles = styles.get(moduleName);
 				const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
 
-				report(node, moduleName, actualImportStyles, allowedImportStyles, true);
+				return getProblem(node, moduleName, actualImportStyles, allowedImportStyles, true);
 			}
 		};
 	}
@@ -368,8 +367,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce specific import styles per module.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce specific import styles per module.'
 		},
 		schema,
 		messages

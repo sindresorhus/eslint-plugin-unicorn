@@ -22,7 +22,7 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			return ({
 				node,
 				messageId: MESSAGE_ID
 			});
@@ -35,8 +35,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Do not use `document.cookie` directly.',
-			url: getDocumentationUrl(__filename)
+			description: 'Do not use `document.cookie` directly.'
 		},
 		schema: [],
 		messages

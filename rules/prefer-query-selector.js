@@ -99,7 +99,7 @@ const fix = (node, identifierName, preferredSelector) => {
 	};
 };
 
-const create = context => {
+const create = () => {
 	return {
 		[selector](node) {
 			const method = node.callee.property.name;

@@ -12,10 +12,10 @@ const objectParameterSelector = [
 	'[right.properties.length>0]'
 ].join('');
 
-const create = context => {
+const create = () => {
 	return {
 		[objectParameterSelector]: node => {
-			context.report({
+			return ({
 				node: node.left,
 				messageId: MESSAGE_ID,
 				data: {parameter: node.left.name}
@@ -29,8 +29,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow the use of objects as default parameters.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow the use of objects as default parameters.'
 		},
 		schema: [],
 		messages

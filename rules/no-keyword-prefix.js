@@ -1,6 +1,5 @@
 'use strict';
 
-
 const MESSAGE_ID = 'noKeywordPrefix';
 const messages = {
 	[MESSAGE_ID]: 'Do not prefix identifiers with keyword `{{keyword}}`.'
@@ -89,10 +88,10 @@ const create = context => {
 	const reported = [];
 	const ALLOWED_PARENT_TYPES = new Set(['CallExpression', 'NewExpression']);
 
-	function report(node, keyword) {
+	function getProblem(node, keyword) {
 		if (!reported.includes(node)) {
 			reported.push(node);
-			context.report({
+			return ({
 				node,
 				messageId: MESSAGE_ID,
 				data: {
@@ -134,7 +133,7 @@ const create = context => {
 					!ALLOWED_PARENT_TYPES.has(effectiveParent.type) &&
 					!(parent.right === node)
 				) {
-					report(node, keyword);
+					return getProblem(node, keyword);
 				}
 
 			// Check if it's an import specifier
@@ -151,7 +150,7 @@ const create = context => {
 					parent.local &&
 					parent.local.name === name
 				) {
-					report(node, keyword);
+					return getProblem(node, keyword);
 				}
 
 			// Report anything that is invalid that isn't a CallExpression
@@ -159,7 +158,7 @@ const create = context => {
 				Boolean(keyword) &&
 				!ALLOWED_PARENT_TYPES.has(effectiveParent.type)
 			) {
-				report(node, keyword);
+				return getProblem(node, keyword);
 			}
 		}
 	};
@@ -195,8 +194,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow identifiers starting with `new` or `class`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow identifiers starting with `new` or `class`.'
 		},
 		schema,
 		messages

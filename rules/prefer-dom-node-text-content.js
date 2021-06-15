@@ -8,10 +8,10 @@ const messages = {
 
 const selector = memberExpressionSelector('innerText');
 
-const create = context => {
+const create = () => {
 	return {
 		[selector]({property: node}) {
-			context.report({
+			return ({
 				node,
 				messageId: MESSAGE_ID,
 				fix: fixer => fixer.replaceText(node, 'textContent')
@@ -25,8 +25,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.textContent` over `.innerText`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `.textContent` over `.innerText`.'
 		},
 		fixable: 'code',
 		schema: [],

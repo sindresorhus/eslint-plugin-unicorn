@@ -142,7 +142,7 @@ const create = context => {
 				fix = fixer => fixCode(fixer, context.getSourceCode(), node, memberExpression);
 			}
 
-			context.report({
+			return ({
 				node: memberExpression.property,
 				messageId: MESSAGE_ID,
 				data: {
@@ -177,8 +177,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.'
 		},
 		fixable: 'code',
 		schema,

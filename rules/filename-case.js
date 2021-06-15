@@ -174,7 +174,7 @@ const create = context => {
 
 			if (isValid) {
 				if (!isLowerCase(extension)) {
-					context.report({
+					return ({
 						loc: {column: 0, line: 1},
 						messageId: MESSAGE_ID_EXTENSION,
 						data: {filename: filename + extension.toLowerCase(), extension}
@@ -189,7 +189,7 @@ const create = context => {
 				extension
 			});
 
-			context.report({
+			return ({
 				// Report on first character like `unicode-bom` rule
 				// https://github.com/eslint/eslint/blob/8a77b661bc921c3408bae01b3aa41579edfc6e58/lib/rules/unicode-bom.js#L46
 				loc: {column: 0, line: 1},
@@ -258,8 +258,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce a case style for filenames.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce a case style for filenames.'
 		},
 		schema,
 		messages

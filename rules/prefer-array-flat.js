@@ -219,7 +219,7 @@ function create(context) {
 				problem.fix = fix(node, array, sourceCode, shouldSwitchToArray);
 			}
 
-			context.report(problem);
+			return (problem);
 		};
 	}
 
@@ -244,8 +244,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Array#flat()` over legacy techniques to flatten arrays.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `Array#flat()` over legacy techniques to flatten arrays.'
 		},
 		fixable: 'code',
 		schema,

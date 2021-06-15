@@ -1,7 +1,7 @@
 'use strict';
 const path = require('path');
 const fs = require('fs');
-const getDocumentationUrl = require('./get-documentation-url');
+const getDocumentationUrl = require('./get-documentation-url.js');
 
 const isIterable = object => typeof object[Symbol.iterator] === 'function';
 

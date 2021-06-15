@@ -223,7 +223,7 @@ const create = context => {
 
 	return {
 		[zeroIndexSelector](node) {
-			context.report({
+			return ({
 				node: node.object.callee.property,
 				messageId: ERROR_ZERO_INDEX,
 				fix: fixer => [
@@ -233,7 +233,7 @@ const create = context => {
 			});
 		},
 		[shiftSelector](node) {
-			context.report({
+			return ({
 				node: node.callee.object.callee.property,
 				messageId: ERROR_SHIFT,
 				fix: fixer => [
@@ -243,14 +243,14 @@ const create = context => {
 			});
 		},
 		[destructuringDeclaratorSelector](node) {
-			context.report({
+			return ({
 				node: node.init.callee.property,
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				...fixDestructuringAndReplaceFilter(sourceCode, node)
 			});
 		},
 		[destructuringAssignmentSelector](node) {
-			context.report({
+			return ({
 				node: node.right.callee.property,
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				...fixDestructuringAndReplaceFilter(sourceCode, node)
@@ -307,7 +307,7 @@ const create = context => {
 				};
 			}
 
-			context.report(problem);
+			return (problem);
 		}
 	};
 };
@@ -317,8 +317,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.find(…)` over the first element from `.filter(…)`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `.find(…)` over the first element from `.filter(…)`.'
 		},
 		fixable: 'code',
 		schema: [],

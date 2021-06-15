@@ -128,8 +128,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce a specific parameter name in catch clauses.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce a specific parameter name in catch clauses.'
 		},
 		fixable: 'code',
 		schema,

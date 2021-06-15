@@ -415,7 +415,7 @@ const create = context => {
 				};
 			}
 
-			context.report(problem);
+			return (problem);
 		}
 	};
 };
@@ -425,8 +425,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Do not use a `for` loop that can be replaced with a `for-of` loop.',
-			url: getDocumentationUrl(__filename)
+			description: 'Do not use a `for` loop that can be replaced with a `for-of` loop.'
 		},
 		fixable: 'code',
 		schema: [],

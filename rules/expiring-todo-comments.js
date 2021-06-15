@@ -532,8 +532,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Add expiration conditions to TODO comments.',
-			url: getDocumentationUrl(__filename)
+			description: 'Add expiration conditions to TODO comments.'
 		},
 		schema,
 		messages

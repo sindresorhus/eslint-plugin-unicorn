@@ -133,7 +133,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow the use of the `null` literal.',
+			description: 'Disallow the use of the `null` literal.'
 		},
 		fixable: 'code',
 		schema,

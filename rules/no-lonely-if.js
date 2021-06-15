@@ -125,7 +125,7 @@ const create = context => {
 
 	return {
 		[selector](node) {
-			context.report({
+			return ({
 				node,
 				messageId: MESSAGE_ID,
 				fix: fix(node, sourceCode)
@@ -139,8 +139,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow `if` statements as the only statement in `if` blocks without `else`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow `if` statements as the only statement in `if` blocks without `else`.'
 		},
 		fixable: 'code',
 		schema: [],

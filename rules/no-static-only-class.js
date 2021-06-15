@@ -212,7 +212,7 @@ function create(context) {
 				return;
 			}
 
-			context.report({
+			return ({
 				node,
 				loc: getClassHeadLocation(node, sourceCode),
 				messageId: MESSAGE_ID,
@@ -227,8 +227,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Forbid classes that only have static members.',
-			url: getDocumentationUrl(__filename)
+			description: 'Forbid classes that only have static members.'
 		},
 		fixable: 'code',
 		schema: [],

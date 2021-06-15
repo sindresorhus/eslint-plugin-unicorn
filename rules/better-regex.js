@@ -38,7 +38,7 @@ const create = context => {
 			try {
 				optimized = optimize(original, undefined, {blacklist: ignoreList}).toString();
 			} catch (error) {
-				context.report({
+				return ({
 					node,
 					data: {
 						original,
@@ -46,14 +46,13 @@ const create = context => {
 					},
 					message: 'Problem parsing {{original}}: {{error}}'
 				});
-				return;
 			}
 
 			if (original === optimized) {
 				return;
 			}
 
-			return{
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				data: {
@@ -114,7 +113,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Improve regexes by making them shorter, consistent, and safer.',
+			description: 'Improve regexes by making them shorter, consistent, and safer.'
 		},
 		fixable: 'code',
 		schema,

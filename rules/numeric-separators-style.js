@@ -121,7 +121,7 @@ const create = context => {
 			const formatted = format(strippedNumber, {prefix, data}, options) + suffix;
 
 			if (raw !== formatted) {
-				context.report({
+				return ({
 					node,
 					messageId: MESSAGE_ID,
 					fix: fixer => fixer.replaceText(node, formatted)
@@ -170,8 +170,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce the style of numeric separators by correctly grouping digits.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce the style of numeric separators by correctly grouping digits.'
 		},
 		fixable: 'code',
 		schema,

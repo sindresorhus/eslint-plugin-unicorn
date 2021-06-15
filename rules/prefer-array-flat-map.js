@@ -67,7 +67,7 @@ const reportFlatMap = (context, nodeFlat) => {
 
 	const mapProperty = nodeMap.callee.property;
 
-	context.report({
+	return ({
 		node: nodeFlat,
 		loc: {start: mapProperty.loc.start, end: nodeFlat.loc.end},
 		messageId: MESSAGE_ID,
@@ -115,7 +115,7 @@ const create = context => ({
 			return;
 		}
 
-		reportFlatMap(context, node);
+		return reportFlatMap(context, node);
 	}
 });
 
@@ -124,8 +124,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `.flatMap(…)` over `.map(…).flat()`.'
 		},
 		fixable: 'code',
 		schema: [],

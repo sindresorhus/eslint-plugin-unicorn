@@ -101,7 +101,7 @@ function create(context) {
 				problem.fix = fix;
 			}
 
-			context.report(problem);
+			return (problem);
 		}
 	};
 }
@@ -124,8 +124,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce combining multiple `Array#push()` into one call.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce combining multiple `Array#push()` into one call.'
 		},
 		fixable: 'code',
 		schema,

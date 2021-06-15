@@ -52,8 +52,8 @@ const binaryExpressionSelector = [
 	newDateSelector
 ].join('');
 
-const create = context => {
-	const report = (node, problem) => context.report({
+const create = () => {
+	const getProblem = (node, problem) => ({
 		node,
 		messageId: MESSAGE_ID_DEFAULT,
 		fix: fixer => fixer.replaceText(node, 'Date.now()'),
@@ -63,7 +63,7 @@ const create = context => {
 	return {
 		[methodsSelector](node) {
 			const method = node.callee.property;
-			report(node, {
+			return getProblem(node, {
 				node: method,
 				messageId: MESSAGE_ID_METHOD,
 				data: {method: method.name}
@@ -72,21 +72,21 @@ const create = context => {
 		[builtinObjectSelector](node) {
 			const {name} = node.callee;
 			if (name === 'Number') {
-				report(node, {
+				return getProblem(node, {
 					messageId: MESSAGE_ID_NUMBER
 				});
-			} else {
-				report(node.arguments[0]);
 			}
+
+			return getProblem(node.arguments[0]);
 		},
 		[unaryExpressionsSelector](node) {
-			report(node.operator === '-' ? node.argument : node);
+			return getProblem(node.operator === '-' ? node.argument : node);
 		},
 		[assignmentExpressionSelector](node) {
-			report(node);
+			return getProblem(node);
 		},
 		[binaryExpressionSelector](node) {
-			report(node);
+			return getProblem(node);
 		}
 	};
 };
@@ -98,8 +98,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch.'
 		},
 		fixable: 'code',
 		schema,

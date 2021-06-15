@@ -30,19 +30,19 @@ const arrayPrototypeReduceCall = [
 // `[].{reduce,reduceRight}.apply()` and `Array.{reduce,reduceRight}.apply()`
 const arrayPrototypeReduceApply = prototypeSelector('apply');
 
-const create = context => {
+const create = () => {
 	return {
 		[arrayReduce](node) {
 			// For arr.reduce()
-			context.report({node: node.callee.property, messageId: node.callee.property.name});
+			return ({node: node.callee.property, messageId: node.callee.property.name});
 		},
 		[arrayPrototypeReduceCall](node) {
 			// For cases [].reduce.call() and Array.prototype.reduce.call()
-			context.report({node: node.callee.object.property, messageId: node.callee.object.property.name});
+			return ({node: node.callee.object.property, messageId: node.callee.object.property.name});
 		},
 		[arrayPrototypeReduceApply](node) {
 			// For cases [].reduce.apply() and Array.prototype.reduce.apply()
-			context.report({node: node.callee.object.property, messageId: node.callee.object.property.name});
+			return ({node: node.callee.object.property, messageId: node.callee.object.property.name});
 		}
 	};
 };
@@ -52,8 +52,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow `Array#reduce()` and `Array#reduceRight()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow `Array#reduce()` and `Array#reduceRight()`.'
 		},
 		schema: [],
 		messages

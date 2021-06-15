@@ -12,7 +12,7 @@ const normalize = value => value.replace(regexp, '$<package>');
 
 const importIndex = (context, node, argument) => {
 	if (argument && isImportingIndex(argument.value)) {
-		context.report({
+		return ({
 			node,
 			messageId: MESSAGE_ID,
 			fix: fixer => fixer.replaceText(argument, `'${normalize(argument.value)}'`)
@@ -52,8 +52,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce importing index files with `.`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce importing index files with `.`.'
 		},
 		fixable: 'code',
 		schema,

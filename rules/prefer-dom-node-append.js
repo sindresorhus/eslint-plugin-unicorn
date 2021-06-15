@@ -15,14 +15,14 @@ const selector = [
 	notDomNodeSelector('arguments.0')
 ].join('');
 
-const create = context => {
+const create = () => {
 	return {
 		[selector](node) {
 			const fix = isValueNotUsable(node) ?
 				fixer => fixer.replaceText(node.callee.property, 'append') :
 				undefined;
 
-			context.report({
+			return ({
 				node,
 				messageId: MESSAGE_ID,
 				fix
@@ -36,8 +36,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Node#append()` over `Node#appendChild()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `Node#append()` over `Node#appendChild()`.'
 		},
 		fixable: 'code',
 		schema: [],
