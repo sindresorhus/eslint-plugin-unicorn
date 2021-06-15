@@ -1,7 +1,7 @@
 'use strict';
 const {isOpeningBraceToken} = require('eslint-utils');
-const toLocation = require('./utils/to-location');
-const {matches} = require('./selectors');
+const toLocation = require('./utils/to-location.js');
+const {matches} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'empty-brace-spaces';
 const messages = {

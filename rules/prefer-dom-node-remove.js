@@ -1,11 +1,10 @@
 'use strict';
 const {isParenthesized, hasSideEffect} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector, notDomNodeSelector} = require('./selectors');
-const needsSemicolon = require('./utils/needs-semicolon');
-const isValueNotUsable = require('./utils/is-value-not-usable');
-const {getParenthesizedText} = require('./utils/parentheses');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
+const {methodCallSelector, notDomNodeSelector} = require('./selectors/index.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
+const isValueNotUsable = require('./utils/is-value-not-usable.js');
+const {getParenthesizedText} = require('./utils/parentheses.js');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_MESSAGE_ID = 'suggestion';
@@ -74,11 +73,11 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
-			url: getDocumentationUrl(__filename),
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema: [],
-		messages
+		messages,
+		hasSuggestions: true
 	}
 };

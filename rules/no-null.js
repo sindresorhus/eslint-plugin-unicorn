@@ -4,7 +4,7 @@ const {
 	matches,
 	methodCallSelector,
 	callExpressionSelector
-} = require('./selectors');
+} = require('./selectors/index.js');
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';
@@ -134,10 +134,10 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow the use of the `null` literal.',
-			suggestion: true
 		},
 		fixable: 'code',
 		schema,
-		messages
+		messages,
+		hasSuggestions: true
 	}
 };

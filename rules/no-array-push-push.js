@@ -1,10 +1,9 @@
 'use strict';
 const {hasSideEffect, isCommaToken, isSemicolonToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
-const getCallExpressionArgumentsText = require('./utils/get-call-expression-arguments-text');
-const isSameReference = require('./utils/is-same-reference');
-const {isNodeMatches} = require('./utils/is-node-matches');
+const {methodCallSelector} = require('./selectors/index.js');
+const getCallExpressionArgumentsText = require('./utils/get-call-expression-arguments-text.js');
+const isSameReference = require('./utils/is-same-reference.js');
+const {isNodeMatches} = require('./utils/is-node-matches.js');
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -126,11 +125,11 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce combining multiple `Array#push()` into one call.',
-			url: getDocumentationUrl(__filename),
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,
-		messages
+		messages,
+		hasSuggestions: true
 	}
 };

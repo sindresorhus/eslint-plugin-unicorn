@@ -1,10 +1,10 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
-const {methodCallSelector} = require('./selectors');
-const quoteString = require('./utils/quote-string');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
-const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child');
-const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses');
+const {methodCallSelector} = require('./selectors/index.js');
+const quoteString = require('./utils/quote-string.js');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
+const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child.js');
+const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses.js');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
@@ -177,9 +177,11 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.',
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages
+		schema: [],
+		messages,
+		hasSuggestions: true
 	}
 };

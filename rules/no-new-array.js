@@ -1,8 +1,7 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const needsSemicolon = require('./utils/needs-semicolon');
-const {newExpressionSelector} = require('./selectors');
+const needsSemicolon = require('./utils/needs-semicolon.js');
+const {newExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_LENGTH = 'array-length';
@@ -84,11 +83,11 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow `new Array()`.',
-			url: getDocumentationUrl(__filename),
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema: [],
-		messages
+		messages,
+		hasSuggestions: true
 	}
 };

@@ -1,6 +1,5 @@
 'use strict';
 const {upperFirst} = require('lodash');
-const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 const messages = {

@@ -1,7 +1,6 @@
 'use strict';
 const safeRegex = require('safe-regex');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {newExpressionSelector} = require('./selectors');
+const {newExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'no-unsafe-regex';
 const messages = {

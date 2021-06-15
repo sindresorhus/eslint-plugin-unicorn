@@ -1,10 +1,9 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isLiteralValue = require('./utils/is-literal-value');
+const isLiteralValue = require('./utils/is-literal-value.js');
 const {
 	getNegativeIndexLengthNode,
 	removeLengthNode
-} = require('./shared/negative-index');
+} = require('./shared/negative-index.js');
 
 const MESSAGE_ID = 'prefer-negative-index';
 const messages = {

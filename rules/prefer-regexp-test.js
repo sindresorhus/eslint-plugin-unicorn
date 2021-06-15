@@ -1,8 +1,8 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
-const {methodCallSelector} = require('./selectors');
-const {isBooleanNode} = require('./utils/boolean');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
+const {methodCallSelector} = require('./selectors/index.js');
+const {isBooleanNode} = require('./utils/boolean.js');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 
 const REGEXP_EXEC = 'regexp-exec';
 const STRING_MATCH = 'string-match';

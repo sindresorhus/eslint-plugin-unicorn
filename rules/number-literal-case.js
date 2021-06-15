@@ -1,6 +1,5 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {isNumber, isBigInt} = require('./utils/numeric');
+const {isNumber, isBigInt} = require('./utils/numeric.js');
 
 const MESSAGE_ID = 'number-literal-case';
 const messages = {

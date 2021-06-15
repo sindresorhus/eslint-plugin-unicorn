@@ -1,6 +1,6 @@
 'use strict';
-const avoidCapture = require('./utils/avoid-capture');
-const {not, notLeftHandSideSelector} = require('./selectors');
+const avoidCapture = require('./utils/avoid-capture.js');
+const {not, notLeftHandSideSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'consistentDestructuring';
 const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';
@@ -155,13 +155,13 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Use destructured variables over properties.',
-			suggestion: true
+			description: 'Use destructured variables over properties.'
 		},
 		fixable: 'code',
 		messages: {
 			[MESSAGE_ID]: 'Use destructured variables over properties.',
 			[MESSAGE_ID_SUGGEST]: 'Replace `{{expression}}` with destructured property `{{property}}`.'
-		}
+		},
+		hasSuggestions: true
 	}
 };

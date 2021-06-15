@@ -1,5 +1,5 @@
 'use strict';
-const {newExpressionSelector} = require('./selectors');
+const {newExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-type-error';
 const messages = {

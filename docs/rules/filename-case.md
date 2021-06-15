@@ -1,6 +1,6 @@
 # Enforce a case style for filenames
 
-Enforces all linted files to have their names in a certain case style. The default is `kebabCase`.
+Enforces all linted files to have their names in a certain case style and lowercase file extension. The default is `kebabCase`.
 
 Files named `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, `index.vue` are ignored as they can't change case (Only a problem with `pascalCase`).
 

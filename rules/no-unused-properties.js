@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'no-unused-properties';
 const messages = {

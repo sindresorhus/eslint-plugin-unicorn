@@ -1,10 +1,10 @@
 'use strict';
-const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
+const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches.js');
 const {
 	objectPrototypeMethodSelector,
 	methodCallSelector,
 	callExpressionSelector
-} = require('./selectors');
+} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-object-has-own';
 const messages = {

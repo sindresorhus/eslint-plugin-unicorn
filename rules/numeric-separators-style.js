@@ -1,6 +1,5 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const numeric = require('./utils/numeric');
+const numeric = require('./utils/numeric.js');
 
 const MESSAGE_ID = 'numeric-separators-style';
 const messages = {

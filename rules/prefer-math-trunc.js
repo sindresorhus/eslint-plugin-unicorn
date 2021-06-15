@@ -1,6 +1,5 @@
 'use strict';
 const {hasSideEffect} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const ERROR_BITWISE = 'error-bitwise';
 const ERROR_BITWISE_NOT = 'error-bitwise-not';
@@ -102,11 +101,11 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the use of `Math.trunc` instead of bitwise operators.',
-			url: getDocumentationUrl(__filename),
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema: [],
-		messages
+		messages,
+		hasSuggestions: true
 	}
 };

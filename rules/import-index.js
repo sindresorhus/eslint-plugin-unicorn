@@ -1,6 +1,5 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {STATIC_REQUIRE_SELECTOR} = require('./selectors');
+const {STATIC_REQUIRE_SELECTOR} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'import-index';
 const messages = {

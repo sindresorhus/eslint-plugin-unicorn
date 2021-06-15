@@ -1,8 +1,8 @@
 'use strict';
 const cleanRegexp = require('clean-regexp');
 const {optimize} = require('regexp-tree');
-const quoteString = require('./utils/quote-string');
-const {newExpressionSelector} = require('./selectors');
+const quoteString = require('./utils/quote-string.js');
+const {newExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'better-regex';
 const messages = {

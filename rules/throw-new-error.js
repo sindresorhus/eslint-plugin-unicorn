@@ -1,5 +1,5 @@
 'use strict';
-const {matches} = require('./selectors');
+const {matches} = require('./selectors/index.js');
 
 const messageId = 'throw-new-error';
 const messages = {

@@ -2,15 +2,14 @@
 const path = require('path');
 const {defaultsDeep, upperFirst, lowerFirst} = require('lodash');
 
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const avoidCapture = require('./utils/avoid-capture');
-const cartesianProductSamples = require('./utils/cartesian-product-samples');
-const isShorthandPropertyValue = require('./utils/is-shorthand-property-value');
-const isShorthandImportLocal = require('./utils/is-shorthand-import-local');
-const getVariableIdentifiers = require('./utils/get-variable-identifiers');
-const renameVariable = require('./utils/rename-variable');
-const isStaticRequire = require('./utils/is-static-require');
-const {defaultReplacements, defaultAllowList} = require('./shared/abbreviations');
+const avoidCapture = require('./utils/avoid-capture.js');
+const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
+const isShorthandPropertyValue = require('./utils/is-shorthand-property-value.js');
+const isShorthandImportLocal = require('./utils/is-shorthand-import-local.js');
+const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
+const renameVariable = require('./utils/rename-variable.js');
+const isStaticRequire = require('./utils/is-static-require.js');
+const {defaultReplacements, defaultAllowList} = require('./shared/abbreviations.js');
 
 const isUpperCase = string => string === string.toUpperCase();
 const isUpperFirst = string => isUpperCase(string[0]);
@@ -316,7 +315,7 @@ const isInternalImport = node => {
 const create = context => {
 	const {ecmaVersion} = context.parserOptions;
 	const options = prepareOptions(context.options[0]);
-	const filenameWithExtension = context.getFilename();
+	const filenameWithExtension = context.getPhysicalFilename();
 
 	// A `class` declaration produces two variables in two scopes:
 	// the inner class scope, and the outer one (whereever the class is declared).

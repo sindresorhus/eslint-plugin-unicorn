@@ -1,6 +1,6 @@
 'use strict';
-const quoteString = require('./utils/quote-string');
-const {methodCallSelector} = require('./selectors');
+const quoteString = require('./utils/quote-string.js');
+const {methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-string-replace-all';
 const messages = {

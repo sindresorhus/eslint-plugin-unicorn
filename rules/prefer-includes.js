@@ -1,8 +1,7 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isMethodNamed = require('./utils/is-method-named');
-const isLiteralValue = require('./utils/is-literal-value');
-const simpleArraySearchRule = require('./shared/simple-array-search-rule');
+const isMethodNamed = require('./utils/is-method-named.js');
+const isLiteralValue = require('./utils/is-literal-value.js');
+const simpleArraySearchRule = require('./shared/simple-array-search-rule.js');
 
 const MESSAGE_ID = 'prefer-includes';
 const messages = {
@@ -85,14 +84,14 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence.',
-			url: getDocumentationUrl(__filename),
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema: [],
 		messages: {
 			...messages,
 			...includesOverSomeRule.messages
-		}
+		},
+		hasSuggestions: true
 	}
 };

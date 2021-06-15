@@ -1,7 +1,7 @@
 'use strict';
 const {hasSideEffect} = require('eslint-utils');
-const isSameReference = require('./utils/is-same-reference');
-const getIndentString = require('./utils/get-indent-string');
+const isSameReference = require('./utils/is-same-reference.js');
+const getIndentString = require('./utils/get-indent-string.js');
 
 const MESSAGE_ID = 'prefer-switch';
 const messages = {

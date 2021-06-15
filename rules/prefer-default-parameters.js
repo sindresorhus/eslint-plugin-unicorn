@@ -1,6 +1,5 @@
 'use strict';
 const {findVariable} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
@@ -215,14 +214,14 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer default parameters over reassignment.',
-			url: getDocumentationUrl(__filename),
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema: [],
 		messages: {
 			[MESSAGE_ID]: 'Prefer default parameters over reassignment.',
 			[MESSAGE_ID_SUGGEST]: 'Replace reassignment with default parameter.'
-		}
+		},
+		hasSuggestions: true
 	}
 };

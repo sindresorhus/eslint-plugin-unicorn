@@ -1,5 +1,5 @@
 'use strict';
-const not = require('./negation');
+const not = require('./negation.js');
 
 function notLeftHandSideSelector(path) {
 	const prefix = path ? `${path}.` : '';

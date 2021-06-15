@@ -1,7 +1,6 @@
 'use strict';
 const {isCommaToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before');
+const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before.js');
 
 const messageId = 'no-useless-undefined';
 const messages = {

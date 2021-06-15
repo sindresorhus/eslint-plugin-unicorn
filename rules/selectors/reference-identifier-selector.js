@@ -1,6 +1,6 @@
 'use strict';
-const not = require('./negation');
-const matches = require('./matches-any');
+const not = require('./negation.js');
+const matches = require('./matches-any.js');
 
 const nonReferenceSelectors = [
 	// `foo.Identifier`

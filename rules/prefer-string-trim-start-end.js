@@ -1,5 +1,5 @@
 'use strict';
-const {methodCallSelector} = require('./selectors');
+const {methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-string-trim-start-end';
 const messages = {

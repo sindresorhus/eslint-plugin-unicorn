@@ -1,12 +1,12 @@
 'use strict';
 const {findVariable} = require('eslint-utils');
-const getVariableIdentifiers = require('./utils/get-variable-identifiers');
+const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
 const {
 	matches,
 	not,
 	methodCallSelector,
 	callOrNewExpressionSelector
-} = require('./selectors');
+} = require('./selectors/index.js');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -194,9 +194,11 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence.',
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		messages
+		schema: [],
+		messages,
+		hasSuggestions: true
 	}
 };

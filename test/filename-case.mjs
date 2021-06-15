@@ -245,7 +245,7 @@ test({
 			'Filename is not in kebab case. Rename it to `foo-bar.js`.'
 		),
 		testCase(
-			'src/foo/foo_bar.js',
+			'src/foo/foo_bar.JS',
 			'camelCase',
 			'Filename is not in camel case. Rename it to `fooBar.js`.'
 		),
@@ -540,11 +540,30 @@ test({
 });
 
 test.snapshot({
-	valid: [],
+	valid: [
+		undefined,
+		'src/foo.JS/bar.js',
+		'src/foo.JS/bar'
+	].map(filename => ({code: `const filename = ${JSON.stringify(filename)};`, filename})),
 	invalid: [
 		{
 			code: 'foo();\n'.repeat(10),
-			filename: 'src/foo/foo_bar.js'
-		}
+			filename: 'src/foo/foo_bar.mJS',
+			options: [
+				{
+					cases: {
+						camelCase: true,
+						kebabCase: true
+					}
+				}
+			]
+		},
+		...[
+			'foo.JS',
+			'foo.Js',
+			'foo.jS',
+			'index.JS',
+			'foo..JS'
+		].map(filename => ({code: `const filename = ${JSON.stringify(filename)};`, filename}))
 	]
 });

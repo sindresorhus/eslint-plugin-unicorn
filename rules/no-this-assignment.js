@@ -1,6 +1,5 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {matches} = require('./selectors');
+const {matches} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'no-this-assignment';
 const messages = {

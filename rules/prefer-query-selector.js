@@ -1,5 +1,5 @@
 'use strict';
-const {methodCallSelector, notDomNodeSelector} = require('./selectors');
+const {methodCallSelector, notDomNodeSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-query-selector';
 const messages = {

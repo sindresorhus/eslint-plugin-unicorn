@@ -1,8 +1,7 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector, notFunctionSelector} = require('./selectors');
-const {isNodeMatches} = require('./utils/is-node-matches');
+const {methodCallSelector, notFunctionSelector} = require('./selectors/index.js');
+const {isNodeMatches} = require('./utils/is-node-matches.js');
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
@@ -173,10 +172,10 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Prevent passing a function reference directly to iterator methods.',
-			url: getDocumentationUrl(__filename),
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		schema: [],
-		messages
+		messages,
+		hasSuggestions: true
 	}
 };

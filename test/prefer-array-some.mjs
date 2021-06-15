@@ -3,17 +3,16 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const MESSAGE_ID_ERROR = 'error';
-const MESSAGE_ID_SUGGESTION = 'suggestion';
-
+const ERROR_ID_ARRAY_SOME = 'some';
+const SUGGESTION_ID_ARRAY_SOME = 'some-suggestion';
 const invalidCase = ({code, suggestionOutput}) => ({
 	code,
 	errors: [
 		{
-			messageId: MESSAGE_ID_ERROR,
+			messageId: ERROR_ID_ARRAY_SOME,
 			suggestions: [
 				{
-					messageId: MESSAGE_ID_SUGGESTION,
+					messageId: SUGGESTION_ID_ARRAY_SOME,
 					output: suggestionOutput
 				}
 			]
@@ -104,6 +103,78 @@ test.snapshot({
 				// ^^^^ This should report
 			) {
 			}
+		`
+	]
+});
+
+// - `.filter(…).length > 0`
+// - `.filter(…).length !== 0`
+// - `.filter(…).length >= 1`
+test.snapshot({
+	valid: [
+		// `> 0`
+		'array.filter(fn).length > 0.',
+		'array.filter(fn).length > .0',
+		'array.filter(fn).length > 0.0',
+		'array.filter(fn).length > 0x00',
+		'array.filter(fn).length < 0',
+		'array.filter(fn).length >= 0',
+		'0 > array.filter(fn).length',
+
+		// `!== 0`
+		'array.filter(fn).length !== 0.',
+		'array.filter(fn).length !== .0',
+		'array.filter(fn).length !== 0.0',
+		'array.filter(fn).length !== 0x00',
+		'array.filter(fn).length != 0',
+		'array.filter(fn).length === 0',
+		'array.filter(fn).length == 0',
+		'array.filter(fn).length = 0',
+		'0 !== array.filter(fn).length',
+
+		// `>= 1`
+		'array.filter(fn).length >= 1.',
+		'array.filter(fn).length >= 1.0',
+		'array.filter(fn).length >= 0x1',
+		'array.filter(fn).length > 1',
+		'array.filter(fn).length < 1',
+		'array.filter(fn).length = 1',
+		'array.filter(fn).length += 1',
+		'1 >= array.filter(fn).length',
+
+		// `.length`
+		'array.filter(fn)?.length > 0',
+		'array.filter(fn)[length] > 0',
+		'array.filter(fn).notLength > 0',
+		'array.filter(fn).length() > 0',
+		'+array.filter(fn).length >= 1',
+
+		// `.filter`
+		'array.filter?.(fn).length > 0',
+		'array?.filter(fn).length > 0',
+		'array.notFilter(fn).length > 0',
+		'array.filter.length > 0'
+	],
+	invalid: [
+		'array.filter(fn).length > 0',
+		'array.filter(fn).length !== 0',
+		'array.filter(fn).length >= 1',
+		outdent`
+			if (
+				((
+					((
+						((
+							((
+								array
+							))
+								.filter(what_ever_here)
+						))
+							.length
+					))
+					>
+					(( 0 ))
+				))
+			);
 		`
 	]
 });

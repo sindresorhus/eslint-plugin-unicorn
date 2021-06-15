@@ -1,5 +1,5 @@
 'use strict';
-const createDeprecatedRules = require('./rules/utils/create-deprecated-rules');
+const createDeprecatedRules = require('./rules/utils/create-deprecated-rules.js');
 const {loadRules} = require('./rules/utils/load-rule');
 
 const deprecatedRules = createDeprecatedRules({
@@ -118,10 +118,13 @@ module.exports = {
 				'unicorn/prefer-string-trim-start-end': 'error',
 				'unicorn/prefer-switch': 'error',
 				'unicorn/prefer-ternary': 'error',
+				// TODO: Enable this by default when targeting Node.js 14.
+				'unicorn/prefer-top-level-await': 'off',
 				'unicorn/prefer-type-error': 'error',
 				'unicorn/prevent-abbreviations': 'error',
 				'unicorn/require-array-join-separator': 'error',
 				'unicorn/require-number-to-fixed-digits-argument': 'error',
+				'unicorn/require-post-message-target-origin': 'error',
 				'unicorn/string-content': 'off',
 				'unicorn/throw-new-error': 'error'
 			}

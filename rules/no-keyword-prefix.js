@@ -1,6 +1,5 @@
 'use strict';
 
-const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'noKeywordPrefix';
 const messages = {

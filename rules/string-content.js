@@ -1,7 +1,7 @@
 'use strict';
-const quoteString = require('./utils/quote-string');
-const replaceTemplateElement = require('./utils/replace-template-element');
-const escapeTemplateElementRaw = require('./utils/escape-template-element-raw');
+const quoteString = require('./utils/quote-string.js');
+const replaceTemplateElement = require('./utils/replace-template-element.js');
+const escapeTemplateElementRaw = require('./utils/escape-template-element-raw.js');
 
 const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
 const SUGGESTION_MESSAGE_ID = 'replace';
@@ -177,10 +177,11 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce better string content.',
-			suggestion: true
+			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,
-		messages
+		messages,
+		hasSuggestions: true
 	}
 };
