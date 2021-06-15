@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const avoidCapture = require('./utils/avoid-capture.js');
 const extendFixRange = require('./utils/extend-fix-range.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
@@ -200,7 +199,7 @@ const create = context => {
 
 			const scope = context.getScope();
 
-			context.report({
+			return {
 				node,
 				messageId,
 				* fix(fixer) {
@@ -252,7 +251,7 @@ const create = context => {
 						yield * extendFixRange(fixer, sourceCode.ast.range);
 					}
 				}
-			});
+			};
 		}
 	};
 };
@@ -269,8 +268,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer ternary expressions over simple `if-else` statements.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer ternary expressions over simple `if-else` statements.'
 		},
 		fixable: 'code',
 		schema,

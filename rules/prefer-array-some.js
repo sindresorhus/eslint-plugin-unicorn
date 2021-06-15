@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {methodCallSelector, matches, memberExpressionSelector} = require('./selectors/index.js');
 const {isBooleanNode} = require('./utils/boolean.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
@@ -42,7 +41,7 @@ const create = context => {
 			}
 
 			const findProperty = findCall.callee.property;
-			context.report({
+			return {
 				node: findProperty,
 				messageId: ERROR_ID_ARRAY_SOME,
 				suggest: [
@@ -51,11 +50,11 @@ const create = context => {
 						fix: fixer => fixer.replaceText(findProperty, 'some')
 					}
 				]
-			});
+			};
 		},
 		[arrayFilterCallSelector](filterCall) {
 			const filterProperty = filterCall.callee.property;
-			context.report({
+			return {
 				node: filterProperty,
 				messageId: ERROR_ID_ARRAY_FILTER,
 				* fix(fixer) {
@@ -87,7 +86,7 @@ const create = context => {
 
 					// The `BinaryExpression` always ends with a number or `)`, no need check for ASI
 				}
-			});
+			};
 		}
 	};
 };
@@ -97,11 +96,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

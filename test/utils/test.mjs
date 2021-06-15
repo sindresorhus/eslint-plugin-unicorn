@@ -3,6 +3,7 @@ import url from 'node:url';
 import {createRequire} from 'node:module';
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
+import {loadRule} from '../../rules/utils/load-rule.js';
 import snapshotRuleTester from './snapshot-rule-tester.mjs';
 import defaultParserOptions from './default-parser-options.mjs';
 
@@ -33,7 +34,7 @@ function normalizeInvalidTest(test, rule) {
 class Tester {
 	constructor(ruleId) {
 		this.ruleId = ruleId;
-		this.rule = require(`../../rules/${ruleId}`);
+		this.rule = loadRule(ruleId);
 	}
 
 	runTest(tests) {

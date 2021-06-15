@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized, isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before.js');
 
 const isInstanceofToken = token => token.value === 'instanceof' && token.type === 'Keyword';
@@ -20,7 +19,7 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 
 	return {
-		[selector]: node => context.report({
+		[selector]: node => ({
 			node,
 			messageId: MESSAGE_ID,
 			* fix(fixer) {
@@ -49,11 +48,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Require `Array.isArray()` instead of `instanceof Array`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Require `Array.isArray()` instead of `instanceof Array`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

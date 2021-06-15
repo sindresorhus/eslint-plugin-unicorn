@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {matches} = require('./selectors/index.js');
 
 const messageId = 'throw-new-error';
@@ -29,13 +28,13 @@ const selector = [
 	])
 ].join('');
 
-const create = context => ({
+const create = () => ({
 	[selector]: node => {
-		context.report({
+		return {
 			node,
 			messageId,
 			fix: fixer => fixer.insertTextBefore(node, 'new ')
-		});
+		};
 	}
 });
 
@@ -44,11 +43,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Require `new` when throwing an error.',
-			url: getDocumentationUrl(__filename)
+			description: 'Require `new` when throwing an error.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

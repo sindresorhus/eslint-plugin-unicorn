@@ -3,7 +3,6 @@ const readPkgUp = require('read-pkg-up');
 const semver = require('semver');
 const ci = require('ci-info');
 const baseRule = require('eslint/lib/rules/no-warning-comments');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 
 // `unicorn/` prefix is added to avoid conflicts with core rule
 const MESSAGE_ID_AVOID_MULTIPLE_DATES = 'unicorn/avoidMultipleDates';
@@ -533,8 +532,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Add expiration conditions to TODO comments.',
-			url: getDocumentationUrl(__filename)
+			description: 'Add expiration conditions to TODO comments.'
 		},
 		schema,
 		messages

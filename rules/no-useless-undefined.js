@@ -1,6 +1,5 @@
 'use strict';
 const {isCommaToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before.js');
 
 const messageId = 'no-useless-undefined';
@@ -91,11 +90,11 @@ const create = context => {
 			}
 		}
 
-		context.report({
+		return {
 			node,
 			messageId,
 			fix: fixer => fix(node, fixer)
-		});
+		};
 	};
 
 	const sourceCode = context.getSourceCode();
@@ -149,7 +148,7 @@ const create = context => {
 			const firstUndefined = undefinedArguments[0];
 			const lastUndefined = undefinedArguments[undefinedArguments.length - 1];
 
-			context.report({
+			return {
 				messageId,
 				loc: {
 					start: firstUndefined.loc.start,
@@ -173,7 +172,7 @@ const create = context => {
 
 					return fixer.removeRange([start, end]);
 				}
-			});
+			};
 		};
 	}
 
@@ -197,8 +196,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow useless `undefined`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow useless `undefined`.'
 		},
 		fixable: 'code',
 		schema,

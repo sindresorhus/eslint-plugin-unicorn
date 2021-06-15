@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const builtins = require('./utils/builtins.js');
 const isShadowed = require('./utils/is-shadowed.js');
 const {callExpressionSelector, newExpressionSelector} = require('./selectors/index.js');
@@ -32,12 +31,12 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			return {
 				node,
 				messageId: 'enforce',
 				data: {name},
 				fix: fixer => fixer.insertTextBefore(node, 'new ')
-			});
+			};
 		},
 		[newExpressionSelector(builtins.disallowNew)]: node => {
 			const {callee} = node;
@@ -59,7 +58,7 @@ const create = context => {
 				};
 			}
 
-			context.report(problem);
+			return problem;
 		}
 	};
 };
@@ -69,11 +68,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

@@ -1,6 +1,5 @@
 'use strict';
 const {findVariable} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
@@ -176,7 +175,7 @@ const create = context => {
 			`(${firstId} = ${literal})` :
 			`${firstId} = ${literal}`;
 
-		context.report({
+		return {
 			node,
 			messageId: MESSAGE_ID,
 			suggest: [{
@@ -186,7 +185,7 @@ const create = context => {
 					fixDefaultExpression(fixer, sourceCode, node)
 				]
 			}]
-		});
+		};
 	};
 
 	return {
@@ -199,12 +198,12 @@ const create = context => {
 		[assignmentSelector]: node => {
 			const {left, right} = node.expression;
 
-			checkExpression(node, left, right, true);
+			return checkExpression(node, left, right, true);
 		},
 		[declarationSelector]: node => {
 			const {id, init} = node.declarations[0];
 
-			checkExpression(node, id, init, false);
+			return checkExpression(node, id, init, false);
 		}
 	};
 };
@@ -214,11 +213,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer default parameters over reassignment.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer default parameters over reassignment.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages: {
 			[MESSAGE_ID]: 'Prefer default parameters over reassignment.',
 			[MESSAGE_ID_SUGGEST]: 'Replace reassignment with default parameter.'

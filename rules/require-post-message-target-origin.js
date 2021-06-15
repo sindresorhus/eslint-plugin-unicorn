@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const {appendArgument} = require('./fix/index.js');
 
@@ -40,7 +39,7 @@ function create(context) {
 
 			suggestions.push({messageId: SUGGESTION_STAR, code: '\'*\''});
 
-			context.report({
+			return {
 				loc: {
 					start: penultimateToken.loc.end,
 					end: lastToken.loc.end
@@ -52,7 +51,7 @@ function create(context) {
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
 					fix: fixer => appendArgument(fixer, node, code, sourceCode)
 				}))
-			});
+			};
 		}
 	};
 }
@@ -62,10 +61,8 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce using the `targetOrigin` argument with `window.postMessage()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce using the `targetOrigin` argument with `window.postMessage()`.'
 		},
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

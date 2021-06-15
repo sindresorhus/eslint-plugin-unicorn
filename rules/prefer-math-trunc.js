@@ -1,6 +1,5 @@
 'use strict';
 const {hasSideEffect} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 
 const ERROR_BITWISE = 'error-bitwise';
 const ERROR_BITWISE_NOT = 'error-bitwise-not';
@@ -84,14 +83,14 @@ const create = context => {
 				}
 			}
 
-			context.report(problem);
+			return problem;
 		},
 		[bitwiseNotUnaryExpressionSelector]: node => {
-			context.report({
+			return {
 				node,
 				messageId: ERROR_BITWISE_NOT,
 				fix: fixer => fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument))
-			});
+			};
 		}
 	};
 };
@@ -101,11 +100,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce the use of `Math.trunc` instead of bitwise operators.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce the use of `Math.trunc` instead of bitwise operators.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

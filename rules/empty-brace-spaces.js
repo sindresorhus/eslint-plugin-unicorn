@@ -1,6 +1,5 @@
 'use strict';
 const {isOpeningBraceToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const toLocation = require('./utils/to-location.js');
 const {matches} = require('./selectors/index.js');
 
@@ -53,11 +52,11 @@ const create = context => {
 			const start = node.range[0] + startOffset;
 			const end = node.range[1] + endOffset;
 			const range = [start, end];
-			context.report({
+			return {
 				loc: toLocation(range, sourceCode),
 				messageId: MESSAGE_ID,
 				fix: fixer => fixer.removeRange(range)
-			});
+			};
 		}
 	};
 };
@@ -67,11 +66,9 @@ module.exports = {
 	meta: {
 		type: 'layout',
 		docs: {
-			description: 'Enforce no spaces between braces.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce no spaces between braces.'
 		},
 		fixable: 'whitespace',
-		schema: [],
 		messages
 	}
 };

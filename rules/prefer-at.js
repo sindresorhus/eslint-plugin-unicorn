@@ -1,6 +1,5 @@
 'use strict';
 const {isOpeningBracketToken, isClosingBracketToken, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const isLiteralValue = require('./utils/is-literal-value.js');
 const {
 	isParenthesized,
@@ -159,7 +158,7 @@ function create(context) {
 				}
 			}
 
-			context.report({
+			return {
 				node: indexNode,
 				messageId: lengthNode ? MESSAGE_ID_NEGATIVE_INDEX : MESSAGE_ID_INDEX,
 				* fix(fixer) {
@@ -173,7 +172,7 @@ function create(context) {
 					const isClosingBraceToken = sourceCode.getTokenAfter(indexNode, isClosingBracketToken);
 					yield fixer.replaceText(isClosingBraceToken, ')');
 				}
-			});
+			};
 		},
 		[stringCharAt](node) {
 			const [indexNode] = node.arguments;
@@ -184,7 +183,7 @@ function create(context) {
 				return;
 			}
 
-			context.report({
+			return {
 				node: indexNode,
 				messageId: lengthNode ? MESSAGE_ID_STRING_CHAR_AT_NEGATIVE : MESSAGE_ID_STRING_CHAR_AT,
 				suggest: [{
@@ -197,7 +196,7 @@ function create(context) {
 						yield fixer.replaceText(node.callee.property, 'at');
 					}
 				}]
-			});
+			};
 		},
 		[sliceCall](sliceCall) {
 			const result = checkSliceCall(sliceCall);
@@ -243,7 +242,7 @@ function create(context) {
 				problem.suggest = [{messageId: SUGGESTION_ID, fix}];
 			}
 
-			context.report(problem);
+			return problem;
 		},
 		[callExpressionSelector({length: 1})](node) {
 			const matchedFunction = getLastFunctions.find(nameOrPath => isNodeMatchesNameOrPath(node.callee, nameOrPath));
@@ -251,7 +250,7 @@ function create(context) {
 				return;
 			}
 
-			context.report({
+			return {
 				node: node.callee,
 				messageId: MESSAGE_ID_GET_LAST_FUNCTION,
 				data: {description: matchedFunction.trim()},
@@ -276,7 +275,7 @@ function create(context) {
 
 					return fixer.replaceText(node, fixed);
 				}
-			});
+			};
 		}
 	};
 }
@@ -303,8 +302,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.at()` method for index access and `String#charAt()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `.at()` method for index access and `String#charAt()`.'
 		},
 		fixable: 'code',
 		schema,

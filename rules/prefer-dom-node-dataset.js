@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const isValidVariableName = require('./utils/is-valid-variable-name.js');
 const quoteString = require('./utils/quote-string.js');
 const {methodCallSelector} = require('./selectors/index.js');
@@ -46,11 +45,11 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				fix: fixer => fix(context, node, fixer)
-			});
+			};
 		}
 	};
 };
@@ -60,11 +59,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer using `.dataset` on DOM elements over `.setAttribute(…)`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer using `.dataset` on DOM elements over `.setAttribute(…)`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };
