@@ -134,7 +134,6 @@
 					"eslint-plugin/require-meta-schema": "off",
 					"eslint-plugin/require-meta-has-suggestions": "off",
 					"eslint-plugin/require-meta-docs-url": "off",
-					"eslint-plugin/require-meta-has-suggestions": "off",
 					"eslint-plugin/require-meta-docs-description": [
 						"error",
 						{
