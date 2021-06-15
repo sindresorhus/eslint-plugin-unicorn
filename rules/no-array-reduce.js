@@ -34,7 +34,7 @@ const selector = matches([
 	].join('')
 ]);
 
-const create = context => {
+const create = () => {
 	return {
 		[selector](node) {
 			return {

@@ -2,7 +2,7 @@ import outdent from 'outdent';
 import notFunctionTypes from './utils/not-function-types.mjs';
 import {getTester} from './utils/test.mjs';
 
-const {test, rule} = getTester(import.meta);
+const {test} = getTester(import.meta);
 
 const errorsReduce = [{messageId: 'no-reduce', data: {method: 'reduce'}}];
 const errorsReduceRight = [{messageId: 'no-reduce', data: {method: 'reduceRight'}}];
