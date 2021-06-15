@@ -268,7 +268,7 @@ test.snapshot({
 		{
 			code: '__dirname',
 			filename: 'foo.cjS'
-		},
+		}
 	],
 	invalid: [
 		{
@@ -282,6 +282,6 @@ test.snapshot({
 		{
 			code: 'require("lodash")',
 			filename: 'foo.cjs/foo.js'
-		},
+		}
 	]
 });
