@@ -1,6 +1,5 @@
 'use strict';
 const safeRegex = require('safe-regex');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {newExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'no-unsafe-regex';
@@ -13,7 +12,7 @@ const newRegExpSelector = [
 	'[arguments.0.type="Literal"]'
 ].join('');
 
-const create = context => {
+const create = () => {
 	return {
 		'Literal[regex]': node => {
 			// Handle regex literal inside RegExp constructor in the other handler
@@ -25,10 +24,10 @@ const create = context => {
 			}
 
 			if (!safeRegex(node.value)) {
-				context.report({
+				return {
 					node,
 					messageId: MESSAGE_ID
-				});
+				};
 			}
 		},
 		[newRegExpSelector]: node => {
@@ -46,10 +45,10 @@ const create = context => {
 			}
 
 			if (!safeRegex(`/${pattern}/${flags}`)) {
-				context.report({
+				return {
 					node,
 					messageId: MESSAGE_ID
-				});
+				};
 			}
 		}
 	};
@@ -60,10 +59,8 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow unsafe regular expressions.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow unsafe regular expressions.'
 		},
-		schema: [],
 		messages
 	}
 };

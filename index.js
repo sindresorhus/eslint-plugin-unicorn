@@ -1,7 +1,6 @@
 'use strict';
-const path = require('path');
-const importModules = require('import-modules');
 const createDeprecatedRules = require('./rules/utils/create-deprecated-rules.js');
+const {loadRules} = require('./rules/utils/load-rule.js');
 
 const deprecatedRules = createDeprecatedRules({
 	// {ruleId: ReplacementRuleId | ReplacementRuleId[]}, if no replacement, use `{ruleId: []}`
@@ -23,7 +22,7 @@ const deprecatedRules = createDeprecatedRules({
 
 module.exports = {
 	rules: {
-		...importModules(path.resolve(__dirname, 'rules'), {camelize: false}),
+		...loadRules(),
 		...deprecatedRules
 	},
 	configs: {

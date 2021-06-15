@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches.js');
 const {
 	objectPrototypeMethodSelector,
@@ -54,7 +53,7 @@ const create = context => {
 					return;
 				}
 
-				context.report({
+				return {
 					node,
 					messageId: MESSAGE_ID,
 					data: {
@@ -62,7 +61,7 @@ const create = context => {
 					},
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
 					fix: fixer => fixer.replaceText(node, 'Object.hasOwn')
-				});
+				};
 			}
 		])
 	);
@@ -86,8 +85,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Object.hasOwn(…)` over `Object.prototype.hasOwnProperty.call(…)`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `Object.hasOwn(…)` over `Object.prototype.hasOwnProperty.call(…)`.'
 		},
 		fixable: 'code',
 		schema,

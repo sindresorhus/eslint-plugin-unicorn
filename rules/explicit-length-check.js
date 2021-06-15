@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const isLiteralValue = require('./utils/is-literal-value.js');
 const isLogicalExpression = require('./utils/is-logical-expression.js');
 const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean.js');
@@ -107,7 +106,7 @@ function create(context) {
 	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
 	const sourceCode = context.getSourceCode();
 
-	function reportProblem({node, isZeroLengthCheck, lengthNode, autoFix}) {
+	function getProblem({node, isZeroLengthCheck, lengthNode, autoFix}) {
 		const {code, test} = isZeroLengthCheck ? zeroStyle : nonZeroStyle;
 		if (test(node)) {
 			return;
@@ -142,7 +141,7 @@ function create(context) {
 			];
 		}
 
-		context.report(problem);
+		return problem;
 	}
 
 	return {
@@ -179,7 +178,7 @@ function create(context) {
 			}
 
 			if (node) {
-				reportProblem({node, isZeroLengthCheck, lengthNode, autoFix});
+				return getProblem({node, isZeroLengthCheck, lengthNode, autoFix});
 			}
 		}
 	};
@@ -202,8 +201,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce explicitly comparing the `length` or `size` property of a value.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce explicitly comparing the `length` or `size` property of a value.'
 		},
 		fixable: 'code',
 		schema,

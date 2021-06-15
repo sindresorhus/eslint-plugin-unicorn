@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {
 	not,
 	matches,
@@ -62,14 +61,7 @@ const create = context => {
 
 	return {
 		[selector]: node => {
-			const problem = {
-				node,
-				messageId: ERROR_MESSAGE_ID
-			};
-
-			/* istanbul ignore next */
-			const {parent = {}, range} = node;
-
+			const {parent} = node;
 			if (!checkStrictEquality && isStrictEqual(parent)) {
 				return;
 			}
@@ -78,37 +70,47 @@ const create = context => {
 				return;
 			}
 
-			const fix = fixer => fixer.replaceText(node, 'undefined');
-			const replaceSuggestion = {
-				messageId: SUGGESTION_REPLACE_MESSAGE_ID,
-				fix
+			const problem = {
+				node,
+				messageId: ERROR_MESSAGE_ID
 			};
 
+			const useUndefinedFix = fixer => fixer.replaceText(node, 'undefined');
+
 			if (isLooseEqual(parent)) {
-				problem.fix = fix;
-			} else if (parent.type === 'ReturnStatement' && parent.argument === node) {
+				problem.fix = useUndefinedFix;
+				return problem;
+			}
+
+			const useUndefinedSuggestion = {
+				messageId: SUGGESTION_REPLACE_MESSAGE_ID,
+				fix: useUndefinedFix
+			};
+
+			if (parent.type === 'ReturnStatement' && parent.argument === node) {
 				problem.suggest = [
 					{
 						messageId: SUGGESTION_REMOVE_MESSAGE_ID,
 						fix: fixer => fixer.remove(node)
 					},
-					replaceSuggestion
+					useUndefinedSuggestion
 				];
-			} else if (parent.type === 'VariableDeclarator' && parent.init === node && parent.parent.kind !== 'const') {
+				return problem;
+			}
+
+			if (parent.type === 'VariableDeclarator' && parent.init === node && parent.parent.kind !== 'const') {
 				problem.suggest = [
 					{
 						messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-						fix: fixer => fixer.removeRange([parent.id.range[1], range[1]])
+						fix: fixer => fixer.removeRange([parent.id.range[1], node.range[1]])
 					},
-					replaceSuggestion
+					useUndefinedSuggestion
 				];
-			} else {
-				problem.suggest = [
-					replaceSuggestion
-				];
+				return problem;
 			}
 
-			context.report(problem);
+			problem.suggest = [useUndefinedSuggestion];
+			return problem;
 		}
 	};
 };
@@ -131,8 +133,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow the use of the `null` literal.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow the use of the `null` literal.'
 		},
 		fixable: 'code',
 		schema,

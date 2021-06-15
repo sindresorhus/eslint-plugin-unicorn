@@ -1,6 +1,5 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {newExpressionSelector} = require('./selectors/index.js');
 const {switchNewExpressionToCallExpression} = require('./fix/index.js');
 
@@ -57,26 +56,23 @@ const create = context => {
 			const method = inferMethod(node.arguments, context.getScope());
 
 			if (method) {
-				context.report({
+				return {
 					node,
 					messageId: ERROR,
 					data: {method},
 					fix: fix(node, sourceCode, method)
-				});
-			} else {
-				context.report({
-					node,
-					messageId: ERROR_UNKNOWN,
-					suggest: [
-						'from',
-						'alloc'
-					].map(method => ({
-						messageId: SUGGESTION,
-						data: {method},
-						fix: fix(node, sourceCode, method)
-					}))
-				});
+				};
 			}
+
+			return {
+				node,
+				messageId: ERROR_UNKNOWN,
+				suggest: ['from', 'alloc'].map(method => ({
+					messageId: SUGGESTION,
+					data: {method},
+					fix: fix(node, sourceCode, method)
+				}))
+			};
 		}
 	};
 };
@@ -86,11 +82,9 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

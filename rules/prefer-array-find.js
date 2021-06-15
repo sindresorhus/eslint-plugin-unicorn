@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized, findVariable} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {not, methodCallSelector} = require('./selectors/index.js');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
 const renameVariable = require('./utils/rename-variable.js');
@@ -224,38 +223,38 @@ const create = context => {
 
 	return {
 		[zeroIndexSelector](node) {
-			context.report({
+			return {
 				node: node.object.callee.property,
 				messageId: ERROR_ZERO_INDEX,
 				fix: fixer => [
 					fixer.replaceText(node.object.callee.property, 'find'),
 					fixer.removeRange([node.object.range[1], node.range[1]])
 				]
-			});
+			};
 		},
 		[shiftSelector](node) {
-			context.report({
+			return {
 				node: node.callee.object.callee.property,
 				messageId: ERROR_SHIFT,
 				fix: fixer => [
 					fixer.replaceText(node.callee.object.callee.property, 'find'),
 					fixer.removeRange([node.callee.object.range[1], node.range[1]])
 				]
-			});
+			};
 		},
 		[destructuringDeclaratorSelector](node) {
-			context.report({
+			return {
 				node: node.init.callee.property,
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				...fixDestructuringAndReplaceFilter(sourceCode, node)
-			});
+			};
 		},
 		[destructuringAssignmentSelector](node) {
-			context.report({
+			return {
 				node: node.right.callee.property,
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				...fixDestructuringAndReplaceFilter(sourceCode, node)
-			});
+			};
 		},
 		[filterVariableSelector](node) {
 			const scope = context.getScope();
@@ -308,7 +307,7 @@ const create = context => {
 				};
 			}
 
-			context.report(problem);
+			return problem;
 		}
 	};
 };
@@ -318,11 +317,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.find(…)` over the first element from `.filter(…)`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `.find(…)` over the first element from `.filter(…)`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

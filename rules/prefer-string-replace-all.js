@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const quoteString = require('./utils/quote-string.js');
 const {methodCallSelector} = require('./selectors/index.js');
 
@@ -43,7 +42,7 @@ function removeEscapeCharacters(regexString) {
 	return fixedString;
 }
 
-const create = context => {
+const create = () => {
 	return {
 		[selector]: node => {
 			const {arguments: arguments_, callee} = node;
@@ -53,15 +52,14 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			return {
 				node,
 				messageId: MESSAGE_ID,
-				fix: fixer =>
-					[
-						fixer.insertTextAfter(callee, 'All'),
-						fixer.replaceText(search, quoteString(removeEscapeCharacters(search.regex.pattern)))
-					]
-			});
+				fix: fixer => [
+					fixer.insertTextAfter(callee, 'All'),
+					fixer.replaceText(search, quoteString(removeEscapeCharacters(search.regex.pattern)))
+				]
+			};
 		}
 	};
 };
@@ -71,11 +69,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `String#replaceAll()` over regex searches with the global flag.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `String#replaceAll()` over regex searches with the global flag.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

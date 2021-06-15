@@ -9,8 +9,6 @@ const messages = {
 	[MESSAGE_ID]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.'
 };
 
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
-
 const getActualImportDeclarationStyles = importDeclaration => {
 	const {specifiers} = importDeclaration;
 
@@ -109,11 +107,11 @@ const getActualAssignmentTargetImportStyles = assignmentTarget => {
 const joinOr = words => {
 	return words
 		.map((word, index) => {
-			if (index === (words.length - 1)) {
+			if (index === words.length - 1) {
 				return word;
 			}
 
-			if (index === (words.length - 2)) {
+			if (index === words.length - 2) {
 				return word + ' or';
 			}
 
@@ -369,8 +367,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce specific import styles per module.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce specific import styles per module.'
 		},
 		schema,
 		messages

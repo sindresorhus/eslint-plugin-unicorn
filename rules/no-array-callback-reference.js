@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {methodCallSelector, notFunctionSelector} = require('./selectors/index.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 
@@ -81,7 +80,7 @@ const ignoredCallee = [
 	'this'
 ];
 
-function check(context, node, method, options) {
+function getProblem(context, node, method, options) {
 	const {type} = node;
 
 	const name = type === 'Identifier' ? node.name : '';
@@ -129,7 +128,7 @@ function check(context, node, method, options) {
 		problem.suggest.push(suggest);
 	}
 
-	context.report(problem);
+	return problem;
 }
 
 const ignoredFirstArgumentSelector = [
@@ -160,7 +159,7 @@ const create = context => {
 			}
 
 			const [iterator] = node.arguments;
-			check(context, iterator, method, options, sourceCode);
+			return getProblem(context, iterator, method, options, sourceCode);
 		};
 	}
 
@@ -172,10 +171,8 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Prevent passing a function reference directly to iterator methods.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prevent passing a function reference directly to iterator methods.'
 		},
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

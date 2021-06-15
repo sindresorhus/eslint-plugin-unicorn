@@ -1,6 +1,5 @@
 'use strict';
 const isBuiltinModule = require('is-builtin-module');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {matches, STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-node-protocol';
@@ -37,13 +36,13 @@ const create = context => {
 			}
 
 			const firstCharacterIndex = node.range[0] + 1;
-			context.report({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				data: {moduleName: value},
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
 				fix: fixer => fixer.insertTextBeforeRange([firstCharacterIndex, firstCharacterIndex], 'node:')
-			});
+			};
 		}
 	};
 };
@@ -66,8 +65,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer using the `node:` protocol when importing Node.js builtin modules.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer using the `node:` protocol when importing Node.js builtin modules.'
 		},
 		fixable: 'code',
 		schema,

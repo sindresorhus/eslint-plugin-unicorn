@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const {newExpressionSelector} = require('./selectors/index.js');
 
@@ -74,7 +73,7 @@ function getProblem(context, node) {
 
 const create = context => ({
 	[newArraySelector](node) {
-		context.report(getProblem(context, node));
+		return getProblem(context, node);
 	}
 });
 
@@ -83,11 +82,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow `new Array()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow `new Array()`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

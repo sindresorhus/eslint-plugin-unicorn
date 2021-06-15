@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized, getStaticValue, isCommaToken, hasSideEffect} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const {getParenthesizedRange, getParenthesizedText} = require('./utils/parentheses.js');
@@ -313,11 +312,11 @@ const create = context => {
 
 	return {
 		[arrayFromCallSelector](node) {
-			context.report({
+			return {
 				node,
 				messageId: ERROR_ARRAY_FROM,
 				fix: fixArrayFrom(node, sourceCode)
-			});
+			};
 		},
 		[arrayConcatCallSelector](node) {
 			const scope = context.getScope();
@@ -336,14 +335,12 @@ const create = context => {
 
 			if (fixableArguments.length > 0 || node.arguments.length === 0) {
 				problem.fix = fixConcat(node, sourceCode, fixableArguments);
-				context.report(problem);
-				return;
+				return problem;
 			}
 
 			const [firstArgument, ...restArguments] = node.arguments;
 			if (firstArgument.type === 'SpreadElement') {
-				context.report(problem);
-				return;
+				return problem;
 			}
 
 			const fixableArgumentsAfterFirstArgument = getConcatFixableArguments(restArguments, scope);
@@ -396,7 +393,7 @@ const create = context => {
 				});
 			}
 
-			context.report(problem);
+			return problem;
 		},
 		[arraySliceCallSelector](node) {
 			if (isNodeMatches(node.callee.object, ignoredSliceCallee)) {
@@ -408,11 +405,11 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			return {
 				node: node.callee.property,
 				messageId: ERROR_ARRAY_SLICE,
 				fix: fixSlice(node, sourceCode)
-			});
+			};
 		}
 	};
 };
@@ -422,11 +419,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

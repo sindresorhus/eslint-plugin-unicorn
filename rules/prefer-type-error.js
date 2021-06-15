@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {newExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-type-error';
@@ -111,7 +110,7 @@ const isTypecheckingExpression = (node, callExpression) => {
 
 const isTypechecking = node => node.type === 'IfStatement' && isTypecheckingExpression(node.test);
 
-const create = context => {
+const create = () => {
 	return {
 		[selector]: node => {
 			if (
@@ -120,11 +119,11 @@ const create = context => {
 				isTypechecking(node.parent.parent)
 			) {
 				// TODO[@fisker]: Report on `Error`, not `ThrowStatement`
-				context.report({
+				return {
 					node,
 					messageId: MESSAGE_ID,
 					fix: fixer => fixer.replaceText(node.argument.callee, 'TypeError')
-				});
+				};
 			}
 		}
 	};
@@ -135,11 +134,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce throwing `TypeError` in type checking conditions.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce throwing `TypeError` in type checking conditions.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

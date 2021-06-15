@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const isLiteralValue = require('./utils/is-literal-value.js');
 const {
 	getNegativeIndexLengthNode,
@@ -163,7 +162,7 @@ const create = context => ({
 			return;
 		}
 
-		context.report({
+		return {
 			node,
 			messageId: MESSAGE_ID,
 			data: {method},
@@ -173,7 +172,7 @@ const create = context => ({
 					yield removeLengthNode(node, fixer, sourceCode);
 				}
 			}
-		});
+		};
 	}
 });
 
@@ -182,11 +181,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()`, `Array#splice()` and `Array#at()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()`, `Array#splice()` and `Array#at()`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

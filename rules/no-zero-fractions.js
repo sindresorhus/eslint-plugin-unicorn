@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const {isNumber, isDecimalInteger} = require('./utils/numeric.js');
 const toLocation = require('./utils/to-location.js');
@@ -38,7 +37,7 @@ const create = context => {
 			const end = node.range[0] + before.length + dotAndFractions.length;
 			const start = end - (raw.length - formatted.length);
 			const sourceCode = context.getSourceCode();
-			context.report({
+			return {
 				loc: toLocation([start, end], sourceCode),
 				messageId: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
 				fix: fixer => {
@@ -58,7 +57,7 @@ const create = context => {
 
 					return fixer.replaceText(node, fixed);
 				}
-			});
+			};
 		}
 	};
 };
@@ -68,11 +67,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow number literals with zero fractions or dangling dots.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow number literals with zero fractions or dangling dots.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

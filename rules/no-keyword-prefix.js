@@ -1,7 +1,5 @@
 'use strict';
 
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
-
 const MESSAGE_ID = 'noKeywordPrefix';
 const messages = {
 	[MESSAGE_ID]: 'Do not prefix identifiers with keyword `{{keyword}}`.'
@@ -33,7 +31,7 @@ function findKeywordPrefix(name, options) {
 function checkMemberExpression(report, node, options) {
 	const {name, parent} = node;
 	const keyword = findKeywordPrefix(name, options);
-	const effectiveParent = (parent.type === 'MemberExpression') ? parent.parent : parent;
+	const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
 
 	if (!options.checkProperties) {
 		return;
@@ -108,7 +106,7 @@ const create = context => {
 		Identifier: node => {
 			const {name, parent} = node;
 			const keyword = findKeywordPrefix(name, options);
-			const effectiveParent = (parent.type === 'MemberExpression') ? parent.parent : parent;
+			const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
 
 			if (parent.type === 'MemberExpression') {
 				checkMemberExpression(report, node, options);
@@ -196,8 +194,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow identifiers starting with `new` or `class`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow identifiers starting with `new` or `class`.'
 		},
 		schema,
 		messages

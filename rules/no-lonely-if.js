@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized, isNotSemicolonToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const removeSpacesAfter = require('./utils/remove-spaces-after.js');
 const {matches} = require('./selectors/index.js');
@@ -126,11 +125,11 @@ const create = context => {
 
 	return {
 		[selector](node) {
-			context.report({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				fix: fix(node, sourceCode)
-			});
+			};
 		}
 	};
 };
@@ -140,11 +139,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow `if` statements as the only statement in `if` blocks without `else`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow `if` statements as the only statement in `if` blocks without `else`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

@@ -1,6 +1,5 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {callOrNewExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage';
@@ -29,13 +28,13 @@ const errorMessageSelector = callOrNewExpressionSelector({names: errorConstructo
 const create = context => {
 	return {
 		[noArgumentsExpressionSelector](node) {
-			context.report({
+			return {
 				node,
 				messageId: MESSAGE_ID_MISSING_MESSAGE,
 				data: {
 					constructor: node.callee.name
 				}
-			});
+			};
 		},
 		[errorMessageSelector](expression) {
 			const [node] = expression.arguments;
@@ -43,11 +42,10 @@ const create = context => {
 			// These types can't be string, and `getStaticValue` may don't know the value
 			// Add more types, if issue reported
 			if (node.type === 'ArrayExpression' || node.type === 'ObjectExpression') {
-				context.report({
+				return {
 					node,
 					messageId: MESSAGE_ID_NOT_STRING
-				});
-				return;
+				};
 			}
 
 			const result = getStaticValue(node, context.getScope());
@@ -59,18 +57,17 @@ const create = context => {
 
 			const {value} = result;
 			if (typeof value !== 'string') {
-				context.report({
+				return {
 					node,
 					messageId: MESSAGE_ID_NOT_STRING
-				});
-				return;
+				};
 			}
 
 			if (value === '') {
-				context.report({
+				return {
 					node,
 					messageId: MESSAGE_ID_EMPTY_MESSAGE
-				});
+				};
 			}
 		}
 	};
@@ -81,10 +78,8 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce passing a `message` value when creating a built-in error.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce passing a `message` value when creating a built-in error.'
 		},
-		schema: [],
 		messages
 	}
 };
