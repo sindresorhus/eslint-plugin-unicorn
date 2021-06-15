@@ -91,8 +91,6 @@ const create = () => {
 	};
 };
 
-const schema = [];
-
 module.exports = {
 	create,
 	meta: {
@@ -101,7 +99,6 @@ module.exports = {
 			description: 'Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch.'
 		},
 		fixable: 'code',
-		schema,
 		messages
 	}
 };

@@ -209,7 +209,6 @@ module.exports = {
 			description: 'Enforce correct `Error` subclassing.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

@@ -80,7 +80,6 @@ module.exports = {
 		docs: {
 			description: 'Enforce passing a `message` value when creating a built-in error.'
 		},
-		schema: [],
 		messages
 	}
 };

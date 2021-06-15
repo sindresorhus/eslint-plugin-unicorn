@@ -142,7 +142,6 @@ module.exports = {
 			description: 'Disallow `if` statements as the only statement in `if` blocks without `else`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

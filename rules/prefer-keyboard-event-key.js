@@ -177,7 +177,6 @@ module.exports = {
 			description: 'Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

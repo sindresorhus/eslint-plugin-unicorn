@@ -71,7 +71,6 @@ module.exports = {
 			description: 'Disallow unreadable array destructuring.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

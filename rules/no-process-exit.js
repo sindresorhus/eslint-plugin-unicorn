@@ -82,7 +82,6 @@ module.exports = {
 		docs: {
 			description: 'Disallow `process.exit()`.'
 		},
-		schema: [],
 		messages
 	}
 };

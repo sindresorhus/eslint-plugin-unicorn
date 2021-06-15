@@ -42,7 +42,6 @@ module.exports = {
 			description: 'Enforce the use of Unicode escapes instead of hexadecimal escapes.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

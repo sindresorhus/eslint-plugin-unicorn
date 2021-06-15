@@ -86,7 +86,6 @@ module.exports = {
 			description: 'Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages: {
 			...messages,
 			...includesOverSomeRule.messages

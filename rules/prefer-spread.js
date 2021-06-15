@@ -422,7 +422,6 @@ module.exports = {
 			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

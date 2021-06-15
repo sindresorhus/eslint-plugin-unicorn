@@ -62,7 +62,6 @@ module.exports = {
 			description: 'Prefer using `.dataset` on DOM elements over `.setAttribute(…)`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

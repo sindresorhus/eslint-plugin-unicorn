@@ -127,7 +127,6 @@ module.exports = {
 			description: 'Prefer `.flatMap(…)` over `.map(…).flat()`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

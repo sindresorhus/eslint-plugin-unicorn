@@ -320,7 +320,6 @@ module.exports = {
 			description: 'Prefer `.find(…)` over the first element from `.filter(…)`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

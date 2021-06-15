@@ -31,7 +31,6 @@ module.exports = {
 		docs: {
 			description: 'Disallow the use of objects as default parameters.'
 		},
-		schema: [],
 		messages
 	}
 };

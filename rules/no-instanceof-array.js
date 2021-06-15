@@ -51,7 +51,6 @@ module.exports = {
 			description: 'Require `Array.isArray()` instead of `instanceof Array`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

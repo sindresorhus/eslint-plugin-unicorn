@@ -37,7 +37,6 @@ module.exports = {
 		docs: {
 			description: 'Do not use `document.cookie` directly.'
 		},
-		schema: [],
 		messages
 	}
 };

@@ -41,7 +41,6 @@ module.exports = {
 			description: 'Disallow nested ternary expressions.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

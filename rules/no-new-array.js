@@ -85,7 +85,6 @@ module.exports = {
 			description: 'Disallow `new Array()`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

@@ -61,7 +61,6 @@ module.exports = {
 		docs: {
 			description: 'Disallow unsafe regular expressions.'
 		},
-		schema: [],
 		messages
 	}
 };

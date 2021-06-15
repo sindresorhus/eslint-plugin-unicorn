@@ -46,7 +46,6 @@ module.exports = {
 			description: 'Enforce proper case for numeric literals.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

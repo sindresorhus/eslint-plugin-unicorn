@@ -314,7 +314,6 @@ module.exports = {
 			description: 'Prefer JavaScript modules (ESM) over CommonJS.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

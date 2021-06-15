@@ -71,7 +71,6 @@ module.exports = {
 			description: 'Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

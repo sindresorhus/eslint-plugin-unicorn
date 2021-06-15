@@ -249,7 +249,6 @@ module.exports = {
 		docs: {
 			description: 'Disallow unused object properties.'
 		},
-		schema: [],
 		messages
 	}
 };

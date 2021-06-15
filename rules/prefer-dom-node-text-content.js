@@ -28,7 +28,6 @@ module.exports = {
 			description: 'Prefer `.textContent` over `.innerText`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

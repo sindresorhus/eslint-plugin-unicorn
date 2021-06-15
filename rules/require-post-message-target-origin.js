@@ -63,7 +63,6 @@ module.exports = {
 		docs: {
 			description: 'Enforce using the `targetOrigin` argument with `window.postMessage()`.'
 		},
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

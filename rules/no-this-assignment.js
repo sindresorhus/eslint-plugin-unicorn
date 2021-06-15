@@ -38,7 +38,6 @@ module.exports = {
 		docs: {
 			description: 'Disallow assigning `this` to a variable.'
 		},
-		schema: [],
 		messages
 	}
 };

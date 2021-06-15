@@ -79,7 +79,6 @@ module.exports = {
 			description: 'Do not use leading/trailing space between `console.log` parameters.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

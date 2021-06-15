@@ -99,7 +99,6 @@ module.exports = {
 			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

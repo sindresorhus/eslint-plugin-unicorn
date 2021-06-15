@@ -39,7 +39,6 @@ module.exports = {
 			description: 'Prefer `Node#append()` over `Node#appendChild()`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

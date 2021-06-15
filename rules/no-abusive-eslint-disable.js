@@ -41,7 +41,6 @@ module.exports = {
 		docs: {
 			description: 'Enforce specifying rules to disable in `eslint-disable` comments.'
 		},
-		schema: [],
 		messages
 	}
 };

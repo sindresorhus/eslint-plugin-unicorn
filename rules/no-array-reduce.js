@@ -54,7 +54,6 @@ module.exports = {
 		docs: {
 			description: 'Disallow `Array#reduce()` and `Array#reduceRight()`.'
 		},
-		schema: [],
 		messages
 	}
 };

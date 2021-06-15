@@ -130,7 +130,6 @@ module.exports = {
 			description: 'Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

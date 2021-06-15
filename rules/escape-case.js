@@ -58,7 +58,6 @@ module.exports = {
 			description: 'Require escape sequences to use uppercase values.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

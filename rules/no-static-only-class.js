@@ -230,7 +230,6 @@ module.exports = {
 			description: 'Forbid classes that only have static members.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

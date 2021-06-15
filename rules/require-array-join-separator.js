@@ -37,8 +37,6 @@ const create = context => {
 	};
 };
 
-const schema = [];
-
 module.exports = {
 	create,
 	meta: {
@@ -47,7 +45,6 @@ module.exports = {
 			description: 'Enforce using the separator argument with `Array#join()`.'
 		},
 		fixable: 'code',
-		schema,
 		messages
 	}
 };
