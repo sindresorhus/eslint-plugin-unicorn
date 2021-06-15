@@ -33,7 +33,7 @@ const notFunctionTypes = [
 	'~ fn',
 	'typeof fn',
 	'void fn',
-	'delete fn',
+	// 'delete fn',
 	// UpdateExpression
 	'++ fn',
 	'-- fn',
