@@ -60,50 +60,46 @@ const create = context => {
 		name.endsWith(expectedName) ||
 		name.endsWith(expectedName.charAt(0).toUpperCase() + expectedName.slice(1));
 
-	function check(node) {
-		const originalName = node.name;
-
-		if (
-			isNameAllowed(originalName) ||
-			isNameAllowed(originalName.replace(/_+$/g, ''))
-		) {
-			return;
-		}
-
-		const scope = context.getScope();
-		const variable = findVariable(scope, node);
-
-		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768072967
-		// But can't reproduce, just ignore this case
-		/* istanbul ignore next */
-		if (!variable) {
-			return;
-		}
-
-		if (originalName === '_' && variable.references.length === 0) {
-			return;
-		}
-
-		const scopes = [
-			variable.scope,
-			...variable.references.map(({from}) => from)
-		];
-		const fixedName = avoidCapture(expectedName, scopes, ecmaVersion);
-
-		context.report({
-			node,
-			messageId: MESSAGE_ID,
-			data: {
-				originalName,
-				fixedName
-			},
-			fix: fixer => renameVariable(variable, fixedName, fixer)
-		});
-	}
-
 	return {
 		[selector]: node => {
-			check(node);
+			const originalName = node.name;
+
+			if (
+				isNameAllowed(originalName) ||
+				isNameAllowed(originalName.replace(/_+$/g, ''))
+			) {
+				return;
+			}
+
+			const scope = context.getScope();
+			const variable = findVariable(scope, node);
+
+			// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768072967
+			// But can't reproduce, just ignore this case
+			/* istanbul ignore next */
+			if (!variable) {
+				return;
+			}
+
+			if (originalName === '_' && variable.references.length === 0) {
+				return;
+			}
+
+			const scopes = [
+				variable.scope,
+				...variable.references.map(({from}) => from)
+			];
+			const fixedName = avoidCapture(expectedName, scopes, ecmaVersion);
+
+			context.report({
+				node,
+				messageId: MESSAGE_ID,
+				data: {
+					originalName,
+					fixedName
+				},
+				fix: fixer => renameVariable(variable, fixedName, fixer)
+			});
 		}
 	};
 };
