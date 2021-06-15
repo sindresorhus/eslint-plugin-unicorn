@@ -45,6 +45,12 @@ test({
 		't.strictSame(foo, undefined)',
 		't.strictNotSame(foo, undefined)',
 		'expect(someFunction).toHaveBeenCalledWith(1, 2, undefined);',
+		'set.add(undefined);',
+		'map.set(foo, undefined);',
+		'array.push(foo, undefined);',
+		'array.push(undefined);',
+		'array.unshift(foo, undefined);',
+		'array.unshift(undefined);',
 
 		// `checkArguments: false`
 		{
