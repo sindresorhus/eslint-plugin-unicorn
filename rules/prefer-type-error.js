@@ -118,11 +118,11 @@ const create = () => {
 				node.parent.parent &&
 				isTypechecking(node.parent.parent)
 			) {
-				// TODO[@fisker]: Report on `Error`, not `ThrowStatement`
+				const errorConstructor = node.argument.callee;
 				return {
-					node,
+					node: errorConstructor,
 					messageId: MESSAGE_ID,
-					fix: fixer => fixer.replaceText(node.argument.callee, 'TypeError')
+					fix: fixer => fixer.insertTextBefore(errorConstructor, 'Type')
 				};
 			}
 		}
