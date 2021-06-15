@@ -21,6 +21,7 @@ function shouldAddParenthesesToMemberExpressionObject(node, sourceCode) {
 		case 'TemplateLiteral':
 		case 'ThisExpression':
 		case 'ArrayExpression':
+		case 'FunctionExpression':
 			return false;
 		case 'NewExpression':
 			return !isNewExpressionWithParentheses(node, sourceCode);
