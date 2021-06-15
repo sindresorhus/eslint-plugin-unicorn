@@ -120,7 +120,7 @@ const create = context => {
 				problem.fix = fixer => fixer.replaceText(node, `${objectText}${optionalMemberSuffix}.slice${optionalCallSuffix}(${sliceArguments.join(', ')})`);
 			}
 
-			return problem;
+			context.report(problem);
 		},
 
 		[substringCallTemplate](node) {
@@ -188,7 +188,7 @@ const create = context => {
 				problem.fix = fixer => fixer.replaceText(node, `${objectText}${optionalMemberSuffix}.slice${optionalCallSuffix}(${sliceArguments.join(', ')})`);
 			}
 
-			return problem;
+			context.report(problem);
 		}
 	});
 };
@@ -198,7 +198,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `String#slice()` over `String#substr()` and `String#substring()`.'
+			description: 'Prefer `String#slice()` over `String#substr()` and `String#substring()`.',
 		},
 		fixable: 'code',
 		messages

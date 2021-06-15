@@ -88,10 +88,10 @@ const create = context => {
 	const reported = [];
 	const ALLOWED_PARENT_TYPES = new Set(['CallExpression', 'NewExpression']);
 
-	function getProblem(node, keyword) {
+	function report(node, keyword) {
 		if (!reported.includes(node)) {
 			reported.push(node);
-			return ({
+			context.report({
 				node,
 				messageId: MESSAGE_ID,
 				data: {
@@ -133,7 +133,7 @@ const create = context => {
 					!ALLOWED_PARENT_TYPES.has(effectiveParent.type) &&
 					!(parent.right === node)
 				) {
-					return getProblem(node, keyword);
+					report(node, keyword);
 				}
 
 			// Check if it's an import specifier
@@ -150,7 +150,7 @@ const create = context => {
 					parent.local &&
 					parent.local.name === name
 				) {
-					return getProblem(node, keyword);
+					report(node, keyword);
 				}
 
 			// Report anything that is invalid that isn't a CallExpression
@@ -158,7 +158,7 @@ const create = context => {
 				Boolean(keyword) &&
 				!ALLOWED_PARENT_TYPES.has(effectiveParent.type)
 			) {
-				return getProblem(node, keyword);
+				report(node, keyword);
 			}
 		}
 	};
