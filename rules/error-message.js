@@ -3,8 +3,8 @@ const {getStaticValue} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {callOrNewExpressionSelector} = require('./selectors/index.js');
 
-const MESSAGE_ID_MISSING_MESSAGE = 'constructorMissingMessage';
-const MESSAGE_ID_EMPTY_MESSAGE = 'emptyMessage';
+const MESSAGE_ID_MISSING_MESSAGE = 'missing-message';
+const MESSAGE_ID_EMPTY_MESSAGE = 'message-is-empty';
 const MESSAGE_ID_NOT_STRING = 'message-is-not-a-string';
 const messages = {
 	[MESSAGE_ID_MISSING_MESSAGE]: 'Pass a message to the `{{constructor}}` constructor.',
@@ -12,32 +12,35 @@ const messages = {
 	[MESSAGE_ID_NOT_STRING]: 'Error message should be a string.'
 };
 
-const errorConstructors = [
-	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
-	'Error',
-	'EvalError',
-	'RangeError',
-	'ReferenceError',
-	'SyntaxError',
-	'TypeError',
-	'URIError',
-	'InternalError'
-];
-const noArgumentsExpressionSelector = callOrNewExpressionSelector({names: errorConstructors, length: 0});
-const errorMessageSelector = callOrNewExpressionSelector({names: errorConstructors, min: 1});
+const selector = callOrNewExpressionSelector({
+	names: [
+		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
+		'Error',
+		'EvalError',
+		'RangeError',
+		'ReferenceError',
+		'SyntaxError',
+		'TypeError',
+		'URIError',
+		'InternalError'
+	]
+});
 
 const create = context => {
 	return {
-		[noArgumentsExpressionSelector](node) {
-			context.report({
-				node,
-				messageId: MESSAGE_ID_MISSING_MESSAGE,
-				data: {
-					constructor: node.callee.name
-				}
-			});
-		},
-		[errorMessageSelector](expression) {
+		[selector](expression) {
+			const callArguments = expression.arguments;
+			if (!callArguments.length) {
+				context.report({
+					node: expression,
+					messageId: MESSAGE_ID_MISSING_MESSAGE,
+					data: {
+						constructor: expression.callee.name
+					}
+				});
+				return;
+			}
+
 			const [node] = expression.arguments;
 
 			// These types can't be string, and `getStaticValue` may don't know the value
