@@ -11,25 +11,16 @@ const messages = {
 };
 
 const selector = matches([
-	/*
-		`try {} catch (foo) {}`
-		---------------^^^
-	*/
+	// `try {} catch (foo) {}`
 	[
 		'CatchClause',
 		' > ',
 		'Identifier.param'
 	].join(''),
-	/*
-		`promise.then(any, (foo) => {})`
-		--------------------^^^
-		`promise.then(any, function(foo) {})`
-		----------------------------^^^
-		`promise.catch((foo) => {})`
-		----------------^^^
-		`promise.catch(function(foo) {})`
-		------------------------^^^
-	*/
+	// - `promise.then(…, foo => {})`
+	// - `promise.then(…, function(foo) {})`
+	// - `promise.catch(foo => {})`
+	// - `promise.catch(function(foo) {})`
 	[
 		matches([
 			methodCallSelector({name: 'then', length: 2}),
