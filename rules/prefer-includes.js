@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const isMethodNamed = require('./utils/is-method-named.js');
 const isLiteralValue = require('./utils/is-literal-value.js');
 const simpleArraySearchRule = require('./shared/simple-array-search-rule.js');
@@ -15,7 +14,7 @@ const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator =
 const isLiteralZero = node => isLiteralValue(node, 0);
 const isNegativeResult = node => ['===', '==', '<'].includes(node.operator);
 
-const report = (context, node, target, argumentsNodes) => {
+const getProblem = (context, node, target, argumentsNodes) => {
 	const sourceCode = context.getSourceCode();
 	const memberExpressionNode = target.parent;
 	const dotToken = sourceCode.getTokenBefore(memberExpressionNode.property);
@@ -28,14 +27,14 @@ const report = (context, node, target, argumentsNodes) => {
 
 	const argumentsSource = argumentsNodes.map(argument => sourceCode.getText(argument));
 
-	context.report({
+	return {
 		node: memberExpressionNode.property,
 		messageId: MESSAGE_ID,
 		fix: fixer => {
 			const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
 			return fixer.replaceText(node, replacement);
 		}
-	});
+	};
 };
 
 const includesOverSomeRule = simpleArraySearchRule({
@@ -68,7 +67,7 @@ const create = context => ({
 			(['!==', '!=', '>', '===', '=='].includes(operator) && isNegativeOne(right)) ||
 			(['>=', '<'].includes(operator) && isLiteralZero(right))
 		) {
-			report(
+			return getProblem(
 				context,
 				node,
 				target,
@@ -84,11 +83,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages: {
 			...messages,
 			...includesOverSomeRule.messages

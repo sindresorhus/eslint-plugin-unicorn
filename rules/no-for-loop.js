@@ -1,6 +1,5 @@
 'use strict';
 const {isClosingParenToken, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const isLiteralValue = require('./utils/is-literal-value.js');
 const avoidCapture = require('./utils/avoid-capture.js');
 const getChildScopesRecursive = require('./utils/get-child-scopes-recursive.js');
@@ -416,7 +415,7 @@ const create = context => {
 				};
 			}
 
-			context.report(problem);
+			return problem;
 		}
 	};
 };
@@ -426,11 +425,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Do not use a `for` loop that can be replaced with a `for-of` loop.',
-			url: getDocumentationUrl(__filename)
+			description: 'Do not use a `for` loop that can be replaced with a `for-of` loop.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

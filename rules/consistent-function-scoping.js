@@ -1,6 +1,5 @@
 'use strict';
 const {getFunctionHeadLocation, getFunctionNameWithKind} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const getReferences = require('./utils/get-references.js');
 
 const MESSAGE_ID = 'consistent-function-scoping';
@@ -182,14 +181,14 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			return {
 				node,
 				loc: getFunctionHeadLocation(node, sourceCode),
 				messageId: MESSAGE_ID,
 				data: {
 					functionNameWithKind: getFunctionNameWithKind(node, sourceCode)
 				}
-			});
+			};
 		}
 	};
 };
@@ -211,8 +210,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Move function definitions to the highest possible scope.',
-			url: getDocumentationUrl(__filename)
+			description: 'Move function definitions to the highest possible scope.'
 		},
 		schema,
 		messages

@@ -1,6 +1,5 @@
 'use strict';
 const eslintTemplateVisitor = require('eslint-template-visitor');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -199,11 +198,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `String#slice()` over `String#substr()` and `String#substring()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `String#slice()` over `String#substr()` and `String#substring()`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

@@ -1,6 +1,5 @@
 'use strict';
 const {methodCallSelector} = require('./selectors/index.js');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {arrayPrototypeMethodSelector, notFunctionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID_REDUCE = 'reduce';
@@ -53,10 +52,8 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow `Array#reduce()` and `Array#reduceRight()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow `Array#reduce()` and `Array#reduceRight()`.'
 		},
-		schema: [],
 		messages
 	}
 };

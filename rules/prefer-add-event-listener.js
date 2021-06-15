@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const domEventsJson = require('./utils/dom-events.json');
 const {STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors/index.js');
 
@@ -143,7 +142,7 @@ const create = context => {
 				fix = fixer => fixCode(fixer, context.getSourceCode(), node, memberExpression);
 			}
 
-			context.report({
+			return {
 				node: memberExpression.property,
 				messageId: MESSAGE_ID,
 				data: {
@@ -152,7 +151,7 @@ const create = context => {
 					extra: extra ? ` ${extra}` : ''
 				},
 				fix
-			});
+			};
 		}
 	};
 };
@@ -178,8 +177,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.'
 		},
 		fixable: 'code',
 		schema,

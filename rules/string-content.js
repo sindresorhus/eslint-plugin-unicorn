@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const quoteString = require('./utils/quote-string.js');
 const replaceTemplateElement = require('./utils/replace-template-element.js');
 const escapeTemplateElementRaw = require('./utils/escape-template-element-raw.js');
@@ -129,7 +128,7 @@ const create = context => {
 				];
 			}
 
-			context.report(problem);
+			return problem;
 		}
 	};
 };
@@ -177,8 +176,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce better string content.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce better string content.'
 		},
 		fixable: 'code',
 		schema,

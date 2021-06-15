@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const {isBooleanNode} = require('./utils/boolean.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
@@ -82,48 +81,42 @@ const isRegExpNode = node => {
 	return false;
 };
 
-function getProblem(node, checkCase, context) {
-	if (!isBooleanNode(node)) {
-		return;
-	}
-
-	const {type, getNodes, fix} = checkCase;
-	const nodes = getNodes(node);
-	const {methodNode, regexpNode} = nodes;
-	const problem = {
-		node: type === REGEXP_EXEC ? methodNode : node,
-		messageId: type
-	};
-
-	if (regexpNode.type === 'Literal' && !regexpNode.regex) {
-		return;
-	}
-
-	if (!isRegExpNode(regexpNode)) {
-		const staticResult = getStaticValue(regexpNode, context.getScope());
-		if (staticResult) {
-			const {value} = staticResult;
-			if (
-				Object.prototype.toString.call(value) !== '[object RegExp]' ||
-				value.flags.includes('g')
-			) {
-				return problem;
-			}
-		}
-	}
-
-	problem.fix = fixer => fix(fixer, nodes, context.getSourceCode());
-	return problem;
-}
-
 const create = context => Object.fromEntries(
 	cases.map(checkCase => [
 		checkCase.selector,
 		node => {
-			const problem = getProblem(node, checkCase, context);
-			if (problem) {
-				context.report(problem);
+			if (!isBooleanNode(node)) {
+				return;
 			}
+
+			const {type, getNodes, fix} = checkCase;
+			const nodes = getNodes(node);
+			const {methodNode, regexpNode} = nodes;
+
+			if (regexpNode.type === 'Literal' && !regexpNode.regex) {
+				return;
+			}
+
+			const problem = {
+				node: type === REGEXP_EXEC ? methodNode : node,
+				messageId: type
+			};
+
+			if (!isRegExpNode(regexpNode)) {
+				const staticResult = getStaticValue(regexpNode, context.getScope());
+				if (staticResult) {
+					const {value} = staticResult;
+					if (
+						Object.prototype.toString.call(value) !== '[object RegExp]' ||
+						value.flags.includes('g')
+					) {
+						return problem;
+					}
+				}
+			}
+
+			problem.fix = fixer => fix(fixer, nodes, context.getSourceCode());
+			return problem;
 		}
 	])
 );
@@ -133,11 +126,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

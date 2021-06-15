@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 
 const MESSAGE_ID = 'no-unreadable-array-destructuring';
@@ -59,7 +58,7 @@ const create = context => {
 				}
 			}
 
-			context.report(problem);
+			return problem;
 		}
 	};
 };
@@ -69,11 +68,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow unreadable array destructuring.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow unreadable array destructuring.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

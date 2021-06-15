@@ -1,6 +1,5 @@
 'use strict';
 const {hasSideEffect, isCommaToken, isSemicolonToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const getCallExpressionArgumentsText = require('./utils/get-call-expression-arguments-text.js');
 const isSameReference = require('./utils/is-same-reference.js');
@@ -76,10 +75,11 @@ function create(context) {
 					const text = getCallExpressionArgumentsText(secondCall, sourceCode);
 
 					const [penultimateToken, lastToken] = sourceCode.getLastTokens(firstCall, 2);
-					yield (isCommaToken(penultimateToken) ? fixer.insertTextAfter(penultimateToken, ` ${text}`) : fixer.insertTextBefore(
-						lastToken,
-						firstCall.arguments.length > 0 ? `, ${text}` : text
-					));
+					yield (
+						isCommaToken(penultimateToken) ?
+							fixer.insertTextAfter(penultimateToken, ` ${text}`) :
+							fixer.insertTextBefore(lastToken, firstCall.arguments.length > 0 ? `, ${text}` : text)
+					);
 				}
 
 				const shouldKeepSemicolon = !isSemicolonToken(sourceCode.getLastToken(firstExpression)) &&
@@ -102,7 +102,7 @@ function create(context) {
 				problem.fix = fix;
 			}
 
-			context.report(problem);
+			return problem;
 		}
 	};
 }
@@ -125,8 +125,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce combining multiple `Array#push()` into one call.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce combining multiple `Array#push()` into one call.'
 		},
 		fixable: 'code',
 		schema,

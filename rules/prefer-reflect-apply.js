@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const isLiteralValue = require('./utils/is-literal-value.js');
 const getPropertyName = require('./utils/get-property-name.js');
 const {not, methodCallSelector} = require('./selectors/index.js');
@@ -71,11 +70,11 @@ const create = context => {
 			const sourceCode = context.getSourceCode();
 			const fix = fixDirectApplyCall(node, sourceCode) || fixFunctionPrototypeCall(node, sourceCode);
 			if (fix) {
-				context.report({
+				return {
 					node,
 					messageId: MESSAGE_ID,
 					fix
-				});
+				};
 			}
 		}
 	};
@@ -86,11 +85,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Reflect.apply()` over `Function#apply()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `Reflect.apply()` over `Function#apply()`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

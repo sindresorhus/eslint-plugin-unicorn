@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {isNumber, isBigInt} = require('./utils/numeric.js');
 
 const MESSAGE_ID = 'number-literal-case';
@@ -16,7 +15,7 @@ const fix = raw => {
 	return fixed;
 };
 
-const create = context => {
+const create = () => {
 	return {
 		Literal: node => {
 			const {raw} = node;
@@ -29,11 +28,11 @@ const create = context => {
 			}
 
 			if (raw !== fixed) {
-				context.report({
+				return {
 					node,
 					messageId: MESSAGE_ID,
 					fix: fixer => fixer.replaceText(node, fixed)
-				});
+				};
 			}
 		}
 	};
@@ -44,11 +43,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce proper case for numeric literals.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce proper case for numeric literals.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

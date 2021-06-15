@@ -1,7 +1,6 @@
 'use strict';
 const {findVariable} = require('eslint-utils');
 const avoidCapture = require('./utils/avoid-capture.js');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const renameVariable = require('./utils/rename-variable.js');
 const {matches, methodCallSelector} = require('./selectors/index.js');
 
@@ -51,6 +50,7 @@ const create = context => {
 		name.endsWith(expectedName) ||
 		name.endsWith(expectedName.charAt(0).toUpperCase() + expectedName.slice(1));
 
+<<<<<<< HEAD
 	return {
 		[selector]: node => {
 			const originalName = node.name;
@@ -61,6 +61,27 @@ const create = context => {
 			) {
 				return;
 			}
+=======
+	function getProblem(node) {
+		const originalName = node.name;
+
+		if (
+			isNameAllowed(originalName) ||
+			isNameAllowed(originalName.replace(/_+$/g, ''))
+		) {
+			return;
+		}
+
+		const scope = context.getScope();
+		const variable = findVariable(scope, node);
+
+		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768072967
+		// But can't reproduce, just ignore this case
+		/* istanbul ignore next */
+		if (!variable) {
+			return;
+		}
+>>>>>>> main
 
 			const scope = context.getScope();
 			const variable = findVariable(scope, node);
@@ -82,7 +103,7 @@ const create = context => {
 			];
 			const fixedName = avoidCapture(expectedName, scopes, ecmaVersion);
 
-			context.report({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				data: {
@@ -90,7 +111,7 @@ const create = context => {
 					fixedName
 				},
 				fix: fixer => renameVariable(variable, fixedName, fixer)
-			});
+			};
 		}
 	};
 };
@@ -115,8 +136,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce a specific parameter name in catch clauses.',
-			url: getDocumentationUrl(__filename)
+			description: 'Enforce a specific parameter name in catch clauses.'
 		},
 		fixable: 'code',
 		schema,
