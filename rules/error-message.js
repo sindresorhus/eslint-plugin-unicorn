@@ -12,36 +12,40 @@ const messages = {
 	[MESSAGE_ID_NOT_STRING]: 'Error message should be a string.'
 };
 
-const selector = callOrNewExpressionSelector({
-	names: [
-		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
-		'Error',
-		'EvalError',
-		'RangeError',
-		'ReferenceError',
-		'SyntaxError',
-		'TypeError',
-		'URIError',
-		'InternalError'
-	]
-});
+const selector = callOrNewExpressionSelector({names: [
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
+	'Error',
+	'EvalError',
+	'RangeError',
+	'ReferenceError',
+	'SyntaxError',
+	'TypeError',
+	'URIError',
+	'InternalError',
+	'AggregateError'
+]});
 
 const create = context => {
 	return {
 		[selector](expression) {
+			const constructorName = expression.callee.name;
+			const messageArgumentIndex = constructorName === 'AggregateError' ? 1 : 0;
 			const callArguments = expression.arguments;
-			if (!callArguments.length) {
+
+			// If there are `SpreadElement`s before
+			if (callArguments.some((node, index) => index <= messageArgumentIndex && node.type === 'SpreadElement')) {
+				return;
+			}
+			const node = callArguments[messageArgumentIndex];
+
+			if (!node) {
 				context.report({
 					node: expression,
 					messageId: MESSAGE_ID_MISSING_MESSAGE,
-					data: {
-						constructor: expression.callee.name
-					}
+					data: {constructor: constructorName}
 				});
 				return;
 			}
-
-			const [node] = expression.arguments;
 
 			// These types can't be string, and `getStaticValue` may don't know the value
 			// Add more types, if issue reported
