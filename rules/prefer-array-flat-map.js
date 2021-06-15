@@ -67,7 +67,7 @@ const reportFlatMap = (context, nodeFlat) => {
 
 	const mapProperty = nodeMap.callee.property;
 
-	return ({
+	return {
 		node: nodeFlat,
 		loc: {start: mapProperty.loc.start, end: nodeFlat.loc.end},
 		messageId: MESSAGE_ID,
@@ -96,7 +96,7 @@ const reportFlatMap = (context, nodeFlat) => {
 				yield fixer.remove(maybeSemicolon);
 			}
 		}
-	});
+	};
 };
 
 const ignored = ['React.Children', 'Children'];

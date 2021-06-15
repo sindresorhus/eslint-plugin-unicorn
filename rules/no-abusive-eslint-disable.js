@@ -17,7 +17,7 @@ const create = () => ({
 				result && // It's a eslint-disable comment
 				!result.groups.ruleId // But it did not specify any rules
 			) {
-				yield ({
+				yield {
 					// Can't set it at the given location as the warning
 					// will be ignored due to the disable comment
 					loc: {
@@ -28,7 +28,7 @@ const create = () => ({
 						end: comment.loc.end
 					},
 					messageId: MESSAGE_ID
-				});
+				};
 			}
 		}
 	}

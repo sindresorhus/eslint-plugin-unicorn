@@ -11,11 +11,11 @@ const selector = memberExpressionSelector('innerText');
 const create = () => {
 	return {
 		[selector]({property: node}) {
-			return ({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				fix: fixer => fixer.replaceText(node, 'textContent')
-			});
+			};
 		}
 	};
 };

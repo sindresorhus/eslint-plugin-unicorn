@@ -39,17 +39,17 @@ const identifier = [
 function create(context) {
 	return {
 		[promise](node) {
-			return ({
+			return {
 				node: node.callee.property,
 				messageId: ERROR_PROMISE
-			});
+			};
 		},
 		[iife](node) {
-			return ({
+			return {
 				node,
 				loc: getFunctionHeadLocation(node.callee, context.getSourceCode()),
 				messageId: ERROR_IIFE
-			});
+			};
 		},
 		[identifier](node) {
 			const variable = findVariable(context.getScope(), node.callee);
@@ -73,7 +73,7 @@ function create(context) {
 				return;
 			}
 
-			return ({
+			return {
 				node,
 				messageId: ERROR_IDENTIFIER,
 				data: {name: node.callee.name},
@@ -83,7 +83,7 @@ function create(context) {
 						fix: fixer => fixer.insertTextBefore(node, 'await ')
 					}
 				]
-			});
+			};
 		}
 	};
 }

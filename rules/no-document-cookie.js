@@ -22,10 +22,10 @@ const create = context => {
 				return;
 			}
 
-			return ({
+			return {
 				node,
 				messageId: MESSAGE_ID
-			});
+			};
 		}
 	};
 };

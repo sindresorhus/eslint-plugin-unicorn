@@ -24,10 +24,10 @@ const create = () => {
 			}
 
 			if (!safeRegex(node.value)) {
-				return ({
+				return {
 					node,
 					messageId: MESSAGE_ID
-				});
+				};
 			}
 		},
 		[newRegExpSelector]: node => {
@@ -45,10 +45,10 @@ const create = () => {
 			}
 
 			if (!safeRegex(`/${pattern}/${flags}`)) {
-				return ({
+				return {
 					node,
 					messageId: MESSAGE_ID
-				});
+				};
 			}
 		}
 	};

@@ -212,12 +212,12 @@ function create(context) {
 				return;
 			}
 
-			return ({
+			return {
 				node,
 				loc: getClassHeadLocation(node, sourceCode),
 				messageId: MESSAGE_ID,
 				fix: switchClassToObject(node, sourceCode)
-			});
+			};
 		}
 	};
 }

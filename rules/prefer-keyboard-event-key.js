@@ -102,12 +102,12 @@ const fix = node => fixer => {
 
 const create = context => {
 	const getProblem = node => {
-		return ({
+		return {
 			messageId: MESSAGE_ID,
 			data: {name: node.name},
 			node,
 			fix: fix(node)
-		});
+		};
 	};
 
 	return {

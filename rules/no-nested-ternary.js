@@ -16,18 +16,18 @@ const create = context => {
 	return {
 		[nestTernarySelector(3)]: node => {
 			// Nesting more than one level not allowed.
-			return ({node, messageId: MESSAGE_ID_TOO_DEEP});
+			return {node, messageId: MESSAGE_ID_TOO_DEEP};
 		},
 		[nestTernarySelector(2)]: node => {
 			if (!isParenthesized(node, sourceCode)) {
-				return ({
+				return {
 					node,
 					messageId: MESSAGE_ID_SHOULD_PARENTHESIZED,
 					fix: fixer => [
 						fixer.insertTextBefore(node, '('),
 						fixer.insertTextAfter(node, ')')
 					]
-				});
+				};
 			}
 		}
 	};

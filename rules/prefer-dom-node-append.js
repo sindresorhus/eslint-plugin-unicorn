@@ -22,11 +22,11 @@ const create = () => {
 				fixer => fixer.replaceText(node.callee.property, 'append') :
 				undefined;
 
-			return ({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				fix
-			});
+			};
 		}
 	};
 };

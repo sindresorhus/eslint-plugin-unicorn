@@ -28,13 +28,13 @@ const errorMessageSelector = callOrNewExpressionSelector({names: errorConstructo
 const create = context => {
 	return {
 		[noArgumentsExpressionSelector](node) {
-			return ({
+			return {
 				node,
 				messageId: MESSAGE_ID_MISSING_MESSAGE,
 				data: {
 					constructor: node.callee.name
 				}
-			});
+			};
 		},
 		[errorMessageSelector](expression) {
 			const [node] = expression.arguments;
@@ -42,10 +42,10 @@ const create = context => {
 			// These types can't be string, and `getStaticValue` may don't know the value
 			// Add more types, if issue reported
 			if (node.type === 'ArrayExpression' || node.type === 'ObjectExpression') {
-				return ({
+				return {
 					node,
 					messageId: MESSAGE_ID_NOT_STRING
-				});
+				};
 			}
 
 			const result = getStaticValue(node, context.getScope());
@@ -57,17 +57,17 @@ const create = context => {
 
 			const {value} = result;
 			if (typeof value !== 'string') {
-				return ({
+				return {
 					node,
 					messageId: MESSAGE_ID_NOT_STRING
-				});
+				};
 			}
 
 			if (value === '') {
-				return ({
+				return {
 					node,
 					messageId: MESSAGE_ID_EMPTY_MESSAGE
-				});
+				};
 			}
 		}
 	};

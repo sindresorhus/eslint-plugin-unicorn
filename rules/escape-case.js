@@ -14,11 +14,11 @@ const create = () => {
 		const fixed = original.replace(regex, data => data.slice(0, 1) + data.slice(1).toUpperCase());
 
 		if (fixed !== original) {
-			return ({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				fix: fixer => fix ? fix(fixer, fixed) : fixer.replaceText(node, fixed)
-			});
+			};
 		}
 	};
 

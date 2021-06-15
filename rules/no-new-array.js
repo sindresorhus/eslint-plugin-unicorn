@@ -73,7 +73,7 @@ function getProblem(context, node) {
 
 const create = context => ({
 	[newArraySelector](node) {
-		return (getProblem(context, node));
+		return getProblem(context, node);
 	}
 });
 

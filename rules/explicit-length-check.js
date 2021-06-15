@@ -141,7 +141,7 @@ function create(context) {
 			];
 		}
 
-		return (problem);
+		return problem;
 	}
 
 	return {

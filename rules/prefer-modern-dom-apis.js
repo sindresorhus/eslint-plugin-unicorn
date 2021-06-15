@@ -41,7 +41,7 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 		) :
 		undefined;
 
-	return ({
+	return {
 		node,
 		messageId: 'replaceChildOrInsertBefore',
 		data: {
@@ -52,7 +52,7 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 			oldChildNode
 		},
 		fix
-	});
+	};
 };
 
 const insertAdjacentTextOrInsertAdjacentElementSelector = [
@@ -97,7 +97,7 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 			`${reference}.${preferredMethod}(${content})`
 		);
 
-	return ({
+	return {
 		node,
 		messageId: 'insertAdjacentTextOrInsertAdjacentElement',
 		data: {
@@ -108,7 +108,7 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 			content
 		},
 		fix
-	});
+	};
 };
 
 const create = context => {

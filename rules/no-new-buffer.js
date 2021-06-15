@@ -56,15 +56,15 @@ const create = context => {
 			const method = inferMethod(node.arguments, context.getScope());
 
 			if (method) {
-				return ({
+				return {
 					node,
 					messageId: ERROR,
 					data: {method},
 					fix: fix(node, sourceCode, method)
-				});
+				};
 			}
 
-			return ({
+			return {
 				node,
 				messageId: ERROR_UNKNOWN,
 				suggest: [
@@ -75,7 +75,7 @@ const create = context => {
 					data: {method},
 					fix: fix(node, sourceCode, method)
 				}))
-			});
+			};
 		}
 	};
 };

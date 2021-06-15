@@ -142,7 +142,7 @@ const create = context => {
 				fix = fixer => fixCode(fixer, context.getSourceCode(), node, memberExpression);
 			}
 
-			return ({
+			return {
 				node: memberExpression.property,
 				messageId: MESSAGE_ID,
 				data: {
@@ -151,7 +151,7 @@ const create = context => {
 					extra: extra ? ` ${extra}` : ''
 				},
 				fix
-			});
+			};
 		}
 	};
 };

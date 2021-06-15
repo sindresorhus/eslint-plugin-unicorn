@@ -27,14 +27,14 @@ const getProblem = (context, node, target, argumentsNodes) => {
 
 	const argumentsSource = argumentsNodes.map(argument => sourceCode.getText(argument));
 
-	return ({
+	return {
 		node: memberExpressionNode.property,
 		messageId: MESSAGE_ID,
 		fix: fixer => {
 			const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
 			return fixer.replaceText(node, replacement);
 		}
-	});
+	};
 };
 
 const includesOverSomeRule = simpleArraySearchRule({

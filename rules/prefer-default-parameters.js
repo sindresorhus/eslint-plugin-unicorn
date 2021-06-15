@@ -175,7 +175,7 @@ const create = context => {
 			`(${firstId} = ${literal})` :
 			`${firstId} = ${literal}`;
 
-		return ({
+		return {
 			node,
 			messageId: MESSAGE_ID,
 			suggest: [{
@@ -185,7 +185,7 @@ const create = context => {
 					fixDefaultExpression(fixer, sourceCode, node)
 				]
 			}]
-		});
+		};
 	};
 
 	return {

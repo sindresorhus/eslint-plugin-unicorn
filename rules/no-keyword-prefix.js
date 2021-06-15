@@ -31,7 +31,7 @@ function findKeywordPrefix(name, options) {
 function checkMemberExpression(report, node, options) {
 	const {name, parent} = node;
 	const keyword = findKeywordPrefix(name, options);
-	const effectiveParent = (parent.type === 'MemberExpression') ? parent.parent : parent;
+	const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
 
 	if (!options.checkProperties) {
 		return;
@@ -106,7 +106,7 @@ const create = context => {
 		Identifier: node => {
 			const {name, parent} = node;
 			const keyword = findKeywordPrefix(name, options);
-			const effectiveParent = (parent.type === 'MemberExpression') ? parent.parent : parent;
+			const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
 
 			if (parent.type === 'MemberExpression') {
 				checkMemberExpression(report, node, options);

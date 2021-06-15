@@ -65,10 +65,10 @@ const create = context => {
 		* 'Program:exit'() {
 			if (!requiredWorkerThreadsModule) {
 				for (const node of problemNodes) {
-					yield ({
+					yield {
 						node,
 						messageId: MESSAGE_ID
-					});
+					};
 				}
 			}
 		}

@@ -10,14 +10,14 @@ function checkEscape(context, node, value) {
 	const fixedValue = value.replace(/(?<=(?:^|[^\\])(?:\\\\)*\\)x/g, 'u00');
 
 	if (value !== fixedValue) {
-		return ({
+		return {
 			node,
 			messageId: MESSAGE_ID,
 			fix: fixer =>
 				node.type === 'TemplateElement' ?
 					replaceTemplateElement(fixer, node, fixedValue) :
 					fixer.replaceText(node, fixedValue)
-		});
+		};
 	}
 }
 

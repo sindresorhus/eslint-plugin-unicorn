@@ -83,14 +83,14 @@ const create = context => {
 				}
 			}
 
-			return (problem);
+			return problem;
 		},
 		[bitwiseNotUnaryExpressionSelector]: node => {
-			return ({
+			return {
 				node,
 				messageId: ERROR_BITWISE_NOT,
 				fix: fixer => fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument))
-			});
+			};
 		}
 	};
 };

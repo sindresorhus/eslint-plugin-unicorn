@@ -219,7 +219,7 @@ function create(context) {
 				problem.fix = fix(node, array, sourceCode, shouldSwitchToArray);
 			}
 
-			return (problem);
+			return problem;
 		};
 	}
 

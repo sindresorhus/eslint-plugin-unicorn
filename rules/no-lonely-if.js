@@ -125,11 +125,11 @@ const create = context => {
 
 	return {
 		[selector](node) {
-			return ({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				fix: fix(node, sourceCode)
-			});
+			};
 		}
 	};
 };

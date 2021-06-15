@@ -223,38 +223,38 @@ const create = context => {
 
 	return {
 		[zeroIndexSelector](node) {
-			return ({
+			return {
 				node: node.object.callee.property,
 				messageId: ERROR_ZERO_INDEX,
 				fix: fixer => [
 					fixer.replaceText(node.object.callee.property, 'find'),
 					fixer.removeRange([node.object.range[1], node.range[1]])
 				]
-			});
+			};
 		},
 		[shiftSelector](node) {
-			return ({
+			return {
 				node: node.callee.object.callee.property,
 				messageId: ERROR_SHIFT,
 				fix: fixer => [
 					fixer.replaceText(node.callee.object.callee.property, 'find'),
 					fixer.removeRange([node.callee.object.range[1], node.range[1]])
 				]
-			});
+			};
 		},
 		[destructuringDeclaratorSelector](node) {
-			return ({
+			return {
 				node: node.init.callee.property,
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				...fixDestructuringAndReplaceFilter(sourceCode, node)
-			});
+			};
 		},
 		[destructuringAssignmentSelector](node) {
-			return ({
+			return {
 				node: node.right.callee.property,
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				...fixDestructuringAndReplaceFilter(sourceCode, node)
-			});
+			};
 		},
 		[filterVariableSelector](node) {
 			const scope = context.getScope();
@@ -307,7 +307,7 @@ const create = context => {
 				};
 			}
 
-			return (problem);
+			return problem;
 		}
 	};
 };

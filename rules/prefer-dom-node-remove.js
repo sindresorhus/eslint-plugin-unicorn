@@ -62,7 +62,7 @@ const create = context => {
 				];
 			}
 
-			return (problem);
+			return problem;
 		}
 	};
 };

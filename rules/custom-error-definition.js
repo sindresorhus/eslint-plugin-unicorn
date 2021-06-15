@@ -83,24 +83,24 @@ function * customErrorDefinition(context, node) {
 	const className = getClassName(name);
 
 	if (name !== className) {
-		yield ({
+		yield {
 			node: node.id,
 			message: `Invalid class name, use \`${className}\`.`
-		});
+		};
 	}
 
 	const {body, range} = node.body;
 	const constructor = body.find(x => x.kind === 'constructor');
 
 	if (!constructor) {
-		yield ({
+		yield {
 			node,
 			message: 'Add a constructor to your error.',
 			fix: fixer => fixer.insertTextAfterRange([
 				range[0],
 				range[0] + 1
 			], getConstructorMethod(name))
-		});
+		};
 		return;
 	}
 
@@ -117,14 +117,14 @@ function * customErrorDefinition(context, node) {
 	const messageExpressionIndex = constructorBody.findIndex(x => isAssignmentExpression(x, 'message'));
 
 	if (!superExpression) {
-		yield ({
+		yield {
 			node: constructorBodyNode,
 			message: 'Missing call to `super()` in constructor.'
-		});
+		};
 	} else if (messageExpressionIndex !== -1) {
 		const expression = constructorBody[messageExpressionIndex];
 
-		yield ({
+		yield {
 			node: superExpression,
 			message: 'Pass the error message to `super()` instead of setting `this.message`.',
 			* fix(fixer) {
@@ -141,7 +141,7 @@ function * customErrorDefinition(context, node) {
 					expression.range[1]
 				]);
 			}
-		});
+		};
 	}
 
 	const nameExpression = constructorBody.find(x => isAssignmentExpression(x, 'name'));
@@ -149,16 +149,16 @@ function * customErrorDefinition(context, node) {
 		const nameProperty = body.find(node => isPropertyDefinition(node, 'name'));
 
 		if (!nameProperty || !nameProperty.value || nameProperty.value.value !== name) {
-			yield ({
+			yield {
 				node: nameProperty && nameProperty.value ? nameProperty.value : constructorBodyNode,
 				message: `The \`name\` property should be set to \`${name}\`.`
-			});
+			};
 		}
 	} else if (nameExpression.expression.right.value !== name) {
-		yield ({
+		yield {
 			node: nameExpression ? nameExpression.expression.right : constructorBodyNode,
 			message: `The \`name\` property should be set to \`${name}\`.`
-		});
+		};
 	}
 }
 

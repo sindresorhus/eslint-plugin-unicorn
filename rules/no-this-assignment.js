@@ -23,11 +23,11 @@ const selector = matches([variableDeclaratorSelector, assignmentExpressionSelect
 const create = () => ({
 	[selector](node) {
 		const variable = node.type === 'AssignmentExpression' ? node.left : node.id;
-		return ({
+		return {
 			node,
 			data: {name: variable.name},
 			messageId: MESSAGE_ID
-		});
+		};
 	}
 });
 

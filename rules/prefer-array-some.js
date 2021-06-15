@@ -41,7 +41,7 @@ const create = context => {
 			}
 
 			const findProperty = findCall.callee.property;
-			return ({
+			return {
 				node: findProperty,
 				messageId: ERROR_ID_ARRAY_SOME,
 				suggest: [
@@ -50,11 +50,11 @@ const create = context => {
 						fix: fixer => fixer.replaceText(findProperty, 'some')
 					}
 				]
-			});
+			};
 		},
 		[arrayFilterCallSelector](filterCall) {
 			const filterProperty = filterCall.callee.property;
-			return ({
+			return {
 				node: filterProperty,
 				messageId: ERROR_ID_ARRAY_FILTER,
 				* fix(fixer) {
@@ -86,7 +86,7 @@ const create = context => {
 
 					// The `BinaryExpression` always ends with a number or `)`, no need check for ASI
 				}
-			});
+			};
 		}
 	};
 };

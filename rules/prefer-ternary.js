@@ -199,7 +199,7 @@ const create = context => {
 
 			const scope = context.getScope();
 
-			return ({
+			return {
 				node,
 				messageId,
 				* fix(fixer) {
@@ -251,7 +251,7 @@ const create = context => {
 						yield * extendFixRange(fixer, sourceCode.ast.range);
 					}
 				}
-			});
+			};
 		}
 	};
 };

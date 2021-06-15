@@ -15,11 +15,11 @@ const objectParameterSelector = [
 const create = () => {
 	return {
 		[objectParameterSelector]: node => {
-			return ({
+			return {
 				node: node.left,
 				messageId: MESSAGE_ID,
 				data: {parameter: node.left.name}
-			});
+			};
 		}
 	};
 };

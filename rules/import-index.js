@@ -12,11 +12,11 @@ const normalize = value => value.replace(regexp, '$<package>');
 
 const importIndex = (context, node, argument) => {
 	if (argument && isImportingIndex(argument.value)) {
-		return ({
+		return {
 			node,
 			messageId: MESSAGE_ID,
 			fix: fixer => fixer.replaceText(argument, `'${normalize(argument.value)}'`)
-		});
+		};
 	}
 };
 

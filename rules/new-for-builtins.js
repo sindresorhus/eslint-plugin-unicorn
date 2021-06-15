@@ -31,12 +31,12 @@ const create = context => {
 				return;
 			}
 
-			return ({
+			return {
 				node,
 				messageId: 'enforce',
 				data: {name},
 				fix: fixer => fixer.insertTextBefore(node, 'new ')
-			});
+			};
 		},
 		[newExpressionSelector(builtins.disallowNew)]: node => {
 			const {callee} = node;
@@ -58,7 +58,7 @@ const create = context => {
 				};
 			}
 
-			return (problem);
+			return problem;
 		}
 	};
 };

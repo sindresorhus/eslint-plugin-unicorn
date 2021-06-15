@@ -121,11 +121,11 @@ const create = context => {
 			const formatted = format(strippedNumber, {prefix, data}, options) + suffix;
 
 			if (raw !== formatted) {
-				return ({
+				return {
 					node,
 					messageId: MESSAGE_ID,
 					fix: fixer => fixer.replaceText(node, formatted)
-				});
+				};
 			}
 		}
 	};

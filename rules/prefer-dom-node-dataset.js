@@ -45,11 +45,11 @@ const create = context => {
 				return;
 			}
 
-			return ({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				fix: fixer => fix(context, node, fixer)
-			});
+			};
 		}
 	};
 };

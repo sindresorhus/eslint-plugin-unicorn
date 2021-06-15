@@ -107,11 +107,11 @@ const getActualAssignmentTargetImportStyles = assignmentTarget => {
 const joinOr = words => {
 	return words
 		.map((word, index) => {
-			if (index === (words.length - 1)) {
+			if (index === words.length - 1) {
 				return word;
 			}
 
-			if (index === (words.length - 2)) {
+			if (index === words.length - 2) {
 				return word + ' or';
 			}
 
@@ -367,7 +367,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce specific import styles per module.',
+			description: 'Enforce specific import styles per module.'
 		},
 		schema,
 		messages

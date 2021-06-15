@@ -90,11 +90,11 @@ const create = context => {
 			}
 		}
 
-		return ({
+		return {
 			node,
 			messageId,
 			fix: fixer => fix(node, fixer)
-		});
+		};
 	};
 
 	const sourceCode = context.getSourceCode();
@@ -148,7 +148,7 @@ const create = context => {
 			const firstUndefined = undefinedArguments[0];
 			const lastUndefined = undefinedArguments[undefinedArguments.length - 1];
 
-			return ({
+			return {
 				messageId,
 				loc: {
 					start: firstUndefined.loc.start,
@@ -172,7 +172,7 @@ const create = context => {
 
 					return fixer.removeRange([start, end]);
 				}
-			});
+			};
 		};
 	}
 

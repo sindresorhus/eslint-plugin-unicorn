@@ -39,7 +39,7 @@ function create(context) {
 
 			suggestions.push({messageId: SUGGESTION_STAR, code: '\'*\''});
 
-			return ({
+			return {
 				loc: {
 					start: penultimateToken.loc.end,
 					end: lastToken.loc.end
@@ -51,7 +51,7 @@ function create(context) {
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
 					fix: fixer => appendArgument(fixer, node, code, sourceCode)
 				}))
-			});
+			};
 		}
 	};
 }

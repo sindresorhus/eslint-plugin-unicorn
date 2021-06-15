@@ -28,11 +28,11 @@ const create = () => {
 			}
 
 			if (raw !== fixed) {
-				return ({
+				return {
 					node,
 					messageId: MESSAGE_ID,
 					fix: fixer => fixer.replaceText(node, fixed)
-				});
+				};
 			}
 		}
 	};

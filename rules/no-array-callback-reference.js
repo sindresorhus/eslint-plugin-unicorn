@@ -128,7 +128,7 @@ function getProblem(context, node, method, options) {
 		problem.suggest.push(suggest);
 	}
 
-	return (problem);
+	return problem;
 }
 
 const ignoredFirstArgumentSelector = [

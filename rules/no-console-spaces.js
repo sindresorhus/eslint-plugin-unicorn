@@ -35,12 +35,12 @@ const create = context => {
 			node.range[1] - 2;
 		const range = [index, index + 1];
 
-		return ({
+		return {
 			loc: toLocation(range, sourceCode),
 			messageId: MESSAGE_ID,
 			data: {method, position},
 			fix: fixer => fixer.removeRange(range)
-		});
+		};
 	};
 
 	return {

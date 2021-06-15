@@ -37,7 +37,7 @@ const create = context => {
 			const end = node.range[0] + before.length + dotAndFractions.length;
 			const start = end - (raw.length - formatted.length);
 			const sourceCode = context.getSourceCode();
-			return ({
+			return {
 				loc: toLocation([start, end], sourceCode),
 				messageId: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
 				fix: fixer => {
@@ -57,7 +57,7 @@ const create = context => {
 
 					return fixer.replaceText(node, fixed);
 				}
-			});
+			};
 		}
 	};
 };

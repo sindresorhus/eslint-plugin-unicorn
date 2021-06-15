@@ -38,14 +38,14 @@ const create = context => {
 			try {
 				optimized = optimize(original, undefined, {blacklist: ignoreList}).toString();
 			} catch (error) {
-				return ({
+				return {
 					node,
 					data: {
 						original,
 						error: error.message
 					},
 					message: 'Problem parsing {{original}}: {{error}}'
-				});
+				};
 			}
 
 			if (original === optimized) {

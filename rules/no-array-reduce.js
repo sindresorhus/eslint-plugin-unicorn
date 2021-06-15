@@ -52,7 +52,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow `Array#reduce()` and `Array#reduceRight()`.',
+			description: 'Disallow `Array#reduce()` and `Array#reduceRight()`.'
 		},
 		messages
 	}
