@@ -50,7 +50,6 @@ const create = context => {
 		name.endsWith(expectedName) ||
 		name.endsWith(expectedName.charAt(0).toUpperCase() + expectedName.slice(1));
 
-<<<<<<< HEAD
 	return {
 		[selector]: node => {
 			const originalName = node.name;
@@ -61,27 +60,6 @@ const create = context => {
 			) {
 				return;
 			}
-=======
-	function getProblem(node) {
-		const originalName = node.name;
-
-		if (
-			isNameAllowed(originalName) ||
-			isNameAllowed(originalName.replace(/_+$/g, ''))
-		) {
-			return;
-		}
-
-		const scope = context.getScope();
-		const variable = findVariable(scope, node);
-
-		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768072967
-		// But can't reproduce, just ignore this case
-		/* istanbul ignore next */
-		if (!variable) {
-			return;
-		}
->>>>>>> main
 
 			const scope = context.getScope();
 			const variable = findVariable(scope, node);
