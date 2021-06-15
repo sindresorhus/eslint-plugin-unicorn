@@ -74,6 +74,7 @@ test.snapshot({
 		'new AggregateError(...foo, "")',
 		'new AggregateError(errors, ...foo)',
 		'new AggregateError(errors, message, "")',
+		'new AggregateError("", message, "")'
 	],
 	invalid: [
 		'new AggregateError(errors)',
