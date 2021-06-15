@@ -33,6 +33,7 @@ const notFunctionTypes = [
 	'~ fn',
 	'typeof fn',
 	'void fn',
+	// Delete variable requires non-strict mode to run test
 	// 'delete fn',
 	// UpdateExpression
 	'++ fn',
