@@ -56,7 +56,7 @@ const compareFunctionNames = new Set([
 	'strictSame',
 	'strictNotSame'
 ]);
-const isCompareFunction = node => {
+const shouldIgnore = node => {
 	let name;
 
 	if (node.type === 'Identifier') {
@@ -70,7 +70,15 @@ const isCompareFunction = node => {
 		name = node.property.name;
 	}
 
-	return compareFunctionNames.has(name);
+	return compareFunctionNames.has(name) ||
+		// `set.add(undefined)`
+		name === 'add' ||
+		// `map.set(foo, undefined)`
+		name === 'set' ||
+		// `array.push(undefined)`
+		name === 'push' ||
+		// `array.unshift(undefined)`
+		name === 'unshift';
 };
 
 const getFunction = scope => {
@@ -126,7 +134,7 @@ const create = context => {
 
 	if (options.checkArguments) {
 		listeners.CallExpression = node => {
-			if (isCompareFunction(node.callee)) {
+			if (shouldIgnore(node.callee)) {
 				return;
 			}
 
