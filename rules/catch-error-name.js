@@ -9,32 +9,28 @@ const messages = {
 	[MESSAGE_ID]: 'The catch parameter `{{originalName}}` should be named `{{fixedName}}`.'
 };
 
-const promiseMethodSelector = (method, argumentsLength, argumentIndex) => [
-	methodCallSelector({
-		name: method,
-		length: argumentsLength
-	}),
-	matches(
-		[
-			'FunctionExpression',
-			'ArrowFunctionExpression'
-		].map(type => `[arguments.${argumentIndex}.type="${type}"]`)
-	),
-	`[arguments.${argumentIndex}.params.length=1]`,
-	`[arguments.${argumentIndex}.params.0.type="Identifier"]`
-].join('');
-
-// Matches `promise.catch([FunctionExpression | ArrowFunctionExpression])`
-const promiseCatchSelector = promiseMethodSelector('catch', 1, 0);
-
-// Matches `promise.then(any, [FunctionExpression | ArrowFunctionExpression])`
-const promiseThenSelector = promiseMethodSelector('then', 2, 1);
-
-const catchSelector = [
-	'CatchClause',
-	' > ',
-	'Identifier.param'
-].join('');
+const selector = matches([
+	// `try {} catch (foo) {}`
+	[
+		'CatchClause',
+		' > ',
+		'Identifier.param'
+	].join(''),
+	// - `promise.then(…, foo => {})`
+	// - `promise.then(…, function(foo) {})`
+	// - `promise.catch(foo => {})`
+	// - `promise.catch(function(foo) {})`
+	[
+		matches([
+			methodCallSelector({name: 'then', length: 2}),
+			methodCallSelector({name: 'catch', length: 1})
+		]),
+		' > ',
+		':matches(FunctionExpression, ArrowFunctionExpression).arguments:last-child',
+		' > ',
+		'Identifier.params:first-child'
+	].join('')
+]);
 
 const create = context => {
 	const {ecmaVersion} = context.parserOptions;
@@ -54,56 +50,46 @@ const create = context => {
 		name.endsWith(expectedName) ||
 		name.endsWith(expectedName.charAt(0).toUpperCase() + expectedName.slice(1));
 
-	function getProblem(node) {
-		const originalName = node.name;
-
-		if (
-			isNameAllowed(originalName) ||
-			isNameAllowed(originalName.replace(/_+$/g, ''))
-		) {
-			return;
-		}
-
-		const scope = context.getScope();
-		const variable = findVariable(scope, node);
-
-		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768072967
-		// But can't reproduce, just ignore this case
-		/* istanbul ignore next */
-		if (!variable) {
-			return;
-		}
-
-		if (originalName === '_' && variable.references.length === 0) {
-			return;
-		}
-
-		const scopes = [
-			variable.scope,
-			...variable.references.map(({from}) => from)
-		];
-		const fixedName = avoidCapture(expectedName, scopes, ecmaVersion);
-
-		return {
-			node,
-			messageId: MESSAGE_ID,
-			data: {
-				originalName,
-				fixedName
-			},
-			fix: fixer => renameVariable(variable, fixedName, fixer)
-		};
-	}
-
 	return {
-		[promiseCatchSelector]: node => {
-			return getProblem(node.arguments[0].params[0]);
-		},
-		[promiseThenSelector]: node => {
-			return getProblem(node.arguments[1].params[0]);
-		},
-		[catchSelector]: node => {
-			return getProblem(node);
+		[selector]: node => {
+			const originalName = node.name;
+
+			if (
+				isNameAllowed(originalName) ||
+				isNameAllowed(originalName.replace(/_+$/g, ''))
+			) {
+				return;
+			}
+
+			const scope = context.getScope();
+			const variable = findVariable(scope, node);
+
+			// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768072967
+			// But can't reproduce, just ignore this case
+			/* istanbul ignore next */
+			if (!variable) {
+				return;
+			}
+
+			if (originalName === '_' && variable.references.length === 0) {
+				return;
+			}
+
+			const scopes = [
+				variable.scope,
+				...variable.references.map(({from}) => from)
+			];
+			const fixedName = avoidCapture(expectedName, scopes, ecmaVersion);
+
+			return {
+				node,
+				messageId: MESSAGE_ID,
+				data: {
+					originalName,
+					fixedName
+				},
+				fix: fixer => renameVariable(variable, fixedName, fixer)
+			};
 		}
 	};
 };
