@@ -8,40 +8,39 @@ const messages = {
 
 const escapeWithLowercase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+})/g;
 const escapePatternWithLowercase = /(?<=(?:^|[^\\])(?:\\\\)*\\)(?<data>x[\dA-Fa-f]{2}|u[\dA-Fa-f]{4}|u{[\dA-Fa-f]+}|c[a-z])/g;
+const getProblem = ({node, original, regex = escapeWithLowercase, fix}) => {
+	const fixed = original.replace(regex, data => data.slice(0, 1) + data.slice(1).toUpperCase());
+
+	if (fixed !== original) {
+		return {
+			node,
+			messageId: MESSAGE_ID,
+			fix: fixer => fix ? fix(fixer, fixed) : fixer.replaceText(node, fixed)
+		};
+	}
+};
 
 const create = () => {
-	const check = ({node, original, regex = escapeWithLowercase, fix}) => {
-		const fixed = original.replace(regex, data => data.slice(0, 1) + data.slice(1).toUpperCase());
-
-		if (fixed !== original) {
-			return {
-				node,
-				messageId: MESSAGE_ID,
-				fix: fixer => fix ? fix(fixer, fixed) : fixer.replaceText(node, fixed)
-			};
-		}
-	};
-
 	return {
 		Literal(node) {
 			if (typeof node.value !== 'string') {
 				return;
 			}
 
-			return check({
+			return getProblem({
 				node,
 				original: node.raw
 			});
 		},
 		'Literal[regex]'(node) {
-			return check({
+			return getProblem({
 				node,
 				original: node.raw,
 				regex: escapePatternWithLowercase
 			});
 		},
 		TemplateElement(node) {
-			return check({
+			return getProblem({
 				node,
 				original: node.value.raw,
 				fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed)

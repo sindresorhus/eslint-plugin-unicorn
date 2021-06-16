@@ -100,16 +100,14 @@ const fix = node => fixer => {
 	];
 };
 
-const create = context => {
-	const getProblem = node => {
-		return {
-			messageId: MESSAGE_ID,
-			data: {name: node.name},
-			node,
-			fix: fix(node)
-		};
-	};
+const getProblem = node => ({
+	messageId: MESSAGE_ID,
+	data: {name: node.name},
+	node,
+	fix: fix(node)
+});
 
+const create = context => {
 	return {
 		'Identifier:matches([name="keyCode"], [name="charCode"], [name="which"])'(node) {
 			// Normal case when usage is direct -> `event.keyCode`

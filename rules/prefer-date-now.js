@@ -52,14 +52,14 @@ const binaryExpressionSelector = [
 	newDateSelector
 ].join('');
 
-const create = () => {
-	const getProblem = (node, problem) => ({
-		node,
-		messageId: MESSAGE_ID_DEFAULT,
-		fix: fixer => fixer.replaceText(node, 'Date.now()'),
-		...problem
-	});
+const getProblem = (node, problem) => ({
+	node,
+	messageId: MESSAGE_ID_DEFAULT,
+	fix: fixer => fixer.replaceText(node, 'Date.now()'),
+	...problem
+});
 
+const create = () => {
 	return {
 		[methodsSelector](node) {
 			const method = node.callee.property;
