@@ -1,6 +1,6 @@
-# Forbid using this argument in array methods
+# Disallow using the `this` argument in array methods
 
-Forbid using the `thisArg` argument in array methods:
+The rule forbids using the `thisArg` argument in array methods:
 
 - If the `callback` is an arrow function or a bound function, it won't effect `this` in callback
 - If you intent to use a custom `this` in callback, it's better to use the variable directly or use `callback.bind(thisArg)`

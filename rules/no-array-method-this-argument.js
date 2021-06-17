@@ -9,9 +9,9 @@ const ERROR = 'error';
 const SUGGESTION_BIND = 'suggestion-bind';
 const SUGGESTION_REMOVE = 'suggestion-remove';
 const messages = {
-	[ERROR]: 'Do not use this argument in `Array#{{method}}()`.',
+	[ERROR]: 'Do not use the `this` argument in `Array#{{method}}()`.',
 	[SUGGESTION_REMOVE]: 'Remove the second argument.',
-	[SUGGESTION_BIND]: 'Use bound function.'
+	[SUGGESTION_BIND]: 'Use a bound function.'
 };
 
 const selector = methodCallSelector({
@@ -111,7 +111,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Forbid use this argument in array methods.'
+			description: 'Disallow using the `this` argument in array methods.'
 		},
 		fixable: 'code',
 		messages,
