@@ -255,6 +255,16 @@ test.vue({
 			code: '<script>if (foo.length) {}</script>',
 			output: '<script>if (foo.length > 0) {}</script>',
 			errors: 1
+		},
+		{
+			code: '<template><div v-show="foo.length"></div></template>',
+			output: '<template><div v-show="foo.length > 0"></div></template>',
+			errors: 1
+		},
+		{
+			code: '<template><div>{{ foo.size ? foo : bar }}</div></template>',
+			output: '<template><div>{{ foo.size > 0 ? foo : bar }}</div></template>',
+			errors: 1
 		}
 	]
 });
