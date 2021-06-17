@@ -54,7 +54,7 @@ function checkVueTemplate(create, options) {
 
 	create = reportProblems(create);
 
-	return function (context) {
+	const wrapped = context => {
 		const listeners = create(context);
 
 		// `vue-eslint-parser`
@@ -69,6 +69,9 @@ function checkVueTemplate(create, options) {
 
 		return listeners;
 	};
+
+	wrappedFunctions.add(wrapped);
+	return wrapped;
 }
 
 function loadRule(ruleId) {
