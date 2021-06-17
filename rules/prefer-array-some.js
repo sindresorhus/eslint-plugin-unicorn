@@ -1,5 +1,6 @@
 'use strict';
 const {methodCallSelector, matches, memberExpressionSelector} = require('./selectors/index.js');
+const {checkVueTemplate} = require('./utils/rule.js');
 const {isBooleanNode} = require('./utils/boolean.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
 
@@ -92,7 +93,7 @@ const create = context => {
 };
 
 module.exports = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {
