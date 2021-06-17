@@ -1,9 +1,7 @@
 'use strict';
-const isLiteralValue = require('./utils/is-literal-value.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 const {methodCallSelector, matches} = require('./selectors/index.js');
 const {removeMethodCall} = require('./fix/index.js');
-const toLocation = require('./utils/to-location.js')
 
 const MESSAGE_ID = 'prefer-array-flat-map';
 const messages = {

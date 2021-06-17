@@ -20,7 +20,7 @@ const isMemberExpressionAssignment = memberExpression =>
 
 const isMemberExpressionComputedBeyondPrediction = memberExpression =>
 	memberExpression.computed &&
-	memberExpression.property.type !== 'Literal'
+	memberExpression.property.type !== 'Literal';
 
 const specialProtoPropertyKey = {
 	type: 'Identifier',
