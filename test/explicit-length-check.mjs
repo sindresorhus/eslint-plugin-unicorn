@@ -208,7 +208,9 @@ test.vue({
 		'<not-template><div v-if="foo.length"></div></not-template>',
 		'<template><div v-not-if="foo.length"></div></template>',
 		'<template><div v-if="foo.notLength"></div></template>',
-		'<template><div v-SHoW="foo.length"></div></template>'
+		'<template><div v-SHoW="foo.length"></div></template>',
+		'<template><div hidden="!foo.length"></div></template>',
+		'<template><img :width="foo.length"/></template>'
 	],
 	invalid: [
 		{
@@ -265,6 +267,37 @@ test.vue({
 		{
 			code: '<template><div v-show="foo.length"></div></template>',
 			output: '<template><div v-show="foo.length > 0"></div></template>',
+			errors: 1
+		},
+		{
+			code: '<template><div :hidden="foo.length >= 1"></div></template>',
+			output: '<template><div :hidden="foo.length > 0"></div></template>',
+			errors: 1
+		},
+		// This doesn't make sense, but valid code
+		{
+			code: '<template><div @click="foo.length >= 1"></div></template>',
+			output: '<template><div @click="foo.length > 0"></div></template>',
+			errors: 1
+		},
+		{
+			code: '<template><div @click="method($event, foo.length >= 1)"></div></template>',
+			output: '<template><div @click="method($event, foo.length > 0)"></div></template>',
+			errors: 1
+		},
+		{
+			code: '<template><div v-bind:hidden="0 === foo.length"></div></template>',
+			output: '<template><div v-bind:hidden="foo.length === 0"></div></template>',
+			errors: 1
+		},
+		{
+			code: '<template><input :disabled="Boolean(foo.length)"></template>',
+			output: '<template><input :disabled="foo.length > 0"></template>',
+			errors: 1
+		},
+		{
+			code: '<template><custom-component :custom-property="!foo.length"></custom-component></template>',
+			output: '<template><custom-component :custom-property="foo.length === 0"></custom-component></template>',
 			errors: 1
 		}
 	]
