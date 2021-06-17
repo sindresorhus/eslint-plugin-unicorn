@@ -153,3 +153,24 @@ test.snapshot({
 		`
 	]
 });
+
+test.vue({
+	valid: [],
+	invalid: [
+		{
+			code: '<template><div v-if="/re/.exec(string)"></div></template>',
+			output: '<template><div v-if="/re/.test(string)"></div></template>',
+			errors: 1
+		},
+		{
+			code: '<template><div v-if="\'string\'.match(/re/)"></div></template>',
+			output: '<template><div v-if="/re/.test(\'string\')"></div></template>',
+			errors: 1
+		},
+		{
+			code: '<script>if(/re/.exec(string));</script>',
+			output: '<script>if(/re/.test(string));</script>',
+			errors: 1
+		}
+	]
+});

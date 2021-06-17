@@ -1,5 +1,6 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
+const {checkVueTemplate} = require('./utils/rule.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const {isBooleanNode} = require('./utils/boolean.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
@@ -122,7 +123,7 @@ const create = context => Object.fromEntries(
 );
 
 module.exports = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {
