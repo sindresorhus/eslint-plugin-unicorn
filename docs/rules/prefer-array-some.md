@@ -14,7 +14,7 @@ const hasUnicorn = array.filter(element => isUnicorn(element)).length > 0;
 ```
 
 ```js
-const hasUnicorn = array.filter(element => isUnicorn(element)).length != 0;
+const hasUnicorn = array.filter(element => isUnicorn(element)).length !== 0;
 ```
 
 ```js
@@ -36,7 +36,6 @@ const foo = array.find(element => isUnicorn(element)) ? bar : baz;
 ```js
 const hasUnicorn = array.some(element => isUnicorn(element));
 ```
-
 
 ```js
 if (array.some(element => isUnicorn(element))) {
