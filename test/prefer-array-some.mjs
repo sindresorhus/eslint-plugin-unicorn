@@ -188,7 +188,7 @@ test.vue({
 		}),
 		invalidCase({
 			code: '<script>if (foo.find(fn));</script>',
-			suggestionOutput: '<script>if (foo.some(fn));</script>',
+			suggestionOutput: '<script>if (foo.some(fn));</script>'
 		}),
 		{
 			code: '<template><div v-if="foo.filter(fn).length > 0"></div></template>',
