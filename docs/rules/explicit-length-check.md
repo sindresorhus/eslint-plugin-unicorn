@@ -45,7 +45,7 @@ const isEmptySet = !foo.size;
 
 ```vue
 <template>
-	<div v-if="foo.length"></div>
+	<div v-if="foo.length">Vue</div>
 </template>
 ```
 
@@ -57,7 +57,7 @@ const isEmpty = foo.length === 0;
 
 ```vue
 <template>
-	<div v-if="foo.length > 0"></div>
+	<div v-if="foo.length > 0">Vue</div>
 </template>
 ```
 
