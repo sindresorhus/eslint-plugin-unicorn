@@ -7,6 +7,7 @@ const avoidCapture = require('./utils/avoid-capture.js');
 const getChildScopesRecursive = require('./utils/get-child-scopes-recursive.js');
 const singular = require('./utils/singular.js');
 const extendFixRange = require('./utils/extend-fix-range.js');
+const {removeMemberExpressionProperty, removeMethodCall} = require('./fix/index.js');
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
@@ -228,7 +229,7 @@ const create = context => {
 				messageId: ERROR_ZERO_INDEX,
 				fix: fixer => [
 					fixer.replaceText(node.object.callee.property, 'find'),
-					fixer.removeRange([node.object.range[1], node.range[1]])
+					removeMemberExpressionProperty(fixer, node, sourceCode)
 				]
 			};
 		},
@@ -238,7 +239,7 @@ const create = context => {
 				messageId: ERROR_SHIFT,
 				fix: fixer => [
 					fixer.replaceText(node.callee.object.callee.property, 'find'),
-					fixer.removeRange([node.callee.object.range[1], node.range[1]])
+					...removeMethodCall(fixer, node, sourceCode)
 				]
 			};
 		},
@@ -298,7 +299,7 @@ const create = context => {
 					}
 
 					for (const node of zeroIndexNodes) {
-						yield fixer.removeRange([node.object.range[1], node.range[1]]);
+						yield removeMemberExpressionProperty(fixer, node, sourceCode);
 					}
 
 					for (const node of destructuringNodes) {
