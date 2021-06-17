@@ -1,5 +1,6 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
+const {checkVueTemplate} = require('./utils/rule.js');
 const isLiteralValue = require('./utils/is-literal-value.js');
 const isLogicalExpression = require('./utils/is-logical-expression.js');
 const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean.js');
@@ -141,11 +142,10 @@ function create(context) {
 			];
 		}
 
-		// TODO[@fisker]: Make `return problem` work for `vue-eslint-parser`
-		context.report(problem);
+		return problem;
 	}
 
-	const listeners = {
+	return {
 		[lengthSelector](lengthNode) {
 			if (lengthNode.object.type === 'ThisExpression') {
 				return;
@@ -183,13 +183,6 @@ function create(context) {
 			}
 		}
 	};
-
-	// `vue-eslint-parser`
-	if (context.parserServices && context.parserServices.defineTemplateBodyVisitor) {
-		return context.parserServices.defineTemplateBodyVisitor(listeners, listeners);
-	}
-
-	return listeners;
 }
 
 const schema = [
@@ -205,7 +198,7 @@ const schema = [
 ];
 
 module.exports = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'problem',
 		docs: {

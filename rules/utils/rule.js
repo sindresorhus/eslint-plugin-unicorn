@@ -5,7 +5,7 @@ const getDocumentationUrl = require('./get-documentation-url.js');
 
 const isIterable = object => typeof object[Symbol.iterator] === 'function';
 
-function reportProblems(listener, context) {
+function reportListenerProblems(listener, context) {
 	// Listener arguments can be `codePath, node` or `node`
 	return function (...listenerArguments) {
 		let problems = listener(...listenerArguments);
@@ -27,14 +27,47 @@ function reportProblems(listener, context) {
 	};
 }
 
-function wrapCreateFunction(create) {
+// `checkVueTemplate` function will wrap `create` function, there is no need to wrap twice
+const wrappedFunctions = new Set();
+function reportProblems(create) {
+	if (wrappedFunctions.has(create)) {
+		return create;
+	}
+
+	const wrapped = context => Object.fromEntries(
+		Object.entries(create(context))
+			.map(([selector, listener]) => [selector, reportListenerProblems(listener, context)])
+	);
+
+	wrappedFunctions.add(wrapped);
+
+	return wrapped;
+}
+
+function checkVueTemplate(create, options) {
+	const {
+		visitScriptBlock
+	} = {
+		visitScriptBlock: true,
+		...options
+	};
+
+	create = reportProblems(create);
+
 	return function (context) {
 		const listeners = create(context);
 
-		return Object.fromEntries(
-			Object.entries(listeners)
-				.map(([selector, listener]) => [selector, reportProblems(listener, context)])
-		);
+		// `vue-eslint-parser`
+		if (
+			context.parserServices &&
+			context.parserServices.defineTemplateBodyVisitor
+		) {
+			return visitScriptBlock ?
+				context.parserServices.defineTemplateBodyVisitor(listeners, listeners) :
+				context.parserServices.defineTemplateBodyVisitor(listeners);
+		}
+
+		return listeners;
 	};
 }
 
@@ -52,11 +85,11 @@ function loadRule(ruleId) {
 				url: getDocumentationUrl(ruleId)
 			}
 		},
-		create: wrapCreateFunction(rule.create)
+		create: reportProblems(rule.create)
 	};
 }
 
-function loadRules() {
+function loadAllRules() {
 	return Object.fromEntries(
 		fs.readdirSync(path.join(__dirname, '..'), {withFileTypes: true})
 			.filter(file => file.isFile())
@@ -67,4 +100,8 @@ function loadRules() {
 	);
 }
 
-module.exports = {loadRule, loadRules};
+module.exports = {
+	loadRule,
+	loadAllRules,
+	checkVueTemplate
+};

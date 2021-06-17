@@ -3,7 +3,7 @@ import url from 'node:url';
 import {createRequire} from 'node:module';
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import {loadRule} from '../../rules/utils/load-rule.js';
+import {loadRule} from '../../rules/utils/rule.js';
 import snapshotRuleTester from './snapshot-rule-tester.mjs';
 import defaultParserOptions from './default-parser-options.mjs';
 
