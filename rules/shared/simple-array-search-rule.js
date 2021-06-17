@@ -116,7 +116,7 @@ function simpleArraySearchRule({method, replacement}) {
 					problem.fix = fix;
 				}
 
-				return (problem);
+				return problem;
 			}
 		};
 	}
