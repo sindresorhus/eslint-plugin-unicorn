@@ -2,8 +2,8 @@
 
 Forbid using the `thisArg` argument in array methods:
 
-- If the `callback` is an arrow function or a bound function, it won't effect `this` in callback
-- If you intent to use a custom `this` in callback, it's better to use the variable directly or use `callback.bind(thisArg)`
+- If the callback is an arrow function or a bound function, the `thisArg` won't affect it.
+- If you intent to use a custom `this` in the callback, it‘s better to use the variable directly or use `callback.bind(thisArg)`.
 
 This rule checks following array methods accepts `thisArg`:
 
@@ -16,7 +16,7 @@ This rule checks following array methods accepts `thisArg`:
 - [`Array#map()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Array/map)
 - [`Array#some()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Array/some)
 
-This rule is fixable when the `callback` is an arrow function and the `thisArg` argument has no side effect.
+This rule is fixable when the callback is an arrow function and the `thisArg` argument has no side effect.
 
 ## Fail
 
