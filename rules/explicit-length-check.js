@@ -141,10 +141,11 @@ function create(context) {
 			];
 		}
 
-		return problem;
+		// TODO[@fisker]: Make `return problem` work for `vue-eslint-parser`
+		context.report(problem);
 	}
 
-	return {
+	const listeners = {
 		[lengthSelector](lengthNode) {
 			if (lengthNode.object.type === 'ThisExpression') {
 				return;
@@ -182,6 +183,13 @@ function create(context) {
 			}
 		}
 	};
+
+	// `vue-eslint-parser`
+	if (context.parserServices && context.parserServices.defineTemplateBodyVisitor) {
+		return context.parserServices.defineTemplateBodyVisitor(listeners, listeners);
+	}
+
+	return listeners;
 }
 
 const schema = [

@@ -19,6 +19,14 @@ const isBooleanCall = node =>
 	node.callee.type === 'Identifier' &&
 	node.callee.name === 'Boolean' &&
 	node.arguments.length === 1;
+const isVIfAttributeValue = node =>
+	node &&
+	node.type === 'VExpressionContainer' &&
+	node.parent.type === 'VAttribute' &&
+	node.parent.value === node &&
+	node.parent.key.type === 'VDirectiveKey' &&
+	node.parent.key.name.type === 'VIdentifier' &&
+	(node.parent.key.name.name === 'if' || node.parent.key.name.name === 'else-if');
 
 /**
 Check if the value of node is a `boolean`.
@@ -37,6 +45,10 @@ function isBooleanNode(node) {
 	}
 
 	const {parent} = node;
+	if (isVIfAttributeValue(parent)) {
+		return true;
+	}
+
 	if (
 		(
 			parent.type === 'IfStatement' ||
