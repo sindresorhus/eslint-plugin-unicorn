@@ -109,6 +109,16 @@ class Tester {
 		});
 	}
 
+	vue(tests) {
+		return this.runTest({
+			...tests,
+			testerOptions: {
+				parser: require.resolve('vue-eslint-parser'),
+				parserOptions: defaultParserOptions
+			}
+		});
+	}
+
 	snapshot(tests) {
 		const tester = snapshotRuleTester(test, {
 			parserOptions: defaultParserOptions
@@ -124,6 +134,7 @@ function getTester(importMeta) {
 	const test = Tester.prototype.runTest.bind(tester);
 	test.typescript = Tester.prototype.typescript.bind(tester);
 	test.babel = Tester.prototype.babel.bind(tester);
+	test.vue = Tester.prototype.vue.bind(tester);
 	test.snapshot = Tester.prototype.snapshot.bind(tester);
 
 	return {
