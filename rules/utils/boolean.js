@@ -23,13 +23,14 @@ const isVueBooleanAttributeValue = node =>
 	node &&
 	node.type === 'VExpressionContainer' &&
 	node.parent.type === 'VAttribute' &&
+	node.parent.directive &&
 	node.parent.value === node &&
 	node.parent.key.type === 'VDirectiveKey' &&
 	node.parent.key.name.type === 'VIdentifier' &&
 	(
-		node.parent.key.name.name === 'if' ||
-		node.parent.key.name.name === 'else-if' ||
-		node.parent.key.name.name === 'show'
+		node.parent.key.name.rawName === 'if' ||
+		node.parent.key.name.rawName === 'else-if' ||
+		node.parent.key.name.rawName === 'show'
 	);
 
 /**

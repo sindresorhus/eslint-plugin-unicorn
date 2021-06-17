@@ -207,7 +207,8 @@ test.vue({
 	valid: [
 		'<not-template><div v-if="foo.length"></div></not-template>',
 		'<template><div v-not-if="foo.length"></div></template>',
-		'<template><div v-if="foo.notLength"></div></template>'
+		'<template><div v-if="foo.notLength"></div></template>',
+		'<template><div v-SHoW="foo.length"></div></template>'
 	],
 	invalid: [
 		{
@@ -262,8 +263,8 @@ test.vue({
 			errors: 1
 		},
 		{
-			code: '<template><div>{{ foo.size ? foo : bar }}</div></template>',
-			output: '<template><div>{{ foo.size > 0 ? foo : bar }}</div></template>',
+			code: '<template><div v-show="foo.length"></div></template>',
+			output: '<template><div v-show="foo.length > 0"></div></template>',
 			errors: 1
 		}
 	]
