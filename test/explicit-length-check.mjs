@@ -207,7 +207,8 @@ test.vue({
 	valid: [
 		'<not-template><div v-if="foo.length"></div></not-template>',
 		'<template><div v-not-if="foo.length"></div></template>',
-		'<template><div v-if="foo.notLength"></div></template>'
+		'<template><div v-if="foo.notLength"></div></template>',
+		'<template><div v-SHoW="foo.length"></div></template>'
 	],
 	invalid: [
 		{
@@ -254,6 +255,16 @@ test.vue({
 		{
 			code: '<script>if (foo.length) {}</script>',
 			output: '<script>if (foo.length > 0) {}</script>',
+			errors: 1
+		},
+		{
+			code: '<template><div v-show="foo.length"></div></template>',
+			output: '<template><div v-show="foo.length > 0"></div></template>',
+			errors: 1
+		},
+		{
+			code: '<template><div v-show="foo.length"></div></template>',
+			output: '<template><div v-show="foo.length > 0"></div></template>',
 			errors: 1
 		}
 	]
