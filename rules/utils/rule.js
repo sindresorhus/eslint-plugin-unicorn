@@ -92,7 +92,7 @@ function loadRule(ruleId) {
 	};
 }
 
-function loadAllRules() {
+function loadRules() {
 	return Object.fromEntries(
 		fs.readdirSync(path.join(__dirname, '..'), {withFileTypes: true})
 			.filter(file => file.isFile())
@@ -105,6 +105,6 @@ function loadAllRules() {
 
 module.exports = {
 	loadRule,
-	loadAllRules,
+	loadRules,
 	checkVueTemplate
 };
