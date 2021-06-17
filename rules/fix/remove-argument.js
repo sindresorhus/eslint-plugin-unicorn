@@ -16,7 +16,7 @@ function removeArgument(fixer, node, sourceCode) {
 		start = sourceCode.getTokenBefore(firstToken).range[0];
 	}
 
-	// If removing argument is the only argument, the trailing comma must remove too
+	// If the removed argument is the only argument, the trailing comma must be removed too
 	/* istanbul ignore next: Not reachable for now */
 	if (callExpression.arguments.length === 1) {
 		const tokenAfter = sourceCode.getTokenBefore(lastToken);
