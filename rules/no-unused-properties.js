@@ -5,30 +5,22 @@ const messages = {
 	[MESSAGE_ID]: 'Property `{{name}}` is defined but never used.'
 };
 
-const getDeclaratorOrPropertyValue = declaratorOrProperty => {
-	return declaratorOrProperty.init || declaratorOrProperty.value;
-};
+const getDeclaratorOrPropertyValue = declaratorOrProperty =>
+	declaratorOrProperty.init ||
+	declaratorOrProperty.value;
 
-const isMemberExpressionCall = memberExpression => {
-	return (
-		memberExpression.parent &&
-		memberExpression.parent.type === 'CallExpression' &&
-		memberExpression.parent.callee === memberExpression
-	);
-};
+const isMemberExpressionCall = memberExpression =>
+	memberExpression.parent &&
+	memberExpression.parent.type === 'CallExpression' &&
+	memberExpression.parent.callee === memberExpression;
 
-const isMemberExpressionAssignment = memberExpression => {
-	return (
-		memberExpression.parent &&
-		memberExpression.parent.type === 'AssignmentExpression'
-	);
-};
+const isMemberExpressionAssignment = memberExpression =>
+	memberExpression.parent &&
+	memberExpression.parent.type === 'AssignmentExpression';
 
-const isMemberExpressionComputedBeyondPrediction = memberExpression => {
-	return (
-		memberExpression.computed && memberExpression.property.type !== 'Literal'
-	);
-};
+const isMemberExpressionComputedBeyondPrediction = memberExpression =>
+	memberExpression.computed &&
+	memberExpression.property.type !== 'Literal';
 
 const specialProtoPropertyKey = {
 	type: 'Identifier',

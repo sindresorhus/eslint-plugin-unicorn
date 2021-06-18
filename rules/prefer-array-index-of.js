@@ -6,10 +6,8 @@ const {messages, createListeners} = simpleArraySearchRule({
 	replacement: 'indexOf'
 });
 
-const create = context => createListeners(context);
-
 module.exports = {
-	create,
+	create: context => createListeners(context),
 	meta: {
 		type: 'suggestion',
 		docs: {

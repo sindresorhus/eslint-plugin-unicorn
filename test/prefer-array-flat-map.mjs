@@ -27,6 +27,7 @@ test.snapshot({
 		'const bar = [[1],[2],[3]].map(i => [i]).flat(+1)',
 		'const bar = [[1],[2],[3]].map(i => [i]).flat(foo)',
 		'const bar = [[1],[2],[3]].map(i => [i]).flat(foo.bar)',
+		'const bar = [[1],[2],[3]].map(i => [i]).flat(1.00)',
 
 		// Allowed
 		'Children.map(children, fn).flat()', // `import {Children} from 'react';`
@@ -34,7 +35,6 @@ test.snapshot({
 	],
 	invalid: [
 		'const bar = [[1],[2],[3]].map(i => [i]).flat()',
-		'const bar = [[1],[2],[3]].map(i => [i]).flat(1.00)',
 		'const bar = [[1],[2],[3]].map(i => [i]).flat(1,)',
 		'const bar = [1,2,3].map(i => [i]).flat()',
 		'const bar = [1,2,3].map((i) => [i]).flat()',

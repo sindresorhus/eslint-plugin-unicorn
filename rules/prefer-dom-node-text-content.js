@@ -6,11 +6,11 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `.textContent` over `.innerText`.'
 };
 
-const selector = memberExpressionSelector('innerText');
+const selector = `${memberExpressionSelector('innerText')} > .property`;
 
 const create = () => {
 	return {
-		[selector]({property: node}) {
+		[selector](node) {
 			return {
 				node,
 				messageId: MESSAGE_ID,

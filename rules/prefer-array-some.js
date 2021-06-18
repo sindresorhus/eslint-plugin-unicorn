@@ -3,6 +3,7 @@ const {methodCallSelector, matches, memberExpressionSelector} = require('./selec
 const {checkVueTemplate} = require('./utils/rule.js');
 const {isBooleanNode} = require('./utils/boolean.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
+const {removeMemberExpressionProperty} = require('./fix/index.js');
 
 const ERROR_ID_ARRAY_SOME = 'some';
 const SUGGESTION_ID_ARRAY_SOME = 'some-suggestion';
@@ -69,10 +70,7 @@ const create = context => {
 						`(( (( array.filter() )).length )) > (( 0 ))`
 						------------------------^^^^^^^
 					*/
-					yield fixer.removeRange([
-						getParenthesizedRange(filterCall, sourceCode)[1],
-						lengthNode.range[1]
-					]);
+					yield removeMemberExpressionProperty(fixer, lengthNode, sourceCode);
 
 					const compareNode = lengthNode.parent;
 					/*
