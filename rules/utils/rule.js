@@ -5,7 +5,7 @@ const getDocumentationUrl = require('./get-documentation-url.js');
 
 const isIterable = object => typeof object[Symbol.iterator] === 'function';
 
-function reportProblems(listener, context) {
+function reportListenerProblems(listener, context) {
 	// Listener arguments can be `codePath, node` or `node`
 	return function (...listenerArguments) {
 		let problems = listener(...listenerArguments);
@@ -27,15 +27,51 @@ function reportProblems(listener, context) {
 	};
 }
 
-function wrapCreateFunction(create) {
-	return function (context) {
+// `checkVueTemplate` function will wrap `create` function, there is no need to wrap twice
+const wrappedFunctions = new Set();
+function reportProblems(create) {
+	if (wrappedFunctions.has(create)) {
+		return create;
+	}
+
+	const wrapped = context => Object.fromEntries(
+		Object.entries(create(context))
+			.map(([selector, listener]) => [selector, reportListenerProblems(listener, context)])
+	);
+
+	wrappedFunctions.add(wrapped);
+
+	return wrapped;
+}
+
+function checkVueTemplate(create, options) {
+	const {
+		visitScriptBlock
+	} = {
+		visitScriptBlock: true,
+		...options
+	};
+
+	create = reportProblems(create);
+
+	const wrapped = context => {
 		const listeners = create(context);
 
-		return Object.fromEntries(
-			Object.entries(listeners)
-				.map(([selector, listener]) => [selector, reportProblems(listener, context)])
-		);
+		// `vue-eslint-parser`
+		if (
+			context.parserServices &&
+			context.parserServices.defineTemplateBodyVisitor
+		) {
+			return visitScriptBlock ?
+				context.parserServices.defineTemplateBodyVisitor(listeners, listeners) :
+				context.parserServices.defineTemplateBodyVisitor(listeners);
+		}
+
+		return listeners;
 	};
+
+	wrappedFunctions.add(wrapped);
+	return wrapped;
 }
 
 function loadRule(ruleId) {
@@ -52,7 +88,7 @@ function loadRule(ruleId) {
 				url: getDocumentationUrl(ruleId)
 			}
 		},
-		create: wrapCreateFunction(rule.create)
+		create: reportProblems(rule.create)
 	};
 }
 
@@ -67,4 +103,8 @@ function loadRules() {
 	);
 }
 
-module.exports = {loadRule, loadRules};
+module.exports = {
+	loadRule,
+	loadRules,
+	checkVueTemplate
+};

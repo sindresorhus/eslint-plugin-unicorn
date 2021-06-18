@@ -1,5 +1,6 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
+const {checkVueTemplate} = require('./utils/rule.js');
 const isLiteralValue = require('./utils/is-literal-value.js');
 const isLogicalExpression = require('./utils/is-logical-expression.js');
 const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean.js');
@@ -197,7 +198,7 @@ const schema = [
 ];
 
 module.exports = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'problem',
 		docs: {
