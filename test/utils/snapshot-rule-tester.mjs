@@ -1,7 +1,9 @@
+import {createRequire} from 'node:module';
 import {Linter, SourceCodeFixer} from 'eslint/lib/linter/index.js';
 import {codeFrameColumns} from '@babel/code-frame';
 import outdent from 'outdent';
 
+const require = createRequire(import.meta.url);
 const codeFrameColumnsOptions = {linesAbove: Number.POSITIVE_INFINITY, linesBelow: Number.POSITIVE_INFINITY};
 
 function visualizeRange(text, location, message) {
@@ -72,7 +74,7 @@ function normalizeTests(tests) {
 function getVerifyConfig(ruleId, testerConfig, testCase) {
 	const {options, parserOptions} = testCase;
 	return {
-		testerConfig,
+		...testerConfig,
 		parserOptions: {
 			...testerConfig.parserOptions,
 			...parserOptions
@@ -99,6 +101,10 @@ class SnapshotRuleTester {
 		for (const [index, testCase] of valid.entries()) {
 			const {code, filename} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
+			const {parser} = verifyConfig;
+			if (parser) {
+				linter.defineParser(parser, require(parser));
+			}
 
 			test(
 				outdent`
@@ -171,8 +177,4 @@ class SnapshotRuleTester {
 	}
 }
 
-function snapshotRuleTester(test, config) {
-	return new SnapshotRuleTester(test, config);
-}
-
-export default snapshotRuleTester;
+export default SnapshotRuleTester;

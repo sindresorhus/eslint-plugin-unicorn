@@ -4,7 +4,7 @@ import {createRequire} from 'node:module';
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {loadRule} from '../../rules/utils/rule.js';
-import snapshotRuleTester from './snapshot-rule-tester.mjs';
+import SnapshotRuleTester from './snapshot-rule-tester.mjs';
 import defaultParserOptions from './default-parser-options.mjs';
 
 const require = createRequire(import.meta.url);
@@ -30,6 +30,18 @@ function normalizeInvalidTest(test, rule) {
 		...test
 	};
 }
+
+const parsers = {
+	get typescript() {
+		return require.resolve('@typescript-eslint/parser');
+	},
+	get babel() {
+		return require.resolve('@babel/eslint-parser');
+	},
+	get vue() {
+		return require.resolve('vue-eslint-parser');
+	}
+};
 
 class Tester {
 	constructor(ruleId) {
@@ -61,7 +73,7 @@ class Tester {
 			...tests,
 			testerOptions: {
 				...testerOptions,
-				parser: require.resolve('@typescript-eslint/parser'),
+				parser: parsers.typescript,
 				parserOptions: {
 					...defaultParserOptions,
 					...testerOptions.parserOptions
@@ -87,7 +99,7 @@ class Tester {
 			...tests,
 			testerOptions: {
 				...testerOptions,
-				parser: require.resolve('@babel/eslint-parser'),
+				parser: parsers.babel,
 				parserOptions: {
 					...defaultParserOptions,
 					requireConfigFile: false,
@@ -113,17 +125,19 @@ class Tester {
 		return this.runTest({
 			...tests,
 			testerOptions: {
-				parser: require.resolve('vue-eslint-parser'),
+				parser: parsers.vue,
 				parserOptions: defaultParserOptions
 			}
 		});
 	}
 
 	snapshot(tests) {
-		const tester = snapshotRuleTester(test, {
-			parserOptions: defaultParserOptions
+		const {testerOptions, valid, invalid} = tests;
+		const tester = new SnapshotRuleTester(test, {
+			parserOptions: defaultParserOptions,
+			...testerOptions
 		});
-		return tester.run(this.ruleId, this.rule, tests);
+		return tester.run(this.ruleId, this.rule, {valid, invalid});
 	}
 }
 
@@ -173,5 +187,6 @@ const avoidTestTitleConflict = (tests, comment) => {
 export {
 	defaultParserOptions,
 	getTester,
-	avoidTestTitleConflict
+	avoidTestTitleConflict,
+	parsers
 };
