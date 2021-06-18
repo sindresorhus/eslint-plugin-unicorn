@@ -55,9 +55,11 @@ class Tester {
 			parserOptions: defaultParserOptions,
 			...testerOptions
 		});
+
 		if (beforeAll) {
 			beforeAll(tester);
 		}
+
 		return tester.run(
 			this.ruleId,
 			this.rule,
