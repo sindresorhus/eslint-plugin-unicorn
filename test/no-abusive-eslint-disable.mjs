@@ -1,7 +1,7 @@
 import outdent from 'outdent';
 import {getTester} from './utils/test.mjs';
 
-const {test, rule} = getTester(import.meta);
+const {test} = getTester(import.meta);
 
 test({
 	beforeAll(tester) {
