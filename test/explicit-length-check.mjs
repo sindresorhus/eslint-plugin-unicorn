@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
@@ -203,7 +203,10 @@ test.snapshot({
 	]
 });
 
-test.vue({
+test.snapshot({
+	testerOptions: {
+		parser: parsers.vue
+	},
 	valid: [
 		'<not-template><div v-if="foo.length"></div></not-template>',
 		'<template><div v-not-if="foo.length"></div></template>',
@@ -213,92 +216,33 @@ test.vue({
 		'<template><img :width="foo.length"/></template>'
 	],
 	invalid: [
+		'<template><div v-if="foo.length"></div></template>',
+		outdent`
+			<template>
+				<div>
+					<div v-if="foo"></div>
+					<div v-else-if="bar.length"></div>
+				</div>
+			</template>
+		`,
+		'<template><div v-if="foo.length"></div></template>',
 		{
 			code: '<template><div v-if="foo.length"></div></template>',
-			output: '<template><div v-if="foo.length > 0"></div></template>',
-			errors: 1
-		},
-		{
-			code: outdent`
-				<template>
-					<div>
-						<div v-if="foo"></div>
-						<div v-else-if="bar.length"></div>
-					</div>
-				</template>
-			`,
-			output: outdent`
-				<template>
-					<div>
-						<div v-if="foo"></div>
-						<div v-else-if="bar.length > 0"></div>
-					</div>
-				</template>
-			`,
-			errors: 1
-		},
-		{
-			code: '<template><div v-if="foo.length"></div></template>',
-			output: '<template><div v-if="foo.length !== 0"></div></template>',
-			errors: 1,
 			options: [{'non-zero': 'not-equal'}]
 		},
 		{
 			code: '<template><div v-if="foo.length"></div></template>',
-			output: '<template><div v-if="foo.length >= 1"></div></template>',
-			errors: 1,
 			options: [{'non-zero': 'greater-than-or-equal'}]
 		},
-		{
-			code: '<template><div v-if="foo.length && bar"></div></template>',
-			output: '<template><div v-if="foo.length > 0 && bar"></div></template>',
-			errors: 1
-		},
-		{
-			code: '<script>if (foo.length) {}</script>',
-			output: '<script>if (foo.length > 0) {}</script>',
-			errors: 1
-		},
-		{
-			code: '<template><div v-show="foo.length"></div></template>',
-			output: '<template><div v-show="foo.length > 0"></div></template>',
-			errors: 1
-		},
-		{
-			code: '<template><div v-show="foo.length"></div></template>',
-			output: '<template><div v-show="foo.length > 0"></div></template>',
-			errors: 1
-		},
-		{
-			code: '<template><div :hidden="foo.length >= 1"></div></template>',
-			output: '<template><div :hidden="foo.length > 0"></div></template>',
-			errors: 1
-		},
+		'<template><div v-if="foo.length && bar"></div></template>',
+		'<script>if (foo.length) {}</script>',
+		'<template><div v-show="foo.length"></div></template>',
+		'<template><div :hidden="foo.length >= 1"></div></template>',
 		// This doesn't make sense, but valid code
-		{
-			code: '<template><div @click="foo.length >= 1"></div></template>',
-			output: '<template><div @click="foo.length > 0"></div></template>',
-			errors: 1
-		},
-		{
-			code: '<template><div @click="method($event, foo.length >= 1)"></div></template>',
-			output: '<template><div @click="method($event, foo.length > 0)"></div></template>',
-			errors: 1
-		},
-		{
-			code: '<template><div v-bind:hidden="0 === foo.length"></div></template>',
-			output: '<template><div v-bind:hidden="foo.length === 0"></div></template>',
-			errors: 1
-		},
-		{
-			code: '<template><input :disabled="Boolean(foo.length)"></template>',
-			output: '<template><input :disabled="foo.length > 0"></template>',
-			errors: 1
-		},
-		{
-			code: '<template><custom-component :custom-property="!foo.length"></custom-component></template>',
-			output: '<template><custom-component :custom-property="foo.length === 0"></custom-component></template>',
-			errors: 1
-		}
+		'<template><div @click="foo.length >= 1"></div></template>',
+		'<template><div @click="method($event, foo.length >= 1)"></div></template>',
+		'<template><div v-bind:hidden="0 === foo.length"></div></template>',
+		'<template><input :disabled="Boolean(foo.length)"></template>',
+		'<template><custom-component :custom-property="!foo.length"></custom-component></template>'
 	]
 });
