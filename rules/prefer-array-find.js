@@ -1,6 +1,10 @@
 'use strict';
 const {isParenthesized, findVariable} = require('eslint-utils');
-const {not, methodCallSelector} = require('./selectors/index.js');
+const {
+	not,
+	methodCallSelector,
+	notLeftHandSideSelector
+} = require('./selectors/index.js');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
 const renameVariable = require('./utils/rename-variable.js');
 const avoidCapture = require('./utils/avoid-capture.js');
@@ -51,6 +55,7 @@ const zeroIndexSelector = [
 	'[computed!=false]',
 	'[property.type="Literal"]',
 	'[property.raw="0"]',
+	notLeftHandSideSelector(),
 	methodCallSelector({
 		...filterMethodSelectorOptions,
 		path: 'object'
