@@ -1,31 +1,13 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, avoidTestTitleConflict} from './utils/test.mjs';
 
-const {test: runTest, rule} = getTester(import.meta);
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
-const ruleTesterEs5 = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 5
-	}
-});
+const {test} = getTester(import.meta);
 
 function testCase(code, output) {
-	return {
-		code,
-		output: output || code,
-		errors: [{messageId: 'no-for-loop'}]
-	};
+	return output ? {code, output, errors: 1} : {code, errors: 1};
 }
 
-ruleTester.run('no-for-loop', rule, {
+test({
 	valid: [
 		'for (;;);',
 		'for (;;) {}',
@@ -746,7 +728,12 @@ ruleTester.run('no-for-loop', rule, {
 	]
 });
 
-ruleTesterEs5.run('no-for-loop', rule, {
+test(avoidTestTitleConflict({
+	testerOptions: {
+		parserOptions: {
+			ecmaVersion: 5
+		}
+	},
 	valid: [
 		'for (;;);',
 		'for (;;) {}',
@@ -765,9 +752,9 @@ ruleTesterEs5.run('no-for-loop', rule, {
 		`
 	],
 	invalid: []
-});
+}, 'es5'));
 
-runTest.typescript({
+test.typescript({
 	valid: [],
 	invalid: [
 		{
@@ -814,7 +801,7 @@ runTest.typescript({
 	]
 });
 
-runTest.snapshot({
+test.snapshot({
 	valid: [],
 	invalid: [
 		outdent`
