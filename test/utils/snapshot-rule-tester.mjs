@@ -98,7 +98,7 @@ class SnapshotRuleTester {
 		const definedParsers = new Set();
 		linter.defineRule(ruleId, rule);
 		const {parser} = config;
-		if (!definedParsers.has(parser)) {
+		if (parser && !definedParsers.has(parser)) {
 			definedParsers.add(parser);
 			linter.defineParser(parser, require(parser));
 		}
@@ -109,7 +109,7 @@ class SnapshotRuleTester {
 			const {code, filename} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
 			const {parser} = verifyConfig;
-			if (!definedParsers.has(parser)) {
+			if (parser && !definedParsers.has(parser)) {
 				definedParsers.add(parser);
 				linter.defineParser(parser, require(parser));
 			}
@@ -130,7 +130,7 @@ class SnapshotRuleTester {
 			const {code, options, filename} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
 			const {parser} = verifyConfig;
-			if (!definedParsers.has(parser)) {
+			if (parser && !definedParsers.has(parser)) {
 				definedParsers.add(parser);
 				linter.defineParser(parser, require(parser));
 			}
