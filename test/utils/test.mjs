@@ -50,11 +50,16 @@ class Tester {
 	}
 
 	runTest(tests) {
-		const {testerOptions, valid, invalid} = tests;
+		const {beforeAll, testerOptions, valid, invalid} = tests;
 		const tester = avaRuleTester(test, {
 			parserOptions: defaultParserOptions,
 			...testerOptions
 		});
+
+		if (beforeAll) {
+			beforeAll(tester);
+		}
+
 		return tester.run(
 			this.ruleId,
 			this.rule,

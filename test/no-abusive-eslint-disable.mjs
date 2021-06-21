@@ -1,27 +1,20 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import outdent from 'outdent';
 import {getTester} from './utils/test.mjs';
 
-const {test: runTest, rule} = getTester(import.meta);
+const {test} = getTester(import.meta);
 
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	}
-});
-
-// Define rules for test
-for (const rule of [
-	'plugin/rule',
-	'@scope/plugin/rule-name',
-	'@scope/rule-name',
-	'@scopewithoutplugin'
-]) {
-	ruleTester.linter.defineRule(rule, {});
-}
-
-ruleTester.run('no-abusive-eslint-disable', rule, {
+test({
+	beforeAll(tester) {
+		// Define rules for test
+		for (const rule of [
+			'plugin/rule',
+			'@scope/plugin/rule-name',
+			'@scope/rule-name',
+			'@scopewithoutplugin'
+		]) {
+			tester.linter.defineRule(rule, {});
+		}
+	},
 	valid: [
 		'eval();',
 		'eval(); // eslint-disable-line no-eval',
@@ -69,7 +62,7 @@ ruleTester.run('no-abusive-eslint-disable', rule, {
 	]
 });
 
-runTest.snapshot({
+test.snapshot({
 	valid: [],
 	invalid: [
 		'eval(); // eslint-disable-line',

@@ -14,6 +14,7 @@ const {
 	removeLengthNode
 } = require('./shared/negative-index.js');
 const {methodCallSelector, callExpressionSelector, notLeftHandSideSelector} = require('./selectors/index.js');
+const {removeMemberExpressionProperty, removeMethodCall} = require('./fix/index.js');
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
 const MESSAGE_ID_INDEX = 'index';
@@ -218,16 +219,11 @@ function create(context) {
 					yield fixer.removeRange([start, end]);
 				}
 
-				// Remove `[0]`, `.shift`, or `.pop`
-				const [, start] = getParenthesizedRange(sliceCall, sourceCode);
-				const [, end] = sliceCall.parent.range;
-				yield fixer.removeRange([start, end]);
-
-				// Remove `()` of `.shift` or `.pop`
-				if (firstElementGetMethod !== 'zero-index') {
-					const [, start] = getParenthesizedRange(sliceCall.parent, sourceCode);
-					const [, end] = sliceCall.parent.parent.range;
-					yield fixer.removeRange([start, end]);
+				// Remove `[0]`, `.shift()`, or `.pop()`
+				if (firstElementGetMethod === 'zero-index') {
+					yield removeMemberExpressionProperty(fixer, sliceCall.parent, sourceCode);
+				} else {
+					yield * removeMethodCall(fixer, sliceCall.parent.parent, sourceCode);
 				}
 			}
 

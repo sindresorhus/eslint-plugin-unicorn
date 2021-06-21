@@ -40,15 +40,12 @@ const getEventNodeAndReferences = (context, node) => {
 	}
 };
 
-const isPropertyOf = (node, eventNode) => {
-	return (
-		node &&
-		node.parent &&
-		node.parent.type === 'MemberExpression' &&
-		node.parent.object &&
-		node.parent.object === eventNode
-	);
-};
+const isPropertyOf = (node, eventNode) =>
+	node &&
+	node.parent &&
+	node.parent.type === 'MemberExpression' &&
+	node.parent.object &&
+	node.parent.object === eventNode;
 
 // The third argument is a condition function, as one passed to `Array#filter()`
 // Helpful if nearest node of type also needs to have some other property
