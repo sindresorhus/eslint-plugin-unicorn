@@ -40,6 +40,8 @@ test({
 		'array.filter()[0]',
 		'array.filter(foo, thisArgument, extraArgument)[0]',
 		'array.filter(...foo)[0]'
+		// LHS
+		'array.filter(foo)[0] = 1'
 	],
 	invalid: [
 		{
