@@ -9,6 +9,7 @@ const {
 const {isNodeMatchesNameOrPath} = require('./utils/is-node-matches.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
+const isLeftSideHand = require('./utils/is-left-hand-side.js');
 const {
 	getNegativeIndexLengthNode,
 	removeLengthNode
@@ -85,6 +86,10 @@ function checkSliceCall(node) {
 
 	let firstElementGetMethod = '';
 	if (isZeroIndexAccess(node)) {
+		if (isLeftSideHand(node.parent)) {
+			return;
+		}
+
 		firstElementGetMethod = 'zero-index';
 	} else if (isArrayShiftCall(node)) {
 		firstElementGetMethod = 'shift';

@@ -39,7 +39,12 @@ test({
 		// More or less argument(s)
 		'array.filter()[0]',
 		'array.filter(foo, thisArgument, extraArgument)[0]',
-		'array.filter(...foo)[0]'
+		'array.filter(...foo)[0]',
+		// LHS
+		'array.filter(foo)[0] += 1',
+		'++ array.filter(foo)[0]',
+		'array.filter(foo)[0]--',
+		'delete array.filter(foo)[0]'
 	],
 	invalid: [
 		{
