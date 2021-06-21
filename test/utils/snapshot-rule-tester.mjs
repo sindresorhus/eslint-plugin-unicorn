@@ -85,6 +85,25 @@ function getVerifyConfig(ruleId, testerConfig, testCase) {
 	};
 }
 
+const parsers = new WeakMap();
+function defineParser(linter, parser) {
+	if (!parser) {
+		return;
+	}
+
+	if (!parsers.has(linter)) {
+		parsers.set(linter, new Set());
+	}
+
+	const defined = parsers.get(linter);
+	if (defined.has(parser)) {
+		return;
+	}
+
+	defined.add(parser);
+	linter.defineParser(parser, require(parser));
+}
+
 class SnapshotRuleTester {
 	constructor(test, config) {
 		this.test = test;
@@ -95,24 +114,14 @@ class SnapshotRuleTester {
 		const {test, config} = this;
 		const fixable = rule.meta && rule.meta.fixable;
 		const linter = new Linter();
-		const definedParsers = new Set();
 		linter.defineRule(ruleId, rule);
-		const {parser} = config;
-		if (parser && !definedParsers.has(parser)) {
-			definedParsers.add(parser);
-			linter.defineParser(parser, require(parser));
-		}
 
 		const {valid, invalid} = normalizeTests(tests);
 
 		for (const [index, testCase] of valid.entries()) {
 			const {code, filename} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
-			const {parser} = verifyConfig;
-			if (parser && !definedParsers.has(parser)) {
-				definedParsers.add(parser);
-				linter.defineParser(parser, require(parser));
-			}
+			defineParser(linter, verifyConfig.parser);
 
 			test(
 				outdent`
@@ -129,11 +138,7 @@ class SnapshotRuleTester {
 		for (const [index, testCase] of invalid.entries()) {
 			const {code, options, filename} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
-			const {parser} = verifyConfig;
-			if (parser && !definedParsers.has(parser)) {
-				definedParsers.add(parser);
-				linter.defineParser(parser, require(parser));
-			}
+			defineParser(linter, verifyConfig.parser);
 
 			test(
 				outdent`
