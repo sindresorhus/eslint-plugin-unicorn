@@ -1,7 +1,7 @@
 import outdent from 'outdent';
 import {getTester, avoidTestTitleConflict} from './utils/test.mjs';
 
-const {test, rule} = getTester(import.meta);
+const {test} = getTester(import.meta);
 
 function testCase(code, output) {
 	return output ? {code, output, errors: 1} : {code, errors: 1};
