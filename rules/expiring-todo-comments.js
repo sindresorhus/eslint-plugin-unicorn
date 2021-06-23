@@ -17,7 +17,7 @@ const MESSAGE_ID_ENGINE_MATCHES = 'unicorn/engineMatches';
 const MESSAGE_ID_REMOVE_WHITESPACE = 'unicorn/removeWhitespaces';
 const MESSAGE_ID_MISSING_AT_SYMBOL = 'unicorn/missingAtSymbol';
 
-// no prefix for message that overrides core rule message with a more specific one
+// No prefix for message that overrides core rule message with a more specific one
 const MESSSAGE_ID_CORE_RULE_UNEXPECTED_COMMENT = 'unexpectedComment';
 const messages = {
 	[MESSAGE_ID_AVOID_MULTIPLE_DATES]:
