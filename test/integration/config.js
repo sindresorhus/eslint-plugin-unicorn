@@ -3,7 +3,7 @@ const unicorn = require('eslint-plugin-unicorn');
 
 const enableAllRules = Object.fromEntries(
 	Object.entries(unicorn.configs.recommended.rules)
-		.filter(([id, options]) => id.startsWith('unicorn/') && options === 'off')
+		.filter(([id]) => id.startsWith('unicorn/'))
 		.map(([id]) => [id, 'error'])
 );
 

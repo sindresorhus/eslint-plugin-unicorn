@@ -426,3 +426,14 @@ test({
 		...[...tcIdentifiers].map(identifier => tcIdentifierInvalidTest(identifier))
 	]
 });
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
+			if (!isFinite(foo)) {
+				throw new Error();
+			}
+		`
+	]
+});

@@ -1,9 +1,7 @@
-import test from 'ava';
 import outdent from 'outdent';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import {getTester} from './utils/test.mjs';
 
-const {rule} = getTester(import.meta);
+const {test} = getTester(import.meta);
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
@@ -14,15 +12,8 @@ const ERROR_DECLARATION = 'error-variable';
 const SUGGESTION_NULLISH_COALESCING_OPERATOR = 'suggest-nullish-coalescing-operator';
 const SUGGESTION_LOGICAL_OR_OPERATOR = 'suggest-logical-or-operator';
 
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021,
-		sourceType: 'module'
-	}
-});
-
 // `[0]`
-ruleTester.run('prefer-array-find', rule, {
+test({
 	valid: [
 		'array.find(foo)',
 
@@ -48,7 +39,12 @@ ruleTester.run('prefer-array-find', rule, {
 		// More or less argument(s)
 		'array.filter()[0]',
 		'array.filter(foo, thisArgument, extraArgument)[0]',
-		'array.filter(...foo)[0]'
+		'array.filter(...foo)[0]',
+		// LHS
+		'array.filter(foo)[0] += 1',
+		'++ array.filter(foo)[0]',
+		'array.filter(foo)[0]--',
+		'delete array.filter(foo)[0]'
 	],
 	invalid: [
 		{
@@ -65,7 +61,7 @@ ruleTester.run('prefer-array-find', rule, {
 });
 
 // `.shift()`
-ruleTester.run('prefer-array-find', rule, {
+test({
 	valid: [
 		// Test `.shift()`
 		// Not `CallExpression`
@@ -138,11 +134,11 @@ ruleTester.run('prefer-array-find', rule, {
 });
 
 // `const [foo] =`
-ruleTester.run('prefer-array-find', rule, {
+test({
 	valid: [
 		// Test `const [item] = …`
 		// Not `VariableDeclarator`
-		'function a([foo] = array.filter(bar)) {}',
+		'function a([foo] = array.filter(bar1)) {}',
 		// Not `ArrayPattern`
 		'const foo = array.filter(bar)',
 		'const items = array.filter(bar)', // Plural variable name.
@@ -270,7 +266,6 @@ ruleTester.run('prefer-array-find', rule, {
 		// Suggestions
 		{
 			code: 'const [foo = baz] = array.filter(bar)',
-			output: 'const [foo = baz] = array.filter(bar)',
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
@@ -288,7 +283,6 @@ ruleTester.run('prefer-array-find', rule, {
 		// Default value is parenthesized
 		{
 			code: 'const [foo = (bar)] = array.filter(bar)',
-			output: 'const [foo = (bar)] = array.filter(bar)',
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
@@ -306,7 +300,6 @@ ruleTester.run('prefer-array-find', rule, {
 		// Default value has lower precedence
 		{
 			code: 'const [foo = a ? b : c] = array.filter(bar)',
-			output: 'const [foo = a ? b : c] = array.filter(bar)',
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
@@ -323,7 +316,6 @@ ruleTester.run('prefer-array-find', rule, {
 		},
 		{
 			code: 'const [foo = a ?? b] = array.filter(bar)',
-			output: 'const [foo = a ?? b] = array.filter(bar)',
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
@@ -340,7 +332,6 @@ ruleTester.run('prefer-array-find', rule, {
 		},
 		{
 			code: 'const [foo = a || b] = array.filter(bar)',
-			output: 'const [foo = a || b] = array.filter(bar)',
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
@@ -357,7 +348,6 @@ ruleTester.run('prefer-array-find', rule, {
 		},
 		{
 			code: 'const [foo = a && b] = array.filter(bar)',
-			output: 'const [foo = a && b] = array.filter(bar)',
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
 				suggestions: [
@@ -376,7 +366,7 @@ ruleTester.run('prefer-array-find', rule, {
 });
 
 // `[foo] =`
-ruleTester.run('prefer-array-find', rule, {
+test({
 	valid: [
 		// Test `[item] = …`
 		// Not `AssignmentExpression`
@@ -466,7 +456,6 @@ ruleTester.run('prefer-array-find', rule, {
 		// Suggestions
 		{
 			code: '[foo = baz] = array.filter(bar)',
-			output: '[foo = baz] = array.filter(bar)',
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
@@ -483,7 +472,6 @@ ruleTester.run('prefer-array-find', rule, {
 		},
 		{
 			code: '[{foo} = baz] = array.filter(bar)',
-			output: '[{foo} = baz] = array.filter(bar)',
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
@@ -500,7 +488,6 @@ ruleTester.run('prefer-array-find', rule, {
 		},
 		{
 			code: ';([{foo} = baz] = array.filter(bar))',
-			output: ';([{foo} = baz] = array.filter(bar))',
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
@@ -518,7 +505,6 @@ ruleTester.run('prefer-array-find', rule, {
 		// Default value is parenthesized
 		{
 			code: '[foo = (bar)] = array.filter(bar)',
-			output: '[foo = (bar)] = array.filter(bar)',
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
@@ -536,7 +522,6 @@ ruleTester.run('prefer-array-find', rule, {
 		// Default value has lower precedence
 		{
 			code: '[foo = a ? b : c] = array.filter(bar)',
-			output: '[foo = a ? b : c] = array.filter(bar)',
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
@@ -553,7 +538,6 @@ ruleTester.run('prefer-array-find', rule, {
 		},
 		{
 			code: '[foo = a || b] = array.filter(bar)',
-			output: '[foo = a || b] = array.filter(bar)',
 			errors: [{
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 				suggestions: [
@@ -572,7 +556,7 @@ ruleTester.run('prefer-array-find', rule, {
 });
 
 // `const foo = array.filter(); foo[0]; [bar] = foo`
-ruleTester.run('prefer-array-find', rule, {
+test({
 	valid: [
 		'const foo = array.find(bar), first = foo[0];',
 		'const foo = array.filter(bar), first = notFoo[0];',
@@ -804,12 +788,10 @@ ruleTester.run('prefer-array-find', rule, {
 		// Not fixable
 		{
 			code: 'const foo = array.filter(bar); const [first = bar] = foo;',
-			output: 'const foo = array.filter(bar); const [first = bar] = foo;',
 			errors: [{messageId: ERROR_DECLARATION}]
 		},
 		{
 			code: 'const foo = array.filter(bar); [first = bar] = foo;',
-			output: 'const foo = array.filter(bar); [first = bar] = foo;',
 			errors: [{messageId: ERROR_DECLARATION}]
 		},
 		// Many
@@ -849,7 +831,7 @@ ruleTester.run('prefer-array-find', rule, {
 });
 
 // Mixed
-ruleTester.run('prefer-array-find', rule, {
+test({
 	valid: [],
 	invalid: [
 		{

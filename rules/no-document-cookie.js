@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const getPropertyName = require('./utils/get-property-name.js');
 
 const MESSAGE_ID = 'no-document-cookie';
@@ -23,10 +22,10 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			return {
 				node,
 				messageId: MESSAGE_ID
-			});
+			};
 		}
 	};
 };
@@ -36,10 +35,8 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Do not use `document.cookie` directly.',
-			url: getDocumentationUrl(__filename)
+			description: 'Do not use `document.cookie` directly.'
 		},
-		schema: [],
 		messages
 	}
 };

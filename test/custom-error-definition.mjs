@@ -1,24 +1,7 @@
-import {createRequire} from 'node:module';
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, avoidTestTitleConflict} from './utils/test.mjs';
 
-const {test: runTest, rule} = getTester(import.meta);
-const require = createRequire(import.meta.url);
-
-const ruleTester = avaRuleTester(test, {
-	env: {
-		es6: true
-	},
-	parserOptions: {
-		sourceType: 'module'
-	}
-});
-
-const typescriptRuleTester = avaRuleTester(test, {
-	parser: require.resolve('@typescript-eslint/parser')
-});
+const {test} = getTester(import.meta);
 
 const invalidClassNameError = {message: 'Invalid class name, use `FooError`.'};
 const constructorError = {message: 'Add a constructor to your error.'};
@@ -477,10 +460,10 @@ const tests = {
 	]
 };
 
-ruleTester.run('custom-error-definition', rule, tests);
-typescriptRuleTester.run('custom-error-definition', rule, tests);
+test(tests);
+test.typescript(avoidTestTitleConflict(tests, 'typescript'));
 
-runTest.babel({
+test.babel({
 	valid: [
 		// #130
 		outdent`
@@ -521,7 +504,7 @@ runTest.babel({
 	]
 });
 
-runTest.typescript({
+test.typescript({
 	valid: [
 		outdent`
 			class CustomError extends Error {

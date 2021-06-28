@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-string-trim-start-end';
@@ -16,18 +15,18 @@ const selector = [
 	' > .property'
 ].join(' ');
 
-const create = context => {
+const create = () => {
 	return {
 		[selector](node) {
 			const method = node.name;
 			const replacement = method === 'trimLeft' ? 'trimStart' : 'trimEnd';
 
-			context.report({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				data: {method, replacement},
 				fix: fixer => fixer.replaceText(node, replacement)
-			});
+			};
 		}
 	};
 };
@@ -37,11 +36,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

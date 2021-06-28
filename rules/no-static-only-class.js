@@ -1,6 +1,5 @@
 'use strict';
 const {isSemicolonToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const getClassHeadLocation = require('./utils/get-class-head-location.js');
 const removeSpacesAfter = require('./utils/remove-spaces-after.js');
 const assertToken = require('./utils/assert-token.js');
@@ -213,12 +212,12 @@ function create(context) {
 				return;
 			}
 
-			context.report({
+			return {
 				node,
 				loc: getClassHeadLocation(node, sourceCode),
 				messageId: MESSAGE_ID,
 				fix: switchClassToObject(node, sourceCode)
-			});
+			};
 		}
 	};
 }
@@ -228,11 +227,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Forbid classes that only have static members.',
-			url: getDocumentationUrl(__filename)
+			description: 'Forbid classes that only have static members.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

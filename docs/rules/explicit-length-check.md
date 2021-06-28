@@ -43,10 +43,22 @@ const isEmpty = !(foo.length > 0);
 const isEmptySet = !foo.size;
 ```
 
+```vue
+<template>
+	<div v-if="foo.length">Vue</div>
+</template>
+```
+
 ### Pass
 
 ```js
 const isEmpty = foo.length === 0;
+```
+
+```vue
+<template>
+	<div v-if="foo.length > 0">Vue</div>
+</template>
 ```
 
 ## Non-zero comparisons

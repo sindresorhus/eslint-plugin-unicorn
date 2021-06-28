@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized, hasSideEffect} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {methodCallSelector, notDomNodeSelector} = require('./selectors/index.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const isValueNotUsable = require('./utils/is-value-not-usable.js');
@@ -63,7 +62,7 @@ const create = context => {
 				];
 			}
 
-			context.report(problem);
+			return problem;
 		}
 	};
 };
@@ -73,11 +72,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

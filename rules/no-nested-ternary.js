@@ -1,6 +1,5 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 
 const MESSAGE_ID_TOO_DEEP = 'too-deep';
 const MESSAGE_ID_SHOULD_PARENTHESIZED = 'should-parenthesized';
@@ -17,18 +16,18 @@ const create = context => {
 	return {
 		[nestTernarySelector(3)]: node => {
 			// Nesting more than one level not allowed.
-			context.report({node, messageId: MESSAGE_ID_TOO_DEEP});
+			return {node, messageId: MESSAGE_ID_TOO_DEEP};
 		},
 		[nestTernarySelector(2)]: node => {
 			if (!isParenthesized(node, sourceCode)) {
-				context.report({
+				return {
 					node,
 					messageId: MESSAGE_ID_SHOULD_PARENTHESIZED,
 					fix: fixer => [
 						fixer.insertTextBefore(node, '('),
 						fixer.insertTextAfter(node, ')')
 					]
-				});
+				};
 			}
 		}
 	};
@@ -39,11 +38,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow nested ternary expressions.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow nested ternary expressions.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

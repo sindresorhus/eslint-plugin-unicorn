@@ -1,22 +1,13 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import outdent from 'outdent';
-import rule from '../rules/no-array-reduce.js';
 import notFunctionTypes from './utils/not-function-types.mjs';
+import {getTester} from './utils/test.mjs';
 
-const MESSAGE_ID_REDUCE = 'reduce';
-const MESSAGE_ID_REDUCE_RIGHT = 'reduceRight';
+const {test} = getTester(import.meta);
 
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
+const errorsReduce = [{messageId: 'no-reduce', data: {method: 'reduce'}}];
+const errorsReduceRight = [{messageId: 'no-reduce', data: {method: 'reduceRight'}}];
 
-const errorsReduce = [{messageId: MESSAGE_ID_REDUCE}];
-const errorsReduceRight = [{messageId: MESSAGE_ID_REDUCE_RIGHT}];
-
-const tests = {
+test({
 	valid: [
 		'a[b.reduce]()',
 		'a(b.reduce)',
@@ -130,6 +121,4 @@ const tests = {
 		'Array.prototype.reduce.apply(arr, [(s, i) => s + i])',
 		'Array.prototype.reduce.apply(arr, [sum]);'
 	].flatMap(code => [{code, errors: errorsReduce}, {code: code.replace('reduce', 'reduceRight'), errors: errorsReduceRight}])
-};
-
-ruleTester.run('no-array-reduce', rule, tests);
+});

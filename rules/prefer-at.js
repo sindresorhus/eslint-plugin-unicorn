@@ -1,6 +1,5 @@
 'use strict';
 const {isOpeningBracketToken, isClosingBracketToken, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const isLiteralValue = require('./utils/is-literal-value.js');
 const {
 	isParenthesized,
@@ -10,11 +9,13 @@ const {
 const {isNodeMatchesNameOrPath} = require('./utils/is-node-matches.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
+const isLeftSideHand = require('./utils/is-left-hand-side.js');
 const {
 	getNegativeIndexLengthNode,
 	removeLengthNode
 } = require('./shared/negative-index.js');
 const {methodCallSelector, callExpressionSelector, notLeftHandSideSelector} = require('./selectors/index.js');
+const {removeMemberExpressionProperty, removeMethodCall} = require('./fix/index.js');
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
 const MESSAGE_ID_INDEX = 'index';
@@ -85,6 +86,10 @@ function checkSliceCall(node) {
 
 	let firstElementGetMethod = '';
 	if (isZeroIndexAccess(node)) {
+		if (isLeftSideHand(node.parent)) {
+			return;
+		}
+
 		firstElementGetMethod = 'zero-index';
 	} else if (isArrayShiftCall(node)) {
 		firstElementGetMethod = 'shift';
@@ -159,7 +164,7 @@ function create(context) {
 				}
 			}
 
-			context.report({
+			return {
 				node: indexNode,
 				messageId: lengthNode ? MESSAGE_ID_NEGATIVE_INDEX : MESSAGE_ID_INDEX,
 				* fix(fixer) {
@@ -173,7 +178,7 @@ function create(context) {
 					const isClosingBraceToken = sourceCode.getTokenAfter(indexNode, isClosingBracketToken);
 					yield fixer.replaceText(isClosingBraceToken, ')');
 				}
-			});
+			};
 		},
 		[stringCharAt](node) {
 			const [indexNode] = node.arguments;
@@ -184,7 +189,7 @@ function create(context) {
 				return;
 			}
 
-			context.report({
+			return {
 				node: indexNode,
 				messageId: lengthNode ? MESSAGE_ID_STRING_CHAR_AT_NEGATIVE : MESSAGE_ID_STRING_CHAR_AT,
 				suggest: [{
@@ -197,7 +202,7 @@ function create(context) {
 						yield fixer.replaceText(node.callee.property, 'at');
 					}
 				}]
-			});
+			};
 		},
 		[sliceCall](sliceCall) {
 			const result = checkSliceCall(sliceCall);
@@ -219,16 +224,11 @@ function create(context) {
 					yield fixer.removeRange([start, end]);
 				}
 
-				// Remove `[0]`, `.shift`, or `.pop`
-				const [, start] = getParenthesizedRange(sliceCall, sourceCode);
-				const [, end] = sliceCall.parent.range;
-				yield fixer.removeRange([start, end]);
-
-				// Remove `()` of `.shift` or `.pop`
-				if (firstElementGetMethod !== 'zero-index') {
-					const [, start] = getParenthesizedRange(sliceCall.parent, sourceCode);
-					const [, end] = sliceCall.parent.parent.range;
-					yield fixer.removeRange([start, end]);
+				// Remove `[0]`, `.shift()`, or `.pop()`
+				if (firstElementGetMethod === 'zero-index') {
+					yield removeMemberExpressionProperty(fixer, sliceCall.parent, sourceCode);
+				} else {
+					yield * removeMethodCall(fixer, sliceCall.parent.parent, sourceCode);
 				}
 			}
 
@@ -243,7 +243,7 @@ function create(context) {
 				problem.suggest = [{messageId: SUGGESTION_ID, fix}];
 			}
 
-			context.report(problem);
+			return problem;
 		},
 		[callExpressionSelector({length: 1})](node) {
 			const matchedFunction = getLastFunctions.find(nameOrPath => isNodeMatchesNameOrPath(node.callee, nameOrPath));
@@ -251,7 +251,7 @@ function create(context) {
 				return;
 			}
 
-			context.report({
+			return {
 				node: node.callee,
 				messageId: MESSAGE_ID_GET_LAST_FUNCTION,
 				data: {description: matchedFunction.trim()},
@@ -276,7 +276,7 @@ function create(context) {
 
 					return fixer.replaceText(node, fixed);
 				}
-			});
+			};
 		}
 	};
 }
@@ -303,8 +303,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.at()` method for index access and `String#charAt()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `.at()` method for index access and `String#charAt()`.'
 		},
 		fixable: 'code',
 		schema,

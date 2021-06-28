@@ -4,7 +4,7 @@ Using complete words results in more readable code. Not everyone knows all your 
 
 This rule can also be used to replace terms, disallow words, etc. See the [`replacements`](#replacements) and [`extendDefaultReplacements`](#extenddefaultreplacements) options.
 
-You can find the default replacements [here](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/rules/prevent-abbreviations.js#L13).
+You can find the default replacements [here](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/rules/shared/abbreviations.js).
 
 This rule is fixable only for variable names with exactly one replacement defined.
 

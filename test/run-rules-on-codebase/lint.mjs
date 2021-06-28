@@ -8,7 +8,7 @@ const fix = process.argv.includes('--fix');
 
 const enableAllRules = Object.fromEntries(
 	Object.entries(recommended.rules)
-		.filter(([id, options]) => id.startsWith('unicorn/') && options === 'off')
+		.filter(([id]) => id.startsWith('unicorn/'))
 		.map(([id]) => [id, 'error'])
 );
 

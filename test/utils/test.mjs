@@ -3,7 +3,8 @@ import url from 'node:url';
 import {createRequire} from 'node:module';
 import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
-import snapshotRuleTester from './snapshot-rule-tester.mjs';
+import {loadRule} from '../../rules/utils/rule.js';
+import SnapshotRuleTester from './snapshot-rule-tester.mjs';
 import defaultParserOptions from './default-parser-options.mjs';
 
 const require = createRequire(import.meta.url);
@@ -30,18 +31,35 @@ function normalizeInvalidTest(test, rule) {
 	};
 }
 
+const parsers = {
+	get typescript() {
+		return require.resolve('@typescript-eslint/parser');
+	},
+	get babel() {
+		return require.resolve('@babel/eslint-parser');
+	},
+	get vue() {
+		return require.resolve('vue-eslint-parser');
+	}
+};
+
 class Tester {
 	constructor(ruleId) {
 		this.ruleId = ruleId;
-		this.rule = require(`../../rules/${ruleId}`);
+		this.rule = loadRule(ruleId);
 	}
 
 	runTest(tests) {
-		const {testerOptions, valid, invalid} = tests;
+		const {beforeAll, testerOptions, valid, invalid} = tests;
 		const tester = avaRuleTester(test, {
 			parserOptions: defaultParserOptions,
 			...testerOptions
 		});
+
+		if (beforeAll) {
+			beforeAll(tester);
+		}
+
 		return tester.run(
 			this.ruleId,
 			this.rule,
@@ -60,7 +78,7 @@ class Tester {
 			...tests,
 			testerOptions: {
 				...testerOptions,
-				parser: require.resolve('@typescript-eslint/parser'),
+				parser: parsers.typescript,
 				parserOptions: {
 					...defaultParserOptions,
 					...testerOptions.parserOptions
@@ -86,7 +104,7 @@ class Tester {
 			...tests,
 			testerOptions: {
 				...testerOptions,
-				parser: require.resolve('@babel/eslint-parser'),
+				parser: parsers.babel,
 				parserOptions: {
 					...defaultParserOptions,
 					requireConfigFile: false,
@@ -108,11 +126,23 @@ class Tester {
 		});
 	}
 
-	snapshot(tests) {
-		const tester = snapshotRuleTester(test, {
-			parserOptions: defaultParserOptions
+	vue(tests) {
+		return this.runTest({
+			...tests,
+			testerOptions: {
+				parser: parsers.vue,
+				parserOptions: defaultParserOptions
+			}
 		});
-		return tester.run(this.ruleId, this.rule, tests);
+	}
+
+	snapshot(tests) {
+		const {testerOptions, valid, invalid} = tests;
+		const tester = new SnapshotRuleTester(test, {
+			parserOptions: defaultParserOptions,
+			...testerOptions
+		});
+		return tester.run(this.ruleId, this.rule, {valid, invalid});
 	}
 }
 
@@ -123,6 +153,7 @@ function getTester(importMeta) {
 	const test = Tester.prototype.runTest.bind(tester);
 	test.typescript = Tester.prototype.typescript.bind(tester);
 	test.babel = Tester.prototype.babel.bind(tester);
+	test.vue = Tester.prototype.vue.bind(tester);
 	test.snapshot = Tester.prototype.snapshot.bind(tester);
 
 	return {
@@ -161,5 +192,6 @@ const avoidTestTitleConflict = (tests, comment) => {
 export {
 	defaultParserOptions,
 	getTester,
-	avoidTestTitleConflict
+	avoidTestTitleConflict,
+	parsers
 };

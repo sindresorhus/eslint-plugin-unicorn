@@ -1,6 +1,5 @@
 'use strict';
 const {hasSideEffect} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const isSameReference = require('./utils/is-same-reference.js');
 const getIndentString = require('./utils/get-indent-string.js');
 
@@ -263,7 +262,7 @@ const create = context => {
 		'BreakStatement:not([label])'(node) {
 			breakStatements.push(node);
 		},
-		'Program:exit'() {
+		* 'Program:exit'() {
 			for (const node of ifStatements) {
 				if (checked.has(node)) {
 					continue;
@@ -294,7 +293,7 @@ const create = context => {
 					problem.fix = fix({discriminant, ifStatements}, sourceCode, options);
 				}
 
-				context.report(problem);
+				yield problem;
 			}
 		}
 	};
@@ -327,8 +326,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `switch` over multiple `else-if`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `switch` over multiple `else-if`.'
 		},
 		fixable: 'code',
 		schema,

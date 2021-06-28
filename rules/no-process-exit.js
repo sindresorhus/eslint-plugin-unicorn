@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {methodCallSelector, STATIC_REQUIRE_SELECTOR} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'no-process-exit';
@@ -63,13 +62,13 @@ const create = context => {
 				processEventHandler = undefined;
 			}
 		},
-		'Program:exit': () => {
+		* 'Program:exit'() {
 			if (!requiredWorkerThreadsModule) {
 				for (const node of problemNodes) {
-					context.report({
+					yield {
 						node,
 						messageId: MESSAGE_ID
-					});
+					};
 				}
 			}
 		}
@@ -81,10 +80,8 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow `process.exit()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Disallow `process.exit()`.'
 		},
-		schema: [],
 		messages
 	}
 };

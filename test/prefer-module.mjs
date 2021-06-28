@@ -257,3 +257,31 @@ test.snapshot({
 		`
 	]
 });
+
+// `.cjs` file
+test.snapshot({
+	valid: [
+		{
+			code: '__dirname',
+			filename: 'foo.cjs'
+		},
+		{
+			code: '__dirname',
+			filename: 'foo.cjS'
+		}
+	],
+	invalid: [
+		{
+			code: '__filename',
+			filename: 'foo.mjs'
+		},
+		{
+			code: 'require("lodash")',
+			filename: 'foo.js'
+		},
+		{
+			code: 'require("lodash")',
+			filename: 'foo.cjs/foo.js'
+		}
+	]
+});

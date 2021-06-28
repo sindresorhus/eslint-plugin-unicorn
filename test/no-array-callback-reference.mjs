@@ -1,10 +1,8 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import outdent from 'outdent';
 import notFunctionTypes from './utils/not-function-types.mjs';
 import {getTester} from './utils/test.mjs';
 
-const {rule} = getTester(import.meta);
+const {test} = getTester(import.meta);
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
@@ -26,12 +24,6 @@ const reduceLikeMethods = [
 	'reduceRight'
 ];
 
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
 const generateError = (method, name) => ({
 	messageId: name ? ERROR_WITH_NAME_MESSAGE_ID : ERROR_WITHOUT_NAME_MESSAGE_ID,
 	data: {
@@ -47,7 +39,6 @@ const suggestionOutput = output => ({
 
 const invalidTestCase = (({code, method, name, suggestions}) => ({
 	code,
-	output: code,
 	errors: [
 		{
 			...generateError(method, name),
@@ -56,7 +47,7 @@ const invalidTestCase = (({code, method, name, suggestions}) => ({
 	]
 }));
 
-ruleTester.run('no-array-callback-reference', rule, {
+test({
 	valid: [
 		...simpleMethods.map(method => `foo.${method}(element => fn(element))`),
 		...reduceLikeMethods.map(method => `foo.${method}((accumulator, element) => fn(element))`),

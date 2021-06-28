@@ -77,7 +77,12 @@ test.snapshot({
 		'array.slice(-1).shift?.()',
 		'array.slice(-1)?.shift()',
 		'array.slice(-1).shift(...[])',
-		'new array.slice(-1).shift()'
+		'new array.slice(-1).shift()',
+		// LHS
+		'array.slice(-1)[0] += 1',
+		'++ array.slice(-1)[0]',
+		'array.slice(-1)[0] --',
+		'delete array.slice(-1)[0]'
 	],
 	invalid: [
 		'array.slice(-1)[0]',

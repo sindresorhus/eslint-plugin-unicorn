@@ -1,8 +1,9 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {methodCallSelector, matches, memberExpressionSelector} = require('./selectors/index.js');
+const {checkVueTemplate} = require('./utils/rule.js');
 const {isBooleanNode} = require('./utils/boolean.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
+const {removeMemberExpressionProperty} = require('./fix/index.js');
 
 const ERROR_ID_ARRAY_SOME = 'some';
 const SUGGESTION_ID_ARRAY_SOME = 'some-suggestion';
@@ -42,7 +43,7 @@ const create = context => {
 			}
 
 			const findProperty = findCall.callee.property;
-			context.report({
+			return {
 				node: findProperty,
 				messageId: ERROR_ID_ARRAY_SOME,
 				suggest: [
@@ -51,11 +52,11 @@ const create = context => {
 						fix: fixer => fixer.replaceText(findProperty, 'some')
 					}
 				]
-			});
+			};
 		},
 		[arrayFilterCallSelector](filterCall) {
 			const filterProperty = filterCall.callee.property;
-			context.report({
+			return {
 				node: filterProperty,
 				messageId: ERROR_ID_ARRAY_FILTER,
 				* fix(fixer) {
@@ -69,10 +70,7 @@ const create = context => {
 						`(( (( array.filter() )).length )) > (( 0 ))`
 						------------------------^^^^^^^
 					*/
-					yield fixer.removeRange([
-						getParenthesizedRange(filterCall, sourceCode)[1],
-						lengthNode.range[1]
-					]);
+					yield removeMemberExpressionProperty(fixer, lengthNode, sourceCode);
 
 					const compareNode = lengthNode.parent;
 					/*
@@ -87,21 +85,19 @@ const create = context => {
 
 					// The `BinaryExpression` always ends with a number or `)`, no need check for ASI
 				}
-			});
+			};
 		}
 	};
 };
 
 module.exports = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

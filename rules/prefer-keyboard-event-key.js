@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const quoteString = require('./utils/quote-string.js');
 const translateToKey = require('./shared/event-keys.js');
 
@@ -41,15 +40,12 @@ const getEventNodeAndReferences = (context, node) => {
 	}
 };
 
-const isPropertyOf = (node, eventNode) => {
-	return (
-		node &&
-		node.parent &&
-		node.parent.type === 'MemberExpression' &&
-		node.parent.object &&
-		node.parent.object === eventNode
-	);
-};
+const isPropertyOf = (node, eventNode) =>
+	node &&
+	node.parent &&
+	node.parent.type === 'MemberExpression' &&
+	node.parent.object &&
+	node.parent.object === eventNode;
 
 // The third argument is a condition function, as one passed to `Array#filter()`
 // Helpful if nearest node of type also needs to have some other property
@@ -101,16 +97,14 @@ const fix = node => fixer => {
 	];
 };
 
-const create = context => {
-	const report = node => {
-		context.report({
-			messageId: MESSAGE_ID,
-			data: {name: node.name},
-			node,
-			fix: fix(node)
-		});
-	};
+const getProblem = node => ({
+	messageId: MESSAGE_ID,
+	data: {name: node.name},
+	node,
+	fix: fix(node)
+});
 
+const create = context => {
 	return {
 		'Identifier:matches([name="keyCode"], [name="charCode"], [name="which"])'(node) {
 			// Normal case when usage is direct -> `event.keyCode`
@@ -123,7 +117,7 @@ const create = context => {
 				references &&
 				references.some(reference => isPropertyOf(node, reference.identifier))
 			) {
-				report(node);
+				return getProblem(node);
 			}
 		},
 
@@ -153,8 +147,7 @@ const create = context => {
 				references &&
 				references.some(reference => reference.identifier === initObject)
 			) {
-				report(node.value);
-				return;
+				return getProblem(node.value);
 			}
 
 			// When the event parameter itself is destructured directly
@@ -163,7 +156,7 @@ const create = context => {
 				// Check for properties
 				for (const property of event.properties) {
 					if (property === node) {
-						report(node.value);
+						return getProblem(node.value);
 					}
 				}
 			}
@@ -176,11 +169,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

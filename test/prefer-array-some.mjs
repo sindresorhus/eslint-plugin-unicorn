@@ -178,3 +178,37 @@ test.snapshot({
 		`
 	]
 });
+
+test.vue({
+	valid: [],
+	invalid: [
+		invalidCase({
+			code: '<template><div v-if="foo.find(fn)"></div></template>',
+			suggestionOutput: '<template><div v-if="foo.some(fn)"></div></template>'
+		}),
+		invalidCase({
+			code: '<script>if (foo.find(fn));</script>',
+			suggestionOutput: '<script>if (foo.some(fn));</script>'
+		}),
+		{
+			code: '<template><div v-if="foo.filter(fn).length > 0"></div></template>',
+			output: '<template><div v-if="foo.some(fn)"></div></template>',
+			errors: 1
+		},
+		{
+			code: '<template><div v-if="foo.filter(fn).length !== 0"></div></template>',
+			output: '<template><div v-if="foo.some(fn)"></div></template>',
+			errors: 1
+		},
+		{
+			code: '<template><div v-if="foo.filter(fn).length >=1"></div></template>',
+			output: '<template><div v-if="foo.some(fn)"></div></template>',
+			errors: 1
+		},
+		{
+			code: '<script>if (foo.filter(fn).length > 0);</script>',
+			output: '<script>if (foo.some(fn));</script>',
+			errors: 1
+		}
+	]
+});

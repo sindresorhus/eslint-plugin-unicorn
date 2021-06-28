@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const isValueNotUsable = require('./utils/is-value-not-usable.js');
 const {methodCallSelector} = require('./selectors/index.js');
 
@@ -42,7 +41,7 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 		) :
 		undefined;
 
-	return context.report({
+	return {
 		node,
 		messageId: 'replaceChildOrInsertBefore',
 		data: {
@@ -53,7 +52,7 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 			oldChildNode
 		},
 		fix
-	});
+	};
 };
 
 const insertAdjacentTextOrInsertAdjacentElementSelector = [
@@ -98,7 +97,7 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 			`${reference}.${preferredMethod}(${content})`
 		);
 
-	return context.report({
+	return {
 		node,
 		messageId: 'insertAdjacentTextOrInsertAdjacentElement',
 		data: {
@@ -109,16 +108,16 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 			content
 		},
 		fix
-	});
+	};
 };
 
 const create = context => {
 	return {
 		[replaceChildOrInsertBeforeSelector](node) {
-			checkForReplaceChildOrInsertBefore(context, node);
+			return checkForReplaceChildOrInsertBefore(context, node);
 		},
 		[insertAdjacentTextOrInsertAdjacentElementSelector](node) {
-			checkForInsertAdjacentTextOrInsertAdjacentElement(context, node);
+			return checkForInsertAdjacentTextOrInsertAdjacentElement(context, node);
 		}
 	};
 };
@@ -128,11 +127,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };

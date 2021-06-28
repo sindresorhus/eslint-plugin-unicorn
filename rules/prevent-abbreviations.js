@@ -2,7 +2,6 @@
 const path = require('path');
 const {defaultsDeep, upperFirst, lowerFirst} = require('lodash');
 
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const avoidCapture = require('./utils/avoid-capture.js');
 const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
 const isShorthandPropertyValue = require('./utils/is-shorthand-property-value.js');
@@ -609,8 +608,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prevent abbreviations.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prevent abbreviations.'
 		},
 		fixable: 'code',
 		schema

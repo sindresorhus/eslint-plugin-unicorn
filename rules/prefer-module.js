@@ -1,6 +1,5 @@
 'use strict';
 const {isOpeningParenToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const isShadowed = require('./utils/is-shadowed.js');
 const removeSpacesAfter = require('./utils/remove-spaces-after.js');
 const isStaticRequire = require('./utils/is-static-require.js');
@@ -214,24 +213,30 @@ function fixModuleExports(node, sourceCode) {
 }
 
 function create(context) {
+	const filename = context.getPhysicalFilename();
+
+	if (filename.toLowerCase().endsWith('.cjs')) {
+		return {};
+	}
+
 	const sourceCode = context.getSourceCode();
 
 	return {
 		'ExpressionStatement[directive="use strict"]'(node) {
-			context.report({
+			return {
 				node,
 				messageId: ERROR_USE_STRICT_DIRECTIVE,
 				* fix(fixer) {
 					yield fixer.remove(node);
 					yield removeSpacesAfter(node, sourceCode, fixer);
 				}
-			});
+			};
 		},
 		'ReturnStatement:not(:function ReturnStatement)'(node) {
-			context.report({
+			return {
 				node: sourceCode.getFirstToken(node),
 				messageId: ERROR_GLOBAL_RETURN
-			});
+			};
 		},
 		[identifierSelector](node) {
 			if (isShadowed(context.getScope(), node)) {
@@ -257,7 +262,7 @@ function create(context) {
 						messageId,
 						fix: fixer => replaceReferenceIdentifier(node, replacement, fixer)
 					}];
-					break;
+					return problem;
 				}
 
 				case 'require': {
@@ -267,6 +272,7 @@ function create(context) {
 							messageId: SUGGESTION_IMPORT,
 							fix
 						}];
+						return problem;
 					}
 
 					break;
@@ -279,6 +285,7 @@ function create(context) {
 							messageId: SUGGESTION_EXPORT,
 							fix
 						}];
+						return problem;
 					}
 
 					break;
@@ -291,6 +298,7 @@ function create(context) {
 							messageId: SUGGESTION_EXPORT,
 							fix
 						}];
+						return problem;
 					}
 
 					break;
@@ -299,7 +307,7 @@ function create(context) {
 				default:
 			}
 
-			context.report(problem);
+			return problem;
 		}
 	};
 }
@@ -309,11 +317,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer JavaScript modules (ESM) over CommonJS.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer JavaScript modules (ESM) over CommonJS.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

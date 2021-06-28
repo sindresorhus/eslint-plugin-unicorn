@@ -1,6 +1,5 @@
 'use strict';
 const {findVariable, getFunctionHeadLocation} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {matches, memberExpressionSelector} = require('./selectors/index.js');
 
 const ERROR_PROMISE = 'promise';
@@ -40,17 +39,17 @@ const identifier = [
 function create(context) {
 	return {
 		[promise](node) {
-			context.report({
+			return {
 				node: node.callee.property,
 				messageId: ERROR_PROMISE
-			});
+			};
 		},
 		[iife](node) {
-			context.report({
+			return {
 				node,
 				loc: getFunctionHeadLocation(node.callee, context.getSourceCode()),
 				messageId: ERROR_IIFE
-			});
+			};
 		},
 		[identifier](node) {
 			const variable = findVariable(context.getScope(), node.callee);
@@ -74,7 +73,7 @@ function create(context) {
 				return;
 			}
 
-			context.report({
+			return {
 				node,
 				messageId: ERROR_IDENTIFIER,
 				data: {name: node.callee.name},
@@ -84,7 +83,7 @@ function create(context) {
 						fix: fixer => fixer.insertTextBefore(node, 'await ')
 					}
 				]
-			});
+			};
 		}
 	};
 }
@@ -94,10 +93,8 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer top-level await over top-level promises and async function calls.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer top-level await over top-level promises and async function calls.'
 		},
-		schema: [],
 		messages,
 		hasSuggestions: true
 	}

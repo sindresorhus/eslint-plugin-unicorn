@@ -1,5 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {
 	methodCallSelector,
 	emptyObjectSelector,
@@ -43,12 +42,12 @@ function create(context) {
 			const constructorName = node.object.type === 'ArrayExpression' ? 'Array' : 'Object';
 			const methodName = getPropertyName(node, context.getScope());
 
-			context.report({
+			return {
 				node,
 				messageId: methodName ? 'known-method' : 'unknown-method',
 				data: {constructorName, methodName: String(methodName)},
 				fix: fixer => fixer.replaceText(node.object, `${constructorName}.prototype`)
-			});
+			};
 		}
 	};
 }
@@ -58,11 +57,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer borrowing methods from the prototype instead of the instance.',
-			url: getDocumentationUrl(__filename)
+			description: 'Prefer borrowing methods from the prototype instead of the instance.'
 		},
 		fixable: 'code',
-		schema: [],
 		messages
 	}
 };
