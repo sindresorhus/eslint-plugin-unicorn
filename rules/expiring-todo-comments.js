@@ -16,6 +16,9 @@ const MESSAGE_ID_VERSION_MATCHES = 'unicorn/versionMatches';
 const MESSAGE_ID_ENGINE_MATCHES = 'unicorn/engineMatches';
 const MESSAGE_ID_REMOVE_WHITESPACE = 'unicorn/removeWhitespaces';
 const MESSAGE_ID_MISSING_AT_SYMBOL = 'unicorn/missingAtSymbol';
+
+// Override of core rule message with a more specific one - no prefix
+const MESSSAGE_ID_CORE_RULE_UNEXPECTED_COMMENT = 'unexpectedComment';
 const messages = {
 	[MESSAGE_ID_AVOID_MULTIPLE_DATES]:
 		'Avoid using multiple expiration dates in TODO: {{expirationDates}}. {{message}}',
@@ -37,7 +40,9 @@ const messages = {
 		'Avoid using whitespace on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
 	[MESSAGE_ID_MISSING_AT_SYMBOL]:
 		'Missing \'@\' on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
-	...baseRule.meta.messages
+	...baseRule.meta.messages,
+	[MESSSAGE_ID_CORE_RULE_UNEXPECTED_COMMENT]:
+		'Unexpected \'{{matchedTerm}}\' comment without any conditions: \'{{comment}}\'.'
 };
 
 const packageResult = readPkgUp.sync();

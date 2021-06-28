@@ -43,7 +43,7 @@ const missingAtSymbolError = (bad, good, message) => ({
 });
 
 const noWarningCommentError = comment => ({
-	message: `Unexpected 'todo' comment: '${comment}'.`
+	message: `Unexpected 'todo' comment without any conditions: '${comment}'.`
 });
 
 test({
