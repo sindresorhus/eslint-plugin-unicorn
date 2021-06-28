@@ -1,6 +1,5 @@
 'use strict';
 const {isOpeningBraceToken} = require('eslint-utils');
-const toLocation = require('./utils/to-location.js');
 const {matches} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'empty-brace-spaces';
@@ -20,42 +19,29 @@ const selector = matches([
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
 	return {
 		[selector](node) {
-			const text = sourceCode.getText(node);
+			const sourceCode = context.getSourceCode();
+			const filter = node.type === 'RecordExpression' ?
+				token => token.type === 'Punctuator' && (token.value === '#{' || token.value === '{|') :
+				isOpeningBraceToken;
+			const openingBrace = sourceCode.getFirstToken(node, {filter});
+			const closingBrace = sourceCode.getLastToken(node);
+			const [, start] = openingBrace.range;
+			const [end] = closingBrace.range;
+			const textBetween = sourceCode.text.slice(start, end);
 
-			let startOffset = 1;
-			let endOffset = -1;
-			switch (node.type) {
-				case 'RecordExpression': {
-					startOffset = 2;
-					if (text.startsWith('{|')) {
-						endOffset = -2;
-					}
-
-					break;
-				}
-
-				case 'StaticBlock': {
-					const openingBraceToken = sourceCode.getFirstToken(node, isOpeningBraceToken);
-					startOffset = openingBraceToken.range[1] - node.range[0];
-					break;
-				}
-				// No default
-			}
-
-			if (!/^\s+$/.test(text.slice(startOffset, endOffset))) {
+			if (!/^\s+$/.test(textBetween)) {
 				return;
 			}
 
-			const start = node.range[0] + startOffset;
-			const end = node.range[1] + endOffset;
-			const range = [start, end];
 			return {
-				loc: toLocation(range, sourceCode),
+				loc: {
+					start: openingBrace.loc.end,
+					end: closingBrace.loc.start
+				},
 				messageId: MESSAGE_ID,
-				fix: fixer => fixer.removeRange(range)
+				fix: fixer => fixer.removeRange([start, end])
 			};
 		}
 	};
