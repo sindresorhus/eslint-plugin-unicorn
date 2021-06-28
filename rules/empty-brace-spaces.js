@@ -23,7 +23,7 @@ const create = context => {
 		[selector](node) {
 			const sourceCode = context.getSourceCode();
 			const filter = node.type === 'RecordExpression' ?
-				token => token.value === '#{' || token.value === '{|' :
+				token => token.type === 'Punctuator' && (token.value === '#{' || token.value === '{|') :
 				isOpeningBraceToken;
 			const openingBrace = sourceCode.getFirstToken(node, {filter});
 			const closingBrace = sourceCode.getLastToken(node);
