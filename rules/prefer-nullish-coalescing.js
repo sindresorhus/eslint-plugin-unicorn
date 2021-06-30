@@ -21,7 +21,8 @@ const create = context => {
 		[selector](node) {
 			if (
 				[node.parent, node.left, node.right].some(node => node.type === 'LogicalExpression') ||
-				isBooleanNode(node)
+				isBooleanNode(node) ||
+				isBooleanNode(node.left)
 			) {
 				return;
 			}

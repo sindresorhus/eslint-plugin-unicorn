@@ -3,7 +3,6 @@
 const isLogicalExpression = require('./is-logical-expression.js');
 
 const isLogicNot = node =>
-	node &&
 	node.type === 'UnaryExpression' &&
 	node.operator === '!';
 const isLogicNotArgument = node =>
@@ -13,14 +12,22 @@ const isBooleanCallArgument = node =>
 	isBooleanCall(node.parent) &&
 	node.parent.arguments[0] === node;
 const isBooleanCall = node =>
-	node &&
 	node.type === 'CallExpression' &&
-	node.callee &&
+	!node.optional &&
 	node.callee.type === 'Identifier' &&
 	node.callee.name === 'Boolean' &&
 	node.arguments.length === 1;
+const isObjectIsCall = node =>
+	node.type === 'CallExpression' &&
+	!node.optional &&
+	node.callee.type === 'MemberExpression' &&
+	!node.callee.computed &&
+	!node.callee.optional &&
+	node.callee.object.type === 'Identifier' &&
+	node.callee.object.name === 'Object' &&
+	node.callee.property.type === 'Identifier' &&
+	node.callee.property.name === 'is';
 const isVueBooleanAttributeValue = node =>
-	node &&
 	node.type === 'VExpressionContainer' &&
 	node.parent.type === 'VAttribute' &&
 	node.parent.directive &&
@@ -32,6 +39,25 @@ const isVueBooleanAttributeValue = node =>
 		node.parent.key.name.rawName === 'else-if' ||
 		node.parent.key.name.rawName === 'show'
 	);
+const isBooleanLiteral = node =>
+	node.type === 'Literal' &&
+	typeof node.value === 'boolean';
+// https://github.com/estree/estree/blob/master/es5.md#binaryoperator
+const comparisonOperators = new Set([
+	'==',
+	'!=',
+	'===',
+	'!==',
+	'<',
+	'<=',
+	'>',
+	'>=',
+	'in',
+	'instanceof'
+]);
+const isComparison = node =>
+	node.type === 'BinaryExpression' &&
+	comparisonOperators.has(node.operator);
 
 /**
 Check if the value of node is a `boolean`.
@@ -40,11 +66,18 @@ Check if the value of node is a `boolean`.
 @returns {boolean}
 */
 function isBooleanNode(node) {
+	if (!node) {
+		return false;
+	}
+
 	if (
 		isLogicNot(node) ||
 		isLogicNotArgument(node) ||
 		isBooleanCall(node) ||
-		isBooleanCallArgument(node)
+		isBooleanCallArgument(node) ||
+		isBooleanLiteral(node) ||
+		isComparison(node) ||
+		isObjectIsCall(node)
 	) {
 		return true;
 	}
