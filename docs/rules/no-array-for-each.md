@@ -5,6 +5,7 @@ Benefits of [`for…of` statement](https://developer.mozilla.org/en-US/docs/Web/
 - Faster
 - Better readability
 - Ability to exit early with `break` or `return`
+- Less likely to run into `Maximum call stack size exceeded` errors
 
 This rule is partly fixable.
 
