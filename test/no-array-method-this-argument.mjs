@@ -14,7 +14,19 @@ test.snapshot({
 		'array.map(() => {},)',
 		'array.map(() => {}, ...thisArgument)',
 		'array.map(...() => {}, thisArgument)',
-		'array.map(() => {}, thisArgument, extraArgument)'
+		'array.map(() => {}, thisArgument, extraArgument)',
+		// Ignored
+		'lodash.every(array, () => {})',
+		'lodash.find(array, () => {})',
+		'jQuery.map(array, () => {})',
+		'$.map(array, () => {})',
+		'React.Children.map(children, () => {})',
+		'Children.map(children, () => {})',
+		'React.Children.forEach(children, () => {})',
+		'Children.forEach(children, () => {})',
+		// `jQuery.find` and `jQuery.filter` don't accept second argument
+		'$( "li" ).filter( ":nth-child(2n)" ).css( "background-color", "red" );',
+		'$( "li.item-ii" ).find( "li" ).css( "background-color", "red" );',
 	],
 	invalid: [
 		'array.every(() => {}, thisArgument)',
