@@ -2,10 +2,10 @@
 
 // Copied from https://github.com/eslint/eslint/blob/aa87329d919f569404ca573b439934552006572f/lib/rules/no-extra-parens.js#L448
 /**
-Check if a member expression contains a call expression
+Check if a member expression contains a call expression.
 
-@param {ASTNode} node MemberExpression node to evaluate
-@returns {boolean} true if found, false if not
+@param {ASTNode} node - The `MemberExpression` node to evaluate.
+@returns {boolean} true if found, false if not.
 */
 function doesMemberExpressionContainCallExpression(node) {
 	let currentNode = node.object;
