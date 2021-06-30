@@ -35,9 +35,9 @@ const notFunctionSelector = node => not([
 			`[${node}.callee.optional!=true]`,
 			`[${node}.callee.computed!=true]`,
 			`[${node}.callee.property.type="Identifier"]`,
-			`[${node}.callee.property.name="bind"]`,
+			`[${node}.callee.property.name="bind"]`
 		].join(''))
-	].join(''),
+	].join('')
 ]);
 
 module.exports = {

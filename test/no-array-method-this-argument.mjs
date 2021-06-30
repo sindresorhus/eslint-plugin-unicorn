@@ -31,7 +31,7 @@ test.snapshot({
 		// First argument is not function
 		'array.map(new Callback, thisArgument)',
 		'array.map(1, thisArgument)',
-		'async () => array.map(await callback, thisArgument)',
+		'async () => array.map(await callback, thisArgument)'
 	],
 	invalid: [
 		'array.every(() => {}, thisArgument)',

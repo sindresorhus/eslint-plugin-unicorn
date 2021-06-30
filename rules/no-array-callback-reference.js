@@ -133,6 +133,8 @@ function getProblem(context, node, method, options) {
 
 const ignoredFirstArgumentSelector = [
 	notFunctionSelector('arguments.0'),
+	// Ignore all `CallExpression`s include `function.bind()`
+	'[arguments.0.type!="CallExpression"]',
 	'[arguments.0.type!="FunctionExpression"]',
 	'[arguments.0.type!="ArrowFunctionExpression"]'
 ].join('');

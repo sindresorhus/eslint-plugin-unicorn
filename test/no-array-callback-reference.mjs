@@ -96,6 +96,7 @@ test({
 
 		// Exclude await expressions
 		...simpleMethods.map(method => `(async () => await foo.${method}(bar))()`),
+		'foo.map(function (a) {}.bind(bar))',
 
 		// #813
 		outdent`
