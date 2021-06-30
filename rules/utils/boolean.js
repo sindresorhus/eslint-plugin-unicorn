@@ -66,10 +66,6 @@ Check if the value of node is a `boolean`.
 @returns {boolean}
 */
 function isBooleanNode(node) {
-	if (!node) {
-		return false;
-	}
-
 	if (
 		isLogicNot(node) ||
 		isLogicNotArgument(node) ||
