@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
@@ -14,7 +14,24 @@ test.snapshot({
 		'array.map(() => {},)',
 		'array.map(() => {}, ...thisArgument)',
 		'array.map(...() => {}, thisArgument)',
-		'array.map(() => {}, thisArgument, extraArgument)'
+		'array.map(() => {}, thisArgument, extraArgument)',
+		// Ignored
+		'lodash.every(array, () => {})',
+		'lodash.find(array, () => {})',
+		'jQuery.map(array, () => {})',
+		'$.map(array, () => {})',
+		'React.Children.map(children, () => {})',
+		'Children.map(children, () => {})',
+		'React.Children.forEach(children, () => {})',
+		'Children.forEach(children, () => {})',
+		'Vue.filter("capitalize", () => {})',
+		// `jQuery.find` and `jQuery.filter` don't accept second argument
+		'$( "li" ).filter( ":nth-child(2n)" ).css( "background-color", "red" );',
+		'$( "li.item-ii" ).find( "li" ).css( "background-color", "red" );',
+		// First argument is not function
+		'array.map(new Callback, thisArgument)',
+		'array.map(1, thisArgument)',
+		'async () => array.map(await callback, thisArgument)'
 	],
 	invalid: [
 		'array.every(() => {}, thisArgument)',
@@ -40,12 +57,15 @@ test.snapshot({
 		'array.map(callback, (0, thisArgument))',
 		'array.map(function () {}, thisArgument)',
 		'array.map(function callback () {}, thisArgument)',
-		'array.map(new Callback, thisArgument)',
-		'array.map(1, thisArgument)',
-		'async () => array.map(await callback, thisArgument)',
-		'array.map((new Callback), thisArgument)',
-		'array.map(new Callback(), thisArgument)',
-		'array.map( (( callback )), (( thisArgument )),)',
+		{
+			code: 'array.map( foo as bar, (( thisArgument )),)',
+			parser: parsers.typescript
+		},
+		{
+			code: 'array.map( (( foo as bar )), (( thisArgument )),)',
+			parser: parsers.typescript
+		},
+		'array.map( (( 0, callback )), (( thisArgument )),)',
 		// This callback is actually arrow function, but we don't know
 		'array.map((0, () => {}), thisArgument)',
 		// This callback is a bound function, but we don't know

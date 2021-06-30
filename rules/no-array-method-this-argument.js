@@ -1,9 +1,10 @@
 'use strict';
 const {hasSideEffect} = require('eslint-utils');
-const {methodCallSelector} = require('./selectors/index.js');
+const {methodCallSelector, notFunctionSelector} = require('./selectors/index.js');
 const {removeArgument} = require('./fix/index.js');
 const {getParentheses, getParenthesizedText} = require('./utils/parentheses.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
+const {isNodeMatches} = require('./utils/is-node-matches.js');
 
 const ERROR = 'error';
 const SUGGESTION_BIND = 'suggestion-bind';
@@ -14,19 +15,61 @@ const messages = {
 	[SUGGESTION_BIND]: 'Use a bound function.'
 };
 
-const selector = methodCallSelector({
-	names: [
-		'every',
-		'filter',
-		'find',
-		'findIndex',
-		'flatMap',
-		'forEach',
-		'map',
-		'some'
-	],
-	length: 2
-});
+const ignored = [
+	'lodash.every',
+	'_.every',
+	'underscore.every',
+
+	'lodash.filter',
+	'_.filter',
+	'underscore.filter',
+	'Vue.filter',
+
+	'lodash.find',
+	'_.find',
+	'underscore.find',
+
+	'lodash.findIndex',
+	'_.findIndex',
+	'underscore.findIndex',
+
+	'lodash.flatMap',
+	'_.flatMap',
+
+	'lodash.forEach',
+	'_.forEach',
+	'React.Children.forEach',
+	'Children.forEach',
+
+	'lodash.map',
+	'_.map',
+	'underscore.map',
+	'React.Children.map',
+	'Children.map',
+	'jQuery.map',
+	'$.map',
+
+	'lodash.some',
+	'_.some',
+	'underscore.some'
+];
+
+const selector = [
+	methodCallSelector({
+		names: [
+			'every',
+			'filter',
+			'find',
+			'findIndex',
+			'flatMap',
+			'forEach',
+			'map',
+			'some'
+		],
+		length: 2
+	}),
+	notFunctionSelector('arguments.0')
+].join('');
 
 function removeThisArgument(callExpression, sourceCode) {
 	return fixer => removeArgument(fixer, callExpression.arguments[1], sourceCode);
@@ -63,7 +106,12 @@ const create = context => {
 
 	return {
 		[selector](callExpression) {
-			const method = callExpression.callee.property.name;
+			const {callee} = callExpression;
+			if (isNodeMatches(callee, ignored)) {
+				return;
+			}
+
+			const method = callee.property.name;
 			const [callback, thisArgument] = callExpression.arguments;
 
 			const problem = {

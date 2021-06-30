@@ -59,7 +59,7 @@ function normalizeTests(tests) {
 
 			const additionalProperties = getAdditionalProperties(
 				testCase,
-				['code', 'options', 'filename', 'parserOptions']
+				['code', 'options', 'filename', 'parserOptions', 'parser']
 			);
 
 			if (additionalProperties.length > 0) {
@@ -72,9 +72,15 @@ function normalizeTests(tests) {
 }
 
 function getVerifyConfig(ruleId, testerConfig, testCase) {
-	const {options, parserOptions} = testCase;
+	const {
+		options,
+		parserOptions,
+		parser = testerConfig.parser
+	} = testCase;
+
 	return {
 		...testerConfig,
+		parser,
 		parserOptions: {
 			...testerConfig.parserOptions,
 			...parserOptions
