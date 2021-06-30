@@ -1,6 +1,6 @@
 'use strict';
-const {isParenthesized, isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
 const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before.js');
+const {getParenthesizedRange} = require('./utils/parentheses.js');
 
 const isInstanceofToken = token => token.value === 'instanceof' && token.type === 'Keyword';
 
@@ -15,33 +15,25 @@ const selector = [
 	'[right.name="Array"]'
 ].join('');
 
-const create = context => {
-	const sourceCode = context.getSourceCode();
+const create = context => ({
+	[selector]: node => ({
+		node,
+		messageId: MESSAGE_ID,
+		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		* fix(fixer) {
+			const {left, right} = node;
+			const sourceCode = context.getSourceCode();
 
-	return {
-		[selector]: node => ({
-			node,
-			messageId: MESSAGE_ID,
-			* fix(fixer) {
-				const {left, right} = node;
+			const range = getParenthesizedRange(left, sourceCode);
+			yield fixer.insertTextBeforeRange(range, 'Array.isArray(');
+			yield fixer.insertTextAfterRange(range, ')');
 
-				let leftStartNodeOrToken = left;
-				let leftEndNodeOrToken = left;
-				if (isParenthesized(left, sourceCode)) {
-					leftStartNodeOrToken = sourceCode.getTokenBefore(left, isOpeningParenToken);
-					leftEndNodeOrToken = sourceCode.getTokenAfter(left, isClosingParenToken);
-				}
-
-				yield fixer.insertTextBefore(leftStartNodeOrToken, 'Array.isArray(');
-				yield fixer.insertTextAfter(leftEndNodeOrToken, ')');
-
-				const instanceofToken = sourceCode.getTokenAfter(left, isInstanceofToken);
-				yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode);
-				yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode);
-			}
-		})
-	};
-};
+			const instanceofToken = sourceCode.getTokenAfter(left, isInstanceofToken);
+			yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode);
+			yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode);
+		}
+	})
+});
 
 module.exports = {
 	create,
