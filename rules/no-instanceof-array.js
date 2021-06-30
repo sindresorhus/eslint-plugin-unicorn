@@ -1,6 +1,6 @@
 'use strict';
 const {isParenthesized, isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
-const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before.js');
+const {replaceNodeOrTokenAndSpacesBefore} = require('./fix/index.js');
 
 const isInstanceofToken = token => token.value === 'instanceof' && token.type === 'Keyword';
 
