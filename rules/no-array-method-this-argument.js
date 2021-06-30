@@ -51,7 +51,7 @@ const ignored = [
 
 	'lodash.some',
 	'_.some',
-	'underscore.some',
+	'underscore.some'
 ];
 
 const selector = methodCallSelector({

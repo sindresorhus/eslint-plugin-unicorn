@@ -24,9 +24,10 @@ test.snapshot({
 		'Children.map(children, () => {})',
 		'React.Children.forEach(children, () => {})',
 		'Children.forEach(children, () => {})',
+		'Vue.filter("capitalize", () => {})',
 		// `jQuery.find` and `jQuery.filter` don't accept second argument
 		'$( "li" ).filter( ":nth-child(2n)" ).css( "background-color", "red" );',
-		'$( "li.item-ii" ).find( "li" ).css( "background-color", "red" );',
+		'$( "li.item-ii" ).find( "li" ).css( "background-color", "red" );'
 	],
 	invalid: [
 		'array.every(() => {}, thisArgument)',
