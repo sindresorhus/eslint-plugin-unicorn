@@ -1,5 +1,7 @@
 'use strict';
 const {matches} = require('./selectors/index.js');
+const {getParenthesizedRange, isParenthesized} = require('./utils/parentheses.js');
+const shouldAddParenthesesToNewExpressionCallee = require('./utils/should-add-parentheses-to-new-expression-callee.js');
 
 const messageId = 'throw-new-error';
 const messages = {
@@ -28,12 +30,25 @@ const selector = [
 	])
 ].join('');
 
-const create = () => ({
+const create = context => ({
 	[selector]: node => {
 		return {
 			node,
 			messageId,
-			fix: fixer => fixer.insertTextBefore(node, 'new ')
+			* fix(fixer) {
+				const errorConstructor = node.callee;
+				const sourceCode = context.getSourceCode();
+				const range = getParenthesizedRange(errorConstructor, sourceCode);
+				yield fixer.insertTextBeforeRange(range, 'new ');
+
+				if (
+					!isParenthesized(errorConstructor, sourceCode) &&
+					shouldAddParenthesesToNewExpressionCallee(errorConstructor)
+				) {
+					yield fixer.insertTextBeforeRange(range, '(');
+					yield fixer.insertTextAfterRange(range, ')');
+				}
+			}
 		};
 	}
 });

@@ -117,6 +117,26 @@ test({
 			code: 'throw URIError()',
 			output: 'throw new URIError()',
 			errors
+		},
+		{
+			code: 'throw (( URIError ))()',
+			output: 'throw new (( URIError ))()',
+			errors
+		},
+		{
+			code: 'throw getGlobalThis().Error()',
+			output: 'throw new (getGlobalThis().Error)()',
+			errors
+		},
+		{
+			code: 'throw utils.getGlobalThis().Error()',
+			output: 'throw new (utils.getGlobalThis().Error)()',
+			errors
+		},
+		{
+			code: 'throw (( getGlobalThis().Error ))()',
+			output: 'throw new (( getGlobalThis().Error ))()',
+			errors
 		}
 	]
 });
