@@ -1,12 +1,12 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
 const avoidCapture = require('./utils/avoid-capture.js');
-const extendFixRange = require('./utils/extend-fix-range.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const isSameReference = require('./utils/is-same-reference.js');
 const getIndentString = require('./utils/get-indent-string.js');
 const {getParenthesizedText} = require('./utils/parentheses.js');
 const shouldAddParenthesesToConditionalExpressionChild = require('./utils/should-add-parentheses-to-conditional-expression-child.js');
+const {extendFixRange} = require('./fix/index.js');
 
 const messageId = 'prefer-ternary';
 

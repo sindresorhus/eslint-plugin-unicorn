@@ -10,8 +10,11 @@ const renameVariable = require('./utils/rename-variable.js');
 const avoidCapture = require('./utils/avoid-capture.js');
 const getChildScopesRecursive = require('./utils/get-child-scopes-recursive.js');
 const singular = require('./utils/singular.js');
-const extendFixRange = require('./utils/extend-fix-range.js');
-const {removeMemberExpressionProperty, removeMethodCall} = require('./fix/index.js');
+const {
+	extendFixRange,
+	removeMemberExpressionProperty,
+	removeMethodCall
+} = require('./fix/index.js');
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
