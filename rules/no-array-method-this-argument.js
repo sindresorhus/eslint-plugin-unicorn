@@ -1,6 +1,6 @@
 'use strict';
 const {hasSideEffect} = require('eslint-utils');
-const {methodCallSelector} = require('./selectors/index.js');
+const {methodCallSelector, notFunctionSelector} = require('./selectors/index.js');
 const {removeArgument} = require('./fix/index.js');
 const {getParentheses, getParenthesizedText} = require('./utils/parentheses.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
@@ -54,19 +54,22 @@ const ignored = [
 	'underscore.some'
 ];
 
-const selector = methodCallSelector({
-	names: [
-		'every',
-		'filter',
-		'find',
-		'findIndex',
-		'flatMap',
-		'forEach',
-		'map',
-		'some'
-	],
-	length: 2
-});
+const selector = [
+	methodCallSelector({
+		names: [
+			'every',
+			'filter',
+			'find',
+			'findIndex',
+			'flatMap',
+			'forEach',
+			'map',
+			'some'
+		],
+		length: 2
+	}),
+	notFunctionSelector('arguments.0')
+].join('');
 
 function removeThisArgument(callExpression, sourceCode) {
 	return fixer => removeArgument(fixer, callExpression.arguments[1], sourceCode);
