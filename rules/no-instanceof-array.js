@@ -1,6 +1,6 @@
 'use strict';
-const {isParenthesized, isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
 const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before.js');
+const {getParenthesizedRange} = require('./utils/parentheses.js');
 
 const isInstanceofToken = token => token.value === 'instanceof' && token.type === 'Keyword';
 
@@ -19,27 +19,24 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 
 	return {
-		[selector]: node => ({
-			node,
-			messageId: MESSAGE_ID,
-			* fix(fixer) {
-				const {left, right} = node;
+		[selector](node) {
+			const {left, right} = node;
+			const instanceofToken = sourceCode.getTokenAfter(left, isInstanceofToken);
 
-				let leftStartNodeOrToken = left;
-				let leftEndNodeOrToken = left;
-				if (isParenthesized(left, sourceCode)) {
-					leftStartNodeOrToken = sourceCode.getTokenBefore(left, isOpeningParenToken);
-					leftEndNodeOrToken = sourceCode.getTokenAfter(left, isClosingParenToken);
+			return {
+				node: instanceofToken,
+				messageId: MESSAGE_ID,
+				/** @param {import('eslint').Rule.RuleFixer} fixer */
+				* fix(fixer) {
+					const range = getParenthesizedRange(left, sourceCode);
+					yield fixer.insertTextBeforeRange(range, 'Array.isArray(');
+					yield fixer.insertTextAfterRange(range, ')');
+
+					yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode);
+					yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode);
 				}
-
-				yield fixer.insertTextBefore(leftStartNodeOrToken, 'Array.isArray(');
-				yield fixer.insertTextAfter(leftEndNodeOrToken, ')');
-
-				const instanceofToken = sourceCode.getTokenAfter(left, isInstanceofToken);
-				yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode);
-				yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode);
-			}
-		})
+			};
+		}
 	};
 };
 
