@@ -12,5 +12,6 @@ module.exports = {
 	replaceTemplateElement: require('./replace-template-element.js'),
 	replaceReferenceIdentifier: require('./replace-reference-identifier.js'),
 	renameVariable: require('./rename-variable.js'),
-	replaceNodeOrTokenAndSpacesBefore: require('./replace-node-or-token-and-spaces-before.js')
+	replaceNodeOrTokenAndSpacesBefore: require('./replace-node-or-token-and-spaces-before.js'),
+	removeSpacesAfter: require('./remove-spaces-after.js')
 };
