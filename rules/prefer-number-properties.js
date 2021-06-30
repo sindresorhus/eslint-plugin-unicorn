@@ -1,10 +1,10 @@
 'use strict';
 const isShadowed = require('./utils/is-shadowed.js');
-const replaceReferenceIdentifier = require('./utils/replace-reference-identifier.js');
 const {
 	referenceIdentifierSelector,
 	callExpressionSelector
 } = require('./selectors/index.js');
+const {replaceReferenceIdentifier} = require('./fix/index.js');
 
 const METHOD_ERROR_MESSAGE_ID = 'method-error';
 const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';

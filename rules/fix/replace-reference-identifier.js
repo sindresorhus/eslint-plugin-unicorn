@@ -1,9 +1,9 @@
 'use strict';
 
-const isShorthandPropertyValue = require('./is-shorthand-property-value.js');
-const isShorthandPropertyAssignmentPatternLeft = require('./is-shorthand-property-assignment-pattern-left.js');
-const isShorthandImportLocal = require('./is-shorthand-import-local.js');
-const isShorthandExportLocal = require('./is-shorthand-export-local.js');
+const isShorthandPropertyValue = require('../utils/is-shorthand-property-value.js');
+const isShorthandPropertyAssignmentPatternLeft = require('../utils/is-shorthand-property-assignment-pattern-left.js');
+const isShorthandImportLocal = require('../utils/is-shorthand-import-local.js');
+const isShorthandExportLocal = require('../utils/is-shorthand-export-local.js');
 
 function replaceReferenceIdentifier(identifier, replacement, fixer) {
 	if (

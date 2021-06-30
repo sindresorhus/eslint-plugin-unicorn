@@ -1,7 +1,7 @@
 'use strict';
 const {findVariable} = require('eslint-utils');
 const avoidCapture = require('./utils/avoid-capture.js');
-const renameVariable = require('./utils/rename-variable.js');
+const {renameVariable} = require('./fix/index.js');
 const {matches, methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'catch-error-name';

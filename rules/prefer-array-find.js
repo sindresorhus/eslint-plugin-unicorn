@@ -6,14 +6,14 @@ const {
 	notLeftHandSideSelector
 } = require('./selectors/index.js');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
-const renameVariable = require('./utils/rename-variable.js');
 const avoidCapture = require('./utils/avoid-capture.js');
 const getChildScopesRecursive = require('./utils/get-child-scopes-recursive.js');
 const singular = require('./utils/singular.js');
 const {
 	extendFixRange,
 	removeMemberExpressionProperty,
-	removeMethodCall
+	removeMethodCall,
+	renameVariable
 } = require('./fix/index.js');
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
