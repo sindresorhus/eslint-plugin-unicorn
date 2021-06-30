@@ -119,6 +119,11 @@ test({
 			errors
 		},
 		{
+			code: 'throw (( URIError() ))',
+			output: 'throw (( new URIError() ))',
+			errors
+		},
+		{
 			code: 'throw (( URIError ))()',
 			output: 'throw new (( URIError ))()',
 			errors
