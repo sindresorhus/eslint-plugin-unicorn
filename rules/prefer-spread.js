@@ -4,10 +4,9 @@ const {methodCallSelector} = require('./selectors/index.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const {getParenthesizedRange, getParenthesizedText} = require('./utils/parentheses.js');
 const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument.js');
-const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before.js');
-const removeSpacesAfter = require('./utils/remove-spaces-after.js');
 const isLiteralValue = require('./utils/is-literal-value.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
+const {replaceNodeOrTokenAndSpacesBefore, removeSpacesAfter} = require('./fix/index.js');
 
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';

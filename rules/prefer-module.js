@@ -1,12 +1,11 @@
 'use strict';
 const {isOpeningParenToken} = require('eslint-utils');
 const isShadowed = require('./utils/is-shadowed.js');
-const removeSpacesAfter = require('./utils/remove-spaces-after.js');
 const isStaticRequire = require('./utils/is-static-require.js');
-const replaceReferenceIdentifier = require('./utils/replace-reference-identifier.js');
 const {getParentheses} = require('./utils/parentheses.js');
 const assertToken = require('./utils/assert-token.js');
 const {referenceIdentifierSelector} = require('./selectors/index.js');
+const {replaceReferenceIdentifier, removeSpacesAfter} = require('./fix/index.js');
 
 const ERROR_USE_STRICT_DIRECTIVE = 'error/use-strict-directive';
 const ERROR_GLOBAL_RETURN = 'error/global-return';

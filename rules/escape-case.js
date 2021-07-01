@@ -1,5 +1,5 @@
 'use strict';
-const replaceTemplateElement = require('./utils/replace-template-element.js');
+const {replaceTemplateElement} = require('./fix/index.js');
 
 const MESSAGE_ID = 'escape-case';
 const messages = {

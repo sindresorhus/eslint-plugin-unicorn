@@ -7,9 +7,9 @@ const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
 const isShorthandPropertyValue = require('./utils/is-shorthand-property-value.js');
 const isShorthandImportLocal = require('./utils/is-shorthand-import-local.js');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
-const renameVariable = require('./utils/rename-variable.js');
 const isStaticRequire = require('./utils/is-static-require.js');
 const {defaultReplacements, defaultAllowList} = require('./shared/abbreviations.js');
+const {renameVariable} = require('./fix/index.js');
 
 const isUpperCase = string => string === string.toUpperCase();
 const isUpperFirst = string => isUpperCase(string[0]);

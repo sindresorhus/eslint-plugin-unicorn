@@ -1,7 +1,7 @@
 'use strict';
 const quoteString = require('./utils/quote-string.js');
-const replaceTemplateElement = require('./utils/replace-template-element.js');
 const escapeTemplateElementRaw = require('./utils/escape-template-element-raw.js');
+const {replaceTemplateElement} = require('./fix/index.js');
 
 const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
 const SUGGESTION_MESSAGE_ID = 'replace';

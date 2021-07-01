@@ -1,7 +1,7 @@
 'use strict';
 
 // Replace `StringLiteral` or `TemplateLiteral` node with raw text
-module.exports = (fixer, node, raw) =>
+const replaceStringRaw = (fixer, node, raw) =>
 	fixer.replaceTextRange(
 		// Ignore quotes and backticks
 		[
@@ -10,3 +10,5 @@ module.exports = (fixer, node, raw) =>
 		],
 		raw
 	);
+
+module.exports = replaceStringRaw;
