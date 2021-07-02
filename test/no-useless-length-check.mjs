@@ -9,7 +9,6 @@ test.snapshot({
 		'array.length === 0 ?? array.every(Boolean)',
 		'array.length === 0 && array.every(Boolean)',
 		'(array.length === 0) + (array.every(Boolean))',
-		'array.every(Boolean) || array.length === 0',
 		'array.length === 1 || array.every(Boolean)',
 		'array.length === "0" || array.every(Boolean)',
 		'array.length === 0. || array.every(Boolean)',
@@ -30,7 +29,6 @@ test.snapshot({
 		'array.length !== 0 ?? array.some(Boolean)',
 		'array.length !== 0 || array.some(Boolean)',
 		'(array.length !== 0) - (array.some(Boolean))',
-		'array.some(Boolean) && array.length !== 0',
 		'array.length !== 1 && array.some(Boolean)',
 		'array.length !== "0" && array.some(Boolean)',
 		'array.length !== 0. && array.some(Boolean)',
@@ -53,7 +51,6 @@ test.snapshot({
 		'array.length > 0 ?? array.some(Boolean)',
 		'array.length > 0 || array.some(Boolean)',
 		'(array.length > 0) - (array.some(Boolean))',
-		'array.some(Boolean) && array.length > 0',
 		'array.length > 1 && array.some(Boolean)',
 		'array.length > "0" && array.some(Boolean)',
 		'array.length > 0. && array.some(Boolean)',
@@ -69,11 +66,29 @@ test.snapshot({
 		'array.length > 0 && array.notSome(Boolean)',
 		'array.length > 0 && array[some](Boolean)',
 		'array1.length > 0 && array2.some(Boolean)',
+
+		outdent`
+			if (
+				foo &&
+				array.length !== 0 &&
+				bar &&
+				array.some(Boolean)
+			) {
+				// ...
+			}
+		`,
+
+		// TODO: report these cases
+		'array.every(Boolean) || array.length === 0',
+		'array.some(Boolean) && array.length !== 0',
+		'array.some(Boolean) && array.length > 0',
+		'foo && array.length > 0 && array.some(Boolean)',
+		'foo || array.length === 0 || array.every(Boolean)'
 	],
 	invalid: [
 		'array.length === 0 || array.every(Boolean)',
-		'array.length !== 0 && array.some(Boolean)',
 		'array.length > 0 && array.some(Boolean)',
+		'array.length !== 0 && array.some(Boolean)',
 		outdent`
 			((
 				((
@@ -84,6 +99,16 @@ test.snapshot({
 					(( array )).every(Boolean)
 				))
 			))
+		`,
+		'if ((( array.length > 0 )) && array.some(Boolean));',
+		outdent`
+			if (
+				array.length !== 0 &&
+				array.some(Boolean) &&
+				foo
+			) {
+				// ...
+			}
 		`
 	]
 });
