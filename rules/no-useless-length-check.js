@@ -8,8 +8,8 @@ const {
 } = require('./fix/index.js');
 
 const messages = {
-	'some': '`Array#some()` returns `false` on empty array, the empty check is not needed.',
-	'every': '`Array#every()` returns `true` on empty array, the non-empty check is not needed.',
+	'non-zero': '`Array#some()` returns `false` on empty array, the empty check is not needed.',
+	'zero': '`Array#every()` returns `true` on empty array, the non-empty check is not needed.',
 };
 
 const logicalExpressionSelector = [
@@ -51,80 +51,62 @@ const create = context => {
 	const nonZeroLengthChecks = new Set();
 	const arraySomeCalls = new Set();
 	const arrayEveryCalls = new Set();
-	const reported = new Set();
 
-	function getProblem({node, operator, method, operatorOnLeft}) {
-		reported.add(node);
-
+	function getProblem(node, nodeShouldBeRemoved) {
 		return {
 			loc: {
 				start: node.left.property.loc.start,
 				end: node.left.loc.end,
 			},
-			messageId: method,
+			messageId: zeroLengthChecks.has(node) ? 'zero' : 'non-zero',
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			* fix(fixer) {
+			fix(fixer) {
 				const sourceCode = context.getSourceCode();
-				yield fixer.removeRange(getParenthesizedRange(node, sourceCode))
-
-				const operatorToken = sourceCode[operatorOnLeft ? 'getTokenBefore' : 'getTokenAfter'](
-					node,
-					token => token.type === 'Punctuator' && token.value === operator
-				);
-
-				if (operatorOnLeft) {
-					yield * replaceNodeOrTokenAndSpacesBefore(operatorToken, '', fixer, sourceCode);
+				const {parent} = node;
+				const leftRange = getParenthesizedRange(parent.left, sourceCode);
+				const rightRange = getParenthesizedRange(parent.right, sourceCode);
+				let range = [];
+				if (parent.left === node) {
+					range[0] = leftRange[0];
+					range[1] = rightRange[0];
 				} else {
-					yield fixer.remove(operatorToken);
-					yield removeSpacesAfter(operatorToken, sourceCode, fixer);
+					range[0] = leftRange[1];
+					range[1] = rightRange[1];
 				}
+
+				return fixer.removeRange(range)
 			}
 		};
 	}
 
-	function checkLengthCheckNode({node, logicalExpression, previewNode, nextNode}) {
-		if (reported.has(node)) {
-			return;
-		}
-
+	function isUselessLengthCheckNode({node, logicalExpression, previewNode, nextNode}) {
 		const {operator} = logicalExpression;
 		if (
 			(operator === '||' && !zeroLengthChecks.has(node)) ||
 			(operator === '&&' && !nonZeroLengthChecks.has(node))
 		) {
-			return;
+			return false;
 		}
 
-		for (const [index, callExpression] of [previewNode, nextNode].entries()) {
-			if (
+		return [previewNode, nextNode].some(
+			callExpression =>
 				callExpression &&
 				(
 					(operator === '||' && arrayEveryCalls.has(callExpression)) ||
 					(operator === '&&' && arraySomeCalls.has(callExpression))
 				) &&
 				isSameReference(node.left.object, callExpression.callee.object)
-			) {
-				return getProblem({
-					node,
-					operator,
-					method: callExpression.callee.property.name,
-					operatorOnLeft: index === 0
-				});
-			}
-		}
+		);
 	}
 
-	function * checkLogicalExpression(logicalExpression) {
-		const conditions = flatLogicalExpression(logicalExpression);
-
-		for (const [index, node] of conditions.entries()) {
-			yield checkLengthCheckNode({
+	function getUselessLengthCheckNode(logicalExpression) {
+		return flatLogicalExpression(logicalExpression)
+			.filter((node, index, conditions) => isUselessLengthCheckNode({
 				node,
 				logicalExpression,
 				previewNode: conditions[index - 1],
 				nextNode: conditions[index + 1]
-			});
-		}
+			}))
 	}
 
 	return {
@@ -144,8 +126,15 @@ const create = context => {
 			arrayEveryCalls.add(node);
 		},
 		* 'Program:exit'() {
+			let nodeShouldBeRemoved = new Set();
 			for (const logicalExpression of logicalExpressions) {
-				yield * checkLogicalExpression(logicalExpression);
+				for (const node of getUselessLengthCheckNode(logicalExpression)) {
+					nodeShouldBeRemoved.add(node);
+				}
+			}
+
+			for (const node of nodeShouldBeRemoved) {
+				yield getProblem(node, nodeShouldBeRemoved);
 			}
 		}
 	}
