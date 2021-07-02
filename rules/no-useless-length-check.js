@@ -2,14 +2,10 @@
 const {methodCallSelector, matches, memberExpressionSelector} = require('./selectors/index.js');
 const isSameReference = require('./utils/is-same-reference.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
-const {
-	removeSpacesAfter,
-	replaceNodeOrTokenAndSpacesBefore
-} = require('./fix/index.js');
 
 const messages = {
 	'non-zero': '`Array#some()` returns `false` on empty array, the empty check is not needed.',
-	'zero': '`Array#every()` returns `true` on empty array, the non-empty check is not needed.',
+	zero: '`Array#every()` returns `true` on empty array, the non-empty check is not needed.'
 };
 
 const logicalExpressionSelector = [
@@ -23,7 +19,7 @@ const lengthCompareZeroSelector = [
 	'BinaryExpression',
 	memberExpressionSelector({path: 'left', name: 'length'}),
 	'[right.type="Literal"]',
-	'[right.raw="0"]',
+	'[right.raw="0"]'
 ].join('');
 const zeroLengthCheckSelector = [
 	lengthCompareZeroSelector,
@@ -31,7 +27,7 @@ const zeroLengthCheckSelector = [
 ].join('');
 const nonZeroLengthCheckSelector = [
 	lengthCompareZeroSelector,
-	matches(['[operator=">"]', '[operator="!=="]']),
+	matches(['[operator=">"]', '[operator="!=="]'])
 ].join('');
 const arraySomeCallSelector = methodCallSelector('some');
 const arrayEveryCallSelector = methodCallSelector('every');
@@ -52,11 +48,11 @@ const create = context => {
 	const arraySomeCalls = new Set();
 	const arrayEveryCalls = new Set();
 
-	function getProblem(node, nodeShouldBeRemoved) {
+	function getProblem(node) {
 		return {
 			loc: {
 				start: node.left.property.loc.start,
-				end: node.left.loc.end,
+				end: node.left.loc.end
 			},
 			messageId: zeroLengthChecks.has(node) ? 'zero' : 'non-zero',
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
@@ -65,7 +61,7 @@ const create = context => {
 				const {parent} = node;
 				const leftRange = getParenthesizedRange(parent.left, sourceCode);
 				const rightRange = getParenthesizedRange(parent.right, sourceCode);
-				let range = [];
+				const range = [];
 				if (parent.left === node) {
 					range[0] = leftRange[0];
 					range[1] = rightRange[0];
@@ -74,7 +70,7 @@ const create = context => {
 					range[1] = rightRange[1];
 				}
 
-				return fixer.removeRange(range)
+				return fixer.removeRange(range);
 			}
 		};
 	}
@@ -106,7 +102,7 @@ const create = context => {
 				logicalExpression,
 				previewNode: conditions[index - 1],
 				nextNode: conditions[index + 1]
-			}))
+			}));
 	}
 
 	return {
@@ -126,7 +122,7 @@ const create = context => {
 			arrayEveryCalls.add(node);
 		},
 		* 'Program:exit'() {
-			let nodeShouldBeRemoved = new Set();
+			const nodeShouldBeRemoved = new Set();
 			for (const logicalExpression of logicalExpressions) {
 				for (const node of getUselessLengthCheckNode(logicalExpression)) {
 					nodeShouldBeRemoved.add(node);
@@ -137,7 +133,7 @@ const create = context => {
 				yield getProblem(node, nodeShouldBeRemoved);
 			}
 		}
-	}
+	};
 };
 
 module.exports = {
