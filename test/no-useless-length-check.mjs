@@ -66,7 +66,6 @@ test.snapshot({
 		'array.length > 0 && array.notSome(Boolean)',
 		'array.length > 0 && array[some](Boolean)',
 		'array1.length > 0 && array2.some(Boolean)',
-
 		outdent`
 			if (
 				foo &&
@@ -77,6 +76,16 @@ test.snapshot({
 				// ...
 			}
 		`,
+
+		// TODO: check these cases
+		'(foo || array.length === 0) || array.every(Boolean)',
+		'(foo && array.length === 0) || array.every(Boolean) && foo',
+		'array.length === 0 || (array.every(Boolean) || foo)',
+		'array.length === 0 || (array.every(Boolean) && foo)',
+		'(foo || array.length > 0) && array.some(Boolean)',
+		'(foo && array.length > 0) && array.some(Boolean)',
+		'array.length > 0 && (array.some(Boolean) || foo)',
+		'array.length > 0 && (array.some(Boolean) && foo)',
 
 		// TODO: report these cases
 		'array.every(Boolean) || array.length === 0',
@@ -109,6 +118,10 @@ test.snapshot({
 			) {
 				// ...
 			}
-		`
+		`,
+		'(array.length === 0 || array.every(Boolean)) || foo',
+		'foo || (array.length === 0 || array.every(Boolean))',
+		'(array.length > 0 && array.some(Boolean)) && foo',
+		'foo && (array.length > 0 && array.some(Boolean))',
 	]
 });
