@@ -133,5 +133,10 @@ test.snapshot({
 		'array.length > 0 && (array.some(Boolean) && foo)',
 		'array.every(Boolean) || array.length === 0 || array.every(Boolean)',
 		'array.length === 0 || array.every(Boolean) || array.length === 0 || array.every(Boolean)',
+		outdent`
+			array1.every(Boolean)
+			|| (array1.length === 0 || array2.length === 0) // Both useless
+			|| array2.every(Boolean)
+		`
 	]
 });
