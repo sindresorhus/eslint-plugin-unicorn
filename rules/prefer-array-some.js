@@ -26,8 +26,7 @@ const arrayFilterCallSelector = [
 	// We assume the user already follows `unicorn/explicit-length-check`, these are allowed in that rule
 	matches([
 		'[operator=">"][right.raw="0"]',
-		'[operator="!=="][right.raw="0"]',
-		'[operator=">="][right.raw="1"]'
+		'[operator="!=="][right.raw="0"]'
 	]),
 	' > ',
 	`${memberExpressionSelector('length')}.left`,
