@@ -37,13 +37,6 @@ const nonZeroStyles = new Map([
 			code: '!== 0',
 			test: node => isCompareRight(node, '!==', 0)
 		}
-	],
-	[
-		'greater-than-or-equal',
-		{
-			code: '>= 1',
-			test: node => isCompareRight(node, '>=', 1)
-		}
 	]
 ]);
 const zeroStyle = {
