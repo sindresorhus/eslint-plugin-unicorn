@@ -23,11 +23,9 @@ const arrayFindCallSelector = methodCallSelector({
 const arrayFilterCallSelector = [
 	'BinaryExpression',
 	'[right.type="Literal"]',
-	// We assume the user already follows `unicorn/explicit-length-check`, these are allowed in that rule
-	matches([
-		'[operator=">"][right.raw="0"]',
-		'[operator="!=="][right.raw="0"]'
-	]),
+	'[right.raw="0"]',
+	// We assume user already follows `unicorn/explicit-length-check`, these are allowed in that rule
+	matches(['[operator=">"]', '[operator="!=="]']),
 	' > ',
 	`${memberExpressionSelector('length')}.left`,
 	' > ',
