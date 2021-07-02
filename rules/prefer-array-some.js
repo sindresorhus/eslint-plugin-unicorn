@@ -24,7 +24,7 @@ const arrayFilterCallSelector = [
 	'BinaryExpression',
 	'[right.type="Literal"]',
 	'[right.raw="0"]',
-	// We assume user already follows `unicorn/explicit-length-check`, these are allowed in that rule
+	// We assume the user already follows `unicorn/explicit-length-check`. These are allowed in that rule.
 	matches(['[operator=">"]', '[operator="!=="]']),
 	' > ',
 	`${memberExpressionSelector('length')}.left`,
