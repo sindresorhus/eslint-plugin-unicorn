@@ -77,22 +77,10 @@ test.snapshot({
 			}
 		`,
 
-		// TODO: check these cases
-		'(foo || array.length === 0) || array.every(Boolean)',
 		'(foo && array.length === 0) || array.every(Boolean) && foo',
-		'array.length === 0 || (array.every(Boolean) || foo)',
 		'array.length === 0 || (array.every(Boolean) && foo)',
 		'(foo || array.length > 0) && array.some(Boolean)',
-		'(foo && array.length > 0) && array.some(Boolean)',
 		'array.length > 0 && (array.some(Boolean) || foo)',
-		'array.length > 0 && (array.some(Boolean) && foo)',
-
-		// TODO: report these cases
-		'array.every(Boolean) || array.length === 0',
-		'array.some(Boolean) && array.length !== 0',
-		'array.some(Boolean) && array.length > 0',
-		'foo && array.length > 0 && array.some(Boolean)',
-		'foo || array.length === 0 || array.every(Boolean)'
 	],
 	invalid: [
 		'array.length === 0 || array.every(Boolean)',
@@ -109,6 +97,17 @@ test.snapshot({
 				))
 			))
 		`,
+		outdent`
+			((
+				((
+					(( array )).every(Boolean)
+				))
+				||
+				((
+					(( array )).length
+				)) === (( 0 ))
+			))
+		`,
 		'if ((( array.length > 0 )) && array.some(Boolean));',
 		outdent`
 			if (
@@ -123,5 +122,16 @@ test.snapshot({
 		'foo || (array.length === 0 || array.every(Boolean))',
 		'(array.length > 0 && array.some(Boolean)) && foo',
 		'foo && (array.length > 0 && array.some(Boolean))',
+		'array.every(Boolean) || array.length === 0',
+		'array.some(Boolean) && array.length !== 0',
+		'array.some(Boolean) && array.length > 0',
+		'foo && array.length > 0 && array.some(Boolean)',
+		'foo || array.length === 0 || array.every(Boolean)',
+		'(foo || array.length === 0) || array.every(Boolean)',
+		'array.length === 0 || (array.every(Boolean) || foo)',
+		'(foo && array.length > 0) && array.some(Boolean)',
+		'array.length > 0 && (array.some(Boolean) && foo)',
+		'array.every(Boolean) || array.length === 0 || array.every(Boolean)',
+		'array.length === 0 || array.every(Boolean) || array.length === 0 || array.every(Boolean)',
 	]
 });
