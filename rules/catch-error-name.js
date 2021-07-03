@@ -33,8 +33,6 @@ const selector = matches([
 ]);
 
 const create = context => {
-	const {ecmaVersion} = context.parserOptions;
-
 	const options = {
 		name: 'error',
 		ignore: [],
@@ -79,7 +77,7 @@ const create = context => {
 				variable.scope,
 				...variable.references.map(({from}) => from)
 			];
-			const fixedName = avoidCapture(expectedName, scopes, ecmaVersion);
+			const fixedName = avoidCapture(expectedName, scopes);
 
 			return {
 				node,

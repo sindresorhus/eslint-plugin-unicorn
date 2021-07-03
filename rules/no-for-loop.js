@@ -355,7 +355,7 @@ const create = context => {
 
 					const index = indexIdentifierName;
 					const element = elementIdentifierName ||
-						avoidCapture(singular(arrayIdentifierName) || defaultElementName, getChildScopesRecursive(bodyScope), context.parserOptions.ecmaVersion);
+						avoidCapture(singular(arrayIdentifierName) || defaultElementName, getChildScopesRecursive(bodyScope));
 					const array = arrayIdentifierName;
 
 					let declarationElement = element;

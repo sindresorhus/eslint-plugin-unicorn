@@ -52,7 +52,6 @@ const isChildInParentScope = (child, parent) => {
 };
 
 const create = context => {
-	const {ecmaVersion} = context.parserOptions;
 	const source = context.getSourceCode();
 	const declarations = new Map();
 
@@ -108,7 +107,7 @@ const create = context => {
 				}
 
 				// Destructured member collides with an existing identifier
-				if (avoidCapture(member, [memberScope], ecmaVersion) !== member) {
+				if (avoidCapture(member, [memberScope]) !== member) {
 					return;
 				}
 			}

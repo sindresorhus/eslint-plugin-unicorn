@@ -37,6 +37,7 @@
 		"xo"
 	],
 	"dependencies": {
+		"@babel/types": "^7.14.5",
 		"ci-info": "^3.2.0",
 		"clean-regexp": "^1.0.0",
 		"eslint-template-visitor": "^2.3.2",
@@ -46,7 +47,6 @@
 		"pluralize": "^8.0.0",
 		"read-pkg-up": "^7.0.1",
 		"regexp-tree": "^0.1.23",
-		"reserved-words": "^0.1.2",
 		"safe-regex": "^2.1.1",
 		"semver": "^7.3.5"
 	},
