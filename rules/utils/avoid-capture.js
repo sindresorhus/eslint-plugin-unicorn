@@ -29,7 +29,7 @@ const isUnresolvedName = (name, scopes) => scopes.some(scope =>
 
 const isSafeName = (name, scopes) =>
 	!someScopeHasVariableName(name, scopes) &&
-	!isValidES3Identifier(name) &&
+	isValidES3Identifier(name) &&
 	!isUnresolvedName(name, scopes);
 
 const alwaysTrue = () => true;
@@ -59,10 +59,11 @@ Useful when you want to rename a variable (or create a new variable) while being
 */
 module.exports = (name, scopes, isSafe = alwaysTrue) => {
 	let index = 0;
-	let indexifiedName = name;
+let indexifiedName = indexifyName(name, index);
 	while (!isSafeName(indexifiedName, scopes) || !isSafe(indexifiedName, scopes)) {
 		index++;
 		indexifiedName = indexifyName(name, index);
+
 	}
 
 	return indexifiedName;
