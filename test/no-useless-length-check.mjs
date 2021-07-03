@@ -138,7 +138,7 @@ test.snapshot({
 			|| (( array1.length === 0 || array2.length === 0 )) // Both useless
 			|| array2.every(Boolean)
 		`,
-		// Real world case for this rule self, but added useless length check
+		// Real world case from this rule initial implementation, but added useless length check
 		outdent`
 			function isUselessLengthCheckNode({node, operator, siblings}) {
 				return (
