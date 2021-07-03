@@ -12,7 +12,7 @@ const logicalExpressionSelector = [
 	'LogicalExpression',
 	matches(['[operator="||"]', '[operator="&&"]'])
 ].join('');
-// We assume the user already follows `unicorn/explicit-length-check`, these are allowed in that rule
+// We assume the user already follows `unicorn/explicit-length-check`. These are allowed in that rule.
 const lengthCompareZeroSelector = [
 	logicalExpressionSelector,
 	' > ',
