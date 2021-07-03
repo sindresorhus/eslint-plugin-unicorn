@@ -77,6 +77,7 @@ module.exports = {
 				'unicorn/no-unreadable-array-destructuring': 'error',
 				'unicorn/no-unsafe-regex': 'off',
 				'unicorn/no-unused-properties': 'off',
+				'unicorn/no-useless-length-check': 'error',
 				'unicorn/no-useless-undefined': 'error',
 				'unicorn/no-zero-fractions': 'error',
 				'unicorn/number-literal-case': 'error',
