@@ -4,8 +4,8 @@ const isSameReference = require('./utils/is-same-reference.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
 
 const messages = {
-	'non-zero': 'The empty check is useless as `Array#some()` returns `false` for an empty array.',
-	zero: 'The non-empty check is useless as `Array#every()` returns `true` for an empty array.'
+	'non-zero': 'The non-empty check is useless as `Array#some()` returns `false` for an empty array.',
+	zero: 'The empty check is useless as `Array#every()` returns `true` for an empty array.'
 };
 
 const logicalExpressionSelector = [
