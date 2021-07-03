@@ -2,6 +2,7 @@
 const {methodCallSelector, matches, memberExpressionSelector} = require('./selectors/index.js');
 const isSameReference = require('./utils/is-same-reference.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
+const toLocation = require('./utils/to-location.js');
 
 const messages = {
 	'non-zero': '`Array#some()` returns `false` on empty array, the empty check is not needed.',
@@ -109,7 +110,7 @@ const create = context => {
 				yield {
 					loc: {
 						start: node.left.property.loc.start,
-						end: node.left.loc.end
+						end: node.loc.end
 					},
 					messageId: zeroLengthChecks.has(node) ? 'zero' : 'non-zero',
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
