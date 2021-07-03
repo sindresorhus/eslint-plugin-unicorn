@@ -1295,7 +1295,7 @@ test({
 
 		{
 			code: 'var y',
-			output: 'var yield',
+			output: 'var yield_',
 			options: customOptions,
 			errors: createErrors()
 		},

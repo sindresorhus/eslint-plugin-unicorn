@@ -30,6 +30,7 @@ const isUnresolvedName = (name, scopes) => scopes.some(scope =>
 const isSafeName = (name, scopes) =>
 	!someScopeHasVariableName(name, scopes) &&
 	isValidES3Identifier(name) &&
+	name !== 'arguments' &&
 	!isUnresolvedName(name, scopes);
 
 const alwaysTrue = () => true;
