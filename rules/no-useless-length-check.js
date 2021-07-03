@@ -2,7 +2,6 @@
 const {methodCallSelector, matches, memberExpressionSelector} = require('./selectors/index.js');
 const isSameReference = require('./utils/is-same-reference.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
-const toLocation = require('./utils/to-location.js');
 
 const messages = {
 	'non-zero': '`Array#some()` returns `false` on empty array, the empty check is not needed.',
