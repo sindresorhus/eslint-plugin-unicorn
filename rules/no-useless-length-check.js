@@ -127,7 +127,7 @@ const create = context => {
 							range[1] = rightRange[1];
 						}
 
-						return fixer.removeRange(range);
+						return fixer.replaceTextRange(range, ' ||| ');
 					}
 				};
 			}
