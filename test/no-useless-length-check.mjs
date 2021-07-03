@@ -135,8 +135,33 @@ test.snapshot({
 		'array.length === 0 || array.every(Boolean) || array.length === 0',
 		outdent`
 			array1.every(Boolean)
-			|| (array1.length === 0 || array2.length === 0) // Both useless
+			|| (( array1.length === 0 || array2.length === 0 )) // Both useless
 			|| array2.every(Boolean)
+		`,
+		// Real world case for this rule self, but added useless length check
+		outdent`
+			function isUselessLengthCheckNode({node, operator, siblings}) {
+				return (
+					(
+						operator === '||' &&
+						zeroLengthChecks.has(node) &&
+						siblings.length > 0 &&
+						siblings.some(condition =>
+							arrayEveryCalls.has(condition) &&
+							isSameReference(node.left.object, condition.callee.object)
+						)
+					) ||
+					(
+						operator === '&&' &&
+						nonZeroLengthChecks.has(node) &&
+						siblings.length > 0 &&
+						siblings.some(condition =>
+							arraySomeCalls.has(condition) &&
+							isSameReference(node.left.object, condition.callee.object)
+						)
+					)
+				);
+			}
 		`
 	]
 });
