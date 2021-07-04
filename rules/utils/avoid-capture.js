@@ -2,9 +2,6 @@
 const {isValidES3Identifier} = require('@babel/types');
 const resolveVariableName = require('./resolve-variable-name.js');
 
-const indexifyName = (name, index) => name + '_'.repeat(index);
-const someScopeHasVariableName = (name, scopes) => scopes.some(scope => resolveVariableName(name, scope));
-
 /*
 Unresolved reference is probably from the global scope. We should avoid using that name.
 
@@ -22,16 +19,14 @@ function unicorn() {
 }
 ```
 */
-const isUnresolvedName = (name, scopes) => scopes.some(scope =>
+const isUnresolvedName = (name, scope) =>
 	scope.references.some(reference => reference.identifier && reference.identifier.name === name && !reference.resolved) ||
-	isUnresolvedName(name, scope.childScopes)
-);
+	scope.childScopes.some(scope => isUnresolvedName(name, scope));
 
 const isSafeName = (name, scopes) =>
-	!someScopeHasVariableName(name, scopes) &&
 	isValidES3Identifier(name) &&
 	name !== 'arguments' &&
-	!isUnresolvedName(name, scopes);
+	!scopes.some(scope => resolveVariableName(name, scope) || isUnresolvedName(name, scope));
 
 const alwaysTrue = () => true;
 
@@ -39,9 +34,9 @@ const alwaysTrue = () => true;
 Rule-specific name check function.
 
 @callback isSafe
-@param {string} indexifiedName - The generated candidate name.
+@param {string} name - The generated candidate name.
 @param {Scope[]} scopes - The same list of scopes you pass to `avoidCapture`.
-@returns {boolean} - `true` if the `indexifiedName` is ok.
+@returns {boolean} - `true` if the `name` is ok.
 */
 
 /**
@@ -59,13 +54,9 @@ Useful when you want to rename a variable (or create a new variable) while being
 @returns {string} - Either `name` as is, or a string like `${name}_` suffixed with underscores to make the name unique.
 */
 module.exports = (name, scopes, isSafe = alwaysTrue) => {
-	let index = 0;
-let indexifiedName = indexifyName(name, index);
-	while (!isSafeName(indexifiedName, scopes) || !isSafe(indexifiedName, scopes)) {
-		index++;
-		indexifiedName = indexifyName(name, index);
-
+	while (!isSafeName(name, scopes) || !isSafe(name, scopes)) {
+		name += '_';
 	}
 
-	return indexifiedName;
+	return name;
 };
