@@ -6,13 +6,78 @@ const {
 }= require("@babel/helper-validator-identifier");
 const resolveVariableName = require('./resolve-variable-name.js');
 
+// https://github.com/microsoft/TypeScript/issues/2536#issuecomment-87194347
+const typescriptReservedWords = new Set([
+	'break',
+	'case',
+	'catch',
+	'class',
+	'const',
+	'continue',
+	'debugger',
+	'default',
+	'delete',
+	'do',
+	'else',
+	'enum',
+	'export',
+	'extends',
+	'false',
+	'finally',
+	'for',
+	'function',
+	'if',
+	'import',
+	'in',
+	'instanceof',
+	'new',
+	'null',
+	'return',
+	'super',
+	'switch',
+	'this',
+	'throw',
+	'true',
+	'try',
+	'typeof',
+	'var',
+	'void',
+	'while',
+	'with',
+	'as',
+	'implements',
+	'interface',
+	'let',
+	'package',
+	'private',
+	'protected',
+	'public',
+	'static',
+	'yield',
+	'any',
+	'boolean',
+	'constructor',
+	'declare',
+	'get',
+	'module',
+	'require',
+	'number',
+	'set',
+	'string',
+	'symbol',
+	'type',
+	'from',
+	'of'
+]);
+
 // Copied from https://github.com/babel/babel/blob/fce35af69101c6b316557e28abf60bdbf77d6a36/packages/babel-types/src/validators/isValidIdentifier.ts#L7
 // Use this function instead of `require('@babel/types').isIdentifier`, since `@babel/helper-validator-identifier` package is much smaller
 const isValidIdentifier = name =>
 	typeof name === 'string' &&
 	!isKeyword(name) &&
 	!isStrictReservedWord(name, true) &&
-	isIdentifierName(name);
+	isIdentifierName(name) &&
+	!typescriptReservedWords.has(name);
 
 /*
 Unresolved reference is probably from the global scope. We should avoid using that name.
