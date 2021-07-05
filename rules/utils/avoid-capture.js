@@ -1,6 +1,18 @@
 'use strict';
-const {isValidES3Identifier} = require('@babel/types');
+const {
+  isIdentifierName,
+  isStrictReservedWord,
+  isKeyword,
+}= require("@babel/helper-validator-identifier");
 const resolveVariableName = require('./resolve-variable-name.js');
+
+// Copied from https://github.com/babel/babel/blob/fce35af69101c6b316557e28abf60bdbf77d6a36/packages/babel-types/src/validators/isValidIdentifier.ts#L7
+// Use this function instead of `require('@babel/types').isIdentifier`, since `@babel/helper-validator-identifier` is much smaller
+const isValidIdentifier = name =>
+	typeof name === 'string' &&
+	!isKeyword(name) &&
+	!isStrictReservedWord(name, true) &&
+	isIdentifierName(name);
 
 /*
 Unresolved reference is probably from the global scope. We should avoid using that name.
@@ -24,7 +36,7 @@ const isUnresolvedName = (name, scope) =>
 	scope.childScopes.some(scope => isUnresolvedName(name, scope));
 
 const isSafeName = (name, scopes) =>
-	isValidES3Identifier(name) &&
+	isValidIdentifier(name) &&
 	name !== 'arguments' &&
 	!scopes.some(scope => resolveVariableName(name, scope) || isUnresolvedName(name, scope));
 
