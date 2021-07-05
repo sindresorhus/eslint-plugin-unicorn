@@ -79,15 +79,20 @@ const create = context => {
 			];
 			const fixedName = avoidCapture(expectedName, scopes);
 
-			return {
+			const problem = {
 				node,
 				messageId: MESSAGE_ID,
 				data: {
 					originalName,
-					fixedName
+					fixedName: fixedName || expectedName
 				},
-				fix: fixer => renameVariable(variable, fixedName, fixer)
 			};
+
+			if (fixedName) {
+				problem.fix = fixer => renameVariable(variable, fixedName, fixer)
+			}
+
+			return problem;
 		}
 	};
 };

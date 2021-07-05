@@ -36,7 +36,6 @@ const isUnresolvedName = (name, scope) =>
 	scope.childScopes.some(scope => isUnresolvedName(name, scope));
 
 const isSafeName = (name, scopes) =>
-	isValidIdentifier(name) &&
 	name !== 'arguments' &&
 	!scopes.some(scope => resolveVariableName(name, scope) || isUnresolvedName(name, scope));
 
@@ -66,6 +65,15 @@ Useful when you want to rename a variable (or create a new variable) while being
 @returns {string} - Either `name` as is, or a string like `${name}_` suffixed with underscores to make the name unique.
 */
 module.exports = (name, scopes, isSafe = alwaysTrue) => {
+	if (!isValidIdentifier(name)) {
+		name += '_';
+
+		if (!isValidIdentifier(name)) {
+			return;
+		}
+	}
+
+
 	while (!isSafeName(name, scopes) || !isSafe(name, scopes)) {
 		name += '_';
 	}

@@ -423,7 +423,7 @@ const create = context => {
 			message: formatMessage(definition.name.name, variableReplacements, 'variable')
 		};
 
-		if (variableReplacements.total === 1 && shouldFix(variable)) {
+		if (variableReplacements.total === 1 && shouldFix(variable) && variableReplacements.samples[0]) {
 			const [replacement] = variableReplacements.samples;
 
 			for (const scope of scopes) {

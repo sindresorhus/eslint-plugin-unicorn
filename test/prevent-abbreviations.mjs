@@ -1316,6 +1316,16 @@ test({
 			output: 'function a() {try {} catch(arguments_) {}}',
 			options: customOptions,
 			errors: createErrors()
+		},
+		{
+			code: 'var one',
+			options: [{replacements: {one: {'1': true}}}],
+			errors: createErrors()
+		},
+		{
+			code: 'var one_two',
+			options: [{replacements: {one: {'first': true, '1': true}}}],
+			errors: createErrors()
 		}
 	]
 });
