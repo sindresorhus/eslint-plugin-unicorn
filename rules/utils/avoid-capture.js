@@ -1,9 +1,9 @@
 'use strict';
 const {
-  isIdentifierName,
-  isStrictReservedWord,
-  isKeyword,
-}= require("@babel/helper-validator-identifier");
+	isIdentifierName,
+	isStrictReservedWord,
+	isKeyword
+} = require('@babel/helper-validator-identifier');
 const resolveVariableName = require('./resolve-variable-name.js');
 
 // https://github.com/microsoft/TypeScript/issues/2536#issuecomment-87194347
@@ -77,6 +77,7 @@ const isValidIdentifier = name =>
 	!isKeyword(name) &&
 	!isStrictReservedWord(name, true) &&
 	isIdentifierName(name) &&
+	name !== 'arguments' &&
 	!typescriptReservedWords.has(name);
 
 /*
@@ -101,7 +102,6 @@ const isUnresolvedName = (name, scope) =>
 	scope.childScopes.some(scope => isUnresolvedName(name, scope));
 
 const isSafeName = (name, scopes) =>
-	name !== 'arguments' &&
 	!scopes.some(scope => resolveVariableName(name, scope) || isUnresolvedName(name, scope));
 
 const alwaysTrue = () => true;
@@ -137,7 +137,6 @@ module.exports = (name, scopes, isSafe = alwaysTrue) => {
 			return;
 		}
 	}
-
 
 	while (!isSafeName(name, scopes) || !isSafe(name, scopes)) {
 		name += '_';

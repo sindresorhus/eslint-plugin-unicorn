@@ -85,11 +85,11 @@ const create = context => {
 				data: {
 					originalName,
 					fixedName: fixedName || expectedName
-				},
+				}
 			};
 
 			if (fixedName) {
-				problem.fix = fixer => renameVariable(variable, fixedName, fixer)
+				problem.fix = fixer => renameVariable(variable, fixedName, fixer);
 			}
 
 			return problem;

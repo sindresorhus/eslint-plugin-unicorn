@@ -1319,12 +1319,12 @@ test({
 		},
 		{
 			code: 'var one',
-			options: [{replacements: {one: {'1': true}}}],
+			options: [{replacements: {one: {1: true}}}],
 			errors: createErrors()
 		},
 		{
 			code: 'var one_two',
-			options: [{replacements: {one: {'first': true, '1': true}}}],
+			options: [{replacements: {one: {first: true, 1: true}}}],
 			errors: createErrors()
 		}
 	]
