@@ -1295,7 +1295,7 @@ test({
 
 		{
 			code: 'var y',
-			output: 'var yield',
+			output: 'var yield_',
 			options: customOptions,
 			errors: createErrors()
 		},
@@ -1315,6 +1315,16 @@ test({
 			code: 'function a() {try {} catch(args) {}}',
 			output: 'function a() {try {} catch(arguments_) {}}',
 			options: customOptions,
+			errors: createErrors()
+		},
+		{
+			code: 'var one',
+			options: [{replacements: {one: {1: true}}}],
+			errors: createErrors()
+		},
+		{
+			code: 'var one_two',
+			options: [{replacements: {one: {first: true, 1: true}}}],
 			errors: createErrors()
 		}
 	]

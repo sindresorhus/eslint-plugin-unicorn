@@ -508,6 +508,23 @@ test({
 			options: [{name: 'exception'}]
 		},
 
+		// Should not run into an infinity loop
+		{
+			code: 'try {} catch (e) {}',
+			errors: [generateError('e', 'has_space_after ')],
+			options: [{name: 'has_space_after '}]
+		},
+		{
+			code: 'try {} catch (e) {}',
+			errors: [generateError('e', '1_start_with_a_number')],
+			options: [{name: '1_start_with_a_number'}]
+		},
+		{
+			code: 'try {} catch (e) {}',
+			errors: [generateError('e', '_){} evilCode; if(false')],
+			options: [{name: '_){} evilCode; if(false'}]
+		},
+
 		// `ignore`
 		{
 			code: 'try {} catch (notMatching) {}',

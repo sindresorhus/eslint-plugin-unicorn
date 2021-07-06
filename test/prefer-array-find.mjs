@@ -784,6 +784,28 @@ test({
 			`,
 			errors: [{messageId: ERROR_DECLARATION}]
 		},
+		{
+			code: outdent`
+				const packages = array.filter(bar);
+				console.log(packages[0]);
+			`,
+			output: outdent`
+				const package_ = array.find(bar);
+				console.log(package_);
+			`,
+			errors: [{messageId: ERROR_DECLARATION}]
+		},
+		{
+			code: outdent`
+				const symbols = array.filter(bar);
+				console.log(symbols[0]);
+			`,
+			output: outdent`
+				const symbol_ = array.find(bar);
+				console.log(symbol_);
+			`,
+			errors: [{messageId: ERROR_DECLARATION}]
+		},
 
 		// Not fixable
 		{

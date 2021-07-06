@@ -216,7 +216,7 @@ const create = context => {
 					let generateNewVariables = false;
 					if (type === 'ThrowStatement') {
 						const scopes = getScopes(scope);
-						const errorName = avoidCapture('error', scopes, context.parserOptions.ecmaVersion, isSafeName);
+						const errorName = avoidCapture('error', scopes, isSafeName);
 
 						for (const scope of scopes) {
 							if (!scopeToNamesGeneratedByFixer.has(scope)) {

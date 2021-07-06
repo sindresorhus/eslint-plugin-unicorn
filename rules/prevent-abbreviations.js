@@ -313,7 +313,6 @@ const isInternalImport = node => {
 };
 
 const create = context => {
-	const {ecmaVersion} = context.parserOptions;
 	const options = prepareOptions(context.options[0]);
 	const filenameWithExtension = context.getPhysicalFilename();
 
@@ -416,7 +415,7 @@ const create = context => {
 			variable.scope
 		];
 		variableReplacements.samples = variableReplacements.samples.map(
-			name => avoidCapture(name, scopes, ecmaVersion, isSafeName)
+			name => avoidCapture(name, scopes, isSafeName)
 		);
 
 		const problem = {
@@ -424,7 +423,7 @@ const create = context => {
 			message: formatMessage(definition.name.name, variableReplacements, 'variable')
 		};
 
-		if (variableReplacements.total === 1 && shouldFix(variable)) {
+		if (variableReplacements.total === 1 && shouldFix(variable) && variableReplacements.samples[0]) {
 			const [replacement] = variableReplacements.samples;
 
 			for (const scope of scopes) {

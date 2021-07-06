@@ -1,33 +1,84 @@
 'use strict';
-const reservedWords = require('reserved-words');
+const {
+	isIdentifierName,
+	isStrictReservedWord,
+	isKeyword
+} = require('@babel/helper-validator-identifier');
 const resolveVariableName = require('./resolve-variable-name.js');
 
-const indexifyName = (name, index) => name + '_'.repeat(index);
+// https://github.com/microsoft/TypeScript/issues/2536#issuecomment-87194347
+const typescriptReservedWords = new Set([
+	'break',
+	'case',
+	'catch',
+	'class',
+	'const',
+	'continue',
+	'debugger',
+	'default',
+	'delete',
+	'do',
+	'else',
+	'enum',
+	'export',
+	'extends',
+	'false',
+	'finally',
+	'for',
+	'function',
+	'if',
+	'import',
+	'in',
+	'instanceof',
+	'new',
+	'null',
+	'return',
+	'super',
+	'switch',
+	'this',
+	'throw',
+	'true',
+	'try',
+	'typeof',
+	'var',
+	'void',
+	'while',
+	'with',
+	'as',
+	'implements',
+	'interface',
+	'let',
+	'package',
+	'private',
+	'protected',
+	'public',
+	'static',
+	'yield',
+	'any',
+	'boolean',
+	'constructor',
+	'declare',
+	'get',
+	'module',
+	'require',
+	'number',
+	'set',
+	'string',
+	'symbol',
+	'type',
+	'from',
+	'of'
+]);
 
-const scopeHasArgumentsSpecial = scope => {
-	while (scope) {
-		/* istanbul ignore next: `someScopeHasVariableName` seems already handle this */
-		if (scope.taints.get('arguments')) {
-			return true;
-		}
-
-		scope = scope.upper;
-	}
-
-	return false;
-};
-
-const someScopeHasVariableName = (name, scopes) => scopes.some(scope => resolveVariableName(name, scope));
-
-const someScopeIsStrict = scopes => scopes.some(scope => scope.isStrict);
-
-const nameCollidesWithArgumentsSpecial = (name, scopes, isStrict) => {
-	if (name !== 'arguments') {
-		return false;
-	}
-
-	return isStrict || scopes.some(scope => scopeHasArgumentsSpecial(scope));
-};
+// Copied from https://github.com/babel/babel/blob/fce35af69101c6b316557e28abf60bdbf77d6a36/packages/babel-types/src/validators/isValidIdentifier.ts#L7
+// Use this function instead of `require('@babel/types').isIdentifier`, since `@babel/helper-validator-identifier` package is much smaller
+const isValidIdentifier = name =>
+	typeof name === 'string' &&
+	!isKeyword(name) &&
+	!isStrictReservedWord(name, true) &&
+	isIdentifierName(name) &&
+	name !== 'arguments' &&
+	!typescriptReservedWords.has(name);
 
 /*
 Unresolved reference is probably from the global scope. We should avoid using that name.
@@ -46,21 +97,12 @@ function unicorn() {
 }
 ```
 */
-const isUnresolvedName = (name, scopes) => scopes.some(scope =>
+const isUnresolvedName = (name, scope) =>
 	scope.references.some(reference => reference.identifier && reference.identifier.name === name && !reference.resolved) ||
-	isUnresolvedName(name, scope.childScopes)
-);
+	scope.childScopes.some(scope => isUnresolvedName(name, scope));
 
-const isSafeName = (name, scopes, ecmaVersion, isStrict) => {
-	ecmaVersion = Math.min(6, ecmaVersion); // 6 is the latest version understood by `reservedWords`
-
-	return (
-		!someScopeHasVariableName(name, scopes) &&
-		!reservedWords.check(name, ecmaVersion, isStrict) &&
-		!nameCollidesWithArgumentsSpecial(name, scopes, isStrict) &&
-		!isUnresolvedName(name, scopes)
-	);
-};
+const isSafeName = (name, scopes) =>
+	!scopes.some(scope => resolveVariableName(name, scope) || isUnresolvedName(name, scope));
 
 const alwaysTrue = () => true;
 
@@ -68,9 +110,9 @@ const alwaysTrue = () => true;
 Rule-specific name check function.
 
 @callback isSafe
-@param {string} indexifiedName - The generated candidate name.
+@param {string} name - The generated candidate name.
 @param {Scope[]} scopes - The same list of scopes you pass to `avoidCapture`.
-@returns {boolean} - `true` if the `indexifiedName` is ok.
+@returns {boolean} - `true` if the `name` is ok.
 */
 
 /**
@@ -84,22 +126,21 @@ Useful when you want to rename a variable (or create a new variable) while being
 
 @param {string} name - The desired name for a new variable.
 @param {Scope[]} scopes - The list of scopes the new variable will be referenced in.
-@param {number} ecmaVersion - The language version, get it from `context.parserOptions.ecmaVersion`.
 @param {isSafe} [isSafe] - Rule-specific name check function.
 @returns {string} - Either `name` as is, or a string like `${name}_` suffixed with underscores to make the name unique.
 */
-module.exports = (name, scopes, ecmaVersion, isSafe = alwaysTrue) => {
-	const isStrict = someScopeIsStrict(scopes);
+module.exports = (name, scopes, isSafe = alwaysTrue) => {
+	if (!isValidIdentifier(name)) {
+		name += '_';
 
-	let index = 0;
-	let indexifiedName = indexifyName(name, index);
-	while (
-		!isSafeName(indexifiedName, scopes, ecmaVersion, isStrict) ||
-		!isSafe(indexifiedName, scopes)
-	) {
-		index++;
-		indexifiedName = indexifyName(name, index);
+		if (!isValidIdentifier(name)) {
+			return;
+		}
 	}
 
-	return indexifiedName;
+	while (!isSafeName(name, scopes) || !isSafe(name, scopes)) {
+		name += '_';
+	}
+
+	return name;
 };

@@ -299,7 +299,7 @@ const create = context => {
 					const singularName = singular(node.id.name);
 					if (singularName) {
 						// Rename variable to be singularized now that it refers to a single item in the array instead of the entire array.
-						const singularizedName = avoidCapture(singularName, getChildScopesRecursive(scope), context.parserOptions.ecmaVersion);
+						const singularizedName = avoidCapture(singularName, getChildScopesRecursive(scope));
 						yield * renameVariable(variable, singularizedName, fixer);
 
 						// Prevent possible variable conflicts
