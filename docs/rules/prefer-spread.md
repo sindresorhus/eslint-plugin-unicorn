@@ -52,9 +52,9 @@ const tail = array.slice(1);
 const copy = [...array];
 ```
 
-## Work together with `unicorn/no-useless-spread` rule
+## With the `unicorn/no-useless-spread` rule
 
-Some cases are fixed with extra spread syntax, suggest enable [`unicorn/no-useless-spread`](./no-useless-spread.md) rule to fix it.
+Some cases are fixed using extra spread syntax. Therefore we recommend enabling the [`unicorn/no-useless-spread`](./no-useless-spread.md) rule to fix it.
 
 For example:
 
@@ -63,17 +63,16 @@ const baz = [2];
 call(foo, ...[bar].concat(baz));
 ```
 
-will be fixed as
+Will be fixed to:
 
 ```js
 const baz = [2];
 call(foo, ...[bar, ...baz]);
 ```
 
-`unicorn/no-useless-spread` can fix to correct code
+`unicorn/no-useless-spread` will fix it to:
 
 ```js
 const baz = [2];
 call(foo, bar, ...baz);
 ```
-
