@@ -51,3 +51,31 @@ const tail = array.slice(1);
 ```js
 const copy = [...array];
 ```
+
+## Work together with `unicorn/no-useless-spread` rule
+
+Some cases are fixed with extra spread syntax, suggest enable [`unicorn/no-useless-spread`](./no-useless-spread.md) rule to fix it.
+
+For example:
+
+```js
+const baz = [2];
+call(foo, ...[bar].concat(baz));
+```
+
+will fix to
+
+```js
+const baz = [2];
+call(foo, ...[bar, ...baz]);
+```
+
+After `unicorn/no-useless-spread` auto fix,
+
+it will fix to correct code
+
+```js
+const baz = [2];
+call(foo, bar, ...baz);
+```
+

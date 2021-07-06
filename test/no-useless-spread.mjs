@@ -97,6 +97,12 @@ test.snapshot({
 					},
 				}
 			)
+		`,
+
+		// Code from example in `prefer-spread` rule docs
+		outdent`
+			const baz = [2];
+			call(foo, ...[bar, ...baz]);
 		`
 	]
 });
