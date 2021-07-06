@@ -1,10 +1,10 @@
 # Disallow useless spread
 
-The spread syntax in following cases are useless:
+Using spread syntax in the following cases is unnecessary:
 
-- Spread array literal as elements of array literal
-- Spread array literal as arguments of call or new call
-- Spread object literal as properties of object literal
+- Spread an array literal as elements of an array literal
+- Spread an array literal as arguments of a call or a `new` call
+- Spread an object literal as properties of an object literal
 
 This rule is fixable.
 
