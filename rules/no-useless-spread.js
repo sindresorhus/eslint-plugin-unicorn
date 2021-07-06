@@ -1,5 +1,5 @@
 'use strict';
-const {isCommaToken} = require('eslint-utils')
+const {isCommaToken} = require('eslint-utils');
 const {matches} = require('./selectors/index.js');
 const {getParentheses} = require('./utils/parentheses.js');
 
@@ -24,7 +24,7 @@ const selector = matches([
 	createSelector('ArrayExpression', 'elements'),
 	createSelector('ObjectExpression', 'properties', 'ObjectExpression'),
 	createSelector('CallExpression'),
-	createSelector('NewExpression'),
+	createSelector('NewExpression')
 ]);
 
 const parentDescriptions = {
@@ -41,7 +41,7 @@ function * getCommaTokens(arrayExpression, sourceCode) {
 		if (index === arrayExpression.elements.length - 1) {
 			const penultimateToken = sourceCode.getLastToken(arrayExpression, {skip: 1});
 			if (isCommaToken(penultimateToken)) {
-				yield penultimateToken
+				yield penultimateToken;
 			}
 
 			return;
@@ -119,7 +119,7 @@ const create = context => {
 				}
 			};
 		}
-	}
+	};
 };
 
 const schema = [];
