@@ -63,16 +63,14 @@ const baz = [2];
 call(foo, ...[bar].concat(baz));
 ```
 
-will fix to
+will be fixed as
 
 ```js
 const baz = [2];
 call(foo, ...[bar, ...baz]);
 ```
 
-After `unicorn/no-useless-spread` auto fix,
-
-it will fix to correct code
+`unicorn/no-useless-spread` can fix to correct code
 
 ```js
 const baz = [2];
