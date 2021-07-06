@@ -40,6 +40,9 @@ module.exports.defaultReplacements = {
 	db: {
 		database: true
 	},
+	def: {
+		definition: true
+	},
 	dest: {
 		destination: true
 	},
