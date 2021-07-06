@@ -59,6 +59,7 @@ test.snapshot({
 		'const array = [...[a, , b,],]',
 		'foo(...[a, , b,],)',
 		'new Foo(...[a, , b,],)',
+		'foo(...[,, ,(( a )), ,,(0, b), ,,])',
 
 		// Extra elements/properties
 		'const array = [a, ...[a, b]]',
