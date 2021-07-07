@@ -279,7 +279,12 @@ test.snapshot({
 		{
 			code: 'with (foo) foo.concat(1)',
 			parserOptions: {ecmaVersion: 5, sourceType: 'script'}
-		}
+		},
+		// Code from example in docs
+		outdent`
+			const baz = [2];
+			call(foo, ...[bar].concat(baz));
+		`
 	]
 });
 
