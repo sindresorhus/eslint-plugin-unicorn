@@ -5,7 +5,7 @@ const {getParentheses} = require('./utils/parentheses.js');
 
 const MESSAGE_ID = 'no-useless-spread';
 const messages = {
-	[MESSAGE_ID]: 'Spread {{argumentType}} literal in {{parentDescription}} is useless.'
+	[MESSAGE_ID]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.'
 };
 
 const createSelector = (
@@ -129,7 +129,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow useless spread.'
+			description: 'Disallow unnecessary spread.'
 		},
 		fixable: 'code',
 		schema,
