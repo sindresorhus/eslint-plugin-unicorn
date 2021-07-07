@@ -16,7 +16,8 @@ test.snapshot({
 		'const array = [...a]',
 		'const object = {...a}',
 		'const [first, ...rest] = []',
-		'const {foo, ...rest} = {}'
+		'const {foo, ...rest} = {}',
+		'function a(foo, ...rest) {}'
 	],
 	invalid: [
 		'const array = [...[a]]',
