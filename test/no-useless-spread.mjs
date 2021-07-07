@@ -78,6 +78,34 @@ test.snapshot({
 		'foo(a, ...[a, b], b,)',
 		'new Foo(a, ...[a, b], b,)',
 
+		// Duplicated keys
+		'({a:1, ...{a: 2}})',
+		'({...{a:1}, ...{a: 2}})',
+		outdent`
+			({
+				get a() {},
+				set a(v) {},
+				...{
+					get a() {}
+				}
+			})
+		`,
+		// Computed
+		'({[a]:1, ...{[a]: 2}})',
+
+		outdent`
+			const object = {
+				a: 1,
+
+				...{
+					testKeys() {
+						console.assert(Object.keys(this).length === 2)
+					}
+				}
+			}
+			object.testKeys();
+		`,
+
 		outdent`
 			new Foo(
 				foo(
