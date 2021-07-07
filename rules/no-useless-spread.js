@@ -34,14 +34,14 @@ const parentDescriptions = {
 	NewExpression: 'arguments'
 };
 
-function * getCommaTokens(arrayExpression, sourceCode) {
+function getCommaTokens(arrayExpression, sourceCode) {
 	let startToken = sourceCode.getFirstToken(arrayExpression);
 
-	for (const [index, element] of arrayExpression.elements.entries()) {
-		if (index === arrayExpression.elements.length - 1) {
+	return arrayExpression.elements.map((element, index, elements) => {
+		if (index === elements.length - 1) {
 			const penultimateToken = sourceCode.getLastToken(arrayExpression, {skip: 1});
 			if (isCommaToken(penultimateToken)) {
-				yield penultimateToken;
+				return penultimateToken;
 			}
 
 			return;
@@ -49,8 +49,8 @@ function * getCommaTokens(arrayExpression, sourceCode) {
 
 		const commaToken = sourceCode.getTokenAfter(element || startToken, isCommaToken);
 		startToken = commaToken;
-		yield commaToken;
-	}
+		return commaToken;
+	});
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -106,15 +106,15 @@ const create = context => {
 						return;
 					}
 
-					const commaTokens = [...getCommaTokens(spreadObject, sourceCode)];
-					for (const [index, element] of spreadObject.elements.entries()) {
-						if (element) {
+					const commaTokens = getCommaTokens(spreadObject, sourceCode);
+					for (const [index, commaToken] of commaTokens.entries()) {
+						if (spreadObject.elements[index]){
 							continue;
 						}
 
 						// `call([foo, , bar])`
 						//             ^ Replace holes with `undefined`
-						yield fixer.insertTextBefore(commaTokens[index], 'undefined');
+						yield fixer.insertTextBefore(commaToken, 'undefined');
 					}
 				}
 			};
