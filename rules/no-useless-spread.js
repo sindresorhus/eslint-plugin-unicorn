@@ -83,7 +83,7 @@ const create = context => {
 
 					// `[...[foo]]`
 					//          ^
-					yield fixer.remove(lastToken);
+					// yield fixer.remove(lastToken);
 
 					// `[...[foo,]]`
 					//          ^
