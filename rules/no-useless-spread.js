@@ -8,23 +8,11 @@ const messages = {
 	[MESSAGE_ID]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.'
 };
 
-const createSelector = (
-	parentType,
-	propertiesName = 'arguments',
-	argumentType = 'ArrayExpression'
-) => [
-	parentType,
-	' > ',
-	'SpreadElement',
-	`[argument.type="${argumentType}"]`,
-	`.${propertiesName}`
-].join('');
-
 const selector = matches([
-	createSelector('ArrayExpression', 'elements'),
-	createSelector('ObjectExpression', 'properties', 'ObjectExpression'),
-	createSelector('CallExpression'),
-	createSelector('NewExpression')
+	'ArrayExpression > SpreadElement.elements > ArrayExpression.argument',
+	'ObjectExpression > SpreadElement.properties > ObjectExpression.argument',
+	'CallExpression > SpreadElement.arguments > ArrayExpression.argument',
+	'NewExpression > SpreadElement.arguments > ArrayExpression.argument'
 ]);
 
 const parentDescriptions = {
@@ -58,16 +46,17 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 
 	return {
-		[selector](node) {
-			const spreadToken = sourceCode.getFirstToken(node);
-			const {argument: spreadObject, parent} = node;
+		[selector](spreadObject) {
+			const spreadElement = spreadObject.parent;
+			const spreadToken = sourceCode.getFirstToken(spreadElement);
+			const parentType = spreadElement.parent.type;
 
 			return {
 				node: spreadToken,
 				messageId: MESSAGE_ID,
 				data: {
 					argumentType: spreadObject.type === 'ArrayExpression' ? 'array' : 'object',
-					parentDescription: parentDescriptions[parent.type]
+					parentDescription: parentDescriptions[parentType]
 				},
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
 				* fix(fixer) {
@@ -102,7 +91,7 @@ const create = context => {
 						yield fixer.remove(penultimateToken);
 					}
 
-					if (parent.type !== 'CallExpression' && parent.type !== 'NewExpression') {
+					if (parentType !== 'CallExpression' && parentType !== 'NewExpression') {
 						return;
 					}
 
