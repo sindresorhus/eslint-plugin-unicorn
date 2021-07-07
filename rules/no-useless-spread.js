@@ -108,7 +108,7 @@ const create = context => {
 
 					const commaTokens = getCommaTokens(spreadObject, sourceCode);
 					for (const [index, commaToken] of commaTokens.entries()) {
-						if (spreadObject.elements[index]){
+						if (spreadObject.elements[index]) {
 							continue;
 						}
 
@@ -122,8 +122,6 @@ const create = context => {
 	};
 };
 
-const schema = [];
-
 module.exports = {
 	create,
 	meta: {
@@ -132,7 +130,6 @@ module.exports = {
 			description: 'Disallow unnecessary spread.'
 		},
 		fixable: 'code',
-		schema,
 		messages
 	}
 };
