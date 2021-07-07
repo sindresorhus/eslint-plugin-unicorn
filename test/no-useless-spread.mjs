@@ -7,6 +7,8 @@ test.snapshot({
 	valid: [
 		'const array = [[]]',
 		'const array = [{}]',
+		'const object = ({...[]})',
+		'const array = [...[].map(x => x)]',
 		'foo([])',
 		'foo({})',
 		'new Foo([])',
