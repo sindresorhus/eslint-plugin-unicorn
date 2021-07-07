@@ -72,7 +72,7 @@ const create = context => {
 					}
 
 					// `[...[foo]]`
-					//  ^
+					//      ^
 					const firstToken = sourceCode.getFirstToken(spreadObject);
 					yield fixer.remove(firstToken);
 
@@ -82,7 +82,7 @@ const create = context => {
 					] = sourceCode.getLastTokens(spreadObject, 2);
 
 					// `[...[foo]]`
-					//           ^
+					//          ^
 					yield fixer.remove(lastToken);
 
 					// `[...[foo,]]`
