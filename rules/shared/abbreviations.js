@@ -40,6 +40,12 @@ module.exports.defaultReplacements = {
 	db: {
 		database: true
 	},
+	def: {
+		defer: true,
+		deferred: true,
+		define: true,
+		definition: true
+	},
 	dest: {
 		destination: true
 	},
