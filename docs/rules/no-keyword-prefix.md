@@ -53,7 +53,7 @@ foo.newFoo = 2; // pass
 
 ### `onlyCamelCase`
 
-The default behavor is to check for camel case usage. If you want to forbid the prefix entirely, set `onlyCamelCase` to `false`:
+The default behavior is to check for camel case usage. If you want to forbid the prefix entirely, set `onlyCamelCase` to `false`:
 
 ```js
 // eslint unicorn/no-keyword-prefix: ["error", {"onlyCamelCase": true}]

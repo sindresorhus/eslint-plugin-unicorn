@@ -185,7 +185,7 @@ const create = context => {
 		// For `require`, `'default'` style allows both `x = require('x')` (`'namespace'` style) and
 		// `{default: x} = require('x')` (`'default'` style) since we don't know in advance
 		// whether `'x'` is a compiled ES6 module (with `default` key) or a CommonJS module and `require`
-		// does not provide any automatic interop for this, so the user may have to use either of theese.
+		// does not provide any automatic interop for this, so the user may have to use either of these.
 		if (isRequire && allowedImportStyles.has('default') && !allowedImportStyles.has('namespace')) {
 			effectiveAllowedImportStyles = new Set(allowedImportStyles);
 			effectiveAllowedImportStyles.add('namespace');

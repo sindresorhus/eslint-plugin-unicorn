@@ -29,7 +29,7 @@ module.exports = {
 	/** Maximum amount of tasks ran concurrently */
 	concurrentTasks: 3,
 
-	/** Optional boolean flag used to enable caching of cloned repositories. For CIs it's ideal to disable caching. Defauls to true. */
+	/** Optional boolean flag used to enable caching of cloned repositories. For CIs it's ideal to disable caching. Defaults to true. */
 	cache: false,
 
 	/** Optional setting for log level. Valid values are verbose, info, warn, error. Defaults to verbose. */

@@ -317,7 +317,7 @@ const create = context => {
 	const filenameWithExtension = context.getPhysicalFilename();
 
 	// A `class` declaration produces two variables in two scopes:
-	// the inner class scope, and the outer one (whereever the class is declared).
+	// the inner class scope, and the outer one (wherever the class is declared).
 	// This map holds the outer ones to be later processed when the inner one is encountered.
 	// For why this is not a eslint issue see https://github.com/eslint/eslint-scope/issues/48#issuecomment-464358754
 	const identifierToOuterClassVariable = new WeakMap();
