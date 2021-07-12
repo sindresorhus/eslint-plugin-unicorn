@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
@@ -56,6 +56,14 @@ test.snapshot({
 			)
 
 			// comment
-		`
+		`,
+		...[
+			'<template><div v-if="array instanceof Array" v-for="element of array"></div></template>',
+			'<template><div v-if="(( (( array )) instanceof (( Array )) ))" v-for="element of array"></div></template>',
+			'<template><div>{{(( (( array )) instanceof (( Array )) )) ? array.join(" | ") : array}}</div></template>',
+			'<script>const foo = array instanceof Array</script>',
+			'<script>const foo = (( (( array )) instanceof (( Array )) ))</script>'
+		].map(code => ({code, parser: parsers.vue}))
 	]
 });
+

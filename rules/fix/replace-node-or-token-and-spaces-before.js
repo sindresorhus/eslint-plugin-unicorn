@@ -1,11 +1,11 @@
 'use strict';
 const {getParentheses} = require('../utils/parentheses.js');
 
-function * replaceNodeOrTokenAndSpacesBefore(nodeOrToken, replacement, fixer, sourceCode) {
-	const tokens = getParentheses(nodeOrToken, sourceCode);
+function * replaceNodeOrTokenAndSpacesBefore(nodeOrToken, replacement, fixer, sourceCode, tokenStore = sourceCode) {
+	const tokens = getParentheses(nodeOrToken, tokenStore);
 
 	for (const token of tokens) {
-		yield * replaceNodeOrTokenAndSpacesBefore(token, '', fixer, sourceCode);
+		yield * replaceNodeOrTokenAndSpacesBefore(token, '', fixer, sourceCode, tokenStore);
 	}
 
 	let [start, end] = nodeOrToken.range;
