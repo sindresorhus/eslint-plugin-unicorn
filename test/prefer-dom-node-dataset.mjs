@@ -58,6 +58,11 @@ test({
 			output: 'element.dataset[\'foo:bar\'] = \'zaz\';',
 		},
 		{
+			code: 'element.setAttribute("data-foo:bar", "zaz");',
+			errors,
+			output: 'element.dataset["foo:bar"] = "zaz";',
+		},
+		{
 			code: 'element.setAttribute(\'data-foo.bar\', \'zaz\');',
 			errors,
 			output: 'element.dataset[\'foo.bar\'] = \'zaz\';',

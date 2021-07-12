@@ -1,4 +1,5 @@
 'use strict';
+const {checkVueTemplate} = require('./utils/rule.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
 const {replaceNodeOrTokenAndSpacesBefore} = require('./fix/index.js');
 
@@ -21,19 +22,24 @@ const create = context => {
 	return {
 		[selector](node) {
 			const {left, right} = node;
-			const instanceofToken = sourceCode.getTokenAfter(left, isInstanceofToken);
+			let tokenStore = sourceCode;
+			let instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
+			if (!instanceofToken && context.parserServices.getTemplateBodyTokenStore) {
+				tokenStore = context.parserServices.getTemplateBodyTokenStore();
+				instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
+			}
 
 			return {
 				node: instanceofToken,
 				messageId: MESSAGE_ID,
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
 				* fix(fixer) {
-					const range = getParenthesizedRange(left, sourceCode);
+					const range = getParenthesizedRange(left, tokenStore);
 					yield fixer.insertTextBeforeRange(range, 'Array.isArray(');
 					yield fixer.insertTextAfterRange(range, ')');
 
-					yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode);
-					yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode);
+					yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
+					yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
 				},
 			};
 		},
@@ -41,7 +47,7 @@ const create = context => {
 };
 
 module.exports = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {

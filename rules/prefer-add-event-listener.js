@@ -1,6 +1,6 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const domEventsJson = require('./utils/dom-events.json');
+const eventTypes = require('./shared/dom-events.js');
 const {STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-add-event-listener';
@@ -12,8 +12,6 @@ const extraMessages = {
 	message: 'Note that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.',
 };
 
-const nestedEvents = Object.values(domEventsJson);
-const eventTypes = new Set(nestedEvents.flat());
 const getEventMethodName = memberExpression => memberExpression.property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 

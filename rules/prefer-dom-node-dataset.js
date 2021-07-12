@@ -21,16 +21,16 @@ const parseNodeText = (context, argument) => context.getSourceCode().getText(arg
 const dashToCamelCase = string => string.replace(/-[a-z]/g, s => s[1].toUpperCase());
 
 const fix = (context, node, fixer) => {
-	let [name, value] = node.arguments;
+	const [nameNode, valueNode] = node.arguments;
 	const calleeObject = parseNodeText(context, node.callee.object);
 
-	name = dashToCamelCase(name.value.slice(5));
-	value = parseNodeText(context, value);
+	const name = dashToCamelCase(nameNode.value.slice(5));
+	const value = parseNodeText(context, valueNode);
 
 	const replacement = `${calleeObject}.dataset${
 		isValidVariableName(name) ?
 			`.${name}` :
-			`[${quoteString(name)}]`
+			`[${quoteString(name, nameNode.raw.charAt(0))}]`
 	} = ${value}`;
 
 	return fixer.replaceText(node, replacement);
