@@ -269,9 +269,7 @@ module.exports = new Set([
 	'toggle',
 
 	// https://github.com/sindresorhus/eslint-plugin-unicorn/pull/147
-	'invalid',
 	'search',
 	'open',
-	'show',
-	'toggle'
+	'show'
 ]);
