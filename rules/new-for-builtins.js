@@ -6,7 +6,7 @@ const {switchNewExpressionToCallExpression} = require('./fix/index.js');
 
 const messages = {
 	enforce: 'Use `new {{name}}()` instead of `{{name}}()`.',
-	disallow: 'Use `{{name}}()` instead of `new {{name}}()`.'
+	disallow: 'Use `{{name}}()` instead of `new {{name}}()`.',
 };
 
 const create = context => {
@@ -35,7 +35,7 @@ const create = context => {
 				node,
 				messageId: 'enforce',
 				data: {name},
-				fix: fixer => fixer.insertTextBefore(node, 'new ')
+				fix: fixer => fixer.insertTextBefore(node, 'new '),
 			};
 		},
 		[newExpressionSelector(builtins.disallowNew)]: node => {
@@ -49,7 +49,7 @@ const create = context => {
 			const problem = {
 				node,
 				messageId: 'disallow',
-				data: {name}
+				data: {name},
 			};
 
 			if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
@@ -59,7 +59,7 @@ const create = context => {
 			}
 
 			return problem;
-		}
+		},
 	};
 };
 
@@ -68,9 +68,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`.'
+			description: 'Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

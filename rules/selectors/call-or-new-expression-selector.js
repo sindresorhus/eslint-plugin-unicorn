@@ -19,14 +19,14 @@ function create(options, types) {
 		min,
 		max,
 		includeOptional,
-		allowSpreadElement
+		allowSpreadElement,
 	} = {
 		path: '',
 		min: 0,
 		max: Number.POSITIVE_INFINITY,
 		includeOptional: false,
 		allowSpreadElement: false,
-		...options
+		...options,
 	};
 
 	const prefix = path ? `${path}.` : '';
@@ -35,7 +35,7 @@ function create(options, types) {
 	}
 
 	const parts = [
-		matches(types.map(type => `[${prefix}type="${type}"]`))
+		matches(types.map(type => `[${prefix}type="${type}"]`)),
 	];
 
 	if (!includeOptional) {
@@ -67,7 +67,7 @@ function create(options, types) {
 	if (Array.isArray(names) && names.length > 0) {
 		parts.push(
 			`[${prefix}callee.type="Identifier"]`,
-			matches(names.map(property => `[${prefix}callee.name="${property}"]`))
+			matches(names.map(property => `[${prefix}callee.name="${property}"]`)),
 		);
 	}
 
@@ -81,5 +81,5 @@ const callOrNewExpressionSelector = options => create(options, ['CallExpression'
 module.exports = {
 	newExpressionSelector,
 	callExpressionSelector,
-	callOrNewExpressionSelector
+	callOrNewExpressionSelector,
 };

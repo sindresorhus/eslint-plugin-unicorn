@@ -10,7 +10,7 @@ const impossibleNodeTypes = [
 	'FunctionExpression',
 	'Literal',
 	'ObjectExpression',
-	'TemplateLiteral'
+	'TemplateLiteral',
 ];
 
 // We might need this later
@@ -21,10 +21,10 @@ const isNotDomNode = node =>
 
 const notDomNodeSelector = node => [
 	...impossibleNodeTypes.map(type => `[${node}.type!="${type}"]`),
-	`:not([${node}.type="Identifier"][${node}.name="undefined"])`
+	`:not([${node}.type="Identifier"][${node}.name="undefined"])`,
 ].join('');
 
 module.exports = {
 	isNotDomNode,
-	notDomNodeSelector
+	notDomNodeSelector,
 };

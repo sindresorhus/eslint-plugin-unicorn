@@ -8,7 +8,7 @@ const MESSAGE_ID_NOT_STRING = 'message-is-not-a-string';
 const messages = {
 	[MESSAGE_ID_MISSING_MESSAGE]: 'Pass a message to the `{{constructorName}}` constructor.',
 	[MESSAGE_ID_EMPTY_MESSAGE]: 'Error message should not be an empty string.',
-	[MESSAGE_ID_NOT_STRING]: 'Error message should be a string.'
+	[MESSAGE_ID_NOT_STRING]: 'Error message should be a string.',
 };
 
 const selector = callOrNewExpressionSelector({
@@ -22,8 +22,8 @@ const selector = callOrNewExpressionSelector({
 		'TypeError',
 		'URIError',
 		'InternalError',
-		'AggregateError'
-	]
+		'AggregateError',
+	],
 });
 
 const create = context => {
@@ -43,7 +43,7 @@ const create = context => {
 				return {
 					node: expression,
 					messageId: MESSAGE_ID_MISSING_MESSAGE,
-					data: {constructorName}
+					data: {constructorName},
 				};
 			}
 
@@ -52,7 +52,7 @@ const create = context => {
 			if (node.type === 'ArrayExpression' || node.type === 'ObjectExpression') {
 				return {
 					node,
-					messageId: MESSAGE_ID_NOT_STRING
+					messageId: MESSAGE_ID_NOT_STRING,
 				};
 			}
 
@@ -67,17 +67,17 @@ const create = context => {
 			if (typeof value !== 'string') {
 				return {
 					node,
-					messageId: MESSAGE_ID_NOT_STRING
+					messageId: MESSAGE_ID_NOT_STRING,
 				};
 			}
 
 			if (value === '') {
 				return {
 					node,
-					messageId: MESSAGE_ID_EMPTY_MESSAGE
+					messageId: MESSAGE_ID_EMPTY_MESSAGE,
 				};
 			}
-		}
+		},
 	};
 };
 
@@ -86,8 +86,8 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce passing a `message` value when creating a built-in error.'
+			description: 'Enforce passing a `message` value when creating a built-in error.',
 		},
-		messages
-	}
+		messages,
+	},
 };

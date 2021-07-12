@@ -3,18 +3,18 @@ const {
 	methodCallSelector,
 	emptyObjectSelector,
 	emptyArraySelector,
-	matches
+	matches,
 } = require('./selectors/index.js');
 const getPropertyName = require('./utils/get-property-name.js');
 
 const messages = {
 	'known-method': 'Prefer using `{{constructorName}}.prototype.{{methodName}}`.',
-	'unknown-method': 'Prefer using method from `{{constructorName}}.prototype`.'
+	'unknown-method': 'Prefer using method from `{{constructorName}}.prototype`.',
 };
 
 const emptyObjectOrArrayMethodSelector = [
 	'MemberExpression',
-	matches([emptyObjectSelector('object'), emptyArraySelector('object')])
+	matches([emptyObjectSelector('object'), emptyArraySelector('object')]),
 ].join('');
 const selector = matches([
 	// `[].foo.{apply,bind,call}(…)`
@@ -24,15 +24,15 @@ const selector = matches([
 		' > ',
 		'.callee',
 		' > ',
-		`${emptyObjectOrArrayMethodSelector}.object`
+		`${emptyObjectOrArrayMethodSelector}.object`,
 	].join(''),
 	// `Reflect.apply([].foo, …)`
 	// `Reflect.apply({}.foo, …)`
 	[
 		methodCallSelector({object: 'Reflect', name: 'apply', min: 1}),
 		' > ',
-		`${emptyObjectOrArrayMethodSelector}.arguments:first-child`
-	].join('')
+		`${emptyObjectOrArrayMethodSelector}.arguments:first-child`,
+	].join(''),
 ]);
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -46,9 +46,9 @@ function create(context) {
 				node,
 				messageId: methodName ? 'known-method' : 'unknown-method',
 				data: {constructorName, methodName: String(methodName)},
-				fix: fixer => fixer.replaceText(node.object, `${constructorName}.prototype`)
+				fix: fixer => fixer.replaceText(node.object, `${constructorName}.prototype`),
 			};
-		}
+		},
 	};
 }
 
@@ -57,9 +57,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer borrowing methods from the prototype instead of the instance.'
+			description: 'Prefer borrowing methods from the prototype instead of the instance.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

@@ -3,12 +3,12 @@ const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matche
 const {
 	objectPrototypeMethodSelector,
 	methodCallSelector,
-	callExpressionSelector
+	callExpressionSelector,
 } = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-object-has-own';
 const messages = {
-	[MESSAGE_ID]: 'Use `Object.hasOwn(…)` instead of `{{description}}(…)`.'
+	[MESSAGE_ID]: 'Use `Object.hasOwn(…)` instead of `{{description}}(…)`.',
 };
 
 const objectPrototypeHasOwnProperty = [
@@ -16,22 +16,22 @@ const objectPrototypeHasOwnProperty = [
 	' > ',
 	objectPrototypeMethodSelector({
 		path: 'object',
-		name: 'hasOwnProperty'
+		name: 'hasOwnProperty',
 	}),
-	'.callee'
+	'.callee',
 ].join('');
 
 const lodashHasFunctions = [
 	'_.has',
 	'lodash.has',
-	'underscore.has'
+	'underscore.has',
 ];
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {functions: configFunctions} = {
 		functions: [],
-		...context.options[0]
+		...context.options[0],
 	};
 	const functions = [...configFunctions, ...lodashHasFunctions];
 
@@ -39,13 +39,13 @@ const create = context => {
 		[
 			{
 				selector: objectPrototypeHasOwnProperty,
-				description: 'Object.prototype.hasOwnProperty.call'
+				description: 'Object.prototype.hasOwnProperty.call',
 			},
 			{
 				selector: `${callExpressionSelector({length: 2})} > .callee`,
 				test: node => isNodeMatches(node, functions),
-				description: node => functions.find(nameOrPath => isNodeMatchesNameOrPath(node, nameOrPath)).trim()
-			}
+				description: node => functions.find(nameOrPath => isNodeMatchesNameOrPath(node, nameOrPath)).trim(),
+			},
 		].map(({selector, test, description}) => [
 			selector,
 			node => {
@@ -57,13 +57,13 @@ const create = context => {
 					node,
 					messageId: MESSAGE_ID,
 					data: {
-						description: typeof description === 'string' ? description : description(node)
+						description: typeof description === 'string' ? description : description(node),
 					},
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
-					fix: fixer => fixer.replaceText(node, 'Object.hasOwn')
+					fix: fixer => fixer.replaceText(node, 'Object.hasOwn'),
 				};
-			}
-		])
+			},
+		]),
 	);
 };
 
@@ -73,11 +73,11 @@ const schema = [
 		properties: {
 			functions: {
 				type: 'array',
-				uniqueItems: true
-			}
+				uniqueItems: true,
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -85,10 +85,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Object.hasOwn(…)` over `Object.prototype.hasOwnProperty.call(…)`.'
+			description: 'Prefer `Object.hasOwn(…)` over `Object.prototype.hasOwnProperty.call(…)`.',
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+	},
 };

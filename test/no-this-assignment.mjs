@@ -22,13 +22,13 @@ test.snapshot({
 		'foo.bar = this;',
 		'function foo(a = this) {}',
 		'function foo({a = this}) {}',
-		'function foo([a = this]) {}'
+		'function foo([a = this]) {}',
 	],
 	invalid: [
 		'const foo = this;',
 		'let foo;foo = this;',
-		'var foo = bar, baz = this;'
-	]
+		'var foo = bar, baz = this;',
+	],
 });
 
 test.babel({
@@ -42,7 +42,7 @@ test.babel({
 			class A {
 				static foo = this;
 			}
-		`
+		`,
 	],
-	invalid: []
+	invalid: [],
 });

@@ -7,13 +7,13 @@ const isInstanceofToken = token => token.value === 'instanceof' && token.type ==
 
 const MESSAGE_ID = 'no-instanceof-array';
 const messages = {
-	[MESSAGE_ID]: 'Use `Array.isArray()` instead of `instanceof Array`.'
+	[MESSAGE_ID]: 'Use `Array.isArray()` instead of `instanceof Array`.',
 };
 const selector = [
 	'BinaryExpression',
 	'[operator="instanceof"]',
 	'[right.type="Identifier"]',
-	'[right.name="Array"]'
+	'[right.name="Array"]',
 ].join('');
 
 const create = context => {
@@ -40,9 +40,9 @@ const create = context => {
 
 					yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
 					yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
-				}
+				},
 			};
-		}
+		},
 	};
 };
 
@@ -51,9 +51,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Require `Array.isArray()` instead of `instanceof Array`.'
+			description: 'Require `Array.isArray()` instead of `instanceof Array`.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

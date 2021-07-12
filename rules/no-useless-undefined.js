@@ -4,7 +4,7 @@ const {replaceNodeOrTokenAndSpacesBefore} = require('./fix/index.js');
 
 const messageId = 'no-useless-undefined';
 const messages = {
-	[messageId]: 'Do not use useless `undefined`.'
+	[messageId]: 'Do not use useless `undefined`.',
 };
 
 const getSelector = (parent, property) =>
@@ -25,9 +25,9 @@ const variableInitSelector = getSelector(
 		'VariableDeclaration',
 		'[kind!="const"]',
 		'>',
-		'VariableDeclarator'
+		'VariableDeclarator',
 	].join(''),
-	'init'
+	'init',
 );
 
 // `const {foo = undefined} = {}`
@@ -54,7 +54,7 @@ const compareFunctionNames = new Set([
 	'same',
 	'notSame',
 	'strictSame',
-	'strictNotSame'
+	'strictNotSame',
 ]);
 const shouldIgnore = node => {
 	let name;
@@ -101,14 +101,14 @@ const create = context => {
 		return {
 			node,
 			messageId,
-			fix: fixer => fix(node, fixer)
+			fix: fixer => fix(node, fixer),
 		};
 	};
 
 	const sourceCode = context.getSourceCode();
 	const options = {
 		checkArguments: true,
-		...context.options[0]
+		...context.options[0],
 	};
 
 	const removeNodeAndLeadingSpace = (node, fixer) =>
@@ -117,19 +117,19 @@ const create = context => {
 	const listeners = {
 		[returnSelector]: listener(
 			removeNodeAndLeadingSpace,
-			/* CheckFunctionReturnType */ true
+			/* CheckFunctionReturnType */ true,
 		),
 		[yieldSelector]: listener(removeNodeAndLeadingSpace),
 		[arrowFunctionSelector]: listener(
 			(node, fixer) => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, sourceCode),
-			/* CheckFunctionReturnType */ true
+			/* CheckFunctionReturnType */ true,
 		),
 		[variableInitSelector]: listener(
-			(node, fixer) => fixer.removeRange([node.parent.id.range[1], node.range[1]])
+			(node, fixer) => fixer.removeRange([node.parent.id.range[1], node.range[1]]),
 		),
 		[assignmentPatternSelector]: listener(
-			(node, fixer) => fixer.removeRange([node.parent.left.range[1], node.range[1]])
-		)
+			(node, fixer) => fixer.removeRange([node.parent.left.range[1], node.range[1]]),
+		),
 	};
 
 	if (options.checkArguments) {
@@ -160,7 +160,7 @@ const create = context => {
 				messageId,
 				loc: {
 					start: firstUndefined.loc.start,
-					end: lastUndefined.loc.end
+					end: lastUndefined.loc.end,
 				},
 				fix: fixer => {
 					let start = firstUndefined.range[0];
@@ -179,7 +179,7 @@ const create = context => {
 					}
 
 					return fixer.removeRange([start, end]);
-				}
+				},
 			};
 		};
 	}
@@ -192,11 +192,11 @@ const schema = [
 		type: 'object',
 		properties: {
 			checkArguments: {
-				type: 'boolean'
-			}
+				type: 'boolean',
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -204,10 +204,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow useless `undefined`.'
+			description: 'Disallow useless `undefined`.',
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+	},
 };

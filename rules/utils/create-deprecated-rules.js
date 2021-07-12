@@ -10,14 +10,14 @@ function createDeprecatedRules(data) {
 				create: () => ({}),
 				meta: {
 					docs: {
-						url: `${repoUrl}/blob/v${packageJson.version}/docs/deprecated-rules.md#${ruleId}`
+						url: `${repoUrl}/blob/v${packageJson.version}/docs/deprecated-rules.md#${ruleId}`,
 					},
 					deprecated: true,
 					replacedBy: Array.isArray(replacedBy) ? replacedBy : [replacedBy],
-					schema: []
-				}
-			}
-		])
+					schema: [],
+				},
+			},
+		]),
 	);
 }
 

@@ -8,7 +8,7 @@ const MESSAGE_ZERO_FRACTION = 'zero-fraction';
 const MESSAGE_DANGLING_DOT = 'dangling-dot';
 const messages = {
 	[MESSAGE_ZERO_FRACTION]: 'Don\'t use a zero fraction in the number.',
-	[MESSAGE_DANGLING_DOT]: 'Don\'t use a dangling dot in the number.'
+	[MESSAGE_DANGLING_DOT]: 'Don\'t use a dangling dot in the number.',
 };
 
 const create = context => {
@@ -56,9 +56,9 @@ const create = context => {
 					}
 
 					return fixer.replaceText(node, fixed);
-				}
+				},
 			};
-		}
+		},
 	};
 };
 
@@ -67,9 +67,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow number literals with zero fractions or dangling dots.'
+			description: 'Disallow number literals with zero fractions or dangling dots.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

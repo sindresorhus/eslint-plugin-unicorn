@@ -24,7 +24,7 @@ const enforceNew = [
 	'Uint8Array',
 	'Uint16Array',
 	'Uint32Array',
-	'Uint8ClampedArray'
+	'Uint8ClampedArray',
 ];
 
 const disallowNew = [
@@ -32,10 +32,10 @@ const disallowNew = [
 	'Boolean',
 	'Number',
 	'String',
-	'Symbol'
+	'Symbol',
 ];
 
 module.exports = {
 	enforceNew,
-	disallowNew
+	disallowNew,
 };

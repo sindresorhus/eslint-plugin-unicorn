@@ -9,7 +9,7 @@ const SUGGESTION = 'suggestion';
 const messages = {
 	[ERROR]: '`new Buffer()` is deprecated, use `Buffer.{{method}}()` instead.',
 	[ERROR_UNKNOWN]: '`new Buffer()` is deprecated, use `Buffer.alloc()` or `Buffer.from()` instead.',
-	[SUGGESTION]: 'Switch to `Buffer.{{method}}()`.'
+	[SUGGESTION]: 'Switch to `Buffer.{{method}}()`.',
 };
 
 const inferMethod = (bufferArguments, scope) => {
@@ -60,7 +60,7 @@ const create = context => {
 					node,
 					messageId: ERROR,
 					data: {method},
-					fix: fix(node, sourceCode, method)
+					fix: fix(node, sourceCode, method),
 				};
 			}
 
@@ -70,10 +70,10 @@ const create = context => {
 				suggest: ['from', 'alloc'].map(method => ({
 					messageId: SUGGESTION,
 					data: {method},
-					fix: fix(node, sourceCode, method)
-				}))
+					fix: fix(node, sourceCode, method),
+				})),
 			};
-		}
+		},
 	};
 };
 
@@ -82,10 +82,10 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`.'
+			description: 'Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`.',
 		},
 		fixable: 'code',
 		messages,
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

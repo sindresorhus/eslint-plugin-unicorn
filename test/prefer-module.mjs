@@ -10,7 +10,7 @@ test.snapshot({
 		'("use strict")',
 		'"use strong";',
 		'eval("\'use strict\'; var x = 42; x;");',
-		'new Function("\'use strict\'; var x = 42; return x;");'
+		'new Function("\'use strict\'; var x = 42; return x;");',
 	],
 	invalid: [
 		outdent`
@@ -28,8 +28,8 @@ test.snapshot({
 				"use strict";
 				console.log(1);
 			}
-		`
-	]
+		`,
+	],
 });
 
 // Global return
@@ -39,7 +39,7 @@ test({
 			function a() {
 				return;
 			}
-		`
+		`,
 	],
 	invalid: [
 		{
@@ -52,11 +52,11 @@ test({
 			parserOptions: {
 				sourceType: 'script',
 				ecmaFeatures: {
-					globalReturn: true
-				}
-			}
-		}
-	]
+					globalReturn: true,
+				},
+			},
+		},
+	],
 });
 
 // `__dirname` and `__filename`
@@ -71,7 +71,7 @@ test.snapshot({
 			const foo = __dirname;
 		`,
 		'import {__filename as filename} from "foo.mjs"',
-		'const foo = 1;export {foo as __dirname}'
+		'const foo = 1;export {foo as __dirname}',
 	],
 	invalid: [
 		'const dirname = __dirname;',
@@ -79,8 +79,8 @@ test.snapshot({
 		'const foo = { __dirname};',
 		'const foo = {__filename, };',
 		'if (__dirname.startsWith("/project/src/")) {}',
-		'if (__filename.endsWith(".js")) {}'
-	]
+		'if (__filename.endsWith(".js")) {}',
+	],
 });
 
 // `require(…)`
@@ -102,7 +102,7 @@ test.snapshot({
 					return require(id);
 				}
 			}
-		`
+		`,
 	],
 	invalid: [
 		'require("foo");',
@@ -202,8 +202,8 @@ test.snapshot({
 			}
 		`,
 		'const foo = require("foo"), bar = 1;',
-		'const foo = require("foo"), bar = require("bar");'
-	]
+		'const foo = require("foo"), bar = require("bar");',
+	],
 });
 
 // `exports` and `module`
@@ -221,7 +221,7 @@ test.snapshot({
 			module.exports = bar;
 			module.exports.bar = bar;
 		`,
-		'const module = 1;'
+		'const module = 1;',
 	],
 	invalid: [
 		'exports = foo;',
@@ -254,8 +254,8 @@ test.snapshot({
 				exports.foo = foo;
 				module.exports.foo = foo;
 			}
-		`
-	]
+		`,
+	],
 });
 
 // `.cjs` file
@@ -263,25 +263,25 @@ test.snapshot({
 	valid: [
 		{
 			code: '__dirname',
-			filename: 'foo.cjs'
+			filename: 'foo.cjs',
 		},
 		{
 			code: '__dirname',
-			filename: 'foo.cjS'
-		}
+			filename: 'foo.cjS',
+		},
 	],
 	invalid: [
 		{
 			code: '__filename',
-			filename: 'foo.mjs'
+			filename: 'foo.mjs',
 		},
 		{
 			code: 'require("lodash")',
-			filename: 'foo.js'
+			filename: 'foo.js',
 		},
 		{
 			code: 'require("lodash")',
-			filename: 'foo.cjs/foo.js'
-		}
-	]
+			filename: 'foo.cjs/foo.js',
+		},
+	],
 });

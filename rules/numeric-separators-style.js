@@ -3,7 +3,7 @@ const numeric = require('./utils/numeric.js');
 
 const MESSAGE_ID = 'numeric-separators-style';
 const messages = {
-	[MESSAGE_ID]: 'Invalid group length in numeric value.'
+	[MESSAGE_ID]: 'Invalid group length in numeric value.',
 };
 
 function addSeparator(value, {minimumDigits, groupLength}, fromLeft) {
@@ -49,7 +49,7 @@ function format(value, {prefix, data}, options) {
 		number,
 		mark,
 		sign,
-		power
+		power,
 	} = numeric.parseNumber(value);
 
 	return formatNumber(number, formatOption) + mark + sign + addSeparator(power, options['']);
@@ -59,7 +59,7 @@ const defaultOptions = {
 	binary: {minimumDigits: 0, groupLength: 4},
 	octal: {minimumDigits: 0, groupLength: 4},
 	hexadecimal: {minimumDigits: 0, groupLength: 2},
-	number: {minimumDigits: 5, groupLength: 3}
+	number: {minimumDigits: 5, groupLength: 3},
 };
 const create = context => {
 	const {
@@ -67,33 +67,33 @@ const create = context => {
 		binary,
 		octal,
 		hexadecimal,
-		number
+		number,
 	} = {
 		onlyIfContainsSeparator: false,
-		...context.options[0]
+		...context.options[0],
 	};
 
 	const options = {
 		'0b': {
 			onlyIfContainsSeparator,
 			...defaultOptions.binary,
-			...binary
+			...binary,
 		},
 		'0o': {
 			onlyIfContainsSeparator,
 			...defaultOptions.octal,
-			...octal
+			...octal,
 		},
 		'0x': {
 			onlyIfContainsSeparator,
 			...defaultOptions.hexadecimal,
-			...hexadecimal
+			...hexadecimal,
 		},
 		'': {
 			onlyIfContainsSeparator,
 			...defaultOptions.number,
-			...number
-		}
+			...number,
+		},
 	};
 
 	return {
@@ -124,10 +124,10 @@ const create = context => {
 				return {
 					node,
 					messageId: MESSAGE_ID,
-					fix: fixer => fixer.replaceText(node, formatted)
+					fix: fixer => fixer.replaceText(node, formatted),
 				};
 			}
-		}
+		},
 	};
 };
 
@@ -135,34 +135,34 @@ const formatOptionsSchema = ({minimumDigits, groupLength}) => ({
 	type: 'object',
 	properties: {
 		onlyIfContainsSeparator: {
-			type: 'boolean'
+			type: 'boolean',
 		},
 		minimumDigits: {
 			type: 'integer',
 			minimum: 0,
-			default: minimumDigits
+			default: minimumDigits,
 		},
 		groupLength: {
 			type: 'integer',
 			minimum: 1,
-			default: groupLength
-		}
+			default: groupLength,
+		},
 	},
-	additionalProperties: false
+	additionalProperties: false,
 });
 
 const schema = [{
 	type: 'object',
 	properties: {
 		...Object.fromEntries(
-			Object.entries(defaultOptions).map(([type, options]) => [type, formatOptionsSchema(options)])
+			Object.entries(defaultOptions).map(([type, options]) => [type, formatOptionsSchema(options)]),
 		),
 		onlyIfContainsSeparator: {
 			type: 'boolean',
-			default: false
-		}
+			default: false,
+		},
 	},
-	additionalProperties: false
+	additionalProperties: false,
 }];
 
 module.exports = {
@@ -170,10 +170,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce the style of numeric separators by correctly grouping digits.'
+			description: 'Enforce the style of numeric separators by correctly grouping digits.',
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+	},
 };

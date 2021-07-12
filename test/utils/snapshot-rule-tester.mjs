@@ -12,8 +12,8 @@ function visualizeRange(text, location, message) {
 		location,
 		{
 			...codeFrameColumnsOptions,
-			message
-		}
+			message,
+		},
 	);
 }
 
@@ -22,14 +22,14 @@ function visualizeEslintMessage(text, result) {
 	const location = {
 		start: {
 			line,
-			column
-		}
+			column,
+		},
 	};
 
 	if (typeof endLine === 'number' && typeof endColumn === 'number') {
 		location.end = {
 			line: endLine,
-			column: endColumn
+			column: endColumn,
 		};
 	}
 
@@ -59,7 +59,7 @@ function normalizeTests(tests) {
 
 			const additionalProperties = getAdditionalProperties(
 				testCase,
-				['code', 'options', 'filename', 'parserOptions', 'parser']
+				['code', 'options', 'filename', 'parserOptions', 'parser'],
 			);
 
 			if (additionalProperties.length > 0) {
@@ -75,7 +75,7 @@ function getVerifyConfig(ruleId, testerConfig, testCase) {
 	const {
 		options,
 		parserOptions,
-		parser = testerConfig.parser
+		parser = testerConfig.parser,
 	} = testCase;
 
 	return {
@@ -83,11 +83,11 @@ function getVerifyConfig(ruleId, testerConfig, testCase) {
 		parser,
 		parserOptions: {
 			...testerConfig.parserOptions,
-			...parserOptions
+			...parserOptions,
 		},
 		rules: {
-			[ruleId]: ['error', ...(Array.isArray(options) ? options : [])]
-		}
+			[ruleId]: ['error', ...(Array.isArray(options) ? options : [])],
+		},
 	};
 }
 
@@ -137,7 +137,7 @@ class SnapshotRuleTester {
 				t => {
 					const messages = linter.verify(code, verifyConfig, {filename});
 					t.deepEqual(messages, [], 'Valid case should not has errors.');
-				}
+				},
 			);
 		}
 
@@ -195,7 +195,7 @@ class SnapshotRuleTester {
 
 						t.snapshot(`\n${messageForSnapshot}\n`, `Error ${index + 1}/${messages.length}`);
 					}
-				}
+				},
 			);
 		}
 	}

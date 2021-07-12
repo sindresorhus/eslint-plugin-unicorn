@@ -19,5 +19,5 @@ module.exports = {
 	callOrNewExpressionSelector: require('./call-or-new-expression-selector.js').callOrNewExpressionSelector,
 	STATIC_REQUIRE_SELECTOR: require('./require-selector.js').STATIC_REQUIRE_SELECTOR,
 	STATIC_REQUIRE_SOURCE_SELECTOR: require('./require-selector.js').STATIC_REQUIRE_SOURCE_SELECTOR,
-	notLeftHandSideSelector: require('./not-left-hand-side.js')
+	notLeftHandSideSelector: require('./not-left-hand-side.js'),
 };

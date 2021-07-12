@@ -3,21 +3,21 @@ const {methodCallSelector, notDomNodeSelector} = require('./selectors/index.js')
 
 const MESSAGE_ID = 'prefer-query-selector';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `.{{replacement}}()` over `.{{method}}()`.'
+	[MESSAGE_ID]: 'Prefer `.{{replacement}}()` over `.{{method}}()`.',
 };
 
 const selector = [
 	methodCallSelector({
 		names: ['getElementById', 'getElementsByClassName', 'getElementsByTagName'],
-		length: 1
+		length: 1,
 	}),
-	notDomNodeSelector('callee.object')
+	notDomNodeSelector('callee.object'),
 ].join('');
 
 const forbiddenIdentifierNames = new Map([
 	['getElementById', 'querySelector'],
 	['getElementsByClassName', 'querySelectorAll'],
-	['getElementsByTagName', 'querySelectorAll']
+	['getElementsByTagName', 'querySelectorAll'],
 ]);
 
 const getReplacementForId = value => `#${value}`;
@@ -50,14 +50,14 @@ function * getTemplateLiteralFix(fixer, node, identifierName) {
 		if (identifierName === 'getElementById') {
 			yield fixer.replaceText(
 				templateElement,
-				getReplacementForId(templateElement.value.cooked)
+				getReplacementForId(templateElement.value.cooked),
 			);
 		}
 
 		if (identifierName === 'getElementsByClassName') {
 			yield fixer.replaceText(
 				templateElement,
-				getReplacementForClass(templateElement.value.cooked)
+				getReplacementForClass(templateElement.value.cooked),
 			);
 		}
 	}
@@ -110,8 +110,8 @@ const create = () => {
 				messageId: MESSAGE_ID,
 				data: {
 					replacement: preferredSelector,
-					method
-				}
+					method,
+				},
 			};
 
 			if (canBeFixed(node.arguments[0])) {
@@ -119,7 +119,7 @@ const create = () => {
 			}
 
 			return problem;
-		}
+		},
 	};
 };
 
@@ -128,9 +128,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`.'
+			description: 'Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

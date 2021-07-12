@@ -6,7 +6,7 @@ const {matches} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'no-lonely-if';
 const messages = {
-	[MESSAGE_ID]: 'Unexpected `if` as the only statement in a `if` block without `else`.'
+	[MESSAGE_ID]: 'Unexpected `if` as the only statement in a `if` block without `else`.',
 };
 
 const ifStatementWithoutAlternate = 'IfStatement:not([alternate])';
@@ -18,11 +18,11 @@ const selector = matches([
 		'BlockStatement.consequent',
 		'[body.length=1]',
 		' > ',
-		`${ifStatementWithoutAlternate}.body`
+		`${ifStatementWithoutAlternate}.body`,
 	].join(''),
 
 	// `if (a) if (b) {}`
-	`${ifStatementWithoutAlternate} > ${ifStatementWithoutAlternate}.consequent`
+	`${ifStatementWithoutAlternate} > ${ifStatementWithoutAlternate}.consequent`,
 ]);
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
@@ -61,11 +61,11 @@ function fix(innerIfStatement, sourceCode) {
 		).parent;
 		const outer = {
 			...outerIfStatement,
-			...getIfStatementTokens(outerIfStatement, sourceCode)
+			...getIfStatementTokens(outerIfStatement, sourceCode),
 		};
 		const inner = {
 			...innerIfStatement,
-			...getIfStatementTokens(innerIfStatement, sourceCode)
+			...getIfStatementTokens(innerIfStatement, sourceCode),
 		};
 
 		// Remove inner `if` token
@@ -86,7 +86,7 @@ function fix(innerIfStatement, sourceCode) {
 		yield fixer.insertTextBefore(outer.openingParenthesisToken, '(');
 		yield fixer.insertTextAfter(
 			inner.closingParenthesisToken,
-			`)${inner.consequent.type === 'EmptyStatement' ? '' : ' '}`
+			`)${inner.consequent.type === 'EmptyStatement' ? '' : ' '}`,
 		);
 
 		// Add ` && `
@@ -128,9 +128,9 @@ const create = context => {
 			return {
 				node,
 				messageId: MESSAGE_ID,
-				fix: fix(node, sourceCode)
+				fix: fix(node, sourceCode),
 			};
-		}
+		},
 	};
 };
 
@@ -139,9 +139,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow `if` statements as the only statement in `if` blocks without `else`.'
+			description: 'Disallow `if` statements as the only statement in `if` blocks without `else`.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

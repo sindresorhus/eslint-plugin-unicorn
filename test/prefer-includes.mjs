@@ -18,7 +18,7 @@ test.snapshot({
 		'something.indexOf(foo, 0, another) !== -1',
 		'_.indexOf(foo, bar) !== -1',
 		'lodash.indexOf(foo, bar) !== -1',
-		'underscore.indexOf(foo, bar) !== -1'
+		'underscore.indexOf(foo, bar) !== -1',
 	],
 	invalid: [
 		'\'foobar\'.indexOf(\'foo\') !== -1',
@@ -31,13 +31,13 @@ test.snapshot({
 		'\'\'.indexOf(\'foo\') < 0',
 		'(a || b).indexOf(\'foo\') === -1',
 		'foo.indexOf(bar, 0) !== -1',
-		'foo.indexOf(bar, 1) !== -1'
-	]
+		'foo.indexOf(bar, 1) !== -1',
+	],
 });
 
 const {snapshot, typescript} = tests({
 	method: 'some',
-	replacement: 'includes'
+	replacement: 'includes',
 });
 
 test.snapshot(snapshot);

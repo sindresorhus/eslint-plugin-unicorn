@@ -10,7 +10,7 @@ test.snapshot({
 		'const buffer = Buffer.from(\'buf\')',
 		'const buffer = Buffer.from(\'7468697320697320612074c3a97374\', \'hex\')',
 		'const buffer = Buffer.from([0x62, 0x75, 0x66, 0x66, 0x65, 0x72])',
-		'const buffer = Buffer.alloc(10)'
+		'const buffer = Buffer.alloc(10)',
 	],
 	invalid: [
 		// `new Buffer(array)`
@@ -107,8 +107,8 @@ test.snapshot({
 
 		// Misc
 		'const buffer = new /* comment */ Buffer()',
-		'const buffer = new /* comment */ Buffer'
-	]
+		'const buffer = new /* comment */ Buffer',
+	],
 });
 
 test.typescript({
@@ -117,7 +117,7 @@ test.typescript({
 		{
 			code: 'new Buffer(input, encoding);',
 			output: 'Buffer.from(input, encoding);',
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });

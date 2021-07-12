@@ -80,7 +80,7 @@ test.snapshot({
 		'(foo && array.length === 0) || array.every(Boolean) && foo',
 		'array.length === 0 || (array.every(Boolean) && foo)',
 		'(foo || array.length > 0) && array.some(Boolean)',
-		'array.length > 0 && (array.some(Boolean) || foo)'
+		'array.length > 0 && (array.some(Boolean) || foo)',
 	],
 	invalid: [
 		'array.length === 0 || array.every(Boolean)',
@@ -162,6 +162,6 @@ test.snapshot({
 					)
 				);
 			}
-		`
-	]
+		`,
+	],
 });

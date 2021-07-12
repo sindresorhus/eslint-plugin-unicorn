@@ -8,64 +8,64 @@ const options = {
 	styles: {
 		unassigned: {
 			unassigned: true,
-			named: false
+			named: false,
 		},
 		default: {
 			default: true,
-			named: false
+			named: false,
 		},
 		namespace: {
 			namespace: true,
-			named: false
+			named: false,
 		},
 		named: {
-			named: true
-		}
-	}
+			named: true,
+		},
+	},
 };
 
 const unassignedError = {
 	messageId: 'importStyle',
 	data: {
 		allowedStyles: 'unassigned',
-		moduleName: 'unassigned'
-	}
+		moduleName: 'unassigned',
+	},
 };
 
 const defaultError = {
 	messageId: 'importStyle',
 	data: {
 		allowedStyles: 'default',
-		moduleName: 'default'
-	}
+		moduleName: 'default',
+	},
 };
 
 const namespaceError = {
 	messageId: 'importStyle',
 	data: {
 		allowedStyles: 'namespace',
-		moduleName: 'namespace'
-	}
+		moduleName: 'namespace',
+	},
 };
 
 const namedError = {
 	messageId: 'importStyle',
 	data: {
 		allowedStyles: 'named',
-		moduleName: 'named'
-	}
+		moduleName: 'named',
+	},
 };
 
 const addDefaultOptions = test => {
 	if (typeof test === 'string') {
 		test = {
-			code: test
+			code: test,
 		};
 	}
 
 	return {
 		options: [options],
-		...test
+		...test,
 	};
 };
 
@@ -119,41 +119,41 @@ test({
 
 		{
 			code: 'import {inspect} from \'util\'',
-			options: []
+			options: [],
 		},
 		{
 			code: 'const {inspect} = require(\'util\')',
-			options: []
+			options: [],
 		},
 		{
 			code: 'import chalk from \'chalk\'',
-			options: []
+			options: [],
 		},
 		{
 			code: 'import {default as chalk} from \'chalk\'',
-			options: []
+			options: [],
 		},
 		{
 			code: 'const {inspect} = require(\'util\')',
-			options: []
+			options: [],
 		},
 		{
 			code: 'export {promisify, callbackify} from \'util\'',
-			options: []
+			options: [],
 		},
 
 		{
 			code: 'require(\'chalk\')',
 			options: [{
 				styles: {},
-				extendDefaultStyles: false
-			}]
+				extendDefaultStyles: false,
+			}],
 		},
 		{
 			code: 'import \'chalk\'',
 			options: [{
-				checkImport: false
-			}]
+				checkImport: false,
+			}],
 		},
 		{
 			code: outdent`
@@ -162,26 +162,26 @@ test({
 				}
 			`,
 			options: [{
-				checkDynamicImport: false
-			}]
+				checkDynamicImport: false,
+			}],
 		},
 		{
 			code: 'import(\'chalk\')',
 			options: [{
-				checkDynamicImport: false
-			}]
+				checkDynamicImport: false,
+			}],
 		},
 		{
 			code: 'require(\'chalk\')',
 			options: [{
-				checkRequire: false
-			}]
+				checkRequire: false,
+			}],
 		},
 		{
 			code: 'const {red} = require(\'chalk\')',
 			options: [{
-				checkRequire: false
-			}]
+				checkRequire: false,
+			}],
 		},
 
 		{
@@ -190,10 +190,10 @@ test({
 				styles: {
 					'named-or-default': {
 						named: true,
-						default: true
-					}
-				}
-			}]
+						default: true,
+					},
+				},
+			}],
 		},
 
 		'require(1, 2, 3)',
@@ -204,21 +204,21 @@ test({
 			async () => {
 				const {red} = await import(variable);
 			}
-		`
+		`,
 	].map(test => addDefaultOptions(test)),
 
 	invalid: [
 		{
 			code: 'const {x} = require(\'unassigned\')',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: 'const {default: x} = require(\'unassigned\')',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: 'import x from \'unassigned\'',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: outdent`
@@ -226,15 +226,15 @@ test({
 					const {default: x} = await import('unassigned');
 				}
 			`,
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: 'const x = require(\'unassigned\')',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: 'import * as x from \'unassigned\'',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: outdent`
@@ -242,23 +242,23 @@ test({
 					const x = await import('unassigned');
 				}
 			`,
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: 'const {x} = require(\'unassigned\')',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: 'const {x: y} = require(\'unassigned\')',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: 'import {x} from \'unassigned\'',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: 'import {x as y} from \'unassigned\'',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: outdent`
@@ -266,7 +266,7 @@ test({
 					const {x} = await import('unassigned');
 				}
 			`,
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: outdent`
@@ -274,60 +274,60 @@ test({
 					const {x: y} = await import('unassigned');
 				}
 			`,
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: 'const {...rest} = require("unassigned")',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: 'const [] = require("unassigned")',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: 'export * from \'unassigned\'',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: 'export {x} from \'unassigned\'',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: 'export {x as y} from \'unassigned\'',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: 'export {default} from \'unassigned\'',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 
 		{
 			code: 'require(\'default\')',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: 'const {} = require(\'default\')',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: 'const {...rest} = require("default")',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: 'import \'default\'',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: 'import {} from \'default\'',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: 'import(\'default\')',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: 'import * as x from \'default\'',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: outdent`
@@ -335,23 +335,23 @@ test({
 					const x = await import('default');
 				}
 			`,
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: 'const {x} = require(\'default\')',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: 'const {x: y} = require(\'default\')',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: 'import {x} from \'default\'',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: 'import {x as y} from \'default\'',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: outdent`
@@ -359,7 +359,7 @@ test({
 					const {x} = await import('default');
 				}
 			`,
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: outdent`
@@ -367,68 +367,68 @@ test({
 					const {x: y} = await import('default');
 				}
 			`,
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: 'export * from \'default\'',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: 'export {x} from \'default\'',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: 'export {x as y} from \'default\'',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 
 		{
 			code: 'require(\'namespace\')',
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: 'const {} = require(\'namespace\')',
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: 'import \'namespace\'',
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: 'import {} from \'namespace\'',
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: 'import(\'namespace\')',
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: 'const {default: x} = require(\'namespace\')',
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: 'const {...rest} = require("namespace")',
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: 'import x from \'namespace\'',
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: 'const {x} = require(\'namespace\')',
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: 'const {x: y} = require(\'namespace\')',
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: 'import {x} from \'namespace\'',
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: 'import {x as y} from \'namespace\'',
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: outdent`
@@ -436,7 +436,7 @@ test({
 					const {x} = await import('namespace');
 				}
 			`,
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: outdent`
@@ -444,56 +444,56 @@ test({
 					const {x: y} = await import('namespace');
 				}
 			`,
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: 'export {x} from \'namespace\'',
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: 'export {x as y} from \'namespace\'',
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 		{
 			code: 'export {default} from \'namespace\'',
-			errors: [namespaceError]
+			errors: [namespaceError],
 		},
 
 		{
 			code: 'require(\'named\')',
-			errors: [namedError]
+			errors: [namedError],
 		},
 		{
 			code: 'const {} = require(\'named\')',
-			errors: [namedError]
+			errors: [namedError],
 		},
 		{
 			code: 'const [] = require("named")',
-			errors: [namedError]
+			errors: [namedError],
 		},
 		{
 			code: 'import \'named\'',
-			errors: [namedError]
+			errors: [namedError],
 		},
 		{
 			code: 'import {} from \'named\'',
-			errors: [namedError]
+			errors: [namedError],
 		},
 		{
 			code: 'import(\'named\')',
-			errors: [namedError]
+			errors: [namedError],
 		},
 		{
 			code: 'const x = require(\'named\')',
-			errors: [namedError]
+			errors: [namedError],
 		},
 		{
 			code: 'const {default: x} = require(\'named\')',
-			errors: [namedError]
+			errors: [namedError],
 		},
 		{
 			code: 'import x from \'named\'',
-			errors: [namedError]
+			errors: [namedError],
 		},
 		{
 			code: outdent`
@@ -501,11 +501,11 @@ test({
 					const {default: x} = await import('named');
 				}
 			`,
-			errors: [namedError]
+			errors: [namedError],
 		},
 		{
 			code: 'import * as x from \'named\'',
-			errors: [namedError]
+			errors: [namedError],
 		},
 		{
 			code: outdent`
@@ -513,60 +513,60 @@ test({
 					const x = await import('named');
 				}
 			`,
-			errors: [namedError]
+			errors: [namedError],
 		},
 		{
 			code: 'export * from \'named\'',
-			errors: [namedError]
+			errors: [namedError],
 		},
 		{
 			code: 'export {default} from \'named\'',
-			errors: [namedError]
+			errors: [namedError],
 		},
 
 		{
 			code: 'import util, {inspect} from \'named\'',
-			errors: [namedError]
+			errors: [namedError],
 		},
 		{
 			code: 'import util, {inspect} from \'default\'',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 
 		{
 			code: 'import util from \'util\'',
 			options: [],
-			errors: [{}]
+			errors: [{}],
 		},
 		{
 			code: 'import * as util from \'util\'',
 			options: [],
-			errors: [{}]
+			errors: [{}],
 		},
 		{
 			code: 'const util = require(\'util\')',
 			options: [],
-			errors: [{}]
+			errors: [{}],
 		},
 		{
 			code: 'require(\'util\')',
 			options: [],
-			errors: [{}]
+			errors: [{}],
 		},
 		{
 			code: 'require(\'ut\' + \'il\')',
 			options: [],
-			errors: [{}]
+			errors: [{}],
 		},
 		{
 			code: 'import {red} from \'chalk\'',
 			options: [],
-			errors: [{}]
+			errors: [{}],
 		},
 		{
 			code: 'import {red as green} from \'chalk\'',
 			options: [],
-			errors: [{}]
+			errors: [{}],
 		},
 		{
 			code: outdent`
@@ -575,7 +575,7 @@ test({
 				}
 			`,
 			options: [],
-			errors: [{}]
+			errors: [{}],
 		},
 
 		{
@@ -585,39 +585,39 @@ test({
 					'no-unassigned': {
 						named: true,
 						namespace: true,
-						default: true
-					}
-				}
+						default: true,
+					},
+				},
 			}],
 			errors: [{
 				messageId: 'importStyle',
 				data: {
 					allowedStyles: 'named, namespace or default',
-					moduleName: 'no-unassigned'
-				}
-			}]
-		}
-	].map(test => addDefaultOptions(test))
+					moduleName: 'no-unassigned',
+				},
+			}],
+		},
+	].map(test => addDefaultOptions(test)),
 });
 
 test.babel({
 	valid: [
-		'const {...rest2} = require("named")'
+		'const {...rest2} = require("named")',
 	],
 	invalid: [
 		{
 			code: 'const {...rest2} = require("unassigned")',
-			errors: [unassignedError]
+			errors: [unassignedError],
 		},
 		{
 			code: 'const {...rest2} = require("default")',
-			errors: [defaultError]
+			errors: [defaultError],
 		},
 		{
 			code: 'const {...rest2} = require("namespace")',
-			errors: [namespaceError]
-		}
-	].map(test => addDefaultOptions(test))
+			errors: [namespaceError],
+		},
+	].map(test => addDefaultOptions(test)),
 });
 
 test.snapshot({
@@ -633,6 +633,6 @@ test.snapshot({
 			async () => {
 				const {red} = await import('chalk');
 			}
-		`
-	]
+		`,
+	],
 });

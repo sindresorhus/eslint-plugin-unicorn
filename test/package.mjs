@@ -12,7 +12,7 @@ test.before(async () => {
 });
 
 const ignoredRules = [
-	'no-nested-ternary'
+	'no-nested-ternary',
 ];
 
 const deprecatedRules = Object.entries(index.rules)
@@ -45,12 +45,12 @@ test('Every rule is defined in index file in alphabetical order', t => {
 	t.is(
 		Object.keys(index.rules).length - deprecatedRules.length,
 		ruleFiles.length,
-		'There are more exported rules than rule files.'
+		'There are more exported rules than rule files.',
 	);
 	t.is(
 		Object.keys(index.configs.recommended.rules).length - deprecatedRules.length - ignoredRules.length,
 		ruleFiles.length - deprecatedRules.length,
-		'There are more exported rules in the recommended config than rule files.'
+		'There are more exported rules in the recommended config than rule files.',
 	);
 
 	testSorted(t, Object.keys(index.configs.recommended.rules), 'configs.recommended.rules');

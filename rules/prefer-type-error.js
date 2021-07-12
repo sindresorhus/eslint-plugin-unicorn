@@ -3,7 +3,7 @@ const {newExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-type-error';
 const messages = {
-	[MESSAGE_ID]: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.'
+	[MESSAGE_ID]: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.',
 };
 
 const tcIdentifiers = new Set([
@@ -43,17 +43,17 @@ const tcIdentifiers = new Set([
 	'isWeakMap',
 	'isWeakSet',
 	'isWindow',
-	'isXMLDoc'
+	'isXMLDoc',
 ]);
 
 const tcGlobalIdentifiers = new Set([
 	'isNaN',
-	'isFinite'
+	'isFinite',
 ]);
 
 const selector = [
 	'ThrowStatement',
-	newExpressionSelector({name: 'Error', path: 'argument'})
+	newExpressionSelector({name: 'Error', path: 'argument'}),
 ].join('');
 
 const isTypecheckingIdentifier = (node, callExpression, isMemberExpression) =>
@@ -122,10 +122,10 @@ const create = () => {
 				return {
 					node: errorConstructor,
 					messageId: MESSAGE_ID,
-					fix: fixer => fixer.insertTextBefore(errorConstructor, 'Type')
+					fix: fixer => fixer.insertTextBefore(errorConstructor, 'Type'),
 				};
 			}
-		}
+		},
 	};
 };
 
@@ -134,9 +134,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce throwing `TypeError` in type checking conditions.'
+			description: 'Enforce throwing `TypeError` in type checking conditions.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

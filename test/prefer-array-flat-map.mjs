@@ -31,7 +31,7 @@ test.snapshot({
 
 		// Allowed
 		'Children.map(children, fn).flat()', // `import {Children} from 'react';`
-		'React.Children.map(children, fn).flat()'
+		'React.Children.map(children, fn).flat()',
 	],
 	invalid: [
 		'const bar = [[1],[2],[3]].map(i => [i]).flat()',
@@ -84,6 +84,6 @@ test.snapshot({
 				.filter(foo => !!foo.zaz)
 				.map(foo => doFoo(foo))
 				.flat();
-		`
-	]
+		`,
+	],
 });

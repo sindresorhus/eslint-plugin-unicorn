@@ -10,7 +10,7 @@ const messages = {
 	[ERROR_PROMISE]: 'Prefer top-level await over using a promise chain.',
 	[ERROR_IIFE]: 'Prefer top-level await over an async IIFE.',
 	[ERROR_IDENTIFIER]: 'Prefer top-level await over an async function `{{name}}` call.',
-	[SUGGESTION_ADD_AWAIT]: 'Insert `await`.'
+	[SUGGESTION_ADD_AWAIT]: 'Insert `await`.',
 };
 
 const topLevelCallExpression = 'Program > ExpressionStatement > CallExpression[optional!=true].expression';
@@ -18,21 +18,21 @@ const iife = [
 	topLevelCallExpression,
 	matches([
 		'[callee.type="FunctionExpression"]',
-		'[callee.type="ArrowFunctionExpression"]'
+		'[callee.type="ArrowFunctionExpression"]',
 	]),
 	'[callee.async!=false]',
-	'[callee.generator!=true]'
+	'[callee.generator!=true]',
 ].join('');
 const promise = [
 	topLevelCallExpression,
 	memberExpressionSelector({
 		path: 'callee',
-		names: ['then', 'catch', 'finally']
-	})
+		names: ['then', 'catch', 'finally'],
+	}),
 ].join('');
 const identifier = [
 	topLevelCallExpression,
-	'[callee.type="Identifier"]'
+	'[callee.type="Identifier"]',
 ].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -41,14 +41,14 @@ function create(context) {
 		[promise](node) {
 			return {
 				node: node.callee.property,
-				messageId: ERROR_PROMISE
+				messageId: ERROR_PROMISE,
 			};
 		},
 		[iife](node) {
 			return {
 				node,
 				loc: getFunctionHeadLocation(node.callee, context.getSourceCode()),
-				messageId: ERROR_IIFE
+				messageId: ERROR_IIFE,
 			};
 		},
 		[identifier](node) {
@@ -80,11 +80,11 @@ function create(context) {
 				suggest: [
 					{
 						messageId: SUGGESTION_ADD_AWAIT,
-						fix: fixer => fixer.insertTextBefore(node, 'await ')
-					}
-				]
+						fix: fixer => fixer.insertTextBefore(node, 'await '),
+					},
+				],
 			};
-		}
+		},
 	};
 }
 
@@ -93,9 +93,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer top-level await over top-level promises and async function calls.'
+			description: 'Prefer top-level await over top-level promises and async function calls.',
 		},
 		messages,
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

@@ -10,16 +10,16 @@ const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_MESSAGE_ID = 'suggestion';
 const messages = {
 	[ERROR_MESSAGE_ID]: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
-	[SUGGESTION_MESSAGE_ID]: 'Replace `parentNode.removeChild(childNode)` with `childNode.remove()`.'
+	[SUGGESTION_MESSAGE_ID]: 'Replace `parentNode.removeChild(childNode)` with `childNode.remove()`.',
 };
 
 const selector = [
 	methodCallSelector({
 		name: 'removeChild',
-		length: 1
+		length: 1,
 	}),
 	notDomNodeSelector('callee.object'),
-	notDomNodeSelector('arguments.0')
+	notDomNodeSelector('arguments.0'),
 ].join('');
 
 const create = context => {
@@ -32,7 +32,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				messageId: ERROR_MESSAGE_ID
+				messageId: ERROR_MESSAGE_ID,
 			};
 
 			const fix = fixer => {
@@ -57,13 +57,13 @@ const create = context => {
 				problem.suggest = [
 					{
 						messageId: SUGGESTION_MESSAGE_ID,
-						fix
-					}
+						fix,
+					},
 				];
 			}
 
 			return problem;
-		}
+		},
 	};
 };
 
@@ -72,10 +72,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.'
+			description: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
 		},
 		fixable: 'code',
 		messages,
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

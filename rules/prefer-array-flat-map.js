@@ -5,16 +5,16 @@ const {removeMethodCall} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-array-flat-map';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `.flatMap(…)` over `.map(…).flat()`.'
+	[MESSAGE_ID]: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
 };
 
 const selector = [
 	methodCallSelector('flat'),
 	matches([
 		'[arguments.length=0]',
-		'[arguments.length=1][arguments.0.type="Literal"][arguments.0.raw="1"]'
+		'[arguments.length=1][arguments.0.type="Literal"][arguments.0.raw="1"]',
 	]),
-	methodCallSelector({path: 'callee.object', name: 'map'})
+	methodCallSelector({path: 'callee.object', name: 'map'}),
 ].join('');
 
 const ignored = ['React.Children', 'Children'];
@@ -47,9 +47,9 @@ const create = context => ({
 				//   (map(…)).flat();
 				//    ^^^
 				yield fixer.replaceText(mapProperty, 'flatMap');
-			}
+			},
 		};
-	}
+	},
 });
 
 module.exports = {
@@ -57,9 +57,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.flatMap(…)` over `.map(…).flat()`.'
+			description: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

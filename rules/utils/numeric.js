@@ -28,7 +28,7 @@ function parseNumber(text) {
 		number,
 		mark = '',
 		sign = '',
-		power = ''
+		power = '',
 	} = text.match(/^(?<number>[\d._]*?)(?:(?<mark>[Ee])(?<sign>[+-])?(?<power>[\d_]+))?$/).groups;
 
 	return {number, mark, sign, power};
@@ -51,5 +51,5 @@ module.exports = {
 	isLegacyOctal,
 	getPrefix,
 	parseNumber,
-	parseFloatNumber
+	parseFloatNumber,
 };

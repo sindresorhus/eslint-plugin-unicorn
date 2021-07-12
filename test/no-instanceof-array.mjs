@@ -12,7 +12,7 @@ test.snapshot({
 		'a instanceof ArrayA',
 		'a.x[2] instanceof foo()',
 		'Array.isArray([1,2,3]) === true',
-		'"arr instanceof Array"'
+		'"arr instanceof Array"',
 	],
 	invalid: [
 		'arr instanceof Array',
@@ -62,8 +62,8 @@ test.snapshot({
 			'<template><div v-if="(( (( array )) instanceof (( Array )) ))" v-for="element of array"></div></template>',
 			'<template><div>{{(( (( array )) instanceof (( Array )) )) ? array.join(" | ") : array}}</div></template>',
 			'<script>const foo = array instanceof Array</script>',
-			'<script>const foo = (( (( array )) instanceof (( Array )) ))</script>'
-		].map(code => ({code, parser: parsers.vue}))
-	]
+			'<script>const foo = (( (( array )) instanceof (( Array )) ))</script>',
+		].map(code => ({code, parser: parsers.vue})),
+	],
 });
 

@@ -5,8 +5,8 @@ const {test} = getTester(import.meta);
 
 const errors = [
 	{
-		messageId: 'no-process-exit'
-	}
+		messageId: 'no-process-exit',
+	},
 ];
 
 test({
@@ -50,7 +50,7 @@ test({
 		// Not `process`
 		'foo.exit(1);',
 		// `callee.object.type` is not a `Identifier`
-		'lib.process.exit(1);'
+		'lib.process.exit(1);',
 	],
 	invalid: [
 		'process.exit();',
@@ -95,13 +95,13 @@ test({
 		'foo.once("SIGINT", function() { process.exit(1); })',
 		// `callee.object.type` is not a `Identifier`
 		'lib.process.on("SIGINT", function() { process.exit(1); })',
-		'lib.process.once("SIGINT", function() { process.exit(1); })'
-	].map(code => ({code, errors}))
+		'lib.process.once("SIGINT", function() { process.exit(1); })',
+	].map(code => ({code, errors})),
 });
 
 test.snapshot({
 	valid: [],
 	invalid: [
-		'process.exit(1);'
-	]
+		'process.exit(1);',
+	],
 });

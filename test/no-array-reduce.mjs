@@ -91,7 +91,7 @@ test({
 		'Array.prototype.xreduce.call(arr, foo)',
 
 		// Second argument is not a function
-		...notFunctionTypes.map(data => `Array.prototype.reduce.call(foo, ${data})`)
+		...notFunctionTypes.map(data => `Array.prototype.reduce.call(foo, ${data})`),
 
 	].flatMap(code => [code, code.replace('reduce', 'reduceRight')]),
 	invalid: [
@@ -119,6 +119,6 @@ test({
 		'[].reduce.apply(arr, [(s, i) => s + i])',
 		'[].reduce.apply(arr, [sum]);',
 		'Array.prototype.reduce.apply(arr, [(s, i) => s + i])',
-		'Array.prototype.reduce.apply(arr, [sum]);'
-	].flatMap(code => [{code, errors: errorsReduce}, {code: code.replace('reduce', 'reduceRight'), errors: errorsReduceRight}])
+		'Array.prototype.reduce.apply(arr, [sum]);',
+	].flatMap(code => [{code, errors: errorsReduce}, {code: code.replace('reduce', 'reduceRight'), errors: errorsReduceRight}]),
 });

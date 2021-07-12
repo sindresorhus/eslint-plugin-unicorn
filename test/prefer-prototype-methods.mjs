@@ -31,7 +31,7 @@ test.snapshot({
 		'const a = {bar() { this.baz.bind(this) }}',
 		'foo.bar.bind(foo)',
 		'foo.bar.bind(bar)',
-		'foo[{}].call(bar)'
+		'foo[{}].call(bar)',
 	],
 	invalid: [
 		'const foo = [].push.apply(bar, elements);',
@@ -47,40 +47,40 @@ test.snapshot({
 		'Reflect.apply([].bar, baz, [])',
 		'const foo = ({}).toString.call(bar);',
 		'const foo = ({}.toString).call(bar);',
-		'const foo = ({}.toString.call)(bar);'
-	]
+		'const foo = ({}.toString.call)(bar);',
+	],
 });
 
 test.babel({
 	testerOptions: {
-		env: {es2021: true}
+		env: {es2021: true},
 	},
 	valid: [],
 	invalid: [
 		{
 			code: 'Reflect.apply({}[Symbol()], baz, [])',
 			output: 'Reflect.apply(Object.prototype[Symbol()], baz, [])',
-			errors: [{message: 'Prefer using method from `Object.prototype`.'}]
+			errors: [{message: 'Prefer using method from `Object.prototype`.'}],
 		},
 		{
 			code: 'Reflect.apply({}[Symbol("symbol description")], baz, [])',
 			output: 'Reflect.apply(Object.prototype[Symbol("symbol description")], baz, [])',
-			errors: [{message: 'Prefer using method from `Object.prototype`.'}]
+			errors: [{message: 'Prefer using method from `Object.prototype`.'}],
 		},
 		{
 			code: 'Reflect.apply([][Symbol()], baz, [])',
 			output: 'Reflect.apply(Array.prototype[Symbol()], baz, [])',
-			errors: [{message: 'Prefer using method from `Array.prototype`.'}]
+			errors: [{message: 'Prefer using method from `Array.prototype`.'}],
 		},
 		{
 			code: 'Reflect.apply({}[Symbol("symbol description")], baz, [])',
 			output: 'Reflect.apply(Object.prototype[Symbol("symbol description")], baz, [])',
-			errors: [{message: 'Prefer using method from `Object.prototype`.'}]
+			errors: [{message: 'Prefer using method from `Object.prototype`.'}],
 		},
 		{
 			code: '[][Symbol.iterator].call(foo)',
 			output: 'Array.prototype[Symbol.iterator].call(foo)',
-			errors: [{message: 'Prefer using `Array.prototype.Symbol(Symbol.iterator)`.'}]
-		}
-	]
+			errors: [{message: 'Prefer using `Array.prototype.Symbol(Symbol.iterator)`.'}],
+		},
+	],
 });

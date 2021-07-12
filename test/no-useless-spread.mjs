@@ -17,7 +17,7 @@ test.snapshot({
 		'const object = {...a}',
 		'const [first, ...rest] = []',
 		'const {foo, ...rest} = {}',
-		'function a(foo, ...rest) {}'
+		'function a(foo, ...rest) {}',
 	],
 	invalid: [
 		'const array = [...[a]]',
@@ -135,6 +135,6 @@ test.snapshot({
 		outdent`
 			const baz = [2];
 			call(foo, ...[bar, ...baz]);
-		`
-	]
+		`,
+	],
 });

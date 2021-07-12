@@ -17,7 +17,7 @@ test.snapshot({
 		'array[array.length - 1] %= 1',
 		'++ array[array.length - 1]',
 		'array[array.length - 1] --',
-		'delete array[array.length - 1]'
+		'delete array[array.length - 1]',
 	],
 	invalid: [
 		'array[array.length - 1];',
@@ -32,8 +32,8 @@ test.snapshot({
 		'a = array[array.length - 1]',
 		'const a = array[array.length - 1]',
 		'const {a = array[array.length - 1]} = {}',
-		'typeof array[array.length - 1]'
-	]
+		'typeof array[array.length - 1]',
+	],
 });
 
 // `String#charAt`
@@ -45,7 +45,7 @@ test.snapshot({
 		'foo.charAt(bar.length - 1)',
 		'string?.charAt?.(string.length - 1);',
 		'string?.charAt(string.length - 1);',
-		'string.charAt(9);'
+		'string.charAt(9);',
 	],
 	invalid: [
 		'string.charAt(string.length - 1);',
@@ -56,8 +56,8 @@ test.snapshot({
 		'string.charAt((( string.length - 1 )));',
 		'(( string )).charAt(string.length - 1);',
 		'(( string.charAt ))(string.length - 1);',
-		'(( string.charAt(string.length - 1) ));'
-	]
+		'(( string.charAt(string.length - 1) ));',
+	],
 });
 
 // `.slice()` with one argument
@@ -82,7 +82,7 @@ test.snapshot({
 		'array.slice(-1)[0] += 1',
 		'++ array.slice(-1)[0]',
 		'array.slice(-1)[0] --',
-		'delete array.slice(-1)[0]'
+		'delete array.slice(-1)[0]',
 	],
 	invalid: [
 		'array.slice(-1)[0]',
@@ -100,14 +100,14 @@ test.snapshot({
 		'(( array.slice(-1) )).pop();',
 		'(( array.slice(-1).pop ))();',
 		'(( array.slice(-1).pop() ));',
-		'array.slice(-1)[0].pop().shift().slice(-1)'
-	]
+		'array.slice(-1)[0].pop().shift().slice(-1)',
+	],
 });
 
 // `.slice()` with 2 arguments, and `endIndex` is 1 greater than `startIndex`
 test.snapshot({
 	valid: [
-		'array.slice(-9.1, -8.1)[0]'
+		'array.slice(-9.1, -8.1)[0]',
 	],
 	invalid: [
 		'array.slice(-9, -8)[0]',
@@ -115,8 +115,8 @@ test.snapshot({
 		'array.slice(-9, -8).pop()',
 		'array.slice(-9, -8).shift()',
 		'array.slice((( -9 )), (( -8 )), ).shift()',
-		'(( array.slice(-9, -8).shift ))()'
-	]
+		'(( array.slice(-9, -8).shift ))()',
+	],
 });
 
 // `.slice()` with 2 arguments
@@ -126,7 +126,7 @@ test.snapshot({
 		'array.slice(-9.1, unknown)[0]',
 		'array.slice(-9, unknown).pop()',
 		'array.slice(-9, ...unknown)[0]',
-		'array.slice(...[-9], unknown)[0]'
+		'array.slice(...[-9], unknown)[0]',
 	],
 	invalid: [
 		'array.slice(-9, unknown)[0]',
@@ -135,8 +135,8 @@ test.snapshot({
 		'const KNOWN = -8; array.slice(-9, KNOWN).shift()',
 		'array.slice(-9, 0)[0]',
 		'(( (( array.slice( ((-9)), ((unknown)), ).shift ))() ));',
-		'array.slice(-9, (a, really, _really, complicated, second) => argument)[0]'
-	]
+		'array.slice(-9, (a, really, _really, complicated, second) => argument)[0]',
+	],
 });
 
 // Functions to get last element
@@ -144,7 +144,7 @@ test.snapshot({
 	valid: [
 		'new _.last(array)',
 		'_.last(array, 2)',
-		'_.last(...array)'
+		'_.last(...array)',
 	],
 	invalid: [
 		'_.last(array)',
@@ -168,9 +168,9 @@ test.snapshot({
 		'if (foo) _.last([bar])',
 		{
 			code: '_.last(getLast(utils.lastOne(array)))',
-			options: [{getLastElementFunctions: ['getLast', '  utils.lastOne  ']}]
-		}
-	]
+			options: [{getLastElementFunctions: ['getLast', '  utils.lastOne  ']}],
+		},
+	],
 });
 
 // `checkAllIndexAccess` option
@@ -185,7 +185,7 @@ test.snapshot({
 		'array[unknown]',
 		'array[-1]',
 		'array[1.5]',
-		'array[1n]'
+		'array[1n]',
 	]),
 	invalid: setCheckAllIndexAccessTrue([
 		'array[0]',
@@ -202,6 +202,6 @@ test.snapshot({
 		'string.charAt(1.5)',
 		'string.charAt(1n)',
 		'string.charAt(string.length - 1)',
-		'foo.charAt(bar.length - 1)'
-	])
+		'foo.charAt(bar.length - 1)',
+	]),
 });

@@ -3,19 +3,19 @@ const {matches} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'no-this-assignment';
 const messages = {
-	[MESSAGE_ID]: 'Do not assign `this` to `{{name}}`.'
+	[MESSAGE_ID]: 'Do not assign `this` to `{{name}}`.',
 };
 
 const variableDeclaratorSelector = [
 	'VariableDeclarator',
 	'[init.type="ThisExpression"]',
-	'[id.type="Identifier"]'
+	'[id.type="Identifier"]',
 ].join('');
 
 const assignmentExpressionSelector = [
 	'AssignmentExpression',
 	'[right.type="ThisExpression"]',
-	'[left.type="Identifier"]'
+	'[left.type="Identifier"]',
 ].join('');
 
 const selector = matches([variableDeclaratorSelector, assignmentExpressionSelector]);
@@ -26,9 +26,9 @@ const create = () => ({
 		return {
 			node,
 			data: {name: variable.name},
-			messageId: MESSAGE_ID
+			messageId: MESSAGE_ID,
 		};
-	}
+	},
 });
 
 module.exports = {
@@ -36,8 +36,8 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow assigning `this` to a variable.'
+			description: 'Disallow assigning `this` to a variable.',
 		},
-		messages
-	}
+		messages,
+	},
 };

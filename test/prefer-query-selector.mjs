@@ -29,7 +29,7 @@ test.snapshot({
 		'document.querySelector("main #foo .bar");',
 		'document.querySelectorAll(".foo .bar");',
 		'document.querySelectorAll("li a");',
-		'document.querySelector("li").querySelectorAll("a");'
+		'document.querySelector("li").querySelectorAll("a");',
 	],
 	invalid: [
 		'document.getElementById("foo");',
@@ -60,6 +60,6 @@ test.snapshot({
 			}
 		`,
 		// #1030
-		'e.getElementById(3)'
-	]
+		'e.getElementById(3)',
+	],
 });

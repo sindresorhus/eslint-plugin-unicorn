@@ -6,7 +6,7 @@ const {matches, methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'catch-error-name';
 const messages = {
-	[MESSAGE_ID]: 'The catch parameter `{{originalName}}` should be named `{{fixedName}}`.'
+	[MESSAGE_ID]: 'The catch parameter `{{originalName}}` should be named `{{fixedName}}`.',
 };
 
 const selector = matches([
@@ -14,7 +14,7 @@ const selector = matches([
 	[
 		'CatchClause',
 		' > ',
-		'Identifier.param'
+		'Identifier.param',
 	].join(''),
 	// - `promise.then(…, foo => {})`
 	// - `promise.then(…, function(foo) {})`
@@ -23,24 +23,24 @@ const selector = matches([
 	[
 		matches([
 			methodCallSelector({name: 'then', length: 2}),
-			methodCallSelector({name: 'catch', length: 1})
+			methodCallSelector({name: 'catch', length: 1}),
 		]),
 		' > ',
 		':matches(FunctionExpression, ArrowFunctionExpression).arguments:last-child',
 		' > ',
-		'Identifier.params:first-child'
-	].join('')
+		'Identifier.params:first-child',
+	].join(''),
 ]);
 
 const create = context => {
 	const options = {
 		name: 'error',
 		ignore: [],
-		...context.options[0]
+		...context.options[0],
 	};
 	const {name: expectedName} = options;
 	const ignore = options.ignore.map(
-		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u')
+		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u'),
 	);
 	const isNameAllowed = name =>
 		name === expectedName ||
@@ -75,7 +75,7 @@ const create = context => {
 
 			const scopes = [
 				variable.scope,
-				...variable.references.map(({from}) => from)
+				...variable.references.map(({from}) => from),
 			];
 			const fixedName = avoidCapture(expectedName, scopes);
 
@@ -84,8 +84,8 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				data: {
 					originalName,
-					fixedName: fixedName || expectedName
-				}
+					fixedName: fixedName || expectedName,
+				},
 			};
 
 			if (fixedName) {
@@ -93,7 +93,7 @@ const create = context => {
 			}
 
 			return problem;
-		}
+		},
 	};
 };
 
@@ -102,14 +102,14 @@ const schema = [
 		type: 'object',
 		properties: {
 			name: {
-				type: 'string'
+				type: 'string',
 			},
 			ignore: {
 				type: 'array',
-				uniqueItems: true
-			}
-		}
-	}
+				uniqueItems: true,
+			},
+		},
+	},
 ];
 
 module.exports = {
@@ -117,10 +117,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce a specific parameter name in catch clauses.'
+			description: 'Enforce a specific parameter name in catch clauses.',
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+	},
 };

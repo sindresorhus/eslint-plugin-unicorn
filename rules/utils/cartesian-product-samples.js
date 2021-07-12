@@ -28,6 +28,6 @@ module.exports = (combinations, length = Number.POSITIVE_INFINITY) => {
 
 	return {
 		total,
-		samples
+		samples,
 	};
 };

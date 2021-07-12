@@ -13,5 +13,5 @@ module.exports = {
 	replaceReferenceIdentifier: require('./replace-reference-identifier.js'),
 	renameVariable: require('./rename-variable.js'),
 	replaceNodeOrTokenAndSpacesBefore: require('./replace-node-or-token-and-spaces-before.js'),
-	removeSpacesAfter: require('./remove-spaces-after.js')
+	removeSpacesAfter: require('./remove-spaces-after.js'),
 };

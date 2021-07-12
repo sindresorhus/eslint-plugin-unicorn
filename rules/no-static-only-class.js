@@ -6,14 +6,14 @@ const {removeSpacesAfter} = require('./fix/index.js');
 
 const MESSAGE_ID = 'no-static-only-class';
 const messages = {
-	[MESSAGE_ID]: 'Use an object instead of a class with only static members.'
+	[MESSAGE_ID]: 'Use an object instead of a class with only static members.',
 };
 
 const selector = [
 	':matches(ClassDeclaration, ClassExpression)',
 	':not([superClass], [decorators.length>0])',
 	'[body.type="ClassBody"]',
-	'[body.body.length>0]'
+	'[body.body.length>0]',
 ].join('');
 
 const isEqualToken = ({type, value}) => type === 'Punctuator' && value === '=';
@@ -36,7 +36,7 @@ function isStaticMember(node) {
 		readonly: isReadonly,
 		accessibility,
 		decorators,
-		key
+		key,
 	} = node;
 
 	// Avoid matching unexpected node. For example: https://github.com/tc39/proposal-class-static-block
@@ -69,9 +69,9 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 		expected: [
 			{type: 'Keyword', value: 'static'},
 			// `@babel/eslint-parser` use `{type: 'Identifier', value: 'static'}`
-			{type: 'Identifier', value: 'static'}
+			{type: 'Identifier', value: 'static'},
 		],
-		ruleId: 'no-static-only-class'
+		ruleId: 'no-static-only-class',
 	});
 
 	yield fixer.remove(staticToken);
@@ -111,7 +111,7 @@ function switchClassToObject(node, sourceCode) {
 		declare: isDeclare,
 		abstract: isAbstract,
 		implements: classImplements,
-		parent
+		parent,
 	} = node;
 
 	if (
@@ -150,7 +150,7 @@ function switchClassToObject(node, sourceCode) {
 		/* istanbul ignore next */
 		assertToken(classToken, {
 			expected: {type: 'Keyword', value: 'class'},
-			ruleId: 'no-static-only-class'
+			ruleId: 'no-static-only-class',
 		});
 
 		if (isExportDefault || type === 'ClassExpression') {
@@ -216,9 +216,9 @@ function create(context) {
 				node,
 				loc: getClassHeadLocation(node, sourceCode),
 				messageId: MESSAGE_ID,
-				fix: switchClassToObject(node, sourceCode)
+				fix: switchClassToObject(node, sourceCode),
 			};
-		}
+		},
 	};
 }
 
@@ -227,9 +227,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Forbid classes that only have static members.'
+			description: 'Forbid classes that only have static members.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

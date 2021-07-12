@@ -2,7 +2,7 @@
 
 const MESSAGE_ID = 'no-unused-properties';
 const messages = {
-	[MESSAGE_ID]: 'Property `{{name}}` is defined but never used.'
+	[MESSAGE_ID]: 'Property `{{name}}` is defined but never used.',
 };
 
 const getDeclaratorOrPropertyValue = declaratorOrProperty =>
@@ -24,7 +24,7 @@ const isMemberExpressionComputedBeyondPrediction = memberExpression =>
 
 const specialProtoPropertyKey = {
 	type: 'Identifier',
-	name: '__proto__'
+	name: '__proto__',
 };
 
 const propertyKeysEqual = (keyA, keyB) => {
@@ -99,8 +99,8 @@ const create = context => {
 				node: property,
 				messageId: MESSAGE_ID,
 				data: {
-					name: getPropertyDisplayName(property)
-				}
+					name: getPropertyDisplayName(property),
+				},
 			});
 			return;
 		}
@@ -230,7 +230,7 @@ const create = context => {
 	return {
 		'Program:exit'() {
 			checkScope(context.getScope());
-		}
+		},
 	};
 };
 
@@ -239,8 +239,8 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow unused object properties.'
+			description: 'Disallow unused object properties.',
 		},
-		messages
-	}
+		messages,
+	},
 };

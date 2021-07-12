@@ -49,5 +49,5 @@ function isNodeMatches(node, nameOrPaths) {
 
 module.exports = {
 	isNodeMatchesNameOrPath,
-	isNodeMatches
+	isNodeMatches,
 };

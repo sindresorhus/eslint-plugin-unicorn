@@ -7,9 +7,9 @@ const createError = name => [
 	{
 		messageId: 'error',
 		data: {
-			name
-		}
-	}
+			name,
+		},
+	},
 ];
 
 const methodsReturnsArray = [
@@ -23,7 +23,7 @@ const methodsReturnsArray = [
 	'reverse',
 	'slice',
 	'sort',
-	'splice'
+	'splice',
 ];
 
 test({
@@ -384,7 +384,7 @@ test({
 			function unicorn() {
 				return _.includes(foo, 1);
 			}
-		`
+		`,
 	],
 	invalid: [
 		{
@@ -400,7 +400,7 @@ test({
 					return foo.has(1);
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 
 		// Called multiple times
@@ -415,7 +415,7 @@ test({
 				const isExists = foo.has(1);
 				const isExists2 = foo.has(2);
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 
 		// `ForOfStatement`
@@ -432,7 +432,7 @@ test({
 					foo.has(1);
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 		{
 			code: outdent`
@@ -451,7 +451,7 @@ test({
 					}
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 
 		// `ForStatement`
@@ -468,7 +468,7 @@ test({
 					foo.has(1);
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 
 		// `ForInStatement`
@@ -485,7 +485,7 @@ test({
 					foo.has(1);
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 
 		// `WhileStatement`
@@ -502,7 +502,7 @@ test({
 					foo.has(1);
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 
 		// `DoWhileStatement`
@@ -519,7 +519,7 @@ test({
 					foo.has(1);
 				} while (a)
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 		{
 			code: outdent`
@@ -534,7 +534,7 @@ test({
 					// …
 				} while (foo.has(1))
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 
 		// `function` https://github.com/estools/esquery/blob/master/esquery.js#L216
@@ -552,7 +552,7 @@ test({
 					return foo.has(1);
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 		{
 			code: outdent`
@@ -567,7 +567,7 @@ test({
 					return foo.has(1);
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 		{
 			code: outdent`
@@ -582,7 +582,7 @@ test({
 					return foo.has(1);
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 		{
 			code: outdent`
@@ -597,7 +597,7 @@ test({
 					return foo.has(1);
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 		// `FunctionExpression`
 		{
@@ -613,7 +613,7 @@ test({
 					return foo.has(1);
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 		// `ArrowFunctionExpression`
 		{
@@ -625,7 +625,7 @@ test({
 				const foo = new Set([1, 2, 3]);
 				const unicorn = () => foo.has(1);
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 
 		{
@@ -645,7 +645,7 @@ test({
 					}
 				};
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 
 		{
@@ -665,7 +665,7 @@ test({
 					}
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 
 		// SpreadElement
@@ -684,7 +684,7 @@ test({
 				}
 				bar.pop();
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 		// Multiple references
 		{
@@ -706,7 +706,7 @@ test({
 					}
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 		{
 			code: outdent`
@@ -741,8 +741,8 @@ test({
 			`,
 			errors: [
 				...createError('foo'),
-				...createError('bar')
-			]
+				...createError('bar'),
+			],
 		},
 		// Different scope
 		{
@@ -791,8 +791,8 @@ test({
 			errors: [
 				...createError('foo'),
 				...createError('foo'),
-				...createError('bar')
-			]
+				...createError('bar'),
+			],
 		},
 
 		// `Array()`
@@ -809,7 +809,7 @@ test({
 					return foo.has(1);
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 
 		// `new Array()`
@@ -826,7 +826,7 @@ test({
 					return foo.has(1);
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 
 		// `Array.from()`
@@ -843,7 +843,7 @@ test({
 					return foo.has(1);
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 
 		// `Array.of()`
@@ -860,7 +860,7 @@ test({
 					return foo.has(1);
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		},
 
 		// Methods
@@ -877,7 +877,7 @@ test({
 					return foo.has(1);
 				}
 			`,
-			errors: createError('foo')
+			errors: createError('foo'),
 		})),
 
 		// `lodash`
@@ -898,9 +898,9 @@ test({
 					return bar.has(1);
 				}
 			`,
-			errors: createError('bar')
-		}
-	]
+			errors: createError('bar'),
+		},
+	],
 });
 
 test.babel({
@@ -909,11 +909,11 @@ test.babel({
 			babelOptions: {
 				parserOpts: {
 					plugins: [
-						['decorators', {decoratorsBeforeExport: true}]
-					]
-				}
-			}
-		}
+						['decorators', {decoratorsBeforeExport: true}],
+					],
+				},
+			},
+		},
 	},
 	valid: [
 		// https://github.com/TheThingsNetwork/lorawan-stack/blob/1dab30227e632ceade425e0c67d5f84316e830da/pkg/webui/console/containers/device-importer/index.js#L74
@@ -931,10 +931,10 @@ test.babel({
 				},
 			)
 			export default class A {}
-		`
+		`,
 	],
 	invalid: [
-	]
+	],
 });
 
 test.typescript({
@@ -953,7 +953,7 @@ test.typescript({
 				},
 			)
 			export default class A {}
-		`
+		`,
 	],
 	invalid: [
 		{
@@ -980,11 +980,11 @@ test.typescript({
 										console.log(123)
 									}
 								}
-							`
-						}
-					]
-				}
-			]
-		}
-	]
+							`,
+						},
+					],
+				},
+			],
+		},
+	],
 });

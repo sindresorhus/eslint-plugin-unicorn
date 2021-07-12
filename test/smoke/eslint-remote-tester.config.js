@@ -20,7 +20,7 @@ module.exports = {
 		'chunk\\.js',
 		'bundle\\.js',
 		'react-dom\\.development\\.js',
-		'\\.min\\.js' // Any *.min.js
+		'\\.min\\.js', // Any *.min.js
 	].join('|')})`,
 
 	/** Empty array since we are only interested in linter crashes */
@@ -39,16 +39,16 @@ module.exports = {
 	eslintrc: {
 		root: true,
 		env: {
-			es6: true
+			es6: true,
 		},
 		parser: '@typescript-eslint/parser',
 		parserOptions: {
 			ecmaVersion: 2020,
 			sourceType: 'module',
 			ecmaFeatures: {
-				jsx: true
-			}
+				jsx: true,
+			},
 		},
-		extends: ['plugin:unicorn/recommended']
-	}
+		extends: ['plugin:unicorn/recommended'],
+	},
 };

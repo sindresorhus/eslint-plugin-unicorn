@@ -5,12 +5,12 @@ const {getParenthesizedRange} = require('./utils/parentheses.js');
 
 const messages = {
 	'non-zero': 'The non-empty check is useless as `Array#some()` returns `false` for an empty array.',
-	zero: 'The empty check is useless as `Array#every()` returns `true` for an empty array.'
+	zero: 'The empty check is useless as `Array#every()` returns `true` for an empty array.',
 };
 
 const logicalExpressionSelector = [
 	'LogicalExpression',
-	matches(['[operator="||"]', '[operator="&&"]'])
+	matches(['[operator="||"]', '[operator="&&"]']),
 ].join('');
 // We assume the user already follows `unicorn/explicit-length-check`. These are allowed in that rule.
 const lengthCompareZeroSelector = [
@@ -19,15 +19,15 @@ const lengthCompareZeroSelector = [
 	'BinaryExpression',
 	memberExpressionSelector({path: 'left', name: 'length'}),
 	'[right.type="Literal"]',
-	'[right.raw="0"]'
+	'[right.raw="0"]',
 ].join('');
 const zeroLengthCheckSelector = [
 	lengthCompareZeroSelector,
-	'[operator="==="]'
+	'[operator="==="]',
 ].join('');
 const nonZeroLengthCheckSelector = [
 	lengthCompareZeroSelector,
-	matches(['[operator=">"]', '[operator="!=="]'])
+	matches(['[operator=">"]', '[operator="!=="]']),
 ].join('');
 const arraySomeCallSelector = methodCallSelector('some');
 const arrayEveryCallSelector = methodCallSelector('every');
@@ -36,7 +36,7 @@ function flatLogicalExpression(node) {
 	return [node.left, node.right].flatMap(child =>
 		child.type === 'LogicalExpression' && child.operator === node.operator ?
 			flatLogicalExpression(child) :
-			[child]
+			[child],
 	);
 }
 
@@ -55,7 +55,7 @@ const create = context => {
 				zeroLengthChecks.has(node) &&
 				siblings.some(condition =>
 					arrayEveryCalls.has(condition) &&
-					isSameReference(node.left.object, condition.callee.object)
+					isSameReference(node.left.object, condition.callee.object),
 				)
 			) ||
 			(
@@ -63,7 +63,7 @@ const create = context => {
 				nonZeroLengthChecks.has(node) &&
 				siblings.some(condition =>
 					arraySomeCalls.has(condition) &&
-					isSameReference(node.left.object, condition.callee.object)
+					isSameReference(node.left.object, condition.callee.object),
 				)
 			)
 		);
@@ -77,8 +77,8 @@ const create = context => {
 				operator,
 				siblings: [
 					conditions[index - 1],
-					conditions[index + 1]
-				].filter(Boolean)
+					conditions[index + 1],
+				].filter(Boolean),
 			}));
 	}
 
@@ -101,15 +101,15 @@ const create = context => {
 		* 'Program:exit'() {
 			const nodes = new Set(
 				logicalExpressions.flatMap(logicalExpression =>
-					getUselessLengthCheckNode(logicalExpression)
-				)
+					getUselessLengthCheckNode(logicalExpression),
+				),
 			);
 
 			for (const node of nodes) {
 				yield {
 					loc: {
 						start: node.left.property.loc.start,
-						end: node.loc.end
+						end: node.loc.end,
 					},
 					messageId: zeroLengthChecks.has(node) ? 'zero' : 'non-zero',
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
@@ -128,10 +128,10 @@ const create = context => {
 						}
 
 						return fixer.removeRange(range);
-					}
+					},
 				};
 			}
-		}
+		},
 	};
 };
 
@@ -140,9 +140,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow useless array length check.'
+			description: 'Disallow useless array length check.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

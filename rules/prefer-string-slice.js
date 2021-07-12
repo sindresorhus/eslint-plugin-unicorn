@@ -5,7 +5,7 @@ const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
 const messages = {
 	[MESSAGE_ID_SUBSTR]: 'Prefer `String#slice()` over `String#substr()`.',
-	[MESSAGE_ID_SUBSTRING]: 'Prefer `String#slice()` over `String#substring()`.'
+	[MESSAGE_ID_SUBSTRING]: 'Prefer `String#slice()` over `String#substring()`.',
 };
 
 const templates = eslintTemplateVisitor();
@@ -63,7 +63,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				messageId: MESSAGE_ID_SUBSTR
+				messageId: MESSAGE_ID_SUBSTR,
 			};
 
 			const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
@@ -98,7 +98,7 @@ const create = context => {
 					) {
 						sliceArguments = [
 							firstArgument,
-							argumentNodes[0].value + argumentNodes[1].value
+							argumentNodes[0].value + argumentNodes[1].value,
 						];
 					} else if (
 						isLikelyNumeric(argumentNodes[0]) &&
@@ -129,7 +129,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				messageId: MESSAGE_ID_SUBSTRING
+				messageId: MESSAGE_ID_SUBSTRING,
 			};
 
 			const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
@@ -189,7 +189,7 @@ const create = context => {
 			}
 
 			context.report(problem);
-		}
+		},
 	});
 };
 
@@ -198,9 +198,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `String#slice()` over `String#substr()` and `String#substring()`.'
+			description: 'Prefer `String#slice()` over `String#substr()` and `String#substring()`.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

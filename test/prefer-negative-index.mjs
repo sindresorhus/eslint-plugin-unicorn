@@ -4,7 +4,7 @@ import {getTester} from './utils/test.mjs';
 const {test} = getTester(import.meta);
 
 const error = {
-	messageId: 'prefer-negative-index'
+	messageId: 'prefer-negative-index',
 };
 
 test({
@@ -55,62 +55,62 @@ test({
 		'foo[`${bar}`].slice(foo[`${bar}`].length - 1)',
 		// Should not crash
 		// https://github.com/gatsbyjs/gatsby/blob/e720d8efe58eba0f6fae9f26ec8879128967d0b5/packages/gatsby/src/bootstrap/log-line-function.js#L9
-		'function foo() {return [].slice.apply(arguments);}'
+		'function foo() {return [].slice.apply(arguments);}',
 	],
 	invalid: [
 		// Docs example (1)
 		{
 			code: 'foo.slice(foo.length - 2, foo.length - 1)',
 			errors: [error],
-			output: 'foo.slice(- 2, - 1)'
+			output: 'foo.slice(- 2, - 1)',
 		},
 		// Docs example (2)
 		{
 			code: 'foo.splice(foo.length - 1, 1)',
 			errors: [error],
-			output: 'foo.splice(- 1, 1)'
+			output: 'foo.splice(- 1, 1)',
 		},
 		// Docs example (3)
 		{
 			code: 'Array.prototype.slice.call(foo, foo.length - 2, foo.length - 1)',
 			errors: [error],
-			output: 'Array.prototype.slice.call(foo, - 2, - 1)'
+			output: 'Array.prototype.slice.call(foo, - 2, - 1)',
 		},
 		// Docs example (4)
 		{
 			code: 'Array.prototype.slice.apply(foo, [foo.length - 2, foo.length - 1])',
 			errors: [error],
-			output: 'Array.prototype.slice.apply(foo, [- 2, - 1])'
+			output: 'Array.prototype.slice.apply(foo, [- 2, - 1])',
 		},
 		// Nested
 		{
 			code: 'foo.slice(foo.length - 1 - 1)',
 			errors: [error],
-			output: 'foo.slice(- 1 - 1)'
+			output: 'foo.slice(- 1 - 1)',
 		},
 		// Foo.bar
 		{
 			code: 'foo.bar.slice(foo.bar.length - 1)',
 			errors: [error],
-			output: 'foo.bar.slice(- 1)'
+			output: 'foo.bar.slice(- 1)',
 		},
 		// Foo['bar']
 		{
 			code: 'foo[\'bar\'].slice(foo[\'bar\'].length - 1)',
 			errors: [error],
-			output: 'foo[\'bar\'].slice(- 1)'
+			output: 'foo[\'bar\'].slice(- 1)',
 		},
 		// Foo[1]
 		{
 			code: 'foo[1].slice(foo[1].length - 1)',
 			errors: [error],
-			output: 'foo[1].slice(- 1)'
+			output: 'foo[1].slice(- 1)',
 		},
 		// Comment
 		{
 			code: 'foo.slice(foo.length/* comment */ - 1)',
 			errors: [error],
-			output: 'foo.slice(/* comment */ - 1)'
+			output: 'foo.slice(/* comment */ - 1)',
 		},
 		// Comment
 		{
@@ -140,19 +140,19 @@ test({
 					// comment 3
 					- 1
 				)
-			`
+			`,
 		},
 		// Parentheses
 		{
 			code: 'foo.slice((((foo.length)) - 1) - 1)',
 			errors: [error],
-			output: 'foo.slice((- 1) - 1)'
+			output: 'foo.slice((- 1) - 1)',
 		},
 		// Comment inside parentheses
 		{
 			code: 'foo.slice(/* will keep */(/* will keep 1 */(/* will remove 2 */(foo.length)) - 1) - 1)',
 			errors: [error],
-			output: 'foo.slice(/* will keep */(/* will keep 1 */- 1) - 1)'
+			output: 'foo.slice(/* will keep */(/* will keep 1 */- 1) - 1)',
 		},
 		// [].{slice,splice}
 		{
@@ -176,7 +176,7 @@ test({
 				[NOT_EMPTY].splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				[NOT_EMPTY].slice.call(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				[NOT_EMPTY].splice.call(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-			`
+			`,
 		},
 		// ''.slice
 		{
@@ -200,7 +200,7 @@ test({
 				'NOT_EMPTY'.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				'NOT_EMPTY'.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				'NOT_EMPTY'.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-			`
+			`,
 		},
 		// {Array,String...}.prototype.slice.call
 		// Array.prototype.splice.call
@@ -269,7 +269,7 @@ test({
 				BigUint64Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				NOT_SUPPORTED.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				NOT_SUPPORTED.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
-			`
+			`,
 		},
 		// {Array,String...}.prototype.slice.apply
 		// Array.prototype.splice.apply
@@ -338,9 +338,9 @@ test({
 				BigUint64Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				NOT_SUPPORTED.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				NOT_SUPPORTED.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
-			`
-		}
-	]
+			`,
+		},
+	],
 });
 
 test.snapshot({
@@ -360,6 +360,6 @@ test.snapshot({
 			foo.at(foo.length - 1);
 			Array.prototype.at.call(foo, foo.length - 2);
 			Array.prototype.at.apply(foo, [foo.length - 3]);
-		`
-	]
+		`,
+	],
 });

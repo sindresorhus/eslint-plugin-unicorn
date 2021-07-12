@@ -3,7 +3,7 @@ import {getTester} from './utils/test.mjs';
 const {test} = getTester(import.meta);
 
 const error = {
-	messageId: 'no-unsafe-regex'
+	messageId: 'no-unsafe-regex',
 };
 
 test({
@@ -14,39 +14,39 @@ test({
 		'const foo = new RegExp(\'^\bunicorn\b\', \'i\')',
 		'const foo = new RegExp(/\bunicorn\b/)',
 		'const foo = new RegExp(/\bunicorn\b/g)',
-		'const foo = new RegExp()'
+		'const foo = new RegExp()',
 	],
 	invalid: [
 		{
 			code: 'const foo = /(x+x+)+y/',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'const foo = /(x+x+)+y/g',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'const foo = new RegExp(\'(x+x+)+y\')',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'const foo = new RegExp(\'(x+x+)+y\', \'g\')',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'const foo = new RegExp(/(x+x+)+y/)',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'const foo = new RegExp(/(x+x+)+y/g)',
-			errors: [error]
-		}
-	]
+			errors: [error],
+		},
+	],
 });
 
 test.snapshot({
 	valid: [],
 	invalid: [
-		'const foo = /(x+x+)+y/g'
-	]
+		'const foo = /(x+x+)+y/g',
+	],
 });

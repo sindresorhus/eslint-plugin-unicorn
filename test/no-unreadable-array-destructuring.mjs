@@ -22,7 +22,7 @@ test.snapshot({
 		'function foo([bar,, baz,, qux]) {}',
 		'const [, ...rest] = parts;',
 		// This is stupid, but valid code
-		'const [,,] = parts;'
+		'const [,,] = parts;',
 	],
 	invalid: [
 		'const [,, foo] = parts;',
@@ -50,6 +50,6 @@ test.snapshot({
 		'let [,,thirdElement] = foo, anotherVariable = bar;',
 		// Default value
 		'let [,,thirdElement = {}] = foo;',
-		'for (const [, , id] of shuffle(list)) {}'
-	]
+		'for (const [, , id] of shuffle(list)) {}',
+	],
 });

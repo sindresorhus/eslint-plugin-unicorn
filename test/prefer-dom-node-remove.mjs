@@ -17,11 +17,11 @@ const invalidTestCase = ({code, output, suggestionOutput}) => {
 					suggestions: [
 						{
 							messageId: SUGGESTION_MESSAGE_ID,
-							output: suggestionOutput
-						}
-					]
-				}
-			]
+							output: suggestionOutput,
+						},
+					],
+				},
+			],
 		};
 	}
 
@@ -31,9 +31,9 @@ const invalidTestCase = ({code, output, suggestionOutput}) => {
 		errors: [
 			{
 				messageId: ERROR_MESSAGE_ID,
-				suggestions: undefined
-			}
-		]
+				suggestions: undefined,
+			},
+		],
 	};
 };
 
@@ -63,33 +63,33 @@ test({
 		// `callee.object` is not a DOM Node,
 		...notDomNodeTypes.map(data => `(${data}).removeChild(foo)`),
 		// First argument is not a DOM Node,
-		...notDomNodeTypes.map(data => `foo.removeChild(${data})`)
+		...notDomNodeTypes.map(data => `foo.removeChild(${data})`),
 	],
 	invalid: [
 		// Auto fix
 		{
 			code: 'parentNode.removeChild(foo)',
-			output: 'foo.remove()'
+			output: 'foo.remove()',
 		},
 		{
 			code: 'parentNode.removeChild(this)',
-			output: 'this.remove()'
+			output: 'this.remove()',
 		},
 		{
 			code: 'parentNode.removeChild(some.node)',
-			output: 'some.node.remove()'
+			output: 'some.node.remove()',
 		},
 		{
 			code: 'parentNode.removeChild(getChild())',
-			output: 'getChild().remove()'
+			output: 'getChild().remove()',
 		},
 		{
 			code: 'parentNode.removeChild(lib.getChild())',
-			output: 'lib.getChild().remove()'
+			output: 'lib.getChild().remove()',
 		},
 		{
 			code: 'parentNode.removeChild((() => childNode)())',
-			output: '(() => childNode)().remove()'
+			output: '(() => childNode)().remove()',
 		},
 
 		// Need parenthesized
@@ -105,7 +105,7 @@ test({
 				async function foo () {
 					(await getChild()).remove();
 				}
-			`
+			`,
 		},
 		{
 			code: outdent`
@@ -119,19 +119,19 @@ test({
 				async function foo () {
 					(await getChild()).remove();
 				}
-			`
+			`,
 		},
 		{
 			code: 'parentNode.removeChild((0, child))',
-			output: '(0, child).remove()'
+			output: '(0, child).remove()',
 		},
 		{
 			code: 'parentNode.removeChild( (  (new Image)) )',
-			output: '(  (new Image)).remove()'
+			output: '(  (new Image)).remove()',
 		},
 		{
 			code: 'parentNode.removeChild( new Audio )',
-			output: '(new Audio).remove()'
+			output: '(new Audio).remove()',
 		},
 
 		// Need semicolon
@@ -143,7 +143,7 @@ test({
 			output: outdent`
 				const array = []
 				;[a, b, c].reduce(child => child, child).remove()
-			`
+			`,
 		},
 		{
 			code: outdent`
@@ -159,7 +159,7 @@ test({
 					const array = []
 					;(await getChild()).remove();
 				}
-			`
+			`,
 		},
 		{
 			code: outdent`
@@ -175,75 +175,75 @@ test({
 					const array = []
 					;(0, childNode).remove();
 				}
-			`
+			`,
 		},
 
 		// Value of `parentNode.removeChild` call is use
 		{
 			code: 'if (parentNode.removeChild(foo)) {}',
-			suggestionOutput: 'if (foo.remove()) {}'
+			suggestionOutput: 'if (foo.remove()) {}',
 		},
 		{
 			code: 'var removed = parentNode.removeChild(child);',
-			suggestionOutput: 'var removed = child.remove();'
+			suggestionOutput: 'var removed = child.remove();',
 		},
 		{
 			code: 'const foo = parentNode.removeChild(child);',
-			suggestionOutput: 'const foo = child.remove();'
+			suggestionOutput: 'const foo = child.remove();',
 		},
 		{
 			code: 'foo.bar(parentNode.removeChild(child));',
-			suggestionOutput: 'foo.bar(child.remove());'
+			suggestionOutput: 'foo.bar(child.remove());',
 		},
 		{
 			code: 'parentNode.removeChild(child) || "foo";',
-			suggestionOutput: 'child.remove() || "foo";'
+			suggestionOutput: 'child.remove() || "foo";',
 		},
 		{
 			code: 'parentNode.removeChild(child) + 0;',
-			suggestionOutput: 'child.remove() + 0;'
+			suggestionOutput: 'child.remove() + 0;',
 		},
 		{
 			code: '+parentNode.removeChild(child);',
-			suggestionOutput: '+child.remove();'
+			suggestionOutput: '+child.remove();',
 		},
 		{
 			code: 'parentNode.removeChild(child) ? "foo" : "bar";',
-			suggestionOutput: 'child.remove() ? "foo" : "bar";'
+			suggestionOutput: 'child.remove() ? "foo" : "bar";',
 		},
 		{
 			code: 'if (parentNode.removeChild(child)) {}',
-			suggestionOutput: 'if (child.remove()) {}'
+			suggestionOutput: 'if (child.remove()) {}',
 		},
 		{
 			code: 'const foo = [parentNode.removeChild(child)]',
-			suggestionOutput: 'const foo = [child.remove()]'
+			suggestionOutput: 'const foo = [child.remove()]',
 		},
 		{
 			code: 'const foo = { bar: parentNode.removeChild(child) }',
-			suggestionOutput: 'const foo = { bar: child.remove() }'
+			suggestionOutput: 'const foo = { bar: child.remove() }',
 		},
 		{
 			code: 'function foo() { return parentNode.removeChild(child); }',
-			suggestionOutput: 'function foo() { return child.remove(); }'
+			suggestionOutput: 'function foo() { return child.remove(); }',
 		},
 		{
 			code: 'const foo = () => { return parentElement.removeChild(child); }',
-			suggestionOutput: 'const foo = () => { return child.remove(); }'
+			suggestionOutput: 'const foo = () => { return child.remove(); }',
 		},
 		{
 			code: 'foo(bar = parentNode.removeChild(child))',
-			suggestionOutput: 'foo(bar = child.remove())'
+			suggestionOutput: 'foo(bar = child.remove())',
 		},
 
 		// `parentNode` has side effect
 		{
 			code: 'foo().removeChild(child)',
-			suggestionOutput: 'child.remove()'
+			suggestionOutput: 'child.remove()',
 		},
 		{
 			code: 'foo[doSomething()].removeChild(child)',
-			suggestionOutput: 'child.remove()'
-		}
-	].map(options => invalidTestCase(options))
+			suggestionOutput: 'child.remove()',
+		},
+	].map(options => invalidTestCase(options)),
 });

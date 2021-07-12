@@ -9,7 +9,7 @@ const REGEXP_EXEC = 'regexp-exec';
 const STRING_MATCH = 'string-match';
 const messages = {
 	[REGEXP_EXEC]: 'Prefer `.test(…)` over `.exec(…)`.',
-	[STRING_MATCH]: 'Prefer `RegExp#test(…)` over `String#match(…)`.'
+	[STRING_MATCH]: 'Prefer `RegExp#test(…)` over `String#match(…)`.',
 };
 
 const cases = [
@@ -17,25 +17,25 @@ const cases = [
 		type: REGEXP_EXEC,
 		selector: methodCallSelector({
 			name: 'exec',
-			length: 1
+			length: 1,
 		}),
 		getNodes: node => ({
 			stringNode: node.arguments[0],
 			methodNode: node.callee.property,
-			regexpNode: node.callee.object
+			regexpNode: node.callee.object,
 		}),
-		fix: (fixer, {methodNode}) => fixer.replaceText(methodNode, 'test')
+		fix: (fixer, {methodNode}) => fixer.replaceText(methodNode, 'test'),
 	},
 	{
 		type: STRING_MATCH,
 		selector: methodCallSelector({
 			name: 'match',
-			length: 1
+			length: 1,
 		}),
 		getNodes: node => ({
 			stringNode: node.callee.object,
 			methodNode: node.callee.property,
-			regexpNode: node.arguments[0]
+			regexpNode: node.arguments[0],
 		}),
 		* fix(fixer, {stringNode, methodNode, regexpNode}, sourceCode) {
 			yield fixer.replaceText(methodNode, 'test');
@@ -62,8 +62,8 @@ const cases = [
 			// The nodes that pass `isBooleanNode` cannot have an ASI problem.
 
 			yield fixer.replaceText(stringNode, regexpText);
-		}
-	}
+		},
+	},
 ];
 
 const isRegExpNode = node => {
@@ -100,7 +100,7 @@ const create = context => Object.fromEntries(
 
 			const problem = {
 				node: type === REGEXP_EXEC ? methodNode : node,
-				messageId: type
+				messageId: type,
 			};
 
 			if (!isRegExpNode(regexpNode)) {
@@ -118,8 +118,8 @@ const create = context => Object.fromEntries(
 
 			problem.fix = fixer => fix(fixer, nodes, context.getSourceCode());
 			return problem;
-		}
-	])
+		},
+	]),
 );
 
 module.exports = {
@@ -127,9 +127,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.'
+			description: 'Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

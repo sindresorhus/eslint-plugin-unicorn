@@ -9,7 +9,7 @@ const declaratorSelector = [
 	'VariableDeclarator',
 	'[id.type="ObjectPattern"]',
 	'[init]',
-	'[init.type!="Literal"]'
+	'[init.type!="Literal"]',
 ].join('');
 
 const memberSelector = [
@@ -18,8 +18,8 @@ const memberSelector = [
 	notLeftHandSideSelector(),
 	not([
 		'CallExpression > .callee',
-		'NewExpression> .callee'
-	])
+		'NewExpression> .callee',
+	]),
 ].join('');
 
 const isSimpleExpression = expression => {
@@ -65,7 +65,7 @@ const create = context => {
 			declarations.set(source.getText(node.init), {
 				scope: context.getScope(),
 				variables: context.getDeclaredVariables(node),
-				objectPattern: node.id
+				objectPattern: node.id,
 			});
 		},
 		[memberSelector]: node => {
@@ -86,7 +86,7 @@ const create = context => {
 			const destructurings = objectPattern.properties.filter(property =>
 				property.type === 'Property' &&
 				property.key.type === 'Identifier' &&
-				property.value.type === 'Identifier'
+				property.value.type === 'Identifier',
 			);
 			const lastProperty = objectPattern.properties[objectPattern.properties.length - 1];
 
@@ -97,7 +97,7 @@ const create = context => {
 
 			// Member might already be destructured
 			const destructuredMember = destructurings.find(property =>
-				property.key.name === member
+				property.key.name === member,
 			);
 
 			if (!destructuredMember) {
@@ -116,7 +116,7 @@ const create = context => {
 			if (node.parent.type === 'MemberExpression') {
 				return {
 					node,
-					messageId: MESSAGE_ID
+					messageId: MESSAGE_ID,
 				};
 			}
 
@@ -129,7 +129,7 @@ const create = context => {
 					messageId: MESSAGE_ID_SUGGEST,
 					data: {
 						expression,
-						property: newMember
+						property: newMember,
 					},
 					* fix(fixer) {
 						const {properties} = objectPattern;
@@ -142,10 +142,10 @@ const create = context => {
 								fixer.insertTextAfter(lastProperty, `, ${newMember}`) :
 								fixer.replaceText(objectPattern, `{${newMember}}`);
 						}
-					}
-				}]
+					},
+				}],
 			};
-		}
+		},
 	};
 };
 
@@ -154,13 +154,13 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Use destructured variables over properties.'
+			description: 'Use destructured variables over properties.',
 		},
 		fixable: 'code',
 		messages: {
 			[MESSAGE_ID]: 'Use destructured variables over properties.',
-			[MESSAGE_ID_SUGGEST]: 'Replace `{{expression}}` with destructured property `{{property}}`.'
+			[MESSAGE_ID_SUGGEST]: 'Replace `{{expression}}` with destructured property `{{property}}`.',
 		},
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

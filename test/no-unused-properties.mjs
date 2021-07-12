@@ -4,7 +4,7 @@ import {getTester} from './utils/test.mjs';
 const {test} = getTester(import.meta);
 
 const error = {
-	messageId: 'no-unused-properties'
+	messageId: 'no-unused-properties',
 };
 
 test({
@@ -265,7 +265,7 @@ test({
 		outdent`
 			const foo = {a: 1, b: 2};
 			const {a, ...rest} = foo;
-		`
+		`,
 	],
 
 	invalid: [
@@ -274,21 +274,21 @@ test({
 				const foo = {a: 1, u: 2};
 				console.log(foo.a);
 			`,
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: outdent`
 				const foo = {"a": 1, "u": 2};
 				console.log(foo.a);
 			`,
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: outdent`
 				const foo = {a: 1, u: 2};
 				console.log(foo['a']);
 			`,
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: outdent`
@@ -297,7 +297,7 @@ test({
 					console.log(foo.a);
 				}
 			`,
-			errors: [error]
+			errors: [error],
 		},
 
 		{
@@ -305,7 +305,7 @@ test({
 				const foo = {a: 1, u: 2};
 				const {a} = foo;
 			`,
-			errors: [error]
+			errors: [error],
 		},
 
 		{
@@ -313,7 +313,7 @@ test({
 				const foo = {a: 1, u: 2};
 				({a} = foo);
 			`,
-			errors: [error]
+			errors: [error],
 		},
 
 		{
@@ -327,7 +327,7 @@ test({
 				};
 				console.log(foo.a);
 			`,
-			errors: [error]
+			errors: [error],
 		},
 
 		{
@@ -341,7 +341,7 @@ test({
 				};
 				console.log(foo.a, foo.b.c);
 			`,
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: outdent`
@@ -356,7 +356,7 @@ test({
 					console.log(foo.a, foo.b.c);
 				}
 			`,
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: outdent`
@@ -368,7 +368,7 @@ test({
 				};
 				foo.a.f = function () { return this };
 			`,
-			errors: [error]
+			errors: [error],
 		},
 
 		{
@@ -379,7 +379,7 @@ test({
 				};
 				console.log(foo.a);
 			`,
-			errors: [error]
+			errors: [error],
 		},
 
 		{
@@ -391,7 +391,7 @@ test({
 				};
 				console.log(foo.b);
 			`,
-			errors: [error]
+			errors: [error],
 		},
 
 		{
@@ -400,9 +400,9 @@ test({
 					[foo.bar]: 1
 				};
 			`,
-			errors: [error]
-		}
-	]
+			errors: [error],
+		},
+	],
 });
 
 test.babel({
@@ -417,9 +417,9 @@ test.babel({
 				...bar,
 			};
 			console.log(foo.a);
-		`
+		`,
 	],
-	invalid: []
+	invalid: [],
 });
 
 test.snapshot({
@@ -433,6 +433,6 @@ test.snapshot({
 				};
 				console.log(bar.b);
 			}
-		`
-	]
+		`,
+	],
 });

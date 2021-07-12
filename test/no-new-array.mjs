@@ -13,9 +13,9 @@ const suggestionCase = ({code, suggestions}) => ({
 	errors: [
 		{
 			messageId: MESSAGE_ID_ERROR,
-			suggestions
-		}
-	]
+			suggestions,
+		},
+	],
 });
 
 test({
@@ -29,7 +29,7 @@ test({
 		'const array = Array(1, 2)',
 
 		// `unicorn/new-for-builtins` cases
-		'const array = Array(1)'
+		'const array = Array(1)',
 	],
 	invalid: [
 		suggestionCase({
@@ -37,26 +37,26 @@ test({
 			suggestions: [
 				{
 					messageId: MESSAGE_ID_LENGTH,
-					output: 'const array = Array.from({length: foo})'
+					output: 'const array = Array.from({length: foo})',
 				},
 				{
 					messageId: MESSAGE_ID_ONLY_ELEMENT,
-					output: 'const array = [foo]'
-				}
-			]
+					output: 'const array = [foo]',
+				},
+			],
 		}),
 		suggestionCase({
 			code: 'const array = new Array(length)',
 			suggestions: [
 				{
 					messageId: MESSAGE_ID_LENGTH,
-					output: 'const array = Array.from({length})'
+					output: 'const array = Array.from({length})',
 				},
 				{
 					messageId: MESSAGE_ID_ONLY_ELEMENT,
-					output: 'const array = [length]'
-				}
-			]
+					output: 'const array = [length]',
+				},
+			],
 		}),
 		suggestionCase({
 			code: outdent`
@@ -69,16 +69,16 @@ test({
 					output: outdent`
 						const foo = []
 						Array.from({length: bar}).forEach(baz)
-					`
+					`,
 				},
 				{
 					messageId: MESSAGE_ID_ONLY_ELEMENT,
 					output: outdent`
 						const foo = []
 						;[bar].forEach(baz)
-					`
-				}
-			]
+					`,
+				},
+			],
 		}),
 		...[
 			'...[foo]',
@@ -87,7 +87,7 @@ test({
 			// The following cases we can know the result, but we are not auto-fixing them
 			'...[1]',
 			'...["1"]',
-			'...[1, "1"]'
+			'...[1, "1"]',
 		].map(argumentText => {
 			const code = `const array = new Array(${argumentText})`;
 			return {
@@ -98,11 +98,11 @@ test({
 						suggestions: [
 							{
 								messageId: MESSAGE_ID_SPREAD,
-								output: `const array = [${argumentText}]`
-							}
-						]
-					}
-				]
+								output: `const array = [${argumentText}]`,
+							},
+						],
+					},
+				],
 			};
 		}),
 		suggestionCase({
@@ -116,11 +116,11 @@ test({
 					output: outdent`
 						const foo = []
 						;[...bar].forEach(baz)
-					`
-				}
-			]
-		})
-	]
+					`,
+				},
+			],
+		}),
+	],
 });
 
 test.snapshot({
@@ -146,6 +146,6 @@ test.snapshot({
 		outdent`
 			const foo = []
 			new Array("bar").forEach(baz)
-		`
-	]
+		`,
+	],
 });

@@ -11,13 +11,13 @@ const ERROR_ID_ARRAY_FILTER = 'filter';
 const messages = {
 	[ERROR_ID_ARRAY_SOME]: 'Prefer `.some(…)` over `.find(…)`.',
 	[SUGGESTION_ID_ARRAY_SOME]: 'Replace `.find(…)` with `.some(…)`.',
-	[ERROR_ID_ARRAY_FILTER]: 'Prefer `.some(…)` over non-zero length check from `.filter(…)`.'
+	[ERROR_ID_ARRAY_FILTER]: 'Prefer `.some(…)` over non-zero length check from `.filter(…)`.',
 };
 
 const arrayFindCallSelector = methodCallSelector({
 	name: 'find',
 	min: 1,
-	max: 2
+	max: 2,
 });
 
 const arrayFilterCallSelector = [
@@ -29,7 +29,7 @@ const arrayFilterCallSelector = [
 	' > ',
 	`${memberExpressionSelector('length')}.left`,
 	' > ',
-	`${methodCallSelector('filter')}.object`
+	`${methodCallSelector('filter')}.object`,
 ].join('');
 
 const create = context => {
@@ -46,9 +46,9 @@ const create = context => {
 				suggest: [
 					{
 						messageId: SUGGESTION_ID_ARRAY_SOME,
-						fix: fixer => fixer.replaceText(findProperty, 'some')
-					}
-				]
+						fix: fixer => fixer.replaceText(findProperty, 'some'),
+					},
+				],
 			};
 		},
 		[arrayFilterCallSelector](filterCall) {
@@ -77,13 +77,13 @@ const create = context => {
 					*/
 					yield fixer.removeRange([
 						getParenthesizedRange(lengthNode, sourceCode)[1],
-						compareNode.range[1]
+						compareNode.range[1],
 					]);
 
 					// The `BinaryExpression` always ends with a number or `)`, no need check for ASI
-				}
+				},
 			};
-		}
+		},
 	};
 };
 
@@ -92,10 +92,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`.'
+			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`.',
 		},
 		fixable: 'code',
 		messages,
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

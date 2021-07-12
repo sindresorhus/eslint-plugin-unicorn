@@ -28,9 +28,9 @@ test({
 			if (a) {
 				b ? c() : d()
 			}
-		`
+		`,
 	],
-	invalid: []
+	invalid: [],
 });
 
 test.snapshot({
@@ -133,6 +133,6 @@ test.snapshot({
 				if (b) foo()
 			}
 			;[].forEach(bar)
-		`
-	]
+		`,
+	],
 });

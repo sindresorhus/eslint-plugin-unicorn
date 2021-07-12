@@ -2,7 +2,7 @@
 const isShadowed = require('./utils/is-shadowed.js');
 const {
 	referenceIdentifierSelector,
-	callExpressionSelector
+	callExpressionSelector,
 } = require('./selectors/index.js');
 const {replaceReferenceIdentifier} = require('./fix/index.js');
 
@@ -12,7 +12,7 @@ const PROPERTY_ERROR_MESSAGE_ID = 'property-error';
 const messages = {
 	[METHOD_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}()` over `{{name}}()`.',
 	[METHOD_SUGGESTION_MESSAGE_ID]: 'Replace `{{name}}()` with `Number.{{name}}()`.',
-	[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{property}}` over `{{identifier}}`.'
+	[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{property}}` over `{{identifier}}`.',
 };
 
 const methods = {
@@ -21,13 +21,13 @@ const methods = {
 	parseFloat: true,
 	// Unsafe
 	isNaN: false,
-	isFinite: false
+	isFinite: false,
 };
 
 const methodsSelector = [
 	callExpressionSelector(Object.keys(methods)),
 	' > ',
-	'.callee'
+	'.callee',
 ].join('');
 
 const propertiesSelector = referenceIdentifierSelector(['NaN', 'Infinity']);
@@ -41,7 +41,7 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 	const options = {
 		checkInfinity: true,
-		...context.options[0]
+		...context.options[0],
 	};
 
 	// Cache `NaN` and `Infinity` in `foo = {NaN, Infinity}`
@@ -60,8 +60,8 @@ const create = context => {
 				node,
 				messageId: METHOD_ERROR_MESSAGE_ID,
 				data: {
-					name
-				}
+					name,
+				},
 			};
 
 			const fix = fixer => replaceReferenceIdentifier(node, `Number.${name}`, fixer, sourceCode);
@@ -73,10 +73,10 @@ const create = context => {
 					{
 						messageId: METHOD_SUGGESTION_MESSAGE_ID,
 						data: {
-							name
+							name,
 						},
-						fix
-					}
+						fix,
+					},
 				];
 			}
 
@@ -102,8 +102,8 @@ const create = context => {
 				messageId: PROPERTY_ERROR_MESSAGE_ID,
 				data: {
 					identifier: name,
-					property
-				}
+					property,
+				},
 			};
 
 			if (property === 'NEGATIVE_INFINITY') {
@@ -116,7 +116,7 @@ const create = context => {
 
 			reported.add(node);
 			return problem;
-		}
+		},
 	};
 };
 
@@ -126,11 +126,11 @@ const schema = [
 		properties: {
 			checkInfinity: {
 				type: 'boolean',
-				default: true
-			}
+				default: true,
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -138,11 +138,11 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Number` static properties over global ones.'
+			description: 'Prefer `Number` static properties over global ones.',
 		},
 		fixable: 'code',
 		schema,
 		messages,
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

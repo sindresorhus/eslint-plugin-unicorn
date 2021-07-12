@@ -15,7 +15,7 @@ function checkFiles(ruleId) {
 		`rules/${ruleId}.js`,
 		`test/${ruleId}.mjs`,
 		`test/snapshots/${ruleId}.mjs.md`,
-		`test/snapshots/${ruleId}.mjs.snap`
+		`test/snapshots/${ruleId}.mjs.snap`,
 	];
 
 	for (const file of files) {
@@ -88,7 +88,7 @@ function updateIndex(id) {
 				}
 
 				return true;
-			}
+			},
 		},
 		{
 			type: 'input',
@@ -100,7 +100,7 @@ function updateIndex(id) {
 				}
 
 				return true;
-			}
+			},
 		},
 		{
 			type: 'select',
@@ -109,17 +109,17 @@ function updateIndex(id) {
 			choices: [
 				{
 					message: 'Code',
-					value: 'code'
+					value: 'code',
 				},
 				{
 					message: 'Whitespace',
-					value: 'whitespace'
+					value: 'whitespace',
 				},
 				{
 					message: 'No',
-					value: false
-				}
-			]
+					value: false,
+				},
+			],
 		},
 		{
 			type: 'select',
@@ -128,9 +128,9 @@ function updateIndex(id) {
 			choices: [
 				'problem',
 				'suggestion',
-				'layout'
-			]
-		}
+				'layout',
+			],
+		},
 	]);
 
 	if (data.fixableType === 'No') {
@@ -143,17 +143,17 @@ function updateIndex(id) {
 	renderTemplate({
 		source: 'documentation.md.jst',
 		target: `docs/rules/${id}.md`,
-		data
+		data,
 	});
 	renderTemplate({
 		source: 'rule.js.jst',
 		target: `rules/${id}.js`,
-		data
+		data,
 	});
 	renderTemplate({
 		source: 'test.mjs.jst',
 		target: `test/${id}.mjs`,
-		data
+		data,
 	});
 	updateIndex(id);
 
@@ -163,7 +163,7 @@ function updateIndex(id) {
 			'.',
 			`docs/rules/${id}.md`,
 			`rules/${id}.js`,
-			`test/${id}.mjs`
+			`test/${id}.mjs`,
 		], {cwd: ROOT});
 	} catch {}
 })().catch(error => {

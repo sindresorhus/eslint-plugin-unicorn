@@ -18,26 +18,26 @@ const extendedOptions = [
 		replacements: {
 			e: false,
 			c: {
-				custom: true
+				custom: true,
 			},
 			cb: {
 				callback: false,
-				circuitBreacker: true
-			}
-		}
-	}
+				circuitBreacker: true,
+			},
+		},
+	},
 ];
 
 const noCheckShorthandImportsOptions = [
 	{
-		checkShorthandImports: false
-	}
+		checkShorthandImports: false,
+	},
 ];
 
 const noCheckDefaultAndNamespaceImports = [
 	{
-		checkDefaultAndNamespaceImports: false
-	}
+		checkDefaultAndNamespaceImports: false,
+	},
 ];
 
 const customOptions = [
@@ -51,57 +51,57 @@ const customOptions = [
 		extendDefaultReplacements: false,
 		replacements: {
 			args: {
-				arguments: true
+				arguments: true,
 			},
 			e: {
 				error: true,
 				event: true,
-				element: true
+				element: true,
 			},
 			err: {
-				error: true
+				error: true,
 			},
 			y: {
-				yield: true
+				yield: true,
 			},
 			errCb: {
-				handleError: true
+				handleError: true,
 			},
 			proto: {
-				prototype: true
-			}
-		}
-	}
+				prototype: true,
+			},
+		},
+	},
 ];
 
 const dontCheckVariablesOptions = [
 	{
-		checkVariables: false
-	}
+		checkVariables: false,
+	},
 ];
 
 const checkPropertiesOptions = [
 	{
-		checkProperties: true
-	}
+		checkProperties: true,
+	},
 ];
 
 const extendDefaultAllowListOptions = [
 	{
 		allowList: {
-			err: true
+			err: true,
 		},
-		extendDefaultAllowList: true
-	}
+		extendDefaultAllowList: true,
+	},
 ];
 
 const noExtendDefaultAllowListOptions = [
 	{
 		allowList: {
-			err: true
+			err: true,
 		},
-		extendDefaultAllowList: false
-	}
+		extendDefaultAllowList: false,
+	},
 ];
 
 const tests = {
@@ -206,69 +206,69 @@ const tests = {
 		'let c',
 		{
 			code: 'var c',
-			options: customOptions
+			options: customOptions,
 		},
 
 		{
 			code: 'class cb {}',
-			options: customOptions
+			options: customOptions,
 		},
 
 		{
 			code: 'function e() {}',
-			options: extendedOptions
+			options: extendedOptions,
 		},
 
 		{
 			code: 'let err',
-			options: dontCheckVariablesOptions
+			options: dontCheckVariablesOptions,
 		},
 
 		{
 			code: '({__proto__: null})',
-			options: customOptions
+			options: customOptions,
 		},
 
 		// `extendDefaultAllowList` option
 		{
 			code: 'const propTypes = 2;const err = 2;',
-			options: extendDefaultAllowListOptions
-		}
+			options: extendDefaultAllowListOptions,
+		},
 	],
 
 	invalid: [
 		{
 			code: 'let e',
-			errors: createErrors('Please rename the variable `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+			errors: createErrors('Please rename the variable `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'let eCbOpts',
-			errors: createErrors('Please rename the variable `eCbOpts`. Suggested names are: `errorCallbackOptions`, `eventCallbackOptions`. A more descriptive name will do too.')
+			errors: createErrors('Please rename the variable `eCbOpts`. Suggested names are: `errorCallbackOptions`, `eventCallbackOptions`. A more descriptive name will do too.'),
 		},
 		{
 			code: '({e: 1})',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'this.e = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.'),
 		},
 		{
 			code: '({e() {}})',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.'),
 		},
 		{
 			code: '(class {e() {}})',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'this.eResDir = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResponseDirection`, `errorResponseDirectory`, `errorResultDirection`, ... (5 more omitted). A more descriptive name will do too.')
+			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResponseDirection`, `errorResponseDirectory`, `errorResultDirection`, ... (5 more omitted). A more descriptive name will do too.'),
 		},
 
 		// All suggested names should avoid capture
@@ -284,213 +284,213 @@ const tests = {
 						a: {
 							var: true,
 							const: true,
-							used: true
+							used: true,
 						},
-						var: false
-					}
-				}
+						var: false,
+					},
+				},
 			],
 
-			errors: createErrors('Please rename the variable `a`. Suggested names are: `const_`, `used_`, `var__`. A more descriptive name will do too.')
+			errors: createErrors('Please rename the variable `a`. Suggested names are: `const_`, `used_`, `var__`. A more descriptive name will do too.'),
 		},
 
 		{
 			code: 'let err',
 			output: 'let error',
-			errors: createErrors('The variable `err` should be named `error`. A more descriptive name will do too.')
+			errors: createErrors('The variable `err` should be named `error`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'let errCbOptsObj',
 			output: 'let errorCallbackOptionsObject',
-			errors: createErrors('The variable `errCbOptsObj` should be named `errorCallbackOptionsObject`. A more descriptive name will do too.')
+			errors: createErrors('The variable `errCbOptsObj` should be named `errorCallbackOptionsObject`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'let stdDev',
 			output: 'let standardDeviation',
-			errors: createErrors('The variable `stdDev` should be named `standardDeviation`. A more descriptive name will do too.')
+			errors: createErrors('The variable `stdDev` should be named `standardDeviation`. A more descriptive name will do too.'),
 		},
 		{
 			code: '({err: 1})',
 			options: checkPropertiesOptions,
-			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
+			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'this.err = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
+			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.'),
 		},
 		{
 			code: '({err() {}})',
 			options: checkPropertiesOptions,
-			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
+			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.'),
 		},
 		{
 			code: '(class {err() {}})',
 			options: checkPropertiesOptions,
-			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
+			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'this.errCbOptsObj = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors('The property `errCbOptsObj` should be named `errorCallbackOptionsObject`. A more descriptive name will do too.')
+			errors: createErrors('The property `errCbOptsObj` should be named `errorCallbackOptionsObject`. A more descriptive name will do too.'),
 		},
 
 		{
 			code: 'let successCb',
 			output: 'let successCallback',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'let btnColor',
 			output: 'let buttonColor',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: 'this.successCb = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'this.btnColor = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		// This tests that the rule does not hang up on combinatoric explosion of possible replacements
 		{
 			code: 'let ' + 'CbE'.repeat(1024),
 			output: 'let ' + 'CallbackE'.repeat(1024),
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: 'let evt',
 			output: 'let event',
-			errors: createErrors('The variable `evt` should be named `event`. A more descriptive name will do too.')
+			errors: createErrors('The variable `evt` should be named `event`. A more descriptive name will do too.'),
 		},
 		{
 			code: '({evt: 1})',
 			options: checkPropertiesOptions,
-			errors: createErrors('The property `evt` should be named `event`. A more descriptive name will do too.')
+			errors: createErrors('The property `evt` should be named `event`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'foo.evt = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors('The property `evt` should be named `event`. A more descriptive name will do too.')
+			errors: createErrors('The property `evt` should be named `event`. A more descriptive name will do too.'),
 		},
 
 		// Testing that options apply
 		{
 			code: 'let args',
 			output: 'let arguments_',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'let args',
 			output: 'let arguments_',
 			options: extendedOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'let args',
 			output: 'let arguments_',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: 'let c',
 			output: 'let custom',
 			options: extendedOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: 'function cb() {}',
 			output: 'function callback() {}',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'class cb {}',
 			output: 'class circuitBreacker {}',
 			options: extendedOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: 'let e',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'let e',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: 'let err',
 			output: 'let error',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'let err',
 			output: 'let error',
 			options: extendedOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'let err',
 			output: 'let error',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: '({err: 1})',
 			options: checkPropertiesOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: 'let errCb',
 			output: 'let errorCallback',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'let errCb',
 			output: 'let errorCircuitBreacker',
 			options: extendedOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'let errCb',
 			output: 'let handleError',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'let ErrCb',
 			output: 'let HandleError',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'let ErrCb',
 			output: 'let ErrorCallback',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'let ErrCb',
 			output: 'let ErrorCircuitBreacker',
 			options: extendedOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'let ErrCb',
 			output: 'let HandleError',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		// `errCb` should not match this
@@ -498,19 +498,19 @@ const tests = {
 			code: 'let fooErrCb',
 			output: 'let fooErrorCb',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'let errCbFoo',
 			output: 'let errorCbFoo',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: 'class Err {}',
 			output: 'class Error_ {}',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
@@ -518,7 +518,7 @@ const tests = {
 				let e;
 				console.log(e);
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
@@ -530,7 +530,7 @@ const tests = {
 				let error;
 				console.log(error);
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
@@ -546,7 +546,7 @@ const tests = {
 					let error_;
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -563,7 +563,7 @@ const tests = {
 					let error__;
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -580,7 +580,7 @@ const tests = {
 					console.log(error);
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -597,13 +597,13 @@ const tests = {
 					console.log(error, error_);
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: 'err => err',
 			output: 'error => error',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
@@ -615,7 +615,7 @@ const tests = {
 				const options = {};
 				console.log(options);
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -628,7 +628,7 @@ const tests = {
 				var options = 2;
 				console.log(options);
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
@@ -640,7 +640,7 @@ const tests = {
 				const error = {};
 				const foo = {err: error};
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -659,32 +659,32 @@ const tests = {
 					b: 2
 				};
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: '({err}) => err',
 			output: '({err: error}) => error',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'err => ({err})',
 			output: 'error => ({err: error})',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'const {err} = foo;',
 			output: 'const {err: error} = foo;',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: 'const foo = {err: 1}',
 			options: checkPropertiesOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -693,22 +693,22 @@ const tests = {
 				};
 			`,
 			options: checkPropertiesOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'foo.err = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'foo.bar.err = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'this.err = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
@@ -718,79 +718,79 @@ const tests = {
 				}
 			`,
 			options: checkPropertiesOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: 'this._err = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors('The property `_err` should be named `_error`. A more descriptive name will do too.')
+			errors: createErrors('The property `_err` should be named `_error`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'this.__err__ = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors('The property `__err__` should be named `__error__`. A more descriptive name will do too.')
+			errors: createErrors('The property `__err__` should be named `__error__`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'this.e_ = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `e_`. Suggested names are: `error_`, `event_`. A more descriptive name will do too.')
+			errors: createErrors('Please rename the property `e_`. Suggested names are: `error_`, `event_`. A more descriptive name will do too.'),
 		},
 
 		{
 			code: 'let err_',
 			output: 'let error_',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'let __err__',
 			output: 'let __error__',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'let _e',
-			errors: createErrors('Please rename the variable `_e`. Suggested names are: `_error`, `_event`. A more descriptive name will do too.')
+			errors: createErrors('Please rename the variable `_e`. Suggested names are: `_error`, `_event`. A more descriptive name will do too.'),
 		},
 
 		{
 			code: 'class Err {}',
 			output: 'class Error_ {}',
-			errors: createErrors('The variable `Err` should be named `Error_`. A more descriptive name will do too.')
+			errors: createErrors('The variable `Err` should be named `Error_`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'class Cb {}',
 			output: 'class Callback {}',
-			errors: createErrors('The variable `Cb` should be named `Callback`. A more descriptive name will do too.')
+			errors: createErrors('The variable `Cb` should be named `Callback`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'class Res {}',
-			errors: createErrors('Please rename the variable `Res`. Suggested names are: `Response`, `Result`. A more descriptive name will do too.')
+			errors: createErrors('Please rename the variable `Res`. Suggested names are: `Response`, `Result`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'const Err = 1;',
 			output: 'const Error_ = 1;',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'const _Err_ = 1;',
 			output: 'const _Error_ = 1;',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: '({Err: 1})',
 			options: checkPropertiesOptions,
-			errors: createErrors('The property `Err` should be named `Error`. A more descriptive name will do too.')
+			errors: createErrors('The property `Err` should be named `Error`. A more descriptive name will do too.'),
 		},
 		{
 			code: '({Res: 1})',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `Res`. Suggested names are: `Response`, `Result`. A more descriptive name will do too.')
+			errors: createErrors('Please rename the property `Res`. Suggested names are: `Response`, `Result`. A more descriptive name will do too.'),
 		},
 
 		{
 			code: 'let doc',
 			output: 'let document',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		// This test need run eslint 3 times to get the correct result
@@ -819,8 +819,8 @@ const tests = {
 				...createErrors('The variable `fn` should be named `function_`. A more descriptive name will do too.'),
 				...createErrors('The variable `i` should be named `index`. A more descriptive name will do too.'),
 				...createErrors('The variable `j` should be named `index_`. A more descriptive name will do too.'),
-				...createErrors('The variable `func` should be named `function__`. A more descriptive name will do too.')
-			]
+				...createErrors('The variable `func` should be named `function__`. A more descriptive name will do too.'),
+			],
 		},
 		{
 			code: outdent`
@@ -846,8 +846,8 @@ const tests = {
 			errors: [
 				...createErrors('The variable `i` should be named `index`. A more descriptive name will do too.'),
 				...createErrors('The variable `j` should be named `index_`. A more descriptive name will do too.'),
-				...createErrors('The variable `func` should be named `function__`. A more descriptive name will do too.')
-			]
+				...createErrors('The variable `func` should be named `function__`. A more descriptive name will do too.'),
+			],
 		},
 		{
 			code: outdent`
@@ -870,14 +870,14 @@ const tests = {
 				}
 				const function__ = function_;
 			`,
-			errors: createErrors('The variable `j` should be named `index_`. A more descriptive name will do too.')
+			errors: createErrors('The variable `j` should be named `index_`. A more descriptive name will do too.'),
 		},
 
 		// `package` is a reserved word in strict mode
 		{
 			code: 'let pkg',
 			output: 'let package_',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -888,7 +888,7 @@ const tests = {
 				"use strict";
 				let package_;
 			`,
-			errors: createErrors('The variable `pkg` should be named `package_`. A more descriptive name will do too.')
+			errors: createErrors('The variable `pkg` should be named `package_`. A more descriptive name will do too.'),
 		},
 		{
 			code: outdent`
@@ -901,7 +901,7 @@ const tests = {
 				let package__ = 1;
 				let package_ = 2;
 			`,
-			errors: createErrors('The variable `pkg` should be named `package__`. A more descriptive name will do too.')
+			errors: createErrors('The variable `pkg` should be named `package__`. A more descriptive name will do too.'),
 		},
 		{
 			code: outdent`
@@ -920,26 +920,26 @@ const tests = {
 			`,
 			errors: [
 				...createErrors('The variable `args` should be named `arguments_`. A more descriptive name will do too.'),
-				...createErrors('The variable `pkg` should be named `package_`. A more descriptive name will do too.')
-			]
+				...createErrors('The variable `pkg` should be named `package_`. A more descriptive name will do too.'),
+			],
 		},
 
 		{
 			code: 'let y',
 			output: 'let yield_',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: 'let errCb, errorCb',
 			output: 'let errorCallback, errorCallback_',
-			errors: 2
+			errors: 2,
 		},
 		{
 			code: '{ let errCb }; { let errorCb }',
 			output: '{ let errorCallback }; { let errorCallback }',
-			errors: 2
+			errors: 2,
 		},
 
 		// The following test should have looked like this (commented one), but eslint's `RuleTester`
@@ -978,7 +978,7 @@ const tests = {
 					console.log(errorCallback, errorCb);
 				}
 			`,
-			errors: 2
+			errors: 2,
 		},
 
 		{
@@ -990,7 +990,7 @@ const tests = {
 				let error;
 				({a: error = 1} = 2);
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		// Renaming to `arguments` would result in a `SyntaxError`, so it should rename to `arguments_`
@@ -1003,7 +1003,7 @@ const tests = {
 				'use strict';
 				let arguments_;
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1020,7 +1020,7 @@ const tests = {
 					}
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1037,7 +1037,7 @@ const tests = {
 					}
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
@@ -1051,7 +1051,7 @@ const tests = {
 					return arguments_;
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1066,7 +1066,7 @@ const tests = {
 					return arguments_;
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		// Renaming to `arguments` whould result in `f` returning it's arguments instead of the outer variable
@@ -1083,7 +1083,7 @@ const tests = {
 					return arguments_;
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1098,7 +1098,7 @@ const tests = {
 					return arguments + arguments_;
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1113,7 +1113,7 @@ const tests = {
 					return g.apply(this, arguments) + arguments_;
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1128,39 +1128,39 @@ const tests = {
 					return property;
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: 'const {prop} = {};',
 			output: 'const {prop: property} = {};',
 			options: [{checkShorthandProperties: true}],
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: 'const [prop] = [];',
 			output: 'const [property] = [];',
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: 'const {prop: prop} = {};',
 			output: 'const {prop: property} = {};',
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: 'const {prop = 1} = {};',
 			output: 'const {prop: property = 1} = {};',
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: 'const [prop = 1] = [];',
 			output: 'const [property = 1] = [];',
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: 'const {prop: prop = 1} = {};',
 			output: 'const {prop: property = 1} = {};',
-			errors: 1
+			errors: 1,
 		},
 
 		{
@@ -1178,7 +1178,7 @@ const tests = {
 					return property;
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1197,7 +1197,7 @@ const tests = {
 					};
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1214,7 +1214,7 @@ const tests = {
 					return property;
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1231,7 +1231,7 @@ const tests = {
 					return property;
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1248,7 +1248,7 @@ const tests = {
 					return property;
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		// `extendDefaultAllowList` option
@@ -1256,9 +1256,9 @@ const tests = {
 			code: 'const propTypes = 2;const err = 2;',
 			output: 'const propertyTypes = 2;const err = 2;',
 			options: noExtendDefaultAllowListOptions,
-			errors: createErrors()
-		}
-	]
+			errors: createErrors(),
+		},
+	],
 };
 
 test(tests);
@@ -1268,18 +1268,18 @@ test.typescript(avoidTestTitleConflict(tests, 'typescript'));
 test({
 	testerOptions: {
 		parserOptions: {
-			ecmaVersion: 5
+			ecmaVersion: 5,
 		},
 		env: {
-			browser: true
-		}
+			browser: true,
+		},
 	},
 	valid: [],
 	invalid: [
 		{
 			code: 'var doc',
 			output: 'var document_',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1290,14 +1290,14 @@ test({
 				var document_;
 				document.querySelector(document_);
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: 'var y',
 			output: 'var yield_',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1309,25 +1309,25 @@ test({
 				var yield_;
 			`,
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'function a() {try {} catch(args) {}}',
 			output: 'function a() {try {} catch(arguments_) {}}',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'var one',
 			options: [{replacements: {one: {1: true}}}],
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'var one_two',
 			options: [{replacements: {one: {first: true, 1: true}}}],
-			errors: createErrors()
-		}
-	]
+			errors: createErrors(),
+		},
+	],
 });
 
 const importExportTests = {
@@ -1366,70 +1366,70 @@ const importExportTests = {
 		// Option checkDefaultAndNamespaceImports: false
 		{
 			code: 'const err = require("err")',
-			options: noCheckDefaultAndNamespaceImports
+			options: noCheckDefaultAndNamespaceImports,
 		},
 		{
 			code: 'const err = require("./err")',
-			options: noCheckDefaultAndNamespaceImports
+			options: noCheckDefaultAndNamespaceImports,
 		},
 		{
 			code: 'import foo, * as err from "err"',
-			options: noCheckDefaultAndNamespaceImports
+			options: noCheckDefaultAndNamespaceImports,
 		},
 		{
 			code: 'import foo, * as err from "./err"',
-			options: noCheckDefaultAndNamespaceImports
+			options: noCheckDefaultAndNamespaceImports,
 		},
 		{
 			code: 'import { default as err, foo as bar } from "err"',
-			options: noCheckDefaultAndNamespaceImports
+			options: noCheckDefaultAndNamespaceImports,
 		},
 		{
 			code: 'import { default as err, foo as bar } from "./err"',
-			options: noCheckDefaultAndNamespaceImports
+			options: noCheckDefaultAndNamespaceImports,
 		},
 		{
 			code: 'import err, { foo as bar } from "err"',
-			options: noCheckDefaultAndNamespaceImports
+			options: noCheckDefaultAndNamespaceImports,
 		},
 		{
 			code: 'import err, { foo as bar } from "./err"',
-			options: noCheckDefaultAndNamespaceImports
+			options: noCheckDefaultAndNamespaceImports,
 		},
 		{
 			code: 'import * as err from "err"',
-			options: noCheckDefaultAndNamespaceImports
+			options: noCheckDefaultAndNamespaceImports,
 		},
 		{
 			code: 'import * as err from "./err"',
-			options: noCheckDefaultAndNamespaceImports
+			options: noCheckDefaultAndNamespaceImports,
 		},
 		{
 			code: 'import err from "err"',
-			options: noCheckDefaultAndNamespaceImports
+			options: noCheckDefaultAndNamespaceImports,
 		},
 		{
 			code: 'import err from "./err"',
-			options: noCheckDefaultAndNamespaceImports
+			options: noCheckDefaultAndNamespaceImports,
 		},
 
 		// Option checkShorthandImports: false
 		{
 			code: 'import { err } from "err"',
-			options: noCheckShorthandImportsOptions
+			options: noCheckShorthandImportsOptions,
 		},
 		{
 			code: 'import { err } from "./err"',
-			options: noCheckShorthandImportsOptions
+			options: noCheckShorthandImportsOptions,
 		},
 		{
 			code: 'import { default as foo, err } from "err"',
-			options: noCheckShorthandImportsOptions
+			options: noCheckShorthandImportsOptions,
 		},
 		{
 			code: 'import { default as foo, err } from "./err"',
-			options: noCheckShorthandImportsOptions
-		}
+			options: noCheckShorthandImportsOptions,
+		},
 	],
 
 	invalid: [
@@ -1441,7 +1441,7 @@ const importExportTests = {
 				import error from 'err';
 			`,
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1451,13 +1451,13 @@ const importExportTests = {
 				import {err as error} from 'err';
 			`,
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'import {err as err} from "err";',
 			output: 'import {err as error} from "err";',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1475,7 +1475,7 @@ const importExportTests = {
 				} from 'foo';
 			`,
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
@@ -1485,7 +1485,7 @@ const importExportTests = {
 			output: outdent`
 				import {err as callback} from 'err';
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1494,54 +1494,54 @@ const importExportTests = {
 			output: outdent`
 				const {err: callback} = foo;
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		// Internal import
 		{
 			code: 'const err = require("../err")',
 			output: 'const error = require("../err")',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'const err = require("/err")',
 			output: 'const error = require("/err")',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'import err from "./err"',
 			output: 'import error from "./err"',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'import err, {foo as bar} from "./err"',
 			output: 'import error, {foo as bar} from "./err"',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'import {default as err, foo as bar} from "./err"',
 			output: 'import {default as error, foo as bar} from "./err"',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'import * as err from "./err"',
 			output: 'import * as error from "./err"',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'import foo, * as err from "./err"',
 			output: 'import foo, * as error from "./err"',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'import {err} from "./err"',
 			output: 'import {err as error} from "./err"',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'import {default as foo, err} from "./err"',
 			output: 'import {default as foo, err as error} from "./err"',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
@@ -1553,7 +1553,7 @@ const importExportTests = {
 				let error;
 				export {error as err};
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
@@ -1565,28 +1565,28 @@ const importExportTests = {
 				let error;
 				export {error as err};
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: 'export const err = {}',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'export let err',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'export var err',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'export function err() {}',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'export class err {}',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
@@ -1598,7 +1598,7 @@ const importExportTests = {
 				const error_ = {};
 				export const error = error_;
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
@@ -1610,7 +1610,7 @@ const importExportTests = {
 				class error {};
 				console.log(error);
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
@@ -1630,7 +1630,7 @@ const importExportTests = {
 				};
 				console.log(error);
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
@@ -1639,10 +1639,10 @@ const importExportTests = {
 				export {foo as err};
 			`,
 			options: checkPropertiesOptions,
-			errors: createErrors()
-		}
+			errors: createErrors(),
+		},
 
-	]
+	],
 };
 test(importExportTests);
 test.babel(avoidTestTitleConflict(importExportTests, 'babel'));
@@ -1671,7 +1671,7 @@ test.babel({
 			class C {
 				err = () => {}
 			}
-		`
+		`,
 	],
 	invalid: [
 		{
@@ -1687,24 +1687,24 @@ test.babel({
 					return property;
 				}
 			`,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: '({err}) => err;',
 			output: '({err: error}) => error;',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'err => ({err});',
 			output: 'error => ({err: error});',
 			options: customOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'Foo.customProps = {}',
 			options: checkPropertiesOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1713,7 +1713,7 @@ test.babel({
 				}
 			`,
 			options: checkPropertiesOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: outdent`
@@ -1722,18 +1722,18 @@ test.babel({
 				}
 			`,
 			options: checkPropertiesOptions,
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		{
 			code: '(class {e = 1})',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.')
+			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.'),
 		},
 		{
 			code: '(class {err = 1})',
 			options: checkPropertiesOptions,
-			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.')
+			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.'),
 		},
 		{
 			code: outdent`
@@ -1742,9 +1742,9 @@ test.babel({
 				}
 			`,
 			options: checkPropertiesOptions,
-			errors: createErrors()
-		}
-	]
+			errors: createErrors(),
+		},
+	],
 });
 
 test.typescript({
@@ -1757,23 +1757,23 @@ test.typescript({
 			'declare var prop: number;',
 			'declare let prop: any;',
 			'declare class prop {}',
-			'const prop: SomeThing<boolean> = func();'
+			'const prop: SomeThing<boolean> = func();',
 		].map(code => ({
 			code,
 			output: code.replace('prop', 'property'),
-			errors: createErrors()
+			errors: createErrors(),
 		})),
 
 		// #763
 		{
 			code: 'const foo = (extraParams?: string) => {}',
 			output: 'const foo = (extraParameters?: string) => {}',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'const foo = (extr\u0061Params     ?    :    string) => {}',
 			output: 'const foo = (extraParameters?:    string) => {}',
-			errors: 1
+			errors: 1,
 		},
 
 		// #912
@@ -1796,13 +1796,13 @@ test.typescript({
 
 				export default Property;
 			`,
-			errors: 1
+			errors: 1,
 		},
 
 		// #1102
 		{
 			code: 'export type Props = string',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		// #347
@@ -1822,12 +1822,12 @@ test.typescript({
 					extendDefaultReplacements: false,
 					replacements: {
 						e: {
-							event: true
-						}
-					}
-				}
+							event: true,
+						},
+					},
+				},
 			],
-			errors: createErrors()
+			errors: createErrors(),
 		},
 
 		// https://github.com/facebook/relay/blob/597d2a17aa29d401830407b6814a5f8d148f632d/packages/relay-experimental/EntryPointTypes.flow.js#L138
@@ -1838,7 +1838,7 @@ test.typescript({
 			output: outdent`
 				export type PreloadProps<TExtraProperties = null> = {}
 			`,
-			errors: [...createErrors(), ...createErrors()]
+			errors: [...createErrors(), ...createErrors()],
 		},
 
 		// https://github.com/facebook/relay/blob/597d2a17aa29d401830407b6814a5f8d148f632d/packages/relay-experimental/EntryPointTypes.flow.js#L138
@@ -1849,9 +1849,9 @@ test.typescript({
 			output: outdent`
 				export type PreloadProps<TExtraProperties = null> = {};
 			`,
-			errors: [...createErrors(), ...createErrors()]
-		}
-	]
+			errors: [...createErrors(), ...createErrors()],
+		},
+	],
 });
 
 // Filename
@@ -1859,16 +1859,16 @@ test({
 	valid: [
 		{
 			code: 'foo();',
-			filename: 'http-error.js'
+			filename: 'http-error.js',
 		},
 		{
 			code: 'foo();',
 			filename: 'http-err.js',
-			options: [{checkFilenames: false}]
+			options: [{checkFilenames: false}],
 		},
 		{
 			code: 'foo();',
-			filename: 'err/http-error.js'
+			filename: 'err/http-error.js',
 		},
 		// `ignore` option
 		{
@@ -1883,49 +1883,49 @@ test({
 						/^e_/,
 						// eslint-disable-next-line prefer-regex-literals
 						new RegExp('_e$', 'i'),
-						'\\.e2e\\.'
-					]
-				}
-			]
-		}
+						'\\.e2e\\.',
+					],
+				},
+			],
+		},
 	],
 	invalid: [
 		{
 			code: 'foo();',
 			filename: 'err/http-err.js',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'foo();',
 			filename: 'http-err.js',
-			errors: createErrors()
+			errors: createErrors(),
 		},
 		{
 			code: 'foo();',
 			filename: '/path/to/doc/__prev-Attr$1Err__.conf.js',
-			errors: createErrors('The filename `/path/to/doc/__prev-Attr$1Err__.conf.js` should be named `__previous-Attribute$1Error__.config.js`. A more descriptive name will do too.')
+			errors: createErrors('The filename `/path/to/doc/__prev-Attr$1Err__.conf.js` should be named `__previous-Attribute$1Error__.config.js`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'foo();',
 			filename: '.http.err.js',
-			errors: createErrors('The filename `.http.err.js` should be named `.http.error.js`. A more descriptive name will do too.')
+			errors: createErrors('The filename `.http.err.js` should be named `.http.error.js`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'foo();',
 			filename: 'e.js',
-			errors: createErrors('Please rename the filename `e.js`. Suggested names are: `error.js`, `event.js`. A more descriptive name will do too.')
+			errors: createErrors('Please rename the filename `e.js`. Suggested names are: `error.js`, `event.js`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'foo();',
 			filename: 'c.js',
 			options: extendedOptions,
-			errors: createErrors('The filename `c.js` should be named `custom.js`. A more descriptive name will do too.')
+			errors: createErrors('The filename `c.js` should be named `custom.js`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'foo();',
 			filename: 'cb.js',
 			options: extendedOptions,
-			errors: createErrors('The filename `cb.js` should be named `circuitBreacker.js`. A more descriptive name will do too.')
+			errors: createErrors('The filename `cb.js` should be named `circuitBreacker.js`. A more descriptive name will do too.'),
 		},
 		// `ignore` option
 		{
@@ -1937,9 +1937,9 @@ test({
 			errors: [
 				...createErrors('Please rename the filename `some.spec.e2e.test.js`. Suggested names are: `some.spec.error2error.test.js`, `some.spec.error2event.test.js`, `some.spec.event2error.test.js`, ... (1 more omitted). A more descriptive name will do too.'),
 				...createErrors('Please rename the variable `e_at_start`. Suggested names are: `error_at_start`, `event_at_start`. A more descriptive name will do too.'),
-				...createErrors('Please rename the variable `end_with_e`. Suggested names are: `end_with_error`, `end_with_event`. A more descriptive name will do too.')
-			]
-		}
-	]
+				...createErrors('Please rename the variable `end_with_e`. Suggested names are: `end_with_error`, `end_with_event`. A more descriptive name will do too.'),
+			],
+		},
+	],
 
 });

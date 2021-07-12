@@ -12,7 +12,7 @@ function checkFiles(ruleId) {
 		`rules/${ruleId}.js`,
 		`test/${ruleId}.mjs`,
 		`test/snapshots/${ruleId}.mjs.md`,
-		`test/snapshots/${ruleId}.mjs.snap`
+		`test/snapshots/${ruleId}.mjs.snap`,
 	];
 
 	for (const file of files) {
@@ -44,7 +44,7 @@ async function renameRule(from, to) {
 		`docs/rules/${to}.md`,
 		`rules/${to}.js`,
 		`test/${to}.mjs`,
-		`test/snapshots/${to}.mjs.md`
+		`test/snapshots/${to}.mjs.md`,
 	].map(file => resolveFile(file))
 	) {
 		if (!fs.existsSync(file)) {
@@ -63,12 +63,12 @@ async function renameRule(from, to) {
 	const originalRuleId = await new enquirer.AutoComplete({
 		message: 'Select the rule you want rename:',
 		limit: 10,
-		choices: rules
+		choices: rules,
 	}).run();
 
 	const ruleId = await new enquirer.Input({
 		message: 'New name:',
-		initial: originalRuleId
+		initial: originalRuleId,
 	}).run();
 
 	if (!ruleId || originalRuleId === ruleId) {

@@ -9,17 +9,17 @@ function prototypeMethodSelector(options) {
 		object,
 		name,
 		names,
-		path
+		path,
 	} = {
 		path: '',
 		name: '',
-		...options
+		...options,
 	};
 
 	const objectPath = path ? `${path}.object` : 'object';
 
 	const prototypeSelectors = [
-		memberExpressionSelector({path: objectPath, name: 'prototype', object})
+		memberExpressionSelector({path: objectPath, name: 'prototype', object}),
 	];
 
 	switch (object) {
@@ -38,9 +38,9 @@ function prototypeMethodSelector(options) {
 		memberExpressionSelector({
 			path,
 			name,
-			names
+			names,
 		}),
-		matches(prototypeSelectors)
+		matches(prototypeSelectors),
 	].join('');
 }
 
@@ -49,5 +49,5 @@ const objectPrototypeMethodSelector = options => prototypeMethodSelector({...opt
 
 module.exports = {
 	arrayPrototypeMethodSelector,
-	objectPrototypeMethodSelector
+	objectPrototypeMethodSelector,
 };

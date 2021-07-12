@@ -5,21 +5,21 @@ const {getParentheses} = require('./utils/parentheses.js');
 
 const MESSAGE_ID = 'no-useless-spread';
 const messages = {
-	[MESSAGE_ID]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.'
+	[MESSAGE_ID]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.',
 };
 
 const selector = matches([
 	'ArrayExpression > SpreadElement.elements > ArrayExpression.argument',
 	'ObjectExpression > SpreadElement.properties > ObjectExpression.argument',
 	'CallExpression > SpreadElement.arguments > ArrayExpression.argument',
-	'NewExpression > SpreadElement.arguments > ArrayExpression.argument'
+	'NewExpression > SpreadElement.arguments > ArrayExpression.argument',
 ]);
 
 const parentDescriptions = {
 	ArrayExpression: 'array literal',
 	ObjectExpression: 'object literal',
 	CallExpression: 'arguments',
-	NewExpression: 'arguments'
+	NewExpression: 'arguments',
 };
 
 function getCommaTokens(arrayExpression, sourceCode) {
@@ -56,7 +56,7 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				data: {
 					argumentType: spreadObject.type === 'ArrayExpression' ? 'array' : 'object',
-					parentDescription: parentDescriptions[parentType]
+					parentDescription: parentDescriptions[parentType],
 				},
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
 				* fix(fixer) {
@@ -78,7 +78,7 @@ const create = context => {
 
 					const [
 						penultimateToken,
-						lastToken
+						lastToken,
 					] = sourceCode.getLastTokens(spreadObject, 2);
 
 					// `[...[foo]]`
@@ -105,9 +105,9 @@ const create = context => {
 						//             ^ Replace holes with `undefined`
 						yield fixer.insertTextBefore(commaToken, 'undefined');
 					}
-				}
+				},
 			};
-		}
+		},
 	};
 };
 
@@ -116,9 +116,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow unnecessary spread.'
+			description: 'Disallow unnecessary spread.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

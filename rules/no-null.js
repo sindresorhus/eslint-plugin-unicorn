@@ -3,7 +3,7 @@ const {
 	not,
 	matches,
 	methodCallSelector,
-	callExpressionSelector
+	callExpressionSelector,
 } = require('./selectors/index.js');
 
 const ERROR_MESSAGE_ID = 'error';
@@ -12,13 +12,13 @@ const SUGGESTION_REMOVE_MESSAGE_ID = 'remove';
 const messages = {
 	[ERROR_MESSAGE_ID]: 'Use `undefined` instead of `null`.',
 	[SUGGESTION_REPLACE_MESSAGE_ID]: 'Replace `null` with `undefined`.',
-	[SUGGESTION_REMOVE_MESSAGE_ID]: 'Remove `null`.'
+	[SUGGESTION_REMOVE_MESSAGE_ID]: 'Remove `null`.',
 };
 
 const objectCreateSelector = methodCallSelector({
 	object: 'Object',
 	name: 'create',
-	length: 1
+	length: 1,
 });
 
 // `useRef(null)`
@@ -30,13 +30,13 @@ const useRefSelector = callExpressionSelector({name: 'useRef', length: 1});
 const reactUseRefSelector = methodCallSelector({
 	object: 'React',
 	name: 'useRef',
-	length: 1
+	length: 1,
 });
 
 const selector = [
 	'Literal',
 	'[raw="null"]',
-	not(`${matches([objectCreateSelector, useRefSelector, reactUseRefSelector])} > .arguments`)
+	not(`${matches([objectCreateSelector, useRefSelector, reactUseRefSelector])} > .arguments`),
 ].join('');
 
 const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].includes(node.operator);
@@ -56,7 +56,7 @@ const isSecondArgumentOfInsertBefore = node =>
 const create = context => {
 	const {checkStrictEquality} = {
 		checkStrictEquality: false,
-		...context.options[0]
+		...context.options[0],
 	};
 
 	return {
@@ -72,7 +72,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				messageId: ERROR_MESSAGE_ID
+				messageId: ERROR_MESSAGE_ID,
 			};
 
 			const useUndefinedFix = fixer => fixer.replaceText(node, 'undefined');
@@ -84,16 +84,16 @@ const create = context => {
 
 			const useUndefinedSuggestion = {
 				messageId: SUGGESTION_REPLACE_MESSAGE_ID,
-				fix: useUndefinedFix
+				fix: useUndefinedFix,
 			};
 
 			if (parent.type === 'ReturnStatement' && parent.argument === node) {
 				problem.suggest = [
 					{
 						messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-						fix: fixer => fixer.remove(node)
+						fix: fixer => fixer.remove(node),
 					},
-					useUndefinedSuggestion
+					useUndefinedSuggestion,
 				];
 				return problem;
 			}
@@ -102,16 +102,16 @@ const create = context => {
 				problem.suggest = [
 					{
 						messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-						fix: fixer => fixer.removeRange([parent.id.range[1], node.range[1]])
+						fix: fixer => fixer.removeRange([parent.id.range[1], node.range[1]]),
 					},
-					useUndefinedSuggestion
+					useUndefinedSuggestion,
 				];
 				return problem;
 			}
 
 			problem.suggest = [useUndefinedSuggestion];
 			return problem;
-		}
+		},
 	};
 };
 
@@ -121,11 +121,11 @@ const schema = [
 		properties: {
 			checkStrictEquality: {
 				type: 'boolean',
-				default: false
-			}
+				default: false,
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -133,11 +133,11 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow the use of the `null` literal.'
+			description: 'Disallow the use of the `null` literal.',
 		},
 		fixable: 'code',
 		schema,
 		messages,
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

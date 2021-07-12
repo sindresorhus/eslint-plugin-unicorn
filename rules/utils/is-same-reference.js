@@ -83,7 +83,7 @@ function equalLiteralValue(left, right) {
 			left.regex &&
 			right.regex &&
 			left.regex.pattern === right.regex.pattern &&
-			left.regex.flags === right.regex.flags
+			left.regex.flags === right.regex.flags,
 		);
 	}
 

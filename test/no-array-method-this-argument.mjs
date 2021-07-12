@@ -31,7 +31,7 @@ test.snapshot({
 		// First argument is not function
 		'array.map(new Callback, thisArgument)',
 		'array.map(1, thisArgument)',
-		'async () => array.map(await callback, thisArgument)'
+		'async () => array.map(await callback, thisArgument)',
 	],
 	invalid: [
 		'array.every(() => {}, thisArgument)',
@@ -45,8 +45,8 @@ test.snapshot({
 		'array.map(() => {}, thisArgument,)',
 		'array.map(() => {}, (0, thisArgument),)',
 		// Side effect
-		'array.map(() => {}, thisArgumentHasSideEffect())'
-	]
+		'array.map(() => {}, thisArgumentHasSideEffect())',
+	],
 });
 
 // Non-arrow functions
@@ -59,16 +59,16 @@ test.snapshot({
 		'array.map(function callback () {}, thisArgument)',
 		{
 			code: 'array.map( foo as bar, (( thisArgument )),)',
-			parser: parsers.typescript
+			parser: parsers.typescript,
 		},
 		{
 			code: 'array.map( (( foo as bar )), (( thisArgument )),)',
-			parser: parsers.typescript
+			parser: parsers.typescript,
 		},
 		'array.map( (( 0, callback )), (( thisArgument )),)',
 		// This callback is actually arrow function, but we don't know
 		'array.map((0, () => {}), thisArgument)',
 		// This callback is a bound function, but we don't know
-		'array.map(callback.bind(foo), thisArgument)'
-	]
+		'array.map(callback.bind(foo), thisArgument)',
+	],
 });

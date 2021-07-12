@@ -6,7 +6,7 @@ const tokenTypesNeedsSemicolon = new Set([
 	'Null',
 	'Boolean',
 	'Numeric',
-	'RegularExpression'
+	'RegularExpression',
 ]);
 
 const charactersMightNeedsSemicolon = new Set([
@@ -18,7 +18,7 @@ const charactersMightNeedsSemicolon = new Set([
 	'-',
 	'*',
 	',',
-	'.'
+	'.',
 ]);
 
 /**

@@ -39,9 +39,9 @@ test({
 		'if (foo.match("1")) {}',
 		'if (foo.match(null)) {}',
 		'if (foo.match(1n)) {}',
-		'if (foo.match(true)) {}'
+		'if (foo.match(true)) {}',
 	],
-	invalid: []
+	invalid: [],
 });
 
 test.snapshot({
@@ -150,8 +150,8 @@ test.snapshot({
 		outdent`
 			const regex = /weird/gyi;
 			if (regex.exec(foo));
-		`
-	]
+		`,
+	],
 });
 
 test.vue({
@@ -160,17 +160,17 @@ test.vue({
 		{
 			code: '<template><div v-if="/re/.exec(string)"></div></template>',
 			output: '<template><div v-if="/re/.test(string)"></div></template>',
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: '<template><div v-if="\'string\'.match(/re/)"></div></template>',
 			output: '<template><div v-if="/re/.test(\'string\')"></div></template>',
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: '<script>if(/re/.exec(string));</script>',
 			output: '<script>if(/re/.test(string));</script>',
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });

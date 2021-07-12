@@ -17,14 +17,14 @@ function memberExpressionSelector(options) {
 		object,
 		objects,
 		includeOptional,
-		allowComputed
+		allowComputed,
 	} = {
 		path: '',
 		name: '',
 		object: '',
 		includeOptional: false,
 		allowComputed: false,
-		...options
+		...options,
 	};
 
 	const prefix = path ? `${path}.` : '';
@@ -37,13 +37,13 @@ function memberExpressionSelector(options) {
 	}
 
 	const parts = [
-		`[${prefix}type="MemberExpression"]`
+		`[${prefix}type="MemberExpression"]`,
 	];
 
 	if (!allowComputed) {
 		parts.push(
 			`[${prefix}computed!=true]`,
-			`[${prefix}property.type="Identifier"]`
+			`[${prefix}property.type="Identifier"]`,
 		);
 	}
 
@@ -58,7 +58,7 @@ function memberExpressionSelector(options) {
 	if (Array.isArray(objects) && objects.length > 0) {
 		parts.push(
 			`[${prefix}object.type="Identifier"]`,
-			matches(objects.map(object => `[${prefix}object.name="${object}"]`))
+			matches(objects.map(object => `[${prefix}object.name="${object}"]`)),
 		);
 	}
 

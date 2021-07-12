@@ -36,11 +36,11 @@ function removeLengthNode(node, fixer, sourceCode) {
 	const [start, end] = getParenthesizedRange(node, sourceCode);
 	return fixer.removeRange([
 		start,
-		end + sourceCode.text.slice(end).match(/\S|$/).index
+		end + sourceCode.text.slice(end).match(/\S|$/).index,
 	]);
 }
 
 module.exports = {
 	getNegativeIndexLengthNode,
-	removeLengthNode
+	removeLengthNode,
 };

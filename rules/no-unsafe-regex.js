@@ -4,12 +4,12 @@ const {newExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'no-unsafe-regex';
 const messages = {
-	[MESSAGE_ID]: 'Unsafe regular expression.'
+	[MESSAGE_ID]: 'Unsafe regular expression.',
 };
 
 const newRegExpSelector = [
 	newExpressionSelector('RegExp'),
-	'[arguments.0.type="Literal"]'
+	'[arguments.0.type="Literal"]',
 ].join('');
 
 const create = () => {
@@ -26,7 +26,7 @@ const create = () => {
 			if (!safeRegex(node.value)) {
 				return {
 					node,
-					messageId: MESSAGE_ID
+					messageId: MESSAGE_ID,
 				};
 			}
 		},
@@ -47,10 +47,10 @@ const create = () => {
 			if (!safeRegex(`/${pattern}/${flags}`)) {
 				return {
 					node,
-					messageId: MESSAGE_ID
+					messageId: MESSAGE_ID,
 				};
 			}
-		}
+		},
 	};
 };
 
@@ -59,8 +59,8 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow unsafe regular expressions.'
+			description: 'Disallow unsafe regular expressions.',
 		},
-		messages
-	}
+		messages,
+	},
 };
