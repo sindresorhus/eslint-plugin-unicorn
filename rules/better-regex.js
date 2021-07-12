@@ -88,7 +88,7 @@ const create = context => {
 					},
 					fix: fixer => fixer.replaceText(
 						patternNode,
-						quoteString(newPattern)
+						quoteString(newPattern, patternNode.raw.charAt(0))
 					)
 				};
 			}
