@@ -12,7 +12,7 @@ const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
 	[TYPE_NON_ZERO]: 'Use `.{{property}} {{code}}` when checking {{property}} is not zero.',
 	[TYPE_ZERO]: 'Use `.{{property}} {{code}}` when checking {{property}} is zero.',
-	[MESSAGE_ID_SUGGESTION]: 'Replace `.{{property}}` with `.{{property}} {{code}}`.'
+	[MESSAGE_ID_SUGGESTION]: 'Replace `.{{property}}` with `.{{property}} {{code}}`.',
 };
 
 const isCompareRight = (node, operator, value) =>
@@ -28,20 +28,20 @@ const nonZeroStyles = new Map([
 		'greater-than',
 		{
 			code: '> 0',
-			test: node => isCompareRight(node, '>', 0)
-		}
+			test: node => isCompareRight(node, '>', 0),
+		},
 	],
 	[
 		'not-equal',
 		{
 			code: '!== 0',
-			test: node => isCompareRight(node, '!==', 0)
-		}
-	]
+			test: node => isCompareRight(node, '!==', 0),
+		},
+	],
 ]);
 const zeroStyle = {
 	code: '=== 0',
-	test: node => isCompareRight(node, '===', 0)
+	test: node => isCompareRight(node, '===', 0),
 };
 
 const lengthSelector = memberExpressionSelector(['length', 'size']);
@@ -95,7 +95,7 @@ function getLengthCheckNode(node) {
 function create(context) {
 	const options = {
 		'non-zero': 'greater-than',
-		...context.options[0]
+		...context.options[0],
 	};
 	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
 	const sourceCode = context.getSourceCode();
@@ -120,7 +120,7 @@ function create(context) {
 		const problem = {
 			node,
 			messageId: isZeroLengthCheck ? TYPE_ZERO : TYPE_NON_ZERO,
-			data: {code, property: lengthNode.property.name}
+			data: {code, property: lengthNode.property.name},
 		};
 
 		if (autoFix) {
@@ -130,8 +130,8 @@ function create(context) {
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
 					data: problem.data,
-					fix
-				}
+					fix,
+				},
 			];
 		}
 
@@ -174,7 +174,7 @@ function create(context) {
 			if (node) {
 				return getProblem({node, isZeroLengthCheck, lengthNode, autoFix});
 			}
-		}
+		},
 	};
 }
 
@@ -184,10 +184,10 @@ const schema = [
 		properties: {
 			'non-zero': {
 				enum: [...nonZeroStyles.keys()],
-				default: 'greater-than'
-			}
-		}
-	}
+				default: 'greater-than',
+			},
+		},
+	},
 ];
 
 module.exports = {
@@ -195,11 +195,11 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce explicitly comparing the `length` or `size` property of a value.'
+			description: 'Enforce explicitly comparing the `length` or `size` property of a value.',
 		},
 		fixable: 'code',
 		schema,
 		messages,
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

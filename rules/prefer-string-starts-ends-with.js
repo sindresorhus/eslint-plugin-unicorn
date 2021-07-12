@@ -16,19 +16,19 @@ const messages = {
 	[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.',
 	[FIX_TYPE_STRING_CASTING]: 'Convert to string `String(…).{{method}}()`.',
 	[FIX_TYPE_OPTIONAL_CHAINING]: 'Use optional chaining `…?.{{method}}()`.',
-	[FIX_TYPE_NULLISH_COALESCING]: 'Use nullish coalescing `(… ?? \'\').{{method}}()`.'
+	[FIX_TYPE_NULLISH_COALESCING]: 'Use nullish coalescing `(… ?? \'\').{{method}}()`.',
 };
 
 const doesNotContain = (string, characters) => characters.every(character => !string.includes(character));
 const isSimpleString = string => doesNotContain(
 	string,
-	['^', '$', '+', '[', '{', '(', '\\', '.', '?', '*', '|']
+	['^', '$', '+', '[', '{', '(', '\\', '.', '?', '*', '|'],
 );
 const addParentheses = text => `(${text})`;
 
 const regexTestSelector = [
 	methodCallSelector({name: 'test', length: 1}),
-	'[callee.object.regex]'
+	'[callee.object.regex]',
 ].join('');
 
 const checkRegex = ({pattern, flags}) => {
@@ -42,7 +42,7 @@ const checkRegex = ({pattern, flags}) => {
 		if (isSimpleString(string)) {
 			return {
 				messageId: MESSAGE_STARTS_WITH,
-				string
+				string,
 			};
 		}
 	}
@@ -53,7 +53,7 @@ const checkRegex = ({pattern, flags}) => {
 		if (isSimpleString(string)) {
 			return {
 				messageId: MESSAGE_ENDS_WITH,
-				string
+				string,
 			};
 		}
 	}
@@ -92,7 +92,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				messageId: result.messageId
+				messageId: result.messageId,
 			};
 
 			function * fix(fixer, fixType) {
@@ -162,12 +162,12 @@ const create = context => {
 				problem.suggest = [
 					FIX_TYPE_STRING_CASTING,
 					FIX_TYPE_OPTIONAL_CHAINING,
-					FIX_TYPE_NULLISH_COALESCING
+					FIX_TYPE_NULLISH_COALESCING,
 				].map(type => ({messageId: type, data: {method}, fix: fixer => fix(fixer, type)}));
 			}
 
 			return problem;
-		}
+		},
 	};
 };
 
@@ -176,10 +176,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.'
+			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.',
 		},
 		fixable: 'code',
 		messages,
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

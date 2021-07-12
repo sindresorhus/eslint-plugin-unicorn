@@ -3,47 +3,47 @@ import {getTester} from './utils/test.mjs';
 const {test} = getTester(import.meta);
 
 const expiredTodoError = (expirationDate, message) => ({
-	message: `There is a TODO that is past due date: ${expirationDate}. ${message}`
+	message: `There is a TODO that is past due date: ${expirationDate}. ${message}`,
 });
 
 const avoidMultipleDatesError = (expirationDates, message) => ({
-	message: `Avoid using multiple expiration dates in TODO: ${expirationDates}. ${message}`
+	message: `Avoid using multiple expiration dates in TODO: ${expirationDates}. ${message}`,
 });
 
 const havePackageError = (package_, message) => ({
-	message: `There is a TODO that is deprecated since you installed: ${package_}. ${message}`
+	message: `There is a TODO that is deprecated since you installed: ${package_}. ${message}`,
 });
 
 const dontHavePackageError = (package_, message) => ({
-	message: `There is a TODO that is deprecated since you uninstalled: ${package_}. ${message}`
+	message: `There is a TODO that is deprecated since you uninstalled: ${package_}. ${message}`,
 });
 
 const versionMatchesError = (comparison, message) => ({
-	message: `There is a TODO match for package version: ${comparison}. ${message}`
+	message: `There is a TODO match for package version: ${comparison}. ${message}`,
 });
 
 const engineMatchesError = (comparison, message) => ({
-	message: `There is a TODO match for Node.js version: ${comparison}. ${message}`
+	message: `There is a TODO match for Node.js version: ${comparison}. ${message}`,
 });
 
 const reachedPackageVersionError = (version, message) => ({
-	message: `There is a TODO that is past due package version: ${version}. ${message}`
+	message: `There is a TODO that is past due package version: ${version}. ${message}`,
 });
 
 const avoidMultiplePackageVersionsError = (versions, message) => ({
-	message: `Avoid using multiple package versions in TODO: ${versions}. ${message}`
+	message: `Avoid using multiple package versions in TODO: ${versions}. ${message}`,
 });
 
 const removeWhitespaceError = (argument, message) => ({
-	message: `Avoid using whitespace on TODO argument. On '${argument}' use '${argument.replace(/ /g, '')}'. ${message}`
+	message: `Avoid using whitespace on TODO argument. On '${argument}' use '${argument.replace(/ /g, '')}'. ${message}`,
 });
 
 const missingAtSymbolError = (bad, good, message) => ({
-	message: `Missing '@' on TODO argument. On '${bad}' use '${good}'. ${message}`
+	message: `Missing '@' on TODO argument. On '${bad}' use '${good}'. ${message}`,
 });
 
 const noWarningCommentError = comment => ({
-	message: `Unexpected 'todo' comment without any conditions: '${comment}'.`
+	message: `Unexpected 'todo' comment without any conditions: '${comment}'.`,
 });
 
 test({
@@ -56,7 +56,7 @@ test({
 		{
 			code: '// Expire Condition [2200-12-12]: new term name',
 			errors: [],
-			options: [{terms: ['Expire Condition']}]
+			options: [{terms: ['Expire Condition']}],
 		},
 		'// Expire Condition [2000-01-01]: new term name',
 		'// TODO [>2000]: We sure didnt past this version',
@@ -80,42 +80,42 @@ test({
 		  */`,
 		{
 			code: '// TODO',
-			errors: []
+			errors: [],
 		},
 		{
 			code: '// TODO [invalid]',
-			errors: []
+			errors: [],
 		},
 		{
 			code: '// TODO [] might have [some] that [try [to trick] me]',
-			errors: []
+			errors: [],
 		},
 		{
 			code: '// TODO [but [it will]] [fallback] [[[ to the default ]]] rule [[',
-			errors: []
+			errors: [],
 		},
 		{
 			code: '// TODO ISSUE-123 fix later',
-			options: [{allowWarningComments: false, ignore: ['ISSUE-\\d+']}]
+			options: [{allowWarningComments: false, ignore: ['ISSUE-\\d+']}],
 		},
 		{
 			code: '// TODO [ISSUE-123] fix later',
-			options: [{allowWarningComments: false, ignore: ['ISSUE-\\d+']}]
+			options: [{allowWarningComments: false, ignore: ['ISSUE-\\d+']}],
 		},
 		{
 			code: '// TODO [1999-01-01, ISSUE-123] fix later',
-			options: [{allowWarningComments: false, ignore: ['ISSUE-\\d+']}]
+			options: [{allowWarningComments: false, ignore: ['ISSUE-\\d+']}],
 		},
 		{
 			code: '// TODO [Issue-123] fix later',
-			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}]
-		}
+			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}],
+		},
 	],
 	invalid: [
 		{
 			code: '// TODO [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false}]
+			options: [{ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: `/*
@@ -126,9 +126,9 @@ test({
 			errors: [
 				expiredTodoError('2000-01-01', 'Yet'),
 				expiredTodoError('2000-01-01', 'Another'),
-				expiredTodoError('2000-01-01', 'Way')
+				expiredTodoError('2000-01-01', 'Way'),
 			],
-			options: [{ignoreDatesOnPullRequests: false}]
+			options: [{ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: `/*
@@ -138,9 +138,9 @@ test({
 			*/`,
 			errors: [
 				expiredTodoError('2000-01-01', 'Invalid'),
-				expiredTodoError('2000-01-01', 'Invalid')
+				expiredTodoError('2000-01-01', 'Invalid'),
 			],
-			options: [{ignoreDatesOnPullRequests: false}]
+			options: [{ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: `/*
@@ -149,203 +149,203 @@ test({
 			* Also something here
 			*/`,
 			errors: [
-				engineMatchesError('node>=8', 'Invalid')
+				engineMatchesError('node>=8', 'Invalid'),
 			],
-			options: [{ignoreDatesOnPullRequests: false}]
+			options: [{ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: '// fixme [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false}]
+			options: [{ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: '// xxx [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false}]
+			options: [{ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: '// ToDo [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false}]
+			options: [{ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: '// fIxME [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false}]
+			options: [{ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: '// Todoist [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false, terms: ['Todoist']}]
+			options: [{ignoreDatesOnPullRequests: false, terms: ['Todoist']}],
 		},
 		{
 			code: '// Expire Condition [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false, terms: ['Expire Condition']}]
+			options: [{ignoreDatesOnPullRequests: false, terms: ['Expire Condition']}],
 		},
 		{
 			code: '// XxX [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false}]
+			options: [{ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: '// TODO [2200-12-12, 2200-12-12]: Multiple dates',
-			errors: [avoidMultipleDatesError('2200-12-12, 2200-12-12', 'Multiple dates')]
+			errors: [avoidMultipleDatesError('2200-12-12, 2200-12-12', 'Multiple dates')],
 		},
 		{
 			code: '// TODO [>1]: if your package.json version is >1',
-			errors: [reachedPackageVersionError('>1', 'if your package.json version is >1')]
+			errors: [reachedPackageVersionError('>1', 'if your package.json version is >1')],
 		},
 		{
 			code: '// TODO [>1, >2]: multiple package versions',
-			errors: [avoidMultiplePackageVersionsError('>1, >2', 'multiple package versions')]
+			errors: [avoidMultiplePackageVersionsError('>1, >2', 'multiple package versions')],
 		},
 		{
 			code: '// TODO [>=1]: if your package.json version is >=1',
-			errors: [reachedPackageVersionError('>=1', 'if your package.json version is >=1')]
+			errors: [reachedPackageVersionError('>=1', 'if your package.json version is >=1')],
 		},
 		{
 			code: '// TODO [+read-pkg-up]: when you install `read-pkg-up`',
-			errors: [havePackageError('read-pkg-up', 'when you install `read-pkg-up`')]
+			errors: [havePackageError('read-pkg-up', 'when you install `read-pkg-up`')],
 		},
 		{
 			code: '// TODO [-popura]: when you uninstall `popura`',
-			errors: [dontHavePackageError('popura', 'when you uninstall `popura`')]
+			errors: [dontHavePackageError('popura', 'when you uninstall `popura`')],
 		},
 		{
 			code: '// TODO [read-pkg-up@>1]: when `read-pkg-up` version is > 1',
-			errors: [versionMatchesError('read-pkg-up > 1', 'when `read-pkg-up` version is > 1')]
+			errors: [versionMatchesError('read-pkg-up > 1', 'when `read-pkg-up` version is > 1')],
 		},
 		{
 			code: '// TODO [engine:node@>=8]: when support is for node >= 8',
-			errors: [engineMatchesError('node>=8', 'when support is for node >= 8')]
+			errors: [engineMatchesError('node>=8', 'when support is for node >= 8')],
 		},
 		{
 			code: '// TODO [read-pkg-up@>=5.1.1]: when `read-pkg-up` version is >= 5.1.1',
-			errors: [versionMatchesError('read-pkg-up >= 5.1.1', 'when `read-pkg-up` version is >= 5.1.1')]
+			errors: [versionMatchesError('read-pkg-up >= 5.1.1', 'when `read-pkg-up` version is >= 5.1.1')],
 		},
 		{
 			code: '// TODO [@lubien/fixture-beta-package@>=1.0.0-alfa.1]: when `@lubien/fixture-beta-package` version is >= 1.0.0-alfa.1',
-			errors: [versionMatchesError('@lubien/fixture-beta-package >= 1.0.0-alfa.1', 'when `@lubien/fixture-beta-package` version is >= 1.0.0-alfa.1')]
+			errors: [versionMatchesError('@lubien/fixture-beta-package >= 1.0.0-alfa.1', 'when `@lubien/fixture-beta-package` version is >= 1.0.0-alfa.1')],
 		},
 		{
 			code: '// TODO [@lubien/fixture-beta-package@>=1.0.0-beta.1]: when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.1',
-			errors: [versionMatchesError('@lubien/fixture-beta-package >= 1.0.0-beta.1', 'when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.1')]
+			errors: [versionMatchesError('@lubien/fixture-beta-package >= 1.0.0-beta.1', 'when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.1')],
 		},
 		{
 			code: '// TODO [@lubien/fixture-beta-package@>=1.0.0-beta.0]: when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.0',
-			errors: [versionMatchesError('@lubien/fixture-beta-package >= 1.0.0-beta.0', 'when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.0')]
+			errors: [versionMatchesError('@lubien/fixture-beta-package >= 1.0.0-beta.0', 'when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.0')],
 		},
 		{
 			code: '// TODO [semver>1]: Missing @.',
-			errors: [missingAtSymbolError('semver>1', 'semver@>1', 'Missing @.')]
+			errors: [missingAtSymbolError('semver>1', 'semver@>1', 'Missing @.')],
 		},
 		{
 			code: '// TODO [> 1]: Remove whitespace when it can fix.',
-			errors: [removeWhitespaceError('> 1', 'Remove whitespace when it can fix.')]
+			errors: [removeWhitespaceError('> 1', 'Remove whitespace when it can fix.')],
 		},
 		{
 			code: '// TODO [semver@> 1]: Remove whitespace when it can fix.',
-			errors: [removeWhitespaceError('semver@> 1', 'Remove whitespace when it can fix.')]
+			errors: [removeWhitespaceError('semver@> 1', 'Remove whitespace when it can fix.')],
 		},
 		{
 			code: '// TODO [semver @>1]: Remove whitespace when it can fix.',
-			errors: [removeWhitespaceError('semver @>1', 'Remove whitespace when it can fix.')]
+			errors: [removeWhitespaceError('semver @>1', 'Remove whitespace when it can fix.')],
 		},
 		{
 			code: '// TODO [semver@>= 1]: Remove whitespace when it can fix.',
-			errors: [removeWhitespaceError('semver@>= 1', 'Remove whitespace when it can fix.')]
+			errors: [removeWhitespaceError('semver@>= 1', 'Remove whitespace when it can fix.')],
 		},
 		{
 			code: '// TODO [semver @>=1]: Remove whitespace when it can fix.',
-			errors: [removeWhitespaceError('semver @>=1', 'Remove whitespace when it can fix.')]
+			errors: [removeWhitespaceError('semver @>=1', 'Remove whitespace when it can fix.')],
 		},
 		{
 			code: '// TODO [engine:node @>=1]: Remove whitespace when it can fix.',
-			errors: [removeWhitespaceError('engine:node @>=1', 'Remove whitespace when it can fix.')]
+			errors: [removeWhitespaceError('engine:node @>=1', 'Remove whitespace when it can fix.')],
 		},
 		{
 			code: '// TODO [engine:node@>= 1]: Remove whitespace when it can fix.',
-			errors: [removeWhitespaceError('engine:node@>= 1', 'Remove whitespace when it can fix.')]
+			errors: [removeWhitespaceError('engine:node@>= 1', 'Remove whitespace when it can fix.')],
 		},
 		{
 			code: '// TODO',
 			errors: [noWarningCommentError('TODO')],
-			options: [{allowWarningComments: false}]
+			options: [{allowWarningComments: false}],
 		},
 		{
 			code: '// TODO []',
 			errors: [noWarningCommentError('TODO []')],
-			options: [{allowWarningComments: false}]
+			options: [{allowWarningComments: false}],
 		},
 		{
 			code: '// TODO [no meaning at all]',
 			errors: [noWarningCommentError('TODO [no meaning at all]')],
-			options: [{allowWarningComments: false}]
+			options: [{allowWarningComments: false}],
 		},
 		{
 			code: '// TODO [] might have [some] that [try [to trick] me]',
 			errors: [noWarningCommentError('TODO [] might have [some] that [try [to...')],
-			options: [{allowWarningComments: false}]
+			options: [{allowWarningComments: false}],
 		},
 		{
 			code: '// TODO [but [it will]] [fallback] [[[ to the default ]]] rule [[[',
 			errors: [noWarningCommentError('TODO [but [it will]] [fallback] [[[ to...')],
-			options: [{allowWarningComments: false}]
+			options: [{allowWarningComments: false}],
 		},
 		{
 			code: '// TODO [engine:npm@>=10000]: Unsupported engine',
 			errors: [noWarningCommentError('TODO [engine:npm@>=10000]: Unsupported...')],
-			options: [{allowWarningComments: false}]
+			options: [{allowWarningComments: false}],
 		},
 		{
 			code: '// TODO [engine:somethingrandom@>=10000]: Unsupported engine',
 			errors: [noWarningCommentError('TODO [engine:somethingrandom@>=10000]:...')],
-			options: [{allowWarningComments: false}]
+			options: [{allowWarningComments: false}],
 		},
 		{
 			code: '// TODO [2000-01-01, >1]: Combine date with package version',
 			errors: [
 				expiredTodoError('2000-01-01', 'Combine date with package version'),
-				reachedPackageVersionError('>1', 'Combine date with package version')
+				reachedPackageVersionError('>1', 'Combine date with package version'),
 			],
-			options: [{ignoreDatesOnPullRequests: false}]
+			options: [{ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: '// TODO [2200-12-12, >1, 2200-12-12, >2]: Multiple dates and package versions',
 			errors: [
 				avoidMultipleDatesError('2200-12-12, 2200-12-12', 'Multiple dates and package versions'),
-				avoidMultiplePackageVersionsError('>1, >2', 'Multiple dates and package versions')
-			]
+				avoidMultiplePackageVersionsError('>1, >2', 'Multiple dates and package versions'),
+			],
 		},
 		{
 			code: '// TODO [-popura, read-pkg-up@>1]: Combine not having a package with version match',
 			errors: [
 				dontHavePackageError('popura', 'Combine not having a package with version match'),
-				versionMatchesError('read-pkg-up > 1', 'Combine not having a package with version match')
-			]
+				versionMatchesError('read-pkg-up > 1', 'Combine not having a package with version match'),
+			],
 		},
 		{
 			code: '// TODO [+read-pkg-up, -popura]: Combine presence/absence of packages',
 			errors: [
 				havePackageError('read-pkg-up', 'Combine presence/absence of packages'),
-				dontHavePackageError('popura', 'Combine presence/absence of packages')
-			]
+				dontHavePackageError('popura', 'Combine presence/absence of packages'),
+			],
 		},
 		{
 			code: '// Expire Condition [2000-01-01, semver>1]: Expired TODO and missing symbol',
 			errors: [
 				expiredTodoError('2000-01-01', 'Expired TODO and missing symbol'),
-				missingAtSymbolError('semver>1', 'semver@>1', 'Expired TODO and missing symbol')
+				missingAtSymbolError('semver>1', 'semver@>1', 'Expired TODO and missing symbol'),
 			],
-			options: [{ignoreDatesOnPullRequests: false, terms: ['Expire Condition']}]
+			options: [{ignoreDatesOnPullRequests: false, terms: ['Expire Condition']}],
 		},
 		{
 			code: '// TODO [semver @>=1, -popura]: Package uninstalled and whitespace error',
 			errors: [
 				dontHavePackageError('popura', 'Package uninstalled and whitespace error'),
-				removeWhitespaceError('semver @>=1', 'Package uninstalled and whitespace error')
-			]
+				removeWhitespaceError('semver @>=1', 'Package uninstalled and whitespace error'),
+			],
 		},
 		{
 			code: '// HUGETODO [semver @>=1, engine:node@>=8, 2000-01-01, -popura, >1, +read-pkg-up, read-pkg-up@>1]: Big mix',
@@ -356,16 +356,16 @@ test({
 				havePackageError('read-pkg-up', 'Big mix'),
 				versionMatchesError('read-pkg-up > 1', 'Big mix'),
 				engineMatchesError('node>=8', 'Big mix'),
-				removeWhitespaceError('semver @>=1', 'Big mix')
+				removeWhitespaceError('semver @>=1', 'Big mix'),
 			],
-			options: [{ignoreDatesOnPullRequests: false, terms: ['HUGETODO']}]
+			options: [{ignoreDatesOnPullRequests: false, terms: ['HUGETODO']}],
 		},
 		{
 			code: '// TODO [ISSUE-123] fix later',
 			options: [{allowWarningComments: false, ignore: []}],
 			errors: [
-				noWarningCommentError('TODO [ISSUE-123] fix later')
-			]
+				noWarningCommentError('TODO [ISSUE-123] fix later'),
+			],
 		},
 		{
 			code: `
@@ -374,8 +374,8 @@ test({
 			`,
 			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}],
 			errors: [
-				noWarningCommentError('TODO fix later')
-			]
+				noWarningCommentError('TODO fix later'),
+			],
 		},
 		{
 			code: `/*
@@ -384,8 +384,8 @@ test({
 			*/`,
 			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}],
 			errors: [
-				noWarningCommentError('TODO Invalid')
-			]
-		}
-	]
+				noWarningCommentError('TODO Invalid'),
+			],
+		},
+	],
 });

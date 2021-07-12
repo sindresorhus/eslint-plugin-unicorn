@@ -8,9 +8,9 @@ const MESSAGE_ID = 'consistent-function-scoping';
 const createError = (functionNameWithKind, loc) => ({
 	messageId: MESSAGE_ID,
 	data: {
-		functionNameWithKind
+		functionNameWithKind,
 	},
-	...loc
+	...loc,
 });
 
 test({
@@ -19,9 +19,9 @@ test({
 			sourceType: 'module',
 			ecmaVersion: 2021,
 			ecmaFeatures: {
-				jsx: true
-			}
-		}
+				jsx: true,
+			},
+		},
 	},
 	valid: [
 		outdent`
@@ -382,8 +382,8 @@ test({
 					const inner = () => {}
 				}
 			`,
-			options: [{checkArrowFunctions: false}]
-		}
+			options: [{checkArrowFunctions: false}],
+		},
 	],
 	invalid: [
 		{
@@ -395,7 +395,7 @@ test({
 					return foo;
 				}
 			`,
-			errors: [createError('function \'doBar\'')]
+			errors: [createError('function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -407,7 +407,7 @@ test({
 					return foo;
 				}
 			`,
-			errors: [createError('function \'doBar\'')]
+			errors: [createError('function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -417,7 +417,7 @@ test({
 					}
 				}
 			`,
-			errors: [createError('function \'doBar\'')]
+			errors: [createError('function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -427,7 +427,7 @@ test({
 					}
 				};
 			`,
-			errors: [createError('function \'doBar\'')]
+			errors: [createError('function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -437,7 +437,7 @@ test({
 					};
 				};
 			`,
-			errors: [createError('function \'doBar\'')]
+			errors: [createError('function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -447,7 +447,7 @@ test({
 					};
 				}
 			`,
-			errors: [createError('function \'doBar\'')]
+			errors: [createError('function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -458,7 +458,7 @@ test({
 					doBar();
 				}
 			`,
-			errors: [createError('function \'doBar\'')]
+			errors: [createError('function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -468,13 +468,13 @@ test({
 					}
 				}
 			`,
-			errors: [createError('arrow function \'doBar\'')]
+			errors: [createError('arrow function \'doBar\'')],
 		},
 		{
 			code: outdent`
 				const doFoo = () => bar => bar;
 			`,
-			errors: [createError('arrow function')]
+			errors: [createError('arrow function')],
 		},
 		// `this`
 		{
@@ -486,7 +486,7 @@ test({
 					return doBar();
 				};
 			`,
-			errors: [createError('function \'doBar\'')]
+			errors: [createError('function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -495,7 +495,7 @@ test({
 					return doBar();
 				};
 			`,
-			errors: [createError('arrow function \'doBar\'')]
+			errors: [createError('arrow function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -504,7 +504,7 @@ test({
 					return doBar();
 				};
 			`,
-			errors: [createError('arrow function \'doBar\'')]
+			errors: [createError('arrow function \'doBar\'')],
 		},
 		// `arguments`
 		{
@@ -516,7 +516,7 @@ test({
 					return doBar();
 				};
 			`,
-			errors: [createError('function \'doBar\'')]
+			errors: [createError('function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -525,7 +525,7 @@ test({
 					return doBar();
 				};
 			`,
-			errors: [createError('arrow function \'doBar\'')]
+			errors: [createError('arrow function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -536,7 +536,7 @@ test({
 					return foo;
 				}
 			`,
-			errors: [createError('function \'doBar\'')]
+			errors: [createError('function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -547,7 +547,7 @@ test({
 					return doBar;
 				}
 			`,
-			errors: [createError('function \'doBar\'')]
+			errors: [createError('function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -555,7 +555,7 @@ test({
 					function doBar() {}
 				}
 			`,
-			errors: [createError('function \'doBar\'')]
+			errors: [createError('function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -570,7 +570,7 @@ test({
 					return foo;
 				}
 			`,
-			errors: [createError('function \'doBar\'')]
+			errors: [createError('function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -582,7 +582,7 @@ test({
 					}
 				}
 			`,
-			errors: [createError('function \'doBar\'')]
+			errors: [createError('function \'doBar\'')],
 		},
 		{
 			code: outdent`
@@ -592,43 +592,43 @@ test({
 					}
 				}
 			`,
-			errors: [createError('function \'doBar\'')]
+			errors: [createError('function \'doBar\'')],
 		},
 		// Function kinds and names, loc
 		{
 			code: 'function foo() { function bar() {} }',
-			errors: [createError('function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 30})]
+			errors: [createError('function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 30})],
 		},
 		{
 			code: 'function foo() { async function bar() {} }',
-			errors: [createError('async function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 36})]
+			errors: [createError('async function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 36})],
 		},
 		{
 			code: 'function foo() { function* bar() {} }',
-			errors: [createError('generator function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 31})]
+			errors: [createError('generator function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 31})],
 		},
 		{
 			code: 'function foo() { async function* bar() {} }',
-			errors: [createError('async generator function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 37})]
+			errors: [createError('async generator function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 37})],
 		},
 		{
 			code: 'function foo() { const bar = () => {} }',
-			errors: [createError('arrow function \'bar\'', {line: 1, column: 33, endLine: 1, endColumn: 35})]
+			errors: [createError('arrow function \'bar\'', {line: 1, column: 33, endLine: 1, endColumn: 35})],
 		},
 		{
 			code: 'const doFoo = () => bar => bar;',
-			errors: [createError('arrow function', {line: 1, column: 25, endLine: 1, endColumn: 27})]
+			errors: [createError('arrow function', {line: 1, column: 25, endLine: 1, endColumn: 27})],
 		},
 		{
 			code: 'function foo() { const bar = async () => {} }',
-			errors: [createError('async arrow function \'bar\'', {line: 1, column: 39, endLine: 1, endColumn: 41})]
+			errors: [createError('async arrow function \'bar\'', {line: 1, column: 39, endLine: 1, endColumn: 41})],
 		},
 		// Actual message
 		{
 			code: 'function foo() { async function* bar() {} }',
 			errors: [{
-				message: 'Move async generator function \'bar\' to the outer scope.'
-			}]
+				message: 'Move async generator function \'bar\' to the outer scope.',
+			}],
 		},
 		// React Hooks
 		{
@@ -640,7 +640,7 @@ test({
 					}
 				}, [])
 			`,
-			errors: [createError('function \'bar\'')]
+			errors: [createError('function \'bar\'')],
 		},
 		// IIFE
 		{
@@ -652,7 +652,7 @@ test({
 					}
 				})();
 			`,
-			errors: [createError('function \'bar\'')]
+			errors: [createError('function \'bar\'')],
 		},
 		// #770
 		{
@@ -664,7 +664,7 @@ test({
 					process.exitCode = returnsZero();
 				});
 			`,
-			errors: [createError('function \'returnsZero\'')]
+			errors: [createError('function \'returnsZero\'')],
 		},
 		{
 			code: outdent`
@@ -681,7 +681,7 @@ test({
 					})(),
 				)
 			`,
-			errors: [createError('function \'bar\'')]
+			errors: [createError('function \'bar\'')],
 		},
 		{
 			code: outdent`
@@ -697,7 +697,7 @@ test({
 					},
 				)
 			`,
-			errors: [createError('function \'baz\'')]
+			errors: [createError('function \'baz\'')],
 		},
 		{
 			code: outdent`
@@ -709,7 +709,7 @@ test({
 					return <div>{ doBaz() }</div>
 				}
 			`,
-			errors: [createError('function \'doBaz\'')]
+			errors: [createError('function \'doBaz\'')],
 		},
 		{
 			code: outdent`
@@ -723,7 +723,7 @@ test({
 					return <div>{ doBaz() }</div>
 				}
 			`,
-			errors: [createError('function \'doBaz\'')]
+			errors: [createError('function \'doBaz\'')],
 		},
 		// JSX
 		{
@@ -739,7 +739,7 @@ test({
 					function foo() {}
 				}
 			`,
-			errors: ['b', 'c', 'foo'].map(functionName => createError(`function '${functionName}'`))
+			errors: ['b', 'c', 'foo'].map(functionName => createError(`function '${functionName}'`)),
 		},
 		// Should check functions inside arrow functions
 		{
@@ -749,9 +749,9 @@ test({
 				}
 			`,
 			errors: [createError('function \'inner\'')],
-			options: [{checkArrowFunctions: false}]
-		}
-	]
+			options: [{checkArrowFunctions: false}],
+		},
+	],
 });
 
 test.typescript({
@@ -800,9 +800,9 @@ test.typescript({
 				const b = (y: number) => (z: number): number => x + y + z;
 				return b(1)(2);
 			}
-		`
+		`,
 	],
-	invalid: []
+	invalid: [],
 });
 
 test.snapshot({
@@ -845,6 +845,6 @@ test.snapshot({
 					return bar;
 				};
 			}
-		`
-	]
+		`,
+	],
 });

@@ -6,7 +6,7 @@ const {test} = getTester(import.meta);
 function buildError({method, position}) {
 	return {
 		messageId: 'no-console-spaces',
-		data: {method, position}
+		data: {method, position},
 	};
 }
 
@@ -83,76 +83,76 @@ test({
 		'lib.console.debug(" a ", " b ");',
 		'lib.console.info(" a ", " b ");',
 		'lib.console.warn(" a ", " b ");',
-		'lib.console.error(" a ", " b ");'
+		'lib.console.error(" a ", " b ");',
 	],
 	invalid: [
 		{
 			code: 'console.log("abc ", "def");',
 			errors: [buildError({method: 'log', position: 'trailing'})],
-			output: 'console.log("abc", "def");'
+			output: 'console.log("abc", "def");',
 		},
 		{
 			code: 'console.log("abc", " def");',
 			errors: [buildError({method: 'log', position: 'leading'})],
-			output: 'console.log("abc", "def");'
+			output: 'console.log("abc", "def");',
 		},
 		{
 			code: 'console.log(" abc ", "def");',
 			errors: [buildError({method: 'log', position: 'trailing'})],
-			output: 'console.log(" abc", "def");'
+			output: 'console.log(" abc", "def");',
 		},
 		{
 			code: 'console.debug("abc ", "def");',
 			errors: [buildError({method: 'debug', position: 'trailing'})],
-			output: 'console.debug("abc", "def");'
+			output: 'console.debug("abc", "def");',
 		},
 		{
 			code: 'console.info("abc ", "def");',
 			errors: [buildError({method: 'info', position: 'trailing'})],
-			output: 'console.info("abc", "def");'
+			output: 'console.info("abc", "def");',
 		},
 		{
 			code: 'console.warn("abc ", "def");',
 			errors: [buildError({method: 'warn', position: 'trailing'})],
-			output: 'console.warn("abc", "def");'
+			output: 'console.warn("abc", "def");',
 		},
 		{
 			code: 'console.error("abc ", "def");',
 			errors: [buildError({method: 'error', position: 'trailing'})],
-			output: 'console.error("abc", "def");'
+			output: 'console.error("abc", "def");',
 		},
 		{
 			code: 'console.log("abc", " def ", "ghi");',
 			errors: [
 				buildError({method: 'log', position: 'leading'}),
-				buildError({method: 'log', position: 'trailing'})
+				buildError({method: 'log', position: 'trailing'}),
 			],
-			output: 'console.log("abc", "def", "ghi");'
+			output: 'console.log("abc", "def", "ghi");',
 		},
 		{
 			code: 'console.log("abc ", "def ", "ghi");',
 			errors: [
 				buildError({method: 'log', position: 'trailing'}),
-				buildError({method: 'log', position: 'trailing'})
+				buildError({method: 'log', position: 'trailing'}),
 			],
-			output: 'console.log("abc", "def", "ghi");'
+			output: 'console.log("abc", "def", "ghi");',
 		},
 		{
 			code: 'console.log(\'abc \', "def");',
 			errors: [buildError({method: 'log', position: 'trailing'})],
-			output: 'console.log(\'abc\', "def");'
+			output: 'console.log(\'abc\', "def");',
 		},
 		{
 			code: 'console.log(`abc `, "def");',
 			errors: [buildError({method: 'log', position: 'trailing'})],
-			output: 'console.log(`abc`, "def");'
+			output: 'console.log(`abc`, "def");',
 		},
 		{
 			// eslint-disable-next-line no-template-curly-in-string
 			code: 'console.log(`abc ${1 + 2} `, "def");',
 			errors: [buildError({method: 'log', position: 'trailing'})],
 			// eslint-disable-next-line no-template-curly-in-string
-			output: 'console.log(`abc ${1 + 2}`, "def");'
+			output: 'console.log(`abc ${1 + 2}`, "def");',
 		},
 		{
 			code: outdent`
@@ -163,7 +163,7 @@ test({
 				);
 			`,
 			errors: [
-				buildError({method: 'log', position: 'trailing'})
+				buildError({method: 'log', position: 'trailing'}),
 			],
 			output: outdent`
 				console.log(
@@ -171,7 +171,7 @@ test({
 					'def',
 					'ghi'
 				);
-			`
+			`,
 		},
 		// https://github.com/facebook/react/blob/dbb060d561b83ad901af3e1f60541e6c313cca4f/scripts/release/shared-commands/test-packaging-fixture.js#L69
 		{
@@ -183,7 +183,7 @@ test({
 				);
 			`,
 			errors: [
-				buildError({method: 'error', position: 'trailing'})
+				buildError({method: 'error', position: 'trailing'}),
 			],
 			output: outdent`
 				console.error(
@@ -191,9 +191,9 @@ test({
 					'Verifying "packaging" fixture\\n',
 					theme.error(errorMessage)
 				);
-			`
-		}
-	]
+			`,
+		},
+	],
 });
 
 test.snapshot({
@@ -221,6 +221,6 @@ test.snapshot({
 		'console.debug("_", " debug ", "_")',
 		'console.info("_", " info ", "_")',
 		'console.warn("_", " warn ", "_")',
-		'console.error("_", " error ", "_")'
-	]
+		'console.error("_", " error ", "_")',
+	],
 });

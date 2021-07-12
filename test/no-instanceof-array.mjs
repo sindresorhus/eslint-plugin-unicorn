@@ -12,7 +12,7 @@ test.snapshot({
 		'a instanceof ArrayA',
 		'a.x[2] instanceof foo()',
 		'Array.isArray([1,2,3]) === true',
-		'"arr instanceof Array"'
+		'"arr instanceof Array"',
 	],
 	invalid: [
 		'arr instanceof Array',
@@ -56,6 +56,6 @@ test.snapshot({
 			)
 
 			// comment
-		`
-	]
+		`,
+	],
 });

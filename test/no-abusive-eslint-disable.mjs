@@ -10,7 +10,7 @@ test({
 			'plugin/rule',
 			'@scope/plugin/rule-name',
 			'@scope/rule-name',
-			'@scopewithoutplugin'
+			'@scopewithoutplugin',
 		]) {
 			tester.linter.defineRule(rule, {});
 		}
@@ -49,7 +49,7 @@ test({
 			foo();
 			/* eslint-disable-next-line no-eval */
 			eval();
-		`
+		`,
 	],
 	invalid: [
 		{
@@ -57,9 +57,9 @@ test({
 				// eslint-disable-next-line @scopewithoutplugin
 				eval();
 			`,
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });
 
 test.snapshot({
@@ -84,6 +84,6 @@ test.snapshot({
 		outdent`
 			// eslint-disable-next-line
 			eval();
-		`
-	]
+		`,
+	],
 });

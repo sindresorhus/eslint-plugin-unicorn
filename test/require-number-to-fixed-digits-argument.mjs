@@ -12,10 +12,10 @@ test.snapshot({
 		'number["toFixed"]()',
 		'number?.toFixed()',
 		'number.toFixed?.()',
-		'number.notToFixed();'
+		'number.notToFixed();',
 	],
 	invalid: [
 		'const string = number.toFixed();',
-		'const string = number.toFixed( /* comment */ );'
-	]
+		'const string = number.toFixed( /* comment */ );',
+	],
 });

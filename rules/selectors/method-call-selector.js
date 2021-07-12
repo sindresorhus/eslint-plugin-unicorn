@@ -39,12 +39,12 @@ function methodCallSelector(options) {
 	const {
 		path,
 		includeOptionalCall,
-		includeOptionalMember
+		includeOptionalMember,
 	} = {
 		path: '',
 		includeOptionalCall: false,
 		includeOptionalMember: false,
-		...options
+		...options,
 	};
 
 	const prefix = path ? `${path}.` : '';
@@ -52,13 +52,13 @@ function methodCallSelector(options) {
 	return [
 		callExpressionSelector({
 			...pick(options, ['path', 'length', 'min', 'max', 'allowSpreadElement']),
-			includeOptional: includeOptionalCall
+			includeOptional: includeOptionalCall,
 		}),
 		memberExpressionSelector({
 			...pick(options, ['name', 'names', 'min', 'object', 'objects', 'allowComputed']),
 			path: `${prefix}callee`,
-			includeOptional: includeOptionalMember
-		})
+			includeOptional: includeOptionalMember,
+		}),
 	].join('');
 }
 

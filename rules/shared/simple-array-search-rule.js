@@ -7,20 +7,20 @@ const isFunctionSelfUsedInside = require('../utils/is-function-self-used-inside.
 const getBinaryExpressionSelector = path => [
 	`[${path}.type="BinaryExpression"]`,
 	`[${path}.operator="==="]`,
-	`:matches([${path}.left.type="Identifier"], [${path}.right.type="Identifier"])`
+	`:matches([${path}.left.type="Identifier"], [${path}.right.type="Identifier"])`,
 ].join('');
 const getFunctionSelector = path => [
 	`[${path}.generator!=true]`,
 	`[${path}.async!=true]`,
 	`[${path}.params.length=1]`,
-	`[${path}.params.0.type="Identifier"]`
+	`[${path}.params.0.type="Identifier"]`,
 ].join('');
 const callbackFunctionSelector = path => matches([
 	// Matches `foo.findIndex(bar => bar === baz)`
 	[
 		`[${path}.type="ArrowFunctionExpression"]`,
 		getFunctionSelector(path),
-		getBinaryExpressionSelector(`${path}.body`)
+		getBinaryExpressionSelector(`${path}.body`),
 	].join(''),
 	// Matches `foo.findIndex(bar => {return bar === baz})`
 	// Matches `foo.findIndex(function (bar) {return bar === baz})`
@@ -30,8 +30,8 @@ const callbackFunctionSelector = path => matches([
 		`[${path}.body.type="BlockStatement"]`,
 		`[${path}.body.body.length=1]`,
 		`[${path}.body.body.0.type="ReturnStatement"]`,
-		getBinaryExpressionSelector(`${path}.body.body.0.argument`)
-	].join('')
+		getBinaryExpressionSelector(`${path}.body.body.0.argument`),
+	].join(''),
 ]);
 const isIdentifierNamed = ({type, name}, expectName) => type === 'Identifier' && name === expectName;
 
@@ -42,20 +42,20 @@ function simpleArraySearchRule({method, replacement}) {
 	const SUGGESTION = `${MESSAGE_ID_PREFIX}/suggestion`;
 	const ERROR_MESSAGES = {
 		findIndex: 'Use `.indexOf()` instead of `.findIndex()` when looking for the index of an item.',
-		some: `Use \`.${replacement}()\` instead of \`.${method}()\` when checking value existence.`
+		some: `Use \`.${replacement}()\` instead of \`.${method}()\` when checking value existence.`,
 	};
 
 	const messages = {
 		[ERROR]: ERROR_MESSAGES[method],
-		[SUGGESTION]: `Replace \`.${method}()\` with \`.${replacement}()\`.`
+		[SUGGESTION]: `Replace \`.${method}()\` with \`.${replacement}()\`.`,
 	};
 
 	const selector = [
 		methodCallSelector({
 			name: method,
-			length: 1
+			length: 1,
 		}),
-		callbackFunctionSelector('arguments.0')
+		callbackFunctionSelector('arguments.0'),
 	].join('');
 
 	function createListeners(context) {
@@ -97,7 +97,7 @@ function simpleArraySearchRule({method, replacement}) {
 				const problem = {
 					node: method,
 					messageId: ERROR,
-					suggest: []
+					suggest: [],
 				};
 
 				const fix = function * (fixer) {
@@ -117,7 +117,7 @@ function simpleArraySearchRule({method, replacement}) {
 				}
 
 				return problem;
-			}
+			},
 		};
 	}
 

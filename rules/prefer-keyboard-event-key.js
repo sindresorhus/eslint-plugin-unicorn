@@ -4,13 +4,13 @@ const translateToKey = require('./shared/event-keys.js');
 
 const MESSAGE_ID = 'prefer-keyboard-event-key';
 const messages = {
-	[MESSAGE_ID]: 'Use `.key` instead of `.{{name}}`.'
+	[MESSAGE_ID]: 'Use `.key` instead of `.{{name}}`.',
 };
 
 const keys = new Set([
 	'keyCode',
 	'charCode',
-	'which'
+	'which',
 ]);
 
 const isPropertyNamedAddEventListener = node =>
@@ -31,7 +31,7 @@ const getEventNodeAndReferences = (context, node) => {
 			const references = eventVariable && eventVariable.references;
 			return {
 				event: callback.params && callback.params[0],
-				references
+				references,
 			};
 		}
 
@@ -93,7 +93,7 @@ const fix = node => fixer => {
 	// Apply fixes
 	return [
 		fixer.replaceText(node, 'key'),
-		fixer.replaceText(right, quoteString(keyCode))
+		fixer.replaceText(right, quoteString(keyCode)),
 	];
 };
 
@@ -101,7 +101,7 @@ const getProblem = node => ({
 	messageId: MESSAGE_ID,
 	data: {name: node.name},
 	node,
-	fix: fix(node)
+	fix: fix(node),
 });
 
 const create = context => {
@@ -135,7 +135,7 @@ const create = context => {
 
 			const nearestVariableDeclarator = getMatchingAncestorOfType(
 				node,
-				'VariableDeclarator'
+				'VariableDeclarator',
 			);
 			const initObject =
 				nearestVariableDeclarator &&
@@ -160,7 +160,7 @@ const create = context => {
 					}
 				}
 			}
-		}
+		},
 	};
 };
 
@@ -169,9 +169,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.'
+			description: 'Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

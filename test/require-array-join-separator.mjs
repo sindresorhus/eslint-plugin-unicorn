@@ -34,7 +34,7 @@ test.snapshot({
 		'Array.prototype.notJoin.call(foo)',
 		'Array.notPrototype.join.call(foo)',
 		'NotArray.prototype.join.call(foo)',
-		'path.join(__dirname, "./foo.js")'
+		'path.join(__dirname, "./foo.js")',
 	],
 	invalid: [
 		'foo.join()',
@@ -70,6 +70,6 @@ test.snapshot({
 						/**/
 					)/**/
 			)
-		`
-	]
+		`,
+	],
 });

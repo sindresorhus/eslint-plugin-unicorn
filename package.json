@@ -72,7 +72,7 @@
 		"pify": "^5.0.0",
 		"typescript": "^4.3.2",
 		"vue-eslint-parser": "^7.6.0",
-		"xo": "^0.40.2"
+		"xo": "^0.41.0"
 	},
 	"peerDependencies": {
 		"eslint": ">=7.28.0"
@@ -112,7 +112,9 @@
 						}
 					}
 				}
-			]
+			],
+			"operator-linebreak": "off",
+			"arrow-body-style": "off"
 		},
 		"overrides": [
 			{

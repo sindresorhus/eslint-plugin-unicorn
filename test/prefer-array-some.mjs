@@ -13,11 +13,11 @@ const invalidCase = ({code, suggestionOutput}) => ({
 			suggestions: [
 				{
 					messageId: SUGGESTION_ID_ARRAY_SOME,
-					output: suggestionOutput
-				}
-			]
-		}
-	]
+					output: suggestionOutput,
+				},
+			],
+		},
+	],
 });
 
 test({
@@ -44,8 +44,8 @@ test({
 			// More or less argument(s)
 			'foo.find()',
 			'foo.find(fn, thisArgument, extraArgument)',
-			'foo.find(...argumentsArray)'
-		].map(code => `if (${code}) {}`)
+			'foo.find(...argumentsArray)',
+		].map(code => `if (${code}) {}`),
 	],
 	invalid: [
 		...[
@@ -55,21 +55,21 @@ test({
 			'const bar = foo.find(fn) ? 1 : 2',
 			'while (foo.find(fn)) foo.shift();',
 			'do {foo.shift();} while (foo.find(fn));',
-			'for (; foo.find(fn); ) foo.shift();'
+			'for (; foo.find(fn); ) foo.shift();',
 		].map(code => invalidCase({
 			code,
-			suggestionOutput: code.replace('find', 'some')
+			suggestionOutput: code.replace('find', 'some'),
 		})),
 		// Comments
 		invalidCase({
 			code: 'console.log(foo /* comment 1 */ . /* comment 2 */ find /* comment 3 */ (fn) ? a : b)',
-			suggestionOutput: 'console.log(foo /* comment 1 */ . /* comment 2 */ some /* comment 3 */ (fn) ? a : b)'
+			suggestionOutput: 'console.log(foo /* comment 1 */ . /* comment 2 */ some /* comment 3 */ (fn) ? a : b)',
 		}),
 		// This should not be reported, but `jQuery.find()` is always `truly`,
 		// It should not use as a boolean
 		invalidCase({
 			code: 'if (jQuery.find(".outer > div")) {}',
-			suggestionOutput: 'if (jQuery.some(".outer > div")) {}'
+			suggestionOutput: 'if (jQuery.some(".outer > div")) {}',
 		}),
 		// Actual messages
 		{
@@ -80,13 +80,13 @@ test({
 					suggestions: [
 						{
 							desc: 'Replace `.find(…)` with `.some(…)`.',
-							output: 'if (foo.some(fn)) {}'
-						}
-					]
-				}
-			]
-		}
-	]
+							output: 'if (foo.some(fn)) {}',
+						},
+					],
+				},
+			],
+		},
+	],
 });
 
 test.snapshot({
@@ -103,8 +103,8 @@ test.snapshot({
 				// ^^^^ This should report
 			) {
 			}
-		`
-	]
+		`,
+	],
 });
 
 // - `.filter(…).length > 0`
@@ -153,7 +153,7 @@ test.snapshot({
 		'array.filter?.(fn).length > 0',
 		'array?.filter(fn).length > 0',
 		'array.notFilter(fn).length > 0',
-		'array.filter.length > 0'
+		'array.filter.length > 0',
 	],
 	invalid: [
 		'array.filter(fn).length > 0',
@@ -174,8 +174,8 @@ test.snapshot({
 					(( 0 ))
 				))
 			);
-		`
-	]
+		`,
+	],
 });
 
 test.vue({
@@ -183,26 +183,26 @@ test.vue({
 	invalid: [
 		invalidCase({
 			code: '<template><div v-if="foo.find(fn)"></div></template>',
-			suggestionOutput: '<template><div v-if="foo.some(fn)"></div></template>'
+			suggestionOutput: '<template><div v-if="foo.some(fn)"></div></template>',
 		}),
 		invalidCase({
 			code: '<script>if (foo.find(fn));</script>',
-			suggestionOutput: '<script>if (foo.some(fn));</script>'
+			suggestionOutput: '<script>if (foo.some(fn));</script>',
 		}),
 		{
 			code: '<template><div v-if="foo.filter(fn).length > 0"></div></template>',
 			output: '<template><div v-if="foo.some(fn)"></div></template>',
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: '<template><div v-if="foo.filter(fn).length !== 0"></div></template>',
 			output: '<template><div v-if="foo.some(fn)"></div></template>',
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: '<script>if (foo.filter(fn).length > 0);</script>',
 			output: '<script>if (foo.some(fn));</script>',
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });

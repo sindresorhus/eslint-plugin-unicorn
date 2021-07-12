@@ -42,7 +42,7 @@ const messages = {
 		'Missing \'@\' on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
 	...baseRule.meta.messages,
 	[MESSSAGE_ID_CORE_RULE_UNEXPECTED_COMMENT]:
-		'Unexpected \'{{matchedTerm}}\' comment without any conditions: \'{{comment}}\'.'
+		'Unexpected \'{{matchedTerm}}\' comment without any conditions: \'{{comment}}\'.',
 };
 
 const packageResult = readPkgUp.sync();
@@ -51,7 +51,7 @@ const packageJson = hasPackage ? packageResult.packageJson : {};
 
 const packageDependencies = {
 	...packageJson.dependencies,
-	...packageJson.devDependencies
+	...packageJson.devDependencies,
 };
 
 const DEPENDENCY_INCLUSION_RE = /^[+-]\s*@?\S+\/?\S+/;
@@ -98,7 +98,7 @@ function parseArgument(argumentString) {
 	if (ISO8601_DATE.test(argumentString)) {
 		return {
 			type: 'dates',
-			value: argumentString
+			value: argumentString,
 		};
 	}
 
@@ -110,8 +110,8 @@ function parseArgument(argumentString) {
 			type: 'dependencies',
 			value: {
 				name,
-				condition
-			}
+				condition,
+			},
 		};
 	}
 
@@ -129,8 +129,8 @@ function parseArgument(argumentString) {
 				type: 'engines',
 				value: {
 					condition,
-					version
-				}
+					version,
+				},
 			};
 		}
 
@@ -140,8 +140,8 @@ function parseArgument(argumentString) {
 				value: {
 					name,
 					condition,
-					version
-				}
+					version,
+				},
 			};
 		}
 	}
@@ -154,8 +154,8 @@ function parseArgument(argumentString) {
 			type: 'packageVersions',
 			value: {
 				condition: condition.trim(),
-				version: version.trim()
-			}
+				version: version.trim(),
+			},
 		};
 	}
 
@@ -163,7 +163,7 @@ function parseArgument(argumentString) {
 	// some TODO comments have `[random data like this]`
 	return {
 		type: 'unknowns',
-		value: argumentString
+		value: argumentString,
 	};
 }
 
@@ -204,7 +204,7 @@ function tryToCoerceVersion(rawVersion) {
 		'>',
 		'<',
 		'~',
-		'^'
+		'^',
 	];
 	const foundTrailingNoise = leadingNoises.find(noise => version.startsWith(noise));
 	if (foundTrailingNoise) {
@@ -236,7 +236,7 @@ function tryToCoerceVersion(rawVersion) {
 function semverComparisonForOperator(operator) {
 	return {
 		'>': semver.gt,
-		'>=': semver.gte
+		'>=': semver.gte,
 	}[operator];
 }
 
@@ -246,11 +246,11 @@ const create = context => {
 		ignore: [],
 		ignoreDatesOnPullRequests: true,
 		allowWarningComments: true,
-		...context.options[0]
+		...context.options[0],
 	};
 
 	const ignoreRegexes = options.ignore.map(
-		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u')
+		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u'),
 	);
 
 	const sourceCode = context.getSourceCode();
@@ -267,8 +267,8 @@ const create = context => {
 		.flatMap(comment =>
 			comment.value.split('\n').map(line => ({
 				...comment,
-				value: line
-			}))
+				value: line,
+			})),
 		).filter(comment => processComment(comment));
 
 	// This is highly dependable on ESLint's `no-warning-comments` implementation.
@@ -281,9 +281,9 @@ const create = context => {
 				...sourceCode,
 				getAllComments() {
 					return options.allowWarningComments ? [] : unusedComments;
-				}
+				},
 			};
-		}
+		},
 	};
 	const rules = baseRule.create(fakeContext);
 
@@ -307,7 +307,7 @@ const create = context => {
 			dates = [],
 			dependencies = [],
 			engines = [],
-			unknowns = []
+			unknowns = [],
 		} = parsed;
 
 		if (dates.length > 1) {
@@ -317,8 +317,8 @@ const create = context => {
 				messageId: MESSAGE_ID_AVOID_MULTIPLE_DATES,
 				data: {
 					expirationDates: dates.join(', '),
-					message: parseTodoMessage(comment.value)
-				}
+					message: parseTodoMessage(comment.value),
+				},
 			});
 		} else if (dates.length === 1) {
 			uses++;
@@ -331,8 +331,8 @@ const create = context => {
 					messageId: MESSAGE_ID_EXPIRED_TODO,
 					data: {
 						expirationDate: date,
-						message: parseTodoMessage(comment.value)
-					}
+						message: parseTodoMessage(comment.value),
+					},
 				});
 			}
 		}
@@ -346,8 +346,8 @@ const create = context => {
 					versions: packageVersions
 						.map(({condition, version}) => `${condition}${version}`)
 						.join(', '),
-					message: parseTodoMessage(comment.value)
-				}
+					message: parseTodoMessage(comment.value),
+				},
 			});
 		} else if (packageVersions.length === 1) {
 			uses++;
@@ -363,8 +363,8 @@ const create = context => {
 					messageId: MESSAGE_ID_REACHED_PACKAGE_VERSION,
 					data: {
 						comparison: `${condition}${version}`,
-						message: parseTodoMessage(comment.value)
-					}
+						message: parseTodoMessage(comment.value),
+					},
 				});
 			}
 		}
@@ -389,8 +389,8 @@ const create = context => {
 						messageId,
 						data: {
 							package: dependency.name,
-							message: parseTodoMessage(comment.value)
-						}
+							message: parseTodoMessage(comment.value),
+						},
 					});
 				}
 
@@ -414,8 +414,8 @@ const create = context => {
 					messageId: MESSAGE_ID_VERSION_MATCHES,
 					data: {
 						comparison: `${dependency.name} ${dependency.condition} ${dependency.version}`,
-						message: parseTodoMessage(comment.value)
-					}
+						message: parseTodoMessage(comment.value),
+					},
 				});
 			}
 		}
@@ -435,7 +435,7 @@ const create = context => {
 
 			const todoEngine = tryToCoerceVersion(engine.version);
 			const targetPackageEngineVersion = tryToCoerceVersion(
-				targetPackageRawEngineVersion
+				targetPackageRawEngineVersion,
 			);
 
 			const compare = semverComparisonForOperator(engine.condition);
@@ -446,8 +446,8 @@ const create = context => {
 					messageId: MESSAGE_ID_ENGINE_MATCHES,
 					data: {
 						comparison: `node${engine.condition}${engine.version}`,
-						message: parseTodoMessage(comment.value)
-					}
+						message: parseTodoMessage(comment.value),
+					},
 				});
 			}
 		}
@@ -460,7 +460,7 @@ const create = context => {
 			if (!hasAt && comparisonIndex !== -1) {
 				const testString = `${unknown.slice(
 					0,
-					comparisonIndex
+					comparisonIndex,
 				)}@${unknown.slice(comparisonIndex)}`;
 
 				if (parseArgument(testString).type !== 'unknowns') {
@@ -471,8 +471,8 @@ const create = context => {
 						data: {
 							original: unknown,
 							fix: testString,
-							message: parseTodoMessage(comment.value)
-						}
+							message: parseTodoMessage(comment.value),
+						},
 					});
 					continue;
 				}
@@ -488,8 +488,8 @@ const create = context => {
 					data: {
 						original: unknown,
 						fix: withoutWhitespace,
-						message: parseTodoMessage(comment.value)
-					}
+						message: parseTodoMessage(comment.value),
+					},
 				});
 				continue;
 			}
@@ -501,7 +501,7 @@ const create = context => {
 	return {
 		Program() {
 			rules.Program(); // eslint-disable-line new-cap
-		}
+		},
 	};
 };
 
@@ -512,24 +512,24 @@ const schema = [
 			terms: {
 				type: 'array',
 				items: {
-					type: 'string'
-				}
+					type: 'string',
+				},
 			},
 			ignore: {
 				type: 'array',
-				uniqueItems: true
+				uniqueItems: true,
 			},
 			ignoreDatesOnPullRequests: {
 				type: 'boolean',
-				default: true
+				default: true,
 			},
 			allowWarningComments: {
 				type: 'boolean',
-				default: false
-			}
+				default: false,
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -537,9 +537,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Add expiration conditions to TODO comments.'
+			description: 'Add expiration conditions to TODO comments.',
 		},
 		schema,
-		messages
-	}
+		messages,
+	},
 };

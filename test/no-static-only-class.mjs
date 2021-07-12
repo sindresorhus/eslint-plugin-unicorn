@@ -15,7 +15,7 @@ test.snapshot({
 		'class A { a() {} }',
 		'class A { constructor() {} }',
 		'class A { get a() {} }',
-		'class A { set a(value) {} }'
+		'class A { set a(value) {} }',
 	],
 	invalid: [
 		'class A { static a() {}; }',
@@ -62,13 +62,13 @@ test.snapshot({
 		outdent`
 			class A {static a(){}}
 			const a = new A;
-		`
-	]
+		`,
+	],
 });
 
 const noFixingCase = code => ({
 	code,
-	errors: 1
+	errors: 1,
 });
 
 test.typescript({
@@ -90,7 +90,7 @@ test.typescript({
 				@decorator
 				static a = 1;
 			}
-		`
+		`,
 	],
 	invalid: [
 		{
@@ -114,7 +114,7 @@ test.typescript({
 					[f]() {},
 				};
 			`,
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -137,7 +137,7 @@ test.typescript({
 					[f]() {},
 				};
 			`,
-			errors: 1
+			errors: 1,
 		},
 		// Comments
 		{
@@ -165,7 +165,7 @@ test.typescript({
 				};
 				/* */
 			`,
-			errors: 1
+			errors: 1,
 		},
 		// `this`
 		noFixingCase(outdent`
@@ -178,7 +178,7 @@ test.typescript({
 		{
 			code: 'class A {static [this.a] = 1}',
 			output: 'const A = {[this.a] : 1,};',
-			errors: 1
+			errors: 1,
 		},
 		// This case should be fixable, but we simply check code of value includes `this`
 		noFixingCase(outdent`
@@ -196,8 +196,8 @@ test.typescript({
 				static extensionIds: (string | null)[] = [];
 				static extensionDescriptions: string[] = [];
 			}
-		`)
-	]
+		`),
+	],
 });
 
 test.babel({
@@ -206,7 +206,7 @@ test.babel({
 		{
 			code: 'class A { static a() {} }',
 			output: 'const A = { a() {}, };',
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });

@@ -17,25 +17,25 @@ const deprecatedRules = createDeprecatedRules({
 	'prefer-starts-ends-with': 'unicorn/prefer-string-starts-ends-with',
 	'prefer-text-content': 'unicorn/prefer-dom-node-text-content',
 	'prefer-trim-start-end': 'unicorn/prefer-string-trim-start-end',
-	'regex-shorthand': 'unicorn/better-regex'
+	'regex-shorthand': 'unicorn/better-regex',
 });
 
 module.exports = {
 	rules: {
 		...loadRules(),
-		...deprecatedRules
+		...deprecatedRules,
 	},
 	configs: {
 		recommended: {
 			env: {
-				es6: true
+				es6: true,
 			},
 			parserOptions: {
 				ecmaVersion: 2021,
-				sourceType: 'module'
+				sourceType: 'module',
 			},
 			plugins: [
-				'unicorn'
+				'unicorn',
 			],
 			rules: {
 				'unicorn/better-regex': 'error',
@@ -129,8 +129,8 @@ module.exports = {
 				'unicorn/require-number-to-fixed-digits-argument': 'error',
 				'unicorn/require-post-message-target-origin': 'error',
 				'unicorn/string-content': 'off',
-				'unicorn/throw-new-error': 'error'
-			}
-		}
-	}
+				'unicorn/throw-new-error': 'error',
+			},
+		},
+	},
 };

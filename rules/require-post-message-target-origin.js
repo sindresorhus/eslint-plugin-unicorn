@@ -10,7 +10,7 @@ const messages = {
 	[ERROR]: 'Missing the `targetOrigin` argument.',
 	[SUGGESTION_TARGET_LOCATION_ORIGIN]: 'Use `{{target}}.location.origin`.',
 	[SUGGESTION_SELF_LOCATION_ORIGIN]: 'Use `self.location.origin`.',
-	[SUGGESTION_STAR]: 'Use `"*"`.'
+	[SUGGESTION_STAR]: 'Use `"*"`.',
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -27,7 +27,7 @@ function create(context) {
 				suggestions.push({
 					messageId: SUGGESTION_TARGET_LOCATION_ORIGIN,
 					data: {target: name},
-					code: `${target.name}.location.origin`
+					code: `${target.name}.location.origin`,
 				});
 
 				if (name !== 'self' && name !== 'window' && name !== 'globalThis') {
@@ -42,17 +42,17 @@ function create(context) {
 			return {
 				loc: {
 					start: penultimateToken.loc.end,
-					end: lastToken.loc.end
+					end: lastToken.loc.end,
 				},
 				messageId: ERROR,
 				suggest: suggestions.map(({messageId, data, code}) => ({
 					messageId,
 					data,
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
-					fix: fixer => appendArgument(fixer, node, code, sourceCode)
-				}))
+					fix: fixer => appendArgument(fixer, node, code, sourceCode),
+				})),
 			};
-		}
+		},
 	};
 }
 
@@ -61,9 +61,9 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce using the `targetOrigin` argument with `window.postMessage()`.'
+			description: 'Enforce using the `targetOrigin` argument with `window.postMessage()`.',
 		},
 		messages,
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

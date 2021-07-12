@@ -5,7 +5,7 @@ const simpleArraySearchRule = require('./shared/simple-array-search-rule.js');
 
 const MESSAGE_ID = 'prefer-includes';
 const messages = {
-	[MESSAGE_ID]: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.'
+	[MESSAGE_ID]: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.',
 };
 // Ignore {_,lodash,underscore}.indexOf
 const ignoredVariables = new Set(['_', 'lodash', 'underscore']);
@@ -33,13 +33,13 @@ const getProblem = (context, node, target, argumentsNodes) => {
 		fix: fixer => {
 			const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
 			return fixer.replaceText(node, replacement);
-		}
+		},
 	};
 };
 
 const includesOverSomeRule = simpleArraySearchRule({
 	method: 'some',
-	replacement: 'includes'
+	replacement: 'includes',
 });
 
 const create = context => ({
@@ -71,11 +71,11 @@ const create = context => ({
 				context,
 				node,
 				target,
-				argumentsNodes
+				argumentsNodes,
 			);
 		}
 	},
-	...includesOverSomeRule.createListeners(context)
+	...includesOverSomeRule.createListeners(context),
 });
 
 module.exports = {
@@ -83,13 +83,13 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence.'
+			description: 'Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence.',
 		},
 		fixable: 'code',
 		messages: {
 			...messages,
-			...includesOverSomeRule.messages
+			...includesOverSomeRule.messages,
 		},
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

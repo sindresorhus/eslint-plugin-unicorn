@@ -5,7 +5,7 @@ import notDomNodeTypes from './utils/not-dom-node-types.mjs';
 const {test} = getTester(import.meta);
 
 const error = {
-	message: 'Prefer `Node#append()` over `Node#appendChild()`.'
+	message: 'Prefer `Node#append()` over `Node#appendChild()`.',
 };
 
 test({
@@ -29,23 +29,23 @@ test({
 		// `callee.object` is not a DOM Node,
 		...notDomNodeTypes.map(data => `(${data}).appendChild(foo)`),
 		// First argument is not a DOM Node,
-		...notDomNodeTypes.map(data => `foo.appendChild(${data})`)
+		...notDomNodeTypes.map(data => `foo.appendChild(${data})`),
 	],
 	invalid: [
 		{
 			code: 'node.appendChild(child);',
 			output: 'node.append(child);',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'document.body.appendChild(child);',
 			output: 'document.body.append(child);',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'node.appendChild(foo)',
 			output: 'node.append(foo)',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: outdent`
@@ -58,64 +58,64 @@ test({
 					node.append(bar);
 				}
 			`,
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'const foo = node.appendChild(child);',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'console.log(node.appendChild(child));',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'node.appendChild(child).appendChild(grandchild);',
 			output: 'node.appendChild(child).append(grandchild);',
-			errors: [error, error]
+			errors: [error, error],
 		},
 		{
 			code: 'node.appendChild(child) || "foo";',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'node.appendChild(child) + 0;',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'node.appendChild(child) + 0;',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: '+node.appendChild(child);',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'node.appendChild(child) ? "foo" : "bar";',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'if (node.appendChild(child)) {}',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'const foo = [node.appendChild(child)]',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'const foo = { bar: node.appendChild(child) }',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'function foo() { return node.appendChild(child); }',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'const foo = () => { return node.appendChild(child); }',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'foo(bar = node.appendChild(child))',
-			errors: [error]
-		}
-	]
+			errors: [error],
+		},
+	],
 });

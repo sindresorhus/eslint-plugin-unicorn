@@ -53,7 +53,7 @@ test({
 
 				foo.onerror = () => {};
 			`,
-			options: excludeFooOptions
+			options: excludeFooOptions,
 		},
 		{
 			code: outdent`
@@ -61,10 +61,10 @@ test({
 
 				foo.onclick = () => {};
 			`,
-			options: excludeFooOptions
-		}
+			options: excludeFooOptions,
+		},
 	],
-	invalid: []
+	invalid: [],
 });
 
 test.snapshot({
@@ -144,7 +144,7 @@ test.snapshot({
 
 				app.onerror = () => {};
 			`,
-			options: excludeFooOptions
+			options: excludeFooOptions,
 		},
 		{
 			code: outdent`
@@ -153,7 +153,7 @@ test.snapshot({
 
 				app.onerror = () => {};
 			`,
-			options: excludeFooOptions
+			options: excludeFooOptions,
 		},
 		{
 			code: outdent`
@@ -162,11 +162,11 @@ test.snapshot({
 
 				parser.onerror = () => {};
 			`,
-			options: excludeFooOptions
+			options: excludeFooOptions,
 		},
 		'myWorker.port.onmessage = function(e) {}',
-		'((foo)).onclick = ((0, listener))'
-	]
+		'((foo)).onclick = ((0, listener))',
+	],
 });
 
 test.typescript({
@@ -175,7 +175,7 @@ test.typescript({
 		{
 			code: '(el as HTMLElement).onmouseenter = onAnchorMouseEnter;',
 			output: '(el as HTMLElement).addEventListener(\'mouseenter\', onAnchorMouseEnter);',
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });

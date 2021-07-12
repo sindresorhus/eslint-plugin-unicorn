@@ -8,7 +8,7 @@ const toLocation = require('./utils/to-location.js');
 
 const MESSAGE_ID = 'no-for-loop';
 const messages = {
-	[MESSAGE_ID]: 'Use a `for-of` loop instead of this `for` loop.'
+	[MESSAGE_ID]: 'Use a `for-of` loop instead of this `for` loop.',
 };
 
 const defaultElementName = 'element';
@@ -48,14 +48,14 @@ const getStrictComparisonOperands = binaryExpression => {
 	if (binaryExpression.operator === '<') {
 		return {
 			lesser: binaryExpression.left,
-			greater: binaryExpression.right
+			greater: binaryExpression.right,
 		};
 	}
 
 	if (binaryExpression.operator === '>') {
 		return {
 			lesser: binaryExpression.right,
-			greater: binaryExpression.left
+			greater: binaryExpression.left,
 		};
 	}
 };
@@ -171,7 +171,7 @@ const getRemovalRange = (node, sourceCode) => {
 
 		return isOnlyNodeOnLine ? [
 			sourceCode.getIndexFromLoc({line, column: 0}),
-			sourceCode.getIndexFromLoc({line: line + 1, column: 0})
+			sourceCode.getIndexFromLoc({line: line + 1, column: 0}),
 		] : declarationNode.range;
 	}
 
@@ -180,13 +180,13 @@ const getRemovalRange = (node, sourceCode) => {
 	if (index === 0) {
 		return [
 			node.range[0],
-			declarationNode.declarations[1].range[0]
+			declarationNode.declarations[1].range[0],
 		];
 	}
 
 	return [
 		declarationNode.declarations[index - 1].range[1],
-		node.range[1]
+		node.range[1],
 	];
 };
 
@@ -265,7 +265,7 @@ const getReferencesInChildScopes = (scope, name) => {
 	const references = scope.references.filter(reference => reference.identifier.name === name);
 	return [
 		...references,
-		...scope.childScopes.flatMap(s => getReferencesInChildScopes(s, name))
+		...scope.childScopes.flatMap(s => getReferencesInChildScopes(s, name)),
 	];
 };
 
@@ -331,7 +331,7 @@ const create = context => {
 
 			const problem = {
 				loc: toLocation([start, end], sourceCode),
-				messageId: MESSAGE_ID
+				messageId: MESSAGE_ID,
 			};
 
 			const elementReference = arrayReferences.find(reference => {
@@ -374,7 +374,7 @@ const create = context => {
 								declarationElement = sourceCodeText.slice(elementNode.id.range[0], elementNode.id.typeAnnotation.range[0]).trim();
 								typeAnnotation = sourceCode.getText(
 									elementNode.id.typeAnnotation,
-									-1 // Skip leading `:`
+									-1, // Skip leading `:`
 								).trim();
 							} else {
 								declarationElement = sourceCode.getText(elementNode.id);
@@ -398,7 +398,7 @@ const create = context => {
 
 					yield fixer.replaceTextRange([
 						node.init.range[0],
-						node.update.range[1]
+						node.update.range[1],
 					], replacement);
 
 					for (const reference of arrayReferences) {
@@ -416,7 +416,7 @@ const create = context => {
 			}
 
 			return problem;
-		}
+		},
 	};
 };
 
@@ -425,10 +425,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Do not use a `for` loop that can be replaced with a `for-of` loop.'
+			description: 'Do not use a `for` loop that can be replaced with a `for-of` loop.',
 		},
 		fixable: 'code',
 		messages,
-		hasSuggestion: true
-	}
+		hasSuggestion: true,
+	},
 };

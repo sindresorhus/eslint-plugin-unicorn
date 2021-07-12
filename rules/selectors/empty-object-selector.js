@@ -4,7 +4,7 @@ function emptyObjectSelector(path) {
 	const prefix = path ? `${path}.` : '';
 	return [
 		`[${prefix}type="ObjectExpression"]`,
-		`[${prefix}properties.length=0]`
+		`[${prefix}properties.length=0]`,
 	].join('');
 }
 

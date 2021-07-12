@@ -7,25 +7,25 @@ const SUGGESTION_MESSAGE_ID = 'replace';
 
 const patterns = {
 	unicorn: {
-		suggest: '🦄'
+		suggest: '🦄',
 	},
 	awesome: {
-		suggest: '😎'
+		suggest: '😎',
 	},
-	quote: {suggest: '\'"'}
+	quote: {suggest: '\'"'},
 };
 
 const noToYesPattern = {
 	no: {
-		suggest: 'yes'
-	}
+		suggest: 'yes',
+	},
 };
 
 const createError = (match, suggest) => [
 	{
 		message: `Prefer \`${suggest}\` over \`${match}\`.`,
-		suggestions: undefined
-	}
+		suggestions: undefined,
+	},
 ];
 
 const createSuggestionError = (match, suggest, output) => [
@@ -37,11 +37,11 @@ const createSuggestionError = (match, suggest, output) => [
 				data: {
 					match,
 					suggest,
-					output
-				}
-			}
-		]
-	}
+					output,
+				},
+			},
+		],
+	},
 ];
 
 test({
@@ -79,12 +79,12 @@ test({
 				const foo = svg\`
 					<svg xmlns="http://www.w3.org/2000/svg"><text>no</text></svg>
 				\`;
-			`
+			`,
 			/* eslint-enable no-template-curly-in-string */
 		].map(code => ({
 			code,
-			options: [{patterns: noToYesPattern}]
-		}))
+			options: [{patterns: noToYesPattern}],
+		})),
 	],
 	invalid: [
 		// `Literal` string
@@ -92,40 +92,40 @@ test({
 			code: 'const foo = \'no\'',
 			output: 'const foo = \'yes\'',
 			options: [{patterns: noToYesPattern}],
-			errors: createError('no', 'yes')
+			errors: createError('no', 'yes'),
 		},
 		// Custom patterns
 		{
 			code: 'const foo = \'unicorn\'',
 			output: 'const foo = \'🦄\'',
 			options: [{patterns}],
-			errors: createError('unicorn', '🦄')
+			errors: createError('unicorn', '🦄'),
 		},
 		// Escape single quote
 		{
 			code: 'const foo = \'quote\'',
 			output: 'const foo = \'\\\'"\'',
 			options: [{patterns}],
-			errors: createError('quote', '\'"')
+			errors: createError('quote', '\'"'),
 		},
 		{
 			code: 'const foo = \'\\\\quote\\\\\'',
 			output: 'const foo = \'\\\\\\\'"\\\\\'',
 			options: [{patterns}],
-			errors: createError('quote', '\'"')
+			errors: createError('quote', '\'"'),
 		},
 		// Escape double quote
 		{
 			code: 'const foo = "quote"',
 			output: 'const foo = "\'\\""',
 			options: [{patterns}],
-			errors: createError('quote', '\'"')
+			errors: createError('quote', '\'"'),
 		},
 		{
 			code: 'const foo = "\\\\quote\\\\"',
 			output: 'const foo = "\\\\\'\\"\\\\"',
 			options: [{patterns}],
-			errors: createError('quote', '\'"')
+			errors: createError('quote', '\'"'),
 		},
 		// Not fix
 		{
@@ -134,33 +134,33 @@ test({
 			errors: createSuggestionError(
 				'unicorn',
 				'🦄',
-				'const foo = "🦄"'
-			)
+				'const foo = "🦄"',
+			),
 		},
 		// Conflict patterns
 		{
 			code: 'const foo = "a"',
 			output: 'const foo = "A"',
 			options: [{patterns: {a: 'A', A: 'a'}}],
-			errors: createError('a', 'A')
+			errors: createError('a', 'A'),
 		},
 		{
 			code: 'const foo = "A"',
 			output: 'const foo = "a"',
 			options: [{patterns: {a: 'A', A: 'a'}}],
-			errors: createError('A', 'a')
+			errors: createError('A', 'a'),
 		},
 		{
 			code: 'const foo = "aA"',
 			output: 'const foo = "AA"',
 			options: [{patterns: {a: 'A', A: 'a'}}],
-			errors: createError('a', 'A')
+			errors: createError('a', 'A'),
 		},
 		{
 			code: 'const foo = "aA"',
 			output: 'const foo = "aa"',
 			options: [{patterns: {A: 'a', a: 'A'}}],
-			errors: createError('A', 'a')
+			errors: createError('A', 'a'),
 		},
 
 		// Escaped pattern
@@ -168,13 +168,13 @@ test({
 			code: 'const foo = "foo.bar"',
 			output: 'const foo = "_______"',
 			options: [{patterns: {'.': '_'}}], // <- not escaped
-			errors: createError('.', '_')
+			errors: createError('.', '_'),
 		},
 		{
 			code: 'const foo = "foo.bar"',
 			output: 'const foo = "foo_bar"',
 			options: [{patterns: {'\\.': '_'}}], // <- escaped
-			errors: createError('\\.', '_')
+			errors: createError('\\.', '_'),
 		},
 
 		// Custom message
@@ -182,7 +182,7 @@ test({
 			code: 'const foo = "foo"',
 			output: 'const foo = "bar"',
 			options: [{patterns: {foo: {suggest: 'bar', message: '`bar` is better than `foo`.'}}}],
-			errors: [{message: '`bar` is better than `foo`.'}]
+			errors: [{message: '`bar` is better than `foo`.'}],
 		},
 
 		// Should not crash on multiline string
@@ -191,14 +191,14 @@ test({
 			code: 'const foo = "no\\n"',
 			output: 'const foo = "yes\\n"',
 			options: [{patterns: noToYesPattern}],
-			errors: createError('no', 'yes')
+			errors: createError('no', 'yes'),
 		},
 		// https://github.com/sindresorhus/execa/blob/df08cfb2d849adb31dc764ca3ab5f29e5b191d50/test/error.js#L20
 		{
 			code: 'const foo = "no\\r"',
 			output: 'const foo = "yes\\r"',
 			options: [{patterns: noToYesPattern}],
-			errors: createError('no', 'yes')
+			errors: createError('no', 'yes'),
 		},
 
 		/* eslint-disable no-template-curly-in-string */
@@ -207,46 +207,46 @@ test({
 			code: 'const foo = `no`',
 			output: 'const foo = `yes`',
 			options: [{patterns: noToYesPattern}],
-			errors: createError('no', 'yes')
+			errors: createError('no', 'yes'),
 		},
 		// `TemplateElement` position
 		{
 			code: 'const foo = `no${foo}no${foo}no`',
 			output: 'const foo = `yes${foo}yes${foo}yes`',
 			options: [{patterns: noToYesPattern}],
-			errors: Array.from({length: 3}).fill(createError('no', 'yes')[0])
+			errors: Array.from({length: 3}).fill(createError('no', 'yes')[0]),
 		},
 		// Escape
 		{
 			code: 'const foo = `foo_foo`',
 			output: 'const foo = `bar\\`bar_bar\\`bar`',
 			options: [{patterns: {foo: 'bar`bar'}}],
-			errors: createError('foo', 'bar`bar')
+			errors: createError('foo', 'bar`bar'),
 		},
 		{
 			code: 'const foo = `foo_foo`',
 			output: 'const foo = `\\${bar}_\\${bar}`',
 			options: [{patterns: {foo: '${bar}'}}],
-			errors: createError('foo', '${bar}')
+			errors: createError('foo', '${bar}'),
 		},
 		{
 			code: 'const foo = `$foo`', // <-- not escaped $
 			output: 'const foo = `\\${bar}`',
 			options: [{patterns: {foo: '{bar}'}}],
-			errors: createError('foo', '{bar}')
+			errors: createError('foo', '{bar}'),
 		},
 		{
 			code: 'const foo = `\\\\$foo`', // <-- escaped $
 			output: 'const foo = `\\\\\\${bar}`',
 			options: [{patterns: {foo: '{bar}'}}],
-			errors: createError('foo', '{bar}')
+			errors: createError('foo', '{bar}'),
 		},
 		// Not ignored tag
 		{
 			code: 'const foo = notIgnoredTag`no`',
 			output: 'const foo = notIgnoredTag`yes`',
 			options: [{patterns: noToYesPattern}],
-			errors: createError('no', 'yes')
+			errors: createError('no', 'yes'),
 		},
 
 		// Object is not `Identifier`
@@ -262,7 +262,7 @@ test({
 				\`;
 			`,
 			options: [{patterns: noToYesPattern}],
-			errors: createError('no', 'yes')
+			errors: createError('no', 'yes'),
 		},
 		{
 			code: outdent`
@@ -276,8 +276,8 @@ test({
 				\`;
 			`,
 			options: [{patterns: noToYesPattern}],
-			errors: createError('no', 'yes')
-		}
+			errors: createError('no', 'yes'),
+		},
 		/* eslint-enable no-template-curly-in-string */
-	]
+	],
 });

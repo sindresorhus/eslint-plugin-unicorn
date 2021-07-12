@@ -11,23 +11,23 @@ const messages = {
 	[ERROR_WITH_NAME_MESSAGE_ID]: 'Do not pass function `{{name}}` directly to `.{{method}}(…)`.',
 	[ERROR_WITHOUT_NAME_MESSAGE_ID]: 'Do not pass function directly to `.{{method}}(…)`.',
 	[REPLACE_WITH_NAME_MESSAGE_ID]: 'Replace function `{{name}}` with `… => {{name}}({{parameters}})`.',
-	[REPLACE_WITHOUT_NAME_MESSAGE_ID]: 'Replace function with `… => …({{parameters}})`.'
+	[REPLACE_WITHOUT_NAME_MESSAGE_ID]: 'Replace function with `… => …({{parameters}})`.',
 };
 
 const iteratorMethods = [
 	['every'],
 	[
 		'filter', {
-			extraSelector: '[callee.object.name!="Vue"]'
-		}
+			extraSelector: '[callee.object.name!="Vue"]',
+		},
 	],
 	['find'],
 	['findIndex'],
 	['flatMap'],
 	[
 		'forEach', {
-			returnsUndefined: true
-		}
+			returnsUndefined: true,
+		},
 	],
 	['map'],
 	[
@@ -36,11 +36,11 @@ const iteratorMethods = [
 				'accumulator',
 				'element',
 				'index',
-				'array'
+				'array',
 			],
 			minParameters: 2,
-			ignore: []
-		}
+			ignore: [],
+		},
 	],
 	[
 		'reduceRight', {
@@ -48,13 +48,13 @@ const iteratorMethods = [
 				'accumulator',
 				'element',
 				'index',
-				'array'
+				'array',
 			],
 			minParameters: 2,
-			ignore: []
-		}
+			ignore: [],
+		},
 	],
-	['some']
+	['some'],
 ].map(([method, options]) => {
 	options = {
 		parameters: ['element', 'index', 'array'],
@@ -62,7 +62,7 @@ const iteratorMethods = [
 		minParameters: 1,
 		extraSelector: '',
 		returnsUndefined: false,
-		...options
+		...options,
 	};
 	return [method, options];
 });
@@ -77,7 +77,7 @@ const ignoredCallee = [
 	'_',
 	'Async',
 	'async',
-	'this'
+	'this',
 ];
 
 function getProblem(context, node, method, options) {
@@ -94,9 +94,9 @@ function getProblem(context, node, method, options) {
 		messageId: name ? ERROR_WITH_NAME_MESSAGE_ID : ERROR_WITHOUT_NAME_MESSAGE_ID,
 		data: {
 			name,
-			method
+			method,
 		},
-		suggest: []
+		suggest: [],
 	};
 
 	const {parameters, minParameters, returnsUndefined} = options;
@@ -107,7 +107,7 @@ function getProblem(context, node, method, options) {
 			messageId: name ? REPLACE_WITH_NAME_MESSAGE_ID : REPLACE_WITHOUT_NAME_MESSAGE_ID,
 			data: {
 				name,
-				parameters: suggestionParameters
+				parameters: suggestionParameters,
 			},
 			fix: fixer => {
 				const sourceCode = context.getSourceCode();
@@ -120,9 +120,9 @@ function getProblem(context, node, method, options) {
 					node,
 					returnsUndefined ?
 						`(${suggestionParameters}) => { ${nodeText}(${suggestionParameters}); }` :
-						`(${suggestionParameters}) => ${nodeText}(${suggestionParameters})`
+						`(${suggestionParameters}) => ${nodeText}(${suggestionParameters})`,
 				);
-			}
+			},
 		};
 
 		problem.suggest.push(suggest);
@@ -136,7 +136,7 @@ const ignoredFirstArgumentSelector = [
 	// Ignore all `CallExpression`s include `function.bind()`
 	'[arguments.0.type!="CallExpression"]',
 	'[arguments.0.type!="FunctionExpression"]',
-	'[arguments.0.type!="ArrowFunctionExpression"]'
+	'[arguments.0.type!="ArrowFunctionExpression"]',
 ].join('');
 
 const create = context => {
@@ -149,10 +149,10 @@ const create = context => {
 			methodCallSelector({
 				name: method,
 				min: 1,
-				max: 2
+				max: 2,
 			}),
 			options.extraSelector,
-			ignoredFirstArgumentSelector
+			ignoredFirstArgumentSelector,
 		].join('');
 
 		rules[selector] = node => {
@@ -173,9 +173,9 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Prevent passing a function reference directly to iterator methods.'
+			description: 'Prevent passing a function reference directly to iterator methods.',
 		},
 		messages,
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

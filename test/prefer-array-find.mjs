@@ -44,20 +44,20 @@ test({
 		'array.filter(foo)[0] += 1',
 		'++ array.filter(foo)[0]',
 		'array.filter(foo)[0]--',
-		'delete array.filter(foo)[0]'
+		'delete array.filter(foo)[0]',
 	],
 	invalid: [
 		{
 			code: 'array.filter(foo)[0]',
 			output: 'array.find(foo)',
-			errors: [{messageId: ERROR_ZERO_INDEX}]
+			errors: [{messageId: ERROR_ZERO_INDEX}],
 		},
 		{
 			code: 'array.filter(foo, thisArgument)[0]',
 			output: 'array.find(foo, thisArgument)',
-			errors: [{messageId: ERROR_ZERO_INDEX}]
-		}
-	]
+			errors: [{messageId: ERROR_ZERO_INDEX}],
+		},
+	],
 });
 
 // `.shift()`
@@ -92,18 +92,18 @@ test({
 		// More or less argument(s)
 		'array.filter().shift()',
 		'array.filter(foo, thisArgument, extraArgument).shift()',
-		'array.filter(...foo).shift()'
+		'array.filter(...foo).shift()',
 	],
 	invalid: [
 		{
 			code: 'array.filter(foo).shift()',
 			output: 'array.find(foo)',
-			errors: [{messageId: ERROR_SHIFT}]
+			errors: [{messageId: ERROR_SHIFT}],
 		},
 		{
 			code: 'array.filter(foo, thisArgument).shift()',
 			output: 'array.find(foo, thisArgument)',
-			errors: [{messageId: ERROR_SHIFT}]
+			errors: [{messageId: ERROR_SHIFT}],
 		},
 		{
 			code: outdent`
@@ -128,9 +128,9 @@ test({
 					// comment 4
 					;
 			`,
-			errors: [{messageId: ERROR_SHIFT}]
-		}
-	]
+			errors: [{messageId: ERROR_SHIFT}],
+		},
+	],
 });
 
 // `const [foo] =`
@@ -164,74 +164,74 @@ test({
 		// More or less argument(s)
 		'const [foo] = array.filter()',
 		'const [foo] = array.filter(bar, thisArgument, extraArgument)',
-		'const [foo] = array.filter(...bar)'
+		'const [foo] = array.filter(...bar)',
 	],
 	invalid: [
 		{
 			code: 'const [foo] = array.filter(bar)',
 			output: 'const foo = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			// Plural variable name.
 			code: 'const [items] = array.filter(bar)',
 			output: 'const items = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			code: 'const [foo] = array.filter(bar, thisArgument)',
 			output: 'const foo = array.find(bar, thisArgument)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			code: 'const [{foo}] = array.filter(fn);',
 			output: 'const {foo} = array.find(fn);',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			code: 'const [{foo = bar}] = array.filter(fn);',
 			output: 'const {foo = bar} = array.find(fn);',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			code: 'const [[foo]] = array.filter(fn);',
 			output: 'const [foo] = array.find(fn);',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			code: 'const [[foo = bar]] = array.filter(fn);',
 			output: 'const [foo = bar] = array.find(fn);',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			code: 'const [foo, ] = array.filter(bar)',
 			output: 'const foo = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			code: 'var [foo, ] = array.filter(bar)',
 			output: 'var foo = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			code: 'let [foo, ] = array.filter(bar)',
 			output: 'let foo = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			code: 'let a = 1, [foo, ] = array.filter(bar)',
 			output: 'let a = 1, foo = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			code: 'let a = 1, [{foo}] = array.filter(bar)',
 			output: 'let a = 1, {foo} = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			code: 'for (let [i] = array.filter(bar); i< 10; i++) {}',
 			output: 'for (let i = array.find(bar); i< 10; i++) {}',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
 			code: outdent`
@@ -261,7 +261,7 @@ test({
 					// comment 5
 					;
 			`,
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}]
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		// Suggestions
 		{
@@ -271,14 +271,14 @@ test({
 				suggestions: [
 					{
 						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'const foo = array.find(bar) ?? baz'
+						output: 'const foo = array.find(bar) ?? baz',
 					},
 					{
 						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'const foo = array.find(bar) || baz'
-					}
-				]
-			}]
+						output: 'const foo = array.find(bar) || baz',
+					},
+				],
+			}],
 		},
 		// Default value is parenthesized
 		{
@@ -288,14 +288,14 @@ test({
 				suggestions: [
 					{
 						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'const foo = array.find(bar) ?? (bar)'
+						output: 'const foo = array.find(bar) ?? (bar)',
 					},
 					{
 						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'const foo = array.find(bar) || (bar)'
-					}
-				]
-			}]
+						output: 'const foo = array.find(bar) || (bar)',
+					},
+				],
+			}],
 		},
 		// Default value has lower precedence
 		{
@@ -305,14 +305,14 @@ test({
 				suggestions: [
 					{
 						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'const foo = array.find(bar) ?? (a ? b : c)'
+						output: 'const foo = array.find(bar) ?? (a ? b : c)',
 					},
 					{
 						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'const foo = array.find(bar) || (a ? b : c)'
-					}
-				]
-			}]
+						output: 'const foo = array.find(bar) || (a ? b : c)',
+					},
+				],
+			}],
 		},
 		{
 			code: 'const [foo = a ?? b] = array.filter(bar)',
@@ -321,14 +321,14 @@ test({
 				suggestions: [
 					{
 						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'const foo = array.find(bar) ?? (a ?? b)'
+						output: 'const foo = array.find(bar) ?? (a ?? b)',
 					},
 					{
 						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'const foo = array.find(bar) || (a ?? b)'
-					}
-				]
-			}]
+						output: 'const foo = array.find(bar) || (a ?? b)',
+					},
+				],
+			}],
 		},
 		{
 			code: 'const [foo = a || b] = array.filter(bar)',
@@ -337,14 +337,14 @@ test({
 				suggestions: [
 					{
 						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'const foo = array.find(bar) ?? (a || b)'
+						output: 'const foo = array.find(bar) ?? (a || b)',
 					},
 					{
 						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'const foo = array.find(bar) || (a || b)'
-					}
-				]
-			}]
+						output: 'const foo = array.find(bar) || (a || b)',
+					},
+				],
+			}],
 		},
 		{
 			code: 'const [foo = a && b] = array.filter(bar)',
@@ -353,16 +353,16 @@ test({
 				suggestions: [
 					{
 						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'const foo = array.find(bar) ?? (a && b)'
+						output: 'const foo = array.find(bar) ?? (a && b)',
 					},
 					{
 						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'const foo = array.find(bar) || a && b'
-					}
-				]
-			}]
-		}
-	]
+						output: 'const foo = array.find(bar) || a && b',
+					},
+				],
+			}],
+		},
+	],
 });
 
 // `[foo] =`
@@ -396,48 +396,48 @@ test({
 		// More or less argument(s)
 		'[foo] = array.filter()',
 		'[foo] = array.filter(bar, thisArgument, extraArgument)',
-		'[foo] = array.filter(...bar)'
+		'[foo] = array.filter(...bar)',
 	],
 	invalid: [
 		{
 			code: '[foo] = array.filter(bar)',
 			output: 'foo = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
 		},
 		{
 			code: '[foo] = array.filter(bar, thisArgument)',
 			output: 'foo = array.find(bar, thisArgument)',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
 		},
 		{
 			code: '[foo.bar().baz] = array.filter(fn)',
 			output: 'foo.bar().baz = array.find(fn)',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
 		},
 		{
 			code: '[{foo}] = array.filter(fn);',
 			output: '({foo} = array.find(fn));',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
 		},
 		{
 			code: '[[foo]] = array.filter(fn);',
 			output: '[foo] = array.find(fn);',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
 		},
 		{
 			code: '[{foo = baz}] = array.filter(fn);',
 			output: '({foo = baz} = array.find(fn));',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
 		},
 		{
 			code: '[foo, ] = array.filter(bar)',
 			output: 'foo = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
 		},
 		{
 			code: 'for ([i] = array.filter(bar); i< 10; i++) {}',
 			output: 'for (i = array.find(bar); i< 10; i++) {}',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
 		},
 		// `no-semi` style
 		{
@@ -451,7 +451,7 @@ test({
 				const bar = []
 				;foo = array.find(bar)
 			`,
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}]
+			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
 		},
 		// Suggestions
 		{
@@ -461,14 +461,14 @@ test({
 				suggestions: [
 					{
 						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'foo = array.find(bar) ?? baz'
+						output: 'foo = array.find(bar) ?? baz',
 					},
 					{
 						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'foo = array.find(bar) || baz'
-					}
-				]
-			}]
+						output: 'foo = array.find(bar) || baz',
+					},
+				],
+			}],
 		},
 		{
 			code: '[{foo} = baz] = array.filter(bar)',
@@ -477,14 +477,14 @@ test({
 				suggestions: [
 					{
 						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: '({foo} = array.find(bar) ?? baz)'
+						output: '({foo} = array.find(bar) ?? baz)',
 					},
 					{
 						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: '({foo} = array.find(bar) || baz)'
-					}
-				]
-			}]
+						output: '({foo} = array.find(bar) || baz)',
+					},
+				],
+			}],
 		},
 		{
 			code: ';([{foo} = baz] = array.filter(bar))',
@@ -493,14 +493,14 @@ test({
 				suggestions: [
 					{
 						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: ';({foo} = array.find(bar) ?? baz)'
+						output: ';({foo} = array.find(bar) ?? baz)',
 					},
 					{
 						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: ';({foo} = array.find(bar) || baz)'
-					}
-				]
-			}]
+						output: ';({foo} = array.find(bar) || baz)',
+					},
+				],
+			}],
 		},
 		// Default value is parenthesized
 		{
@@ -510,14 +510,14 @@ test({
 				suggestions: [
 					{
 						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'foo = array.find(bar) ?? (bar)'
+						output: 'foo = array.find(bar) ?? (bar)',
 					},
 					{
 						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'foo = array.find(bar) || (bar)'
-					}
-				]
-			}]
+						output: 'foo = array.find(bar) || (bar)',
+					},
+				],
+			}],
 		},
 		// Default value has lower precedence
 		{
@@ -527,14 +527,14 @@ test({
 				suggestions: [
 					{
 						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'foo = array.find(bar) ?? (a ? b : c)'
+						output: 'foo = array.find(bar) ?? (a ? b : c)',
 					},
 					{
 						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'foo = array.find(bar) || (a ? b : c)'
-					}
-				]
-			}]
+						output: 'foo = array.find(bar) || (a ? b : c)',
+					},
+				],
+			}],
 		},
 		{
 			code: '[foo = a || b] = array.filter(bar)',
@@ -543,16 +543,16 @@ test({
 				suggestions: [
 					{
 						messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR,
-						output: 'foo = array.find(bar) ?? (a || b)'
+						output: 'foo = array.find(bar) ?? (a || b)',
 					},
 					{
 						messageId: SUGGESTION_LOGICAL_OR_OPERATOR,
-						output: 'foo = array.find(bar) || (a || b)'
-					}
-				]
-			}]
-		}
-	]
+						output: 'foo = array.find(bar) || (a || b)',
+					},
+				],
+			}],
+		},
+	],
 });
 
 // `const foo = array.filter(); foo[0]; [bar] = foo`
@@ -622,48 +622,48 @@ test({
 
 		// Singularization
 		'const item = array.find(bar), first = item;', // Already singular variable name.
-		'let items = array.filter(bar); console.log(items[0]); items = [1,2,3]; console.log(items[0]);' // Reassigning array variable.
+		'let items = array.filter(bar); console.log(items[0]); items = [1,2,3]; console.log(items[0]);', // Reassigning array variable.
 	],
 	invalid: [
 		{
 			code: 'const foo = array.filter(bar); const first = foo[0];',
 			output: 'const foo = array.find(bar); const first = foo;',
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: 'const foo = array.filter(bar), first = foo[0];',
 			output: 'const foo = array.find(bar), first = foo;',
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: 'var foo = array.filter(bar), first = foo[0];',
 			output: 'var foo = array.find(bar), first = foo;',
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: 'let foo = array.filter(bar), first = foo[0];',
 			output: 'let foo = array.find(bar), first = foo;',
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: 'const foo = array.filter(bar); const [first] = foo;',
 			output: 'const foo = array.find(bar); const first = foo;',
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: 'const foo = array.filter(bar); [first] = foo;',
 			output: 'const foo = array.find(bar); first = foo;',
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: 'const foo = array.filter(bar); const [{propOfFirst = unicorn}] = foo;',
 			output: 'const foo = array.find(bar); const {propOfFirst = unicorn} = foo;',
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: 'const foo = array.filter(bar); [{propOfFirst = unicorn}] = foo;',
 			output: 'const foo = array.find(bar); ({propOfFirst = unicorn} = foo);',
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 
 		// Singularization
@@ -681,19 +681,19 @@ test({
 				console.log(item);
 				function foo() { return item; }
 			`,
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			// Variable name collision.
 			code: 'const item = {}; const items = array.filter(bar); console.log(items[0]);',
 			output: 'const item = {}; const item_ = array.find(bar); console.log(item_);',
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			// Variable defined with `let`.
 			code: 'let items = array.filter(bar); console.log(items[0]);',
 			output: 'let item = array.find(bar); console.log(item);',
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: outdent`
@@ -710,7 +710,7 @@ test({
 					console.log(item_);
 				}
 			`,
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: outdent`
@@ -729,7 +729,7 @@ test({
 					console.log(item__);
 				}
 			`,
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: outdent`
@@ -744,7 +744,7 @@ test({
 					console.log(item_, item);
 				}
 			`,
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: outdent`
@@ -761,7 +761,7 @@ test({
 					return item;
 				}
 			`,
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: outdent`
@@ -782,7 +782,7 @@ test({
 					return item;
 				}
 			`,
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: outdent`
@@ -793,7 +793,7 @@ test({
 				const package_ = array.find(bar);
 				console.log(package_);
 			`,
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: outdent`
@@ -804,23 +804,23 @@ test({
 				const symbol_ = array.find(bar);
 				console.log(symbol_);
 			`,
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 
 		// Not fixable
 		{
 			code: 'const foo = array.filter(bar); const [first = bar] = foo;',
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: 'const foo = array.filter(bar); [first = bar] = foo;',
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		// Many
 		{
 			code: 'let foo = array.filter(bar);foo[0](foo[0])[foo[0]];',
 			output: 'let foo = array.find(bar);foo(foo)[foo];',
-			errors: [{messageId: ERROR_DECLARATION}]
+			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		{
 			code: outdent`
@@ -847,9 +847,9 @@ test({
 					return foo[property];
 				}
 			`,
-			errors: [{messageId: ERROR_DECLARATION}]
-		}
-	]
+			errors: [{messageId: ERROR_DECLARATION}],
+		},
+	],
 });
 
 // Mixed
@@ -883,8 +883,8 @@ test({
 				{messageId: ERROR_DESTRUCTURING_DECLARATION},
 				{messageId: ERROR_ZERO_INDEX},
 				{messageId: ERROR_DESTRUCTURING_ASSIGNMENT},
-				{messageId: ERROR_SHIFT}
-			]
+				{messageId: ERROR_SHIFT},
+			],
 		},
 		{
 			// This code from previous output
@@ -909,8 +909,8 @@ test({
 			errors: [
 				{messageId: ERROR_DESTRUCTURING_DECLARATION},
 				{messageId: ERROR_ZERO_INDEX},
-				{messageId: ERROR_SHIFT}
-			]
-		}
-	]
+				{messageId: ERROR_SHIFT},
+			],
+		},
+	],
 });

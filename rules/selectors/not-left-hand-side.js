@@ -8,7 +8,7 @@ function notLeftHandSideSelector(path) {
 	return not([
 		`[${prefix}type="AssignmentExpression"] > .left`,
 		`[${prefix}type="UpdateExpression"] > .argument`,
-		`[${prefix}type="UnaryExpression"][${prefix}operator="delete"] > .argument`
+		`[${prefix}type="UnaryExpression"][${prefix}operator="delete"] > .argument`,
 	]);
 }
 

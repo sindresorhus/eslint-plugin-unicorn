@@ -15,7 +15,7 @@ test.snapshot({
 		'const foo = -1.1',
 		'const foo = 123123123.4',
 		'const foo = 1e3',
-		'1 .toString()'
+		'1 .toString()',
 	],
 	invalid: [
 		'const foo = 1.0',
@@ -39,7 +39,7 @@ test.snapshot({
 			'123_000.000',
 			'123_000.000_000',
 			'123_000.123_000',
-			'123_000.000_400'
+			'123_000.000_400',
 		]
 			.flatMap(number => [
 				number,
@@ -53,11 +53,11 @@ test.snapshot({
 				`${number}e+10`,
 				`${number}e-10`,
 				`${number}E-10`,
-				`${number}E-10_10`
+				`${number}E-10_10`,
 			])
 			.flatMap(number => [
 				`+${number}`,
-				`-${number}`
+				`-${number}`,
 			])
 			.map(number => `${number};`),
 		'1.00.toFixed(2)',
@@ -79,6 +79,6 @@ test.snapshot({
 		outdent`
 			console.log()
 			a[1.00e10].toString()
-		`
-	]
+		`,
+	],
 });

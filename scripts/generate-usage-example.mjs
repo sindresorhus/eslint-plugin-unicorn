@@ -14,7 +14,7 @@ const readmeContents = readFileSync(pathReadme, 'utf8');
 
 const exampleConfig = {
 	name: 'my-awesome-project',
-	eslintConfig: package_.configs.recommended
+	eslintConfig: package_.configs.recommended,
 };
 
 writeFileSync(
@@ -27,6 +27,6 @@ writeFileSync(
 			${JSON.stringify(exampleConfig, undefined, '\t')}
 			\`\`\`
 			<!-- USAGE_EXAMPLE_END -->
-		`
-	)
+		`,
+	),
 );

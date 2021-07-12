@@ -4,7 +4,7 @@ const unicorn = require('eslint-plugin-unicorn');
 const enableAllRules = Object.fromEntries(
 	Object.entries(unicorn.configs.recommended.rules)
 		.filter(([id]) => id.startsWith('unicorn/'))
-		.map(([id]) => [id, 'error'])
+		.map(([id]) => [id, 'error']),
 );
 
 module.exports = {
@@ -13,7 +13,7 @@ module.exports = {
 	parserOptions: {
 		ecmaVersion: 2021,
 		ecmaFeatures: {
-			jsx: true
+			jsx: true,
 		},
 		requireConfigFile: false,
 		babelOptions: {
@@ -24,29 +24,29 @@ module.exports = {
 				plugins: [
 					'jsx',
 					'doExpressions',
-					'exportDefaultFrom'
-				]
-			}
-		}
+					'exportDefaultFrom',
+				],
+			},
+		},
 	},
 	plugins: [
-		'unicorn'
+		'unicorn',
 	],
 	extends: 'plugin:unicorn/recommended',
 	rules: {
 		...enableAllRules,
 
 		// This rule crashing on replace string inside `jsx` or `Unicode escape sequence`
-		'unicorn/string-content': 'off'
+		'unicorn/string-content': 'off',
 	},
 	overrides: [
 		{
 			files: ['*.ts'],
-			parser: '@typescript-eslint/parser'
+			parser: '@typescript-eslint/parser',
 		},
 		{
 			files: ['*.vue'],
-			parser: 'vue-eslint-parser'
-		}
-	]
+			parser: 'vue-eslint-parser',
+		},
+	],
 };

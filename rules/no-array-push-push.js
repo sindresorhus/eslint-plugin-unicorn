@@ -9,12 +9,12 @@ const ERROR = 'error';
 const SUGGESTION = 'suggestion';
 const messages = {
 	[ERROR]: 'Do not call `Array#push()` multiple times.',
-	[SUGGESTION]: 'Merge with previous one.'
+	[SUGGESTION]: 'Merge with previous one.',
 };
 
 const arrayPushExpressionStatement = [
 	'ExpressionStatement',
-	methodCallSelector({path: 'expression', name: 'push'})
+	methodCallSelector({path: 'expression', name: 'push'}),
 ].join('');
 
 const selector = `${arrayPushExpressionStatement} + ${arrayPushExpressionStatement}`;
@@ -41,7 +41,7 @@ function getFirstExpression(node, sourceCode) {
 function create(context) {
 	const {ignore} = {
 		ignore: [],
-		...context.options[0]
+		...context.options[0],
 	};
 	const ignoredObjects = ['stream', 'this', 'this.stream', ...ignore];
 	const sourceCode = context.getSourceCode();
@@ -67,7 +67,7 @@ function create(context) {
 			const secondCallArguments = secondCall.arguments;
 			const problem = {
 				node: secondCall.callee.property,
-				messageId: ERROR
+				messageId: ERROR,
 			};
 
 			const fix = function * (fixer) {
@@ -87,7 +87,7 @@ function create(context) {
 
 				yield fixer.replaceTextRange(
 					[firstExpression.range[1], secondExpression.range[1]],
-					shouldKeepSemicolon ? ';' : ''
+					shouldKeepSemicolon ? ';' : '',
 				);
 			};
 
@@ -95,15 +95,15 @@ function create(context) {
 				problem.suggest = [
 					{
 						messageId: SUGGESTION,
-						fix
-					}
+						fix,
+					},
 				];
 			} else {
 				problem.fix = fix;
 			}
 
 			return problem;
-		}
+		},
 	};
 }
 
@@ -113,11 +113,11 @@ const schema = [
 		properties: {
 			ignore: {
 				type: 'array',
-				uniqueItems: true
-			}
+				uniqueItems: true,
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -125,11 +125,11 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce combining multiple `Array#push()` into one call.'
+			description: 'Enforce combining multiple `Array#push()` into one call.',
 		},
 		fixable: 'code',
 		schema,
 		messages,
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

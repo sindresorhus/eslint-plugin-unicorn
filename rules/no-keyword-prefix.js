@@ -2,21 +2,21 @@
 
 const MESSAGE_ID = 'noKeywordPrefix';
 const messages = {
-	[MESSAGE_ID]: 'Do not prefix identifiers with keyword `{{keyword}}`.'
+	[MESSAGE_ID]: 'Do not prefix identifiers with keyword `{{keyword}}`.',
 };
 
 const prepareOptions = ({
 	disallowedPrefixes,
 	checkProperties = true,
-	onlyCamelCase = true
+	onlyCamelCase = true,
 } = {}) => {
 	return {
 		disallowedPrefixes: (disallowedPrefixes || [
 			'new',
-			'class'
+			'class',
 		]),
 		checkProperties,
-		onlyCamelCase
+		onlyCamelCase,
 	};
 };
 
@@ -96,8 +96,8 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				data: {
 					name: node.name,
-					keyword
-				}
+					keyword,
+				},
 			});
 		}
 	}
@@ -141,7 +141,7 @@ const create = context => {
 				[
 					'ImportSpecifier',
 					'ImportNamespaceSpecifier',
-					'ImportDefaultSpecifier'
+					'ImportDefaultSpecifier',
 				].includes(parent.type)
 			) {
 				// Report only if the local imported identifier is invalid
@@ -160,7 +160,7 @@ const create = context => {
 			) {
 				report(node, keyword);
 			}
-		}
+		},
 	};
 };
 
@@ -172,21 +172,21 @@ const schema = [
 				type: 'array',
 				items: [
 					{
-						type: 'string'
-					}
+						type: 'string',
+					},
 				],
 				minItems: 0,
-				uniqueItems: true
+				uniqueItems: true,
 			},
 			checkProperties: {
-				type: 'boolean'
+				type: 'boolean',
 			},
 			onlyCamelCase: {
-				type: 'boolean'
-			}
+				type: 'boolean',
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -194,9 +194,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow identifiers starting with `new` or `class`.'
+			description: 'Disallow identifiers starting with `new` or `class`.',
 		},
 		schema,
-		messages
-	}
+		messages,
+	},
 };

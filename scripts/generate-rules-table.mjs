@@ -37,7 +37,7 @@ const rulesTableContent = ruleNames
 			description,
 			isRecommended ? EMOJI_RECOMMENDED : '',
 			fixable ? EMOJI_FIXABLE : '',
-			hasSuggestions ? EMOJI_HAS_SUGGESTIONS : ''
+			hasSuggestions ? EMOJI_HAS_SUGGESTIONS : '',
 		].join(' | ')} |`;
 	})
 	.join('\n');
@@ -54,6 +54,6 @@ writeFileSync(
 			${rulesTableContent}
 
 			<!-- RULES_TABLE_END -->
-		`
-	)
+		`,
+	),
 );

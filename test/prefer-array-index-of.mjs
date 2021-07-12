@@ -5,7 +5,7 @@ const {test} = getTester(import.meta);
 
 const {snapshot, typescript} = tests({
 	method: 'findIndex',
-	replacement: 'indexOf'
+	replacement: 'indexOf',
 });
 
 test.snapshot(snapshot);

@@ -24,7 +24,7 @@ test.snapshot({
 			async function foo() {
 				const fs = await import(\`fs\`);
 			}
-		`
+		`,
 	],
 	invalid: [
 		'import fs from "fs";',
@@ -56,8 +56,8 @@ test.snapshot({
 		`,
 		'import "buffer";',
 		'import "child_process";',
-		'import "timers/promises";'
-	]
+		'import "timers/promises";',
+	],
 });
 
 // `options`
@@ -75,28 +75,28 @@ test.snapshot({
 		'const fs = require("fs", extra);',
 		'const fs = require();',
 		'const fs = require(...["fs"]);',
-		'const fs = require("unicorn");'
+		'const fs = require("unicorn");',
 	].map(code => ({code, options: checkRequireOptions})),
 	invalid: [
 		'const {promises} = require("fs")',
-		'const fs = require(\'fs/promises\')'
-	].map(code => ({code, options: checkRequireOptions}))
+		'const fs = require(\'fs/promises\')',
+	].map(code => ({code, options: checkRequireOptions})),
 });
 
 test.babel({
 	valid: [
-		'export fs from "node:fs";'
+		'export fs from "node:fs";',
 	],
 	invalid: [
 		{
 			code: 'export fs from "fs";',
 			output: 'export fs from "node:fs";',
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: 'await import(\'assert/strict\')',
 			output: 'await import(\'node:assert/strict\')',
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });

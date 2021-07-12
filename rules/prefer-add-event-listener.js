@@ -5,11 +5,11 @@ const {STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-add-event-listener';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{method}}`.{{extra}}'
+	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{method}}`.{{extra}}',
 };
 const extraMessages = {
 	beforeunload: 'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.',
-	message: 'Note that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.'
+	message: 'Note that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.',
 };
 
 const nestedEvents = Object.values(domEventsJson);
@@ -73,7 +73,7 @@ const create = context => {
 			codePathInfo = {
 				node,
 				upper: codePathInfo,
-				returnsSomething: false
+				returnsSomething: false,
 			};
 		},
 
@@ -148,11 +148,11 @@ const create = context => {
 				data: {
 					replacement,
 					method: eventMethodName,
-					extra: extra ? ` ${extra}` : ''
+					extra: extra ? ` ${extra}` : '',
 				},
-				fix
+				fix,
 			};
-		}
+		},
 	};
 };
 
@@ -163,13 +163,13 @@ const schema = [
 			excludedPackages: {
 				type: 'array',
 				items: {
-					type: 'string'
+					type: 'string',
 				},
-				uniqueItems: true
-			}
+				uniqueItems: true,
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -177,10 +177,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.'
+			description: 'Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.',
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+	},
 };

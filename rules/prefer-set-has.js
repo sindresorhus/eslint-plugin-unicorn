@@ -5,19 +5,19 @@ const {
 	matches,
 	not,
 	methodCallSelector,
-	callOrNewExpressionSelector
+	callOrNewExpressionSelector,
 } = require('./selectors/index.js');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: '`{{name}}` should be a `Set`, and use `{{name}}.has()` to check existence or non-existence.',
-	[MESSAGE_ID_SUGGESTION]: 'Switch `{{name}}` to `Set`.'
+	[MESSAGE_ID_SUGGESTION]: 'Switch `{{name}}` to `Set`.',
 };
 
 // `[]`
 const arrayExpressionSelector = [
-	'[init.type="ArrayExpression"]'
+	'[init.type="ArrayExpression"]',
 ].join('');
 
 // `Array()` and `new Array()`
@@ -27,7 +27,7 @@ const newArraySelector = callOrNewExpressionSelector({name: 'Array', path: 'init
 const arrayStaticMethodSelector = methodCallSelector({
 	object: 'Array',
 	names: ['from', 'of'],
-	path: 'init'
+	path: 'init',
 });
 
 // `array.concat()`
@@ -53,9 +53,9 @@ const arrayMethodSelector = methodCallSelector({
 		'reverse',
 		'slice',
 		'sort',
-		'splice'
+		'splice',
 	],
-	path: 'init'
+	path: 'init',
 });
 
 const selector = [
@@ -68,10 +68,10 @@ const selector = [
 		arrayExpressionSelector,
 		newArraySelector,
 		arrayStaticMethodSelector,
-		arrayMethodSelector
+		arrayMethodSelector,
 	]),
 	' > ',
-	'Identifier.id'
+	'Identifier.id',
 ].join('');
 
 const isIncludesCall = node => {
@@ -104,7 +104,7 @@ const multipleCallNodeTypes = new Set([
 	'DoWhileStatement',
 	'FunctionDeclaration',
 	'FunctionExpression',
-	'ArrowFunctionExpression'
+	'ArrowFunctionExpression',
 ]);
 
 const isMultipleCall = (identifier, node) => {
@@ -156,8 +156,8 @@ const create = context => {
 				node,
 				messageId: MESSAGE_ID_ERROR,
 				data: {
-					name: node.name
-				}
+					name: node.name,
+				},
 			};
 
 			const fix = function * (fixer) {
@@ -174,17 +174,17 @@ const create = context => {
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
 						data: {
-							name: node.name
+							name: node.name,
 						},
-						fix
-					}
+						fix,
+					},
 				];
 			} else {
 				problem.fix = fix;
 			}
 
 			return problem;
-		}
+		},
 	};
 };
 
@@ -193,10 +193,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence.'
+			description: 'Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence.',
 		},
 		fixable: 'code',
 		messages,
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

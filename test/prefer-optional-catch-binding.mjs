@@ -26,13 +26,13 @@ test({
 					}
 				}
 			}
-		`
+		`,
 	],
 	invalid: [
 		{
 			code: 'try {} catch (_) {}',
 			output: 'try {} catch {}',
-			errors: [generateError('_')]
+			errors: [generateError('_')],
 		},
 		{
 			code: outdent`
@@ -45,7 +45,7 @@ test({
 					function bar(foo) {}
 				}
 			`,
-			errors: [generateError('foo')]
+			errors: [generateError('foo')],
 		},
 		// Many
 		{
@@ -87,14 +87,14 @@ test({
 				generateError('inTry'),
 				generateError('another'),
 				generateError('inCatch'),
-				generateError('inFinally')
-			]
+				generateError('inFinally'),
+			],
 		},
 		// Actual message
 		{
 			code: 'try {} catch (theRealErrorName) {}',
 			output: 'try {} catch {}',
-			errors: [{message: 'Remove unused catch binding `theRealErrorName`.'}]
+			errors: [{message: 'Remove unused catch binding `theRealErrorName`.'}],
 		},
 		// TODO: this `error` should be able to remove
 		// {
@@ -148,26 +148,26 @@ test({
 				}
 				/* comment */
 			`.replace('{SPACE}', ' ').replace('{TAB}', '\t'),
-			errors: [generateError('unused')]
+			errors: [generateError('unused')],
 		},
 		// Spaces
 		{
 			code: 'try    {    } catch    (e)  \n  \t  {    }',
 			//                               ^^^^^^^^^^ spaces after param will be removed.
 			output: 'try    {    } catch    {    }',
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: 'try {} catch(e) {}',
 			output: 'try {} catch{}',
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: 'try {} catch (e){}',
 			output: 'try {} catch {}',
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });
 
 test.snapshot({
@@ -175,12 +175,12 @@ test.snapshot({
 		'try {} catch ({message}) {alert(message)}',
 		'try {} catch ({cause: {message}}) {alert(message)}',
 		// Not sure about this case
-		'try {} catch({nonExistsProperty = thisWillExecute()}) {}'
+		'try {} catch({nonExistsProperty = thisWillExecute()}) {}',
 	],
 	invalid: [
 		'try {} catch ({}) {}',
 		'try {} catch ({message}) {}',
 		'try {} catch ({message: notUsedMessage}) {}',
-		'try {} catch ({cause: {message}}) {}'
-	]
+		'try {} catch ({cause: {message}}) {}',
+	],
 });

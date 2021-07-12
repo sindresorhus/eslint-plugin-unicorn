@@ -3,7 +3,7 @@ const {isNumber, isBigInt} = require('./utils/numeric.js');
 
 const MESSAGE_ID = 'number-literal-case';
 const messages = {
-	[MESSAGE_ID]: 'Invalid number literal casing.'
+	[MESSAGE_ID]: 'Invalid number literal casing.',
 };
 
 const fix = raw => {
@@ -31,10 +31,10 @@ const create = () => {
 				return {
 					node,
 					messageId: MESSAGE_ID,
-					fix: fixer => fixer.replaceText(node, fixed)
+					fix: fixer => fixer.replaceText(node, fixed),
 				};
 			}
-		}
+		},
 	};
 };
 
@@ -43,9 +43,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce proper case for numeric literals.'
+			description: 'Enforce proper case for numeric literals.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

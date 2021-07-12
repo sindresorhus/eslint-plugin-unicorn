@@ -180,7 +180,7 @@ test({
 		// With variable containing static, non-array value.
 		'const notArray = "abc"; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }',
 		'const notArray = 123; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }',
-		'const notArray = true; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }'
+		'const notArray = true; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }',
 	],
 
 	invalid: [
@@ -657,12 +657,12 @@ test({
 			['largeCity', 'largeCities'], // CamelCase
 			['LARGE_CITY', 'LARGE_CITIES'], // Caps, snake_case
 			['element', 'news'], // No singular version, ends in s
-			['element', 'list'] // No singular version
+			['element', 'list'], // No singular version
 		].map(([elementName, arrayName]) =>
 			testCase(
 				`for(const i = 0; i < ${arrayName}.length; i++) {console.log(${arrayName}[i])}`,
-				`for(const ${elementName} of ${arrayName}) {console.log(${elementName})}`
-			)
+				`for(const ${elementName} of ${arrayName}) {console.log(${elementName})}`,
+			),
 		),
 
 		// Singularization (avoid using reserved JavaScript keywords):
@@ -724,15 +724,15 @@ test({
 			for (const element of someArray) {
 				console.log(element);
 			}
-		`)
-	]
+		`),
+	],
 });
 
 test(avoidTestTitleConflict({
 	testerOptions: {
 		parserOptions: {
-			ecmaVersion: 5
-		}
+			ecmaVersion: 5,
+		},
 	},
 	valid: [
 		'for (;;);',
@@ -749,9 +749,9 @@ test(avoidTestTitleConflict({
 				for (var i = 0; i < bar.length; i++) {
 				}
 			};
-		`
+		`,
 	],
-	invalid: []
+	invalid: [],
 }, 'es5'));
 
 test.typescript({
@@ -770,7 +770,7 @@ test.typescript({
 					let selectionRange = allProviderRanges[i];
 				}
 			`,
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -784,7 +784,7 @@ test.typescript({
 					console.log(i);
 				}
 			`,
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -796,9 +796,9 @@ test.typescript({
 				for (let last: vscode.Position | vscode.Range of positions) {
 				}
 			`,
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });
 
 test.snapshot({
@@ -843,6 +843,6 @@ test.snapshot({
 			for (let i = 0; i < array.length; i++) {
 				var foo = array[i], bar = 1;
 			}
-		`
-	]
+		`,
+	],
 });

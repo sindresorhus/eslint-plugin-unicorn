@@ -30,7 +30,7 @@ const prepareOptions = ({
 	extendDefaultAllowList = true,
 	allowList = {},
 
-	ignore = []
+	ignore = [],
 } = {}) => {
 	const mergedReplacements = extendDefaultReplacements ?
 		defaultsDeep({}, replacements, defaultReplacements) :
@@ -41,7 +41,7 @@ const prepareOptions = ({
 		allowList;
 
 	ignore = ignore.map(
-		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u')
+		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u'),
 	);
 
 	return {
@@ -57,12 +57,12 @@ const prepareOptions = ({
 		replacements: new Map(
 			Object.entries(mergedReplacements).map(
 				([discouragedName, replacements]) =>
-					[discouragedName, new Map(Object.entries(replacements))]
-			)
+					[discouragedName, new Map(Object.entries(replacements))],
+			),
 		),
 		allowList: new Map(Object.entries(mergedAllowList)),
 
-		ignore
+		ignore,
 	};
 };
 
@@ -101,7 +101,7 @@ const getNameReplacements = (name, options, limit = 3) => {
 	if (exactReplacements.length > 0) {
 		return {
 			total: exactReplacements.length,
-			samples: exactReplacements.slice(0, limit)
+			samples: exactReplacements.slice(0, limit),
 		};
 	}
 
@@ -127,12 +127,12 @@ const getNameReplacements = (name, options, limit = 3) => {
 
 	const {
 		total,
-		samples
+		samples,
 	} = cartesianProductSamples(combinations, limit);
 
 	return {
 		total,
-		samples: samples.map(words => words.join(''))
+		samples: samples.map(words => words.join('')),
 	};
 };
 
@@ -156,7 +156,7 @@ const formatMessage = (discouragedName, replacements, nameTypeText) => {
 
 		message.push(
 			`Please rename the ${nameTypeText} \`${discouragedName}\`.`,
-			`Suggested names are: ${replacementsText}.`
+			`Suggested names are: ${replacementsText}.`,
 		);
 	}
 
@@ -339,7 +339,7 @@ const create = context => {
 					scope: variable.scope,
 					defs: variable.defs,
 					identifiers: variable.identifiers,
-					references: [...variable.references, ...outerClassVariable.references]
+					references: [...variable.references, ...outerClassVariable.references],
 				};
 
 				// Call the common checker with the newly forged normalized class variable
@@ -412,15 +412,15 @@ const create = context => {
 
 		const scopes = [
 			...variable.references.map(reference => reference.from),
-			variable.scope
+			variable.scope,
 		];
 		variableReplacements.samples = variableReplacements.samples.map(
-			name => avoidCapture(name, scopes, isSafeName)
+			name => avoidCapture(name, scopes, isSafeName),
 		);
 
 		const problem = {
 			node: definition.name,
-			message: formatMessage(definition.name.name, variableReplacements, 'variable')
+			message: formatMessage(definition.name.name, variableReplacements, 'variable'),
 		};
 
 		if (variableReplacements.total === 1 && shouldFix(variable) && variableReplacements.samples[0]) {
@@ -481,7 +481,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				message: formatMessage(node.name, identifierReplacements, 'property')
+				message: formatMessage(node.name, identifierReplacements, 'property'),
 			};
 
 			context.report(problem);
@@ -511,7 +511,7 @@ const create = context => {
 
 			context.report({
 				node,
-				message: formatMessage(filenameWithExtension, filenameReplacements, 'filename')
+				message: formatMessage(filenameWithExtension, filenameReplacements, 'filename'),
 			});
 		},
 
@@ -521,7 +521,7 @@ const create = context => {
 			}
 
 			checkScope(context.getScope());
-		}
+		},
 	};
 };
 
@@ -530,76 +530,76 @@ const schema = [
 		type: 'object',
 		properties: {
 			checkProperties: {
-				type: 'boolean'
+				type: 'boolean',
 			},
 			checkVariables: {
-				type: 'boolean'
+				type: 'boolean',
 			},
 			checkDefaultAndNamespaceImports: {
 				type: [
 					'boolean',
-					'string'
+					'string',
 				],
-				pattern: 'internal'
+				pattern: 'internal',
 			},
 			checkShorthandImports: {
 				type: [
 					'boolean',
-					'string'
+					'string',
 				],
-				pattern: 'internal'
+				pattern: 'internal',
 			},
 			checkShorthandProperties: {
-				type: 'boolean'
+				type: 'boolean',
 			},
 			checkFilenames: {
-				type: 'boolean'
+				type: 'boolean',
 			},
 			extendDefaultReplacements: {
-				type: 'boolean'
+				type: 'boolean',
 			},
 			replacements: {
-				$ref: '#/items/0/definitions/abbreviations'
+				$ref: '#/items/0/definitions/abbreviations',
 			},
 			extendDefaultAllowList: {
-				type: 'boolean'
+				type: 'boolean',
 			},
 			allowList: {
-				$ref: '#/items/0/definitions/booleanObject'
+				$ref: '#/items/0/definitions/booleanObject',
 			},
 			ignore: {
 				type: 'array',
-				uniqueItems: true
-			}
+				uniqueItems: true,
+			},
 		},
 		additionalProperties: false,
 		definitions: {
 			abbreviations: {
 				type: 'object',
 				additionalProperties: {
-					$ref: '#/items/0/definitions/replacements'
-				}
+					$ref: '#/items/0/definitions/replacements',
+				},
 			},
 			replacements: {
 				anyOf: [
 					{
 						enum: [
-							false
-						]
+							false,
+						],
 					},
 					{
-						$ref: '#/items/0/definitions/booleanObject'
-					}
-				]
+						$ref: '#/items/0/definitions/booleanObject',
+					},
+				],
 			},
 			booleanObject: {
 				type: 'object',
 				additionalProperties: {
-					type: 'boolean'
-				}
-			}
-		}
-	}
+					type: 'boolean',
+				},
+			},
+		},
+	},
 ];
 
 module.exports = {
@@ -607,9 +607,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prevent abbreviations.'
+			description: 'Prevent abbreviations.',
 		},
 		fixable: 'code',
-		schema
-	}
+		schema,
+	},
 };

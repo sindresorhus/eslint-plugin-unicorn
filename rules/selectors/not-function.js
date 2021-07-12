@@ -12,7 +12,7 @@ const impossibleNodeTypes = [
 	'ObjectExpression',
 	'TemplateLiteral',
 	'UnaryExpression',
-	'UpdateExpression'
+	'UpdateExpression',
 ];
 
 // Technically these nodes could be a function, but most likely not
@@ -22,7 +22,7 @@ const mostLikelyNotNodeTypes = [
 	'LogicalExpression',
 	'NewExpression',
 	'TaggedTemplateExpression',
-	'ThisExpression'
+	'ThisExpression',
 ];
 
 const notFunctionSelector = node => not([
@@ -35,11 +35,11 @@ const notFunctionSelector = node => not([
 			`[${node}.callee.optional!=true]`,
 			`[${node}.callee.computed!=true]`,
 			`[${node}.callee.property.type="Identifier"]`,
-			`[${node}.callee.property.name="bind"]`
-		].join(''))
-	].join('')
+			`[${node}.callee.property.name="bind"]`,
+		].join('')),
+	].join(''),
 ]);
 
 module.exports = {
-	notFunctionSelector
+	notFunctionSelector,
 };

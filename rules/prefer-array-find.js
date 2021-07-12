@@ -3,7 +3,7 @@ const {isParenthesized, findVariable} = require('eslint-utils');
 const {
 	not,
 	methodCallSelector,
-	notLeftHandSideSelector
+	notLeftHandSideSelector,
 } = require('./selectors/index.js');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
 const avoidCapture = require('./utils/avoid-capture.js');
@@ -13,7 +13,7 @@ const {
 	extendFixRange,
 	removeMemberExpressionProperty,
 	removeMethodCall,
-	renameVariable
+	renameVariable,
 } = require('./fix/index.js');
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
@@ -31,13 +31,13 @@ const messages = {
 	// Same message as `ERROR_DESTRUCTURING_DECLARATION`, but different case
 	[ERROR_DESTRUCTURING_ASSIGNMENT]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
 	[SUGGESTION_NULLISH_COALESCING_OPERATOR]: 'Replace `.filter(…)` with `.find(…) ?? …`.',
-	[SUGGESTION_LOGICAL_OR_OPERATOR]: 'Replace `.filter(…)` with `.find(…) || …`.'
+	[SUGGESTION_LOGICAL_OR_OPERATOR]: 'Replace `.filter(…)` with `.find(…) || …`.',
 };
 
 const filterMethodSelectorOptions = {
 	name: 'filter',
 	min: 1,
-	max: 2
+	max: 2,
 };
 
 const filterVariableSelector = [
@@ -49,8 +49,8 @@ const filterVariableSelector = [
 	'[id.type="Identifier"]',
 	methodCallSelector({
 		...filterMethodSelectorOptions,
-		path: 'init'
-	})
+		path: 'init',
+	}),
 ].join('');
 
 const zeroIndexSelector = [
@@ -61,19 +61,19 @@ const zeroIndexSelector = [
 	notLeftHandSideSelector(),
 	methodCallSelector({
 		...filterMethodSelectorOptions,
-		path: 'object'
-	})
+		path: 'object',
+	}),
 ].join('');
 
 const shiftSelector = [
 	methodCallSelector({
 		name: 'shift',
-		length: 0
+		length: 0,
 	}),
 	methodCallSelector({
 		...filterMethodSelectorOptions,
-		path: 'callee.object'
-	})
+		path: 'callee.object',
+	}),
 ].join('');
 
 const destructuringDeclaratorSelector = [
@@ -83,8 +83,8 @@ const destructuringDeclaratorSelector = [
 	'[id.elements.0.type!="RestElement"]',
 	methodCallSelector({
 		...filterMethodSelectorOptions,
-		path: 'init'
-	})
+		path: 'init',
+	}),
 ].join('');
 
 const destructuringAssignmentSelector = [
@@ -94,8 +94,8 @@ const destructuringAssignmentSelector = [
 	'[left.elements.0.type!="RestElement"]',
 	methodCallSelector({
 		...filterMethodSelectorOptions,
-		path: 'right'
-	})
+		path: 'right',
+	}),
 ].join('');
 
 // Need add `()` to the `AssignmentExpression`
@@ -188,14 +188,14 @@ const fixDestructuringAndReplaceFilter = (sourceCode, node) => {
 	if (hasDefaultValue(node)) {
 		suggest = [
 			{operator: '??', messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR},
-			{operator: '||', messageId: SUGGESTION_LOGICAL_OR_OPERATOR}
+			{operator: '||', messageId: SUGGESTION_LOGICAL_OR_OPERATOR},
 		].map(({messageId, operator}) => ({
 			messageId,
 			* fix(fixer) {
 				yield fixer.replaceText(property, 'find');
 				yield fixDestructuringDefaultValue(node, sourceCode, fixer, operator);
 				yield * fixDestructuring(node, sourceCode, fixer);
-			}
+			},
 		}));
 	} else {
 		fix = function * (fixer) {
@@ -237,8 +237,8 @@ const create = context => {
 				messageId: ERROR_ZERO_INDEX,
 				fix: fixer => [
 					fixer.replaceText(node.object.callee.property, 'find'),
-					removeMemberExpressionProperty(fixer, node, sourceCode)
-				]
+					removeMemberExpressionProperty(fixer, node, sourceCode),
+				],
 			};
 		},
 		[shiftSelector](node) {
@@ -247,22 +247,22 @@ const create = context => {
 				messageId: ERROR_SHIFT,
 				fix: fixer => [
 					fixer.replaceText(node.callee.object.callee.property, 'find'),
-					...removeMethodCall(fixer, node, sourceCode)
-				]
+					...removeMethodCall(fixer, node, sourceCode),
+				],
 			};
 		},
 		[destructuringDeclaratorSelector](node) {
 			return {
 				node: node.init.callee.property,
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
-				...fixDestructuringAndReplaceFilter(sourceCode, node)
+				...fixDestructuringAndReplaceFilter(sourceCode, node),
 			};
 		},
 		[destructuringAssignmentSelector](node) {
 			return {
 				node: node.right.callee.property,
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
-				...fixDestructuringAndReplaceFilter(sourceCode, node)
+				...fixDestructuringAndReplaceFilter(sourceCode, node),
 			};
 		},
 		[filterVariableSelector](node) {
@@ -288,7 +288,7 @@ const create = context => {
 
 			const problem = {
 				node: node.init.callee.property,
-				messageId: ERROR_DECLARATION
+				messageId: ERROR_DECLARATION,
 			};
 
 			// `const [foo = bar] = baz` is not fixable
@@ -317,7 +317,7 @@ const create = context => {
 			}
 
 			return problem;
-		}
+		},
 	};
 };
 
@@ -326,10 +326,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.find(…)` over the first element from `.filter(…)`.'
+			description: 'Prefer `.find(…)` over the first element from `.filter(…)`.',
 		},
 		fixable: 'code',
 		messages,
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

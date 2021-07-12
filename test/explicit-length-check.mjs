@@ -13,8 +13,8 @@ const suggestionCase = ({code, output, desc, options = []}) => {
 		code,
 		options,
 		errors: [
-			{suggestions: [suggestion]}
-		]
+			{suggestions: [suggestion]},
+		],
 	};
 };
 
@@ -28,7 +28,7 @@ const nonZeroCases = [
 	'0 !== foo.length',
 	'0 != foo.length',
 	'0 < foo.length',
-	'1 <= foo.length'
+	'1 <= foo.length',
 ];
 
 const zeroCases = [
@@ -38,7 +38,7 @@ const zeroCases = [
 	'foo.length < 1',
 	'0 === foo.length',
 	'0 == foo.length',
-	'1 > foo.length'
+	'1 > foo.length',
 ];
 
 test({
@@ -66,11 +66,11 @@ test({
 		'if (foo.length > 0) {}',
 		{
 			code: 'if (foo.length > 0) {}',
-			options: [{'non-zero': 'greater-than'}]
+			options: [{'non-zero': 'greater-than'}],
 		},
 		{
 			code: 'if (foo.length !== 0) {}',
-			options: [{'non-zero': 'not-equal'}]
+			options: [{'non-zero': 'not-equal'}],
 		},
 
 		// Checking 'non-zero'
@@ -102,35 +102,35 @@ test({
 		'const foo = { length: -1 }; if (foo.length) {}', // Array lengths cannot be negative
 		'const foo = { length: 1.5 }; if (foo.length) {}', // Array lengths must be integers
 		'const foo = { length: NaN }; if (foo.length) {}', // Array lengths cannot be NaN
-		'const foo = { length: Infinity }; if (foo.length) {}' // Array lengths cannot be Infinity
+		'const foo = { length: Infinity }; if (foo.length) {}', // Array lengths cannot be Infinity
 	],
 	invalid: [
 		suggestionCase({
 			code: 'const x = foo.length || bar()',
 			output: 'const x = foo.length > 0 || bar()',
-			desc: 'Replace `.length` with `.length > 0`.'
+			desc: 'Replace `.length` with `.length > 0`.',
 		}),
 		suggestionCase({
 			code: 'const x = foo.length || bar()',
 			output: 'const x = foo.length !== 0 || bar()',
 			desc: 'Replace `.length` with `.length !== 0`.',
-			options: [{'non-zero': 'not-equal'}]
+			options: [{'non-zero': 'not-equal'}],
 		}),
 		suggestionCase({
 			code: 'const x = foo.length || bar()',
 			output: 'const x = foo.length > 0 || bar()',
 			desc: 'Replace `.length` with `.length > 0`.',
-			options: [{'non-zero': 'greater-than'}]
+			options: [{'non-zero': 'greater-than'}],
 		}),
 		suggestionCase({
 			code: '() => foo.length && bar()',
-			output: '() => foo.length > 0 && bar()'
+			output: '() => foo.length > 0 && bar()',
 		}),
 		suggestionCase({
 			code: 'alert(foo.length && bar())',
-			output: 'alert(foo.length > 0 && bar())'
-		})
-	]
+			output: 'alert(foo.length > 0 && bar())',
+		}),
+	],
 });
 
 test.snapshot({
@@ -143,7 +143,7 @@ test.snapshot({
 					while (!this.size || foo);
 				}
 			}
-		`
+		`,
 	],
 	invalid: [
 		outdent`
@@ -162,12 +162,12 @@ test.snapshot({
 					${nonZeroCases.filter(code => code !== 'foo.length !== 0').join(' ||\n\t')}
 				) {}
 			`,
-			options: [{'non-zero': 'not-equal'}]
+			options: [{'non-zero': 'not-equal'}],
 		},
 		{
 			// Known, number static value
 			code: 'const foo = { length: 123 }; if (foo.length) {}',
-			options: [{'non-zero': 'not-equal'}]
+			options: [{'non-zero': 'not-equal'}],
 		},
 		'if (foo.bar && foo.bar.length) {}',
 		'if (foo.length || foo.bar()) {}',
@@ -187,13 +187,13 @@ test.snapshot({
 		'const isNotEmpty = !Boolean(foo.length === 0)',
 		'const isEmpty = !Boolean(!Boolean(foo.length === 0))',
 		'if (foo.size) {}',
-		'if (foo.size && bar.length) {}'
-	]
+		'if (foo.size && bar.length) {}',
+	],
 });
 
 test.snapshot({
 	testerOptions: {
-		parser: parsers.vue
+		parser: parsers.vue,
 	},
 	valid: [
 		'<not-template><div v-if="foo.length"></div></not-template>',
@@ -201,7 +201,7 @@ test.snapshot({
 		'<template><div v-if="foo.notLength"></div></template>',
 		'<template><div v-SHoW="foo.length"></div></template>',
 		'<template><div hidden="!foo.length"></div></template>',
-		'<template><img :width="foo.length"/></template>'
+		'<template><img :width="foo.length"/></template>',
 	],
 	invalid: [
 		'<template><div v-if="foo.length"></div></template>',
@@ -216,11 +216,11 @@ test.snapshot({
 		'<template><div v-if="foo.length"></div></template>',
 		{
 			code: '<template><div v-if="foo.length"></div></template>',
-			options: [{'non-zero': 'not-equal'}]
+			options: [{'non-zero': 'not-equal'}],
 		},
 		{
 			code: '<template><div v-if="foo.length"></div></template>',
-			options: [{'non-zero': 'greater-than'}]
+			options: [{'non-zero': 'greater-than'}],
 		},
 		'<template><div v-if="foo.length && bar"></div></template>',
 		'<script>if (foo.length) {}</script>',
@@ -231,6 +231,6 @@ test.snapshot({
 		'<template><div @click="method($event, foo.length >= 1)"></div></template>',
 		'<template><div v-bind:hidden="0 === foo.length"></div></template>',
 		'<template><input :disabled="Boolean(foo.length)"></template>',
-		'<template><custom-component :custom-property="!foo.length"></custom-component></template>'
-	]
+		'<template><custom-component :custom-property="!foo.length"></custom-component></template>',
+	],
 });

@@ -14,7 +14,7 @@ function toLocation(nodeOrRange, sourceCode, startOffset = 0, endOffset = 0) {
 
 	return {
 		start: sourceCode.getLocFromIndex(start + startOffset),
-		end: sourceCode.getLocFromIndex(end + endOffset)
+		end: sourceCode.getLocFromIndex(end + endOffset),
 	};
 }
 

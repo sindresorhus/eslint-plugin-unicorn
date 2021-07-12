@@ -14,7 +14,7 @@ test.snapshot({
 		'window["postMessage"](message)',
 		'window.notPostMessage(message)',
 		'window.postMessage?.(message)',
-		'window?.postMessage(message)'
+		'window?.postMessage(message)',
 	],
 	invalid: [
 		'window.postMessage(message)',
@@ -26,6 +26,6 @@ test.snapshot({
 		'foo.postMessage(message , )',
 		'foo.window.postMessage(message)',
 		'document.defaultView.postMessage(message)',
-		'getWindow().postMessage(message)'
-	]
+		'getWindow().postMessage(message)',
+	],
 });

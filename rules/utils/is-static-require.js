@@ -9,7 +9,7 @@ const isStaticRequire = node => Boolean(
 	!node.optional &&
 	node.arguments.length === 1 &&
 	node.arguments[0].type === 'Literal' &&
-	typeof node.arguments[0].value === 'string'
+	typeof node.arguments[0].value === 'string',
 );
 
 module.exports = isStaticRequire;

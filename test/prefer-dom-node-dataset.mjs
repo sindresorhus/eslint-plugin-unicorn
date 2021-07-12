@@ -5,8 +5,8 @@ const {test} = getTester(import.meta);
 
 const errors = [
 	{
-		messageId: 'prefer-dom-node-dataset'
-	}
+		messageId: 'prefer-dom-node-dataset',
+	},
 ];
 
 test({
@@ -34,43 +34,43 @@ test({
 		// First Argument is not startsWith `data-`
 		'element.setAttribute(\'foo-unicorn\', \'🦄\');',
 		// First Argument is `data-`
-		'element.setAttribute(\'data-\', \'🦄\');'
+		'element.setAttribute(\'data-\', \'🦄\');',
 	],
 	invalid: [
 		{
 			code: 'element.setAttribute(\'data-unicorn\', \'🦄\');',
 			errors,
-			output: 'element.dataset.unicorn = \'🦄\';'
+			output: 'element.dataset.unicorn = \'🦄\';',
 		},
 		{
 			code: 'element.setAttribute(\'data-🦄\', \'🦄\');',
 			errors,
-			output: 'element.dataset[\'🦄\'] = \'🦄\';'
+			output: 'element.dataset[\'🦄\'] = \'🦄\';',
 		},
 		{
 			code: 'element.setAttribute(\'data-foo2\', \'🦄\');',
 			errors,
-			output: 'element.dataset.foo2 = \'🦄\';'
+			output: 'element.dataset.foo2 = \'🦄\';',
 		},
 		{
 			code: 'element.setAttribute(\'data-foo:bar\', \'zaz\');',
 			errors,
-			output: 'element.dataset[\'foo:bar\'] = \'zaz\';'
+			output: 'element.dataset[\'foo:bar\'] = \'zaz\';',
 		},
 		{
 			code: 'element.setAttribute(\'data-foo.bar\', \'zaz\');',
 			errors,
-			output: 'element.dataset[\'foo.bar\'] = \'zaz\';'
+			output: 'element.dataset[\'foo.bar\'] = \'zaz\';',
 		},
 		{
 			code: 'element.setAttribute(\'data-foo-bar\', \'zaz\');',
 			errors,
-			output: 'element.dataset.fooBar = \'zaz\';'
+			output: 'element.dataset.fooBar = \'zaz\';',
 		},
 		{
 			code: 'element.setAttribute(\'data-foo\', /* comment */ \'bar\');',
 			errors,
-			output: 'element.dataset.foo = \'bar\';'
+			output: 'element.dataset.foo = \'bar\';',
 		},
 		{
 			code: outdent`
@@ -80,14 +80,14 @@ test({
 				);
 			`,
 			errors,
-			output: 'element.dataset.foo = \'bar\';'
+			output: 'element.dataset.foo = \'bar\';',
 		},
 		{
 			code: 'element.querySelector(\'#selector\').setAttribute(\'data-AllowAccess\', true);',
 			errors,
-			output: 'element.querySelector(\'#selector\').dataset.AllowAccess = true;'
-		}
-	]
+			output: 'element.querySelector(\'#selector\').dataset.AllowAccess = true;',
+		},
+	],
 });
 
 test.snapshot({
@@ -98,6 +98,6 @@ test.snapshot({
 				\'data-foo\', // comment
 				\'bar\' // comment
 			);
-		`
-	]
+		`,
+	],
 });

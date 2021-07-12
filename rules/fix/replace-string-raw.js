@@ -6,9 +6,9 @@ const replaceStringRaw = (fixer, node, raw) =>
 		// Ignore quotes and backticks
 		[
 			node.range[0] + 1,
-			node.range[1] - 1
+			node.range[1] - 1,
 		],
-		raw
+		raw,
 	);
 
 module.exports = replaceStringRaw;

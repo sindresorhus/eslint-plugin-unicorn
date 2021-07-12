@@ -25,18 +25,18 @@ const cases = [
 	'function foo(){/* */}',
 	'foo = {/* */}',
 	'class Foo {bar() {/* */}}',
-	'foo = class {bar() {/* */}}'
+	'foo = class {bar() {/* */}}',
 ];
 const classBodyCases = [
 	'class Foo {/* */}',
-	'foo = class {/* */}'
+	'foo = class {/* */}',
 ];
 const allCases = [...cases, ...classBodyCases];
 
 const ignoredCases = [
 	'switch (foo) {/* */}',
 	'const {/* */} = foo',
-	'import {/* */} from "foo"'
+	'import {/* */} from "foo"',
 ];
 
 test({
@@ -44,7 +44,7 @@ test({
 		...[
 			'',
 			'/* comment */',
-			'\n\t// comment \n'
+			'\n\t// comment \n',
 		].flatMap(body => allCases.map(code => code.replace(SPACES_PLACEHOLDER, body))),
 		// Not empty
 		...cases.map(code => code.replace(SPACES_PLACEHOLDER, 'unicorn')),
@@ -52,10 +52,10 @@ test({
 		// `with`
 		{
 			code: 'with (foo) {}',
-			parserOptions: {ecmaVersion: 5, sourceType: 'script'}
+			parserOptions: {ecmaVersion: 5, sourceType: 'script'},
 		},
 		// We don't check these cases
-		...ignoredCases.map(code => code.replace(SPACES_PLACEHOLDER, '   '))
+		...ignoredCases.map(code => code.replace(SPACES_PLACEHOLDER, '   ')),
 	],
 	invalid: [
 		...[
@@ -63,20 +63,20 @@ test({
 			'\t',
 			' \t \t ',
 			'\n\n',
-			'\r\n'
+			'\r\n',
 		].flatMap(spaces => allCases.map(code => ({
 			code: code.replace(SPACES_PLACEHOLDER, spaces),
 			output: code.replace(SPACES_PLACEHOLDER, ''),
-			errors: 1
+			errors: 1,
 		}))),
 		// `with`
 		{
 			code: 'with (foo) {     }',
 			output: 'with (foo) {}',
 			errors: 1,
-			parserOptions: {ecmaVersion: 5, sourceType: 'script'}
-		}
-	]
+			parserOptions: {ecmaVersion: 5, sourceType: 'script'},
+		},
+	],
 });
 
 test.snapshot({
@@ -88,16 +88,16 @@ test.snapshot({
 			} catch (error) {
 				\u0020\u0020\u0020\u0020\u0020\u0020\u0020
 			}
-		`
-	]
+		`,
+	],
 });
 
 const enableBabelPlugins = plugins => ({
 	babelOptions: {
 		parserOpts: {
-			plugins
-		}
-	}
+			plugins,
+		},
+	},
 });
 const enableBabelPlugin = plugin => enableBabelPlugins([plugin]);
 test.babel({
@@ -110,19 +110,19 @@ test.babel({
 			`,
 			output: 'const foo = do     {};',
 			parserOptions: enableBabelPlugin('doExpressions'),
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: 'const record = #{    };',
 			output: 'const record = #{};',
 			parserOptions: enableBabelPlugin(['recordAndTuple', {syntaxType: 'hash'}]),
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: 'const record = {|    |};',
 			output: 'const record = {||};',
 			parserOptions: enableBabelPlugin(['recordAndTuple', {syntaxType: 'bar'}]),
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -137,7 +137,7 @@ test.babel({
 				}
 			`,
 			parserOptions: enableBabelPlugin('classStaticBlock'),
-			errors: 1
+			errors: 1,
 		},
 		// ESLint can't parse this now
 		// {
@@ -153,7 +153,7 @@ test.babel({
 			`,
 			output: 'const foo = async    do    {};',
 			parserOptions: enableBabelPlugins(['doExpressions', 'asyncDoExpressions']),
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });

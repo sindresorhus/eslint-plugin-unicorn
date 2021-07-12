@@ -2,7 +2,7 @@
 const {
 	isIdentifierName,
 	isStrictReservedWord,
-	isKeyword
+	isKeyword,
 } = require('@babel/helper-validator-identifier');
 const resolveVariableName = require('./resolve-variable-name.js');
 
@@ -67,7 +67,7 @@ const typescriptReservedWords = new Set([
 	'symbol',
 	'type',
 	'from',
-	'of'
+	'of',
 ]);
 
 // Copied from https://github.com/babel/babel/blob/fce35af69101c6b316557e28abf60bdbf77d6a36/packages/babel-types/src/validators/isValidIdentifier.ts#L7

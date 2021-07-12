@@ -3,7 +3,7 @@ const {STATIC_REQUIRE_SELECTOR} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'import-index';
 const messages = {
-	[MESSAGE_ID]: 'Do not reference the index file directly..'
+	[MESSAGE_ID]: 'Do not reference the index file directly..',
 };
 
 const regexp = /^(?<package>@.*?\/.*?|[./]+?.*?)\/(?:\.|(?:index(?:\.js)?))?$/;
@@ -15,7 +15,7 @@ const importIndex = (context, node, argument) => {
 		return {
 			node,
 			messageId: MESSAGE_ID,
-			fix: fixer => fixer.replaceText(argument, `'${normalize(argument.value)}'`)
+			fix: fixer => fixer.replaceText(argument, `'${normalize(argument.value)}'`),
 		};
 	}
 };
@@ -24,7 +24,7 @@ const create = context => {
 	const options = context.options[0] || {};
 
 	const rules = {
-		[STATIC_REQUIRE_SELECTOR]: node => importIndex(context, node, node.arguments[0])
+		[STATIC_REQUIRE_SELECTOR]: node => importIndex(context, node, node.arguments[0]),
 	};
 
 	if (!options.ignoreImports) {
@@ -40,11 +40,11 @@ const schema = [
 		properties: {
 			ignoreImports: {
 				type: 'boolean',
-				default: false
-			}
+				default: false,
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -52,10 +52,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce importing index files with `.`.'
+			description: 'Enforce importing index files with `.`.',
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+	},
 };

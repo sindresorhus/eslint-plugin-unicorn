@@ -16,7 +16,7 @@ test.snapshot({
 		'document[CONSTANTS_COOKIE] = "foo=bar"',
 		'document[cookie] = "foo=bar"',
 		'var doc = document; doc.cookie = "foo=bar"',
-		'window.document.cookie = "foo=bar"'
+		'window.document.cookie = "foo=bar"',
 	],
 	invalid: [
 		'document.cookie = "foo=bar"',
@@ -28,6 +28,6 @@ test.snapshot({
 			document[CONSTANTS_COOKIE] = "foo=bar";
 		`,
 		'document["coo" + "kie"] = "foo=bar"',
-		'foo = document.cookie = "foo=bar"'
-	]
+		'foo = document.cookie = "foo=bar"',
+	],
 });

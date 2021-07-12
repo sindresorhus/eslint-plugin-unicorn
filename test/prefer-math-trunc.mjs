@@ -24,7 +24,7 @@ test.snapshot({
 		outdent`
 			let foo = 1.2; // comment 1
 			foo |= 1; // comment 2 and 1.2 | 0
-		`
+		`,
 	],
 	invalid: [
 		// Basic "bitwise OR with 0" case
@@ -147,6 +147,6 @@ test.snapshot({
 				foo[i++] |= 0;
 			}
 			console.log(foo);
-		`
-	]
+		`,
+	],
 });

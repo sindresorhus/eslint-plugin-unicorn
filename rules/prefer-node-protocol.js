@@ -4,20 +4,20 @@ const {matches, STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors/index.js'
 
 const MESSAGE_ID = 'prefer-node-protocol';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `node:{{moduleName}}` over `{{moduleName}}`.'
+	[MESSAGE_ID]: 'Prefer `node:{{moduleName}}` over `{{moduleName}}`.',
 };
 
 const importExportSourceSelector = [
 	':matches(ImportDeclaration, ExportNamedDeclaration, ImportExpression)',
 	' > ',
-	'Literal.source'
+	'Literal.source',
 ].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {checkRequire} = {
 		checkRequire: false,
-		...context.options[0]
+		...context.options[0],
 	};
 	const selectors = [importExportSourceSelector];
 	if (checkRequire) {
@@ -41,9 +41,9 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				data: {moduleName: value},
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => fixer.insertTextBeforeRange([firstCharacterIndex, firstCharacterIndex], 'node:')
+				fix: fixer => fixer.insertTextBeforeRange([firstCharacterIndex, firstCharacterIndex], 'node:'),
 			};
-		}
+		},
 	};
 };
 
@@ -53,11 +53,11 @@ const schema = [
 		properties: {
 			checkRequire: {
 				type: 'boolean',
-				default: false
-			}
+				default: false,
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -65,10 +65,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer using the `node:` protocol when importing Node.js builtin modules.'
+			description: 'Prefer using the `node:` protocol when importing Node.js builtin modules.',
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+	},
 };

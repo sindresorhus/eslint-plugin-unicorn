@@ -12,7 +12,7 @@ const SUGGESTION_REMOVE = 'suggestion-remove';
 const messages = {
 	[ERROR]: 'Do not use the `this` argument in `Array#{{method}}()`.',
 	[SUGGESTION_REMOVE]: 'Remove the second argument.',
-	[SUGGESTION_BIND]: 'Use a bound function.'
+	[SUGGESTION_BIND]: 'Use a bound function.',
 };
 
 const ignored = [
@@ -51,7 +51,7 @@ const ignored = [
 
 	'lodash.some',
 	'_.some',
-	'underscore.some'
+	'underscore.some',
 ];
 
 const selector = [
@@ -64,11 +64,11 @@ const selector = [
 			'flatMap',
 			'forEach',
 			'map',
-			'some'
+			'some',
 		],
-		length: 2
+		length: 2,
 	}),
-	notFunctionSelector('arguments.0')
+	notFunctionSelector('arguments.0'),
 ].join('');
 
 function removeThisArgument(callExpression, sourceCode) {
@@ -117,7 +117,7 @@ const create = context => {
 			const problem = {
 				node: thisArgument,
 				messageId: ERROR,
-				data: {method}
+				data: {method},
 			};
 
 			const thisArgumentHasSideEffect = hasSideEffect(thisArgument, sourceCode);
@@ -128,8 +128,8 @@ const create = context => {
 					problem.suggest = [
 						{
 							messageId: SUGGESTION_REMOVE,
-							fix: removeThisArgument(callExpression, sourceCode)
-						}
+							fix: removeThisArgument(callExpression, sourceCode),
+						},
 					];
 				} else {
 					problem.fix = removeThisArgument(callExpression, sourceCode);
@@ -141,16 +141,16 @@ const create = context => {
 			problem.suggest = [
 				{
 					messageId: SUGGESTION_REMOVE,
-					fix: removeThisArgument(callExpression, sourceCode)
+					fix: removeThisArgument(callExpression, sourceCode),
 				},
 				{
 					messageId: SUGGESTION_BIND,
-					fix: useBoundFunction(callExpression, sourceCode)
-				}
+					fix: useBoundFunction(callExpression, sourceCode),
+				},
 			];
 
 			return problem;
-		}
+		},
 	};
 };
 
@@ -159,10 +159,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow using the `this` argument in array methods.'
+			description: 'Disallow using the `this` argument in array methods.',
 		},
 		fixable: 'code',
 		messages,
-		hasSuggestions: true
-	}
+		hasSuggestions: true,
+	},
 };

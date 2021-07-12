@@ -4,7 +4,7 @@ const {appendArgument} = require('./fix/index.js');
 
 const MESSAGE_ID = 'require-array-join-separator';
 const messages = {
-	[MESSAGE_ID]: 'Missing the separator argument.'
+	[MESSAGE_ID]: 'Missing the separator argument.',
 };
 
 const selector = matches([
@@ -13,8 +13,8 @@ const selector = matches([
 	// `[].join.call(foo)` and `Array.prototype.join.call(foo)`
 	[
 		methodCallSelector({name: 'call', length: 1}),
-		arrayPrototypeMethodSelector({path: 'callee.object', name: 'join'})
-	].join('')
+		arrayPrototypeMethodSelector({path: 'callee.object', name: 'join'}),
+	].join(''),
 ]);
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -27,13 +27,13 @@ const create = context => {
 			return {
 				loc: {
 					start: penultimateToken.loc[isPrototypeMethod ? 'end' : 'start'],
-					end: lastToken.loc.end
+					end: lastToken.loc.end,
 				},
 				messageId: MESSAGE_ID,
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => appendArgument(fixer, node, '\',\'', sourceCode)
+				fix: fixer => appendArgument(fixer, node, '\',\'', sourceCode),
 			};
-		}
+		},
 	};
 };
 
@@ -42,9 +42,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce using the separator argument with `Array#join()`.'
+			description: 'Enforce using the separator argument with `Array#join()`.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

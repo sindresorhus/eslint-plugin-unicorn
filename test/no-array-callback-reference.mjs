@@ -14,27 +14,27 @@ const simpleMethods = [
 	'findIndex',
 	'flatMap',
 	'forEach',
-	'map'
+	'map',
 ];
 
 const simpleMethodsExceptForEach = simpleMethods.filter(name => name !== 'forEach');
 
 const reduceLikeMethods = [
 	'reduce',
-	'reduceRight'
+	'reduceRight',
 ];
 
 const generateError = (method, name) => ({
 	messageId: name ? ERROR_WITH_NAME_MESSAGE_ID : ERROR_WITHOUT_NAME_MESSAGE_ID,
 	data: {
 		method,
-		name
-	}
+		name,
+	},
 });
 
 // Only test output is good enough
 const suggestionOutput = output => ({
-	output
+	output,
 });
 
 const invalidTestCase = (({code, method, name, suggestions}) => ({
@@ -42,9 +42,9 @@ const invalidTestCase = (({code, method, name, suggestions}) => ({
 	errors: [
 		{
 			...generateError(method, name),
-			suggestions: suggestions.map(output => suggestionOutput(output))
-		}
-	]
+			suggestions: suggestions.map(output => suggestionOutput(output)),
+		},
+	],
 }));
 
 test({
@@ -117,7 +117,7 @@ test({
 				.sort($sort)
 				.limit(params.limit + 1)
 				.toArray()
-		`
+		`,
 	],
 	invalid: [
 		// Suggestions
@@ -129,9 +129,9 @@ test({
 				suggestions: [
 					`foo.${method}((element) => fn(element))`,
 					`foo.${method}((element, index) => fn(element, index))`,
-					`foo.${method}((element, index, array) => fn(element, index, array))`
-				]
-			})
+					`foo.${method}((element, index, array) => fn(element, index, array))`,
+				],
+			}),
 		),
 		invalidTestCase({
 			code: 'foo.forEach(fn)',
@@ -140,8 +140,8 @@ test({
 			suggestions: [
 				'foo.forEach((element) => { fn(element); })',
 				'foo.forEach((element, index) => { fn(element, index); })',
-				'foo.forEach((element, index, array) => { fn(element, index, array); })'
-			]
+				'foo.forEach((element, index, array) => { fn(element, index, array); })',
+			],
 		}),
 		...reduceLikeMethods.map(
 			method => invalidTestCase({
@@ -151,9 +151,9 @@ test({
 				suggestions: [
 					`foo.${method}((accumulator, element) => fn(accumulator, element))`,
 					`foo.${method}((accumulator, element, index) => fn(accumulator, element, index))`,
-					`foo.${method}((accumulator, element, index, array) => fn(accumulator, element, index, array))`
-				]
-			})
+					`foo.${method}((accumulator, element, index, array) => fn(accumulator, element, index, array))`,
+				],
+			}),
 		),
 
 		// 2 arguments
@@ -165,9 +165,9 @@ test({
 				suggestions: [
 					`foo.${method}((element) => fn(element), thisArgument)`,
 					`foo.${method}((element, index) => fn(element, index), thisArgument)`,
-					`foo.${method}((element, index, array) => fn(element, index, array), thisArgument)`
-				]
-			})
+					`foo.${method}((element, index, array) => fn(element, index, array), thisArgument)`,
+				],
+			}),
 		),
 		invalidTestCase({
 			code: 'foo.forEach(fn, thisArgument)',
@@ -176,8 +176,8 @@ test({
 			suggestions: [
 				'foo.forEach((element) => { fn(element); }, thisArgument)',
 				'foo.forEach((element, index) => { fn(element, index); }, thisArgument)',
-				'foo.forEach((element, index, array) => { fn(element, index, array); }, thisArgument)'
-			]
+				'foo.forEach((element, index, array) => { fn(element, index, array); }, thisArgument)',
+			],
 		}),
 		...reduceLikeMethods.map(
 			method => invalidTestCase({
@@ -187,9 +187,9 @@ test({
 				suggestions: [
 					`foo.${method}((accumulator, element) => fn(accumulator, element), initialValue)`,
 					`foo.${method}((accumulator, element, index) => fn(accumulator, element, index), initialValue)`,
-					`foo.${method}((accumulator, element, index, array) => fn(accumulator, element, index, array), initialValue)`
-				]
-			})
+					`foo.${method}((accumulator, element, index, array) => fn(accumulator, element, index, array), initialValue)`,
+				],
+			}),
 		),
 
 		// `Boolean` is not ignored on `reduce` and `reduceRight`
@@ -201,9 +201,9 @@ test({
 				suggestions: [
 					`foo.${method}((accumulator, element) => Boolean(accumulator, element), initialValue)`,
 					`foo.${method}((accumulator, element, index) => Boolean(accumulator, element, index), initialValue)`,
-					`foo.${method}((accumulator, element, index, array) => Boolean(accumulator, element, index, array), initialValue)`
-				]
-			})
+					`foo.${method}((accumulator, element, index, array) => Boolean(accumulator, element, index, array), initialValue)`,
+				],
+			}),
 		),
 
 		// Not `Identifier`
@@ -214,9 +214,9 @@ test({
 				suggestions: [
 					`foo.${method}((element) => lib.fn(element))`,
 					`foo.${method}((element, index) => lib.fn(element, index))`,
-					`foo.${method}((element, index, array) => lib.fn(element, index, array))`
-				]
-			})
+					`foo.${method}((element, index, array) => lib.fn(element, index, array))`,
+				],
+			}),
 		),
 		...reduceLikeMethods.map(
 			method => invalidTestCase({
@@ -225,9 +225,9 @@ test({
 				suggestions: [
 					`foo.${method}((accumulator, element) => lib.fn(accumulator, element))`,
 					`foo.${method}((accumulator, element, index) => lib.fn(accumulator, element, index))`,
-					`foo.${method}((accumulator, element, index, array) => lib.fn(accumulator, element, index, array))`
-				]
-			})
+					`foo.${method}((accumulator, element, index, array) => lib.fn(accumulator, element, index, array))`,
+				],
+			}),
 		),
 
 		// Need parenthesized
@@ -237,8 +237,8 @@ test({
 			suggestions: [
 				'foo.map((element) => (a ? b : c)(element))',
 				'foo.map((element, index) => (a ? b : c)(element, index))',
-				'foo.map((element, index, array) => (a ? b : c)(element, index, array))'
-			]
+				'foo.map((element, index, array) => (a ? b : c)(element, index, array))',
+			],
 		}),
 		// Note: `await` is not handled, not sure if this is needed
 		// invalidTestCase({
@@ -260,10 +260,10 @@ test({
 					suggestions: [
 						{desc: 'Replace function `fn` with `… => fn(element)`.'},
 						{desc: 'Replace function `fn` with `… => fn(element, index)`.'},
-						{desc: 'Replace function `fn` with `… => fn(element, index, array)`.'}
-					]
-				}
-			]
+						{desc: 'Replace function `fn` with `… => fn(element, index, array)`.'},
+					],
+				},
+			],
 		},
 		{
 			code: 'foo.reduce(fn)',
@@ -273,10 +273,10 @@ test({
 					suggestions: [
 						{desc: 'Replace function `fn` with `… => fn(accumulator, element)`.'},
 						{desc: 'Replace function `fn` with `… => fn(accumulator, element, index)`.'},
-						{desc: 'Replace function `fn` with `… => fn(accumulator, element, index, array)`.'}
-					]
-				}
-			]
+						{desc: 'Replace function `fn` with `… => fn(accumulator, element, index, array)`.'},
+					],
+				},
+			],
 		},
 		{
 			code: 'foo.map(lib.fn)',
@@ -286,10 +286,10 @@ test({
 					suggestions: [
 						{desc: 'Replace function with `… => …(element)`.'},
 						{desc: 'Replace function with `… => …(element, index)`.'},
-						{desc: 'Replace function with `… => …(element, index, array)`.'}
-					]
-				}
-			]
+						{desc: 'Replace function with `… => …(element, index, array)`.'},
+					],
+				},
+			],
 		},
 		{
 			code: 'foo.reduce(lib.fn)',
@@ -299,10 +299,10 @@ test({
 					suggestions: [
 						{desc: 'Replace function with `… => …(accumulator, element)`.'},
 						{desc: 'Replace function with `… => …(accumulator, element, index)`.'},
-						{desc: 'Replace function with `… => …(accumulator, element, index, array)`.'}
-					]
-				}
-			]
+						{desc: 'Replace function with `… => …(accumulator, element, index, array)`.'},
+					],
+				},
+			],
 		},
 
 		// `await`
@@ -329,8 +329,8 @@ test({
 					const fn = async () => {
 						await Promise.all(foo.map((element, index, array) => toPromise(element, index, array)));
 					}
-				`
-			]
+				`,
+			],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -355,8 +355,8 @@ test({
 					async function fn() {
 						for await (const foo of bar.map((element, index, array) => toPromise(element, index, array))) {}
 					}
-				`
-			]
+				`,
+			],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -381,8 +381,8 @@ test({
 					async function fn() {
 						await foo.reduce((accumulator, element, index, array) => foo(accumulator, element, index, array), Promise.resolve())
 					}
-				`
-			]
+				`,
+			],
 		}),
 
 		// #418
@@ -405,8 +405,8 @@ test({
 				outdent`
 					const fn = (x, y) => x + y;
 					[1, 2, 3].map((element, index, array) => fn(element, index, array));
-				`
-			]
-		})
-	]
+				`,
+			],
+		}),
+	],
 });

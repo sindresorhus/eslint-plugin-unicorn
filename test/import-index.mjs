@@ -3,13 +3,13 @@ import {getTester} from './utils/test.mjs';
 const {test} = getTester(import.meta);
 
 const error = {
-	messageId: 'import-index'
+	messageId: 'import-index',
 };
 
 const ignoreImportsOptions = [
 	{
-		ignoreImports: true
-	}
+		ignoreImports: true,
+	},
 ];
 
 test({
@@ -18,7 +18,7 @@ test({
 		'const m = require(\'.\')',
 		{
 			code: 'const m = require(\'.\')',
-			options: ignoreImportsOptions
+			options: ignoreImportsOptions,
 		},
 		'const m = require(\'..\')',
 		'const m = require(\'../..\')',
@@ -40,7 +40,7 @@ test({
 		'import m from \'index.js\'',
 		{
 			code: 'import m from \'index.js\'',
-			options: ignoreImportsOptions
+			options: ignoreImportsOptions,
 		},
 		'import m from \'indexbar\'',
 		'import m from \'fooindex\'',
@@ -49,139 +49,139 @@ test({
 		'import m from \'@foo/index.js\'',
 		{
 			code: 'import m from \'./\'',
-			options: ignoreImportsOptions
+			options: ignoreImportsOptions,
 		},
 		{
 			code: 'import m from \'./index\'',
-			options: ignoreImportsOptions
+			options: ignoreImportsOptions,
 		},
 		{
 			code: 'import m from \'./index.js\'',
-			options: ignoreImportsOptions
+			options: ignoreImportsOptions,
 		},
 		{
 			code: 'import m from \'../../index\'',
-			options: ignoreImportsOptions
+			options: ignoreImportsOptions,
 		},
 		{
 			code: 'import m from \'./foo/index.js\'',
-			options: ignoreImportsOptions
+			options: ignoreImportsOptions,
 		},
 		{
 			code: 'import m from \'./foobar/\'',
-			options: ignoreImportsOptions
+			options: ignoreImportsOptions,
 		},
 		{
 			code: 'import m from \'@foo/index/index\'',
-			options: ignoreImportsOptions
+			options: ignoreImportsOptions,
 		},
 		{
 			code: 'import m from \'@foo/index/index.js\'',
-			options: ignoreImportsOptions
-		}
+			options: ignoreImportsOptions,
+		},
 	],
 	invalid: [
 		{
 			code: 'const m = require(\'./\')',
 			errors: [error],
-			output: 'const m = require(\'.\')'
+			output: 'const m = require(\'.\')',
 		},
 		{
 			code: 'const m = require(\'./.\')',
 			errors: [error],
-			output: 'const m = require(\'.\')'
-		},
-		{
-			code: 'const m = require(\'./index\')',
-			errors: [error],
-			output: 'const m = require(\'.\')'
+			output: 'const m = require(\'.\')',
 		},
 		{
 			code: 'const m = require(\'./index\')',
 			errors: [error],
 			output: 'const m = require(\'.\')',
-			options: ignoreImportsOptions
 		},
 		{
-			code: 'const m = require(\'./index.js\')',
+			code: 'const m = require(\'./index\')',
 			errors: [error],
-			output: 'const m = require(\'.\')'
+			output: 'const m = require(\'.\')',
+			options: ignoreImportsOptions,
 		},
 		{
 			code: 'const m = require(\'./index.js\')',
 			errors: [error],
 			output: 'const m = require(\'.\')',
-			options: ignoreImportsOptions
+		},
+		{
+			code: 'const m = require(\'./index.js\')',
+			errors: [error],
+			output: 'const m = require(\'.\')',
+			options: ignoreImportsOptions,
 		},
 		{
 			code: 'const m = require(\'../../index.js\')',
 			errors: [error],
-			output: 'const m = require(\'../..\')'
+			output: 'const m = require(\'../..\')',
 		},
 		{
 			code: 'const m = require(\'../.\')',
 			errors: [error],
-			output: 'const m = require(\'..\')'
+			output: 'const m = require(\'..\')',
 		},
 		{
 			code: 'const m = require(\'./foo/index.js\')',
 			errors: [error],
-			output: 'const m = require(\'./foo\')'
+			output: 'const m = require(\'./foo\')',
 		},
 		{
 			code: 'const m = require(\'./foobar/\')',
 			errors: [error],
-			output: 'const m = require(\'./foobar\')'
+			output: 'const m = require(\'./foobar\')',
 		},
 		{
 			code: 'const m = require(\'@foo/index/index\')',
 			errors: [error],
-			output: 'const m = require(\'@foo/index\')'
+			output: 'const m = require(\'@foo/index\')',
 		},
 		{
 			code: 'const m = require(\'@foo/index/index.js\')',
 			errors: [error],
-			output: 'const m = require(\'@foo/index\')'
+			output: 'const m = require(\'@foo/index\')',
 		},
 		{
 			code: 'import m from \'./\'',
 			errors: [error],
-			output: 'import m from \'.\''
+			output: 'import m from \'.\'',
 		},
 		{
 			code: 'import m from \'./index\'',
 			errors: [error],
-			output: 'import m from \'.\''
+			output: 'import m from \'.\'',
 		},
 		{
 			code: 'import m from \'./index.js\'',
 			errors: [error],
-			output: 'import m from \'.\''
+			output: 'import m from \'.\'',
 		},
 		{
 			code: 'import m from \'../../index\'',
 			errors: [error],
-			output: 'import m from \'../..\''
+			output: 'import m from \'../..\'',
 		},
 		{
 			code: 'import m from \'./foo/index.js\'',
 			errors: [error],
-			output: 'import m from \'./foo\''
+			output: 'import m from \'./foo\'',
 		},
 		{
 			code: 'import m from \'./foobar/\'',
 			errors: [error],
-			output: 'import m from \'./foobar\''
+			output: 'import m from \'./foobar\'',
 		},
 		{
 			code: 'import m from \'@foo/index/index\'',
 			errors: [error],
-			output: 'import m from \'@foo/index\''
+			output: 'import m from \'@foo/index\'',
 		},
 		{
 			code: 'import m from \'@foo/index/index.js\'',
 			errors: [error],
-			output: 'import m from \'@foo/index\''
-		}
-	]
+			output: 'import m from \'@foo/index\'',
+		},
+	],
 });

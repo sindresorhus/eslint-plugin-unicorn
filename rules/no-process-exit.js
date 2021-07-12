@@ -3,30 +3,30 @@ const {methodCallSelector, STATIC_REQUIRE_SELECTOR} = require('./selectors/index
 
 const MESSAGE_ID = 'no-process-exit';
 const messages = {
-	[MESSAGE_ID]: 'Only use `process.exit()` in CLI apps. Throw an error instead.'
+	[MESSAGE_ID]: 'Only use `process.exit()` in CLI apps. Throw an error instead.',
 };
 
 const importWorkerThreadsSelector = [
 	// `require('worker_threads')`
 	[
 		STATIC_REQUIRE_SELECTOR,
-		'[arguments.0.value="worker_threads"]'
+		'[arguments.0.value="worker_threads"]',
 	].join(''),
 	// `import workerThreads from 'worker_threads'`
 	[
 		'ImportDeclaration',
 		'[source.type="Literal"]',
-		'[source.value="worker_threads"]'
-	].join('')
+		'[source.value="worker_threads"]',
+	].join(''),
 ].join(', ');
 const processOnOrOnceCallSelector = methodCallSelector({
 	object: 'process',
 	names: ['on', 'once'],
-	min: 1
+	min: 1,
 });
 const processExitCallSelector = methodCallSelector({
 	object: 'process',
-	name: 'exit'
+	name: 'exit',
 });
 
 const create = context => {
@@ -67,11 +67,11 @@ const create = context => {
 				for (const node of problemNodes) {
 					yield {
 						node,
-						messageId: MESSAGE_ID
+						messageId: MESSAGE_ID,
 					};
 				}
 			}
-		}
+		},
 	};
 };
 
@@ -80,8 +80,8 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow `process.exit()`.'
+			description: 'Disallow `process.exit()`.',
 		},
-		messages
-	}
+		messages,
+	},
 };

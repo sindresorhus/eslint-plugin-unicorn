@@ -3,7 +3,7 @@ const {upperFirst} = require('lodash');
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 const messages = {
-	[MESSAGE_ID_INVALID_EXPORT]: 'Exported error name should match error class'
+	[MESSAGE_ID_INVALID_EXPORT]: 'Exported error name should match error class',
 };
 
 const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
@@ -85,7 +85,7 @@ function * customErrorDefinition(context, node) {
 	if (name !== className) {
 		yield {
 			node: node.id,
-			message: `Invalid class name, use \`${className}\`.`
+			message: `Invalid class name, use \`${className}\`.`,
 		};
 	}
 
@@ -98,8 +98,8 @@ function * customErrorDefinition(context, node) {
 			message: 'Add a constructor to your error.',
 			fix: fixer => fixer.insertTextAfterRange([
 				range[0],
-				range[0] + 1
-			], getConstructorMethod(name))
+				range[0] + 1,
+			], getConstructorMethod(name)),
 		};
 		return;
 	}
@@ -119,7 +119,7 @@ function * customErrorDefinition(context, node) {
 	if (!superExpression) {
 		yield {
 			node: constructorBodyNode,
-			message: 'Missing call to `super()` in constructor.'
+			message: 'Missing call to `super()` in constructor.',
 		};
 	} else if (messageExpressionIndex !== -1) {
 		const expression = constructorBody[messageExpressionIndex];
@@ -132,15 +132,15 @@ function * customErrorDefinition(context, node) {
 					const rhs = expression.expression.right;
 					yield fixer.insertTextAfterRange([
 						superExpression.range[0],
-						superExpression.range[0] + 6
+						superExpression.range[0] + 6,
 					], rhs.raw || rhs.name);
 				}
 
 				yield fixer.removeRange([
 					messageExpressionIndex === 0 ? constructorBodyNode.range[0] : constructorBody[messageExpressionIndex - 1].range[1],
-					expression.range[1]
+					expression.range[1],
 				]);
-			}
+			},
 		};
 	}
 
@@ -151,13 +151,13 @@ function * customErrorDefinition(context, node) {
 		if (!nameProperty || !nameProperty.value || nameProperty.value.value !== name) {
 			yield {
 				node: nameProperty && nameProperty.value ? nameProperty.value : constructorBodyNode,
-				message: `The \`name\` property should be set to \`${name}\`.`
+				message: `The \`name\` property should be set to \`${name}\`.`,
 			};
 		}
 	} else if (nameExpression.expression.right.value !== name) {
 		yield {
 			node: nameExpression ? nameExpression.expression.right : constructorBodyNode,
-			message: `The \`name\` property should be set to \`${name}\`.`
+			message: `The \`name\` property should be set to \`${name}\`.`,
 		};
 	}
 }
@@ -189,7 +189,7 @@ const customErrorExport = (context, node) => {
 	return {
 		node: node.left.property,
 		messageId: MESSAGE_ID_INVALID_EXPORT,
-		fix: fixer => fixer.replaceText(node.left.property, errorName)
+		fix: fixer => fixer.replaceText(node.left.property, errorName),
 	};
 };
 
@@ -197,7 +197,7 @@ const create = context => {
 	return {
 		ClassDeclaration: node => customErrorDefinition(context, node),
 		'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
-		'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node)
+		'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node),
 	};
 };
 
@@ -206,9 +206,9 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce correct `Error` subclassing.'
+			description: 'Enforce correct `Error` subclassing.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

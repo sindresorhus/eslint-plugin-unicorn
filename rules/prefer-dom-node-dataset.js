@@ -5,15 +5,15 @@ const {methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-dom-node-dataset';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `.dataset` over `setAttribute(…)`.'
+	[MESSAGE_ID]: 'Prefer `.dataset` over `setAttribute(…)`.',
 };
 
 const selector = [
 	methodCallSelector({
 		name: 'setAttribute',
-		length: 2
+		length: 2,
 	}),
-	'[arguments.0.type="Literal"]'
+	'[arguments.0.type="Literal"]',
 ].join('');
 
 const parseNodeText = (context, argument) => context.getSourceCode().getText(argument);
@@ -48,9 +48,9 @@ const create = context => {
 			return {
 				node,
 				messageId: MESSAGE_ID,
-				fix: fixer => fix(context, node, fixer)
+				fix: fixer => fix(context, node, fixer),
 			};
-		}
+		},
 	};
 };
 
@@ -59,9 +59,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer using `.dataset` on DOM elements over `.setAttribute(…)`.'
+			description: 'Prefer using `.dataset` on DOM elements over `.setAttribute(…)`.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

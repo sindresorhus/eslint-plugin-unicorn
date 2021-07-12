@@ -56,7 +56,7 @@ test({
 		'referenceNode.insertAdjacentElement(...argumentsArray1, ...argumentsArray2);',
 		// `position` argument is not listed
 		'referenceNode.insertAdjacentText(\'foo\', \'text\');',
-		'referenceNode.insertAdjacentElement(\'foo\', newNode);'
+		'referenceNode.insertAdjacentElement(\'foo\', newNode);',
 	],
 	invalid: [
 		// Tests for .replaceChild()
@@ -65,10 +65,10 @@ test({
 			errors: [
 				{
 					message:
-						'Prefer `oldChildNode.replaceWith(newChildNode)` over `parentNode.replaceChild(newChildNode, oldChildNode)`.'
-				}
+						'Prefer `oldChildNode.replaceWith(newChildNode)` over `parentNode.replaceChild(newChildNode, oldChildNode)`.',
+				},
 			],
-			output: 'oldChildNode.replaceWith(newChildNode);'
+			output: 'oldChildNode.replaceWith(newChildNode);',
 		},
 		{
 			code: outdent`
@@ -80,10 +80,10 @@ test({
 			errors: [
 				{
 					message:
-						'Prefer `oldChildNode.replaceWith(newChildNode)` over `parentNode.replaceChild(newChildNode, oldChildNode)`.'
-				}
+						'Prefer `oldChildNode.replaceWith(newChildNode)` over `parentNode.replaceChild(newChildNode, oldChildNode)`.',
+				},
 			],
-			output: 'oldChildNode.replaceWith(newChildNode);'
+			output: 'oldChildNode.replaceWith(newChildNode);',
 		},
 		{
 			code: outdent`
@@ -95,28 +95,28 @@ test({
 			errors: [
 				{
 					message:
-						'Prefer `oldChildNode.replaceWith(newChildNode)` over `parentNode.replaceChild(newChildNode, oldChildNode)`.'
-				}
+						'Prefer `oldChildNode.replaceWith(newChildNode)` over `parentNode.replaceChild(newChildNode, oldChildNode)`.',
+				},
 			],
-			output: 'oldChildNode.replaceWith(newChildNode);'
+			output: 'oldChildNode.replaceWith(newChildNode);',
 		},
 		{
 			code: 'const foo = parentNode.replaceChild(newChildNode, oldChildNode);',
 			errors: [
 				{
 					message:
-						'Prefer `oldChildNode.replaceWith(newChildNode)` over `parentNode.replaceChild(newChildNode, oldChildNode)`.'
-				}
-			]
+						'Prefer `oldChildNode.replaceWith(newChildNode)` over `parentNode.replaceChild(newChildNode, oldChildNode)`.',
+				},
+			],
 		},
 		{
 			code: 'foo = parentNode.replaceChild(newChildNode, oldChildNode);',
 			errors: [
 				{
 					message:
-						'Prefer `oldChildNode.replaceWith(newChildNode)` over `parentNode.replaceChild(newChildNode, oldChildNode)`.'
-				}
-			]
+						'Prefer `oldChildNode.replaceWith(newChildNode)` over `parentNode.replaceChild(newChildNode, oldChildNode)`.',
+				},
+			],
 		},
 		// Tests for .insertBefore()
 		{
@@ -124,46 +124,46 @@ test({
 			errors: [
 				{
 					message:
-						'Prefer `referenceNode.before(newNode)` over `parentNode.insertBefore(newNode, referenceNode)`.'
-				}
+						'Prefer `referenceNode.before(newNode)` over `parentNode.insertBefore(newNode, referenceNode)`.',
+				},
 			],
-			output: 'referenceNode.before(newNode);'
+			output: 'referenceNode.before(newNode);',
 		},
 		{
 			code: 'parentNode.insertBefore(alfa, beta).insertBefore(charlie, delta);',
 			errors: [
 				{
 					message:
-						'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.'
-				}
-			]
+						'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.',
+				},
+			],
 		},
 		{
 			code: 'const foo = parentNode.insertBefore(alfa, beta);',
 			errors: [
 				{
 					message:
-						'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.'
-				}
-			]
+						'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.',
+				},
+			],
 		},
 		{
 			code: 'foo = parentNode.insertBefore(alfa, beta);',
 			errors: [
 				{
 					message:
-						'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.'
-				}
-			]
+						'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.',
+				},
+			],
 		},
 		{
 			code: 'new Dom(parentNode.insertBefore(alfa, beta))',
 			errors: [
 				{
 					message:
-					'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.'
-				}
-			]
+					'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.',
+				},
+			],
 		},
 		{
 			/* eslint-disable no-template-curly-in-string */
@@ -171,9 +171,9 @@ test({
 			errors: [
 				{
 					message:
-					'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.'
-				}
-			]
+					'Prefer `beta.before(alfa)` over `parentNode.insertBefore(alfa, beta)`.',
+				},
+			],
 			/* eslint-enable no-template-curly-in-string */
 		},
 		// Tests for .insertAdjacentText()
@@ -182,60 +182,60 @@ test({
 			errors: [
 				{
 					message:
-						'Prefer `referenceNode.before("text")` over `referenceNode.insertAdjacentText("beforebegin", "text")`.'
-				}
+						'Prefer `referenceNode.before("text")` over `referenceNode.insertAdjacentText("beforebegin", "text")`.',
+				},
 			],
-			output: 'referenceNode.before("text");'
+			output: 'referenceNode.before("text");',
 		},
 		{
 			code: 'referenceNode.insertAdjacentText("afterbegin", "text");',
 			errors: [
 				{
 					message:
-						'Prefer `referenceNode.prepend("text")` over `referenceNode.insertAdjacentText("afterbegin", "text")`.'
-				}
+						'Prefer `referenceNode.prepend("text")` over `referenceNode.insertAdjacentText("afterbegin", "text")`.',
+				},
 			],
-			output: 'referenceNode.prepend("text");'
+			output: 'referenceNode.prepend("text");',
 		},
 		{
 			code: 'referenceNode.insertAdjacentText("beforeend", "text");',
 			errors: [
 				{
 					message:
-						'Prefer `referenceNode.append("text")` over `referenceNode.insertAdjacentText("beforeend", "text")`.'
-				}
+						'Prefer `referenceNode.append("text")` over `referenceNode.insertAdjacentText("beforeend", "text")`.',
+				},
 			],
-			output: 'referenceNode.append("text");'
+			output: 'referenceNode.append("text");',
 		},
 		{
 			code: 'referenceNode.insertAdjacentText("afterend", "text");',
 			errors: [
 				{
 					message:
-						'Prefer `referenceNode.after("text")` over `referenceNode.insertAdjacentText("afterend", "text")`.'
-				}
+						'Prefer `referenceNode.after("text")` over `referenceNode.insertAdjacentText("afterend", "text")`.',
+				},
 			],
-			output: 'referenceNode.after("text");'
+			output: 'referenceNode.after("text");',
 		},
 		{
 			code: 'const foo = referenceNode.insertAdjacentText("beforebegin", "text");',
 			errors: [
 				{
 					message:
-						'Prefer `referenceNode.before("text")` over `referenceNode.insertAdjacentText("beforebegin", "text")`.'
-				}
+						'Prefer `referenceNode.before("text")` over `referenceNode.insertAdjacentText("beforebegin", "text")`.',
+				},
 			],
-			output: 'const foo = referenceNode.before("text");'
+			output: 'const foo = referenceNode.before("text");',
 		},
 		{
 			code: 'foo = referenceNode.insertAdjacentText("beforebegin", "text");',
 			errors: [
 				{
 					message:
-						'Prefer `referenceNode.before("text")` over `referenceNode.insertAdjacentText("beforebegin", "text")`.'
-				}
+						'Prefer `referenceNode.before("text")` over `referenceNode.insertAdjacentText("beforebegin", "text")`.',
+				},
 			],
-			output: 'foo = referenceNode.before("text");'
+			output: 'foo = referenceNode.before("text");',
 		},
 		// Tests for .insertAdjacentElement()
 		{
@@ -243,40 +243,40 @@ test({
 			errors: [
 				{
 					message:
-						'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.'
-				}
+						'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.',
+				},
 			],
-			output: 'referenceNode.before(newNode);'
+			output: 'referenceNode.before(newNode);',
 		},
 		{
 			code: 'referenceNode.insertAdjacentElement("afterbegin", "text");',
 			errors: [
 				{
 					message:
-						'Prefer `referenceNode.prepend("text")` over `referenceNode.insertAdjacentElement("afterbegin", "text")`.'
-				}
+						'Prefer `referenceNode.prepend("text")` over `referenceNode.insertAdjacentElement("afterbegin", "text")`.',
+				},
 			],
-			output: 'referenceNode.prepend("text");'
+			output: 'referenceNode.prepend("text");',
 		},
 		{
 			code: 'referenceNode.insertAdjacentElement("beforeend", "text");',
 			errors: [
 				{
 					message:
-						'Prefer `referenceNode.append("text")` over `referenceNode.insertAdjacentElement("beforeend", "text")`.'
-				}
+						'Prefer `referenceNode.append("text")` over `referenceNode.insertAdjacentElement("beforeend", "text")`.',
+				},
 			],
-			output: 'referenceNode.append("text");'
+			output: 'referenceNode.append("text");',
 		},
 		{
 			code: 'referenceNode.insertAdjacentElement("afterend", newNode);',
 			errors: [
 				{
 					message:
-						'Prefer `referenceNode.after(newNode)` over `referenceNode.insertAdjacentElement("afterend", newNode)`.'
-				}
+						'Prefer `referenceNode.after(newNode)` over `referenceNode.insertAdjacentElement("afterend", newNode)`.',
+				},
 			],
-			output: 'referenceNode.after(newNode);'
+			output: 'referenceNode.after(newNode);',
 		},
 		{
 			code: outdent`
@@ -288,10 +288,10 @@ test({
 			errors: [
 				{
 					message:
-						'Prefer `referenceNode.after(newNode)` over `referenceNode.insertAdjacentElement("afterend", newNode)`.'
-				}
+						'Prefer `referenceNode.after(newNode)` over `referenceNode.insertAdjacentElement("afterend", newNode)`.',
+				},
 			],
-			output: 'referenceNode.after(newNode);'
+			output: 'referenceNode.after(newNode);',
 		},
 		{
 			code: outdent`
@@ -303,73 +303,73 @@ test({
 			errors: [
 				{
 					message:
-						'Prefer `referenceNode.after(newNode)` over `referenceNode.insertAdjacentElement("afterend", newNode)`.'
-				}
+						'Prefer `referenceNode.after(newNode)` over `referenceNode.insertAdjacentElement("afterend", newNode)`.',
+				},
 			],
-			output: 'referenceNode.after(newNode); // inline comments'
+			output: 'referenceNode.after(newNode); // inline comments',
 		},
 		{
 			code: 'const foo = referenceNode.insertAdjacentElement("beforebegin", newNode);',
 			errors: [
 				{
 					message:
-					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.'
-				}
-			]
+					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.',
+				},
+			],
 		},
 		{
 			code: 'foo = referenceNode.insertAdjacentElement("beforebegin", newNode);',
 			errors: [
 				{
 					message:
-					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.'
-				}
-			]
+					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.',
+				},
+			],
 		},
 		{
 			code: 'const foo = [referenceNode.insertAdjacentElement("beforebegin", newNode)]',
 			errors: [
 				{
 					message:
-					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.'
-				}
-			]
+					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.',
+				},
+			],
 		},
 		{
 			code: 'foo(bar = referenceNode.insertAdjacentElement("beforebegin", newNode))',
 			errors: [
 				{
 					message:
-					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.'
-				}
-			]
+					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.',
+				},
+			],
 		},
 		{
 			code: 'const foo = () => { return referenceNode.insertAdjacentElement("beforebegin", newNode); }',
 			errors: [
 				{
 					message:
-					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.'
-				}
-			]
+					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.',
+				},
+			],
 		},
 		{
 			code: 'if (referenceNode.insertAdjacentElement("beforebegin", newNode)) {}',
 			errors: [
 				{
 					message:
-					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.'
-				}
-			]
+					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.',
+				},
+			],
 		},
 		{
 			code: 'const foo = { bar: referenceNode.insertAdjacentElement("beforebegin", newNode) }',
 			errors: [
 				{
 					message:
-					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.'
-				}
-			]
-		}
-	]
+					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.',
+				},
+			],
+		},
+	],
 });

@@ -4,8 +4,8 @@ const {test} = getTester(import.meta);
 
 const errors = [
 	{
-		message: 'Prefer `.textContent` over `.innerText`.'
-	}
+		message: 'Prefer `.textContent` over `.innerText`.',
+	},
 ];
 
 test({
@@ -15,23 +15,23 @@ test({
 		'node[innerText];',
 		'innerText = true;',
 		'node[\'innerText\'];',
-		'innerText.textContent'
+		'innerText.textContent',
 	],
 	invalid: [
 		{
 			code: 'node.innerText;',
 			output: 'node.textContent;',
-			errors
+			errors,
 		},
 		{
 			code: 'node.innerText = \'foo\';',
 			output: 'node.textContent = \'foo\';',
-			errors
+			errors,
 		},
 		{
 			code: 'innerText.innerText;',
 			output: 'innerText.textContent;',
-			errors
-		}
-	]
+			errors,
+		},
+	],
 });

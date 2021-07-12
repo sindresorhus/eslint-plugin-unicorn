@@ -5,7 +5,7 @@ const {test} = getTester(import.meta);
 
 const error = key => ({
 	messageId: 'prefer-keyboard-event-key',
-	data: {name: key}
+	data: {name: key},
 });
 
 test({
@@ -102,7 +102,7 @@ test({
 				const e = {};
 				console.log(e.keyCode);
 			}
-		});`
+		});`,
 	],
 
 	invalid: [
@@ -112,7 +112,7 @@ test({
 					console.log(e.keyCode);
 				})
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -120,7 +120,7 @@ test({
 					console.log(keyCode);
 				})
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -130,7 +130,7 @@ test({
 					}
 				})
 			`,
-			errors: [error('which')]
+			errors: [error('which')],
 		},
 		{
 			code: outdent`
@@ -140,7 +140,7 @@ test({
 					}
 				})
 			`,
-			errors: [error('which')]
+			errors: [error('which')],
 		},
 		{
 			code: outdent`
@@ -155,7 +155,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -168,7 +168,7 @@ test({
 					if (event.key === 'A') {}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		// Make sure `\n` is escaped
 		{
@@ -182,7 +182,7 @@ test({
 					if (event.key === '\\n') {}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -190,7 +190,7 @@ test({
 					if (!event.keyCode) {}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -205,7 +205,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -220,7 +220,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -235,7 +235,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -250,7 +250,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -258,7 +258,7 @@ test({
 					const {keyCode, a, b} = e;
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -266,7 +266,7 @@ test({
 					const {a: keyCode, a, b} = e;
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -277,7 +277,7 @@ test({
 					})
 				})
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -285,7 +285,7 @@ test({
 					console.log(e.charCode);
 				})
 			`,
-			errors: [error('charCode')]
+			errors: [error('charCode')],
 		},
 		{
 			code: outdent`
@@ -300,7 +300,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('charCode')]
+			errors: [error('charCode')],
 		},
 		{
 			code: outdent`
@@ -315,7 +315,7 @@ test({
 					if (a.key === 'Escape') {
 					}
 				});
-			`
+			`,
 		},
 		{
 			code: outdent`
@@ -330,7 +330,7 @@ test({
 					if (a.key === 'Escape') {
 					}
 				});
-			`
+			`,
 		},
 		{
 			code: outdent`
@@ -345,7 +345,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('charCode')]
+			errors: [error('charCode')],
 		},
 		{
 			code: outdent`
@@ -360,7 +360,7 @@ test({
 					if (b.key === 'Escape') {
 					}
 				});
-			`
+			`,
 		},
 		{
 			code: outdent`
@@ -368,7 +368,7 @@ test({
 					const {charCode, a, b} = e;
 				});
 			`,
-			errors: [error('charCode')]
+			errors: [error('charCode')],
 		},
 		{
 			code: outdent`
@@ -376,7 +376,7 @@ test({
 					const {a: charCode, a, b} = e;
 				});
 			`,
-			errors: [error('charCode')]
+			errors: [error('charCode')],
 		},
 		{
 			code: outdent`
@@ -384,7 +384,7 @@ test({
 					console.log(e.which);
 				})
 			`,
-			errors: [error('which')]
+			errors: [error('which')],
 		},
 		{
 			code: outdent`
@@ -399,7 +399,7 @@ test({
 					if (event.key === 'Escape') {
 					}
 				});
-			`
+			`,
 		},
 		{
 			code: outdent`
@@ -414,7 +414,7 @@ test({
 					if (a.key === 'Escape') {
 					}
 				});
-			`
+			`,
 		},
 		{
 			code: outdent`
@@ -429,7 +429,7 @@ test({
 					if (a.key === 'Escape') {
 					}
 				});
-			`
+			`,
 		},
 		{
 			code: outdent`
@@ -444,7 +444,7 @@ test({
 					if (a.key === 'Escape') {
 					}
 				});
-			`
+			`,
 		},
 		{
 			code: outdent`
@@ -459,7 +459,7 @@ test({
 					if (b.key === 'Escape') {
 					}
 				});
-			`
+			`,
 		},
 		{
 			code: outdent`
@@ -467,7 +467,7 @@ test({
 					const {which, a, b} = e;
 				});
 			`,
-			errors: [error('which')]
+			errors: [error('which')],
 		},
 		{
 			code: outdent`
@@ -475,7 +475,7 @@ test({
 					const {a: which, a, b} = e;
 				});
 			`,
-			errors: [error('which')]
+			errors: [error('which')],
 		},
 		{
 			code: outdent`
@@ -494,7 +494,7 @@ test({
 					const {keyCode} = b;
 					if (keyCode === 32) return 4;
 				});
-			`
+			`,
 		},
 		{
 			code: outdent`
@@ -505,7 +505,7 @@ test({
 					if (keyCode === 32) return 4;
 				});
 			`,
-			errors: [error('which'), error('keyCode')]
+			errors: [error('which'), error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -523,7 +523,7 @@ test({
 				}
 			});
 			`,
-			errors: [error('charCode'), error('keyCode')]
+			errors: [error('charCode'), error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -541,7 +541,7 @@ test({
 				}
 			});
 			`,
-			errors: [error('charCode'), error('keyCode')]
+			errors: [error('charCode'), error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -556,7 +556,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -571,7 +571,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -586,7 +586,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -601,7 +601,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -616,7 +616,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -631,7 +631,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -646,7 +646,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -661,7 +661,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -676,7 +676,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -691,7 +691,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -706,7 +706,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -721,7 +721,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -736,7 +736,7 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`
@@ -751,9 +751,9 @@ test({
 					}
 				});
 			`,
-			errors: [error('keyCode')]
-		}
-	]
+			errors: [error('keyCode')],
+		},
+	],
 });
 
 test.snapshot({
@@ -771,6 +771,6 @@ test.snapshot({
 				if (event.keyCode === 27) {
 				}
 			});
-		`
-	]
+		`,
+	],
 });

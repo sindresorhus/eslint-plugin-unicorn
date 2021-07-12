@@ -14,7 +14,7 @@ const getCallExpressionArgumentsText = (node, sourceCode) => {
 
 	return sourceCode.text.slice(
 		openingParenthesisToken.range[1],
-		closingParenthesisToken.range[0]
+		closingParenthesisToken.range[0],
 	);
 };
 

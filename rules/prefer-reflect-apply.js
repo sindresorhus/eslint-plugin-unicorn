@@ -5,12 +5,12 @@ const {not, methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-reflect-apply';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `Reflect.apply()` over `Function#apply()`.'
+	[MESSAGE_ID]: 'Prefer `Reflect.apply()` over `Function#apply()`.',
 };
 
 const selector = [
 	methodCallSelector({allowComputed: true}),
-	not(['Literal', 'ArrayExpression', 'ObjectExpression'].map(type => `[callee.object.type=${type}]`))
+	not(['Literal', 'ArrayExpression', 'ObjectExpression'].map(type => `[callee.object.type=${type}]`)),
 ].join('');
 
 const isApplySignature = (argument1, argument2) => (
@@ -38,7 +38,7 @@ const fixDirectApplyCall = (node, sourceCode) => {
 		return fixer => (
 			fixer.replaceText(
 				node,
-				getReflectApplyCall(sourceCode, node.callee.object, node.arguments[0], node.arguments[1])
+				getReflectApplyCall(sourceCode, node.callee.object, node.arguments[0], node.arguments[1]),
 			)
 		);
 	}
@@ -58,7 +58,7 @@ const fixFunctionPrototypeCall = (node, sourceCode) => {
 		return fixer => (
 			fixer.replaceText(
 				node,
-				getReflectApplyCall(sourceCode, node.arguments[0], node.arguments[1], node.arguments[2])
+				getReflectApplyCall(sourceCode, node.arguments[0], node.arguments[1], node.arguments[2]),
 			)
 		);
 	}
@@ -73,10 +73,10 @@ const create = context => {
 				return {
 					node,
 					messageId: MESSAGE_ID,
-					fix
+					fix,
 				};
 			}
-		}
+		},
 	};
 };
 
@@ -85,9 +85,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Reflect.apply()` over `Function#apply()`.'
+			description: 'Prefer `Reflect.apply()` over `Function#apply()`.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

@@ -25,7 +25,7 @@ function replaceReferenceIdentifier(identifier, replacement, fixer) {
 	if (identifier.typeAnnotation) {
 		return fixer.replaceTextRange(
 			[identifier.range[0], identifier.typeAnnotation.range[0]],
-			`${replacement}${identifier.optional ? '?' : ''}`
+			`${replacement}${identifier.optional ? '?' : ''}`,
 		);
 	}
 

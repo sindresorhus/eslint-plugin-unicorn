@@ -3,7 +3,7 @@ const {replaceTemplateElement} = require('./fix/index.js');
 
 const MESSAGE_ID = 'no-hex-escape';
 const messages = {
-	[MESSAGE_ID]: 'Use Unicode escapes instead of hexadecimal escapes.'
+	[MESSAGE_ID]: 'Use Unicode escapes instead of hexadecimal escapes.',
 };
 
 function checkEscape(context, node, value) {
@@ -16,7 +16,7 @@ function checkEscape(context, node, value) {
 			fix: fixer =>
 				node.type === 'TemplateElement' ?
 					replaceTemplateElement(fixer, node, fixedValue) :
-					fixer.replaceText(node, fixedValue)
+					fixer.replaceText(node, fixedValue),
 		};
 	}
 }
@@ -30,7 +30,7 @@ const create = context => {
 		},
 		TemplateElement: node => {
 			return checkEscape(context, node, node.value.raw);
-		}
+		},
 	};
 };
 
@@ -39,9 +39,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce the use of Unicode escapes instead of hexadecimal escapes.'
+			description: 'Enforce the use of Unicode escapes instead of hexadecimal escapes.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

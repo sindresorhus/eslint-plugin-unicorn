@@ -4,7 +4,7 @@ const {matches} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'empty-brace-spaces';
 const messages = {
-	[MESSAGE_ID]: 'Do not add spaces between braces.'
+	[MESSAGE_ID]: 'Do not add spaces between braces.',
 };
 
 const selector = matches([
@@ -14,7 +14,7 @@ const selector = matches([
 	// Experimental https://github.com/tc39/proposal-record-tuple
 	'RecordExpression[properties.length=0]',
 	// Experimental https://github.com/tc39/proposal-class-static-block
-	'StaticBlock[body.length=0]'
+	'StaticBlock[body.length=0]',
 ]);
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -38,12 +38,12 @@ const create = context => {
 			return {
 				loc: {
 					start: openingBrace.loc.end,
-					end: closingBrace.loc.start
+					end: closingBrace.loc.start,
 				},
 				messageId: MESSAGE_ID,
-				fix: fixer => fixer.removeRange([start, end])
+				fix: fixer => fixer.removeRange([start, end]),
 			};
-		}
+		},
 	};
 };
 
@@ -52,9 +52,9 @@ module.exports = {
 	meta: {
 		type: 'layout',
 		docs: {
-			description: 'Enforce no spaces between braces.'
+			description: 'Enforce no spaces between braces.',
 		},
 		fixable: 'whitespace',
-		messages
-	}
+		messages,
+	},
 };

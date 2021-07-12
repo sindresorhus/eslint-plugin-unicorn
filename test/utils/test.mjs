@@ -27,7 +27,7 @@ function normalizeInvalidTest(test, rule) {
 		// See https://github.com/eslint/eslint/blob/8a77b661bc921c3408bae01b3aa41579edfc6e58/lib/rule-tester/rule-tester.js#L847-L853
 		// eslint-disable-next-line unicorn/no-null
 		output: null,
-		...test
+		...test,
 	};
 }
 
@@ -40,7 +40,7 @@ const parsers = {
 	},
 	get vue() {
 		return require.resolve('vue-eslint-parser');
-	}
+	},
 };
 
 class Tester {
@@ -53,7 +53,7 @@ class Tester {
 		const {beforeAll, testerOptions, valid, invalid} = tests;
 		const tester = avaRuleTester(test, {
 			parserOptions: defaultParserOptions,
-			...testerOptions
+			...testerOptions,
 		});
 
 		if (beforeAll) {
@@ -65,8 +65,8 @@ class Tester {
 			this.rule,
 			{
 				valid,
-				invalid: invalid.map(test => normalizeInvalidTest(test, this.rule))
-			}
+				invalid: invalid.map(test => normalizeInvalidTest(test, this.rule)),
+			},
 		);
 	}
 
@@ -81,9 +81,9 @@ class Tester {
 				parser: parsers.typescript,
 				parserOptions: {
 					...defaultParserOptions,
-					...testerOptions.parserOptions
-				}
-			}
+					...testerOptions.parserOptions,
+				},
+			},
 		});
 	}
 
@@ -97,7 +97,7 @@ class Tester {
 			['estree', {classFeatures: true}],
 			'jsx',
 			'exportDefaultFrom',
-			...babelPlugins
+			...babelPlugins,
 		];
 
 		return this.runTest({
@@ -118,11 +118,11 @@ class Tester {
 						parserOpts: {
 							allowAwaitOutsideFunction: true,
 							...testerOptions.parserOptions.babelOptions.parserOpts,
-							plugins: babelPlugins
-						}
-					}
-				}
-			}
+							plugins: babelPlugins,
+						},
+					},
+				},
+			},
 		});
 	}
 
@@ -131,8 +131,8 @@ class Tester {
 			...tests,
 			testerOptions: {
 				parser: parsers.vue,
-				parserOptions: defaultParserOptions
-			}
+				parserOptions: defaultParserOptions,
+			},
 		});
 	}
 
@@ -140,7 +140,7 @@ class Tester {
 		const {testerOptions, valid, invalid} = tests;
 		const tester = new SnapshotRuleTester(test, {
 			parserOptions: defaultParserOptions,
-			...testerOptions
+			...testerOptions,
 		});
 		return tester.run(this.ruleId, this.rule, {valid, invalid});
 	}
@@ -159,7 +159,7 @@ function getTester(importMeta) {
 	return {
 		ruleId,
 		rule: tester.rule,
-		test
+		test,
 	};
 }
 
@@ -171,7 +171,7 @@ const addComment = (test, comment) => {
 	const {code, output} = test;
 	const fixedTest = {
 		...test,
-		code: `${code}\n/* ${comment} */`
+		code: `${code}\n/* ${comment} */`,
 	};
 	if (Object.prototype.hasOwnProperty.call(fixedTest, 'output') && typeof output === 'string') {
 		fixedTest.output = `${output}\n/* ${comment} */`;
@@ -185,7 +185,7 @@ const avoidTestTitleConflict = (tests, comment) => {
 	return {
 		...tests,
 		valid: valid.map(test => addComment(test, comment)),
-		invalid: invalid.map(test => addComment(test, comment))
+		invalid: invalid.map(test => addComment(test, comment)),
 	};
 };
 
@@ -193,5 +193,5 @@ export {
 	defaultParserOptions,
 	getTester,
 	avoidTestTitleConflict,
-	parsers
+	parsers,
 };

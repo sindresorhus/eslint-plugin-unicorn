@@ -40,7 +40,7 @@ test.snapshot({
 		'Array.from(foo, mapFn, thisArg, extra);',
 		'Array.from(...argumentsArray);',
 		// FirstArgument is `ObjectExpression`
-		'Array.from({length: 10});'
+		'Array.from({length: 10});',
 	],
 	invalid: [
 		'const x = Array.from(set);',
@@ -158,8 +158,8 @@ test.snapshot({
 		'Array.from([1])',
 		'Array.from([...a, ...b])',
 		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */, /* 6 */ b /* 7 */, /* 8 */ c /* 9 */,)',
-		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */,)'
-	]
+		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */,)',
+	],
 });
 
 // `Array#concat`
@@ -180,7 +180,7 @@ test.snapshot({
 		'Foo.concat(1)',
 		'FooBar.concat(1)',
 		'FOO.concat(1)',
-		'A.concat(1)'
+		'A.concat(1)',
 	],
 	invalid: [
 		'[1].concat(2)',
@@ -278,14 +278,14 @@ test.snapshot({
 		'do foo.concat(1); while (test)',
 		{
 			code: 'with (foo) foo.concat(1)',
-			parserOptions: {ecmaVersion: 5, sourceType: 'script'}
+			parserOptions: {ecmaVersion: 5, sourceType: 'script'},
 		},
 		// Code from example in docs
 		outdent`
 			const baz = [2];
 			call(foo, ...[bar].concat(baz));
-		`
-	]
+		`,
+	],
 });
 
 // `Array#slice`
@@ -313,7 +313,7 @@ test.snapshot({
 		'blob.slice()',
 		'buffer.slice()',
 		'file.slice()',
-		'class A {foo() {this.slice()}}'
+		'class A {foo() {this.slice()}}',
 	],
 	invalid: [
 		'array.slice()',
@@ -333,6 +333,6 @@ test.snapshot({
 		'array.slice(0)',
 		'array.slice(0b0)',
 		'array.slice(0.00)',
-		'array.slice(0.00, )'
-	]
+		'array.slice(0.00, )',
+	],
 });

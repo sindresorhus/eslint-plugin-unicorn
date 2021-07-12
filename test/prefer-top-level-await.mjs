@@ -17,15 +17,15 @@ test.snapshot({
 		'!async function() {}()',
 		'void async function() {}()',
 		'(async function *() {})()',
-		'(async () => {})?.()'
+		'(async () => {})?.()',
 	],
 	invalid: [
 		'(async () => {})()',
 		'(async function() {})()',
 		'(async function() {}())',
 		'(async function run() {})()',
-		'(async function(c, d) {})(a, b)'
-	]
+		'(async function(c, d) {})(a, b)',
+	],
 });
 
 // Promise
@@ -36,7 +36,7 @@ test.snapshot({
 		'!foo.then()',
 		'foo.then?.(bar)',
 		'foo?.then(bar)',
-		'foo?.then(bar).finally(qux)'
+		'foo?.then(bar).finally(qux)',
 	],
 	invalid: [
 		'foo.then(bar)',
@@ -46,8 +46,8 @@ test.snapshot({
 		'foo.then(bar, baz).finally(qux)',
 		'(foo.then(bar, baz)).finally(qux)',
 		'(async () => {})().catch(() => process.exit(1))',
-		'(async function() {}()).finally(() => {})'
-	]
+		'(async function() {}()).finally(() => {})',
+	],
 });
 
 // Identifier
@@ -96,7 +96,7 @@ test.snapshot({
 				async function foo() {}
 				foo();
 			`,
-			parserOptions: {sourceType: 'script'}
+			parserOptions: {sourceType: 'script'},
 		},
 		{
 			code: outdent`
@@ -104,7 +104,7 @@ test.snapshot({
 				async function foo() {}
 				async function foo() {}
 			`,
-			parserOptions: {sourceType: 'script'}
+			parserOptions: {sourceType: 'script'},
 		},
 		outdent`
 			const foo = async () => {};
@@ -118,7 +118,7 @@ test.snapshot({
 			const program = {async run () {}};
 			const {run} = program;
 			run()
-		`
+		`,
 	],
 	invalid: [
 		outdent`
@@ -132,8 +132,8 @@ test.snapshot({
 		outdent`
 			foo();
 			async function foo() {}
-		`
-	]
+		`,
+	],
 });
 
 test.babel({
@@ -146,8 +146,8 @@ test.babel({
 			} catch {
 				process.exit(1)
 			}
-		`
+		`,
 	],
-	invalid: []
+	invalid: [],
 });
 

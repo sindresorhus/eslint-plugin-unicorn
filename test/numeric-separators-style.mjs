@@ -4,7 +4,7 @@ import {getTester} from './utils/test.mjs';
 const {test} = getTester(import.meta);
 
 const error = {
-	messageId: 'numeric-separators-style'
+	messageId: 'numeric-separators-style',
 };
 
 const legacyOctalParserOptions = {ecmaVersion: 6, sourceType: 'script'};
@@ -33,7 +33,7 @@ test({
 		...[
 			'const foo = 0777777',
 			'var foo = 0999999',
-			'let foo = 0111222'
+			'let foo = 0111222',
 		].map(code => ({code, parserOptions: legacyOctalParserOptions})),
 
 		// Binary
@@ -62,7 +62,7 @@ test({
 		'const foo = 1234',
 		{
 			code: 'const foo = 1_234',
-			options: [{number: {minimumDigits: 0, groupLength: 3}}]
+			options: [{number: {minimumDigits: 0, groupLength: 3}}],
 		},
 
 		// Decimal numbers
@@ -94,19 +94,19 @@ test({
 		// Varying options
 		{
 			code: 'const foo = 10000',
-			options: [{number: {minimumDigits: 6}}]
+			options: [{number: {minimumDigits: 6}}],
 		},
 		{
 			code: 'const foo = 100_0000_0000',
-			options: [{number: {groupLength: 4}}]
+			options: [{number: {groupLength: 4}}],
 		},
 		{
 			code: 'const foo = 0xA_B_C_D_E_1_2_3_4',
-			options: [{hexadecimal: {groupLength: 1}}]
+			options: [{hexadecimal: {groupLength: 1}}],
 		},
 		{
 			code: 'const foo = 0b111',
-			options: [{number: {minimumDigits: 3, groupLength: 1}}]
+			options: [{number: {minimumDigits: 3, groupLength: 1}}],
 		},
 		{
 			code: outdent`
@@ -116,8 +116,8 @@ test({
 				const number = 12345678.12345678e12345678;
 			`,
 			options: [{
-				onlyIfContainsSeparator: true
-			}]
+				onlyIfContainsSeparator: true,
+			}],
 		},
 		{
 			code: outdent`
@@ -129,9 +129,9 @@ test({
 			options: [{
 				onlyIfContainsSeparator: true,
 				binary: {
-					onlyIfContainsSeparator: false
-				}
-			}]
+					onlyIfContainsSeparator: false,
+				},
+			}],
 		},
 		{
 			code: outdent`
@@ -144,9 +144,9 @@ test({
 				onlyIfContainsSeparator: true,
 				binary: {
 					onlyIfContainsSeparator: false,
-					groupLength: 2
-				}
-			}]
+					groupLength: 2,
+				},
+			}],
 		},
 		{
 			code: outdent`
@@ -157,270 +157,270 @@ test({
 			`,
 			options: [{
 				binary: {
-					onlyIfContainsSeparator: true
-				}
-			}]
+					onlyIfContainsSeparator: true,
+				},
+			}],
 		},
 		{
 			code: 'const foo = 12345',
-			options: [{number: {onlyIfContainsSeparator: true}}]
+			options: [{number: {onlyIfContainsSeparator: true}}],
 		},
 		{
 			code: 'const foo = 12345678',
-			options: [{number: {onlyIfContainsSeparator: true}}]
+			options: [{number: {onlyIfContainsSeparator: true}}],
 		},
 		{
 			code: 'const foo = 12_345',
-			options: [{number: {onlyIfContainsSeparator: true}}]
+			options: [{number: {onlyIfContainsSeparator: true}}],
 		},
 		{
 			code: 'const foo = 1789.123_432_42',
-			options: [{number: {onlyIfContainsSeparator: true}}]
+			options: [{number: {onlyIfContainsSeparator: true}}],
 		},
 		{
 			code: 'const foo = -100_000e+100_000',
-			options: [{number: {onlyIfContainsSeparator: true}}]
+			options: [{number: {onlyIfContainsSeparator: true}}],
 		},
 		{
 			code: 'const foo = -100000e+100000',
-			options: [{number: {onlyIfContainsSeparator: true}}]
+			options: [{number: {onlyIfContainsSeparator: true}}],
 		},
 		{
 			code: 'const foo = -282_932 - (1938 / 10_000) * .1 + 18.100_000_2',
-			options: [{number: {onlyIfContainsSeparator: true}}]
+			options: [{number: {onlyIfContainsSeparator: true}}],
 		},
 		{
 			code: 'const foo = 0xA_B_C_D_E',
-			options: [{hexadecimal: {onlyIfContainsSeparator: true, groupLength: 1}}]
+			options: [{hexadecimal: {onlyIfContainsSeparator: true, groupLength: 1}}],
 		},
 		{
 			code: 'const foo = 0o7777',
-			options: [{octal: {onlyIfContainsSeparator: true, minimumDigits: 4}}]
+			options: [{octal: {onlyIfContainsSeparator: true, minimumDigits: 4}}],
 		},
 		{
 			code: 'const foo = 0xABCDEF012',
-			options: [{hexadecimal: {onlyIfContainsSeparator: true}}]
+			options: [{hexadecimal: {onlyIfContainsSeparator: true}}],
 		},
 		{
 			code: 'const foo = 0o777777',
-			options: [{octal: {onlyIfContainsSeparator: true, minimumDigits: 3}}]
+			options: [{octal: {onlyIfContainsSeparator: true, minimumDigits: 3}}],
 		},
 		{
 			code: 'const foo = 0o777777',
-			options: [{octal: {onlyIfContainsSeparator: true, minimumDigits: 3, groupLength: 2}}]
+			options: [{octal: {onlyIfContainsSeparator: true, minimumDigits: 3, groupLength: 2}}],
 		},
 		{
 			code: 'const foo = 0o777_777',
-			options: [{octal: {onlyIfContainsSeparator: true, minimumDigits: 2, groupLength: 3}}]
+			options: [{octal: {onlyIfContainsSeparator: true, minimumDigits: 2, groupLength: 3}}],
 		},
 		{
 			code: 'const foo = 0b01010101',
-			options: [{onlyIfContainsSeparator: true, binary: {onlyIfContainsSeparator: true}}]
+			options: [{onlyIfContainsSeparator: true, binary: {onlyIfContainsSeparator: true}}],
 		},
 		{
 			code: 'const foo = 0b0101_0101',
-			options: [{onlyIfContainsSeparator: false, binary: {onlyIfContainsSeparator: true}}]
+			options: [{onlyIfContainsSeparator: false, binary: {onlyIfContainsSeparator: true}}],
 		},
 		{
 			code: 'const foo = 0b0101_0101',
-			options: [{onlyIfContainsSeparator: false, binary: {onlyIfContainsSeparator: false}}]
-		}
+			options: [{onlyIfContainsSeparator: false, binary: {onlyIfContainsSeparator: false}}],
+		},
 	],
 	invalid: [
 		// Hexadecimal
 		{
 			code: 'const foo = 0xA_B_CDE_F0',
 			errors: [error],
-			output: 'const foo = 0xA_BC_DE_F0'
+			output: 'const foo = 0xA_BC_DE_F0',
 		},
 		{
 			code: 'const foo = 0xABCDEF',
 			errors: [error],
-			output: 'const foo = 0xAB_CD_EF'
+			output: 'const foo = 0xAB_CD_EF',
 		},
 		{
 			code: 'const foo = 0xA_B',
 			errors: [error],
-			output: 'const foo = 0xAB'
+			output: 'const foo = 0xAB',
 		},
 		{
 			code: 'const foo = 0XAB_C_D',
 			errors: [error],
-			output: 'const foo = 0XAB_CD'
+			output: 'const foo = 0XAB_CD',
 		},
 
 		// Octal
 		{
 			code: 'const foo = 0o12_34_5670',
 			errors: [error],
-			output: 'const foo = 0o1234_5670'
+			output: 'const foo = 0o1234_5670',
 		},
 		{
 			code: 'const foo = 0o7_7_77',
 			errors: [error],
-			output: 'const foo = 0o7777'
+			output: 'const foo = 0o7777',
 		},
 		{
 			code: 'const foo = 0o010101010101',
 			errors: [error],
-			output: 'const foo = 0o0101_0101_0101'
+			output: 'const foo = 0o0101_0101_0101',
 		},
 		{
 			code: 'const foo = 0O010101010101',
 			errors: [error],
-			output: 'const foo = 0O0101_0101_0101'
+			output: 'const foo = 0O0101_0101_0101',
 		},
 
 		// Binary
 		{
 			code: 'const foo = 0b10_10_0001',
 			errors: [error],
-			output: 'const foo = 0b1010_0001'
+			output: 'const foo = 0b1010_0001',
 		},
 		{
 			code: 'const foo = 0b0_00_0',
 			errors: [error],
-			output: 'const foo = 0b0000'
+			output: 'const foo = 0b0000',
 		},
 		{
 			code: 'const foo = 0b10101010101010',
 			errors: [error],
-			output: 'const foo = 0b10_1010_1010_1010'
+			output: 'const foo = 0b10_1010_1010_1010',
 		},
 		{
 			code: 'const foo = 0B10101010101010',
 			errors: [error],
-			output: 'const foo = 0B10_1010_1010_1010'
+			output: 'const foo = 0B10_1010_1010_1010',
 		},
 
 		// BigInt
 		{
 			code: 'const foo = 1_9_223n',
 			errors: [error],
-			output: 'const foo = 19_223n'
+			output: 'const foo = 19_223n',
 		},
 		{
 			code: 'const foo = 80_7n',
 			errors: [error],
-			output: 'const foo = 807n'
+			output: 'const foo = 807n',
 		},
 		{
 			code: 'const foo = 123456789_100n',
 			errors: [error],
-			output: 'const foo = 123_456_789_100n'
+			output: 'const foo = 123_456_789_100n',
 		},
 
 		// Numbers
 		{
 			code: 'const foo = 1_2_345_678',
 			errors: [error],
-			output: 'const foo = 12_345_678'
+			output: 'const foo = 12_345_678',
 		},
 		{
 			code: 'const foo = 12_3',
 			errors: [error],
-			output: 'const foo = 123'
+			output: 'const foo = 123',
 		},
 		{
 			code: 'const foo = 1234567890',
 			errors: [error],
-			output: 'const foo = 1_234_567_890'
+			output: 'const foo = 1_234_567_890',
 		},
 
 		// Decimal numbers
 		{
 			code: 'const foo = 9807.1234567',
 			errors: [error],
-			output: 'const foo = 9807.123_456_7'
+			output: 'const foo = 9807.123_456_7',
 		},
 		{
 			code: 'const foo = 3819.123_4325',
 			errors: [error],
-			output: 'const foo = 3819.123_432_5'
+			output: 'const foo = 3819.123_432_5',
 		},
 		{
 			code: 'const foo = 138789.12343_2_42',
 			errors: [error],
-			output: 'const foo = 138_789.123_432_42'
+			output: 'const foo = 138_789.123_432_42',
 		},
 		{
 			code: 'const foo = .000000_1',
 			errors: [error],
-			output: 'const foo = .000_000_1'
+			output: 'const foo = .000_000_1',
 		},
 		{
 			code: 'const foo = 12345678..toString()',
 			errors: [error],
-			output: 'const foo = 12_345_678..toString()'
+			output: 'const foo = 12_345_678..toString()',
 		},
 		{
 			code: 'const foo = 12345678 .toString()',
 			errors: [error],
-			output: 'const foo = 12_345_678 .toString()'
+			output: 'const foo = 12_345_678 .toString()',
 		},
 		{
 			code: 'const foo = .00000',
 			errors: [error],
-			output: 'const foo = .000_00'
+			output: 'const foo = .000_00',
 		},
 		{
 			code: 'const foo = 0.00000',
 			errors: [error],
-			output: 'const foo = 0.000_00'
+			output: 'const foo = 0.000_00',
 		},
 
 		// Negative numbers
 		{
 			code: 'const foo = -100000_1',
 			errors: [error],
-			output: 'const foo = -1_000_001'
+			output: 'const foo = -1_000_001',
 		},
 
 		// Exponential notation
 		{
 			code: 'const foo = 1e10000',
 			errors: [error],
-			output: 'const foo = 1e10_000'
+			output: 'const foo = 1e10_000',
 		},
 		{
 			code: 'const foo = 39804e10000',
 			errors: [error],
-			output: 'const foo = 39_804e10_000'
+			output: 'const foo = 39_804e10_000',
 		},
 		{
 			code: 'const foo = -123456e100',
 			errors: [error],
-			output: 'const foo = -123_456e100'
+			output: 'const foo = -123_456e100',
 		},
 		{
 			code: 'const foo = -100000e-10000',
 			errors: [error],
-			output: 'const foo = -100_000e-10_000'
+			output: 'const foo = -100_000e-10_000',
 		},
 		{
 			code: 'const foo = -1000e+10000',
 			errors: [error],
-			output: 'const foo = -1000e+10_000'
+			output: 'const foo = -1000e+10_000',
 		},
 		{
 			code: 'const foo = -1000e+00010000',
 			errors: [error],
-			output: 'const foo = -1000e+00_010_000'
+			output: 'const foo = -1000e+00_010_000',
 		},
 		{
 			code: 'const foo = 3.6e12000',
 			errors: [error],
-			output: 'const foo = 3.6e12_000'
+			output: 'const foo = 3.6e12_000',
 		},
 		{
 			code: 'const foo = -1200000e5',
 			errors: [error],
-			output: 'const foo = -1_200_000e5'
+			output: 'const foo = -1_200_000e5',
 		},
 		{
 			code: 'const foo = 3.65432E12000',
 			errors: [error],
-			output: 'const foo = 3.654_32E12_000'
+			output: 'const foo = 3.654_32E12_000',
 		},
 
 		// Varying options
@@ -428,31 +428,31 @@ test({
 			code: 'const foo = 1000000',
 			options: [{number: {minimumDigits: 6}}],
 			errors: [error],
-			output: 'const foo = 1_000_000'
+			output: 'const foo = 1_000_000',
 		},
 		{
 			code: 'const foo = 10_000_000_000',
 			options: [{number: {groupLength: 4}}],
 			errors: [error],
-			output: 'const foo = 100_0000_0000'
+			output: 'const foo = 100_0000_0000',
 		},
 		{
 			code: 'const foo = 0xA_B_CD',
 			options: [{hexadecimal: {groupLength: 1}}],
 			errors: [error],
-			output: 'const foo = 0xA_B_C_D'
+			output: 'const foo = 0xA_B_C_D',
 		},
 		{
 			code: 'const foo = 0b1_11',
 			options: [{number: {minimumDigits: 3, groupLength: 2}}],
 			errors: [error],
-			output: 'const foo = 0b111'
+			output: 'const foo = 0b111',
 		},
 		{
 			code: 'const foo = -100000e+100000',
 			options: [{number: {onlyIfContainsSeparator: false}}],
 			errors: [error],
-			output: 'const foo = -100_000e+100_000'
+			output: 'const foo = -100_000e+100_000',
 		},
 		{
 			code: outdent`
@@ -468,9 +468,9 @@ test({
 				const number = 12_345_678.123_456_78e12_345_678;
 			`,
 			options: [{
-				onlyIfContainsSeparator: true
+				onlyIfContainsSeparator: true,
 			}],
-			errors: 4
+			errors: 4,
 		},
 		{
 			code: outdent`
@@ -488,10 +488,10 @@ test({
 			options: [{
 				onlyIfContainsSeparator: true,
 				binary: {
-					onlyIfContainsSeparator: false
-				}
+					onlyIfContainsSeparator: false,
+				},
 			}],
-			errors: 4
+			errors: 4,
 		},
 		{
 			code: outdent`
@@ -510,10 +510,10 @@ test({
 				onlyIfContainsSeparator: true,
 				binary: {
 					onlyIfContainsSeparator: false,
-					groupLength: 2
-				}
+					groupLength: 2,
+				},
 			}],
-			errors: 4
+			errors: 4,
 		},
 		{
 			code: outdent`
@@ -530,18 +530,18 @@ test({
 			`,
 			options: [{
 				binary: {
-					onlyIfContainsSeparator: true
-				}
+					onlyIfContainsSeparator: true,
+				},
 			}],
-			errors: 4
-		}
-	]
+			errors: 4,
+		},
+	],
 });
 
 test.snapshot({
 	valid: [],
 	invalid: [
 		'console.log(0XdeEdBeeFn)',
-		'const foo = 12345678..toString()'
-	]
+		'const foo = 12345678..toString()',
+	],
 });

@@ -8,7 +8,7 @@ Gather a list of all Scopes starting recursively from the input Scope.
 */
 const getChildScopesRecursive = scope => [
 	scope,
-	...scope.childScopes.flatMap(scope => getChildScopesRecursive(scope))
+	...scope.childScopes.flatMap(scope => getChildScopesRecursive(scope)),
 ];
 
 module.exports = getChildScopesRecursive;

@@ -6,12 +6,12 @@ const {newExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'better-regex';
 const messages = {
-	[MESSAGE_ID]: '{{original}} can be optimized to {{optimized}}.'
+	[MESSAGE_ID]: '{{original}} can be optimized to {{optimized}}.',
 };
 
 const newRegExp = [
 	newExpressionSelector({name: 'RegExp', min: 1}),
-	'[arguments.0.type="Literal"]'
+	'[arguments.0.type="Literal"]',
 ].join('');
 
 const create = context => {
@@ -42,9 +42,9 @@ const create = context => {
 					node,
 					data: {
 						original,
-						error: error.message
+						error: error.message,
 					},
-					message: 'Problem parsing {{original}}: {{error}}'
+					message: 'Problem parsing {{original}}: {{error}}',
 				};
 			}
 
@@ -57,9 +57,9 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				data: {
 					original,
-					optimized
+					optimized,
 				},
-				fix: fixer => fixer.replaceText(node, optimized)
+				fix: fixer => fixer.replaceText(node, optimized),
 			};
 		},
 		[newRegExp]: node => {
@@ -84,15 +84,15 @@ const create = context => {
 					messageId: MESSAGE_ID,
 					data: {
 						original: oldPattern,
-						optimized: newPattern
+						optimized: newPattern,
 					},
 					fix: fixer => fixer.replaceText(
 						patternNode,
-						quoteString(newPattern)
-					)
+						quoteString(newPattern),
+					),
 				};
 			}
-		}
+		},
 	};
 };
 
@@ -102,10 +102,10 @@ const schema = [
 		properties: {
 			sortCharacterClasses: {
 				type: 'boolean',
-				default: true
-			}
-		}
-	}
+				default: true,
+			},
+		},
+	},
 ];
 
 module.exports = {
@@ -113,10 +113,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Improve regexes by making them shorter, consistent, and safer.'
+			description: 'Improve regexes by making them shorter, consistent, and safer.',
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+	},
 };

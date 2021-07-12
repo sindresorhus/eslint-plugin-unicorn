@@ -3,7 +3,7 @@ const {
 	methodCallSelector,
 	arrayPrototypeMethodSelector,
 	emptyArraySelector,
-	callExpressionSelector
+	callExpressionSelector,
 } = require('./selectors/index.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
@@ -12,7 +12,7 @@ const {getParenthesizedText, isParenthesized} = require('./utils/parentheses.js'
 
 const MESSAGE_ID = 'prefer-array-flat';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `Array#flat()` over `{{description}}` to flatten an array.'
+	[MESSAGE_ID]: 'Prefer `Array#flat()` over `{{description}}` to flatten an array.',
 };
 
 // `array.flatMap(x => x)`
@@ -20,18 +20,18 @@ const arrayFlatMap = {
 	selector: [
 		methodCallSelector({
 			name: 'flatMap',
-			length: 1
+			length: 1,
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
 		'[arguments.0.async!=true]',
 		'[arguments.0.generator!=true]',
 		'[arguments.0.params.length=1]',
 		'[arguments.0.params.0.type="Identifier"]',
-		'[arguments.0.body.type="Identifier"]'
+		'[arguments.0.body.type="Identifier"]',
 	].join(''),
 	testFunction: node => node.arguments[0].params[0].name === node.arguments[0].body.name,
 	getArrayNode: node => node.callee.object,
-	description: 'Array#flatMap()'
+	description: 'Array#flatMap()',
 };
 
 // `array.reduce((a, b) => a.concat(b), [])`
@@ -39,7 +39,7 @@ const arrayReduce = {
 	selector: [
 		methodCallSelector({
 			name: 'reduce',
-			length: 2
+			length: 2,
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
 		'[arguments.0.async!=true]',
@@ -50,16 +50,16 @@ const arrayReduce = {
 		methodCallSelector({
 			name: 'concat',
 			length: 1,
-			path: 'arguments.0.body'
+			path: 'arguments.0.body',
 		}),
 		'[arguments.0.body.callee.object.type="Identifier"]',
 		'[arguments.0.body.arguments.0.type="Identifier"]',
-		emptyArraySelector('arguments.1')
+		emptyArraySelector('arguments.1'),
 	].join(''),
 	testFunction: node => node.arguments[0].params[0].name === node.arguments[0].body.callee.object.name &&
 		node.arguments[0].params[1].name === node.arguments[0].body.arguments[0].name,
 	getArrayNode: node => node.callee.object,
-	description: 'Array#reduce()'
+	description: 'Array#reduce()',
 };
 
 // `array.reduce((a, b) => [...a, ...b], [])`
@@ -67,7 +67,7 @@ const arrayReduce2 = {
 	selector: [
 		methodCallSelector({
 			name: 'reduce',
-			length: 2
+			length: 2,
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
 		'[arguments.0.async!=true]',
@@ -81,12 +81,12 @@ const arrayReduce2 = {
 		'[arguments.0.body.elements.0.argument.type="Identifier"]',
 		'[arguments.0.body.elements.1.type="SpreadElement"]',
 		'[arguments.0.body.elements.1.argument.type="Identifier"]',
-		emptyArraySelector('arguments.1')
+		emptyArraySelector('arguments.1'),
 	].join(''),
 	testFunction: node => node.arguments[0].params[0].name === node.arguments[0].body.elements[0].argument.name &&
 		node.arguments[0].params[1].name === node.arguments[0].body.elements[1].argument.name,
 	getArrayNode: node => node.callee.object,
-	description: 'Array#reduce()'
+	description: 'Array#reduce()',
 };
 
 // `[].concat(maybeArray)` and `[].concat(...array)`
@@ -95,16 +95,16 @@ const emptyArrayConcat = {
 		methodCallSelector({
 			name: 'concat',
 			length: 1,
-			allowSpreadElement: true
+			allowSpreadElement: true,
 		}),
-		emptyArraySelector('callee.object')
+		emptyArraySelector('callee.object'),
 	].join(''),
 	getArrayNode: node => {
 		const argumentNode = node.arguments[0];
 		return argumentNode.type === 'SpreadElement' ? argumentNode.argument : argumentNode;
 	},
 	description: '[].concat()',
-	shouldSwitchToArray: node => node.arguments[0].type !== 'SpreadElement'
+	shouldSwitchToArray: node => node.arguments[0].type !== 'SpreadElement',
 };
 
 // - `[].concat.apply([], array)` and `Array.prototype.concat.apply([], array)`
@@ -115,13 +115,13 @@ const arrayPrototypeConcat = {
 		methodCallSelector({
 			names: ['apply', 'call'],
 			length: 2,
-			allowSpreadElement: true
+			allowSpreadElement: true,
 		}),
 		emptyArraySelector('arguments.0'),
 		arrayPrototypeMethodSelector({
 			path: 'callee.object',
-			name: 'concat'
-		})
+			name: 'concat',
+		}),
 	].join(''),
 	testFunction: node => node.arguments[1].type !== 'SpreadElement' || node.callee.property.name === 'call',
 	getArrayNode: node => {
@@ -129,17 +129,17 @@ const arrayPrototypeConcat = {
 		return argumentNode.type === 'SpreadElement' ? argumentNode.argument : argumentNode;
 	},
 	description: 'Array.prototype.concat()',
-	shouldSwitchToArray: node => node.arguments[1].type !== 'SpreadElement' && node.callee.property.name === 'call'
+	shouldSwitchToArray: node => node.arguments[1].type !== 'SpreadElement' && node.callee.property.name === 'call',
 };
 
 const lodashFlattenFunctions = [
 	'_.flatten',
 	'lodash.flatten',
-	'underscore.flatten'
+	'underscore.flatten',
 ];
 const anyCall = {
 	selector: callExpressionSelector({length: 1}),
-	getArrayNode: node => node.arguments[0]
+	getArrayNode: node => node.arguments[0],
 };
 
 function fix(node, array, sourceCode, shouldSwitchToArray) {
@@ -174,7 +174,7 @@ function fix(node, array, sourceCode, shouldSwitchToArray) {
 function create(context) {
 	const {functions: configFunctions} = {
 		functions: [],
-		...context.options[0]
+		...context.options[0],
 	};
 	const functions = [...configFunctions, ...lodashFlattenFunctions];
 	const sourceCode = context.getSourceCode();
@@ -189,8 +189,8 @@ function create(context) {
 		{
 			...anyCall,
 			testFunction: node => isNodeMatches(node.callee, functions),
-			description: node => `${functions.find(nameOrPath => isNodeMatchesNameOrPath(node.callee, nameOrPath)).trim()}()`
-		}
+			description: node => `${functions.find(nameOrPath => isNodeMatchesNameOrPath(node.callee, nameOrPath)).trim()}()`,
+		},
 	];
 
 	for (const {selector, testFunction, description, getArrayNode, shouldSwitchToArray} of cases) {
@@ -202,13 +202,13 @@ function create(context) {
 			const array = getArrayNode(node);
 
 			const data = {
-				description: typeof description === 'string' ? description : description(node)
+				description: typeof description === 'string' ? description : description(node),
 			};
 
 			const problem = {
 				node,
 				messageId: MESSAGE_ID,
-				data
+				data,
 			};
 
 			// Don't fix if it has comments.
@@ -232,11 +232,11 @@ const schema = [
 		properties: {
 			functions: {
 				type: 'array',
-				uniqueItems: true
-			}
+				uniqueItems: true,
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -244,10 +244,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Array#flat()` over legacy techniques to flatten arrays.'
+			description: 'Prefer `Array#flat()` over legacy techniques to flatten arrays.',
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+	},
 };

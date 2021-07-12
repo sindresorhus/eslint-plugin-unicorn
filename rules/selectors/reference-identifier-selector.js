@@ -64,7 +64,7 @@ const nonReferenceSelectors = [
 	// TypeScript
 	'TSDeclareFunction > .id',
 	'TSEnumMember > .id',
-	'TSPropertySignature > .key'
+	'TSPropertySignature > .key',
 ];
 
 function referenceIdentifierSelector(nameOrNames = []) {
@@ -73,7 +73,7 @@ function referenceIdentifierSelector(nameOrNames = []) {
 	return [
 		'Identifier',
 		matches(names.map(name => `[name="${name}"]`)),
-		not(nonReferenceSelectors)
+		not(nonReferenceSelectors),
 	].join('');
 }
 

@@ -66,7 +66,7 @@ test.snapshot({
 		// We are not checking these cases
 		'foo = new Date() | 0',
 		'foo &= new Date()',
-		'foo = new Date() >> 0'
+		'foo = new Date() >> 0',
 	],
 	invalid: [
 		// `Date` methods
@@ -99,6 +99,6 @@ test.snapshot({
 		'foo *= new Date()',
 		'foo /= new Date',
 		'foo %= new Date()',
-		'foo **= new Date()'
-	]
+		'foo **= new Date()',
+	],
 });

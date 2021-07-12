@@ -6,7 +6,7 @@ const {test} = getTester(import.meta);
 const MESSAGE_ID = 'number-literal-case';
 
 const error = {
-	messageId: MESSAGE_ID
+	messageId: MESSAGE_ID,
 };
 
 // Legacy octal literals
@@ -14,14 +14,14 @@ test({
 	testerOptions: {
 		parserOptions: {
 			ecmaVersion: 5,
-			sourceType: 'script'
-		}
+			sourceType: 'script',
+		},
 	},
 	valid: [
 		'var foo = 0777',
-		'var foo = 0888'
+		'var foo = 0888',
 	],
-	invalid: []
+	invalid: [],
 });
 
 const tests = {
@@ -60,74 +60,74 @@ const tests = {
 		'const foo = 123_456n',
 		'const foo = 0b10_10n',
 		'const foo = 0o1_234_567n',
-		'const foo = 0xDEED_BEEFn'
+		'const foo = 0xDEED_BEEFn',
 	],
 	invalid: [
 		// Number
 		{
 			code: 'const foo = 0B10',
 			errors: [error],
-			output: 'const foo = 0b10'
+			output: 'const foo = 0b10',
 		},
 		{
 			code: 'const foo = 0O1234567',
 			errors: [error],
-			output: 'const foo = 0o1234567'
+			output: 'const foo = 0o1234567',
 		},
 		{
 			code: 'const foo = 0XaBcDeF',
 			errors: [error],
-			output: 'const foo = 0xABCDEF'
+			output: 'const foo = 0xABCDEF',
 		},
 
 		// BigInt
 		{
 			code: 'const foo = 0B10n',
 			errors: [error],
-			output: 'const foo = 0b10n'
+			output: 'const foo = 0b10n',
 		},
 		{
 			code: 'const foo = 0O1234567n',
 			errors: [error],
-			output: 'const foo = 0o1234567n'
+			output: 'const foo = 0o1234567n',
 		},
 		{
 			code: 'const foo = 0XaBcDeFn',
 			errors: [error],
-			output: 'const foo = 0xABCDEFn'
+			output: 'const foo = 0xABCDEFn',
 		},
 		// `0n`
 		{
 			code: 'const foo = 0B0n',
 			errors: [error],
-			output: 'const foo = 0b0n'
+			output: 'const foo = 0b0n',
 		},
 		{
 			code: 'const foo = 0O0n',
 			errors: [error],
-			output: 'const foo = 0o0n'
+			output: 'const foo = 0o0n',
 		},
 		{
 			code: 'const foo = 0X0n',
 			errors: [error],
-			output: 'const foo = 0x0n'
+			output: 'const foo = 0x0n',
 		},
 
 		// Exponential notation
 		{
 			code: 'const foo = 1.2E3',
 			errors: [error],
-			output: 'const foo = 1.2e3'
+			output: 'const foo = 1.2e3',
 		},
 		{
 			code: 'const foo = 1.2E-3',
 			errors: [error],
-			output: 'const foo = 1.2e-3'
+			output: 'const foo = 1.2e-3',
 		},
 		{
 			code: 'const foo = 1.2E+3',
 			errors: [error],
-			output: 'const foo = 1.2e+3'
+			output: 'const foo = 1.2e+3',
 		},
 		{
 			code: outdent`
@@ -144,16 +144,16 @@ const tests = {
 				if (foo === 0xFF) {
 					console.log('invalid');
 				}
-			`
+			`,
 		},
 
 		// Numeric separator
 		{
 			code: 'const foo = 0XdeEd_Beefn',
 			errors: [error],
-			output: 'const foo = 0xDEED_BEEFn'
-		}
-	]
+			output: 'const foo = 0xDEED_BEEFn',
+		},
+	],
 };
 
 test(tests);
@@ -163,6 +163,6 @@ test.typescript(avoidTestTitleConflict(tests, 'typescript'));
 test.snapshot({
 	valid: [],
 	invalid: [
-		'console.log(BigInt(0B10 + 1.2E+3) + 0XdeEd_Beefn)'
-	]
+		'console.log(BigInt(0B10 + 1.2E+3) + 0XdeEd_Beefn)',
+	],
 });

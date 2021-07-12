@@ -47,7 +47,7 @@ test.snapshot({
 
 		// Empty object
 		'({notEmpty}).hasOwnProperty.call(object, property)',
-		'([]).hasOwnProperty.call(object, property)'
+		'([]).hasOwnProperty.call(object, property)',
 	],
 	invalid: [
 		'const hasProperty = Object.prototype.hasOwnProperty.call(object, property);',
@@ -61,8 +61,8 @@ test.snapshot({
 		'const hasProperty = (( {}.hasOwnProperty.call(object, property) ));',
 		'const hasProperty = (( {}.hasOwnProperty.call ))(object, property);',
 		'const hasProperty = (( {}.hasOwnProperty )).call(object, property);',
-		'const hasProperty = (( {} )).hasOwnProperty.call(object, property);'
-	]
+		'const hasProperty = (( {} )).hasOwnProperty.call(object, property);',
+	],
 });
 
 // `functions`
@@ -75,7 +75,7 @@ test.snapshot({
 		'_.has?.(object, property)',
 		'_?.has(object, property)',
 		'foo.has(object, property)',
-		'foo._.has(object, property)'
+		'foo._.has(object, property)',
 	],
 	invalid: [
 		'_.has(object, property)',
@@ -83,11 +83,11 @@ test.snapshot({
 		'underscore.has(object, property)',
 		{
 			code: '_.has(object, property)',
-			options: [{functions: ['utils.has']}]
+			options: [{functions: ['utils.has']}],
 		},
 		{
 			code: 'utils.has(object, property)',
-			options: [{functions: ['utils.has']}]
-		}
-	]
+			options: [{functions: ['utils.has']}],
+		},
+	],
 });

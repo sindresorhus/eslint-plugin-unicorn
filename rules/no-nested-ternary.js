@@ -5,7 +5,7 @@ const MESSAGE_ID_TOO_DEEP = 'too-deep';
 const MESSAGE_ID_SHOULD_PARENTHESIZED = 'should-parenthesized';
 const messages = {
 	[MESSAGE_ID_TOO_DEEP]: 'Do not nest ternary expressions.',
-	[MESSAGE_ID_SHOULD_PARENTHESIZED]: 'Nest ternary expression should be parenthesized.'
+	[MESSAGE_ID_SHOULD_PARENTHESIZED]: 'Nest ternary expression should be parenthesized.',
 };
 
 const nestTernarySelector = level => `:not(ConditionalExpression)${' > ConditionalExpression'.repeat(level)}`;
@@ -25,11 +25,11 @@ const create = context => {
 					messageId: MESSAGE_ID_SHOULD_PARENTHESIZED,
 					fix: fixer => [
 						fixer.insertTextBefore(node, '('),
-						fixer.insertTextAfter(node, ')')
-					]
+						fixer.insertTextAfter(node, ')'),
+					],
 				};
 			}
-		}
+		},
 	};
 };
 
@@ -38,9 +38,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow nested ternary expressions.'
+			description: 'Disallow nested ternary expressions.',
 		},
 		fixable: 'code',
-		messages
-	}
+		messages,
+	},
 };

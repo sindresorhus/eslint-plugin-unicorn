@@ -4,7 +4,7 @@ const getReferences = require('./utils/get-references.js');
 
 const MESSAGE_ID = 'consistent-function-scoping';
 const messages = {
-	[MESSAGE_ID]: 'Move {{functionNameWithKind}} to the outer scope.'
+	[MESSAGE_ID]: 'Move {{functionNameWithKind}} to the outer scope.',
 };
 
 const isSameScope = (scope1, scope2) =>
@@ -72,7 +72,7 @@ function checkReferences(scope, parent, scopeManager) {
 		.some(variable =>
 			hitReference(variable.references) ||
 			hitDefinitions(variable.defs) ||
-			hitIdentifier(variable.identifiers)
+			hitIdentifier(variable.identifiers),
 		);
 }
 
@@ -87,7 +87,7 @@ const reactHooks = new Set([
 	'useRef',
 	'useImperativeHandle',
 	'useLayoutEffect',
-	'useDebugValue'
+	'useDebugValue',
 ]);
 const isReactHook = scope =>
 	scope.block &&
@@ -104,7 +104,7 @@ const isArrowFunctionWithThis = scope =>
 
 const iifeFunctionTypes = new Set([
 	'FunctionExpression',
-	'ArrowFunctionExpression'
+	'ArrowFunctionExpression',
 ]);
 const isIife = node => node &&
 	iifeFunctionTypes.has(node.type) &&
@@ -186,10 +186,10 @@ const create = context => {
 				loc: getFunctionHeadLocation(node, sourceCode),
 				messageId: MESSAGE_ID,
 				data: {
-					functionNameWithKind: getFunctionNameWithKind(node, sourceCode)
-				}
+					functionNameWithKind: getFunctionNameWithKind(node, sourceCode),
+				},
 			};
-		}
+		},
 	};
 };
 
@@ -199,10 +199,10 @@ const schema = [
 		properties: {
 			checkArrowFunctions: {
 				type: 'boolean',
-				default: true
-			}
-		}
-	}
+				default: true,
+			},
+		},
+	},
 ];
 
 module.exports = {
@@ -210,9 +210,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Move function definitions to the highest possible scope.'
+			description: 'Move function definitions to the highest possible scope.',
 		},
 		schema,
-		messages
-	}
+		messages,
+	},
 };
