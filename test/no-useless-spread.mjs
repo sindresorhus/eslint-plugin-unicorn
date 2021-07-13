@@ -236,6 +236,6 @@ test.snapshot({
 			function * fn() {
 				yield * ${code};
 			}
-		`)
+		`),
 	],
 });

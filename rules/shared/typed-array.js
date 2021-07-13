@@ -12,5 +12,5 @@ module.exports = [
 	'Float32Array',
 	'Float64Array',
 	'BigInt64Array',
-	'BigUint64Array'
+	'BigUint64Array',
 ];

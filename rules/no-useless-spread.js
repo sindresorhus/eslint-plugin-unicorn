@@ -44,7 +44,7 @@ const uselessIterableToArraySelector = matches([
 		`${iterableToArraySelector}.arguments:first-child`,
 	].join(''),
 	`ForOfStatement > ${iterableToArraySelector}.right`,
-	`YieldExpression[delegate!=false] > ${iterableToArraySelector}.argument`
+	`YieldExpression[delegate!=false] > ${iterableToArraySelector}.argument`,
 ]);
 
 const parentDescriptions = {
