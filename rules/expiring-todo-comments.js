@@ -18,7 +18,7 @@ const MESSAGE_ID_REMOVE_WHITESPACE = 'unicorn/removeWhitespaces';
 const MESSAGE_ID_MISSING_AT_SYMBOL = 'unicorn/missingAtSymbol';
 
 // Override of core rule message with a more specific one - no prefix
-const MESSSAGE_ID_CORE_RULE_UNEXPECTED_COMMENT = 'unexpectedComment';
+const MESSAGE_ID_CORE_RULE_UNEXPECTED_COMMENT = 'unexpectedComment';
 const messages = {
 	[MESSAGE_ID_AVOID_MULTIPLE_DATES]:
 		'Avoid using multiple expiration dates in TODO: {{expirationDates}}. {{message}}',
@@ -41,7 +41,7 @@ const messages = {
 	[MESSAGE_ID_MISSING_AT_SYMBOL]:
 		'Missing \'@\' on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
 	...baseRule.meta.messages,
-	[MESSSAGE_ID_CORE_RULE_UNEXPECTED_COMMENT]:
+	[MESSAGE_ID_CORE_RULE_UNEXPECTED_COMMENT]:
 		'Unexpected \'{{matchedTerm}}\' comment without any conditions: \'{{comment}}\'.',
 };
 
