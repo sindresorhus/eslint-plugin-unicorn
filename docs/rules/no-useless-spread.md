@@ -54,6 +54,12 @@ const results = await Promise.all([...iterable]);
 for (const foo of [...set]);
 ```
 
+```js
+function * foo() {
+	yield * [...anotherGenerator()];
+}
+```
+
 ## Pass
 
 ```js
@@ -98,4 +104,10 @@ const results = await Promise.all(iterable);
 
 ```js
 for (const foo of set);
+```
+
+```js
+function * foo() {
+	yield * anotherGenerator();
+}
 ```
