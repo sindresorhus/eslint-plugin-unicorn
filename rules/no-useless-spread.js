@@ -1,18 +1,50 @@
 'use strict';
 const {isCommaToken} = require('eslint-utils');
-const {matches} = require('./selectors/index.js');
+const {
+	matches,
+	newExpressionSelector,
+	methodCallSelector,
+} = require('./selectors/index.js');
 const {getParentheses} = require('./utils/parentheses.js');
+const typedArray = require('./shared/typed-array.js');
 
-const MESSAGE_ID = 'no-useless-spread';
+const SPREAD_IN_LIST = 'spread-in-list';
+const ITERABLE_TO_ARRAY = 'iterable-to-array';
+const ITERABLE_TO_ARRAY_IN_FOR_OF = 'iterable-to-array-in-for-of';
+const ITERABLE_TO_ARRAY_IN_YIELD_STAR = 'iterable-to-array-in-yield-star';
 const messages = {
-	[MESSAGE_ID]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.',
+	[SPREAD_IN_LIST]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.',
+	[ITERABLE_TO_ARRAY]: '`{{parentDescription}}` accepts iterable as argument, it\'s unnecessary to convert to an array.',
+	[ITERABLE_TO_ARRAY_IN_FOR_OF]: '`for…of` can iterate over iterable, it\'s unnecessary to convert to an array.',
+	[ITERABLE_TO_ARRAY_IN_YIELD_STAR]: '`yield*` can delegate iterable, it\'s unnecessary to convert to an array.',
 };
 
-const selector = matches([
+const uselessSpreadInListSelector = matches([
 	'ArrayExpression > SpreadElement.elements > ArrayExpression.argument',
 	'ObjectExpression > SpreadElement.properties > ObjectExpression.argument',
 	'CallExpression > SpreadElement.arguments > ArrayExpression.argument',
 	'NewExpression > SpreadElement.arguments > ArrayExpression.argument',
+]);
+
+const iterableToArraySelector = [
+	'ArrayExpression',
+	'[elements.length=1]',
+	'[elements.0.type="SpreadElement"]',
+].join('');
+const uselessIterableToArraySelector = matches([
+	[
+		matches([
+			newExpressionSelector({names: ['Map', 'WeakMap', 'Set', 'WeakSet'], length: 1}),
+			newExpressionSelector({names: typedArray, min: 1}),
+			methodCallSelector({object: 'Promise', names: ['all', 'allSettled', 'any', 'race'], length: 1}),
+			methodCallSelector({objects: ['Array', ...typedArray], name: 'from', length: 1}),
+			methodCallSelector({object: 'Object', name: 'fromEntries', length: 1}),
+		]),
+		' > ',
+		`${iterableToArraySelector}.arguments:first-child`,
+	].join(''),
+	`ForOfStatement > ${iterableToArraySelector}.right`,
+	`YieldExpression[delegate=true] > ${iterableToArraySelector}.argument`,
 ]);
 
 const parentDescriptions = {
@@ -46,14 +78,14 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 
 	return {
-		[selector](spreadObject) {
+		[uselessSpreadInListSelector](spreadObject) {
 			const spreadElement = spreadObject.parent;
 			const spreadToken = sourceCode.getFirstToken(spreadElement);
 			const parentType = spreadElement.parent.type;
 
 			return {
 				node: spreadToken,
-				messageId: MESSAGE_ID,
+				messageId: SPREAD_IN_LIST,
 				data: {
 					argumentType: spreadObject.type === 'ArrayExpression' ? 'array' : 'object',
 					parentDescription: parentDescriptions[parentType],
@@ -104,6 +136,61 @@ const create = context => {
 						// `call([foo, , bar])`
 						//             ^ Replace holes with `undefined`
 						yield fixer.insertTextBefore(commaToken, 'undefined');
+					}
+				},
+			};
+		},
+		[uselessIterableToArraySelector](array) {
+			const {parent} = array;
+			let parentDescription = '';
+			let messageId = ITERABLE_TO_ARRAY;
+			switch (parent.type) {
+				case 'ForOfStatement':
+					messageId = ITERABLE_TO_ARRAY_IN_FOR_OF;
+					break;
+				case 'YieldExpression':
+					messageId = ITERABLE_TO_ARRAY_IN_YIELD_STAR;
+					break;
+				case 'NewExpression':
+					parentDescription = `new ${parent.callee.name}(…)`;
+					break;
+				case 'CallExpression':
+					parentDescription = `${parent.callee.object.name}.${parent.callee.property.name}(…)`;
+					break;
+				// No default
+			}
+
+			return {
+				node: array,
+				messageId,
+				data: {parentDescription},
+				* fix(fixer) {
+					const [
+						openingBracketToken,
+						spreadToken,
+					] = sourceCode.getFirstTokens(array, 2);
+
+					// `[...iterable]`
+					//  ^
+					yield fixer.remove(openingBracketToken);
+
+					// `[...iterable]`
+					//   ^^^
+					yield fixer.remove(spreadToken);
+
+					const [
+						commaToken,
+						closingBracketToken,
+					] = sourceCode.getLastTokens(array, 2);
+
+					// `[...iterable]`
+					//              ^
+					yield fixer.remove(closingBracketToken);
+
+					// `[...iterable,]`
+					//              ^
+					if (isCommaToken(commaToken)) {
+						yield fixer.remove(commaToken);
 					}
 				},
 			};

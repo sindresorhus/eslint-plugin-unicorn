@@ -3,6 +3,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
+// Spread in list
 test.snapshot({
 	valid: [
 		'const array = [[]]',
@@ -136,5 +137,105 @@ test.snapshot({
 			const baz = [2];
 			call(foo, ...[bar, ...baz]);
 		`,
+
+		'Promise.all(...[...iterable])',
+		'new Map(...[...iterable])',
+	],
+});
+
+// Iterable to array
+test.snapshot({
+	valid: [
+		'new NotMatchedConstructor([...iterable])',
+		'new foo.Map([...iterable])',
+		'new Map([...iterable], extraArgument)',
+		'new Map()',
+		'new Map(...iterable)',
+		'new Map([,...iterable])',
+		'new Map([...iterable, extraElement])',
+		'new Map({...iterable})',
+		'new Uint8Array(...iterable)',
+		'new Uint8Array(before, [...iterable])',
+
+		'Promise.notMatchedMethod([...iterable])',
+		'NotPromise.all([...iterable])',
+		'foo.Promise.all([...iterable])',
+		'Promise.all?.([...iterable])',
+		'Promise?.all([...iterable])',
+		'Promise[all]([...iterable])',
+		'Promise.all()',
+		'Promise.all([...iterable], extraArgument)',
+		'Promise.all(...iterable)',
+		'Promise.all([,...iterable])',
+		'Promise.all([...iterable, extraElement])',
+		'Promise.all({...iterable})',
+
+		'Object.notFromEntries([...iterable])',
+		'NotObject.fromEntries([...iterable])',
+		'Object.fromEntries?.([...iterable])',
+		'Object?.fromEntries([...iterable])',
+		'Object[fromEntries]([...iterable])',
+		'Object.fromEntries()',
+		'Object.fromEntries([...iterable], extraArgument)',
+		'Object.fromEntries(...iterable)',
+		'Object.fromEntries({...iterable})',
+
+		'Uint8Array.notFrom([...iterable])',
+		'NotTypedArray.from([...iterable])',
+		'Uint8Array.from?.([...iterable])',
+		'Uint8Array?.from([...iterable])',
+		'Uint8Array.from([...iterable], extraArgument)',
+		'Uint8Array.from(...iterable)',
+		'Uint8Array.from({...iterable})',
+
+		'for (const [...iterable] of foo);',
+		'for (const foo of bar) [...iterable];',
+		'for (const foo of [,...iterable]);',
+		'for (const foo of [...iterable, extraElement]);',
+		'for (const foo of {...iterable});',
+		'for (const foo in [...iterable]);',
+
+		'function * fn() {yield [...iterable];}',
+		'function * fn() {yield* [...iterable, extraElement];}',
+		'function * fn() {yield* {...iterable};}',
+	],
+	invalid: [
+		'const map = new Map([...iterable])',
+		'const weakMap = new WeakMap([...iterable])',
+		'const set = new Set([...iterable])',
+		'const weakSet = new WeakSet([...iterable])',
+		'const typed = new BigUint64Array([...iterable], byteOffset, length)',
+		'const typed = new BigUint64Array([...iterable], ...args)',
+		'const promise = Promise.all([...iterable])',
+		'const promise = Promise.allSettled([...iterable])',
+		'const promise = Promise.any([...iterable])',
+		'const promise = Promise.race([...iterable])',
+		'const array = Array.from([...iterable])',
+		'const typed = BigUint64Array.from([...iterable])',
+		'const object = Object.fromEntries([...iterable])',
+		'for (const foo of [...iterable]);',
+		'async () => {for await (const foo of [...iterable]);}',
+
+		// Trailing comma
+		'const map = new Map([...iterable,])',
+		'for (const foo of [...iterable]);',
+		'const map = new Map([...iterable,],)',
+
+		// Parentheses
+		'const map = new Map([...(( iterable ))])',
+		'for (const foo of [...(( iterable ))]);',
+		'const map = new Map((( [...(( iterable ))] )))',
+		'for (const foo of (( [...(( iterable ))] )));',
+
+		...[
+			'[...iterable]',
+			'[...iterable,]',
+			'(( [...iterable] ))',
+			'(( [...(( iterable ))] ))',
+		].map(code => outdent`
+			function * fn() {
+				yield * ${code};
+			}
+		`),
 	],
 });
