@@ -173,6 +173,7 @@ test.snapshot({
 		'for (const foo of [,...iterable]);',
 		'for (const foo of [...iterable, extraElement]);',
 		'for (const foo of {...iterable});',
+		'for (const foo in [...iterable]);',
 	],
 	invalid: [
 		'const map = new Map([...iterable])',
