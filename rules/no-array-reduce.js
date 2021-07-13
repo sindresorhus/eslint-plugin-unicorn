@@ -1,6 +1,7 @@
 'use strict';
 const {methodCallSelector} = require('./selectors/index.js');
 const {arrayPrototypeMethodSelector, notFunctionSelector, matches} = require('./selectors/index.js');
+const {isNumeric} = require('./utils/numeric.js');
 
 const MESSAGE_ID = 'no-reduce';
 const messages = {
@@ -34,9 +35,27 @@ const selector = matches([
 	].join(''),
 ]);
 
-const create = () => {
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			allowNumericInitialValue: {
+				type: 'boolean',
+				default: false,
+			},
+		},
+	},
+];
+
+const create = context => {
+	const {allowNumericInitialValue} = context.options[0] || {};
+
 	return {
 		[selector](node) {
+			if (allowNumericInitialValue && isNumeric(node.parent.parent.arguments[1])) {
+				return;
+			}
+
 			return {
 				node,
 				messageId: MESSAGE_ID,
@@ -53,6 +72,7 @@ module.exports = {
 		docs: {
 			description: 'Disallow `Array#reduce()` and `Array#reduceRight()`.',
 		},
+		schema,
 		messages,
 	},
 };

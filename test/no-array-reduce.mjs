@@ -93,7 +93,24 @@ test({
 		// Second argument is not a function
 		...notFunctionTypes.map(data => `Array.prototype.reduce.call(foo, ${data})`),
 
-	].flatMap(code => [code, code.replace('reduce', 'reduceRight')]),
+		// Option: allowNumericInitialValue
+		{
+			code: 'arr.reduce((total, item) => total + item, 0)',
+			options: [{allowNumericInitialValue: true}],
+		},
+		{
+			code: 'arr.reduce(function (total, item) { return total + item }, 0)',
+			options: [{allowNumericInitialValue: true}],
+		},
+	].flatMap(testCase => {
+		const {code, options} = testCase;
+
+		if (options) {
+			return [testCase, {...testCase, code: code.replace('reduce', 'reduceRight')}];
+		}
+
+		return [testCase, testCase.replace('reduce', 'reduceRight')];
+	}),
 	invalid: [
 		'arr.reduce((total, item) => total + item)',
 		'arr.reduce((total, item) => total + item, 0)',
@@ -120,5 +137,29 @@ test({
 		'[].reduce.apply(arr, [sum]);',
 		'Array.prototype.reduce.apply(arr, [(s, i) => s + i])',
 		'Array.prototype.reduce.apply(arr, [sum]);',
-	].flatMap(code => [{code, errors: errorsReduce}, {code: code.replace('reduce', 'reduceRight'), errors: errorsReduceRight}]),
+
+		// Option: allowNumericInitialValue
+		{
+			code: 'arr.reduce((total, item) => total + item, 0)',
+			options: [{allowNumericInitialValue: false}],
+		},
+		{
+			code: 'arr.reduce(function (total, item) { return total + item }, 0)',
+			options: [{allowNumericInitialValue: false}],
+		},
+	].flatMap(testCase => {
+		const {code, options} = testCase;
+
+		if (options) {
+			return [
+				{code, errors: errorsReduce, options},
+				{code: code.replace('reduce', 'reduceRight'), errors: errorsReduceRight, options},
+			];
+		}
+
+		return [
+			{code: testCase, errors: errorsReduce},
+			{code: testCase.replace('reduce', 'reduceRight'), errors: errorsReduceRight},
+		];
+	}),
 });

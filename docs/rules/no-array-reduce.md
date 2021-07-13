@@ -46,3 +46,21 @@ for (const element of array) {
 	result += element;
 }
 ```
+## Options
+
+### allowNumericInitialValue
+
+Type: `boolean`\
+Default: `false`
+
+Can be enabled to allow `reduce` to be used to sum numbers.
+
+```js
+// eslint unicorn/no-array-reduce: ["error", {"allowNumericInitialValue": true}]
+arr.reduce((total, item) => total + item, 0) // Passes
+```
+
+```js
+// eslint unicorn/no-array-reduce: ["error", {"allowNumericInitialValue": false}]
+arr.reduce((total, item) => total + item, 0) // Fails
+```
