@@ -6,7 +6,7 @@
 	- Spread an array literal as arguments of a call or a `new` call
 	- Spread an object literal as properties of an object literal
 
-- The following builtins accepts iterable, it's unnecessary to convert iterable to an array.
+- The following builtins accept an iterable, so it's unnecessary to convert the iterable to an array:
 
 	- `Map` constructor
 	- `WeakMap` constructor
@@ -18,9 +18,9 @@
 	- `Promise.{all,allSettled,any,race}(…)`
 	- `Object.fromEntries(…)`
 
-- `for…of` loop can iterate over any iterable object not just array, it's unnecessary to convert iterable to an array.
+- `for…of` loop can iterate over any iterable object not just array, so it's unnecessary to convert the iterable to an array.
 
-- `yield*` can delegate another iterable, it's unnecessary to convert iterable to an array.
+- `yield*` can delegate to another iterable, so it's unnecessary to convert the iterable to an array.
 
 This rule is fixable.
 
