@@ -151,6 +151,9 @@ test.snapshot({
 		'new Map([...iterable], extraArgument)',
 		'new Map()',
 		'new Map(...iterable)',
+		'new Map([,...iterable])',
+		'new Map([...iterable, extraElement])',
+		'new Map({...iterable})',
 
 		'Promise.notMatchedMethod([...iterable])',
 		'NotPromise.all([...iterable])',
@@ -161,9 +164,15 @@ test.snapshot({
 		'Promise.all()',
 		'Promise.all([...iterable], extraArgument)',
 		'Promise.all(...iterable)',
+		'Promise.all([,...iterable])',
+		'Promise.all([...iterable, extraElement])',
+		'Promise.all({...iterable})',
 
 		'for (const [...iterable] of foo);',
 		'for (const foo of bar) [...iterable];',
+		'for (const foo of [,...iterable]);',
+		'for (const foo of [...iterable, extraElement]);',
+		'for (const foo of {...iterable});',
 	],
 	invalid: [
 		'const map = new Map([...iterable])',
