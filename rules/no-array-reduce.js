@@ -52,15 +52,13 @@ const create = context => {
 
 	return {
 		[selector](node) {
-			if (allowNumericInitialValue && isNumeric(node.parent.parent.arguments[1])) {
-				return;
+			if (!(allowNumericInitialValue && isNumeric(node.parent.parent.arguments[1]))) {
+				return {
+					node,
+					messageId: MESSAGE_ID,
+					data: {method: node.name},
+				};
 			}
-
-			return {
-				node,
-				messageId: MESSAGE_ID,
-				data: {method: node.name},
-			};
 		},
 	};
 };
