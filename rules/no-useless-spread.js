@@ -11,10 +11,12 @@ const typedArray = require('./shared/typed-array.js');
 const SPREAD_IN_LIST = 'spread-in-list';
 const ITERABLE_TO_ARRAY = 'iterable-to-array';
 const ITERABLE_TO_ARRAY_IN_FOR_OF = 'iterable-to-array-in-for-of';
+const ITERABLE_TO_ARRAY_IN_YIELD_STAR = 'iterable-to-array-in-yield-star';
 const messages = {
 	[SPREAD_IN_LIST]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.',
 	[ITERABLE_TO_ARRAY]: '`{{parentDescription}}` accepts iterable as argument, it\'s unnecessary to convert to an array.',
 	[ITERABLE_TO_ARRAY_IN_FOR_OF]: '`for…of` can iterate over iterable, it\'s unnecessary to convert to an array.',
+	[ITERABLE_TO_ARRAY_IN_YIELD_STAR]: '`yield*` can delegate iterable, it\'s unnecessary to convert to an array.',
 };
 
 const uselessSpreadInListSelector = matches([
@@ -41,11 +43,8 @@ const uselessIterableToArraySelector = matches([
 		' > ',
 		`${iterableToArraySelector}.arguments:first-child`,
 	].join(''),
-	[
-		'ForOfStatement',
-		' > ',
-		`${iterableToArraySelector}.right`,
-	].join(''),
+	`ForOfStatement > ${iterableToArraySelector}.right`,
+	`YieldExpression[delegate!=false] > ${iterableToArraySelector}.argument`
 ]);
 
 const parentDescriptions = {
@@ -148,6 +147,9 @@ const create = context => {
 			switch (parent.type) {
 				case 'ForOfStatement':
 					messageId = ITERABLE_TO_ARRAY_IN_FOR_OF;
+					break;
+				case 'YieldExpression':
+					messageId = ITERABLE_TO_ARRAY_IN_YIELD_STAR;
 					break;
 				case 'NewExpression':
 					parentDescription = `new ${parent.callee.name}(…)`;

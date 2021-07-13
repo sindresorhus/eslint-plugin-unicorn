@@ -20,7 +20,7 @@
 
 - `for…of` loop can iterate over any iterable object not just array, it's unnecessary to convert iterable to an array.
 
-- `yield*` can also `yield` another iterable, it's unnecessary to convert iterable to an array.
+- `yield*` can delegate another iterable, it's unnecessary to convert iterable to an array.
 
 This rule is fixable.
 

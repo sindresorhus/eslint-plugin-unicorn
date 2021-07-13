@@ -194,6 +194,10 @@ test.snapshot({
 		'for (const foo of [...iterable, extraElement]);',
 		'for (const foo of {...iterable});',
 		'for (const foo in [...iterable]);',
+
+		'function * fn() {yield [...iterable];}',
+		'function * fn() {yield* [...iterable, extraElement];}',
+		'function * fn() {yield* {...iterable};}',
 	],
 	invalid: [
 		'const map = new Map([...iterable])',
@@ -222,5 +226,16 @@ test.snapshot({
 		'for (const foo of [...(( iterable ))]);',
 		'const map = new Map((( [...(( iterable ))] )))',
 		'for (const foo of (( [...(( iterable ))] )));',
+
+		...[
+			'[...iterable]',
+			'[...iterable,]',
+			'(( [...iterable] ))',
+			'(( [...(( iterable ))] ))',
+		].map(code => outdent`
+			function * fn() {
+				yield * ${code};
+			}
+		`)
 	],
 });
