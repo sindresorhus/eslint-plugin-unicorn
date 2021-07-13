@@ -131,6 +131,14 @@ module.exports = {
 				'unicorn/string-content': 'off',
 				'unicorn/throw-new-error': 'error',
 			},
+			overrides: [
+				{
+					files: ['*.ts', '*.tsx'],
+					rules: {
+						'unicorn/require-post-message-target-origin': 'off',
+					},
+				},
+			],
 		},
 	},
 };

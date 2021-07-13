@@ -102,6 +102,7 @@
 			"eslint-remote-tester-results"
 		],
 		"rules": {
+			"quotes": ["error", "single"],
 			"unicorn/no-null": "error",
 			"unicorn/prevent-abbreviations": [
 				"error",
