@@ -37,7 +37,7 @@ test.snapshot({
 		'el.removeEventListener("scroll", handler)',
 		'el.removeEventListener("keydown", obj.listener)',
 		'removeEventListener("keyup", () => {})',
-		'removeEventListener("keydown", function () {})'
+		'removeEventListener("keydown", function () {})',
 
 	],
 	invalid: [
@@ -50,6 +50,6 @@ test.snapshot({
 		'el.removeEventListener("mouseout", function (e) {})',
 		'el.removeEventListener("mouseout", function (e) {}, true)',
 		'el.removeEventListener("click", function (e) {}, ...moreArguments)',
-		'el.removeEventListener(() => {}, () => {}, () => {})'
-	]
+		'el.removeEventListener(() => {}, () => {}, () => {})',
+	],
 });
