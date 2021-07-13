@@ -34,9 +34,7 @@ module.exports = {
 				ecmaVersion: 2021,
 				sourceType: 'module',
 			},
-			plugins: [
-				'unicorn',
-			],
+			plugins: ['unicorn'],
 			rules: {
 				'unicorn/better-regex': 'error',
 				'unicorn/catch-error-name': 'error',
@@ -131,6 +129,14 @@ module.exports = {
 				'unicorn/string-content': 'off',
 				'unicorn/throw-new-error': 'error',
 			},
+			overrides: [
+				{
+					files: ['*.ts', '*.tsx'],
+					rules: {
+						'unicorn/require-post-message-target-origin': 0,
+					},
+				},
+			],
 		},
 	},
 };
