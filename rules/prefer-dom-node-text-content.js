@@ -1,9 +1,11 @@
 'use strict';
 const {memberExpressionSelector} = require('./selectors/index.js');
 
-const MESSAGE_ID = 'prefer-dom-node-text-content';
+const ERROR = 'error';
+const SUGGESTION = 'suggestion';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `.textContent` over `.innerText`.',
+	[ERROR]: 'Prefer `.textContent` over `.innerText`.',
+	[SUGGESTION]: 'Switch to `.textContent`.',
 };
 
 const selector = `${memberExpressionSelector('innerText')} > .property`;
@@ -13,8 +15,13 @@ const create = () => {
 		[selector](node) {
 			return {
 				node,
-				messageId: MESSAGE_ID,
-				fix: fixer => fixer.replaceText(node, 'textContent'),
+				messageId: ERROR,
+				suggest: [
+					{
+						messageId: SUGGESTION,
+						fix: fixer => fixer.replaceText(node, 'textContent'),
+					},
+				],
 			};
 		},
 	};
@@ -27,7 +34,7 @@ module.exports = {
 		docs: {
 			description: 'Prefer `.textContent` over `.innerText`.',
 		},
-		fixable: 'code',
 		messages,
+		hasSuggestions: true,
 	},
 };
