@@ -185,7 +185,7 @@ const create = context => {
 
 					// `[...iterable]`
 					//              ^
-					// yield fixer.remove(closingBracketToken);
+					yield fixer.remove(closingBracketToken);
 
 					// `[...iterable,]`
 					//              ^
