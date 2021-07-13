@@ -13,6 +13,10 @@ const text = foo.innerText;
 ```
 
 ```js
+const {innerText} = foo;
+```
+
+```js
 foo.innerText = '🦄';
 ```
 
@@ -20,6 +24,10 @@ foo.innerText = '🦄';
 
 ```js
 const text = foo.textContent;
+```
+
+```js
+const {textContent} = foo;
 ```
 
 ```js

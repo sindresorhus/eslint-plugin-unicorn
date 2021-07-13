@@ -1,5 +1,8 @@
 'use strict';
-const {memberExpressionSelector} = require('./selectors/index.js');
+const {
+	matches,
+	memberExpressionSelector,
+} = require('./selectors/index.js');
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -8,11 +11,21 @@ const messages = {
 	[SUGGESTION]: 'Switch to `.textContent`.',
 };
 
-const selector = `${memberExpressionSelector('innerText')} > .property`;
+const memberExpressionPropertySelector = `${memberExpressionSelector('innerText')} > .property`;
+const destructuringSelector = [
+	'ObjectPattern',
+	' > ',
+	'Property.properties',
+	'[kind="init"]',
+	'[computed!=true]',
+	' > ',
+	'Identifier.key',
+	'[name="innerText"]',
+].join('');
 
 const create = () => {
 	return {
-		[selector](node) {
+		[memberExpressionPropertySelector](node) {
 			return {
 				node,
 				messageId: ERROR,
@@ -20,6 +33,21 @@ const create = () => {
 					{
 						messageId: SUGGESTION,
 						fix: fixer => fixer.replaceText(node, 'textContent'),
+					},
+				],
+			};
+		},
+		[destructuringSelector](node) {
+			return {
+				node,
+				messageId: ERROR,
+				suggest: [
+					{
+						messageId: SUGGESTION,
+						fix: fixer => fixer.replaceText(
+							node,
+							node.parent.shorthand ? 'textContent: innerText' : 'textContent',
+						),
 					},
 				],
 			};
