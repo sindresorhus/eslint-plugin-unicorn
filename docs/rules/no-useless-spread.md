@@ -6,9 +6,21 @@
 	- Spread an array literal as arguments of a call or a `new` call
 	- Spread an object literal as properties of an object literal
 
-- Builtins `new {Map,WeakMap,Set,WeakSet}(…)`, `Promise.{all,race,allSettled}(…)`, and `Array.from(…)` accepts iterable as argument, it's unnecessary to convert iterable to an array.
+- The following builtins accepts iterable, it's unnecessary to convert iterable to an array.
+
+	- `Map` constructor
+	- `WeakMap` constructor
+	- `Set` constructor
+	- `WeakSet` constructor
+	- `TypedArray` constructor
+	- `Array.from(…)`
+	- `TypedArray.from(…)`
+	- `Promise.{all,allSettled,any,race}(…)`
+	- `Object.fromEntries(…)`
 
 - `for…of` loop can iterate over any iterable object not just array, it's unnecessary to convert iterable to an array.
+
+- `yield*` can also `yield` another iterable, it's unnecessary to convert iterable to an array.
 
 This rule is fixable.
 

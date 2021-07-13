@@ -6,6 +6,7 @@ const {
 	methodCallSelector,
 } = require('./selectors/index.js');
 const {getParentheses} = require('./utils/parentheses.js');
+const typedArray = require('./shared/typed-array.js');
 
 const SPREAD_IN_LIST = 'spread-in-list';
 const ITERABLE_TO_ARRAY = 'iterable-to-array';
@@ -32,8 +33,10 @@ const uselessIterableToArraySelector = matches([
 	[
 		matches([
 			newExpressionSelector({names: ['Map', 'WeakMap', 'Set', 'WeakSet'], length: 1}),
-			methodCallSelector({object: 'Promise', names: ['all', 'race', 'allSettled'], length: 1}),
-			methodCallSelector({object: 'Array', name: 'from', length: 1}),
+			newExpressionSelector({names: typedArray, min: 1}),
+			methodCallSelector({object: 'Promise', names: ['all', 'allSettled', 'any', 'race'], length: 1}),
+			methodCallSelector({objects: ['Array', ...typedArray], name: 'from', length: 1}),
+			methodCallSelector({object: 'Object', name: 'fromEntries', length: 1}),
 		]),
 		' > ',
 		`${iterableToArraySelector}.arguments:first-child`,

@@ -4,6 +4,7 @@ const {
 	getNegativeIndexLengthNode,
 	removeLengthNode,
 } = require('./shared/negative-index.js');
+const typedArray = require('./shared/typed-array.js');
 
 const MESSAGE_ID = 'prefer-negative-index';
 const messages = {
@@ -19,17 +20,7 @@ const methods = new Map([
 				'Array',
 				'String',
 				'ArrayBuffer',
-				'Int8Array',
-				'Uint8Array',
-				'Uint8ClampedArray',
-				'Int16Array',
-				'Uint16Array',
-				'Int32Array',
-				'Uint32Array',
-				'Float32Array',
-				'Float64Array',
-				'BigInt64Array',
-				'BigUint64Array',
+				...typedArray,
 				// `{Blob,File}#slice()` are not generally used
 				// 'Blob'
 				// 'File'
