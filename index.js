@@ -135,7 +135,7 @@ module.exports = {
 				{
 					files: ['*.ts', '*.tsx'],
 					rules: {
-						'unicorn/require-post-message-target-origin': 0,
+						'unicorn/require-post-message-target-origin': 'off',
 					},
 				},
 			],
