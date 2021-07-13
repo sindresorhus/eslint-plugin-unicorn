@@ -123,7 +123,18 @@ Configure it in `package.json`.
 			"unicorn/require-post-message-target-origin": "error",
 			"unicorn/string-content": "off",
 			"unicorn/throw-new-error": "error"
-		}
+		},
+		"overrides": [
+			{
+				"files": [
+					"*.ts",
+					"*.tsx"
+				],
+				"rules": {
+					"unicorn/require-post-message-target-origin": 0
+				}
+			}
+		]
 	}
 }
 ```
