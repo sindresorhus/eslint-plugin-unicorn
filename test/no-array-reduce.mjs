@@ -94,27 +94,11 @@ test({
 		...notFunctionTypes.map(data => `Array.prototype.reduce.call(foo, ${data})`),
 
 		// Option: allowNumericInitialValue
-		{
-			code: 'arr.reduce((total, item) => total + item, 0)',
-			options: [{allowNumericInitialValue: true}],
-		},
-		{
-			code: 'arr.reduce(function (total, item) { return total + item }, 0)',
-			options: [{allowNumericInitialValue: true}],
-		},
-	].flatMap(testCase => {
-		const {code, options} = testCase;
-
-		if (options) {
-			return [testCase, {...testCase, code: code.replace('reduce', 'reduceRight')}];
-		}
-
-		return [testCase, testCase.replace('reduce', 'reduceRight')];
-	}),
-	invalid: [
-		'arr.reduce((total, item) => total + item)',
 		'arr.reduce((total, item) => total + item, 0)',
 		'arr.reduce(function (total, item) { return total + item }, 0)',
+	].flatMap(testCase => [testCase, testCase.replace('reduce', 'reduceRight')]),
+	invalid: [
+		'arr.reduce((total, item) => total + item)',
 		'arr.reduce(function (total, item) { return total + item })',
 		'arr.reduce((str, item) => str += item, "")',
 		outdent`

@@ -1,4 +1,5 @@
 'use strict';
+const {get} = require('lodash');
 const {methodCallSelector} = require('./selectors/index.js');
 const {arrayPrototypeMethodSelector, notFunctionSelector, matches} = require('./selectors/index.js');
 const {isNumeric} = require('./utils/numeric.js');
@@ -41,18 +42,20 @@ const schema = [
 		properties: {
 			allowNumericInitialValue: {
 				type: 'boolean',
-				default: false,
+				default: true,
 			},
 		},
 	},
 ];
 
 const create = context => {
-	const {allowNumericInitialValue} = context.options[0] || {};
+	const {allowNumericInitialValue} = {allowNumericInitialValue: true, ...context.options[0]};
 
 	return {
 		[selector](node) {
-			if (!(allowNumericInitialValue && isNumeric(node.parent.parent.arguments[1]))) {
+			const initialValue = get(node, 'parent.parent.arguments[1]');
+
+			if (!(allowNumericInitialValue && isNumeric(initialValue))) {
 				return {
 					node,
 					messageId: MESSAGE_ID,
