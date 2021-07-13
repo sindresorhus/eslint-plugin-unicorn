@@ -34,7 +34,9 @@ module.exports = {
 				ecmaVersion: 2021,
 				sourceType: 'module',
 			},
-			plugins: ['unicorn'],
+			plugins: [
+				'unicorn',
+			],
 			rules: {
 				'unicorn/better-regex': 'error',
 				'unicorn/catch-error-name': 'error',
