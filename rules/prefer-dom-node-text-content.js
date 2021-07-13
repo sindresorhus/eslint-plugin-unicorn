@@ -1,8 +1,5 @@
 'use strict';
-const {
-	matches,
-	memberExpressionSelector,
-} = require('./selectors/index.js');
+const {memberExpressionSelector} = require('./selectors/index.js');
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
