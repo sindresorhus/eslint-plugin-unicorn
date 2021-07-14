@@ -19,7 +19,7 @@ const messages = {
 const arrayFlatMap = {
 	selector: [
 		methodCallSelector({
-			name: 'flatMap',
+			method: 'flatMap',
 			length: 1,
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
@@ -38,7 +38,7 @@ const arrayFlatMap = {
 const arrayReduce = {
 	selector: [
 		methodCallSelector({
-			name: 'reduce',
+			method: 'reduce',
 			length: 2,
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
@@ -48,7 +48,7 @@ const arrayReduce = {
 		'[arguments.0.params.0.type="Identifier"]',
 		'[arguments.0.params.1.type="Identifier"]',
 		methodCallSelector({
-			name: 'concat',
+			method: 'concat',
 			length: 1,
 			path: 'arguments.0.body',
 		}),
@@ -66,7 +66,7 @@ const arrayReduce = {
 const arrayReduce2 = {
 	selector: [
 		methodCallSelector({
-			name: 'reduce',
+			method: 'reduce',
 			length: 2,
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
@@ -93,7 +93,7 @@ const arrayReduce2 = {
 const emptyArrayConcat = {
 	selector: [
 		methodCallSelector({
-			name: 'concat',
+			method: 'concat',
 			length: 1,
 			allowSpreadElement: true,
 		}),
@@ -113,7 +113,7 @@ const emptyArrayConcat = {
 const arrayPrototypeConcat = {
 	selector: [
 		methodCallSelector({
-			names: ['apply', 'call'],
+			methods: ['apply', 'call'],
 			length: 2,
 			allowSpreadElement: true,
 		}),

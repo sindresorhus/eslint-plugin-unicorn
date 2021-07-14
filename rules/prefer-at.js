@@ -40,8 +40,8 @@ const indexAccess = [
 	'[computed!=false]',
 	notLeftHandSideSelector(),
 ].join('');
-const sliceCall = methodCallSelector({name: 'slice', min: 1, max: 2});
-const stringCharAt = methodCallSelector({name: 'charAt', length: 1});
+const sliceCall = methodCallSelector({method: 'slice', min: 1, max: 2});
+const stringCharAt = methodCallSelector({method: 'charAt', length: 1});
 
 const isLiteralNegativeInteger = node =>
 	node.type === 'UnaryExpression' &&

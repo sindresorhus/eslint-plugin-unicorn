@@ -26,7 +26,7 @@ const newArraySelector = callOrNewExpressionSelector({name: 'Array', path: 'init
 // `Array.from()` and `Array.of()`
 const arrayStaticMethodSelector = methodCallSelector({
 	object: 'Array',
-	names: ['from', 'of'],
+	methods: ['from', 'of'],
 	path: 'init',
 });
 
@@ -42,7 +42,7 @@ const arrayStaticMethodSelector = methodCallSelector({
 // `array.sort()`
 // `array.splice()`
 const arrayMethodSelector = methodCallSelector({
-	names: [
+	methods: [
 		'concat',
 		'copyWithin',
 		'fill',

@@ -21,6 +21,7 @@ function memberExpressionSelector(options) {
 	} = {
 		path: '',
 		name: '',
+		names: [],
 		object: '',
 		includeOptional: false,
 		allowComputed: false,

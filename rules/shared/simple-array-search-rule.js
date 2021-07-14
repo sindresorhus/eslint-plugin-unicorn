@@ -52,7 +52,7 @@ function simpleArraySearchRule({method, replacement}) {
 
 	const selector = [
 		methodCallSelector({
-			name: method,
+			method,
 			length: 1,
 		}),
 		callbackFunctionSelector('arguments.0'),

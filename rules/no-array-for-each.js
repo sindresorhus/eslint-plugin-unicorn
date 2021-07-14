@@ -22,7 +22,7 @@ const messages = {
 };
 
 const arrayForEachCallSelector = methodCallSelector({
-	name: 'forEach',
+	method: 'forEach',
 	includeOptionalCall: true,
 	includeOptionalMember: true,
 });

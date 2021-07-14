@@ -10,7 +10,7 @@ const messages = {
 
 const selector = [
 	methodCallSelector({
-		name: 'setAttribute',
+		method: 'setAttribute',
 		length: 2,
 	}),
 	'[arguments.0.type="Literal"]',

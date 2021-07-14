@@ -15,7 +15,7 @@ const messages = {
 };
 
 const arrayFindCallSelector = methodCallSelector({
-	name: 'find',
+	method: 'find',
 	min: 1,
 	max: 2,
 });

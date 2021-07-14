@@ -17,7 +17,7 @@ const messages = {
 
 const objectCreateSelector = methodCallSelector({
 	object: 'Object',
-	name: 'create',
+	method: 'create',
 	length: 1,
 });
 
@@ -29,7 +29,7 @@ const useRefSelector = callExpressionSelector({name: 'useRef', length: 1});
 // eslint-disable-next-line unicorn/prevent-abbreviations
 const reactUseRefSelector = methodCallSelector({
 	object: 'React',
-	name: 'useRef',
+	method: 'useRef',
 	length: 1,
 });
 

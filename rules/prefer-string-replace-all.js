@@ -8,7 +8,7 @@ const messages = {
 };
 
 const selector = methodCallSelector({
-	name: 'replace',
+	method: 'replace',
 	length: 2,
 });
 

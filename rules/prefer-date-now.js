@@ -22,7 +22,7 @@ const newDateSelector = createNewDateSelector();
 // `new Date().{getTime,valueOf}()`
 const methodsSelector = [
 	methodCallSelector({
-		names: ['getTime', 'valueOf'],
+		methods: ['getTime', 'valueOf'],
 		length: 0,
 	}),
 	createNewDateSelector('callee.object'),

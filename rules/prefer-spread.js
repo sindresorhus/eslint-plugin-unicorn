@@ -28,7 +28,7 @@ const messages = {
 const arrayFromCallSelector = [
 	methodCallSelector({
 		object: 'Array',
-		name: 'from',
+		method: 'from',
 		min: 1,
 		max: 3,
 	}),
@@ -52,7 +52,7 @@ const arrayConcatCallSelector = [
 
 const arraySliceCallSelector = [
 	methodCallSelector({
-		name: 'slice',
+		method: 'slice',
 		min: 0,
 		max: 1,
 	}),

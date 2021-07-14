@@ -29,7 +29,7 @@ const selector = matches([
 	// `Reflect.apply([].foo, …)`
 	// `Reflect.apply({}.foo, …)`
 	[
-		methodCallSelector({object: 'Reflect', name: 'apply', min: 1}),
+		methodCallSelector({object: 'Reflect', method: 'apply', min: 1}),
 		' > ',
 		`${emptyObjectOrArrayMethodSelector}.arguments:first-child`,
 	].join(''),

@@ -56,7 +56,7 @@ const ignored = [
 
 const selector = [
 	methodCallSelector({
-		names: [
+		methods: [
 			'every',
 			'filter',
 			'find',

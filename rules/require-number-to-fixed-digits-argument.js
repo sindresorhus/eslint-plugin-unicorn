@@ -8,7 +8,7 @@ const messages = {
 };
 
 const mathToFixed = methodCallSelector({
-	name: 'toFixed',
+	method: 'toFixed',
 	length: 0,
 });
 

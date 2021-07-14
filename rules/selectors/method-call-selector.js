@@ -16,8 +16,8 @@ const {callExpressionSelector} = require('./call-or-new-expression-selector.js')
 		allowSpreadElement?: boolean,
 
 		// `MemberExpression` options
-		name?: string,
-		names?: string[],
+		method?: string,
+		methods?: string[],
 		object?: string,
 		objects?: string[],
 		includeOptionalMember?: boolean,
@@ -29,21 +29,25 @@ const {callExpressionSelector} = require('./call-or-new-expression-selector.js')
 
 function methodCallSelector(options) {
 	if (typeof options === 'string') {
-		options = {names: [options]};
+		options = {methods: [options]};
 	}
 
 	if (Array.isArray(options)) {
-		options = {names: options};
+		options = {methods: options};
 	}
 
 	const {
 		path,
 		includeOptionalCall,
 		includeOptionalMember,
+		method,
+		methods,
 	} = {
 		path: '',
 		includeOptionalCall: false,
 		includeOptionalMember: false,
+		method: '',
+		methods: [],
 		...options,
 	};
 
@@ -55,7 +59,9 @@ function methodCallSelector(options) {
 			includeOptional: includeOptionalCall,
 		}),
 		memberExpressionSelector({
-			...pick(options, ['name', 'names', 'min', 'object', 'objects', 'allowComputed']),
+			...pick(options, ['min', 'object', 'objects', 'allowComputed']),
+			name: method,
+			names: methods,
 			path: `${prefix}callee`,
 			includeOptional: includeOptionalMember,
 		}),

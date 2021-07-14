@@ -8,7 +8,7 @@ const messages = {
 
 const selector = [
 	methodCallSelector({
-		names: ['getElementById', 'getElementsByClassName', 'getElementsByTagName'],
+		methods: ['getElementById', 'getElementsByClassName', 'getElementsByTagName'],
 		length: 1,
 	}),
 	notDomNodeSelector('callee.object'),

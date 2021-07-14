@@ -17,7 +17,7 @@ const prototypeSelector = method => [
 const selector = matches([
 	// `array.{reduce,reduceRight}()`
 	[
-		methodCallSelector({names: ['reduce', 'reduceRight'], min: 1, max: 2}),
+		methodCallSelector({methods: ['reduce', 'reduceRight'], min: 1, max: 2}),
 		notFunctionSelector('arguments.0'),
 		' > .callee > .property',
 	].join(''),

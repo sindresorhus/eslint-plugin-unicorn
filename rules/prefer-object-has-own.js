@@ -12,7 +12,7 @@ const messages = {
 };
 
 const objectPrototypeHasOwnProperty = [
-	methodCallSelector({name: 'call', length: 2}),
+	methodCallSelector({method: 'call', length: 2}),
 	' > ',
 	objectPrototypeMethodSelector({
 		path: 'object',
