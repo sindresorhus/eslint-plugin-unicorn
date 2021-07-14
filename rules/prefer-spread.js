@@ -6,7 +6,11 @@ const {getParenthesizedRange, getParenthesizedText} = require('./utils/parenthes
 const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument.js');
 const isLiteralValue = require('./utils/is-literal-value.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
-const {replaceNodeOrTokenAndSpacesBefore, removeSpacesAfter} = require('./fix/index.js');
+const {
+	replaceNodeOrTokenAndSpacesBefore,
+	removeSpacesAfter,
+	removeMethodCall,
+} = require('./fix/index.js');
 
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
@@ -74,15 +78,6 @@ const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
 	}
 
 	return isCommaToken(sourceCode.getLastToken(node, 1));
-};
-
-const getRangeAfterCalleeObject = (node, sourceCode) => {
-	const {object} = node.callee;
-	const parenthesizedRange = getParenthesizedRange(object, sourceCode);
-	const [, start] = parenthesizedRange;
-	const [, end] = node.range;
-
-	return [start, end];
 };
 
 function fixConcat(node, sourceCode, fixableArguments) {
@@ -186,11 +181,11 @@ function fixConcat(node, sourceCode, fixableArguments) {
 			yield fixer.insertTextBefore(node, ';');
 		}
 
-		yield (
-			concatCallArguments.length - fixableArguments.length === 0 ?
-				fixer.replaceTextRange(getRangeAfterCalleeObject(node, sourceCode), '') :
-				removeArguments(fixer)
-		);
+		if (concatCallArguments.length - fixableArguments.length === 0) {
+			yield * removeMethodCall(fixer, node, sourceCode);
+		} else {
+			yield removeArguments(fixer);
+		}
 
 		const text = getFixedText();
 
@@ -302,7 +297,7 @@ function fixSlice(node, sourceCode) {
 
 		// The array is already accessing `.slice`, there should not any case need add extra `()`
 
-		yield fixer.replaceTextRange(getRangeAfterCalleeObject(node, sourceCode), '');
+		yield * removeMethodCall(fixer, node, sourceCode);
 	};
 }
 
