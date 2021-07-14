@@ -206,3 +206,26 @@ test.vue({
 		},
 	],
 });
+
+// Compare with `undefined`
+test.snapshot({
+	valid: [
+		'foo.find(fn) == 0',
+		'foo.find(fn) != ""',
+		'foo.find(fn) === null',
+		'foo.find(fn) !== "null"',
+		'foo.find(fn) >= undefined',
+		'foo.find(fn) instanceof undefined',
+		// We are not checking this right now
+		'typeof foo.find(fn) === "undefined"',
+	],
+	invalid: [
+		'foo.find(fn) == null',
+		'foo.find(fn) == undefined',
+		'foo.find(fn) != null',
+		'foo.find(fn) != undefined',
+		'foo.find(fn) !== undefined',
+		'foo.find(fn) === undefined',
+		'a = (( ((foo.find(fn))) == ((null)) )) ? false : true;',
+	],
+});
