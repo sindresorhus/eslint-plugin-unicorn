@@ -8,7 +8,7 @@ We only check `.filter().length > 0` and `.filter().length !== 0`. These two non
 
 - Using [`Array#find()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) to ensure at least one element in the array passes a given check.
 
-- Compare [`Array#find()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) result with `undefined`.
+- Comparing the result of [`Array#find()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) with `undefined`.
 
 This rule is fixable for `.filter(…).length` check and has a suggestion for `.find(…)`.
 
