@@ -150,11 +150,11 @@ test({
 		{
 			code: outdent`
 				const uri = 'foo';
-				(uri || '').substr(1)
+				((uri || '')).substr(1)
 			`,
 			output: outdent`
 				const uri = 'foo';
-				(uri || '').slice(1)
+				((uri || '')).slice(1)
 			`,
 			errors: errorsSubstr,
 		},
@@ -292,12 +292,12 @@ test.typescript({
 		{
 			code: outdent`
 				function foo() {
-					return (bar as string).substring(3);
+					return ((bar as string)).substring(3);
 				}
 			`,
 			output: outdent`
 				function foo() {
-					return (bar as string).slice(3);
+					return ((bar as string)).slice(3);
 				}
 			`,
 			errors: errorsSubstring,

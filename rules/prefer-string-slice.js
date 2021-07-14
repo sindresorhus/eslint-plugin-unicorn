@@ -1,5 +1,6 @@
 'use strict';
 const eslintTemplateVisitor = require('eslint-template-visitor');
+const {getParenthesizedText} = require('./utils/parentheses.js');
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -41,20 +42,6 @@ const isLikelyNumeric = node => isLiteralNumber(node) || isLengthProperty(node);
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
-
-	const getNodeText = node => {
-		const text = sourceCode.getText(node);
-		const before = sourceCode.getTokenBefore(node);
-		const after = sourceCode.getTokenAfter(node);
-		if (
-			(before && before.type === 'Punctuator' && before.value === '(') &&
-			(after && after.type === 'Punctuator' && after.value === ')')
-		) {
-			return `(${text})`;
-		}
-
-		return text;
-	};
 
 	return templates.visitor({
 		[substrCallTemplate](node) {
@@ -113,7 +100,7 @@ const create = context => {
 			}
 
 			if (sliceArguments) {
-				const objectText = getNodeText(objectNode);
+				const objectText = getParenthesizedText(objectNode, sourceCode);
 				const optionalMemberSuffix = node.callee.optional ? '?' : '';
 				const optionalCallSuffix = node.optional ? '?.' : '';
 
@@ -181,7 +168,7 @@ const create = context => {
 			}
 
 			if (sliceArguments) {
-				const objectText = getNodeText(objectNode);
+				const objectText = getParenthesizedText(objectNode, sourceCode);
 				const optionalMemberSuffix = node.callee.optional ? '?' : '';
 				const optionalCallSuffix = node.optional ? '?.' : '';
 
