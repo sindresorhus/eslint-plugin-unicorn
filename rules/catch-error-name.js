@@ -22,8 +22,8 @@ const selector = matches([
 	// - `promise.catch(function(foo) {})`
 	[
 		matches([
-			methodCallSelector({method: 'then', length: 2}),
-			methodCallSelector({method: 'catch', length: 1}),
+			methodCallSelector({method: 'then', argumentsLength: 2}),
+			methodCallSelector({method: 'catch', argumentsLength: 1}),
 		]),
 		' > ',
 		':matches(FunctionExpression, ArrowFunctionExpression).arguments:last-child',

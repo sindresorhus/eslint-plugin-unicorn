@@ -9,9 +9,9 @@ const {callExpressionSelector} = require('./call-or-new-expression-selector.js')
 		path?: string,
 
 		// `CallExpression` options
-		length?: string,
-		min?: number,
-		max?: number,
+		argumentsLength?: string,
+		minimumArguments?: number,
+		maximumArguments?: number,
 		includeOptionalCall?: boolean,
 		allowSpreadElement?: boolean,
 
@@ -55,7 +55,7 @@ function methodCallSelector(options) {
 
 	return [
 		callExpressionSelector({
-			...pick(options, ['path', 'length', 'min', 'max', 'allowSpreadElement']),
+			...pick(options, ['path', 'argumentsLength', 'minimumArguments', 'maximumArguments', 'allowSpreadElement']),
 			includeOptional: includeOptionalCall,
 		}),
 		memberExpressionSelector({

@@ -16,8 +16,8 @@ const messages = {
 
 const arrayFindCallSelector = methodCallSelector({
 	method: 'find',
-	min: 1,
-	max: 2,
+	minimumArguments: 1,
+	maximumArguments: 2,
 });
 
 const arrayFilterCallSelector = [

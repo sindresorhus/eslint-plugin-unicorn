@@ -9,11 +9,11 @@ const messages = {
 
 const selector = matches([
 	// `foo.join()`
-	methodCallSelector({method: 'join', length: 0}),
+	methodCallSelector({method: 'join', argumentsLength: 0}),
 	// `[].join.call(foo)` and `Array.prototype.join.call(foo)`
 	[
-		methodCallSelector({method: 'call', length: 1}),
-		arrayPrototypeMethodSelector({path: 'callee.object', name: 'join'}),
+		methodCallSelector({method: 'call', argumentsLength: 1}),
+		arrayPrototypeMethodSelector({path: 'callee.object', method: 'join'}),
 	].join(''),
 ]);
 

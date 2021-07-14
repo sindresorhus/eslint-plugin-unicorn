@@ -17,7 +17,7 @@ const messages = {
 function create(context) {
 	const sourceCode = context.getSourceCode();
 	return {
-		[methodCallSelector({method: 'postMessage', length: 1})](node) {
+		[methodCallSelector({method: 'postMessage', argumentsLength: 1})](node) {
 			const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
 			const suggestions = [];
 			const target = node.callee.object;

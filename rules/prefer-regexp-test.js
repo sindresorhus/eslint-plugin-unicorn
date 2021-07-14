@@ -17,7 +17,7 @@ const cases = [
 		type: REGEXP_EXEC,
 		selector: methodCallSelector({
 			method: 'exec',
-			length: 1,
+			argumentsLength: 1,
 		}),
 		getNodes: node => ({
 			stringNode: node.arguments[0],
@@ -30,7 +30,7 @@ const cases = [
 		type: STRING_MATCH,
 		selector: methodCallSelector({
 			method: 'match',
-			length: 1,
+			argumentsLength: 1,
 		}),
 		getNodes: node => ({
 			stringNode: node.callee.object,

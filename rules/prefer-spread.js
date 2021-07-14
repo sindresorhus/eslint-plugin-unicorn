@@ -29,8 +29,8 @@ const arrayFromCallSelector = [
 	methodCallSelector({
 		object: 'Array',
 		method: 'from',
-		min: 1,
-		max: 3,
+		minimumArguments: 1,
+		maximumArguments: 3,
 	}),
 	// Allow `Array.from({length})`
 	'[arguments.0.type!="ObjectExpression"]',
@@ -53,8 +53,8 @@ const arrayConcatCallSelector = [
 const arraySliceCallSelector = [
 	methodCallSelector({
 		method: 'slice',
-		min: 0,
-		max: 1,
+		minimumArguments: 0,
+		maximumArguments: 1,
 	}),
 	'[callee.object.type!="ArrayExpression"]',
 ].join('');

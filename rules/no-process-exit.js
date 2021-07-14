@@ -22,7 +22,7 @@ const importWorkerThreadsSelector = [
 const processOnOrOnceCallSelector = methodCallSelector({
 	object: 'process',
 	methods: ['on', 'once'],
-	min: 1,
+	minimumArguments: 1,
 });
 const processExitCallSelector = methodCallSelector({
 	object: 'process',

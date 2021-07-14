@@ -18,19 +18,19 @@ const messages = {
 const objectCreateSelector = methodCallSelector({
 	object: 'Object',
 	method: 'create',
-	length: 1,
+	argumentsLength: 1,
 });
 
 // `useRef(null)`
 // eslint-disable-next-line unicorn/prevent-abbreviations
-const useRefSelector = callExpressionSelector({name: 'useRef', length: 1});
+const useRefSelector = callExpressionSelector({name: 'useRef', argumentsLength: 1});
 
 // `React.useRef(null)`
 // eslint-disable-next-line unicorn/prevent-abbreviations
 const reactUseRefSelector = methodCallSelector({
 	object: 'React',
 	method: 'useRef',
-	length: 1,
+	argumentsLength: 1,
 });
 
 const selector = [

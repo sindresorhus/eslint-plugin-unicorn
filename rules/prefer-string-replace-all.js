@@ -9,7 +9,7 @@ const messages = {
 
 const selector = methodCallSelector({
 	method: 'replace',
-	length: 2,
+	argumentsLength: 2,
 });
 
 function isRegexWithGlobalFlag(node) {

@@ -20,7 +20,7 @@ const arrayFlatMap = {
 	selector: [
 		methodCallSelector({
 			method: 'flatMap',
-			length: 1,
+			argumentsLength: 1,
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
 		'[arguments.0.async!=true]',
@@ -39,7 +39,7 @@ const arrayReduce = {
 	selector: [
 		methodCallSelector({
 			method: 'reduce',
-			length: 2,
+			argumentsLength: 2,
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
 		'[arguments.0.async!=true]',
@@ -49,7 +49,7 @@ const arrayReduce = {
 		'[arguments.0.params.1.type="Identifier"]',
 		methodCallSelector({
 			method: 'concat',
-			length: 1,
+			argumentsLength: 1,
 			path: 'arguments.0.body',
 		}),
 		'[arguments.0.body.callee.object.type="Identifier"]',
@@ -67,7 +67,7 @@ const arrayReduce2 = {
 	selector: [
 		methodCallSelector({
 			method: 'reduce',
-			length: 2,
+			argumentsLength: 2,
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
 		'[arguments.0.async!=true]',
@@ -94,7 +94,7 @@ const emptyArrayConcat = {
 	selector: [
 		methodCallSelector({
 			method: 'concat',
-			length: 1,
+			argumentsLength: 1,
 			allowSpreadElement: true,
 		}),
 		emptyArraySelector('callee.object'),
@@ -114,13 +114,13 @@ const arrayPrototypeConcat = {
 	selector: [
 		methodCallSelector({
 			methods: ['apply', 'call'],
-			length: 2,
+			argumentsLength: 2,
 			allowSpreadElement: true,
 		}),
 		emptyArraySelector('arguments.0'),
 		arrayPrototypeMethodSelector({
 			path: 'callee.object',
-			name: 'concat',
+			method: 'concat',
 		}),
 	].join(''),
 	testFunction: node => node.arguments[1].type !== 'SpreadElement' || node.callee.property.name === 'call',
@@ -138,7 +138,7 @@ const lodashFlattenFunctions = [
 	'underscore.flatten',
 ];
 const anyCall = {
-	selector: callExpressionSelector({length: 1}),
+	selector: callExpressionSelector({argumentsLength: 1}),
 	getArrayNode: node => node.arguments[0],
 };
 

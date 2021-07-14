@@ -36,8 +36,8 @@ const messages = {
 
 const filterMethodSelectorOptions = {
 	method: 'filter',
-	min: 1,
-	max: 2,
+	minimumArguments: 1,
+	maximumArguments: 2,
 };
 
 const filterVariableSelector = [
@@ -68,7 +68,7 @@ const zeroIndexSelector = [
 const shiftSelector = [
 	methodCallSelector({
 		method: 'shift',
-		length: 0,
+		argumentsLength: 0,
 	}),
 	methodCallSelector({
 		...filterMethodSelectorOptions,

@@ -148,8 +148,8 @@ const create = context => {
 			method === 'reduce' || method === 'reduceRight' ? '' : ':not(AwaitExpression) > ',
 			methodCallSelector({
 				method,
-				min: 1,
-				max: 2,
+				minimumArguments: 1,
+				maximumArguments: 2,
 			}),
 			options.extraSelector,
 			ignoredFirstArgumentSelector,

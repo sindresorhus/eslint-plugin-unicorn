@@ -15,7 +15,7 @@ const messages = {
 	[MESSAGE_ID_NUMBER]: 'Prefer `Date.now()` over `Number(new Date())`.',
 };
 
-const createNewDateSelector = path => newExpressionSelector({path, name: 'Date', length: 0});
+const createNewDateSelector = path => newExpressionSelector({path, name: 'Date', argumentsLength: 0});
 const operatorsSelector = (...operators) => matches(operators.map(operator => `[operator="${operator}"]`));
 // `new Date()`
 const newDateSelector = createNewDateSelector();
@@ -23,13 +23,13 @@ const newDateSelector = createNewDateSelector();
 const methodsSelector = [
 	methodCallSelector({
 		methods: ['getTime', 'valueOf'],
-		length: 0,
+		argumentsLength: 0,
 	}),
 	createNewDateSelector('callee.object'),
 ].join('');
 // `{Number,BigInt}(new Date())`
 const builtinObjectSelector = [
-	callExpressionSelector({names: ['Number', 'BigInt'], length: 1}),
+	callExpressionSelector({names: ['Number', 'BigInt'], argumentsLength: 1}),
 	createNewDateSelector('arguments.0'),
 ].join('');
 // https://github.com/estree/estree/blob/master/es5.md#unaryoperator

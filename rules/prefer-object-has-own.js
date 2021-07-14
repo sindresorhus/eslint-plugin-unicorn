@@ -12,11 +12,11 @@ const messages = {
 };
 
 const objectPrototypeHasOwnProperty = [
-	methodCallSelector({method: 'call', length: 2}),
+	methodCallSelector({method: 'call', argumentsLength: 2}),
 	' > ',
 	objectPrototypeMethodSelector({
 		path: 'object',
-		name: 'hasOwnProperty',
+		method: 'hasOwnProperty',
 	}),
 	'.callee',
 ].join('');
@@ -42,7 +42,7 @@ const create = context => {
 				description: 'Object.prototype.hasOwnProperty.call',
 			},
 			{
-				selector: `${callExpressionSelector({length: 2})} > .callee`,
+				selector: `${callExpressionSelector({argumentsLength: 2})} > .callee`,
 				test: node => isNodeMatches(node, functions),
 				description: node => functions.find(nameOrPath => isNodeMatchesNameOrPath(node, nameOrPath)).trim(),
 			},

@@ -9,7 +9,7 @@ const messages = {
 const selector = [
 	methodCallSelector({
 		method: 'appendChild',
-		length: 1,
+		argumentsLength: 1,
 	}),
 	notDomNodeSelector('callee.object'),
 	notDomNodeSelector('arguments.0'),

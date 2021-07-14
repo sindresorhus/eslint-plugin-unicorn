@@ -9,7 +9,7 @@ const messages = {
 const selector = [
 	methodCallSelector({
 		methods: ['trimLeft', 'trimRight'],
-		length: 0,
+		argumentsLength: 0,
 	}),
 	' > .callee',
 	' > .property',

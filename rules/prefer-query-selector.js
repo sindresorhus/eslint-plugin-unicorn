@@ -9,7 +9,7 @@ const messages = {
 const selector = [
 	methodCallSelector({
 		methods: ['getElementById', 'getElementsByClassName', 'getElementsByTagName'],
-		length: 1,
+		argumentsLength: 1,
 	}),
 	notDomNodeSelector('callee.object'),
 ].join('');

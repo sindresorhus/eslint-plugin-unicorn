@@ -11,7 +11,7 @@ const messages = {
 const selector = [
 	methodCallSelector({
 		method: 'setAttribute',
-		length: 2,
+		argumentsLength: 2,
 	}),
 	'[arguments.0.type="Literal"]',
 ].join('');

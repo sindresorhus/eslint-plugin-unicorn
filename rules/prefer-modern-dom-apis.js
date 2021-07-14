@@ -12,7 +12,7 @@ const messages = {
 const replaceChildOrInsertBeforeSelector = [
 	methodCallSelector({
 		methods: ['replaceChild', 'insertBefore'],
-		length: 2,
+		argumentsLength: 2,
 	}),
 	// We only allow Identifier for now
 	'[arguments.0.type="Identifier"]',
@@ -58,7 +58,7 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 const insertAdjacentTextOrInsertAdjacentElementSelector = [
 	methodCallSelector({
 		methods: ['insertAdjacentText', 'insertAdjacentElement'],
-		length: 2,
+		argumentsLength: 2,
 	}),
 	// Position argument should be `string`
 	'[arguments.0.type="Literal"]',

@@ -27,7 +27,7 @@ const isSimpleString = string => doesNotContain(
 const addParentheses = text => `(${text})`;
 
 const regexTestSelector = [
-	methodCallSelector({method: 'test', length: 1}),
+	methodCallSelector({method: 'test', argumentsLength: 1}),
 	'[callee.object.regex]',
 ].join('');
 

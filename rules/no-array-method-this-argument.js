@@ -66,7 +66,7 @@ const selector = [
 			'map',
 			'some',
 		],
-		length: 2,
+		argumentsLength: 2,
 	}),
 	notFunctionSelector('arguments.0'),
 ].join('');

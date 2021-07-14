@@ -15,15 +15,15 @@ function create(options, types) {
 		path,
 		name,
 		names,
-		length,
-		min,
-		max,
+		argumentsLength,
+		minimumArguments,
+		maximumArguments,
 		includeOptional,
 		allowSpreadElement,
 	} = {
 		path: '',
-		min: 0,
-		max: Number.POSITIVE_INFINITY,
+		minimumArguments: 0,
+		maximumArguments: Number.POSITIVE_INFINITY,
 		includeOptional: false,
 		allowSpreadElement: false,
 		...options,
@@ -42,23 +42,23 @@ function create(options, types) {
 		parts.push(`[${prefix}optional!=true]`);
 	}
 
-	if (typeof length === 'number') {
-		parts.push(`[${prefix}arguments.length=${length}]`);
+	if (typeof argumentsLength === 'number') {
+		parts.push(`[${prefix}arguments.length=${argumentsLength}]`);
 	}
 
-	if (min !== 0) {
-		parts.push(`[${prefix}arguments.length>=${min}]`);
+	if (minimumArguments !== 0) {
+		parts.push(`[${prefix}arguments.length>=${minimumArguments}]`);
 	}
 
-	if (Number.isFinite(max)) {
-		parts.push(`[${prefix}arguments.length<=${max}]`);
+	if (Number.isFinite(maximumArguments)) {
+		parts.push(`[${prefix}arguments.length<=${maximumArguments}]`);
 	}
 
 	if (!allowSpreadElement) {
-		const maxArguments = Number.isFinite(max) ? max : length;
-		if (typeof maxArguments === 'number') {
+		const maximumArgumentsLength = Number.isFinite(maximumArguments) ? maximumArguments : argumentsLength;
+		if (typeof maximumArgumentsLength === 'number') {
 			// Exclude arguments with `SpreadElement` type
-			for (let index = 0; index < maxArguments; index += 1) {
+			for (let index = 0; index < maximumArgumentsLength; index += 1) {
 				parts.push(`[${prefix}arguments.${index}.type!="SpreadElement"]`);
 			}
 		}

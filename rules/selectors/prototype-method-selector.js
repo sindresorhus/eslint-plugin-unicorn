@@ -7,12 +7,13 @@ const emptyObjectSelector = require('./empty-object-selector.js');
 function prototypeMethodSelector(options) {
 	const {
 		object,
-		name,
-		names,
+		method,
+		methods,
 		path,
 	} = {
 		path: '',
-		name: '',
+		method: '',
+		methods: [],
 		...options,
 	};
 
@@ -37,8 +38,8 @@ function prototypeMethodSelector(options) {
 	return [
 		memberExpressionSelector({
 			path,
-			name,
-			names,
+			name: method,
+			names: methods,
 		}),
 		matches(prototypeSelectors),
 	].join('');
