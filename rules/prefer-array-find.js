@@ -7,7 +7,7 @@ const {
 } = require('./selectors/index.js');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
 const avoidCapture = require('./utils/avoid-capture.js');
-const getChildScopesRecursive = require('./utils/get-child-scopes-recursive.js');
+const getScopes = require('./utils/get-scopes.js');
 const singular = require('./utils/singular.js');
 const {
 	extendFixRange,
@@ -299,7 +299,7 @@ const create = context => {
 					const singularName = singular(node.id.name);
 					if (singularName) {
 						// Rename variable to be singularized now that it refers to a single item in the array instead of the entire array.
-						const singularizedName = avoidCapture(singularName, getChildScopesRecursive(scope));
+						const singularizedName = avoidCapture(singularName, getScopes(scope));
 						yield * renameVariable(variable, singularizedName, fixer);
 
 						// Prevent possible variable conflicts
