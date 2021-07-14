@@ -212,7 +212,7 @@ function fixModuleExports(node, sourceCode) {
 }
 
 function create(context) {
-	const filename = context.getPhysicalFilename();
+	const filename = context.getFilename();
 
 	if (filename.toLowerCase().endsWith('.cjs')) {
 		return {};
