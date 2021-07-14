@@ -10,6 +10,7 @@ const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
 const isStaticRequire = require('./utils/is-static-require.js');
 const {defaultReplacements, defaultAllowList} = require('./shared/abbreviations.js');
 const {renameVariable} = require('./fix/index.js');
+const getScopes = require('./utils/get-scopes.js')
 
 const isUpperCase = string => string === string.toUpperCase();
 const isUpperFirst = string => isUpperCase(string[0]);
@@ -447,16 +448,11 @@ const create = context => {
 		}
 	};
 
-	const checkChildScopes = scope => {
-		for (const childScope of scope.childScopes) {
-			checkScope(childScope);
-		}
-	};
-
 	const checkScope = scope => {
-		checkVariables(scope);
-
-		return checkChildScopes(scope);
+		const scopes = getScopes(scope);
+		for (const scope of scopes) {
+			checkVariables(scope);
+		}
 	};
 
 	return {

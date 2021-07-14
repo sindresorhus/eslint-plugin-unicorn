@@ -5,6 +5,7 @@ const {
 	isKeyword,
 } = require('@babel/helper-validator-identifier');
 const resolveVariableName = require('./resolve-variable-name.js');
+const getReferences = require('./get-references.js');
 
 // https://github.com/microsoft/TypeScript/issues/2536#issuecomment-87194347
 const typescriptReservedWords = new Set([
@@ -98,8 +99,7 @@ function unicorn() {
 ```
 */
 const isUnresolvedName = (name, scope) =>
-	scope.references.some(reference => reference.identifier && reference.identifier.name === name && !reference.resolved) ||
-	scope.childScopes.some(scope => isUnresolvedName(name, scope));
+	getReferences(scope).some(({identifier, resolved}) => identifier && identifier.name === name && !resolved);
 
 const isSafeName = (name, scopes) =>
 	!scopes.some(scope => resolveVariableName(name, scope) || isUnresolvedName(name, scope));

@@ -2,9 +2,10 @@
 const {isClosingParenToken, getStaticValue} = require('eslint-utils');
 const isLiteralValue = require('./utils/is-literal-value.js');
 const avoidCapture = require('./utils/avoid-capture.js');
-const getChildScopesRecursive = require('./utils/get-child-scopes-recursive.js');
+const getScopes = require('./utils/get-scopes.js');
 const singular = require('./utils/singular.js');
 const toLocation = require('./utils/to-location.js');
+const getReferences = require('./utils/get-references.js');
 
 const MESSAGE_ID = 'no-for-loop';
 const messages = {
@@ -261,13 +262,8 @@ const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) => {
 	});
 };
 
-const getReferencesInChildScopes = (scope, name) => {
-	const references = scope.references.filter(reference => reference.identifier.name === name);
-	return [
-		...references,
-		...scope.childScopes.flatMap(s => getReferencesInChildScopes(s, name)),
-	];
-};
+const getReferencesInChildScopes = (scope, name) =>
+	getReferences(scope).filter(reference => reference.identifier.name === name);
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
@@ -355,7 +351,7 @@ const create = context => {
 
 					const index = indexIdentifierName;
 					const element = elementIdentifierName ||
-						avoidCapture(singular(arrayIdentifierName) || defaultElementName, getChildScopesRecursive(bodyScope));
+						avoidCapture(singular(arrayIdentifierName) || defaultElementName, getScopes(bodyScope));
 					const array = arrayIdentifierName;
 
 					let declarationElement = element;
