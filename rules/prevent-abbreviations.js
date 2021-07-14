@@ -10,7 +10,7 @@ const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
 const isStaticRequire = require('./utils/is-static-require.js');
 const {defaultReplacements, defaultAllowList} = require('./shared/abbreviations.js');
 const {renameVariable} = require('./fix/index.js');
-const getScopes = require('./utils/get-scopes.js')
+const getScopes = require('./utils/get-scopes.js');
 
 const isUpperCase = string => string === string.toUpperCase();
 const isUpperFirst = string => isUpperCase(string[0]);
