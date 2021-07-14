@@ -222,10 +222,10 @@ test.snapshot({
 	invalid: [
 		'foo.find(fn) == null',
 		'foo.find(fn) == undefined',
+		'foo.find(fn) === undefined',
 		'foo.find(fn) != null',
 		'foo.find(fn) != undefined',
 		'foo.find(fn) !== undefined',
-		'foo.find(fn) === undefined',
 		'a = (( ((foo.find(fn))) == ((null)) )) ? false : true;',
 	],
 });
