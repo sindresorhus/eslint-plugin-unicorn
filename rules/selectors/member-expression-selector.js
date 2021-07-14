@@ -3,25 +3,25 @@ const matches = require('./matches-any.js');
 
 function memberExpressionSelector(options) {
 	if (typeof options === 'string') {
-		options = {names: [options]};
+		options = {properties: [options]};
 	}
 
 	if (Array.isArray(options)) {
-		options = {names: options};
+		options = {properties: options};
 	}
 
 	let {
 		path,
-		name,
-		names,
+		property,
+		properties,
 		object,
 		objects,
 		includeOptional,
 		allowComputed,
 	} = {
 		path: '',
-		name: '',
-		names: [],
+		property: '',
+		properties: [],
 		object: '',
 		includeOptional: false,
 		allowComputed: false,
@@ -29,8 +29,8 @@ function memberExpressionSelector(options) {
 	};
 
 	const prefix = path ? `${path}.` : '';
-	if (name) {
-		names = [name];
+	if (property) {
+		properties = [property];
 	}
 
 	if (object) {
@@ -52,8 +52,8 @@ function memberExpressionSelector(options) {
 		parts.push(`[${prefix}optional!=true]`);
 	}
 
-	if (Array.isArray(names) && names.length > 0) {
-		parts.push(matches(names.map(property => `[${prefix}property.name="${property}"]`)));
+	if (Array.isArray(properties) && properties.length > 0) {
+		parts.push(matches(properties.map(property => `[${prefix}property.name="${property}"]`)));
 	}
 
 	if (Array.isArray(objects) && objects.length > 0) {

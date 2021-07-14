@@ -17,7 +17,7 @@ const lengthCompareZeroSelector = [
 	logicalExpressionSelector,
 	' > ',
 	'BinaryExpression',
-	memberExpressionSelector({path: 'left', name: 'length'}),
+	memberExpressionSelector({path: 'left', property: 'length'}),
 	'[right.type="Literal"]',
 	'[right.raw="0"]',
 ].join('');

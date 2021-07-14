@@ -27,7 +27,7 @@ const promise = [
 	topLevelCallExpression,
 	memberExpressionSelector({
 		path: 'callee',
-		names: ['then', 'catch', 'finally'],
+		properties: ['then', 'catch', 'finally'],
 	}),
 ].join('');
 const identifier = [

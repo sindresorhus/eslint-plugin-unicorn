@@ -59,9 +59,9 @@ function methodCallSelector(options) {
 			includeOptional: includeOptionalCall,
 		}),
 		memberExpressionSelector({
-			...pick(options, ['min', 'object', 'objects', 'allowComputed']),
-			name: method,
-			names: methods,
+			...pick(options, ['object', 'objects', 'allowComputed']),
+			property: method,
+			properties: methods,
 			path: `${prefix}callee`,
 			includeOptional: includeOptionalMember,
 		}),
