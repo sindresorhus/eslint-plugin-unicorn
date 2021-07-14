@@ -226,6 +226,6 @@ test.snapshot({
 		'foo.find(fn) != null',
 		'foo.find(fn) != undefined',
 		'foo.find(fn) !== undefined',
-		'a = (( ((foo.find(fn))) == ((null)) )) ? false : true;',
+		'a = (( ((foo.find(fn))) == ((null)) )) ? "no" : "yes";',
 	],
 });
