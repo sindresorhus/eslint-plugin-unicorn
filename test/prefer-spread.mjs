@@ -191,14 +191,14 @@ test.snapshot({
 		'[1,].concat([2, 3])',
 		'[1,].concat(2,)',
 		'[1,].concat([2, 3],)',
-		'(( (([1,])).concat( (([2, 3])) ,) ))',
-		'(( (([1,])).concat( (([2, 3])) , bar ) ))',
+		'(( (( (( [1,] )).concat ))( (([2, 3])) ,) ))',
+		'(( (( (( [1,] )).concat ))( (([2, 3])) , bar ) ))',
 		'foo.concat(2)',
 		'foo.concat([2, 3])',
 		'foo.concat(2,)',
 		'foo.concat([2, 3],)',
-		'(( ((foo)).concat( (([2, 3])) ,) ))',
-		'(( ((foo)).concat( (([2, 3])) , bar ) ))',
+		'(( (( ((foo)).concat ))( (([2, 3])) ,) ))',
+		'(( (( ((foo)).concat ))( (([2, 3])) , bar ) ))',
 		// Semicolon
 		outdent`
 			bar()
@@ -321,7 +321,7 @@ test.snapshot({
 		'array.slice(1).slice()',
 		'array.slice().slice(1)',
 		'const copy = array.slice()',
-		'(( ((array)).slice() ))',
+		'(( (( (( array )).slice ))() ))',
 		// Semicolon
 		outdent`
 			bar()
