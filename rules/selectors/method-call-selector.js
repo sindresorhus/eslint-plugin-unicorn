@@ -9,7 +9,7 @@ const {callExpressionSelector} = require('./call-or-new-expression-selector.js')
 		path?: string,
 
 		// `CallExpression` options
-		argumentsLength?: string,
+		argumentsLength?: number,
 		minimumArguments?: number,
 		maximumArguments?: number,
 		includeOptionalCall?: boolean,
@@ -26,7 +26,6 @@ const {callExpressionSelector} = require('./call-or-new-expression-selector.js')
 } [options]
 @returns {string}
 */
-
 function methodCallSelector(options) {
 	if (typeof options === 'string') {
 		options = {methods: [options]};
@@ -60,9 +59,9 @@ function methodCallSelector(options) {
 		}),
 		memberExpressionSelector({
 			...pick(options, ['object', 'objects', 'allowComputed']),
+			path: `${prefix}callee`,
 			property: method,
 			properties: methods,
-			path: `${prefix}callee`,
 			includeOptional: includeOptionalMember,
 		}),
 	].join('');

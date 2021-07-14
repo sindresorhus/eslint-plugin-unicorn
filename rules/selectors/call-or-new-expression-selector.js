@@ -2,6 +2,20 @@
 
 const matches = require('./matches-any.js');
 
+/**
+@typedef {
+	{
+		path?: string,
+		name?: string,
+		names?: string[],
+		argumentsLength?: number,
+		minimumArguments?: number,
+		maximumArguments?: number,
+		includeOptional?: boolean,
+		allowSpreadElement?: boolean,
+	} | string | string[]
+} CallOrNewExpressionOptions
+*/
 function create(options, types) {
 	if (typeof options === 'string') {
 		options = {names: [options]};
@@ -74,8 +88,22 @@ function create(options, types) {
 	return parts.join('');
 }
 
+/**
+@param {CallOrNewExpressionOptions} [options]
+@returns {string}
+*/
 const callExpressionSelector = options => create(options, ['CallExpression']);
+
+/**
+@param {CallOrNewExpressionOptions} [options]
+@returns {string}
+*/
 const newExpressionSelector = options => create(options, ['NewExpression']);
+
+/**
+@param {CallOrNewExpressionOptions} [options]
+@returns {string}
+*/
 const callOrNewExpressionSelector = options => create(options, ['CallExpression', 'NewExpression']);
 
 module.exports = {

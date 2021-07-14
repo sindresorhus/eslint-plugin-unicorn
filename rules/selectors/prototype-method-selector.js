@@ -4,12 +4,23 @@ const memberExpressionSelector = require('./member-expression-selector.js');
 const emptyArraySelector = require('./empty-array-selector.js');
 const emptyObjectSelector = require('./empty-object-selector.js');
 
+/**
+@param {
+	{
+		path?: string,
+		object?: string,
+		method?: string,
+		methods?: string[],
+	}
+} [options]
+@returns {string}
+*/
 function prototypeMethodSelector(options) {
 	const {
+		path,
 		object,
 		method,
 		methods,
-		path,
 	} = {
 		path: '',
 		method: '',

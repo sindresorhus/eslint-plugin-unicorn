@@ -16,7 +16,7 @@ const messages = {
 const newArraySelector = newExpressionSelector({
 	name: 'Array',
 	argumentsLength: 1,
-	allowSpreadElement: true
+	allowSpreadElement: true,
 });
 
 function getProblem(context, node) {

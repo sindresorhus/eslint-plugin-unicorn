@@ -1,6 +1,20 @@
 'use strict';
 const matches = require('./matches-any.js');
 
+/**
+@param {
+	{
+		path?: string,
+		property?: string,
+		properties?: string[],
+		object?: string,
+		objects?: string[],
+		includeOptional?: boolean,
+		allowComputed?: boolean
+	} | string | string[]
+} [options]
+@returns {string}
+*/
 function memberExpressionSelector(options) {
 	if (typeof options === 'string') {
 		options = {properties: [options]};
