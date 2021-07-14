@@ -3,6 +3,7 @@ const {methodCallSelector, matches, memberExpressionSelector} = require('./selec
 const {checkVueTemplate} = require('./utils/rule.js');
 const {isBooleanNode} = require('./utils/boolean.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
+const isLiteralValue = require('./utils/is-literal-value.js');
 const {removeMemberExpressionProperty} = require('./fix/index.js');
 
 const ERROR_ID_ARRAY_SOME = 'some';
@@ -20,6 +21,31 @@ const arrayFindCallSelector = methodCallSelector({
 	max: 2,
 });
 
+const isCheckingUndefined = node =>
+	node.parent.type === 'BinaryExpression' &&
+	// Not checking yoda expression `null != foo.find()` and `undefined !== foo.find()
+	node.parent.left === node &&
+	(
+		(
+			(
+				node.parent.operator === '!=' ||
+				node.parent.operator === '==' ||
+				node.parent.operator === '===' ||
+				node.parent.operator === '!=='
+			) &&
+			node.parent.right.type === 'Identifier' &&
+			node.parent.right.name === 'undefined'
+		) ||
+		(
+			(
+				node.parent.operator === '!=' ||
+				node.parent.operator === '=='
+			) &&
+			// eslint-disable-next-line unicorn/no-null
+			isLiteralValue(node.parent.right, null)
+		)
+	);
+
 const arrayFilterCallSelector = [
 	'BinaryExpression',
 	'[right.type="Literal"]',
@@ -35,7 +61,8 @@ const arrayFilterCallSelector = [
 const create = context => {
 	return {
 		[arrayFindCallSelector](findCall) {
-			if (!isBooleanNode(findCall)) {
+			const isCompare = isCheckingUndefined(findCall);
+			if (!isCompare && !isBooleanNode(findCall)) {
 				return;
 			}
 
@@ -46,7 +73,22 @@ const create = context => {
 				suggest: [
 					{
 						messageId: SUGGESTION_ID_ARRAY_SOME,
-						fix: fixer => fixer.replaceText(findProperty, 'some'),
+						* fix(fixer) {
+							yield fixer.replaceText(findProperty, 'some');
+
+							if (!isCompare) {
+								return;
+							}
+
+							const parenthesizedRange = getParenthesizedRange(findCall, context.getSourceCode());
+							yield fixer.replaceTextRange([parenthesizedRange[1], findCall.parent.range[1]], '');
+
+							if (findCall.parent.operator === '!=' || findCall.parent.operator === '!==') {
+								return;
+							}
+
+							yield fixer.insertTextBeforeRange(parenthesizedRange, '!');
+						},
 					},
 				],
 			};
