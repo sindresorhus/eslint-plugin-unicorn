@@ -8,8 +8,8 @@ const messages = {
 };
 
 const selector = methodCallSelector({
-	name: 'replace',
-	length: 2,
+	method: 'replace',
+	argumentsLength: 2,
 });
 
 function isRegexWithGlobalFlag(node) {

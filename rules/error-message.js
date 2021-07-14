@@ -11,20 +11,18 @@ const messages = {
 	[MESSAGE_ID_NOT_STRING]: 'Error message should be a string.',
 };
 
-const selector = callOrNewExpressionSelector({
-	names: [
-		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
-		'Error',
-		'EvalError',
-		'RangeError',
-		'ReferenceError',
-		'SyntaxError',
-		'TypeError',
-		'URIError',
-		'InternalError',
-		'AggregateError',
-	],
-});
+const selector = callOrNewExpressionSelector([
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
+	'Error',
+	'EvalError',
+	'RangeError',
+	'ReferenceError',
+	'SyntaxError',
+	'TypeError',
+	'URIError',
+	'InternalError',
+	'AggregateError',
+]);
 
 const create = context => {
 	return {

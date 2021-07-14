@@ -28,9 +28,9 @@ const messages = {
 const arrayFromCallSelector = [
 	methodCallSelector({
 		object: 'Array',
-		name: 'from',
-		min: 1,
-		max: 3,
+		method: 'from',
+		minimumArguments: 1,
+		maximumArguments: 3,
 	}),
 	// Allow `Array.from({length})`
 	'[arguments.0.type!="ObjectExpression"]',
@@ -52,9 +52,9 @@ const arrayConcatCallSelector = [
 
 const arraySliceCallSelector = [
 	methodCallSelector({
-		name: 'slice',
-		min: 0,
-		max: 1,
+		method: 'slice',
+		minimumArguments: 0,
+		maximumArguments: 1,
 	}),
 	'[callee.object.type!="ArrayExpression"]',
 ].join('');

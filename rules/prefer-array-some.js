@@ -16,9 +16,9 @@ const messages = {
 };
 
 const arrayFindCallSelector = methodCallSelector({
-	name: 'find',
-	min: 1,
-	max: 2,
+	method: 'find',
+	minimumArguments: 1,
+	maximumArguments: 2,
 });
 
 const isCheckingUndefined = node =>

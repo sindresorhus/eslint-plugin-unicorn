@@ -13,7 +13,11 @@ const messages = {
 	[MESSAGE_ID_ONLY_ELEMENT]: 'The argument is the only element of array.',
 	[MESSAGE_ID_SPREAD]: 'Spread the argument.',
 };
-const newArraySelector = newExpressionSelector({name: 'Array', length: 1, allowSpreadElement: true});
+const newArraySelector = newExpressionSelector({
+	name: 'Array',
+	argumentsLength: 1,
+	allowSpreadElement: true,
+});
 
 function getProblem(context, node) {
 	const problem = {

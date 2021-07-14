@@ -3,7 +3,7 @@ const {callExpressionSelector} = require('./call-or-new-expression-selector.js')
 
 const requireCallSelector = callExpressionSelector({
 	name: 'require',
-	length: 1,
+	argumentsLength: 1,
 	// Do not add check on first argument
 	allowSpreadElement: true,
 });

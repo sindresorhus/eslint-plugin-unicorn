@@ -19,8 +19,8 @@ const messages = {
 const arrayFlatMap = {
 	selector: [
 		methodCallSelector({
-			name: 'flatMap',
-			length: 1,
+			method: 'flatMap',
+			argumentsLength: 1,
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
 		'[arguments.0.async!=true]',
@@ -38,8 +38,8 @@ const arrayFlatMap = {
 const arrayReduce = {
 	selector: [
 		methodCallSelector({
-			name: 'reduce',
-			length: 2,
+			method: 'reduce',
+			argumentsLength: 2,
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
 		'[arguments.0.async!=true]',
@@ -48,8 +48,8 @@ const arrayReduce = {
 		'[arguments.0.params.0.type="Identifier"]',
 		'[arguments.0.params.1.type="Identifier"]',
 		methodCallSelector({
-			name: 'concat',
-			length: 1,
+			method: 'concat',
+			argumentsLength: 1,
 			path: 'arguments.0.body',
 		}),
 		'[arguments.0.body.callee.object.type="Identifier"]',
@@ -66,8 +66,8 @@ const arrayReduce = {
 const arrayReduce2 = {
 	selector: [
 		methodCallSelector({
-			name: 'reduce',
-			length: 2,
+			method: 'reduce',
+			argumentsLength: 2,
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
 		'[arguments.0.async!=true]',
@@ -93,8 +93,8 @@ const arrayReduce2 = {
 const emptyArrayConcat = {
 	selector: [
 		methodCallSelector({
-			name: 'concat',
-			length: 1,
+			method: 'concat',
+			argumentsLength: 1,
 			allowSpreadElement: true,
 		}),
 		emptyArraySelector('callee.object'),
@@ -113,14 +113,14 @@ const emptyArrayConcat = {
 const arrayPrototypeConcat = {
 	selector: [
 		methodCallSelector({
-			names: ['apply', 'call'],
-			length: 2,
+			methods: ['apply', 'call'],
+			argumentsLength: 2,
 			allowSpreadElement: true,
 		}),
 		emptyArraySelector('arguments.0'),
 		arrayPrototypeMethodSelector({
 			path: 'callee.object',
-			name: 'concat',
+			method: 'concat',
 		}),
 	].join(''),
 	testFunction: node => node.arguments[1].type !== 'SpreadElement' || node.callee.property.name === 'call',
@@ -138,7 +138,7 @@ const lodashFlattenFunctions = [
 	'underscore.flatten',
 ];
 const anyCall = {
-	selector: callExpressionSelector({length: 1}),
+	selector: callExpressionSelector({argumentsLength: 1}),
 	getArrayNode: node => node.arguments[0],
 };
 

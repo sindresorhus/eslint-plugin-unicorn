@@ -8,8 +8,8 @@ const messages = {
 };
 const selector = [
 	methodCallSelector({
-		name: 'appendChild',
-		length: 1,
+		method: 'appendChild',
+		argumentsLength: 1,
 	}),
 	notDomNodeSelector('callee.object'),
 	notDomNodeSelector('arguments.0'),

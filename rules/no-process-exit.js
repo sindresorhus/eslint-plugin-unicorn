@@ -21,12 +21,12 @@ const importWorkerThreadsSelector = [
 ].join(', ');
 const processOnOrOnceCallSelector = methodCallSelector({
 	object: 'process',
-	names: ['on', 'once'],
-	min: 1,
+	methods: ['on', 'once'],
+	minimumArguments: 1,
 });
 const processExitCallSelector = methodCallSelector({
 	object: 'process',
-	name: 'exit',
+	method: 'exit',
 });
 
 const create = context => {

@@ -16,8 +16,8 @@ const methods = [
 ];
 
 const selector = methodCallSelector({
-	names: methods,
-	min: 1,
+	methods,
+	minimumArguments: 1,
 	object: 'console',
 });
 

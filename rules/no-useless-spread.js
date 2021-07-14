@@ -34,11 +34,19 @@ const iterableToArraySelector = [
 const uselessIterableToArraySelector = matches([
 	[
 		matches([
-			newExpressionSelector({names: ['Map', 'WeakMap', 'Set', 'WeakSet'], length: 1}),
-			newExpressionSelector({names: typedArray, min: 1}),
-			methodCallSelector({object: 'Promise', names: ['all', 'allSettled', 'any', 'race'], length: 1}),
-			methodCallSelector({objects: ['Array', ...typedArray], name: 'from', length: 1}),
-			methodCallSelector({object: 'Object', name: 'fromEntries', length: 1}),
+			newExpressionSelector({names: ['Map', 'WeakMap', 'Set', 'WeakSet'], argumentsLength: 1}),
+			newExpressionSelector({names: typedArray, minimumArguments: 1}),
+			methodCallSelector({
+				object: 'Promise',
+				methods: ['all', 'allSettled', 'any', 'race'],
+				argumentsLength: 1,
+			}),
+			methodCallSelector({
+				objects: ['Array', ...typedArray],
+				method: 'from',
+				argumentsLength: 1,
+			}),
+			methodCallSelector({object: 'Object', method: 'fromEntries', argumentsLength: 1}),
 		]),
 		' > ',
 		`${iterableToArraySelector}.arguments:first-child`,

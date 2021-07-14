@@ -40,8 +40,8 @@ const indexAccess = [
 	'[computed!=false]',
 	notLeftHandSideSelector(),
 ].join('');
-const sliceCall = methodCallSelector({name: 'slice', min: 1, max: 2});
-const stringCharAt = methodCallSelector({name: 'charAt', length: 1});
+const sliceCall = methodCallSelector({method: 'slice', minimumArguments: 1, maximumArguments: 2});
+const stringCharAt = methodCallSelector({method: 'charAt', argumentsLength: 1});
 
 const isLiteralNegativeInteger = node =>
 	node.type === 'UnaryExpression' &&
@@ -245,7 +245,7 @@ function create(context) {
 
 			return problem;
 		},
-		[callExpressionSelector({length: 1})](node) {
+		[callExpressionSelector({argumentsLength: 1})](node) {
 			const matchedFunction = getLastFunctions.find(nameOrPath => isNodeMatchesNameOrPath(node.callee, nameOrPath));
 			if (!matchedFunction) {
 				return;

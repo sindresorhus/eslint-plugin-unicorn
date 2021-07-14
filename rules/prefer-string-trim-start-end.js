@@ -8,8 +8,8 @@ const messages = {
 
 const selector = [
 	methodCallSelector({
-		names: ['trimLeft', 'trimRight'],
-		length: 0,
+		methods: ['trimLeft', 'trimRight'],
+		argumentsLength: 0,
 	}),
 	' > .callee',
 	' > .property',

@@ -15,8 +15,8 @@ const messages = {
 
 const selector = [
 	methodCallSelector({
-		name: 'removeChild',
-		length: 1,
+		method: 'removeChild',
+		argumentsLength: 1,
 	}),
 	notDomNodeSelector('callee.object'),
 	notDomNodeSelector('arguments.0'),
