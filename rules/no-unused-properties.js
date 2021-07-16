@@ -1,4 +1,5 @@
 'use strict';
+const getScopes = require('./utils/get-scopes.js');
 
 const MESSAGE_ID = 'no-unused-properties';
 const messages = {
@@ -211,25 +212,16 @@ const create = context => {
 		}
 	};
 
-	const checkChildScopes = scope => {
-		for (const childScope of scope.childScopes) {
-			checkScope(childScope);
-		}
-	};
-
-	const checkScope = scope => {
-		if (scope.type === 'global') {
-			return checkChildScopes(scope);
-		}
-
-		checkVariables(scope);
-
-		return checkChildScopes(scope);
-	};
-
 	return {
 		'Program:exit'() {
-			checkScope(context.getScope());
+			const scopes = getScopes(context.getScope());
+			for (const scope of scopes) {
+				if (scope.type === 'global') {
+					continue;
+				}
+
+				checkVariables(scope);
+			}
 		},
 	};
 };

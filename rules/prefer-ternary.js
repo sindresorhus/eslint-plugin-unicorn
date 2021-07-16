@@ -7,6 +7,7 @@ const getIndentString = require('./utils/get-indent-string.js');
 const {getParenthesizedText} = require('./utils/parentheses.js');
 const shouldAddParenthesesToConditionalExpressionChild = require('./utils/should-add-parentheses-to-conditional-expression-child.js');
 const {extendFixRange} = require('./fix/index.js');
+const getScopes = require('./utils/get-scopes.js');
 
 const messageId = 'prefer-ternary';
 
@@ -39,11 +40,6 @@ function getNodeBody(node) {
 
 	return node;
 }
-
-const getScopes = scope => [
-	scope,
-	...scope.childScopes.flatMap(scope => getScopes(scope)),
-];
 
 const isSingleLineNode = node => node.loc.start.line === node.loc.end.line;
 
