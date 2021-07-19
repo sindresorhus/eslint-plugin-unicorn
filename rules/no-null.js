@@ -19,7 +19,7 @@ const selector = [
 	'[raw="null"]',
 	not([
 		// `Object.create(null)`, `Object.create(null, foo)`
-		`${methodCallSelector({object: 'Object', method: 'create'})} > .arguments:first-child`,
+		`${methodCallSelector({object: 'Object', method: 'create', minimumArguments: 1, maximumArguments: 2})} > .arguments:first-child`,
 		// `useRef(null)`
 		`${callExpressionSelector({name: 'useRef', argumentsLength: 1})} > .arguments:first-child`,
 		// `React.useRef(null)`

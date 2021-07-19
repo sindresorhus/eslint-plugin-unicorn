@@ -224,11 +224,13 @@ test({
 		invalidTestCase('lib.Object.create(null)'),
 		// More/Less arguments
 		invalidTestCase('Object.create(...[null])'),
+		invalidTestCase('Object.create(null, bar, extraArgument)'),
 		invalidTestCase('foo.insertBefore(null)'),
 		invalidTestCase('foo.insertBefore(foo, null, bar)'),
 		invalidTestCase('foo.insertBefore(...[foo], null)'),
 		// Not in right position
 		invalidTestCase('foo.insertBefore(null, bar)'),
+		invalidTestCase('Object.create(bar, null)'),
 	],
 });
 
