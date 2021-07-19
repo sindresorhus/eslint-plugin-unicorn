@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester, avoidTestTitleConflict} from './utils/test.mjs';
+import {getTester, avoidTestTitleConflict, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
@@ -165,4 +165,21 @@ test.snapshot({
 	invalid: [
 		'console.log(BigInt(0B10 + 1.2E+3) + 0XdeEd_Beefn)',
 	],
+});
+
+test.snapshot({
+	testerOptions: {
+		parser: parsers.vue,
+	},
+	valid: [
+		'<template><input value="0XdeEd_Beef"></div></template>',
+		'<template><div v-if="0xDEED_BEEF > 0"></div></template>',
+	],
+	invalid: [
+		'<template><div v-if="0XdeEd_Beef > 0"></div></template>',
+		'<template><div v-if="0XdeEd_Beefn > 0n"></div></template>',
+		'<template><div>{{1.2E3}}</div></template>',
+		'<template><div>{{0B1n}}</div></template>',
+		'<script>export default {data() {return {n: 0XdeEd_Beefn}}}</script>',
+	]
 });

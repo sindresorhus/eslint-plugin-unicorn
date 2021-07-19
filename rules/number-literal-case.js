@@ -1,4 +1,5 @@
 'use strict';
+const {checkVueTemplate} = require('./utils/rule.js');
 const {isNumber, isBigInt} = require('./utils/numeric.js');
 
 const MESSAGE_ID = 'number-literal-case';
@@ -39,7 +40,7 @@ const create = () => {
 };
 
 module.exports = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {
