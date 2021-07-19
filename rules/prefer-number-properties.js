@@ -5,6 +5,7 @@ const {
 	callExpressionSelector,
 } = require('./selectors/index.js');
 const {replaceReferenceIdentifier} = require('./fix/index.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const METHOD_ERROR_MESSAGE_ID = 'method-error';
 const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
@@ -109,7 +110,10 @@ const create = context => {
 			if (property === 'NEGATIVE_INFINITY') {
 				problem.node = parent;
 				problem.data.identifier = '-Infinity';
-				problem.fix = fixer => fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
+				problem.fix = function * (fixer) {
+					yield fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
+					yield * fixSpaceAroundKeyword(fixer, parent, sourceCode);
+				}
 			} else {
 				problem.fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
 			}
