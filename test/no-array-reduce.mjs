@@ -95,11 +95,18 @@ test({
 
 		// Option: allowSimpleOperations
 		'arr.reduce((total, item) => total + item)',
-		'arr.reduce((total, item) => { return total + item })',
-		'arr.reduce(function (total, item) { return total + item })',
+		'arr.reduce((total, item) => { return total - item })',
+		'arr.reduce(function (total, item) { return total * item })',
 		'arr.reduce((total, item) => total + item, 0)',
-		'arr.reduce((total, item) => { return total + item }, 0 )',
-		'arr.reduce(function (total, item) { return total + item }, 0)',
+		'arr.reduce((total, item) => { return total - item }, 0 )',
+		'arr.reduce(function (total, item) { return total * item }, 0)',
+		outdent`
+			arr.reduce((total, item) => {
+				const multiplier = 100;
+				return (total / item) * multiplier;
+			}, 0)
+		`,
+		'arr.reduce((total, item) => { return total + item }, 0)',
 	].flatMap(testCase => [testCase, testCase.replace('reduce', 'reduceRight')]),
 	invalid: [
 		'arr.reduce((str, item) => str += item, "")',
@@ -130,11 +137,11 @@ test({
 			options: [{allowSimpleOperations: false}],
 		},
 		{
-			code: 'arr.reduce((total, item) => { return total + item })',
+			code: 'arr.reduce((total, item) => { return total - item })',
 			options: [{allowSimpleOperations: false}],
 		},
 		{
-			code: 'arr.reduce(function (total, item) { return total + item })',
+			code: 'arr.reduce(function (total, item) { return total * item })',
 			options: [{allowSimpleOperations: false}],
 		},
 		{
@@ -142,11 +149,20 @@ test({
 			options: [{allowSimpleOperations: false}],
 		},
 		{
-			code: 'arr.reduce((total, item) => { return total + item }, 0 )',
+			code: 'arr.reduce((total, item) => { return total - item }, 0 )',
 			options: [{allowSimpleOperations: false}],
 		},
 		{
-			code: 'arr.reduce(function (total, item) { return total + item }, 0)',
+			code: 'arr.reduce(function (total, item) { return total * item }, 0)',
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: outdent`
+				arr.reduce((total, item) => {
+					const multiplier = 100;
+					return (total / item) * multiplier;
+				}, 0)
+			`,
 			options: [{allowSimpleOperations: false}],
 		},
 	].flatMap(testCase => {
