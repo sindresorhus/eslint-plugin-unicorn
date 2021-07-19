@@ -5,6 +5,7 @@ const isLiteralValue = require('./utils/is-literal-value.js');
 const isLogicalExpression = require('./utils/is-logical-expression.js');
 const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean.js');
 const {memberExpressionSelector} = require('./selectors/index.js');
+const {addSpaceAfterKeywords} = require('./fix/index.js');
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -115,7 +116,10 @@ function create(context) {
 			fixed = `(${fixed})`;
 		}
 
-		const fix = fixer => fixer.replaceText(node, fixed);
+		const fix = function * (fixer) {
+			yield fixer.replaceText(node, fixed);
+			yield * addSpaceAfterKeywords(fixer, node.parent, sourceCode);
+		};
 
 		const problem = {
 			node,

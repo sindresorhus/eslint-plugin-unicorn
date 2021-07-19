@@ -188,7 +188,9 @@ test.snapshot({
 		'const isEmpty = !Boolean(!Boolean(foo.length === 0))',
 		'if (foo.size) {}',
 		'if (foo.size && bar.length) {}',
-		'function foo() {return!foo.length}'
+		'function foo() {return!foo.length}',
+		'function foo() {return(foo.length >= 1)}',
+		'function foo() {throw!foo.length}',
 	],
 });
 
