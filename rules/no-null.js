@@ -1,7 +1,6 @@
 'use strict';
 const {
 	not,
-	matches,
 	methodCallSelector,
 	callExpressionSelector,
 } = require('./selectors/index.js');
@@ -22,10 +21,8 @@ const selector = [
 		// `Object.create(null)`, `Object.create(null, foo)`
 		`${methodCallSelector({object: 'Object', method: 'create'})} > .arguments:first-child`,
 		// `useRef(null)`
-		// eslint-disable-next-line unicorn/prevent-abbreviations
 		`${callExpressionSelector({name: 'useRef', argumentsLength: 1})} > .arguments:first-child`,
 		// `React.useRef(null)`
-		// eslint-disable-next-line unicorn/prevent-abbreviations
 		`${methodCallSelector({object: 'React', method: 'useRef', argumentsLength: 1})} > .arguments:first-child`,
 		// `foo.insertBefore(bar, null)`
 		`${methodCallSelector({method: 'insertBefore', argumentsLength: 2})}[arguments.0.type!="SpreadElement"] > .arguments:nth-child(2)`,
