@@ -194,9 +194,9 @@ test({
 			output: 'const foo = new Int32Array()',
 		},
 		{
-			code: 'const foo = Map()',
+			code: 'const foo = (( Map ))()',
 			errors: [enforceNewError('Map')],
-			output: 'const foo = new Map()',
+			output: 'const foo = new (( Map ))()',
 		},
 		{
 			code: 'const foo = Map([[\'foo\', \'bar\'], [\'unicorn\', \'rainbow\']])',
