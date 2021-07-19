@@ -123,6 +123,7 @@ test.snapshot({
 		'[].concat(...(( array )))',
 		'[].concat(...(( [foo] )))',
 		'[].concat(...(( [[foo]] )))',
+		'function foo(){return[].concat(...array)}',
 	],
 });
 
@@ -165,6 +166,8 @@ test.snapshot({
 		'[].concat.call([], ...((array)))',
 		'[].concat.call([], ...[foo])',
 		'[].concat.call([], ...[[foo]])',
+
+		'function foo(){return[].concat.call([], ...array)}',
 	],
 });
 
