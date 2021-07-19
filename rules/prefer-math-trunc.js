@@ -1,5 +1,6 @@
 'use strict';
 const {hasSideEffect} = require('eslint-utils');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const ERROR_BITWISE = 'error-bitwise';
 const ERROR_BITWISE_NOT = 'error-bitwise-not';
@@ -89,7 +90,10 @@ const create = context => {
 			return {
 				node,
 				messageId: ERROR_BITWISE_NOT,
-				fix: fixer => fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument)),
+				* fix(fixer) {
+					yield fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument));
+					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+				},
 			};
 		},
 	};

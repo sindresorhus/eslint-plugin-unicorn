@@ -56,6 +56,7 @@ test.snapshot({
 		'const foo = ~(~~10.01);',
 		'const foo = ~~-10.01;',
 		'const foo = ~~~~10.01;',
+		'function foo() {return~~3.9;}',
 
 		// Other operators
 		'const foo = bar >> 0;',
