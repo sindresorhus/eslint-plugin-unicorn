@@ -4,8 +4,12 @@ import {getTester} from './utils/test.mjs';
 const {test} = getTester(import.meta);
 
 const error = {
-	messageId: 'noObjectAsDefaultParameter',
+	messageId: 'identifier',
 	data: {parameter: 'foo'},
+};
+
+const errorNonIdentifier = {
+	messageId: 'non-identifier',
 };
 
 test({
@@ -160,6 +164,14 @@ test({
 			`,
 			errors: [error],
 		},
+		{
+			code: outdent`
+				const A = class {
+					abc({a} = {a: 123}) {}
+				}
+			`,
+			errors: [errorNonIdentifier],
+		},
 	],
 });
 
@@ -168,5 +180,7 @@ test.snapshot({
 	invalid: [
 		'function abc(foo = {a: 123}) {}',
 		'const abc = (foo = {a: false}) => {};',
+		'function abc({a} = {a: 123}) {}',
+		'function abc([a] = {a: 123}) {}',
 	],
 });
