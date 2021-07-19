@@ -113,7 +113,7 @@ const create = context => {
 				problem.fix = function * (fixer) {
 					yield fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
 					yield * fixSpaceAroundKeyword(fixer, parent, sourceCode);
-				}
+				};
 			} else {
 				problem.fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
 			}
