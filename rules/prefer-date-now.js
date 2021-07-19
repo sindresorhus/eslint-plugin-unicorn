@@ -66,7 +66,7 @@ const getProblem = (node, problem, sourceCode) => ({
 	...problem,
 });
 
-const create = (context) => {
+const create = context => {
 	return {
 		[methodsSelector](node) {
 			const method = node.callee.property;
@@ -90,7 +90,7 @@ const create = (context) => {
 			return getProblem(
 				node.operator === '-' ? node.argument : node,
 				{},
-				context.getSourceCode()
+				context.getSourceCode(),
 			);
 		},
 		[assignmentExpressionSelector](node) {

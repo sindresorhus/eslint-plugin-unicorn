@@ -71,7 +71,7 @@ const create = context => {
 						) {
 							yield * fixSpaceAroundKeyword(fixer, node.parent, context.getSourceCode());
 						}
-					}
+					},
 				};
 			},
 		]),

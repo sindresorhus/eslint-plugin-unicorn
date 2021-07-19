@@ -57,10 +57,9 @@ function create(context) {
 							node.object.type === 'ObjectExpression'
 						)
 					) {
-
 						yield * fixSpaceAroundKeyword(fixer, node.parent.parent, context.getSourceCode());
 					}
-				}
+				},
 			};
 		},
 	};
