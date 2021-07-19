@@ -59,6 +59,7 @@ test({
 	valid: [
 		'let foo',
 		'Object.create(null)',
+		'Object.create(null, {foo: {value:1}})',
 		'let insertedNode = parentNode.insertBefore(newNode, null)',
 		// Not `null`
 		'const foo = "null";',
@@ -222,7 +223,6 @@ test({
 		// `callee.object.type` is not a `Identifier`
 		invalidTestCase('lib.Object.create(null)'),
 		// More/Less arguments
-		invalidTestCase('Object.create(null, "")'),
 		invalidTestCase('Object.create(...[null])'),
 		invalidTestCase('foo.insertBefore(null)'),
 		invalidTestCase('foo.insertBefore(foo, null, bar)'),
