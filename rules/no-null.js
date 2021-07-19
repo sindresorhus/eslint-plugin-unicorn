@@ -1,7 +1,6 @@
 'use strict';
 const {
 	not,
-	matches,
 	methodCallSelector,
 	callExpressionSelector,
 } = require('./selectors/index.js');
@@ -15,43 +14,23 @@ const messages = {
 	[SUGGESTION_REMOVE_MESSAGE_ID]: 'Remove `null`.',
 };
 
-const objectCreateSelector = methodCallSelector({
-	object: 'Object',
-	method: 'create',
-	argumentsLength: 1,
-});
-
-// `useRef(null)`
-// eslint-disable-next-line unicorn/prevent-abbreviations
-const useRefSelector = callExpressionSelector({name: 'useRef', argumentsLength: 1});
-
-// `React.useRef(null)`
-// eslint-disable-next-line unicorn/prevent-abbreviations
-const reactUseRefSelector = methodCallSelector({
-	object: 'React',
-	method: 'useRef',
-	argumentsLength: 1,
-});
-
 const selector = [
 	'Literal',
 	'[raw="null"]',
-	not(`${matches([objectCreateSelector, useRefSelector, reactUseRefSelector])} > .arguments`),
+	not([
+		// `Object.create(null)`, `Object.create(null, foo)`
+		`${methodCallSelector({object: 'Object', method: 'create', minimumArguments: 1, maximumArguments: 2})} > .arguments:first-child`,
+		// `useRef(null)`
+		`${callExpressionSelector({name: 'useRef', argumentsLength: 1})} > .arguments:first-child`,
+		// `React.useRef(null)`
+		`${methodCallSelector({object: 'React', method: 'useRef', argumentsLength: 1})} > .arguments:first-child`,
+		// `foo.insertBefore(bar, null)`
+		`${methodCallSelector({method: 'insertBefore', argumentsLength: 2})}[arguments.0.type!="SpreadElement"] > .arguments:nth-child(2)`,
+	]),
 ].join('');
 
 const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].includes(node.operator);
 const isStrictEqual = node => node.type === 'BinaryExpression' && ['===', '!=='].includes(node.operator);
-const isSecondArgumentOfInsertBefore = node =>
-	node.parent.type === 'CallExpression' &&
-	!node.parent.optional &&
-	node.parent.arguments.length === 2 &&
-	node.parent.arguments[0].type !== 'SpreadElement' &&
-	node.parent.arguments[1] === node &&
-	node.parent.callee.type === 'MemberExpression' &&
-	!node.parent.callee.computed &&
-	!node.parent.callee.optional &&
-	node.parent.callee.property.type === 'Identifier' &&
-	node.parent.callee.property.name === 'insertBefore';
 
 const create = context => {
 	const {checkStrictEquality} = {
@@ -63,10 +42,6 @@ const create = context => {
 		[selector]: node => {
 			const {parent} = node;
 			if (!checkStrictEquality && isStrictEqual(parent)) {
-				return;
-			}
-
-			if (isSecondArgumentOfInsertBefore(node)) {
 				return;
 			}
 
