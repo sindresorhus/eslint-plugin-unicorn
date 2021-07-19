@@ -181,5 +181,5 @@ test.snapshot({
 		'<template><div>{{1.2E3}}</div></template>',
 		'<template><div>{{0B1n}}</div></template>',
 		'<script>export default {data() {return {n: 0XdeEd_Beefn}}}</script>',
-	]
+	],
 });
