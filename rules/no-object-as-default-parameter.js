@@ -27,7 +27,7 @@ const create = () => {
 			}
 
 			return {
-				node: node.right,
+				node: right,
 				messageId: MESSAGE_ID_NON_IDENTIFIER,
 			};
 		},
