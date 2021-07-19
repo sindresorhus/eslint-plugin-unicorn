@@ -5,6 +5,7 @@ const {
 	methodCallSelector,
 	callExpressionSelector,
 } = require('./selectors/index.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-object-has-own';
 const messages = {
@@ -60,7 +61,17 @@ const create = context => {
 						description: typeof description === 'string' ? description : description(node),
 					},
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
-					fix: fixer => fixer.replaceText(node, 'Object.hasOwn'),
+					* fix(fixer) {
+						yield fixer.replaceText(node, 'Object.hasOwn');
+
+						if (
+							node.object &&
+							node.object.object &&
+							node.object.object.type === 'ObjectExpression'
+						) {
+							yield * fixSpaceAroundKeyword(fixer, node.parent, context.getSourceCode());
+						}
+					}
 				};
 			},
 		]),
