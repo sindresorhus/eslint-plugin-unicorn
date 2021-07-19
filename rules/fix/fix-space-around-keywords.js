@@ -83,6 +83,7 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 				return;
 			}
 
+			/* istanbul ignore next */
 			break;
 		}
 
