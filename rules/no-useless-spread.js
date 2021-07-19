@@ -7,6 +7,7 @@ const {
 } = require('./selectors/index.js');
 const {getParentheses} = require('./utils/parentheses.js');
 const typedArray = require('./shared/typed-array.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const SPREAD_IN_LIST = 'spread-in-list';
 const ITERABLE_TO_ARRAY = 'iterable-to-array';
@@ -173,6 +174,10 @@ const create = context => {
 				messageId,
 				data: {parentDescription},
 				* fix(fixer) {
+					if (parent.type === 'ForOfStatement') {
+						yield * fixSpaceAroundKeyword(fixer, array, sourceCode);
+					}
+
 					const [
 						openingBracketToken,
 						spreadToken,

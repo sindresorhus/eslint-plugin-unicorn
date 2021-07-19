@@ -4,8 +4,7 @@ const isKeywordToken = value => token => token.type === 'Keyword' && token.value
 
 function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 	const {parent} = node;
-	let keyword;
-	let side = 'after';
+	const keywords = [];
 
 	switch (parent.type) {
 		case 'YieldExpression':
@@ -19,7 +18,10 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 		case 'AwaitExpression': {
 			/* istanbul ignore else */
 			if (parent.argument === node) {
-				keyword = sourceCode.getFirstToken(parent);
+				keywords.push({
+					keyword: sourceCode.getFirstToken(parent),
+					side: 'after',
+				});
 			}
 
 			break;
@@ -37,7 +39,10 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 				prefix &&
 				unaryExpressionArgument === node
 			) {
-				keyword = sourceCode.getFirstToken(parent);
+				keywords.push({
+					keyword: sourceCode.getFirstToken(parent),
+					side: 'after',
+				});
 			}
 
 			break;
@@ -50,11 +55,10 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 				operator === 'in' ||
 				operator === 'instanceof'
 			) {
-				keyword = sourceCode.getTokenAfter(left, {filter: isKeywordToken(operator)});
-
-				if (left === node) {
-					side = 'before';
-				}
+				keywords.push({
+					keyword: sourceCode.getTokenAfter(left, {filter: isKeywordToken(operator)}),
+					side: left === node ? 'before' : 'after',
+				});
 			}
 
 			break;
@@ -63,7 +67,10 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 		case 'ExportDefaultDeclaration': {
 			/* istanbul ignore else */
 			if (parent.declaration === node) {
-				keyword = sourceCode.getFirstToken(parent, {filter: isKeywordToken('default')});
+				keywords.push({
+					keyword: sourceCode.getFirstToken(parent, {filter: isKeywordToken('default')}),
+					side: 'after',
+				});
 			}
 
 			break;
@@ -82,7 +89,10 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 		case 'IfStatement': {
 			/* istanbul ignore else */
 			if (parent.alternate === node) {
-				keyword = sourceCode.getTokenBefore(node, {filter: isKeywordToken('else')});
+				keywords.push({
+					keyword: sourceCode.getTokenBefore(node, {filter: isKeywordToken('else')}),
+					side: 'after',
+				});
 			}
 
 			break;
@@ -91,7 +101,10 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 		case 'DoWhileStatement': {
 			/* istanbul ignore else */
 			if (parent.body === node) {
-				keyword = sourceCode.getFirstToken(parent);
+				keywords.push({
+					keyword: sourceCode.getFirstToken(parent),
+					side: 'after',
+				});
 			}
 
 			break;
@@ -100,7 +113,10 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 		case 'SwitchCase': {
 			/* istanbul ignore else */
 			if (parent.test === node) {
-				keyword = sourceCode.getTokenBefore(node, {filter: isKeywordToken('case')});
+				keywords.push({
+					keyword: sourceCode.getTokenBefore(node, {filter: isKeywordToken('case')}),
+					side: 'after',
+				});
 			}
 
 			break;
@@ -112,7 +128,22 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 				grandParent.type === 'VariableDeclaration' &&
 				grandParent.declarations[0] === parent
 			) {
-				keyword = sourceCode.getFirstToken(grandParent);
+				keywords.push({
+					keyword: sourceCode.getFirstToken(grandParent),
+					side: 'after',
+				});
+			}
+
+			break;
+		}
+
+		case 'ForOfStatement': {
+			// Note: Other keywords and children not handled, because not using
+			if (parent.right === node) {
+				keywords.push({
+					keyword: sourceCode.getTokenBefore(node, {filter: ({type, value}) => type === 'Identifier' && value === 'of'}),
+					side: 'after',
+				});
 			}
 
 			break;
@@ -121,16 +152,14 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 		// No default
 	}
 
-	if (!keyword) {
-		return;
-	}
+	for (const {keyword, side} of keywords) {
+		const characterIndex = side === 'before' ?
+			keyword.range[0] - 1 :
+			keyword.range[1];
 
-	const characterIndex = side === 'before' ?
-		keyword.range[0] - 1 :
-		keyword.range[1];
-
-	if (sourceCode.text.charAt(characterIndex) !== ' ') {
-		yield fixer[side === 'before' ? 'insertTextBefore' : 'insertTextAfter'](keyword, ' ');
+		if (sourceCode.text.charAt(characterIndex) !== ' ') {
+			yield fixer[side === 'before' ? 'insertTextBefore' : 'insertTextAfter'](keyword, ' ');
+		}
 	}
 }
 
