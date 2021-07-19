@@ -226,6 +226,7 @@ test.snapshot({
 		'for (const foo of [...(( iterable ))]);',
 		'const map = new Map((( [...(( iterable ))] )))',
 		'for (const foo of (( [...(( iterable ))] )));',
+		'for (const foo of[...iterable]);',
 
 		...[
 			'[...iterable]',
