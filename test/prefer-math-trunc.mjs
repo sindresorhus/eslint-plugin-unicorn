@@ -33,6 +33,7 @@ test.snapshot({
 		'const foo = (1 + 2 / 3.4) | 0;',
 		'const foo = bar((1.4 | 0) + 2);',
 		'const foo = (0, 1.4) | 0;',
+		'function foo() {return.1 | 0;}',
 
 		// Different "types" of 0
 		'const foo = 1.4 | 0.;',
@@ -62,6 +63,7 @@ test.snapshot({
 		'const foo = bar >> 0;',
 		'const foo = bar << 0;',
 		'const foo = bar ^ 0;',
+		'function foo() {return.1 ^0;}',
 
 		// Case with objects (MemberExpression and ChainExpression)
 		outdent`
@@ -111,6 +113,7 @@ test.snapshot({
 			let foo = 10.01;
 			foo ^= 0;
 		`,
+		'function foo() {return[foo][0] ^= 0;};',
 
 		// With comments
 		'const foo = /* first comment */ 3.4 | 0; // A B C',
