@@ -72,7 +72,8 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 		case 'ExpressionStatement': {
 			/* istanbul ignore else */
 			if (parent.expression === node) {
-				return fixSpaceAroundKeyword(fixer, parent, sourceCode);
+				yield * fixSpaceAroundKeyword(fixer, parent, sourceCode);
+				return;
 			}
 
 			break;
@@ -81,7 +82,7 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 		case 'IfStatement': {
 			/* istanbul ignore else */
 			if (parent.alternate === node) {
-				keyword = sourceCode.getFirstBefore(node, {filter: isKeywordToken('else')});
+				keyword = sourceCode.getTokenBefore(node, {filter: isKeywordToken('else')});
 			}
 
 			break;

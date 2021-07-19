@@ -15,6 +15,7 @@ const {getParentheses} = require('./utils/parentheses.js');
 const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 const assertToken = require('./utils/assert-token.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
@@ -234,6 +235,8 @@ function getFixFunction(callExpression, functionInfo, context) {
 		if (shouldRemoveExpressionStatementLastToken(expressionStatementLastToken)) {
 			yield fixer.remove(expressionStatementLastToken, fixer);
 		}
+
+		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, sourceCode);
 
 		// Prevent possible variable conflicts
 		yield * extendFixRange(fixer, callExpression.parent.range);
