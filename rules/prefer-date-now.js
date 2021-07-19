@@ -5,6 +5,7 @@ const {
 	newExpressionSelector,
 	callExpressionSelector,
 } = require('./selectors/index.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID_DEFAULT = 'prefer-date';
 const MESSAGE_ID_METHOD = 'prefer-date-now-over-methods';
@@ -52,14 +53,20 @@ const binaryExpressionSelector = [
 	newDateSelector,
 ].join('');
 
-const getProblem = (node, problem) => ({
+const getProblem = (node, problem, sourceCode) => ({
 	node,
 	messageId: MESSAGE_ID_DEFAULT,
-	fix: fixer => fixer.replaceText(node, 'Date.now()'),
+	* fix(fixer) {
+		yield fixer.replaceText(node, 'Date.now()');
+
+		if (node.type === 'UnaryExpression') {
+			yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+		}
+	},
 	...problem,
 });
 
-const create = () => {
+const create = (context) => {
 	return {
 		[methodsSelector](node) {
 			const method = node.callee.property;
@@ -80,7 +87,11 @@ const create = () => {
 			return getProblem(node.arguments[0]);
 		},
 		[unaryExpressionsSelector](node) {
-			return getProblem(node.operator === '-' ? node.argument : node);
+			return getProblem(
+				node.operator === '-' ? node.argument : node,
+				{},
+				context.getSourceCode()
+			);
 		},
 		[assignmentExpressionSelector](node) {
 			return getProblem(node);
