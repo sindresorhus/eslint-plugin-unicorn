@@ -23,6 +23,7 @@ test.snapshot({
 	],
 	invalid: [
 		'array.flatMap(x => x)',
+		'function foo(){return[].flatMap(x => x)}',
 	],
 });
 
@@ -49,6 +50,7 @@ test.snapshot({
 	],
 	invalid: [
 		'array.reduce((a, b) => a.concat(b), [])',
+		'function foo(){return[].reduce((a, b) => a.concat(b), [])}',
 	],
 });
 
@@ -79,6 +81,7 @@ test.snapshot({
 	invalid: [
 		'array.reduce((a, b) => [...a, ...b], [])',
 		'array.reduce((a, b) => [...a, ...b,], [])',
+		'function foo(){return[].reduce((a, b) => [...a, ...b,], [])}',
 	],
 });
 
@@ -102,6 +105,7 @@ test.snapshot({
 		'[].concat( ((maybeArray)) )',
 		'[].concat( [foo] )',
 		'[].concat( [[foo]] )',
+		'function foo(){return[].concat(maybeArray)}',
 	],
 });
 
