@@ -63,7 +63,7 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 		case 'ExportDefaultDeclaration': {
 			/* istanbul ignore else */
 			if (parent.declaration === node) {
-				keyword = sourceCode.getFirstToken(parent, {filter: token => isKeywordToken('default')});
+				keyword = sourceCode.getFirstToken(parent, {filter: isKeywordToken('default')});
 			}
 
 			break;
@@ -81,7 +81,7 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 		case 'IfStatement': {
 			/* istanbul ignore else */
 			if (parent.alternate === node) {
-				keyword = sourceCode.getFirstBefore(node, {filter: token => isKeywordToken('else')});
+				keyword = sourceCode.getFirstBefore(node, {filter: isKeywordToken('else')});
 			}
 
 			break;
@@ -99,7 +99,7 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 		case 'SwitchCase': {
 			/* istanbul ignore else */
 			if (parent.test === node) {
-				keyword = sourceCode.getTokenBefore(node, {filter: token => isKeywordToken('case')});
+				keyword = sourceCode.getTokenBefore(node, {filter: isKeywordToken('case')});
 			}
 
 			break;
