@@ -203,6 +203,8 @@ test.snapshot({
 		'if(true){}else!foo.length',
 		'do!foo.length;while(true) {}',
 		'switch(foo){case!foo.length:{}}',
+		'for(const a of!foo.length);',
+		'for(const a in!foo.length);',
 	],
 });
 

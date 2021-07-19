@@ -1,6 +1,6 @@
 'use strict';
 
-const isKeywordToken = value => token => token.type === 'Keyword' && token.value === value;
+const isKeywordToken = keyword => ({type, value}) => type === 'Keyword' && value === keyword;
 
 function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 	const {parent} = node;
@@ -142,6 +142,18 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 			if (parent.right === node) {
 				keywords.push({
 					keyword: sourceCode.getTokenBefore(node, {filter: ({type, value}) => type === 'Identifier' && value === 'of'}),
+					side: 'after',
+				});
+			}
+
+			break;
+		}
+
+		case 'ForInStatement': {
+			// Note: Other keywords and children not handled, because not using
+			if (parent.right === node) {
+				keywords.push({
+					keyword: sourceCode.getTokenBefore(node, {filter: isKeywordToken('in')}),
 					side: 'after',
 				});
 			}
