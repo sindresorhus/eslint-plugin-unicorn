@@ -93,13 +93,15 @@ test({
 		// Second argument is not a function
 		...notFunctionTypes.map(data => `Array.prototype.reduce.call(foo, ${data})`),
 
-		// Option: allowNumericInitialValue
+		// Option: allowSimpleOperations
+		'arr.reduce((total, item) => total + item)',
+		'arr.reduce((total, item) => { return total + item })',
+		'arr.reduce(function (total, item) { return total + item })',
 		'arr.reduce((total, item) => total + item, 0)',
+		'arr.reduce((total, item) => { return total + item }, 0 )',
 		'arr.reduce(function (total, item) { return total + item }, 0)',
 	].flatMap(testCase => [testCase, testCase.replace('reduce', 'reduceRight')]),
 	invalid: [
-		'arr.reduce((total, item) => total + item)',
-		'arr.reduce(function (total, item) { return total + item })',
 		'arr.reduce((str, item) => str += item, "")',
 		outdent`
 			arr.reduce((obj, item) => {
@@ -122,14 +124,30 @@ test({
 		'Array.prototype.reduce.apply(arr, [(s, i) => s + i])',
 		'Array.prototype.reduce.apply(arr, [sum]);',
 
-		// Option: allowNumericInitialValue
+		// Option: allowSimpleOperations
+		{
+			code: 'arr.reduce((total, item) => total + item)',
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: 'arr.reduce((total, item) => { return total + item })',
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: 'arr.reduce(function (total, item) { return total + item })',
+			options: [{allowSimpleOperations: false}],
+		},
 		{
 			code: 'arr.reduce((total, item) => total + item, 0)',
-			options: [{allowNumericInitialValue: false}],
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: 'arr.reduce((total, item) => { return total + item }, 0 )',
+			options: [{allowSimpleOperations: false}],
 		},
 		{
 			code: 'arr.reduce(function (total, item) { return total + item }, 0)',
-			options: [{allowNumericInitialValue: false}],
+			options: [{allowSimpleOperations: false}],
 		},
 	].flatMap(testCase => {
 		const {code, options} = testCase;

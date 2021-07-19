@@ -54,21 +54,21 @@ for (const element of array) {
 ```
 ## Options
 
-### allowNumericInitialValue
+### allowSimpleOperations
 
 Type: `boolean`\
 Default: `true`
 
-Allow a numeric `initialValue` in a `reduce` call.
+Allow simple operations (like addition, subtraction, etc.) in a `reduce` call.
 
-Pass `"allowNumericInitialValue": false` to disable reduce completely.
+Pass `"allowSimpleOperations": false` to disable reduce completely.
 
 ```js
-// eslint unicorn/no-array-reduce: ["error", {"allowNumericInitialValue": true}]
-arr.reduce((total, item) => total + item, 0) // Passes
+// eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": true}]
+arr.reduce((total, item) => total + item) // Passes
 ```
 
 ```js
-// eslint unicorn/no-array-reduce: ["error", {"allowNumericInitialValue": false}]
-arr.reduce((total, item) => total + item, 0) // Fails
+// eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": false}]
+arr.reduce((total, item) => total + item) // Fails
 ```

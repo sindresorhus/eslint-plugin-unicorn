@@ -40,7 +40,7 @@ const schema = [
 	{
 		type: 'object',
 		properties: {
-			allowNumericInitialValue: {
+			allowSimpleOperations: {
 				type: 'boolean',
 				default: true,
 			},
@@ -49,19 +49,37 @@ const schema = [
 ];
 
 const create = context => {
-	const {allowNumericInitialValue} = {allowNumericInitialValue: true, ...context.options[0]};
+	const {allowSimpleOperations} = {allowSimpleOperations: true, ...context.options[0]};
 
 	return {
 		[selector](node) {
-			const initialValue = get(node, 'parent.parent.arguments[1]');
+			const callback = get(node, 'parent.parent.arguments[0]', {});
+			const problem = {
+				node,
+				messageId: MESSAGE_ID,
+				data: {method: node.name},
+			};
 
-			if (!(allowNumericInitialValue && isNumeric(initialValue))) {
-				return {
-					node,
-					messageId: MESSAGE_ID,
-					data: {method: node.name},
-				};
+			if (!allowSimpleOperations) {
+				return problem;
 			}
+
+			if (callback.type === 'ArrowFunctionExpression' && callback.body.type === 'BinaryExpression') {
+				return;
+			}
+
+			if ((callback.type === 'ArrowFunctionExpression' || callback.type === 'FunctionExpression') &&
+				callback.body.type === 'BlockStatement' &&
+				callback.body.body[0].type === 'ReturnStatement' &&
+				callback.body.body[0].argument.type === 'BinaryExpression') {
+				return;
+			}
+
+			if (isNumeric(get(node, 'parent.parent.arguments[1]'))) {
+				return;
+			}
+
+			return problem;
 		},
 	};
 };
