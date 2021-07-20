@@ -29,6 +29,7 @@ Enforces the use of `new` for following builtins:
 - `Uint32Array`
 - `Uint8ClampedArray`
 - `SharedArrayBuffer`
+- `Proxy`
 
 Disallows the use of `new` for following builtins.
 

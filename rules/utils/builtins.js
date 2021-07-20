@@ -16,6 +16,7 @@ const enforceNew = [
 	'Promise',
 	'RegExp',
 	'SharedArrayBuffer',
+	'Proxy',
 	...typedArray,
 ];
 
