@@ -1,6 +1,8 @@
 'use strict';
+const {get} = require('lodash');
 const {methodCallSelector} = require('./selectors/index.js');
 const {arrayPrototypeMethodSelector, notFunctionSelector, matches} = require('./selectors/index.js');
+const {isNumeric} = require('./utils/numeric.js');
 
 const MESSAGE_ID = 'no-reduce';
 const messages = {
@@ -34,14 +36,50 @@ const selector = matches([
 	].join(''),
 ]);
 
-const create = () => {
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			allowSimpleOperations: {
+				type: 'boolean',
+				default: true,
+			},
+		},
+	},
+];
+
+const create = context => {
+	const {allowSimpleOperations} = {allowSimpleOperations: true, ...context.options[0]};
+
 	return {
 		[selector](node) {
-			return {
+			const callback = get(node, 'parent.parent.arguments[0]', {});
+			const problem = {
 				node,
 				messageId: MESSAGE_ID,
 				data: {method: node.name},
 			};
+
+			if (!allowSimpleOperations) {
+				return problem;
+			}
+
+			if (callback.type === 'ArrowFunctionExpression' && callback.body.type === 'BinaryExpression') {
+				return;
+			}
+
+			if ((callback.type === 'ArrowFunctionExpression' || callback.type === 'FunctionExpression') &&
+				callback.body.type === 'BlockStatement' &&
+				callback.body.body[0].type === 'ReturnStatement' &&
+				callback.body.body[0].argument.type === 'BinaryExpression') {
+				return;
+			}
+
+			if (isNumeric(get(node, 'parent.parent.arguments[1]'))) {
+				return;
+			}
+
+			return problem;
 		},
 	};
 };
@@ -53,6 +91,7 @@ module.exports = {
 		docs: {
 			description: 'Disallow `Array#reduce()` and `Array#reduceRight()`.',
 		},
+		schema,
 		messages,
 	},
 };

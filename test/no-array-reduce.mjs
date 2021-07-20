@@ -93,12 +93,22 @@ test({
 		// Second argument is not a function
 		...notFunctionTypes.map(data => `Array.prototype.reduce.call(foo, ${data})`),
 
-	].flatMap(code => [code, code.replace('reduce', 'reduceRight')]),
-	invalid: [
+		// Option: allowSimpleOperations
 		'arr.reduce((total, item) => total + item)',
+		'arr.reduce((total, item) => { return total - item })',
+		'arr.reduce(function (total, item) { return total * item })',
 		'arr.reduce((total, item) => total + item, 0)',
-		'arr.reduce(function (total, item) { return total + item }, 0)',
-		'arr.reduce(function (total, item) { return total + item })',
+		'arr.reduce((total, item) => { return total - item }, 0 )',
+		'arr.reduce(function (total, item) { return total * item }, 0)',
+		outdent`
+			arr.reduce((total, item) => {
+				const multiplier = 100;
+				return (total / item) * multiplier;
+			}, 0)
+		`,
+		'arr.reduce((total, item) => { return total + item }, 0)',
+	].flatMap(testCase => [testCase, testCase.replace('reduce', 'reduceRight')]),
+	invalid: [
 		'arr.reduce((str, item) => str += item, "")',
 		outdent`
 			arr.reduce((obj, item) => {
@@ -120,5 +130,54 @@ test({
 		'[].reduce.apply(arr, [sum]);',
 		'Array.prototype.reduce.apply(arr, [(s, i) => s + i])',
 		'Array.prototype.reduce.apply(arr, [sum]);',
-	].flatMap(code => [{code, errors: errorsReduce}, {code: code.replace('reduce', 'reduceRight'), errors: errorsReduceRight}]),
+
+		// Option: allowSimpleOperations
+		{
+			code: 'arr.reduce((total, item) => total + item)',
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: 'arr.reduce((total, item) => { return total - item })',
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: 'arr.reduce(function (total, item) { return total * item })',
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: 'arr.reduce((total, item) => total + item, 0)',
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: 'arr.reduce((total, item) => { return total - item }, 0 )',
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: 'arr.reduce(function (total, item) { return total * item }, 0)',
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: outdent`
+				arr.reduce((total, item) => {
+					const multiplier = 100;
+					return (total / item) * multiplier;
+				}, 0)
+			`,
+			options: [{allowSimpleOperations: false}],
+		},
+	].flatMap(testCase => {
+		const {code, options} = testCase;
+
+		if (options) {
+			return [
+				{code, errors: errorsReduce, options},
+				{code: code.replace('reduce', 'reduceRight'), errors: errorsReduceRight, options},
+			];
+		}
+
+		return [
+			{code: testCase, errors: errorsReduce},
+			{code: testCase.replace('reduce', 'reduceRight'), errors: errorsReduceRight},
+		];
+	}),
 });
