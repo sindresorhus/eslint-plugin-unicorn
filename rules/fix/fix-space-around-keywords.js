@@ -162,6 +162,19 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 			break;
 		}
 
+		case 'ClassDeclaration':
+		case 'ClassExpression': {
+			/* istanbul ignore else */
+			if (parent.superClass === node) {
+				keywords.push({
+					keyword: sourceCode.getTokenBefore(node, {filter: isKeywordToken('extends')}),
+					side: 'after',
+				});
+			}
+
+			break;
+		}
+
 		// No default
 	}
 

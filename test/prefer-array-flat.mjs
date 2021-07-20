@@ -128,6 +128,8 @@ test.snapshot({
 		'[].concat(...(( [foo] )))',
 		'[].concat(...(( [[foo]] )))',
 		'function foo(){return[].concat(...array)}',
+		'class A extends[].concat(...array){}',
+		'const A = class extends[].concat(...array){}',
 	],
 });
 
