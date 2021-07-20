@@ -15,6 +15,7 @@ const enforceNew = [
 	'WeakSet',
 	'Promise',
 	'RegExp',
+	'SharedArrayBuffer',
 	...typedArray,
 ];
 
