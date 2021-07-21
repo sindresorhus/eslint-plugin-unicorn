@@ -63,6 +63,7 @@ module.exports = {
 				'unicorn/no-for-loop': 'error',
 				'unicorn/no-hex-escape': 'error',
 				'unicorn/no-instanceof-array': 'error',
+				'unicorn/no-invalid-remove-event-listener': 'error',
 				'unicorn/no-keyword-prefix': 'off',
 				'unicorn/no-lonely-if': 'error',
 				'no-nested-ternary': 'off',
