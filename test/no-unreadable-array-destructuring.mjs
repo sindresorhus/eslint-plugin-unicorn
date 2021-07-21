@@ -51,5 +51,13 @@ test.snapshot({
 		// Default value
 		'let [,,thirdElement = {}] = foo;',
 		'for (const [, , id] of shuffle(list)) {}',
+		// Space after keyword
+		'let[,,thirdElement] = foo;',
+		'let[,,...thirdElement] = foo;',
+		'const[,,thirdElement] = foo;',
+		'const[,,...thirdElement] = foo;',
+		'var[,,thirdElement] = foo;',
+		'var[,,...thirdElement] = foo;',
+		'let[]=[],[,,thirdElement] = foo;',
 	],
 });

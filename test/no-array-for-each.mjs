@@ -406,6 +406,9 @@ test.snapshot({
 				else return {};
 			})
 		`,
+
+		// Need insert space after keyword
+		'if (true) {} else[foo].forEach((element) => {})',
 	],
 });
 

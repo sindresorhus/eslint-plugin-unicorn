@@ -5,6 +5,7 @@ const isLiteralValue = require('./utils/is-literal-value.js');
 const isLogicalExpression = require('./utils/is-logical-expression.js');
 const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean.js');
 const {memberExpressionSelector} = require('./selectors/index.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -110,12 +111,15 @@ function create(context) {
 		if (
 			!isParenthesized(node, sourceCode) &&
 			node.type === 'UnaryExpression' &&
-			node.parent.type === 'UnaryExpression'
+			(node.parent.type === 'UnaryExpression' || node.parent.type === 'AwaitExpression')
 		) {
 			fixed = `(${fixed})`;
 		}
 
-		const fix = fixer => fixer.replaceText(node, fixed);
+		const fix = function * (fixer) {
+			yield fixer.replaceText(node, fixed);
+			yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+		};
 
 		const problem = {
 			node,

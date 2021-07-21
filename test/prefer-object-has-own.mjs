@@ -62,6 +62,7 @@ test.snapshot({
 		'const hasProperty = (( {}.hasOwnProperty.call ))(object, property);',
 		'const hasProperty = (( {}.hasOwnProperty )).call(object, property);',
 		'const hasProperty = (( {} )).hasOwnProperty.call(object, property);',
+		'function foo(){return{}.hasOwnProperty.call(object, property)}',
 	],
 });
 

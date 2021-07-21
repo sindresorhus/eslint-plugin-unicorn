@@ -1,6 +1,7 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID = 'no-unreadable-array-destructuring';
 const messages = {
@@ -54,6 +55,8 @@ const create = context => {
 						} else {
 							yield fixer.insertTextAfter(parent, code);
 						}
+
+						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 					};
 				}
 			}

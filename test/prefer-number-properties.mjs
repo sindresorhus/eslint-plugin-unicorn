@@ -381,5 +381,8 @@ test.snapshot({
 		'function foo({a = NaN}) {}',
 		'function foo({[NaN]: a = NaN}) {}',
 		'function foo([a = NaN]) {}',
+
+		// Space after keywords
+		'function foo() {return-Infinity}',
 	],
 });

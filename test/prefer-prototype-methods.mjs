@@ -48,6 +48,8 @@ test.snapshot({
 		'const foo = ({}).toString.call(bar);',
 		'const foo = ({}.toString).call(bar);',
 		'const foo = ({}.toString.call)(bar);',
+		'function foo(){return[].slice.call(bar);}',
+		'function foo(){return{}.toString.call(bar)}',
 	],
 });
 

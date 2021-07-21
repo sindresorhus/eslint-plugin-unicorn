@@ -226,6 +226,7 @@ test.snapshot({
 		'for (const foo of [...(( iterable ))]);',
 		'const map = new Map((( [...(( iterable ))] )))',
 		'for (const foo of (( [...(( iterable ))] )));',
+		'for (const foo of[...iterable]);',
 
 		...[
 			'[...iterable]',
@@ -237,5 +238,27 @@ test.snapshot({
 				yield * ${code};
 			}
 		`),
+	],
+});
+
+test.babel({
+	valid: [],
+	invalid: [
+		{
+			code: 'for (const foo of[...iterable]);',
+			output: 'for (const foo of iterable);',
+			errors: 1,
+		},
+	],
+});
+
+test.typescript({
+	valid: [],
+	invalid: [
+		{
+			code: 'for (const foo of[...iterable2]);',
+			output: 'for (const foo of iterable2);',
+			errors: 1,
+		},
 	],
 });
