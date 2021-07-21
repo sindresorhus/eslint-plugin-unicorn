@@ -100,6 +100,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-module": "error",
 			"unicorn/prefer-negative-index": "error",
 			"unicorn/prefer-node-protocol": "error",
+			"unicorn/prefer-nullish-coalescing": "off",
 			"unicorn/prefer-number-properties": "error",
 			"unicorn/prefer-object-has-own": "off",
 			"unicorn/prefer-optional-catch-binding": "error",
@@ -217,6 +218,7 @@ Each rule has emojis denoting:
 | [prefer-module](docs/rules/prefer-module.md) | Prefer JavaScript modules (ESM) over CommonJS. | ✅ | 🔧 | 💡 |
 | [prefer-negative-index](docs/rules/prefer-negative-index.md) | Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()`, `Array#splice()` and `Array#at()`. | ✅ | 🔧 |  |
 | [prefer-node-protocol](docs/rules/prefer-node-protocol.md) | Prefer using the `node:` protocol when importing Node.js builtin modules. | ✅ | 🔧 |  |
+| [prefer-nullish-coalescing](docs/rules/prefer-nullish-coalescing.md) | Prefer the nullish coalescing operator(`??`) over the logical OR operator(`||`). |  |  | 💡 |
 | [prefer-number-properties](docs/rules/prefer-number-properties.md) | Prefer `Number` static properties over global ones. | ✅ | 🔧 | 💡 |
 | [prefer-object-has-own](docs/rules/prefer-object-has-own.md) | Prefer `Object.hasOwn(…)` over `Object.prototype.hasOwnProperty.call(…)`. |  | 🔧 |  |
 | [prefer-optional-catch-binding](docs/rules/prefer-optional-catch-binding.md) | Prefer omitting the `catch` binding parameter. | ✅ | 🔧 |  |
