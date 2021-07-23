@@ -9,6 +9,7 @@ const needsSemicolon = require('./utils/needs-semicolon.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches.js');
 const {getParenthesizedText, isParenthesized} = require('./utils/parentheses.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-array-flat';
 const messages = {
@@ -147,7 +148,7 @@ function fix(node, array, sourceCode, shouldSwitchToArray) {
 		shouldSwitchToArray = shouldSwitchToArray(node);
 	}
 
-	return fixer => {
+	return function * (fixer) {
 		let fixed = getParenthesizedText(array, sourceCode);
 		if (shouldSwitchToArray) {
 			// `array` is an argument, when it changes to `array[]`, we don't need add extra parentheses
@@ -167,7 +168,9 @@ function fix(node, array, sourceCode, shouldSwitchToArray) {
 			fixed = `;${fixed}`;
 		}
 
-		return fixer.replaceText(node, fixed);
+		yield fixer.replaceText(node, fixed);
+
+		yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 	};
 }
 

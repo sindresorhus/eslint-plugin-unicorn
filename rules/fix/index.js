@@ -15,4 +15,5 @@ module.exports = {
 	renameVariable: require('./rename-variable.js'),
 	replaceNodeOrTokenAndSpacesBefore: require('./replace-node-or-token-and-spaces-before.js'),
 	removeSpacesAfter: require('./remove-spaces-after.js'),
+	fixSpaceAroundKeyword: require('./fix-space-around-keywords.js'),
 };

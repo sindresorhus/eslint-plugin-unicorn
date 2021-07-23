@@ -22,6 +22,7 @@ test.snapshot({
 		'obj.arr instanceof Array',
 		'foo.bar[2] instanceof Array',
 		'(0, array) instanceof Array',
+		'function foo(){return[]instanceof Array}',
 		outdent`
 			(
 				// comment
