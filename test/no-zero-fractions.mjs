@@ -80,5 +80,13 @@ test.snapshot({
 			console.log()
 			a[1.00e10].toString()
 		`,
+		'a = .0;',
+		'a = .0.toString()',
+		'function foo(){return.0}',
+		'function foo(){return.0.toString()}',
+		outdent`
+			console.log()
+			.0.toString()
+		`,
 	],
 });
