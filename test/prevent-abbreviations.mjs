@@ -125,6 +125,8 @@ const tests = {
 		'(class {})',
 		'(class C {})',
 		'class C {}',
+		'const i18n = new I18n({ locales: ["en", "fr"] })',
+		'application.use(i18n.init)',
 		outdent`
 			(class {
 				error() {}

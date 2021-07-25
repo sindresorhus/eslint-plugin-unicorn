@@ -96,6 +96,10 @@ const getNameReplacements = (name, options, limit = 3) => {
 		return {total: 0};
 	}
 
+	if (name.includes('i18n')) {
+		return {total: 0};
+	}
+
 	// Find exact replacements
 	const exactReplacements = getWordReplacements(name, options);
 
