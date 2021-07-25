@@ -1258,6 +1258,11 @@ const tests = {
 			options: noExtendDefaultAllowListOptions,
 			errors: createErrors(),
 		},
+		{
+			code: 'const app = {};',
+			output: 'const application = {};',
+			errors: createErrors('The variable `app` should be named `application`. A more descriptive name will do too.')
+		}
 	],
 };
 

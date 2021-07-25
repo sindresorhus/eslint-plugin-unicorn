@@ -4,6 +4,9 @@ module.exports.defaultReplacements = {
 	acc: {
 		accumulator: true,
 	},
+	app: {
+		application: true,
+	},
 	arg: {
 		argument: true,
 	},
