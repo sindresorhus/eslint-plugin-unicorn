@@ -1,7 +1,7 @@
 'use strict';
 const {isCommaToken, isArrowToken, isClosingParenToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url.js');
-const {matches, methodCallSelector} = require('./selectors.js');
+const {matches, methodCallSelector} = require('./selectors/index.js');
 const {getParentheses, getParenthesizedText} = require('./utils/parentheses.js');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches.js');
 
