@@ -1,15 +1,15 @@
 'use strict';
 const {isCommaToken, isArrowToken, isClosingParenToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {matches, methodCallSelector} = require('./selectors');
-const {getParentheses, getParenthesizedText} = require('./utils/parentheses');
-const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches');
+const getDocumentationUrl = require('./utils/get-documentation-url.js');
+const {matches, methodCallSelector} = require('./selectors.js');
+const {getParentheses, getParenthesizedText} = require('./utils/parentheses.js');
+const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches.js');
 
 const MESSAGE_ID_REDUCE = 'reduce';
 const MESSAGE_ID_FUNCTION = 'function';
 const messages = {
 	[MESSAGE_ID_REDUCE]: 'Prefer `Object.fromEntries()` over `Array#reduce()`.',
-	[MESSAGE_ID_FUNCTION]: 'Prefer `Object.fromEntries()` over `{{functionName}}()`.'
+	[MESSAGE_ID_FUNCTION]: 'Prefer `Object.fromEntries()` over `{{functionName}}()`.',
 };
 
 const createEmptyObjectSelector = path => {
@@ -21,8 +21,8 @@ const createEmptyObjectSelector = path => {
 		[
 			methodCallSelector({path, object: 'Object', name: 'create', length: 1}),
 			`[${prefix}arguments.0.type="Literal"]`,
-			`[${prefix}arguments.0.raw="null"]`
-		].join('')
+			`[${prefix}arguments.0.raw="null"]`,
+		].join(''),
 	]);
 };
 
@@ -33,7 +33,7 @@ const createArrowCallbackSelector = path => {
 		`[${prefix}async!=true]`,
 		`[${prefix}generator!=true]`,
 		`[${prefix}params.length>=1]`,
-		`[${prefix}params.0.type="Identifier"]`
+		`[${prefix}params.0.type="Identifier"]`,
 	].join('');
 };
 
@@ -42,7 +42,7 @@ const createPropertySelector = path => {
 	return [
 		`[${prefix}type="Property"]`,
 		`[${prefix}kind="init"]`,
-		`[${prefix}method!=true]`
+		`[${prefix}method!=true]`,
 	].join('');
 };
 
@@ -50,7 +50,7 @@ const createPropertySelector = path => {
 // - `pairs.reduce(…, Object.create(null))`
 const arrayReduceWithEmptyObject = [
 	methodCallSelector({name: 'reduce', length: 2}),
-	createEmptyObjectSelector('arguments.1')
+	createEmptyObjectSelector('arguments.1'),
 ].join('');
 
 const fixableArrayReduceCases = [
@@ -63,10 +63,10 @@ const fixableArrayReduceCases = [
 			'[arguments.0.body.arguments.0.type="Identifier"]',
 			'[arguments.0.body.arguments.1.type="ObjectExpression"]',
 			'[arguments.0.body.arguments.1.properties.length=1]',
-			createPropertySelector('arguments.0.body.arguments.1.properties.0')
+			createPropertySelector('arguments.0.body.arguments.1.properties.0'),
 		].join(''),
 		test: callback => callback.params[0].name === callback.body.arguments[0].name,
-		getProperty: callback => callback.body.arguments[1].properties[0]
+		getProperty: callback => callback.body.arguments[1].properties[0],
 	},
 	{
 		selector: [
@@ -77,24 +77,24 @@ const fixableArrayReduceCases = [
 			'[arguments.0.body.properties.length=2]',
 			'[arguments.0.body.properties.0.type="SpreadElement"]',
 			'[arguments.0.body.properties.0.argument.type="Identifier"]',
-			createPropertySelector('arguments.0.body.properties.1')
+			createPropertySelector('arguments.0.body.properties.1'),
 		].join(''),
 		test: callback => callback.params[0].name === callback.body.properties[0].argument.name,
-		getProperty: callback => callback.body.properties[1]
-	}
+		getProperty: callback => callback.body.properties[1],
+	},
 ];
 
 // `_.flatten(array)`
 const lodashFromPairsFunctions = [
 	'_.fromPairs',
-	'lodash.fromPairs'
+	'lodash.fromPairs',
 ];
 const anyCall = [
 	'CallExpression',
 	'[optional!=true]',
 	'[arguments.length=1]',
 	'[arguments.0.type!="SpreadElement"]',
-	' > .callee'
+	' > .callee',
 ].join('');
 
 function fixReduceAssignOrSpread({sourceCode, node, property}) {
@@ -176,7 +176,7 @@ function fixReduceAssignOrSpread({sourceCode, node, property}) {
 function create(context) {
 	const {functions: configFunctions} = {
 		functions: [],
-		...context.options[0]
+		...context.options[0],
 	};
 	const functions = [...configFunctions, ...lodashFromPairsFunctions];
 	const sourceCode = context.getSourceCode();
@@ -208,8 +208,8 @@ function create(context) {
 				fixReduceAssignOrSpread({
 					sourceCode,
 					node,
-					property: getProperty(callbackFunction)
-				})
+					property: getProperty(callbackFunction),
+				}),
 			);
 		};
 	}
@@ -226,7 +226,7 @@ function create(context) {
 			context.report({
 				node: node.callee.property,
 				messageId: MESSAGE_ID_REDUCE,
-				fix
+				fix,
 			});
 		}
 	};
@@ -241,7 +241,7 @@ function create(context) {
 			node,
 			messageId: MESSAGE_ID_FUNCTION,
 			data: {functionName},
-			fix: fixer => fixer.replaceText(node, 'Object.fromEntries')
+			fix: fixer => fixer.replaceText(node, 'Object.fromEntries'),
 		});
 	};
 
@@ -254,11 +254,11 @@ const schema = [
 		properties: {
 			functions: {
 				type: 'array',
-				uniqueItems: true
-			}
+				uniqueItems: true,
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -267,10 +267,10 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `Object.fromEntries(…)` to transform a list of key-value pairs into an object.',
-			url: getDocumentationUrl(__filename)
+			url: getDocumentationUrl(__filename),
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+	},
 };

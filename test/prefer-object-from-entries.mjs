@@ -29,7 +29,7 @@ test.snapshot({
 		'pairs.reduce(object => ({...object, key}), NotObject.create(null));',
 		'pairs.reduce(object => ({...object, key}), object.create(null));',
 		'pairs.reduce(object => ({...object, key}), object.CREATE(null));',
-		'pairs.reduce(object => ({...object, key}), Object.create("null"));'
+		'pairs.reduce(object => ({...object, key}), Object.create("null"));',
 	],
 	invalid: [
 		'pairs.reduce(object => ({...object, key}), {});',
@@ -136,8 +136,8 @@ test.snapshot({
 		'pairs.reduce(object => ({...object, method: async () => {}}), {});',
 		'pairs.reduce(object => ({...object, method: async function * (){}}), {});',
 		'pairs.reduce(object => ({...object, get key() {}}), {});',
-		'pairs.reduce(object => ({...object, set key(v) {}}), {});'
-	]
+		'pairs.reduce(object => ({...object, set key(v) {}}), {});',
+	],
 });
 
 // Non-fixable `Array#reduce()`
@@ -149,13 +149,13 @@ test.snapshot({
 		'pairs?.reduce(callback, {})',
 		'pairs.notReduce(callback, {})',
 		'pairs[reduce](callback, {})',
-		'pairs.reduce(...callback, {})'
+		'pairs.reduce(...callback, {})',
 	],
 	invalid: [
 		'pairs.reduce(callback, {})',
 		'pairs.reduce(callback, Object.create(null))',
-		'pairs.reduce(async function * () {}, {})'
-	]
+		'pairs.reduce(async function * () {}, {})',
+	],
 });
 
 // Functions
@@ -170,27 +170,27 @@ test.snapshot({
 		'_?.fromPairs(pairs)',
 		{
 			code: '_.foo(pairs)',
-			options: [{functions: ['foo']}]
+			options: [{functions: ['foo']}],
 		},
 		{
 			code: 'foo(pairs)',
-			options: [{functions: ['utils.object.foo']}]
+			options: [{functions: ['utils.object.foo']}],
 		},
 		{
 			code: 'object.foo(pairs)',
-			options: [{functions: ['utils.object.foo']}]
-		}
+			options: [{functions: ['utils.object.foo']}],
+		},
 	],
 	invalid: [
 		'_.fromPairs(pairs)',
 		'lodash.fromPairs(pairs)',
 		{
 			code: 'myFromPairsFunction(pairs)',
-			options: [{functions: ['myFromPairsFunction']}]
+			options: [{functions: ['myFromPairsFunction']}],
 		},
 		{
 			code: 'utils.object.foo(pairs)',
-			options: [{functions: ['utils.object.foo']}]
-		}
-	]
+			options: [{functions: ['utils.object.foo']}],
+		},
+	],
 });
