@@ -123,7 +123,7 @@
 				"extends": [
 					"plugin:eslint-plugin/all"
 				],
-				"rules": {,
+				"rules": {
 					"eslint-plugin/require-meta-docs-description": [
 						"error",
 						{
