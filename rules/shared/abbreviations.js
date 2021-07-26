@@ -232,6 +232,10 @@ module.exports.defaultAllowList = {
 	// Next.js function
 	// https://nextjs.org/learn/basics/fetching-data-for-pages
 	getInitialProps: true,
+	// Internationalization and localization
+	// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1188
+	i18n: true,
+	l10n: true,
 	// React PropTypes
 	// https://reactjs.org/docs/typechecking-with-proptypes.html
 	propTypes: true,
