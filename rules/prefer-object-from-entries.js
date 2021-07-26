@@ -19,7 +19,7 @@ const createEmptyObjectSelector = path => {
 		`[${prefix}type="ObjectExpression"][${prefix}properties.length=0]`,
 		// `Object.create(null)`
 		[
-			methodCallSelector({path, object: 'Object', name: 'create', length: 1}),
+			methodCallSelector({path, object: 'Object', method: 'create', argumentsLength: 1}),
 			`[${prefix}arguments.0.type="Literal"]`,
 			`[${prefix}arguments.0.raw="null"]`,
 		].join(''),
@@ -49,7 +49,7 @@ const createPropertySelector = path => {
 // - `pairs.reduce(…, {})`
 // - `pairs.reduce(…, Object.create(null))`
 const arrayReduceWithEmptyObject = [
-	methodCallSelector({name: 'reduce', length: 2}),
+	methodCallSelector({method: 'reduce', argumentsLength: 2}),
 	createEmptyObjectSelector('arguments.1'),
 ].join('');
 
@@ -59,7 +59,7 @@ const fixableArrayReduceCases = [
 			arrayReduceWithEmptyObject,
 			// () => Object.assign(object, {key})
 			createArrowCallbackSelector('arguments.0'),
-			methodCallSelector({path: 'arguments.0.body', object: 'Object', name: 'assign', length: 2}),
+			methodCallSelector({path: 'arguments.0.body', object: 'Object', method: 'assign', argumentsLength: 2}),
 			'[arguments.0.body.arguments.0.type="Identifier"]',
 			'[arguments.0.body.arguments.1.type="ObjectExpression"]',
 			'[arguments.0.body.arguments.1.properties.length=1]',
