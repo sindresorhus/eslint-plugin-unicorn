@@ -91,14 +91,14 @@
 	},
 	"xo": {
 		"ignores": [
-			"test/integration/{fixtures,fixtures-local}/**",
 			".cache-eslint-remote-tester",
-			"eslint-remote-tester-results"
+			"eslint-remote-tester-results",
+			"test/integration/{fixtures,fixtures-local}/**"
 		],
 		"rules": {
-			"unicorn/no-null": "error",
+			"arrow-body-style": "off",
 			"operator-linebreak": "off",
-			"arrow-body-style": "off"
+			"unicorn/no-null": "error"
 		},
 		"overrides": [
 			{
@@ -123,16 +123,16 @@
 				"extends": [
 					"plugin:eslint-plugin/all"
 				],
-				"rules": {
-					"eslint-plugin/require-meta-schema": "off",
-					"eslint-plugin/require-meta-docs-url": "off",
-					"eslint-plugin/require-meta-has-suggestions": "off",
+				"rules": {,
 					"eslint-plugin/require-meta-docs-description": [
 						"error",
 						{
 							"pattern": ".+"
 						}
-					]
+					],
+					"eslint-plugin/require-meta-docs-url": "off",
+					"eslint-plugin/require-meta-has-suggestions": "off",
+					"eslint-plugin/require-meta-schema": "off"
 				}
 			}
 		]
