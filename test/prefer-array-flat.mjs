@@ -19,11 +19,12 @@ test.snapshot({
 		'array.flatMap(() => x)',
 		'array.flatMap((x, y) => x)',
 		'array.flatMap((x) => { return x; })', // Can be detected
-		'array.flatMap(x => y)'
+		'array.flatMap(x => y)',
 	],
 	invalid: [
-		'array.flatMap(x => x)'
-	]
+		'array.flatMap(x => x)',
+		'function foo(){return[].flatMap(x => x)}',
+	],
 });
 
 // `array.reduce((a, b) => a.concat(b), [])`
@@ -45,11 +46,12 @@ test.snapshot({
 		'array.reduce((a, b) => a.concat(a), [])',
 		'array.reduce((a, b) => b.concat(a), [])',
 		'array.reduce((a, b) => a.notConcat(b), [])',
-		'array.reduce((a, b) => a.concat, [])'
+		'array.reduce((a, b) => a.concat, [])',
 	],
 	invalid: [
-		'array.reduce((a, b) => a.concat(b), [])'
-	]
+		'array.reduce((a, b) => a.concat(b), [])',
+		'function foo(){return[].reduce((a, b) => a.concat(b), [])}',
+	],
 });
 
 // `array.reduce((a, b) => [...a, ...b], [])`
@@ -74,12 +76,13 @@ test.snapshot({
 		'array.reduce((a, b) => [a, b], [])',
 		'array.reduce((a, b) => [...a, ...b, c], [])',
 		'array.reduce((a, b) => [...a, ...b,,], [])',
-		'array.reduce((a, b) => [,...a, ...b], [])'
+		'array.reduce((a, b) => [,...a, ...b], [])',
 	],
 	invalid: [
 		'array.reduce((a, b) => [...a, ...b], [])',
-		'array.reduce((a, b) => [...a, ...b,], [])'
-	]
+		'array.reduce((a, b) => [...a, ...b,], [])',
+		'function foo(){return[].reduce((a, b) => [...a, ...b,], [])}',
+	],
 });
 
 // `[].concat(array)`
@@ -94,11 +97,16 @@ test.snapshot({
 		'[].concat()',
 		'[].concat(array, EXTRA_ARGUMENT)',
 		'[]?.concat(array)',
-		'[].concat?.(array)'
+		'[].concat?.(array)',
 	],
 	invalid: [
-		'[].concat(array)'
-	]
+		'[].concat(maybeArray)',
+		'[].concat( ((0, maybeArray)) )',
+		'[].concat( ((maybeArray)) )',
+		'[].concat( [foo] )',
+		'[].concat( [[foo]] )',
+		'function foo(){return[].concat(maybeArray)}',
+	],
 });
 
 // `[].concat(...array)`
@@ -112,14 +120,22 @@ test.snapshot({
 		'[].concat()',
 		'[].concat(...array, EXTRA_ARGUMENT)',
 		'[]?.concat(...array)',
-		'[].concat?.(...array)'
+		'[].concat?.(...array)',
 	],
 	invalid: [
-		'[].concat(...array)'
-	]
+		'[].concat(...array)',
+		'[].concat(...(( array )))',
+		'[].concat(...(( [foo] )))',
+		'[].concat(...(( [[foo]] )))',
+		'function foo(){return[].concat(...array)}',
+		'class A extends[].concat(...array){}',
+		'const A = class extends[].concat(...array){}',
+	],
 });
 
-// `[].concat.apply([], array)`
+// - `[].concat.apply([], array)`
+// - `[].concat.call([], maybeArray)`
+// - `[].concat.call([], ...array)`
 test.snapshot({
 	valid: [
 		'new [].concat.apply([], array)',
@@ -136,14 +152,34 @@ test.snapshot({
 		'[].notConcat.apply([], array)',
 		'[].concat.apply?.([], array)',
 		'[].concat?.apply([], array)',
-		'[]?.concat.apply([], array)'
+		'[]?.concat.apply([], array)',
 	],
 	invalid: [
-		'[].concat.apply([], array)'
-	]
+		'[].concat.apply([], array)',
+		'[].concat.apply([], ((0, array)))',
+		'[].concat.apply([], ((array)))',
+		'[].concat.apply([], [foo])',
+		'[].concat.apply([], [[foo]])',
+
+		'[].concat.call([], maybeArray)',
+		'[].concat.call([], ((0, maybeArray)))',
+		'[].concat.call([], ((maybeArray)))',
+		'[].concat.call([], [foo])',
+		'[].concat.call([], [[foo]])',
+
+		'[].concat.call([], ...array)',
+		'[].concat.call([], ...((0, array)))',
+		'[].concat.call([], ...((array)))',
+		'[].concat.call([], ...[foo])',
+		'[].concat.call([], ...[[foo]])',
+
+		'function foo(){return[].concat.call([], ...array)}',
+	],
 });
 
-// `Array.prototype.concat.apply([], array)`
+// - `Array.prototype.concat.apply([], array)`
+// - `Array.prototype.concat.call([], maybeArray)`
+// - `Array.prototype.concat.call([], ...array)`
 test.snapshot({
 	valid: [
 		'new Array.prototype.concat.apply([], array)',
@@ -164,33 +200,49 @@ test.snapshot({
 		'Array.prototype.concat?.apply([], array)',
 		'Array.prototype?.concat.apply([], array)',
 		'Array?.prototype.concat.apply([], array)',
-		'object.Array.prototype.concat.apply([], array)'
+		'object.Array.prototype.concat.apply([], array)',
 	],
 	invalid: [
-		'Array.prototype.concat.apply([], array)'
-	]
+		'Array.prototype.concat.apply([], array)',
+		'Array.prototype.concat.apply([], ((0, array)))',
+		'Array.prototype.concat.apply([], ((array)))',
+		'Array.prototype.concat.apply([], [foo])',
+		'Array.prototype.concat.apply([], [[foo]])',
+
+		'Array.prototype.concat.call([], maybeArray)',
+		'Array.prototype.concat.call([], ((0, maybeArray)))',
+		'Array.prototype.concat.call([], ((maybeArray)))',
+		'Array.prototype.concat.call([], [foo])',
+		'Array.prototype.concat.call([], [[foo]])',
+
+		'Array.prototype.concat.call([], ...array)',
+		'Array.prototype.concat.call([], ...((0, array)))',
+		'Array.prototype.concat.call([], ...((array)))',
+		'Array.prototype.concat.call([], ...[foo])',
+		'Array.prototype.concat.call([], ...[[foo]])',
+	],
 });
 
 // #1146
 test({
 	testerOptions: {
 		parserOptions: {
-			ecmaVersion: 2019
-		}
+			ecmaVersion: 2019,
+		},
 	},
 	valid: [],
 	invalid: [
 		{
 			code: '[].concat.apply([], array)',
 			output: 'array.flat()',
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: 'Array.prototype.concat.apply([], array)',
 			output: 'array.flat()',
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });
 
 // `_.flatten(array)`
@@ -205,13 +257,13 @@ test.snapshot({
 		'NOT_LODASH.flatten(array)',
 		'_.flatten?.(array)',
 		'_?.flatten(array)',
-		'object._.flatten(array)'
+		'object._.flatten(array)',
 	],
 	invalid: [
 		'_.flatten(array)',
 		'lodash.flatten(array)',
-		'underscore.flatten(array)'
-	]
+		'underscore.flatten(array)',
+	],
 });
 
 // `options`
@@ -239,10 +291,10 @@ test.snapshot({
 		'globalthis.lodash.flatten(array)',
 		'GLOBALTHIS.LODASH.FLATTEN(array)',
 		'flat(array, EXTRA_ARGUMENT)',
-		'flat(...array)'
+		'flat(...array)',
 	].map(code => ({
 		code,
-		options
+		options,
 	})),
 	invalid: [
 		'flat(array)',
@@ -256,11 +308,11 @@ test.snapshot({
 		`,
 		// Should not effect other cases
 		'_.flatten(array).length',
-		'Array.prototype.concat.apply([], array)'
+		'Array.prototype.concat.apply([], array)',
 	].map(code => ({
 		code,
-		options
-	}))
+		options,
+	})),
 });
 
 const spacesInFunctions = [{functions: ['', ' ', ' flat1 ', 'utils..flat2', 'utils . flat3', 'utils.fl at4', 'utils.flat5  ', '  utils.flat6']}];
@@ -268,25 +320,25 @@ test.snapshot({
 	valid: [
 		'utils.flat2(x)',
 		'utils.flat3(x)',
-		'utils.flat4(x)'
+		'utils.flat4(x)',
 	].map(code => ({
 		code,
-		options: spacesInFunctions
+		options: spacesInFunctions,
 	})),
 	invalid: [
 		'flat1(x)',
 		'utils.flat5(x)',
-		'utils.flat6(x)'
+		'utils.flat6(x)',
 	].map(code => ({
 		code,
-		options: spacesInFunctions
-	}))
+		options: spacesInFunctions,
+	})),
 });
 
 test.snapshot({
 	valid: [
 		'array.flat()',
-		'array.flat(1)'
+		'array.flat(1)',
 	],
 	invalid: [
 		// ASI
@@ -294,13 +346,57 @@ test.snapshot({
 			before()
 			Array.prototype.concat.apply([], [array].concat(array))
 		`,
+		outdent`
+			before()
+			Array.prototype.concat.apply([], +1)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.call([], +1)
+		`,
 		// Parentheses
 		'Array.prototype.concat.apply([], (0, array))',
+		'Array.prototype.concat.call([], (0, array))',
 		'async function a() { return [].concat(await getArray()); }',
+		'_.flatten((0, array))',
+		'async function a() { return _.flatten(await getArray()); }',
+		'async function a() { return _.flatten((await getArray())); }',
+		outdent`
+			before()
+			Array.prototype.concat.apply([], 1)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.call([], 1)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.apply([], 1.)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.call([], 1.)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.apply([], .1)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.call([], .1)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.apply([], 1.0)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.call([], 1.0)
+		`,
 		// Comment
 		'[].concat(some./**/array)',
 		'[/**/].concat(some./**/array)',
-		'[/**/].concat(some.array)'
-	]
+		'[/**/].concat(some.array)',
+	],
 });
 

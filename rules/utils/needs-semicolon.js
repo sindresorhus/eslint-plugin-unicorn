@@ -6,7 +6,7 @@ const tokenTypesNeedsSemicolon = new Set([
 	'Null',
 	'Boolean',
 	'Numeric',
-	'RegularExpression'
+	'RegularExpression',
 ]);
 
 const charactersMightNeedsSemicolon = new Set([
@@ -18,7 +18,7 @@ const charactersMightNeedsSemicolon = new Set([
 	'-',
 	'*',
 	',',
-	'.'
+	'.',
 ]);
 
 /**
@@ -43,12 +43,41 @@ function needsSemicolon(tokenBefore, sourceCode, code) {
 	}
 
 	const {type, value, range} = tokenBefore;
+	const lastBlockNode = sourceCode.getNodeByRangeIndex(range[0]);
 	if (type === 'Punctuator') {
 		if (value === ';') {
 			return false;
 		}
 
-		if (value === ']' || value === ')') {
+		if (value === ']') {
+			return true;
+		}
+
+		if (value === ')') {
+			switch (lastBlockNode.type) {
+				case 'IfStatement': {
+					if (sourceCode.getTokenBefore(lastBlockNode.consequent) === tokenBefore) {
+						return false;
+					}
+
+					break;
+				}
+
+				case 'ForStatement':
+				case 'ForInStatement':
+				case 'ForOfStatement':
+				case 'WhileStatement':
+				case 'DoWhileStatement':
+				case 'WithStatement': {
+					if (lastBlockNode.body && sourceCode.getTokenBefore(lastBlockNode.body) === tokenBefore) {
+						return false;
+					}
+
+					break;
+				}
+				// No default
+			}
+
 			return true;
 		}
 	}
@@ -61,19 +90,18 @@ function needsSemicolon(tokenBefore, sourceCode, code) {
 		return value.endsWith('`');
 	}
 
-	const lastBlockNode = sourceCode.getNodeByRangeIndex(range[0]);
-	if (lastBlockNode && lastBlockNode.type === 'ObjectExpression') {
+	if (lastBlockNode.type === 'ObjectExpression') {
 		return true;
 	}
 
 	if (type === 'Identifier') {
 		// `for...of`
-		if (value === 'of' && lastBlockNode && lastBlockNode.type === 'ForOfStatement') {
+		if (value === 'of' && lastBlockNode.type === 'ForOfStatement') {
 			return false;
 		}
 
 		// `await`
-		if (value === 'await' && lastBlockNode && lastBlockNode.type === 'AwaitExpression') {
+		if (value === 'await' && lastBlockNode.type === 'AwaitExpression') {
 			return false;
 		}
 

@@ -8,8 +8,8 @@ const invalidTestCase = ({code, suggestions}) => {
 		return {
 			code,
 			errors: [{
-				messageId: 'consistentDestructuring'
-			}]
+				messageId: 'consistentDestructuring',
+			}],
 		};
 	}
 
@@ -19,9 +19,9 @@ const invalidTestCase = ({code, suggestions}) => {
 			messageId: 'consistentDestructuring',
 			suggestions: [{
 				messageId: 'consistentDestructuringSuggest',
-				output: suggestion
-			}]
-		}))
+				output: suggestion,
+			}],
+		})),
 	};
 };
 
@@ -209,7 +209,7 @@ test({
 		outdent`
 			const {a: b} = foo;
 			console.log(foo.b);
-		`
+		`,
 	],
 	invalid: [
 		invalidTestCase({
@@ -220,7 +220,7 @@ test({
 			suggestions: [outdent`
 				const {a} = foo;
 				console.log(a);
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -230,7 +230,7 @@ test({
 			suggestions: [outdent`
 				const {a, b} = foo;
 				console.log(a, b);
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -240,7 +240,7 @@ test({
 			suggestions: [outdent`
 				const {a} = foo.bar;
 				console.log(a);
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -250,7 +250,7 @@ test({
 			suggestions: [outdent`
 				const {bar} = foo;
 				const {a} = bar;
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -260,7 +260,7 @@ test({
 			suggestions: [outdent`
 				const {a, b} = foo;
 				const bar = b;
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -276,7 +276,7 @@ test({
 				const {a, b} = foo;
 				console.log(foo.b);
 				console.log(b);
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -286,7 +286,7 @@ test({
 					}
 				} = foo;
 				console.log(foo.a.c);
-			`
+			`,
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -304,7 +304,7 @@ test({
 					}, a
 				} = foo;
 				console.log(a);
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -322,7 +322,7 @@ test({
 					}, c
 				} = foo;
 				console.log(c);
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -332,7 +332,7 @@ test({
 			suggestions: [outdent`
 				const {a} = foo;
 				console.log(a);
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -342,7 +342,7 @@ test({
 			suggestions: [outdent`
 				const {a} = this;
 				console.log(a);
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -352,7 +352,7 @@ test({
 			suggestions: [outdent`
 				const {a: b} = foo;
 				console.log(b);
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -362,7 +362,7 @@ test({
 			suggestions: [outdent`
 				const {a: b, c, d} = foo;
 				console.log(d);
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -372,7 +372,7 @@ test({
 			suggestions: [outdent`
 				const {a, b} = foo;
 				console.log('foo', b);
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -388,7 +388,7 @@ test({
 					'foo', // comment
 					b // comment
 				);
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -402,7 +402,7 @@ test({
 				function bar() {
 					console.log(a);
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -414,7 +414,7 @@ test({
 				const {a} = foo;
 				const {b, c} = foo;
 				console.log(c);
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -424,7 +424,7 @@ test({
 			suggestions: [outdent`
 				const {a} = foo;
 				console.log(!a);
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -434,7 +434,7 @@ test({
 			suggestions: [outdent`
 				const {a, ...b} = foo;
 				console.log(a);
-			`]
+			`],
 		}),
 		// Actual message
 		{
@@ -447,8 +447,8 @@ test({
 				console.log(foo.a.c);
 			`,
 			errors: [{
-				message: 'Use destructured variables over properties.'
-			}]
+				message: 'Use destructured variables over properties.',
+			}],
 		},
 		{
 			code: outdent`
@@ -462,11 +462,11 @@ test({
 					output: outdent`
 						const {a} = foo;
 						console.log(a);
-					`
-				}]
-			}]
-		}
-	]
+					`,
+				}],
+			}],
+		},
+	],
 });
 
 test.babel({
@@ -474,7 +474,7 @@ test.babel({
 		outdent`
 			const {a, ...b} = bar;
 			console.log(bar.c);
-		`
+		`,
 	],
 	invalid: [
 		invalidTestCase({
@@ -485,7 +485,7 @@ test.babel({
 			suggestions: [outdent`
 				const {a, ...b} = bar;
 				console.log(a);
-			`]
-		})
-	]
+			`],
+		}),
+	],
 });

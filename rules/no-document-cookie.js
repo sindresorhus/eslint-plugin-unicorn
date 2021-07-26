@@ -1,10 +1,9 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const getPropertyName = require('./utils/get-property-name');
+const getPropertyName = require('./utils/get-property-name.js');
 
 const MESSAGE_ID = 'no-document-cookie';
 const messages = {
-	[MESSAGE_ID]: 'Do not use `document.cookie` directly.'
+	[MESSAGE_ID]: 'Do not use `document.cookie` directly.',
 };
 
 const selector = [
@@ -12,7 +11,7 @@ const selector = [
 	'>',
 	'MemberExpression.left',
 	'[object.type="Identifier"]',
-	'[object.name="document"]'
+	'[object.name="document"]',
 ].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -23,11 +22,11 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			return {
 				node,
-				messageId: MESSAGE_ID
-			});
-		}
+				messageId: MESSAGE_ID,
+			};
+		},
 	};
 };
 
@@ -37,9 +36,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Do not use `document.cookie` directly.',
-			url: getDocumentationUrl(__filename)
 		},
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

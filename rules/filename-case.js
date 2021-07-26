@@ -1,12 +1,13 @@
 'use strict';
 const path = require('path');
 const {camelCase, kebabCase, snakeCase, upperFirst} = require('lodash');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const cartesianProductSamples = require('./utils/cartesian-product-samples');
+const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
 
 const MESSAGE_ID = 'filename-case';
+const MESSAGE_ID_EXTENSION = 'filename-extension';
 const messages = {
-	[MESSAGE_ID]: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.'
+	[MESSAGE_ID]: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.',
+	[MESSAGE_ID_EXTENSION]: 'File extension `{{extension}}` is not in lowercase. Rename it to `{{filename}}`.',
 };
 
 const pascalCase = string => upperFirst(camelCase(string));
@@ -15,6 +16,7 @@ const PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
 const PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
 const isIgnoredChar = char => !/^[a-z\d-_$]$/i.test(char);
 const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue']);
+const isLowerCase = string => string === string.toLowerCase();
 
 function ignoreNumbers(caseFunction) {
 	return string => {
@@ -40,20 +42,20 @@ function ignoreNumbers(caseFunction) {
 const cases = {
 	camelCase: {
 		fn: camelCase,
-		name: 'camel case'
+		name: 'camel case',
 	},
 	kebabCase: {
 		fn: kebabCase,
-		name: 'kebab case'
+		name: 'kebab case',
 	},
 	snakeCase: {
 		fn: snakeCase,
-		name: 'snake case'
+		name: 'snake case',
 	},
 	pascalCase: {
 		fn: pascalCase,
-		name: 'pascal case'
-	}
+		name: 'pascal case',
+	},
 };
 
 /**
@@ -88,10 +90,10 @@ function fixFilename(words, caseFunctions, {leading, extension}) {
 		.map(({word, ignored}) => ignored ? [word] : caseFunctions.map(caseFunction => caseFunction(word)));
 
 	const {
-		samples: combinations
+		samples: combinations,
 	} = cartesianProductSamples(replacements);
 
-	return [...new Set(combinations.map(parts => `${leading}${parts.join('')}${extension}`))];
+	return [...new Set(combinations.map(parts => `${leading}${parts.join('')}${extension.toLowerCase()}`))];
 }
 
 const leadingUnderscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;
@@ -110,7 +112,7 @@ function splitFilename(filename) {
 		} else {
 			lastWord = {
 				word: char,
-				ignored: isIgnored
+				ignored: isIgnored,
 			};
 			words.push(lastWord);
 		}
@@ -118,7 +120,7 @@ function splitFilename(filename) {
 
 	return {
 		leading,
-		words
+		words,
 	};
 }
 
@@ -151,7 +153,7 @@ const create = context => {
 		return new RegExp(item, 'u');
 	});
 	const chosenCasesFunctions = chosenCases.map(case_ => ignoreNumbers(cases[case_].fn));
-	const filenameWithExtension = context.getFilename();
+	const filenameWithExtension = context.getPhysicalFilename();
 
 	if (filenameWithExtension === '<input>' || filenameWithExtension === '<text>') {
 		return {};
@@ -171,25 +173,33 @@ const create = context => {
 			const isValid = validateFilename(words, chosenCasesFunctions);
 
 			if (isValid) {
+				if (!isLowerCase(extension)) {
+					return {
+						loc: {column: 0, line: 1},
+						messageId: MESSAGE_ID_EXTENSION,
+						data: {filename: filename + extension.toLowerCase(), extension},
+					};
+				}
+
 				return;
 			}
 
 			const renamedFilenames = fixFilename(words, chosenCasesFunctions, {
 				leading,
-				extension
+				extension,
 			});
 
-			context.report({
+			return {
 				// Report on first character like `unicode-bom` rule
 				// https://github.com/eslint/eslint/blob/8a77b661bc921c3408bae01b3aa41579edfc6e58/lib/rules/unicode-bom.js#L46
 				loc: {column: 0, line: 1},
 				messageId: MESSAGE_ID,
 				data: {
 					chosenCases: englishishJoinWords(chosenCases.map(x => cases[x].name)),
-					renamedFilenames: englishishJoinWords(renamedFilenames.map(x => `\`${x}\``))
-				}
-			});
-		}
+					renamedFilenames: englishishJoinWords(renamedFilenames.map(x => `\`${x}\``)),
+				},
+			};
+		},
 	};
 };
 
@@ -203,44 +213,44 @@ const schema = [
 							'camelCase',
 							'snakeCase',
 							'kebabCase',
-							'pascalCase'
-						]
+							'pascalCase',
+						],
 					},
 					ignore: {
 						type: 'array',
-						uniqueItems: true
-					}
+						uniqueItems: true,
+					},
 				},
-				additionalProperties: false
+				additionalProperties: false,
 			},
 			{
 				properties: {
 					cases: {
 						properties: {
 							camelCase: {
-								type: 'boolean'
+								type: 'boolean',
 							},
 							snakeCase: {
-								type: 'boolean'
+								type: 'boolean',
 							},
 							kebabCase: {
-								type: 'boolean'
+								type: 'boolean',
 							},
 							pascalCase: {
-								type: 'boolean'
-							}
+								type: 'boolean',
+							},
 						},
-						additionalProperties: false
+						additionalProperties: false,
 					},
 					ignore: {
 						type: 'array',
-						uniqueItems: true
-					}
+						uniqueItems: true,
+					},
 				},
-				additionalProperties: false
-			}
-		]
-	}
+				additionalProperties: false,
+			},
+		],
+	},
 ];
 
 module.exports = {
@@ -249,9 +259,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce a case style for filenames.',
-			url: getDocumentationUrl(__filename)
 		},
 		schema,
-		messages
-	}
+		messages,
+	},
 };

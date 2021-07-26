@@ -9,6 +9,9 @@ test.snapshot({
 		'const foo = Object.prototype.toString.call(bar);',
 		'const foo = Object.prototype.hasOwnProperty.call(bar, "property");',
 		'const foo = Object.prototype.propertyIsEnumerable.call(bar, "property");',
+		'const foo = "".charCodeAt.call(bar, 0);',
+		'const foo = [notEmpty].push.apply(bar, elements);',
+		'const foo = {notEmpty}.toString.call(bar);',
 		'Array.prototype.forEach.call(foo, () => {})',
 		'const push = Array.prototype.push.bind(foo)',
 		'const push = [].push',
@@ -23,8 +26,12 @@ test.snapshot({
 		'NotReflect.apply([].slice, foo, [])',
 		'Reflect.notApply([].slice, foo, [])',
 		'Reflect.apply([]?.slice, foo, [])',
-		// This better use `Foo.prototype.bar.call(baz)`, not handled
-		'foo.constructor.prototype.bar.call(baz)'
+		'Reflect.apply(foo, [].bar, [].bar)',
+		'class Foo {bar() { this.baz.bind(this) }}',
+		'const a = {bar() { this.baz.bind(this) }}',
+		'foo.bar.bind(foo)',
+		'foo.bar.bind(bar)',
+		'foo[{}].call(bar)',
 	],
 	invalid: [
 		'const foo = [].push.apply(bar, elements);',
@@ -34,49 +41,48 @@ test.snapshot({
 		'const foo = {}.propertyIsEnumerable.call(bar, "property");',
 		'[].forEach.call(foo, () => {})',
 		'const push = [].push.bind(foo)',
-		'const foo = bar.method.call(foo)',
-		'const foo = bar[method].call(foo)',
-		'const method = "realMethodName";const foo = bar[method].call(foo)',
 		'const foo = [][method].call(foo)',
 		'const method = "realMethodName";const foo = [][method].call(foo)',
-		'const foo = [1].push.apply(bar, elements);',
 		'const array = Reflect.apply([].slice, foo, [])',
-		'Reflect.apply(foo.bar, baz, [])',
-		// False positive
-		'Array["prototype"].slice.call();',
-		'Array?.prototype.slice.call();',
-		'window.Math.max.apply(null, numbers)'
-	]
+		'Reflect.apply([].bar, baz, [])',
+		'const foo = ({}).toString.call(bar);',
+		'const foo = ({}.toString).call(bar);',
+		'const foo = ({}.toString.call)(bar);',
+		'function foo(){return[].slice.call(bar);}',
+		'function foo(){return{}.toString.call(bar)}',
+	],
 });
 
 test.babel({
 	testerOptions: {
-		env: {es2021: true}
+		env: {es2021: true},
 	},
 	valid: [],
 	invalid: [
 		{
-			code: 'Reflect.apply(foo[Symbol()], baz, [])',
-			errors: [{message: 'Prefer using method from the constructor prototype.'}]
-		},
-		{
-			code: 'Reflect.apply(foo[Symbol("symbol description")], baz, [])',
-			errors: [{message: 'Prefer using method from the constructor prototype.'}]
-		},
-		{
-			code: 'Reflect.apply([][Symbol()], baz, [])',
-			output: 'Reflect.apply(Array.prototype[Symbol()], baz, [])',
-			errors: [{message: 'Prefer using method from `Array.prototype`.'}]
+			code: 'Reflect.apply({}[Symbol()], baz, [])',
+			output: 'Reflect.apply(Object.prototype[Symbol()], baz, [])',
+			errors: [{message: 'Prefer using method from `Object.prototype`.'}],
 		},
 		{
 			code: 'Reflect.apply({}[Symbol("symbol description")], baz, [])',
 			output: 'Reflect.apply(Object.prototype[Symbol("symbol description")], baz, [])',
-			errors: [{message: 'Prefer using method from `Object.prototype`.'}]
+			errors: [{message: 'Prefer using method from `Object.prototype`.'}],
+		},
+		{
+			code: 'Reflect.apply([][Symbol()], baz, [])',
+			output: 'Reflect.apply(Array.prototype[Symbol()], baz, [])',
+			errors: [{message: 'Prefer using method from `Array.prototype`.'}],
+		},
+		{
+			code: 'Reflect.apply({}[Symbol("symbol description")], baz, [])',
+			output: 'Reflect.apply(Object.prototype[Symbol("symbol description")], baz, [])',
+			errors: [{message: 'Prefer using method from `Object.prototype`.'}],
 		},
 		{
 			code: '[][Symbol.iterator].call(foo)',
 			output: 'Array.prototype[Symbol.iterator].call(foo)',
-			errors: [{message: 'Prefer using `Array.prototype.Symbol(Symbol.iterator)`.'}]
-		}
-	]
+			errors: [{message: 'Prefer using `Array.prototype.Symbol(Symbol.iterator)`.'}],
+		},
+	],
 });

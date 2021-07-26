@@ -2,13 +2,12 @@
 const {defaultsDeep} = require('lodash');
 const {getStringIfConstant} = require('eslint-utils');
 const eslintTemplateVisitor = require('eslint-template-visitor');
+const {callExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'importStyle';
 const messages = {
-	[MESSAGE_ID]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.'
+	[MESSAGE_ID]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.',
 };
-
-const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const getActualImportDeclarationStyles = importDeclaration => {
 	const {specifiers} = importDeclaration;
@@ -108,11 +107,11 @@ const getActualAssignmentTargetImportStyles = assignmentTarget => {
 const joinOr = words => {
 	return words
 		.map((word, index) => {
-			if (index === (words.length - 1)) {
+			if (index === words.length - 1) {
 				return word;
 			}
 
-			if (index === (words.length - 2)) {
+			if (index === words.length - 2) {
 				return word + ' or';
 			}
 
@@ -124,21 +123,21 @@ const joinOr = words => {
 // Keep this alphabetically sorted for easier maintenance
 const defaultStyles = {
 	chalk: {
-		default: true
+		default: true,
 	},
 	path: {
-		default: true
+		default: true,
 	},
 	util: {
-		named: true
-	}
+		named: true,
+	},
 };
 
 const templates = eslintTemplateVisitor({
 	parserOptions: {
 		sourceType: 'module',
-		ecmaVersion: 2018
-	}
+		ecmaVersion: 2018,
+	},
 });
 
 const variableDeclarationVariable = templates.variableDeclarationVariable();
@@ -161,8 +160,8 @@ const create = context => {
 			checkImport = true,
 			checkDynamicImport = true,
 			checkExportFrom = false,
-			checkRequire = true
-		} = {}
+			checkRequire = true,
+		} = {},
 	] = context.options;
 
 	styles = extendDefaultStyles ?
@@ -172,8 +171,8 @@ const create = context => {
 	styles = new Map(
 		Object.entries(styles).map(
 			([moduleName, styles]) =>
-				[moduleName, new Set(Object.entries(styles).filter(([, isAllowed]) => isAllowed).map(([style]) => style))]
-		)
+				[moduleName, new Set(Object.entries(styles).filter(([, isAllowed]) => isAllowed).map(([style]) => style))],
+		),
 	);
 
 	const report = (node, moduleName, actualImportStyles, allowedImportStyles, isRequire = false) => {
@@ -186,7 +185,7 @@ const create = context => {
 		// For `require`, `'default'` style allows both `x = require('x')` (`'namespace'` style) and
 		// `{default: x} = require('x')` (`'default'` style) since we don't know in advance
 		// whether `'x'` is a compiled ES6 module (with `default` key) or a CommonJS module and `require`
-		// does not provide any automatic interop for this, so the user may have to use either of theese.
+		// does not provide any automatic interop for this, so the user may have to use either of these.
 		if (isRequire && allowedImportStyles.has('default') && !allowedImportStyles.has('namespace')) {
 			effectiveAllowedImportStyles = new Set(allowedImportStyles);
 			effectiveAllowedImportStyles.add('namespace');
@@ -198,13 +197,13 @@ const create = context => {
 
 		const data = {
 			allowedStyles: joinOr([...allowedImportStyles.keys()]),
-			moduleName
+			moduleName,
 		};
 
 		context.report({
 			node,
 			messageId: MESSAGE_ID,
-			data
+			data,
 		});
 	};
 
@@ -221,7 +220,7 @@ const create = context => {
 				const actualImportStyles = getActualImportDeclarationStyles(node);
 
 				report(node, moduleName, actualImportStyles, allowedImportStyles);
-			}
+			},
 		};
 	}
 
@@ -250,7 +249,7 @@ const create = context => {
 				const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
 
 				report(node, moduleName, actualImportStyles, allowedImportStyles);
-			}
+			},
 		};
 	}
 
@@ -274,7 +273,7 @@ const create = context => {
 				const actualImportStyles = getActualExportDeclarationStyles(node);
 
 				report(node, moduleName, actualImportStyles, allowedImportStyles);
-			}
+			},
 		};
 	}
 
@@ -282,7 +281,7 @@ const create = context => {
 		visitor = {
 			...visitor,
 
-			'ExpressionStatement > CallExpression[callee.name=\'require\'][arguments.length=1]'(node) {
+			[`ExpressionStatement > ${callExpressionSelector({name: 'require', argumentsLength: 1})}.expression`](node) {
 				const moduleName = getStringIfConstant(node.arguments[0], context.getScope());
 				const allowedImportStyles = styles.get(moduleName);
 				const actualImportStyles = ['unassigned'];
@@ -303,7 +302,7 @@ const create = context => {
 				const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
 
 				report(node, moduleName, actualImportStyles, allowedImportStyles, true);
-			}
+			},
 		};
 	}
 
@@ -315,52 +314,52 @@ const schema = [
 		type: 'object',
 		properties: {
 			checkImport: {
-				type: 'boolean'
+				type: 'boolean',
 			},
 			checkDynamicImport: {
-				type: 'boolean'
+				type: 'boolean',
 			},
 			checkExportFrom: {
-				type: 'boolean'
+				type: 'boolean',
 			},
 			checkRequire: {
-				type: 'boolean'
+				type: 'boolean',
 			},
 			extendDefaultStyles: {
-				type: 'boolean'
+				type: 'boolean',
 			},
 			styles: {
-				$ref: '#/items/0/definitions/moduleStyles'
-			}
+				$ref: '#/items/0/definitions/moduleStyles',
+			},
 		},
 		additionalProperties: false,
 		definitions: {
 			moduleStyles: {
 				type: 'object',
 				additionalProperties: {
-					$ref: '#/items/0/definitions/styles'
-				}
+					$ref: '#/items/0/definitions/styles',
+				},
 			},
 			styles: {
 				anyOf: [
 					{
 						enum: [
-							false
-						]
+							false,
+						],
 					},
 					{
-						$ref: '#/items/0/definitions/booleanObject'
-					}
-				]
+						$ref: '#/items/0/definitions/booleanObject',
+					},
+				],
 			},
 			booleanObject: {
 				type: 'object',
 				additionalProperties: {
-					type: 'boolean'
-				}
-			}
-		}
-	}
+					type: 'boolean',
+				},
+			},
+		},
+	},
 ];
 
 module.exports = {
@@ -369,9 +368,8 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce specific import styles per module.',
-			url: getDocumentationUrl(__filename)
 		},
 		schema,
-		messages
-	}
+		messages,
+	},
 };

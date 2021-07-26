@@ -26,7 +26,7 @@ const notDomNodeTypes = [
 	// TemplateLiteral
 	'`templateLiteral`',
 	// Undefined
-	'undefined'
+	'undefined',
 ];
 
 export default notDomNodeTypes;

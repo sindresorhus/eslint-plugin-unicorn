@@ -1,11 +1,10 @@
 'use strict';
 const {isCommaToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before');
+const {replaceNodeOrTokenAndSpacesBefore} = require('./fix/index.js');
 
 const messageId = 'no-useless-undefined';
 const messages = {
-	[messageId]: 'Do not use useless `undefined`.'
+	[messageId]: 'Do not use useless `undefined`.',
 };
 
 const getSelector = (parent, property) =>
@@ -26,9 +25,9 @@ const variableInitSelector = getSelector(
 		'VariableDeclaration',
 		'[kind!="const"]',
 		'>',
-		'VariableDeclarator'
+		'VariableDeclarator',
 	].join(''),
-	'init'
+	'init',
 );
 
 // `const {foo = undefined} = {}`
@@ -55,9 +54,9 @@ const compareFunctionNames = new Set([
 	'same',
 	'notSame',
 	'strictSame',
-	'strictNotSame'
+	'strictNotSame',
 ]);
-const isCompareFunction = node => {
+const shouldIgnore = node => {
 	let name;
 
 	if (node.type === 'Identifier') {
@@ -71,7 +70,15 @@ const isCompareFunction = node => {
 		name = node.property.name;
 	}
 
-	return compareFunctionNames.has(name);
+	return compareFunctionNames.has(name) ||
+		// `set.add(undefined)`
+		name === 'add' ||
+		// `map.set(foo, undefined)`
+		name === 'set' ||
+		// `array.push(undefined)`
+		name === 'push' ||
+		// `array.unshift(undefined)`
+		name === 'unshift';
 };
 
 const getFunction = scope => {
@@ -91,17 +98,17 @@ const create = context => {
 			}
 		}
 
-		context.report({
+		return {
 			node,
 			messageId,
-			fix: fixer => fix(node, fixer)
-		});
+			fix: fixer => fix(node, fixer),
+		};
 	};
 
 	const sourceCode = context.getSourceCode();
 	const options = {
 		checkArguments: true,
-		...context.options[0]
+		...context.options[0],
 	};
 
 	const removeNodeAndLeadingSpace = (node, fixer) =>
@@ -110,24 +117,24 @@ const create = context => {
 	const listeners = {
 		[returnSelector]: listener(
 			removeNodeAndLeadingSpace,
-			/* CheckFunctionReturnType */ true
+			/* CheckFunctionReturnType */ true,
 		),
 		[yieldSelector]: listener(removeNodeAndLeadingSpace),
 		[arrowFunctionSelector]: listener(
 			(node, fixer) => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, sourceCode),
-			/* CheckFunctionReturnType */ true
+			/* CheckFunctionReturnType */ true,
 		),
 		[variableInitSelector]: listener(
-			(node, fixer) => fixer.removeRange([node.parent.id.range[1], node.range[1]])
+			(node, fixer) => fixer.removeRange([node.parent.id.range[1], node.range[1]]),
 		),
 		[assignmentPatternSelector]: listener(
-			(node, fixer) => fixer.removeRange([node.parent.left.range[1], node.range[1]])
-		)
+			(node, fixer) => fixer.removeRange([node.parent.left.range[1], node.range[1]]),
+		),
 	};
 
 	if (options.checkArguments) {
 		listeners.CallExpression = node => {
-			if (isCompareFunction(node.callee)) {
+			if (shouldIgnore(node.callee)) {
 				return;
 			}
 
@@ -149,11 +156,11 @@ const create = context => {
 			const firstUndefined = undefinedArguments[0];
 			const lastUndefined = undefinedArguments[undefinedArguments.length - 1];
 
-			context.report({
+			return {
 				messageId,
 				loc: {
 					start: firstUndefined.loc.start,
-					end: lastUndefined.loc.end
+					end: lastUndefined.loc.end,
 				},
 				fix: fixer => {
 					let start = firstUndefined.range[0];
@@ -172,8 +179,8 @@ const create = context => {
 					}
 
 					return fixer.removeRange([start, end]);
-				}
-			});
+				},
+			};
 		};
 	}
 
@@ -185,11 +192,11 @@ const schema = [
 		type: 'object',
 		properties: {
 			checkArguments: {
-				type: 'boolean'
-			}
+				type: 'boolean',
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -198,10 +205,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow useless `undefined`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+	},
 };

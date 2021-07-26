@@ -1,13 +1,11 @@
 'use strict';
 const {isOpeningParenToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isShadowed = require('./utils/is-shadowed');
-const removeSpacesAfter = require('./utils/remove-spaces-after');
-const isStaticRequire = require('./utils/is-static-require');
-const replaceReferenceIdentifier = require('./utils/replace-reference-identifier');
-const {getParentheses} = require('./utils/parentheses');
-const assertToken = require('./utils/assert-token');
-const {referenceIdentifierSelector} = require('./selectors');
+const isShadowed = require('./utils/is-shadowed.js');
+const isStaticRequire = require('./utils/is-static-require.js');
+const {getParentheses} = require('./utils/parentheses.js');
+const assertToken = require('./utils/assert-token.js');
+const {referenceIdentifierSelector} = require('./selectors/index.js');
+const {replaceReferenceIdentifier, removeSpacesAfter} = require('./fix/index.js');
 
 const ERROR_USE_STRICT_DIRECTIVE = 'error/use-strict-directive';
 const ERROR_GLOBAL_RETURN = 'error/global-return';
@@ -23,7 +21,7 @@ const messages = {
 	[SUGGESTION_DIRNAME]: 'Replace "__dirname" with `"…(import.meta.url)"`.',
 	[SUGGESTION_FILENAME]: 'Replace "__filename" with `"…(import.meta.url)"`.',
 	[SUGGESTION_IMPORT]: 'Switch to `import`.',
-	[SUGGESTION_EXPORT]: 'Switch to `export`.'
+	[SUGGESTION_EXPORT]: 'Switch to `export`.',
 };
 
 const identifierSelector = referenceIdentifierSelector([
@@ -31,7 +29,7 @@ const identifierSelector = referenceIdentifierSelector([
 	'require',
 	'module',
 	'__filename',
-	'__dirname'
+	'__dirname',
 ]);
 
 function * removeParentheses(nodeOrNodes, fixer, sourceCode) {
@@ -52,7 +50,7 @@ function fixRequireCall(node, sourceCode) {
 	const {
 		parent,
 		callee,
-		arguments: [source]
+		arguments: [source],
 	} = requireCall;
 
 	// `require("foo")`
@@ -61,7 +59,7 @@ function fixRequireCall(node, sourceCode) {
 			yield fixer.replaceText(callee, 'import');
 			const openingParenthesisToken = sourceCode.getTokenAfter(
 				callee,
-				isOpeningParenToken
+				isOpeningParenToken,
 			);
 			yield fixer.replaceText(openingParenthesisToken, ' ');
 			const closingParenthesisToken = sourceCode.getLastToken(requireCall);
@@ -84,7 +82,7 @@ function fixRequireCall(node, sourceCode) {
 						type === 'Property' &&
 						!computed &&
 						value.type === 'Identifier' &&
-						key.type === 'Identifier'
+						key.type === 'Identifier',
 				)
 			)
 		) &&
@@ -102,14 +100,14 @@ function fixRequireCall(node, sourceCode) {
 			const constToken = sourceCode.getFirstToken(declaration);
 			assertToken(constToken, {
 				expected: {type: 'Keyword', value: 'const'},
-				ruleId: 'prefer-module'
+				ruleId: 'prefer-module',
 			});
 			yield fixer.replaceText(constToken, 'import');
 
 			const equalToken = sourceCode.getTokenAfter(id);
 			assertToken(equalToken, {
 				expected: {type: 'Punctuator', value: '='},
-				ruleId: 'prefer-module'
+				ruleId: 'prefer-module',
 			});
 			yield removeSpacesAfter(id, sourceCode, fixer);
 			yield removeSpacesAfter(equalToken, sourceCode, fixer);
@@ -118,7 +116,7 @@ function fixRequireCall(node, sourceCode) {
 			yield fixer.remove(callee);
 			const openingParenthesisToken = sourceCode.getTokenAfter(
 				callee,
-				isOpeningParenToken
+				isOpeningParenToken,
 			);
 			yield fixer.remove(openingParenthesisToken);
 			const closingParenthesisToken = sourceCode.getLastToken(requireCall);
@@ -138,7 +136,7 @@ function fixRequireCall(node, sourceCode) {
 					const commaToken = sourceCode.getTokenAfter(key);
 					assertToken(commaToken, {
 						expected: {type: 'Punctuator', value: ':'},
-						ruleId: 'prefer-module'
+						ruleId: 'prefer-module',
 					});
 					yield removeSpacesAfter(key, sourceCode, fixer);
 					yield removeSpacesAfter(commaToken, sourceCode, fixer);
@@ -214,24 +212,30 @@ function fixModuleExports(node, sourceCode) {
 }
 
 function create(context) {
+	const filename = context.getFilename();
+
+	if (filename.toLowerCase().endsWith('.cjs')) {
+		return {};
+	}
+
 	const sourceCode = context.getSourceCode();
 
 	return {
 		'ExpressionStatement[directive="use strict"]'(node) {
-			context.report({
+			return {
 				node,
 				messageId: ERROR_USE_STRICT_DIRECTIVE,
 				* fix(fixer) {
 					yield fixer.remove(node);
 					yield removeSpacesAfter(node, sourceCode, fixer);
-				}
-			});
+				},
+			};
 		},
 		'ReturnStatement:not(:function ReturnStatement)'(node) {
-			context.report({
+			return {
 				node: sourceCode.getFirstToken(node),
-				messageId: ERROR_GLOBAL_RETURN
-			});
+				messageId: ERROR_GLOBAL_RETURN,
+			};
 		},
 		[identifierSelector](node) {
 			if (isShadowed(context.getScope(), node)) {
@@ -243,7 +247,7 @@ function create(context) {
 			const problem = {
 				node,
 				messageId: ERROR_IDENTIFIER,
-				data: {name}
+				data: {name},
 			};
 
 			switch (name) {
@@ -255,9 +259,9 @@ function create(context) {
 						'url.fileURLToPath(import.meta.url)';
 					problem.suggest = [{
 						messageId,
-						fix: fixer => replaceReferenceIdentifier(node, replacement, fixer)
+						fix: fixer => replaceReferenceIdentifier(node, replacement, fixer),
 					}];
-					break;
+					return problem;
 				}
 
 				case 'require': {
@@ -265,8 +269,9 @@ function create(context) {
 					if (fix) {
 						problem.suggest = [{
 							messageId: SUGGESTION_IMPORT,
-							fix
+							fix,
 						}];
+						return problem;
 					}
 
 					break;
@@ -277,8 +282,9 @@ function create(context) {
 					if (fix) {
 						problem.suggest = [{
 							messageId: SUGGESTION_EXPORT,
-							fix
+							fix,
 						}];
+						return problem;
 					}
 
 					break;
@@ -289,8 +295,9 @@ function create(context) {
 					if (fix) {
 						problem.suggest = [{
 							messageId: SUGGESTION_EXPORT,
-							fix
+							fix,
 						}];
+						return problem;
 					}
 
 					break;
@@ -299,8 +306,8 @@ function create(context) {
 				default:
 			}
 
-			context.report(problem);
-		}
+			return problem;
+		},
 	};
 }
 
@@ -310,10 +317,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer JavaScript modules (ESM) over CommonJS.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+		hasSuggestions: true,
+	},
 };

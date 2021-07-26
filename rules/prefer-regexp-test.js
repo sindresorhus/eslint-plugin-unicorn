@@ -1,41 +1,41 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
-const {isBooleanNode} = require('./utils/boolean');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
+const {checkVueTemplate} = require('./utils/rule.js');
+const {methodCallSelector} = require('./selectors/index.js');
+const {isBooleanNode} = require('./utils/boolean.js');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 
 const REGEXP_EXEC = 'regexp-exec';
 const STRING_MATCH = 'string-match';
 const messages = {
 	[REGEXP_EXEC]: 'Prefer `.test(…)` over `.exec(…)`.',
-	[STRING_MATCH]: 'Prefer `RegExp#test(…)` over `String#match(…)`.'
+	[STRING_MATCH]: 'Prefer `RegExp#test(…)` over `String#match(…)`.',
 };
 
 const cases = [
 	{
 		type: REGEXP_EXEC,
 		selector: methodCallSelector({
-			name: 'exec',
-			length: 1
+			method: 'exec',
+			argumentsLength: 1,
 		}),
 		getNodes: node => ({
 			stringNode: node.arguments[0],
 			methodNode: node.callee.property,
-			regexpNode: node.callee.object
+			regexpNode: node.callee.object,
 		}),
-		fix: (fixer, {methodNode}) => fixer.replaceText(methodNode, 'test')
+		fix: (fixer, {methodNode}) => fixer.replaceText(methodNode, 'test'),
 	},
 	{
 		type: STRING_MATCH,
 		selector: methodCallSelector({
-			name: 'match',
-			length: 1
+			method: 'match',
+			argumentsLength: 1,
 		}),
 		getNodes: node => ({
 			stringNode: node.callee.object,
 			methodNode: node.callee.property,
-			regexpNode: node.arguments[0]
+			regexpNode: node.arguments[0],
 		}),
 		* fix(fixer, {stringNode, methodNode, regexpNode}, sourceCode) {
 			yield fixer.replaceText(methodNode, 'test');
@@ -62,8 +62,8 @@ const cases = [
 			// The nodes that pass `isBooleanNode` cannot have an ASI problem.
 
 			yield fixer.replaceText(stringNode, regexpText);
-		}
-	}
+		},
+	},
 ];
 
 const isRegExpNode = node => {
@@ -82,62 +82,54 @@ const isRegExpNode = node => {
 	return false;
 };
 
-function getProblem(node, checkCase, context) {
-	if (!isBooleanNode(node)) {
-		return;
-	}
-
-	const {type, getNodes, fix} = checkCase;
-	const nodes = getNodes(node);
-	const {methodNode, regexpNode} = nodes;
-	const problem = {
-		node: type === REGEXP_EXEC ? methodNode : node,
-		messageId: type
-	};
-
-	if (regexpNode.type === 'Literal' && !regexpNode.regex) {
-		return;
-	}
-
-	if (!isRegExpNode(regexpNode)) {
-		const staticResult = getStaticValue(regexpNode, context.getScope());
-		if (staticResult) {
-			const {value} = staticResult;
-			if (
-				Object.prototype.toString.call(value) !== '[object RegExp]' ||
-				value.flags.includes('g')
-			) {
-				return problem;
-			}
-		}
-	}
-
-	problem.fix = fixer => fix(fixer, nodes, context.getSourceCode());
-	return problem;
-}
-
 const create = context => Object.fromEntries(
 	cases.map(checkCase => [
 		checkCase.selector,
 		node => {
-			const problem = getProblem(node, checkCase, context);
-			if (problem) {
-				context.report(problem);
+			if (!isBooleanNode(node)) {
+				return;
 			}
-		}
-	])
+
+			const {type, getNodes, fix} = checkCase;
+			const nodes = getNodes(node);
+			const {methodNode, regexpNode} = nodes;
+
+			if (regexpNode.type === 'Literal' && !regexpNode.regex) {
+				return;
+			}
+
+			const problem = {
+				node: type === REGEXP_EXEC ? methodNode : node,
+				messageId: type,
+			};
+
+			if (!isRegExpNode(regexpNode)) {
+				const staticResult = getStaticValue(regexpNode, context.getScope());
+				if (staticResult) {
+					const {value} = staticResult;
+					if (
+						Object.prototype.toString.call(value) !== '[object RegExp]' ||
+						value.flags.includes('g')
+					) {
+						return problem;
+					}
+				}
+			}
+
+			problem.fix = fixer => fix(fixer, nodes, context.getSourceCode());
+			return problem;
+		},
+	]),
 );
 
 module.exports = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

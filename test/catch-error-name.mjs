@@ -9,8 +9,8 @@ const generateError = (originalName, fixedName) => ({
 	messageId: MESSAGE_ID,
 	data: {
 		originalName,
-		fixedName
-	}
+		fixedName,
+	},
 });
 
 function invalidTestCase(options) {
@@ -23,7 +23,7 @@ function invalidTestCase(options) {
 		code,
 		output: output || code,
 		options: name ? [{name}] : [],
-		errors
+		errors,
 	};
 }
 
@@ -32,7 +32,7 @@ test({
 		'try {} catch (error) {}',
 		{
 			code: 'try {} catch (err) {}',
-			options: [{name: 'err'}]
+			options: [{name: 'err'}],
 		},
 		outdent`
 			try {
@@ -60,7 +60,7 @@ test({
 					}
 				}
 			`,
-			options: [{name: 'err'}]
+			options: [{name: 'err'}],
 		},
 		outdent`
 			const handleError = error => {
@@ -92,7 +92,7 @@ test({
 					obj.catch(err_ => { });
 				}
 			`,
-			options: [{name: 'err'}]
+			options: [{name: 'err'}],
 		},
 		{
 			code: outdent`
@@ -100,7 +100,7 @@ test({
 					obj.then(undefined, err_ => { });
 				}
 			`,
-			options: [{name: 'err'}]
+			options: [{name: 'err'}],
 		},
 		outdent`
 			const handleError = error => {
@@ -134,11 +134,11 @@ test({
 		'obj.catch(() => {})',
 		{
 			code: 'obj.catch(err => {})',
-			options: [{name: 'err'}]
+			options: [{name: 'err'}],
 		},
 		{
 			code: 'obj.then(undefined, err => {})',
-			options: [{name: 'err'}]
+			options: [{name: 'err'}],
 		},
 		outdent`
 			obj.catch(
@@ -155,11 +155,11 @@ test({
 		'obj.catch(function () {})',
 		{
 			code: 'obj.catch(function (err) {})',
-			options: [{name: 'err'}]
+			options: [{name: 'err'}],
 		},
 		{
 			code: 'obj.then(undefined, function (err) {})',
-			options: [{name: 'err'}]
+			options: [{name: 'err'}],
 		},
 		outdent`
 			obj.catch(function (outerError) {
@@ -228,9 +228,9 @@ test({
 			`,
 			options: [
 				{
-					ignore: ['^_$']
-				}
-			]
+					ignore: ['^_$'],
+				},
+			],
 		},
 
 		// Allowed names
@@ -248,20 +248,20 @@ test({
 			'try {} catch (descriptiveException) {}',
 			'try {} catch (descriptive_exception) {}',
 			'try {} catch (descriptiveException__) {}',
-			'try {} catch (descriptive_exception__) {}'
+			'try {} catch (descriptive_exception__) {}',
 		].map(code => ({
 			code,
-			options: [{name: 'exception'}]
+			options: [{name: 'exception'}],
 		})),
 
 		// `ignore`
 		{
 			code: 'try {} catch (skipThisNameCheck) {}',
-			options: [{ignore: ['^skip']}]
+			options: [{ignore: ['^skip']}],
 		},
 		{
 			code: 'try {} catch (skipThisNameCheck) {}',
-			options: [{ignore: [/^skip/]}]
+			options: [{ignore: [/^skip/]}],
 		},
 		{
 			code: outdent`
@@ -269,7 +269,7 @@ test({
 				try {} catch (ignoreThisNameCheck) {}
 				try {} catch (pleaseIgnoreThisNameCheck) {}
 			`,
-			options: [{ignore: [/^skip/, /ignore/i]}]
+			options: [{ignore: [/^skip/, /ignore/i]}],
 		},
 		{
 			code: outdent`
@@ -277,12 +277,12 @@ test({
 				try {} catch (error1__) {}
 				try {} catch (error2) {}
 			`,
-			options: [{ignore: [/error\d*/]}]
+			options: [{ignore: [/error\d*/]}],
 		},
 		{
 			code: 'promise.catch(unicorn => {})',
-			options: [{ignore: ['unicorn']}]
-		}
+			options: [{ignore: ['unicorn']}],
+		},
 	],
 
 	invalid: [
@@ -299,7 +299,7 @@ test({
 					console.log(error)
 				}
 			`,
-			errors: [generateError('err', 'error')]
+			errors: [generateError('err', 'error')],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -315,29 +315,29 @@ test({
 				}
 			`,
 			name: 'err',
-			errors: [generateError('error', 'err')]
+			errors: [generateError('error', 'err')],
 		}),
 		invalidTestCase({
 			code: 'obj.catch(err => err)',
 			output: 'obj.catch(error => error)',
-			errors: [generateError('err', 'error')]
+			errors: [generateError('err', 'error')],
 		}),
 		invalidTestCase({
 			code: 'obj.then(undefined, err => err)',
 			output: 'obj.then(undefined, error => error)',
-			errors: [generateError('err', 'error')]
+			errors: [generateError('err', 'error')],
 		}),
 		invalidTestCase({
 			code: 'obj.catch(error => error.stack)',
 			output: 'obj.catch(err => err.stack)',
 			name: 'err',
-			errors: [generateError('error', 'err')]
+			errors: [generateError('error', 'err')],
 		}),
 		invalidTestCase({
 			code: 'obj.then(undefined, error => error.stack)',
 			output: 'obj.then(undefined, err => err.stack)',
 			name: 'err',
-			errors: [generateError('error', 'err')]
+			errors: [generateError('error', 'err')],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -350,7 +350,7 @@ test({
 					console.log(error)
 				})
 			`,
-			errors: [generateError('err', 'error')]
+			errors: [generateError('err', 'error')],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -363,7 +363,7 @@ test({
 					console.log(error)
 				})
 			`,
-			errors: [generateError('err', 'error')]
+			errors: [generateError('err', 'error')],
 		}),
 		// TODO: this could fix to `error`
 		invalidTestCase({
@@ -387,7 +387,7 @@ test({
 					}
 				)
 			`,
-			errors: [generateError('err', 'error_')]
+			errors: [generateError('err', 'error_')],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -401,7 +401,7 @@ test({
 				})
 			`,
 			name: 'err',
-			errors: [generateError('error', 'err')]
+			errors: [generateError('error', 'err')],
 		}),
 		{
 			code: outdent`
@@ -422,7 +422,7 @@ test({
 					}
 				}
 			`,
-			errors: [generateError('foo', 'error_')]
+			errors: [generateError('foo', 'error_')],
 		},
 		{
 			code: outdent`
@@ -447,7 +447,7 @@ test({
 					}
 				}
 			`,
-			errors: [generateError('foo', 'error_')]
+			errors: [generateError('foo', 'error_')],
 		},
 		{
 			code: outdent`
@@ -464,7 +464,7 @@ test({
 					obj.catch(error__ => { });
 				}
 			`,
-			errors: [generateError('foo', 'error__')]
+			errors: [generateError('foo', 'error__')],
 		},
 		invalidTestCase({
 			code: outdent`
@@ -482,7 +482,7 @@ test({
 				}
 			`,
 			name: 'error',
-			errors: [generateError('foo', 'error__')]
+			errors: [generateError('foo', 'error__')],
 		}),
 		{
 			code: outdent`
@@ -497,7 +497,7 @@ test({
 				obj.then(err => {}, error => {});
 				obj.then(err => {}, error => {});
 			`,
-			errors: Array.from({length: 4}).fill(generateError('err', 'error'))
+			errors: Array.from({length: 4}).fill(generateError('err', 'error')),
 		},
 
 		// Allowed names
@@ -505,7 +505,24 @@ test({
 			code: 'try {} catch (descriptiveError) {}',
 			output: 'try {} catch (exception) {}',
 			errors: [generateError('descriptiveError', 'exception')],
-			options: [{name: 'exception'}]
+			options: [{name: 'exception'}],
+		},
+
+		// Should not run into an infinity loop
+		{
+			code: 'try {} catch (e) {}',
+			errors: [generateError('e', 'has_space_after ')],
+			options: [{name: 'has_space_after '}],
+		},
+		{
+			code: 'try {} catch (e) {}',
+			errors: [generateError('e', '1_start_with_a_number')],
+			options: [{name: '1_start_with_a_number'}],
+		},
+		{
+			code: 'try {} catch (e) {}',
+			errors: [generateError('e', '_){} evilCode; if(false')],
+			options: [{name: '_){} evilCode; if(false'}],
 		},
 
 		// `ignore`
@@ -513,19 +530,19 @@ test({
 			code: 'try {} catch (notMatching) {}',
 			output: 'try {} catch (error) {}',
 			errors: [generateError('notMatching', 'error')],
-			options: [{ignore: []}]
+			options: [{ignore: []}],
 		},
 		{
 			code: 'try {} catch (notMatching) {}',
 			output: 'try {} catch (error) {}',
 			errors: [generateError('notMatching', 'error')],
-			options: [{ignore: ['unicorn']}]
+			options: [{ignore: ['unicorn']}],
 		},
 		{
 			code: 'try {} catch (notMatching) {}',
 			output: 'try {} catch (error) {}',
 			errors: [generateError('notMatching', 'error')],
-			options: [{ignore: [/unicorn/]}]
+			options: [{ignore: [/unicorn/]}],
 		},
 		{
 			code: outdent`
@@ -541,7 +558,7 @@ test({
 				try {} catch (error) {}
 			`,
 			errors: [generateError('unicorn', 'error')],
-			options: [{ignore: [/error\d*/]}]
+			options: [{ignore: [/error\d*/]}],
 		},
 		{
 			code: outdent`
@@ -555,13 +572,13 @@ test({
 				try {} catch (unicorn__) {}
 			`,
 			errors: [generateError('notMatching', 'error')],
-			options: [{ignore: ['unicorn']}]
+			options: [{ignore: ['unicorn']}],
 		},
 		{
 			code: 'promise.catch(notMatching => {})',
 			output: 'promise.catch(error => {})',
 			errors: [generateError('notMatching', 'error')],
-			options: [{ignore: ['unicorn']}]
+			options: [{ignore: ['unicorn']}],
 		},
 
 		// `_`
@@ -576,7 +593,7 @@ test({
 					console.log(error);
 				})
 			`,
-			errors: [generateError('_', 'error')]
+			errors: [generateError('_', 'error')],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -589,7 +606,7 @@ test({
 					console.log(error);
 				})
 			`,
-			errors: [generateError('_', 'error')]
+			errors: [generateError('_', 'error')],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -602,7 +619,7 @@ test({
 					console.log(error);
 				})
 			`,
-			errors: [generateError('_', 'error')]
+			errors: [generateError('_', 'error')],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -617,7 +634,7 @@ test({
 					console.log(error);
 				}
 			`,
-			errors: [generateError('_', 'error')]
+			errors: [generateError('_', 'error')],
 		}),
 		// TODO: this should fix to `error`, not `error_`
 		invalidTestCase({
@@ -639,7 +656,7 @@ test({
 					}
 				}
 			`,
-			errors: [generateError('_', 'error_')]
+			errors: [generateError('_', 'error_')],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -658,7 +675,7 @@ test({
 					} catch (_) {}
 				}
 			`,
-			errors: [generateError('_', 'error')]
+			errors: [generateError('_', 'error')],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -679,7 +696,7 @@ test({
 					}
 				}
 			`,
-			errors: [generateError('_', 'error')]
+			errors: [generateError('_', 'error')],
 		}),
 		{
 			code: outdent`
@@ -702,7 +719,7 @@ test({
 					}
 				}
 			`,
-			errors: [generateError('_', 'error'), generateError('_', 'error')]
+			errors: [generateError('_', 'error'), generateError('_', 'error')],
 		},
 
 		// #107
@@ -717,7 +734,7 @@ test({
 					try {} catch (error) {}
 				}).catch(error => error);
 			`,
-			errors: [generateError('e', 'error')]
+			errors: [generateError('e', 'error')],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -730,7 +747,7 @@ test({
 					try {} catch (error) {}
 				});
 			`,
-			errors: [generateError('e', 'error')]
+			errors: [generateError('e', 'error')],
 		}),
 		{
 			code: outdent`
@@ -743,7 +760,7 @@ test({
 					try {} catch (error) {}
 				}).catch(error => error);
 			`,
-			errors: [generateError('e', 'error'), generateError('err', 'error')]
+			errors: [generateError('e', 'error'), generateError('err', 'error')],
 		},
 		{
 			code: outdent`
@@ -768,7 +785,7 @@ test({
 					}
 				}
 			`,
-			errors: [generateError('anyName', 'error'), generateError('anyOtherName', 'error')]
+			errors: [generateError('anyName', 'error'), generateError('anyOtherName', 'error')],
 		},
 		invalidTestCase({
 			code: outdent`
@@ -812,7 +829,7 @@ test({
 				};
 			`,
 			name: 'err',
-			errors: [generateError('err2', 'err_')]
+			errors: [generateError('err2', 'err_')],
 		}),
 
 		// #561
@@ -831,9 +848,9 @@ test({
 					throw error
 				}
 			`,
-			errors: [generateError('e', 'error_')]
-		})
-	]
+			errors: [generateError('e', 'error_')],
+		}),
+	],
 });
 
 test.typescript({
@@ -850,7 +867,7 @@ test.typescript({
 					console.log(error)
 				})
 			`,
-			errors: [generateError('err', 'error')]
+			errors: [generateError('err', 'error')],
 		}),
 		// https://github.com/untitled-labs/metabase-custom/blob/0fbb8b3d6f183bff6ad786d5158ddabf745f1f5c/frontend/src/metabase/containers/dnd/ItemDragSource.jsx#L51
 		{
@@ -876,9 +893,9 @@ test.typescript({
 				})
 				export default class A {}
 			`,
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });
 
 test.babel({
@@ -887,11 +904,11 @@ test.babel({
 			babelOptions: {
 				parserOpts: {
 					plugins: [
-						['decorators', {decoratorsBeforeExport: true}]
-					]
-				}
-			}
-		}
+						['decorators', {decoratorsBeforeExport: true}],
+					],
+				},
+			},
+		},
 	},
 	valid: [],
 	invalid: [
@@ -919,7 +936,7 @@ test.babel({
 				})
 				export default class A {}
 			`,
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });

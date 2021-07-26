@@ -1,71 +1,70 @@
 'use strict';
-const memberExpressionSelector = require('./member-expression-selector');
+const {pick} = require('lodash');
+const memberExpressionSelector = require('./member-expression-selector.js');
+const {callExpressionSelector} = require('./call-or-new-expression-selector.js');
 
+/**
+@param {
+	{
+		path?: string,
+
+		// `CallExpression` options
+		argumentsLength?: number,
+		minimumArguments?: number,
+		maximumArguments?: number,
+		includeOptionalCall?: boolean,
+		allowSpreadElement?: boolean,
+
+		// `MemberExpression` options
+		method?: string,
+		methods?: string[],
+		object?: string,
+		objects?: string[],
+		includeOptionalMember?: boolean,
+		allowComputed?: boolean
+	} | string | string[]
+} [options]
+@returns {string}
+*/
 function methodCallSelector(options) {
+	if (typeof options === 'string') {
+		options = {methods: [options]};
+	}
+
+	if (Array.isArray(options)) {
+		options = {methods: options};
+	}
+
 	const {
-		name,
-		names,
-		length,
-		object,
-		objects,
-		min,
-		max,
 		path,
 		includeOptionalCall,
 		includeOptionalMember,
-		allowSpreadElement
+		method,
+		methods,
 	} = {
-		min: 0,
-		max: Number.POSITIVE_INFINITY,
+		path: '',
 		includeOptionalCall: false,
 		includeOptionalMember: false,
-		allowSpreadElement: false,
-		path: '',
-		...options
+		method: '',
+		methods: [],
+		...options,
 	};
 
 	const prefix = path ? `${path}.` : '';
 
-	const parts = [
-		`[${prefix}type="CallExpression"]`
-	];
-
-	if (!includeOptionalCall) {
-		parts.push(`[${prefix}optional!=true]`);
-	}
-
-	parts.push(memberExpressionSelector({
-		path: `${prefix}callee`,
-		name,
-		names,
-		object,
-		objects,
-		includeOptional: includeOptionalMember
-	}));
-
-	if (typeof length === 'number') {
-		parts.push(`[${prefix}arguments.length=${length}]`);
-	}
-
-	if (min !== 0) {
-		parts.push(`[${prefix}arguments.length>=${min}]`);
-	}
-
-	if (Number.isFinite(max)) {
-		parts.push(`[${prefix}arguments.length<=${max}]`);
-	}
-
-	if (!allowSpreadElement) {
-		const maxArguments = Number.isFinite(max) ? max : length;
-		if (typeof maxArguments === 'number') {
-			// Exclude arguments with `SpreadElement` type
-			for (let index = 0; index < maxArguments; index += 1) {
-				parts.push(`[${prefix}arguments.${index}.type!="SpreadElement"]`);
-			}
-		}
-	}
-
-	return parts.join('');
+	return [
+		callExpressionSelector({
+			...pick(options, ['path', 'argumentsLength', 'minimumArguments', 'maximumArguments', 'allowSpreadElement']),
+			includeOptional: includeOptionalCall,
+		}),
+		memberExpressionSelector({
+			...pick(options, ['object', 'objects', 'allowComputed']),
+			path: `${prefix}callee`,
+			property: method,
+			properties: methods,
+			includeOptional: includeOptionalMember,
+		}),
+	].join('');
 }
 
 module.exports = methodCallSelector;

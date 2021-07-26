@@ -1,12 +1,12 @@
 'use strict';
 const eslintTemplateVisitor = require('eslint-template-visitor');
-const getDocumentationUrl = require('./utils/get-documentation-url');
+const {getParenthesizedText} = require('./utils/parentheses.js');
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
 const messages = {
 	[MESSAGE_ID_SUBSTR]: 'Prefer `String#slice()` over `String#substr()`.',
-	[MESSAGE_ID_SUBSTRING]: 'Prefer `String#slice()` over `String#substring()`.'
+	[MESSAGE_ID_SUBSTRING]: 'Prefer `String#slice()` over `String#substring()`.',
 };
 
 const templates = eslintTemplateVisitor();
@@ -43,20 +43,6 @@ const isLikelyNumeric = node => isLiteralNumber(node) || isLengthProperty(node);
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
-	const getNodeText = node => {
-		const text = sourceCode.getText(node);
-		const before = sourceCode.getTokenBefore(node);
-		const after = sourceCode.getTokenAfter(node);
-		if (
-			(before && before.type === 'Punctuator' && before.value === '(') &&
-			(after && after.type === 'Punctuator' && after.value === ')')
-		) {
-			return `(${text})`;
-		}
-
-		return text;
-	};
-
 	return templates.visitor({
 		[substrCallTemplate](node) {
 			const objectNode = substrCallTemplate.context.getMatch(objectVariable);
@@ -64,7 +50,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				messageId: MESSAGE_ID_SUBSTR
+				messageId: MESSAGE_ID_SUBSTR,
 			};
 
 			const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
@@ -99,7 +85,7 @@ const create = context => {
 					) {
 						sliceArguments = [
 							firstArgument,
-							argumentNodes[0].value + argumentNodes[1].value
+							argumentNodes[0].value + argumentNodes[1].value,
 						];
 					} else if (
 						isLikelyNumeric(argumentNodes[0]) &&
@@ -114,7 +100,7 @@ const create = context => {
 			}
 
 			if (sliceArguments) {
-				const objectText = getNodeText(objectNode);
+				const objectText = getParenthesizedText(objectNode, sourceCode);
 				const optionalMemberSuffix = node.callee.optional ? '?' : '';
 				const optionalCallSuffix = node.optional ? '?.' : '';
 
@@ -130,7 +116,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				messageId: MESSAGE_ID_SUBSTRING
+				messageId: MESSAGE_ID_SUBSTRING,
 			};
 
 			const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
@@ -182,7 +168,7 @@ const create = context => {
 			}
 
 			if (sliceArguments) {
-				const objectText = getNodeText(objectNode);
+				const objectText = getParenthesizedText(objectNode, sourceCode);
 				const optionalMemberSuffix = node.callee.optional ? '?' : '';
 				const optionalCallSuffix = node.optional ? '?.' : '';
 
@@ -190,7 +176,7 @@ const create = context => {
 			}
 
 			context.report(problem);
-		}
+		},
 	});
 };
 
@@ -200,10 +186,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#slice()` over `String#substr()` and `String#substring()`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

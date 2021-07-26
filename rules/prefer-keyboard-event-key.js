@@ -1,17 +1,16 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const quoteString = require('./utils/quote-string');
-const translateToKey = require('./shared/event-keys');
+const quoteString = require('./utils/quote-string.js');
+const translateToKey = require('./shared/event-keys.js');
 
 const MESSAGE_ID = 'prefer-keyboard-event-key';
 const messages = {
-	[MESSAGE_ID]: 'Use `.key` instead of `.{{name}}`.'
+	[MESSAGE_ID]: 'Use `.key` instead of `.{{name}}`.',
 };
 
 const keys = new Set([
 	'keyCode',
 	'charCode',
-	'which'
+	'which',
 ]);
 
 const isPropertyNamedAddEventListener = node =>
@@ -32,7 +31,7 @@ const getEventNodeAndReferences = (context, node) => {
 			const references = eventVariable && eventVariable.references;
 			return {
 				event: callback.params && callback.params[0],
-				references
+				references,
 			};
 		}
 
@@ -41,15 +40,12 @@ const getEventNodeAndReferences = (context, node) => {
 	}
 };
 
-const isPropertyOf = (node, eventNode) => {
-	return (
-		node &&
-		node.parent &&
-		node.parent.type === 'MemberExpression' &&
-		node.parent.object &&
-		node.parent.object === eventNode
-	);
-};
+const isPropertyOf = (node, eventNode) =>
+	node &&
+	node.parent &&
+	node.parent.type === 'MemberExpression' &&
+	node.parent.object &&
+	node.parent.object === eventNode;
 
 // The third argument is a condition function, as one passed to `Array#filter()`
 // Helpful if nearest node of type also needs to have some other property
@@ -97,20 +93,18 @@ const fix = node => fixer => {
 	// Apply fixes
 	return [
 		fixer.replaceText(node, 'key'),
-		fixer.replaceText(right, quoteString(keyCode))
+		fixer.replaceText(right, quoteString(keyCode)),
 	];
 };
 
-const create = context => {
-	const report = node => {
-		context.report({
-			messageId: MESSAGE_ID,
-			data: {name: node.name},
-			node,
-			fix: fix(node)
-		});
-	};
+const getProblem = node => ({
+	messageId: MESSAGE_ID,
+	data: {name: node.name},
+	node,
+	fix: fix(node),
+});
 
+const create = context => {
 	return {
 		'Identifier:matches([name="keyCode"], [name="charCode"], [name="which"])'(node) {
 			// Normal case when usage is direct -> `event.keyCode`
@@ -123,7 +117,7 @@ const create = context => {
 				references &&
 				references.some(reference => isPropertyOf(node, reference.identifier))
 			) {
-				report(node);
+				return getProblem(node);
 			}
 		},
 
@@ -141,7 +135,7 @@ const create = context => {
 
 			const nearestVariableDeclarator = getMatchingAncestorOfType(
 				node,
-				'VariableDeclarator'
+				'VariableDeclarator',
 			);
 			const initObject =
 				nearestVariableDeclarator &&
@@ -153,8 +147,7 @@ const create = context => {
 				references &&
 				references.some(reference => reference.identifier === initObject)
 			) {
-				report(node.value);
-				return;
+				return getProblem(node.value);
 			}
 
 			// When the event parameter itself is destructured directly
@@ -163,11 +156,11 @@ const create = context => {
 				// Check for properties
 				for (const property of event.properties) {
 					if (property === node) {
-						report(node.value);
+						return getProblem(node.value);
 					}
 				}
 			}
-		}
+		},
 	};
 };
 
@@ -177,10 +170,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

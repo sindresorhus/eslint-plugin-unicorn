@@ -1,10 +1,10 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {isNumber, isBigInt} = require('./utils/numeric');
+const {checkVueTemplate} = require('./utils/rule.js');
+const {isNumber, isBigInt} = require('./utils/numeric.js');
 
 const MESSAGE_ID = 'number-literal-case';
 const messages = {
-	[MESSAGE_ID]: 'Invalid number literal casing.'
+	[MESSAGE_ID]: 'Invalid number literal casing.',
 };
 
 const fix = raw => {
@@ -16,7 +16,7 @@ const fix = raw => {
 	return fixed;
 };
 
-const create = context => {
+const create = () => {
 	return {
 		Literal: node => {
 			const {raw} = node;
@@ -29,26 +29,24 @@ const create = context => {
 			}
 
 			if (raw !== fixed) {
-				context.report({
+				return {
 					node,
 					messageId: MESSAGE_ID,
-					fix: fixer => fixer.replaceText(node, fixed)
-				});
+					fix: fixer => fixer.replaceText(node, fixed),
+				};
 			}
-		}
+		},
 	};
 };
 
 module.exports = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce proper case for numeric literals.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

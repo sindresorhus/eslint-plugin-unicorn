@@ -1,23 +1,22 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const quoteString = require('./utils/quote-string');
-const replaceTemplateElement = require('./utils/replace-template-element');
-const escapeTemplateElementRaw = require('./utils/escape-template-element-raw');
+const quoteString = require('./utils/quote-string.js');
+const escapeTemplateElementRaw = require('./utils/escape-template-element-raw.js');
+const {replaceTemplateElement} = require('./fix/index.js');
 
 const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
 const SUGGESTION_MESSAGE_ID = 'replace';
 const messages = {
-	[SUGGESTION_MESSAGE_ID]: 'Replace `{{match}}` with `{{suggest}}`.'
+	[SUGGESTION_MESSAGE_ID]: 'Replace `{{match}}` with `{{suggest}}`.',
 };
 
 const ignoredIdentifier = new Set([
 	'gql',
 	'html',
-	'svg'
+	'svg',
 ]);
 
 const ignoredMemberExpressionObject = new Set([
-	'styled'
+	'styled',
 ]);
 
 const isIgnoredTag = node => {
@@ -49,7 +48,7 @@ function getReplacements(patterns) {
 		.map(([match, options]) => {
 			if (typeof options === 'string') {
 				options = {
-					suggest: options
+					suggest: options,
 				};
 			}
 
@@ -57,7 +56,7 @@ function getReplacements(patterns) {
 				match,
 				regex: new RegExp(match, 'gu'),
 				fix: true,
-				...options
+				...options,
 			};
 		});
 }
@@ -65,7 +64,7 @@ function getReplacements(patterns) {
 const create = context => {
 	const {patterns} = {
 		patterns: {},
-		...context.options[0]
+		...context.options[0],
 	};
 	const replacements = getReplacements(patterns);
 
@@ -97,24 +96,24 @@ const create = context => {
 			const {fix: autoFix, message = defaultMessage, match, suggest, regex} = replacement;
 			const messageData = {
 				match,
-				suggest
+				suggest,
 			};
 			const problem = {
 				node,
 				message,
-				data: messageData
+				data: messageData,
 			};
 
 			const fixed = string.replace(regex, suggest);
 			const fix = type === 'Literal' ?
 				fixer => fixer.replaceText(
 					node,
-					quoteString(fixed, raw[0])
+					quoteString(fixed, raw[0]),
 				) :
 				fixer => replaceTemplateElement(
 					fixer,
 					node,
-					escapeTemplateElementRaw(fixed)
+					escapeTemplateElementRaw(fixed),
 				);
 
 			if (autoFix) {
@@ -124,13 +123,13 @@ const create = context => {
 					{
 						messageId: SUGGESTION_MESSAGE_ID,
 						data: messageData,
-						fix
-					}
+						fix,
+					},
 				];
 			}
 
-			context.report(problem);
-		}
+			return problem;
+		},
 	};
 };
 
@@ -143,33 +142,33 @@ const schema = [
 				additionalProperties: {
 					anyOf: [
 						{
-							type: 'string'
+							type: 'string',
 						},
 						{
 							type: 'object',
 							required: [
-								'suggest'
+								'suggest',
 							],
 							properties: {
 								suggest: {
-									type: 'string'
+									type: 'string',
 								},
 								fix: {
-									type: 'boolean'
+									type: 'boolean',
 									// Default: true
 								},
 								message: {
-									type: 'string'
+									type: 'string',
 									// Default: ''
-								}
+								},
 							},
-							additionalProperties: false
-						}
-					]
-				}}
+							additionalProperties: false,
+						},
+					],
+				}},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -178,10 +177,10 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce better string content.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+		hasSuggestions: true,
+	},
 };

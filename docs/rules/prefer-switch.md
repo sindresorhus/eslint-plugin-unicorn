@@ -67,8 +67,8 @@ Examples:
 ```js
 // eslint unicorn/prefer-switch: ["error", {"minimumCases": 4}]
 if (foo === 1) {}
-else (foo === 2) {}
-else (foo === 3) {}
+else if (foo === 2) {}
+else if (foo === 3) {}
 
 // Passes, only 3 cases.
 ```
@@ -76,8 +76,8 @@ else (foo === 3) {}
 ```js
 // eslint unicorn/prefer-switch: ["error", {"minimumCases": 4}]
 if (foo === 1) {}
-else (foo === 2) {}
-else (foo === 3) {}
+else if (foo === 2) {}
+else if (foo === 3) {}
 else {}
 
 // Passes, only 3 cases.
@@ -116,8 +116,8 @@ To avoid conflict with the [`default-case`](https://eslint.org/docs/rules/defaul
 
 ```js
 if (foo === 1) {}
-else (foo === 2) {}
-else (foo === 3) {}
+else if (foo === 2) {}
+else if (foo === 3) {}
 ```
 
 Fixed

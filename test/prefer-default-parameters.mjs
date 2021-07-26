@@ -8,8 +8,8 @@ const invalidTestCase = ({code, suggestions}) => {
 		return {
 			code,
 			errors: [{
-				messageId: 'preferDefaultParameters'
-			}]
+				messageId: 'preferDefaultParameters',
+			}],
 		};
 	}
 
@@ -19,9 +19,9 @@ const invalidTestCase = ({code, suggestions}) => {
 			messageId: 'preferDefaultParameters',
 			suggestions: [{
 				messageId: 'preferDefaultParametersSuggest',
-				output: suggestion
-			}]
-		}))
+				output: suggestion,
+			}],
+		})),
 	};
 };
 
@@ -239,7 +239,7 @@ test({
 			function abc(foo = 'bar') {
 				foo = foo || 'baz';
 			}
-		`
+		`,
 	],
 	invalid: [
 		invalidTestCase({
@@ -251,7 +251,7 @@ test({
 			suggestions: [outdent`
 				function abc(foo = 123) {
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -262,7 +262,7 @@ test({
 			suggestions: [outdent`
 				function abc(foo = true) {
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -275,7 +275,7 @@ test({
 				function abc(foo = 123) {
 					console.log(foo);
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -286,7 +286,7 @@ test({
 			suggestions: [outdent`
 				function abc(bar = 'bar') {
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -297,7 +297,7 @@ test({
 			suggestions: [outdent`
 				function abc(bar = 'bar') {
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -308,7 +308,7 @@ test({
 			suggestions: [outdent`
 				const abc = function(foo = 123) {
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -319,7 +319,7 @@ test({
 			suggestions: [outdent`
 				const abc = (foo = 'bar') => {
 				};
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -330,7 +330,7 @@ test({
 			suggestions: [outdent`
 				const abc = (foo = 'bar') => {
 				};
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -341,7 +341,7 @@ test({
 			suggestions: [outdent`
 				const abc = (bar = 'bar') => {
 				};
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -356,7 +356,7 @@ test({
 					bar();
 					baz();
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -367,7 +367,7 @@ test({
 			suggestions: [outdent`
 				function abc(foo = 123) {
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -380,7 +380,7 @@ test({
 				function abc(bar = 'bar') {
 					console.log(bar);
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -393,7 +393,7 @@ test({
 				const abc = function(bar = 'bar') {
 					console.log(bar);
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -408,7 +408,7 @@ test({
 					abc(foo = 123) {
 					}
 				};
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -425,7 +425,7 @@ test({
 					},
 					def(foo) { }
 				};
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -440,7 +440,7 @@ test({
 					abc(foo = 123) {
 					}
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -457,20 +457,20 @@ test({
 					}
 					def(foo) { }
 				}
-			`]
+			`],
 		}),
 		// The following tests verify the correct code formatting
 		invalidTestCase({
 			code: 'function abc(foo) { foo = foo || \'bar\'; }',
-			suggestions: ['function abc(foo = \'bar\') { }']
+			suggestions: ['function abc(foo = \'bar\') { }'],
 		}),
 		invalidTestCase({
 			code: 'function abc(foo) { foo = foo || \'bar\';}',
-			suggestions: ['function abc(foo = \'bar\') { }']
+			suggestions: ['function abc(foo = \'bar\') { }'],
 		}),
 		invalidTestCase({
 			code: 'const abc = function(foo) { foo = foo || \'bar\';}',
-			suggestions: ['const abc = function(foo = \'bar\') { }']
+			suggestions: ['const abc = function(foo = \'bar\') { }'],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -482,7 +482,7 @@ test({
 				function abc(foo = 'bar') {
 					bar(); baz();
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -505,7 +505,7 @@ test({
 					function def(bar = 'foo') {
 					}
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -540,7 +540,7 @@ test({
 					}
 					foo = foo || 'bar';
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -569,7 +569,7 @@ test({
 					def(foo = 123) {
 					}
 				};
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -598,7 +598,7 @@ test({
 					def(foo = 123) {
 					}
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -611,7 +611,7 @@ test({
 				function abc(foo = 123) {
 					const noSideEffects = 123;
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -630,7 +630,7 @@ test({
 
 					console.log(foo);
 				}
-			`]
+			`],
 		}),
 		invalidTestCase({
 			code: outdent`
@@ -643,9 +643,9 @@ test({
 				function abc(foo = 123) {
 					const bar = function() {};
 				}
-			`]
-		})
-	]
+			`],
+		}),
+	],
 });
 
 test.babel({
@@ -667,7 +667,7 @@ test.babel({
 				import('foo');
 				foo = foo || 123;
 			}
-		`
+		`,
 	],
-	invalid: []
+	invalid: [],
 });

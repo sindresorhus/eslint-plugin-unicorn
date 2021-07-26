@@ -6,8 +6,8 @@ const {test} = getTester(import.meta);
 const MESSAGE_ID = 'prefer-type-error';
 const errors = [
 	{
-		messageId: MESSAGE_ID
-	}
+		messageId: MESSAGE_ID,
+	},
 ];
 
 const tcIdentifiers = new Set([
@@ -47,7 +47,7 @@ const tcIdentifiers = new Set([
 	'isWeakMap',
 	'isWeakSet',
 	'isWindow',
-	'isXMLDoc'
+	'isXMLDoc',
 ]);
 
 const tcIdentifierInvalidTest = identifier => {
@@ -62,7 +62,7 @@ const tcIdentifierInvalidTest = identifier => {
 				throw new TypeError('foo is bar');
 			}
 		`,
-		errors
+		errors,
 	};
 };
 
@@ -277,7 +277,7 @@ test({
 				default:
 					throw new Error('Unknown');
 			}
-		`
+		`,
 	],
 	invalid: [
 		{
@@ -291,7 +291,7 @@ test({
 					throw new TypeError();
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -304,7 +304,7 @@ test({
 					throw new TypeError();
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -317,7 +317,7 @@ test({
 					throw new TypeError('foo is an Array');
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -330,7 +330,7 @@ test({
 					throw new TypeError(foobar);
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -343,7 +343,7 @@ test({
 					throw new TypeError();
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -356,7 +356,7 @@ test({
 					throw new TypeError;
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -369,7 +369,7 @@ test({
 					throw new TypeError;
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -382,7 +382,7 @@ test({
 					throw new TypeError();
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -395,7 +395,7 @@ test({
 					throw new TypeError();
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -408,7 +408,7 @@ test({
 					throw new TypeError();
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -421,8 +421,19 @@ test({
 					throw new TypeError();
 				}
 			`,
-			errors
+			errors,
 		},
-		...[...tcIdentifiers].map(identifier => tcIdentifierInvalidTest(identifier))
-	]
+		...[...tcIdentifiers].map(identifier => tcIdentifierInvalidTest(identifier)),
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
+			if (!isFinite(foo)) {
+				throw new Error();
+			}
+		`,
+	],
 });

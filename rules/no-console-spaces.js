@@ -1,11 +1,10 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
-const toLocation = require('./utils/to-location');
+const {methodCallSelector} = require('./selectors/index.js');
+const toLocation = require('./utils/to-location.js');
 
 const MESSAGE_ID = 'no-console-spaces';
 const messages = {
-	[MESSAGE_ID]: 'Do not use {{position}} space between `console.{{method}}` parameters.'
+	[MESSAGE_ID]: 'Do not use {{position}} space between `console.{{method}}` parameters.',
 };
 
 const methods = [
@@ -13,13 +12,13 @@ const methods = [
 	'debug',
 	'info',
 	'warn',
-	'error'
+	'error',
 ];
 
 const selector = methodCallSelector({
-	names: methods,
-	min: 1,
-	object: 'console'
+	methods,
+	minimumArguments: 1,
+	object: 'console',
 });
 
 // Find exactly one leading space, allow exactly one space
@@ -30,22 +29,22 @@ const hasTrailingSpace = value => value.length > 1 && value.charAt(value.length 
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
-	const report = (node, method, position) => {
+	const getProblem = (node, method, position) => {
 		const index = position === 'leading' ?
 			node.range[0] + 1 :
 			node.range[1] - 2;
 		const range = [index, index + 1];
 
-		context.report({
+		return {
 			loc: toLocation(range, sourceCode),
 			messageId: MESSAGE_ID,
 			data: {method, position},
-			fix: fixer => fixer.removeRange(range)
-		});
+			fix: fixer => fixer.removeRange(range),
+		};
 	};
 
 	return {
-		[selector](node) {
+		* [selector](node) {
 			const method = node.callee.property.name;
 			const {arguments: messages} = node;
 			const {length} = messages;
@@ -61,14 +60,14 @@ const create = context => {
 				const raw = sourceCode.getText(node).slice(1, -1);
 
 				if (index !== 0 && hasLeadingSpace(raw)) {
-					report(node, method, 'leading');
+					yield getProblem(node, method, 'leading');
 				}
 
 				if (index !== length - 1 && hasTrailingSpace(raw)) {
-					report(node, method, 'trailing');
+					yield getProblem(node, method, 'trailing');
 				}
 			}
-		}
+		},
 	};
 };
 
@@ -78,10 +77,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Do not use leading/trailing space between `console.log` parameters.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

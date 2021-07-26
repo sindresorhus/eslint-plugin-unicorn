@@ -1,21 +1,20 @@
 'use strict';
 const {hasSideEffect, isCommaToken, isSemicolonToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
-const getCallExpressionArgumentsText = require('./utils/get-call-expression-arguments-text');
-const isSameReference = require('./utils/is-same-reference');
-const {isNodeMatches} = require('./utils/is-node-matches');
+const {methodCallSelector} = require('./selectors/index.js');
+const getCallExpressionArgumentsText = require('./utils/get-call-expression-arguments-text.js');
+const isSameReference = require('./utils/is-same-reference.js');
+const {isNodeMatches} = require('./utils/is-node-matches.js');
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
 const messages = {
 	[ERROR]: 'Do not call `Array#push()` multiple times.',
-	[SUGGESTION]: 'Merge with previous one.'
+	[SUGGESTION]: 'Merge with previous one.',
 };
 
 const arrayPushExpressionStatement = [
 	'ExpressionStatement',
-	methodCallSelector({path: 'expression', name: 'push'})
+	methodCallSelector({path: 'expression', method: 'push'}),
 ].join('');
 
 const selector = `${arrayPushExpressionStatement} + ${arrayPushExpressionStatement}`;
@@ -42,7 +41,7 @@ function getFirstExpression(node, sourceCode) {
 function create(context) {
 	const {ignore} = {
 		ignore: [],
-		...context.options[0]
+		...context.options[0],
 	};
 	const ignoredObjects = ['stream', 'this', 'this.stream', ...ignore];
 	const sourceCode = context.getSourceCode();
@@ -68,7 +67,7 @@ function create(context) {
 			const secondCallArguments = secondCall.arguments;
 			const problem = {
 				node: secondCall.callee.property,
-				messageId: ERROR
+				messageId: ERROR,
 			};
 
 			const fix = function * (fixer) {
@@ -76,10 +75,11 @@ function create(context) {
 					const text = getCallExpressionArgumentsText(secondCall, sourceCode);
 
 					const [penultimateToken, lastToken] = sourceCode.getLastTokens(firstCall, 2);
-					yield (isCommaToken(penultimateToken) ? fixer.insertTextAfter(penultimateToken, ` ${text}`) : fixer.insertTextBefore(
-						lastToken,
-						firstCall.arguments.length > 0 ? `, ${text}` : text
-					));
+					yield (
+						isCommaToken(penultimateToken) ?
+							fixer.insertTextAfter(penultimateToken, ` ${text}`) :
+							fixer.insertTextBefore(lastToken, firstCall.arguments.length > 0 ? `, ${text}` : text)
+					);
 				}
 
 				const shouldKeepSemicolon = !isSemicolonToken(sourceCode.getLastToken(firstExpression)) &&
@@ -87,7 +87,7 @@ function create(context) {
 
 				yield fixer.replaceTextRange(
 					[firstExpression.range[1], secondExpression.range[1]],
-					shouldKeepSemicolon ? ';' : ''
+					shouldKeepSemicolon ? ';' : '',
 				);
 			};
 
@@ -95,15 +95,15 @@ function create(context) {
 				problem.suggest = [
 					{
 						messageId: SUGGESTION,
-						fix
-					}
+						fix,
+					},
 				];
 			} else {
 				problem.fix = fix;
 			}
 
-			context.report(problem);
-		}
+			return problem;
+		},
 	};
 }
 
@@ -113,11 +113,11 @@ const schema = [
 		properties: {
 			ignore: {
 				type: 'array',
-				uniqueItems: true
-			}
+				uniqueItems: true,
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -126,10 +126,10 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce combining multiple `Array#push()` into one call.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+		hasSuggestions: true,
+	},
 };

@@ -1,7 +1,6 @@
 'use strict';
-const path = require('path');
-const importModules = require('import-modules');
-const createDeprecatedRules = require('./rules/utils/create-deprecated-rules');
+const createDeprecatedRules = require('./rules/utils/create-deprecated-rules.js');
+const {loadRules} = require('./rules/utils/rule.js');
 
 const deprecatedRules = createDeprecatedRules({
 	// {ruleId: ReplacementRuleId | ReplacementRuleId[]}, if no replacement, use `{ruleId: []}`
@@ -18,25 +17,25 @@ const deprecatedRules = createDeprecatedRules({
 	'prefer-starts-ends-with': 'unicorn/prefer-string-starts-ends-with',
 	'prefer-text-content': 'unicorn/prefer-dom-node-text-content',
 	'prefer-trim-start-end': 'unicorn/prefer-string-trim-start-end',
-	'regex-shorthand': 'unicorn/better-regex'
+	'regex-shorthand': 'unicorn/better-regex',
 });
 
 module.exports = {
 	rules: {
-		...importModules(path.resolve(__dirname, 'rules'), {camelize: false}),
-		...deprecatedRules
+		...loadRules(),
+		...deprecatedRules,
 	},
 	configs: {
 		recommended: {
 			env: {
-				es6: true
+				es6: true,
 			},
 			parserOptions: {
 				ecmaVersion: 2021,
-				sourceType: 'module'
+				sourceType: 'module',
 			},
 			plugins: [
-				'unicorn'
+				'unicorn',
 			],
 			rules: {
 				'unicorn/better-regex': 'error',
@@ -56,6 +55,7 @@ module.exports = {
 				'unicorn/no-abusive-eslint-disable': 'error',
 				'unicorn/no-array-callback-reference': 'error',
 				'unicorn/no-array-for-each': 'error',
+				'unicorn/no-array-method-this-argument': 'error',
 				'unicorn/no-array-push-push': 'error',
 				'unicorn/no-array-reduce': 'error',
 				'unicorn/no-console-spaces': 'error',
@@ -77,6 +77,8 @@ module.exports = {
 				'unicorn/no-unreadable-array-destructuring': 'error',
 				'unicorn/no-unsafe-regex': 'off',
 				'unicorn/no-unused-properties': 'off',
+				'unicorn/no-useless-length-check': 'error',
+				'unicorn/no-useless-spread': 'error',
 				'unicorn/no-useless-undefined': 'error',
 				'unicorn/no-zero-fractions': 'error',
 				'unicorn/number-literal-case': 'error',
@@ -87,6 +89,8 @@ module.exports = {
 				'unicorn/prefer-array-flat-map': 'error',
 				'unicorn/prefer-array-index-of': 'error',
 				'unicorn/prefer-array-some': 'error',
+				// TODO: Enable this by default when targeting a Node.js version that supports `Array#at`.
+				'unicorn/prefer-at': 'off',
 				'unicorn/prefer-date-now': 'error',
 				'unicorn/prefer-default-parameters': 'error',
 				'unicorn/prefer-dom-node-append': 'error',
@@ -102,6 +106,8 @@ module.exports = {
 				'unicorn/prefer-node-protocol': 'error',
 				'unicorn/prefer-number-properties': 'error',
 				'unicorn/prefer-object-from-entries': 'error',
+				// TODO: Enable this by default when targeting a Node.js version that supports `Object.hasOwn`.
+				'unicorn/prefer-object-has-own': 'off',
 				'unicorn/prefer-optional-catch-binding': 'error',
 				'unicorn/prefer-prototype-methods': 'error',
 				'unicorn/prefer-query-selector': 'error',
@@ -116,13 +122,24 @@ module.exports = {
 				'unicorn/prefer-string-trim-start-end': 'error',
 				'unicorn/prefer-switch': 'error',
 				'unicorn/prefer-ternary': 'error',
+				// TODO: Enable this by default when targeting Node.js 14.
+				'unicorn/prefer-top-level-await': 'off',
 				'unicorn/prefer-type-error': 'error',
 				'unicorn/prevent-abbreviations': 'error',
 				'unicorn/require-array-join-separator': 'error',
 				'unicorn/require-number-to-fixed-digits-argument': 'error',
+				'unicorn/require-post-message-target-origin': 'error',
 				'unicorn/string-content': 'off',
-				'unicorn/throw-new-error': 'error'
-			}
-		}
-	}
+				'unicorn/throw-new-error': 'error',
+			},
+			overrides: [
+				{
+					files: ['*.ts', '*.tsx'],
+					rules: {
+						'unicorn/require-post-message-target-origin': 'off',
+					},
+				},
+			],
+		},
+	},
 };

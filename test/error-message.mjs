@@ -27,7 +27,7 @@ test.snapshot({
 			/* global x */
 			const a = x;
 			throw x;
-		`
+		`,
 	],
 	invalid: [
 		'throw new Error()',
@@ -61,6 +61,38 @@ test.snapshot({
 		'throw new Error({foo})',
 		'throw new Error({foo: 0}.foo)',
 		'throw new Error(lineNumber=2)',
-		'const error = new RangeError;'
-	]
+		'const error = new RangeError;',
+	],
+});
+
+// `AggregateError`
+test.snapshot({
+	valid: [
+		'new AggregateError(errors, "message")',
+		'new NotAggregateError(errors)',
+		'new AggregateError(...foo)',
+		'new AggregateError(...foo, "")',
+		'new AggregateError(errors, ...foo)',
+		'new AggregateError(errors, message, "")',
+		'new AggregateError("", message, "")',
+	],
+	invalid: [
+		'new AggregateError(errors)',
+		'AggregateError(errors)',
+		'new AggregateError(errors, "")',
+		'new AggregateError(errors, ``)',
+		'new AggregateError(errors, "", extraArgument)',
+		outdent`
+			const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;
+			throw new AggregateError(errors, errorMessage)
+		`,
+		'new AggregateError(errors, [])',
+		'new AggregateError(errors, [foo])',
+		'new AggregateError(errors, [0][0])',
+		'new AggregateError(errors, {})',
+		'new AggregateError(errors, {foo})',
+		'new AggregateError(errors, {foo: 0}.foo)',
+		'new AggregateError(errors, lineNumber=2)',
+		'const error = new AggregateError;',
+	],
 });

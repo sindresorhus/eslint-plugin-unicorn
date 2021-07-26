@@ -14,7 +14,7 @@ function assertToken(token, {test, expected, ruleId}) {
 		expected.some(
 			expectedToken =>
 				Object.entries(expectedToken)
-					.every(([key, value]) => token[key] === value)
+					.every(([key, value]) => token[key] === value),
 		)
 	) {
 		return;

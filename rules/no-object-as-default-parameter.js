@@ -1,27 +1,36 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
 
-const MESSAGE_ID = 'noObjectAsDefaultParameter';
+const MESSAGE_ID_IDENTIFIER = 'identifier';
+const MESSAGE_ID_NON_IDENTIFIER = 'non-identifier';
 const messages = {
-	[MESSAGE_ID]: 'Do not use an object literal as default for parameter `{{parameter}}`.'
+	[MESSAGE_ID_IDENTIFIER]: 'Do not use an object literal as default for parameter `{{parameter}}`.',
+	[MESSAGE_ID_NON_IDENTIFIER]: 'Do not use an object literal as default.',
 };
 
 const objectParameterSelector = [
 	':function > AssignmentPattern.params',
-	'[left.type="Identifier"]',
 	'[right.type="ObjectExpression"]',
-	'[right.properties.length>0]'
+	'[right.properties.length>0]',
 ].join('');
 
-const create = context => {
+const create = () => {
 	return {
 		[objectParameterSelector]: node => {
-			context.report({
-				node: node.left,
-				messageId: MESSAGE_ID,
-				data: {parameter: node.left.name}
-			});
-		}
+			const {left, right} = node;
+
+			if (left.type === 'Identifier') {
+				return {
+					node: left,
+					messageId: MESSAGE_ID_IDENTIFIER,
+					data: {parameter: left.name},
+				};
+			}
+
+			return {
+				node: right,
+				messageId: MESSAGE_ID_NON_IDENTIFIER,
+			};
+		},
 	};
 };
 
@@ -31,9 +40,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow the use of objects as default parameters.',
-			url: getDocumentationUrl(__filename)
 		},
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

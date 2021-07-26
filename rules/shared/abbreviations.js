@@ -2,212 +2,218 @@
 'use strict';
 module.exports.defaultReplacements = {
 	acc: {
-		accumulator: true
+		accumulator: true,
 	},
 	arg: {
-		argument: true
+		argument: true,
 	},
 	args: {
-		arguments: true
+		arguments: true,
 	},
 	arr: {
-		array: true
+		array: true,
 	},
 	attr: {
-		attribute: true
+		attribute: true,
 	},
 	attrs: {
-		attributes: true
+		attributes: true,
 	},
 	btn: {
-		button: true
+		button: true,
 	},
 	cb: {
-		callback: true
+		callback: true,
 	},
 	conf: {
-		config: true
+		config: true,
 	},
 	ctx: {
-		context: true
+		context: true,
 	},
 	cur: {
-		current: true
+		current: true,
 	},
 	curr: {
-		current: true
+		current: true,
 	},
 	db: {
-		database: true
+		database: true,
+	},
+	def: {
+		defer: true,
+		deferred: true,
+		define: true,
+		definition: true,
 	},
 	dest: {
-		destination: true
+		destination: true,
 	},
 	dev: {
-		development: true
+		development: true,
 	},
 	dir: {
 		direction: true,
-		directory: true
+		directory: true,
 	},
 	dirs: {
-		directories: true
+		directories: true,
 	},
 	doc: {
-		document: true
+		document: true,
 	},
 	docs: {
 		documentation: true,
-		documents: true
+		documents: true,
 	},
 	e: {
 		error: true,
-		event: true
+		event: true,
 	},
 	el: {
-		element: true
+		element: true,
 	},
 	elem: {
-		element: true
+		element: true,
 	},
 	env: {
-		environment: true
+		environment: true,
 	},
 	envs: {
-		environments: true
+		environments: true,
 	},
 	err: {
-		error: true
+		error: true,
 	},
 	ev: {
-		event: true
+		event: true,
 	},
 	evt: {
-		event: true
+		event: true,
 	},
 	ext: {
-		extension: true
+		extension: true,
 	},
 	exts: {
-		extensions: true
+		extensions: true,
 	},
 	fn: {
-		function: true
+		function: true,
 	},
 	func: {
-		function: true
+		function: true,
 	},
 	i: {
-		index: true
+		index: true,
 	},
 	idx: {
-		index: true
+		index: true,
 	},
 	j: {
-		index: true
+		index: true,
 	},
 	len: {
-		length: true
+		length: true,
 	},
 	lib: {
-		library: true
+		library: true,
 	},
 	mod: {
-		module: true
+		module: true,
 	},
 	msg: {
-		message: true
+		message: true,
 	},
 	num: {
-		number: true
+		number: true,
 	},
 	obj: {
-		object: true
+		object: true,
 	},
 	opts: {
-		options: true
+		options: true,
 	},
 	param: {
-		parameter: true
+		parameter: true,
 	},
 	params: {
-		parameters: true
+		parameters: true,
 	},
 	pkg: {
-		package: true
+		package: true,
 	},
 	prev: {
-		previous: true
+		previous: true,
 	},
 	prod: {
-		production: true
+		production: true,
 	},
 	prop: {
-		property: true
+		property: true,
 	},
 	props: {
-		properties: true
+		properties: true,
 	},
 	ref: {
-		reference: true
+		reference: true,
 	},
 	refs: {
-		references: true
+		references: true,
 	},
 	rel: {
 		related: true,
 		relationship: true,
-		relative: true
+		relative: true,
 	},
 	req: {
-		request: true
+		request: true,
 	},
 	res: {
 		response: true,
-		result: true
+		result: true,
 	},
 	ret: {
-		returnValue: true
+		returnValue: true,
 	},
 	retval: {
-		returnValue: true
+		returnValue: true,
 	},
 	sep: {
-		separator: true
+		separator: true,
 	},
 	src: {
-		source: true
+		source: true,
 	},
 	stdDev: {
-		standardDeviation: true
+		standardDeviation: true,
 	},
 	str: {
-		string: true
+		string: true,
 	},
 	tbl: {
-		table: true
+		table: true,
 	},
 	temp: {
-		temporary: true
+		temporary: true,
 	},
 	tit: {
-		title: true
+		title: true,
 	},
 	tmp: {
-		temporary: true
+		temporary: true,
 	},
 	val: {
-		value: true
+		value: true,
 	},
 	var: {
-		variable: true
+		variable: true,
 	},
 	vars: {
-		variables: true
+		variables: true,
 	},
 	ver: {
-		version: true
-	}
+		version: true,
+	},
 };
 
 module.exports.defaultAllowList = {
@@ -231,5 +237,5 @@ module.exports.defaultAllowList = {
 	propTypes: true,
 	// Jest configuration
 	// https://jestjs.io/docs/en/configuration#setupfilesafterenv-array
-	setupFilesAfterEnv: true
+	setupFilesAfterEnv: true,
 };

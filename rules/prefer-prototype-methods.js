@@ -1,97 +1,67 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
-const getPropertyName = require('./utils/get-property-name');
+const {
+	methodCallSelector,
+	emptyObjectSelector,
+	emptyArraySelector,
+	matches,
+} = require('./selectors/index.js');
+const getPropertyName = require('./utils/get-property-name.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const messages = {
-	'known-constructor-known-method': 'Prefer using `{{constructorName}}.prototype.{{methodName}}`.',
-	'known-constructor-unknown-method': 'Prefer using method from `{{constructorName}}.prototype`.',
-	'unknown-constructor-known-method': 'Prefer using `{{methodName}}` method from the constructor prototype.',
-	'unknown-constructor-unknown-method': 'Prefer using method from the constructor prototype.'
+	'known-method': 'Prefer using `{{constructorName}}.prototype.{{methodName}}`.',
+	'unknown-method': 'Prefer using method from `{{constructorName}}.prototype`.',
 };
 
-const functionMethodsSelector = [
-	methodCallSelector({
-		names: ['apply', 'bind', 'call']
-	}),
-	' > ',
-	'.callee',
-	' > ',
-	'.object'
+const emptyObjectOrArrayMethodSelector = [
+	'MemberExpression',
+	matches([emptyObjectSelector('object'), emptyArraySelector('object')]),
 ].join('');
-
-const reflectApplySelector = methodCallSelector({
-	object: 'Reflect',
-	name: 'apply',
-	min: 1
-});
-
-function getConstructorName(node) {
-	switch (node.type) {
-		case 'ArrayExpression':
-			return 'Array';
-		case 'ObjectExpression':
-			return 'Object';
-		// No default
-	}
-}
-
-function isSafeToFix(node) {
-	switch (node.type) {
-		case 'ArrayExpression':
-			return node.elements.length === 0;
-		case 'ObjectExpression':
-			return node.properties.length === 0;
-		// No default
-	}
-}
+const selector = matches([
+	// `[].foo.{apply,bind,call}(…)`
+	// `({}).foo.{apply,bind,call}(…)`
+	[
+		methodCallSelector(['apply', 'bind', 'call']),
+		' > ',
+		'.callee',
+		' > ',
+		`${emptyObjectOrArrayMethodSelector}.object`,
+	].join(''),
+	// `Reflect.apply([].foo, …)`
+	// `Reflect.apply({}.foo, …)`
+	[
+		methodCallSelector({object: 'Reflect', method: 'apply', minimumArguments: 1}),
+		' > ',
+		`${emptyObjectOrArrayMethodSelector}.arguments:first-child`,
+	].join(''),
+]);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
-	function check(method) {
-		const {type, object} = method;
-		if (
-			type !== 'MemberExpression' ||
-			// Most likely it's a static method of a class
-			(object.type === 'Identifier' && /^[A-Z]/.test(object.name)) ||
-			(
-				object.type === 'MemberExpression' &&
-				!object.computed &&
-				!object.optional &&
-				object.property.type === 'Identifier' &&
-				object.property.name === 'prototype'
-			)
-		) {
-			return;
-		}
-
-		const constructorName = getConstructorName(object);
-		const methodName = getPropertyName(method, context.getScope());
-		const messageId = [
-			constructorName ? 'known' : 'unknown',
-			'constructor',
-			methodName ? 'known' : 'unknown',
-			'method'
-		].join('-');
-
-		const problem = {
-			node: method,
-			messageId,
-			data: {constructorName, methodName: String(methodName)}
-		};
-
-		if (constructorName && isSafeToFix(object)) {
-			problem.fix = fixer => fixer.replaceText(object, `${constructorName}.prototype`);
-		}
-
-		context.report(problem);
-	}
-
 	return {
-		[reflectApplySelector](node) {
-			check(node.arguments[0]);
+		[selector](node) {
+			const constructorName = node.object.type === 'ArrayExpression' ? 'Array' : 'Object';
+			const methodName = getPropertyName(node, context.getScope());
+
+			return {
+				node,
+				messageId: methodName ? 'known-method' : 'unknown-method',
+				data: {constructorName, methodName: String(methodName)},
+				* fix(fixer) {
+					yield fixer.replaceText(node.object, `${constructorName}.prototype`);
+
+					if (
+						node.object &&
+						(
+							node.object.type === 'ArrayExpression' ||
+							node.object.type === 'ObjectExpression'
+						)
+					) {
+						yield * fixSpaceAroundKeyword(fixer, node.parent.parent, context.getSourceCode());
+					}
+				},
+			};
 		},
-		[functionMethodsSelector]: check
 	};
 }
 
@@ -101,10 +71,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer borrowing methods from the prototype instead of the instance.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

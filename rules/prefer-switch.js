@@ -1,12 +1,11 @@
 'use strict';
 const {hasSideEffect} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isSameReference = require('./utils/is-same-reference');
-const getIndentString = require('./utils/get-indent-string');
+const isSameReference = require('./utils/is-same-reference.js');
+const getIndentString = require('./utils/get-indent-string.js');
 
 const MESSAGE_ID = 'prefer-switch';
 const messages = {
-	[MESSAGE_ID]: 'Use `switch` instead of multiple `else-if`.'
+	[MESSAGE_ID]: 'Use `switch` instead of multiple `else-if`.',
 };
 
 const isSame = (nodeA, nodeB) => nodeA === nodeB || isSameReference(nodeA, nodeB);
@@ -62,7 +61,7 @@ function getStatements(statement) {
 
 		const candidates = getCommonReferences(
 			compareExpressions,
-			discriminantCandidates
+			discriminantCandidates,
 		);
 
 		if (candidates.length === 0) {
@@ -73,13 +72,13 @@ function getStatements(statement) {
 
 		ifStatements.push({
 			statement,
-			compareExpressions
+			compareExpressions,
 		});
 	}
 
 	return {
 		ifStatements,
-		discriminant: discriminantCandidates && discriminantCandidates[0]
+		discriminant: discriminantCandidates && discriminantCandidates[0],
 	};
 }
 
@@ -89,7 +88,7 @@ const breakAbleNodeTypes = new Set([
 	'ForStatement',
 	'ForOfStatement',
 	'ForInStatement',
-	'SwitchStatement'
+	'SwitchStatement',
 ]);
 const getBreakTarget = node => {
 	for (;node.parent; node = node.parent) {
@@ -249,7 +248,7 @@ const create = context => {
 		minimumCases: 3,
 		emptyDefaultCase: 'no-default-comment',
 		insertBreakInDefaultCase: false,
-		...context.options[0]
+		...context.options[0],
 	};
 	const sourceCode = context.getSourceCode();
 	const ifStatements = new Set();
@@ -263,7 +262,7 @@ const create = context => {
 		'BreakStatement:not([label])'(node) {
 			breakStatements.push(node);
 		},
-		'Program:exit'() {
+		* 'Program:exit'() {
 			for (const node of ifStatements) {
 				if (checked.has(node)) {
 					continue;
@@ -282,9 +281,9 @@ const create = context => {
 				const problem = {
 					loc: {
 						start: node.loc.start,
-						end: node.consequent.loc.start
+						end: node.consequent.loc.start,
 					},
-					messageId: MESSAGE_ID
+					messageId: MESSAGE_ID,
 				};
 
 				if (
@@ -294,9 +293,9 @@ const create = context => {
 					problem.fix = fix({discriminant, ifStatements}, sourceCode, options);
 				}
 
-				context.report(problem);
+				yield problem;
 			}
-		}
+		},
 	};
 };
 
@@ -307,19 +306,19 @@ const schema = [
 			minimumCases: {
 				type: 'integer',
 				minimum: 2,
-				default: 3
+				default: 3,
 			},
 			emptyDefaultCase: {
 				enum: [
 					'no-default-comment',
 					'do-nothing-comment',
-					'no-default-case'
+					'no-default-case',
 				],
-				default: 'no-default-comment'
-			}
+				default: 'no-default-comment',
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -328,10 +327,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `switch` over multiple `else-if`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+	},
 };

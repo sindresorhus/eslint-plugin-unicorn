@@ -1,15 +1,14 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'no-abusive-eslint-disable';
 const messages = {
-	[MESSAGE_ID]: 'Specify the rules you want to disable.'
+	[MESSAGE_ID]: 'Specify the rules you want to disable.',
 };
 
 const disableRegex = /^eslint-disable(?:-next-line|-line)?(?<ruleId>$|(?:\s+(?:@(?:[\w-]+\/){1,2})?[\w-]+)?)/;
 
-const create = context => ({
-	Program: node => {
+const create = () => ({
+	* Program(node) {
 		for (const comment of node.comments) {
 			const value = comment.value.trim();
 			const result = disableRegex.exec(value);
@@ -18,21 +17,21 @@ const create = context => ({
 				result && // It's a eslint-disable comment
 				!result.groups.ruleId // But it did not specify any rules
 			) {
-				context.report({
+				yield {
 					// Can't set it at the given location as the warning
 					// will be ignored due to the disable comment
 					loc: {
 						start: {
 							...comment.loc.start,
-							column: -1
+							column: -1,
 						},
-						end: comment.loc.end
+						end: comment.loc.end,
 					},
-					messageId: MESSAGE_ID
-				});
+					messageId: MESSAGE_ID,
+				};
 			}
 		}
-	}
+	},
 });
 
 module.exports = {
@@ -41,9 +40,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce specifying rules to disable in `eslint-disable` comments.',
-			url: getDocumentationUrl(__filename)
 		},
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

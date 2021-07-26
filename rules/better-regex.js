@@ -1,13 +1,18 @@
 'use strict';
 const cleanRegexp = require('clean-regexp');
 const {optimize} = require('regexp-tree');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const quoteString = require('./utils/quote-string');
+const quoteString = require('./utils/quote-string.js');
+const {newExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'better-regex';
 const messages = {
-	[MESSAGE_ID]: '{{original}} can be optimized to {{optimized}}.'
+	[MESSAGE_ID]: '{{original}} can be optimized to {{optimized}}.',
 };
+
+const newRegExp = [
+	newExpressionSelector({name: 'RegExp', minimumArguments: 1}),
+	'[arguments.0.type="Literal"]',
+].join('');
 
 const create = context => {
 	const {sortCharacterClasses} = context.options[0] || {};
@@ -33,32 +38,31 @@ const create = context => {
 			try {
 				optimized = optimize(original, undefined, {blacklist: ignoreList}).toString();
 			} catch (error) {
-				context.report({
+				return {
 					node,
 					data: {
 						original,
-						error: error.message
+						error: error.message,
 					},
-					message: 'Problem parsing {{original}}: {{error}}'
-				});
-				return;
+					message: 'Problem parsing {{original}}: {{error}}',
+				};
 			}
 
 			if (original === optimized) {
 				return;
 			}
 
-			context.report({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				data: {
 					original,
-					optimized
+					optimized,
 				},
-				fix: fixer => fixer.replaceText(node, optimized)
-			});
+				fix: fixer => fixer.replaceText(node, optimized),
+			};
 		},
-		'NewExpression[callee.type="Identifier"][callee.name="RegExp"][arguments.length>=1][arguments.0.type="Literal"]': node => {
+		[newRegExp]: node => {
 			const [patternNode, flagsNode] = node.arguments;
 
 			if (typeof patternNode.value !== 'string') {
@@ -75,20 +79,20 @@ const create = context => {
 			const newPattern = cleanRegexp(oldPattern, flags);
 
 			if (oldPattern !== newPattern) {
-				context.report({
+				return {
 					node,
 					messageId: MESSAGE_ID,
 					data: {
 						original: oldPattern,
-						optimized: newPattern
+						optimized: newPattern,
 					},
 					fix: fixer => fixer.replaceText(
 						patternNode,
-						quoteString(newPattern)
-					)
-				});
+						quoteString(newPattern, patternNode.raw.charAt(0)),
+					),
+				};
 			}
-		}
+		},
 	};
 };
 
@@ -98,10 +102,10 @@ const schema = [
 		properties: {
 			sortCharacterClasses: {
 				type: 'boolean',
-				default: true
-			}
-		}
-	}
+				default: true,
+			},
+		},
+	},
 ];
 
 module.exports = {
@@ -110,10 +114,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Improve regexes by making them shorter, consistent, and safer.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+	},
 };

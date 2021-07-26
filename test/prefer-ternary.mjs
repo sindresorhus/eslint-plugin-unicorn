@@ -40,7 +40,7 @@ test({
 					return a ? b : c;
 				}
 			}
-		`
+		`,
 	],
 	invalid: [
 		{
@@ -58,7 +58,7 @@ test({
 					return test ? a : b;
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -75,7 +75,7 @@ test({
 					return test ? (await a) : b;
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -92,7 +92,7 @@ test({
 					return await (test ? a : b);
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -109,7 +109,7 @@ test({
 					return test ? undefined : b;
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -126,7 +126,7 @@ test({
 					return test ? undefined : undefined;
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -143,7 +143,7 @@ test({
 					return test ? undefined : (await b);
 				}
 			`,
-			errors
+			errors,
 		},
 		// Crazy nested
 		{
@@ -161,9 +161,9 @@ test({
 					return yield (await (foo = test ? a : b));
 				}
 			`,
-			errors
-		}
-	]
+			errors,
+		},
+	],
 });
 
 // YieldExpression
@@ -208,7 +208,7 @@ test({
 					yield a ? b : c;
 				}
 			}
-		`
+		`,
 	],
 	invalid: [
 		{
@@ -226,7 +226,7 @@ test({
 					yield (test ? a : b);
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -243,7 +243,7 @@ test({
 					yield (test ? undefined : b);
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -260,7 +260,7 @@ test({
 					yield (test ? undefined : undefined);
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -277,7 +277,7 @@ test({
 					yield (test ? undefined : (await b));
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -294,7 +294,7 @@ test({
 					yield* (test ? a : b);
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -311,7 +311,7 @@ test({
 					yield (test ? (await a) : b);
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -328,9 +328,9 @@ test({
 					yield (await (test ? a : b));
 				}
 			`,
-			errors
-		}
-	]
+			errors,
+		},
+	],
 });
 
 // AwaitExpression
@@ -365,7 +365,7 @@ test({
 					await a ? b : c;
 				}
 			}
-		`
+		`,
 	],
 	invalid: [
 		{
@@ -383,7 +383,7 @@ test({
 					await (test ? doSomething1() : doSomething2());
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -400,9 +400,9 @@ test({
 					await (test ? a : b);
 				}
 			`,
-			errors
-		}
-	]
+			errors,
+		},
+	],
 });
 
 // ThrowStatement
@@ -437,7 +437,7 @@ test({
 					throw a ? b : c;
 				}
 			}
-		`
+		`,
 	],
 	invalid: [
 		{
@@ -456,7 +456,7 @@ test({
 					throw error;
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -474,7 +474,7 @@ test({
 					throw error;
 				}
 			`,
-			errors
+			errors,
 		},
 		// Indention
 		{
@@ -493,7 +493,7 @@ test({
 				 throw error;
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -511,7 +511,7 @@ test({
 														throw error;
 				}
 			`,
-			errors
+			errors,
 		},
 		// Space
 		{
@@ -530,7 +530,7 @@ test({
 														throw error;
 				}
 			`.replace(/\t/g, '  '),
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -548,7 +548,7 @@ test({
 					throw error;
 				}
 			`,
-			errors
+			errors,
 		},
 		// `ThrowStatement` don't check nested
 		{
@@ -567,7 +567,7 @@ test({
 					throw error;
 				}
 			`,
-			errors
+			errors,
 		},
 		// `error` is used
 		{
@@ -588,7 +588,7 @@ test({
 					throw error_;
 				}
 			`,
-			errors
+			errors,
 		},
 		// Child scope
 		{
@@ -617,7 +617,7 @@ test({
 					}
 				}
 			`,
-			errors
+			errors,
 		},
 		// Global
 		{
@@ -644,7 +644,7 @@ test({
 					}
 				}
 			`,
-			errors
+			errors,
 		},
 		// Multiple
 		// This will fix one by one, see next test
@@ -676,7 +676,7 @@ test({
 					}
 				}
 			`,
-			errors: [...errors, ...errors]
+			errors: [...errors, ...errors],
 		},
 		// This `code` is `output` from previous test
 		{
@@ -701,7 +701,7 @@ test({
 					throw error_;
 				}
 			`,
-			errors
+			errors,
 		},
 		// Multiple nested
 		// This will fix one by one, see next test
@@ -737,7 +737,7 @@ test({
 					}
 				}
 			`,
-			errors: [...errors, ...errors]
+			errors: [...errors, ...errors],
 		},
 		// This `code` is `output` from previous test
 		{
@@ -766,7 +766,7 @@ test({
 					}
 				}
 			`,
-			errors
+			errors,
 		},
 		// Need `{}`
 		{
@@ -779,9 +779,9 @@ test({
 				 throw error;
 				}
 			`,
-			errors
-		}
-	]
+			errors,
+		},
+	],
 });
 
 // AssignmentExpression
@@ -846,7 +846,7 @@ test({
 					foo = a ? b : c;
 				}
 			}
-		`
+		`,
 	],
 	invalid: [
 		{
@@ -864,7 +864,7 @@ test({
 					foo = test ? a : b;
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -881,7 +881,7 @@ test({
 					foo *= test ? a : b;
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -898,7 +898,7 @@ test({
 					foo = test ? (await a) : b;
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -915,7 +915,7 @@ test({
 					foo = await (test ? a : b);
 				}
 			`,
-			errors
+			errors,
 		},
 		// Same `left`
 		{
@@ -933,7 +933,7 @@ test({
 					foo.bar = test ? a : b;
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -952,7 +952,7 @@ test({
 					;(foo)['b' + 'ar'] = test ? a : b;
 				}
 			`,
-			errors
+			errors,
 		},
 		// Crazy nested
 		{
@@ -970,7 +970,7 @@ test({
 					foo = yield (await (test ? a : b));
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -993,9 +993,9 @@ test({
 					$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
 					2);
 			`,
-			errors
-		}
-	]
+			errors,
+		},
+	],
 });
 
 // `only-single-line`
@@ -1011,7 +1011,7 @@ test({
 					a = foo;
 				}
 			`,
-			options: onlySingleLineOptions
+			options: onlySingleLineOptions,
 		},
 		{
 			code: outdent`
@@ -1023,7 +1023,7 @@ test({
 					};
 				}
 			`,
-			options: onlySingleLineOptions
+			options: onlySingleLineOptions,
 		},
 		{
 			code: outdent`
@@ -1037,7 +1037,7 @@ test({
 					a = bar;
 				}
 			`,
-			options: onlySingleLineOptions
+			options: onlySingleLineOptions,
 		},
 		{
 			code: outdent`
@@ -1047,8 +1047,8 @@ test({
 					a = bar;
 				}
 			`,
-			options: onlySingleLineOptions
-		}
+			options: onlySingleLineOptions,
+		},
 	],
 	invalid: [
 		{
@@ -1061,7 +1061,7 @@ test({
 			`,
 			output: 'a = test ? foo : bar;',
 			options: onlySingleLineOptions,
-			errors
+			errors,
 		},
 		// Parentheses are not considered part of `Node`
 		{
@@ -1082,7 +1082,7 @@ test({
 					) ? foo : bar;
 			`,
 			options: onlySingleLineOptions,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -1096,7 +1096,7 @@ test({
 			`,
 			output: 'a = test ? foo : bar;',
 			options: onlySingleLineOptions,
-			errors
+			errors,
 		},
 		// Semicolon of `ExpressionStatement` is not considered part of `Node`
 		{
@@ -1110,7 +1110,7 @@ test({
 			`,
 			output: 'a = test ? foo : bar;',
 			options: onlySingleLineOptions,
-			errors
+			errors,
 		},
 		// `EmptyStatement`s are excluded
 		{
@@ -1125,9 +1125,9 @@ test({
 			`,
 			output: 'a = test ? foo : bar;',
 			options: onlySingleLineOptions,
-			errors
-		}
-	]
+			errors,
+		},
+	],
 });
 
 test({
@@ -1159,7 +1159,7 @@ test({
 					return 4;
 				}
 			}
-		`
+		`,
 	],
 	invalid: [
 		// Empty block should not matters
@@ -1179,7 +1179,7 @@ test({
 					return test ? a : b;
 				}
 			`,
-			errors
+			errors,
 		},
 		// `ExpressionStatement` or `BlockStatement` should not matters
 		{
@@ -1195,7 +1195,7 @@ test({
 					foo = test ? a : b;
 				}
 			`,
-			errors
+			errors,
 		},
 		// No `ExpressionStatement` or `BlockStatement` should not matters
 		{
@@ -1210,7 +1210,7 @@ test({
 					return test ? a : b;
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -1224,7 +1224,7 @@ test({
 					return test ? a : b;
 				}
 			`,
-			errors
+			errors,
 		},
 
 		// Precedence
@@ -1235,7 +1235,7 @@ test({
 				} else foo = 2;
 			`,
 			output: 'foo = (a = b) ? 1 : 2;',
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -1250,7 +1250,7 @@ test({
 					foo = (yield a) ? 1 : 2;
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -1265,7 +1265,7 @@ test({
 					foo = (yield* a) ? 1 : 2;
 				}
 			`,
-			errors
+			errors,
 		},
 
 		// Nested
@@ -1292,7 +1292,7 @@ test({
 					}
 				}
 			`,
-			errors
+			errors,
 		},
 		{
 			code: outdent`
@@ -1317,7 +1317,7 @@ test({
 					}
 				}
 			`,
-			errors
-		}
-	]
+			errors,
+		},
+	],
 });

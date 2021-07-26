@@ -1,6 +1,6 @@
 'use strict';
 const {hasSideEffect} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const ERROR_BITWISE = 'error-bitwise';
 const ERROR_BITWISE_NOT = 'error-bitwise-not';
@@ -8,14 +8,14 @@ const SUGGESTION_BITWISE = 'suggestion-bitwise';
 const messages = {
 	[ERROR_BITWISE]: 'Use `Math.trunc` instead of `{{operator}} {{value}}`.',
 	[ERROR_BITWISE_NOT]: 'Use `Math.trunc` instead of `~~`.',
-	[SUGGESTION_BITWISE]: 'Replace `{{operator}} {{value}}` with `Math.trunc`.'
+	[SUGGESTION_BITWISE]: 'Replace `{{operator}} {{value}}` with `Math.trunc`.',
 };
 
 const createBitwiseNotSelector = (level, isNegative) => {
 	const prefix = 'argument.'.repeat(level);
 	const selector = [
 		`[${prefix}type="UnaryExpression"]`,
-		`[${prefix}operator="~"]`
+		`[${prefix}operator="~"]`,
 	].join('');
 	return isNegative ? `:not(${selector})` : selector;
 };
@@ -26,7 +26,7 @@ const bitwiseOperators = new Set(['|', '>>', '<<', '^']);
 const bitwiseNotUnaryExpressionSelector = [
 	createBitwiseNotSelector(0),
 	createBitwiseNotSelector(1),
-	createBitwiseNotSelector(2, true)
+	createBitwiseNotSelector(2, true),
 ].join('');
 
 const create = context => {
@@ -54,18 +54,21 @@ const create = context => {
 				messageId: ERROR_BITWISE,
 				data: {
 					operator,
-					value: right.raw
-				}
+					value: right.raw,
+				},
 			};
 
 			if (!isAssignment || !hasSideEffect(left, sourceCode)) {
-				const fix = fixer => {
+				const fix = function * (fixer) {
 					let fixed = mathTruncFunctionCall(left);
 					if (isAssignment) {
+						// TODO[@fisker]: Improve this fix, don't touch left
 						fixed = `${sourceCode.getText(left)} = ${fixed}`;
+					} else {
+						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 					}
 
-					return fixer.replaceText(node, fixed);
+					yield fixer.replaceText(node, fixed);
 				};
 
 				if (operator === '|') {
@@ -74,25 +77,28 @@ const create = context => {
 							messageId: SUGGESTION_BITWISE,
 							data: {
 								operator,
-								value: right.raw
+								value: right.raw,
 							},
-							fix
-						}
+							fix,
+						},
 					];
 				} else {
 					problem.fix = fix;
 				}
 			}
 
-			context.report(problem);
+			return problem;
 		},
 		[bitwiseNotUnaryExpressionSelector]: node => {
-			context.report({
+			return {
 				node,
 				messageId: ERROR_BITWISE_NOT,
-				fix: fixer => fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument))
-			});
-		}
+				* fix(fixer) {
+					yield fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument));
+					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+				},
+			};
+		},
 	};
 };
 
@@ -102,10 +108,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the use of `Math.trunc` instead of bitwise operators.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+		hasSuggestions: true,
+	},
 };

@@ -1,41 +1,33 @@
 'use strict';
 const {findVariable} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const getVariableIdentifiers = require('./utils/get-variable-identifiers');
-const {matches, not, methodCallSelector} = require('./selectors');
+const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
+const {
+	matches,
+	not,
+	methodCallSelector,
+	callOrNewExpressionSelector,
+} = require('./selectors/index.js');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: '`{{name}}` should be a `Set`, and use `{{name}}.has()` to check existence or non-existence.',
-	[MESSAGE_ID_SUGGESTION]: 'Switch `{{name}}` to `Set`.'
+	[MESSAGE_ID_SUGGESTION]: 'Switch `{{name}}` to `Set`.',
 };
 
 // `[]`
 const arrayExpressionSelector = [
-	'[init.type="ArrayExpression"]'
+	'[init.type="ArrayExpression"]',
 ].join('');
 
-// `Array()`
-const ArraySelector = [
-	'[init.type="CallExpression"]',
-	'[init.callee.type="Identifier"]',
-	'[init.callee.name="Array"]'
-].join('');
+// `Array()` and `new Array()`
+const newArraySelector = callOrNewExpressionSelector({name: 'Array', path: 'init'});
 
-// `new Array()`
-const newArraySelector = [
-	'[init.type="NewExpression"]',
-	'[init.callee.type="Identifier"]',
-	'[init.callee.name="Array"]'
-].join('');
-
-// `Array.from()`
-// `Array.of()`
+// `Array.from()` and `Array.of()`
 const arrayStaticMethodSelector = methodCallSelector({
 	object: 'Array',
-	names: ['from', 'of'],
-	path: 'init'
+	methods: ['from', 'of'],
+	path: 'init',
 });
 
 // `array.concat()`
@@ -50,7 +42,7 @@ const arrayStaticMethodSelector = methodCallSelector({
 // `array.sort()`
 // `array.splice()`
 const arrayMethodSelector = methodCallSelector({
-	names: [
+	methods: [
 		'concat',
 		'copyWithin',
 		'fill',
@@ -61,9 +53,9 @@ const arrayMethodSelector = methodCallSelector({
 		'reverse',
 		'slice',
 		'sort',
-		'splice'
+		'splice',
 	],
-	path: 'init'
+	path: 'init',
 });
 
 const selector = [
@@ -74,13 +66,12 @@ const selector = [
 	'VariableDeclarator.declarations',
 	matches([
 		arrayExpressionSelector,
-		ArraySelector,
 		newArraySelector,
 		arrayStaticMethodSelector,
-		arrayMethodSelector
+		arrayMethodSelector,
 	]),
 	' > ',
-	'Identifier.id'
+	'Identifier.id',
 ].join('');
 
 const isIncludesCall = node => {
@@ -113,7 +104,7 @@ const multipleCallNodeTypes = new Set([
 	'DoWhileStatement',
 	'FunctionDeclaration',
 	'FunctionExpression',
-	'ArrowFunctionExpression'
+	'ArrowFunctionExpression',
 ]);
 
 const isMultipleCall = (identifier, node) => {
@@ -165,8 +156,8 @@ const create = context => {
 				node,
 				messageId: MESSAGE_ID_ERROR,
 				data: {
-					name: node.name
-				}
+					name: node.name,
+				},
 			};
 
 			const fix = function * (fixer) {
@@ -183,17 +174,17 @@ const create = context => {
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
 						data: {
-							name: node.name
+							name: node.name,
 						},
-						fix
-					}
+						fix,
+					},
 				];
 			} else {
 				problem.fix = fix;
 			}
 
-			context.report(problem);
-		}
+			return problem;
+		},
 	};
 };
 
@@ -203,10 +194,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+		hasSuggestions: true,
+	},
 };

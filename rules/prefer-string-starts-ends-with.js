@@ -1,11 +1,10 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
-const quoteString = require('./utils/quote-string');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
-const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child');
-const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses');
+const {methodCallSelector} = require('./selectors/index.js');
+const quoteString = require('./utils/quote-string.js');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
+const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child.js');
+const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses.js');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
@@ -17,19 +16,19 @@ const messages = {
 	[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.',
 	[FIX_TYPE_STRING_CASTING]: 'Convert to string `String(…).{{method}}()`.',
 	[FIX_TYPE_OPTIONAL_CHAINING]: 'Use optional chaining `…?.{{method}}()`.',
-	[FIX_TYPE_NULLISH_COALESCING]: 'Use nullish coalescing `(… ?? \'\').{{method}}()`.'
+	[FIX_TYPE_NULLISH_COALESCING]: 'Use nullish coalescing `(… ?? \'\').{{method}}()`.',
 };
 
 const doesNotContain = (string, characters) => characters.every(character => !string.includes(character));
 const isSimpleString = string => doesNotContain(
 	string,
-	['^', '$', '+', '[', '{', '(', '\\', '.', '?', '*', '|']
+	['^', '$', '+', '[', '{', '(', '\\', '.', '?', '*', '|'],
 );
 const addParentheses = text => `(${text})`;
 
 const regexTestSelector = [
-	methodCallSelector({name: 'test', length: 1}),
-	'[callee.object.regex]'
+	methodCallSelector({method: 'test', argumentsLength: 1}),
+	'[callee.object.regex]',
 ].join('');
 
 const checkRegex = ({pattern, flags}) => {
@@ -43,7 +42,7 @@ const checkRegex = ({pattern, flags}) => {
 		if (isSimpleString(string)) {
 			return {
 				messageId: MESSAGE_STARTS_WITH,
-				string
+				string,
 			};
 		}
 	}
@@ -54,7 +53,7 @@ const checkRegex = ({pattern, flags}) => {
 		if (isSimpleString(string)) {
 			return {
 				messageId: MESSAGE_ENDS_WITH,
-				string
+				string,
 			};
 		}
 	}
@@ -93,7 +92,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				messageId: result.messageId
+				messageId: result.messageId,
 			};
 
 			function * fix(fixer, fixType) {
@@ -163,12 +162,12 @@ const create = context => {
 				problem.suggest = [
 					FIX_TYPE_STRING_CASTING,
 					FIX_TYPE_OPTIONAL_CHAINING,
-					FIX_TYPE_NULLISH_COALESCING
+					FIX_TYPE_NULLISH_COALESCING,
 				].map(type => ({messageId: type, data: {method}, fix: fixer => fix(fixer, type)}));
 			}
 
-			context.report(problem);
-		}
+			return problem;
+		},
 	};
 };
 
@@ -178,11 +177,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.',
-			url: getDocumentationUrl(__filename),
-			suggest: true
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+		hasSuggestions: true,
+	},
 };

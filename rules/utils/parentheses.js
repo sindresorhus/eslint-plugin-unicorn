@@ -39,7 +39,7 @@ function getParentheses(node, sourceCode) {
 
 	return [
 		...sourceCode.getTokensBefore(node, {count, filter: isOpeningParenToken}),
-		...sourceCode.getTokensAfter(node, {count, filter: isClosingParenToken})
+		...sourceCode.getTokensAfter(node, {count, filter: isClosingParenToken}),
 	];
 }
 
@@ -70,8 +70,9 @@ function getParenthesizedText(node, sourceCode) {
 }
 
 module.exports = {
+	isParenthesized,
 	getParenthesizedTimes,
 	getParentheses,
 	getParenthesizedRange,
-	getParenthesizedText
+	getParenthesizedText,
 };

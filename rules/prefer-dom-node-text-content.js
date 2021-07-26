@@ -1,23 +1,54 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {memberExpressionSelector} = require('./selectors');
+const {memberExpressionSelector} = require('./selectors/index.js');
 
-const MESSAGE_ID = 'prefer-dom-node-text-content';
+const ERROR = 'error';
+const SUGGESTION = 'suggestion';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `.textContent` over `.innerText`.'
+	[ERROR]: 'Prefer `.textContent` over `.innerText`.',
+	[SUGGESTION]: 'Switch to `.textContent`.',
 };
 
-const selector = memberExpressionSelector('innerText');
+const memberExpressionPropertySelector = `${memberExpressionSelector('innerText')} > .property`;
+const destructuringSelector = [
+	'ObjectPattern',
+	' > ',
+	'Property.properties',
+	'[kind="init"]',
+	'[computed!=true]',
+	' > ',
+	'Identifier.key',
+	'[name="innerText"]',
+].join('');
 
-const create = context => {
+const create = () => {
 	return {
-		[selector]({property: node}) {
-			context.report({
+		[memberExpressionPropertySelector](node) {
+			return {
 				node,
-				messageId: MESSAGE_ID,
-				fix: fixer => fixer.replaceText(node, 'textContent')
-			});
-		}
+				messageId: ERROR,
+				suggest: [
+					{
+						messageId: SUGGESTION,
+						fix: fixer => fixer.replaceText(node, 'textContent'),
+					},
+				],
+			};
+		},
+		[destructuringSelector](node) {
+			return {
+				node,
+				messageId: ERROR,
+				suggest: [
+					{
+						messageId: SUGGESTION,
+						fix: fixer => fixer.replaceText(
+							node,
+							node.parent.shorthand ? 'textContent: innerText' : 'textContent',
+						),
+					},
+				],
+			};
+		},
 	};
 };
 
@@ -27,10 +58,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.textContent` over `.innerText`.',
-			url: getDocumentationUrl(__filename)
 		},
-		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+		hasSuggestions: true,
+	},
 };

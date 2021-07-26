@@ -10,20 +10,20 @@ const PROPERTY_ERROR_MESSAGE_ID = 'property-error';
 const methods = {
 	parseInt: {
 		safe: true,
-		code: 'parseInt("10", 2);'
+		code: 'parseInt("10", 2);',
 	},
 	parseFloat: {
 		safe: true,
-		code: 'parseFloat("10.5");'
+		code: 'parseFloat("10.5");',
 	},
 	isNaN: {
 		safe: false,
-		code: 'isNaN(10);'
+		code: 'isNaN(10);',
 	},
 	isFinite: {
 		safe: false,
-		code: 'isFinite(10);'
-	}
+		code: 'isFinite(10);',
+	},
 };
 
 const createError = (name, suggestionOutput) => {
@@ -32,23 +32,23 @@ const createError = (name, suggestionOutput) => {
 	const error = {
 		messageId: METHOD_ERROR_MESSAGE_ID,
 		data: {
-			name
-		}
+			name,
+		},
 	};
 
 	const suggestions = safe ? undefined : [
 		{
 			messageId: METHOD_SUGGESTION_MESSAGE_ID,
 			data: {
-				name
+				name,
 			},
-			output: suggestionOutput
-		}
+			output: suggestionOutput,
+		},
 	];
 
 	return {
 		...error,
-		suggestions
+		suggestions,
 	};
 };
 
@@ -57,8 +57,8 @@ const invalidMethodTest = ({code, output, name, suggestionOutput}) => {
 	const test = {
 		code,
 		errors: [
-			createError(name, suggestionOutput)
-		]
+			createError(name, suggestionOutput),
+		],
 	};
 	if (safe) {
 		test.output = output;
@@ -95,29 +95,29 @@ test({
 			function inner() {
 				return ${code}
 			}
-		`)
+		`),
 	],
 
 	invalid: [
 		invalidMethodTest({
 			code: 'parseInt("10", 2);',
 			output: 'Number.parseInt("10", 2);',
-			name: 'parseInt'
+			name: 'parseInt',
 		}),
 		invalidMethodTest({
 			code: 'parseFloat("10.5");',
 			output: 'Number.parseFloat("10.5");',
-			name: 'parseFloat'
+			name: 'parseFloat',
 		}),
 		invalidMethodTest({
 			code: 'isNaN(10);',
 			suggestionOutput: 'Number.isNaN(10);',
-			name: 'isNaN'
+			name: 'isNaN',
 		}),
 		invalidMethodTest({
 			code: 'isFinite(10);',
 			suggestionOutput: 'Number.isFinite(10);',
-			name: 'isFinite'
+			name: 'isFinite',
 		}),
 		{
 			code: outdent`
@@ -142,7 +142,7 @@ test({
 						const b = parseFloat("10.5");
 						const c = Number.isNaN(10);
 						const d = isFinite(10);
-					`
+					`,
 				),
 				createError(
 					'isFinite',
@@ -151,11 +151,11 @@ test({
 						const b = parseFloat("10.5");
 						const c = isNaN(10);
 						const d = Number.isFinite(10);
-					`
-				)
-			]
-		}
-	]
+					`,
+				),
+			],
+		},
+	],
 });
 
 // `NaN` and `Infinity`
@@ -164,9 +164,9 @@ const errorNaN = [
 		messageId: PROPERTY_ERROR_MESSAGE_ID,
 		data: {
 			identifier: 'NaN',
-			property: 'NaN'
-		}
-	}
+			property: 'NaN',
+		},
+	},
 ];
 
 // TODO: Add following tests whenESLint support `proposal-class-fields`
@@ -241,68 +241,68 @@ test({
 		'class Foo { Infinity(){}}',
 		{
 			code: 'const foo = Infinity;',
-			options: [{checkInfinity: false}]
+			options: [{checkInfinity: false}],
 		},
 		{
 			code: 'const foo = -Infinity;',
-			options: [{checkInfinity: false}]
-		}
+			options: [{checkInfinity: false}],
+		},
 	],
 	invalid: [
 		{
 			code: 'const foo = NaN;',
 			output: 'const foo = Number.NaN;',
-			errors: errorNaN
+			errors: errorNaN,
 		},
 		{
 			code: 'if (Number.isNaN(NaN)) {}',
 			output: 'if (Number.isNaN(Number.NaN)) {}',
-			errors: errorNaN
+			errors: errorNaN,
 		},
 		{
 			code: 'if (Object.is(foo, NaN)) {}',
 			output: 'if (Object.is(foo, Number.NaN)) {}',
-			errors: errorNaN
+			errors: errorNaN,
 		},
 		{
 			code: 'const foo = bar[NaN];',
 			output: 'const foo = bar[Number.NaN];',
-			errors: errorNaN
+			errors: errorNaN,
 		},
 		{
 			code: 'const foo = {NaN};',
 			output: 'const foo = {NaN: Number.NaN};',
-			errors: errorNaN
+			errors: errorNaN,
 		},
 		{
 			code: 'const foo = {NaN: NaN};',
 			output: 'const foo = {NaN: Number.NaN};',
-			errors: errorNaN
+			errors: errorNaN,
 		},
 		{
 			code: 'const {foo = NaN} = {};',
 			output: 'const {foo = Number.NaN} = {};',
-			errors: errorNaN
+			errors: errorNaN,
 		},
 		{
 			code: 'const foo = NaN.toString();',
 			output: 'const foo = Number.NaN.toString();',
-			errors: errorNaN
-		}
-	]
+			errors: errorNaN,
+		},
+	],
 });
 
 test.babel({
 	valid: [
-		'class Foo2 {NaN = 1}'
+		'class Foo2 {NaN = 1}',
 	],
 	invalid: [
 		{
 			code: 'class Foo2 {[NaN] = 1}',
 			output: 'class Foo2 {[Number.NaN] = 1}',
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });
 
 test.typescript({
@@ -314,11 +314,11 @@ test.typescript({
 					Decimal,
 					NaN,
 				}
-			`
+			`,
 		},
 		// https://github.com/microsoft/TypeScript/blob/114fe4deab68519a44969c1db8300003719059db/src/lib/es5.d.ts#L5
 		{
-			code: 'declare var NaN: number;'
+			code: 'declare var NaN: number;',
 		},
 		// https://github.com/microsoft/TypeScript/blob/114fe4deab68519a44969c1db8300003719059db/src/lib/es5.d.ts#L566
 		{
@@ -326,18 +326,18 @@ test.typescript({
 				interface NumberConstructor {
 					readonly NaN: number;
 				}
-			`
+			`,
 		},
 		'declare function NaN(s: string, radix?: number): number;',
-		'class Foo {NaN = 1}'
+		'class Foo {NaN = 1}',
 	],
 	invalid: [
 		{
 			code: 'class Foo {[NaN] = 1}',
 			output: 'class Foo {[Number.NaN] = 1}',
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });
 
 test.snapshot({
@@ -380,6 +380,9 @@ test.snapshot({
 		'const [a = NaN] = [];',
 		'function foo({a = NaN}) {}',
 		'function foo({[NaN]: a = NaN}) {}',
-		'function foo([a = NaN]) {}'
-	]
+		'function foo([a = NaN]) {}',
+
+		// Space after keywords
+		'function foo() {return-Infinity}',
+	],
 });

@@ -1,24 +1,22 @@
 'use strict';
 
-const getDocumentationUrl = require('./utils/get-documentation-url');
-
 const MESSAGE_ID = 'noKeywordPrefix';
 const messages = {
-	[MESSAGE_ID]: 'Do not prefix identifiers with keyword `{{keyword}}`.'
+	[MESSAGE_ID]: 'Do not prefix identifiers with keyword `{{keyword}}`.',
 };
 
 const prepareOptions = ({
 	disallowedPrefixes,
 	checkProperties = true,
-	onlyCamelCase = true
+	onlyCamelCase = true,
 } = {}) => {
 	return {
 		disallowedPrefixes: (disallowedPrefixes || [
 			'new',
-			'class'
+			'class',
 		]),
 		checkProperties,
-		onlyCamelCase
+		onlyCamelCase,
 	};
 };
 
@@ -33,7 +31,7 @@ function findKeywordPrefix(name, options) {
 function checkMemberExpression(report, node, options) {
 	const {name, parent} = node;
 	const keyword = findKeywordPrefix(name, options);
-	const effectiveParent = (parent.type === 'MemberExpression') ? parent.parent : parent;
+	const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
 
 	if (!options.checkProperties) {
 		return;
@@ -98,8 +96,8 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				data: {
 					name: node.name,
-					keyword
-				}
+					keyword,
+				},
 			});
 		}
 	}
@@ -108,7 +106,7 @@ const create = context => {
 		Identifier: node => {
 			const {name, parent} = node;
 			const keyword = findKeywordPrefix(name, options);
-			const effectiveParent = (parent.type === 'MemberExpression') ? parent.parent : parent;
+			const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
 
 			if (parent.type === 'MemberExpression') {
 				checkMemberExpression(report, node, options);
@@ -143,7 +141,7 @@ const create = context => {
 				[
 					'ImportSpecifier',
 					'ImportNamespaceSpecifier',
-					'ImportDefaultSpecifier'
+					'ImportDefaultSpecifier',
 				].includes(parent.type)
 			) {
 				// Report only if the local imported identifier is invalid
@@ -162,7 +160,7 @@ const create = context => {
 			) {
 				report(node, keyword);
 			}
-		}
+		},
 	};
 };
 
@@ -174,21 +172,21 @@ const schema = [
 				type: 'array',
 				items: [
 					{
-						type: 'string'
-					}
+						type: 'string',
+					},
 				],
 				minItems: 0,
-				uniqueItems: true
+				uniqueItems: true,
 			},
 			checkProperties: {
-				type: 'boolean'
+				type: 'boolean',
 			},
 			onlyCamelCase: {
-				type: 'boolean'
-			}
+				type: 'boolean',
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -197,9 +195,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow identifiers starting with `new` or `class`.',
-			url: getDocumentationUrl(__filename)
 		},
 		schema,
-		messages
-	}
+		messages,
+	},
 };

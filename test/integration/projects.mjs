@@ -6,13 +6,13 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 export default [
 	{
 		name: 'fixtures-local',
-		location: path.join(dirname, 'fixtures-local')
+		location: path.join(dirname, 'fixtures-local'),
 	},
 	{
 		repository: 'https://github.com/avajs/ava',
 		ignore: [
-			'test/node_modules'
-		]
+			'test/node_modules',
+		],
 	},
 	'https://github.com/chalk/chalk',
 	'https://github.com/chalk/wrap-ansi',
@@ -51,15 +51,15 @@ export default [
 		repository: 'https://github.com/sindresorhus/got',
 		ignore: [
 			// This file use `package` keyword as variable
-			'documentation/examples/gh-got.js'
-		]
+			'documentation/examples/gh-got.js',
+		],
 	},
 	'https://github.com/eslint/eslint',
 	{
 		repository: 'https://github.com/prettier/prettier',
 		ignore: [
-			'tests/**'
-		]
+			'tests/**',
+		],
 	},
 	{
 		repository: 'https://github.com/angular/angular',
@@ -69,15 +69,15 @@ export default [
 			'aio/tools/transforms/templates/data-module.template.js',
 			'aio/tools/transforms/authors-package/index.js', // This file use `package` keyword as variable
 			'packages/compiler-cli/test/**',
-			'tools/**'
-		]
+			'tools/**',
+		],
 	},
 	{
 		repository: 'https://github.com/microsoft/typescript',
 		ignore: [
 			// These file use `'\033'`
-			'build/**'
-		]
+			'build/**',
+		],
 	},
 	// This repo use `override` keyword which is not avaiable before TS4.3, temporary disable
 	// https://github.com/microsoft/vscode/pull/120690/files
@@ -99,8 +99,8 @@ export default [
 		repository: 'https://github.com/gatsbyjs/gatsby',
 		ignore: [
 			// These files use `flow`
-			'**/*.js'
-		]
+			'**/*.js',
+		],
 	},
 	{
 		repository: 'https://github.com/puppeteer/puppeteer',
@@ -111,8 +111,8 @@ export default [
 
 			// `package` keyword
 			// https://github.com/puppeteer/puppeteer/blob/0b1a9ceee2f05f534f0d50079ece172d627a93c7/utils/apply_next_version.js#L17
-			'utils/apply_next_version.js'
-		]
+			'utils/apply_next_version.js',
+		],
 	},
 	{
 		repository: 'https://github.com/vercel/next.js',
@@ -120,14 +120,14 @@ export default [
 			'examples/**',
 
 			// These files use `>` in jsx
-			'test/integration/**'
-		]
+			'test/integration/**',
+		],
 	},
 	{
 		repository: 'https://github.com/chakra-ui/chakra-ui',
 		ignore: [
-			'scripts/create-package.js' // This file use `package` keyword as variable
-		]
+			'scripts/create-package.js', // This file use `package` keyword as variable
+		],
 	},
 	'https://github.com/ReactTraining/react-router',
 	'https://github.com/mozilla/pdf.js',
@@ -137,22 +137,22 @@ export default [
 		ignore: [
 			// These files use `package` keyword as variable
 			'scripts/publish-beta.js',
-			'apps/test-bundles/webpack.config.js'
-		]
+			'apps/test-bundles/webpack.config.js',
+		],
 	},
 	// #902
 	{
 		repository: 'https://github.com/reakit/reakit',
 		ignore: [
-			'packages/reakit/jest.config.js' // This file use `package` keyword as variable
-		]
+			'packages/reakit/jest.config.js', // This file use `package` keyword as variable
+		],
 	},
 	// #903
 	'https://github.com/mattermost/mattermost-webapp',
 	// #1030
 	'https://github.com/astrofox-io/astrofox',
 	// #1075
-	'https://github.com/jaredLunde/masonic'
+	'https://github.com/jaredLunde/masonic',
 	// These two project use `decorator`, try to enable when we use `@babel/eslint-parser`
 	// 'https://github.com/untitled-labs/metabase-custom',
 	// 'https://github.com/TheThingsNetwork/lorawan-stack',
@@ -164,13 +164,13 @@ export default [
 	const {
 		repository,
 		name = repository.split('/').pop(),
-		ignore = []
+		ignore = [],
 	} = project;
 
 	return {
 		...project,
 		name,
 		repository,
-		ignore
+		ignore,
 	};
 });

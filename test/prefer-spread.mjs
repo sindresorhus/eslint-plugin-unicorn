@@ -40,7 +40,7 @@ test.snapshot({
 		'Array.from(foo, mapFn, thisArg, extra);',
 		'Array.from(...argumentsArray);',
 		// FirstArgument is `ObjectExpression`
-		'Array.from({length: 10});'
+		'Array.from({length: 10});',
 	],
 	invalid: [
 		'const x = Array.from(set);',
@@ -158,8 +158,8 @@ test.snapshot({
 		'Array.from([1])',
 		'Array.from([...a, ...b])',
 		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */, /* 6 */ b /* 7 */, /* 8 */ c /* 9 */,)',
-		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */,)'
-	]
+		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */,)',
+	],
 });
 
 // `Array#concat`
@@ -180,7 +180,7 @@ test.snapshot({
 		'Foo.concat(1)',
 		'FooBar.concat(1)',
 		'FOO.concat(1)',
-		'A.concat(1)'
+		'A.concat(1)',
 	],
 	invalid: [
 		'[1].concat(2)',
@@ -191,14 +191,14 @@ test.snapshot({
 		'[1,].concat([2, 3])',
 		'[1,].concat(2,)',
 		'[1,].concat([2, 3],)',
-		'(( (([1,])).concat( (([2, 3])) ,) ))',
-		'(( (([1,])).concat( (([2, 3])) , bar ) ))',
+		'(( (( (( [1,] )).concat ))( (([2, 3])) ,) ))',
+		'(( (( (( [1,] )).concat ))( (([2, 3])) , bar ) ))',
 		'foo.concat(2)',
 		'foo.concat([2, 3])',
 		'foo.concat(2,)',
 		'foo.concat([2, 3],)',
-		'(( ((foo)).concat( (([2, 3])) ,) ))',
-		'(( ((foo)).concat( (([2, 3])) , bar ) ))',
+		'(( (( ((foo)).concat ))( (([2, 3])) ,) ))',
+		'(( (( ((foo)).concat ))( (([2, 3])) , bar ) ))',
 		// Semicolon
 		outdent`
 			bar()
@@ -265,8 +265,27 @@ test.snapshot({
 		'foo.concat(bar, 2, [3, 4], baz, 5, [6, 7])',
 		'foo.concat(bar, 2, 3, ...baz)',
 		'notClass.concat(1)',
-		'_A.concat(1)'
-	]
+		'_A.concat(1)',
+		// Semicolon
+		'if (test) foo.concat(1)',
+		'if (test) {} else foo.concat(1)',
+		'if (test) {} else foo.concat(1)',
+		'for (;;) foo.concat(1)',
+		'for (a in b) foo.concat(1)',
+		'for (a in b) foo.concat(1)',
+		'for (const a of b) foo.concat(1)',
+		'while (test) foo.concat(1)',
+		'do foo.concat(1); while (test)',
+		{
+			code: 'with (foo) foo.concat(1)',
+			parserOptions: {ecmaVersion: 5, sourceType: 'script'},
+		},
+		// Code from example in docs
+		outdent`
+			const baz = [2];
+			call(foo, ...[bar].concat(baz));
+		`,
+	],
 });
 
 // `Array#slice`
@@ -294,7 +313,7 @@ test.snapshot({
 		'blob.slice()',
 		'buffer.slice()',
 		'file.slice()',
-		'class A {foo() {this.slice()}}'
+		'class A {foo() {this.slice()}}',
 	],
 	invalid: [
 		'array.slice()',
@@ -302,7 +321,7 @@ test.snapshot({
 		'array.slice(1).slice()',
 		'array.slice().slice(1)',
 		'const copy = array.slice()',
-		'(( ((array)).slice() ))',
+		'(( (( (( array )).slice ))() ))',
 		// Semicolon
 		outdent`
 			bar()
@@ -314,6 +333,6 @@ test.snapshot({
 		'array.slice(0)',
 		'array.slice(0b0)',
 		'array.slice(0.00)',
-		'array.slice(0.00, )'
-	]
+		'array.slice(0.00, )',
+	],
 });

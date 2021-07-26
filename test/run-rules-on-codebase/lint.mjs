@@ -6,28 +6,37 @@ const {recommended} = unicorn.configs;
 const files = [process.argv[2] || '.'];
 const fix = process.argv.includes('--fix');
 
+const enableAllRules = Object.fromEntries(
+	Object.entries(recommended.rules)
+		.filter(([id]) => id.startsWith('unicorn/'))
+		.map(([id]) => [id, 'error']),
+);
+
 const eslint = new ESLint({
-	baseConfig: recommended,
+	baseConfig: {
+		...recommended,
+		rules: enableAllRules,
+	},
 	useEslintrc: false,
 	extensions: ['.js', '.mjs'],
 	plugins: {
-		unicorn
+		unicorn,
 	},
 	fix,
 	overrideConfig: {
 		ignorePatterns: [
 			'coverage',
 			'test/integration/fixtures',
-			'test/integration/fixtures-local'
+			'test/integration/fixtures-local',
 		],
 		rules: {
 			'unicorn/prevent-abbreviations': [
 				'error',
 				{
 					replacements: {
-						fn: false
-					}
-				}
+						fn: false,
+					},
+				},
 			],
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1109#issuecomment-782689255
 			'unicorn/consistent-destructuring': 'off',
@@ -36,27 +45,32 @@ const eslint = new ESLint({
 				{
 					functions: [
 						'flat',
-						'flatten'
-					]
-				}
-			]
+						'flatten',
+					],
+				},
+			],
+			// Annoying
+			'unicorn/no-keyword-prefix': 'off',
+			'unicorn/no-unsafe-regex': 'off',
+			// Outdated
+			'unicorn/import-index': 'off',
+			// Not ready yet
+			'unicorn/prefer-string-replace-all': 'off',
+			'unicorn/prefer-top-level-await': 'off',
+			'unicorn/prefer-object-has-own': 'off',
+			'unicorn/prefer-at': 'off',
 		},
 		overrides: [
 			{
 				files: [
-					// ESLint don't support module
-					'rules/**/*.js',
-					'index.js',
-					'test/integration/config.js',
-					// `eslint-remote-tester` only support cjs config
-					'test/smoke/eslint-remote-tester.config.js'
+					'**/*.js',
 				],
 				rules: {
-					'unicorn/prefer-module': 'off'
-				}
-			}
-		]
-	}
+					'unicorn/prefer-module': 'off',
+				},
+			},
+		],
+	},
 });
 
 const sum = (collection, fieldName) => {

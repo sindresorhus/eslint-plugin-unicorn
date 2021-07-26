@@ -1,10 +1,11 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isLiteralValue = require('./utils/is-literal-value');
-const isLogicalExpression = require('./utils/is-logical-expression');
-const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean');
-const {memberExpressionSelector} = require('./selectors');
+const {checkVueTemplate} = require('./utils/rule.js');
+const isLiteralValue = require('./utils/is-literal-value.js');
+const isLogicalExpression = require('./utils/is-logical-expression.js');
+const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean.js');
+const {memberExpressionSelector} = require('./selectors/index.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -12,7 +13,7 @@ const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
 	[TYPE_NON_ZERO]: 'Use `.{{property}} {{code}}` when checking {{property}} is not zero.',
 	[TYPE_ZERO]: 'Use `.{{property}} {{code}}` when checking {{property}} is zero.',
-	[MESSAGE_ID_SUGGESTION]: 'Replace `.{{property}}` with `.{{property}} {{code}}`.'
+	[MESSAGE_ID_SUGGESTION]: 'Replace `.{{property}}` with `.{{property}} {{code}}`.',
 };
 
 const isCompareRight = (node, operator, value) =>
@@ -28,27 +29,20 @@ const nonZeroStyles = new Map([
 		'greater-than',
 		{
 			code: '> 0',
-			test: node => isCompareRight(node, '>', 0)
-		}
+			test: node => isCompareRight(node, '>', 0),
+		},
 	],
 	[
 		'not-equal',
 		{
 			code: '!== 0',
-			test: node => isCompareRight(node, '!==', 0)
-		}
+			test: node => isCompareRight(node, '!==', 0),
+		},
 	],
-	[
-		'greater-than-or-equal',
-		{
-			code: '>= 1',
-			test: node => isCompareRight(node, '>=', 1)
-		}
-	]
 ]);
 const zeroStyle = {
 	code: '=== 0',
-	test: node => isCompareRight(node, '===', 0)
+	test: node => isCompareRight(node, '===', 0),
 };
 
 const lengthSelector = memberExpressionSelector(['length', 'size']);
@@ -102,12 +96,12 @@ function getLengthCheckNode(node) {
 function create(context) {
 	const options = {
 		'non-zero': 'greater-than',
-		...context.options[0]
+		...context.options[0],
 	};
 	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
 	const sourceCode = context.getSourceCode();
 
-	function reportProblem({node, isZeroLengthCheck, lengthNode, autoFix}) {
+	function getProblem({node, isZeroLengthCheck, lengthNode, autoFix}) {
 		const {code, test} = isZeroLengthCheck ? zeroStyle : nonZeroStyle;
 		if (test(node)) {
 			return;
@@ -117,17 +111,20 @@ function create(context) {
 		if (
 			!isParenthesized(node, sourceCode) &&
 			node.type === 'UnaryExpression' &&
-			node.parent.type === 'UnaryExpression'
+			(node.parent.type === 'UnaryExpression' || node.parent.type === 'AwaitExpression')
 		) {
 			fixed = `(${fixed})`;
 		}
 
-		const fix = fixer => fixer.replaceText(node, fixed);
+		const fix = function * (fixer) {
+			yield fixer.replaceText(node, fixed);
+			yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+		};
 
 		const problem = {
 			node,
 			messageId: isZeroLengthCheck ? TYPE_ZERO : TYPE_NON_ZERO,
-			data: {code, property: lengthNode.property.name}
+			data: {code, property: lengthNode.property.name},
 		};
 
 		if (autoFix) {
@@ -137,12 +134,12 @@ function create(context) {
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
 					data: problem.data,
-					fix
-				}
+					fix,
+				},
 			];
 		}
 
-		context.report(problem);
+		return problem;
 	}
 
 	return {
@@ -179,9 +176,9 @@ function create(context) {
 			}
 
 			if (node) {
-				reportProblem({node, isZeroLengthCheck, lengthNode, autoFix});
+				return getProblem({node, isZeroLengthCheck, lengthNode, autoFix});
 			}
-		}
+		},
 	};
 }
 
@@ -191,22 +188,22 @@ const schema = [
 		properties: {
 			'non-zero': {
 				enum: [...nonZeroStyles.keys()],
-				default: 'greater-than'
-			}
-		}
-	}
+				default: 'greater-than',
+			},
+		},
+	},
 ];
 
 module.exports = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'problem',
 		docs: {
 			description: 'Enforce explicitly comparing the `length` or `size` property of a value.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+		hasSuggestions: true,
+	},
 };

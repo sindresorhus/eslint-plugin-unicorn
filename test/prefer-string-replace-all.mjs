@@ -3,7 +3,7 @@ import {getTester} from './utils/test.mjs';
 const {test} = getTester(import.meta);
 
 const error = {
-	message: 'Prefer `String#replaceAll()` over `String#replace()`.'
+	message: 'Prefer `String#replaceAll()` over `String#replace()`.',
 };
 
 test({
@@ -39,13 +39,13 @@ test({
 		// More or less argument(s)
 		'foo.replace(/a/g, bar, extra);',
 		'foo.replace();',
-		'foo.replace(...argumentsArray, ...argumentsArray2)'
+		'foo.replace(...argumentsArray, ...argumentsArray2)',
 	],
 	invalid: [
 		{
 			code: 'foo.replace(/a/g, bar)',
 			output: 'foo.replaceAll(\'a\', bar)',
-			errors: [error]
+			errors: [error],
 		},
 		// Comments
 		{
@@ -67,32 +67,32 @@ test({
 						bar
 					)
 			`,
-			errors: [error]
+			errors: [error],
 		},
 		// Quotes
 		{
 			code: 'foo.replace(/"\'/g, \'\\\'\')',
 			output: 'foo.replaceAll(\'"\\\'\', \'\\\'\')',
-			errors: [error]
+			errors: [error],
 		},
 		// Escaped symbols
 		{
 			code: 'foo.replace(/\\./g, bar)',
 			output: 'foo.replaceAll(\'.\', bar)',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'foo.replace(/\\\\\\./g, bar)',
 			output: 'foo.replaceAll(\'\\\\.\', bar)',
-			errors: [error]
-		}
-	]
+			errors: [error],
+		},
+	],
 });
 
 test.snapshot({
 	valid: [],
 	invalid: [
 		'foo.replace(/a/gu, bar)',
-		'foo.replace(/a/ug, bar)'
-	]
+		'foo.replace(/a/ug, bar)',
+	],
 });

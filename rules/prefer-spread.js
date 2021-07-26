@@ -1,14 +1,16 @@
 'use strict';
 const {isParenthesized, getStaticValue, isCommaToken, hasSideEffect} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
-const needsSemicolon = require('./utils/needs-semicolon');
-const {getParenthesizedRange, getParenthesizedText} = require('./utils/parentheses');
-const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument');
-const replaceNodeOrTokenAndSpacesBefore = require('./utils/replace-node-or-token-and-spaces-before');
-const removeSpacesAfter = require('./utils/remove-spaces-after');
-const isLiteralValue = require('./utils/is-literal-value');
-const {isNodeMatches} = require('./utils/is-node-matches');
+const {methodCallSelector} = require('./selectors/index.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
+const {getParenthesizedRange, getParenthesizedText} = require('./utils/parentheses.js');
+const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument.js');
+const isLiteralValue = require('./utils/is-literal-value.js');
+const {isNodeMatches} = require('./utils/is-node-matches.js');
+const {
+	replaceNodeOrTokenAndSpacesBefore,
+	removeSpacesAfter,
+	removeMethodCall,
+} = require('./fix/index.js');
 
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
@@ -24,43 +26,41 @@ const messages = {
 	[SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE]: 'First argument is an `array`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE]: 'First argument is not an `array`.',
 	[SUGGESTION_CONCAT_TEST_ARGUMENT]: 'Test first argument with `Array.isArray(…)`.',
-	[SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS]: 'Spread all unknown arguments`.'
+	[SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS]: 'Spread all unknown arguments`.',
 };
 
 const arrayFromCallSelector = [
 	methodCallSelector({
 		object: 'Array',
-		name: 'from',
-		min: 1,
-		max: 3
+		method: 'from',
+		minimumArguments: 1,
+		maximumArguments: 3,
 	}),
 	// Allow `Array.from({length})`
-	'[arguments.0.type!="ObjectExpression"]'
+	'[arguments.0.type!="ObjectExpression"]',
 ].join('');
 
 const arrayConcatCallSelector = [
-	methodCallSelector({
-		name: 'concat'
-	}),
+	methodCallSelector('concat'),
 	`:not(${
 		[
 			...[
 				'Literal',
-				'TemplateLiteral'
+				'TemplateLiteral',
 			].map(type => `[callee.object.type="${type}"]`),
 			// Most likely it's a static method of a class
-			'[callee.object.name=/^[A-Z]/]'
+			'[callee.object.name=/^[A-Z]/]',
 		].join(', ')
-	})`
+	})`,
 ].join('');
 
 const arraySliceCallSelector = [
 	methodCallSelector({
-		name: 'slice',
-		min: 0,
-		max: 1
+		method: 'slice',
+		minimumArguments: 0,
+		maximumArguments: 1,
 	}),
-	'[callee.object.type!="ArrayExpression"]'
+	'[callee.object.type!="ArrayExpression"]',
 ].join('');
 
 const ignoredSliceCallee = [
@@ -68,7 +68,7 @@ const ignoredSliceCallee = [
 	'blob',
 	'buffer',
 	'file',
-	'this'
+	'this',
 ];
 
 const isArrayLiteral = node => node.type === 'ArrayExpression';
@@ -78,15 +78,6 @@ const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
 	}
 
 	return isCommaToken(sourceCode.getLastToken(node, 1));
-};
-
-const getRangeAfterCalleeObject = (node, sourceCode) => {
-	const {object} = node.callee;
-	const parenthesizedRange = getParenthesizedRange(object, sourceCode);
-	const [, start] = parenthesizedRange;
-	const [, end] = node.range;
-
-	return [start, end];
 };
 
 function fixConcat(node, sourceCode, fixableArguments) {
@@ -190,11 +181,11 @@ function fixConcat(node, sourceCode, fixableArguments) {
 			yield fixer.insertTextBefore(node, ';');
 		}
 
-		yield (
-			concatCallArguments.length - fixableArguments.length === 0 ?
-				fixer.replaceTextRange(getRangeAfterCalleeObject(node, sourceCode), '') :
-				removeArguments(fixer)
-		);
+		if (concatCallArguments.length - fixableArguments.length === 0) {
+			yield * removeMethodCall(fixer, node, sourceCode);
+		} else {
+			yield removeArguments(fixer);
+		}
 
 		const text = getFixedText();
 
@@ -306,7 +297,7 @@ function fixSlice(node, sourceCode) {
 
 		// The array is already accessing `.slice`, there should not any case need add extra `()`
 
-		yield fixer.replaceTextRange(getRangeAfterCalleeObject(node, sourceCode), '');
+		yield * removeMethodCall(fixer, node, sourceCode);
 	};
 }
 
@@ -315,11 +306,11 @@ const create = context => {
 
 	return {
 		[arrayFromCallSelector](node) {
-			context.report({
+			return {
 				node,
 				messageId: ERROR_ARRAY_FROM,
-				fix: fixArrayFrom(node, sourceCode)
-			});
+				fix: fixArrayFrom(node, sourceCode),
+			};
 		},
 		[arrayConcatCallSelector](node) {
 			const scope = context.getScope();
@@ -331,39 +322,37 @@ const create = context => {
 
 			const problem = {
 				node: node.callee.property,
-				messageId: ERROR_ARRAY_CONCAT
+				messageId: ERROR_ARRAY_CONCAT,
 			};
 
 			const fixableArguments = getConcatFixableArguments(node.arguments, scope);
 
 			if (fixableArguments.length > 0 || node.arguments.length === 0) {
 				problem.fix = fixConcat(node, sourceCode, fixableArguments);
-				context.report(problem);
-				return;
+				return problem;
 			}
 
 			const [firstArgument, ...restArguments] = node.arguments;
 			if (firstArgument.type === 'SpreadElement') {
-				context.report(problem);
-				return;
+				return problem;
 			}
 
 			const fixableArgumentsAfterFirstArgument = getConcatFixableArguments(restArguments, scope);
 			const suggestions = [
 				{
 					messageId: SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE,
-					isSpreadable: true
+					isSpreadable: true,
 				},
 				{
 					messageId: SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE,
-					isSpreadable: false
-				}
+					isSpreadable: false,
+				},
 			];
 
 			if (!hasSideEffect(firstArgument, sourceCode)) {
 				suggestions.push({
 					messageId: SUGGESTION_CONCAT_TEST_ARGUMENT,
-					testArgument: true
+					testArgument: true,
 				});
 			}
 
@@ -377,11 +366,11 @@ const create = context => {
 						{
 							node: firstArgument,
 							isSpreadable,
-							testArgument
+							testArgument,
 						},
-						...fixableArgumentsAfterFirstArgument
-					]
-				)
+						...fixableArgumentsAfterFirstArgument,
+					],
+				),
 			}));
 
 			if (
@@ -393,12 +382,12 @@ const create = context => {
 					fix: fixConcat(
 						node,
 						sourceCode,
-						node.arguments.map(node => getConcatArgumentSpreadable(node, scope) || {node, isSpreadable: true})
-					)
+						node.arguments.map(node => getConcatArgumentSpreadable(node, scope) || {node, isSpreadable: true}),
+					),
 				});
 			}
 
-			context.report(problem);
+			return problem;
 		},
 		[arraySliceCallSelector](node) {
 			if (isNodeMatches(node.callee.object, ignoredSliceCallee)) {
@@ -410,12 +399,12 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			return {
 				node: node.callee.property,
 				messageId: ERROR_ARRAY_SLICE,
-				fix: fixSlice(node, sourceCode)
-			});
-		}
+				fix: fixSlice(node, sourceCode),
+			};
+		},
 	};
 };
 
@@ -425,10 +414,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+		hasSuggestions: true,
+	},
 };

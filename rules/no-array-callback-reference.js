@@ -1,8 +1,7 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector, notFunctionSelector} = require('./selectors');
-const {isNodeMatches} = require('./utils/is-node-matches');
+const {methodCallSelector, notFunctionSelector} = require('./selectors/index.js');
+const {isNodeMatches} = require('./utils/is-node-matches.js');
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
@@ -12,23 +11,23 @@ const messages = {
 	[ERROR_WITH_NAME_MESSAGE_ID]: 'Do not pass function `{{name}}` directly to `.{{method}}(…)`.',
 	[ERROR_WITHOUT_NAME_MESSAGE_ID]: 'Do not pass function directly to `.{{method}}(…)`.',
 	[REPLACE_WITH_NAME_MESSAGE_ID]: 'Replace function `{{name}}` with `… => {{name}}({{parameters}})`.',
-	[REPLACE_WITHOUT_NAME_MESSAGE_ID]: 'Replace function with `… => …({{parameters}})`.'
+	[REPLACE_WITHOUT_NAME_MESSAGE_ID]: 'Replace function with `… => …({{parameters}})`.',
 };
 
 const iteratorMethods = [
 	['every'],
 	[
 		'filter', {
-			extraSelector: '[callee.object.name!="Vue"]'
-		}
+			extraSelector: '[callee.object.name!="Vue"]',
+		},
 	],
 	['find'],
 	['findIndex'],
 	['flatMap'],
 	[
 		'forEach', {
-			returnsUndefined: true
-		}
+			returnsUndefined: true,
+		},
 	],
 	['map'],
 	[
@@ -37,11 +36,11 @@ const iteratorMethods = [
 				'accumulator',
 				'element',
 				'index',
-				'array'
+				'array',
 			],
 			minParameters: 2,
-			ignore: []
-		}
+			ignore: [],
+		},
 	],
 	[
 		'reduceRight', {
@@ -49,13 +48,13 @@ const iteratorMethods = [
 				'accumulator',
 				'element',
 				'index',
-				'array'
+				'array',
 			],
 			minParameters: 2,
-			ignore: []
-		}
+			ignore: [],
+		},
 	],
-	['some']
+	['some'],
 ].map(([method, options]) => {
 	options = {
 		parameters: ['element', 'index', 'array'],
@@ -63,7 +62,7 @@ const iteratorMethods = [
 		minParameters: 1,
 		extraSelector: '',
 		returnsUndefined: false,
-		...options
+		...options,
 	};
 	return [method, options];
 });
@@ -78,10 +77,10 @@ const ignoredCallee = [
 	'_',
 	'Async',
 	'async',
-	'this'
+	'this',
 ];
 
-function check(context, node, method, options) {
+function getProblem(context, node, method, options) {
 	const {type} = node;
 
 	const name = type === 'Identifier' ? node.name : '';
@@ -95,9 +94,9 @@ function check(context, node, method, options) {
 		messageId: name ? ERROR_WITH_NAME_MESSAGE_ID : ERROR_WITHOUT_NAME_MESSAGE_ID,
 		data: {
 			name,
-			method
+			method,
 		},
-		suggest: []
+		suggest: [],
 	};
 
 	const {parameters, minParameters, returnsUndefined} = options;
@@ -108,7 +107,7 @@ function check(context, node, method, options) {
 			messageId: name ? REPLACE_WITH_NAME_MESSAGE_ID : REPLACE_WITHOUT_NAME_MESSAGE_ID,
 			data: {
 				name,
-				parameters: suggestionParameters
+				parameters: suggestionParameters,
 			},
 			fix: fixer => {
 				const sourceCode = context.getSourceCode();
@@ -121,21 +120,23 @@ function check(context, node, method, options) {
 					node,
 					returnsUndefined ?
 						`(${suggestionParameters}) => { ${nodeText}(${suggestionParameters}); }` :
-						`(${suggestionParameters}) => ${nodeText}(${suggestionParameters})`
+						`(${suggestionParameters}) => ${nodeText}(${suggestionParameters})`,
 				);
-			}
+			},
 		};
 
 		problem.suggest.push(suggest);
 	}
 
-	context.report(problem);
+	return problem;
 }
 
 const ignoredFirstArgumentSelector = [
 	notFunctionSelector('arguments.0'),
+	// Ignore all `CallExpression`s include `function.bind()`
+	'[arguments.0.type!="CallExpression"]',
 	'[arguments.0.type!="FunctionExpression"]',
-	'[arguments.0.type!="ArrowFunctionExpression"]'
+	'[arguments.0.type!="ArrowFunctionExpression"]',
 ].join('');
 
 const create = context => {
@@ -146,12 +147,12 @@ const create = context => {
 		const selector = [
 			method === 'reduce' || method === 'reduceRight' ? '' : ':not(AwaitExpression) > ',
 			methodCallSelector({
-				name: method,
-				min: 1,
-				max: 2
+				method,
+				minimumArguments: 1,
+				maximumArguments: 2,
 			}),
 			options.extraSelector,
-			ignoredFirstArgumentSelector
+			ignoredFirstArgumentSelector,
 		].join('');
 
 		rules[selector] = node => {
@@ -160,7 +161,7 @@ const create = context => {
 			}
 
 			const [iterator] = node.arguments;
-			check(context, iterator, method, options, sourceCode);
+			return getProblem(context, iterator, method, options, sourceCode);
 		};
 	}
 
@@ -173,9 +174,8 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Prevent passing a function reference directly to iterator methods.',
-			url: getDocumentationUrl(__filename)
 		},
-		schema: [],
-		messages
-	}
+		messages,
+		hasSuggestions: true,
+	},
 };

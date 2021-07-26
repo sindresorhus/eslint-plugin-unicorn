@@ -1,33 +1,50 @@
 'use strict';
-const matches = require('./matches-any');
+const matches = require('./matches-any.js');
 
+/**
+@param {
+	{
+		path?: string,
+		property?: string,
+		properties?: string[],
+		object?: string,
+		objects?: string[],
+		includeOptional?: boolean,
+		allowComputed?: boolean
+	} | string | string[]
+} [options]
+@returns {string}
+*/
 function memberExpressionSelector(options) {
 	if (typeof options === 'string') {
-		options = {names: [options]};
+		options = {properties: [options]};
 	}
 
 	if (Array.isArray(options)) {
-		options = {names: options};
+		options = {properties: options};
 	}
 
 	let {
 		path,
-		name,
-		names,
+		property,
+		properties,
 		object,
 		objects,
-		includeOptional
+		includeOptional,
+		allowComputed,
 	} = {
 		path: '',
 		property: '',
+		properties: [],
 		object: '',
 		includeOptional: false,
-		...options
+		allowComputed: false,
+		...options,
 	};
 
 	const prefix = path ? `${path}.` : '';
-	if (name) {
-		names = [name];
+	if (property) {
+		properties = [property];
 	}
 
 	if (object) {
@@ -36,22 +53,27 @@ function memberExpressionSelector(options) {
 
 	const parts = [
 		`[${prefix}type="MemberExpression"]`,
-		`[${prefix}computed!=true]`,
-		`[${prefix}property.type="Identifier"]`
 	];
+
+	if (!allowComputed) {
+		parts.push(
+			`[${prefix}computed!=true]`,
+			`[${prefix}property.type="Identifier"]`,
+		);
+	}
 
 	if (!includeOptional) {
 		parts.push(`[${prefix}optional!=true]`);
 	}
 
-	if (Array.isArray(names) && names.length > 0) {
-		parts.push(matches(names.map(property => `[${prefix}property.name="${property}"]`)));
+	if (Array.isArray(properties) && properties.length > 0) {
+		parts.push(matches(properties.map(property => `[${prefix}property.name="${property}"]`)));
 	}
 
 	if (Array.isArray(objects) && objects.length > 0) {
 		parts.push(
 			`[${prefix}object.type="Identifier"]`,
-			matches(objects.map(object => `[${prefix}object.name="${object}"]`))
+			matches(objects.map(object => `[${prefix}object.name="${object}"]`)),
 		);
 	}
 

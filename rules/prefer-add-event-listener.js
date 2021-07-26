@@ -1,19 +1,17 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const domEventsJson = require('./utils/dom-events.json');
+const eventTypes = require('./shared/dom-events.js');
+const {STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-add-event-listener';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{method}}`.{{extra}}'
+	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{method}}`.{{extra}}',
 };
 const extraMessages = {
 	beforeunload: 'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.',
-	message: 'Note that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.'
+	message: 'Note that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.',
 };
 
-const nestedEvents = Object.values(domEventsJson);
-const eventTypes = new Set(nestedEvents.flat());
 const getEventMethodName = memberExpression => memberExpression.property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 
@@ -73,7 +71,7 @@ const create = context => {
 			codePathInfo = {
 				node,
 				upper: codePathInfo,
-				returnsSomething: false
+				returnsSomething: false,
 			};
 		},
 
@@ -82,7 +80,7 @@ const create = context => {
 			codePathInfo = codePathInfo.upper;
 		},
 
-		'CallExpression[callee.name="require"] > Literal'(node) {
+		[STATIC_REQUIRE_SOURCE_SELECTOR](node) {
 			if (!isDisabled && excludedPackages.has(node.value)) {
 				isDisabled = true;
 			}
@@ -142,17 +140,17 @@ const create = context => {
 				fix = fixer => fixCode(fixer, context.getSourceCode(), node, memberExpression);
 			}
 
-			context.report({
+			return {
 				node: memberExpression.property,
 				messageId: MESSAGE_ID,
 				data: {
 					replacement,
 					method: eventMethodName,
-					extra: extra ? ` ${extra}` : ''
+					extra: extra ? ` ${extra}` : '',
 				},
-				fix
-			});
-		}
+				fix,
+			};
+		},
 	};
 };
 
@@ -163,13 +161,13 @@ const schema = [
 			excludedPackages: {
 				type: 'array',
 				items: {
-					type: 'string'
+					type: 'string',
 				},
-				uniqueItems: true
-			}
+				uniqueItems: true,
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -178,10 +176,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+	},
 };

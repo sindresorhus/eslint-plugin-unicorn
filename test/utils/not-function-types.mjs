@@ -33,7 +33,7 @@ const notFunctionTypes = [
 	'~ fn',
 	'typeof fn',
 	'void fn',
-	'delete fn',
+	'delete foo.fn',
 	// UpdateExpression
 	'++ fn',
 	'-- fn',
@@ -46,7 +46,7 @@ const notFunctionTypes = [
 	'new ClassReturnsFunction()', // `class` constructor could return a function
 	'new Function()', // `function`
 	'fn``', // Same as `CallExpression`
-	'this' // Could be a function
+	'this', // Could be a function
 ];
 
 export default notFunctionTypes;

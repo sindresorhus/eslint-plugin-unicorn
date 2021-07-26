@@ -1,12 +1,11 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isMethodNamed = require('./utils/is-method-named');
-const isLiteralValue = require('./utils/is-literal-value');
-const simpleArraySearchRule = require('./shared/simple-array-search-rule');
+const isMethodNamed = require('./utils/is-method-named.js');
+const isLiteralValue = require('./utils/is-literal-value.js');
+const simpleArraySearchRule = require('./shared/simple-array-search-rule.js');
 
 const MESSAGE_ID = 'prefer-includes';
 const messages = {
-	[MESSAGE_ID]: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.'
+	[MESSAGE_ID]: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.',
 };
 // Ignore {_,lodash,underscore}.indexOf
 const ignoredVariables = new Set(['_', 'lodash', 'underscore']);
@@ -15,7 +14,7 @@ const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator =
 const isLiteralZero = node => isLiteralValue(node, 0);
 const isNegativeResult = node => ['===', '==', '<'].includes(node.operator);
 
-const report = (context, node, target, argumentsNodes) => {
+const getProblem = (context, node, target, argumentsNodes) => {
 	const sourceCode = context.getSourceCode();
 	const memberExpressionNode = target.parent;
 	const dotToken = sourceCode.getTokenBefore(memberExpressionNode.property);
@@ -28,19 +27,19 @@ const report = (context, node, target, argumentsNodes) => {
 
 	const argumentsSource = argumentsNodes.map(argument => sourceCode.getText(argument));
 
-	context.report({
+	return {
 		node: memberExpressionNode.property,
 		messageId: MESSAGE_ID,
 		fix: fixer => {
 			const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
 			return fixer.replaceText(node, replacement);
-		}
-	});
+		},
+	};
 };
 
 const includesOverSomeRule = simpleArraySearchRule({
 	method: 'some',
-	replacement: 'includes'
+	replacement: 'includes',
 });
 
 const create = context => ({
@@ -68,15 +67,15 @@ const create = context => ({
 			(['!==', '!=', '>', '===', '=='].includes(operator) && isNegativeOne(right)) ||
 			(['>=', '<'].includes(operator) && isLiteralZero(right))
 		) {
-			report(
+			return getProblem(
 				context,
 				node,
 				target,
-				argumentsNodes
+				argumentsNodes,
 			);
 		}
 	},
-	...includesOverSomeRule.createListeners(context)
+	...includesOverSomeRule.createListeners(context),
 });
 
 module.exports = {
@@ -85,13 +84,12 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
 		messages: {
 			...messages,
-			...includesOverSomeRule.messages
-		}
-	}
+			...includesOverSomeRule.messages,
+		},
+		hasSuggestions: true,
+	},
 };

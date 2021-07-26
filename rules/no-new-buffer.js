@@ -1,7 +1,7 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const switchNewExpressionToCallExpression = require('./utils/switch-new-expression-to-call-expression');
+const {newExpressionSelector} = require('./selectors/index.js');
+const {switchNewExpressionToCallExpression} = require('./fix/index.js');
 
 const ERROR = 'error';
 const ERROR_UNKNOWN = 'error-unknown';
@@ -9,7 +9,7 @@ const SUGGESTION = 'suggestion';
 const messages = {
 	[ERROR]: '`new Buffer()` is deprecated, use `Buffer.{{method}}()` instead.',
 	[ERROR_UNKNOWN]: '`new Buffer()` is deprecated, use `Buffer.alloc()` or `Buffer.from()` instead.',
-	[SUGGESTION]: 'Switch to `Buffer.{{method}}()`.'
+	[SUGGESTION]: 'Switch to `Buffer.{{method}}()`.',
 };
 
 const inferMethod = (bufferArguments, scope) => {
@@ -52,31 +52,28 @@ function fix(node, sourceCode, method) {
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	return {
-		'NewExpression[callee.name="Buffer"]': node => {
+		[newExpressionSelector('Buffer')]: node => {
 			const method = inferMethod(node.arguments, context.getScope());
 
 			if (method) {
-				context.report({
+				return {
 					node,
 					messageId: ERROR,
 					data: {method},
-					fix: fix(node, sourceCode, method)
-				});
-			} else {
-				context.report({
-					node,
-					messageId: ERROR_UNKNOWN,
-					suggest: [
-						'from',
-						'alloc'
-					].map(method => ({
-						messageId: SUGGESTION,
-						data: {method},
-						fix: fix(node, sourceCode, method)
-					}))
-				});
+					fix: fix(node, sourceCode, method),
+				};
 			}
-		}
+
+			return {
+				node,
+				messageId: ERROR_UNKNOWN,
+				suggest: ['from', 'alloc'].map(method => ({
+					messageId: SUGGESTION,
+					data: {method},
+					fix: fix(node, sourceCode, method),
+				})),
+			};
+		},
 	};
 };
 
@@ -86,10 +83,9 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+		hasSuggestions: true,
+	},
 };

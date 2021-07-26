@@ -1,14 +1,14 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isLiteralValue = require('./utils/is-literal-value');
+const isLiteralValue = require('./utils/is-literal-value.js');
 const {
 	getNegativeIndexLengthNode,
-	removeLengthNode
-} = require('./shared/negative-index');
+	removeLengthNode,
+} = require('./shared/negative-index.js');
+const typedArray = require('./shared/typed-array.js');
 
 const MESSAGE_ID = 'prefer-negative-index';
 const messages = {
-	[MESSAGE_ID]: 'Prefer negative index over length minus index for `{{method}}`.'
+	[MESSAGE_ID]: 'Prefer negative index over length minus index for `{{method}}`.',
 };
 
 const methods = new Map([
@@ -20,41 +20,31 @@ const methods = new Map([
 				'Array',
 				'String',
 				'ArrayBuffer',
-				'Int8Array',
-				'Uint8Array',
-				'Uint8ClampedArray',
-				'Int16Array',
-				'Uint16Array',
-				'Int32Array',
-				'Uint32Array',
-				'Float32Array',
-				'Float64Array',
-				'BigInt64Array',
-				'BigUint64Array'
+				...typedArray,
 				// `{Blob,File}#slice()` are not generally used
 				// 'Blob'
 				// 'File'
-			])
-		}
+			]),
+		},
 	],
 	[
 		'splice',
 		{
 			argumentsIndexes: [0],
 			supportObjects: new Set([
-				'Array'
-			])
-		}
+				'Array',
+			]),
+		},
 	],
 	[
 		'at',
 		{
 			argumentsIndexes: [0],
 			supportObjects: new Set([
-				'Array'
-			])
-		}
-	]
+				'Array',
+			]),
+		},
+	],
 ]);
 
 const getMemberName = node => {
@@ -80,7 +70,7 @@ function parse(node) {
 		return {
 			method,
 			target,
-			argumentsNodes
+			argumentsNodes,
 		};
 	}
 
@@ -135,7 +125,7 @@ function parse(node) {
 		return {
 			method,
 			target,
-			argumentsNodes
+			argumentsNodes,
 		};
 	}
 }
@@ -151,7 +141,7 @@ const create = context => ({
 		const {
 			method,
 			target,
-			argumentsNodes
+			argumentsNodes,
 		} = parsed;
 
 		const {argumentsIndexes} = methods.get(method);
@@ -163,7 +153,7 @@ const create = context => ({
 			return;
 		}
 
-		context.report({
+		return {
 			node,
 			messageId: MESSAGE_ID,
 			data: {method},
@@ -172,9 +162,9 @@ const create = context => ({
 				for (const node of removableNodes) {
 					yield removeLengthNode(node, fixer, sourceCode);
 				}
-			}
-		});
-	}
+			},
+		};
+	},
 });
 
 module.exports = {
@@ -183,10 +173,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()`, `Array#splice()` and `Array#at()`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

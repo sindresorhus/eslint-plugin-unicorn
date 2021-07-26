@@ -1,11 +1,11 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID = 'no-unreadable-array-destructuring';
 const messages = {
-	[MESSAGE_ID]: 'Array destructuring may not contain consecutive ignored values.'
+	[MESSAGE_ID]: 'Array destructuring may not contain consecutive ignored values.',
 };
 
 const isCommaFollowedWithComma = (element, index, array) =>
@@ -24,7 +24,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				messageId: MESSAGE_ID
+				messageId: MESSAGE_ID,
 			};
 
 			const nonNullElements = elements.filter(node => node !== null);
@@ -55,12 +55,14 @@ const create = context => {
 						} else {
 							yield fixer.insertTextAfter(parent, code);
 						}
+
+						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 					};
 				}
 			}
 
-			context.report(problem);
-		}
+			return problem;
+		},
 	};
 };
 
@@ -70,10 +72,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unreadable array destructuring.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

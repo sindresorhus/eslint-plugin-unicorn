@@ -1,18 +1,17 @@
 'use strict';
 const {findVariable} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
 
 const assignmentSelector = [
 	'ExpressionStatement',
-	'[expression.type="AssignmentExpression"]'
+	'[expression.type="AssignmentExpression"]',
 ].join('');
 
 const declarationSelector = [
 	'VariableDeclaration',
-	'[declarations.0.type="VariableDeclarator"]'
+	'[declarations.0.type="VariableDeclarator"]',
 ].join('');
 
 const isDefaultExpression = (left, right) =>
@@ -112,14 +111,14 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 	if (isOnlyNodeOnLine) {
 		return fixer.removeRange([
 			sourceCode.getIndexFromLoc({line, column: 0}),
-			sourceCode.getIndexFromLoc({line: line + 1, column: 0})
+			sourceCode.getIndexFromLoc({line: line + 1, column: 0}),
 		]);
 	}
 
 	if (endsWithWhitespace) {
 		return fixer.removeRange([
 			node.range[0],
-			node.range[1] + 1
+			node.range[1] + 1,
 		]);
 	}
 
@@ -140,7 +139,7 @@ const create = context => {
 		const {name: firstId} = left;
 		const {
 			left: {name: secondId},
-			right: {raw: literal}
+			right: {raw: literal},
 		} = right;
 
 		// Parameter is reassigned to a different identifier
@@ -161,7 +160,7 @@ const create = context => {
 		const {params} = currentFunction;
 		const parameter = params.find(parameter =>
 			parameter.type === 'Identifier' &&
-			parameter.name === secondId
+			parameter.name === secondId,
 		);
 
 		if (
@@ -176,17 +175,17 @@ const create = context => {
 			`(${firstId} = ${literal})` :
 			`${firstId} = ${literal}`;
 
-		context.report({
+		return {
 			node,
 			messageId: MESSAGE_ID,
 			suggest: [{
 				messageId: MESSAGE_ID_SUGGEST,
 				fix: fixer => [
 					fixer.replaceText(parameter, replacement),
-					fixDefaultExpression(fixer, sourceCode, node)
-				]
-			}]
-		});
+					fixDefaultExpression(fixer, sourceCode, node),
+				],
+			}],
+		};
 	};
 
 	return {
@@ -199,13 +198,13 @@ const create = context => {
 		[assignmentSelector]: node => {
 			const {left, right} = node.expression;
 
-			checkExpression(node, left, right, true);
+			return checkExpression(node, left, right, true);
 		},
 		[declarationSelector]: node => {
 			const {id, init} = node.declarations[0];
 
-			checkExpression(node, id, init, false);
-		}
+			return checkExpression(node, id, init, false);
+		},
 	};
 };
 
@@ -215,13 +214,12 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer default parameters over reassignment.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
 		messages: {
 			[MESSAGE_ID]: 'Prefer default parameters over reassignment.',
-			[MESSAGE_ID_SUGGEST]: 'Replace reassignment with default parameter.'
-		}
-	}
+			[MESSAGE_ID_SUGGEST]: 'Replace reassignment with default parameter.',
+		},
+		hasSuggestions: true,
+	},
 };

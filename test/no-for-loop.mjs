@@ -1,31 +1,13 @@
-import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, avoidTestTitleConflict} from './utils/test.mjs';
 
-const {test: runTest, rule} = getTester(import.meta);
-
-const ruleTester = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 2021
-	}
-});
-
-const ruleTesterEs5 = avaRuleTester(test, {
-	parserOptions: {
-		ecmaVersion: 5
-	}
-});
+const {test} = getTester(import.meta);
 
 function testCase(code, output) {
-	return {
-		code,
-		output: output || code,
-		errors: [{messageId: 'no-for-loop'}]
-	};
+	return output ? {code, output, errors: 1} : {code, errors: 1};
 }
 
-ruleTester.run('no-for-loop', rule, {
+test({
 	valid: [
 		'for (;;);',
 		'for (;;) {}',
@@ -198,7 +180,7 @@ ruleTester.run('no-for-loop', rule, {
 		// With variable containing static, non-array value.
 		'const notArray = "abc"; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }',
 		'const notArray = 123; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }',
-		'const notArray = true; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }'
+		'const notArray = true; for (let i = 0; i < notArray.length; i++) { console.log(notArray[i]); }',
 	],
 
 	invalid: [
@@ -675,12 +657,12 @@ ruleTester.run('no-for-loop', rule, {
 			['largeCity', 'largeCities'], // CamelCase
 			['LARGE_CITY', 'LARGE_CITIES'], // Caps, snake_case
 			['element', 'news'], // No singular version, ends in s
-			['element', 'list'] // No singular version
+			['element', 'list'], // No singular version
 		].map(([elementName, arrayName]) =>
 			testCase(
 				`for(const i = 0; i < ${arrayName}.length; i++) {console.log(${arrayName}[i])}`,
-				`for(const ${elementName} of ${arrayName}) {console.log(${elementName})}`
-			)
+				`for(const ${elementName} of ${arrayName}) {console.log(${elementName})}`,
+			),
 		),
 
 		// Singularization (avoid using reserved JavaScript keywords):
@@ -742,11 +724,16 @@ ruleTester.run('no-for-loop', rule, {
 			for (const element of someArray) {
 				console.log(element);
 			}
-		`)
-	]
+		`),
+	],
 });
 
-ruleTesterEs5.run('no-for-loop', rule, {
+test(avoidTestTitleConflict({
+	testerOptions: {
+		parserOptions: {
+			ecmaVersion: 5,
+		},
+	},
 	valid: [
 		'for (;;);',
 		'for (;;) {}',
@@ -762,12 +749,12 @@ ruleTesterEs5.run('no-for-loop', rule, {
 				for (var i = 0; i < bar.length; i++) {
 				}
 			};
-		`
+		`,
 	],
-	invalid: []
-});
+	invalid: [],
+}, 'es5'));
 
-runTest.typescript({
+test.typescript({
 	valid: [],
 	invalid: [
 		{
@@ -783,7 +770,7 @@ runTest.typescript({
 					let selectionRange = allProviderRanges[i];
 				}
 			`,
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -797,7 +784,7 @@ runTest.typescript({
 					console.log(i);
 				}
 			`,
-			errors: 1
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -809,12 +796,12 @@ runTest.typescript({
 				for (let last: vscode.Position | vscode.Range of positions) {
 				}
 			`,
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });
 
-runTest.snapshot({
+test.snapshot({
 	valid: [],
 	invalid: [
 		outdent`
@@ -856,6 +843,6 @@ runTest.snapshot({
 			for (let i = 0; i < array.length; i++) {
 				var foo = array[i], bar = 1;
 			}
-		`
-	]
+		`,
+	],
 });

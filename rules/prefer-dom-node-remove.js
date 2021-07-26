@@ -1,26 +1,25 @@
 'use strict';
 const {isParenthesized, hasSideEffect} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector, notDomNodeSelector} = require('./selectors');
-const needsSemicolon = require('./utils/needs-semicolon');
-const isValueNotUsable = require('./utils/is-value-not-usable');
-const {getParenthesizedText} = require('./utils/parentheses');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object');
+const {methodCallSelector, notDomNodeSelector} = require('./selectors/index.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
+const isValueNotUsable = require('./utils/is-value-not-usable.js');
+const {getParenthesizedText} = require('./utils/parentheses.js');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_MESSAGE_ID = 'suggestion';
 const messages = {
 	[ERROR_MESSAGE_ID]: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
-	[SUGGESTION_MESSAGE_ID]: 'Replace `parentNode.removeChild(childNode)` with `childNode.remove()`.'
+	[SUGGESTION_MESSAGE_ID]: 'Replace `parentNode.removeChild(childNode)` with `childNode.remove()`.',
 };
 
 const selector = [
 	methodCallSelector({
-		name: 'removeChild',
-		length: 1
+		method: 'removeChild',
+		argumentsLength: 1,
 	}),
 	notDomNodeSelector('callee.object'),
-	notDomNodeSelector('arguments.0')
+	notDomNodeSelector('arguments.0'),
 ].join('');
 
 const create = context => {
@@ -33,7 +32,7 @@ const create = context => {
 
 			const problem = {
 				node,
-				messageId: ERROR_MESSAGE_ID
+				messageId: ERROR_MESSAGE_ID,
 			};
 
 			const fix = fixer => {
@@ -58,13 +57,13 @@ const create = context => {
 				problem.suggest = [
 					{
 						messageId: SUGGESTION_MESSAGE_ID,
-						fix
-					}
+						fix,
+					},
 				];
 			}
 
-			context.report(problem);
-		}
+			return problem;
+		},
 	};
 };
 
@@ -74,10 +73,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+		hasSuggestions: true,
+	},
 };

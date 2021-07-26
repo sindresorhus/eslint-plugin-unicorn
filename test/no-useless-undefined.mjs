@@ -45,123 +45,129 @@ test({
 		't.strictSame(foo, undefined)',
 		't.strictNotSame(foo, undefined)',
 		'expect(someFunction).toHaveBeenCalledWith(1, 2, undefined);',
+		'set.add(undefined);',
+		'map.set(foo, undefined);',
+		'array.push(foo, undefined);',
+		'array.push(undefined);',
+		'array.unshift(foo, undefined);',
+		'array.unshift(undefined);',
 
 		// `checkArguments: false`
 		{
 			code: 'foo(undefined, undefined);',
-			options: optionsIgnoreArguments
-		}
+			options: optionsIgnoreArguments,
+		},
 	],
 	invalid: [
 		{
 			code: 'function foo() {return undefined;}',
 			output: 'function foo() {return;}',
-			errors
+			errors,
 		},
 		{
 			code: 'const foo = () => undefined;',
 			output: 'const foo = () => {};',
-			errors
+			errors,
 		},
 		{
 			code: 'const foo = () => {return undefined;};',
 			output: 'const foo = () => {return;};',
-			errors
+			errors,
 		},
 		{
 			code: 'function foo() {return       undefined;}',
 			output: 'function foo() {return;}',
-			errors
+			errors,
 		},
 		{
 			code: 'function foo() {return /* comment */ undefined;}',
 			output: 'function foo() {return /* comment */;}',
-			errors
+			errors,
 		},
 		{
 			code: 'function* foo() {yield undefined;}',
 			output: 'function* foo() {yield;}',
-			errors
+			errors,
 		},
 		{
 			code: 'function* foo() {yield                 undefined;}',
 			output: 'function* foo() {yield;}',
-			errors
+			errors,
 		},
 		{
 			code: 'let a = undefined;',
 			output: 'let a;',
-			errors
+			errors,
 		},
 		{
 			code: 'let a = undefined, b = 2;',
 			output: 'let a, b = 2;',
-			errors
+			errors,
 		},
 		{
 			code: 'var a = undefined;',
 			output: 'var a;',
-			errors
+			errors,
 		},
 		{
 			code: 'var a = undefined, b = 2;',
 			output: 'var a, b = 2;',
-			errors
+			errors,
 		},
 		{
 			code: 'foo(undefined);',
 			output: 'foo();',
-			errors
+			errors,
 		},
 		{
 			code: 'foo(undefined, undefined);',
 			output: 'foo();',
-			errors
+			errors,
 		},
 		{
 			code: 'foo(undefined,);',
 			output: 'foo();',
-			errors
+			errors,
 		},
 		{
 			code: 'foo(undefined, undefined,);',
 			output: 'foo();',
-			errors
+			errors,
 		},
 		{
 			code: 'foo(bar, undefined);',
 			output: 'foo(bar);',
-			errors
+			errors,
 		},
 		{
 			code: 'foo(bar, undefined, undefined);',
 			output: 'foo(bar);',
-			errors
+			errors,
 		},
 		{
 			code: 'foo(undefined, bar, undefined);',
 			output: 'foo(undefined, bar);',
-			errors
+			errors,
 		},
 		{
 			code: 'foo(bar, undefined,);',
 			output: 'foo(bar,);',
-			errors
+			errors,
 		},
 		{
 			code: 'foo(undefined, bar, undefined,);',
 			output: 'foo(undefined, bar,);',
-			errors
+			errors,
 		},
 		{
 			code: 'foo(bar, undefined, undefined,);',
 			output: 'foo(bar,);',
-			errors
+			errors,
 		},
 		{
 			code: 'foo(undefined, bar, undefined, undefined,);',
 			output: 'foo(undefined, bar,);',
-			errors
+			errors,
 		},
 		// Test report range
 		{
@@ -187,44 +193,44 @@ test({
 					// The second `undefined`
 					line: 4, column: 2,
 					// The last `undefined`
-					endLine: 7, endColumn: 11
-				}
-			]
+					endLine: 7, endColumn: 11,
+				},
+			],
 		},
 		{
 			code: 'const {foo = undefined} = {};',
 			output: 'const {foo} = {};',
-			errors
+			errors,
 		},
 		{
 			code: 'const [foo = undefined] = [];',
 			output: 'const [foo] = [];',
-			errors
+			errors,
 		},
 		{
 			code: 'function foo(bar = undefined) {}',
 			output: 'function foo(bar) {}',
-			errors
+			errors,
 		},
 		{
 			code: 'function foo({bar = undefined}) {}',
 			output: 'function foo({bar}) {}',
-			errors
+			errors,
 		},
 		{
 			code: 'function foo({bar = undefined} = {}) {}',
 			output: 'function foo({bar} = {}) {}',
-			errors
+			errors,
 		},
 		{
 			code: 'function foo([bar = undefined]) {}',
 			output: 'function foo([bar]) {}',
-			errors
+			errors,
 		},
 		{
 			code: 'function foo([bar = undefined] = []) {}',
 			output: 'function foo([bar] = []) {}',
-			errors
+			errors,
 		},
 		{
 			code: 'return undefined;',
@@ -233,11 +239,11 @@ test({
 			parserOptions: {
 				sourceType: 'script',
 				ecmaFeatures: {
-					globalReturn: true
-				}
-			}
-		}
-	]
+					globalReturn: true,
+				},
+			},
+		},
+	],
 });
 
 test.typescript({
@@ -325,7 +331,7 @@ test.typescript({
 					return undefined;
 				}
 			}
-		`
+		`,
 	],
 	invalid: [
 		{
@@ -347,9 +353,9 @@ test.typescript({
 					return nested();
 				}
 			`,
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });
 
 test.snapshot({
@@ -404,6 +410,6 @@ test.snapshot({
 				)
 				/* */
 			);
-		`
-	]
+		`,
+	],
 });

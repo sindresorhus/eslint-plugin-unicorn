@@ -4,8 +4,12 @@ import {getTester} from './utils/test.mjs';
 const {test} = getTester(import.meta);
 
 const error = {
-	messageId: 'noObjectAsDefaultParameter',
-	data: {parameter: 'foo'}
+	messageId: 'identifier',
+	data: {parameter: 'foo'},
+};
+
+const errorNonIdentifier = {
+	messageId: 'non-identifier',
 };
 
 test({
@@ -49,44 +53,44 @@ test({
 			class A extends (foo = {a: 123}) {
 				a() {}
 			}
-		`
+		`,
 	],
 	invalid: [
 		{
 			code: 'function abc(foo = {a: 123}) {}',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'async function * abc(foo = {a: 123}) {}',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'function abc(foo = {a: false}) {}',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'function abc(foo = {a: "bar"}) {}',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'function abc(foo = {a: "bar", b: {c: true}}) {}',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'const abc = (foo = {a: false}) => {};',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'const abc = (foo = {a: 123, b: false}) => {};',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'const abc = (foo = {a: false, b: 1, c: "test", d: null}) => {};',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: 'const abc = function(foo = {a: 123}) {}',
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: outdent`
@@ -94,7 +98,7 @@ test({
 					abc(foo = {a: 123}) {}
 				}
 			`,
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: outdent`
@@ -102,7 +106,7 @@ test({
 					constructor(foo = {a: 123}) {}
 				}
 			`,
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: outdent`
@@ -110,7 +114,7 @@ test({
 					set abc(foo = {a: 123}) {}
 				}
 			`,
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: outdent`
@@ -118,7 +122,7 @@ test({
 					static abc(foo = {a: 123}) {}
 				}
 			`,
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: outdent`
@@ -126,7 +130,7 @@ test({
 					* abc(foo = {a: 123}) {}
 				}
 			`,
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: outdent`
@@ -134,7 +138,7 @@ test({
 					static async * abc(foo = {a: 123}) {}
 				}
 			`,
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: outdent`
@@ -142,7 +146,7 @@ test({
 					[foo = {a: 123}](foo = {a: 123}) {}
 				}
 			`,
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: outdent`
@@ -150,7 +154,7 @@ test({
 					abc(foo = {a: 123}) {}
 				}
 			`,
-			errors: [error]
+			errors: [error],
 		},
 		{
 			code: outdent`
@@ -158,15 +162,25 @@ test({
 					abc(foo = {a: 123}) {}
 				};
 			`,
-			errors: [error]
-		}
-	]
+			errors: [error],
+		},
+		{
+			code: outdent`
+				const A = class {
+					abc({a} = {a: 123}) {}
+				}
+			`,
+			errors: [errorNonIdentifier],
+		},
+	],
 });
 
 test.snapshot({
 	valid: [],
 	invalid: [
 		'function abc(foo = {a: 123}) {}',
-		'const abc = (foo = {a: false}) => {};'
-	]
+		'const abc = (foo = {a: false}) => {};',
+		'function abc({a} = {a: 123}) {}',
+		'function abc([a] = {a: 123}) {}',
+	],
 });

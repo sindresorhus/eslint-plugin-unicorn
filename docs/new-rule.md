@@ -13,7 +13,7 @@ Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser a
 ## Steps
 
 - Run `$ npm run create-rule` to create files for the new rule.
-- Open “test/{RULE_ID}.js” and write some tests before implementing the rule.
+- Open “test/{RULE_ID}.mjs” and write some tests before implementing the rule.
 - Open “rules/{RULE_ID}.js” and implement the rule logic.
 - Add the correct [`meta.type`](https://eslint.org/docs/developer-guide/working-with-rules#rule-basics) to the rule.
 - Open “docs/rules/{RULE_ID}.js” and write some documentation.

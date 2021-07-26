@@ -1,7 +1,7 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const needsSemicolon = require('./utils/needs-semicolon');
+const needsSemicolon = require('./utils/needs-semicolon.js');
+const {newExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_LENGTH = 'array-length';
@@ -11,19 +11,18 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Do not use `new Array()`.',
 	[MESSAGE_ID_LENGTH]: 'The argument is the length of array.',
 	[MESSAGE_ID_ONLY_ELEMENT]: 'The argument is the only element of array.',
-	[MESSAGE_ID_SPREAD]: 'Spread the argument.'
+	[MESSAGE_ID_SPREAD]: 'Spread the argument.',
 };
-const newArraySelector = [
-	'NewExpression',
-	'[callee.type="Identifier"]',
-	'[callee.name="Array"]',
-	'[arguments.length=1]'
-].join('');
+const newArraySelector = newExpressionSelector({
+	name: 'Array',
+	argumentsLength: 1,
+	allowSpreadElement: true,
+});
 
 function getProblem(context, node) {
 	const problem = {
 		node,
-		messageId: MESSAGE_ID_ERROR
+		messageId: MESSAGE_ID_ERROR,
 	};
 
 	const [argumentNode] = node.arguments;
@@ -43,8 +42,8 @@ function getProblem(context, node) {
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SPREAD,
-				fix: fixer => fixer.replaceText(node, `${maybeSemiColon}[${text}]`)
-			}
+				fix: fixer => fixer.replaceText(node, `${maybeSemiColon}[${text}]`),
+			},
 		];
 		return problem;
 	}
@@ -58,19 +57,19 @@ function getProblem(context, node) {
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_LENGTH,
-				fix: fixer => fixer.replaceText(node, fromLengthText)
+				fix: fixer => fixer.replaceText(node, fromLengthText),
 			},
 			{
 				messageId: MESSAGE_ID_ONLY_ELEMENT,
-				fix: fixer => fixer.replaceText(node, onlyElementText)
-			}
+				fix: fixer => fixer.replaceText(node, onlyElementText),
+			},
 		];
 		return problem;
 	}
 
 	problem.fix = fixer => fixer.replaceText(
 		node,
-		typeof result.value === 'number' ? fromLengthText : onlyElementText
+		typeof result.value === 'number' ? fromLengthText : onlyElementText,
 	);
 
 	return problem;
@@ -78,8 +77,8 @@ function getProblem(context, node) {
 
 const create = context => ({
 	[newArraySelector](node) {
-		context.report(getProblem(context, node));
-	}
+		return getProblem(context, node);
+	},
 });
 
 module.exports = {
@@ -88,10 +87,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow `new Array()`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+		hasSuggestions: true,
+	},
 };

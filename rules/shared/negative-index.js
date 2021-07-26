@@ -1,6 +1,6 @@
 'use strict';
-const isSameReference = require('../utils/is-same-reference');
-const {getParenthesizedRange} = require('../utils/parentheses');
+const isSameReference = require('../utils/is-same-reference.js');
+const {getParenthesizedRange} = require('../utils/parentheses.js');
 
 const isLengthMemberExpression = node =>
 	node.type === 'MemberExpression' &&
@@ -36,11 +36,11 @@ function removeLengthNode(node, fixer, sourceCode) {
 	const [start, end] = getParenthesizedRange(node, sourceCode);
 	return fixer.removeRange([
 		start,
-		end + sourceCode.text.slice(end).match(/\S|$/).index
+		end + sourceCode.text.slice(end).match(/\S|$/).index,
 	]);
 }
 
 module.exports = {
 	getNegativeIndexLengthNode,
-	removeLengthNode
+	removeLengthNode,
 };

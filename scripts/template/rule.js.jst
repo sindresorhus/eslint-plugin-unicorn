@@ -1,6 +1,4 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-
 const MESSAGE_ID = '<%= id %>';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{value}}`.'
@@ -14,7 +12,7 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				data: {
@@ -23,7 +21,7 @@ const create = context => {
 				}<% if (fixableType) { %>,
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
 				fix: fixer => fixer.replaceText(node, '\'🦄\'')<% } %>
-			});
+			};
 		}
 	}
 };
@@ -35,8 +33,7 @@ module.exports = {
 	meta: {
 		type: '<%= type %>',
 		docs: {
-			description: '<%= description %>',
-			url: getDocumentationUrl(__filename)
+			description: '<%= description %>'
 		},<% if (fixableType) { %>
 		fixable: '<%= fixableType %>',<% } %>
 		schema,

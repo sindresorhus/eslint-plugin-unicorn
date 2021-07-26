@@ -1,9 +1,9 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
+const {newExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-type-error';
 const messages = {
-	[MESSAGE_ID]: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.'
+	[MESSAGE_ID]: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.',
 };
 
 const tcIdentifiers = new Set([
@@ -43,13 +43,18 @@ const tcIdentifiers = new Set([
 	'isWeakMap',
 	'isWeakSet',
 	'isWindow',
-	'isXMLDoc'
+	'isXMLDoc',
 ]);
 
 const tcGlobalIdentifiers = new Set([
 	'isNaN',
-	'isFinite'
+	'isFinite',
 ]);
+
+const selector = [
+	'ThrowStatement',
+	newExpressionSelector({name: 'Error', path: 'argument'}),
+].join('');
 
 const isTypecheckingIdentifier = (node, callExpression, isMemberExpression) =>
 	callExpression !== undefined &&
@@ -59,11 +64,6 @@ const isTypecheckingIdentifier = (node, callExpression, isMemberExpression) =>
 	tcIdentifiers.has(node.name)) ||
 	(isMemberExpression === false &&
 	tcGlobalIdentifiers.has(node.name)));
-
-const throwsErrorObject = node =>
-	node.argument.type === 'NewExpression' &&
-	node.argument.callee.type === 'Identifier' &&
-	node.argument.callee.name === 'Error';
 
 const isLone = node => node.parent && node.parent.body && node.parent.body.length === 1;
 
@@ -110,22 +110,22 @@ const isTypecheckingExpression = (node, callExpression) => {
 
 const isTypechecking = node => node.type === 'IfStatement' && isTypecheckingExpression(node.test);
 
-const create = context => {
+const create = () => {
 	return {
-		ThrowStatement: node => {
+		[selector]: node => {
 			if (
-				throwsErrorObject(node) &&
 				isLone(node) &&
 				node.parent.parent &&
 				isTypechecking(node.parent.parent)
 			) {
-				context.report({
-					node,
+				const errorConstructor = node.argument.callee;
+				return {
+					node: errorConstructor,
 					messageId: MESSAGE_ID,
-					fix: fixer => fixer.replaceText(node.argument.callee, 'TypeError')
-				});
+					fix: fixer => fixer.insertTextBefore(errorConstructor, 'Type'),
+				};
 			}
-		}
+		},
 	};
 };
 
@@ -135,10 +135,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce throwing `TypeError` in type checking conditions.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

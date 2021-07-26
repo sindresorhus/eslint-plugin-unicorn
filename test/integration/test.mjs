@@ -36,7 +36,7 @@ const makeEslintTask = (project, destination) => {
 		'--format',
 		'json',
 		'--config',
-		path.join(dirname, 'config.js')
+		path.join(dirname, 'config.js'),
 	];
 
 	for (const pattern of project.ignore) {
@@ -77,7 +77,7 @@ const makeEslintTask = (project, destination) => {
 					error.eslintJob = {
 						destination,
 						project,
-						file
+						file,
 					};
 					error.eslintMessage = message;
 					throw error;
@@ -102,26 +102,26 @@ const execute = project => {
 				'--single-branch',
 				'--depth',
 				'1',
-				destination
-			])
+				destination,
+			]),
 		},
 		{
 			title: 'Running eslint',
-			task: makeEslintTask(project, destination)
-		}
+			task: makeEslintTask(project, destination),
+		},
 	].map(({title, task, skip}) => ({
 		title: `${project.name} / ${title}`,
 		skip,
-		task
+		task,
 	})), {
-		exitOnError: false
+		exitOnError: false,
 	});
 };
 
 const list = new Listr([
 	{
 		title: 'Setup',
-		task: () => execa('npm', ['install'], {cwd: dirname})
+		task: () => execa('npm', ['install'], {cwd: dirname}),
 	},
 	{
 		title: 'Integration tests',
@@ -132,16 +132,16 @@ const list = new Listr([
 				tests.add([
 					{
 						title: project.name,
-						task: () => execute(project)
-					}
+						task: () => execute(project),
+					},
 				]);
 			}
 
 			return tests;
-		}
-	}
+		},
+	},
 ], {
-	renderer: isCI ? 'verbose' : 'default'
+	renderer: isCI ? 'verbose' : 'default',
 });
 
 list.run()

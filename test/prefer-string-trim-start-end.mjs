@@ -25,7 +25,7 @@ test.snapshot({
 		'foo.bar(foo.trimLeft)',
 		// `trimLeft` is in `MemberExpression.object`
 		'trimLeft.foo()',
-		'foo.trimLeft.bar()'
+		'foo.trimLeft.bar()',
 	],
 	invalid: [
 		'foo.trimLeft()',
@@ -40,6 +40,6 @@ test.snapshot({
 					/* comment */
 				)
 		`,
-		'foo.trimLeft()'
-	]
+		'foo.trimLeft()',
+	],
 });

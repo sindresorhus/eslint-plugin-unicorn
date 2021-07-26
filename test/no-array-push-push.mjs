@@ -80,10 +80,10 @@ test.snapshot({
 			`,
 			options: [
 				{
-					ignore: ['foo', 'foo.bar']
-				}
-			]
-		}
+					ignore: ['foo', 'foo.bar'],
+				},
+			],
+		},
 	],
 	invalid: [
 		outdent`
@@ -198,11 +198,11 @@ test.snapshot({
 			`,
 			options: [
 				{
-					ignore: ['foo', 'foo.bar']
-				}
-			]
-		}
-	]
+					ignore: ['foo', 'foo.bar'],
+				},
+			],
+		},
+	],
 });
 
 // `isSameReference` coverage
@@ -223,7 +223,7 @@ test({
 
 			(true).someMagicPropertyReturnsAnArray.push(1);
 			(false).someMagicPropertyReturnsAnArray.push(2);
-		`
+		`,
 	],
 	invalid: [
 		{
@@ -282,7 +282,7 @@ test({
 					}
 				}
 			`,
-			errors: 9
-		}
-	]
+			errors: 9,
+		},
+	],
 });

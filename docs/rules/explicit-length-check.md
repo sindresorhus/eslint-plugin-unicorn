@@ -43,10 +43,22 @@ const isEmpty = !(foo.length > 0);
 const isEmptySet = !foo.size;
 ```
 
+```vue
+<template>
+	<div v-if="foo.length">Vue</div>
+</template>
+```
+
 ### Pass
 
 ```js
 const isEmpty = foo.length === 0;
+```
+
+```vue
+<template>
+	<div v-if="foo.length > 0">Vue</div>
+</template>
 ```
 
 ## Non-zero comparisons
@@ -143,8 +155,6 @@ The `non-zero` option can be configured with one of the following:
 	- Enforces non-zero to be checked with: `foo.length > 0`
 - `not-equal`
 	- Enforces non-zero to be checked with: `foo.length !== 0`
-- `greater-than-or-equal`
-	- Enforces non-zero to be checked with: `foo.length >= 1`
 
 ## Unsafe to fix case
 

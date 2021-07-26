@@ -12,7 +12,7 @@ const invalidTestCase = testCase => {
 		code,
 		output,
 		suggestions,
-		checkStrictEquality
+		checkStrictEquality,
 	} = typeof testCase === 'string' ? {code: testCase} : testCase;
 
 	const options = typeof checkStrictEquality === 'boolean' ? [{checkStrictEquality}] : [];
@@ -24,9 +24,9 @@ const invalidTestCase = testCase => {
 			errors: [
 				{
 					messageId: ERROR_MESSAGE_ID,
-					suggestions
-				}
-			]
+					suggestions,
+				},
+			],
 		};
 	}
 
@@ -38,9 +38,9 @@ const invalidTestCase = testCase => {
 			errors: [
 				{
 					messageId: ERROR_MESSAGE_ID,
-					suggestions: undefined
-				}
-			]
+					suggestions: undefined,
+				},
+			],
 		};
 	}
 
@@ -49,9 +49,9 @@ const invalidTestCase = testCase => {
 		options,
 		errors: [
 			{
-				messageId: ERROR_MESSAGE_ID
-			}
-		]
+				messageId: ERROR_MESSAGE_ID,
+			},
+		],
 	};
 };
 
@@ -59,6 +59,7 @@ test({
 	valid: [
 		'let foo',
 		'Object.create(null)',
+		'Object.create(null, {foo: {value:1}})',
 		'let insertedNode = parentNode.insertBefore(newNode, null)',
 		// Not `null`
 		'const foo = "null";',
@@ -82,11 +83,11 @@ test({
 			'if (foo === null) {}',
 			'if (null === foo) {}',
 			'if (foo !== null) {}',
-			'if (null !== foo) {}'
+			'if (null !== foo) {}',
 		].map(code => ({
 			code,
-			options: [{checkStrictEquality: false}]
-		}))
+			options: [{checkStrictEquality: false}],
+		})),
 	],
 	invalid: [
 		invalidTestCase('const foo = null'),
@@ -95,19 +96,19 @@ test({
 		// Auto fix
 		invalidTestCase({
 			code: 'if (foo == null) {}',
-			output: 'if (foo == undefined) {}'
+			output: 'if (foo == undefined) {}',
 		}),
 		invalidTestCase({
 			code: 'if (foo != null) {}',
-			output: 'if (foo != undefined) {}'
+			output: 'if (foo != undefined) {}',
 		}),
 		invalidTestCase({
 			code: 'if (null == foo) {}',
-			output: 'if (undefined == foo) {}'
+			output: 'if (undefined == foo) {}',
 		}),
 		invalidTestCase({
 			code: 'if (null != foo) {}',
-			output: 'if (undefined != foo) {}'
+			output: 'if (undefined != foo) {}',
 		}),
 
 		// Suggestion `ReturnStatement`
@@ -124,7 +125,7 @@ test({
 						function foo() {
 							return ;
 						}
-					`
+					`,
 				},
 				{
 					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
@@ -132,9 +133,9 @@ test({
 						function foo() {
 							return undefined;
 						}
-					`
-				}
-			]
+					`,
+				},
+			],
 		}),
 
 		// Suggestion `VariableDeclaration`
@@ -143,48 +144,48 @@ test({
 			suggestions: [
 				{
 					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-					output: 'let foo;'
+					output: 'let foo;',
 				},
 				{
 					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
-					output: 'let foo = undefined;'
-				}
-			]
+					output: 'let foo = undefined;',
+				},
+			],
 		}),
 		invalidTestCase({
 			code: 'var foo = null;',
 			suggestions: [
 				{
 					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-					output: 'var foo;'
+					output: 'var foo;',
 				},
 				{
 					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
-					output: 'var foo = undefined;'
-				}
-			]
+					output: 'var foo = undefined;',
+				},
+			],
 		}),
 		invalidTestCase({
 			code: 'var foo = 1, bar = null, baz = 2;',
 			suggestions: [
 				{
 					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-					output: 'var foo = 1, bar, baz = 2;'
+					output: 'var foo = 1, bar, baz = 2;',
 				},
 				{
 					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
-					output: 'var foo = 1, bar = undefined, baz = 2;'
-				}
-			]
+					output: 'var foo = 1, bar = undefined, baz = 2;',
+				},
+			],
 		}),
 		invalidTestCase({
 			code: 'const foo = null;',
 			suggestions: [
 				{
 					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
-					output: 'const foo = undefined;'
-				}
-			]
+					output: 'const foo = undefined;',
+				},
+			],
 		}),
 
 		// `checkStrictEquality`
@@ -192,10 +193,10 @@ test({
 			'if (foo === null) {}',
 			'if (null === foo) {}',
 			'if (foo !== null) {}',
-			'if (null !== foo) {}'
+			'if (null !== foo) {}',
 		].map(code => invalidTestCase({
 			code,
-			checkStrictEquality: true
+			checkStrictEquality: true,
 		})),
 
 		// Not `CallExpression`
@@ -212,7 +213,7 @@ test({
 		invalidTestCase('foo[insertBefore](bar, null)'),
 		{
 			code: 'Object[null](null)',
-			errors: [{}, {}]
+			errors: [{}, {}],
 		},
 		// Not matching method
 		invalidTestCase('Object.notCreate(null)'),
@@ -222,25 +223,26 @@ test({
 		// `callee.object.type` is not a `Identifier`
 		invalidTestCase('lib.Object.create(null)'),
 		// More/Less arguments
-		invalidTestCase('Object.create(null, "")'),
 		invalidTestCase('Object.create(...[null])'),
+		invalidTestCase('Object.create(null, bar, extraArgument)'),
 		invalidTestCase('foo.insertBefore(null)'),
 		invalidTestCase('foo.insertBefore(foo, null, bar)'),
 		invalidTestCase('foo.insertBefore(...[foo], null)'),
 		// Not in right position
-		invalidTestCase('foo.insertBefore(null, bar)')
-	]
+		invalidTestCase('foo.insertBefore(null, bar)'),
+		invalidTestCase('Object.create(bar, null)'),
+	],
 });
 
 // #1146
 test({
 	testerOptions: {
 		parserOptions: {
-			ecmaVersion: 2019
-		}
+			ecmaVersion: 2019,
+		},
 	},
 	valid: [
-		'foo = Object.create(null)'
+		'foo = Object.create(null)',
 	],
-	invalid: []
+	invalid: [],
 });

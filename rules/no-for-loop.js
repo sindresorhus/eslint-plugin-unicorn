@@ -1,15 +1,15 @@
 'use strict';
 const {isClosingParenToken, getStaticValue} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isLiteralValue = require('./utils/is-literal-value');
-const avoidCapture = require('./utils/avoid-capture');
-const getChildScopesRecursive = require('./utils/get-child-scopes-recursive');
-const singular = require('./utils/singular');
-const toLocation = require('./utils/to-location');
+const isLiteralValue = require('./utils/is-literal-value.js');
+const avoidCapture = require('./utils/avoid-capture.js');
+const getScopes = require('./utils/get-scopes.js');
+const singular = require('./utils/singular.js');
+const toLocation = require('./utils/to-location.js');
+const getReferences = require('./utils/get-references.js');
 
 const MESSAGE_ID = 'no-for-loop';
 const messages = {
-	[MESSAGE_ID]: 'Use a `for-of` loop instead of this `for` loop.'
+	[MESSAGE_ID]: 'Use a `for-of` loop instead of this `for` loop.',
 };
 
 const defaultElementName = 'element';
@@ -49,14 +49,14 @@ const getStrictComparisonOperands = binaryExpression => {
 	if (binaryExpression.operator === '<') {
 		return {
 			lesser: binaryExpression.left,
-			greater: binaryExpression.right
+			greater: binaryExpression.right,
 		};
 	}
 
 	if (binaryExpression.operator === '>') {
 		return {
 			lesser: binaryExpression.right,
-			greater: binaryExpression.left
+			greater: binaryExpression.left,
 		};
 	}
 };
@@ -172,7 +172,7 @@ const getRemovalRange = (node, sourceCode) => {
 
 		return isOnlyNodeOnLine ? [
 			sourceCode.getIndexFromLoc({line, column: 0}),
-			sourceCode.getIndexFromLoc({line: line + 1, column: 0})
+			sourceCode.getIndexFromLoc({line: line + 1, column: 0}),
 		] : declarationNode.range;
 	}
 
@@ -181,13 +181,13 @@ const getRemovalRange = (node, sourceCode) => {
 	if (index === 0) {
 		return [
 			node.range[0],
-			declarationNode.declarations[1].range[0]
+			declarationNode.declarations[1].range[0],
 		];
 	}
 
 	return [
 		declarationNode.declarations[index - 1].range[1],
-		node.range[1]
+		node.range[1],
 	];
 };
 
@@ -262,13 +262,8 @@ const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) => {
 	});
 };
 
-const getReferencesInChildScopes = (scope, name) => {
-	const references = scope.references.filter(reference => reference.identifier.name === name);
-	return [
-		...references,
-		...scope.childScopes.flatMap(s => getReferencesInChildScopes(s, name))
-	];
-};
+const getReferencesInChildScopes = (scope, name) =>
+	getReferences(scope).filter(reference => reference.identifier.name === name);
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
@@ -332,7 +327,7 @@ const create = context => {
 
 			const problem = {
 				loc: toLocation([start, end], sourceCode),
-				messageId: MESSAGE_ID
+				messageId: MESSAGE_ID,
 			};
 
 			const elementReference = arrayReferences.find(reference => {
@@ -356,7 +351,7 @@ const create = context => {
 
 					const index = indexIdentifierName;
 					const element = elementIdentifierName ||
-						avoidCapture(singular(arrayIdentifierName) || defaultElementName, getChildScopesRecursive(bodyScope), context.parserOptions.ecmaVersion);
+						avoidCapture(singular(arrayIdentifierName) || defaultElementName, getScopes(bodyScope));
 					const array = arrayIdentifierName;
 
 					let declarationElement = element;
@@ -375,7 +370,7 @@ const create = context => {
 								declarationElement = sourceCodeText.slice(elementNode.id.range[0], elementNode.id.typeAnnotation.range[0]).trim();
 								typeAnnotation = sourceCode.getText(
 									elementNode.id.typeAnnotation,
-									-1 // Skip leading `:`
+									-1, // Skip leading `:`
 								).trim();
 							} else {
 								declarationElement = sourceCode.getText(elementNode.id);
@@ -399,7 +394,7 @@ const create = context => {
 
 					yield fixer.replaceTextRange([
 						node.init.range[0],
-						node.update.range[1]
+						node.update.range[1],
 					], replacement);
 
 					for (const reference of arrayReferences) {
@@ -416,8 +411,8 @@ const create = context => {
 				};
 			}
 
-			context.report(problem);
-		}
+			return problem;
+		},
 	};
 };
 
@@ -427,10 +422,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Do not use a `for` loop that can be replaced with a `for-of` loop.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+		hasSuggestion: true,
+	},
 };

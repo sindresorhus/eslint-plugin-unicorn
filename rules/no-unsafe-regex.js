@@ -1,13 +1,18 @@
 'use strict';
 const safeRegex = require('safe-regex');
-const getDocumentationUrl = require('./utils/get-documentation-url');
+const {newExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'no-unsafe-regex';
 const messages = {
-	[MESSAGE_ID]: 'Unsafe regular expression.'
+	[MESSAGE_ID]: 'Unsafe regular expression.',
 };
 
-const create = context => {
+const newRegExpSelector = [
+	newExpressionSelector('RegExp'),
+	'[arguments.0.type="Literal"]',
+].join('');
+
+const create = () => {
 	return {
 		'Literal[regex]': node => {
 			// Handle regex literal inside RegExp constructor in the other handler
@@ -19,19 +24,14 @@ const create = context => {
 			}
 
 			if (!safeRegex(node.value)) {
-				context.report({
+				return {
 					node,
-					messageId: MESSAGE_ID
-				});
+					messageId: MESSAGE_ID,
+				};
 			}
 		},
-		'NewExpression[callee.name="RegExp"]': node => {
+		[newRegExpSelector]: node => {
 			const arguments_ = node.arguments;
-
-			if (arguments_.length === 0 || arguments_[0].type !== 'Literal') {
-				return;
-			}
-
 			const hasRegExp = arguments_[0].regex;
 
 			let pattern;
@@ -45,12 +45,12 @@ const create = context => {
 			}
 
 			if (!safeRegex(`/${pattern}/${flags}`)) {
-				context.report({
+				return {
 					node,
-					messageId: MESSAGE_ID
-				});
+					messageId: MESSAGE_ID,
+				};
 			}
-		}
+		},
 	};
 };
 
@@ -60,9 +60,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow unsafe regular expressions.',
-			url: getDocumentationUrl(__filename)
 		},
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

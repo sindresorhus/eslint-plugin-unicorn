@@ -1,10 +1,9 @@
 'use strict';
 const {upperFirst} = require('lodash');
-const getDocumentationUrl = require('./utils/get-documentation-url');
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 const messages = {
-	[MESSAGE_ID_INVALID_EXPORT]: 'Exported error name should match error class'
+	[MESSAGE_ID_INVALID_EXPORT]: 'Exported error name should match error class',
 };
 
 const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
@@ -71,7 +70,7 @@ const isPropertyDefinition = (node, name) => {
 	return key.name === name;
 };
 
-const customErrorDefinition = (context, node) => {
+function * customErrorDefinition(context, node) {
 	if (!hasValidSuperClass(node)) {
 		return;
 	}
@@ -84,24 +83,24 @@ const customErrorDefinition = (context, node) => {
 	const className = getClassName(name);
 
 	if (name !== className) {
-		context.report({
+		yield {
 			node: node.id,
-			message: `Invalid class name, use \`${className}\`.`
-		});
+			message: `Invalid class name, use \`${className}\`.`,
+		};
 	}
 
 	const {body, range} = node.body;
 	const constructor = body.find(x => x.kind === 'constructor');
 
 	if (!constructor) {
-		context.report({
+		yield {
 			node,
 			message: 'Add a constructor to your error.',
 			fix: fixer => fixer.insertTextAfterRange([
 				range[0],
-				range[0] + 1
-			], getConstructorMethod(name))
-		});
+				range[0] + 1,
+			], getConstructorMethod(name)),
+		};
 		return;
 	}
 
@@ -118,14 +117,14 @@ const customErrorDefinition = (context, node) => {
 	const messageExpressionIndex = constructorBody.findIndex(x => isAssignmentExpression(x, 'message'));
 
 	if (!superExpression) {
-		context.report({
+		yield {
 			node: constructorBodyNode,
-			message: 'Missing call to `super()` in constructor.'
-		});
+			message: 'Missing call to `super()` in constructor.',
+		};
 	} else if (messageExpressionIndex !== -1) {
 		const expression = constructorBody[messageExpressionIndex];
 
-		context.report({
+		yield {
 			node: superExpression,
 			message: 'Pass the error message to `super()` instead of setting `this.message`.',
 			* fix(fixer) {
@@ -133,16 +132,16 @@ const customErrorDefinition = (context, node) => {
 					const rhs = expression.expression.right;
 					yield fixer.insertTextAfterRange([
 						superExpression.range[0],
-						superExpression.range[0] + 6
+						superExpression.range[0] + 6,
 					], rhs.raw || rhs.name);
 				}
 
 				yield fixer.removeRange([
 					messageExpressionIndex === 0 ? constructorBodyNode.range[0] : constructorBody[messageExpressionIndex - 1].range[1],
-					expression.range[1]
+					expression.range[1],
 				]);
-			}
-		});
+			},
+		};
 	}
 
 	const nameExpression = constructorBody.find(x => isAssignmentExpression(x, 'name'));
@@ -150,18 +149,18 @@ const customErrorDefinition = (context, node) => {
 		const nameProperty = body.find(node => isPropertyDefinition(node, 'name'));
 
 		if (!nameProperty || !nameProperty.value || nameProperty.value.value !== name) {
-			context.report({
+			yield {
 				node: nameProperty && nameProperty.value ? nameProperty.value : constructorBodyNode,
-				message: `The \`name\` property should be set to \`${name}\`.`
-			});
+				message: `The \`name\` property should be set to \`${name}\`.`,
+			};
 		}
 	} else if (nameExpression.expression.right.value !== name) {
-		context.report({
+		yield {
 			node: nameExpression ? nameExpression.expression.right : constructorBodyNode,
-			message: `The \`name\` property should be set to \`${name}\`.`
-		});
+			message: `The \`name\` property should be set to \`${name}\`.`,
+		};
 	}
-};
+}
 
 const customErrorExport = (context, node) => {
 	const exportsName = node.left.property.name;
@@ -187,18 +186,18 @@ const customErrorExport = (context, node) => {
 		return;
 	}
 
-	context.report({
+	return {
 		node: node.left.property,
 		messageId: MESSAGE_ID_INVALID_EXPORT,
-		fix: fixer => fixer.replaceText(node.left.property, errorName)
-	});
+		fix: fixer => fixer.replaceText(node.left.property, errorName),
+	};
 };
 
 const create = context => {
 	return {
 		ClassDeclaration: node => customErrorDefinition(context, node),
 		'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
-		'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node)
+		'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node),
 	};
 };
 
@@ -208,10 +207,8 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce correct `Error` subclassing.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

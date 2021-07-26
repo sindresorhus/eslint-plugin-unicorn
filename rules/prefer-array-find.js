@@ -1,13 +1,20 @@
 'use strict';
 const {isParenthesized, findVariable} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {not, methodCallSelector} = require('./selectors');
-const getVariableIdentifiers = require('./utils/get-variable-identifiers');
-const renameVariable = require('./utils/rename-variable');
-const avoidCapture = require('./utils/avoid-capture');
-const getChildScopesRecursive = require('./utils/get-child-scopes-recursive');
-const singular = require('./utils/singular');
-const extendFixRange = require('./utils/extend-fix-range');
+const {
+	not,
+	methodCallSelector,
+	notLeftHandSideSelector,
+} = require('./selectors/index.js');
+const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
+const avoidCapture = require('./utils/avoid-capture.js');
+const getScopes = require('./utils/get-scopes.js');
+const singular = require('./utils/singular.js');
+const {
+	extendFixRange,
+	removeMemberExpressionProperty,
+	removeMethodCall,
+	renameVariable,
+} = require('./fix/index.js');
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
@@ -24,13 +31,13 @@ const messages = {
 	// Same message as `ERROR_DESTRUCTURING_DECLARATION`, but different case
 	[ERROR_DESTRUCTURING_ASSIGNMENT]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
 	[SUGGESTION_NULLISH_COALESCING_OPERATOR]: 'Replace `.filter(…)` with `.find(…) ?? …`.',
-	[SUGGESTION_LOGICAL_OR_OPERATOR]: 'Replace `.filter(…)` with `.find(…) || …`.'
+	[SUGGESTION_LOGICAL_OR_OPERATOR]: 'Replace `.filter(…)` with `.find(…) || …`.',
 };
 
 const filterMethodSelectorOptions = {
-	name: 'filter',
-	min: 1,
-	max: 2
+	method: 'filter',
+	minimumArguments: 1,
+	maximumArguments: 2,
 };
 
 const filterVariableSelector = [
@@ -42,8 +49,8 @@ const filterVariableSelector = [
 	'[id.type="Identifier"]',
 	methodCallSelector({
 		...filterMethodSelectorOptions,
-		path: 'init'
-	})
+		path: 'init',
+	}),
 ].join('');
 
 const zeroIndexSelector = [
@@ -51,21 +58,22 @@ const zeroIndexSelector = [
 	'[computed!=false]',
 	'[property.type="Literal"]',
 	'[property.raw="0"]',
+	notLeftHandSideSelector(),
 	methodCallSelector({
 		...filterMethodSelectorOptions,
-		path: 'object'
-	})
+		path: 'object',
+	}),
 ].join('');
 
 const shiftSelector = [
 	methodCallSelector({
-		name: 'shift',
-		length: 0
+		method: 'shift',
+		argumentsLength: 0,
 	}),
 	methodCallSelector({
 		...filterMethodSelectorOptions,
-		path: 'callee.object'
-	})
+		path: 'callee.object',
+	}),
 ].join('');
 
 const destructuringDeclaratorSelector = [
@@ -75,8 +83,8 @@ const destructuringDeclaratorSelector = [
 	'[id.elements.0.type!="RestElement"]',
 	methodCallSelector({
 		...filterMethodSelectorOptions,
-		path: 'init'
-	})
+		path: 'init',
+	}),
 ].join('');
 
 const destructuringAssignmentSelector = [
@@ -86,8 +94,8 @@ const destructuringAssignmentSelector = [
 	'[left.elements.0.type!="RestElement"]',
 	methodCallSelector({
 		...filterMethodSelectorOptions,
-		path: 'right'
-	})
+		path: 'right',
+	}),
 ].join('');
 
 // Need add `()` to the `AssignmentExpression`
@@ -180,14 +188,14 @@ const fixDestructuringAndReplaceFilter = (sourceCode, node) => {
 	if (hasDefaultValue(node)) {
 		suggest = [
 			{operator: '??', messageId: SUGGESTION_NULLISH_COALESCING_OPERATOR},
-			{operator: '||', messageId: SUGGESTION_LOGICAL_OR_OPERATOR}
+			{operator: '||', messageId: SUGGESTION_LOGICAL_OR_OPERATOR},
 		].map(({messageId, operator}) => ({
 			messageId,
 			* fix(fixer) {
 				yield fixer.replaceText(property, 'find');
 				yield fixDestructuringDefaultValue(node, sourceCode, fixer, operator);
 				yield * fixDestructuring(node, sourceCode, fixer);
-			}
+			},
 		}));
 	} else {
 		fix = function * (fixer) {
@@ -224,38 +232,38 @@ const create = context => {
 
 	return {
 		[zeroIndexSelector](node) {
-			context.report({
+			return {
 				node: node.object.callee.property,
 				messageId: ERROR_ZERO_INDEX,
 				fix: fixer => [
 					fixer.replaceText(node.object.callee.property, 'find'),
-					fixer.removeRange([node.object.range[1], node.range[1]])
-				]
-			});
+					removeMemberExpressionProperty(fixer, node, sourceCode),
+				],
+			};
 		},
 		[shiftSelector](node) {
-			context.report({
+			return {
 				node: node.callee.object.callee.property,
 				messageId: ERROR_SHIFT,
 				fix: fixer => [
 					fixer.replaceText(node.callee.object.callee.property, 'find'),
-					fixer.removeRange([node.callee.object.range[1], node.range[1]])
-				]
-			});
+					...removeMethodCall(fixer, node, sourceCode),
+				],
+			};
 		},
 		[destructuringDeclaratorSelector](node) {
-			context.report({
+			return {
 				node: node.init.callee.property,
 				messageId: ERROR_DESTRUCTURING_DECLARATION,
-				...fixDestructuringAndReplaceFilter(sourceCode, node)
-			});
+				...fixDestructuringAndReplaceFilter(sourceCode, node),
+			};
 		},
 		[destructuringAssignmentSelector](node) {
-			context.report({
+			return {
 				node: node.right.callee.property,
 				messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
-				...fixDestructuringAndReplaceFilter(sourceCode, node)
-			});
+				...fixDestructuringAndReplaceFilter(sourceCode, node),
+			};
 		},
 		[filterVariableSelector](node) {
 			const scope = context.getScope();
@@ -280,7 +288,7 @@ const create = context => {
 
 			const problem = {
 				node: node.init.callee.property,
-				messageId: ERROR_DECLARATION
+				messageId: ERROR_DECLARATION,
 			};
 
 			// `const [foo = bar] = baz` is not fixable
@@ -291,7 +299,7 @@ const create = context => {
 					const singularName = singular(node.id.name);
 					if (singularName) {
 						// Rename variable to be singularized now that it refers to a single item in the array instead of the entire array.
-						const singularizedName = avoidCapture(singularName, getChildScopesRecursive(scope), context.parserOptions.ecmaVersion);
+						const singularizedName = avoidCapture(singularName, getScopes(scope));
 						yield * renameVariable(variable, singularizedName, fixer);
 
 						// Prevent possible variable conflicts
@@ -299,7 +307,7 @@ const create = context => {
 					}
 
 					for (const node of zeroIndexNodes) {
-						yield fixer.removeRange([node.object.range[1], node.range[1]]);
+						yield removeMemberExpressionProperty(fixer, node, sourceCode);
 					}
 
 					for (const node of destructuringNodes) {
@@ -308,8 +316,8 @@ const create = context => {
 				};
 			}
 
-			context.report(problem);
-		}
+			return problem;
+		},
 	};
 };
 
@@ -319,10 +327,9 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.find(…)` over the first element from `.filter(…)`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+		hasSuggestions: true,
+	},
 };

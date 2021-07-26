@@ -5,27 +5,27 @@ const {
 	isCommaToken,
 	isSemicolonToken,
 	isClosingParenToken,
-	findVariable
+	findVariable,
 } = require('eslint-utils');
-const {methodCallSelector, referenceIdentifierSelector} = require('./selectors');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const needsSemicolon = require('./utils/needs-semicolon');
-const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression');
-const {getParentheses} = require('./utils/parentheses');
-const extendFixRange = require('./utils/extend-fix-range');
-const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside');
-const {isNodeMatches} = require('./utils/is-node-matches');
-const assertToken = require('./utils/assert-token');
+const {methodCallSelector, referenceIdentifierSelector} = require('./selectors/index.js');
+const {extendFixRange} = require('./fix/index.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
+const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression.js');
+const {getParentheses} = require('./utils/parentheses.js');
+const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside.js');
+const {isNodeMatches} = require('./utils/is-node-matches.js');
+const assertToken = require('./utils/assert-token.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
-	[MESSAGE_ID]: 'Use `for…of` instead of `Array#forEach(…)`.'
+	[MESSAGE_ID]: 'Use `for…of` instead of `Array#forEach(…)`.',
 };
 
 const arrayForEachCallSelector = methodCallSelector({
-	name: 'forEach',
+	method: 'forEach',
 	includeOptionalCall: true,
-	includeOptionalMember: true
+	includeOptionalMember: true,
 });
 
 const continueAbleNodeTypes = new Set([
@@ -33,7 +33,7 @@ const continueAbleNodeTypes = new Set([
 	'DoWhileStatement',
 	'ForStatement',
 	'ForOfStatement',
-	'ForInStatement'
+	'ForInStatement',
 ]);
 
 function isReturnStatementInContinueAbleNodes(returnStatement, callbackFunction) {
@@ -44,6 +44,27 @@ function isReturnStatementInContinueAbleNodes(returnStatement, callbackFunction)
 	}
 
 	return false;
+}
+
+function shouldSwitchReturnStatementToBlockStatement(returnStatement) {
+	const {parent} = returnStatement;
+
+	switch (parent.type) {
+		case 'IfStatement':
+			return parent.consequent === returnStatement || parent.alternate === returnStatement;
+
+		// These parent's body need switch to `BlockStatement` too, but since they are "continueAble", won't fix
+		// case 'ForStatement':
+		// case 'ForInStatement':
+		// case 'ForOfStatement':
+		// case 'WhileStatement':
+		// case 'DoWhileStatement':
+		case 'WithStatement':
+			return parent.body === returnStatement;
+
+		default:
+			return false;
+	}
 }
 
 function getFixFunction(callExpression, functionInfo, context) {
@@ -99,7 +120,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		const returnToken = sourceCode.getFirstToken(returnStatement);
 		assertToken(returnToken, {
 			expected: 'return',
-			ruleId: 'no-array-for-each'
+			ruleId: 'no-array-for-each',
 		});
 
 		if (!returnStatement.argument) {
@@ -118,12 +139,14 @@ function getFixFunction(callExpression, functionInfo, context) {
 			!isParenthesized(returnStatement.argument, sourceCode) &&
 			shouldAddParenthesesToExpressionStatementExpression(returnStatement.argument);
 		if (shouldAddParentheses) {
-			textBefore = '(';
-			textAfter = ')';
+			textBefore = `(${textBefore}`;
+			textAfter = `${textAfter})`;
 		}
 
-		const shouldAddSemicolonBefore = needsSemicolon(previousToken, sourceCode, shouldAddParentheses ? '(' : nextToken.value);
-		if (shouldAddSemicolonBefore) {
+		const insertBraces = shouldSwitchReturnStatementToBlockStatement(returnStatement);
+		if (insertBraces) {
+			textBefore = `{ ${textBefore}`;
+		} else if (needsSemicolon(previousToken, sourceCode, shouldAddParentheses ? '(' : nextToken.value)) {
 			textBefore = `;${textBefore}`;
 		}
 
@@ -135,12 +158,16 @@ function getFixFunction(callExpression, functionInfo, context) {
 			yield fixer.insertTextAfter(returnStatement.argument, textAfter);
 		}
 
-		// If `returnStatement` has no semi
-		const lastToken = sourceCode.getLastToken(returnStatement);
-		yield fixer.insertTextAfter(
-			returnStatement,
-			`${isSemicolonToken(lastToken) ? '' : ';'} continue;`
-		);
+		const returnStatementHasSemicolon = isSemicolonToken(sourceCode.getLastToken(returnStatement));
+		if (!returnStatementHasSemicolon) {
+			yield fixer.insertTextAfter(returnStatement, ';');
+		}
+
+		yield fixer.insertTextAfter(returnStatement, ' continue;');
+
+		if (insertBraces) {
+			yield fixer.insertTextAfter(returnStatement, ' }');
+		}
 	}
 
 	const shouldRemoveExpressionStatementLastToken = token => {
@@ -182,7 +209,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 		const [
 			penultimateToken,
-			lastToken
+			lastToken,
 		] = sourceCode.getLastTokens(callExpression, 2);
 
 		// The possible trailing comma token of `Array#forEach()` CallExpression
@@ -208,6 +235,8 @@ function getFixFunction(callExpression, functionInfo, context) {
 		if (shouldRemoveExpressionStatementLastToken(expressionStatementLastToken)) {
 			yield fixer.remove(expressionStatementLastToken, fixer);
 		}
+
+		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, sourceCode);
 
 		// Prevent possible variable conflicts
 		yield * extendFixRange(fixer, callExpression.parent.range);
@@ -331,7 +360,7 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 
 const ignoredObjects = [
 	'React.Children',
-	'Children'
+	'Children',
 ];
 
 const create = context => {
@@ -345,7 +374,7 @@ const create = context => {
 			functionStack.push(node);
 			functionInfo.set(node, {
 				returnStatements: [],
-				scope: context.getScope()
+				scope: context.getScope(),
 			});
 		},
 		':function:exit'() {
@@ -366,23 +395,23 @@ const create = context => {
 
 			callExpressions.push({
 				node,
-				scope: context.getScope()
+				scope: context.getScope(),
 			});
 		},
-		'Program:exit'() {
+		* 'Program:exit'() {
 			for (const {node, scope} of callExpressions) {
 				const problem = {
 					node: node.callee.property,
-					messageId: MESSAGE_ID
+					messageId: MESSAGE_ID,
 				};
 
 				if (isFixable(node, {scope, allIdentifiers, functionInfo, context})) {
 					problem.fix = getFixFunction(node, functionInfo, context);
 				}
 
-				context.report(problem);
+				yield problem;
 			}
-		}
+		},
 	};
 };
 
@@ -392,10 +421,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `for…of` over `Array#forEach(…)`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

@@ -7,27 +7,27 @@ This rule is fixable unless default values are used in declaration or assignment
 ## Fail
 
 ```js
-const item = array.filter(x => x === '🦄')[0];
+const item = array.filter(x => isUnicorn(x))[0];
 ```
 
 ```js
-const item = array.filter(x => x === '🦄').shift();
+const item = array.filter(x => isUnicorn(x)).shift();
 ```
 
 ```js
-const [item] = array.filter(x => x === '🦄');
+const [item] = array.filter(x => isUnicorn(x));
 ```
 
 ```js
-[item] = array.filter(x => x === '🦄');
+[item] = array.filter(x => isUnicorn(x));
 ```
 
 ## Pass
 
 ```js
-const item = array.find(x => x === '🦄');
+const item = array.find(x => isUnicorn(x));
 ```
 
 ```js
-item = array.find(x => x === '🦄');
+item = array.find(x => isUnicorn(x));
 ```

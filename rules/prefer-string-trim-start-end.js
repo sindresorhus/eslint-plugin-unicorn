@@ -1,34 +1,33 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector} = require('./selectors');
+const {methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-string-trim-start-end';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `String#{{replacement}}()` over `String#{{method}}()`.'
+	[MESSAGE_ID]: 'Prefer `String#{{replacement}}()` over `String#{{method}}()`.',
 };
 
 const selector = [
 	methodCallSelector({
-		names: ['trimLeft', 'trimRight'],
-		length: 0
+		methods: ['trimLeft', 'trimRight'],
+		argumentsLength: 0,
 	}),
 	' > .callee',
-	' > .property'
+	' > .property',
 ].join(' ');
 
-const create = context => {
+const create = () => {
 	return {
 		[selector](node) {
 			const method = node.name;
 			const replacement = method === 'trimLeft' ? 'trimStart' : 'trimEnd';
 
-			context.report({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				data: {method, replacement},
-				fix: fixer => fixer.replaceText(node, replacement)
-			});
-		}
+				fix: fixer => fixer.replaceText(node, replacement),
+			};
+		},
 	};
 };
 
@@ -38,10 +37,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

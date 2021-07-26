@@ -24,7 +24,7 @@ test.snapshot({
 		outdent`
 			let foo = 1.2; // comment 1
 			foo |= 1; // comment 2 and 1.2 | 0
-		`
+		`,
 	],
 	invalid: [
 		// Basic "bitwise OR with 0" case
@@ -33,6 +33,7 @@ test.snapshot({
 		'const foo = (1 + 2 / 3.4) | 0;',
 		'const foo = bar((1.4 | 0) + 2);',
 		'const foo = (0, 1.4) | 0;',
+		'function foo() {return.1 | 0;}',
 
 		// Different "types" of 0
 		'const foo = 1.4 | 0.;',
@@ -56,11 +57,13 @@ test.snapshot({
 		'const foo = ~(~~10.01);',
 		'const foo = ~~-10.01;',
 		'const foo = ~~~~10.01;',
+		'function foo() {return~~3.9;}',
 
 		// Other operators
 		'const foo = bar >> 0;',
 		'const foo = bar << 0;',
 		'const foo = bar ^ 0;',
+		'function foo() {return.1 ^0;}',
 
 		// Case with objects (MemberExpression and ChainExpression)
 		outdent`
@@ -110,6 +113,7 @@ test.snapshot({
 			let foo = 10.01;
 			foo ^= 0;
 		`,
+		'function foo() {return[foo][0] ^= 0;};',
 
 		// With comments
 		'const foo = /* first comment */ 3.4 | 0; // A B C',
@@ -147,6 +151,6 @@ test.snapshot({
 				foo[i++] |= 0;
 			}
 			console.log(foo);
-		`
-	]
+		`,
+	],
 });

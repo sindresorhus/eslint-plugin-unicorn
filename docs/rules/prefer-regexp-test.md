@@ -14,8 +14,20 @@ if (string.match(/unicorn/)) {}
 if (/unicorn/.exec(string)) {}
 ```
 
+```vue
+<template>
+	<div v-if="/unicorn/.exec(string)">Vue</div>
+</template>
+```
+
 ## Pass
 
 ```js
 if (/unicorn/.test(string)) {}
+```
+
+```vue
+<template>
+	<div v-if="/unicorn/.test(string)">Vue</div>
+</template>
 ```

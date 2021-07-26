@@ -1,8 +1,11 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isShadowed = require('./utils/is-shadowed');
-const replaceReferenceIdentifier = require('./utils/replace-reference-identifier');
-const {matches, referenceIdentifierSelector} = require('./selectors');
+const isShadowed = require('./utils/is-shadowed.js');
+const {
+	referenceIdentifierSelector,
+	callExpressionSelector,
+} = require('./selectors/index.js');
+const {replaceReferenceIdentifier} = require('./fix/index.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const METHOD_ERROR_MESSAGE_ID = 'method-error';
 const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
@@ -10,7 +13,7 @@ const PROPERTY_ERROR_MESSAGE_ID = 'property-error';
 const messages = {
 	[METHOD_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}()` over `{{name}}()`.',
 	[METHOD_SUGGESTION_MESSAGE_ID]: 'Replace `{{name}}()` with `Number.{{name}}()`.',
-	[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{property}}` over `{{identifier}}`.'
+	[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{property}}` over `{{identifier}}`.',
 };
 
 const methods = {
@@ -19,14 +22,13 @@ const methods = {
 	parseFloat: true,
 	// Unsafe
 	isNaN: false,
-	isFinite: false
+	isFinite: false,
 };
 
 const methodsSelector = [
-	'CallExpression',
+	callExpressionSelector(Object.keys(methods)),
 	' > ',
-	'Identifier.callee',
-	matches(Object.keys(methods).map(name => `[name="${name}"]`))
+	'.callee',
 ].join('');
 
 const propertiesSelector = referenceIdentifierSelector(['NaN', 'Infinity']);
@@ -40,7 +42,7 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 	const options = {
 		checkInfinity: true,
-		...context.options[0]
+		...context.options[0],
 	};
 
 	// Cache `NaN` and `Infinity` in `foo = {NaN, Infinity}`
@@ -59,8 +61,8 @@ const create = context => {
 				node,
 				messageId: METHOD_ERROR_MESSAGE_ID,
 				data: {
-					name
-				}
+					name,
+				},
 			};
 
 			const fix = fixer => replaceReferenceIdentifier(node, `Number.${name}`, fixer, sourceCode);
@@ -72,14 +74,14 @@ const create = context => {
 					{
 						messageId: METHOD_SUGGESTION_MESSAGE_ID,
 						data: {
-							name
+							name,
 						},
-						fix
-					}
+						fix,
+					},
 				];
 			}
 
-			context.report(problem);
+			return problem;
 		},
 		[propertiesSelector]: node => {
 			if (reported.has(node) || isShadowed(context.getScope(), node)) {
@@ -101,21 +103,24 @@ const create = context => {
 				messageId: PROPERTY_ERROR_MESSAGE_ID,
 				data: {
 					identifier: name,
-					property
-				}
+					property,
+				},
 			};
 
 			if (property === 'NEGATIVE_INFINITY') {
 				problem.node = parent;
 				problem.data.identifier = '-Infinity';
-				problem.fix = fixer => fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
+				problem.fix = function * (fixer) {
+					yield fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
+					yield * fixSpaceAroundKeyword(fixer, parent, sourceCode);
+				};
 			} else {
 				problem.fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
 			}
 
-			context.report(problem);
 			reported.add(node);
-		}
+			return problem;
+		},
 	};
 };
 
@@ -125,11 +130,11 @@ const schema = [
 		properties: {
 			checkInfinity: {
 				type: 'boolean',
-				default: true
-			}
+				default: true,
+			},
 		},
-		additionalProperties: false
-	}
+		additionalProperties: false,
+	},
 ];
 
 module.exports = {
@@ -138,10 +143,10 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Number` static properties over global ones.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+		hasSuggestions: true,
+	},
 };

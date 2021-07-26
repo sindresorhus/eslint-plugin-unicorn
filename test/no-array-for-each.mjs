@@ -10,7 +10,7 @@ test.snapshot({
 		'foo.notForEach(element => bar())',
 		// #1087
 		'React.Children.forEach(children, (child) => {});',
-		'Children.forEach(children, (child) => {});'
+		'Children.forEach(children, (child) => {});',
 	],
 	invalid: [
 		// Not fixable
@@ -392,8 +392,24 @@ test.snapshot({
 			foo.forEach(({element}, index) => {
 				element &&= 2;
 			});
-		`
-	]
+		`,
+
+		// Need switch to `BlockStatement`, #1318
+		outdent`
+			foo.forEach(_ => {
+				if (true) return {};
+			})
+		`,
+		outdent`
+			foo.forEach(_ => {
+				if (true);
+				else return {};
+			})
+		`,
+
+		// Need insert space after keyword
+		'if (true) {} else[foo].forEach((element) => {})',
+	],
 });
 
 test({
@@ -414,24 +430,24 @@ test({
 			`,
 			errors: 1,
 			parserOptions: {
-				sourceType: 'script'
-			}
+				sourceType: 'script',
+			},
 		},
 		{
 			code: 'foo.forEach(function(element, element) {})',
 			errors: 1,
 			parserOptions: {
-				sourceType: 'script'
-			}
+				sourceType: 'script',
+			},
 		},
 		{
 			code: 'foo.forEach(function element(element, element) {})',
 			errors: 1,
 			parserOptions: {
-				sourceType: 'script'
-			}
-		}
-	]
+				sourceType: 'script',
+			},
+		},
+	],
 });
 
 test.typescript({
@@ -451,7 +467,7 @@ test.typescript({
 					allPageInfos.set(key, info)
 				})
 			`,
-			errors: 2
+			errors: 2,
 		},
 		// https://github.com/gatsbyjs/gatsby/blob/3163ca67d44b79c727dd3e331fb56b21707877a5/packages/gatsby/src/bootstrap/remove-stale-jobs.ts#L14
 		{
@@ -466,12 +482,12 @@ test.typescript({
 					}
 				)
 			`,
-			errors: 1
+			errors: 1,
 		},
 		// https://github.com/microsoft/fluentui/blob/20f3d664a36c93174dc32786a9d465dd343dabe5/apps/todo-app/src/DataProvider.ts#L157
 		{
 			code: 'this._listeners.forEach((listener: () => void) => listener());',
-			errors: 1
+			errors: 1,
 		},
 		// https://github.com/angular/angular/blob/4e8198d60f421ce120e3a6b57afe60a9332d2692/packages/animations/browser/src/render/transition_animation_engine.ts#L1636
 		{
@@ -483,16 +499,16 @@ test.typescript({
 				const cloakVals: string[] = [];
 				for (const element of elements)  cloakVals.push(cloakElement(element));
 			`,
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });
 
 const globalReturnOptions = {
 	sourceType: 'script',
 	ecmaFeatures: {
-		globalReturn: true
-	}
+		globalReturn: true,
+	},
 };
 test({
 	valid: [
@@ -501,8 +517,8 @@ test({
 				foo.notForEach(element => bar(element));
 				while (true) return;
 			`,
-			parserOptions: globalReturnOptions
-		}
+			parserOptions: globalReturnOptions,
+		},
 	],
 	invalid: [
 		{
@@ -515,7 +531,7 @@ test({
 				for (const element of foo)  bar(element);
 			`,
 			errors: 1,
-			parserOptions: globalReturnOptions
+			parserOptions: globalReturnOptions,
 		},
 		{
 			code: outdent`
@@ -526,12 +542,26 @@ test({
 				while (true) return;
 			`,
 			errors: 1,
-			parserOptions: globalReturnOptions
+			parserOptions: globalReturnOptions,
 		},
 		{
 			code: 'return foo.forEach(element => {bar(element)});',
 			errors: 1,
-			parserOptions: globalReturnOptions
-		}
-	]
+			parserOptions: globalReturnOptions,
+		},
+		{
+			code: outdent`
+				foo.forEach(_ => {
+					with (a) return {};
+				})
+			`,
+			output: outdent`
+				for (const _ of foo) {
+					with (a)  { ({}); continue; }
+				}
+			`,
+			errors: 1,
+			parserOptions: globalReturnOptions,
+		},
+	],
 });

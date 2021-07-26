@@ -8,14 +8,32 @@ This rule is fixable.
 ## Fail
 
 ```js
-[1, 2, 3].map(i => [i]).flat();
-[].concat(...foo.map((i) => i))
+const foo = bar.map(element => unicorn(element)).flat();
+```
+
+```js
+const foo = bar.map(element => unicorn(element)).flat(1);
 ```
 
 
 ## Pass
 
 ```js
-[1, 2, 3].flatMap(i => [i]);
-[1, 2, 3].map(i => [i]).foo().flat();
+const foo = bar.flatMap(element => unicorn(element));
 ```
+
+```js
+const foo = bar.map(element => unicorn(element)).flat(2);
+```
+
+```js
+const foo = bar.map(element => unicorn(element)).foo().flat();
+```
+
+```js
+const foo = bar.flat().map(element => unicorn(element));
+```
+
+## Related rules
+
+- [unicorn/prefer-array-flat](./prefer-array-flat.md)

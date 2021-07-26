@@ -1,7 +1,6 @@
 'use strict';
-const avoidCapture = require('./utils/avoid-capture');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {not} = require('./selectors');
+const avoidCapture = require('./utils/avoid-capture.js');
+const {not, notLeftHandSideSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'consistentDestructuring';
 const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';
@@ -10,19 +9,17 @@ const declaratorSelector = [
 	'VariableDeclarator',
 	'[id.type="ObjectPattern"]',
 	'[init]',
-	'[init.type!="Literal"]'
+	'[init.type!="Literal"]',
 ].join('');
 
 const memberSelector = [
 	'MemberExpression',
 	'[computed!=true]',
+	notLeftHandSideSelector(),
 	not([
-		'AssignmentExpression > .left',
 		'CallExpression > .callee',
-		'NewExpression > .callee',
-		'UpdateExpression > .argument',
-		'UnaryExpression[operator="delete"] > .argument'
-	])
+		'NewExpression> .callee',
+	]),
 ].join('');
 
 const isSimpleExpression = expression => {
@@ -55,7 +52,6 @@ const isChildInParentScope = (child, parent) => {
 };
 
 const create = context => {
-	const {ecmaVersion} = context.parserOptions;
 	const source = context.getSourceCode();
 	const declarations = new Map();
 
@@ -69,7 +65,7 @@ const create = context => {
 			declarations.set(source.getText(node.init), {
 				scope: context.getScope(),
 				variables: context.getDeclaredVariables(node),
-				objectPattern: node.id
+				objectPattern: node.id,
 			});
 		},
 		[memberSelector]: node => {
@@ -90,7 +86,7 @@ const create = context => {
 			const destructurings = objectPattern.properties.filter(property =>
 				property.type === 'Property' &&
 				property.key.type === 'Identifier' &&
-				property.value.type === 'Identifier'
+				property.value.type === 'Identifier',
 			);
 			const lastProperty = objectPattern.properties[objectPattern.properties.length - 1];
 
@@ -101,7 +97,7 @@ const create = context => {
 
 			// Member might already be destructured
 			const destructuredMember = destructurings.find(property =>
-				property.key.name === member
+				property.key.name === member,
 			);
 
 			if (!destructuredMember) {
@@ -111,31 +107,29 @@ const create = context => {
 				}
 
 				// Destructured member collides with an existing identifier
-				if (avoidCapture(member, [memberScope], ecmaVersion) !== member) {
+				if (avoidCapture(member, [memberScope]) !== member) {
 					return;
 				}
 			}
 
 			// Don't try to fix nested member expressions
 			if (node.parent.type === 'MemberExpression') {
-				context.report({
+				return {
 					node,
-					messageId: MESSAGE_ID
-				});
-
-				return;
+					messageId: MESSAGE_ID,
+				};
 			}
 
 			const newMember = destructuredMember ? destructuredMember.value.name : member;
 
-			context.report({
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				suggest: [{
 					messageId: MESSAGE_ID_SUGGEST,
 					data: {
 						expression,
-						property: newMember
+						property: newMember,
 					},
 					* fix(fixer) {
 						const {properties} = objectPattern;
@@ -148,10 +142,10 @@ const create = context => {
 								fixer.insertTextAfter(lastProperty, `, ${newMember}`) :
 								fixer.replaceText(objectPattern, `{${newMember}}`);
 						}
-					}
-				}]
-			});
-		}
+					},
+				}],
+			};
+		},
 	};
 };
 
@@ -161,13 +155,12 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Use destructured variables over properties.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
 		messages: {
 			[MESSAGE_ID]: 'Use destructured variables over properties.',
-			[MESSAGE_ID_SUGGEST]: 'Replace `{{expression}}` with destructured property `{{property}}`.'
-		}
-	}
+			[MESSAGE_ID_SUGGEST]: 'Replace `{{expression}}` with destructured property `{{property}}`.',
+		},
+		hasSuggestions: true,
+	},
 };

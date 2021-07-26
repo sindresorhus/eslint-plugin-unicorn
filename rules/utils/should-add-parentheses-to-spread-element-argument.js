@@ -7,7 +7,7 @@ const nodeTypesDoNotNeedParentheses = new Set([
 	'MemberExpression',
 	'NewExpression',
 	'TemplateLiteral',
-	'ThisExpression'
+	'ThisExpression',
 ]);
 
 /**

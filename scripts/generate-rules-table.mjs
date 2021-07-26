@@ -17,6 +17,7 @@ const tablePlaceholder = /<!-- RULES_TABLE_START -->.*<!-- RULES_TABLE_END -->/s
 // Config/preset/fixable emojis.
 const EMOJI_RECOMMENDED = '✅';
 const EMOJI_FIXABLE = '🔧';
+const EMOJI_HAS_SUGGESTIONS = '💡';
 
 // Generate rule table contents.
 const ruleNames = Object.keys(rules).filter(ruleName => !rules[ruleName].meta.deprecated).sort();
@@ -24,14 +25,20 @@ const rulesTableContent = ruleNames
 	.map(ruleName => {
 		// Check which emojis to show for this rule.
 		const isRecommended = configs.recommended.rules[`unicorn/${ruleName}`] === 'error';
-		const isFixable = rules[ruleName].meta.fixable;
+		const {fixable, hasSuggestions} = rules[ruleName].meta;
 
 		const url = `docs/rules/${ruleName}.md`;
 		const link = `[${ruleName}](${url})`;
 
 		const {description} = rules[ruleName].meta.docs;
 
-		return `| ${link} | ${description} | ${isRecommended ? EMOJI_RECOMMENDED : ''} | ${isFixable ? EMOJI_FIXABLE : ''} |`;
+		return `| ${[
+			link,
+			description,
+			isRecommended ? EMOJI_RECOMMENDED : '',
+			fixable ? EMOJI_FIXABLE : '',
+			hasSuggestions ? EMOJI_HAS_SUGGESTIONS : '',
+		].join(' | ')} |`;
 	})
 	.join('\n');
 
@@ -42,11 +49,11 @@ writeFileSync(
 		outdent`
 			<!-- RULES_TABLE_START -->
 
-			| Name${'&nbsp;'.repeat(40)} | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} |
-			| :-- | :-- | :-- | :-- |
+			| Name${'&nbsp;'.repeat(40)} | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} | ${EMOJI_HAS_SUGGESTIONS} |
+			|${' :-- |'.repeat(5)}
 			${rulesTableContent}
 
 			<!-- RULES_TABLE_END -->
-		`
-	)
+		`,
+	),
 );

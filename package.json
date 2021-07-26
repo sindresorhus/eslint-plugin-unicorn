@@ -1,6 +1,6 @@
 {
 	"name": "eslint-plugin-unicorn",
-	"version": "32.0.1",
+	"version": "34.0.1",
 	"description": "Various awesome ESLint rules",
 	"license": "MIT",
 	"repository": "sindresorhus/eslint-plugin-unicorn",
@@ -37,46 +37,45 @@
 		"xo"
 	],
 	"dependencies": {
-		"ci-info": "^3.1.1",
+		"@babel/helper-validator-identifier": "^7.14.5",
+		"ci-info": "^3.2.0",
 		"clean-regexp": "^1.0.0",
 		"eslint-template-visitor": "^2.3.2",
 		"eslint-utils": "^3.0.0",
-		"import-modules": "^2.1.0",
 		"is-builtin-module": "^3.1.0",
 		"lodash": "^4.17.21",
 		"pluralize": "^8.0.0",
 		"read-pkg-up": "^7.0.1",
 		"regexp-tree": "^0.1.23",
-		"reserved-words": "^0.1.2",
 		"safe-regex": "^2.1.1",
 		"semver": "^7.3.5"
 	},
 	"devDependencies": {
 		"@babel/code-frame": "7.12.13",
-		"@babel/core": "7.14.0",
-		"@babel/eslint-parser": "7.13.14",
+		"@babel/core": "7.14.6",
+		"@babel/eslint-parser": "7.14.7",
 		"@lubien/fixture-beta-package": "^1.0.0-beta.1",
-		"@typescript-eslint/parser": "^4.21.0",
+		"@typescript-eslint/parser": "^4.26.1",
 		"ava": "^3.15.0",
-		"chalk": "^4.1.0",
+		"chalk": "^4.1.1",
 		"enquirer": "2.3.6",
-		"eslint": "^7.23.0",
+		"eslint": "^7.28.0",
 		"eslint-ava-rule-tester": "^4.0.0",
-		"eslint-plugin-eslint-plugin": "^3.0.3",
-		"eslint-remote-tester": "^1.1.0",
-		"execa": "^5.0.0",
+		"eslint-plugin-eslint-plugin": "^3.1.0",
+		"eslint-remote-tester": "^1.2.0",
+		"execa": "^5.1.1",
 		"listr": "^0.14.3",
 		"lodash-es": "4.17.21",
-		"mem": "8.1.0",
+		"mem": "8.1.1",
 		"nyc": "^15.1.0",
 		"outdent": "^0.8.0",
 		"pify": "^5.0.0",
-		"typescript": "^4.2.3",
+		"typescript": "^4.3.2",
 		"vue-eslint-parser": "^7.6.0",
-		"xo": "^0.40.1"
+		"xo": "^0.41.0"
 	},
 	"peerDependencies": {
-		"eslint": ">=7.23.0"
+		"eslint": ">=7.28.0"
 	},
 	"ava": {
 		"files": [
@@ -103,6 +102,7 @@
 			"eslint-remote-tester-results"
 		],
 		"rules": {
+			"quotes": ["error", "single"],
 			"unicorn/no-null": "error",
 			"unicorn/prevent-abbreviations": [
 				"error",
@@ -114,7 +114,8 @@
 					}
 				}
 			],
-			"import/extensions": "off"
+			"operator-linebreak": "off",
+			"arrow-body-style": "off"
 		},
 		"overrides": [
 			{
@@ -133,6 +134,8 @@
 				"rules": {
 					"strict": "error",
 					"unicorn/prefer-module": "off",
+					"eslint-plugin/require-meta-schema": "off",
+					"eslint-plugin/require-meta-has-suggestions": "off",
 					"eslint-plugin/require-meta-docs-url": "off",
 					"eslint-plugin/require-meta-docs-description": [
 						"error",

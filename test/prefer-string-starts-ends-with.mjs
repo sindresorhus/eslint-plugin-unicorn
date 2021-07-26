@@ -25,7 +25,7 @@ const validRegex = [
 	/^foo/m,
 	/^foo/im,
 	/^A|B/,
-	/A|B$/
+	/A|B$/,
 ];
 
 const invalidRegex = [
@@ -34,7 +34,7 @@ const invalidRegex = [
 	/^!/,
 	/!$/,
 	/^ /,
-	/ $/
+	/ $/,
 ];
 
 test({
@@ -54,7 +54,7 @@ test({
 		'if (foo.match(/^foo/)) {}',
 		'if (/^foo/.exec(foo)) {}',
 
-		...validRegex.map(re => `${re}.test(bar)`)
+		...validRegex.map(re => `${re}.test(bar)`),
 	],
 	invalid: [
 		...invalidRegex.map(re => {
@@ -78,33 +78,33 @@ test({
 					suggestions: [
 						{
 							messageId: FIX_TYPE_STRING_CASTING,
-							output: `String(bar).${method}('${string}')`
+							output: `String(bar).${method}('${string}')`,
 						},
 						{
 							messageId: FIX_TYPE_OPTIONAL_CHAINING,
-							output: `bar?.${method}('${string}')`
+							output: `bar?.${method}('${string}')`,
 						},
 						{
 							messageId: FIX_TYPE_NULLISH_COALESCING,
-							output: `(bar ?? '').${method}('${string}')`
-						}
-					]
-				}]
+							output: `(bar ?? '').${method}('${string}')`,
+						},
+					],
+				}],
 			};
 		}),
 		// String in variable. Don't autofix known, non-strings which don't have a startsWith/endsWith function.
 		{
 			code: 'const foo = {}; /^abc/.test(foo);',
-			errors: [{messageId: MESSAGE_STARTS_WITH}]
+			errors: [{messageId: MESSAGE_STARTS_WITH}],
 		},
 		{
 			code: 'const foo = 123; /^abc/.test(foo);',
-			errors: [{messageId: MESSAGE_STARTS_WITH}]
+			errors: [{messageId: MESSAGE_STARTS_WITH}],
 		},
 		{
 			code: 'const foo = "hello"; /^abc/.test(foo);',
 			output: 'const foo = "hello"; foo.startsWith(\'abc\');',
-			errors: [{messageId: MESSAGE_STARTS_WITH}]
+			errors: [{messageId: MESSAGE_STARTS_WITH}],
 		},
 		// Parenthesized
 		{
@@ -115,18 +115,18 @@ test({
 				suggestions: [
 					{
 						messageId: FIX_TYPE_STRING_CASTING,
-						output: 'String((a)).startsWith(\'b\')'
+						output: 'String((a)).startsWith(\'b\')',
 					},
 					{
 						messageId: FIX_TYPE_OPTIONAL_CHAINING,
-						output: '(a)?.startsWith(\'b\')'
+						output: '(a)?.startsWith(\'b\')',
 					},
 					{
 						messageId: FIX_TYPE_NULLISH_COALESCING,
-						output: '((a) ?? \'\').startsWith(\'b\')'
-					}
-				]
-			}]
+						output: '((a) ?? \'\').startsWith(\'b\')',
+					},
+				],
+			}],
 		},
 		{
 			code: '(/^b/).test((a))',
@@ -136,18 +136,18 @@ test({
 				suggestions: [
 					{
 						messageId: FIX_TYPE_STRING_CASTING,
-						output: '(String((a))).startsWith(\'b\')'
+						output: '(String((a))).startsWith(\'b\')',
 					},
 					{
 						messageId: FIX_TYPE_OPTIONAL_CHAINING,
-						output: '((a))?.startsWith(\'b\')'
+						output: '((a))?.startsWith(\'b\')',
 					},
 					{
 						messageId: FIX_TYPE_NULLISH_COALESCING,
-						output: '((a) ?? \'\').startsWith(\'b\')'
-					}
-				]
-			}]
+						output: '((a) ?? \'\').startsWith(\'b\')',
+					},
+				],
+			}],
 		},
 		{
 			code: 'const fn = async () => /^b/.test(await foo)',
@@ -157,18 +157,18 @@ test({
 				suggestions: [
 					{
 						messageId: FIX_TYPE_STRING_CASTING,
-						output: 'const fn = async () => String(await foo).startsWith(\'b\')'
+						output: 'const fn = async () => String(await foo).startsWith(\'b\')',
 					},
 					{
 						messageId: FIX_TYPE_OPTIONAL_CHAINING,
-						output: 'const fn = async () => (await foo)?.startsWith(\'b\')'
+						output: 'const fn = async () => (await foo)?.startsWith(\'b\')',
 					},
 					{
 						messageId: FIX_TYPE_NULLISH_COALESCING,
-						output: 'const fn = async () => ((await foo) ?? \'\').startsWith(\'b\')'
-					}
-				]
-			}]
+						output: 'const fn = async () => ((await foo) ?? \'\').startsWith(\'b\')',
+					},
+				],
+			}],
 		},
 		{
 			code: 'const fn = async () => (/^b/).test(await foo)',
@@ -178,20 +178,20 @@ test({
 				suggestions: [
 					{
 						messageId: FIX_TYPE_STRING_CASTING,
-						output: 'const fn = async () => (String(await foo)).startsWith(\'b\')'
+						output: 'const fn = async () => (String(await foo)).startsWith(\'b\')',
 					},
 					{
 						messageId: FIX_TYPE_OPTIONAL_CHAINING,
-						output: 'const fn = async () => (await foo)?.startsWith(\'b\')'
+						output: 'const fn = async () => (await foo)?.startsWith(\'b\')',
 					},
 					{
 						messageId: FIX_TYPE_NULLISH_COALESCING,
-						output: 'const fn = async () => ((await foo) ?? \'\').startsWith(\'b\')'
-					}
-				]
-			}]
-		}
-	]
+						output: 'const fn = async () => ((await foo) ?? \'\').startsWith(\'b\')',
+					},
+				],
+			}],
+		},
+	],
 });
 
 test.snapshot({
@@ -247,6 +247,6 @@ test.snapshot({
 				)
 				/* 14 */
 			) /* 15 */
-		`
-	]
+		`,
+	],
 });

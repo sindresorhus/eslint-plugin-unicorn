@@ -30,93 +30,118 @@ test({
 		// `MemberExpression.property` not `Identifier`
 		'throw lib["Error"]()',
 		// Not `FooError` like
-		'throw lib.getError()'
+		'throw lib.getError()',
 	],
 	invalid: [
 		{
 			code: 'throw Error()',
 			output: 'throw new Error()',
-			errors
+			errors,
 		},
 		{
 			code: 'throw (Error)()',
 			output: 'throw new (Error)()',
-			errors
+			errors,
 		},
 		{
 			code: 'throw lib.Error()',
 			output: 'throw new lib.Error()',
-			errors
+			errors,
 		},
 		{
 			code: 'throw lib.mod.Error()',
 			output: 'throw new lib.mod.Error()',
-			errors
+			errors,
 		},
 		{
 			code: 'throw lib[mod].Error()',
 			output: 'throw new lib[mod].Error()',
-			errors
+			errors,
 		},
 		{
 			code: 'throw (lib.mod).Error()',
 			output: 'throw new (lib.mod).Error()',
-			errors
+			errors,
 		},
 		{
 			code: 'throw Error(\'foo\')',
 			output: 'throw new Error(\'foo\')',
-			errors
+			errors,
 		},
 		{
 			code: 'throw CustomError(\'foo\')',
 			output: 'throw new CustomError(\'foo\')',
-			errors
+			errors,
 		},
 		{
 			code: 'throw FooBarBazError(\'foo\')',
 			output: 'throw new FooBarBazError(\'foo\')',
-			errors
+			errors,
 		},
 		{
 			code: 'throw ABCError(\'foo\')',
 			output: 'throw new ABCError(\'foo\')',
-			errors
+			errors,
 		},
 		{
 			code: 'throw Abc3Error(\'foo\')',
 			output: 'throw new Abc3Error(\'foo\')',
-			errors
+			errors,
 		},
 		{
 			code: 'throw TypeError()',
 			output: 'throw new TypeError()',
-			errors
+			errors,
 		},
 		{
 			code: 'throw EvalError()',
 			output: 'throw new EvalError()',
-			errors
+			errors,
 		},
 		{
 			code: 'throw RangeError()',
 			output: 'throw new RangeError()',
-			errors
+			errors,
 		},
 		{
 			code: 'throw ReferenceError()',
 			output: 'throw new ReferenceError()',
-			errors
+			errors,
 		},
 		{
 			code: 'throw SyntaxError()',
 			output: 'throw new SyntaxError()',
-			errors
+			errors,
 		},
 		{
 			code: 'throw URIError()',
 			output: 'throw new URIError()',
-			errors
-		}
-	]
+			errors,
+		},
+		{
+			code: 'throw (( URIError() ))',
+			output: 'throw (( new URIError() ))',
+			errors,
+		},
+		{
+			code: 'throw (( URIError ))()',
+			output: 'throw new (( URIError ))()',
+			errors,
+		},
+		{
+			code: 'throw getGlobalThis().Error()',
+			output: 'throw new (getGlobalThis().Error)()',
+			errors,
+		},
+		{
+			code: 'throw utils.getGlobalThis().Error()',
+			output: 'throw new (utils.getGlobalThis().Error)()',
+			errors,
+		},
+		{
+			code: 'throw (( getGlobalThis().Error ))()',
+			output: 'throw new (( getGlobalThis().Error ))()',
+			errors,
+		},
+	],
 });

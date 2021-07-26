@@ -55,7 +55,7 @@ test.snapshot({
 			if (foo === 1) {}
 			else if (foo === 2 || foo !== 4) {}
 			else if (foo === 3) {}
-		`
+		`,
 	],
 	invalid: [
 		outdent`
@@ -384,8 +384,8 @@ test.snapshot({
 					}
 				}
 			}
-		`
-	]
+		`,
+	],
 });
 
 // `options`
@@ -397,7 +397,7 @@ test.snapshot({
 				else if (foo === 2) {}
 				else if (foo === 3) {}
 			`,
-			options: [{minimumCases: 4}]
+			options: [{minimumCases: 4}],
 		},
 		{
 			code: outdent`
@@ -406,8 +406,8 @@ test.snapshot({
 				else if (foo === 3) {}
 				else {}
 			`,
-			options: [{minimumCases: 4}]
-		}
+			options: [{minimumCases: 4}],
+		},
 	],
 	invalid: [
 		{
@@ -415,7 +415,7 @@ test.snapshot({
 				if (foo === 1) {}
 				else if (foo === 2) {}
 			`,
-			options: [{minimumCases: 2}]
+			options: [{minimumCases: 2}],
 		},
 		{
 			code: outdent`
@@ -423,7 +423,7 @@ test.snapshot({
 				else if (foo === 2) {}
 				else {}
 			`,
-			options: [{minimumCases: 2}]
+			options: [{minimumCases: 2}],
 		},
 		{
 			code: outdent`
@@ -433,7 +433,7 @@ test.snapshot({
 					else if (foo === 3) {}
 				}
 			`,
-			options: [{emptyDefaultCase: 'no-default-comment'}]
+			options: [{emptyDefaultCase: 'no-default-comment'}],
 		},
 		{
 			code: outdent`
@@ -443,7 +443,7 @@ test.snapshot({
 					else if (foo === 3) {}
 				}
 			`,
-			options: [{emptyDefaultCase: 'do-nothing-comment'}]
+			options: [{emptyDefaultCase: 'do-nothing-comment'}],
 		},
 		{
 			code: outdent`
@@ -453,9 +453,9 @@ test.snapshot({
 					else if (foo === 3) {}
 				}
 			`,
-			options: [{emptyDefaultCase: 'no-default-case'}]
-		}
-	]
+			options: [{emptyDefaultCase: 'no-default-case'}],
+		},
+	],
 });
 
 test.typescript({
@@ -468,7 +468,7 @@ test.typescript({
 				else if (foo === 2) {}
 				else if (foo === 3) {break;}
 			`,
-			errors: 1
-		}
-	]
+			errors: 1,
+		},
+	],
 });

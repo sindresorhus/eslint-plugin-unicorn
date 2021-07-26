@@ -1,39 +1,31 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
+const getScopes = require('./utils/get-scopes.js');
 
 const MESSAGE_ID = 'no-unused-properties';
 const messages = {
-	[MESSAGE_ID]: 'Property `{{name}}` is defined but never used.'
+	[MESSAGE_ID]: 'Property `{{name}}` is defined but never used.',
 };
 
-const getDeclaratorOrPropertyValue = declaratorOrProperty => {
-	return declaratorOrProperty.init || declaratorOrProperty.value;
-};
+const getDeclaratorOrPropertyValue = declaratorOrProperty =>
+	declaratorOrProperty.init ||
+	declaratorOrProperty.value;
 
-const isMemberExpressionCall = memberExpression => {
-	return (
-		memberExpression.parent &&
-		memberExpression.parent.type === 'CallExpression' &&
-		memberExpression.parent.callee === memberExpression
-	);
-};
+const isMemberExpressionCall = memberExpression =>
+	memberExpression.parent &&
+	memberExpression.parent.type === 'CallExpression' &&
+	memberExpression.parent.callee === memberExpression;
 
-const isMemberExpressionAssignment = memberExpression => {
-	return (
-		memberExpression.parent &&
-		memberExpression.parent.type === 'AssignmentExpression'
-	);
-};
+const isMemberExpressionAssignment = memberExpression =>
+	memberExpression.parent &&
+	memberExpression.parent.type === 'AssignmentExpression';
 
-const isMemberExpressionComputedBeyondPrediction = memberExpression => {
-	return (
-		memberExpression.computed && memberExpression.property.type !== 'Literal'
-	);
-};
+const isMemberExpressionComputedBeyondPrediction = memberExpression =>
+	memberExpression.computed &&
+	memberExpression.property.type !== 'Literal';
 
 const specialProtoPropertyKey = {
 	type: 'Identifier',
-	name: '__proto__'
+	name: '__proto__',
 };
 
 const propertyKeysEqual = (keyA, keyB) => {
@@ -108,8 +100,8 @@ const create = context => {
 				node: property,
 				messageId: MESSAGE_ID,
 				data: {
-					name: getPropertyDisplayName(property)
-				}
+					name: getPropertyDisplayName(property),
+				},
 			});
 			return;
 		}
@@ -220,26 +212,17 @@ const create = context => {
 		}
 	};
 
-	const checkChildScopes = scope => {
-		for (const childScope of scope.childScopes) {
-			checkScope(childScope);
-		}
-	};
-
-	const checkScope = scope => {
-		if (scope.type === 'global') {
-			return checkChildScopes(scope);
-		}
-
-		checkVariables(scope);
-
-		return checkChildScopes(scope);
-	};
-
 	return {
 		'Program:exit'() {
-			checkScope(context.getScope());
-		}
+			const scopes = getScopes(context.getScope());
+			for (const scope of scopes) {
+				if (scope.type === 'global') {
+					continue;
+				}
+
+				checkVariables(scope);
+			}
+		},
 	};
 };
 
@@ -249,9 +232,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unused object properties.',
-			url: getDocumentationUrl(__filename)
 		},
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

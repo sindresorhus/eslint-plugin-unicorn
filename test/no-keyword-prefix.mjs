@@ -5,15 +5,15 @@ const {test} = getTester(import.meta);
 
 const errorNew = {
 	messageId: 'noKeywordPrefix',
-	data: {keyword: 'new'}
+	data: {keyword: 'new'},
 };
 const errorClass = {
 	messageId: 'noKeywordPrefix',
-	data: {keyword: 'class'}
+	data: {keyword: 'class'},
 };
 const errorIgnoreList = {
 	messageId: 'noKeywordPrefix',
-	data: {keyword: 'old'}
+	data: {keyword: 'old'},
 };
 
 // Most of these test cases copied from:
@@ -51,43 +51,43 @@ test({
 		'function foo({ newBar: _newBar }) {};',
 		{
 			code: 'var foo = {bar: 1}',
-			options: [{checkProperties: true}]
+			options: [{checkProperties: true}],
 		},
 		{
 			code: 'var foo = {_newBar: 1}',
-			options: [{checkProperties: true}]
+			options: [{checkProperties: true}],
 		},
 		{
 			code: 'var foo = {newBar: 1}',
-			options: [{checkProperties: false}]
+			options: [{checkProperties: false}],
 		},
 		{
 			code: 'var foo = {_newBar: 1}',
-			options: [{checkProperties: false}]
+			options: [{checkProperties: false}],
 		},
 		{
 			code: 'foo.newFoo = 2;',
-			options: [{checkProperties: false}]
+			options: [{checkProperties: false}],
 		},
 		{
 			code: 'foo._newFoo = 2;',
-			options: [{checkProperties: true}]
+			options: [{checkProperties: true}],
 		},
 		{
 			code: 'foo._newFoo = 2;',
-			options: [{checkProperties: false}]
+			options: [{checkProperties: false}],
 		},
 		{
 			code: 'var foo = {\n newFoo: 1 \n};\n obj.newBar = 2;',
-			options: [{checkProperties: false}]
+			options: [{checkProperties: false}],
 		},
 		{
 			code: 'foo.newFoo = function(){};',
-			options: [{checkProperties: false}]
+			options: [{checkProperties: false}],
 		},
 		{
 			code: 'const newFoo = "foo"',
-			options: [{disallowedPrefixes: ['old']}]
+			options: [{disallowedPrefixes: ['old']}],
 		},
 		outdent`
 			function Foo() {
@@ -104,171 +104,171 @@ test({
 		'const foo = {new: 1};',
 		{
 			code: 'var foo = {new: 1}',
-			options: [{checkProperties: false}]
-		}
+			options: [{checkProperties: false}],
+		},
 	],
 	invalid: [
 		{
 			code: 'const newFoo = "foo"',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'const classFoo = "foo"',
-			errors: [errorClass]
+			errors: [errorClass],
 		},
 		{
 			code: 'let newFoo = "foo"',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'var newFoo = "foo"',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'function newFoo(){}',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'foo.newFoo = function(){};',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'newFoo.foo = function(){};',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: '[newFoo.baz]',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'if (foo.newFoo === bar.newBar) { [newFoo.foo] }',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'foo.newFoo = bar.newBar',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'var foo = { newFoo: bar.newBar }',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'foo.foo.newFoo = { bar: bar.newBar }',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'var foo = {newFoo: 1}',
 			options: [{checkProperties: true}],
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'foo.newFoo = 2;',
 			options: [{checkProperties: true}],
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'var { newFoo: newBar } = foo;',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'var { [newFoo]: bar } = foo;',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'var { newFoo } = foo;',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'var { newFoo: newFoo } = foo;',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'var { newFoo = 1 } = foo;',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'import newFoo from "external-module";',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'import * as newFoo from "external-module";',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'import { newFoo } from "external-module";',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'import { newFoo as newBar } from "external module";',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'import { foo as newFoo } from "external module";',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'import { foo, newBar } from "external-module";',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'import { newFoo as foo, newBar } from "external-module";',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'import foo, { newBar } from "external-module";',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'import newFoo, { newBar as bar } from "external-module";',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'function foo({ newBar }) {};',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'function foo({ newBar = \'default value\' }) {};',
 			parserOptions: {ecmaVersion: 6},
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'const newFoo = 0; function foo({ newBar = newFoo}) {}',
 			parserOptions: {ecmaVersion: 6},
-			errors: [errorNew, errorNew]
+			errors: [errorNew, errorNew],
 		},
 		{
 			code: 'const { bar: newBar } = foo;',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'function foo({ newBar: newFoo }) {}',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'function foo({ bar: newBar }) {};',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'var { foo: newBar = 1 } = bar;',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'const { newFoo = false } = foo;',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'const { newFoo = newBar } = foo;',
-			errors: [errorNew]
+			errors: [errorNew],
 		},
 		{
 			code: 'const oldFoo = "foo"',
 			options: [{disallowedPrefixes: ['old']}],
-			errors: [errorIgnoreList]
+			errors: [errorIgnoreList],
 		},
 		{
 			code: 'const new_foo = "foo"',
 			options: [{onlyCamelCase: false}],
-			errors: [errorNew]
-		}
-	]
+			errors: [errorNew],
+		},
+	],
 });

@@ -1,6 +1,11 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {matches, methodCallSelector} = require('./selectors');
+const {
+	matches,
+	methodCallSelector,
+	newExpressionSelector,
+	callExpressionSelector,
+} = require('./selectors/index.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID_DEFAULT = 'prefer-date';
 const MESSAGE_ID_METHOD = 'prefer-date-now-over-methods';
@@ -8,95 +13,94 @@ const MESSAGE_ID_NUMBER = 'prefer-date-now-over-number-data-object';
 const messages = {
 	[MESSAGE_ID_DEFAULT]: 'Prefer `Date.now()` over `new Date()`.',
 	[MESSAGE_ID_METHOD]: 'Prefer `Date.now()` over `Date#{{method}}()`.',
-	[MESSAGE_ID_NUMBER]: 'Prefer `Date.now()` over `Number(new Date())`.'
+	[MESSAGE_ID_NUMBER]: 'Prefer `Date.now()` over `Number(new Date())`.',
 };
 
-const createNewDateSelector = path => {
-	const prefix = path ? `${path}.` : '';
-	return [
-		`[${prefix}type="NewExpression"]`,
-		`[${prefix}callee.type="Identifier"]`,
-		`[${prefix}callee.name="Date"]`,
-		`[${prefix}arguments.length=0]`
-	].join('');
-};
-
+const createNewDateSelector = path => newExpressionSelector({path, name: 'Date', argumentsLength: 0});
 const operatorsSelector = (...operators) => matches(operators.map(operator => `[operator="${operator}"]`));
+// `new Date()`
 const newDateSelector = createNewDateSelector();
+// `new Date().{getTime,valueOf}()`
 const methodsSelector = [
 	methodCallSelector({
-		names: ['getTime', 'valueOf'],
-		length: 0
+		methods: ['getTime', 'valueOf'],
+		argumentsLength: 0,
 	}),
-	createNewDateSelector('callee.object')
+	createNewDateSelector('callee.object'),
 ].join('');
+// `{Number,BigInt}(new Date())`
 const builtinObjectSelector = [
-	'CallExpression',
-	'[callee.type="Identifier"]',
-	':matches([callee.name="Number"], [callee.name="BigInt"])',
-	'[arguments.length=1]',
-	createNewDateSelector('arguments.0')
+	callExpressionSelector({names: ['Number', 'BigInt'], argumentsLength: 1}),
+	createNewDateSelector('arguments.0'),
 ].join('');
 // https://github.com/estree/estree/blob/master/es5.md#unaryoperator
 const unaryExpressionsSelector = [
 	'UnaryExpression',
 	operatorsSelector('+', '-'),
-	createNewDateSelector('argument')
+	createNewDateSelector('argument'),
 ].join('');
 const assignmentExpressionSelector = [
 	'AssignmentExpression',
 	operatorsSelector('-=', '*=', '/=', '%=', '**='),
 	'>',
-	`${newDateSelector}.right`
+	`${newDateSelector}.right`,
 ].join('');
 const binaryExpressionSelector = [
 	'BinaryExpression',
 	operatorsSelector('-', '*', '/', '%', '**'),
 	// Both `left` and `right` properties
 	'>',
-	newDateSelector
+	newDateSelector,
 ].join('');
 
-const create = context => {
-	const report = (node, problem) => context.report({
-		node,
-		messageId: MESSAGE_ID_DEFAULT,
-		fix: fixer => fixer.replaceText(node, 'Date.now()'),
-		...problem
-	});
+const getProblem = (node, problem, sourceCode) => ({
+	node,
+	messageId: MESSAGE_ID_DEFAULT,
+	* fix(fixer) {
+		yield fixer.replaceText(node, 'Date.now()');
 
+		if (node.type === 'UnaryExpression') {
+			yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+		}
+	},
+	...problem,
+});
+
+const create = context => {
 	return {
 		[methodsSelector](node) {
 			const method = node.callee.property;
-			report(node, {
+			return getProblem(node, {
 				node: method,
 				messageId: MESSAGE_ID_METHOD,
-				data: {method: method.name}
+				data: {method: method.name},
 			});
 		},
 		[builtinObjectSelector](node) {
 			const {name} = node.callee;
 			if (name === 'Number') {
-				report(node, {
-					messageId: MESSAGE_ID_NUMBER
+				return getProblem(node, {
+					messageId: MESSAGE_ID_NUMBER,
 				});
-			} else {
-				report(node.arguments[0]);
 			}
+
+			return getProblem(node.arguments[0]);
 		},
 		[unaryExpressionsSelector](node) {
-			report(node.operator === '-' ? node.argument : node);
+			return getProblem(
+				node.operator === '-' ? node.argument : node,
+				{},
+				context.getSourceCode(),
+			);
 		},
 		[assignmentExpressionSelector](node) {
-			report(node);
+			return getProblem(node);
 		},
 		[binaryExpressionSelector](node) {
-			report(node);
-		}
+			return getProblem(node);
+		},
 	};
 };
-
-const schema = [];
 
 module.exports = {
 	create,
@@ -104,10 +108,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema,
-		messages
-	}
+		messages,
+	},
 };

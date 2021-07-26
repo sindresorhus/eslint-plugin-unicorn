@@ -1,24 +1,23 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const {methodCallSelector, notDomNodeSelector} = require('./selectors');
+const {methodCallSelector, notDomNodeSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-query-selector';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `.{{replacement}}()` over `.{{method}}()`.'
+	[MESSAGE_ID]: 'Prefer `.{{replacement}}()` over `.{{method}}()`.',
 };
 
 const selector = [
 	methodCallSelector({
-		names: ['getElementById', 'getElementsByClassName', 'getElementsByTagName'],
-		length: 1
+		methods: ['getElementById', 'getElementsByClassName', 'getElementsByTagName'],
+		argumentsLength: 1,
 	}),
-	notDomNodeSelector('callee.object')
+	notDomNodeSelector('callee.object'),
 ].join('');
 
 const forbiddenIdentifierNames = new Map([
 	['getElementById', 'querySelector'],
 	['getElementsByClassName', 'querySelectorAll'],
-	['getElementsByTagName', 'querySelectorAll']
+	['getElementsByTagName', 'querySelectorAll'],
 ]);
 
 const getReplacementForId = value => `#${value}`;
@@ -51,14 +50,14 @@ function * getTemplateLiteralFix(fixer, node, identifierName) {
 		if (identifierName === 'getElementById') {
 			yield fixer.replaceText(
 				templateElement,
-				getReplacementForId(templateElement.value.cooked)
+				getReplacementForId(templateElement.value.cooked),
 			);
 		}
 
 		if (identifierName === 'getElementsByClassName') {
 			yield fixer.replaceText(
 				templateElement,
-				getReplacementForClass(templateElement.value.cooked)
+				getReplacementForClass(templateElement.value.cooked),
 			);
 		}
 	}
@@ -100,7 +99,7 @@ const fix = (node, identifierName, preferredSelector) => {
 	};
 };
 
-const create = context => {
+const create = () => {
 	return {
 		[selector](node) {
 			const method = node.callee.property.name;
@@ -111,16 +110,16 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				data: {
 					replacement: preferredSelector,
-					method
-				}
+					method,
+				},
 			};
 
 			if (canBeFixed(node.arguments[0])) {
 				problem.fix = fix(node, method, preferredSelector);
 			}
 
-			context.report(problem);
-		}
+			return problem;
+		},
 	};
 };
 
@@ -130,10 +129,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

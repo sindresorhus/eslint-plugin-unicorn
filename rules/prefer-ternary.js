@@ -1,13 +1,13 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const avoidCapture = require('./utils/avoid-capture');
-const extendFixRange = require('./utils/extend-fix-range');
-const needsSemicolon = require('./utils/needs-semicolon');
-const isSameReference = require('./utils/is-same-reference');
-const getIndentString = require('./utils/get-indent-string');
-const {getParenthesizedText} = require('./utils/parentheses');
-const shouldAddParenthesesToConditionalExpressionChild = require('./utils/should-add-parentheses-to-conditional-expression-child');
+const avoidCapture = require('./utils/avoid-capture.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
+const isSameReference = require('./utils/is-same-reference.js');
+const getIndentString = require('./utils/get-indent-string.js');
+const {getParenthesizedText} = require('./utils/parentheses.js');
+const shouldAddParenthesesToConditionalExpressionChild = require('./utils/should-add-parentheses-to-conditional-expression-child.js');
+const {extendFixRange} = require('./fix/index.js');
+const getScopes = require('./utils/get-scopes.js');
 
 const messageId = 'prefer-ternary';
 
@@ -16,7 +16,7 @@ const selector = [
 	':not(IfStatement > .alternate)',
 	'[test.type!="ConditionalExpression"]',
 	'[consequent]',
-	'[alternate]'
+	'[alternate]',
 ].join('');
 
 const isTernary = node => node && node.type === 'ConditionalExpression';
@@ -40,11 +40,6 @@ function getNodeBody(node) {
 
 	return node;
 }
-
-const getScopes = scope => [
-	scope,
-	...scope.childScopes.flatMap(scope => getScopes(scope))
-];
 
 const isSingleLineNode = node => node.loc.start.line === node.loc.end.line;
 
@@ -75,16 +70,16 @@ const create = context => {
 			after = ';',
 			consequent,
 			alternate,
-			node
+			node,
 		} = options;
 
 		const {
 			checkThrowStatement,
-			returnFalseIfNotMergeable
+			returnFalseIfNotMergeable,
 		} = {
 			checkThrowStatement: false,
 			returnFalseIfNotMergeable: false,
-			...mergeOptions
+			...mergeOptions,
 		};
 
 		if (!consequent || !alternate || consequent.type !== alternate.type) {
@@ -103,7 +98,7 @@ const create = context => {
 				after,
 				consequent: argument === null ? 'undefined' : argument,
 				alternate: alternate.argument === null ? 'undefined' : alternate.argument,
-				node
+				node,
 			});
 		}
 
@@ -118,7 +113,7 @@ const create = context => {
 				after: `)${after}`,
 				consequent: argument === null ? 'undefined' : argument,
 				alternate: alternate.argument === null ? 'undefined' : alternate.argument,
-				node
+				node,
 			});
 		}
 
@@ -132,7 +127,7 @@ const create = context => {
 				after: `)${after}`,
 				consequent: argument,
 				alternate: alternate.argument,
-				node
+				node,
 			});
 		}
 
@@ -152,7 +147,7 @@ const create = context => {
 				before: `${before}${needBraces ? '{\n{{INDENT_STRING}}' : ''}const {{ERROR_NAME}} = `,
 				after: `;\n{{INDENT_STRING}}throw {{ERROR_NAME}};${needBraces ? '\n}' : ''}`,
 				consequent: argument,
-				alternate: alternate.argument
+				alternate: alternate.argument,
 			};
 		}
 
@@ -170,7 +165,7 @@ const create = context => {
 				after,
 				consequent: right,
 				alternate: alternate.right,
-				node
+				node,
 			});
 		}
 
@@ -191,7 +186,7 @@ const create = context => {
 
 			const result = merge({node, consequent, alternate}, {
 				checkThrowStatement: true,
-				returnFalseIfNotMergeable: true
+				returnFalseIfNotMergeable: true,
 			});
 
 			if (!result) {
@@ -200,7 +195,7 @@ const create = context => {
 
 			const scope = context.getScope();
 
-			context.report({
+			return {
 				node,
 				messageId,
 				* fix(fixer) {
@@ -217,7 +212,7 @@ const create = context => {
 					let generateNewVariables = false;
 					if (type === 'ThrowStatement') {
 						const scopes = getScopes(scope);
-						const errorName = avoidCapture('error', scopes, context.parserOptions.ecmaVersion, isSafeName);
+						const errorName = avoidCapture('error', scopes, isSafeName);
 
 						for (const scope of scopes) {
 							if (!scopeToNamesGeneratedByFixer.has(scope)) {
@@ -251,17 +246,17 @@ const create = context => {
 					if (generateNewVariables) {
 						yield * extendFixRange(fixer, sourceCode.ast.range);
 					}
-				}
-			});
-		}
+				},
+			};
+		},
 	};
 };
 
 const schema = [
 	{
 		enum: ['always', 'only-single-line'],
-		default: 'always'
-	}
+		default: 'always',
+	},
 ];
 
 module.exports = {
@@ -270,12 +265,11 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer ternary expressions over simple `if-else` statements.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
 		schema,
 		messages: {
-			[messageId]: 'This `if` statement can be replaced by a ternary expression.'
-		}
-	}
+			[messageId]: 'This `if` statement can be replaced by a ternary expression.',
+		},
+	},
 };

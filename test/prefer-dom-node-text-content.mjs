@@ -2,36 +2,31 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const errors = [
-	{
-		message: 'Prefer `.textContent` over `.innerText`.'
-	}
-];
-
-test({
+test.snapshot({
 	valid: [
 		'innerText;',
 		'node.textContent;',
 		'node[innerText];',
 		'innerText = true;',
 		'node[\'innerText\'];',
-		'innerText.textContent'
+		'innerText.textContent',
+		'const [innerText] = node;',
+		'[innerText] = node;',
+		'const {[innerText]: text} = node;',
+		'({[innerText]: text} = node);',
+		'const foo = {innerText}',
+		'const foo = {innerText: text}',
 	],
 	invalid: [
-		{
-			code: 'node.innerText;',
-			output: 'node.textContent;',
-			errors
-		},
-		{
-			code: 'node.innerText = \'foo\';',
-			output: 'node.textContent = \'foo\';',
-			errors
-		},
-		{
-			code: 'innerText.innerText;',
-			output: 'innerText.textContent;',
-			errors
-		}
-	]
+		'node.innerText;',
+		'node.innerText = \'foo\';',
+		'innerText.innerText;',
+		'const {innerText} = node;',
+		'const {innerText,} = node;',
+		'const {innerText: text} = node;',
+		'({innerText} = node);',
+		'({innerText: text} = node);',
+		'function foo({innerText}) {return innerText}',
+		'for (const [{innerText}] of elements);',
+	],
 });

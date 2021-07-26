@@ -11,7 +11,7 @@ function appendArgument(fixer, node, text, sourceCode) {
 
 	const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
 	if (node.arguments.length > 0) {
-		text = isCommaToken(penultimateToken) ? `${text},` : `, ${text}`;
+		text = isCommaToken(penultimateToken) ? ` ${text},` : `, ${text}`;
 	}
 
 	return fixer.insertTextBefore(lastToken, text);

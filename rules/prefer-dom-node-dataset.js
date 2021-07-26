@@ -1,20 +1,19 @@
 'use strict';
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const isValidVariableName = require('./utils/is-valid-variable-name');
-const quoteString = require('./utils/quote-string');
-const {methodCallSelector} = require('./selectors');
+const isValidVariableName = require('./utils/is-valid-variable-name.js');
+const quoteString = require('./utils/quote-string.js');
+const {methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-dom-node-dataset';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `.dataset` over `setAttribute(…)`.'
+	[MESSAGE_ID]: 'Prefer `.dataset` over `setAttribute(…)`.',
 };
 
 const selector = [
 	methodCallSelector({
-		name: 'setAttribute',
-		length: 2
+		method: 'setAttribute',
+		argumentsLength: 2,
 	}),
-	'[arguments.0.type="Literal"]'
+	'[arguments.0.type="Literal"]',
 ].join('');
 
 const parseNodeText = (context, argument) => context.getSourceCode().getText(argument);
@@ -22,16 +21,16 @@ const parseNodeText = (context, argument) => context.getSourceCode().getText(arg
 const dashToCamelCase = string => string.replace(/-[a-z]/g, s => s[1].toUpperCase());
 
 const fix = (context, node, fixer) => {
-	let [name, value] = node.arguments;
+	const [nameNode, valueNode] = node.arguments;
 	const calleeObject = parseNodeText(context, node.callee.object);
 
-	name = dashToCamelCase(name.value.slice(5));
-	value = parseNodeText(context, value);
+	const name = dashToCamelCase(nameNode.value.slice(5));
+	const value = parseNodeText(context, valueNode);
 
 	const replacement = `${calleeObject}.dataset${
 		isValidVariableName(name) ?
 			`.${name}` :
-			`[${quoteString(name)}]`
+			`[${quoteString(name, nameNode.raw.charAt(0))}]`
 	} = ${value}`;
 
 	return fixer.replaceText(node, replacement);
@@ -46,12 +45,12 @@ const create = context => {
 				return;
 			}
 
-			context.report({
+			return {
 				node,
 				messageId: MESSAGE_ID,
-				fix: fixer => fix(context, node, fixer)
-			});
-		}
+				fix: fixer => fix(context, node, fixer),
+			};
+		},
 	};
 };
 
@@ -61,10 +60,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `.dataset` on DOM elements over `.setAttribute(…)`.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };

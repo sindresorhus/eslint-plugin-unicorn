@@ -7,49 +7,61 @@ This rule is fixable.
 ## Fail
 
 ```js
-const foo = bar.flatMap(x => x);
+const foo = array.flatMap(x => x);
 ```
 
 ```js
-const foo = bar.reduce((a, b) => a.concat(b), []);
+const foo = array.reduce((a, b) => a.concat(b), []);
 ```
 
 ```js
-const foo = bar.reduce((a, b) => [...a, ...b], []);
+const foo = array.reduce((a, b) => [...a, ...b], []);
 ```
 
 ```js
-const foo = [].concat(bar);
+const foo = [].concat(maybeArray);
 ```
 
 ```js
-const foo = [].concat(...bar);
+const foo = [].concat(...array);
 ```
 
 ```js
-const foo = [].concat.apply([], bar);
+const foo = [].concat.apply([], array);
 ```
 
 ```js
-const foo = Array.prototype.concat.apply([], bar);
+const foo = Array.prototype.concat.apply([], array);
 ```
 
 ```js
-const foo = _.flatten(bar);
+const foo = Array.prototype.concat.call([], maybeArray);
 ```
 
 ```js
-const foo = lodash.flatten(bar);
+const foo = Array.prototype.concat.call([], ...array);
 ```
 
 ```js
-const foo = underscore.flatten(bar);
+const foo = _.flatten(array);
+```
+
+```js
+const foo = lodash.flatten(array);
+```
+
+```js
+const foo = underscore.flatten(array);
 ```
 
 ## Pass
 
 ```js
-const foo = bar.flat();
+const foo = array.flat();
+```
+
+```js
+const foo = [maybeArray].flat();
 ```
 
 ## Options
@@ -61,6 +73,8 @@ Type: `object`
 Type: `string[]`
 
 You can also check custom functions that flatten arrays.
+
+`_.flatten()`, `lodash.flatten()`, and `underscore.flatten()` are checked by default.
 
 Example:
 
@@ -82,3 +96,7 @@ Example:
 // eslint unicorn/prefer-array-flat: ["error", {"functions": ["utils.flat"]}]
 const foo = utils.flat(bar); // Fails
 ```
+
+## Related rules
+
+- [unicorn/prefer-array-flat-map](./prefer-array-flat-map.md)

@@ -79,7 +79,7 @@ function snapshotTests({method, replacement}) {
 			`foo.${method}(function(x) {return x === this.length})`,
 
 			// Already valid case
-			`foo.${replacement}(0)`
+			`foo.${replacement}(0)`,
 		],
 
 		invalid: [
@@ -121,8 +121,8 @@ function snapshotTests({method, replacement}) {
 						return a(this) === arguments[1]
 					}).call(thisObject, anotherFunctionNamedA, secondArgument)
 				})
-			`
-		]
+			`,
+		],
 	};
 }
 
@@ -141,16 +141,16 @@ function typescriptTests({method, replacement}) {
 						return (bar as string).${replacement}("foo");
 					}
 				`,
-				errors: 1
-			}
-		]
+				errors: 1,
+			},
+		],
 	};
 }
 
 function tests(options) {
 	return {
 		snapshot: snapshotTests(options),
-		typescript: typescriptTests(options)
+		typescript: typescriptTests(options),
 	};
 }
 

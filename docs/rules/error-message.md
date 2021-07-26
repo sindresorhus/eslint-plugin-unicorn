@@ -18,20 +18,20 @@ throw new TypeError();
 ```
 
 ```js
-const error = new Error();
+const error = new AggregateError(errors);
 ```
 
 
 ## Pass
 
 ```js
-throw Error('Foo');
+throw Error('Unexpected property.');
 ```
 
 ```js
-throw new TypeError('Foo');
+throw new TypeError('Array expected.');
 ```
 
 ```js
-const error = new Error('Foo');
+const error = new AggregateError(errors, 'Promises rejected.');
 ```

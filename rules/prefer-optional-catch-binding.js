@@ -1,19 +1,18 @@
 'use strict';
 const {isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url');
-const assertToken = require('./utils/assert-token');
+const assertToken = require('./utils/assert-token.js');
 
 const MESSAGE_ID_WITH_NAME = 'with-name';
 const MESSAGE_ID_WITHOUT_NAME = 'without-name';
 const messages = {
 	[MESSAGE_ID_WITH_NAME]: 'Remove unused catch binding `{{name}}`.',
-	[MESSAGE_ID_WITHOUT_NAME]: 'Remove unused catch binding.'
+	[MESSAGE_ID_WITHOUT_NAME]: 'Remove unused catch binding.',
 };
 
 const selector = [
 	'CatchClause',
 	' > ',
-	'.param'
+	'.param',
 ].join('');
 
 const create = context => {
@@ -27,7 +26,7 @@ const create = context => {
 
 			const {type, name, parent} = node;
 
-			context.report({
+			return {
 				node,
 				messageId: type === 'Identifier' ? MESSAGE_ID_WITH_NAME : MESSAGE_ID_WITHOUT_NAME,
 				data: {name},
@@ -36,14 +35,14 @@ const create = context => {
 					assertToken(tokenBefore, {
 						test: isOpeningParenToken,
 						expected: '(',
-						ruleId: 'prefer-optional-catch-binding'
+						ruleId: 'prefer-optional-catch-binding',
 					});
 
 					const tokenAfter = context.getTokenAfter(node);
 					assertToken(tokenAfter, {
 						test: isClosingParenToken,
 						expected: ')',
-						ruleId: 'prefer-optional-catch-binding'
+						ruleId: 'prefer-optional-catch-binding',
 					});
 
 					yield fixer.remove(tokenBefore);
@@ -57,9 +56,9 @@ const create = context => {
 					if (leadingSpacesLength !== 0) {
 						yield fixer.removeRange([endOfClosingParenthesis, endOfClosingParenthesis + leadingSpacesLength]);
 					}
-				}
-			});
-		}
+				},
+			};
+		},
 	};
 };
 
@@ -69,10 +68,8 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer omitting the `catch` binding parameter.',
-			url: getDocumentationUrl(__filename)
 		},
 		fixable: 'code',
-		schema: [],
-		messages
-	}
+		messages,
+	},
 };
