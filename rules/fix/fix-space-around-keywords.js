@@ -57,8 +57,8 @@ const isProblematicToken = ({type, value}) => {
 	);
 };
 
-function * fixSpaceAroundKeyword(fixer, node, sourceCode, includeParenthesis) {
-	const range = includeParenthesis ? getParenthesizedRange(node, sourceCode) : node.range;
+function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
+	const range = getParenthesizedRange(node, sourceCode);
 	const tokenBefore = sourceCode.getTokenBefore({range}, {includeComments: true});
 
 	if (
