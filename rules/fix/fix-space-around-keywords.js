@@ -73,7 +73,7 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 
 	if (
 		tokenAfter &&
-		range[1] === tokenAfter.range[0] - 1 &&
+		range[1] === tokenAfter.range[0] &&
 		isProblematicToken(tokenAfter)
 	) {
 		yield fixer.insertTextBefore(tokenAfter, ' ');
