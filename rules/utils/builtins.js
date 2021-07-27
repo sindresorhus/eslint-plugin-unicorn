@@ -17,6 +17,8 @@ const enforceNew = [
 	'RegExp',
 	'SharedArrayBuffer',
 	'Proxy',
+	'WeakRef',
+	'FinalizationRegistry',
 	...typedArray,
 ];
 
