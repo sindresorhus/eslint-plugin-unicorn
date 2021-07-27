@@ -1,55 +1,9 @@
 'use strict';
 const {getParenthesizedRange} = require('../utils/parentheses.js');
 
-const problematicKeywordTokens = new Set([
-	// ReturnStatement
-	'return',
-
-	// ThrowStatement
-	'throw',
-
-	// AwaitExpression
-	'await',
-
-	// YieldExpression
-	'yield',
-
-	// UnaryExpression
-	'typeof',
-	'void',
-	'delete',
-
-	// BinaryExpression
-	'in',
-	'instanceof',
-
-	// ExportDefaultDeclaration
-	'default',
-
-	// IfStatement
-	'else',
-
-	// DoWhileStatement
-	'do',
-
-	// SwitchCase
-	'case',
-
-	// VariableDeclarator
-	'var',
-	'let',
-	'const',
-
-	// ForInStatement
-	'in',
-
-	// ClassDeclaration & ClassExpression
-	'extends',
-]);
-
 const isProblematicToken = ({type, value}) => {
 	return (
-		(type === 'Keyword' && problematicKeywordTokens.has(value)) ||
+		(type === 'Keyword' && /^[a-z]*$/.test(value)) ||
 		// ForOfStatement
 		(type === 'Identifier' && value === 'of') ||
 		// AwaitExpression
