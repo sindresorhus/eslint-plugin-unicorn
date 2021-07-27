@@ -1,191 +1,82 @@
 'use strict';
+const {getParenthesizedRange} = require('../utils/parentheses.js');
 
-const isKeywordToken = keyword => ({type, value}) => type === 'Keyword' && value === keyword;
+const problematicKeywordTokens = new Set([
+	// ReturnStatement
+	'return',
 
-function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
-	const {parent} = node;
-	const keywords = [];
+	// ThrowStatement
+	'throw',
 
-	switch (parent.type) {
-		case 'YieldExpression':
-			if (parent.delegate) {
-				break;
-			}
-			// Fallthrough
+	// AwaitExpression
+	'await',
 
-		case 'ReturnStatement':
-		case 'ThrowStatement':
-		case 'AwaitExpression': {
-			/* istanbul ignore else */
-			if (parent.argument === node) {
-				keywords.push({
-					keyword: sourceCode.getFirstToken(parent),
-					side: 'after',
-				});
-			}
+	// YieldExpression
+	'yield',
 
-			break;
-		}
+	// UnaryExpression
+	'typeof',
+	'void',
+	'delete',
 
-		case 'UnaryExpression': {
-			const {operator, prefix, argument: unaryExpressionArgument} = parent;
-			/* istanbul ignore else */
-			if (
-				(
-					operator === 'typeof' ||
-					operator === 'void' ||
-					operator === 'delete'
-				) &&
-				prefix &&
-				unaryExpressionArgument === node
-			) {
-				keywords.push({
-					keyword: sourceCode.getFirstToken(parent),
-					side: 'after',
-				});
-			}
+	// BinaryExpression
+	'in',
+	'instanceof',
 
-			break;
-		}
+	// ExportDefaultDeclaration
+	'default',
 
-		case 'BinaryExpression': {
-			const {operator, left} = parent;
-			/* istanbul ignore else */
-			if (
-				operator === 'in' ||
-				operator === 'instanceof'
-			) {
-				keywords.push({
-					keyword: sourceCode.getTokenAfter(left, {filter: isKeywordToken(operator)}),
-					side: left === node ? 'before' : 'after',
-				});
-			}
+	// IfStatement
+	'else',
 
-			break;
-		}
+	// DoWhileStatement
+	'do',
 
-		case 'ExportDefaultDeclaration': {
-			/* istanbul ignore else */
-			if (parent.declaration === node) {
-				keywords.push({
-					keyword: sourceCode.getFirstToken(parent, {filter: isKeywordToken('default')}),
-					side: 'after',
-				});
-			}
+	// SwitchCase
+	'case',
 
-			break;
-		}
+	// VariableDeclarator
+	'var',
+	'let',
+	'const',
 
-		case 'ExpressionStatement': {
-			/* istanbul ignore else */
-			if (parent.expression === node) {
-				yield * fixSpaceAroundKeyword(fixer, parent, sourceCode);
-				return;
-			}
+	// ForInStatement
+	'in',
 
-			/* istanbul ignore next */
-			break;
-		}
+	// ClassDeclaration & ClassExpression
+	'extends',
+]);
 
-		case 'IfStatement': {
-			/* istanbul ignore else */
-			if (parent.alternate === node) {
-				keywords.push({
-					keyword: sourceCode.getTokenBefore(node, {filter: isKeywordToken('else')}),
-					side: 'after',
-				});
-			}
+const isProblematicToken = ({type, value}) => {
+	return (
+		(type === 'Keyword' && problematicKeywordTokens.has(value)) ||
+		// ForOfStatement
+		(type === 'Identifier' && value === 'of') ||
+		// AwaitExpression
+		(type === 'Identifier' && value === 'await')
+	);
+};
 
-			break;
-		}
+function * fixSpaceAroundKeyword(fixer, node, sourceCode, includeParenthesis) {
+	const range = includeParenthesis ? getParenthesizedRange(node, sourceCode) : node.range;
+	const tokenBefore = sourceCode.getTokenBefore({range}, {includeComments: true});
 
-		case 'DoWhileStatement': {
-			/* istanbul ignore else */
-			if (parent.body === node) {
-				keywords.push({
-					keyword: sourceCode.getFirstToken(parent),
-					side: 'after',
-				});
-			}
-
-			break;
-		}
-
-		case 'SwitchCase': {
-			/* istanbul ignore else */
-			if (parent.test === node) {
-				keywords.push({
-					keyword: sourceCode.getTokenBefore(node, {filter: isKeywordToken('case')}),
-					side: 'after',
-				});
-			}
-
-			break;
-		}
-
-		case 'VariableDeclarator': {
-			const grandParent = parent.parent;
-			if (
-				grandParent.type === 'VariableDeclaration' &&
-				grandParent.declarations[0] === parent
-			) {
-				keywords.push({
-					keyword: sourceCode.getFirstToken(grandParent),
-					side: 'after',
-				});
-			}
-
-			break;
-		}
-
-		case 'ForOfStatement': {
-			// Note: Other keywords and children not handled, because not using
-			if (parent.right === node) {
-				keywords.push({
-					keyword: sourceCode.getTokenBefore(node, {filter: ({type, value}) => type === 'Identifier' && value === 'of'}),
-					side: 'after',
-				});
-			}
-
-			break;
-		}
-
-		case 'ForInStatement': {
-			// Note: Other keywords and children not handled, because not using
-			if (parent.right === node) {
-				keywords.push({
-					keyword: sourceCode.getTokenBefore(node, {filter: isKeywordToken('in')}),
-					side: 'after',
-				});
-			}
-
-			break;
-		}
-
-		case 'ClassDeclaration':
-		case 'ClassExpression': {
-			/* istanbul ignore else */
-			if (parent.superClass === node) {
-				keywords.push({
-					keyword: sourceCode.getTokenBefore(node, {filter: isKeywordToken('extends')}),
-					side: 'after',
-				});
-			}
-
-			break;
-		}
-
-		// No default
+	if (
+		tokenBefore &&
+		range[0] === tokenBefore.range[1] &&
+		isProblematicToken(tokenBefore)
+	) {
+		yield fixer.insertTextAfter(tokenBefore, ' ');
 	}
 
-	for (const {keyword, side} of keywords) {
-		const characterIndex = side === 'before' ?
-			keyword.range[0] - 1 :
-			keyword.range[1];
+	const tokenAfter = sourceCode.getTokenAfter({range}, {includeComments: true});
 
-		if (sourceCode.text.charAt(characterIndex) !== ' ') {
-			yield fixer[side === 'before' ? 'insertTextBefore' : 'insertTextAfter'](keyword, ' ');
-		}
+	if (
+		tokenAfter &&
+		range[1] === tokenAfter.range[0] - 1 &&
+		isProblematicToken(tokenAfter)
+	) {
+		yield fixer.insertTextBefore(tokenAfter, ' ');
 	}
 }
 
