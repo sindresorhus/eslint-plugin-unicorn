@@ -126,6 +126,7 @@ const tests = {
 		'(class C {})',
 		'class C {}',
 		'const i18n = new I18n({ locales: ["en", "fr"] })',
+		'const i18nData = {}',
 		'const l10n = new L10n()',
 		outdent`
 			(class {

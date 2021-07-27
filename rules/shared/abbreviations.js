@@ -232,10 +232,6 @@ module.exports.defaultAllowList = {
 	// Next.js function
 	// https://nextjs.org/learn/basics/fetching-data-for-pages
 	getInitialProps: true,
-	// Internationalization and localization
-	// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1188
-	i18n: true,
-	l10n: true,
 	// React PropTypes
 	// https://reactjs.org/docs/typechecking-with-proptypes.html
 	propTypes: true,
@@ -243,3 +239,10 @@ module.exports.defaultAllowList = {
 	// https://jestjs.io/docs/en/configuration#setupfilesafterenv-array
 	setupFilesAfterEnv: true,
 };
+
+module.exports.defaultIgnore = [
+	// Internationalization and localization
+	// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1188
+	'i18n',
+	'l10n'
+];
