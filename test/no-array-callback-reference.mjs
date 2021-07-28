@@ -118,6 +118,12 @@ test({
 				.limit(params.limit + 1)
 				.toArray()
 		`,
+
+		outdent`
+			const EventsStore = types.model('EventsStore', {
+				events: types.optional(types.map(Event), {}),
+			})
+		`,
 	],
 	invalid: [
 		// Suggestions
