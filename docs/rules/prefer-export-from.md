@@ -17,18 +17,18 @@ export {named};
 ```
 
 ```js
+import * as namespace from './foo.js';
+export {namespace};
+```
+
+```js
 import defaultExport, {named} from './foo.js';
+export default defaultExport;
 export {
-	defaultExport as default,
 	defaultExport as renamedDefault,
 	named,
 	named as renamedNamed,
 };
-```
-
-```js
-import * as namespace from './foo.js';
-export {namespace};
 ```
 
 ## Pass
@@ -46,16 +46,16 @@ export * as namespace from './foo.js';
 ```
 
 ```js
-// There is no substitute
-import * as namespace from './foo.js';
-export default namespace;
-```
-
-```js
 export {
 	default,
 	default as renamedDefault,
 	named,
 	named as renamedNamed,
 } from './foo.js';
+```
+
+```js
+// There is no substitute
+import * as namespace from './foo.js';
+export default namespace;
 ```

@@ -4,6 +4,7 @@ const {
 	isOpeningBraceToken,
 	isClosingBraceToken,
 } = require('eslint-utils');
+
 const MESSAGE_ID = 'prefer-export-from';
 const messages = {
 	[MESSAGE_ID]: 'Use `export…from` syntax to re-export `{{imported}}`.',
