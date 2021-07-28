@@ -93,6 +93,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-dom-node-dataset": "error",
 			"unicorn/prefer-dom-node-remove": "error",
 			"unicorn/prefer-dom-node-text-content": "error",
+			"unicorn/prefer-export-from": "error",
 			"unicorn/prefer-includes": "error",
 			"unicorn/prefer-keyboard-event-key": "error",
 			"unicorn/prefer-math-trunc": "error",
@@ -210,6 +211,7 @@ Each rule has emojis denoting:
 | [prefer-dom-node-dataset](docs/rules/prefer-dom-node-dataset.md) | Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. | ✅ | 🔧 |  |
 | [prefer-dom-node-remove](docs/rules/prefer-dom-node-remove.md) | Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`. | ✅ | 🔧 | 💡 |
 | [prefer-dom-node-text-content](docs/rules/prefer-dom-node-text-content.md) | Prefer `.textContent` over `.innerText`. | ✅ |  | 💡 |
+| [prefer-export-from](docs/rules/prefer-export-from.md) | Prefer `export…from` syntax when re-exporting. | ✅ | 🔧 |  |
 | [prefer-includes](docs/rules/prefer-includes.md) | Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence. | ✅ | 🔧 | 💡 |
 | [prefer-keyboard-event-key](docs/rules/prefer-keyboard-event-key.md) | Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. | ✅ | 🔧 |  |
 | [prefer-math-trunc](docs/rules/prefer-math-trunc.md) | Enforce the use of `Math.trunc` instead of bitwise operators. | ✅ | 🔧 | 💡 |
