@@ -30,8 +30,8 @@ function * removeSpecifier(node, options) {
 			const hasOtherSpecifiers = specifiers.some(specifier => specifier !== node && specifier.type === node.type);
 			if (!hasOtherSpecifiers) {
 				const closingBraceToken = sourceCode.getTokenAfter(node, isClosingBraceToken);
-				// If there are other specifiers, they have to be default or namespace import/export
-				// And default or namespace import/export has to write before the named import/export
+				// If there are other specifiers, they have to be default import/export
+				// And default import/export has to write before the named import/export
 				// So there must be a comma before
 				const commaToken = sourceCode.getTokenBefore(node, isCommaToken);
 				yield fixer.replaceTextRange([commaToken.range[0], closingBraceToken.range[1]], '');
@@ -103,17 +103,15 @@ function fix({
 			const specifiers = exported.map(({name}) => name === imported.name ? name : `${imported.name} as ${name}`)
 				.join(',');
 
-			if (exportDeclaration && exportDeclaration.specifiers.every(({type}) => type === 'ExportSpecifier')) {
+			if (exportDeclaration) {
 				const lastSpecifier = exportDeclaration.specifiers[exportDeclaration.specifiers.length - 1];
 
 				// `export {} from 'foo';`
-				if (!lastSpecifier) {
-					const openingBraceToken = sourceCode.getFirstToken(exportDeclaration, isOpeningBraceToken);
-					yield fixer.insertTextAfter(openingBraceToken, specifiers);
-				} else if (lastSpecifier.type === 'ExportSpecifier') {
+				if (lastSpecifier) {
 					yield fixer.insertTextAfter(lastSpecifier, `, ${specifiers}`);
 				} else {
-					yield fixer.insertTextAfter(lastSpecifier, `, {${specifiers}}`);
+					const openingBraceToken = sourceCode.getFirstToken(exportDeclaration, isOpeningBraceToken);
+					yield fixer.insertTextAfter(openingBraceToken, specifiers);
 				}
 			} else {
 				yield fixer.insertTextAfter(
@@ -186,6 +184,7 @@ function getExported(identifier, context) {
 				parent.init === identifier &&
 				parent.id.type === 'Identifier' &&
 				parent.parent.type === 'VariableDeclaration' &&
+				parent.parent.kind === 'const' &&
 				parent.parent.declarations.length === 1 &&
 				parent.parent.declarations[0] === parent &&
 				parent.parent.parent.type === 'ExportNamedDeclaration' &&
@@ -281,7 +280,8 @@ function create(context) {
 				variables: context.getDeclaredVariables(node),
 			});
 		},
-		':matches(ExportNamedDeclaration,ExportDefaultDeclaration)[source][source.type="Literal"]'(node) {
+		// `ExportAllDeclaration` and `ExportDefaultDeclaration` can't be reused
+		'ExportNamedDeclaration[source.type="Literal"]'(node) {
 			exportDeclarations.push(node);
 		},
 		* 'Program:exit'(program) {

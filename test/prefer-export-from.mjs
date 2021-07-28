@@ -5,6 +5,33 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		'import "foo";',
+		'import {} from "foo";',
+		'import * as namespace from "foo";',
+		'import defaultExport from "foo";',
+		'import {named} from "foo";',
+		outdent`
+			const named = import(foo);
+			export {named};
+		`,
+		'export * from "foo";',
+		'export {default} from "foo";',
+		'export {named} from "foo";',
+		outdent`
+			const defaultExport = require('foo');
+			export default defaultExport;
+		`,
+
+		// Variable is not `const`
+		outdent`
+			import defaultExport from 'foo';
+			export var variable = defaultExport;
+		`,
+		outdent`
+			import defaultExport from 'foo';
+			export let variable = defaultExport;
+		`,
+
 		// Exported variable is reused
 		outdent`
 			import defaultExport from 'foo';
@@ -155,6 +182,11 @@ test.snapshot({
 		outdent`
 			import foo from 'foo';
 			export {foo};
+			export {bar,} from 'foo';
+		`,
+		outdent`
+			import foo from 'foo';
+			export {foo};
 			export {} from 'foo';
 		`,
 		outdent`
@@ -181,14 +213,35 @@ test.snapshot({
 			export {named2};
 			export {defaultExport};
 		`,
-		// Variable is not `const`
 		outdent`
-			import defaultExport from 'foo';
-			export var variable = defaultExport;
+			import * as foo from 'foo';
+			import * as bar from 'foo';
+			export {foo, bar};
+		`,
+		outdent`
+			import * as foo from 'foo';
+			export {foo, foo as bar};
 		`,
 		outdent`
 			import defaultExport from 'foo';
-			export let variable = defaultExport;
+			export * from 'foo';
+			export default defaultExport;
+		`,
+		outdent`
+			import defaultExport from 'foo';
+			export {named} from 'foo';
+			export * from 'foo';
+			export default defaultExport;
+		`,
+		outdent`
+			import defaultExport from './foo.js';
+			export {named} from './foo.js';
+			export default defaultExport;
+		`,
+		outdent`
+			import defaultExport from './foo.js';
+			export {named} from './foo.js?query';
+			export default defaultExport;
 		`,
 	],
 });
