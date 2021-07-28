@@ -154,7 +154,7 @@ function fixReduceAssignOrSpread({sourceCode, node, property}) {
 	}
 
 	return function * (fixer) {
-		// Wrap `array.reduce()` with `Object.fromEntries()`,
+		// Wrap `array.reduce()` with `Object.fromEntries()`
 		yield fixer.insertTextBefore(node, 'Object.fromEntries(');
 		yield fixer.insertTextAfter(node, ')');
 
@@ -185,8 +185,8 @@ function create(context) {
 
 	for (const {selector, test, getProperty} of fixableArrayReduceCases) {
 		listeners[selector] = function (node) {
-			// If this listener exit without adding fix, the `arrayReduceWithEmptyObject` listener
-			// should still add it into the `arrayReduce` map, to be safer, add it here too
+			// If this listener exits without adding a fix, the `arrayReduceWithEmptyObject` listener
+			// should still add it into the `arrayReduce` map. To be safer, add it here too.
 			arrayReduce.set(node, undefined);
 
 			const [callbackFunction] = node.arguments;
