@@ -55,7 +55,7 @@ export {
 ```
 
 ```js
-// There is no substitute
+// There is no substitution
 import * as namespace from './foo.js';
 export default namespace;
 ```

@@ -242,7 +242,7 @@ function getProblem({
 	const imported = getImported(identifier);
 
 	/*
-	There is no substitute for
+	There is no substitution for
 	```js
 	import * as foo from 'foo';
 	export default foo;
