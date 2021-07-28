@@ -1,5 +1,9 @@
 'use strict';
-const {isCommaToken, isOpeningBraceToken, isClosingBraceToken} = require('eslint-utils');
+const {
+	isCommaToken,
+	isOpeningBraceToken,
+	isClosingBraceToken,
+} = require('eslint-utils');
 const MESSAGE_ID = 'prefer-export-from';
 const messages = {
 	[MESSAGE_ID]: 'Use `export from` syntax to re-export `{{imported}}`.',
@@ -74,10 +78,10 @@ function * removeImportOrExport(node, options) {
 
 function fix({
 	context,
-	exportDeclarations,
-	importDeclaration,
 	imported,
+	importDeclaration,
 	exported,
+	exportDeclarations,
 	program,
 }) {
 	const sourceCode = context.getSourceCode();
@@ -127,7 +131,7 @@ function fix({
 		}
 
 		const nodes = new Set([imported.node, ...exported.map(({node}) => node)]);
-		// This cache to prevent removing specifiers one by one and leave an empty `export {}`
+		// Add this cache to prevent removing specifiers one by one and leave an empty `export {}`
 		const removedSpecifiers = new Set();
 		for (const node of nodes) {
 			if (removedSpecifiers.has(node)) {
@@ -152,19 +156,20 @@ function getImported(identifier) {
 				node: parent,
 				name: 'default',
 			};
+
 		case 'ImportSpecifier':
 			return {
 				node: parent,
 				name: parent.imported.name,
 			};
+
 		case 'ImportNamespaceSpecifier':
 			return {
 				node: parent,
 				name: '*',
 			};
-		default:
-			console.log(parent);
-			throw new Error('unexpected2');
+
+		// No default
 	}
 }
 
@@ -176,12 +181,14 @@ function getExported(identifier, context) {
 				node: parent,
 				name: 'default',
 			};
+
 		case 'ExportSpecifier':
 			return {
 				node: parent,
 				name: parent.exported.name,
 			};
-		case 'VariableDeclarator':
+
+		case 'VariableDeclarator': {
 			if (
 				parent.init === identifier &&
 				parent.id.type === 'Identifier' &&
@@ -189,21 +196,25 @@ function getExported(identifier, context) {
 				parent.parent.declarations.length === 1 &&
 				parent.parent.declarations[0] === parent &&
 				parent.parent.parent.type === 'ExportNamedDeclaration' &&
-				isVariableNotUsed(parent, context)
+				isVariableUnused(parent, context)
 			) {
 				return {
 					node: parent.parent.parent,
-					name: parent.id.name};
+					name: parent.id.name,
+				};
 			}
 
 			break;
+		}
 
 		// No default
 	}
 }
 
-function isVariableNotUsed(node, context) {
+function isVariableUnused(node, context) {
 	const variables = context.getDeclaredVariables(node);
+
+	/* istanbul ignore next */
 	if (variables.length !== 1) {
 		return false;
 	}
@@ -222,18 +233,19 @@ function getProblem({
 	program,
 	exportDeclarations,
 }) {
-	const {
-		identifiers,
-		references,
-	} = variable;
+	const {identifiers, references} = variable;
 
+	if (identifiers.length !== 1 || references.length === 0) {
+		return;
+	}
+
+	const [identifier] = identifiers;
 	const exported = references.map(({identifier}) => getExported(identifier, context));
 
 	if (!exported.every(Boolean)) {
 		return;
 	}
 
-	const [identifier] = identifiers;
 	const imported = getImported(identifier);
 
 	/*
@@ -255,10 +267,10 @@ function getProblem({
 		},
 		fix: fix({
 			context,
-			exportDeclarations,
 			imported,
-			exported,
 			importDeclaration,
+			exported,
+			exportDeclarations,
 			program,
 		}),
 	};
@@ -282,21 +294,12 @@ function create(context) {
 		* 'Program:exit'(program) {
 			for (const {node: importDeclaration, variables} of importDeclarations) {
 				for (const variable of variables) {
-					const {
-						identifiers,
-						references,
-					} = variable;
-
-					if (identifiers.length !== 1 || references.length === 0) {
-						continue;
-					}
-
 					const problem = getProblem({
 						context,
 						variable,
 						importDeclaration,
-						program,
 						exportDeclarations,
+						program,
 					});
 
 					if (problem) {
