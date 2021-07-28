@@ -26,13 +26,13 @@ function * removeSpecifier(node, options) {
 	}
 
 	switch (node.type) {
-		case 'ExportSpecifier':
 		case 'ImportSpecifier': {
 			const hasOtherSpecifiers = specifiers.some(specifier => specifier !== node && specifier.type === node.type);
 			if (!hasOtherSpecifiers) {
 				const closingBraceToken = sourceCode.getTokenAfter(node, isClosingBraceToken);
-				// If there are other specifiers, they have to be default import/export
-				// And default import/export has to write before the named import/export
+
+				// If there are other specifiers, they have to be the default import specifier
+				// And the default import has to write before the named import specifiers
 				// So there must be a comma before
 				const commaToken = sourceCode.getTokenBefore(node, isCommaToken);
 				yield fixer.replaceTextRange([commaToken.range[0], closingBraceToken.range[1]], '');
@@ -41,6 +41,7 @@ function * removeSpecifier(node, options) {
 			// Fallthrough
 		}
 
+		case 'ExportSpecifier':
 		case 'ImportNamespaceSpecifier':
 		case 'ImportDefaultSpecifier': {
 			yield fixer.remove(node);
