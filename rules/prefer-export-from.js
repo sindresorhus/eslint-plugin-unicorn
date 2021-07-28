@@ -7,7 +7,7 @@ const {
 
 const MESSAGE_ID = 'prefer-export-from';
 const messages = {
-	[MESSAGE_ID]: 'Use `export…from` syntax to re-export `{{imported}}`.',
+	[MESSAGE_ID]: 'Use `export…from` to re-export `{{imported}}`.',
 };
 
 function * removeSpecifier(node, options) {
@@ -310,7 +310,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `export…from` syntax when re-exporting.',
+			description: 'Prefer `export…from` when re-exporting.',
 		},
 		fixable: 'code',
 		messages,

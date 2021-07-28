@@ -1,4 +1,4 @@
-# Prefer `export…from` syntax when re-exporting
+# Prefer `export…from` when re-exporting
 
 When re-exporting from module, it's unnecessary to import and then export, it can be done in one `export…from` declaration.
 
