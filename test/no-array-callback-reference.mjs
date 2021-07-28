@@ -119,6 +119,7 @@ test({
 				.toArray()
 		`,
 
+		// #1455 - mobx-state-tree
 		outdent`
 			const EventsStore = types.model('EventsStore', {
 				events: types.optional(types.map(Event), {}),
