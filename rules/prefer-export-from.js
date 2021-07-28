@@ -94,23 +94,16 @@ function fix({
 	return function * (fixer) {
 		if (imported.name === '*') {
 			for (const {name: exportedName} of exported) {
-				const specifier = `* as ${exportedName}`;
-
-				if (!exportDeclaration || exportDeclaration.specifiers.some(({type}) => type === 'ExportNamespaceSpecifier')) {
-					yield fixer.insertTextAfter(
-						program,
-						`\nexport ${specifier} from ${sourceText};`,
-					);
-				} else {
-					const exportToken = sourceCode.getFirstToken(exportDeclaration);
-					yield fixer.insertTextAfter(exportToken, ` ${specifier},`);
-				}
+				yield fixer.insertTextAfter(
+					program,
+					`\nexport * as ${exportedName} from ${sourceText};`,
+				);
 			}
 		} else {
 			const specifiers = exported.map(({name}) => name === imported.name ? name : `${imported.name} as ${name}`)
 				.join(',');
 
-			if (exportDeclaration) {
+			if (exportDeclaration && exportDeclaration.specifiers.every(({type}) => type === 'ExportSpecifier')) {
 				const lastSpecifier = exportDeclaration.specifiers[exportDeclaration.specifiers.length - 1];
 
 				// `export {} from 'foo';`
