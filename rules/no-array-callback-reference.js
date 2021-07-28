@@ -82,6 +82,7 @@ const ignoredCallee = [
 	'Async',
 	'async',
 	'this',
+	'$',
 ];
 
 function getProblem(context, node, method, options) {
@@ -161,6 +162,10 @@ const create = context => {
 
 		rules[selector] = node => {
 			if (isNodeMatches(node.callee.object, ignoredCallee)) {
+				return;
+			}
+
+			if (node.callee.object.callee && isNodeMatches(node.callee.object.callee, ignoredCallee)) {
 				return;
 			}
 

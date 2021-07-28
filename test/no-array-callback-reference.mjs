@@ -86,6 +86,11 @@ test({
 		'Children.forEach(children, fn)', // `import {Children} from 'react';`
 		'Vue.filter(name, fn)',
 
+		// #1376
+		'$(this).find(tooltip)',
+		'$.map(realArray, function( val, i ) {});',
+		'$(this).filter(tooltip)',
+
 		// First argument is not a function
 		...notFunctionTypes.map(data => `foo.map(${data})`),
 
