@@ -34,7 +34,7 @@ Type: `string[]`
 
 You can also check custom functions that indicating the object has the specified property as its own property.
 
-`_.has()`, `lodash.has()`, and `underscore.has()` are checked by default.
+`_.has()`, `lodash.has()`, and `underscore.has()` are always checked.
 
 Example:
 
