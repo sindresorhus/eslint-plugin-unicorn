@@ -88,7 +88,7 @@ test({
 
 		// #1376
 		'$(this).find(tooltip)',
-		'$.map(realArray, function( val, i ) {});',
+		'$.map(realArray, function(value, index) {});',
 		'$(this).filter(tooltip)',
 
 		// First argument is not a function
