@@ -98,7 +98,7 @@ const anyCall = [
 ].join('');
 
 function fixReduceAssignOrSpread({sourceCode, node, property}) {
-	function removeInitObject(fixer) {
+	const removeInitObject = fixer => {
 		const initObject = node.arguments[1];
 		const parentheses = getParentheses(initObject, sourceCode);
 		const firstToken = parentheses[0] || initObject;
@@ -107,7 +107,7 @@ function fixReduceAssignOrSpread({sourceCode, node, property}) {
 		const [start] = startToken.range;
 		const [, end] = lastToken.range;
 		return fixer.replaceTextRange([start, end], '');
-	}
+	};
 
 	function * removeFirstParameter(fixer) {
 		const parameters = node.arguments[0].params;
@@ -131,7 +131,7 @@ function fixReduceAssignOrSpread({sourceCode, node, property}) {
 		yield fixer.replaceText(firstParameter, shouldAddParentheses ? '()' : '');
 	}
 
-	function getKeyValueText() {
+	const getKeyValueText = () => {
 		const {key, value} = property;
 		let keyText = getParenthesizedText(key, sourceCode);
 		const valueText = getParenthesizedText(value, sourceCode);
@@ -141,7 +141,7 @@ function fixReduceAssignOrSpread({sourceCode, node, property}) {
 		}
 
 		return {keyText, valueText};
-	}
+	};
 
 	function * replaceFunctionBody(fixer) {
 		const functionBody = node.arguments[0].body;
@@ -184,7 +184,7 @@ function create(context) {
 	const arrayReduce = new Map();
 
 	for (const {selector, test, getProperty} of fixableArrayReduceCases) {
-		listeners[selector] = function (node) {
+		listeners[selector] = node => {
 			// If this listener exit without adding fix, the `arrayReduceWithEmptyObject` listener
 			// should still add it into the `arrayReduce` map, to be safer, add it here too
 			arrayReduce.set(node, undefined);
@@ -213,13 +213,13 @@ function create(context) {
 		};
 	}
 
-	listeners[arrayReduceWithEmptyObject] = function (node) {
+	listeners[arrayReduceWithEmptyObject] = node => {
 		if (!arrayReduce.has(node)) {
 			arrayReduce.set(node, undefined);
 		}
 	};
 
-	listeners['Program:exit'] = function () {
+	listeners['Program:exit'] = () => {
 		for (const [node, fix] of arrayReduce.entries()) {
 			context.report({
 				node: node.callee.property,
@@ -229,7 +229,7 @@ function create(context) {
 		}
 	};
 
-	listeners[anyCall] = function (node) {
+	listeners[anyCall] = node => {
 		if (!isNodeMatches(node, functions)) {
 			return;
 		}
