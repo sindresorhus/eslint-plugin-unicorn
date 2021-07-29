@@ -24,6 +24,7 @@ test.snapshot({
 	invalid: [
 		'array.flatMap(x => x)',
 		'function foo(){return[].flatMap(x => x)}',
+		'foo.flatMap(x => x)instanceof Array',
 	],
 });
 

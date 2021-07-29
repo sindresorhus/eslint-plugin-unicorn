@@ -3,6 +3,7 @@ const {isParenthesized} = require('eslint-utils');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const {isNumber, isDecimalInteger} = require('./utils/numeric.js');
 const toLocation = require('./utils/to-location.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ZERO_FRACTION = 'zero-fraction';
 const MESSAGE_DANGLING_DOT = 'dangling-dot';
@@ -26,7 +27,8 @@ const create = context => {
 			}
 
 			const {before, dotAndFractions, after} = match.groups;
-			const formatted = before + dotAndFractions.replace(/[.0_]+$/g, '') + after;
+			const fixedDotAndFractions = dotAndFractions.replace(/[.0_]+$/g, '');
+			const formatted = ((before + fixedDotAndFractions) || '0') + after;
 
 			if (formatted === raw) {
 				return;
@@ -40,7 +42,7 @@ const create = context => {
 			return {
 				loc: toLocation([start, end], sourceCode),
 				messageId: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
-				fix: fixer => {
+				* fix(fixer) {
 					let fixed = formatted;
 					if (
 						node.parent.type === 'MemberExpression' &&
@@ -55,7 +57,8 @@ const create = context => {
 						}
 					}
 
-					return fixer.replaceText(node, fixed);
+					yield fixer.replaceText(node, fixed);
+					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 				},
 			};
 		},

@@ -29,7 +29,11 @@ const iteratorMethods = [
 			returnsUndefined: true,
 		},
 	],
-	['map'],
+	[
+		'map', {
+			extraSelector: '[callee.object.name!="types"]',
+		},
+	],
 	[
 		'reduce', {
 			parameters: [
