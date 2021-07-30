@@ -219,6 +219,16 @@ test.snapshot({
 			export {foo, bar};
 		`,
 		outdent`
+			import * as namespace from 'foo';
+			export default namespace;
+			export {namespace};
+		`,
+		outdent`
+			import * as namespace from 'foo';
+			export {namespace};
+			export default namespace;
+		`,
+		outdent`
 			import * as foo from 'foo';
 			export {foo, foo as bar};
 		`,
