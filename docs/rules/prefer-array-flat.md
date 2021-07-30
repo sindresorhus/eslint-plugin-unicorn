@@ -74,7 +74,7 @@ Type: `string[]`
 
 You can also check custom functions that flatten arrays.
 
-`_.flatten()`, `lodash.flatten()`, and `underscore.flatten()` are checked by default.
+`_.flatten()`, `lodash.flatten()`, and `underscore.flatten()` are always checked.
 
 Example:
 

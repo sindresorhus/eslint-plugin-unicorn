@@ -84,6 +84,7 @@ test.snapshot({
 		'a = .0.toString()',
 		'function foo(){return.0}',
 		'function foo(){return.0.toString()}',
+		'function foo(){return.0+.1}',
 		outdent`
 			console.log()
 			.0.toString()

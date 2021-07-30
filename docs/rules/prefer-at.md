@@ -94,7 +94,7 @@ Type: `string[]`
 
 You can also check custom functions that get last element of objects.
 
-`_.last()`, `lodash.last()`, and `underscore.last()` are checked by default.
+`_.last()`, `lodash.last()`, and `underscore.last()` are always checked.
 
 Example:
 
