@@ -10,18 +10,12 @@ const messages = {
 	[MESSAGE_ID]: 'Use `export…from` to re-export `{{exported}}`.',
 };
 
-function * removeSpecifier(node, options) {
-	const {nodes, removedSpecifiers, fixer, sourceCode} = options;
-
+function * removeSpecifier(node, fixer, sourceCode) {
 	const {parent} = node;
 	const {specifiers} = parent;
 
-	if (specifiers.every(specifier => nodes.has(specifier))) {
-		for (const specifier of specifiers) {
-			removedSpecifiers.add(specifier);
-		}
-
-		yield * removeImportOrExport(parent, options);
+	if (specifiers.length === 1) {
+		yield * removeImportOrExport(parent, fixer, sourceCode);
 		return;
 	}
 
@@ -58,20 +52,20 @@ function * removeSpecifier(node, options) {
 	}
 }
 
-function * removeImportOrExport(node, options) {
+function * removeImportOrExport(node, fixer, sourceCode) {
 	switch (node.type) {
 		case 'ImportSpecifier':
 		case 'ExportSpecifier':
 		case 'ImportDefaultSpecifier':
 		case 'ImportNamespaceSpecifier': {
-			yield * removeSpecifier(node, options);
+			yield * removeSpecifier(node, fixer, sourceCode);
 			return;
 		}
 
 		case 'ImportDeclaration':
 		case 'ExportDefaultDeclaration':
 		case 'ExportNamedDeclaration': {
-			yield options.fixer.remove(node);
+			yield fixer.remove(node);
 		}
 
 		// No default
@@ -82,6 +76,7 @@ function fix({
 	context,
 	imported,
 	importDeclaration,
+	removeImportNode,
 	exported,
 	exportDeclarations,
 	program,
@@ -95,49 +90,37 @@ function fix({
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
 		if (imported.name === '*') {
-			for (const {name: exportedName} of exported) {
-				yield fixer.insertTextAfter(
-					program,
-					`\nexport * as ${exportedName} from ${sourceText};`,
-				);
-			}
+			yield fixer.insertTextAfter(
+				program,
+				`\nexport * as ${exported.name} from ${sourceText};`,
+			);
 		} else {
-			const specifiers = exported.map(({name}) => name === imported.name ? name : `${imported.name} as ${name}`)
-				.join(',');
+			const specifier = exported.name === imported.name ?
+				exported.name :
+				`${imported.name} as ${exported.name}`;
 
 			if (exportDeclaration) {
 				const lastSpecifier = exportDeclaration.specifiers[exportDeclaration.specifiers.length - 1];
 
 				// `export {} from 'foo';`
 				if (lastSpecifier) {
-					yield fixer.insertTextAfter(lastSpecifier, `, ${specifiers}`);
+					yield fixer.insertTextAfter(lastSpecifier, `, ${specifier}`);
 				} else {
 					const openingBraceToken = sourceCode.getFirstToken(exportDeclaration, isOpeningBraceToken);
-					yield fixer.insertTextAfter(openingBraceToken, specifiers);
+					yield fixer.insertTextAfter(openingBraceToken, specifier);
 				}
 			} else {
 				yield fixer.insertTextAfter(
 					program,
-					`\nexport {${specifiers}} from ${sourceText};`,
+					`\nexport {${specifier}} from ${sourceText};`,
 				);
 			}
 		}
 
-		const nodes = new Set([imported.node, ...exported.map(({node}) => node)]);
-		// Add this cache to prevent removing specifiers one by one and leave an empty `export {}`
-		const removedSpecifiers = new Set();
-		for (const node of nodes) {
-			if (removedSpecifiers.has(node)) {
-				continue;
-			}
-
-			yield * removeImportOrExport(node, {
-				fixer,
-				sourceCode,
-				removedSpecifiers,
-				nodes,
-			});
+		if (removeImportNode) {
+			yield * removeImportOrExport(imported.node, fixer, sourceCode);
 		}
+		yield * removeImportOrExport(exported.node, fixer, sourceCode);
 	};
 }
 
@@ -255,7 +238,7 @@ function * getProblems({
 
 	for (const {node, name} of exported) {
 		yield {
-			node: node,
+			node,
 			messageId: MESSAGE_ID,
 			data: {
 				exported: name,
@@ -264,7 +247,8 @@ function * getProblems({
 				context,
 				imported,
 				importDeclaration,
-				exported,
+				removeImportNode: exported.length === 1,
+				exported: {node, name},
 				exportDeclarations,
 				program,
 			}),
