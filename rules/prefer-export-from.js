@@ -75,14 +75,12 @@ function * removeImportOrExport(node, fixer, sourceCode) {
 function fix({
 	context,
 	imported,
-	importDeclaration,
-	removeImportNode,
 	exported,
 	exportDeclarations,
 	program,
 }) {
 	const sourceCode = context.getSourceCode();
-	const sourceNode = importDeclaration.source;
+	const sourceNode = imported.declaration.source;
 	const sourceValue = sourceNode.value;
 	const sourceText = sourceCode.getText(sourceNode);
 	const exportDeclaration = exportDeclarations.find(({source}) => source.value === sourceValue);
@@ -117,7 +115,7 @@ function fix({
 			}
 		}
 
-		if (removeImportNode) {
+		if (imported.variable.references.length === 1) {
 			yield * removeImportOrExport(imported.node, fixer, sourceCode);
 		}
 
@@ -125,26 +123,16 @@ function fix({
 	};
 }
 
-function getImported(identifier) {
-	const {parent} = identifier;
-	switch (parent.type) {
+function getImportedName(specifier) {
+	switch (specifier.type) {
 		case 'ImportDefaultSpecifier':
-			return {
-				node: parent,
-				name: 'default',
-			};
+			return 'default';
 
 		case 'ImportSpecifier':
-			return {
-				node: parent,
-				name: parent.imported.name,
-			};
+			return specifier.imported.name;
 
 		case 'ImportNamespaceSpecifier':
-			return {
-				node: parent,
-				name: '*',
-			};
+			return '*';
 
 		// No default
 	}
@@ -207,7 +195,6 @@ function isVariableUnused(node, context) {
 function * getProblems({
 	context,
 	variable,
-	importDeclaration,
 	program,
 	exportDeclarations,
 }) {
@@ -217,9 +204,14 @@ function * getProblems({
 		return;
 	}
 
-	const [identifier] = identifiers;
+	const specifier = identifiers[0].parent;
 
-	const imported = getImported(identifier);
+	const imported = {
+		name: getImportedName(specifier),
+		node: specifier,
+		declaration: specifier.parent,
+		variable,
+	};
 
 	for (const {identifier} of references) {
 		const exported = getExported(identifier, context);
@@ -248,8 +240,6 @@ function * getProblems({
 			fix: fix({
 				context,
 				imported,
-				importDeclaration,
-				removeImportNode: references.length === 1,
 				exported,
 				exportDeclarations,
 				program,
@@ -260,31 +250,25 @@ function * getProblems({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
-	const importDeclarations = new Set();
+	const variables = [];
 	const exportDeclarations = [];
 
 	return {
 		'ImportDeclaration[specifiers.length>0]'(node) {
-			importDeclarations.add({
-				node,
-				variables: context.getDeclaredVariables(node),
-			});
+			variables.push(...context.getDeclaredVariables(node));
 		},
 		// `ExportAllDeclaration` and `ExportDefaultDeclaration` can't be reused
 		'ExportNamedDeclaration[source.type="Literal"]'(node) {
 			exportDeclarations.push(node);
 		},
 		* 'Program:exit'(program) {
-			for (const {node: importDeclaration, variables} of importDeclarations) {
-				for (const variable of variables) {
-					yield * getProblems({
-						context,
-						variable,
-						importDeclaration,
-						exportDeclarations,
-						program,
-					});
-				}
+			for (const variable of variables) {
+				yield * getProblems({
+					context,
+					variable,
+					exportDeclarations,
+					program,
+				});
 			}
 		},
 	};
