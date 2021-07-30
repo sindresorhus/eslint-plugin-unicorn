@@ -7,7 +7,7 @@ const {
 
 const MESSAGE_ID = 'prefer-export-from';
 const messages = {
-	[MESSAGE_ID]: 'Use `export…from` to re-export `{{imported}}`.',
+	[MESSAGE_ID]: 'Use `export…from` to re-export `{{exported}}`.',
 };
 
 function * removeSpecifier(node, options) {
@@ -220,7 +220,7 @@ function isVariableUnused(node, context) {
 		references[0].identifier === node.id;
 }
 
-function getProblem({
+function * getProblems({
 	context,
 	variable,
 	importDeclaration,
@@ -253,21 +253,23 @@ function getProblem({
 		return;
 	}
 
-	return {
-		node: imported.node,
-		messageId: MESSAGE_ID,
-		data: {
-			imported: imported.name,
-		},
-		fix: fix({
-			context,
-			imported,
-			importDeclaration,
-			exported,
-			exportDeclarations,
-			program,
-		}),
-	};
+	for (const {node, name} of exported) {
+		yield {
+			node: node,
+			messageId: MESSAGE_ID,
+			data: {
+				exported: name,
+			},
+			fix: fix({
+				context,
+				imported,
+				importDeclaration,
+				exported,
+				exportDeclarations,
+				program,
+			}),
+		};
+	}
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -289,17 +291,13 @@ function create(context) {
 		* 'Program:exit'(program) {
 			for (const {node: importDeclaration, variables} of importDeclarations) {
 				for (const variable of variables) {
-					const problem = getProblem({
+					yield * getProblems({
 						context,
 						variable,
 						importDeclaration,
 						exportDeclarations,
 						program,
 					});
-
-					if (problem) {
-						yield problem;
-					}
 				}
 			}
 		},
