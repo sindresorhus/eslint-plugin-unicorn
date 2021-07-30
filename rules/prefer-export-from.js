@@ -120,6 +120,7 @@ function fix({
 		if (removeImportNode) {
 			yield * removeImportOrExport(imported.node, fixer, sourceCode);
 		}
+
 		yield * removeImportOrExport(exported.node, fixer, sourceCode);
 	};
 }
@@ -217,38 +218,39 @@ function * getProblems({
 	}
 
 	const [identifier] = identifiers;
-	const exported = references.map(({identifier}) => getExported(identifier, context));
-
-	if (!exported.every(Boolean)) {
-		return;
-	}
 
 	const imported = getImported(identifier);
 
-	/*
-	There is no substitution for
-	```js
-	import * as foo from 'foo';
-	export default foo;
-	```js
-	*/
-	if (imported.name === '*' && exported.some(({name}) => name === 'default')) {
-		return;
-	}
+	for (const {identifier} of references) {
+		const exported = getExported(identifier, context);
 
-	for (const {node, name} of exported) {
+		if (!exported) {
+			continue;
+		}
+
+		/*
+		There is no substitution for
+		```js
+		import * as foo from 'foo';
+		export default foo;
+		```
+		*/
+		if (imported.name === '*' && exported.name === 'default') {
+			return;
+		}
+
 		yield {
-			node,
+			node: exported.node,
 			messageId: MESSAGE_ID,
 			data: {
-				exported: name,
+				exported: exported.name,
 			},
 			fix: fix({
 				context,
 				imported,
 				importDeclaration,
-				removeImportNode: exported.length === 1,
-				exported: {node, name},
+				removeImportNode: references.length === 1,
+				exported,
 				exportDeclarations,
 				program,
 			}),
