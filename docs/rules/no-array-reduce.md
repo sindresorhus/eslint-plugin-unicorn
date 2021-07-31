@@ -61,7 +61,7 @@ Default: `true`
 
 Allow simple operations (like addition, subtraction, etc.) in a `reduce` call.
 
-Pass `"allowSimpleOperations": false` to disable reduce completely.
+Set it to `false` to disable reduce completely.
 
 ```js
 // eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": true}]
