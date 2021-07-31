@@ -65,7 +65,7 @@ Set it to `false` to disable reduce completely.
 
 ```js
 // eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": true}]
-arr.reduce((total, item) => total + item) // Passes
+array.reduce((total, item) => total + item) // Passes
 ```
 
 ```js
