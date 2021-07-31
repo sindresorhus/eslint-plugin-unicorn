@@ -102,9 +102,8 @@ test({
 		'arr.reduce(function (total, item) { return total * item }, 0)',
 		outdent`
 			arr.reduce((total, item) => {
-				const multiplier = 100;
-				return (total / item) * multiplier;
-			}, 0)
+				return (total / item) * 100;
+			}, 0);
 		`,
 		'arr.reduce((total, item) => { return total + item }, 0)',
 	].flatMap(testCase => [testCase, testCase.replace('reduce', 'reduceRight')]),
@@ -130,6 +129,15 @@ test({
 		'[].reduce.apply(arr, [sum]);',
 		'Array.prototype.reduce.apply(arr, [(s, i) => s + i])',
 		'Array.prototype.reduce.apply(arr, [sum]);',
+		outdent`
+			array.reduce((total, item) => {
+				const doComplicatedThings = (item) => {
+					return item + 1;
+				}
+
+				return total + doComplicatedThings(item);
+			}, 0);
+		`,
 
 		// Option: allowSimpleOperations
 		{
@@ -159,9 +167,8 @@ test({
 		{
 			code: outdent`
 				arr.reduce((total, item) => {
-					const multiplier = 100;
-					return (total / item) * multiplier;
-				}, 0)
+					return (total / item) * 100;
+				}, 0);
 			`,
 			options: [{allowSimpleOperations: false}],
 		},

@@ -2,7 +2,6 @@
 const {get} = require('lodash');
 const {methodCallSelector} = require('./selectors/index.js');
 const {arrayPrototypeMethodSelector, notFunctionSelector, matches} = require('./selectors/index.js');
-const {isNumeric} = require('./utils/numeric.js');
 
 const MESSAGE_ID = 'no-reduce';
 const messages = {
@@ -70,12 +69,9 @@ const create = context => {
 
 			if ((callback.type === 'ArrowFunctionExpression' || callback.type === 'FunctionExpression') &&
 				callback.body.type === 'BlockStatement' &&
+				callback.body.body.length === 1 &&
 				callback.body.body[0].type === 'ReturnStatement' &&
 				callback.body.body[0].argument.type === 'BinaryExpression') {
-				return;
-			}
-
-			if (isNumeric(get(node, 'parent.parent.arguments[1]'))) {
 				return;
 			}
 
