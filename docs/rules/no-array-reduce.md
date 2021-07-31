@@ -70,5 +70,5 @@ array.reduce((total, item) => total + item) // Passes
 
 ```js
 // eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": false}]
-arr.reduce((total, item) => total + item) // Fails
+array.reduce((total, item) => total + item) // Fails
 ```
