@@ -42,7 +42,7 @@ array.reduce(reducer, initialValue);
 ```
 
 ```js
-array.reduce((total, value) => total + value;
+array.reduce((total, value) => total + value);
 ```
 
 ```js
