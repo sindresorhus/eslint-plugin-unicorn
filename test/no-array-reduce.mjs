@@ -94,7 +94,7 @@ test({
 		...notFunctionTypes.map(data => `Array.prototype.reduce.call(foo, ${data})`),
 
 		// Option: allowSimpleOperations
-		'arr.reduce((total, item) => total + item)',
+		'array.reduce((total, item) => total + item)',
 		'arr.reduce((total, item) => { return total - item })',
 		'arr.reduce(function (total, item) { return total * item })',
 		'arr.reduce((total, item) => total + item, 0)',
