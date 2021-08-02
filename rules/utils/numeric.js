@@ -8,7 +8,7 @@ const isDecimalIntegerNode = node => isNumber(node) && isDecimalInteger(node.raw
 
 const isNumber = node => typeof node.value === 'number';
 const isBigInt = node => Boolean(node.bigint);
-const isNumeric = node => node ? (isNumber(node) || isBigInt(node)) : false;
+const isNumeric = node => isNumber(node) || isBigInt(node);
 const isLegacyOctal = node => isNumber(node) && /^0\d+$/.test(node.raw);
 
 function getPrefix(text) {
