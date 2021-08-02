@@ -83,42 +83,107 @@ test({
 		// We are not checking arguments length
 
 		// `reduce-like`
-		'arr.reducex(foo)',
-		'arr.xreduce(foo)',
-		'[].reducex.call(arr, foo)',
-		'[].xreduce.call(arr, foo)',
-		'Array.prototype.reducex.call(arr, foo)',
-		'Array.prototype.xreduce.call(arr, foo)',
+		'array.reducex(foo)',
+		'array.xreduce(foo)',
+		'[].reducex.call(array, foo)',
+		'[].xreduce.call(array, foo)',
+		'Array.prototype.reducex.call(array, foo)',
+		'Array.prototype.xreduce.call(array, foo)',
 
 		// Second argument is not a function
 		...notFunctionTypes.map(data => `Array.prototype.reduce.call(foo, ${data})`),
 
-	].flatMap(code => [code, code.replace('reduce', 'reduceRight')]),
-	invalid: [
-		'arr.reduce((total, item) => total + item)',
-		'arr.reduce((total, item) => total + item, 0)',
-		'arr.reduce(function (total, item) { return total + item }, 0)',
-		'arr.reduce(function (total, item) { return total + item })',
-		'arr.reduce((str, item) => str += item, "")',
+		// Option: allowSimpleOperations
+		'array.reduce((total, item) => total + item)',
+		'array.reduce((total, item) => { return total - item })',
+		'array.reduce(function (total, item) { return total * item })',
+		'array.reduce((total, item) => total + item, 0)',
+		'array.reduce((total, item) => { return total - item }, 0 )',
+		'array.reduce(function (total, item) { return total * item }, 0)',
 		outdent`
-			arr.reduce((obj, item) => {
+			array.reduce((total, item) => {
+				return (total / item) * 100;
+			}, 0);
+		`,
+		'array.reduce((total, item) => { return total + item }, 0)',
+	].flatMap(testCase => [testCase, testCase.replace('reduce', 'reduceRight')]),
+	invalid: [
+		'array.reduce((str, item) => str += item, "")',
+		outdent`
+			array.reduce((obj, item) => {
 				obj[item] = null;
 				return obj;
 			}, {})
 		`,
-		'arr.reduce((obj, item) => ({ [item]: null }), {})',
+		'array.reduce((obj, item) => ({ [item]: null }), {})',
 		outdent`
 			const hyphenate = (str, char) => \`\${str}-\${char}\`;
 			["a", "b", "c"].reduce(hyphenate);
 		`,
-		'[].reduce.call(arr, (s, i) => s + i)',
-		'[].reduce.call(arr, sum);',
+		'[].reduce.call(array, (s, i) => s + i)',
+		'[].reduce.call(array, sum);',
 		'[].reduce.call(sum);',
-		'Array.prototype.reduce.call(arr, (s, i) => s + i)',
-		'Array.prototype.reduce.call(arr, sum);',
-		'[].reduce.apply(arr, [(s, i) => s + i])',
-		'[].reduce.apply(arr, [sum]);',
-		'Array.prototype.reduce.apply(arr, [(s, i) => s + i])',
-		'Array.prototype.reduce.apply(arr, [sum]);',
-	].flatMap(code => [{code, errors: errorsReduce}, {code: code.replace('reduce', 'reduceRight'), errors: errorsReduceRight}]),
+		'Array.prototype.reduce.call(array, (s, i) => s + i)',
+		'Array.prototype.reduce.call(array, sum);',
+		'[].reduce.apply(array, [(s, i) => s + i])',
+		'[].reduce.apply(array, [sum]);',
+		'Array.prototype.reduce.apply(array, [(s, i) => s + i])',
+		'Array.prototype.reduce.apply(array, [sum]);',
+		outdent`
+			array.reduce((total, item) => {
+				return total + doComplicatedThings(item);
+				function doComplicatedThings(item) {
+					return item + 1;
+				}
+			}, 0);
+		`,
+
+		// Option: allowSimpleOperations
+		{
+			code: 'array.reduce((total, item) => total + item)',
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: 'array.reduce((total, item) => { return total - item })',
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: 'array.reduce(function (total, item) { return total * item })',
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: 'array.reduce((total, item) => total + item, 0)',
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: 'array.reduce((total, item) => { return total - item }, 0 )',
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: 'array.reduce(function (total, item) { return total * item }, 0)',
+			options: [{allowSimpleOperations: false}],
+		},
+		{
+			code: outdent`
+				array.reduce((total, item) => {
+					return (total / item) * 100;
+				}, 0);
+			`,
+			options: [{allowSimpleOperations: false}],
+		},
+	].flatMap(testCase => {
+		const {code, options} = testCase;
+
+		if (options) {
+			return [
+				{code, errors: errorsReduce, options},
+				{code: code.replace('reduce', 'reduceRight'), errors: errorsReduceRight, options},
+			];
+		}
+
+		return [
+			{code: testCase, errors: errorsReduce},
+			{code: testCase.replace('reduce', 'reduceRight'), errors: errorsReduceRight},
+		];
+	}),
 });
