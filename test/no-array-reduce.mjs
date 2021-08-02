@@ -131,11 +131,10 @@ test({
 		'Array.prototype.reduce.apply(array, [sum]);',
 		outdent`
 			array.reduce((total, item) => {
-				const doComplicatedThings = (item) => {
+				return total + doComplicatedThings(item);
+				function doComplicatedThings(item) {
 					return item + 1;
 				}
-
-				return total + doComplicatedThings(item);
 			}, 0);
 		`,
 
