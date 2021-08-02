@@ -83,6 +83,7 @@ const ignoredCallee = [
 	'async',
 	'this',
 	'$',
+	'jQuery',
 ];
 
 function getProblem(context, node, method, options) {
@@ -165,7 +166,7 @@ const create = context => {
 				return;
 			}
 
-			if (node.callee.object.callee && isNodeMatches(node.callee.object.callee, ignoredCallee)) {
+			if (node.callee.object.type === 'CallExpression' && isNodeMatches(node.callee.object.callee, ignoredCallee)) {
 				return;
 			}
 

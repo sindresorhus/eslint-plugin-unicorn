@@ -90,6 +90,9 @@ test({
 		'$(this).find(tooltip)',
 		'$.map(realArray, function(value, index) {});',
 		'$(this).filter(tooltip)',
+		'jQuery(this).find(tooltip)',
+		'jQuery.map(realArray, function(value, index) {});',
+		'jQuery(this).filter(tooltip)',
 
 		// First argument is not a function
 		...notFunctionTypes.map(data => `foo.map(${data})`),
