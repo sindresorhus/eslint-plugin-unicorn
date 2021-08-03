@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import process from 'node:process';
 import {ESLint} from 'eslint';
 import unicorn from '../../index.js';
 
