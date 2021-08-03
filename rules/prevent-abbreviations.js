@@ -12,6 +12,14 @@ const {defaultReplacements, defaultAllowList, defaultIgnore} = require('./shared
 const {renameVariable} = require('./fix/index.js');
 const getScopes = require('./utils/get-scopes.js');
 
+const MESSAGE_ID_REPLACE = 'replace';
+const MESSAGE_ID_SUGGESTION = 'suggestion';
+const anotherNameMessage = 'A more descriptive name will do too.';
+const messages = {
+	[MESSAGE_ID_REPLACE]: `The {{nameTypeText}} \`{{discouragedName}}\` should be named \`{{replacement}}\`. ${anotherNameMessage}`,
+	[MESSAGE_ID_SUGGESTION]: `Please rename the {{nameTypeText}} \`{{discouragedName}}\`. Suggested names are: {{replacementsText}}. ${anotherNameMessage}`,
+};
+
 const isUpperCase = string => string === string.toUpperCase();
 const isUpperFirst = string => isUpperCase(string[0]);
 
@@ -139,33 +147,37 @@ const getNameReplacements = (name, options, limit = 3) => {
 	};
 };
 
-const anotherNameMessage = 'A more descriptive name will do too.';
-
-const formatMessage = (discouragedName, replacements, nameTypeText) => {
-	const message = [];
+const getMessage = (discouragedName, replacements, nameTypeText) => {
 	const {total, samples = []} = replacements;
 
 	if (total === 1) {
-		message.push(`The ${nameTypeText} \`${discouragedName}\` should be named \`${samples[0]}\`.`);
-	} else {
-		let replacementsText = samples
-			.map(replacement => `\`${replacement}\``)
-			.join(', ');
-
-		const omittedReplacementsCount = total - samples.length;
-		if (omittedReplacementsCount > 0) {
-			replacementsText += `, ... (${omittedReplacementsCount > 99 ? '99+' : omittedReplacementsCount} more omitted)`;
-		}
-
-		message.push(
-			`Please rename the ${nameTypeText} \`${discouragedName}\`.`,
-			`Suggested names are: ${replacementsText}.`,
-		);
+		return {
+			messageId: MESSAGE_ID_REPLACE,
+			data: {
+				nameTypeText,
+				discouragedName,
+				replacement: samples[0],
+			},
+		};
 	}
 
-	message.push(anotherNameMessage);
+	let replacementsText = samples
+		.map(replacement => `\`${replacement}\``)
+		.join(', ');
 
-	return message.join(' ');
+	const omittedReplacementsCount = total - samples.length;
+	if (omittedReplacementsCount > 0) {
+		replacementsText += `, ... (${omittedReplacementsCount > 99 ? '99+' : omittedReplacementsCount} more omitted)`;
+	}
+
+	return {
+		messageId: MESSAGE_ID_SUGGESTION,
+		data: {
+			nameTypeText,
+			discouragedName,
+			replacementsText,
+		},
+	};
 };
 
 const isExportedIdentifier = identifier => {
@@ -422,8 +434,8 @@ const create = context => {
 		);
 
 		const problem = {
+			...getMessage(definition.name.name, variableReplacements, 'variable'),
 			node: definition.name,
-			message: formatMessage(definition.name.name, variableReplacements, 'variable'),
 		};
 
 		if (variableReplacements.total === 1 && shouldFix(variable) && variableReplacements.samples[0]) {
@@ -478,8 +490,8 @@ const create = context => {
 			}
 
 			const problem = {
+				...getMessage(node.name, identifierReplacements, 'property'),
 				node,
-				message: formatMessage(node.name, identifierReplacements, 'property'),
 			};
 
 			context.report(problem);
@@ -508,8 +520,8 @@ const create = context => {
 			filenameReplacements.samples = filenameReplacements.samples.map(replacement => `${replacement}${extension}`);
 
 			context.report({
+				...getMessage(filenameWithExtension, filenameReplacements, 'filename'),
 				node,
-				message: formatMessage(filenameWithExtension, filenameReplacements, 'filename'),
 			});
 		},
 
@@ -609,5 +621,6 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
+		messages,
 	},
 };
