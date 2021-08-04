@@ -33,7 +33,7 @@ const create = context => {
 					messageId: MESSAGE_ID,
 				};
 			}
-			
+
 			return {
 				node: listener.callee.property,
 				messageId: MESSAGE_ID,
