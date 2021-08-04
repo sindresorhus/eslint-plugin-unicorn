@@ -1,7 +1,7 @@
 'use strict';
 const {getFunctionHeadLocation} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url.js');
-const {methodCallSelector, matches} = require('./selectors.js');
+const {methodCallSelector, matches} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'no-invalid-remove-event-listener';
 const messages = {
@@ -10,8 +10,8 @@ const messages = {
 
 const removeEventListenerSelector = [
 	methodCallSelector({
-		name: 'removeEventListener',
-		min: 2,
+		method: 'removeEventListener',
+		minimumArguments: 2,
 	}),
 	'[arguments.0.type!="SpreadElement"]',
 	matches([
