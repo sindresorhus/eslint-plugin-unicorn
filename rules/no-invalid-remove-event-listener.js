@@ -27,17 +27,17 @@ const create = context => {
 		[removeEventListenerSelector]: node => {
 			const listener = node.arguments[1];
 			if (['ArrowFunctionExpression', 'FunctionExpression'].includes(listener.type)) {
-				context.report({
+				return {
 					node: listener,
 					loc: getFunctionHeadLocation(listener, context.getSourceCode()),
 					messageId: MESSAGE_ID,
-				});
-			} else {
-				context.report({
-					node: listener.callee.property,
-					messageId: MESSAGE_ID,
-				});
+				};
 			}
+			
+			return {
+				node: listener.callee.property,
+				messageId: MESSAGE_ID,
+			};
 		},
 	};
 };
