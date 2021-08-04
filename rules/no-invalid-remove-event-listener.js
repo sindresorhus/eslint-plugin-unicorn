@@ -17,7 +17,7 @@ const removeEventListenerSelector = [
 	matches([
 		'[arguments.1.type="FunctionExpression"]',
 		'[arguments.1.type="ArrowFunctionExpression"]',
-		methodCallSelector({name: 'bind', path: 'arguments.1'}),
+		methodCallSelector({method: 'bind', path: 'arguments.1'}),
 	]),
 ].join('');
 
