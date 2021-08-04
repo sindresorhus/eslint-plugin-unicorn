@@ -47,7 +47,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Prevent calling `EventTarget#removeEventListener()` with the result of an expression',
+			description: 'Prevent calling `EventTarget#removeEventListener()` with the result of an expression.',
 			url: getDocumentationUrl(__filename),
 		},
 		schema: [],
