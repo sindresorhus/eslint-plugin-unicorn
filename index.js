@@ -31,7 +31,7 @@ module.exports = {
 				es6: true,
 			},
 			parserOptions: {
-				ecmaVersion: 2021,
+				ecmaVersion: 'latest',
 				sourceType: 'module',
 			},
 			plugins: [
