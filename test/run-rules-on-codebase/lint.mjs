@@ -74,14 +74,8 @@ const eslint = new ESLint({
 	},
 });
 
-const sum = (collection, fieldName) => {
-	let result = 0;
-	for (const item of collection) {
-		result += item[fieldName];
-	}
-
-	return result;
-};
+const sum = (collection, fieldName) =>
+	collection.reduce((total, {[fieldName]: value}) => total + value, 0);
 
 (async function () {
 	const results = await eslint.lintFiles(files);
