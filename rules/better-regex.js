@@ -70,9 +70,11 @@ const create = context => {
 			}
 
 			const oldPattern = patternNode.value;
-			const flags = flagsNode
+			const flags = (
+				flagsNode
 				&& flagsNode.type === 'Literal'
 				&& typeof flagsNode.value === 'string'
+			)
 				? flagsNode.value
 				: '';
 

@@ -151,7 +151,7 @@ const isOnlyArrayOfIndexVariableRead = (arrayReferences, indexIdentifierName) =>
 
 	if (
 		node.parent.type === 'AssignmentExpression'
-			&& node.parent.left === node
+		&& node.parent.left === node
 	) {
 		return false;
 	}
