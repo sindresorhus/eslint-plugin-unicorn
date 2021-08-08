@@ -116,6 +116,7 @@ class Tester {
 						configFile: false,
 						...testerOptions.parserOptions.babelOptions,
 						parserOpts: {
+							attachComment: false,
 							...testerOptions.parserOptions.babelOptions.parserOpts,
 							plugins: babelPlugins,
 						},
