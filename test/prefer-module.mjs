@@ -29,6 +29,14 @@ test.snapshot({
 				console.log(1);
 			}
 		`,
+		{
+			code: outdent`
+				'use strict';
+
+				console.log(1);
+			`,
+			filename: 'example.mjs',
+		},
 	],
 });
 
