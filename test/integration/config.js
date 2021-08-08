@@ -20,7 +20,6 @@ module.exports = {
 			babelrc: false,
 			configFile: false,
 			parserOpts: {
-				attachComment: false,
 				plugins: [
 					'jsx',
 					'doExpressions',
