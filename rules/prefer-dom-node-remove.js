@@ -38,8 +38,8 @@ const create = context => {
 			const fix = fixer => {
 				let childNodeText = getParenthesizedText(childNode, sourceCode);
 				if (
-					!isParenthesized(childNode, sourceCode) &&
-					shouldAddParenthesesToMemberExpressionObject(childNode, sourceCode)
+					!isParenthesized(childNode, sourceCode)
+					&& shouldAddParenthesesToMemberExpressionObject(childNode, sourceCode)
 				) {
 					childNodeText = `(${childNodeText})`;
 				}

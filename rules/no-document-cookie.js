@@ -15,20 +15,18 @@ const selector = [
 ].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	return {
-		[selector](node) {
-			if (getPropertyName(node, context.getScope()) !== 'cookie') {
-				return;
-			}
+const create = context => ({
+	[selector](node) {
+		if (getPropertyName(node, context.getScope()) !== 'cookie') {
+			return;
+		}
 
-			return {
-				node,
-				messageId: MESSAGE_ID,
-			};
-		},
-	};
-};
+		return {
+			node,
+			messageId: MESSAGE_ID,
+		};
+	},
+});
 
 module.exports = {
 	create,

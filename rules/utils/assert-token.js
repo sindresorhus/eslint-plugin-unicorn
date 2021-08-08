@@ -10,8 +10,8 @@ function assertToken(token, {test, expected, ruleId}) {
 	expected = expected.map(expectedToken => typeof expectedToken === 'string' ? {value: expectedToken} : expectedToken);
 
 	if (
-		!test &&
-		expected.some(
+		!test
+		&& expected.some(
 			expectedToken =>
 				Object.entries(expectedToken)
 					.every(([key, value]) => token[key] === value),

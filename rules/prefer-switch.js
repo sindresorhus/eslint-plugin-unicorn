@@ -166,9 +166,9 @@ function shouldInsertBreakStatement(node) {
 			return false;
 
 		case 'IfStatement':
-			return !node.alternate ||
-				shouldInsertBreakStatement(node.consequent) ||
-				shouldInsertBreakStatement(node.alternate);
+			return !node.alternate
+				|| shouldInsertBreakStatement(node.consequent)
+				|| shouldInsertBreakStatement(node.alternate);
 
 		case 'BlockStatement': {
 			const lastNode = getBlockStatementLastNode(node);
@@ -287,8 +287,8 @@ const create = context => {
 				};
 
 				if (
-					!hasSideEffect(discriminant, sourceCode) &&
-					!ifStatements.some(({statement}) => hasBreakInside(breakStatements, statement))
+					!hasSideEffect(discriminant, sourceCode)
+					&& !ifStatements.some(({statement}) => hasBreakInside(breakStatements, statement))
 				) {
 					problem.fix = fix({discriminant, ifStatements}, sourceCode, options);
 				}

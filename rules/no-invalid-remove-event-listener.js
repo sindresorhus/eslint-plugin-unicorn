@@ -22,25 +22,23 @@ const removeEventListenerSelector = [
 ].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	return {
-		[removeEventListenerSelector]: node => {
-			const listener = node.arguments[1];
-			if (['ArrowFunctionExpression', 'FunctionExpression'].includes(listener.type)) {
-				return {
-					node: listener,
-					loc: getFunctionHeadLocation(listener, context.getSourceCode()),
-					messageId: MESSAGE_ID,
-				};
-			}
-
+const create = context => ({
+	[removeEventListenerSelector]: node => {
+		const listener = node.arguments[1];
+		if (['ArrowFunctionExpression', 'FunctionExpression'].includes(listener.type)) {
 			return {
-				node: listener.callee.property,
+				node: listener,
+				loc: getFunctionHeadLocation(listener, context.getSourceCode()),
 				messageId: MESSAGE_ID,
 			};
-		},
-	};
-};
+		}
+
+		return {
+			node: listener.callee.property,
+			messageId: MESSAGE_ID,
+		};
+	},
+});
 
 module.exports = {
 	create,

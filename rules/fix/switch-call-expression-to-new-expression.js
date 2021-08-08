@@ -7,8 +7,8 @@ function * switchCallExpressionToNewExpression(node, sourceCode, fixer) {
 
 	const {callee} = node;
 	if (
-		!isParenthesized(callee, sourceCode) &&
-		shouldAddParenthesesToNewExpressionCallee(callee)
+		!isParenthesized(callee, sourceCode)
+		&& shouldAddParenthesesToNewExpressionCallee(callee)
 	) {
 		yield fixer.insertTextBefore(callee, '(');
 		yield fixer.insertTextAfter(callee, ')');

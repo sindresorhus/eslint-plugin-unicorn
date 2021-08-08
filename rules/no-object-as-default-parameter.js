@@ -13,26 +13,24 @@ const objectParameterSelector = [
 	'[right.properties.length>0]',
 ].join('');
 
-const create = () => {
-	return {
-		[objectParameterSelector]: node => {
-			const {left, right} = node;
+const create = () => ({
+	[objectParameterSelector]: node => {
+		const {left, right} = node;
 
-			if (left.type === 'Identifier') {
-				return {
-					node: left,
-					messageId: MESSAGE_ID_IDENTIFIER,
-					data: {parameter: left.name},
-				};
-			}
-
+		if (left.type === 'Identifier') {
 			return {
-				node: right,
-				messageId: MESSAGE_ID_NON_IDENTIFIER,
+				node: left,
+				messageId: MESSAGE_ID_IDENTIFIER,
+				data: {parameter: left.name},
 			};
-		},
-	};
-};
+		}
+
+		return {
+			node: right,
+			messageId: MESSAGE_ID_NON_IDENTIFIER,
+		};
+	},
+});
 
 module.exports = {
 	create,

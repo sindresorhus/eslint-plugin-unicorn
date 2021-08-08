@@ -32,14 +32,14 @@ const hasValidSuperClass = node => {
 };
 
 const isSuperExpression = node =>
-	node.type === 'ExpressionStatement' &&
-	node.expression.type === 'CallExpression' &&
-	node.expression.callee.type === 'Super';
+	node.type === 'ExpressionStatement'
+	&& node.expression.type === 'CallExpression'
+	&& node.expression.callee.type === 'Super';
 
 const isAssignmentExpression = (node, name) => {
 	if (
-		node.type !== 'ExpressionStatement' ||
-		node.expression.type !== 'AssignmentExpression'
+		node.type !== 'ExpressionStatement'
+		|| node.expression.type !== 'AssignmentExpression'
 	) {
 		return false;
 	}
@@ -193,13 +193,11 @@ const customErrorExport = (context, node) => {
 	};
 };
 
-const create = context => {
-	return {
-		ClassDeclaration: node => customErrorDefinition(context, node),
-		'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
-		'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node),
-	};
-};
+const create = context => ({
+	ClassDeclaration: node => customErrorDefinition(context, node),
+	'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
+	'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node),
+});
 
 module.exports = {
 	create,

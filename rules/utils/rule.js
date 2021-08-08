@@ -59,12 +59,12 @@ function checkVueTemplate(create, options) {
 
 		// `vue-eslint-parser`
 		if (
-			context.parserServices &&
-			context.parserServices.defineTemplateBodyVisitor
+			context.parserServices
+			&& context.parserServices.defineTemplateBodyVisitor
 		) {
-			return visitScriptBlock ?
-				context.parserServices.defineTemplateBodyVisitor(listeners, listeners) :
-				context.parserServices.defineTemplateBodyVisitor(listeners);
+			return visitScriptBlock
+				? context.parserServices.defineTemplateBodyVisitor(listeners, listeners)
+				: context.parserServices.defineTemplateBodyVisitor(listeners);
 		}
 
 		return listeners;

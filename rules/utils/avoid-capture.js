@@ -74,12 +74,12 @@ const typescriptReservedWords = new Set([
 // Copied from https://github.com/babel/babel/blob/fce35af69101c6b316557e28abf60bdbf77d6a36/packages/babel-types/src/validators/isValidIdentifier.ts#L7
 // Use this function instead of `require('@babel/types').isIdentifier`, since `@babel/helper-validator-identifier` package is much smaller
 const isValidIdentifier = name =>
-	typeof name === 'string' &&
-	!isKeyword(name) &&
-	!isStrictReservedWord(name, true) &&
-	isIdentifierName(name) &&
-	name !== 'arguments' &&
-	!typescriptReservedWords.has(name);
+	typeof name === 'string'
+	&& !isKeyword(name)
+	&& !isStrictReservedWord(name, true)
+	&& isIdentifierName(name)
+	&& name !== 'arguments'
+	&& !typescriptReservedWords.has(name);
 
 /*
 Unresolved reference is probably from the global scope. We should avoid using that name.

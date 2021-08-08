@@ -104,21 +104,19 @@ const getActualAssignmentTargetImportStyles = assignmentTarget => {
 	return [];
 };
 
-const joinOr = words => {
-	return words
-		.map((word, index) => {
-			if (index === words.length - 1) {
-				return word;
-			}
+const joinOr = words => words
+	.map((word, index) => {
+		if (index === words.length - 1) {
+			return word;
+		}
 
-			if (index === words.length - 2) {
-				return word + ' or';
-			}
+		if (index === words.length - 2) {
+			return word + ' or';
+		}
 
-			return word + ',';
-		})
-		.join(' ');
-};
+		return word + ',';
+	})
+	.join(' ');
 
 // Keep this alphabetically sorted for easier maintenance
 const defaultStyles = {
@@ -164,9 +162,9 @@ const create = context => {
 		} = {},
 	] = context.options;
 
-	styles = extendDefaultStyles ?
-		defaultsDeep({}, styles, defaultStyles) :
-		styles;
+	styles = extendDefaultStyles
+		? defaultsDeep({}, styles, defaultStyles)
+		: styles;
 
 	styles = new Map(
 		Object.entries(styles).map(

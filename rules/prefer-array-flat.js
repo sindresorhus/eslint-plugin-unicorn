@@ -57,8 +57,9 @@ const arrayReduce = {
 		'[arguments.0.body.arguments.0.type="Identifier"]',
 		emptyArraySelector('arguments.1'),
 	].join(''),
-	testFunction: node => node.arguments[0].params[0].name === node.arguments[0].body.callee.object.name &&
-		node.arguments[0].params[1].name === node.arguments[0].body.arguments[0].name,
+	testFunction: node =>
+		node.arguments[0].params[0].name === node.arguments[0].body.callee.object.name
+		&& node.arguments[0].params[1].name === node.arguments[0].body.arguments[0].name,
 	getArrayNode: node => node.callee.object,
 	description: 'Array#reduce()',
 };
@@ -84,8 +85,9 @@ const arrayReduce2 = {
 		'[arguments.0.body.elements.1.argument.type="Identifier"]',
 		emptyArraySelector('arguments.1'),
 	].join(''),
-	testFunction: node => node.arguments[0].params[0].name === node.arguments[0].body.elements[0].argument.name &&
-		node.arguments[0].params[1].name === node.arguments[0].body.elements[1].argument.name,
+	testFunction: node =>
+		node.arguments[0].params[0].name === node.arguments[0].body.elements[0].argument.name
+		&& node.arguments[0].params[1].name === node.arguments[0].body.elements[1].argument.name,
 	getArrayNode: node => node.callee.object,
 	description: 'Array#reduce()',
 };
@@ -155,8 +157,8 @@ function fix(node, array, sourceCode, shouldSwitchToArray) {
 			fixed = `[${fixed}]`;
 			// And we don't need to add parentheses to the new array to call `.flat()`
 		} else if (
-			!isParenthesized(array, sourceCode) &&
-			shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+			!isParenthesized(array, sourceCode)
+			&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
 		) {
 			fixed = `(${fixed})`;
 		}
@@ -216,8 +218,8 @@ function create(context) {
 
 			// Don't fix if it has comments.
 			if (
-				sourceCode.getCommentsInside(node).length ===
-				sourceCode.getCommentsInside(array).length
+				sourceCode.getCommentsInside(node).length
+				=== sourceCode.getCommentsInside(array).length
 			) {
 				problem.fix = fix(node, array, sourceCode, shouldSwitchToArray);
 			}

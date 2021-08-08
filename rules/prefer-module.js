@@ -73,26 +73,26 @@ function fixRequireCall(node, sourceCode) {
 	// `const foo = require("foo")`
 	// `const {foo} = require("foo")`
 	if (
-		parent.type === 'VariableDeclarator' &&
-		parent.init === requireCall &&
-		(
-			parent.id.type === 'Identifier' ||
-			(
-				parent.id.type === 'ObjectPattern' &&
-				parent.id.properties.every(
+		parent.type === 'VariableDeclarator'
+		&& parent.init === requireCall
+		&& (
+			parent.id.type === 'Identifier'
+			|| (
+				parent.id.type === 'ObjectPattern'
+				&& parent.id.properties.every(
 					({type, key, value, computed}) =>
-						type === 'Property' &&
-						!computed &&
-						value.type === 'Identifier' &&
-						key.type === 'Identifier',
+						type === 'Property'
+						&& !computed
+						&& value.type === 'Identifier'
+						&& key.type === 'Identifier',
 				)
 			)
-		) &&
-		parent.parent.type === 'VariableDeclaration' &&
-		parent.parent.kind === 'const' &&
-		parent.parent.declarations.length === 1 &&
-		parent.parent.declarations[0] === parent &&
-		parent.parent.parent.type === 'Program'
+		)
+		&& parent.parent.type === 'VariableDeclaration'
+		&& parent.parent.kind === 'const'
+		&& parent.parent.declarations.length === 1
+		&& parent.parent.declarations[0] === parent
+		&& parent.parent.parent.type === 'Program'
 	) {
 		const declarator = parent;
 		const declaration = declarator.parent;
@@ -150,26 +150,26 @@ function fixRequireCall(node, sourceCode) {
 }
 
 const isTopLevelAssignment = node =>
-	node.parent.type === 'AssignmentExpression' &&
-	node.parent.operator === '=' &&
-	node.parent.left === node &&
-	node.parent.parent.type === 'ExpressionStatement' &&
-	node.parent.parent.parent.type === 'Program';
+	node.parent.type === 'AssignmentExpression'
+	&& node.parent.operator === '='
+	&& node.parent.left === node
+	&& node.parent.parent.type === 'ExpressionStatement'
+	&& node.parent.parent.parent.type === 'Program';
 const isNamedExport = node =>
-	node.parent.type === 'MemberExpression' &&
-	!node.parent.optional &&
-	!node.parent.computed &&
-	node.parent.object === node &&
-	node.parent.property.type === 'Identifier' &&
-	isTopLevelAssignment(node.parent) &&
-	node.parent.parent.right.type === 'Identifier';
+	node.parent.type === 'MemberExpression'
+	&& !node.parent.optional
+	&& !node.parent.computed
+	&& node.parent.object === node
+	&& node.parent.property.type === 'Identifier'
+	&& isTopLevelAssignment(node.parent)
+	&& node.parent.parent.right.type === 'Identifier';
 const isModuleExports = node =>
-	node.parent.type === 'MemberExpression' &&
-	!node.parent.optional &&
-	!node.parent.computed &&
-	node.parent.object === node &&
-	node.parent.property.type === 'Identifier' &&
-	node.parent.property.name === 'exports';
+	node.parent.type === 'MemberExpression'
+	&& !node.parent.optional
+	&& !node.parent.computed
+	&& node.parent.object === node
+	&& node.parent.property.type === 'Identifier'
+	&& node.parent.property.name === 'exports';
 
 function fixDefaultExport(node, sourceCode) {
 	return function * (fixer) {
@@ -261,9 +261,9 @@ function create(context) {
 				case '__filename':
 				case '__dirname': {
 					const messageId = node.name === '__dirname' ? SUGGESTION_DIRNAME : SUGGESTION_FILENAME;
-					const replacement = node.name === '__dirname' ?
-						'path.dirname(url.fileURLToPath(import.meta.url))' :
-						'url.fileURLToPath(import.meta.url)';
+					const replacement = node.name === '__dirname'
+						? 'path.dirname(url.fileURLToPath(import.meta.url))'
+						: 'url.fileURLToPath(import.meta.url)';
 					problem.suggest = [{
 						messageId,
 						fix: fixer => replaceReferenceIdentifier(node, replacement, fixer),

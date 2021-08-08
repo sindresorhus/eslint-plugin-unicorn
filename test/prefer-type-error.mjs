@@ -50,21 +50,19 @@ const tcIdentifiers = new Set([
 	'isXMLDoc',
 ]);
 
-const tcIdentifierInvalidTest = identifier => {
-	return {
-		code: outdent`
-			if (SomeThing.${identifier}(foo) === bar) {
-				throw new Error('foo is bar');
-			}
-		`,
-		output: outdent`
-			if (SomeThing.${identifier}(foo) === bar) {
-				throw new TypeError('foo is bar');
-			}
-		`,
-		errors,
-	};
-};
+const tcIdentifierInvalidTest = identifier => ({
+	code: outdent`
+		if (SomeThing.${identifier}(foo) === bar) {
+			throw new Error('foo is bar');
+		}
+	`,
+	output: outdent`
+		if (SomeThing.${identifier}(foo) === bar) {
+			throw new TypeError('foo is bar');
+		}
+	`,
+	errors,
+});
 
 test({
 	valid: [

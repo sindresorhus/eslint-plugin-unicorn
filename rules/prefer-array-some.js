@@ -22,27 +22,27 @@ const arrayFindCallSelector = methodCallSelector({
 });
 
 const isCheckingUndefined = node =>
-	node.parent.type === 'BinaryExpression' &&
+	node.parent.type === 'BinaryExpression'
 	// Not checking yoda expression `null != foo.find()` and `undefined !== foo.find()
-	node.parent.left === node &&
-	(
+	&& node.parent.left === node
+	&& (
 		(
 			(
-				node.parent.operator === '!=' ||
-				node.parent.operator === '==' ||
-				node.parent.operator === '===' ||
-				node.parent.operator === '!=='
-			) &&
-			node.parent.right.type === 'Identifier' &&
-			node.parent.right.name === 'undefined'
-		) ||
-		(
+				node.parent.operator === '!='
+				|| node.parent.operator === '=='
+				|| node.parent.operator === '==='
+				|| node.parent.operator === '!=='
+			)
+			&& node.parent.right.type === 'Identifier'
+			&& node.parent.right.name === 'undefined'
+		)
+		|| (
 			(
-				node.parent.operator === '!=' ||
-				node.parent.operator === '=='
-			) &&
+				node.parent.operator === '!='
+				|| node.parent.operator === '=='
+			)
 			// eslint-disable-next-line unicorn/no-null
-			isLiteralValue(node.parent.right, null)
+			&& isLiteralValue(node.parent.right, null)
 		)
 	);
 
@@ -58,76 +58,74 @@ const arrayFilterCallSelector = [
 	`${methodCallSelector('filter')}.object`,
 ].join('');
 
-const create = context => {
-	return {
-		[arrayFindCallSelector](findCall) {
-			const isCompare = isCheckingUndefined(findCall);
-			if (!isCompare && !isBooleanNode(findCall)) {
-				return;
-			}
+const create = context => ({
+	[arrayFindCallSelector](findCall) {
+		const isCompare = isCheckingUndefined(findCall);
+		if (!isCompare && !isBooleanNode(findCall)) {
+			return;
+		}
 
-			const findProperty = findCall.callee.property;
-			return {
-				node: findProperty,
-				messageId: ERROR_ID_ARRAY_SOME,
-				suggest: [
-					{
-						messageId: SUGGESTION_ID_ARRAY_SOME,
-						* fix(fixer) {
-							yield fixer.replaceText(findProperty, 'some');
+		const findProperty = findCall.callee.property;
+		return {
+			node: findProperty,
+			messageId: ERROR_ID_ARRAY_SOME,
+			suggest: [
+				{
+					messageId: SUGGESTION_ID_ARRAY_SOME,
+					* fix(fixer) {
+						yield fixer.replaceText(findProperty, 'some');
 
-							if (!isCompare) {
-								return;
-							}
+						if (!isCompare) {
+							return;
+						}
 
-							const parenthesizedRange = getParenthesizedRange(findCall, context.getSourceCode());
-							yield fixer.replaceTextRange([parenthesizedRange[1], findCall.parent.range[1]], '');
+						const parenthesizedRange = getParenthesizedRange(findCall, context.getSourceCode());
+						yield fixer.replaceTextRange([parenthesizedRange[1], findCall.parent.range[1]], '');
 
-							if (findCall.parent.operator === '!=' || findCall.parent.operator === '!==') {
-								return;
-							}
+						if (findCall.parent.operator === '!=' || findCall.parent.operator === '!==') {
+							return;
+						}
 
-							yield fixer.insertTextBeforeRange(parenthesizedRange, '!');
-						},
+						yield fixer.insertTextBeforeRange(parenthesizedRange, '!');
 					},
-				],
-			};
-		},
-		[arrayFilterCallSelector](filterCall) {
-			const filterProperty = filterCall.callee.property;
-			return {
-				node: filterProperty,
-				messageId: ERROR_ID_ARRAY_FILTER,
-				* fix(fixer) {
-					// `.filter` to `.some`
-					yield fixer.replaceText(filterProperty, 'some');
-
-					const sourceCode = context.getSourceCode();
-					const lengthNode = filterCall.parent;
-					/*
-						Remove `.length`
-						`(( (( array.filter() )).length )) > (( 0 ))`
-						------------------------^^^^^^^
-					*/
-					yield removeMemberExpressionProperty(fixer, lengthNode, sourceCode);
-
-					const compareNode = lengthNode.parent;
-					/*
-						Remove `> 0`
-						`(( (( array.filter() )).length )) > (( 0 ))`
-						----------------------------------^^^^^^^^^^
-					*/
-					yield fixer.removeRange([
-						getParenthesizedRange(lengthNode, sourceCode)[1],
-						compareNode.range[1],
-					]);
-
-					// The `BinaryExpression` always ends with a number or `)`, no need check for ASI
 				},
-			};
-		},
-	};
-};
+			],
+		};
+	},
+	[arrayFilterCallSelector](filterCall) {
+		const filterProperty = filterCall.callee.property;
+		return {
+			node: filterProperty,
+			messageId: ERROR_ID_ARRAY_FILTER,
+			* fix(fixer) {
+				// `.filter` to `.some`
+				yield fixer.replaceText(filterProperty, 'some');
+
+				const sourceCode = context.getSourceCode();
+				const lengthNode = filterCall.parent;
+				/*
+					Remove `.length`
+					`(( (( array.filter() )).length )) > (( 0 ))`
+					------------------------^^^^^^^
+				*/
+				yield removeMemberExpressionProperty(fixer, lengthNode, sourceCode);
+
+				const compareNode = lengthNode.parent;
+				/*
+					Remove `> 0`
+					`(( (( array.filter() )).length )) > (( 0 ))`
+					----------------------------------^^^^^^^^^^
+				*/
+				yield fixer.removeRange([
+					getParenthesizedRange(lengthNode, sourceCode)[1],
+					compareNode.range[1],
+				]);
+
+				// The `BinaryExpression` always ends with a number or `)`, no need check for ASI
+			},
+		};
+	},
+});
 
 module.exports = {
 	create: checkVueTemplate(create),

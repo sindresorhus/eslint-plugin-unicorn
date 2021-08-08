@@ -18,34 +18,32 @@ const selector = matches([
 ]);
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	return {
-		[selector](node) {
-			const sourceCode = context.getSourceCode();
-			const filter = node.type === 'RecordExpression' ?
-				token => token.type === 'Punctuator' && (token.value === '#{' || token.value === '{|') :
-				isOpeningBraceToken;
-			const openingBrace = sourceCode.getFirstToken(node, {filter});
-			const closingBrace = sourceCode.getLastToken(node);
-			const [, start] = openingBrace.range;
-			const [end] = closingBrace.range;
-			const textBetween = sourceCode.text.slice(start, end);
+const create = context => ({
+	[selector](node) {
+		const sourceCode = context.getSourceCode();
+		const filter = node.type === 'RecordExpression'
+			? token => token.type === 'Punctuator' && (token.value === '#{' || token.value === '{|')
+			: isOpeningBraceToken;
+		const openingBrace = sourceCode.getFirstToken(node, {filter});
+		const closingBrace = sourceCode.getLastToken(node);
+		const [, start] = openingBrace.range;
+		const [end] = closingBrace.range;
+		const textBetween = sourceCode.text.slice(start, end);
 
-			if (!/^\s+$/.test(textBetween)) {
-				return;
-			}
+		if (!/^\s+$/.test(textBetween)) {
+			return;
+		}
 
-			return {
-				loc: {
-					start: openingBrace.loc.end,
-					end: closingBrace.loc.start,
-				},
-				messageId: MESSAGE_ID,
-				fix: fixer => fixer.removeRange([start, end]),
-			};
-		},
-	};
-};
+		return {
+			loc: {
+				start: openingBrace.loc.end,
+				end: closingBrace.loc.start,
+			},
+			messageId: MESSAGE_ID,
+			fix: fixer => fixer.removeRange([start, end]),
+		};
+	},
+});
 
 module.exports = {
 	create,

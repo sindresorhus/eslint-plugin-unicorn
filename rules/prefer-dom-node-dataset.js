@@ -28,31 +28,29 @@ const fix = (context, node, fixer) => {
 	const value = parseNodeText(context, valueNode);
 
 	const replacement = `${calleeObject}.dataset${
-		isValidVariableName(name) ?
-			`.${name}` :
-			`[${quoteString(name, nameNode.raw.charAt(0))}]`
+		isValidVariableName(name)
+			? `.${name}`
+			: `[${quoteString(name, nameNode.raw.charAt(0))}]`
 	} = ${value}`;
 
 	return fixer.replaceText(node, replacement);
 };
 
-const create = context => {
-	return {
-		[selector](node) {
-			const name = node.arguments[0].value;
+const create = context => ({
+	[selector](node) {
+		const name = node.arguments[0].value;
 
-			if (typeof name !== 'string' || !name.startsWith('data-') || name === 'data-') {
-				return;
-			}
+		if (typeof name !== 'string' || !name.startsWith('data-') || name === 'data-') {
+			return;
+		}
 
-			return {
-				node,
-				messageId: MESSAGE_ID,
-				fix: fixer => fix(context, node, fixer),
-			};
-		},
-	};
-};
+		return {
+			node,
+			messageId: MESSAGE_ID,
+			fix: fixer => fix(context, node, fixer),
+		};
+	},
+});
 
 module.exports = {
 	create,
