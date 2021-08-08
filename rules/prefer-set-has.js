@@ -124,69 +124,67 @@ const isMultipleCall = (identifier, node) => {
 	return false;
 };
 
-const create = context => {
-	return {
-		[selector]: node => {
-			const variable = findVariable(context.getScope(), node);
+const create = context => ({
+	[selector]: node => {
+		const variable = findVariable(context.getScope(), node);
 
-			// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768073342
-			// But can't reproduce, just ignore this case
-			/* istanbul ignore next */
-			if (!variable) {
-				return;
-			}
+		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768073342
+		// But can't reproduce, just ignore this case
+		/* istanbul ignore next */
+		if (!variable) {
+			return;
+		}
 
-			const identifiers = getVariableIdentifiers(variable).filter(identifier => identifier !== node);
+		const identifiers = getVariableIdentifiers(variable).filter(identifier => identifier !== node);
 
-			if (
-				identifiers.length === 0 ||
+		if (
+			identifiers.length === 0 ||
 				identifiers.some(identifier => !isIncludesCall(identifier))
-			) {
-				return;
-			}
+		) {
+			return;
+		}
 
-			if (
-				identifiers.length === 1 &&
+		if (
+			identifiers.length === 1 &&
 				identifiers.every(identifier => !isMultipleCall(identifier, node))
-			) {
-				return;
+		) {
+			return;
+		}
+
+		const problem = {
+			node,
+			messageId: MESSAGE_ID_ERROR,
+			data: {
+				name: node.name,
+			},
+		};
+
+		const fix = function * (fixer) {
+			yield fixer.insertTextBefore(node.parent.init, 'new Set(');
+			yield fixer.insertTextAfter(node.parent.init, ')');
+
+			for (const identifier of identifiers) {
+				yield fixer.replaceText(identifier.parent.property, 'has');
 			}
+		};
 
-			const problem = {
-				node,
-				messageId: MESSAGE_ID_ERROR,
-				data: {
-					name: node.name,
-				},
-			};
-
-			const fix = function * (fixer) {
-				yield fixer.insertTextBefore(node.parent.init, 'new Set(');
-				yield fixer.insertTextAfter(node.parent.init, ')');
-
-				for (const identifier of identifiers) {
-					yield fixer.replaceText(identifier.parent.property, 'has');
-				}
-			};
-
-			if (node.typeAnnotation) {
-				problem.suggest = [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						data: {
-							name: node.name,
-						},
-						fix,
+		if (node.typeAnnotation) {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					data: {
+						name: node.name,
 					},
-				];
-			} else {
-				problem.fix = fix;
-			}
+					fix,
+				},
+			];
+		} else {
+			problem.fix = fix;
+		}
 
-			return problem;
-		},
-	};
-};
+		return problem;
+	},
+});
 
 module.exports = {
 	create,

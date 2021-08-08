@@ -193,13 +193,11 @@ const customErrorExport = (context, node) => {
 	};
 };
 
-const create = context => {
-	return {
-		ClassDeclaration: node => customErrorDefinition(context, node),
-		'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
-		'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node),
-	};
-};
+const create = context => ({
+	ClassDeclaration: node => customErrorDefinition(context, node),
+	'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
+	'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node),
+});
 
 module.exports = {
 	create,

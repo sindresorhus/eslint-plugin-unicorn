@@ -64,21 +64,19 @@ const fixFunctionPrototypeCall = (node, sourceCode) => {
 	}
 };
 
-const create = context => {
-	return {
-		[selector]: node => {
-			const sourceCode = context.getSourceCode();
-			const fix = fixDirectApplyCall(node, sourceCode) || fixFunctionPrototypeCall(node, sourceCode);
-			if (fix) {
-				return {
-					node,
-					messageId: MESSAGE_ID,
-					fix,
-				};
-			}
-		},
-	};
-};
+const create = context => ({
+	[selector]: node => {
+		const sourceCode = context.getSourceCode();
+		const fix = fixDirectApplyCall(node, sourceCode) || fixFunctionPrototypeCall(node, sourceCode);
+		if (fix) {
+			return {
+				node,
+				messageId: MESSAGE_ID,
+				fix,
+			};
+		}
+	},
+});
 
 module.exports = {
 	create,

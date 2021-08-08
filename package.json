@@ -96,7 +96,6 @@
 			"test/integration/{fixtures,fixtures-local}/**"
 		],
 		"rules": {
-			"arrow-body-style": "off",
 			"operator-linebreak": "off",
 			"unicorn/no-null": "error"
 		},

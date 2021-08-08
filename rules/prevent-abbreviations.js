@@ -215,9 +215,7 @@ const isExportedIdentifier = identifier => {
 	return false;
 };
 
-const shouldFix = variable => {
-	return !getVariableIdentifiers(variable).some(identifier => isExportedIdentifier(identifier));
-};
+const shouldFix = variable => !getVariableIdentifiers(variable).some(identifier => isExportedIdentifier(identifier));
 
 const isDefaultOrNamespaceImportName = identifier => {
 	if (

@@ -138,28 +138,26 @@ const checkUpdateExpression = (forStatement, indexIdentifierName) => {
 	return false;
 };
 
-const isOnlyArrayOfIndexVariableRead = (arrayReferences, indexIdentifierName) => {
-	return arrayReferences.every(reference => {
-		const node = reference.identifier.parent;
+const isOnlyArrayOfIndexVariableRead = (arrayReferences, indexIdentifierName) => arrayReferences.every(reference => {
+	const node = reference.identifier.parent;
 
-		if (node.type !== 'MemberExpression') {
-			return false;
-		}
+	if (node.type !== 'MemberExpression') {
+		return false;
+	}
 
-		if (node.property.name !== indexIdentifierName) {
-			return false;
-		}
+	if (node.property.name !== indexIdentifierName) {
+		return false;
+	}
 
-		if (
-			node.parent.type === 'AssignmentExpression' &&
+	if (
+		node.parent.type === 'AssignmentExpression' &&
 			node.parent.left === node
-		) {
-			return false;
-		}
+	) {
+		return false;
+	}
 
-		return true;
-	});
-};
+	return true;
+});
 
 const getRemovalRange = (node, sourceCode) => {
 	const declarationNode = node.parent;
@@ -247,20 +245,17 @@ const isIndexVariableUsedElsewhereInTheLoopBody = (indexVariable, bodyScope, arr
 	return referencesOtherThanArrayAccess.length > 0;
 };
 
-const isIndexVariableAssignedToInTheLoopBody = (indexVariable, bodyScope) => {
-	return indexVariable.references
+const isIndexVariableAssignedToInTheLoopBody = (indexVariable, bodyScope) =>
+	indexVariable.references
 		.filter(reference => scopeContains(bodyScope, reference.from))
 		.some(inBodyReference => inBodyReference.isWrite());
-};
 
-const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) => {
-	return variables.some(variable => {
-		return !variable.references.every(reference => {
-			return scopeContains(forScope, reference.from) ||
-				nodeContains(forStatement, reference.identifier);
-		});
-	});
-};
+const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) =>
+	variables.some(
+		variable => !variable.references.every(
+			reference => scopeContains(forScope, reference.from) || nodeContains(forStatement, reference.identifier),
+		),
+	);
 
 const getReferencesInChildScopes = (scope, name) =>
 	getReferences(scope).filter(reference => reference.identifier.name === name);

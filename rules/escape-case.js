@@ -20,34 +20,32 @@ const getProblem = ({node, original, regex = escapeWithLowercase, fix}) => {
 	}
 };
 
-const create = () => {
-	return {
-		Literal(node) {
-			if (typeof node.value !== 'string') {
-				return;
-			}
+const create = () => ({
+	Literal(node) {
+		if (typeof node.value !== 'string') {
+			return;
+		}
 
-			return getProblem({
-				node,
-				original: node.raw,
-			});
-		},
-		'Literal[regex]'(node) {
-			return getProblem({
-				node,
-				original: node.raw,
-				regex: escapePatternWithLowercase,
-			});
-		},
-		TemplateElement(node) {
-			return getProblem({
-				node,
-				original: node.value.raw,
-				fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed),
-			});
-		},
-	};
-};
+		return getProblem({
+			node,
+			original: node.raw,
+		});
+	},
+	'Literal[regex]'(node) {
+		return getProblem({
+			node,
+			original: node.raw,
+			regex: escapePatternWithLowercase,
+		});
+	},
+	TemplateElement(node) {
+		return getProblem({
+			node,
+			original: node.value.raw,
+			fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed),
+		});
+	},
+});
 
 module.exports = {
 	create,

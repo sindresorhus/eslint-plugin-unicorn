@@ -1,15 +1,13 @@
 'use strict';
 const {getParenthesizedRange} = require('../utils/parentheses.js');
 
-const isProblematicToken = ({type, value}) => {
-	return (
-		(type === 'Keyword' && /^[a-z]*$/.test(value)) ||
-		// ForOfStatement
-		(type === 'Identifier' && value === 'of') ||
-		// AwaitExpression
-		(type === 'Identifier' && value === 'await')
-	);
-};
+const isProblematicToken = ({type, value}) => (
+	(type === 'Keyword' && /^[a-z]*$/.test(value)) ||
+	// ForOfStatement
+	(type === 'Identifier' && value === 'of') ||
+	// AwaitExpression
+	(type === 'Identifier' && value === 'await')
+);
 
 function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 	const range = getParenthesizedRange(node, sourceCode);

@@ -99,29 +99,27 @@ const fix = (node, identifierName, preferredSelector) => {
 	};
 };
 
-const create = () => {
-	return {
-		[selector](node) {
-			const method = node.callee.property.name;
-			const preferredSelector = forbiddenIdentifierNames.get(method);
+const create = () => ({
+	[selector](node) {
+		const method = node.callee.property.name;
+		const preferredSelector = forbiddenIdentifierNames.get(method);
 
-			const problem = {
-				node: node.callee.property,
-				messageId: MESSAGE_ID,
-				data: {
-					replacement: preferredSelector,
-					method,
-				},
-			};
+		const problem = {
+			node: node.callee.property,
+			messageId: MESSAGE_ID,
+			data: {
+				replacement: preferredSelector,
+				method,
+			},
+		};
 
-			if (canBeFixed(node.arguments[0])) {
-				problem.fix = fix(node, method, preferredSelector);
-			}
+		if (canBeFixed(node.arguments[0])) {
+			problem.fix = fix(node, method, preferredSelector);
+		}
 
-			return problem;
-		},
-	};
-};
+		return problem;
+	},
+});
 
 module.exports = {
 	create,

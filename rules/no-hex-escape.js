@@ -21,18 +21,14 @@ function checkEscape(context, node, value) {
 	}
 }
 
-const create = context => {
-	return {
-		Literal: node => {
-			if (node.regex || typeof node.value === 'string') {
-				return checkEscape(context, node, node.raw);
-			}
-		},
-		TemplateElement: node => {
-			return checkEscape(context, node, node.value.raw);
-		},
-	};
-};
+const create = context => ({
+	Literal: node => {
+		if (node.regex || typeof node.value === 'string') {
+			return checkEscape(context, node, node.raw);
+		}
+	},
+	TemplateElement: node => checkEscape(context, node, node.value.raw),
+});
 
 module.exports = {
 	create,

@@ -89,16 +89,14 @@ const create = context => {
 
 			return problem;
 		},
-		[bitwiseNotUnaryExpressionSelector]: node => {
-			return {
-				node,
-				messageId: ERROR_BITWISE_NOT,
-				* fix(fixer) {
-					yield fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument));
-					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
-				},
-			};
-		},
+		[bitwiseNotUnaryExpressionSelector]: node => ({
+			node,
+			messageId: ERROR_BITWISE_NOT,
+			* fix(fixer) {
+				yield fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument));
+				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+			},
+		}),
 	};
 };
 

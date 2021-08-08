@@ -110,24 +110,22 @@ const isTypecheckingExpression = (node, callExpression) => {
 
 const isTypechecking = node => node.type === 'IfStatement' && isTypecheckingExpression(node.test);
 
-const create = () => {
-	return {
-		[selector]: node => {
-			if (
-				isLone(node) &&
-				node.parent.parent &&
-				isTypechecking(node.parent.parent)
-			) {
-				const errorConstructor = node.argument.callee;
-				return {
-					node: errorConstructor,
-					messageId: MESSAGE_ID,
-					fix: fixer => fixer.insertTextBefore(errorConstructor, 'Type'),
-				};
-			}
-		},
-	};
-};
+const create = () => ({
+	[selector]: node => {
+		if (
+			isLone(node) &&
+			node.parent.parent &&
+			isTypechecking(node.parent.parent)
+		) {
+			const errorConstructor = node.argument.callee;
+			return {
+				node: errorConstructor,
+				messageId: MESSAGE_ID,
+				fix: fixer => fixer.insertTextBefore(errorConstructor, 'Type'),
+			};
+		}
+	},
+});
 
 module.exports = {
 	create,

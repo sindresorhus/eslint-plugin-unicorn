@@ -9,16 +9,14 @@ const prepareOptions = ({
 	disallowedPrefixes,
 	checkProperties = true,
 	onlyCamelCase = true,
-} = {}) => {
-	return {
-		disallowedPrefixes: (disallowedPrefixes || [
-			'new',
-			'class',
-		]),
-		checkProperties,
-		onlyCamelCase,
-	};
-};
+} = {}) => ({
+	disallowedPrefixes: (disallowedPrefixes || [
+		'new',
+		'class',
+	]),
+	checkProperties,
+	onlyCamelCase,
+});
 
 function findKeywordPrefix(name, options) {
 	return options.disallowedPrefixes.find(keyword => {

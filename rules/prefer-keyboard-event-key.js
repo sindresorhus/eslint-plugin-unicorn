@@ -104,65 +104,63 @@ const getProblem = node => ({
 	fix: fix(node),
 });
 
-const create = context => {
-	return {
-		'Identifier:matches([name="keyCode"], [name="charCode"], [name="which"])'(node) {
-			// Normal case when usage is direct -> `event.keyCode`
-			const {event, references} = getEventNodeAndReferences(context, node);
-			if (!event) {
-				return;
-			}
+const create = context => ({
+	'Identifier:matches([name="keyCode"], [name="charCode"], [name="which"])'(node) {
+		// Normal case when usage is direct -> `event.keyCode`
+		const {event, references} = getEventNodeAndReferences(context, node);
+		if (!event) {
+			return;
+		}
 
-			if (
-				references &&
+		if (
+			references &&
 				references.some(reference => isPropertyOf(node, reference.identifier))
-			) {
-				return getProblem(node);
-			}
-		},
+		) {
+			return getProblem(node);
+		}
+	},
 
-		Property(node) {
-			// Destructured case
-			const propertyName = node.value && node.value.name;
-			if (!keys.has(propertyName)) {
-				return;
-			}
+	Property(node) {
+		// Destructured case
+		const propertyName = node.value && node.value.name;
+		if (!keys.has(propertyName)) {
+			return;
+		}
 
-			const {event, references} = getEventNodeAndReferences(context, node);
-			if (!event) {
-				return;
-			}
+		const {event, references} = getEventNodeAndReferences(context, node);
+		if (!event) {
+			return;
+		}
 
-			const nearestVariableDeclarator = getMatchingAncestorOfType(
-				node,
-				'VariableDeclarator',
-			);
-			const initObject =
+		const nearestVariableDeclarator = getMatchingAncestorOfType(
+			node,
+			'VariableDeclarator',
+		);
+		const initObject =
 				nearestVariableDeclarator &&
 				nearestVariableDeclarator.init &&
 				nearestVariableDeclarator.init;
 
-			// Make sure initObject is a reference of eventVariable
-			if (
-				references &&
+		// Make sure initObject is a reference of eventVariable
+		if (
+			references &&
 				references.some(reference => reference.identifier === initObject)
-			) {
-				return getProblem(node.value);
-			}
+		) {
+			return getProblem(node.value);
+		}
 
-			// When the event parameter itself is destructured directly
-			const isEventParameterDestructured = event.type === 'ObjectPattern';
-			if (isEventParameterDestructured) {
-				// Check for properties
-				for (const property of event.properties) {
-					if (property === node) {
-						return getProblem(node.value);
-					}
+		// When the event parameter itself is destructured directly
+		const isEventParameterDestructured = event.type === 'ObjectPattern';
+		if (isEventParameterDestructured) {
+			// Check for properties
+			for (const property of event.properties) {
+				if (property === node) {
+					return getProblem(node.value);
 				}
 			}
-		},
-	};
-};
+		}
+	},
+});
 
 module.exports = {
 	create,

@@ -42,27 +42,25 @@ function removeEscapeCharacters(regexString) {
 	return fixedString;
 }
 
-const create = () => {
-	return {
-		[selector]: node => {
-			const {arguments: arguments_, callee} = node;
-			const [search] = arguments_;
+const create = () => ({
+	[selector]: node => {
+		const {arguments: arguments_, callee} = node;
+		const [search] = arguments_;
 
-			if (!isRegexWithGlobalFlag(search) || !isLiteralCharactersOnly(search)) {
-				return;
-			}
+		if (!isRegexWithGlobalFlag(search) || !isLiteralCharactersOnly(search)) {
+			return;
+		}
 
-			return {
-				node,
-				messageId: MESSAGE_ID,
-				fix: fixer => [
-					fixer.insertTextAfter(callee, 'All'),
-					fixer.replaceText(search, quoteString(removeEscapeCharacters(search.regex.pattern))),
-				],
-			};
-		},
-	};
-};
+		return {
+			node,
+			messageId: MESSAGE_ID,
+			fix: fixer => [
+				fixer.insertTextAfter(callee, 'All'),
+				fixer.replaceText(search, quoteString(removeEscapeCharacters(search.regex.pattern))),
+			],
+		};
+	},
+});
 
 module.exports = {
 	create,

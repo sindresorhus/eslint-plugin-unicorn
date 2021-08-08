@@ -12,58 +12,56 @@ const messages = {
 	[MESSAGE_DANGLING_DOT]: 'Don\'t use a dangling dot in the number.',
 };
 
-const create = context => {
-	return {
-		Literal: node => {
-			if (!isNumber(node)) {
-				return;
-			}
+const create = context => ({
+	Literal: node => {
+		if (!isNumber(node)) {
+			return;
+		}
 
-			// Legacy octal number `0777` and prefixed number `0o1234` cannot have a dot.
-			const {raw} = node;
-			const match = raw.match(/^(?<before>[\d_]*)(?<dotAndFractions>\.[\d_]*)(?<after>.*)$/);
-			if (!match) {
-				return;
-			}
+		// Legacy octal number `0777` and prefixed number `0o1234` cannot have a dot.
+		const {raw} = node;
+		const match = raw.match(/^(?<before>[\d_]*)(?<dotAndFractions>\.[\d_]*)(?<after>.*)$/);
+		if (!match) {
+			return;
+		}
 
-			const {before, dotAndFractions, after} = match.groups;
-			const fixedDotAndFractions = dotAndFractions.replace(/[.0_]+$/g, '');
-			const formatted = ((before + fixedDotAndFractions) || '0') + after;
+		const {before, dotAndFractions, after} = match.groups;
+		const fixedDotAndFractions = dotAndFractions.replace(/[.0_]+$/g, '');
+		const formatted = ((before + fixedDotAndFractions) || '0') + after;
 
-			if (formatted === raw) {
-				return;
-			}
+		if (formatted === raw) {
+			return;
+		}
 
-			const isDanglingDot = dotAndFractions === '.';
-			// End of fractions
-			const end = node.range[0] + before.length + dotAndFractions.length;
-			const start = end - (raw.length - formatted.length);
-			const sourceCode = context.getSourceCode();
-			return {
-				loc: toLocation([start, end], sourceCode),
-				messageId: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
-				* fix(fixer) {
-					let fixed = formatted;
-					if (
-						node.parent.type === 'MemberExpression' &&
+		const isDanglingDot = dotAndFractions === '.';
+		// End of fractions
+		const end = node.range[0] + before.length + dotAndFractions.length;
+		const start = end - (raw.length - formatted.length);
+		const sourceCode = context.getSourceCode();
+		return {
+			loc: toLocation([start, end], sourceCode),
+			messageId: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
+			* fix(fixer) {
+				let fixed = formatted;
+				if (
+					node.parent.type === 'MemberExpression' &&
 						node.parent.object === node &&
 						isDecimalInteger(formatted) &&
 						!isParenthesized(node, sourceCode)
-					) {
-						fixed = `(${fixed})`;
+				) {
+					fixed = `(${fixed})`;
 
-						if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, fixed)) {
-							fixed = `;${fixed}`;
-						}
+					if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, fixed)) {
+						fixed = `;${fixed}`;
 					}
+				}
 
-					yield fixer.replaceText(node, fixed);
-					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
-				},
-			};
-		},
-	};
-};
+				yield fixer.replaceText(node, fixed);
+				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+			},
+		};
+	},
+});
 
 module.exports = {
 	create,

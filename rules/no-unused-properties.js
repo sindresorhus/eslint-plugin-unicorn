@@ -52,15 +52,14 @@ const propertyKeysEqual = (keyA, keyB) => {
 	return false;
 };
 
-const objectPatternMatchesObjectExprPropertyKey = (pattern, key) => {
-	return pattern.properties.some(property => {
+const objectPatternMatchesObjectExprPropertyKey = (pattern, key) =>
+	pattern.properties.some(property => {
 		if (property.type === 'RestElement') {
 			return true;
 		}
 
 		return propertyKeysEqual(property.key, key);
 	});
-};
 
 const isLeafDeclaratorOrProperty = declaratorOrProperty => {
 	const value = getDeclaratorOrPropertyValue(declaratorOrProperty);

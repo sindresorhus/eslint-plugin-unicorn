@@ -24,60 +24,58 @@ const selector = callOrNewExpressionSelector([
 	'AggregateError',
 ]);
 
-const create = context => {
-	return {
-		[selector](expression) {
-			const constructorName = expression.callee.name;
-			const messageArgumentIndex = constructorName === 'AggregateError' ? 1 : 0;
-			const callArguments = expression.arguments;
+const create = context => ({
+	[selector](expression) {
+		const constructorName = expression.callee.name;
+		const messageArgumentIndex = constructorName === 'AggregateError' ? 1 : 0;
+		const callArguments = expression.arguments;
 
-			// If message is `SpreadElement` or there is `SpreadElement` before message
-			if (callArguments.some((node, index) => index <= messageArgumentIndex && node.type === 'SpreadElement')) {
-				return;
-			}
+		// If message is `SpreadElement` or there is `SpreadElement` before message
+		if (callArguments.some((node, index) => index <= messageArgumentIndex && node.type === 'SpreadElement')) {
+			return;
+		}
 
-			const node = callArguments[messageArgumentIndex];
-			if (!node) {
-				return {
-					node: expression,
-					messageId: MESSAGE_ID_MISSING_MESSAGE,
-					data: {constructorName},
-				};
-			}
+		const node = callArguments[messageArgumentIndex];
+		if (!node) {
+			return {
+				node: expression,
+				messageId: MESSAGE_ID_MISSING_MESSAGE,
+				data: {constructorName},
+			};
+		}
 
-			// These types can't be string, and `getStaticValue` may don't know the value
-			// Add more types, if issue reported
-			if (node.type === 'ArrayExpression' || node.type === 'ObjectExpression') {
-				return {
-					node,
-					messageId: MESSAGE_ID_NOT_STRING,
-				};
-			}
+		// These types can't be string, and `getStaticValue` may don't know the value
+		// Add more types, if issue reported
+		if (node.type === 'ArrayExpression' || node.type === 'ObjectExpression') {
+			return {
+				node,
+				messageId: MESSAGE_ID_NOT_STRING,
+			};
+		}
 
-			const staticResult = getStaticValue(node, context.getScope());
+		const staticResult = getStaticValue(node, context.getScope());
 
-			// We don't know the value of `message`
-			if (!staticResult) {
-				return;
-			}
+		// We don't know the value of `message`
+		if (!staticResult) {
+			return;
+		}
 
-			const {value} = staticResult;
-			if (typeof value !== 'string') {
-				return {
-					node,
-					messageId: MESSAGE_ID_NOT_STRING,
-				};
-			}
+		const {value} = staticResult;
+		if (typeof value !== 'string') {
+			return {
+				node,
+				messageId: MESSAGE_ID_NOT_STRING,
+			};
+		}
 
-			if (value === '') {
-				return {
-					node,
-					messageId: MESSAGE_ID_EMPTY_MESSAGE,
-				};
-			}
-		},
-	};
-};
+		if (value === '') {
+			return {
+				node,
+				messageId: MESSAGE_ID_EMPTY_MESSAGE,
+			};
+		}
+	},
+});
 
 module.exports = {
 	create,

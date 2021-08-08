@@ -36,23 +36,21 @@ const fix = (context, node, fixer) => {
 	return fixer.replaceText(node, replacement);
 };
 
-const create = context => {
-	return {
-		[selector](node) {
-			const name = node.arguments[0].value;
+const create = context => ({
+	[selector](node) {
+		const name = node.arguments[0].value;
 
-			if (typeof name !== 'string' || !name.startsWith('data-') || name === 'data-') {
-				return;
-			}
+		if (typeof name !== 'string' || !name.startsWith('data-') || name === 'data-') {
+			return;
+		}
 
-			return {
-				node,
-				messageId: MESSAGE_ID,
-				fix: fixer => fix(context, node, fixer),
-			};
-		},
-	};
-};
+		return {
+			node,
+			messageId: MESSAGE_ID,
+			fix: fixer => fix(context, node, fixer),
+		};
+	},
+});
 
 module.exports = {
 	create,

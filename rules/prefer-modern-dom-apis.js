@@ -111,16 +111,14 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 	};
 };
 
-const create = context => {
-	return {
-		[replaceChildOrInsertBeforeSelector](node) {
-			return checkForReplaceChildOrInsertBefore(context, node);
-		},
-		[insertAdjacentTextOrInsertAdjacentElementSelector](node) {
-			return checkForInsertAdjacentTextOrInsertAdjacentElement(context, node);
-		},
-	};
-};
+const create = context => ({
+	[replaceChildOrInsertBeforeSelector](node) {
+		return checkForReplaceChildOrInsertBefore(context, node);
+	},
+	[insertAdjacentTextOrInsertAdjacentElementSelector](node) {
+		return checkForInsertAdjacentTextOrInsertAdjacentElement(context, node);
+	},
+});
 
 module.exports = {
 	create,
