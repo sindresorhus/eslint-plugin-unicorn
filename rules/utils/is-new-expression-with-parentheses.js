@@ -18,9 +18,9 @@ function isNewExpressionWithParentheses(node, sourceCode) {
 
 	const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
 	// The expression should end with its own parens, for example, `new new Foo()` is not a new expression with parens.
-	return isOpeningParenToken(penultimateToken) &&
-		isClosingParenToken(lastToken) &&
-		node.callee.range[1] < node.range[1];
+	return isOpeningParenToken(penultimateToken)
+		&& isClosingParenToken(lastToken)
+		&& node.callee.range[1] < node.range[1];
 }
 
 module.exports = isNewExpressionWithParentheses;

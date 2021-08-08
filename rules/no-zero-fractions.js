@@ -44,10 +44,10 @@ const create = context => ({
 			* fix(fixer) {
 				let fixed = formatted;
 				if (
-					node.parent.type === 'MemberExpression' &&
-						node.parent.object === node &&
-						isDecimalInteger(formatted) &&
-						!isParenthesized(node, sourceCode)
+					node.parent.type === 'MemberExpression'
+					&& node.parent.object === node
+					&& isDecimalInteger(formatted)
+					&& !isParenthesized(node, sourceCode)
 				) {
 					fixed = `(${fixed})`;
 

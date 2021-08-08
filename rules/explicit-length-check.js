@@ -17,13 +17,13 @@ const messages = {
 };
 
 const isCompareRight = (node, operator, value) =>
-	node.type === 'BinaryExpression' &&
-	node.operator === operator &&
-	isLiteralValue(node.right, value);
+	node.type === 'BinaryExpression'
+	&& node.operator === operator
+	&& isLiteralValue(node.right, value);
 const isCompareLeft = (node, operator, value) =>
-	node.type === 'BinaryExpression' &&
-	node.operator === operator &&
-	isLiteralValue(node.left, value);
+	node.type === 'BinaryExpression'
+	&& node.operator === operator
+	&& isLiteralValue(node.left, value);
 const nonZeroStyles = new Map([
 	[
 		'greater-than',
@@ -53,17 +53,17 @@ function getLengthCheckNode(node) {
 	// Zero length check
 	if (
 		// `foo.length === 0`
-		isCompareRight(node, '===', 0) ||
+		isCompareRight(node, '===', 0)
 		// `foo.length == 0`
-		isCompareRight(node, '==', 0) ||
+		|| isCompareRight(node, '==', 0)
 		// `foo.length < 1`
-		isCompareRight(node, '<', 1) ||
+		|| isCompareRight(node, '<', 1)
 		// `0 === foo.length`
-		isCompareLeft(node, '===', 0) ||
+		|| isCompareLeft(node, '===', 0)
 		// `0 == foo.length`
-		isCompareLeft(node, '==', 0) ||
+		|| isCompareLeft(node, '==', 0)
 		// `1 > foo.length`
-		isCompareLeft(node, '>', 1)
+		|| isCompareLeft(node, '>', 1)
 	) {
 		return {isZeroLengthCheck: true, node};
 	}
@@ -71,21 +71,21 @@ function getLengthCheckNode(node) {
 	// Non-Zero length check
 	if (
 		// `foo.length !== 0`
-		isCompareRight(node, '!==', 0) ||
+		isCompareRight(node, '!==', 0)
 		// `foo.length != 0`
-		isCompareRight(node, '!=', 0) ||
+		|| isCompareRight(node, '!=', 0)
 		// `foo.length > 0`
-		isCompareRight(node, '>', 0) ||
+		|| isCompareRight(node, '>', 0)
 		// `foo.length >= 1`
-		isCompareRight(node, '>=', 1) ||
+		|| isCompareRight(node, '>=', 1)
 		// `0 !== foo.length`
-		isCompareLeft(node, '!==', 0) ||
+		|| isCompareLeft(node, '!==', 0)
 		// `0 !== foo.length`
-		isCompareLeft(node, '!=', 0) ||
+		|| isCompareLeft(node, '!=', 0)
 		// `0 < foo.length`
-		isCompareLeft(node, '<', 0) ||
+		|| isCompareLeft(node, '<', 0)
 		// `1 <= foo.length`
-		isCompareLeft(node, '<=', 1)
+		|| isCompareLeft(node, '<=', 1)
 	) {
 		return {isZeroLengthCheck: false, node};
 	}
@@ -109,9 +109,9 @@ function create(context) {
 
 		let fixed = `${sourceCode.getText(lengthNode)} ${code}`;
 		if (
-			!isParenthesized(node, sourceCode) &&
-			node.type === 'UnaryExpression' &&
-			(node.parent.type === 'UnaryExpression' || node.parent.type === 'AwaitExpression')
+			!isParenthesized(node, sourceCode)
+			&& node.type === 'UnaryExpression'
+			&& (node.parent.type === 'UnaryExpression' || node.parent.type === 'AwaitExpression')
 		) {
 			fixed = `(${fixed})`;
 		}

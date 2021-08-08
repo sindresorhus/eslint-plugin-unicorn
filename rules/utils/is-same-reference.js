@@ -80,10 +80,10 @@ function equalLiteralValue(left, right) {
 	// RegExp literal.
 	if (left.regex || right.regex) {
 		return Boolean(
-			left.regex &&
-			right.regex &&
-			left.regex.pattern === right.regex.pattern &&
-			left.regex.flags === right.regex.flags,
+			left.regex
+			&& right.regex
+			&& left.regex.pattern === right.regex.pattern
+			&& left.regex.flags === right.regex.flags,
 		);
 	}
 
@@ -138,9 +138,9 @@ function isSameReference(left, right) {
 
 			// X.y = x["y"]
 			return (
-				typeof nameA !== 'undefined' &&
-				isSameReference(left.object, right.object) &&
-					nameA === getStaticPropertyName(right)
+				typeof nameA !== 'undefined'
+				&& isSameReference(left.object, right.object)
+				&& nameA === getStaticPropertyName(right)
 			);
 		}
 

@@ -32,8 +32,8 @@ Determines if a semicolon needs to be inserted before `code`, in order to avoid 
 
 function needsSemicolon(tokenBefore, sourceCode, code) {
 	if (
-		code === '' ||
-		(code && !charactersMightNeedsSemicolon.has(code.charAt(0)))
+		code === ''
+		|| (code && !charactersMightNeedsSemicolon.has(code.charAt(0)))
 	) {
 		return false;
 	}

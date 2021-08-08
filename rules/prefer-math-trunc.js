@@ -43,8 +43,8 @@ const create = context => {
 			const {type, operator, right, left} = node;
 			const isAssignment = type === 'AssignmentExpression';
 			if (
-				right.value !== 0 ||
-				!bitwiseOperators.has(isAssignment ? operator.slice(0, -1) : operator)
+				right.value !== 0
+				|| !bitwiseOperators.has(isAssignment ? operator.slice(0, -1) : operator)
 			) {
 				return;
 			}

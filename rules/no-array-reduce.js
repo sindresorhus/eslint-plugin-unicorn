@@ -67,11 +67,11 @@ const create = context => {
 				return;
 			}
 
-			if ((callback.type === 'ArrowFunctionExpression' || callback.type === 'FunctionExpression') &&
-				callback.body.type === 'BlockStatement' &&
-				callback.body.body.length === 1 &&
-				callback.body.body[0].type === 'ReturnStatement' &&
-				callback.body.body[0].argument.type === 'BinaryExpression') {
+			if ((callback.type === 'ArrowFunctionExpression' || callback.type === 'FunctionExpression')
+				&& callback.body.type === 'BlockStatement'
+				&& callback.body.body.length === 1
+				&& callback.body.body[0].type === 'ReturnStatement'
+				&& callback.body.body[0].argument.type === 'BinaryExpression') {
 				return;
 			}
 

@@ -16,8 +16,8 @@ const create = () => ({
 	'Literal[regex]': node => {
 		// Handle regex literal inside RegExp constructor in the other handler
 		if (
-			node.parent.type === 'NewExpression' &&
-				node.parent.callee.name === 'RegExp'
+			node.parent.type === 'NewExpression'
+				&& node.parent.callee.name === 'RegExp'
 		) {
 			return;
 		}

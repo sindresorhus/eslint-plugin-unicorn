@@ -22,27 +22,27 @@ const arrayFindCallSelector = methodCallSelector({
 });
 
 const isCheckingUndefined = node =>
-	node.parent.type === 'BinaryExpression' &&
+	node.parent.type === 'BinaryExpression'
 	// Not checking yoda expression `null != foo.find()` and `undefined !== foo.find()
-	node.parent.left === node &&
-	(
+	&& node.parent.left === node
+	&& (
 		(
 			(
-				node.parent.operator === '!=' ||
-				node.parent.operator === '==' ||
-				node.parent.operator === '===' ||
-				node.parent.operator === '!=='
-			) &&
-			node.parent.right.type === 'Identifier' &&
-			node.parent.right.name === 'undefined'
-		) ||
-		(
+				node.parent.operator === '!='
+				|| node.parent.operator === '=='
+				|| node.parent.operator === '==='
+				|| node.parent.operator === '!=='
+			)
+			&& node.parent.right.type === 'Identifier'
+			&& node.parent.right.name === 'undefined'
+		)
+		|| (
 			(
-				node.parent.operator === '!=' ||
-				node.parent.operator === '=='
-			) &&
+				node.parent.operator === '!='
+				|| node.parent.operator === '=='
+			)
 			// eslint-disable-next-line unicorn/no-null
-			isLiteralValue(node.parent.right, null)
+			&& isLiteralValue(node.parent.right, null)
 		)
 	);
 

@@ -82,17 +82,17 @@ const isIncludesCall = node => {
 
 	const {type, optional, callee, arguments: includesArguments} = node.parent.parent;
 	return (
-		type === 'CallExpression' &&
-		!optional &&
-		callee &&
-		callee.type === 'MemberExpression' &&
-		!callee.computed &&
-		!callee.optional &&
-		callee.object === node &&
-		callee.property.type === 'Identifier' &&
-		callee.property.name === 'includes' &&
-		includesArguments.length === 1 &&
-		includesArguments[0].type !== 'SpreadElement'
+		type === 'CallExpression'
+		&& !optional
+		&& callee
+		&& callee.type === 'MemberExpression'
+		&& !callee.computed
+		&& !callee.optional
+		&& callee.object === node
+		&& callee.property.type === 'Identifier'
+		&& callee.property.name === 'includes'
+		&& includesArguments.length === 1
+		&& includesArguments[0].type !== 'SpreadElement'
 	);
 };
 
@@ -111,8 +111,8 @@ const isMultipleCall = (identifier, node) => {
 	const root = node.parent.parent.parent;
 	let {parent} = identifier.parent; // `.include()` callExpression
 	while (
-		parent &&
-		parent !== root
+		parent
+		&& parent !== root
 	) {
 		if (multipleCallNodeTypes.has(parent.type)) {
 			return true;
@@ -138,15 +138,15 @@ const create = context => ({
 		const identifiers = getVariableIdentifiers(variable).filter(identifier => identifier !== node);
 
 		if (
-			identifiers.length === 0 ||
-				identifiers.some(identifier => !isIncludesCall(identifier))
+			identifiers.length === 0
+			|| identifiers.some(identifier => !isIncludesCall(identifier))
 		) {
 			return;
 		}
 
 		if (
-			identifiers.length === 1 &&
-				identifiers.every(identifier => !isMultipleCall(identifier, node))
+			identifiers.length === 1
+			&& identifiers.every(identifier => !isMultipleCall(identifier, node))
 		) {
 			return;
 		}

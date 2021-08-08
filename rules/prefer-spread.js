@@ -89,8 +89,8 @@ function fixConcat(node, sourceCode, fixableArguments) {
 
 	const getArrayLiteralElementsText = (node, keepTrailingComma) => {
 		if (
-			!keepTrailingComma &&
-			isArrayLiteralHasTrailingComma(node, sourceCode)
+			!keepTrailingComma
+			&& isArrayLiteralHasTrailingComma(node, sourceCode)
 		) {
 			const start = node.range[0] + 1;
 			const end = sourceCode.getLastToken(node, 1).range[0];
@@ -119,8 +119,8 @@ function fixConcat(node, sourceCode, fixableArguments) {
 
 				if (isSpreadable) {
 					if (
-						!isParenthesized(node, sourceCode) &&
-						shouldAddParenthesesToSpreadElementArgument(node)
+						!isParenthesized(node, sourceCode)
+						&& shouldAddParenthesesToSpreadElementArgument(node)
 					) {
 						text = `(${text})`;
 					}
@@ -145,8 +145,8 @@ function fixConcat(node, sourceCode, fixableArguments) {
 				}
 
 				if (
-					arrayHasTrailingComma &&
-					(!lastArgument.isArrayLiteral || !isArrayLiteralHasTrailingComma(lastArgument.node, sourceCode))
+					arrayHasTrailingComma
+					&& (!lastArgument.isArrayLiteral || !isArrayLiteralHasTrailingComma(lastArgument.node, sourceCode))
 				) {
 					text = `${text},`;
 				}
@@ -175,8 +175,8 @@ function fixConcat(node, sourceCode, fixableArguments) {
 	return function * (fixer) {
 		// Fixed code always starts with `[`
 		if (
-			!arrayIsArrayLiteral &&
-			needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')
+			!arrayIsArrayLiteral
+			&& needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')
 		) {
 			yield fixer.insertTextBefore(node, ';');
 		}
@@ -249,8 +249,8 @@ function fixArrayFrom(node, sourceCode) {
 		let text = sourceCode.text.slice(start, end);
 
 		if (
-			!isParenthesized(object, sourceCode) &&
-			shouldAddParenthesesToSpreadElementArgument(object)
+			!isParenthesized(object, sourceCode)
+			&& shouldAddParenthesesToSpreadElementArgument(object)
 		) {
 			text = `(${text})`;
 		}
@@ -374,8 +374,8 @@ const create = context => {
 			}));
 
 			if (
-				fixableArgumentsAfterFirstArgument.length < restArguments.length &&
-				restArguments.every(({type}) => type !== 'SpreadElement')
+				fixableArgumentsAfterFirstArgument.length < restArguments.length
+				&& restArguments.every(({type}) => type !== 'SpreadElement')
 			) {
 				problem.suggest.push({
 					messageId: SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS,

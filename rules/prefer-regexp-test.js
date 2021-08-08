@@ -42,9 +42,9 @@ const cases = [
 
 			let stringText = sourceCode.getText(stringNode);
 			if (
-				!isParenthesized(regexpNode, sourceCode) &&
+				!isParenthesized(regexpNode, sourceCode)
 				// Only `SequenceExpression` need add parentheses
-				stringNode.type === 'SequenceExpression'
+				&& stringNode.type === 'SequenceExpression'
 			) {
 				stringText = `(${stringText})`;
 			}
@@ -53,8 +53,8 @@ const cases = [
 
 			let regexpText = sourceCode.getText(regexpNode);
 			if (
-				!isParenthesized(stringNode, sourceCode) &&
-				shouldAddParenthesesToMemberExpressionObject(regexpNode, sourceCode)
+				!isParenthesized(stringNode, sourceCode)
+				&& shouldAddParenthesesToMemberExpressionObject(regexpNode, sourceCode)
 			) {
 				regexpText = `(${regexpText})`;
 			}
@@ -72,9 +72,9 @@ const isRegExpNode = node => {
 	}
 
 	if (
-		node.type === 'NewExpression' &&
-		node.callee.type === 'Identifier' &&
-		node.callee.name === 'RegExp'
+		node.type === 'NewExpression'
+		&& node.callee.type === 'Identifier'
+		&& node.callee.name === 'RegExp'
 	) {
 		return true;
 	}
@@ -108,8 +108,8 @@ const create = context => Object.fromEntries(
 				if (staticResult) {
 					const {value} = staticResult;
 					if (
-						Object.prototype.toString.call(value) !== '[object RegExp]' ||
-						value.flags.includes('g')
+						Object.prototype.toString.call(value) !== '[object RegExp]'
+						|| value.flags.includes('g')
 					) {
 						return problem;
 					}

@@ -38,10 +38,10 @@ function checkMemberExpression(report, node, options) {
 	if (parent.object.type === 'Identifier' && parent.object.name === name && Boolean(keyword)) {
 		report(node, keyword);
 	} else if (
-		effectiveParent.type === 'AssignmentExpression' &&
-		Boolean(keyword) &&
-		(effectiveParent.right.type !== 'MemberExpression' || effectiveParent.left.type === 'MemberExpression') &&
-		effectiveParent.left.property.name === name
+		effectiveParent.type === 'AssignmentExpression'
+		&& Boolean(keyword)
+		&& (effectiveParent.right.type !== 'MemberExpression' || effectiveParent.left.type === 'MemberExpression')
+		&& effectiveParent.left.property.name === name
 	) {
 		report(node, keyword);
 	}
@@ -109,8 +109,8 @@ const create = context => {
 			if (parent.type === 'MemberExpression') {
 				checkMemberExpression(report, node, options);
 			} else if (
-				parent.type === 'Property' ||
-				parent.type === 'AssignmentPattern'
+				parent.type === 'Property'
+				|| parent.type === 'AssignmentPattern'
 			) {
 				if (parent.parent && parent.parent.type === 'ObjectPattern') {
 					const finished = checkObjectPattern(report, node, options);
@@ -127,9 +127,9 @@ const create = context => {
 
 				// Don't check right hand side of AssignmentExpression to prevent duplicate warnings
 				if (
-					Boolean(keyword) &&
-					!ALLOWED_PARENT_TYPES.has(effectiveParent.type) &&
-					!(parent.right === node)
+					Boolean(keyword)
+					&& !ALLOWED_PARENT_TYPES.has(effectiveParent.type)
+					&& !(parent.right === node)
 				) {
 					report(node, keyword);
 				}
@@ -144,17 +144,17 @@ const create = context => {
 			) {
 				// Report only if the local imported identifier is invalid
 				if (
-					Boolean(keyword) &&
-					parent.local &&
-					parent.local.name === name
+					Boolean(keyword)
+					&& parent.local
+					&& parent.local.name === name
 				) {
 					report(node, keyword);
 				}
 
 			// Report anything that is invalid that isn't a CallExpression
 			} else if (
-				Boolean(keyword) &&
-				!ALLOWED_PARENT_TYPES.has(effectiveParent.type)
+				Boolean(keyword)
+				&& !ALLOWED_PARENT_TYPES.has(effectiveParent.type)
 			) {
 				report(node, keyword);
 			}

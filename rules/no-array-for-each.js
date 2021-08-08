@@ -135,9 +135,9 @@ function getFixFunction(callExpression, functionInfo, context) {
 		const nextToken = sourceCode.getTokenAfter(returnToken);
 		let textBefore = '';
 		let textAfter = '';
-		const shouldAddParentheses =
-			!isParenthesized(returnStatement.argument, sourceCode) &&
-			shouldAddParenthesesToExpressionStatementExpression(returnStatement.argument);
+		const shouldAddParentheses
+			= !isParenthesized(returnStatement.argument, sourceCode)
+				&& shouldAddParenthesesToExpressionStatementExpression(returnStatement.argument);
 		if (shouldAddParentheses) {
 			textBefore = `(${textBefore}`;
 			textAfter = `${textAfter})`;
@@ -271,9 +271,9 @@ function isFunctionParametersSafeToFix(callbackFunction, {context, scope, array,
 		for (const identifier of allIdentifiers) {
 			const {name, range: [start, end]} = identifier;
 			if (
-				name !== variableName ||
-				start < arrayStart ||
-				end > arrayEnd
+				name !== variableName
+				|| start < arrayStart
+				|| end > arrayEnd
 			) {
 				continue;
 			}
@@ -296,8 +296,8 @@ function isFunctionParameterVariableReassigned(callbackFunction, context) {
 			return references.some(reference => {
 				const node = reference.identifier;
 				const {parent} = node;
-				return parent.type === 'UpdateExpression' ||
-					(parent.type === 'AssignmentExpression' && parent.left === node);
+				return parent.type === 'UpdateExpression'
+					|| (parent.type === 'AssignmentExpression' && parent.left === node);
 			});
 		});
 }
@@ -306,9 +306,9 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 	const sourceCode = context.getSourceCode();
 	// Check `CallExpression`
 	if (
-		callExpression.optional ||
-		isParenthesized(callExpression, sourceCode) ||
-		callExpression.arguments.length !== 1
+		callExpression.optional
+		|| isParenthesized(callExpression, sourceCode)
+		|| callExpression.arguments.length !== 1
 	) {
 		return false;
 	}
@@ -328,9 +328,9 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 	const [callback] = callExpression.arguments;
 	if (
 		// Leave non-function type to `no-array-callback-reference` rule
-		(callback.type !== 'FunctionExpression' && callback.type !== 'ArrowFunctionExpression') ||
-			callback.async ||
-			callback.generator
+		(callback.type !== 'FunctionExpression' && callback.type !== 'ArrowFunctionExpression')
+		|| callback.async
+		|| callback.generator
 	) {
 		return false;
 	}
@@ -338,9 +338,9 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 	// Check `callback.params`
 	const parameters = callback.params;
 	if (
-		!(parameters.length === 1 || parameters.length === 2) ||
-		parameters.some(({type, typeAnnotation}) => type === 'RestElement' || typeAnnotation) ||
-		!isFunctionParametersSafeToFix(callback, {scope, array: callExpression, allIdentifiers, context})
+		!(parameters.length === 1 || parameters.length === 2)
+		|| parameters.some(({type, typeAnnotation}) => type === 'RestElement' || typeAnnotation)
+		|| !isFunctionParametersSafeToFix(callback, {scope, array: callExpression, allIdentifiers, context})
 	) {
 		return false;
 	}

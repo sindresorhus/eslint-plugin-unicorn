@@ -58,15 +58,15 @@ function create(context) {
 			}
 
 			const [definition] = variable.defs;
-			const value = definition.type === 'Variable' && definition.kind === 'const' ?
-				definition.node.init :
-				definition.node;
+			const value = definition.type === 'Variable' && definition.kind === 'const'
+				? definition.node.init
+				: definition.node;
 			if (
 				!(
 					(
-						value.type === 'ArrowFunctionExpression' ||
-						value.type === 'FunctionExpression' ||
-						value.type === 'FunctionDeclaration'
+						value.type === 'ArrowFunctionExpression'
+						|| value.type === 'FunctionExpression'
+						|| value.type === 'FunctionDeclaration'
 					) && !value.generator && value.async
 				)
 			) {

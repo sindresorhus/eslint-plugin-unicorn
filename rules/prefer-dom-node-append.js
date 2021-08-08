@@ -17,9 +17,9 @@ const selector = [
 
 const create = () => ({
 	[selector](node) {
-		const fix = isValueNotUsable(node) ?
-			fixer => fixer.replaceText(node.callee.property, 'append') :
-			undefined;
+		const fix = isValueNotUsable(node)
+			? fixer => fixer.replaceText(node.callee.property, 'append')
+			: undefined;
 
 		return {
 			node,

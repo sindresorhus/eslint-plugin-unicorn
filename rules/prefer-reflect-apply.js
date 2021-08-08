@@ -16,12 +16,12 @@ const selector = [
 const isApplySignature = (argument1, argument2) => (
 	(
 		// eslint-disable-next-line unicorn/no-null
-		isLiteralValue(argument1, null) ||
-		argument1.type === 'ThisExpression'
-	) &&
-	(
-		argument2.type === 'ArrayExpression' ||
-		(argument2.type === 'Identifier' && argument2.name === 'arguments')
+		isLiteralValue(argument1, null)
+		|| argument1.type === 'ThisExpression'
+	)
+	&& (
+		argument2.type === 'ArrayExpression'
+		|| (argument2.type === 'Identifier' && argument2.name === 'arguments')
 	)
 );
 
@@ -31,9 +31,9 @@ const getReflectApplyCall = (sourceCode, target, receiver, argumentsList) => (
 
 const fixDirectApplyCall = (node, sourceCode) => {
 	if (
-		getPropertyName(node.callee) === 'apply' &&
-		node.arguments.length === 2 &&
-		isApplySignature(node.arguments[0], node.arguments[1])
+		getPropertyName(node.callee) === 'apply'
+		&& node.arguments.length === 2
+		&& isApplySignature(node.arguments[0], node.arguments[1])
 	) {
 		return fixer => (
 			fixer.replaceText(
@@ -46,14 +46,14 @@ const fixDirectApplyCall = (node, sourceCode) => {
 
 const fixFunctionPrototypeCall = (node, sourceCode) => {
 	if (
-		getPropertyName(node.callee) === 'call' &&
-		getPropertyName(node.callee.object) === 'apply' &&
-		getPropertyName(node.callee.object.object) === 'prototype' &&
-		node.callee.object.object.object &&
-		node.callee.object.object.object.type === 'Identifier' &&
-		node.callee.object.object.object.name === 'Function' &&
-		node.arguments.length === 3 &&
-		isApplySignature(node.arguments[1], node.arguments[2])
+		getPropertyName(node.callee) === 'call'
+		&& getPropertyName(node.callee.object) === 'apply'
+		&& getPropertyName(node.callee.object.object) === 'prototype'
+		&& node.callee.object.object.object
+		&& node.callee.object.object.object.type === 'Identifier'
+		&& node.callee.object.object.object.name === 'Function'
+		&& node.arguments.length === 3
+		&& isApplySignature(node.arguments[1], node.arguments[2])
 	) {
 		return fixer => (
 			fixer.replaceText(

@@ -64,8 +64,8 @@ const create = context => ({
 		}
 
 		if (
-			(['!==', '!=', '>', '===', '=='].includes(operator) && isNegativeOne(right)) ||
-			(['>=', '<'].includes(operator) && isLiteralZero(right))
+			(['!==', '!=', '>', '===', '=='].includes(operator) && isNegativeOne(right))
+			|| (['>=', '<'].includes(operator) && isLiteralZero(right))
 		) {
 			return getProblem(
 				context,

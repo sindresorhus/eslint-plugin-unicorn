@@ -34,12 +34,12 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 	const [newChildNode, oldChildNode] = node.arguments.map(({name}) => name);
 	const preferredMethod = forbiddenMethods.get(method);
 
-	const fix = isValueNotUsable(node) ?
-		fixer => fixer.replaceText(
+	const fix = isValueNotUsable(node)
+		? fixer => fixer.replaceText(
 			node,
 			`${oldChildNode}.${preferredMethod}(${newChildNode})`,
-		) :
-		undefined;
+		)
+		: undefined;
 
 	return {
 		node,
@@ -89,10 +89,10 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 	const content = context.getSource(contentNode);
 	const reference = context.getSource(node.callee.object);
 
-	const fix = method === 'insertAdjacentElement' && !isValueNotUsable(node) ?
-		undefined :
+	const fix = method === 'insertAdjacentElement' && !isValueNotUsable(node)
+		? undefined
 		// TODO: make a better fix, don't touch reference
-		fixer => fixer.replaceText(
+		: fixer => fixer.replaceText(
 			node,
 			`${reference}.${preferredMethod}(${content})`,
 		);

@@ -32,14 +32,14 @@ const hasValidSuperClass = node => {
 };
 
 const isSuperExpression = node =>
-	node.type === 'ExpressionStatement' &&
-	node.expression.type === 'CallExpression' &&
-	node.expression.callee.type === 'Super';
+	node.type === 'ExpressionStatement'
+	&& node.expression.type === 'CallExpression'
+	&& node.expression.callee.type === 'Super';
 
 const isAssignmentExpression = (node, name) => {
 	if (
-		node.type !== 'ExpressionStatement' ||
-		node.expression.type !== 'AssignmentExpression'
+		node.type !== 'ExpressionStatement'
+		|| node.expression.type !== 'AssignmentExpression'
 	) {
 		return false;
 	}

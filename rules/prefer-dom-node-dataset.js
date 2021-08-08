@@ -28,9 +28,9 @@ const fix = (context, node, fixer) => {
 	const value = parseNodeText(context, valueNode);
 
 	const replacement = `${calleeObject}.dataset${
-		isValidVariableName(name) ?
-			`.${name}` :
-			`[${quoteString(name, nameNode.raw.charAt(0))}]`
+		isValidVariableName(name)
+			? `.${name}`
+			: `[${quoteString(name, nameNode.raw.charAt(0))}]`
 	} = ${value}`;
 
 	return fixer.replaceText(node, replacement);

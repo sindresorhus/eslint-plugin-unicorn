@@ -33,8 +33,8 @@ const isIgnoredTag = node => {
 	if (tag.type === 'MemberExpression') {
 		const {object} = tag;
 		if (
-			object.type === 'Identifier' &&
-			ignoredMemberExpressionObject.has(object.name)
+			object.type === 'Identifier'
+			&& ignoredMemberExpressionObject.has(object.name)
 		) {
 			return true;
 		}
@@ -105,12 +105,12 @@ const create = context => {
 			};
 
 			const fixed = string.replace(regex, suggest);
-			const fix = type === 'Literal' ?
-				fixer => fixer.replaceText(
+			const fix = type === 'Literal'
+				? fixer => fixer.replaceText(
 					node,
 					quoteString(fixed, raw[0]),
-				) :
-				fixer => replaceTemplateElement(
+				)
+				: fixer => replaceTemplateElement(
 					fixer,
 					node,
 					escapeTemplateElementRaw(fixed),

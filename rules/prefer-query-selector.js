@@ -70,8 +70,8 @@ const canBeFixed = node => {
 
 	if (node.type === 'TemplateLiteral') {
 		return (
-			node.expressions.length === 0 &&
-			node.quasis.some(templateElement => templateElement.value.cooked.trim())
+			node.expressions.length === 0
+			&& node.quasis.some(templateElement => templateElement.value.cooked.trim())
 		);
 	}
 

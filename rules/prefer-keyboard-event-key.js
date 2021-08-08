@@ -14,12 +14,12 @@ const keys = new Set([
 ]);
 
 const isPropertyNamedAddEventListener = node =>
-	node &&
-	node.type === 'CallExpression' &&
-	node.callee &&
-	node.callee.type === 'MemberExpression' &&
-	node.callee.property &&
-	node.callee.property.name === 'addEventListener';
+	node
+	&& node.type === 'CallExpression'
+	&& node.callee
+	&& node.callee.type === 'MemberExpression'
+	&& node.callee.property
+	&& node.callee.property.name === 'addEventListener';
 
 const getEventNodeAndReferences = (context, node) => {
 	const eventListener = getMatchingAncestorOfType(node, 'CallExpression', isPropertyNamedAddEventListener);
@@ -41,11 +41,11 @@ const getEventNodeAndReferences = (context, node) => {
 };
 
 const isPropertyOf = (node, eventNode) =>
-	node &&
-	node.parent &&
-	node.parent.type === 'MemberExpression' &&
-	node.parent.object &&
-	node.parent.object === eventNode;
+	node
+	&& node.parent
+	&& node.parent.type === 'MemberExpression'
+	&& node.parent.object
+	&& node.parent.object === eventNode;
 
 // The third argument is a condition function, as one passed to `Array#filter()`
 // Helpful if nearest node of type also needs to have some other property
@@ -113,8 +113,8 @@ const create = context => ({
 		}
 
 		if (
-			references &&
-				references.some(reference => isPropertyOf(node, reference.identifier))
+			references
+			&& references.some(reference => isPropertyOf(node, reference.identifier))
 		) {
 			return getProblem(node);
 		}
@@ -136,15 +136,15 @@ const create = context => ({
 			node,
 			'VariableDeclarator',
 		);
-		const initObject =
-				nearestVariableDeclarator &&
-				nearestVariableDeclarator.init &&
-				nearestVariableDeclarator.init;
+		const initObject
+			= nearestVariableDeclarator
+				&& nearestVariableDeclarator.init
+				&& nearestVariableDeclarator.init;
 
 		// Make sure initObject is a reference of eventVariable
 		if (
-			references &&
-				references.some(reference => reference.identifier === initObject)
+			references
+			&& references.some(reference => reference.identifier === initObject)
 		) {
 			return getProblem(node.value);
 		}

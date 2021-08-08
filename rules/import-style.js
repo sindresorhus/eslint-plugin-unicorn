@@ -162,9 +162,9 @@ const create = context => {
 		} = {},
 	] = context.options;
 
-	styles = extendDefaultStyles ?
-		defaultsDeep({}, styles, defaultStyles) :
-		styles;
+	styles = extendDefaultStyles
+		? defaultsDeep({}, styles, defaultStyles)
+		: styles;
 
 	styles = new Map(
 		Object.entries(styles).map(

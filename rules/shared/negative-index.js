@@ -3,15 +3,15 @@ const isSameReference = require('../utils/is-same-reference.js');
 const {getParenthesizedRange} = require('../utils/parentheses.js');
 
 const isLengthMemberExpression = node =>
-	node.type === 'MemberExpression' &&
-	!node.computed &&
-	!node.optional &&
-	node.property.type === 'Identifier' &&
-	node.property.name === 'length';
+	node.type === 'MemberExpression'
+	&& !node.computed
+	&& !node.optional
+	&& node.property.type === 'Identifier'
+	&& node.property.name === 'length';
 const isLiteralPositiveNumber = node =>
-	node.type === 'Literal' &&
-	typeof node.value === 'number' &&
-	node.value > 0;
+	node.type === 'Literal'
+	&& typeof node.value === 'number'
+	&& node.value > 0;
 
 function getNegativeIndexLengthNode(node, objectNode) {
 	if (!node) {

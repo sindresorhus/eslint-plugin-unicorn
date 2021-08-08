@@ -124,9 +124,9 @@ function getProblem(context, node, method, options) {
 
 				return fixer.replaceText(
 					node,
-					returnsUndefined ?
-						`(${suggestionParameters}) => { ${nodeText}(${suggestionParameters}); }` :
-						`(${suggestionParameters}) => ${nodeText}(${suggestionParameters})`,
+					returnsUndefined
+						? `(${suggestionParameters}) => { ${nodeText}(${suggestionParameters}); }`
+						: `(${suggestionParameters}) => ${nodeText}(${suggestionParameters})`,
 				);
 			},
 		};

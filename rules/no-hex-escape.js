@@ -14,9 +14,9 @@ function checkEscape(context, node, value) {
 			node,
 			messageId: MESSAGE_ID,
 			fix: fixer =>
-				node.type === 'TemplateElement' ?
-					replaceTemplateElement(fixer, node, fixedValue) :
-					fixer.replaceText(node, fixedValue),
+				node.type === 'TemplateElement'
+					? replaceTemplateElement(fixer, node, fixedValue)
+					: fixer.replaceText(node, fixedValue),
 		};
 	}
 }

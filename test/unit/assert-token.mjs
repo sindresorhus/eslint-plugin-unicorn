@@ -66,16 +66,16 @@ test('Error message', t => {
 		'Should include actual token info.',
 	);
 	t.true(
-		error.message.includes(JSON.stringify({value: 'expectedValue'})) &&
-		error.message.includes(JSON.stringify({type: 'expectedType'})),
+		error.message.includes(JSON.stringify({value: 'expectedValue'}))
+		&& error.message.includes(JSON.stringify({type: 'expectedType'})),
 		'Should include expected token info.',
 	);
 	t.false(
 		error.message.includes('extraKeyInToken'),
 		'Should not include extra key in token.',
 	);
-	const correctIssueLink = 'https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?title=' +
-		encodeURIComponent('`test-rule`: Unexpected token \'{"value":"b","type":"a"}\'');
+	const correctIssueLink = 'https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?title='
+		+ encodeURIComponent('`test-rule`: Unexpected token \'{"value":"b","type":"a"}\'');
 	t.true(
 		error.message.includes(correctIssueLink),
 		'Should include issue link.',

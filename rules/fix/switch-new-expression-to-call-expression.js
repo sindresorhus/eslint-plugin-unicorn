@@ -5,9 +5,9 @@ const {isParenthesized} = require('../utils/parentheses.js');
 function * fixReturnStatementArgument(newExpression, sourceCode, fixer) {
 	const {parent} = newExpression;
 	if (
-		parent.type !== 'ReturnStatement' ||
-		parent.argument !== newExpression ||
-		isParenthesized(newExpression, sourceCode)
+		parent.type !== 'ReturnStatement'
+		|| parent.argument !== newExpression
+		|| isParenthesized(newExpression, sourceCode)
 	) {
 		return;
 	}

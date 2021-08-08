@@ -34,8 +34,8 @@ const inferMethod = (bufferArguments, scope) => {
 		}
 
 		if (
-			typeof value === 'string' ||
-			Array.isArray(value)
+			typeof value === 'string'
+			|| Array.isArray(value)
 		) {
 			return 'from';
 		}

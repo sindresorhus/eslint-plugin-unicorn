@@ -33,8 +33,8 @@ const fixCode = (fixer, sourceCode, assignmentNode, memberExpression) => {
 
 const shouldFixBeforeUnload = (assignedExpression, nodeReturnsSomething) => {
 	if (
-		assignedExpression.type !== 'ArrowFunctionExpression' &&
-		assignedExpression.type !== 'FunctionExpression'
+		assignedExpression.type !== 'ArrowFunctionExpression'
+		&& assignedExpression.type !== 'FunctionExpression'
 	) {
 		return false;
 	}
@@ -104,8 +104,8 @@ const create = context => {
 			const {left: memberExpression, right: assignedExpression} = node;
 
 			if (
-				memberExpression.type !== 'MemberExpression' ||
-				memberExpression.computed
+				memberExpression.type !== 'MemberExpression'
+				|| memberExpression.computed
 			) {
 				return;
 			}
@@ -129,8 +129,8 @@ const create = context => {
 			if (isClearing(assignedExpression)) {
 				replacement = 'removeEventListener';
 			} else if (
-				eventTypeName === 'beforeunload' &&
-				!shouldFixBeforeUnload(assignedExpression, nodeReturnsSomething)
+				eventTypeName === 'beforeunload'
+				&& !shouldFixBeforeUnload(assignedExpression, nodeReturnsSomething)
 			) {
 				extra = extraMessages.beforeunload;
 			} else if (eventTypeName === 'message') {
