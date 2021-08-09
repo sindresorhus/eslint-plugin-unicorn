@@ -1,6 +1,6 @@
 'use strict';
 const {isParenthesized, getStaticValue, isCommaToken, hasSideEffect} = require('eslint-utils');
-const {methodCallSelector} = require('./selectors/index.js');
+const {methodCallSelector, not} = require('./selectors/index.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const {getParenthesizedRange, getParenthesizedText} = require('./utils/parentheses.js');
 const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument.js');
@@ -42,16 +42,12 @@ const arrayFromCallSelector = [
 
 const arrayConcatCallSelector = [
 	methodCallSelector('concat'),
-	`:not(${
+	not(
 		[
-			...[
-				'Literal',
-				'TemplateLiteral',
-			].map(type => `[callee.object.type="${type}"]`),
-			// Most likely it's a static method of a class
-			'[callee.object.name=/^[A-Z]/]',
-		].join(', ')
-	})`,
+			'Literal',
+			'TemplateLiteral',
+		].map(type => `[callee.object.type="${type}"]`),
+	),
 ].join('');
 
 const arraySliceCallSelector = [
@@ -301,6 +297,20 @@ function fixSlice(node, sourceCode) {
 	};
 }
 
+function isClassName(node) {
+	if (node.type === 'MemberExpression') {
+		node = node.property;
+	}
+
+	if (node.type !== 'Identifier') {
+		return false;
+	}
+
+	const {name} = node;
+
+	return /^[A-Z]./.test(name) && name.toUpperCase() !== name;
+}
+
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
@@ -313,8 +323,14 @@ const create = context => {
 			};
 		},
 		[arrayConcatCallSelector](node) {
+			const {object} = node.callee;
+
+			if (isClassName(object)) {
+				return;
+			}
+
 			const scope = context.getScope();
-			const staticResult = getStaticValue(node.callee.object, scope);
+			const staticResult = getStaticValue(object, scope);
 
 			if (staticResult && !Array.isArray(staticResult.value)) {
 				return;
