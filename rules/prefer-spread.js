@@ -46,7 +46,7 @@ const arrayConcatCallSelector = [
 		[
 			'Literal',
 			'TemplateLiteral',
-		].map(type => `[callee.object.type="${type}"]`)
+		].map(type => `[callee.object.type="${type}"]`),
 	),
 ].join('');
 
@@ -323,7 +323,7 @@ const create = context => {
 			};
 		},
 		[arrayConcatCallSelector](node) {
-			const object = node.callee.object;
+			const {object} = node.callee;
 
 			if (isClassName(object)) {
 				return;
