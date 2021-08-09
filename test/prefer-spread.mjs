@@ -179,8 +179,7 @@ test.snapshot({
 		'const bufA = Buffer.concat([buf1, buf2, buf3], totalLength);',
 		'Foo.concat(1)',
 		'FooBar.concat(1)',
-		'FOO.concat(1)',
-		'A.concat(1)',
+		'global.Buffer.concat([])',
 	],
 	invalid: [
 		'[1].concat(2)',
@@ -266,6 +265,10 @@ test.snapshot({
 		'foo.concat(bar, 2, 3, ...baz)',
 		'notClass.concat(1)',
 		'_A.concat(1)',
+		// Constants
+		'FOO.concat(1)',
+		'A.concat(1)',
+		'Foo.x.concat(1)',
 		// Semicolon
 		'if (test) foo.concat(1)',
 		'if (test) {} else foo.concat(1)',
