@@ -249,6 +249,60 @@ test({
 				@)
 			`),
 		},
+		{
+			code: fixInput(`
+				html = /* HTML */ @
+				••••••••<div>
+				••••••••••<span>hello</span>
+				••••••••</div>
+				••••••••@
+			`),
+			errors,
+			output: fixInput(`
+				html = /* HTML */ @
+				••<div>
+				••••<span>hello</span>
+				••</div>
+				@
+			`),
+		},
+		{
+			code: fixInput(`
+				html = /* indent */ @
+				••••••••<div>
+				••••••••••<span>hello</span>
+				••••••••</div>
+				••••••••@
+			`),
+			errors,
+			output: fixInput(`
+				html = /* indent */ @
+				••<div>
+				••••<span>hello</span>
+				••</div>
+				@
+			`),
+		},
+		{
+			options: [{
+				comments: ['please indent me!'],
+			}],
+			code: fixInput(`
+				html = /* please indent me! */ @
+				••••••••<div>
+				••••••••••<span>hello</span>
+				••••••••</div>
+				••••••••@
+			`),
+			errors,
+			output: fixInput(`
+				html = /* please indent me! */ @
+				••<div>
+				••••<span>hello</span>
+				••</div>
+				@
+			`),
+		},
 	],
 	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
 	valid: [
@@ -308,7 +362,7 @@ test({
 			options: [{
 				selectors: ['TemplateElement'],
 			}],
-			// bad selector; no twmplate literal match
+			// Bad selector; no template literal match
 			code: fixInput(`
 				foo = @
 				••••••one

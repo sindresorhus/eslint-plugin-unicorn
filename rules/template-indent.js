@@ -14,6 +14,7 @@ const create = context => {
 		tags: ['outdent', 'dedent', 'gql', 'sql', 'html', 'styled'],
 		functions: ['dedent', 'stripIndent'],
 		selectors: [],
+		comments: ['HTML', 'indent'],
 		...context.options[0],
 	};
 
@@ -89,7 +90,19 @@ const create = context => {
 			});
 		};
 
-	return Object.fromEntries(selectors.map(selector => [selector, getTemplateLiteralHandler(selector)]));
+	return {
+		...Object.fromEntries(selectors.map(selector => [selector, getTemplateLiteralHandler(selector)])),
+		/**
+		 * @param {import('@babel/core').types.TemplateLiteral} node
+		 */
+		TemplateLiteral: node => {
+			const previous = context.getSourceCode().getTokenBefore(node, {includeComments: true});
+			if (previous.type === 'Block' && options.comments.includes(previous.value.trim())) {
+				const handler = getTemplateLiteralHandler(`/*${previous.value}*/ TemplateLiteral`);
+				handler(node);
+			}
+		},
+	};
 };
 
 /** @type {import('json-schema').JSONSchema7[]} */
@@ -110,6 +123,12 @@ const schema = [
 				},
 			},
 			selectors: {
+				type: 'array',
+				items: {
+					type: 'string',
+				},
+			},
+			comments: {
 				type: 'array',
 				items: {
 					type: 'string',
