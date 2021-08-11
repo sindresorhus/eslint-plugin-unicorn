@@ -15,7 +15,6 @@ where first_name = ${x}
 and last_name = ${y}
   `;
 
-  // if you "fix" indentation manually, then copy code somewhere else, it can look stupid
   const gqlQuery = gql`
                   query user(id: 5) {
                     firstName
@@ -59,7 +58,7 @@ function foo() {
 }
 ```
 
-Under the hood, [strip-indent](https://npmjs.com/package/strip-indent) is used to determine how the template "should" look. Then a common indent is added to each line based on the margin of the line the template started in. This rule will _not_ fix the indentation of the non-whitespace content, or the relative whitespace between significant lines, it will only "shift" it right or left so that the content starts in a sensible looking place.
+Under the hood, [strip-indent](https://npmjs.com/package/strip-indent) is used to determine how the template "should" look. Then a common indent is added to each line based on the margin of the line the template started in. This rule will _not_ alter the relative whitespace between significant lines, it will only shift then content right or left so that it aligns sensibly with the surrounding code.
 
 ## Options
 
