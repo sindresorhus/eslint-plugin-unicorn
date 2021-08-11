@@ -48,7 +48,8 @@
 		"read-pkg-up": "^7.0.1",
 		"regexp-tree": "^0.1.23",
 		"safe-regex": "^2.1.1",
-		"semver": "^7.3.5"
+		"semver": "^7.3.5",
+		"strip-indent": "^3.0.0"
 	},
 	"devDependencies": {
 		"@babel/code-frame": "7.14.5",
