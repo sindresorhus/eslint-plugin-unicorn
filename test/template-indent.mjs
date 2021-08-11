@@ -13,13 +13,9 @@ const errors = [
 ];
 
 test({
-	valid: [
-		'foo = "";',
-	],
 	/** @type {import('eslint').RuleTester.InvalidTestCase[]} */
 	invalid: [
 		{
-
 			code: fixInput(`
 				foo = dedent~
 								one
@@ -79,14 +75,14 @@ test({
 		{
 			options: [{
 				// Tag: null means fix the indents of raw templates
-				// eslint-disable-next-line unicorn/no-null
-				tags: ['customIndentableTag', null],
+				tags: ['customIndentableTag'],
+				selectors: [':not(TaggedTemplateExpression) > TemplateLiteral'],
 			}],
 			code: fixInput(`
 				foo = customIndentableTag~
-								one
-								two
-									three
+								one1
+								two1
+									three1
 								~
 				foo = differentTagThatMightBeWhitespaceSensitive~
 								one
@@ -102,9 +98,9 @@ test({
 			errors: [...errors, ...errors],
 			output: fixInput(`
 				foo = customIndentableTag~
-				  one
-				  two
-				  	three
+				  one1
+				  two1
+				  	three1
 				~
 				foo = differentTagThatMightBeWhitespaceSensitive~
 								one
@@ -248,5 +244,61 @@ test({
 				~)
 			`),
 		},
+		{
+			options: [{
+				selectors: ['TemplateElement'],
+			}],
+			code: fixInput(`
+				foo = ~
+					one
+					two
+						three
+				~
+			`),
+			errors: [{messageId: 'invalid-node-type'}],
+		},
+	],
+	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
+	valid: [
+		'foo = dedent`one two three`',
+		fixInput(`
+			function f() {
+				foo = dedent~
+					one
+					two
+						three
+					four
+				~
+			}
+		`),
+		// hard to see, but if spaces are detected for indentation of the code, they're used as a base margin for the template too.
+		fixInput(`
+          function f() {
+            foo = dedent~
+              one
+              two
+                three
+              four
+            ~
+          }
+		`),
+		{
+			options: [{
+				tags: ['somethingOtherThanDedent'],
+				functions: ['somethingOtherThanStripIndent']
+			}],
+			code: fixInput(`
+				foo = stripIndent(~
+								one
+								two
+									three
+								~)
+				foo = dedent~
+								one
+								two
+									three
+								~
+			`),
+		}
 	],
 });

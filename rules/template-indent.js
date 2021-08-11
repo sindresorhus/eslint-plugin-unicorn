@@ -1,9 +1,11 @@
 'use strict';
 const stripIndent = require('strip-indent');
 
-const MESSAGE_ID = 'template-indent';
+const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
+const MESSAGE_ID_INVALID_NODE_TYPE = 'invalid-node-type';
 const messages = {
-	[MESSAGE_ID]: 'Templates should be properly indented.',
+	[MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE]: 'Templates should be properly indented. Selector: {{ selector }}',
+	[MESSAGE_ID_INVALID_NODE_TYPE]: 'Invalid node type matched by selector {{ selector }}. Expected TemplateLiteral, got {{ type }}'
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -11,27 +13,38 @@ const create = context => {
 	const options = {
 		tags: ['outdent', 'dedent', 'gql', 'sql', 'html', 'styled'],
 		functions: ['dedent', 'stripIndent'],
+		selectors: [],
 		...context.options[0],
 	};
-	return {
-		/** @param {import('@babel/core').types.TemplateLiteral} node */
-		TemplateLiteral(node) {
-			const parentTag = node.parent.type === 'TaggedTemplateExpression' && node.parent.tag.type === 'Identifier'
-				? node.parent.tag.name
-				// eslint-disable-next-line unicorn/no-null
-				: null;
-			const parentFunction = node.parent.type === 'CallExpression' && node.parent.callee.type === 'Identifier'
-				? node.parent.callee.name
-				// eslint-disable-next-line unicorn/no-null
-				: null;
 
-			const fixable = options.tags.includes(parentTag) || options.functions.includes(parentFunction);
-			if (!fixable) {
+	const selectors = [
+		...options.tags.map(tag => `TaggedTemplateExpression[tag.name="${tag}"] > .quasi`),
+		...options.functions.map(fn => `CallExpression[callee.name="${fn}"] > .arguments:first-child`),
+		...options.selectors,
+	];
+
+	/** @param {string} selector */
+	const getTemplateLiteralHandler = selector => {
+		/** @param {import('@babel/core').types.TemplateLiteral} node */
+		return node => {
+			if (node.type !== 'TemplateLiteral') {
+				context.report({
+					node,
+					messageId: MESSAGE_ID_INVALID_NODE_TYPE,
+					data: {
+						selector,
+						type: node.type,
+					}
+				})
 				return;
 			}
 
 			const delimiter = '__PLACEHOLDER__' + Math.random();
 			const joined = node.quasis.map(q => q.value.raw).join(delimiter);
+
+			if (!joined.includes('\n')) {
+				return
+			}
 
 			const dedented = stripIndent(joined).trim();
 
@@ -69,11 +82,16 @@ const create = context => {
 			});
 			context.report({
 				node,
-				messageId: MESSAGE_ID,
+				messageId: MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE,
+				data: {
+					selector,
+				},
 				fix: fixer => replacements.reverse().map(r => fixer.replaceTextRange(r.range, r.value)),
 			});
-		},
-	};
+		};
+	}
+
+	return Object.fromEntries(selectors.map(selector => [selector, getTemplateLiteralHandler(selector)]));
 };
 
 /** @type {import('json-schema').JSONSchema7[]} */
@@ -84,7 +102,19 @@ const schema = [
 			tags: {
 				type: 'array',
 				items: {
-					oneOf: [{type: 'string'}, {type: 'null'}],
+					type: 'string',
+				},
+			},
+			functions: {
+				type: 'array',
+				items: {
+					type: 'string',
+				},
+			},
+			selectors: {
+				type: 'array',
+				items: {
+					type: 'string',
 				},
 			},
 		},
