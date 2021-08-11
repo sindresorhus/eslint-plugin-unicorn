@@ -5,7 +5,7 @@ const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
 const MESSAGE_ID_INVALID_NODE_TYPE = 'invalid-node-type';
 const messages = {
 	[MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE]: 'Templates should be properly indented. Selector: {{ selector }}',
-	[MESSAGE_ID_INVALID_NODE_TYPE]: 'Invalid node type matched by selector {{ selector }}. Expected TemplateLiteral, got {{ type }}'
+	[MESSAGE_ID_INVALID_NODE_TYPE]: 'Invalid node type matched by selector {{ selector }}. Expected TemplateLiteral, got {{ type }}',
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -24,9 +24,9 @@ const create = context => {
 	];
 
 	/** @param {string} selector */
-	const getTemplateLiteralHandler = selector => {
+	const getTemplateLiteralHandler = selector =>
 		/** @param {import('@babel/core').types.TemplateLiteral} node */
-		return node => {
+		node => {
 			if (node.type !== 'TemplateLiteral') {
 				context.report({
 					node,
@@ -34,8 +34,8 @@ const create = context => {
 					data: {
 						selector,
 						type: node.type,
-					}
-				})
+					},
+				});
 				return;
 			}
 
@@ -43,7 +43,7 @@ const create = context => {
 			const joined = node.quasis.map(q => q.value.raw).join(delimiter);
 
 			if (!joined.includes('\n')) {
-				return
+				return;
 			}
 
 			const dedented = stripIndent(joined).trim();
@@ -89,7 +89,6 @@ const create = context => {
 				fix: fixer => replacements.reverse().map(r => fixer.replaceTextRange(r.range, r.value)),
 			});
 		};
-	}
 
 	return Object.fromEntries(selectors.map(selector => [selector, getTemplateLiteralHandler(selector)]));
 };
