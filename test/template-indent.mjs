@@ -202,7 +202,7 @@ test({
 				••••••••••three
 				••••••••@
 			`),
-			errors: [...Array.from({length: 4})].flatMap(() => errors),
+			errors: [...errors, ...errors, ...errors, ...errors],
 			output: fixInput(`
 				foo = gql@
 				••one
