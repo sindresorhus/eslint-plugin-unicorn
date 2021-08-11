@@ -262,7 +262,7 @@ test({
 			`),
 			errors: [{messageId: 'invalid-node-type'}],
 		},
-	].slice(0, 5),
+	],
 	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
 	valid: [
 		'foo = dedent`one two three`',
