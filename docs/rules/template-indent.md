@@ -34,8 +34,8 @@ function foo() {
   const sqlQuery = sql`
     select *
     from students
-    where (first_name = ${x} or first_name = ${y})
-    and last_name = ${z}
+    where first_name = ${x}
+    and last_name = ${y}
   `;
 
   const gqlQuery = gql`
