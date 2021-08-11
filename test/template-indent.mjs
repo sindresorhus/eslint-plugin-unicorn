@@ -268,6 +268,23 @@ test({
 		},
 		{
 			code: fixInput(`
+				html = /* html */ @
+				••••••••<div>
+				••••••••••<span>hello</span>
+				••••••••</div>
+				••••••••@
+			`),
+			errors,
+			output: fixInput(`
+				html = /* html */ @
+				••<div>
+				••••<span>hello</span>
+				••</div>
+				@
+			`),
+		},
+		{
+			code: fixInput(`
 				html = /* indent */ @
 				••••••••<div>
 				••••••••••<span>hello</span>

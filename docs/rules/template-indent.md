@@ -22,6 +22,12 @@ and last_name = ${y}
                     lastName
                   }
                 `;
+
+  const html = /* HTML */ `
+        <div>
+            <span>hello</span>
+        </div>
+  `;
 }
 ```
 
@@ -44,8 +50,16 @@ function foo() {
       lastName
     }
   `;
+
+  const html = /* HTML */ `
+    <div>
+        <span>hello</span>
+    </div>
+  `;
 }
 ```
+
+Under the hood, [strip-indent](https://npmjs.com/package/strip-indent) is used to determine how the template "should" look. Then a common indent is added to each line based on the margin of the line the template started in. This rule will _not_ fix the indentation of the non-whitespace content, or the relative whitespace between significant lines, it will only "shift" it right or left so that the content starts in a sensible looking place.
 
 ## Options
 
@@ -59,6 +73,7 @@ Default configuration:
     tags: ['outdent', 'dedent', 'gql', 'sql', 'html', 'styled'],
     functions: ['dedent', 'stripIndent'],
     selectors: [],
+    comments: ['HTML', 'indent'],
   }]
 }
 ```

@@ -18,6 +18,8 @@ const create = context => {
 		...context.options[0],
 	};
 
+	options.comments = options.comments.map(comment => comment.toLowerCase());
+
 	const selectors = [
 		...options.tags.map(tag => `TaggedTemplateExpression[tag.name="${tag}"] > .quasi`),
 		...options.functions.map(fn => `CallExpression[callee.name="${fn}"] > .arguments:first-child`),
@@ -97,7 +99,7 @@ const create = context => {
 		 */
 		TemplateLiteral: node => {
 			const previous = context.getSourceCode().getTokenBefore(node, {includeComments: true});
-			if (previous.type === 'Block' && options.comments.includes(previous.value.trim())) {
+			if (previous.type === 'Block' && options.comments.includes(previous.value.trim().toLowerCase())) {
 				const handler = getTemplateLiteralHandler(`/*${previous.value}*/ TemplateLiteral`);
 				handler(node);
 			}
