@@ -28,14 +28,6 @@ const create = context => {
 		/** @param {import('@babel/core').types.TemplateLiteral} node */
 		node => {
 			if (node.type !== 'TemplateLiteral') {
-				context.report({
-					node,
-					messageId: MESSAGE_ID_INVALID_NODE_TYPE,
-					data: {
-						selector,
-						type: node.type,
-					},
-				});
 				return;
 			}
 
@@ -72,14 +64,14 @@ const create = context => {
 				return;
 			}
 
-			const replacements = fixed.split(delimiter).map((section, i, {length}) => {
-				const range = [...node.quasis[i].range];
+			const replacements = fixed.split(delimiter).map((section, index, {length}) => {
+				const range = [...node.quasis[index].range];
 
 				// Add one either for the "`" or "}" prefix character
 				range[0] += 1;
 
 				// Subtract one at the end for the "`" or two in the middle for the "${"
-				const last = i === length - 1;
+				const last = index === length - 1;
 				range[1] -= last ? 1 : 2;
 
 				return {

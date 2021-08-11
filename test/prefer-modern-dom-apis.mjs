@@ -72,10 +72,10 @@ test({
 		},
 		{
 			code: outdent`
-			parentNode.replaceChild(
-				newChildNode,
-				oldChildNode
-			);
+				parentNode.replaceChild(
+					newChildNode,
+					oldChildNode
+				);
 			`,
 			errors: [
 				{
@@ -87,10 +87,10 @@ test({
 		},
 		{
 			code: outdent`
-			parentNode.replaceChild( // inline comments
-				newChildNode, // inline comments
-				oldChildNode // inline comments
-			);
+				parentNode.replaceChild( // inline comments
+					newChildNode, // inline comments
+					oldChildNode // inline comments
+				);
 			`,
 			errors: [
 				{
@@ -280,10 +280,10 @@ test({
 		},
 		{
 			code: outdent`
-			referenceNode.insertAdjacentElement(
-				"afterend",
-				newNode
-			);
+				referenceNode.insertAdjacentElement(
+					"afterend",
+					newNode
+				);
 			`,
 			errors: [
 				{
@@ -295,10 +295,10 @@ test({
 		},
 		{
 			code: outdent`
-			referenceNode.insertAdjacentElement( // inline comments
-				"afterend", // inline comments
-				newNode  // inline comments
-			); // inline comments
+				referenceNode.insertAdjacentElement( // inline comments
+					"afterend", // inline comments
+					newNode  // inline comments
+				); // inline comments
 			`,
 			errors: [
 				{

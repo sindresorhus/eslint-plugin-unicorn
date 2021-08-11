@@ -509,37 +509,37 @@ test({
 		},
 		{
 			code: outdent`
-			const e = {}
-			foo.addEventListener('click', (e, r, fg) => {
-				function a() {
-					if (true) {
-						{
+				const e = {}
+				foo.addEventListener('click', (e, r, fg) => {
+					function a() {
+						if (true) {
 							{
-								const { charCode } = e;
-								console.log(e.keyCode, charCode);
+								{
+									const { charCode } = e;
+									console.log(e.keyCode, charCode);
+								}
 							}
 						}
 					}
-				}
-			});
+				});
 			`,
 			errors: [error('charCode'), error('keyCode')],
 		},
 		{
 			code: outdent`
-			const e = {}
-			foo.addEventListener('click', (e, r, fg) => {
-				function a() {
-					if (true) {
-						{
+				const e = {}
+				foo.addEventListener('click', (e, r, fg) => {
+					function a() {
+						if (true) {
 							{
-								const { charCode } = e;
-								console.log(e.keyCode, charCode);
+								{
+									const { charCode } = e;
+									console.log(e.keyCode, charCode);
+								}
 							}
 						}
 					}
-				}
-			});
+				});
 			`,
 			errors: [error('charCode'), error('keyCode')],
 		},

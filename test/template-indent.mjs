@@ -249,19 +249,6 @@ test({
 				@)
 			`),
 		},
-		{
-			options: [{
-				selectors: ['TemplateElement'],
-			}],
-			code: fixInput(`
-				foo = @
-				••one
-				••two
-				••••three
-				@
-			`),
-			errors: [{messageId: 'invalid-node-type'}],
-		},
 	],
 	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
 	valid: [
@@ -314,6 +301,20 @@ test({
 				••••••••two
 				••••••••••three
 				••••••••@
+			`),
+		},
+		'stripIndent(foo)',
+		{
+			options: [{
+				selectors: ['TemplateElement'],
+			}],
+			// bad selector; no twmplate literal match
+			code: fixInput(`
+				foo = @
+				••••••one
+				••••••two
+				••••••••three
+				@
 			`),
 		},
 	],
