@@ -43,12 +43,8 @@ const create = context => {
 
 			const dedented = stripIndent(joined).trim();
 
-			const source = context.getSourceCode().getText();
-
-			const preamble = source.slice(0, node.range[0]).split('\n');
-			const line = preamble.length;
-
-			const marginMatch = preamble[line - 1].match(/^(\s*)\S/);
+			const startLine = context.getSourceCode().lines[node.loc.start.line - 1];
+			const marginMatch = startLine.match(/^(\s*)\S/);
 			const parentMargin = marginMatch ? marginMatch[1] : '';
 			const tabs = parentMargin.startsWith('\t');
 			const indent = tabs ? '\t' : '  ';
