@@ -1,5 +1,6 @@
 'use strict';
 const stripIndent = require('strip-indent');
+const {replaceTemplateElement} = require('./fix/index.js');
 
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
 const messages = {
@@ -61,28 +62,15 @@ const create = context => {
 				return;
 			}
 
-			const replacements = fixed.split(delimiter).map((section, index, {length}) => {
-				const range = [...node.quasis[index].range];
-
-				// Add one either for the "`" or "}" prefix character
-				range[0] += 1;
-
-				// Subtract one at the end for the "`" or two in the middle for the "${"
-				const last = index === length - 1;
-				range[1] -= last ? 1 : 2;
-
-				return {
-					range,
-					value: section,
-				};
-			});
 			context.report({
 				node,
 				messageId: MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE,
 				data: {
 					selector,
 				},
-				fix: fixer => replacements.map(r => fixer.replaceTextRange(r.range, r.value)),
+				fix: fixer => fixed
+					.split(delimiter)
+					.map((replacement, index) => replaceTemplateElement(fixer, node.quasis[index], replacement)),
 			});
 		};
 
