@@ -79,7 +79,6 @@ test({
 		},
 		{
 			options: [{
-				// Tag: null means fix the indents of raw templates
 				tags: ['customIndentableTag'],
 				selectors: [':not(TaggedTemplateExpression) > TemplateLiteral'],
 			}],
