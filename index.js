@@ -131,6 +131,7 @@ module.exports = {
 				'unicorn/require-number-to-fixed-digits-argument': 'error',
 				'unicorn/require-post-message-target-origin': 'error',
 				'unicorn/string-content': 'off',
+				'unicorn/template-indent': 'warn',
 				'unicorn/throw-new-error': 'error',
 			},
 			overrides: [
