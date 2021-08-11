@@ -2,10 +2,8 @@
 const stripIndent = require('strip-indent');
 
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
-const MESSAGE_ID_INVALID_NODE_TYPE = 'invalid-node-type';
 const messages = {
 	[MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE]: 'Templates should be properly indented. Selector: {{ selector }}',
-	[MESSAGE_ID_INVALID_NODE_TYPE]: 'Invalid node type matched by selector {{ selector }}. Expected TemplateLiteral, got {{ type }}',
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
