@@ -8,12 +8,7 @@ This rule will automatically fix the indentation of multiline string templates, 
 
 ```js
 function foo() {
-  const a = `
-abc
-  def
-`;
-
-  const b = sql`
+  const sqlQuery = sql`
 select *
 from students
 where first_name = ${x}
@@ -21,7 +16,7 @@ and last_name = ${y}
   `;
 
   // if you "fix" indentation manually, then copy code somewhere else, it can look stupid
-  const c = gql`
+  const gqlQuery = gql`
                   query user(id: 5) {
                     firstName
                     lastName
@@ -36,19 +31,14 @@ The above will auto-fix to:
 
 ```js
 function foo() {
-  const a = `
-    abc
-      def
-  `;
-
-  const b = sql`
+  const sqlQuery = sql`
     select *
     from students
     where (first_name = ${x} or first_name = ${y})
     and last_name = ${z}
   `;
 
-  const c = gql`
+  const gqlQuery = gql`
     query user(id: 5) {
       firstName
       lastName
@@ -73,7 +63,7 @@ Default configuration:
 }
 ```
 
-You can use a selector for custom use cases, like indenting _all_ template literals:
+You can use a selector for custom use cases, like indenting _all_ template literals, even those without template tags or function callers:
 
 ```js
 {
