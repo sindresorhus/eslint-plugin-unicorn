@@ -82,7 +82,7 @@ const create = context => {
 				data: {
 					selector,
 				},
-				fix: fixer => replacements.reverse().map(r => fixer.replaceTextRange(r.range, r.value)),
+				fix: fixer => replacements.map(r => fixer.replaceTextRange(r.range, r.value)),
 			});
 		};
 
