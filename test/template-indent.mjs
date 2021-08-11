@@ -276,6 +276,17 @@ test({
 			→→@
 			}
 		`),
+		fixInput(`
+			function f() {
+			→→foo = dedent@
+			→→→→one
+
+			→→→→two
+			→→→→→→three
+			→→→→four
+			→→@
+			}
+		`),
 		// Hard to see, but if spaces are detected for indentation of the code, they're used as a base margin for the template too.
 		fixInput(`
 			function f() {

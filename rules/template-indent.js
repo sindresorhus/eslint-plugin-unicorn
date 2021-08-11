@@ -59,7 +59,14 @@ const create = context => {
 			const indent = tabs ? '\t' : '  ';
 			const templateMargin = parentMargin + indent;
 
-			const fixed = '\n' + dedented.split('\n').map(line => templateMargin + line).join('\n').trimEnd() + '\n' + parentMargin;
+			const fixed = '\n'
+				+ dedented
+					.split('\n')
+					.map(line => line && line !== '\r' ? templateMargin + line : line)
+					.join('\n')
+					.trimEnd()
+				+ '\n'
+				+ parentMargin;
 
 			if (fixed === joined) {
 				return;
