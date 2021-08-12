@@ -37,14 +37,17 @@ const create = context => ({
 				const sourceCode = context.getSourceCode();
 				const logicalExpression = emptyObject.parent;
 				const {left} = logicalExpression;
-				const [, start] = getParenthesizedRange(left, sourceCode);
+				const isLeftObjectParenthesized = isParenthesized(left, sourceCode);
+				const [, start] = isLeftObjectParenthesized
+					? getParenthesizedRange(left, sourceCode)
+					: left.range;
 				const [, end] = logicalExpression.range;
 
 				yield fixer.removeRange([start, end]);
 
 				if (
-					isParenthesized(left, sourceCode)
-						|| !shouldAddParenthesesToSpreadElementArgument(left)
+					isLeftObjectParenthesized
+					|| !shouldAddParenthesesToSpreadElementArgument(left)
 				) {
 					const parentheses = getParentheses(logicalExpression, sourceCode);
 
