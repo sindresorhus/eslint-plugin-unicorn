@@ -7,7 +7,7 @@ import {getTester} from './utils/test.mjs';
  *
  * @param {string} text
  */
-const fixInput = text => stripIndent(text).split('@').join('`').split('#').join('$').split('•').join(' ').split('→→').join('\t');
+const fixInput = text => stripIndent(text).split('@').join('`').split('#').join('$').split('•').join(' ').split('→→').join('\t').split('␍').join('\r');
 
 const {test} = getTester(import.meta);
 
@@ -316,6 +316,46 @@ test({
 				••<div>
 				••••<span>hello</span>
 				••</div>
+				@
+			`),
+		},
+		{
+			options: [{
+				indent: 10,
+			}],
+			code: fixInput(`
+				foo = dedent@
+				••one
+				••two
+				••••three
+				@
+			`),
+			errors,
+			output: fixInput(`
+				foo = dedent@
+				••••••••••one
+				••••••••••two
+				••••••••••••three
+				@
+			`),
+		},
+		{
+			options: [{
+				indent: '\t\t\t\t',
+			}],
+			code: fixInput(`
+				foo = dedent@
+				••one
+				••two
+				••••three
+				@
+			`),
+			errors,
+			output: fixInput(`
+				foo = dedent@
+				→→→→→→→→one
+				→→→→→→→→two
+				→→→→→→→→••three
 				@
 			`),
 		},

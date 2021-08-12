@@ -45,8 +45,17 @@ const create = context => {
 			const startLine = context.getSourceCode().lines[node.loc.start.line - 1];
 			const marginMatch = startLine.match(/^(\s*)\S/);
 			const parentMargin = marginMatch ? marginMatch[1] : '';
-			const tabs = parentMargin.startsWith('\t');
-			const indent = tabs ? '\t' : '  ';
+
+			let indent;
+			if (typeof options.indent === 'string') {
+				indent = options.indent;
+			} else if (typeof options.indent === 'number') {
+				indent = ' '.repeat(options.indent);
+			} else {
+				const tabs = parentMargin.startsWith('\t');
+				indent = tabs ? '\t' : '  ';
+			}
+
 			const templateMargin = parentMargin + indent;
 
 			const fixed = '\n'
@@ -94,6 +103,18 @@ const schema = [
 	{
 		type: 'object',
 		properties: {
+			indent: {
+				oneOf: [
+					{
+						type: 'string',
+						pattern: '^\\s+$',
+					},
+					{
+						type: 'integer',
+						minimum: 1,
+					},
+				],
+			},
 			tags: {
 				type: 'array',
 				items: {
