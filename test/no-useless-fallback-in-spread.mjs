@@ -19,6 +19,8 @@ test.snapshot({
 		'const object = {...(foo || {}).toString()}',
 		'const object = {...fn(foo || {})}',
 		'const object = call({}, ...(foo || {}))',
+		'const object = {...(foo || {not: "empty"})}',
+		'const object = {...(foo || {...{}})}',
 	],
 	invalid: [
 		'const object = {...(foo || {})}',
