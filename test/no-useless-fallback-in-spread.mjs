@@ -29,6 +29,7 @@ test.snapshot({
 		'async ()=> ({...((await foo) || {})})',
 		'const object = {...(0 || {})}',
 		'const object = {...((-0) || {})}',
+		'const object = {...(.0 || {})}',
 		'const object = {...(0n || {})}',
 		'const object = {...(false || {})}',
 		'const object = {...(null || {})}',
