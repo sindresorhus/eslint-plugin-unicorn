@@ -67,7 +67,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Forbid add empty object fallback as spread argument.',
+			description: 'Forbid useless fallback when spreading in object literals.',
 		},
 		fixable: 'code',
 		schema,

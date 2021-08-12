@@ -1,6 +1,6 @@
-# Forbid add empty object fallback as spread argument
+# Forbid useless fallback when spreading in object literals
 
-All [falsy values](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) can spread directly in object, and won't add any unexpected properties, it's unnecessary to add empty object as fallback.
+Spreading [falsy values](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) in object literals won't add any unexpected properties, it's unnecessary to add empty object as fallback.
 
 This rule is fixable.
 
