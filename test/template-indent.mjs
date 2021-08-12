@@ -359,6 +359,27 @@ test({
 				@
 			`),
 		},
+		{
+			options: [{
+				selectors: ['* TemplateLiteral', '* > TemplateLiteral']
+			}],
+			code: fixInput(`
+				foo = @
+				one
+				two
+				••three
+				@
+			`),
+			// make sure we only report one error, even when multiple selectors match
+			errors,
+			output: fixInput(`
+				foo = @
+				••one
+				••two
+				••••three
+				@
+			`),
+		},
 	],
 	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
 	valid: [
