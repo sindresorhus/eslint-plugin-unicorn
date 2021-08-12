@@ -1,0 +1,73 @@
+'use strict';
+const {matches} = require('./selectors/index.js');
+const {
+	isParenthesized,
+	getParenthesizedRange,
+	getParentheses,
+} = require('./utils/parentheses.js');
+const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument.js');
+
+const MESSAGE_ID = 'no-useless-fallback-in-spread';
+const messages = {
+	[MESSAGE_ID]: 'The empty object is useless.',
+};
+
+const selector = [
+	'ObjectExpression',
+	' > ',
+	'SpreadElement.properties',
+	' > ',
+	'LogicalExpression.argument',
+	matches([
+		'[operator="||"]',
+		'[operator="??"]',
+	]),
+	' > ',
+	'ObjectExpression[properties.length=0].right',
+].join('');
+
+/** @param {import('eslint').Rule.RuleContext} context */
+const create = context => ({
+	[selector](emptyObject) {
+		return {
+			node: emptyObject,
+			messageId: MESSAGE_ID,
+			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			* fix(fixer) {
+				const sourceCode = context.getSourceCode();
+				const logicalExpression = emptyObject.parent;
+				const {left} = logicalExpression;
+				const [, start] = getParenthesizedRange(left, sourceCode);
+				const [, end] = logicalExpression.range;
+
+				yield fixer.removeRange([start, end]);
+
+				if (
+					isParenthesized(left, sourceCode)
+						|| !shouldAddParenthesesToSpreadElementArgument(left)
+				) {
+					const parentheses = getParentheses(logicalExpression, sourceCode);
+
+					for (const token of parentheses) {
+						yield fixer.remove(token);
+					}
+				}
+			},
+		};
+	},
+});
+
+const schema = [];
+
+module.exports = {
+	create,
+	meta: {
+		type: 'suggestion',
+		docs: {
+			description: 'Forbid add empty object fallback as spread argument.',
+		},
+		fixable: 'code',
+		schema,
+		messages,
+	},
+};
