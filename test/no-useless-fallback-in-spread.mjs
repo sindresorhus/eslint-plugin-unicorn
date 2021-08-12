@@ -13,6 +13,9 @@ test.snapshot({
 		'const object = {...(foo ?? ({} || {}))}',
 		'const {...foo} = object',
 		'function foo({...bar}){}',
+		'const object = {...(foo || {}).toString()}',
+		'const object = {...fn(foo || {})}',
+		'const object = call({}, ...(foo || {}))',
 	],
 	invalid: [
 		'const object = {...(foo || {})}',
