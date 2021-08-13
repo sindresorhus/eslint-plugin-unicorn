@@ -470,5 +470,17 @@ test({
 			`),
 		},
 		'``',
+		{
+			options: [{
+				comments: [],
+			}],
+			code: fixInput(`
+				foo = /* indent */ @
+				••••••one
+				••••••two
+				••••••••three
+				@
+			`),
+		},
 	],
 });
