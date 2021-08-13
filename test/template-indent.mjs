@@ -7,7 +7,11 @@ import {getTester} from './utils/test.mjs';
  *
  * @param {string} text
  */
-const fixInput = text => stripIndent(text).split('@').join('`').split('#').join('$').split('•').join(' ').split('→→').join('\t').split('␍').join('\r');
+const fixInput = text => stripIndent(text)
+	.replace(/@/g, '`')
+	.replace(/#/g, '$')
+	.replace(/•/g, ' ')
+	.replace(/→→/g, '\t');
 
 const {test} = getTester(import.meta);
 
