@@ -109,7 +109,7 @@ const schema = [
 				oneOf: [
 					{
 						type: 'string',
-						pattern: '^\\s+$',
+						pattern: /^\s+$/.source,
 					},
 					{
 						type: 'integer',
