@@ -118,24 +118,28 @@ const schema = [
 			},
 			tags: {
 				type: 'array',
+				uniqueItems: true,
 				items: {
 					type: 'string',
 				},
 			},
 			functions: {
 				type: 'array',
+				uniqueItems: true,
 				items: {
 					type: 'string',
 				},
 			},
 			selectors: {
 				type: 'array',
+				uniqueItems: true,
 				items: {
 					type: 'string',
 				},
 			},
 			comments: {
 				type: 'array',
+				uniqueItems: true,
 				items: {
 					type: 'string',
 				},
