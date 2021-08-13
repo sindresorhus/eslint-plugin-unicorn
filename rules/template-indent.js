@@ -28,8 +28,15 @@ const create = context => {
 		...options.selectors,
 	];
 
+	const handled = new Set()
+
 	/** @param {import('@babel/core').types.TemplateLiteral} node */
 	const templateLiteralHandler = node => {
+		if (handled.has(node)) {
+			return
+		}
+		handled.add(node)
+
 		if (node.type !== 'TemplateLiteral') {
 			return;
 		}
@@ -75,18 +82,21 @@ const create = context => {
 		});
 	};
 
-	return {
-		/**
-		 * @param {import('@babel/core').types.TemplateLiteral} node
-		 */
-		TemplateLiteral: node => {
+	const matchers = {
+		[matches(selectors)]: templateLiteralHandler,
+	};
+
+	if (options.comments.length > 0 && !selectors.includes('TemplateLiteral')) {
+		/** @param {import('@babel/core').types.TemplateLiteral} node */
+		matchers.TemplateLiteral = node => {
 			const previousToken = context.getSourceCode().getTokenBefore(node, {includeComments: true});
 			if (previousToken && previousToken.type === 'Block' && options.comments.includes(previousToken.value.trim().toLowerCase())) {
 				templateLiteralHandler(node);
 			}
-		},
-		[matches(selectors)]: templateLiteralHandler,
-	};
+		};
+	}
+
+	return matchers;
 };
 
 /** @type {import('json-schema').JSONSchema7[]} */
