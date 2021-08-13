@@ -25,7 +25,7 @@ const abc = (foo = {}) => {};
 
 ```js
 function foo(options) {
-	const {a} = {a: false, ...options};
+	const {a = false} = options;
 }
 ```
 
