@@ -380,6 +380,28 @@ test({
 				@
 			`),
 		},
+		{
+			options: [{
+				selectors: ['* > TemplateLiteral'],
+				comments: ['indentme'],
+			}],
+			code: fixInput(`
+				foo = /* INDENTME */ @
+				one
+				two
+				••three
+				@
+			`),
+			// Make sure we only report one error, even when multiple selectors match
+			errors,
+			output: fixInput(`
+				foo = /* INDENTME */ @
+				••one
+				••two
+				••••three
+				@
+			`),
+		},
 	],
 	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
 	valid: [
