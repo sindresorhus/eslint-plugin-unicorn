@@ -28,14 +28,15 @@ const create = context => {
 		...options.selectors,
 	];
 
-	const handled = new Set()
+	const handled = new Set();
 
 	/** @param {import('@babel/core').types.TemplateLiteral} node */
 	const templateLiteralHandler = node => {
 		if (handled.has(node)) {
-			return
+			return;
 		}
-		handled.add(node)
+
+		handled.add(node);
 
 		if (node.type !== 'TemplateLiteral') {
 			return;
