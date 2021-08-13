@@ -361,7 +361,7 @@ test({
 		},
 		{
 			options: [{
-				selectors: ['* TemplateLiteral', '* > TemplateLiteral']
+				selectors: ['* TemplateLiteral', '* > TemplateLiteral'],
 			}],
 			code: fixInput(`
 				foo = @
@@ -370,7 +370,7 @@ test({
 				••three
 				@
 			`),
-			// make sure we only report one error, even when multiple selectors match
+			// Make sure we only report one error, even when multiple selectors match
 			errors,
 			output: fixInput(`
 				foo = @

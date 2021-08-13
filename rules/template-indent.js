@@ -1,10 +1,13 @@
 'use strict';
+const os = require('os');
 const stripIndent = require('strip-indent');
+const indentString = require('indent-string');
 const {replaceTemplateElement} = require('./fix/index.js');
+const {matches} = require('./selectors/index.js');
 
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
 const messages = {
-	[MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE]: 'Templates should be properly indented. Selector: {{ selector }}',
+	[MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE]: 'Templates should be properly indented.',
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -25,76 +28,64 @@ const create = context => {
 		...options.selectors,
 	];
 
-	/** @param {string} selector */
-	const getTemplateLiteralHandler = selector =>
-		/** @param {import('@babel/core').types.TemplateLiteral} node */
-		node => {
-			if (node.type !== 'TemplateLiteral') {
-				return;
-			}
+	/** @param {import('@babel/core').types.TemplateLiteral} node */
+	const templateLiteralHandler = node => {
+		if (node.type !== 'TemplateLiteral') {
+			return;
+		}
 
-			const delimiter = '__PLACEHOLDER__' + Math.random();
-			const joined = node.quasis.map(q => q.value.raw).join(delimiter);
+		const delimiter = '__PLACEHOLDER__' + Math.random();
+		const joined = node.quasis.map(q => q.value.raw).join(delimiter);
 
-			if (!joined.includes('\n')) {
-				return;
-			}
+		if (!joined.includes('\n')) {
+			return;
+		}
 
-			const dedented = stripIndent(joined).trim();
+		const startLine = context.getSourceCode().lines[node.loc.start.line - 1];
+		const marginMatch = startLine.match(/^(\s*)\S/);
+		const parentMargin = marginMatch ? marginMatch[1] : '';
 
-			const startLine = context.getSourceCode().lines[node.loc.start.line - 1];
-			const marginMatch = startLine.match(/^(\s*)\S/);
-			const parentMargin = marginMatch ? marginMatch[1] : '';
+		let indent;
+		if (typeof options.indent === 'string') {
+			indent = options.indent;
+		} else if (typeof options.indent === 'number') {
+			indent = ' '.repeat(options.indent);
+		} else {
+			const tabs = parentMargin.startsWith('\t');
+			indent = tabs ? '\t' : '  ';
+		}
 
-			let indent;
-			if (typeof options.indent === 'string') {
-				indent = options.indent;
-			} else if (typeof options.indent === 'number') {
-				indent = ' '.repeat(options.indent);
-			} else {
-				const tabs = parentMargin.startsWith('\t');
-				indent = tabs ? '\t' : '  ';
-			}
+		const dedented = stripIndent(joined);
+		const fixed
+			= os.EOL
+			+ indentString(dedented.trim(), 1, {indent: parentMargin + indent})
+			+ os.EOL
+			+ parentMargin;
 
-			const templateMargin = parentMargin + indent;
+		if (fixed === joined) {
+			return;
+		}
 
-			const fixed = '\n'
-				+ dedented
-					.split('\n')
-					.map(line => line && line !== '\r' ? templateMargin + line : line)
-					.join('\n')
-					.trimEnd()
-				+ '\n'
-				+ parentMargin;
-
-			if (fixed === joined) {
-				return;
-			}
-
-			context.report({
-				node,
-				messageId: MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE,
-				data: {
-					selector,
-				},
-				fix: fixer => fixed
-					.split(delimiter)
-					.map((replacement, index) => replaceTemplateElement(fixer, node.quasis[index], replacement)),
-			});
-		};
+		context.report({
+			node,
+			messageId: MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE,
+			fix: fixer => fixed
+				.split(delimiter)
+				.map((replacement, index) => replaceTemplateElement(fixer, node.quasis[index], replacement)),
+		});
+	};
 
 	return {
-		...Object.fromEntries(selectors.map(selector => [selector, getTemplateLiteralHandler(selector)])),
 		/**
 		 * @param {import('@babel/core').types.TemplateLiteral} node
 		 */
 		TemplateLiteral: node => {
-			const previous = context.getSourceCode().getTokenBefore(node, {includeComments: true});
-			if (previous.type === 'Block' && options.comments.includes(previous.value.trim().toLowerCase())) {
-				const handler = getTemplateLiteralHandler(`/*${previous.value}*/ TemplateLiteral`);
-				handler(node);
+			const previousToken = context.getSourceCode().getTokenBefore(node, {includeComments: true});
+			if (previousToken && previousToken.type === 'Block' && options.comments.includes(previousToken.value.trim().toLowerCase())) {
+				templateLiteralHandler(node);
 			}
 		},
+		[matches(selectors)]: templateLiteralHandler,
 	};
 };
 
