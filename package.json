@@ -94,7 +94,7 @@
 			".cache-eslint-remote-tester",
 			"eslint-remote-tester-results",
 			"test/integration/{fixtures,fixtures-local}/**",
-			"test/utils/snapshot-rule-tester.mjs"
+			"test/utils/source-code-fixer.mjs"
 		],
 		"rules": {
 			"unicorn/no-null": "error"
