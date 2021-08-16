@@ -20,7 +20,7 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 
 - `String#split('')`
 
-	Split string into characters array.
+	Split a string into an array of characters.
 
 	Note: [The suggestion fix may get different result](https://stackoverflow.com/questions/4547609/how-to-get-character-array-from-a-string/34717402#34717402).
 
