@@ -1,7 +1,9 @@
 import {createRequire} from 'node:module';
-import {Linter, SourceCodeFixer} from 'eslint/lib/linter/index.js';
+import {Linter} from 'eslint';
 import {codeFrameColumns} from '@babel/code-frame';
 import outdent from 'outdent';
+// TODO: Find a better way to test output.
+import SourceCodeFixer from './source-code-fixer.mjs';
 
 const require = createRequire(import.meta.url);
 const codeFrameColumnsOptions = {linesAbove: Number.POSITIVE_INFINITY, linesBelow: Number.POSITIVE_INFINITY};
