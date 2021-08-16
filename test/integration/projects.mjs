@@ -126,6 +126,9 @@ export default [
 			// https://github.com/vercel/next.js/blob/876cbbaf01cef39566e9a35e72e641f57a01f6e0/packages/next/build/output/index.ts#L42
 			'packages/next/build/output/index.ts',
 			'packages/next/build/webpack/plugins/webpack-conformance-plugin/TestInterface.ts#L9',
+			'packages/next/lib/typescript/diagnosticFormatter.ts',
+			'packages/next/telemetry/trace/shared.ts',
+			'packages/next/telemetry/trace/trace.ts',
 		],
 	},
 	{
