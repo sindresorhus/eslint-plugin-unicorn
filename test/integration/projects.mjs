@@ -122,9 +122,10 @@ export default [
 			// These files use `>` in jsx
 			'test/integration/**',
 
-			// There is a comment starts with `eslint` keyword, ESLint 8 try to parse as JSON
+			// There are comments starts with `eslint` keyword, ESLint 8 try to parse as JSON
 			// https://github.com/vercel/next.js/blob/876cbbaf01cef39566e9a35e72e641f57a01f6e0/packages/next/build/output/index.ts#L42
 			'packages/next/build/output/index.ts',
+			'packages/next/build/webpack/plugins/webpack-conformance-plugin/TestInterface.ts#L9',
 		],
 	},
 	{
