@@ -339,3 +339,46 @@ test.snapshot({
 		'array.slice(0.00, )',
 	],
 });
+
+// `String#slice('')`
+test.snapshot({
+	valid: [
+		'new foo.split("")',
+		'split("")',
+		'string[split]("")',
+		'string.split',
+		'string.split(1)',
+		'string.split(..."")',
+		'string.split(...[""])',
+		'string.split("" + "")',
+		'string.split(0)',
+		'string.split(false)',
+		'string.split(undefined)',
+		'string.split(0n)',
+		'string.split(null)',
+		'string.split(/""/)',
+		'string.split(``)',
+		'const EMPTY_STRING = ""; string.split(EMPTY_STRING)',
+		'string.split("", limit)',
+		'"".split(string)',
+		'string.split()',
+		'string.notSplit("")',
+		'const notString = 0; notString.split("")',
+	],
+	invalid: [
+		'"string".split("")',
+		'"string".split(\'\')',
+		'unknown.split("")',
+		'const characters = "string".split("")',
+		'(( (( (( "string" )).split ))( (("")) ) ))',
+		// Semicolon
+		outdent`
+			bar()
+			foo.split("")
+		`,
+		'unknown.split("")',
+		// Not result the same
+		'"🦄".split("")',
+		'const {length} = "🦄".split("")',
+	],
+});

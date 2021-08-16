@@ -229,7 +229,7 @@ Each rule has emojis denoting:
 | [prefer-reflect-apply](docs/rules/prefer-reflect-apply.md) | Prefer `Reflect.apply()` over `Function#apply()`. | ✅ | 🔧 |  |
 | [prefer-regexp-test](docs/rules/prefer-regexp-test.md) | Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`. | ✅ | 🔧 |  |
 | [prefer-set-has](docs/rules/prefer-set-has.md) | Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence. | ✅ | 🔧 | 💡 |
-| [prefer-spread](docs/rules/prefer-spread.md) | Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`. | ✅ | 🔧 | 💡 |
+| [prefer-spread](docs/rules/prefer-spread.md) | Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#slice()` and `String#split('')`. | ✅ | 🔧 | 💡 |
 | [prefer-string-replace-all](docs/rules/prefer-string-replace-all.md) | Prefer `String#replaceAll()` over regex searches with the global flag. |  | 🔧 |  |
 | [prefer-string-slice](docs/rules/prefer-string-slice.md) | Prefer `String#slice()` over `String#substr()` and `String#substring()`. | ✅ | 🔧 |  |
 | [prefer-string-starts-ends-with](docs/rules/prefer-string-starts-ends-with.md) | Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`. | ✅ | 🔧 | 💡 |
