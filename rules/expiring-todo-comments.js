@@ -2,7 +2,7 @@
 const readPkgUp = require('read-pkg-up');
 const semver = require('semver');
 const ci = require('ci-info');
-const baseRule = require('eslint/use-at-your-own-risk').builtinRules.get('no-warning-comments')
+const baseRule = require('eslint/use-at-your-own-risk').builtinRules.get('no-warning-comments');
 
 // `unicorn/` prefix is added to avoid conflicts with core rule
 const MESSAGE_ID_AVOID_MULTIPLE_DATES = 'unicorn/avoidMultipleDates';
