@@ -29,6 +29,7 @@ const eslint = new ESLint({
 			'coverage',
 			'test/integration/fixtures',
 			'test/integration/fixtures-local',
+			'test/utils/snapshot-rule-tester.mjs',
 		],
 		rules: {
 			'unicorn/prevent-abbreviations': [
