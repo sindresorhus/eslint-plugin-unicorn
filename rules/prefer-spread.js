@@ -15,18 +15,22 @@ const {
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
 const ERROR_ARRAY_SLICE = 'array-slice';
+const ERROR_STRING_SPLIT = 'string-split';
 const SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE = 'argument-is-spreadable';
 const SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE = 'argument-is-not-spreadable';
 const SUGGESTION_CONCAT_TEST_ARGUMENT = 'test-argument';
 const SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS = 'spread-all-arguments';
+const SUGGESTION_USE_SPREAD = 'use-spread';
 const messages = {
 	[ERROR_ARRAY_FROM]: 'Prefer the spread operator over `Array.from(…)`.',
 	[ERROR_ARRAY_CONCAT]: 'Prefer the spread operator over `Array#concat(…)`.',
 	[ERROR_ARRAY_SLICE]: 'Prefer the spread operator over `Array#slice()`.',
+	[ERROR_STRING_SPLIT]: 'Prefer the spread operator over `String#split(\'\')`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE]: 'First argument is an `array`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE]: 'First argument is not an `array`.',
 	[SUGGESTION_CONCAT_TEST_ARGUMENT]: 'Test first argument with `Array.isArray(…)`.',
 	[SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS]: 'Spread all unknown arguments`.',
+	[SUGGESTION_USE_SPREAD]: 'Use `...` operator.',
 };
 
 const arrayFromCallSelector = [
@@ -66,6 +70,11 @@ const ignoredSliceCallee = [
 	'file',
 	'this',
 ];
+
+const stringSplitCallSelector = methodCallSelector({
+	method: 'split',
+	argumentsLength: 1,
+});
 
 const isArrayLiteral = node => node.type === 'ArrayExpression';
 const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
@@ -281,7 +290,7 @@ function fixArrayFrom(node, sourceCode) {
 	};
 }
 
-function fixSlice(node, sourceCode) {
+function methodCallToSpread(node, sourceCode) {
 	return function * (fixer) {
 		// Fixed code always starts with `[`
 		if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')) {
@@ -291,7 +300,7 @@ function fixSlice(node, sourceCode) {
 		yield fixer.insertTextBefore(node, '[...');
 		yield fixer.insertTextAfter(node, ']');
 
-		// The array is already accessing `.slice`, there should not any case need add extra `()`
+		// The array is already accessing `.slice` or `.split`, there should not any case need add extra `()`
 
 		yield * removeMethodCall(fixer, node, sourceCode);
 	};
@@ -418,8 +427,49 @@ const create = context => {
 			return {
 				node: node.callee.property,
 				messageId: ERROR_ARRAY_SLICE,
-				fix: fixSlice(node, sourceCode),
+				fix: methodCallToSpread(node, sourceCode),
 			};
+		},
+		[stringSplitCallSelector](node) {
+			const [separator] = node.arguments;
+			if (!isLiteralValue(separator, '')) {
+				return;
+			}
+
+			const string = node.callee.object;
+			const staticValue = getStaticValue(string, context.getScope());
+			let hasSameResult = false;
+			if (staticValue) {
+				const {value} = staticValue;
+
+				if (typeof value !== 'string') {
+					return;
+				}
+
+				const resultBySplit = value.split('');
+				const resultBySpread = [...value];
+
+				hasSameResult = resultBySplit.length === resultBySpread.length
+					&& resultBySplit.every((character, index) => character === resultBySpread[index]);
+			}
+
+			const problem = {
+				node: node.callee.property,
+				messageId: ERROR_STRING_SPLIT,
+			};
+
+			if (hasSameResult) {
+				problem.fix = methodCallToSpread(node, sourceCode);
+			} else {
+				problem.suggest = [
+					{
+						messageId: SUGGESTION_USE_SPREAD,
+						fix: methodCallToSpread(node, sourceCode),
+					},
+				];
+			}
+
+			return problem;
 		},
 	};
 };
@@ -429,7 +479,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`.',
+			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#slice()` and `String#split(\'\')`.',
 		},
 		fixable: 'code',
 		messages,

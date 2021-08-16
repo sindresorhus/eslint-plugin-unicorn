@@ -70,6 +70,15 @@ const eslint = new ESLint({
 					'unicorn/prefer-module': 'off',
 				},
 			},
+			{
+				files: [
+					'rules/prefer-spread.js',
+				],
+				rules: {
+					// TODO[xo@>=0.45.0]: Enable this rule when `xo` updated `eslint-plugin-unicorn`
+					'unicorn/prefer-spread': 'off',
+				},
+			},
 		],
 	},
 });
