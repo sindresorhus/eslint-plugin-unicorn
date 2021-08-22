@@ -28,6 +28,13 @@ test.snapshot({
 			const a = x;
 			throw x;
 		`,
+		// #1431 dont fail if Error is shadowed
+		outdent`
+			const Error = function () {};
+			const err = new Error({
+    			name: 'Unauthorized',
+			});
+		`,
 	],
 	invalid: [
 		'throw new Error()',
