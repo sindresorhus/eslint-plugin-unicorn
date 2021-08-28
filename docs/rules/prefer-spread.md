@@ -1,6 +1,6 @@
 # Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#slice()` and `String#split('')`
 
-Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax) over
+Enforces the use of [the spread operator (`…`)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax) over
 
 - `Array.from(…)`
 
@@ -23,6 +23,8 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 	Split a string into an array of characters.
 
 	Note: [The suggestion fix may get different result](https://stackoverflow.com/questions/4547609/how-to-get-character-array-from-a-string/34717402#34717402).
+
+For enforcement of the spread operator over `Object#assign()` use the built-in rule [prefer-object-spread](https://eslint.org/docs/rules/prefer-object-spread).
 
 This rule is partly fixable.
 
