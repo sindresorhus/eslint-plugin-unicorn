@@ -7,7 +7,6 @@ const messages = {
 const isEmpty = node =>
 	node.type === 'EmptyStatement'
 	|| (node.type === 'ExpressionStatement' && node.expression.value === 'use strict')
-	|| (node.type === 'ExpressionStatement' && node.expression.type === 'ObjectExpression' && node.expression.properties.length === 0)
 	|| (node.type === 'BlockStatement' && node.body.every(currentNode => isEmpty(currentNode)));
 
 const create = () => ({
