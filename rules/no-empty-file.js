@@ -1,7 +1,7 @@
 'use strict';
 const MESSAGE_ID = 'no-empty-file';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{value}}`.',
+	[MESSAGE_ID]: 'Empty files are not allowed.',
 };
 
 const create = () => ({
@@ -15,10 +15,6 @@ const create = () => ({
 			return {
 				node,
 				messageId: MESSAGE_ID,
-				data: {
-					value: 'unicorn',
-					replacement: '🦄',
-				},
 			};
 		}
 	},
