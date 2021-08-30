@@ -64,7 +64,7 @@ Configure it in `package.json`.
 			"unicorn/no-invalid-remove-event-listener": "error",
 			"unicorn/no-keyword-prefix": "off",
 			"unicorn/no-lonely-if": "error",
-			"unicorn/no-nested-ternary": "off",
+			"no-nested-ternary": "off",
 			"unicorn/no-nested-ternary": "error",
 			"unicorn/no-new-array": "error",
 			"unicorn/no-new-buffer": "error",
