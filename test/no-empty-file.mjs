@@ -25,5 +25,6 @@ test.snapshot({
 		'\'use strict\';',
 		';',
 		';;',
+		';;\'use strict\';'
 	],
 });

@@ -4,33 +4,21 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{value}}`.',
 };
 
-/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	Program(node) {
-		const problem = {
-			node,
-			messageId: MESSAGE_ID,
-			data: {
-				value: 'unicorn',
-				replacement: '🦄',
-			},
-		};
+		const isEmpty = (currentValue) =>
+			currentValue.type === 'EmptyStatement'
+			|| (currentValue.type === 'ExpressionStatement' && currentValue.expression.value === 'use strict');
 
-		if (node.body.length === 1 && node.body[0].directive === 'use strict') {
-			return problem;
-		}
-
-		let fileIsEmpty = true;
-
-		for (const child of node.body) {
-			if (child.type !== 'EmptyStatement') {
-				fileIsEmpty = false;
-				break;
-			}
-		}
-
-		if (fileIsEmpty) {
-			return problem;
+		if (node.body.every(isEmpty)) {
+			return {
+				node,
+				messageId: MESSAGE_ID,
+				data: {
+					value: 'unicorn',
+					replacement: '🦄',
+				},
+			};
 		}
 	},
 });
