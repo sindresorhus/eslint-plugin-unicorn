@@ -6,9 +6,10 @@ const messages = {
 
 const create = () => ({
 	Program(node) {
-		const isEmpty = (currentValue) =>
-			currentValue.type === 'EmptyStatement'
-			|| (currentValue.type === 'ExpressionStatement' && currentValue.expression.value === 'use strict');
+		const isEmpty = (currentNode) =>
+			currentNode.type === 'EmptyStatement'
+			|| (currentNode.type === 'ExpressionStatement' && currentNode.expression.value === 'use strict')
+			|| currentNode.type === 'BlockStatement' && currentNode.body.every(isEmpty);
 
 		if (node.body.every(isEmpty)) {
 			return {
