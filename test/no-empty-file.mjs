@@ -2,7 +2,7 @@ import outdent from 'outdent';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
-const space = '';
+const space = ' ';
 const tab = '	';
 
 test.snapshot({
