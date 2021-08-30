@@ -2,12 +2,28 @@ import outdent from 'outdent';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
+const space = '';
+const tab = '	';
 
 test.snapshot({
 	valid: [
-		'const foo = "🦄";'
+		'const foo = "🦄";',
 	],
 	invalid: [
-		'const foo = "unicorn";'
-	]
+		'',
+		space,
+		tab,
+		'\n',
+		'\r',
+		'\r\n',
+		outdent`
+
+
+		`,
+		'// comment',
+		'/* comment */',
+		'\'use strict\';',
+		';',
+		';;',
+	],
 });
