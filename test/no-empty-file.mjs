@@ -8,7 +8,9 @@ const tab = '	';
 test.snapshot({
 	valid: [
 		'const x = 0;',
-		'{{{;;\'use strict\'; const x = 0;}}}'
+		'\'use strict\'; const x = 0;',
+		';; const x = 0;',
+		'{{{;;\'use strict\'; const x = 0;}}}',
 	],
 	invalid: [
 		'',
