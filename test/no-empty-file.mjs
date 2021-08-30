@@ -11,6 +11,10 @@ test.snapshot({
 		'\'use strict\'; const x = 0;',
 		';; const x = 0;',
 		'{{{;;\'use strict\'; const x = 0;}}}',
+		outdent`
+			#!/usr/bin/env node
+			console.log('done');
+		`,
 	],
 	invalid: [
 		'',
@@ -33,5 +37,7 @@ test.snapshot({
 		'{;;}',
 		'{\'use strict\';}',
 		'{{}}',
+		'({})',
+		'#!/usr/bin/env node',
 	],
 });
