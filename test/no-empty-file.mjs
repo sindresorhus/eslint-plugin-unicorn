@@ -10,7 +10,13 @@ test.snapshot({
 		'const x = 0;',
 		'\'use strict\'; const x = 0;',
 		';; const x = 0;',
-		'{{{;;\'use strict\'; const x = 0;}}}',
+		'{{{;;const x = 0;}}}',
+		';;\'use strict\';',
+		'{\'use strict\';}',
+		outdent`
+			'use strict\';
+			const x = 0;
+		`,
 		'({})',
 		outdent`
 			#!/usr/bin/env node
@@ -30,13 +36,12 @@ test.snapshot({
 		`,
 		'// comment',
 		'/* comment */',
+		'\'use asm\';',
 		'\'use strict\';',
 		';',
 		';;',
-		';;\'use strict\';',
 		'{}',
 		'{;;}',
-		'{\'use strict\';}',
 		'{{}}',
 		'#!/usr/bin/env node',
 	],
