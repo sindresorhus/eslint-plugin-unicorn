@@ -111,6 +111,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-negative-index": "error",
 			"unicorn/prefer-node-protocol": "error",
 			"unicorn/prefer-number-properties": "error",
+			"unicorn/prefer-number-is-integer": "error",
 			"unicorn/prefer-object-from-entries": "error",
 			"unicorn/prefer-optional-catch-binding": "error",
 			"unicorn/prefer-prototype-methods": "error",
