@@ -1,4 +1,4 @@
-# Prefer the use of `Number.isInteger` over the other various methods
+# Prefer `Number.isInteger` for integer checking
 
 Enforces the use of [Number.isInteger()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger) for checking if a number is an integer.
 
