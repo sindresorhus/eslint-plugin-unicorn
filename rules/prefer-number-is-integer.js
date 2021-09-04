@@ -142,9 +142,8 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer Number.isInteger for integer checking',
+			description: 'Prefer `Number.isInteger()` for integer checking.',
 		},
-		fixable: 'code',
 		messages,
 		hasSuggestions: true,
 	},
