@@ -24,6 +24,8 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 
 	Note: [The suggestion fix may get different result](https://stackoverflow.com/questions/4547609/how-to-get-character-array-from-a-string/34717402#34717402).
 
+To enforce the spread operator over `Object#assign()`, use the built-in [`prefer-object-spread` rule](https://eslint.org/docs/rules/prefer-object-spread).
+
 This rule is partly fixable.
 
 ## Fail
