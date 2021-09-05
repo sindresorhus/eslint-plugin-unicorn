@@ -20,7 +20,7 @@ const deprecatedRules = createDeprecatedRules({
 	'regex-shorthand': 'unicorn/better-regex',
 });
 
-const rules = loadRules()
+const rules = loadRules();
 
 module.exports = {
 	rules: {
