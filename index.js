@@ -149,7 +149,7 @@ module.exports = {
 			plugins: [
 				'unicorn',
 			],
-			rules: Object.fromEntries(Object.keys(rules).map(rule => [rule, 'error'])),
+			rules: Object.fromEntries(Object.keys(rules).map(rule => ['unicorn/' + rule, 'error'])),
 		},
 	},
 };
