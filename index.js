@@ -20,9 +20,11 @@ const deprecatedRules = createDeprecatedRules({
 	'regex-shorthand': 'unicorn/better-regex',
 });
 
+const rules = loadRules()
+
 module.exports = {
 	rules: {
-		...loadRules(),
+		...rules,
 		...deprecatedRules,
 	},
 	configs: {
@@ -142,6 +144,12 @@ module.exports = {
 					},
 				},
 			],
+		},
+		all: {
+			plugins: [
+				'unicorn',
+			],
+			rules: Object.fromEntries(Object.keys(rules).map(rule => [rule, 'error'])),
 		},
 	},
 };

@@ -272,6 +272,23 @@ See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configurati
 
 **Note**: This config will also enable the correct [parser options](https://eslint.org/docs/user-guide/configuring/language-options#specifying-parser-options) and [environment](https://eslint.org/docs/user-guide/configuring/language-options#specifying-environments).
 
+## All config
+
+This plugin exports an [`all` config](index.js) that makes use of all rules (except for deprecated ones).
+
+Enable it in your `package.json` with the `extends` option:
+
+```json
+{
+	"name": "my-awesome-project",
+	"eslintConfig": {
+		"extends": "plugin:unicorn/all"
+	}
+}
+```
+
+See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configuration-files#extending-configuration-files) for more information about extending config files.
+
 ## Maintainers
 
 - [Sindre Sorhus](https://github.com/sindresorhus)
