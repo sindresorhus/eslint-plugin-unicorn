@@ -255,7 +255,7 @@ See [docs/deprecated-rules.md](docs/deprecated-rules.md)
 
 ## Recommended config
 
-This plugin exports a [`recommended` config](index.js) that enforces good practices.
+This plugin exports a [`recommended` config](configs/recommended.js) that enforces good practices.
 
 Enable it in your `package.json` with the `extends` option:
 
@@ -274,7 +274,7 @@ See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configurati
 
 ## All config
 
-This plugin exports an [`all` config](index.js) that makes use of all rules (except for deprecated ones).
+This plugin exports an [`all` config](configs/all.js) that makes use of all rules (except for deprecated ones).
 
 Enable it in your `package.json` with the `extends` option:
 
