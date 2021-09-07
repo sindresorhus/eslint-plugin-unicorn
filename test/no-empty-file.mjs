@@ -1,9 +1,7 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
-const space = ' ';
-const tab = '	';
 
 test.snapshot({
 	valid: [
@@ -16,16 +14,26 @@ test.snapshot({
 		`,
 		';;\'use strict\';',
 		'{\'use strict\';}',
+		'("use strict")',
+		'`use strict`',
 		'({})',
 		outdent`
 			#!/usr/bin/env node
 			console.log('done');
 		`,
+		'false',
+		'("")',
+		'NaN',
+		'undefined',
+		'null',
+		'[]',
+		'(() => {})()',
 	],
 	invalid: [
 		'',
-		space,
-		tab,
+		'\uFEFF',
+		' ',
+		'\t',
 		'\n',
 		'\r',
 		'\r\n',
@@ -35,13 +43,31 @@ test.snapshot({
 		`,
 		'// comment',
 		'/* comment */',
+		'#!/usr/bin/env node',
 		'\'use asm\';',
 		'\'use strict\';',
+		'"use strict"',
+		'""',
 		';',
 		';;',
 		'{}',
 		'{;;}',
 		'{{}}',
-		'#!/usr/bin/env node',
+	],
+});
+
+test.snapshot({
+	testerOptions: {
+		parser: parsers.vue,
+	},
+	valid: [
+		'<template></template>',
+		'<style></style>',
+		'<script></script>',
+		'<script>;</script>',
+		'<custom-block></custom-block>',
+	],
+	invalid: [
+		'   ',
 	],
 });

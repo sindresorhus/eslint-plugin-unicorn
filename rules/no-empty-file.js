@@ -5,22 +5,25 @@ const messages = {
 };
 
 const isEmpty = node =>
-	node.type === 'EmptyStatement'
-	|| (node.type === 'ExpressionStatement' && 'directive' in node)
-	|| (node.type === 'BlockStatement' && node.body.every(currentNode => isEmpty(currentNode)));
+	(
+		(node.type === 'Program' || node.type === 'BlockStatement')
+		&& node.body.every(currentNode => isEmpty(currentNode))
+	)
+	|| node.type === 'EmptyStatement'
+	|| (node.type === 'ExpressionStatement' && 'directive' in node);
 
 const create = () => ({
 	Program(node) {
-		if (node.body.every(currentNode => isEmpty(currentNode))) {
-			return {
-				node,
-				messageId: MESSAGE_ID,
-			};
+		if (!isEmpty(node)) {
+			return;
 		}
+
+		return {
+			node,
+			messageId: MESSAGE_ID,
+		};
 	},
 });
-
-const schema = [];
 
 module.exports = {
 	create,
@@ -29,7 +32,7 @@ module.exports = {
 		docs: {
 			description: 'Disallow empty files.',
 		},
-		schema,
+		schema: [],
 		messages,
 	},
 };

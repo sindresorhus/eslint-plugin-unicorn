@@ -10,15 +10,15 @@ This rule is not fixable.
 
 ```
 
-```
+```js
 \n
 ```
 
-```
+```js
 \r
 ```
 
-```
+```js
 \r\n
 ```
 
@@ -39,7 +39,8 @@ This rule is not fixable.
 ```
 
 ```js
-{}
+{
+}
 ```
 
 ## Pass
@@ -54,13 +55,12 @@ const x = 0;
 ```
 
 ```js
-;; const x = 0;
+;;
+const x = 0;
 ```
 
 ```js
 {
-    ;
-    'use strict';
     const x = 0;
 }
 ```
