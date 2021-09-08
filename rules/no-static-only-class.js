@@ -40,7 +40,6 @@ function isStaticMember(node) {
 	} = node;
 
 	// Avoid matching unexpected node. For example: https://github.com/tc39/proposal-class-static-block
-	/* istanbul ignore next */
 	if (!isPropertyDefinition(node) && !isMethodDefinition(node)) {
 		return false;
 	}
