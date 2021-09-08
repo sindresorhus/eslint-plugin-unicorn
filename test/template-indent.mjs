@@ -42,6 +42,15 @@ test({
 			`),
 		},
 		{
+			code: ['dedent`', 'one', '`'].join('\r\n'),
+			errors,
+			output: fixInput(`
+				dedent@
+				••one
+				@
+			`).trim(),
+		},
+		{
 			options: [{
 				tags: ['customIndentableTag'],
 			}],
