@@ -3,34 +3,34 @@
 const isLogicalExpression = require('./is-logical-expression.js');
 
 const isLogicNot = node =>
-	node &&
-	node.type === 'UnaryExpression' &&
-	node.operator === '!';
+	node
+	&& node.type === 'UnaryExpression'
+	&& node.operator === '!';
 const isLogicNotArgument = node =>
-	isLogicNot(node.parent) &&
-	node.parent.argument === node;
+	isLogicNot(node.parent)
+	&& node.parent.argument === node;
 const isBooleanCallArgument = node =>
-	isBooleanCall(node.parent) &&
-	node.parent.arguments[0] === node;
+	isBooleanCall(node.parent)
+	&& node.parent.arguments[0] === node;
 const isBooleanCall = node =>
-	node &&
-	node.type === 'CallExpression' &&
-	node.callee &&
-	node.callee.type === 'Identifier' &&
-	node.callee.name === 'Boolean' &&
-	node.arguments.length === 1;
+	node
+	&& node.type === 'CallExpression'
+	&& node.callee
+	&& node.callee.type === 'Identifier'
+	&& node.callee.name === 'Boolean'
+	&& node.arguments.length === 1;
 const isVueBooleanAttributeValue = node =>
-	node &&
-	node.type === 'VExpressionContainer' &&
-	node.parent.type === 'VAttribute' &&
-	node.parent.directive &&
-	node.parent.value === node &&
-	node.parent.key.type === 'VDirectiveKey' &&
-	node.parent.key.name.type === 'VIdentifier' &&
-	(
-		node.parent.key.name.rawName === 'if' ||
-		node.parent.key.name.rawName === 'else-if' ||
-		node.parent.key.name.rawName === 'show'
+	node
+	&& node.type === 'VExpressionContainer'
+	&& node.parent.type === 'VAttribute'
+	&& node.parent.directive
+	&& node.parent.value === node
+	&& node.parent.key.type === 'VDirectiveKey'
+	&& node.parent.key.name.type === 'VIdentifier'
+	&& (
+		node.parent.key.name.rawName === 'if'
+		|| node.parent.key.name.rawName === 'else-if'
+		|| node.parent.key.name.rawName === 'show'
 	);
 
 /**
@@ -41,10 +41,10 @@ Check if the value of node is a `boolean`.
 */
 function isBooleanNode(node) {
 	if (
-		isLogicNot(node) ||
-		isLogicNotArgument(node) ||
-		isBooleanCall(node) ||
-		isBooleanCallArgument(node)
+		isLogicNot(node)
+		|| isLogicNotArgument(node)
+		|| isBooleanCall(node)
+		|| isBooleanCallArgument(node)
 	) {
 		return true;
 	}
@@ -56,13 +56,13 @@ function isBooleanNode(node) {
 
 	if (
 		(
-			parent.type === 'IfStatement' ||
-			parent.type === 'ConditionalExpression' ||
-			parent.type === 'WhileStatement' ||
-			parent.type === 'DoWhileStatement' ||
-			parent.type === 'ForStatement'
-		) &&
-		parent.test === node
+			parent.type === 'IfStatement'
+			|| parent.type === 'ConditionalExpression'
+			|| parent.type === 'WhileStatement'
+			|| parent.type === 'DoWhileStatement'
+			|| parent.type === 'ForStatement'
+		)
+		&& parent.test === node
 	) {
 		return true;
 	}

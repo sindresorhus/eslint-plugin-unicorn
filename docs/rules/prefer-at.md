@@ -85,7 +85,7 @@ Example:
 // eslint unicorn/prefer-at: ["error", {"checkAllIndexAccess": true}]
 const foo = bar[10]; // Fails, will fix to `bar.at(10)`
 const foo = bar[unknownProperty]; // Passes
-const foo = string.chatAt(unknownIndex); // Fails
+const foo = string.charAt(unknownIndex); // Fails
 ```
 
 ### getLastElementFunctions

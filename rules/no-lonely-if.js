@@ -28,11 +28,11 @@ const selector = matches([
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
 // Lower precedence than `&&`
 const needParenthesis = node => (
-	(node.type === 'LogicalExpression' && (node.operator === '||' || node.operator === '??')) ||
-	node.type === 'ConditionalExpression' ||
-	node.type === 'AssignmentExpression' ||
-	node.type === 'YieldExpression' ||
-	node.type === 'SequenceExpression'
+	(node.type === 'LogicalExpression' && (node.operator === '||' || node.operator === '??'))
+	|| node.type === 'ConditionalExpression'
+	|| node.type === 'AssignmentExpression'
+	|| node.type === 'YieldExpression'
+	|| node.type === 'SequenceExpression'
 );
 
 function getIfStatementTokens(node, sourceCode) {
@@ -55,9 +55,9 @@ function getIfStatementTokens(node, sourceCode) {
 function fix(innerIfStatement, sourceCode) {
 	return function * (fixer) {
 		const outerIfStatement = (
-			innerIfStatement.parent.type === 'BlockStatement' ?
-				innerIfStatement.parent :
-				innerIfStatement
+			innerIfStatement.parent.type === 'BlockStatement'
+				? innerIfStatement.parent
+				: innerIfStatement
 		).parent;
 		const outer = {
 			...outerIfStatement,
@@ -95,8 +95,8 @@ function fix(innerIfStatement, sourceCode) {
 		// Remove `()` if `test` don't need it
 		for (const {test, openingParenthesisToken, closingParenthesisToken} of [outer, inner]) {
 			if (
-				isParenthesized(test, sourceCode) ||
-				!needParenthesis(test)
+				isParenthesized(test, sourceCode)
+				|| !needParenthesis(test)
 			) {
 				yield fixer.remove(openingParenthesisToken);
 				yield fixer.remove(closingParenthesisToken);

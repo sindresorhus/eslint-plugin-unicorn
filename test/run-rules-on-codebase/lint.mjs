@@ -70,18 +70,21 @@ const eslint = new ESLint({
 					'unicorn/prefer-module': 'off',
 				},
 			},
+			{
+				files: [
+					'rules/prefer-spread.js',
+				],
+				rules: {
+					// TODO[xo@>=0.45.0]: Enable this rule when `xo` updated `eslint-plugin-unicorn`
+					'unicorn/prefer-spread': 'off',
+				},
+			},
 		],
 	},
 });
 
-const sum = (collection, fieldName) => {
-	let result = 0;
-	for (const item of collection) {
-		result += item[fieldName];
-	}
-
-	return result;
-};
+const sum = (collection, fieldName) =>
+	collection.reduce((total, {[fieldName]: value}) => total + value, 0);
 
 (async function () {
 	const results = await eslint.lintFiles(files);

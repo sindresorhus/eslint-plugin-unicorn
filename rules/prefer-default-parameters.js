@@ -15,13 +15,13 @@ const declarationSelector = [
 ].join('');
 
 const isDefaultExpression = (left, right) =>
-	left &&
-	right &&
-	left.type === 'Identifier' &&
-	right.type === 'LogicalExpression' &&
-	(right.operator === '||' || right.operator === '??') &&
-	right.left.type === 'Identifier' &&
-	right.right.type === 'Literal';
+	left
+	&& right
+	&& left.type === 'Identifier'
+	&& right.type === 'LogicalExpression'
+	&& (right.operator === '||' || right.operator === '??')
+	&& right.left.type === 'Identifier'
+	&& right.right.type === 'Literal';
 
 const containsCallExpression = (sourceCode, node) => {
 	if (!node) {
@@ -159,21 +159,21 @@ const create = context => {
 		const {references} = variable;
 		const {params} = currentFunction;
 		const parameter = params.find(parameter =>
-			parameter.type === 'Identifier' &&
-			parameter.name === secondId,
+			parameter.type === 'Identifier'
+			&& parameter.name === secondId,
 		);
 
 		if (
-			hasSideEffects(sourceCode, currentFunction, node) ||
-			hasExtraReferences(assignment, references, left) ||
-			!isLastParameter(params, parameter)
+			hasSideEffects(sourceCode, currentFunction, node)
+			|| hasExtraReferences(assignment, references, left)
+			|| !isLastParameter(params, parameter)
 		) {
 			return;
 		}
 
-		const replacement = needsParentheses(sourceCode, currentFunction) ?
-			`(${firstId} = ${literal})` :
-			`${firstId} = ${literal}`;
+		const replacement = needsParentheses(sourceCode, currentFunction)
+			? `(${firstId} = ${literal})`
+			: `${firstId} = ${literal}`;
 
 		return {
 			node,

@@ -179,8 +179,7 @@ test.snapshot({
 		'const bufA = Buffer.concat([buf1, buf2, buf3], totalLength);',
 		'Foo.concat(1)',
 		'FooBar.concat(1)',
-		'FOO.concat(1)',
-		'A.concat(1)',
+		'global.Buffer.concat([])',
 	],
 	invalid: [
 		'[1].concat(2)',
@@ -266,6 +265,10 @@ test.snapshot({
 		'foo.concat(bar, 2, 3, ...baz)',
 		'notClass.concat(1)',
 		'_A.concat(1)',
+		// Constants
+		'FOO.concat(1)',
+		'A.concat(1)',
+		'Foo.x.concat(1)',
 		// Semicolon
 		'if (test) foo.concat(1)',
 		'if (test) {} else foo.concat(1)',
@@ -334,5 +337,48 @@ test.snapshot({
 		'array.slice(0b0)',
 		'array.slice(0.00)',
 		'array.slice(0.00, )',
+	],
+});
+
+// `String#slice('')`
+test.snapshot({
+	valid: [
+		'new foo.split("")',
+		'split("")',
+		'string[split]("")',
+		'string.split',
+		'string.split(1)',
+		'string.split(..."")',
+		'string.split(...[""])',
+		'string.split("" + "")',
+		'string.split(0)',
+		'string.split(false)',
+		'string.split(undefined)',
+		'string.split(0n)',
+		'string.split(null)',
+		'string.split(/""/)',
+		'string.split(``)',
+		'const EMPTY_STRING = ""; string.split(EMPTY_STRING)',
+		'string.split("", limit)',
+		'"".split(string)',
+		'string.split()',
+		'string.notSplit("")',
+		'const notString = 0; notString.split("")',
+	],
+	invalid: [
+		'"string".split("")',
+		'"string".split(\'\')',
+		'unknown.split("")',
+		'const characters = "string".split("")',
+		'(( (( (( "string" )).split ))( (("")) ) ))',
+		// Semicolon
+		outdent`
+			bar()
+			foo.split("")
+		`,
+		'unknown.split("")',
+		// Not result the same
+		'"🦄".split("")',
+		'const {length} = "🦄".split("")',
 	],
 });

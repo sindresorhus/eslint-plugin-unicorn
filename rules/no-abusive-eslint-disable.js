@@ -14,8 +14,8 @@ const create = () => ({
 			const result = disableRegex.exec(value);
 
 			if (
-				result && // It's a eslint-disable comment
-				!result.groups.ruleId // But it did not specify any rules
+				result // It's a eslint-disable comment
+				&& !result.groups.ruleId // But it did not specify any rules
 			) {
 				yield {
 					// Can't set it at the given location as the warning

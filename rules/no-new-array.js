@@ -33,9 +33,9 @@ function getProblem(context, node) {
 		text = `(${text})`;
 	}
 
-	const maybeSemiColon = needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[') ?
-		';' :
-		'';
+	const maybeSemiColon = needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')
+		? ';'
+		: '';
 
 	// We are not sure how many `arguments` passed
 	if (argumentNode.type === 'SpreadElement') {

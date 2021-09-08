@@ -22,8 +22,8 @@ const getIndexIdentifierName = forStatement => {
 	const {init: variableDeclaration} = forStatement;
 
 	if (
-		!variableDeclaration ||
-		variableDeclaration.type !== 'VariableDeclaration'
+		!variableDeclaration
+		|| variableDeclaration.type !== 'VariableDeclaration'
 	) {
 		return;
 	}
@@ -79,8 +79,8 @@ const getArrayIdentifierFromBinaryExpression = (binaryExpression, indexIdentifie
 	}
 
 	if (
-		greater.object.type !== 'Identifier' ||
-		greater.property.type !== 'Identifier'
+		greater.object.type !== 'Identifier'
+		|| greater.property.type !== 'Identifier'
 	) {
 		return;
 	}
@@ -104,8 +104,8 @@ const getArrayIdentifier = (forStatement, indexIdentifierName) => {
 
 const isLiteralOnePlusIdentifierWithName = (node, identifierName) => {
 	if (node && node.type === 'BinaryExpression' && node.operator === '+') {
-		return (isIdentifierWithName(node.left, identifierName) && isLiteralOne(node.right)) ||
-			(isIdentifierWithName(node.right, identifierName) && isLiteralOne(node.left));
+		return (isIdentifierWithName(node.left, identifierName) && isLiteralOne(node.right))
+			|| (isIdentifierWithName(node.right, identifierName) && isLiteralOne(node.left));
 	}
 
 	return false;
@@ -123,8 +123,8 @@ const checkUpdateExpression = (forStatement, indexIdentifierName) => {
 	}
 
 	if (
-		update.type === 'AssignmentExpression' &&
-		isIdentifierWithName(update.left, indexIdentifierName)
+		update.type === 'AssignmentExpression'
+		&& isIdentifierWithName(update.left, indexIdentifierName)
 	) {
 		if (update.operator === '+=') {
 			return isLiteralOne(update.right);
@@ -138,28 +138,26 @@ const checkUpdateExpression = (forStatement, indexIdentifierName) => {
 	return false;
 };
 
-const isOnlyArrayOfIndexVariableRead = (arrayReferences, indexIdentifierName) => {
-	return arrayReferences.every(reference => {
-		const node = reference.identifier.parent;
+const isOnlyArrayOfIndexVariableRead = (arrayReferences, indexIdentifierName) => arrayReferences.every(reference => {
+	const node = reference.identifier.parent;
 
-		if (node.type !== 'MemberExpression') {
-			return false;
-		}
+	if (node.type !== 'MemberExpression') {
+		return false;
+	}
 
-		if (node.property.name !== indexIdentifierName) {
-			return false;
-		}
+	if (node.property.name !== indexIdentifierName) {
+		return false;
+	}
 
-		if (
-			node.parent.type === 'AssignmentExpression' &&
-			node.parent.left === node
-		) {
-			return false;
-		}
+	if (
+		node.parent.type === 'AssignmentExpression'
+		&& node.parent.left === node
+	) {
+		return false;
+	}
 
-		return true;
-	});
-};
+	return true;
+});
 
 const getRemovalRange = (node, sourceCode) => {
 	const declarationNode = node.parent;
@@ -247,20 +245,17 @@ const isIndexVariableUsedElsewhereInTheLoopBody = (indexVariable, bodyScope, arr
 	return referencesOtherThanArrayAccess.length > 0;
 };
 
-const isIndexVariableAssignedToInTheLoopBody = (indexVariable, bodyScope) => {
-	return indexVariable.references
+const isIndexVariableAssignedToInTheLoopBody = (indexVariable, bodyScope) =>
+	indexVariable.references
 		.filter(reference => scopeContains(bodyScope, reference.from))
 		.some(inBodyReference => inBodyReference.isWrite());
-};
 
-const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) => {
-	return variables.some(variable => {
-		return !variable.references.every(reference => {
-			return scopeContains(forScope, reference.from) ||
-				nodeContains(forStatement, reference.identifier);
-		});
-	});
-};
+const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) =>
+	variables.some(
+		variable => !variable.references.every(
+			reference => scopeContains(forScope, reference.from) || nodeContains(forStatement, reference.identifier),
+		),
+	);
 
 const getReferencesInChildScopes = (scope, name) =>
 	getReferences(scope).filter(reference => reference.identifier.name === name);
@@ -350,8 +345,8 @@ const create = context => {
 					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 
 					const index = indexIdentifierName;
-					const element = elementIdentifierName ||
-						avoidCapture(singular(arrayIdentifierName) || defaultElementName, getScopes(bodyScope));
+					const element = elementIdentifierName
+						|| avoidCapture(singular(arrayIdentifierName) || defaultElementName, getScopes(bodyScope));
 					const array = arrayIdentifierName;
 
 					let declarationElement = element;
@@ -404,9 +399,9 @@ const create = context => {
 					}
 
 					if (elementNode) {
-						yield removeDeclaration ?
-							fixer.removeRange(getRemovalRange(elementNode, sourceCode)) :
-							fixer.replaceText(elementNode.init, element);
+						yield removeDeclaration
+							? fixer.removeRange(getRemovalRange(elementNode, sourceCode))
+							: fixer.replaceText(elementNode.init, element);
 					}
 				};
 			}

@@ -34,9 +34,9 @@ const arrayEveryCallSelector = methodCallSelector('every');
 
 function flatLogicalExpression(node) {
 	return [node.left, node.right].flatMap(child =>
-		child.type === 'LogicalExpression' && child.operator === node.operator ?
-			flatLogicalExpression(child) :
-			[child],
+		child.type === 'LogicalExpression' && child.operator === node.operator
+			? flatLogicalExpression(child)
+			: [child],
 	);
 }
 
@@ -51,19 +51,19 @@ const create = context => {
 	function isUselessLengthCheckNode({node, operator, siblings}) {
 		return (
 			(
-				operator === '||' &&
-				zeroLengthChecks.has(node) &&
-				siblings.some(condition =>
-					arrayEveryCalls.has(condition) &&
-					isSameReference(node.left.object, condition.callee.object),
+				operator === '||'
+				&& zeroLengthChecks.has(node)
+				&& siblings.some(condition =>
+					arrayEveryCalls.has(condition)
+					&& isSameReference(node.left.object, condition.callee.object),
 				)
-			) ||
-			(
-				operator === '&&' &&
-				nonZeroLengthChecks.has(node) &&
-				siblings.some(condition =>
-					arraySomeCalls.has(condition) &&
-					isSameReference(node.left.object, condition.callee.object),
+			)
+			|| (
+				operator === '&&'
+				&& nonZeroLengthChecks.has(node)
+				&& siblings.some(condition =>
+					arraySomeCalls.has(condition)
+					&& isSameReference(node.left.object, condition.callee.object),
 				)
 			)
 		);

@@ -1,9 +1,9 @@
 'use strict';
 
 const isMethodNamed = (node, name) =>
-	node.type === 'CallExpression' &&
-	node.callee.type === 'MemberExpression' &&
-	node.callee.property.type === 'Identifier' &&
-	node.callee.property.name === name;
+	node.type === 'CallExpression'
+	&& node.callee.type === 'MemberExpression'
+	&& node.callee.property.type === 'Identifier'
+	&& node.callee.property.name === name;
 
 module.exports = isMethodNamed;

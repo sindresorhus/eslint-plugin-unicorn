@@ -18,14 +18,14 @@ const selector = [
 
 const isEqualToken = ({type, value}) => type === 'Punctuator' && value === '=';
 const isDeclarationOfExportDefaultDeclaration = node =>
-	node.type === 'ClassDeclaration' &&
-	node.parent.type === 'ExportDefaultDeclaration' &&
-	node.parent.declaration === node;
+	node.type === 'ClassDeclaration'
+	&& node.parent.type === 'ExportDefaultDeclaration'
+	&& node.parent.declaration === node;
 
 // https://github.com/estree/estree/blob/master/stage3/class-features.md#propertydefinition
-const isPropertyDefinition = node => node.type === 'PropertyDefinition' ||
+const isPropertyDefinition = node => node.type === 'PropertyDefinition'
 	// Legacy node type
-	node.type === 'ClassProperty';
+	|| node.type === 'ClassProperty';
 const isMethodDefinition = node => node.type === 'MethodDefinition';
 
 function isStaticMember(node) {
@@ -40,7 +40,6 @@ function isStaticMember(node) {
 	} = node;
 
 	// Avoid matching unexpected node. For example: https://github.com/tc39/proposal-class-static-block
-	/* istanbul ignore next */
 	if (!isPropertyDefinition(node) && !isMethodDefinition(node)) {
 		return false;
 	}
@@ -51,11 +50,11 @@ function isStaticMember(node) {
 
 	// TypeScript class
 	if (
-		isDeclare ||
-		isReadonly ||
-		typeof accessibility !== 'undefined' ||
-		(Array.isArray(decorators) && decorators.length > 0) ||
-		key.type === 'TSPrivateIdentifier'
+		isDeclare
+		|| isReadonly
+		|| typeof accessibility !== 'undefined'
+		|| (Array.isArray(decorators) && decorators.length > 0)
+		|| key.type === 'TSPrivateIdentifier'
 	) {
 		return false;
 	}
@@ -77,9 +76,9 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 	yield fixer.remove(staticToken);
 	yield removeSpacesAfter(staticToken, sourceCode, fixer);
 
-	const maybeSemicolonToken = isPropertyDefinition(node) ?
-		sourceCode.getLastToken(node) :
-		sourceCode.getTokenAfter(node);
+	const maybeSemicolonToken = isPropertyDefinition(node)
+		? sourceCode.getLastToken(node)
+		: sourceCode.getTokenAfter(node);
 	const hasSemicolonToken = isSemicolonToken(maybeSemicolonToken);
 
 	if (isPropertyDefinition(node)) {
@@ -97,9 +96,9 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 	}
 
 	yield (
-		hasSemicolonToken ?
-			fixer.replaceText(maybeSemicolonToken, ',') :
-			fixer.insertTextAfter(node, ',')
+		hasSemicolonToken
+			? fixer.replaceText(maybeSemicolonToken, ',')
+			: fixer.insertTextAfter(node, ',')
 	);
 }
 
@@ -115,9 +114,9 @@ function switchClassToObject(node, sourceCode) {
 	} = node;
 
 	if (
-		isDeclare ||
-		isAbstract ||
-		(Array.isArray(classImplements) && classImplements.length > 0)
+		isDeclare
+		|| isAbstract
+		|| (Array.isArray(classImplements) && classImplements.length > 0)
 	) {
 		return;
 	}
@@ -134,11 +133,11 @@ function switchClassToObject(node, sourceCode) {
 
 	for (const node of body.body) {
 		if (
-			isPropertyDefinition(node) &&
-			(
-				node.typeAnnotation ||
+			isPropertyDefinition(node)
+			&& (
+				node.typeAnnotation
 				// This is a stupid way to check if `value` of `PropertyDefinition` uses `this`
-				(node.value && sourceCode.getText(node.value).includes('this'))
+				|| (node.value && sourceCode.getText(node.value).includes('this'))
 			)
 		) {
 			return;
@@ -167,10 +166,10 @@ function switchClassToObject(node, sourceCode) {
 				```
 			*/
 			if (
-				type === 'ClassExpression' &&
-				parent.type === 'ReturnStatement' &&
-				body.loc.start.line !== parent.loc.start.line &&
-				sourceCode.text.slice(classToken.range[1], body.range[0]).trim()
+				type === 'ClassExpression'
+				&& parent.type === 'ReturnStatement'
+				&& body.loc.start.line !== parent.loc.start.line
+				&& sourceCode.text.slice(classToken.range[1], body.range[0]).trim()
 			) {
 				yield fixer.replaceText(classToken, '{');
 

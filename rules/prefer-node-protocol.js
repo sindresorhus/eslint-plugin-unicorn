@@ -28,9 +28,9 @@ const create = context => {
 		[matches(selectors)](node) {
 			const {value} = node;
 			if (
-				typeof value !== 'string' ||
-				value.startsWith('node:') ||
-				!isBuiltinModule(value)
+				typeof value !== 'string'
+				|| value.startsWith('node:')
+				|| !isBuiltinModule(value)
 			) {
 				return;
 			}

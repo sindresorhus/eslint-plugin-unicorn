@@ -1,5 +1,6 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
+const isShadowed = require('./utils/is-shadowed.js');
 const {callOrNewExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID_MISSING_MESSAGE = 'missing-message';
@@ -24,60 +25,62 @@ const selector = callOrNewExpressionSelector([
 	'AggregateError',
 ]);
 
-const create = context => {
-	return {
-		[selector](expression) {
-			const constructorName = expression.callee.name;
-			const messageArgumentIndex = constructorName === 'AggregateError' ? 1 : 0;
-			const callArguments = expression.arguments;
+const create = context => ({
+	[selector](expression) {
+		if (isShadowed(context.getScope(), expression.callee)) {
+			return;
+		}
 
-			// If message is `SpreadElement` or there is `SpreadElement` before message
-			if (callArguments.some((node, index) => index <= messageArgumentIndex && node.type === 'SpreadElement')) {
-				return;
-			}
+		const constructorName = expression.callee.name;
+		const messageArgumentIndex = constructorName === 'AggregateError' ? 1 : 0;
+		const callArguments = expression.arguments;
 
-			const node = callArguments[messageArgumentIndex];
-			if (!node) {
-				return {
-					node: expression,
-					messageId: MESSAGE_ID_MISSING_MESSAGE,
-					data: {constructorName},
-				};
-			}
+		// If message is `SpreadElement` or there is `SpreadElement` before message
+		if (callArguments.some((node, index) => index <= messageArgumentIndex && node.type === 'SpreadElement')) {
+			return;
+		}
 
-			// These types can't be string, and `getStaticValue` may don't know the value
-			// Add more types, if issue reported
-			if (node.type === 'ArrayExpression' || node.type === 'ObjectExpression') {
-				return {
-					node,
-					messageId: MESSAGE_ID_NOT_STRING,
-				};
-			}
+		const node = callArguments[messageArgumentIndex];
+		if (!node) {
+			return {
+				node: expression,
+				messageId: MESSAGE_ID_MISSING_MESSAGE,
+				data: {constructorName},
+			};
+		}
 
-			const staticResult = getStaticValue(node, context.getScope());
+		// These types can't be string, and `getStaticValue` may don't know the value
+		// Add more types, if issue reported
+		if (node.type === 'ArrayExpression' || node.type === 'ObjectExpression') {
+			return {
+				node,
+				messageId: MESSAGE_ID_NOT_STRING,
+			};
+		}
 
-			// We don't know the value of `message`
-			if (!staticResult) {
-				return;
-			}
+		const staticResult = getStaticValue(node, context.getScope());
 
-			const {value} = staticResult;
-			if (typeof value !== 'string') {
-				return {
-					node,
-					messageId: MESSAGE_ID_NOT_STRING,
-				};
-			}
+		// We don't know the value of `message`
+		if (!staticResult) {
+			return;
+		}
 
-			if (value === '') {
-				return {
-					node,
-					messageId: MESSAGE_ID_EMPTY_MESSAGE,
-				};
-			}
-		},
-	};
-};
+		const {value} = staticResult;
+		if (typeof value !== 'string') {
+			return {
+				node,
+				messageId: MESSAGE_ID_NOT_STRING,
+			};
+		}
+
+		if (value === '') {
+			return {
+				node,
+				messageId: MESSAGE_ID_EMPTY_MESSAGE,
+			};
+		}
+	},
+});
 
 module.exports = {
 	create,

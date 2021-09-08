@@ -1,4 +1,4 @@
-# Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`
+# Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#slice()` and `String#split('')`
 
 Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax) over
 
@@ -18,6 +18,14 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 
 	Variables named `arrayBuffer`, `blob`, `buffer`, `file`, and `this` are ignored.
 
+- `String#split('')`
+
+	Split a string into an array of characters.
+
+	Note: [The suggestion fix may get different result](https://stackoverflow.com/questions/4547609/how-to-get-character-array-from-a-string/34717402#34717402).
+
+To enforce the spread operator over `Object#assign()`, use the built-in [`prefer-object-spread` rule](https://eslint.org/docs/rules/prefer-object-spread).
+
 This rule is partly fixable.
 
 ## Fail
@@ -32,6 +40,10 @@ const array = array1.concat(array2);
 
 ```js
 const copy = array.slice();
+```
+
+```js
+const characters = string.split('');
 ```
 
 ## Pass
@@ -50,6 +62,10 @@ const tail = array.slice(1);
 
 ```js
 const copy = [...array];
+```
+
+```js
+const characters = [...string];
 ```
 
 ## With the `unicorn/no-useless-spread` rule

@@ -30,9 +30,9 @@ const hasTrailingSpace = value => value.length > 1 && value.charAt(value.length 
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const getProblem = (node, method, position) => {
-		const index = position === 'leading' ?
-			node.range[0] + 1 :
-			node.range[1] - 2;
+		const index = position === 'leading'
+			? node.range[0] + 1
+			: node.range[1] - 2;
 		const range = [index, index + 1];
 
 		return {
@@ -51,8 +51,8 @@ const create = context => {
 			for (const [index, node] of messages.entries()) {
 				const {type, value} = node;
 				if (
-					!(type === 'Literal' && typeof value === 'string') &&
-					type !== 'TemplateLiteral'
+					!(type === 'Literal' && typeof value === 'string')
+					&& type !== 'TemplateLiteral'
 				) {
 					continue;
 				}

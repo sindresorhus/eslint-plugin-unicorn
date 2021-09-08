@@ -14,8 +14,8 @@ function shouldAddParenthesesToLogicalExpressionChild(node, {operator, property}
 
 	// Not really needed, but more readable
 	if (
-		node.type === 'AwaitExpression' ||
-		node.type === 'BinaryExpression'
+		node.type === 'AwaitExpression'
+		|| node.type === 'BinaryExpression'
 	) {
 		return true;
 	}
@@ -23,11 +23,11 @@ function shouldAddParenthesesToLogicalExpressionChild(node, {operator, property}
 	// Lower precedence than `LogicalExpression`
 	// see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
 	if (
-		node.type === 'ConditionalExpression' ||
-		node.type === 'AssignmentExpression' ||
-		node.type === 'AssignmentExpression' ||
-		node.type === 'YieldExpression' ||
-		node.type === 'SequenceExpression'
+		node.type === 'ConditionalExpression'
+		|| node.type === 'AssignmentExpression'
+		|| node.type === 'AssignmentExpression'
+		|| node.type === 'YieldExpression'
+		|| node.type === 'SequenceExpression'
 	) {
 		return true;
 	}

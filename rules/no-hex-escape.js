@@ -14,25 +14,21 @@ function checkEscape(context, node, value) {
 			node,
 			messageId: MESSAGE_ID,
 			fix: fixer =>
-				node.type === 'TemplateElement' ?
-					replaceTemplateElement(fixer, node, fixedValue) :
-					fixer.replaceText(node, fixedValue),
+				node.type === 'TemplateElement'
+					? replaceTemplateElement(fixer, node, fixedValue)
+					: fixer.replaceText(node, fixedValue),
 		};
 	}
 }
 
-const create = context => {
-	return {
-		Literal: node => {
-			if (node.regex || typeof node.value === 'string') {
-				return checkEscape(context, node, node.raw);
-			}
-		},
-		TemplateElement: node => {
-			return checkEscape(context, node, node.value.raw);
-		},
-	};
-};
+const create = context => ({
+	Literal: node => {
+		if (node.regex || typeof node.value === 'string') {
+			return checkEscape(context, node, node.raw);
+		}
+	},
+	TemplateElement: node => checkEscape(context, node, node.value.raw),
+});
 
 module.exports = {
 	create,

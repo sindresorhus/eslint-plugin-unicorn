@@ -41,13 +41,13 @@ const prepareOptions = ({
 
 	ignore = [],
 } = {}) => {
-	const mergedReplacements = extendDefaultReplacements ?
-		defaultsDeep({}, replacements, defaultReplacements) :
-		replacements;
+	const mergedReplacements = extendDefaultReplacements
+		? defaultsDeep({}, replacements, defaultReplacements)
+		: replacements;
 
-	const mergedAllowList = extendDefaultAllowList ?
-		defaultsDeep({}, allowList, defaultAllowList) :
-		allowList;
+	const mergedAllowList = extendDefaultAllowList
+		? defaultsDeep({}, allowList, defaultAllowList)
+		: allowList;
 
 	ignore = [...defaultIgnore, ...ignore];
 
@@ -83,9 +83,9 @@ const getWordReplacements = (word, {replacements, allowList}) => {
 		return [];
 	}
 
-	const replacement = replacements.get(lowerFirst(word)) ||
-		replacements.get(word) ||
-		replacements.get(upperFirst(word));
+	const replacement = replacements.get(lowerFirst(word))
+		|| replacements.get(word)
+		|| replacements.get(upperFirst(word));
 
 	let wordReplacement = [];
 	if (replacement) {
@@ -182,32 +182,32 @@ const getMessage = (discouragedName, replacements, nameTypeText) => {
 
 const isExportedIdentifier = identifier => {
 	if (
-		identifier.parent.type === 'VariableDeclarator' &&
-		identifier.parent.id === identifier
+		identifier.parent.type === 'VariableDeclarator'
+		&& identifier.parent.id === identifier
 	) {
 		return (
-			identifier.parent.parent.type === 'VariableDeclaration' &&
-			identifier.parent.parent.parent.type === 'ExportNamedDeclaration'
+			identifier.parent.parent.type === 'VariableDeclaration'
+			&& identifier.parent.parent.parent.type === 'ExportNamedDeclaration'
 		);
 	}
 
 	if (
-		identifier.parent.type === 'FunctionDeclaration' &&
-		identifier.parent.id === identifier
+		identifier.parent.type === 'FunctionDeclaration'
+		&& identifier.parent.id === identifier
 	) {
 		return identifier.parent.parent.type === 'ExportNamedDeclaration';
 	}
 
 	if (
-		identifier.parent.type === 'ClassDeclaration' &&
-		identifier.parent.id === identifier
+		identifier.parent.type === 'ClassDeclaration'
+		&& identifier.parent.id === identifier
 	) {
 		return identifier.parent.parent.type === 'ExportNamedDeclaration';
 	}
 
 	if (
-		identifier.parent.type === 'TSTypeAliasDeclaration' &&
-		identifier.parent.id === identifier
+		identifier.parent.type === 'TSTypeAliasDeclaration'
+		&& identifier.parent.id === identifier
 	) {
 		return identifier.parent.parent.type === 'ExportNamedDeclaration';
 	}
@@ -215,38 +215,36 @@ const isExportedIdentifier = identifier => {
 	return false;
 };
 
-const shouldFix = variable => {
-	return !getVariableIdentifiers(variable).some(identifier => isExportedIdentifier(identifier));
-};
+const shouldFix = variable => !getVariableIdentifiers(variable).some(identifier => isExportedIdentifier(identifier));
 
 const isDefaultOrNamespaceImportName = identifier => {
 	if (
-		identifier.parent.type === 'ImportDefaultSpecifier' &&
-		identifier.parent.local === identifier
+		identifier.parent.type === 'ImportDefaultSpecifier'
+		&& identifier.parent.local === identifier
 	) {
 		return true;
 	}
 
 	if (
-		identifier.parent.type === 'ImportNamespaceSpecifier' &&
-		identifier.parent.local === identifier
+		identifier.parent.type === 'ImportNamespaceSpecifier'
+		&& identifier.parent.local === identifier
 	) {
 		return true;
 	}
 
 	if (
-		identifier.parent.type === 'ImportSpecifier' &&
-		identifier.parent.local === identifier &&
-		identifier.parent.imported.type === 'Identifier' &&
-		identifier.parent.imported.name === 'default'
+		identifier.parent.type === 'ImportSpecifier'
+		&& identifier.parent.local === identifier
+		&& identifier.parent.imported.type === 'Identifier'
+		&& identifier.parent.imported.name === 'default'
 	) {
 		return true;
 	}
 
 	if (
-		identifier.parent.type === 'VariableDeclarator' &&
-		identifier.parent.id === identifier &&
-		isStaticRequire(identifier.parent.init)
+		identifier.parent.type === 'VariableDeclarator'
+		&& identifier.parent.id === identifier
+		&& isStaticRequire(identifier.parent.init)
 	) {
 		return true;
 	}
@@ -266,45 +264,45 @@ const isClassVariable = variable => {
 
 const shouldReportIdentifierAsProperty = identifier => {
 	if (
-		identifier.parent.type === 'MemberExpression' &&
-		identifier.parent.property === identifier &&
-		!identifier.parent.computed &&
-		identifier.parent.parent.type === 'AssignmentExpression' &&
-		identifier.parent.parent.left === identifier.parent
+		identifier.parent.type === 'MemberExpression'
+		&& identifier.parent.property === identifier
+		&& !identifier.parent.computed
+		&& identifier.parent.parent.type === 'AssignmentExpression'
+		&& identifier.parent.parent.left === identifier.parent
 	) {
 		return true;
 	}
 
 	if (
-		identifier.parent.type === 'Property' &&
-		identifier.parent.key === identifier &&
-		!identifier.parent.computed &&
-		!identifier.parent.shorthand && // Shorthand properties are reported and fixed as variables
-		identifier.parent.parent.type === 'ObjectExpression'
+		identifier.parent.type === 'Property'
+		&& identifier.parent.key === identifier
+		&& !identifier.parent.computed
+		&& !identifier.parent.shorthand // Shorthand properties are reported and fixed as variables
+		&& identifier.parent.parent.type === 'ObjectExpression'
 	) {
 		return true;
 	}
 
 	if (
-		identifier.parent.type === 'ExportSpecifier' &&
-		identifier.parent.exported === identifier &&
-		identifier.parent.local !== identifier // Same as shorthand properties above
+		identifier.parent.type === 'ExportSpecifier'
+		&& identifier.parent.exported === identifier
+		&& identifier.parent.local !== identifier // Same as shorthand properties above
 	) {
 		return true;
 	}
 
 	if (
-		identifier.parent.type === 'MethodDefinition' &&
-		identifier.parent.key === identifier &&
-		!identifier.parent.computed
+		identifier.parent.type === 'MethodDefinition'
+		&& identifier.parent.key === identifier
+		&& !identifier.parent.computed
 	) {
 		return true;
 	}
 
 	if (
-		(identifier.parent.type === 'ClassProperty' || identifier.parent.type === 'PropertyDefinition') &&
-		identifier.parent.key === identifier &&
-		!identifier.parent.computed
+		(identifier.parent.type === 'ClassProperty' || identifier.parent.type === 'PropertyDefinition')
+		&& identifier.parent.key === identifier
+		&& !identifier.parent.computed
 	) {
 		return true;
 	}
@@ -322,8 +320,8 @@ const isInternalImport = node => {
 	}
 
 	return (
-		!source.includes('node_modules') &&
-		(source.startsWith('.') || source.startsWith('/'))
+		!source.includes('node_modules')
+		&& (source.startsWith('.') || source.startsWith('/'))
 	);
 };
 
@@ -392,8 +390,8 @@ const create = context => {
 			}
 
 			if (
-				options.checkDefaultAndNamespaceImports === 'internal' &&
-				!isInternalImport(definition)
+				options.checkDefaultAndNamespaceImports === 'internal'
+				&& !isInternalImport(definition)
 			) {
 				return;
 			}
@@ -405,16 +403,16 @@ const create = context => {
 			}
 
 			if (
-				options.checkShorthandImports === 'internal' &&
-				!isInternalImport(definition)
+				options.checkShorthandImports === 'internal'
+				&& !isInternalImport(definition)
 			) {
 				return;
 			}
 		}
 
 		if (
-			!options.checkShorthandProperties &&
-			isShorthandPropertyValue(definition.name)
+			!options.checkShorthandProperties
+			&& isShorthandPropertyValue(definition.name)
 		) {
 			return;
 		}
@@ -503,8 +501,8 @@ const create = context => {
 			}
 
 			if (
-				filenameWithExtension === '<input>' ||
-				filenameWithExtension === '<text>'
+				filenameWithExtension === '<input>'
+				|| filenameWithExtension === '<text>'
 			) {
 				return;
 			}

@@ -10,6 +10,7 @@ const {replaceReferenceIdentifier, removeSpacesAfter} = require('./fix/index.js'
 const ERROR_USE_STRICT_DIRECTIVE = 'error/use-strict-directive';
 const ERROR_GLOBAL_RETURN = 'error/global-return';
 const ERROR_IDENTIFIER = 'error/identifier';
+const SUGGESTION_USE_STRICT_DIRECTIVE = 'suggestion/use-strict-directive';
 const SUGGESTION_DIRNAME = 'suggestion/dirname';
 const SUGGESTION_FILENAME = 'suggestion/filename';
 const SUGGESTION_IMPORT = 'suggestion/import';
@@ -18,6 +19,7 @@ const messages = {
 	[ERROR_USE_STRICT_DIRECTIVE]: 'Do not use "use strict" directive.',
 	[ERROR_GLOBAL_RETURN]: '"return" should be used inside a function.',
 	[ERROR_IDENTIFIER]: 'Do not use "{{name}}".',
+	[SUGGESTION_USE_STRICT_DIRECTIVE]: 'Remove "use strict" directive.',
 	[SUGGESTION_DIRNAME]: 'Replace "__dirname" with `"…(import.meta.url)"`.',
 	[SUGGESTION_FILENAME]: 'Replace "__filename" with `"…(import.meta.url)"`.',
 	[SUGGESTION_IMPORT]: 'Switch to `import`.',
@@ -71,26 +73,26 @@ function fixRequireCall(node, sourceCode) {
 	// `const foo = require("foo")`
 	// `const {foo} = require("foo")`
 	if (
-		parent.type === 'VariableDeclarator' &&
-		parent.init === requireCall &&
-		(
-			parent.id.type === 'Identifier' ||
-			(
-				parent.id.type === 'ObjectPattern' &&
-				parent.id.properties.every(
+		parent.type === 'VariableDeclarator'
+		&& parent.init === requireCall
+		&& (
+			parent.id.type === 'Identifier'
+			|| (
+				parent.id.type === 'ObjectPattern'
+				&& parent.id.properties.every(
 					({type, key, value, computed}) =>
-						type === 'Property' &&
-						!computed &&
-						value.type === 'Identifier' &&
-						key.type === 'Identifier',
+						type === 'Property'
+						&& !computed
+						&& value.type === 'Identifier'
+						&& key.type === 'Identifier',
 				)
 			)
-		) &&
-		parent.parent.type === 'VariableDeclaration' &&
-		parent.parent.kind === 'const' &&
-		parent.parent.declarations.length === 1 &&
-		parent.parent.declarations[0] === parent &&
-		parent.parent.parent.type === 'Program'
+		)
+		&& parent.parent.type === 'VariableDeclaration'
+		&& parent.parent.kind === 'const'
+		&& parent.parent.declarations.length === 1
+		&& parent.parent.declarations[0] === parent
+		&& parent.parent.parent.type === 'Program'
 	) {
 		const declarator = parent;
 		const declaration = declarator.parent;
@@ -148,26 +150,26 @@ function fixRequireCall(node, sourceCode) {
 }
 
 const isTopLevelAssignment = node =>
-	node.parent.type === 'AssignmentExpression' &&
-	node.parent.operator === '=' &&
-	node.parent.left === node &&
-	node.parent.parent.type === 'ExpressionStatement' &&
-	node.parent.parent.parent.type === 'Program';
+	node.parent.type === 'AssignmentExpression'
+	&& node.parent.operator === '='
+	&& node.parent.left === node
+	&& node.parent.parent.type === 'ExpressionStatement'
+	&& node.parent.parent.parent.type === 'Program';
 const isNamedExport = node =>
-	node.parent.type === 'MemberExpression' &&
-	!node.parent.optional &&
-	!node.parent.computed &&
-	node.parent.object === node &&
-	node.parent.property.type === 'Identifier' &&
-	isTopLevelAssignment(node.parent) &&
-	node.parent.parent.right.type === 'Identifier';
+	node.parent.type === 'MemberExpression'
+	&& !node.parent.optional
+	&& !node.parent.computed
+	&& node.parent.object === node
+	&& node.parent.property.type === 'Identifier'
+	&& isTopLevelAssignment(node.parent)
+	&& node.parent.parent.right.type === 'Identifier';
 const isModuleExports = node =>
-	node.parent.type === 'MemberExpression' &&
-	!node.parent.optional &&
-	!node.parent.computed &&
-	node.parent.object === node &&
-	node.parent.property.type === 'Identifier' &&
-	node.parent.property.name === 'exports';
+	node.parent.type === 'MemberExpression'
+	&& !node.parent.optional
+	&& !node.parent.computed
+	&& node.parent.object === node
+	&& node.parent.property.type === 'Identifier'
+	&& node.parent.property.name === 'exports';
 
 function fixDefaultExport(node, sourceCode) {
 	return function * (fixer) {
@@ -212,9 +214,9 @@ function fixModuleExports(node, sourceCode) {
 }
 
 function create(context) {
-	const filename = context.getFilename();
+	const filename = context.getFilename().toLowerCase();
 
-	if (filename.toLowerCase().endsWith('.cjs')) {
+	if (filename.endsWith('.cjs')) {
 		return {};
 	}
 
@@ -222,14 +224,19 @@ function create(context) {
 
 	return {
 		'ExpressionStatement[directive="use strict"]'(node) {
-			return {
-				node,
-				messageId: ERROR_USE_STRICT_DIRECTIVE,
-				* fix(fixer) {
-					yield fixer.remove(node);
-					yield removeSpacesAfter(node, sourceCode, fixer);
-				},
+			const problem = {node, messageId: ERROR_USE_STRICT_DIRECTIVE};
+			const fix = function * (fixer) {
+				yield fixer.remove(node);
+				yield removeSpacesAfter(node, sourceCode, fixer);
 			};
+
+			if (filename.endsWith('.mjs')) {
+				problem.fix = fix;
+			} else {
+				problem.suggest = [{messageId: SUGGESTION_USE_STRICT_DIRECTIVE, fix}];
+			}
+
+			return problem;
 		},
 		'ReturnStatement:not(:function ReturnStatement)'(node) {
 			return {
@@ -254,9 +261,9 @@ function create(context) {
 				case '__filename':
 				case '__dirname': {
 					const messageId = node.name === '__dirname' ? SUGGESTION_DIRNAME : SUGGESTION_FILENAME;
-					const replacement = node.name === '__dirname' ?
-						'path.dirname(url.fileURLToPath(import.meta.url))' :
-						'url.fileURLToPath(import.meta.url)';
+					const replacement = node.name === '__dirname'
+						? 'path.dirname(url.fileURLToPath(import.meta.url))'
+						: 'url.fileURLToPath(import.meta.url)';
 					problem.suggest = [{
 						messageId,
 						fix: fixer => replaceReferenceIdentifier(node, replacement, fixer),

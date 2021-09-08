@@ -44,33 +44,33 @@ const sliceCall = methodCallSelector({method: 'slice', minimumArguments: 1, maxi
 const stringCharAt = methodCallSelector({method: 'charAt', argumentsLength: 1});
 
 const isLiteralNegativeInteger = node =>
-	node.type === 'UnaryExpression' &&
-	node.prefix &&
-	node.operator === '-' &&
-	node.argument.type === 'Literal' &&
-	Number.isInteger(node.argument.value) &&
-	node.argument.value > 0;
+	node.type === 'UnaryExpression'
+	&& node.prefix
+	&& node.operator === '-'
+	&& node.argument.type === 'Literal'
+	&& Number.isInteger(node.argument.value)
+	&& node.argument.value > 0;
 const isZeroIndexAccess = node => {
 	const {parent} = node;
-	return parent.type === 'MemberExpression' &&
-		!parent.optional &&
-		parent.computed &&
-		parent.object === node &&
-		isLiteralValue(parent.property, 0);
+	return parent.type === 'MemberExpression'
+		&& !parent.optional
+		&& parent.computed
+		&& parent.object === node
+		&& isLiteralValue(parent.property, 0);
 };
 
 const isArrayPopOrShiftCall = (node, method) => {
 	const {parent} = node;
-	return parent.type === 'MemberExpression' &&
-		!parent.optional &&
-		!parent.computed &&
-		parent.object === node &&
-		parent.property.type === 'Identifier' &&
-		parent.property.name === method &&
-		parent.parent.type === 'CallExpression' &&
-		parent.parent.callee === parent &&
-		!parent.parent.optional &&
-		parent.parent.arguments.length === 0;
+	return parent.type === 'MemberExpression'
+		&& !parent.optional
+		&& !parent.computed
+		&& parent.object === node
+		&& parent.property.type === 'Identifier'
+		&& parent.property.name === method
+		&& parent.parent.type === 'CallExpression'
+		&& parent.parent.callee === parent
+		&& !parent.parent.optional
+		&& parent.parent.arguments.length === 0;
 };
 
 const isArrayPopCall = node => isArrayPopOrShiftCall(node, 'pop');
@@ -104,9 +104,9 @@ function checkSliceCall(node) {
 	const startIndex = -startIndexNode.argument.value;
 	if (sliceArgumentsLength === 1) {
 		if (
-			firstElementGetMethod === 'zero-index' ||
-			firstElementGetMethod === 'shift' ||
-			(startIndex === -1 && firstElementGetMethod === 'pop')
+			firstElementGetMethod === 'zero-index'
+			|| firstElementGetMethod === 'shift'
+			|| (startIndex === -1 && firstElementGetMethod === 'pop')
 		) {
 			return {safeToFix: true, firstElementGetMethod};
 		}
@@ -115,8 +115,8 @@ function checkSliceCall(node) {
 	}
 
 	if (
-		isLiteralNegativeInteger(endIndexNode) &&
-		-endIndexNode.argument.value === startIndex + 1
+		isLiteralNegativeInteger(endIndexNode)
+		&& -endIndexNode.argument.value === startIndex + 1
 	) {
 		return {safeToFix: true, firstElementGetMethod};
 	}
@@ -175,8 +175,8 @@ function create(context) {
 					const openingBracketToken = sourceCode.getTokenBefore(indexNode, isOpeningBracketToken);
 					yield fixer.replaceText(openingBracketToken, '.at(');
 
-					const isClosingBraceToken = sourceCode.getTokenAfter(indexNode, isClosingBracketToken);
-					yield fixer.replaceText(isClosingBraceToken, ')');
+					const closingBracketToken = sourceCode.getTokenAfter(indexNode, isClosingBracketToken);
+					yield fixer.replaceText(closingBracketToken, ')');
 				},
 			};
 		},
@@ -261,8 +261,8 @@ function create(context) {
 					let fixed = getParenthesizedText(array, sourceCode);
 
 					if (
-						!isParenthesized(array, sourceCode) &&
-						shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+						!isParenthesized(array, sourceCode)
+						&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
 					) {
 						fixed = `(${fixed})`;
 					}

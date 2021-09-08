@@ -43,8 +43,8 @@ const create = context => {
 			const {type, operator, right, left} = node;
 			const isAssignment = type === 'AssignmentExpression';
 			if (
-				right.value !== 0 ||
-				!bitwiseOperators.has(isAssignment ? operator.slice(0, -1) : operator)
+				right.value !== 0
+				|| !bitwiseOperators.has(isAssignment ? operator.slice(0, -1) : operator)
 			) {
 				return;
 			}
@@ -89,16 +89,14 @@ const create = context => {
 
 			return problem;
 		},
-		[bitwiseNotUnaryExpressionSelector]: node => {
-			return {
-				node,
-				messageId: ERROR_BITWISE_NOT,
-				* fix(fixer) {
-					yield fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument));
-					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
-				},
-			};
-		},
+		[bitwiseNotUnaryExpressionSelector]: node => ({
+			node,
+			messageId: ERROR_BITWISE_NOT,
+			* fix(fixer) {
+				yield fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument));
+				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+			},
+		}),
 	};
 };
 
