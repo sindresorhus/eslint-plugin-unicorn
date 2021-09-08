@@ -1,9 +1,8 @@
 'use strict';
-const os = require('os');
 const stripIndent = require('strip-indent');
 const indentString = require('indent-string');
+const esquery = require('esquery');
 const {replaceTemplateElement} = require('./fix/index.js');
-const {matches} = require('./selectors/index.js');
 
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
 const messages = {
@@ -28,20 +27,8 @@ const create = context => {
 		...options.selectors,
 	];
 
-	const handled = new Set();
-
 	/** @param {import('@babel/core').types.TemplateLiteral} node */
-	const templateLiteralHandler = node => {
-		if (handled.has(node)) {
-			return;
-		}
-
-		handled.add(node);
-
-		if (node.type !== 'TemplateLiteral') {
-			return;
-		}
-
+	const indentTemplateLiteralNode = node => {
 		const delimiter = '__PLACEHOLDER__' + Math.random();
 		const joined = node.quasis.map(q => q.value.raw).join(delimiter);
 
@@ -65,9 +52,9 @@ const create = context => {
 
 		const dedented = stripIndent(joined);
 		const fixed
-			= os.EOL
+			= '\n'
 			+ indentString(dedented.trim(), 1, {indent: parentMargin + indent})
-			+ os.EOL
+			+ '\n'
 			+ parentMargin;
 
 		if (fixed === joined) {
@@ -83,21 +70,27 @@ const create = context => {
 		});
 	};
 
-	const matchers = {
-		[matches(selectors)]: templateLiteralHandler,
-	};
-
-	if (options.comments.length > 0 && !selectors.includes('TemplateLiteral')) {
+	return {
 		/** @param {import('@babel/core').types.TemplateLiteral} node */
-		matchers.TemplateLiteral = node => {
-			const previousToken = context.getSourceCode().getTokenBefore(node, {includeComments: true});
-			if (previousToken && previousToken.type === 'Block' && options.comments.includes(previousToken.value.trim().toLowerCase())) {
-				templateLiteralHandler(node);
+		TemplateLiteral: node => {
+			let shouldIndent = false;
+			if (options.comments.length > 0) {
+				const previousToken = context.getSourceCode().getTokenBefore(node, {includeComments: true});
+				if (previousToken && previousToken.type === 'Block' && options.comments.includes(previousToken.value.trim().toLowerCase())) {
+					shouldIndent = true;
+				}
 			}
-		};
-	}
 
-	return matchers;
+			if (!shouldIndent) {
+				const ancestry = context.getAncestors().reverse();
+				shouldIndent = selectors.some(selector => esquery.matches(node, esquery.parse(selector), ancestry));
+			}
+
+			if (shouldIndent) {
+				indentTemplateLiteralNode(node);
+			}
+		},
+	};
 };
 
 /** @type {import('json-schema').JSONSchema7[]} */
