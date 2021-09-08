@@ -11,6 +11,7 @@ const messages = {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const sourceCode = context.getSourceCode();
 	const options = {
 		tags: ['outdent', 'dedent', 'gql', 'sql', 'html', 'styled'],
 		functions: ['dedent', 'stripIndent'],
@@ -30,13 +31,22 @@ const create = context => {
 	/** @param {import('@babel/core').types.TemplateLiteral} node */
 	const indentTemplateLiteralNode = node => {
 		const delimiter = '__PLACEHOLDER__' + Math.random();
-		const joined = node.quasis.map(q => q.value.raw).join(delimiter);
+		const joined = node.quasis
+			.map((quasi, index) => {
+				const untrimmedText = sourceCode.getText(quasi);
+				const last = node.quasis.length - 1;
+				return untrimmedText.slice(1, index === last ? -1 : -2);
+			})
+			.join(delimiter);
 
-		if (!joined.includes('\n')) {
+		const eolMatch = joined.match(/\r?\n/);
+		if (!eolMatch) {
 			return;
 		}
 
-		const startLine = context.getSourceCode().lines[node.loc.start.line - 1];
+		const eol = eolMatch[0];
+
+		const startLine = sourceCode.lines[node.loc.start.line - 1];
 		const marginMatch = startLine.match(/^(\s*)\S/);
 		const parentMargin = marginMatch ? marginMatch[1] : '';
 
@@ -52,9 +62,9 @@ const create = context => {
 
 		const dedented = stripIndent(joined);
 		const fixed
-			= '\n'
+			= eol
 			+ indentString(dedented.trim(), 1, {indent: parentMargin + indent})
-			+ '\n'
+			+ eol
 			+ parentMargin;
 
 		if (fixed === joined) {
@@ -75,7 +85,7 @@ const create = context => {
 		TemplateLiteral: node => {
 			let shouldIndent = false;
 			if (options.comments.length > 0) {
-				const previousToken = context.getSourceCode().getTokenBefore(node, {includeComments: true});
+				const previousToken = sourceCode.getTokenBefore(node, {includeComments: true});
 				if (previousToken && previousToken.type === 'Block' && options.comments.includes(previousToken.value.trim().toLowerCase())) {
 					shouldIndent = true;
 				}
