@@ -91,6 +91,8 @@ test.typescript({
 				static a = 1;
 			}
 		`,
+		// Static block
+		'class A { static {}; }',
 	],
 	invalid: [
 		{
@@ -201,7 +203,19 @@ test.typescript({
 });
 
 test.babel({
-	valid: [],
+	testerOptions: {
+		parserOptions: {
+			babelOptions: {
+				parserOpts: {
+					plugins: ['classStaticBlock'],
+				},
+			},
+		},
+	},
+	valid: [
+		// Static block
+		'class A2 { static {}; }',
+	],
 	invalid: [
 		{
 			code: 'class A { static a() {} }',
