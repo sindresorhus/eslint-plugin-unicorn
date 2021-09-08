@@ -16,6 +16,9 @@ test.snapshot({
 		'class A { constructor() {} }',
 		'class A { get a() {} }',
 		'class A { set a(value) {} }',
+		// TODO: enable this test when ESLint support `StaticBlock`
+		// Static block
+		// 'class A2 { static {}; }',
 	],
 	invalid: [
 		'class A { static a() {}; }',
