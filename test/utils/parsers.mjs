@@ -59,10 +59,17 @@ const vue = {
 		return require.resolve(this.name);
 	},
 	mergeParserOptions(options) {
-		return {
+		options = {
 			...defaultParserOptions,
 			...options,
 		};
+
+		// Installed `espree` version don't understand `'latest'` yet
+		if (options.ecmaVersion === 'latest') {
+			options.ecmaVersion = require('espree').latestEcmaVersion
+		}
+
+		return options;
 	},
 };
 
