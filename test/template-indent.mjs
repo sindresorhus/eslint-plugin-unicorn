@@ -42,13 +42,9 @@ test({
 			`),
 		},
 		{
-			code: ['dedent`', 'one', '`'].join('\r\n'),
+			code: ['dedent`', 'one', 'two', '`'].join('\r\n'),
 			errors,
-			output: fixInput(`
-				dedent@
-				••one
-				@
-			`).trim(),
+			output: ['dedent`', '  one', '  two', '`'].join('\r\n'),
 		},
 		{
 			options: [{
