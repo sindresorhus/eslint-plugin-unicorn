@@ -16,6 +16,9 @@ test.snapshot({
 		'class A { constructor() {} }',
 		'class A { get a() {} }',
 		'class A { set a(value) {} }',
+		// TODO: enable this test when ESLint support `StaticBlock`
+		// Static block
+		// 'class A2 { static {}; }',
 	],
 	invalid: [
 		'class A { static a() {}; }',
@@ -91,6 +94,8 @@ test.typescript({
 				static a = 1;
 			}
 		`,
+		// Static block
+		'class A { static {}; }',
 	],
 	invalid: [
 		{
@@ -201,7 +206,19 @@ test.typescript({
 });
 
 test.babel({
-	valid: [],
+	testerOptions: {
+		parserOptions: {
+			babelOptions: {
+				parserOpts: {
+					plugins: ['classStaticBlock'],
+				},
+			},
+		},
+	},
+	valid: [
+		// Static block
+		'class A2 { static {}; }',
+	],
 	invalid: [
 		{
 			code: 'class A { static a() {} }',
