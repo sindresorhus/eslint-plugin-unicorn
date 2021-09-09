@@ -97,7 +97,7 @@ module.exports = {
 		'unicorn/require-post-message-target-origin': 'error',
 		'unicorn/string-content': 'off',
 		'unicorn/throw-new-error': 'error',
-		...require('./eslint-recommended.js').rules,
+		...require('./conflicting-rules.js').rules,
 	},
 	overrides: [
 		{

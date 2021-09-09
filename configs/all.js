@@ -1,5 +1,5 @@
 'use strict';
-const eslintRecommended = require('./eslint-recommended.js');
+const conflictingRules = require('./conflicting-rules.js');
 
 module.exports = {
 	...require('./base.js'),
@@ -8,10 +8,10 @@ module.exports = {
 			Object.entries(require('./recommended.js').rules)
 				.filter(
 					ruleEntry =>
-						!Object.keys(eslintRecommended.rules).includes(ruleEntry[0]),
+						!Object.keys(conflictingRules.rules).includes(ruleEntry[0]),
 				)
 				.map(ruleEntry => [ruleEntry[0], 'error']),
 		),
-		...eslintRecommended.rules,
+		...conflictingRules.rules,
 	},
 };

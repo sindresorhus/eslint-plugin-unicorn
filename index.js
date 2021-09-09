@@ -1,7 +1,7 @@
 'use strict';
 const createDeprecatedRules = require('./rules/utils/create-deprecated-rules.js');
 const {loadRules} = require('./rules/utils/rule.js');
-const recommended = require('./configs/recommended.js');
+const recommendedConfig = require('./configs/recommended.js');
 const all = require('./configs/all.js');
 
 const deprecatedRules = createDeprecatedRules({
@@ -28,7 +28,7 @@ module.exports = {
 		...deprecatedRules,
 	},
 	configs: {
-		recommended,
+		recommended: recommendedConfig,
 		all,
 	},
 };

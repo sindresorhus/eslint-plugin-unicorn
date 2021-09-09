@@ -24,7 +24,8 @@
 	},
 	"files": [
 		"index.js",
-		"rules"
+		"rules",
+		"configs"
 	],
 	"keywords": [
 		"eslint",
