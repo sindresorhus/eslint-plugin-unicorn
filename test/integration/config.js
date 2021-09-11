@@ -1,5 +1,4 @@
 'use strict';
-const unicorn = require('eslint-plugin-unicorn');
 
 module.exports = {
 	root: true,
