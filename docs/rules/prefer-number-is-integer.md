@@ -2,14 +2,22 @@
 
 Enforces the use of [Number.isInteger()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger) for checking if a number is an integer.
 
-These different implementations have slightly different behaviours.
+There are multiple ways to check if a variable is an integer, but these approaches tend to have slightly different behaviours.
 
 For example:
 
 ```js
-let number = [['1']];
+// this is not an integer (or a number)
+let notInteger = [['1']];
 
-number % 1 === 0; // true
+notInteger % 1 === 0; // true - ?! an array is defintely not an integer
+Number.isInteger(notInteger); // false - makes sense
+
+// this is an integer that is larger than Number.MAX_SAFE_INTEGER
+let largeInteger = 1_000_000_000_000_000_000; 
+
+largeInteger^0 === largeInteger; // false - its an integer, should be true
+Number.isInteger(largeInteger); // true - makes sense
 ```
 
 Due to the difference in behaviours across the different implementations, this rule is fixable via the suggestions API.

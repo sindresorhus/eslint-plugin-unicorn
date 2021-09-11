@@ -84,5 +84,25 @@ test({
 			messageId: 'preferNumberIsIntegerSuggestion',
 			output: 'Number.isInteger(value)',
 		}]}),
+		suggestionCase({code: '~~object.value === object.value', suggestions: [{
+			messageId: 'preferNumberIsIntegerSuggestion',
+			output: 'Number.isInteger(object.value)',
+		}]}),
+		suggestionCase({code: '~~object.a.b.c === object.a.b.c', suggestions: [{
+			messageId: 'preferNumberIsIntegerSuggestion',
+			output: 'Number.isInteger(object.a.b.c)',
+		}]}),
+		suggestionCase({code: '~~object["a"] === object.a', suggestions: [{
+			messageId: 'preferNumberIsIntegerSuggestion',
+			output: 'Number.isInteger(object.a)',
+		}]}),
+		suggestionCase({code: '~~object?.a === object.a', suggestions: [{
+			messageId: 'preferNumberIsIntegerSuggestion',
+			output: 'Number.isInteger(object.a)',
+		}]}),
+		suggestionCase({code: '~~object?.a === object?.a', suggestions: [{
+			messageId: 'preferNumberIsIntegerSuggestion',
+			output: 'Number.isInteger(object.a)',
+		}]}),
 	],
 });

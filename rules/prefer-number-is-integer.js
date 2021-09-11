@@ -1,5 +1,7 @@
 'use strict';
 
+const isSameReference = require('./utils/is-same-reference.js');
+
 const MESSAGE_ID = 'preferNumberIsInteger';
 const MESSAGE_ID_SUGGEST = 'preferNumberIsIntegerSuggestion';
 const messages = {
@@ -13,7 +15,6 @@ const equalsSelector = ':matches([operator="==="],[operator="=="])';
 const modulo1Selector = [
 	'BinaryExpression',
 	'[left.type="BinaryExpression"]',
-	'[left.left.type="Identifier"]',
 	'[left.operator="%"]',
 	'[left.right.value=1]',
 	equalsSelector,
@@ -24,11 +25,9 @@ const modulo1Selector = [
 const mathOperatorSelector = [
 	'BinaryExpression',
 	'[left.type="BinaryExpression"]',
-	'[left.left.type="Identifier"]',
 	`:matches(${['^', '|'].map(operator => `[left.operator="${operator}"]`).join(',')})`,
 	'[left.right.value=0]',
 	equalsSelector,
-	'[right.type="Identifier"]',
 ].join('');
 
 // ParseInt(value,10) === value
@@ -36,10 +35,8 @@ const parseIntSelector = [
 	'BinaryExpression',
 	'[left.type="CallExpression"]',
 	'[left.callee.name="parseInt"]',
-	'[left.arguments.0.type="Identifier"]',
 	'[left.arguments.1.value=10]',
 	equalsSelector,
-	'[right.type="Identifier"]',
 ].join('');
 
 // _.isInteger(value)
@@ -56,9 +53,7 @@ const mathRoundSelector = [
 	'[left.callee.type="MemberExpression"]',
 	'[left.callee.object.name="Math"]',
 	'[left.callee.property.name="round"]',
-	'[left.arguments.0.type="Identifier"]',
 	equalsSelector,
-	'[right.type="Identifier"]',
 ].join('');
 
 // ~~value === value
@@ -68,9 +63,7 @@ const bitwiseNotSelector = [
 	'[left.operator="~"]',
 	'[left.argument.type="UnaryExpression"]',
 	'[left.argument.operator="~"]',
-	'[left.argument.argument.type="Identifier"]',
 	equalsSelector,
-	'[right.type="Identifier"]',
 ].join('');
 
 function createNodeListener(sourceCode, variableGetter) {
@@ -97,41 +90,55 @@ function createNodeListener(sourceCode, variableGetter) {
 	};
 }
 
+function getNodeName(node) {
+	switch (node.type) {
+		case 'Identifier': {
+			return node.name;
+		}
+
+		case 'ChainExpression': {
+			return getNodeName(node.expression);
+		}
+
+		case 'MemberExpression': {
+			return `${getNodeName(node.object)}.${getNodeName(node.property)}`;
+		}
+
+		default: {
+			return '';
+		}
+	}
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
 	return {
-		[modulo1Selector]: createNodeListener(sourceCode, node => node.left.left.name),
+		[modulo1Selector]: createNodeListener(sourceCode, node => getNodeName(node.left.left)),
 		[mathOperatorSelector]: createNodeListener(sourceCode, node => {
-			const variableName = node.right.name;
-
-			if (variableName === node.left.left.name) {
-				return variableName;
+			if (isSameReference(node.left.left, node.right)) {
+				return getNodeName(node.right);
 			}
 		}),
 		[parseIntSelector]: createNodeListener(sourceCode, node => {
-			const variableName = node.right.name;
-
 			if (
-				node.left.arguments[0].name === variableName
+				isSameReference(node.left.arguments[0], node.right)
 			) {
-				return variableName;
+				return getNodeName(node.right);
 			}
 		}),
-		[lodashIsIntegerSelector]: createNodeListener(sourceCode, node => node.arguments[0].name),
+		[lodashIsIntegerSelector]: createNodeListener(sourceCode, node => getNodeName(node.arguments[0])),
 		[mathRoundSelector]: createNodeListener(sourceCode, node => {
-			const variableName = node.right.name;
-
-			if (node.left.arguments[0].name === variableName) {
-				return variableName;
+			if (
+				isSameReference(node.left.arguments[0], node.right)
+			) {
+				return getNodeName(node.right);
 			}
 		}),
 		[bitwiseNotSelector]: createNodeListener(sourceCode, node => {
-			const variableName = node.right.name;
-
-			if (node.left.argument.argument.name === variableName) {
-				return variableName;
+			if (isSameReference(node.left.argument.argument, node.right)) {
+				return getNodeName(node.right);
 			}
 		}),
 	};
