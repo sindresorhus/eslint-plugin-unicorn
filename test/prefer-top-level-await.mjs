@@ -8,11 +8,15 @@ test.snapshot({
 	valid: [
 		'a()',
 		'a = async () => {}',
-		'a = (async () => {})()',
-		'!async function() {}()',
-		'void async function() {}()',
 		'(async function *() {})()',
 		'(async () => {})?.()',
+		outdent`
+			function foo() {
+				if (foo) {
+					(async () => {})()
+				}
+			}
+		`,
 	],
 	invalid: [
 		'(async () => {})()',
@@ -26,6 +30,9 @@ test.snapshot({
 				(async () => {})();
 			}
 		`,
+		'a = (async () => {})()',
+		'!async function() {}()',
+		'void async function() {}()',
 	],
 });
 
@@ -33,8 +40,6 @@ test.snapshot({
 test.snapshot({
 	valid: [
 		'foo.then',
-		'foo.then().toString()',
-		'!foo.then()',
 		'foo.then?.(bar)',
 		'foo?.then(bar)',
 	],
@@ -49,6 +54,8 @@ test.snapshot({
 		'(async function() {}()).finally(() => {})',
 		'for (const foo of bar) foo.then(bar)',
 		'foo?.then(bar).finally(qux)',
+		'foo.then().toString()',
+		'!foo.then()',
 	],
 });
 
