@@ -9,11 +9,6 @@ test.snapshot({
 		'a()',
 		'a = async () => {}',
 		'a = (async () => {})()',
-		outdent`
-			{
-				(async () => {})();
-			}
-		`,
 		'!async function() {}()',
 		'void async function() {}()',
 		'(async function *() {})()',
@@ -26,6 +21,11 @@ test.snapshot({
 		'(async function run() {})()',
 		'(async function(c, d) {})(a, b)',
 		'if (foo) (async () => {})()',
+		outdent`
+			{
+				(async () => {})();
+			}
+		`,
 	],
 });
 
@@ -37,7 +37,6 @@ test.snapshot({
 		'!foo.then()',
 		'foo.then?.(bar)',
 		'foo?.then(bar)',
-		'foo?.then(bar).finally(qux)',
 	],
 	invalid: [
 		'foo.then(bar)',
@@ -49,6 +48,7 @@ test.snapshot({
 		'(async () => {})().catch(() => process.exit(1))',
 		'(async function() {}()).finally(() => {})',
 		'for (const foo of bar) foo.then(bar)',
+		'foo?.then(bar).finally(qux)',
 	],
 });
 

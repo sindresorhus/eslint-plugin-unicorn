@@ -13,7 +13,7 @@ const messages = {
 	[SUGGESTION_ADD_AWAIT]: 'Insert `await`.',
 };
 
-const topLevelCallExpression = 'Program > ExpressionStatement > CallExpression[optional!=true].expression';
+const topLevelCallExpression = ':not(:function) > CallExpression[optional!=true].expression';
 const iife = [
 	topLevelCallExpression,
 	matches([
