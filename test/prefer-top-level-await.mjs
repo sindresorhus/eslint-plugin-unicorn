@@ -25,6 +25,7 @@ test.snapshot({
 		'(async function() {}())',
 		'(async function run() {})()',
 		'(async function(c, d) {})(a, b)',
+		'if (foo) (async () => {})()',
 	],
 });
 
@@ -47,6 +48,7 @@ test.snapshot({
 		'(foo.then(bar, baz)).finally(qux)',
 		'(async () => {})().catch(() => process.exit(1))',
 		'(async function() {}()).finally(() => {})',
+		'for (const foo of bar) foo.then(bar)',
 	],
 });
 
@@ -132,6 +134,14 @@ test.snapshot({
 		outdent`
 			foo();
 			async function foo() {}
+		`,
+		outdent`
+			const foo = async () => {};
+			if (true) {
+				alert();
+			} else {
+				foo();
+			}
 		`,
 	],
 });
