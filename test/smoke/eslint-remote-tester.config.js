@@ -49,6 +49,6 @@ module.exports = {
 				jsx: true,
 			},
 		},
-		extends: ['plugin:unicorn/recommended'],
+		extends: ['plugin:unicorn/all'],
 	},
 };

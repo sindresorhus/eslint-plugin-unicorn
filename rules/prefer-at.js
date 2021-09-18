@@ -175,8 +175,8 @@ function create(context) {
 					const openingBracketToken = sourceCode.getTokenBefore(indexNode, isOpeningBracketToken);
 					yield fixer.replaceText(openingBracketToken, '.at(');
 
-					const isClosingBraceToken = sourceCode.getTokenAfter(indexNode, isClosingBracketToken);
-					yield fixer.replaceText(isClosingBraceToken, ')');
+					const closingBracketToken = sourceCode.getTokenAfter(indexNode, isClosingBracketToken);
+					yield fixer.replaceText(closingBracketToken, ')');
 				},
 			};
 		},

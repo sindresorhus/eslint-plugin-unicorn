@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import test from 'ava';
 import pify from 'pify';
+import {ESLint} from 'eslint';
 import index from '../index.js';
 
 let ruleFiles;
@@ -52,8 +53,25 @@ test('Every rule is defined in index file in alphabetical order', t => {
 		ruleFiles.length - deprecatedRules.length,
 		'There are more exported rules in the recommended config than rule files.',
 	);
+	t.is(
+		Object.keys(index.configs.all.rules).length - deprecatedRules.length - ignoredRules.length,
+		ruleFiles.length - deprecatedRules.length,
+		'There are more rules than those exported in the all config.',
+	);
 
 	testSorted(t, Object.keys(index.configs.recommended.rules), 'configs.recommended.rules');
+});
+
+test('validate configuration', async t => {
+	const results = [];
+	for (const config of Object.keys(index.configs)) {
+		results.push(t.notThrowsAsync(
+			new ESLint({overrideConfigFile: './configs/' + config + '.js'}).lintText(''),
+			`Configuration file for "${config}" is invalid at "./configs/${config}.js"`,
+		));
+	}
+
+	await Promise.all(results);
 });
 
 test('Every rule is defined in readme.md usage and list of rules in alphabetical order', async t => {

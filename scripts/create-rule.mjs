@@ -36,20 +36,20 @@ function renderTemplate({source, target, data}) {
 	return fs.writeFileSync(targetFile, content);
 }
 
-function updateIndex(id) {
-	const RULE_START = '\t\t\trules: {\n';
-	const RULE_END = '\n\t\t\t}';
-	const RULE_INDENT = '\t'.repeat(4);
+function updateRecommended(id) {
+	const RULE_START = '\n\trules: {\n';
+	const RULE_END = '\n\t}';
+	const RULE_INDENT = '\t'.repeat(2);
 	let ruleContent = `${RULE_INDENT}'unicorn/${id}': 'error',`;
 
-	const file = path.join(ROOT, 'index.js');
+	const file = path.join(ROOT, 'configs/recommended.js');
 	const content = fs.readFileSync(file, 'utf8');
 	const [before, rest] = content.split(RULE_START);
 	const [rules, after] = rest.split(RULE_END);
 
 	const lines = rules.split('\n');
 	if (!lines.every(line => line.startsWith(RULE_INDENT))) {
-		throw new Error('Unexpected content in “index.js”.');
+		throw new Error('Unexpected content in “configs/recommended.js”.');
 	}
 
 	const unicornRuleLines = lines.filter(line => line.startsWith(`${RULE_INDENT}'unicorn/`));
@@ -156,7 +156,7 @@ function updateIndex(id) {
 		target: `test/${id}.mjs`,
 		data,
 	});
-	updateIndex(id);
+	updateRecommended(id);
 
 	try {
 		await execa('code', [
