@@ -185,7 +185,7 @@ class SnapshotRuleTester {
 
 						for (const [index, suggestion] of suggestions.entries()) {
 							// https://github.com/eslint/eslint/issues/14936#issuecomment-906746754
-							const { fix } = suggestion;
+							const {fix} = suggestion;
 							const output = `${code.slice(0, fix.range[0])}${fix.text}${code.slice(fix.range[1])}`;
 
 							messageForSnapshot += outdent`
