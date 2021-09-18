@@ -5,6 +5,9 @@ import outdent from 'outdent';
 
 const require = createRequire(import.meta.url);
 const codeFrameColumnsOptions = {linesAbove: Number.POSITIVE_INFINITY, linesBelow: Number.POSITIVE_INFINITY};
+// A simple version of `SourceCodeFixer.applyFixes`
+// https://github.com/eslint/eslint/issues/14936#issuecomment-906746754
+const applyFix = (code, {fix}) => `${code.slice(0, fix.range[0])}${fix.text}${code.slice(fix.range[1])}`;
 
 function visualizeRange(text, location, message) {
 	return codeFrameColumns(
@@ -184,9 +187,7 @@ class SnapshotRuleTester {
 						}
 
 						for (const [index, suggestion] of suggestions.entries()) {
-							// https://github.com/eslint/eslint/issues/14936#issuecomment-906746754
-							const {fix} = suggestion;
-							const output = `${code.slice(0, fix.range[0])}${fix.text}${code.slice(fix.range[1])}`;
+							const output = applyFix(code, suggestion);
 
 							messageForSnapshot += outdent`
 								\n
