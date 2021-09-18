@@ -1,10 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {createRequire} from 'node:module';
 import test from 'ava';
 import pify from 'pify';
 import {ESLint} from 'eslint';
 import index from '../index.js';
 
+const require = createRequire(import.meta.url);
 let ruleFiles;
 
 test.before(async () => {
@@ -66,7 +68,12 @@ test('validate configuration', async t => {
 	const results = [];
 	for (const config of Object.keys(index.configs)) {
 		results.push(t.notThrowsAsync(
-			new ESLint({overrideConfigFile: './configs/' + config + '.js'}).lintText(''),
+			new ESLint({
+				overrideConfigFile: './configs/' + config + '.js',
+				plugins: {
+					unicorn: require('../index.js'),
+				},
+			}).lintText(''),
 			`Configuration file for "${config}" is invalid at "./configs/${config}.js"`,
 		));
 	}
