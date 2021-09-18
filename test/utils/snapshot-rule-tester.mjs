@@ -2,8 +2,6 @@ import {createRequire} from 'node:module';
 import {Linter} from 'eslint';
 import {codeFrameColumns} from '@babel/code-frame';
 import outdent from 'outdent';
-// TODO: Find a better way to test output.
-import SourceCodeFixer from './source-code-fixer.mjs';
 
 const require = createRequire(import.meta.url);
 const codeFrameColumnsOptions = {linesAbove: Number.POSITIVE_INFINITY, linesBelow: Number.POSITIVE_INFINITY};
@@ -186,7 +184,10 @@ class SnapshotRuleTester {
 						}
 
 						for (const [index, suggestion] of suggestions.entries()) {
-							const {output} = SourceCodeFixer.applyFixes(code, [suggestion]);
+							// https://github.com/eslint/eslint/issues/14936#issuecomment-906746754
+							const { fix } = suggestion;
+							const output = `${code.slice(0, fix.range[0])}${fix.text}${code.slice(fix.range[1])}`;
+
 							messageForSnapshot += outdent`
 								\n
 								${'-'.repeat(80)}
