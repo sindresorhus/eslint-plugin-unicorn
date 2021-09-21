@@ -1,5 +1,6 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
+const isShadowed = require('./utils/is-shadowed.js');
 const {callOrNewExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID_MISSING_MESSAGE = 'missing-message';
@@ -26,6 +27,10 @@ const selector = callOrNewExpressionSelector([
 
 const create = context => ({
 	[selector](expression) {
+		if (isShadowed(context.getScope(), expression.callee)) {
+			return;
+		}
+
 		const constructorName = expression.callee.name;
 		const messageArgumentIndex = constructorName === 'AggregateError' ? 1 : 0;
 		const callArguments = expression.arguments;

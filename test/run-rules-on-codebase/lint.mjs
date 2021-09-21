@@ -2,22 +2,13 @@
 import process from 'node:process';
 import {ESLint} from 'eslint';
 import unicorn from '../../index.js';
+import allConfig from '../../configs/all.js';
 
-const {recommended} = unicorn.configs;
 const files = [process.argv[2] || '.'];
 const fix = process.argv.includes('--fix');
 
-const enableAllRules = Object.fromEntries(
-	Object.entries(recommended.rules)
-		.filter(([id]) => id.startsWith('unicorn/'))
-		.map(([id]) => [id, 'error']),
-);
-
 const eslint = new ESLint({
-	baseConfig: {
-		...recommended,
-		rules: enableAllRules,
-	},
+	baseConfig: allConfig,
 	useEslintrc: false,
 	extensions: ['.js', '.mjs'],
 	plugins: {
