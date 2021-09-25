@@ -9,7 +9,7 @@ body:
     attributes:
       value: |
         Before opening a new issue:
-        - Look for existing [open or closed rule proposals](https://github.com/sindresorhus/eslint-plugin-unicorn/issues?q=is%3Aissue++label%3A%22new+rule%22+)
+        - Look for existing [open or closed rule proposals](https://github.com/sindresorhus/eslint-plugin-unicorn/issues?q=is%3Aissue+label%3A%22new+rule%22)
   - type: textarea
     validations:
       required: true
