@@ -23,7 +23,7 @@ body:
       label: Fail
       description: Specify an example of code that should be detected
       value: |
-        ```ts
+        ```js
         var replace = 'me';
         ```
   - type: textarea
@@ -33,6 +33,6 @@ body:
       label: Pass
       description: Specify an example of code that would be accepted in its place
       value: |
-        ```ts
+        ```js
         const replace = 'me';
         ```
