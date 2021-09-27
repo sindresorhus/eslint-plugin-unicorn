@@ -64,7 +64,7 @@ const vue = {
 			...options,
 		};
 
-		// Installed `espree` version don't understand `'latest'` yet
+		// The installed `espree` version does not understand `'latest'` yet.
 		if (options.ecmaVersion === 'latest') {
 			options.ecmaVersion = require('espree').latestEcmaVersion;
 		}
