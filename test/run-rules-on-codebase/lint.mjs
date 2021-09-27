@@ -20,7 +20,6 @@ const eslint = new ESLint({
 			'coverage',
 			'test/integration/fixtures',
 			'test/integration/fixtures-local',
-			'test/utils/source-code-fixer.mjs',
 		],
 		rules: {
 			'unicorn/prevent-abbreviations': [
