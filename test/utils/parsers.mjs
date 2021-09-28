@@ -64,7 +64,8 @@ const vue = {
 			...options,
 		};
 
-		// The installed `espree` version does not understand `'latest'` yet.
+		// The `espree` version in `vue-eslint-parser` does not understand `'latest'` yet.
+		// https://github.com/vuejs/vue-eslint-parser/pull/113
 		if (options.ecmaVersion === 'latest') {
 			options.ecmaVersion = require('espree').latestEcmaVersion;
 		}
