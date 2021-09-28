@@ -24,7 +24,7 @@ const create = context => {
 
 	const selectors = [
 		...options.tags.map(tag => `TaggedTemplateExpression[tag.name="${tag}"] > .quasi`),
-		...options.functions.map(fn => `CallExpression[callee.name="${fn}"] > .arguments:first-child`),
+		...options.functions.map(fn => `CallExpression[callee.name="${fn}"] > .arguments`),
 		...options.selectors,
 	];
 

@@ -411,6 +411,36 @@ test({
 				@
 			`),
 		},
+		{
+			options: [{
+				functions: ['customDedentFunction'],
+			}],
+			code: fixInput(`
+				foo = customDedentFunction(@
+				••••••••one
+				••••••••two
+				••••••••••three
+				••••••••@)
+				foo = customDedentFunction('some-other-arg', @
+				••••••••one
+				••••••••two
+				••••••••••three
+				••••••••@)
+			`),
+			errors: [...errors, ...errors],
+			output: fixInput(`
+				foo = customDedentFunction(@
+				••one
+				••two
+				••••three
+				@)
+				foo = customDedentFunction('some-other-arg', @
+				••one
+				••two
+				••••three
+				@)
+			`),
+		},
 	],
 	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
 	valid: [
