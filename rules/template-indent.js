@@ -32,10 +32,9 @@ const create = context => {
 	const indentTemplateLiteralNode = node => {
 		const delimiter = '__PLACEHOLDER__' + Math.random();
 		const joined = node.quasis
-			.map((quasi, index) => {
+			.map(quasi => {
 				const untrimmedText = sourceCode.getText(quasi);
-				const last = node.quasis.length - 1;
-				return untrimmedText.slice(1, index === last ? -1 : -2);
+				return untrimmedText.slice(1, quasi.tail ? -1 : -2);
 			})
 			.join(delimiter);
 
