@@ -62,7 +62,7 @@ Under the hood, [strip-indent](https://npmjs.com/package/strip-indent) is used t
 
 ## Options
 
-The rule accepts lists of `tags`, `functions` and `selectors` to match template literals. `tags` are tagged template literal identifiers, functions are names of utility functions like `stripIndent`, and selectors can be any [eslint selector](https://eslint.org/docs/developer-guide/selectors).
+The rule accepts lists of `tags`, `functions`, `selectors` and `comments` to match template literals. `tags` are tagged template literal identifiers, functions are names of utility functions like `stripIndent`, selectors can be any [eslint selector](https://eslint.org/docs/developer-guide/selectors), and comments are `/* block-commented */` strings.
 
 Default configuration:
 
