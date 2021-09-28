@@ -1,13 +1,15 @@
-import fs from 'node:fs';
+import fs, {promises as fsAsync} from 'node:fs';
 import path from 'node:path';
+import {createRequire} from 'node:module';
 import test from 'ava';
-import pify from 'pify';
+import {ESLint} from 'eslint';
 import index from '../index.js';
 
+const require = createRequire(import.meta.url);
 let ruleFiles;
 
 test.before(async () => {
-	const files = await pify(fs.readdir)('rules');
+	const files = await fsAsync.readdir('rules');
 	ruleFiles = files.filter(file => path.extname(file) === '.js');
 });
 
@@ -52,12 +54,34 @@ test('Every rule is defined in index file in alphabetical order', t => {
 		ruleFiles.length - deprecatedRules.length,
 		'There are more exported rules in the recommended config than rule files.',
 	);
+	t.is(
+		Object.keys(index.configs.all.rules).length - deprecatedRules.length - ignoredRules.length,
+		ruleFiles.length - deprecatedRules.length,
+		'There are more rules than those exported in the all config.',
+	);
 
 	testSorted(t, Object.keys(index.configs.recommended.rules), 'configs.recommended.rules');
 });
 
+test('validate configuration', async t => {
+	const results = [];
+	for (const config of Object.keys(index.configs)) {
+		results.push(t.notThrowsAsync(
+			new ESLint({
+				overrideConfigFile: './configs/' + config + '.js',
+				plugins: {
+					unicorn: require('../index.js'),
+				},
+			}).lintText(''),
+			`Configuration file for "${config}" is invalid at "./configs/${config}.js"`,
+		));
+	}
+
+	await Promise.all(results);
+});
+
 test('Every rule is defined in readme.md usage and list of rules in alphabetical order', async t => {
-	const readme = await pify(fs.readFile)('readme.md', 'utf8');
+	const readme = await fsAsync.readFile('readme.md', 'utf8');
 	let usageRules;
 	try {
 		const usageRulesMatch = /<!-- USAGE_EXAMPLE_START -->.*?"rules": (?<rules>{.*?}).*?<!-- USAGE_EXAMPLE_END -->/ms.exec(readme);
@@ -112,8 +136,8 @@ test('Every rule has valid meta.type', t => {
 	}
 });
 
-test('Every deprecated rules listed in docs/deprecated-rules.md', t => {
-	const content = fs.readFileSync('docs/deprecated-rules.md', 'utf8');
+test('Every deprecated rules listed in docs/deprecated-rules.md', async t => {
+	const content = await fsAsync.readFile('docs/deprecated-rules.md', 'utf8');
 	const rulesInMarkdown = content.match(/(?<=^## ).*?$/gm);
 	t.deepEqual(deprecatedRules, rulesInMarkdown);
 

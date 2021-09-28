@@ -255,7 +255,7 @@ See [docs/deprecated-rules.md](docs/deprecated-rules.md)
 
 ## Recommended config
 
-This plugin exports a [`recommended` config](index.js) that enforces good practices.
+This plugin exports a [`recommended` config](configs/recommended.js) that enforces good practices.
 
 Enable it in your `package.json` with the `extends` option:
 
@@ -271,6 +271,23 @@ Enable it in your `package.json` with the `extends` option:
 See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configuration-files#extending-configuration-files) for more information about extending config files.
 
 **Note**: This config will also enable the correct [parser options](https://eslint.org/docs/user-guide/configuring/language-options#specifying-parser-options) and [environment](https://eslint.org/docs/user-guide/configuring/language-options#specifying-environments).
+
+## All config
+
+This plugin exports an [`all` config](configs/all.js) that makes use of all rules (except for deprecated ones).
+
+Enable it in your `package.json` with the `extends` option:
+
+```json
+{
+	"name": "my-awesome-project",
+	"eslintConfig": {
+		"extends": "plugin:unicorn/all"
+	}
+}
+```
+
+See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configuration-files#extending-configuration-files) for more information about extending config files.
 
 ## Maintainers
 
