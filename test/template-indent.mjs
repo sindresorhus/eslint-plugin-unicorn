@@ -3,13 +3,11 @@ import {getTester} from './utils/test.mjs';
 
 /**
  * The interesting things to test for this rule are whitespace and multiline templates. Both of those are _very_ hard to see in a
- * normal text editor, so replace spaces with •, tabs with →→, backticks with @, and $ (template parameter prefix symbol) with #.
+ * normal text editor, so replace spaces with •, and tabs with →→.
  *
  * @param {string} text
  */
 const fixInput = text => stripIndent(text)
-	.replace(/@/g, '`')
-	.replace(/#/g, '$')
 	.replace(/•/g, ' ')
 	.replace(/→→/g, '\t');
 
@@ -26,19 +24,19 @@ test({
 	invalid: [
 		{
 			code: fixInput(`
-				foo = dedent@
+				foo = dedent\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
+				••••••••\`
 			`),
 			errors,
 			output: fixInput(`
-				foo = dedent@
+				foo = dedent\`
 				••one
 				••two
 				••••three
-				@
+				\`
 			`),
 		},
 		{
@@ -51,39 +49,39 @@ test({
 				tags: ['customIndentableTag'],
 			}],
 			code: fixInput(`
-				foo = customIndentableTag@
+				foo = customIndentableTag\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
-				foo = differentTagThatMightBeWhitespaceSensitive@
+				••••••••\`
+				foo = differentTagThatMightBeWhitespaceSensitive\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
-				foo = @
+				••••••••\`
+				foo = \`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
+				••••••••\`
 			`),
 			errors,
 			output: fixInput(`
-				foo = customIndentableTag@
+				foo = customIndentableTag\`
 				••one
 				••two
 				••••three
-				@
-				foo = differentTagThatMightBeWhitespaceSensitive@
+				\`
+				foo = differentTagThatMightBeWhitespaceSensitive\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
-				foo = @
+				••••••••\`
+				foo = \`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
+				••••••••\`
 			`),
 		},
 		{
@@ -92,59 +90,59 @@ test({
 				selectors: [':not(TaggedTemplateExpression) > TemplateLiteral'],
 			}],
 			code: fixInput(`
-				foo = customIndentableTag@
+				foo = customIndentableTag\`
 				••••••••one1
 				••••••••two1
 				••••••••••three1
-				••••••••@
-				foo = differentTagThatMightBeWhitespaceSensitive@
+				••••••••\`
+				foo = differentTagThatMightBeWhitespaceSensitive\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
-				foo = @
+				••••••••\`
+				foo = \`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
+				••••••••\`
 			`),
 			errors: [...errors, ...errors],
 			output: fixInput(`
-				foo = customIndentableTag@
+				foo = customIndentableTag\`
 				••one1
 				••two1
 				••••three1
-				@
-				foo = differentTagThatMightBeWhitespaceSensitive@
+				\`
+				foo = differentTagThatMightBeWhitespaceSensitive\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
-				foo = @
+				••••••••\`
+				foo = \`
 				••one
 				••two
 				••••three
-				@
+				\`
 			`),
 		},
 		{
 			code: fixInput(`
 				function foo() {
-				••return dedent@
+				••return dedent\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
+				••••••••\`
 				}
 			`),
 			errors,
 			output: fixInput(`
 				function foo() {
-				••return dedent@
+				••return dedent\`
 				••••one
 				••••two
 				••••••three
-				••@
+				••\`
 				}
 			`),
 		},
@@ -155,14 +153,14 @@ test({
 				// ccc
 				// dddd
 				function foo() {
-				••return dedent@
+				••return dedent\`
 				••••••••one
 				••••••••two
-				••••••••••three #{3} four
+				••••••••••three \${3} four
 				••••••••••••five
-				••••••••••••••#{{f: 5}}
+				••••••••••••••\${{f: 5}}
 				••••••••••••six
-				••••••••@
+				••••••••\`
 				}
 			`),
 			errors,
@@ -172,140 +170,140 @@ test({
 				// ccc
 				// dddd
 				function foo() {
-				••return dedent@
+				••return dedent\`
 				••••one
 				••••two
-				••••••three #{3} four
+				••••••three \${3} four
 				••••••••five
-				••••••••••#{{f: 5}}
+				••••••••••\${{f: 5}}
 				••••••••six
-				••@
+				••\`
 				}
 			`),
 		},
 		{
 			code: fixInput(`
-				foo = gql@
+				foo = gql\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
-				foo = sql@
+				••••••••\`
+				foo = sql\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
-				foo = dedent@
+				••••••••\`
+				foo = dedent\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
-				foo = outdent@
+				••••••••\`
+				foo = outdent\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
-				foo = somethingElse@
+				••••••••\`
+				foo = somethingElse\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
+				••••••••\`
 			`),
 			errors: [...errors, ...errors, ...errors, ...errors],
 			output: fixInput(`
-				foo = gql@
+				foo = gql\`
 				••one
 				••two
 				••••three
-				@
-				foo = sql@
+				\`
+				foo = sql\`
 				••one
 				••two
 				••••three
-				@
-				foo = dedent@
+				\`
+				foo = dedent\`
 				••one
 				••two
 				••••three
-				@
-				foo = outdent@
+				\`
+				foo = outdent\`
 				••one
 				••two
 				••••three
-				@
-				foo = somethingElse@
+				\`
+				foo = somethingElse\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
+				••••••••\`
 			`),
 		},
 		{
 			code: fixInput(`
-				foo = stripIndent(@
+				foo = stripIndent(\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@)
+				••••••••\`)
 			`),
 			errors,
 			output: fixInput(`
-				foo = stripIndent(@
+				foo = stripIndent(\`
 				••one
 				••two
 				••••three
-				@)
+				\`)
 			`),
 		},
 		{
 			code: fixInput(`
-				html = /* HTML */ @
+				html = /* HTML */ \`
 				••••••••<div>
 				••••••••••<span>hello</span>
 				••••••••</div>
-				••••••••@
+				••••••••\`
 			`),
 			errors,
 			output: fixInput(`
-				html = /* HTML */ @
+				html = /* HTML */ \`
 				••<div>
 				••••<span>hello</span>
 				••</div>
-				@
+				\`
 			`),
 		},
 		{
 			code: fixInput(`
-				html = /* html */ @
+				html = /* html */ \`
 				••••••••<div>
 				••••••••••<span>hello</span>
 				••••••••</div>
-				••••••••@
+				••••••••\`
 			`),
 			errors,
 			output: fixInput(`
-				html = /* html */ @
+				html = /* html */ \`
 				••<div>
 				••••<span>hello</span>
 				••</div>
-				@
+				\`
 			`),
 		},
 		{
 			code: fixInput(`
-				html = /* indent */ @
+				html = /* indent */ \`
 				••••••••<div>
 				••••••••••<span>hello</span>
 				••••••••</div>
-				••••••••@
+				••••••••\`
 			`),
 			errors,
 			output: fixInput(`
-				html = /* indent */ @
+				html = /* indent */ \`
 				••<div>
 				••••<span>hello</span>
 				••</div>
-				@
+				\`
 			`),
 		},
 		{
@@ -313,19 +311,19 @@ test({
 				comments: ['please indent me!'],
 			}],
 			code: fixInput(`
-				html = /* please indent me! */ @
+				html = /* please indent me! */ \`
 				••••••••<div>
 				••••••••••<span>hello</span>
 				••••••••</div>
-				••••••••@
+				••••••••\`
 			`),
 			errors,
 			output: fixInput(`
-				html = /* please indent me! */ @
+				html = /* please indent me! */ \`
 				••<div>
 				••••<span>hello</span>
 				••</div>
-				@
+				\`
 			`),
 		},
 		{
@@ -333,19 +331,19 @@ test({
 				indent: 10,
 			}],
 			code: fixInput(`
-				foo = dedent@
+				foo = dedent\`
 				••one
 				••two
 				••••three
-				@
+				\`
 			`),
 			errors,
 			output: fixInput(`
-				foo = dedent@
+				foo = dedent\`
 				••••••••••one
 				••••••••••two
 				••••••••••••three
-				@
+				\`
 			`),
 		},
 		{
@@ -353,19 +351,19 @@ test({
 				indent: '\t\t\t\t',
 			}],
 			code: fixInput(`
-				foo = dedent@
+				foo = dedent\`
 				••one
 				••two
 				••••three
-				@
+				\`
 			`),
 			errors,
 			output: fixInput(`
-				foo = dedent@
+				foo = dedent\`
 				→→→→→→→→one
 				→→→→→→→→two
 				→→→→→→→→••three
-				@
+				\`
 			`),
 		},
 		{
@@ -373,20 +371,20 @@ test({
 				selectors: ['* TemplateLiteral', '* > TemplateLiteral'],
 			}],
 			code: fixInput(`
-				foo = @
+				foo = \`
 				one
 				two
 				••three
-				@
+				\`
 			`),
 			// Make sure we only report one error, even when multiple selectors match
 			errors,
 			output: fixInput(`
-				foo = @
+				foo = \`
 				••one
 				••two
 				••••three
-				@
+				\`
 			`),
 		},
 		{
@@ -395,20 +393,20 @@ test({
 				comments: ['indentme'],
 			}],
 			code: fixInput(`
-				foo = /* INDENTME */ @
+				foo = /* INDENTME */ \`
 				one
 				two
 				••three
-				@
+				\`
 			`),
 			// Make sure we only report one error, even when multiple selectors match
 			errors,
 			output: fixInput(`
-				foo = /* INDENTME */ @
+				foo = /* INDENTME */ \`
 				••one
 				••two
 				••••three
-				@
+				\`
 			`),
 		},
 		{
@@ -416,29 +414,29 @@ test({
 				functions: ['customDedentFunction'],
 			}],
 			code: fixInput(`
-				foo = customDedentFunction(@
+				foo = customDedentFunction(\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@)
-				foo = customDedentFunction('some-other-arg', @
+				••••••••\`)
+				foo = customDedentFunction('some-other-arg', \`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@)
+				••••••••\`)
 			`),
 			errors: [...errors, ...errors],
 			output: fixInput(`
-				foo = customDedentFunction(@
+				foo = customDedentFunction(\`
 				••one
 				••two
 				••••three
-				@)
-				foo = customDedentFunction('some-other-arg', @
+				\`)
+				foo = customDedentFunction('some-other-arg', \`
 				••one
 				••two
 				••••three
-				@)
+				\`)
 			`),
 		},
 	],
@@ -447,33 +445,33 @@ test({
 		'foo = dedent`one two three`',
 		fixInput(`
 			function f() {
-			→→foo = dedent@
+			→→foo = dedent\`
 			→→→→one
 			→→→→two
 			→→→→→→three
 			→→→→four
-			→→@
+			→→\`
 			}
 		`),
 		fixInput(`
 			function f() {
-			→→foo = dedent@
+			→→foo = dedent\`
 			→→→→one
 
 			→→→→two
 			→→→→→→three
 			→→→→four
-			→→@
+			→→\`
 			}
 		`),
 		fixInput(`
 			function f() {
-			••foo = dedent@
+			••foo = dedent\`
 			••••one
 			••••two
 			••••••three
 			••••four
-			••@
+			••\`
 			}
 		`),
 		{
@@ -482,16 +480,16 @@ test({
 				functions: ['somethingOtherThanStripIndent'],
 			}],
 			code: fixInput(`
-				foo = stripIndent(@
+				foo = stripIndent(\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@)
-				foo = dedent@
+				••••••••\`)
+				foo = dedent\`
 				••••••••one
 				••••••••two
 				••••••••••three
-				••••••••@
+				••••••••\`
 			`),
 		},
 		'stripIndent(foo)',
@@ -501,11 +499,11 @@ test({
 			}],
 			// Bad selector; no template literal match
 			code: fixInput(`
-				foo = @
+				foo = \`
 				••••••one
 				••••••two
 				••••••••three
-				@
+				\`
 			`),
 		},
 		'``',
@@ -514,11 +512,11 @@ test({
 				comments: [],
 			}],
 			code: fixInput(`
-				foo = /* indent */ @
+				foo = /* indent */ \`
 				••••••one
 				••••••two
 				••••••••three
-				@
+				\`
 			`),
 		},
 	],
