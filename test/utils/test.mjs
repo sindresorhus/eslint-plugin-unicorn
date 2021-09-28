@@ -64,8 +64,8 @@ class Tester {
 			...testerOptions,
 			parserOptions: {
 				...defaultParserOptions,
-				...testerOptions.parserOptions
-			}
+				...testerOptions.parserOptions,
+			},
 		});
 
 		if (beforeAll) {
