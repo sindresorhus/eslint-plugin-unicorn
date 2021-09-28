@@ -17,7 +17,7 @@ test({
 	testerOptions: {
 		parserOptions: {
 			sourceType: 'module',
-			ecmaVersion: 2021,
+			ecmaVersion: 'latest',
 			ecmaFeatures: {
 				jsx: true,
 			},
