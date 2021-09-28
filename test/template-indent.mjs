@@ -439,6 +439,52 @@ test({
 				\`)
 			`),
 		},
+		{
+			code: fixInput(`
+				outdent\`
+				before
+				before\${
+				expression
+				}after
+				after
+				\`
+			`),
+			errors,
+			output: fixInput(`
+				outdent\`
+				••before
+				••before\${
+				expression
+				}after
+				••after
+				\`
+			`),
+		},
+		{
+			code: fixInput(`
+				outdent\`
+				••before
+				••before\${
+				→→→→→→outdent\`
+				inner
+				→→→→→→\`
+				}after
+				••after
+				\`
+			`),
+			errors,
+			output: fixInput(`
+				outdent\`
+				••before
+				••before\${
+				→→→→→→outdent\`
+				→→→→→→→→inner
+				→→→→→→\`
+				}after
+				••after
+				\`
+			`),
+		},
 	],
 	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
 	valid: [
@@ -519,5 +565,25 @@ test({
 				\`
 			`),
 		},
+		fixInput(`
+			outdent\`
+			••before
+			••before\${
+			expression
+			}after
+			••after
+			\`
+		`),
+		fixInput(`
+			outdent\`
+			••before
+			••before\${
+			••••••normalTemplate\`
+			inner
+			••••••\`
+			}after
+			••after
+			\`
+		`),
 	],
 });
