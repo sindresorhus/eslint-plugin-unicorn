@@ -16,8 +16,6 @@ const createError = (functionNameWithKind, loc) => ({
 test({
 	testerOptions: {
 		parserOptions: {
-			sourceType: 'module',
-			ecmaVersion: 'latest',
 			ecmaFeatures: {
 				jsx: true,
 			},
