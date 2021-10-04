@@ -10,7 +10,7 @@ module.exports = {
 		'unicorn/empty-brace-spaces': 'error',
 		'unicorn/error-message': 'error',
 		'unicorn/escape-case': 'error',
-		'unicorn/expiring-todo-comments': 'error',
+		'unicorn/expiring-todo-comments': 'warn',
 		'unicorn/explicit-length-check': 'error',
 		'unicorn/filename-case': 'error',
 		'unicorn/import-index': 'off',
