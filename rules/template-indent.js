@@ -82,18 +82,16 @@ const create = context => {
 	return {
 		/** @param {import('@babel/core').types.TemplateLiteral} node */
 		TemplateLiteral: node => {
-			let shouldIndent = false;
 			if (options.comments.length > 0) {
 				const previousToken = sourceCode.getTokenBefore(node, {includeComments: true});
 				if (previousToken && previousToken.type === 'Block' && options.comments.includes(previousToken.value.trim().toLowerCase())) {
-					shouldIndent = true;
+					indentTemplateLiteralNode(node);
+					return;
 				}
 			}
 
-			if (!shouldIndent) {
-				const ancestry = context.getAncestors().reverse();
-				shouldIndent = selectors.some(selector => esquery.matches(node, esquery.parse(selector), ancestry));
-			}
+			const ancestry = context.getAncestors().reverse();
+			const shouldIndent = selectors.some(selector => esquery.matches(node, esquery.parse(selector), ancestry));
 
 			if (shouldIndent) {
 				indentTemplateLiteralNode(node);
