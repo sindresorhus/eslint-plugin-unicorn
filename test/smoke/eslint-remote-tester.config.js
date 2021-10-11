@@ -1,30 +1,16 @@
 'use strict';
 
+const {getRepositories, getPathIgnorePattern} = require('eslint-remote-tester-repositories');
+
 module.exports = {
 	/** Repositories to scan */
-	repositories: require('./repositories.json'),
+	repositories: getRepositories({randomize: true}),
+
+	/** Optional pattern used to exclude paths */
+	pathIgnorePattern: getPathIgnorePattern(),
 
 	/** Extensions of files under scanning */
 	extensions: ['js', 'jsx', 'ts', 'tsx'],
-
-	/** Optional pattern used to exclude paths */
-	pathIgnorePattern: `(${[
-		'node_modules',
-		'\\/\\.', // Any file or directory starting with dot, e.g. '.git'
-		'/dist/',
-		'/build/',
-		// Common patterns for minified JS
-		'babel\\.js',
-		'vendor\\.js',
-		'vendors\\.js',
-		'chunk\\.js',
-		'bundle\\.js',
-		'react-dom\\.development\\.js',
-		'\\.min\\.js', // Any *.min.js
-	].join('|')})`,
-
-	/** Empty array since we are only interested in linter crashes */
-	rulesUnderTesting: [],
 
 	/** Maximum amount of tasks ran concurrently */
 	concurrentTasks: 3,

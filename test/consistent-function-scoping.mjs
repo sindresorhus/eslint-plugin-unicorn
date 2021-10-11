@@ -216,12 +216,12 @@ test({
 		`,
 		// Functions that could be extracted are conservatively ignored due to JSX masking references
 		outdent`
-				function Foo() {
-					function Bar () {
-						return <div />
-					}
-					return <div>{ Bar() }</div>
+			function Foo() {
+				function Bar () {
+					return <div />
 				}
+				return <div>{ Bar() }</div>
+			}
 		`,
 		outdent`
 			function foo() {
