@@ -1,6 +1,6 @@
-# Fix whitespace-insensitive template indentation.
+# Fix whitespace-insensitive template indentation
 
-Tagged templates often look ugly/jarring because their indentation often doesn't match the code they're found in. In many cases, whitespace is insignificant, or a library like [strip-indent](https://www.npmjs.com/package/strip-indent) is used to remove the margin. See [proposal-string-dedent](https://github.com/tc39/proposal-string-dedent) (stage 1 at time of writing) for a proposal for fixing this in javascript.
+Tagged templates often look ugly/jarring because their indentation doesn't match the code they're found in. In many cases, whitespace is insignificant, or a library like [strip-indent](https://www.npmjs.com/package/strip-indent) is used to remove the margin. See [proposal-string-dedent](https://github.com/tc39/proposal-string-dedent) (stage 1 at the time of writing) for a proposal for fixing this in JavaScript.
 
 This rule will automatically fix the indentation of multiline string templates, to keep them in alignment with the code they are found in. A configurable whitelist is used to ensure no whitespace-sensitive strings are edited.
 
@@ -8,25 +8,25 @@ This rule will automatically fix the indentation of multiline string templates, 
 
 ```js
 function foo() {
-  const sqlQuery = sql`
+	const sqlQuery = sql`
 select *
 from students
 where first_name = ${x}
 and last_name = ${y}
-  `;
+	`;
 
-  const gqlQuery = gql`
-                  query user(id: 5) {
-                    firstName
-                    lastName
-                  }
-                `;
+	const gqlQuery = gql`
+									query user(id: 5) {
+										firstName
+										lastName
+									}
+								`;
 
-  const html = /* HTML */ `
-        <div>
-            <span>hello</span>
-        </div>
-  `;
+	const html = /* HTML */ `
+				<div>
+						<span>hello</span>
+				</div>
+	`;
 }
 ```
 
@@ -36,56 +36,77 @@ The above will auto-fix to:
 
 ```js
 function foo() {
-  const sqlQuery = sql`
-    select *
-    from students
-    where first_name = ${x}
-    and last_name = ${y}
-  `;
+	const sqlQuery = sql`
+		select *
+		from students
+		where first_name = ${x}
+		and last_name = ${y}
+	`;
 
-  const gqlQuery = gql`
-    query user(id: 5) {
-      firstName
-      lastName
-    }
-  `;
+	const gqlQuery = gql`
+		query user(id: 5) {
+			firstName
+			lastName
+		}
+	`;
 
-  const html = /* HTML */ `
-    <div>
-        <span>hello</span>
-    </div>
-  `;
+	const html = /* HTML */ `
+		<div>
+				<span>hello</span>
+		</div>
+	`;
 }
 ```
 
-Under the hood, [strip-indent](https://npmjs.com/package/strip-indent) is used to determine how the template "should" look. Then a common indent is added to each line based on the margin of the line the template started in. This rule will _not_ alter the relative whitespace between significant lines, it will only shift then content right or left so that it aligns sensibly with the surrounding code.
+Under the hood, [strip-indent](https://npmjs.com/package/strip-indent) is used to determine how the template "should" look. Then a common indent is added to each line based on the margin of the line the template started in. This rule will *not* alter the relative whitespace between significant lines, it will only shift the content right or left so that it aligns sensibly with the surrounding code.
 
 ## Options
 
-The rule accepts lists of `tags`, `functions`, `selectors` and `comments` to match template literals. `tags` are tagged template literal identifiers, functions are names of utility functions like `stripIndent`, selectors can be any [eslint selector](https://eslint.org/docs/developer-guide/selectors), and comments are `/* block-commented */` strings.
+The rule accepts lists of `tags`, `functions`, `selectors` and `comments` to match template literals. `tags` are tagged template literal identifiers, functions are names of utility functions like `stripIndent`, selectors can be any [ESLint selector](https://eslint.org/docs/developer-guide/selectors), and comments are `/* block-commented */` strings.
 
 Default configuration:
 
 ```js
 {
-  'unicorn/template-indent': ['warn', {
-    tags: ['outdent', 'dedent', 'gql', 'sql', 'html', 'styled'],
-    functions: ['dedent', 'stripIndent'],
-    selectors: [],
-    comments: ['HTML', 'indent'],
-  }]
+	'unicorn/template-indent': [
+		'warn',
+		{
+			tags: [
+				'outdent',
+				'dedent',
+				'gql',
+				'sql',
+				'html',
+				'styled'
+			],
+			functions: [
+				'dedent',
+				'stripIndent'
+			],
+			selectors: [],
+			comments: [
+				'HTML',
+				'indent'
+			]
+		}
+	]
 }
 ```
 
-You can use a selector for custom use cases, like indenting _all_ template literals, even those without template tags or function callers:
+You can use a selector for custom use-cases, like indenting *all* template literals, even those without template tags or function callers:
 
 ```js
 {
-  'unicorn/template-indent': ['warn', {
-    tags: [],
-    functions: [],
-    selectors: ['TemplateLiteral'],
-  }]
+	'unicorn/template-indent': [
+		'warn',
+		{
+			tags: [],
+			functions: [],
+			selectors: [
+				'TemplateLiteral'
+			]
+		}
+	]
 }
 ```
 
@@ -93,16 +114,21 @@ Indentation will be done with tabs or spaces depending on the line of code that 
 
 ```js
 {
-  'unicorn/template-indent': ['warn', {
-    indent: 8,
-  }]
+	'unicorn/template-indent': [
+		'warn', {
+			indent: 8,
+		}
+	]
 }
 ```
 
 ```js
 {
-  'unicorn/template-indent': ['warn', {
-    indent: '\t\t',
-  }]
+	'unicorn/template-indent': [
+		'warn',
+		{
+			indent: '\t\t'
+		}
+	]
 }
 ```
