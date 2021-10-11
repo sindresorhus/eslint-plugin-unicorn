@@ -1,6 +1,6 @@
 # Fix whitespace-insensitive template indentation
 
-Tagged templates often look ugly/jarring because their indentation doesn't match the code they're found in. In many cases, whitespace is insignificant, or a library like [strip-indent](https://www.npmjs.com/package/strip-indent) is used to remove the margin. See [proposal-string-dedent](https://github.com/tc39/proposal-string-dedent) (stage 1 at the time of writing) for a proposal for fixing this in JavaScript.
+[Tagged templates](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) often look ugly/jarring because their indentation doesn't match the code they're found in. In many cases, whitespace is insignificant, or a library like [strip-indent](https://www.npmjs.com/package/strip-indent) is used to remove the margin. See [proposal-string-dedent](https://github.com/tc39/proposal-string-dedent) (stage 1 at the time of writing) for a proposal on fixing this in JavaScript.
 
 This rule will automatically fix the indentation of multiline string templates, to keep them in alignment with the code they are found in. A configurable whitelist is used to ensure no whitespace-sensitive strings are edited.
 
@@ -58,7 +58,7 @@ function foo() {
 }
 ```
 
-Under the hood, [strip-indent](https://npmjs.com/package/strip-indent) is used to determine how the template "should" look. Then a common indent is added to each line based on the margin of the line the template started in. This rule will *not* alter the relative whitespace between significant lines, it will only shift the content right or left so that it aligns sensibly with the surrounding code.
+Under the hood, [strip-indent](https://npmjs.com/package/strip-indent) is used to determine how the template "should" look. Then a common indent is added to each line based on the margin of the line the template started at. This rule will *not* alter the relative whitespace between significant lines, it will only shift the content right or left so that it aligns sensibly with the surrounding code.
 
 ## Options
 
@@ -110,7 +110,7 @@ You can use a selector for custom use-cases, like indenting *all* template liter
 }
 ```
 
-Indentation will be done with tabs or spaces depending on the line of code that the template literal starts on. You can override this by supplying an `indent`, which should be either a number (of spaces) or a string consisting only of whitespace characters:
+Indentation will be done with tabs or spaces depending on the line of code that the template literal starts at. You can override this by supplying an `indent`, which should be either a number (of spaces) or a string consisting only of whitespace characters:
 
 ```js
 {
