@@ -79,7 +79,7 @@
 		"xo": "^0.44.0"
 	},
 	"peerDependencies": {
-		"eslint": ">=8.0.0"
+		"eslint": ">=7.32.0"
 	},
 	"ava": {
 		"files": [
