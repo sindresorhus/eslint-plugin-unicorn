@@ -2,7 +2,10 @@
 const builtins = require('./utils/builtins.js');
 const isShadowed = require('./utils/is-shadowed.js');
 const {callExpressionSelector, newExpressionSelector} = require('./selectors/index.js');
-const {switchNewExpressionToCallExpression} = require('./fix/index.js');
+const {
+	switchCallExpressionToNewExpression,
+	switchNewExpressionToCallExpression,
+} = require('./fix/index.js');
 
 const messages = {
 	enforce: 'Use `new {{name}}()` instead of `{{name}}()`.',
@@ -22,11 +25,11 @@ const create = context => {
 			const {name} = callee;
 
 			if (
-				name === 'Object' &&
-				parent &&
-				parent.type === 'BinaryExpression' &&
-				(parent.operator === '===' || parent.operator === '!==') &&
-				(parent.left === node || parent.right === node)
+				name === 'Object'
+				&& parent
+				&& parent.type === 'BinaryExpression'
+				&& (parent.operator === '===' || parent.operator === '!==')
+				&& (parent.left === node || parent.right === node)
 			) {
 				return;
 			}
@@ -35,7 +38,7 @@ const create = context => {
 				node,
 				messageId: 'enforce',
 				data: {name},
-				fix: fixer => fixer.insertTextBefore(node, 'new '),
+				fix: fixer => switchCallExpressionToNewExpression(node, sourceCode, fixer),
 			};
 		},
 		[newExpressionSelector(builtins.disallowNew)]: node => {

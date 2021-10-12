@@ -8,28 +8,26 @@ const messages = {
 
 const selector = [
 	methodCallSelector({
-		names: ['trimLeft', 'trimRight'],
-		length: 0,
+		methods: ['trimLeft', 'trimRight'],
+		argumentsLength: 0,
 	}),
 	' > .callee',
 	' > .property',
 ].join(' ');
 
-const create = () => {
-	return {
-		[selector](node) {
-			const method = node.name;
-			const replacement = method === 'trimLeft' ? 'trimStart' : 'trimEnd';
+const create = () => ({
+	[selector](node) {
+		const method = node.name;
+		const replacement = method === 'trimLeft' ? 'trimStart' : 'trimEnd';
 
-			return {
-				node,
-				messageId: MESSAGE_ID,
-				data: {method, replacement},
-				fix: fixer => fixer.replaceText(node, replacement),
-			};
-		},
-	};
-};
+		return {
+			node,
+			messageId: MESSAGE_ID,
+			data: {method, replacement},
+			fix: fixer => fixer.replaceText(node, replacement),
+		};
+	},
+});
 
 module.exports = {
 	create,

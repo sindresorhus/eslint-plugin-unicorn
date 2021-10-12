@@ -6,6 +6,7 @@ const {
 	matches,
 } = require('./selectors/index.js');
 const getPropertyName = require('./utils/get-property-name.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const messages = {
 	'known-method': 'Prefer using `{{constructorName}}.prototype.{{methodName}}`.',
@@ -29,7 +30,7 @@ const selector = matches([
 	// `Reflect.apply([].foo, …)`
 	// `Reflect.apply({}.foo, …)`
 	[
-		methodCallSelector({object: 'Reflect', name: 'apply', min: 1}),
+		methodCallSelector({object: 'Reflect', method: 'apply', minimumArguments: 1}),
 		' > ',
 		`${emptyObjectOrArrayMethodSelector}.arguments:first-child`,
 	].join(''),
@@ -46,7 +47,19 @@ function create(context) {
 				node,
 				messageId: methodName ? 'known-method' : 'unknown-method',
 				data: {constructorName, methodName: String(methodName)},
-				fix: fixer => fixer.replaceText(node.object, `${constructorName}.prototype`),
+				* fix(fixer) {
+					yield fixer.replaceText(node.object, `${constructorName}.prototype`);
+
+					if (
+						node.object
+						&& (
+							node.object.type === 'ArrayExpression'
+							|| node.object.type === 'ObjectExpression'
+						)
+					) {
+						yield * fixSpaceAroundKeyword(fixer, node.parent.parent, context.getSourceCode());
+					}
+				},
 			};
 		},
 	};

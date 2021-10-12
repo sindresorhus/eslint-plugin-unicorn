@@ -8,8 +8,17 @@ const isShorthandPropertyValue = require('./utils/is-shorthand-property-value.js
 const isShorthandImportLocal = require('./utils/is-shorthand-import-local.js');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
 const isStaticRequire = require('./utils/is-static-require.js');
-const {defaultReplacements, defaultAllowList} = require('./shared/abbreviations.js');
+const {defaultReplacements, defaultAllowList, defaultIgnore} = require('./shared/abbreviations.js');
 const {renameVariable} = require('./fix/index.js');
+const getScopes = require('./utils/get-scopes.js');
+
+const MESSAGE_ID_REPLACE = 'replace';
+const MESSAGE_ID_SUGGESTION = 'suggestion';
+const anotherNameMessage = 'A more descriptive name will do too.';
+const messages = {
+	[MESSAGE_ID_REPLACE]: `The {{nameTypeText}} \`{{discouragedName}}\` should be named \`{{replacement}}\`. ${anotherNameMessage}`,
+	[MESSAGE_ID_SUGGESTION]: `Please rename the {{nameTypeText}} \`{{discouragedName}}\`. Suggested names are: {{replacementsText}}. ${anotherNameMessage}`,
+};
 
 const isUpperCase = string => string === string.toUpperCase();
 const isUpperFirst = string => isUpperCase(string[0]);
@@ -32,13 +41,15 @@ const prepareOptions = ({
 
 	ignore = [],
 } = {}) => {
-	const mergedReplacements = extendDefaultReplacements ?
-		defaultsDeep({}, replacements, defaultReplacements) :
-		replacements;
+	const mergedReplacements = extendDefaultReplacements
+		? defaultsDeep({}, replacements, defaultReplacements)
+		: replacements;
 
-	const mergedAllowList = extendDefaultAllowList ?
-		defaultsDeep({}, allowList, defaultAllowList) :
-		allowList;
+	const mergedAllowList = extendDefaultAllowList
+		? defaultsDeep({}, allowList, defaultAllowList)
+		: allowList;
+
+	ignore = [...defaultIgnore, ...ignore];
 
 	ignore = ignore.map(
 		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u'),
@@ -72,9 +83,9 @@ const getWordReplacements = (word, {replacements, allowList}) => {
 		return [];
 	}
 
-	const replacement = replacements.get(lowerFirst(word)) ||
-		replacements.get(word) ||
-		replacements.get(upperFirst(word));
+	const replacement = replacements.get(lowerFirst(word))
+		|| replacements.get(word)
+		|| replacements.get(upperFirst(word));
 
 	let wordReplacement = [];
 	if (replacement) {
@@ -136,63 +147,67 @@ const getNameReplacements = (name, options, limit = 3) => {
 	};
 };
 
-const anotherNameMessage = 'A more descriptive name will do too.';
-
-const formatMessage = (discouragedName, replacements, nameTypeText) => {
-	const message = [];
+const getMessage = (discouragedName, replacements, nameTypeText) => {
 	const {total, samples = []} = replacements;
 
 	if (total === 1) {
-		message.push(`The ${nameTypeText} \`${discouragedName}\` should be named \`${samples[0]}\`.`);
-	} else {
-		let replacementsText = samples
-			.map(replacement => `\`${replacement}\``)
-			.join(', ');
-
-		const omittedReplacementsCount = total - samples.length;
-		if (omittedReplacementsCount > 0) {
-			replacementsText += `, ... (${omittedReplacementsCount > 99 ? '99+' : omittedReplacementsCount} more omitted)`;
-		}
-
-		message.push(
-			`Please rename the ${nameTypeText} \`${discouragedName}\`.`,
-			`Suggested names are: ${replacementsText}.`,
-		);
+		return {
+			messageId: MESSAGE_ID_REPLACE,
+			data: {
+				nameTypeText,
+				discouragedName,
+				replacement: samples[0],
+			},
+		};
 	}
 
-	message.push(anotherNameMessage);
+	let replacementsText = samples
+		.map(replacement => `\`${replacement}\``)
+		.join(', ');
 
-	return message.join(' ');
+	const omittedReplacementsCount = total - samples.length;
+	if (omittedReplacementsCount > 0) {
+		replacementsText += `, ... (${omittedReplacementsCount > 99 ? '99+' : omittedReplacementsCount} more omitted)`;
+	}
+
+	return {
+		messageId: MESSAGE_ID_SUGGESTION,
+		data: {
+			nameTypeText,
+			discouragedName,
+			replacementsText,
+		},
+	};
 };
 
 const isExportedIdentifier = identifier => {
 	if (
-		identifier.parent.type === 'VariableDeclarator' &&
-		identifier.parent.id === identifier
+		identifier.parent.type === 'VariableDeclarator'
+		&& identifier.parent.id === identifier
 	) {
 		return (
-			identifier.parent.parent.type === 'VariableDeclaration' &&
-			identifier.parent.parent.parent.type === 'ExportNamedDeclaration'
+			identifier.parent.parent.type === 'VariableDeclaration'
+			&& identifier.parent.parent.parent.type === 'ExportNamedDeclaration'
 		);
 	}
 
 	if (
-		identifier.parent.type === 'FunctionDeclaration' &&
-		identifier.parent.id === identifier
+		identifier.parent.type === 'FunctionDeclaration'
+		&& identifier.parent.id === identifier
 	) {
 		return identifier.parent.parent.type === 'ExportNamedDeclaration';
 	}
 
 	if (
-		identifier.parent.type === 'ClassDeclaration' &&
-		identifier.parent.id === identifier
+		identifier.parent.type === 'ClassDeclaration'
+		&& identifier.parent.id === identifier
 	) {
 		return identifier.parent.parent.type === 'ExportNamedDeclaration';
 	}
 
 	if (
-		identifier.parent.type === 'TSTypeAliasDeclaration' &&
-		identifier.parent.id === identifier
+		identifier.parent.type === 'TSTypeAliasDeclaration'
+		&& identifier.parent.id === identifier
 	) {
 		return identifier.parent.parent.type === 'ExportNamedDeclaration';
 	}
@@ -200,38 +215,36 @@ const isExportedIdentifier = identifier => {
 	return false;
 };
 
-const shouldFix = variable => {
-	return !getVariableIdentifiers(variable).some(identifier => isExportedIdentifier(identifier));
-};
+const shouldFix = variable => !getVariableIdentifiers(variable).some(identifier => isExportedIdentifier(identifier));
 
 const isDefaultOrNamespaceImportName = identifier => {
 	if (
-		identifier.parent.type === 'ImportDefaultSpecifier' &&
-		identifier.parent.local === identifier
+		identifier.parent.type === 'ImportDefaultSpecifier'
+		&& identifier.parent.local === identifier
 	) {
 		return true;
 	}
 
 	if (
-		identifier.parent.type === 'ImportNamespaceSpecifier' &&
-		identifier.parent.local === identifier
+		identifier.parent.type === 'ImportNamespaceSpecifier'
+		&& identifier.parent.local === identifier
 	) {
 		return true;
 	}
 
 	if (
-		identifier.parent.type === 'ImportSpecifier' &&
-		identifier.parent.local === identifier &&
-		identifier.parent.imported.type === 'Identifier' &&
-		identifier.parent.imported.name === 'default'
+		identifier.parent.type === 'ImportSpecifier'
+		&& identifier.parent.local === identifier
+		&& identifier.parent.imported.type === 'Identifier'
+		&& identifier.parent.imported.name === 'default'
 	) {
 		return true;
 	}
 
 	if (
-		identifier.parent.type === 'VariableDeclarator' &&
-		identifier.parent.id === identifier &&
-		isStaticRequire(identifier.parent.init)
+		identifier.parent.type === 'VariableDeclarator'
+		&& identifier.parent.id === identifier
+		&& isStaticRequire(identifier.parent.init)
 	) {
 		return true;
 	}
@@ -251,45 +264,45 @@ const isClassVariable = variable => {
 
 const shouldReportIdentifierAsProperty = identifier => {
 	if (
-		identifier.parent.type === 'MemberExpression' &&
-		identifier.parent.property === identifier &&
-		!identifier.parent.computed &&
-		identifier.parent.parent.type === 'AssignmentExpression' &&
-		identifier.parent.parent.left === identifier.parent
+		identifier.parent.type === 'MemberExpression'
+		&& identifier.parent.property === identifier
+		&& !identifier.parent.computed
+		&& identifier.parent.parent.type === 'AssignmentExpression'
+		&& identifier.parent.parent.left === identifier.parent
 	) {
 		return true;
 	}
 
 	if (
-		identifier.parent.type === 'Property' &&
-		identifier.parent.key === identifier &&
-		!identifier.parent.computed &&
-		!identifier.parent.shorthand && // Shorthand properties are reported and fixed as variables
-		identifier.parent.parent.type === 'ObjectExpression'
+		identifier.parent.type === 'Property'
+		&& identifier.parent.key === identifier
+		&& !identifier.parent.computed
+		&& !identifier.parent.shorthand // Shorthand properties are reported and fixed as variables
+		&& identifier.parent.parent.type === 'ObjectExpression'
 	) {
 		return true;
 	}
 
 	if (
-		identifier.parent.type === 'ExportSpecifier' &&
-		identifier.parent.exported === identifier &&
-		identifier.parent.local !== identifier // Same as shorthand properties above
+		identifier.parent.type === 'ExportSpecifier'
+		&& identifier.parent.exported === identifier
+		&& identifier.parent.local !== identifier // Same as shorthand properties above
 	) {
 		return true;
 	}
 
 	if (
-		identifier.parent.type === 'MethodDefinition' &&
-		identifier.parent.key === identifier &&
-		!identifier.parent.computed
+		identifier.parent.type === 'MethodDefinition'
+		&& identifier.parent.key === identifier
+		&& !identifier.parent.computed
 	) {
 		return true;
 	}
 
 	if (
-		(identifier.parent.type === 'ClassProperty' || identifier.parent.type === 'PropertyDefinition') &&
-		identifier.parent.key === identifier &&
-		!identifier.parent.computed
+		(identifier.parent.type === 'ClassProperty' || identifier.parent.type === 'PropertyDefinition')
+		&& identifier.parent.key === identifier
+		&& !identifier.parent.computed
 	) {
 		return true;
 	}
@@ -307,8 +320,8 @@ const isInternalImport = node => {
 	}
 
 	return (
-		!source.includes('node_modules') &&
-		(source.startsWith('.') || source.startsWith('/'))
+		!source.includes('node_modules')
+		&& (source.startsWith('.') || source.startsWith('/'))
 	);
 };
 
@@ -377,8 +390,8 @@ const create = context => {
 			}
 
 			if (
-				options.checkDefaultAndNamespaceImports === 'internal' &&
-				!isInternalImport(definition)
+				options.checkDefaultAndNamespaceImports === 'internal'
+				&& !isInternalImport(definition)
 			) {
 				return;
 			}
@@ -390,16 +403,16 @@ const create = context => {
 			}
 
 			if (
-				options.checkShorthandImports === 'internal' &&
-				!isInternalImport(definition)
+				options.checkShorthandImports === 'internal'
+				&& !isInternalImport(definition)
 			) {
 				return;
 			}
 		}
 
 		if (
-			!options.checkShorthandProperties &&
-			isShorthandPropertyValue(definition.name)
+			!options.checkShorthandProperties
+			&& isShorthandPropertyValue(definition.name)
 		) {
 			return;
 		}
@@ -419,8 +432,8 @@ const create = context => {
 		);
 
 		const problem = {
+			...getMessage(definition.name.name, variableReplacements, 'variable'),
 			node: definition.name,
-			message: formatMessage(definition.name.name, variableReplacements, 'variable'),
 		};
 
 		if (variableReplacements.total === 1 && shouldFix(variable) && variableReplacements.samples[0]) {
@@ -447,16 +460,11 @@ const create = context => {
 		}
 	};
 
-	const checkChildScopes = scope => {
-		for (const childScope of scope.childScopes) {
-			checkScope(childScope);
-		}
-	};
-
 	const checkScope = scope => {
-		checkVariables(scope);
-
-		return checkChildScopes(scope);
+		const scopes = getScopes(scope);
+		for (const scope of scopes) {
+			checkVariables(scope);
+		}
 	};
 
 	return {
@@ -480,8 +488,8 @@ const create = context => {
 			}
 
 			const problem = {
+				...getMessage(node.name, identifierReplacements, 'property'),
 				node,
-				message: formatMessage(node.name, identifierReplacements, 'property'),
 			};
 
 			context.report(problem);
@@ -493,8 +501,8 @@ const create = context => {
 			}
 
 			if (
-				filenameWithExtension === '<input>' ||
-				filenameWithExtension === '<text>'
+				filenameWithExtension === '<input>'
+				|| filenameWithExtension === '<text>'
 			) {
 				return;
 			}
@@ -510,8 +518,8 @@ const create = context => {
 			filenameReplacements.samples = filenameReplacements.samples.map(replacement => `${replacement}${extension}`);
 
 			context.report({
+				...getMessage(filenameWithExtension, filenameReplacements, 'filename'),
 				node,
-				message: formatMessage(filenameWithExtension, filenameReplacements, 'filename'),
 			});
 		},
 
@@ -611,5 +619,6 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
+		messages,
 	},
 };

@@ -56,7 +56,7 @@ const ignored = [
 
 const selector = [
 	methodCallSelector({
-		names: [
+		methods: [
 			'every',
 			'filter',
 			'find',
@@ -66,7 +66,7 @@ const selector = [
 			'map',
 			'some',
 		],
-		length: 2,
+		argumentsLength: 2,
 	}),
 	notFunctionSelector('arguments.0'),
 ].join('');
@@ -83,12 +83,12 @@ function useBoundFunction(callExpression, sourceCode) {
 
 		const callbackParentheses = getParentheses(callback, sourceCode);
 		const isParenthesized = callbackParentheses.length > 0;
-		const callbackLastToken = isParenthesized ?
-			callbackParentheses[callbackParentheses.length - 1] :
-			callback;
+		const callbackLastToken = isParenthesized
+			? callbackParentheses[callbackParentheses.length - 1]
+			: callback;
 		if (
-			!isParenthesized &&
-			shouldAddParenthesesToMemberExpressionObject(callback, sourceCode)
+			!isParenthesized
+			&& shouldAddParenthesesToMemberExpressionObject(callback, sourceCode)
 		) {
 			yield fixer.insertTextBefore(callbackLastToken, '(');
 			yield fixer.insertTextAfter(callbackLastToken, ')');

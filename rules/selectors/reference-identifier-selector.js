@@ -22,7 +22,7 @@ const nonReferenceSelectors = [
 	// `const Identifier = 1`
 	'VariableDeclarator > .id',
 	// `const foo = {Identifier: 1}`
-	'ObjectExpression > Property[shorthand!=true][computed!=true].properties > .key',
+	'ObjectExpression > Property[computed!=true].properties > .key',
 	// `const {Identifier} = {}`
 	// `const {Identifier: foo} = {}`
 	'ObjectPattern > Property[computed!=true].properties > .key',

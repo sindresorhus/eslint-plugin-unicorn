@@ -86,6 +86,14 @@ test({
 		'Children.forEach(children, fn)', // `import {Children} from 'react';`
 		'Vue.filter(name, fn)',
 
+		// #1376
+		'$(this).find(tooltip)',
+		'$.map(realArray, function(value, index) {});',
+		'$(this).filter(tooltip)',
+		'jQuery(this).find(tooltip)',
+		'jQuery.map(realArray, function(value, index) {});',
+		'jQuery(this).filter(tooltip)',
+
 		// First argument is not a function
 		...notFunctionTypes.map(data => `foo.map(${data})`),
 
@@ -117,6 +125,13 @@ test({
 				.sort($sort)
 				.limit(params.limit + 1)
 				.toArray()
+		`,
+
+		// #1455 - mobx-state-tree
+		outdent`
+			const EventsStore = types.model('EventsStore', {
+				events: types.optional(types.map(Event), {}),
+			})
 		`,
 	],
 	invalid: [

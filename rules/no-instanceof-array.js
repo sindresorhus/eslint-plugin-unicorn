@@ -1,7 +1,7 @@
 'use strict';
 const {checkVueTemplate} = require('./utils/rule.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
-const {replaceNodeOrTokenAndSpacesBefore} = require('./fix/index.js');
+const {replaceNodeOrTokenAndSpacesBefore, fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const isInstanceofToken = token => token.value === 'instanceof' && token.type === 'Keyword';
 
@@ -34,6 +34,8 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
 				* fix(fixer) {
+					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+
 					const range = getParenthesizedRange(left, tokenStore);
 					yield fixer.insertTextBeforeRange(range, 'Array.isArray(');
 					yield fixer.insertTextAfterRange(range, ')');

@@ -15,8 +15,8 @@ const messages = {
 
 const selector = [
 	methodCallSelector({
-		name: 'removeChild',
-		length: 1,
+		method: 'removeChild',
+		argumentsLength: 1,
 	}),
 	notDomNodeSelector('callee.object'),
 	notDomNodeSelector('arguments.0'),
@@ -38,8 +38,8 @@ const create = context => {
 			const fix = fixer => {
 				let childNodeText = getParenthesizedText(childNode, sourceCode);
 				if (
-					!isParenthesized(childNode, sourceCode) &&
-					shouldAddParenthesesToMemberExpressionObject(childNode, sourceCode)
+					!isParenthesized(childNode, sourceCode)
+					&& shouldAddParenthesesToMemberExpressionObject(childNode, sourceCode)
 				) {
 					childNodeText = `(${childNodeText})`;
 				}

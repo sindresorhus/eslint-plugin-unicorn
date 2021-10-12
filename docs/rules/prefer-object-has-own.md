@@ -1,6 +1,6 @@
 # Prefer `Object.hasOwn(…)` over `Object.prototype.hasOwnProperty.call(…)`
 
-[`Object.hasOwn(…)`](https://github.com/tc39/proposal-accessible-object-hasownproperty) is more accessible than `Object.prototype.hasOwnProperty.call(…)`.
+[`Object.hasOwn(…)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwn) is more accessible than `Object.prototype.hasOwnProperty.call(…)`.
 
 This rule is fixable.
 
@@ -34,7 +34,7 @@ Type: `string[]`
 
 You can also check custom functions that indicating the object has the specified property as its own property.
 
-`_.has()`, `lodash.has()`, and `underscore.has()` are checked by default.
+`_.has()`, `lodash.has()`, and `underscore.has()` are always checked.
 
 Example:
 

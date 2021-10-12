@@ -8,6 +8,8 @@ We only check `.filter().length > 0` and `.filter().length !== 0`. These two non
 
 - Using [`Array#find()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) to ensure at least one element in the array passes a given check.
 
+- Comparing the result of [`Array#find()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) with `undefined`.
+
 This rule is fixable for `.filter(…).length` check and has a suggestion for `.find(…)`.
 
 ## Fail
@@ -32,6 +34,14 @@ if (array.find(element => isUnicorn(element))) {
 
 ```js
 const foo = array.find(element => isUnicorn(element)) ? bar : baz;
+```
+
+```js
+const hasUnicorn = array.find(element => isUnicorn(element) !== undefined;
+```
+
+```js
+const hasUnicorn = array.find(element => isUnicorn(element) != null;
 ```
 
 ```vue

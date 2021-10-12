@@ -1,5 +1,6 @@
 'use strict';
 const packageJson = require('../../package.json');
+
 const repoUrl = 'https://github.com/sindresorhus/eslint-plugin-unicorn';
 
 function createDeprecatedRules(data) {

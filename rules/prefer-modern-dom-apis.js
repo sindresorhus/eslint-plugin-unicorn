@@ -11,8 +11,8 @@ const messages = {
 
 const replaceChildOrInsertBeforeSelector = [
 	methodCallSelector({
-		names: ['replaceChild', 'insertBefore'],
-		length: 2,
+		methods: ['replaceChild', 'insertBefore'],
+		argumentsLength: 2,
 	}),
 	// We only allow Identifier for now
 	'[arguments.0.type="Identifier"]',
@@ -34,12 +34,12 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 	const [newChildNode, oldChildNode] = node.arguments.map(({name}) => name);
 	const preferredMethod = forbiddenMethods.get(method);
 
-	const fix = isValueNotUsable(node) ?
-		fixer => fixer.replaceText(
+	const fix = isValueNotUsable(node)
+		? fixer => fixer.replaceText(
 			node,
 			`${oldChildNode}.${preferredMethod}(${newChildNode})`,
-		) :
-		undefined;
+		)
+		: undefined;
 
 	return {
 		node,
@@ -57,8 +57,8 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 
 const insertAdjacentTextOrInsertAdjacentElementSelector = [
 	methodCallSelector({
-		names: ['insertAdjacentText', 'insertAdjacentElement'],
-		length: 2,
+		methods: ['insertAdjacentText', 'insertAdjacentElement'],
+		argumentsLength: 2,
 	}),
 	// Position argument should be `string`
 	'[arguments.0.type="Literal"]',
@@ -89,10 +89,10 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 	const content = context.getSource(contentNode);
 	const reference = context.getSource(node.callee.object);
 
-	const fix = method === 'insertAdjacentElement' && !isValueNotUsable(node) ?
-		undefined :
+	const fix = method === 'insertAdjacentElement' && !isValueNotUsable(node)
+		? undefined
 		// TODO: make a better fix, don't touch reference
-		fixer => fixer.replaceText(
+		: fixer => fixer.replaceText(
 			node,
 			`${reference}.${preferredMethod}(${content})`,
 		);
@@ -111,16 +111,14 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 	};
 };
 
-const create = context => {
-	return {
-		[replaceChildOrInsertBeforeSelector](node) {
-			return checkForReplaceChildOrInsertBefore(context, node);
-		},
-		[insertAdjacentTextOrInsertAdjacentElementSelector](node) {
-			return checkForInsertAdjacentTextOrInsertAdjacentElement(context, node);
-		},
-	};
-};
+const create = context => ({
+	[replaceChildOrInsertBeforeSelector](node) {
+		return checkForReplaceChildOrInsertBefore(context, node);
+	},
+	[insertAdjacentTextOrInsertAdjacentElementSelector](node) {
+		return checkForInsertAdjacentTextOrInsertAdjacentElement(context, node);
+	},
+});
 
 module.exports = {
 	create,

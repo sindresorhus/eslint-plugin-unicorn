@@ -5,6 +5,7 @@ const {
 	isKeyword,
 } = require('@babel/helper-validator-identifier');
 const resolveVariableName = require('./resolve-variable-name.js');
+const getReferences = require('./get-references.js');
 
 // https://github.com/microsoft/TypeScript/issues/2536#issuecomment-87194347
 const typescriptReservedWords = new Set([
@@ -73,12 +74,12 @@ const typescriptReservedWords = new Set([
 // Copied from https://github.com/babel/babel/blob/fce35af69101c6b316557e28abf60bdbf77d6a36/packages/babel-types/src/validators/isValidIdentifier.ts#L7
 // Use this function instead of `require('@babel/types').isIdentifier`, since `@babel/helper-validator-identifier` package is much smaller
 const isValidIdentifier = name =>
-	typeof name === 'string' &&
-	!isKeyword(name) &&
-	!isStrictReservedWord(name, true) &&
-	isIdentifierName(name) &&
-	name !== 'arguments' &&
-	!typescriptReservedWords.has(name);
+	typeof name === 'string'
+	&& !isKeyword(name)
+	&& !isStrictReservedWord(name, true)
+	&& isIdentifierName(name)
+	&& name !== 'arguments'
+	&& !typescriptReservedWords.has(name);
 
 /*
 Unresolved reference is probably from the global scope. We should avoid using that name.
@@ -98,8 +99,7 @@ function unicorn() {
 ```
 */
 const isUnresolvedName = (name, scope) =>
-	scope.references.some(reference => reference.identifier && reference.identifier.name === name && !reference.resolved) ||
-	scope.childScopes.some(scope => isUnresolvedName(name, scope));
+	getReferences(scope).some(({identifier, resolved}) => identifier && identifier.name === name && !resolved);
 
 const isSafeName = (name, scopes) =>
 	!scopes.some(scope => resolveVariableName(name, scope) || isUnresolvedName(name, scope));

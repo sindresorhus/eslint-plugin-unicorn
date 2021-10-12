@@ -22,8 +22,8 @@ const selector = matches([
 	// - `promise.catch(function(foo) {})`
 	[
 		matches([
-			methodCallSelector({name: 'then', length: 2}),
-			methodCallSelector({name: 'catch', length: 1}),
+			methodCallSelector({method: 'then', argumentsLength: 2}),
+			methodCallSelector({method: 'catch', argumentsLength: 1}),
 		]),
 		' > ',
 		':matches(FunctionExpression, ArrowFunctionExpression).arguments:last-child',
@@ -43,18 +43,18 @@ const create = context => {
 		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u'),
 	);
 	const isNameAllowed = name =>
-		name === expectedName ||
-		ignore.some(regexp => regexp.test(name)) ||
-		name.endsWith(expectedName) ||
-		name.endsWith(expectedName.charAt(0).toUpperCase() + expectedName.slice(1));
+		name === expectedName
+		|| ignore.some(regexp => regexp.test(name))
+		|| name.endsWith(expectedName)
+		|| name.endsWith(expectedName.charAt(0).toUpperCase() + expectedName.slice(1));
 
 	return {
 		[selector]: node => {
 			const originalName = node.name;
 
 			if (
-				isNameAllowed(originalName) ||
-				isNameAllowed(originalName.replace(/_+$/g, ''))
+				isNameAllowed(originalName)
+				|| isNameAllowed(originalName.replace(/_+$/g, ''))
 			) {
 				return;
 			}

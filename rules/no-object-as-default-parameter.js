@@ -1,28 +1,36 @@
 'use strict';
 
-const MESSAGE_ID = 'noObjectAsDefaultParameter';
+const MESSAGE_ID_IDENTIFIER = 'identifier';
+const MESSAGE_ID_NON_IDENTIFIER = 'non-identifier';
 const messages = {
-	[MESSAGE_ID]: 'Do not use an object literal as default for parameter `{{parameter}}`.',
+	[MESSAGE_ID_IDENTIFIER]: 'Do not use an object literal as default for parameter `{{parameter}}`.',
+	[MESSAGE_ID_NON_IDENTIFIER]: 'Do not use an object literal as default.',
 };
 
 const objectParameterSelector = [
 	':function > AssignmentPattern.params',
-	'[left.type="Identifier"]',
 	'[right.type="ObjectExpression"]',
 	'[right.properties.length>0]',
 ].join('');
 
-const create = () => {
-	return {
-		[objectParameterSelector]: node => {
+const create = () => ({
+	[objectParameterSelector]: node => {
+		const {left, right} = node;
+
+		if (left.type === 'Identifier') {
 			return {
-				node: node.left,
-				messageId: MESSAGE_ID,
-				data: {parameter: node.left.name},
+				node: left,
+				messageId: MESSAGE_ID_IDENTIFIER,
+				data: {parameter: left.name},
 			};
-		},
-	};
-};
+		}
+
+		return {
+			node: right,
+			messageId: MESSAGE_ID_NON_IDENTIFIER,
+		};
+	},
+});
 
 module.exports = {
 	create,

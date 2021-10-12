@@ -1,16 +1,7 @@
 'use strict';
 
-const getTotal = combinations => {
-	let total = 1;
-	for (const {length} of combinations) {
-		total *= length;
-	}
-
-	return total;
-};
-
 module.exports = (combinations, length = Number.POSITIVE_INFINITY) => {
-	const total = getTotal(combinations);
+	const total = combinations.reduce((total, {length}) => total * length, 1);
 
 	const samples = Array.from({length: Math.min(total, length)}, (_, sampleIndex) => {
 		let indexRemaining = sampleIndex;

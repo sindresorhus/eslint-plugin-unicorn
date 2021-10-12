@@ -1,4 +1,5 @@
 'use strict';
+const {checkVueTemplate} = require('./utils/rule.js');
 const {isNumber, isBigInt} = require('./utils/numeric.js');
 
 const MESSAGE_ID = 'number-literal-case';
@@ -15,31 +16,29 @@ const fix = raw => {
 	return fixed;
 };
 
-const create = () => {
-	return {
-		Literal: node => {
-			const {raw} = node;
+const create = () => ({
+	Literal: node => {
+		const {raw} = node;
 
-			let fixed = raw;
-			if (isNumber(node)) {
-				fixed = fix(raw);
-			} else if (isBigInt(node)) {
-				fixed = fix(raw.slice(0, -1)) + 'n';
-			}
+		let fixed = raw;
+		if (isNumber(node)) {
+			fixed = fix(raw);
+		} else if (isBigInt(node)) {
+			fixed = fix(raw.slice(0, -1)) + 'n';
+		}
 
-			if (raw !== fixed) {
-				return {
-					node,
-					messageId: MESSAGE_ID,
-					fix: fixer => fixer.replaceText(node, fixed),
-				};
-			}
-		},
-	};
-};
+		if (raw !== fixed) {
+			return {
+				node,
+				messageId: MESSAGE_ID,
+				fix: fixer => fixer.replaceText(node, fixed),
+			};
+		}
+	},
+});
 
 module.exports = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {

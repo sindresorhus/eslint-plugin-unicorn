@@ -7,7 +7,7 @@ const {
 } = require('./selectors/index.js');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
 const avoidCapture = require('./utils/avoid-capture.js');
-const getChildScopesRecursive = require('./utils/get-child-scopes-recursive.js');
+const getScopes = require('./utils/get-scopes.js');
 const singular = require('./utils/singular.js');
 const {
 	extendFixRange,
@@ -35,9 +35,9 @@ const messages = {
 };
 
 const filterMethodSelectorOptions = {
-	name: 'filter',
-	min: 1,
-	max: 2,
+	method: 'filter',
+	minimumArguments: 1,
+	maximumArguments: 2,
 };
 
 const filterVariableSelector = [
@@ -67,8 +67,8 @@ const zeroIndexSelector = [
 
 const shiftSelector = [
 	methodCallSelector({
-		name: 'shift',
-		length: 0,
+		method: 'shift',
+		argumentsLength: 0,
 	}),
 	methodCallSelector({
 		...filterMethodSelectorOptions,
@@ -117,20 +117,20 @@ const assignmentNeedParenthesize = (node, sourceCode) => {
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
 const hasLowerPrecedence = (node, operator) => (
 	(node.type === 'LogicalExpression' && (
-		node.operator === operator ||
+		node.operator === operator
 		// https://tc39.es/proposal-nullish-coalescing/ says
 		// `??` has lower precedence than `||`
 		// But MDN says
 		// `??` has higher precedence than `||`
-		(operator === '||' && node.operator === '??') ||
-		(operator === '??' && (node.operator === '||' || node.operator === '&&'))
-	)) ||
-	node.type === 'ConditionalExpression' ||
+		|| (operator === '||' && node.operator === '??')
+		|| (operator === '??' && (node.operator === '||' || node.operator === '&&'))
+	))
+	|| node.type === 'ConditionalExpression'
 	// Lower than `assignment`, should already parenthesized
 	/* istanbul ignore next */
-	node.type === 'AssignmentExpression' ||
-	node.type === 'YieldExpression' ||
-	node.type === 'SequenceExpression'
+	|| node.type === 'AssignmentExpression'
+	|| node.type === 'YieldExpression'
+	|| node.type === 'SequenceExpression'
 );
 
 const getDestructuringLeftAndRight = node => {
@@ -208,23 +208,23 @@ const fixDestructuringAndReplaceFilter = (sourceCode, node) => {
 };
 
 const isAccessingZeroIndex = node =>
-	node.parent &&
-	node.parent.type === 'MemberExpression' &&
-	node.parent.computed === true &&
-	node.parent.object === node &&
-	node.parent.property &&
-	node.parent.property.type === 'Literal' &&
-	node.parent.property.raw === '0';
+	node.parent
+	&& node.parent.type === 'MemberExpression'
+	&& node.parent.computed === true
+	&& node.parent.object === node
+	&& node.parent.property
+	&& node.parent.property.type === 'Literal'
+	&& node.parent.property.raw === '0';
 
 const isDestructuringFirstElement = node => {
 	const {left, right} = getDestructuringLeftAndRight(node.parent);
-	return left &&
-		right &&
-		right === node &&
-		left.type === 'ArrayPattern' &&
-		left.elements &&
-		left.elements.length === 1 &&
-		left.elements[0].type !== 'RestElement';
+	return left
+		&& right
+		&& right === node
+		&& left.type === 'ArrayPattern'
+		&& left.elements
+		&& left.elements.length === 1
+		&& left.elements[0].type !== 'RestElement';
 };
 
 const create = context => {
@@ -299,7 +299,7 @@ const create = context => {
 					const singularName = singular(node.id.name);
 					if (singularName) {
 						// Rename variable to be singularized now that it refers to a single item in the array instead of the entire array.
-						const singularizedName = avoidCapture(singularName, getChildScopesRecursive(scope));
+						const singularizedName = avoidCapture(singularName, getScopes(scope));
 						yield * renameVariable(variable, singularizedName, fixer);
 
 						// Prevent possible variable conflicts

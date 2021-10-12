@@ -16,8 +16,6 @@ const createError = (functionNameWithKind, loc) => ({
 test({
 	testerOptions: {
 		parserOptions: {
-			sourceType: 'module',
-			ecmaVersion: 2021,
 			ecmaFeatures: {
 				jsx: true,
 			},
@@ -218,12 +216,12 @@ test({
 		`,
 		// Functions that could be extracted are conservatively ignored due to JSX masking references
 		outdent`
-				function Foo() {
-					function Bar () {
-						return <div />
-					}
-					return <div>{ Bar() }</div>
+			function Foo() {
+				function Bar () {
+					return <div />
 				}
+				return <div>{ Bar() }</div>
+			}
 		`,
 		outdent`
 			function foo() {

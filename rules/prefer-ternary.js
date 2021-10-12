@@ -7,6 +7,7 @@ const getIndentString = require('./utils/get-indent-string.js');
 const {getParenthesizedText} = require('./utils/parentheses.js');
 const shouldAddParenthesesToConditionalExpressionChild = require('./utils/should-add-parentheses-to-conditional-expression-child.js');
 const {extendFixRange} = require('./fix/index.js');
+const getScopes = require('./utils/get-scopes.js');
 
 const messageId = 'prefer-ternary';
 
@@ -40,11 +41,6 @@ function getNodeBody(node) {
 	return node;
 }
 
-const getScopes = scope => [
-	scope,
-	...scope.childScopes.flatMap(scope => getScopes(scope)),
-];
-
 const isSingleLineNode = node => node.loc.start.line === node.loc.end.line;
 
 const create = context => {
@@ -59,8 +55,8 @@ const create = context => {
 	const getText = node => {
 		let text = getParenthesizedText(node, sourceCode);
 		if (
-			!isParenthesized(node, sourceCode) &&
-			shouldAddParenthesesToConditionalExpressionChild(node)
+			!isParenthesized(node, sourceCode)
+			&& shouldAddParenthesesToConditionalExpressionChild(node)
 		) {
 			text = `(${text})`;
 		}
@@ -93,9 +89,9 @@ const create = context => {
 		const {type, argument, delegate, left, right, operator} = consequent;
 
 		if (
-			type === 'ReturnStatement' &&
-			!isTernary(argument) &&
-			!isTernary(alternate.argument)
+			type === 'ReturnStatement'
+			&& !isTernary(argument)
+			&& !isTernary(alternate.argument)
 		) {
 			return merge({
 				before: `${before}return `,
@@ -107,10 +103,10 @@ const create = context => {
 		}
 
 		if (
-			type === 'YieldExpression' &&
-			delegate === alternate.delegate &&
-			!isTernary(argument) &&
-			!isTernary(alternate.argument)
+			type === 'YieldExpression'
+			&& delegate === alternate.delegate
+			&& !isTernary(argument)
+			&& !isTernary(alternate.argument)
 		) {
 			return merge({
 				before: `${before}yield${delegate ? '*' : ''} (`,
@@ -122,9 +118,9 @@ const create = context => {
 		}
 
 		if (
-			type === 'AwaitExpression' &&
-			!isTernary(argument) &&
-			!isTernary(alternate.argument)
+			type === 'AwaitExpression'
+			&& !isTernary(argument)
+			&& !isTernary(alternate.argument)
 		) {
 			return merge({
 				before: `${before}await (`,
@@ -136,10 +132,10 @@ const create = context => {
 		}
 
 		if (
-			checkThrowStatement &&
-			type === 'ThrowStatement' &&
-			!isTernary(argument) &&
-			!isTernary(alternate.argument)
+			checkThrowStatement
+			&& type === 'ThrowStatement'
+			&& !isTernary(argument)
+			&& !isTernary(alternate.argument)
 		) {
 			// `ThrowStatement` don't check nested
 
@@ -156,13 +152,13 @@ const create = context => {
 		}
 
 		if (
-			type === 'AssignmentExpression' &&
-			operator === alternate.operator &&
-			!isTernary(left) &&
-			!isTernary(alternate.left) &&
-			!isTernary(right) &&
-			!isTernary(alternate.right) &&
-			isSameReference(left, alternate.left)
+			type === 'AssignmentExpression'
+			&& operator === alternate.operator
+			&& !isTernary(left)
+			&& !isTernary(alternate.left)
+			&& !isTernary(right)
+			&& !isTernary(alternate.right)
+			&& isSameReference(left, alternate.left)
 		) {
 			return merge({
 				before: `${before}${sourceCode.getText(left)} ${operator} `,
@@ -182,8 +178,8 @@ const create = context => {
 			const alternate = getNodeBody(node.alternate);
 
 			if (
-				onlySingleLine &&
-				[consequent, alternate, node.test].some(node => !isSingleLineNode(node))
+				onlySingleLine
+				&& [consequent, alternate, node.test].some(node => !isSingleLineNode(node))
 			) {
 				return;
 			}
@@ -204,12 +200,12 @@ const create = context => {
 				messageId,
 				* fix(fixer) {
 					const testText = getText(node.test);
-					const consequentText = typeof result.consequent === 'string' ?
-						result.consequent :
-						getText(result.consequent);
-					const alternateText = typeof result.alternate === 'string' ?
-						result.alternate :
-						getText(result.alternate);
+					const consequentText = typeof result.consequent === 'string'
+						? result.consequent
+						: getText(result.consequent);
+					const alternateText = typeof result.alternate === 'string'
+						? result.alternate
+						: getText(result.alternate);
 
 					let {type, before, after} = result;
 

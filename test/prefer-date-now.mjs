@@ -100,5 +100,8 @@ test.snapshot({
 		'foo /= new Date',
 		'foo %= new Date()',
 		'foo **= new Date()',
+
+		'function foo(){return+new Date}',
+		'function foo(){return-new Date}',
 	],
 });

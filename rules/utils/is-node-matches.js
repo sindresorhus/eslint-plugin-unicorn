@@ -17,17 +17,17 @@ function isNodeMatchesNameOrPath(node, nameOrPath) {
 
 		if (index === 0) {
 			return (
-				(node.type === 'Identifier' && node.name === name) ||
-				(name === 'this' && node.type === 'ThisExpression')
+				(node.type === 'Identifier' && node.name === name)
+				|| (name === 'this' && node.type === 'ThisExpression')
 			);
 		}
 
 		if (
-			node.type !== 'MemberExpression' ||
-			node.optional ||
-			node.computed ||
-			node.property.type !== 'Identifier' ||
-			node.property.name !== name
+			node.type !== 'MemberExpression'
+			|| node.optional
+			|| node.computed
+			|| node.property.type !== 'Identifier'
+			|| node.property.name !== name
 		) {
 			return false;
 		}

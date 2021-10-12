@@ -1,22 +1,14 @@
 #!/usr/bin/env node
+import process from 'node:process';
 import {ESLint} from 'eslint';
 import unicorn from '../../index.js';
+import allConfig from '../../configs/all.js';
 
-const {recommended} = unicorn.configs;
 const files = [process.argv[2] || '.'];
 const fix = process.argv.includes('--fix');
 
-const enableAllRules = Object.fromEntries(
-	Object.entries(recommended.rules)
-		.filter(([id]) => id.startsWith('unicorn/'))
-		.map(([id]) => [id, 'error']),
-);
-
 const eslint = new ESLint({
-	baseConfig: {
-		...recommended,
-		rules: enableAllRules,
-	},
+	baseConfig: allConfig,
 	useEslintrc: false,
 	extensions: ['.js', '.mjs'],
 	plugins: {
@@ -69,18 +61,21 @@ const eslint = new ESLint({
 					'unicorn/prefer-module': 'off',
 				},
 			},
+			{
+				files: [
+					'rules/prefer-spread.js',
+				],
+				rules: {
+					// TODO[xo@>=0.45.0]: Enable this rule when `xo` updated `eslint-plugin-unicorn`
+					'unicorn/prefer-spread': 'off',
+				},
+			},
 		],
 	},
 });
 
-const sum = (collection, fieldName) => {
-	let result = 0;
-	for (const item of collection) {
-		result += item[fieldName];
-	}
-
-	return result;
-};
+const sum = (collection, fieldName) =>
+	collection.reduce((total, {[fieldName]: value}) => total + value, 0);
 
 (async function () {
 	const results = await eslint.lintFiles(files);

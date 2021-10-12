@@ -29,7 +29,11 @@ const iteratorMethods = [
 			returnsUndefined: true,
 		},
 	],
-	['map'],
+	[
+		'map', {
+			extraSelector: '[callee.object.name!="types"]',
+		},
+	],
 	[
 		'reduce', {
 			parameters: [
@@ -78,6 +82,8 @@ const ignoredCallee = [
 	'Async',
 	'async',
 	'this',
+	'$',
+	'jQuery',
 ];
 
 function getProblem(context, node, method, options) {
@@ -118,9 +124,9 @@ function getProblem(context, node, method, options) {
 
 				return fixer.replaceText(
 					node,
-					returnsUndefined ?
-						`(${suggestionParameters}) => { ${nodeText}(${suggestionParameters}); }` :
-						`(${suggestionParameters}) => ${nodeText}(${suggestionParameters})`,
+					returnsUndefined
+						? `(${suggestionParameters}) => { ${nodeText}(${suggestionParameters}); }`
+						: `(${suggestionParameters}) => ${nodeText}(${suggestionParameters})`,
 				);
 			},
 		};
@@ -147,9 +153,9 @@ const create = context => {
 		const selector = [
 			method === 'reduce' || method === 'reduceRight' ? '' : ':not(AwaitExpression) > ',
 			methodCallSelector({
-				name: method,
-				min: 1,
-				max: 2,
+				method,
+				minimumArguments: 1,
+				maximumArguments: 2,
 			}),
 			options.extraSelector,
 			ignoredFirstArgumentSelector,
@@ -157,6 +163,10 @@ const create = context => {
 
 		rules[selector] = node => {
 			if (isNodeMatches(node.callee.object, ignoredCallee)) {
+				return;
+			}
+
+			if (node.callee.object.type === 'CallExpression' && isNodeMatches(node.callee.object.callee, ignoredCallee)) {
 				return;
 			}
 

@@ -1,4 +1,5 @@
 'use strict';
+const getScopes = require('./utils/get-scopes.js');
 
 const MESSAGE_ID = 'no-unused-properties';
 const messages = {
@@ -6,21 +7,21 @@ const messages = {
 };
 
 const getDeclaratorOrPropertyValue = declaratorOrProperty =>
-	declaratorOrProperty.init ||
-	declaratorOrProperty.value;
+	declaratorOrProperty.init
+	|| declaratorOrProperty.value;
 
 const isMemberExpressionCall = memberExpression =>
-	memberExpression.parent &&
-	memberExpression.parent.type === 'CallExpression' &&
-	memberExpression.parent.callee === memberExpression;
+	memberExpression.parent
+	&& memberExpression.parent.type === 'CallExpression'
+	&& memberExpression.parent.callee === memberExpression;
 
 const isMemberExpressionAssignment = memberExpression =>
-	memberExpression.parent &&
-	memberExpression.parent.type === 'AssignmentExpression';
+	memberExpression.parent
+	&& memberExpression.parent.type === 'AssignmentExpression';
 
 const isMemberExpressionComputedBeyondPrediction = memberExpression =>
-	memberExpression.computed &&
-	memberExpression.property.type !== 'Literal';
+	memberExpression.computed
+	&& memberExpression.property.type !== 'Literal';
 
 const specialProtoPropertyKey = {
 	type: 'Identifier',
@@ -51,15 +52,14 @@ const propertyKeysEqual = (keyA, keyB) => {
 	return false;
 };
 
-const objectPatternMatchesObjectExprPropertyKey = (pattern, key) => {
-	return pattern.properties.some(property => {
+const objectPatternMatchesObjectExprPropertyKey = (pattern, key) =>
+	pattern.properties.some(property => {
 		if (property.type === 'RestElement') {
 			return true;
 		}
 
 		return propertyKeysEqual(property.key, key);
 	});
-};
 
 const isLeafDeclaratorOrProperty = declaratorOrProperty => {
 	const value = getDeclaratorOrPropertyValue(declaratorOrProperty);
@@ -128,9 +128,9 @@ const create = context => {
 
 					if (reference.init) {
 						if (
-							parent.type === 'VariableDeclarator' &&
-							parent.parent.type === 'VariableDeclaration' &&
-							parent.parent.parent.type === 'ExportNamedDeclaration'
+							parent.type === 'VariableDeclarator'
+							&& parent.parent.type === 'VariableDeclaration'
+							&& parent.parent.parent.type === 'ExportNamedDeclaration'
 						) {
 							return {identifier: parent};
 						}
@@ -140,10 +140,10 @@ const create = context => {
 
 					if (parent.type === 'MemberExpression') {
 						if (
-							isMemberExpressionAssignment(parent) ||
-							isMemberExpressionCall(parent) ||
-							isMemberExpressionComputedBeyondPrediction(parent) ||
-							propertyKeysEqual(parent.property, key)
+							isMemberExpressionAssignment(parent)
+							|| isMemberExpressionCall(parent)
+							|| isMemberExpressionComputedBeyondPrediction(parent)
+							|| propertyKeysEqual(parent.property, key)
 						) {
 							return {identifier: parent};
 						}
@@ -152,8 +152,8 @@ const create = context => {
 					}
 
 					if (
-						parent.type === 'VariableDeclarator' &&
-						parent.id.type === 'ObjectPattern'
+						parent.type === 'VariableDeclarator'
+						&& parent.id.type === 'ObjectPattern'
 					) {
 						if (objectPatternMatchesObjectExprPropertyKey(parent.id, key)) {
 							return {identifier: parent};
@@ -163,8 +163,8 @@ const create = context => {
 					}
 
 					if (
-						parent.type === 'AssignmentExpression' &&
-						parent.left.type === 'ObjectPattern'
+						parent.type === 'AssignmentExpression'
+						&& parent.left.type === 'ObjectPattern'
 					) {
 						if (objectPatternMatchesObjectExprPropertyKey(parent.left, key)) {
 							return {identifier: parent};
@@ -211,25 +211,16 @@ const create = context => {
 		}
 	};
 
-	const checkChildScopes = scope => {
-		for (const childScope of scope.childScopes) {
-			checkScope(childScope);
-		}
-	};
-
-	const checkScope = scope => {
-		if (scope.type === 'global') {
-			return checkChildScopes(scope);
-		}
-
-		checkVariables(scope);
-
-		return checkChildScopes(scope);
-	};
-
 	return {
 		'Program:exit'() {
-			checkScope(context.getScope());
+			const scopes = getScopes(context.getScope());
+			for (const scope of scopes) {
+				if (scope.type === 'global') {
+					continue;
+				}
+
+				checkVariables(scope);
+			}
 		},
 	};
 };

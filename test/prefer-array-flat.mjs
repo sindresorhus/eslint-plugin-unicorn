@@ -23,6 +23,8 @@ test.snapshot({
 	],
 	invalid: [
 		'array.flatMap(x => x)',
+		'function foo(){return[].flatMap(x => x)}',
+		'foo.flatMap(x => x)instanceof Array',
 	],
 });
 
@@ -49,6 +51,7 @@ test.snapshot({
 	],
 	invalid: [
 		'array.reduce((a, b) => a.concat(b), [])',
+		'function foo(){return[].reduce((a, b) => a.concat(b), [])}',
 	],
 });
 
@@ -79,6 +82,7 @@ test.snapshot({
 	invalid: [
 		'array.reduce((a, b) => [...a, ...b], [])',
 		'array.reduce((a, b) => [...a, ...b,], [])',
+		'function foo(){return[].reduce((a, b) => [...a, ...b,], [])}',
 	],
 });
 
@@ -102,6 +106,7 @@ test.snapshot({
 		'[].concat( ((maybeArray)) )',
 		'[].concat( [foo] )',
 		'[].concat( [[foo]] )',
+		'function foo(){return[].concat(maybeArray)}',
 	],
 });
 
@@ -123,6 +128,9 @@ test.snapshot({
 		'[].concat(...(( array )))',
 		'[].concat(...(( [foo] )))',
 		'[].concat(...(( [[foo]] )))',
+		'function foo(){return[].concat(...array)}',
+		'class A extends[].concat(...array){}',
+		'const A = class extends[].concat(...array){}',
 	],
 });
 
@@ -165,6 +173,8 @@ test.snapshot({
 		'[].concat.call([], ...((array)))',
 		'[].concat.call([], ...[foo])',
 		'[].concat.call([], ...[[foo]])',
+
+		'function foo(){return[].concat.call([], ...array)}',
 	],
 });
 

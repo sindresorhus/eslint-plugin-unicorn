@@ -14,7 +14,7 @@ const selector = [
 		'[arguments.length=0]',
 		'[arguments.length=1][arguments.0.type="Literal"][arguments.0.raw="1"]',
 	]),
-	methodCallSelector({path: 'callee.object', name: 'map'}),
+	methodCallSelector({path: 'callee.object', method: 'map'}),
 ].join('');
 
 const ignored = ['React.Children', 'Children'];

@@ -5,6 +5,7 @@ const {
 	newExpressionSelector,
 	callExpressionSelector,
 } = require('./selectors/index.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID_DEFAULT = 'prefer-date';
 const MESSAGE_ID_METHOD = 'prefer-date-now-over-methods';
@@ -15,21 +16,21 @@ const messages = {
 	[MESSAGE_ID_NUMBER]: 'Prefer `Date.now()` over `Number(new Date())`.',
 };
 
-const createNewDateSelector = path => newExpressionSelector({path, name: 'Date', length: 0});
+const createNewDateSelector = path => newExpressionSelector({path, name: 'Date', argumentsLength: 0});
 const operatorsSelector = (...operators) => matches(operators.map(operator => `[operator="${operator}"]`));
 // `new Date()`
 const newDateSelector = createNewDateSelector();
 // `new Date().{getTime,valueOf}()`
 const methodsSelector = [
 	methodCallSelector({
-		names: ['getTime', 'valueOf'],
-		length: 0,
+		methods: ['getTime', 'valueOf'],
+		argumentsLength: 0,
 	}),
 	createNewDateSelector('callee.object'),
 ].join('');
 // `{Number,BigInt}(new Date())`
 const builtinObjectSelector = [
-	callExpressionSelector({names: ['Number', 'BigInt'], length: 1}),
+	callExpressionSelector({names: ['Number', 'BigInt'], argumentsLength: 1}),
 	createNewDateSelector('arguments.0'),
 ].join('');
 // https://github.com/estree/estree/blob/master/es5.md#unaryoperator
@@ -52,44 +53,52 @@ const binaryExpressionSelector = [
 	newDateSelector,
 ].join('');
 
-const getProblem = (node, problem) => ({
+const getProblem = (node, problem, sourceCode) => ({
 	node,
 	messageId: MESSAGE_ID_DEFAULT,
-	fix: fixer => fixer.replaceText(node, 'Date.now()'),
+	* fix(fixer) {
+		yield fixer.replaceText(node, 'Date.now()');
+
+		if (node.type === 'UnaryExpression') {
+			yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+		}
+	},
 	...problem,
 });
 
-const create = () => {
-	return {
-		[methodsSelector](node) {
-			const method = node.callee.property;
+const create = context => ({
+	[methodsSelector](node) {
+		const method = node.callee.property;
+		return getProblem(node, {
+			node: method,
+			messageId: MESSAGE_ID_METHOD,
+			data: {method: method.name},
+		});
+	},
+	[builtinObjectSelector](node) {
+		const {name} = node.callee;
+		if (name === 'Number') {
 			return getProblem(node, {
-				node: method,
-				messageId: MESSAGE_ID_METHOD,
-				data: {method: method.name},
+				messageId: MESSAGE_ID_NUMBER,
 			});
-		},
-		[builtinObjectSelector](node) {
-			const {name} = node.callee;
-			if (name === 'Number') {
-				return getProblem(node, {
-					messageId: MESSAGE_ID_NUMBER,
-				});
-			}
+		}
 
-			return getProblem(node.arguments[0]);
-		},
-		[unaryExpressionsSelector](node) {
-			return getProblem(node.operator === '-' ? node.argument : node);
-		},
-		[assignmentExpressionSelector](node) {
-			return getProblem(node);
-		},
-		[binaryExpressionSelector](node) {
-			return getProblem(node);
-		},
-	};
-};
+		return getProblem(node.arguments[0]);
+	},
+	[unaryExpressionsSelector](node) {
+		return getProblem(
+			node.operator === '-' ? node.argument : node,
+			{},
+			context.getSourceCode(),
+		);
+	},
+	[assignmentExpressionSelector](node) {
+		return getProblem(node);
+	},
+	[binaryExpressionSelector](node) {
+		return getProblem(node);
+	},
+});
 
 module.exports = {
 	create,

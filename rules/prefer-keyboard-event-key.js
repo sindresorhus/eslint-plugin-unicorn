@@ -14,12 +14,12 @@ const keys = new Set([
 ]);
 
 const isPropertyNamedAddEventListener = node =>
-	node &&
-	node.type === 'CallExpression' &&
-	node.callee &&
-	node.callee.type === 'MemberExpression' &&
-	node.callee.property &&
-	node.callee.property.name === 'addEventListener';
+	node
+	&& node.type === 'CallExpression'
+	&& node.callee
+	&& node.callee.type === 'MemberExpression'
+	&& node.callee.property
+	&& node.callee.property.name === 'addEventListener';
 
 const getEventNodeAndReferences = (context, node) => {
 	const eventListener = getMatchingAncestorOfType(node, 'CallExpression', isPropertyNamedAddEventListener);
@@ -41,11 +41,11 @@ const getEventNodeAndReferences = (context, node) => {
 };
 
 const isPropertyOf = (node, eventNode) =>
-	node &&
-	node.parent &&
-	node.parent.type === 'MemberExpression' &&
-	node.parent.object &&
-	node.parent.object === eventNode;
+	node
+	&& node.parent
+	&& node.parent.type === 'MemberExpression'
+	&& node.parent.object
+	&& node.parent.object === eventNode;
 
 // The third argument is a condition function, as one passed to `Array#filter()`
 // Helpful if nearest node of type also needs to have some other property
@@ -104,65 +104,63 @@ const getProblem = node => ({
 	fix: fix(node),
 });
 
-const create = context => {
-	return {
-		'Identifier:matches([name="keyCode"], [name="charCode"], [name="which"])'(node) {
-			// Normal case when usage is direct -> `event.keyCode`
-			const {event, references} = getEventNodeAndReferences(context, node);
-			if (!event) {
-				return;
-			}
+const create = context => ({
+	'Identifier:matches([name="keyCode"], [name="charCode"], [name="which"])'(node) {
+		// Normal case when usage is direct -> `event.keyCode`
+		const {event, references} = getEventNodeAndReferences(context, node);
+		if (!event) {
+			return;
+		}
 
-			if (
-				references &&
-				references.some(reference => isPropertyOf(node, reference.identifier))
-			) {
-				return getProblem(node);
-			}
-		},
+		if (
+			references
+			&& references.some(reference => isPropertyOf(node, reference.identifier))
+		) {
+			return getProblem(node);
+		}
+	},
 
-		Property(node) {
-			// Destructured case
-			const propertyName = node.value && node.value.name;
-			if (!keys.has(propertyName)) {
-				return;
-			}
+	Property(node) {
+		// Destructured case
+		const propertyName = node.value && node.value.name;
+		if (!keys.has(propertyName)) {
+			return;
+		}
 
-			const {event, references} = getEventNodeAndReferences(context, node);
-			if (!event) {
-				return;
-			}
+		const {event, references} = getEventNodeAndReferences(context, node);
+		if (!event) {
+			return;
+		}
 
-			const nearestVariableDeclarator = getMatchingAncestorOfType(
-				node,
-				'VariableDeclarator',
-			);
-			const initObject =
-				nearestVariableDeclarator &&
-				nearestVariableDeclarator.init &&
-				nearestVariableDeclarator.init;
+		const nearestVariableDeclarator = getMatchingAncestorOfType(
+			node,
+			'VariableDeclarator',
+		);
+		const initObject
+			= nearestVariableDeclarator
+				&& nearestVariableDeclarator.init
+				&& nearestVariableDeclarator.init;
 
-			// Make sure initObject is a reference of eventVariable
-			if (
-				references &&
-				references.some(reference => reference.identifier === initObject)
-			) {
-				return getProblem(node.value);
-			}
+		// Make sure initObject is a reference of eventVariable
+		if (
+			references
+			&& references.some(reference => reference.identifier === initObject)
+		) {
+			return getProblem(node.value);
+		}
 
-			// When the event parameter itself is destructured directly
-			const isEventParameterDestructured = event.type === 'ObjectPattern';
-			if (isEventParameterDestructured) {
-				// Check for properties
-				for (const property of event.properties) {
-					if (property === node) {
-						return getProblem(node.value);
-					}
+		// When the event parameter itself is destructured directly
+		const isEventParameterDestructured = event.type === 'ObjectPattern';
+		if (isEventParameterDestructured) {
+			// Check for properties
+			for (const property of event.properties) {
+				if (property === node) {
+					return getProblem(node.value);
 				}
 			}
-		},
-	};
-};
+		}
+	},
+});
 
 module.exports = {
 	create,

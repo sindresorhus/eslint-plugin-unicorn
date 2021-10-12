@@ -20,37 +20,35 @@ const destructuringSelector = [
 	'[name="innerText"]',
 ].join('');
 
-const create = () => {
-	return {
-		[memberExpressionPropertySelector](node) {
-			return {
-				node,
-				messageId: ERROR,
-				suggest: [
-					{
-						messageId: SUGGESTION,
-						fix: fixer => fixer.replaceText(node, 'textContent'),
-					},
-				],
-			};
-		},
-		[destructuringSelector](node) {
-			return {
-				node,
-				messageId: ERROR,
-				suggest: [
-					{
-						messageId: SUGGESTION,
-						fix: fixer => fixer.replaceText(
-							node,
-							node.parent.shorthand ? 'textContent: innerText' : 'textContent',
-						),
-					},
-				],
-			};
-		},
-	};
-};
+const create = () => ({
+	[memberExpressionPropertySelector](node) {
+		return {
+			node,
+			messageId: ERROR,
+			suggest: [
+				{
+					messageId: SUGGESTION,
+					fix: fixer => fixer.replaceText(node, 'textContent'),
+				},
+			],
+		};
+	},
+	[destructuringSelector](node) {
+		return {
+			node,
+			messageId: ERROR,
+			suggest: [
+				{
+					messageId: SUGGESTION,
+					fix: fixer => fixer.replaceText(
+						node,
+						node.parent.shorthand ? 'textContent: innerText' : 'textContent',
+					),
+				},
+			],
+		};
+	},
+});
 
 module.exports = {
 	create,

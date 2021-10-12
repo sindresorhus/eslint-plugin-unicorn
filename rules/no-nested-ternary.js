@@ -14,10 +14,9 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 
 	return {
-		[nestTernarySelector(3)]: node => {
+		[nestTernarySelector(3)]: node =>
 			// Nesting more than one level not allowed.
-			return {node, messageId: MESSAGE_ID_TOO_DEEP};
-		},
+			({node, messageId: MESSAGE_ID_TOO_DEEP}),
 		[nestTernarySelector(2)]: node => {
 			if (!isParenthesized(node, sourceCode)) {
 				return {

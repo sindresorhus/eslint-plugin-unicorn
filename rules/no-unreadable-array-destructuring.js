@@ -1,6 +1,7 @@
 'use strict';
 const {isParenthesized} = require('eslint-utils');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID = 'no-unreadable-array-destructuring';
 const messages = {
@@ -28,10 +29,10 @@ const create = context => {
 
 			const nonNullElements = elements.filter(node => node !== null);
 			if (
-				parent.type === 'VariableDeclarator' &&
-				parent.id === node &&
-				parent.init !== null &&
-				nonNullElements.length === 1
+				parent.type === 'VariableDeclarator'
+				&& parent.id === node
+				&& parent.init !== null
+				&& nonNullElements.length === 1
 			) {
 				const [element] = nonNullElements;
 
@@ -46,14 +47,16 @@ const create = context => {
 						const code = isSlice ? `.slice(${index})` : `[${index}]`;
 						const array = parent.init;
 						if (
-							!isParenthesized(array, sourceCode) &&
-							shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+							!isParenthesized(array, sourceCode)
+							&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
 						) {
 							yield fixer.insertTextBefore(array, '(');
 							yield fixer.insertTextAfter(parent, `)${code}`);
 						} else {
 							yield fixer.insertTextAfter(parent, code);
 						}
+
+						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 					};
 				}
 			}

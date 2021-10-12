@@ -10,7 +10,7 @@ const messages = {
 };
 
 const newRegExp = [
-	newExpressionSelector({name: 'RegExp', min: 1}),
+	newExpressionSelector({name: 'RegExp', minimumArguments: 1}),
 	'[arguments.0.type="Literal"]',
 ].join('');
 
@@ -70,11 +70,13 @@ const create = context => {
 			}
 
 			const oldPattern = patternNode.value;
-			const flags = flagsNode &&
-				flagsNode.type === 'Literal' &&
-				typeof flagsNode.value === 'string' ?
-				flagsNode.value :
-				'';
+			const flags = (
+				flagsNode
+				&& flagsNode.type === 'Literal'
+				&& typeof flagsNode.value === 'string'
+			)
+				? flagsNode.value
+				: '';
 
 			const newPattern = cleanRegexp(oldPattern, flags);
 

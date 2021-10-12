@@ -9,15 +9,15 @@ const {callExpressionSelector} = require('./call-or-new-expression-selector.js')
 		path?: string,
 
 		// `CallExpression` options
-		length?: string,
-		min?: number,
-		max?: number,
+		argumentsLength?: number,
+		minimumArguments?: number,
+		maximumArguments?: number,
 		includeOptionalCall?: boolean,
 		allowSpreadElement?: boolean,
 
 		// `MemberExpression` options
-		name?: string,
-		names?: string[],
+		method?: string,
+		methods?: string[],
 		object?: string,
 		objects?: string[],
 		includeOptionalMember?: boolean,
@@ -26,24 +26,27 @@ const {callExpressionSelector} = require('./call-or-new-expression-selector.js')
 } [options]
 @returns {string}
 */
-
 function methodCallSelector(options) {
 	if (typeof options === 'string') {
-		options = {names: [options]};
+		options = {methods: [options]};
 	}
 
 	if (Array.isArray(options)) {
-		options = {names: options};
+		options = {methods: options};
 	}
 
 	const {
 		path,
 		includeOptionalCall,
 		includeOptionalMember,
+		method,
+		methods,
 	} = {
 		path: '',
 		includeOptionalCall: false,
 		includeOptionalMember: false,
+		method: '',
+		methods: [],
 		...options,
 	};
 
@@ -51,12 +54,14 @@ function methodCallSelector(options) {
 
 	return [
 		callExpressionSelector({
-			...pick(options, ['path', 'length', 'min', 'max', 'allowSpreadElement']),
+			...pick(options, ['path', 'argumentsLength', 'minimumArguments', 'maximumArguments', 'allowSpreadElement']),
 			includeOptional: includeOptionalCall,
 		}),
 		memberExpressionSelector({
-			...pick(options, ['name', 'names', 'min', 'object', 'objects', 'allowComputed']),
+			...pick(options, ['object', 'objects', 'allowComputed']),
 			path: `${prefix}callee`,
+			property: method,
+			properties: methods,
 			includeOptional: includeOptionalMember,
 		}),
 	].join('');

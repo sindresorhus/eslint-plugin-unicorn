@@ -9,6 +9,7 @@ const needsSemicolon = require('./utils/needs-semicolon.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches.js');
 const {getParenthesizedText, isParenthesized} = require('./utils/parentheses.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-array-flat';
 const messages = {
@@ -19,8 +20,8 @@ const messages = {
 const arrayFlatMap = {
 	selector: [
 		methodCallSelector({
-			name: 'flatMap',
-			length: 1,
+			method: 'flatMap',
+			argumentsLength: 1,
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
 		'[arguments.0.async!=true]',
@@ -38,8 +39,8 @@ const arrayFlatMap = {
 const arrayReduce = {
 	selector: [
 		methodCallSelector({
-			name: 'reduce',
-			length: 2,
+			method: 'reduce',
+			argumentsLength: 2,
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
 		'[arguments.0.async!=true]',
@@ -48,16 +49,17 @@ const arrayReduce = {
 		'[arguments.0.params.0.type="Identifier"]',
 		'[arguments.0.params.1.type="Identifier"]',
 		methodCallSelector({
-			name: 'concat',
-			length: 1,
+			method: 'concat',
+			argumentsLength: 1,
 			path: 'arguments.0.body',
 		}),
 		'[arguments.0.body.callee.object.type="Identifier"]',
 		'[arguments.0.body.arguments.0.type="Identifier"]',
 		emptyArraySelector('arguments.1'),
 	].join(''),
-	testFunction: node => node.arguments[0].params[0].name === node.arguments[0].body.callee.object.name &&
-		node.arguments[0].params[1].name === node.arguments[0].body.arguments[0].name,
+	testFunction: node =>
+		node.arguments[0].params[0].name === node.arguments[0].body.callee.object.name
+		&& node.arguments[0].params[1].name === node.arguments[0].body.arguments[0].name,
 	getArrayNode: node => node.callee.object,
 	description: 'Array#reduce()',
 };
@@ -66,8 +68,8 @@ const arrayReduce = {
 const arrayReduce2 = {
 	selector: [
 		methodCallSelector({
-			name: 'reduce',
-			length: 2,
+			method: 'reduce',
+			argumentsLength: 2,
 		}),
 		'[arguments.0.type="ArrowFunctionExpression"]',
 		'[arguments.0.async!=true]',
@@ -83,8 +85,9 @@ const arrayReduce2 = {
 		'[arguments.0.body.elements.1.argument.type="Identifier"]',
 		emptyArraySelector('arguments.1'),
 	].join(''),
-	testFunction: node => node.arguments[0].params[0].name === node.arguments[0].body.elements[0].argument.name &&
-		node.arguments[0].params[1].name === node.arguments[0].body.elements[1].argument.name,
+	testFunction: node =>
+		node.arguments[0].params[0].name === node.arguments[0].body.elements[0].argument.name
+		&& node.arguments[0].params[1].name === node.arguments[0].body.elements[1].argument.name,
 	getArrayNode: node => node.callee.object,
 	description: 'Array#reduce()',
 };
@@ -93,8 +96,8 @@ const arrayReduce2 = {
 const emptyArrayConcat = {
 	selector: [
 		methodCallSelector({
-			name: 'concat',
-			length: 1,
+			method: 'concat',
+			argumentsLength: 1,
 			allowSpreadElement: true,
 		}),
 		emptyArraySelector('callee.object'),
@@ -113,14 +116,14 @@ const emptyArrayConcat = {
 const arrayPrototypeConcat = {
 	selector: [
 		methodCallSelector({
-			names: ['apply', 'call'],
-			length: 2,
+			methods: ['apply', 'call'],
+			argumentsLength: 2,
 			allowSpreadElement: true,
 		}),
 		emptyArraySelector('arguments.0'),
 		arrayPrototypeMethodSelector({
 			path: 'callee.object',
-			name: 'concat',
+			method: 'concat',
 		}),
 	].join(''),
 	testFunction: node => node.arguments[1].type !== 'SpreadElement' || node.callee.property.name === 'call',
@@ -138,7 +141,7 @@ const lodashFlattenFunctions = [
 	'underscore.flatten',
 ];
 const anyCall = {
-	selector: callExpressionSelector({length: 1}),
+	selector: callExpressionSelector({argumentsLength: 1}),
 	getArrayNode: node => node.arguments[0],
 };
 
@@ -147,15 +150,15 @@ function fix(node, array, sourceCode, shouldSwitchToArray) {
 		shouldSwitchToArray = shouldSwitchToArray(node);
 	}
 
-	return fixer => {
+	return function * (fixer) {
 		let fixed = getParenthesizedText(array, sourceCode);
 		if (shouldSwitchToArray) {
 			// `array` is an argument, when it changes to `array[]`, we don't need add extra parentheses
 			fixed = `[${fixed}]`;
 			// And we don't need to add parentheses to the new array to call `.flat()`
 		} else if (
-			!isParenthesized(array, sourceCode) &&
-			shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+			!isParenthesized(array, sourceCode)
+			&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
 		) {
 			fixed = `(${fixed})`;
 		}
@@ -167,7 +170,9 @@ function fix(node, array, sourceCode, shouldSwitchToArray) {
 			fixed = `;${fixed}`;
 		}
 
-		return fixer.replaceText(node, fixed);
+		yield fixer.replaceText(node, fixed);
+
+		yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 	};
 }
 
@@ -213,8 +218,8 @@ function create(context) {
 
 			// Don't fix if it has comments.
 			if (
-				sourceCode.getCommentsInside(node).length ===
-				sourceCode.getCommentsInside(array).length
+				sourceCode.getCommentsInside(node).length
+				=== sourceCode.getCommentsInside(array).length
 			) {
 				problem.fix = fix(node, array, sourceCode, shouldSwitchToArray);
 			}

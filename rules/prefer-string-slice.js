@@ -1,5 +1,6 @@
 'use strict';
 const eslintTemplateVisitor = require('eslint-template-visitor');
+const {getParenthesizedText} = require('./utils/parentheses.js');
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -30,31 +31,17 @@ const getNumericValue = node => {
 
 // This handles cases where the argument is very likely to be a number, such as `.substring('foo'.length)`.
 const isLengthProperty = node => (
-	node &&
-	node.type === 'MemberExpression' &&
-	node.computed === false &&
-	node.property.type === 'Identifier' &&
-	node.property.name === 'length'
+	node
+	&& node.type === 'MemberExpression'
+	&& node.computed === false
+	&& node.property.type === 'Identifier'
+	&& node.property.name === 'length'
 );
 
 const isLikelyNumeric = node => isLiteralNumber(node) || isLengthProperty(node);
 
 const create = context => {
 	const sourceCode = context.getSourceCode();
-
-	const getNodeText = node => {
-		const text = sourceCode.getText(node);
-		const before = sourceCode.getTokenBefore(node);
-		const after = sourceCode.getTokenAfter(node);
-		if (
-			(before && before.type === 'Punctuator' && before.value === '(') &&
-			(after && after.type === 'Punctuator' && after.value === ')')
-		) {
-			return `(${text})`;
-		}
-
-		return text;
-	};
 
 	return templates.visitor({
 		[substrCallTemplate](node) {
@@ -93,16 +80,16 @@ const create = context => {
 							sliceArguments.push(`Math.max(0, ${secondArgument})`);
 						}
 					} else if (
-						isLiteralNumber(argumentNodes[0]) &&
-						isLiteralNumber(argumentNodes[1])
+						isLiteralNumber(argumentNodes[0])
+						&& isLiteralNumber(argumentNodes[1])
 					) {
 						sliceArguments = [
 							firstArgument,
 							argumentNodes[0].value + argumentNodes[1].value,
 						];
 					} else if (
-						isLikelyNumeric(argumentNodes[0]) &&
-					isLikelyNumeric(argumentNodes[1])
+						isLikelyNumeric(argumentNodes[0])
+						&& isLikelyNumeric(argumentNodes[1])
 					) {
 						sliceArguments = [firstArgument, firstArgument + ' + ' + secondArgument];
 					}
@@ -113,7 +100,7 @@ const create = context => {
 			}
 
 			if (sliceArguments) {
-				const objectText = getNodeText(objectNode);
+				const objectText = getParenthesizedText(objectNode, sourceCode);
 				const optionalMemberSuffix = node.callee.optional ? '?' : '';
 				const optionalCallSuffix = node.optional ? '?.' : '';
 
@@ -161,9 +148,9 @@ const create = context => {
 					const secondNumber = getNumericValue(argumentNodes[1]);
 
 					if (firstNumber !== undefined && secondNumber !== undefined) {
-						sliceArguments = firstNumber > secondNumber ?
-							[Math.max(0, secondNumber), Math.max(0, firstNumber)] :
-							[Math.max(0, firstNumber), Math.max(0, secondNumber)];
+						sliceArguments = firstNumber > secondNumber
+							? [Math.max(0, secondNumber), Math.max(0, firstNumber)]
+							: [Math.max(0, firstNumber), Math.max(0, secondNumber)];
 					} else if (firstNumber === 0 || secondNumber === 0) {
 						sliceArguments = [0, `Math.max(0, ${firstNumber === 0 ? secondArgument : firstArgument})`];
 					} else {
@@ -181,7 +168,7 @@ const create = context => {
 			}
 
 			if (sliceArguments) {
-				const objectText = getNodeText(objectNode);
+				const objectText = getParenthesizedText(objectNode, sourceCode);
 				const optionalMemberSuffix = node.callee.optional ? '?' : '';
 				const optionalCallSuffix = node.optional ? '?.' : '';
 

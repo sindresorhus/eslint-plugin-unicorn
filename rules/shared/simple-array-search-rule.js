@@ -52,8 +52,8 @@ function simpleArraySearchRule({method, replacement}) {
 
 	const selector = [
 		methodCallSelector({
-			name: method,
-			length: 1,
+			method,
+			argumentsLength: 1,
 		}),
 		callbackFunctionSelector('arguments.0'),
 	].join('');
@@ -65,9 +65,9 @@ function simpleArraySearchRule({method, replacement}) {
 		return {
 			[selector](node) {
 				const [callback] = node.arguments;
-				const binaryExpression = callback.body.type === 'BinaryExpression' ?
-					callback.body :
-					callback.body.body[0].argument;
+				const binaryExpression = callback.body.type === 'BinaryExpression'
+					? callback.body
+					: callback.body.body[0].argument;
 				const [parameter] = callback.params;
 				const {left, right} = binaryExpression;
 				const {name} = parameter;
@@ -87,8 +87,8 @@ function simpleArraySearchRule({method, replacement}) {
 				const callbackScope = scopeManager.acquire(callback);
 				if (
 					// `parameter` is used somewhere else
-					findVariable(callbackScope, parameter).references.some(({identifier}) => identifier !== parameterInBinaryExpression) ||
-					isFunctionSelfUsedInside(callback, callbackScope)
+					findVariable(callbackScope, parameter).references.some(({identifier}) => identifier !== parameterInBinaryExpression)
+					|| isFunctionSelfUsedInside(callback, callbackScope)
 				) {
 					return;
 				}

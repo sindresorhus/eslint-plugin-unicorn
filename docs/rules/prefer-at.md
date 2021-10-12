@@ -85,7 +85,7 @@ Example:
 // eslint unicorn/prefer-at: ["error", {"checkAllIndexAccess": true}]
 const foo = bar[10]; // Fails, will fix to `bar.at(10)`
 const foo = bar[unknownProperty]; // Passes
-const foo = string.chatAt(unknownIndex); // Fails
+const foo = string.charAt(unknownIndex); // Fails
 ```
 
 ### getLastElementFunctions
@@ -94,7 +94,7 @@ Type: `string[]`
 
 You can also check custom functions that get last element of objects.
 
-`_.last()`, `lodash.last()`, and `underscore.last()` are checked by default.
+`_.last()`, `lodash.last()`, and `underscore.last()` are always checked.
 
 Example:
 

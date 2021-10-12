@@ -14,7 +14,7 @@ const messages = {
 
 const arrayPushExpressionStatement = [
 	'ExpressionStatement',
-	methodCallSelector({path: 'expression', name: 'push'}),
+	methodCallSelector({path: 'expression', method: 'push'}),
 ].join('');
 
 const selector = `${arrayPushExpressionStatement} + ${arrayPushExpressionStatement}`;
@@ -76,14 +76,14 @@ function create(context) {
 
 					const [penultimateToken, lastToken] = sourceCode.getLastTokens(firstCall, 2);
 					yield (
-						isCommaToken(penultimateToken) ?
-							fixer.insertTextAfter(penultimateToken, ` ${text}`) :
-							fixer.insertTextBefore(lastToken, firstCall.arguments.length > 0 ? `, ${text}` : text)
+						isCommaToken(penultimateToken)
+							? fixer.insertTextAfter(penultimateToken, ` ${text}`)
+							: fixer.insertTextBefore(lastToken, firstCall.arguments.length > 0 ? `, ${text}` : text)
 					);
 				}
 
-				const shouldKeepSemicolon = !isSemicolonToken(sourceCode.getLastToken(firstExpression)) &&
-					isSemicolonToken(sourceCode.getLastToken(secondExpression));
+				const shouldKeepSemicolon = !isSemicolonToken(sourceCode.getLastToken(firstExpression))
+					&& isSemicolonToken(sourceCode.getLastToken(secondExpression));
 
 				yield fixer.replaceTextRange(
 					[firstExpression.range[1], secondExpression.range[1]],

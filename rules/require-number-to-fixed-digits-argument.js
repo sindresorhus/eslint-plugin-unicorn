@@ -8,8 +8,8 @@ const messages = {
 };
 
 const mathToFixed = methodCallSelector({
-	name: 'toFixed',
-	length: 0,
+	method: 'toFixed',
+	argumentsLength: 0,
 });
 
 /** @param {import('eslint').Rule.RuleContext} context */
