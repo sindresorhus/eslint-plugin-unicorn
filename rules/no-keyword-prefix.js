@@ -1,4 +1,5 @@
 'use strict';
+const isShorthandPropertyAssignmentPatternLeft = require('./utils/is-shorthand-property-assignment-pattern-left.js');
 
 const MESSAGE_ID = 'noKeywordPrefix';
 const messages = {
@@ -130,6 +131,7 @@ const create = context => {
 					Boolean(keyword)
 					&& !ALLOWED_PARENT_TYPES.has(effectiveParent.type)
 					&& !(parent.right === node)
+					&& !isShorthandPropertyAssignmentPatternLeft(node)
 				) {
 					report(node, keyword);
 				}

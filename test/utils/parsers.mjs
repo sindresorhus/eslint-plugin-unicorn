@@ -59,10 +59,18 @@ const vue = {
 		return require.resolve(this.name);
 	},
 	mergeParserOptions(options) {
-		return {
+		options = {
 			...defaultParserOptions,
 			...options,
 		};
+
+		// The `espree` version in `vue-eslint-parser` does not understand `'latest'` yet.
+		// https://github.com/vuejs/vue-eslint-parser/pull/113
+		if (options.ecmaVersion === 'latest') {
+			options.ecmaVersion = require('espree').latestEcmaVersion;
+		}
+
+		return options;
 	},
 };
 

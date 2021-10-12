@@ -72,7 +72,7 @@ module.exports = {
 		'unicorn/prefer-node-protocol': 'error',
 		'unicorn/prefer-number-properties': 'error',
 		'unicorn/prefer-object-from-entries': 'error',
-		// TODO: Enable this by default when targeting a Node.js version that supports `Object.hasOwn`.
+		// TODO: Enable this by default when targeting Node.js 16.
 		'unicorn/prefer-object-has-own': 'off',
 		'unicorn/prefer-optional-catch-binding': 'error',
 		'unicorn/prefer-prototype-methods': 'error',
@@ -96,6 +96,7 @@ module.exports = {
 		'unicorn/require-number-to-fixed-digits-argument': 'error',
 		'unicorn/require-post-message-target-origin': 'error',
 		'unicorn/string-content': 'off',
+		'unicorn/template-indent': 'warn',
 		'unicorn/throw-new-error': 'error',
 		...require('./conflicting-rules.js').rules,
 	},
