@@ -108,7 +108,7 @@ module.exports = {
 			description: 'Enforce the use of `Math.trunc` instead of bitwise operators.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

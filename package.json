@@ -65,7 +65,7 @@
 		"enquirer": "2.3.6",
 		"eslint": "^8.0.0",
 		"eslint-ava-rule-tester": "^4.0.0",
-		"eslint-plugin-eslint-plugin": "^3.5.3",
+		"eslint-plugin-eslint-plugin": "^4.0.1",
 		"eslint-remote-tester": "^1.3.0",
 		"eslint-remote-tester-repositories": "^0.0.3",
 		"execa": "^5.1.1",

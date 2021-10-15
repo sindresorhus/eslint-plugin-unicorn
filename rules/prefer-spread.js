@@ -482,7 +482,7 @@ module.exports = {
 			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#slice()` and `String#split(\'\')`.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

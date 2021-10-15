@@ -111,8 +111,8 @@ module.exports = {
 			description: 'Disallow the use of the `null` literal.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		messages,
-		hasSuggestions: true,
 	},
 };

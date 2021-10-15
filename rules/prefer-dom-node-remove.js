@@ -75,7 +75,7 @@ module.exports = {
 			description: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

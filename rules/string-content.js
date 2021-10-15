@@ -179,8 +179,8 @@ module.exports = {
 			description: 'Enforce better string content.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		messages,
-		hasSuggestions: true,
 	},
 };
