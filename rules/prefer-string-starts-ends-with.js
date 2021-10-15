@@ -179,7 +179,7 @@ module.exports = {
 			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };
