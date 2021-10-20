@@ -44,7 +44,7 @@ function isStaticMember(node) {
 		return false;
 	}
 
-	if (!isStatic || isPrivate) {
+	if (!isStatic || isPrivate || key.type === 'PrivateIdentifier') {
 		return false;
 	}
 
