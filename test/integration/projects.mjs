@@ -88,8 +88,8 @@ export default [
 	// 		'build/**'
 	// 	]
 	// },
-	// 'https://github.com/ElemeFE/element',
-	// 'https://github.com/iview/iview',
+	'https://github.com/ElemeFE/element',
+	'https://github.com/iview/iview',
 	'https://github.com/sindresorhus/create-dmg',
 	'https://github.com/sindresorhus/cp-file',
 	'https://github.com/sindresorhus/capture-website',
