@@ -157,10 +157,10 @@ module.exports = {
 			description: 'Use destructured variables over properties.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages: {
 			[MESSAGE_ID]: 'Use destructured variables over properties.',
 			[MESSAGE_ID_SUGGEST]: 'Replace `{{expression}}` with destructured property `{{property}}`.',
 		},
-		hasSuggestions: true,
 	},
 };

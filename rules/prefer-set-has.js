@@ -194,7 +194,7 @@ module.exports = {
 			description: 'Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

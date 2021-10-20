@@ -128,8 +128,8 @@ module.exports = {
 			description: 'Enforce combining multiple `Array#push()` into one call.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		messages,
-		hasSuggestions: true,
 	},
 };

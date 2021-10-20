@@ -162,7 +162,7 @@ module.exports = {
 			description: 'Disallow using the `this` argument in array methods.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

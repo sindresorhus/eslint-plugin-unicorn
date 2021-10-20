@@ -216,10 +216,10 @@ module.exports = {
 			description: 'Prefer default parameters over reassignment.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages: {
 			[MESSAGE_ID]: 'Prefer default parameters over reassignment.',
 			[MESSAGE_ID_SUGGEST]: 'Replace reassignment with default parameter.',
 		},
-		hasSuggestions: true,
 	},
 };

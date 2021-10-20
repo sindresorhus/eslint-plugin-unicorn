@@ -329,7 +329,7 @@ module.exports = {
 			description: 'Prefer `.find(…)` over the first element from `.filter(…)`.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };
