@@ -25,6 +25,11 @@ test.snapshot({
 		'React.Children.forEach(children, () => {})',
 		'Children.forEach(children, () => {})',
 		'Vue.filter("capitalize", () => {})',
+		'R.filter(() => {}, [])',
+		'R.find(() => {}, [])',
+		'R.findIndex(() => {}, [])',
+		'R.forEach(() => {}, [])',
+		'R.map(() => {}, [])',
 		// `jQuery.find` and `jQuery.filter` don't accept second argument
 		'$( "li" ).filter( ":nth-child(2n)" ).css( "background-color", "red" );',
 		'$( "li.item-ii" ).find( "li" ).css( "background-color", "red" );',
