@@ -1,4 +1,6 @@
 'use strict';
+const {checkVueTemplate} = require('./utils/rule.js');
+
 const MESSAGE_ID = 'no-empty-file';
 const messages = {
 	[MESSAGE_ID]: 'Empty files are not allowed.',
@@ -26,7 +28,7 @@ const create = () => ({
 });
 
 module.exports = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {

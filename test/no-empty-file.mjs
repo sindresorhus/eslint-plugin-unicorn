@@ -61,13 +61,74 @@ test.snapshot({
 		parser: parsers.vue,
 	},
 	valid: [
-		'<template></template>',
-		'<style></style>',
-		'<script></script>',
-		'<script>;</script>',
-		'<custom-block></custom-block>',
+		outdent`
+			<script>
+			export default {
+				render () {
+					return (
+						<p>Script</p>
+					)
+				}
+			}
+			</script>
+		`,
+		outdent`
+			<script setup>
+				console.log('🦄');
+			</script>
+			<template></template>
+		`,
+		'<script src="./imports/script.js"></script>',
+		outdent`
+			<style src="./imports/style.css"></style>
+			<template></template>
+		`,
+		outdent`
+			<style module src="./imports/style.module.css"></style>
+			<template></template>
+		`,
+		'<template src="./imports/template.html"></template>',
+		outdent`
+			<style>
+			html {
+				background-color: purple;
+			}
+			</style>
+			<template></template>
+		`,
+		outdent`
+			<style module>
+			p {
+				background-color: purple;
+			}
+			</style>
+			<template></template>
+		`,
+		outdent`
+			<template>
+				<p>Template</p>
+			</template>
+		`,
 	],
 	invalid: [
-		'   ',
+		'',
+		'	',
+		outdent`
+			<style scoped src="./imports/style.scoped.css"></style>
+			<template></template>
+		`,
+		outdent`
+			<style scoped>
+			html {
+				background-color: purple;
+			}
+			</style>
+			<template></template>
+		`,
+		'<template><!-- template comment --></template>',
+		outdent`
+			<script setup>;</script>
+			<template></template>
+		`,
 	],
 });
