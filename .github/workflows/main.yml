@@ -34,7 +34,7 @@ jobs:
         with:
           node-version: 16
       - run: npm install --legacy-peer-deps
-      # - run: npx xo
+      - run: npx xo
       # Force update snapshots, https://github.com/avajs/ava/discussions/2754
       - run: npx nyc ava --update-snapshots
         env:
@@ -45,8 +45,6 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           fail_ci_if_error: true
-      # `xo` can't work on ESLint 8
-      - run: npm install eslint@7 && npx xo
   run-rules-on-codebase:
     runs-on: ubuntu-latest
     steps:
