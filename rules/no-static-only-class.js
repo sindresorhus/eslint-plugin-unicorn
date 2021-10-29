@@ -66,11 +66,7 @@ function isStaticMember(node) {
 function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 	const staticToken = sourceCode.getFirstToken(node);
 	assertToken(staticToken, {
-		expected: [
-			{type: 'Keyword', value: 'static'},
-			// `@babel/eslint-parser` use `{type: 'Identifier', value: 'static'}`
-			{type: 'Identifier', value: 'static'},
-		],
+		expected: {type: 'Keyword', value: 'static'},
 		ruleId: 'no-static-only-class',
 	});
 

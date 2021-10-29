@@ -24,14 +24,17 @@ const ignored = [
 	'_.filter',
 	'underscore.filter',
 	'Vue.filter',
+	'R.filter',
 
 	'lodash.find',
 	'_.find',
 	'underscore.find',
+	'R.find',
 
 	'lodash.findIndex',
 	'_.findIndex',
 	'underscore.findIndex',
+	'R.findIndex',
 
 	'lodash.flatMap',
 	'_.flatMap',
@@ -40,6 +43,7 @@ const ignored = [
 	'_.forEach',
 	'React.Children.forEach',
 	'Children.forEach',
+	'R.forEach',
 
 	'lodash.map',
 	'_.map',
@@ -48,6 +52,7 @@ const ignored = [
 	'Children.map',
 	'jQuery.map',
 	'$.map',
+	'R.map',
 
 	'lodash.some',
 	'_.some',
