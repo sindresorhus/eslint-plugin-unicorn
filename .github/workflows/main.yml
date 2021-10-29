@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm install --legacy-peer-deps
+      - run: npm install
       - run: npx ava
   lint-test:
     runs-on: ubuntu-latest
@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 16
-      - run: npm install --legacy-peer-deps
+      - run: npm install
       - run: npx xo
       # Force update snapshots, https://github.com/avajs/ava/discussions/2754
       - run: npx nyc ava --update-snapshots
@@ -50,12 +50,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-      - run: npm install --legacy-peer-deps
+      - run: npm install
       - run: npm run run-rules-on-codebase
   integration:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-      - run: npm install --legacy-peer-deps
+      - run: npm install
       - run: npm run integration
