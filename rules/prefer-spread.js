@@ -446,6 +446,7 @@ const create = context => {
 					return;
 				}
 
+				// eslint-disable-next-line unicorn/prefer-spread
 				const resultBySplit = value.split('');
 				const resultBySpread = [...value];
 
