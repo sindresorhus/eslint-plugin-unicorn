@@ -75,7 +75,7 @@
 		"nyc": "^15.1.0",
 		"outdent": "^0.8.0",
 		"typescript": "^4.4.2",
-		"vue-eslint-parser": "^7.11.0",
+		"vue-eslint-parser": "^8.0.0",
 		"xo": "^0.44.0"
 	},
 	"peerDependencies": {
