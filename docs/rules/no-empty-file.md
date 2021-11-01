@@ -9,6 +9,7 @@ Disallow any files only containing the following:
 - Directives
 - Empty statements
 - Empty block statements
+- Hashbang
 
 ## Fail
 
@@ -35,6 +36,10 @@ Disallow any files only containing the following:
 ```js
 {
 }
+```
+
+```js
+#!/usr/bin/env node
 ```
 
 ## Pass
