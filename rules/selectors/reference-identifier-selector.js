@@ -13,8 +13,6 @@ const nonReferenceSelectors = [
 	'ClassDeclaration > .id',
 	// `const foo = class Identifier() {}`
 	'ClassExpression > .id',
-	// TODO: remove `ClassProperty` when `babel` and `typescript` support `PropertyDefinition`
-	'ClassProperty[computed!=true] > .key',
 	// `class Foo {Identifier = 1}`
 	'PropertyDefinition[computed!=true] > .key',
 	// `class Foo {Identifier() {}}`
