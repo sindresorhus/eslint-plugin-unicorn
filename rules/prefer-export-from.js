@@ -221,7 +221,8 @@ function * getProblems({
 		}
 
 		/*
-		There is no substitution for
+		There is no substitution for:
+
 		```js
 		import * as foo from 'foo';
 		export default foo;
