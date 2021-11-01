@@ -52,11 +52,6 @@ test.snapshot({
 			import * as namespace from 'foo';
 			export {namespace as default};
 		`,
-		outdent`
-			import * as namespace from 'foo';
-			export default namespace;
-			export {namespace};
-		`,
 		// Cases we are not handled
 		outdent`
 			import defaultExport from 'foo';
@@ -245,11 +240,6 @@ test.snapshot({
 			export {foo, bar};
 		`,
 		outdent`
-			import * as namespace from 'foo';
-			export {namespace};
-			export default namespace;
-		`,
-		outdent`
 			import * as foo from 'foo';
 			export {foo, foo as bar};
 		`,
@@ -273,6 +263,25 @@ test.snapshot({
 			import defaultExport from './foo.js';
 			export {named} from './foo.js?query';
 			export default defaultExport;
+		`,
+	],
+});
+
+// Strange case
+// TODO: confirm how should this work
+test.snapshot({
+	valid: [
+		outdent`
+			import * as namespace from 'foo';
+			export default namespace;
+			export {namespace};
+		`,
+	],
+	invalid: [
+		outdent`
+			import * as namespace from 'foo';
+			export {namespace};
+			export default namespace;
 		`,
 	],
 });
