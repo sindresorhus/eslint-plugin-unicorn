@@ -93,9 +93,9 @@ function fix({
 				`\nexport * as ${exported.name} from ${sourceText};`,
 			);
 		} else {
-			const specifier = exported.name === imported.name ?
-				exported.name :
-				`${imported.name} as ${exported.name}`;
+			const specifier = exported.name === imported.name
+				? exported.name
+				: `${imported.name} as ${exported.name}`;
 
 			if (exportDeclaration) {
 				const lastSpecifier = exportDeclaration.specifiers[exportDeclaration.specifiers.length - 1];
@@ -155,14 +155,14 @@ function getExported(identifier, context) {
 
 		case 'VariableDeclarator': {
 			if (
-				parent.init === identifier &&
-				parent.id.type === 'Identifier' &&
-				parent.parent.type === 'VariableDeclaration' &&
-				parent.parent.kind === 'const' &&
-				parent.parent.declarations.length === 1 &&
-				parent.parent.declarations[0] === parent &&
-				parent.parent.parent.type === 'ExportNamedDeclaration' &&
-				isVariableUnused(parent, context)
+				parent.init === identifier
+				&& parent.id.type === 'Identifier'
+				&& parent.parent.type === 'VariableDeclaration'
+				&& parent.parent.kind === 'const'
+				&& parent.parent.declarations.length === 1
+				&& parent.parent.declarations[0] === parent
+				&& parent.parent.parent.type === 'ExportNamedDeclaration'
+				&& isVariableUnused(parent, context)
 			) {
 				return {
 					node: parent.parent.parent,
@@ -186,10 +186,10 @@ function isVariableUnused(node, context) {
 	}
 
 	const [{identifiers, references}] = variables;
-	return identifiers.length === 1 &&
-		identifiers[0] === node.id &&
-		references.length === 1 &&
-		references[0].identifier === node.id;
+	return identifiers.length === 1
+		&& identifiers[0] === node.id
+		&& references.length === 1
+		&& references[0].identifier === node.id;
 }
 
 function * getProblems({
