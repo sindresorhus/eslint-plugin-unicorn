@@ -62,23 +62,23 @@ const shouldIgnore = node => {
 	if (node.type === 'Identifier') {
 		name = node.name;
 	} else if (
-		node.type === 'MemberExpression' &&
-		node.computed === false &&
-		node.property &&
-		node.property.type === 'Identifier'
+		node.type === 'MemberExpression'
+		&& node.computed === false
+		&& node.property
+		&& node.property.type === 'Identifier'
 	) {
 		name = node.property.name;
 	}
 
-	return compareFunctionNames.has(name) ||
+	return compareFunctionNames.has(name)
 		// `set.add(undefined)`
-		name === 'add' ||
+		|| name === 'add'
 		// `map.set(foo, undefined)`
-		name === 'set' ||
+		|| name === 'set'
 		// `array.push(undefined)`
-		name === 'push' ||
+		|| name === 'push'
 		// `array.unshift(undefined)`
-		name === 'unshift';
+		|| name === 'unshift';
 };
 
 const getFunction = scope => {
@@ -172,7 +172,7 @@ const create = context => {
 						start = previousArgument.range[1];
 					} else {
 						// If all arguments removed, and there is trailing comma, we need remove it.
-						const tokenAfter = context.getTokenAfter(lastUndefined);
+						const tokenAfter = sourceCode.getTokenAfter(lastUndefined);
 						if (isCommaToken(tokenAfter)) {
 							end = tokenAfter.range[1];
 						}

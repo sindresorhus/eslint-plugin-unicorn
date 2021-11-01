@@ -32,14 +32,14 @@ const hasValidSuperClass = node => {
 };
 
 const isSuperExpression = node =>
-	node.type === 'ExpressionStatement' &&
-	node.expression.type === 'CallExpression' &&
-	node.expression.callee.type === 'Super';
+	node.type === 'ExpressionStatement'
+	&& node.expression.type === 'CallExpression'
+	&& node.expression.callee.type === 'Super';
 
 const isAssignmentExpression = (node, name) => {
 	if (
-		node.type !== 'ExpressionStatement' ||
-		node.expression.type !== 'AssignmentExpression'
+		node.type !== 'ExpressionStatement'
+		|| node.expression.type !== 'AssignmentExpression'
 	) {
 		return false;
 	}
@@ -53,22 +53,11 @@ const isAssignmentExpression = (node, name) => {
 	return lhs.property.name === name;
 };
 
-const isPropertyDefinition = (node, name) => {
-	const {type, computed, key} = node;
-	if (type !== 'PropertyDefinition' && type !== 'ClassProperty') {
-		return false;
-	}
-
-	if (computed) {
-		return false;
-	}
-
-	if (key.type !== 'Identifier') {
-		return false;
-	}
-
-	return key.name === name;
-};
+const isPropertyDefinition = (node, name) =>
+	node.type === 'PropertyDefinition'
+	&& !node.computed
+	&& node.key.type === 'Identifier'
+	&& node.key.name === name;
 
 function * customErrorDefinition(context, node) {
 	if (!hasValidSuperClass(node)) {
@@ -193,13 +182,11 @@ const customErrorExport = (context, node) => {
 	};
 };
 
-const create = context => {
-	return {
-		ClassDeclaration: node => customErrorDefinition(context, node),
-		'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
-		'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node),
-	};
-};
+const create = context => ({
+	ClassDeclaration: node => customErrorDefinition(context, node),
+	'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
+	'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node),
+});
 
 module.exports = {
 	create,

@@ -34,8 +34,8 @@ const inferMethod = (bufferArguments, scope) => {
 		}
 
 		if (
-			typeof value === 'string' ||
-			Array.isArray(value)
+			typeof value === 'string'
+			|| Array.isArray(value)
 		) {
 			return 'from';
 		}
@@ -85,7 +85,7 @@ module.exports = {
 			description: 'Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

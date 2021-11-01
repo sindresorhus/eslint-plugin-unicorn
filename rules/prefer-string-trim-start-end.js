@@ -15,21 +15,19 @@ const selector = [
 	' > .property',
 ].join(' ');
 
-const create = () => {
-	return {
-		[selector](node) {
-			const method = node.name;
-			const replacement = method === 'trimLeft' ? 'trimStart' : 'trimEnd';
+const create = () => ({
+	[selector](node) {
+		const method = node.name;
+		const replacement = method === 'trimLeft' ? 'trimStart' : 'trimEnd';
 
-			return {
-				node,
-				messageId: MESSAGE_ID,
-				data: {method, replacement},
-				fix: fixer => fixer.replaceText(node, replacement),
-			};
-		},
-	};
-};
+		return {
+			node,
+			messageId: MESSAGE_ID,
+			data: {method, replacement},
+			fix: fixer => fixer.replaceText(node, replacement),
+		};
+	},
+});
 
 module.exports = {
 	create,

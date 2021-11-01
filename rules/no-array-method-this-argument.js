@@ -24,14 +24,17 @@ const ignored = [
 	'_.filter',
 	'underscore.filter',
 	'Vue.filter',
+	'R.filter',
 
 	'lodash.find',
 	'_.find',
 	'underscore.find',
+	'R.find',
 
 	'lodash.findIndex',
 	'_.findIndex',
 	'underscore.findIndex',
+	'R.findIndex',
 
 	'lodash.flatMap',
 	'_.flatMap',
@@ -40,6 +43,7 @@ const ignored = [
 	'_.forEach',
 	'React.Children.forEach',
 	'Children.forEach',
+	'R.forEach',
 
 	'lodash.map',
 	'_.map',
@@ -48,6 +52,7 @@ const ignored = [
 	'Children.map',
 	'jQuery.map',
 	'$.map',
+	'R.map',
 
 	'lodash.some',
 	'_.some',
@@ -83,12 +88,12 @@ function useBoundFunction(callExpression, sourceCode) {
 
 		const callbackParentheses = getParentheses(callback, sourceCode);
 		const isParenthesized = callbackParentheses.length > 0;
-		const callbackLastToken = isParenthesized ?
-			callbackParentheses[callbackParentheses.length - 1] :
-			callback;
+		const callbackLastToken = isParenthesized
+			? callbackParentheses[callbackParentheses.length - 1]
+			: callback;
 		if (
-			!isParenthesized &&
-			shouldAddParenthesesToMemberExpressionObject(callback, sourceCode)
+			!isParenthesized
+			&& shouldAddParenthesesToMemberExpressionObject(callback, sourceCode)
 		) {
 			yield fixer.insertTextBefore(callbackLastToken, '(');
 			yield fixer.insertTextAfter(callbackLastToken, ')');
@@ -162,7 +167,7 @@ module.exports = {
 			description: 'Disallow using the `this` argument in array methods.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

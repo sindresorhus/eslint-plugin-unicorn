@@ -82,6 +82,8 @@ const ignoredCallee = [
 	'Async',
 	'async',
 	'this',
+	'$',
+	'jQuery',
 ];
 
 function getProblem(context, node, method, options) {
@@ -122,9 +124,9 @@ function getProblem(context, node, method, options) {
 
 				return fixer.replaceText(
 					node,
-					returnsUndefined ?
-						`(${suggestionParameters}) => { ${nodeText}(${suggestionParameters}); }` :
-						`(${suggestionParameters}) => ${nodeText}(${suggestionParameters})`,
+					returnsUndefined
+						? `(${suggestionParameters}) => { ${nodeText}(${suggestionParameters}); }`
+						: `(${suggestionParameters}) => ${nodeText}(${suggestionParameters})`,
 				);
 			},
 		};
@@ -164,6 +166,10 @@ const create = context => {
 				return;
 			}
 
+			if (node.callee.object.type === 'CallExpression' && isNodeMatches(node.callee.object.callee, ignoredCallee)) {
+				return;
+			}
+
 			const [iterator] = node.arguments;
 			return getProblem(context, iterator, method, options, sourceCode);
 		};
@@ -179,7 +185,7 @@ module.exports = {
 		docs: {
 			description: 'Prevent passing a function reference directly to iterator methods.',
 		},
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

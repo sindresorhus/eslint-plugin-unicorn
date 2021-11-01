@@ -28,7 +28,7 @@ Configure it in `package.json`.
 			"es6": true
 		},
 		"parserOptions": {
-			"ecmaVersion": 2021,
+			"ecmaVersion": "latest",
 			"sourceType": "module"
 		},
 		"plugins": [
@@ -60,6 +60,7 @@ Configure it in `package.json`.
 			"unicorn/no-for-loop": "error",
 			"unicorn/no-hex-escape": "error",
 			"unicorn/no-instanceof-array": "error",
+			"unicorn/no-invalid-remove-event-listener": "error",
 			"unicorn/no-keyword-prefix": "off",
 			"unicorn/no-lonely-if": "error",
 			"no-nested-ternary": "off",
@@ -74,6 +75,7 @@ Configure it in `package.json`.
 			"unicorn/no-unreadable-array-destructuring": "error",
 			"unicorn/no-unsafe-regex": "off",
 			"unicorn/no-unused-properties": "off",
+			"unicorn/no-useless-fallback-in-spread": "error",
 			"unicorn/no-useless-length-check": "error",
 			"unicorn/no-useless-spread": "error",
 			"unicorn/no-useless-undefined": "error",
@@ -124,6 +126,7 @@ Configure it in `package.json`.
 			"unicorn/require-number-to-fixed-digits-argument": "error",
 			"unicorn/require-post-message-target-origin": "error",
 			"unicorn/string-content": "off",
+			"unicorn/template-indent": "warn",
 			"unicorn/throw-new-error": "error"
 		},
 		"overrides": [
@@ -180,6 +183,7 @@ Each rule has emojis denoting:
 | [no-for-loop](docs/rules/no-for-loop.md) | Do not use a `for` loop that can be replaced with a `for-of` loop. | ✅ | 🔧 |  |
 | [no-hex-escape](docs/rules/no-hex-escape.md) | Enforce the use of Unicode escapes instead of hexadecimal escapes. | ✅ | 🔧 |  |
 | [no-instanceof-array](docs/rules/no-instanceof-array.md) | Require `Array.isArray()` instead of `instanceof Array`. | ✅ | 🔧 |  |
+| [no-invalid-remove-event-listener](docs/rules/no-invalid-remove-event-listener.md) | Prevent calling `EventTarget#removeEventListener()` with the result of an expression. | ✅ |  |  |
 | [no-keyword-prefix](docs/rules/no-keyword-prefix.md) | Disallow identifiers starting with `new` or `class`. |  |  |  |
 | [no-lonely-if](docs/rules/no-lonely-if.md) | Disallow `if` statements as the only statement in `if` blocks without `else`. | ✅ | 🔧 |  |
 | [no-nested-ternary](docs/rules/no-nested-ternary.md) | Disallow nested ternary expressions. | ✅ | 🔧 |  |
@@ -193,6 +197,7 @@ Each rule has emojis denoting:
 | [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) | Disallow unreadable array destructuring. | ✅ | 🔧 |  |
 | [no-unsafe-regex](docs/rules/no-unsafe-regex.md) | Disallow unsafe regular expressions. |  |  |  |
 | [no-unused-properties](docs/rules/no-unused-properties.md) | Disallow unused object properties. |  |  |  |
+| [no-useless-fallback-in-spread](docs/rules/no-useless-fallback-in-spread.md) | Forbid useless fallback when spreading in object literals. | ✅ | 🔧 |  |
 | [no-useless-length-check](docs/rules/no-useless-length-check.md) | Disallow useless array length check. | ✅ | 🔧 |  |
 | [no-useless-spread](docs/rules/no-useless-spread.md) | Disallow unnecessary spread. | ✅ | 🔧 |  |
 | [no-useless-undefined](docs/rules/no-useless-undefined.md) | Disallow useless `undefined`. | ✅ | 🔧 |  |
@@ -229,7 +234,7 @@ Each rule has emojis denoting:
 | [prefer-reflect-apply](docs/rules/prefer-reflect-apply.md) | Prefer `Reflect.apply()` over `Function#apply()`. | ✅ | 🔧 |  |
 | [prefer-regexp-test](docs/rules/prefer-regexp-test.md) | Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`. | ✅ | 🔧 |  |
 | [prefer-set-has](docs/rules/prefer-set-has.md) | Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence. | ✅ | 🔧 | 💡 |
-| [prefer-spread](docs/rules/prefer-spread.md) | Prefer the spread operator over `Array.from(…)`, `Array#concat(…)` and `Array#slice()`. | ✅ | 🔧 | 💡 |
+| [prefer-spread](docs/rules/prefer-spread.md) | Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#slice()` and `String#split('')`. | ✅ | 🔧 | 💡 |
 | [prefer-string-replace-all](docs/rules/prefer-string-replace-all.md) | Prefer `String#replaceAll()` over regex searches with the global flag. |  | 🔧 |  |
 | [prefer-string-slice](docs/rules/prefer-string-slice.md) | Prefer `String#slice()` over `String#substr()` and `String#substring()`. | ✅ | 🔧 |  |
 | [prefer-string-starts-ends-with](docs/rules/prefer-string-starts-ends-with.md) | Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`. | ✅ | 🔧 | 💡 |
@@ -243,6 +248,7 @@ Each rule has emojis denoting:
 | [require-number-to-fixed-digits-argument](docs/rules/require-number-to-fixed-digits-argument.md) | Enforce using the digits argument with `Number#toFixed()`. | ✅ | 🔧 |  |
 | [require-post-message-target-origin](docs/rules/require-post-message-target-origin.md) | Enforce using the `targetOrigin` argument with `window.postMessage()`. | ✅ |  | 💡 |
 | [string-content](docs/rules/string-content.md) | Enforce better string content. |  | 🔧 | 💡 |
+| [template-indent](docs/rules/template-indent.md) | Fix whitespace-insensitive template indentation. |  | 🔧 |  |
 | [throw-new-error](docs/rules/throw-new-error.md) | Require `new` when throwing an error. | ✅ | 🔧 |  |
 
 <!-- RULES_TABLE_END -->
@@ -253,7 +259,7 @@ See [docs/deprecated-rules.md](docs/deprecated-rules.md)
 
 ## Recommended config
 
-This plugin exports a [`recommended` config](index.js) that enforces good practices.
+This plugin exports a [`recommended` config](configs/recommended.js) that enforces good practices.
 
 Enable it in your `package.json` with the `extends` option:
 
@@ -269,6 +275,23 @@ Enable it in your `package.json` with the `extends` option:
 See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configuration-files#extending-configuration-files) for more information about extending config files.
 
 **Note**: This config will also enable the correct [parser options](https://eslint.org/docs/user-guide/configuring/language-options#specifying-parser-options) and [environment](https://eslint.org/docs/user-guide/configuring/language-options#specifying-environments).
+
+## All config
+
+This plugin exports an [`all` config](configs/all.js) that makes use of all rules (except for deprecated ones).
+
+Enable it in your `package.json` with the `extends` option:
+
+```json
+{
+	"name": "my-awesome-project",
+	"eslintConfig": {
+		"extends": "plugin:unicorn/all"
+	}
+}
+```
+
+See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configuration-files#extending-configuration-files) for more information about extending config files.
 
 ## Maintainers
 

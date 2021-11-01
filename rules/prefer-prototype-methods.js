@@ -51,10 +51,10 @@ function create(context) {
 					yield fixer.replaceText(node.object, `${constructorName}.prototype`);
 
 					if (
-						node.object &&
-						(
-							node.object.type === 'ArrayExpression' ||
-							node.object.type === 'ObjectExpression'
+						node.object
+						&& (
+							node.object.type === 'ArrayExpression'
+							|| node.object.type === 'ObjectExpression'
 						)
 					) {
 						yield * fixSpaceAroundKeyword(fixer, node.parent.parent, context.getSourceCode());

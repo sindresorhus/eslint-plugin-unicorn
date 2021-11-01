@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import process from 'node:process';
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -11,9 +12,9 @@ import allProjects from './projects.mjs';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectsArguments = process.argv.slice(2);
-const projects = projectsArguments.length === 0 ?
-	allProjects :
-	allProjects.filter(({name}) => projectsArguments.includes(name));
+const projects = projectsArguments.length === 0
+	? allProjects
+	: allProjects.filter(({name}) => projectsArguments.includes(name));
 
 const enrichErrors = (packageName, cliArguments, f) => async (...arguments_) => {
 	try {

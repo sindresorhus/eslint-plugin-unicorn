@@ -74,11 +74,11 @@ const create = context => {
 			const [target] = node.arguments;
 			const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 
-			let isString = target.type === 'TemplateLiteral' ||
-				(
-					target.type === 'CallExpression' &&
-					target.callee.type === 'Identifier' &&
-					target.callee.name === 'String'
+			let isString = target.type === 'TemplateLiteral'
+				|| (
+					target.type === 'CallExpression'
+					&& target.callee.type === 'Identifier'
+					&& target.callee.name === 'String'
 				);
 			let isNonString = false;
 			if (!isString) {
@@ -104,8 +104,8 @@ const create = context => {
 					// Goal: `(target ?? '').startsWith(pattern)`
 					case FIX_TYPE_NULLISH_COALESCING:
 						if (
-							!isTargetParenthesized &&
-							shouldAddParenthesesToLogicalExpressionChild(target, {operator: '??', property: 'left'})
+							!isTargetParenthesized
+							&& shouldAddParenthesesToLogicalExpressionChild(target, {operator: '??', property: 'left'})
 						) {
 							targetText = addParentheses(targetText);
 						}
@@ -134,9 +134,9 @@ const create = context => {
 						// Fallthrough
 					default:
 						if (
-							!isRegexParenthesized &&
-							!isTargetParenthesized &&
-							shouldAddParenthesesToMemberExpressionObject(target, sourceCode)
+							!isRegexParenthesized
+							&& !isTargetParenthesized
+							&& shouldAddParenthesesToMemberExpressionObject(target, sourceCode)
 						) {
 							targetText = addParentheses(targetText);
 						}
@@ -179,7 +179,7 @@ module.exports = {
 			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

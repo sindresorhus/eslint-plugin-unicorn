@@ -117,20 +117,20 @@ const assignmentNeedParenthesize = (node, sourceCode) => {
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
 const hasLowerPrecedence = (node, operator) => (
 	(node.type === 'LogicalExpression' && (
-		node.operator === operator ||
+		node.operator === operator
 		// https://tc39.es/proposal-nullish-coalescing/ says
 		// `??` has lower precedence than `||`
 		// But MDN says
 		// `??` has higher precedence than `||`
-		(operator === '||' && node.operator === '??') ||
-		(operator === '??' && (node.operator === '||' || node.operator === '&&'))
-	)) ||
-	node.type === 'ConditionalExpression' ||
+		|| (operator === '||' && node.operator === '??')
+		|| (operator === '??' && (node.operator === '||' || node.operator === '&&'))
+	))
+	|| node.type === 'ConditionalExpression'
 	// Lower than `assignment`, should already parenthesized
 	/* istanbul ignore next */
-	node.type === 'AssignmentExpression' ||
-	node.type === 'YieldExpression' ||
-	node.type === 'SequenceExpression'
+	|| node.type === 'AssignmentExpression'
+	|| node.type === 'YieldExpression'
+	|| node.type === 'SequenceExpression'
 );
 
 const getDestructuringLeftAndRight = node => {
@@ -208,23 +208,23 @@ const fixDestructuringAndReplaceFilter = (sourceCode, node) => {
 };
 
 const isAccessingZeroIndex = node =>
-	node.parent &&
-	node.parent.type === 'MemberExpression' &&
-	node.parent.computed === true &&
-	node.parent.object === node &&
-	node.parent.property &&
-	node.parent.property.type === 'Literal' &&
-	node.parent.property.raw === '0';
+	node.parent
+	&& node.parent.type === 'MemberExpression'
+	&& node.parent.computed === true
+	&& node.parent.object === node
+	&& node.parent.property
+	&& node.parent.property.type === 'Literal'
+	&& node.parent.property.raw === '0';
 
 const isDestructuringFirstElement = node => {
 	const {left, right} = getDestructuringLeftAndRight(node.parent);
-	return left &&
-		right &&
-		right === node &&
-		left.type === 'ArrayPattern' &&
-		left.elements &&
-		left.elements.length === 1 &&
-		left.elements[0].type !== 'RestElement';
+	return left
+		&& right
+		&& right === node
+		&& left.type === 'ArrayPattern'
+		&& left.elements
+		&& left.elements.length === 1
+		&& left.elements[0].type !== 'RestElement';
 };
 
 const create = context => {
@@ -329,7 +329,7 @@ module.exports = {
 			description: 'Prefer `.find(…)` over the first element from `.filter(…)`.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

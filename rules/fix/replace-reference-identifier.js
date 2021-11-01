@@ -7,8 +7,8 @@ const isShorthandExportLocal = require('../utils/is-shorthand-export-local.js');
 
 function replaceReferenceIdentifier(identifier, replacement, fixer) {
 	if (
-		isShorthandPropertyValue(identifier) ||
-		isShorthandPropertyAssignmentPatternLeft(identifier)
+		isShorthandPropertyValue(identifier)
+		|| isShorthandPropertyAssignmentPatternLeft(identifier)
 	) {
 		return fixer.replaceText(identifier, `${identifier.name}: ${replacement}`);
 	}

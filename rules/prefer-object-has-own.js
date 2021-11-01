@@ -65,9 +65,9 @@ const create = context => {
 						yield fixer.replaceText(node, 'Object.hasOwn');
 
 						if (
-							node.object &&
-							node.object.object &&
-							node.object.object.type === 'ObjectExpression'
+							node.object
+							&& node.object.object
+							&& node.object.object.type === 'ObjectExpression'
 						) {
 							yield * fixSpaceAroundKeyword(fixer, node.parent, context.getSourceCode());
 						}

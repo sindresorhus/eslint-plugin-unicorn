@@ -66,41 +66,39 @@ const getProblem = (node, problem, sourceCode) => ({
 	...problem,
 });
 
-const create = context => {
-	return {
-		[methodsSelector](node) {
-			const method = node.callee.property;
+const create = context => ({
+	[methodsSelector](node) {
+		const method = node.callee.property;
+		return getProblem(node, {
+			node: method,
+			messageId: MESSAGE_ID_METHOD,
+			data: {method: method.name},
+		});
+	},
+	[builtinObjectSelector](node) {
+		const {name} = node.callee;
+		if (name === 'Number') {
 			return getProblem(node, {
-				node: method,
-				messageId: MESSAGE_ID_METHOD,
-				data: {method: method.name},
+				messageId: MESSAGE_ID_NUMBER,
 			});
-		},
-		[builtinObjectSelector](node) {
-			const {name} = node.callee;
-			if (name === 'Number') {
-				return getProblem(node, {
-					messageId: MESSAGE_ID_NUMBER,
-				});
-			}
+		}
 
-			return getProblem(node.arguments[0]);
-		},
-		[unaryExpressionsSelector](node) {
-			return getProblem(
-				node.operator === '-' ? node.argument : node,
-				{},
-				context.getSourceCode(),
-			);
-		},
-		[assignmentExpressionSelector](node) {
-			return getProblem(node);
-		},
-		[binaryExpressionSelector](node) {
-			return getProblem(node);
-		},
-	};
-};
+		return getProblem(node.arguments[0]);
+	},
+	[unaryExpressionsSelector](node) {
+		return getProblem(
+			node.operator === '-' ? node.argument : node,
+			{},
+			context.getSourceCode(),
+		);
+	},
+	[assignmentExpressionSelector](node) {
+		return getProblem(node);
+	},
+	[binaryExpressionSelector](node) {
+		return getProblem(node);
+	},
+});
 
 module.exports = {
 	create,

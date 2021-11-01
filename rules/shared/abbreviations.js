@@ -239,3 +239,10 @@ module.exports.defaultAllowList = {
 	// https://jestjs.io/docs/en/configuration#setupfilesafterenv-array
 	setupFilesAfterEnv: true,
 };
+
+module.exports.defaultIgnore = [
+	// Internationalization and localization
+	// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1188
+	'i18n',
+	'l10n',
+];

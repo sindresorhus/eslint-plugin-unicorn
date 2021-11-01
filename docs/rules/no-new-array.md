@@ -9,6 +9,7 @@ This rule is fixable if the value type of the argument is known.
 ## Fail
 
 ```js
+const length = 10;
 const array = new Array(length);
 ```
 
@@ -23,6 +24,7 @@ const array = new Array(...unknownArgumentsList);
 ## Pass
 
 ```js
+const length = 10;
 const array = Array.from({length});
 ```
 

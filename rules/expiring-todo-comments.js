@@ -2,13 +2,15 @@
 const readPkgUp = require('read-pkg-up');
 const semver = require('semver');
 const ci = require('ci-info');
-const baseRule = require('eslint/lib/rules/no-warning-comments');
+const getBuiltinRule = require('./utils/get-builtin-rule.js');
+
+const baseRule = getBuiltinRule('no-warning-comments');
 
 // `unicorn/` prefix is added to avoid conflicts with core rule
 const MESSAGE_ID_AVOID_MULTIPLE_DATES = 'unicorn/avoidMultipleDates';
 const MESSAGE_ID_EXPIRED_TODO = 'unicorn/expiredTodo';
-const MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS =
-	'unicorn/avoidMultiplePackageVersions';
+const MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS
+	= 'unicorn/avoidMultiplePackageVersions';
 const MESSAGE_ID_REACHED_PACKAGE_VERSION = 'unicorn/reachedPackageVersion';
 const MESSAGE_ID_HAVE_PACKAGE = 'unicorn/havePackage';
 const MESSAGE_ID_DONT_HAVE_PACKAGE = 'unicorn/dontHavePackage';
@@ -378,10 +380,10 @@ const create = context => {
 
 			const isInclusion = ['in', 'out'].includes(dependency.condition);
 			if (isInclusion) {
-				const [trigger, messageId] =
-					dependency.condition === 'in' ?
-						[hasTargetPackage, MESSAGE_ID_HAVE_PACKAGE] :
-						[!hasTargetPackage, MESSAGE_ID_DONT_HAVE_PACKAGE];
+				const [trigger, messageId]
+					= dependency.condition === 'in'
+						? [hasTargetPackage, MESSAGE_ID_HAVE_PACKAGE]
+						: [!hasTargetPackage, MESSAGE_ID_DONT_HAVE_PACKAGE];
 
 				if (trigger) {
 					context.report({

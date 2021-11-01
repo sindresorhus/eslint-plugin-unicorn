@@ -35,8 +35,8 @@ const isSimpleExpression = expression => {
 		expression = expression.object;
 	}
 
-	return expression.type === 'Identifier' ||
-		expression.type === 'ThisExpression';
+	return expression.type === 'Identifier'
+		|| expression.type === 'ThisExpression';
 };
 
 const isChildInParentScope = (child, parent) => {
@@ -84,9 +84,9 @@ const create = context => {
 			}
 
 			const destructurings = objectPattern.properties.filter(property =>
-				property.type === 'Property' &&
-				property.key.type === 'Identifier' &&
-				property.value.type === 'Identifier',
+				property.type === 'Property'
+				&& property.key.type === 'Identifier'
+				&& property.value.type === 'Identifier',
 			);
 			const lastProperty = objectPattern.properties[objectPattern.properties.length - 1];
 
@@ -138,9 +138,9 @@ const create = context => {
 						yield fixer.replaceText(node, newMember);
 
 						if (!destructuredMember) {
-							yield lastProperty ?
-								fixer.insertTextAfter(lastProperty, `, ${newMember}`) :
-								fixer.replaceText(objectPattern, `{${newMember}}`);
+							yield lastProperty
+								? fixer.insertTextAfter(lastProperty, `, ${newMember}`)
+								: fixer.replaceText(objectPattern, `{${newMember}}`);
 						}
 					},
 				}],
@@ -157,10 +157,10 @@ module.exports = {
 			description: 'Use destructured variables over properties.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages: {
 			[MESSAGE_ID]: 'Use destructured variables over properties.',
 			[MESSAGE_ID_SUGGEST]: 'Replace `{{expression}}` with destructured property `{{property}}`.',
 		},
-		hasSuggestions: true,
 	},
 };

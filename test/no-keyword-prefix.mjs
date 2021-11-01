@@ -228,12 +228,10 @@ test({
 		},
 		{
 			code: 'function foo({ newBar = \'default value\' }) {};',
-			parserOptions: {ecmaVersion: 6},
 			errors: [errorNew],
 		},
 		{
 			code: 'const newFoo = 0; function foo({ newBar = newFoo}) {}',
-			parserOptions: {ecmaVersion: 6},
 			errors: [errorNew, errorNew],
 		},
 		{

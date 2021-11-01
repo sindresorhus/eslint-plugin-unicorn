@@ -15,21 +15,19 @@ const selector = [
 	notDomNodeSelector('arguments.0'),
 ].join('');
 
-const create = () => {
-	return {
-		[selector](node) {
-			const fix = isValueNotUsable(node) ?
-				fixer => fixer.replaceText(node.callee.property, 'append') :
-				undefined;
+const create = () => ({
+	[selector](node) {
+		const fix = isValueNotUsable(node)
+			? fixer => fixer.replaceText(node.callee.property, 'append')
+			: undefined;
 
-			return {
-				node,
-				messageId: MESSAGE_ID,
-				fix,
-			};
-		},
-	};
-};
+		return {
+			node,
+			messageId: MESSAGE_ID,
+			fix,
+		};
+	},
+});
 
 module.exports = {
 	create,

@@ -38,8 +38,8 @@ const create = context => {
 			const fix = fixer => {
 				let childNodeText = getParenthesizedText(childNode, sourceCode);
 				if (
-					!isParenthesized(childNode, sourceCode) &&
-					shouldAddParenthesesToMemberExpressionObject(childNode, sourceCode)
+					!isParenthesized(childNode, sourceCode)
+					&& shouldAddParenthesesToMemberExpressionObject(childNode, sourceCode)
 				) {
 					childNodeText = `(${childNodeText})`;
 				}
@@ -75,7 +75,7 @@ module.exports = {
 			description: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

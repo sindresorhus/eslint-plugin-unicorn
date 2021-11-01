@@ -64,8 +64,8 @@ const create = context => ({
 		}
 
 		if (
-			(['!==', '!=', '>', '===', '=='].includes(operator) && isNegativeOne(right)) ||
-			(['>=', '<'].includes(operator) && isLiteralZero(right))
+			(['!==', '!=', '>', '===', '=='].includes(operator) && isNegativeOne(right))
+			|| (['>=', '<'].includes(operator) && isLiteralZero(right))
 		) {
 			return getProblem(
 				context,
@@ -86,10 +86,10 @@ module.exports = {
 			description: 'Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages: {
 			...messages,
 			...includesOverSomeRule.messages,
 		},
-		hasSuggestions: true,
 	},
 };

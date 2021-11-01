@@ -13,8 +13,6 @@ const nonReferenceSelectors = [
 	'ClassDeclaration > .id',
 	// `const foo = class Identifier() {}`
 	'ClassExpression > .id',
-	// TODO: remove `ClassProperty` when `babel` and `typescript` support `PropertyDefinition`
-	'ClassProperty[computed!=true] > .key',
 	// `class Foo {Identifier = 1}`
 	'PropertyDefinition[computed!=true] > .key',
 	// `class Foo {Identifier() {}}`
@@ -22,7 +20,7 @@ const nonReferenceSelectors = [
 	// `const Identifier = 1`
 	'VariableDeclarator > .id',
 	// `const foo = {Identifier: 1}`
-	'ObjectExpression > Property[shorthand!=true][computed!=true].properties > .key',
+	'ObjectExpression > Property[computed!=true].properties > .key',
 	// `const {Identifier} = {}`
 	// `const {Identifier: foo} = {}`
 	'ObjectPattern > Property[computed!=true].properties > .key',

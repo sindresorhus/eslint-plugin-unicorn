@@ -51,9 +51,9 @@ const getMemberName = node => {
 	const {type, property} = node;
 
 	if (
-		type === 'MemberExpression' &&
-		property &&
-		property.type === 'Identifier'
+		type === 'MemberExpression'
+		&& property
+		&& property.type === 'Identifier'
 	) {
 		return property.name;
 	}
@@ -93,20 +93,20 @@ function parse(node) {
 	if (
 		// [].{slice,splice}
 		(
-			parentCallee.type === 'ArrayExpression' &&
-			parentCallee.elements.length === 0
-		) ||
+			parentCallee.type === 'ArrayExpression'
+			&& parentCallee.elements.length === 0
+		)
 		// ''.slice
-		(
-			method === 'slice' &&
-			isLiteralValue(parentCallee, '')
-		) ||
+		|| (
+			method === 'slice'
+			&& isLiteralValue(parentCallee, '')
+		)
 		// {Array,String...}.prototype.slice
 		// Array.prototype.splice
-		(
-			getMemberName(parentCallee) === 'prototype' &&
-			parentCallee.object.type === 'Identifier' &&
-			supportObjects.has(parentCallee.object.name)
+		|| (
+			getMemberName(parentCallee) === 'prototype'
+			&& parentCallee.object.type === 'Identifier'
+			&& supportObjects.has(parentCallee.object.name)
 		)
 	) {
 		[target] = originalArguments;
