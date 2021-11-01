@@ -102,6 +102,13 @@ test.snapshot({
 			import defaultExport from 'foo';
 			export const variable = defaultExport;
 		`,
+		outdent`
+			import defaultExport from 'foo';
+			defaultExport.bar = 1;
+			export {defaultExport as named};
+			export {defaultExport as default};
+			export const variable = defaultExport;
+		`,
 		// `named`
 		outdent`
 			import {named} from 'foo';
@@ -123,6 +130,13 @@ test.snapshot({
 			import {named} from 'foo';
 			export const variable = named;
 		`,
+		outdent`
+			import {named} from 'foo';
+			named.bar = 1;
+			export {named as named};
+			export {named as default};
+			export const variable = named;
+		`,
 		// Namespace
 		outdent`
 			import * as namespace from 'foo';
@@ -134,6 +148,13 @@ test.snapshot({
 		`,
 		outdent`
 			import * as namespace from 'foo';
+			export const variable = namespace;
+		`,
+		outdent`
+			import * as namespace from 'foo';
+			namespace.bar = 1;
+			export {namespace as named};
+			export {namespace as default};
 			export const variable = namespace;
 		`,
 		// Some not exported
