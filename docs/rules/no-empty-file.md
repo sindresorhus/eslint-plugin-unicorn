@@ -1,25 +1,19 @@
-# Disallow empty files.
+# Disallow empty files
 
-Meaningless files clutter a codebase. Disallow any file containing absolutely nothing, only whitespace, only comments, only a `'use strict';` statement, or empty statements.
+Meaningless files clutter a codebase.
 
-This rule is not fixable.
+Disallow any files only containing the following:
+
+- Whitespace
+- Comments
+- Directives
+- Empty statements
+- Empty block statements
 
 ## Fail
 
 ```js
 
-```
-
-```js
-\n
-```
-
-```js
-\r
-```
-
-```js
-\r\n
 ```
 
 ```js
