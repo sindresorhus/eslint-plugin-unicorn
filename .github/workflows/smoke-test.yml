@@ -12,12 +12,12 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: 14
+          node-version: 16
       - run: |
           npm install
           npm link
           npm link eslint-plugin-unicorn
-      - uses: AriPerkkio/eslint-remote-tester-run-action@v1
+      - uses: AriPerkkio/eslint-remote-tester-run-action@v2
         with:
           issue-title: "Results of weekly scheduled smoke test"
           eslint-remote-tester-config: test/smoke/eslint-remote-tester.config.js
