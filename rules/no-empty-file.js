@@ -14,7 +14,7 @@ const isEmpty = node =>
 	|| (node.type === 'ExpressionStatement' && 'directive' in node);
 
 const create = context => {
-	const filename = context.getFilename().toLowerCase();
+	const filename = context.getPhysicalFilename().toLowerCase();
 
 	if (!/\.(?:js|mjs|cjs|ts|mts|cts)$/.test(filename)) {
 		return {};
