@@ -22,10 +22,7 @@ const isDeclarationOfExportDefaultDeclaration = node =>
 	&& node.parent.type === 'ExportDefaultDeclaration'
 	&& node.parent.declaration === node;
 
-// https://github.com/estree/estree/blob/master/stage3/class-features.md#propertydefinition
-const isPropertyDefinition = node => node.type === 'PropertyDefinition'
-	// Legacy node type
-	|| node.type === 'ClassProperty';
+const isPropertyDefinition = node => node.type === 'PropertyDefinition';
 const isMethodDefinition = node => node.type === 'MethodDefinition';
 
 function isStaticMember(node) {

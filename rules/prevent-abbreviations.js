@@ -292,15 +292,10 @@ const shouldReportIdentifierAsProperty = identifier => {
 	}
 
 	if (
-		identifier.parent.type === 'MethodDefinition'
-		&& identifier.parent.key === identifier
-		&& !identifier.parent.computed
-	) {
-		return true;
-	}
-
-	if (
-		(identifier.parent.type === 'ClassProperty' || identifier.parent.type === 'PropertyDefinition')
+		(
+			identifier.parent.type === 'MethodDefinition'
+			|| identifier.parent.type === 'PropertyDefinition'
+		)
 		&& identifier.parent.key === identifier
 		&& !identifier.parent.computed
 	) {

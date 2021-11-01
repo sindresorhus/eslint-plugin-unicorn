@@ -53,22 +53,11 @@ const isAssignmentExpression = (node, name) => {
 	return lhs.property.name === name;
 };
 
-const isPropertyDefinition = (node, name) => {
-	const {type, computed, key} = node;
-	if (type !== 'PropertyDefinition' && type !== 'ClassProperty') {
-		return false;
-	}
-
-	if (computed) {
-		return false;
-	}
-
-	if (key.type !== 'Identifier') {
-		return false;
-	}
-
-	return key.name === name;
-};
+const isPropertyDefinition = (node, name) =>
+	node.type === 'PropertyDefinition'
+	&& !node.computed
+	&& node.key.type === 'Identifier'
+	&& node.key.name === name;
 
 function * customErrorDefinition(context, node) {
 	if (!hasValidSuperClass(node)) {
