@@ -361,6 +361,7 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 const ignoredObjects = [
 	'React.Children',
 	'Children',
+	'R',
 ];
 
 const create = context => {

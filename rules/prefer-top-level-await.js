@@ -95,7 +95,7 @@ module.exports = {
 		docs: {
 			description: 'Prefer top-level await over top-level promises and async function calls.',
 		},
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

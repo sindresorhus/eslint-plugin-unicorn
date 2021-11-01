@@ -446,6 +446,7 @@ const create = context => {
 					return;
 				}
 
+				// eslint-disable-next-line unicorn/prefer-spread
 				const resultBySplit = value.split('');
 				const resultBySpread = [...value];
 
@@ -482,7 +483,7 @@ module.exports = {
 			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#slice()` and `String#split(\'\')`.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

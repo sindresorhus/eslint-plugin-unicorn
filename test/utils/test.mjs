@@ -59,10 +59,13 @@ class Tester {
 	}
 
 	runTest(tests) {
-		const {beforeAll, testerOptions, valid, invalid} = tests;
+		const {beforeAll, testerOptions = {}, valid, invalid} = tests;
 		const tester = avaRuleTester(test, {
-			parserOptions: defaultParserOptions,
 			...testerOptions,
+			parserOptions: {
+				...defaultParserOptions,
+				...testerOptions.parserOptions,
+			},
 		});
 
 		if (beforeAll) {

@@ -306,8 +306,8 @@ module.exports = {
 			description: 'Prefer `.at()` method for index access and `String#charAt()`.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		messages,
-		hasSuggestions: true,
 	},
 };

@@ -89,7 +89,7 @@ module.exports = {
 			description: 'Disallow `new Array()`.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

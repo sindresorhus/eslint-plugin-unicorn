@@ -22,10 +22,7 @@ const isDeclarationOfExportDefaultDeclaration = node =>
 	&& node.parent.type === 'ExportDefaultDeclaration'
 	&& node.parent.declaration === node;
 
-// https://github.com/estree/estree/blob/master/stage3/class-features.md#propertydefinition
-const isPropertyDefinition = node => node.type === 'PropertyDefinition'
-	// Legacy node type
-	|| node.type === 'ClassProperty';
+const isPropertyDefinition = node => node.type === 'PropertyDefinition';
 const isMethodDefinition = node => node.type === 'MethodDefinition';
 
 function isStaticMember(node) {
@@ -44,7 +41,7 @@ function isStaticMember(node) {
 		return false;
 	}
 
-	if (!isStatic || isPrivate) {
+	if (!isStatic || isPrivate || key.type === 'PrivateIdentifier') {
 		return false;
 	}
 
@@ -54,6 +51,7 @@ function isStaticMember(node) {
 		|| isReadonly
 		|| typeof accessibility !== 'undefined'
 		|| (Array.isArray(decorators) && decorators.length > 0)
+		// TODO: Remove this when we drop support for `@typescript-eslint/parser` v4
 		|| key.type === 'TSPrivateIdentifier'
 	) {
 		return false;
@@ -65,11 +63,7 @@ function isStaticMember(node) {
 function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 	const staticToken = sourceCode.getFirstToken(node);
 	assertToken(staticToken, {
-		expected: [
-			{type: 'Keyword', value: 'static'},
-			// `@babel/eslint-parser` use `{type: 'Identifier', value: 'static'}`
-			{type: 'Identifier', value: 'static'},
-		],
+		expected: {type: 'Keyword', value: 'static'},
 		ruleId: 'no-static-only-class',
 	});
 

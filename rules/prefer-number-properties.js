@@ -145,8 +145,8 @@ module.exports = {
 			description: 'Prefer `Number` static properties over global ones.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		messages,
-		hasSuggestions: true,
 	},
 };

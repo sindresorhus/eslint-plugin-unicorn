@@ -1271,6 +1271,7 @@ test.typescript(avoidTestTitleConflict(tests, 'typescript'));
 test({
 	testerOptions: {
 		parserOptions: {
+			sourceType: 'script',
 			ecmaVersion: 5,
 		},
 		env: {

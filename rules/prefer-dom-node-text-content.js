@@ -57,7 +57,7 @@ module.exports = {
 		docs: {
 			description: 'Prefer `.textContent` over `.innerText`.',
 		},
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };
