@@ -52,6 +52,11 @@ test.snapshot({
 			import * as namespace from 'foo';
 			export {namespace as default};
 		`,
+		outdent`
+			import * as namespace from 'foo';
+			export default namespace;
+			export {namespace};
+		`,
 		// Cases we are not handled
 		outdent`
 			import defaultExport from 'foo';
@@ -217,11 +222,6 @@ test.snapshot({
 			import * as foo from 'foo';
 			import * as bar from 'foo';
 			export {foo, bar};
-		`,
-		outdent`
-			import * as namespace from 'foo';
-			export default namespace;
-			export {namespace};
 		`,
 		outdent`
 			import * as namespace from 'foo';
