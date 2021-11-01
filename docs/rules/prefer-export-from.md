@@ -1,6 +1,6 @@
 # Prefer `export…from` when re-exporting
 
-When re-exporting from module, it's unnecessary to import and then export, it can be done in one `export…from` declaration.
+When re-exporting from a module, it's unnecessary to import and then export. It can be done in a single `export…from` declaration.
 
 This rule is fixable.
 
