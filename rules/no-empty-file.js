@@ -1,5 +1,4 @@
 'use strict';
-const {checkVueTemplate} = require('./utils/rule.js');
 
 const MESSAGE_ID = 'no-empty-file';
 const messages = {
@@ -14,21 +13,29 @@ const isEmpty = node =>
 	|| node.type === 'EmptyStatement'
 	|| (node.type === 'ExpressionStatement' && 'directive' in node);
 
-const create = () => ({
-	Program(node) {
-		if (!isEmpty(node)) {
-			return;
-		}
+const create = context => {
+	const filename = context.getFilename().toLowerCase();
 
-		return {
-			node,
-			messageId: MESSAGE_ID,
-		};
-	},
-});
+	if (!/\.(?:js|mjs|cjs|ts|mts|cts)$/.test(filename)) {
+		return {};
+	}
+
+	return {
+		Program(node) {
+			if (!isEmpty(node)) {
+				return;
+			}
+
+			return {
+				node,
+				messageId: MESSAGE_ID,
+			};
+		},
+	};
+};
 
 module.exports = {
-	create: checkVueTemplate(create),
+	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
