@@ -30,14 +30,15 @@ const create = context => ({
 			messageId: type === 'Identifier' ? MESSAGE_ID_WITH_NAME : MESSAGE_ID_WITHOUT_NAME,
 			data: {name},
 			* fix(fixer) {
-				const tokenBefore = context.getTokenBefore(node);
+				const sourceCode = context.getSourceCode();
+				const tokenBefore = sourceCode.getTokenBefore(node);
 				assertToken(tokenBefore, {
 					test: isOpeningParenToken,
 					expected: '(',
 					ruleId: 'prefer-optional-catch-binding',
 				});
 
-				const tokenAfter = context.getTokenAfter(node);
+				const tokenAfter = sourceCode.getTokenAfter(node);
 				assertToken(tokenAfter, {
 					test: isClosingParenToken,
 					expected: ')',
@@ -50,7 +51,7 @@ const create = context => ({
 
 				const [, endOfClosingParenthesis] = tokenAfter.range;
 				const [startOfCatchClauseBody] = parent.body.range;
-				const text = context.getSourceCode().text.slice(endOfClosingParenthesis, startOfCatchClauseBody);
+				const text = sourceCode.text.slice(endOfClosingParenthesis, startOfCatchClauseBody);
 				const leadingSpacesLength = text.length - text.trimStart().length;
 				if (leadingSpacesLength !== 0) {
 					yield fixer.removeRange([endOfClosingParenthesis, endOfClosingParenthesis + leadingSpacesLength]);

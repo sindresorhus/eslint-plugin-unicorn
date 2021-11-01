@@ -172,7 +172,7 @@ const create = context => {
 						start = previousArgument.range[1];
 					} else {
 						// If all arguments removed, and there is trailing comma, we need remove it.
-						const tokenAfter = context.getTokenAfter(lastUndefined);
+						const tokenAfter = sourceCode.getTokenAfter(lastUndefined);
 						if (isCommaToken(tokenAfter)) {
 							end = tokenAfter.range[1];
 						}

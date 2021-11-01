@@ -90,7 +90,7 @@ const create = context => {
 			return property.key.value;
 		}
 
-		return context.getSource(property.key);
+		return context.getSourceCode().getText(property.key);
 	};
 
 	const checkProperty = (property, references, path) => {
