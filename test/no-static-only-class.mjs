@@ -21,9 +21,8 @@ test.snapshot({
 		'class A3 { static #a = 1; }',
 		'const A3 = class { static #a() {}; }',
 		'const A3 = class { static #a = 1; }',
-		// TODO: enable this test when ESLint support `StaticBlock`
 		// Static block
-		// 'class A2 { static {}; }',
+		'class A2 { static {}; }',
 	],
 	invalid: [
 		'class A { static a() {}; }',
