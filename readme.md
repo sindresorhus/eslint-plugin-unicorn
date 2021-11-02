@@ -57,6 +57,7 @@ Configure it in `package.json`.
 			"unicorn/no-array-reduce": "error",
 			"unicorn/no-console-spaces": "error",
 			"unicorn/no-document-cookie": "error",
+			"unicorn/no-empty-file": "error",
 			"unicorn/no-for-loop": "error",
 			"unicorn/no-hex-escape": "error",
 			"unicorn/no-instanceof-array": "error",
@@ -180,6 +181,7 @@ Each rule has emojis denoting:
 | [no-array-reduce](docs/rules/no-array-reduce.md) | Disallow `Array#reduce()` and `Array#reduceRight()`. | ✅ |  |  |
 | [no-console-spaces](docs/rules/no-console-spaces.md) | Do not use leading/trailing space between `console.log` parameters. | ✅ | 🔧 |  |
 | [no-document-cookie](docs/rules/no-document-cookie.md) | Do not use `document.cookie` directly. | ✅ |  |  |
+| [no-empty-file](docs/rules/no-empty-file.md) | Disallow empty files. | ✅ |  |  |
 | [no-for-loop](docs/rules/no-for-loop.md) | Do not use a `for` loop that can be replaced with a `for-of` loop. | ✅ | 🔧 |  |
 | [no-hex-escape](docs/rules/no-hex-escape.md) | Enforce the use of Unicode escapes instead of hexadecimal escapes. | ✅ | 🔧 |  |
 | [no-instanceof-array](docs/rules/no-instanceof-array.md) | Require `Array.isArray()` instead of `instanceof Array`. | ✅ | 🔧 |  |
