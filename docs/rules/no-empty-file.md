@@ -18,11 +18,11 @@ Disallow any files only containing the following:
 ```
 
 ```js
-// comment
+// Comment
 ```
 
 ```js
-/* comment */
+/* Comment */
 ```
 
 ```js
@@ -60,6 +60,6 @@ const x = 0;
 
 ```js
 {
-    const x = 0;
+	const x = 0;
 }
 ```
