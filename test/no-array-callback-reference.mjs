@@ -57,7 +57,7 @@ test({
 		...reduceLikeMethods.map(method => `this.${method}(fn)`),
 
 		// `Boolean`
-		...simpleMethods.map(method => `foo.${method}(Boolean)`),
+		'foo.map(Boolean)',
 
 		// Not `CallExpression`
 		'new foo.map(fn);',
@@ -207,7 +207,7 @@ test({
 			}),
 		),
 
-		// `Boolean` is not ignored on `reduce` and `reduceRight`
+		// `Boolean` is only ignored on reasonable places
 		...reduceLikeMethods.map(
 			method => invalidTestCase({
 				code: `foo.${method}(Boolean, initialValue)`,
@@ -220,6 +220,16 @@ test({
 				],
 			}),
 		),
+		invalidTestCase({
+			code: 'foo.forEach(Boolean)',
+			method: 'forEach',
+			name: 'Boolean',
+			suggestions: [
+				'foo.forEach((element) => { Boolean(element); })',
+				'foo.forEach((element, index) => { Boolean(element, index); })',
+				'foo.forEach((element, index, array) => { Boolean(element, index, array); })',
+			]
+		}),
 
 		// Not `Identifier`
 		...simpleMethodsExceptForEach.map(

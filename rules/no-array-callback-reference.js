@@ -15,27 +15,63 @@ const messages = {
 };
 
 const iteratorMethods = [
-	['every'],
+	[
+		'every',
+		{
+			ignore: [
+				'Boolean',
+			],
+		},
+	],
 	[
 		'filter', {
 			extraSelector: '[callee.object.name!="Vue"]',
+			ignore: [
+				'Boolean',
+			],
 		},
 	],
-	['find'],
-	['findIndex'],
-	['flatMap'],
+	[
+		'find',
+		{
+			ignore: [
+				'Boolean',
+			],
+		},
+	],
+	[
+		'findIndex',
+		{
+			ignore: [
+				'Boolean',
+			],
+		},
+	],
+	[
+		'flatMap',
+		{
+			ignore: [
+				'Boolean',
+			],
+		}
+	],
 	[
 		'forEach', {
 			returnsUndefined: true,
 		},
 	],
 	[
-		'map', {
+		'map',
+		{
 			extraSelector: '[callee.object.name!="types"]',
+			ignore: [
+				'Boolean',
+			],
 		},
 	],
 	[
-		'reduce', {
+		'reduce',
+		{
 			parameters: [
 				'accumulator',
 				'element',
@@ -43,11 +79,11 @@ const iteratorMethods = [
 				'array',
 			],
 			minParameters: 2,
-			ignore: [],
 		},
 	],
 	[
-		'reduceRight', {
+		'reduceRight',
+		{
 			parameters: [
 				'accumulator',
 				'element',
@@ -55,14 +91,20 @@ const iteratorMethods = [
 				'array',
 			],
 			minParameters: 2,
-			ignore: [],
 		},
 	],
-	['some'],
+	[
+		'some',
+		{
+			ignore: [
+				'Boolean',
+			],
+		},
+	],
 ].map(([method, options]) => {
 	options = {
 		parameters: ['element', 'index', 'array'],
-		ignore: ['Boolean'],
+		ignore: [],
 		minParameters: 1,
 		extraSelector: '',
 		returnsUndefined: false,
