@@ -48,7 +48,7 @@ switch (foo) {
 }
 ```
 
-### `options`
+## Options
 
 Type: `object`
 

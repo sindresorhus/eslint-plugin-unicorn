@@ -1,4 +1,4 @@
-# Disallow useless spread
+# Disallow unnecessary spread
 
 - Using spread syntax in the following cases is unnecessary:
 

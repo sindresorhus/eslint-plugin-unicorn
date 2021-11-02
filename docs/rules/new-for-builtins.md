@@ -1,4 +1,4 @@
-# Enforce the use of `new` for all builtins, except `String`, `Number` and `Boolean`
+# Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`
 
 They work the same, but `new` should be preferred for consistency with other constructors.
 
