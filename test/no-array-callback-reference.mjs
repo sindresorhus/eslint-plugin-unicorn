@@ -228,7 +228,7 @@ test({
 				'foo.forEach((element) => { Boolean(element); })',
 				'foo.forEach((element, index) => { Boolean(element, index); })',
 				'foo.forEach((element, index, array) => { Boolean(element, index, array); })',
-			]
+			],
 		}),
 
 		// Not `Identifier`

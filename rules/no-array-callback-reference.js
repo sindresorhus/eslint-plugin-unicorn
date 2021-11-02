@@ -53,7 +53,7 @@ const iteratorMethods = [
 			ignore: [
 				'Boolean',
 			],
-		}
+		},
 	],
 	[
 		'forEach', {
