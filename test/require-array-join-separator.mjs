@@ -10,6 +10,8 @@ test.snapshot({
 		'foo.join(...[])',
 		'foo[join]()',
 		'foo["join"]()',
+		'foo.join?.()',
+		'foo?.join?.()',
 		'[].join.call(foo, ",")',
 		'[].join.call()',
 		'[].join.call(...[foo])',
@@ -71,7 +73,5 @@ test.snapshot({
 			)
 		`,
 		'foo?.join()',
-		'foo.join?.()',
-		'foo?.join?.()',
 	],
 });

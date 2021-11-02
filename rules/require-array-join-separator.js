@@ -12,7 +12,6 @@ const selector = matches([
 	methodCallSelector({
 		method: 'join',
 		argumentsLength: 0,
-		includeOptionalCall: true,
 		includeOptionalMember: true,
 	}),
 	// `[].join.call(foo)` and `Array.prototype.join.call(foo)`
