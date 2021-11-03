@@ -42,10 +42,11 @@ function toSentenceCase(originalString) {
 }
 
 /**
- * Get list of named options from a JSON schema (used for rule schemas).
- * @param {Object|Array} jsonSchema - the JSON schema to check
- * @returns {String[]} list of named options
- */
+Get list of named options from a JSON schema (used for rule schemas).
+
+@param {object | Array} jsonSchema - The JSON schema to check.
+@returns {string[]} A list of named options.
+*/
 function getNamedOptions(jsonSchema) {
 	if (!jsonSchema) {
 		return [];
