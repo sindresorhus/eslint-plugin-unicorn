@@ -4,7 +4,7 @@ import {createRequire} from 'node:module';
 import test from 'ava';
 import {ESLint} from 'eslint';
 import index from '../index.js';
-import ruleDescriptionToDocTitle from './utils/rule-description-to-doc-title.mjs';
+import ruleDescriptionToDocumentTitle from './utils/rule-description-to-document-title.mjs';
 
 const require = createRequire(import.meta.url);
 let ruleFiles;
@@ -185,7 +185,7 @@ test('Every rule has a doc with the appropriate content', t => {
 		const documentLines = documentContents.split('\n');
 
 		// Check title.
-		const expectedTitle = `# ${ruleDescriptionToDocTitle(rule.meta.docs.description)}`;
+		const expectedTitle = `# ${ruleDescriptionToDocumentTitle(rule.meta.docs.description)}`;
 		t.is(documentLines[0], expectedTitle, `${ruleName} includes the rule description in title`);
 
 		// Check if the rule has configuration options.
