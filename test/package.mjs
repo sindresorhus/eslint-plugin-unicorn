@@ -4,6 +4,7 @@ import {createRequire} from 'node:module';
 import test from 'ava';
 import {ESLint} from 'eslint';
 import index from '../index.js';
+import ruleDescriptionToDocTitle from './utils/rule-description-to-doc-title.mjs';
 
 const require = createRequire(import.meta.url);
 let ruleFiles;
@@ -31,15 +32,6 @@ const testSorted = (t, actualOrder, sourceName) => {
 		t.is(actualIndex, wantedIndex, `${sourceName} should be alphabetically sorted, '${name}' should be placed at index ${wantedIndex}${whereMessage}`);
 	}
 };
-
-function toSentenceCase(originalString) {
-	let newString = originalString.charAt(0).toUpperCase() + originalString.slice(1); // Capitalize first letter.
-	if (newString.endsWith('.')) {
-		newString = newString.slice(0, -1); // Remove any ending period.
-	}
-
-	return newString;
-}
 
 /**
 Get list of named options from a JSON schema (used for rule schemas).
@@ -193,7 +185,7 @@ test('Every rule has a doc with the appropriate content', t => {
 		const documentLines = documentContents.split('\n');
 
 		// Check title.
-		const expectedTitle = `# ${toSentenceCase(rule.meta.docs.description)}`;
+		const expectedTitle = `# ${ruleDescriptionToDocTitle(rule.meta.docs.description)}`;
 		t.is(documentLines[0], expectedTitle, `${ruleName} includes the rule description in title`);
 
 		// Check if the rule has configuration options.
