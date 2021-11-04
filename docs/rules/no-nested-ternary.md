@@ -1,5 +1,9 @@
 # Disallow nested ternary expressions
 
+✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+
+🔧 The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+
 Improved version of the [`no-nested-ternary`](https://eslint.org/docs/rules/no-nested-ternary) ESLint rule, which allows cases where the nested ternary is only one level and wrapped in parens.
 
 

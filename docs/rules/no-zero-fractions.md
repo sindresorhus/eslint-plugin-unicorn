@@ -1,8 +1,10 @@
 # Disallow number literals with zero fractions or dangling dots
 
-There is no difference in JavaScript between, for example, `1`, `1.0` and `1.`, so prefer the former for consistency.
+✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
 
-This rule is fixable.
+🔧 The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+
+There is no difference in JavaScript between, for example, `1`, `1.0` and `1.`, so prefer the former for consistency.
 
 ## Fail
 

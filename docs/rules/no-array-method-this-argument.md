@@ -1,5 +1,11 @@
 # Disallow using the `this` argument in array methods
 
+✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+
+🔧 The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+
+💡 Some problems reported by this rule are manually fixable by editor [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).
+
 The rule forbids using the `thisArg` argument in array methods:
 
 - If the callback is an arrow function or a bound function, the `thisArg` won't affect it.

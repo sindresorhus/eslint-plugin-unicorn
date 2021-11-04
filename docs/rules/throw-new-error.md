@@ -1,8 +1,10 @@
 # Require `new` when throwing an error
 
-While it's possible to create a new error without using the `new` keyword, it's better to be explicit.
+✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
 
-This rule is fixable.
+🔧 The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+
+While it's possible to create a new error without using the `new` keyword, it's better to be explicit.
 
 ## Fail
 

@@ -1,5 +1,9 @@
 # Prevent passing a function reference directly to iterator methods
 
+✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+
+💡 Some problems reported by this rule are manually fixable by editor [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).
+
 Suppose you have a `unicorn` module:
 
 ```js

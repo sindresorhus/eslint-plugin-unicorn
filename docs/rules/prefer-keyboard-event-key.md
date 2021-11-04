@@ -1,5 +1,9 @@
 # Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`
 
+✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+
+🔧 The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+
 Enforces the use of [`KeyboardEvent#key`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key) over [`KeyboardEvent#keyCode`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode) which is deprecated. The `.key` property is also more semantic and readable.
 
 This rule is partly fixable. It can only fix direct property access.

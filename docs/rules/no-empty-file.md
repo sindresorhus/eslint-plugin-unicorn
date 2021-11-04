@@ -1,5 +1,7 @@
 # Disallow empty files
 
+✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+
 Meaningless files clutter a codebase.
 
 Disallow any files only containing the following:

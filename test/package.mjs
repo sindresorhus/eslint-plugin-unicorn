@@ -59,6 +59,12 @@ function getNamedOptions(jsonSchema) {
 	return [];
 }
 
+const MESSAGES = {
+	configRecommended: '✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.',
+	fixable: '🔧 The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.',
+	hasSuggestions: '💡 Some problems reported by this rule are manually fixable by editor [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).',
+};
+
 test('Every rule is defined in index file in alphabetical order', t => {
 	for (const file of ruleFiles) {
 		const name = path.basename(file, '.js');
@@ -204,6 +210,43 @@ test('Every rule has a doc with the appropriate content', t => {
 			// Should NOT have any options/config section headers:
 			t.false(documentContents.includes('# Options'), `${ruleName} should not have an "Options" section`);
 			t.false(documentContents.includes('# Config'), `${ruleName} should not have a "Config" section`);
+		}
+
+		// Decide which notices should be shown at the top of the doc.
+		const expectedNotices = [];
+		const unexpectedNotices = [];
+		if (index.configs.recommended.rules[`unicorn/${ruleName}`]) {
+			expectedNotices.push('configRecommended');
+		} else {
+			unexpectedNotices.push('configRecommended');
+		}
+
+		if (rule.meta.fixable) {
+			expectedNotices.push('fixable');
+		} else {
+			unexpectedNotices.push('fixable');
+		}
+
+		if (rule.meta.hasSuggestions) {
+			expectedNotices.push('hasSuggestions');
+		} else {
+			unexpectedNotices.push('hasSuggestions');
+		}
+
+		// Ensure that expected notices are present in the correct order.
+		let currentLineNumber = 1;
+		for (const expectedNotice of expectedNotices) {
+			t.is(documentLines[currentLineNumber], '', `has blank line before ${expectedNotice} notice`);
+			t.is(documentLines[currentLineNumber + 1], MESSAGES[expectedNotice], `includes ${expectedNotice} notice`);
+			currentLineNumber += 2;
+		}
+
+		// Ensure that unexpected notices are not present.
+		for (const unexpectedNotice of unexpectedNotices) {
+			t.false(
+				documentContents.includes(MESSAGES[unexpectedNotice]),
+				`does not include unexpected ${unexpectedNotice} notice`,
+			);
 		}
 	}
 });

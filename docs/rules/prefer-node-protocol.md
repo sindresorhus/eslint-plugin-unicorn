@@ -1,10 +1,12 @@
 # Prefer using the `node:` protocol when importing Node.js builtin modules
 
+✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+
+🔧 The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+
 When importing builtin modules, it's better to use the [`node:` protocol](https://nodejs.org/api/esm.html#esm_node_imports) as it makes it perfectly clear that the package is a Node.js builtin module.
 
 And don't forget to [upvote this issue](https://github.com/nodejs/node/issues/38343) if you agree.
-
-This rule is fixable.
 
 ## Fail
 

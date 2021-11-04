@@ -1,5 +1,7 @@
 # Enforce a case style for filenames
 
+✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+
 Enforces all linted files to have their names in a certain case style and lowercase file extension. The default is `kebabCase`.
 
 Files named `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, `index.vue` are ignored as they can't change case (Only a problem with `pascalCase`).

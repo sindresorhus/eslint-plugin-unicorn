@@ -1,5 +1,7 @@
 # Enforce specifying rules to disable in `eslint-disable` comments
 
+✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+
 This rule makes you specify the rules you want to disable when using `eslint-disable`, `eslint-disable-line` or `eslint-disable-next-line` comments.
 
 If you want to disable an ESLint rule in a file or on a specific line, you can add a comment.

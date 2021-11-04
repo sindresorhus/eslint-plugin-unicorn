@@ -1,5 +1,7 @@
 # Disallow identifiers starting with `new` or `class`
 
+✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+
 `new Foo` and `newFoo` look very similar. Use alternatives that do not look like keyword usage.
 
 ## Fail

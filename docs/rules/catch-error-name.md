@@ -1,5 +1,9 @@
 # Enforce a specific parameter name in catch clauses
 
+✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+
+🔧 The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+
 Applies to
 
 - `try/catch` clauses handlers
@@ -13,8 +17,6 @@ The following names are ignored:
 - `_`, but only if the error is not used.
 - Descriptive names, for example, `fsError` or `authError`.
 - Names matching [`options.ignore`](#ignore).
-
-This rule is fixable.
 
 ## Fail
 

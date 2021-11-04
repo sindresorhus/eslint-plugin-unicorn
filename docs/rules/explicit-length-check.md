@@ -1,5 +1,11 @@
 # Enforce explicitly comparing the `length` or `size` property of a value
 
+✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+
+🔧 The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.
+
+💡 Some problems reported by this rule are manually fixable by editor [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).
+
 Enforce explicitly checking the length of an object and enforce the comparison style.
 
 This rule is fixable, unless it's [unsafe to fix](#unsafe-to-fix-case).

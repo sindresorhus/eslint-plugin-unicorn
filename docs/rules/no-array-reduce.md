@@ -1,5 +1,7 @@
 # Disallow `Array#reduce()` and `Array#reduceRight()`
 
+✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+
 `Array#reduce()` and `Array#reduceRight()` usually result in [hard-to-read](https://twitter.com/jaffathecake/status/1213077702300852224) and [less performant](https://www.richsnapp.com/article/2019/06-09-reduce-spread-anti-pattern) code. In almost every case, it can be replaced by `.map`, `.filter`, or a `for-of` loop.
 
 It's only somewhat useful in the rare case of summing up numbers, which is allowed by default.
