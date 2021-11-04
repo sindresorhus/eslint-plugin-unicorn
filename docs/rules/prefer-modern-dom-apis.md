@@ -1,4 +1,4 @@
-# Prefer modern DOM APIs
+# Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`
 
 Enforces the use of:
 

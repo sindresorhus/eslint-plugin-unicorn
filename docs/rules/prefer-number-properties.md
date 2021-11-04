@@ -1,4 +1,4 @@
-# Prefer `Number` static properties over global ones.
+# Prefer `Number` static properties over global ones
 
 Enforces the use of:
 
@@ -77,7 +77,7 @@ const isPositiveZero = value => value === 0 && 1 / value === Number.POSITIVE_INF
 const isNegativeZero = value => value === 0 && 1 / value === Number.NEGATIVE_INFINITY;
 ```
 
-# Options
+## Options
 
 Type: `object`
 

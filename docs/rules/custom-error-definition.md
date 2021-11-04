@@ -1,4 +1,4 @@
-# Enforce correct Error subclassing
+# Enforce correct `Error` subclassing
 
 Enforces the only valid way of `Error` subclassing. It works with any super class that ends in `Error`.
 

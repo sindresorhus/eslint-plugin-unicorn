@@ -1,4 +1,4 @@
-# Prefer borrowing methods from the prototype instead of methods from an instance
+# Prefer borrowing methods from the prototype instead of the instance
 
 When “borrowing” a method from `Array` or `Object`, it‘s clearer to get it from the prototype than from an instance.
 

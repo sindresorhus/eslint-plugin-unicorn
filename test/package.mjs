@@ -4,6 +4,7 @@ import {createRequire} from 'node:module';
 import test from 'ava';
 import {ESLint} from 'eslint';
 import index from '../index.js';
+import ruleDescriptionToDocumentTitle from './utils/rule-description-to-document-title.mjs';
 
 const require = createRequire(import.meta.url);
 let ruleFiles;
@@ -31,6 +32,32 @@ const testSorted = (t, actualOrder, sourceName) => {
 		t.is(actualIndex, wantedIndex, `${sourceName} should be alphabetically sorted, '${name}' should be placed at index ${wantedIndex}${whereMessage}`);
 	}
 };
+
+/**
+Get list of named options from a JSON schema (used for rule schemas).
+
+@param {object | Array} jsonSchema - The JSON schema to check.
+@returns {string[]} A list of named options.
+*/
+function getNamedOptions(jsonSchema) {
+	if (!jsonSchema) {
+		return [];
+	}
+
+	if (Array.isArray(jsonSchema)) {
+		return jsonSchema.flatMap(item => getNamedOptions(item));
+	}
+
+	if (jsonSchema.items) {
+		return getNamedOptions(jsonSchema.items);
+	}
+
+	if (jsonSchema.properties) {
+		return Object.keys(jsonSchema.properties);
+	}
+
+	return [];
+}
 
 test('Every rule is defined in index file in alphabetical order', t => {
 	for (const file of ruleFiles) {
@@ -146,5 +173,37 @@ test('Every deprecated rules listed in docs/deprecated-rules.md', async t => {
 		t.is(typeof rule.create, 'function', `${name} create is not function`);
 		t.deepEqual(rule.create(), {}, `${name} create should return empty object`);
 		t.true(rule.meta.deprecated, `${name} meta.deprecated should be true`);
+	}
+});
+
+test('Every rule has a doc with the appropriate content', t => {
+	for (const ruleFile of ruleFiles) {
+		const ruleName = path.basename(ruleFile, '.js');
+		const rule = index.rules[ruleName];
+		const documentPath = path.join('docs/rules', `${ruleName}.md`);
+		const documentContents = fs.readFileSync(documentPath, 'utf8');
+		const documentLines = documentContents.split('\n');
+
+		// Check title.
+		const expectedTitle = `# ${ruleDescriptionToDocumentTitle(rule.meta.docs.description)}`;
+		t.is(documentLines[0], expectedTitle, `${ruleName} includes the rule description in title`);
+
+		// Check if the rule has configuration options.
+		if (
+			(Array.isArray(rule.meta.schema) && rule.meta.schema.length > 0)
+			|| (typeof rule.meta.schema === 'object' && Object.keys(rule.meta.schema).length > 0)
+		) {
+			// Should have an options section header:
+			t.true(documentContents.includes('## Options'), `${ruleName} should have an "## Options" section`);
+
+			// Ensure all configuration options are mentioned.
+			for (const namedOption of getNamedOptions(rule.meta.schema)) {
+				t.true(documentContents.includes(namedOption), `${ruleName} should mention the \`${namedOption}\` option`);
+			}
+		} else {
+			// Should NOT have any options/config section headers:
+			t.false(documentContents.includes('# Options'), `${ruleName} should not have an "Options" section`);
+			t.false(documentContents.includes('# Config'), `${ruleName} should not have a "Config" section`);
+		}
 	}
 });
