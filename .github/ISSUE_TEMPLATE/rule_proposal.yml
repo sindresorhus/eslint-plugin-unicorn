@@ -21,18 +21,29 @@ body:
       required: true
     attributes:
       label: Fail
-      description: Specify an example of code that should be detected
+      description: Specify examples of code that should be detected
       value: |
         ```js
         var replace = 'me';
+        ```
+        ```js
+        function foo() {
+          var replace = 'me';
+          return replace;
+        }
         ```
   - type: textarea
     validations:
       required: true
     attributes:
       label: Pass
-      description: Specify an example of code that would be accepted in its place
+      description: Specify examples of code that would be accepted in its place
       value: |
         ```js
         const replace = 'me';
+        ```
+        ```js
+        function foo() {
+          return 'me';
+        }
         ```
