@@ -1,0 +1,49 @@
+name: Rule proposal
+description: Have an idea for a new rule?
+title: "Rule proposal: "
+labels:
+  - new rule
+  - evaluating
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening a new issue:
+        - Look for existing [open or closed rule proposals](https://github.com/sindresorhus/eslint-plugin-unicorn/issues?q=is%3Aissue+label%3A%22new+rule%22)
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: Description
+      description: Explain here why this rule would be beneficial
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: Fail
+      description: Specify examples of code that should be detected
+      value: |
+        ```js
+        var replace = 'me';
+        ```
+        ```js
+        function foo() {
+          var replace = 'me';
+          return replace;
+        }
+        ```
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: Pass
+      description: Specify examples of code that would be accepted in its place
+      value: |
+        ```js
+        const replace = 'me';
+        ```
+        ```js
+        function foo() {
+          return 'me';
+        }
+        ```
