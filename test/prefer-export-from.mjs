@@ -285,3 +285,16 @@ test.snapshot({
 		`,
 	],
 });
+
+test.typescript({
+	valid: [
+		// #1579
+		outdent`
+			import {useDispatch as reduxUseDispatch} from 'react-redux'
+			type MyDispatchType = Dispatch<MyActions>
+
+			export const useDispatch: () => DispatchAllActions = reduxUseDispatch
+		`,
+	],
+	invalid: [],
+});
