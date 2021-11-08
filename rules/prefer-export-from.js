@@ -157,6 +157,7 @@ function getExported(identifier, context) {
 			if (
 				parent.init === identifier
 				&& parent.id.type === 'Identifier'
+				&& !parent.id.typeAnnotation
 				&& parent.parent.type === 'VariableDeclaration'
 				&& parent.parent.kind === 'const'
 				&& parent.parent.declarations.length === 1
