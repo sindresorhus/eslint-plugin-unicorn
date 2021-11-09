@@ -230,7 +230,7 @@ function * getProblems({
 		```
 		*/
 		if (imported.name === '*' && exported.name === 'default') {
-			return;
+			continue;
 		}
 
 		yield {

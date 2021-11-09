@@ -264,20 +264,11 @@ test.snapshot({
 			export {named} from './foo.js?query';
 			export default defaultExport;
 		`,
-	],
-});
-
-// Strange case
-// TODO: confirm how should this work
-test.snapshot({
-	valid: [
 		outdent`
 			import * as namespace from 'foo';
 			export default namespace;
 			export {namespace};
 		`,
-	],
-	invalid: [
 		outdent`
 			import * as namespace from 'foo';
 			export {namespace};
