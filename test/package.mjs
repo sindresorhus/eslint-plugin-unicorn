@@ -61,8 +61,9 @@ function getNamedOptions(jsonSchema) {
 
 const MESSAGES = {
 	configRecommended: '✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*',
-	fixable: '🔧 The `--fix` option on the [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) can automatically fix some of the problems reported by this rule.',
-	hasSuggestions: '💡 Some problems reported by this rule are manually fixable by editor [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).',
+	fixable: '🔧 This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).',
+	fixableAndHasSuggestions: '🔧💡 This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) and provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).',
+	hasSuggestions: '💡 This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).',
 };
 
 test('Every rule is defined in index file in alphabetical order', t => {
@@ -221,13 +222,19 @@ test('Every rule has a doc with the appropriate content', t => {
 			unexpectedNotices.push('configRecommended');
 		}
 
-		if (rule.meta.fixable) {
+		if (rule.meta.fixable && rule.meta.hasSuggestions) {
+			expectedNotices.push('fixableAndHasSuggestions');
+		} else {
+			unexpectedNotices.push('fixableAndHasSuggestions');
+		}
+
+		if (rule.meta.fixable && !rule.meta.hasSuggestions) {
 			expectedNotices.push('fixable');
 		} else {
 			unexpectedNotices.push('fixable');
 		}
 
-		if (rule.meta.hasSuggestions) {
+		if (!rule.meta.fixable && rule.meta.hasSuggestions) {
 			expectedNotices.push('hasSuggestions');
 		} else {
 			unexpectedNotices.push('hasSuggestions');
