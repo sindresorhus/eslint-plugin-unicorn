@@ -528,82 +528,86 @@ const create = context => {
 	};
 };
 
-const schema = [
-	{
-		type: 'object',
-		properties: {
-			checkProperties: {
-				type: 'boolean',
-			},
-			checkVariables: {
-				type: 'boolean',
-			},
-			checkDefaultAndNamespaceImports: {
-				type: [
-					'boolean',
-					'string',
-				],
-				pattern: 'internal',
-			},
-			checkShorthandImports: {
-				type: [
-					'boolean',
-					'string',
-				],
-				pattern: 'internal',
-			},
-			checkShorthandProperties: {
-				type: 'boolean',
-			},
-			checkFilenames: {
-				type: 'boolean',
-			},
-			extendDefaultReplacements: {
-				type: 'boolean',
-			},
-			replacements: {
-				$ref: '#/items/0/definitions/abbreviations',
-			},
-			extendDefaultAllowList: {
-				type: 'boolean',
-			},
-			allowList: {
-				$ref: '#/items/0/definitions/booleanObject',
-			},
-			ignore: {
-				type: 'array',
-				uniqueItems: true,
-			},
-		},
-		additionalProperties: false,
-		definitions: {
-			abbreviations: {
-				type: 'object',
-				additionalProperties: {
-					$ref: '#/items/0/definitions/replacements',
-				},
-			},
-			replacements: {
-				anyOf: [
-					{
-						enum: [
-							false,
-						],
-					},
-					{
-						$ref: '#/items/0/definitions/booleanObject',
-					},
-				],
-			},
-			booleanObject: {
-				type: 'object',
-				additionalProperties: {
+const schema = {
+	type: 'array',
+	additionalItems: false,
+	items: [
+		{
+			type: 'object',
+			properties: {
+				checkProperties: {
 					type: 'boolean',
 				},
+				checkVariables: {
+					type: 'boolean',
+				},
+				checkDefaultAndNamespaceImports: {
+					type: [
+						'boolean',
+						'string',
+					],
+					pattern: 'internal',
+				},
+				checkShorthandImports: {
+					type: [
+						'boolean',
+						'string',
+					],
+					pattern: 'internal',
+				},
+				checkShorthandProperties: {
+					type: 'boolean',
+				},
+				checkFilenames: {
+					type: 'boolean',
+				},
+				extendDefaultReplacements: {
+					type: 'boolean',
+				},
+				replacements: {
+					$ref: '#/definitions/abbreviations',
+				},
+				extendDefaultAllowList: {
+					type: 'boolean',
+				},
+				allowList: {
+					$ref: '#/definitions/booleanObject',
+				},
+				ignore: {
+					type: 'array',
+					uniqueItems: true,
+				},
+			},
+			additionalProperties: false,
+		},
+	],
+	definitions: {
+		abbreviations: {
+			type: 'object',
+			additionalProperties: {
+				$ref: '#/definitions/replacements',
+			},
+		},
+		replacements: {
+			anyOf: [
+				{
+					enum: [
+						false,
+					],
+				},
+				{
+					$ref: '#/definitions/booleanObject',
+				},
+			],
+		},
+		booleanObject: {
+			type: 'object',
+			additionalProperties: {
+				type: 'boolean',
 			},
 		},
 	},
-];
+};
 
 module.exports = {
 	create,
