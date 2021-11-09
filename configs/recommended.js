@@ -58,6 +58,7 @@ module.exports = {
 		'unicorn/prefer-array-some': 'error',
 		// TODO: Enable this by default when targeting a Node.js version that supports `Array#at`.
 		'unicorn/prefer-at': 'off',
+		'unicorn/prefer-code-point': 'error',
 		'unicorn/prefer-date-now': 'error',
 		'unicorn/prefer-default-parameters': 'error',
 		'unicorn/prefer-dom-node-append': 'error',
@@ -96,18 +97,12 @@ module.exports = {
 		'unicorn/prevent-abbreviations': 'error',
 		'unicorn/require-array-join-separator': 'error',
 		'unicorn/require-number-to-fixed-digits-argument': 'error',
-		'unicorn/require-post-message-target-origin': 'error',
+		// Turned off because we can't distinguish `widow.postMessage` and `{Worker,MessagePort,Client,BroadcastChannel}#postMessage()`
+		// See #1396
+		'unicorn/require-post-message-target-origin': 'off',
 		'unicorn/string-content': 'off',
 		'unicorn/template-indent': 'warn',
 		'unicorn/throw-new-error': 'error',
 		...require('./conflicting-rules.js').rules,
 	},
-	overrides: [
-		{
-			files: ['*.ts', '*.tsx'],
-			rules: {
-				'unicorn/require-post-message-target-origin': 'off',
-			},
-		},
-	],
 };

@@ -264,24 +264,28 @@ test.snapshot({
 			export {named} from './foo.js?query';
 			export default defaultExport;
 		`,
+		outdent`
+			import * as namespace from 'foo';
+			export default namespace;
+			export {namespace};
+		`,
+		outdent`
+			import * as namespace from 'foo';
+			export {namespace};
+			export default namespace;
+		`,
 	],
 });
 
-// Strange case
-// TODO: confirm how should this work
-test.snapshot({
+test.typescript({
 	valid: [
+		// #1579
 		outdent`
-			import * as namespace from 'foo';
-			export default namespace;
-			export {namespace};
+			import {useDispatch as reduxUseDispatch} from 'react-redux'
+			type MyDispatchType = Dispatch<MyActions>
+
+			export const useDispatch: () => DispatchAllActions = reduxUseDispatch
 		`,
 	],
-	invalid: [
-		outdent`
-			import * as namespace from 'foo';
-			export {namespace};
-			export default namespace;
-		`,
-	],
+	invalid: [],
 });

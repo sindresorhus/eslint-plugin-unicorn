@@ -90,6 +90,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-array-index-of": "error",
 			"unicorn/prefer-array-some": "error",
 			"unicorn/prefer-at": "off",
+			"unicorn/prefer-code-point": "error",
 			"unicorn/prefer-date-now": "error",
 			"unicorn/prefer-default-parameters": "error",
 			"unicorn/prefer-dom-node-append": "error",
@@ -125,22 +126,11 @@ Configure it in `package.json`.
 			"unicorn/prevent-abbreviations": "error",
 			"unicorn/require-array-join-separator": "error",
 			"unicorn/require-number-to-fixed-digits-argument": "error",
-			"unicorn/require-post-message-target-origin": "error",
+			"unicorn/require-post-message-target-origin": "off",
 			"unicorn/string-content": "off",
 			"unicorn/template-indent": "warn",
 			"unicorn/throw-new-error": "error"
-		},
-		"overrides": [
-			{
-				"files": [
-					"*.ts",
-					"*.tsx"
-				],
-				"rules": {
-					"unicorn/require-post-message-target-origin": "off"
-				}
-			}
-		]
+		}
 	}
 }
 ```
@@ -213,6 +203,7 @@ Each rule has emojis denoting:
 | [prefer-array-index-of](docs/rules/prefer-array-index-of.md) | Prefer `Array#indexOf()` over `Array#findIndex()` when looking for the index of an item. | ✅ | 🔧 | 💡 |
 | [prefer-array-some](docs/rules/prefer-array-some.md) | Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`. | ✅ | 🔧 | 💡 |
 | [prefer-at](docs/rules/prefer-at.md) | Prefer `.at()` method for index access and `String#charAt()`. |  | 🔧 | 💡 |
+| [prefer-code-point](docs/rules/prefer-code-point.md) | Prefer `String#codePointAt(…)` over `String#charCodeAt(…)` and `String.fromCodePoint(…)` over `String.fromCharCode(…)`. | ✅ |  | 💡 |
 | [prefer-date-now](docs/rules/prefer-date-now.md) | Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. | ✅ | 🔧 |  |
 | [prefer-default-parameters](docs/rules/prefer-default-parameters.md) | Prefer default parameters over reassignment. | ✅ | 🔧 | 💡 |
 | [prefer-dom-node-append](docs/rules/prefer-dom-node-append.md) | Prefer `Node#append()` over `Node#appendChild()`. | ✅ | 🔧 |  |
@@ -248,7 +239,7 @@ Each rule has emojis denoting:
 | [prevent-abbreviations](docs/rules/prevent-abbreviations.md) | Prevent abbreviations. | ✅ | 🔧 |  |
 | [require-array-join-separator](docs/rules/require-array-join-separator.md) | Enforce using the separator argument with `Array#join()`. | ✅ | 🔧 |  |
 | [require-number-to-fixed-digits-argument](docs/rules/require-number-to-fixed-digits-argument.md) | Enforce using the digits argument with `Number#toFixed()`. | ✅ | 🔧 |  |
-| [require-post-message-target-origin](docs/rules/require-post-message-target-origin.md) | Enforce using the `targetOrigin` argument with `window.postMessage()`. | ✅ |  | 💡 |
+| [require-post-message-target-origin](docs/rules/require-post-message-target-origin.md) | Enforce using the `targetOrigin` argument with `window.postMessage()`. |  |  | 💡 |
 | [string-content](docs/rules/string-content.md) | Enforce better string content. |  | 🔧 | 💡 |
 | [template-indent](docs/rules/template-indent.md) | Fix whitespace-insensitive template indentation. |  | 🔧 |  |
 | [throw-new-error](docs/rules/throw-new-error.md) | Require `new` when throwing an error. | ✅ | 🔧 |  |
