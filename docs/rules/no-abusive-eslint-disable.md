@@ -1,6 +1,6 @@
 # Enforce specifying rules to disable in `eslint-disable` comments
 
-✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
 This rule makes you specify the rules you want to disable when using `eslint-disable`, `eslint-disable-line` or `eslint-disable-next-line` comments.
 

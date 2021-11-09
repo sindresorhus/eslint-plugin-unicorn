@@ -1,6 +1,6 @@
 # Enforce passing a `message` value when creating a built-in error
 
-✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
 This rule enforces a `message` value to be passed in when creating an instance of a built-in [`Error`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) object, which leads to more readable and debuggable code.
 

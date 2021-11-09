@@ -1,6 +1,6 @@
 # Enforce specific import styles per module
 
-✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
 Sometimes a module contains unrelated functions, like `util`, thus it is a good practice to enforce destructuring or named imports here. Other times, in modules like `path`, it is good to use default import as they have similar functions, all likely to be utilized.
 

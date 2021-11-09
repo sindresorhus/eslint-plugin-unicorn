@@ -1,6 +1,6 @@
 # Disallow unused object properties
 
-✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
 Unused properties, much like unused variables, are often a result of incomplete refactoring and may confuse readers.
 

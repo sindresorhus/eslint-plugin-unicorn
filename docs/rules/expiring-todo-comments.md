@@ -1,6 +1,6 @@
 # Add expiration conditions to TODO comments
 
-✅ The `"extends": "plugin:unicorn/recommended"` property in a configuration file enables this rule.
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
 This rule makes it possible to pass arguments to TODO, FIXME and XXX comments to trigger ESLint to report.
 
