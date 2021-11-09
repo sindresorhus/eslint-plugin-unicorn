@@ -236,8 +236,8 @@ test('Every rule has a doc with the appropriate content', t => {
 		// Ensure that expected notices are present in the correct order.
 		let currentLineNumber = 1;
 		for (const expectedNotice of expectedNotices) {
-			t.is(documentLines[currentLineNumber], '', `has blank line before ${expectedNotice} notice`);
-			t.is(documentLines[currentLineNumber + 1], MESSAGES[expectedNotice], `includes ${expectedNotice} notice`);
+			t.is(documentLines[currentLineNumber], '', `${ruleName} has blank line before ${expectedNotice} notice`);
+			t.is(documentLines[currentLineNumber + 1], MESSAGES[expectedNotice], `${ruleName} includes ${expectedNotice} notice`);
 			currentLineNumber += 2;
 		}
 
