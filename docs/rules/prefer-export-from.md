@@ -61,3 +61,41 @@ export {
 import * as namespace from './foo.js';
 export default namespace;
 ```
+
+## Options
+
+### ignoreUsedVariables
+
+Type: `boolean`\
+Default: `false`
+
+When pass `"ignoreUsedVariables": true`, if any variable is used more than just re-export or not exported, all variables in the import declaration will be ignored.
+
+#### Fail
+
+```js
+// eslint unicorn/import-index: ["error", {"ignoreUsedVariables": false}]
+import {named1, named2} from './foo.js';
+
+use(named1);
+
+export {named1, named2};
+```
+
+#### Pass
+
+```js
+// eslint unicorn/import-index: ["error", {"ignoreUsedVariables": true}]
+import {named1, named2} from './foo.js';
+
+use(named1);
+
+export {named1, named2};
+```
+
+```js
+// eslint unicorn/import-index: ["error", {"ignoreUsedVariables": true}]
+import {named1, named2} from './foo.js';
+
+export {named1};
+```
