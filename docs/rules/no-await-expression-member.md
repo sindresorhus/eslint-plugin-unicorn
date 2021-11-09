@@ -2,7 +2,7 @@
 
 When accessing member from await expression, the await expression has to be parenthesized, which is not readable.
 
-This rule is fixable for member access.
+This rule is fixable for simple member access.
 
 ## Fail
 
