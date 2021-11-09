@@ -252,7 +252,7 @@ test('Every rule has a doc with the appropriate content', t => {
 		for (const unexpectedNotice of unexpectedNotices) {
 			t.false(
 				documentContents.includes(MESSAGES[unexpectedNotice]),
-				`does not include unexpected ${unexpectedNotice} notice`,
+				`${ruleName} does not include unexpected ${unexpectedNotice} notice`,
 			);
 		}
 	}
