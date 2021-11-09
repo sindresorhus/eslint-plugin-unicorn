@@ -30,8 +30,6 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 
 To enforce the spread operator over `Object#assign()`, use the built-in [`prefer-object-spread` rule](https://eslint.org/docs/rules/prefer-object-spread).
 
-This rule is partly fixable.
-
 ## Fail
 
 ```js

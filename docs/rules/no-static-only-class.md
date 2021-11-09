@@ -6,8 +6,6 @@
 
 A class with only static members could just be an object instead.
 
-This rule is partly fixable.
-
 ## Fail
 
 ```js

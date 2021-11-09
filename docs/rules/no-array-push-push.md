@@ -6,8 +6,6 @@
 
 [`Array#push()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push) accepts multiple arguments. Multiple calls should be combined into one.
 
-This rule is partly fixable.
-
 ## Fail
 
 ```js

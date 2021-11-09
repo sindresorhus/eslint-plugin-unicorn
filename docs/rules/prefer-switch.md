@@ -6,8 +6,6 @@
 
 A switch statement is easier to read than multiple if statements with simple equality comparisons.
 
-This rule is partly fixable.
-
 ## Fail
 
 ```js

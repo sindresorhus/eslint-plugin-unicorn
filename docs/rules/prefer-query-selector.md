@@ -6,9 +6,6 @@
 
 It's better to use the same method to query DOM elements.
 
-This rule is partly fixable.
-
-
 ## Fail
 
 ```js

@@ -10,8 +10,6 @@ Benefits of [`for…of` statement](https://developer.mozilla.org/en-US/docs/Web/
 - Better readability
 - Ability to exit early with `break` or `return`
 
-This rule is partly fixable.
-
 ## Fail
 
 ```js
