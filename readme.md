@@ -55,6 +55,7 @@ Configure it in `package.json`.
 			"unicorn/no-array-method-this-argument": "error",
 			"unicorn/no-array-push-push": "error",
 			"unicorn/no-array-reduce": "error",
+			"unicorn/no-await-expression-member": "error",
 			"unicorn/no-console-spaces": "error",
 			"unicorn/no-document-cookie": "error",
 			"unicorn/no-empty-file": "error",
@@ -168,6 +169,7 @@ Each rule has emojis denoting:
 | [no-array-method-this-argument](docs/rules/no-array-method-this-argument.md) | Disallow using the `this` argument in array methods. | ✅ | 🔧 | 💡 |
 | [no-array-push-push](docs/rules/no-array-push-push.md) | Enforce combining multiple `Array#push()` into one call. | ✅ | 🔧 | 💡 |
 | [no-array-reduce](docs/rules/no-array-reduce.md) | Disallow `Array#reduce()` and `Array#reduceRight()`. | ✅ |  |  |
+| [no-await-expression-member](docs/rules/no-await-expression-member.md) | Forbid member access from await expression. | ✅ | 🔧 |  |
 | [no-console-spaces](docs/rules/no-console-spaces.md) | Do not use leading/trailing space between `console.log` parameters. | ✅ | 🔧 |  |
 | [no-document-cookie](docs/rules/no-document-cookie.md) | Do not use `document.cookie` directly. | ✅ |  |  |
 | [no-empty-file](docs/rules/no-empty-file.md) | Disallow empty files. | ✅ |  |  |

@@ -3,6 +3,7 @@
 module.exports = {
 	// Utilities
 	extendFixRange: require('./extend-fix-range.js'),
+	removeParentheses: require('./remove-parentheses.js'),
 
 	appendArgument: require('./append-argument.js'),
 	removeArgument: require('./remove-argument.js'),
