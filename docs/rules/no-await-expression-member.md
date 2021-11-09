@@ -1,6 +1,6 @@
 # Forbid member access from await expression
 
-When accessing member from await expression, the await expression has to be parenthesized, which is not readable.
+When accessing a member from an await expression, the await expression has to be parenthesized, which is not readable.
 
 This rule is fixable for simple member access.
 
@@ -25,7 +25,7 @@ const data = await (await fetch('/foo')).json();
 ## Pass
 
 ```js
-const {default: foo}= await import('./foo.js');
+const {default: foo} = await import('./foo.js');
 ```
 
 ```js
