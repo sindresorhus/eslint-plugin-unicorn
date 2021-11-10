@@ -74,7 +74,7 @@ When `true`, if an import is used in other places than just re-export, all varia
 #### Fail
 
 ```js
-// eslint unicorn/import-index: ["error", {"ignoreUsedVariables": false}]
+// eslint unicorn/prefer-export-from: ["error", {"ignoreUsedVariables": false}]
 import {named1, named2} from './foo.js';
 
 use(named1);
@@ -85,7 +85,7 @@ export {named1, named2};
 #### Pass
 
 ```js
-// eslint unicorn/import-index: ["error", {"ignoreUsedVariables": true}]
+// eslint unicorn/prefer-export-from: ["error", {"ignoreUsedVariables": true}]
 import {named1, named2} from './foo.js';
 
 use(named1);
