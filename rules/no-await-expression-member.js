@@ -6,7 +6,7 @@ const {
 
 const MESSAGE_ID = 'no-await-expression-member';
 const messages = {
-	[MESSAGE_ID]: 'Do not access member directly from an await expression.',
+	[MESSAGE_ID]: 'Do not access a member directly from an await expression.',
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
