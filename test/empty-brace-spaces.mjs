@@ -26,6 +26,7 @@ const cases = [
 	'foo = {/* */}',
 	'class Foo {bar() {/* */}}',
 	'foo = class {bar() {/* */}}',
+	'class Foo {static  {/* */}}',
 ];
 const classBodyCases = [
 	'class Foo {/* */}',
