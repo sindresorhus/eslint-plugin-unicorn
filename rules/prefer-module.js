@@ -2,10 +2,13 @@
 const {isOpeningParenToken} = require('eslint-utils');
 const isShadowed = require('./utils/is-shadowed.js');
 const isStaticRequire = require('./utils/is-static-require.js');
-const {getParentheses} = require('./utils/parentheses.js');
 const assertToken = require('./utils/assert-token.js');
 const {referenceIdentifierSelector} = require('./selectors/index.js');
-const {replaceReferenceIdentifier, removeSpacesAfter} = require('./fix/index.js');
+const {
+	removeParentheses,
+	replaceReferenceIdentifier,
+	removeSpacesAfter,
+} = require('./fix/index.js');
 
 const ERROR_USE_STRICT_DIRECTIVE = 'error/use-strict-directive';
 const ERROR_GLOBAL_RETURN = 'error/global-return';
@@ -34,15 +37,6 @@ const identifierSelector = referenceIdentifierSelector([
 	'__dirname',
 ]);
 
-function * removeParentheses(nodeOrNodes, fixer, sourceCode) {
-	for (const node of Array.isArray(nodeOrNodes) ? nodeOrNodes : [nodeOrNodes]) {
-		const parentheses = getParentheses(node, sourceCode);
-		for (const token of parentheses) {
-			yield fixer.remove(token);
-		}
-	}
-}
-
 function fixRequireCall(node, sourceCode) {
 	if (!isStaticRequire(node.parent) || node.parent.callee !== node) {
 		return;
@@ -66,7 +60,10 @@ function fixRequireCall(node, sourceCode) {
 			yield fixer.replaceText(openingParenthesisToken, ' ');
 			const closingParenthesisToken = sourceCode.getLastToken(requireCall);
 			yield fixer.remove(closingParenthesisToken);
-			yield * removeParentheses([callee, requireCall, source], fixer, sourceCode);
+
+			for (const node of [callee, requireCall, source]) {
+				yield * removeParentheses(node, fixer, sourceCode);
+			}
 		};
 	}
 
@@ -124,7 +121,9 @@ function fixRequireCall(node, sourceCode) {
 			const closingParenthesisToken = sourceCode.getLastToken(requireCall);
 			yield fixer.remove(closingParenthesisToken);
 
-			yield * removeParentheses([callee, requireCall, source], fixer, sourceCode);
+			for (const node of [callee, requireCall, source]) {
+				yield * removeParentheses(node, fixer, sourceCode);
+			}
 
 			if (id.type === 'Identifier') {
 				return;
@@ -180,7 +179,9 @@ function fixDefaultExport(node, sourceCode) {
 		yield fixer.remove(equalToken);
 		yield removeSpacesAfter(equalToken, sourceCode, fixer);
 
-		yield * removeParentheses([node.parent, node], fixer, sourceCode);
+		for (const currentNode of [node.parent, node]) {
+			yield * removeParentheses(currentNode, fixer, sourceCode);
+		}
 	};
 }
 

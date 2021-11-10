@@ -88,7 +88,10 @@ const makeEslintTask = (project, destination) => {
 	});
 };
 
-const getBranch = mem(async dirname => (await execa('git', ['branch', '--show-current'], {cwd: dirname})).stdout);
+const getBranch = mem(async dirname => {
+	const {stdout} = await execa('git', ['branch', '--show-current'], {cwd: dirname});
+	return stdout;
+});
 
 const execute = project => {
 	const destination = project.location || path.join(dirname, 'fixtures', project.name);
