@@ -11,7 +11,7 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 
 ## Install
 
-```console
+```sh
 npm install --save-dev eslint eslint-plugin-unicorn
 ```
 
