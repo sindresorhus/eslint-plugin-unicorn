@@ -54,6 +54,7 @@ for (const element of array) {
 	result += element;
 }
 ```
+
 ## Options
 
 ### allowSimpleOperations

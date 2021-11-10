@@ -18,7 +18,6 @@ function foo({a} = {a: false}) {}
 const abc = (foo = {a: false, b: 123}) => {};
 ```
 
-
 ## Pass
 
 ```js

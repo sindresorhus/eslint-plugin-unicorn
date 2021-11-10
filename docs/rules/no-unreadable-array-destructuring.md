@@ -24,7 +24,6 @@ const [,,,, foo] = parts;
 const [,,...rest] = parts;
 ```
 
-
 ## Pass
 
 ```js

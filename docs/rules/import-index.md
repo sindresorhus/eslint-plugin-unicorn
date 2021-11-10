@@ -6,7 +6,6 @@
 
 Enforces importing index file with `.` instead of `./`, `./index` or `./index.js`.
 
-
 ## Fail
 
 ```js
@@ -41,7 +40,6 @@ import m from './';
 import m from './index';
 ```
 
-
 ## Pass
 
 ```js
@@ -63,7 +61,6 @@ const m = require('@foo/bar');
 ```js
 import m from '.';
 ```
-
 
 ## Options
 

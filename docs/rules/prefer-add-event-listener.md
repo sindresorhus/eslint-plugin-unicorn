@@ -8,7 +8,6 @@ Enforces the use of `.addEventListener()` and `.removeEventListener()` over thei
 
 This rule is fixable (only for `.addEventListener()`).
 
-
 ## Fail
 
 ```js
@@ -44,7 +43,6 @@ foo.bar.addEventListener('click', onClick);
 ```js
 foo.removeEventListener('click', onClick);
 ```
-
 
 ## Options
 

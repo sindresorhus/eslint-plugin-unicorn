@@ -10,7 +10,6 @@ It's aware of the most commonly used type checking operators and identifiers lik
 
 The rule investigates every throw-statement which throws a generic `Error`. It will fail if the throw-statement is the only expression in the surrounding block and is preceeded by an if-statement whose condition consists of type-checks exclusively. You have to replace the `Error` with a `TypeError`.
 
-
 ## Fail
 
 ```js
@@ -38,7 +37,6 @@ if (typeof foo !== 'function' &&
 	throw new Error('Magic expected');
 }
 ```
-
 
 ## Pass
 

@@ -6,14 +6,12 @@
 
 Enforces a convention of using [Unicode escapes](https://mathiasbynens.be/notes/javascript-escapes#unicode) instead of [hexadecimal escapes](https://mathiasbynens.be/notes/javascript-escapes#hexadecimal) for consistency and clarity.
 
-
 ## Fail
 
 ```js
 const foo = '\x1B';
 const foo = `\x1B${bar}`;
 ```
-
 
 ## Pass
 

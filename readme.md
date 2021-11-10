@@ -1,5 +1,6 @@
 # eslint-plugin-unicorn [![Coverage Status](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/main/graph/badge.svg)](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/main) [![npm version](https://img.shields.io/npm/v/eslint-plugin-unicorn.svg?style=flat)](https://npmjs.com/package/eslint-plugin-unicorn)
 
+<!-- markdownlint-disable-next-line no-inline-html -->
 <img src="https://cloud.githubusercontent.com/assets/170270/18659176/1cc373d0-7f33-11e6-890f-0ba35362ee7e.jpg" width="180" align="right">
 
 > Various awesome ESLint rules
@@ -11,7 +12,7 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 ## Install
 
 ```console
-$ npm install --save-dev eslint eslint-plugin-unicorn
+npm install --save-dev eslint eslint-plugin-unicorn
 ```
 
 ## Usage
@@ -290,12 +291,12 @@ See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configurati
 
 ## Maintainers
 
-- [Sindre Sorhus](https://github.com/sindresorhus)
-- [Adam Babcock](https://github.com/MrHen)
-- [futpib](https://github.com/futpib)
-- [Fisker Cheung](https://github.com/fisker)
+* [Sindre Sorhus](https://github.com/sindresorhus)
+* [Adam Babcock](https://github.com/MrHen)
+* [futpib](https://github.com/futpib)
+* [Fisker Cheung](https://github.com/fisker)
 
-###### Former
+### Former
 
-- [Jeroen Engels](https://github.com/jfmengels)
-- [Sam Verschueren](https://github.com/SamVerschueren)
+* [Jeroen Engels](https://github.com/jfmengels)
+* [Sam Verschueren](https://github.com/SamVerschueren)

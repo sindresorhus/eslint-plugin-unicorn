@@ -6,14 +6,12 @@
 
 The `instanceof Array` check doesn't work across realms/contexts, for example, frames/windows in browsers or the `vm` module in Node.js.
 
-
 ## Fail
 
 ```js
 array instanceof Array;
 [1,2,3] instanceof Array;
 ```
-
 
 ## Pass
 

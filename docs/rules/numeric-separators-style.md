@@ -71,6 +71,7 @@ The size of the first group can be of any length as long as it is equal to or le
 ### Details
 
 Numbers are split into 3 distinct parts:
+
 - The integer part (**123**.456). The remaining digits (that do not fit in a group) have to be placed at the beginning: `12_345`.
 - The fractional part (123.**456**). The remaining digits have to be placed at the end of the number: `1.234_56`.
 - The exponential part (123.456e**789**). It acts exactly as the integer part: groups have to be at the beginning.
