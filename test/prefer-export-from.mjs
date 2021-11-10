@@ -289,3 +289,108 @@ test.typescript({
 	],
 	invalid: [],
 });
+
+// `ignoreUsedVariables`
+test.snapshot({
+	valid: [
+		outdent`
+			import defaultExport from 'foo';
+			use(defaultExport);
+			export default defaultExport;
+		`,
+		outdent`
+			import defaultExport from 'foo';
+			use(defaultExport);
+			export {defaultExport};
+		`,
+		outdent`
+			import {named} from 'foo';
+			use(named);
+			export {named};
+		`,
+		outdent`
+			import {named} from 'foo';
+			use(named);
+			export default named;
+		`,
+		outdent`
+			import * as namespace from 'foo';
+			use(namespace);
+			export {namespace};
+		`,
+		outdent`
+			import * as namespace from 'foo';
+			use(namespace);
+			export default namespace;
+		`,
+		outdent`
+			import * as namespace from 'foo';
+			export {namespace as default};
+			export {namespace as named};
+		`,
+		outdent`
+			import * as namespace from 'foo';
+			export default namespace;
+			export {namespace as named};
+		`,
+		outdent`
+			import defaultExport, {named} from 'foo';
+			use(defaultExport);
+			export {named};
+		`,
+		outdent`
+			import defaultExport, {named} from 'foo';
+			use(named);
+			export {defaultExport};
+		`,
+		outdent`
+			import {named1, named2} from 'foo';
+			use(named1);
+			export {named2};
+		`,
+		outdent`
+			import defaultExport, {named1, named2} from 'foo';
+			use(defaultExport);
+			export {named1, named2};
+		`,
+		outdent`
+			import defaultExport, {named1, named2} from 'foo';
+			use(named1);
+			export {defaultExport, named2};
+		`,
+	].map(code => ({code, options: [{ignoreUsedVariables: true}]})),
+	invalid: [
+		outdent`
+			import defaultExport from 'foo';
+			export {defaultExport as default};
+			export {defaultExport as named};
+		`,
+		outdent`
+			import {named} from 'foo';
+			export {named as default};
+			export {named as named};
+		`,
+		outdent`
+			import {named} from 'foo';
+			export default named;
+			export {named as named};
+		`,
+		outdent`
+			import defaultExport, {named} from 'foo';
+			export default defaultExport;
+			export {named};
+		`,
+		outdent`
+			import defaultExport, {named} from 'foo';
+			export {defaultExport as default, named};
+		`,
+		outdent`
+			import defaultExport from 'foo';
+			export const variable = defaultExport;
+		`,
+		outdent`
+			import {notUsedNotExported, exported} from 'foo';
+			export {exported};
+		`,
+	].map(code => ({code, options: [{ignoreUsedVariables: true}]})),
+});

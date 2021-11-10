@@ -5,9 +5,11 @@ const {
 	isClosingBraceToken,
 } = require('eslint-utils');
 
-const MESSAGE_ID = 'prefer-export-from';
+const MESSAGE_ID_ERROR = 'error';
+const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
-	[MESSAGE_ID]: 'Use `export…from` to re-export `{{exported}}`.',
+	[MESSAGE_ID_ERROR]: 'Use `export…from` to re-export `{{exported}}`.',
+	[MESSAGE_ID_SUGGESTION]: 'Switch to `export…from`.',
 };
 
 function * removeSpecifier(node, fixer, sourceCode) {
@@ -72,7 +74,7 @@ function * removeImportOrExport(node, fixer, sourceCode) {
 	}
 }
 
-function fix({
+function getFixFunction({
 	context,
 	imported,
 	exported,
@@ -193,28 +195,19 @@ function isVariableUnused(node, context) {
 		&& references[0].identifier === node.id;
 }
 
-function * getProblems({
-	context,
-	variable,
-	program,
-	exportDeclarations,
-}) {
-	const {identifiers, references} = variable;
-
-	if (identifiers.length !== 1 || references.length === 0) {
-		return;
-	}
-
-	const specifier = identifiers[0].parent;
-
-	const imported = {
+function getImported(variable) {
+	const specifier = variable.identifiers[0].parent;
+	return {
 		name: getImportedName(specifier),
 		node: specifier,
 		declaration: specifier.parent,
 		variable,
 	};
+}
 
-	for (const {identifier} of references) {
+function getExports(imported, context) {
+	const exports = [];
+	for (const {identifier} of imported.variable.references) {
 		const exported = getExported(identifier, context);
 
 		if (!exported) {
@@ -233,44 +226,94 @@ function * getProblems({
 			continue;
 		}
 
-		yield {
-			node: exported.node,
-			messageId: MESSAGE_ID,
-			data: {
-				exported: exported.name,
-			},
-			fix: fix({
-				context,
-				imported,
-				exported,
-				exportDeclarations,
-				program,
-			}),
-		};
+		exports.push(exported);
 	}
+
+	return exports;
 }
+
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			ignoreUsedVariables: {
+				type: 'boolean',
+				default: false,
+			},
+		},
+	},
+];
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
-	const variables = [];
+	const {ignoreUsedVariables} = {ignoreUsedVariables: false, ...context.options[0]};
+	const importDeclarations = new Set();
 	const exportDeclarations = [];
 
 	return {
 		'ImportDeclaration[specifiers.length>0]'(node) {
-			variables.push(...context.getDeclaredVariables(node));
+			importDeclarations.add(node);
 		},
 		// `ExportAllDeclaration` and `ExportDefaultDeclaration` can't be reused
 		'ExportNamedDeclaration[source.type="Literal"]'(node) {
 			exportDeclarations.push(node);
 		},
 		* 'Program:exit'(program) {
-			for (const variable of variables) {
-				yield * getProblems({
-					context,
-					variable,
-					exportDeclarations,
-					program,
-				});
+			for (const importDeclaration of importDeclarations) {
+				const variables = context.getDeclaredVariables(importDeclaration)
+					.map(variable => {
+						const imported = getImported(variable);
+						const exports = getExports(imported, context);
+
+						return {
+							variable,
+							imported,
+							exports,
+						};
+					});
+
+				if (
+					ignoreUsedVariables
+					&& variables.some(({variable, exports}) => variable.references.length !== exports.length)
+				) {
+					continue;
+				}
+
+				const shouldUseSuggestion = ignoreUsedVariables
+					&& variables.some(({variable}) => variable.references.length === 0);
+
+				for (const {imported, exports} of variables) {
+					for (const exported of exports) {
+						const problem = {
+							node: exported.node,
+							messageId: MESSAGE_ID_ERROR,
+							data: {
+								exported: exported.name,
+							},
+						};
+						const fix = getFixFunction({
+							context,
+							imported,
+							exported,
+							exportDeclarations,
+							program,
+						});
+
+						if (shouldUseSuggestion) {
+							problem.suggest = [
+								{
+									messageId: MESSAGE_ID_SUGGESTION,
+									fix,
+								},
+							];
+						} else {
+							problem.fix = fix;
+						}
+
+						yield problem;
+					}
+				}
 			}
 		},
 	};
@@ -284,6 +327,8 @@ module.exports = {
 			description: 'Prefer `export…from` when re-exporting.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
+		schema,
 		messages,
 	},
 };
