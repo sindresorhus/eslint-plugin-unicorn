@@ -5,9 +5,11 @@ const {
 	isClosingBraceToken,
 } = require('eslint-utils');
 
-const MESSAGE_ID = 'prefer-export-from';
+const MESSAGE_ID_ERROR = 'error';
+const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
-	[MESSAGE_ID]: 'Use `export…from` to re-export `{{exported}}`.',
+	[MESSAGE_ID_ERROR]: 'Use `export…from` to re-export `{{exported}}`.',
+	[MESSAGE_ID_SUGGESTION]: 'Switch to `export…from`.',
 };
 
 function * removeSpecifier(node, fixer, sourceCode) {
@@ -72,7 +74,7 @@ function * removeImportOrExport(node, fixer, sourceCode) {
 	}
 }
 
-function fix({
+function getFixFunction({
 	context,
 	imported,
 	exported,
@@ -273,30 +275,43 @@ function create(context) {
 
 				if (
 					ignoreUsedVariables
-					&& variables.some(({variable, exports}) => {
-						const {references} = variable;
-						return references.length === 0 || references.length !== exports.length;
-					})
+					&& variables.some(({variable, exports}) => variable.references.length !== exports.length)
 				) {
 					continue;
 				}
 
+				const shouldUseSuggestion = ignoreUsedVariables
+					&& variables.some(({variable}) => variable.references.length === 0);
+
 				for (const {imported, exports} of variables) {
 					for (const exported of exports) {
-						yield {
+						const problem = {
 							node: exported.node,
-							messageId: MESSAGE_ID,
+							messageId: MESSAGE_ID_ERROR,
 							data: {
 								exported: exported.name,
 							},
-							fix: fix({
-								context,
-								imported,
-								exported,
-								exportDeclarations,
-								program,
-							}),
 						};
+						const fix = getFixFunction({
+							context,
+							imported,
+							exported,
+							exportDeclarations,
+							program,
+						});
+
+						if (shouldUseSuggestion) {
+							problem.suggest = [
+								{
+									messageId: MESSAGE_ID_SUGGESTION,
+									fix,
+								},
+							];
+						} else {
+							problem.fix = fix;
+						}
+
+						yield problem;
 					}
 				}
 			}
@@ -312,6 +327,7 @@ module.exports = {
 			description: 'Prefer `export…from` when re-exporting.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		messages,
 	},

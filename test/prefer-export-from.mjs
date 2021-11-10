@@ -358,10 +358,6 @@ test.snapshot({
 			use(named1);
 			export {defaultExport, named2};
 		`,
-		outdent`
-			import {notUsedNotExported, exported} from 'foo';
-			export {exported};
-		`,
 	].map(code => ({code, options: [{ignoreUsedVariables: true}]})),
 	invalid: [
 		outdent`
@@ -391,6 +387,10 @@ test.snapshot({
 		outdent`
 			import defaultExport from 'foo';
 			export const variable = defaultExport;
+		`,
+		outdent`
+			import {notUsedNotExported, exported} from 'foo';
+			export {exported};
 		`,
 	].map(code => ({code, options: [{ignoreUsedVariables: true}]})),
 });

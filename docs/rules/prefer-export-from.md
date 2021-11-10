@@ -69,7 +69,7 @@ export default namespace;
 Type: `boolean`\
 Default: `false`
 
-When pass `"ignoreUsedVariables": true`, if any variable is used more than just re-export or not exported, all variables in the import declaration will be ignored.
+When `true`, if an import is used in other places than just re-export, all variables in the import declaration will be ignored.
 
 #### Fail
 
@@ -91,11 +91,4 @@ import {named1, named2} from './foo.js';
 use(named1);
 
 export {named1, named2};
-```
-
-```js
-// eslint unicorn/import-index: ["error", {"ignoreUsedVariables": true}]
-import {named1, named2} from './foo.js';
-
-export {named1};
 ```
