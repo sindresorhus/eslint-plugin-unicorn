@@ -1,5 +1,9 @@
 # Forbid member access from await expression
 
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+
+🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
+
 When accessing a member from an await expression, the await expression has to be parenthesized, which is not readable.
 
 This rule is fixable for simple member access.
