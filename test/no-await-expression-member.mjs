@@ -32,6 +32,7 @@ test.snapshot({
 
 		'const property = (await getObject).property',
 		'const renamed = (await getObject).property',
+		'const property = (await getObject)[property]',
 		'const property = (await getObject)?.property',
 		'const {propertyOfProperty} = (await getObject).property',
 		'const {propertyOfProperty} = (await getObject).propertyOfProperty',
