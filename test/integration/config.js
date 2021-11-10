@@ -5,9 +5,6 @@ module.exports = {
 	parser: '@babel/eslint-parser',
 	parserOptions: {
 		requireConfigFile: false,
-		ecmaFeatures: {
-			globalReturn: true,
-		},
 		babelOptions: {
 			babelrc: false,
 			configFile: false,
