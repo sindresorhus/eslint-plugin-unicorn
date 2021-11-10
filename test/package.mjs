@@ -59,6 +59,13 @@ function getNamedOptions(jsonSchema) {
 	return [];
 }
 
+const MESSAGES = {
+	configRecommended: '✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*',
+	fixable: '🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*',
+	fixableAndHasSuggestions: '🔧💡 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) and provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*',
+	hasSuggestions: '💡 *This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*',
+};
+
 test('Every rule is defined in index file in alphabetical order', t => {
 	for (const file of ruleFiles) {
 		const name = path.basename(file, '.js');
@@ -204,6 +211,49 @@ test('Every rule has a doc with the appropriate content', t => {
 			// Should NOT have any options/config section headers:
 			t.false(documentContents.includes('# Options'), `${ruleName} should not have an "Options" section`);
 			t.false(documentContents.includes('# Config'), `${ruleName} should not have a "Config" section`);
+		}
+
+		// Decide which notices should be shown at the top of the doc.
+		const expectedNotices = [];
+		const unexpectedNotices = [];
+		if (index.configs.recommended.rules[`unicorn/${ruleName}`]) {
+			expectedNotices.push('configRecommended');
+		} else {
+			unexpectedNotices.push('configRecommended');
+		}
+
+		if (rule.meta.fixable && rule.meta.hasSuggestions) {
+			expectedNotices.push('fixableAndHasSuggestions');
+		} else {
+			unexpectedNotices.push('fixableAndHasSuggestions');
+		}
+
+		if (rule.meta.fixable && !rule.meta.hasSuggestions) {
+			expectedNotices.push('fixable');
+		} else {
+			unexpectedNotices.push('fixable');
+		}
+
+		if (!rule.meta.fixable && rule.meta.hasSuggestions) {
+			expectedNotices.push('hasSuggestions');
+		} else {
+			unexpectedNotices.push('hasSuggestions');
+		}
+
+		// Ensure that expected notices are present in the correct order.
+		let currentLineNumber = 1;
+		for (const expectedNotice of expectedNotices) {
+			t.is(documentLines[currentLineNumber], '', `${ruleName} has blank line before ${expectedNotice} notice`);
+			t.is(documentLines[currentLineNumber + 1], MESSAGES[expectedNotice], `${ruleName} includes ${expectedNotice} notice`);
+			currentLineNumber += 2;
+		}
+
+		// Ensure that unexpected notices are not present.
+		for (const unexpectedNotice of unexpectedNotices) {
+			t.false(
+				documentContents.includes(MESSAGES[unexpectedNotice]),
+				`${ruleName} does not include unexpected ${unexpectedNotice} notice`,
+			);
 		}
 	}
 });

@@ -1,8 +1,10 @@
 # Forbid classes that only have static members
 
-A class with only static members could just be an object instead.
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
-This rule is partly fixable.
+🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
+
+A class with only static members could just be an object instead.
 
 ## Fail
 

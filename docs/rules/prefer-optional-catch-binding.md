@@ -1,8 +1,10 @@
 # Prefer omitting the `catch` binding parameter
 
-If the `catch` binding parameter is not used, it should be omitted.
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
-This rule is fixable.
+🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
+
+If the `catch` binding parameter is not used, it should be omitted.
 
 ## Fail
 

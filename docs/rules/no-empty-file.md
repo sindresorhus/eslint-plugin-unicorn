@@ -1,5 +1,7 @@
 # Disallow empty files
 
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+
 Meaningless files clutter a codebase.
 
 Disallow any files only containing the following:
