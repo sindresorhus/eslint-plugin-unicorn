@@ -7,7 +7,7 @@ const {
 } = require('./selectors/index.js');
 const {getParentheses} = require('./utils/parentheses.js');
 const typedArray = require('./shared/typed-array.js');
-const {fixSpaceAroundKeyword} = require('./fix/index.js');
+const {removeParentheses, fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const SPREAD_IN_LIST = 'spread-in-list';
 const ITERABLE_TO_ARRAY = 'iterable-to-array';
@@ -107,10 +107,7 @@ const create = context => {
 
 					// `[...(( [foo] ))]`
 					//      ^^       ^^
-					const parentheses = getParentheses(spreadObject, sourceCode);
-					for (const parenthesis of parentheses) {
-						yield fixer.remove(parenthesis);
-					}
+					yield * removeParentheses(spreadObject, fixer, sourceCode);
 
 					// `[...[foo]]`
 					//      ^

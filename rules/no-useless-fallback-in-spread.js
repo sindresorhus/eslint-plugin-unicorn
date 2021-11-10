@@ -3,8 +3,8 @@ const {matches} = require('./selectors/index.js');
 const {
 	isParenthesized,
 	getParenthesizedRange,
-	getParentheses,
 } = require('./utils/parentheses.js');
+const {removeParentheses} = require('./fix/index.js');
 const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument.js');
 
 const MESSAGE_ID = 'no-useless-fallback-in-spread';
@@ -49,11 +49,7 @@ const create = context => ({
 					isLeftObjectParenthesized
 					|| !shouldAddParenthesesToSpreadElementArgument(left)
 				) {
-					const parentheses = getParentheses(logicalExpression, sourceCode);
-
-					for (const token of parentheses) {
-						yield fixer.remove(token);
-					}
+					yield * removeParentheses(logicalExpression, fixer, sourceCode);
 				}
 			},
 		};
