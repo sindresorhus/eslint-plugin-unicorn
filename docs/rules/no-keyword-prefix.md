@@ -1,5 +1,7 @@
 # Disallow identifiers starting with `new` or `class`
 
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+
 `new Foo` and `newFoo` look very similar. Use alternatives that do not look like keyword usage.
 
 ## Fail

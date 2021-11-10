@@ -1,8 +1,10 @@
 # Enforce correct `Error` subclassing
 
-Enforces the only valid way of `Error` subclassing. It works with any super class that ends in `Error`.
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
-This rule is fixable.
+🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
+
+Enforces the only valid way of `Error` subclassing. It works with any super class that ends in `Error`.
 
 
 ## Fail

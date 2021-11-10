@@ -1,5 +1,9 @@
 # Prevent abbreviations
 
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+
+🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
+
 Using complete words results in more readable code. Not everyone knows all your abbreviations. Code is written only once, but read many times.
 
 This rule can also be used to replace terms, disallow words, etc. See the [`replacements`](#replacements) and [`extendDefaultReplacements`](#extenddefaultreplacements) options.

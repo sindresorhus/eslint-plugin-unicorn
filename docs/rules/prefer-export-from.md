@@ -1,8 +1,10 @@
 # Prefer `export…from` when re-exporting
 
-When re-exporting from a module, it's unnecessary to import and then export. It can be done in a single `export…from` declaration.
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
-This rule is fixable.
+🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
+
+When re-exporting from a module, it's unnecessary to import and then export. It can be done in a single `export…from` declaration.
 
 ## Fail
 

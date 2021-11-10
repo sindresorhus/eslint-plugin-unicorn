@@ -1,5 +1,9 @@
 # Do not use a `for` loop that can be replaced with a `for-of` loop
 
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+
+🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
+
 There's no reason to use old school for loops anymore for the common case. You can instead use for-of loop (with `.entries()` if you need to access the index).
 
 Off-by-one errors are one of the most common bugs in software. [Swift actually removed this completely from the language.](https://github.com/apple/swift-evolution/blob/master/proposals/0007-remove-c-style-for-loops.md).

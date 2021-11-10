@@ -1,5 +1,7 @@
 # Disallow `process.exit()`
 
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+
 This rule is an extension to ESLint's [`no-process-exit` rule](https://eslint.org/docs/rules/no-process-exit), that allows `process.exit()` to be called in files that start with a [hashbang](https://en.wikipedia.org/wiki/Shebang_(Unix)) → `#!/usr/bin/env node`. It also allows `process.exit()` to be called in `process.on('<event>', func)` event handlers and in files that imports `worker_threads`.
 
 
