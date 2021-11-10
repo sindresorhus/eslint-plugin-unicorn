@@ -502,9 +502,9 @@ const create = context => {
 				return;
 			}
 
-			const extension = path.extname(filenameWithExtension);
-			const filename = path.basename(filenameWithExtension, extension);
-			const filenameReplacements = getNameReplacements(filename, options);
+			const filename = path.basename(filenameWithExtension);
+			const extension = path.extname(filename);
+			const filenameReplacements = getNameReplacements(path.basename(filename, extension), options);
 
 			if (filenameReplacements.total === 0) {
 				return;
@@ -513,7 +513,7 @@ const create = context => {
 			filenameReplacements.samples = filenameReplacements.samples.map(replacement => `${replacement}${extension}`);
 
 			context.report({
-				...getMessage(filenameWithExtension, filenameReplacements, 'filename'),
+				...getMessage(filename, filenameReplacements, 'filename'),
 				node,
 			});
 		},
