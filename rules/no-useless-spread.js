@@ -5,7 +5,6 @@ const {
 	newExpressionSelector,
 	methodCallSelector,
 } = require('./selectors/index.js');
-const {getParentheses} = require('./utils/parentheses.js');
 const typedArray = require('./shared/typed-array.js');
 const {removeParentheses, fixSpaceAroundKeyword} = require('./fix/index.js');
 
