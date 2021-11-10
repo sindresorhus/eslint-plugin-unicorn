@@ -142,9 +142,9 @@ Configure it in `package.json`.
 
 Each rule has emojis denoting:
 
-* ✅ if it belongs to the `recommended` configuration
-* 🔧 if some problems reported by the rule are automatically fixable by the `--fix` [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) option
-* 💡 if some problems reported by the rule are manually fixable by editor [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions)
+- ✅ if it belongs to the `recommended` configuration
+- 🔧 if some problems reported by the rule are automatically fixable by the `--fix` [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) option
+- 💡 if some problems reported by the rule are manually fixable by editor [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions)
 
 <!-- Do not manually modify this table. Run: `npm run generate-rules-table` -->
 <!-- RULES_TABLE_START -->
@@ -291,12 +291,12 @@ See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configurati
 
 ## Maintainers
 
-* [Sindre Sorhus](https://github.com/sindresorhus)
-* [Adam Babcock](https://github.com/MrHen)
-* [futpib](https://github.com/futpib)
-* [Fisker Cheung](https://github.com/fisker)
+- [Sindre Sorhus](https://github.com/sindresorhus)
+- [Adam Babcock](https://github.com/MrHen)
+- [futpib](https://github.com/futpib)
+- [Fisker Cheung](https://github.com/fisker)
 
 ### Former
 
-* [Jeroen Engels](https://github.com/jfmengels)
-* [Sam Verschueren](https://github.com/SamVerschueren)
+- [Jeroen Engels](https://github.com/jfmengels)
+- [Sam Verschueren](https://github.com/SamVerschueren)
