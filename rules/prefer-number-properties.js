@@ -127,13 +127,13 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			checkInfinity: {
 				type: 'boolean',
 				default: true,
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 

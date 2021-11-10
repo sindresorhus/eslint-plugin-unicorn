@@ -37,13 +37,13 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			ignoreImports: {
 				type: 'boolean',
 				default: false,
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 

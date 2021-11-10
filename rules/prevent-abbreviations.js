@@ -534,6 +534,7 @@ const schema = {
 	items: [
 		{
 			type: 'object',
+			additionalProperties: false,
 			properties: {
 				checkProperties: {
 					type: 'boolean',
@@ -578,7 +579,6 @@ const schema = {
 					uniqueItems: true,
 				},
 			},
-			additionalProperties: false,
 		},
 	],
 	definitions: {

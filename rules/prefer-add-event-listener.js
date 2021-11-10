@@ -157,6 +157,7 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			excludedPackages: {
 				type: 'array',
@@ -166,7 +167,6 @@ const schema = [
 				uniqueItems: true,
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 

@@ -185,6 +185,7 @@ function create(context) {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			'non-zero': {
 				enum: [...nonZeroStyles.keys()],

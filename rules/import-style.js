@@ -313,6 +313,7 @@ const schema = {
 	items: [
 		{
 			type: 'object',
+			additionalProperties: false,
 			properties: {
 				checkImport: {
 					type: 'boolean',
@@ -333,7 +334,6 @@ const schema = {
 					$ref: '#/definitions/moduleStyles',
 				},
 			},
-			additionalProperties: false,
 		},
 	],
 	definitions: {

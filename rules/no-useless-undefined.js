@@ -190,12 +190,12 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			checkArguments: {
 				type: 'boolean',
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 
