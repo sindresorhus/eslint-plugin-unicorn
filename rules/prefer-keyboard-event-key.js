@@ -80,20 +80,29 @@ const fix = node => fixer => {
 		return;
 	}
 
-	const {right = {}, operator} = nearestIf.test;
-	const isTestingEquality = operator === '==' || operator === '===';
-	const isRightValid = isTestingEquality && right.type === 'Literal' && typeof right.value === 'number';
+	const {type, operator, right} = nearestIf.test;
+	if (
+		!(
+			type === 'BinaryExpression'
+			&& (operator === '==' || operator === '===')
+			&& right.type === 'Literal'
+			&& typeof right.value === 'number'
+		)
+	) {
+		return;
+	}
+
 	// Either a meta key or a printable character
-	const keyCode = translateToKey[right.value] || String.fromCharCode(right.value);
+	const key = translateToKey[right.value] || String.fromCodePoint(right.value);
 	// And if we recognize the `.keyCode`
-	if (!isRightValid || !keyCode) {
+	if (!key) {
 		return;
 	}
 
 	// Apply fixes
 	return [
 		fixer.replaceText(node, 'key'),
-		fixer.replaceText(right, quoteString(keyCode)),
+		fixer.replaceText(right, quoteString(key)),
 	];
 };
 

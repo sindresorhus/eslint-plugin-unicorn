@@ -307,58 +307,62 @@ const create = context => {
 	return templates.visitor(visitor);
 };
 
-const schema = [
-	{
-		type: 'object',
-		properties: {
-			checkImport: {
-				type: 'boolean',
-			},
-			checkDynamicImport: {
-				type: 'boolean',
-			},
-			checkExportFrom: {
-				type: 'boolean',
-			},
-			checkRequire: {
-				type: 'boolean',
-			},
-			extendDefaultStyles: {
-				type: 'boolean',
-			},
-			styles: {
-				$ref: '#/items/0/definitions/moduleStyles',
-			},
-		},
-		additionalProperties: false,
-		definitions: {
-			moduleStyles: {
-				type: 'object',
-				additionalProperties: {
-					$ref: '#/items/0/definitions/styles',
-				},
-			},
-			styles: {
-				anyOf: [
-					{
-						enum: [
-							false,
-						],
-					},
-					{
-						$ref: '#/items/0/definitions/booleanObject',
-					},
-				],
-			},
-			booleanObject: {
-				type: 'object',
-				additionalProperties: {
+const schema = {
+	type: 'array',
+	additionalItems: false,
+	items: [
+		{
+			type: 'object',
+			properties: {
+				checkImport: {
 					type: 'boolean',
 				},
+				checkDynamicImport: {
+					type: 'boolean',
+				},
+				checkExportFrom: {
+					type: 'boolean',
+				},
+				checkRequire: {
+					type: 'boolean',
+				},
+				extendDefaultStyles: {
+					type: 'boolean',
+				},
+				styles: {
+					$ref: '#/definitions/moduleStyles',
+				},
+			},
+			additionalProperties: false,
+		},
+	],
+	definitions: {
+		moduleStyles: {
+			type: 'object',
+			additionalProperties: {
+				$ref: '#/definitions/styles',
+			},
+		},
+		styles: {
+			anyOf: [
+				{
+					enum: [
+						false,
+					],
+				},
+				{
+					$ref: '#/definitions/booleanObject',
+				},
+			],
+		},
+		booleanObject: {
+			type: 'object',
+			additionalProperties: {
+				type: 'boolean',
 			},
 		},
 	},
-];
+};
 
 module.exports = {
 	create,
