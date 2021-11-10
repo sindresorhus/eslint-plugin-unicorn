@@ -69,7 +69,7 @@ export default namespace;
 Type: `boolean`\
 Default: `false`
 
-When `true`, if an import is used in other places than just re-export, all variables in the import declaration will be ignored.
+When `true`, if an import is used in other places than just a re-export, all variables in the import declaration will be ignored.
 
 #### Fail
 
