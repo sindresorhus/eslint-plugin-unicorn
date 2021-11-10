@@ -9,6 +9,7 @@ test.snapshot({
 		'const foo = !await promise',
 		'const foo = typeof await promise',
 		'const foo = await notPromise.method()',
+		'const foo = foo[await promise]',
 
 		// These await expression need parenthesized, but rarely used
 		'new (await promiseReturnsAClass)',
@@ -30,14 +31,14 @@ test.snapshot({
 		'let foo, firstElement = (await getArray())[0]',
 		'var firstElement = (await getArray())[0], bar',
 
-		'const property = (await getObject).property',
-		'const renamed = (await getObject).property',
-		'const property = (await getObject)[property]',
-		'const property = (await getObject)?.property',
-		'const {propertyOfProperty} = (await getObject).property',
-		'const {propertyOfProperty} = (await getObject).propertyOfProperty',
-		'const [firstElementOfProperty] = (await getObject).property',
-		'const [firstElementOfProperty] = (await getObject).firstElementOfProperty',
+		'const property = (await getObject()).property',
+		'const renamed = (await getObject()).property',
+		'const property = (await getObject())[property]',
+		'const property = (await getObject())?.property',
+		'const {propertyOfProperty} = (await getObject()).property',
+		'const {propertyOfProperty} = (await getObject()).propertyOfProperty',
+		'const [firstElementOfProperty] = (await getObject()).property',
+		'const [firstElementOfProperty] = (await getObject()).firstElementOfProperty',
 
 		'firstElement = (await getArray())[0]',
 		'property = (await getArray()).property',
