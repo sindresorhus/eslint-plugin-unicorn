@@ -1907,7 +1907,7 @@ test({
 		{
 			code: 'foo();',
 			filename: '/path/to/doc/__prev-Attr$1Err__.conf.js',
-			errors: createErrors('The filename `/path/to/doc/__prev-Attr$1Err__.conf.js` should be named `__previous-Attribute$1Error__.config.js`. A more descriptive name will do too.'),
+			errors: createErrors('The filename `__prev-Attr$1Err__.conf.js` should be named `__previous-Attribute$1Error__.config.js`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'foo();',
