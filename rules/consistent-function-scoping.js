@@ -196,6 +196,7 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			checkArrowFunctions: {
 				type: 'boolean',

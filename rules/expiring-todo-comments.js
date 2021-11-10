@@ -510,6 +510,7 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			terms: {
 				type: 'array',
@@ -530,7 +531,6 @@ const schema = [
 				default: false,
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 

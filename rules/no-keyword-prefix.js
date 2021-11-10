@@ -167,6 +167,7 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			disallowedPrefixes: {
 				type: 'array',
@@ -185,7 +186,6 @@ const schema = [
 				type: 'boolean',
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 

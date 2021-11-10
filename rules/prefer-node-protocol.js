@@ -50,13 +50,13 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			checkRequire: {
 				type: 'boolean',
 				default: false,
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 

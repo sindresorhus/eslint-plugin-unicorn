@@ -38,6 +38,7 @@ const selector = matches([
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			allowSimpleOperations: {
 				type: 'boolean',

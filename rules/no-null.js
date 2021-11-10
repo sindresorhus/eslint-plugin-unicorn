@@ -93,13 +93,13 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			checkStrictEquality: {
 				type: 'boolean',
 				default: false,
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 

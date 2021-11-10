@@ -110,13 +110,13 @@ function create(context) {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			ignore: {
 				type: 'array',
 				uniqueItems: true,
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 

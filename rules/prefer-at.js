@@ -284,6 +284,7 @@ function create(context) {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			getLastElementFunctions: {
 				type: 'array',
@@ -294,7 +295,6 @@ const schema = [
 				default: false,
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 

@@ -302,6 +302,7 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			minimumCases: {
 				type: 'integer',
@@ -317,7 +318,6 @@ const schema = [
 				default: 'no-default-comment',
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 

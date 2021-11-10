@@ -100,6 +100,7 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			name: {
 				type: 'string',
