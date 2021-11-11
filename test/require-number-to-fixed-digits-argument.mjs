@@ -24,6 +24,6 @@ test.snapshot({
 		'Number(1).toFixed()',
 
 		// False positive cases
-		'const bigNumber = new BigNumber(1); const string = bigNumber.toFixed();'
+		'const bigNumber = new BigNumber(1); const string = bigNumber.toFixed();',
 	],
 });
