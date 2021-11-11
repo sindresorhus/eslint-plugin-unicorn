@@ -79,6 +79,7 @@ Lowercase replacements will match both complete identifiers and separate words i
 Camelcase replacements will only match complete identifiers. For example `errCb` will only match `errCb` and `ErrCb`. It will not match `fooErrCb` or `errCbFoo`.
 
 The example below:
+
 - disables the default `e` → `event` replacement (leaving `e` → `error` enabled),
 - disables `res` replacement completely (both `res` → `response` and `res` → `result` from defaults are disabled),
 - adds a custom `cmd` → `command` replacement,

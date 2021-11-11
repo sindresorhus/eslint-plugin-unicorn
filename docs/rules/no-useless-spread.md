@@ -6,21 +6,21 @@
 
 - Using spread syntax in the following cases is unnecessary:
 
-	- Spread an array literal as elements of an array literal
-	- Spread an array literal as arguments of a call or a `new` call
-	- Spread an object literal as properties of an object literal
+  - Spread an array literal as elements of an array literal
+  - Spread an array literal as arguments of a call or a `new` call
+  - Spread an object literal as properties of an object literal
 
 - The following builtins accept an iterable, so it's unnecessary to convert the iterable to an array:
 
-	- `Map` constructor
-	- `WeakMap` constructor
-	- `Set` constructor
-	- `WeakSet` constructor
-	- `TypedArray` constructor
-	- `Array.from(…)`
-	- `TypedArray.from(…)`
-	- `Promise.{all,allSettled,any,race}(…)`
-	- `Object.fromEntries(…)`
+  - `Map` constructor
+  - `WeakMap` constructor
+  - `Set` constructor
+  - `WeakSet` constructor
+  - `TypedArray` constructor
+  - `Array.from(…)`
+  - `TypedArray.from(…)`
+  - `Promise.{all,allSettled,any,race}(…)`
+  - `Object.fromEntries(…)`
 
 - `for…of` loop can iterate over any iterable object not just array, so it's unnecessary to convert the iterable to an array.
 

@@ -81,4 +81,3 @@ Example:
 // eslint unicorn/prefer-object-from-entries: ["error", {"functions": ["utils.fromPairs"]}]
 const object = utils.fromPairs(pairs); // Fails
 ```
-

@@ -15,7 +15,6 @@ document.getElementsByTagName('main');
 document.getElementsByClassName(fn());
 ```
 
-
 ## Pass
 
 ```js

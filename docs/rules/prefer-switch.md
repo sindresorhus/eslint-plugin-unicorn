@@ -54,7 +54,7 @@ switch (foo) {
 
 Type: `object`
 
-#### `minimumCases`
+### `minimumCases`
 
 Type: `integer`\
 Minimum: `2`\
@@ -102,7 +102,7 @@ else if (foo === 2) {}
 // Fails
 ```
 
-#### `emptyDefaultCase`
+### `emptyDefaultCase`
 
 Type: `string`\
 Default: `'no-default-comment'`

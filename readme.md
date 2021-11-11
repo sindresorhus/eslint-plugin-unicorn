@@ -1,5 +1,6 @@
 # eslint-plugin-unicorn [![Coverage Status](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/main/graph/badge.svg)](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/main) [![npm version](https://img.shields.io/npm/v/eslint-plugin-unicorn.svg?style=flat)](https://npmjs.com/package/eslint-plugin-unicorn)
 
+<!-- markdownlint-disable-next-line no-inline-html -->
 <img src="https://cloud.githubusercontent.com/assets/170270/18659176/1cc373d0-7f33-11e6-890f-0ba35362ee7e.jpg" width="180" align="right">
 
 > Various awesome ESLint rules
@@ -10,8 +11,8 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 
 ## Install
 
-```console
-$ npm install --save-dev eslint eslint-plugin-unicorn
+```sh
+npm install --save-dev eslint eslint-plugin-unicorn
 ```
 
 ## Usage
@@ -141,9 +142,9 @@ Configure it in `package.json`.
 
 Each rule has emojis denoting:
 
-* ✅ if it belongs to the `recommended` configuration
-* 🔧 if some problems reported by the rule are automatically fixable by the `--fix` [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) option
-* 💡 if some problems reported by the rule are manually fixable by editor [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions)
+- ✅ if it belongs to the `recommended` configuration
+- 🔧 if some problems reported by the rule are automatically fixable by the `--fix` [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) option
+- 💡 if some problems reported by the rule are manually fixable by editor [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions)
 
 <!-- Do not manually modify this table. Run: `npm run generate-rules-table` -->
 <!-- RULES_TABLE_START -->
@@ -295,7 +296,7 @@ See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configurati
 - [futpib](https://github.com/futpib)
 - [Fisker Cheung](https://github.com/fisker)
 
-###### Former
+### Former
 
 - [Jeroen Engels](https://github.com/jfmengels)
 - [Sam Verschueren](https://github.com/SamVerschueren)

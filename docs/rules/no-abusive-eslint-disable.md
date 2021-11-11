@@ -33,7 +33,6 @@ console.log(message); // `message` is not defined, but it won't be reported
 
 This rule enforces specifying the rules to disable. If you want to disable ESLint on a file altogether, you should ignore it through [`.eslintignore`](https://eslint.org/docs/user-guide/configuring#ignoring-files-and-directories) for ESLint or through the [`ignores` property](https://github.com/xojs/xo#ignores) in `package.json` for `XO`.
 
-
 ## Fail
 
 ```js
@@ -45,7 +44,6 @@ console.log(message); // eslint-disable-line
 // eslint-disable-next-line
 console.log(message);
 ```
-
 
 ## Pass
 
