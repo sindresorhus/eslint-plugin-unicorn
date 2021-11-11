@@ -63,6 +63,7 @@ const fixFunctionPrototypeCall = (node, sourceCode) => {
 		);
 	}
 };
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector]: node => {

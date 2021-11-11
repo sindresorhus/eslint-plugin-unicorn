@@ -1,5 +1,3 @@
-
-
 'use strict';
 const {checkVueTemplate} = require('./utils/rule.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');

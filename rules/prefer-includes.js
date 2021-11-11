@@ -41,6 +41,7 @@ const includesOverSomeRule = simpleArraySearchRule({
 	method: 'some',
 	replacement: 'includes',
 });
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	BinaryExpression: node => {

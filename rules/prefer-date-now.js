@@ -65,6 +65,7 @@ const getProblem = (node, problem, sourceCode) => ({
 	},
 	...problem,
 });
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[methodsSelector](node) {

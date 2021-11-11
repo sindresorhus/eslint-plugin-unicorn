@@ -57,6 +57,7 @@ const arrayFilterCallSelector = [
 	' > ',
 	`${methodCallSelector('filter')}.object`,
 ].join('');
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[arrayFindCallSelector](findCall) {

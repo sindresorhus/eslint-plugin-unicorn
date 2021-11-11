@@ -123,6 +123,7 @@ const isMultipleCall = (identifier, node) => {
 
 	return false;
 };
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector]: node => {
