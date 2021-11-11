@@ -20,6 +20,7 @@ function checkEscape(context, node, value) {
 		};
 	}
 }
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	Literal: node => {

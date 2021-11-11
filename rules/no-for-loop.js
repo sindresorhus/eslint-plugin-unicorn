@@ -1,4 +1,3 @@
-
 'use strict';
 const {isClosingParenToken, getStaticValue} = require('eslint-utils');
 const isLiteralValue = require('./utils/is-literal-value.js');

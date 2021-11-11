@@ -1,4 +1,3 @@
-
 'use strict';
 const builtins = require('./utils/builtins.js');
 const isShadowed = require('./utils/is-shadowed.js');

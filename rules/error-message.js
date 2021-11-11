@@ -24,6 +24,7 @@ const selector = callOrNewExpressionSelector([
 	'InternalError',
 	'AggregateError',
 ]);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector](expression) {

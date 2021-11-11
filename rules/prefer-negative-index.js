@@ -1,4 +1,3 @@
-
 'use strict';
 const isLiteralValue = require('./utils/is-literal-value.js');
 const {
