@@ -18,7 +18,7 @@ const selector = [
 ].join('');
 
 const ignored = ['React.Children', 'Children'];
-
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector](flatCallExpression) {
 		const mapCallExpression = flatCallExpression.callee.object;

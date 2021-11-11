@@ -110,7 +110,7 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 		fix,
 	};
 };
-
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[replaceChildOrInsertBeforeSelector](node) {
 		return checkForReplaceChildOrInsertBefore(context, node);

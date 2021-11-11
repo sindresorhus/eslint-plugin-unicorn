@@ -320,6 +320,7 @@ function isClassName(node) {
 	return /^[A-Z]./.test(name) && name.toUpperCase() !== name;
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 

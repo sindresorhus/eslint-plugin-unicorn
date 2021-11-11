@@ -1,3 +1,4 @@
+
 'use strict';
 const builtins = require('./utils/builtins.js');
 const isShadowed = require('./utils/is-shadowed.js');
@@ -12,6 +13,7 @@ const messages = {
 	disallow: 'Use `{{name}}()` instead of `new {{name}}()`.',
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 

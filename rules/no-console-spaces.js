@@ -27,6 +27,7 @@ const hasLeadingSpace = value => value.length > 1 && value.charAt(0) === ' ' && 
 // Find exactly one trailing space, allow exactly one space
 const hasTrailingSpace = value => value.length > 1 && value.charAt(value.length - 1) === ' ' && value.charAt(value.length - 2) !== ' ';
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const getProblem = (node, method, position) => {

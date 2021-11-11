@@ -12,6 +12,7 @@ const newRegExpSelector = [
 	'[arguments.0.type="Literal"]',
 ].join('');
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	'Literal[regex]': node => {
 		// Handle regex literal inside RegExp constructor in the other handler

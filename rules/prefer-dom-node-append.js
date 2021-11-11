@@ -15,6 +15,7 @@ const selector = [
 	notDomNodeSelector('arguments.0'),
 ].join('');
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	[selector](node) {
 		const fix = isValueNotUsable(node)

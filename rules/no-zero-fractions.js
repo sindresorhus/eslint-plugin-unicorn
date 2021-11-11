@@ -11,7 +11,7 @@ const messages = {
 	[MESSAGE_ZERO_FRACTION]: 'Don\'t use a zero fraction in the number.',
 	[MESSAGE_DANGLING_DOT]: 'Don\'t use a dangling dot in the number.',
 };
-
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	Literal: node => {
 		if (!isNumber(node)) {

@@ -7,6 +7,7 @@ const messages = {
 
 const disableRegex = /^eslint-disable(?:-next-line|-line)?(?<ruleId>$|(?:\s+(?:@(?:[\w-]+\/){1,2})?[\w-]+)?)/;
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	* Program(node) {
 		for (const comment of node.comments) {

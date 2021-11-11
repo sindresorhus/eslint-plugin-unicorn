@@ -16,6 +16,7 @@ const fix = raw => {
 	return fixed;
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	Literal: node => {
 		const {raw} = node;

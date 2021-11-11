@@ -35,7 +35,7 @@ const fix = (context, node, fixer) => {
 
 	return fixer.replaceText(node, replacement);
 };
-
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector](node) {
 		const name = node.arguments[0].value;

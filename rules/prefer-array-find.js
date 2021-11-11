@@ -227,6 +227,7 @@ const isDestructuringFirstElement = node => {
 		&& left.elements[0].type !== 'RestElement';
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 

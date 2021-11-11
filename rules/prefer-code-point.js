@@ -19,6 +19,7 @@ const cases = [
 	},
 ];
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => Object.fromEntries(
 	cases.map(({selector, replacement}) => [
 		selector,

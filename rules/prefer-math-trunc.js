@@ -29,6 +29,7 @@ const bitwiseNotUnaryExpressionSelector = [
 	createBitwiseNotSelector(2, true),
 ].join('');
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 

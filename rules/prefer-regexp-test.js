@@ -82,6 +82,7 @@ const isRegExpNode = node => {
 	return false;
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => Object.fromEntries(
 	cases.map(checkCase => [
 		checkCase.selector,

@@ -32,6 +32,7 @@ const selector = matches([
 	].join(''),
 ]);
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = {
 		name: 'error',

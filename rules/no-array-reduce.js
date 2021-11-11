@@ -48,6 +48,7 @@ const schema = [
 	},
 ];
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {allowSimpleOperations} = {allowSimpleOperations: true, ...context.options[0]};
 

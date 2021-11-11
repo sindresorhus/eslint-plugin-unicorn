@@ -74,7 +74,7 @@ function getProblem(context, node) {
 
 	return problem;
 }
-
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[newArraySelector](node) {
 		return getProblem(context, node);

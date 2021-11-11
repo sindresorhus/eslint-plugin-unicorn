@@ -181,7 +181,7 @@ const customErrorExport = (context, node) => {
 		fix: fixer => fixer.replaceText(node.left.property, errorName),
 	};
 };
-
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	ClassDeclaration: node => customErrorDefinition(context, node),
 	'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),

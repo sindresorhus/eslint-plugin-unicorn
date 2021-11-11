@@ -89,6 +89,7 @@ const getFunction = scope => {
 	}
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const listener = (fix, checkFunctionReturnType) => node => {
 		if (checkFunctionReturnType) {

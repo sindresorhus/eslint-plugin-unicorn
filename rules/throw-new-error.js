@@ -28,7 +28,7 @@ const selector = [
 		].join(''),
 	]),
 ].join('');
-
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector]: node => ({
 		node,

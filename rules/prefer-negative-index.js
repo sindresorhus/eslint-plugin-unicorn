@@ -1,3 +1,4 @@
+
 'use strict';
 const isLiteralValue = require('./utils/is-literal-value.js');
 const {
@@ -129,7 +130,7 @@ function parse(node) {
 		};
 	}
 }
-
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	'CallExpression[callee.type="MemberExpression"]': node => {
 		const parsed = parse(node);

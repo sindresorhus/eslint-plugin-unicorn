@@ -20,6 +20,7 @@ const destructuringSelector = [
 	'[name="innerText"]',
 ].join('');
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	[memberExpressionPropertySelector](node) {
 		return {

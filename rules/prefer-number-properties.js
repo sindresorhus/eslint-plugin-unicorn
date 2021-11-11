@@ -38,6 +38,7 @@ const isNegative = node => {
 	return parent && parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const options = {

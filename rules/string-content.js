@@ -61,6 +61,7 @@ function getReplacements(patterns) {
 		});
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {patterns} = {
 		patterns: {},

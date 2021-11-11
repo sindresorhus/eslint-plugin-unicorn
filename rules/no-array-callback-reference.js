@@ -187,6 +187,7 @@ const ignoredFirstArgumentSelector = [
 	'[arguments.0.type!="ArrowFunctionExpression"]',
 ].join('');
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const rules = {};

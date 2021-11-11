@@ -29,6 +29,7 @@ const processExitCallSelector = methodCallSelector({
 	method: 'exit',
 });
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const startsWithHashBang = context.getSourceCode().lines[0].indexOf('#!') === 0;
 

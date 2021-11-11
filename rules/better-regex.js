@@ -14,6 +14,7 @@ const newRegExp = [
 	'[arguments.0.type="Literal"]',
 ].join('');
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sortCharacterClasses} = context.options[0] || {};
 

@@ -1,3 +1,5 @@
+
+
 'use strict';
 const {checkVueTemplate} = require('./utils/rule.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
@@ -16,6 +18,7 @@ const selector = [
 	'[right.name="Array"]',
 ].join('');
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 

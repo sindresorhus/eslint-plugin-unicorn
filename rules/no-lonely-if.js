@@ -120,6 +120,7 @@ function fix(innerIfStatement, sourceCode) {
 	};
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 

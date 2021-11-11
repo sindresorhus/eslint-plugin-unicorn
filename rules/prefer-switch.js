@@ -243,6 +243,7 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 	};
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = {
 		minimumCases: 3,

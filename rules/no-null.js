@@ -32,6 +32,7 @@ const selector = [
 const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].includes(node.operator);
 const isStrictEqual = node => node.type === 'BinaryExpression' && ['===', '!=='].includes(node.operator);
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {checkStrictEquality} = {
 		checkStrictEquality: false,

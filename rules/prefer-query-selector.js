@@ -99,6 +99,7 @@ const fix = (node, identifierName, preferredSelector) => {
 	};
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	[selector](node) {
 		const method = node.callee.property.name;

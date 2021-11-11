@@ -150,6 +150,7 @@ const assignedRequireTemplate = templates.template`
 	${variableDeclarationVariable} ${assignmentTargetVariable} = require(${moduleNameVariable});
 `;
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	let [
 		{

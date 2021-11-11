@@ -364,6 +364,7 @@ const ignoredObjects = [
 	'R',
 ];
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const functionStack = [];
 	const callExpressions = [];
