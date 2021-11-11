@@ -58,6 +58,9 @@ const create = context => ({
 
 const schema = [];
 
+/**
+ * @type {import('eslint').Rule.RuleModule}
+ */
 module.exports = {
 	create,
 	meta: {

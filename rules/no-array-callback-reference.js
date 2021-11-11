@@ -220,6 +220,9 @@ const create = context => {
 	return rules;
 };
 
+/**
+ * @type {import('eslint').Rule.RuleModule}
+ */
 module.exports = {
 	create,
 	meta: {
