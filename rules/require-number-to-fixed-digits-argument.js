@@ -1,5 +1,5 @@
 'use strict';
-const {methodCallSelector} = require('./selectors/index.js');
+const {methodCallSelector, not} = require('./selectors/index.js');
 const {appendArgument} = require('./fix/index.js');
 
 const MESSAGE_ID = 'require-number-to-fixed-digits-argument';
@@ -7,10 +7,13 @@ const messages = {
 	[MESSAGE_ID]: 'Missing the digits argument.',
 };
 
-const mathToFixed = methodCallSelector({
-	method: 'toFixed',
-	argumentsLength: 0,
-});
+const mathToFixed = [
+	methodCallSelector({
+		method: 'toFixed',
+		argumentsLength: 0,
+	}),
+	not('[callee.object.type="NewExpression"]'),
+].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
