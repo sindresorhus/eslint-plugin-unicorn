@@ -121,8 +121,8 @@ const schema = [
 ];
 
 /**
- * @type {import('eslint').Rule.RuleModule}
- */
+@type {import('eslint').Rule.RuleModule}
+*/
 module.exports = {
 	create,
 	meta: {
