@@ -16,7 +16,7 @@ const isEmpty = node =>
 const create = context => {
 	const filename = context.getPhysicalFilename().toLowerCase();
 
-	if (!/\.(?:js|mjs|cjs|ts|mts|cts)$/.test(filename)) {
+	if (!/\.(?:js|mjs|cjs|ts|mts|cts)$/.test(filename) || filename.endsWith('.d.ts')) {
 		return {};
 	}
 

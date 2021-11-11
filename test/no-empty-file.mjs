@@ -37,6 +37,7 @@ test.snapshot({
 			'svelte',
 			'tsx',
 		].map(extension => ({code: '', filename: `example.${extension}`})),
+		{code: '/// <reference types="unicorn" />', filename: 'example.d.ts'},
 	],
 	invalid: [
 		...[
