@@ -31,9 +31,7 @@ const create = context => ({
 	TemplateElement: node => checkEscape(context, node, node.value.raw),
 });
 
-/**
-@type {import('eslint').Rule.RuleModule}
-*/
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

@@ -189,9 +189,7 @@ const create = context => ({
 	'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node),
 });
 
-/**
-@type {import('eslint').Rule.RuleModule}
-*/
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
