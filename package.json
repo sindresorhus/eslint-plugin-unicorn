@@ -14,12 +14,12 @@
 		"node": ">=12"
 	},
 	"scripts": {
-		"lint": "run-p --continue-on-error \"lint:!(fix)\"",
-		"lint:fix": "run-p --continue-on-error lint:*:fix",
+		"fix": "run-p --continue-on-error fix:*",
+		"fix:js": "npm run lint:js -- --fix",
+		"fix:md": "npm run lint:md -- --fix",
+		"lint": "run-p --continue-on-error lint:*",
 		"lint:js": "xo",
-		"lint:js:fix": "npm run lint:js -- --fix",
 		"lint:md": "markdownlint \"**/*.md\"",
-		"lint:md:fix": "npm run lint:md -- --fix",
 		"test": "npm-run-all --continue-on-error lint test:*",
 		"test:js": "nyc ava",
 		"create-rule": "node ./scripts/create-rule.mjs && npm run generate-rules-table && npm run generate-usage-example",
