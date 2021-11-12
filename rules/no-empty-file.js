@@ -17,7 +17,7 @@ const isTripleSlashDirective = node =>
 	node.type === 'Line' && node.value.startsWith('/');
 
 const hasTripeSlashDirectives = comments =>
-	!comments.every(currentNode => !isTripleSlashDirective(currentNode));
+	comments.some(currentNode => isTripleSlashDirective(currentNode));
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
