@@ -16,7 +16,7 @@
 	"scripts": {
 		"lint": "npm-run-all --continue-on-error --aggregate-output --parallel lint:*",
 		"lint:js": "xo",
-		"lint:md": "markdownlint '**/*.md'",
+		"lint:md": "markdownlint \"**/*.md\"",
 		"test": "npm-run-all --continue-on-error lint test:*",
 		"test:js": "nyc ava",
 		"create-rule": "node ./scripts/create-rule.mjs && npm run generate-rules-table && npm run generate-usage-example",
