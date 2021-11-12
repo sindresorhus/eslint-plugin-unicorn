@@ -5,27 +5,24 @@ const messages = {
 	[MESSAGE_ID]: 'Empty files are not allowed.',
 };
 
+const isEmpty = node =>
+	(
+		(node.type === 'Program' || node.type === 'BlockStatement')
+		&& node.body.every(currentNode => isEmpty(currentNode))
+	)
+	|| node.type === 'EmptyStatement'
+	|| (node.type === 'ExpressionStatement' && 'directive' in node);
+
 const isTripleSlashDirective = node =>
 	node.type === 'Line' && node.value.startsWith('/');
 
-const isEmpty = node =>
-	(
-		node.type === 'Program'
-		&& node.body.every(currentNode => isEmpty(currentNode))
-		&& node.comments.every(currentNode => !isTripleSlashDirective(currentNode))
-	)
-	|| (
-		node.type === 'BlockStatement'
-		&& node.body.every(currentNode => isEmpty(currentNode))
-	)
-	|| (
-		node.type === 'ExpressionStatement'
-		&& 'directive' in node
-	)
-	|| node.type === 'EmptyStatement';
+const hasTripeSlashDirectives = comments =>
+	!comments.every(currentNode => !isTripleSlashDirective(currentNode));
 
 const create = context => {
 	const filename = context.getPhysicalFilename().toLowerCase();
+	const sourceCode = context.getSourceCode();
+	const comments = sourceCode.getAllComments();
 
 	if (!/\.(?:js|mjs|cjs|ts|mts|cts)$/.test(filename)) {
 		return {};
@@ -33,7 +30,7 @@ const create = context => {
 
 	return {
 		Program(node) {
-			if (!isEmpty(node)) {
+			if (!isEmpty(node) || hasTripeSlashDirectives(comments)) {
 				return;
 			}
 
