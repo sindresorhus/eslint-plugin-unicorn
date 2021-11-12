@@ -195,6 +195,7 @@ const schema = [
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create: checkVueTemplate(create),
 	meta: {

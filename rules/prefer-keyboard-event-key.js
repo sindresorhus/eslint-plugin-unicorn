@@ -113,6 +113,7 @@ const getProblem = node => ({
 	fix: fix(node),
 });
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	'Identifier:matches([name="keyCode"], [name="charCode"], [name="which"])'(node) {
 		// Normal case when usage is direct -> `event.keyCode`
@@ -171,6 +172,7 @@ const create = context => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

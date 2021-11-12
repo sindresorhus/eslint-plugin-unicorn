@@ -51,6 +51,7 @@ const isChildInParentScope = (child, parent) => {
 	return false;
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const source = context.getSourceCode();
 	const declarations = new Map();
@@ -149,6 +150,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

@@ -19,6 +19,7 @@ const cases = [
 	},
 ];
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => Object.fromEntries(
 	cases.map(({selector, replacement}) => [
 		selector,
@@ -41,6 +42,7 @@ const create = () => Object.fromEntries(
 	]),
 );
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

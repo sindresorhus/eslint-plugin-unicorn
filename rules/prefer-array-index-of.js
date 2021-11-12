@@ -6,6 +6,7 @@ const {messages, createListeners} = simpleArraySearchRule({
 	replacement: 'indexOf',
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create: context => createListeners(context),
 	meta: {

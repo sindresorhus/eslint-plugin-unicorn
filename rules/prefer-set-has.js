@@ -124,6 +124,7 @@ const isMultipleCall = (identifier, node) => {
 	return false;
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector]: node => {
 		const variable = findVariable(context.getScope(), node);
@@ -186,6 +187,7 @@ const create = context => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

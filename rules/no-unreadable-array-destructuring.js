@@ -11,6 +11,7 @@ const messages = {
 const isCommaFollowedWithComma = (element, index, array) =>
 	element === null && array[index + 1] === null;
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
@@ -66,6 +67,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

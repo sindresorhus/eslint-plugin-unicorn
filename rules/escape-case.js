@@ -20,6 +20,7 @@ const getProblem = ({node, original, regex = escapeWithLowercase, fix}) => {
 	}
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	Literal(node) {
 		if (typeof node.value !== 'string') {
@@ -47,6 +48,7 @@ const create = () => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

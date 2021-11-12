@@ -61,6 +61,7 @@ function getReplacements(patterns) {
 		});
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {patterns} = {
 		patterns: {},
@@ -171,6 +172,7 @@ const schema = [
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

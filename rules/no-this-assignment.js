@@ -20,6 +20,7 @@ const assignmentExpressionSelector = [
 
 const selector = matches([variableDeclaratorSelector, assignmentExpressionSelector]);
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	[selector](node) {
 		const variable = node.type === 'AssignmentExpression' ? node.left : node.id;
@@ -31,6 +32,7 @@ const create = () => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

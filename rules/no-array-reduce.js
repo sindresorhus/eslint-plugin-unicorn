@@ -48,6 +48,7 @@ const schema = [
 	},
 ];
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {allowSimpleOperations} = {allowSimpleOperations: true, ...context.options[0]};
 
@@ -81,6 +82,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

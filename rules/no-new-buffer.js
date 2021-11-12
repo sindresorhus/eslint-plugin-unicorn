@@ -49,6 +49,7 @@ function fix(node, sourceCode, method) {
 	};
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	return {
@@ -77,6 +78,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

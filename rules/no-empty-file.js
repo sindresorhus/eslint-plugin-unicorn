@@ -19,6 +19,7 @@ const isTripleSlashDirective = node =>
 const hasTripeSlashDirectives = comments =>
 	!comments.every(currentNode => !isTripleSlashDirective(currentNode));
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const filename = context.getPhysicalFilename().toLowerCase();
 	const sourceCode = context.getSourceCode();
@@ -42,6 +43,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
