@@ -14,7 +14,14 @@
 		"node": ">=12"
 	},
 	"scripts": {
-		"test": "xo && nyc ava && markdownlint '**/*.md'",
+		"fix": "run-p --continue-on-error fix:*",
+		"fix:js": "npm run lint:js -- --fix",
+		"fix:md": "npm run lint:md -- --fix",
+		"lint": "run-p --continue-on-error lint:*",
+		"lint:js": "xo",
+		"lint:md": "markdownlint \"**/*.md\"",
+		"test": "npm-run-all --continue-on-error lint test:*",
+		"test:js": "nyc ava",
 		"create-rule": "node ./scripts/create-rule.mjs && npm run generate-rules-table && npm run generate-usage-example",
 		"run-rules-on-codebase": "node ./test/run-rules-on-codebase/lint.mjs",
 		"integration": "node ./test/integration/test.mjs",
@@ -73,6 +80,7 @@
 		"lodash-es": "4.17.21",
 		"markdownlint-cli": "^0.29.0",
 		"mem": "^9.0.1",
+		"npm-run-all": "^4.1.5",
 		"nyc": "^15.1.0",
 		"outdent": "^0.8.0",
 		"typescript": "^4.4.2",

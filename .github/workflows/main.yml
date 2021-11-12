@@ -34,7 +34,7 @@ jobs:
         with:
           node-version: 16
       - run: npm install
-      - run: npx xo
+      - run: npm run lint
       # Force update snapshots, https://github.com/avajs/ava/discussions/2754
       - run: npx nyc ava --update-snapshots
         env:
