@@ -15,7 +15,7 @@
 	},
 	"scripts": {
 		"lint": "run-p --continue-on-error \"lint:!(fix)\"",
-		"lint:fix": "run-p --continue-on-error \"lint:*:fix\"",
+		"lint:fix": "run-p --continue-on-error lint:*:fix",
 		"lint:js": "xo",
 		"lint:js:fix": "npm run lint:js -- --fix",
 		"lint:md": "markdownlint \"**/*.md\"",
