@@ -58,6 +58,7 @@ const isClearing = node => {
 	return false;
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = context.options[0] || {};
 	const excludedPackages = new Set(options.excludedPackages || ['koa', 'sax']);
@@ -170,6 +171,7 @@ const schema = [
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

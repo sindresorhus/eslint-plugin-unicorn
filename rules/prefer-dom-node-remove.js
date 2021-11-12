@@ -22,6 +22,7 @@ const selector = [
 	notDomNodeSelector('arguments.0'),
 ].join('');
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
@@ -67,6 +68,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

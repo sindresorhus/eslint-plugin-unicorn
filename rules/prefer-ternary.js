@@ -43,6 +43,7 @@ function getNodeBody(node) {
 
 const isSingleLineNode = node => node.loc.start.line === node.loc.end.line;
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const onlySingleLine = context.options[0] === 'only-single-line';
 	const sourceCode = context.getSourceCode();
@@ -259,6 +260,7 @@ const schema = [
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

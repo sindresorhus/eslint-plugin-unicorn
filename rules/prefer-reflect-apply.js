@@ -64,6 +64,7 @@ const fixFunctionPrototypeCall = (node, sourceCode) => {
 	}
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector]: node => {
 		const sourceCode = context.getSourceCode();
@@ -78,6 +79,7 @@ const create = context => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

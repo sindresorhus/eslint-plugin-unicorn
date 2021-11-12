@@ -12,6 +12,7 @@ const messages = {
 	[MESSAGE_DANGLING_DOT]: 'Don\'t use a dangling dot in the number.',
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	Literal: node => {
 		if (!isNumber(node)) {
@@ -63,6 +64,7 @@ const create = context => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

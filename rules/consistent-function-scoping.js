@@ -149,6 +149,7 @@ function checkNode(node, scopeManager) {
 	return checkReferences(scope, parentScope, scopeManager);
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {checkArrowFunctions} = {checkArrowFunctions: true, ...context.options[0]};
 	const sourceCode = context.getSourceCode();
@@ -206,6 +207,7 @@ const schema = [
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

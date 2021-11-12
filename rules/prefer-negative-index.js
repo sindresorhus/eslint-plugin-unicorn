@@ -130,6 +130,7 @@ function parse(node) {
 	}
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	'CallExpression[callee.type="MemberExpression"]': node => {
 		const parsed = parse(node);
@@ -167,6 +168,7 @@ const create = context => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

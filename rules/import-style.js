@@ -150,6 +150,7 @@ const assignedRequireTemplate = templates.template`
 	${variableDeclarationVariable} ${assignmentTargetVariable} = require(${moduleNameVariable});
 `;
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	let [
 		{
@@ -364,6 +365,7 @@ const schema = {
 	},
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

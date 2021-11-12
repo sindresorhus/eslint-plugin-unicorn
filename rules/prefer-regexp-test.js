@@ -82,6 +82,7 @@ const isRegExpNode = node => {
 	return false;
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => Object.fromEntries(
 	cases.map(checkCase => [
 		checkCase.selector,
@@ -122,6 +123,7 @@ const create = context => Object.fromEntries(
 	]),
 );
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create: checkVueTemplate(create),
 	meta: {

@@ -13,6 +13,7 @@ const objectParameterSelector = [
 	'[right.properties.length>0]',
 ].join('');
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	[objectParameterSelector]: node => {
 		const {left, right} = node;
@@ -32,6 +33,7 @@ const create = () => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

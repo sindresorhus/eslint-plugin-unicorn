@@ -21,6 +21,7 @@ function checkEscape(context, node, value) {
 	}
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	Literal: node => {
 		if (node.regex || typeof node.value === 'string') {
@@ -30,6 +31,7 @@ const create = context => ({
 	TemplateElement: node => checkEscape(context, node, node.value.raw),
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

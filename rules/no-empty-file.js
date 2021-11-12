@@ -13,6 +13,7 @@ const isEmpty = node =>
 	|| node.type === 'EmptyStatement'
 	|| (node.type === 'ExpressionStatement' && 'directive' in node);
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const filename = context.getPhysicalFilename().toLowerCase();
 
@@ -34,6 +35,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

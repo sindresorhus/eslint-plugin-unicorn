@@ -20,6 +20,7 @@ const importIndex = (context, node, argument) => {
 	}
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = context.options[0] || {};
 
@@ -47,6 +48,7 @@ const schema = [
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

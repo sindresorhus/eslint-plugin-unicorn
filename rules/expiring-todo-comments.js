@@ -242,6 +242,7 @@ function semverComparisonForOperator(operator) {
 	}[operator];
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = {
 		terms: ['todo', 'fixme', 'xxx'],
@@ -534,6 +535,7 @@ const schema = [
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

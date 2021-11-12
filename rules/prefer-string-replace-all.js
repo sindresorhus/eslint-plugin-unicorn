@@ -42,6 +42,7 @@ function removeEscapeCharacters(regexString) {
 	return fixedString;
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	[selector]: node => {
 		const {arguments: arguments_, callee} = node;
@@ -62,6 +63,7 @@ const create = () => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

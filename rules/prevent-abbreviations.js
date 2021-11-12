@@ -320,6 +320,7 @@ const isInternalImport = node => {
 	);
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = prepareOptions(context.options[0]);
 	const filenameWithExtension = context.getPhysicalFilename();
@@ -609,6 +610,7 @@ const schema = {
 	},
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

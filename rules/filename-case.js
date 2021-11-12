@@ -142,6 +142,7 @@ function englishishJoinWords(words) {
 	return `${words.slice(0, -1).join(', ')}, or ${words[words.length - 1]}`;
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = context.options[0] || {};
 	const chosenCases = getChosenCases(options);
@@ -253,6 +254,7 @@ const schema = [
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
