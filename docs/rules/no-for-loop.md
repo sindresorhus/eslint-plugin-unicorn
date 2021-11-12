@@ -10,7 +10,6 @@ Off-by-one errors are one of the most common bugs in software. [Swift actually r
 
 This rule is fixable unless index or element variables were used outside of the loop.
 
-
 ## Fail
 
 ```js
@@ -19,7 +18,6 @@ for (let index = 0; index < array.length; index++) {
 	console.log(index, element);
 }
 ```
-
 
 ## Pass
 

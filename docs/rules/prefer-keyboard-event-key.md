@@ -8,7 +8,6 @@ Enforces the use of [`KeyboardEvent#key`](https://developer.mozilla.org/en-US/do
 
 This rule is partly fixable. It can only fix direct property access.
 
-
 ## Fail
 
 ```js
@@ -24,7 +23,6 @@ window.addEventListener('keydown', event => {
 	}
 });
 ```
-
 
 ## Pass
 

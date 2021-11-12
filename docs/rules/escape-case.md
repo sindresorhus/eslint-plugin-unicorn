@@ -6,7 +6,6 @@
 
 Enforces defining escape sequence values with uppercase characters rather than lowercase ones. This promotes readability by making the escaped value more distinguishable from the identifier.
 
-
 ## Fail
 
 ```js
@@ -15,7 +14,6 @@ const foo = '\ud834';
 const foo = '\u{1d306}';
 const foo = '\ca';
 ```
-
 
 ## Pass
 

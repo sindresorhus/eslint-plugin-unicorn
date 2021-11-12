@@ -14,7 +14,7 @@
 		"node": ">=12"
 	},
 	"scripts": {
-		"test": "xo && c8 ava",
+		"test": "xo && c8 ava && markdownlint '**/*.md'",
 		"create-rule": "node ./scripts/create-rule.mjs && npm run generate-rules-table && npm run generate-usage-example",
 		"run-rules-on-codebase": "node ./test/run-rules-on-codebase/lint.mjs",
 		"integration": "node ./test/integration/test.mjs",
@@ -72,6 +72,7 @@
 		"execa": "^5.1.1",
 		"listr": "^0.14.3",
 		"lodash-es": "4.17.21",
+		"markdownlint-cli": "^0.29.0",
 		"mem": "^9.0.1",
 		"outdent": "^0.8.0",
 		"typescript": "^4.4.2",
