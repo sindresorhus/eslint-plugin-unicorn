@@ -67,7 +67,7 @@ const MESSAGES = {
 };
 
 const RULES_WITHOUT_PASS_FAIL_SECTIONS = new Set([
-	'filename-case' // Doesn't show code samples since it's just focused on filenames.
+	'filename-case', // Doesn't show code samples since it's just focused on filenames.
 ]);
 
 test('Every rule is defined in index file in alphabetical order', t => {
