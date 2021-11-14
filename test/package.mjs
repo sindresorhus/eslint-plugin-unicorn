@@ -66,6 +66,10 @@ const MESSAGES = {
 	hasSuggestions: '💡 *This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*',
 };
 
+const RULES_WITHOUT_PASS_FAIL_SECTIONS = new Set([
+	'filename-case' // Doesn't show code samples since it's just focused on filenames.
+]);
+
 test('Every rule is defined in index file in alphabetical order', t => {
 	for (const file of ruleFiles) {
 		const name = path.basename(file, '.js');
@@ -194,6 +198,12 @@ test('Every rule has a doc with the appropriate content', t => {
 		// Check title.
 		const expectedTitle = `# ${ruleDescriptionToDocumentTitle(rule.meta.docs.description)}`;
 		t.is(documentLines[0], expectedTitle, `${ruleName} includes the rule description in title`);
+
+		// Check for examples.
+		if (!RULES_WITHOUT_PASS_FAIL_SECTIONS.has(ruleName)) {
+			t.true(documentContents.includes('## Pass'), `${ruleName} includes '## Pass' examples section`);
+			t.true(documentContents.includes('## Fail'), `${ruleName} includes '## Fail' examples section`);
+		}
 
 		// Check if the rule has configuration options.
 		if (
