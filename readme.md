@@ -292,11 +292,12 @@ See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configurati
 ## Maintainers
 
 - [Sindre Sorhus](https://github.com/sindresorhus)
-- [Adam Babcock](https://github.com/MrHen)
-- [futpib](https://github.com/futpib)
 - [Fisker Cheung](https://github.com/fisker)
+- [Bryan Mishkin](https://github.com/bmish)
+- [futpib](https://github.com/futpib)
 
 ### Former
 
 - [Jeroen Engels](https://github.com/jfmengels)
 - [Sam Verschueren](https://github.com/SamVerschueren)
+- [Adam Babcock](https://github.com/MrHen)
