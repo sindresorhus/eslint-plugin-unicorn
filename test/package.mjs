@@ -187,6 +187,16 @@ test('Every deprecated rules listed in docs/deprecated-rules.md', async t => {
 	}
 });
 
+test('Every rule file has the appropriate contents', t => {
+	for (const ruleFile of ruleFiles) {
+		const ruleName = path.basename(ruleFile, '.js');
+		const rulePath = path.join('rules', `${ruleName}.js`);
+		const ruleContents = fs.readFileSync(rulePath, 'utf8');
+
+		t.true(ruleContents.includes('/** @type {import(\'eslint\').Rule.RuleModule} */'), `${ruleName} includes jsdoc comment for rule type`);
+	}
+});
+
 test('Every rule has a doc with the appropriate content', t => {
 	for (const ruleFile of ruleFiles) {
 		const ruleName = path.basename(ruleFile, '.js');
