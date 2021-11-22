@@ -146,6 +146,7 @@ test.snapshot({
 
 		// `export`
 		'const then = 1; export {then}',
+		'const notThen = 1; export {notThen as then}',
 		'export {then} from "foo"',
 		'export function then() {}',
 		'export async function then() {}',
