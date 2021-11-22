@@ -1,14 +1,15 @@
 'use strict';
+const {getStaticValue} = require('eslint-utils');
 const {methodCallSelector} = require('./selectors/index.js');
 const getPropertyName = require('./utils/get-property-name.js');
 const getKeyName = require('./utils/get-key-name.js');
-const {getStaticValue} = require('eslint-utils');
 
 const isStringThen = (node, context) => {
 	const result = getStaticValue(node, context.getScope());
 
 	return result && result.value === 'then';
 };
+
 const returnTrue = () => true;
 
 const MESSAGE_ID_OBJECT = 'no-thenable-object';
@@ -35,7 +36,7 @@ const cases = [
 	// `class Foo {get then() {}}`,
 	// `class Foo {static get then() {}}`,
 	{
-		selector: `:matches(PropertyDefinition, MethodDefinition) > .key`,
+		selector: ':matches(PropertyDefinition, MethodDefinition) > .key',
 		test: (node, context) => getKeyName(node.parent, context.getScope()) === 'then',
 		messageId: MESSAGE_ID_CLASS,
 	},
@@ -55,7 +56,7 @@ const cases = [
 				method: 'defineProperty',
 				minimumArguments: 3,
 			}),
-			' > .arguments:nth-child(2)'
+			' > .arguments:nth-child(2)',
 		].join(''),
 		test: isStringThen,
 		messageId: MESSAGE_ID_OBJECT,
@@ -69,7 +70,7 @@ const cases = [
 				argumentsLength: 1,
 			}),
 			' > ArrayExpression.arguments:nth-child(1)',
-			' > .elements:nth-child(1)'
+			' > .elements:nth-child(1)',
 		].join(''),
 		test: isStringThen,
 		messageId: MESSAGE_ID_OBJECT,
@@ -97,9 +98,9 @@ const cases = [
 					continue;
 				}
 
-				yield {node: variable.identifiers[0], messageId: MESSAGE_ID_EXPORT}
+				yield {node: variable.identifiers[0], messageId: MESSAGE_ID_EXPORT};
 			}
-		}
+		},
 	},
 ];
 
@@ -107,19 +108,18 @@ const cases = [
 const create = context => Object.fromEntries(
 	cases.map(({selector, test, messageId, check}) => [
 		selector,
-		(node) => {
+		node => {
 			if (check) {
 				return check(node, context);
 			}
-
 
 			if (!test(node, context)) {
 				return;
 			}
 
 			return {node, messageId};
-		}
-	])
+		},
+	]),
 );
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -128,9 +128,9 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow `then` property.'
+			description: 'Disallow `then` property.',
 		},
 		schema: [],
-		messages
-	}
+		messages,
+	},
 };

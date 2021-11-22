@@ -1,4 +1,3 @@
-import outdent from 'outdent';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
@@ -161,5 +160,5 @@ test.snapshot({
 		'export let {foo, ...then} = 1',
 		'export var {foo, ...then} = 1',
 		'export const {foo: {bar: [{baz: then}]}} = 1',
-	]
+	],
 });
