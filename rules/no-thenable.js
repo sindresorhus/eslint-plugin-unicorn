@@ -4,14 +4,6 @@ const {methodCallSelector} = require('./selectors/index.js');
 const getPropertyName = require('./utils/get-property-name.js');
 const getKeyName = require('./utils/get-key-name.js');
 
-const isStringThen = (node, context) => {
-	const result = getStaticValue(node, context.getScope());
-
-	return result && result.value === 'then';
-};
-
-const returnTrue = () => true;
-
 const MESSAGE_ID_OBJECT = 'no-thenable-object';
 const MESSAGE_ID_EXPORT = 'no-thenable-export';
 const MESSAGE_ID_CLASS = 'no-thenable-class';
@@ -20,6 +12,14 @@ const messages = {
 	[MESSAGE_ID_EXPORT]: 'Do not export `then`.',
 	[MESSAGE_ID_CLASS]: 'Do not add `then` to a class.',
 };
+
+const isStringThen = (node, context) => {
+	const result = getStaticValue(node, context.getScope());
+
+	return result && result.value === 'then';
+};
+
+const returnTrue = () => true;
 
 const cases = [
 	// `{then() {}}`,
