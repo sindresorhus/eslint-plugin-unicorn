@@ -1,5 +1,7 @@
 # Disallow `then` property
 
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+
 If an object is defined as "thenable", once it's accidentally used in an await expression, it may cause problems.
 
 If a module have exported `then`, dynamic `import()` may won't works as expected.
