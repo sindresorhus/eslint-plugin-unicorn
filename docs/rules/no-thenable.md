@@ -29,13 +29,13 @@ foo.then = function () {}
 ```
 
 ```js
-class {
+class Foo {
 	then() {}
 }
 ```
 
 ```js
-class {
+class Foo {
 	static then() {}
 }
 ```
@@ -53,7 +53,7 @@ const foo = {
 ```
 
 ```js
-class {
+class Foo {
 	success() {}
 }
 ```
