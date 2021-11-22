@@ -56,6 +56,7 @@ const cases = [
 				method: 'defineProperty',
 				minimumArguments: 3,
 			}),
+			'[arguments.0.type!="SpreadElement"]',
 			' > .arguments:nth-child(2)',
 		].join(''),
 		test: isStringThen,

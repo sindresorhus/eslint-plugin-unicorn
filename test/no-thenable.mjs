@@ -47,6 +47,11 @@ test.snapshot({
 		'delete foo.then',
 		'typeof foo.then',
 
+		// `Object.fromEntries`
+		'Object.fromEntries([then, 1])',
+		'Object.fromEntries(["notThen", "then"])',
+		'const NOT_THEN = "not-then";Object.fromEntries([NOT_THEN, 1])',
+
 		// `{Object,Reflect}.defineProperty`
 		'Object.defineProperty(foo, then, 1)',
 		'Object.defineProperty(foo, "not-then", 1)',
@@ -54,6 +59,9 @@ test.snapshot({
 		'Reflect.defineProperty(foo, then, 1)',
 		'Reflect.defineProperty(foo, "not-then", 1)',
 		'const then = "no-then";Reflect.defineProperty(foo, then, 1)',
+		'Object.defineProperty(foo, "then", )',
+		'Object.defineProperty(...foo, "then", 1)',
+		'Object.defineProperty(foo, ...["then", 1])',
 
 		// `export`
 		'export {default} from "then"',
