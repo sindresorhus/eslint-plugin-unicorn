@@ -88,33 +88,29 @@ const cases = [
 	// `export const … = …`;
 	{
 		selector: 'ExportNamedDeclaration > VariableDeclaration.declaration',
-		* check(node, context) {
-			const variables = context.getDeclaredVariables(node);
-			for (const variable of variables) {
-				if (variable.name !== 'then') {
-					continue;
-				}
-
-				yield {node: variable.identifiers[0], messageId: MESSAGE_ID_EXPORT};
-			}
-		},
+		messageId: MESSAGE_ID_EXPORT,
+		getNodes: (node, context) => context.getDeclaredVariables(node).flatMap(({name, identifiers}) => name === 'then' ? identifiers : []),
 	},
 ];
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => Object.fromEntries(
-	cases.map(({selector, test, messageId, check}) => [
+	cases.map(({selector, test, messageId, getNodes}) => [
 		selector,
-		node => {
-			if (check) {
-				return check(node, context);
+		function * (node) {
+			if (getNodes) {
+				for (const problematicNode of getNodes(node, context)) {
+					yield {node: problematicNode, messageId};
+				}
+
+				return;
 			}
 
 			if (test && !test(node, context)) {
 				return;
 			}
 
-			return {node, messageId};
+			yield {node, messageId};
 		},
 	]),
 );
