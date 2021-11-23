@@ -431,5 +431,29 @@ test.babel({
 				export * as json from './foo.json' assert { type: 'json' };
 			`,
 		},
+		{
+			code: outdent`
+				import {foo} from './foo.json' assert { type: 'json' };
+				export {foo};
+				export {bar} from './foo.json';
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export {bar, foo} from './foo.json';
+			`,
+		},
+		{
+			code: outdent`
+				import {foo} from './foo.json';
+				export {foo};
+				export {bar} from './foo.json' assert { type: 'json' };
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export {bar, foo} from './foo.json' assert { type: 'json' };
+			`,
+		},
 	],
 });
