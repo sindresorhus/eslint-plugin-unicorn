@@ -1,7 +1,5 @@
 # Prefer `Object.hasOwn(…)` over `Object.prototype.hasOwnProperty.call(…)`
 
-✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
-
 🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
 
 [`Object.hasOwn(…)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwn) is more accessible than `Object.prototype.hasOwnProperty.call(…)`.

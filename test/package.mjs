@@ -236,7 +236,7 @@ test('Every rule has a doc with the appropriate content', t => {
 		// Decide which notices should be shown at the top of the doc.
 		const expectedNotices = [];
 		const unexpectedNotices = [];
-		if (index.configs.recommended.rules[`unicorn/${ruleName}`]) {
+		if (index.configs.recommended.rules[`unicorn/${ruleName}`] === 'error') {
 			expectedNotices.push('configRecommended');
 		} else {
 			unexpectedNotices.push('configRecommended');
