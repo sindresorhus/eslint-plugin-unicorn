@@ -74,6 +74,16 @@ function * removeImportOrExport(node, fixer, sourceCode) {
 	}
 }
 
+function getSourceAndAssertionsText(declaration, sourceCode) {
+	const keywordFromToken = sourceCode.getTokenBefore(
+		declaration.source,
+		token => token.type === 'Identifier' && token.value === 'from',
+	);
+	const [start] = keywordFromToken.range;
+	const [, end] = declaration.range;
+	return sourceCode.text.slice(start, end);
+}
+
 function getFixFunction({
 	context,
 	imported,
@@ -82,9 +92,9 @@ function getFixFunction({
 	program,
 }) {
 	const sourceCode = context.getSourceCode();
-	const sourceNode = imported.declaration.source;
+	const importDeclaration = imported.declaration;
+	const sourceNode = importDeclaration.source;
 	const sourceValue = sourceNode.value;
-	const sourceText = sourceCode.getText(sourceNode);
 	const exportDeclaration = exportDeclarations.find(({source}) => source.value === sourceValue);
 
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
@@ -92,7 +102,7 @@ function getFixFunction({
 		if (imported.name === '*') {
 			yield fixer.insertTextAfter(
 				program,
-				`\nexport * as ${exported.name} from ${sourceText};`,
+				`\nexport * as ${exported.name} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
 			);
 		} else {
 			const specifier = exported.name === imported.name
@@ -112,7 +122,7 @@ function getFixFunction({
 			} else {
 				yield fixer.insertTextAfter(
 					program,
-					`\nexport {${specifier}} from ${sourceText};`,
+					`\nexport {${specifier}} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
 				);
 			}
 		}

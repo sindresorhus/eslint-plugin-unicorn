@@ -394,3 +394,65 @@ test.snapshot({
 		`,
 	].map(code => ({code, options: [{ignoreUsedVariables: true}]})),
 });
+
+// TODO: Run test with default parser when it support "import assertions"
+test.babel({
+	testerOptions: {
+		parserOptions: {
+			babelOptions: {
+				parserOpts: {
+					plugins: ['importAssertions'],
+				},
+			},
+		},
+	},
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				import json from './foo.json' assert { type: 'json' };
+				export default json;
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export {default} from './foo.json' assert { type: 'json' };
+			`,
+		},
+		{
+			code: outdent`
+				import * as json from './foo.json' assert { type: 'json' };
+				export {json};
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export * as json from './foo.json' assert { type: 'json' };
+			`,
+		},
+		{
+			code: outdent`
+				import {foo} from './foo.json' assert { type: 'json' };
+				export {foo};
+				export {bar} from './foo.json';
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export {bar, foo} from './foo.json';
+			`,
+		},
+		{
+			code: outdent`
+				import {foo} from './foo.json';
+				export {foo};
+				export {bar} from './foo.json' assert { type: 'json' };
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export {bar, foo} from './foo.json' assert { type: 'json' };
+			`,
+		},
+	],
+});
