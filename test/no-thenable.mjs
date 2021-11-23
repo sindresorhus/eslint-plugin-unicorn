@@ -43,9 +43,9 @@ test.snapshot({
 		'const NOT_THEN = "no-then";foo[NOT_THEN] = 1',
 		'foo.then ++',
 		'++ foo.then',
-		'foo.then += 1',
 		'delete foo.then',
 		'typeof foo.then',
+		'foo.then != 1',
 
 		// `Object.fromEntries`
 		'Object.fromEntries([then, 1])',
@@ -130,6 +130,9 @@ test.snapshot({
 		'foo["then"] = 1',
 		'foo[`then`] = 1',
 		'const THEN = "then";foo[THEN] = 1',
+		'foo.then += 1',
+		'foo.then ||= 1',
+		'foo.then ??= 1',
 
 		// `{Object,Reflect}.defineProperty`
 		'Object.defineProperty(foo, "then", 1)',

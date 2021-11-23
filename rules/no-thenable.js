@@ -43,7 +43,7 @@ const cases = [
 	// `foo.then = …`
 	// `foo[computedKey] = …`
 	{
-		selector: 'AssignmentExpression[operator="="] > MemberExpression.left > .property',
+		selector: 'AssignmentExpression > MemberExpression.left > .property',
 		test: (node, context) => getPropertyName(node.parent, context.getScope()) === 'then',
 		messageId: MESSAGE_ID_OBJECT,
 	},
