@@ -395,7 +395,6 @@ test.snapshot({
 	].map(code => ({code, options: [{ignoreUsedVariables: true}]})),
 });
 
-
 // TODO: Run test with default parser when it support "import assertions"
 test.babel({
 	testerOptions: {
