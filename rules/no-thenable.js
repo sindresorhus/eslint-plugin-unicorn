@@ -19,8 +19,6 @@ const isStringThen = (node, context) => {
 	return result && result.value === 'then';
 };
 
-const returnTrue = () => true;
-
 const cases = [
 	// `{then() {}}`,
 	// `{get then() {}}`,
@@ -79,14 +77,12 @@ const cases = [
 	// `export {then}`
 	{
 		selector: 'ExportSpecifier.specifiers > Identifier.exported[name="then"]',
-		test: returnTrue,
 		messageId: MESSAGE_ID_EXPORT,
 	},
 	// `export function then() {}`,
 	// `export class then {}`,
 	{
 		selector: 'ExportNamedDeclaration > :matches(FunctionDeclaration, ClassDeclaration).declaration > Identifier[name="then"].id',
-		test: returnTrue,
 		messageId: MESSAGE_ID_EXPORT,
 	},
 	// `export const … = …`;
@@ -114,7 +110,7 @@ const create = context => Object.fromEntries(
 				return check(node, context);
 			}
 
-			if (!test(node, context)) {
+			if (test && !test(node, context)) {
 				return;
 			}
 
