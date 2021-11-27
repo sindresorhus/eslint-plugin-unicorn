@@ -139,7 +139,7 @@ class SnapshotRuleTester {
 				`,
 				t => {
 					const messages = linter.verify(code, verifyConfig, {filename});
-					t.deepEqual(messages, [], 'Valid case should not has errors.');
+					t.deepEqual(messages, [], 'Valid case should not have errors.');
 				},
 			);
 		}
@@ -156,7 +156,7 @@ class SnapshotRuleTester {
 				`,
 				t => {
 					const messages = linter.verify(code, verifyConfig, {filename});
-					t.notDeepEqual(messages, [], 'Invalid case should has at least one error.');
+					t.notDeepEqual(messages, [], 'Invalid case should have at least one error.');
 
 					const fatalError = messages.find(({fatal}) => fatal);
 					if (fatalError) {
