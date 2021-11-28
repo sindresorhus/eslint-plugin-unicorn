@@ -7,7 +7,9 @@
       "prefer-alphabetical-devDependencies": "error",
       "prefer-alphabetical-optionalDependencies": "error",
       "prefer-alphabetical-scripts": "error",
-      "prefer-caret-version-dependencies": "error",
+      "prefer-caret-version-dependencies": ["error", {
+        "exceptions": ["eslint-plugin-unicorn"]
+      }],
       "prefer-caret-version-devDependencies": "error",
       "prefer-scripts": ["error", ["lint", "test"]]
     }
