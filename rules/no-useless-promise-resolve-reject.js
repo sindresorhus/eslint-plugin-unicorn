@@ -67,7 +67,7 @@ const create = context => {
 		},
 		[returnStatementSelector](node) {
 			const parentFunction = getParentFunction(node);
-			if (!parentFunction?.async) {
+			if (!parentFunction || !parentFunction.async) {
 				return;
 			}
 
@@ -82,7 +82,7 @@ const create = context => {
 		},
 		[yieldExpressionSelector](node) {
 			const parentFunction = getParentFunction(node);
-			if (!parentFunction?.async || !parentFunction.generator) {
+			if (!parentFunction || !parentFunction.async || !parentFunction.generator) {
 				return;
 			}
 
