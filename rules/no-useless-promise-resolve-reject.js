@@ -7,7 +7,7 @@ const YIELD_RESOLVE = 'yield-resolve';
 const YIELD_REJECT = 'yield-reject';
 const messages = {
 	[RETURN_RESOLVE]: 'Prefer `return value` over `return Promise.resolve(value)`.',
-	[RETURN_REJECT]: 'Prefer `throw value` over `return Promise.reject(value)`.',
+	[RETURN_REJECT]: 'Prefer `throw error` over `return Promise.reject(error)`.',
 	[YIELD_RESOLVE]: 'Prefer `yield value` over `yield Promise.resolve(value)`.',
 	[YIELD_REJECT]: 'Prefer `throw value` over `yield Promise.reject(value)`.',
 };
