@@ -79,6 +79,7 @@ test({
 		testCase('src/foo/___foo-bar.js', 'kebabCase'),
 		testCase('src/foo/_FooBar.js', 'pascalCase'),
 		testCase('src/foo/___FooBar.js', 'pascalCase'),
+		testCase("src/foo/$foo.js"),
 		testManyCases('src/foo/foo-bar.js'),
 		testManyCases('src/foo/foo-bar.js', {}),
 		testManyCases('src/foo/fooBar.js', {camelCase: true}),

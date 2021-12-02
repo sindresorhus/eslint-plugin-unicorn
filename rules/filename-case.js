@@ -14,7 +14,7 @@ const pascalCase = string => upperFirst(camelCase(string));
 const numberRegex = /\d+/;
 const PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
 const PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
-const isIgnoredChar = char => !/^[a-z\d-_$]$/i.test(char);
+const isIgnoredChar = char => !/^[a-z\d-_]$/i.test(char);
 const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue']);
 const isLowerCase = string => string === string.toLowerCase();
 
