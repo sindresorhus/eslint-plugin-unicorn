@@ -25,6 +25,7 @@ module.exports = {
 		'unicorn/no-await-expression-member': 'error',
 		'unicorn/no-console-spaces': 'error',
 		'unicorn/no-document-cookie': 'error',
+		'unicorn/no-duplicate-literal-elements': 'error',
 		'unicorn/no-empty-file': 'error',
 		'unicorn/no-for-loop': 'error',
 		'unicorn/no-hex-escape': 'error',
