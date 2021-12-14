@@ -44,7 +44,7 @@ const create = () => ({
 	[mapSselector]: node => {
 		const {elements} = node;
 		const arrayValue = elements
-			.map(({elements}) => elements?.[0].value)
+			.map(({elements}) => elements && elements[0] && elements[0].value)
 			.filter(value => value !== undefined);
 		const duplicatedData = checkArrayHasDuplicatedValue(arrayValue);
 		if (duplicatedData.length > 0) {
