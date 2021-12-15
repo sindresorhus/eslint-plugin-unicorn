@@ -1,10 +1,10 @@
-# Hardcoded `Set` and `Map` of literals and consts with duplicates
+# Disallow duplicate literal elements in `Array`, `Set` or `Map` key
 
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
-Sometimes a hardcoded Set grows large enough for it to be hard to see if there is already a value in it. One could miss that a value one wants to add is already there and add a duplicate.
+In the case of hardcoded definition of the  Array, Set or Map content, it may be difficult to confirm whether there are duplicate content or duplicate Map Key values due to the continuous increase of the content, which may result in the increase of duplicate content.
 
-This rule report hardcoded `Set` and `Map` of literals and consts with duplicates.
+This rule will be reported when the contents of the hardcoded Array, Set or Map key literal elements is duplicated.
 
 ## Fail
 

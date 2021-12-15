@@ -66,7 +66,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Hardcoded `Set` and `Map` of literals and consts with duplicates',
+			description: 'Disallow duplicate literal elements in `Array`, `Set` or `Map` key.',
 		},
 		messages,
 	},

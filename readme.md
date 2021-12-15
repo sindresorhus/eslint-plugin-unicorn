@@ -175,7 +175,7 @@ Each rule has emojis denoting:
 | [no-await-expression-member](docs/rules/no-await-expression-member.md) | Forbid member access from await expression. | ✅ | 🔧 |  |
 | [no-console-spaces](docs/rules/no-console-spaces.md) | Do not use leading/trailing space between `console.log` parameters. | ✅ | 🔧 |  |
 | [no-document-cookie](docs/rules/no-document-cookie.md) | Do not use `document.cookie` directly. | ✅ |  |  |
-| [no-duplicate-literal-elements](docs/rules/no-duplicate-literal-elements.md) | Hardcoded `Set` and `Map` of literals and consts with duplicates. | ✅ |  |  |
+| [no-duplicate-literal-elements](docs/rules/no-duplicate-literal-elements.md) | Disallow duplicate literal elements in `Array`, `Set` or `Map` key. | ✅ |  |  |
 | [no-empty-file](docs/rules/no-empty-file.md) | Disallow empty files. | ✅ |  |  |
 | [no-for-loop](docs/rules/no-for-loop.md) | Do not use a `for` loop that can be replaced with a `for-of` loop. | ✅ | 🔧 |  |
 | [no-hex-escape](docs/rules/no-hex-escape.md) | Enforce the use of Unicode escapes instead of hexadecimal escapes. | ✅ | 🔧 |  |
