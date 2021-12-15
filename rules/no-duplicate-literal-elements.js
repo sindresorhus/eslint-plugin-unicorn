@@ -4,6 +4,16 @@ const messages = {
 	[MESSAGE_ID]: 'Hardcoded `{{type}}` of `{{value}}` with duplicates.',
 };
 
+const arraySelector = [
+	'VariableDeclarator',
+	' > ',
+	'ArrayExpression',
+	' , ',
+	'ExpressionStatement',
+	' > ',
+	'ArrayExpression',
+].join('');
+
 const setSelector = [
 	'NewExpression',
 	'[arguments.0.type="ArrayExpression"]',
@@ -24,6 +34,23 @@ const checkArrayHasDuplicatedValue = array => array.filter((element, index, arra
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
+	[arraySelector]: node => {
+		const {elements} = node;
+		const arrayValue = elements
+			.filter(({type}) => type === 'Literal')
+			.map(({value}) => value);
+		const duplicatedData = checkArrayHasDuplicatedValue(arrayValue);
+		if (duplicatedData.length > 0) {
+			return {
+				node,
+				messageId: MESSAGE_ID,
+				data: {
+					type: 'Array',
+					value: duplicatedData.join(', '),
+				},
+			};
+		}
+	},
 	[setSelector]: node => {
 		const {elements} = node;
 		const arrayValue = elements
