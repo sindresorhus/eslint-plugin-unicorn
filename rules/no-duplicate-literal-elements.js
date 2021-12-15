@@ -79,8 +79,8 @@ const create = () => ({
 	[mapSelector]: node => {
 		const {elements} = node;
 		const arrayValue = elements
-			.filter(({type, elements}) => type === 'ArrayExpression' && elements[0].type === 'Literal')
-			.map(({elements}) => elements[0].value)
+			.filter(({type, elements}) => type === 'ArrayExpression' && elements[0] && elements[0].type === 'Literal')
+			.map(({elements}) => elements[0].value);
 		const duplicatedData = checkArrayHasDuplicatedValue(arrayValue);
 		if (duplicatedData.length > 0) {
 			return {
