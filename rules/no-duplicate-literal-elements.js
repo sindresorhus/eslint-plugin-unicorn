@@ -12,6 +12,10 @@ const arraySelector = [
 	'ExpressionStatement',
 	' > ',
 	'ArrayExpression',
+	' , ',
+	'AssignmentExpression',
+	' > ',
+	'ArrayExpression',
 ].join('');
 
 const setSelector = [
