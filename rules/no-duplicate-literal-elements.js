@@ -27,8 +27,8 @@ const create = () => ({
 	[setSelector]: node => {
 		const {elements} = node;
 		const arrayValue = elements
-			.map(({value}) => value)
-			.filter(value => value !== undefined);
+			.filter(({type}) => type === 'Literal')
+			.map(({value}) => value);
 		const duplicatedData = checkArrayHasDuplicatedValue(arrayValue);
 		if (duplicatedData.length > 0) {
 			return {
@@ -44,8 +44,8 @@ const create = () => ({
 	[mapSelector]: node => {
 		const {elements} = node;
 		const arrayValue = elements
-			.map(({elements}) => elements && elements[0] && elements[0].value)
-			.filter(value => value !== undefined);
+			.filter(({type, elements}) => type === 'ArrayExpression' && elements[0].type === 'Literal')
+			.map(({elements}) => elements[0].value)
 		const duplicatedData = checkArrayHasDuplicatedValue(arrayValue);
 		if (duplicatedData.length > 0) {
 			return {
