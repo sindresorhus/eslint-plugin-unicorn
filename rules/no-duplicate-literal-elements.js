@@ -50,7 +50,9 @@ const create = () => ({
 				messageId: MESSAGE_ID,
 				data: {
 					type: 'Array',
-					value: duplicatedData.join(', '),
+					value: duplicatedData
+						.map(value => value === null ? 'null' : value)
+						.join(', '),
 				},
 			};
 		}
@@ -67,7 +69,9 @@ const create = () => ({
 				messageId: MESSAGE_ID,
 				data: {
 					type: 'Set',
-					value: duplicatedData.join(', '),
+					value: duplicatedData
+						.map(value => value === null ? 'null' : value)
+						.join(', '),
 				},
 			};
 		}
@@ -84,7 +88,9 @@ const create = () => ({
 				messageId: MESSAGE_ID,
 				data: {
 					type: 'Map',
-					value: duplicatedData.join(', '),
+					value: duplicatedData
+						.map(value => value === null ? 'null' : value)
+						.join(', '),
 				},
 			};
 		}
