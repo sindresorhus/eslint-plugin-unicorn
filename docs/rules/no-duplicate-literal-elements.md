@@ -11,17 +11,17 @@ This rule report hardcoded `Set` and `Map` of literals and consts with duplicate
 ```js
 const foo = new Set([1, 2, 1]);
 const foo = new Set([1, null, null]);
-const foo = new Set(["1", "2", "1"]);
-const foo = new Map([["a", 1], ["a", 2]]);
+const foo = new Set(['1', '2', '1']);
+const foo = new Map([['a', 1], ['a', 2]]);
 ```
 
 ## Pass
 
 ```js
 const foo = new Set([1, 2, 3]);
-const foo = new Set([1, 2, "1"]);
+const foo = new Set([1, 2, '1']);
 const foo = new Set([{}, {}, [], []]);
-const foo = new Map([["a", 1], ["b", 2]]);
+const foo = new Map([['a', 1], ['b', 2]]);
 ```
 
 ```js
