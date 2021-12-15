@@ -4,7 +4,7 @@ const messages = {
 	[MESSAGE_ID]: 'Hardcoded `{{type}}` of `{{value}}` with duplicates.',
 };
 
-const setSselector = [
+const setSelector = [
 	'NewExpression',
 	'[arguments.0.type="ArrayExpression"]',
 	'[callee.name="Set"]',
@@ -12,7 +12,7 @@ const setSselector = [
 	'ArrayExpression',
 ].join('');
 
-const mapSselector = [
+const mapSelector = [
 	'NewExpression',
 	'[arguments.0.type="ArrayExpression"]',
 	'[callee.name="Map"]',
@@ -24,7 +24,7 @@ const checkArrayHasDuplicatedValue = array => array.filter((element, index, arra
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
-	[setSselector]: node => {
+	[setSelector]: node => {
 		const {elements} = node;
 		const arrayValue = elements
 			.map(({value}) => value)
@@ -41,7 +41,7 @@ const create = () => ({
 			};
 		}
 	},
-	[mapSselector]: node => {
+	[mapSelector]: node => {
 		const {elements} = node;
 		const arrayValue = elements
 			.map(({elements}) => elements && elements[0] && elements[0].value)
