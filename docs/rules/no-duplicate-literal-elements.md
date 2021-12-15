@@ -2,9 +2,9 @@
 
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
-In the case of hardcoded definition of the  Array, Set or Map content, it may be difficult to confirm whether there are duplicate content or duplicate Map Key values due to the continuous increase of the content, which may result in the increase of duplicate content.
+It is hard to know if there is duplicate in hardcoded value when `Array`, `Set`, or `Map` key grows larger.
 
-This rule will be reported when the contents of the hardcoded Array, Set or Map key literal elements is duplicated.
+This rule disallows duplicate in hardcoded values of `Array`, `Set` or `Map` key.
 
 ## Fail
 
