@@ -19,11 +19,10 @@ const setSelector = [
 ].join('');
 
 const mapSelector = [
-	'NewExpression',
+	newExpressionSelector('Map'),
 	'[arguments.0.type="ArrayExpression"]',
-	'[callee.name="Map"]',
 	' > ',
-	'ArrayExpression',
+	'ArrayExpression > ArrayExpression > Literal:first-child',
 ].join('');
 
 const checkArrayHasDuplicatedValue = array => array.filter((element, index, array_) => array_.indexOf(element) !== index);
@@ -65,20 +64,16 @@ const create = () => ({
 		}
 	},
 	[mapSelector]: node => {
-		const {elements} = node;
-		const arrayValue = elements
-			.filter(({type, elements}) => type === 'ArrayExpression' && elements[0] && elements[0].type === 'Literal')
-			.map(({elements}) => elements[0].value);
+		const {elements} = node.parent.parent;
+		const arrayValue = elements.map(({elements}) => elements[0].value);
 		const duplicatedData = checkArrayHasDuplicatedValue(arrayValue);
-		if (duplicatedData.length > 0) {
+		if (duplicatedData.includes(node.value)) {
 			return {
 				node,
 				messageId: MESSAGE_ID,
 				data: {
 					type: 'Map',
-					value: duplicatedData
-						.map(value => value === null ? 'null' : value)
-						.join(', '),
+					value: String(node.value),
 				},
 			};
 		}
