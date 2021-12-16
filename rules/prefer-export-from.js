@@ -13,8 +13,8 @@ const messages = {
 };
 
 // Default import/export can be `Identifier`, have to use `Symbol.for`
-const DEFAULT_SPECIFIER = Symbol.for('default');
-const NAMESPACE_SPECIFIER = Symbol('NAMESPACE_SPECIFIER');
+const DEFAULT_SPECIFIER_NAME = Symbol.for('default');
+const NAMESPACE_SPECIFIER_NAME = Symbol('NAMESPACE_SPECIFIER_NAME');
 
 const getSpecifierName = node => {
 	switch (node.type) {
@@ -112,7 +112,7 @@ function getFixFunction({
 
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
-		if (imported.name === NAMESPACE_SPECIFIER) {
+		if (imported.name === NAMESPACE_SPECIFIER_NAME) {
 			yield fixer.insertTextAfter(
 				program,
 				`\nexport * as ${exported.text} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
@@ -154,7 +154,7 @@ function getExported(identifier, context, sourceCode) {
 		case 'ExportDefaultDeclaration':
 			return {
 				node: parent,
-				name: DEFAULT_SPECIFIER,
+				name: DEFAULT_SPECIFIER_NAME,
 				text: 'default',
 			};
 
@@ -217,7 +217,7 @@ function getImported(variable, sourceCode) {
 	switch (specifier.type) {
 		case 'ImportDefaultSpecifier':
 			return {
-				name: DEFAULT_SPECIFIER,
+				name: DEFAULT_SPECIFIER_NAME,
 				text: 'default',
 				...result,
 			};
@@ -231,7 +231,7 @@ function getImported(variable, sourceCode) {
 
 		case 'ImportNamespaceSpecifier':
 			return {
-				name: NAMESPACE_SPECIFIER,
+				name: NAMESPACE_SPECIFIER_NAME,
 				text: '*',
 				...result,
 			};
@@ -257,7 +257,7 @@ function getExports(imported, context, sourceCode) {
 		export default foo;
 		```
 		*/
-		if (imported.name === NAMESPACE_SPECIFIER && exported.name === DEFAULT_SPECIFIER) {
+		if (imported.name === NAMESPACE_SPECIFIER_NAME && exported.name === DEFAULT_SPECIFIER_NAME) {
 			continue;
 		}
 
