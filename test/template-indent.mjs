@@ -606,6 +606,7 @@ test.snapshot({
 		`expect().toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
 		`expect(foo).notToMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
 		`assert.expect(foo).toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
+		`expect.toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
 		`notExpect(foo).toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
 		`new expect(foo).toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
 		`new (expect(foo).toMatchInlineSnapshot)(${INVALID_SNAPSHOT})`,
