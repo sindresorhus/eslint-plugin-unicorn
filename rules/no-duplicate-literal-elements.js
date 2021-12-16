@@ -5,18 +5,10 @@ const messages = {
 };
 
 const arraySelector = [
-	'VariableDeclarator',
-	' > ',
-	'ArrayExpression',
-	' , ',
-	'ExpressionStatement',
-	' > ',
-	'ArrayExpression',
-	' , ',
-	'AssignmentExpression',
-	' > ',
-	'ArrayExpression',
-].join('');
+	'VariableDeclarator > ArrayExpression',
+	'ExpressionStatement > ArrayExpression',
+	'AssignmentExpression > ArrayExpression',
+].join(',');
 
 const setSelector = [
 	'NewExpression',
