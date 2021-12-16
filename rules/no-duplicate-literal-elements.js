@@ -1,4 +1,5 @@
 'use strict';
+const {newExpressionSelector} = require('./selectors/index.js');
 const MESSAGE_ID = 'no-duplicate-literal-elements';
 const messages = {
 	[MESSAGE_ID]: 'Hardcoded `{{type}}` of `{{value}}` with duplicates.',
@@ -11,11 +12,10 @@ const arraySelector = [
 ].join(',');
 
 const setSelector = [
-	'NewExpression',
+	newExpressionSelector('Set'),
 	'[arguments.0.type="ArrayExpression"]',
-	'[callee.name="Set"]',
 	' > ',
-	'ArrayExpression',
+	'ArrayExpression > Literal',
 ].join('');
 
 const mapSelector = [
@@ -48,20 +48,18 @@ const create = () => ({
 		}
 	},
 	[setSelector]: node => {
-		const {elements} = node;
+		const {elements} = node.parent;
 		const arrayValue = elements
 			.filter(({type}) => type === 'Literal')
 			.map(({value}) => value);
 		const duplicatedData = checkArrayHasDuplicatedValue(arrayValue);
-		if (duplicatedData.length > 0) {
+		if (duplicatedData.includes(node.value)) {
 			return {
 				node,
 				messageId: MESSAGE_ID,
 				data: {
 					type: 'Set',
-					value: duplicatedData
-						.map(value => value === null ? 'null' : value)
-						.join(', '),
+					value: String(node.value),
 				},
 			};
 		}
