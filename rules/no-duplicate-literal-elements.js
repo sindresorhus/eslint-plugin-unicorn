@@ -1,5 +1,6 @@
 'use strict';
 const {newExpressionSelector} = require('./selectors/index.js');
+
 const MESSAGE_ID = 'no-duplicate-literal-elements';
 const messages = {
 	[MESSAGE_ID]: 'Hardcoded `{{type}}` of `{{value}}` with duplicates.',
@@ -27,6 +28,13 @@ const mapSelector = [
 
 const checkArrayHasDuplicatedValue = array => array.filter((element, index, array_) => array_.indexOf(element) !== index);
 
+const getFirstDuplicateIndex = (list, value) => {
+	const firstIndex = list.indexOf(value);
+	const newList = [...list];
+	newList.splice(firstIndex, 1, {});
+	return newList.indexOf(value);
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	[arraySelector]: node => {
@@ -36,14 +44,18 @@ const create = () => ({
 			.map(({value}) => value);
 		const duplicatedData = checkArrayHasDuplicatedValue(arrayValue);
 		if (duplicatedData.includes(node.value)) {
-			return {
-				node,
-				messageId: MESSAGE_ID,
-				data: {
-					type: 'Array',
-					value: String(node.value),
-				},
-			};
+			const currentNodeIndex = elements.indexOf(node);
+			const firstDuplicateIndex = getFirstDuplicateIndex(arrayValue, node.value);
+			if (currentNodeIndex === firstDuplicateIndex) {
+				return {
+					node,
+					messageId: MESSAGE_ID,
+					data: {
+						type: 'Array',
+						value: String(node.value),
+					},
+				};
+			}
 		}
 	},
 	[setSelector]: node => {
@@ -53,14 +65,18 @@ const create = () => ({
 			.map(({value}) => value);
 		const duplicatedData = checkArrayHasDuplicatedValue(arrayValue);
 		if (duplicatedData.includes(node.value)) {
-			return {
-				node,
-				messageId: MESSAGE_ID,
-				data: {
-					type: 'Set',
-					value: String(node.value),
-				},
-			};
+			const currentNodeIndex = elements.indexOf(node);
+			const firstDuplicateIndex = getFirstDuplicateIndex(arrayValue, node.value);
+			if (currentNodeIndex === firstDuplicateIndex) {
+				return {
+					node,
+					messageId: MESSAGE_ID,
+					data: {
+						type: 'Set',
+						value: String(node.value),
+					},
+				};
+			}
 		}
 	},
 	[mapSelector]: node => {
@@ -68,14 +84,18 @@ const create = () => ({
 		const arrayValue = elements.map(({elements}) => elements[0].value);
 		const duplicatedData = checkArrayHasDuplicatedValue(arrayValue);
 		if (duplicatedData.includes(node.value)) {
-			return {
-				node,
-				messageId: MESSAGE_ID,
-				data: {
-					type: 'Map',
-					value: String(node.value),
-				},
-			};
+			const currentNodeIndex = elements.indexOf(node.parent);
+			const firstDuplicateIndex = getFirstDuplicateIndex(arrayValue, node.value);
+			if (currentNodeIndex === firstDuplicateIndex) {
+				return {
+					node,
+					messageId: MESSAGE_ID,
+					data: {
+						type: 'Map',
+						value: String(node.value),
+					},
+				};
+			}
 		}
 	},
 });
