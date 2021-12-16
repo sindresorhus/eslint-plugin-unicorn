@@ -5,9 +5,9 @@ const messages = {
 };
 
 const arraySelector = [
-	'VariableDeclarator > ArrayExpression',
-	'ExpressionStatement > ArrayExpression',
-	'AssignmentExpression > ArrayExpression',
+	'VariableDeclarator > ArrayExpression > Literal',
+	'ExpressionStatement > ArrayExpression > Literal',
+	'AssignmentExpression > ArrayExpression > Literal',
 ].join(',');
 
 const setSelector = [
@@ -31,20 +31,18 @@ const checkArrayHasDuplicatedValue = array => array.filter((element, index, arra
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	[arraySelector]: node => {
-		const {elements} = node;
+		const {elements} = node.parent;
 		const arrayValue = elements
 			.filter(({type}) => type === 'Literal')
 			.map(({value}) => value);
 		const duplicatedData = checkArrayHasDuplicatedValue(arrayValue);
-		if (duplicatedData.length > 0) {
+		if (duplicatedData.includes(node.value)) {
 			return {
 				node,
 				messageId: MESSAGE_ID,
 				data: {
 					type: 'Array',
-					value: duplicatedData
-						.map(value => value === null ? 'null' : value)
-						.join(', '),
+					value: String(node.value),
 				},
 			};
 		}
