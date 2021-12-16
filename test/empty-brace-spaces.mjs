@@ -22,7 +22,6 @@ const cases = [
 	'while (foo){/* */}',
 	'foo = () => {/* */}',
 	'foo = function (){/* */}',
-	'function foo(){/* */}',
 	'foo = {/* */}',
 	'class Foo {bar() {/* */}}',
 	'foo = class {bar() {/* */}}',
