@@ -1,3 +1,4 @@
+import outdent from 'outdent';
 import stripIndent from 'strip-indent';
 import {getTester} from './utils/test.mjs';
 
@@ -619,5 +620,5 @@ test.snapshot({
 	],
 	invalid: [
 		`expect(foo).toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
-	]
+	],
 });
