@@ -16,6 +16,16 @@ const messages = {
 const DEFAULT_SPECIFIER = Symbol.for('default');
 const NAMESPACE_SPECIFIER = Symbol('NAMESPACE_SPECIFIER');
 
+const getSpecifierName = node => {
+	switch (node.type) {
+		case 'Identifier':
+			return Symbol.for(node.name);
+		case 'Literal':
+			return node.value;
+		// No default
+	}
+};
+
 function * removeSpecifier(node, fixer, sourceCode) {
 	const {parent} = node;
 	const {specifiers} = parent;
@@ -148,26 +158,12 @@ function getExported(identifier, context, sourceCode) {
 				text: 'default',
 			};
 
-		case 'ExportSpecifier': {
-			const {exported} = parent;
-			switch (exported.type) {
-				case 'Identifier':
-					return {
-						node: parent,
-						name: Symbol.for(exported.name),
-						text: exported.name,
-					};
-				case 'Literal':
-					return {
-						node: parent,
-						name: exported.value,
-						text: sourceCode.getText(exported),
-					};
-				// No default
-			}
-
-			break;
-		}
+		case 'ExportSpecifier':
+			return {
+				node: parent,
+				name: getSpecifierName(parent.exported),
+				text: sourceCode.getText(parent.exported),
+			};
 
 		case 'VariableDeclarator': {
 			if (
@@ -226,26 +222,12 @@ function getImported(variable, sourceCode) {
 				...result,
 			};
 
-		case 'ImportSpecifier': {
-			const {imported} = specifier;
-			switch (imported.type) {
-				case 'Identifier':
-					return {
-						name: Symbol.for(imported.name),
-						text: sourceCode.getText(imported),
-						...result,
-					};
-				case 'Literal':
-					return {
-						name: imported.value,
-						text: sourceCode.getText(imported),
-						...result,
-					};
-				// No default
-			}
-
-			break;
-		}
+		case 'ImportSpecifier':
+			return {
+				name: getSpecifierName(specifier.imported),
+				text: sourceCode.getText(specifier.imported),
+				...result,
+			};
 
 		case 'ImportNamespaceSpecifier':
 			return {
