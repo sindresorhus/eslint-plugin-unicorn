@@ -4,7 +4,7 @@
 
 If an object is defined as "thenable", once it's accidentally used in an await expression, it may cause problems.
 
-If a module have exported `then`, dynamic `import()` may won't works as expected.
+If a module has an export named `then`, dynamic `import()` may not work as expected.
 
 ## Fail
 
