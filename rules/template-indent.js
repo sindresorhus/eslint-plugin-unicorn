@@ -3,11 +3,18 @@ const stripIndent = require('strip-indent');
 const indentString = require('indent-string');
 const esquery = require('esquery');
 const {replaceTemplateElement} = require('./fix/index.js');
+const {callExpressionSelector, methodCallSelector} = require('./selectors/index.js')
 
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
 const messages = {
 	[MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE]: 'Templates should be properly indented.',
 };
+
+const jestInlineSnapshotSelector = [
+	callExpressionSelector({name: 'expect', path: 'callee.object', argumentsLength: 1}),
+	methodCallSelector({method:'toMatchInlineSnapshot', argumentsLength: 1}),
+	' > TemplateLiteral.arguments:first-child'
+].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -15,7 +22,7 @@ const create = context => {
 	const options = {
 		tags: ['outdent', 'dedent', 'gql', 'sql', 'html', 'styled'],
 		functions: ['dedent', 'stripIndent'],
-		selectors: [],
+		selectors: [jestInlineSnapshotSelector],
 		comments: ['HTML', 'indent'],
 		...context.options[0],
 	};

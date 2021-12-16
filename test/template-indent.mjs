@@ -587,3 +587,36 @@ test({
 		`),
 	],
 });
+
+// `expect().toMatchInlineSnapshot()`
+const INVALID_SNAPSHOT = `\`
+    one
+      three
+      \`
+`;
+test.snapshot({
+	valid: [
+		`expect(foo)[toMatchInlineSnapshot](${INVALID_SNAPSHOT})`,
+		`expect(foo).toMatchInlineSnapshot?.(${INVALID_SNAPSHOT})`,
+		`expect(foo)?.toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
+		`expect(foo).toMatchInlineSnapshot(${INVALID_SNAPSHOT}, extraArgument)`,
+		`expect(foo).toMatchInlineSnapshot(extraArgument, ${INVALID_SNAPSHOT})`,
+		'expect(foo).toMatchInlineSnapshot()',
+		`expect(foo, extraArgument).toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
+		`expect().toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
+		`expect(foo).notToMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
+		`assert.expect(foo).toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
+		`notExpect(foo).toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
+		`new expect(foo).toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
+		`new (expect(foo).toMatchInlineSnapshot)(${INVALID_SNAPSHOT})`,
+		outdent`
+			expect(foo).toMatchInlineSnapshot(\`
+				foo
+				bar
+			\`)
+		`,
+	],
+	invalid: [
+		`expect(foo).toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
+	]
+});
