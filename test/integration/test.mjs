@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import Listr from 'listr';
-import execa from 'execa';
+import {execa} from 'execa';
 import chalk from 'chalk';
 import {isCI} from 'ci-info';
 import mem from 'mem';
