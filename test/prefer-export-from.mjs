@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
@@ -274,6 +274,50 @@ test.snapshot({
 			export {namespace};
 			export default namespace;
 		`,
+		// TODO: Use default parser when it supports
+		// String literal specifier
+		...[
+			outdent`
+				import {'foo' as foo} from 'foo';
+				export default foo;
+			`,
+			outdent`
+				import {'foo' as foo} from 'foo';
+				export {foo};
+			`,
+			outdent`
+				import {'foo' as foo} from 'foo';
+				export const bar = foo;
+			`,
+			outdent`
+				import {'foo' as foo} from 'foo';
+				export {foo as 'foo'};
+			`,
+			outdent`
+				import {'foo' as foo} from 'foo';
+				export {foo as "foo"};
+			`,
+			outdent`
+				import {'fo\\u{20}o' as foo} from 'foo';
+				export {foo as "fo o"};
+			`,
+			outdent`
+				import {'fo\\no' as foo} from 'foo';
+				export {foo as "fo\\u000ao"};
+			`,
+			outdent`
+				import {'default' as foo} from 'foo';
+				export {foo};
+			`,
+			outdent`
+				import {'default' as foo} from 'foo';
+				export default foo;
+			`,
+			outdent`
+				import {'*' as foo} from 'foo';
+				export {foo};
+			`,
+		].map(code => ({code, parser: parsers.babel})),
 	],
 });
 
