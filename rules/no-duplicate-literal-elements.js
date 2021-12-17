@@ -3,7 +3,7 @@ const {newExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'no-duplicate-literal-elements';
 const messages = {
-	[MESSAGE_ID]: 'Hardcoded `{{type}}` of `{{value}}` with duplicates.',
+	[MESSAGE_ID]: 'Remove duplicate {{valueType}} `{{value}}` from the `{{objectType}}`.',
 };
 
 const arraySelector = [
@@ -51,7 +51,8 @@ const create = () => ({
 					node,
 					messageId: MESSAGE_ID,
 					data: {
-						type: 'Array',
+						objectType: 'Array',
+						valueType: 'value',
 						value: String(node.value),
 					},
 				};
@@ -72,7 +73,8 @@ const create = () => ({
 					node,
 					messageId: MESSAGE_ID,
 					data: {
-						type: 'Set',
+						objectType: 'Set',
+						valueType: 'value',
 						value: String(node.value),
 					},
 				};
@@ -91,7 +93,8 @@ const create = () => ({
 					node,
 					messageId: MESSAGE_ID,
 					data: {
-						type: 'Map',
+						objectType: 'Map',
+						valueType: 'key',
 						value: String(node.value),
 					},
 				};
