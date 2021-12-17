@@ -613,8 +613,8 @@ test.snapshot({
 		`new (expect(foo).toMatchInlineSnapshot)(${INVALID_SNAPSHOT})`,
 		outdent`
 			expect(foo).toMatchInlineSnapshot(\`
-				foo
-				bar
+			  foo
+			  bar
 			\`)
 		`,
 	],
