@@ -70,6 +70,15 @@ test({
 				}
 			}
 		`,
+		// Multiple/no parameters
+		...['resolve', 'reject'].flatMap(fn => [
+			`async () => Promise.${fn}();`,
+			outdent`
+				async function * foo() {
+					yield Promise.${fn}();
+				}
+			`,
+		]),
 	],
 	invalid: [
 		{
@@ -237,21 +246,6 @@ test({
 				});
 			`,
 		},
-		// Multiple/no parameters
-		...['resolve', 'reject'].flatMap(fn => [
-			{
-				code: `async () => Promise.${fn}();`,
-				errors: [createError(`return-${fn}`)],
-			},
-			{
-				code: outdent`
-					async function * foo() {
-						yield Promise.${fn}();
-					}
-				`,
-				errors: [createError(`yield-${fn}`)],
-			},
-		]),
 		// Sequence expressions
 		{
 			code: outdent`

@@ -12,14 +12,14 @@ const messages = {
 	[YIELD_REJECT]: 'Prefer `throw value` over `yield Promise.reject(value)`.',
 };
 
-const promiseResolveRejectSelector = methodCallSelector({
+const promiseResolveOrRejectSelector = methodCallSelector({
 	object: 'Promise',
 	methods: ['resolve', 'reject'],
-	allowComputed: true,
+	argumentsLength: 1,
 });
-const asyncArrowFunctionReturnSelector = `ArrowFunctionExpression[async=true] > ${promiseResolveRejectSelector}`;
-const returnStatementSelector = `ReturnStatement > ${promiseResolveRejectSelector}`;
-const yieldExpressionSelector = `YieldExpression > ${promiseResolveRejectSelector}`;
+const asyncArrowFunctionReturnSelector = `ArrowFunctionExpression[async=true] > ${promiseResolveOrRejectSelector}.body`;
+const returnStatementSelector = `ReturnStatement > ${promiseResolveOrRejectSelector}.argument`;
+const yieldExpressionSelector = `YieldExpression > ${promiseResolveOrRejectSelector}.argument`;
 
 const functionTypes = new Set([
 	'ArrowFunctionExpression',
@@ -44,7 +44,7 @@ const create = context => {
 		const isResolve = node.callee.property.name === 'resolve';
 		const value = node.arguments.length === 1 ? node.arguments[0] : undefined;
 		return {
-			node,
+			node: node.callee,
 			messageId: isResolve ? resolveMessage : rejectMessage,
 			fix: value === undefined ? undefined : createFix(isResolve, sourceCode.getText(value), value),
 		};
