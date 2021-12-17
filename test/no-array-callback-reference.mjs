@@ -57,7 +57,14 @@ test({
 		...reduceLikeMethods.map(method => `this.${method}(fn)`),
 
 		// `Boolean`
+		'foo.find(Boolean)',
+
+		// Primitive wrappers are ignored
+		'foo.map(String)',
+		'foo.map(Number)',
+		'foo.map(BigInt)',
 		'foo.map(Boolean)',
+		'foo.map(Symbol)',
 
 		// Not `CallExpression`
 		'new foo.map(fn);',

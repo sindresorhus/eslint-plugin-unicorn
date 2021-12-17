@@ -49,14 +49,10 @@ const iteratorMethods = [
 	],
 	[
 		'flatMap',
-		{
-			ignore: [
-				'Boolean',
-			],
-		},
 	],
 	[
-		'forEach', {
+		'forEach',
+		{
 			returnsUndefined: true,
 		},
 	],
@@ -65,7 +61,11 @@ const iteratorMethods = [
 		{
 			extraSelector: '[callee.object.name!="types"]',
 			ignore: [
+				'String',
+				'Number',
+				'BigInt',
 				'Boolean',
+				'Symbol',
 			],
 		},
 	],
