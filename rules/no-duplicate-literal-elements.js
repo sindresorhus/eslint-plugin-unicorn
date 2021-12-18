@@ -26,79 +26,57 @@ const mapSelector = [
 	'ArrayExpression > ArrayExpression > Literal:first-child',
 ].join('');
 
-const checkArrayHasDuplicatedValue = array => array.filter((element, index, array_) => array_.indexOf(element) !== index);
-
-const getFirstDuplicateIndex = (list, value) => {
-	const firstIndex = list.indexOf(value);
-	const newList = [...list];
-	newList.splice(firstIndex, 1, {});
-	return newList.indexOf(value);
-};
+const getFirstDuplicateElement = (elements, checkedElement) =>
+	elements
+		.slice(elements.findIndex(({value}) => value === checkedElement.value) + 1)
+		.find(({value}) => value === checkedElement.value);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	[arraySelector]: node => {
 		const {elements} = node.parent;
-		const arrayValue = elements
-			.filter(({type}) => type === 'Literal')
-			.map(({value}) => value);
-		const duplicatedData = checkArrayHasDuplicatedValue(arrayValue);
-		if (duplicatedData.includes(node.value)) {
-			const currentNodeIndex = elements.indexOf(node);
-			const firstDuplicateIndex = getFirstDuplicateIndex(arrayValue, node.value);
-			if (currentNodeIndex === firstDuplicateIndex) {
-				return {
-					node,
-					messageId: MESSAGE_ID,
-					data: {
-						objectType: 'Array',
-						valueType: 'value',
-						value: String(node.value),
-					},
-				};
-			}
+		const firstDuplicateElement = getFirstDuplicateElement(elements, node);
+		if (firstDuplicateElement === node) {
+			return {
+				node,
+				messageId: MESSAGE_ID,
+				data: {
+					objectType: 'Array',
+					valueType: 'value',
+					value: String(node.value),
+				},
+			};
 		}
 	},
 	[setSelector]: node => {
 		const {elements} = node.parent;
-		const arrayValue = elements
-			.filter(({type}) => type === 'Literal')
-			.map(({value}) => value);
-		const duplicatedData = checkArrayHasDuplicatedValue(arrayValue);
-		if (duplicatedData.includes(node.value)) {
-			const currentNodeIndex = elements.indexOf(node);
-			const firstDuplicateIndex = getFirstDuplicateIndex(arrayValue, node.value);
-			if (currentNodeIndex === firstDuplicateIndex) {
-				return {
-					node,
-					messageId: MESSAGE_ID,
-					data: {
-						objectType: 'Set',
-						valueType: 'value',
-						value: String(node.value),
-					},
-				};
-			}
+		const firstDuplicateElement = getFirstDuplicateElement(elements, node);
+		if (firstDuplicateElement === node) {
+			return {
+				node,
+				messageId: MESSAGE_ID,
+				data: {
+					objectType: 'Set',
+					valueType: 'value',
+					value: String(node.value),
+				},
+			};
 		}
 	},
 	[mapSelector]: node => {
 		const {elements} = node.parent.parent;
-		const arrayValue = elements.map(({elements}) => elements[0].value);
-		const duplicatedData = checkArrayHasDuplicatedValue(arrayValue);
-		if (duplicatedData.includes(node.value)) {
-			const currentNodeIndex = elements.indexOf(node.parent);
-			const firstDuplicateIndex = getFirstDuplicateIndex(arrayValue, node.value);
-			if (currentNodeIndex === firstDuplicateIndex) {
-				return {
-					node,
-					messageId: MESSAGE_ID,
-					data: {
-						objectType: 'Map',
-						valueType: 'key',
-						value: String(node.value),
-					},
-				};
-			}
+		const mapKeys = elements.map(({elements}) => elements[0]);
+		const firstDuplicateElement = getFirstDuplicateElement(mapKeys, node);
+		if (firstDuplicateElement === node) {
+			return {
+				node,
+				messageId: MESSAGE_ID,
+				data: {
+					objectType: 'Map',
+					valueType: 'key',
+					value: String(node.value),
+				},
+			};
 		}
 	},
 });
