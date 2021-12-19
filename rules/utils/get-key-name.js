@@ -6,7 +6,7 @@ const {getStaticValue} = require('eslint-utils');
 /**
 Get the key value of a node.
 
-@param {Node} node - The  node.
+@param {Node} node - The node.
 @param {Scope} [scope] - The scope to start finding the variable. Optional. If this scope was given, it tries to resolve identifier references which are in the given node as much as possible.
 */
 function getKeyName(node, scope) {
