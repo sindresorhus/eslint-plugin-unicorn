@@ -36,6 +36,10 @@ This rule was renamed to [`prefer-dom-node-append`](rules/prefer-dom-node-append
 
 This rule was renamed to [`prefer-dom-node-remove`](rules/prefer-dom-node-remove.md) to be less ambiguous.
 
+## prefer-object-has-own
+
+This rule was deprecated in favor of the built-in ESLint [`prefer-object-has-own`](https://eslint.org/docs/rules/prefer-object-has-own) rule.
+
 ## prefer-replace-all
 
 This rule was renamed to [`prefer-string-replace-all`](rules/prefer-string-replace-all.md) to be more specific.
