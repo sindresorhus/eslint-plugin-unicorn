@@ -15,6 +15,7 @@ const deprecatedRules = createDeprecatedRules({
 	'prefer-flat-map': 'unicorn/prefer-array-flat-map',
 	'prefer-node-append': 'unicorn/prefer-dom-node-append',
 	'prefer-node-remove': 'unicorn/prefer-dom-node-remove',
+	'prefer-object-has-own': 'prefer-object-has-own',
 	'prefer-replace-all': 'unicorn/prefer-string-replace-all',
 	'prefer-starts-ends-with': 'unicorn/prefer-string-starts-ends-with',
 	'prefer-text-content': 'unicorn/prefer-dom-node-text-content',
