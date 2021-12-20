@@ -207,7 +207,7 @@ function isVariableUnused(node, context) {
 }
 
 function getImported(variable, sourceCode) {
-	const specifier = variable.identifiers[0].parent;
+	const specifier = variable.defs[0].node;
 	const result = {
 		node: specifier,
 		declaration: specifier.parent,
