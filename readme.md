@@ -109,7 +109,6 @@ Configure it in `package.json`.
 			"unicorn/prefer-node-protocol": "error",
 			"unicorn/prefer-number-properties": "error",
 			"unicorn/prefer-object-from-entries": "error",
-			"unicorn/prefer-object-has-own": "off",
 			"unicorn/prefer-optional-catch-binding": "error",
 			"unicorn/prefer-prototype-methods": "error",
 			"unicorn/prefer-query-selector": "error",
