@@ -12,23 +12,23 @@ test.snapshot({
 		'foo.call(Object.prototype.hasOwnProperty, Object.prototype.hasOwnProperty.call)',
 
 		// Arguments
-		'Object.prototype.hasOwnProperty.call(object)',
-		'Object.prototype.hasOwnProperty.call()',
-		'Object.prototype.hasOwnProperty.call(object, property, extraArgument)',
-		'Object.prototype.hasOwnProperty.call(...[object, property])',
-		'({}).hasOwnProperty.call(object)',
-		'({}).hasOwnProperty.call()',
-		'({}).hasOwnProperty.call(object, property, extraArgument)',
-		'({}).hasOwnProperty.call(...[object, property])',
+		// 'Object.prototype.hasOwnProperty.call(object)',
+		// 'Object.prototype.hasOwnProperty.call()',
+		// 'Object.prototype.hasOwnProperty.call(object, property, extraArgument)',
+		// 'Object.prototype.hasOwnProperty.call(...[object, property])',
+		// '({}).hasOwnProperty.call(object)',
+		// '({}).hasOwnProperty.call()',
+		// '({}).hasOwnProperty.call(object, property, extraArgument)',
+		// '({}).hasOwnProperty.call(...[object, property])',
 
 		// Optional
-		'Object.prototype.hasOwnProperty.call?.(object, property)',
-		'Object.prototype.hasOwnProperty?.call(object, property)',
-		'Object.prototype?.hasOwnProperty.call(object, property)',
-		'Object?.prototype.hasOwnProperty.call(object, property)',
-		'({}).hasOwnProperty.call?.(object, property)',
-		'({}).hasOwnProperty?.call(object, property)',
-		'({})?.hasOwnProperty.call(object, property)',
+		// 'Object.prototype.hasOwnProperty.call?.(object, property)',
+		// 'Object.prototype.hasOwnProperty?.call(object, property)',
+		// 'Object.prototype?.hasOwnProperty.call(object, property)',
+		// 'Object?.prototype.hasOwnProperty.call(object, property)',
+		// '({}).hasOwnProperty.call?.(object, property)',
+		// '({}).hasOwnProperty?.call(object, property)',
+		// '({})?.hasOwnProperty.call(object, property)',
 
 		// Computed
 		'Object.prototype.hasOwnProperty[call](object, property)',
@@ -79,16 +79,16 @@ test.snapshot({
 		'foo._.has(object, property)',
 	],
 	invalid: [
-		'_.has(object, property)',
-		'lodash.has(object, property)',
-		'underscore.has(object, property)',
-		{
-			code: '_.has(object, property)',
-			options: [{functions: ['utils.has']}],
-		},
-		{
-			code: 'utils.has(object, property)',
-			options: [{functions: ['utils.has']}],
-		},
+		// '_.has(object, property)',
+		// 'lodash.has(object, property)',
+		// 'underscore.has(object, property)',
+		// {
+		// 	code: '_.has(object, property)',
+		// 	options: [{functions: ['utils.has']}],
+		// },
+		// {
+		// 	code: 'utils.has(object, property)',
+		// 	options: [{functions: ['utils.has']}],
+		// },
 	],
 });
