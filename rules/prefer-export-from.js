@@ -207,7 +207,7 @@ function isVariableUnused(node, context) {
 }
 
 function getImported(variable, sourceCode) {
-	const specifier = variable.identifiers[0].parent;
+	const specifier = variable.defs[0].node;
 	const result = {
 		node: specifier,
 		declaration: specifier.parent,
@@ -297,17 +297,22 @@ function create(context) {
 		},
 		* 'Program:exit'(program) {
 			for (const importDeclaration of importDeclarations) {
-				const variables = context.getDeclaredVariables(importDeclaration)
-					.map(variable => {
-						const imported = getImported(variable, sourceCode);
-						const exports = getExports(imported, context, sourceCode);
+				let variables = context.getDeclaredVariables(importDeclaration);
 
-						return {
-							variable,
-							imported,
-							exports,
-						};
-					});
+				if (variables.some(variable => variable.defs.length !== 1 || variable.defs[0].parent !== importDeclaration)) {
+					continue;
+				}
+
+				variables = variables.map(variable => {
+					const imported = getImported(variable, sourceCode);
+					const exports = getExports(imported, context, sourceCode);
+
+					return {
+						variable,
+						imported,
+						exports,
+					};
+				});
 
 				if (
 					ignoreUsedVariables

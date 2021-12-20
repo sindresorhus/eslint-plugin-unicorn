@@ -330,6 +330,26 @@ test.typescript({
 
 			export const useDispatch: () => DispatchAllActions = reduxUseDispatch
 		`,
+		// #1645
+		outdent`
+			import React from "react";
+			import React from "react";
+			export {React}
+		`,
+		outdent`
+			type AceEditor = import("ace-builds").Ace.Editor;
+			import AceEditor from "./advanced-editor";
+		`,
+		outdent`
+			type AceEditor = import("ace-builds").Ace.Editor;
+			import AceEditor from "./advanced-editor";
+			export {AceEditor};
+		`,
+		outdent`
+			import AceEditor from "./advanced-editor";
+			type AceEditor = import("ace-builds").Ace.Editor;
+			export {AceEditor};
+		`,
 	],
 	invalid: [],
 });
