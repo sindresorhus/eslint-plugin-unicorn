@@ -19,7 +19,7 @@ const promiseResolveOrRejectSelector = methodCallSelector({
 });
 const asyncArrowFunctionReturnSelector = `ArrowFunctionExpression[async=true] > ${promiseResolveOrRejectSelector}.body`;
 const returnStatementSelector = `ReturnStatement > ${promiseResolveOrRejectSelector}.argument`;
-const yieldExpressionSelector = `YieldExpression > ${promiseResolveOrRejectSelector}.argument`;
+const yieldExpressionSelector = `YieldExpression[delegate=false] > ${promiseResolveOrRejectSelector}.argument`;
 
 const functionTypes = new Set([
 	'ArrowFunctionExpression',

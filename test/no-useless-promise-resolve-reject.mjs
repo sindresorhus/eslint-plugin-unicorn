@@ -79,6 +79,12 @@ test({
 				}
 			`,
 		]),
+		// Delegate yield expressions
+		...['resolve', 'reject'].map(fn => outdent`
+			async function * foo() {
+				yield* Promise.${fn}(bar);
+			}
+		`),
 	],
 	invalid: [
 		{
