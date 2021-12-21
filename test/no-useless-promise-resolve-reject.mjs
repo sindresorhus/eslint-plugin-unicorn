@@ -260,5 +260,16 @@ test({
 				}
 			`,
 		},
+		{
+			code: 'async () => Promise.resolve((bar, baz))',
+			errors: [returnResolveError],
+			output: 'async () => (bar, baz)',
+		},
+		// Arrow function returning an object
+		{
+			code: 'async () => Promise.resolve({})',
+			errors: [returnResolveError],
+			output: 'async () => ({})',
+		},
 	],
 });

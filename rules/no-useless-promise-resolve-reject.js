@@ -54,14 +54,17 @@ const create = context => {
 		[asyncArrowFunctionReturnSelector](node) {
 			return createProblem(
 				node,
-				(isResolve, value) => fixer =>
+				(isResolve, valueString, value) => fixer =>
 					fixer.replaceText(
 						node,
 						isResolve
 							// Turns `=> Promise.resolve(value)` into `=> value`
-							? value
+							? (value.type === 'ObjectExpression' || value.type === 'SequenceExpression'
+								? `(${valueString})`
+								: valueString
+							)
 							// Turns `=> value` into `=> { throw value }`
-							: `{ throw ${value}; }`,
+							: `{ throw ${valueString}; }`,
 					),
 			);
 		},
@@ -73,11 +76,11 @@ const create = context => {
 
 			return createProblem(
 				node,
-				(isResolve, value) => fixer => isResolve
+				(isResolve, valueString) => fixer => isResolve
 					// Turns `return Promise.resolve(value)` into `return value`
-					? fixer.replaceText(node, value)
+					? fixer.replaceText(node, valueString)
 					// Turns `return Promise.reject(value)` into `throw value`
-					: fixer.replaceText(node.parent, `throw ${value};`),
+					: fixer.replaceText(node.parent, `throw ${valueString};`),
 			);
 		},
 		[yieldExpressionSelector](node) {
