@@ -91,7 +91,7 @@ const create = context => {
 		},
 		[yieldExpressionSelector](node) {
 			const parentFunction = getParentFunction(node);
-			if (!parentFunction || !parentFunction.async || !parentFunction.generator) {
+			if (!parentFunction || !parentFunction.async) {
 				return;
 			}
 
