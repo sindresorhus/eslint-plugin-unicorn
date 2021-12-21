@@ -83,8 +83,7 @@ const numberProperties = new Set([
 	'MAX_VALUE',
 	'MIN_SAFE_INTEGER',
 	'MIN_VALUE',
-	// We don't consider `Number.NaN` as number
-	// 'NaN',
+	'NaN',
 	'NEGATIVE_INFINITY',
 	'POSITIVE_INFINITY',
 ]);

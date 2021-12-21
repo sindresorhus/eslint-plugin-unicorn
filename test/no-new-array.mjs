@@ -164,6 +164,8 @@ test.snapshot({
 		'new Array(foo -= 2)',
 		'new Array(foo ? 1 : 2)',
 		'new Array((1n, 2))',
+		'new Array(Number.NaN)',
+		'new Array(NaN)',
 		// Not number
 		'new Array("0xff")',
 		'new Array(Math.NON_EXISTS_PROPERTY)',
