@@ -70,15 +70,6 @@ test({
 				}
 			}
 		`,
-		// Multiple/no parameters
-		...['resolve', 'reject'].flatMap(fn => [
-			`async () => Promise.${fn}();`,
-			outdent`
-				async function * foo() {
-					yield Promise.${fn}();
-				}
-			`,
-		]),
 		// Delegate yield expressions
 		...['resolve', 'reject'].map(fn => outdent`
 			async function * foo() {
@@ -303,6 +294,39 @@ test({
 					throw bar;
 				});
 			`,
+		},
+		// No arguments
+		{
+			code: 'async () => Promise.resolve();',
+			errors: [returnResolveError],
+			output: 'async () => {};',
+		},
+		{
+			code: 'async () => Promise.reject();',
+			errors: [returnRejectError],
+			output: 'async () => { throw undefined; };',
+		},
+		{
+			code: outdent`
+				async function * foo() {
+					yield Promise.resolve();
+				}
+			`,
+			errors: [yieldResolveError],
+			output: outdent`
+				async function * foo() {
+					yield undefined;
+				}
+			`,
+		},
+		// Multiple arguments
+		{
+			code: 'async () => Promise.resolve(bar, baz);',
+			errors: [returnResolveError],
+		},
+		{
+			code: 'async () => Promise.reject(bar, baz);',
+			errors: [returnRejectError],
 		},
 		// Sequence expressions
 		{

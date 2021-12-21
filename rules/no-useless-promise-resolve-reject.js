@@ -15,7 +15,6 @@ const messages = {
 const promiseResolveOrRejectSelector = methodCallSelector({
 	object: 'Promise',
 	methods: ['resolve', 'reject'],
-	argumentsLength: 1,
 });
 const asyncArrowFunctionReturnSelector = `ArrowFunctionExpression[async=true] > ${promiseResolveOrRejectSelector}.body`;
 const returnStatementSelector = `ReturnStatement > ${promiseResolveOrRejectSelector}.argument`;
@@ -46,7 +45,9 @@ const create = context => {
 		return {
 			node: node.callee,
 			messageId: isResolve ? resolveMessage : rejectMessage,
-			fix: value === undefined ? undefined : createFix(isResolve, sourceCode.getText(value), value),
+			fix: node.arguments.length > 1
+				? undefined
+				: createFix(isResolve, value ? sourceCode.getText(value) : 'undefined', value),
 		};
 	};
 
@@ -54,18 +55,23 @@ const create = context => {
 		[asyncArrowFunctionReturnSelector](node) {
 			return createProblem(
 				node,
-				(isResolve, valueString, value) => fixer =>
-					fixer.replaceText(
-						node,
-						isResolve
+				(isResolve, valueString, value) => {
+					let replacement;
+					if (isResolve) {
+						replacement = value
 							// Turns `=> Promise.resolve(value)` into `=> value`
 							? (value.type === 'ObjectExpression' || value.type === 'SequenceExpression'
 								? `(${valueString})`
-								: valueString
-							)
-							// Turns `=> value` into `=> { throw value }`
-							: `{ throw ${valueString}; }`,
-					),
+								: valueString)
+							// Turns `=> Promise.resolve()` into `=> ({})`
+							: '{}';
+					} else {
+						// Turns `=> value` into `=> { throw value }`
+						replacement = `{ throw ${valueString}; }`;
+					}
+
+					return fixer => fixer.replaceText(node, replacement);
+				},
 			);
 		},
 		[returnStatementSelector](node) {
@@ -93,7 +99,7 @@ const create = context => {
 				node,
 				(isResolve, valueString, value) => fixer => isResolve
 					// Turns `yield Promise.resolve(value)` into `yield value`
-					? fixer.replaceText(node, value.type === 'SequenceExpression' ? `(${valueString})` : valueString)
+					? fixer.replaceText(node, value && value.type === 'SequenceExpression' ? `(${valueString})` : valueString)
 					// Turns `yield Promise.reject(value)` into `throw value`
 					: fixer.replaceText(node.parent, `throw ${valueString}`),
 				YIELD_RESOLVE,
