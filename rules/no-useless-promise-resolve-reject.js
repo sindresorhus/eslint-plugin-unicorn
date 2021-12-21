@@ -42,10 +42,22 @@ const create = context => {
 	const createProblem = (node, createFix, resolveMessage = RETURN_RESOLVE, rejectMessage = RETURN_REJECT) => {
 		const isResolve = node.callee.property.name === 'resolve';
 		const value = node.arguments.length === 1 ? node.arguments[0] : undefined;
+
+		let isInTryStatement = false;
+		let {parent} = node;
+		while (parent && !functionTypes.has(parent.type)) {
+			if (parent.type === 'TryStatement') {
+				isInTryStatement = true;
+				break;
+			}
+
+			parent = parent.parent;
+		}
+
 		return {
 			node: node.callee,
 			messageId: isResolve ? resolveMessage : rejectMessage,
-			fix: node.arguments.length > 1
+			fix: (!isResolve && isInTryStatement) || node.arguments.length > 1
 				? undefined
 				: createFix(isResolve, value ? sourceCode.getText(value) : 'undefined', value),
 		};

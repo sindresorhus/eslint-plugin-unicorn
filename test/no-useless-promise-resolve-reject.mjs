@@ -331,13 +331,13 @@ test({
 		// Sequence expressions
 		{
 			code: outdent`
-				async function * f() {
+				async function * foo() {
 					yield Promise.resolve((bar, baz));
 				}
 			`,
 			errors: [yieldResolveError],
 			output: outdent`
-				async function * f() {
+				async function * foo() {
 					yield (bar, baz);
 				}
 			`,
@@ -352,6 +352,34 @@ test({
 			code: 'async () => Promise.resolve({})',
 			errors: [returnResolveError],
 			output: 'async () => ({})',
+		},
+		// Try statements
+		{
+			code: outdent`
+				async function foo() {
+					try {
+						return Promise.resolve(1);
+					} catch {}
+				}
+			`,
+			errors: [returnResolveError],
+			output: outdent`
+				async function foo() {
+					try {
+						return 1;
+					} catch {}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				async function foo() {
+					try {
+						return Promise.reject(1);
+					} catch {}
+				}
+			`,
+			errors: [returnRejectError],
 		},
 	],
 });
