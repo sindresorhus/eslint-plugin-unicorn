@@ -10,7 +10,7 @@ const foo = {
 	then() {},
 };
 const {unicorn} = await foo;
-console.log('after'); //<- This will nerve execute
+console.log('after'); //<- This will never execute
 ```
 
 ```js
