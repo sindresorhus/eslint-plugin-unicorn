@@ -57,9 +57,11 @@ const create = context => {
 		return {
 			node: node.callee,
 			messageId: isResolve ? resolveMessage : rejectMessage,
-			fix: (!isResolve && isInTryStatement) || node.arguments.length > 1
-				? undefined
-				: createFix(isResolve, value ? sourceCode.getText(value) : 'undefined', value),
+			fix: node.arguments.length <= 1
+					&& (!value || value.type !== 'SpreadElement')
+					&& (isResolve || !isInTryStatement)
+				? createFix(isResolve, value ? sourceCode.getText(value) : 'undefined', value)
+				: undefined,
 		};
 	};
 

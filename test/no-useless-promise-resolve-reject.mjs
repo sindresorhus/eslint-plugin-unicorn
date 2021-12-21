@@ -381,5 +381,14 @@ test({
 			`,
 			errors: [returnRejectError],
 		},
+		// Spread arguments
+		{
+			code: 'async () => Promise.resolve(...bar);',
+			errors: [returnResolveError],
+		},
+		{
+			code: 'async () => Promise.reject(...bar);',
+			errors: [returnRejectError],
+		},
 	],
 });
