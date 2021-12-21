@@ -11,6 +11,12 @@ test.snapshot({
 		// #1087
 		'React.Children.forEach(children, (child) => {});',
 		'Children.forEach(children, (child) => {});',
+		// #1508
+		outdent`
+			await pIteration.forEach(plugins, async pluginName => {
+				// My other code...
+			});
+		`,
 	],
 	invalid: [
 		// Not fixable
