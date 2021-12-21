@@ -362,6 +362,8 @@ const ignoredObjects = [
 	'React.Children',
 	'Children',
 	'R',
+	// https://www.npmjs.com/package/p-iteration
+	'pIteration',
 ];
 
 /** @param {import('eslint').Rule.RuleContext} context */
