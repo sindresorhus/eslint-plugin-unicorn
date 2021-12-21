@@ -88,7 +88,6 @@ const numberProperties = new Set([
 	'NEGATIVE_INFINITY',
 	'POSITIVE_INFINITY',
 ]);
-
 const isNumberProperty = node => isStaticProperties(node, 'Number', numberProperties);
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number#static_methods
@@ -127,7 +126,6 @@ const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '>>>', '|',
 function isNumber(node, scope) {
 	if (
 		isNumberLiteral(node)
-		|| isNumberCall(node)
 		|| isMathProperty(node)
 		|| isMathMethodCall(node)
 		|| isNumberCall(node)
