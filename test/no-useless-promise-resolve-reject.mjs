@@ -153,6 +153,32 @@ test({
 				});
 			`,
 		},
+		{
+			code: outdent`
+				async function * foo() {
+					return Promise.resolve(bar);
+				}
+			`,
+			errors: [returnResolveError],
+			output: outdent`
+				async function * foo() {
+					return bar;
+				}
+			`,
+		},
+		{
+			code: outdent`
+				(async function*() {
+					return Promise.resolve(bar);
+				});
+			`,
+			errors: [returnResolveError],
+			output: outdent`
+				(async function*() {
+					return bar;
+				});
+			`,
+		},
 		// Async function returning Promise.reject
 		{
 			code: 'async () => Promise.reject(bar);',
@@ -194,6 +220,32 @@ test({
 			errors: [returnRejectError],
 			output: outdent`
 				(async function() {
+					throw bar;
+				});
+			`,
+		},
+		{
+			code: outdent`
+				async function * foo() {
+					return Promise.reject(bar);
+				}
+			`,
+			errors: [returnRejectError],
+			output: outdent`
+				async function * foo() {
+					throw bar;
+				}
+			`,
+		},
+		{
+			code: outdent`
+				(async function*() {
+					return Promise.reject(bar);
+				});
+			`,
+			errors: [returnRejectError],
+			output: outdent`
+				(async function*() {
 					throw bar;
 				});
 			`,
