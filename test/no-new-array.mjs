@@ -163,7 +163,7 @@ test.snapshot({
 		'new Array(foo - 2)',
 		'new Array(foo -= 2)',
 		'new Array(foo ? 1 : 2)',
-		'new Array((foo, 2))',
+		'new Array((1n, 2))',
 		// Not number
 		'new Array("0xff")',
 		'new Array(Math.NON_EXISTS_PROPERTY)',
@@ -175,6 +175,6 @@ test.snapshot({
 		'new Array(foo - 2n)',
 		'new Array(foo -= 2n)',
 		'new Array(foo ? 1n : 2)',
-		'new Array((foo, 2n))',
+		'new Array((1, 2n))',
 	],
 });

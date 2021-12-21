@@ -121,7 +121,6 @@ const isLengthProperty = node =>
 	&& node.property.type === 'Identifier'
 	&& node.property.name === 'length';
 
-
 const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '>>>', '|', '^', '&']);
 function isNumber(node, scope) {
 	if (
