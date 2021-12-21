@@ -10,6 +10,7 @@ const messages = {
 const extraMessages = {
 	beforeunload: 'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.',
 	message: 'Note that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.',
+	error: 'Note that there is difference between `{window,element}.onerror` and `{window,element}.addEventListener(\'error\')`.',
 };
 
 const getEventMethodName = memberExpression => memberExpression.property.name;
@@ -137,6 +138,9 @@ const create = context => {
 			} else if (eventTypeName === 'message') {
 				// Disable `onmessage` fix, see #537
 				extra = extraMessages.message;
+			} else if (eventTypeName === 'error') {
+				// Disable `onerror` fix, see #1493
+				extra = extraMessages.error;
 			} else {
 				fix = fixer => fixCode(fixer, context.getSourceCode(), node, memberExpression);
 			}
