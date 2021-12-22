@@ -100,13 +100,6 @@ const isNumberMethodCall = node =>
 	&& isStaticProperties(node.callee, 'Number', numberMethods);
 const isGlobalParseToNumberFunctionCall = node => isFunctionCall(node, 'parseInt') || isFunctionCall(node, 'parseFloat');
 
-// `+x`, `-x`
-const numberUnaryOperators = new Set(['-', '+', '~']);
-const isNumberUnaryExpression = node =>
-	node.type === 'UnaryExpression'
-	&& node.prefix
-	&& numberUnaryOperators.has(node.operator);
-
 const isStaticNumber = (node, scope) => {
 	const staticResult = getStaticValue(node, scope);
 	return staticResult !== null && typeof staticResult.value === 'number';
@@ -120,7 +113,8 @@ const isLengthProperty = node =>
 	&& node.property.type === 'Identifier'
 	&& node.property.name === 'length';
 
-const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '>>>', '|', '^', '&']);
+// `+` and `>>>` operators are handled separately
+const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);
 function isNumber(node, scope) {
 	if (
 		isNumberLiteral(node)
@@ -130,37 +124,97 @@ function isNumber(node, scope) {
 		|| isNumberProperty(node)
 		|| isNumberMethodCall(node)
 		|| isGlobalParseToNumberFunctionCall(node)
-		|| isNumberUnaryExpression(node)
 		|| isLengthProperty(node)
 	) {
 		return true;
 	}
 
 	switch (node.type) {
-		case 'BinaryExpression':
 		case 'AssignmentExpression': {
+			const {operator} = node;
+			if (operator === '=' && isNumber(node.right, scope)) {
+				return true;
+			}
+
+			// Fall through
+		}
+
+		case 'BinaryExpression': {
 			let {operator} = node;
 
 			if (node.type === 'AssignmentExpression') {
 				operator = operator.slice(0, -1);
 			}
 
-			if (operator === '+') {
-				return isNumber(node.left, scope) && isNumber(node.right, scope);
+			if (operator === '+' && isNumber(node.left, scope) && isNumber(node.right, scope)) {
+				return true;
 			}
 
-			// `a + b` can be `BigInt`, we need make sure at least one side is number
-			if (mathOperators.has(operator)) {
-				return isNumber(node.left, scope) || isNumber(node.right, scope);
+			// `>>>` (zero-fill right shift) can't use on `BigInt`
+			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#operators
+			if (operator === '>>>') {
+				return true;
+			}
+
+			// `a * b` can be `BigInt`, we need make sure at least one side is number
+			if (mathOperators.has(operator) && (isNumber(node.left, scope) || isNumber(node.right, scope))) {
+				return true;
 			}
 
 			break;
 		}
 
-		case 'ConditionalExpression':
-			return isNumber(node.consequent, scope) && isNumber(node.alternate, scope);
-		case 'SequenceExpression':
-			return isNumber(node.expressions[node.expressions.length - 1], scope);
+		case 'UnaryExpression': {
+			const {operator} = node;
+
+			// `+` can't use on `BigInt`
+			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#operators
+			if (operator === '+') {
+				return true;
+			}
+
+			if ((operator === '-' || operator === '~') && isNumber(node.argument, scope)) {
+				return true;
+			}
+
+			break;
+		}
+
+		case 'UpdateExpression':
+			if (isNumber(node.argument, scope)) {
+				return true;
+			}
+
+			break;
+		case 'ConditionalExpression': {
+			const isConsequentNumber = isNumber(node.consequent, scope);
+			const isAlternateNumber = isNumber(node.alternate, scope);
+
+			if (isConsequentNumber && isAlternateNumber) {
+				return true;
+			}
+
+			const testStaticValueResult = getStaticValue(node.test, scope);
+			if (
+				testStaticValueResult !== null
+				&& (
+					(testStaticValueResult.value && isConsequentNumber)
+					|| (!testStaticValueResult.value && isAlternateNumber)
+				)
+			) {
+				return true;
+			}
+
+			break;
+		}
+
+		case 'SequenceExpression': {
+			if (isNumber(node.expressions[node.expressions.length - 1], scope)) {
+				return true;
+			}
+
+			break;
+		}
 		// No default
 	}
 
