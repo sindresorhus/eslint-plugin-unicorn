@@ -136,8 +136,9 @@ function isNumber(node, scope) {
 				return isNumber(node.right, scope);
 			}
 
-			// Fallthrough
+			// Fall through
 		}
+
 		case 'BinaryExpression': {
 			let {operator} = node;
 
@@ -162,8 +163,9 @@ function isNumber(node, scope) {
 
 			break;
 		}
+
 		case 'UnaryExpression': {
-			let {operator} = node;
+			const {operator} = node;
 
 			// `+` can't use on `BigInt`
 			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#operators
@@ -177,6 +179,7 @@ function isNumber(node, scope) {
 
 			break;
 		}
+
 		case 'UpdateExpression':
 			return isNumber(node.argument, scope);
 		case 'ConditionalExpression':
