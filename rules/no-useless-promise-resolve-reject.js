@@ -12,6 +12,10 @@ const messages = {
 	[YIELD_REJECT]: 'Prefer `throw value` over `yield Promise.reject(value)`.',
 };
 
+const getMessageId = (isYield, isResolve) => isYield
+	? (isResolve ? YIELD_RESOLVE : YIELD_REJECT)
+	: (isResolve ? RETURN_RESOLVE : RETURN_REJECT);
+
 const SELECTOR = [
 	methodCallSelector({
 		object: 'Promise',
@@ -93,9 +97,7 @@ const create = context => {
 
 			return {
 				node: node.callee,
-				messageId: isResolve
-					? (isYield ? YIELD_RESOLVE : RETURN_RESOLVE)
-					: (isYield ? YIELD_REJECT : RETURN_REJECT),
+				messageId: getMessageId(isYield, isResolve),
 				fix: node.arguments.length <= 1
 						&& (!value || value.type !== 'SpreadElement')
 						// Can't fix if the Promise.reject is inside a try block as a
