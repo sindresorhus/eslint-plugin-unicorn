@@ -39,6 +39,7 @@ const create = context => {
 			const isYield = node.parent.type === 'YieldExpression';
 			const isResolve = node.callee.property.name === 'resolve';
 			const [value] = node.arguments;
+			// Promise.resolve/reject() -> returning/throwing undefined
 			const valueString = value ? sourceCode.getText(value) : 'undefined';
 			let isInTryStatement = false;
 			let fix;
@@ -55,7 +56,7 @@ const create = context => {
 							// Turns `=> Promise.resolve()` into `=> {}`
 							: '{}';
 					} else {
-						// Turns `=> value` into `=> { throw value }`
+						// Turns `=> Promise.reject(error)` into `=> { throw error; }`
 						replacement = `{ throw ${valueString}; }`;
 					}
 
@@ -78,10 +79,14 @@ const create = context => {
 				if (isResolve) {
 					fix = fixer => isYield || value
 						? fixer.replaceText(node, isYield && value && value.type === 'SequenceExpression'
+							// Turns `yield Promise.resolve((a, b))` into `yield (a, b)`
 							? `(${valueString})`
+							// Turns `return/yield Promise.resolve(value)` into `return/yield value`
 							: valueString)
+						// Turns `return Promise.resolve()` into `return`
 						: fixer.remove(node);
 				} else {
+					// Turns `return/yield Promise.reject(error)` into `throw error`
 					fix = fixer => fixer.replaceText(node.parent, `throw ${valueString}${isYield ? '' : ';'}`);
 				}
 			}
@@ -93,6 +98,8 @@ const create = context => {
 					: (isYield ? YIELD_REJECT : RETURN_REJECT),
 				fix: node.arguments.length <= 1
 						&& (!value || value.type !== 'SpreadElement')
+						// Can't fix if the Promise.reject is inside a try block as a
+						// catch block will catch the throw but not the Promise.reject
 						&& (isResolve || !isInTryStatement)
 					? fix
 					: undefined,
