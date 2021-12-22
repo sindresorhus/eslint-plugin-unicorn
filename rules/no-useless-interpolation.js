@@ -46,7 +46,12 @@ const create = context => ({
 			suggest: [
 				{
 					messageId: MESSAGE_ID_UNNECESSARY_INTERPOLATION_SUGGEST,
-					fix: fixer => fixer.replaceTextRange([node.range[0] - 2, node.range[1] + 1], value),
+					fix(fixer) {
+						const codeSource = context.getSourceCode()
+						const tokenBefore = codeSource.getTokenBefore(node)
+						const tokenAfter = codeSource.getTokenAfter(node)
+						return fixer.replaceTextRange([tokenBefore.end - 2, tokenAfter.start + 1], value)
+					},
 				},
 			],
 		});

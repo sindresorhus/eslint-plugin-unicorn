@@ -16,7 +16,7 @@ test.snapshot({
 		'`Hello, ${`Brave ${"New"}`} ${"World"}!`',
 		'`Hello, ${`Brave New`} World!`', // Should catch interpolation inside interpolation
 		'`${2021} year!`',
-		'`${true} or ${false} or ${null} or ${undefined}`',
+		'`${true} or ${ false } or ${ /* I am comment 🤡 */ null  } or ${\nundefined\n}`', // Whitespace inside interpolation was added explicitly
 		'`before ${"head" + someVar + "tail"} after`',
 		'`${foo.toString()}`',
 		'`${String(foo)}`',
