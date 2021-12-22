@@ -40,6 +40,7 @@ Configure it in `package.json`.
 			"unicorn/catch-error-name": "error",
 			"unicorn/consistent-destructuring": "error",
 			"unicorn/consistent-function-scoping": "error",
+			"unicorn/consistent-includes": "error",
 			"unicorn/custom-error-definition": "off",
 			"unicorn/empty-brace-spaces": "error",
 			"unicorn/error-message": "error",
@@ -154,6 +155,7 @@ Each rule has emojis denoting:
 | [catch-error-name](docs/rules/catch-error-name.md) | Enforce a specific parameter name in catch clauses. | ✅ | 🔧 |  |
 | [consistent-destructuring](docs/rules/consistent-destructuring.md) | Use destructured variables over properties. | ✅ | 🔧 | 💡 |
 | [consistent-function-scoping](docs/rules/consistent-function-scoping.md) | Move function definitions to the highest possible scope. | ✅ |  |  |
+| [consistent-includes](docs/rules/consistent-includes.md) | Use `.includes()`, rather than repeated conditional logical OR (`||`) operators. | ✅ | 🔧 |  |
 | [custom-error-definition](docs/rules/custom-error-definition.md) | Enforce correct `Error` subclassing. |  | 🔧 |  |
 | [empty-brace-spaces](docs/rules/empty-brace-spaces.md) | Enforce no spaces between braces. | ✅ | 🔧 |  |
 | [error-message](docs/rules/error-message.md) | Enforce passing a `message` value when creating a built-in error. | ✅ |  |  |

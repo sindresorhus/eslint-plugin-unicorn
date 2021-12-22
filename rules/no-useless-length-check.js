@@ -2,6 +2,7 @@
 const {methodCallSelector, matches, memberExpressionSelector} = require('./selectors/index.js');
 const isSameReference = require('./utils/is-same-reference.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
+const flatLogicalExpression = require('./utils/flat-logical-expression.js');
 
 const messages = {
 	'non-zero': 'The non-empty check is useless as `Array#some()` returns `false` for an empty array.',
@@ -31,14 +32,6 @@ const nonZeroLengthCheckSelector = [
 ].join('');
 const arraySomeCallSelector = methodCallSelector('some');
 const arrayEveryCallSelector = methodCallSelector('every');
-
-function flatLogicalExpression(node) {
-	return [node.left, node.right].flatMap(child =>
-		child.type === 'LogicalExpression' && child.operator === node.operator
-			? flatLogicalExpression(child)
-			: [child],
-	);
-}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
