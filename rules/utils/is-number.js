@@ -165,7 +165,7 @@ function isNumber(node, scope) {
 		case 'UnaryExpression': {
 			let {operator} = node;
 
-			// `+` (zero-fill right shift) can't use on `BigInt`
+			// `+` can't use on `BigInt`
 			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#operators
 			if (operator === '+') {
 				return true;
