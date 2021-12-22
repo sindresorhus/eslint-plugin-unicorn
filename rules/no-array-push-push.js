@@ -49,7 +49,7 @@ function create(context) {
 		'this.stream',
 		'process.stdin',
 		'process.stdout',
-		'process.stdin',
+		'process.stderr',
 		...ignore,
 	];
 	const sourceCode = context.getSourceCode();
