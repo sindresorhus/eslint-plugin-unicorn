@@ -1,5 +1,5 @@
 'use strict';
-const {methodCallSelector} = require('./selectors/index.js');
+const {matches, methodCallSelector} = require('./selectors/index.js');
 
 const RETURN_RESOLVE = 'return-resolve';
 const RETURN_REJECT = 'return-reject';
@@ -12,64 +12,39 @@ const messages = {
 	[YIELD_REJECT]: 'Prefer `throw value` over `yield Promise.reject(value)`.',
 };
 
-const promiseResolveOrRejectSelector = methodCallSelector({
-	object: 'Promise',
-	methods: ['resolve', 'reject'],
-});
-const asyncArrowFunctionReturnSelector = `ArrowFunctionExpression[async=true] > ${promiseResolveOrRejectSelector}.body`;
-const returnStatementSelector = `ReturnStatement > ${promiseResolveOrRejectSelector}.argument`;
-const yieldExpressionSelector = `YieldExpression[delegate=false] > ${promiseResolveOrRejectSelector}.argument`;
+const SELECTOR = [
+	methodCallSelector({
+		object: 'Promise',
+		methods: ['resolve', 'reject'],
+	}),
+	matches([
+		'ArrowFunctionExpression[async=true] > .body',
+		'ReturnStatement > .argument',
+		'YieldExpression[delegate=false] > .argument',
+	]),
+].join('');
 
 const functionTypes = new Set([
 	'ArrowFunctionExpression',
 	'FunctionDeclaration',
 	'FunctionExpression',
 ]);
-const getParentFunction = node => {
-	let {parent} = node;
-	while (parent && !functionTypes.has(parent.type)) {
-		parent = parent.parent;
-	}
-
-	return parent;
-};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
-	/** @param {(isResolve: boolean, valueString: string, value) => import('eslint').Rule.ReportFixer} createFix */
-	const createProblem = (node, createFix, resolveMessage = RETURN_RESOLVE, rejectMessage = RETURN_REJECT) => {
-		const isResolve = node.callee.property.name === 'resolve';
-		const value = node.arguments.length === 1 ? node.arguments[0] : undefined;
-
-		let isInTryStatement = false;
-		let {parent} = node;
-		while (parent && !functionTypes.has(parent.type)) {
-			if (parent.type === 'TryStatement') {
-				isInTryStatement = true;
-				break;
-			}
-
-			parent = parent.parent;
-		}
-
-		return {
-			node: node.callee,
-			messageId: isResolve ? resolveMessage : rejectMessage,
-			fix: node.arguments.length <= 1
-					&& (!value || value.type !== 'SpreadElement')
-					&& (isResolve || !isInTryStatement)
-				? createFix(isResolve, value ? sourceCode.getText(value) : 'undefined', value)
-				: undefined,
-		};
-	};
-
 	return {
-		[asyncArrowFunctionReturnSelector](node) {
-			return createProblem(
-				node,
-				(isResolve, valueString, value) => {
+		[SELECTOR](node) {
+			const isYield = node.parent.type === 'YieldExpression';
+			const isResolve = node.callee.property.name === 'resolve';
+			const [value] = node.arguments;
+			const valueString = value ? sourceCode.getText(value) : 'undefined';
+			let isInTryStatement = false;
+			let fix;
+
+			if (node.parent.type === 'ArrowFunctionExpression') {
+				fix = fixer => {
 					let replacement;
 					if (isResolve) {
 						replacement = value
@@ -77,52 +52,51 @@ const create = context => {
 							? (value.type === 'ObjectExpression' || value.type === 'SequenceExpression'
 								? `(${valueString})`
 								: valueString)
-							// Turns `=> Promise.resolve()` into `=> ({})`
+							// Turns `=> Promise.resolve()` into `=> {}`
 							: '{}';
 					} else {
 						// Turns `=> value` into `=> { throw value }`
 						replacement = `{ throw ${valueString}; }`;
 					}
 
-					return fixer => fixer.replaceText(node, replacement);
-				},
-			);
-		},
-		[returnStatementSelector](node) {
-			const parentFunction = getParentFunction(node);
-			if (!parentFunction || !parentFunction.async) {
-				return;
+					return fixer.replaceText(node, replacement);
+				};
+			} else {
+				let parentFunction = node.parent.parent;
+				while (parentFunction && !functionTypes.has(parentFunction.type)) {
+					if (!isInTryStatement && parentFunction.type === 'TryStatement') {
+						isInTryStatement = true;
+					}
+
+					parentFunction = parentFunction.parent;
+				}
+
+				if (!parentFunction || !parentFunction.async) {
+					return;
+				}
+
+				if (isResolve) {
+					fix = fixer => isYield || value
+						? fixer.replaceText(node, isYield && value && value.type === 'SequenceExpression'
+							? `(${valueString})`
+							: valueString)
+						: fixer.remove(node);
+				} else {
+					fix = fixer => fixer.replaceText(node.parent, `throw ${valueString}${isYield ? '' : ';'}`);
+				}
 			}
 
-			return createProblem(
-				node,
-				(isResolve, valueString, value) => fixer => isResolve
-					? (value
-						// Turns `return Promise.resolve(value)` into `return value`
-						? fixer.replaceText(node, valueString)
-						// Turns `return Promise.resolve()` into `return`
-						: fixer.remove(node)
-					)
-					// Turns `return Promise.reject(value)` into `throw value`
-					: fixer.replaceText(node.parent, `throw ${valueString};`),
-			);
-		},
-		[yieldExpressionSelector](node) {
-			const parentFunction = getParentFunction(node);
-			if (!parentFunction || !parentFunction.async) {
-				return;
-			}
-
-			return createProblem(
-				node,
-				(isResolve, valueString, value) => fixer => isResolve
-					// Turns `yield Promise.resolve(value)` into `yield value`
-					? fixer.replaceText(node, value && value.type === 'SequenceExpression' ? `(${valueString})` : valueString)
-					// Turns `yield Promise.reject(value)` into `throw value`
-					: fixer.replaceText(node.parent, `throw ${valueString}`),
-				YIELD_RESOLVE,
-				YIELD_REJECT,
-			);
+			return {
+				node: node.callee,
+				messageId: isResolve
+					? (isYield ? YIELD_RESOLVE : RETURN_RESOLVE)
+					: (isYield ? YIELD_REJECT : RETURN_REJECT),
+				fix: node.arguments.length <= 1
+						&& (!value || value.type !== 'SpreadElement')
+						&& (isResolve || !isInTryStatement)
+					? fix
+					: undefined,
+			};
 		},
 	};
 };
