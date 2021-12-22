@@ -182,8 +182,25 @@ function isNumber(node, scope) {
 
 		case 'UpdateExpression':
 			return isNumber(node.argument, scope);
-		case 'ConditionalExpression':
-			return isNumber(node.consequent, scope) && isNumber(node.alternate, scope);
+		case 'ConditionalExpression': {
+			const isConsequentNumber = isNumber(node.consequent, scope);
+			const isAlternateNumber = isNumber(node.alternate, scope);
+
+			if (isConsequentNumber && isAlternateNumber) {
+				return true;
+			}
+
+			const testStaticValueResult = getStaticValue(node.test, scope);
+
+			if (!testStaticValueResult) {
+				return false;
+			}
+
+			return testStaticValueResult.value
+				? isConsequentNumber
+				: isAlternateNumber;
+		}
+
 		case 'SequenceExpression':
 			return isNumber(node.expressions[node.expressions.length - 1], scope);
 		// No default

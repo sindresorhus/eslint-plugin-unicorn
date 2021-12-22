@@ -162,6 +162,8 @@ test.snapshot({
 		'new Array(foo - 2)',
 		'new Array(foo -= 2)',
 		'new Array(foo ? 1 : 2)',
+		'const truthy = "truthy"; new Array(truthy ? 1 : foo)',
+		'const falsy = !"truthy"; new Array(falsy ? foo : 1)',
 		'new Array((1n, 2))',
 		'new Array(Number.NaN)',
 		'new Array(NaN)',
@@ -187,5 +189,9 @@ test.snapshot({
 		'new Array(-foo)',
 		'new Array(~foo)',
 		'new Array(typeof 1)',
+		'const truthy = "truthy"; new Array(truthy ? foo : 1)',
+		'const falsy = !"truthy"; new Array(falsy ? 1 : foo)',
+		'new Array(unknown ? foo : 1)',
+		'new Array(unknown ? 1 : foo)',
 	],
 });
