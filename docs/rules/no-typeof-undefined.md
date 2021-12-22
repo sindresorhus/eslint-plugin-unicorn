@@ -1,38 +1,27 @@
 # Forbid of comparison `typeof` with `'undefined'` if the variable is declared, imported or variable is a function parameter
 
-🔧 _This rule
-is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems)._
+🔧 _This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems)._
 
 ## Fail
 
 ```js
-var withVar;
-typeof withVar == 'undefined';
+const foo = 'bar';
+typeof foo === 'undefined';
 ```
 
 ```js
-let withLet;
-typeof withLet != 'undefined';
+import foo from 'bar';
+
+typeof foo !== 'undefined';
 ```
 
 ```js
-const withConst = 'foo';
-typeof withConst === 'undefined';
+const fn = (foo) => typeof foo === 'undefined';
 ```
 
 ```js
-import withImport from 'foo';
-
-typeof withImport !== 'undefined';
-```
-
-```js
-const foo = (withArrowFnParameter) => typeof withArrowFnParameter === 'undefined';
-```
-
-```js
-function foo(withFnParameter) {
-	typeof withFnParameter !== 'undefined';
+function fn(foo) {
+	typeof foo !== 'undefined';
 }
 ```
 
@@ -43,32 +32,22 @@ typeof notDeclared !== 'undefined';
 ```
 
 ```js
-var withVar;
-withVar == undefined;
+const foo = 'bar';
+foo === undefined;
 ```
 
 ```js
-let withLet;
-withLet != undefined;
+import foo from 'bar';
+
+foo !== undefined;
 ```
 
 ```js
-const withConst = 'foo';
-withConst === undefined;
+const fn = (foo) => foo === undefined;
 ```
 
 ```js
-import withImport from 'foo';
-
-withImport !== undefined;
-```
-
-```js
-const foo = (withArrowFnParameter) => withArrowFnParameter === undefined;
-```
-
-```js
-function foo(withFnParameter) {
-  withFnParameter !== undefined;
+function fn(foo) {
+	foo !== undefined;
 }
 ```

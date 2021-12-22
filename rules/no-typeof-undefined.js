@@ -16,20 +16,27 @@ const selector = [
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	* [selector](node) {
-		const {
-			argument: variable,
-			parent: binaryExpressionNode,
-		} = node;
-		const isVariableDeclared = Boolean(findVariable(context.getScope(), variable));
+		let variable = node.argument;
+		if (variable.type === 'MemberExpression') {
+			variable = variable.object;
+		} else if (variable.type === 'ChainExpression') {
+			variable = variable.expression.object;
+		}
+
+		const isVariableDeclared = Boolean(
+			findVariable(context.getScope(), variable),
+		);
 
 		if (isVariableDeclared) {
+			const binaryExpressionNode = node.parent;
 			const {operator} = binaryExpressionNode;
 			yield {
 				node: binaryExpressionNode,
 				data: {operator},
 				messageId: MESSAGE_ID,
 				fix(fixer) {
-					const code = [variable.name, operator, 'undefined'];
+					const sourceCode = context.getSourceCode();
+					const code = [sourceCode.getText(node.argument), operator, 'undefined'];
 					return fixer.replaceText(binaryExpressionNode, (binaryExpressionNode.left.type === 'UnaryExpression' ? code : code.reverse()).join(' '));
 				},
 			};
