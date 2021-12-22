@@ -157,6 +157,7 @@ test.snapshot({
 		'new Array(Number.parseInt(foo))',
 		'new Array(+foo)',
 		'new Array(-Math.PI)',
+		'new Array(-"-2")',
 		'new Array(foo.length)',
 		'const foo = 1; new Array(foo + 2)',
 		'new Array(foo - 2)',

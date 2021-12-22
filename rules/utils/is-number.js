@@ -132,8 +132,8 @@ function isNumber(node, scope) {
 	switch (node.type) {
 		case 'AssignmentExpression': {
 			const {operator} = node;
-			if (operator === '=') {
-				return isNumber(node.right, scope);
+			if (operator === '=' && isNumber(node.right, scope)) {
+				return true;
 			}
 
 			// Fall through
@@ -146,8 +146,8 @@ function isNumber(node, scope) {
 				operator = operator.slice(0, -1);
 			}
 
-			if (operator === '+') {
-				return isNumber(node.left, scope) && isNumber(node.right, scope);
+			if (operator === '+' && isNumber(node.left, scope) && isNumber(node.right, scope)) {
+				return true;
 			}
 
 			// `>>>` (zero-fill right shift) can't use on `BigInt`
@@ -157,8 +157,8 @@ function isNumber(node, scope) {
 			}
 
 			// `a * b` can be `BigInt`, we need make sure at least one side is number
-			if (mathOperators.has(operator)) {
-				return isNumber(node.left, scope) || isNumber(node.right, scope);
+			if (mathOperators.has(operator) && (isNumber(node.left, scope) || isNumber(node.right, scope))) {
+				return true;
 			}
 
 			break;
@@ -173,15 +173,19 @@ function isNumber(node, scope) {
 				return true;
 			}
 
-			if (operator === '-' || operator === '~') {
-				return isNumber(node.argument, scope);
+			if ((operator === '-' || operator === '~') && isNumber(node.argument, scope)) {
+				return true;
 			}
 
 			break;
 		}
 
 		case 'UpdateExpression':
-			return isNumber(node.argument, scope);
+			if (isNumber(node.argument, scope)) {
+				return true;
+			}
+
+			break;
 		case 'ConditionalExpression': {
 			const isConsequentNumber = isNumber(node.consequent, scope);
 			const isAlternateNumber = isNumber(node.alternate, scope);
@@ -191,18 +195,26 @@ function isNumber(node, scope) {
 			}
 
 			const testStaticValueResult = getStaticValue(node.test, scope);
-
-			if (!testStaticValueResult) {
-				return false;
+			if (
+				testStaticValueResult !== null
+				&& (
+					(testStaticValueResult.value && isConsequentNumber)
+					|| (!testStaticValueResult.value && isAlternateNumber)
+				)
+			) {
+				return true;
 			}
 
-			return testStaticValueResult.value
-				? isConsequentNumber
-				: isAlternateNumber;
+			break;
 		}
 
-		case 'SequenceExpression':
-			return isNumber(node.expressions[node.expressions.length - 1], scope);
+		case 'SequenceExpression': {
+			if (isNumber(node.expressions[node.expressions.length - 1], scope)) {
+				return true;
+			}
+
+			break;
+		}
 		// No default
 	}
 

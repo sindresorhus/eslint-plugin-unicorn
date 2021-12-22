@@ -57,7 +57,7 @@ function getProblem(context, node) {
 
 	const onlyElementText = `${maybeSemiColon}[${text}]`;
 	const result = getStaticValue(argumentNode, context.getScope());
-	if (result !== null) {
+	if (result !== null && typeof result.value !== 'number') {
 		problem.fix = fixer => fixer.replaceText(node, onlyElementText);
 		return problem;
 	}
