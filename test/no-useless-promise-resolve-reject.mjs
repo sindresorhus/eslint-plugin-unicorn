@@ -416,5 +416,27 @@ test({
 			code: 'async () => Promise.reject(...bar);',
 			errors: [returnRejectError],
 		},
+		// Yield not in an ExpressionStatement
+		{
+			code: outdent`
+				async function * foo() {
+					const baz = yield Promise.resolve(bar);
+				}
+			`,
+			errors: [yieldResolveError],
+			output: outdent`
+				async function * foo() {
+					const baz = yield bar;
+				}
+			`,
+		},
+		{
+			code: outdent`
+				async function * foo() {
+					const baz = yield Promise.reject(bar);
+				}
+			`,
+			errors: [yieldRejectError],
+		},
 	],
 });

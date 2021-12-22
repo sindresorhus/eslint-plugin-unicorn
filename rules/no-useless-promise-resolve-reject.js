@@ -101,6 +101,9 @@ const create = context => {
 						// Can't fix if the Promise.reject is inside a try block as a
 						// catch block will catch the throw but not the Promise.reject
 						&& (isResolve || !isInTryStatement)
+						// Can't fix for cases like const foo = yield Promise.reject(bar)
+						// (the yield expression must be the child of an ExpressionStatement)
+						&& (!isYield || isResolve || node.parent.parent.type === 'ExpressionStatement')
 					? fix
 					: undefined,
 			};
