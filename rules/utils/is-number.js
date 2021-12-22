@@ -150,6 +150,8 @@ function isNumber(node, scope) {
 				return isNumber(node.left, scope) && isNumber(node.right, scope);
 			}
 
+			// `>>>` (zero-fill right shift) can't use on `BigInt`
+			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#operators
 			if (operator === '>>>') {
 				return true;
 			}
