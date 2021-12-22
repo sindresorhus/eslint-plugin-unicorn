@@ -167,6 +167,8 @@ test.snapshot({
 		'new Array(NaN)',
 		'new Array(foo >>> bar)',
 		'new Array(foo >>>= bar)',
+		'new Array(++Math.PI)',
+		'new Array(foo = bar.length)',
 		// Not number
 		'new Array("0xff")',
 		'new Array(Math.NON_EXISTS_PROPERTY)',

@@ -130,8 +130,15 @@ function isNumber(node, scope) {
 	}
 
 	switch (node.type) {
-		case 'BinaryExpression':
 		case 'AssignmentExpression': {
+			const {operator} = node;
+			if (operator === '=') {
+				return isNumber(node.right, scope);
+			}
+
+			// Fallthrough
+		}
+		case 'BinaryExpression': {
 			let {operator} = node;
 
 			if (node.type === 'AssignmentExpression') {
@@ -170,7 +177,8 @@ function isNumber(node, scope) {
 
 			break;
 		}
-
+		case 'UpdateExpression':
+			return isNumber(node.argument, scope);
 		case 'ConditionalExpression':
 			return isNumber(node.consequent, scope) && isNumber(node.alternate, scope);
 		case 'SequenceExpression':
