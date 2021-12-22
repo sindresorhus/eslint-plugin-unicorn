@@ -38,7 +38,7 @@ const unexpectedStringConcatenationSelector = [
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[unnecessaryInterpolationSelector](node) {
-		const value = node.type === 'TemplateElement' ? node.value.raw : node.value
+		const value = node.type === 'TemplateElement' ? node.value.raw : node.value;
 		context.report({
 			node,
 			messageId: MESSAGE_ID_UNNECESSARY_INTERPOLATION,
@@ -47,10 +47,10 @@ const create = context => ({
 				{
 					messageId: MESSAGE_ID_UNNECESSARY_INTERPOLATION_SUGGEST,
 					fix(fixer) {
-						const codeSource = context.getSourceCode()
-						const tokenBefore = codeSource.getTokenBefore(node)
-						const tokenAfter = codeSource.getTokenAfter(node)
-						return fixer.replaceTextRange([tokenBefore.end - 2, tokenAfter.start + 1], value)
+						const codeSource = context.getSourceCode();
+						const tokenBefore = codeSource.getTokenBefore(node);
+						const tokenAfter = codeSource.getTokenAfter(node);
+						return fixer.replaceTextRange([tokenBefore.end - 2, tokenAfter.start + 1], value);
 					},
 				},
 			],
@@ -68,9 +68,16 @@ const create = context => ({
 					data: {
 						functionName: `${isToStringFn ? '.' : ''}${node.name}`,
 					},
-					fix: fixer => fixer.removeRange(isToStringFn
-						? [node.range[0] - 1, node.range[1] + 2]
-						: node.range),
+					fix(fixer) {
+						if (!isToStringFn) {
+							return fixer.removeRange(node.range);
+						}
+
+						const codeSource = context.getSourceCode();
+						const tokenBefore = codeSource.getTokenBefore(node);
+						const tokenAfter = codeSource.getTokensAfter(node).find(token => token.value === ')');
+						return fixer.removeRange([tokenBefore.end - 1, tokenAfter.start + 1]);
+					},
 				},
 			],
 		});
