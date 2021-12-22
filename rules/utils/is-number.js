@@ -120,7 +120,8 @@ const isLengthProperty = node =>
 	&& node.property.type === 'Identifier'
 	&& node.property.name === 'length';
 
-const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '>>>', '|', '^', '&']);
+// `+` and `>>>` operators are handled separately
+const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);
 function isNumber(node, scope) {
 	if (
 		isNumberLiteral(node)
@@ -149,7 +150,11 @@ function isNumber(node, scope) {
 				return isNumber(node.left, scope) && isNumber(node.right, scope);
 			}
 
-			// `a + b` can be `BigInt`, we need make sure at least one side is number
+			if (operator === '>>>') {
+				return true;
+			}
+
+			// `a * b` can be `BigInt`, we need make sure at least one side is number
 			if (mathOperators.has(operator)) {
 				return isNumber(node.left, scope) || isNumber(node.right, scope);
 			}
