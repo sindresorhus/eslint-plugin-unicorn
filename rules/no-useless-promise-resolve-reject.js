@@ -96,9 +96,13 @@ const create = context => {
 
 			return createProblem(
 				node,
-				(isResolve, valueString) => fixer => isResolve
-					// Turns `return Promise.resolve(value)` into `return value`
-					? fixer.replaceText(node, valueString)
+				(isResolve, valueString, value) => fixer => isResolve
+					? (value
+						// Turns `return Promise.resolve(value)` into `return value`
+						? fixer.replaceText(node, valueString)
+						// Turns `return Promise.resolve()` into `return`
+						: fixer.remove(node)
+					)
 					// Turns `return Promise.reject(value)` into `throw value`
 					: fixer.replaceText(node.parent, `throw ${valueString};`),
 			);

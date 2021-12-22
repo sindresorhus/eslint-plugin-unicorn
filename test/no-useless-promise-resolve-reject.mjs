@@ -302,9 +302,35 @@ test({
 			output: 'async () => {};',
 		},
 		{
+			code: outdent`
+				async function foo() {
+					return Promise.resolve();
+				}
+			`,
+			errors: [returnResolveError],
+			output: outdent`
+				async function foo() {
+					return ;
+				}
+			`,
+		},
+		{
 			code: 'async () => Promise.reject();',
 			errors: [returnRejectError],
 			output: 'async () => { throw undefined; };',
+		},
+		{
+			code: outdent`
+				async function foo() {
+					return Promise.reject();
+				}
+			`,
+			errors: [returnRejectError],
+			output: outdent`
+				async function foo() {
+					throw undefined;
+				}
+			`,
 		},
 		{
 			code: outdent`
