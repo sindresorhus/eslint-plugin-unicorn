@@ -33,7 +33,7 @@ export function then () {
 }
 
 // bar.js
-await import('./foo.js');
+const foo = await import('./foo.js');
 // Error: You shouldn’t have called me
 ```
 
