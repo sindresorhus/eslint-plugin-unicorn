@@ -156,8 +156,7 @@ test.snapshot({
 		'new Array(parseInt(foo))',
 		'new Array(Number.parseInt(foo))',
 		'new Array(+foo)',
-		'new Array(-foo)',
-		'new Array(~foo)',
+		'new Array(-Math.PI)',
 		'new Array(foo.length)',
 		'const foo = 1; new Array(foo + 2)',
 		'new Array(foo - 2)',
@@ -183,5 +182,8 @@ test.snapshot({
 		'new Array(foo ||= 1)',
 		'new Array(foo ? 1n : 2)',
 		'new Array((1, 2n))',
+		'new Array(-foo)',
+		'new Array(~foo)',
+		'new Array(typeof 1)',
 	],
 });

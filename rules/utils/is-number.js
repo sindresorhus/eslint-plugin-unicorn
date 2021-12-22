@@ -100,13 +100,6 @@ const isNumberMethodCall = node =>
 	&& isStaticProperties(node.callee, 'Number', numberMethods);
 const isGlobalParseToNumberFunctionCall = node => isFunctionCall(node, 'parseInt') || isFunctionCall(node, 'parseFloat');
 
-// `+x`, `-x`
-const numberUnaryOperators = new Set(['-', '+', '~']);
-const isNumberUnaryExpression = node =>
-	node.type === 'UnaryExpression'
-	&& node.prefix
-	&& numberUnaryOperators.has(node.operator);
-
 const isStaticNumber = (node, scope) => {
 	const staticResult = getStaticValue(node, scope);
 	return staticResult !== null && typeof staticResult.value === 'number';
@@ -131,7 +124,6 @@ function isNumber(node, scope) {
 		|| isNumberProperty(node)
 		|| isNumberMethodCall(node)
 		|| isGlobalParseToNumberFunctionCall(node)
-		|| isNumberUnaryExpression(node)
 		|| isLengthProperty(node)
 	) {
 		return true;
@@ -159,6 +151,21 @@ function isNumber(node, scope) {
 			// `a * b` can be `BigInt`, we need make sure at least one side is number
 			if (mathOperators.has(operator)) {
 				return isNumber(node.left, scope) || isNumber(node.right, scope);
+			}
+
+			break;
+		}
+		case 'UnaryExpression': {
+			let {operator} = node;
+
+			// `+` (zero-fill right shift) can't use on `BigInt`
+			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#operators
+			if (operator === '+') {
+				return true;
+			}
+
+			if (operator === '-' || operator === '~') {
+				return isNumber(node.argument, scope);
 			}
 
 			break;
