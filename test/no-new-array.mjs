@@ -195,5 +195,6 @@ test.snapshot({
 		'const falsy = !"truthy"; new Array(falsy ? 1 : foo)',
 		'new Array(unknown ? foo : 1)',
 		'new Array(unknown ? 1 : foo)',
+		'new Array(++foo)',
 	],
 });
