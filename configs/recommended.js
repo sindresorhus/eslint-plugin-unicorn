@@ -41,6 +41,7 @@ module.exports = {
 		'unicorn/no-process-exit': 'error',
 		'unicorn/no-static-only-class': 'error',
 		'unicorn/no-this-assignment': 'error',
+		'unicorn/no-typeof-undefined': 'error',
 		'unicorn/no-unreadable-array-destructuring': 'error',
 		'unicorn/no-unsafe-regex': 'off',
 		'unicorn/no-unused-properties': 'off',
