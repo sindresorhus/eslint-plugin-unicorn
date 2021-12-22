@@ -10,6 +10,7 @@ const createError = error => {
 		data: {type},
 	};
 };
+
 const returnResolveError = createError('return-resolve');
 const returnRejectError = createError('return-reject');
 const yieldResolveError = createError('yield-resolve');

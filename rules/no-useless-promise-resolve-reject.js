@@ -48,12 +48,11 @@ function getFunctionNode(node) {
 function createProblem(callExpression, fix) {
 	const {callee, parent} = callExpression;
 	const method = callee.property.name;
-	const messageId = method === 'reject' ? MESSAGE_ID_REJECT : MESSAGE_ID_RESOLVE;
 	const type = parent.type === 'YieldExpression' ? 'yield' : 'return';
 
 	return {
 		node: callee,
-		messageId,
+		messageId: method,
 		data: {type},
 		fix,
 	};
@@ -69,14 +68,13 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 		return;
 	}
 
-	const method = callee.property.name;
-	const isReject = method === 'reject';
+	const isReject = callee.property.name === 'reject';
 	const isYieldExpression = parent.type === 'YieldExpression';
 	if (
 		isReject
 		&& (
-			isInTryStatement ||
-			(isYieldExpression && parent.parent.type !== 'ExpressionStatement')
+			isInTryStatement
+			|| (isYieldExpression && parent.parent.type !== 'ExpressionStatement')
 		)
 	) {
 		return;
@@ -87,19 +85,13 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 
 		let text = errorOrValue ? sourceCode.getText(errorOrValue) : '';
 
-		if (
-			errorOrValue &&
-			(
-				errorOrValue.type === 'SequenceExpression'
-				|| (!isReject && isArrowFunctionBody && errorOrValue.type === 'ObjectExpression')
-			)
-		) {
+		if (errorOrValue && errorOrValue.type === 'SequenceExpression') {
 			text = `(${text})`;
 		}
 
 		if (isReject) {
 			// `return Promise.reject()` -> `throw undefined`
-			text ||= 'undefined';
+			text = text || 'undefined';
 			text = `throw ${text}`;
 			if (!isYieldExpression) {
 				text += ';';
@@ -110,19 +102,24 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 				text = `{ ${text} }`;
 			}
 		} else {
+			// eslint-disable-next-line no-lonely-if
 			if (isYieldExpression) {
 				text = `yield${text ? ' ' : ''}${text}`;
 			} else if (parent.type === 'ReturnStatement') {
 				text = `return${text ? ' ' : ''}${text};`;
 			} else {
+				if (errorOrValue && errorOrValue.type === 'ObjectExpression') {
+					text = `(${text})`;
+				}
+
 				// `=> Promise.resolve()` into `=> {}`
-				text ||= `{}`;
+				text = text || '{}';
 			}
 		}
 
 		return fixer.replaceText(
 			isArrowFunctionBody ? callExpression : parent,
-			text
+			text,
 		);
 	};
 }
@@ -140,7 +137,7 @@ const create = context => {
 
 			return createProblem(
 				callExpression,
-				fix(callExpression, isInTryStatement, sourceCode)
+				fix(callExpression, isInTryStatement, sourceCode),
 			);
 		},
 	};
