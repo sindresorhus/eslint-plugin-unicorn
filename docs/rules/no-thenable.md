@@ -16,24 +16,25 @@ console.log('after'); //<- This will never execute
 ```js
 const foo = {
 	unicorn: 1,
-	then(callback) {
-		callback();
+	then() {
+		throw new Error('You shouldn’t have called me')
 	},
 };
 const {unicorn} = await foo;
-// Uncaught TypeError: Cannot destructure property 'unicorn' ...
+// Error: You shouldn’t have called me
 ```
 
 If a module has an export named `then`, dynamic `import()` may not work as expected.
 
 ```js
 // foo.js
-export const unicorn = 1;
-export const then = callback => callback();
+export function then () {
+	throw new Error('You shouldn’t have called me')
+}
 
 // bar.js
-const {unicorn} = await import('./foo.js');
-// Uncaught TypeError: Cannot destructure property 'unicorn' ...
+await import('./foo.js');
+// Error: You shouldn’t have called me
 ```
 
 ## Fail
