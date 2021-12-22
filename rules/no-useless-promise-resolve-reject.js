@@ -1,22 +1,14 @@
 'use strict';
 const {matches, methodCallSelector} = require('./selectors/index.js');
 
-const RETURN_RESOLVE = 'return-resolve';
-const RETURN_REJECT = 'return-reject';
-const YIELD_RESOLVE = 'yield-resolve';
-const YIELD_REJECT = 'yield-reject';
+const MESSAGE_ID_RESOLVE = 'resolve';
+const MESSAGE_ID_REJECT = 'reject';
 const messages = {
-	[RETURN_RESOLVE]: 'Prefer `return value` over `return Promise.resolve(value)`.',
-	[RETURN_REJECT]: 'Prefer `throw error` over `return Promise.reject(error)`.',
-	[YIELD_RESOLVE]: 'Prefer `yield value` over `yield Promise.resolve(value)`.',
-	[YIELD_REJECT]: 'Prefer `throw value` over `yield Promise.reject(value)`.',
+	[MESSAGE_ID_RESOLVE]: 'Prefer `{{type}} value` over `{{type}} Promise.resolve(error)`.',
+	[MESSAGE_ID_REJECT]: 'Prefer `throw error` over `{{type}} Promise.reject(error)`.',
 };
 
-const getMessageId = (isYield, isResolve) => isYield
-	? (isResolve ? YIELD_RESOLVE : YIELD_REJECT)
-	: (isResolve ? RETURN_RESOLVE : RETURN_REJECT);
-
-const SELECTOR = [
+const selector = [
 	methodCallSelector({
 		object: 'Promise',
 		methods: ['resolve', 'reject'],
@@ -33,82 +25,123 @@ const functionTypes = new Set([
 	'FunctionDeclaration',
 	'FunctionExpression',
 ]);
+function getFunctionNode(node) {
+	let isInTryStatement = false;
+	let functionNode;
+	for (; node; node = node.parent) {
+		if (functionTypes.has(node.type)) {
+			functionNode = node;
+			break;
+		}
+
+		if (node.type === 'TryStatement') {
+			isInTryStatement = true;
+		}
+	}
+
+	return {
+		functionNode,
+		isInTryStatement,
+	};
+}
+
+function createProblem(callExpression, fix) {
+	const {callee, parent} = callExpression;
+	const method = callee.property.name;
+	const messageId = method === 'reject' ? MESSAGE_ID_REJECT : MESSAGE_ID_RESOLVE;
+	const type = parent.type === 'YieldExpression' ? 'yield' : 'return';
+
+	return {
+		node: callee,
+		messageId,
+		data: {type},
+		fix,
+	};
+}
+
+function fix(callExpression, isInTryStatement, sourceCode) {
+	if (callExpression.arguments.length > 1) {
+		return;
+	}
+
+	const {callee, parent, arguments: [errorOrValue]} = callExpression;
+	if (errorOrValue && errorOrValue.type === 'SpreadElement') {
+		return;
+	}
+
+	const method = callee.property.name;
+	const isReject = method === 'reject';
+	const isYieldExpression = parent.type === 'YieldExpression';
+	if (
+		isReject
+		&& (
+			isInTryStatement ||
+			(isYieldExpression && parent.parent.type !== 'ExpressionStatement')
+		)
+	) {
+		return;
+	}
+
+	return function (fixer) {
+		const isArrowFunctionBody = parent.type === 'ArrowFunctionExpression';
+
+		let text = errorOrValue ? sourceCode.getText(errorOrValue) : '';
+
+		if (
+			errorOrValue &&
+			(
+				errorOrValue.type === 'SequenceExpression'
+				|| (!isReject && isArrowFunctionBody && errorOrValue.type === 'ObjectExpression')
+			)
+		) {
+			text = `(${text})`;
+		}
+
+		if (isReject) {
+			// `return Promise.reject()` -> `throw undefined`
+			text ||= 'undefined';
+			text = `throw ${text}`;
+			if (!isYieldExpression) {
+				text += ';';
+			}
+
+			// `=> Promise.reject(error)` into `=> { throw error; }`
+			if (isArrowFunctionBody) {
+				text = `{ ${text} }`;
+			}
+		} else {
+			if (isYieldExpression) {
+				text = `yield${text ? ' ' : ''}${text}`;
+			} else if (parent.type === 'ReturnStatement') {
+				text = `return${text ? ' ' : ''}${text};`;
+			} else {
+				// `=> Promise.resolve()` into `=> {}`
+				text ||= `{}`;
+			}
+		}
+
+		return fixer.replaceText(
+			isArrowFunctionBody ? callExpression : parent,
+			text
+		);
+	};
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
 	return {
-		[SELECTOR](node) {
-			const isYield = node.parent.type === 'YieldExpression';
-			const isResolve = node.callee.property.name === 'resolve';
-			const [value] = node.arguments;
-			// Promise.resolve/reject() -> returning/throwing undefined
-			const valueString = value ? sourceCode.getText(value) : 'undefined';
-			let isInTryStatement = false;
-			let fix;
-
-			if (node.parent.type === 'ArrowFunctionExpression') {
-				fix = fixer => {
-					let replacement;
-					if (isResolve) {
-						replacement = value
-							// Turns `=> Promise.resolve(value)` into `=> value`
-							? (value.type === 'ObjectExpression' || value.type === 'SequenceExpression'
-								? `(${valueString})`
-								: valueString)
-							// Turns `=> Promise.resolve()` into `=> {}`
-							: '{}';
-					} else {
-						// Turns `=> Promise.reject(error)` into `=> { throw error; }`
-						replacement = `{ throw ${valueString}; }`;
-					}
-
-					return fixer.replaceText(node, replacement);
-				};
-			} else {
-				let parentFunction = node.parent.parent;
-				while (parentFunction && !functionTypes.has(parentFunction.type)) {
-					if (!isInTryStatement && parentFunction.type === 'TryStatement') {
-						isInTryStatement = true;
-					}
-
-					parentFunction = parentFunction.parent;
-				}
-
-				if (!parentFunction || !parentFunction.async) {
-					return;
-				}
-
-				if (isResolve) {
-					fix = fixer => isYield || value
-						? fixer.replaceText(node, isYield && value && value.type === 'SequenceExpression'
-							// Turns `yield Promise.resolve((a, b))` into `yield (a, b)`
-							? `(${valueString})`
-							// Turns `return/yield Promise.resolve(value)` into `return/yield value`
-							: valueString)
-						// Turns `return Promise.resolve()` into `return`
-						: fixer.remove(node);
-				} else {
-					// Turns `return/yield Promise.reject(error)` into `throw error`
-					fix = fixer => fixer.replaceText(node.parent, `throw ${valueString}${isYield ? '' : ';'}`);
-				}
+		[selector](callExpression) {
+			const {functionNode, isInTryStatement} = getFunctionNode(callExpression);
+			if (!functionNode || !functionNode.async) {
+				return;
 			}
 
-			return {
-				node: node.callee,
-				messageId: getMessageId(isYield, isResolve),
-				fix: node.arguments.length <= 1
-						&& (!value || value.type !== 'SpreadElement')
-						// Can't fix if the Promise.reject is inside a try block as a
-						// catch block will catch the throw but not the Promise.reject
-						&& (isResolve || !isInTryStatement)
-						// Can't fix for cases like const foo = yield Promise.reject(bar)
-						// (the yield expression must be the child of an ExpressionStatement)
-						&& (!isYield || isResolve || node.parent.parent.type === 'ExpressionStatement')
-					? fix
-					: undefined,
-			};
+			return createProblem(
+				callExpression,
+				fix(callExpression, isInTryStatement, sourceCode)
+			);
 		},
 	};
 };

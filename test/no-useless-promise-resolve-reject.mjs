@@ -3,7 +3,13 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const createError = messageId => ({messageId});
+const createError = error => {
+	const [type, messageId] = error.split('-');
+	return {
+		messageId,
+		data: {type},
+	};
+};
 const returnResolveError = createError('return-resolve');
 const returnRejectError = createError('return-reject');
 const yieldResolveError = createError('yield-resolve');
@@ -310,7 +316,7 @@ test({
 			errors: [returnResolveError],
 			output: outdent`
 				async function foo() {
-					return ;
+					return;
 				}
 			`,
 		},
@@ -341,7 +347,7 @@ test({
 			errors: [yieldResolveError],
 			output: outdent`
 				async function * foo() {
-					yield undefined;
+					yield;
 				}
 			`,
 		},
