@@ -2,22 +2,31 @@
 const {matches} = require('./selectors/index.js');
 
 const MESSAGE_ID_UNNECESSARY_INTERPOLATION = 'MESSAGE_ID_UNNECESSARY_INTERPOLATION';
-const MESSAGE_ID_UNEXPECTED_STRING_CONCATENATION = 'MESSAGE_ID_UNEXPECTED_STRING_CONCATENATION';
-const MESSAGE_ID_UNNECESSARY_CONVERT_TO_STRING = 'MESSAGE_ID_UNNECESSARY_CONVERT_TO_STRING';
 const MESSAGE_ID_UNNECESSARY_INTERPOLATION_SUGGEST = 'MESSAGE_ID_UNNECESSARY_INTERPOLATION_SUGGEST';
+const MESSAGE_ID_UNNECESSARY_CONVERT_TO_STRING = 'MESSAGE_ID_UNNECESSARY_CONVERT_TO_STRING';
 const MESSAGE_ID_UNNECESSARY_CONVERT_TO_STRING_SUGGEST = 'MESSAGE_ID_UNNECESSARY_CONVERT_TO_STRING_SUGGEST';
+const MESSAGE_ID_UNEXPECTED_STRING_CONCATENATION = 'MESSAGE_ID_UNEXPECTED_STRING_CONCATENATION';
 
 const messages = {
 	[MESSAGE_ID_UNNECESSARY_INTERPOLATION]: 'Unnecessary interpolation of "{{value}}" in template string.',
-	[MESSAGE_ID_UNEXPECTED_STRING_CONCATENATION]: 'Unexpected string concatenation in template string.',
-	[MESSAGE_ID_UNNECESSARY_CONVERT_TO_STRING]: 'Unnecessary convert to string in template string.',
 	[MESSAGE_ID_UNNECESSARY_INTERPOLATION_SUGGEST]: 'Remove redundant interpolation.',
+	[MESSAGE_ID_UNNECESSARY_CONVERT_TO_STRING]: 'Unnecessary convert to string in template string.',
 	[MESSAGE_ID_UNNECESSARY_CONVERT_TO_STRING_SUGGEST]: 'Remove redundant "{{functionName}}()".',
+	[MESSAGE_ID_UNEXPECTED_STRING_CONCATENATION]: 'Unexpected string concatenation in template string.',
 };
 
 const unnecessaryInterpolationSelector = [
+	'TemplateLiteral[expressions.length>0]',
+	matches([
+		'Literal[parent.type!=/^(BinaryExpression|UnaryExpression)$/]',
+		'Identifier[name=undefined]',
+		'TemplateLiteral[expressions.length=0] TemplateElement',
+	]),
+].join(' ');
+
+const unnecessaryConvertToStringSelector = [
 	'TemplateLiteral',
-	matches(['Literal[parent.type!=/^(BinaryExpression|UnaryExpression)$/]', 'Identifier[name=undefined]']),
+	matches(['CallExpression[callee.property.name=toString] .property', 'CallExpression[callee.name=String] .callee']),
 ].join(' ');
 
 const unexpectedStringConcatenationSelector = [
@@ -26,30 +35,20 @@ const unexpectedStringConcatenationSelector = [
 	'Literal',
 ].join(' ');
 
-const unnecessaryConvertToStringSelector = [
-	'TemplateLiteral',
-	matches(['CallExpression[callee.property.name=toString] .property', 'CallExpression[callee.name=String] .callee']),
-].join(' ');
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[unnecessaryInterpolationSelector](node) {
+		const value = node.type === 'TemplateElement' ? node.value.raw : node.value
 		context.report({
 			node,
 			messageId: MESSAGE_ID_UNNECESSARY_INTERPOLATION,
-			data: {value: node.value},
+			data: {value},
 			suggest: [
 				{
 					messageId: MESSAGE_ID_UNNECESSARY_INTERPOLATION_SUGGEST,
-					fix: fixer => fixer.replaceTextRange([node.range[0] - 2, node.range[1] + 1], node.value),
+					fix: fixer => fixer.replaceTextRange([node.range[0] - 2, node.range[1] + 1], value),
 				},
 			],
-		});
-	},
-	[unexpectedStringConcatenationSelector](node) {
-		context.report({
-			node,
-			messageId: MESSAGE_ID_UNEXPECTED_STRING_CONCATENATION,
 		});
 	},
 	[unnecessaryConvertToStringSelector](node) {
@@ -69,6 +68,12 @@ const create = context => ({
 						: node.range),
 				},
 			],
+		});
+	},
+	[unexpectedStringConcatenationSelector](node) {
+		context.report({
+			node,
+			messageId: MESSAGE_ID_UNEXPECTED_STRING_CONCATENATION,
 		});
 	},
 });

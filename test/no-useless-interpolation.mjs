@@ -14,6 +14,7 @@ test.snapshot({
 		'`${"foo"}`',
 		'`${"foo"}${"bar"}`',
 		'`Hello, ${`Brave ${"New"}`} ${"World"}!`',
+		'`Hello, ${`Brave New`} World!`', // Should catch interpolation inside interpolation
 		'`${2021} year!`',
 		'`${true} or ${false} or ${null} or ${undefined}`',
 		'`before ${"head" + someVar + "tail"} after`',
