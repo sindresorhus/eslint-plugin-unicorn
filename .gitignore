@@ -1,4 +1,4 @@
-node_modules
+node_modules/
 yarn.lock
 .nyc_output
 coverage
@@ -7,3 +7,6 @@ package-lock.json
 .cache-eslint-remote-tester
 eslint-remote-tester-results
 *.log
+
+# IntelliJ’s project specific settings files
+.idea/
