@@ -43,7 +43,15 @@ function create(context) {
 		ignore: [],
 		...context.options[0],
 	};
-	const ignoredObjects = ['stream', 'this', 'this.stream', ...ignore];
+	const ignoredObjects = [
+		'stream',
+		'this',
+		'this.stream',
+		'process.stdin',
+		'process.stdout',
+		'process.stderr',
+		...ignore,
+	];
 	const sourceCode = context.getSourceCode();
 
 	return {
