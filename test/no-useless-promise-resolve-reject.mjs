@@ -3,18 +3,12 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const createError = error => {
-	const [type, messageId] = error.split('-');
-	return {
-		messageId,
-		data: {type},
-	};
-};
+const createError = (type, messageId) => ({messageId, data: {type}});
 
-const returnResolveError = createError('return-resolve');
-const returnRejectError = createError('return-reject');
-const yieldResolveError = createError('yield-resolve');
-const yieldRejectError = createError('yield-reject');
+const returnResolveError = createError('return', 'resolve');
+const returnRejectError = createError('return', 'reject');
+const yieldResolveError = createError('yield', 'resolve');
+const yieldRejectError = createError('yield', 'reject');
 
 test({
 	valid: [

@@ -97,7 +97,7 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 				text += ';';
 			}
 
-			// `=> Promise.reject(error)` into `=> { throw error; }`
+			// `=> Promise.reject(error)` -> `=> { throw error; }`
 			if (isArrowFunctionBody) {
 				text = `{ ${text} }`;
 			}
@@ -112,7 +112,7 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 					text = `(${text})`;
 				}
 
-				// `=> Promise.resolve()` into `=> {}`
+				// `=> Promise.resolve()` -> `=> {}`
 				text = text || '{}';
 			}
 		}
