@@ -439,7 +439,7 @@ test({
 			`,
 			errors: [yieldRejectError],
 		},
-		// Parenthesized return values in arrow functions
+		// Parenthesized Promise.resolve/reject
 		{
 			code: 'async () => (Promise.resolve(bar));',
 			output: 'async () => (bar);',
@@ -452,6 +452,22 @@ test({
 			code,
 			output: 'async () => { throw bar; };',
 			errors: [returnRejectError],
+		})),
+		...[
+			'(yield Promise.reject(bar));',
+			'((yield Promise.reject(bar)));',
+		].map(code => ({
+			code: outdent`
+				async function * foo() {
+					${code}
+				}
+			`,
+			output: outdent`
+				async function * foo() {
+					throw bar;
+				}
+			`,
+			errors: [yieldRejectError],
 		})),
 	],
 });

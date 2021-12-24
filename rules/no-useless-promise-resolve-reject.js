@@ -94,9 +94,15 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 			// `return Promise.reject()` -> `throw undefined`
 			text = text || 'undefined';
 			text = `throw ${text}`;
-			if (!isYieldExpression) {
-				text += ';';
+
+			if (isYieldExpression) {
+				return fixer.replaceTextRange(
+					getParenthesizedRange(parent, sourceCode),
+					text,
+				);
 			}
+
+			text += ';';
 
 			// `=> Promise.reject(error)` -> `=> { throw error; }`
 			if (isArrowFunctionBody) {
