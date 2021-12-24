@@ -439,5 +439,19 @@ test({
 			`,
 			errors: [yieldRejectError],
 		},
+		// Parenthesized return values in arrow functions
+		{
+			code: 'async () => (Promise.resolve(bar));',
+			output: 'async () => (bar);',
+			errors: [returnResolveError],
+		},
+		...[
+			'async () => (Promise.reject(bar));',
+			'async () => ((Promise.reject(bar)));',
+		].map(code => ({
+			code,
+			output: 'async () => { throw bar; };',
+			errors: [returnRejectError],
+		})),
 	],
 });

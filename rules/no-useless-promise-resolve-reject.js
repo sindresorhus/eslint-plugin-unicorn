@@ -1,5 +1,6 @@
 'use strict';
 const {matches, methodCallSelector} = require('./selectors/index.js');
+const {getParenthesizedRange} = require('./utils/parentheses.js');
 
 const MESSAGE_ID_RESOLVE = 'resolve';
 const MESSAGE_ID_REJECT = 'reject';
@@ -100,6 +101,10 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 			// `=> Promise.reject(error)` -> `=> { throw error; }`
 			if (isArrowFunctionBody) {
 				text = `{ ${text} }`;
+				return fixer.replaceTextRange(
+					getParenthesizedRange(callExpression, sourceCode),
+					text,
+				);
 			}
 		} else {
 			// eslint-disable-next-line no-lonely-if
