@@ -40,6 +40,7 @@ test.snapshot({
 		{code: '!!![1, 2, 3].includes(foo)', options: [{minListItems: 4}]},
 		{code: 'foo === 1 || foo === 2 || bar === true || bar === false || bar === null', options: [{minListItems: 3}]}, // MinListItems should work
 		{code: '["one"].includes(foo) || [].includes(foo) || [2, 3].includes(foo)', options: [{minListItems: 4}]},
-		'node.type === "LogicalExpression" && (node.operator === "||" || node.operator === "??") || node.type === "ConditionalExpression" || node.type === "AssignmentExpression"',
+		// Should remove parentheses
+		'node.type === "LogicalExpression" && (((( node.operator === "||" || node.operator === "??" )))) || node.type === "ConditionalExpression" || node.type === "AssignmentExpression"',
 	],
 });

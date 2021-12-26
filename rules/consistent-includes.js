@@ -1,6 +1,7 @@
 'use strict';
 const flatLogicalExpression = require('./utils/flat-logical-expression.js');
 const isSameReference = require('./utils/is-same-reference.js');
+const {getParentheses} = require('./utils/parentheses.js');
 
 const DEFAULT_MIN_LIST_ITEMS = 2;
 const MESSAGE_ID_INCLUDES = 'consistent-includes';
@@ -174,8 +175,12 @@ const create = context => {
 					fix(fixer) {
 						const sourceCode = context.getSourceCode();
 						const values = comparedValues.map(node => sourceCode.getText(node)).join(', ');
+						const lastBlockNode = sourceCode.getNodeByRangeIndex(from.end);
+						const parenthesesRange = getParentheses(lastBlockNode, sourceCode);
+						const range = parenthesesRange.length > 0 ? [parenthesesRange[0].start, parenthesesRange[parenthesesRange.length - 1].end] : [from.start, to.end];
 						const searchElement = sourceCode.getText(repetitiveReference);
-						return fixer.replaceTextRange([from.start, to.end], `${hasNotOperator ? '!' : ''}[${values}].includes(${searchElement})`);
+						const newText = `${hasNotOperator ? '!' : ''}[${values}].includes(${searchElement})`;
+						return fixer.replaceTextRange(range, newText);
 					},
 				};
 			}
