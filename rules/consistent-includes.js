@@ -174,12 +174,14 @@ const create = context => {
 					},
 					fix(fixer) {
 						const sourceCode = context.getSourceCode();
-						const values = comparedValues.map(node => sourceCode.getText(node)).join(', ');
 						const lastBlockNode = sourceCode.getNodeByRangeIndex(from.end);
 						const parenthesesRange = getParentheses(lastBlockNode, sourceCode);
 						const range = parenthesesRange.length > 0 ? [parenthesesRange[0].start, parenthesesRange[parenthesesRange.length - 1].end] : [from.start, to.end];
+
+						const values = comparedValues.map(node => sourceCode.getText(node)).join(', ');
 						const searchElement = sourceCode.getText(repetitiveReference);
 						const newText = `${hasNotOperator ? '!' : ''}[${values}].includes(${searchElement})`;
+
 						return fixer.replaceTextRange(range, newText);
 					},
 				};
@@ -195,8 +197,9 @@ const create = context => {
 				fix(fixer) {
 					const sourceCode = context.getSourceCode();
 					const searchElement = sourceCode.getText(node.arguments[0]);
-					const newText = arrayExpressionNode.elements.map(element => `${searchElement} ${operator} ${sourceCode.getText(element)}`).join(' || ');
-					return fixer.replaceTextRange(nodeWithUnary.range, newText);
+					const logicalExpressions = arrayExpressionNode.elements.map(element => `${searchElement} ${operator} ${sourceCode.getText(element)}`);
+					const newText = logicalExpressions.join(' || ');
+					return fixer.replaceTextRange(nodeWithUnary.range, logicalExpressions.length > 1 ? `(${newText})` : newText);
 				},
 			};
 		},
