@@ -75,9 +75,14 @@ function isBooleanNode(node, scope) {
 
 	if (scope && parent.type === 'VariableDeclarator') {
 		const reference = findReference(scope, parent.id);
+
+		if (!reference) {
+			return false;
+		}
+
 		// Skip variable declaration of current node
-		const references = reference.resolved.references.filter(ref => {
-			const parentNode = ref.identifier.parent;
+		const references = reference.resolved.references.filter(r => {
+			const parentNode = r.identifier.parent;
 			return parentNode.type !== 'VariableDeclarator' || parentNode.id !== parent.id;
 		});
 
@@ -85,7 +90,7 @@ function isBooleanNode(node, scope) {
 			return false;
 		}
 
-		return references.every(ref => isBooleanNode(ref.identifier));
+		return references.every(r => isBooleanNode(r.identifier));
 	}
 
 	return false;
