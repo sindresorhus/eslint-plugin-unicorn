@@ -62,7 +62,7 @@ const arrayFilterCallSelector = [
 const create = context => ({
 	[arrayFindCallSelector](findCall) {
 		const isCompare = isCheckingUndefined(findCall);
-		if (!isCompare && !isBooleanNode(findCall)) {
+		if (!isCompare && !isBooleanNode(findCall, context.getScope())) {
 			return;
 		}
 

@@ -46,6 +46,11 @@ test({
 			'foo.find(fn, thisArgument, extraArgument)',
 			'foo.find(...argumentsArray)',
 		].map(code => `if (${code}) {}`),
+		'const foo = arr.find(fn); if (foo.bar) {}',
+		'const foo = arr.find(fn); if (foo) { let bar = foo }',
+		'const foo = arr.find(fn); if (foo) { let bar = foo?.bar }',
+		'const foo = arr.find(fn); { foo }',
+		'const foo = arr.find(fn); const bar = baz || foo',
 	],
 	invalid: [
 		...[
@@ -72,20 +77,14 @@ test({
 			suggestionOutput: 'if (jQuery.some(".outer > div")) {}',
 		}),
 		// Actual messages
-		{
+		invalidCase({
 			code: 'if (foo.find(fn)) {}',
-			errors: [
-				{
-					message: 'Prefer `.some(…)` over `.find(…)`.',
-					suggestions: [
-						{
-							desc: 'Replace `.find(…)` with `.some(…)`.',
-							output: 'if (foo.some(fn)) {}',
-						},
-					],
-				},
-			],
-		},
+			suggestionOutput: 'if (foo.some(fn)) {}',
+		}),
+		invalidCase({
+			code: 'let foo = arr.find(fn); if (foo || !foo || !!foo || Boolean(foo)) {}',
+			suggestionOutput: 'let foo = arr.some(fn); if (foo || !foo || !!foo || Boolean(foo)) {}',
+		}),
 	],
 });
 

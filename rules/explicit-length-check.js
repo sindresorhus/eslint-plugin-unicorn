@@ -165,7 +165,7 @@ function create(context) {
 				}
 			} else {
 				const {isNegative, node: ancestor} = getBooleanAncestor(lengthNode);
-				if (isBooleanNode(ancestor)) {
+				if (isBooleanNode(ancestor, context.getScope())) {
 					isZeroLengthCheck = isNegative;
 					node = ancestor;
 				} else if (isLogicalExpression(lengthNode.parent)) {

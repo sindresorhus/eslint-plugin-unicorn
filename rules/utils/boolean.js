@@ -1,6 +1,7 @@
 'use strict';
 
 const isLogicalExpression = require('./is-logical-expression.js');
+const findReference = require('./find-reference.js');
 
 const isLogicNot = node =>
 	node
@@ -37,9 +38,10 @@ const isVueBooleanAttributeValue = node =>
 Check if the value of node is a `boolean`.
 
 @param {Node} node
+@param {Scope} scope The Scope to start checking from
 @returns {boolean}
 */
-function isBooleanNode(node) {
+function isBooleanNode(node, scope) {
 	if (
 		isLogicNot(node)
 		|| isLogicNotArgument(node)
@@ -69,6 +71,21 @@ function isBooleanNode(node) {
 
 	if (isLogicalExpression(parent)) {
 		return isBooleanNode(parent);
+	}
+
+	if (scope && parent.type === 'VariableDeclarator') {
+		const reference = findReference(scope, parent.id);
+		// Skip variable declaration of current node
+		const references = reference.resolved.references.filter(ref => {
+			const parentNode = ref.identifier.parent;
+			return parentNode.type !== 'VariableDeclarator' || parentNode.id !== parent.id;
+		});
+
+		if (references.length === 0) {
+			return false;
+		}
+
+		return references.every(ref => isBooleanNode(ref.identifier));
 	}
 
 	return false;

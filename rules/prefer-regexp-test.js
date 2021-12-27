@@ -87,7 +87,7 @@ const create = context => Object.fromEntries(
 	cases.map(checkCase => [
 		checkCase.selector,
 		node => {
-			if (!isBooleanNode(node)) {
+			if (!isBooleanNode(node, context.getScope())) {
 				return;
 			}
 
