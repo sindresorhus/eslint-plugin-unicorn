@@ -9,25 +9,25 @@
 ## Fail
 
 ```js
-foo === 1 || foo === "str" || foo === true
+foo === 1 || foo === 'string' || foo === true
 ```
 
 ## Pass
 
 ```js
-[1, "str", true].includes(foo)
+[1, 'string', true].includes(foo)
 ```
 
 ## Fail
 
 ```js
-foo !== 1 || foo !== "str" || foo !== true
+foo !== 1 || foo !== 'string' || foo !== true
 ```
 
 ## Pass
 
 ```js
-![1, "str", true].includes(foo)
+![1, 'string', true].includes(foo)
 ```
 
 ## Fail
@@ -85,7 +85,7 @@ foo === 1 || ![2, 3].includes(foo)
 ```
 
 ```js
-// eslint unicorn/consistent-includes: ['error', { minListItems: 3 }]
+// eslint unicorn/consistent-includes: ['error', {minListItems: 3}]
 if (foo === 1 || foo === 2) {}
 ```
 
