@@ -115,6 +115,10 @@ test({
 				const length = 123;
 				"foo".substr(1, length)
 			`,
+			output: outdent`
+				const length = 123;
+				"foo".slice(1, 1 + length)
+			`,
 			errors: errorsSubstr,
 		},
 		{
@@ -150,6 +154,14 @@ test({
 				const length = 123;
 				"foo".substr(1, length - 4)
 			`,
+			output: outdent`
+				const length = 123;
+				"foo".slice(1, 1 + length - 4)
+			`,
+			errors: errorsSubstr,
+		},
+		{
+			code: '"foo".substr(1, length)',
 			errors: errorsSubstr,
 		},
 		{
