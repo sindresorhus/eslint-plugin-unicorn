@@ -77,32 +77,12 @@ test({
 				yield* Promise.${fn}(bar);
 			}
 		`),
-		// Promise#then/catch
-		'promise.then(() => foo).catch(() => bar)',
-		'promise.then(() => foo, () => bar)',
-		'promise.then(() => Promise.reject(foo)).catch(() => Promise.reject(bar))',
-		'promise.then(() => Promise.reject(foo), () => Promise.reject(bar))',
-		outdent`
-			promise
-				.then(() => {
-					return Promise.reject(foo);
-				})
-				.catch(() => {
-					return Promise.reject(bar);
-				})
-		`,
-		outdent`
-			promise.then(
-				() => {
-					return Promise.reject(foo);
-				},
-				() => {
-					return Promise.reject(bar);
-				},
-			)
-		`,
+		// Promise#then/catch/finally
+		'promise.then(() => foo).catch(() => bar).finally(() => baz)',
+		'promise.then(() => foo, () => bar).finally(() => baz)',
 		'promise.then(x, y, () => Promise.resolve(foo))',
 		'promise.catch(x, () => Promise.resolve(foo))',
+		'promise.finally(x, () => Promise.resolve(foo))',
 	],
 	invalid: [
 		{
@@ -495,8 +475,8 @@ test({
 			`,
 			errors: [yieldRejectError],
 		})),
-		// Promise#then/catch callbacks returning Promise.resolve/reject
-		...['then', 'catch'].flatMap(fn => [
+		// Promise#then/catch/finally callbacks returning Promise.resolve/reject
+		...['then', 'catch', 'finally'].flatMap(fn => [
 			{
 				code: `promise.${fn}(() => Promise.resolve(bar))`,
 				errors: [returnResolveError],

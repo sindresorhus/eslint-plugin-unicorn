@@ -40,26 +40,9 @@ function getFunctionNode(node) {
 		}
 	}
 
-	let isInPromiseThenOrCatchCallback = false;
-	if (
-		node
-		&& node.parent
-		&& node.parent.type === 'CallExpression'
-		&& node.parent.callee.type === 'MemberExpression'
-		&& node.parent.callee.property.type === 'Identifier'
-	) {
-		const {callee: {property}, arguments: arguments_} = node.parent;
-		if (property.name === 'then') {
-			isInPromiseThenOrCatchCallback = arguments_[0] === node || arguments_[1] === node;
-		} else if (property.name === 'catch') {
-			isInPromiseThenOrCatchCallback = arguments_[0] === node;
-		}
-	}
-
 	return {
 		functionNode,
 		isInTryStatement,
-		isInPromiseThenOrCatchCallback,
 	};
 }
 
@@ -76,16 +59,17 @@ function createProblem(callExpression, fix) {
 	};
 }
 
-function fix(callExpression, isReject, isInTryStatement, sourceCode) {
+function fix(callExpression, isInTryStatement, sourceCode) {
 	if (callExpression.arguments.length > 1) {
 		return;
 	}
 
-	const {parent, arguments: [errorOrValue]} = callExpression;
+	const {callee, parent, arguments: [errorOrValue]} = callExpression;
 	if (errorOrValue && errorOrValue.type === 'SpreadElement') {
 		return;
 	}
 
+	const isReject = callee.property.name === 'reject';
 	const isYieldExpression = parent.type === 'YieldExpression';
 	if (
 		isReject
@@ -157,15 +141,34 @@ const create = context => {
 
 	return {
 		[selector](callExpression) {
-			const isReject = callExpression.callee.property.name === 'reject';
-			const {functionNode, isInTryStatement, isInPromiseThenOrCatchCallback} = getFunctionNode(callExpression);
-			if (!functionNode || (!functionNode.async && (!isInPromiseThenOrCatchCallback || isReject))) {
+			const {functionNode, isInTryStatement} = getFunctionNode(callExpression);
+
+			if (!functionNode) {
+				return;
+			}
+
+			let isInPromiseThenOrCatchCallback = false;
+			if (
+				functionNode.parent
+				&& functionNode.parent.type === 'CallExpression'
+				&& functionNode.parent.callee.type === 'MemberExpression'
+				&& functionNode.parent.callee.property.type === 'Identifier'
+			) {
+				const {callee: {property}, arguments: arguments_} = functionNode.parent;
+				if (property.name === 'then') {
+					isInPromiseThenOrCatchCallback = arguments_[0] === functionNode || arguments_[1] === functionNode;
+				} else if (property.name === 'catch' || property.name === 'finally') {
+					isInPromiseThenOrCatchCallback = arguments_[0] === functionNode;
+				}
+			}
+
+			if (!functionNode.async && !isInPromiseThenOrCatchCallback) {
 				return;
 			}
 
 			return createProblem(
 				callExpression,
-				fix(callExpression, isReject, isInTryStatement, sourceCode),
+				fix(callExpression, isInTryStatement, sourceCode),
 			);
 		},
 	};
