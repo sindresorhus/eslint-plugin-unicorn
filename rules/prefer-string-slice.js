@@ -1,6 +1,7 @@
 'use strict';
 const {getParenthesizedText} = require('./utils/parentheses.js');
 const {methodCallSelector} = require('./selectors/index.js');
+const isNumber = require('./utils/is-number.js');
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -32,8 +33,6 @@ const isLengthProperty = node => (
 	&& node.property.type === 'Identifier'
 	&& node.property.name === 'length'
 );
-
-const isLikelyNumeric = node => isLiteralNumber(node) || isLengthProperty(node);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -84,8 +83,8 @@ const create = context => {
 							argumentNodes[0].value + argumentNodes[1].value,
 						];
 					} else if (
-						isLikelyNumeric(argumentNodes[0])
-						&& isLikelyNumeric(argumentNodes[1])
+						isNumber(argumentNodes[0], context.getScope())
+						&& isNumber(argumentNodes[1], context.getScope())
 					) {
 						sliceArguments = [firstArgument, firstArgument + ' + ' + secondArgument];
 					}
