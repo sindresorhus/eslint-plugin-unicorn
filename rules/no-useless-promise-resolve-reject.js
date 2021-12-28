@@ -15,7 +15,7 @@ const selector = [
 		methods: ['resolve', 'reject'],
 	}),
 	matches([
-		'ArrowFunctionExpression[async=true] > .body',
+		'ArrowFunctionExpression > .body',
 		'ReturnStatement > .argument',
 		'YieldExpression[delegate=false] > .argument',
 	]),
@@ -40,9 +40,26 @@ function getFunctionNode(node) {
 		}
 	}
 
+	let isInPromiseThenOrCatchCallback = false;
+	if (
+		node
+		&& node.parent
+		&& node.parent.type === 'CallExpression'
+		&& node.parent.callee.type === 'MemberExpression'
+		&& node.parent.callee.property.type === 'Identifier'
+	) {
+		const {callee: {property}, arguments: arguments_} = node.parent;
+		if (property.name === 'then') {
+			isInPromiseThenOrCatchCallback = arguments_[0] === node || arguments_[1] === node;
+		} else if (property.name === 'catch') {
+			isInPromiseThenOrCatchCallback = arguments_[0] === node;
+		}
+	}
+
 	return {
 		functionNode,
 		isInTryStatement,
+		isInPromiseThenOrCatchCallback,
 	};
 }
 
@@ -59,17 +76,16 @@ function createProblem(callExpression, fix) {
 	};
 }
 
-function fix(callExpression, isInTryStatement, sourceCode) {
+function fix(callExpression, isReject, isInTryStatement, sourceCode) {
 	if (callExpression.arguments.length > 1) {
 		return;
 	}
 
-	const {callee, parent, arguments: [errorOrValue]} = callExpression;
+	const {parent, arguments: [errorOrValue]} = callExpression;
 	if (errorOrValue && errorOrValue.type === 'SpreadElement') {
 		return;
 	}
 
-	const isReject = callee.property.name === 'reject';
 	const isYieldExpression = parent.type === 'YieldExpression';
 	if (
 		isReject
@@ -141,14 +157,15 @@ const create = context => {
 
 	return {
 		[selector](callExpression) {
-			const {functionNode, isInTryStatement} = getFunctionNode(callExpression);
-			if (!functionNode || !functionNode.async) {
+			const isReject = callExpression.callee.property.name === 'reject';
+			const {functionNode, isInTryStatement, isInPromiseThenOrCatchCallback} = getFunctionNode(callExpression);
+			if (!functionNode || (!functionNode.async && (!isInPromiseThenOrCatchCallback || isReject))) {
 				return;
 			}
 
 			return createProblem(
 				callExpression,
-				fix(callExpression, isInTryStatement, sourceCode),
+				fix(callExpression, isReject, isInTryStatement, sourceCode),
 			);
 		},
 	};
