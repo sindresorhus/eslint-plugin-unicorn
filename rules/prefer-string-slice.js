@@ -1,6 +1,6 @@
 'use strict';
-const eslintTemplateVisitor = require('eslint-template-visitor');
 const {getParenthesizedText} = require('./utils/parentheses.js');
+const {methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -9,13 +9,8 @@ const messages = {
 	[MESSAGE_ID_SUBSTRING]: 'Prefer `String#slice()` over `String#substring()`.',
 };
 
-const templates = eslintTemplateVisitor();
-
-const objectVariable = templates.variable();
-const argumentsVariable = templates.spreadVariable();
-
-const substrCallTemplate = templates.template`${objectVariable}.substr(${argumentsVariable})`;
-const substringCallTemplate = templates.template`${objectVariable}.substring(${argumentsVariable})`;
+const substrCallSelector = methodCallSelector({method: 'substr', includeOptionalMember: true, includeOptionalCall: true});
+const substringCallSelector = methodCallSelector({method: 'substring', includeOptionalMember: true, includeOptionalCall: true});
 
 const isLiteralNumber = node => node && node.type === 'Literal' && typeof node.value === 'number';
 
@@ -44,10 +39,10 @@ const isLikelyNumeric = node => isLiteralNumber(node) || isLengthProperty(node);
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
-	return templates.visitor({
-		[substrCallTemplate](node) {
-			const objectNode = substrCallTemplate.context.getMatch(objectVariable);
-			const argumentNodes = substrCallTemplate.context.getMatch(argumentsVariable);
+	return {
+		[substrCallSelector](node) {
+			const objectNode = node.callee.object;
+			const argumentNodes = node.arguments;
 
 			const problem = {
 				node,
@@ -111,9 +106,9 @@ const create = context => {
 			context.report(problem);
 		},
 
-		[substringCallTemplate](node) {
-			const objectNode = substringCallTemplate.context.getMatch(objectVariable);
-			const argumentNodes = substringCallTemplate.context.getMatch(argumentsVariable);
+		[substringCallSelector](node) {
+			const objectNode = node.callee.object;
+			const argumentNodes = node.arguments;
 
 			const problem = {
 				node,
@@ -178,7 +173,7 @@ const create = context => {
 
 			context.report(problem);
 		},
-	});
+	};
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
