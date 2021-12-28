@@ -49,7 +49,6 @@
 		"@babel/helper-validator-identifier": "^7.15.7",
 		"ci-info": "^3.3.0",
 		"clean-regexp": "^1.0.0",
-		"eslint-template-visitor": "^2.3.2",
 		"eslint-utils": "^3.0.0",
 		"esquery": "^1.4.0",
 		"indent-string": "^4.0.0",
