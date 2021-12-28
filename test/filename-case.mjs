@@ -379,6 +379,16 @@ test({
 			undefined,
 			'Filename is not in kebab case. Rename it to `[foo-bar].js`.',
 		),
+		testCase(
+			'src/foo/$foo_bar.js',
+			undefined,
+			'Filename is not in kebab case. Rename it to `$foo-bar.js`.',
+		),
+		testCase(
+			'src/foo/$fooBar.js',
+			undefined,
+			'Filename is not in kebab case. Rename it to `$foo-bar.js`.',
+		),
 		testManyCases(
 			'src/foo/{foo_bar}.js',
 			{
