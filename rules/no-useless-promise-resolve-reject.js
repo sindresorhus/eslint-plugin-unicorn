@@ -182,7 +182,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow returning/yielding `Promise.resolve/reject()` in async functions',
+			description: 'Disallow returning/yielding `Promise.resolve/reject()` in async functions or promise callbacks',
 		},
 		fixable: 'code',
 		schema,
