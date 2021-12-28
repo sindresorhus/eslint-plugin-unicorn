@@ -83,6 +83,7 @@ test({
 		'promise.then(x, y, () => Promise.resolve(foo))',
 		'promise.catch(x, () => Promise.resolve(foo))',
 		'promise.finally(x, () => Promise.resolve(foo))',
+		'promise[then](() => Promise.resolve(foo))',
 	],
 	invalid: [
 		{
