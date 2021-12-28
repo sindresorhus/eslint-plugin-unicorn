@@ -17,7 +17,7 @@ const selector = [
 	matches([
 		'ArrowFunctionExpression > .body',
 		'ReturnStatement > .argument',
-		'YieldExpression[delegate=false] > .argument',
+		'YieldExpression[delegate!] > .argument',
 	]),
 ].join('');
 
