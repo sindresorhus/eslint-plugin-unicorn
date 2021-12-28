@@ -1,7 +1,6 @@
 'use strict';
 const {defaultsDeep} = require('lodash');
 const {getStringIfConstant} = require('eslint-utils');
-const eslintTemplateVisitor = require('eslint-template-visitor');
 const {callExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'importStyle';
@@ -131,24 +130,18 @@ const defaultStyles = {
 	},
 };
 
-const templates = eslintTemplateVisitor({
-	parserOptions: {
-		sourceType: 'module',
-		ecmaVersion: 2018,
-	},
-});
+const assignedDynamicImportSelector = [
+	'VariableDeclarator',
+	'[init.type="AwaitExpression"]',
+	'[init.argument.type="ImportExpression"]',
+].join('');
 
-const variableDeclarationVariable = templates.variableDeclarationVariable();
-const assignmentTargetVariable = templates.variable();
-const moduleNameVariable = templates.variable();
-
-const assignedDynamicImportTemplate = templates.template`async () => {
-	${variableDeclarationVariable} ${assignmentTargetVariable} = await import(${moduleNameVariable});
-}`.narrow('BlockStatement > :has(AwaitExpression)');
-
-const assignedRequireTemplate = templates.template`
-	${variableDeclarationVariable} ${assignmentTargetVariable} = require(${moduleNameVariable});
-`;
+const assignedRequireSelector = [
+	'VariableDeclarator',
+	'[init.type="CallExpression"]',
+	'[init.callee.type="Identifier"]',
+	'[init.callee.name="require"]',
+].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -235,9 +228,9 @@ const create = context => {
 				report(node, moduleName, actualImportStyles, allowedImportStyles);
 			},
 
-			[assignedDynamicImportTemplate](node) {
-				const assignmentTargetNode = assignedDynamicImportTemplate.context.getMatch(assignmentTargetVariable);
-				const moduleNameNode = assignedDynamicImportTemplate.context.getMatch(moduleNameVariable);
+			[assignedDynamicImportSelector](node) {
+				const assignmentTargetNode = node.id;
+				const moduleNameNode = node.init.argument.source;
 				const moduleName = getStringIfConstant(moduleNameNode, context.getScope());
 
 				if (!moduleName) {
@@ -288,9 +281,9 @@ const create = context => {
 				report(node, moduleName, actualImportStyles, allowedImportStyles, true);
 			},
 
-			[assignedRequireTemplate](node) {
-				const assignmentTargetNode = assignedRequireTemplate.context.getMatch(assignmentTargetVariable);
-				const moduleNameNode = assignedRequireTemplate.context.getMatch(moduleNameVariable);
+			[assignedRequireSelector](node) {
+				const assignmentTargetNode = node.id;
+				const moduleNameNode = node.init.arguments[0];
 				const moduleName = getStringIfConstant(moduleNameNode, context.getScope());
 
 				if (!moduleName) {
@@ -305,7 +298,7 @@ const create = context => {
 		};
 	}
 
-	return templates.visitor(visitor);
+	return visitor;
 };
 
 const schema = {
