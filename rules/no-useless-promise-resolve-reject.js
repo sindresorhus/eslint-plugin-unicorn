@@ -48,14 +48,14 @@ function getFunctionNode(node) {
 
 function isPromiseCallback(node) {
 	if (
-		node.parent
-		&& node.parent.type === 'CallExpression'
+		node.parent.type === 'CallExpression'
 		&& node.parent.callee.type === 'MemberExpression'
 		&& !node.parent.callee.computed
+		&& node.parent.callee.property.type === 'Identifier'
 	) {
 		const {callee: {property}, arguments: arguments_} = node.parent;
 		if (property.name === 'then') {
-			return arguments_[0] === node || arguments_[1] === node;
+			return arguments_[0] === node || (arguments_[0].type !== 'SpreadElement' && arguments_[1] === node);
 		}
 
 		if (property.name === 'catch' || property.name === 'finally') {
