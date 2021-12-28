@@ -93,6 +93,11 @@ test({
 			errors: errorsSubstr,
 		},
 		{
+			code: '"foo".substr(bar.length, Math.min(baz, 100))',
+			output: '"foo".slice(bar.length, bar.length + Math.min(baz, 100))',
+			errors: errorsSubstr,
+		},
+		{
 			code: '"foo".substr(1, length)',
 			errors: errorsSubstr,
 		},
