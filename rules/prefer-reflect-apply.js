@@ -1,6 +1,6 @@
 'use strict';
 const isLiteralValue = require('./utils/is-literal-value.js');
-const getPropertyName = require('./utils/get-property-name.js');
+const getKeyName = require('./utils/get-key-name.js');
 const {not, methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-reflect-apply';
@@ -31,7 +31,7 @@ const getReflectApplyCall = (sourceCode, target, receiver, argumentsList) => (
 
 const fixDirectApplyCall = (node, sourceCode) => {
 	if (
-		getPropertyName(node.callee) === 'apply'
+		getKeyName(node.callee) === 'apply'
 		&& node.arguments.length === 2
 		&& isApplySignature(node.arguments[0], node.arguments[1])
 	) {
@@ -46,9 +46,9 @@ const fixDirectApplyCall = (node, sourceCode) => {
 
 const fixFunctionPrototypeCall = (node, sourceCode) => {
 	if (
-		getPropertyName(node.callee) === 'call'
-		&& getPropertyName(node.callee.object) === 'apply'
-		&& getPropertyName(node.callee.object.object) === 'prototype'
+		getKeyName(node.callee) === 'call'
+		&& getKeyName(node.callee.object) === 'apply'
+		&& getKeyName(node.callee.object.object) === 'prototype'
 		&& node.callee.object.object.object
 		&& node.callee.object.object.object.type === 'Identifier'
 		&& node.callee.object.object.object.name === 'Function'

@@ -1,7 +1,6 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
 const {methodCallSelector} = require('./selectors/index.js');
-const getPropertyName = require('./utils/get-property-name.js');
 const getKeyName = require('./utils/get-key-name.js');
 
 const MESSAGE_ID_OBJECT = 'no-thenable-object';
@@ -42,7 +41,7 @@ const cases = [
 	// `foo[computedKey] = …`
 	{
 		selector: 'AssignmentExpression > MemberExpression.left > .property',
-		test: (node, context) => getPropertyName(node.parent, context.getScope()) === 'then',
+		test: (node, context) => getKeyName(node.parent, context.getScope()) === 'then',
 		messageId: MESSAGE_ID_OBJECT,
 	},
 	// `Object.defineProperty(foo, 'then', …)`

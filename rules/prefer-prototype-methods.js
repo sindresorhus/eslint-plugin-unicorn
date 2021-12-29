@@ -5,7 +5,7 @@ const {
 	emptyArraySelector,
 	matches,
 } = require('./selectors/index.js');
-const getPropertyName = require('./utils/get-property-name.js');
+const getKeyName = require('./utils/get-key-name.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const messages = {
@@ -41,7 +41,7 @@ function create(context) {
 	return {
 		[selector](node) {
 			const constructorName = node.object.type === 'ArrayExpression' ? 'Array' : 'Object';
-			const methodName = getPropertyName(node, context.getScope());
+			const methodName = getKeyName(node, context.getScope());
 
 			return {
 				node,
