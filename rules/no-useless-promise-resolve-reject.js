@@ -54,12 +54,26 @@ function isPromiseCallback(node) {
 		&& node.parent.callee.property.type === 'Identifier'
 	) {
 		const {callee: {property}, arguments: arguments_} = node.parent;
-		if (property.name === 'then') {
-			return arguments_[0] === node || (arguments_[0].type !== 'SpreadElement' && arguments_[1] === node);
+
+		if (
+			arguments_.length === 1
+			&& (
+				property.name === 'then'
+				|| property.name === 'catch'
+				|| property.name === 'finally'
+			)
+			&& arguments_[0] === node
+		) {
+			return true;
 		}
 
-		if (property.name === 'catch' || property.name === 'finally') {
-			return arguments_[0] === node;
+		if (
+			arguments_.length === 2
+			&& property.name === 'then'
+			&& arguments_[0].type !== 'SpreadElement'
+			&& arguments_[1] === node
+		) {
+			return true;
 		}
 	}
 
