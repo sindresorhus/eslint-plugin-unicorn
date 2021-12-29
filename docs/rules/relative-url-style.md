@@ -4,7 +4,7 @@
 
 🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
 
-When using a relative url in [`new URL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/URL), the path should be always or never use `./` prefix.
+When using a relative url in [`new URL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/URL), the path should be never or always use `./` prefix.
 
 ## Fail
 
@@ -30,6 +30,6 @@ Default: `'never'`
 
 ```js
 // eslint unicorn/relative-url-style.md: ["error", "always"]
-const url = new URL('foo', base); // Invalid
-const url = new URL('/foo', base); // Valid
+const url = new URL('foo', base); // Fail
+const url = new URL('/foo', base); // Pass
 ```

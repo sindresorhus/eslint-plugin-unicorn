@@ -1,4 +1,4 @@
-import outdent from 'outdent';
+/* eslint-disable no-template-curly-in-string */
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);

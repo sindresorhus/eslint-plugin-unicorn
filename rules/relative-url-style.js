@@ -24,7 +24,7 @@ function removeDotSlash(node) {
 		&& node.quasis[0].value.raw.startsWith(DOT_SLASH)
 	) {
 		const firstPart = node.quasis[0];
-		return (fixer) => {
+		return fixer => {
 			const start = firstPart.range[0] + 1;
 			return fixer.removeRange([start, start + 2]);
 		};
@@ -40,7 +40,7 @@ function removeDotSlash(node) {
 		return;
 	}
 
-	return fixer => replaceStringLiteral(fixer, node, '', 0, 2)
+	return fixer => replaceStringLiteral(fixer, node, '', 0, 2);
 }
 
 function addDotSlash(node) {
@@ -62,14 +62,14 @@ function addDotSlash(node) {
 		return;
 	}
 
-	return fixer => replaceStringLiteral(fixer, node, DOT_SLASH, 0, 0)
+	return fixer => replaceStringLiteral(fixer, node, DOT_SLASH, 0, 0);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const style = context.options[0] || 'never';
 	return {[selector](node) {
-		const fix = (style === 'never' ? removeDotSlash : addDotSlash)(node)
+		const fix = (style === 'never' ? removeDotSlash : addDotSlash)(node);
 
 		if (!fix) {
 			return;
@@ -79,7 +79,7 @@ const create = context => {
 			node,
 			messageId: style,
 			fix,
-		}
+		};
 	}};
 };
 
