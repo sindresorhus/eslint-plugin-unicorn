@@ -9,7 +9,6 @@ const newFoo = 'foo';
 const classFoo = 'foo';
 ```
 
-
 ## Pass
 
 ```js
@@ -18,7 +17,6 @@ const _newFoo = 'foo';
 const new_foo = 'foo';
 const fooNew = 'foo';
 ```
-
 
 ## Options
 

@@ -1,7 +1,6 @@
 'use strict';
 const {defaultsDeep} = require('lodash');
 const {getStringIfConstant} = require('eslint-utils');
-const eslintTemplateVisitor = require('eslint-template-visitor');
 const {callExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'importStyle';
@@ -131,25 +130,20 @@ const defaultStyles = {
 	},
 };
 
-const templates = eslintTemplateVisitor({
-	parserOptions: {
-		sourceType: 'module',
-		ecmaVersion: 2018,
-	},
-});
+const assignedDynamicImportSelector = [
+	'VariableDeclarator',
+	'[init.type="AwaitExpression"]',
+	'[init.argument.type="ImportExpression"]',
+].join('');
 
-const variableDeclarationVariable = templates.variableDeclarationVariable();
-const assignmentTargetVariable = templates.variable();
-const moduleNameVariable = templates.variable();
+const assignedRequireSelector = [
+	'VariableDeclarator',
+	'[init.type="CallExpression"]',
+	'[init.callee.type="Identifier"]',
+	'[init.callee.name="require"]',
+].join('');
 
-const assignedDynamicImportTemplate = templates.template`async () => {
-	${variableDeclarationVariable} ${assignmentTargetVariable} = await import(${moduleNameVariable});
-}`.narrow('BlockStatement > :has(AwaitExpression)');
-
-const assignedRequireTemplate = templates.template`
-	${variableDeclarationVariable} ${assignmentTargetVariable} = require(${moduleNameVariable});
-`;
-
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	let [
 		{
@@ -234,9 +228,9 @@ const create = context => {
 				report(node, moduleName, actualImportStyles, allowedImportStyles);
 			},
 
-			[assignedDynamicImportTemplate](node) {
-				const assignmentTargetNode = assignedDynamicImportTemplate.context.getMatch(assignmentTargetVariable);
-				const moduleNameNode = assignedDynamicImportTemplate.context.getMatch(moduleNameVariable);
+			[assignedDynamicImportSelector](node) {
+				const assignmentTargetNode = node.id;
+				const moduleNameNode = node.init.argument.source;
 				const moduleName = getStringIfConstant(moduleNameNode, context.getScope());
 
 				if (!moduleName) {
@@ -287,9 +281,9 @@ const create = context => {
 				report(node, moduleName, actualImportStyles, allowedImportStyles, true);
 			},
 
-			[assignedRequireTemplate](node) {
-				const assignmentTargetNode = assignedRequireTemplate.context.getMatch(assignmentTargetVariable);
-				const moduleNameNode = assignedRequireTemplate.context.getMatch(moduleNameVariable);
+			[assignedRequireSelector](node) {
+				const assignmentTargetNode = node.id;
+				const moduleNameNode = node.init.arguments[0];
 				const moduleName = getStringIfConstant(moduleNameNode, context.getScope());
 
 				if (!moduleName) {
@@ -304,62 +298,67 @@ const create = context => {
 		};
 	}
 
-	return templates.visitor(visitor);
+	return visitor;
 };
 
-const schema = [
-	{
-		type: 'object',
-		properties: {
-			checkImport: {
-				type: 'boolean',
-			},
-			checkDynamicImport: {
-				type: 'boolean',
-			},
-			checkExportFrom: {
-				type: 'boolean',
-			},
-			checkRequire: {
-				type: 'boolean',
-			},
-			extendDefaultStyles: {
-				type: 'boolean',
-			},
-			styles: {
-				$ref: '#/items/0/definitions/moduleStyles',
-			},
-		},
-		additionalProperties: false,
-		definitions: {
-			moduleStyles: {
-				type: 'object',
-				additionalProperties: {
-					$ref: '#/items/0/definitions/styles',
-				},
-			},
-			styles: {
-				anyOf: [
-					{
-						enum: [
-							false,
-						],
-					},
-					{
-						$ref: '#/items/0/definitions/booleanObject',
-					},
-				],
-			},
-			booleanObject: {
-				type: 'object',
-				additionalProperties: {
+const schema = {
+	type: 'array',
+	additionalItems: false,
+	items: [
+		{
+			type: 'object',
+			additionalProperties: false,
+			properties: {
+				checkImport: {
 					type: 'boolean',
 				},
+				checkDynamicImport: {
+					type: 'boolean',
+				},
+				checkExportFrom: {
+					type: 'boolean',
+				},
+				checkRequire: {
+					type: 'boolean',
+				},
+				extendDefaultStyles: {
+					type: 'boolean',
+				},
+				styles: {
+					$ref: '#/definitions/moduleStyles',
+				},
+			},
+		},
+	],
+	definitions: {
+		moduleStyles: {
+			type: 'object',
+			additionalProperties: {
+				$ref: '#/definitions/styles',
+			},
+		},
+		styles: {
+			anyOf: [
+				{
+					enum: [
+						false,
+					],
+				},
+				{
+					$ref: '#/definitions/booleanObject',
+				},
+			],
+		},
+		booleanObject: {
+			type: 'object',
+			additionalProperties: {
+				type: 'boolean',
 			},
 		},
 	},
-];
+};
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

@@ -16,9 +16,13 @@ test.snapshot({
 		'class A { constructor() {} }',
 		'class A { get a() {} }',
 		'class A { set a(value) {} }',
-		// TODO: enable this test when ESLint support `StaticBlock`
+		// `private`
+		'class A3 { static #a() {}; }',
+		'class A3 { static #a = 1; }',
+		'const A3 = class { static #a() {}; }',
+		'const A3 = class { static #a = 1; }',
 		// Static block
-		// 'class A2 { static {}; }',
+		'class A2 { static {}; }',
 	],
 	invalid: [
 		'class A { static a() {}; }',
@@ -216,6 +220,11 @@ test.babel({
 		},
 	},
 	valid: [
+		// `private`
+		'class A2 { static #a() {}; }',
+		'class A2 { static #a = 1; }',
+		'const A2 = class { static #a() {}; }',
+		'const A2 = class { static #a = 1; }',
 		// Static block
 		'class A2 { static {}; }',
 	],

@@ -4,6 +4,7 @@ import {createRequire} from 'node:module';
 import test from 'ava';
 import {ESLint} from 'eslint';
 import index from '../index.js';
+import ruleDescriptionToDocumentTitle from './utils/rule-description-to-document-title.mjs';
 
 const require = createRequire(import.meta.url);
 let ruleFiles;
@@ -31,6 +32,43 @@ const testSorted = (t, actualOrder, sourceName) => {
 		t.is(actualIndex, wantedIndex, `${sourceName} should be alphabetically sorted, '${name}' should be placed at index ${wantedIndex}${whereMessage}`);
 	}
 };
+
+/**
+Get list of named options from a JSON schema (used for rule schemas).
+
+@param {object | Array} jsonSchema - The JSON schema to check.
+@returns {string[]} A list of named options.
+*/
+function getNamedOptions(jsonSchema) {
+	if (!jsonSchema) {
+		return [];
+	}
+
+	if (Array.isArray(jsonSchema)) {
+		return jsonSchema.flatMap(item => getNamedOptions(item));
+	}
+
+	if (jsonSchema.items) {
+		return getNamedOptions(jsonSchema.items);
+	}
+
+	if (jsonSchema.properties) {
+		return Object.keys(jsonSchema.properties);
+	}
+
+	return [];
+}
+
+const MESSAGES = {
+	configRecommended: '✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*',
+	fixable: '🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*',
+	fixableAndHasSuggestions: '🔧💡 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) and provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*',
+	hasSuggestions: '💡 *This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*',
+};
+
+const RULES_WITHOUT_PASS_FAIL_SECTIONS = new Set([
+	'filename-case', // Doesn't show code samples since it's just focused on filenames.
+]);
 
 test('Every rule is defined in index file in alphabetical order', t => {
 	for (const file of ruleFiles) {
@@ -146,5 +184,96 @@ test('Every deprecated rules listed in docs/deprecated-rules.md', async t => {
 		t.is(typeof rule.create, 'function', `${name} create is not function`);
 		t.deepEqual(rule.create(), {}, `${name} create should return empty object`);
 		t.true(rule.meta.deprecated, `${name} meta.deprecated should be true`);
+	}
+});
+
+test('Every rule file has the appropriate contents', t => {
+	for (const ruleFile of ruleFiles) {
+		const ruleName = path.basename(ruleFile, '.js');
+		const rulePath = path.join('rules', `${ruleName}.js`);
+		const ruleContents = fs.readFileSync(rulePath, 'utf8');
+
+		t.true(ruleContents.includes('/** @type {import(\'eslint\').Rule.RuleModule} */'), `${ruleName} includes jsdoc comment for rule type`);
+	}
+});
+
+test('Every rule has a doc with the appropriate content', t => {
+	for (const ruleFile of ruleFiles) {
+		const ruleName = path.basename(ruleFile, '.js');
+		const rule = index.rules[ruleName];
+		const documentPath = path.join('docs/rules', `${ruleName}.md`);
+		const documentContents = fs.readFileSync(documentPath, 'utf8');
+		const documentLines = documentContents.split('\n');
+
+		// Check title.
+		const expectedTitle = `# ${ruleDescriptionToDocumentTitle(rule.meta.docs.description)}`;
+		t.is(documentLines[0], expectedTitle, `${ruleName} includes the rule description in title`);
+
+		// Check for examples.
+		if (!RULES_WITHOUT_PASS_FAIL_SECTIONS.has(ruleName)) {
+			t.true(documentContents.includes('## Pass'), `${ruleName} includes '## Pass' examples section`);
+			t.true(documentContents.includes('## Fail'), `${ruleName} includes '## Fail' examples section`);
+		}
+
+		// Check if the rule has configuration options.
+		if (
+			(Array.isArray(rule.meta.schema) && rule.meta.schema.length > 0)
+			|| (typeof rule.meta.schema === 'object' && Object.keys(rule.meta.schema).length > 0)
+		) {
+			// Should have an options section header:
+			t.true(documentContents.includes('## Options'), `${ruleName} should have an "## Options" section`);
+
+			// Ensure all configuration options are mentioned.
+			for (const namedOption of getNamedOptions(rule.meta.schema)) {
+				t.true(documentContents.includes(namedOption), `${ruleName} should mention the \`${namedOption}\` option`);
+			}
+		} else {
+			// Should NOT have any options/config section headers:
+			t.false(documentContents.includes('# Options'), `${ruleName} should not have an "Options" section`);
+			t.false(documentContents.includes('# Config'), `${ruleName} should not have a "Config" section`);
+		}
+
+		// Decide which notices should be shown at the top of the doc.
+		const expectedNotices = [];
+		const unexpectedNotices = [];
+		if (['error', 'warn'].includes(index.configs.recommended.rules[`unicorn/${ruleName}`])) {
+			expectedNotices.push('configRecommended');
+		} else {
+			unexpectedNotices.push('configRecommended');
+		}
+
+		if (rule.meta.fixable && rule.meta.hasSuggestions) {
+			expectedNotices.push('fixableAndHasSuggestions');
+		} else {
+			unexpectedNotices.push('fixableAndHasSuggestions');
+		}
+
+		if (rule.meta.fixable && !rule.meta.hasSuggestions) {
+			expectedNotices.push('fixable');
+		} else {
+			unexpectedNotices.push('fixable');
+		}
+
+		if (!rule.meta.fixable && rule.meta.hasSuggestions) {
+			expectedNotices.push('hasSuggestions');
+		} else {
+			unexpectedNotices.push('hasSuggestions');
+		}
+
+		// Ensure that expected notices are present in the correct order.
+		let currentLineNumber = 1;
+		for (const expectedNotice of expectedNotices) {
+			t.is(documentLines[currentLineNumber], '', `${ruleName} has blank line before ${expectedNotice} notice`);
+			t.is(documentLines[currentLineNumber + 1], MESSAGES[expectedNotice], `${ruleName} includes ${expectedNotice} notice`);
+			currentLineNumber += 2;
+		}
+
+		// Ensure that unexpected notices are not present.
+		for (const unexpectedNotice of unexpectedNotices) {
+			t.false(
+				documentContents.includes(MESSAGES[unexpectedNotice]),
+				`${ruleName} does not include unexpected ${unexpectedNotice} notice`,
+			);
+		}
 	}
 });

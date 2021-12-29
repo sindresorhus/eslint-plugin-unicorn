@@ -88,6 +88,7 @@ function create(context) {
 	};
 }
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -95,7 +96,7 @@ module.exports = {
 		docs: {
 			description: 'Prefer top-level await over top-level promises and async function calls.',
 		},
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

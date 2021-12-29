@@ -80,6 +80,7 @@ const isUnusedVariable = variable => {
 	return !hasReadReference;
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const getPropertyDisplayName = property => {
 		if (property.key.type === 'Identifier') {
@@ -90,7 +91,7 @@ const create = context => {
 			return property.key.value;
 		}
 
-		return context.getSource(property.key);
+		return context.getSourceCode().getText(property.key);
 	};
 
 	const checkProperty = (property, references, path) => {
@@ -225,6 +226,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

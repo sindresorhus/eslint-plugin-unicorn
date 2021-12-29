@@ -25,6 +25,7 @@ const selector = callOrNewExpressionSelector([
 	'AggregateError',
 ]);
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector](expression) {
 		if (isShadowed(context.getScope(), expression.callee)) {
@@ -82,6 +83,7 @@ const create = context => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

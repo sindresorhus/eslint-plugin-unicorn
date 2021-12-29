@@ -89,6 +89,7 @@ const getFunction = scope => {
 	}
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const listener = (fix, checkFunctionReturnType) => node => {
 		if (checkFunctionReturnType) {
@@ -172,7 +173,7 @@ const create = context => {
 						start = previousArgument.range[1];
 					} else {
 						// If all arguments removed, and there is trailing comma, we need remove it.
-						const tokenAfter = context.getTokenAfter(lastUndefined);
+						const tokenAfter = sourceCode.getTokenAfter(lastUndefined);
 						if (isCommaToken(tokenAfter)) {
 							end = tokenAfter.range[1];
 						}
@@ -190,15 +191,16 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			checkArguments: {
 				type: 'boolean',
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

@@ -124,6 +124,7 @@ const isMultipleCall = (identifier, node) => {
 	return false;
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector]: node => {
 		const variable = findVariable(context.getScope(), node);
@@ -186,6 +187,7 @@ const create = context => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -194,7 +196,7 @@ module.exports = {
 			description: 'Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

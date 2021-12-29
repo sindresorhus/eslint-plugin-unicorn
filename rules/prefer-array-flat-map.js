@@ -19,6 +19,7 @@ const selector = [
 
 const ignored = ['React.Children', 'Children'];
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector](flatCallExpression) {
 		const mapCallExpression = flatCallExpression.callee.object;
@@ -52,6 +53,7 @@ const create = context => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

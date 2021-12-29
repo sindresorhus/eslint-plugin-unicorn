@@ -61,6 +61,7 @@ function getReplacements(patterns) {
 		});
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {patterns} = {
 		patterns: {},
@@ -136,6 +137,7 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			patterns: {
 				type: 'object',
@@ -167,10 +169,10 @@ const schema = [
 					],
 				}},
 		},
-		additionalProperties: false,
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -179,8 +181,8 @@ module.exports = {
 			description: 'Enforce better string content.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		messages,
-		hasSuggestions: true,
 	},
 };

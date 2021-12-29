@@ -320,6 +320,7 @@ function isClassName(node) {
 	return /^[A-Z]./.test(name) && name.toUpperCase() !== name;
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
@@ -446,6 +447,7 @@ const create = context => {
 					return;
 				}
 
+				// eslint-disable-next-line unicorn/prefer-spread
 				const resultBySplit = value.split('');
 				const resultBySpread = [...value];
 
@@ -474,6 +476,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -482,7 +485,7 @@ module.exports = {
 			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#slice()` and `String#split(\'\')`.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

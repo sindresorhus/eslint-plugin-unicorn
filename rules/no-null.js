@@ -32,6 +32,7 @@ const selector = [
 const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].includes(node.operator);
 const isStrictEqual = node => node.type === 'BinaryExpression' && ['===', '!=='].includes(node.operator);
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {checkStrictEquality} = {
 		checkStrictEquality: false,
@@ -93,16 +94,17 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			checkStrictEquality: {
 				type: 'boolean',
 				default: false,
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -111,8 +113,8 @@ module.exports = {
 			description: 'Disallow the use of the `null` literal.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		messages,
-		hasSuggestions: true,
 	},
 };

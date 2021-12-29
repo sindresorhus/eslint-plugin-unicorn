@@ -111,6 +111,7 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 	};
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[replaceChildOrInsertBeforeSelector](node) {
 		return checkForReplaceChildOrInsertBefore(context, node);
@@ -120,6 +121,7 @@ const create = context => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

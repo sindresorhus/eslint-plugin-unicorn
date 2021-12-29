@@ -32,6 +32,7 @@ const selector = matches([
 	].join(''),
 ]);
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = {
 		name: 'error',
@@ -100,6 +101,7 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			name: {
 				type: 'string',
@@ -112,6 +114,7 @@ const schema = [
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

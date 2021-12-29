@@ -29,6 +29,7 @@ const selector = [
 	]),
 ].join('');
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector]: node => ({
 		node,
@@ -37,6 +38,7 @@ const create = context => ({
 	}),
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

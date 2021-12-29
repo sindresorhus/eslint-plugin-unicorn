@@ -51,6 +51,7 @@ const isChildInParentScope = (child, parent) => {
 	return false;
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const source = context.getSourceCode();
 	const declarations = new Map();
@@ -149,6 +150,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -157,10 +159,10 @@ module.exports = {
 			description: 'Use destructured variables over properties.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages: {
 			[MESSAGE_ID]: 'Use destructured variables over properties.',
 			[MESSAGE_ID_SUGGEST]: 'Replace `{{expression}}` with destructured property `{{property}}`.',
 		},
-		hasSuggestions: true,
 	},
 };

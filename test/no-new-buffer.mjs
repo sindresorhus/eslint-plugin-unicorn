@@ -44,6 +44,8 @@ test.snapshot({
 			const size = 10;
 			const buffer = new Buffer(size);
 		`,
+		'new Buffer(foo.length)',
+		'new Buffer(Math.min(foo, bar))',
 
 		// `new Buffer(string[, encoding])`
 		// https://nodejs.org/api/buffer.html#buffer_new_buffer_string_encoding

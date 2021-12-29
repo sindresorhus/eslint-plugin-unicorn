@@ -5,7 +5,8 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import enquirer from 'enquirer';
 import {template} from 'lodash-es';
-import execa from 'execa';
+import {execa} from 'execa';
+import ruleDescriptionToDocumentTitle from '../test/utils/rule-description-to-document-title.mjs';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(dirname, '..');
@@ -137,6 +138,8 @@ function updateRecommended(id) {
 	if (data.fixableType === 'No') {
 		data.fixableType = false;
 	}
+
+	data.docTitle = ruleDescriptionToDocumentTitle(data.description);
 
 	const {id} = data;
 

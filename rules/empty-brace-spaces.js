@@ -11,10 +11,9 @@ const selector = matches([
 	'BlockStatement[body.length=0]',
 	'ClassBody[body.length=0]',
 	'ObjectExpression[properties.length=0]',
+	'StaticBlock[body.length=0]',
 	// Experimental https://github.com/tc39/proposal-record-tuple
 	'RecordExpression[properties.length=0]',
-	// Experimental https://github.com/tc39/proposal-class-static-block
-	'StaticBlock[body.length=0]',
 ]);
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -45,6 +44,7 @@ const create = context => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

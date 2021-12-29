@@ -10,6 +10,7 @@ const messages = {
 const extraMessages = {
 	beforeunload: 'Use `event.preventDefault(); event.returnValue = \'foo\'` to trigger the prompt.',
 	message: 'Note that there is difference between `SharedWorker#onmessage` and `SharedWorker#addEventListener(\'message\')`.',
+	error: 'Note that there is difference between `{window,element}.onerror` and `{window,element}.addEventListener(\'error\')`.',
 };
 
 const getEventMethodName = memberExpression => memberExpression.property.name;
@@ -58,6 +59,7 @@ const isClearing = node => {
 	return false;
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = context.options[0] || {};
 	const excludedPackages = new Set(options.excludedPackages || ['koa', 'sax']);
@@ -136,6 +138,9 @@ const create = context => {
 			} else if (eventTypeName === 'message') {
 				// Disable `onmessage` fix, see #537
 				extra = extraMessages.message;
+			} else if (eventTypeName === 'error') {
+				// Disable `onerror` fix, see #1493
+				extra = extraMessages.error;
 			} else {
 				fix = fixer => fixCode(fixer, context.getSourceCode(), node, memberExpression);
 			}
@@ -157,6 +162,7 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			excludedPackages: {
 				type: 'array',
@@ -166,10 +172,10 @@ const schema = [
 				uniqueItems: true,
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

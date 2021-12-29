@@ -99,6 +99,7 @@ const fix = (node, identifierName, preferredSelector) => {
 	};
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	[selector](node) {
 		const method = node.callee.property.name;
@@ -121,6 +122,7 @@ const create = () => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

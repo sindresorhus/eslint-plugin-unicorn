@@ -292,15 +292,10 @@ const shouldReportIdentifierAsProperty = identifier => {
 	}
 
 	if (
-		identifier.parent.type === 'MethodDefinition'
-		&& identifier.parent.key === identifier
-		&& !identifier.parent.computed
-	) {
-		return true;
-	}
-
-	if (
-		(identifier.parent.type === 'ClassProperty' || identifier.parent.type === 'PropertyDefinition')
+		(
+			identifier.parent.type === 'MethodDefinition'
+			|| identifier.parent.type === 'PropertyDefinition'
+		)
 		&& identifier.parent.key === identifier
 		&& !identifier.parent.computed
 	) {
@@ -325,6 +320,7 @@ const isInternalImport = node => {
 	);
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = prepareOptions(context.options[0]);
 	const filenameWithExtension = context.getPhysicalFilename();
@@ -507,9 +503,9 @@ const create = context => {
 				return;
 			}
 
-			const extension = path.extname(filenameWithExtension);
-			const filename = path.basename(filenameWithExtension, extension);
-			const filenameReplacements = getNameReplacements(filename, options);
+			const filename = path.basename(filenameWithExtension);
+			const extension = path.extname(filename);
+			const filenameReplacements = getNameReplacements(path.basename(filename, extension), options);
 
 			if (filenameReplacements.total === 0) {
 				return;
@@ -518,7 +514,7 @@ const create = context => {
 			filenameReplacements.samples = filenameReplacements.samples.map(replacement => `${replacement}${extension}`);
 
 			context.report({
-				...getMessage(filenameWithExtension, filenameReplacements, 'filename'),
+				...getMessage(filename, filenameReplacements, 'filename'),
 				node,
 			});
 		},
@@ -533,83 +529,88 @@ const create = context => {
 	};
 };
 
-const schema = [
-	{
-		type: 'object',
-		properties: {
-			checkProperties: {
-				type: 'boolean',
-			},
-			checkVariables: {
-				type: 'boolean',
-			},
-			checkDefaultAndNamespaceImports: {
-				type: [
-					'boolean',
-					'string',
-				],
-				pattern: 'internal',
-			},
-			checkShorthandImports: {
-				type: [
-					'boolean',
-					'string',
-				],
-				pattern: 'internal',
-			},
-			checkShorthandProperties: {
-				type: 'boolean',
-			},
-			checkFilenames: {
-				type: 'boolean',
-			},
-			extendDefaultReplacements: {
-				type: 'boolean',
-			},
-			replacements: {
-				$ref: '#/items/0/definitions/abbreviations',
-			},
-			extendDefaultAllowList: {
-				type: 'boolean',
-			},
-			allowList: {
-				$ref: '#/items/0/definitions/booleanObject',
-			},
-			ignore: {
-				type: 'array',
-				uniqueItems: true,
-			},
-		},
-		additionalProperties: false,
-		definitions: {
-			abbreviations: {
-				type: 'object',
-				additionalProperties: {
-					$ref: '#/items/0/definitions/replacements',
-				},
-			},
-			replacements: {
-				anyOf: [
-					{
-						enum: [
-							false,
-						],
-					},
-					{
-						$ref: '#/items/0/definitions/booleanObject',
-					},
-				],
-			},
-			booleanObject: {
-				type: 'object',
-				additionalProperties: {
+const schema = {
+	type: 'array',
+	additionalItems: false,
+	items: [
+		{
+			type: 'object',
+			additionalProperties: false,
+			properties: {
+				checkProperties: {
 					type: 'boolean',
 				},
+				checkVariables: {
+					type: 'boolean',
+				},
+				checkDefaultAndNamespaceImports: {
+					type: [
+						'boolean',
+						'string',
+					],
+					pattern: 'internal',
+				},
+				checkShorthandImports: {
+					type: [
+						'boolean',
+						'string',
+					],
+					pattern: 'internal',
+				},
+				checkShorthandProperties: {
+					type: 'boolean',
+				},
+				checkFilenames: {
+					type: 'boolean',
+				},
+				extendDefaultReplacements: {
+					type: 'boolean',
+				},
+				replacements: {
+					$ref: '#/definitions/abbreviations',
+				},
+				extendDefaultAllowList: {
+					type: 'boolean',
+				},
+				allowList: {
+					$ref: '#/definitions/booleanObject',
+				},
+				ignore: {
+					type: 'array',
+					uniqueItems: true,
+				},
+			},
+		},
+	],
+	definitions: {
+		abbreviations: {
+			type: 'object',
+			additionalProperties: {
+				$ref: '#/definitions/replacements',
+			},
+		},
+		replacements: {
+			anyOf: [
+				{
+					enum: [
+						false,
+					],
+				},
+				{
+					$ref: '#/definitions/booleanObject',
+				},
+			],
+		},
+		booleanObject: {
+			type: 'object',
+			additionalProperties: {
+				type: 'boolean',
 			},
 		},
 	},
-];
+};
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

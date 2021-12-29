@@ -284,6 +284,7 @@ function create(context) {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			getLastElementFunctions: {
 				type: 'array',
@@ -294,10 +295,10 @@ const schema = [
 				default: false,
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -306,8 +307,8 @@ module.exports = {
 			description: 'Prefer `.at()` method for index access and `String#charAt()`.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		messages,
-		hasSuggestions: true,
 	},
 };

@@ -38,6 +38,7 @@ const isNegative = node => {
 	return parent && parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const options = {
@@ -127,16 +128,17 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			checkInfinity: {
 				type: 'boolean',
 				default: true,
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -145,8 +147,8 @@ module.exports = {
 			description: 'Prefer `Number` static properties over global ones.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		messages,
-		hasSuggestions: true,
 	},
 };

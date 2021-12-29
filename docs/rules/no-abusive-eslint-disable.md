@@ -1,5 +1,7 @@
 # Enforce specifying rules to disable in `eslint-disable` comments
 
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+
 This rule makes you specify the rules you want to disable when using `eslint-disable`, `eslint-disable-line` or `eslint-disable-next-line` comments.
 
 If you want to disable an ESLint rule in a file or on a specific line, you can add a comment.
@@ -31,7 +33,6 @@ console.log(message); // `message` is not defined, but it won't be reported
 
 This rule enforces specifying the rules to disable. If you want to disable ESLint on a file altogether, you should ignore it through [`.eslintignore`](https://eslint.org/docs/user-guide/configuring#ignoring-files-and-directories) for ESLint or through the [`ignores` property](https://github.com/xojs/xo#ignores) in `package.json` for `XO`.
 
-
 ## Fail
 
 ```js
@@ -43,7 +44,6 @@ console.log(message); // eslint-disable-line
 // eslint-disable-next-line
 console.log(message);
 ```
-
 
 ## Pass
 

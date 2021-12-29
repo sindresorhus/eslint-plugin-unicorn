@@ -29,6 +29,7 @@ const bitwiseNotUnaryExpressionSelector = [
 	createBitwiseNotSelector(2, true),
 ].join('');
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 
@@ -100,6 +101,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -108,7 +110,7 @@ module.exports = {
 			description: 'Enforce the use of `Math.trunc` instead of bitwise operators.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

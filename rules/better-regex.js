@@ -14,6 +14,7 @@ const newRegExp = [
 	'[arguments.0.type="Literal"]',
 ].join('');
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sortCharacterClasses} = context.options[0] || {};
 
@@ -101,6 +102,7 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			sortCharacterClasses: {
 				type: 'boolean',
@@ -110,6 +112,7 @@ const schema = [
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

@@ -20,6 +20,7 @@ const destructuringSelector = [
 	'[name="innerText"]',
 ].join('');
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	[memberExpressionPropertySelector](node) {
 		return {
@@ -50,6 +51,7 @@ const create = () => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -57,7 +59,7 @@ module.exports = {
 		docs: {
 			description: 'Prefer `.textContent` over `.innerText`.',
 		},
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

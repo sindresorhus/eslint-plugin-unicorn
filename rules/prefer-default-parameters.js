@@ -125,6 +125,7 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 	return fixer.remove(node);
 };
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const functionStack = [];
@@ -208,6 +209,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -216,10 +218,10 @@ module.exports = {
 			description: 'Prefer default parameters over reassignment.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages: {
 			[MESSAGE_ID]: 'Prefer default parameters over reassignment.',
 			[MESSAGE_ID_SUGGEST]: 'Replace reassignment with default parameter.',
 		},
-		hasSuggestions: true,
 	},
 };

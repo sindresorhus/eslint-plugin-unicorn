@@ -2,6 +2,7 @@
 const {isCommaToken, isArrowToken, isClosingParenToken} = require('eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {matches, methodCallSelector} = require('./selectors/index.js');
+const {removeParentheses} = require('./fix/index.js');
 const {getParentheses, getParenthesizedText} = require('./utils/parentheses.js');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches.js');
 
@@ -147,10 +148,7 @@ function fixReduceAssignOrSpread({sourceCode, node, property}) {
 		const functionBody = node.arguments[0].body;
 		const {keyText, valueText} = getKeyValueText();
 		yield fixer.replaceText(functionBody, `[${keyText}, ${valueText}]`);
-
-		for (const parentheses of getParentheses(functionBody, sourceCode)) {
-			yield fixer.remove(parentheses);
-		}
+		yield * removeParentheses(functionBody, fixer, sourceCode);
 	}
 
 	return function * (fixer) {
@@ -249,16 +247,17 @@ function create(context) {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			functions: {
 				type: 'array',
 				uniqueItems: true,
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

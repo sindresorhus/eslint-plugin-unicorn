@@ -110,6 +110,7 @@ const isTypecheckingExpression = (node, callExpression) => {
 
 const isTypechecking = node => node.type === 'IfStatement' && isTypecheckingExpression(node.test);
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	[selector]: node => {
 		if (
@@ -127,6 +128,7 @@ const create = () => ({
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

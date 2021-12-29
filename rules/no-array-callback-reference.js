@@ -15,27 +15,63 @@ const messages = {
 };
 
 const iteratorMethods = [
-	['every'],
+	[
+		'every',
+		{
+			ignore: [
+				'Boolean',
+			],
+		},
+	],
 	[
 		'filter', {
 			extraSelector: '[callee.object.name!="Vue"]',
+			ignore: [
+				'Boolean',
+			],
 		},
 	],
-	['find'],
-	['findIndex'],
-	['flatMap'],
 	[
-		'forEach', {
+		'find',
+		{
+			ignore: [
+				'Boolean',
+			],
+		},
+	],
+	[
+		'findIndex',
+		{
+			ignore: [
+				'Boolean',
+			],
+		},
+	],
+	[
+		'flatMap',
+	],
+	[
+		'forEach',
+		{
 			returnsUndefined: true,
 		},
 	],
 	[
-		'map', {
+		'map',
+		{
 			extraSelector: '[callee.object.name!="types"]',
+			ignore: [
+				'String',
+				'Number',
+				'BigInt',
+				'Boolean',
+				'Symbol',
+			],
 		},
 	],
 	[
-		'reduce', {
+		'reduce',
+		{
 			parameters: [
 				'accumulator',
 				'element',
@@ -43,11 +79,11 @@ const iteratorMethods = [
 				'array',
 			],
 			minParameters: 2,
-			ignore: [],
 		},
 	],
 	[
-		'reduceRight', {
+		'reduceRight',
+		{
 			parameters: [
 				'accumulator',
 				'element',
@@ -55,14 +91,20 @@ const iteratorMethods = [
 				'array',
 			],
 			minParameters: 2,
-			ignore: [],
 		},
 	],
-	['some'],
+	[
+		'some',
+		{
+			ignore: [
+				'Boolean',
+			],
+		},
+	],
 ].map(([method, options]) => {
 	options = {
 		parameters: ['element', 'index', 'array'],
-		ignore: ['Boolean'],
+		ignore: [],
 		minParameters: 1,
 		extraSelector: '',
 		returnsUndefined: false,
@@ -145,6 +187,7 @@ const ignoredFirstArgumentSelector = [
 	'[arguments.0.type!="ArrowFunctionExpression"]',
 ].join('');
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	const rules = {};
@@ -178,6 +221,7 @@ const create = context => {
 	return rules;
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -185,7 +229,7 @@ module.exports = {
 		docs: {
 			description: 'Prevent passing a function reference directly to iterator methods.',
 		},
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

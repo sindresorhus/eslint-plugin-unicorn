@@ -1,9 +1,10 @@
 # Require escape sequences to use uppercase values
 
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+
+🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
+
 Enforces defining escape sequence values with uppercase characters rather than lowercase ones. This promotes readability by making the escaped value more distinguishable from the identifier.
-
-This rule is fixable.
-
 
 ## Fail
 
@@ -13,7 +14,6 @@ const foo = '\ud834';
 const foo = '\u{1d306}';
 const foo = '\ca';
 ```
-
 
 ## Pass
 

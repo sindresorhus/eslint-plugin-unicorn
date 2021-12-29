@@ -112,6 +112,9 @@ export default [
 			// `package` keyword
 			// https://github.com/puppeteer/puppeteer/blob/0b1a9ceee2f05f534f0d50079ece172d627a93c7/utils/apply_next_version.js#L17
 			'utils/apply_next_version.js',
+
+			// Global return
+			'utils/fetch_devices.js',
 		],
 	},
 	{
@@ -138,6 +141,9 @@ export default [
 			// These files use `package` keyword as variable
 			'scripts/publish-beta.js',
 			'apps/test-bundles/webpack.config.js',
+
+			// Global return
+			'scripts/cypress.js',
 		],
 	},
 	// #902

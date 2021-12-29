@@ -74,6 +74,7 @@ function checkVueTemplate(create, options) {
 	return wrapped;
 }
 
+/** @returns {import('eslint').Rule.RuleModule} */
 function loadRule(ruleId) {
 	const rule = require(`../${ruleId}`);
 

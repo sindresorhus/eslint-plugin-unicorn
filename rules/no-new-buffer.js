@@ -2,6 +2,7 @@
 const {getStaticValue} = require('eslint-utils');
 const {newExpressionSelector} = require('./selectors/index.js');
 const {switchNewExpressionToCallExpression} = require('./fix/index.js');
+const isNumber = require('./utils/is-number.js');
 
 const ERROR = 'error';
 const ERROR_UNKNOWN = 'error-unknown';
@@ -26,13 +27,13 @@ const inferMethod = (bufferArguments, scope) => {
 		return 'from';
 	}
 
+	if (isNumber(firstArgument, scope)) {
+		return 'alloc';
+	}
+
 	const staticResult = getStaticValue(firstArgument, scope);
 	if (staticResult) {
 		const {value} = staticResult;
-		if (typeof value === 'number') {
-			return 'alloc';
-		}
-
 		if (
 			typeof value === 'string'
 			|| Array.isArray(value)
@@ -49,6 +50,7 @@ function fix(node, sourceCode, method) {
 	};
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
 	return {
@@ -77,6 +79,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -85,7 +88,7 @@ module.exports = {
 			description: 'Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

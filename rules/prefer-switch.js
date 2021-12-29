@@ -243,6 +243,7 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 	};
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = {
 		minimumCases: 3,
@@ -302,6 +303,7 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			minimumCases: {
 				type: 'integer',
@@ -317,10 +319,10 @@ const schema = [
 				default: 'no-default-comment',
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

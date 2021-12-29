@@ -185,6 +185,7 @@ function create(context) {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			'non-zero': {
 				enum: [...nonZeroStyles.keys()],
@@ -194,6 +195,7 @@ const schema = [
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create: checkVueTemplate(create),
 	meta: {

@@ -2,7 +2,9 @@
 const readPkgUp = require('read-pkg-up');
 const semver = require('semver');
 const ci = require('ci-info');
-const baseRule = require('eslint/use-at-your-own-risk').builtinRules.get('no-warning-comments');
+const getBuiltinRule = require('./utils/get-builtin-rule.js');
+
+const baseRule = getBuiltinRule('no-warning-comments');
 
 // `unicorn/` prefix is added to avoid conflicts with core rule
 const MESSAGE_ID_AVOID_MULTIPLE_DATES = 'unicorn/avoidMultipleDates';
@@ -240,6 +242,7 @@ function semverComparisonForOperator(operator) {
 	}[operator];
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = {
 		terms: ['todo', 'fixme', 'xxx'],
@@ -508,6 +511,7 @@ const create = context => {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			terms: {
 				type: 'array',
@@ -528,10 +532,10 @@ const schema = [
 				default: false,
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

@@ -161,5 +161,5 @@ const avoidTestTitleConflict = (tests, comment) => {
 export {
 	getTester,
 	avoidTestTitleConflict,
-	parsers,
 };
+export {default as parsers} from './parsers.mjs';

@@ -133,6 +133,7 @@ const create = context => {
 
 const formatOptionsSchema = ({minimumDigits, groupLength}) => ({
 	type: 'object',
+	additionalProperties: false,
 	properties: {
 		onlyIfContainsSeparator: {
 			type: 'boolean',
@@ -148,11 +149,11 @@ const formatOptionsSchema = ({minimumDigits, groupLength}) => ({
 			default: groupLength,
 		},
 	},
-	additionalProperties: false,
 });
 
 const schema = [{
 	type: 'object',
+	additionalProperties: false,
 	properties: {
 		...Object.fromEntries(
 			Object.entries(defaultOptions).map(([type, options]) => [type, formatOptionsSchema(options)]),
@@ -162,9 +163,9 @@ const schema = [{
 			default: false,
 		},
 	},
-	additionalProperties: false,
 }];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

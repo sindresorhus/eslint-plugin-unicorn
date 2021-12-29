@@ -169,9 +169,6 @@ const errorNaN = [
 	},
 ];
 
-// TODO: Add following tests whenESLint support `proposal-class-fields`
-// 'class Foo {NaN = 1}',
-// 'class Foo {[NaN] = 1}',
 test({
 	valid: [
 		'const foo = Number.NaN;',
@@ -202,6 +199,9 @@ test({
 		'class NaN {}',
 		'const Foo = class NaN {}',
 		'class Foo {NaN(){}}',
+		'class Foo {#NaN(){}}',
+		'class Foo3 {NaN = 1}',
+		'class Foo {#NaN = 1}',
 		outdent`
 			NaN: for (const foo of bar) {
 				if (a) {
@@ -287,6 +287,11 @@ test({
 		{
 			code: 'const foo = NaN.toString();',
 			output: 'const foo = Number.NaN.toString();',
+			errors: errorNaN,
+		},
+		{
+			code: 'class Foo3 {[NaN] = 1}',
+			output: 'class Foo3 {[Number.NaN] = 1}',
 			errors: errorNaN,
 		},
 	],

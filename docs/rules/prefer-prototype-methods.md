@@ -1,8 +1,10 @@
-# Prefer borrowing methods from the prototype instead of methods from an instance
+# Prefer borrowing methods from the prototype instead of the instance
+
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+
+🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
 
 When “borrowing” a method from `Array` or `Object`, it‘s clearer to get it from the prototype than from an instance.
-
-This rule is fixable.
 
 ## Fail
 

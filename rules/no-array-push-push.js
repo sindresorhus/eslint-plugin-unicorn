@@ -43,7 +43,15 @@ function create(context) {
 		ignore: [],
 		...context.options[0],
 	};
-	const ignoredObjects = ['stream', 'this', 'this.stream', ...ignore];
+	const ignoredObjects = [
+		'stream',
+		'this',
+		'this.stream',
+		'process.stdin',
+		'process.stdout',
+		'process.stderr',
+		...ignore,
+	];
 	const sourceCode = context.getSourceCode();
 
 	return {
@@ -110,16 +118,17 @@ function create(context) {
 const schema = [
 	{
 		type: 'object',
+		additionalProperties: false,
 		properties: {
 			ignore: {
 				type: 'array',
 				uniqueItems: true,
 			},
 		},
-		additionalProperties: false,
 	},
 ];
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -128,8 +137,8 @@ module.exports = {
 			description: 'Enforce combining multiple `Array#push()` into one call.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		messages,
-		hasSuggestions: true,
 	},
 };

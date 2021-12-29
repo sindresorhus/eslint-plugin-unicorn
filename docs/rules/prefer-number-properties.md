@@ -1,4 +1,8 @@
-# Prefer `Number` static properties over global ones.
+# Prefer `Number` static properties over global ones
+
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+
+🔧💡 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) and provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*
 
 Enforces the use of:
 
@@ -9,8 +13,6 @@ Enforces the use of:
 - [`Number.NaN`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/NaN) over [`NaN`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN) *(fixable)*
 - [`Number.POSITIVE_INFINITY`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/POSITIVE_INFINITY) over [`Infinity`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Infinity) *(fixable)*
 - [`Number.NEGATIVE_INFINITY`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/NEGATIVE_INFINITY) over [`-Infinity`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Infinity) *(fixable)*
-
-This rule is partly fixable.
 
 ## Fail
 
@@ -77,7 +79,7 @@ const isPositiveZero = value => value === 0 && 1 / value === Number.POSITIVE_INF
 const isNegativeZero = value => value === 0 && 1 / value === Number.NEGATIVE_INFINITY;
 ```
 
-# Options
+## Options
 
 Type: `object`
 

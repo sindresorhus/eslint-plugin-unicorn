@@ -2,6 +2,7 @@
 const {isParenthesized, getStaticValue} = require('eslint-utils');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const {newExpressionSelector} = require('./selectors/index.js');
+const isNumber = require('./utils/is-number.js');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_LENGTH = 'array-length';
@@ -48,39 +49,41 @@ function getProblem(context, node) {
 		return problem;
 	}
 
-	const result = getStaticValue(argumentNode, context.getScope());
 	const fromLengthText = `Array.from(${text === 'length' ? '{length}' : `{length: ${text}}`})`;
-	const onlyElementText = `${maybeSemiColon}[${text}]`;
-
-	// We don't know the argument is number or not
-	if (result === null) {
-		problem.suggest = [
-			{
-				messageId: MESSAGE_ID_LENGTH,
-				fix: fixer => fixer.replaceText(node, fromLengthText),
-			},
-			{
-				messageId: MESSAGE_ID_ONLY_ELEMENT,
-				fix: fixer => fixer.replaceText(node, onlyElementText),
-			},
-		];
+	if (isNumber(argumentNode, context.getScope())) {
+		problem.fix = fixer => fixer.replaceText(node, fromLengthText);
 		return problem;
 	}
 
-	problem.fix = fixer => fixer.replaceText(
-		node,
-		typeof result.value === 'number' ? fromLengthText : onlyElementText,
-	);
+	const onlyElementText = `${maybeSemiColon}[${text}]`;
+	const result = getStaticValue(argumentNode, context.getScope());
+	if (result !== null && typeof result.value !== 'number') {
+		problem.fix = fixer => fixer.replaceText(node, onlyElementText);
+		return problem;
+	}
 
+	// We don't know the argument is number or not
+	problem.suggest = [
+		{
+			messageId: MESSAGE_ID_LENGTH,
+			fix: fixer => fixer.replaceText(node, fromLengthText),
+		},
+		{
+			messageId: MESSAGE_ID_ONLY_ELEMENT,
+			fix: fixer => fixer.replaceText(node, onlyElementText),
+		},
+	];
 	return problem;
 }
 
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[newArraySelector](node) {
 		return getProblem(context, node);
 	},
 });
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -89,7 +92,7 @@ module.exports = {
 			description: 'Disallow `new Array()`.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

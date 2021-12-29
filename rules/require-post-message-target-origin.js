@@ -56,6 +56,7 @@ function create(context) {
 	};
 }
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -63,7 +64,7 @@ module.exports = {
 		docs: {
 			description: 'Enforce using the `targetOrigin` argument with `window.postMessage()`.',
 		},
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

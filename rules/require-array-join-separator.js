@@ -9,7 +9,11 @@ const messages = {
 
 const selector = matches([
 	// `foo.join()`
-	methodCallSelector({method: 'join', argumentsLength: 0}),
+	methodCallSelector({
+		method: 'join',
+		argumentsLength: 0,
+		includeOptionalMember: true,
+	}),
 	// `[].join.call(foo)` and `Array.prototype.join.call(foo)`
 	[
 		methodCallSelector({method: 'call', argumentsLength: 1}),
@@ -37,6 +41,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {

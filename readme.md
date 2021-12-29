@@ -1,5 +1,6 @@
 # eslint-plugin-unicorn [![Coverage Status](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/main/graph/badge.svg)](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/main) [![npm version](https://img.shields.io/npm/v/eslint-plugin-unicorn.svg?style=flat)](https://npmjs.com/package/eslint-plugin-unicorn)
 
+<!-- markdownlint-disable-next-line no-inline-html -->
 <img src="https://cloud.githubusercontent.com/assets/170270/18659176/1cc373d0-7f33-11e6-890f-0ba35362ee7e.jpg" width="180" align="right">
 
 > Various awesome ESLint rules
@@ -10,8 +11,8 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 
 ## Install
 
-```console
-$ npm install --save-dev eslint eslint-plugin-unicorn
+```sh
+npm install --save-dev eslint eslint-plugin-unicorn
 ```
 
 ## Usage
@@ -55,8 +56,10 @@ Configure it in `package.json`.
 			"unicorn/no-array-method-this-argument": "error",
 			"unicorn/no-array-push-push": "error",
 			"unicorn/no-array-reduce": "error",
+			"unicorn/no-await-expression-member": "error",
 			"unicorn/no-console-spaces": "error",
 			"unicorn/no-document-cookie": "error",
+			"unicorn/no-empty-file": "error",
 			"unicorn/no-for-loop": "error",
 			"unicorn/no-hex-escape": "error",
 			"unicorn/no-instanceof-array": "error",
@@ -71,12 +74,14 @@ Configure it in `package.json`.
 			"unicorn/no-object-as-default-parameter": "error",
 			"unicorn/no-process-exit": "error",
 			"unicorn/no-static-only-class": "error",
+			"unicorn/no-thenable": "error",
 			"unicorn/no-this-assignment": "error",
 			"unicorn/no-unreadable-array-destructuring": "error",
 			"unicorn/no-unsafe-regex": "off",
 			"unicorn/no-unused-properties": "off",
 			"unicorn/no-useless-fallback-in-spread": "error",
 			"unicorn/no-useless-length-check": "error",
+			"unicorn/no-useless-promise-resolve-reject": "error",
 			"unicorn/no-useless-spread": "error",
 			"unicorn/no-useless-undefined": "error",
 			"unicorn/no-zero-fractions": "error",
@@ -89,12 +94,14 @@ Configure it in `package.json`.
 			"unicorn/prefer-array-index-of": "error",
 			"unicorn/prefer-array-some": "error",
 			"unicorn/prefer-at": "off",
+			"unicorn/prefer-code-point": "error",
 			"unicorn/prefer-date-now": "error",
 			"unicorn/prefer-default-parameters": "error",
 			"unicorn/prefer-dom-node-append": "error",
 			"unicorn/prefer-dom-node-dataset": "error",
 			"unicorn/prefer-dom-node-remove": "error",
 			"unicorn/prefer-dom-node-text-content": "error",
+			"unicorn/prefer-export-from": "error",
 			"unicorn/prefer-includes": "error",
 			"unicorn/prefer-keyboard-event-key": "error",
 			"unicorn/prefer-math-trunc": "error",
@@ -104,7 +111,6 @@ Configure it in `package.json`.
 			"unicorn/prefer-node-protocol": "error",
 			"unicorn/prefer-number-properties": "error",
 			"unicorn/prefer-object-from-entries": "error",
-			"unicorn/prefer-object-has-own": "off",
 			"unicorn/prefer-optional-catch-binding": "error",
 			"unicorn/prefer-prototype-methods": "error",
 			"unicorn/prefer-query-selector": "error",
@@ -123,22 +129,11 @@ Configure it in `package.json`.
 			"unicorn/prevent-abbreviations": "error",
 			"unicorn/require-array-join-separator": "error",
 			"unicorn/require-number-to-fixed-digits-argument": "error",
-			"unicorn/require-post-message-target-origin": "error",
+			"unicorn/require-post-message-target-origin": "off",
 			"unicorn/string-content": "off",
 			"unicorn/template-indent": "warn",
 			"unicorn/throw-new-error": "error"
-		},
-		"overrides": [
-			{
-				"files": [
-					"*.ts",
-					"*.tsx"
-				],
-				"rules": {
-					"unicorn/require-post-message-target-origin": "off"
-				}
-			}
-		]
+		}
 	}
 }
 ```
@@ -148,9 +143,9 @@ Configure it in `package.json`.
 
 Each rule has emojis denoting:
 
-* ✅ if it belongs to the `recommended` configuration
-* 🔧 if some problems reported by the rule are automatically fixable by the `--fix` [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) option
-* 💡 if some problems reported by the rule are manually fixable by editor [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions)
+- ✅ if it belongs to the `recommended` configuration
+- 🔧 if some problems reported by the rule are automatically fixable by the `--fix` [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) option
+- 💡 if some problems reported by the rule are manually fixable by editor [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions)
 
 <!-- Do not manually modify this table. Run: `npm run generate-rules-table` -->
 <!-- RULES_TABLE_START -->
@@ -177,8 +172,10 @@ Each rule has emojis denoting:
 | [no-array-method-this-argument](docs/rules/no-array-method-this-argument.md) | Disallow using the `this` argument in array methods. | ✅ | 🔧 | 💡 |
 | [no-array-push-push](docs/rules/no-array-push-push.md) | Enforce combining multiple `Array#push()` into one call. | ✅ | 🔧 | 💡 |
 | [no-array-reduce](docs/rules/no-array-reduce.md) | Disallow `Array#reduce()` and `Array#reduceRight()`. | ✅ |  |  |
+| [no-await-expression-member](docs/rules/no-await-expression-member.md) | Forbid member access from await expression. | ✅ | 🔧 |  |
 | [no-console-spaces](docs/rules/no-console-spaces.md) | Do not use leading/trailing space between `console.log` parameters. | ✅ | 🔧 |  |
 | [no-document-cookie](docs/rules/no-document-cookie.md) | Do not use `document.cookie` directly. | ✅ |  |  |
+| [no-empty-file](docs/rules/no-empty-file.md) | Disallow empty files. | ✅ |  |  |
 | [no-for-loop](docs/rules/no-for-loop.md) | Do not use a `for` loop that can be replaced with a `for-of` loop. | ✅ | 🔧 |  |
 | [no-hex-escape](docs/rules/no-hex-escape.md) | Enforce the use of Unicode escapes instead of hexadecimal escapes. | ✅ | 🔧 |  |
 | [no-instanceof-array](docs/rules/no-instanceof-array.md) | Require `Array.isArray()` instead of `instanceof Array`. | ✅ | 🔧 |  |
@@ -192,12 +189,14 @@ Each rule has emojis denoting:
 | [no-object-as-default-parameter](docs/rules/no-object-as-default-parameter.md) | Disallow the use of objects as default parameters. | ✅ |  |  |
 | [no-process-exit](docs/rules/no-process-exit.md) | Disallow `process.exit()`. | ✅ |  |  |
 | [no-static-only-class](docs/rules/no-static-only-class.md) | Forbid classes that only have static members. | ✅ | 🔧 |  |
+| [no-thenable](docs/rules/no-thenable.md) | Disallow `then` property. | ✅ |  |  |
 | [no-this-assignment](docs/rules/no-this-assignment.md) | Disallow assigning `this` to a variable. | ✅ |  |  |
 | [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) | Disallow unreadable array destructuring. | ✅ | 🔧 |  |
 | [no-unsafe-regex](docs/rules/no-unsafe-regex.md) | Disallow unsafe regular expressions. |  |  |  |
 | [no-unused-properties](docs/rules/no-unused-properties.md) | Disallow unused object properties. |  |  |  |
 | [no-useless-fallback-in-spread](docs/rules/no-useless-fallback-in-spread.md) | Forbid useless fallback when spreading in object literals. | ✅ | 🔧 |  |
 | [no-useless-length-check](docs/rules/no-useless-length-check.md) | Disallow useless array length check. | ✅ | 🔧 |  |
+| [no-useless-promise-resolve-reject](docs/rules/no-useless-promise-resolve-reject.md) | Disallow returning/yielding `Promise.resolve/reject()` in async functions | ✅ | 🔧 |  |
 | [no-useless-spread](docs/rules/no-useless-spread.md) | Disallow unnecessary spread. | ✅ | 🔧 |  |
 | [no-useless-undefined](docs/rules/no-useless-undefined.md) | Disallow useless `undefined`. | ✅ | 🔧 |  |
 | [no-zero-fractions](docs/rules/no-zero-fractions.md) | Disallow number literals with zero fractions or dangling dots. | ✅ | 🔧 |  |
@@ -210,12 +209,14 @@ Each rule has emojis denoting:
 | [prefer-array-index-of](docs/rules/prefer-array-index-of.md) | Prefer `Array#indexOf()` over `Array#findIndex()` when looking for the index of an item. | ✅ | 🔧 | 💡 |
 | [prefer-array-some](docs/rules/prefer-array-some.md) | Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`. | ✅ | 🔧 | 💡 |
 | [prefer-at](docs/rules/prefer-at.md) | Prefer `.at()` method for index access and `String#charAt()`. |  | 🔧 | 💡 |
+| [prefer-code-point](docs/rules/prefer-code-point.md) | Prefer `String#codePointAt(…)` over `String#charCodeAt(…)` and `String.fromCodePoint(…)` over `String.fromCharCode(…)`. | ✅ |  | 💡 |
 | [prefer-date-now](docs/rules/prefer-date-now.md) | Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. | ✅ | 🔧 |  |
 | [prefer-default-parameters](docs/rules/prefer-default-parameters.md) | Prefer default parameters over reassignment. | ✅ | 🔧 | 💡 |
 | [prefer-dom-node-append](docs/rules/prefer-dom-node-append.md) | Prefer `Node#append()` over `Node#appendChild()`. | ✅ | 🔧 |  |
 | [prefer-dom-node-dataset](docs/rules/prefer-dom-node-dataset.md) | Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. | ✅ | 🔧 |  |
 | [prefer-dom-node-remove](docs/rules/prefer-dom-node-remove.md) | Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`. | ✅ | 🔧 | 💡 |
 | [prefer-dom-node-text-content](docs/rules/prefer-dom-node-text-content.md) | Prefer `.textContent` over `.innerText`. | ✅ |  | 💡 |
+| [prefer-export-from](docs/rules/prefer-export-from.md) | Prefer `export…from` when re-exporting. | ✅ | 🔧 | 💡 |
 | [prefer-includes](docs/rules/prefer-includes.md) | Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence. | ✅ | 🔧 | 💡 |
 | [prefer-keyboard-event-key](docs/rules/prefer-keyboard-event-key.md) | Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. | ✅ | 🔧 |  |
 | [prefer-math-trunc](docs/rules/prefer-math-trunc.md) | Enforce the use of `Math.trunc` instead of bitwise operators. | ✅ | 🔧 | 💡 |
@@ -225,7 +226,6 @@ Each rule has emojis denoting:
 | [prefer-node-protocol](docs/rules/prefer-node-protocol.md) | Prefer using the `node:` protocol when importing Node.js builtin modules. | ✅ | 🔧 |  |
 | [prefer-number-properties](docs/rules/prefer-number-properties.md) | Prefer `Number` static properties over global ones. | ✅ | 🔧 | 💡 |
 | [prefer-object-from-entries](docs/rules/prefer-object-from-entries.md) | Prefer using `Object.fromEntries(…)` to transform a list of key-value pairs into an object. | ✅ | 🔧 |  |
-| [prefer-object-has-own](docs/rules/prefer-object-has-own.md) | Prefer `Object.hasOwn(…)` over `Object.prototype.hasOwnProperty.call(…)`. |  | 🔧 |  |
 | [prefer-optional-catch-binding](docs/rules/prefer-optional-catch-binding.md) | Prefer omitting the `catch` binding parameter. | ✅ | 🔧 |  |
 | [prefer-prototype-methods](docs/rules/prefer-prototype-methods.md) | Prefer borrowing methods from the prototype instead of the instance. | ✅ | 🔧 |  |
 | [prefer-query-selector](docs/rules/prefer-query-selector.md) | Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`. | ✅ | 🔧 |  |
@@ -244,7 +244,7 @@ Each rule has emojis denoting:
 | [prevent-abbreviations](docs/rules/prevent-abbreviations.md) | Prevent abbreviations. | ✅ | 🔧 |  |
 | [require-array-join-separator](docs/rules/require-array-join-separator.md) | Enforce using the separator argument with `Array#join()`. | ✅ | 🔧 |  |
 | [require-number-to-fixed-digits-argument](docs/rules/require-number-to-fixed-digits-argument.md) | Enforce using the digits argument with `Number#toFixed()`. | ✅ | 🔧 |  |
-| [require-post-message-target-origin](docs/rules/require-post-message-target-origin.md) | Enforce using the `targetOrigin` argument with `window.postMessage()`. | ✅ |  | 💡 |
+| [require-post-message-target-origin](docs/rules/require-post-message-target-origin.md) | Enforce using the `targetOrigin` argument with `window.postMessage()`. |  |  | 💡 |
 | [string-content](docs/rules/string-content.md) | Enforce better string content. |  | 🔧 | 💡 |
 | [template-indent](docs/rules/template-indent.md) | Fix whitespace-insensitive template indentation. |  | 🔧 |  |
 | [throw-new-error](docs/rules/throw-new-error.md) | Require `new` when throwing an error. | ✅ | 🔧 |  |
@@ -294,11 +294,12 @@ See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configurati
 ## Maintainers
 
 - [Sindre Sorhus](https://github.com/sindresorhus)
-- [Adam Babcock](https://github.com/MrHen)
-- [futpib](https://github.com/futpib)
 - [Fisker Cheung](https://github.com/fisker)
+- [Bryan Mishkin](https://github.com/bmish)
+- [futpib](https://github.com/futpib)
 
-###### Former
+### Former
 
 - [Jeroen Engels](https://github.com/jfmengels)
 - [Sam Verschueren](https://github.com/SamVerschueren)
+- [Adam Babcock](https://github.com/MrHen)

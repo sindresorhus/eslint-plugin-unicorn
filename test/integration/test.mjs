@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import Listr from 'listr';
-import execa from 'execa';
+import {execa} from 'execa';
 import chalk from 'chalk';
 import {isCI} from 'ci-info';
 import mem from 'mem';
@@ -88,7 +88,10 @@ const makeEslintTask = (project, destination) => {
 	});
 };
 
-const getBranch = mem(async dirname => (await execa('git', ['branch', '--show-current'], {cwd: dirname})).stdout);
+const getBranch = mem(async dirname => {
+	const {stdout} = await execa('git', ['branch', '--show-current'], {cwd: dirname});
+	return stdout;
+});
 
 const execute = project => {
 	const destination = project.location || path.join(dirname, 'fixtures', project.name);
