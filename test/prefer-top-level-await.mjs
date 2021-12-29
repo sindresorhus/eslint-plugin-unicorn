@@ -9,7 +9,6 @@ test.snapshot({
 		'a()',
 		'a = async () => {}',
 		'(async function *() {})()',
-		'(async () => {})?.()',
 		outdent`
 			function foo() {
 				if (foo) {
@@ -17,9 +16,11 @@ test.snapshot({
 				}
 			}
 		`,
+		'await (async () => {})()',
 	],
 	invalid: [
 		'(async () => {})()',
+		'(async () => {})?.()',
 		'(async function() {})()',
 		'(async function() {}())',
 		'(async function run() {})()',
@@ -33,6 +34,7 @@ test.snapshot({
 		'a = (async () => {})()',
 		'!async function() {}()',
 		'void async function() {}()',
+		'(async () => {})().catch(foo)',
 	],
 });
 
@@ -40,11 +42,16 @@ test.snapshot({
 test.snapshot({
 	valid: [
 		'foo.then',
-		'foo.then?.(bar)',
-		'foo?.then(bar)',
+		'await foo.then(bar)',
+		'await foo.then(bar).catch(bar)',
+		'await foo.then?.(bar)',
+		'await foo.then(bar)?.catch(bar)',
+		'await foo.then(bar)?.catch?.(bar)',
 	],
 	invalid: [
 		'foo.then(bar)',
+		'foo.then?.(bar)',
+		'foo?.then(bar)',
 		'foo.catch(() => process.exit(1))',
 		'foo.finally(bar)',
 		'foo.then(bar, baz)',
@@ -56,6 +63,9 @@ test.snapshot({
 		'foo?.then(bar).finally(qux)',
 		'foo.then().toString()',
 		'!foo.then()',
+		'foo.then(bar).then(baz)?.then(qux)',
+		'foo.then(bar).then(baz).then?.(qux)',
+		'foo.then(bar).catch(bar).finally(bar)',
 	],
 });
 
@@ -116,10 +126,6 @@ test.snapshot({
 			parserOptions: {sourceType: 'script'},
 		},
 		outdent`
-			const foo = async () => {};
-			foo?.();
-		`,
-		outdent`
 			const program = {async run () {}};
 			program.run()
 		`,
@@ -128,11 +134,23 @@ test.snapshot({
 			const {run} = program;
 			run()
 		`,
+		outdent`
+			const foo = async () => {};
+			await foo();
+		`,
 	],
 	invalid: [
 		outdent`
 			const foo = async () => {};
 			foo();
+		`,
+		outdent`
+			const foo = async () => {};
+			foo?.();
+		`,
+		outdent`
+			const foo = async () => {};
+			foo().then(foo);
 		`,
 		outdent`
 			const foo = async function () {}, bar = 1;

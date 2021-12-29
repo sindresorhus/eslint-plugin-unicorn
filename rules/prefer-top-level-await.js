@@ -13,7 +13,9 @@ const messages = {
 	[SUGGESTION_ADD_AWAIT]: 'Insert `await`.',
 };
 
-const topLevelCallExpression = 'CallExpression[optional!=true]:not(:function *)';
+const promiseMethods = ['then', 'catch', 'finally'];
+
+const topLevelCallExpression = 'CallExpression:not(:function *)';
 const iife = [
 	topLevelCallExpression,
 	matches([
@@ -27,7 +29,8 @@ const promise = [
 	topLevelCallExpression,
 	memberExpressionSelector({
 		path: 'callee',
-		properties: ['then', 'catch', 'finally'],
+		properties: promiseMethods,
+		includeOptional: true,
 	}),
 ].join('');
 const identifier = [
@@ -35,16 +38,62 @@ const identifier = [
 	'[callee.type="Identifier"]',
 ].join('');
 
+const isPromiseMethodCalleeObject = node =>
+	node.parent.type === 'MemberExpression'
+	&& node.parent.object === node
+	&& !node.parent.computed
+	&& node.parent.property.type === 'Identifier'
+	&& promiseMethods.includes(node.parent.property.name)
+	&& node.parent.parent.type === 'CallExpression'
+	&& node.parent.parent.callee === node.parent;
+const getPromiseChainRoot = node => {
+	while (isPromiseMethodCalleeObject(node)) {
+		node = node.parent.parent;
+	}
+
+	return node;
+};
+
+const isAwaitArgument = node => {
+	if (node.parent.type === 'ChainExpression') {
+		node = node.parent;
+	}
+
+	return node.parent.type === 'AwaitExpression' && node.parent.argument === node;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
+	const reported = new Set();
+
 	return {
 		[promise](node) {
+			node = getPromiseChainRoot(node);
+			if (
+				reported.has(node)
+				|| isAwaitArgument(node)
+			) {
+				return;
+			}
+
+			reported.add(node);
+
 			return {
 				node: node.callee.property,
 				messageId: ERROR_PROMISE,
 			};
 		},
 		[iife](node) {
+			node = getPromiseChainRoot(node);
+			if (
+				reported.has(node)
+				|| isAwaitArgument(node)
+			) {
+				return;
+			}
+
+			reported.add(node);
+
 			return {
 				node,
 				loc: getFunctionHeadLocation(node.callee, context.getSourceCode()),
@@ -52,6 +101,16 @@ function create(context) {
 			};
 		},
 		[identifier](node) {
+			if (
+				isPromiseMethodCalleeObject(node)
+				|| reported.has(node)
+				|| isAwaitArgument(node)
+			) {
+				return;
+			}
+
+			reported.add(node);
+
 			const variable = findVariable(context.getScope(), node.callee);
 			if (!variable || variable.defs.length !== 1) {
 				return;
