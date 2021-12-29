@@ -127,6 +127,7 @@ Configure it in `package.json`.
 			"unicorn/prefer-top-level-await": "off",
 			"unicorn/prefer-type-error": "error",
 			"unicorn/prevent-abbreviations": "error",
+			"unicorn/relative-url-style": "error",
 			"unicorn/require-array-join-separator": "error",
 			"unicorn/require-number-to-fixed-digits-argument": "error",
 			"unicorn/require-post-message-target-origin": "off",
@@ -242,6 +243,7 @@ Each rule has emojis denoting:
 | [prefer-top-level-await](docs/rules/prefer-top-level-await.md) | Prefer top-level await over top-level promises and async function calls. |  |  | 💡 |
 | [prefer-type-error](docs/rules/prefer-type-error.md) | Enforce throwing `TypeError` in type checking conditions. | ✅ | 🔧 |  |
 | [prevent-abbreviations](docs/rules/prevent-abbreviations.md) | Prevent abbreviations. | ✅ | 🔧 |  |
+| [relative-url-style](docs/rules/relative-url-style.md) | Enforce consistent relative url style. | ✅ | 🔧 |  |
 | [require-array-join-separator](docs/rules/require-array-join-separator.md) | Enforce using the separator argument with `Array#join()`. | ✅ | 🔧 |  |
 | [require-number-to-fixed-digits-argument](docs/rules/require-number-to-fixed-digits-argument.md) | Enforce using the digits argument with `Number#toFixed()`. | ✅ | 🔧 |  |
 | [require-post-message-target-origin](docs/rules/require-post-message-target-origin.md) | Enforce using the `targetOrigin` argument with `window.postMessage()`. |  |  | 💡 |

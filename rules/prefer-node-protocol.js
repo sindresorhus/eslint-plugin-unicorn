@@ -1,6 +1,7 @@
 'use strict';
 const isBuiltinModule = require('is-builtin-module');
 const {matches, STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors/index.js');
+const {replaceStringLiteral} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-node-protocol';
 const messages = {
@@ -35,13 +36,12 @@ const create = context => {
 				return;
 			}
 
-			const firstCharacterIndex = node.range[0] + 1;
 			return {
 				node,
 				messageId: MESSAGE_ID,
 				data: {moduleName: value},
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => fixer.insertTextBeforeRange([firstCharacterIndex, firstCharacterIndex], 'node:'),
+				fix: fixer => replaceStringLiteral(fixer, node, 'node:', 0, 0)
 			};
 		},
 	};
