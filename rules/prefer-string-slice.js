@@ -39,23 +39,23 @@ const isLengthProperty = node => (
 
 function getFixArguments(node, context) {
 	const sourceCode = context.getSourceCode();
+	const objectNode = node.callee.object;
+	const argumentNodes = node.arguments;
+
+	if (argumentNodes.length === 0) {
+		return [];
+	}
+
+	const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
+	const secondArgument = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
+
+
 	const method = node.callee.property.name;
 
 	let sliceArguments;
 
 	if (method === 'substr') {
-		const objectNode = node.callee.object;
-		const argumentNodes = node.arguments;
-
-		const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
-		const secondArgument = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
-
 		switch (argumentNodes.length) {
-			case 0: {
-				sliceArguments = [];
-				break;
-			}
-
 			case 1: {
 				sliceArguments = [firstArgument];
 				break;
@@ -91,20 +91,8 @@ function getFixArguments(node, context) {
 			// No default
 		}
 	} else {
-		const objectNode = node.callee.object;
-		const argumentNodes = node.arguments;
-
-		const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
-		const secondArgument = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
-
 		const firstNumber = argumentNodes[0] ? getNumericValue(argumentNodes[0]) : undefined;
-
 		switch (argumentNodes.length) {
-			case 0: {
-				sliceArguments = [];
-				break;
-			}
-
 			case 1: {
 				if (firstNumber !== undefined) {
 					sliceArguments = [Math.max(0, firstNumber)];
