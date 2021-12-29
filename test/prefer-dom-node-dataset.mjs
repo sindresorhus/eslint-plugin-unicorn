@@ -3,13 +3,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const errors = [
-	{
-		messageId: 'prefer-dom-node-dataset',
-	},
-];
-
-test({
+test.snapshot({
 	valid: [
 		'element.dataset.unicorn = \'🦄\';',
 		'element.dataset[\'unicorn\'] = \'🦄\';',
@@ -37,72 +31,20 @@ test({
 		'element.setAttribute(\'data-\', \'🦄\');',
 	],
 	invalid: [
-		{
-			code: 'element.setAttribute(\'data-unicorn\', \'🦄\');',
-			errors,
-			output: 'element.dataset.unicorn = \'🦄\';',
-		},
-		{
-			code: 'element.setAttribute(\'data-🦄\', \'🦄\');',
-			errors,
-			output: 'element.dataset[\'🦄\'] = \'🦄\';',
-		},
-		{
-			code: 'element.setAttribute(\'data-foo2\', \'🦄\');',
-			errors,
-			output: 'element.dataset.foo2 = \'🦄\';',
-		},
-		{
-			code: 'element.setAttribute(\'data-foo:bar\', \'zaz\');',
-			errors,
-			output: 'element.dataset[\'foo:bar\'] = \'zaz\';',
-		},
-		{
-			code: 'element.setAttribute("data-foo:bar", "zaz");',
-			errors,
-			output: 'element.dataset["foo:bar"] = "zaz";',
-		},
-		{
-			code: 'element.setAttribute(\'data-foo.bar\', \'zaz\');',
-			errors,
-			output: 'element.dataset[\'foo.bar\'] = \'zaz\';',
-		},
-		{
-			code: 'element.setAttribute(\'data-foo-bar\', \'zaz\');',
-			errors,
-			output: 'element.dataset.fooBar = \'zaz\';',
-		},
-		{
-			code: 'element.setAttribute(\'data-foo\', /* comment */ \'bar\');',
-			errors,
-			output: 'element.dataset.foo = \'bar\';',
-		},
-		{
-			code: outdent`
-				element.setAttribute(
-					\'data-foo\', // comment
-					\'bar\' // comment
-				);
-			`,
-			errors,
-			output: 'element.dataset.foo = \'bar\';',
-		},
-		{
-			code: 'element.querySelector(\'#selector\').setAttribute(\'data-AllowAccess\', true);',
-			errors,
-			output: 'element.querySelector(\'#selector\').dataset.AllowAccess = true;',
-		},
-	],
-});
-
-test.snapshot({
-	valid: [],
-	invalid: [
 		outdent`
 			element.setAttribute(
 				\'data-foo\', // comment
 				\'bar\' // comment
 			);
 		`,
+		'element.setAttribute(\'data-unicorn\', \'🦄\');',
+		'element.setAttribute(\'data-🦄\', \'🦄\');',
+		'element.setAttribute(\'data-foo2\', \'🦄\');',
+		'element.setAttribute(\'data-foo:bar\', \'zaz\');',
+		'element.setAttribute("data-foo:bar", "zaz");',
+		'element.setAttribute(\'data-foo.bar\', \'zaz\');',
+		'element.setAttribute(\'data-foo-bar\', \'zaz\');',
+		'element.setAttribute(\'data-foo\', /* comment */ \'bar\');',
+		'element.querySelector(\'#selector\').setAttribute(\'data-AllowAccess\', true);',
 	],
 });
