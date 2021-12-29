@@ -38,14 +38,13 @@ const isLengthProperty = node => (
 );
 
 function getFixArguments(node, context) {
-	const sourceCode = context.getSourceCode();
-	const objectNode = node.callee.object;
 	const argumentNodes = node.arguments;
 
 	if (argumentNodes.length === 0) {
 		return [];
 	}
 
+	const sourceCode = context.getSourceCode();
 	const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
 	const secondArgument = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
 
@@ -137,8 +136,6 @@ const create = context => {
 
 	return {
 		[selector](node) {
-			const objectNode = node.callee.object;
-			const argumentNodes = node.arguments;
 			const method = node.callee.property.name;
 
 			const problem = {
@@ -147,15 +144,18 @@ const create = context => {
 			};
 
 			const sliceArguments = getFixArguments(node, context);
-			if (sliceArguments) {
-				const objectText = getParenthesizedText(objectNode, sourceCode);
-				const optionalMemberSuffix = node.callee.optional ? '?' : '';
-				const optionalCallSuffix = node.optional ? '?.' : '';
-
-				problem.fix = fixer => fixer.replaceText(node, `${objectText}${optionalMemberSuffix}.slice${optionalCallSuffix}(${sliceArguments.join(', ')})`);
+			if (!sliceArguments) {
+				return problem;
 			}
 
-			context.report(problem);
+			const objectNode = node.callee.object;
+			const objectText = getParenthesizedText(objectNode, sourceCode);
+			const optionalMemberSuffix = node.callee.optional ? '?' : '';
+			const optionalCallSuffix = node.optional ? '?.' : '';
+
+			problem.fix = fixer => fixer.replaceText(node, `${objectText}${optionalMemberSuffix}.slice${optionalCallSuffix}(${sliceArguments.join(', ')})`);
+
+			return problem;
 		},
 	};
 };
