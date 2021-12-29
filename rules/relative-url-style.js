@@ -5,65 +5,82 @@ const {replaceStringLiteral} = require('./fix/index.js');
 const MESSAGE_ID_NEVER = 'never';
 const MESSAGE_ID_ALWAYS = 'always';
 const messages = {
-	[MESSAGE_ID_NEVER]: 'Remove `./` prefix from relative urls.',
-	[MESSAGE_ID_ALWAYS]: 'Use `./` prefix in relative urls.',
+	[MESSAGE_ID_NEVER]: 'Remove `./` prefix from the relative url.',
+	[MESSAGE_ID_ALWAYS]: 'Use `./` prefix in the relative url.',
 };
 
 const selector = [
 	newExpressionSelector({name: 'URL', argumentsLength: 2}),
-	' > Literal:first-child.arguments'
+	' > :first-child.arguments',
 ].join('');
 
-const TEST_URL_BASE = 'https://www.example.com/'
+const DOT_SLASH = './';
+const TEST_URL_BASE = 'https://www.example.com/';
 const isSafeToAddDotSlash = url => new URL(url, TEST_URL_BASE).href === new URL(`./${url}`, TEST_URL_BASE).href;
+
+function removeDotSlash(node) {
+	if (
+		node.type === 'TemplateLiteral'
+		&& node.quasis[0].value.raw.startsWith(DOT_SLASH)
+	) {
+		const firstPart = node.quasis[0];
+		return (fixer) => {
+			const start = firstPart.range[0] + 1;
+			return fixer.removeRange([start, start + 2]);
+		};
+	}
+
+	if (node.type !== 'Literal' || typeof node.value !== 'string') {
+		return;
+	}
+
+	const url = node.value;
+
+	if (!url.startsWith(DOT_SLASH)) {
+		return;
+	}
+
+	return fixer => replaceStringLiteral(fixer, node, '', 0, 2)
+}
+
+function addDotSlash(node) {
+	if (node.type !== 'Literal' || typeof node.value !== 'string') {
+		return;
+	}
+
+	const url = node.value;
+
+	if (url.startsWith(DOT_SLASH)) {
+		return;
+	}
+
+	if (
+		url.startsWith('.')
+		|| url.startsWith('/')
+		|| !isSafeToAddDotSlash(url)
+	) {
+		return;
+	}
+
+	return fixer => replaceStringLiteral(fixer, node, DOT_SLASH, 0, 0)
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {
-		style
-	} = {
-		style: 'never',
-		...context.options[0]
-	};
+	const style = context.options[0] || 'never';
+	return {[selector](node) {
+		const fix = (style === 'never' ? removeDotSlash : addDotSlash)(node)
 
-	const shouldRemoveDotSlash = style === 'never';
-
-	return {
-		[selector](node) {
-			const {value} = node;
-			if (typeof value !== 'string') {
-				return;
-			}
-
-			if (shouldRemoveDotSlash) {
-				if (!value.startsWith('./')) {
-					return;
-				}
-
-				return {
-					node,
-					messageId: MESSAGE_ID_NEVER,
-					/** @param {import('eslint').Rule.RuleFixer} fixer */
-					fix: fixer => replaceStringLiteral(fixer, node, '', 0, 2),
-				};
-			}
-
-			if (
-				value.startsWith('.')
-				|| value.startsWith('/')
-				|| !isSafeToAddDotSlash(value)
-			) {
-				return;
-			}
-
-			return {
-				node,
-				messageId: MESSAGE_ID_ALWAYS,
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => replaceStringLiteral(fixer, node, './', 0, 0),
-			};
+		if (!fix) {
+			return;
 		}
-	}
+
+		return {
+			node,
+			messageId: style,
+			fix,
+		}
+	}};
 };
 
 const schema = [
@@ -79,10 +96,10 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce consistent relative url style.'
+			description: 'Enforce consistent relative url style.',
 		},
 		fixable: 'code',
 		schema,
-		messages
-	}
+		messages,
+	},
 };

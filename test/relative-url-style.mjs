@@ -15,17 +15,20 @@ test.snapshot({
 		'new URL',
 		// Not checking this case
 		'new globalThis.URL("./foo", base)',
-		// Not checking this case
-		'new URL(`./${foo}`, base)',
+		'const foo = "./foo"; new URL(foo, base)',
+		'const foo = "/foo"; new URL(`.${foo}`, base)',
 		'new URL(`.${foo}`, base)',
 		'new URL(".", base)',
 		'new URL(".././foo", base)',
+		// We don't check cooked value
+		'new URL(`\\u002E/${foo}`, base)',
 	],
 	invalid: [
 		'new URL("./foo", base)',
 		'new URL(\'./foo\', base)',
 		'new URL("./", base)',
 		'new URL("././a", base)',
+		'new URL(`./${foo}`, base)',
 	],
 });
 
@@ -52,6 +55,7 @@ test.snapshot({
 		'new URL("/foo", base)',
 		'new URL("../foo", base)',
 		'new URL(".././foo", base)',
+		'new URL("C:\\foo", base)',
 	].map(code => ({code, options: alwaysAddDotSlashOptions})),
 	invalid: [
 		'new URL("foo", base)',

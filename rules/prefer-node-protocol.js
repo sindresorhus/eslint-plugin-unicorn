@@ -41,7 +41,7 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				data: {moduleName: value},
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => replaceStringLiteral(fixer, node, 'node:', 0, 0)
+				fix: fixer => replaceStringLiteral(fixer, node, 'node:', 0, 0),
 			};
 		},
 	};
