@@ -46,6 +46,7 @@ const create = context => ({
 			}
 
 			case 'hasAttribute':
+				// TODO: Use `Object.hasOwn()` here when targeting Node.js 16.
 				// If user have `prefer-object-has-own` rule enabled, this will be fixed to use `Object.hasOwn()`
 				text = `Object.prototype.hasOwnProperty.call(${datasetText}, ${quoteString(name, nameNode.raw.charAt(0))})`;
 				break;
