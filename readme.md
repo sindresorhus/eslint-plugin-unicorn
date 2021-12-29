@@ -213,7 +213,7 @@ Each rule has emojis denoting:
 | [prefer-date-now](docs/rules/prefer-date-now.md) | Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. | ✅ | 🔧 |  |
 | [prefer-default-parameters](docs/rules/prefer-default-parameters.md) | Prefer default parameters over reassignment. | ✅ | 🔧 | 💡 |
 | [prefer-dom-node-append](docs/rules/prefer-dom-node-append.md) | Prefer `Node#append()` over `Node#appendChild()`. | ✅ | 🔧 |  |
-| [prefer-dom-node-dataset](docs/rules/prefer-dom-node-dataset.md) | Prefer using `.dataset` on DOM elements over `.setAttribute(…)`. | ✅ | 🔧 |  |
+| [prefer-dom-node-dataset](docs/rules/prefer-dom-node-dataset.md) | Prefer using `.dataset` on DOM elements over `.setAttribute(…)` and `.removeAttribute(…)`. | ✅ | 🔧 |  |
 | [prefer-dom-node-remove](docs/rules/prefer-dom-node-remove.md) | Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`. | ✅ | 🔧 | 💡 |
 | [prefer-dom-node-text-content](docs/rules/prefer-dom-node-text-content.md) | Prefer `.textContent` over `.innerText`. | ✅ |  | 💡 |
 | [prefer-export-from](docs/rules/prefer-export-from.md) | Prefer `export…from` when re-exporting. | ✅ | 🔧 | 💡 |

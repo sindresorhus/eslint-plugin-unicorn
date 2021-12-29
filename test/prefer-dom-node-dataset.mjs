@@ -3,13 +3,8 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const errors = [
-	{
-		messageId: 'prefer-dom-node-dataset',
-	},
-];
-
-test({
+// `setAttribute`
+test.snapshot({
 	valid: [
 		'element.dataset.unicorn = \'🦄\';',
 		'element.dataset[\'unicorn\'] = \'🦄\';',
@@ -21,7 +16,7 @@ test({
 		'element[\'setAttribute\'](\'data-unicorn\', \'🦄\');',
 		// Computed
 		'element[setAttribute](\'data-unicorn\', \'🦄\');',
-		// Not `appendChild`
+		// Not `setAttribute`
 		'element.foo(\'data-unicorn\', \'🦄\');',
 		// More or less argument(s)
 		'element.setAttribute(\'data-unicorn\', \'🦄\', \'extra\');',
@@ -37,72 +32,68 @@ test({
 		'element.setAttribute(\'data-\', \'🦄\');',
 	],
 	invalid: [
-		{
-			code: 'element.setAttribute(\'data-unicorn\', \'🦄\');',
-			errors,
-			output: 'element.dataset.unicorn = \'🦄\';',
-		},
-		{
-			code: 'element.setAttribute(\'data-🦄\', \'🦄\');',
-			errors,
-			output: 'element.dataset[\'🦄\'] = \'🦄\';',
-		},
-		{
-			code: 'element.setAttribute(\'data-foo2\', \'🦄\');',
-			errors,
-			output: 'element.dataset.foo2 = \'🦄\';',
-		},
-		{
-			code: 'element.setAttribute(\'data-foo:bar\', \'zaz\');',
-			errors,
-			output: 'element.dataset[\'foo:bar\'] = \'zaz\';',
-		},
-		{
-			code: 'element.setAttribute("data-foo:bar", "zaz");',
-			errors,
-			output: 'element.dataset["foo:bar"] = "zaz";',
-		},
-		{
-			code: 'element.setAttribute(\'data-foo.bar\', \'zaz\');',
-			errors,
-			output: 'element.dataset[\'foo.bar\'] = \'zaz\';',
-		},
-		{
-			code: 'element.setAttribute(\'data-foo-bar\', \'zaz\');',
-			errors,
-			output: 'element.dataset.fooBar = \'zaz\';',
-		},
-		{
-			code: 'element.setAttribute(\'data-foo\', /* comment */ \'bar\');',
-			errors,
-			output: 'element.dataset.foo = \'bar\';',
-		},
-		{
-			code: outdent`
-				element.setAttribute(
-					\'data-foo\', // comment
-					\'bar\' // comment
-				);
-			`,
-			errors,
-			output: 'element.dataset.foo = \'bar\';',
-		},
-		{
-			code: 'element.querySelector(\'#selector\').setAttribute(\'data-AllowAccess\', true);',
-			errors,
-			output: 'element.querySelector(\'#selector\').dataset.AllowAccess = true;',
-		},
-	],
-});
-
-test.snapshot({
-	valid: [],
-	invalid: [
 		outdent`
 			element.setAttribute(
 				\'data-foo\', // comment
 				\'bar\' // comment
 			);
 		`,
+		'element.setAttribute(\'data-unicorn\', \'🦄\');',
+		'element.setAttribute(\'data-🦄\', \'🦄\');',
+		'element.setAttribute(\'data-foo2\', \'🦄\');',
+		'element.setAttribute(\'data-foo:bar\', \'zaz\');',
+		'element.setAttribute("data-foo:bar", "zaz");',
+		'element.setAttribute(\'data-foo.bar\', \'zaz\');',
+		'element.setAttribute(\'data-foo-bar\', \'zaz\');',
+		'element.setAttribute(\'data-foo\', /* comment */ \'bar\');',
+		'element.querySelector(\'#selector\').setAttribute(\'data-AllowAccess\', true);',
+	],
+});
+
+// `removeAttribute``
+test.snapshot({
+	valid: [
+		'delete element.dataset.unicorn;',
+		'delete element.dataset["unicorn"];',
+		// Not `CallExpression`
+		'new element.removeAttribute("data-unicorn");',
+		// Not `MemberExpression`
+		'removeAttribute("data-unicorn");',
+		// `callee.property` is not a `Identifier`
+		'element["removeAttribute"]("data-unicorn");',
+		// Computed
+		'element[removeAttribute]("data-unicorn");',
+		// Not `removeAttribute`
+		'element.foo("data-unicorn");',
+		// More or less argument(s)
+		'element.removeAttribute("data-unicorn", "extra");',
+		'element.removeAttribute();',
+		'element.removeAttribute(...argumentsArray, ...argumentsArray2)',
+		// First Argument is not `Literal`
+		'element.removeAttribute(`data-unicorn`);',
+		// First Argument is not `string`
+		'element.removeAttribute(0);',
+		// First Argument is not startsWith `data-`
+		'element.removeAttribute("foo-unicorn");',
+		// First Argument is `data-`
+		'element.removeAttribute("data-");',
+	],
+	invalid: [
+		outdent`
+			element.removeAttribute(
+				"data-foo", // comment
+			);
+		`,
+		'element.removeAttribute(\'data-unicorn\');',
+		'element.removeAttribute("data-unicorn");',
+		'element.removeAttribute("data-unicorn",);',
+		'element.removeAttribute("data-🦄");',
+		'element.removeAttribute("data-foo2");',
+		'element.removeAttribute("data-foo:bar");',
+		'element.removeAttribute("data-foo:bar");',
+		'element.removeAttribute("data-foo.bar");',
+		'element.removeAttribute("data-foo-bar");',
+		'element.removeAttribute("data-foo");',
+		'element.querySelector("#selector").removeAttribute("data-AllowAccess");',
 	],
 });
