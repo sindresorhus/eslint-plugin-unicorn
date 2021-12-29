@@ -1,56 +1,51 @@
 'use strict';
 const isValidVariableName = require('./utils/is-valid-variable-name.js');
 const quoteString = require('./utils/quote-string.js');
-const {methodCallSelector} = require('./selectors/index.js');
+const {methodCallSelector, matches} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-dom-node-dataset';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `.dataset` over `setAttribute(…)`.',
+	[MESSAGE_ID]: 'Prefer `.dataset` over `{{method}}(…)`.',
 };
 
 const selector = [
-	methodCallSelector({
-		method: 'setAttribute',
-		argumentsLength: 2,
-	}),
+	matches([
+		methodCallSelector({method: 'setAttribute', argumentsLength: 2}),
+		methodCallSelector({method: 'removeAttribute', argumentsLength: 1}),
+	]),
 	'[arguments.0.type="Literal"]',
 ].join('');
 
-const parseNodeText = (context, argument) => context.getSourceCode().getText(argument);
-
 const dashToCamelCase = string => string.replace(/-[a-z]/g, s => s[1].toUpperCase());
-
-const fix = (context, node, fixer) => {
-	const [nameNode, valueNode] = node.arguments;
-	const calleeObject = parseNodeText(context, node.callee.object);
-
-	const name = dashToCamelCase(nameNode.value.slice(5));
-	const value = parseNodeText(context, valueNode);
-
-	const replacement = `${calleeObject}.dataset${
-		isValidVariableName(name)
-			? `.${name}`
-			: `[${quoteString(name, nameNode.raw.charAt(0))}]`
-	} = ${value}`;
-
-	return fixer.replaceText(node, replacement);
-};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector](node) {
-		const name = node.arguments[0].value;
+		const [nameNode] = node.arguments;
+		const attributeName = nameNode.value;
 
-		if (typeof name !== 'string' || !name.startsWith('data-') || name === 'data-') {
+		if (typeof attributeName !== 'string' || !attributeName.startsWith('data-') || attributeName === 'data-') {
 			return;
 		}
+
+		const method = node.callee.property.name;
+		const name = dashToCamelCase(attributeName.slice(5));
+		let text = isValidVariableName(name) ? `.${name}` : `[${quoteString(name, nameNode.raw.charAt(0))}]`
+
+		const sourceCode = context.getSourceCode();
+		text = `${sourceCode.getText(node.callee.object)}.dataset${text}`;
+
+		text = method === 'setAttribute'
+			? `${text} = ${sourceCode.getText(node.arguments[1])}`
+			: `delete ${text}`;
 
 		return {
 			node,
 			messageId: MESSAGE_ID,
-			fix: fixer => fix(context, node, fixer),
+			data: {method},
+			fix: fixer => fixer.replaceText(node, text)
 		};
-	},
+	}
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -59,7 +54,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer using `.dataset` on DOM elements over `.setAttribute(…)`.',
+			description: 'Prefer using `.dataset` on DOM elements over `.setAttribute(…)` and `.removeAttribute(…)`.',
 		},
 		fixable: 'code',
 		messages,
