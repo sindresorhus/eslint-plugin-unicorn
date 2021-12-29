@@ -70,8 +70,10 @@ function isPromiseCallback(node) {
 		if (
 			arguments_.length === 2
 			&& property.name === 'then'
-			&& arguments_[0].type !== 'SpreadElement'
-			&& arguments_[1] === node
+			&& (
+				arguments_[0] === node
+				|| (arguments_[0].type !== 'SpreadElement' && arguments_[1] === node)
+			)
 		) {
 			return true;
 		}

@@ -505,6 +505,11 @@ test({
 			output: 'promise.then(() => {}, () => bar)',
 		},
 		{
+			code: 'promise.then(() => Promise.resolve(bar), () => Promise.resolve(baz))',
+			errors: [returnResolveError, returnResolveError],
+			output: 'promise.then(() => bar, () => baz)',
+		},
+		{
 			code: 'promise.then(() => {}, () => { return Promise.resolve(bar); })',
 			errors: [returnResolveError],
 			output: 'promise.then(() => {}, () => { return bar; })',
