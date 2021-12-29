@@ -52,7 +52,7 @@ const isAwaitArgument = node => {
 	}
 
 	return node.parent.type === 'AwaitExpression' && node.parent.argument === node;
-}
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
