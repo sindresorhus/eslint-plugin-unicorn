@@ -84,15 +84,12 @@ function create(context) {
 			};
 		},
 		[iife](node) {
-			node = getPromiseChainRoot(node);
 			if (
-				reported.has(node)
+				isPromiseMethodCalleeObject(node)
 				|| isAwaitArgument(node)
 			) {
 				return;
 			}
-
-			reported.add(node);
 
 			return {
 				node,
@@ -103,13 +100,10 @@ function create(context) {
 		[identifier](node) {
 			if (
 				isPromiseMethodCalleeObject(node)
-				|| reported.has(node)
 				|| isAwaitArgument(node)
 			) {
 				return;
 			}
-
-			reported.add(node);
 
 			const variable = findVariable(context.getScope(), node.callee);
 			if (!variable || variable.defs.length !== 1) {
