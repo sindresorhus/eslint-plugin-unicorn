@@ -3,6 +3,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
+// `setAttribute`
 test.snapshot({
 	valid: [
 		'element.dataset.unicorn = \'🦄\';',
@@ -15,7 +16,7 @@ test.snapshot({
 		'element[\'setAttribute\'](\'data-unicorn\', \'🦄\');',
 		// Computed
 		'element[setAttribute](\'data-unicorn\', \'🦄\');',
-		// Not `appendChild`
+		// Not `setAttribute`
 		'element.foo(\'data-unicorn\', \'🦄\');',
 		// More or less argument(s)
 		'element.setAttribute(\'data-unicorn\', \'🦄\', \'extra\');',
@@ -46,5 +47,53 @@ test.snapshot({
 		'element.setAttribute(\'data-foo-bar\', \'zaz\');',
 		'element.setAttribute(\'data-foo\', /* comment */ \'bar\');',
 		'element.querySelector(\'#selector\').setAttribute(\'data-AllowAccess\', true);',
+	],
+});
+
+// `removeAttribute``
+test.snapshot({
+	valid: [
+		'delete element.dataset.unicorn;',
+		'delete element.dataset["unicorn"];',
+		// Not `CallExpression`
+		'new element.removeAttribute("data-unicorn");',
+		// Not `MemberExpression`
+		'removeAttribute("data-unicorn");',
+		// `callee.property` is not a `Identifier`
+		'element["removeAttribute"]("data-unicorn");',
+		// Computed
+		'element[removeAttribute]("data-unicorn");',
+		// Not `removeAttribute`
+		'element.foo("data-unicorn");',
+		// More or less argument(s)
+		'element.removeAttribute("data-unicorn", "extra");',
+		'element.removeAttribute();',
+		'element.removeAttribute(...argumentsArray, ...argumentsArray2)',
+		// First Argument is not `Literal`
+		'element.removeAttribute(`data-unicorn`);',
+		// First Argument is not `string`
+		'element.removeAttribute(0);',
+		// First Argument is not startsWith `data-`
+		'element.removeAttribute("foo-unicorn");',
+		// First Argument is `data-`
+		'element.removeAttribute("data-");',
+	],
+	invalid: [
+		outdent`
+			element.removeAttribute(
+				"data-foo", // comment
+			);
+		`,
+		'element.removeAttribute(\'data-unicorn\');',
+		'element.removeAttribute("data-unicorn");',
+		'element.removeAttribute("data-unicorn",);',
+		'element.removeAttribute("data-🦄");',
+		'element.removeAttribute("data-foo2");',
+		'element.removeAttribute("data-foo:bar");',
+		'element.removeAttribute("data-foo:bar");',
+		'element.removeAttribute("data-foo.bar");',
+		'element.removeAttribute("data-foo-bar");',
+		'element.removeAttribute("data-foo");',
+		'element.querySelector("#selector").removeAttribute("data-AllowAccess");',
 	],
 });
