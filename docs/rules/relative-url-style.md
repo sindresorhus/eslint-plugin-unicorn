@@ -31,5 +31,5 @@ Default: `'never'`
 ```js
 // eslint unicorn/relative-url-style: ["error", "always"]
 const url = new URL('foo', base); // Fail
-const url = new URL('/foo', base); // Pass
+const url = new URL('./foo', base); // Pass
 ```
