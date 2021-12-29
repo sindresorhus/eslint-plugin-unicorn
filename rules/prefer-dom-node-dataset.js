@@ -46,7 +46,7 @@ const create = context => ({
 			}
 
 			case 'hasAttribute':
-				// If use have `prefer-object-has-own` rule enabled, this will be fixed to use `Object.hasOwn()`
+				// If user have `prefer-object-has-own` rule enabled, this will be fixed to use `Object.hasOwn()`
 				text = `Object.prototype.hasOwnProperty.call(${datasetText}, ${quoteString(name, nameNode.raw.charAt(0))})`;
 				break;
 			// No default
