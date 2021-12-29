@@ -70,17 +70,14 @@ function getFixArguments(node, context) {
 					return sliceCallArguments;
 				}
 
-				if (isLiteralNumber(argumentNodes[0]) && isLiteralNumber(argumentNodes[1])) {
+				if (argumentNodes.every(node => isLiteralNumber(node))) {
 					return [
 						firstArgument,
 						argumentNodes[0].value + argumentNodes[1].value,
 					];
 				}
 
-				if (
-					isNumber(argumentNodes[0], context.getScope())
-					&& isNumber(argumentNodes[1], context.getScope())
-				) {
+				if (argumentNodes.every(node => isNumber(node, context.getScope()))) {
 					return [firstArgument, firstArgument + ' + ' + secondArgument];
 				}
 
