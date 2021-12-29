@@ -11,7 +11,7 @@ const messages = {
 
 const selector = [
 	newExpressionSelector({name: 'URL', argumentsLength: 2}),
-	' > :first-child.arguments',
+	' > .arguments:first-child',
 ].join('');
 
 const DOT_SLASH = './';
