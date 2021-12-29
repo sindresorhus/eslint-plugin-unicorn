@@ -58,16 +58,16 @@ function getFixArguments(node, context) {
 
 			case 2: {
 				if (firstArgument === '0') {
-					const sliceArguments = [firstArgument];
+					const sliceCallArguments = [firstArgument];
 					if (isLiteralNumber(secondArgument) || isLengthProperty(argumentNodes[1])) {
-						sliceArguments.push(secondArgument);
+						sliceCallArguments.push(secondArgument);
 					} else if (typeof getNumericValue(argumentNodes[1]) === 'number') {
-						sliceArguments.push(Math.max(0, getNumericValue(argumentNodes[1])));
+						sliceCallArguments.push(Math.max(0, getNumericValue(argumentNodes[1])));
 					} else {
-						sliceArguments.push(`Math.max(0, ${secondArgument})`);
+						sliceCallArguments.push(`Math.max(0, ${secondArgument})`);
 					}
 
-					return sliceArguments;
+					return sliceCallArguments;
 				}
 
 				if (isLiteralNumber(argumentNodes[0]) && isLiteralNumber(argumentNodes[1])) {
@@ -136,15 +136,13 @@ const create = context => {
 
 	return {
 		[selector](node) {
-			const method = node.callee.property.name;
-
 			const problem = {
 				node,
-				messageId: method,
+				messageId: node.callee.property.name,
 			};
 
-			const sliceArguments = getFixArguments(node, context);
-			if (!sliceArguments) {
+			const sliceCallArguments = getFixArguments(node, context);
+			if (!sliceCallArguments) {
 				return problem;
 			}
 
@@ -153,7 +151,7 @@ const create = context => {
 			const optionalMemberSuffix = node.callee.optional ? '?' : '';
 			const optionalCallSuffix = node.optional ? '?.' : '';
 
-			problem.fix = fixer => fixer.replaceText(node, `${objectText}${optionalMemberSuffix}.slice${optionalCallSuffix}(${sliceArguments.join(', ')})`);
+			problem.fix = fixer => fixer.replaceText(node, `${objectText}${optionalMemberSuffix}.slice${optionalCallSuffix}(${sliceCallArguments.join(', ')})`);
 
 			return problem;
 		},
