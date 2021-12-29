@@ -10,8 +10,11 @@ const messages = {
 	[MESSAGE_ID_SUBSTRING]: 'Prefer `String#slice()` over `String#substring()`.',
 };
 
-const substrCallSelector = methodCallSelector({method: 'substr', includeOptionalMember: true, includeOptionalCall: true});
-const substringCallSelector = methodCallSelector({method: 'substring', includeOptionalMember: true, includeOptionalCall: true});
+const selector = methodCallSelector({
+	methods: ['substr', 'substring'],
+	includeOptionalMember: true,
+	includeOptionalCall: true,
+});
 
 const isLiteralNumber = node => node && node.type === 'Literal' && typeof node.value === 'number';
 
@@ -146,34 +149,14 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 
 	return {
-		[substrCallSelector](node) {
+		[selector](node) {
 			const objectNode = node.callee.object;
 			const argumentNodes = node.arguments;
+			const method = node.callee.property.name;
 
 			const problem = {
 				node,
-				messageId: MESSAGE_ID_SUBSTR,
-			};
-
-			const sliceArguments = getFixArguments(node, context);
-			if (sliceArguments) {
-				const objectText = getParenthesizedText(objectNode, sourceCode);
-				const optionalMemberSuffix = node.callee.optional ? '?' : '';
-				const optionalCallSuffix = node.optional ? '?.' : '';
-
-				problem.fix = fixer => fixer.replaceText(node, `${objectText}${optionalMemberSuffix}.slice${optionalCallSuffix}(${sliceArguments.join(', ')})`);
-			}
-
-			context.report(problem);
-		},
-
-		[substringCallSelector](node) {
-			const objectNode = node.callee.object;
-			const argumentNodes = node.arguments;
-
-			const problem = {
-				node,
-				messageId: MESSAGE_ID_SUBSTRING,
+				messageId: method,
 			};
 
 			const sliceArguments = getFixArguments(node, context);
