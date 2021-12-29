@@ -22,6 +22,9 @@ test.snapshot({
 		'new URL(".././foo", base)',
 		// We don't check cooked value
 		'new URL(`\\u002E/${foo}`, base)',
+		// We don't check escaped string
+		'new URL("\\u002E/foo", base)',
+		'new URL(\'\\u002E/foo\', base)',
 	],
 	invalid: [
 		'new URL("./foo", base)',
@@ -56,6 +59,8 @@ test.snapshot({
 		'new URL("../foo", base)',
 		'new URL(".././foo", base)',
 		'new URL("C:\\foo", base)',
+		'new URL("\\u002E/foo", base)',
+		'new URL("\\u002Ffoo", base)',
 	].map(code => ({code, options: alwaysAddDotSlashOptions})),
 	invalid: [
 		'new URL("foo", base)',

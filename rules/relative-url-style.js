@@ -34,9 +34,7 @@ function removeDotSlash(node) {
 		return;
 	}
 
-	const url = node.value;
-
-	if (!url.startsWith(DOT_SLASH)) {
+	if (!node.raw.slice(1, -1).startsWith(DOT_SLASH)) {
 		return;
 	}
 
