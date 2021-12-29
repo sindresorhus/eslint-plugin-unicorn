@@ -30,7 +30,7 @@ const create = context => ({
 
 		const method = node.callee.property.name;
 		const name = dashToCamelCase(attributeName.slice(5));
-		let text = isValidVariableName(name) ? `.${name}` : `[${quoteString(name, nameNode.raw.charAt(0))}]`
+		let text = isValidVariableName(name) ? `.${name}` : `[${quoteString(name, nameNode.raw.charAt(0))}]`;
 
 		const sourceCode = context.getSourceCode();
 		text = `${sourceCode.getText(node.callee.object)}.dataset${text}`;
@@ -43,9 +43,9 @@ const create = context => ({
 			node,
 			messageId: MESSAGE_ID,
 			data: {method},
-			fix: fixer => fixer.replaceText(node, text)
+			fix: fixer => fixer.replaceText(node, text),
 		};
-	}
+	},
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
