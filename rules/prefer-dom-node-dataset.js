@@ -33,7 +33,7 @@ const create = context => ({
 
 		const sourceCode = context.getSourceCode();
 		let text = '';
-		const datasetText = `${sourceCode.getText(node.callee.object)}.dataset`
+		const datasetText = `${sourceCode.getText(node.callee.object)}.dataset`;
 		switch (method) {
 			case 'setAttribute':
 			case 'removeAttribute': {
@@ -44,9 +44,10 @@ const create = context => ({
 					: `delete ${text}`;
 				break;
 			}
+
 			case 'hasAttribute':
 				// If use have `prefer-object-has-own` rule enabled, this will be fixed to use `Object.hasOwn()`
-				text = `Object.prototype.hasOwnProperty.call(${datasetText}, ${quoteString(name, nameNode.raw.charAt(0))})`
+				text = `Object.prototype.hasOwnProperty.call(${datasetText}, ${quoteString(name, nameNode.raw.charAt(0))})`;
 				break;
 			// No default
 		}
