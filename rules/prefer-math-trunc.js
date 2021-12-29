@@ -61,15 +61,15 @@ const create = context => {
 
 			if (!isAssignment || !hasSideEffect(left, sourceCode)) {
 				const fix = function * (fixer) {
-					let fixed = mathTruncFunctionCall(left);
+					const fixed = mathTruncFunctionCall(left);
 					if (isAssignment) {
-						// TODO[@fisker]: Improve this fix, don't touch left
-						fixed = `${sourceCode.getText(left)} = ${fixed}`;
+						const operatorToken = sourceCode.getTokenAfter(left, token => token.type === 'Punctuator' && token.value === operator);
+						yield fixer.replaceText(operatorToken, '=');
+						yield fixer.replaceText(right, fixed);
 					} else {
 						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+						yield fixer.replaceText(node, fixed);
 					}
-
-					yield fixer.replaceText(node, fixed);
 				};
 
 				if (operator === '|') {
