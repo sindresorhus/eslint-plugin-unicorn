@@ -46,14 +46,6 @@ const isPromiseMethodCalleeObject = node =>
 	&& promiseMethods.includes(node.parent.property.name)
 	&& node.parent.parent.type === 'CallExpression'
 	&& node.parent.parent.callee === node.parent;
-const getPromiseChainRoot = node => {
-	while (isPromiseMethodCalleeObject(node)) {
-		node = node.parent.parent;
-	}
-
-	return node;
-};
-
 const isAwaitArgument = node => {
 	if (node.parent.type === 'ChainExpression') {
 		node = node.parent;
@@ -64,19 +56,11 @@ const isAwaitArgument = node => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
-	const reported = new Set();
-
 	return {
 		[promise](node) {
-			node = getPromiseChainRoot(node);
-			if (
-				reported.has(node)
-				|| isAwaitArgument(node)
-			) {
+			if (isPromiseMethodCalleeObject(node) || isAwaitArgument(node)) {
 				return;
 			}
-
-			reported.add(node);
 
 			return {
 				node: node.callee.property,
@@ -84,10 +68,7 @@ function create(context) {
 			};
 		},
 		[iife](node) {
-			if (
-				isPromiseMethodCalleeObject(node)
-				|| isAwaitArgument(node)
-			) {
+			if (isPromiseMethodCalleeObject(node) || isAwaitArgument(node)) {
 				return;
 			}
 
@@ -98,10 +79,7 @@ function create(context) {
 			};
 		},
 		[identifier](node) {
-			if (
-				isPromiseMethodCalleeObject(node)
-				|| isAwaitArgument(node)
-			) {
+			if (isPromiseMethodCalleeObject(node) || isAwaitArgument(node)) {
 				return;
 			}
 
