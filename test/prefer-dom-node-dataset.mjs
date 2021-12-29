@@ -97,3 +97,54 @@ test.snapshot({
 		'element.querySelector("#selector").removeAttribute("data-AllowAccess");',
 	],
 });
+
+// `hasAttribute``
+test.snapshot({
+	valid: [
+		'"unicorn" in element.dataset',
+		'element.dataset.hasOwnProperty("unicorn")',
+		'Object.prototype.hasOwnProperty.call(element.dataset, "unicorn")',
+		'Object.hasOwn(element.dataset, "unicorn")',
+		'Reflect.has(element.dataset, "unicorn")',
+		// Not `CallExpression`
+		'new element.hasAttribute("data-unicorn");',
+		// Not `MemberExpression`
+		'hasAttribute("data-unicorn");',
+		// `callee.property` is not a `Identifier`
+		'element["hasAttribute"]("data-unicorn");',
+		// Computed
+		'element[hasAttribute]("data-unicorn");',
+		// Not `removeAttribute`
+		'element.foo("data-unicorn");',
+		// More or less argument(s)
+		'element.hasAttribute("data-unicorn", "extra");',
+		'element.hasAttribute();',
+		'element.hasAttribute(...argumentsArray, ...argumentsArray2)',
+		// First Argument is not `Literal`
+		'element.hasAttribute(`data-unicorn`);',
+		// First Argument is not `string`
+		'element.hasAttribute(0);',
+		// First Argument is not startsWith `data-`
+		'element.hasAttribute("foo-unicorn");',
+		// First Argument is `data-`
+		'element.hasAttribute("data-");',
+	],
+	invalid: [
+		outdent`
+			element.hasAttribute(
+				"data-foo", // comment
+			);
+		`,
+		'element.hasAttribute(\'data-unicorn\');',
+		'element.hasAttribute("data-unicorn");',
+		'element.hasAttribute("data-unicorn",);',
+		'element.hasAttribute("data-🦄");',
+		'element.hasAttribute("data-foo2");',
+		'element.hasAttribute("data-foo:bar");',
+		'element.hasAttribute("data-foo:bar");',
+		'element.hasAttribute("data-foo.bar");',
+		'element.hasAttribute("data-foo-bar");',
+		'element.hasAttribute("data-foo");',
+		'element.querySelector("#selector").hasAttribute("data-AllowAccess");',
+	],
+});

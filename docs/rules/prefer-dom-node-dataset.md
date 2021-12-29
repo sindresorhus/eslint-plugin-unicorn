@@ -1,10 +1,10 @@
-# Prefer using `.dataset` on DOM elements over `.setAttribute(…)` and `.removeAttribute(…)`
+# Prefer using `.dataset` on DOM elements over accessing attributes
 
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
 🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
 
-Use [`.dataset`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset) on DOM elements over `.setAttribute(…)` and `.removeAttribute(…)`.
+Use [`.dataset`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset) on DOM elements over `.setAttribute(…)`, `.removeAttribute(…)` and `.hasAttribute(…)`.
 
 ## Fail
 
@@ -14,6 +14,10 @@ element.setAttribute('data-unicorn', '🦄');
 
 ```js
 element.removeAttribute('data-unicorn');
+```
+
+```js
+const hasUnicorn = element.hasAttribute('data-unicorn');
 ```
 
 ## Pass
@@ -27,9 +31,33 @@ delete element.dataset.unicorn;
 ```
 
 ```js
+const hasUnicorn = Object.hasOwn(element.dataset, 'unicorn');
+```
+
+```js
+const hasUnicorn = Object.prototype.hasOwnProperty.call(element.dataset, 'unicorn');
+```
+
+```js
+const hasUnicorn = element.dataset.hasOwnProperty('unicorn');
+```
+
+```js
+const hasUnicorn = Reflect.has(element.dataset, 'unicorn');
+```
+
+```js
+const hasUnicorn = 'unicorn' in element.dataset;
+```
+
+```js
 element.setAttribute('not-dataset', '🦄');
 ```
 
 ```js
 element.removeAttribute('not-dataset');
+```
+
+```js
+const hasFoo = element.hasAttribute('foo');
 ```
