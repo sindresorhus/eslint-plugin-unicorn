@@ -8,23 +8,33 @@ test.snapshot({
 	valid: [
 		'a()',
 		'a = async () => {}',
-		'a = (async () => {})()',
+		'(async function *() {})()',
+		outdent`
+			function foo() {
+				if (foo) {
+					(async () => {})()
+				}
+			}
+		`,
+		'await (async () => {})()',
+	],
+	invalid: [
+		'(async () => {})()',
+		'(async () => {})?.()',
+		'(async function() {})()',
+		'(async function() {}())',
+		'(async function run() {})()',
+		'(async function(c, d) {})(a, b)',
+		'if (foo) (async () => {})()',
 		outdent`
 			{
 				(async () => {})();
 			}
 		`,
+		'a = (async () => {})()',
 		'!async function() {}()',
 		'void async function() {}()',
-		'(async function *() {})()',
-		'(async () => {})?.()',
-	],
-	invalid: [
-		'(async () => {})()',
-		'(async function() {})()',
-		'(async function() {}())',
-		'(async function run() {})()',
-		'(async function(c, d) {})(a, b)',
+		'(async () => {})().catch(foo)',
 	],
 });
 
@@ -32,14 +42,16 @@ test.snapshot({
 test.snapshot({
 	valid: [
 		'foo.then',
-		'foo.then().toString()',
-		'!foo.then()',
-		'foo.then?.(bar)',
-		'foo?.then(bar)',
-		'foo?.then(bar).finally(qux)',
+		'await foo.then(bar)',
+		'await foo.then(bar).catch(bar)',
+		'await foo.then?.(bar)',
+		'await foo.then(bar)?.catch(bar)',
+		'await foo.then(bar)?.catch?.(bar)',
 	],
 	invalid: [
 		'foo.then(bar)',
+		'foo.then?.(bar)',
+		'foo?.then(bar)',
 		'foo.catch(() => process.exit(1))',
 		'foo.finally(bar)',
 		'foo.then(bar, baz)',
@@ -47,6 +59,13 @@ test.snapshot({
 		'(foo.then(bar, baz)).finally(qux)',
 		'(async () => {})().catch(() => process.exit(1))',
 		'(async function() {}()).finally(() => {})',
+		'for (const foo of bar) foo.then(bar)',
+		'foo?.then(bar).finally(qux)',
+		'foo.then().toString()',
+		'!foo.then()',
+		'foo.then(bar).then(baz)?.then(qux)',
+		'foo.then(bar).then(baz).then?.(qux)',
+		'foo.then(bar).catch(bar).finally(bar)',
 	],
 });
 
@@ -107,10 +126,6 @@ test.snapshot({
 			parserOptions: {sourceType: 'script'},
 		},
 		outdent`
-			const foo = async () => {};
-			foo?.();
-		`,
-		outdent`
 			const program = {async run () {}};
 			program.run()
 		`,
@@ -119,11 +134,23 @@ test.snapshot({
 			const {run} = program;
 			run()
 		`,
+		outdent`
+			const foo = async () => {};
+			await foo();
+		`,
 	],
 	invalid: [
 		outdent`
 			const foo = async () => {};
 			foo();
+		`,
+		outdent`
+			const foo = async () => {};
+			foo?.();
+		`,
+		outdent`
+			const foo = async () => {};
+			foo().then(foo);
 		`,
 		outdent`
 			const foo = async function () {}, bar = 1;
@@ -132,6 +159,14 @@ test.snapshot({
 		outdent`
 			foo();
 			async function foo() {}
+		`,
+		outdent`
+			const foo = async () => {};
+			if (true) {
+				alert();
+			} else {
+				foo();
+			}
 		`,
 	],
 });
