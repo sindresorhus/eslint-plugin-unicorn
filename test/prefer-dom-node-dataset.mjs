@@ -148,3 +148,50 @@ test.snapshot({
 		'element.querySelector("#selector").hasAttribute("data-AllowAccess");',
 	],
 });
+
+// `getAttribute``
+test.snapshot({
+	valid: [
+		'element.dataset.unicorn',
+		// Not `CallExpression`
+		'new element.getAttribute("data-unicorn");',
+		// Not `MemberExpression`
+		'getAttribute("data-unicorn");',
+		// `callee.property` is not a `Identifier`
+		'element["getAttribute"]("data-unicorn");',
+		// Computed
+		'element[getAttribute]("data-unicorn");',
+		// Not `getAttribute`
+		'element.foo("data-unicorn");',
+		// More or less argument(s)
+		'element.getAttribute("data-unicorn", "extra");',
+		'element.getAttribute();',
+		'element.getAttribute(...argumentsArray, ...argumentsArray2)',
+		// First Argument is not `Literal`
+		'element.getAttribute(`data-unicorn`);',
+		// First Argument is not `string`
+		'element.getAttribute(0);',
+		// First Argument is not startsWith `data-`
+		'element.getAttribute("foo-unicorn");',
+		// First Argument is `data-`
+		'element.getAttribute("data-");',
+	],
+	invalid: [
+		outdent`
+			element.getAttribute(
+				"data-foo", // comment
+			);
+		`,
+		'element.getAttribute(\'data-unicorn\');',
+		'element.getAttribute("data-unicorn");',
+		'element.getAttribute("data-unicorn",);',
+		'element.getAttribute("data-🦄");',
+		'element.getAttribute("data-foo2");',
+		'element.getAttribute("data-foo:bar");',
+		'element.getAttribute("data-foo:bar");',
+		'element.getAttribute("data-foo.bar");',
+		'element.getAttribute("data-foo-bar");',
+		'element.getAttribute("data-foo");',
+		'element.querySelector("#selector").getAttribute("data-AllowAccess");',
+	],
+});

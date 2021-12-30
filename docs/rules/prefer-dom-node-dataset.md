@@ -4,9 +4,13 @@
 
 🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
 
-Use [`.dataset`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset) on DOM elements over `.setAttribute(…)`, `.removeAttribute(…)` and `.hasAttribute(…)`.
+Use [`.dataset`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset) on DOM elements over `getAttribute(…)`, `.setAttribute(…)`, `.removeAttribute(…)` and `.hasAttribute(…)`.
 
 ## Fail
+
+```js
+const unicorn = element.getAttribute('data-unicorn');
+```
 
 ```js
 element.setAttribute('data-unicorn', '🦄');
@@ -23,6 +27,10 @@ const hasUnicorn = element.hasAttribute('data-unicorn');
 ## Pass
 
 ```js
+const {unicorn} = element.dataset;
+```
+
+```js
 element.dataset.unicorn = '🦄';
 ```
 
@@ -35,19 +43,7 @@ const hasUnicorn = Object.hasOwn(element.dataset, 'unicorn');
 ```
 
 ```js
-const hasUnicorn = Object.prototype.hasOwnProperty.call(element.dataset, 'unicorn');
-```
-
-```js
-const hasUnicorn = element.dataset.hasOwnProperty('unicorn');
-```
-
-```js
-const hasUnicorn = Reflect.has(element.dataset, 'unicorn');
-```
-
-```js
-const hasUnicorn = 'unicorn' in element.dataset;
+const foo = element.getAttribute('foo');
 ```
 
 ```js

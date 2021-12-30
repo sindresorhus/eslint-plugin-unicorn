@@ -11,7 +11,7 @@ const messages = {
 const selector = [
 	matches([
 		methodCallSelector({method: 'setAttribute', argumentsLength: 2}),
-		methodCallSelector({methods: ['removeAttribute', 'hasAttribute'], argumentsLength: 1}),
+		methodCallSelector({methods: ['getAttribute', 'removeAttribute', 'hasAttribute'], argumentsLength: 1}),
 	]),
 	'[arguments.0.type="Literal"]',
 ].join('');
@@ -36,12 +36,20 @@ const create = context => ({
 		const datasetText = `${sourceCode.getText(node.callee.object)}.dataset`;
 		switch (method) {
 			case 'setAttribute':
+			case 'getAttribute':
 			case 'removeAttribute': {
 				text = isValidVariableName(name) ? `.${name}` : `[${quoteString(name, nameNode.raw.charAt(0))}]`;
 				text = `${datasetText}${text}`;
-				text = method === 'setAttribute'
-					? `${text} = ${sourceCode.getText(node.arguments[1])}`
-					: `delete ${text}`;
+				if (method === 'setAttribute') {
+					text += ` = ${sourceCode.getText(node.arguments[1])}`;
+				} else if (method === 'removeAttribute') {
+					text = `delete ${text}`;
+				}
+
+				/*
+				For non-exists attribute, `element.getAttribute('data-foo')` returns `null`,
+				but `element.dataset.foo` returns `undefined`, switch to suggestions if necessary
+				*/
 				break;
 			}
 
