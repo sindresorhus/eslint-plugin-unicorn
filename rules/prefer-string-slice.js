@@ -149,7 +149,7 @@ function * fixArguments({node, fixer, context, abort}) {
 		}
 	}
 
-	abort();
+	return abort();
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
