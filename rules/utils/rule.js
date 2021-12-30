@@ -16,7 +16,7 @@ function wrapFixFunction(fix) {
 	return fixer => {
 		const result = fix(fixer, fixOptions);
 
-		if (result && result[Symbol.iterator]) {
+		if (result && isIterable(result)) {
 			try {
 				return [...result];
 			} catch (error) {
@@ -24,6 +24,7 @@ function wrapFixFunction(fix) {
 					return [];
 				}
 
+				/* istanbul ignore next: Safe */
 				throw error;
 			}
 		}
@@ -46,10 +47,6 @@ function reportListenerProblems(listener, context) {
 		}
 
 		for (const problem of problems) {
-			if (!problem) {
-				continue;
-			}
-
 			if (problem.fix) {
 				problem.fix = wrapFixFunction(problem.fix);
 			}
