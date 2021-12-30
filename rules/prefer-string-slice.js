@@ -55,9 +55,8 @@ function * fixArguments({node, fixer, context, abort}) {
 
 	const sourceCode = context.getSourceCode();
 	const scope = context.getScope();
-	const [firstArgumentNode, secondArgumentNode] = argumentNodes;
-	const firstArgument = firstArgumentNode ? sourceCode.getText(firstArgumentNode) : undefined;
-	const secondArgument = secondArgumentNode ? sourceCode.getText(secondArgumentNode) : undefined;
+	const [firstArgument, secondArgument] = argumentNodes;
+	const [firstArgumentText, secondArgumentText] = argumentNodes.map(node => node ? getParenthesizedText(node, sourceCode) : '');
 
 	const method = node.callee.property.name;
 	const replaceArgumentByIndex = (index, text) =>
@@ -71,32 +70,28 @@ function * fixArguments({node, fixer, context, abort}) {
 			}
 
 			case 2: {
-				const firstArgumentStaticResult = getStaticValue(firstArgumentNode, scope);
+				const firstArgumentStaticResult = getStaticValue(firstArgument, scope);
 				if (firstArgumentStaticResult && firstArgumentStaticResult.value === 0) {
-					if (isLiteralNumber(secondArgumentNode) || isLengthProperty(secondArgumentNode)) {
+					if (isLiteralNumber(secondArgument) || isLengthProperty(secondArgument)) {
 						return;
 					}
 
-					if (typeof getNumericValue(secondArgumentNode) === 'number') {
-						yield replaceSecondArgument(Math.max(0, getNumericValue(secondArgumentNode)));
+					if (typeof getNumericValue(secondArgument) === 'number') {
+						yield replaceSecondArgument(Math.max(0, getNumericValue(secondArgument)));
 						return;
 					}
 
-					yield replaceSecondArgument(`Math.max(0, ${getParenthesizedText(secondArgumentNode, sourceCode)})`);
+					yield replaceSecondArgument(`Math.max(0, ${secondArgumentText})`);
 					return;
 				}
 
 				if (argumentNodes.every(node => isLiteralNumber(node))) {
-					yield replaceSecondArgument(firstArgumentNode.value + secondArgumentNode.value);
+					yield replaceSecondArgument(firstArgument.value + secondArgument.value);
 					return;
 				}
 
 				if (argumentNodes.every(node => isNumber(node, context.getScope()))) {
-					yield replaceSecondArgument(
-						getParenthesizedText(firstArgumentNode, sourceCode)
-						+ ' + '
-						+ getParenthesizedText(secondArgumentNode, sourceCode)
-					);
+					yield replaceSecondArgument(firstArgumentText + ' + ' + secondArgumentText);
 					return;
 				}
 
@@ -105,7 +100,7 @@ function * fixArguments({node, fixer, context, abort}) {
 			// No default
 		}
 	} else if (method === 'substring') {
-		const firstNumber = firstArgumentNode ? getNumericValue(firstArgumentNode) : undefined;
+		const firstNumber = firstArgument ? getNumericValue(firstArgument) : undefined;
 		const replaceFirstArgument = text => replaceArgumentByIndex(0, text);
 		switch (argumentNodes.length) {
 			case 1: {
@@ -114,16 +109,16 @@ function * fixArguments({node, fixer, context, abort}) {
 					return;
 				}
 
-				if (isLengthProperty(firstArgumentNode)) {
+				if (isLengthProperty(firstArgument)) {
 					return;
 				}
 
-				yield replaceFirstArgument(`Math.max(0, ${getParenthesizedText(firstArgumentNode, sourceCode)})`);
+				yield replaceFirstArgument(`Math.max(0, ${firstArgumentText})`);
 				return;
 			}
 
 			case 2: {
-				const secondNumber = getNumericValue(secondArgumentNode);
+				const secondNumber = getNumericValue(secondArgument);
 
 				if (firstNumber !== undefined && secondNumber !== undefined) {
 					const argumentsText = [Math.max(0, firstNumber), Math.max(0, secondNumber)];
@@ -137,8 +132,7 @@ function * fixArguments({node, fixer, context, abort}) {
 
 				if (firstNumber === 0 || secondNumber === 0) {
 					yield replaceFirstArgument(0);
-					const text = getParenthesizedText(firstNumber === 0 ? secondArgumentNode : firstArgumentNode, sourceCode);
-					yield replaceSecondArgument(`Math.max(0, ${text})`);
+					yield replaceSecondArgument(`Math.max(0, ${firstNumber === 0 ? secondArgumentText : firstArgumentText})`);
 					return;
 				}
 
