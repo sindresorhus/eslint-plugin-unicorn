@@ -77,6 +77,13 @@ test({
 				yield* Promise.${fn}(bar);
 			}
 		`),
+		// Promise#then/catch/finally
+		'promise.then(() => foo).catch(() => bar).finally(() => baz)',
+		'promise.then(() => foo, () => bar).finally(() => baz)',
+		'promise.then(x, y, () => Promise.resolve(foo))',
+		'promise.catch(x, () => Promise.resolve(foo))',
+		'promise.finally(x, () => Promise.resolve(foo))',
+		'promise[then](() => Promise.resolve(foo))',
 	],
 	invalid: [
 		{
@@ -469,5 +476,53 @@ test({
 			`,
 			errors: [yieldRejectError],
 		})),
+		// Promise#then/catch/finally callbacks returning Promise.resolve/reject
+		...['then', 'catch', 'finally'].flatMap(fn => [
+			{
+				code: `promise.${fn}(() => Promise.resolve(bar))`,
+				errors: [returnResolveError],
+				output: `promise.${fn}(() => bar)`,
+			},
+			{
+				code: `promise.${fn}(() => { return Promise.resolve(bar); })`,
+				errors: [returnResolveError],
+				output: `promise.${fn}(() => { return bar; })`,
+			},
+			{
+				code: `promise.${fn}(async () => Promise.reject(bar))`,
+				errors: [returnRejectError],
+				output: `promise.${fn}(async () => { throw bar; })`,
+			},
+			{
+				code: `promise.${fn}(async () => { return Promise.reject(bar); })`,
+				errors: [returnRejectError],
+				output: `promise.${fn}(async () => { throw bar; })`,
+			},
+		]),
+		{
+			code: 'promise.then(() => {}, () => Promise.resolve(bar))',
+			errors: [returnResolveError],
+			output: 'promise.then(() => {}, () => bar)',
+		},
+		{
+			code: 'promise.then(() => Promise.resolve(bar), () => Promise.resolve(baz))',
+			errors: [returnResolveError, returnResolveError],
+			output: 'promise.then(() => bar, () => baz)',
+		},
+		{
+			code: 'promise.then(() => {}, () => { return Promise.resolve(bar); })',
+			errors: [returnResolveError],
+			output: 'promise.then(() => {}, () => { return bar; })',
+		},
+		{
+			code: 'promise.then(() => {}, async () => Promise.reject(bar))',
+			errors: [returnRejectError],
+			output: 'promise.then(() => {}, async () => { throw bar; })',
+		},
+		{
+			code: 'promise.then(() => {}, async () => { return Promise.reject(bar); })',
+			errors: [returnRejectError],
+			output: 'promise.then(() => {}, async () => { throw bar; })',
+		},
 	],
 });
