@@ -28,8 +28,7 @@ test.snapshot({
 		'element.setAttribute(0, \'🦄\');',
 		// First Argument is not startsWith `data-`
 		'element.setAttribute(\'foo-unicorn\', \'🦄\');',
-		// First Argument is `data-`
-		'element.setAttribute(\'data-\', \'🦄\');',
+		'element.setAttribute(\'data\', \'🦄\');',
 	],
 	invalid: [
 		outdent`
@@ -47,6 +46,11 @@ test.snapshot({
 		'element.setAttribute(\'data-foo-bar\', \'zaz\');',
 		'element.setAttribute(\'data-foo\', /* comment */ \'bar\');',
 		'element.querySelector(\'#selector\').setAttribute(\'data-AllowAccess\', true);',
+		'element.setAttribute("data-", "🦄");',
+		'element.setAttribute("data--foo", "🦄");',
+		'element.setAttribute("DATA--FOO", "🦄");',
+		'element.setAttribute("DATA- ", "🦄");',
+		'element.setAttribute("DATA-Foo-bar", "🦄");',
 	],
 });
 
@@ -75,8 +79,7 @@ test.snapshot({
 		'element.removeAttribute(0);',
 		// First Argument is not startsWith `data-`
 		'element.removeAttribute("foo-unicorn");',
-		// First Argument is `data-`
-		'element.removeAttribute("data-");',
+		'element.removeAttribute("data");',
 	],
 	invalid: [
 		outdent`
@@ -95,5 +98,6 @@ test.snapshot({
 		'element.removeAttribute("data-foo-bar");',
 		'element.removeAttribute("data-foo");',
 		'element.querySelector("#selector").removeAttribute("data-AllowAccess");',
+		'element.removeAttribute("data-");',
 	],
 });
