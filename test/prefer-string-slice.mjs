@@ -344,5 +344,6 @@ test.snapshot({
 		'foo.substring((10, 1), 0)',
 		'foo.substring(0, (10, 1))',
 		'foo.substring(0, await 1)',
+		'foo.substring((10, bar))',
 	],
 });

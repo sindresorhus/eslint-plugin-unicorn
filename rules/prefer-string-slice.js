@@ -118,7 +118,7 @@ function * fixArguments({node, fixer, context, abort}) {
 					return;
 				}
 
-				yield replaceFirstArgument(`Math.max(0, ${firstArgument})`);
+				yield replaceFirstArgument(`Math.max(0, ${getParenthesizedText(firstArgumentNode, sourceCode)})`);
 				return;
 			}
 
