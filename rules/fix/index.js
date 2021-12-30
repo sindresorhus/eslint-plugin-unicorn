@@ -7,6 +7,7 @@ module.exports = {
 
 	appendArgument: require('./append-argument.js'),
 	removeArgument: require('./remove-argument.js'),
+	replaceArgument: require('./replace-argument.js'),
 	switchNewExpressionToCallExpression: require('./switch-new-expression-to-call-expression.js'),
 	switchCallExpressionToNewExpression: require('./switch-call-expression-to-new-expression.js'),
 	removeMemberExpressionProperty: require('./remove-member-expression-property.js'),
