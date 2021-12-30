@@ -5,6 +5,33 @@ const getDocumentationUrl = require('./get-documentation-url.js');
 
 const isIterable = object => typeof object[Symbol.iterator] === 'function';
 
+class FixAbortError extends Error {}
+const fixOptions = {
+	abort() {
+		throw new FixAbortError('Fix aborted.');
+	},
+};
+
+function wrapFixFunction(fix) {
+	return fixer => {
+		const result = fix(fixer, fixOptions);
+
+		if (result && result[Symbol.iterator]) {
+			try {
+				return [...result];
+			} catch (error) {
+				if (error instanceof FixAbortError) {
+					return [];
+				}
+
+				throw error;
+			}
+		}
+
+		return result;
+	};
+}
+
 function reportListenerProblems(listener, context) {
 	// Listener arguments can be `codePath, node` or `node`
 	return function (...listenerArguments) {
@@ -18,11 +45,24 @@ function reportListenerProblems(listener, context) {
 			problems = [problems];
 		}
 
-		// TODO: Allow `fix` function to abort
 		for (const problem of problems) {
-			if (problem) {
-				context.report(problem);
+			if (!problem) {
+				continue;
 			}
+
+			if (problem.fix) {
+				problem.fix = wrapFixFunction(problem.fix);
+			}
+
+			if (Array.isArray(problem.suggest)) {
+				for (const suggest of problem.suggest) {
+					if (suggest.fix) {
+						suggest.fix = wrapFixFunction(suggest.fix);
+					}
+				}
+			}
+
+			context.report(problem);
 		}
 	};
 }

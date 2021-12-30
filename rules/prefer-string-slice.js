@@ -1,7 +1,7 @@
 'use strict';
-const {getParenthesizedText} = require('./utils/parentheses.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const isNumber = require('./utils/is-number.js');
+const {replaceArgument} = require('./fix/index.js');
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -37,11 +37,11 @@ const isLengthProperty = node => (
 	&& node.property.name === 'length'
 );
 
-function getFixArguments(node, context) {
+function * fixArguments({node, fixer, context, abort}) {
 	const argumentNodes = node.arguments;
 
 	if (argumentNodes.length === 0) {
-		return [];
+		return;
 	}
 
 	const sourceCode = context.getSourceCode();
@@ -49,36 +49,39 @@ function getFixArguments(node, context) {
 	const secondArgument = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
 
 	const method = node.callee.property.name;
+	const replaceArgumentByIndex = (index, text) =>
+		replaceArgument(fixer, argumentNodes[index], text, sourceCode);
+	const replaceSecondArgument = text => replaceArgumentByIndex(1, text);
 
 	if (method === 'substr') {
 		switch (argumentNodes.length) {
 			case 1: {
-				return [firstArgument];
+				return;
 			}
 
 			case 2: {
 				if (firstArgument === '0') {
-					const sliceCallArguments = [firstArgument];
 					if (isLiteralNumber(secondArgument) || isLengthProperty(argumentNodes[1])) {
-						sliceCallArguments.push(secondArgument);
-					} else if (typeof getNumericValue(argumentNodes[1]) === 'number') {
-						sliceCallArguments.push(Math.max(0, getNumericValue(argumentNodes[1])));
-					} else {
-						sliceCallArguments.push(`Math.max(0, ${secondArgument})`);
+						return;
 					}
 
-					return sliceCallArguments;
+					if (typeof getNumericValue(argumentNodes[1]) === 'number') {
+						yield replaceSecondArgument(Math.max(0, getNumericValue(argumentNodes[1])));
+						return;
+					}
+
+					yield replaceSecondArgument(`Math.max(0, ${secondArgument})`);
+					return;
 				}
 
 				if (argumentNodes.every(node => isLiteralNumber(node))) {
-					return [
-						firstArgument,
-						argumentNodes[0].value + argumentNodes[1].value,
-					];
+					yield replaceSecondArgument(argumentNodes[0].value + argumentNodes[1].value);
+					return;
 				}
 
 				if (argumentNodes.every(node => isNumber(node, context.getScope()))) {
-					return [firstArgument, firstArgument + ' + ' + secondArgument];
+					yield replaceSecondArgument(firstArgument + ' + ' + secondArgument);
+					return;
 				}
 
 				break;
@@ -87,30 +90,39 @@ function getFixArguments(node, context) {
 		}
 	} else if (method === 'substring') {
 		const firstNumber = argumentNodes[0] ? getNumericValue(argumentNodes[0]) : undefined;
+		const replaceFirstArgument = text => replaceArgumentByIndex(0, text);
 		switch (argumentNodes.length) {
 			case 1: {
 				if (firstNumber !== undefined) {
-					return [Math.max(0, firstNumber)];
+					yield replaceFirstArgument(Math.max(0, firstNumber));
+					return;
 				}
 
 				if (isLengthProperty(argumentNodes[0])) {
-					return [firstArgument];
+					return;
 				}
 
-				return [`Math.max(0, ${firstArgument})`];
+				yield replaceFirstArgument(`Math.max(0, ${firstArgument})`);
+				return;
 			}
 
 			case 2: {
 				const secondNumber = getNumericValue(argumentNodes[1]);
 
 				if (firstNumber !== undefined && secondNumber !== undefined) {
-					return firstNumber > secondNumber
-						? [Math.max(0, secondNumber), Math.max(0, firstNumber)]
-						: [Math.max(0, firstNumber), Math.max(0, secondNumber)];
+					const argumentsText = [Math.max(0, firstNumber), Math.max(0, secondNumber)];
+					if (firstNumber > secondNumber) {
+						argumentsText.reverse();
+					}
+
+					yield * argumentsText.map((text, index) => replaceArgumentByIndex(index, text));
+					return;
 				}
 
 				if (firstNumber === 0 || secondNumber === 0) {
-					return [0, `Math.max(0, ${firstNumber === 0 ? secondArgument : firstArgument})`];
+					yield replaceFirstArgument(0);
+					yield replaceSecondArgument(`Math.max(0, ${firstNumber === 0 ? secondArgument : firstArgument})`);
+					return;
 				}
 
 				// As values aren't Literal, we can not know whether secondArgument will become smaller than the first or not, causing an issue:
@@ -125,35 +137,23 @@ function getFixArguments(node, context) {
 			// No default
 		}
 	}
+
+	abort();
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	const sourceCode = context.getSourceCode();
-
-	return {
-		[selector](node) {
-			const problem = {
-				node,
-				messageId: node.callee.property.name,
-			};
-
-			const sliceCallArguments = getFixArguments(node, context);
-			if (!sliceCallArguments) {
-				return problem;
-			}
-
-			const objectNode = node.callee.object;
-			const objectText = getParenthesizedText(objectNode, sourceCode);
-			const optionalMemberSuffix = node.callee.optional ? '?' : '';
-			const optionalCallSuffix = node.optional ? '?.' : '';
-
-			problem.fix = fixer => fixer.replaceText(node, `${objectText}${optionalMemberSuffix}.slice${optionalCallSuffix}(${sliceCallArguments.join(', ')})`);
-
-			return problem;
-		},
-	};
-};
+const create = context => ({
+	[selector](node) {
+		return {
+			node,
+			messageId: node.callee.property.name,
+			* fix(fixer, {abort}) {
+				yield * fixArguments({node, fixer, context, abort});
+				yield fixer.replaceText(node.callee.property, 'slice');
+			},
+		};
+	},
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
