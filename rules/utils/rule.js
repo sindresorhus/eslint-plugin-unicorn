@@ -21,7 +21,7 @@ function wrapFixFunction(fix) {
 				return [...result];
 			} catch (error) {
 				if (error instanceof FixAbortError) {
-					return [];
+					return;
 				}
 
 				/* istanbul ignore next: Safe */
