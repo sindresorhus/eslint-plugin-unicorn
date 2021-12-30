@@ -339,5 +339,10 @@ test.snapshot({
 		'foo.substr(0, (100, 1))',
 		'foo.substr(0, 1, extraArgument)',
 		'foo.substr((0, bar.length), (0, baz.length))',
+		// TODO: Fix this
+		// 'foo.substr(await 1, await 2)',
+		'foo.substring((10, 1), 0)',
+		'foo.substring(0, (10, 1))',
+		'foo.substring(0, await 1)',
 	],
 });

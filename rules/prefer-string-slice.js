@@ -87,12 +87,16 @@ function * fixArguments({node, fixer, context, abort}) {
 				}
 
 				if (argumentNodes.every(node => isLiteralNumber(node))) {
-					yield replaceSecondArgument(argumentNodes[0].value + argumentNodes[1].value);
+					yield replaceSecondArgument(firstArgumentNode.value + secondArgumentNode.value);
 					return;
 				}
 
 				if (argumentNodes.every(node => isNumber(node, context.getScope()))) {
-					yield replaceSecondArgument(getParenthesizedText(firstArgumentNode, sourceCode) + ' + ' + getParenthesizedText(secondArgumentNode, sourceCode));
+					yield replaceSecondArgument(
+						getParenthesizedText(firstArgumentNode, sourceCode)
+						+ ' + '
+						+ getParenthesizedText(secondArgumentNode, sourceCode)
+					);
 					return;
 				}
 
@@ -101,7 +105,7 @@ function * fixArguments({node, fixer, context, abort}) {
 			// No default
 		}
 	} else if (method === 'substring') {
-		const firstNumber = argumentNodes[0] ? getNumericValue(argumentNodes[0]) : undefined;
+		const firstNumber = firstArgumentNode ? getNumericValue(firstArgumentNode) : undefined;
 		const replaceFirstArgument = text => replaceArgumentByIndex(0, text);
 		switch (argumentNodes.length) {
 			case 1: {
@@ -110,7 +114,7 @@ function * fixArguments({node, fixer, context, abort}) {
 					return;
 				}
 
-				if (isLengthProperty(argumentNodes[0])) {
+				if (isLengthProperty(firstArgumentNode)) {
 					return;
 				}
 
@@ -119,7 +123,7 @@ function * fixArguments({node, fixer, context, abort}) {
 			}
 
 			case 2: {
-				const secondNumber = getNumericValue(argumentNodes[1]);
+				const secondNumber = getNumericValue(secondArgumentNode);
 
 				if (firstNumber !== undefined && secondNumber !== undefined) {
 					const argumentsText = [Math.max(0, firstNumber), Math.max(0, secondNumber)];
@@ -133,7 +137,8 @@ function * fixArguments({node, fixer, context, abort}) {
 
 				if (firstNumber === 0 || secondNumber === 0) {
 					yield replaceFirstArgument(0);
-					yield replaceSecondArgument(`Math.max(0, ${firstNumber === 0 ? secondArgument : firstArgument})`);
+					const text = getParenthesizedText(firstNumber === 0 ? secondArgumentNode : firstArgumentNode, sourceCode);
+					yield replaceSecondArgument(`Math.max(0, ${text})`);
 					return;
 				}
 
