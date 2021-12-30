@@ -82,7 +82,7 @@ const create = context => ({
 
 		const [, charset] = node.arguments;
 		const staticValue = getStaticValue(charset, scope);
-		if (!charset) {
+		if (!staticValue) {
 			return;
 		}
 

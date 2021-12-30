@@ -9,6 +9,13 @@ test.snapshot({
 		'JSON.parse(await fs.readFile(file, "buffer"));',
 		'JSON.parse(await fs.readFile(file, "gbk"));',
 		'JSON.parse(await fs.readFile(file, ));',
+		'JSON.parse(await fs.readFile(file, unknown));',
+		'JSON.parse(await fs.readFile(...file, "utf8"));',
+		'JSON.parse(await fs.readFile(file, ..."utf8"));',
+		'JSON.parse(await fs.readFile(file, "utf8", extraArgument));',
+		'JSON.parse(await fs.readFile?.(file, "utf8"));',
+		'JSON.parse(await fs?.readFile(file, "utf8"));',
+		'JSON.parse(await fs.notReadFileMethod(file, "utf8"));',
 		'JSON.parse?.(await fs.readFile(file, "utf8"));',
 		'JSON?.parse(await fs.readFile(file, "utf8"));',
 		'window.JSON.parse(await fs.readFile(file, "utf8"));',
@@ -52,6 +59,7 @@ test.snapshot({
 		'JSON.parse(fs.readFileSync(file, "utf8"));',
 		'const CHARSET = "UTF8"; JSON.parse(await fs.readFile(file, CHARSET));',
 		'const EIGHT = 8; JSON.parse(await fs.readFile(file, `utf${EIGHT}`));',
+		'JSON.parse(await fs["readFile"](file, "utf8"));',
 		outdent`
 			const string = await fs.readFile(file, "utf8");
 			JSON.parse(string);
