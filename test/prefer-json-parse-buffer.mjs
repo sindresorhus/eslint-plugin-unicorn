@@ -12,6 +12,7 @@ test.snapshot({
 		'JSON.parse(await fs.readFile(file, unknown));',
 		'JSON.parse(await fs.readFile(...file, "utf8"));',
 		'JSON.parse(await fs.readFile(file, ..."utf8"));',
+		'JSON.parse(await fs.readFile(file, 0));',
 		'JSON.parse(await fs.readFile(file, "utf8", extraArgument));',
 		'JSON.parse(await fs.readFile?.(file, "utf8"));',
 		'JSON.parse(await fs?.readFile(file, "utf8"));',
