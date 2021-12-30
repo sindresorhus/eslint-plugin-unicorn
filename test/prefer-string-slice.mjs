@@ -338,5 +338,6 @@ test.snapshot({
 		'foo.substr(...bar)',
 		'foo.substr(0, (100, 1))',
 		'foo.substr(0, 1, extraArgument)',
+		'foo.substr((0, bar.length), (0, baz.length))',
 	],
 });

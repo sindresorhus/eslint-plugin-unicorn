@@ -92,7 +92,7 @@ function * fixArguments({node, fixer, context, abort}) {
 				}
 
 				if (argumentNodes.every(node => isNumber(node, context.getScope()))) {
-					yield replaceSecondArgument(firstArgument + ' + ' + secondArgument);
+					yield replaceSecondArgument(getParenthesizedText(firstArgumentNode, sourceCode) + ' + ' + getParenthesizedText(secondArgumentNode, sourceCode));
 					return;
 				}
 
