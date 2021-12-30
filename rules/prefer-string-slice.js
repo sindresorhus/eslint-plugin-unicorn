@@ -1,4 +1,6 @@
 'use strict';
+const {getStaticValue} = require('eslint-utils');
+const {getParenthesizedText} = require('./utils/parentheses.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const isNumber = require('./utils/is-number.js');
 const {replaceArgument} = require('./fix/index.js');
@@ -44,9 +46,18 @@ function * fixArguments({node, fixer, context, abort}) {
 		return;
 	}
 
+	if (
+		argumentNodes.length > 2
+		|| argumentNodes.some(node => node.type === 'SpreadElement')
+	) {
+		return abort();
+	}
+
 	const sourceCode = context.getSourceCode();
-	const firstArgument = argumentNodes[0] ? sourceCode.getText(argumentNodes[0]) : undefined;
-	const secondArgument = argumentNodes[1] ? sourceCode.getText(argumentNodes[1]) : undefined;
+	const scope = context.getScope();
+	const [firstArgumentNode, secondArgumentNode] = argumentNodes;
+	const firstArgument = firstArgumentNode ? sourceCode.getText(firstArgumentNode) : undefined;
+	const secondArgument = secondArgumentNode ? sourceCode.getText(secondArgumentNode) : undefined;
 
 	const method = node.callee.property.name;
 	const replaceArgumentByIndex = (index, text) =>
@@ -60,17 +71,18 @@ function * fixArguments({node, fixer, context, abort}) {
 			}
 
 			case 2: {
-				if (firstArgument === '0') {
-					if (isLiteralNumber(secondArgument) || isLengthProperty(argumentNodes[1])) {
+				const firstArgumentStaticResult = getStaticValue(firstArgumentNode, scope);
+				if (firstArgumentStaticResult && firstArgumentStaticResult.value === 0) {
+					if (isLiteralNumber(secondArgumentNode) || isLengthProperty(secondArgumentNode)) {
 						return;
 					}
 
-					if (typeof getNumericValue(argumentNodes[1]) === 'number') {
-						yield replaceSecondArgument(Math.max(0, getNumericValue(argumentNodes[1])));
+					if (typeof getNumericValue(secondArgumentNode) === 'number') {
+						yield replaceSecondArgument(Math.max(0, getNumericValue(secondArgumentNode)));
 						return;
 					}
 
-					yield replaceSecondArgument(`Math.max(0, ${secondArgument})`);
+					yield replaceSecondArgument(`Math.max(0, ${getParenthesizedText(secondArgumentNode, sourceCode)})`);
 					return;
 				}
 
