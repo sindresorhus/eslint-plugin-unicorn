@@ -68,7 +68,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer using `.dataset` on DOM elements over accessing attributes.',
+			description: 'Prefer using `.dataset` on DOM elements over calling attribute methods.',
 		},
 		fixable: 'code',
 		messages,
