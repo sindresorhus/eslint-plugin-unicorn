@@ -1,4 +1,4 @@
-# Prefer using `.dataset` on DOM elements over accessing attributes
+# Prefer using `.dataset` on DOM elements over calling attribute methods
 
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
