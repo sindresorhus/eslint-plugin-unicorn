@@ -2,16 +2,19 @@
 const {} = require('./selectors/index.js');
 const {} = require('./fix/index.js');
 
-const MESSAGE_ID_ERROR = '<%= id %>/error';
 <% if (hasSuggestions) { %>
+const MESSAGE_ID_ERROR = '<%= id %>/error';
 const MESSAGE_ID_SUGGESTION = '<%= id %>/suggestion';
-<% } %>
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over `{{value}}`.',
-<% if (hasSuggestions) { %>
 	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `{{replacement}}`.',
-<% } %>
 };
+<% } else { %>
+const MESSAGE_ID= '<%= id %>/error';
+const messages = {
+	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{value}}`.',
+};
+<% } %>
 
 const selector = [
 	'Literal',
@@ -24,7 +27,7 @@ const create = context => {
 		[selector](node) {
 			return {
 				node,
-				messageId: MESSAGE_ID_ERROR,
+				messageId: <% if (hasSuggestions) { %>MESSAGE_ID_ERROR<% } else { %>MESSAGE_ID<% } %>,
 				data: {
 					value: 'unicorn',
 					replacement: '🦄'
