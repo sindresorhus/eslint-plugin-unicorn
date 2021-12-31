@@ -16,7 +16,13 @@ const selector = [
 
 const DOT_SLASH = './';
 const TEST_URL_BASE = 'https://www.example.com/';
-const isSafeToAddDotSlash = url => new URL(url, TEST_URL_BASE).href === new URL(`./${url}`, TEST_URL_BASE).href;
+const isSafeToAddDotSlash = url => {
+	try {
+		return new URL(url, TEST_URL_BASE).href === new URL(`./${url}`, TEST_URL_BASE).href;
+	} catch {}
+
+	return false;
+};
 
 function removeDotSlash(node) {
 	if (

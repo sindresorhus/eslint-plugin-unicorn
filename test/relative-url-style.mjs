@@ -54,6 +54,7 @@ test.snapshot({
 		'new URL("//www.example.org", "https://www.example.com")',
 		'new URL("//www.example.org", "ftp://www.example.com")',
 		'new URL("ftp://www.example.org", "https://www.example.com")',
+		'new URL("https://www.example.org:65536", "https://www.example.com")',
 		'new URL("/", base)',
 		'new URL("/foo", base)',
 		'new URL("../foo", base)',
