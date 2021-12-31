@@ -10,7 +10,7 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `{{replacement}}`.',
 };
 <% } else { %>
-const MESSAGE_ID= '<%= id %>/error';
+const MESSAGE_ID= '<%= id %>';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{value}}`.',
 };
@@ -30,7 +30,7 @@ const create = context => {
 				messageId: <% if (hasSuggestions) { %>MESSAGE_ID_ERROR<% } else { %>MESSAGE_ID<% } %>,
 				data: {
 					value: 'unicorn',
-					replacement: '🦄'
+					replacement: '🦄',
 				},
 				<% if (fixableType) { %>
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
@@ -43,7 +43,7 @@ const create = context => {
 						messageId: MESSAGE_ID_SUGGESTION,
 						data: {
 							value: 'unicorn',
-							replacement: '🦄'
+							replacement: '🦄',
 						},
 						/** @param {import('eslint').Rule.RuleFixer} fixer */
 						fix: fixer => fixer.replaceText(node, '\'🦄\''),
@@ -51,8 +51,8 @@ const create = context => {
 				],
 				<% } %>
 			};
-		}
-	}
+		},
+	};
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
