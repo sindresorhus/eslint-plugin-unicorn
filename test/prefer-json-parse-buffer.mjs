@@ -26,6 +26,12 @@ test.snapshot({
 		'JSON.parse(await fs.readFile(file, "utf8"), extraArgument);',
 		'JSON.parse(foo);',
 		'JSON.parse();',
+		'JSON.parse(await fs.readFile(file, {encoding: "not-utf8"}));',
+		'JSON.parse(await fs.readFile(file, {encoding: "utf8", extraProperty: "utf8"}));',
+		'JSON.parse(await fs.readFile(file, {...encoding}));',
+		'JSON.parse(await fs.readFile(file, {encoding: unknown}));',
+		'const encoding = "gbk";JSON.parse(await fs.readFile(file, {encoding: encoding}));',
+		'const readingOptions = {encoding: "utf8", extraProperty: undefined};JSON.parse(await fs.readFile(file, readingOptions));',
 		outdent`
 			const {string} = await fs.readFile(file, "utf8");
 			JSON.parse(string);
@@ -63,7 +69,9 @@ test.snapshot({
 		'JSON.parse(await fs["readFile"](file, "utf8"));',
 		'JSON.parse(await fs.readFile(file, {encoding: "utf8"}));',
 		'const EIGHT = 8; JSON.parse(await fs.readFile(file, {encoding: `utf${EIGHT}`}));',
-		'const CHARSET = "utf8", readingOptions = {encoding: CHARSET}; JSON.parse(await fs.readFile(file, readingOptions));',
+		'JSON.parse(await fs.readFile(file, {...({encoding: "utf8"})}));',
+		'const encoding = "utf8";JSON.parse(await fs.readFile(file, {encoding}));',
+		'const CHARSET = "utF-8", readingOptions = {encoding: CHARSET}; JSON.parse(await fs.readFile(file, readingOptions));',
 		'const EIGHT = 8, ENCODING = "encoding"; JSON.parse(await fs.readFile(file, {[ENCODING]: `utf${EIGHT}`}));',
 		outdent`
 			const string = await fs.readFile(file, "utf8");
