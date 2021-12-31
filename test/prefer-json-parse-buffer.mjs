@@ -89,8 +89,8 @@ test.snapshot({
 			JSON.parse(string);
 		`,
 		outdent`
-			const foo = await fs.readFile(file, "utf8");
-			const bar = await foo;
+			const foo = await await fs.readFile(file, "utf8");
+			const bar = await await foo;
 			const baz = await bar;
 			JSON.parse(baz);
 		`,
