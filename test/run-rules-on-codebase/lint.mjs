@@ -53,6 +53,8 @@ const eslint = new ESLint({
 			'unicorn/prefer-top-level-await': 'off',
 			'unicorn/prefer-object-has-own': 'off',
 			'unicorn/prefer-at': 'off',
+			// TODO: Turn this on when `xo` updated `eslint-plugin-unicorn`
+			'unicorn/relative-url-style': 'off',
 		},
 		overrides: [
 			{

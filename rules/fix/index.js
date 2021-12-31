@@ -18,4 +18,5 @@ module.exports = {
 	replaceNodeOrTokenAndSpacesBefore: require('./replace-node-or-token-and-spaces-before.js'),
 	removeSpacesAfter: require('./remove-spaces-after.js'),
 	fixSpaceAroundKeyword: require('./fix-space-around-keywords.js'),
+	replaceStringLiteral: require('./replace-string-literal.js'),
 };

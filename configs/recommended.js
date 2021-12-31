@@ -70,6 +70,7 @@ module.exports = {
 		'unicorn/prefer-dom-node-text-content': 'error',
 		'unicorn/prefer-export-from': 'error',
 		'unicorn/prefer-includes': 'error',
+		'unicorn/prefer-json-parse-buffer': 'error',
 		'unicorn/prefer-keyboard-event-key': 'error',
 		'unicorn/prefer-math-trunc': 'error',
 		'unicorn/prefer-modern-dom-apis': 'error',
@@ -96,6 +97,7 @@ module.exports = {
 		'unicorn/prefer-top-level-await': 'off',
 		'unicorn/prefer-type-error': 'error',
 		'unicorn/prevent-abbreviations': 'error',
+		'unicorn/relative-url-style': 'error',
 		'unicorn/require-array-join-separator': 'error',
 		'unicorn/require-number-to-fixed-digits-argument': 'error',
 		// Turned off because we can't distinguish `widow.postMessage` and `{Worker,MessagePort,Client,BroadcastChannel}#postMessage()`
