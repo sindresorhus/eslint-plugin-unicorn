@@ -24,9 +24,9 @@ Type: `string`\
 Default: `'never'`
 
 - `'never'` (default)
-	- Never use a `./` prefix.
+  - Never use a `./` prefix.
 - `'always'`
-	- Always add a `./` prefix to the relative URL when possible.
+  - Always add a `./` prefix to the relative URL when possible.
 
 ```js
 // eslint unicorn/relative-url-style: ["error", "always"]
