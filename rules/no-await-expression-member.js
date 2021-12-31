@@ -79,7 +79,6 @@ module.exports = {
 			description: 'Forbid member access from await expression.',
 		},
 		fixable: 'code',
-		schema: [],
 		messages,
 	},
 };

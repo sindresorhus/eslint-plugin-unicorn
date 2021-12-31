@@ -190,8 +190,6 @@ const create = context => {
 	};
 };
 
-const schema = [];
-
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
@@ -201,7 +199,6 @@ module.exports = {
 			description: 'Disallow returning/yielding `Promise.resolve/reject()` in async functions or promise callbacks',
 		},
 		fixable: 'code',
-		schema,
 		messages,
 	},
 };

@@ -49,7 +49,6 @@ module.exports = {
 			description: 'Prevent calling `EventTarget#removeEventListener()` with the result of an expression.',
 			url: getDocumentationUrl(__filename),
 		},
-		schema: [],
 		messages,
 	},
 };

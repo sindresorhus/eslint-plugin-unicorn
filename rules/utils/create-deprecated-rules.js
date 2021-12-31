@@ -16,7 +16,6 @@ function createDeprecatedRules(data) {
 					},
 					deprecated: true,
 					replacedBy: Array.isArray(replacedBy) ? replacedBy : [replacedBy],
-					schema: [],
 				},
 			},
 		]),

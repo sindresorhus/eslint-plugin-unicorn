@@ -56,8 +56,6 @@ const create = context => ({
 	},
 });
 
-const schema = [];
-
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
@@ -67,7 +65,6 @@ module.exports = {
 			description: 'Forbid useless fallback when spreading in object literals.',
 		},
 		fixable: 'code',
-		schema,
 		messages,
 	},
 };
