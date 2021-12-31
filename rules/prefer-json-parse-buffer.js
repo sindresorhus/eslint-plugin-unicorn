@@ -6,7 +6,7 @@ const getKeyName = require('./utils/get-key-name.js');
 
 const MESSAGE_ID = 'prefer-json-parse-buffer';
 const messages = {
-	[MESSAGE_ID]: 'Prefer read JSON file as buffer.',
+	[MESSAGE_ID]: 'Prefer reading the JSON file as a buffer.',
 };
 
 const jsonParseArgumentSelector = [
@@ -111,7 +111,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer read JSON file as buffer.',
+			description: 'Prefer reading a JSON file as a buffer.',
 		},
 		fixable: 'code',
 		messages,
