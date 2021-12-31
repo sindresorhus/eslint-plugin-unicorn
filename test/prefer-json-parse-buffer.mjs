@@ -37,6 +37,20 @@ test.snapshot({
 			JSON.parse(string);
 		`,
 		outdent`
+			const string = fs.readFile(file, () => {});
+			JSON.parse(string);
+		`,
+		outdent`
+			const abortControl = new AbortControl();
+			const {signal} = abortControl;
+			const promise = readFile(fileName, { encoding: "utf8", signal });
+			if (foo) {
+				JSON.parse(await promise);
+			} else {
+				controller.abort();
+			}
+		`,
+		outdent`
 			const string= await fs.readFile(file, "utf8");
 			console.log(string);
 			JSON.parse(string);
