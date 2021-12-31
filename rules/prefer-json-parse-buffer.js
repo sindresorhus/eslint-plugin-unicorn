@@ -101,7 +101,6 @@ function isUtf8Encoding(node, scope) {
 	}
 
 	return false;
-
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
