@@ -19,7 +19,7 @@ const jsonParseArgumentSelector = [
 ].join('');
 
 const getAwaitExpressionArgument = node => {
-	while (node && node.type === 'AwaitExpression') {
+	while (node.type === 'AwaitExpression') {
 		node = node.argument;
 	}
 
@@ -27,6 +27,10 @@ const getAwaitExpressionArgument = node => {
 };
 
 function getIdentifierDeclaration(node, scope) {
+	if (!node) {
+		return;
+	}
+
 	node = getAwaitExpressionArgument(node);
 
 	if (!node || node.type !== 'Identifier') {
@@ -56,12 +60,12 @@ function getIdentifierDeclaration(node, scope) {
 	return getIdentifierDeclaration(identifier.parent.init, variable.scope);
 }
 
-const isStringUtf8Node = (node, scope) => {
+const isUtf8EncodingStringNode = (node, scope) => {
 	const staticValue = getStaticValue(node, scope);
-	return staticValue && isStringUtf8(staticValue.value);
-}
+	return staticValue && isUtf8EncodingString(staticValue.value);
+};
 
-const isStringUtf8 = (value) => {
+const isUtf8EncodingString = value => {
 	if (typeof value !== 'string') {
 		return false;
 	}
@@ -69,7 +73,7 @@ const isStringUtf8 = (value) => {
 	value = value.toLowerCase();
 
 	return value === 'utf8' || value === 'utf-8';
-}
+};
 
 function isUtf8Encoding(node, scope) {
 	if (
@@ -77,12 +81,12 @@ function isUtf8Encoding(node, scope) {
 		&& node.properties.length === 1
 		&& node.properties[0].type === 'Property'
 		&& getKeyName(node.properties[0], scope) === 'encoding'
-		&& isStringUtf8Node(node.properties[0].value, scope)
+		&& isUtf8EncodingStringNode(node.properties[0].value, scope)
 	) {
 		return true;
 	}
 
-	if (isStringUtf8Node(node, scope)) {
+	if (isUtf8EncodingStringNode(node, scope)) {
 		return true;
 	}
 
@@ -91,11 +95,11 @@ function isUtf8Encoding(node, scope) {
 		return false;
 	}
 
-	let value = staticValue.value;
+	const {value} = staticValue;
 	if (
 		typeof value === 'object'
 		&& Object.keys(value).length === 1
-		&& isStringUtf8(value.encoding)
+		&& isUtf8EncodingString(value.encoding)
 	) {
 		return true;
 	}
