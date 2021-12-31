@@ -61,6 +61,10 @@ test.snapshot({
 		'const CHARSET = "UTF8"; JSON.parse(await fs.readFile(file, CHARSET));',
 		'const EIGHT = 8; JSON.parse(await fs.readFile(file, `utf${EIGHT}`));',
 		'JSON.parse(await fs["readFile"](file, "utf8"));',
+		'JSON.parse(await fs.readFile(file, {encoding: "utf8"}));',
+		'const EIGHT = 8; JSON.parse(await fs.readFile(file, {encoding: `utf${EIGHT}`}));',
+		'const CHARSET = "utf8", readingOptions = {encoding: CHARSET}; JSON.parse(await fs.readFile(file, readingOptions));',
+		'const EIGHT = 8, ENCODING = "encoding"; JSON.parse(await fs.readFile(file, {[ENCODING]: `utf${EIGHT}`}));',
 		outdent`
 			const string = await fs.readFile(file, "utf8");
 			JSON.parse(string);

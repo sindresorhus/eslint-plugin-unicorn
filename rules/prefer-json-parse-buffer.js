@@ -56,6 +56,54 @@ function getIdentifierDeclaration(node, scope) {
 	return getIdentifierDeclaration(identifier.parent.init, scope);
 }
 
+const isStringUtf8Node = (node, scope) => {
+	const staticValue = getStaticValue(node, scope);
+	return staticValue && isStringUtf8(staticValue.value);
+}
+
+const isStringUtf8 = (value) => {
+	if (typeof value !== 'string') {
+		return false;
+	}
+
+	value = value.toLowerCase();
+
+	return value === 'utf8' || value === 'utf-8';
+}
+
+function isUtf8Encoding(node, scope) {
+	if (
+		node.type === 'ObjectExpression'
+		&& node.properties.length === 1
+		&& node.properties[0].type === 'Property'
+		&& getKeyName(node.properties[0], scope) === 'encoding'
+		&& isStringUtf8Node(node.properties[0].value, scope)
+	) {
+		return true;
+	}
+
+	if (isStringUtf8Node(node, scope)) {
+		return true;
+	}
+
+	const staticValue = getStaticValue(node, scope);
+	if (!staticValue) {
+		return false;
+	}
+
+	let value = staticValue.value;
+	if (
+		typeof value === 'object'
+		&& Object.keys(value).length === 1
+		&& isStringUtf8(value.encoding)
+	) {
+		return true;
+	}
+
+	return false;
+
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[jsonParseArgumentSelector](node) {
@@ -80,27 +128,15 @@ const create = context => ({
 			return;
 		}
 
-		const [, charset] = node.arguments;
-		const staticValue = getStaticValue(charset, scope);
-		if (!staticValue) {
-			return;
-		}
-
-		let charsetValue = staticValue.value;
-		if (typeof charsetValue !== 'string') {
-			return;
-		}
-
-		charsetValue = charsetValue.toLowerCase();
-
-		if (charsetValue !== 'utf8' && charsetValue !== 'utf-8') {
+		const [, charsetNode] = node.arguments;
+		if (!isUtf8Encoding(charsetNode, scope)) {
 			return;
 		}
 
 		return {
-			node: charset,
+			node: charsetNode,
 			messageId: MESSAGE_ID,
-			fix: fixer => removeArgument(fixer, charset, context.getSourceCode()),
+			fix: fixer => removeArgument(fixer, charsetNode, context.getSourceCode()),
 		};
 	},
 });
