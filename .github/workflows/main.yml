@@ -41,7 +41,7 @@ jobs:
           AVA_FORCE_CI: not-ci
       - run: npm run generate-rules-table
       - run: npm run generate-usage-example
-      - run: git diff --exit-code --name-only
+      - run: git diff --exit-code
       - uses: codecov/codecov-action@v1
         with:
           fail_ci_if_error: true
