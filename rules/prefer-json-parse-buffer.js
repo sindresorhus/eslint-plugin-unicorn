@@ -115,12 +115,12 @@ const create = context => ({
 		if (
 			!(
 				node
-					&& node.type === 'CallExpression'
-					&& !node.optional
-					&& node.arguments.length === 2
-					&& !node.arguments.some(node => node.type === 'SpreadElement')
-					&& node.callee.type === 'MemberExpression'
-					&& !node.callee.optional
+				&& node.type === 'CallExpression'
+				&& !node.optional
+				&& node.arguments.length === 2
+				&& !node.arguments.some(node => node.type === 'SpreadElement')
+				&& node.callee.type === 'MemberExpression'
+				&& !node.callee.optional
 			)
 		) {
 			return;
