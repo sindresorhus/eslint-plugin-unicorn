@@ -112,6 +112,14 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			const buffer = fs.readFile(file, "utf8"); /* Should report */
+			const foo = buffer;
+			async function fn1() {
+				const buffer = fs.readFile(file, "utf8"); /* Should NOT report */
+				JSON.parse(await foo);
+			}
+		`,
+		outdent`
 			const foo = fs.readFile(file, "utf8");
 			function fn1() {
 				JSON.parse(foo);

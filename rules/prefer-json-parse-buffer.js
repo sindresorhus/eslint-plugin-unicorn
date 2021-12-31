@@ -53,7 +53,7 @@ function getIdentifierDeclaration(node, scope) {
 		return;
 	}
 
-	return getIdentifierDeclaration(identifier.parent.init, scope);
+	return getIdentifierDeclaration(identifier.parent.init, variable.scope);
 }
 
 const isStringUtf8Node = (node, scope) => {
