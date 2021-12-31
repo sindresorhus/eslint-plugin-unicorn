@@ -79,6 +79,7 @@ test({
 		testCase('src/foo/___foo-bar.js', 'kebabCase'),
 		testCase('src/foo/_FooBar.js', 'pascalCase'),
 		testCase('src/foo/___FooBar.js', 'pascalCase'),
+		testCase('src/foo/$foo.js'),
 		testManyCases('src/foo/foo-bar.js'),
 		testManyCases('src/foo/foo-bar.js', {}),
 		testManyCases('src/foo/fooBar.js', {camelCase: true}),
@@ -377,6 +378,16 @@ test({
 			'src/foo/[foo_bar].js',
 			undefined,
 			'Filename is not in kebab case. Rename it to `[foo-bar].js`.',
+		),
+		testCase(
+			'src/foo/$foo_bar.js',
+			undefined,
+			'Filename is not in kebab case. Rename it to `$foo-bar.js`.',
+		),
+		testCase(
+			'src/foo/$fooBar.js',
+			undefined,
+			'Filename is not in kebab case. Rename it to `$foo-bar.js`.',
 		),
 		testManyCases(
 			'src/foo/{foo_bar}.js',

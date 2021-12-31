@@ -15,9 +15,9 @@ const selector = [
 		methods: ['resolve', 'reject'],
 	}),
 	matches([
-		'ArrowFunctionExpression[async=true] > .body',
+		'ArrowFunctionExpression > .body',
 		'ReturnStatement > .argument',
-		'YieldExpression[delegate=false] > .argument',
+		'YieldExpression[delegate!=true] > .argument',
 	]),
 ].join('');
 
@@ -44,6 +44,42 @@ function getFunctionNode(node) {
 		functionNode,
 		isInTryStatement,
 	};
+}
+
+function isPromiseCallback(node) {
+	if (
+		node.parent.type === 'CallExpression'
+		&& node.parent.callee.type === 'MemberExpression'
+		&& !node.parent.callee.computed
+		&& node.parent.callee.property.type === 'Identifier'
+	) {
+		const {callee: {property}, arguments: arguments_} = node.parent;
+
+		if (
+			arguments_.length === 1
+			&& (
+				property.name === 'then'
+				|| property.name === 'catch'
+				|| property.name === 'finally'
+			)
+			&& arguments_[0] === node
+		) {
+			return true;
+		}
+
+		if (
+			arguments_.length === 2
+			&& property.name === 'then'
+			&& (
+				arguments_[0] === node
+				|| (arguments_[0].type !== 'SpreadElement' && arguments_[1] === node)
+			)
+		) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 function createProblem(callExpression, fix) {
@@ -142,7 +178,7 @@ const create = context => {
 	return {
 		[selector](callExpression) {
 			const {functionNode, isInTryStatement} = getFunctionNode(callExpression);
-			if (!functionNode || !functionNode.async) {
+			if (!functionNode || !(functionNode.async || isPromiseCallback(functionNode))) {
 				return;
 			}
 
@@ -162,7 +198,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow returning/yielding `Promise.resolve/reject()` in async functions',
+			description: 'Disallow returning/yielding `Promise.resolve/reject()` in async functions or promise callbacks',
 		},
 		fixable: 'code',
 		schema,

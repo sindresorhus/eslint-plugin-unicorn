@@ -321,3 +321,29 @@ test.typescript({
 		},
 	],
 });
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
+			/* 1 */ (( /* 2 */ 0 /* 3 */, /* 4 */ foo /* 5 */ )) /* 6 */
+				. /* 7 */ substring /* 8 */ (
+					/* 9 */ (( /* 10 */ bar /* 11 */ )) /* 12 */,
+					/* 13 */ (( /* 14 */ 0 /* 15 */ )) /* 16 */,
+					/* 17 */
+				)
+			/* 18 */
+		`,
+		'foo.substr(0, ...bar)',
+		'foo.substr(...bar)',
+		'foo.substr(0, (100, 1))',
+		'foo.substr(0, 1, extraArgument)',
+		'foo.substr((0, bar.length), (0, baz.length))',
+		// TODO: Fix this
+		// 'foo.substr(await 1, await 2)',
+		'foo.substring((10, 1), 0)',
+		'foo.substring(0, (10, 1))',
+		'foo.substring(0, await 1)',
+		'foo.substring((10, bar))',
+	],
+});

@@ -22,9 +22,15 @@ const dashToCamelCase = string => string.replace(/-[a-z]/g, s => s[1].toUpperCas
 const create = context => ({
 	[selector](node) {
 		const [nameNode] = node.arguments;
-		const attributeName = nameNode.value;
+		let attributeName = nameNode.value;
 
-		if (typeof attributeName !== 'string' || !attributeName.startsWith('data-') || attributeName === 'data-') {
+		if (typeof attributeName !== 'string') {
+			return;
+		}
+
+		attributeName = attributeName.toLowerCase();
+
+		if (!attributeName.startsWith('data-')) {
 			return;
 		}
 
