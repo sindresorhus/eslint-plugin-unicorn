@@ -51,7 +51,6 @@ module.exports = {
 			description: 'Prefer `String#codePointAt(…)` over `String#charCodeAt(…)` and `String.fromCodePoint(…)` over `String.fromCharCode(…)`.',
 		},
 		hasSuggestions: true,
-		schema: [],
 		messages,
 	},
 };

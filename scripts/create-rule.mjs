@@ -133,6 +133,21 @@ function updateRecommended(id) {
 				'layout',
 			],
 		},
+		{
+			type: 'select',
+			name: 'hasSuggestions',
+			message: 'Does it provides suggestions?',
+			choices: [
+				{
+					message: 'Yes',
+					value: true,
+				},
+				{
+					message: 'No',
+					value: false,
+				},
+			],
+		},
 	]);
 
 	if (data.fixableType === 'No') {

@@ -1,11 +1,10 @@
 # <%= docTitle %>
 
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
-
 <% if (fixableType) { %>
-🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
+🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems)<% if (hasSuggestions) { %> and provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions)<% } %>.*
 <% } %>
-<!-- More detailed description. Remove this comment. -->
+<!-- Remove this comment, add more detailed description. -->
 
 ## Fail
 

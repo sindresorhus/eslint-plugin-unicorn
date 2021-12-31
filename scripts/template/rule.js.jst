@@ -1,32 +1,59 @@
 'use strict';
-const MESSAGE_ID = '<%= id %>';
+const {} = require('./selectors/index.js');
+const {} = require('./fix/index.js');
+
+<% if (hasSuggestions) { %>
+const MESSAGE_ID_ERROR = '<%= id %>/error';
+const MESSAGE_ID_SUGGESTION = '<%= id %>/suggestion';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{value}}`.'
+	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over `{{value}}`.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `{{replacement}}`.',
 };
+<% } else { %>
+const MESSAGE_ID= '<%= id %>';
+const messages = {
+	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{value}}`.',
+};
+<% } %>
+
+const selector = [
+	'Literal',
+	'[value="unicorn"]',
+].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	return {
-		Literal(node) {
-			if (node.value !== 'unicorn') {
-				return;
-			}
-
+		[selector](node) {
 			return {
 				node,
-				messageId: MESSAGE_ID,
+				messageId: <% if (hasSuggestions) { %>MESSAGE_ID_ERROR<% } else { %>MESSAGE_ID<% } %>,
 				data: {
 					value: 'unicorn',
-					replacement: '🦄'
-				}<% if (fixableType) { %>,
+					replacement: '🦄',
+				},
+				<% if (fixableType) { %>
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => fixer.replaceText(node, '\'🦄\'')<% } %>
+				fix: fixer => fixer.replaceText(node, '\'🦄\''),
+				<% } %>
+				<% if (hasSuggestions) { %>
+				/** @param {import('eslint').Rule.RuleFixer} fixer */
+				suggest: [
+					{
+						messageId: MESSAGE_ID_SUGGESTION,
+						data: {
+							value: 'unicorn',
+							replacement: '🦄',
+						},
+						/** @param {import('eslint').Rule.RuleFixer} fixer */
+						fix: fixer => fixer.replaceText(node, '\'🦄\''),
+					}
+				],
+				<% } %>
 			};
-		}
-	}
+		},
+	};
 };
-
-const schema = [];
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
@@ -34,10 +61,10 @@ module.exports = {
 	meta: {
 		type: '<%= type %>',
 		docs: {
-			description: '<%= description %>'
-		},<% if (fixableType) { %>
-		fixable: '<%= fixableType %>',<% } %>
-		schema,
-		messages
-	}
+			description: '<%= description %>',
+		},
+		<% if (fixableType) { %>fixable: '<%= fixableType %>',<% } %>
+		<% if (hasSuggestions) { %>hasSuggestions: true,<% } %>
+		messages,
+	},
 };

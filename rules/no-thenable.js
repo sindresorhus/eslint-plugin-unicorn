@@ -122,7 +122,6 @@ module.exports = {
 		docs: {
 			description: 'Disallow `then` property.',
 		},
-		schema: [],
 		messages,
 	},
 };
