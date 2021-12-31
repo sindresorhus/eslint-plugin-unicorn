@@ -1,4 +1,4 @@
-# Prefer read JSON file as buffer
+# Prefer reading a JSON file as a buffer
 
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
