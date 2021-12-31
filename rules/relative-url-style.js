@@ -18,7 +18,7 @@ const DOT_SLASH = './';
 const TEST_URL_BASE = 'https://example.com/';
 const isSafeToAddDotSlash = url => {
 	try {
-		return new URL(url, TEST_URL_BASE).href === new URL(`./${url}`, TEST_URL_BASE).href;
+		return new URL(url, TEST_URL_BASE).href === new URL(`${DOT_SLASH}${url}`, TEST_URL_BASE).href;
 	} catch {}
 
 	return false;
