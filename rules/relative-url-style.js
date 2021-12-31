@@ -5,8 +5,8 @@ const {replaceStringLiteral} = require('./fix/index.js');
 const MESSAGE_ID_NEVER = 'never';
 const MESSAGE_ID_ALWAYS = 'always';
 const messages = {
-	[MESSAGE_ID_NEVER]: 'Remove `./` prefix from the relative url.',
-	[MESSAGE_ID_ALWAYS]: 'Use `./` prefix in the relative url.',
+	[MESSAGE_ID_NEVER]: 'Remove the `./` prefix from the relative URL.',
+	[MESSAGE_ID_ALWAYS]: 'Add a `./` prefix to the relative URL.',
 };
 
 const selector = [
@@ -94,7 +94,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce consistent relative url style.',
+			description: 'Enforce consistent relative URL style.',
 		},
 		fixable: 'code',
 		schema,
