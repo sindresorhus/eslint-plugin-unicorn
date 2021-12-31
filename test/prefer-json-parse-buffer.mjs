@@ -57,6 +57,13 @@ test.snapshot({
 			const baz = await bar;
 			JSON.parse(baz);
 		`,
+		outdent`
+			const foo = fs.readFile(file, "utf8");
+			function fn1() {
+				const foo = "{}";
+				JSON.parse(foo);
+			}
+		`,
 	],
 	invalid: [
 		'JSON.parse(await fs.readFile(file, "utf8"));',
@@ -92,6 +99,27 @@ test.snapshot({
 			let bar = await foo;
 			const baz = await bar;
 			JSON.parse(baz);
+		`,
+		outdent`
+			const foo = fs.readFile(file, "utf8");
+			async function fn1() {
+				const bar = await foo;
+
+				function fn2() {
+					const baz = bar;
+					JSON.parse(baz);
+				}
+			}
+		`,
+		outdent`
+			const foo = fs.readFile(file, "utf8");
+			function fn1() {
+				JSON.parse(foo);
+
+				function fn2() {
+					const foo = "{}";
+				}
+			}
 		`,
 		// Maybe false positive, we can trace the callee if necessary
 		outdent`
