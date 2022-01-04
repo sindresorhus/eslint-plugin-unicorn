@@ -17,6 +17,9 @@ const MESSAGES = {
 	hasSuggestions: '💡 *This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*',
 };
 
+export const RULE_NOTICE_START_MARK = '<!-- RULE_NOTICE_START -->';
+export const RULE_NOTICE_END_MARK = '<!-- RULE_NOTICE_END -->';
+
 const recommendedRules = getRecommendedRules();
 export function getRuleNotice(id) {
 	const notices = [];

@@ -5,12 +5,11 @@
 import fs from 'node:fs/promises';
 import eslintPluginUnicorn from '../index.js';
 import outdent from 'outdent';
-import {getRuleNotice} from './utils.mjs';
+import {RULE_NOTICE_START_MARK, RULE_NOTICE_END_MARK,getRuleNotice} from './utils.mjs';
 
 const rules = Object.entries(eslintPluginUnicorn.rules).filter(([, rule]) => !rule.meta.deprecated).map(([id]) => id);
 
-const RULE_NOTICE_START_MARK = '<!-- RULE_NOTICE_START -->';
-const RULE_NOTICE_END_MARK = '<!-- RULE_NOTICE_END -->';
+
 
 async function updateNotice(id) {
 	const documentationFile = new URL(`../docs/rules/${id}.md`, import.meta.url);
