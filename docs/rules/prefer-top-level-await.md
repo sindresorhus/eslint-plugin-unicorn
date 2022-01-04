@@ -2,6 +2,7 @@
 
 <!-- Do not manually modify RULE_NOTICE part -->
 <!-- RULE_NOTICE_START -->
+💡 *This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*
 <!-- RULE_NOTICE_END -->
 
 [Top-level await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await#top-level-await) is more readable and can prevent unhandled rejections.

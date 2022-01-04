@@ -2,6 +2,9 @@
 
 <!-- Do not manually modify RULE_NOTICE part -->
 <!-- RULE_NOTICE_START -->
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+
+💡 *This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*
 <!-- RULE_NOTICE_END -->
 
 Enforces the use of `.textContent` over `.innerText` for DOM nodes.

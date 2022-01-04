@@ -2,6 +2,7 @@
 
 <!-- Do not manually modify RULE_NOTICE part -->
 <!-- RULE_NOTICE_START -->
+
 <!-- RULE_NOTICE_END -->
 
 Uses [safe-regex](https://github.com/substack/safe-regex) to disallow potentially [catastrophic](https://regular-expressions.mobi/catastrophic.html) [exponential-time](https://perlgeek.de/blog-en/perl-tips/in-search-of-an-exponetial-regexp.html) regular expressions.

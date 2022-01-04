@@ -2,6 +2,7 @@
 
 <!-- Do not manually modify RULE_NOTICE part -->
 <!-- RULE_NOTICE_START -->
+🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
 <!-- RULE_NOTICE_END -->
 
 The [`String#replaceAll()`](https://github.com/tc39/proposal-string-replaceall) method is both faster and safer as you don't have to escape the regex if the string is not a literal.

@@ -18,6 +18,7 @@
 		"fix": "run-p --continue-on-error fix:*",
 		"fix:js": "npm run lint:js -- --fix",
 		"fix:md": "npm run lint:md -- --fix",
+		"generate-rule-notice": "node ./scripts/generate-rule-notice.mjs",
 		"generate-rules-table": "node ./scripts/generate-rules-table.mjs",
 		"generate-usage-example": "node ./scripts/generate-usage-example.mjs",
 		"integration": "node ./test/integration/test.mjs",

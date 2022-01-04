@@ -2,6 +2,7 @@
 
 <!-- Do not manually modify RULE_NOTICE part -->
 <!-- RULE_NOTICE_START -->
+✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 <!-- RULE_NOTICE_END -->
 
 Meaningless files clutter a codebase.

@@ -2,6 +2,7 @@
 
 <!-- Do not manually modify RULE_NOTICE part -->
 <!-- RULE_NOTICE_START -->
+
 <!-- RULE_NOTICE_END -->
 
 `new Foo` and `newFoo` look very similar. Use alternatives that do not look like keyword usage.
