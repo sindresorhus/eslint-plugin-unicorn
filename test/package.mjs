@@ -4,8 +4,8 @@ import {createRequire} from 'node:module';
 import test from 'ava';
 import {ESLint} from 'eslint';
 import index from '../index.js';
+import {RULE_NOTICE_START_MARK, RULE_NOTICE_END_MARK, getRuleNotice} from '../scripts/utils.mjs';
 import ruleDescriptionToDocumentTitle from './utils/rule-description-to-document-title.mjs';
-import {RULE_NOTICE_START_MARK, RULE_NOTICE_END_MARK,getRuleNotice} from '../scripts/utils.mjs';
 
 const require = createRequire(import.meta.url);
 let ruleFiles;
