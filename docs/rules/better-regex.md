@@ -1,8 +1,8 @@
 # Improve regexes by making them shorter, consistent, and safer
 
-✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
-
-🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
+<!-- Do not manually modify RULE_NOTICE part -->
+<!-- RULE_NOTICE_START -->
+<!-- RULE_NOTICE_END -->
 
 Note: This rule uses [`regexp-tree`](https://github.com/DmitrySoshnikov/regexp-tree) and [`clean-regexp`](https://github.com/samverschueren/clean-regexp) under the hood.
 

@@ -1,8 +1,8 @@
 # Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`
 
-✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
-
-🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
+<!-- Do not manually modify RULE_NOTICE part -->
+<!-- RULE_NOTICE_START -->
+<!-- RULE_NOTICE_END -->
 
 It's better to use the same method to query DOM elements.
 

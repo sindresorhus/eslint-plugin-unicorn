@@ -1,6 +1,8 @@
 # Disallow `then` property
 
-✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+<!-- Do not manually modify RULE_NOTICE part -->
+<!-- RULE_NOTICE_START -->
+<!-- RULE_NOTICE_END -->
 
 If an object is defined as "thenable", once it's accidentally used in an await expression, it may cause problems:
 

@@ -1,8 +1,8 @@
 # Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence
 
-✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
-
-🔧💡 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) and provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*
+<!-- Do not manually modify RULE_NOTICE part -->
+<!-- RULE_NOTICE_START -->
+<!-- RULE_NOTICE_END -->
 
 All built-ins have `.includes()` in addition to `.indexOf()`. Prefer `.includes()` over comparing the value of `.indexOf()`.
 

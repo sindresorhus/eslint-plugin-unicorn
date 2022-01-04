@@ -1,6 +1,8 @@
 # Enforce a case style for filenames
 
-✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+<!-- Do not manually modify RULE_NOTICE part -->
+<!-- RULE_NOTICE_START -->
+<!-- RULE_NOTICE_END -->
 
 Enforces all linted files to have their names in a certain case style and lowercase file extension. The default is `kebabCase`.
 

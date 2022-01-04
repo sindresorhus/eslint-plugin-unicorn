@@ -1,5 +1,9 @@
 # Disallow unused object properties
 
+<!-- Do not manually modify RULE_NOTICE part -->
+<!-- RULE_NOTICE_START -->
+<!-- RULE_NOTICE_END -->
+
 Unused properties, much like unused variables, are often a result of incomplete refactoring and may confuse readers.
 
 This rule is primarily useful when you use objects to group constants or model enumerations. It is much harder to predict class properties usage, and practically impossible to predict reflective property access. This rule ignores cases like that.
