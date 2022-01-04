@@ -2,7 +2,6 @@
 
 <!-- Do not manually modify RULE_NOTICE part -->
 <!-- RULE_NOTICE_START -->
-
 <!-- RULE_NOTICE_END -->
 
 Unused properties, much like unused variables, are often a result of incomplete refactoring and may confuse readers.

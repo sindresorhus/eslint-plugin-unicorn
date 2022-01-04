@@ -3,7 +3,6 @@
 // Automatically regenerates the rule notice.
 
 import fs from 'node:fs/promises';
-import outdent from 'outdent';
 import eslintPluginUnicorn from '../index.js';
 import {RULE_NOTICE_START_MARK, RULE_NOTICE_END_MARK, getRuleNotice} from './utils.mjs';
 
@@ -12,7 +11,6 @@ const rules = Object.entries(eslintPluginUnicorn.rules).filter(([, rule]) => !ru
 async function updateNotice(id) {
 	const documentationFile = new URL(`../docs/rules/${id}.md`, import.meta.url);
 	const original = await fs.readFile(documentationFile, 'utf8');
-	const notice = getRuleNotice(id);
 	const startMarkIndex = original.indexOf(RULE_NOTICE_START_MARK);
 	const endMarkIndex = original.indexOf(RULE_NOTICE_END_MARK);
 
@@ -26,17 +24,17 @@ async function updateNotice(id) {
 
 	const before = original.slice(0, startMarkIndex + RULE_NOTICE_START_MARK.length);
 	const after = original.slice(endMarkIndex);
-	const content = outdent`
-		${before}
-		${notice}
-		${after}
-	`;
+	let notice = getRuleNotice(id);
+	if (notice) {
+		notice = `${notice}\n`;
+	}
+
+	notice = `\n${notice}`;
+	const content = before + notice + after;
 
 	if (content !== original) {
 		await fs.writeFile(documentationFile, content);
 	}
 }
 
-for (const id of rules) {
-	await updateNotice(id);
-}
+await Promise.all(rules.map(id => updateNotice(id)));
