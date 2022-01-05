@@ -254,7 +254,7 @@ test('Every rule has a doc with the appropriate content', t => {
 		t.is(
 			notice,
 			getRuleNotice(ruleName),
-			`${ruleName} should has expected notice`,
+			`${ruleName} should have expected notice(s)`,
 		);
 	}
 });
