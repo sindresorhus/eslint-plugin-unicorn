@@ -255,9 +255,9 @@ test('Every rule has a doc with the appropriate content', t => {
 			-1,
 			`${ruleName} missing rule notice start mark`,
 		);
-		const notice = documentLines.slice(startMarkLine + 1, endMarkLine).join('\n');
+		const notices = documentLines.slice(startMarkLine + 1, endMarkLine).join('\n');
 		t.is(
-			notice,
+			notices,
 			getRuleNoticesSectionBody(ruleName),
 			`${ruleName} should have expected notice(s)`,
 		);
