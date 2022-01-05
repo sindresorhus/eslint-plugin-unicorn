@@ -5,12 +5,8 @@ import test from 'ava';
 import {ESLint} from 'eslint';
 import index from '../index.js';
 import {
-	RULE_NOTICE_START_MARK,
-	RULE_NOTICE_END_MARK,
-	RULE_NOTICE_COMMENT,
-	RULES_TABLE_START_MARK,
-	RULES_TABLE_END_MARK,
-	RULES_TABLE_COMMENT,
+	RULE_NOTICE_MARKER,
+	RULES_TABLE_MARKER,
 	getRuleNoticesSectionBody,
 	getRulesTable,
 } from '../scripts/utils.mjs';
@@ -133,28 +129,27 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 	t.truthy(usageRules, 'List of rules should be defined in readme.md ## Usage and be valid JSON');
 
 	const lines = readme.split('\n');
-	const commentLine = lines.indexOf(RULES_TABLE_COMMENT);
+	const startMarkLine = lines.indexOf(RULES_TABLE_MARKER.start);
 	t.not(
-		commentLine,
+		startMarkLine,
 		-1,
-		'missing comment above rules table',
-	);
-	const startMarkLine = commentLine + 1;
-	t.is(
-		lines[startMarkLine],
-		RULES_TABLE_START_MARK,
 		'missing rules table start mark',
 	);
-	const endMarkLine = lines.indexOf(RULES_TABLE_END_MARK);
+	const endMarkLine = lines.indexOf(RULES_TABLE_MARKER.end);
 	t.not(
 		endMarkLine,
 		-1,
 		'missing rules table end mark',
 	);
-	const table = lines.slice(startMarkLine + 1, endMarkLine).join('\n');
+	const table = lines.slice(startMarkLine - 1, endMarkLine + 1).join('\n');
 	t.is(
 		table,
-		getRulesTable(),
+		[
+			RULES_TABLE_MARKER.comment,
+			RULES_TABLE_MARKER.start,
+			getRulesTable(),
+			RULES_TABLE_MARKER.end,
+		].join('\n'),
 		'rules table should have correct content',
 	);
 
@@ -249,27 +244,27 @@ test('Every rule has a doc with the appropriate content', t => {
 			'',
 			`${ruleName} should has blank line before notice`,
 		);
-		t.is(
-			documentLines[2],
-			RULE_NOTICE_COMMENT,
-			`${ruleName} missing comment above notice`,
-		);
 		const startMarkLine = 3;
 		t.is(
 			documentLines[startMarkLine],
-			RULE_NOTICE_START_MARK,
+			RULE_NOTICE_MARKER.start,
 			`${ruleName} missing rule notice start mark`,
 		);
-		const endMarkLine = documentLines.indexOf(RULE_NOTICE_END_MARK);
+		const endMarkLine = documentLines.indexOf(RULE_NOTICE_MARKER.end);
 		t.not(
 			endMarkLine,
 			-1,
 			`${ruleName} missing rule notice end mark`,
 		);
-		const notices = documentLines.slice(startMarkLine + 1, endMarkLine).join('\n');
+		const notices = documentLines.slice(startMarkLine - 1, endMarkLine + 1).join('\n');
 		t.is(
 			notices,
-			getRuleNoticesSectionBody(ruleName),
+			[
+				RULE_NOTICE_MARKER.comment,
+				RULE_NOTICE_MARKER.start,
+				getRuleNoticesSectionBody(ruleName),
+				RULE_NOTICE_MARKER.end,
+			].filter(Boolean).join('\n'),
 			`${ruleName} should have expected notice(s)`,
 		);
 	}

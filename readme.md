@@ -149,7 +149,7 @@ Each rule has emojis denoting:
 - 🔧 if some problems reported by the rule are automatically fixable by the `--fix` [command line](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) option
 - 💡 if some problems reported by the rule are manually fixable by editor [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions)
 
-<!-- Do not manually modify this table. Run: `npm run generate-rules-table` -->
+<!-- Do not manually modify RULES_TABLE part. Run: `npm run generate-rules-table` -->
 <!-- RULES_TABLE -->
 | Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | ✅ | 🔧 | 💡 |
 | :-- | :-- | :-- | :-- | :-- |

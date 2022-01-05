@@ -36,9 +36,13 @@ const MESSAGES = {
 	hasSuggestions: '💡 *This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*',
 };
 
-export const RULE_NOTICE_COMMENT = '<!-- Do not manually modify RULE_NOTICE part -->';
-export const RULE_NOTICE_START_MARK = '<!-- RULE_NOTICE -->';
-export const RULE_NOTICE_END_MARK = '<!-- /RULE_NOTICE -->';
+const createHtmlComment = comment => `<!-- ${comment} -->`;
+const createMarkers = (marker, script) => ({
+	comment: createHtmlComment(`Do not manually modify ${marker} part. Run: \`npm run ${script}\``),
+	start: createHtmlComment(marker),
+	end: createHtmlComment(`/${marker}`),
+});
+export const RULE_NOTICE_MARKER = createMarkers('RULE_NOTICE', 'generate-rule-notices');
 
 export function getRuleNoticesSectionBody(ruleId) {
 	const rule = getRuleInfo(ruleId);
@@ -58,20 +62,20 @@ export function getRuleNoticesSectionBody(ruleId) {
 	return notices.join('\n\n');
 }
 
-function replaceContentInsideMarkers(original, text, startMark, endMark) {
-	const startMarkIndex = original.indexOf(startMark);
-	const endMarkIndex = original.indexOf(endMark);
+function replaceContentInsideMarkers(original, text, marker) {
+	const startMarkIndex = original.indexOf(marker.start);
+	const endMarkIndex = original.indexOf(marker.end);
 
 	if (startMarkIndex === -1) {
-		throw new Error(`'${startMark}' mark lost.`);
+		throw new Error(`'${marker.start}' mark lost.`);
 	}
 
 	if (endMarkIndex === -1) {
-		throw new Error(`'${endMark}' mark lost.`);
+		throw new Error(`'${marker.end}' mark lost.`);
 	}
 
 	if (startMarkIndex > endMarkIndex) {
-		throw new Error(`'${startMark}' should used before '${endMark}'.`);
+		throw new Error(`'${marker.start}' should used before '${marker.end}'.`);
 	}
 
 	if (text) {
@@ -80,15 +84,15 @@ function replaceContentInsideMarkers(original, text, startMark, endMark) {
 
 	text = `\n${text}`;
 
-	const before = original.slice(0, startMarkIndex + RULE_NOTICE_START_MARK.length);
+	const before = original.slice(0, startMarkIndex + marker.start.length);
 	const after = original.slice(endMarkIndex);
 
 	return before + text + after;
 }
 
-export async function updateFileContentInsideMarkers(file, text, startMark, endMark) {
+export async function updateFileContentInsideMarkers(file, text, marker) {
 	const original = await fs.readFile(file, 'utf8');
-	const content = replaceContentInsideMarkers(original, text, startMark, endMark);
+	const content = replaceContentInsideMarkers(original, text, marker);
 
 	if (content === original) {
 		return;
@@ -97,9 +101,7 @@ export async function updateFileContentInsideMarkers(file, text, startMark, endM
 	await fs.writeFile(file, content);
 }
 
-export const RULES_TABLE_COMMENT = '<!-- Do not manually modify this table. Run: `npm run generate-rules-table` -->';
-export const RULES_TABLE_START_MARK = '<!-- RULES_TABLE -->';
-export const RULES_TABLE_END_MARK = '<!-- /RULES_TABLE -->';
+export const RULES_TABLE_MARKER = createMarkers('RULES_TABLE', 'generate-rules-table');
 // Config/preset/fixable emojis.
 const EMOJI_RECOMMENDED = '✅';
 const EMOJI_FIXABLE = '🔧';

@@ -3,8 +3,7 @@
 // Automatically regenerates the rule notice.
 
 import {
-	RULE_NOTICE_START_MARK,
-	RULE_NOTICE_END_MARK,
+	RULE_NOTICE_MARKER,
 	getRuleNoticesSectionBody,
 	getRules,
 	updateFileContentInsideMarkers,
@@ -14,8 +13,7 @@ const updateNotices = ruleId =>
 	updateFileContentInsideMarkers(
 		new URL(`../docs/rules/${ruleId}.md`, import.meta.url),
 		getRuleNoticesSectionBody(ruleId),
-		RULE_NOTICE_START_MARK,
-		RULE_NOTICE_END_MARK,
+		RULE_NOTICE_MARKER,
 	);
 
 await Promise.all(
