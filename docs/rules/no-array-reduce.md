@@ -1,9 +1,9 @@
 # Disallow `Array#reduce()` and `Array#reduceRight()`
 
 <!-- Do not manually modify RULE_NOTICE part -->
-<!-- RULE_NOTICE_START -->
+<!-- RULE_NOTICE -->
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
-<!-- RULE_NOTICE_END -->
+<!-- /RULE_NOTICE -->
 
 `Array#reduce()` and `Array#reduceRight()` usually result in [hard-to-read](https://twitter.com/jaffathecake/status/1213077702300852224) and [less performant](https://www.richsnapp.com/article/2019/06-09-reduce-spread-anti-pattern) code. In almost every case, it can be replaced by `.map`, `.filter`, or a `for-of` loop.
 

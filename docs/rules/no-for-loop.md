@@ -1,11 +1,11 @@
 # Do not use a `for` loop that can be replaced with a `for-of` loop
 
 <!-- Do not manually modify RULE_NOTICE part -->
-<!-- RULE_NOTICE_START -->
+<!-- RULE_NOTICE -->
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
 🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
-<!-- RULE_NOTICE_END -->
+<!-- /RULE_NOTICE -->
 
 There's no reason to use old school for loops anymore for the common case. You can instead use for-of loop (with `.entries()` if you need to access the index).
 

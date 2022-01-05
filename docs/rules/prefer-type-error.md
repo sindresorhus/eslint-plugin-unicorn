@@ -1,11 +1,11 @@
 # Enforce throwing `TypeError` in type checking conditions
 
 <!-- Do not manually modify RULE_NOTICE part -->
-<!-- RULE_NOTICE_START -->
+<!-- RULE_NOTICE -->
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
 🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
-<!-- RULE_NOTICE_END -->
+<!-- /RULE_NOTICE -->
 
 This rule enforces you to throw a `TypeError` after a type checking if-statement, instead of a generic `Error`.
 

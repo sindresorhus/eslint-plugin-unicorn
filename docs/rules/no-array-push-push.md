@@ -1,11 +1,11 @@
 # Enforce combining multiple `Array#push()` into one call
 
 <!-- Do not manually modify RULE_NOTICE part -->
-<!-- RULE_NOTICE_START -->
+<!-- RULE_NOTICE -->
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
 🔧💡 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) and provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*
-<!-- RULE_NOTICE_END -->
+<!-- /RULE_NOTICE -->
 
 [`Array#push()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push) accepts multiple arguments. Multiple calls should be combined into one.
 

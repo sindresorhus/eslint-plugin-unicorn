@@ -1,11 +1,11 @@
 # Enforce consistent relative URL style
 
 <!-- Do not manually modify RULE_NOTICE part -->
-<!-- RULE_NOTICE_START -->
+<!-- RULE_NOTICE -->
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
 🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
-<!-- RULE_NOTICE_END -->
+<!-- /RULE_NOTICE -->
 
 When using a relative URL in [`new URL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/URL), the URL should either never or always use the `./` prefix consistently.
 

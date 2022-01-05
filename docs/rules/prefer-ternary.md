@@ -1,11 +1,11 @@
 # Prefer ternary expressions over simple `if-else` statements
 
 <!-- Do not manually modify RULE_NOTICE part -->
-<!-- RULE_NOTICE_START -->
+<!-- RULE_NOTICE -->
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
 🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
-<!-- RULE_NOTICE_END -->
+<!-- /RULE_NOTICE -->
 
 This rule enforces the use of ternary expressions over  'simple' `if-else` statements, where 'simple' means the consequent and alternate are each one line and have the same basic type and form.
 

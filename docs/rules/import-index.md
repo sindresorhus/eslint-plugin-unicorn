@@ -1,9 +1,9 @@
 # Enforce importing index files with `.`
 
 <!-- Do not manually modify RULE_NOTICE part -->
-<!-- RULE_NOTICE_START -->
+<!-- RULE_NOTICE -->
 🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
-<!-- RULE_NOTICE_END -->
+<!-- /RULE_NOTICE -->
 
 Enforces importing index file with `.` instead of `./`, `./index` or `./index.js`.
 

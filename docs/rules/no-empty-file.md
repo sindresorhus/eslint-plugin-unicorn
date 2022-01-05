@@ -1,9 +1,9 @@
 # Disallow empty files
 
 <!-- Do not manually modify RULE_NOTICE part -->
-<!-- RULE_NOTICE_START -->
+<!-- RULE_NOTICE -->
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
-<!-- RULE_NOTICE_END -->
+<!-- /RULE_NOTICE -->
 
 Meaningless files clutter a codebase.
 
