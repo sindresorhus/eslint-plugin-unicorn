@@ -62,7 +62,7 @@ export function getRuleNoticesSectionBody(ruleId) {
 	return notices.join('\n\n');
 }
 
-function replaceContentInsideMarkers(original, text, marker) {
+function replaceContentInsideMarker(original, text, marker) {
 	const startMarkIndex = original.indexOf(marker.start);
 	const endMarkIndex = original.indexOf(marker.end);
 
@@ -90,9 +90,9 @@ function replaceContentInsideMarkers(original, text, marker) {
 	return before + text + after;
 }
 
-export async function updateFileContentInsideMarkers(file, text, marker) {
+export async function updateFileContentInsideMarker(file, text, marker) {
 	const original = await fs.readFile(file, 'utf8');
-	const content = replaceContentInsideMarkers(original, text, marker);
+	const content = replaceContentInsideMarker(original, text, marker);
 
 	if (content === original) {
 		return;

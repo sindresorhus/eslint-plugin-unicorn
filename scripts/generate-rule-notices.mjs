@@ -6,11 +6,11 @@ import {
 	RULE_NOTICE_MARKER,
 	getRuleNoticesSectionBody,
 	getRules,
-	updateFileContentInsideMarkers,
+	updateFileContentInsideMarker,
 } from './utils.mjs';
 
 const updateNotices = ruleId =>
-	updateFileContentInsideMarkers(
+	updateFileContentInsideMarker(
 		new URL(`../docs/rules/${ruleId}.md`, import.meta.url),
 		getRuleNoticesSectionBody(ruleId),
 		RULE_NOTICE_MARKER,

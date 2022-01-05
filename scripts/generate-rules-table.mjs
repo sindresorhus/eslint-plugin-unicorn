@@ -5,10 +5,10 @@
 import {
 	RULES_TABLE_MARKER,
 	getRulesTable,
-	updateFileContentInsideMarkers,
+	updateFileContentInsideMarker,
 } from './utils.mjs';
 
-await updateFileContentInsideMarkers(
+await updateFileContentInsideMarker(
 	new URL('../readme.md', import.meta.url),
 	getRulesTable(),
 	RULES_TABLE_MARKER,
