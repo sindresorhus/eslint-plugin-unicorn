@@ -1,6 +1,9 @@
 # Enforce correct `Error` subclassing
 
+<!-- Do not manually modify RULE_NOTICE part -->
+<!-- RULE_NOTICE -->
 🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
+<!-- /RULE_NOTICE -->
 
 Enforces the only valid way of `Error` subclassing. It works with any super class that ends in `Error`.
 

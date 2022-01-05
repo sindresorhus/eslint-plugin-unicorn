@@ -1,6 +1,9 @@
 # Enforce specifying rules to disable in `eslint-disable` comments
 
+<!-- Do not manually modify RULE_NOTICE part -->
+<!-- RULE_NOTICE -->
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+<!-- /RULE_NOTICE -->
 
 This rule makes you specify the rules you want to disable when using `eslint-disable`, `eslint-disable-line` or `eslint-disable-next-line` comments.
 

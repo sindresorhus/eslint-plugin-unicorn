@@ -4,6 +4,12 @@ import {createRequire} from 'node:module';
 import test from 'ava';
 import {ESLint} from 'eslint';
 import index from '../index.js';
+import {
+	RULE_NOTICE_START_MARK,
+	RULE_NOTICE_END_MARK,
+	RULE_NOTICE_COMMENT,
+	getRuleNoticesSectionBody,
+} from '../scripts/utils.mjs';
 import ruleDescriptionToDocumentTitle from './utils/rule-description-to-document-title.mjs';
 
 const require = createRequire(import.meta.url);
@@ -58,13 +64,6 @@ function getNamedOptions(jsonSchema) {
 
 	return [];
 }
-
-const MESSAGES = {
-	configRecommended: '✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*',
-	fixable: '🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*',
-	fixableAndHasSuggestions: '🔧💡 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) and provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*',
-	hasSuggestions: '💡 *This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*',
-};
 
 const RULES_WITHOUT_PASS_FAIL_SECTIONS = new Set([
 	'filename-case', // Doesn't show code samples since it's just focused on filenames.
@@ -233,47 +232,34 @@ test('Every rule has a doc with the appropriate content', t => {
 			t.false(documentContents.includes('# Config'), `${ruleName} should not have a "Config" section`);
 		}
 
-		// Decide which notices should be shown at the top of the doc.
-		const expectedNotices = [];
-		const unexpectedNotices = [];
-		if (['error', 'warn'].includes(index.configs.recommended.rules[`unicorn/${ruleName}`])) {
-			expectedNotices.push('configRecommended');
-		} else {
-			unexpectedNotices.push('configRecommended');
-		}
-
-		if (rule.meta.fixable && rule.meta.hasSuggestions) {
-			expectedNotices.push('fixableAndHasSuggestions');
-		} else {
-			unexpectedNotices.push('fixableAndHasSuggestions');
-		}
-
-		if (rule.meta.fixable && !rule.meta.hasSuggestions) {
-			expectedNotices.push('fixable');
-		} else {
-			unexpectedNotices.push('fixable');
-		}
-
-		if (!rule.meta.fixable && rule.meta.hasSuggestions) {
-			expectedNotices.push('hasSuggestions');
-		} else {
-			unexpectedNotices.push('hasSuggestions');
-		}
-
 		// Ensure that expected notices are present in the correct order.
-		let currentLineNumber = 1;
-		for (const expectedNotice of expectedNotices) {
-			t.is(documentLines[currentLineNumber], '', `${ruleName} has blank line before ${expectedNotice} notice`);
-			t.is(documentLines[currentLineNumber + 1], MESSAGES[expectedNotice], `${ruleName} includes ${expectedNotice} notice`);
-			currentLineNumber += 2;
-		}
-
-		// Ensure that unexpected notices are not present.
-		for (const unexpectedNotice of unexpectedNotices) {
-			t.false(
-				documentContents.includes(MESSAGES[unexpectedNotice]),
-				`${ruleName} does not include unexpected ${unexpectedNotice} notice`,
-			);
-		}
+		t.is(
+			documentLines[1],
+			'',
+			`${ruleName} should has blank line before notice`,
+		);
+		t.is(
+			documentLines[2],
+			RULE_NOTICE_COMMENT,
+			`${ruleName} missing comment above notice`,
+		);
+		const startMarkLine = 3;
+		t.is(
+			documentLines[startMarkLine],
+			RULE_NOTICE_START_MARK,
+			`${ruleName} missing rule notice start mark`,
+		);
+		const endMarkLine = documentLines.indexOf(RULE_NOTICE_END_MARK);
+		t.not(
+			endMarkLine,
+			-1,
+			`${ruleName} missing rule notice start mark`,
+		);
+		const notices = documentLines.slice(startMarkLine + 1, endMarkLine).join('\n');
+		t.is(
+			notices,
+			getRuleNoticesSectionBody(ruleName),
+			`${ruleName} should have expected notice(s)`,
+		);
 	}
 });
