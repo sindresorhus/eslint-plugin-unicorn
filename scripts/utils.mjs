@@ -37,12 +37,12 @@ const MESSAGES = {
 };
 
 const createHtmlComment = comment => `<!-- ${comment} -->`;
-const createMarkers = (marker, script) => ({
+const createMark = (marker, script) => ({
 	comment: createHtmlComment(`Do not manually modify ${marker} part. Run: \`npm run ${script}\``),
 	start: createHtmlComment(marker),
 	end: createHtmlComment(`/${marker}`),
 });
-export const RULE_NOTICE_MARKER = createMarkers('RULE_NOTICE', 'generate-rule-notices');
+export const RULE_NOTICE_MARK = createMark('RULE_NOTICE', 'generate-rule-notices');
 
 export function getRuleNoticesSectionBody(ruleId) {
 	const rule = getRuleInfo(ruleId);
@@ -62,7 +62,7 @@ export function getRuleNoticesSectionBody(ruleId) {
 	return notices.join('\n\n');
 }
 
-function replaceContentInsideMarker(original, text, marker) {
+function replaceContentInsideMark(original, text, marker) {
 	const startMarkIndex = original.indexOf(marker.start);
 	const endMarkIndex = original.indexOf(marker.end);
 
@@ -90,9 +90,9 @@ function replaceContentInsideMarker(original, text, marker) {
 	return before + text + after;
 }
 
-export async function updateFileContentInsideMarker(file, text, marker) {
+export async function updateFileContentInsideMark(file, text, marker) {
 	const original = await fs.readFile(file, 'utf8');
-	const content = replaceContentInsideMarker(original, text, marker);
+	const content = replaceContentInsideMark(original, text, marker);
 
 	if (content === original) {
 		return;
@@ -101,7 +101,7 @@ export async function updateFileContentInsideMarker(file, text, marker) {
 	await fs.writeFile(file, content);
 }
 
-export const RULES_TABLE_MARKER = createMarkers('RULES_TABLE', 'generate-rules-table');
+export const RULES_TABLE_MARK = createMark('RULES_TABLE', 'generate-rules-table');
 // Config/preset/fixable emojis.
 const EMOJI_RECOMMENDED = '✅';
 const EMOJI_FIXABLE = '🔧';

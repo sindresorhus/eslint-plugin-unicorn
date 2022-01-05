@@ -5,8 +5,8 @@ import test from 'ava';
 import {ESLint} from 'eslint';
 import index from '../index.js';
 import {
-	RULE_NOTICE_MARKER,
-	RULES_TABLE_MARKER,
+	RULE_NOTICE_MARK,
+	RULES_TABLE_MARK,
 	getRuleNoticesSectionBody,
 	getRulesTable,
 } from '../scripts/utils.mjs';
@@ -129,13 +129,13 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 	t.truthy(usageRules, 'List of rules should be defined in readme.md ## Usage and be valid JSON');
 
 	const lines = readme.split('\n');
-	const startMarkLine = lines.indexOf(RULES_TABLE_MARKER.start);
+	const startMarkLine = lines.indexOf(RULES_TABLE_MARK.start);
 	t.not(
 		startMarkLine,
 		-1,
 		'missing rules table start mark',
 	);
-	const endMarkLine = lines.indexOf(RULES_TABLE_MARKER.end);
+	const endMarkLine = lines.indexOf(RULES_TABLE_MARK.end);
 	t.not(
 		endMarkLine,
 		-1,
@@ -145,10 +145,10 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 	t.is(
 		table,
 		[
-			RULES_TABLE_MARKER.comment,
-			RULES_TABLE_MARKER.start,
+			RULES_TABLE_MARK.comment,
+			RULES_TABLE_MARK.start,
 			getRulesTable(),
-			RULES_TABLE_MARKER.end,
+			RULES_TABLE_MARK.end,
 		].join('\n'),
 		'rules table should have correct content',
 	);
@@ -247,10 +247,10 @@ test('Every rule has a doc with the appropriate content', t => {
 		const startMarkLine = 3;
 		t.is(
 			documentLines[startMarkLine],
-			RULE_NOTICE_MARKER.start,
+			RULE_NOTICE_MARK.start,
 			`${ruleName} missing rule notice start mark`,
 		);
-		const endMarkLine = documentLines.indexOf(RULE_NOTICE_MARKER.end);
+		const endMarkLine = documentLines.indexOf(RULE_NOTICE_MARK.end);
 		t.not(
 			endMarkLine,
 			-1,
@@ -260,10 +260,10 @@ test('Every rule has a doc with the appropriate content', t => {
 		t.is(
 			notices,
 			[
-				RULE_NOTICE_MARKER.comment,
-				RULE_NOTICE_MARKER.start,
+				RULE_NOTICE_MARK.comment,
+				RULE_NOTICE_MARK.start,
 				getRuleNoticesSectionBody(ruleName),
-				RULE_NOTICE_MARKER.end,
+				RULE_NOTICE_MARK.end,
 			].filter(Boolean).join('\n'),
 			`${ruleName} should have expected notice(s)`,
 		);
