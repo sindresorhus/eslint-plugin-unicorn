@@ -4,12 +4,16 @@
 
 import fs from 'node:fs/promises';
 import eslintPluginUnicorn from '../index.js';
-import {RULE_NOTICE_START_MARK, RULE_NOTICE_END_MARK, getRuleNotice} from './utils.mjs';
+import {
+	RULE_NOTICE_START_MARK,
+	RULE_NOTICE_END_MARK,
+	getRuleNoticesSectionBody,
+} from './utils.mjs';
 
 const rules = Object.entries(eslintPluginUnicorn.rules).filter(([, rule]) => !rule.meta.deprecated).map(([id]) => id);
 
-async function updateNotice(id) {
-	const documentationFile = new URL(`../docs/rules/${id}.md`, import.meta.url);
+async function updateNotices(ruleId) {
+	const documentationFile = new URL(`../docs/rules/${ruleId}.md`, import.meta.url);
 	const original = await fs.readFile(documentationFile, 'utf8');
 	const startMarkIndex = original.indexOf(RULE_NOTICE_START_MARK);
 	const endMarkIndex = original.indexOf(RULE_NOTICE_END_MARK);
@@ -24,17 +28,19 @@ async function updateNotice(id) {
 
 	const before = original.slice(0, startMarkIndex + RULE_NOTICE_START_MARK.length);
 	const after = original.slice(endMarkIndex);
-	let notice = getRuleNotice(id);
-	if (notice) {
-		notice = `${notice}\n`;
+	let notices = getRuleNoticesSectionBody(ruleId);
+	if (notices) {
+		notices = `${notices}\n`;
 	}
 
-	notice = `\n${notice}`;
-	const content = before + notice + after;
+	notices = `\n${notices}`;
+	const content = before + notices + after;
 
-	if (content !== original) {
-		await fs.writeFile(documentationFile, content);
+	if (content === original) {
+		return;
 	}
+
+	await fs.writeFile(documentationFile, content);
 }
 
-await Promise.all(rules.map(id => updateNotice(id)));
+await Promise.all(rules.map(ruleId => updateNotices(ruleId)));

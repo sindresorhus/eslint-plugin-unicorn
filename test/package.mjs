@@ -4,7 +4,11 @@ import {createRequire} from 'node:module';
 import test from 'ava';
 import {ESLint} from 'eslint';
 import index from '../index.js';
-import {RULE_NOTICE_START_MARK, RULE_NOTICE_END_MARK, getRuleNotice} from '../scripts/utils.mjs';
+import {
+	RULE_NOTICE_START_MARK,
+	RULE_NOTICE_END_MARK,
+	getRuleNoticesSectionBody,
+} from '../scripts/utils.mjs';
 import ruleDescriptionToDocumentTitle from './utils/rule-description-to-document-title.mjs';
 
 const require = createRequire(import.meta.url);
@@ -253,7 +257,7 @@ test('Every rule has a doc with the appropriate content', t => {
 		const notice = documentLines.slice(startMarkLine + 1, endMarkLine).join('\n');
 		t.is(
 			notice,
-			getRuleNotice(ruleName),
+			getRuleNoticesSectionBody(ruleName),
 			`${ruleName} should have expected notice(s)`,
 		);
 	}

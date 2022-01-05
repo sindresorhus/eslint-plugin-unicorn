@@ -1,7 +1,6 @@
 import eslintPluginUnicorn from '../index.js';
 
 const {rules, configs} = eslintPluginUnicorn;
-// Const recommendedRules = new Set(Object.keys(configs.rules));
 
 export function getRecommendedRules() {
 	const rules = Object.entries(configs.recommended.rules).filter(([, config]) => ['error', 'warn'].includes(config))
@@ -21,14 +20,14 @@ export const RULE_NOTICE_START_MARK = '<!-- RULE_NOTICE_START -->';
 export const RULE_NOTICE_END_MARK = '<!-- RULE_NOTICE_END -->';
 
 const recommendedRules = getRecommendedRules();
-export function getRuleNotice(id) {
+export function getRuleNoticesSectionBody(ruleId) {
 	const notices = [];
 
-	if (recommendedRules.has(id)) {
+	if (recommendedRules.has(ruleId)) {
 		notices.push(MESSAGES.recommended);
 	}
 
-	const {meta} = rules[id];
+	const {meta} = rules[ruleId];
 
 	if (meta.fixable) {
 		notices.push(meta.hasSuggestions ? MESSAGES.fixableAndHasSuggestions : MESSAGES.fixable);
