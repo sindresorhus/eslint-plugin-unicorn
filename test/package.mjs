@@ -4,14 +4,8 @@ import {createRequire} from 'node:module';
 import test from 'ava';
 import {ESLint} from 'eslint';
 import index from '../index.js';
-import {
-	RULE_NOTICE_MARK,
-	getRuleNoticesSectionBody,
-} from '../scripts/rule-notices.mjs';
-import {
-	RULES_TABLE_MARK,
-	getRulesTable,
-} from '../scripts/rules-table.mjs';
+import {RULE_NOTICE_MARK, getRuleNoticesSectionBody} from '../scripts/rule-notices.mjs';
+import {RULES_TABLE_MARK, getRulesTable} from '../scripts/rules-table.mjs';
 import ruleDescriptionToDocumentTitle from './utils/rule-description-to-document-title.mjs';
 
 const require = createRequire(import.meta.url);
