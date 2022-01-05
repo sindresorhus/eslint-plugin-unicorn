@@ -7,6 +7,7 @@ import index from '../index.js';
 import {
 	RULE_NOTICE_START_MARK,
 	RULE_NOTICE_END_MARK,
+	RULE_NOTICE_COMMENT,
 	getRuleNoticesSectionBody,
 } from '../scripts/utils.mjs';
 import ruleDescriptionToDocumentTitle from './utils/rule-description-to-document-title.mjs';
@@ -239,7 +240,7 @@ test('Every rule has a doc with the appropriate content', t => {
 		);
 		t.is(
 			documentLines[2],
-			'<!-- Do not manually modify RULE_NOTICE part -->',
+			RULE_NOTICE_COMMENT,
 			`${ruleName} missing comment above notice`,
 		);
 		const startMarkLine = 3;
