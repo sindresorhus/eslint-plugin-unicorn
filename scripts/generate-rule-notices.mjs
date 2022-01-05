@@ -3,11 +3,13 @@
 // Automatically regenerates the rule notice.
 
 import {
-	RULE_NOTICE_MARK,
-	getRuleNoticesSectionBody,
 	getRules,
 	updateFileContentInsideMark,
 } from './utils.mjs';
+import {
+	RULE_NOTICE_MARK,
+	getRuleNoticesSectionBody,
+} from './rule-notices.mjs';
 
 const updateNotices = ruleId =>
 	updateFileContentInsideMark(

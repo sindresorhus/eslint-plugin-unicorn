@@ -6,10 +6,12 @@ import {ESLint} from 'eslint';
 import index from '../index.js';
 import {
 	RULE_NOTICE_MARK,
-	RULES_TABLE_MARK,
 	getRuleNoticesSectionBody,
+} from '../scripts/rule-notices.mjs';
+import {
+	RULES_TABLE_MARK,
 	getRulesTable,
-} from '../scripts/utils.mjs';
+} from '../scripts/rules-table.mjs';
 import ruleDescriptionToDocumentTitle from './utils/rule-description-to-document-title.mjs';
 
 const require = createRequire(import.meta.url);

@@ -3,13 +3,15 @@
 // Automatically regenerates the rules table in readme.md.
 
 import {
-	RULES_TABLE_MARK,
-	getRulesTable,
 	updateFileContentInsideMark,
 } from './utils.mjs';
+import {
+	RULES_TABLE_MARK,
+	getRulesTable,
+} from './rules-table.mjs';
 
 await updateFileContentInsideMark(
 	new URL('../readme.md', import.meta.url),
 	getRulesTable(),
-	RULES_TABLE_MARKER,
+	RULES_TABLE_MARK,
 );

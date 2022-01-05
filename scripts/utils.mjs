@@ -1,10 +1,9 @@
 import {promises as fs} from 'node:fs';
-import outdent from 'outdent';
 import eslintPluginUnicorn from '../index.js';
 
 const {rules, configs} = eslintPluginUnicorn;
 
-function getRuleInfo(ruleId) {
+export function getRuleInfo(ruleId) {
 	const rule = rules[ruleId];
 
 	return {
@@ -29,38 +28,12 @@ export function getRules() {
 	return Object.keys(rules).sort().map(ruleId => getRuleInfo(ruleId));
 }
 
-const MESSAGES = {
-	recommended: '✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*',
-	fixable: '🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*',
-	fixableAndHasSuggestions: '🔧💡 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) and provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*',
-	hasSuggestions: '💡 *This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*',
-};
-
 const createHtmlComment = comment => `<!-- ${comment} -->`;
-const createMark = (marker, script) => ({
+export const createMark = (marker, script) => ({
 	comment: createHtmlComment(`Do not manually modify ${marker} part. Run: \`npm run ${script}\``),
 	start: createHtmlComment(marker),
 	end: createHtmlComment(`/${marker}`),
 });
-export const RULE_NOTICE_MARK = createMark('RULE_NOTICE', 'generate-rule-notices');
-
-export function getRuleNoticesSectionBody(ruleId) {
-	const rule = getRuleInfo(ruleId);
-
-	const notices = [];
-
-	if (rule.isRecommended) {
-		notices.push(MESSAGES.recommended);
-	}
-
-	if (rule.isFixable) {
-		notices.push(rule.hasSuggestions ? MESSAGES.fixableAndHasSuggestions : MESSAGES.fixable);
-	} else if (rule.hasSuggestions) {
-		notices.push(MESSAGES.hasSuggestions);
-	}
-
-	return notices.join('\n\n');
-}
 
 function replaceContentInsideMark(original, text, marker) {
 	const startMarkIndex = original.indexOf(marker.start);
@@ -101,32 +74,3 @@ export async function updateFileContentInsideMark(file, text, marker) {
 	await fs.writeFile(file, content);
 }
 
-export const RULES_TABLE_MARK = createMark('RULES_TABLE', 'generate-rules-table');
-// Config/preset/fixable emojis.
-const EMOJI_RECOMMENDED = '✅';
-const EMOJI_FIXABLE = '🔧';
-const EMOJI_HAS_SUGGESTIONS = '💡';
-export function getRulesTable() {
-	const rules = getRules().filter(rule => !rule.isDeprecated);
-
-	const rulesTableContent = rules.map(rule => {
-		const url = `docs/rules/${rule.id}.md`;
-		const link = `[${rule.id}](${url})`;
-
-		const {description} = rule.meta.docs;
-
-		return `| ${[
-			link,
-			description,
-			rule.isRecommended ? EMOJI_RECOMMENDED : '',
-			rule.isFixable ? EMOJI_FIXABLE : '',
-			rule.hasSuggestions ? EMOJI_HAS_SUGGESTIONS : '',
-		].join(' | ')} |`;
-	}).join('\n');
-
-	return outdent`
-		| Name${'&nbsp;'.repeat(40)} | Description | ${EMOJI_RECOMMENDED} | ${EMOJI_FIXABLE} | ${EMOJI_HAS_SUGGESTIONS} |
-		|${' :-- |'.repeat(5)}
-		${rulesTableContent}
-	`;
-}
