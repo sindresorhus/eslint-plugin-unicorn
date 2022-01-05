@@ -150,8 +150,7 @@ Each rule has emojis denoting:
 - 💡 if some problems reported by the rule are manually fixable by editor [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions)
 
 <!-- Do not manually modify this table. Run: `npm run generate-rules-table` -->
-<!-- RULES_TABLE_START -->
-
+<!-- RULES_TABLE -->
 | Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | ✅ | 🔧 | 💡 |
 | :-- | :-- | :-- | :-- | :-- |
 | [better-regex](docs/rules/better-regex.md) | Improve regexes by making them shorter, consistent, and safer. | ✅ | 🔧 |  |
@@ -250,10 +249,9 @@ Each rule has emojis denoting:
 | [require-number-to-fixed-digits-argument](docs/rules/require-number-to-fixed-digits-argument.md) | Enforce using the digits argument with `Number#toFixed()`. | ✅ | 🔧 |  |
 | [require-post-message-target-origin](docs/rules/require-post-message-target-origin.md) | Enforce using the `targetOrigin` argument with `window.postMessage()`. |  |  | 💡 |
 | [string-content](docs/rules/string-content.md) | Enforce better string content. |  | 🔧 | 💡 |
-| [template-indent](docs/rules/template-indent.md) | Fix whitespace-insensitive template indentation. |  | 🔧 |  |
+| [template-indent](docs/rules/template-indent.md) | Fix whitespace-insensitive template indentation. | ✅ | 🔧 |  |
 | [throw-new-error](docs/rules/throw-new-error.md) | Require `new` when throwing an error. | ✅ | 🔧 |  |
-
-<!-- RULES_TABLE_END -->
+<!-- /RULES_TABLE -->
 
 ## Deprecated Rules
 

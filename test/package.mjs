@@ -8,7 +8,11 @@ import {
 	RULE_NOTICE_START_MARK,
 	RULE_NOTICE_END_MARK,
 	RULE_NOTICE_COMMENT,
+	RULES_TABLE_START_MARK,
+	RULES_TABLE_END_MARK,
+	RULES_TABLE_COMMENT,
 	getRuleNoticesSectionBody,
+	getRulesTable,
 } from '../scripts/utils.mjs';
 import ruleDescriptionToDocumentTitle from './utils/rule-description-to-document-title.mjs';
 
@@ -128,21 +132,31 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 
 	t.truthy(usageRules, 'List of rules should be defined in readme.md ## Usage and be valid JSON');
 
-	const rulesMatch = /<!-- RULES_TABLE_START -->(?<rulesText>.*?)<!-- RULES_TABLE_END -->/ms.exec(readme);
-	t.truthy(rulesMatch, 'List of rules should be defined in readme.md in ## Rules before ## Recommended config');
-	const {rulesText} = rulesMatch.groups;
-	const re = /\| \[(?<id>.*?)]\((?<link>.*?)\) \| (?<description>.*) \| (?<recommended>.*?) \| (?<fixable>.*?) \| (?<hasSuggestions>.*?)\n/gm;
-	const rules = [];
-	let match;
-	do {
-		match = re.exec(rulesText);
-		if (match) {
-			const {id, link, description} = match.groups;
-			t.is(link, `docs/rules/${id}.md`, `${id} link to docs should be correct`);
-			t.true(description.trim().length > 0, `${id} should have description in readme.md ## Rules`);
-			rules.push(id);
-		}
-	} while (match);
+	const lines = readme.split('\n');
+	const commentLine = lines.indexOf(RULES_TABLE_COMMENT);
+	t.not(
+		commentLine,
+		-1,
+		'missing comment above rules table',
+	);
+	const startMarkLine = commentLine + 1;
+	t.is(
+		lines[startMarkLine],
+		RULES_TABLE_START_MARK,
+		'missing rules table start mark',
+	);
+	const endMarkLine = lines.indexOf(RULES_TABLE_END_MARK);
+	t.not(
+		endMarkLine,
+		-1,
+		'missing rules table end mark',
+	);
+	const table = lines.slice(startMarkLine + 1, endMarkLine).join('\n');
+	t.is(
+		table,
+		getRulesTable(),
+		'rules table should have correct content',
+	);
 
 	const availableRules = ruleFiles
 		.map(file => path.basename(file, '.js'))
@@ -150,14 +164,11 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 
 	for (const name of availableRules) {
 		t.truthy(usageRules[`unicorn/${name}`], `'${name}' is not described in the readme.md ## Usage`);
-		t.truthy(rules.includes(name), `'${name}' is not described in the readme.md ## Rules`);
 	}
 
 	t.is(Object.keys(usageRules).length - ignoredRules.length, availableRules.length, 'There are more rules in readme.md ## Usage than rule files.');
-	t.is(Object.keys(rules).length, availableRules.length, 'There are more rules in readme.md ## Rules than rule files.');
 
 	testSorted(t, Object.keys(usageRules), 'readme.md ## Usage rules');
-	testSorted(t, rules, 'readme.md ## Rules');
 });
 
 test('Every rule has valid meta.type', t => {
@@ -253,7 +264,7 @@ test('Every rule has a doc with the appropriate content', t => {
 		t.not(
 			endMarkLine,
 			-1,
-			`${ruleName} missing rule notice start mark`,
+			`${ruleName} missing rule notice end mark`,
 		);
 		const notices = documentLines.slice(startMarkLine + 1, endMarkLine).join('\n');
 		t.is(
