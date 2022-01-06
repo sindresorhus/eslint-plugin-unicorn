@@ -186,8 +186,7 @@ function parseTodoMessage(todoString) {
 	return afterArguments;
 }
 
-function reachedDate(past) {
-	const now = new Date().toISOString().slice(0, 10);
+function reachedDate(past, now) {
 	return Date.parse(past) < Date.parse(now);
 }
 
@@ -249,6 +248,7 @@ const create = context => {
 		ignore: [],
 		ignoreDatesOnPullRequests: true,
 		allowWarningComments: true,
+		date: new Date().toISOString().slice(0, 10),
 		...context.options[0],
 	};
 
@@ -325,15 +325,15 @@ const create = context => {
 			});
 		} else if (dates.length === 1) {
 			uses++;
-			const [date] = dates;
+			const [expirationDate] = dates;
 
 			const shouldIgnore = options.ignoreDatesOnPullRequests && ci.isPR;
-			if (!shouldIgnore && reachedDate(date)) {
+			if (!shouldIgnore && reachedDate(expirationDate, options.date)) {
 				context.report({
 					loc: comment.loc,
 					messageId: MESSAGE_ID_EXPIRED_TODO,
 					data: {
-						expirationDate: date,
+						expirationDate,
 						message: parseTodoMessage(comment.value),
 					},
 				});
@@ -530,6 +530,10 @@ const schema = [
 			allowWarningComments: {
 				type: 'boolean',
 				default: false,
+			},
+			date: {
+				type: 'string',
+				format: 'date',
 			},
 		},
 	},
