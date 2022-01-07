@@ -149,17 +149,33 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 		'rules table should have correct content',
 	);
 
+	const re = /\| \[(?<id>.*?)]\((?<link>.*?)\) \| (?<description>.*) \| (?<recommended>.*?) \| (?<fixable>.*?) \| (?<hasSuggestions>.*?)\n/gm;
+	const rules = [];
+	let match;
+	do {
+		match = re.exec(table);
+		if (match) {
+			const {id, link, description} = match.groups;
+			t.is(link, `docs/rules/${id}.md`, `${id} link to docs should be correct`);
+			t.true(description.trim().length > 0, `${id} should have description in readme.md ## Rules`);
+			rules.push(id);
+		}
+	} while (match);
+
 	const availableRules = ruleFiles
 		.map(file => path.basename(file, '.js'))
 		.filter(name => !deprecatedRules.includes(name));
 
 	for (const name of availableRules) {
 		t.truthy(usageRules[`unicorn/${name}`], `'${name}' is not described in the readme.md ## Usage`);
+		t.truthy(rules.includes(name), `'${name}' is not described in the readme.md ## Rules`);
 	}
 
 	t.is(Object.keys(usageRules).length - ignoredRules.length, availableRules.length, 'There are more rules in readme.md ## Usage than rule files.');
+	t.is(Object.keys(rules).length, availableRules.length, 'There are more rules in readme.md ## Rules than rule files.');
 
 	testSorted(t, Object.keys(usageRules), 'readme.md ## Usage rules');
+	testSorted(t, rules, 'readme.md ## Rules');
 });
 
 test('Every rule has valid meta.type', t => {
