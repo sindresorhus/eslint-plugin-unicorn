@@ -110,6 +110,10 @@ test({
 			code: '// TODO [Issue-123] fix later',
 			options: [{allowWarningComments: false, ignore: [/issue-\d+/i]}],
 		},
+		{
+			code: '// TODO [2001-01-01]: quite old',
+			options: [{date: '2000-01-01'}],
+		},
 	],
 	invalid: [
 		{
@@ -386,6 +390,11 @@ test({
 			errors: [
 				noWarningCommentError('TODO Invalid'),
 			],
+		},
+		{
+			code: '// TODO [2999-12-31]: Y3K bug',
+			options: [{date: '3000-01-01'}],
+			errors: [expiredTodoError('2999-12-31', 'Y3K bug')],
 		},
 	],
 });
