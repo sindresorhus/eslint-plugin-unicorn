@@ -651,7 +651,7 @@ test({
 					function foo() {}
 				}, [])
 			`,
-			errors: [createError('function \'foo\'')]
+			errors: [createError('function \'foo\'')],
 		},
 		// IIFE
 		{

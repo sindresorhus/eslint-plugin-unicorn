@@ -94,7 +94,7 @@ const reactHooks = [
 const reactHookNamesOrPaths = [
 	...reactHooks,
 	...reactHooks.map(hookName => `React.${hookName}`),
-]
+];
 
 const isReactHook = scope =>
 	scope.block
