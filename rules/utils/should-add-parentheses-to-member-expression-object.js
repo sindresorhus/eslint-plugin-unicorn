@@ -26,7 +26,7 @@ function shouldAddParenthesesToMemberExpressionObject(node, sourceCode) {
 		case 'NewExpression':
 			return !isNewExpressionWithParentheses(node, sourceCode);
 		case 'Literal': {
-			/* istanbul ignore next */
+			/* c8 ignore next */
 			if (isDecimalIntegerNode(node)) {
 				return true;
 			}

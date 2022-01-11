@@ -140,7 +140,7 @@ function switchClassToObject(node, sourceCode) {
 
 	return function * (fixer) {
 		const classToken = sourceCode.getFirstToken(node);
-		/* istanbul ignore next */
+		/* c8 ignore next */
 		assertToken(classToken, {
 			expected: {type: 'Keyword', value: 'class'},
 			ruleId: 'no-static-only-class',

@@ -45,13 +45,13 @@ function checkReferences(scope, parent, scopeManager) {
 		const identifierScope = scopeManager.acquire(identifier);
 
 		// If we have a scope, the earlier checks should have worked so ignore them here
-		/* istanbul ignore next: Hard to test */
+		/* c8 ignore next 3 */
 		if (identifierScope) {
 			return false;
 		}
 
 		const identifierParentScope = scopeManager.acquire(identifier.parent);
-		/* istanbul ignore next: Hard to test */
+		/* c8 ignore next 3 */
 		if (!identifierParentScope) {
 			return false;
 		}

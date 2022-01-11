@@ -194,7 +194,7 @@ function getExported(identifier, context, sourceCode) {
 function isVariableUnused(node, context) {
 	const variables = context.getDeclaredVariables(node);
 
-	/* istanbul ignore next */
+	/* c8 ignore next 3 */
 	if (variables.length !== 1) {
 		return false;
 	}

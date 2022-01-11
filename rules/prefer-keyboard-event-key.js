@@ -67,7 +67,7 @@ const getParentByLevel = (node, level) => {
 		current = current.parent;
 	}
 
-	/* istanbul ignore else */
+	/* c8 ignore next 3 */
 	if (level === 0) {
 		return current;
 	}

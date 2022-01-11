@@ -7,7 +7,8 @@ function getKeyOrPropertyName(keyOrProperty, computed, scope) {
 			return keyOrProperty.name;
 		}
 
-		/* istanbul ignore next: It could be `PrivateIdentifier`(ESTree) or `PrivateName`(Babel) when it's in `class` */
+		// It could be `PrivateIdentifier`(ESTree) or `PrivateName`(Babel) when it's in `class`
+		/* c8 ignore next */
 		return;
 	}
 

@@ -52,7 +52,7 @@ function checkObjectPattern(report, node, options) {
 	const {name, parent} = node;
 	const keyword = findKeywordPrefix(name, options);
 
-	/* istanbul ignore next: Can't find a case to cover this line */
+	/* c8 ignore next 3 */
 	if (parent.shorthand && parent.value.left && Boolean(keyword)) {
 		report(node, keyword);
 	}

@@ -192,7 +192,8 @@ function reachedDate(past) {
 }
 
 function tryToCoerceVersion(rawVersion) {
-	/* istanbul ignore if: version in `package.json` and comment can't be empty */
+	// `version` in `package.json` and comment can't be empty
+	/* c8 ignore next 3 */
 	if (!rawVersion) {
 		return false;
 	}
@@ -215,12 +216,14 @@ function tryToCoerceVersion(rawVersion) {
 
 	// Get only the first member for cases such as `1.0.0 - 2.9999.9999`
 	const parts = version.split(' ');
-	/* istanbul ignore if: We don't have this `package.json` to test */
+	// We don't have this `package.json` to test
+	/* c8 ignore next 3 */
 	if (parts.length > 1) {
 		version = parts[0];
 	}
 
-	/* istanbul ignore if: We don't have this `package.json` to test */
+	// We don't have this `package.json` to test
+	/* c8 ignore next 3 */
 	if (semver.valid(version)) {
 		return version;
 	}
@@ -230,7 +233,8 @@ function tryToCoerceVersion(rawVersion) {
 		// But coerce can't parse pre-releases.
 		return semver.parse(version) || semver.coerce(version);
 	} catch {
-		/* istanbul ignore next: We don't have this `package.json` to test */
+		// We don't have this `package.json` to test
+		/* c8 ignore next 3 */
 		return false;
 	}
 }
@@ -403,11 +407,12 @@ const create = context => {
 			const todoVersion = tryToCoerceVersion(dependency.version);
 			const targetPackageVersion = tryToCoerceVersion(targetPackageRawVersion);
 
-			/* istanbul ignore if: Can't test in Node.js */
+			/* c8 ignore start */
 			if (!hasTargetPackage || !targetPackageVersion) {
 				// Can't compare `¯\_(ツ)_/¯`
 				continue;
 			}
+			/* c8 ignore end */
 
 			const compare = semverComparisonForOperator(dependency.condition);
 
@@ -431,7 +436,7 @@ const create = context => {
 			const targetPackageRawEngineVersion = packageEngines.node;
 			const hasTargetEngine = Boolean(targetPackageRawEngineVersion);
 
-			/* istanbul ignore if: Can't test in this repo */
+			/* c8 ignore next 3 */
 			if (!hasTargetEngine) {
 				continue;
 			}

@@ -99,7 +99,7 @@ const getActualAssignmentTargetImportStyles = assignmentTarget => {
 	// Next line is not test-coverable until unforceable changes to the language
 	// like an addition of new AST node types usable in `const __HERE__ = foo;`.
 	// An exotic custom parser or a bug in one could cover it too.
-	/* istanbul ignore next */
+	/* c8 ignore next */
 	return [];
 };
 

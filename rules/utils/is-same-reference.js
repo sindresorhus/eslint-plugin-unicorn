@@ -41,16 +41,16 @@ function getStaticPropertyName(node) {
 			property = node.property;
 			break;
 
-		/* istanbul ignore next: Hard to test */
+		/* c8 ignore next 2 */
 		case 'ChainExpression':
 			return getStaticPropertyName(node.expression);
 
-		/* istanbul ignore next: Only reachable when use this to get class/object member key */
+		// Only reachable when use this to get class/object member key
+		/* c8 ignore next */
 		case 'Property':
 		case 'MethodDefinition':
-			/* istanbul ignore next */
+			/* c8 ignore next 2 */
 			property = node.key;
-			/* istanbul ignore next */
 			break;
 
 			// No default
