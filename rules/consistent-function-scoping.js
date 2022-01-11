@@ -89,7 +89,7 @@ const reactHooks = [
 	'useImperativeHandle',
 	'useLayoutEffect',
 	'useDebugValue',
-].flatMap(hookName=> [hookName, `React.${hookName}`]);
+].flatMap(hookName => [hookName, `React.${hookName}`]);
 
 const isReactHook = scope =>
 	scope.block
