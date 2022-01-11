@@ -51,6 +51,8 @@ test({
 		'array.push(undefined);',
 		'array.unshift(foo, undefined);',
 		'array.unshift(undefined);',
+		'createContext(undefined);',
+		'React.createContext(undefined);',
 
 		// `checkArguments: false`
 		{
@@ -276,6 +278,8 @@ test.typescript({
 		'const foo = (): string => undefined;',
 		'const foo = function (): undefined {return undefined}',
 		'export function foo(): undefined {return undefined}',
+		'createContext<T>(undefined);',
+		'React.createContext<T>(undefined);',
 		outdent`
 			const object = {
 				method(): undefined {
@@ -332,6 +336,8 @@ test.typescript({
 				}
 			}
 		`,
+		'createContext<T>(undefined);',
+		'React.createContext<T>(undefined);',
 	],
 	invalid: [
 		{
