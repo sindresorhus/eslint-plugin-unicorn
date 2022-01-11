@@ -89,18 +89,13 @@ const reactHooks = [
 	'useImperativeHandle',
 	'useLayoutEffect',
 	'useDebugValue',
-];
-
-const reactHookNamesOrPaths = [
-	...reactHooks,
-	...reactHooks.map(hookName => `React.${hookName}`),
-];
+].flatMap(hookName=> [hookName, `React.${hookName}`]);
 
 const isReactHook = scope =>
 	scope.block
 	&& scope.block.parent
 	&& scope.block.parent.callee
-	&& isNodeMatches(scope.block.parent.callee, reactHookNamesOrPaths);
+	&& isNodeMatches(scope.block.parent.callee, reactHooks);
 
 const isArrowFunctionWithThis = scope =>
 	scope.type === 'function'
