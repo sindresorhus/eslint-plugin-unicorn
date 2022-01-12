@@ -22,7 +22,7 @@ const selector = [
 const isTernary = node => node && node.type === 'ConditionalExpression';
 
 function getNodeBody(node) {
-	/* istanbul ignore next */
+	/* c8 ignore next 3 */
 	if (!node) {
 		return;
 	}

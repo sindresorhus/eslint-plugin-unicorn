@@ -152,7 +152,7 @@ const create = context => {
 
 		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1122
 		// But can't reproduce, just ignore this case
-		/* istanbul ignore next */
+		/* c8 ignore next 3 */
 		if (!variable) {
 			return;
 		}

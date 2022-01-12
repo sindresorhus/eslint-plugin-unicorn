@@ -7,7 +7,8 @@ Check if parentheses should be added to a `node` when it's used as child of `Log
 @returns {boolean}
 */
 function shouldAddParenthesesToLogicalExpressionChild(node, {operator, property}) {
-	/* istanbul ignore next: When operator or property is different, need check `LogicalExpression` operator precedence, not implemented */
+	// When operator or property is different, need check `LogicalExpression` operator precedence, not implemented
+	/* c8 ignore next 3 */
 	if (operator !== '??' || property !== 'left') {
 		throw new Error('Not supported.');
 	}

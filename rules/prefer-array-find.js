@@ -127,14 +127,14 @@ const hasLowerPrecedence = (node, operator) => (
 	))
 	|| node.type === 'ConditionalExpression'
 	// Lower than `assignment`, should already parenthesized
-	/* istanbul ignore next */
+	/* c8 ignore next */
 	|| node.type === 'AssignmentExpression'
 	|| node.type === 'YieldExpression'
 	|| node.type === 'SequenceExpression'
 );
 
 const getDestructuringLeftAndRight = node => {
-	/* istanbul ignore next */
+	/* c8 ignore next 3 */
 	if (!node) {
 		return {};
 	}

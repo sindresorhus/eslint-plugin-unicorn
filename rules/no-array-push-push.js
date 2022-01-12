@@ -34,7 +34,7 @@ function getFirstExpression(node, sourceCode) {
 		}
 	}
 
-	/* istanbul ignore next */
+	/* c8 ignore next */
 	throw new Error('Cannot find the first `Array#push()` call.\nPlease open an issue at https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?title=%60no-array-push-push%60%3A%20Cannot%20find%20first%20%60push()%60');
 }
 

@@ -14,10 +14,11 @@ const impossibleNodeTypes = [
 ];
 
 // We might need this later
-/* istanbul ignore next */
+/* c8 ignore start */
 const isNotDomNode = node =>
 	impossibleNodeTypes.includes(node.type)
 	|| (node.type === 'Identifier' && node.name === 'undefined');
+/* c8 ignore end */
 
 const notDomNodeSelector = node => [
 	...impossibleNodeTypes.map(type => `[${node}.type!="${type}"]`),

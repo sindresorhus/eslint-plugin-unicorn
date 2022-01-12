@@ -75,7 +75,7 @@ const selector = [
 ].join('');
 
 const isIncludesCall = node => {
-	/* istanbul ignore next */
+	/* c8 ignore next 3 */
 	if (!node.parent || !node.parent.parent) {
 		return false;
 	}
@@ -131,7 +131,7 @@ const create = context => ({
 
 		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768073342
 		// But can't reproduce, just ignore this case
-		/* istanbul ignore next */
+		/* c8 ignore next 3 */
 		if (!variable) {
 			return;
 		}

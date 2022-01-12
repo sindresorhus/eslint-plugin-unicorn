@@ -24,7 +24,7 @@ function wrapFixFunction(fix) {
 					return;
 				}
 
-				/* istanbul ignore next: Safe */
+				/* c8 ignore next */
 				throw error;
 			}
 		}

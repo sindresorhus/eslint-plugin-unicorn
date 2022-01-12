@@ -14,7 +14,7 @@ Check if `this`, `arguments`, or the function name is used inside of itself.
 @returns {boolean}
 */
 function isFunctionSelfUsedInside(functionNode, functionScope) {
-	/* istanbul ignore next */
+	/* c8 ignore next 3 */
 	if (functionScope.block !== functionNode) {
 		throw new Error('"functionScope" should be the scope of "functionNode".');
 	}
