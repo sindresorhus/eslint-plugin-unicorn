@@ -1,6 +1,6 @@
 # Prefer `export…from` when re-exporting
 
-<!-- Do not manually modify RULE_NOTICE part -->
+<!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 

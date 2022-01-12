@@ -39,7 +39,6 @@ jobs:
       - run: npx c8 ava --update-snapshots
         env:
           AVA_FORCE_CI: not-ci
-      - run: npm run generate-rules-table
       - run: npm run generate-usage-example
       - run: git diff --exit-code
       - uses: codecov/codecov-action@v1

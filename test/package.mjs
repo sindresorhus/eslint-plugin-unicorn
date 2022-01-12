@@ -4,12 +4,8 @@ import {createRequire} from 'node:module';
 import test from 'ava';
 import {ESLint} from 'eslint';
 import index from '../index.js';
-import {
-	RULE_NOTICE_START_MARK,
-	RULE_NOTICE_END_MARK,
-	RULE_NOTICE_COMMENT,
-	getRuleNoticesSectionBody,
-} from '../scripts/utils.mjs';
+import {RULE_NOTICE_MARK, getRuleNoticesSectionBody} from '../scripts/rule-notices.mjs';
+import {RULES_TABLE_MARK, getRulesTable} from '../scripts/rules-table.mjs';
 import ruleDescriptionToDocumentTitle from './utils/rule-description-to-document-title.mjs';
 
 const require = createRequire(import.meta.url);
@@ -128,14 +124,36 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 
 	t.truthy(usageRules, 'List of rules should be defined in readme.md ## Usage and be valid JSON');
 
-	const rulesMatch = /<!-- RULES_TABLE_START -->(?<rulesText>.*?)<!-- RULES_TABLE_END -->/ms.exec(readme);
-	t.truthy(rulesMatch, 'List of rules should be defined in readme.md in ## Rules before ## Recommended config');
-	const {rulesText} = rulesMatch.groups;
+	const lines = readme.split('\n');
+	const startMarkLine = lines.indexOf(RULES_TABLE_MARK.start);
+	t.not(
+		startMarkLine,
+		-1,
+		'missing rules table start mark',
+	);
+	const endMarkLine = lines.indexOf(RULES_TABLE_MARK.end);
+	t.not(
+		endMarkLine,
+		-1,
+		'missing rules table end mark',
+	);
+	const table = lines.slice(startMarkLine - 1, endMarkLine + 1).join('\n');
+	t.is(
+		table,
+		[
+			RULES_TABLE_MARK.comment,
+			RULES_TABLE_MARK.start,
+			getRulesTable(),
+			RULES_TABLE_MARK.end,
+		].join('\n'),
+		'rules table should have correct content',
+	);
+
 	const re = /\| \[(?<id>.*?)]\((?<link>.*?)\) \| (?<description>.*) \| (?<recommended>.*?) \| (?<fixable>.*?) \| (?<hasSuggestions>.*?)\n/gm;
 	const rules = [];
 	let match;
 	do {
-		match = re.exec(rulesText);
+		match = re.exec(table);
 		if (match) {
 			const {id, link, description} = match.groups;
 			t.is(link, `docs/rules/${id}.md`, `${id} link to docs should be correct`);
@@ -238,27 +256,27 @@ test('Every rule has a doc with the appropriate content', t => {
 			'',
 			`${ruleName} should has blank line before notice`,
 		);
-		t.is(
-			documentLines[2],
-			RULE_NOTICE_COMMENT,
-			`${ruleName} missing comment above notice`,
-		);
 		const startMarkLine = 3;
 		t.is(
 			documentLines[startMarkLine],
-			RULE_NOTICE_START_MARK,
+			RULE_NOTICE_MARK.start,
 			`${ruleName} missing rule notice start mark`,
 		);
-		const endMarkLine = documentLines.indexOf(RULE_NOTICE_END_MARK);
+		const endMarkLine = documentLines.indexOf(RULE_NOTICE_MARK.end);
 		t.not(
 			endMarkLine,
 			-1,
-			`${ruleName} missing rule notice start mark`,
+			`${ruleName} missing rule notice end mark`,
 		);
-		const notices = documentLines.slice(startMarkLine + 1, endMarkLine).join('\n');
+		const notices = documentLines.slice(startMarkLine - 1, endMarkLine + 1).join('\n');
 		t.is(
 			notices,
-			getRuleNoticesSectionBody(ruleName),
+			[
+				RULE_NOTICE_MARK.comment,
+				RULE_NOTICE_MARK.start,
+				getRuleNoticesSectionBody(ruleName),
+				RULE_NOTICE_MARK.end,
+			].filter(Boolean).join('\n'),
 			`${ruleName} should have expected notice(s)`,
 		);
 	}

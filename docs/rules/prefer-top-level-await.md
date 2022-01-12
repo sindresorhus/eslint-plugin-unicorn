@@ -1,6 +1,6 @@
 # Prefer top-level await over top-level promises and async function calls
 
-<!-- Do not manually modify RULE_NOTICE part -->
+<!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->
 💡 *This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*
 <!-- /RULE_NOTICE -->

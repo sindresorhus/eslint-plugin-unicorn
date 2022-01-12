@@ -1,6 +1,6 @@
 # Enforce importing index files with `.`
 
-<!-- Do not manually modify RULE_NOTICE part -->
+<!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->
 🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
 <!-- /RULE_NOTICE -->
