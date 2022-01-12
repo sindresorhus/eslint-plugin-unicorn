@@ -269,6 +269,11 @@ test({
 				function foo() {}
 			}, [])
 		`,
+		outdent`
+			React.useEffect(() => {
+				function foo() {}
+			}, [])
+		`,
 		// IIFE
 		outdent`
 			(function() {
@@ -639,6 +644,14 @@ test({
 				}, [])
 			`,
 			errors: [createError('function \'bar\'')],
+		},
+		{
+			code: outdent`
+				NotReact.useEffect(() => {
+					function foo() {}
+				}, [])
+			`,
+			errors: [createError('function \'foo\'')],
 		},
 		// IIFE
 		{

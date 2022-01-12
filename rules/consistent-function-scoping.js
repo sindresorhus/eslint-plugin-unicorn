@@ -1,6 +1,7 @@
 'use strict';
 const {getFunctionHeadLocation, getFunctionNameWithKind} = require('eslint-utils');
 const getReferences = require('./utils/get-references.js');
+const {isNodeMatches} = require('./utils/is-node-matches.js');
 
 const MESSAGE_ID = 'consistent-function-scoping';
 const messages = {
@@ -77,7 +78,7 @@ function checkReferences(scope, parent, scopeManager) {
 }
 
 // https://reactjs.org/docs/hooks-reference.html
-const reactHooks = new Set([
+const reactHooks = [
 	'useState',
 	'useEffect',
 	'useContext',
@@ -88,13 +89,13 @@ const reactHooks = new Set([
 	'useImperativeHandle',
 	'useLayoutEffect',
 	'useDebugValue',
-]);
+].flatMap(hookName => [hookName, `React.${hookName}`]);
+
 const isReactHook = scope =>
 	scope.block
 	&& scope.block.parent
 	&& scope.block.parent.callee
-	&& scope.block.parent.callee.type === 'Identifier'
-	&& reactHooks.has(scope.block.parent.callee.name);
+	&& isNodeMatches(scope.block.parent.callee, reactHooks);
 
 const isArrowFunctionWithThis = scope =>
 	scope.type === 'function'
