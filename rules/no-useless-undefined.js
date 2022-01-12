@@ -78,7 +78,9 @@ const shouldIgnore = node => {
 		// `array.push(undefined)`
 		|| name === 'push'
 		// `array.unshift(undefined)`
-		|| name === 'unshift';
+		|| name === 'unshift'
+		// `React.createContext(undefined)`
+		|| name === 'createContext';
 };
 
 const getFunction = scope => {
