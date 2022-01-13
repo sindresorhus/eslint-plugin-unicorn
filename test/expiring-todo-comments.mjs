@@ -393,7 +393,7 @@ test({
 		},
 		{
 			code: '// TODO [2999-12-01]: Y3K bug',
-			options: [{date: '3000-01-01'}],
+			options: [{date: '3000-01-01', ignoreDatesOnPullRequests: false}],
 			errors: [expiredTodoError('2999-12-01', 'Y3K bug')],
 		},
 	],
