@@ -325,3 +325,36 @@ As an example of this option, if you want this rule to **completely ignore** com
 	}
 ]
 ```
+
+### date
+
+Type: `string` (`date` format)\
+Default: `<today>`
+
+For TODOs with date deadlines, this option makes them trigger only if the deadline is later than the specified date. You could set this to a date in the future to find TODOs that expire soon, or set it far in the past if you want to ignore recently-expired TODOs.
+
+The format must match [json-schema's date](https://json-schema.org/understanding-json-schema/reference/string.html#dates-and-times).
+
+### examples
+
+Find tech debt that has grown up and gone to college by triggering the rule only for incredibly old TODOs:
+
+```js
+"unicorn/expiring-todo-comments": [
+	"error",
+	{
+		"date": "2000-01-01"
+	}
+]
+```
+
+Prepare for the future by triggering the rule on known Y3K bugs:
+
+```js
+"unicorn/expiring-todo-comments": [
+	"error",
+	{
+		"date": "3000-01-01"
+	}
+]
+```
