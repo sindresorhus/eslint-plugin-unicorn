@@ -214,7 +214,7 @@ const create = context => {
 			}
 
 			const [iterator] = node.arguments;
-			return getProblem(context, iterator, method, options, sourceCode);
+			return getProblem(context, iterator, method, options);
 		};
 	}
 
