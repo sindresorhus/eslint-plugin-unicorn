@@ -189,7 +189,6 @@ const ignoredFirstArgumentSelector = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
 	const rules = {};
 
 	for (const [method, options] of iteratorMethods) {
@@ -214,7 +213,7 @@ const create = context => {
 			}
 
 			const [iterator] = node.arguments;
-			return getProblem(context, iterator, method, options, sourceCode);
+			return getProblem(context, iterator, method, options);
 		};
 	}
 
