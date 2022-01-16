@@ -7,7 +7,7 @@
 🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
 <!-- /RULE_NOTICE -->
 
-When “borrowing” a method from `Array` or `Object`, it‘s clearer to get it from the prototype than from an instance.
+When “borrowing” a method from `Array` or `Object`, it's clearer to get it from the prototype than from an instance.
 
 ## Fail
 
