@@ -33,6 +33,7 @@ test.snapshot({
 		'const a = array[array.length - 1]',
 		'const {a = array[array.length - 1]} = {}',
 		'typeof array[array.length - 1]',
+		'function foo() {return arguments[arguments.length - 1]}',
 	],
 });
 
@@ -170,6 +171,7 @@ test.snapshot({
 			code: '_.last(getLast(utils.lastOne(array)))',
 			options: [{getLastElementFunctions: ['getLast', '  utils.lastOne  ']}],
 		},
+		'function foo() {return _.last(arguments)}',
 	],
 });
 

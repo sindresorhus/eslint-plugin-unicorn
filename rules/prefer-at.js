@@ -42,6 +42,7 @@ const indexAccess = [
 ].join('');
 const sliceCall = methodCallSelector({method: 'slice', minimumArguments: 1, maximumArguments: 2});
 const stringCharAt = methodCallSelector({method: 'charAt', argumentsLength: 1});
+const isArguments = node => node.type === 'Identifier' && node.name === 'arguments';
 
 const isLiteralNegativeInteger = node =>
 	node.type === 'UnaryExpression'
@@ -164,21 +165,28 @@ function create(context) {
 				}
 			}
 
-			return {
+			const problem = {
 				node: indexNode,
 				messageId: lengthNode ? MESSAGE_ID_NEGATIVE_INDEX : MESSAGE_ID_INDEX,
-				* fix(fixer) {
-					if (lengthNode) {
-						yield removeLengthNode(lengthNode, fixer, sourceCode);
-					}
-
-					const openingBracketToken = sourceCode.getTokenBefore(indexNode, isOpeningBracketToken);
-					yield fixer.replaceText(openingBracketToken, '.at(');
-
-					const closingBracketToken = sourceCode.getTokenAfter(indexNode, isClosingBracketToken);
-					yield fixer.replaceText(closingBracketToken, ')');
-				},
 			};
+
+			if (isArguments(node.object)) {
+				return problem;
+			}
+
+			problem.fix = function * (fixer) {
+				if (lengthNode) {
+					yield removeLengthNode(lengthNode, fixer, sourceCode);
+				}
+
+				const openingBracketToken = sourceCode.getTokenBefore(indexNode, isOpeningBracketToken);
+				yield fixer.replaceText(openingBracketToken, '.at(');
+
+				const closingBracketToken = sourceCode.getTokenAfter(indexNode, isClosingBracketToken);
+				yield fixer.replaceText(closingBracketToken, ')');
+			};
+
+			return problem;
 		},
 		[stringCharAt](node) {
 			const [indexNode] = node.arguments;
@@ -251,32 +259,39 @@ function create(context) {
 				return;
 			}
 
-			return {
+			const problem = {
 				node: node.callee,
 				messageId: MESSAGE_ID_GET_LAST_FUNCTION,
 				data: {description: matchedFunction.trim()},
-				fix(fixer) {
-					const [array] = node.arguments;
-
-					let fixed = getParenthesizedText(array, sourceCode);
-
-					if (
-						!isParenthesized(array, sourceCode)
-						&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
-					) {
-						fixed = `(${fixed})`;
-					}
-
-					fixed = `${fixed}.at(-1)`;
-
-					const tokenBefore = sourceCode.getTokenBefore(node);
-					if (needsSemicolon(tokenBefore, sourceCode, fixed)) {
-						fixed = `;${fixed}`;
-					}
-
-					return fixer.replaceText(node, fixed);
-				},
 			};
+
+			const [array] = node.arguments;
+
+			if (isArguments(array)) {
+				return problem;
+			}
+
+			problem.fix = function (fixer) {
+				let fixed = getParenthesizedText(array, sourceCode);
+
+				if (
+					!isParenthesized(array, sourceCode)
+					&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+				) {
+					fixed = `(${fixed})`;
+				}
+
+				fixed = `${fixed}.at(-1)`;
+
+				const tokenBefore = sourceCode.getTokenBefore(node);
+				if (needsSemicolon(tokenBefore, sourceCode, fixed)) {
+					fixed = `;${fixed}`;
+				}
+
+				return fixer.replaceText(node, fixed);
+			};
+
+			return problem;
 		},
 	};
 }
