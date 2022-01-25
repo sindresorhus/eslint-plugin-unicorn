@@ -42,6 +42,7 @@ const indexAccess = [
 ].join('');
 const sliceCall = methodCallSelector({method: 'slice', minimumArguments: 1, maximumArguments: 2});
 const stringCharAt = methodCallSelector({method: 'charAt', argumentsLength: 1});
+const isArguments = node => node.type === 'Identifier' && node.name === 'arguments';
 
 const isLiteralNegativeInteger = node =>
 	node.type === 'UnaryExpression'
@@ -169,7 +170,7 @@ function create(context) {
 				messageId: lengthNode ? MESSAGE_ID_NEGATIVE_INDEX : MESSAGE_ID_INDEX,
 			};
 
-			if (node.object.type === 'Identifier' && node.object.name === 'arguments') {
+			if (isArguments(node.object)) {
 				return problem;
 			}
 
@@ -266,7 +267,7 @@ function create(context) {
 
 			const [array] = node.arguments;
 
-			if (array.type === 'Identifier' && array.name === 'arguments') {
+			if (isArguments(array)) {
 				return problem;
 			}
 
