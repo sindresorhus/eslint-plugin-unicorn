@@ -1,5 +1,6 @@
 'use strict';
 
+const {methodCallSelector} = require('./selectors/index.js');
 const isSameReference = require('./utils/is-same-reference.js');
 
 const MESSAGE_ID = 'preferNumberIsInteger';
@@ -11,7 +12,7 @@ const messages = {
 
 const equalsSelector = ':matches([operator="==="],[operator="=="])';
 
-// Value % 1 === 0
+// `value % 1 === 0`
 const modulo1Selector = [
 	'BinaryExpression',
 	'[left.type="BinaryExpression"]',
@@ -21,7 +22,8 @@ const modulo1Selector = [
 	'[right.value="0"]',
 ].join('');
 
-// (value^0) === value OR (value | 0) === value
+// `(value ^ 0) === value`
+// `(value | 0) === value`
 const mathOperatorSelector = [
 	'BinaryExpression',
 	'[left.type="BinaryExpression"]',
@@ -30,33 +32,30 @@ const mathOperatorSelector = [
 	equalsSelector,
 ].join('');
 
-// ParseInt(value,10) === value
-const parseIntSelector = [
+// `Number.parseInt(value,10) === value`
+const numberParseIntSelector = [
 	'BinaryExpression',
 	'[left.type="CallExpression"]',
-	'[left.callee.name="parseInt"]',
+	'[left.callee.type="MemberExpression"]',
+	'[left.callee.object.name="Number"]',
+	'[left.callee.property.name="parseInt"]',
 	'[left.arguments.1.value=10]',
 	equalsSelector,
 ].join('');
 
-// _.isInteger(value)
+// `_.isInteger(value)`
 const lodashIsIntegerSelector = [
-	'CallExpression',
-	`:matches(${['_', 'lodash', 'underscore'].map(callee => `[callee.object.name="${callee}"]`).join(',')})`,
-	'[callee.property.name="isInteger"]',
+	methodCallSelector({method: 'isInteger', objects: ['_', 'lodash', 'underscore']}),
 ].join('');
 
-// Math.round(value) === value
+// `Math.round(value) === value`
 const mathRoundSelector = [
 	'BinaryExpression',
-	'[left.type="CallExpression"]',
-	'[left.callee.type="MemberExpression"]',
-	'[left.callee.object.name="Math"]',
-	'[left.callee.property.name="round"]',
+	methodCallSelector({method: 'round', object: 'Math', path: 'left'}),
 	equalsSelector,
 ].join('');
 
-// ~~value === value
+// `~~value === value`
 const bitwiseNotSelector = [
 	'BinaryExpression',
 	'[left.type="UnaryExpression"]',
@@ -121,7 +120,7 @@ const create = context => {
 				return getNodeName(node.right);
 			}
 		}),
-		[parseIntSelector]: createNodeListener(sourceCode, node => {
+		[numberParseIntSelector]: createNodeListener(sourceCode, node => {
 			if (
 				isSameReference(node.left.arguments[0], node.right)
 			) {
@@ -144,6 +143,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
@@ -151,7 +151,7 @@ module.exports = {
 		docs: {
 			description: 'Prefer `Number.isInteger()` for integer checking.',
 		},
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };

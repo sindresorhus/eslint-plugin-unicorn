@@ -20,7 +20,7 @@ test({
 		'(value^0) === notValue',
 		'(value | 0) === notValue',
 		'Math.round(value) === notValue',
-		'parseInt(value, 10) === notValue',
+		'Number.parseInt(value, 10) === notValue',
 		'~~value === notValue',
 	],
 	invalid: [
@@ -48,11 +48,11 @@ test({
 			messageId: 'preferNumberIsIntegerSuggestion',
 			output: 'Number.isInteger(value)',
 		}]}),
-		suggestionCase({code: 'parseInt(value, 10) === value', suggestions: [{
+		suggestionCase({code: 'Number.parseInt(value, 10) === value', suggestions: [{
 			messageId: 'preferNumberIsIntegerSuggestion',
 			output: 'Number.isInteger(value)',
 		}]}),
-		suggestionCase({code: 'parseInt(value, 10) == value', suggestions: [{
+		suggestionCase({code: 'Number.parseInt(value, 10) == value', suggestions: [{
 			messageId: 'preferNumberIsIntegerSuggestion',
 			output: 'Number.isInteger(value)',
 		}]}),
