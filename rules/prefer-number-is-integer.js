@@ -102,7 +102,7 @@ function getNodeName(node) {
 		case 'MemberExpression': {
 			return `${getNodeName(node.object)}.${getNodeName(node.property)}`;
 		}
-
+		/* c8 ignore next 3 */
 		default: {
 			return '';
 		}
