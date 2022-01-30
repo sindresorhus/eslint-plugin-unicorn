@@ -10,7 +10,13 @@ export function getRuleInfo(ruleId) {
 		id: ruleId,
 		meta: rule.meta,
 		get isRecommended() {
-			return ['error', 'warn'].includes(configs.recommended.rules[`unicorn/${ruleId}`]);
+			let severity = configs.recommended.rules[`unicorn/${ruleId}`];
+
+			if (Array.isArray(severity)) {
+				severity = severity[0];
+			}
+
+			return ['error', 'warn'].includes(severity);
 		},
 		get isDeprecated() {
 			return Boolean(rule.meta.deprecated);

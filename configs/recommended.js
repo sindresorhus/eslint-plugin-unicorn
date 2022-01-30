@@ -104,6 +104,7 @@ module.exports = {
 		// See #1396
 		'unicorn/require-post-message-target-origin': 'off',
 		'unicorn/string-content': 'off',
+		'unicorn/switch-braces': ['error', 'always'],
 		'unicorn/template-indent': 'warn',
 		'unicorn/throw-new-error': 'error',
 		...require('./conflicting-rules.js').rules,
