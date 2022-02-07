@@ -55,6 +55,7 @@ const eslint = new ESLint({
 			'unicorn/prefer-at': 'off',
 			// TODO: Turn this on when `xo` updated `eslint-plugin-unicorn`
 			'unicorn/relative-url-style': 'off',
+			'unicorn/text-encoding-identifier-case': 'off',
 		},
 		overrides: [
 			{
