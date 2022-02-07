@@ -14,7 +14,7 @@
 		"node": ">=12"
 	},
 	"scripts": {
-		"create-rule": "node ./scripts/create-rule.mjs && npm run generate-rules-table && npm run generate-usage-example",
+		"create-rule": "node ./scripts/create-rule.mjs && npm run generate-rules-table && npm run generate-usage-example && npm run generate-rule-notices",
 		"fix": "run-p --continue-on-error fix:*",
 		"fix:js": "npm run lint:js -- --fix",
 		"fix:md": "npm run lint:md -- --fix",

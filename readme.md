@@ -134,6 +134,7 @@ Configure it in `package.json`.
 			"unicorn/require-post-message-target-origin": "off",
 			"unicorn/string-content": "off",
 			"unicorn/template-indent": "warn",
+			"unicorn/text-encoding-identifier-case": "error",
 			"unicorn/throw-new-error": "error"
 		}
 	}
@@ -250,6 +251,7 @@ Each rule has emojis denoting:
 | [require-post-message-target-origin](docs/rules/require-post-message-target-origin.md) | Enforce using the `targetOrigin` argument with `window.postMessage()`. |  |  | 💡 |
 | [string-content](docs/rules/string-content.md) | Enforce better string content. |  | 🔧 | 💡 |
 | [template-indent](docs/rules/template-indent.md) | Fix whitespace-insensitive template indentation. | ✅ | 🔧 |  |
+| [text-encoding-identifier-case](docs/rules/text-encoding-identifier-case.md) | Enforce consistent text encoding identifier case. | ✅ | 🔧 | 💡 |
 | [throw-new-error](docs/rules/throw-new-error.md) | Require `new` when throwing an error. | ✅ | 🔧 |  |
 <!-- /RULES_TABLE -->
 
