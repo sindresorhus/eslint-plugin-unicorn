@@ -1,54 +1,59 @@
 'use strict';
-const {} = require('./selectors/index.js');
-const {} = require('./fix/index.js');
+const {replaceStringLiteral} = require('./fix/index.js');
 
-
-const MESSAGE_ID_ERROR = 'text-encoding-identifier-case/error';
-const MESSAGE_ID_SUGGESTION = 'text-encoding-identifier-case/suggestion';
+const MESSAGE_ID_ERROR = 'text-encoding-identifier/error';
+const MESSAGE_ID_SUGGESTION = 'text-encoding-identifier/suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over `{{value}}`.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `{{replacement}}`.',
 };
 
-
-const selector = [
-	'Literal',
-	'[value="unicorn"]',
-].join('');
+const getReplacement = encoding => {
+	switch (encoding.toLowerCase()) {
+		case 'utf8':
+		case 'utf-8':
+			return 'utf8';
+		case 'ascii':
+			return 'ascii';
+		// No default
+	}
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	return {
-		[selector](node) {
-			return {
-				node,
-				messageId: MESSAGE_ID_ERROR,
-				data: {
-					value: 'unicorn',
-					replacement: '🦄',
+const create = context => ({
+	Literal(node) {
+		if (typeof node.value !== 'string') {
+			return;
+		}
+
+		const {raw} = node;
+		const value = raw.slice(1, -1);
+
+		const replacement = getReplacement(value);
+		if (!replacement || replacement === value) {
+			return;
+		}
+
+		const messageData = {
+			value,
+			replacement,
+		};
+
+		return {
+			node,
+			messageId: MESSAGE_ID_ERROR,
+			data: messageData,
+			suggest: [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					data: messageData,
+					/** @param {import('eslint').Rule.RuleFixer} fixer */
+					fix: fixer => replaceStringLiteral(fixer, node, replacement),
 				},
-				
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => fixer.replaceText(node, '\'🦄\''),
-				
-				
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				suggest: [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						data: {
-							value: 'unicorn',
-							replacement: '🦄',
-						},
-						/** @param {import('eslint').Rule.RuleFixer} fixer */
-						fix: fixer => fixer.replaceText(node, '\'🦄\''),
-					}
-				],
-				
-			};
-		},
-	};
-};
+			],
+		};
+	},
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
@@ -56,7 +61,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce consistent text encoding identifier case.',
+			description: 'Enforce consistent case style for text encoding identifier.',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

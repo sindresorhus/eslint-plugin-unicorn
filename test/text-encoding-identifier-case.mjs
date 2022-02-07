@@ -5,9 +5,21 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
-		'const foo = "🦄";',
+		'`UTF-8`',
+		'"utf8"',
+		'"utf+8"',
+		'"   utf8   "',
+		'\'utf8\'',
+		'"\\u0055tf8"',
+		'const ASCII = 1',
+		'const UTF8 = 1',
 	],
 	invalid: [
-		'const foo = "unicorn";',
+		'"UTF-8"',
+		'"utf-8"',
+		'\'utf-8\'',
+		'"Utf8"',
+		'"ASCII"',
+		'await fs.readFile(file, "UTF-8",)',
 	],
 });

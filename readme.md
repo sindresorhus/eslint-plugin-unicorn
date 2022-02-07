@@ -251,7 +251,7 @@ Each rule has emojis denoting:
 | [require-post-message-target-origin](docs/rules/require-post-message-target-origin.md) | Enforce using the `targetOrigin` argument with `window.postMessage()`. |  |  | 💡 |
 | [string-content](docs/rules/string-content.md) | Enforce better string content. |  | 🔧 | 💡 |
 | [template-indent](docs/rules/template-indent.md) | Fix whitespace-insensitive template indentation. | ✅ | 🔧 |  |
-| [text-encoding-identifier-case](docs/rules/text-encoding-identifier-case.md) | Enforce consistent text encoding identifier case. | ✅ | 🔧 | 💡 |
+| [text-encoding-identifier-case](docs/rules/text-encoding-identifier-case.md) | Enforce consistent case style for text encoding identifier. | ✅ | 🔧 | 💡 |
 | [throw-new-error](docs/rules/throw-new-error.md) | Require `new` when throwing an error. | ✅ | 🔧 |  |
 <!-- /RULES_TABLE -->
 
