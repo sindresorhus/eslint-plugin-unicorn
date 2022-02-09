@@ -142,6 +142,7 @@ function loadRules() {
 }
 
 module.exports = {
+	reportProblems,
 	loadRule,
 	loadRules,
 	checkVueTemplate,
