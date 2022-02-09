@@ -121,6 +121,54 @@ test('validate configuration', async t => {
 			`Configuration for "${name}" is invalid.`,
 		);
 	}
+
+	// `env`
+	{
+		const testObjects = [
+			'undefinedGlobalObject',
+			// `es2015`(`es6`) globals https://github.com/eslint/eslint/blob/32ac37a76b2e009a8f106229bc7732671d358189/conf/globals.js#L74
+			'Promise',
+			// `es2021` globals https://github.com/eslint/eslint/blob/32ac37a76b2e009a8f106229bc7732671d358189/conf/globals.js#L120
+			'WeakRef',
+		];
+		const baseOptions = {
+			useEslintrc: false,
+			plugins: {
+				unicorn: eslintPluginUnicorn,
+			},
+			overrideConfig: {
+				rules: {
+					'no-undef': 'error',
+				},
+			},
+		};
+		const getUndefinedGlobals = async options => {
+			const [{messages}] = await new ESLint({...baseOptions, ...options}).lintText(testObjects.join(';\n'));
+			return messages.map(({message}) => message.match(/^'(?<object>.*)' is not defined\.$/).groups.object);
+		};
+
+		t.deepEqual(await getUndefinedGlobals(), testObjects);
+		t.deepEqual(await getUndefinedGlobals({baseConfig: eslintPluginUnicorn.configs.recommended}), testObjects.slice(0, 1));
+	}
+
+	// `sourceType`
+	{
+		const text = 'import fs from "node:fs";';
+		const baseOptions = {
+			useEslintrc: false,
+			plugins: {
+				unicorn: eslintPluginUnicorn,
+			},
+		};
+		const runEslint = async options => {
+			const [{messages}] = await new ESLint({...baseOptions, ...options}).lintText(text);
+			return messages;
+		};
+
+		const [{message}] = await runEslint();
+		t.is(message, 'Parsing error: The keyword \'import\' is reserved');
+		t.deepEqual(await runEslint({baseConfig: eslintPluginUnicorn.configs.recommended}), []);
+	}
 });
 
 test('Every rule is defined in readme.md usage and list of rules in alphabetical order', async t => {
