@@ -124,11 +124,16 @@ test('validate configuration', async t => {
 
 	// `env`
 	{
+		// https://github.com/eslint/eslint/blob/32ac37a76b2e009a8f106229bc7732671d358189/conf/globals.js#L19
 		const testObjects = [
 			'undefinedGlobalObject',
-			// `es2015`(`es6`) globals https://github.com/eslint/eslint/blob/32ac37a76b2e009a8f106229bc7732671d358189/conf/globals.js#L74
+			// `es3`
+			'Array',
+			// `es5`
+			'JSON',
+			// `es2015`(`es6`)
 			'Promise',
-			// `es2021` globals https://github.com/eslint/eslint/blob/32ac37a76b2e009a8f106229bc7732671d358189/conf/globals.js#L120
+			// `es2021`
 			'WeakRef',
 		];
 		const baseOptions = {
@@ -147,8 +152,8 @@ test('validate configuration', async t => {
 			return messages.map(({message}) => message.match(/^'(?<object>.*)' is not defined\.$/).groups.object);
 		};
 
-		t.deepEqual(await getUndefinedGlobals(), testObjects);
-		t.deepEqual(await getUndefinedGlobals({baseConfig: eslintPluginUnicorn.configs.recommended}), testObjects.slice(0, 1));
+		t.deepEqual(await getUndefinedGlobals(), ['undefinedGlobalObject', 'Promise', 'WeakRef']);
+		t.deepEqual(await getUndefinedGlobals({baseConfig: eslintPluginUnicorn.configs.recommended}), ['undefinedGlobalObject']);
 	}
 
 	// `sourceType`
