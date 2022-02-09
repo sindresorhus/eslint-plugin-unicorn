@@ -11,7 +11,7 @@ const shouldReport = (string, value) => {
 	}
 
 	return string[index - 1] !== '!';
-}
+};
 
 module.exports = {
 	create(context) {
@@ -28,17 +28,17 @@ module.exports = {
 							node,
 							messageId,
 							data: {
-								preferred: String(!value)
-							}
-						})
+								preferred: String(!value),
+							},
+						});
 					}
 				}
-			}
-		}
+			},
+		};
 	},
 	meta: {
 		messages: {
-			[messageId]: 'Prefer use `[…!={{preferred}}]` in esquery selector.'
+			[messageId]: 'Prefer use `[…!={{preferred}}]` in esquery selector.',
 		},
-	}
+	},
 };

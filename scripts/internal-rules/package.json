@@ -1,0 +1,6 @@
+{
+	"private": true,
+	"name": "eslint-plugin-internal-rules",
+	"description": "Internal rules",
+	"license": "MIT"
+}
