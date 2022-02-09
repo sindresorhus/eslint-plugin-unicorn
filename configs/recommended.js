@@ -1,6 +1,15 @@
 'use strict';
 module.exports = {
-	...require('./base.js'),
+	env: {
+		es6: true,
+	},
+	parserOptions: {
+		ecmaVersion: 'latest',
+		sourceType: 'module',
+	},
+	plugins: [
+		'unicorn',
+	],
 	rules: {
 		'unicorn/better-regex': 'error',
 		'unicorn/catch-error-name': 'error',
