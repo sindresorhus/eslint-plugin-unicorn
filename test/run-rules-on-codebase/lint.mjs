@@ -22,27 +22,10 @@ const eslint = new ESLint({
 			'test/integration/fixtures-local',
 		],
 		rules: {
-			'unicorn/prevent-abbreviations': [
-				'error',
-				{
-					replacements: {
-						fn: false,
-					},
-				},
-			],
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1109#issuecomment-782689255
 			'unicorn/consistent-destructuring': 'off',
 			// Buggy
 			'unicorn/custom-error-definition': 'off',
-			'unicorn/prefer-array-flat': [
-				'error',
-				{
-					functions: [
-						'flat',
-						'flatten',
-					],
-				},
-			],
 			// Annoying
 			'unicorn/no-keyword-prefix': 'off',
 			'unicorn/no-unsafe-regex': 'off',
@@ -51,10 +34,8 @@ const eslint = new ESLint({
 			// Not ready yet
 			'unicorn/prefer-string-replace-all': 'off',
 			'unicorn/prefer-top-level-await': 'off',
-			'unicorn/prefer-object-has-own': 'off',
 			'unicorn/prefer-at': 'off',
 			// TODO: Turn this on when `xo` updated `eslint-plugin-unicorn`
-			'unicorn/relative-url-style': 'off',
 			'unicorn/text-encoding-identifier-case': 'off',
 		},
 		overrides: [

@@ -14,13 +14,12 @@
 		"node": ">=12"
 	},
 	"scripts": {
-		"create-rule": "node ./scripts/create-rule.mjs && npm run generate-rules-table && npm run generate-usage-example && npm run generate-rule-notices",
+		"create-rule": "node ./scripts/create-rule.mjs && npm run generate-rule-notices && npm run generate-rules-table",
 		"fix": "run-p --continue-on-error fix:*",
 		"fix:js": "npm run lint:js -- --fix",
 		"fix:md": "npm run lint:md -- --fix",
 		"generate-rule-notices": "node ./scripts/generate-rule-notices.mjs",
 		"generate-rules-table": "node ./scripts/generate-rules-table.mjs",
-		"generate-usage-example": "node ./scripts/generate-usage-example.mjs",
 		"integration": "node ./test/integration/test.mjs",
 		"lint": "run-p --continue-on-error lint:*",
 		"lint:js": "xo",
@@ -111,7 +110,16 @@
 			"test/integration/{fixtures,fixtures-local}/**"
 		],
 		"rules": {
-			"unicorn/no-null": "error"
+			"unicorn/no-null": "error",
+			"unicorn/prefer-array-flat": [
+				"error",
+				{
+					"functions": [
+						"flat",
+						"flatten"
+					]
+				}
+			]
 		},
 		"overrides": [
 			{

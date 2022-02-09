@@ -115,14 +115,6 @@ test('validate configuration', async t => {
 
 test('Every rule is defined in readme.md usage and list of rules in alphabetical order', async t => {
 	const readme = await fsAsync.readFile('readme.md', 'utf8');
-	let usageRules;
-	try {
-		const usageRulesMatch = /<!-- USAGE_EXAMPLE_START -->.*?"rules": (?<rules>{.*?}).*?<!-- USAGE_EXAMPLE_END -->/ms.exec(readme);
-		t.truthy(usageRulesMatch, 'List of rules should be defined in readme.md ## Usage');
-		usageRules = JSON.parse(usageRulesMatch.groups.rules);
-	} catch {}
-
-	t.truthy(usageRules, 'List of rules should be defined in readme.md ## Usage and be valid JSON');
 
 	const lines = readme.split('\n');
 	const startMarkLine = lines.indexOf(RULES_TABLE_MARK.start);
@@ -167,14 +159,11 @@ test('Every rule is defined in readme.md usage and list of rules in alphabetical
 		.filter(name => !deprecatedRules.includes(name));
 
 	for (const name of availableRules) {
-		t.truthy(usageRules[`unicorn/${name}`], `'${name}' is not described in the readme.md ## Usage`);
 		t.truthy(rules.includes(name), `'${name}' is not described in the readme.md ## Rules`);
 	}
 
-	t.is(Object.keys(usageRules).length - ignoredRules.length, availableRules.length, 'There are more rules in readme.md ## Usage than rule files.');
 	t.is(Object.keys(rules).length, availableRules.length, 'There are more rules in readme.md ## Rules than rule files.');
 
-	testSorted(t, Object.keys(usageRules), 'readme.md ## Usage rules');
 	testSorted(t, rules, 'readme.md ## Rules');
 });
 
