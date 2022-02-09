@@ -63,7 +63,6 @@ module.exports = {
 		docs: {
 			description: 'Enforce consistent case style for text encoding identifier.',
 		},
-		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 	},
