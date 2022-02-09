@@ -115,6 +115,5 @@ module.exports = {
 		'unicorn/string-content': 'off',
 		'unicorn/template-indent': 'warn',
 		'unicorn/throw-new-error': 'error',
-		...require('./conflicting-rules.js').rules,
 	},
 };
