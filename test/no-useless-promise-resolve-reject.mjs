@@ -32,34 +32,34 @@ test({
 			`,
 		]),
 		// Sync function returning Promise.resolve/reject
-		...['resolve, reject'].flatMap(fn => [
-			`() => Promise.${fn}(bar);`,
+		...['resolve, reject'].flatMap(method => [
+			`() => Promise.${method}(bar);`,
 			outdent`
 				() => {
-					return Promise.${fn}(bar);
+					return Promise.${method}(bar);
 				};
 			`,
 			outdent`
 				function foo() {
-					return Promise.${fn}(bar);
+					return Promise.${method}(bar);
 				};
 			`,
 			outdent`
 				(function() {
-					return Promise.${fn}(bar);
+					return Promise.${method}(bar);
 				});
 			`,
 		]),
 		// Sync generator yielding Promise.resolve/reject
-		...['resolve', 'reject'].flatMap(fn => [
+		...['resolve', 'reject'].flatMap(method => [
 			outdent`
 				function * foo() {
-					yield Promise.${fn}(bar);
+					yield Promise.${method}(bar);
 				}
 			`,
 			outdent`
 				(function * () {
-					yield Promise.${fn}(bar);
+					yield Promise.${method}(bar);
 				})
 			`,
 		]),
@@ -72,9 +72,9 @@ test({
 			}
 		`,
 		// Delegate yield expressions
-		...['resolve', 'reject'].map(fn => outdent`
+		...['resolve', 'reject'].map(method => outdent`
 			async function * foo() {
-				yield* Promise.${fn}(bar);
+				yield* Promise.${method}(bar);
 			}
 		`),
 		// Promise#then/catch/finally
@@ -477,26 +477,26 @@ test({
 			errors: [yieldRejectError],
 		})),
 		// Promise#then/catch/finally callbacks returning Promise.resolve/reject
-		...['then', 'catch', 'finally'].flatMap(fn => [
+		...['then', 'catch', 'finally'].flatMap(method => [
 			{
-				code: `promise.${fn}(() => Promise.resolve(bar))`,
+				code: `promise.${method}(() => Promise.resolve(bar))`,
 				errors: [returnResolveError],
-				output: `promise.${fn}(() => bar)`,
+				output: `promise.${method}(() => bar)`,
 			},
 			{
-				code: `promise.${fn}(() => { return Promise.resolve(bar); })`,
+				code: `promise.${method}(() => { return Promise.resolve(bar); })`,
 				errors: [returnResolveError],
-				output: `promise.${fn}(() => { return bar; })`,
+				output: `promise.${method}(() => { return bar; })`,
 			},
 			{
-				code: `promise.${fn}(async () => Promise.reject(bar))`,
+				code: `promise.${method}(async () => Promise.reject(bar))`,
 				errors: [returnRejectError],
-				output: `promise.${fn}(async () => { throw bar; })`,
+				output: `promise.${method}(async () => { throw bar; })`,
 			},
 			{
-				code: `promise.${fn}(async () => { return Promise.reject(bar); })`,
+				code: `promise.${method}(async () => { return Promise.reject(bar); })`,
 				errors: [returnRejectError],
-				output: `promise.${fn}(async () => { throw bar; })`,
+				output: `promise.${method}(async () => { throw bar; })`,
 			},
 		]),
 		{
