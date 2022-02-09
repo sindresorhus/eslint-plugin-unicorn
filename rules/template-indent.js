@@ -30,8 +30,8 @@ const create = context => {
 	options.comments = options.comments.map(comment => comment.toLowerCase());
 
 	const selectors = [
-		...options.tags.map(tag => `TaggedTemplateExpression[tag.name="${tag}"] > .quasi`),
-		...options.functions.map(fn => `CallExpression[callee.name="${fn}"] > .arguments`),
+		...options.tags.map(tagName => `TaggedTemplateExpression[tag.name="${tagName}"] > .quasi`),
+		...options.functions.map(functionName => `CallExpression[callee.name="${functionName}"] > .arguments`),
 		...options.selectors,
 	];
 

@@ -110,7 +110,16 @@
 			"test/integration/{fixtures,fixtures-local}/**"
 		],
 		"rules": {
-			"unicorn/no-null": "error"
+			"unicorn/no-null": "error",
+			"unicorn/prefer-array-flat": [
+				"error",
+				{
+					"functions": [
+						"flat",
+						"flatten"
+					]
+				}
+			]
 		},
 		"overrides": [
 			{
