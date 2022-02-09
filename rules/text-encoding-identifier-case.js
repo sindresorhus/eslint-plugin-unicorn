@@ -20,7 +20,7 @@ const getReplacement = encoding => {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
+const create = () => ({
 	Literal(node) {
 		if (typeof node.value !== 'string') {
 			return;
