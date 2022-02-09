@@ -1,14 +1,12 @@
 import fs, {promises as fsAsync} from 'node:fs';
 import path from 'node:path';
-import {createRequire} from 'node:module';
 import test from 'ava';
 import {ESLint} from 'eslint';
-import index from '../index.js';
+import eslintPluginUnicorn from '../index.js';
 import {RULE_NOTICE_MARK, getRuleNoticesSectionBody} from '../scripts/rule-notices.mjs';
 import {RULES_TABLE_MARK, getRulesTable} from '../scripts/rules-table.mjs';
 import ruleDescriptionToDocumentTitle from './utils/rule-description-to-document-title.mjs';
 
-const require = createRequire(import.meta.url);
 let ruleFiles;
 
 test.before(async () => {
@@ -20,7 +18,7 @@ const ignoredRules = [
 	'no-nested-ternary',
 ];
 
-const deprecatedRules = Object.entries(index.rules)
+const deprecatedRules = Object.entries(eslintPluginUnicorn.rules)
 	.filter(([, {meta: {deprecated}}]) => deprecated)
 	.map(([ruleId]) => ruleId);
 
@@ -68,9 +66,12 @@ const RULES_WITHOUT_PASS_FAIL_SECTIONS = new Set([
 test('Every rule is defined in index file in alphabetical order', t => {
 	for (const file of ruleFiles) {
 		const name = path.basename(file, '.js');
-		t.truthy(index.rules[name], `'${name}' is not exported in 'index.js'`);
+		t.truthy(eslintPluginUnicorn.rules[name], `'${name}' is not exported in 'index.js'`);
 		if (!deprecatedRules.includes(name)) {
-			t.truthy(index.configs.recommended.rules[`unicorn/${name}`], `'${name}' is not set in the recommended config`);
+			t.truthy(
+				eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`],
+				`'${name}' is not set in the recommended config`,
+			);
 		}
 
 		t.truthy(fs.existsSync(path.join('docs/rules', `${name}.md`)), `There is no documentation for '${name}'`);
@@ -78,39 +79,48 @@ test('Every rule is defined in index file in alphabetical order', t => {
 	}
 
 	t.is(
-		Object.keys(index.rules).length - deprecatedRules.length,
+		Object.keys(eslintPluginUnicorn.rules).length - deprecatedRules.length,
 		ruleFiles.length,
 		'There are more exported rules than rule files.',
 	);
 	t.is(
-		Object.keys(index.configs.recommended.rules).length - deprecatedRules.length - ignoredRules.length,
+		Object.keys(eslintPluginUnicorn.configs.recommended.rules).length - deprecatedRules.length - ignoredRules.length,
 		ruleFiles.length - deprecatedRules.length,
 		'There are more exported rules in the recommended config than rule files.',
 	);
 	t.is(
-		Object.keys(index.configs.all.rules).length - deprecatedRules.length - ignoredRules.length,
+		Object.keys(eslintPluginUnicorn.configs.all.rules).length - deprecatedRules.length - ignoredRules.length,
 		ruleFiles.length - deprecatedRules.length,
 		'There are more rules than those exported in the all config.',
 	);
 
-	testSorted(t, Object.keys(index.configs.recommended.rules), 'configs.recommended.rules');
+	testSorted(t, Object.keys(eslintPluginUnicorn.configs.recommended.rules), 'configs.recommended.rules');
 });
 
 test('validate configuration', async t => {
-	const results = [];
-	for (const config of Object.keys(index.configs)) {
-		results.push(t.notThrowsAsync(
-			new ESLint({
-				overrideConfigFile: './configs/' + config + '.js',
+	const results = await Promise.all(
+		Object.entries(eslintPluginUnicorn.configs).map(async ([name, config]) => {
+			const eslint = new ESLint({
+				baseConfig: config,
+				useEslintrc: false,
 				plugins: {
-					unicorn: require('../index.js'),
+					unicorn: eslintPluginUnicorn,
 				},
-			}).lintText(''),
-			`Configuration file for "${config}" is invalid at "./configs/${config}.js"`,
-		));
-	}
+			});
 
-	await Promise.all(results);
+			const result = await eslint.calculateConfigForFile('dummy.js');
+
+			return {name, config, result};
+		}),
+	);
+
+	for (const {name, config, result} of results) {
+		t.deepEqual(
+			Object.keys(result.rules),
+			Object.keys(config.rules),
+			`Configuration for "${name}" is invalid.`,
+		);
+	}
 });
 
 test('Every rule is defined in readme.md usage and list of rules in alphabetical order', async t => {
@@ -172,7 +182,7 @@ test('Every rule has valid meta.type', t => {
 
 	for (const file of ruleFiles) {
 		const name = path.basename(file, '.js');
-		const rule = index.rules[name];
+		const rule = eslintPluginUnicorn.rules[name];
 
 		t.true(rule.meta !== null && rule.meta !== undefined, `${name} has no meta`);
 		t.is(typeof rule.meta.type, 'string', `${name} meta.type is not string`);
@@ -186,7 +196,7 @@ test('Every deprecated rules listed in docs/deprecated-rules.md', async t => {
 	t.deepEqual(deprecatedRules, rulesInMarkdown);
 
 	for (const name of deprecatedRules) {
-		const rule = index.rules[name];
+		const rule = eslintPluginUnicorn.rules[name];
 		t.is(typeof rule.create, 'function', `${name} create is not function`);
 		t.deepEqual(rule.create(), {}, `${name} create should return empty object`);
 		t.true(rule.meta.deprecated, `${name} meta.deprecated should be true`);
@@ -206,7 +216,7 @@ test('Every rule file has the appropriate contents', t => {
 test('Every rule has a doc with the appropriate content', t => {
 	for (const ruleFile of ruleFiles) {
 		const ruleName = path.basename(ruleFile, '.js');
-		const rule = index.rules[ruleName];
+		const rule = eslintPluginUnicorn.rules[ruleName];
 		const documentPath = path.join('docs/rules', `${ruleName}.md`);
 		const documentContents = fs.readFileSync(documentPath, 'utf8');
 		const documentLines = documentContents.split('\n');
