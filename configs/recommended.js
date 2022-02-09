@@ -1,6 +1,15 @@
 'use strict';
 module.exports = {
-	...require('./base.js'),
+	env: {
+		es6: true,
+	},
+	parserOptions: {
+		ecmaVersion: 'latest',
+		sourceType: 'module',
+	},
+	plugins: [
+		'unicorn',
+	],
 	rules: {
 		'unicorn/better-regex': 'error',
 		'unicorn/catch-error-name': 'error',
@@ -106,6 +115,5 @@ module.exports = {
 		'unicorn/string-content': 'off',
 		'unicorn/template-indent': 'warn',
 		'unicorn/throw-new-error': 'error',
-		...require('./conflicting-rules.js').rules,
 	},
 };

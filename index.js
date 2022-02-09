@@ -2,7 +2,7 @@
 const createDeprecatedRules = require('./rules/utils/create-deprecated-rules.js');
 const {loadRules} = require('./rules/utils/rule.js');
 const recommendedConfig = require('./configs/recommended.js');
-const all = require('./configs/all.js');
+const allRulesEnabledConfig = require('./configs/all.js');
 
 const deprecatedRules = createDeprecatedRules({
 	// {ruleId: ReplacementRuleId | ReplacementRuleId[]}, if no replacement, use `{ruleId: []}`
@@ -30,6 +30,6 @@ module.exports = {
 	},
 	configs: {
 		recommended: recommendedConfig,
-		all,
+		all: allRulesEnabledConfig,
 	},
 };
