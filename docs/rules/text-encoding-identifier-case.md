@@ -10,7 +10,6 @@
 - Enforce `'utf8'` for [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoding.
 - Enforce `'ascii'` for [ASCII](https://en.wikipedia.org/wiki/ASCII) encoding.
 
-
 ## Fail
 
 ```js
