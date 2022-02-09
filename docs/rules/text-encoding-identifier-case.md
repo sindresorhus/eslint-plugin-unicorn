@@ -1,4 +1,4 @@
-# Enforce consistent case style for text encoding identifier
+# Enforce consistent case for text encoding identifiers
 
 <!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->

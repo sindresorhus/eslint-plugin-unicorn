@@ -61,7 +61,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce consistent case style for text encoding identifier.',
+			description: 'Enforce consistent case for text encoding identifiers.',
 		},
 		hasSuggestions: true,
 		messages,
