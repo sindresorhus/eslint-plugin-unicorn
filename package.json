@@ -169,5 +169,17 @@
 				}
 			}
 		]
+	},
+	"npmpackagejsonlint": {
+		"rules": {
+			"prefer-caret-version-devDependencies": [
+				"error",
+				{
+					"exceptions": [
+						"eslint-plugin-internal-rules"
+					]
+				}
+			]
+		}
 	}
 }
