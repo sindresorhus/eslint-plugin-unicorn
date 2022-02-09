@@ -22,7 +22,7 @@ const selector = [
 		// `throw lib.FooError()`
 		[
 			'[callee.type="MemberExpression"]',
-			'[callee.computed!=true]',
+			'[callee.computed=false]',
 			'[callee.property.type="Identifier"]',
 			`[callee.property.name=/${customError.source}/]`,
 		].join(''),
