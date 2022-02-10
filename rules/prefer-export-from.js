@@ -109,6 +109,7 @@ function getFixFunction({
 	const sourceNode = importDeclaration.source;
 	const sourceValue = sourceNode.value;
 	const exportDeclaration = exportDeclarations.find(({source}) => source.value === sourceValue);
+	const isTypeExport = exported.node.parent.exportKind === "type"
 
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
@@ -122,20 +123,22 @@ function getFixFunction({
 				? exported.text
 				: `${imported.text} as ${exported.text}`;
 
+			const specifierWithKind = isTypeExport ? `type ${specifier}` : specifier
+
 			if (exportDeclaration) {
 				const lastSpecifier = exportDeclaration.specifiers[exportDeclaration.specifiers.length - 1];
 
 				// `export {} from 'foo';`
 				if (lastSpecifier) {
-					yield fixer.insertTextAfter(lastSpecifier, `, ${specifier}`);
+					yield fixer.insertTextAfter(lastSpecifier, `, ${specifierWithKind}`);
 				} else {
 					const openingBraceToken = sourceCode.getFirstToken(exportDeclaration, isOpeningBraceToken);
-					yield fixer.insertTextAfter(openingBraceToken, specifier);
+					yield fixer.insertTextAfter(openingBraceToken, specifierWithKind);
 				}
 			} else {
 				yield fixer.insertTextAfter(
 					program,
-					`\nexport {${specifier}} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
+					`\nexport {${specifierWithKind}} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
 				);
 			}
 		}
