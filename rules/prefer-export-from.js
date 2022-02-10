@@ -110,6 +110,7 @@ function getFixFunction({
 	const sourceValue = sourceNode.value;
 	const exportDeclaration = exportDeclarations.find(({source}) => source.value === sourceValue);
 	const isTypeExport = exported.node.parent.exportKind === "type"
+	const isTypeExportDeclaration = exportDeclaration?.exportKind === "type"
 
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
@@ -125,7 +126,7 @@ function getFixFunction({
 
 			const specifierWithKind = isTypeExport ? `type ${specifier}` : specifier
 
-			if (exportDeclaration) {
+			if (exportDeclaration && !isTypeExportDeclaration) {
 				const lastSpecifier = exportDeclaration.specifiers[exportDeclaration.specifiers.length - 1];
 
 				// `export {} from 'foo';`
