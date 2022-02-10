@@ -130,17 +130,7 @@ Turns `[a, b, c]` into `a, b, or c`.
 @param {string[]} words
 @returns {string}
 */
-function englishishJoinWords(words) {
-	if (words.length === 1) {
-		return words[0];
-	}
-
-	if (words.length === 2) {
-		return `${words[0]} or ${words[1]}`;
-	}
-
-	return `${words.slice(0, -1).join(', ')}, or ${words[words.length - 1]}`;
-}
+const englishishJoinWords = words => new Intl.ListFormat('en-US', {type: 'disjunction'}).format(words);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
