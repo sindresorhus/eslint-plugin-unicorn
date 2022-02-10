@@ -348,7 +348,21 @@ test.typescript({
 			export {AceEditor};
 		`,
 	],
-	invalid: [],
+	invalid: [
+		{
+			code: outdent`
+				import { foo } from "foo";
+				export { foo };
+				export type { bar } from "foo";
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export type { bar } from "foo";
+				export {foo} from "foo";
+			`,
+		},
+	],
 });
 
 // `ignoreUsedVariables`
