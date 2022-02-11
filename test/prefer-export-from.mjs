@@ -455,6 +455,50 @@ test.typescript({
 				export { baz } from "foo";
 			`,
 		},
+		{
+			code: outdent`
+				import { type foo } from 'foo';
+				export type { foo };
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export {type foo} from 'foo';
+			`,
+		},
+		{
+			code: outdent`
+				import { foo } from 'foo';
+				export type { foo };
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export {type foo} from 'foo';
+			`,
+		},
+		{
+			code: outdent`
+				import type { foo } from 'foo';
+				export { type foo };
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export {type foo} from 'foo';
+			`,
+		},
+		{
+			code: outdent`
+				import type foo from "foo";
+				export default foo
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export {type default} from "foo";
+			`,
+		},
 	],
 });
 
