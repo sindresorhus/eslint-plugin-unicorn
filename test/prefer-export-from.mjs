@@ -402,6 +402,59 @@ test.typescript({
 				export { baz } from "foo";
 			`,
 		},
+		{
+			code: outdent`
+				import type { foo } from "foo";
+				export type { foo };
+				export type { bar } from "foo";
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export type { bar } from "foo";
+				export {type foo} from "foo";
+			`,
+		},
+		{
+			code: outdent`
+				import type { foo } from "foo";
+				export type { foo };
+				export { type bar } from "foo";
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export { type bar, type foo } from "foo";
+			`,
+		},
+		{
+			code: outdent`
+				import type { foo } from 'foo';
+				export type { foo };
+				export type { bar } from "foo";
+				export { baz } from "foo";
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export type { bar } from "foo";
+				export { baz, type foo } from "foo";
+			`,
+		},
+		{
+			code: outdent`
+				import type { foo } from 'foo';
+				export type { foo };
+				export { type bar } from "foo";
+				export { baz } from "foo";
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export { type bar, type foo } from "foo";
+				export { baz } from "foo";
+			`,
+		},
 	],
 });
 
