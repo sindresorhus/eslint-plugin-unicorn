@@ -109,9 +109,7 @@ function getFixFunction({
 	const sourceNode = importDeclaration.source;
 	const sourceValue = sourceNode.value;
 	const exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind !== 'type');
-	const isTypeImport = imported.node.importKind === 'type' || (Boolean(imported.declaration) && imported.declaration.importKind === 'type');
-	const isTypeExport = exported.node.exportKind === 'type' || (Boolean(exported.node.parent) && exported.node.parent.exportKind === 'type');
-	const isTypeSpecifier = isTypeImport || isTypeExport;
+	const isTypeSpecifier = imported.isType || exported.isType;
 
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
@@ -155,12 +153,14 @@ function getFixFunction({
 
 function getExported(identifier, context, sourceCode) {
 	const {parent} = identifier;
+	const isType = parent.exportKind === 'type' || (Boolean(parent.parent) && parent.parent.exportKind === 'type');
 	switch (parent.type) {
 		case 'ExportDefaultDeclaration':
 			return {
 				node: parent,
 				name: DEFAULT_SPECIFIER_NAME,
 				text: 'default',
+				isType,
 			};
 
 		case 'ExportSpecifier':
@@ -168,6 +168,7 @@ function getExported(identifier, context, sourceCode) {
 				node: parent,
 				name: getSpecifierName(parent.exported),
 				text: sourceCode.getText(parent.exported),
+				isType,
 			};
 
 		case 'VariableDeclarator': {
@@ -186,6 +187,7 @@ function getExported(identifier, context, sourceCode) {
 					node: parent.parent.parent,
 					name: Symbol.for(parent.id.name),
 					text: sourceCode.getText(parent.id),
+					isType,
 				};
 			}
 
@@ -217,6 +219,7 @@ function getImported(variable, sourceCode) {
 		node: specifier,
 		declaration: specifier.parent,
 		variable,
+		isType: specifier.importKind === 'type' || (Boolean(specifier.parent) && specifier.parent.importKind === 'type'),
 	};
 
 	switch (specifier.type) {
