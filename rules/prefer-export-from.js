@@ -108,9 +108,8 @@ function getFixFunction({
 	const importDeclaration = imported.declaration;
 	const sourceNode = importDeclaration.source;
 	const sourceValue = sourceNode.value;
-	const exportDeclaration = exportDeclarations.find(({source}) => source.value === sourceValue);
-	const isTypeExport = exported.node.parent.exportKind === 'type';
-	const isTypeExportDeclaration = exportDeclaration && exportDeclaration.exportKind === 'type';
+	const exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind !== 'type');
+	const isTypeExport = exported.node.exportKind === 'type' || exported.exportKind === 'type';
 
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
@@ -126,7 +125,7 @@ function getFixFunction({
 
 			const specifierWithKind = isTypeExport ? `type ${specifier}` : specifier;
 
-			if (exportDeclaration && !isTypeExportDeclaration) {
+			if (exportDeclaration) {
 				const lastSpecifier = exportDeclaration.specifiers[exportDeclaration.specifiers.length - 1];
 
 				// `export {} from 'foo';`
@@ -253,6 +252,7 @@ function getExports(imported, context, sourceCode) {
 			continue;
 		}
 
+		// Console.log("getExports", exported)
 		/*
 		There is no substitution for:
 
@@ -309,6 +309,7 @@ function create(context) {
 
 				variables = variables.map(variable => {
 					const imported = getImported(variable, sourceCode);
+					// Console.log("getImported", imported)
 					const exports = getExports(imported, context, sourceCode);
 
 					return {
