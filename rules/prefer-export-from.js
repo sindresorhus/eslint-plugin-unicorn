@@ -252,7 +252,6 @@ function getExports(imported, context, sourceCode) {
 			continue;
 		}
 
-		// Console.log("getExports", exported)
 		/*
 		There is no substitution for:
 
@@ -309,7 +308,6 @@ function create(context) {
 
 				variables = variables.map(variable => {
 					const imported = getImported(variable, sourceCode);
-					// Console.log("getImported", imported)
 					const exports = getExports(imported, context, sourceCode);
 
 					return {
