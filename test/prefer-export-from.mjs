@@ -405,6 +405,20 @@ test.typescript({
 		},
 		{
 			code: outdent`
+				import { foo } from 'foo';
+				export { foo };
+				export { baz } from "foo";
+				export { type bar } from "foo";
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export { baz, foo } from "foo";
+				export { type bar } from "foo";
+			`,
+		},
+		{
+			code: outdent`
 				import type { foo } from "foo";
 				export type { foo };
 				export { type bar } from "foo";
@@ -433,6 +447,20 @@ test.typescript({
 			code: outdent`
 				import type { foo } from 'foo';
 				export type { foo };
+				export { baz } from "foo";
+				export type { bar } from "foo";
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export { baz } from "foo";
+				export type { bar, foo } from "foo";
+			`,
+		},
+		{
+			code: outdent`
+				import type { foo } from 'foo';
+				export type { foo };
 				export { type bar } from "foo";
 				export { baz } from "foo";
 			`,
@@ -441,6 +469,20 @@ test.typescript({
 				\n
 				export { type bar, type foo } from "foo";
 				export { baz } from "foo";
+			`,
+		},
+		{
+			code: outdent`
+				import type { foo } from 'foo';
+				export type { foo };
+				export { baz } from "foo";
+				export { type bar } from "foo";
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export { baz, type foo } from "foo";
+				export { type bar } from "foo";
 			`,
 		},
 		{
