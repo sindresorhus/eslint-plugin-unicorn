@@ -112,8 +112,16 @@ function getFixFunction({
 	const importDeclaration = imported.declaration;
 	const sourceNode = importDeclaration.source;
 	const sourceValue = sourceNode.value;
-	const exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind !== 'type');
 	const isTypeSpecifier = imported.isType || exported.isType;
+	let exportDeclaration;
+	if (isTypeSpecifier) {
+		// Prefer put type specifier into a type export declaration, so we don't need add `type ` before specifier
+		exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind === 'type');
+	}
+
+	if (!exportDeclaration) {
+		exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind !== 'type');
+	}
 
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
@@ -123,26 +131,28 @@ function getFixFunction({
 				`\nexport * as ${exported.text} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
 			);
 		} else {
-			const specifier = exported.name === imported.name
+			let specifierText = exported.name === imported.name
 				? exported.text
 				: `${imported.text} as ${exported.text}`;
-
-			const specifierWithKind = isTypeSpecifier ? `type ${specifier}` : specifier;
 
 			if (exportDeclaration) {
 				const lastSpecifier = exportDeclaration.specifiers[exportDeclaration.specifiers.length - 1];
 
+				if (isTypeSpecifier && exportDeclaration.exportKind !== 'type') {
+					specifierText = `type ${specifierText}`;
+				}
+
 				// `export {} from 'foo';`
 				if (lastSpecifier) {
-					yield fixer.insertTextAfter(lastSpecifier, `, ${specifierWithKind}`);
+					yield fixer.insertTextAfter(lastSpecifier, `, ${specifierText}`);
 				} else {
 					const openingBraceToken = sourceCode.getFirstToken(exportDeclaration, isOpeningBraceToken);
-					yield fixer.insertTextAfter(openingBraceToken, specifierWithKind);
+					yield fixer.insertTextAfter(openingBraceToken, specifierText);
 				}
 			} else {
 				yield fixer.insertTextAfter(
 					program,
-					`\nexport {${specifierWithKind}} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
+					`\nexport ${isTypeSpecifier ? 'type ' : ''}{${specifierText}} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
 				);
 			}
 		}
@@ -157,7 +167,6 @@ function getFixFunction({
 
 function getExported(identifier, context, sourceCode) {
 	const {parent} = identifier;
-	const isType = parent.exportKind === 'type' || (Boolean(parent.parent) && parent.parent.exportKind === 'type');
 	switch (parent.type) {
 		case 'ExportDefaultDeclaration':
 			return {

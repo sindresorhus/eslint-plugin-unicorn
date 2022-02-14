@@ -347,6 +347,7 @@ test.typescript({
 			type AceEditor = import("ace-builds").Ace.Editor;
 			export {AceEditor};
 		`,
+		'export type { bar, foo } from "foo";',
 	],
 	invalid: [
 		{
@@ -406,19 +407,6 @@ test.typescript({
 			code: outdent`
 				import type { foo } from "foo";
 				export type { foo };
-				export type { bar } from "foo";
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export type { bar } from "foo";
-				export {type foo} from "foo";
-			`,
-		},
-		{
-			code: outdent`
-				import type { foo } from "foo";
-				export type { foo };
 				export { type bar } from "foo";
 			`,
 			errors: 1,
@@ -437,8 +425,8 @@ test.typescript({
 			errors: 1,
 			output: outdent`
 				\n
-				export type { bar } from "foo";
-				export { baz, type foo } from "foo";
+				export type { bar, foo } from "foo";
+				export { baz } from "foo";
 			`,
 		},
 		{
@@ -463,7 +451,7 @@ test.typescript({
 			errors: 1,
 			output: outdent`
 				\n
-				export {type foo} from 'foo';
+				export type {foo} from 'foo';
 			`,
 		},
 		{
@@ -474,7 +462,7 @@ test.typescript({
 			errors: 1,
 			output: outdent`
 				\n
-				export {type foo} from 'foo';
+				export type {foo} from 'foo';
 			`,
 		},
 		{
@@ -485,7 +473,7 @@ test.typescript({
 			errors: 1,
 			output: outdent`
 				\n
-				export {type foo} from 'foo';
+				export type {foo} from 'foo';
 			`,
 		},
 		{
@@ -496,7 +484,7 @@ test.typescript({
 			errors: 1,
 			output: outdent`
 				\n
-				export {type default} from "foo";
+				export type {default} from "foo";
 			`,
 		},
 	],
