@@ -26,6 +26,10 @@ const getSpecifierName = node => {
 	}
 };
 
+const isTypeExportKind = node => node.exportKind === 'type' || node.parent.exportKind === 'type';
+
+const isTypeImportKind = node => node.importKind === 'type' || node.parent.importKind === 'type';
+
 function * removeSpecifier(node, fixer, sourceCode) {
 	const {parent} = node;
 	const {specifiers} = parent;
@@ -160,7 +164,7 @@ function getExported(identifier, context, sourceCode) {
 				node: parent,
 				name: DEFAULT_SPECIFIER_NAME,
 				text: 'default',
-				isType,
+				isType: isTypeExportKind(parent),
 			};
 
 		case 'ExportSpecifier':
@@ -168,7 +172,7 @@ function getExported(identifier, context, sourceCode) {
 				node: parent,
 				name: getSpecifierName(parent.exported),
 				text: sourceCode.getText(parent.exported),
-				isType,
+				isType: isTypeExportKind(parent),
 			};
 
 		case 'VariableDeclarator': {
@@ -187,7 +191,6 @@ function getExported(identifier, context, sourceCode) {
 					node: parent.parent.parent,
 					name: Symbol.for(parent.id.name),
 					text: sourceCode.getText(parent.id),
-					isType,
 				};
 			}
 
@@ -219,7 +222,7 @@ function getImported(variable, sourceCode) {
 		node: specifier,
 		declaration: specifier.parent,
 		variable,
-		isType: specifier.importKind === 'type' || (Boolean(specifier.parent) && specifier.parent.importKind === 'type'),
+		isType: isTypeImportKind(specifier),
 	};
 
 	switch (specifier.type) {
