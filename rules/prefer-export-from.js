@@ -114,13 +114,17 @@ function getFixFunction({
 	const sourceValue = sourceNode.value;
 	const isTypeSpecifier = imported.isType || exported.isType;
 	let exportDeclaration;
+	const typeExportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind === 'type');
+	const valueExportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind !== 'type');
+	const isTypeExportDeclaration = Boolean(typeExportDeclaration);
+
 	if (isTypeSpecifier) {
-		// Prefer put type specifier into a type export declaration, so we don't need add `type ` before specifier
-		exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind === 'type');
+		// If a type export declaration already exists, reuse it, else use a value export declaration with an inline type specifier.
+		exportDeclaration = isTypeExportDeclaration ? typeExportDeclaration : valueExportDeclaration;
 	}
 
-	if (!exportDeclaration) {
-		exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind !== 'type');
+	if (!isTypeSpecifier) {
+		exportDeclaration = valueExportDeclaration;
 	}
 
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
@@ -131,28 +135,27 @@ function getFixFunction({
 				`\nexport * as ${exported.text} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
 			);
 		} else {
-			let specifierText = exported.name === imported.name
+			const specifierText = exported.name === imported.name
 				? exported.text
 				: `${imported.text} as ${exported.text}`;
+
+			// Add an inline type specifier if the value is a type and the export deceleration is a value deceleration
+			const specifierWithKind = isTypeSpecifier && !isTypeExportDeclaration ? `type ${specifierText}` : specifierText;
 
 			if (exportDeclaration) {
 				const lastSpecifier = exportDeclaration.specifiers[exportDeclaration.specifiers.length - 1];
 
-				if (isTypeSpecifier && exportDeclaration.exportKind !== 'type') {
-					specifierText = `type ${specifierText}`;
-				}
-
 				// `export {} from 'foo';`
 				if (lastSpecifier) {
-					yield fixer.insertTextAfter(lastSpecifier, `, ${specifierText}`);
+					yield fixer.insertTextAfter(lastSpecifier, `, ${specifierWithKind}`);
 				} else {
 					const openingBraceToken = sourceCode.getFirstToken(exportDeclaration, isOpeningBraceToken);
-					yield fixer.insertTextAfter(openingBraceToken, specifierText);
+					yield fixer.insertTextAfter(openingBraceToken, specifierWithKind);
 				}
 			} else {
 				yield fixer.insertTextAfter(
 					program,
-					`\nexport ${isTypeSpecifier ? 'type ' : ''}{${specifierText}} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
+					`\nexport {${specifierWithKind}} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
 				);
 			}
 		}

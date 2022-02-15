@@ -505,7 +505,7 @@ test.typescript({
 			errors: 1,
 			output: outdent`
 				\n
-				export type {foo} from 'foo';
+				export {type foo} from 'foo';
 			`,
 		},
 		{
@@ -516,7 +516,7 @@ test.typescript({
 			errors: 1,
 			output: outdent`
 				\n
-				export type {foo} from 'foo';
+				export {type foo} from 'foo';
 			`,
 		},
 		{
@@ -527,7 +527,7 @@ test.typescript({
 			errors: 1,
 			output: outdent`
 				\n
-				export type {foo} from 'foo';
+				export {type foo} from 'foo';
 			`,
 		},
 		{
@@ -538,7 +538,7 @@ test.typescript({
 			errors: 1,
 			output: outdent`
 				\n
-				export type {default} from "foo";
+				export {type default} from "foo";
 			`,
 		},
 	],
