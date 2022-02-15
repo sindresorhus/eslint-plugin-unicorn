@@ -541,6 +541,29 @@ test.typescript({
 				export {type default} from "foo";
 			`,
 		},
+		{
+			code: outdent`
+				import {type foo} from 'foo';
+				export {type foo as bar};
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export {type foo as bar} from 'foo';
+			`,
+		},
+		{
+			code: outdent`
+				import {type foo} from 'foo';
+				export {type foo as bar};
+				export {type bar} from 'foo';
+			`,
+			errors: 1,
+			output: outdent`
+				\n
+				export {type bar, type foo as bar} from 'foo';
+			`,
+		},
 	],
 });
 
