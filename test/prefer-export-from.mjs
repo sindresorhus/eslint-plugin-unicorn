@@ -440,6 +440,22 @@ test.snapshot({
 			export {type foo as bar};
 			export {type bar} from 'foo';
 		`,
+		outdent`
+			import {type foo as bar} from 'foo';
+			export {type bar as baz};
+		`,
+		outdent`
+			import {type foo as foo} from 'foo';
+			export {type foo as bar};
+		`,
+		outdent`
+			import {type foo as bar} from 'foo';
+			export {type bar as bar};
+		`,
+		outdent`
+			import {type foo as bar} from 'foo';
+			export {type bar as foo};
+		`,
 	],
 });
 
