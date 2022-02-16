@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
@@ -318,7 +318,10 @@ test.snapshot({
 	],
 });
 
-test.typescript({
+test.snapshot({
+	testerOptions: {
+		parser: parsers.typescript,
+	},
 	valid: [
 		// #1579
 		outdent`
@@ -347,8 +350,113 @@ test.typescript({
 			type AceEditor = import("ace-builds").Ace.Editor;
 			export {AceEditor};
 		`,
+		'export type { bar, foo } from "foo";',
 	],
-	invalid: [],
+	invalid: [
+		outdent`
+			import { foo } from "foo";
+			export { foo };
+			export type { bar } from "foo";
+		`,
+		outdent`
+			import { foo } from "foo";
+			export { foo };
+			export { type bar } from "foo";
+		`,
+		outdent`
+			import { foo } from 'foo';
+			export { foo };
+			export type { bar } from "foo";
+			export { baz } from "foo";
+		`,
+		outdent`
+			import { foo } from 'foo';
+			export { foo };
+			export { type bar } from "foo";
+			export { baz } from "foo";
+		`,
+		outdent`
+			import type { foo } from "foo";
+			export type { foo };
+			export type { bar } from "foo";
+		`,
+		outdent`
+			import { foo } from 'foo';
+			export { foo };
+			export { baz } from "foo";
+			export { type bar } from "foo";
+		`,
+		outdent`
+			import type { foo } from "foo";
+			export type { foo };
+			export { type bar } from "foo";
+		`,
+		outdent`
+			import type { foo } from 'foo';
+			export type { foo };
+			export type { bar } from "foo";
+			export { baz } from "foo";
+		`,
+		outdent`
+			import type { foo } from 'foo';
+			export type { foo };
+			export { baz } from "foo";
+			export type { bar } from "foo";
+		`,
+		outdent`
+			import type { foo } from 'foo';
+			export type { foo };
+			export { type bar } from "foo";
+			export { baz } from "foo";
+		`,
+		outdent`
+			import type { foo } from 'foo';
+			export type { foo };
+			export { baz } from "foo";
+			export { type bar } from "foo";
+		`,
+		outdent`
+			import { type foo } from 'foo';
+			export type { foo };
+		`,
+		outdent`
+			import { foo } from 'foo';
+			export type { foo };
+		`,
+		outdent`
+			import type { foo } from 'foo';
+			export { type foo };
+		`,
+		outdent`
+			import type foo from "foo";
+			export default foo
+		`,
+		outdent`
+			import {type foo} from 'foo';
+			export {type foo as bar};
+		`,
+		outdent`
+			import {type foo} from 'foo';
+			export {type foo as bar};
+			export {type bar} from 'foo';
+		`,
+		outdent`
+			import {type foo as bar} from 'foo';
+			export {type bar as baz};
+		`,
+		outdent`
+			import {type foo as foo} from 'foo';
+			export {type foo as bar};
+		`,
+		outdent`
+			import {type foo as bar} from 'foo';
+			export {type bar as bar};
+		`,
+		outdent`
+			import {type foo as bar} from 'foo';
+			export {type bar as foo};
+		`,
+	],
 });
 
 // `ignoreUsedVariables`

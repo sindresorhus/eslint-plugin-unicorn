@@ -26,6 +26,10 @@ const getSpecifierName = node => {
 	}
 };
 
+const isTypeExport = specifier => specifier.exportKind === 'type' || specifier.parent.exportKind === 'type';
+
+const isTypeImport = specifier => specifier.importKind === 'type' || specifier.parent.importKind === 'type';
+
 function * removeSpecifier(node, fixer, sourceCode) {
 	const {parent} = node;
 	const {specifiers} = parent;
@@ -108,7 +112,17 @@ function getFixFunction({
 	const importDeclaration = imported.declaration;
 	const sourceNode = importDeclaration.source;
 	const sourceValue = sourceNode.value;
-	const exportDeclaration = exportDeclarations.find(({source}) => source.value === sourceValue);
+	const shouldExportAsType = imported.isTypeImport || exported.isTypeExport;
+
+	let exportDeclaration;
+	if (shouldExportAsType) {
+		// If a type export declaration already exists, reuse it, else use a value export declaration with an inline type specifier.
+		exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind === 'type');
+	}
+
+	if (!exportDeclaration) {
+		exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind !== 'type');
+	}
 
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
@@ -118,24 +132,29 @@ function getFixFunction({
 				`\nexport * as ${exported.text} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
 			);
 		} else {
-			const specifier = exported.name === imported.name
+			let specifierText = exported.name === imported.name
 				? exported.text
 				: `${imported.text} as ${exported.text}`;
+
+			// Add an inline type specifier if the value is a type and the export deceleration is a value deceleration
+			if (shouldExportAsType && (!exportDeclaration || exportDeclaration.exportKind !== 'type')) {
+				specifierText = `type ${specifierText}`;
+			}
 
 			if (exportDeclaration) {
 				const lastSpecifier = exportDeclaration.specifiers[exportDeclaration.specifiers.length - 1];
 
 				// `export {} from 'foo';`
 				if (lastSpecifier) {
-					yield fixer.insertTextAfter(lastSpecifier, `, ${specifier}`);
+					yield fixer.insertTextAfter(lastSpecifier, `, ${specifierText}`);
 				} else {
 					const openingBraceToken = sourceCode.getFirstToken(exportDeclaration, isOpeningBraceToken);
-					yield fixer.insertTextAfter(openingBraceToken, specifier);
+					yield fixer.insertTextAfter(openingBraceToken, specifierText);
 				}
 			} else {
 				yield fixer.insertTextAfter(
 					program,
-					`\nexport {${specifier}} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
+					`\nexport {${specifierText}} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
 				);
 			}
 		}
@@ -156,6 +175,7 @@ function getExported(identifier, context, sourceCode) {
 				node: parent,
 				name: DEFAULT_SPECIFIER_NAME,
 				text: 'default',
+				isTypeExport: isTypeExport(parent),
 			};
 
 		case 'ExportSpecifier':
@@ -163,6 +183,7 @@ function getExported(identifier, context, sourceCode) {
 				node: parent,
 				name: getSpecifierName(parent.exported),
 				text: sourceCode.getText(parent.exported),
+				isTypeExport: isTypeExport(parent),
 			};
 
 		case 'VariableDeclarator': {
@@ -212,6 +233,7 @@ function getImported(variable, sourceCode) {
 		node: specifier,
 		declaration: specifier.parent,
 		variable,
+		isTypeImport: isTypeImport(specifier),
 	};
 
 	switch (specifier.type) {
