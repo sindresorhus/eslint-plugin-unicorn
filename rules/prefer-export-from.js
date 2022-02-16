@@ -26,9 +26,9 @@ const getSpecifierName = node => {
 	}
 };
 
-const isTypeExportKind = node => node.exportKind === 'type' || node.parent.exportKind === 'type';
+const isTypeExport = specifier => specifier.exportKind === 'type' || specifier.parent.exportKind === 'type';
 
-const isTypeImportKind = node => node.importKind === 'type' || node.parent.importKind === 'type';
+const isTypeImport = specifier => specifier.importKind === 'type' || specifier.parent.importKind === 'type';
 
 function * removeSpecifier(node, fixer, sourceCode) {
 	const {parent} = node;
@@ -112,10 +112,10 @@ function getFixFunction({
 	const importDeclaration = imported.declaration;
 	const sourceNode = importDeclaration.source;
 	const sourceValue = sourceNode.value;
-	const isTypeSpecifier = imported.isType || exported.isType;
+	const shouldExportAsType = imported.isTypeImport || exported.isTypeExport;
 	let exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind !== 'type');
 
-	if (isTypeSpecifier && !exportDeclaration) {
+	if (shouldExportAsType && !exportDeclaration) {
 		exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind === 'type');
 	}
 
@@ -132,7 +132,7 @@ function getFixFunction({
 				: `${imported.text} as ${exported.text}`;
 
 			// Add an inline type specifier if the value is a type and the export deceleration is a value deceleration
-			if (isTypeSpecifier && (!exportDeclaration || exportDeclaration.exportKind !== 'type')) {
+			if (shouldExportAsType && (!exportDeclaration || exportDeclaration.exportKind !== 'type')) {
 				specifierText = `type ${specifierText}`;
 			}
 
@@ -170,7 +170,7 @@ function getExported(identifier, context, sourceCode) {
 				node: parent,
 				name: DEFAULT_SPECIFIER_NAME,
 				text: 'default',
-				isType: isTypeExportKind(parent),
+				isTypeExport: isTypeExport(parent),
 			};
 
 		case 'ExportSpecifier':
@@ -178,7 +178,7 @@ function getExported(identifier, context, sourceCode) {
 				node: parent,
 				name: getSpecifierName(parent.exported),
 				text: sourceCode.getText(parent.exported),
-				isType: isTypeExportKind(parent),
+				isTypeExport: isTypeExport(parent),
 			};
 
 		case 'VariableDeclarator': {
@@ -228,7 +228,7 @@ function getImported(variable, sourceCode) {
 		node: specifier,
 		declaration: specifier.parent,
 		variable,
-		isType: isTypeImportKind(specifier),
+		isTypeImport: isTypeImport(specifier),
 	};
 
 	switch (specifier.type) {
