@@ -24,7 +24,7 @@ Use a [preset config](#preset-configs) or configure each rules in `package.json`
 	"name": "my-awesome-project",
 	"eslintConfig": {
 		"env": {
-			"es2021": true
+			"es2022": true
 		},
 		"parserOptions": {
 			"ecmaVersion": "latest",
