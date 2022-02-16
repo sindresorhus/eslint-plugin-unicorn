@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
@@ -318,7 +318,10 @@ test.snapshot({
 	],
 });
 
-test.typescript({
+test.snapshot({
+	testerOptions: {
+		parser: parsers.typescript,
+	},
 	valid: [
 		// #1579
 		outdent`
@@ -350,220 +353,93 @@ test.typescript({
 		'export type { bar, foo } from "foo";',
 	],
 	invalid: [
-		{
-			code: outdent`
-				import { foo } from "foo";
-				export { foo };
-				export type { bar } from "foo";
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export type { bar } from "foo";
-				export {foo} from "foo";
-			`,
-		},
-		{
-			code: outdent`
-				import { foo } from "foo";
-				export { foo };
-				export { type bar } from "foo";
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export { type bar, foo } from "foo";
-			`,
-		},
-		{
-			code: outdent`
-				import { foo } from 'foo';
-				export { foo };
-				export type { bar } from "foo";
-				export { baz } from "foo";
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export type { bar } from "foo";
-				export { baz, foo } from "foo";
-			`,
-		},
-		{
-			code: outdent`
-				import { foo } from 'foo';
-				export { foo };
-				export { type bar } from "foo";
-				export { baz } from "foo";
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export { type bar, foo } from "foo";
-				export { baz } from "foo";
-			`,
-		},
-		{
-			code: outdent`
-				import type { foo } from "foo";
-				export type { foo };
-				export type { bar } from "foo";
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export type { bar, foo } from "foo";
-			`,
-		},
-		{
-			code: outdent`
-				import { foo } from 'foo';
-				export { foo };
-				export { baz } from "foo";
-				export { type bar } from "foo";
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export { baz, foo } from "foo";
-				export { type bar } from "foo";
-			`,
-		},
-		{
-			code: outdent`
-				import type { foo } from "foo";
-				export type { foo };
-				export { type bar } from "foo";
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export { type bar, type foo } from "foo";
-			`,
-		},
-		{
-			code: outdent`
-				import type { foo } from 'foo';
-				export type { foo };
-				export type { bar } from "foo";
-				export { baz } from "foo";
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export type { bar, foo } from "foo";
-				export { baz } from "foo";
-			`,
-		},
-		{
-			code: outdent`
-				import type { foo } from 'foo';
-				export type { foo };
-				export { baz } from "foo";
-				export type { bar } from "foo";
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export { baz } from "foo";
-				export type { bar, foo } from "foo";
-			`,
-		},
-		{
-			code: outdent`
-				import type { foo } from 'foo';
-				export type { foo };
-				export { type bar } from "foo";
-				export { baz } from "foo";
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export { type bar, type foo } from "foo";
-				export { baz } from "foo";
-			`,
-		},
-		{
-			code: outdent`
-				import type { foo } from 'foo';
-				export type { foo };
-				export { baz } from "foo";
-				export { type bar } from "foo";
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export { baz, type foo } from "foo";
-				export { type bar } from "foo";
-			`,
-		},
-		{
-			code: outdent`
-				import { type foo } from 'foo';
-				export type { foo };
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export {type foo} from 'foo';
-			`,
-		},
-		{
-			code: outdent`
-				import { foo } from 'foo';
-				export type { foo };
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export {type foo} from 'foo';
-			`,
-		},
-		{
-			code: outdent`
-				import type { foo } from 'foo';
-				export { type foo };
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export {type foo} from 'foo';
-			`,
-		},
-		{
-			code: outdent`
-				import type foo from "foo";
-				export default foo
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export {type default} from "foo";
-			`,
-		},
-		{
-			code: outdent`
-				import {type foo} from 'foo';
-				export {type foo as bar};
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export {type foo as bar} from 'foo';
-			`,
-		},
-		{
-			code: outdent`
-				import {type foo} from 'foo';
-				export {type foo as bar};
-				export {type bar} from 'foo';
-			`,
-			errors: 1,
-			output: outdent`
-				\n
-				export {type bar, type foo as bar} from 'foo';
-			`,
-		},
+		outdent`
+			import { foo } from "foo";
+			export { foo };
+			export type { bar } from "foo";
+		`,
+		outdent`
+			import { foo } from "foo";
+			export { foo };
+			export { type bar } from "foo";
+		`,
+		outdent`
+			import { foo } from 'foo';
+			export { foo };
+			export type { bar } from "foo";
+			export { baz } from "foo";
+		`,
+		outdent`
+			import { foo } from 'foo';
+			export { foo };
+			export { type bar } from "foo";
+			export { baz } from "foo";
+		`,
+		outdent`
+			import type { foo } from "foo";
+			export type { foo };
+			export type { bar } from "foo";
+		`,
+		outdent`
+			import { foo } from 'foo';
+			export { foo };
+			export { baz } from "foo";
+			export { type bar } from "foo";
+		`,
+		outdent`
+			import type { foo } from "foo";
+			export type { foo };
+			export { type bar } from "foo";
+		`,
+		outdent`
+			import type { foo } from 'foo';
+			export type { foo };
+			export type { bar } from "foo";
+			export { baz } from "foo";
+		`,
+		outdent`
+			import type { foo } from 'foo';
+			export type { foo };
+			export { baz } from "foo";
+			export type { bar } from "foo";
+		`,
+		outdent`
+			import type { foo } from 'foo';
+			export type { foo };
+			export { type bar } from "foo";
+			export { baz } from "foo";
+		`,
+		outdent`
+			import type { foo } from 'foo';
+			export type { foo };
+			export { baz } from "foo";
+			export { type bar } from "foo";
+		`,
+		outdent`
+			import { type foo } from 'foo';
+			export type { foo };
+		`,
+		outdent`
+			import { foo } from 'foo';
+			export type { foo };
+		`,
+		outdent`
+			import type { foo } from 'foo';
+			export { type foo };
+		`,
+		outdent`
+			import type foo from "foo";
+			export default foo
+		`,
+		outdent`
+			import {type foo} from 'foo';
+			export {type foo as bar};
+		`,
+		outdent`
+			import {type foo} from 'foo';
+			export {type foo as bar};
+			export {type bar} from 'foo';
+		`,
 	],
 });
 
