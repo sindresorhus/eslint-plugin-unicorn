@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
 	env: {
-		es6: true,
+		es2021: true,
 	},
 	parserOptions: {
 		ecmaVersion: 'latest',
