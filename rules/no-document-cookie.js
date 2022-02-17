@@ -1,5 +1,5 @@
 'use strict';
-const getKeyName = require('./utils/get-key-name.js');
+const {getPropertyName} = require('eslint-utils');
 
 const MESSAGE_ID = 'no-document-cookie';
 const messages = {
@@ -17,7 +17,7 @@ const selector = [
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector](node) {
-		if (getKeyName(node, context.getScope()) !== 'cookie') {
+		if (getPropertyName(node, context.getScope()) !== 'cookie') {
 			return;
 		}
 

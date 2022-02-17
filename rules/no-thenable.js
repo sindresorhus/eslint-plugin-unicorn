@@ -1,7 +1,6 @@
 'use strict';
-const {getStaticValue} = require('eslint-utils');
+const {getStaticValue, getPropertyName} = require('eslint-utils');
 const {methodCallSelector} = require('./selectors/index.js');
-const getKeyName = require('./utils/get-key-name.js');
 
 const MESSAGE_ID_OBJECT = 'no-thenable-object';
 const MESSAGE_ID_EXPORT = 'no-thenable-export';
@@ -25,7 +24,7 @@ const cases = [
 	// `{get [computedKey]() {}}`,
 	{
 		selector: 'ObjectExpression > Property.properties > .key',
-		test: (node, context) => getKeyName(node.parent, context.getScope()) === 'then',
+		test: (node, context) => getPropertyName(node.parent, context.getScope()) === 'then',
 		messageId: MESSAGE_ID_OBJECT,
 	},
 	// `class Foo {then}`,
@@ -34,14 +33,14 @@ const cases = [
 	// `class Foo {static get then() {}}`,
 	{
 		selector: ':matches(PropertyDefinition, MethodDefinition) > .key',
-		test: (node, context) => getKeyName(node.parent, context.getScope()) === 'then',
+		test: (node, context) => getPropertyName(node.parent, context.getScope()) === 'then',
 		messageId: MESSAGE_ID_CLASS,
 	},
 	// `foo.then = …`
 	// `foo[computedKey] = …`
 	{
 		selector: 'AssignmentExpression > MemberExpression.left > .property',
-		test: (node, context) => getKeyName(node.parent, context.getScope()) === 'then',
+		test: (node, context) => getPropertyName(node.parent, context.getScope()) === 'then',
 		messageId: MESSAGE_ID_OBJECT,
 	},
 	// `Object.defineProperty(foo, 'then', …)`

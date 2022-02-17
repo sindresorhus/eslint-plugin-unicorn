@@ -1,8 +1,7 @@
 'use strict';
-const {findVariable, getStaticValue} = require('eslint-utils');
+const {findVariable, getStaticValue, getPropertyName} = require('eslint-utils');
 const {methodCallSelector} = require('./selectors/index.js');
 const {removeArgument} = require('./fix/index.js');
-const getKeyName = require('./utils/get-key-name.js');
 
 const MESSAGE_ID = 'prefer-json-parse-buffer';
 const messages = {
@@ -80,7 +79,7 @@ function isUtf8Encoding(node, scope) {
 		node.type === 'ObjectExpression'
 		&& node.properties.length === 1
 		&& node.properties[0].type === 'Property'
-		&& getKeyName(node.properties[0], scope) === 'encoding'
+		&& getPropertyName(node.properties[0], scope) === 'encoding'
 		&& isUtf8EncodingStringNode(node.properties[0].value, scope)
 	) {
 		return true;
@@ -126,7 +125,7 @@ const create = context => ({
 			return;
 		}
 
-		const method = getKeyName(node.callee, scope);
+		const method = getPropertyName(node.callee, scope);
 		if (method !== 'readFile' && method !== 'readFileSync') {
 			return;
 		}
