@@ -40,7 +40,7 @@ const create = context => {
 	};
 
 	return {
-		':matches(BinaryExpression, AssignmentExpression)[right.type="Literal"]': node => {
+		':matches(BinaryExpression, AssignmentExpression)[right.type="Literal"]'(node) {
 			const {type, operator, right, left} = node;
 			const isAssignment = type === 'AssignmentExpression';
 			if (

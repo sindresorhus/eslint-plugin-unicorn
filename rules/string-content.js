@@ -74,7 +74,7 @@ const create = context => {
 	}
 
 	return {
-		'Literal, TemplateElement': node => {
+		'Literal, TemplateElement'(node) {
 			const {type, value, raw} = node;
 
 			let string;

@@ -14,7 +14,7 @@ const messages = {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	Literal: node => {
+	Literal(node) {
 		if (!isNumber(node)) {
 			return;
 		}

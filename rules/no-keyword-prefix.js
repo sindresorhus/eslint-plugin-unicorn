@@ -102,7 +102,7 @@ const create = context => {
 	}
 
 	return {
-		Identifier: node => {
+		Identifier(node) {
 			const {name, parent} = node;
 			const keyword = findKeywordPrefix(name, options);
 			const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;

@@ -17,7 +17,7 @@ const selector = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[selector]: node => {
+	[selector](node) {
 		const variables = context.getDeclaredVariables(node.parent);
 
 		if (variables.some(variable => variable.references.length > 0)) {

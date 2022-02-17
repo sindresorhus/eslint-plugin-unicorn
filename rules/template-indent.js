@@ -88,7 +88,7 @@ const create = context => {
 
 	return {
 		/** @param {import('@babel/core').types.TemplateLiteral} node */
-		TemplateLiteral: node => {
+		TemplateLiteral(node) {
 			if (options.comments.length > 0) {
 				const previousToken = sourceCode.getTokenBefore(node, {includeComments: true});
 				if (previousToken && previousToken.type === 'Block' && options.comments.includes(previousToken.value.trim().toLowerCase())) {

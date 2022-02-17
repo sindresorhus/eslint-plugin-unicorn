@@ -165,7 +165,7 @@ const create = context => {
 					start: firstUndefined.loc.start,
 					end: lastUndefined.loc.end,
 				},
-				fix: fixer => {
+				fix(fixer) {
 					let start = firstUndefined.range[0];
 					let end = lastUndefined.range[1];
 

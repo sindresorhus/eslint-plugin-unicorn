@@ -190,18 +190,18 @@ const create = context => {
 	};
 
 	return {
-		':function': node => {
+		':function'(node) {
 			functionStack.push(node);
 		},
-		':function:exit': () => {
+		':function:exit'() {
 			functionStack.pop();
 		},
-		[assignmentSelector]: node => {
+		[assignmentSelector](node) {
 			const {left, right} = node.expression;
 
 			return checkExpression(node, left, right, true);
 		},
-		[declarationSelector]: node => {
+		[declarationSelector](node) {
 			const {id, init} = node.declarations[0];
 
 			return checkExpression(node, id, init, false);

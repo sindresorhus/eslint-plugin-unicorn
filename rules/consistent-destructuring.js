@@ -57,7 +57,7 @@ const create = context => {
 	const declarations = new Map();
 
 	return {
-		[declaratorSelector]: node => {
+		[declaratorSelector](node) {
 			// Ignore any complex expressions (e.g. arrays, functions)
 			if (!isSimpleExpression(node.init)) {
 				return;
@@ -69,7 +69,7 @@ const create = context => {
 				objectPattern: node.id,
 			});
 		},
-		[memberSelector]: node => {
+		[memberSelector](node) {
 			const declaration = declarations.get(source.getText(node.object));
 
 			if (!declaration) {

@@ -25,7 +25,7 @@ const create = context => {
 	}
 
 	return {
-		'Literal[regex]': node => {
+		'Literal[regex]'(node) {
 			const {raw: original, regex} = node;
 
 			// Regular Expressions with `u` flag are not well handled by `regexp-tree`
@@ -63,7 +63,7 @@ const create = context => {
 				fix: fixer => fixer.replaceText(node, optimized),
 			};
 		},
-		[newRegExp]: node => {
+		[newRegExp](node) {
 			const [patternNode, flagsNode] = node.arguments;
 
 			if (typeof patternNode.value !== 'string') {

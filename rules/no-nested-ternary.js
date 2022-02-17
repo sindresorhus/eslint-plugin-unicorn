@@ -18,7 +18,7 @@ const create = context => {
 		[nestTernarySelector(3)]: node =>
 			// Nesting more than one level not allowed.
 			({node, messageId: MESSAGE_ID_TOO_DEEP}),
-		[nestTernarySelector(2)]: node => {
+		[nestTernarySelector(2)](node) {
 			if (!isParenthesized(node, sourceCode)) {
 				return {
 					node,
