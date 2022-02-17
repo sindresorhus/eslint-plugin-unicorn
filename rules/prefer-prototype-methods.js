@@ -1,11 +1,11 @@
 'use strict';
+const {getPropertyName} = require('eslint-utils');
 const {
 	methodCallSelector,
 	emptyObjectSelector,
 	emptyArraySelector,
 	matches,
 } = require('./selectors/index.js');
-const getKeyName = require('./utils/get-key-name.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const messages = {
@@ -41,7 +41,7 @@ function create(context) {
 	return {
 		[selector](node) {
 			const constructorName = node.object.type === 'ArrayExpression' ? 'Array' : 'Object';
-			const methodName = getKeyName(node, context.getScope());
+			const methodName = getPropertyName(node, context.getScope());
 
 			return {
 				node,
