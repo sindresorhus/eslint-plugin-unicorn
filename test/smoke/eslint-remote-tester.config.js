@@ -10,7 +10,7 @@ module.exports = {
 	pathIgnorePattern: getPathIgnorePattern(),
 
 	/** Extensions of files under scanning */
-	extensions: ['js', 'jsx', 'ts', 'tsx'],
+	extensions: ['js', 'cjs', 'mjs', 'ts', 'cts', 'mts', 'jsx', 'tsx', 'vue'],
 
 	/** Maximum amount of tasks ran concurrently */
 	concurrentTasks: 3,
@@ -24,13 +24,8 @@ module.exports = {
 	/** ESLint configuration */
 	eslintrc: {
 		root: true,
-		env: {
-			es6: true,
-		},
 		parser: '@typescript-eslint/parser',
 		parserOptions: {
-			ecmaVersion: 'latest',
-			sourceType: 'module',
 			ecmaFeatures: {
 				jsx: true,
 			},
