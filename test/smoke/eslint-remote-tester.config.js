@@ -10,7 +10,7 @@ module.exports = {
 	pathIgnorePattern: getPathIgnorePattern(),
 
 	/** Extensions of files under scanning */
-	extensions: ['js', 'cjs', 'mjs', 'ts', 'cts', 'mts', 'jsx', 'tsx'],
+	extensions: ['js', 'cjs', 'mjs', 'ts', 'cts', 'mts', 'jsx', 'tsx', 'vue'],
 
 	/** Maximum amount of tasks ran concurrently */
 	concurrentTasks: 3,
