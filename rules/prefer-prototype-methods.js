@@ -46,7 +46,7 @@ function create(context) {
 			return {
 				node,
 				messageId: methodName ? 'known-method' : 'unknown-method',
-				data: {constructorName, methodName: methodName},
+				data: {constructorName, methodName},
 				* fix(fixer) {
 					yield fixer.replaceText(node.object, `${constructorName}.prototype`);
 
