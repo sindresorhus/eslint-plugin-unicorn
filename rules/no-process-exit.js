@@ -45,20 +45,20 @@ const create = context => {
 
 	return {
 		// Check `worker_threads` require / import
-		[importWorkerThreadsSelector]: () => {
+		[importWorkerThreadsSelector]() {
 			requiredWorkerThreadsModule = true;
 		},
 		// Check `process.on` / `process.once` call
-		[processOnOrOnceCallSelector]: node => {
+		[processOnOrOnceCallSelector](node) {
 			processEventHandler = node;
 		},
 		// Check `process.exit` call
-		[processExitCallSelector]: node => {
+		[processExitCallSelector](node) {
 			if (!processEventHandler) {
 				problemNodes.push(node);
 			}
 		},
-		'CallExpression:exit': node => {
+		'CallExpression:exit'(node) {
 			if (node === processEventHandler) {
 				processEventHandler = undefined;
 			}

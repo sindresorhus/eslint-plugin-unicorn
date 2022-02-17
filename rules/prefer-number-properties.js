@@ -50,7 +50,7 @@ const create = context => {
 	const reported = new WeakSet();
 
 	return {
-		[methodsSelector]: node => {
+		[methodsSelector](node) {
 			if (isShadowed(context.getScope(), node)) {
 				return;
 			}
@@ -84,7 +84,7 @@ const create = context => {
 
 			return problem;
 		},
-		[propertiesSelector]: node => {
+		[propertiesSelector](node) {
 			if (reported.has(node) || isShadowed(context.getScope(), node)) {
 				return;
 			}

@@ -40,7 +40,7 @@ const create = context => {
 	};
 
 	return {
-		[selector]: node => {
+		[selector](node) {
 			const {parent} = node;
 			if (!checkStrictEquality && isStrictEqual(parent)) {
 				return;

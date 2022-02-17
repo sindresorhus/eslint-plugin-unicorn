@@ -23,7 +23,7 @@ const removeEventListenerSelector = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[removeEventListenerSelector]: node => {
+	[removeEventListenerSelector](node) {
 		const listener = node.arguments[1];
 		if (['ArrowFunctionExpression', 'FunctionExpression'].includes(listener.type)) {
 			return {

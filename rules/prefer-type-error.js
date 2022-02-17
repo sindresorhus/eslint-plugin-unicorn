@@ -112,7 +112,7 @@ const isTypechecking = node => node.type === 'IfStatement' && isTypecheckingExpr
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
-	[selector]: node => {
+	[selector](node) {
 		if (
 			isLone(node)
 			&& node.parent.parent

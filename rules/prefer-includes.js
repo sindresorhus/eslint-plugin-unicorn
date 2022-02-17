@@ -30,7 +30,7 @@ const getProblem = (context, node, target, argumentsNodes) => {
 	return {
 		node: memberExpressionNode.property,
 		messageId: MESSAGE_ID,
-		fix: fixer => {
+		fix(fixer) {
 			const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
 			return fixer.replaceText(node, replacement);
 		},
@@ -44,7 +44,7 @@ const includesOverSomeRule = simpleArraySearchRule({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	BinaryExpression: node => {
+	BinaryExpression(node) {
 		const {left, right, operator} = node;
 
 		if (!isMethodNamed(left, 'indexOf')) {

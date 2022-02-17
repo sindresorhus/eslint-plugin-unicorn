@@ -126,7 +126,7 @@ const isMultipleCall = (identifier, node) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[selector]: node => {
+	[selector](node) {
 		const variable = findVariable(context.getScope(), node);
 
 		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768073342

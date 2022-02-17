@@ -17,7 +17,7 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 
 	return {
-		[callExpressionSelector(builtins.enforceNew)]: node => {
+		[callExpressionSelector(builtins.enforceNew)](node) {
 			const {callee, parent} = node;
 			if (isShadowed(context.getScope(), callee)) {
 				return;
@@ -42,7 +42,7 @@ const create = context => {
 				fix: fixer => switchCallExpressionToNewExpression(node, sourceCode, fixer),
 			};
 		},
-		[newExpressionSelector(builtins.disallowNew)]: node => {
+		[newExpressionSelector(builtins.disallowNew)](node) {
 			const {callee} = node;
 
 			if (isShadowed(context.getScope(), callee)) {

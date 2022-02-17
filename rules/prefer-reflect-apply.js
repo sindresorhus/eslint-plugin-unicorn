@@ -66,7 +66,7 @@ const fixFunctionPrototypeCall = (node, sourceCode) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[selector]: node => {
+	[selector](node) {
 		const sourceCode = context.getSourceCode();
 		const fix = fixDirectApplyCall(node, sourceCode) || fixFunctionPrototypeCall(node, sourceCode);
 		if (fix) {

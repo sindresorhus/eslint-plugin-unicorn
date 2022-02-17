@@ -15,7 +15,7 @@ const objectParameterSelector = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
-	[objectParameterSelector]: node => {
+	[objectParameterSelector](node) {
 		const {left, right} = node;
 
 		if (left.type === 'Identifier') {

@@ -50,7 +50,7 @@ const create = context => {
 		|| name.endsWith(expectedName.charAt(0).toUpperCase() + expectedName.slice(1));
 
 	return {
-		[selector]: node => {
+		[selector](node) {
 			const originalName = node.name;
 
 			if (
