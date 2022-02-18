@@ -5,7 +5,7 @@ const {getParenthesizedRange} = require('./utils/parentheses.js');
 const MESSAGE_ID_RESOLVE = 'resolve';
 const MESSAGE_ID_REJECT = 'reject';
 const messages = {
-	[MESSAGE_ID_RESOLVE]: 'Prefer `{{type}} value` over `{{type}} Promise.resolve(error)`.',
+	[MESSAGE_ID_RESOLVE]: 'Prefer `{{type}} value` over `{{type}} Promise.resolve(value)`.',
 	[MESSAGE_ID_REJECT]: 'Prefer `throw error` over `{{type}} Promise.reject(error)`.',
 };
 
