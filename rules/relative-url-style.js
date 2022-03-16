@@ -26,18 +26,16 @@ const TEST_URL_BASES = [
 	'https://example.com/a/b/',
 	'https://example.com/a/b.html',
 ];
-const isSameUrl = (url1, url2, base) => {
+const isSafeToAddDotSlashToUrl = (url, base) => {
 	try {
-		return new URL(url1, base).href === new URL(url2, base).href;
+		return new URL(url, base).href === new URL(DOT_SLASH + url, base).href;
 	} catch {}
 
 	return false;
 };
 
-const isSafeToAddDotSlashWithBase = (url, base) => isSameUrl(url, DOT_SLASH + url, base);
-const isSafeToAddDotSlash = url => TEST_URL_BASES.every(base => isSafeToAddDotSlashWithBase(url, base));
-const isSafeToRemoveDotSlashWithBase = (url, base) => isSameUrl(url, url.slice(DOT_SLASH.length), base);
-const isSafeToRemoveDotSlash = url => TEST_URL_BASES.every(base => isSafeToRemoveDotSlashWithBase(url, base));
+const isSafeToAddDotSlash = (url, bases = TEST_URL_BASES) => bases.every(base => isSafeToAddDotSlashToUrl(url, base));
+const isSafeToRemoveDotSlash = (url, bases = TEST_URL_BASES) => bases.every(base => isSafeToAddDotSlashToUrl(url.slice(DOT_SLASH.length), base));
 
 function canAddDotSlash(node, context) {
 	const url = node.value;
@@ -51,7 +49,7 @@ function canAddDotSlash(node, context) {
 	if (
 		staticValueResult
 		&& typeof staticValueResult.value === 'string'
-		&& isSafeToAddDotSlashWithBase(url, staticValueResult.value)
+		&& isSafeToAddDotSlash(url, [staticValueResult.value])
 	) {
 		return true;
 	}
@@ -71,7 +69,7 @@ function canRemoveDotSlash(node, context) {
 	if (
 		staticValueResult
 		&& typeof staticValueResult.value === 'string'
-		&& isSafeToRemoveDotSlashWithBase(node.value, staticValueResult.value)
+		&& isSafeToRemoveDotSlash(node.value, [staticValueResult.value])
 	) {
 		return true;
 	}
