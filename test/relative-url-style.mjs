@@ -15,6 +15,7 @@ test.snapshot({
 		'new NOT_URL("./", base)',
 		'new URL("./", base)',
 		'new URL("./", "https://example.com/a/b/c.html")',
+		'const base = new URL("./", import.meta.url)',
 		'new URL',
 		// Not checking this case
 		'new globalThis.URL("./foo", base)',
