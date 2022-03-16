@@ -12,6 +12,9 @@ test.snapshot({
 		'new URL("./foo", base, extra)',
 		'new URL("./foo", ...[base])',
 		'new NOT_URL("./foo", base)',
+		'new NOT_URL("./", base)',
+		'new URL("./", base)',
+		'new URL("./", "https://example.com/a/b/c.html")',
 		'new URL',
 		// Not checking this case
 		'new globalThis.URL("./foo", base)',
@@ -29,9 +32,9 @@ test.snapshot({
 	invalid: [
 		'new URL("./foo", base)',
 		'new URL(\'./foo\', base)',
-		'new URL("./", base)',
 		'new URL("././a", base)',
 		'new URL(`./${foo}`, base)',
+		'new URL("./", "https://example.com/a/b/")',
 	],
 });
 
@@ -45,6 +48,7 @@ test.snapshot({
 		'new URL("foo", base, extra)',
 		'new URL("foo", ...[base])',
 		'new NOT_URL("foo", base)',
+		'new URL("", base)',
 		'/* 2 */ new URL',
 		// Not checking this case
 		'new globalThis.URL("foo", base)',
@@ -66,5 +70,6 @@ test.snapshot({
 	invalid: [
 		'new URL("foo", base)',
 		'new URL(\'foo\', base)',
+		'new URL("", "https://example.com/a/b/")',
 	].map(code => ({code, options: alwaysAddDotSlashOptions})),
 });
