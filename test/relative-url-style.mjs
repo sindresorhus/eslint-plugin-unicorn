@@ -50,6 +50,7 @@ test.snapshot({
 		'new URL("foo", ...[base])',
 		'new NOT_URL("foo", base)',
 		'new URL("", base)',
+		'new URL("", "https://example.com/a/b.html")',
 		'/* 2 */ new URL',
 		// Not checking this case
 		'new globalThis.URL("foo", base)',
