@@ -116,7 +116,7 @@ const create = context => {
 				messageId: style,
 				suggest: [
 					{
-						messageId: style,
+						messageId: MESSAGE_ID_REMOVE,
 						fix(fixer) {
 							const start = firstPart.range[0] + 1;
 							return fixer.removeRange([start, start + 2]);
