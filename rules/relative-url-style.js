@@ -23,7 +23,6 @@ const literalSelector = [
 
 const DOT_SLASH = './';
 const TEST_URL_BASES = [
-	'https://example.com/',
 	'https://example.com/a/b/',
 	'https://example.com/a/b.html',
 ];
