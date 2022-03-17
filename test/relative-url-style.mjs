@@ -12,7 +12,12 @@ test.snapshot({
 		'new URL("./foo", base, extra)',
 		'new URL("./foo", ...[base])',
 		'new NOT_URL("./foo", base)',
+		'new NOT_URL("./", base)',
+		'new URL("./", base)',
+		'new URL("./", "https://example.com/a/b/c.html")',
+		'const base = new URL("./", import.meta.url)',
 		'new URL',
+		'new URL(0, base)',
 		// Not checking this case
 		'new globalThis.URL("./foo", base)',
 		'const foo = "./foo"; new URL(foo, base)',
@@ -29,9 +34,9 @@ test.snapshot({
 	invalid: [
 		'new URL("./foo", base)',
 		'new URL(\'./foo\', base)',
-		'new URL("./", base)',
 		'new URL("././a", base)',
 		'new URL(`./${foo}`, base)',
+		'new URL("./", "https://example.com/a/b/")',
 	],
 });
 
@@ -45,7 +50,10 @@ test.snapshot({
 		'new URL("foo", base, extra)',
 		'new URL("foo", ...[base])',
 		'new NOT_URL("foo", base)',
+		'new URL("", base)',
+		'new URL("", "https://example.com/a/b.html")',
 		'/* 2 */ new URL',
+		'new URL(0, base2)',
 		// Not checking this case
 		'new globalThis.URL("foo", base)',
 		'new URL(`${foo}`, base2)',
@@ -66,5 +74,6 @@ test.snapshot({
 	invalid: [
 		'new URL("foo", base)',
 		'new URL(\'foo\', base)',
+		'new URL("", "https://example.com/a/b/")',
 	].map(code => ({code, options: alwaysAddDotSlashOptions})),
 });
