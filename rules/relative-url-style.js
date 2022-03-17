@@ -96,7 +96,6 @@ function removeDotSlash(node, context) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const style = context.options[0] || 'never';
-	const fixFunction = style === 'never' ? removeDotSlash : addDotSlash;
 
 	const listeners = {};
 
@@ -125,11 +124,11 @@ const create = context => {
 	}
 
 	listeners[literalSelector] = function (node) {
-		if (node.type !== 'Literal' || typeof node.value !== 'string') {
+		if (typeof node.value !== 'string') {
 			return;
 		}
 
-		const fix = fixFunction(node, context);
+		const fix = (style === 'never' ? removeDotSlash : addDotSlash)(node, context);
 
 		if (!fix) {
 			return;

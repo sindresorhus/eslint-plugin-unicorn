@@ -17,6 +17,7 @@ test.snapshot({
 		'new URL("./", "https://example.com/a/b/c.html")',
 		'const base = new URL("./", import.meta.url)',
 		'new URL',
+		'new URL(0, base)',
 		// Not checking this case
 		'new globalThis.URL("./foo", base)',
 		'const foo = "./foo"; new URL(foo, base)',
@@ -52,6 +53,7 @@ test.snapshot({
 		'new URL("", base)',
 		'new URL("", "https://example.com/a/b.html")',
 		'/* 2 */ new URL',
+		'new URL(0, base2)',
 		// Not checking this case
 		'new globalThis.URL("foo", base)',
 		'new URL(`${foo}`, base2)',
