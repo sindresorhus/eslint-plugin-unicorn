@@ -17,7 +17,7 @@ const packageJson = JSON.parse(await fs.readFile('./package.json', 'utf8'));
 
 ```js
 const promise = fs.readFile('./package.json', {encoding: 'utf8'});
-const packageJson = JSON.parse(promise);
+const packageJson = JSON.parse(await promise);
 ```
 
 ## Pass
