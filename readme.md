@@ -119,7 +119,7 @@ Each rule has emojis denoting:
 | [prefer-dom-node-text-content](docs/rules/prefer-dom-node-text-content.md) | Prefer `.textContent` over `.innerText`. | ✅ |  | 💡 |
 | [prefer-export-from](docs/rules/prefer-export-from.md) | Prefer `export…from` when re-exporting. | ✅ | 🔧 | 💡 |
 | [prefer-includes](docs/rules/prefer-includes.md) | Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence. | ✅ | 🔧 | 💡 |
-| [prefer-json-parse-buffer](docs/rules/prefer-json-parse-buffer.md) | Prefer reading a JSON file as a buffer. | ✅ | 🔧 |  |
+| [prefer-json-parse-buffer](docs/rules/prefer-json-parse-buffer.md) | Prefer reading a JSON file as a buffer. |  | 🔧 |  |
 | [prefer-keyboard-event-key](docs/rules/prefer-keyboard-event-key.md) | Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. | ✅ | 🔧 |  |
 | [prefer-math-trunc](docs/rules/prefer-math-trunc.md) | Enforce the use of `Math.trunc` instead of bitwise operators. | ✅ | 🔧 | 💡 |
 | [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md) | Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`. | ✅ | 🔧 |  |
