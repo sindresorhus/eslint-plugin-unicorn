@@ -196,14 +196,16 @@ function getFixFunction(callExpression, functionInfo, context) {
 		const indentedForOfClosingBracket = isSingleLine ? '}' : `${indentString('}', 1, {indent: '\t'})}`;
 		const isMultilineBlock = callback.body.type === 'BlockStatement' && !isSingleLine;
 
-		if (isMultilineBlock) {
-			yield fixer.replaceText(sourceCode.getLastToken(callback.body), indentedForOfClosingBracket);
+		if (!isMultilineBlock) {
+			return
+		}
 
-			const expressions = callback.body.body;
+		yield fixer.replaceText(sourceCode.getLastToken(callback.body), indentedForOfClosingBracket);
 
-			for (const expression of expressions) {
-				yield fixer.replaceText(expression, indentString(sourceCode.getText(expression), 1, {indent: '\t'}));
-			}
+		const expressions = callback.body.body;
+
+		for (const expression of expressions) {
+			yield fixer.replaceText(expression, indentString(sourceCode.getText(expression), 1, {indent: '\t'}));
 		}
 	}
 
