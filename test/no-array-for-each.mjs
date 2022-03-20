@@ -25,7 +25,6 @@ test.snapshot({
 		'foo.forEach(element => bar(element), thisArgument)',
 		'foo.forEach()',
 		'const baz = foo.forEach(element => bar(element))',
-		'foo?.forEach(element => bar(element))',
 		'foo.forEach(bar)',
 		'foo.forEach(async function(element) {})',
 		'foo.forEach(function * (element) {})',
@@ -432,6 +431,112 @@ test({
 				for (const element of foo) {
 					delete element;
 					console.log(element)
+				}
+			`,
+			errors: 1,
+			parserOptions: {
+				sourceType: 'script',
+			},
+		},
+		{
+			code: outdent`
+				foo?.forEach(function(element) {
+					delete element;
+					console.log(element)
+				});
+			`,
+			output: outdent`
+				if (foo) {
+					for (const element of foo) {
+						delete element;
+						console.log(element)
+					}
+				}
+			`,
+			errors: 1,
+			parserOptions: {
+				sourceType: 'script',
+			},
+		},
+		{
+			code: outdent`
+				foo?.forEach(element => {
+					delete element;
+					console.log(element)
+				});
+			`,
+			output: outdent`
+				if (foo) {
+					for (const element of foo) {
+						delete element;
+						console.log(element)
+					}
+				}
+			`,
+			errors: 1,
+			parserOptions: {
+				sourceType: 'script',
+			},
+		},
+		{
+			code: outdent`
+				foo?.forEach(element => console.log(element));
+			`,
+			output: outdent`
+				if (foo) {
+					for (const element of foo) console.log(element)
+				}
+			`,
+			errors: 1,
+			parserOptions: {
+				sourceType: 'script',
+			},
+		},
+		{
+			code: outdent`
+				foo?.forEach((element) => console.log(element));
+			`,
+			output: outdent`
+				if (foo) {
+					for (const element of foo) console.log(element)
+				}
+			`,
+			errors: 1,
+			parserOptions: {
+				sourceType: 'script',
+			},
+		},
+		{
+			code: outdent`
+				foo?.forEach(element => { console.log(element) });
+			`,
+			output: outdent`
+				if (foo) {
+					for (const element of foo) { console.log(element) }
+				}
+			`,
+			errors: 1,
+			parserOptions: {
+				sourceType: 'script',
+			},
+		},
+		{
+			code: outdent`
+				function a() {
+					foo?.forEach(function(element) {
+						delete element;
+						console.log(element)
+					});
+				}
+			`,
+			output: outdent`
+				function a() {
+					if (foo) {
+						for (const element of foo) {
+							delete element;
+							console.log(element)
+						}
+					}
 				}
 			`,
 			errors: 1,

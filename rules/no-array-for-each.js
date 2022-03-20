@@ -7,6 +7,7 @@ const {
 	isClosingParenToken,
 	findVariable,
 } = require('eslint-utils');
+const indentString = require('indent-string');
 const {methodCallSelector, referenceIdentifierSelector} = require('./selectors/index.js');
 const {extendFixRange} = require('./fix/index.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
@@ -16,6 +17,7 @@ const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside.j
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 const assertToken = require('./utils/assert-token.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
+const getIndentString = require('./utils/get-indent-string.js');
 
 const MESSAGE_ID = 'no-array-for-each';
 const messages = {
@@ -73,6 +75,9 @@ function getFixFunction(callExpression, functionInfo, context) {
 	const parameters = callback.params;
 	const array = callExpression.callee.object;
 	const {returnStatements} = functionInfo.get(callback);
+	const isOptionalChaining = callExpression.callee.optional;
+	const isBlockStatement = callback.body.type === 'BlockStatement';
+	const indentedString = getIndentString(callExpression.parent.parent, sourceCode);
 
 	const getForOfLoopHeadText = () => {
 		const [elementText, indexText] = parameters.map(parameter => sourceCode.getText(parameter));
@@ -175,12 +180,32 @@ function getFixFunction(callExpression, functionInfo, context) {
 			return false;
 		}
 
-		if (callback.body.type !== 'BlockStatement') {
+		if (callback.body.type !== 'BlockStatement' && !isOptionalChaining) {
 			return false;
 		}
 
 		return true;
 	};
+
+	function * wrapInIfStatement(fixer) {
+		const isSingleLine = !isBlockStatement || callback.body.loc.start.line === callback.body.loc.end.line;
+
+		yield fixer.insertTextBefore(callExpression, `if (${callExpression.callee.object.name}) {\n`);
+		yield fixer.insertTextAfter(callExpression, `\n${indentedString}}`);
+
+		const indentedForOfClosingBracket = isSingleLine ? '}' : `${indentString('}', 1, {indent: '\t'})}`;
+		const isMultilineBlock = callback.body.type === 'BlockStatement' && !isSingleLine;
+
+		if (isMultilineBlock) {
+			yield fixer.replaceText(sourceCode.getLastToken(callback.body), indentedForOfClosingBracket);
+
+			const expressions = callback.body.body;
+
+			for (const expression of expressions) {
+				yield fixer.replaceText(expression, indentString(sourceCode.getText(expression), 1, {indent: '\t'}));
+			}
+		}
+	}
 
 	function * removeCallbackParentheses(fixer) {
 		// Opening parenthesis tokens already included in `getForOfLoopHeadRange`
@@ -193,6 +218,10 @@ function getFixFunction(callExpression, functionInfo, context) {
 	}
 
 	return function * (fixer) {
+		const trimTrailingWhitespace = text => text.replace(/\s+$/, '');
+		const indentedForOfLoopHeadText = `${indentedString}${indentString(getForOfLoopHeadText(), 1, {indent: '\t'})}`;
+		const trimmedForOfLoopHeadText = isBlockStatement ? indentedForOfLoopHeadText : trimTrailingWhitespace(indentedForOfLoopHeadText);
+
 		// Replace these with `for (const … of …) `
 		// foo.forEach(bar =>    bar)
 		// ^^^^^^^^^^^^^^^^^^ (space after `=>` didn't included)
@@ -200,7 +229,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		// ^^^^^^^^^^^^^^^^^^^^^^
 		// foo.forEach(function(bar)    {})
 		// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-		yield fixer.replaceTextRange(getForOfLoopHeadRange(), getForOfLoopHeadText());
+		yield fixer.replaceTextRange(getForOfLoopHeadRange(), isOptionalChaining ? trimmedForOfLoopHeadText : getForOfLoopHeadText());
 
 		// Parenthesized callback function
 		// foo.forEach( ((bar => {})) )
@@ -228,7 +257,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 			yield * replaceReturnStatement(returnStatement, fixer);
 		}
 
-		const expressionStatementLastToken = sourceCode.getLastToken(callExpression.parent);
+		const expressionStatementLastToken = sourceCode.getLastToken(isOptionalChaining ? callExpression.parent.parent : callExpression.parent);
 		// Remove semicolon if it's not needed anymore
 		// foo.forEach(bar => {});
 		//                       ^
@@ -237,6 +266,10 @@ function getFixFunction(callExpression, functionInfo, context) {
 		}
 
 		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, sourceCode);
+
+		if (isOptionalChaining) {
+			yield * wrapInIfStatement(fixer);
+		}
 
 		// Prevent possible variable conflicts
 		yield * extendFixRange(fixer, callExpression.parent.range);
@@ -314,14 +347,7 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 	}
 
 	// Check `CallExpression.parent`
-	if (callExpression.parent.type !== 'ExpressionStatement') {
-		return false;
-	}
-
-	// Check `CallExpression.callee`
-	// Because of `ChainExpression` wrapper, `foo?.forEach()` is already failed on previous check keep this just for safety
-	/* c8 ignore next 3 */
-	if (callExpression.callee.optional) {
+	if (callExpression.parent.type !== 'ExpressionStatement' && callExpression.parent.type !== 'ChainExpression') {
 		return false;
 	}
 
