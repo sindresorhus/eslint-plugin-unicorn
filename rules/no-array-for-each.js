@@ -197,7 +197,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		const isMultilineBlock = callback.body.type === 'BlockStatement' && !isSingleLine;
 
 		if (!isMultilineBlock) {
-			return
+			return;
 		}
 
 		yield fixer.replaceText(sourceCode.getLastToken(callback.body), indentedForOfClosingBracket);
