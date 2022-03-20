@@ -22,6 +22,12 @@ array.forEach(element => {
 ```
 
 ```js
+array?.forEach(element => {
+	bar(element);
+});
+```
+
+```js
 array.forEach((element, index) => {
 	bar(element, index);
 });
