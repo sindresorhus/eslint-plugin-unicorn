@@ -484,7 +484,7 @@ test({
 			`,
 			output: outdent`
 				if (foo) {
-					for (const element of foo) console.log(element)
+					for (const element of foo) console.log(element);
 				}
 			`,
 			errors: 1,
@@ -498,7 +498,7 @@ test({
 			`,
 			output: outdent`
 				if (foo) {
-					for (const element of foo) console.log(element)
+					for (const element of foo) console.log(element);
 				}
 			`,
 			errors: 1,

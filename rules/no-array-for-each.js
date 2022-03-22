@@ -196,6 +196,10 @@ function getFixFunction(callExpression, functionInfo, context) {
 		const indentedForOfClosingBracket = isSingleLine ? '}' : `${indentString('}', 1, {indent: '\t'})}`;
 		const isMultilineBlock = callback.body.type === 'BlockStatement' && !isSingleLine;
 
+		if (callback.body.type !== 'BlockStatement' && isSingleLine) {
+			yield fixer.insertTextAfter(callback.body, ';')
+		}
+
 		if (!isMultilineBlock) {
 			return;
 		}
