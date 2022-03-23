@@ -197,7 +197,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		const isMultilineBlock = callback.body.type === 'BlockStatement' && !isSingleLine;
 
 		if (callback.body.type !== 'BlockStatement' && isSingleLine) {
-			yield fixer.insertTextAfter(callback.body, ';')
+			yield fixer.insertTextAfter(callback.body, ';');
 		}
 
 		if (!isMultilineBlock) {
