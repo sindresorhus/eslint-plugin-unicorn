@@ -446,11 +446,9 @@ test({
 				});
 			`,
 			output: outdent`
-				if (foo) {
-					for (const element of foo) {
-						delete element;
-						console.log(element)
-					}
+				if (foo) for (const element of foo) {
+					delete element;
+					console.log(element)
 				}
 			`,
 			errors: 1,
@@ -466,11 +464,9 @@ test({
 				});
 			`,
 			output: outdent`
-				if (foo) {
-					for (const element of foo) {
-						delete element;
-						console.log(element)
-					}
+				if (foo) for (const element of foo) {
+					delete element;
+					console.log(element)
 				}
 			`,
 			errors: 1,
@@ -483,9 +479,7 @@ test({
 				foo?.forEach(element => console.log(element));
 			`,
 			output: outdent`
-				if (foo) {
-					for (const element of foo) console.log(element);
-				}
+				if (foo) for (const element of foo)  console.log(element);
 			`,
 			errors: 1,
 			parserOptions: {
@@ -497,9 +491,7 @@ test({
 				foo?.forEach((element) => console.log(element));
 			`,
 			output: outdent`
-				if (foo) {
-					for (const element of foo) console.log(element);
-				}
+				if (foo) for (const element of foo)  console.log(element);
 			`,
 			errors: 1,
 			parserOptions: {
@@ -511,9 +503,7 @@ test({
 				foo?.forEach(element => { console.log(element) });
 			`,
 			output: outdent`
-				if (foo) {
-					for (const element of foo) { console.log(element) }
-				}
+				if (foo) for (const element of foo) { console.log(element) }
 			`,
 			errors: 1,
 			parserOptions: {
@@ -531,11 +521,9 @@ test({
 			`,
 			output: outdent`
 				function a() {
-					if (foo) {
-						for (const element of foo) {
-							delete element;
-							console.log(element)
-						}
+					if (foo) for (const element of foo) {
+						delete element;
+						console.log(element)
 					}
 				}
 			`,
