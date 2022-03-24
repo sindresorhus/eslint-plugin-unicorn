@@ -418,7 +418,6 @@ test.snapshot({
 		// Optional chaining
 		// Not fixable
 
-		'foo.forEach?.(element => bar(element))',
 		'(foo?.forEach(element => bar(element)))',
 		'foo?.forEach(element => bar(element), thisArgument)',
 		'foo?.forEach()',
@@ -428,6 +427,7 @@ test.snapshot({
 		'foo?.forEach(function * (element) {})',
 		'foo?.forEach(() => bar())',
 		'foo?.forEach((element, index, array) => bar())',
+		'const func = () => foo?.forEach((element, index, array) => bar())',
 		'property?.forEach(({property}) => bar(property))',
 
 		// Can't turn `return` to `continue`
