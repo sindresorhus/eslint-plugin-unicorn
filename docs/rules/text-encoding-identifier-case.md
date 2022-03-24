@@ -10,7 +10,7 @@
 - Enforce `'utf8'` for [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoding.
 - Enforce `'ascii'` for [ASCII](https://en.wikipedia.org/wiki/ASCII) encoding.
 
-This rule only auto-fix `fs.readFile()` and `fs.readFileSync()`.
+This rule only auto-fix encoding in `fs.readFile()` and `fs.readFileSync()`.
 
 ## Fail
 
