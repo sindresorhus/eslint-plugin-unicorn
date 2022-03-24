@@ -5,18 +5,18 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
-		'new foo.forEach(element => bar())',
-		'forEach(element => bar())',
-		'foo.notForEach(element => bar())',
-		// #1087
-		'React.Children.forEach(children, (child) => {});',
-		'Children.forEach(children, (child) => {});',
-		// #1508
-		outdent`
-			await pIteration.forEach(plugins, async pluginName => {
-				// My other code...
-			});
-		`,
+		// 'new foo.forEach(element => bar())',
+		// 'forEach(element => bar())',
+		// 'foo.notForEach(element => bar())',
+		// // #1087
+		// 'React.Children.forEach(children, (child) => {});',
+		// 'Children.forEach(children, (child) => {});',
+		// // #1508
+		// outdent`
+		// 	await pIteration.forEach(plugins, async pluginName => {
+		// 		// My other code...
+		// 	});
+		// `,
 	],
 	invalid: [
 		// Not fixable
@@ -422,8 +422,8 @@ test.snapshot({
 		'(foo?.forEach(element => bar(element)))',
 		'foo?.forEach(element => bar(element), thisArgument)',
 		'foo?.forEach()',
-		'const baz = foo?.forEach(element => bar(element))',
 		'foo?.forEach(bar)',
+		'const baz = foo?.forEach(element => bar(element))',
 		'foo?.forEach(async function(element) {})',
 		'foo?.forEach(function * (element) {})',
 		'foo?.forEach(() => bar())',
@@ -1130,7 +1130,7 @@ test({
 			parserOptions: globalReturnOptions,
 		},
 		{
-			code: 'return foo.forEach(element => {bar(element)});',
+			code: 'return foo?.forEach(element => {bar(element)});',
 			errors: 1,
 			parserOptions: globalReturnOptions,
 		},

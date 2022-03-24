@@ -308,6 +308,7 @@ function isFunctionParameterVariableReassigned(callbackFunction, context) {
 }
 
 function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
+	const isOptionalChaining = callExpression.callee.optional;
 	const sourceCode = context.getSourceCode();
 	// Check `CallExpression`
 	if (
@@ -320,6 +321,10 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 
 	// Check `CallExpression.parent`
 	if (callExpression.parent.type !== 'ExpressionStatement' && callExpression.parent.type !== 'ChainExpression') {
+		return false;
+	}
+
+	if (isOptionalChaining && callExpression.parent.parent.type !== 'ExpressionStatement') {
 		return false;
 	}
 
