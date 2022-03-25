@@ -62,16 +62,16 @@ module.exports.defaultReplacements = {
 	dist: {
 		distribution: true,
 	},
-	dst: {
-		destination: true,
-		distribution: true,
-	},
 	doc: {
 		document: true,
 	},
 	docs: {
 		documentation: true,
 		documents: true,
+	},
+	dst: {
+		destination: true,
+		distribution: true,
 	},
 	e: {
 		error: true,
