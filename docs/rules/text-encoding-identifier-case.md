@@ -4,11 +4,13 @@
 <!-- RULE_NOTICE -->
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
-💡 *This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*
+🔧💡 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) and provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*
 <!-- /RULE_NOTICE -->
 
 - Enforce `'utf8'` for [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoding.
 - Enforce `'ascii'` for [ASCII](https://en.wikipedia.org/wiki/ASCII) encoding.
+
+This rule only auto-fix encoding in `fs.readFile()` and `fs.readFileSync()`.
 
 ## Fail
 
