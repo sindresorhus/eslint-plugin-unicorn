@@ -6,6 +6,7 @@ const {
 	isSemicolonToken,
 	isClosingParenToken,
 	findVariable,
+	hasSideEffect
 } = require('eslint-utils');
 const {methodCallSelector, referenceIdentifierSelector} = require('./selectors/index.js');
 const {extendFixRange} = require('./fix/index.js');
@@ -240,7 +241,8 @@ function getFixFunction(callExpression, functionInfo, context) {
 		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, sourceCode);
 
 		if (isOptionalChaining) {
-			yield fixer.insertTextBefore(callExpression, `if (${callExpression.callee.object.name}) `);
+			const ifCondition = callExpression.callee.object.type === 'CallExpression' ? sourceCode.getText(callExpression.callee.object) : callExpression.callee.object.name
+			yield fixer.insertTextBefore(callExpression, `if (${ifCondition}) `);
 		}
 
 		// Prevent possible variable conflicts
@@ -307,6 +309,16 @@ function isFunctionParameterVariableReassigned(callbackFunction, context) {
 		});
 }
 
+function isSuggestable(callExpression, context) {
+	const isOptionalChaining = callExpression.callee.optional;
+
+	if (!isOptionalChaining) {
+		return false;
+	}
+
+	return callExpression.callee.object.type === 'CallExpression' && hasSideEffect(callExpression.callee.object, context.getSourceCode());
+}
+
 function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
 	const isOptionalChaining = callExpression.callee.optional;
 	const sourceCode = context.getSourceCode();
@@ -325,6 +337,10 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 	}
 
 	if (isOptionalChaining && callExpression.parent.parent.type !== 'ExpressionStatement') {
+		return false;
+	}
+
+	if (isOptionalChaining && callExpression.callee.object.type !== 'Identifier') {
 		return false;
 	}
 
@@ -417,6 +433,13 @@ const create = context => {
 					problem.fix = getFixFunction(node, functionInfo, context);
 				}
 
+				if (isSuggestable(node, context)) {
+					problem.suggest = [{
+						desc: 'Call function twice because it has no side effects',
+						fix: getFixFunction(node, functionInfo, context),
+					}]
+				}
+
 				yield problem;
 			}
 		},
@@ -433,5 +456,6 @@ module.exports = {
 		},
 		fixable: 'code',
 		messages,
+		hasSuggestions: true,
 	},
 };

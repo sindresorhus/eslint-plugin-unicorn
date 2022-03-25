@@ -422,8 +422,8 @@ test.snapshot({
 		'foo?.forEach(element => bar(element), thisArgument)',
 		'foo?.forEach()',
 		'foo?.forEach(bar)',
-		'const baz = foo?.forEach(element => bar(element))',
 		'foo?.forEach(async function(element) {})',
+		'const baz = foo?.forEach(element => bar(element))',
 		'foo?.forEach(function * (element) {})',
 		'foo?.forEach(() => bar())',
 		'foo?.forEach((element, index, array) => bar())',
@@ -513,7 +513,6 @@ test.snapshot({
 			}
 		`,
 		'a[index]?.forEach((b, index) => bar());',
-		'a((foo) => foo)?.forEach(foo => bar());',
 		'a((foo, index) => foo + index)?.forEach((foo, index) => bar());',
 		outdent`
 			const foo = [];
@@ -818,6 +817,39 @@ test.snapshot({
 test({
 	valid: [],
 	invalid: [
+		{
+			code: 'foo()?.forEach(element => bar(element))',
+			errors: [{
+				suggestions: [{
+					output: 'if (foo()) for (const element of foo())  bar(element)'
+				}]
+			}],
+			parserOptions: {
+				sourceType: 'script',
+			},
+		},
+		{
+			code: 'foo("foo", bar)?.forEach(element => bar(element))',
+			errors: [{
+				suggestions: [{
+					output: 'if (foo("foo", bar)) for (const element of foo("foo", bar))  bar(element)'
+				}]
+			}],
+			parserOptions: {
+				sourceType: 'script',
+			},
+		},
+		{
+			code: 'a((foo) => foo)?.forEach(foo => bar());',
+			errors: [{
+				suggestions: [{
+					output: 'if (a((foo) => foo)) for (const foo of a((foo) => foo))  bar();'
+				}]
+			}],
+			parserOptions: {
+				sourceType: 'script',
+			},
+		},
 		{
 			code: outdent`
 				foo.forEach(function(element) {
