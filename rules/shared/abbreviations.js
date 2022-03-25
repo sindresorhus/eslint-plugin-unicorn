@@ -59,6 +59,13 @@ module.exports.defaultReplacements = {
 	dirs: {
 		directories: true,
 	},
+	dist: {
+		distribution: true,
+	},
+	dst: {
+		destination: true,
+		distribution: true,
+	},
 	doc: {
 		document: true,
 	},
