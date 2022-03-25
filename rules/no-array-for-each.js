@@ -6,7 +6,7 @@ const {
 	isSemicolonToken,
 	isClosingParenToken,
 	findVariable,
-	hasSideEffect
+	hasSideEffect,
 } = require('eslint-utils');
 const {methodCallSelector, referenceIdentifierSelector} = require('./selectors/index.js');
 const {extendFixRange} = require('./fix/index.js');
@@ -241,7 +241,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, sourceCode);
 
 		if (isOptionalChaining) {
-			const ifCondition = callExpression.callee.object.type === 'CallExpression' ? sourceCode.getText(callExpression.callee.object) : callExpression.callee.object.name
+			const ifCondition = callExpression.callee.object.type === 'CallExpression' ? sourceCode.getText(callExpression.callee.object) : callExpression.callee.object.name;
 			yield fixer.insertTextBefore(callExpression, `if (${ifCondition}) `);
 		}
 
@@ -437,7 +437,7 @@ const create = context => {
 					problem.suggest = [{
 						desc: 'Call function twice because it has no side effects',
 						fix: getFixFunction(node, functionInfo, context),
-					}]
+					}];
 				}
 
 				yield problem;
@@ -455,7 +455,7 @@ module.exports = {
 			description: 'Prefer `for…of` over `Array#forEach(…)`.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };
