@@ -70,6 +70,7 @@ module.exports.defaultReplacements = {
 		documents: true,
 	},
 	dst: {
+		daylightSavingTime: true,
 		destination: true,
 		distribution: true,
 	},
