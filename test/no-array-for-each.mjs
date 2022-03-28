@@ -821,8 +821,8 @@ test({
 			code: 'foo()?.forEach(element => bar(element))',
 			errors: [{
 				suggestions: [{
-					output: 'if (foo()) for (const element of foo())  bar(element)'
-				}]
+					output: 'if (foo()) for (const element of foo())  bar(element)',
+				}],
 			}],
 			parserOptions: {
 				sourceType: 'script',
@@ -832,8 +832,8 @@ test({
 			code: 'foo("foo", bar)?.forEach(element => bar(element))',
 			errors: [{
 				suggestions: [{
-					output: 'if (foo("foo", bar)) for (const element of foo("foo", bar))  bar(element)'
-				}]
+					output: 'if (foo("foo", bar)) for (const element of foo("foo", bar))  bar(element)',
+				}],
 			}],
 			parserOptions: {
 				sourceType: 'script',
@@ -843,8 +843,8 @@ test({
 			code: 'a((foo) => foo)?.forEach(foo => bar());',
 			errors: [{
 				suggestions: [{
-					output: 'if (a((foo) => foo)) for (const foo of a((foo) => foo))  bar();'
-				}]
+					output: 'if (a((foo) => foo)) for (const foo of a((foo) => foo))  bar();',
+				}],
 			}],
 			parserOptions: {
 				sourceType: 'script',
