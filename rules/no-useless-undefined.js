@@ -163,7 +163,7 @@ const create = context => {
 				return;
 			}
 
-			// Ignore arguments in `Function#bind()`, but not `this`
+			// Ignore arguments in `Function#bind()`, but not `this` argument
 			if (isFunctionBindCall(node)) {
 				if (argumentNodes.length !== 1) {
 					return;
