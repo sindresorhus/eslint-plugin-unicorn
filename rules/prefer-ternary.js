@@ -202,7 +202,7 @@ const create = context => {
 			}
 
 			const scope = context.getScope();
-			problem.fix = function * fix(fixer) {
+			problem.fix = function * (fixer) {
 				const testText = getText(node.test);
 				const consequentText = typeof result.consequent === 'string'
 					? result.consequent

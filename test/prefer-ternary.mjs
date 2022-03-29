@@ -1324,6 +1324,6 @@ test({
 		{
 			code: 'if (test) {foo = /* comment */1;} else {foo = 2;}',
 			errors,
-		}
+		},
 	],
 });
