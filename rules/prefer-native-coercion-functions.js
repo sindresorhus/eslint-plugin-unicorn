@@ -2,7 +2,7 @@
 const {getFunctionHeadLocation, getFunctionNameWithKind} = require('eslint-utils');
 const {not} = require('./selectors/index.js');
 
-const MESSAGE_ID= 'prefer-native-coercion-functions';
+const MESSAGE_ID = 'prefer-native-coercion-functions';
 const messages = {
 	[MESSAGE_ID]: '{{functionNameWithKind}} is equivalent of `{{replacementFunction}}`, should use `{{replacementFunction}}` directly.',
 };
@@ -47,7 +47,6 @@ const isArrayIdentityCallback = node =>
 	&& node.parent.callee.property.type === 'Identifier'
 	&& arrayMethodsWithBooleanCallback.has(node.parent.callee.property.name);
 
-
 function getCallExpression(node) {
 	const firstParameterName = node.params[0].name;
 
@@ -80,12 +79,11 @@ const functionsSelector = [
 	not([
 		'MethodDefinition[kind="constructor"] > .value',
 		'MethodDefinition[kind="set"] > .value',
-		'Property[kind="set"] > .value'
+		'Property[kind="set"] > .value',
 	]),
 ].join('');
 
-function getArrayCallbackProblem(node, sourceCode) {
-console.log({node, x: isArrayIdentityCallback(node)})
+function getArrayCallbackProblem(node) {
 	if (!isArrayIdentityCallback(node)) {
 		return;
 	}
@@ -103,7 +101,7 @@ function getCoercionFunctionProblem(node, sourceCode) {
 		return;
 	}
 
-	const name = callExpression.callee.name
+	const {name} = callExpression.callee;
 
 	const problem = {replacementFunction: name};
 
@@ -137,7 +135,7 @@ const create = context => {
 
 	return {
 		[functionsSelector](node) {
-			let problem = getArrayCallbackProblem(node, sourceCode) || getCoercionFunctionProblem(node, sourceCode);
+			let problem = getArrayCallbackProblem(node) || getCoercionFunctionProblem(node, sourceCode);
 
 			if (!problem) {
 				return;

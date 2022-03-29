@@ -188,5 +188,5 @@ test.snapshot({
 		// No fix
 		'array.some((v, extra) => v)',
 		'array.some((v, ) => /* comment */ v)',
-	]
-})
+	],
+});
