@@ -54,9 +54,21 @@ test({
 		'createContext(undefined);',
 		'React.createContext(undefined);',
 
+		// `Function#bind()`
+		'foo.bind(bar, undefined)',
+		'foo.bind(...bar, undefined)',
+		'foo.bind(...[], undefined)',
+		'foo.bind(...[undefined], undefined)',
+		'foo.bind(bar, baz, undefined)',
+		'foo?.bind(bar, undefined)',
+
 		// `checkArguments: false`
 		{
 			code: 'foo(undefined, undefined);',
+			options: optionsIgnoreArguments,
+		},
+		{
+			code: 'foo.bind(undefined);',
 			options: optionsIgnoreArguments,
 		},
 	],
@@ -417,5 +429,10 @@ test.snapshot({
 				/* */
 			);
 		`,
+		'foo.bind(undefined)',
+		'bind(foo, undefined)',
+		'foo.bind?.(bar, undefined)',
+		'foo[bind](bar, undefined)',
+		'foo.notBind(bar, undefined)',
 	],
 });
