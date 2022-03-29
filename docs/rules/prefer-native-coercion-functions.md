@@ -24,7 +24,7 @@ if (toNumber(foo) === 1) {}
 ```
 
 ```js
-const hasTrulyValue = array.some(element => element);
+const hasTruthyValue = array.some(element => element);
 ```
 
 ## Pass
@@ -38,7 +38,7 @@ if (Number(foo) === 1) {}
 ```
 
 ```js
-const hasTrulyValue = array.some(Boolean);
+const hasTruthyValue = array.some(Boolean);
 ```
 
 ```js
