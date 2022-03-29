@@ -149,6 +149,12 @@ const create = context => {
 			}
 
 			const argumentNodes = node.arguments;
+
+			// Ignore arguments in `Function#bind()`, but not `this` argument
+			if (isFunctionBindCall(node) && argumentNodes.length !== 1) {
+				return;
+			}
+
 			const undefinedArguments = [];
 			for (let index = argumentNodes.length - 1; index >= 0; index--) {
 				const node = argumentNodes[index];
@@ -161,13 +167,6 @@ const create = context => {
 
 			if (undefinedArguments.length === 0) {
 				return;
-			}
-
-			// Ignore arguments in `Function#bind()`, but not `this` argument
-			if (isFunctionBindCall(node)) {
-				if (argumentNodes.length !== 1) {
-					return;
-				}
 			}
 
 			const firstUndefined = undefinedArguments[0];
