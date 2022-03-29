@@ -10,32 +10,29 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'IIFE with parenthesized arrow function body is considered unreadable.',
 };
 
-
 const selector = [
 	'CallExpression',
 	' > ',
 	'ArrowFunctionExpression.callee',
 	' > ',
-	':not(BlockStatement).body'
+	':not(BlockStatement).body',
 ].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	return {
-		[selector](node) {
-			const sourceCode = context.getSourceCode();
-			if (!isParenthesized(node, sourceCode)) {
-				return;
-			}
+const create = context => ({
+	[selector](node) {
+		const sourceCode = context.getSourceCode();
+		if (!isParenthesized(node, sourceCode)) {
+			return;
+		}
 
-			return {
-				node,
-				loc: toLocation(getParenthesizedRange(node, sourceCode), sourceCode),
-				messageId: MESSAGE_ID_ERROR,
-			};
-		},
-	};
-};
+		return {
+			node,
+			loc: toLocation(getParenthesizedRange(node, sourceCode), sourceCode),
+			messageId: MESSAGE_ID_ERROR,
+		};
+	},
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
