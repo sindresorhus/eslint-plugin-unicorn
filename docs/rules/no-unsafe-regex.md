@@ -55,5 +55,5 @@ const regex = /^\d+(1337|404)*\d+$/i;
 ```
 
 ```js
-const regex = RegExp('a?'.repeat(25) + 'a'.repeat(25));
+const regex = new RegExp('a?'.repeat(25) + 'a'.repeat(25));
 ```
