@@ -5,18 +5,18 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
-		// 'new foo.forEach(element => bar())',
-		// 'forEach(element => bar())',
-		// 'foo.notForEach(element => bar())',
-		// // #1087
-		// 'React.Children.forEach(children, (child) => {});',
-		// 'Children.forEach(children, (child) => {});',
-		// // #1508
-		// outdent`
-		// 	await pIteration.forEach(plugins, async pluginName => {
-		// 		// My other code...
-		// 	});
-		// `,
+		'new foo.forEach(element => bar())',
+		'forEach(element => bar())',
+		'foo.notForEach(element => bar())',
+		// #1087
+		'React.Children.forEach(children, (child) => {});',
+		'Children.forEach(children, (child) => {});',
+		// #1508
+		outdent`
+			await pIteration.forEach(plugins, async pluginName => {
+				// My other code...
+			});
+		`,
 	],
 	invalid: [
 		// Not fixable
@@ -824,6 +824,14 @@ test({
 					output: 'if (foo()) for (const element of foo())  bar(element)',
 				}],
 			}],
+			parserOptions: {
+				sourceType: 'script',
+			},
+		},
+		{
+			code: 'foo.bar?.forEach(element => process(element))',
+			output: 'if (foo.bar) for (const element of foo.bar)  process(element)',
+			errors: 1,
 			parserOptions: {
 				sourceType: 'script',
 			},

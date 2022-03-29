@@ -184,6 +184,11 @@ function getFixFunction(callExpression, functionInfo, context) {
 		return true;
 	};
 
+	const getIfCondition = (calleeObject) => {
+		if (calleeObject.type === 'Identifier') return calleeObject.name
+		return sourceCode.getText(calleeObject)
+	}
+
 	function * removeCallbackParentheses(fixer) {
 		// Opening parenthesis tokens already included in `getForOfLoopHeadRange`
 		const closingParenthesisTokens = getParentheses(callback, sourceCode)
@@ -241,7 +246,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, sourceCode);
 
 		if (isOptionalChaining) {
-			const ifCondition = callExpression.callee.object.type === 'CallExpression' ? sourceCode.getText(callExpression.callee.object) : callExpression.callee.object.name;
+			const ifCondition = callExpression.callee.object.type === 'Identifier' ? callExpression.callee.object.name : sourceCode.getText(callExpression.callee.object)
 			yield fixer.insertTextBefore(callExpression, `if (${ifCondition}) `);
 		}
 
@@ -340,7 +345,7 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 		return false;
 	}
 
-	if (isOptionalChaining && callExpression.callee.object.type !== 'Identifier') {
+	if (isOptionalChaining && callExpression.callee.object.type !== 'Identifier' && callExpression.callee.object.type !== 'MemberExpression') {
 		return false;
 	}
 
