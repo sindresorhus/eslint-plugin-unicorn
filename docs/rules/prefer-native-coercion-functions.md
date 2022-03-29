@@ -23,6 +23,10 @@ function toNumber(value) {
 if (toNumber(foo) === 1) {}
 ```
 
+```js
+const hasTrulyValue = array.some(element => element);
+```
+
 ## Pass
 
 ```js
@@ -31,6 +35,10 @@ const toBoolean = Boolean;
 
 ```js
 if (Number(foo) === 1) {}
+```
+
+```js
+const hasTrulyValue = array.some(Boolean);
 ```
 
 ```js
@@ -50,7 +58,7 @@ const toString = value => '' + value;
 ```
 
 ```js
-const toNumber = value => + value;
+const toNumber = value => +value;
 ```
 
 ```js

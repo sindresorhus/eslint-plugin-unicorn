@@ -8,6 +8,7 @@ const messages = {
 };
 
 const nativeCoercionFunctionNames = new Set(['String', 'Number', 'BigInt', 'Boolean', 'Symbol']);
+const arrayMethodsWithBooleanCallback = new Set(['every', 'filter', 'find', 'findIndex', 'some']);
 
 const isNativeCoercionFunctionCall = (node, firstArgumentName) =>
 	node.type === 'CallExpression'
@@ -16,7 +17,36 @@ const isNativeCoercionFunctionCall = (node, firstArgumentName) =>
 	&& nativeCoercionFunctionNames.has(node.callee.name)
 	&& node.arguments[0]
 	&& node.arguments[0].type === 'Identifier'
-	&& node.arguments[0].name === firstArgumentName
+	&& node.arguments[0].name === firstArgumentName;
+
+const isIdentityFunction = node =>
+	(
+		// `v => v`
+		node.type === 'ArrowFunctionExpression'
+		&& node.body.type === 'Identifier'
+		&& node.body.name === node.params[0].name
+	)
+	|| (
+		// `(v) => {return v;}`
+		// `function (v) {return v;}`
+		node.body.type === 'BlockStatement'
+		&& node.body.body.length === 1
+		&& node.body.body[0].type === 'ReturnStatement'
+		&& node.body.body[0].argument.type === 'Identifier'
+		&& node.body.body[0].argument.name === node.params[0].name
+	);
+
+const isArrayIdentityCallback = node =>
+	isIdentityFunction(node)
+	&& node.parent.type === 'CallExpression'
+	&& !node.parent.optional
+	&& node.parent.arguments[0] === node
+	&& node.parent.callee.type === 'MemberExpression'
+	&& !node.parent.callee.computed
+	&& !node.parent.callee.optional
+	&& node.parent.callee.property.type === 'Identifier'
+	&& arrayMethodsWithBooleanCallback.has(node.parent.callee.property.name);
+
 
 function getCallExpression(node) {
 	const firstParameterName = node.params[0].name;
@@ -41,7 +71,7 @@ function getCallExpression(node) {
 	}
 }
 
-const selector = [
+const functionsSelector = [
 	':function',
 	'[async!=true]',
 	'[generator!=true]',
@@ -54,54 +84,84 @@ const selector = [
 	]),
 ].join('');
 
+function getArrayCallbackProblem(node, sourceCode) {
+console.log({node, x: isArrayIdentityCallback(node)})
+	if (!isArrayIdentityCallback(node)) {
+		return;
+	}
+
+	return {
+		replacementFunction: 'Boolean',
+		fix: fixer => fixer.replaceText(node, 'Boolean'),
+	};
+}
+
+function getCoercionFunctionProblem(node, sourceCode) {
+	const callExpression = getCallExpression(node);
+
+	if (!callExpression) {
+		return;
+	}
+
+	const name = callExpression.callee.name
+
+	const problem = {replacementFunction: name};
+
+	if (node.type === 'FunctionDeclaration' || callExpression.arguments.length !== 1) {
+		return problem;
+	}
+
+	/** @param {import('eslint').Rule.RuleFixer} fixer */
+	problem.fix = fixer => {
+		let text = name;
+
+		if (
+			node.parent.type === 'Property'
+			&& node.parent.method
+			&& node.parent.value === node
+		) {
+			text = `: ${text}`;
+		} else if (node.parent.type === 'MethodDefinition') {
+			text = ` = ${text};`;
+		}
+
+		return fixer.replaceText(node, text);
+	};
+
+	return problem;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	return {
-		[selector](node) {
-			const callExpression = getCallExpression(node);
+	const sourceCode = context.getSourceCode();
 
-			if (!callExpression) {
+	return {
+		[functionsSelector](node) {
+			let problem = getArrayCallbackProblem(node, sourceCode) || getCoercionFunctionProblem(node, sourceCode);
+
+			if (!problem) {
 				return;
 			}
 
-			const name = callExpression.callee.name
+			const {replacementFunction, fix} = problem;
 
-			const sourceCode = context.getSourceCode();
-			const problem = {
+			problem = {
 				node,
 				loc: getFunctionHeadLocation(node, sourceCode),
 				messageId: MESSAGE_ID,
 				data: {
 					functionNameWithKind: getFunctionNameWithKind(node, sourceCode),
-					replacementFunction: name,
+					replacementFunction,
 				},
 			};
 
-			if (
-				node.type === 'FunctionDeclaration'
-				|| sourceCode.getCommentsInside(node).length > 0
-				|| node.params.length !== 1
-				|| callExpression.arguments.length !== 1
-			) {
+			// Do not fix, if there are comments or extra parameters
+			if (!fix || node.params.length !== 1 || sourceCode.getCommentsInside(node).length > 0) {
 				return problem;
 			}
 
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			problem.fix = fixer => {
-				let text = name;
+			problem.fix = fix;
 
-				if (
-					node.parent.type === 'Property'
-					&& node.parent.method
-					&& node.parent.value === node
-				) {
-					text = `: ${text}`;
-				} else if (node.parent.type === 'MethodDefinition') {
-					text = ` = ${text};`;
-				}
-
-				return fixer.replaceText(node, text);
-			};
 			return problem;
 		},
 	};

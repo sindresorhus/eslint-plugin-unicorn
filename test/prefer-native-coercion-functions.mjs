@@ -9,6 +9,7 @@ test.snapshot({
 		'const foo = v => String',
 		'const foo = v => v',
 		'const foo = v => NotString(v)',
+		'const foo = v => String(notFirstParameterName)',
 		'const foo = v => new String(v)',
 		'const foo = v => String?.(v)',
 		'const foo = async function (v) {return String(v);}',
@@ -155,3 +156,37 @@ test.snapshot({
 		'const foo = (v, ) => /* comment */ String(v)',
 	],
 });
+
+// Array callbacks
+test.snapshot({
+	valid: [
+		'array.some?.(v => v)',
+		'array?.some(v => v)',
+		'array.notSome(v => v)',
+		'array.some(callback, v => v)',
+		'some(v => v)',
+		'array.some(v => notFirstParameterName)',
+	],
+	invalid: [
+		'array.every(v => v)',
+		'array.filter(v => v)',
+		'array.find(v => v)',
+		'array.some(v => v)',
+		'array.findIndex(v => v)',
+		'array.some(v => v)',
+		outdent`
+			array.some(v => {
+				return v;
+			})
+		`,
+		outdent`
+			array.some(function (v) {
+				return v;
+			})
+		`,
+
+		// No fix
+		'array.some((v, extra) => v)',
+		'array.some((v, ) => /* comment */ v)',
+	]
+})
