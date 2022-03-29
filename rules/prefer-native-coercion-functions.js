@@ -94,7 +94,7 @@ function getArrayCallbackProblem(node) {
 	};
 }
 
-function getCoercionFunctionProblem(node, sourceCode) {
+function getCoercionFunctionProblem(node) {
 	const callExpression = getCallExpression(node);
 
 	if (!callExpression) {
@@ -130,40 +130,37 @@ function getCoercionFunctionProblem(node, sourceCode) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	const sourceCode = context.getSourceCode();
+const create = context => ({
+	[functionsSelector](node) {
+		let problem = getArrayCallbackProblem(node) || getCoercionFunctionProblem(node);
 
-	return {
-		[functionsSelector](node) {
-			let problem = getArrayCallbackProblem(node) || getCoercionFunctionProblem(node, sourceCode);
+		if (!problem) {
+			return;
+		}
 
-			if (!problem) {
-				return;
-			}
+		const sourceCode = context.getSourceCode();
+		const {replacementFunction, fix} = problem;
 
-			const {replacementFunction, fix} = problem;
+		problem = {
+			node,
+			loc: getFunctionHeadLocation(node, sourceCode),
+			messageId: MESSAGE_ID,
+			data: {
+				functionNameWithKind: getFunctionNameWithKind(node, sourceCode),
+				replacementFunction,
+			},
+		};
 
-			problem = {
-				node,
-				loc: getFunctionHeadLocation(node, sourceCode),
-				messageId: MESSAGE_ID,
-				data: {
-					functionNameWithKind: getFunctionNameWithKind(node, sourceCode),
-					replacementFunction,
-				},
-			};
-
-			// Do not fix, if there are comments or extra parameters
-			if (!fix || node.params.length !== 1 || sourceCode.getCommentsInside(node).length > 0) {
-				return problem;
-			}
-
-			problem.fix = fix;
-
+		// Do not fix, if there are comments or extra parameters
+		if (!fix || node.params.length !== 1 || sourceCode.getCommentsInside(node).length > 0) {
 			return problem;
-		},
-	};
-};
+		}
+
+		problem.fix = fix;
+
+		return problem;
+	},
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
