@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import process from 'node:process';
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -74,8 +73,8 @@ function updateRecommended(id) {
 	fs.writeFileSync(file, updated);
 }
 
-(async () => {
-	const data = await enquirer.prompt([
+async function getData() {
+	const questions = [
 		{
 			type: 'input',
 			name: 'id',
@@ -108,20 +107,8 @@ function updateRecommended(id) {
 			type: 'select',
 			name: 'fixableType',
 			message: 'Is it fixable?',
-			choices: [
-				{
-					message: 'Code',
-					value: 'code',
-				},
-				{
-					message: 'Whitespace',
-					value: 'whitespace',
-				},
-				{
-					message: 'No',
-					value: false,
-				},
-			],
+			choices: ['Code', 'Whitespace', 'No'],
+			result: value => value === 'No' ? false : value.toLowerCase(),
 		},
 		{
 			type: 'select',
@@ -137,55 +124,46 @@ function updateRecommended(id) {
 			type: 'select',
 			name: 'hasSuggestions',
 			message: 'Does it provides suggestions?',
-			choices: [
-				{
-					message: 'Yes',
-					value: true,
-				},
-				{
-					message: 'No',
-					value: false,
-				},
-			],
+			choices: ['Yes', 'No'],
+			result: value => value === 'Yes',
 		},
-	]);
+	];
 
-	if (data.fixableType === 'No') {
-		data.fixableType = false;
-	}
+	const data = await enquirer.prompt(questions);
 
-	data.docTitle = ruleDescriptionToDocumentTitle(data.description);
+	return {
+		...data,
+		docTitle: ruleDescriptionToDocumentTitle(data.description),
+	};
+}
 
-	const {id} = data;
+const data = await getData();
+const {id} = data;
 
-	checkFiles(id);
-	renderTemplate({
-		source: 'documentation.md.jst',
-		target: `docs/rules/${id}.md`,
-		data,
-	});
-	renderTemplate({
-		source: 'rule.js.jst',
-		target: `rules/${id}.js`,
-		data,
-	});
-	renderTemplate({
-		source: 'test.mjs.jst',
-		target: `test/${id}.mjs`,
-		data,
-	});
-	updateRecommended(id);
-
-	try {
-		await execa('code', [
-			'--new-window',
-			'.',
-			`docs/rules/${id}.md`,
-			`rules/${id}.js`,
-			`test/${id}.mjs`,
-		], {cwd: ROOT});
-	} catch {}
-})().catch(error => {
-	console.error(error);
-	process.exit(1);
+checkFiles(id);
+renderTemplate({
+	source: 'documentation.md.jst',
+	target: `docs/rules/${id}.md`,
+	data,
 });
+renderTemplate({
+	source: 'rule.js.jst',
+	target: `rules/${id}.js`,
+	data,
+});
+renderTemplate({
+	source: 'test.mjs.jst',
+	target: `test/${id}.mjs`,
+	data,
+});
+updateRecommended(id);
+
+try {
+	await execa('code', [
+		'--new-window',
+		'.',
+		`docs/rules/${id}.md`,
+		`rules/${id}.js`,
+		`test/${id}.mjs`,
+	], {cwd: ROOT});
+} catch {}
