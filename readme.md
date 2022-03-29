@@ -93,6 +93,7 @@ Each rule has emojis denoting:
 | [no-thenable](docs/rules/no-thenable.md) | Disallow `then` property. | ✅ |  |  |
 | [no-this-assignment](docs/rules/no-this-assignment.md) | Disallow assigning `this` to a variable. | ✅ |  |  |
 | [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) | Disallow unreadable array destructuring. | ✅ | 🔧 |  |
+| [no-unreadable-iife](docs/rules/no-unreadable-iife.md) | Forbid unreadable IIFEs. | ✅ |  |  |
 | [no-unsafe-regex](docs/rules/no-unsafe-regex.md) | Disallow unsafe regular expressions. |  |  |  |
 | [no-unused-properties](docs/rules/no-unused-properties.md) | Disallow unused object properties. |  |  |  |
 | [no-useless-fallback-in-spread](docs/rules/no-useless-fallback-in-spread.md) | Forbid useless fallback when spreading in object literals. | ✅ | 🔧 |  |
