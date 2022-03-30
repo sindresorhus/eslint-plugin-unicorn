@@ -183,10 +183,6 @@ function create(context) {
 
 	for (const {selector, test, getProperty} of fixableArrayReduceCases) {
 		listeners[selector] = node => {
-			// If this listener exits without adding a fix, the `arrayReduceWithEmptyObject` listener
-			// should still add it into the `arrayReduce` map. To be safer, add it here too.
-			arrayReduce.set(node, undefined);
-
 			const [callbackFunction] = node.arguments;
 			if (!test(callbackFunction)) {
 				return;
@@ -210,12 +206,6 @@ function create(context) {
 			);
 		};
 	}
-
-	listeners[arrayReduceWithEmptyObject] = node => {
-		if (!arrayReduce.has(node)) {
-			arrayReduce.set(node, undefined);
-		}
-	};
 
 	listeners['Program:exit'] = () => {
 		for (const [node, fix] of arrayReduce.entries()) {

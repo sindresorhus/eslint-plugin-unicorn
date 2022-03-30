@@ -35,10 +35,6 @@ const object = pairs.reduce(
 ```
 
 ```js
-const object = pairs.reduce(addPairToObject, {});
-```
-
-```js
 const object = _.fromPairs(pairs);
 ```
 
