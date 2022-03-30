@@ -1,7 +1,7 @@
 'use strict';
 const isSameReference = require('../utils/is-same-reference.js');
 const {getParenthesizedRange} = require('../utils/parentheses.js');
-const {isNumberLiteral} = require('./ast/index.js');
+const {isNumberLiteral} = require('../ast/index.js');
 
 const isLengthMemberExpression = node =>
 	node.type === 'MemberExpression'

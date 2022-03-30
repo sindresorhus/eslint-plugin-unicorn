@@ -1,5 +1,6 @@
 'use strict';
 const numeric = require('./utils/numeric.js');
+const {isBigIntLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'numeric-separators-style';
 const messages = {
@@ -105,7 +106,7 @@ const create = context => {
 			const {raw} = node;
 			let number = raw;
 			let suffix = '';
-			if (numeric.isBigInt(node)) {
+			if (isBigIntLiteral(node)) {
 				number = raw.slice(0, -1);
 				suffix = 'n';
 			}

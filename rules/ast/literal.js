@@ -13,17 +13,17 @@ function isLiteral(node, value) {
 }
 
 const isStringLiteral = node => node?.type === 'Literal' && typeof node.value === 'string';
-const isNumberLiteral = node => node.type === 'Literal' && node.value === 'number';
-const isRegexLiteral = node => node.type === 'Literal' && node.regex;
+const isNumberLiteral = node => node.type === 'Literal' && typeof node.value === 'number';
+const isRegexLiteral = node => node.type === 'Literal' && Boolean(node.regex);
 // eslint-disable-next-line unicorn/no-null
 const isNullLiteral = node => isLiteral(node, null);
-const isBigintLiteral = node => node.type === 'Literal' && 'bigint' in node;
+const isBigIntLiteral = node => node.type === 'Literal' && Boolean(node.bigint);
 
 module.exports = {
 	isLiteral,
 	isStringLiteral,
 	isNumberLiteral,
+	isBigIntLiteral,
 	isNullLiteral,
 	isRegexLiteral,
-	isBigintLiteral,
 };

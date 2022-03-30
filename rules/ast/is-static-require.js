@@ -1,6 +1,6 @@
 'use strict';
 
-const isStringLiteral = require('./is-string-literal.js');
+const {isStringLiteral} = require('./literal.js');
 
 const isStaticRequire = node => Boolean(
 	node
