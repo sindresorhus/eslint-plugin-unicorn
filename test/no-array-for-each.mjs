@@ -250,6 +250,7 @@ test.snapshot({
 			},);
 		`,
 		'foo.forEach((element) => bar(element),);',
+		'foo?.bar.forEach((element) => bar(element),);',
 		// Last semi token
 		outdent`
 			foo.forEach((element) => bar(element))
