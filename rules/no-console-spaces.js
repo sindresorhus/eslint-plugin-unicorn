@@ -1,6 +1,7 @@
 'use strict';
 const {methodCallSelector} = require('./selectors/index.js');
 const toLocation = require('./utils/to-location.js');
+const {isStringLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-console-spaces';
 const messages = {
@@ -50,11 +51,7 @@ const create = context => {
 			const {arguments: messages} = node;
 			const {length} = messages;
 			for (const [index, node] of messages.entries()) {
-				const {type, value} = node;
-				if (
-					!(type === 'Literal' && typeof value === 'string')
-					&& type !== 'TemplateLiteral'
-				) {
+				if (!isStringLiteral(node) && node.type !== 'TemplateLiteral') {
 					continue;
 				}
 

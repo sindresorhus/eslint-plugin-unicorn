@@ -2,6 +2,7 @@
 const {isParenthesized} = require('eslint-utils');
 const eventTypes = require('./shared/dom-events.js');
 const {STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors/index.js');
+const {isUndefined, isNullLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-add-event-listener';
 const messages = {
@@ -47,17 +48,7 @@ const shouldFixBeforeUnload = (assignedExpression, nodeReturnsSomething) => {
 	return !nodeReturnsSomething.get(assignedExpression);
 };
 
-const isClearing = node => {
-	if (node.type === 'Literal') {
-		return node.raw === 'null';
-	}
-
-	if (node.type === 'Identifier') {
-		return node.name === 'undefined';
-	}
-
-	return false;
-};
+const isClearing = node => isUndefined(node) || isNullLiteral(node);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {

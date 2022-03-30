@@ -1,6 +1,7 @@
 'use strict';
 const quoteString = require('./utils/quote-string.js');
 const {methodCallSelector} = require('./selectors/index.js');
+const {isRegexLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-string-replace-all';
 const messages = {
@@ -12,15 +13,9 @@ const selector = methodCallSelector({
 	argumentsLength: 2,
 });
 
-function isRegexWithGlobalFlag(node) {
-	const {type, regex} = node;
-	if (type !== 'Literal' || !regex) {
-		return false;
-	}
-
-	const {flags} = regex;
-	return flags.replace('u', '') === 'g';
-}
+const isRegexWithGlobalFlag = node =>
+	isRegexLiteral(node)
+	&& node.regex.flags.replace('u', '') === 'g';
 
 function isLiteralCharactersOnly(node) {
 	const searchPattern = node.regex.pattern;

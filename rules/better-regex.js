@@ -3,6 +3,7 @@ const cleanRegexp = require('clean-regexp');
 const {optimize} = require('regexp-tree');
 const quoteString = require('./utils/quote-string.js');
 const {newExpressionSelector} = require('./selectors/index.js');
+const {isStringLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'better-regex';
 const messages = {
@@ -66,16 +67,12 @@ const create = context => {
 		[newRegExp](node) {
 			const [patternNode, flagsNode] = node.arguments;
 
-			if (typeof patternNode.value !== 'string') {
+			if (isStringLiteral(patternNode)) {
 				return;
 			}
 
 			const oldPattern = patternNode.value;
-			const flags = (
-				flagsNode
-				&& flagsNode.type === 'Literal'
-				&& typeof flagsNode.value === 'string'
-			)
+			const flags = isStringLiteral(flagsNode)
 				? flagsNode.value
 				: '';
 

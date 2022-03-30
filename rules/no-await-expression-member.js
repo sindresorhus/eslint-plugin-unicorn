@@ -3,6 +3,7 @@ const {
 	removeParentheses,
 	removeMemberExpressionProperty,
 } = require('./fix/index.js');
+const {isLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-await-expression-member';
 const messages = {
@@ -25,8 +26,7 @@ const create = context => {
 			if (
 				memberExpression.computed
 				&& !memberExpression.optional
-				&& property.type === 'Literal'
-				&& (property.value === 0 || property.value === 1)
+				&& (isLiteral(property, 0) || isLiteral(property, 1))
 				&& memberExpression.parent.type === 'VariableDeclarator'
 				&& memberExpression.parent.init === memberExpression
 				&& memberExpression.parent.id.type === 'Identifier'

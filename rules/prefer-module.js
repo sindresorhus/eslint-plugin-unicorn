@@ -1,9 +1,9 @@
 'use strict';
 const {isOpeningParenToken} = require('eslint-utils');
 const isShadowed = require('./utils/is-shadowed.js');
-const isStaticRequire = require('./utils/is-static-require.js');
 const assertToken = require('./utils/assert-token.js');
 const {referenceIdentifierSelector} = require('./selectors/index.js');
+const {isStaticRequire} = require('./ast/index.js');
 const {
 	removeParentheses,
 	replaceReferenceIdentifier,

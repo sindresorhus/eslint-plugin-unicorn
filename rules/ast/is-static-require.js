@@ -1,5 +1,7 @@
 'use strict';
 
+const isStringLiteral = require('./is-string-literal.js');
+
 const isStaticRequire = node => Boolean(
 	node
 	&& node.type === 'CallExpression'
@@ -8,8 +10,7 @@ const isStaticRequire = node => Boolean(
 	&& node.callee.name === 'require'
 	&& !node.optional
 	&& node.arguments.length === 1
-	&& node.arguments[0].type === 'Literal'
-	&& typeof node.arguments[0].value === 'string',
+	&& isStringLiteral(node.arguments[0]),
 );
 
 module.exports = isStaticRequire;

@@ -36,7 +36,7 @@ For examples:
 function getStaticPropertyName(node) {
 	let property;
 
-	switch (node && node.type) {
+	switch (node?.type) {
 		case 'MemberExpression':
 			property = node.property;
 			break;

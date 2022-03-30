@@ -1,6 +1,7 @@
 'use strict';
 const isSameReference = require('../utils/is-same-reference.js');
 const {getParenthesizedRange} = require('../utils/parentheses.js');
+const {isNumberLiteral} = require('./ast/index.js');
 
 const isLengthMemberExpression = node =>
 	node.type === 'MemberExpression'
@@ -9,8 +10,7 @@ const isLengthMemberExpression = node =>
 	&& node.property.type === 'Identifier'
 	&& node.property.name === 'length';
 const isLiteralPositiveNumber = node =>
-	node.type === 'Literal'
-	&& typeof node.value === 'number'
+	isNumberLiteral(node)
 	&& node.value > 0;
 
 function getNegativeIndexLengthNode(node, objectNode) {

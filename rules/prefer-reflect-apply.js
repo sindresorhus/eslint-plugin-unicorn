@@ -1,7 +1,7 @@
 'use strict';
 const {getPropertyName} = require('eslint-utils');
 const {not, methodCallSelector} = require('./selectors/index.js');
-const {isLiteral} = require('./ast/index.js');
+const {isNullLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-reflect-apply';
 const messages = {
@@ -15,8 +15,7 @@ const selector = [
 
 const isApplySignature = (argument1, argument2) => (
 	(
-		// eslint-disable-next-line unicorn/no-null
-		isLiteral(argument1, null)
+		isNullLiteral(argument1)
 		|| argument1.type === 'ThisExpression'
 	)
 	&& (
@@ -49,8 +48,7 @@ const fixFunctionPrototypeCall = (node, sourceCode) => {
 		getPropertyName(node.callee) === 'call'
 		&& getPropertyName(node.callee.object) === 'apply'
 		&& getPropertyName(node.callee.object.object) === 'prototype'
-		&& node.callee.object.object.object
-		&& node.callee.object.object.object.type === 'Identifier'
+		&& node.callee.object.object.object?.type === 'Identifier'
 		&& node.callee.object.object.object.name === 'Function'
 		&& node.arguments.length === 3
 		&& isApplySignature(node.arguments[1], node.arguments[2])
