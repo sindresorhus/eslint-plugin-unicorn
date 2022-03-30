@@ -17,6 +17,7 @@ test.snapshot({
 		'const foo = async function * (v) {return String(v);}',
 		'const foo = function * (v) {yield String(v);}',
 		'const foo = async function (v) {await String(v);}',
+		'const foo = function (v) {return;}',
 		outdent`
 			function foo(v) {
 				'use strict';
@@ -166,6 +167,19 @@ test.snapshot({
 		'array.some(callback, v => v)',
 		'some(v => v)',
 		'array.some(v => notFirstParameterName)',
+		'array.some(function(v) {return notFirstParameterName;})',
+		'array.some(function(v) {return;})',
+		'array.some(function(v) {return v.v;})',
+		outdent`
+			const identity = v => v;
+			array.some(identity)
+		`,
+		outdent`
+			array.some(function(v) {
+				"use strict";
+				return v;
+			})
+		`,
 	],
 	invalid: [
 		'array.every(v => v)',
