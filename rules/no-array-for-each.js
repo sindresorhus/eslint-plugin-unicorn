@@ -302,6 +302,14 @@ function isFunctionParameterVariableReassigned(callbackFunction, context) {
 		});
 }
 
+const isExpressionStatement = node => {
+	if (node.type === 'ChainExpression') {
+		node = node.parent;
+	}
+
+	return node.type === 'ExpressionStatement';
+};
+
 function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
 	const sourceCode = context.getSourceCode();
 	// Check `CallExpression`
@@ -313,14 +321,12 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 		return false;
 	}
 
-	// Check `CallExpression.parent`
-	if (callExpression.parent.type !== 'ExpressionStatement') {
+	// Check ancestors, we only fix `ExpressionStatement`
+	if (!isExpressionStatement(callExpression.parent)) {
 		return false;
 	}
 
 	// Check `CallExpression.callee`
-	// Because of `ChainExpression` wrapper, `foo?.forEach()` is already failed on previous check keep this just for safety
-	/* c8 ignore next 3 */
 	if (callExpression.callee.optional) {
 		return false;
 	}
