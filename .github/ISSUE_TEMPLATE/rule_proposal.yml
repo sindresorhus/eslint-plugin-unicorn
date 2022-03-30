@@ -26,6 +26,7 @@ body:
         ```js
         var replace = 'me';
         ```
+
         ```js
         function foo() {
           var replace = 'me';
@@ -42,8 +43,13 @@ body:
         ```js
         const replace = 'me';
         ```
+
         ```js
         function foo() {
           return 'me';
         }
         ```
+  - type: textarea
+    attributes:
+      label: Additional Info
+      description: Additional Info
