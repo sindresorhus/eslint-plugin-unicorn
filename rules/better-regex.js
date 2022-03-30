@@ -67,7 +67,7 @@ const create = context => {
 		[newRegExp](node) {
 			const [patternNode, flagsNode] = node.arguments;
 
-			if (isStringLiteral(patternNode)) {
+			if (!isStringLiteral(patternNode)) {
 				return;
 			}
 
