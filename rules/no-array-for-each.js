@@ -302,7 +302,7 @@ function isFunctionParameterVariableReassigned(callbackFunction, context) {
 		});
 }
 
-const isExpressionStatement = (node) => {
+const isExpressionStatement = node => {
 	if (node.type === 'ChainExpression') {
 		node = node.parent;
 	}
