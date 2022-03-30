@@ -10,10 +10,7 @@ const messages = {
 	[MESSAGE_ID]: '{{original}} can be optimized to {{optimized}}.',
 };
 
-const newRegExp = [
-	newExpressionSelector({name: 'RegExp', minimumArguments: 1}),
-	'[arguments.0.type="Literal"]',
-].join('');
+const newRegExp = newExpressionSelector({name: 'RegExp', minimumArguments: 1});
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
