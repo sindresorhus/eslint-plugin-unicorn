@@ -12,7 +12,6 @@ jobs:
         node-version:
           - 16
           - 14
-          - 12
         os:
           - ubuntu-latest
           - windows-latest
@@ -31,8 +30,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-        with:
-          node-version: 16
       - run: npm install
       - run: npm run lint
       # Force update snapshots, https://github.com/avajs/ava/discussions/2754
