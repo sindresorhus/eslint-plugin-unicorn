@@ -1,11 +1,11 @@
 'use strict';
 const {isClosingParenToken, getStaticValue} = require('eslint-utils');
-const isLiteralValue = require('./utils/is-literal-value.js');
 const avoidCapture = require('./utils/avoid-capture.js');
 const getScopes = require('./utils/get-scopes.js');
 const singular = require('./utils/singular.js');
 const toLocation = require('./utils/to-location.js');
 const getReferences = require('./utils/get-references.js');
+const {isLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-for-loop';
 const messages = {
@@ -13,8 +13,8 @@ const messages = {
 };
 
 const defaultElementName = 'element';
-const isLiteralZero = node => isLiteralValue(node, 0);
-const isLiteralOne = node => isLiteralValue(node, 1);
+const isLiteralZero = node => isLiteral(node, 0);
+const isLiteralOne = node => isLiteral(node, 1);
 
 const isIdentifierWithName = (node, name) => node && node.type === 'Identifier' && node.name === name;
 

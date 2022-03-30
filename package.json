@@ -11,7 +11,7 @@
 		"url": "https://sindresorhus.com"
 	},
 	"engines": {
-		"node": ">=12"
+		"node": ">=14"
 	},
 	"scripts": {
 		"create-rule": "node ./scripts/create-rule.mjs && npm run generate-rule-notices && npm run generate-rules-table",

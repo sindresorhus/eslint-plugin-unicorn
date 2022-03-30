@@ -1,7 +1,7 @@
 'use strict';
 const {getPropertyName} = require('eslint-utils');
-const isLiteralValue = require('./utils/is-literal-value.js');
 const {not, methodCallSelector} = require('./selectors/index.js');
+const {isLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-reflect-apply';
 const messages = {
@@ -16,7 +16,7 @@ const selector = [
 const isApplySignature = (argument1, argument2) => (
 	(
 		// eslint-disable-next-line unicorn/no-null
-		isLiteralValue(argument1, null)
+		isLiteral(argument1, null)
 		|| argument1.type === 'ThisExpression'
 	)
 	&& (

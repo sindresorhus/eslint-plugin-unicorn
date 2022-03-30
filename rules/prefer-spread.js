@@ -4,13 +4,13 @@ const {methodCallSelector, not} = require('./selectors/index.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const {getParenthesizedRange, getParenthesizedText} = require('./utils/parentheses.js');
 const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument.js');
-const isLiteralValue = require('./utils/is-literal-value.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 const {
 	replaceNodeOrTokenAndSpacesBefore,
 	removeSpacesAfter,
 	removeMethodCall,
 } = require('./fix/index.js');
+const {isLiteral} = require('./ast/index.js');
 
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
@@ -421,7 +421,7 @@ const create = context => {
 			}
 
 			const [firstArgument] = node.arguments;
-			if (firstArgument && !isLiteralValue(firstArgument, 0)) {
+			if (firstArgument && !isLiteral(firstArgument, 0)) {
 				return;
 			}
 
@@ -433,7 +433,7 @@ const create = context => {
 		},
 		[stringSplitCallSelector](node) {
 			const [separator] = node.arguments;
-			if (!isLiteralValue(separator, '')) {
+			if (!isLiteral(separator, '')) {
 				return;
 			}
 
