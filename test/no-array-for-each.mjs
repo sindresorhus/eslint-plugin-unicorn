@@ -196,6 +196,7 @@ test.snapshot({
 				bar(arguments)
 			})
 		`,
+		'a = foo?.bar.forEach((element) => bar(element));',
 
 		// Auto-fix
 		outdent`
@@ -230,6 +231,7 @@ test.snapshot({
 			});
 		`,
 		'foo.forEach((element, index) => bar(element, index));',
+		'foo?.bar.forEach((element) => bar(element));',
 		// Array is parenthesized
 		'(foo).forEach((element, index) => bar(element, index))',
 		'(0, foo).forEach((element, index) => bar(element, index))',
@@ -250,7 +252,6 @@ test.snapshot({
 			},);
 		`,
 		'foo.forEach((element) => bar(element),);',
-		'foo?.bar.forEach((element) => bar(element),);',
 		// Last semi token
 		outdent`
 			foo.forEach((element) => bar(element))
