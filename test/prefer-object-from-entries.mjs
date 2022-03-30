@@ -140,24 +140,6 @@ test.snapshot({
 	],
 });
 
-// Non-fixable `Array#reduce()`
-test.snapshot({
-	valid: [
-		'pairs.reduce()',
-		'pairs.reduce(callback, {}, extraArgument)',
-		'pairs.reduce?.(callback, {})',
-		'pairs?.reduce(callback, {})',
-		'pairs.notReduce(callback, {})',
-		'pairs[reduce](callback, {})',
-		'pairs.reduce(...callback, {})',
-	],
-	invalid: [
-		'pairs.reduce(callback, {})',
-		'pairs.reduce(callback, Object.create(null))',
-		'pairs.reduce(async function * () {}, {})',
-	],
-});
-
 // Functions
 test.snapshot({
 	valid: [
