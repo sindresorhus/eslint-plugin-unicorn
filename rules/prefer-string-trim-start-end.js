@@ -10,6 +10,7 @@ const selector = [
 	methodCallSelector({
 		methods: ['trimLeft', 'trimRight'],
 		argumentsLength: 0,
+		includeOptionalMember: true,
 	}),
 	' > .callee',
 	' > .property',
