@@ -76,7 +76,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Forbid member access from await expression.',
+			description: 'Disallow member access from await expression.',
 		},
 		fixable: 'code',
 		messages,
