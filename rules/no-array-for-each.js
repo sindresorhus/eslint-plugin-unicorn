@@ -12,6 +12,7 @@ const {methodCallSelector, referenceIdentifierSelector} = require('./selectors/i
 const {extendFixRange} = require('./fix/index.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression.js');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 const {getParentheses} = require('./utils/parentheses.js');
 const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
@@ -95,7 +96,16 @@ function getFixFunction(callExpression, functionInfo, context) {
 		text += useEntries ? `[${indexText}, ${elementText}]` : elementText;
 		text += ' of ';
 
-		text += isParenthesized(array, sourceCode) ? `(${arrayText})` : arrayText;
+		const shouldAddParenthesesToArray
+			= isParenthesized(array, sourceCode)
+			|| (
+				// `1?.forEach()` -> `(1).entries()`
+				isOptionalArray
+				&& useEntries
+				&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+			);
+
+		text += shouldAddParenthesesToArray ? `(${arrayText})` : arrayText;
 
 		if (useEntries) {
 			text += '.entries()';
