@@ -317,6 +317,7 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 	// Check `CallExpression`
 	if (
 		callExpression.optional
+		// TODO: Parenthesized should also be fixable.
 		|| isParenthesized(callExpression, sourceCode)
 		|| callExpression.arguments.length !== 1
 	) {
