@@ -7,7 +7,7 @@
 🔧💡 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) and provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*
 <!-- /RULE_NOTICE -->
 
-The rule forbids using the `thisArg` argument in array methods:
+The rule disallows using the `thisArg` argument in array methods:
 
 - If the callback is an arrow function or a bound function, the `thisArg` won't affect it.
 - If you intent to use a custom `this` in the callback, it's better to use the variable directly or use `callback.bind(thisArg)`.
