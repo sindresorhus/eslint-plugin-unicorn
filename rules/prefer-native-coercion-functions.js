@@ -170,7 +170,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer use `String`, `Number`, `BigInt`, `Boolean`, and `Symbol` directly.',
+			description: 'Prefer using `String`, `Number`, `BigInt`, `Boolean`, and `Symbol` directly.',
 		},
 		fixable: 'code',
 		messages,
