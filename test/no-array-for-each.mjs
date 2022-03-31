@@ -426,7 +426,7 @@ test.snapshot({
 			'if (true) {} else[foo].forEach((element) => {})',
 		].flatMap(code => [code, code.replace('.forEach', '?.forEach')]),
 
-		// No syntax error
+		// Should not fix to invalid code
 		'1?.forEach((a, b) => call(a, b))',
 	],
 });
