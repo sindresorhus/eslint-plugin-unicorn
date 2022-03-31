@@ -5,7 +5,7 @@ const toLocation = require('../../rules/utils/to-location.js');
 
 const messageId = path.basename(__filename, '.js');
 
-const selector = [
+const messageSelector = [
 	matches([
 		// `const messages = {...}`;
 		[
@@ -28,6 +28,15 @@ const selector = [
 	'Literal.value',
 ].join('');
 
+const descriptionSelector = [
+	'Property',
+	'[computed!=true]',
+	' > ',
+	'Literal.value',
+].join('');
+
+const selector = matches([messageSelector, descriptionSelector]);
+
 const words = [
 	{word: 'forbid', replacement: 'disallow'},
 	{word: 'forbidden', replacement: 'disallowed'},
@@ -45,7 +54,7 @@ module.exports = {
 				const message = node.raw.slice(1, -1);
 				const lowerCased = message.toLowerCase();
 
-				for (const {word, replacement} of words) {
+				for (let {word, replacement} of words) {
 					const index = lowerCased.indexOf(word);
 
 					if (index === -1) {
@@ -54,16 +63,14 @@ module.exports = {
 
 					const range = [index, index + word.length];
 					const original = message.slice(...range);
-					const isUpperCased = /^[A-Z]/.test(original);
+					replacement = /^[A-Z]/.test(original) ? replacement[0].toUpperCase() + replacement.slice(1) : replacement;
 
 					context.report({
 						node,
 						loc: toLocation(range, context.getSourceCode()),
 						messageId,
-						data: {
-							original,
-							replacement: isUpperCased ? replacement[0].toUpperCase() + replacement.slice(1) : replacement,
-						},
+						data: {original, replacement},
+						fix: fixer => fixer.replaceTextRange(range, replacement),
 					});
 
 					// Only report one problem
@@ -74,7 +81,7 @@ module.exports = {
 	},
 	meta: {
 		messages: {
-			[messageId]: 'Prefer use `{{replacement}}` over `{{original}}` in error message.',
+			[messageId]: 'Prefer use `{{replacement}}` over `{{original}}` in error message and rule description.',
 		},
 	},
 };
