@@ -73,7 +73,7 @@ Each rule has emojis denoting:
 | [no-array-method-this-argument](docs/rules/no-array-method-this-argument.md) | Disallow using the `this` argument in array methods. | ✅ | 🔧 | 💡 |
 | [no-array-push-push](docs/rules/no-array-push-push.md) | Enforce combining multiple `Array#push()` into one call. | ✅ | 🔧 | 💡 |
 | [no-array-reduce](docs/rules/no-array-reduce.md) | Disallow `Array#reduce()` and `Array#reduceRight()`. | ✅ |  |  |
-| [no-await-expression-member](docs/rules/no-await-expression-member.md) | Forbid member access from await expression. | ✅ | 🔧 |  |
+| [no-await-expression-member](docs/rules/no-await-expression-member.md) | Disallow member access from await expression. | ✅ | 🔧 |  |
 | [no-console-spaces](docs/rules/no-console-spaces.md) | Do not use leading/trailing space between `console.log` parameters. | ✅ | 🔧 |  |
 | [no-document-cookie](docs/rules/no-document-cookie.md) | Do not use `document.cookie` directly. | ✅ |  |  |
 | [no-empty-file](docs/rules/no-empty-file.md) | Disallow empty files. | ✅ |  |  |
@@ -89,13 +89,14 @@ Each rule has emojis denoting:
 | [no-null](docs/rules/no-null.md) | Disallow the use of the `null` literal. | ✅ | 🔧 | 💡 |
 | [no-object-as-default-parameter](docs/rules/no-object-as-default-parameter.md) | Disallow the use of objects as default parameters. | ✅ |  |  |
 | [no-process-exit](docs/rules/no-process-exit.md) | Disallow `process.exit()`. | ✅ |  |  |
-| [no-static-only-class](docs/rules/no-static-only-class.md) | Forbid classes that only have static members. | ✅ | 🔧 |  |
+| [no-static-only-class](docs/rules/no-static-only-class.md) | Disallow classes that only have static members. | ✅ | 🔧 |  |
 | [no-thenable](docs/rules/no-thenable.md) | Disallow `then` property. | ✅ |  |  |
 | [no-this-assignment](docs/rules/no-this-assignment.md) | Disallow assigning `this` to a variable. | ✅ |  |  |
 | [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) | Disallow unreadable array destructuring. | ✅ | 🔧 |  |
+| [no-unreadable-iife](docs/rules/no-unreadable-iife.md) | Disallow unreadable IIFEs. | ✅ |  |  |
 | [no-unsafe-regex](docs/rules/no-unsafe-regex.md) | Disallow unsafe regular expressions. |  |  |  |
 | [no-unused-properties](docs/rules/no-unused-properties.md) | Disallow unused object properties. |  |  |  |
-| [no-useless-fallback-in-spread](docs/rules/no-useless-fallback-in-spread.md) | Forbid useless fallback when spreading in object literals. | ✅ | 🔧 |  |
+| [no-useless-fallback-in-spread](docs/rules/no-useless-fallback-in-spread.md) | Disallow useless fallback when spreading in object literals. | ✅ | 🔧 |  |
 | [no-useless-length-check](docs/rules/no-useless-length-check.md) | Disallow useless array length check. | ✅ | 🔧 |  |
 | [no-useless-promise-resolve-reject](docs/rules/no-useless-promise-resolve-reject.md) | Disallow returning/yielding `Promise.resolve/reject()` in async functions or promise callbacks | ✅ | 🔧 |  |
 | [no-useless-spread](docs/rules/no-useless-spread.md) | Disallow unnecessary spread. | ✅ | 🔧 |  |

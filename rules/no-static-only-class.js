@@ -221,7 +221,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Forbid classes that only have static members.',
+			description: 'Disallow classes that only have static members.',
 		},
 		fixable: 'code',
 		messages,

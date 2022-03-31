@@ -62,7 +62,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Forbid useless fallback when spreading in object literals.',
+			description: 'Disallow useless fallback when spreading in object literals.',
 		},
 		fixable: 'code',
 		messages,

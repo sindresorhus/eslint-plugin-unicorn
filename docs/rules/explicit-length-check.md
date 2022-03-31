@@ -42,7 +42,7 @@ const isEmpty = 1 > foo.length;
 ```
 
 ```js
-// Negative style is forbidden too
+// Negative style is disallowed too
 const isEmpty = !(foo.length > 0);
 ```
 
@@ -107,7 +107,7 @@ const isNotEmpty = Boolean(foo.length);
 ```
 
 ```js
-// Negative style is forbidden too
+// Negative style is disallowed too
 const isNotEmpty = !(foo.length === 0);
 ```
 
