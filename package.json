@@ -161,12 +161,9 @@
 				"files": [
 					"rules/**/*.js"
 				],
-				"plugins": [
-					"internal-rules"
-				],
-				"rules": {
-					"internal-rules/prefer-negative-boolean-attribute": "error"
-				}
+				"extends": [
+					"plugin:internal-rules/all"
+				]
 			}
 		]
 	},
