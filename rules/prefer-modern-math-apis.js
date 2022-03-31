@@ -130,7 +130,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer modern `Math` apis over legacy algorithm.',
+			description: 'Prefer modern `Math` APIs over legacy patterns.',
 		},
 		fixable: 'code',
 		messages,
