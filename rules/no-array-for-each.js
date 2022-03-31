@@ -39,6 +39,11 @@ const continueAbleNodeTypes = new Set([
 	'ForInStatement',
 ]);
 
+const stripChainExpression = node =>
+	(node.parent.type === 'ChainExpression' && node.parent.expression === node)
+		? node.parent
+		: node;
+
 function isReturnStatementInContinueAbleNodes(returnStatement, callbackFunction) {
 	for (let node = returnStatement; node && node !== callbackFunction; node = node.parent) {
 		if (continueAbleNodeTypes.has(node.type)) {
@@ -77,7 +82,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 	const array = callExpression.callee.object;
 	const {returnStatements} = functionInfo.get(callback);
 	const isOptionalArray = callExpression.callee.optional;
-	const expressionStatement = getExpressionStatement(callExpression);
+	const expressionStatement = stripChainExpression(callExpression).parent;
 	const arrayText = sourceCode.getText(array);
 
 	const getForOfLoopHeadText = () => {
@@ -307,19 +312,6 @@ function isFunctionParameterVariableReassigned(callbackFunction, context) {
 		});
 }
 
-const isExpressionStatement = node => {
-	if (node.type === 'ChainExpression') {
-		node = node.parent;
-	}
-
-	return node.type === 'ExpressionStatement';
-};
-
-const getExpressionStatement = node =>
-	node.parent.type === 'ChainExpression'
-		? node.parent.parent
-		: node.parent;
-
 function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
 	const sourceCode = context.getSourceCode();
 	// Check `CallExpression`
@@ -332,7 +324,7 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 	}
 
 	// Check ancestors, we only fix `ExpressionStatement`
-	if (!isExpressionStatement(callExpression.parent)) {
+	if (stripChainExpression(callExpression).parent.type !== 'ExpressionStatement') {
 		return false;
 	}
 
