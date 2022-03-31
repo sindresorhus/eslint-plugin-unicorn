@@ -1,4 +1,4 @@
-# Forbid classes that only have static members
+# Disallow classes that only have static members
 
 <!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->
