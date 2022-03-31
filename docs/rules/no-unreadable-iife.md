@@ -5,7 +5,7 @@
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 <!-- /RULE_NOTICE -->
 
-IIFE with parenthesized arrow function body is considered unreadable.
+[IIFE](https://en.wikipedia.org/wiki/Immediately_invoked_function_expression) with parenthesized arrow function body is considered unreadable.
 
 ## Fail
 
