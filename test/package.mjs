@@ -64,7 +64,7 @@ const RULES_WITHOUT_PASS_FAIL_SECTIONS = new Set([
 	// Doesn't show code samples since it's just focused on filenames.
 	'filename-case',
 	// Intended to not use `pass`/`fail` section in this rule.
-	'prefer-modern-math-api',
+	'prefer-modern-math-apis',
 ]);
 
 test('Every rule is defined in index file in alphabetical order', t => {
