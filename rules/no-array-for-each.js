@@ -422,7 +422,7 @@ const create = context => {
 
 				const problem = {
 					node: array.property,
-					messageId: MESSAGE_ID,
+					messageId: MESSAGE_ID_ERROR,
 				};
 
 				if (!isFixable(node, {scope, allIdentifiers, functionInfo, context})) {
