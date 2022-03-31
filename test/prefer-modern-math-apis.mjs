@@ -6,7 +6,6 @@ const {test} = getTester(import.meta);
 // `Math.log10()` and `Math.log2()`
 test.snapshot({
 	valid: [
-		'Math.log(x) * Math.LOG10E',
 		'Math.LOG10E * Math.LOG10E',
 		'Math.log(x) * Math[LOG10E]',
 		'Math.log(x) * LOG10E',
@@ -25,7 +24,6 @@ test.snapshot({
 		'Math.log(x, extraArgument) * Math.LOG10E',
 		'Math.log(...x) * Math.LOG10E',
 
-		'Math.log(x) / Math.LN10',
 		'Math.log(x) / LN10',
 		'Math.log(x) /Math[LN10]',
 		'Math.log(x) / LN10',
