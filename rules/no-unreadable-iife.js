@@ -40,7 +40,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Forbid unreadable IIFEs.',
+			description: 'Disallow unreadable IIFEs.',
 		},
 		hasSuggestions: false,
 		messages,
