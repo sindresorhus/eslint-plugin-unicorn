@@ -6,6 +6,7 @@ const {test} = getTester(import.meta);
 test.snapshot({
 	valid: [
 		'foo.trimStart()',
+		'foo.trimStart?.()',
 		'foo.trimEnd()',
 		// Not `CallExpression`
 		'new foo.trimLeft();',
@@ -40,6 +41,6 @@ test.snapshot({
 					/* comment */
 				)
 		`,
-		'foo.trimLeft()',
+		'foo?.trimLeft()',
 	],
 });

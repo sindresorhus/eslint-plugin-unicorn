@@ -14,7 +14,7 @@ const selector = [
 	notDomNodeSelector('callee.object'),
 ].join('');
 
-const forbiddenIdentifierNames = new Map([
+const disallowedIdentifierNames = new Map([
 	['getElementById', 'querySelector'],
 	['getElementsByClassName', 'querySelectorAll'],
 	['getElementsByTagName', 'querySelectorAll'],
@@ -103,7 +103,7 @@ const fix = (node, identifierName, preferredSelector) => {
 const create = () => ({
 	[selector](node) {
 		const method = node.callee.property.name;
-		const preferredSelector = forbiddenIdentifierNames.get(method);
+		const preferredSelector = disallowedIdentifierNames.get(method);
 
 		const problem = {
 			node: node.callee.property,

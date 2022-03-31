@@ -52,6 +52,7 @@ module.exports = {
 		'unicorn/no-thenable': 'error',
 		'unicorn/no-this-assignment': 'error',
 		'unicorn/no-unreadable-array-destructuring': 'error',
+		'unicorn/no-unreadable-iife': 'error',
 		'unicorn/no-unsafe-regex': 'off',
 		'unicorn/no-unused-properties': 'off',
 		'unicorn/no-useless-fallback-in-spread': 'error',
@@ -114,7 +115,7 @@ module.exports = {
 		// See #1396
 		'unicorn/require-post-message-target-origin': 'off',
 		'unicorn/string-content': 'off',
-		'unicorn/template-indent': 'warn',
+		'unicorn/template-indent': 'error',
 		'unicorn/text-encoding-identifier-case': 'error',
 		'unicorn/throw-new-error': 'error',
 	},
