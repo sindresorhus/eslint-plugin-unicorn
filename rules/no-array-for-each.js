@@ -317,8 +317,8 @@ const isExpressionStatement = node => {
 
 const getExpressionStatement = node =>
 	node.parent.type === 'ChainExpression'
-	? node.parent.parent
-	: node.parent;
+		? node.parent.parent
+		: node.parent;
 
 function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
 	const sourceCode = context.getSourceCode();
@@ -438,8 +438,8 @@ const create = context => {
 						{
 							messageId: MESSAGE_ID_SUGGESTION,
 							fix,
-						}
-					]
+						},
+					];
 				} else {
 					problem.fix = fix;
 				}

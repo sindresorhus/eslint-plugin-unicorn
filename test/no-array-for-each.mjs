@@ -418,7 +418,7 @@ test.snapshot({
 			// Need insert space after keyword
 			'if (true) {} else[foo].forEach((element) => {})',
 		].flatMap(code => [code, code.replace('.forEach', '?.forEach')]),
-	]
+	],
 });
 
 test({
