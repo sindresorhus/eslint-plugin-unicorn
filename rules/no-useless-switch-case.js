@@ -15,28 +15,47 @@ const isEmptySwitchCase = node => node.consequent.every(node => isEmptyNode(node
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	return {
-		SwitchStatement(switchStatement) {
+		*'SwitchStatement[cases.length>1]'(switchStatement) {
 			const {cases} = switchStatement;
-			const node = cases.find(
-				(switchCase, index) => isEmptySwitchCase(switchCase) && cases[index + 1] && cases[index + 1].test === null
-			);
 
-			if (!node) {
+			// `typescript` allow multiple `default` cases
+			const defaultCases = cases.filter(switchCase => switchCase.test === null);
+			if (defaultCases.length !== 1) {
 				return;
 			}
 
-			return {
-				node: node,
-				loc: getSwitchCaseHeadLocation(node, context.getSourceCode()),
-				messageId: MESSAGE_ID_ERROR,
-				suggest: [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						/** @param {import('eslint').Rule.RuleFixer} fixer */
-						fix: fixer => fixer.remove(node),
-					}
-				],
-			};
+			const [defaultCase] = defaultCases;
+
+			// We only check cases that the last case is `default` case
+			if (defaultCase !== cases[cases.length - 1]) {
+				return;
+			}
+
+			const uselessCases = [];
+
+			for (let index = cases.length - 2; index >= 0; index --) {
+				const node = cases[index];
+				if (isEmptySwitchCase(node)) {
+					uselessCases.unshift(node);
+				} else {
+					break;
+				}
+			}
+
+			for (const node of uselessCases) {
+				yield {
+					node: node,
+					loc: getSwitchCaseHeadLocation(node, context.getSourceCode()),
+					messageId: MESSAGE_ID_ERROR,
+					suggest: [
+						{
+							messageId: MESSAGE_ID_SUGGESTION,
+							/** @param {import('eslint').Rule.RuleFixer} fixer */
+							fix: fixer => fixer.remove(node),
+						}
+					],
+				};
+			}
 		},
 	};
 };

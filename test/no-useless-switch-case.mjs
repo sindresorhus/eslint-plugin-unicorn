@@ -33,16 +33,6 @@ test.snapshot({
 					break;
 			}
 		`,
-	],
-	invalid: [
-		outdent`
-			switch (foo) {
-				case a:
-				default:
-					handleDefaultCase();
-					break;
-			}
-		`,
 		outdent`
 			switch (foo) {
 				case a:
@@ -51,6 +41,25 @@ test.snapshot({
 					break;
 				case b:
 					handleCaseB();
+					break;
+			}
+		`,
+		outdent`
+			switch (1) {
+					case 1:
+					default:
+							console.log('1')
+					case 1:
+							console.log('2')
+			}
+		`,
+	],
+	invalid: [
+		outdent`
+			switch (foo) {
+				case a:
+				default:
+					handleDefaultCase();
 					break;
 			}
 		`,
@@ -105,5 +114,51 @@ test.snapshot({
 					break;
 			}
 		`,
+		outdent`
+			switch (foo) {
+				case a:
+				case b:
+				default:
+					handleDefaultCase();
+					break;
+			}
+		`,
+		outdent`
+			switch (foo) {
+				// eslint-disable-next-line
+				case a:
+				case b:
+				default:
+					handleDefaultCase();
+					break;
+			}
+		`,
+		outdent`
+			switch (foo) {
+				case a:
+				// eslint-disable-next-line
+				case b:
+				default:
+					handleDefaultCase();
+					break;
+			}
+		`,
 	],
 });
+
+// test.typescript({
+// 	valid: [
+// 		outdent`
+// 			switch (1) {
+// 				default:
+// 					handleDefaultCase1();
+// 					break;
+// 				case 1:
+// 				default:
+// 					handleDefaultCase2();
+// 					break;
+// 			}
+// 		`,
+// 	],
+// 	invalid: [],
+// });
