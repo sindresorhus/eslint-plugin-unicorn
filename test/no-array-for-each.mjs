@@ -32,6 +32,7 @@ test.snapshot({
 			'foo.forEach(() => bar())',
 			'foo.forEach((element, index, array) => bar())',
 			'property.forEach(({property}) => bar(property))',
+			'() => foo.forEach()',
 
 			// Can't turn `return` to `continue`
 			outdent`
@@ -232,6 +233,12 @@ test.snapshot({
 			`,
 			'foo.forEach((element, index) => bar(element, index));',
 			'foo?.bar.forEach((element) => bar(element));',
+			'foo.bar.forEach((element) => log(element))',
+			'foo.bar().forEach((element) => log(element))',
+			'(a ? b : c).forEach((element) => log(element))',
+			'(a ? b : c()).forEach((element) => log(element))',
+			'(foo || bar).forEach((element) => log(element))',
+			'(foo || bar()).forEach((element) => log(element))',
 			// Array is parenthesized
 			'(foo).forEach((element, index) => bar(element, index))',
 			'(0, foo).forEach((element, index) => bar(element, index))',
