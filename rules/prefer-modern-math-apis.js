@@ -27,6 +27,8 @@ const isMathMethodCall = (node, method) =>
 // `Math.log(x) * Math.LOG2E` -> `Math.log2(x)`
 // `Math.LOG2E * Math.log(x)` -> `Math.log2(x)`
 function createLogCallTimesConstantCheck({constantName, replacementMethod}) {
+	const replacement =  `Math.${replacementMethod}(…)`;
+
 	return function (node, context) {
 		if (!(node.type === 'BinaryExpression' && node.operator === '*')) {
 			return;
@@ -38,8 +40,8 @@ function createLogCallTimesConstantCheck({constantName, replacementMethod}) {
 			mathLogCall = node.left;
 			description = `Math.log(…) * Math.${constantName}`;
 		} else if (isMathMethodCall(node.right, 'log') && isMathProperty(node.left, constantName)) {
-			description = `Math.${constantName} * Math.log(…)`;
 			mathLogCall = node.right;
+			description = `Math.${constantName} * Math.log(…)`;
 		}
 
 		if (!mathLogCall) {
@@ -52,7 +54,7 @@ function createLogCallTimesConstantCheck({constantName, replacementMethod}) {
 			node,
 			messageId: MESSAGE_ID,
 			data: {
-				replacement: `Math.${replacementMethod}(…)`,
+				replacement,
 				description,
 			},
 			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context.getSourceCode())})`),
@@ -63,6 +65,14 @@ function createLogCallTimesConstantCheck({constantName, replacementMethod}) {
 // `Math.log(x) / Math.LN10` -> `Math.log10(x)`
 // `Math.log(x) / Math.LN2` -> `Math.log2(x)`
 function createLogCallDivideConstantCheck({constantName, replacementMethod}) {
+	const message = {
+		messageId: MESSAGE_ID,
+		data: {
+			replacement: `Math.${replacementMethod}(…)`,
+			description: `Math.log(…) / Math.${constantName}`,
+		},
+	};
+
 	return function (node, context) {
 		if (
 			!(
@@ -78,12 +88,8 @@ function createLogCallDivideConstantCheck({constantName, replacementMethod}) {
 		const [valueNode] = node.left.arguments;
 
 		return {
+			...message,
 			node,
-			messageId: MESSAGE_ID,
-			data: {
-				replacement: `Math.${replacementMethod}(…)`,
-				description: `Math.log(…) / Math.${constantName}`,
-			},
 			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context.getSourceCode())})`),
 		};
 	};
@@ -124,10 +130,9 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer modern `Math` apis.',
+			description: 'Prefer modern `Math` apis over legacy algorithm.',
 		},
 		fixable: 'code',
-
 		messages,
 	},
 };
