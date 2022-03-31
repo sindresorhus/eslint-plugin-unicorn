@@ -18,9 +18,11 @@ const {isNodeMatches} = require('./utils/is-node-matches.js');
 const assertToken = require('./utils/assert-token.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
-const MESSAGE_ID = 'no-array-for-each';
+const MESSAGE_ID_ERROR = 'no-array-for-each/error';
+const MESSAGE_ID_SUGGESTION = 'no-array-for-each/suggestion';
 const messages = {
-	[MESSAGE_ID]: 'Use `for…of` instead of `Array#forEach(…)`.',
+	[MESSAGE_ID_ERROR]: 'Use `for…of` instead of `Array#forEach(…)`.',
+	[MESSAGE_ID_SUGGESTION]: 'Switch to `for…of`.',
 };
 
 const arrayForEachCallSelector = methodCallSelector({
@@ -73,8 +75,9 @@ function getFixFunction(callExpression, functionInfo, context) {
 	const [callback] = callExpression.arguments;
 	const parameters = callback.params;
 	const array = callExpression.callee.object;
+	const isOptionalArray = callExpression.callee.optional;
+	const expressionStatement = getExpressionStatement(callExpression);
 	const {returnStatements} = functionInfo.get(callback);
-	const isOptionalChaining = callExpression.callee.optional;
 
 	const getForOfLoopHeadText = () => {
 		const [elementText, indexText] = parameters.map(parameter => sourceCode.getText(parameter));
@@ -235,7 +238,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 			yield * replaceReturnStatement(returnStatement, fixer);
 		}
 
-		const expressionStatementLastToken = sourceCode.getLastToken(isOptionalChaining ? callExpression.parent.parent : callExpression.parent);
+		const expressionStatementLastToken = sourceCode.getLastToken(expressionStatement);
 		// Remove semicolon if it's not needed anymore
 		// foo.forEach(bar => {});
 		//                       ^
@@ -245,9 +248,8 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, sourceCode);
 
-		if (isOptionalChaining) {
-			const ifCondition = callExpression.callee.object.type === 'Identifier' ? callExpression.callee.object.name : sourceCode.getText(callExpression.callee.object)
-			yield fixer.insertTextBefore(callExpression, `if (${ifCondition}) `);
+		if (isOptionalArray) {
+			yield fixer.insertTextBefore(callExpression, `if (${sourceCode.getText(array)}) `);
 		}
 
 		// Prevent possible variable conflicts
@@ -322,6 +324,11 @@ const isExpressionStatement = node => {
 	return node.type === 'ExpressionStatement';
 };
 
+const getExpressionStatement = node =>
+	node.parent.type === 'ChainExpression'
+	? node.parent.parent
+	: node.parent;
+
 function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
 	const isOptionalChaining = callExpression.callee.optional;
 	const sourceCode = context.getSourceCode();
@@ -336,11 +343,6 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 
 	// Check ancestors, we only fix `ExpressionStatement`
 	if (!isExpressionStatement(callExpression.parent)) {
-		return false;
-	}
-
-	// Check `CallExpression.callee`
-	if (callExpression.callee.optional) {
 		return false;
 	}
 
@@ -392,6 +394,7 @@ const create = context => {
 	const callExpressions = [];
 	const allIdentifiers = [];
 	const functionInfo = new Map();
+	const sourceCode = context.getSourceCode();
 
 	return {
 		':function'(node) {
@@ -424,20 +427,31 @@ const create = context => {
 		},
 		* 'Program:exit'() {
 			for (const {node, scope} of callExpressions) {
+				// TODO: Rename this to iteratable
+				const array = node.callee;
+
 				const problem = {
-					node: node.callee.property,
+					node: array.property,
 					messageId: MESSAGE_ID,
 				};
 
-				if (isFixable(node, {scope, allIdentifiers, functionInfo, context})) {
-					problem.fix = getFixFunction(node, functionInfo, context);
+				if (!isFixable(node, {scope, allIdentifiers, functionInfo, context})) {
+					yield problem;
+					continue;
 				}
 
-				if (isSuggestable(node, context)) {
-					problem.suggest = [{
-						desc: 'Call function twice because it has no side effects',
-						fix: getFixFunction(node, functionInfo, context),
-					}];
+				const shouldUseSuggestion = array.optional && hasSideEffect(array, sourceCode);
+				const fix = getFixFunction(node, functionInfo, context);
+
+				if (shouldUseSuggestion) {
+					problem.suggest = [
+						{
+							messageId: MESSAGE_ID_SUGGESTION,
+							fix,
+						}
+					]
+				} else {
+					problem.fix = fix;
 				}
 
 				yield problem;
