@@ -25,19 +25,19 @@ const isMathMethodCall = (node, method) =>
 	&& node.arguments.length === 1
 	&& node.arguments[0].type !== 'SpreadElement';
 
-// `Math.log(x) * Math.LOG10E` -> `Math.log10(bar)`
-// `Math.LOG10E * Math.log(x)` -> `Math.log10(bar)`
-function checkLog10Case1(node) {
+// `Math.log(x) * Math.LOG10E` -> `Math.log10(x)`
+// `Math.LOG10E * Math.log(x)` -> `Math.log10(x)`
+function checkLog10Case1(node, context) {
 	if (!(node.type === 'BinaryExpression' && node.operator === '*')) {
 		return;
 	}
 
 	let mathLogCall;
 	let description;
-	if (isMathMethodCall(node.right, 'log') && isMathProperty(node.left, 'LOG10E')) {
+	if (isMathMethodCall(node.left, 'log') && isMathProperty(node.right, 'LOG10E')) {
 		mathLogCall = node.left;
 		description = 'Math.log(…) * Math.LOG10E';
-	} else if (isMathMethodCall(node.left, 'log') && isMathProperty(node.right, 'LOG10E')) {
+	} else if (isMathMethodCall(node.right, 'log') && isMathProperty(node.left, 'LOG10E')) {
 		description = 'Math.LOG10E * Math.log(…)';
 		mathLogCall = node.right;
 	}
@@ -55,12 +55,12 @@ function checkLog10Case1(node) {
 			replacement: 'Math.log10(…)',
 			description,
 		},
-		fix: fixer => fixer.replaceText(node, `Math.log10${getParenthesizedText(valueNode, context.getSourceCode())}`)
+		fix: fixer => fixer.replaceText(node, `Math.log10(${getParenthesizedText(valueNode, context.getSourceCode())})`)
 	}
 }
 
-// `Math.log(x) / Math.LN10` -> `Math.log10(bar)`
-function checkLog10Case2(node) {
+// `Math.log(x) / Math.LN10` -> `Math.log10(x)`
+function checkLog10Case2(node, context) {
 	if (
 		!(
 			node.type === 'BinaryExpression'
@@ -82,7 +82,67 @@ function checkLog10Case2(node) {
 			replacement: 'Math.log10(…)',
 			description: 'Math.log(…) / Math.LN10',
 		},
-		fix: fixer => fixer.replaceText(node, `Math.log10${getParenthesizedText(node, context.getSourceCode())}`)
+		fix: fixer => fixer.replaceText(node, `Math.log10(${getParenthesizedText(node, context.getSourceCode())})`)
+	}
+}
+
+// `Math.log(x) * Math.LOG2E` -> `Math.log2(x)`
+function checkLog2Case1(node, context) {
+	if (!(node.type === 'BinaryExpression' && node.operator === '*')) {
+		return;
+	}
+
+	let mathLogCall;
+	let description;
+	if (isMathMethodCall(node.left, 'log') && isMathProperty(node.right, 'LOG2E')) {
+		mathLogCall = node.left;
+		description = 'Math.log(…) * Math.LOG2E';
+	} else if (isMathMethodCall(node.right, 'log') && isMathProperty(node.left, 'LOG2E')) {
+		description = 'Math.LOG2E * Math.log(…)';
+		mathLogCall = node.right;
+	}
+
+	if (!mathLogCall) {
+		return;
+	}
+
+	const [valueNode] = mathLogCall.arguments;
+
+	return {
+		node,
+		messageId: MESSAGE_ID,
+		data: {
+			replacement: 'Math.log2(…)',
+			description,
+		},
+		fix: fixer => fixer.replaceText(node, `Math.log2(${getParenthesizedText(valueNode, context.getSourceCode())})`)
+	}
+}
+
+// `Math.log(x) / Math.LN2` -> `Math.log2(x)`
+function checkLog10Case2(node, context) {
+	if (
+		!(
+			node.type === 'BinaryExpression'
+			&& node.operator === '/'
+			&& isMathMethodCall(node.left, 'log')
+			&& isMathProperty(node.right, 'LN2')
+		)
+	) {
+		return;
+	}
+
+
+	const [valueNode] = node.left.arguments;
+
+	return {
+		node,
+		messageId: MESSAGE_ID,
+		data: {
+			replacement: 'Math.log2(…)',
+			description: 'Math.log(…) / Math.LN2',
+		},
+		fix: fixer => fixer.replaceText(node, `Math.log2(${getParenthesizedText(node, context.getSourceCode())})`)
 	}
 }
 
@@ -92,12 +152,13 @@ const create = context => {
 	const checkFunctions = [
 		checkLog10Case1,
 		checkLog10Case2,
+		checkLog2Case1,
 	];
 
 	return {
 		BinaryExpression(node) {
 			nodes.push(node);
-		}
+		},
 		* 'Program:exit'() {
 			for (const node of nodes) {
 				for (const getProblem of checkFunctions) {
