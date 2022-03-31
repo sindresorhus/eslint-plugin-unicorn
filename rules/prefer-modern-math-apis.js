@@ -1,8 +1,5 @@
 'use strict';
-const {} = require('./selectors/index.js');
-const {} = require('./fix/index.js');
-const {getParenthesizedText} = require('./utils/parentheses.js')
-
+const {getParenthesizedText} = require('./utils/parentheses.js');
 
 const MESSAGE_ID = 'prefer-modern-math-apis';
 const messages = {
@@ -30,7 +27,7 @@ const isMathMethodCall = (node, method) =>
 // `Math.log(x) * Math.LOG2E` -> `Math.log2(x)`
 // `Math.LOG2E * Math.log(x)` -> `Math.log2(x)`
 function createLogCallTimesConstantCheck({constantName, replacementMethod}) {
-	return function(node, context) {
+	return function (node, context) {
 		if (!(node.type === 'BinaryExpression' && node.operator === '*')) {
 			return;
 		}
@@ -58,15 +55,15 @@ function createLogCallTimesConstantCheck({constantName, replacementMethod}) {
 				replacement: `Math.${replacementMethod}(…)`,
 				description,
 			},
-			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context.getSourceCode())})`)
-		}
-	}
+			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context.getSourceCode())})`),
+		};
+	};
 }
 
 // `Math.log(x) / Math.LN10` -> `Math.log10(x)`
 // `Math.log(x) / Math.LN2` -> `Math.log2(x)`
 function createLogCallDivideConstantCheck({constantName, replacementMethod}) {
-	return function(node, context) {
+	return function (node, context) {
 		if (
 			!(
 				node.type === 'BinaryExpression'
@@ -78,7 +75,6 @@ function createLogCallDivideConstantCheck({constantName, replacementMethod}) {
 			return;
 		}
 
-
 		const [valueNode] = node.left.arguments;
 
 		return {
@@ -88,13 +84,10 @@ function createLogCallDivideConstantCheck({constantName, replacementMethod}) {
 				replacement: `Math.${replacementMethod}(…)`,
 				description: `Math.log(…) / Math.${constantName}`,
 			},
-			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(node, context.getSourceCode())})`)
-		}
-	}
+			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context.getSourceCode())})`),
+		};
+	};
 }
-
-
-
 
 const checkFunctions = [
 	createLogCallTimesConstantCheck({constantName: 'LOG10E', replacementMethod: 'log10'}),
