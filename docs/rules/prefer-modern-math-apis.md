@@ -1,4 +1,4 @@
-# Prefer modern `Math` apis over legacy algorithm
+# Prefer modern `Math` APIs over legacy patterns
 
 <!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->
