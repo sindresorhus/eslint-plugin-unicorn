@@ -29,7 +29,7 @@ Math additions in ES2015:
 
 Currently, we only check a few known cases, but we are open to add more patterns.
 
-If you find a suitable case for this rule, please [open an issue](https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?title=Missing%20`prefer-modern-math-apis`%20case).
+If you find a suitable case for this rule, please [open an issue](https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?title=%20`prefer-modern-math-apis`%20%20change%20request&labels=evaluating).
 
 ## Prefer `Math.log10(x)` over
 
