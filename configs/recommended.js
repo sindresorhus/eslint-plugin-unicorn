@@ -52,6 +52,7 @@ module.exports = {
 		'unicorn/no-thenable': 'error',
 		'unicorn/no-this-assignment': 'error',
 		'unicorn/no-unreadable-array-destructuring': 'error',
+		'unicorn/no-unreadable-iife': 'error',
 		'unicorn/no-unsafe-regex': 'off',
 		'unicorn/no-unused-properties': 'off',
 		'unicorn/no-useless-fallback-in-spread': 'error',
