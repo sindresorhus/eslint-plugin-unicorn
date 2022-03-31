@@ -61,10 +61,14 @@ module.exports = {
 						continue;
 					}
 
-					const range = [index, index + word.length];
-					const original = message.slice(...range);
-					replacement = /^[A-Z]/.test(original) ? replacement[0].toUpperCase() + replacement.slice(1) : replacement;
+					const original = message.slice(index, index + word.length);
 
+					if (/^[A-Z]/.test(original)) {
+						replacement = replacement[0].toUpperCase() + replacement.slice(1);
+					}
+
+					const start = node.range[0] + index + 1;
+					const range = [start, start + word.length];
 					context.report({
 						node,
 						loc: toLocation(range, context.getSourceCode()),
@@ -80,6 +84,7 @@ module.exports = {
 		};
 	},
 	meta: {
+		fixable: 'code',
 		messages: {
 			[messageId]: 'Prefer use `{{replacement}}` over `{{original}}` in error message and rule description.',
 		},
