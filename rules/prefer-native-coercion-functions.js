@@ -4,7 +4,7 @@ const {not} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-native-coercion-functions';
 const messages = {
-	[MESSAGE_ID]: '{{functionNameWithKind}} is equivalent of `{{replacementFunction}}`, should use `{{replacementFunction}}` directly.',
+	[MESSAGE_ID]: '{{functionNameWithKind}} is equivalent to `{{replacementFunction}}`. Use `{{replacementFunction}}` directly.',
 };
 
 const nativeCoercionFunctionNames = new Set(['String', 'Number', 'BigInt', 'Boolean', 'Symbol']);
@@ -153,7 +153,7 @@ const create = context => ({
 			},
 		};
 
-		// Do not fix, if there are comments or extra parameters
+		// We do not fix if there are comments or extra parameters
 		if (!fix || node.params.length !== 1 || sourceCode.getCommentsInside(node).length > 0) {
 			return problem;
 		}
