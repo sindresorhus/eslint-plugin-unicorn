@@ -27,6 +27,24 @@ test.snapshot({
 			switch (foo) {
 				case a:
 					handleCaseA();
+				default:
+					handleDefaultCase();
+					break;
+			}
+		`,
+		outdent`
+			switch (foo) {
+				case a:
+					break;
+				default:
+					handleDefaultCase();
+					break;
+			}
+		`,
+		outdent`
+			switch (foo) {
+				case a:
+					handleCaseA();
 					// Fallthrough
 				default:
 					handleDefaultCase();
@@ -46,6 +64,7 @@ test.snapshot({
 		`,
 		outdent`
 			switch (1) {
+					// This is not useless
 					case 1:
 					default:
 							console.log('1')
@@ -146,7 +165,7 @@ test.snapshot({
 	],
 });
 
-// test.typescript({
+// Test.typescript({
 // 	valid: [
 // 		outdent`
 // 			switch (1) {

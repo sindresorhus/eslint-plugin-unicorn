@@ -7,16 +7,38 @@
 💡 *This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*
 <!-- /RULE_NOTICE -->
 
-<!-- Remove this comment, add more detailed description. -->
-
+Empty case before the last default case is useless.
 ## Fail
 
 ```js
-const foo = 'unicorn';
+switch (foo) {
+	case 1:
+	default:
+		handleDefaultCase();
+		break;
+}
 ```
 
 ## Pass
 
 ```js
-const foo = '🦄';
+switch (foo) {
+	case 1:
+	case 2:
+		handleCase1And2();
+		break;
+}
+```
+
+```js
+switch (foo) {
+	// This is actually useless, but we only check cases where the last case is `default` case
+	case 1:
+	default:
+		handleDefaultCase();
+		break;
+	case 2:
+		handleCase2();
+		break;
+}
 ```

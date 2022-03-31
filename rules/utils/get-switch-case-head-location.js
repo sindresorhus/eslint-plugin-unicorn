@@ -12,7 +12,7 @@ Get the location of the given `SwitchCase` node for reporting.
 @returns {{start: Position, end: Position}} The location of the class node for reporting.
 */
 function getSwitchCaseHeadLocation(node, sourceCode) {
-	let startToken = node.test || sourceCode.getFirstToken(node);
+	const startToken = node.test || sourceCode.getFirstToken(node);
 	const colonToken = sourceCode.getTokenAfter(startToken, isColonToken);
 
 	return {start: node.loc.start, end: colonToken.loc.end};
