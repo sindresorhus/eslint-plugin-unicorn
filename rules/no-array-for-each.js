@@ -75,9 +75,9 @@ function getFixFunction(callExpression, functionInfo, context) {
 	const [callback] = callExpression.arguments;
 	const parameters = callback.params;
 	const array = callExpression.callee.object;
+	const {returnStatements} = functionInfo.get(callback);
 	const isOptionalArray = callExpression.callee.optional;
 	const expressionStatement = getExpressionStatement(callExpression);
-	const {returnStatements} = functionInfo.get(callback);
 	const arrayText = sourceCode.getText(array);
 
 	const getForOfLoopHeadText = () => {
