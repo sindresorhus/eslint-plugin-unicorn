@@ -27,7 +27,7 @@ const isMathMethodCall = (node, method) =>
 // `Math.log(x) * Math.LOG2E` -> `Math.log2(x)`
 // `Math.LOG2E * Math.log(x)` -> `Math.log2(x)`
 function createLogCallTimesConstantCheck({constantName, replacementMethod}) {
-	const replacement =  `Math.${replacementMethod}(…)`;
+	const replacement = `Math.${replacementMethod}(…)`;
 
 	return function (node, context) {
 		if (!(node.type === 'BinaryExpression' && node.operator === '*')) {
