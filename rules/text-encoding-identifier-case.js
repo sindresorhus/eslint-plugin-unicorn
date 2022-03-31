@@ -19,6 +19,19 @@ const getReplacement = encoding => {
 	}
 };
 
+// `fs.{readFile,readFileSync}()`
+const isFsReadFileEncoding = node =>
+	node.parent.type === 'CallExpression'
+	&& !node.parent.optional
+	&& node.parent.arguments[1] === node
+	&& node.parent.arguments[0]
+	&& node.parent.arguments[0].type !== 'SpreadElement'
+	&& node.parent.callee.type === 'MemberExpression'
+	&& !node.parent.callee.optional
+	&& !node.parent.callee.computed
+	&& node.parent.callee.property.type === 'Identifier'
+	&& (node.parent.callee.property.name === 'readFile' || node.parent.callee.property.name === 'readFileSync');
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	Literal(node) {
@@ -39,19 +52,29 @@ const create = () => ({
 			replacement,
 		};
 
-		return {
+		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		const fix = fixer => replaceStringLiteral(fixer, node, replacement);
+
+		const problem = {
 			node,
 			messageId: MESSAGE_ID_ERROR,
 			data: messageData,
-			suggest: [
-				{
-					messageId: MESSAGE_ID_SUGGESTION,
-					data: messageData,
-					/** @param {import('eslint').Rule.RuleFixer} fixer */
-					fix: fixer => replaceStringLiteral(fixer, node, replacement),
-				},
-			],
 		};
+
+		if (isFsReadFileEncoding(node)) {
+			problem.fix = fix;
+			return problem;
+		}
+
+		problem.suggest = [
+			{
+				messageId: MESSAGE_ID_SUGGESTION,
+				data: messageData,
+				fix: fixer => replaceStringLiteral(fixer, node, replacement),
+			},
+		];
+
+		return problem;
 	},
 });
 
@@ -63,6 +86,7 @@ module.exports = {
 		docs: {
 			description: 'Enforce consistent case for text encoding identifiers.',
 		},
+		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 	},

@@ -194,61 +194,65 @@ const create = context => {
 				return;
 			}
 
+			const problem = {node, messageId};
+
+			// Don't fix if there are comments
+			if (sourceCode.getCommentsInside(node).length > 0) {
+				return problem;
+			}
+
 			const scope = context.getScope();
+			problem.fix = function * (fixer) {
+				const testText = getText(node.test);
+				const consequentText = typeof result.consequent === 'string'
+					? result.consequent
+					: getText(result.consequent);
+				const alternateText = typeof result.alternate === 'string'
+					? result.alternate
+					: getText(result.alternate);
 
-			return {
-				node,
-				messageId,
-				* fix(fixer) {
-					const testText = getText(node.test);
-					const consequentText = typeof result.consequent === 'string'
-						? result.consequent
-						: getText(result.consequent);
-					const alternateText = typeof result.alternate === 'string'
-						? result.alternate
-						: getText(result.alternate);
+				let {type, before, after} = result;
 
-					let {type, before, after} = result;
+				let generateNewVariables = false;
+				if (type === 'ThrowStatement') {
+					const scopes = getScopes(scope);
+					const errorName = avoidCapture('error', scopes, isSafeName);
 
-					let generateNewVariables = false;
-					if (type === 'ThrowStatement') {
-						const scopes = getScopes(scope);
-						const errorName = avoidCapture('error', scopes, isSafeName);
-
-						for (const scope of scopes) {
-							if (!scopeToNamesGeneratedByFixer.has(scope)) {
-								scopeToNamesGeneratedByFixer.set(scope, new Set());
-							}
-
-							const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
-							generatedNames.add(errorName);
+					for (const scope of scopes) {
+						if (!scopeToNamesGeneratedByFixer.has(scope)) {
+							scopeToNamesGeneratedByFixer.set(scope, new Set());
 						}
 
-						const indentString = getIndentString(node, sourceCode);
-
-						after = after
-							.replace('{{INDENT_STRING}}', indentString)
-							.replace('{{ERROR_NAME}}', errorName);
-						before = before
-							.replace('{{INDENT_STRING}}', indentString)
-							.replace('{{ERROR_NAME}}', errorName);
-						generateNewVariables = true;
+						const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
+						generatedNames.add(errorName);
 					}
 
-					let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
-					const tokenBefore = sourceCode.getTokenBefore(node);
-					const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, sourceCode, fixed);
-					if (shouldAddSemicolonBefore) {
-						fixed = `;${fixed}`;
-					}
+					const indentString = getIndentString(node, sourceCode);
 
-					yield fixer.replaceText(node, fixed);
+					after = after
+						.replace('{{INDENT_STRING}}', indentString)
+						.replace('{{ERROR_NAME}}', errorName);
+					before = before
+						.replace('{{INDENT_STRING}}', indentString)
+						.replace('{{ERROR_NAME}}', errorName);
+					generateNewVariables = true;
+				}
 
-					if (generateNewVariables) {
-						yield * extendFixRange(fixer, sourceCode.ast.range);
-					}
-				},
+				let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
+				const tokenBefore = sourceCode.getTokenBefore(node);
+				const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, sourceCode, fixed);
+				if (shouldAddSemicolonBefore) {
+					fixed = `;${fixed}`;
+				}
+
+				yield fixer.replaceText(node, fixed);
+
+				if (generateNewVariables) {
+					yield * extendFixRange(fixer, sourceCode.ast.range);
+				}
 			};
+
+			return problem;
 		},
 	};
 };

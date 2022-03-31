@@ -1166,8 +1166,9 @@ test({
 		{
 			code: outdent`
 				function unicorn() {
+					// There is an empty block inside consequent
 					if (test) {
-						; // Empty block
+						;
 						return a;
 					} else {
 						return b;
@@ -1176,6 +1177,7 @@ test({
 			`,
 			output: outdent`
 				function unicorn() {
+					// There is an empty block inside consequent
 					return test ? a : b;
 				}
 			`,
@@ -1317,6 +1319,10 @@ test({
 					}
 				}
 			`,
+			errors,
+		},
+		{
+			code: 'if (test) {foo = /* comment */1;} else {foo = 2;}',
 			errors,
 		},
 	],

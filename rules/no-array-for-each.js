@@ -314,15 +314,13 @@ function isFunctionParameterVariableReassigned(callbackFunction, context) {
 		});
 }
 
-function isSuggestable(callExpression, context) {
-	const isOptionalChaining = callExpression.callee.optional;
-
-	if (!isOptionalChaining) {
-		return false;
+const isExpressionStatement = node => {
+	if (node.type === 'ChainExpression') {
+		node = node.parent;
 	}
 
-	return callExpression.callee.object.type === 'CallExpression' && hasSideEffect(callExpression.callee.object, context.getSourceCode());
-}
+	return node.type === 'ExpressionStatement';
+};
 
 function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
 	const isOptionalChaining = callExpression.callee.optional;
@@ -336,16 +334,13 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 		return false;
 	}
 
-	// Check `CallExpression.parent`
-	if (callExpression.parent.type !== 'ExpressionStatement' && callExpression.parent.type !== 'ChainExpression') {
+	// Check ancestors, we only fix `ExpressionStatement`
+	if (!isExpressionStatement(callExpression.parent)) {
 		return false;
 	}
 
-	if (isOptionalChaining && callExpression.parent.parent.type !== 'ExpressionStatement') {
-		return false;
-	}
-
-	if (isOptionalChaining && callExpression.callee.object.type !== 'Identifier' && callExpression.callee.object.type !== 'MemberExpression') {
+	// Check `CallExpression.callee`
+	if (callExpression.callee.optional) {
 		return false;
 	}
 

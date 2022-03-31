@@ -59,12 +59,20 @@ module.exports.defaultReplacements = {
 	dirs: {
 		directories: true,
 	},
+	dist: {
+		distribution: true,
+	},
 	doc: {
 		document: true,
 	},
 	docs: {
 		documentation: true,
 		documents: true,
+	},
+	dst: {
+		daylightSavingTime: true,
+		destination: true,
+		distribution: true,
 	},
 	e: {
 		error: true,

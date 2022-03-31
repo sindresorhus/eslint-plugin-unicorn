@@ -91,6 +91,13 @@ const getFunction = scope => {
 	}
 };
 
+const isFunctionBindCall = node =>
+	!node.optional
+	&& node.callee.type === 'MemberExpression'
+	&& !node.callee.computed
+	&& node.callee.property.type === 'Identifier'
+	&& node.callee.property.name === 'bind';
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const listener = (fix, checkFunctionReturnType) => node => {
@@ -142,6 +149,12 @@ const create = context => {
 			}
 
 			const argumentNodes = node.arguments;
+
+			// Ignore arguments in `Function#bind()`, but not `this` argument
+			if (isFunctionBindCall(node) && argumentNodes.length !== 1) {
+				return;
+			}
+
 			const undefinedArguments = [];
 			for (let index = argumentNodes.length - 1; index >= 0; index--) {
 				const node = argumentNodes[index];
