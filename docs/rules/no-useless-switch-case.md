@@ -1,4 +1,4 @@
-# Disallow useless case in switch statement
+# Disallow useless case in switch statements
 
 <!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->
@@ -7,7 +7,7 @@
 💡 *This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*
 <!-- /RULE_NOTICE -->
 
-Empty case before the last default case is useless.
+An empty case before the last default case is useless.
 
 ## Fail
 
@@ -55,7 +55,7 @@ switch (foo) {
 
 ```js
 switch (foo) {
-	// This is actually useless, but we only check cases where the last case is `default` case
+	// This is actually useless, but we only check cases where the last case is the `default` case
 	case 1:
 	default:
 		handleDefaultCase();

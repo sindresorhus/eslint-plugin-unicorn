@@ -16,7 +16,7 @@ const create = context => ({
 	* 'SwitchStatement[cases.length>1]'(switchStatement) {
 		const {cases} = switchStatement;
 
-		// `typescript` allow multiple `default` cases
+		// TypeScript allows multiple `default` cases
 		const defaultCases = cases.filter(switchCase => switchCase.test === null);
 		if (defaultCases.length !== 1) {
 			return;
@@ -24,7 +24,7 @@ const create = context => ({
 
 		const [defaultCase] = defaultCases;
 
-		// We only check cases where the last case is `default` case
+		// We only check cases where the last case is the `default` case
 		if (defaultCase !== cases[cases.length - 1]) {
 			return;
 		}
