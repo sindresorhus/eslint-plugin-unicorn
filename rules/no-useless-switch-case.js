@@ -63,9 +63,8 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow useless case in switch statement.',
+			description: 'Disallow useless case in switch statements.',
 		},
-
 		hasSuggestions: true,
 		messages,
 	},
