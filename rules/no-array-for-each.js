@@ -78,6 +78,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 	const isOptionalArray = callExpression.callee.optional;
 	const expressionStatement = getExpressionStatement(callExpression);
 	const {returnStatements} = functionInfo.get(callback);
+	const arrayText = sourceCode.getText(array);
 
 	const getForOfLoopHeadText = () => {
 		const [elementText, indexText] = parameters.map(parameter => sourceCode.getText(parameter));
@@ -89,12 +90,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		text += useEntries ? `[${indexText}, ${elementText}]` : elementText;
 		text += ' of ';
 
-		let arrayText = sourceCode.getText(array);
-		if (isParenthesized(array, sourceCode)) {
-			arrayText = `(${arrayText})`;
-		}
-
-		text += arrayText;
+		text += isParenthesized(array, sourceCode) ? `(${arrayText})` : arrayText;
 
 		if (useEntries) {
 			text += '.entries()';
@@ -187,11 +183,6 @@ function getFixFunction(callExpression, functionInfo, context) {
 		return true;
 	};
 
-	const getIfCondition = (calleeObject) => {
-		if (calleeObject.type === 'Identifier') return calleeObject.name
-		return sourceCode.getText(calleeObject)
-	}
-
 	function * removeCallbackParentheses(fixer) {
 		// Opening parenthesis tokens already included in `getForOfLoopHeadRange`
 		const closingParenthesisTokens = getParentheses(callback, sourceCode)
@@ -249,7 +240,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, sourceCode);
 
 		if (isOptionalArray) {
-			yield fixer.insertTextBefore(callExpression, `if (${sourceCode.getText(array)}) `);
+			yield fixer.insertTextBefore(callExpression, `if (${arrayText}) `);
 		}
 
 		// Prevent possible variable conflicts
@@ -330,7 +321,6 @@ const getExpressionStatement = node =>
 	: node.parent;
 
 function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
-	const isOptionalChaining = callExpression.callee.optional;
 	const sourceCode = context.getSourceCode();
 	// Check `CallExpression`
 	if (
