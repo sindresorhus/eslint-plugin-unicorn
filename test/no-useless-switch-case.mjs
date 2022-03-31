@@ -110,10 +110,7 @@ test.snapshot({
 		outdent`
 			switch (foo) {
 				case a:
-				case b:
-				case c:
-				case d:
-				case (( e ))         :
+				case (( b ))         :
 				default:
 					handleDefaultCase();
 					break;
@@ -123,11 +120,10 @@ test.snapshot({
 			switch (foo) {
 				case a:
 				case b:
-				case c:
-					handleCaseABC();
+					handleCaseAB();
 					break;
 				case d:
-				case e:
+				case d:
 				default:
 					handleDefaultCase();
 					break;
