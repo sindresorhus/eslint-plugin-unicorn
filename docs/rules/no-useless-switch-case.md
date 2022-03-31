@@ -8,6 +8,7 @@
 <!-- /RULE_NOTICE -->
 
 Empty case before the last default case is useless.
+
 ## Fail
 
 ```js
@@ -26,6 +27,28 @@ switch (foo) {
 	case 1:
 	case 2:
 		handleCase1And2();
+		break;
+}
+```
+
+```js
+switch (foo) {
+	case 1:
+		handleCase1();
+		break;
+	default:
+		handleDefaultCase();
+		break;
+}
+```
+
+```js
+switch (foo) {
+	case 1:
+		handleCase1();
+		// Fallthrough
+	default:
+		handleDefaultCase();
 		break;
 }
 ```
