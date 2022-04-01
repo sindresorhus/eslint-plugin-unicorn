@@ -161,19 +161,19 @@ test.snapshot({
 	],
 });
 
-// Test.typescript({
-// 	valid: [
-// 		outdent`
-// 			switch (1) {
-// 				default:
-// 					handleDefaultCase1();
-// 					break;
-// 				case 1:
-// 				default:
-// 					handleDefaultCase2();
-// 					break;
-// 			}
-// 		`,
-// 	],
-// 	invalid: [],
-// });
+test.typescript({
+	valid: [
+		outdent`
+			switch (1) {
+				default:
+					handleDefaultCase1();
+					break;
+				case 1:
+				default:
+					handleDefaultCase2();
+					break;
+			}
+		`,
+	],
+	invalid: [],
+});
