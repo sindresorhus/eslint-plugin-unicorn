@@ -84,6 +84,7 @@ module.exports = {
 		'unicorn/prefer-keyboard-event-key': 'error',
 		'unicorn/prefer-math-trunc': 'error',
 		'unicorn/prefer-modern-dom-apis': 'error',
+		'unicorn/prefer-modern-math-apis': 'error',
 		'unicorn/prefer-module': 'error',
 		'unicorn/prefer-negative-index': 'error',
 		'unicorn/prefer-node-protocol': 'error',
