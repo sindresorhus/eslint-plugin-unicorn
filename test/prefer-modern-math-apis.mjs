@@ -4,6 +4,11 @@ import {getTester} from './utils/test.mjs';
 const {test} = getTester(import.meta);
 
 // `Math.log10()` and `Math.log2()`
+const duplicateLog10Test = code => [
+	code,
+	// `Math.log2()` test
+	code.replace(/Math\.LOG10E/g, 'Math.LOG2E').replace(/Math\.LN10/g, 'Math.LN2')
+];
 test.snapshot({
 	valid: [
 		'Math.log(x) * Math.log(x)',
@@ -42,7 +47,7 @@ test.snapshot({
 		'Math.log() / Math.LN10',
 		'Math.log(x, extraArgument) / Math.LN10',
 		'Math.log(...x) / Math.LN10',
-	].flatMap(code => [code, code.replaceAll('Math.LOG10E', 'Math.LOG2E').replaceAll('Math.LN10', 'Math.LN2')]),
+	].flatMap(code => duplicateLog10Test(code)),
 	invalid: [
 		'Math.log(x) * Math.LOG10E',
 		'Math.LOG10E * Math.log(x)',
@@ -58,5 +63,5 @@ test.snapshot({
 				);
 			}
 		`,
-	].flatMap(code => [code, code.replaceAll('Math.LOG10E', 'Math.LOG2E').replaceAll('Math.LN10', 'Math.LN2')]),
+	].flatMap(code => duplicateLog10Test(code)),
 });
