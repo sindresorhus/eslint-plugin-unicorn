@@ -154,9 +154,9 @@ const create = context => ({
 		};
 
 		/*
-		We do not fix if there are
-		- comments: not proper place to put them
-		- extra parameters: remove them may break typings
+		We do not fix if there are:
+		- Comments: No proper place to put them.
+		- Extra parameters: Removing them may break types.
 		*/
 		if (!fix || node.params.length !== 1 || sourceCode.getCommentsInside(node).length > 0) {
 			return problem;
