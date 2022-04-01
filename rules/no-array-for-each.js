@@ -326,7 +326,6 @@ function isFunctionParameterVariableReassigned(callbackFunction, context) {
 }
 
 function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
-	const sourceCode = context.getSourceCode();
 	// Check `CallExpression`
 	if (callExpression.optional || callExpression.arguments.length !== 1) {
 		return false;
