@@ -1,5 +1,9 @@
 # Deprecated Rules
 
+## import-index
+
+This rule is outdated, importing directory doesn't work for ES module.
+
 ## no-array-instanceof
 
 This rule was renamed to [`no-instanceof-array`](rules/no-instanceof-array.md) to be more correct.

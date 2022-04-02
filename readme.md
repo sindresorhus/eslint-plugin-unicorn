@@ -64,7 +64,6 @@ Each rule has emojis denoting:
 | [expiring-todo-comments](docs/rules/expiring-todo-comments.md) | Add expiration conditions to TODO comments. | ✅ |  |  |
 | [explicit-length-check](docs/rules/explicit-length-check.md) | Enforce explicitly comparing the `length` or `size` property of a value. | ✅ | 🔧 | 💡 |
 | [filename-case](docs/rules/filename-case.md) | Enforce a case style for filenames. | ✅ |  |  |
-| [import-index](docs/rules/import-index.md) | Enforce importing index files with `.`. |  | 🔧 |  |
 | [import-style](docs/rules/import-style.md) | Enforce specific import styles per module. | ✅ |  |  |
 | [new-for-builtins](docs/rules/new-for-builtins.md) | Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`. | ✅ | 🔧 |  |
 | [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) | Enforce specifying rules to disable in `eslint-disable` comments. | ✅ |  |  |

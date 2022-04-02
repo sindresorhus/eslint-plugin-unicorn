@@ -6,6 +6,7 @@ const allRulesEnabledConfig = require('./configs/all.js');
 
 const deprecatedRules = createDeprecatedRules({
 	// {ruleId: ReplacementRuleId | ReplacementRuleId[]}, if no replacement, use `{ruleId: []}`
+	'import-index': [],
 	'no-array-instanceof': 'unicorn/no-instanceof-array',
 	'no-fn-reference-in-iterator': 'unicorn/no-array-callback-reference',
 	'no-reduce': 'unicorn/no-array-reduce',
