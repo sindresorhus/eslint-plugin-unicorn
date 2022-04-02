@@ -22,11 +22,11 @@ const {fixSpaceAroundKeyword, removeParentheses} = require('./fix/index.js');
 const MESSAGE_ID_ERROR = 'no-array-for-each/error';
 const MESSAGE_ID_SUGGESTION = 'no-array-for-each/suggestion';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Use `for…of` instead of `Array#forEach(…)`.',
+	[MESSAGE_ID_ERROR]: 'Use `for…of` instead of `.forEach(…)`.',
 	[MESSAGE_ID_SUGGESTION]: 'Switch to `for…of`.',
 };
 
-const arrayForEachCallSelector = methodCallSelector({
+const forEachMethodCallSelector = methodCallSelector({
 	method: 'forEach',
 	includeOptionalCall: true,
 	includeOptionalMember: true,
@@ -80,34 +80,34 @@ function getFixFunction(callExpression, functionInfo, context) {
 	const sourceCode = context.getSourceCode();
 	const [callback] = callExpression.arguments;
 	const parameters = callback.params;
-	const array = callExpression.callee.object;
+	const iterableObject = callExpression.callee.object;
 	const {returnStatements} = functionInfo.get(callback);
-	const isOptionalArray = callExpression.callee.optional;
+	const isOptionalObject = callExpression.callee.optional;
 	const expressionStatement = stripChainExpression(callExpression).parent;
-	const arrayText = sourceCode.getText(array);
+	const objectText = sourceCode.getText(iterableObject);
 
 	const getForOfLoopHeadText = () => {
 		const [elementText, indexText] = parameters.map(parameter => sourceCode.getText(parameter));
-		const useEntries = parameters.length === 2;
+		const shouldUseEntries = parameters.length === 2;
 
 		let text = 'for (';
 		text += isFunctionParameterVariableReassigned(callback, context) ? 'let' : 'const';
 		text += ' ';
-		text += useEntries ? `[${indexText}, ${elementText}]` : elementText;
+		text += shouldUseEntries ? `[${indexText}, ${elementText}]` : elementText;
 		text += ' of ';
 
-		const shouldAddParenthesesToArray
-			= isParenthesized(array, sourceCode)
+		const shouldAddParenthesesToObject
+			= isParenthesized(iterableObject, sourceCode)
 			|| (
 				// `1?.forEach()` -> `(1).entries()`
-				isOptionalArray
-				&& useEntries
-				&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+				isOptionalObject
+				&& shouldUseEntries
+				&& shouldAddParenthesesToMemberExpressionObject(iterableObject, sourceCode)
 			);
 
-		text += shouldAddParenthesesToArray ? `(${arrayText})` : arrayText;
+		text += shouldAddParenthesesToObject ? `(${objectText})` : objectText;
 
-		if (useEntries) {
+		if (shouldUseEntries) {
 			text += '.entries()';
 		}
 
@@ -257,8 +257,8 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, sourceCode);
 
-		if (isOptionalArray) {
-			yield fixer.insertTextBefore(callExpression, `if (${arrayText}) `);
+		if (isOptionalObject) {
+			yield fixer.insertTextBefore(callExpression, `if (${objectText}) `);
 		}
 
 		// Prevent possible variable conflicts
@@ -276,7 +276,7 @@ const isChildScope = (child, parent) => {
 	return false;
 };
 
-function isFunctionParametersSafeToFix(callbackFunction, {context, scope, array, allIdentifiers}) {
+function isFunctionParametersSafeToFix(callbackFunction, {context, scope, callExpression, allIdentifiers}) {
 	const variables = context.getDeclaredVariables(callbackFunction);
 
 	for (const variable of variables) {
@@ -290,13 +290,13 @@ function isFunctionParametersSafeToFix(callbackFunction, {context, scope, array,
 		}
 
 		const variableName = definition.name.name;
-		const [arrayStart, arrayEnd] = array.range;
+		const [callExpressionStart, callExpressionEnd] = callExpression.range;
 		for (const identifier of allIdentifiers) {
 			const {name, range: [start, end]} = identifier;
 			if (
 				name !== variableName
-				|| start < arrayStart
-				|| end > arrayEnd
+				|| start < callExpressionStart
+				|| end > callExpressionEnd
 			) {
 				continue;
 			}
@@ -352,7 +352,7 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 	if (
 		!(parameters.length === 1 || parameters.length === 2)
 		|| parameters.some(({type, typeAnnotation}) => type === 'RestElement' || typeAnnotation)
-		|| !isFunctionParametersSafeToFix(callback, {scope, array: callExpression, allIdentifiers, context})
+		|| !isFunctionParametersSafeToFix(callback, {scope, callExpression, allIdentifiers, context})
 	) {
 		return false;
 	}
@@ -405,7 +405,7 @@ const create = context => {
 			const {returnStatements} = functionInfo.get(currentFunction);
 			returnStatements.push(node);
 		},
-		[arrayForEachCallSelector](node) {
+		[forEachMethodCallSelector](node) {
 			if (isNodeMatches(node.callee.object, ignoredObjects)) {
 				return;
 			}
@@ -417,11 +417,10 @@ const create = context => {
 		},
 		* 'Program:exit'() {
 			for (const {node, scope} of callExpressions) {
-				// TODO: Rename this to iteratable
-				const array = node.callee;
+				const iterable = node.callee;
 
 				const problem = {
-					node: array.property,
+					node: iterable.property,
 					messageId: MESSAGE_ID_ERROR,
 				};
 
@@ -430,7 +429,7 @@ const create = context => {
 					continue;
 				}
 
-				const shouldUseSuggestion = array.optional && hasSideEffect(array, sourceCode);
+				const shouldUseSuggestion = iterable.optional && hasSideEffect(iterable, sourceCode);
 				const fix = getFixFunction(node, functionInfo, context);
 
 				if (shouldUseSuggestion) {
@@ -456,7 +455,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `for…of` over `Array#forEach(…)`.',
+			description: 'Prefer `for…of` over the `forEach` method.',
 		},
 		fixable: 'code',
 		hasSuggestions: true,
