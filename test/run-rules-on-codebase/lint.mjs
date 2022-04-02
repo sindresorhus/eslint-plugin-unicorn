@@ -29,8 +29,6 @@ const eslint = new ESLint({
 			// Annoying
 			'unicorn/no-keyword-prefix': 'off',
 			'unicorn/no-unsafe-regex': 'off',
-			// Outdated
-			'unicorn/import-index': 'off',
 			// Not ready yet
 			'unicorn/prefer-string-replace-all': 'off',
 			'unicorn/prefer-top-level-await': 'off',

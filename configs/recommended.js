@@ -22,7 +22,6 @@ module.exports = {
 		'unicorn/expiring-todo-comments': 'error',
 		'unicorn/explicit-length-check': 'error',
 		'unicorn/filename-case': 'error',
-		'unicorn/import-index': 'off',
 		'unicorn/import-style': 'error',
 		'unicorn/new-for-builtins': 'error',
 		'unicorn/no-abusive-eslint-disable': 'error',
