@@ -17,7 +17,7 @@ const {getParentheses} = require('./utils/parentheses.js');
 const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 const assertToken = require('./utils/assert-token.js');
-const {fixSpaceAroundKeyword} = require('./fix/index.js');
+const {fixSpaceAroundKeyword, removeParentheses} = require('./fix/index.js');
 
 const MESSAGE_ID_ERROR = 'no-array-for-each/error';
 const MESSAGE_ID_SUGGESTION = 'no-array-for-each/suggestion';
@@ -209,6 +209,9 @@ function getFixFunction(callExpression, functionInfo, context) {
 	}
 
 	return function * (fixer) {
+		// `(( foo.forEach(bar => bar) ))`
+		yield * removeParentheses(callExpression, fixer, sourceCode);
+
 		// Replace these with `for (const … of …) `
 		// foo.forEach(bar =>    bar)
 		// ^^^^^^^^^^^^^^^^^^ (space after `=>` didn't included)
@@ -323,14 +326,8 @@ function isFunctionParameterVariableReassigned(callbackFunction, context) {
 }
 
 function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
-	const sourceCode = context.getSourceCode();
 	// Check `CallExpression`
-	if (
-		callExpression.optional
-		// TODO: Parenthesized should also be fixable.
-		|| isParenthesized(callExpression, sourceCode)
-		|| callExpression.arguments.length !== 1
-	) {
+	if (callExpression.optional || callExpression.arguments.length !== 1) {
 		return false;
 	}
 
@@ -458,7 +455,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `for…of` over `forEach` method.',
+			description: 'Prefer `for…of` over the `forEach` method.',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

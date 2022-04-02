@@ -21,8 +21,9 @@ test.snapshot({
 	invalid: [
 		'foo.forEach?.(element => bar(element))',
 		...[
+			'((  foo.forEach(element => bar(element))  ))',
+
 			// Not fixable
-			'(foo.forEach(element => bar(element)))',
 			'foo.forEach(element => bar(element), thisArgument)',
 			'foo.forEach()',
 			'const baz = foo.forEach(element => bar(element))',
