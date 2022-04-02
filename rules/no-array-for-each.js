@@ -18,6 +18,7 @@ const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside.j
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 const assertToken = require('./utils/assert-token.js');
 const {fixSpaceAroundKeyword, removeParentheses} = require('./fix/index.js');
+const {isArrowFunctionBody} = require('./ast/index.js');
 
 const MESSAGE_ID_ERROR = 'no-array-for-each/error';
 const MESSAGE_ID_SUGGESTION = 'no-array-for-each/suggestion';
@@ -83,7 +84,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 	const iterableObject = callExpression.callee.object;
 	const {returnStatements} = functionInfo.get(callback);
 	const isOptionalObject = callExpression.callee.optional;
-	const expressionStatement = stripChainExpression(callExpression).parent;
+	const ancestor = stripChainExpression(callExpression).parent;
 	const objectText = sourceCode.getText(iterableObject);
 
 	const getForOfLoopHeadText = () => {
@@ -247,12 +248,17 @@ function getFixFunction(callExpression, functionInfo, context) {
 			yield * replaceReturnStatement(returnStatement, fixer);
 		}
 
-		const expressionStatementLastToken = sourceCode.getLastToken(expressionStatement);
-		// Remove semicolon if it's not needed anymore
-		// foo.forEach(bar => {});
-		//                       ^
-		if (shouldRemoveExpressionStatementLastToken(expressionStatementLastToken)) {
-			yield fixer.remove(expressionStatementLastToken, fixer);
+		if (ancestor.type === 'ExpressionStatement') {
+			const expressionStatementLastToken = sourceCode.getLastToken(ancestor);
+			// Remove semicolon if it's not needed anymore
+			// foo.forEach(bar => {});
+			//                       ^
+			if (shouldRemoveExpressionStatementLastToken(expressionStatementLastToken)) {
+				yield fixer.remove(expressionStatementLastToken, fixer);
+			}
+		} else if (ancestor.type === 'ArrowFunctionExpression') {
+			yield fixer.insertTextBefore(callExpression, '{');
+			yield fixer.insertTextAfter(callExpression, '}');
 		}
 
 		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, sourceCode);
@@ -332,7 +338,11 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 	}
 
 	// Check ancestors, we only fix `ExpressionStatement`
-	if (stripChainExpression(callExpression).parent.type !== 'ExpressionStatement') {
+	const callOrChainExpression = stripChainExpression(callExpression);
+	if (
+		callOrChainExpression.parent.type !== 'ExpressionStatement'
+		&& !isArrowFunctionBody(callOrChainExpression)
+	) {
 		return false;
 	}
 
