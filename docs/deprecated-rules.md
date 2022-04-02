@@ -2,7 +2,7 @@
 
 ## import-index
 
-This rule is outdated, importing directory doesn't work for ES module.
+This rule is outdated. JavaScript modules (ESM) do not support importing a directory.
 
 ## no-array-instanceof
 
