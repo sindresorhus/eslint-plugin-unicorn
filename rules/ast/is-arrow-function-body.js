@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
 function isArrowFunctionBody(node) {
 	return node.parent.type === 'ArrowFunctionExpression' && node.parent.body === node;
 }
 
-module.exports = isArrowFunctionBody
+module.exports = isArrowFunctionBody;

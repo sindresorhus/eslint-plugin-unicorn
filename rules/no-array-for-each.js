@@ -257,8 +257,8 @@ function getFixFunction(callExpression, functionInfo, context) {
 				yield fixer.remove(expressionStatementLastToken, fixer);
 			}
 		} else if (ancestor.type === 'ArrowFunctionExpression') {
-			yield fixer.insertTextBefore(callExpression, '{');
-			yield fixer.insertTextAfter(callExpression, '}');
+			yield fixer.insertTextBefore(callExpression, '{ ');
+			yield fixer.insertTextAfter(callExpression, ' }');
 		}
 
 		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, sourceCode);
