@@ -6,20 +6,24 @@ const {
 	isSemicolonToken,
 	isClosingParenToken,
 	findVariable,
+	hasSideEffect,
 } = require('eslint-utils');
 const {methodCallSelector, referenceIdentifierSelector} = require('./selectors/index.js');
 const {extendFixRange} = require('./fix/index.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression.js');
+const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 const {getParentheses} = require('./utils/parentheses.js');
 const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 const assertToken = require('./utils/assert-token.js');
-const {fixSpaceAroundKeyword} = require('./fix/index.js');
+const {fixSpaceAroundKeyword, removeParentheses} = require('./fix/index.js');
 
-const MESSAGE_ID = 'no-array-for-each';
+const MESSAGE_ID_ERROR = 'no-array-for-each/error';
+const MESSAGE_ID_SUGGESTION = 'no-array-for-each/suggestion';
 const messages = {
-	[MESSAGE_ID]: 'Use `for…of` instead of `Array#forEach(…)`.',
+	[MESSAGE_ID_ERROR]: 'Use `for…of` instead of `Array#forEach(…)`.',
+	[MESSAGE_ID_SUGGESTION]: 'Switch to `for…of`.',
 };
 
 const arrayForEachCallSelector = methodCallSelector({
@@ -35,6 +39,11 @@ const continueAbleNodeTypes = new Set([
 	'ForOfStatement',
 	'ForInStatement',
 ]);
+
+const stripChainExpression = node =>
+	(node.parent.type === 'ChainExpression' && node.parent.expression === node)
+		? node.parent
+		: node;
 
 function isReturnStatementInContinueAbleNodes(returnStatement, callbackFunction) {
 	for (let node = returnStatement; node && node !== callbackFunction; node = node.parent) {
@@ -73,6 +82,9 @@ function getFixFunction(callExpression, functionInfo, context) {
 	const parameters = callback.params;
 	const array = callExpression.callee.object;
 	const {returnStatements} = functionInfo.get(callback);
+	const isOptionalArray = callExpression.callee.optional;
+	const expressionStatement = stripChainExpression(callExpression).parent;
+	const arrayText = sourceCode.getText(array);
 
 	const getForOfLoopHeadText = () => {
 		const [elementText, indexText] = parameters.map(parameter => sourceCode.getText(parameter));
@@ -84,12 +96,16 @@ function getFixFunction(callExpression, functionInfo, context) {
 		text += useEntries ? `[${indexText}, ${elementText}]` : elementText;
 		text += ' of ';
 
-		let arrayText = sourceCode.getText(array);
-		if (isParenthesized(array, sourceCode)) {
-			arrayText = `(${arrayText})`;
-		}
+		const shouldAddParenthesesToArray
+			= isParenthesized(array, sourceCode)
+			|| (
+				// `1?.forEach()` -> `(1).entries()`
+				isOptionalArray
+				&& useEntries
+				&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+			);
 
-		text += arrayText;
+		text += shouldAddParenthesesToArray ? `(${arrayText})` : arrayText;
 
 		if (useEntries) {
 			text += '.entries()';
@@ -193,6 +209,9 @@ function getFixFunction(callExpression, functionInfo, context) {
 	}
 
 	return function * (fixer) {
+		// `(( foo.forEach(bar => bar) ))`
+		yield * removeParentheses(callExpression, fixer, sourceCode);
+
 		// Replace these with `for (const … of …) `
 		// foo.forEach(bar =>    bar)
 		// ^^^^^^^^^^^^^^^^^^ (space after `=>` didn't included)
@@ -228,7 +247,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 			yield * replaceReturnStatement(returnStatement, fixer);
 		}
 
-		const expressionStatementLastToken = sourceCode.getLastToken(callExpression.parent);
+		const expressionStatementLastToken = sourceCode.getLastToken(expressionStatement);
 		// Remove semicolon if it's not needed anymore
 		// foo.forEach(bar => {});
 		//                       ^
@@ -237,6 +256,10 @@ function getFixFunction(callExpression, functionInfo, context) {
 		}
 
 		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, sourceCode);
+
+		if (isOptionalArray) {
+			yield fixer.insertTextBefore(callExpression, `if (${arrayText}) `);
+		}
 
 		// Prevent possible variable conflicts
 		yield * extendFixRange(fixer, callExpression.parent.range);
@@ -303,25 +326,13 @@ function isFunctionParameterVariableReassigned(callbackFunction, context) {
 }
 
 function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
-	const sourceCode = context.getSourceCode();
 	// Check `CallExpression`
-	if (
-		callExpression.optional
-		|| isParenthesized(callExpression, sourceCode)
-		|| callExpression.arguments.length !== 1
-	) {
+	if (callExpression.optional || callExpression.arguments.length !== 1) {
 		return false;
 	}
 
-	// Check `CallExpression.parent`
-	if (callExpression.parent.type !== 'ExpressionStatement') {
-		return false;
-	}
-
-	// Check `CallExpression.callee`
-	// Because of `ChainExpression` wrapper, `foo?.forEach()` is already failed on previous check keep this just for safety
-	/* c8 ignore next 3 */
-	if (callExpression.callee.optional) {
+	// Check ancestors, we only fix `ExpressionStatement`
+	if (stripChainExpression(callExpression).parent.type !== 'ExpressionStatement') {
 		return false;
 	}
 
@@ -373,6 +384,7 @@ const create = context => {
 	const callExpressions = [];
 	const allIdentifiers = [];
 	const functionInfo = new Map();
+	const sourceCode = context.getSourceCode();
 
 	return {
 		':function'(node) {
@@ -405,13 +417,31 @@ const create = context => {
 		},
 		* 'Program:exit'() {
 			for (const {node, scope} of callExpressions) {
+				// TODO: Rename this to iteratable
+				const array = node.callee;
+
 				const problem = {
-					node: node.callee.property,
-					messageId: MESSAGE_ID,
+					node: array.property,
+					messageId: MESSAGE_ID_ERROR,
 				};
 
-				if (isFixable(node, {scope, allIdentifiers, functionInfo, context})) {
-					problem.fix = getFixFunction(node, functionInfo, context);
+				if (!isFixable(node, {scope, allIdentifiers, functionInfo, context})) {
+					yield problem;
+					continue;
+				}
+
+				const shouldUseSuggestion = array.optional && hasSideEffect(array, sourceCode);
+				const fix = getFixFunction(node, functionInfo, context);
+
+				if (shouldUseSuggestion) {
+					problem.suggest = [
+						{
+							messageId: MESSAGE_ID_SUGGESTION,
+							fix,
+						},
+					];
+				} else {
+					problem.fix = fix;
 				}
 
 				yield problem;
@@ -429,6 +459,7 @@ module.exports = {
 			description: 'Prefer `for…of` over `Array#forEach(…)`.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 	},
 };

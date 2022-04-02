@@ -1,4 +1,4 @@
-# Forbid member access from await expression
+# Disallow member access from await expression
 
 <!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->

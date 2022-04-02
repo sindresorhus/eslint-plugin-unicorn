@@ -17,6 +17,7 @@ module.exports = {
 	isNullLiteral,
 	isRegexLiteral,
 
-	isUndefined: require('./is-undefined.js'),
+	isEmptyNode: require('./is-empty-node.js'),
 	isStaticRequire: require('./is-static-require.js'),
+	isUndefined: require('./is-undefined.js'),
 };

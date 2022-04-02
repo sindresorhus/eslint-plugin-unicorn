@@ -1,17 +1,13 @@
 'use strict';
+const {isEmptyNode} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-empty-file';
 const messages = {
 	[MESSAGE_ID]: 'Empty files are not allowed.',
 };
 
-const isEmpty = node =>
-	(
-		(node.type === 'Program' || node.type === 'BlockStatement')
-		&& node.body.every(currentNode => isEmpty(currentNode))
-	)
-	|| node.type === 'EmptyStatement'
-	|| (node.type === 'ExpressionStatement' && 'directive' in node);
+const isDirective = node => node.type === 'ExpressionStatement' && 'directive' in node;
+const isEmpty = node => isEmptyNode(node, isDirective);
 
 const isTripleSlashDirective = node =>
 	node.type === 'Line' && node.value.startsWith('/');
@@ -29,7 +25,7 @@ const create = context => {
 
 	return {
 		Program(node) {
-			if (!isEmpty(node)) {
+			if (node.body.some(node => !isEmpty(node))) {
 				return;
 			}
 

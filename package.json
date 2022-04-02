@@ -1,6 +1,6 @@
 {
 	"name": "eslint-plugin-unicorn",
-	"version": "41.0.1",
+	"version": "42.0.0",
 	"description": "Various awesome ESLint rules",
 	"license": "MIT",
 	"repository": "sindresorhus/eslint-plugin-unicorn",
@@ -161,12 +161,9 @@
 				"files": [
 					"rules/**/*.js"
 				],
-				"plugins": [
-					"internal-rules"
-				],
-				"rules": {
-					"internal-rules/prefer-negative-boolean-attribute": "error"
-				}
+				"extends": [
+					"plugin:internal-rules/all"
+				]
 			}
 		]
 	},

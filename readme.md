@@ -69,11 +69,11 @@ Each rule has emojis denoting:
 | [new-for-builtins](docs/rules/new-for-builtins.md) | Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`. | ✅ | 🔧 |  |
 | [no-abusive-eslint-disable](docs/rules/no-abusive-eslint-disable.md) | Enforce specifying rules to disable in `eslint-disable` comments. | ✅ |  |  |
 | [no-array-callback-reference](docs/rules/no-array-callback-reference.md) | Prevent passing a function reference directly to iterator methods. | ✅ |  | 💡 |
-| [no-array-for-each](docs/rules/no-array-for-each.md) | Prefer `for…of` over `Array#forEach(…)`. | ✅ | 🔧 |  |
+| [no-array-for-each](docs/rules/no-array-for-each.md) | Prefer `for…of` over `Array#forEach(…)`. | ✅ | 🔧 | 💡 |
 | [no-array-method-this-argument](docs/rules/no-array-method-this-argument.md) | Disallow using the `this` argument in array methods. | ✅ | 🔧 | 💡 |
 | [no-array-push-push](docs/rules/no-array-push-push.md) | Enforce combining multiple `Array#push()` into one call. | ✅ | 🔧 | 💡 |
 | [no-array-reduce](docs/rules/no-array-reduce.md) | Disallow `Array#reduce()` and `Array#reduceRight()`. | ✅ |  |  |
-| [no-await-expression-member](docs/rules/no-await-expression-member.md) | Forbid member access from await expression. | ✅ | 🔧 |  |
+| [no-await-expression-member](docs/rules/no-await-expression-member.md) | Disallow member access from await expression. | ✅ | 🔧 |  |
 | [no-console-spaces](docs/rules/no-console-spaces.md) | Do not use leading/trailing space between `console.log` parameters. | ✅ | 🔧 |  |
 | [no-document-cookie](docs/rules/no-document-cookie.md) | Do not use `document.cookie` directly. | ✅ |  |  |
 | [no-empty-file](docs/rules/no-empty-file.md) | Disallow empty files. | ✅ |  |  |
@@ -89,16 +89,18 @@ Each rule has emojis denoting:
 | [no-null](docs/rules/no-null.md) | Disallow the use of the `null` literal. | ✅ | 🔧 | 💡 |
 | [no-object-as-default-parameter](docs/rules/no-object-as-default-parameter.md) | Disallow the use of objects as default parameters. | ✅ |  |  |
 | [no-process-exit](docs/rules/no-process-exit.md) | Disallow `process.exit()`. | ✅ |  |  |
-| [no-static-only-class](docs/rules/no-static-only-class.md) | Forbid classes that only have static members. | ✅ | 🔧 |  |
+| [no-static-only-class](docs/rules/no-static-only-class.md) | Disallow classes that only have static members. | ✅ | 🔧 |  |
 | [no-thenable](docs/rules/no-thenable.md) | Disallow `then` property. | ✅ |  |  |
 | [no-this-assignment](docs/rules/no-this-assignment.md) | Disallow assigning `this` to a variable. | ✅ |  |  |
 | [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) | Disallow unreadable array destructuring. | ✅ | 🔧 |  |
+| [no-unreadable-iife](docs/rules/no-unreadable-iife.md) | Disallow unreadable IIFEs. | ✅ |  |  |
 | [no-unsafe-regex](docs/rules/no-unsafe-regex.md) | Disallow unsafe regular expressions. |  |  |  |
 | [no-unused-properties](docs/rules/no-unused-properties.md) | Disallow unused object properties. |  |  |  |
-| [no-useless-fallback-in-spread](docs/rules/no-useless-fallback-in-spread.md) | Forbid useless fallback when spreading in object literals. | ✅ | 🔧 |  |
+| [no-useless-fallback-in-spread](docs/rules/no-useless-fallback-in-spread.md) | Disallow useless fallback when spreading in object literals. | ✅ | 🔧 |  |
 | [no-useless-length-check](docs/rules/no-useless-length-check.md) | Disallow useless array length check. | ✅ | 🔧 |  |
 | [no-useless-promise-resolve-reject](docs/rules/no-useless-promise-resolve-reject.md) | Disallow returning/yielding `Promise.resolve/reject()` in async functions or promise callbacks | ✅ | 🔧 |  |
 | [no-useless-spread](docs/rules/no-useless-spread.md) | Disallow unnecessary spread. | ✅ | 🔧 |  |
+| [no-useless-switch-case](docs/rules/no-useless-switch-case.md) | Disallow useless case in switch statements. | ✅ |  | 💡 |
 | [no-useless-undefined](docs/rules/no-useless-undefined.md) | Disallow useless `undefined`. | ✅ | 🔧 |  |
 | [no-zero-fractions](docs/rules/no-zero-fractions.md) | Disallow number literals with zero fractions or dangling dots. | ✅ | 🔧 |  |
 | [number-literal-case](docs/rules/number-literal-case.md) | Enforce proper case for numeric literals. | ✅ | 🔧 |  |
@@ -123,7 +125,9 @@ Each rule has emojis denoting:
 | [prefer-keyboard-event-key](docs/rules/prefer-keyboard-event-key.md) | Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`. | ✅ | 🔧 |  |
 | [prefer-math-trunc](docs/rules/prefer-math-trunc.md) | Enforce the use of `Math.trunc` instead of bitwise operators. | ✅ | 🔧 | 💡 |
 | [prefer-modern-dom-apis](docs/rules/prefer-modern-dom-apis.md) | Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`. | ✅ | 🔧 |  |
+| [prefer-modern-math-apis](docs/rules/prefer-modern-math-apis.md) | Prefer modern `Math` APIs over legacy patterns. | ✅ | 🔧 |  |
 | [prefer-module](docs/rules/prefer-module.md) | Prefer JavaScript modules (ESM) over CommonJS. | ✅ | 🔧 | 💡 |
+| [prefer-native-coercion-functions](docs/rules/prefer-native-coercion-functions.md) | Prefer using `String`, `Number`, `BigInt`, `Boolean`, and `Symbol` directly. | ✅ | 🔧 |  |
 | [prefer-negative-index](docs/rules/prefer-negative-index.md) | Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()`, `Array#splice()` and `Array#at()`. | ✅ | 🔧 |  |
 | [prefer-node-protocol](docs/rules/prefer-node-protocol.md) | Prefer using the `node:` protocol when importing Node.js builtin modules. | ✅ | 🔧 |  |
 | [prefer-number-properties](docs/rules/prefer-number-properties.md) | Prefer `Number` static properties over global ones. | ✅ | 🔧 | 💡 |
