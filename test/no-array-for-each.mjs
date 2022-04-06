@@ -425,10 +425,21 @@ test.snapshot({
 
 			// Need insert space after keyword
 			'if (true) {} else[foo].forEach((element) => {})',
+
+			// Arrow function body
+			'const a = () => ((  foo.forEach(element => bar(element))  ))',
+			'const a = () => ((  foo.forEach(element => bar(element))  ));',
+			'const a = () => foo.forEach(element => bar(element))',
+			'const a = () => foo.forEach(element => bar(element));',
+			'const a = () => void foo.forEach(element => bar(element));',
 		].flatMap(code => [code, code.replace('.forEach', '?.forEach')]),
 
 		// Should not fix to invalid code
 		'1?.forEach((a, b) => call(a, b))',
+
+		// Arrow function body
+		'array.forEach((arrayInArray) => arrayInArray.forEach(element => bar(element)));',
+		'array.forEach((arrayInArray) => arrayInArray?.forEach(element => bar(element)));',
 	],
 });
 
