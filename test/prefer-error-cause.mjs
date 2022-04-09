@@ -48,6 +48,11 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			try {} catch (error) {
+				throw new CustomError('oops', {}, {cause: error});
+			}
+		`
 	],
 	invalid: [
 		// ** Not sure
@@ -143,6 +148,46 @@ test.snapshot({
 				} catch {
 					throw error;
 				}
+			}
+		`,
+		outdent`
+			try {} catch (error) {
+				throw new CustomError('oops', {}, {cause: err});
+			}
+		`,
+		outdent`
+			try {} catch (error) {
+				throw new CustomError('oops', {}, {cause: err});
+			}
+		`,
+		outdent`
+			try {
+			} catch (err) {
+				throw new CustomError('oops', { url });
+			}
+		`,
+		outdent`
+			try {
+			} catch (err) {
+				throw new CustomError('oops', {}, {url});
+			}
+		`,
+		outdent`
+			try {
+			} catch (err) {
+				throw new CustomError('oops', {}, {url: 'abc'});
+			}
+		`,
+		outdent`
+			try {
+			} catch (err) {
+				throw new CustomError('oops', {}, {url});
+			}
+		`,
+		outdent`
+			try {
+			} catch (err) {
+				throw new CustomError('oops', {}, {});
 			}
 		`,
 	],

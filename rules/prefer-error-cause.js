@@ -45,6 +45,15 @@ const appendArgument = (fixer, node, text, sourceCode) => {
 	return fixer.insertTextBefore(lastToken, text);
 };
 
+const insertProperty = (fixer, node, text, sourceCode) => {
+	const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
+	if (node.properties.length > 0) {
+		text = isCommaToken(penultimateToken) ? `${text}` : `, ${text}`;
+	}
+
+	return fixer.insertTextBefore(lastToken, text);
+};
+
 const generateCauseInspector = inspectProperty => objectExpression => {
 	if (!objectExpression || objectExpression.type !== 'ObjectExpression') {
 		return false;
@@ -73,13 +82,7 @@ const fixerUtils = {
 	},
 
 	insertCauseProperty({fixer, node, sourceCode, value}) {
-		const objectToken = sourceCode.getTokenBefore(sourceCode.getLastToken(node));
-		const prefix = isClosingBraceToken(sourceCode.getTokenBefore(objectToken)) ? ', ' : '';
-
-		return fixer.insertTextBefore(
-			sourceCode.getTokenBefore(objectToken),
-			`${prefix}cause: ${value}`,
-		);
+		return insertProperty(fixer, node, `cause: ${value}`, sourceCode);
 	},
 
 	renameObjectProperty({fixer, node, key, value}) {
@@ -145,7 +148,7 @@ const fix = ({
 
 		return fixerUtils.insertCauseProperty({
 			fixer,
-			node: statementToFix,
+			node: errorConstructorLastArgument,
 			sourceCode,
 			value: errorArgumentIdentifier,
 		});
@@ -227,13 +230,6 @@ const handleCatchBlock = ({node, statements, parameter, context}) => {
 			reportCannotBeFixed(node, context);
 			return;
 		}
-
-		if (
-			thrownErrorDeclarator.init.arguments.length >= 2
-      && hasValidCauseProperty(errorConstructorLastArgument)
-		) {
-			return;
-		}
 	}
 
 	if (hasValidCauseProperty(errorConstructorLastArgument)) {
@@ -244,10 +240,6 @@ const handleCatchBlock = ({node, statements, parameter, context}) => {
 		node,
 		messageId: ERROR,
 		* fix(fixer) {
-			if (hasValidCauseProperty(errorConstructorLastArgument)) {
-				yield;
-			}
-
 			yield fix({
 				fixer,
 				statementToFix,
