@@ -119,6 +119,7 @@ Each rule has emojis denoting:
 | [prefer-dom-node-dataset](docs/rules/prefer-dom-node-dataset.md) | Prefer using `.dataset` on DOM elements over calling attribute methods. | ✅ | 🔧 |  |
 | [prefer-dom-node-remove](docs/rules/prefer-dom-node-remove.md) | Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`. | ✅ | 🔧 | 💡 |
 | [prefer-dom-node-text-content](docs/rules/prefer-dom-node-text-content.md) | Prefer `.textContent` over `.innerText`. | ✅ |  | 💡 |
+| [prefer-event-target](docs/rules/prefer-event-target.md) | Prefer EventTarget instead of EventEmitter | ✅ |  |  |
 | [prefer-export-from](docs/rules/prefer-export-from.md) | Prefer `export…from` when re-exporting. | ✅ | 🔧 | 💡 |
 | [prefer-includes](docs/rules/prefer-includes.md) | Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence. | ✅ | 🔧 | 💡 |
 | [prefer-json-parse-buffer](docs/rules/prefer-json-parse-buffer.md) | Prefer reading a JSON file as a buffer. |  | 🔧 |  |
