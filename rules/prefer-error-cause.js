@@ -1,8 +1,8 @@
 'use strict';
 const esquery = require('esquery');
-const {isClosingBraceToken, isCommaToken} = require('eslint-utils');
+const {isCommaToken} = require('eslint-utils');
 const {matches, methodCallSelector} = require('./selectors/index.js');
-const {replaceReferenceIdentifier} = require('./fix/index.js');
+const {appendArgument, replaceReferenceIdentifier} = require('./fix/index.js');
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -32,17 +32,6 @@ const peek = array => {
 	}
 
 	return array[array.length - 1];
-};
-
-// Same logic with '/rules/fix/append-argument.js'
-// But the function does not support NewExpression.
-const appendArgument = (fixer, node, text, sourceCode) => {
-	const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
-	if (node.arguments.length > 0) {
-		text = isCommaToken(penultimateToken) ? ` ${text},` : `, ${text}`;
-	}
-
-	return fixer.insertTextBefore(lastToken, text);
 };
 
 const insertProperty = (fixer, node, text, sourceCode) => {
