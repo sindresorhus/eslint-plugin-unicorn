@@ -52,7 +52,7 @@ test.snapshot({
 			try {} catch (error) {
 				throw new CustomError('oops', {}, {cause: error});
 			}
-		`
+		`,
 	],
 	invalid: [
 		// ** Not sure

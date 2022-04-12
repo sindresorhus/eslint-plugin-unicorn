@@ -12,13 +12,13 @@ Prefer to add the old error as new error\'s `cause` property when throwing a new
 ## Fail
 
 ```js
-try {} catch (error) {
+try {} catch {
 	throw new Error('oops');
 }
 ```
 
 ```js
-promise.catch((error) => {
+promise.catch(() => {
 	throw new Error('oops');
 });
 ```
@@ -32,7 +32,7 @@ try {} catch (error) {
 ```
 
 ```js
-promise.catch((error) => {
+promise.catch(error => {
 	throw new Error('oops', {cause: error});
 });
 ```

@@ -12,7 +12,7 @@ const messages = {
 	[SUGGESTION]: 'Add the old error as new error\'s `cause` property.',
 };
 
-const tryCatchSelector = matches([
+const catchClauseSelector = matches([
 	[
 		'CatchClause',
 		':has(ThrowStatement)',
@@ -48,8 +48,8 @@ const generateCauseInspector = inspectProperty => objectExpression => {
 		return false;
 	}
 
-	return objectExpression.properties.some(prop =>
-		prop.key.name === 'cause' && inspectProperty(prop),
+	return objectExpression.properties.some(property =>
+		property.key.name === 'cause' && inspectProperty(property),
 	);
 };
 
@@ -244,7 +244,7 @@ const handleCatchBlock = ({node, statements, parameter, context}) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[tryCatchSelector](node) {
+	[catchClauseSelector](node) {
 		const catchBlock = node.body.body;
 
 		handleCatchBlock({

@@ -5,7 +5,7 @@ function appendArgument(fixer, node, text, sourceCode) {
 	// Parentheses of `NewExpression` could be omitted,
 	// which means appendArgument should not be called when node.arguments.length is 0
 	/* c8 ignore next 3 */
-	if (node.type === "NewExpression" && node.arguments.length === 0) {
+	if (node.type === 'NewExpression' && node.arguments.length === 0) {
 		throw new Error(`Unexpected node "${node.type}".`);
 	}
 
