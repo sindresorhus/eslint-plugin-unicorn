@@ -1,4 +1,4 @@
-# Prefer to add the old error as new error\'s `cause` property
+# Prefer specifying an old error as `cause` option where rethrowing the error.
 
 <!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->
@@ -7,7 +7,7 @@
 🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
 <!-- /RULE_NOTICE -->
 
-Prefer to add the old error as new error\'s `cause` property when throwing a new error in `try/catch` or `Promise#catch`.
+Prefer specifying old error as `cause` option where rethrowing the error.
 
 ## Fail
 

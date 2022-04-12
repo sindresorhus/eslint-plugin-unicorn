@@ -8,8 +8,8 @@ const ERROR = 'error';
 const SUGGESTION = 'suggestion';
 
 const messages = {
-	[ERROR]: 'Prefer to add the old error as new error\'s `cause` property.',
-	[SUGGESTION]: 'Add the old error as new error\'s `cause` property.',
+	[ERROR]: 'Prefer specifying an old error as `cause` option where rethrowing the error.',
+	[SUGGESTION]: 'Specify `cause` option to Error\'s constructor.',
 };
 
 const catchClauseSelector = matches([
@@ -278,7 +278,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer to add the old error as new error\'s `cause` property.',
+			description: 'Prefer specifying an old error as `cause` option where rethrowing the error.',
 		},
 		fixable: 'code',
 		messages,
