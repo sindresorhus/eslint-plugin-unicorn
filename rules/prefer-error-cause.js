@@ -1,6 +1,7 @@
 'use strict';
 const esquery = require('esquery');
 const {isCommaToken} = require('eslint-utils');
+const _ = require('lodash');
 const {matches, methodCallSelector} = require('./selectors/index.js');
 const {appendArgument, replaceReferenceIdentifier} = require('./fix/index.js');
 
@@ -26,8 +27,8 @@ const promiseCatchSelector = matches([
 	].join(''),
 ]);
 
-const peek = array => {
-	if (!array || array.length === 0) {
+const peekTop = array => {
+	if (!array || _.isEmpty(array)) {
 		return undefined;
 	}
 
@@ -93,20 +94,8 @@ const fixerUtils = {
 
 		return replaceReferenceIdentifier(identifier.value, value, fixer);
 	},
-};
 
-const fix = ({
-	fixer,
-	node,
-	sourceCode,
-	statementToFix,
-	errorArgumentIdentifier,
-	errorConstructorLastArgument,
-	isCauseNameValid,
-}) => {
-	if (!errorArgumentIdentifier) {
-		errorArgumentIdentifier = 'error';
-
+	handleEmptyArgument({fixer, node, sourceCode, errorArgumentIdentifier}) {
 		// In case of Promise#catch
 		if (node.type === 'CallExpression') {
 			const functionExpression = node.arguments[0];
@@ -123,6 +112,21 @@ const fix = ({
 
 		// In case of try-catch statement
 		return fixer.insertTextBefore(node.body, `(${errorArgumentIdentifier}) `);
+	},
+};
+
+const fix = ({
+	fixer,
+	node,
+	sourceCode,
+	statementToFix,
+	errorArgumentIdentifier,
+	errorConstructorLastArgument,
+	isCauseNameValid,
+}) => {
+	if (!errorArgumentIdentifier) {
+		errorArgumentIdentifier = 'error';
+		return fixerUtils.handleEmptyArgument({fixer, node, sourceCode, errorArgumentIdentifier});
 	}
 
 	if (errorConstructorLastArgument.type === 'ObjectExpression') {
@@ -153,7 +157,7 @@ const fix = ({
 	});
 };
 
-const handleCatchBlock = ({node, statements, parameter, context}) => {
+const handleCatchBlock = ({node, context, statements, parameter}) => {
 	if (parameter && parameter.type !== 'Identifier') {
 		context.report({
 			node,
@@ -182,15 +186,15 @@ const handleCatchBlock = ({node, statements, parameter, context}) => {
 	}
 
 	let statementToFix;
-	// Assume if 'cause' property is given, it is given through last argument.
+	// Assume if 'cause' property is given, it should be given through last argument.
 	let errorConstructorLastArgument;
 
 	if (throwStatementArguments.type === 'NewExpression') {
 		statementToFix = throwStatement;
-		errorConstructorLastArgument = peek(throwStatementArguments.arguments);
+		errorConstructorLastArgument = peekTop(throwStatementArguments.arguments);
 
-		// Maybe cannot be fixed because Error constructor's parenthesis (NewExpression) might be here or not.
-		if (throwStatementArguments.arguments && throwStatementArguments.arguments.length === 0) {
+		// Maybe cannot be fixed since Error constructor's parenthesis (NewExpression) might be here or not.
+		if (throwStatementArguments.arguments && _.isEmpty(throwStatementArguments.arguments)) {
 			reportCannotBeFixed(node, context);
 			return;
 		}
@@ -203,18 +207,18 @@ const handleCatchBlock = ({node, statements, parameter, context}) => {
 
 		const thrownErrorDeclarators = esquery.match(node, selector);
 
-		if (thrownErrorDeclarators.length === 0) {
+		if (_.isEmpty(thrownErrorDeclarators)) {
 			reportCannotBeFixed(node, context);
 			return;
 		}
 
 		const thrownErrorDeclarator = thrownErrorDeclarators[0];
 		statementToFix = thrownErrorDeclarator;
-		errorConstructorLastArgument = peek(thrownErrorDeclarator.init.arguments);
+		errorConstructorLastArgument = peekTop(thrownErrorDeclarator.init.arguments);
 
 		if (
 			thrownErrorDeclarators.length !== 1
-			|| thrownErrorDeclarator.init.arguments.length === 0
+			|| _.isEmpty(thrownErrorDeclarator.init.arguments)
 		) {
 			reportCannotBeFixed(node, context);
 			return;
