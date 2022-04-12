@@ -1,4 +1,4 @@
-# Prefer specifying an old error as `cause` option where rethrowing the error.
+# Prefer specifying an old error as `cause` option where rethrowing the error
 
 <!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->
@@ -8,6 +8,10 @@
 <!-- /RULE_NOTICE -->
 
 Prefer specifying old error as `cause` option where rethrowing the error.
+
+This rule also supports custom error classes in addition to built-in one.
+
+In case of custom errors, this rule assumes the last argument of the constructor is object able to receive `cause` property.
 
 ## Fail
 
@@ -28,6 +32,12 @@ promise.catch(() => {
 ```js
 try {} catch (error) {
 	throw new Error('oops', {cause: error});
+}
+```
+
+```js
+try {} catch (error) {
+	throw new CustomError('oops', 'other argument', {cause: error});
 }
 ```
 
