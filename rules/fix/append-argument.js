@@ -6,7 +6,7 @@ function appendArgument(fixer, node, text, sourceCode) {
 	// which means appendArgument should not be called when node.arguments.length is 0
 	/* c8 ignore next 3 */
 	if (node.type === 'NewExpression' && node.arguments.length === 0) {
-		throw new Error(`Unexpected node "${node.type}".`);
+		throw new Error('You cannot use this function to NewExpression having no arguments');
 	}
 
 	const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
