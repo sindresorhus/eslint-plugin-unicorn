@@ -1,4 +1,4 @@
-# Prefer EventTarget instead of EventEmitter
+# Prefer `EventTarget` over `EventEmitter`
 
 <!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->
@@ -6,16 +6,16 @@
 
 <!-- /RULE_NOTICE -->
 
-While `EventEmitter` could be used in only Node.js, `EventTarget` exist in *Deno* and *Browser* too.
+While [EventEmitter](https://nodejs.org/api/events.html#class-eventemitter) is only available in Node.js, [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget) is also available in *Deno* and browsers.
 
-This rule could potentially reduce the bundle size, and make your code more cross-platform friendly.
+This rule reduces the bundle size and makes your code more cross-platform friendly.
 
-You can check their [differences](https://nodejs.org/api/events.html#eventtarget-and-event-api) between `EventEmitter` and `EventTarget`.
+See the [differences](https://nodejs.org/api/events.html#eventtarget-and-event-api) between `EventEmitter` and `EventTarget`.
 
 ## Fail
 
 ```js
-import EventEmitter from 'node:event'
+import EventEmitter from 'node:event';
 
 class Foo extends EventEmitter {
 
