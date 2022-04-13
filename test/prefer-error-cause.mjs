@@ -5,9 +5,12 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// Throw statement not exists
 		'try {} catch {}',
 		'try {} catch (oldError) {}',
+		// Rethrow old error itself
 		'try {} catch (oldError) { throw oldError; }',
+		// Specify old error to cause
 		outdent`
 			try {} catch (oldError) {
 				throw new Error('oops', {cause: oldError});

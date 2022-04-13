@@ -6,6 +6,7 @@ const {isCommaToken} = require('eslint-utils');
 const _ = require('lodash');
 const {matches, methodCallSelector} = require('./selectors/index.js');
 const {appendArgument, replaceReferenceIdentifier} = require('./fix/index.js');
+const getReferences = require('./utils/get-references.js');
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -120,13 +121,22 @@ const fixerUtils = {
 const fix = ({
 	fixer,
 	node,
-	sourceCode,
+	context,
 	statementToFix,
 	errorArgumentIdentifier,
 	errorConstructorLastArgument,
 	isCauseNameValid,
 }) => {
+	const sourceCode = context.getSourceCode();
+
 	if (!errorArgumentIdentifier) {
+		const allReferences = getReferences(context.getScope());
+
+		// Cannot be fixed
+		if (allReferences.some(reference => reference?.identifier.name === 'error')) {
+			return;
+		}
+
 		errorArgumentIdentifier = 'error';
 		return fixerUtils.handleEmptyArgument({fixer, node, sourceCode, errorArgumentIdentifier});
 	}
@@ -149,39 +159,63 @@ const fix = ({
 		});
 	}
 
-	let targetToInsertArgument;
+	let nodeToInsertArgument;
 
-	if (statementToFix.type === 'VariableDeclarator') {
-		targetToInsertArgument = statementToFix.init;
-	} else if (statementToFix.type === 'AssignmentExpression') {
-		targetToInsertArgument = statementToFix.right;
-	} else {
-		targetToInsertArgument = statementToFix.argument;
+	switch (statementToFix.type) {
+		case 'VariableDeclarator': {
+			nodeToInsertArgument = statementToFix.init;
+
+			break;
+		}
+
+		case 'AssignmentExpression': {
+			nodeToInsertArgument = statementToFix.right;
+
+			break;
+		}
+
+		case 'ThrowStatement': {
+			nodeToInsertArgument = statementToFix.argument;
+
+			break;
+		}
+
+		default: {
+			throw new Error('statementToFix is not invalid type');
+		}
 	}
 
 	return fixerUtils.insertCauseArgument({
 		fixer,
-		node: targetToInsertArgument,
+		node: nodeToInsertArgument,
 		sourceCode,
 		value: errorArgumentIdentifier,
 	});
 };
 
-const getStatementToFix = ({node, context, throwStatement}) => {
+const getAllNodesToFix = ({node, context, throwStatement}) => {
+	const result = [];
+
 	let statementToFix;
 	let errorConstructorLastArgument;
 
 	// try {} catch (err) { throw new Error('oops', {cause: err})}
 	// promise.catch(err => { throw new Error('oops', {cause: err})
 	if (throwStatement.argument.type === 'NewExpression') {
-		const newExpression = throwStatement.argument;
+		errorConstructorLastArgument = peekTop(throwStatement.argument.arguments);
 
-		statementToFix = throwStatement;
-		// Assume if 'cause' property is given, it should be given through last argument.
-		errorConstructorLastArgument = peekTop(newExpression.arguments);
+		if (!errorConstructorLastArgument) {
+			reportCannotBeFixed(node, context);
+			return;
+		}
+
+		result.push({
+			node: errorConstructorLastArgument,
+			statementToFix: throwStatement,
+		});
 	}
 	// Assume Error's constructor exists in other node of the block
-	// It could be VariableDeclarator or
+	// It could be VariableDeclarator or AssignmentExpression.
 	else {
 		const newExpressionSelector = esquery.parse(matches([
 			// try {} catch (err) { const error = new Error('oops', {cause: err}); throw error;}
@@ -202,7 +236,7 @@ const getStatementToFix = ({node, context, throwStatement}) => {
 
 		const thrownErrorDeclarators = esquery.match(node, newExpressionSelector);
 
-		// Report in case declarator not found in given block.
+		// Report newExpression not found in given block.
 		// try {} catch { const err = new Error; try {} catch { throw err; } }
 		if (_.isEmpty(thrownErrorDeclarators)) {
 			reportCannotBeFixed(node, context);
@@ -210,31 +244,32 @@ const getStatementToFix = ({node, context, throwStatement}) => {
 		}
 
 		// try {} catch (err) { let e1 = new Error('oops'); e1 = new Error('oops'); throw error;}
-		const thrownErrorDeclarator = thrownErrorDeclarators[0];
 
-		statementToFix = thrownErrorDeclarator;
-		// Assume if 'cause' property is given, it should be given through last argument.
+		for (const thrownErrorDeclarator of thrownErrorDeclarators) {
+			statementToFix = thrownErrorDeclarator;
 
-		let targetArguments;
-		if (thrownErrorDeclarator.type === 'VariableDeclarator') {
-			targetArguments = thrownErrorDeclarator.init.arguments;
-		} else if (thrownErrorDeclarator.type === 'AssignmentExpression') {
-			targetArguments = thrownErrorDeclarator.right.arguments;
+			let targetArguments;
+			if (thrownErrorDeclarator.type === 'VariableDeclarator') {
+				targetArguments = thrownErrorDeclarator.init.arguments;
+			} else if (thrownErrorDeclarator.type === 'AssignmentExpression') {
+				targetArguments = thrownErrorDeclarator.right.arguments;
+			}
+
+			errorConstructorLastArgument = peekTop(targetArguments);
+
+			if (!errorConstructorLastArgument) {
+				reportCannotBeFixed(node, context);
+				return;
+			}
+
+			result.push({
+				node: errorConstructorLastArgument,
+				statementToFix,
+			});
 		}
-
-		errorConstructorLastArgument = peekTop(targetArguments);
 	}
 
-	// Maybe cannot be fixed since Error constructor's parenthesis (NewExpression) might be here or not.
-	if (!errorConstructorLastArgument) {
-		reportCannotBeFixed(node, context);
-		return;
-	}
-
-	return {
-		statementToFix,
-		errorConstructorLastArgument,
-	};
+	return result;
 };
 
 const handleCatchBlock = ({node, context, statements, parameter}) => {
@@ -248,14 +283,12 @@ const handleCatchBlock = ({node, context, statements, parameter}) => {
 	}
 
 	const errorArgumentIdentifier = parameter?.name;
-	const sourceCode = context.getSourceCode();
-
-	const throwStatementArguments = throwStatement.argument;
+	const throwStatementArgument = throwStatement.argument;
 
 	// Filter block having valid cause property
 	// try {} catch (err) { throw new Error('oops', {cause: err})}
 	// promise.catch(err => { throw new Error('oops', {cause: err})
-	if (errorArgumentIdentifier && errorArgumentIdentifier === throwStatementArguments.name) {
+	if (errorArgumentIdentifier && errorArgumentIdentifier === throwStatementArgument.name) {
 		return;
 	}
 
@@ -270,33 +303,45 @@ const handleCatchBlock = ({node, context, statements, parameter}) => {
 		return;
 	}
 
-	const result = getStatementToFix({node, context, throwStatement});
-	if (!result) {
-		return;
-	}
-
-	const {statementToFix, errorConstructorLastArgument} = result;
-
 	const hasValidCauseProperty = generateCauseInspector(property => property.value.name === errorArgumentIdentifier);
 	const hasInvalidCauseProperty = generateCauseInspector(property => property.value.name !== errorArgumentIdentifier);
 
-	// Prevent repetitive fixing
-	if (!hasValidCauseProperty(errorConstructorLastArgument)) {
-		context.report({
-			node,
-			messageId: ERROR,
-			* fix(fixer) {
-				yield fix({
-					fixer,
-					node,
-					sourceCode,
-					statementToFix,
-					errorArgumentIdentifier,
-					errorConstructorLastArgument,
-					isCauseNameValid: hasInvalidCauseProperty(errorConstructorLastArgument),
-				});
-			},
-		});
+	const nodesToFixCandidates = getAllNodesToFix({node, context, throwStatement});
+	if (_.isEmpty(nodesToFixCandidates)) {
+		return;
+	}
+
+	const nodesToFix = nodesToFixCandidates.filter(({node}) =>
+		!hasValidCauseProperty(node),
+	);
+
+	if (!_.isEmpty(nodesToFix)) {
+		for (const nodeToFix of nodesToFix) {
+			// Prevent repetitive fixing
+			if (hasValidCauseProperty(nodeToFix.node)) {
+				continue;
+			}
+
+			context.report({
+				node,
+				messageId: ERROR,
+				* fix(fixer) {
+					const result = fix({
+						fixer,
+						node,
+						context,
+						statementToFix: nodeToFix.statementToFix,
+						errorConstructorLastArgument: nodeToFix.node,
+						errorArgumentIdentifier,
+						isCauseNameValid: hasInvalidCauseProperty(nodeToFix.node),
+					});
+
+					if (result) {
+						yield result;
+					}
+				},
+			});
+		}
 	}
 };
 
@@ -304,7 +349,6 @@ const handleCatchBlock = ({node, context, statements, parameter}) => {
 const create = context => ({
 	[catchClauseSelector](node) {
 		const catchBlock = node.body.body;
-
 		handleCatchBlock({
 			node,
 			context,
