@@ -1,3 +1,5 @@
+/* eslint-disable capitalized-comments */
+/* eslint-disable brace-style */
 'use strict';
 const esquery = require('esquery');
 const {isCommaToken} = require('eslint-utils');
@@ -28,7 +30,7 @@ const promiseCatchSelector = matches([
 ]);
 
 const peekTop = array => {
-	if (!array || _.isEmpty(array)) {
+	if (_.isEmpty(array)) {
 		return undefined;
 	}
 
@@ -66,7 +68,7 @@ const fixerUtils = {
 		return appendArgument(
 			fixer,
 			node,
-			`{ cause: ${value} }`,
+			`{cause: ${value}}`,
 			sourceCode,
 		);
 	},
@@ -147,7 +149,15 @@ const fix = ({
 		});
 	}
 
-	const targetToInsertArgument = statementToFix.type === 'VariableDeclarator' ? statementToFix.init : statementToFix.argument;
+	let targetToInsertArgument;
+
+	if (statementToFix.type === 'VariableDeclarator') {
+		targetToInsertArgument = statementToFix.init;
+	} else if (statementToFix.type === 'AssignmentExpression') {
+		targetToInsertArgument = statementToFix.right;
+	} else {
+		targetToInsertArgument = statementToFix.argument;
+	}
 
 	return fixerUtils.insertCauseArgument({
 		fixer,
@@ -157,7 +167,101 @@ const fix = ({
 	});
 };
 
+const getStatementToFix = ({node, context, throwStatement}) => {
+	let statementToFix;
+	let errorConstructorLastArgument;
+
+	// try {} catch (err) { throw new Error('oops', {cause: err})}
+	// promise.catch(err => { throw new Error('oops', {cause: err})
+	if (throwStatement.argument.type === 'NewExpression') {
+		const newExpression = throwStatement.argument;
+
+		statementToFix = throwStatement;
+		// Assume if 'cause' property is given, it should be given through last argument.
+		errorConstructorLastArgument = peekTop(newExpression.arguments);
+	}
+	// Assume Error's constructor exists in other node of the block
+	// It could be VariableDeclarator or
+	else {
+		const newExpressionSelector = esquery.parse(matches([
+			// try {} catch (err) { const error = new Error('oops', {cause: err}); throw error;}
+			// promise.catch(err => { const error = new Error('oops', {cause: err}); throw error; })
+			[
+				'VariableDeclarator',
+				`[id.name="${throwStatement.argument.name}"]`,
+				'[init.type="NewExpression"]',
+			].join(''),
+			// try {} catch (err) { let err; err = new Error(); throw err; }
+			// promise.catch(err => { let err; err = new Error(); throw err; })
+			[
+				'AssignmentExpression',
+				`[left.name="${throwStatement.argument.name}"]`,
+				'[right.type="NewExpression"]',
+			].join(''),
+		]));
+
+		const thrownErrorDeclarators = esquery.match(node, newExpressionSelector);
+
+		// Report in case declarator not found in given block.
+		// try {} catch { const err = new Error; try {} catch { throw err; } }
+		if (_.isEmpty(thrownErrorDeclarators)) {
+			reportCannotBeFixed(node, context);
+			return;
+		}
+
+		// try {} catch (err) { let e1 = new Error('oops'); e1 = new Error('oops'); throw error;}
+		const thrownErrorDeclarator = thrownErrorDeclarators[0];
+
+		statementToFix = thrownErrorDeclarator;
+		// Assume if 'cause' property is given, it should be given through last argument.
+
+		let targetArguments;
+		if (thrownErrorDeclarator.type === 'VariableDeclarator') {
+			targetArguments = thrownErrorDeclarator.init.arguments;
+		} else if (thrownErrorDeclarator.type === 'AssignmentExpression') {
+			targetArguments = thrownErrorDeclarator.right.arguments;
+		}
+
+		errorConstructorLastArgument = peekTop(targetArguments);
+	}
+
+	// Maybe cannot be fixed since Error constructor's parenthesis (NewExpression) might be here or not.
+	if (!errorConstructorLastArgument) {
+		reportCannotBeFixed(node, context);
+		return;
+	}
+
+	return {
+		statementToFix,
+		errorConstructorLastArgument,
+	};
+};
+
 const handleCatchBlock = ({node, context, statements, parameter}) => {
+	const throwStatement = statements.find(statement => statement.type === 'ThrowStatement');
+
+	// Filter blocks not having throw statement.
+	// try {} catch (error) {}
+	// promise.catch(error => {})
+	if (!throwStatement) {
+		return;
+	}
+
+	const errorArgumentIdentifier = parameter?.name;
+	const sourceCode = context.getSourceCode();
+
+	const throwStatementArguments = throwStatement.argument;
+
+	// Filter block having valid cause property
+	// try {} catch (err) { throw new Error('oops', {cause: err})}
+	// promise.catch(err => { throw new Error('oops', {cause: err})
+	if (errorArgumentIdentifier && errorArgumentIdentifier === throwStatementArguments.name) {
+		return;
+	}
+
+	// Report none identifier parameter
+	// try {} catch ({error}) {}
+	// promise.catch({error} => {})
 	if (parameter && parameter.type !== 'Identifier') {
 		context.report({
 			node,
@@ -166,84 +270,34 @@ const handleCatchBlock = ({node, context, statements, parameter}) => {
 		return;
 	}
 
-	const errorArgumentIdentifier = parameter?.name;
+	const result = getStatementToFix({node, context, throwStatement});
+	if (!result) {
+		return;
+	}
 
-	const sourceCode = context.getSourceCode();
+	const {statementToFix, errorConstructorLastArgument} = result;
 
 	const hasValidCauseProperty = generateCauseInspector(property => property.value.name === errorArgumentIdentifier);
 	const hasInvalidCauseProperty = generateCauseInspector(property => property.value.name !== errorArgumentIdentifier);
 
-	const throwStatement = statements.find(statement => statement.type === 'ThrowStatement');
-
-	if (!throwStatement) {
-		return;
+	// Prevent repetitive fixing
+	if (!hasValidCauseProperty(errorConstructorLastArgument)) {
+		context.report({
+			node,
+			messageId: ERROR,
+			* fix(fixer) {
+				yield fix({
+					fixer,
+					node,
+					sourceCode,
+					statementToFix,
+					errorArgumentIdentifier,
+					errorConstructorLastArgument,
+					isCauseNameValid: hasInvalidCauseProperty(errorConstructorLastArgument),
+				});
+			},
+		});
 	}
-
-	const throwStatementArguments = throwStatement.argument;
-
-	if (errorArgumentIdentifier && errorArgumentIdentifier === throwStatementArguments.name) {
-		return;
-	}
-
-	let statementToFix;
-	// Assume if 'cause' property is given, it should be given through last argument.
-	let errorConstructorLastArgument;
-
-	if (throwStatementArguments.type === 'NewExpression') {
-		statementToFix = throwStatement;
-		errorConstructorLastArgument = peekTop(throwStatementArguments.arguments);
-
-		// Maybe cannot be fixed since Error constructor's parenthesis (NewExpression) might be here or not.
-		if (throwStatementArguments.arguments && _.isEmpty(throwStatementArguments.arguments)) {
-			reportCannotBeFixed(node, context);
-			return;
-		}
-	} else {
-		const selector = esquery.parse([
-			'VariableDeclarator',
-			`[id.name="${throwStatement.argument.name}"]`,
-			'[init.type="NewExpression"]',
-		].join(''));
-
-		const thrownErrorDeclarators = esquery.match(node, selector);
-
-		if (_.isEmpty(thrownErrorDeclarators)) {
-			reportCannotBeFixed(node, context);
-			return;
-		}
-
-		const thrownErrorDeclarator = thrownErrorDeclarators[0];
-		statementToFix = thrownErrorDeclarator;
-		errorConstructorLastArgument = peekTop(thrownErrorDeclarator.init.arguments);
-
-		if (
-			thrownErrorDeclarators.length !== 1
-			|| _.isEmpty(thrownErrorDeclarator.init.arguments)
-		) {
-			reportCannotBeFixed(node, context);
-			return;
-		}
-	}
-
-	if (hasValidCauseProperty(errorConstructorLastArgument)) {
-		return;
-	}
-
-	context.report({
-		node,
-		messageId: ERROR,
-		* fix(fixer) {
-			yield fix({
-				fixer,
-				statementToFix,
-				errorArgumentIdentifier,
-				errorConstructorLastArgument,
-				isCauseNameValid: hasInvalidCauseProperty(errorConstructorLastArgument),
-				sourceCode,
-				node,
-			});
-		},
-	});
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
