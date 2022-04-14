@@ -53,11 +53,6 @@ test.snapshot({
 		`,
 		outdent`
 			try {} catch (oldError) {
-				throw new CustomError('oops', {}, {cause: oldError});
-			}
-		`,
-		outdent`
-			try {} catch (oldError) {
 				let error;
 				error = new Error('oops', {cause: oldError});
 				throw error;
@@ -74,9 +69,20 @@ test.snapshot({
 				throw error;
 			}
 		`,
+		// Specify old error to CustomError's cause
+		outdent`
+			try {} catch (oldError) {
+				throw new CustomError('oops', {}, {cause: oldError});
+			}
+		`,
+		outdent`
+			promise.then(undefined, (oldError) => {
+				throw new Error('oops', {cause: oldError});
+			});
+		`,
 	],
 	invalid: [
-		// ** Not sure
+		// ** Not sure #1342
 		// outdent`
 		// 	try {} catch (error) {
 		// 		error.message = 'oops';
@@ -84,15 +90,20 @@ test.snapshot({
 		// 	}
 		// `,
 
+		// cause not specified
 		'try {} catch { throw new Error(\'oops\'); }',
 		'try {} catch (oldError) { throw new Error(\'oops\'); }',
+		// Cannot be fixed when Error constructor's argument length is 0
 		'try {} catch (oldError) { throw new Error(); }',
 		'try {} catch (oldError) { throw new Error; }',
 		'try {} catch { throw new Error(); }',
 		'try {} catch { throw new Error; }',
+		// Cannot be fixed since catch argument type is not identifier
 		'try {} catch ({}) { throw new Error(\'oops\'); }',
 		'try {} catch ({error}) { throw new Error(\'oops\'); }',
 		'try {} catch ({error}) { throw new Error(\'oops\', {cause: error}); }',
+
+		// Should be fixed by correcting typo
 		outdent`
 			try {} catch (oldError) {
 				throw new Error('oops', {cause: someTypo});
@@ -104,113 +115,50 @@ test.snapshot({
 			}
 		`,
 		outdent`
-			try {} catch {
-				throw new Error('oops', {other: 'abc'});
-			}
-		`,
-		outdent`
-			try {} catch {
-				const error = new Error('oops');
-				throw error;
-			}
-		`,
-		outdent`
-			try {} catch (oldError) {
-				const error = new Error('oops');
-				throw error;
-			}
-		`,
-		outdent`
 			try {} catch (oldError) {
 				const error = new Error('oops', {cause: someTypo});
 				throw error;
 			}
 		`,
+
+		// Should be fixed
 		outdent`
-			try {
+			try {} catch (oldError) {
+				const error = new Error('oops');
+				throw error;
+			}
+		`,
 
-			} catch {
-				try {
-
-				} catch (oldError2) {
+		outdent`
+			try {} catch {
+				try {} catch (oldError2) {
 					throw new Error(oldError2);
 				}
 			}
 		`,
 		outdent`
-			try {
-
-			} catch (oldError1) {
+			try {} catch (oldError1) {
 				throw new Error(oldError1);
-				try {
-
-				} catch (oldError2) {
+				try {} catch (oldError2) {
 					throw new Error(oldError2);
 				}
 			}
 		`,
 		outdent`
-			try {
-
-			} catch {
-				try {
-
-				} catch (oldError2) {
+			try {} catch {
+				try {} catch (oldError2) {
 					throw new Error(oldError1);
 				}
 			}
 		`,
 		outdent`
-			try {
-
-			} catch (oldError) {
-				try {
-
-				} catch {
+			try {} catch (oldError) {
+				try {} catch {
 					throw oldError;
 				}
 			}
 		`,
-		outdent`
-			try {} catch (oldError) {
-				throw new CustomError('oops', {}, {cause: someTypo});
-			}
-		`,
-		outdent`
-			try {} catch (oldError) {
-				throw new CustomError('oops', {}, {cause: someTypo});
-			}
-		`,
-		outdent`
-			try {
-			} catch (oldError) {
-				throw new CustomError('oops', { url });
-			}
-		`,
-		outdent`
-			try {
-			} catch (oldError) {
-				throw new CustomError('oops', {}, {url});
-			}
-		`,
-		outdent`
-			try {
-			} catch (oldError) {
-				throw new CustomError('oops', {}, {url: 'abc'});
-			}
-		`,
-		outdent`
-			try {
-			} catch (oldError) {
-				throw new CustomError('oops', {}, {url});
-			}
-		`,
-		outdent`
-			try {
-			} catch (oldError) {
-				throw new CustomError('oops', {}, {});
-			}
-		`,
+
 		outdent`
 			try {} catch (oldError) {
 				let err;
@@ -229,6 +177,58 @@ test.snapshot({
 				throw err;
 			}
 		`,
+
+		// Should be fixed by inserting error argument
+		outdent`
+			try {} catch {
+				throw new Error('oops', {other: 'abc'});
+			}
+		`,
+
+		// Cannot be fixed because 'error' already exists in the scope.
+		outdent`
+			try {} catch {
+				const error = new Error('oops');
+				throw error;
+			}
+		`,
+
+		// Should be fixed. using CustomError
+		outdent`
+			try {} catch (oldError) {
+				throw new CustomError('oops', {}, {cause: someTypo});
+			}
+		`,
+		outdent`
+			try {} catch (oldError) {
+				throw new CustomError('oops', {}, {cause: someTypo});
+			}
+		`,
+		outdent`
+			try {} catch (oldError) {
+				throw new CustomError('oops', { url });
+			}
+		`,
+		outdent`
+			try {} catch (oldError) {
+				throw new CustomError('oops', {}, {url});
+			}
+		`,
+		outdent`
+			try {} catch (oldError) {
+				throw new CustomError('oops', {}, {url: 'abc'});
+			}
+		`,
+		outdent`
+			try {} catch (oldError) {
+				throw new CustomError('oops', {}, {url});
+			}
+		`,
+		outdent`
+			try {} catch (oldError) {
+				throw new CustomError('oops', {}, {});
+			}
+		`,
 	],
 });
 
@@ -245,9 +245,9 @@ test.snapshot({
 		'promise.catch(function (oldError) { throw new Error(\'oops\', {cause:oldError}); });',
 		'promise.then().catch(oldError => { throw new Error(\'oops\', {cause:oldError}); });',
 		'promise.then().catch(function (oldError) { throw new Error(\'oops\', {cause:oldError}); });',
-		'promise.catch((oldError) => { throw new Error(\'oops\', {cause:oldError}); });',
+		'promise.catch(oldError => { throw new Error(\'oops\', {cause:oldError}); });',
 		outdent`
-			promise.catch((oldError) => {
+			promise.catch(oldError => {
 				const error = new Error('oops', {cause:oldError});
 				throw error;
 			});
@@ -259,7 +259,7 @@ test.snapshot({
 			});
 		`,
 		outdent`
-			promise.catch((oldError) => {
+			promise.catch(oldError => {
 				const error = new Error('oops', {cause: oldError, other: 'abc'});
 				throw error;
 			});
@@ -292,11 +292,11 @@ test.snapshot({
 		`,
 
 		outdent`
-			promise.catch((oldError1) => {
+			promise.catch(oldError1 => {
 				const error1 = new Error('oops', {cause: oldError1});
 				throw error1;
 
-				promise2.catch((oldError2) => {
+				promise2.catch(oldError2 => {
 					const error2 = new Error('oops', {cause: oldError2});
 					throw error2;
 				});
@@ -313,18 +313,37 @@ test.snapshot({
 				});
 			});
 		`,
+		outdent`
+			promise.then().catch(oldError => {
+				throw new Error('oops', {cause: oldError});
+			});
+		`,
+		outdent`
+			promise.then().then().catch(oldError => {
+				throw new Error('oops', {cause: oldError});
+			});
+		`,
+		outdent`
+			promise.then()
+				.catch(oldError => {
+					throw new Error('oops', {cause: oldError});
+				})
+				.catch(oldError => {
+					throw new Error('oops', {cause: oldError});
+				});
+		`,
 	],
 	invalid: [
-		'promise.catch((oldError) => { throw new Error(); });',
+		'promise.catch(oldError => { throw new Error(); });',
 		'promise.catch(function (oldError) { throw new Error(); });',
-		'promise.catch((oldError) => { throw new Error; });',
+		'promise.catch(oldError => { throw new Error; });',
 		'promise.catch(function (oldError) { throw new Error; });',
-		'promise.catch((oldError) => { throw new Error(\'oops\'); });',
+		'promise.catch(oldError => { throw new Error(\'oops\'); });',
 		'promise.catch(function (oldError) { throw new Error(\'oops\'); });',
 		'promise.catch(({oldError}) => { throw new Error(\'oops\', {cause:oldError}); });',
 		'promise.catch(function ({oldError}) { throw new Error(\'oops\', {cause:oldError}); });',
 		outdent`
-			promise.catch((oldError) => {
+			promise.catch(oldError => {
 				const error = new Error('oops', {cause:someTypo});
 				throw error;
 			});
@@ -336,7 +355,7 @@ test.snapshot({
 			});
 		`,
 		outdent`
-			promise.catch((oldError) => {
+			promise.catch(oldError => {
 				const error = new Error('oops', {other: 'abc'});
 				throw error;
 			});
@@ -348,11 +367,11 @@ test.snapshot({
 			});
 		`,
 		outdent`
-			promise.catch((oldError1) => {
+			promise.catch(oldError1 => {
 				const error1 = new Error('oops', {cause: oldError2});
 				throw error1;
 
-				promise2.catch((oldError2) => {
+				promise2.catch(oldError2 => {
 					const error2 = new Error('oops', {cause: oldError1});
 					throw error2;
 				});
@@ -423,6 +442,11 @@ test.snapshot({
 				});
 			})
 			.catch(onError);
+		`,
+		outdent`
+			promise.then(undefined, (oldError) => {
+				throw new Error('oops');
+			});
 		`,
 	],
 });
