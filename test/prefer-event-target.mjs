@@ -50,5 +50,5 @@ test.snapshot({
 	invalid: [
 		'class EventEmitter extends Foo {}',
 		'const Foo = class EventEmitter extends Foo {}',
-	]
+	],
 });
