@@ -3,7 +3,6 @@
 <!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->
 ✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
-
 <!-- /RULE_NOTICE -->
 
 While [EventEmitter](https://nodejs.org/api/events.html#class-eventemitter) is only available in Node.js, [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget) is also available in *Deno* and browsers.
