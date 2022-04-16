@@ -6,20 +6,11 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `EventTarget` over `EventEmitter`.',
 };
 
-const eventEmitterClassNameSelector = [
-	matches(['ClassDeclaration', 'ClassExpression']),
-	' > ',
-	'Identifier[name="EventEmitter"]',
-].join('');
-
 const eventEmitterSuperClassSelector = [
 	matches(['ClassDeclaration', 'ClassExpression']),
 	'[body.type="ClassBody"]',
 	' > ',
-	matches([
-		'Identifier.superClass[name="EventEmitter"]',
-		'MemberExpression.superClass[property.name="EventEmitter"]',
-	]),
+	'Identifier.superClass[name="EventEmitter"]',
 ].join('');
 
 const newEventEmitterSelector = [
@@ -31,7 +22,6 @@ const newEventEmitterSelector = [
 
 const selector = matches([
 	eventEmitterSuperClassSelector,
-	eventEmitterClassNameSelector,
 	newEventEmitterSelector,
 ]);
 
