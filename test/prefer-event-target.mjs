@@ -11,13 +11,17 @@ test.snapshot({
 		'const Foo = class extends EventTarget {}',
 		'const Foo = class extends foo.EventTarget {}',
 		'const Foo = class extends foo.bar.EventTarget {}',
+		'class Foo extends foo.EventEmitter {}',
+		'class Foo extends foo.bar.EventEmitter {}',
+		'class EventEmitter extends Foo {}',
+		'const Foo = class EventEmitter extends Foo {}',
+		'new Foo(EventEmitter)',
+		'new foo.EventEmitter()',
 	],
 	invalid: [
 		'class Foo extends EventEmitter {}',
 		'class Foo extends EventEmitter { someMethod() {} }',
 		'const Foo = class extends EventEmitter {}',
-		'class Foo extends foo.EventEmitter {}',
-		'class Foo extends foo.bar.EventEmitter {}',
 		outdent`
 			class Foo extends EventEmitter {
 				addListener() {}
@@ -39,16 +43,5 @@ test.snapshot({
 		'new EventEmitter',
 		'const emitter = new EventEmitter;',
 		'const emitter = EventEmitter()',
-	],
-});
-
-test.snapshot({
-	valid: [
-		'class EventTarget extends Foo {}',
-		'const Foo = class EventTarget extends Foo {}',
-	],
-	invalid: [
-		'class EventEmitter extends Foo {}',
-		'const Foo = class EventEmitter extends Foo {}',
 	],
 });
