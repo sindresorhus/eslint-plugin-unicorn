@@ -36,6 +36,7 @@ test.snapshot({
 		'EventTarget()',
 		'new EventTarget',
 		'const target = new EventTarget;',
+		'const target = new Foo(EventEmitter);',
 		'const target = EventTarget()',
 	],
 	invalid: [
