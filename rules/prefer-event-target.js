@@ -14,7 +14,7 @@ const eventEmitterSuperClassSelector = [
 ].join('');
 
 const newEventEmitterSelector = [
-	matches(['NewExpression', 'CallExpression']),
+	'NewExpression',
 	' > ',
 	'Identifier.callee',
 	'[name="EventEmitter"]',

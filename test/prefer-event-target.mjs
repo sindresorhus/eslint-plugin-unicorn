@@ -36,13 +36,13 @@ test.snapshot({
 		'EventTarget()',
 		'new EventTarget',
 		'const target = new EventTarget;',
-		'const target = new Foo(EventEmitter);',
 		'const target = EventTarget()',
+		'const target = new Foo(EventEmitter);',
+		'EventEmitter()',
+		'const emitter = EventEmitter()',
 	],
 	invalid: [
-		'EventEmitter()',
 		'new EventEmitter',
 		'const emitter = new EventEmitter;',
-		'const emitter = EventEmitter()',
 	],
 });

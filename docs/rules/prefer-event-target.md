@@ -14,25 +14,21 @@ See the [differences](https://nodejs.org/api/events.html#eventtarget-and-event-a
 ## Fail
 
 ```js
-import EventEmitter from 'node:event';
+import {EventEmitter} from 'node:event';
 
-class Foo extends EventEmitter {
-
-}
+class Foo extends EventEmitter {}
 ```
 
 ```js
-const emitter = new EventEmitter;
+const emitter = new EventEmitter();
 ```
 
 ## Pass
 
 ```js
-class Foo extends EventTarget {
-
-}
+class Foo extends EventTarget {}
 ```
 
 ```js
-const target = new EventTarget;
+const target = new EventTarget();
 ```
