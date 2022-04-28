@@ -6,25 +6,15 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `EventTarget` over `EventEmitter`.',
 };
 
-const eventEmitterSuperClassSelector = [
-	matches(['ClassDeclaration', 'ClassExpression']),
-	'[body.type="ClassBody"]',
-	' > ',
-	'Identifier.superClass',
+const selector = [
+	'Identifier',
 	'[name="EventEmitter"]',
+	matches([
+		'ClassDeclaration > .superClass',
+		'ClassExpression > .superClass',
+		'NewExpression > .callee',
+	]),
 ].join('');
-
-const newEventEmitterSelector = [
-	'NewExpression',
-	' > ',
-	'Identifier.callee',
-	'[name="EventEmitter"]',
-].join('');
-
-const selector = matches([
-	eventEmitterSuperClassSelector,
-	newEventEmitterSelector,
-]);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
