@@ -3,7 +3,7 @@
 <!-- markdownlint-disable-next-line no-inline-html -->
 <img src="https://cloud.githubusercontent.com/assets/170270/18659176/1cc373d0-7f33-11e6-890f-0ba35362ee7e.jpg" width="180" align="right">
 
-> Various awesome ESLint rules
+> More than 100 powerful ESLint rules
 
 You might want to check out [XO](https://github.com/xojs/xo), which includes this plugin.
 
