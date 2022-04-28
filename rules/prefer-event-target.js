@@ -10,7 +10,8 @@ const eventEmitterSuperClassSelector = [
 	matches(['ClassDeclaration', 'ClassExpression']),
 	'[body.type="ClassBody"]',
 	' > ',
-	'Identifier.superClass[name="EventEmitter"]',
+	'Identifier.superClass',
+	'[name="EventEmitter"]',
 ].join('');
 
 const newEventEmitterSelector = [
