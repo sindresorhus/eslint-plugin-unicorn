@@ -105,7 +105,7 @@ module.exports = {
 		'unicorn/prefer-string-trim-start-end': 'error',
 		'unicorn/prefer-switch': 'error',
 		'unicorn/prefer-ternary': 'error',
-		'unicorn/prefer-top-level-await': 'off',
+		'unicorn/prefer-top-level-await': 'error',
 		'unicorn/prefer-type-error': 'error',
 		'unicorn/prevent-abbreviations': 'error',
 		'unicorn/relative-url-style': 'error',
