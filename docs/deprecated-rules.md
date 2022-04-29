@@ -1,5 +1,9 @@
 # Deprecated Rules
 
+## import-index
+
+This rule is outdated. JavaScript modules (ESM) do not support importing a directory.
+
 ## no-array-instanceof
 
 This rule was renamed to [`no-instanceof-array`](rules/no-instanceof-array.md) to be more correct.
