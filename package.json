@@ -1,7 +1,7 @@
 {
 	"name": "eslint-plugin-unicorn",
 	"version": "42.0.0",
-	"description": "Various awesome ESLint rules",
+	"description": "More than 100 powerful ESLint rules",
 	"license": "MIT",
 	"repository": "sindresorhus/eslint-plugin-unicorn",
 	"funding": "https://github.com/sindresorhus/eslint-plugin-unicorn?sponsor=1",
