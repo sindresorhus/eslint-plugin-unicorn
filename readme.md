@@ -144,7 +144,7 @@ Each rule has emojis denoting:
 | [prefer-string-trim-start-end](docs/rules/prefer-string-trim-start-end.md) | Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`. | ✅ | 🔧 |  |
 | [prefer-switch](docs/rules/prefer-switch.md) | Prefer `switch` over multiple `else-if`. | ✅ | 🔧 |  |
 | [prefer-ternary](docs/rules/prefer-ternary.md) | Prefer ternary expressions over simple `if-else` statements. | ✅ | 🔧 |  |
-| [prefer-top-level-await](docs/rules/prefer-top-level-await.md) | Prefer top-level await over top-level promises and async function calls. |  |  | 💡 |
+| [prefer-top-level-await](docs/rules/prefer-top-level-await.md) | Prefer top-level await over top-level promises and async function calls. | ✅ |  | 💡 |
 | [prefer-type-error](docs/rules/prefer-type-error.md) | Enforce throwing `TypeError` in type checking conditions. | ✅ | 🔧 |  |
 | [prevent-abbreviations](docs/rules/prevent-abbreviations.md) | Prevent abbreviations. | ✅ | 🔧 |  |
 | [relative-url-style](docs/rules/relative-url-style.md) | Enforce consistent relative URL style. | ✅ | 🔧 | 💡 |

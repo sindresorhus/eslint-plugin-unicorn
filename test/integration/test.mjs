@@ -148,40 +148,40 @@ const list = new Listr([
 	renderer: isCI ? 'verbose' : 'default',
 });
 
-list.run()
-	.catch(async error => {
-		if (error.errors) {
-			for (const error2 of error.errors) {
-				console.error('\n', chalk.red.bold.underline(error2.packageName), chalk.gray('(' + error2.cliArgs.join(' ') + ')'));
-				console.error(error2.message);
+async function logError(error) {
+	if (error.errors) {
+		for (const error2 of error.errors) {
+			console.error('\n', chalk.red.bold.underline(error2.packageName), chalk.gray('(' + error2.cliArgs.join(' ') + ')'));
+			console.error(error2.message);
 
-				if (error2.stderr) {
-					console.error(chalk.gray(error2.stderr));
-				}
-
-				if (error2.eslintMessage) {
-					const {file, project, destination} = error2.eslintJob;
-					const {line} = error2.eslintMessage;
-
-					if (project.repository) {
-						// eslint-disable-next-line no-await-in-loop
-						const branch = await getBranch(destination);
-						console.error(chalk.gray(`${project.repository}/blob/${branch}/${path.relative(destination, file.filePath)}#L${line}`));
-					} else {
-						console.error(chalk.gray(`${path.relative(destination, file.filePath)}#L${line}`));
-					}
-
-					console.error(chalk.gray(JSON.stringify(error2.eslintMessage, undefined, 2)));
-				}
+			if (error2.stderr) {
+				console.error(chalk.gray(error2.stderr));
 			}
-		} else {
-			console.error(error);
-		}
 
-		process.exit(1);
-	})
-	// Catch errors in last `.catch`
-	.catch(error => {
+			if (error2.eslintMessage) {
+				const {file, project, destination} = error2.eslintJob;
+				const {line} = error2.eslintMessage;
+
+				if (project.repository) {
+					// eslint-disable-next-line no-await-in-loop
+					const branch = await getBranch(destination);
+					console.error(chalk.gray(`${project.repository}/blob/${branch}/${path.relative(destination, file.filePath)}#L${line}`));
+				} else {
+					console.error(chalk.gray(`${path.relative(destination, file.filePath)}#L${line}`));
+				}
+
+				console.error(chalk.gray(JSON.stringify(error2.eslintMessage, undefined, 2)));
+			}
+		}
+	} else {
 		console.error(error);
-		process.exit(1);
-	});
+	}
+
+	process.exit(1);
+}
+
+try {
+	await list.run();
+} catch (error) {
+	await logError(error);
+}

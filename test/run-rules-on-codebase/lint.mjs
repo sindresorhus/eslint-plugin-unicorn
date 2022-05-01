@@ -31,7 +31,6 @@ const eslint = new ESLint({
 			'unicorn/no-unsafe-regex': 'off',
 			// Not ready yet
 			'unicorn/prefer-string-replace-all': 'off',
-			'unicorn/prefer-top-level-await': 'off',
 			'unicorn/prefer-at': 'off',
 			// TODO: Turn this on when `xo` updated `eslint-plugin-unicorn`
 			'unicorn/text-encoding-identifier-case': 'off',
@@ -52,7 +51,7 @@ const eslint = new ESLint({
 const sum = (collection, fieldName) =>
 	collection.reduce((total, {[fieldName]: value}) => total + value, 0);
 
-(async function () {
+async function run() {
 	const results = await eslint.lintFiles(files);
 
 	if (fix) {
@@ -85,7 +84,6 @@ const sum = (collection, fieldName) =>
 	}
 
 	process.exit(errorCount);
-})().catch(error => {
-	process.exitCode = 1;
-	console.error(error);
-});
+}
+
+await run();
