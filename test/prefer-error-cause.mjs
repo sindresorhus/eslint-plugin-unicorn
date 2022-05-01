@@ -75,11 +75,6 @@ test.snapshot({
 				throw new CustomError('oops', {}, {cause: oldError});
 			}
 		`,
-		outdent`
-			promise.then(undefined, (oldError) => {
-				throw new Error('oops', {cause: oldError});
-			});
-		`,
 	],
 	invalid: [
 		// ** Not sure #1342
