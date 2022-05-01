@@ -140,7 +140,26 @@ test.snapshot({
 				}
 			}
 		`,
-
+		outdent`
+			try {} catch (oldError) {
+				if (1 + 1 >= 2) {
+					throw new Error('oops', {cause: oldError});
+				} else {
+					throw new Error('oops');
+				}
+			}
+		`,
+		outdent`
+			try {} catch (oldError) {
+				if (true) {
+					if (true) {
+						throw new Error('oops', {cause: oldError});
+					} else {
+						throw new Error('oops');
+					}
+				}
+			}
+		`,
 		outdent`
 			try {} catch (oldError) {
 				let err;
@@ -385,6 +404,26 @@ test.snapshot({
 		outdent`
 			promise.then(undefined, (oldError) => {
 				throw new Error('oops');
+			});
+		`,
+		outdent`
+			promise.then(undefined, (oldError) => {
+				if (true) {
+					throw new Error('oops', {cause: oldError});
+				} else {
+					throw new Error('oops');
+				}
+			});
+		`,
+		outdent`
+			promise.then(undefined, (oldError) => {
+				if (true) {
+					if (true) {
+						throw new Error('oops', {cause: oldError});
+					} else {
+						throw new Error('oops');
+					}
+				}
 			});
 		`,
 	],
