@@ -35,26 +35,13 @@ const insertProperty = (fixer, node, text, sourceCode) => {
 	return fixer.insertTextBefore(lastToken, text);
 };
 
-// The third argument is a condition function, as one passed to `Array#filter()`
-// Helpful if nearest node of type also needs to have some other property
-const getMatchingAncestorOfType = (node, type, testFunction = () => true) => {
-	let current = node;
-	while (current) {
-		if (current.type === type && testFunction(current)) {
-			return current;
-		}
-
-		current = current.parent;
-	}
-};
-
 const hasCauseProperty = objectExpression => {
 	if (!objectExpression || objectExpression.type !== 'ObjectExpression') {
 		return false;
 	}
 
 	return objectExpression.properties.some(property =>
-		!property.computed && property.key.name === 'cause'
+		!property.computed && property.key.name === 'cause',
 	);
 };
 
@@ -72,7 +59,7 @@ const fixerUtils = {
 		}
 
 		let result;
-		Object.entries(properties).forEach(([key, value]) => {
+		for (const [key, value] of Object.entries(properties)) {
 			const identifier = node.properties.find(property => {
 				if (property.key.name === key) {
 					return property;
@@ -86,28 +73,26 @@ const fixerUtils = {
 			}
 
 			result = replaceReferenceIdentifier(identifier.value, value, fixer);
-		});
+		}
 
 		return result;
 	},
 
-	handleEmptyArgument({fixer, node, sourceCode, errorArgumentIdentifier}) {
-		// In case of Promise#catch
-		if (node.type === 'CallExpression') {
-			const functionExpression = node.arguments[0];
+	insertErrorCatchClauseParameter({fixer, node, errorArgumentIdentifier}) {
+		return fixer.insertTextBefore(node.body, `(${errorArgumentIdentifier}) `);
+	},
 
-			let target;
-			if (functionExpression.type === 'FunctionExpression') {
-				target = sourceCode.getTokenBefore(functionExpression.body);
-			} else if (functionExpression.type === 'ArrowFunctionExpression') {
-				target = sourceCode.getTokenBefore(sourceCode.getTokenBefore(functionExpression.body));
-			}
+	insertFunctionParameter({fixer, node, sourceCode, errorArgumentIdentifier}) {
+		const functionExpression = node.arguments[0];
 
-			return fixer.insertTextBefore(target, errorArgumentIdentifier);
+		let target;
+		if (functionExpression.type === 'FunctionExpression') {
+			target = sourceCode.getTokenBefore(functionExpression.body);
+		} else if (functionExpression.type === 'ArrowFunctionExpression') {
+			target = sourceCode.getTokenBefore(sourceCode.getTokenBefore(functionExpression.body));
 		}
 
-		// In case of try-catch statement
-		return fixer.insertTextBefore(node.body, `(${errorArgumentIdentifier}) `);
+		return fixer.insertTextBefore(target, errorArgumentIdentifier);
 	},
 };
 
@@ -130,7 +115,13 @@ const fix = ({
 		}
 
 		errorArgumentIdentifier = 'error';
-		return fixerUtils.handleEmptyArgument({fixer, node, sourceCode, errorArgumentIdentifier});
+
+		// In case of Promise#catch
+		if (node.type === 'CallExpression') {
+			return fixerUtils.insertFunctionParameter({fixer, node, sourceCode, errorArgumentIdentifier});
+		}
+
+		return fixerUtils.insertErrorCatchClauseParameter({fixer, node, errorArgumentIdentifier});
 	}
 
 	if (errorConstructorLastArgument.type === 'ObjectExpression') {
@@ -138,7 +129,7 @@ const fix = ({
 			fixer,
 			errorConstructorLastArgument,
 			`cause: ${errorArgumentIdentifier}`,
-			sourceCode
+			sourceCode,
 		);
 	}
 
@@ -285,7 +276,7 @@ const handleCatchBlock = ({node, context, statements, parameter}) => {
 		}
 
 		const nodesToFix = nodesToFixCandidates.filter(({node}) =>
-			!hasCauseProperty(node)
+			!hasCauseProperty(node),
 		);
 
 		for (const nodeToFix of nodesToFix) {
