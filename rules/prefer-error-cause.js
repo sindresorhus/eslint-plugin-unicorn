@@ -178,7 +178,7 @@ const getAllNodesToFix = ({node, context, throwStatement}) => {
 
 		if (!errorConstructorLastArgument) {
 			reportCannotBeFixed(node, context);
-			return;
+			return [];
 		}
 
 		result.push({
@@ -203,7 +203,7 @@ const getAllNodesToFix = ({node, context, throwStatement}) => {
 		// `try {} catch { const err = new Error; try {} catch { throw err; } }`
 		if (_.isEmpty(thrownErrorDeclarators)) {
 			reportCannotBeFixed(node, context);
-			return;
+			return [];
 		}
 
 		// `try {} catch (err) { let e1 = new Error('oops'); e1 = new Error('oops'); throw error;}`
@@ -222,7 +222,7 @@ const getAllNodesToFix = ({node, context, throwStatement}) => {
 
 			if (!errorConstructorLastArgument) {
 				reportCannotBeFixed(node, context);
-				return;
+				return [];
 			}
 
 			result.push({
@@ -271,9 +271,6 @@ const handleCatchBlock = ({node, context, statements, parameter}) => {
 		}
 
 		const nodesToFixCandidates = getAllNodesToFix({node, context, throwStatement});
-		if (_.isEmpty(nodesToFixCandidates)) {
-			continue;
-		}
 
 		const nodesToFix = nodesToFixCandidates.filter(({node}) =>
 			!hasCauseProperty(node),
