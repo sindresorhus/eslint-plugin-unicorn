@@ -103,24 +103,6 @@ test.snapshot({
 		'try {} catch ({error}) { throw new Error(\'oops\'); }',
 		'try {} catch ({error}) { throw new Error(\'oops\', {cause: error}); }',
 
-		// Should be fixed by correcting typo
-		outdent`
-			try {} catch (oldError) {
-				throw new Error('oops', {cause: someTypo});
-			}
-		`,
-		outdent`
-			try {} catch (oldError) {
-				throw new Error('oops', {cause: someTypo, other: 'abc'});
-			}
-		`,
-		outdent`
-			try {} catch (oldError) {
-				const error = new Error('oops', {cause: someTypo});
-				throw error;
-			}
-		`,
-
 		// Should be fixed
 		outdent`
 			try {} catch (oldError) {
@@ -193,17 +175,6 @@ test.snapshot({
 			}
 		`,
 
-		// Should be fixed. using CustomError
-		outdent`
-			try {} catch (oldError) {
-				throw new CustomError('oops', {}, {cause: someTypo});
-			}
-		`,
-		outdent`
-			try {} catch (oldError) {
-				throw new CustomError('oops', {}, {cause: someTypo});
-			}
-		`,
 		outdent`
 			try {} catch (oldError) {
 				throw new CustomError('oops', { url });
@@ -342,18 +313,7 @@ test.snapshot({
 		'promise.catch(function (oldError) { throw new Error(\'oops\'); });',
 		'promise.catch(({oldError}) => { throw new Error(\'oops\', {cause:oldError}); });',
 		'promise.catch(function ({oldError}) { throw new Error(\'oops\', {cause:oldError}); });',
-		outdent`
-			promise.catch(oldError => {
-				const error = new Error('oops', {cause:someTypo});
-				throw error;
-			});
-		`,
-		outdent`
-			promise.catch(function (oldError) {
-				const error = new Error('oops', {cause:someTypo});
-				throw error;
-			});
-		`,
+
 		outdent`
 			promise.catch(oldError => {
 				const error = new Error('oops', {other: 'abc'});
@@ -366,28 +326,7 @@ test.snapshot({
 				throw error;
 			});
 		`,
-		outdent`
-			promise.catch(oldError1 => {
-				const error1 = new Error('oops', {cause: oldError2});
-				throw error1;
 
-				promise2.catch(oldError2 => {
-					const error2 = new Error('oops', {cause: oldError1});
-					throw error2;
-				});
-			});
-		`,
-		outdent`
-			promise.catch(function (oldError1) {
-				const error1 = new Error('oops', {cause: oldError1});
-				throw error1;
-
-				promise2.catch(function (oldError2) {
-					const error2 = new Error('oops', {cause: oldError1});
-					throw error2;
-				});
-			});
-		`,
 		'promise.catch(() => { throw new Error(\'oops\'); });',
 		'promise.catch(function () { throw new Error(\'oops\'); });',
 
