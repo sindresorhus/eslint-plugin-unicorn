@@ -142,8 +142,10 @@ test.snapshot({
 		`,
 		outdent`
 			try {} catch (oldError) {
-				if (1 + 1 >= 2) {
+				if (true) {
 					throw new Error('oops', {cause: oldError});
+				} else if (true) {
+					throw new Error('oops');
 				} else {
 					throw new Error('oops');
 				}
@@ -410,6 +412,8 @@ test.snapshot({
 			promise.then(undefined, (oldError) => {
 				if (true) {
 					throw new Error('oops', {cause: oldError});
+				} else if (true) {
+					throw new Error('oops');
 				} else {
 					throw new Error('oops');
 				}
