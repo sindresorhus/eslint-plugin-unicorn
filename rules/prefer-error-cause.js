@@ -1,6 +1,7 @@
 'use strict';
 const {isCommaToken} = require('eslint-utils');
 const _ = require('lodash');
+const esquery = require('esquery');
 const {matches, methodCallSelector} = require('./selectors/index.js');
 const {appendArgument, replaceReferenceIdentifier} = require('./fix/index.js');
 const getReferences = require('./utils/get-references.js');
@@ -13,22 +14,15 @@ const messages = {
 	[SUGGESTION]: 'Specify `cause` option to Error\'s constructor.',
 };
 
-const catchClauseSelector = matches([
-	[
-		'CatchClause',
-		':has(ThrowStatement)',
-	].join(''),
-]);
+const catchClauseSelector = 'CatchClause:has(ThrowStatement)';
 
-const promiseThenCatchSelector = matches([
-	[
-		matches([
-			methodCallSelector({method: 'then', argumentsLength: 2}),
-			methodCallSelector({method: 'catch', argumentsLength: 1}),
-		]),
-		':has(ThrowStatement)',
-	].join(''),
-]);
+const promiseThenCatchSelector = [
+	matches([
+		methodCallSelector({method: 'then', argumentsLength: 2}),
+		methodCallSelector({method: 'catch', argumentsLength: 1}),
+	]),
+	':has(ThrowStatement)',
+].join('');
 
 const peekTop = array => array[array.length - 1];
 
@@ -41,13 +35,26 @@ const insertProperty = (fixer, node, text, sourceCode) => {
 	return fixer.insertTextBefore(lastToken, text);
 };
 
-const generateCauseInspector = inspectProperty => objectExpression => {
+// The third argument is a condition function, as one passed to `Array#filter()`
+// Helpful if nearest node of type also needs to have some other property
+const getMatchingAncestorOfType = (node, type, testFunction = () => true) => {
+	let current = node;
+	while (current) {
+		if (current.type === type && testFunction(current)) {
+			return current;
+		}
+
+		current = current.parent;
+	}
+};
+
+const hasCauseProperty = objectExpression => {
 	if (!objectExpression || objectExpression.type !== 'ObjectExpression') {
 		return false;
 	}
 
 	return objectExpression.properties.some(property =>
-		!property.computed && property.key.name === 'cause' && inspectProperty(property),
+		!property.computed && property.key.name === 'cause'
 	);
 };
 
@@ -59,37 +66,29 @@ const reportCannotBeFixed = (node, context) => {
 };
 
 const fixerUtils = {
-	insertCauseArgument({fixer, node, sourceCode, value}) {
-		return appendArgument(
-			fixer,
-			node,
-			`{cause: ${value}}`,
-			sourceCode,
-		);
-	},
-
-	insertCauseProperty({fixer, node, sourceCode, value}) {
-		return insertProperty(fixer, node, `cause: ${value}`, sourceCode);
-	},
-
-	renameObjectProperty({fixer, node, key, value}) {
+	renameObjectProperty({fixer, node, properties}) {
 		if (!node || node.type !== 'ObjectExpression') {
 			return false;
 		}
 
-		const identifier = node.properties.find(property => {
-			if (property.key.name === key) {
-				return property;
+		let result;
+		Object.entries(properties).forEach(([key, value]) => {
+			const identifier = node.properties.find(property => {
+				if (property.key.name === key) {
+					return property;
+				}
+
+				return undefined;
+			});
+
+			if (!identifier) {
+				throw new Error(`objectExpression doesn't have ${key} property`);
 			}
 
-			return undefined;
+			result = replaceReferenceIdentifier(identifier.value, value, fixer);
 		});
 
-		if (!identifier) {
-			throw new Error(`objectExpression doesn't have ${key} property`);
-		}
-
-		return replaceReferenceIdentifier(identifier.value, value, fixer);
+		return result;
 	},
 
 	handleEmptyArgument({fixer, node, sourceCode, errorArgumentIdentifier}) {
@@ -119,7 +118,6 @@ const fix = ({
 	statementToFix,
 	errorArgumentIdentifier,
 	errorConstructorLastArgument,
-	isCauseNameValid,
 }) => {
 	const sourceCode = context.getSourceCode();
 
@@ -136,21 +134,12 @@ const fix = ({
 	}
 
 	if (errorConstructorLastArgument.type === 'ObjectExpression') {
-		if (isCauseNameValid) {
-			return fixerUtils.renameObjectProperty({
-				fixer,
-				node: errorConstructorLastArgument,
-				key: 'cause',
-				value: errorArgumentIdentifier,
-			});
-		}
-
-		return fixerUtils.insertCauseProperty({
+		return insertProperty(
 			fixer,
-			node: errorConstructorLastArgument,
-			sourceCode,
-			value: errorArgumentIdentifier,
-		});
+			errorConstructorLastArgument,
+			`cause: ${errorArgumentIdentifier}`,
+			sourceCode
+		);
 	}
 
 	let nodeToInsertArgument;
@@ -176,12 +165,12 @@ const fix = ({
 		}
 	}
 
-	return fixerUtils.insertCauseArgument({
+	return appendArgument(
 		fixer,
-		node: nodeToInsertArgument,
+		nodeToInsertArgument,
+		`{cause: ${errorArgumentIdentifier}}`,
 		sourceCode,
-		value: errorArgumentIdentifier,
-	});
+	);
 };
 
 const getAllNodesToFix = ({node, context, throwStatement}) => {
@@ -191,6 +180,7 @@ const getAllNodesToFix = ({node, context, throwStatement}) => {
 	let errorConstructorLastArgument;
 
 	// `try {} catch (err) { throw new Error('oops', {cause: err})}`
+	// `promise.then(undefined, err => { throw new Error('oops', {cause: err})`
 	// `promise.catch(err => { throw new Error('oops', {cause: err})`
 	if (throwStatement.argument.type === 'NewExpression') {
 		errorConstructorLastArgument = peekTop(throwStatement.argument.arguments);
@@ -255,69 +245,65 @@ const getAllNodesToFix = ({node, context, throwStatement}) => {
 };
 
 const handleCatchBlock = ({node, context, statements, parameter}) => {
-	const throwStatement = statements.find(statement => statement.type === 'ThrowStatement');
+	const throwStatements = esquery.match(node, esquery.parse('ThrowStatement'), statements);
 
-	// Filter blocks not having throw statement.
-	// `try {} catch (error) {}`
-	// `promise.catch(error => {})`
-	if (!throwStatement) {
-		return;
-	}
-
-	const errorArgumentIdentifier = parameter?.name;
-	const throwStatementArgument = throwStatement.argument;
-
-	// Filter block having valid cause property
-	// `try {} catch (err) { throw new Error('oops', {cause: err})}`
-	// `promise.catch(err => { throw new Error('oops', {cause: err})`
-	if (errorArgumentIdentifier && errorArgumentIdentifier === throwStatementArgument.name) {
-		return;
-	}
-
-	// Report none identifier parameter
-	// `try {} catch ({error}) {}`
-	// `promise.catch({error} => {})`
-	if (parameter && parameter.type !== 'Identifier') {
-		context.report({
-			node,
-			messageId: ERROR,
-		});
-		return;
-	}
-
-	const hasValidCauseProperty = generateCauseInspector(property => property.value.name === errorArgumentIdentifier);
-	const hasInvalidCauseProperty = generateCauseInspector(property => property.value.name !== errorArgumentIdentifier);
-
-	const nodesToFixCandidates = getAllNodesToFix({node, context, throwStatement});
-	if (_.isEmpty(nodesToFixCandidates)) {
-		return;
-	}
-
-	const nodesToFix = nodesToFixCandidates.filter(({node}) =>
-		!hasValidCauseProperty(node),
-	);
-
-	for (const nodeToFix of nodesToFix) {
-		// Prevent repetitive fixing
-		if (hasValidCauseProperty(nodeToFix.node)) {
+	for (const throwStatement of throwStatements) {
+		// Filter blocks not having throw statement.
+		// `try {} catch (error) {}`
+		// `promise.then(undefined, error => {})`
+		// `promise.catch(error => {})`
+		if (!throwStatement) {
 			continue;
 		}
 
-		context.report({
-			node,
-			messageId: ERROR,
-			fix(fixer) {
-				return fix({
-					fixer,
-					node,
-					context,
-					statementToFix: nodeToFix.statementToFix,
-					errorConstructorLastArgument: nodeToFix.node,
-					errorArgumentIdentifier,
-					isCauseNameValid: hasInvalidCauseProperty(nodeToFix.node),
-				});
-			},
-		});
+		const errorArgumentIdentifier = parameter?.name;
+		const throwStatementArgument = throwStatement.argument;
+
+		// Filter rethrowing the error itself.
+		// `try {} catch (err) { throw err; }`
+		// `promise.then(undefined, (err) => { throw err; })`
+		// `promise.catch(err => { throw err; })`
+		if (errorArgumentIdentifier && errorArgumentIdentifier === throwStatementArgument.name) {
+			continue;
+		}
+
+		// Report none identifier parameter
+		// `try {} catch ({error}) {}`
+		// `promise.then(undefined, ({error}) => {})`
+		// `promise.catch({error} => {})`
+		if (parameter && parameter.type !== 'Identifier') {
+			context.report({
+				node,
+				messageId: ERROR,
+			});
+			continue;
+		}
+
+		const nodesToFixCandidates = getAllNodesToFix({node, context, throwStatement});
+		if (_.isEmpty(nodesToFixCandidates)) {
+			continue;
+		}
+
+		const nodesToFix = nodesToFixCandidates.filter(({node}) =>
+			!hasCauseProperty(node)
+		);
+
+		for (const nodeToFix of nodesToFix) {
+			context.report({
+				node,
+				messageId: ERROR,
+				fix(fixer) {
+					return fix({
+						fixer,
+						node,
+						context,
+						statementToFix: nodeToFix.statementToFix,
+						errorConstructorLastArgument: nodeToFix.node,
+						errorArgumentIdentifier,
+					});
+				},
+			});
+		}
 	}
 };
 
