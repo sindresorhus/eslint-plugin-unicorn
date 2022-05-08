@@ -78,6 +78,7 @@ module.exports = {
 		'unicorn/prefer-dom-node-dataset': 'error',
 		'unicorn/prefer-dom-node-remove': 'error',
 		'unicorn/prefer-dom-node-text-content': 'error',
+		'unicorn/prefer-event-target': 'error',
 		'unicorn/prefer-export-from': 'error',
 		'unicorn/prefer-includes': 'error',
 		'unicorn/prefer-json-parse-buffer': 'off',
