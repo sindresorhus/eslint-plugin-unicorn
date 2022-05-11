@@ -361,6 +361,7 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 	const parameters = callback.params;
 	if (
 		!(parameters.length === 1 || parameters.length === 2)
+		|| (parameters.length === 1 && parameters[0].type === 'AssignmentPattern')
 		|| parameters.some(({type, typeAnnotation}) => type === 'RestElement' || typeAnnotation)
 		|| !isFunctionParametersSafeToFix(callback, {scope, callExpression, allIdentifiers, context})
 	) {
