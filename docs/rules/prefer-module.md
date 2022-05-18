@@ -123,4 +123,4 @@ export {foo};
 
 ## Resources
 
-- [Get Ready For ESM](https://blog.sindresorhus.com/get-ready-for-esm-aa53530b3f77) by @sindresorhus
+- [Get Ready For ESM](https://medium.com/sindre-sorhus/get-ready-for-esm-aa53530b3f77) by @sindresorhus
