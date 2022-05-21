@@ -47,7 +47,7 @@ const create = () => ({
 			&& node.parent.name.name.toLowerCase() === 'charset'
 			&& node.parent.parent.type === 'JSXOpeningElement'
 			&& node.parent.parent.attributes.includes(node.parent)
-			&& node.parent.parent.name?.type === 'JSXIdentifier'
+			&& node.parent.parent.name.type === 'JSXIdentifier'
 			&& node.parent.parent.name.name.toLowerCase() === 'meta'
 		) {
 			return;
