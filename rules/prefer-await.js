@@ -3,6 +3,7 @@ const {methodCallSelector} = require('./selectors/index.js');
 const {removeParentheses, removeMethodCall} = require('./fix/index.js');
 const {getParenthesizedText, isParenthesized} = require('./utils/parentheses.js');
 const shouldAddParenthesesToCallExpressionCallee = require('./utils/should-add-parentheses-to-call-expression-callee.js');
+const getFunctionParameterVariables = require('./utils/get-function-parameter-variables.js');
 
 const MESSAGE_ID= 'prefer-await';
 const messages = {
@@ -13,6 +14,8 @@ function getProblem({
 	callExpression,
 	currentFunction,
 	context,
+	scope,
+	functionsHasReturnStatement,
 }) {
 	const methodNode = callExpression.callee.property;
 	const method = methodNode.name;
@@ -48,10 +51,12 @@ function getProblem({
 			|| callback.generator
 			|| callback.params.length > 1
 			|| callback.params[0]?.type === 'RestElement'
+			|| functionsHasReturnStatement.has(callback)
 		)
 	) {
 		return problem;
 	}
+
 
 
 	problem.fix = function * (fixer) {
@@ -61,7 +66,42 @@ function getProblem({
 		yield * removeParentheses(callExpression, fixer, sourceCode);
 
 		if (isCallbackFunction) {
-			// `foo.then(bar)` -> `await foo`
+			// `callback` is a function
+			let shouldAddScope = false;
+			let shouldDefineVariable = false;
+			const [parameter] = callback.params;
+			if (parameter) {
+				const variablesFromParameter = getFunctionParameterVariables(parameter, context).map(({name}) => name);
+
+				if (variablesFromParameter.length > 0) {
+					shouldDefineVariable = true;
+
+					const variablesFromCallExpressionScope = new Set(scope.variables.map(({name}) => name))
+					shouldAddScope = variablesFromParameter.some(name => variablesFromCallExpressionScope.has(name));
+				}
+			}
+
+			if (shouldAddScope) {
+				yield fixer.insertTextBefore(callExpression, '{\n');
+			}
+
+			if (shouldDefineVariable) {
+				const parameterText = sourceCode.getText(parameter);
+				yield fixer.insertTextBefore(callExpression, `let ${parameterText} = `);
+			}
+
+			yield fixer.insertTextBefore(callExpression, 'await ');
+			yield fixer.insertTextAfter(callExpression, ';');
+
+			yield* removeMethodCall(fixer, callExpression, sourceCode);
+
+			const callbackFunctionBodyText = getParenthesizedText(callback.body, sourceCode);
+
+			yield fixer.insertTextAfter(callExpression, `\n${callbackFunctionBodyText}`);
+
+			if (shouldAddScope) {
+				yield fixer.insertTextAfter(callExpression, '\n}');
+			}
 		} else {
 			// `callback` is a reference
 
@@ -96,6 +136,7 @@ function getProblem({
 const create = context => {
 	const functionStack = [];
 	const promiseCallExpressions = new Set();
+	const functionsHasReturnStatement = new Set()
 
 	return {
 		':function'(node) {
@@ -104,13 +145,27 @@ const create = context => {
 		':function:exit'() {
 			functionStack.pop();
 		},
+		ReturnStatement() {
+			const currentFunction = functionStack[functionStack.length - 1];
+			functionsHasReturnStatement.add(currentFunction);
+		},
 		[methodCallSelector(['then', 'catch', 'finally'])](callExpression) {
 			const currentFunction = functionStack[functionStack.length - 1];
-			promiseCallExpressions.add({callExpression, currentFunction});
+			promiseCallExpressions.add({
+				scope: context.getScope(),
+				callExpression,
+				currentFunction
+			});
 		},
 		* 'Program:exit'() {
-			for (const {callExpression, currentFunction} of promiseCallExpressions) {
-				yield getProblem({callExpression, currentFunction, context})
+			for (const {callExpression, currentFunction, scope} of promiseCallExpressions) {
+				yield getProblem({
+					callExpression,
+					currentFunction,
+					context,
+					scope,
+					functionsHasReturnStatement,
+				})
 			}
 		},
 	};
