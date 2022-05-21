@@ -1,4 +1,5 @@
 import outdent from 'outdent';
+import indentString from 'indent-string'
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
@@ -22,61 +23,65 @@ test.snapshot({
 		'promise.finally(() => {})',
 		'promise.finally(foo)',
 
-		'promise.then(foo)',
-		'promise.then(foo);',
-		'promise.then(foo.bar);',
-		'promise.then( (( foo )) )',
-		'promise.then(new Foo)',
-		'promise.then(foo ?? bar)',
-		outdent`
-			const foo = []
-			promise.then([foo][0])
-		`,
-		'promise.then(() => {})',
-		'promise.then(() => ({}))',
-		outdent`
-			promise.then(() => {
-				return []
-			})
-		`,
-		outdent`
-			promise.then(() => {
-				function a() {
+		...[
+			'promise.then(foo)',
+			'promise.then(foo);',
+			'promise.then(foo.bar);',
+			'promise.then( (( foo )) )',
+			'promise.then(new Foo)',
+			'promise.then(foo ?? bar)',
+			outdent`
+				const foo = []
+				promise.then([foo][0])
+			`,
+			'promise.then(() => {})',
+			'promise.then(() => ({}))',
+			outdent`
+				promise.then(() => {
 					return []
+				})
+			`,
+			outdent`
+				promise.then(() => {
+					function a() {
+						return []
+					}
+				})
+			`,
+			'promise.then((a) => {})',
+			'promise.then(({a}) => {})',
+			'promise.then(([]) => {})',
+			'promise.then(({}) => {})',
+			outdent`
+				promise.then(({a}) => {
+					const b = 1;
+				})
+			`,
+			outdent`
+				const a = 1, b = 2;
+				promise.then(({a}) => {
+					const b = 1;
+				})
+			`,
+			'(( promise.then(() => {}) ))',
+			'promise.then(async () => {})',
+			'promise.then(function * () {})',
+			'promise.then(async function * () {})',
+			'promise.then((...foo) => {})',
+			'promise.then((a, extraParameter) => {})',
+		].flatMap(code => [
+			code,
+			outdent`
+				function nonAsyncFunction() {
+				${indentString(code, 1, {indent: '\t'})}
 				}
-			})
-		`,
-		'promise.then((a) => {})',
-		'promise.then(({a}) => {})',
-		'promise.then(([]) => {})',
-		'promise.then(({}) => {})',
-		outdent`
-			promise.then(({a}) => {
-				const b = 1;
-			})
-		`,
-		outdent`
-			const a = 1, b = 2;
-			promise.then(({a}) => {
-				const b = 1;
-			})
-		`,
-		'(( promise.then(() => {}) ))',
-		'promise.then(async () => {})',
-		'promise.then(function * () {})',
-		'promise.then(async function * () {})',
-		'promise.then((...foo) => {})',
-		'promise.then((a, extraParameter) => {})',
-		outdent`
-			function a () {
-				promise.then(call);
-			}
-		`,
-		outdent`
-			async function a() {
-				promise.then(call);
-			}
-		`,
+			`,
+			outdent`
+				async function asyncFunction() {
+				${indentString(code, 1, {indent: '\t'})}
+				}
+			`,
+		]),
 		outdent`
 			async function * a() {
 				promise.then(call);
