@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import indentString from 'indent-string'
+import indentString from 'indent-string';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
