@@ -1,6 +1,7 @@
 'use strict';
 const {methodCallSelector} = require('./selectors/index.js');
-const {} = require('./fix/index.js');
+const {removeParentheses, removeMethodCall} = require('./fix/index.js');
+const {getParenthesizedText} = require('./utils/parentheses.js');
 
 const MESSAGE_ID= 'prefer-await';
 const messages = {
@@ -9,16 +10,70 @@ const messages = {
 
 function getProblem({
 	callExpression,
-	currentFunction
+	currentFunction,
+	context,
 }) {
-	const method = callExpression.callee.property;
+	const methodNode = callExpression.callee.property;
+	const method = methodNode.name;
 
 	const problem = {
-		node: method,
+		node: methodNode,
 		messageId: MESSAGE_ID,
 		data: {
-			method: method.name,
+			method,
 		},
+	};
+
+	if (
+		// If the function is not an `async` function, we can't use `await`
+		// We can use suggestion api to turn function into an `async` function
+		// Ignore for now
+		(currentFunction && !currentFunction.async)
+		// These cases not handled
+		|| callExpression.parent.type !== 'ExpressionStatement'
+		|| method !== 'then'
+		|| callExpression.arguments.length !== 1
+	) {
+		return problem;
+	}
+
+	const [callback] = callExpression.arguments;
+	const isCallbackFunction = callback.type === 'ArrowFunctionExpression'
+		|| callback.type === 'FunctionExpression';
+	if (
+		isCallbackFunction
+		&& (
+			callback.async
+			|| callback.generator
+			|| callback.params.length > 1
+			|| callback.params[0]?.type === 'RestElement'
+		)
+	) {
+		return problem;
+	}
+
+
+	problem.fix = function * (fixer) {
+		const sourceCode = context.getSourceCode();
+
+		// `(( foo.then(bar) ))`
+		yield * removeParentheses(callExpression, fixer, sourceCode);
+
+		if (isCallbackFunction) {
+			// `foo.then(bar)` -> `await foo`
+		} else {
+			// `callback` is a reference
+			yield fixer.insertTextBefore(callExpression, 'await ');
+
+			// `foo.then(bar)` -> `bar(foo.then(bar)`
+			const callbackText = getParenthesizedText(callback, sourceCode);
+			yield fixer.insertTextBefore(callExpression, `${callbackText}(`);
+
+			// Maybe will cause ASI problem here
+
+			yield* removeMethodCall(fixer, callExpression, sourceCode);
+			yield fixer.insertTextAfter(callExpression, `)`);
+		}
 	};
 
 	return problem;
@@ -42,7 +97,7 @@ const create = context => {
 		},
 		* 'Program:exit'() {
 			for (const {callExpression, currentFunction} of promiseCallExpressions) {
-				yield getProblem({callExpression, currentFunction})
+				yield getProblem({callExpression, currentFunction, context})
 			}
 		},
 	};
@@ -56,6 +111,7 @@ module.exports = {
 		docs: {
 			description: 'Prefer using `await` operator over `Promise#{then,catch,finally}()`.',
 		},
+		fixable: 'code',
 		messages,
 	},
 };
