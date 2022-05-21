@@ -129,5 +129,15 @@ test.snapshot({
 				.then(call2)
 				.then(call3);
 		`,
+		outdent`
+			try {
+				promise.then(call);
+			} catch {}
+		`,
+		outdent`
+			function foo() {
+				return promise.then(call1)
+			}
+		`,
 	],
 });

@@ -13,6 +13,16 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Use `await` expression.',
 };
 
+function isInsideTryStatement(node, stopNode) {
+	for (; node && node !== stopNode; node = node.parent) {
+		if (node.type === 'TryStatement') {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 function getProblem({
 	callExpression,
 	currentFunction,
@@ -38,9 +48,19 @@ function getProblem({
 		// Ignore for now
 		(currentFunction && !currentFunction.async)
 		// These cases not handled
-		|| callExpression.parent.type !== 'ExpressionStatement'
+		|| !(
+			(
+				callExpression.parent.type === 'ExpressionStatement'
+				&& callExpression.parent.expression === callExpression
+			)
+			|| (
+				callExpression.parent.type === 'ReturnStatement'
+				&& callExpression.parent.argument === callExpression
+			)
+		)
 		|| method !== 'then'
 		|| callExpression.arguments.length !== 1
+		|| isInsideTryStatement(callExpression, currentFunction)
 	) {
 		return problem;
 	}
@@ -63,11 +83,12 @@ function getProblem({
 
 	const fix = function * (fixer) {
 		const sourceCode = context.getSourceCode();
-
-		// `(( foo.then(bar) ))`
-		yield * removeParentheses(callExpression, fixer, sourceCode);
+		const isReturnStatementArgument = callExpression.parent.type === 'ReturnStatement';
 
 		if (isCallbackFunction) {
+			// `(( foo.then(bar) ))`
+			yield * removeParentheses(callExpression, fixer, sourceCode);
+
 			// `callback` is a function
 			let shouldCreateScope = false;
 			let shouldDefineVariable = false;
@@ -121,11 +142,7 @@ function getProblem({
 			}
 
 			// Check ASI problem
-			const callExpressionParentheses = getParentheses(callback, sourceCode);
-			const tokenBefore = sourceCode.getTokenBefore(
-				callExpressionParentheses[0] ?? callExpression,
-				sourceCode,
-			);
+			const tokenBefore = sourceCode.getTokenBefore(callExpression, sourceCode);
 
 			if (needsSemicolon(tokenBefore, sourceCode, callbackText)) {
 				callbackText = `;${callbackText}`;
