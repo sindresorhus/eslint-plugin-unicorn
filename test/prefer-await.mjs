@@ -139,5 +139,26 @@ test.snapshot({
 				return promise.then(call1)
 			}
 		`,
+		outdent`
+			class A {
+				a() {
+					return promise.then(call);
+				}
+			}
+		`,
+		outdent`
+			const object = {
+				a() {
+					return promise.then(call);
+				}
+			}
+		`,
+		outdent`
+			const object = {
+				a: function() {
+					return promise.then(call);
+				}
+			}
+		`,
 	],
 });

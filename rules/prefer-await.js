@@ -1,7 +1,7 @@
 'use strict';
 const {methodCallSelector} = require('./selectors/index.js');
 const {removeParentheses, removeMethodCall} = require('./fix/index.js');
-const {getParenthesizedText, isParenthesized, getParentheses} = require('./utils/parentheses.js');
+const {getParenthesizedText, isParenthesized} = require('./utils/parentheses.js');
 const shouldAddParenthesesToCallExpressionCallee = require('./utils/should-add-parentheses-to-call-expression-callee.js');
 const getFunctionParameterVariables = require('./utils/get-function-parameter-variables.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
@@ -10,7 +10,7 @@ const MESSAGE_ID_ERROR = 'prefer-await/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-await/suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Do not use `Promise#{{method}}(…)`.',
-	[MESSAGE_ID_SUGGESTION]: 'Use `await` expression.',
+	[MESSAGE_ID_SUGGESTION]: 'Use `await` expression (UNSAFE).',
 };
 
 function isInsideTryStatement(node, stopNode) {
@@ -41,22 +41,15 @@ function getProblem({
 		},
 	};
 
-
 	if (
 		// If the function is not an `async` function, we can't use `await`
 		// We can use suggestion api to turn function into an `async` function
 		// Ignore for now
 		(currentFunction && !currentFunction.async)
-		// These cases not handled
+		// Other cases not handled
 		|| !(
-			(
-				callExpression.parent.type === 'ExpressionStatement'
-				&& callExpression.parent.expression === callExpression
-			)
-			|| (
-				callExpression.parent.type === 'ReturnStatement'
-				&& callExpression.parent.argument === callExpression
-			)
+			callExpression.parent.type === 'ExpressionStatement'
+			&& callExpression.parent.expression === callExpression
 		)
 		|| method !== 'then'
 		|| callExpression.arguments.length !== 1
@@ -83,7 +76,6 @@ function getProblem({
 
 	const fix = function * (fixer) {
 		const sourceCode = context.getSourceCode();
-		const isReturnStatementArgument = callExpression.parent.type === 'ReturnStatement';
 
 		if (isCallbackFunction) {
 			// `(( foo.then(bar) ))`
@@ -99,7 +91,7 @@ function getProblem({
 				if (variablesFromParameter.length > 0) {
 					shouldDefineVariable = true;
 
-					const variablesFromCallExpressionScope = new Set(scope.variables.map(({name}) => name))
+					const variablesFromCallExpressionScope = new Set(scope.variables.map(({name}) => name));
 					shouldCreateScope = variablesFromParameter.some(name => variablesFromCallExpressionScope.has(name));
 				}
 			}
@@ -116,7 +108,7 @@ function getProblem({
 			yield fixer.insertTextBefore(callExpression, 'await ');
 			yield fixer.insertTextAfter(callExpression, ';');
 
-			yield* removeMethodCall(fixer, callExpression, sourceCode);
+			yield * removeMethodCall(fixer, callExpression, sourceCode);
 
 			const callbackFunctionBodyText = getParenthesizedText(callback.body, sourceCode);
 
@@ -150,8 +142,8 @@ function getProblem({
 
 			yield fixer.insertTextBefore(callExpression, `${callbackText}(await `);
 
-			yield* removeMethodCall(fixer, callExpression, sourceCode);
-			yield fixer.insertTextAfter(callExpression, `)`);
+			yield * removeMethodCall(fixer, callExpression, sourceCode);
+			yield fixer.insertTextAfter(callExpression, ')');
 		}
 	};
 
@@ -159,7 +151,7 @@ function getProblem({
 		{
 			messageId: MESSAGE_ID_SUGGESTION,
 			fix,
-		}
+		},
 	];
 
 	return problem;
@@ -169,7 +161,7 @@ function getProblem({
 const create = context => {
 	const functionStack = [];
 	const promiseCallExpressions = new Set();
-	const functionsHasReturnStatement = new Set()
+	const functionsHasReturnStatement = new Set();
 
 	return {
 		':function'(node) {
@@ -187,7 +179,7 @@ const create = context => {
 			promiseCallExpressions.add({
 				scope: context.getScope(),
 				callExpression,
-				currentFunction
+				currentFunction,
 			});
 		},
 		* 'Program:exit'() {
@@ -198,7 +190,7 @@ const create = context => {
 					context,
 					scope,
 					functionsHasReturnStatement,
-				})
+				});
 			}
 		},
 	};
