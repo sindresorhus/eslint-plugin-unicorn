@@ -128,6 +128,6 @@ test.snapshot({
 			promise.then(call1)
 				.then(call2)
 				.then(call3);
-		`
+		`,
 	],
 });

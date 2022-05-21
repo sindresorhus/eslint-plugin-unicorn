@@ -18,7 +18,9 @@ function getFunctionParameterVariables(parameter, context) {
 		for (let node = definition.name; ; node = node.parent) {
 			if (node === parameter) {
 				return true;
-			} else if (node === parameter.parent) {
+			}
+
+			if (node === parameter.parent) {
 				break;
 			}
 		}

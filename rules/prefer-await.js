@@ -1,9 +1,10 @@
 'use strict';
 const {methodCallSelector} = require('./selectors/index.js');
 const {removeParentheses, removeMethodCall} = require('./fix/index.js');
-const {getParenthesizedText, isParenthesized} = require('./utils/parentheses.js');
+const {getParenthesizedText, isParenthesized, getParentheses} = require('./utils/parentheses.js');
 const shouldAddParenthesesToCallExpressionCallee = require('./utils/should-add-parentheses-to-call-expression-callee.js');
 const getFunctionParameterVariables = require('./utils/get-function-parameter-variables.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
 
 const MESSAGE_ID= 'prefer-await';
 const messages = {
@@ -68,7 +69,7 @@ function getProblem({
 
 		if (isCallbackFunction) {
 			// `callback` is a function
-			let shouldAddScope = false;
+			let shouldCreateScope = false;
 			let shouldDefineVariable = false;
 			const [parameter] = callback.params;
 			if (parameter) {
@@ -78,11 +79,11 @@ function getProblem({
 					shouldDefineVariable = true;
 
 					const variablesFromCallExpressionScope = new Set(scope.variables.map(({name}) => name))
-					shouldAddScope = variablesFromParameter.some(name => variablesFromCallExpressionScope.has(name));
+					shouldCreateScope = variablesFromParameter.some(name => variablesFromCallExpressionScope.has(name));
 				}
 			}
 
-			if (shouldAddScope) {
+			if (shouldCreateScope) {
 				yield fixer.insertTextBefore(callExpression, '{\n');
 			}
 
@@ -100,17 +101,13 @@ function getProblem({
 
 			yield fixer.insertTextAfter(callExpression, `\n${callbackFunctionBodyText}`);
 
-			if (shouldAddScope) {
+			if (shouldCreateScope) {
 				yield fixer.insertTextAfter(callExpression, '\n}');
 			}
 		} else {
 			// `callback` is a reference
 
 			const isCallbackParenthesized = isParenthesized(callback, sourceCode);
-
-			yield fixer.insertTextBefore(callExpression, 'await ');
-
-			// There should be no ASI problem
 
 			let callbackText = isCallbackParenthesized
 				? getParenthesizedText(callback, sourceCode)
@@ -121,6 +118,17 @@ function getProblem({
 				&& shouldAddParenthesesToCallExpressionCallee(callback)
 			) {
 				callbackText = `(${callbackText})`;
+			}
+
+			// Check ASI problem
+			const callExpressionParentheses = getParentheses(callback, sourceCode);
+			const tokenBefore = sourceCode.getTokenBefore(
+				callExpressionParentheses[0] ?? callExpression,
+				sourceCode,
+			);
+
+			if (needsSemicolon(tokenBefore, sourceCode, callbackText)) {
+				callbackText = `;${callbackText}`;
 			}
 
 			yield fixer.insertTextBefore(callExpression, `${callbackText}(await `);
