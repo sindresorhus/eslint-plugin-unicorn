@@ -71,7 +71,8 @@ module.exports = {
 		'unicorn/prefer-array-some': 'error',
 		// TODO: Enable this by default when targeting a Node.js version that supports `Array#at`.
 		'unicorn/prefer-at': 'off',
-		'unicorn/prefer-await': 'error',
+		// Experiential
+		'unicorn/prefer-await': 'off',
 		'unicorn/prefer-code-point': 'error',
 		'unicorn/prefer-date-now': 'error',
 		'unicorn/prefer-default-parameters': 'error',
