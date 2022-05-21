@@ -6,9 +6,11 @@ const shouldAddParenthesesToCallExpressionCallee = require('./utils/should-add-p
 const getFunctionParameterVariables = require('./utils/get-function-parameter-variables.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 
-const MESSAGE_ID= 'prefer-await';
+const MESSAGE_ID_ERROR = 'prefer-await/error';
+const MESSAGE_ID_SUGGESTION = 'prefer-await/suggestion';
 const messages = {
-	[MESSAGE_ID]: 'Do not use `Promise#{{method}}(…)`.',
+	[MESSAGE_ID_ERROR]: 'Do not use `Promise#{{method}}(…)`.',
+	[MESSAGE_ID_SUGGESTION]: 'Use `await` expression.',
 };
 
 function getProblem({
@@ -23,7 +25,7 @@ function getProblem({
 
 	const problem = {
 		node: methodNode,
-		messageId: MESSAGE_ID,
+		messageId: MESSAGE_ID_ERROR,
 		data: {
 			method,
 		},
@@ -59,9 +61,7 @@ function getProblem({
 		return problem;
 	}
 
-
-
-	problem.fix = function * (fixer) {
+	const fix = function * (fixer) {
 		const sourceCode = context.getSourceCode();
 
 		// `(( foo.then(bar) ))`
@@ -138,6 +138,13 @@ function getProblem({
 		}
 	};
 
+	problem.suggest = [
+		{
+			messageId: MESSAGE_ID_SUGGESTION,
+			fix,
+		}
+	];
+
 	return problem;
 }
 
@@ -188,7 +195,7 @@ module.exports = {
 		docs: {
 			description: 'Prefer using `await` operator over `Promise#{then,catch,finally}()`.',
 		},
-		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 	},
 };
