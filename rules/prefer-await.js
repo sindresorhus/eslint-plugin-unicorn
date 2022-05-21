@@ -28,6 +28,7 @@ function getProblem({
 		},
 	};
 
+
 	if (
 		// If the function is not an `async` function, we can't use `await`
 		// We can use suggestion api to turn function into an `async` function
@@ -122,7 +123,7 @@ function getProblem({
 				callbackText = `(${callbackText})`;
 			}
 
-			yield fixer.insertTextBefore(callExpression, `${callbackText}(`);
+			yield fixer.insertTextBefore(callExpression, `${callbackText}(await `);
 
 			yield* removeMethodCall(fixer, callExpression, sourceCode);
 			yield fixer.insertTextAfter(callExpression, `)`);
