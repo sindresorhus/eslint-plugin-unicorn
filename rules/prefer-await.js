@@ -69,6 +69,8 @@ function getProblem({
 
 			yield fixer.insertTextBefore(callExpression, 'await ');
 
+			// There should be no ASI problem
+
 			let callbackText = isCallbackParenthesized
 				? getParenthesizedText(callback, sourceCode)
 				: sourceCode.getText(callback);
@@ -80,11 +82,7 @@ function getProblem({
 				callbackText = `(${callbackText})`;
 			}
 
-			// `foo.then(bar)` -> `bar(foo.then(bar)`
-
 			yield fixer.insertTextBefore(callExpression, `${callbackText}(`);
-
-			// Maybe will cause ASI problem here
 
 			yield* removeMethodCall(fixer, callExpression, sourceCode);
 			yield fixer.insertTextAfter(callExpression, `)`);

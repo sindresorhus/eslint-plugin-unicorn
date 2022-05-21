@@ -27,6 +27,11 @@ test.snapshot({
 		'promise.then(foo.bar);',
 		'promise.then( (( foo )) )',
 		'promise.then(new Foo)',
+		'promise.then(foo ?? bar)',
+		outdent`
+			const foo = []
+			promise.then([foo][0])
+		`,
 		// 'promise.then(() => {})',
 		// '(( promise.then(() => {}) ))',
 		// 'promise.then(async () => {})',
