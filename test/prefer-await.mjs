@@ -25,6 +25,8 @@ test.snapshot({
 		'promise.then(foo)',
 		'promise.then(foo);',
 		'promise.then(foo.bar);',
+		'promise.then( (( foo )) )',
+		'promise.then(new Foo)',
 		// 'promise.then(() => {})',
 		// '(( promise.then(() => {}) ))',
 		// 'promise.then(async () => {})',

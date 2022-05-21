@@ -1,7 +1,8 @@
 'use strict';
 const {methodCallSelector} = require('./selectors/index.js');
 const {removeParentheses, removeMethodCall} = require('./fix/index.js');
-const {getParenthesizedText} = require('./utils/parentheses.js');
+const {getParenthesizedText, isParenthesized} = require('./utils/parentheses.js');
+const shouldAddParenthesesToCallExpressionCallee = require('./utils/should-add-parentheses-to-call-expression-callee.js');
 
 const MESSAGE_ID= 'prefer-await';
 const messages = {
@@ -63,10 +64,24 @@ function getProblem({
 			// `foo.then(bar)` -> `await foo`
 		} else {
 			// `callback` is a reference
+
+			const isCallbackParenthesized = isParenthesized(callback, sourceCode);
+
 			yield fixer.insertTextBefore(callExpression, 'await ');
 
+			let callbackText = isCallbackParenthesized
+				? getParenthesizedText(callback, sourceCode)
+				: sourceCode.getText(callback);
+
+			if (
+				!isCallbackParenthesized
+				&& shouldAddParenthesesToCallExpressionCallee(callback)
+			) {
+				callbackText = `(${callbackText})`;
+			}
+
 			// `foo.then(bar)` -> `bar(foo.then(bar)`
-			const callbackText = getParenthesizedText(callback, sourceCode);
+
 			yield fixer.insertTextBefore(callExpression, `${callbackText}(`);
 
 			// Maybe will cause ASI problem here
