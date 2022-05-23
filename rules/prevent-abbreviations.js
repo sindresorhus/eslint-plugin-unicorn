@@ -1,6 +1,6 @@
 'use strict';
 const path = require('path');
-const {defaultsDeep, upperFirst, lowerFirst} = require('lodash');
+const {defaultsDeep} = require('lodash');
 
 const avoidCapture = require('./utils/avoid-capture.js');
 const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
@@ -11,6 +11,7 @@ const isStaticRequire = require('./utils/is-static-require.js');
 const {defaultReplacements, defaultAllowList, defaultIgnore} = require('./shared/abbreviations.js');
 const {renameVariable} = require('./fix/index.js');
 const getScopes = require('./utils/get-scopes.js');
+const {upperFirst, lowerFirst} = require('./utils/string-utils.js');
 
 const MESSAGE_ID_REPLACE = 'replace';
 const MESSAGE_ID_SUGGESTION = 'suggestion';

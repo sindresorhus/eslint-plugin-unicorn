@@ -2,6 +2,7 @@
 const path = require('path');
 const {matches} = require('../../rules/selectors/index.js');
 const toLocation = require('../../rules/utils/to-location.js');
+const {upperFirst} = require('../../rules/utils/string-utils.js');
 
 const messageId = path.basename(__filename, '.js');
 
@@ -64,7 +65,7 @@ module.exports = {
 					const original = message.slice(index, index + word.length);
 
 					if (/^[A-Z]/.test(original)) {
-						replacement = replacement[0].toUpperCase() + replacement.slice(1);
+						replacement = upperFirst(replacement);
 					}
 
 					const start = node.range[0] + index + 1;
