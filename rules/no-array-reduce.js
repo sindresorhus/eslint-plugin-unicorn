@@ -1,5 +1,4 @@
 'use strict';
-const {get} = require('lodash');
 const {methodCallSelector} = require('./selectors/index.js');
 const {arrayPrototypeMethodSelector, notFunctionSelector, matches} = require('./selectors/index.js');
 
@@ -54,7 +53,7 @@ const create = context => {
 
 	return {
 		[selector](node) {
-			const callback = get(node, 'parent.parent.arguments[0]', {});
+			const callback = node?.parent?.parent?.arguments?.[0] ?? {};
 			const problem = {
 				node,
 				messageId: MESSAGE_ID,
