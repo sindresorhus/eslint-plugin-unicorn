@@ -334,16 +334,16 @@ function isAssignmentLeftHandSide(node) {
 			return parent.elements.includes(node) && isAssignmentLeftHandSide(parent);
 		case 'ObjectPattern':
 			return parent.properties.includes(node) && isAssignmentLeftHandSide(parent);
+		default:
+			return false;
 	}
-
-	return false;
 }
 
 function isFunctionParameterVariableReassigned(callbackFunction, context) {
 	return context.getDeclaredVariables(callbackFunction)
 		.filter(variable => variable.defs[0].type === 'Parameter')
 		.some(variable =>
-			variable.references.some(reference => isAssignmentLeftHandSide(reference.identifier))
+			variable.references.some(reference => isAssignmentLeftHandSide(reference.identifier)),
 		);
 }
 
