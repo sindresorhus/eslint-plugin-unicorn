@@ -369,6 +369,34 @@ test.snapshot({
 			`,
 			outdent`
 				foo.forEach(element => {
+					({element} = foo);
+				})
+			`,
+			outdent`
+				foo.forEach(element => {
+					[element] = foo;
+				})
+			`,
+			outdent`
+				foo.forEach(element => {
+					let a;
+					({a = element} = foo);
+				})
+			`,
+			outdent`
+				foo.forEach(element => {
+					let a;
+					({element = a} = foo);
+				})
+			`,
+			outdent`
+				foo.forEach(element => {
+					let a;
+					({element: a} = foo);
+				})
+			`,
+			outdent`
+				foo.forEach(element => {
 					const a = -- element;
 				})
 			`,
