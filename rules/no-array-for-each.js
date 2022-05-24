@@ -320,6 +320,7 @@ function isFunctionParametersSafeToFix(callbackFunction, {context, scope, callEx
 // TODO[@fisker]: Improve `./utils/is-left-hand-side.js` with similar logic
 function isAssignmentLeftHandSide(node) {
 	const {parent} = node;
+
 	switch (parent.type) {
 		case 'AssignmentExpression':
 			return parent.left === node;

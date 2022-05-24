@@ -369,34 +369,6 @@ test.snapshot({
 			`,
 			outdent`
 				foo.forEach(element => {
-					({element} = foo);
-				})
-			`,
-			outdent`
-				foo.forEach(element => {
-					[element] = foo;
-				})
-			`,
-			outdent`
-				foo.forEach(element => {
-					let a;
-					({a = element} = foo);
-				})
-			`,
-			outdent`
-				foo.forEach(element => {
-					let a;
-					({element = a} = foo);
-				})
-			`,
-			outdent`
-				foo.forEach(element => {
-					let a;
-					({element: a} = foo);
-				})
-			`,
-			outdent`
-				foo.forEach(element => {
 					const a = -- element;
 				})
 			`,
@@ -469,6 +441,55 @@ test.snapshot({
 		// Arrow function body
 		'array.forEach((arrayInArray) => arrayInArray.forEach(element => bar(element)));',
 		'array.forEach((arrayInArray) => arrayInArray?.forEach(element => bar(element)));',
+
+		// Destructuring assign
+		...[
+			'({element} = bar)',
+			'({element = a} = bar)',
+			'({a = element} = bar)',
+			'[element] = bar',
+			'[element = a] = bar',
+			'[a = element] = bar',
+			'({deep: {element}} = bar)',
+			'({deep: {element = a}} = bar)',
+			'({deep: {a = element}} = bar)',
+			'({deep: [element]} = bar)',
+			'({deep: [element = a]} = bar)',
+			'({deep: [a = element]} = bar)',
+			'[{element}] = bar',
+			'[{element = a}] = bar',
+			'[{a = element}] = bar',
+			'[[element]] = bar',
+			'[[element = a]] = bar',
+			'[[a = element]] = bar',
+		].map(code => outdent`
+			foo.forEach(element => {
+				${code};
+			});
+		`),
+		outdent`
+			foo.forEach(element => {
+				[
+					bar = ((element) => {
+						[element] = array;
+					})(element)
+				] = baz;
+			});
+		`,
+		outdent`
+			foo.forEach(element => {
+				[
+					bar = ((element = array) => element)(element)
+				] = baz;
+			});
+		`,
+		outdent`
+			foo.forEach(element => {
+				[
+					bar = (([element] = array) => element)(element)
+				] = baz;
+			});
+		`,
 	],
 });
 
