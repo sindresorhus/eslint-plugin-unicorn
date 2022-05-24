@@ -317,7 +317,7 @@ function isFunctionParametersSafeToFix(callbackFunction, {context, scope, callEx
 	return true;
 }
 
-// TODO[@fisker]: Merge this function with `./utils/is-left-hand-side.js`
+// TODO[@fisker]: Improve `./utils/is-left-hand-side.js` with similar logic
 function isAssignmentLeftHandSide(node) {
 	const {parent} = node;
 	switch (parent.type) {
@@ -325,12 +325,14 @@ function isAssignmentLeftHandSide(node) {
 			return parent.left === node;
 		case 'UpdateExpression':
 			return parent.argument === node;
-		case 'ObjectProperty':
+		case 'Property':
 			return parent.value === node && isAssignmentLeftHandSide(parent);
-		case 'ArrayPattern':
-			return parent.elements.includes(node) && isAssignmentLeftHandSide(parent);
 		case 'AssignmentPattern':
 			return parent.left === node && isAssignmentLeftHandSide(parent);
+		case 'ArrayPattern':
+			return parent.elements.includes(node) && isAssignmentLeftHandSide(parent);
+		case 'ObjectPattern':
+			return parent.properties.includes(node) && isAssignmentLeftHandSide(parent);
 	}
 
 	return false;
