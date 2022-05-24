@@ -53,7 +53,7 @@ const create = context => {
 
 	return {
 		[selector](node) {
-			const callback = node?.parent?.parent?.arguments?.[0] ?? {};
+			const callback = node.parent.parent?.arguments?.[0] ?? {};
 			const problem = {
 				node,
 				messageId: MESSAGE_ID,
