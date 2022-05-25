@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import process from 'node:process';
 import fs, {promises as fsAsync} from 'node:fs';
 import enquirer from 'enquirer';
 import unicorn from '../index.js';
@@ -60,7 +59,7 @@ async function renameRule(from, to) {
 	}
 }
 
-(async () => {
+const run = async () => {
 	const originalRuleId = await new enquirer.AutoComplete({
 		message: 'Select the rule you want rename:',
 		limit: 10,
@@ -83,7 +82,6 @@ async function renameRule(from, to) {
 
 	checkFiles(ruleId);
 	renameRule(originalRuleId, ruleId);
-})().catch(error => {
-	console.error(error);
-	process.exit(1);
-});
+};
+
+await run();

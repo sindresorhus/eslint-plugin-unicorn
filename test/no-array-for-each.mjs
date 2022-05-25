@@ -34,6 +34,7 @@ test.snapshot({
 			'foo.forEach((element, index, array) => bar())',
 			'property.forEach(({property}) => bar(property))',
 			'() => foo.forEach()',
+			'foo.forEach((element = {}) => call(element))',
 
 			// Can't turn `return` to `continue`
 			outdent`

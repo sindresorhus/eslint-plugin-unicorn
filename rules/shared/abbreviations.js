@@ -240,6 +240,8 @@ module.exports.defaultAllowList = {
 	// Next.js function
 	// https://nextjs.org/learn/basics/fetching-data-for-pages
 	getInitialProps: true,
+	getServerSideProps: true,
+	getStaticProps: true,
 	// React PropTypes
 	// https://reactjs.org/docs/typechecking-with-proptypes.html
 	propTypes: true,
