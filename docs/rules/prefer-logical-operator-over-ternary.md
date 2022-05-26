@@ -7,7 +7,9 @@
 💡 *This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*
 <!-- /RULE_NOTICE -->
 
-<!-- Remove this comment, add more detailed description. -->
+Disallow ternary operators when simpler logical operator alternatives exist.
+
+Ideally, most cases we report are equivalent to a [`Logical OR(||)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR) expression. We provide suggestions instead of auto-fix intentionally, because in many cases, [`Nullish coalescing operator(??)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator) should be preferred.
 
 ## Fail
 
@@ -35,6 +37,10 @@ foo ?? bar;
 
 ```js
 foo || bar;
+```
+
+```js
+foo ? bar : baz;
 ```
 
 ```js
