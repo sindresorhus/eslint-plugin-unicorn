@@ -12,7 +12,6 @@ function shouldAddParenthesesToLogicalExpressionChild(node, {operator, property}
 		throw new Error('`property` is required.');
 	}
 
-
 	if (
 		node.type === 'LogicalExpression'
 		&& node.operator === operator
