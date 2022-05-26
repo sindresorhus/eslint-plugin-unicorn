@@ -2,10 +2,10 @@
 const isNewExpressionWithParentheses = require('../utils/is-new-expression-with-parentheses.js');
 const {isParenthesized} = require('../utils/parentheses.js');
 
-function * fixReturnStatementArgument(newExpression, sourceCode, fixer) {
+function * fixReturnOrThrowStatementArgument(newExpression, sourceCode, fixer) {
 	const {parent} = newExpression;
 	if (
-		parent.type !== 'ReturnStatement'
+		(parent.type !== 'ReturnStatement' && parent.type !== 'ThrowStatement')
 		|| parent.argument !== newExpression
 		|| isParenthesized(newExpression, sourceCode)
 	) {
@@ -48,7 +48,7 @@ function * switchNewExpressionToCallExpression(node, sourceCode, fixer) {
 			}
 		```
 	*/
-	yield * fixReturnStatementArgument(node, sourceCode, fixer);
+	yield * fixReturnOrThrowStatementArgument(node, sourceCode, fixer);
 }
 
 module.exports = switchNewExpressionToCallExpression;

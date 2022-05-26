@@ -123,6 +123,18 @@ function defineParser(linter, parser) {
 	linter.defineParser(parser, require(parser));
 }
 
+function verify(linter, code, verifyConfig, {filename}) {
+	const messages = linter.verify(code, verifyConfig, {filename});
+
+	const fatalError = messages.find(({fatal}) => fatal);
+	if (fatalError) {
+		const {line, column, message} = fatalError;
+		throw new SyntaxError('\n' + codeFrameColumns(code, {start: {line, column}}, {message}));
+	}
+
+	return messages;
+}
+
 class SnapshotRuleTester {
 	constructor(test, config) {
 		this.test = test;
@@ -148,7 +160,7 @@ class SnapshotRuleTester {
 					${indentCode(printCode(code))}
 				`,
 				t => {
-					const messages = linter.verify(code, verifyConfig, {filename});
+					const messages = verify(linter, code, verifyConfig, {filename});
 					t.deepEqual(messages, [], 'Valid case should not have errors.');
 				},
 			);
@@ -158,6 +170,7 @@ class SnapshotRuleTester {
 			const {code, options, filename} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
 			defineParser(linter, verifyConfig.parser);
+			const runVerify = code => verify(linter, code, verifyConfig, {filename});
 
 			test(
 				outdent`
@@ -165,13 +178,8 @@ class SnapshotRuleTester {
 					${indentCode(printCode(code))}
 				`,
 				t => {
-					const messages = linter.verify(code, verifyConfig, {filename});
+					const messages = runVerify(code);
 					t.notDeepEqual(messages, [], 'Invalid case should have at least one error.');
-
-					const fatalError = messages.find(({fatal}) => fatal);
-					if (fatalError) {
-						throw fatalError;
-					}
 
 					const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig, {filename}) : {fixed: false};
 
@@ -184,6 +192,7 @@ class SnapshotRuleTester {
 					}
 
 					if (fixable && fixed) {
+						runVerify(output);
 						t.snapshot(`\n${printCode(output)}\n`, 'Output');
 					}
 
@@ -191,13 +200,10 @@ class SnapshotRuleTester {
 						let messageForSnapshot = visualizeEslintMessage(code, message);
 
 						const {suggestions = []} = message;
-						if (suggestions.length > 0 && rule.meta.hasSuggestions !== true) {
-							// This check will no longer be necessary if this change lands in ESLint 8: https://github.com/eslint/eslint/issues/14312
-							throw new Error('Rule with suggestion is missing `meta.hasSuggestions`.');
-						}
 
 						for (const [index, suggestion] of suggestions.entries()) {
 							const output = applyFix(code, suggestion);
+							runVerify(output);
 
 							messageForSnapshot += outdent`
 								\n

@@ -24,7 +24,8 @@ function shouldAddParenthesesToLogicalExpressionChild(node, {operator, property}
 	// Lower precedence than `LogicalExpression`
 	// see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
 	if (
-		node.type === 'ConditionalExpression'
+		node.type === 'LogicalExpression'
+		|| node.type === 'ConditionalExpression'
 		|| node.type === 'AssignmentExpression'
 		|| node.type === 'AssignmentExpression'
 		|| node.type === 'YieldExpression'

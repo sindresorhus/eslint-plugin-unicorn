@@ -502,6 +502,27 @@ test.snapshot({
 				] = baz;
 			});
 		`,
+		outdent`
+			foo.forEach(element => {
+				for (element in bar);
+			});
+		`,
+		outdent`
+			foo.forEach(element => {
+				for ([{element}] of bar);
+			});
+		`,
+		outdent`
+			foo.forEach(element => {
+				for (key in element);
+				for (item of element);
+			});
+		`,
+		outdent`
+			foo.forEach((element, index) => {
+				for (index of bar);
+			});
+		`,
 	],
 });
 
