@@ -281,7 +281,7 @@ test.snapshot({
 		'do foo.concat(1); while (test)',
 		{
 			code: 'with (foo) foo.concat(1)',
-			parserOptions: {ecmaVersion: 5, sourceType: 'script'},
+			parserOptions: {ecmaVersion: 6, sourceType: 'script'},
 		},
 		// Code from example in docs
 		outdent`

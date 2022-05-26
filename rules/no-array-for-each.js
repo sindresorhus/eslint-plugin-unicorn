@@ -314,6 +314,8 @@ function isAssignmentLeftHandSide(node) {
 
 	switch (parent.type) {
 		case 'AssignmentExpression':
+		case 'ForInStatement':
+		case 'ForOfStatement':
 			return parent.left === node;
 		case 'UpdateExpression':
 			return parent.argument === node;
