@@ -11,5 +11,15 @@ test.snapshot({
 		'foo.bar ? foo.bar : foo.baz',
 		'foo?.bar ? foo.bar : baz',
 		'!bar ? foo : bar;',
+
+		// Parentheses
+		'foo ? foo : a && b',
+		'foo ? foo : a || b',
+		'foo ? foo : a ?? b',
+		'a && b ? a && b : bar',
+		'a || b ? a || b : bar',
+		'a ?? b ? a ?? b : bar',
+		'foo ? foo : await a',
+		'await a ? await a : foo',
 	],
 });

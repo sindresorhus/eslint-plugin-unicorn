@@ -8,8 +8,7 @@ Check if parentheses should be added to a `node` when it's used as child of `Log
 */
 function shouldAddParenthesesToLogicalExpressionChild(node, {operator, property}) {
 	if (
-		property === 'left'
-		&& node.type === 'LogicalExpression'
+		node.type === 'LogicalExpression'
 		&& node.operator === operator
 	) {
 		return false;
@@ -26,7 +25,8 @@ function shouldAddParenthesesToLogicalExpressionChild(node, {operator, property}
 	// Lower precedence than `LogicalExpression`
 	// see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
 	if (
-		node.type === 'ConditionalExpression'
+		node.type === 'LogicalExpression'
+		|| node.type === 'ConditionalExpression'
 		|| node.type === 'AssignmentExpression'
 		|| node.type === 'AssignmentExpression'
 		|| node.type === 'YieldExpression'

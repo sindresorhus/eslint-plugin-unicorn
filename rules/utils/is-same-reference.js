@@ -144,6 +144,18 @@ function isSameReference(left, right) {
 			);
 		}
 
+		case 'AwaitExpression': {
+			return isSameReference(left.argument, right.argument);
+		}
+
+		case 'LogicalExpression': {
+			return (
+				left.operator === right.operator
+				&& isSameReference(left.left, right.left)
+				&& isSameReference(left.right, right.right)
+			);
+		}
+
 		default:
 			return false;
 	}
