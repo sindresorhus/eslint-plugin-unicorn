@@ -312,7 +312,12 @@ test({
 });
 
 test.snapshot({
-	valid: [],
+	valid: [
+		{
+			code: 'new Symbol("")',
+			globals: {Symbol: "off"},
+		},
+	],
 	invalid: [
 		'const object = (Object)();',
 		'const symbol = new (Symbol)("");',
@@ -372,12 +377,30 @@ test.snapshot({
 				return new /**/ Symbol;
 			}
 		`,
-		// // Trace
-		// 'new globalThis.String()',
-		// 'new self.String()',
-		// 'new window.String()',
-		// 'globalThis.Array()',
-		// 'self.Array()',
-		// 'window.Array()',
+		// Trace
+		'new globalThis.String()',
+		'new global.String()',
+		'new self.String()',
+		'new window.String()',
+		outdent`
+			const {String} = globalThis;
+			new String();
+		`,
+		outdent`
+			const {String: RenamedString} = globalThis;
+			new RenamedString();
+		`,
+		outdent`
+			const RenamedString = globalThis.String;
+			new RenamedString();
+		`,
+		'globalThis.Array()',
+		'global.Array()',
+		'self.Array()',
+		'window.Array()',
+		outdent`
+			const {Array: RenamedArray} = globalThis;
+			RenamedArray();
+		`,
 	],
 });

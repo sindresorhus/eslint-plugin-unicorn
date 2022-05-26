@@ -70,6 +70,10 @@ class Tester {
 				...defaultOptions.env,
 				...testerOptions.env,
 			},
+			globals: {
+				...defaultOptions.globals,
+				...testerOptions.globals,
+			},
 		});
 
 		if (beforeAll) {
@@ -107,6 +111,7 @@ class Tester {
 				...defaultOptions.env,
 				...testerOptions.env,
 			},
+			globals: testerOptions.globals,
 		});
 		return tester.run(this.ruleId, this.rule, {valid, invalid});
 	}

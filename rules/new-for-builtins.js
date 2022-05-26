@@ -7,8 +7,8 @@ const {
 } = require('./fix/index.js');
 
 const messages = {
-	enforce: 'Use `new {{path}}()` instead of `{{path}}()`.',
-	disallow: 'Use `{{path}}()` instead of `new {{path}}()`.',
+	enforce: 'Use `new {{name}}()` instead of `{{name}}()`.',
+	disallow: 'Use `{{name}}()` instead of `new {{name}}()`.',
 };
 
 function * enforceNewExpression({sourceCode, tracker}) {
@@ -16,8 +16,8 @@ function * enforceNewExpression({sourceCode, tracker}) {
 		builtins.enforceNew.map(name => [name, {[ReferenceTracker.CALL]: true}])
 	)
 
-	for (const {node, path} of tracker.iterateGlobalReferences(traceMap)) {
-		if (path[path.length - 1] === 'Object') {
+	for (const {node, path: [name]} of tracker.iterateGlobalReferences(traceMap)) {
+		if (name === 'Object') {
 			const {parent} = node;
 			if (
 				parent.type === 'BinaryExpression'
@@ -31,7 +31,7 @@ function * enforceNewExpression({sourceCode, tracker}) {
 		yield {
 			node,
 			messageId: 'enforce',
-			data: {path: path.join('.')},
+			data: {name},
 			fix: fixer => switchCallExpressionToNewExpression(node, sourceCode, fixer),
 		};
 	}
@@ -42,14 +42,13 @@ function * enforceCallExpression({sourceCode, tracker}) {
 		builtins.disallowNew.map(name => [name, {[ReferenceTracker.CONSTRUCT]: true}])
 	)
 
-	for (const {node, path} of tracker.iterateGlobalReferences(traceMap)) {
+	for (const {node, path: [name]} of tracker.iterateGlobalReferences(traceMap)) {
 		const problem = {
 			node,
 			messageId: 'disallow',
-			data: {path: path.join('.')},
+			data: {name},
 		};
 
-		const name = path[path.length - 1];
 		if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
 			problem.fix = function * (fixer) {
 				yield * switchNewExpressionToCallExpression(node, sourceCode, fixer);
