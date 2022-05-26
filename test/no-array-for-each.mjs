@@ -502,6 +502,16 @@ test.snapshot({
 				] = baz;
 			});
 		`,
+		outdent`
+			foo.forEach(element => {
+				for (element in bar);
+			});
+		`,
+		outdent`
+			foo.forEach(element => {
+				for ([{element}] of bar);
+			});
+		`,
 	],
 });
 
