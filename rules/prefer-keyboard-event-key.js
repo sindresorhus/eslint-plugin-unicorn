@@ -1,6 +1,7 @@
 'use strict';
 const quoteString = require('./utils/quote-string.js');
 const translateToKey = require('./shared/event-keys.js');
+const {isNumberLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-keyboard-event-key';
 const messages = {
@@ -85,8 +86,7 @@ const fix = node => fixer => {
 		!(
 			type === 'BinaryExpression'
 			&& (operator === '==' || operator === '===')
-			&& right.type === 'Literal'
-			&& typeof right.value === 'number'
+			&& isNumberLiteral(right)
 		)
 	) {
 		return;

@@ -212,8 +212,7 @@ const isAccessingZeroIndex = node =>
 	&& node.parent.type === 'MemberExpression'
 	&& node.parent.computed === true
 	&& node.parent.object === node
-	&& node.parent.property
-	&& node.parent.property.type === 'Literal'
+	&& node.parent.property?.type === 'Literal'
 	&& node.parent.property.raw === '0';
 
 const isDestructuringFirstElement = node => {

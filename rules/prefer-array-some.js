@@ -3,8 +3,8 @@ const {methodCallSelector, matches, memberExpressionSelector} = require('./selec
 const {checkVueTemplate} = require('./utils/rule.js');
 const {isBooleanNode} = require('./utils/boolean.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
-const isLiteralValue = require('./utils/is-literal-value.js');
 const {removeMemberExpressionProperty} = require('./fix/index.js');
+const {isLiteral, isUndefined} = require('./ast/index.js');
 
 const ERROR_ID_ARRAY_SOME = 'some';
 const SUGGESTION_ID_ARRAY_SOME = 'some-suggestion';
@@ -33,8 +33,7 @@ const isCheckingUndefined = node =>
 				|| node.parent.operator === '==='
 				|| node.parent.operator === '!=='
 			)
-			&& node.parent.right.type === 'Identifier'
-			&& node.parent.right.name === 'undefined'
+			&& isUndefined(node.parent.right)
 		)
 		|| (
 			(
@@ -42,7 +41,7 @@ const isCheckingUndefined = node =>
 				|| node.parent.operator === '=='
 			)
 			// eslint-disable-next-line unicorn/no-null
-			&& isLiteralValue(node.parent.right, null)
+			&& isLiteral(node.parent.right, null)
 		)
 	);
 

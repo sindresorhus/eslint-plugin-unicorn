@@ -1,5 +1,6 @@
 'use strict';
 const {methodCallSelector, notDomNodeSelector} = require('./selectors/index.js');
+const {isStringLiteral, isNullLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-query-selector';
 const messages = {
@@ -63,20 +64,14 @@ function * getTemplateLiteralFix(fixer, node, identifierName) {
 	}
 }
 
-const canBeFixed = node => {
-	if (node.type === 'Literal') {
-		return node.raw === 'null' || (typeof node.value === 'string' && Boolean(node.value.trim()));
-	}
-
-	if (node.type === 'TemplateLiteral') {
-		return (
-			node.expressions.length === 0
-			&& node.quasis.some(templateElement => templateElement.value.cooked.trim())
-		);
-	}
-
-	return false;
-};
+const canBeFixed = node =>
+	isNullLiteral(node)
+	|| (isStringLiteral(node) && Boolean(node.value.trim()))
+	|| (
+		node.type === 'TemplateLiteral'
+		&& node.expressions.length === 0
+		&& node.quasis.some(templateElement => templateElement.value.cooked.trim())
+	);
 
 const hasValue = node => {
 	if (node.type === 'Literal') {

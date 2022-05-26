@@ -7,10 +7,10 @@ const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
 const isShorthandPropertyValue = require('./utils/is-shorthand-property-value.js');
 const isShorthandImportLocal = require('./utils/is-shorthand-import-local.js');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
-const isStaticRequire = require('./utils/is-static-require.js');
 const {defaultReplacements, defaultAllowList, defaultIgnore} = require('./shared/abbreviations.js');
 const {renameVariable} = require('./fix/index.js');
 const getScopes = require('./utils/get-scopes.js');
+const {isStaticRequire} = require('./ast/index.js');
 
 const MESSAGE_ID_REPLACE = 'replace';
 const MESSAGE_ID_SUGGESTION = 'suggestion';

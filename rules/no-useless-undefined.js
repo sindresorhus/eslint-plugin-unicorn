@@ -1,6 +1,7 @@
 'use strict';
 const {isCommaToken} = require('eslint-utils');
 const {replaceNodeOrTokenAndSpacesBefore} = require('./fix/index.js');
+const {isUndefined} = require('./ast/index.js');
 
 const messageId = 'no-useless-undefined';
 const messages = {
@@ -32,8 +33,6 @@ const variableInitSelector = getSelector(
 
 // `const {foo = undefined} = {}`
 const assignmentPatternSelector = getSelector('AssignmentPattern', 'right');
-
-const isUndefined = node => node && node.type === 'Identifier' && node.name === 'undefined';
 
 const compareFunctionNames = new Set([
 	'is',

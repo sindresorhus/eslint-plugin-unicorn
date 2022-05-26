@@ -2,26 +2,16 @@
 
 const isLogicalExpression = require('./is-logical-expression.js');
 
-const isLogicNot = node =>
-	node
-	&& node.type === 'UnaryExpression'
-	&& node.operator === '!';
-const isLogicNotArgument = node =>
-	isLogicNot(node.parent)
-	&& node.parent.argument === node;
-const isBooleanCallArgument = node =>
-	isBooleanCall(node.parent)
-	&& node.parent.arguments[0] === node;
+const isLogicNot = node => node?.type === 'UnaryExpression' && node.operator === '!';
+const isLogicNotArgument = node => isLogicNot(node.parent) && node.parent.argument === node;
+const isBooleanCallArgument = node => isBooleanCall(node.parent) && node.parent.arguments[0] === node;
 const isBooleanCall = node =>
-	node
-	&& node.type === 'CallExpression'
-	&& node.callee
-	&& node.callee.type === 'Identifier'
+	node?.type === 'CallExpression'
+	&& node.callee?.type === 'Identifier'
 	&& node.callee.name === 'Boolean'
 	&& node.arguments.length === 1;
 const isVueBooleanAttributeValue = node =>
-	node
-	&& node.type === 'VExpressionContainer'
+	node?.type === 'VExpressionContainer'
 	&& node.parent.type === 'VAttribute'
 	&& node.parent.directive
 	&& node.parent.value === node
