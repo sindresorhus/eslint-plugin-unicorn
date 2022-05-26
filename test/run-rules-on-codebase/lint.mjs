@@ -26,6 +26,7 @@ const eslint = new ESLint({
 			'unicorn/consistent-destructuring': 'off',
 			// Buggy
 			'unicorn/custom-error-definition': 'off',
+			'unicorn/consistent-function-scoping': 'off',
 			// Annoying
 			'unicorn/no-keyword-prefix': 'off',
 			'unicorn/no-unsafe-regex': 'off',
