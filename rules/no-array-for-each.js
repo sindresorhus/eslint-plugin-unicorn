@@ -1,7 +1,6 @@
 'use strict';
 const {
 	isParenthesized,
-	isArrowToken,
 	isCommaToken,
 	isSemicolonToken,
 	isClosingParenToken,
@@ -13,7 +12,7 @@ const {extendFixRange} = require('./fix/index.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
-const {getParentheses} = require('./utils/parentheses.js');
+const {getParentheses, getParenthesizedRange} = require('./utils/parentheses.js');
 const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 const assertToken = require('./utils/assert-token.js');
@@ -119,17 +118,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 	const getForOfLoopHeadRange = () => {
 		const [start] = callExpression.range;
-		let end;
-		if (callback.body.type === 'BlockStatement') {
-			end = callback.body.range[0];
-		} else {
-			// In this case, parentheses are not included in body location, so we look for `=>` token
-			// foo.forEach(bar => ({bar}))
-			//                     ^
-			const arrowToken = sourceCode.getTokenBefore(callback.body, isArrowToken);
-			end = arrowToken.range[1];
-		}
-
+		const [end] = getParenthesizedRange(callback.body, sourceCode);
 		return [start, end];
 	};
 
@@ -215,7 +204,9 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 		// Replace these with `for (const … of …) `
 		// foo.forEach(bar =>    bar)
-		// ^^^^^^^^^^^^^^^^^^ (space after `=>` didn't included)
+		// ^^^^^^^^^^^^^^^^^^^^^^
+		// foo.forEach(bar =>    (bar))
+		// ^^^^^^^^^^^^^^^^^^^^^^
 		// foo.forEach(bar =>    {})
 		// ^^^^^^^^^^^^^^^^^^^^^^
 		// foo.forEach(function(bar)    {})
