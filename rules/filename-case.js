@@ -1,5 +1,5 @@
 'use strict';
-const path = require('path');
+const path = require('node:path');
 const {camelCase, kebabCase, snakeCase, upperFirst} = require('lodash');
 const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
 
