@@ -70,6 +70,8 @@ const shouldIgnore = node => {
 	}
 
 	return compareFunctionNames.has(name)
+		// https://vuejs.org/api/reactivity-core.html#ref
+		|| name === 'ref'
 		// `set.add(undefined)`
 		|| name === 'add'
 		// `map.set(foo, undefined)`

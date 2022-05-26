@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
@@ -434,5 +434,38 @@ test.snapshot({
 		'foo.bind?.(bar, undefined)',
 		'foo[bind](bar, undefined)',
 		'foo.notBind(bar, undefined)',
+	],
+});
+
+test.snapshot({
+	testerOptions: {
+		parser: parsers.vue,
+	},
+	valid: [
+		outdent`
+			<script>
+			import {ref} from 'vue';
+
+			export default {
+				setup() {
+					return {foo: ref(undefined)};
+				}
+			};
+			</script>
+		`,
+		outdent`
+			<script setup>
+			import * as vue from 'vue';
+			const foo = vue.ref(undefined);
+			</script>
+		`,
+	],
+	invalid: [
+		outdent`
+			<script>
+			import {nextTick} from 'vue';
+			const foo = nextTick(undefined);
+			</script>
+		`,
 	],
 });
