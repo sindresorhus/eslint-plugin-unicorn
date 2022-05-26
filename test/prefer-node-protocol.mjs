@@ -8,7 +8,6 @@ test.snapshot({
 		'import unicorn from "unicorn";',
 		'import fs from "./fs";',
 		'import fs from "unknown-builtin-module";',
-		'const fs = require("fs");',
 		'import fs from "node:fs";',
 		outdent`
 			async function foo() {
