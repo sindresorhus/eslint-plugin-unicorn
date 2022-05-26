@@ -83,6 +83,7 @@ module.exports = {
 		'unicorn/prefer-includes': 'error',
 		'unicorn/prefer-json-parse-buffer': 'off',
 		'unicorn/prefer-keyboard-event-key': 'error',
+		'unicorn/prefer-logical-operator-over-tenery': 'error',
 		'unicorn/prefer-math-trunc': 'error',
 		'unicorn/prefer-modern-dom-apis': 'error',
 		'unicorn/prefer-modern-math-apis': 'error',
