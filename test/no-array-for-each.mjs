@@ -512,6 +512,12 @@ test.snapshot({
 				for ([{element}] of bar);
 			});
 		`,
+		outdent`
+			foo.forEach(element => {
+				for (key in element);
+				for (item of element);
+			});
+		`,
 	],
 });
 
