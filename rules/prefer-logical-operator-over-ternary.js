@@ -1,6 +1,4 @@
 'use strict';
-const {} = require('./selectors/index.js');
-const {} = require('./fix/index.js');
 const {isParenthesized, getParenthesizedText} = require('./utils/parentheses.js');
 const isSameReference = require('./utils/is-same-reference.js');
 const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child.js');
@@ -42,6 +40,8 @@ function isSameNode(left, right, sourceCode) {
 
 		case 'UpdateExpression':
 			return false;
+
+		// No default
 	}
 
 	return sourceCode.getText(left) === sourceCode.getText(right);
@@ -99,9 +99,9 @@ function getProblem({
 				left,
 				right,
 				operator,
-			})
-		}))
-	}
+			}),
+		})),
+	};
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -134,9 +134,9 @@ const create = context => {
 					conditionalExpression,
 					left: test.argument,
 					right: consequent,
-				})
+				});
 			}
-		}
+		},
 	};
 };
 
