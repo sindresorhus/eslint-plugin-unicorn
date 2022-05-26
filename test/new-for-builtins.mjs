@@ -104,6 +104,7 @@ test({
 		'Foo();new Bar();',
 		// Ignored
 		'const isObject = v => Object(v) === v;',
+		'const isObject = v => globalThis.Object(v) === v;',
 		'(x) !== Object(x)',
 	],
 	invalid: [
