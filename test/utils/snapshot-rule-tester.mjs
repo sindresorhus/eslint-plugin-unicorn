@@ -118,7 +118,8 @@ function verify(linter, code, verifyConfig, {filename}) {
 
 	const fatalError = messages.find(({fatal}) => fatal);
 	if (fatalError) {
-		throw fatalError;
+		let {line, column, message} = fatalError;
+		throw new SyntaxError('\n' + codeFrameColumns(code, {start: {line, column}}, {message}));
 	}
 
 	return messages;
@@ -159,7 +160,7 @@ class SnapshotRuleTester {
 			const {code, options, filename} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
 			defineParser(linter, verifyConfig.parser);
-			// eslint-disable-next-line unicorn/consistent-function-scoping - bug
+			// eslint-disable-next-line unicorn/consistent-function-scoping -- bug
 			const runVerify = code => verify(linter, code, verifyConfig, {filename});
 
 			test(
