@@ -1,6 +1,6 @@
 'use strict';
 const {methodCallSelector} = require('./selectors/index.js');
-const {arrayPrototypeMethodSelector, notFunctionSelector, matches} = require('./selectors/index.js');
+const {arrayPrototypeMethodSelector, notFunctionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'no-reduce';
 const messages = {
@@ -14,25 +14,49 @@ const prototypeSelector = method => [
 		methods: ['reduce', 'reduceRight'],
 	}),
 ].join('');
-const selector = matches([
+const cases = [
 	// `array.{reduce,reduceRight}()`
-	[
-		methodCallSelector({methods: ['reduce', 'reduceRight'], minimumArguments: 1, maximumArguments: 2}),
-		notFunctionSelector('arguments.0'),
-		' > .callee > .property',
-	].join(''),
+	{
+		selector: [
+			methodCallSelector({methods: ['reduce', 'reduceRight'], minimumArguments: 1, maximumArguments: 2}),
+			notFunctionSelector('arguments.0'),
+		].join(''),
+		getMethodNode: callExpression => callExpression.callee.property,
+		isSimpleOperation(callExpression) {
+			const [callback] = callExpression.arguments;
+
+			return (
+				callback
+				&& (
+					// `array.reduce((accumulator, element) => accumulator + element)`
+					(callback.type === 'ArrowFunctionExpression' && callback.body.type === 'BinaryExpression')
+					// `array.reduce((accumulator, element) => {return accumulator + element;})`
+					// `array.reduce(function (accumulator, element){return accumulator + element;})`
+					|| (
+						(callback.type === 'ArrowFunctionExpression' || callback.type === 'FunctionExpression')
+						&& callback.body.type === 'BlockStatement'
+						&& callback.body.body.length === 1
+						&& callback.body.body[0].type === 'ReturnStatement'
+						&& callback.body.body[0].argument.type === 'BinaryExpression'
+					)
+				)
+			);
+		},
+	},
 	// `[].{reduce,reduceRight}.call()` and `Array.{reduce,reduceRight}.call()`
-	[
-		prototypeSelector('call'),
-		notFunctionSelector('arguments.1'),
-		' > .callee > .object > .property',
-	].join(''),
+	{
+		selector: [
+			prototypeSelector('call'),
+			notFunctionSelector('arguments.1'),
+		].join(''),
+		getMethodNode: callExpression => callExpression.callee.object.property,
+	},
 	// `[].{reduce,reduceRight}.apply()` and `Array.{reduce,reduceRight}.apply()`
-	[
-		prototypeSelector('apply'),
-		' > .callee > .object > .property',
-	].join(''),
-]);
+	{
+		selector: prototypeSelector('apply'),
+		getMethodNode: callExpression => callExpression.callee.object.property,
+	},
+];
 
 const schema = [
 	{
@@ -50,35 +74,26 @@ const schema = [
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {allowSimpleOperations} = {allowSimpleOperations: true, ...context.options[0]};
+	const listeners = {};
 
-	return {
-		[selector](node) {
-			const callback = node.parent.parent?.arguments?.[0] ?? {};
+	for (const {selector, getMethodNode, isSimpleOperation} of cases) {
+		listeners[selector] = callExpression => {
+			const methodNode = getMethodNode(callExpression);
 			const problem = {
-				node,
+				node: methodNode,
 				messageId: MESSAGE_ID,
-				data: {method: node.name},
+				data: {method: methodNode.name},
 			};
 
-			if (!allowSimpleOperations) {
-				return problem;
-			}
-
-			if (callback.type === 'ArrowFunctionExpression' && callback.body.type === 'BinaryExpression') {
-				return;
-			}
-
-			if ((callback.type === 'ArrowFunctionExpression' || callback.type === 'FunctionExpression')
-				&& callback.body.type === 'BlockStatement'
-				&& callback.body.body.length === 1
-				&& callback.body.body[0].type === 'ReturnStatement'
-				&& callback.body.body[0].argument.type === 'BinaryExpression') {
+			if (allowSimpleOperations && isSimpleOperation?.(callExpression)) {
 				return;
 			}
 
 			return problem;
-		},
-	};
+		};
+	}
+
+	return listeners;
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

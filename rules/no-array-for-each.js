@@ -317,18 +317,34 @@ function isFunctionParametersSafeToFix(callbackFunction, {context, scope, callEx
 	return true;
 }
 
+// TODO[@fisker]: Improve `./utils/is-left-hand-side.js` with similar logic
+function isAssignmentLeftHandSide(node) {
+	const {parent} = node;
+
+	switch (parent.type) {
+		case 'AssignmentExpression':
+			return parent.left === node;
+		case 'UpdateExpression':
+			return parent.argument === node;
+		case 'Property':
+			return parent.value === node && isAssignmentLeftHandSide(parent);
+		case 'AssignmentPattern':
+			return parent.left === node && isAssignmentLeftHandSide(parent);
+		case 'ArrayPattern':
+			return parent.elements.includes(node) && isAssignmentLeftHandSide(parent);
+		case 'ObjectPattern':
+			return parent.properties.includes(node) && isAssignmentLeftHandSide(parent);
+		default:
+			return false;
+	}
+}
+
 function isFunctionParameterVariableReassigned(callbackFunction, context) {
 	return context.getDeclaredVariables(callbackFunction)
 		.filter(variable => variable.defs[0].type === 'Parameter')
-		.some(variable => {
-			const {references} = variable;
-			return references.some(reference => {
-				const node = reference.identifier;
-				const {parent} = node;
-				return parent.type === 'UpdateExpression'
-					|| (parent.type === 'AssignmentExpression' && parent.left === node);
-			});
-		});
+		.some(variable =>
+			variable.references.some(reference => isAssignmentLeftHandSide(reference.identifier)),
+		);
 }
 
 function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
