@@ -1,5 +1,5 @@
 'use strict';
-const { ReferenceTracker } = require("eslint-utils");
+const {ReferenceTracker} = require('eslint-utils');
 const builtins = require('./utils/builtins.js');
 const {
 	switchCallExpressionToNewExpression,
@@ -13,8 +13,8 @@ const messages = {
 
 function * enforceNewExpression({sourceCode, tracker}) {
 	const traceMap = Object.fromEntries(
-		builtins.enforceNew.map(name => [name, {[ReferenceTracker.CALL]: true}])
-	)
+		builtins.enforceNew.map(name => [name, {[ReferenceTracker.CALL]: true}]),
+	);
 
 	for (const {node, path: [name]} of tracker.iterateGlobalReferences(traceMap)) {
 		if (name === 'Object') {
@@ -39,8 +39,8 @@ function * enforceNewExpression({sourceCode, tracker}) {
 
 function * enforceCallExpression({sourceCode, tracker}) {
 	const traceMap = Object.fromEntries(
-		builtins.disallowNew.map(name => [name, {[ReferenceTracker.CONSTRUCT]: true}])
-	)
+		builtins.disallowNew.map(name => [name, {[ReferenceTracker.CONSTRUCT]: true}]),
+	);
 
 	for (const {node, path: [name]} of tracker.iterateGlobalReferences(traceMap)) {
 		const problem = {
@@ -60,17 +60,15 @@ function * enforceCallExpression({sourceCode, tracker}) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	return {
-		* 'Program:exit'() {
-			const sourceCode = context.getSourceCode();
-			const tracker = new ReferenceTracker(context.getScope());
+const create = context => ({
+	* 'Program:exit'() {
+		const sourceCode = context.getSourceCode();
+		const tracker = new ReferenceTracker(context.getScope());
 
-			yield * enforceNewExpression({sourceCode, tracker});
-			yield * enforceCallExpression({sourceCode, tracker});
-		}
-	}
-};
+		yield * enforceNewExpression({sourceCode, tracker});
+		yield * enforceCallExpression({sourceCode, tracker});
+	},
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

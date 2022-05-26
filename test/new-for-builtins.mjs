@@ -316,7 +316,7 @@ test.snapshot({
 	valid: [
 		{
 			code: 'new Symbol("")',
-			globals: {Symbol: "off"},
+			globals: {Symbol: 'off'},
 		},
 	],
 	invalid: [
@@ -405,14 +405,14 @@ test.snapshot({
 		`,
 		{
 			code: 'globalThis.Array()',
-			globals: {Array: 'off'}
+			globals: {Array: 'off'},
 		},
 		{
 			code: outdent`
 				const {Array} = globalThis;
 				Array();
 			`,
-			globals: {Array: 'off'}
+			globals: {Array: 'off'},
 		},
 	],
 });

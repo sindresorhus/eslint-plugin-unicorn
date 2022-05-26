@@ -62,7 +62,7 @@ function normalizeTests(tests) {
 
 			const additionalProperties = getAdditionalProperties(
 				testCase,
-				['code', 'options', 'filename', 'parserOptions', 'parser', "globals"],
+				['code', 'options', 'filename', 'parserOptions', 'parser', 'globals'],
 			);
 
 			if (additionalProperties.length > 0) {
