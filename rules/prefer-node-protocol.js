@@ -19,29 +19,26 @@ const selector = matches([
 	STATIC_REQUIRE_SOURCE_SELECTOR,
 ]);
 
-/** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	return {
-		[selector](node) {
-			const {value} = node;
-			if (
-				typeof value !== 'string'
-				|| value.startsWith('node:')
-				|| !isBuiltinModule(value)
-			) {
-				return;
-			}
+const create = () => ({
+	[selector](node) {
+		const {value} = node;
+		if (
+			typeof value !== 'string'
+			|| value.startsWith('node:')
+			|| !isBuiltinModule(value)
+		) {
+			return;
+		}
 
-			return {
-				node,
-				messageId: MESSAGE_ID,
-				data: {moduleName: value},
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => replaceStringLiteral(fixer, node, 'node:', 0, 0),
-			};
-		},
-	};
-};
+		return {
+			node,
+			messageId: MESSAGE_ID,
+			data: {moduleName: value},
+			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			fix: fixer => replaceStringLiteral(fixer, node, 'node:', 0, 0),
+		};
+	},
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
