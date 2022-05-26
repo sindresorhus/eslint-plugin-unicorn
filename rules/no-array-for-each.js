@@ -205,7 +205,9 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 		// Replace these with `for (const … of …) `
 		// foo.forEach(bar =>    bar)
-		// ^^^^^^^^^^^^^^^^^^ (space after `=>` didn't included)
+		// ^^^^^^^^^^^^^^^^^^^^^^
+		// foo.forEach(bar =>    (bar))
+		// ^^^^^^^^^^^^^^^^^^^^^^
 		// foo.forEach(bar =>    {})
 		// ^^^^^^^^^^^^^^^^^^^^^^
 		// foo.forEach(function(bar)    {})
