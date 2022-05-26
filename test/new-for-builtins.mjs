@@ -403,5 +403,16 @@ test.snapshot({
 			const {Array: RenamedArray} = globalThis;
 			RenamedArray();
 		`,
+		{
+			code: 'globalThis.Array()',
+			globals: {Array: 'off'}
+		},
+		{
+			code: outdent`
+				const {Array} = globalThis;
+				Array();
+			`,
+			globals: {Array: 'off'}
+		},
 	],
 });
