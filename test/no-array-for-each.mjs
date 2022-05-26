@@ -518,6 +518,11 @@ test.snapshot({
 				for (item of element);
 			});
 		`,
+		outdent`
+			foo.forEach((element, index) => {
+				for (index of bar);
+			});
+		`,
 	],
 });
 
