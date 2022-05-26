@@ -2,6 +2,7 @@
 const {isParenthesized, getStaticValue} = require('eslint-utils');
 const {checkVueTemplate} = require('./utils/rule.js');
 const {methodCallSelector} = require('./selectors/index.js');
+const {isRegexLiteral} = require('./ast/index.js');
 const {isBooleanNode} = require('./utils/boolean.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 
@@ -66,21 +67,13 @@ const cases = [
 	},
 ];
 
-const isRegExpNode = node => {
-	if (node.type === 'Literal' && node.regex) {
-		return true;
-	}
-
-	if (
+const isRegExpNode = node =>
+	isRegexLiteral(node)
+	|| (
 		node.type === 'NewExpression'
 		&& node.callee.type === 'Identifier'
 		&& node.callee.name === 'RegExp'
-	) {
-		return true;
-	}
-
-	return false;
-};
+	);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => Object.fromEntries(

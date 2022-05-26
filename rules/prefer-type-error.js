@@ -6,7 +6,7 @@ const messages = {
 	[MESSAGE_ID]: '`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.',
 };
 
-const tcIdentifiers = new Set([
+const typeCheckIdentifiers = new Set([
 	'isArguments',
 	'isArray',
 	'isArrayBuffer',
@@ -46,7 +46,7 @@ const tcIdentifiers = new Set([
 	'isXMLDoc',
 ]);
 
-const tcGlobalIdentifiers = new Set([
+const typeCheckGlobalIdentifiers = new Set([
 	'isNaN',
 	'isFinite',
 ]);
@@ -61,8 +61,8 @@ const isTypecheckingIdentifier = (node, callExpression, isMemberExpression) =>
 	&& callExpression.arguments.length > 0
 	&& node.type === 'Identifier'
 	&& (
-		(isMemberExpression === true && tcIdentifiers.has(node.name))
-		|| (isMemberExpression === false && tcGlobalIdentifiers.has(node.name))
+		(isMemberExpression === true && typeCheckIdentifiers.has(node.name))
+		|| (isMemberExpression === false && typeCheckGlobalIdentifiers.has(node.name))
 	);
 
 const isLone = node => node.parent && node.parent.body && node.parent.body.length === 1;

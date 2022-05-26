@@ -8,7 +8,6 @@ test.snapshot({
 		'import unicorn from "unicorn";',
 		'import fs from "./fs";',
 		'import fs from "unknown-builtin-module";',
-		'const fs = require("fs");',
 		'import fs from "node:fs";',
 		outdent`
 			async function foo() {
@@ -60,8 +59,7 @@ test.snapshot({
 	],
 });
 
-// `options`
-const checkRequireOptions = [{checkRequire: true}];
+// `require`
 test.snapshot({
 	valid: [
 		'const fs = require("node:fs");',
@@ -76,11 +74,11 @@ test.snapshot({
 		'const fs = require();',
 		'const fs = require(...["fs"]);',
 		'const fs = require("unicorn");',
-	].map(code => ({code, options: checkRequireOptions})),
+	],
 	invalid: [
 		'const {promises} = require("fs")',
 		'const fs = require(\'fs/promises\')',
-	].map(code => ({code, options: checkRequireOptions})),
+	],
 });
 
 test.babel({

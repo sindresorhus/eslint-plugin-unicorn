@@ -1,5 +1,5 @@
 'use strict';
-const path = require('path');
+const path = require('node:path');
 const {matches} = require('../../rules/selectors/index.js');
 const toLocation = require('../../rules/utils/to-location.js');
 

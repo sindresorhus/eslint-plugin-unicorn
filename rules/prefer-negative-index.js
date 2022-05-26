@@ -1,10 +1,10 @@
 'use strict';
-const isLiteralValue = require('./utils/is-literal-value.js');
 const {
 	getNegativeIndexLengthNode,
 	removeLengthNode,
 } = require('./shared/negative-index.js');
 const typedArray = require('./shared/typed-array.js');
+const {isLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-negative-index';
 const messages = {
@@ -99,7 +99,7 @@ function parse(node) {
 		// ''.slice
 		|| (
 			method === 'slice'
-			&& isLiteralValue(parentCallee, '')
+			&& isLiteral(parentCallee, '')
 		)
 		// {Array,String...}.prototype.slice
 		// Array.prototype.splice

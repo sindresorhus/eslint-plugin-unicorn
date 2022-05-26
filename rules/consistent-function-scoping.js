@@ -109,7 +109,6 @@ const iifeFunctionTypes = new Set([
 ]);
 const isIife = node => node
 	&& iifeFunctionTypes.has(node.type)
-	&& node.parent
 	&& node.parent.type === 'CallExpression'
 	&& node.parent.callee === node;
 

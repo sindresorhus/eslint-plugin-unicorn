@@ -1,6 +1,5 @@
 'use strict';
 const {isOpeningBracketToken, isClosingBracketToken, getStaticValue} = require('eslint-utils');
-const isLiteralValue = require('./utils/is-literal-value.js');
 const {
 	isParenthesized,
 	getParenthesizedRange,
@@ -16,6 +15,7 @@ const {
 } = require('./shared/negative-index.js');
 const {methodCallSelector, callExpressionSelector, notLeftHandSideSelector} = require('./selectors/index.js');
 const {removeMemberExpressionProperty, removeMethodCall} = require('./fix/index.js');
+const {isLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
 const MESSAGE_ID_INDEX = 'index';
@@ -57,7 +57,7 @@ const isZeroIndexAccess = node => {
 		&& !parent.optional
 		&& parent.computed
 		&& parent.object === node
-		&& isLiteralValue(parent.property, 0);
+		&& isLiteral(parent.property, 0);
 };
 
 const isArrayPopOrShiftCall = (node, method) => {

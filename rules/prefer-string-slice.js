@@ -4,6 +4,7 @@ const {getParenthesizedText, getParenthesizedRange} = require('./utils/parenthes
 const {methodCallSelector} = require('./selectors/index.js');
 const isNumber = require('./utils/is-number.js');
 const {replaceArgument} = require('./fix/index.js');
+const {isNumberLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -18,10 +19,8 @@ const selector = methodCallSelector({
 	includeOptionalCall: true,
 });
 
-const isLiteralNumber = node => node && node.type === 'Literal' && typeof node.value === 'number';
-
 const getNumericValue = node => {
-	if (isLiteralNumber(node)) {
+	if (isNumberLiteral(node)) {
 		return node.value;
 	}
 
@@ -32,8 +31,7 @@ const getNumericValue = node => {
 
 // This handles cases where the argument is very likely to be a number, such as `.substring('foo'.length)`.
 const isLengthProperty = node => (
-	node
-	&& node.type === 'MemberExpression'
+	node?.type === 'MemberExpression'
 	&& node.computed === false
 	&& node.property.type === 'Identifier'
 	&& node.property.name === 'length'
@@ -54,7 +52,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, sourceCode);
 
 	if (firstArgumentStaticResult && firstArgumentStaticResult.value === 0) {
-		if (isLiteralNumber(secondArgument) || isLengthProperty(secondArgument)) {
+		if (isNumberLiteral(secondArgument) || isLengthProperty(secondArgument)) {
 			return;
 		}
 
@@ -68,7 +66,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 		return;
 	}
 
-	if (argumentNodes.every(node => isLiteralNumber(node))) {
+	if (argumentNodes.every(node => isNumberLiteral(node))) {
 		yield replaceSecondArgument(firstArgument.value + secondArgument.value);
 		return;
 	}

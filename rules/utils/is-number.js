@@ -1,5 +1,6 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
+const {isNumberLiteral} = require('../ast/index.js');
 
 const isStaticProperties = (node, object, properties) =>
 	node.type === 'MemberExpression'
@@ -105,7 +106,6 @@ const isStaticNumber = (node, scope) => {
 	return staticResult !== null && typeof staticResult.value === 'number';
 };
 
-const isNumberLiteral = node => node.type === 'Literal' && typeof node.value === 'number';
 const isLengthProperty = node =>
 	node.type === 'MemberExpression'
 	&& !node.computed

@@ -1,11 +1,11 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
 const {checkVueTemplate} = require('./utils/rule.js');
-const isLiteralValue = require('./utils/is-literal-value.js');
 const isLogicalExpression = require('./utils/is-logical-expression.js');
 const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean.js');
 const {memberExpressionSelector} = require('./selectors/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
+const {isLiteral} = require('./ast/index.js');
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -19,11 +19,11 @@ const messages = {
 const isCompareRight = (node, operator, value) =>
 	node.type === 'BinaryExpression'
 	&& node.operator === operator
-	&& isLiteralValue(node.right, value);
+	&& isLiteral(node.right, value);
 const isCompareLeft = (node, operator, value) =>
 	node.type === 'BinaryExpression'
 	&& node.operator === operator
-	&& isLiteralValue(node.left, value);
+	&& isLiteral(node.left, value);
 const nonZeroStyles = new Map([
 	[
 		'greater-than',
