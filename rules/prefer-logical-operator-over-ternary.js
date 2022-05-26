@@ -13,6 +13,36 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Switch to `{{operator}}` operator.',
 };
 
+function isSameNode(left, right, sourceCode) {
+	if (isSameReference(left, right)) {
+		return true;
+	}
+
+	if (left.type !== right.type) {
+		return false;
+	}
+
+	switch (left.type) {
+		case 'AwaitExpression':
+			return isSameNode(left.argument, right.argument, sourceCode);
+
+		case 'LogicalExpression':
+			return (
+				left.operator === right.operator
+				&& isSameNode(left.left, right.left, sourceCode)
+				&& isSameNode(left.right, right.right, sourceCode)
+			);
+
+		case 'UnaryExpression':
+			return left.operator === '!' && isSameNode(left.argument, right.argument, sourceCode);
+
+		case 'UpdateExpression':
+			return false;
+	}
+
+	return sourceCode.getText(left) === sourceCode.getText(right);
+}
+
 function fix({
 	fixer,
 	sourceCode,
@@ -42,12 +72,11 @@ function fix({
 }
 
 function getProblem({
-	context,
+	sourceCode,
 	conditionalExpression,
 	left,
 	right,
 }) {
-	const sourceCode = context.getSourceCode();
 	return {
 		node: conditionalExpression,
 		messageId: MESSAGE_ID_ERROR,
@@ -68,14 +97,16 @@ function getProblem({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const sourceCode = context.getSourceCode();
+
 	return {
 		ConditionalExpression(conditionalExpression) {
 			const {test, consequent, alternate} = conditionalExpression;
 
 			// `foo ? foo : bar`
-			if (isSameReference(test, consequent)) {
+			if (isSameNode(test, consequent, sourceCode)) {
 				return getProblem({
-					context,
+					sourceCode,
 					conditionalExpression,
 					left: test,
 					right: alternate,
@@ -87,10 +118,10 @@ const create = context => {
 				test.type === 'UnaryExpression'
 				&& test.operator === '!'
 				&& test.prefix
-				&& isSameReference(test.argument, alternate)
+				&& isSameNode(test.argument, alternate, sourceCode)
 			) {
 				return getProblem({
-					context,
+					sourceCode,
 					conditionalExpression,
 					left: test.argument,
 					right: consequent,
