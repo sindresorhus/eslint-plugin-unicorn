@@ -8,6 +8,7 @@ Check if parentheses should be added to a `node` when it's used as child of `Log
 */
 function shouldAddParenthesesToLogicalExpressionChild(node, {operator, property}) {
 	// We are not using this, but we can improve this function with it
+	/* c8 ignore next 3 */
 	if (!property) {
 		throw new Error('`property` is required.');
 	}
