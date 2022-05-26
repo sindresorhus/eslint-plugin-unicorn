@@ -78,18 +78,16 @@ const create = context => {
 
 	for (const {selector, getMethodNode, isSimpleOperation} of cases) {
 		listeners[selector] = callExpression => {
-			const methodNode = getMethodNode(callExpression);
-			const problem = {
-				node: methodNode,
-				messageId: MESSAGE_ID,
-				data: {method: methodNode.name},
-			};
-
 			if (allowSimpleOperations && isSimpleOperation?.(callExpression)) {
 				return;
 			}
 
-			return problem;
+			const methodNode = getMethodNode(callExpression);
+			return {
+				node: methodNode,
+				messageId: MESSAGE_ID,
+				data: {method: methodNode.name},
+			};
 		};
 	}
 
