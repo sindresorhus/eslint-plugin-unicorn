@@ -118,7 +118,7 @@ function verify(linter, code, verifyConfig, {filename}) {
 
 	const fatalError = messages.find(({fatal}) => fatal);
 	if (fatalError) {
-		let {line, column, message} = fatalError;
+		const {line, column, message} = fatalError;
 		throw new SyntaxError('\n' + codeFrameColumns(code, {start: {line, column}}, {message}));
 	}
 
