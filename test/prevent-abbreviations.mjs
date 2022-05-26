@@ -369,7 +369,7 @@ const tests = {
 
 		{
 			code: 'let evt',
-			output: 'let event',
+			output: 'let event_',
 			errors: createErrors('The variable `evt` should be named `event_`. A more descriptive name will do too.'),
 		},
 		{
@@ -1817,8 +1817,8 @@ test.typescript({
 				}
 			`,
 			output: outdent`
-				function onKeyDown(event: KeyboardEvent) {
-					if (event.keyCode) {}
+				function onKeyDown(event_: KeyboardEvent) {
+					if (event_.keyCode) {}
 				}
 			`,
 			options: [
