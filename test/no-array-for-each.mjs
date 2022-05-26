@@ -555,7 +555,7 @@ test.typescript({
 				})
 			`,
 			output: outdent`
-				for (const pg of staticPages)  allStaticPages.add(pg)
+				for (const pg of staticPages) allStaticPages.add(pg)
 				pageInfos.forEach((info: PageInfo, key: string) => {
 					allPageInfos.set(key, info)
 				})
@@ -590,7 +590,7 @@ test.typescript({
 			`,
 			output: outdent`
 				const cloakVals: string[] = [];
-				for (const element of elements)  cloakVals.push(cloakElement(element));
+				for (const element of elements) cloakVals.push(cloakElement(element));
 			`,
 			errors: 1,
 		},
@@ -621,7 +621,7 @@ test({
 			`,
 			output: outdent`
 				while (true) return;
-				for (const element of foo)  bar(element);
+				for (const element of foo) bar(element);
 			`,
 			errors: 1,
 			parserOptions: globalReturnOptions,
