@@ -1,7 +1,6 @@
 'use strict';
 const {
 	isParenthesized,
-	isArrowToken,
 	isCommaToken,
 	isSemicolonToken,
 	isClosingParenToken,
