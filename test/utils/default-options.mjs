@@ -1,6 +1,6 @@
 import eslintPluginUnicorn from '../../index.js';
 
-let {env, parserOptions} = eslintPluginUnicorn.configs.recommended;
+const {env, parserOptions} = eslintPluginUnicorn.configs.recommended;
 
 const defaultOptions = {
 	env: {
@@ -8,7 +8,7 @@ const defaultOptions = {
 		browser: true,
 		...env,
 	},
-	parserOptions
+	parserOptions,
 };
 
 export default defaultOptions;
