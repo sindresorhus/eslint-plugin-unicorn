@@ -14,19 +14,15 @@ const importExportSourceSelector = [
 	'Literal.source',
 ].join('');
 
+const selector = matches([
+	importExportSourceSelector,
+	STATIC_REQUIRE_SOURCE_SELECTOR,
+]);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {checkRequire} = {
-		checkRequire: false,
-		...context.options[0],
-	};
-	const selectors = [importExportSourceSelector];
-	if (checkRequire) {
-		selectors.push(STATIC_REQUIRE_SOURCE_SELECTOR);
-	}
-
 	return {
-		[matches(selectors)](node) {
+		[selector](node) {
 			const {value} = node;
 			if (
 				typeof value !== 'string'
@@ -47,19 +43,6 @@ const create = context => {
 	};
 };
 
-const schema = [
-	{
-		type: 'object',
-		additionalProperties: false,
-		properties: {
-			checkRequire: {
-				type: 'boolean',
-				default: false,
-			},
-		},
-	},
-];
-
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
@@ -69,7 +52,6 @@ module.exports = {
 			description: 'Prefer using the `node:` protocol when importing Node.js builtin modules.',
 		},
 		fixable: 'code',
-		schema,
 		messages,
 	},
 };

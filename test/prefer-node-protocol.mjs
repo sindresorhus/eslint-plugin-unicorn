@@ -60,8 +60,7 @@ test.snapshot({
 	],
 });
 
-// `options`
-const checkRequireOptions = [{checkRequire: true}];
+// `require`
 test.snapshot({
 	valid: [
 		'const fs = require("node:fs");',
@@ -76,11 +75,11 @@ test.snapshot({
 		'const fs = require();',
 		'const fs = require(...["fs"]);',
 		'const fs = require("unicorn");',
-	].map(code => ({code, options: checkRequireOptions})),
+	],
 	invalid: [
 		'const {promises} = require("fs")',
 		'const fs = require(\'fs/promises\')',
-	].map(code => ({code, options: checkRequireOptions})),
+	],
 });
 
 test.babel({
