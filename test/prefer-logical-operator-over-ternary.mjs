@@ -32,12 +32,14 @@ test.snapshot({
 		'foo ? foo : await a',
 		'await a ? await a : foo',
 
-		// Parentheses
-
 		// ASI
 		outdent`
 			const foo = []
 			!+a ? b : +a
-		`
+		`,
+		outdent`
+			const foo = []
+			a && b ? a && b : 1
+		`,
 	],
 });

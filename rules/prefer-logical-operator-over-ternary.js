@@ -4,7 +4,7 @@ const {} = require('./fix/index.js');
 const {isParenthesized, getParenthesizedText} = require('./utils/parentheses.js');
 const isSameReference = require('./utils/is-same-reference.js');
 const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child.js');
-
+const needsSemicolon = require('./utils/needs-semicolon.js');
 
 const MESSAGE_ID_ERROR = 'prefer-logical-operator-over-ternary/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-logical-operator-over-ternary/suggestion';
@@ -55,7 +55,7 @@ function fix({
 	right,
 	operator,
 }) {
-	const text = [left, right].map((node, index) => {
+	let text = [left, right].map((node, index) => {
 		const isNodeParenthesized = isParenthesized(node, sourceCode);
 		let text = isNodeParenthesized ? getParenthesizedText(node, sourceCode) : sourceCode.getText(node);
 
@@ -69,8 +69,13 @@ function fix({
 		return text;
 	}).join(` ${operator} `);
 
-	// TODO: Check ASI
-	// TODO: Check parentheses
+	// According to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#table
+	// There should be no cases need add parentheses when switching ternary to logical expression
+
+	// ASI
+	if (needsSemicolon(sourceCode.getTokenBefore(conditionalExpression), sourceCode, text)) {
+		text = `;${text}`;
+	}
 
 	return fixer.replaceText(conditionalExpression, text);
 }
