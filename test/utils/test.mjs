@@ -111,7 +111,10 @@ class Tester {
 				...defaultOptions.env,
 				...testerOptions.env,
 			},
-			globals: testerOptions.globals,
+			globals: {
+				...defaultOptions.globals,
+				...testerOptions.globals,
+			},
 		});
 		return tester.run(this.ruleId, this.rule, {valid, invalid});
 	}
