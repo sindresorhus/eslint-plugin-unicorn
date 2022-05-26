@@ -467,5 +467,5 @@ test.snapshot({
 			const foo = nextTick(undefined);
 			</script>
 		`,
-	]
-})
+	],
+});
