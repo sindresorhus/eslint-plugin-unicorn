@@ -1,16 +1,14 @@
 'use strict';
 const { ReferenceTracker } = require("eslint-utils");
 const builtins = require('./utils/builtins.js');
-const isShadowed = require('./utils/is-shadowed.js');
-const {callExpressionSelector, newExpressionSelector} = require('./selectors/index.js');
 const {
 	switchCallExpressionToNewExpression,
 	switchNewExpressionToCallExpression,
 } = require('./fix/index.js');
 
 const messages = {
-	enforce: 'Use `new {{name}}()` instead of `{{name}}()`.',
-	disallow: 'Use `{{name}}()` instead of `new {{name}}()`.',
+	enforce: 'Use `new {{path}}()` instead of `{{path}}()`.',
+	disallow: 'Use `{{path}}()` instead of `new {{path}}()`.',
 };
 
 function * enforceNewExpression({sourceCode, tracker}) {
@@ -18,24 +16,22 @@ function * enforceNewExpression({sourceCode, tracker}) {
 		builtins.enforceNew.map(name => [name, {[ReferenceTracker.CALL]: true}])
 	)
 
-	for (const {node} of tracker.iterateGlobalReferences(traceMap)) {
-		const {callee, parent} = node;
-		const {name} = callee;
-
-		if (
-			name === 'Object'
-			&& parent
-			&& parent.type === 'BinaryExpression'
-			&& (parent.operator === '===' || parent.operator === '!==')
-			&& (parent.left === node || parent.right === node)
-		) {
-			continue;
+	for (const {node, path} of tracker.iterateGlobalReferences(traceMap)) {
+		if (path[path.length - 1] === 'Object') {
+			const {parent} = node;
+			if (
+				parent.type === 'BinaryExpression'
+				&& (parent.operator === '===' || parent.operator === '!==')
+				&& (parent.left === node || parent.right === node)
+			) {
+				continue;
+			}
 		}
 
 		yield {
 			node,
 			messageId: 'enforce',
-			data: {name},
+			data: {path: path.join('.')},
 			fix: fixer => switchCallExpressionToNewExpression(node, sourceCode, fixer),
 		};
 	}
@@ -46,16 +42,14 @@ function * enforceCallExpression({sourceCode, tracker}) {
 		builtins.disallowNew.map(name => [name, {[ReferenceTracker.CONSTRUCT]: true}])
 	)
 
-	for (const {node} of tracker.iterateGlobalReferences(traceMap)) {
-		const {callee} = node;
-
-		const {name} = callee;
+	for (const {node, path} of tracker.iterateGlobalReferences(traceMap)) {
 		const problem = {
 			node,
 			messageId: 'disallow',
-			data: {name},
+			data: {path: path.join('.')},
 		};
 
+		const name = path[path.length - 1];
 		if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
 			problem.fix = function * (fixer) {
 				yield * switchNewExpressionToCallExpression(node, sourceCode, fixer);

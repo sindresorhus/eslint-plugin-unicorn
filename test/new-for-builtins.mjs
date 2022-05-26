@@ -372,5 +372,12 @@ test.snapshot({
 				return new /**/ Symbol;
 			}
 		`,
+		// // Trace
+		// 'new globalThis.String()',
+		// 'new self.String()',
+		// 'new window.String()',
+		// 'globalThis.Array()',
+		// 'self.Array()',
+		// 'window.Array()',
 	],
 });
