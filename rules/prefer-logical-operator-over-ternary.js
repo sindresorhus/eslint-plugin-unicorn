@@ -34,7 +34,11 @@ function isSameNode(left, right, sourceCode) {
 			);
 
 		case 'UnaryExpression':
-			return left.operator === '!' && isSameNode(left.argument, right.argument, sourceCode);
+			return (
+				left.operator === right.operator
+				&& left.prefix === right.prefix
+				&& isSameNode(left.argument, right.argument, sourceCode)
+			);
 
 		case 'UpdateExpression':
 			return false;

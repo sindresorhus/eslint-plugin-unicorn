@@ -22,7 +22,7 @@ test.snapshot({
 
 		'foo() ? foo() : bar',
 
-		// Parentheses
+		// Children parentheses
 		'foo ? foo : a && b',
 		'foo ? foo : a || b',
 		'foo ? foo : a ?? b',
@@ -31,5 +31,13 @@ test.snapshot({
 		'a ?? b ? a ?? b : bar',
 		'foo ? foo : await a',
 		'await a ? await a : foo',
+
+		// Parentheses
+
+		// ASI
+		outdent`
+			const foo = []
+			!+a ? b : +a
+		`
 	],
 });
