@@ -1,4 +1,5 @@
 'use strict';
+const { ReferenceTracker } = require("eslint-utils");
 const builtins = require('./utils/builtins.js');
 const isShadowed = require('./utils/is-shadowed.js');
 const {callExpressionSelector, newExpressionSelector} = require('./selectors/index.js');
@@ -12,59 +13,70 @@ const messages = {
 	disallow: 'Use `{{name}}()` instead of `new {{name}}()`.',
 };
 
+function * enforceNewExpression({sourceCode, tracker}) {
+	const traceMap = Object.fromEntries(
+		builtins.enforceNew.map(name => [name, {[ReferenceTracker.CALL]: true}])
+	)
+
+	for (const {node} of tracker.iterateGlobalReferences(traceMap)) {
+		const {callee, parent} = node;
+		const {name} = callee;
+
+		if (
+			name === 'Object'
+			&& parent
+			&& parent.type === 'BinaryExpression'
+			&& (parent.operator === '===' || parent.operator === '!==')
+			&& (parent.left === node || parent.right === node)
+		) {
+			continue;
+		}
+
+		yield {
+			node,
+			messageId: 'enforce',
+			data: {name},
+			fix: fixer => switchCallExpressionToNewExpression(node, sourceCode, fixer),
+		};
+	}
+}
+
+function * enforceCallExpression({sourceCode, tracker}) {
+	const traceMap = Object.fromEntries(
+		builtins.disallowNew.map(name => [name, {[ReferenceTracker.CONSTRUCT]: true}])
+	)
+
+	for (const {node} of tracker.iterateGlobalReferences(traceMap)) {
+		const {callee} = node;
+
+		const {name} = callee;
+		const problem = {
+			node,
+			messageId: 'disallow',
+			data: {name},
+		};
+
+		if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
+			problem.fix = function * (fixer) {
+				yield * switchNewExpressionToCallExpression(node, sourceCode, fixer);
+			};
+		}
+
+		yield problem;
+	}
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
-
 	return {
-		[callExpressionSelector(builtins.enforceNew)](node) {
-			const {callee, parent} = node;
-			if (isShadowed(context.getScope(), callee)) {
-				return;
-			}
+		* 'Program:exit'() {
+			const sourceCode = context.getSourceCode();
+			const tracker = new ReferenceTracker(context.getScope());
 
-			const {name} = callee;
-
-			if (
-				name === 'Object'
-				&& parent
-				&& parent.type === 'BinaryExpression'
-				&& (parent.operator === '===' || parent.operator === '!==')
-				&& (parent.left === node || parent.right === node)
-			) {
-				return;
-			}
-
-			return {
-				node,
-				messageId: 'enforce',
-				data: {name},
-				fix: fixer => switchCallExpressionToNewExpression(node, sourceCode, fixer),
-			};
-		},
-		[newExpressionSelector(builtins.disallowNew)](node) {
-			const {callee} = node;
-
-			if (isShadowed(context.getScope(), callee)) {
-				return;
-			}
-
-			const {name} = callee;
-			const problem = {
-				node,
-				messageId: 'disallow',
-				data: {name},
-			};
-
-			if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
-				problem.fix = function * (fixer) {
-					yield * switchNewExpressionToCallExpression(node, sourceCode, fixer);
-				};
-			}
-
-			return problem;
-		},
-	};
+			yield * enforceNewExpression({sourceCode, tracker});
+			yield * enforceCallExpression({sourceCode, tracker});
+		}
+	}
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

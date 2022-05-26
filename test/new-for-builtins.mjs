@@ -14,17 +14,6 @@ const disallowNewError = builtin => ({
 });
 
 test({
-	testerOptions: {
-		// Make sure globals don't effect shadowed check result
-		globals: {
-			Map: 'writable',
-			Set: 'readonly',
-			WeakMap: 'off',
-			BigInt: 'writable',
-			Boolean: 'readonly',
-			Number: 'off',
-		},
-	},
 	valid: [
 		'const foo = new Object()',
 		'const foo = new Array()',
