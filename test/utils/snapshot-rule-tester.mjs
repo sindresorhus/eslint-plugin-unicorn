@@ -62,7 +62,7 @@ function normalizeTests(tests) {
 
 			const additionalProperties = getAdditionalProperties(
 				testCase,
-				['code', 'options', 'filename', 'parserOptions', 'parser'],
+				['code', 'options', 'filename', 'parserOptions', 'parser', 'globals'],
 			);
 
 			if (additionalProperties.length > 0) {
@@ -79,6 +79,8 @@ function getVerifyConfig(ruleId, testerConfig, testCase) {
 		options,
 		parserOptions,
 		parser = testerConfig.parser,
+		env,
+		globals,
 	} = testCase;
 
 	return {
@@ -87,6 +89,14 @@ function getVerifyConfig(ruleId, testerConfig, testCase) {
 		parserOptions: {
 			...testerConfig.parserOptions,
 			...parserOptions,
+		},
+		env: {
+			...testerConfig.env,
+			...env,
+		},
+		globals: {
+			...testerConfig.globals,
+			...globals,
 		},
 		rules: {
 			[ruleId]: ['error', ...(Array.isArray(options) ? options : [])],

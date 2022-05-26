@@ -4,7 +4,7 @@ import test from 'ava';
 import avaRuleTester from 'eslint-ava-rule-tester';
 import {loadRule} from '../../rules/utils/rule.js';
 import SnapshotRuleTester from './snapshot-rule-tester.mjs';
-import defaultParserOptions from './default-parser-options.mjs';
+import defaultOptions from './default-options.mjs';
 import parsers from './parsers.mjs';
 
 function normalizeTests(tests) {
@@ -63,8 +63,16 @@ class Tester {
 		const tester = avaRuleTester(test, {
 			...testerOptions,
 			parserOptions: {
-				...defaultParserOptions,
+				...defaultOptions.parserOptions,
 				...testerOptions.parserOptions,
+			},
+			env: {
+				...defaultOptions.env,
+				...testerOptions.env,
+			},
+			globals: {
+				...defaultOptions.globals,
+				...testerOptions.globals,
 			},
 		});
 
@@ -96,8 +104,16 @@ class Tester {
 		const tester = new SnapshotRuleTester(test, {
 			...testerOptions,
 			parserOptions: {
-				...defaultParserOptions,
+				...defaultOptions.parserOptions,
 				...testerOptions.parserOptions,
+			},
+			env: {
+				...defaultOptions.env,
+				...testerOptions.env,
+			},
+			globals: {
+				...defaultOptions.globals,
+				...testerOptions.globals,
 			},
 		});
 		return tester.run(this.ruleId, this.rule, {valid, invalid});

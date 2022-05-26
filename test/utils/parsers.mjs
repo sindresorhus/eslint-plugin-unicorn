@@ -1,5 +1,5 @@
 import {createRequire} from 'node:module';
-import defaultParserOptions from './default-parser-options.mjs';
+import defaultOptions from './default-options.mjs';
 
 const require = createRequire(import.meta.url);
 
@@ -22,7 +22,7 @@ const babel = {
 		];
 
 		return {
-			...defaultParserOptions,
+			...defaultOptions.parserOptions,
 			requireConfigFile: false,
 			sourceType: 'module',
 			allowImportExportEverywhere: true,
@@ -47,7 +47,7 @@ const typescript = {
 	},
 	mergeParserOptions(options) {
 		return {
-			...defaultParserOptions,
+			...defaultOptions.parserOptions,
 			...options,
 		};
 	},
@@ -60,7 +60,7 @@ const vue = {
 	},
 	mergeParserOptions(options) {
 		return {
-			...defaultParserOptions,
+			...defaultOptions.parserOptions,
 			...options,
 		};
 	},

@@ -242,7 +242,7 @@ const tests = {
 	invalid: [
 		{
 			code: 'let e',
-			errors: createErrors('Please rename the variable `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.'),
+			errors: createErrors('Please rename the variable `e`. Suggested names are: `error`, `event_`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'let eCbOpts',
@@ -369,8 +369,8 @@ const tests = {
 
 		{
 			code: 'let evt',
-			output: 'let event',
-			errors: createErrors('The variable `evt` should be named `event`. A more descriptive name will do too.'),
+			output: 'let event_',
+			errors: createErrors('The variable `evt` should be named `event_`. A more descriptive name will do too.'),
 		},
 		{
 			code: '({evt: 1})',
@@ -767,7 +767,7 @@ const tests = {
 		},
 		{
 			code: 'class Res {}',
-			errors: createErrors('Please rename the variable `Res`. Suggested names are: `Response`, `Result`. A more descriptive name will do too.'),
+			errors: createErrors('Please rename the variable `Res`. Suggested names are: `Response_`, `Result`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'const Err = 1;',
@@ -792,7 +792,7 @@ const tests = {
 
 		{
 			code: 'let doc',
-			output: 'let document',
+			output: 'let document_',
 			errors: createErrors(),
 		},
 
@@ -1817,8 +1817,8 @@ test.typescript({
 				}
 			`,
 			output: outdent`
-				function onKeyDown(event: KeyboardEvent) {
-					if (event.keyCode) {}
+				function onKeyDown(event_: KeyboardEvent) {
+					if (event_.keyCode) {}
 				}
 			`,
 			options: [
