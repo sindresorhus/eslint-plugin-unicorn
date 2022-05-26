@@ -33,12 +33,12 @@ function fix({
 		}
 
 		return text;
-	}).join(operator);
+	}).join(` ${operator} `);
 
 	// TODO: Check ASI
 	// TODO: Check parentheses
 
-	return fixer.replace(conditionalExpression, text);
+	return fixer.replaceText(conditionalExpression, text);
 }
 
 function getProblem({
