@@ -159,6 +159,7 @@ class SnapshotRuleTester {
 			const {code, options, filename} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
 			defineParser(linter, verifyConfig.parser);
+			// eslint-disable-next-line unicorn/consistent-function-scoping - bug
 			const runVerify = code => verify(linter, code, verifyConfig, {filename});
 
 			test(
