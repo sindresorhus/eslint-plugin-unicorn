@@ -346,7 +346,11 @@ test.typescript({
 });
 
 test.snapshot({
-	valid: [],
+	valid: [
+		'const foo = ++Infinity;',
+		'const foo = --Infinity;',
+		'const foo = -(--Infinity);',
+	],
 	invalid: [
 		'const foo = {[NaN]: 1}',
 		'const foo = {[NaN]() {}}',
@@ -369,12 +373,9 @@ test.snapshot({
 		'const foo = -Infinity.toString();',
 		'const foo = (-Infinity).toString();',
 		'const foo = +Infinity;',
-		'const foo = ++Infinity;',
 		'const foo = +-Infinity;',
 		'const foo = -Infinity;',
-		'const foo = --Infinity;',
 		'const foo = -(-Infinity);',
-		'const foo = -(--Infinity);',
 		'const foo = 1 - Infinity;',
 		'const foo = 1 - -Infinity;',
 		'const isPositiveZero = value => value === 0 && 1 / value === Infinity;',
