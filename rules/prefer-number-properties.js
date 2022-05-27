@@ -64,7 +64,7 @@ function * checkProperties({sourceCode, tracker, checkInfinity}) {
 			};
 
 			yield problem;
-			return;
+			continue;
 		}
 
 		const fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
