@@ -54,12 +54,8 @@ class GlobalReferenceTracker {
 	}
 
 	createListeners(context) {
-		// eslint-disable-next-line unicorn/no-this-assignment
-		const tracker = this;
 		return {
-			* 'Program:exit'() {
-				yield * tracker.track(context.getScope());
-			},
+			'Program:exit': () => this.track(context.getScope()),
 		};
 	}
 }
