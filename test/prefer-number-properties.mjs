@@ -3,9 +3,8 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const METHOD_ERROR_MESSAGE_ID = 'method-error';
-const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
-const PROPERTY_ERROR_MESSAGE_ID = 'property-error';
+const MESSAGE_ID_ERROR = 'error';
+const MESSAGE_ID_SUGGESTION = 'suggestion';
 
 const methods = {
 	parseInt: {
@@ -30,17 +29,19 @@ const createError = (name, suggestionOutput) => {
 	const {safe} = methods[name];
 
 	const error = {
-		messageId: METHOD_ERROR_MESSAGE_ID,
+		messageId: MESSAGE_ID_ERROR,
 		data: {
-			name,
+			description: name,
+			property: name,
 		},
 	};
 
 	const suggestions = safe ? undefined : [
 		{
-			messageId: METHOD_SUGGESTION_MESSAGE_ID,
+			messageId: MESSAGE_ID_SUGGESTION,
 			data: {
-				name,
+				description: name,
+				property: name,
 			},
 			output: suggestionOutput,
 		},
@@ -74,12 +75,6 @@ test({
 		'Number.parseFloat("10.5");',
 		'Number.isNaN(10);',
 		'Number.isFinite(10);',
-
-		// Not call
-		...Object.keys(methods),
-
-		// New
-		...Object.values(methods).map(({code}) => `new ${code}`),
 
 		// Shadowed
 		...Object.entries(methods).map(([name, {code}]) => outdent`
@@ -161,9 +156,9 @@ test({
 // `NaN` and `Infinity`
 const errorNaN = [
 	{
-		messageId: PROPERTY_ERROR_MESSAGE_ID,
+		messageId: MESSAGE_ID_ERROR,
 		data: {
-			identifier: 'NaN',
+			description: 'NaN',
 			property: 'NaN',
 		},
 	},

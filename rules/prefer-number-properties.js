@@ -3,70 +3,39 @@ const {ReferenceTracker} = require('eslint-utils');
 const {replaceReferenceIdentifier} = require('./fix/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
-const METHOD_ERROR_MESSAGE_ID = 'method-error';
-const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
-const PROPERTY_ERROR_MESSAGE_ID = 'property-error';
+const MESSAGE_ID_ERROR = 'error';
+const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
-	[METHOD_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}()` over `{{name}}()`.',
-	[METHOD_SUGGESTION_MESSAGE_ID]: 'Replace `{{name}}()` with `Number.{{name}}()`.',
-	[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{property}}` over `{{identifier}}`.',
+	[MESSAGE_ID_ERROR]: 'Prefer `Number.{{property}}` over `{{description}}`.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace `{{description}}` with `Number.{{property}}`.',
 };
 
-const methods = {
-	// Safe
+const globalObjects = {
+	// Safe to replace with `Number` properties
 	parseInt: true,
 	parseFloat: true,
-	// Unsafe
+	NaN: true,
+	Infinity: true,
+
+	// Unsafe to replace with `Number` properties
 	isNaN: false,
 	isFinite: false,
-};
+}
+
 
 const isNegative = node => {
 	const {parent} = node;
 	return parent && parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
 };
 
-function * checkMethods({sourceCode, tracker}) {
-	const traceMap = Object.fromEntries(
-		Object.keys(methods).map(name => [name, {[ReferenceTracker.CALL]: true}]),
-	);
-
-	for (const {node: callExpression, path: [name]} of tracker.iterateGlobalReferences(traceMap)) {
-		const node = callExpression.callee;
-		const isSafe = methods[name];
-
-		const problem = {
-			node,
-			messageId: METHOD_ERROR_MESSAGE_ID,
-			data: {
-				name,
-			},
-		};
-
-		const fix = fixer => replaceReferenceIdentifier(node, `Number.${name}`, fixer, sourceCode);
-
-		if (isSafe) {
-			problem.fix = fix;
-		} else {
-			problem.suggest = [
-				{
-					messageId: METHOD_SUGGESTION_MESSAGE_ID,
-					data: {
-						name,
-					},
-					fix,
-				},
-			];
-		}
-
-		yield problem;
-	}
-}
-
 function * checkProperties({sourceCode, tracker, checkInfinity}) {
-	const properties = checkInfinity ? ['NaN', 'Infinity'] : ['NaN'];
+	let names = Object.keys(globalObjects);
+	if (!checkInfinity) {
+		names = names.filter(name => name !== 'Infinity')
+	}
+
 	const traceMap = Object.fromEntries(
-		properties.map(name => [name, {[ReferenceTracker.READ]: true}]),
+		names.map(name => [name, {[ReferenceTracker.READ]: true}]),
 	);
 
 	for (const {node, path: [name]} of tracker.iterateGlobalReferences(traceMap)) {
@@ -79,22 +48,38 @@ function * checkProperties({sourceCode, tracker, checkInfinity}) {
 
 		const problem = {
 			node,
-			messageId: PROPERTY_ERROR_MESSAGE_ID,
+			messageId: MESSAGE_ID_ERROR,
 			data: {
-				identifier: name,
+				description: name,
 				property,
 			},
 		};
 
 		if (property === 'NEGATIVE_INFINITY') {
 			problem.node = parent;
-			problem.data.identifier = '-Infinity';
+			problem.data.description = '-Infinity';
 			problem.fix = function * (fixer) {
 				yield fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
 				yield * fixSpaceAroundKeyword(fixer, parent, sourceCode);
 			};
+
+			yield problem;
+			return;
+		}
+
+		const fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
+		const isSafeToFix = globalObjects[name];
+
+		if (isSafeToFix) {
+			problem.fix = fix;
 		} else {
-			problem.fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					data: problem.data,
+					fix,
+				},
+			];
 		}
 
 		yield problem;
@@ -115,7 +100,6 @@ const create = context => {
 			const sourceCode = context.getSourceCode();
 			const tracker = new ReferenceTracker(context.getScope());
 
-			yield * checkMethods({sourceCode, tracker});
 			yield * checkProperties({sourceCode, tracker, checkInfinity});
 		},
 	};
