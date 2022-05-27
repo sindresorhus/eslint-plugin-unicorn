@@ -20,8 +20,7 @@ const globalObjects = {
 	// Unsafe to replace with `Number` properties
 	isNaN: false,
 	isFinite: false,
-}
-
+};
 
 const isNegative = node => {
 	const {parent} = node;
@@ -31,7 +30,7 @@ const isNegative = node => {
 function * checkProperties({sourceCode, tracker, checkInfinity}) {
 	let names = Object.keys(globalObjects);
 	if (!checkInfinity) {
-		names = names.filter(name => name !== 'Infinity')
+		names = names.filter(name => name !== 'Infinity');
 	}
 
 	const traceMap = Object.fromEntries(
