@@ -12,17 +12,9 @@ const tracker = new GlobalReferenceTracker({
 	handle: ({node}) => ({node, messageId: MESSAGE_ID}),
 });
 
-const create = context => ({
-	* 'Program:exit'() {
-		yield * tracker.track({
-			globalScope: context.getScope(),
-		});
-	},
-});
-
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
-	create,
+	create: context => tracker.createListeners(context),
 	meta: {
 		type: 'problem',
 		docs: {

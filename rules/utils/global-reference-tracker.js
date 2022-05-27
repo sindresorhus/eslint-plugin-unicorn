@@ -31,7 +31,7 @@ class GlobalReferenceTracker {
 		this.#handle = handle;
 	}
 
-	* track({globalScope}) {
+	* track(globalScope) {
 		const tracker = new ReferenceTracker(globalScope);
 
 		for (const reference of tracker.iterateGlobalReferences(this.#traceMap)) {
@@ -51,6 +51,16 @@ class GlobalReferenceTracker {
 				yield problems;
 			}
 		}
+	}
+
+	createListeners(context) {
+		// eslint-disable-next-line unicorn/no-this-assignment
+		const tracker = this;
+		return {
+			* 'Program:exit'() {
+				yield * tracker.track(context.getScope());
+			},
+		};
 	}
 }
 
