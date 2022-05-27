@@ -396,5 +396,15 @@ test.snapshot({
 		'self.parseFloat(foo);',
 		'globalThis.NaN',
 		'-globalThis.Infinity',
+
+		// Not a call
+		outdent`
+			const options = {
+				normalize: parseFloat,
+				parseInt,
+			};
+
+			run(foo, options);
+		`,
 	],
 });
