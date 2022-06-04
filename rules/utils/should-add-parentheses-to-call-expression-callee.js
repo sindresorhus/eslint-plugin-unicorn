@@ -1,8 +1,9 @@
 'use strict';
 
 /*
-This function is used in `prefer-await` rule, we only added few known node types that not need add parentheses.
-Should be improved in future.
+This function is used in the `prefer-await` rule.
+
+We only added a few known node types that do not need parentheses added. Should be expanded in the future.
 */
 
 const nodeTypesDoNotNeedParentheses = new Set([
