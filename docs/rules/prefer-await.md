@@ -7,7 +7,7 @@
 💡 *This rule provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*
 <!-- /RULE_NOTICE -->
 
-Prefer using [`await`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) operator over [`Promise#then()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then), [`Promise#catch()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/catch) and [`Promise#finally()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/finally), which is easier to write and to read afterwards.
+Prefer using the [`await`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) operator over [`Promise#then()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then), [`Promise#catch()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/catch) and [`Promise#finally()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/finally). Code using `await` is generally easier to read and maintain.
 
 ## Fail
 
@@ -39,17 +39,17 @@ foo(result);
 
 ```js
 try {
-  await promise;
+	await promise;
 } catch (error) {
-  foo(error);
+	foo(error);
 }
 ```
 
 ```js
 try {
-  await promise;
+	await promise;
 } finally {
-  foo();
+	foo();
 }
 ```
 
@@ -57,11 +57,11 @@ try {
 let result;
 
 try {
-  result = await promise;
+	result = await promise;
 } catch (error) {
-  bar(error);
+	bar(error);
 } finally {
-  baz();
+	baz();
 }
 
 foo(result);
