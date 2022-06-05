@@ -9,7 +9,7 @@
 
 Disallow ternary operators when simpler logical operator alternatives exist.
 
-Ideally, most cases we report are equivalent to a [`Logical OR(||)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR) expression. We provide suggestions instead of auto-fix intentionally, because in many cases, [`Nullish coalescing operator(??)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator) should be preferred.
+Ideally, most reported cases have an equivalent [`Logical OR(||)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR) expression. The rule intentionally provides suggestions instead of auto-fixes, because in many cases, the [nullish coalescing operator (`??`)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator) should be preferred.
 
 ## Fail
 
