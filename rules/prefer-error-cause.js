@@ -275,7 +275,9 @@ const create = context => ({
 			= getMatchingAncestorOfType(node, 'CatchClause')
 			|| getMatchingAncestorOfType(node, 'CallExpression', parent => isThenMethod(parent) || isCatchMethod(parent));
 
-		if (!catchBlock) return;
+		if (!catchBlock) {
+			return;
+		}
 
 		if (catchBlock.type === 'CatchClause') {
 			handleCatchBlock({
