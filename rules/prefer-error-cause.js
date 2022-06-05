@@ -154,7 +154,6 @@ const getAllNodesToFix = ({catchBlock, context, throwStatement}) => {
 	} else {
 		// Assume Error's constructor exists in other node of the block
 		// It could be VariableDeclarator or AssignmentExpression.
-
 		const newExpressionSelector = reference =>
 			(reference.identifier?.parent.type === 'AssignmentExpression'
 			|| reference.identifier?.parent.type === 'VariableDeclarator')
@@ -173,7 +172,6 @@ const getAllNodesToFix = ({catchBlock, context, throwStatement}) => {
 		}
 
 		// `try {} catch (err) { let e1 = new Error('oops'); e1 = new Error('oops'); throw error;}`
-
 		for (const thrownErrorDeclarator of thrownErrorDeclarators) {
 			statementToFix = thrownErrorDeclarator;
 
@@ -276,6 +274,8 @@ const create = context => ({
 		const catchBlock
 			= getMatchingAncestorOfType(node, 'CatchClause')
 			|| getMatchingAncestorOfType(node, 'CallExpression', parent => isThenMethod(parent) || isCatchMethod(parent));
+
+		if (!catchBlock) return;
 
 		if (catchBlock.type === 'CatchClause') {
 			handleCatchBlock({
