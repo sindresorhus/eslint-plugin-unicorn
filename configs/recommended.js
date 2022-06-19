@@ -91,6 +91,7 @@ module.exports = {
 		'unicorn/prefer-negative-index': 'error',
 		'unicorn/prefer-node-protocol': 'error',
 		'unicorn/prefer-number-properties': 'error',
+		'unicorn/prefer-object-define-properties': 'error',
 		'unicorn/prefer-object-from-entries': 'error',
 		'unicorn/prefer-optional-catch-binding': 'error',
 		'unicorn/prefer-prototype-methods': 'error',
