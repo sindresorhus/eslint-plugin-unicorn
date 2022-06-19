@@ -14,8 +14,9 @@ const create = context => ({
 			.variableScope.set.get('Object')
 			.references.filter(
 				reference =>
-					reference.identifier.parent.property.name === 'defineProperty'
-					&& reference.identifier.parent.parent.arguments[1].type === 'Literal',
+					reference.identifier.parent.type === 'MemberExpression'
+					&& reference.identifier.parent.property.name === 'defineProperty'
+					&& reference.identifier.parent.parent.arguments?.[1]?.type === 'Literal',
 			)
 			.map(reference => ({
 				node: reference.identifier.parent.parent,
