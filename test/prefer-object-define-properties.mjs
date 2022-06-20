@@ -12,13 +12,12 @@ test.snapshot({
 			});
 		`,
 		outdent`
-			Obje
 			Object.defineProperty({}, "load", {
 			    value: () => {},
 			    writable: true
 			});
 			Object.defineProperty();
-		`,		
+		`,
 		outdent`
 			Object.defineProperty({}, "build", {
 			    value: null,
