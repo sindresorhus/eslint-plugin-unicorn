@@ -1,4 +1,5 @@
 'use strict';
+const hasSameRange = require('./utils/has-same-range.js');
 const {removeArgument} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-object-define-properties';
@@ -16,55 +17,73 @@ const create = context => ({
 				reference =>
 					reference.identifier.parent.type === 'MemberExpression'
 					&& reference.identifier.parent.property.name === 'defineProperty'
-					&& reference.identifier.parent.parent.arguments?.[1]?.type === 'Literal',
+					&& reference.identifier.parent.parent.arguments?.[1]?.type === 'Literal'
+					&& reference.identifier.parent.parent.arguments?.[2]?.type === 'ObjectExpression',
 			)
 			.map(reference => ({
+				scope: reference.from.block,
 				node: reference.identifier.parent.parent,
 				arguments: reference.identifier.parent.parent.arguments,
 			}));
 
-		if (references.length <= 1) {
-			return;
+		const groups = [];
+		let currentGroup;
+		for (const reference of references) {
+			if (!currentGroup || !hasSameRange(currentGroup.scope, reference.scope)) {
+				currentGroup = {
+					scope: reference.scope,
+					references: [reference],
+				};
+				groups.push(currentGroup);
+			} else {
+				currentGroup.references.push(reference);
+			}
 		}
 
-		context.report({
-			node: references[0].node,
-			messageId: MESSAGE_ID,
-			data: {
-				replacement: 'Object.defineProperties',
-				value: 'Object.defineProperty',
-			},
-			* fix(fixer) {
-				const sourceCode = context.getSourceCode();
+		for (const group of groups.filter(group => group.references.length > 1)) {
+			context.report({
+				node: group.references[0].node,
+				messageId: MESSAGE_ID,
+				data: {
+					replacement: 'Object.defineProperties',
+					value: 'Object.defineProperty',
+				},
+				* fix(fixer) {
+					const sourceCode = context.getSourceCode();
 
-				yield fixer.replaceText(
-					references[0].node.callee.property,
-					'defineProperties',
-				);
+					yield fixer.replaceText(
+						group.references[0].node.callee.property,
+						'defineProperties',
+					);
 
-				yield removeArgument(fixer, references[0].arguments[1], sourceCode);
-				yield fixer.replaceText(
-					references[0].arguments[2],
-					`{${references
-						.map(
-							reference =>
-								`"${reference.arguments[1].value}": ${sourceCode.getText(
-									reference.arguments[2],
-								)}`,
-						)
-						.join(',')}}`,
-				);
+					yield removeArgument(
+						fixer,
+						group.references[0].arguments[1],
+						sourceCode,
+					);
+					yield fixer.replaceText(
+						group.references[0].arguments[2],
+						`{${group.references
+							.map(
+								reference =>
+									`"${reference.arguments[1].value}": ${sourceCode.getText(
+										reference.arguments[2],
+									)}`,
+							)
+							.join(',')}}`,
+					);
 
-				for (const reference of references.slice(1)) {
-					yield fixer.remove(reference.node);
+					for (const reference of group.references.slice(1)) {
+						yield fixer.remove(reference.node);
 
-					const token = sourceCode.getTokenAfter(reference.node);
-					if (token?.value === ';') {
-						yield fixer.remove(token);
+						const token = sourceCode.getTokenAfter(reference.node);
+						if (token?.value === ';') {
+							yield fixer.remove(token);
+						}
 					}
-				}
-			},
-		});
+				},
+			});
+		}
 	},
 });
 

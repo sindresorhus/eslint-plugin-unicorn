@@ -12,6 +12,14 @@ test.snapshot({
 			});
 		`,
 		outdent`
+			Obje
+			Object.defineProperty({}, "load", {
+			    value: () => {},
+			    writable: true
+			});
+			Object.defineProperty();
+		`,		
+		outdent`
 			Object.defineProperty({}, "build", {
 			    value: null,
 			    writable: true
@@ -28,6 +36,35 @@ test.snapshot({
 			        writable: true
 			    },
 			});
+		`,
+		outdent`
+			Object.defineProperty({}, "build", {
+			    value: null,
+			    writable: true
+			});
+			Object.defineProperty({}, foo, {
+			    value: null,
+			    writable: true
+			});
+		`,
+		outdent`
+			Object.defineProperty({}, "build", {
+			    value: null,
+			    writable: true
+			});
+			Object.defineProperty({}, "load", foo);
+		`,
+		outdent`
+			Object.defineProperty({}, "build", {
+			    value: null,
+			    writable: true
+			});
+			{
+				Object.defineProperty({}, "load", {
+			    	value: null,
+			    	writable: true
+				});
+			}
 		`,
 	],
 	invalid: [
