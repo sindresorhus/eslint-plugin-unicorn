@@ -65,6 +65,31 @@ test.snapshot({
 				});
 			}
 		`,
+		outdent`
+			Object.defineProperty({}, "build", {
+			    value: null,
+			    writable: true
+			});
+			{}
+			Object.defineProperty({}, "build", {
+			    value: null,
+			    writable: true
+			});
+		`,
+		outdent`
+			Object.defineProperty({}, "build", {
+			    value: null,
+			    writable: true
+			});
+
+
+
+			
+			Object.defineProperty({}, "build", {
+			    value: null,
+			    writable: true
+			});
+		`,
 	],
 	invalid: [
 		outdent`
@@ -73,6 +98,34 @@ test.snapshot({
 			    writable: true
 			});
 			Object.defineProperty({}, "build", {
+			    value: null,
+			    writable: true
+			});
+		`,
+		outdent`
+			Object.defineProperty({}, "load", {
+			    value: () => {},
+			    writable: true
+			});
+
+			//
+
+			Object.defineProperty({}, "build", {
+			    value: null,
+			    writable: true
+			});
+		`,
+		outdent`
+			Object.defineProperty({}, "load", {
+			    value: () => {},
+			    writable: true
+			});
+			{}
+			Object.defineProperty({}, "test", {
+			    value: null,
+			    writable: true
+			});
+			Object.defineProperty({}, "test-b", {
 			    value: null,
 			    writable: true
 			});
