@@ -9,7 +9,7 @@ const messages = {
 
 function getFirstExpression(node, sourceCode) {
 	const {parent} = node;
-	const visitorKeys	= sourceCode.visitorKeys[parent.type] || Object.keys(parent);
+	const visitorKeys = sourceCode.visitorKeys[parent.type] || Object.keys(parent);
 
 	for (const property of visitorKeys) {
 		const value = parent[property];
@@ -47,21 +47,13 @@ const create = context => ({
 		let currentGroup;
 
 		for (const reference of references) {
-			let newGroup = false;
-
-			const firstExpression = getFirstExpression(
-				reference.node.parent,
-				sourceCode,
-			);
-
-			if (firstExpression?.expression?.callee.object) {
-				newGroup = !isSameReference(
+			const firstExpression = getFirstExpression(reference.node.parent, sourceCode);
+			const newGroup = firstExpression?.expression?.callee.object
+				? !isSameReference(
 					firstExpression.expression.callee.object,
 					reference.node.callee.object,
-				);
-			} else {
-				newGroup = true;
-			}
+				)
+				: true;
 
 			if (!currentGroup || newGroup) {
 				currentGroup = {
