@@ -76,20 +76,6 @@ test.snapshot({
 			    writable: true
 			});
 		`,
-		outdent`
-			Object.defineProperty({}, "build", {
-			    value: null,
-			    writable: true
-			});
-
-
-
-			
-			Object.defineProperty({}, "build", {
-			    value: null,
-			    writable: true
-			});
-		`,
 	],
 	invalid: [
 		outdent`

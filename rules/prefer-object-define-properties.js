@@ -1,11 +1,27 @@
 'use strict';
-const hasSameRange = require('./utils/has-same-range.js');
+const isSameReference = require('./utils/is-same-reference.js');
 const {removeArgument} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-object-define-properties';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over multiple `{{value}}`.',
 };
+
+function getFirstExpression(node, sourceCode) {
+	const {parent} = node;
+	const visitorKeys	= sourceCode.visitorKeys[parent.type] || Object.keys(parent);
+
+	for (const property of visitorKeys) {
+		const value = parent[property];
+		if (Array.isArray(value)) {
+			const index = value.indexOf(node);
+
+			if (index !== -1) {
+				return value[index - 1];
+			}
+		}
+	}
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
@@ -17,9 +33,9 @@ const create = context => ({
 			.references.filter(
 				reference =>
 					reference.identifier.parent.type === 'MemberExpression'
-						&& reference.identifier.parent.property.name === 'defineProperty'
-						&& reference.identifier.parent.parent.arguments?.[1]?.type === 'Literal'
-						&& reference.identifier.parent.parent.arguments?.[2]?.type === 'ObjectExpression',
+					&& reference.identifier.parent.property.name === 'defineProperty'
+					&& reference.identifier.parent.parent.arguments?.[1]?.type === 'Literal'
+					&& reference.identifier.parent.parent.arguments?.[2]?.type === 'ObjectExpression',
 			)
 			.map(reference => ({
 				scope: reference.from.block,
@@ -28,22 +44,32 @@ const create = context => ({
 			}));
 
 		const groups = [];
-
 		let currentGroup;
-		for (const reference of references) {
-			const linesBetweenLastAndCurrentReferences = sourceCode.getLines().slice(currentGroup?.references.at(-1).node.loc.end.line, reference.node.loc.start.line - 1);
-			const foundMatch = hasSameRange(currentGroup?.scope, reference.scope)
-									&& linesBetweenLastAndCurrentReferences.length <= 3
-									&& linesBetweenLastAndCurrentReferences
-										.every(line => line.trim() === '' || /^\/(\*|\/)/.exec(line.trim()));
 
-			if (!currentGroup || !foundMatch) {
+		for (const reference of references) {
+			let newGroup = false;
+
+			const firstExpression = getFirstExpression(
+				reference.node.parent,
+				sourceCode,
+			);
+
+			if (firstExpression?.expression?.callee.object) {
+				newGroup = !isSameReference(
+					firstExpression.expression.callee.object,
+					reference.node.callee.object,
+				);
+			} else {
+				newGroup = true;
+			}
+
+			if (!currentGroup || newGroup) {
 				currentGroup = {
 					scope: reference.scope,
 					references: [reference],
 				};
 				groups.push(currentGroup);
-			} else if (foundMatch) {
+			} else {
 				currentGroup.references.push(reference);
 			}
 		}
@@ -62,7 +88,7 @@ const create = context => ({
 						'defineProperties',
 					);
 
-					yield removeArgument(fixer, group.references[0].arguments[1], sourceCode);
+					yield removeArgument(fixer,	group.references[0].arguments[1],	sourceCode);
 					yield fixer.replaceText(
 						group.references[0].arguments[2],
 						`{${group.references
