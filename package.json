@@ -46,7 +46,7 @@
 		"xo"
 	],
 	"dependencies": {
-		"@babel/helper-validator-identifier": "^7.15.7",
+		"@babel/helper-validator-identifier": "^7.18.6",
 		"ci-info": "^3.3.0",
 		"clean-regexp": "^1.0.0",
 		"eslint-utils": "^3.0.0",
@@ -62,9 +62,9 @@
 		"strip-indent": "^3.0.0"
 	},
 	"devDependencies": {
-		"@babel/code-frame": "^7.16.0",
-		"@babel/core": "^7.16.5",
-		"@babel/eslint-parser": "^7.16.5",
+		"@babel/code-frame": "^7.18.6",
+		"@babel/core": "^7.18.6",
+		"@babel/eslint-parser": "^7.18.2",
 		"@lubien/fixture-beta-package": "^1.0.0-beta.1",
 		"@typescript-eslint/parser": "^5.7.0",
 		"ava": "^3.15.0",
