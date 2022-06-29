@@ -10,9 +10,9 @@ const messages = {
 
 const getReplacement = encoding => {
 	switch (encoding.toLowerCase()) {
-		case 'utf8':
 		// eslint-disable-next-line unicorn/text-encoding-identifier-case
 		case 'utf-8':
+		case 'utf8':
 			return 'utf8';
 		case 'ascii':
 			return 'ascii';
