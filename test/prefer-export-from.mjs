@@ -601,7 +601,7 @@ test.babel({
 		},
 		{
 			code: outdent`
-				import {foo} from './foo.json' assert { type: 'json' };
+				import {foo} from './foo.json' assert { type: 'unknown' };
 				export {foo};
 				export {bar} from './foo.json';
 			`,
@@ -615,12 +615,12 @@ test.babel({
 			code: outdent`
 				import {foo} from './foo.json';
 				export {foo};
-				export {bar} from './foo.json' assert { type: 'json' };
+				export {bar} from './foo.json' assert { type: 'unknown' };
 			`,
 			errors: 1,
 			output: outdent`
 				\n
-				export {bar, foo} from './foo.json' assert { type: 'json' };
+				export {bar, foo} from './foo.json' assert { type: 'unknown' };
 			`,
 		},
 	],
