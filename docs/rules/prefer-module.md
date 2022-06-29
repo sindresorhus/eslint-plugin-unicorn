@@ -53,7 +53,7 @@ Prefer using the [JavaScript module](https://developer.mozilla.org/en-US/docs/We
 
 	`export …` should be used in JavaScript modules.
 
-_`.cjs` files are ignored._
+*`.cjs` files are ignored.*
 
 ## Fail
 
