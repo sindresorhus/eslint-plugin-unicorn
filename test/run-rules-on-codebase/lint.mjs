@@ -33,8 +33,6 @@ const eslint = new ESLint({
 			// Not ready yet
 			'unicorn/prefer-string-replace-all': 'off',
 			'unicorn/prefer-at': 'off',
-			// TODO: Turn this on when `xo` updated `eslint-plugin-unicorn`
-			'unicorn/text-encoding-identifier-case': 'off',
 		},
 		overrides: [
 			{
