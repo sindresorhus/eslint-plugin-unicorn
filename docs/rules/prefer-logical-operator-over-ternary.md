@@ -1,4 +1,4 @@
-# Prefer using logical operator over ternary
+# Prefer using a logical operator over a ternary
 
 <!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->
