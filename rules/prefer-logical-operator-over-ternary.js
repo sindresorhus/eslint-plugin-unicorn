@@ -7,7 +7,7 @@ const needsSemicolon = require('./utils/needs-semicolon.js');
 const MESSAGE_ID_ERROR = 'prefer-logical-operator-over-ternary/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-logical-operator-over-ternary/suggestion';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Prefer using logical operator over ternary.',
+	[MESSAGE_ID_ERROR]: 'Prefer using a logical operator over a ternary.',
 	[MESSAGE_ID_SUGGESTION]: 'Switch to `{{operator}}` operator.',
 };
 
