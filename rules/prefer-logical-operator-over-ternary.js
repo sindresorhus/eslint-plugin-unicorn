@@ -146,7 +146,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer using logical operator over ternary.',
+			description: 'Prefer using a logical operator over a ternary.',
 		},
 
 		hasSuggestions: true,
