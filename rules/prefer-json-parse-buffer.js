@@ -71,6 +71,7 @@ const isUtf8EncodingString = value => {
 
 	value = value.toLowerCase();
 
+	// eslint-disable-next-line unicorn/text-encoding-identifier-case
 	return value === 'utf8' || value === 'utf-8';
 };
 
