@@ -39,6 +39,20 @@ const create = () => ({
 			return;
 		}
 
+		if (
+			node.value === 'utf-8'
+			&& node.parent.type === 'JSXAttribute'
+			&& node.parent.value === node
+			&& node.parent.name.type === 'JSXIdentifier'
+			&& node.parent.name.name.toLowerCase() === 'charset'
+			&& node.parent.parent.type === 'JSXOpeningElement'
+			&& node.parent.parent.attributes.includes(node.parent)
+			&& node.parent.parent.name.type === 'JSXIdentifier'
+			&& node.parent.parent.name.name.toLowerCase() === 'meta'
+		) {
+			return;
+		}
+
 		const {raw} = node;
 		const value = raw.slice(1, -1);
 

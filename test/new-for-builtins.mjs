@@ -14,17 +14,6 @@ const disallowNewError = builtin => ({
 });
 
 test({
-	testerOptions: {
-		// Make sure globals don't effect shadowed check result
-		globals: {
-			Map: 'writable',
-			Set: 'readonly',
-			WeakMap: 'off',
-			BigInt: 'writable',
-			Boolean: 'readonly',
-			Number: 'off',
-		},
-	},
 	valid: [
 		'const foo = new Object()',
 		'const foo = new Array()',
@@ -115,6 +104,7 @@ test({
 		'Foo();new Bar();',
 		// Ignored
 		'const isObject = v => Object(v) === v;',
+		'const isObject = v => globalThis.Object(v) === v;',
 		'(x) !== Object(x)',
 	],
 	invalid: [
@@ -323,7 +313,12 @@ test({
 });
 
 test.snapshot({
-	valid: [],
+	valid: [
+		{
+			code: 'new Symbol("")',
+			globals: {Symbol: 'off'},
+		},
+	],
 	invalid: [
 		'const object = (Object)();',
 		'const symbol = new (Symbol)("");',
@@ -383,5 +378,41 @@ test.snapshot({
 				return new /**/ Symbol;
 			}
 		`,
+		// Trace
+		'new globalThis.String()',
+		'new global.String()',
+		'new self.String()',
+		'new window.String()',
+		outdent`
+			const {String} = globalThis;
+			new String();
+		`,
+		outdent`
+			const {String: RenamedString} = globalThis;
+			new RenamedString();
+		`,
+		outdent`
+			const RenamedString = globalThis.String;
+			new RenamedString();
+		`,
+		'globalThis.Array()',
+		'global.Array()',
+		'self.Array()',
+		'window.Array()',
+		outdent`
+			const {Array: RenamedArray} = globalThis;
+			RenamedArray();
+		`,
+		{
+			code: 'globalThis.Array()',
+			globals: {Array: 'off'},
+		},
+		{
+			code: outdent`
+				const {Array} = globalThis;
+				Array();
+			`,
+			globals: {Array: 'off'},
+		},
 	],
 });

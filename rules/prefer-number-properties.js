@@ -1,126 +1,105 @@
 'use strict';
-const isShadowed = require('./utils/is-shadowed.js');
-const {
-	referenceIdentifierSelector,
-	callExpressionSelector,
-} = require('./selectors/index.js');
+const {ReferenceTracker} = require('eslint-utils');
 const {replaceReferenceIdentifier} = require('./fix/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
-const METHOD_ERROR_MESSAGE_ID = 'method-error';
-const METHOD_SUGGESTION_MESSAGE_ID = 'method-suggestion';
-const PROPERTY_ERROR_MESSAGE_ID = 'property-error';
+const MESSAGE_ID_ERROR = 'error';
+const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
-	[METHOD_ERROR_MESSAGE_ID]: 'Prefer `Number.{{name}}()` over `{{name}}()`.',
-	[METHOD_SUGGESTION_MESSAGE_ID]: 'Replace `{{name}}()` with `Number.{{name}}()`.',
-	[PROPERTY_ERROR_MESSAGE_ID]: 'Prefer `Number.{{property}}` over `{{identifier}}`.',
+	[MESSAGE_ID_ERROR]: 'Prefer `Number.{{property}}` over `{{description}}`.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace `{{description}}` with `Number.{{property}}`.',
 };
 
-const methods = {
-	// Safe
+const globalObjects = {
+	// Safe to replace with `Number` properties
 	parseInt: true,
 	parseFloat: true,
-	// Unsafe
+	NaN: true,
+	Infinity: true,
+
+	// Unsafe to replace with `Number` properties
 	isNaN: false,
 	isFinite: false,
 };
-
-const methodsSelector = [
-	callExpressionSelector(Object.keys(methods)),
-	' > ',
-	'.callee',
-].join('');
-
-const propertiesSelector = referenceIdentifierSelector(['NaN', 'Infinity']);
 
 const isNegative = node => {
 	const {parent} = node;
 	return parent && parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
 };
 
+function * checkProperties({sourceCode, tracker, checkInfinity}) {
+	let names = Object.keys(globalObjects);
+	if (!checkInfinity) {
+		names = names.filter(name => name !== 'Infinity');
+	}
+
+	const traceMap = Object.fromEntries(
+		names.map(name => [name, {[ReferenceTracker.READ]: true}]),
+	);
+
+	for (const {node, path: [name]} of tracker.iterateGlobalReferences(traceMap)) {
+		const {parent} = node;
+
+		let property = name;
+		if (name === 'Infinity') {
+			property = isNegative(node) ? 'NEGATIVE_INFINITY' : 'POSITIVE_INFINITY';
+		}
+
+		const problem = {
+			node,
+			messageId: MESSAGE_ID_ERROR,
+			data: {
+				description: name,
+				property,
+			},
+		};
+
+		if (property === 'NEGATIVE_INFINITY') {
+			problem.node = parent;
+			problem.data.description = '-Infinity';
+			problem.fix = function * (fixer) {
+				yield fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
+				yield * fixSpaceAroundKeyword(fixer, parent, sourceCode);
+			};
+
+			yield problem;
+			continue;
+		}
+
+		const fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
+		const isSafeToFix = globalObjects[name];
+
+		if (isSafeToFix) {
+			problem.fix = fix;
+		} else {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					data: problem.data,
+					fix,
+				},
+			];
+		}
+
+		yield problem;
+	}
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
-	const options = {
+	const {
+		checkInfinity,
+	} = {
 		checkInfinity: true,
 		...context.options[0],
 	};
 
-	// Cache `NaN` and `Infinity` in `foo = {NaN, Infinity}`
-	const reported = new WeakSet();
-
 	return {
-		[methodsSelector](node) {
-			if (isShadowed(context.getScope(), node)) {
-				return;
-			}
+		* 'Program:exit'() {
+			const sourceCode = context.getSourceCode();
+			const tracker = new ReferenceTracker(context.getScope());
 
-			const {name} = node;
-			const isSafe = methods[name];
-
-			const problem = {
-				node,
-				messageId: METHOD_ERROR_MESSAGE_ID,
-				data: {
-					name,
-				},
-			};
-
-			const fix = fixer => replaceReferenceIdentifier(node, `Number.${name}`, fixer, sourceCode);
-
-			if (isSafe) {
-				problem.fix = fix;
-			} else {
-				problem.suggest = [
-					{
-						messageId: METHOD_SUGGESTION_MESSAGE_ID,
-						data: {
-							name,
-						},
-						fix,
-					},
-				];
-			}
-
-			return problem;
-		},
-		[propertiesSelector](node) {
-			if (reported.has(node) || isShadowed(context.getScope(), node)) {
-				return;
-			}
-
-			const {name, parent} = node;
-			if (name === 'Infinity' && !options.checkInfinity) {
-				return;
-			}
-
-			let property = name;
-			if (name === 'Infinity') {
-				property = isNegative(node) ? 'NEGATIVE_INFINITY' : 'POSITIVE_INFINITY';
-			}
-
-			const problem = {
-				node,
-				messageId: PROPERTY_ERROR_MESSAGE_ID,
-				data: {
-					identifier: name,
-					property,
-				},
-			};
-
-			if (property === 'NEGATIVE_INFINITY') {
-				problem.node = parent;
-				problem.data.identifier = '-Infinity';
-				problem.fix = function * (fixer) {
-					yield fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
-					yield * fixSpaceAroundKeyword(fixer, parent, sourceCode);
-				};
-			} else {
-				problem.fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
-			}
-
-			reported.add(node);
-			return problem;
+			yield * checkProperties({sourceCode, tracker, checkInfinity});
 		},
 	};
 };

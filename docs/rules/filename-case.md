@@ -89,7 +89,7 @@ For example:
 - Ignore some files when you use [eslint-plugin-markdown](https://github.com/eslint/eslint-plugin-markdown), for example `README.md`.
 - Some tools may require special names for some files.
 
-Don't forget that you must escape special characters that you don't want to be interpreted as part of the regex, for example, if you have `[` in the actual filename. For example, to match `[id].js`, use `/^\[id\]\.js$/"` or `'^\\[id\\]\\.js$'`.
+Don't forget that you must escape special characters that you don't want to be interpreted as part of the regex, for example, if you have `[` in the actual filename. For example, to match `[id].js`, use `/^\[id\]\.js$/` or `'^\\[id\\]\\.js$'`.
 
 ```js
 "unicorn/filename-case": [
