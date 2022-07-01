@@ -1,6 +1,7 @@
 'use strict';
 const quoteString = require('./utils/quote-string.js');
 const translateToKey = require('./shared/event-keys.js');
+const {isNumberLiteral} = require('./ast/index.js');
 const getMatchingAncestorOfType = require('./utils/get-matching-ancestor-of-type.js');
 
 const MESSAGE_ID = 'prefer-keyboard-event-key';
