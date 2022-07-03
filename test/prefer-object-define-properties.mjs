@@ -6,26 +6,26 @@ const {test} = getTester(import.meta);
 test.snapshot({
 	valid: [
 		outdent`
-			Object.defineProperty({}, "load", {
+			Object.defineProperty(foo, "load", {
 			    value: () => {},
 			    writable: true
 			});
 		`,
 		outdent`
-			Object.defineProperty({}, "load", {
+			Object.defineProperty(foo, "load", {
 			    value: () => {},
 			    writable: true
 			});
 			Object.defineProperty();
 		`,
 		outdent`
-			Object.defineProperty({}, "build", {
+			Object.defineProperty(foo, "build", {
 			    value: null,
 			    writable: true
 			});
 		`,
 		outdent`
-			Object.defineProperties({}, {
+			Object.defineProperties(foo, {
 			    load: {
 			        value: () => {},
 			        writable: true
@@ -37,41 +37,34 @@ test.snapshot({
 			});
 		`,
 		outdent`
-			Object.defineProperty({}, "build", {
-			    value: null,
-			    writable: true
-			});
-			Object.defineProperty({}, foo, {
-			    value: null,
-			    writable: true
-			});
-		`,
-		outdent`
-			Object.defineProperty({}, "build", {
-			    value: null,
-			    writable: true
-			});
-			Object.defineProperty({}, "load", foo);
-		`,
-		outdent`
-			Object.defineProperty({}, "build", {
+			Object.defineProperty(bar, "build", {
 			    value: null,
 			    writable: true
 			});
 			{
-				Object.defineProperty({}, "load", {
+				Object.defineProperty(bar, "load", {
 			    	value: null,
 			    	writable: true
 				});
 			}
 		`,
 		outdent`
-			Object.defineProperty({}, "build", {
+			Object.defineProperty(foo, "build", {
 			    value: null,
 			    writable: true
 			});
 			{}
-			Object.defineProperty({}, "build", {
+			Object.defineProperty(foo, "build", {
+			    value: null,
+			    writable: true
+			});
+		`,
+		outdent`
+			Object.defineProperty(foo, "build", {
+			    value: null,
+			    writable: true
+			});
+			Object.defineProperty(bar, "build", {
 			    value: null,
 			    writable: true
 			});
@@ -79,42 +72,44 @@ test.snapshot({
 	],
 	invalid: [
 		outdent`
-			Object.defineProperty({}, "load", {
+			Object.defineProperty(foo, "load", {
 			    value: () => {},
 			    writable: true
 			});
-			Object.defineProperty({}, "build", {
+			Object.defineProperty(foo, bar, {
 			    value: null,
 			    writable: true
 			});
 		`,
 		outdent`
-			Object.defineProperty({}, "load", {
-			    value: () => {},
-			    writable: true
-			});
-
-			//
-
-			Object.defineProperty({}, "build", {
+			Object.defineProperty(foo, "build", {
 			    value: null,
 			    writable: true
 			});
+			Object.defineProperty(foo, "load", bar);
 		`,
 		outdent`
-			Object.defineProperty({}, "load", {
+			Object.defineProperty(foo, "load", {
 			    value: () => {},
 			    writable: true
 			});
 			{}
-			Object.defineProperty({}, "test", {
+			Object.defineProperty(foo, "test", {
 			    value: null,
 			    writable: true
 			});
-			Object.defineProperty({}, "test-b", {
+			Object.defineProperty(foo, "test-b", {
 			    value: null,
 			    writable: true
 			});
+		`,
+		outdent`
+			Object.defineProperty(foo, "test", {
+			    value: () => {},
+			    writable: true
+			});			
+			Object.defineProperties(foo, bar);
+			Object.defineProperties(foo, baz);
 		`,
 	],
 });
