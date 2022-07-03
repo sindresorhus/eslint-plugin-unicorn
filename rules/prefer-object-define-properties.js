@@ -87,12 +87,12 @@ const create = context => ({
 					value: 'Object.defineProperty',
 				},
 				* fix(fixer) {
-					yield fixer.replaceText(
-						group.references[0].node.callee.property,
-						'defineProperties',
-					);
-
 					if (group.references[0].node.callee.property.name === 'defineProperty') {
+						yield fixer.replaceText(
+							group.references[0].node.callee.property,
+							'defineProperties',
+						);
+
 						yield removeArgument(fixer, group.references[0].arguments[1], sourceCode);
 					}
 
