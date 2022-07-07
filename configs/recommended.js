@@ -79,7 +79,8 @@ module.exports = {
 		'unicorn/prefer-dom-node-remove': 'error',
 		'unicorn/prefer-dom-node-text-content': 'error',
 		'unicorn/prefer-error-cause': 'error',
-		'unicorn/prefer-event-target': 'error',
+		// TODO: Enable this by default when targeting Node.js 16.
+		'unicorn/prefer-event-target': 'off',
 		'unicorn/prefer-export-from': 'error',
 		'unicorn/prefer-includes': 'error',
 		'unicorn/prefer-json-parse-buffer': 'off',
