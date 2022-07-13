@@ -10,7 +10,7 @@ const SUGGESTION = 'suggestion';
 
 const messages = {
 	[ERROR]: 'Prefer specifying an old error as `cause` option where rethrowing the error.',
-	[SUGGESTION]: 'Specify `cause` option in the Error\'s constructor.',
+	[SUGGESTION]: 'Specify the `cause` option in the Error\'s constructor.',
 };
 
 const throwStatementSelector = 'ThrowStatement';
