@@ -9,9 +9,7 @@
 
 Prefer specifying old error as `cause` option where rethrowing the error.
 
-This rule also supports custom error classes in addition to built-in one.
-
-In case of custom errors, this rule assumes the last argument of the constructor is object able to receive `cause` property.
+This rule also supports custom error classes in addition to built-in ones. In this case, this rule assumes the last argument of the constructor is object able to receive `cause` property.
 
 ## Fail
 

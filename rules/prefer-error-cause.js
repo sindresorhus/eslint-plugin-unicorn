@@ -10,7 +10,7 @@ const SUGGESTION = 'suggestion';
 
 const messages = {
 	[ERROR]: 'Prefer specifying an old error as `cause` option where rethrowing the error.',
-	[SUGGESTION]: 'Specify `cause` option to Error\'s constructor.',
+	[SUGGESTION]: 'Specify `cause` option in the Error\'s constructor.',
 };
 
 const throwStatementSelector = 'ThrowStatement';
@@ -117,6 +117,7 @@ const fix = ({
 			break;
 		}
 
+		/* c8 ignore next */
 		default: {
 			throw new Error('statementToFix is not invalid type');
 		}
@@ -152,7 +153,7 @@ const getAllNodesToFix = ({catchBlock, context, throwStatement}) => {
 			statementToFix: throwStatement,
 		});
 	} else {
-		// Assume Error's constructor exists in other node of the block
+		// Assume Error's constructor exists in other node's of the block
 		// It could be VariableDeclarator or AssignmentExpression.
 		const newExpressionSelector = reference =>
 			(reference.identifier?.parent.type === 'AssignmentExpression'

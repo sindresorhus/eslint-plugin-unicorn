@@ -6,6 +6,7 @@ const {test} = getTester(import.meta);
 test.snapshot({
 	valid: [
 		// Throw statement not exists
+		'try {} finally {}',
 		'try {} catch {}',
 		'try {} catch (oldError) {}',
 		// Rethrow old error itself
@@ -85,7 +86,7 @@ test.snapshot({
 		// 	}
 		// `,
 
-		// cause not specified
+		// `cause` not specified
 		'try {} catch { throw new Error(\'oops\'); }',
 		'try {} catch (oldError) { throw new Error(\'oops\'); }',
 		// Cannot be fixed when Error constructor's argument length is 0
@@ -155,6 +156,13 @@ test.snapshot({
 						throw new Error('oops');
 					}
 				}
+			}
+		`,
+		outdent`
+			try {} catch (oldError) {
+				let err;
+				err = new Error;
+				throw err;
 			}
 		`,
 		outdent`
@@ -241,7 +249,7 @@ test.snapshot({
 		`,
 		outdent`
 			promise.catch(function (oldError) {
-				const error = new Error('oops', {cause:oldError});
+				const error = new Error('oops', {cause: oldError});
 				throw error;
 			});
 		`,
@@ -345,6 +353,13 @@ test.snapshot({
 
 		'promise.catch(() => { throw new Error(\'oops\'); });',
 		'promise.catch(function () { throw new Error(\'oops\'); });',
+
+		outdent`
+			promise.catch(function () {
+				let error = new Error;
+				throw error;
+			});
+		`,
 
 		outdent`
 			promise.catch(function () {
