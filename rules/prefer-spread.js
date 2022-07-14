@@ -11,6 +11,7 @@ const {
 	removeMethodCall,
 } = require('./fix/index.js');
 const {isLiteral} = require('./ast/index.js');
+const isMethodNamed = require('./utils/is-method-named.js');
 
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
@@ -44,15 +45,7 @@ const arrayFromCallSelector = [
 	'[arguments.0.type!="ObjectExpression"]',
 ].join('');
 
-const arrayConcatCallSelector = [
-	methodCallSelector('concat'),
-	not(
-		[
-			'Literal',
-			'TemplateLiteral',
-		].map(type => `[callee.object.type="${type}"]`),
-	),
-].join('');
+const arrayConcatCallSelector = methodCallSelector('concat');
 
 const arraySliceCallSelector = [
 	methodCallSelector({
@@ -320,6 +313,26 @@ function isClassName(node) {
 	return /^[A-Z]./.test(name) && name.toUpperCase() !== name;
 }
 
+function isNotArray(node, scope) {
+	if (
+		node.type === 'TemplateLiteral'
+		|| node.type === 'Literal'
+		|| node.type === 'BinaryExpression'
+		|| isClassName(node)
+		// `foo.join()`
+		|| (isMethodNamed(node, 'join') && node.arguments.length <= 1)
+	) {
+		return true;
+	}
+
+	const staticValue = getStaticValue(node, scope);
+	if (staticValue && !Array.isArray(staticValue.value)) {
+		return true;
+	}
+
+	return false;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
@@ -335,7 +348,7 @@ const create = context => {
 		[arrayConcatCallSelector](node) {
 			const {object} = node.callee;
 
-			if (isClassName(object)) {
+			if (isNotArray(object, context.getScope())) {
 				return;
 			}
 

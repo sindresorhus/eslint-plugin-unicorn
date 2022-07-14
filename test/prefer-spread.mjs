@@ -180,6 +180,11 @@ test.snapshot({
 		'Foo.concat(1)',
 		'FooBar.concat(1)',
 		'global.Buffer.concat([])',
+		// #1809
+		'["1", "2"].join(",").concat("...")',
+		'foo.join(",").concat("...")',
+		'foo.join().concat(bar)',
+		'(a + b).concat(c)',
 	],
 	invalid: [
 		'[1].concat(2)',
@@ -288,6 +293,8 @@ test.snapshot({
 			const baz = [2];
 			call(foo, ...[bar].concat(baz));
 		`,
+		// This not considered `Array#join()` since there are more than one arguments
+		'foo.join(foo, bar).concat("...")',
 	],
 });
 
