@@ -35,3 +35,24 @@ test.snapshot({
 		'whatever.readFile(file, "UTF-8",)',
 	],
 });
+
+// JSX
+test.snapshot({
+	testerOptions: {
+		parserOptions: {
+			ecmaFeatures: {
+				jsx: true,
+			},
+		},
+	},
+	valid: [
+		'<meta charset="utf-8" />',
+		'<META CHARSET="utf-8" />',
+	],
+	invalid: [
+		'<not-meta charset="utf-8" />',
+		'<meta not-charset="utf-8" />',
+		'<meta charset="ASCII" />',
+		'<META CHARSET="ASCII" />',
+	],
+});

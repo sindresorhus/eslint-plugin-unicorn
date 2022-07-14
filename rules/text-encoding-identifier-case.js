@@ -10,8 +10,9 @@ const messages = {
 
 const getReplacement = encoding => {
 	switch (encoding.toLowerCase()) {
-		case 'utf8':
+		// eslint-disable-next-line unicorn/text-encoding-identifier-case
 		case 'utf-8':
+		case 'utf8':
 			return 'utf8';
 		case 'ascii':
 			return 'ascii';
@@ -36,6 +37,21 @@ const isFsReadFileEncoding = node =>
 const create = () => ({
 	Literal(node) {
 		if (typeof node.value !== 'string') {
+			return;
+		}
+
+		if (
+			// eslint-disable-next-line unicorn/text-encoding-identifier-case
+			node.value === 'utf-8'
+			&& node.parent.type === 'JSXAttribute'
+			&& node.parent.value === node
+			&& node.parent.name.type === 'JSXIdentifier'
+			&& node.parent.name.name.toLowerCase() === 'charset'
+			&& node.parent.parent.type === 'JSXOpeningElement'
+			&& node.parent.parent.attributes.includes(node.parent)
+			&& node.parent.parent.name.type === 'JSXIdentifier'
+			&& node.parent.parent.name.name.toLowerCase() === 'meta'
+		) {
 			return;
 		}
 
