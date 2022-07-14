@@ -293,7 +293,7 @@ test.snapshot({
 			const baz = [2];
 			call(foo, ...[bar].concat(baz));
 		`,
-		// This not considered `Array#join()` since there are more than one arguments
+		// This not considered `Array#join()` since there are more than one argument
 		'foo.join(foo, bar).concat("...")',
 	],
 });
