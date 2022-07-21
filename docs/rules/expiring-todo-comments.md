@@ -241,7 +241,7 @@ Default: `true`
 
 Disables `Expiry Date` checks during pull requests.
 
-Sometimes developers may send [Pull Requests](https://help.github.com/en/articles/about-pull-requests) at a time when TODO expiry dates are triggered. This means that their code would fail to pass linting, causing a false-positive.
+Sometimes developers may send [Pull Requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests) at a time when TODO expiry dates are triggered. This means that their code would fail to pass linting, causing a false-positive.
 
 By default, this rule will not trigger expiry dates while on Pull Requests so that the one responsible for the fix will be the maintainer not the contributor.
 
