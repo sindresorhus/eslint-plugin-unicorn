@@ -67,9 +67,11 @@ const create = context => {
 		}
 
 		const dedented = stripIndent(joined);
+		const trimmed = dedented.replace(new RegExp(`^${eol}|${eol}[ \t]*$`, 'g'), '');
+
 		const fixed
 			= eol
-			+ indentString(dedented.trim(), 1, {indent: parentMargin + indent})
+			+ indentString(trimmed, 1, {indent: parentMargin + indent})
 			+ eol
 			+ parentMargin;
 
