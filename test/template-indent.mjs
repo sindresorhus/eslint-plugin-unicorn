@@ -486,6 +486,24 @@ test({
 				\`
 			`),
 		},
+		{
+			name: 'Lines with whitespaces are kept trimmed',
+			code: fixInput(`
+				outdent\`
+				••Line1
+				••
+				••Line2
+				\`
+			`),
+			errors,
+			output: fixInput(`
+				outdent\`
+				••Line1
+
+				••Line2
+				\`
+			`),
+		}
 	],
 	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
 	valid: [
@@ -586,6 +604,33 @@ test({
 			••after
 			\`
 		`),
+		{
+			name: 'Trailing spaces in the last line are preserved',
+			code: fixInput(`
+				outdent\`
+				••Line with trailing spaces••••
+				\`
+			`),
+		},
+		{
+			name: 'Trailing spaces in non-last line are preserved',
+			code: fixInput(`
+				outdent\`
+				••Line with trailing spaces••••
+				••Line without trailing spaces
+				\`
+			`),
+		},
+		{
+			name: 'Empty lines are preserved',
+			code: fixInput(`
+				outdent\`
+				••Line1
+
+				••Line2
+				\`
+			`),
+		},
 	],
 });
 
