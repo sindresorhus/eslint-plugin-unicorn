@@ -503,7 +503,7 @@ test({
 				••Line2
 				\`
 			`),
-		}
+		},
 	],
 	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
 	valid: [
