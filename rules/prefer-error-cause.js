@@ -1,9 +1,7 @@
 'use strict';
-const {isCommaToken} = require('eslint-utils');
 const _ = require('lodash');
 const {appendArgument} = require('./fix/index.js');
 const getReferences = require('./utils/get-references.js');
-const getMatchingAncestorOfType = require('./utils/get-matching-ancestor-of-type.js');
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -13,9 +11,16 @@ const messages = {
 	[SUGGESTION]: 'Specify the `cause` option in the Error\'s constructor.',
 };
 
-const throwStatementSelector = 'ThrowStatement';
+const getCatchBlockAncestor = node => {
+	let current = node;
+	while (current) {
+		if (current.type === 'CatchClause' || (current.type === 'CallExpression' && (isThenMethod(current) || isCatchMethod(current)))) {
+			return current;
+		}
 
-const peekTop = array => array[array.length - 1];
+		current = current.parent;
+	}
+};
 
 const hasCauseProperty = objectExpression => {
 	if (!objectExpression || objectExpression.type !== 'ObjectExpression') {
@@ -32,34 +37,6 @@ const reportCannotBeFixed = (node, context) => {
 		node,
 		messageId: ERROR,
 	});
-};
-
-const fixerUtils = {
-	insertProperty(fixer, node, text, sourceCode) {
-		const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
-		if (node.properties.length > 0) {
-			text = isCommaToken(penultimateToken) ? `${text}` : `, ${text}`;
-		}
-
-		return fixer.insertTextBefore(lastToken, text);
-	},
-
-	insertErrorCatchClauseParameter({fixer, catchBlock, errorArgumentIdentifier}) {
-		return fixer.insertTextBefore(catchBlock.body, `(${errorArgumentIdentifier}) `);
-	},
-
-	insertFunctionParameter({fixer, catchBlock, sourceCode, errorArgumentIdentifier}) {
-		const functionExpression = catchBlock.arguments[0];
-
-		let target;
-		if (functionExpression.type === 'FunctionExpression') {
-			target = sourceCode.getTokenBefore(functionExpression.body);
-		} else if (functionExpression.type === 'ArrowFunctionExpression') {
-			target = sourceCode.getTokenBefore(sourceCode.getTokenBefore(functionExpression.body));
-		}
-
-		return fixer.insertTextBefore(target, errorArgumentIdentifier);
-	},
 };
 
 const fix = ({
@@ -84,18 +61,26 @@ const fix = ({
 
 		// In case of Promise#catch
 		if (catchBlock.type === 'CallExpression') {
-			return fixerUtils.insertFunctionParameter({fixer, catchBlock, sourceCode, errorArgumentIdentifier});
+			const functionExpression = catchBlock.arguments[0];
+
+			let target;
+			if (functionExpression.type === 'FunctionExpression') {
+				target = sourceCode.getTokenBefore(functionExpression.body);
+			} else if (functionExpression.type === 'ArrowFunctionExpression') {
+				target = sourceCode.getTokenBefore(sourceCode.getTokenBefore(functionExpression.body));
+			}
+
+			return fixer.insertTextBefore(target, errorArgumentIdentifier);
 		}
 
-		return fixerUtils.insertErrorCatchClauseParameter({fixer, catchBlock, errorArgumentIdentifier});
+		return fixer.insertTextBefore(catchBlock.body, `(${errorArgumentIdentifier}) `);
 	}
 
 	if (errorConstructorLastArgument.type === 'ObjectExpression') {
-		return fixerUtils.insertProperty(
-			fixer,
-			errorConstructorLastArgument,
-			`cause: ${errorArgumentIdentifier}`,
-			sourceCode,
+		const lastToken = sourceCode.getLastTokens(errorConstructorLastArgument, 2).pop();
+		return fixer.insertTextBefore(lastToken, errorConstructorLastArgument.properties.length > 0
+			? `, cause: ${errorArgumentIdentifier}`
+			: `cause: ${errorArgumentIdentifier}`,
 		);
 	}
 
@@ -119,7 +104,7 @@ const fix = ({
 
 		/* c8 ignore next */
 		default: {
-			throw new Error('statementToFix is not invalid type');
+			throw new Error('statementToFix is not valid type');
 		}
 	}
 
@@ -141,7 +126,7 @@ const getAllNodesToFix = ({catchBlock, context, throwStatement}) => {
 	// `promise.then(undefined, err => { throw new Error('oops', {cause: err})`
 	// `promise.catch(err => { throw new Error('oops', {cause: err})`
 	if (throwStatement.argument.type === 'NewExpression') {
-		errorConstructorLastArgument = peekTop(throwStatement.argument.arguments);
+		errorConstructorLastArgument = throwStatement.argument.arguments[throwStatement.argument.arguments.length - 1];
 
 		if (!errorConstructorLastArgument) {
 			reportCannotBeFixed(catchBlock, context);
@@ -183,7 +168,7 @@ const getAllNodesToFix = ({catchBlock, context, throwStatement}) => {
 				targetArguments = thrownErrorDeclarator.right.arguments;
 			}
 
-			errorConstructorLastArgument = peekTop(targetArguments);
+			errorConstructorLastArgument = targetArguments[targetArguments.length - 1];
 
 			if (!errorConstructorLastArgument) {
 				reportCannotBeFixed(catchBlock, context);
@@ -271,10 +256,8 @@ const isCatchMethod = callExpression =>
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[throwStatementSelector](node) {
-		const catchBlock
-			= getMatchingAncestorOfType(node, 'CatchClause')
-			|| getMatchingAncestorOfType(node, 'CallExpression', parent => isThenMethod(parent) || isCatchMethod(parent));
+	'ThrowStatement'(node) {
+		const catchBlock = getCatchBlockAncestor(node);
 
 		if (!catchBlock) {
 			return;

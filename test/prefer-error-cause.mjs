@@ -229,9 +229,6 @@ test.snapshot({
 
 test.snapshot({
 	valid: [
-		// ** Not sure need to check inner blocks of the variable
-		// outdent`promise.catch(someCallback);`,
-
 		'promise.catch',
 		'promise.catch();',
 		'promise.catch(() => {});',
@@ -440,5 +437,36 @@ test.snapshot({
 				}
 			});
 		`,
+		outdent`
+			try {} catch (error1) {
+				foo(bar).catch(error2 => {
+					throw new Error('oops 2');
+				})
+
+				function foo(bar) {
+					if (bar < 0) throw new Error('oops 1');
+				}
+			}
+		`,
+		// Below test needs to be resolved
+		// outdent`
+		// let someCallback = (error1) => {
+		// 	// throw new Error('foo', {cause: error1});
+		// 	throw new Error('foo');
+		// };
+
+		// try {
+
+		// } catch (error1) {
+		// 	someCallback = (error2) => {
+		// 		// throw new Error('bar', {cause: error2});
+		// 		throw new Error('bar');
+		// 	}
+		// }
+
+		// {
+		// 	promise.catch(someCallback);
+		// }
+		// `,
 	],
 });
