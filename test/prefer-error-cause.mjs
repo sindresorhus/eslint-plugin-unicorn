@@ -324,6 +324,22 @@ test.snapshot({
 					throw new Error('oops', {cause: oldError});
 				});
 		`,
+
+		outdent`
+			try {} catch (error1) {
+				let foo = (bar) => {
+					throw new Error('oops 1');
+				}
+			}
+		`,
+
+		outdent`
+			try {} catch (error1) {
+				let foo = function (bar) {
+					throw new Error('oops 1');
+				}
+			}
+		`,
 	],
 	invalid: [
 		'promise.catch(oldError => { throw new Error(); });',
@@ -444,29 +460,67 @@ test.snapshot({
 				})
 
 				function foo(bar) {
-					if (bar < 0) throw new Error('oops 1');
+					throw new Error('oops 1');
 				}
 			}
 		`,
-		// Below test needs to be resolved
-		// outdent`
-		// let someCallback = (error1) => {
-		// 	// throw new Error('foo', {cause: error1});
-		// 	throw new Error('foo');
-		// };
 
-		// try {
+		outdent`
+			const someCallback = oldError => {
+				throw new Error('foo');
+			};
 
-		// } catch (error1) {
-		// 	someCallback = (error2) => {
-		// 		// throw new Error('bar', {cause: error2});
-		// 		throw new Error('bar');
-		// 	}
-		// }
+			promise.catch(someCallback);
+		`,
 
-		// {
-		// 	promise.catch(someCallback);
-		// }
-		// `,
+		outdent`
+			const someCallback = function (oldError) {
+				throw new Error('foo');
+			};
+
+			promise.catch(someCallback);
+		`,
+
+		outdent`
+			const someCallback = oldError => {
+				throw new Error('foo');
+			};
+
+			promise.then(undefined, someCallback);
+		`,
+
+		outdent`
+			const someCallback = function (oldError) {
+				throw new Error('foo');
+			};
+
+			promise.then(undefined, someCallback);
+		`,
+
+		outdent`
+			const someCallback = function (oldError) {
+				throw new Error('foo');
+			};
+
+			promise.then(undefined, err => someCallback(err));
+		`,
+
+		outdent`
+			let someCallback = (error1) => {
+				throw new Error('foo');
+			};
+
+			try {
+
+			} catch (error1) {
+				someCallback = (error2) => {
+					throw new Error('bar');
+				}
+			}
+
+			{
+				promise.catch(someCallback);
+			}
+		`,
 	],
 });

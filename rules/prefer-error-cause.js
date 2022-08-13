@@ -1,7 +1,10 @@
 'use strict';
 const _ = require('lodash');
+const esquery = require('esquery');
 const {appendArgument} = require('./fix/index.js');
+const {methodCallSelector} = require('./selectors/index.js');
 const getReferences = require('./utils/get-references.js');
+const getMatchingAncestorOfType = require('./utils/get-matching-ancestor-of-type.js');
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -11,9 +14,92 @@ const messages = {
 	[SUGGESTION]: 'Specify the `cause` option in the Error\'s constructor.',
 };
 
-const getCatchBlockAncestor = node => {
+const promiseThenSelector = methodCallSelector({method: 'then', argumentsLength: 2});
+const promiseCatchSelector = methodCallSelector({method: 'catch', argumentsLength: 1});
+
+const isThenMethod = callExpression =>
+	callExpression?.optional !== true
+	&& callExpression?.arguments?.length === 2
+	&& callExpression?.arguments[0].type !== 'SpreadElement'
+	&& callExpression?.arguments[1].type !== 'SpreadElement'
+	&& callExpression?.callee.type === 'MemberExpression'
+	&& callExpression?.callee.optional !== true
+	&& callExpression?.callee.computed !== true
+	&& callExpression?.callee.property.type === 'Identifier'
+	&& callExpression?.callee.property.name === 'then';
+
+const isCatchMethod = callExpression =>
+	callExpression?.optional !== true
+	&& callExpression?.arguments?.length === 1
+	&& callExpression?.arguments[0].type !== 'SpreadElement'
+	&& callExpression?.callee.type === 'MemberExpression'
+	&& callExpression?.callee.optional !== true
+	&& callExpression?.callee.computed !== true
+	&& callExpression?.callee.property.type === 'Identifier'
+	&& callExpression?.callee.property.name === 'catch';
+
+const isFunctionType = type => type === 'FunctionExpression' || type === 'ArrowFunctionExpression' || type === 'FunctionDeclaration';
+
+const isArgumentOfFunction = (identifier, {rootNode, functionType}) => {
+	const selector = functionType === 'then' ? promiseThenSelector : promiseCatchSelector;
+	const argumentOrder = functionType === 'then' ? 1 : 0;
+	const selectedExpressions = esquery.match(rootNode, esquery.parse(selector));
+
+	for (const expression of selectedExpressions) {
+		if (
+			expression.arguments[argumentOrder].type === 'Identifier'
+			&& expression.arguments[argumentOrder].name === identifier
+		) {
+			return true;
+		}
+
+		if (
+			isFunctionType(expression.arguments[argumentOrder].type)
+			&& esquery.matches(expression.arguments[argumentOrder].body, esquery.parse(`[type="CallExpression"][callee.name="${identifier}"]`))
+		) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+const getCatchBlock = node => {
 	let current = node;
+
 	while (current) {
+		let shouldExcludeOuterScopeOldError;
+		let outerScopeCallbackIdentifier;
+
+		if (isFunctionType(current.type)) {
+			if (current.parent.type === 'VariableDeclarator') {
+				outerScopeCallbackIdentifier = current.parent.id.name;
+			} else if (current.parent.type === 'AssignmentExpression') {
+				outerScopeCallbackIdentifier = current.parent.left.name;
+			} else if (current.parent.type !== 'CallExpression') {
+				shouldExcludeOuterScopeOldError = true;
+			}
+		}
+
+		if (outerScopeCallbackIdentifier) {
+			const rootNode = getMatchingAncestorOfType(node, 'Program');
+
+			if (
+				isArgumentOfFunction(outerScopeCallbackIdentifier, {functionType: 'then', rootNode})
+				|| isArgumentOfFunction(outerScopeCallbackIdentifier, {functionType: 'catch', rootNode})
+			) {
+				return current.parent;
+			}
+
+			// If while parent scope is function, the function is not argument of Promise#{then,catch},
+			// This function is not the expression to fix.
+			return undefined;
+		}
+
+		if (shouldExcludeOuterScopeOldError) {
+			return undefined;
+		}
+
 		if (current.type === 'CatchClause' || (current.type === 'CallExpression' && (isThenMethod(current) || isCatchMethod(current)))) {
 			return current;
 		}
@@ -59,7 +145,7 @@ const fix = ({
 
 		errorArgumentIdentifier = 'error';
 
-		// In case of Promise#catch
+		// In case of Promise#{then,catch}
 		if (catchBlock.type === 'CallExpression') {
 			const functionExpression = catchBlock.arguments[0];
 
@@ -233,58 +319,62 @@ const handleCatchBlock = ({context, catchBlock, parameter, throwStatement}) => {
 	}
 };
 
-const isThenMethod = callExpression =>
-	callExpression?.optional !== true
-	&& callExpression?.arguments?.length === 2
-	&& callExpression?.arguments[0].type !== 'SpreadElement'
-	&& callExpression?.arguments[1].type !== 'SpreadElement'
-	&& callExpression?.callee.type === 'MemberExpression'
-	&& callExpression?.callee.optional !== true
-	&& callExpression?.callee.computed !== true
-	&& callExpression?.callee.property.type === 'Identifier'
-	&& callExpression?.callee.property.name === 'then';
-
-const isCatchMethod = callExpression =>
-	callExpression?.optional !== true
-	&& callExpression?.arguments?.length === 1
-	&& callExpression?.arguments[0].type !== 'SpreadElement'
-	&& callExpression?.callee.type === 'MemberExpression'
-	&& callExpression?.callee.optional !== true
-	&& callExpression?.callee.computed !== true
-	&& callExpression?.callee.property.type === 'Identifier'
-	&& callExpression?.callee.property.name === 'catch';
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	'ThrowStatement'(node) {
-		const catchBlock = getCatchBlockAncestor(node);
+		const catchBlock = getCatchBlock(node);
 
 		if (!catchBlock) {
 			return;
 		}
 
-		if (catchBlock.type === 'CatchClause') {
-			handleCatchBlock({
-				catchBlock,
-				context,
-				parameter: catchBlock.param,
-				throwStatement: node,
-			});
-		} else {
-			const functionExpression = catchBlock.callee.property.name === 'then' ? catchBlock.arguments[1] : catchBlock.arguments[0];
-			const functionInnerBlockStatements = functionExpression.body?.body;
-			if (!functionInnerBlockStatements) {
-				return;
+		switch (catchBlock.type) {
+			case 'CatchClause': {
+				handleCatchBlock({
+					catchBlock,
+					context,
+					parameter: catchBlock.param,
+					throwStatement: node,
+				});
+				break;
 			}
 
-			const errorParameter = functionExpression.params[0];
+			case 'CallExpression': {
+				const functionExpression = catchBlock.callee.property.name === 'then' ? catchBlock.arguments[1] : catchBlock.arguments[0];
 
-			handleCatchBlock({
-				catchBlock,
-				context,
-				parameter: errorParameter,
-				throwStatement: node,
-			});
+				handleCatchBlock({
+					catchBlock,
+					context,
+					parameter: functionExpression.params[0],
+					throwStatement: node,
+				});
+				break;
+			}
+
+			case 'VariableDeclarator': {
+				handleCatchBlock({
+					catchBlock,
+					context,
+					parameter: catchBlock.init.params[0],
+					throwStatement: node,
+				});
+				break;
+			}
+
+			case 'AssignmentExpression': {
+				handleCatchBlock({
+					catchBlock,
+					context,
+					parameter: catchBlock.right.params[0],
+					throwStatement: node,
+				});
+				break;
+			}
+
+			/* c8 ignore next */
+			default: {
+				throw new Error('catchBlock is not valid type');
+			}
 		}
 	},
 });
