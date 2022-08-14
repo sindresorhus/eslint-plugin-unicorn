@@ -349,7 +349,7 @@ test.snapshot({
 
 		outdent`
 			promise.then(function () {
-				throw new Error("oops");
+				throw new Error('oops');
 			}).catch(foo.bar);
 		`,
 
@@ -358,7 +358,7 @@ test.snapshot({
 
 			} catch (error) {
 				promise.then(function () {
-					throw new Error("oops");
+					throw new Error('oops');
 				})
 				.then(onSuccess, onFailure);
 			}
