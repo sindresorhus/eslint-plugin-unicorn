@@ -61,9 +61,7 @@ const makeEslintTask = (project, destination) => {
 		let files;
 		try {
 			files = JSON.parse(stdout);
-		}
-		// eslint-disable-next-line unicorn/prefer-error-cause
-		catch (error) {
+		} catch (error) {
 			console.error('Error while parsing eslint output:', error);
 
 			if (processError) {

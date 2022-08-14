@@ -7,11 +7,9 @@ const getReferences = require('./utils/get-references.js');
 const getMatchingAncestorOfType = require('./utils/get-matching-ancestor-of-type.js');
 
 const ERROR = 'error';
-const SUGGESTION = 'suggestion';
 
 const messages = {
 	[ERROR]: 'Prefer specifying an old error as `cause` option where rethrowing the error.',
-	[SUGGESTION]: 'Specify the `cause` option in the Error\'s constructor.',
 };
 
 const promiseThenSelector = methodCallSelector({method: 'then', argumentsLength: 2});
@@ -93,11 +91,11 @@ const getCatchBlock = node => {
 
 			// If while parent scope is function, the function is not argument of Promise#{then,catch},
 			// This function is not the expression to fix.
-			return undefined;
+			return;
 		}
 
 		if (shouldExcludeOuterScopeOldError) {
-			return undefined;
+			return;
 		}
 
 		if (current.type === 'CatchClause' || (current.type === 'CallExpression' && (isThenMethod(current) || isCatchMethod(current)))) {
