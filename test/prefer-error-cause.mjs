@@ -76,6 +76,28 @@ test.snapshot({
 				throw new CustomError('oops', {}, {cause: oldError});
 			}
 		`,
+
+		outdent`
+			try {} catch (error1) {
+				function foo () {
+					throw new Error('oops 1');
+				}
+			}
+		`,
+		outdent`
+			try {} catch (error1) {
+				let foo = (bar) => {
+					throw new Error('oops 1');
+				}
+			}
+		`,
+		outdent`
+			try {} catch (error1) {
+				let foo = function (bar) {
+					throw new Error('oops 1');
+				}
+			}
+		`,
 	],
 	invalid: [
 		// ** Not sure #1342
@@ -320,24 +342,25 @@ test.snapshot({
 				.catch(oldError => {
 					throw new Error('oops', {cause: oldError});
 				})
-				.catch(oldError => {
-					throw new Error('oops', {cause: oldError});
+				.catch(oldError2 => {
+					throw new Error('oops', {cause: oldError2});
 				});
 		`,
 
 		outdent`
-			try {} catch (error1) {
-				let foo = (bar) => {
-					throw new Error('oops 1');
-				}
-			}
+			promise.then(function () {
+				throw new Error("oops");
+			}).catch(foo.bar);
 		`,
 
 		outdent`
-			try {} catch (error1) {
-				let foo = function (bar) {
-					throw new Error('oops 1');
-				}
+			try {
+
+			} catch (error) {
+				promise.then(function () {
+					throw new Error("oops");
+				})
+				.then(onSuccess, onFailure);
 			}
 		`,
 	],

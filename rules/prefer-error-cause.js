@@ -1,6 +1,7 @@
 'use strict';
 const _ = require('lodash');
 const esquery = require('esquery');
+const {isCommaToken} = require('eslint-utils');
 const {appendArgument} = require('./fix/index.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const getReferences = require('./utils/get-references.js');
@@ -66,15 +67,15 @@ const getCatchBlock = node => {
 	let current = node;
 
 	while (current) {
-		let shouldExcludeOuterScopeOldError;
 		let outerScopeCallbackIdentifier;
+		let shouldExcludeOuterScopeOldError = false;
 
 		if (isFunctionType(current.type)) {
 			if (current.parent.type === 'VariableDeclarator') {
 				outerScopeCallbackIdentifier = current.parent.id.name;
 			} else if (current.parent.type === 'AssignmentExpression') {
 				outerScopeCallbackIdentifier = current.parent.left.name;
-			} else if (current.parent.type !== 'CallExpression') {
+			} else if (!isThenMethod(current.parent) && !isCatchMethod(current.parent)) {
 				shouldExcludeOuterScopeOldError = true;
 			}
 		}
@@ -161,11 +162,14 @@ const fix = ({
 	}
 
 	if (errorConstructorLastArgument.type === 'ObjectExpression') {
-		const lastToken = sourceCode.getLastTokens(errorConstructorLastArgument, 2).pop();
-		return fixer.insertTextBefore(lastToken, errorConstructorLastArgument.properties.length > 0
-			? `, cause: ${errorArgumentIdentifier}`
-			: `cause: ${errorArgumentIdentifier}`,
-		);
+		const [penultimateToken, lastToken] = sourceCode.getLastTokens(errorConstructorLastArgument, 2);
+
+		let text = `cause: ${errorArgumentIdentifier}`;
+		if (errorConstructorLastArgument.properties.length > 0 && !isCommaToken(penultimateToken)) {
+			text = ', ' + text;
+		}
+
+		return fixer.insertTextBefore(lastToken, text);
 	}
 
 	let nodeToInsertArgument;
@@ -186,8 +190,8 @@ const fix = ({
 			break;
 		}
 
-		/* c8 ignore next */
 		default: {
+			/* c8 ignore next */
 			throw new Error('statementToFix is not valid type');
 		}
 	}
@@ -369,8 +373,8 @@ const create = context => ({
 				break;
 			}
 
-			/* c8 ignore next */
 			default: {
+				/* c8 ignore next */
 				throw new Error('catchBlock is not valid type');
 			}
 		}
