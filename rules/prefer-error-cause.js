@@ -10,7 +10,7 @@ const getMatchingAncestorOfType = require('./utils/get-matching-ancestor-of-type
 const ERROR = 'error';
 
 const messages = {
-	[ERROR]: 'Prefer specifying an old error as `cause` option where rethrowing the error.',
+	[ERROR]: 'Prefer specifying an old error as `cause` option when rethrowing the error.',
 };
 
 const promiseThenSelector = methodCallSelector({method: 'then', argumentsLength: 2});
@@ -387,7 +387,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer specifying an old error as `cause` option where rethrowing the error.',
+			description: 'Prefer specifying an old error as `cause` option when rethrowing the error.',
 		},
 		fixable: 'code',
 		messages,

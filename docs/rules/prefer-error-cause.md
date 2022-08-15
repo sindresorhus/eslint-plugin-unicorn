@@ -1,4 +1,4 @@
-# Prefer specifying an old error as `cause` option where rethrowing the error
+# Prefer specifying an old error as `cause` option when rethrowing the error
 
 <!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->
@@ -7,7 +7,7 @@
 🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
 <!-- /RULE_NOTICE -->
 
-Prefer specifying old error as `cause` option where rethrowing the error.
+Prefer specifying old error as `cause` option when rethrowing the error.
 
 This rule also supports custom error classes in addition to built-in ones. In this case, this rule assumes the last argument of the constructor is object able to receive `cause` property.
 
