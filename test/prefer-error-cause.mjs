@@ -8,21 +8,15 @@ test.snapshot({
 		// Throw statement not exists
 		'try {} finally {}',
 		'try {} catch {}',
-		'try {} catch (oldError) {}',
+		'try {} catch (error) {}',
 
-		// Rethrow old error itself
-		'try {} catch (oldError) { throw oldError; }',
+		// Rethrow caught error itself
+		'try {} catch (error) { throw error; }',
 
-		// Specify old error as cause
+		// Specify caught error as cause
 		outdent`
-			try {} catch (oldError) {
-				throw new Error('oops', {cause: oldError});
-			}
-		`,
-		outdent`
-			try {} catch (oldError) {
-				const error = new Error('oops', {cause: oldError});
-				throw oldError;
+			try {} catch (error) {
+				throw new Error('oops', {cause: error});
 			}
 		`,
 		outdent`
@@ -32,25 +26,31 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			try {} catch (oldError) {
+				const error = new Error('oops', {cause: oldError});
+				throw oldError;
+			}
+		`,
+		outdent`
 			try {
 
 			} catch {
 				try {
 
-				} catch (oldError) {
-					throw new Error('oops', {cause:oldError});
+				} catch (error) {
+					throw new Error('oops', {cause: error});
 				}
 			}
 		`,
 		outdent`
 			try {
 
-			} catch (oldError1) {
-				throw new Error(oldError1, {cause:oldError1});
+			} catch (error1) {
+				throw new Error(error1, {cause: error1});
 				try {
 
-				} catch (oldError2) {
-					throw new Error(oldError2, {cause:oldError2});
+				} catch (error2) {
+					throw new Error(error2, {cause: error2});
 				}
 			}
 		`,
@@ -75,8 +75,13 @@ test.snapshot({
 
 		// Specify old error as CustomError's cause
 		outdent`
-			try {} catch (oldError) {
-				throw new CustomError('oops', {}, {cause: oldError});
+			try {} catch (error) {
+				throw new CustomError('oops', {cause: error});
+			}
+		`,
+		outdent`
+			try {} catch (error) {
+				throw new CustomError('oops', {}, {cause: error});
 			}
 		`,
 
@@ -113,15 +118,15 @@ test.snapshot({
 		// `,
 
 		// Cannot be fixed when Error constructor's argument length is 0
-		'try {} catch (oldError) { throw new Error(); }',
-		'try {} catch (oldError) { throw new Error; }',
+		'try {} catch (error) { throw new Error(); }',
+		'try {} catch (error) { throw new Error; }',
 		'try {} catch { throw new Error(); }',
 		'try {} catch { throw new Error; }',
 		outdent`
 			try {} catch (oldError) {
-				let err;
-				err = new Error;
-				throw err;
+				let error;
+				error = new Error;
+				throw error;
 			}
 		`,
 
@@ -147,7 +152,7 @@ test.snapshot({
 
 		// Could be fixed by specifying given error argument
 		'try {} catch { throw new Error(\'oops\'); }',
-		'try {} catch (oldError) { throw new Error(\'oops\'); }',
+		'try {} catch (error) { throw new Error(\'oops\'); }',
 		outdent`
 			try {} catch (oldError) {
 				const error = new Error('oops');
@@ -156,30 +161,30 @@ test.snapshot({
 		`,
 		outdent`
 			try {} catch {
-				try {} catch (oldError) {
-					throw new Error(oldError);
+				try {} catch (error) {
+					throw new Error(error);
 				}
 			}
 		`,
 		outdent`
-			try {} catch (oldError1) {
-				throw new Error(oldError1);
-				try {} catch (oldError2) {
-					throw new Error(oldError2);
+			try {} catch (error1) {
+				throw new Error(error1);
+				try {} catch (error2) {
+					throw new Error(error2);
 				}
 			}
 		`,
 		outdent`
 			try {} catch {
-				try {} catch (oldError2) {
-					throw new Error(oldError1);
+				try {} catch (error2) {
+					throw new Error(error1);
 				}
 			}
 		`,
 		outdent`
-			try {} catch (oldError) {
+			try {} catch (error) {
 				if (true) {
-					throw new Error('oops', {cause: oldError});
+					throw new Error('oops', {cause: error});
 				} else if (true) {
 					throw new Error('oops');
 				} else {
@@ -188,10 +193,10 @@ test.snapshot({
 			}
 		`,
 		outdent`
-			try {} catch (oldError) {
+			try {} catch (error) {
 				if (true) {
 					if (true) {
-						throw new Error('oops', {cause: oldError});
+						throw new Error('oops', {cause: error});
 					} else {
 						throw new Error('oops');
 					}
@@ -199,14 +204,14 @@ test.snapshot({
 			}
 		`,
 		outdent`
-			try {} catch (oldError) {
+			try {} catch (error) {
 				let err;
 				err = new Error('oops');
 				throw err;
 			}
 		`,
 		outdent`
-			try {} catch (oldError) {
+			try {} catch (error) {
 				let err;
 				if (1 + 1 >= 2) {
 					err = new Error('oops');
@@ -220,39 +225,39 @@ test.snapshot({
 		// Could be fixed by inserting error argument
 		outdent`
 			try {} catch {
-				throw new Error('oops', {other: 'abc'});
+				throw new Error('oops', {foo: 'bar'});
 			}
 		`,
 
 		// Could be fixed by inserting error argument into the last argument of custom error constructor.
 		outdent`
-			try {} catch (oldError) {
-				throw new CustomError('oops', {url});
+			try {} catch (error) {
+				throw new CustomError('oops', {});
 			}
 		`,
 		outdent`
-			try {} catch (oldError) {
-				throw new CustomError('oops', {}, {url});
+			try {} catch (error) {
+				throw new CustomError('oops', {foo});
 			}
 		`,
 		outdent`
-			try {} catch (oldError) {
-				throw new CustomError('oops', {}, {url: 'abc'});
-			}
-		`,
-		outdent`
-			try {} catch (oldError) {
-				throw new CustomError('oops', {}, {url});
-			}
-		`,
-		outdent`
-			try {} catch (oldError) {
-				throw new CustomError('oops', {}, {url: foo.bar});
-			}
-		`,
-		outdent`
-			try {} catch (oldError) {
+			try {} catch (error) {
 				throw new CustomError('oops', {}, {});
+			}
+		`,
+		outdent`
+			try {} catch (error) {
+				throw new CustomError('oops', {}, {foo});
+			}
+		`,
+		outdent`
+			try {} catch (error) {
+				throw new CustomError('oops', {}, {foo: 'bar'});
+			}
+		`,
+		outdent`
+			try {} catch (error) {
+				throw new CustomError('oops', {}, {foo: foo.bar});
 			}
 		`,
 	],
@@ -264,17 +269,19 @@ test.snapshot({
 		'promise.catch',
 		'promise.catch();',
 		'promise.catch(() => {});',
+		'promise.catch(() => {}).finally(() => {});',
 		'promise.catch(function () {});',
+		'promise.catch(function () {}).finally(() => {});',
 
-		// Specify old error as cause
-		'promise.catch(oldError => { throw new Error(\'oops\', {cause:oldError}); });',
-		'promise.catch(function (oldError) { throw new Error(\'oops\', {cause:oldError}); });',
-		'promise.then().catch(oldError => { throw new Error(\'oops\', {cause:oldError}); });',
-		'promise.then().catch(function (oldError) { throw new Error(\'oops\', {cause:oldError}); });',
-		'promise.catch(oldError => { throw new Error(\'oops\', {cause:oldError}); });',
+		// Specify caught error as cause
+		'promise.catch(error => { throw new Error(\'oops\', {cause: error}); });',
+		'promise.catch(function (error) { throw new Error(\'oops\', {cause: error}); });',
+		'promise.then().catch(error => { throw new Error(\'oops\', {cause: error}); });',
+		'promise.then().catch(function (error) { throw new Error(\'oops\', {cause: error}); });',
+		'promise.catch(error => { throw new Error(\'oops\', {cause: error}); });',
 		outdent`
 			promise.catch(oldError => {
-				const error = new Error('oops', {cause:oldError});
+				const error = new Error('oops', {cause: oldError});
 				throw error;
 			});
 		`,
@@ -299,7 +306,7 @@ test.snapshot({
 		outdent`
 			promise.catch(function (oldError) {
 				let error;
-				error = new Error('oops', {cause:oldError});
+				error = new Error('oops', {cause: oldError});
 				throw error;
 			});
 		`,
@@ -308,9 +315,9 @@ test.snapshot({
 				let error;
 
 				if (someCondition) {
-					error = new Error('oops', {cause:oldError});
+					error = new Error('oops', {cause: oldError});
 				} else {
-					error = new Error('oops', {cause:oldError});
+					error = new Error('oops', {cause: oldError});
 				}
 				throw error;
 			});
@@ -338,22 +345,22 @@ test.snapshot({
 			});
 		`,
 		outdent`
-			promise.then().catch(oldError => {
-				throw new Error('oops', {cause: oldError});
+			promise.then().catch(error => {
+				throw new Error('oops', {cause: error});
 			});
 		`,
 		outdent`
-			promise.then().then().catch(oldError => {
-				throw new Error('oops', {cause: oldError});
+			promise.then().then().catch(error => {
+				throw new Error('oops', {cause: error});
 			});
 		`,
 		outdent`
 			promise.then()
-				.catch(oldError1 => {
-					throw new Error('oops', {cause: oldError1});
+				.catch(fooError => {
+					throw new Error('foo', {cause: fooError});
 				})
-				.catch(oldError2 => {
-					throw new Error('oops', {cause: oldError2});
+				.catch(barError => {
+					throw new Error('bar', {cause: barError});
 				});
 		`,
 
@@ -370,16 +377,17 @@ test.snapshot({
 				promise.then(function () {
 					throw new Error('oops');
 				})
-				.then(onSuccess, onFailure);
+				.then(onSuccess, onFailure)
+				.finally(() => {});
 			}
 		`,
 	],
 	invalid: [
 		// Cannot be fixed when Error constructor's argument length is 0
-		'promise.catch(oldError => { throw new Error; });',
-		'promise.catch(function (oldError) { throw new Error; });',
-		'promise.catch(oldError => { throw new Error(); });',
-		'promise.catch(function (oldError) { throw new Error(); });',
+		'promise.catch(error => { throw new Error; });',
+		'promise.catch(function (error) { throw new Error; });',
+		'promise.catch(error => { throw new Error(); });',
+		'promise.catch(function (error) { throw new Error(); });',
 		outdent`
 			promise.catch(function () {
 				let error = new Error;
@@ -388,8 +396,8 @@ test.snapshot({
 		`,
 
 		// Cannot be fixed since catch's argument type is not 'Identifier'
-		'promise.catch(({oldError}) => { throw new Error(\'oops\', {cause: oldError}); });',
-		'promise.catch(function ({oldError}) { throw new Error(\'oops\', {cause: oldError}); });',
+		'promise.catch(({error}) => { throw new Error(\'oops\', {cause: error}); });',
+		'promise.catch(function ({error}) { throw new Error(\'oops\', {cause: error}); });',
 		outdent`
 			let someCallback = ({}) => { throw new Error('oops'); };
 			promise.catch(someCallback);
@@ -410,8 +418,9 @@ test.snapshot({
 		`,
 
 		// Could be fixed by specifying given error argument
-		'promise.catch(oldError => { throw new Error(\'oops\'); });',
-		'promise.catch(function (oldError) { throw new Error(\'oops\'); });',
+		'promise.catch(error => { throw new Error(\'oops\'); });',
+		'promise.catch(function (error) { throw new Error(\'oops\'); });',
+		'promise.then(undefined, (error) => { throw new Error(\'oops\'); });',
 		outdent`
 			promise.catch(oldError => {
 				const error = new Error('oops', {other: 'abc'});
@@ -424,11 +433,103 @@ test.snapshot({
 				throw error;
 			});
 		`,
+		outdent`
+			promise.then(undefined, error => {
+				if (true) {
+					throw new Error('oops', {cause: error});
+				} else if (true) {
+					throw new Error('oops');
+				} else {
+					throw new Error('oops');
+				}
+			});
+		`,
+		outdent`
+			promise.then(undefined, error => {
+				if (true) {
+					if (true) {
+						throw new Error('oops', {cause: error});
+					} else {
+						throw new Error('oops');
+					}
+				}
+			});
+		`,
+		outdent`
+			try {} catch (error1) {
+				foo(bar).catch(error2 => {
+					throw new Error('oops');
+				})
+
+				function foo(bar) {
+					throw new Error('oops');
+				}
+			}
+		`,
+		outdent`
+			const someCallback = error => {
+				throw new Error('oops');
+			};
+
+			promise.catch(someCallback);
+		`,
+		outdent`
+			const someCallback = function (error) {
+				throw new Error('oops');
+			};
+
+			promise.catch(someCallback);
+		`,
+		outdent`
+			const someCallback = function (error) {
+				throw new Error('oops');
+			};
+
+			promise.catch(err => someCallback(err));
+		`,
+		outdent`
+			const someCallback = error => {
+				throw new Error('oops');
+			};
+
+			promise.then(undefined, someCallback);
+		`,
+		outdent`
+			const someCallback = function (error) {
+				throw new Error('oops');
+			};
+
+			promise.then(undefined, someCallback);
+		`,
+		outdent`
+			const someCallback = function (error) {
+				throw new Error('oops');
+			};
+
+			promise.then(undefined, err => someCallback(err));
+		`,
+		outdent`
+			let someCallback = fooError => {
+				throw new Error('foo');
+			};
+
+			try {
+
+			} catch (barError) {
+				someCallback = barError => {
+					throw new Error('bar');
+				}
+			}
+
+			{
+				promise.catch(someCallback);
+			}
+		`,
 
 		// Could be fixed by inserting error argument
 		'promise.catch(() => { throw new Error(\'oops\'); });',
 		'promise.catch(function () { throw new Error(\'oops\'); });',
-		'promise.then(undefined, (oldError) => { throw new Error(\'oops\'); });',
+		'promise.then(undefined, function () { throw new Error(\'oops\'); });',
 		outdent`
 			promise.catch(function () {
 				let error;
@@ -449,25 +550,14 @@ test.snapshot({
 			});
 		`,
 		outdent`
-			promise.then(undefined, (oldError) => {
-				if (true) {
-					throw new Error('oops', {cause: oldError});
-				} else if (true) {
-					throw new Error('oops');
-				} else {
-					throw new Error('oops');
-				}
-			});
-		`,
-		outdent`
-			asyncFunc().catch(() => {
+			asyncFunction().catch(() => {
 				return promise.catch(() => {
 					throw new Error('oops');
 				});
 			});
 		`,
 		outdent`
-			asyncFunc().catch(function () {
+			asyncFunction().catch(function () {
 				return promise.catch(function () {
 					throw new Error('oops');
 				});
@@ -489,80 +579,6 @@ test.snapshot({
 				});
 			})
 			.catch(onError);
-		`,
-		outdent`
-			promise.then(undefined, (oldError) => {
-				if (true) {
-					if (true) {
-						throw new Error('oops', {cause: oldError});
-					} else {
-						throw new Error('oops');
-					}
-				}
-			});
-		`,
-		outdent`
-			try {} catch (error1) {
-				foo(bar).catch(error2 => {
-					throw new Error('oops');
-				})
-
-				function foo(bar) {
-					throw new Error('oops');
-				}
-			}
-		`,
-		outdent`
-			const someCallback = oldError => {
-				throw new Error('foo');
-			};
-
-			promise.catch(someCallback);
-		`,
-		outdent`
-			const someCallback = function (oldError) {
-				throw new Error('foo');
-			};
-
-			promise.catch(someCallback);
-		`,
-		outdent`
-			const someCallback = oldError => {
-				throw new Error('foo');
-			};
-
-			promise.then(undefined, someCallback);
-		`,
-		outdent`
-			const someCallback = function (oldError) {
-				throw new Error('foo');
-			};
-
-			promise.then(undefined, someCallback);
-		`,
-		outdent`
-			const someCallback = function (oldError) {
-				throw new Error('foo');
-			};
-
-			promise.then(undefined, err => someCallback(err));
-		`,
-		outdent`
-			let someCallback = error1 => {
-				throw new Error('foo');
-			};
-
-			try {
-
-			} catch (error1) {
-				someCallback = error2 => {
-					throw new Error('bar');
-				}
-			}
-
-			{
-				promise.catch(someCallback);
-			}
 		`,
 	],
 });

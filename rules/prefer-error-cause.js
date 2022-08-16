@@ -146,7 +146,7 @@ const fix = ({
 
 		// In case of Promise#{then,catch}
 		if (catchBlock.type === 'CallExpression') {
-			const functionExpression = catchBlock.arguments[0];
+			const functionExpression = catchBlock.callee.property.name === 'then' ? catchBlock.arguments[1] : catchBlock.arguments[0];
 
 			let target;
 			if (functionExpression.type === 'FunctionExpression') {
