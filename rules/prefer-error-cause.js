@@ -90,8 +90,8 @@ const getCatchBlock = node => {
 				return current.parent;
 			}
 
-			// If while parent scope is function, the function is not argument of Promise#{then,catch},
-			// This function is not the expression to fix.
+			// If the parent scope is function type and the function is not argument of Promise#{then,catch},
+			// The function is not the expression to fix.
 			return;
 		}
 
@@ -211,7 +211,6 @@ const getAllNodesToFix = ({catchBlock, context, throwStatement}) => {
 	let errorConstructorLastArgument;
 
 	// `try {} catch (err) { throw new Error('oops', {cause: err})}`
-	// `promise.then(undefined, err => { throw new Error('oops', {cause: err})`
 	// `promise.catch(err => { throw new Error('oops', {cause: err})`
 	if (throwStatement.argument.type === 'NewExpression') {
 		errorConstructorLastArgument = throwStatement.argument.arguments[throwStatement.argument.arguments.length - 1];
@@ -279,7 +278,6 @@ const handleCatchBlock = ({context, catchBlock, parameter, throwStatement}) => {
 
 	// Filter rethrowing the error itself.
 	// `try {} catch (err) { throw err; }`
-	// `promise.then(undefined, (err) => { throw err; })`
 	// `promise.catch(err => { throw err; })`
 	if (errorArgumentIdentifier && errorArgumentIdentifier === throwStatementArgument.name) {
 		return;
@@ -287,7 +285,6 @@ const handleCatchBlock = ({context, catchBlock, parameter, throwStatement}) => {
 
 	// Report none identifier parameter
 	// `try {} catch ({error}) {}`
-	// `promise.then(undefined, ({error}) => {})`
 	// `promise.catch({error} => {})`
 	if (parameter && parameter.type !== 'Identifier') {
 		context.report({

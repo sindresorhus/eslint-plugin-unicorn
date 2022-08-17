@@ -76,6 +76,11 @@ test.snapshot({
 		// Specify old error as CustomError's cause
 		outdent`
 			try {} catch (error) {
+				throw new CustomError({cause: error});
+			}
+		`,
+		outdent`
+			try {} catch (error) {
 				throw new CustomError('oops', {cause: error});
 			}
 		`,
@@ -89,22 +94,29 @@ test.snapshot({
 		outdent`
 			try {} catch (error) {
 				function foo () {
-					throw new Error('oops 1');
+					throw new Error('oops');
 				}
 			}
 		`,
 		outdent`
 			try {} catch (error) {
-				let foo = (bar) => {
-					throw new Error('oops 1');
+				let foo = bar => {
+					throw new Error('oops');
 				}
 			}
 		`,
 		outdent`
 			try {} catch (error) {
 				let foo = function (bar) {
-					throw new Error('oops 1');
+					throw new Error('oops');
 				}
+			}
+		`,
+		outdent`
+			try {} catch (error) {
+				(() => {
+					throw new Error('oops');
+				}) ();
 			}
 		`,
 	],
@@ -293,13 +305,13 @@ test.snapshot({
 		`,
 		outdent`
 			promise.catch(oldError => {
-				const error = new Error('oops', {cause: oldError, other: 'abc'});
+				const error = new Error('oops', {cause: oldError, foo: bar});
 				throw error;
 			});
 		`,
 		outdent`
 			promise.catch(function (oldError) {
-				const error = new Error('oops', {cause: oldError, other: 'abc'});
+				const error = new Error('oops', {cause: oldError, foo: bar});
 				throw error;
 			});
 		`,
@@ -334,12 +346,12 @@ test.snapshot({
 			});
 		`,
 		outdent`
-			promise.catch(function (oldError1) {
-				const error1 = new Error('oops', {cause: oldError1});
+			promise.catch(function (fooError) {
+				const error1 = new Error('oops', {cause: fooError});
 				throw error1;
 
-				promise2.catch(function (oldError2) {
-					const error2 = new Error('oops', {cause: oldError2});
+				promise2.catch(function (barError) {
+					const error2 = new Error('oops', {cause: barError});
 					throw error2;
 				});
 			});
@@ -357,10 +369,10 @@ test.snapshot({
 		outdent`
 			promise.then()
 				.catch(fooError => {
-					throw new Error('foo', {cause: fooError});
+					throw new Error('oops', {cause: fooError});
 				})
 				.catch(barError => {
-					throw new Error('bar', {cause: barError});
+					throw new Error('oops', {cause: barError});
 				});
 		`,
 
@@ -388,8 +400,18 @@ test.snapshot({
 		'promise.catch(function (error) { throw new Error; });',
 		'promise.catch(error => { throw new Error(); });',
 		'promise.catch(function (error) { throw new Error(); });',
+		'promise.then(undefined, error => { throw new Error; });',
+		'promise.then(undefined, function (error) { throw new Error; });',
+		'promise.then(undefined, error => { throw new Error(); });',
+		'promise.then(undefined, function (error) { throw new Error(); });',
 		outdent`
 			promise.catch(function () {
+				let error = new Error;
+				throw error;
+			});
+		`,
+		outdent`
+			promise.then(undefined, function () {
 				let error = new Error;
 				throw error;
 			});
@@ -403,8 +425,14 @@ test.snapshot({
 			promise.catch(someCallback);
 		`,
 		outdent`
+			promise.catch(({}) => { throw new Error('oops'); });
+		`,
+		outdent`
 			let someCallback = ({}) => { throw new Error('oops'); };
 			promise.then(undefined, someCallback);
+		`,
+		outdent`
+			promise.then(undefined, ({}) => { throw new Error('oops'); });;
 		`,
 
 		outdent`
@@ -417,20 +445,55 @@ test.snapshot({
 			}
 		`,
 
-		// Could be fixed by specifying given error argument
+		// Could be fixed by specifying the given error argument
 		'promise.catch(error => { throw new Error(\'oops\'); });',
 		'promise.catch(function (error) { throw new Error(\'oops\'); });',
-		'promise.then(undefined, (error) => { throw new Error(\'oops\'); });',
+		'promise.then(undefined, error => { throw new Error(\'oops\'); });',
+		'promise.then(undefined, function (error) { throw new Error(\'oops\'); });',
 		outdent`
 			promise.catch(oldError => {
-				const error = new Error('oops', {other: 'abc'});
+				const error = new Error('oops', {foo: 'bar'});
 				throw error;
 			});
 		`,
 		outdent`
 			promise.catch(function (oldError) {
-				const error = new Error('oops', {other: 'abc'});
+				const error = new Error('oops', {foo: 'bar'});
 				throw error;
+			});
+		`,
+		outdent`
+			promise.then(undefined, oldError => {
+				const error = new Error('oops', {foo: 'bar'});
+				throw error;
+			});
+		`,
+		outdent`
+			promise.then(undefined, function (oldError) {
+				const error = new Error('oops', {foo: 'bar'});
+				throw error;
+			});
+		`,
+		outdent`
+			promise.catch(error => {
+				if (true) {
+					throw new Error('oops', {cause: error});
+				} else if (true) {
+					throw new Error('oops');
+				} else {
+					throw new Error('oops');
+				}
+			});
+		`,
+		outdent`
+			promise.catch(error => {
+				if (true) {
+					if (true) {
+						throw new Error('oops', {cause: error});
+					} else {
+						throw new Error('oops');
+					}
+				}
 			});
 		`,
 		outdent`
@@ -530,6 +593,7 @@ test.snapshot({
 		'promise.catch(() => { throw new Error(\'oops\'); });',
 		'promise.catch(function () { throw new Error(\'oops\'); });',
 		'promise.then(undefined, function () { throw new Error(\'oops\'); });',
+		'promise.then(undefined, () => { throw new Error(\'oops\'); });',
 		outdent`
 			promise.catch(function () {
 				let error;
