@@ -1,5 +1,5 @@
 import createDeprecatedRules from './rules/utils/create-deprecated-rules.js';
-import { loadRules } from './rules/utils/rule.js';
+import {loadRules} from './rules/utils/rule.js';
 
 const deprecatedRules = createDeprecatedRules({
 	// {ruleId: ReplacementRuleId | ReplacementRuleId[]}, if no replacement, use `{ruleId: []}`
