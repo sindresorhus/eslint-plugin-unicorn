@@ -1,4 +1,4 @@
-import unicorn from '../index.mjs'
+import unicorn from '../index.mjs';
 
 export default {
 	plugins: {
