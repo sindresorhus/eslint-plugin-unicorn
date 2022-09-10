@@ -13,6 +13,16 @@
 	"engines": {
 		"node": ">=14.18"
 	},
+	"main": "index.js",
+	"exports": {
+		".": {
+			"import": "./index.mjs",
+			"require": "./index.js"
+		},
+		"./all": "./configs/all.mjs",
+		"./recommended": "./configs/recommended.mjs",
+		"./package.json": "./package.json"
+	},
 	"scripts": {
 		"create-rule": "node ./scripts/create-rule.mjs && npm run generate-rule-notices && npm run generate-rules-table",
 		"fix": "run-p --continue-on-error fix:*",
@@ -32,8 +42,10 @@
 	},
 	"files": [
 		"index.js",
+		"experimental.mjs",
 		"rules",
-		"configs"
+		"configs",
+		"configs-legacy"
 	],
 	"keywords": [
 		"eslint",
