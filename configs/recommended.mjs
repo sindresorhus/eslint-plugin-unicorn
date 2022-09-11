@@ -1,9 +1,11 @@
 import unicorn from '../index.mjs';
 import {rules} from '../configs-legacy/recommended.js';
 
-export default {
+const recommended = {
 	plugins: {
 		unicorn,
 	},
 	rules,
 };
+
+export default recommended;

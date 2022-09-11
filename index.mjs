@@ -21,9 +21,11 @@ const deprecatedRules = createDeprecatedRules({
 	'regex-shorthand': 'unicorn/better-regex',
 });
 
-export default {
+const plugin = {
 	rules: {
 		...loadRules(),
 		...deprecatedRules,
 	},
-}
+};
+
+export default plugin;
