@@ -1,10 +1,9 @@
 import recommended from './recommended.mjs';
+import {rules} from '../configs-legacy/all.js';
 
 const all = {
 	...recommended,
-	rules: Object.fromEntries(Object.entries(recommended.rules).map(
-		([ruleId, severity]) => [ruleId, ruleId.startsWith('unicorn/') ? 'error' : severity],
-	)),
+	rules,
 };
 
 export default all;
