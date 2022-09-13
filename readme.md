@@ -284,7 +284,7 @@ export default [
     files: ['**/*.{js,jsx}'],
     globals: {
       ...globals.browser,
-	  // and so on
+      // and so on
     },
   },
   // --- snip ---
