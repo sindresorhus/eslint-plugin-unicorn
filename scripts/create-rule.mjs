@@ -42,14 +42,14 @@ function updateRecommended(id) {
 	const RULE_INDENT = '\t'.repeat(2);
 	let ruleContent = `${RULE_INDENT}'unicorn/${id}': 'error',`;
 
-	const file = path.join(ROOT, 'configs/recommended.js');
+	const file = path.join(ROOT, 'configs-legacy/recommended.js');
 	const content = fs.readFileSync(file, 'utf8');
 	const [before, rest] = content.split(RULE_START);
 	const [rules, after] = rest.split(RULE_END);
 
 	const lines = rules.split('\n');
 	if (!lines.every(line => line.startsWith(RULE_INDENT))) {
-		throw new Error('Unexpected content in “configs/recommended.js”.');
+		throw new Error('Unexpected content in “configs-legacy/recommended.js”.');
 	}
 
 	const unicornRuleLines = lines.filter(line => line.startsWith(`${RULE_INDENT}'unicorn/`));

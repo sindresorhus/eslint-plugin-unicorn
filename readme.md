@@ -15,9 +15,9 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 npm install --save-dev eslint eslint-plugin-unicorn
 ```
 
-## Usage (legacy)
+## Usage (legacy: `eslintrc*`)
 
-Use a [preset config](#preset-configs) or configure each rules in `package.json`.
+Use a preset config or configure each rules in `package.json`.
 
 ```json
 {
@@ -41,7 +41,7 @@ Use a [preset config](#preset-configs) or configure each rules in `package.json`
 }
 ```
 
-## Usage (new)
+## Usage (new: `eslint.config.js`)
 
 From [`v8.21.0`](https://github.com/eslint/eslint/releases/tag/v8.21.0), eslint announced a new config system.
 In the new system, `.eslintrc*` is no longer used. `eslint.config.js` would be the default config file name.
@@ -66,26 +66,26 @@ If your `eslint.config.js` is ESM, you can import and use the plugin like this.
 import unicorn from 'eslint-plugin-unicorn'
 
 export default [
-  // --- snip ---
-  {
-    files: ['**/*.{js,ts}'],
-    languageOptions: {
-		globals: {
-			...globals.node,
-			...globals.es2021,
-		},
-	},
-	plugins: {
-      unicorn,
+    // --- snip ---
+    {
+        files: ['**/*.{js,ts}'],
+        languageOptions: {
+  		    globals: {
+  			    ...globals.node,
+  			    ...globals.es2021,
+  		    },
+  	    },
+  	    plugins: {
+            unicorn,
+        },
+        rules: {
+            // ... any rules you want
+            'unicorn/better-regex': 'error',
+  	        'unicorn/catch-error-name': 'error',
+        },
+        // ... others are omitted for brevity
     },
-    rules: {
-      // ... any rules you want
-      'unicorn/better-regex': 'error',
-	  'unicorn/catch-error-name': 'error',
-     },
-    // ... others are omitted for brevity
-  },
-  // --- snip ---
+    // --- snip ---
 ]
 ```
 
@@ -215,7 +215,7 @@ Each rule has emojis denoting:
 
 See [docs/deprecated-rules.md](docs/deprecated-rules.md)
 
-## Preset configs (legacy)
+## Preset configs (legacy: `eslintrc*`)
 
 See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configuration-files#extending-configuration-files) for more information about extending config files.
 
@@ -223,7 +223,7 @@ See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configurati
 
 ### Recommended config
 
-This plugin exports a [`recommended` config](configs/recommended.js) that enforces good practices.
+This plugin exports a [`recommended` config](configs-legacy/recommended.js) that enforces good practices.
 
 ```json
 {
@@ -236,7 +236,7 @@ This plugin exports a [`recommended` config](configs/recommended.js) that enforc
 
 ### All config
 
-This plugin exports an [`all` config](configs/all.js) that makes use of all rules (except for deprecated ones).
+This plugin exports an [`all` config](configs-legacy/all.js) that makes use of all rules (except for deprecated ones).
 
 ```json
 {
@@ -247,7 +247,7 @@ This plugin exports an [`all` config](configs/all.js) that makes use of all rule
 }
 ```
 
-## Shareable configs (new)
+## Shareable configs (new: `eslint.config.js`)
 
 If you use the new config system (`eslint.config.js`), there're 2 shareable configs.
 
@@ -265,9 +265,9 @@ As eslint does not automatically import the preset config (shareable config), yo
 import unicorn from 'eslint-plugin-unicorn/all' // <== trailing '/all'
 
 export default [
-  // --- snip ---
-  unicorn, // This is not a plugin object, but a shareable config object
-  // --- snip ---
+    // --- snip ---
+    unicorn, // This is not a plugin object, but a shareable config object
+    // --- snip ---
 ]
 ```
 
@@ -278,16 +278,18 @@ import unicorn from 'eslint-plugin-unicorn/recommended'
 import globals from 'globals'
 
 export default [
-  // --- snip ---
-  {
-    ...unicorn,
-    files: ['**/*.{js,jsx}'],
-    globals: {
-      ...globals.browser,
-      // and so on
+    // --- snip ---
+    {
+        ...unicorn,
+        files: ['**/*.{js,jsx}'],
+  	    languageOptions: {
+            globals: {
+                ...globals.browser,
+                // and so on
+            },
+  	    },
     },
-  },
-  // --- snip ---
+    // --- snip ---
 ]
 ```
 

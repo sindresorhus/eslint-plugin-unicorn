@@ -2,7 +2,7 @@
 import process from 'node:process';
 import {ESLint} from 'eslint';
 import unicorn from '../../index.js';
-import allConfig from '../../configs/all.js';
+import allConfig from '../../configs-legacy/all.js';
 
 const files = [process.argv[2] || '.'];
 const fix = process.argv.includes('--fix');
