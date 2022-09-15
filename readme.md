@@ -254,7 +254,7 @@ If you use the new config system (`eslint.config.js`), there're 2 shareable conf
 - `eslint-plugin-unicorn/all`
 - `eslint-plugin-unicorn/recommended`
 
-**Note**: Shareable configs will enable the [`globals`](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new#configuration-objects).
+**Note**: Shareable configs will enable the [`languageOptions.globals`](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new#configuration-objects).
 
 In the new config system, `plugin:` protocol(e.g. `plugin:react/recommended`) is no longer valid.
 As eslint does not automatically import the preset config (shareable config), you explicitly do it by yourself.
