@@ -37,6 +37,8 @@ const isCatchMethod = callExpression =>
 	&& callExpression?.callee.property.type === 'Identifier'
 	&& callExpression?.callee.property.name === 'catch';
 
+const isThenOrCatchMethod = node => node.type === 'CallExpression' && (isThenMethod(node) || isCatchMethod(node));
+
 const isFunctionType = type => type === 'FunctionExpression' || type === 'ArrowFunctionExpression' || type === 'FunctionDeclaration';
 
 const isArgumentOfFunction = (identifier, {rootNode, functionType}) => {
@@ -63,43 +65,44 @@ const isArgumentOfFunction = (identifier, {rootNode, functionType}) => {
 	return false;
 };
 
-const getCatchBlock = node => {
+const getCatchBlockAncestor = node => {
 	let current = node;
 
 	while (current) {
-		let outerScopeCallbackIdentifier;
-		let shouldExcludeOuterScopeOldError = false;
-
 		if (isFunctionType(current.type)) {
+			let callbackIdentifier;
+			let shouldExcludeOuterScopeOldError = false;
+
 			if (current.parent.type === 'VariableDeclarator') {
-				outerScopeCallbackIdentifier = current.parent.id.name;
+				callbackIdentifier = current.parent.id.name;
 			} else if (current.parent.type === 'AssignmentExpression') {
-				outerScopeCallbackIdentifier = current.parent.left.name;
-			} else if (!isThenMethod(current.parent) && !isCatchMethod(current.parent)) {
+				callbackIdentifier = current.parent.left.name;
+			} else if (!isThenOrCatchMethod(current.parent)) {
 				shouldExcludeOuterScopeOldError = true;
 			}
-		}
 
-		if (outerScopeCallbackIdentifier) {
-			const rootNode = getMatchingAncestorOfType(node, 'Program');
+			if (callbackIdentifier) {
+				// Search for the callback function identifier in the file scope.
+				const rootNode = getMatchingAncestorOfType(node, 'Program');
 
-			if (
-				isArgumentOfFunction(outerScopeCallbackIdentifier, {functionType: 'then', rootNode})
-				|| isArgumentOfFunction(outerScopeCallbackIdentifier, {functionType: 'catch', rootNode})
-			) {
-				return current.parent;
+				if (
+					isArgumentOfFunction(callbackIdentifier, {functionType: 'then', rootNode})
+					|| isArgumentOfFunction(callbackIdentifier, {functionType: 'catch', rootNode})
+				) {
+					return current.parent;
+				}
+
+				// If the parent scope is function type and the function is not argument of Promise#{then,catch},
+				// The function is not the expression to fix.
+				return;
 			}
 
-			// If the parent scope is function type and the function is not argument of Promise#{then,catch},
-			// The function is not the expression to fix.
-			return;
+			if (shouldExcludeOuterScopeOldError) {
+				return;
+			}
 		}
 
-		if (shouldExcludeOuterScopeOldError) {
-			return;
-		}
-
-		if (current.type === 'CatchClause' || (current.type === 'CallExpression' && (isThenMethod(current) || isCatchMethod(current)))) {
+		if (current.type === 'CatchClause' || isThenOrCatchMethod(current)) {
 			return current;
 		}
 
@@ -324,7 +327,7 @@ const handleCatchBlock = ({context, catchBlock, parameter, throwStatement}) => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	'ThrowStatement'(node) {
-		const catchBlock = getCatchBlock(node);
+		const catchBlock = getCatchBlockAncestor(node);
 
 		if (!catchBlock) {
 			return;
