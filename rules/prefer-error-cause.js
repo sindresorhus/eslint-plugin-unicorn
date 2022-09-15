@@ -214,14 +214,14 @@ const getAllNodesToFix = ({catchBlock, context, throwStatement}) => {
 	// `promise.catch(err => { throw new Error('oops', {cause: err})`
 	if (throwStatement.argument.type === 'NewExpression') {
 		if (throwStatement.argument.callee.name !== 'Error') {
-			reportCannotBeFixed(catchBlock, context);
+			reportCannotBeFixed(throwStatement.argument, context);
 			return [];
 		}
 
 		errorConstructorLastArgument = throwStatement.argument.arguments[throwStatement.argument.arguments.length - 1];
 
 		if (!errorConstructorLastArgument) {
-			reportCannotBeFixed(catchBlock, context);
+			reportCannotBeFixed(throwStatement.argument, context);
 			return [];
 		}
 
@@ -264,7 +264,7 @@ const getAllNodesToFix = ({catchBlock, context, throwStatement}) => {
 			errorConstructorLastArgument = targetArguments[targetArguments.length - 1];
 
 			if (!errorConstructorLastArgument) {
-				reportCannotBeFixed(catchBlock, context);
+				reportCannotBeFixed(thrownErrorDeclarator, context);
 				return [];
 			}
 
@@ -293,10 +293,7 @@ const handleCatchBlock = ({context, catchBlock, parameter, throwStatement}) => {
 	// `try {} catch ({error}) {}`
 	// `promise.catch({error} => {})`
 	if (parameter && parameter.type !== 'Identifier') {
-		context.report({
-			node: catchBlock,
-			messageId: ERROR,
-		});
+		reportCannotBeFixed(catchBlock, context);
 		return;
 	}
 
