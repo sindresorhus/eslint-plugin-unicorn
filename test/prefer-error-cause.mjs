@@ -73,23 +73,6 @@ test.snapshot({
 			}
 		`,
 
-		// Specify old error as CustomError's cause
-		outdent`
-			try {} catch (error) {
-				throw new CustomError({cause: error});
-			}
-		`,
-		outdent`
-			try {} catch (error) {
-				throw new CustomError('oops', {cause: error});
-			}
-		`,
-		outdent`
-			try {} catch (error) {
-				throw new CustomError('oops', {}, {cause: error});
-			}
-		`,
-
 		// Error is in the outer scope of the function including throw statement.
 		outdent`
 			try {} catch (error) {
@@ -241,35 +224,17 @@ test.snapshot({
 			}
 		`,
 
-		// Could be fixed by inserting error argument into the last argument of custom error constructor.
+		// Cannot fix CustomError
 		outdent`
 			try {} catch (error) {
-				throw new CustomError('oops', {});
+				throw new CustomError('oops');
 			}
 		`,
+
 		outdent`
 			try {} catch (error) {
-				throw new CustomError('oops', {foo});
-			}
-		`,
-		outdent`
-			try {} catch (error) {
-				throw new CustomError('oops', {}, {});
-			}
-		`,
-		outdent`
-			try {} catch (error) {
-				throw new CustomError('oops', {}, {foo});
-			}
-		`,
-		outdent`
-			try {} catch (error) {
-				throw new CustomError('oops', {}, {foo: 'bar'});
-			}
-		`,
-		outdent`
-			try {} catch (error) {
-				throw new CustomError('oops', {}, {foo: foo.bar});
+				let err = new CustomError('oops');
+				throw err;
 			}
 		`,
 	],

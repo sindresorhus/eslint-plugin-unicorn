@@ -213,6 +213,11 @@ const getAllNodesToFix = ({catchBlock, context, throwStatement}) => {
 	// `try {} catch (err) { throw new Error('oops', {cause: err})}`
 	// `promise.catch(err => { throw new Error('oops', {cause: err})`
 	if (throwStatement.argument.type === 'NewExpression') {
+		if (throwStatement.argument.callee.name !== 'Error') {
+			reportCannotBeFixed(catchBlock, context);
+			return [];
+		}
+
 		errorConstructorLastArgument = throwStatement.argument.arguments[throwStatement.argument.arguments.length - 1];
 
 		if (!errorConstructorLastArgument) {
@@ -231,6 +236,7 @@ const getAllNodesToFix = ({catchBlock, context, throwStatement}) => {
 			(reference.identifier?.parent.type === 'AssignmentExpression'
 			|| reference.identifier?.parent.type === 'VariableDeclarator')
 			&& reference.writeExpr?.type === 'NewExpression'
+			&& reference.writeExpr?.callee.name === 'Error'
 			&& reference.resolved?.name === throwStatement.argument.name;
 
 		const thrownErrorDeclarators = getReferences(context.getScope())
