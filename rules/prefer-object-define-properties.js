@@ -77,10 +77,11 @@ const create = context => ({
 				newGroup
 					||= !isObjectDefineProperty(previouseExpression?.expression)
 					|| (isObjectDefineProperty(previouseExpression?.expression)
-						&& !isSameReference(
+					&& !(previouseExpression.expression.arguments[0]
+						&& isSameReference(
 							previouseExpression.expression.arguments[0],
 							reference.arguments[0],
-						));
+						)));
 			} else {
 				newGroup = true;
 			}
@@ -98,7 +99,7 @@ const create = context => ({
 
 		for (const group of groups.filter(group => group.references.length > 1)) {
 			context.report({
-				node: group.references[0].node,
+				node: group.references.at(-1).node,
 				messageId: MESSAGE_ID,
 				data: {
 					replacement: 'Object.defineProperties',
@@ -124,7 +125,7 @@ const create = context => ({
 						group.references[0].node.callee.property.name === 'defineProperty'
 							? group.references[0].arguments[2]
 							: group.references[0].arguments[1],
-						`{${group.references
+						`{${group.references.slice(0, 2)
 							.flatMap(reference => {
 								if (reference.node.callee.property.name === 'defineProperty') {
 									return `${
@@ -149,13 +150,11 @@ const create = context => ({
 							.join(',')}}`,
 					);
 
-					for (const reference of group.references.slice(1)) {
-						yield fixer.remove(reference.node);
+					yield fixer.remove(group.references[1].node);
 
-						const token = sourceCode.getTokenAfter(reference.node);
-						if (token?.value === ';') {
-							yield fixer.remove(token);
-						}
+					const token = sourceCode.getTokenAfter(group.references[1].node);
+					if (token?.value === ';') {
+						yield fixer.remove(token);
 					}
 				},
 			});

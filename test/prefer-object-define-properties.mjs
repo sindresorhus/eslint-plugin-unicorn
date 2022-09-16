@@ -69,6 +69,17 @@ test.snapshot({
 			    writable: true
 			});
 		`,
+		outdent`
+			foo(
+				Object.defineProperty(foo, "a", {}),
+				Object.defineProperty(foo, "b", {}),
+			);
+		`,
+		outdent`
+			Object.defineProperty(foo, "a", {});
+			Object.defineProperties(bar, {a: {}});
+			Object.defineProperty(foo, "b", {});
+		`
 	],
 	invalid: [
 		outdent`
@@ -110,6 +121,15 @@ test.snapshot({
 			});			
 			Object.defineProperties(foo, bar);
 			Object.defineProperties(foo, baz);
+		`,
+		outdent`
+			Object.defineProperty(foo, "test", {
+				value: () => {},
+				writable: true
+			});			
+			Object.defineProperties(foo, bar);
+			Object.defineProperties(foo, baz);
+			Object.defineProperties(foo, qux);
 		`,
 	],
 });
