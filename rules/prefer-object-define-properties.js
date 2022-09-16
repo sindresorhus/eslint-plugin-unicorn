@@ -52,7 +52,7 @@ const create = context => ({
 						&& /Identifier|ObjectExpression/.test(
 							reference.identifier.parent.parent.arguments?.[2]?.type,
 						))
-					|| (reference.identifier.parent.property.name === 'defineProperties'
+					|| (reference.identifier.parent.property?.name === 'defineProperties'
 						&& /Identifier|ObjectExpression/.test(
 							reference.identifier.parent.parent.arguments?.[1]?.type,
 						)),
@@ -70,18 +70,19 @@ const create = context => ({
 			let newGroup = !currentGroup;
 
 			if (reference.node.parent.type === 'ExpressionStatement') {
-				const previouseExpression = getPreviouseExpression(
-					reference.node.parent,
-					sourceCode,
-				);
-				newGroup
-					||= !isObjectDefineProperty(previouseExpression?.expression)
+				if (!newGroup) {
+					const previouseExpression = getPreviouseExpression(
+						reference.node.parent,
+						sourceCode,
+					);
+					newGroup = !isObjectDefineProperty(previouseExpression?.expression)
 					|| (isObjectDefineProperty(previouseExpression?.expression)
 					&& !(previouseExpression.expression.arguments[0]
 						&& isSameReference(
 							previouseExpression.expression.arguments[0],
 							reference.arguments[0],
 						)));
+				}
 			} else {
 				newGroup = true;
 			}
