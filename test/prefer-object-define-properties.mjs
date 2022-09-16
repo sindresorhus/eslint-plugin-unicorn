@@ -119,17 +119,17 @@ test.snapshot({
 			    value: () => {},
 			    writable: true
 			});			
-			Object.defineProperties(foo, bar);
-			Object.defineProperties(foo, baz);
+			Object.defineProperties(foo, {bar});
+			Object.defineProperties(foo, {baz});
 		`,
 		outdent`
 			Object.defineProperty(foo, "test", {
 				value: () => {},
 				writable: true
 			});			
-			Object.defineProperties(foo, bar);
-			Object.defineProperties(foo, baz);
-			Object.defineProperties(foo, qux);
+			Object.defineProperties(foo, {bar});
+			Object.defineProperties(foo, {baz});
+			Object.defineProperties(foo, {qux});
 		`,
 	],
 });
