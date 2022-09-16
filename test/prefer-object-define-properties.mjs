@@ -78,8 +78,9 @@ test.snapshot({
 		outdent`
 			Object.defineProperty(foo, "a", {});
 			Object.defineProperties(bar, {a: {}});
+			Object.foo();
 			Object.defineProperty(foo, "b", {});
-		`
+		`,
 	],
 	invalid: [
 		outdent`
