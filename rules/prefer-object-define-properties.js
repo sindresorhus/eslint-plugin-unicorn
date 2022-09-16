@@ -7,9 +7,10 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over multiple `{{value}}`.',
 };
 
-function getFirstExpression(node, sourceCode) {
+function getPreviouseExpression(node, sourceCode) {
 	const {parent} = node;
-	const visitorKeys = sourceCode.visitorKeys[parent.type] || Object.keys(parent);
+	const visitorKeys
+		= sourceCode.visitorKeys[parent.type] || Object.keys(parent);
 
 	for (const property of visitorKeys) {
 		const value = parent[property];
@@ -28,6 +29,7 @@ function isObjectDefineProperty(node) {
 		node
 		&& node.type === 'CallExpression'
 		&& node.callee.type === 'MemberExpression'
+		&& !node.computed
 		&& node.callee.object.name === 'Object'
 		&& /definePropert(y|ies)/.test(node.callee.property.name)
 	);
@@ -44,9 +46,16 @@ const create = context => ({
 				reference =>
 					(reference.identifier.parent.type === 'MemberExpression'
 						&& reference.identifier.parent.property.name === 'defineProperty'
-						&& /Identifier|Literal/.test(reference.identifier.parent.parent.arguments?.[1]?.type)
-						&& /Identifier|ObjectExpression/.test(reference.identifier.parent.parent.arguments?.[2]?.type))
-					|| (reference.identifier.parent.property.name === 'defineProperties' && /Identifier|ObjectExpression/.test(reference.identifier.parent.parent.arguments?.[1]?.type)),
+						&& /Identifier|Literal/.test(
+							reference.identifier.parent.parent.arguments?.[1]?.type,
+						)
+						&& /Identifier|ObjectExpression/.test(
+							reference.identifier.parent.parent.arguments?.[2]?.type,
+						))
+					|| (reference.identifier.parent.property.name === 'defineProperties'
+						&& /Identifier|ObjectExpression/.test(
+							reference.identifier.parent.parent.arguments?.[1]?.type,
+						)),
 			)
 			.map(reference => ({
 				scope: reference.from.block,
@@ -58,14 +67,23 @@ const create = context => ({
 		let currentGroup;
 
 		for (const reference of references) {
-			const firstExpression = getFirstExpression(reference.node.parent, sourceCode);
-			const newGroup = !currentGroup
-				|| !isObjectDefineProperty(firstExpression?.expression)
-				|| (isObjectDefineProperty(firstExpression?.expression)
-					&& !isSameReference(
-						firstExpression.expression.arguments[0],
-						reference.arguments[0],
-					));
+			let newGroup = !currentGroup;
+
+			if (reference.node.parent.type === 'ExpressionStatement') {
+				const previouseExpression = getPreviouseExpression(
+					reference.node.parent,
+					sourceCode,
+				);
+				newGroup
+					||= !isObjectDefineProperty(previouseExpression?.expression)
+					|| (isObjectDefineProperty(previouseExpression?.expression)
+						&& !isSameReference(
+							previouseExpression.expression.arguments[0],
+							reference.arguments[0],
+						));
+			} else {
+				newGroup = true;
+			}
 
 			if (newGroup) {
 				currentGroup = {
@@ -87,13 +105,19 @@ const create = context => ({
 					value: 'Object.defineProperty',
 				},
 				* fix(fixer) {
-					if (group.references[0].node.callee.property.name === 'defineProperty') {
+					if (
+						group.references[0].node.callee.property.name === 'defineProperty'
+					) {
 						yield fixer.replaceText(
 							group.references[0].node.callee.property,
 							'defineProperties',
 						);
 
-						yield removeArgument(fixer, group.references[0].arguments[1], sourceCode);
+						yield removeArgument(
+							fixer,
+							group.references[0].arguments[1],
+							sourceCode,
+						);
 					}
 
 					yield fixer.replaceText(
