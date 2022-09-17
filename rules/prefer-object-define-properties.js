@@ -82,7 +82,7 @@ function getDescriptorsText(callExpression, sourceCode) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	'Program:exit'() {
+	*'Program:exit'() {
 		const sourceCode = context.getSourceCode();
 		const callExpressions = context
 			.getScope()
@@ -118,7 +118,7 @@ const create = context => ({
 				continue;
 			}
 
-			context.report({
+			yield {
 				node: secondCallExpression,
 				messageId: MESSAGE_ID,
 				data: {
@@ -157,7 +157,7 @@ const create = context => ({
 						yield fixer.remove(token);
 					}
 				},
-			});
+			};
 		}
 	},
 });
