@@ -8,7 +8,7 @@ const messages = {
 };
 
 const nativeCoercionFunctionNames = new Set(['String', 'Number', 'BigInt', 'Boolean', 'Symbol']);
-const arrayMethodsWithBooleanCallback = new Set(['every', 'filter', 'find', 'findIndex', 'some']);
+const arrayMethodsWithBooleanCallback = new Set(['every', 'filter', 'find', 'findLast', 'findIndex', 'findLastIndex', 'some']);
 
 const isNativeCoercionFunctionCall = (node, firstArgumentName) =>
 	node
