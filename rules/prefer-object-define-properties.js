@@ -80,6 +80,39 @@ function getDescriptorsText(callExpression, sourceCode) {
 	return `...(${sourceCode.getText(descriptors)})`;
 }
 
+function * fix(fixer, firstCallExpression, secondCallExpression, sourceCode) {
+	if (firstCallExpression.callee.property.name === 'defineProperty') {
+		yield fixer.replaceText(
+			firstCallExpression.callee.property,
+			'defineProperties',
+		);
+
+		yield removeArgument(
+			fixer,
+			firstCallExpression.arguments[1],
+			sourceCode,
+		);
+	}
+
+	const descriptors = [firstCallExpression, secondCallExpression]
+		.map(callExpressions => getDescriptorsText(callExpressions, sourceCode))
+		.join(',\n');
+
+	yield fixer.replaceText(
+		firstCallExpression.callee.property.name === 'defineProperty'
+			? firstCallExpression.arguments[2]
+			: firstCallExpression.arguments[1],
+		`{\n${descriptors}\n}`,
+	);
+
+	yield fixer.remove(secondCallExpression);
+
+	const token = sourceCode.getTokenAfter(secondCallExpression);
+	if (token?.value === ';') {
+		yield fixer.remove(token);
+	}
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	*'Program:exit'() {
@@ -125,38 +158,7 @@ const create = context => ({
 					replacement: 'Object.defineProperties',
 					value: 'Object.defineProperty',
 				},
-				* fix(fixer) {
-					if (firstCallExpression.callee.property.name === 'defineProperty') {
-						yield fixer.replaceText(
-							firstCallExpression.callee.property,
-							'defineProperties',
-						);
-
-						yield removeArgument(
-							fixer,
-							firstCallExpression.arguments[1],
-							sourceCode,
-						);
-					}
-
-					const descriptors = [firstCallExpression, secondCallExpression]
-						.map(callExpressions => getDescriptorsText(callExpressions, sourceCode))
-						.join(',\n');
-
-					yield fixer.replaceText(
-						firstCallExpression.callee.property.name === 'defineProperty'
-							? firstCallExpression.arguments[2]
-							: firstCallExpression.arguments[1],
-						`{\n${descriptors}\n}`,
-					);
-
-					yield fixer.remove(secondCallExpression);
-
-					const token = sourceCode.getTokenAfter(secondCallExpression);
-					if (token?.value === ';') {
-						yield fixer.remove(token);
-					}
-				},
+				fix: (fixer) => fix(fixer, firstCallExpression, secondCallExpression, sourceCode),
 			};
 		}
 	},
