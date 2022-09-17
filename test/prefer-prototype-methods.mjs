@@ -32,6 +32,7 @@ test.snapshot({
 		'foo.bar.bind(foo)',
 		'foo.bar.bind(bar)',
 		'foo[{}].call(bar)',
+		'Object.hasOwn(bar)',
 	],
 	invalid: [
 		'const foo = [].push.apply(bar, elements);',
