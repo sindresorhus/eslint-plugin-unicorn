@@ -42,6 +42,9 @@ const methods = new Map([
 			argumentsIndexes: [0],
 			supportObjects: new Set([
 				'Array',
+				'String',
+				'ArrayBuffer',
+				...typedArray,
 			]),
 		},
 	],
@@ -174,7 +177,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()`, `Array#splice()` and `Array#at()`.',
+			description: 'Prefer negative index over `.length - index` for `{String,Array,TypedArray}#{slice,at}()` and `Array#splice()`.',
 		},
 		fixable: 'code',
 		messages,
