@@ -129,7 +129,7 @@ Each rule has emojis denoting:
 | [prefer-modern-math-apis](docs/rules/prefer-modern-math-apis.md) | Prefer modern `Math` APIs over legacy patterns. | ✅ | 🔧 |  |
 | [prefer-module](docs/rules/prefer-module.md) | Prefer JavaScript modules (ESM) over CommonJS. | ✅ | 🔧 | 💡 |
 | [prefer-native-coercion-functions](docs/rules/prefer-native-coercion-functions.md) | Prefer using `String`, `Number`, `BigInt`, `Boolean`, and `Symbol` directly. | ✅ | 🔧 |  |
-| [prefer-negative-index](docs/rules/prefer-negative-index.md) | Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()`, `Array#splice()` and `Array#at()`. | ✅ | 🔧 |  |
+| [prefer-negative-index](docs/rules/prefer-negative-index.md) | Prefer negative index over `.length - index` for `{String,Array,TypedArray}#{slice,at}()` and `Array#splice()`. | ✅ | 🔧 |  |
 | [prefer-node-protocol](docs/rules/prefer-node-protocol.md) | Prefer using the `node:` protocol when importing Node.js builtin modules. | ✅ | 🔧 |  |
 | [prefer-number-properties](docs/rules/prefer-number-properties.md) | Prefer `Number` static properties over global ones. | ✅ | 🔧 | 💡 |
 | [prefer-object-from-entries](docs/rules/prefer-object-from-entries.md) | Prefer using `Object.fromEntries(…)` to transform a list of key-value pairs into an object. | ✅ | 🔧 |  |
