@@ -109,7 +109,7 @@ Each rule has emojis denoting:
 | [prefer-array-flat](docs/rules/prefer-array-flat.md) | Prefer `Array#flat()` over legacy techniques to flatten arrays. | ✅ | 🔧 |  |
 | [prefer-array-flat-map](docs/rules/prefer-array-flat-map.md) | Prefer `.flatMap(…)` over `.map(…).flat()`. | ✅ | 🔧 |  |
 | [prefer-array-index-of](docs/rules/prefer-array-index-of.md) | Prefer `Array#indexOf()` over `Array#findIndex()` when looking for the index of an item. | ✅ | 🔧 | 💡 |
-| [prefer-array-some](docs/rules/prefer-array-some.md) | Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`. | ✅ | 🔧 | 💡 |
+| [prefer-array-some](docs/rules/prefer-array-some.md) | Prefer `.some(…)` over `.filter(…).length` check and `.{find,findLast}(…)`. | ✅ | 🔧 | 💡 |
 | [prefer-at](docs/rules/prefer-at.md) | Prefer `.at()` method for index access and `String#charAt()`. |  | 🔧 | 💡 |
 | [prefer-code-point](docs/rules/prefer-code-point.md) | Prefer `String#codePointAt(…)` over `String#charCodeAt(…)` and `String.fromCodePoint(…)` over `String.fromCharCode(…)`. | ✅ |  | 💡 |
 | [prefer-date-now](docs/rules/prefer-date-now.md) | Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. | ✅ | 🔧 |  |
