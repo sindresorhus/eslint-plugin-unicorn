@@ -5,6 +5,6 @@
 		"node": ">=12"
 	},
 	"dependencies": {
-		"eslint-plugin-unicorn": "file:../.."
+		"eslint-plugin-unicorn": "link:../.."
 	}
 }
