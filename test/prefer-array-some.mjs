@@ -5,14 +5,16 @@ const {test} = getTester(import.meta);
 
 const ERROR_ID_ARRAY_SOME = 'some';
 const SUGGESTION_ID_ARRAY_SOME = 'some-suggestion';
-const invalidCase = ({code, suggestionOutput}) => ({
+const invalidCase = ({code, suggestionOutput, method}) => ({
 	code,
 	errors: [
 		{
 			messageId: ERROR_ID_ARRAY_SOME,
+			data: {method},
 			suggestions: [
 				{
 					messageId: SUGGESTION_ID_ARRAY_SOME,
+					data: {method},
 					output: suggestionOutput,
 				},
 			],
@@ -45,7 +47,10 @@ test({
 			'foo.find()',
 			'foo.find(fn, thisArgument, extraArgument)',
 			'foo.find(...argumentsArray)',
-		].map(code => `if (${code}) {}`),
+		].flatMap(code => [
+			`if (${code}) {}`,
+			`if (${code.replaceAll('find', 'findLast')}) {}`,
+		]),
 	],
 	invalid: [
 		...[
@@ -56,20 +61,30 @@ test({
 			'while (foo.find(fn)) foo.shift();',
 			'do {foo.shift();} while (foo.find(fn));',
 			'for (; foo.find(fn); ) foo.shift();',
-		].map(code => invalidCase({
-			code,
-			suggestionOutput: code.replace('find', 'some'),
-		})),
+		].flatMap(code => [
+			invalidCase({
+				code,
+				suggestionOutput: code.replace('find', 'some'),
+				method: 'find',
+			}),
+			invalidCase({
+				code: code.replaceAll('find', 'findLast'),
+				suggestionOutput: code.replace('find', 'some'),
+				method: 'findLast',
+			}),
+		]),
 		// Comments
 		invalidCase({
 			code: 'console.log(foo /* comment 1 */ . /* comment 2 */ find /* comment 3 */ (fn) ? a : b)',
 			suggestionOutput: 'console.log(foo /* comment 1 */ . /* comment 2 */ some /* comment 3 */ (fn) ? a : b)',
+			method: 'find',
 		}),
 		// This should not be reported, but `jQuery.find()` is always `truly`,
 		// It should not use as a boolean
 		invalidCase({
 			code: 'if (jQuery.find(".outer > div")) {}',
 			suggestionOutput: 'if (jQuery.some(".outer > div")) {}',
+			method: 'find',
 		}),
 		// Actual messages
 		{
@@ -80,6 +95,20 @@ test({
 					suggestions: [
 						{
 							desc: 'Replace `.find(…)` with `.some(…)`.',
+							output: 'if (foo.some(fn)) {}',
+						},
+					],
+				},
+			],
+		},
+		{
+			code: 'if (foo.findLast(fn)) {}',
+			errors: [
+				{
+					message: 'Prefer `.some(…)` over `.findLast(…)`.',
+					suggestions: [
+						{
+							desc: 'Replace `.findLast(…)` with `.some(…)`.',
 							output: 'if (foo.some(fn)) {}',
 						},
 					],
@@ -184,10 +213,12 @@ test.vue({
 		invalidCase({
 			code: '<template><div v-if="foo.find(fn)"></div></template>',
 			suggestionOutput: '<template><div v-if="foo.some(fn)"></div></template>',
+			method: 'find',
 		}),
 		invalidCase({
-			code: '<script>if (foo.find(fn));</script>',
+			code: '<script>if (foo.findLast(fn));</script>',
 			suggestionOutput: '<script>if (foo.some(fn));</script>',
+			method: 'findLast',
 		}),
 		{
 			code: '<template><div v-if="foo.filter(fn).length > 0"></div></template>',
