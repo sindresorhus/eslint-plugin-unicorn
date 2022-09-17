@@ -67,9 +67,11 @@ test.snapshot({
 		`,
 		outdent`
 			Object.defineProperty(foo, "test", {value: () => {}, writable: true});
-			Object.defineProperties(foo, {bar});
-			Object.defineProperties(foo, {baz});
-			Object.defineProperties(foo, {qux});
+			Object.defineProperties(foo, {a});
+			Object.defineProperties(foo, {b, c, d});
+			Object.defineProperties(foo, identifier);
+			Object.defineProperties(foo, x.y);
+			Object.defineProperty(foo, x.y2, bar);
 		`,
 	],
 });

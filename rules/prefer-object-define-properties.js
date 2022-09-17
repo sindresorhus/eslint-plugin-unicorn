@@ -60,6 +60,26 @@ function isObjectDefinePropertyOrObjectDefineProperties(node) {
 	return false;
 }
 
+function getDescriptorsText(callExpression, sourceCode) {
+	const method = callExpression.callee.property.name;
+
+	if (method === 'defineProperty') {
+		let [, property, descriptor] = callExpression.arguments;
+		let propertyText = sourceCode.getText(property);
+		if (property.type !== 'Literal') {
+			propertyText = `[${propertyText}]`;
+		}
+		return `${propertyText}: ${sourceCode.getText(descriptor)}`;
+	}
+
+	const [, descriptors] = callExpression.arguments;
+	if (descriptors.type === 'ObjectExpression') {
+		return descriptors.properties.map(property => sourceCode.getText(property)).join(',\n');
+	}
+
+	return `...(${sourceCode.getText(descriptors)})`;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	'Program:exit'() {
@@ -119,33 +139,15 @@ const create = context => ({
 						);
 					}
 
+					const descriptors = [firstCallExpression, secondCallExpression]
+						.map(callExpressions => getDescriptorsText(callExpressions, sourceCode))
+						.join(',\n');
+
 					yield fixer.replaceText(
 						firstCallExpression.callee.property.name === 'defineProperty'
 							? firstCallExpression.arguments[2]
 							: firstCallExpression.arguments[1],
-						`{${[firstCallExpression, secondCallExpression]
-							.flatMap(callExpression => {
-								if (callExpression.callee.property.name === 'defineProperty') {
-									return `${
-										callExpression.arguments[1].type === 'Identifier'
-											? `[${callExpression.arguments[1].name}]`
-											: `"${callExpression.arguments[1].value}"`
-									}: ${sourceCode.getText(callExpression.arguments[2])}`;
-								}
-
-								if (callExpression.arguments[1].type === 'Identifier') {
-									return callExpression.arguments[1].name;
-								}
-
-								if (callExpression.arguments[1].type === 'ObjectExpression') {
-									return callExpression.arguments[1].properties.map(property =>
-										sourceCode.getText(property),
-									);
-								}
-
-								return [];
-							})
-							.join(',\n')}}`,
+						`{${descriptors}}`,
 					);
 
 					yield fixer.remove(secondCallExpression);
