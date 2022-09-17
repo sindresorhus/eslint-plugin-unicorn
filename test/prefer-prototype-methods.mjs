@@ -55,5 +55,7 @@ test.snapshot({
 		'Reflect.apply([][Symbol()], baz, [])',
 		'Reflect.apply({}[Symbol("symbol description")], baz, [])',
 		'[][Symbol.iterator].call(foo)',
+		'const foo = [].at.call(bar)',
+		'const foo = [].findLast.call(bar)',
 	],
 });
