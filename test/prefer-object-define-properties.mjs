@@ -5,69 +5,32 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		'Object.defineProperty(foo, "load", {value: () => {}, writable: true});',
 		outdent`
-			Object.defineProperty(foo, "load", {
-			    value: () => {},
-			    writable: true
-			});
-		`,
-		outdent`
-			Object.defineProperty(foo, "load", {
-			    value: () => {},
-			    writable: true
-			});
+			Object.defineProperty(foo, "load", {value: () => {}, writable: true});
 			Object.defineProperty();
 		`,
-		outdent`
-			Object.defineProperty(foo, "build", {
-			    value: null,
-			    writable: true
-			});
-		`,
+		'Object.defineProperty(foo, "build", {value: null, writable: true});',
 		outdent`
 			Object.defineProperties(foo, {
-			    load: {
-			        value: () => {},
-			        writable: true
-			    },
-			    build: {
-			        value: null,
-			        writable: true
-			    },
+				load: {value: () => {}, writable: true},
+				build: {value: null, writable: true},
 			});
 		`,
 		outdent`
-			Object.defineProperty(bar, "build", {
-			    value: null,
-			    writable: true
-			});
+			Object.defineProperty(bar, "build", {value: null, writable: true});
 			{
-				Object.defineProperty(bar, "load", {
-			    	value: null,
-			    	writable: true
-				});
+				Object.defineProperty(bar, "load", {value: null, writable: true});
 			}
 		`,
 		outdent`
-			Object.defineProperty(foo, "build", {
-			    value: null,
-			    writable: true
-			});
-			{}
-			Object.defineProperty(foo, "build", {
-			    value: null,
-			    writable: true
-			});
+			Object.defineProperty(foo, "build", {value: null, writable: true});
+			; // <-- Other node between
+			Object.defineProperty(foo, "build", {value: null, writable: true});
 		`,
 		outdent`
-			Object.defineProperty(foo, "build", {
-			    value: null,
-			    writable: true
-			});
-			Object.defineProperty(bar, "build", {
-			    value: null,
-			    writable: true
-			});
+			Object.defineProperty(foo, "build", {value: null, writable: true});
+			Object.defineProperty(bar, "build", {value: null, writable: true});
 		`,
 		outdent`
 			foo(
@@ -84,50 +47,26 @@ test.snapshot({
 	],
 	invalid: [
 		outdent`
-			Object.defineProperty(foo, "load", {
-			    value: () => {},
-			    writable: true
-			});
-			Object.defineProperty(foo, bar, {
-			    value: null,
-			    writable: true
-			});
+			Object.defineProperty(foo, "load", {value: () => {}, writable: true});
+			Object.defineProperty(foo, bar, {value: null, writable: true});
 		`,
 		outdent`
-			Object.defineProperty(foo, "build", {
-			    value: null,
-			    writable: true
-			});
+			Object.defineProperty(foo, "build", {value: null, writable: true});
 			Object.defineProperty(foo, "load", bar);
 		`,
 		outdent`
-			Object.defineProperty(foo, "load", {
-			    value: () => {},
-			    writable: true
-			});
-			{}
-			Object.defineProperty(foo, "test", {
-			    value: null,
-			    writable: true
-			});
-			Object.defineProperty(foo, "test-b", {
-			    value: null,
-			    writable: true
-			});
+			Object.defineProperty(foo, "load", {value: () => {}, writable: true});
+			; // <- Other node between
+			Object.defineProperty(foo, "test", {value: null, writable: true});
+			Object.defineProperty(foo, "test-b", {value: null, writable: true});
 		`,
 		outdent`
-			Object.defineProperty(foo, "test", {
-			    value: () => {},
-			    writable: true
-			});			
+			Object.defineProperty(foo, "test", {value: () => {}, writable: true});
 			Object.defineProperties(foo, {bar});
 			Object.defineProperties(foo, {baz});
 		`,
 		outdent`
-			Object.defineProperty(foo, "test", {
-				value: () => {},
-				writable: true
-			});			
+			Object.defineProperty(foo, "test", {value: () => {}, writable: true});
 			Object.defineProperties(foo, {bar});
 			Object.defineProperties(foo, {baz});
 			Object.defineProperties(foo, {qux});
