@@ -24,15 +24,40 @@ function getPreviousExpression(node, sourceCode) {
 	}
 }
 
-function isObjectDefineProperty(node) {
-	return (
-		node
-		&& node.type === 'CallExpression'
-		&& node.callee.type === 'MemberExpression'
-		&& !node.computed
-		&& node.callee.object.name === 'Object'
-		&& /definePropert(y|ies)/.test(node.callee.property.name)
-	);
+function isObjectDefinePropertyOrObjectDefineProperties(node) {
+	if (node?.type !== 'CallExpression' || node.optional) {
+		return false;
+	}
+
+	const { callee, arguments: callArguments} = node;
+	if (
+		callee.type !== 'MemberExpression'
+		|| callArguments.some(({type}) => type === 'RestElement')
+	) {
+		return false;
+	}
+
+	const {computed, optional, object, property} = callee;
+	if (
+		computed
+		|| optional
+		|| object.type !== 'Identifier'
+		|| object.name !== 'Object'
+		|| property.type !== 'Identifier'
+	) {
+		return false;
+	}
+
+
+	if (property.name === 'defineProperty') {
+		return callArguments.length === 3;
+	}
+
+	if (property.name === 'defineProperties') {
+		return callArguments.length === 2;
+	}
+
+	return false;
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -75,7 +100,7 @@ const create = context => ({
 
 			const firstCallExpression = previousExpression.expression;
 
-			if (!isObjectDefineProperty(firstCallExpression)) {
+			if (!isObjectDefinePropertyOrObjectDefineProperties(firstCallExpression)) {
 				continue;
 			}
 
