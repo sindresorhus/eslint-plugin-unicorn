@@ -32,6 +32,7 @@ test.snapshot({
 		'foo.bar.bind(foo)',
 		'foo.bar.bind(bar)',
 		'foo[{}].call(bar)',
+		'Object.hasOwn(bar)',
 	],
 	invalid: [
 		'const foo = [].push.apply(bar, elements);',
@@ -55,5 +56,7 @@ test.snapshot({
 		'Reflect.apply([][Symbol()], baz, [])',
 		'Reflect.apply({}[Symbol("symbol description")], baz, [])',
 		'[][Symbol.iterator].call(foo)',
+		'const foo = [].at.call(bar)',
+		'const foo = [].findLast.call(bar)',
 	],
 });
