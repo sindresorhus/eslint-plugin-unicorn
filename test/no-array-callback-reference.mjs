@@ -12,6 +12,8 @@ const simpleMethods = [
 	'filter',
 	'find',
 	'findIndex',
+	'find',
+	'findIndex',
 	'flatMap',
 	'forEach',
 	'map',
