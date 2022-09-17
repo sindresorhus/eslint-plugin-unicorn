@@ -39,7 +39,7 @@ function isObjectDefineProperty(node) {
 const create = context => ({
 	'Program:exit'() {
 		const sourceCode = context.getSourceCode();
-		const references = context
+		const callExpressions = context
 			.getScope()
 			.variableScope.set.get('Object')
 			.references.filter(
@@ -57,91 +57,74 @@ const create = context => ({
 							reference.identifier.parent.parent.arguments?.[1]?.type,
 						)),
 			)
-			.map(reference => ({
-				scope: reference.from.block,
-				node: reference.identifier.parent.parent,
-				arguments: reference.identifier.parent.parent.arguments,
-			}));
+			.map(reference => reference.identifier.parent.parent);
 
-		const groups = [];
-		let currentGroup;
-
-		for (const reference of references) {
-			let newGroup = !currentGroup;
-
-			if (reference.node.parent.type === 'ExpressionStatement') {
-				if (!newGroup) {
-					const previousExpression = getPreviousExpression(
-						reference.node.parent,
-						sourceCode,
-					);
-					newGroup = !isObjectDefineProperty(previousExpression?.expression)
-					|| (isObjectDefineProperty(previousExpression?.expression)
-					&& !(previousExpression.expression.arguments[0]
-						&& isSameReference(
-							previousExpression.expression.arguments[0],
-							reference.arguments[0],
-						)));
-				}
-			} else {
-				newGroup = true;
+		for (const secondCallExpression of callExpressions) {
+			if (secondCallExpression.parent.type !== 'ExpressionStatement') {
+				continue;
 			}
 
-			if (newGroup) {
-				currentGroup = {
-					scope: reference.scope,
-					references: [reference],
-				};
-				groups.push(currentGroup);
-			} else {
-				currentGroup.references.push(reference);
-			}
-		}
+			const previousExpression = getPreviousExpression(
+				secondCallExpression.parent,
+				sourceCode,
+			);
 
-		for (const group of groups.filter(group => group.references.length > 1)) {
+			if (!previousExpression) {
+				continue;
+			}
+
+			const firstCallExpression = previousExpression.expression;
+
+			if (!isObjectDefineProperty(firstCallExpression)) {
+				continue;
+			}
+
+			const [object] = firstCallExpression.arguments;
+			if (!object || !isSameReference(object, secondCallExpression.arguments[0])) {
+				continue;
+			}
+
 			context.report({
-				node: group.references.at(-1).node,
+				node: secondCallExpression,
 				messageId: MESSAGE_ID,
 				data: {
 					replacement: 'Object.defineProperties',
 					value: 'Object.defineProperty',
 				},
 				* fix(fixer) {
-					if (
-						group.references[0].node.callee.property.name === 'defineProperty'
-					) {
+					if (firstCallExpression.callee.property.name === 'defineProperty') {
 						yield fixer.replaceText(
-							group.references[0].node.callee.property,
+							firstCallExpression.callee.property,
 							'defineProperties',
 						);
 
 						yield removeArgument(
 							fixer,
-							group.references[0].arguments[1],
+							firstCallExpression.arguments[1],
 							sourceCode,
 						);
 					}
 
 					yield fixer.replaceText(
-						group.references[0].node.callee.property.name === 'defineProperty'
-							? group.references[0].arguments[2]
-							: group.references[0].arguments[1],
-						`{${group.references.slice(0, 2)
-							.flatMap(reference => {
-								if (reference.node.callee.property.name === 'defineProperty') {
+						firstCallExpression.callee.property.name === 'defineProperty'
+							? firstCallExpression.arguments[2]
+							: firstCallExpression.arguments[1],
+						`{${[firstCallExpression, secondCallExpression]
+							.flatMap(callExpression => {
+								if (callExpression.callee.property.name === 'defineProperty') {
 									return `${
-										reference.arguments[1].type === 'Identifier'
-											? `[${reference.arguments[1].name}]`
-											: `"${reference.arguments[1].value}"`
-									}: ${sourceCode.getText(reference.arguments[2])}`;
+										callExpression.arguments[1].type === 'Identifier'
+											? `[${callExpression.arguments[1].name}]`
+											: `"${callExpression.arguments[1].value}"`
+									}: ${sourceCode.getText(callExpression.arguments[2])}`;
 								}
 
-								if (reference.arguments[1].type === 'Identifier') {
-									return reference.arguments[1].name;
+								if (callExpression.arguments[1].type === 'Identifier') {
+									return callExpression.arguments[1].name;
 								}
 
-								if (reference.arguments[1].type === 'ObjectExpression') {
-									return reference.arguments[1].properties.map(property =>
+								if (callExpression.arguments[1].type === 'ObjectExpression') {
+									return callExpression.arguments[1].properties.map(property =>
 										sourceCode.getText(property),
 									);
 								}
@@ -151,9 +134,9 @@ const create = context => ({
 							.join(',')}}`,
 					);
 
-					yield fixer.remove(group.references[1].node);
+					yield fixer.remove(secondCallExpression);
 
-					const token = sourceCode.getTokenAfter(group.references[1].node);
+					const token = sourceCode.getTokenAfter(secondCallExpression);
 					if (token?.value === ';') {
 						yield fixer.remove(token);
 					}
