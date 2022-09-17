@@ -31,7 +31,7 @@ const makeEslintTask = (project, destination) => {
 		'eslint',
 		project.path || '.',
 		'--fix-dry-run',
-		// '--no-eslintrc',
+		'--no-eslintrc',
 		'--ext',
 		'.js,.ts,.vue',
 		'--format',
