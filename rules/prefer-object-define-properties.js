@@ -131,7 +131,7 @@ const create = context => ({
 
 								return [];
 							})
-							.join(',')}}`,
+							.join(',\n')}}`,
 					);
 
 					yield fixer.remove(secondCallExpression);
