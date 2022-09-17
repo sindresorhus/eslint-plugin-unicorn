@@ -7,7 +7,7 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over multiple `{{value}}`.',
 };
 
-function getPreviouseExpression(node, sourceCode) {
+function getPreviousExpression(node, sourceCode) {
 	const {parent} = node;
 	const visitorKeys
 		= sourceCode.visitorKeys[parent.type] || Object.keys(parent);
@@ -71,15 +71,15 @@ const create = context => ({
 
 			if (reference.node.parent.type === 'ExpressionStatement') {
 				if (!newGroup) {
-					const previouseExpression = getPreviouseExpression(
+					const previousExpression = getPreviousExpression(
 						reference.node.parent,
 						sourceCode,
 					);
-					newGroup = !isObjectDefineProperty(previouseExpression?.expression)
-					|| (isObjectDefineProperty(previouseExpression?.expression)
-					&& !(previouseExpression.expression.arguments[0]
+					newGroup = !isObjectDefineProperty(previousExpression?.expression)
+					|| (isObjectDefineProperty(previousExpression?.expression)
+					&& !(previousExpression.expression.arguments[0]
 						&& isSameReference(
-							previouseExpression.expression.arguments[0],
+							previousExpression.expression.arguments[0],
 							reference.arguments[0],
 						)));
 				}
