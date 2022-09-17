@@ -49,7 +49,7 @@ test({
 			'foo.find(...argumentsArray)',
 		].flatMap(code => [
 			`if (${code}) {}`,
-			`if (${code.replaceAll('find', 'findLast')}) {}`,
+			`if (${code.replace('find', 'findLast')}) {}`,
 		]),
 	],
 	invalid: [
@@ -68,7 +68,7 @@ test({
 				method: 'find',
 			}),
 			invalidCase({
-				code: code.replaceAll('find', 'findLast'),
+				code: code.replace('find', 'findLast'),
 				suggestionOutput: code.replace('find', 'some'),
 				method: 'findLast',
 			}),
