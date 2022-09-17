@@ -69,18 +69,7 @@ const create = context => ({
 			.variableScope.set.get('Object')
 			.references.filter(
 				reference =>
-					(reference.identifier.parent.type === 'MemberExpression'
-						&& reference.identifier.parent.property.name === 'defineProperty'
-						&& /Identifier|Literal/.test(
-							reference.identifier.parent.parent.arguments?.[1]?.type,
-						)
-						&& /Identifier|ObjectExpression/.test(
-							reference.identifier.parent.parent.arguments?.[2]?.type,
-						))
-					|| (reference.identifier.parent.property?.name === 'defineProperties'
-						&& /Identifier|ObjectExpression/.test(
-							reference.identifier.parent.parent.arguments?.[1]?.type,
-						)),
+					isObjectDefinePropertyOrObjectDefineProperties(reference.identifier.parent.parent)
 			)
 			.map(reference => reference.identifier.parent.parent);
 
@@ -100,7 +89,7 @@ const create = context => ({
 
 			const firstCallExpression = previousExpression.expression;
 
-			if (!isObjectDefinePropertyOrObjectDefineProperties(firstCallExpression)) {
+			if (!callExpressions.includes(firstCallExpression)) {
 				continue;
 			}
 
