@@ -147,7 +147,7 @@ const create = context => ({
 						firstCallExpression.callee.property.name === 'defineProperty'
 							? firstCallExpression.arguments[2]
 							: firstCallExpression.arguments[1],
-						`{${descriptors}}`,
+						`{\n${descriptors}\n}`,
 					);
 
 					yield fixer.remove(secondCallExpression);
