@@ -65,6 +65,13 @@ test.snapshot({
 		`,
 		outdent`
 			async function foo() {
+				return await
+					// comment
+					1
+			}
+		`,
+		outdent`
+			async function foo() {
 				return( await
 					// comment
 					1);
@@ -91,6 +98,13 @@ test.snapshot({
 					// comment
 					1;
 			}
+		`,
+		outdent`
+			console.log(
+				await
+					// comment
+					[]
+			);
 		`,
 		'async function foo() {+await +1}',
 		'async function foo() {-await-1}',
