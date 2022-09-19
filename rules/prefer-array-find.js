@@ -410,7 +410,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Array#{find,findLast}(…)` over the first or last element from `Array#filter(…)`.',
+			description: 'Prefer `.find(…)` and `.findLast(…)` over the first or last element from `.filter(…)`.',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

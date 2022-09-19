@@ -1,4 +1,4 @@
-# Prefer `Array#{find,findLast}(…)` over the first or last element from `Array#filter(…)`.
+# Prefer `.find(…)` and `.findLast(…)` over the first or last element from `.filter(…)`
 
 <!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->
