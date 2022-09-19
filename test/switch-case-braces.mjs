@@ -88,7 +88,13 @@ test.snapshot({
 // Enforce braces
 test.snapshot({
 	valid: [
-
+		outdent`
+			switch(foo) {
+				default: {
+					doSomething();
+				}
+			}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -112,4 +118,65 @@ test.snapshot({
 			}
 		`,
 	]
+});
+
+// Avoid braces
+test.snapshot({
+	valid: [
+		outdent`
+			switch(foo) {
+				default: {
+					var a;
+				}
+			}
+		`,
+		outdent`
+			switch(foo) {
+				default: {
+					function a() {}
+				}
+			}
+		`,
+		outdent`
+			switch(foo) {
+				default: {
+					doSomething();
+				}
+				break;
+			}
+		`,
+	].map(code => ({code, options: ['avoid']})),
+	invalid: [
+		outdent`
+			switch(foo) {
+				default: {
+					doSomething();
+				}
+			}
+		`,
+		outdent`
+			switch(foo) {
+				case 1: {
+					break;
+				}
+			}
+		`,
+		outdent`
+			switch(foo) {
+				default: {{{
+					doSomething();
+				}}}
+			}
+		`,
+		outdent`
+			switch(foo) {
+				default: {{{
+					doSomething();
+					{
+						doAnotherThingInBlockStatement();
+					}
+				}}}
+			}
+		`,
+	].map(code => ({code, options: ['avoid']})),
 });

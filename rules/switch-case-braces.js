@@ -77,9 +77,9 @@ const create = context => {
 				!isBracesRequired
 				&& consequent.length === 1
 				&& consequent[0].type === 'BlockStatement'
-				&& !consequent.some(node =>
-					node.type === 'VariableDeclaration'
-					|| node.type === 'FunctionDeclaration'
+				&& consequent[0].body.every(node =>
+					node.type !== 'VariableDeclaration'
+					&& node.type !== 'FunctionDeclaration'
 				)
 			) {
 				return {
