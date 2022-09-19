@@ -100,7 +100,7 @@ const atMinusOneSelector = [
 	'[arguments.0.operator="-"]',
 	'[arguments.0.prefix]',
 	'[arguments.0.argument.type="Literal"]',
-	'[arguments.0.argument.value=1]',
+	'[arguments.0.argument.raw=1]',
 	methodCallSelector({
 		...filterMethodSelectorOptions,
 		path: 'callee.object',
@@ -373,11 +373,6 @@ const create = context => {
 			};
 		},
 		[atMinusOneSelector](node) {
-			// `esquery` selector can't check it's a number
-			if (node.arguments[0].argument.value !== 1) {
-				return;
-			}
-
 			return {
 				node: node.callee.object.callee.property,
 				messageId: ERROR_AT_MINUS_ONE,
