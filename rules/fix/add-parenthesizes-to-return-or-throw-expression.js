@@ -1,4 +1,5 @@
-const {isSemicolonToken} = require('eslint-utils')
+'use strict';
+const {isSemicolonToken} = require('eslint-utils');
 
 function * addParenthesizesToReturnOrThrowExpression(fixer, node, effectedNodeOrToken, sourceCode) {
 	if (node.type !== 'ReturnStatement' && node.type !== 'ThrowStatement') {
@@ -13,11 +14,7 @@ function * addParenthesizesToReturnOrThrowExpression(fixer, node, effectedNodeOr
 	yield fixer.insertTextAfter(returnOrThrowToken, ' (');
 
 	const lastToken = sourceCode.getLastToken(node);
-	if (isSemicolonToken(lastToken)) {
-		yield fixer.insertTextBefore(lastToken, ')');
-	} else {
-		yield fixer.insertTextAfter(node, ')');
-	}
+	yield (isSemicolonToken(lastToken) ? fixer.insertTextBefore(lastToken, ')') : fixer.insertTextAfter(node, ')'));
 }
 
-module.exports = addParenthesizesToReturnOrThrowExpression
+module.exports = addParenthesizesToReturnOrThrowExpression;
