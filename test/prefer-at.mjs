@@ -21,6 +21,10 @@ test.snapshot({
 	],
 	invalid: [
 		'array[array.length - 1];',
+		'array[array.length -1];',
+		'array[array.length - /* comment */ 1];',
+		'array[array.length - 1.];',
+		'array[array.length - 0b1];',
 		'array[array.length - 9];',
 		'array[0][array[0].length - 1];',
 		'array[(( array.length )) - 1];',
