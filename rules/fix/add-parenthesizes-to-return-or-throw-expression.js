@@ -1,20 +1,21 @@
 'use strict';
 const {isSemicolonToken} = require('eslint-utils');
 
-function * addParenthesizesToReturnOrThrowExpression(fixer, node, effectedNodeOrToken, sourceCode) {
+function * addParenthesizesToReturnOrThrowExpression(fixer, node, sourceCode) {
 	if (node.type !== 'ReturnStatement' && node.type !== 'ThrowStatement') {
 		return;
 	}
 
 	const returnOrThrowToken = sourceCode.getFirstToken(node);
-	if (returnOrThrowToken.loc.start.line !== effectedNodeOrToken.loc.start.line) {
-		return;
-	}
-
 	yield fixer.insertTextAfter(returnOrThrowToken, ' (');
 
 	const lastToken = sourceCode.getLastToken(node);
-	yield (isSemicolonToken(lastToken) ? fixer.insertTextBefore(lastToken, ')') : fixer.insertTextAfter(node, ')'));
+	if (!isSemicolonToken(lastToken)) {
+		yield fixer.insertTextAfter(node, ')');
+		return;
+	}
+
+	yield fixer.insertTextBefore(lastToken, ')');
 }
 
 module.exports = addParenthesizesToReturnOrThrowExpression;

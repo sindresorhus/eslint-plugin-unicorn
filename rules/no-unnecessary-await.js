@@ -5,6 +5,7 @@ const {
 } = require('./fix/index.js');
 const {isParenthesized} = require('./utils/parentheses.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
+const isOnSameLine = require('./utils/is-on-same-line.js');
 
 const MESSAGE_ID = 'no-unnecessary-await';
 const messages = {
@@ -49,10 +50,11 @@ const create = context => ({
 			messageId: MESSAGE_ID,
 		};
 
+		const valueNode = node.argument;
 		// Removing `await` may change them to a declaration, if there is no `id` will cause SyntaxError
 		if (
-			node.argument.type === 'FunctionExpression'
-				|| node.argument.type === 'ClassExpression'
+			valueNode.type === 'FunctionExpression'
+			|| valueNode.type === 'ClassExpression'
 		) {
 			return problem;
 		}
@@ -60,8 +62,11 @@ const create = context => ({
 		return Object.assign(problem, {
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
-				if (!isParenthesized(node, sourceCode)) {
-					yield * addParenthesizesToReturnOrThrowExpression(fixer, node.parent, node, sourceCode);
+				if (
+					!isOnSameLine(awaitToken,valueNode)
+					&& !isParenthesized(node, sourceCode)
+				) {
+					yield * addParenthesizesToReturnOrThrowExpression(fixer, node.parent, sourceCode);
 				}
 
 				yield fixer.remove(awaitToken);
