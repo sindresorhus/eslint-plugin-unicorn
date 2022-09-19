@@ -14,6 +14,17 @@
 
 ```js
 switch (foo) {
+	case 1: {
+	}
+	case 2: {
+		doSomething();
+		break;
+	}
+}
+```
+
+```js
+switch (foo) {
 	case 1:
 		doSomething();
 		break;
