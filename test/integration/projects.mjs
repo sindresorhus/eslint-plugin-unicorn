@@ -54,7 +54,7 @@ export default [
 			'documentation/examples/gh-got.js',
 		],
 	},
-	'https://github.com/eslint/eslint',
+	// 'https://github.com/eslint/eslint',
 	{
 		repository: 'https://github.com/prettier/prettier',
 		ignore: [

@@ -125,7 +125,7 @@ const execute = project => {
 const list = new Listr([
 	{
 		title: 'Setup',
-		task: () => execa('npm', ['install'], {cwd: dirname}),
+		task: () => execa('npm', ['install'], {cwd: dirname, stdout: 'inherit', stderr: 'inherit'}),
 	},
 	{
 		title: 'Integration tests',
