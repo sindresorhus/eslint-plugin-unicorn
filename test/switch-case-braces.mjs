@@ -3,7 +3,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-// empty
+// Empty
 test.snapshot({
 	valid: [
 		outdent`
@@ -47,11 +47,11 @@ test.snapshot({
 		},
 		{
 			code: outdent`
-			switch(foo){
-				case 1: {
+				switch(foo){
+					case 1: {
+					}
+					; // <- Not empty
 				}
-				; // <- Not empty
-			}
 			`,
 			options: ['avoid'],
 		},
@@ -117,7 +117,7 @@ test.snapshot({
 					label: {}
 			}
 		`,
-	]
+	],
 });
 
 // Avoid braces
