@@ -2,6 +2,7 @@
 const {isColonToken} = require('eslint-utils');
 const getSwitchCaseHeadLocation = require('./utils/get-switch-case-head-location.js');
 const getIndentString = require('./utils/get-indent-string.js');
+const {replaceNodeOrTokenAndSpacesBefore} = require('./fix/index.js');
 
 const MESSAGE_ID_EMPTY = 'switch-case-braces/empty';
 const MESSAGE_ID_MISSING = 'switch-case-braces/missing';
@@ -15,7 +16,7 @@ const messages = {
 function * removeBraces(fixer, node, sourceCode) {
 	const [blockStatement] = node.consequent;
 	const openingBraceToken = sourceCode.getFirstToken(blockStatement);
-	yield fixer.remove(openingBraceToken);
+	yield * replaceNodeOrTokenAndSpacesBefore(openingBraceToken, '', fixer, sourceCode);
 
 	const closingBraceToken = sourceCode.getLastToken(blockStatement);
 	yield fixer.remove(closingBraceToken);
