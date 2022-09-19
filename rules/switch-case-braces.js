@@ -1,6 +1,4 @@
 'use strict';
-const {} = require('./selectors/index.js');
-const {} = require('./fix/index.js');
 const {isColonToken} = require('eslint-utils');
 const getSwitchCaseHeadLocation = require('./utils/get-switch-case-head-location.js');
 
@@ -70,7 +68,7 @@ const create = context => {
 					loc: getSwitchCaseHeadLocation(node, sourceCode),
 					messageId: MESSAGE_ID_MISSING,
 					fix: fixer => addBraces(fixer, node, sourceCode),
-				}
+				};
 			}
 
 			if (
@@ -79,7 +77,7 @@ const create = context => {
 				&& consequent[0].type === 'BlockStatement'
 				&& consequent[0].body.every(node =>
 					node.type !== 'VariableDeclaration'
-					&& node.type !== 'FunctionDeclaration'
+					&& node.type !== 'FunctionDeclaration',
 				)
 			) {
 				return {
