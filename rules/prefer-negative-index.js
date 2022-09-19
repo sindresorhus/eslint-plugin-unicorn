@@ -43,7 +43,6 @@ const methods = new Map([
 			supportObjects: new Set([
 				'Array',
 				'String',
-				'ArrayBuffer',
 				...typedArray,
 			]),
 		},
