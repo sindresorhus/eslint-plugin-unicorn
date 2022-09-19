@@ -156,6 +156,17 @@ test.snapshot({
 		`,
 		outdent`
 			switch(foo) {
+				default: {
+					{
+						const bar = 2;
+						doSomething();
+					}
+					doSomethingElse();
+				}
+			}
+		`,
+		outdent`
+			switch(foo) {
 				case 1: {
 					break;
 				}
@@ -173,7 +184,7 @@ test.snapshot({
 				default: {{{
 					doSomething();
 					{
-						doAnotherThingInBlockStatement();
+						doSomethingElseInBlockStatement();
 					}
 				}}}
 			}
