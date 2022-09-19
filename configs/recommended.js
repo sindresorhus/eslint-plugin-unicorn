@@ -118,6 +118,7 @@ module.exports = {
 		// See #1396
 		'unicorn/require-post-message-target-origin': 'off',
 		'unicorn/string-content': 'off',
+		'unicorn/switch-case-braces': 'error',
 		'unicorn/template-indent': 'error',
 		'unicorn/text-encoding-identifier-case': 'error',
 		'unicorn/throw-new-error': 'error',
