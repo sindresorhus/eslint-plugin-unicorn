@@ -18,6 +18,7 @@ const {
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
+const ERROR_POP = 'error-pop';
 const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
 const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
 const ERROR_DECLARATION = 'error-variable';
@@ -27,6 +28,7 @@ const messages = {
 	[ERROR_DECLARATION]: 'Prefer `.find(…)` over `.filter(…)`.',
 	[ERROR_ZERO_INDEX]: 'Prefer `.find(…)` over `.filter(…)[0]`.',
 	[ERROR_SHIFT]: 'Prefer `.find(…)` over `.filter(…).shift()`.',
+	[ERROR_POP]: 'Prefer `.findLast(…)` over `.filter(…).pop()`.',
 	[ERROR_DESTRUCTURING_DECLARATION]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
 	// Same message as `ERROR_DESTRUCTURING_DECLARATION`, but different case
 	[ERROR_DESTRUCTURING_ASSIGNMENT]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
@@ -337,7 +339,22 @@ const create = context => {
 		},
 	};
 
-	return listeners;
+	if (!checkFromLast) {
+		return listeners;
+	}
+
+	return Object.assign(listeners, {
+		[popSelector](node) {
+			return {
+				node: node.callee.object.callee.property,
+				messageId: ERROR_POP,
+				fix: fixer => [
+					fixer.replaceText(node.callee.object.callee.property, 'findLast'),
+					...removeMethodCall(fixer, node, sourceCode),
+				],
+			};
+		},
+	});
 };
 
 const schema = [
