@@ -51,15 +51,32 @@ const create = context => {
 				return;
 			}
 
-			return {
+			const problem = {
 				node,
 				messageId: MESSAGE_ID,
 				data: {
 					original,
 					optimized,
 				},
-				fix: fixer => fixer.replaceText(node, optimized),
 			};
+
+			if (
+				node.parent.type === 'MemberExpression'
+				&& node.parent.object === node
+				&& !node.parent.optional
+				&& !node.parent.computed
+				&& node.parent.property.type === 'Identifier'
+				&& (
+					node.parent.property.name === 'toString'
+					|| node.parent.property.name === 'source'
+				)
+			) {
+				return problem;
+			}
+
+			return Object.assign(problem, {
+				fix: fixer => fixer.replaceText(node, optimized),
+			});
 		},
 		[newRegExp](node) {
 			const [patternNode, flagsNode] = node.arguments;
