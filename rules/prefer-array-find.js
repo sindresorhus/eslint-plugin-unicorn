@@ -76,6 +76,17 @@ const shiftSelector = [
 	}),
 ].join('');
 
+const popSelector = [
+	methodCallSelector({
+		method: 'pop',
+		argumentsLength: 0,
+	}),
+	methodCallSelector({
+		...filterMethodSelectorOptions,
+		path: 'callee.object',
+	}),
+].join('');
+
 const destructuringDeclaratorSelector = [
 	'VariableDeclarator',
 	'[id.type="ArrayPattern"]',
@@ -229,8 +240,14 @@ const isDestructuringFirstElement = node => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const sourceCode = context.getSourceCode();
+	const {
+		checkFromLast,
+	} = {
+		checkFromLast: false,
+		...context.options[0],
+	};
 
-	return {
+	const listeners = {
 		[zeroIndexSelector](node) {
 			return {
 				node: node.object.callee.property,
@@ -319,7 +336,23 @@ const create = context => {
 			return problem;
 		},
 	};
+
+	return listeners;
 };
+
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			checkFromLast: {
+				type: 'boolean',
+				// TODO: Change default value to `true`, or remove the option when targeting Node.js 18.
+				default: false,
+			},
+		},
+	},
+];
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
