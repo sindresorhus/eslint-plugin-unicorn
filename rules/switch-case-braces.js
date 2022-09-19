@@ -1,6 +1,7 @@
 'use strict';
 const {isColonToken} = require('eslint-utils');
 const getSwitchCaseHeadLocation = require('./utils/get-switch-case-head-location.js');
+const getIndentString = require('./utils/get-indent-string.js');
 
 const MESSAGE_ID_EMPTY = 'switch-case-braces/empty';
 const MESSAGE_ID_MISSING = 'switch-case-braces/missing';
@@ -28,7 +29,8 @@ function * addBraces(fixer, node, sourceCode) {
 	yield fixer.insertTextAfter(colonToken, ' {');
 
 	const lastToken = sourceCode.getLastToken(node);
-	yield fixer.insertTextAfter(lastToken, '}');
+	const indent = getIndentString(node, sourceCode);
+	yield fixer.insertTextAfter(lastToken, `\n${indent}}`);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
