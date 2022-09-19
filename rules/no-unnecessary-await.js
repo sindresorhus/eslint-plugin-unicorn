@@ -63,7 +63,7 @@ const create = context => ({
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
 				if (
-					!isOnSameLine(awaitToken,valueNode)
+					!isOnSameLine(awaitToken, valueNode)
 					&& !isParenthesized(node, sourceCode)
 				) {
 					yield * addParenthesizesToReturnOrThrowExpression(fixer, node.parent, sourceCode);
