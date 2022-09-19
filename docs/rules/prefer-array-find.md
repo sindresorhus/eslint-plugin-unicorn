@@ -57,18 +57,18 @@ Pass `checkFromLast: true` to check cases searching from last.
 #### Fail
 
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkFromLast": true}]
+// eslint unicorn/prefer-array-find: ["error", {"checkFromLast": true}]
 const item = array.filter(x => isUnicorn(x)).at(-1);
 ```
 
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkFromLast": true}]
+// eslint unicorn/prefer-array-find: ["error", {"checkFromLast": true}]
 const item = array.filter(x => isUnicorn(x)).pop();
 ```
 
 #### Pass
 
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkFromLast": true}]
+// eslint unicorn/prefer-array-find: ["error", {"checkFromLast": true}]
 const item = array.findLast(x => isUnicorn(x));
 ```
