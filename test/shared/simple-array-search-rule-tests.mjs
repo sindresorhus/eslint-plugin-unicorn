@@ -19,7 +19,7 @@ function snapshotTests({method, replacement}) {
 			// Computed
 			`foo[${method}](x => x === 1)`,
 			// Not `findIndex`
-			'foo.notListedMethod(x => x === 1)',
+			`foo.not_${method}(x => x === 1)`,
 
 			// Test `callback` part
 			// Not function
