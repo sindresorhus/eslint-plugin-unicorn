@@ -414,6 +414,7 @@ module.exports = {
 		},
 		fixable: 'code',
 		hasSuggestions: true,
+		schema,
 		messages,
 	},
 };

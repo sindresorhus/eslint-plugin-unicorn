@@ -966,12 +966,12 @@ test({
 	invalid: [
 		{
 			code: 'array.filter(foo).pop()',
-			output: 'array.find(foo)',
+			output: 'array.findLast(foo)',
 			errors: [{messageId: ERROR_POP}],
 		},
 		{
 			code: 'array.filter(foo, thisArgument).pop()',
-			output: 'array.find(foo, thisArgument)',
+			output: 'array.findLast(foo, thisArgument)',
 			errors: [{messageId: ERROR_POP}],
 		},
 		{
@@ -990,7 +990,7 @@ test({
 			output: outdent`
 				const item = array
 					// comment 1
-					.find(
+					.findLast(
 						// comment 2
 						x => x === '🦄'
 					)
