@@ -4,13 +4,13 @@ const getSwitchCaseHeadLocation = require('./utils/get-switch-case-head-location
 const getIndentString = require('./utils/get-indent-string.js');
 const {replaceNodeOrTokenAndSpacesBefore} = require('./fix/index.js');
 
-const MESSAGE_ID_EMPTY = 'switch-case-braces/empty';
-const MESSAGE_ID_MISSING = 'switch-case-braces/missing';
-const MESSAGE_ID_UNNECESSARY = 'switch-case-braces/unnecessary';
+const MESSAGE_ID_EMPTY_CLAUSE = 'switch-case-braces/empty';
+const MESSAGE_ID_MISSING_BRACES = 'switch-case-braces/missing';
+const MESSAGE_ID_UNNECESSARY_BRACES = 'switch-case-braces/unnecessary';
 const messages = {
-	[MESSAGE_ID_EMPTY]: 'Unexpected braces in empty case clause.',
-	[MESSAGE_ID_MISSING]: 'Missing braces in case clause.',
-	[MESSAGE_ID_UNNECESSARY]: 'Unnecessary braces in case clause.',
+	[MESSAGE_ID_EMPTY_CLAUSE]: 'Unexpected braces in empty case clause.',
+	[MESSAGE_ID_MISSING_BRACES]: 'Missing braces in case clause.',
+	[MESSAGE_ID_UNNECESSARY_BRACES]: 'Unnecessary braces in case clause.',
 };
 
 function * removeBraces(fixer, node, sourceCode) {
@@ -54,7 +54,7 @@ const create = context => {
 				return {
 					node,
 					loc: sourceCode.getFirstToken(consequent[0]).loc,
-					messageId: MESSAGE_ID_EMPTY,
+					messageId: MESSAGE_ID_EMPTY_CLAUSE,
 					fix: fixer => removeBraces(fixer, node, sourceCode),
 				};
 			}
@@ -69,7 +69,7 @@ const create = context => {
 				return {
 					node,
 					loc: getSwitchCaseHeadLocation(node, sourceCode),
-					messageId: MESSAGE_ID_MISSING,
+					messageId: MESSAGE_ID_MISSING_BRACES,
 					fix: fixer => addBraces(fixer, node, sourceCode),
 				};
 			}
@@ -86,7 +86,7 @@ const create = context => {
 				return {
 					node,
 					loc: sourceCode.getFirstToken(consequent[0]).loc,
-					messageId: MESSAGE_ID_UNNECESSARY,
+					messageId: MESSAGE_ID_UNNECESSARY_BRACES,
 					fix: fixer => removeBraces(fixer, node, sourceCode),
 				};
 			}
