@@ -85,5 +85,12 @@ test.snapshot({
 					[];
 			}
 		`,
+		outdent`
+			async function foo() {
+				throw await
+					// comment
+					1;
+			}
+		`,
 	],
 });
