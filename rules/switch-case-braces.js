@@ -75,20 +75,18 @@ const create = context => {
 
 			if (
 				!isBracesRequired
-				&& !(
-					consequent.length === 1
-					&& consequent[0].type === 'BlockStatement'
-					&& !consequent.some(node =>
-						node.type === 'VariableDeclaration'
-						|| node.type === 'FunctionDeclaration'
-					)
+				&& consequent.length === 1
+				&& consequent[0].type === 'BlockStatement'
+				&& !consequent.some(node =>
+					node.type === 'VariableDeclaration'
+					|| node.type === 'FunctionDeclaration'
 				)
 			) {
 				return {
 					node,
 					loc: getSwitchCaseHeadLocation(node, sourceCode),
 					messageId: MESSAGE_ID_UNNECESSARY,
-					fix: fixer => addBraces(fixer, node, sourceCode),
+					fix: fixer => removeBraces(fixer, node, sourceCode),
 				};
 			}
 		},

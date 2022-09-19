@@ -34,6 +34,27 @@ test.snapshot({
 				}
 			}
 		`,
+		{
+			code: outdent`
+				switch(foo){
+					case 1:
+						label: // <- Not empty
+						{
+						}
+				}
+			`,
+			options: ['avoid'],
+		},
+		{
+			code: outdent`
+			switch(foo){
+				case 1: {
+				}
+				; // <- Not empty
+			}
+			`,
+			options: ['avoid'],
+		},
 	],
 	invalid: [
 		outdent`
@@ -62,4 +83,33 @@ test.snapshot({
 			}
 		`,
 	],
+});
+
+// Enforce braces
+test.snapshot({
+	valid: [
+
+	],
+	invalid: [
+		outdent`
+			switch(foo) {
+				default:
+					doSomething();
+			}
+		`,
+		outdent`
+			switch(foo) {
+				case 1: {
+					doSomething();
+				}
+				break; // <-- This should be between braces;
+			}
+		`,
+		outdent`
+			switch(foo) {
+				default:
+					label: {}
+			}
+		`,
+	]
 });
