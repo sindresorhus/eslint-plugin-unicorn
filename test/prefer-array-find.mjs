@@ -6,6 +6,7 @@ const {test} = getTester(import.meta);
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
 const ERROR_POP = 'error-pop';
+const ERROR_AT_MINUS_ONE = 'error-at-minus-one';
 const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
 const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
 const ERROR_DECLARATION = 'error-variable';
@@ -961,7 +962,7 @@ test({
 		'array.filter().pop()',
 		'array.filter(foo, thisArgument, extraArgument).pop()',
 		'array.filter(...foo).pop()',
-	].map(code => ({code, option: checkFromLastOptions})),
+	].map(code => ({code, options: checkFromLastOptions})),
 	invalid: [
 		{
 			code: 'array.filter(foo).pop()',
@@ -998,5 +999,96 @@ test({
 			`,
 			errors: [{messageId: ERROR_POP}],
 		},
-	].map(test => ({...test, option: checkFromLastOptions})),
+	].map(test => ({...test, options: checkFromLastOptions})),
+});
+
+// `.at(-1)`
+test({
+	valid: [
+		// Test `.at()`
+		// Not `CallExpression`
+		'array.filter(foo).at',
+		// Not `MemberExpression`
+		'at(array.filter(foo), -1)',
+		// `callee.property` is not a `Identifier`
+		'array.filter(foo)["at"](-1)',
+		// Computed
+		'array.filter(foo)[at](-1)',
+		// Not `at`
+		'array.filter(foo).notAt(-1)',
+		// More or less argument(s)
+		'array.filter(foo).at()',
+		'array.filter(foo).at(-1, extraArgument)',
+		'array.filter(foo).at(...[-1])',
+
+		// Test `-1`
+		'array.filter(foo).at(1)',
+		'array.filter(foo).at(+1)',
+		'const ONE = 1; array.filter(foo).at(-ONE)',
+		'const MINUS_ONE = 1; array.filter(foo).at(MINUS_ONE)',
+		'const a = {b: 1}; array.filter(foo).at(-a.b)',
+		'const a = {b: -1}; array.filter(foo).at(a.b)',
+		'array.filter(foo).at(-2)',
+		'array.filter(foo).at(-"1")',
+		'array.filter(foo).at(-null)',
+		'array.filter(foo).at(-false)',
+		'array.filter(foo).at(-true)',
+
+		// Test `.filter()`
+		// Not `CallExpression`
+		'array.filter.at(-1)',
+		// Not `MemberExpression`
+		'filter(foo).at(-1)',
+		// `callee.property` is not a `Identifier`
+		'array["filter"](foo).at(-1)',
+		// Computed
+		'array[filter](foo).at(-1)',
+		// Not `filter`
+		'array.notFilter(foo).at(-1)',
+		// More or less argument(s)
+		'array.filter().at(-1)',
+		'array.filter(foo, thisArgument, extraArgument).at(-1)',
+		'array.filter(...foo).at(-1)',
+	].map(code => ({code, options: checkFromLastOptions})),
+	invalid: [
+		{
+			code: 'array.filter(foo).at(-1)',
+			output: 'array.findLast(foo)',
+			errors: [{messageId: ERROR_AT_MINUS_ONE}],
+		},
+		{
+			code: 'array.filter(foo, thisArgument).at(-1)',
+			output: 'array.findLast(foo, thisArgument)',
+			errors: [{messageId: ERROR_AT_MINUS_ONE}],
+		},
+		{
+			code: outdent`
+				const item = array
+					// comment 1
+					.filter(
+						// comment 2
+						x => x === '🦄'
+					)
+					// comment 3
+					.at(
+						// comment 4
+						-1
+						// comment 5
+					)
+					// comment 6
+					;
+			`,
+			output: outdent`
+				const item = array
+					// comment 1
+					.findLast(
+						// comment 2
+						x => x === '🦄'
+					)
+					// comment 6
+					;
+			`,
+			errors: [{messageId: ERROR_AT_MINUS_ONE}],
+		},
+	].map(test => ({...test, options: checkFromLastOptions})),
 });

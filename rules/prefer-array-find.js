@@ -19,6 +19,7 @@ const {
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
 const ERROR_POP = 'error-pop';
+const ERROR_AT_MINUS_ONE = 'error-at-minus-one';
 const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
 const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
 const ERROR_DECLARATION = 'error-variable';
@@ -29,6 +30,7 @@ const messages = {
 	[ERROR_ZERO_INDEX]: 'Prefer `.find(…)` over `.filter(…)[0]`.',
 	[ERROR_SHIFT]: 'Prefer `.find(…)` over `.filter(…).shift()`.',
 	[ERROR_POP]: 'Prefer `.findLast(…)` over `.filter(…).pop()`.',
+	[ERROR_AT_MINUS_ONE]: 'Prefer `.findLast(…)` over `.filter(…).at(-1)`.',
 	[ERROR_DESTRUCTURING_DECLARATION]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
 	// Same message as `ERROR_DESTRUCTURING_DECLARATION`, but different case
 	[ERROR_DESTRUCTURING_ASSIGNMENT]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
@@ -83,6 +85,22 @@ const popSelector = [
 		method: 'pop',
 		argumentsLength: 0,
 	}),
+	methodCallSelector({
+		...filterMethodSelectorOptions,
+		path: 'callee.object',
+	}),
+].join('');
+
+const atMinusOneSelector = [
+	methodCallSelector({
+		method: 'at',
+		argumentsLength: 1,
+	}),
+	'[arguments.0.type="UnaryExpression"]',
+	'[arguments.0.operator="-"]',
+	'[arguments.0.prefix]',
+	'[arguments.0.argument.type="Literal"]',
+	'[arguments.0.argument.value=1]',
 	methodCallSelector({
 		...filterMethodSelectorOptions,
 		path: 'callee.object',
@@ -348,6 +366,21 @@ const create = context => {
 			return {
 				node: node.callee.object.callee.property,
 				messageId: ERROR_POP,
+				fix: fixer => [
+					fixer.replaceText(node.callee.object.callee.property, 'findLast'),
+					...removeMethodCall(fixer, node, sourceCode),
+				],
+			};
+		},
+		[atMinusOneSelector](node) {
+			// esquery selector can't check it's a number
+			if (node.arguments[0].argument.value !== 1) {
+				return;
+			}
+
+			return {
+				node: node.callee.object.callee.property,
+				messageId: ERROR_AT_MINUS_ONE,
 				fix: fixer => [
 					fixer.replaceText(node.callee.object.callee.property, 'findLast'),
 					...removeMethodCall(fixer, node, sourceCode),
