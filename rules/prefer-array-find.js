@@ -373,7 +373,7 @@ const create = context => {
 			};
 		},
 		[atMinusOneSelector](node) {
-			// esquery selector can't check it's a number
+			// `esquery` selector can't check it's a number
 			if (node.arguments[0].argument.value !== 1) {
 				return;
 			}
