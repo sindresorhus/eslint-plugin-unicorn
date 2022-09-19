@@ -51,10 +51,16 @@ const create = context => ({
 		};
 
 		const valueNode = node.argument;
-		// Removing `await` may change them to a declaration, if there is no `id` will cause SyntaxError
 		if (
+			// Removing `await` may change them to a declaration, if there is no `id` will cause SyntaxError
 			valueNode.type === 'FunctionExpression'
 			|| valueNode.type === 'ClassExpression'
+			// `+await +1` -> `++1`
+			|| (
+				node.parent.type === 'UnaryExpression'
+				&& valueNode.type === 'UnaryExpression'
+				&& node.parent.operator === valueNode.operator
+			)
 		) {
 			return problem;
 		}
