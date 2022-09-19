@@ -7,16 +7,24 @@
 🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
 <!-- /RULE_NOTICE -->
 
-<!-- Remove this comment, add more detailed description. -->
+[`await` operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) should only used on [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
 
 ## Fail
 
 ```js
-const foo = 'unicorn';
+await await promise;
+```
+
+```js
+await [promise1, promise2];
 ```
 
 ## Pass
 
 ```js
-const foo = '🦄';
+await promise;
+```
+
+```js
+await Promise.allSettled([promise1, promise2]);
 ```
