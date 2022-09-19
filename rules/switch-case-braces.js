@@ -84,7 +84,7 @@ const create = context => {
 			) {
 				return {
 					node,
-					loc: getSwitchCaseHeadLocation(node, sourceCode),
+					loc: sourceCode.getFirstToken(consequent[0]).loc,
 					messageId: MESSAGE_ID_UNNECESSARY,
 					fix: fixer => removeBraces(fixer, node, sourceCode),
 				};
