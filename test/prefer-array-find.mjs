@@ -5,6 +5,7 @@ const {test} = getTester(import.meta);
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
+const ERROR_POP = 'error-pop';
 const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
 const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
 const ERROR_DECLARATION = 'error-variable';
@@ -913,4 +914,89 @@ test({
 			],
 		},
 	],
+});
+
+// Check from last
+const checkFromLastOptions = [{checkFromLast: true}];
+
+// Default to false
+test({
+	valid: [
+		'array.filter(foo).pop()',
+		'array.filter(foo).at(-1)',
+	],
+	invalid: [],
+});
+
+// `.pop()`
+test({
+	valid: [
+		// Test `.pop()`
+		// Not `CallExpression`
+		'array.filter(foo).pop',
+		// Not `MemberExpression`
+		'pop(array.filter(foo))',
+		// `callee.property` is not a `Identifier`
+		'array.filter(foo)["pop"]()',
+		// Computed
+		'array.filter(foo)[pop]()',
+		// Not `pop`
+		'array.filter(foo).notPop()',
+		// More or less argument(s)
+		'array.filter(foo).pop(extraArgument)',
+		'array.filter(foo).pop(...[])',
+
+		// Test `.filter()`
+		// Not `CallExpression`
+		'array.filter.pop()',
+		// Not `MemberExpression`
+		'filter(foo).pop()',
+		// `callee.property` is not a `Identifier`
+		'array["filter"](foo).pop()',
+		// Computed
+		'array[filter](foo).pop()',
+		// Not `filter`
+		'array.notFilter(foo).pop()',
+		// More or less argument(s)
+		'array.filter().pop()',
+		'array.filter(foo, thisArgument, extraArgument).pop()',
+		'array.filter(...foo).pop()',
+	].map(code => ({code, option: checkFromLastOptions})),
+	invalid: [
+		{
+			code: 'array.filter(foo).pop()',
+			output: 'array.find(foo)',
+			errors: [{messageId: ERROR_POP}],
+		},
+		{
+			code: 'array.filter(foo, thisArgument).pop()',
+			output: 'array.find(foo, thisArgument)',
+			errors: [{messageId: ERROR_POP}],
+		},
+		{
+			code: outdent`
+				const item = array
+					// comment 1
+					.filter(
+						// comment 2
+						x => x === '🦄'
+					)
+					// comment 3
+					.pop()
+					// comment 4
+					;
+			`,
+			output: outdent`
+				const item = array
+					// comment 1
+					.find(
+						// comment 2
+						x => x === '🦄'
+					)
+					// comment 4
+					;
+			`,
+			errors: [{messageId: ERROR_POP}],
+		},
+	].map(test => ({...test, option: checkFromLastOptions})),
 });
