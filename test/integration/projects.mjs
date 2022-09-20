@@ -145,6 +145,8 @@ export default [
 		ignore: [
 			// This file use `'\033'`
 			'build/**',
+			// Unknown parse error
+			'src/vs/workbench/contrib/extensions/browser/extensionsWorkbenchService.ts',
 		],
 	},
 	'https://github.com/element-plus/element-plus',
