@@ -56,8 +56,8 @@ async function runEslint(project) {
 				babelOptions: {
 					babelrc: false,
 					configFile: false,
-					allowReturnOutsideFunction: true,
 					parserOpts: {
+						allowReturnOutsideFunction: true,
 						plugins: [
 							'jsx',
 							'exportDefaultFrom',
