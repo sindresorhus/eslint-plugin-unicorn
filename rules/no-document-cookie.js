@@ -1,36 +1,20 @@
 'use strict';
-const {getPropertyName} = require('eslint-utils');
+const {GlobalReferenceTracker} = require('./utils/global-reference-tracker.js');
 
 const MESSAGE_ID = 'no-document-cookie';
 const messages = {
 	[MESSAGE_ID]: 'Do not use `document.cookie` directly.',
 };
 
-const selector = [
-	'AssignmentExpression',
-	'>',
-	'MemberExpression.left',
-	'[object.type="Identifier"]',
-	'[object.name="document"]',
-].join('');
-
-/** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	[selector](node) {
-		if (getPropertyName(node, context.getScope()) !== 'cookie') {
-			return;
-		}
-
-		return {
-			node,
-			messageId: MESSAGE_ID,
-		};
-	},
+const tracker = new GlobalReferenceTracker({
+	object: 'document.cookie',
+	filter: ({node}) => node.parent.type === 'AssignmentExpression' && node.parent.left === node,
+	handle: ({node}) => ({node, messageId: MESSAGE_ID}),
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
-	create,
+	create: context => tracker.createListeners(context),
 	meta: {
 		type: 'problem',
 		docs: {
