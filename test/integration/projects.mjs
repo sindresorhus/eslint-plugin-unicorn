@@ -96,8 +96,8 @@ export default [
 	{
 		repository: 'https://github.com/sindresorhus/file-type',
 		ignore: [
-			// Not a text file
-			'fixture/fixture-bdav.mts',
+			// Contains non-text `.mts` file
+			'fixture/**',
 		],
 	},
 	'https://github.com/sindresorhus/slugify',
