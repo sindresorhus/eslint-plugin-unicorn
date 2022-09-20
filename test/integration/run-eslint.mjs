@@ -26,12 +26,15 @@ class UnicornEslintFatalError extends SyntaxError {
 
 	get codeFrame() {
 		const {source, output} = this.eslintFile;
-		const {line, column, message} = this.eslintMessage;
+		const {line, column, message, ruleId} = this.eslintMessage;
 
 		return codeFrameColumns(
 			source ?? output,
 			{start: {line, column}},
-			{message, highlightCode: true},
+			{
+				message: ruleId ? `[${ruleId}]: ${message}` : message,
+				highlightCode: true,
+			},
 		);
 	}
 }
