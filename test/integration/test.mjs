@@ -62,9 +62,10 @@ async function printEslintError(eslintError) {
 			file = `${project.repository}/blob/${project.branch}/${file}`;
 		}
 
-		if (typeof error.eslintMessage.line == 'number') {
+		if (typeof error.eslintMessage.line === 'number') {
 			file += `#L${error.eslintMessage.line}`;
 		}
+
 		console.log();
 		console.error(chalk.blue.bold.underline(file));
 		console.log();
@@ -94,7 +95,7 @@ async function printListrError(listrError) {
 try {
 	await new Listr(
 		projects.map(project => ({title: project.name, task: () => execute(project)})),
-		{renderer: 'verbose'},
+		{renderer: isCI ? 'verbose' : 'default'},
 	).run();
 } catch (error) {
 	await printListrError(error);
