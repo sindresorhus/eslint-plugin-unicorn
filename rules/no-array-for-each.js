@@ -321,21 +321,27 @@ function isAssignmentLeftHandSide(node) {
 		case 'ForOfStatement': {
 			return parent.left === node;
 		}
+
 		case 'UpdateExpression': {
 			return parent.argument === node;
 		}
+
 		case 'Property': {
 			return parent.value === node && isAssignmentLeftHandSide(parent);
 		}
+
 		case 'AssignmentPattern': {
 			return parent.left === node && isAssignmentLeftHandSide(parent);
 		}
+
 		case 'ArrayPattern': {
 			return parent.elements.includes(node) && isAssignmentLeftHandSide(parent);
 		}
+
 		case 'ObjectPattern': {
 			return parent.properties.includes(node) && isAssignmentLeftHandSide(parent);
 		}
+
 		default: {
 			return false;
 		}

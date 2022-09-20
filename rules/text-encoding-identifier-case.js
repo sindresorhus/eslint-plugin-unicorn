@@ -15,6 +15,7 @@ const getReplacement = encoding => {
 		case 'utf8': {
 			return 'utf8';
 		}
+
 		case 'ascii': {
 			return 'ascii';
 		}

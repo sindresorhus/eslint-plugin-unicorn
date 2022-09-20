@@ -212,6 +212,7 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 					yield fixer.insertTextAfter(firstStatement, `\n${indent}// No default`);
 					break;
 				}
+
 				case 'do-nothing-comment': {
 					yield fixer.insertTextAfter(firstStatement, `\n${indent}default:\n${indent}// Do nothing`);
 					break;

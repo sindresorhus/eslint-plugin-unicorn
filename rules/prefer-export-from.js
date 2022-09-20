@@ -21,6 +21,7 @@ const getSpecifierName = node => {
 		case 'Identifier': {
 			return Symbol.for(node.name);
 		}
+
 		case 'Literal': {
 			return node.value;
 		}

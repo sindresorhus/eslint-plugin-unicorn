@@ -154,14 +154,17 @@ const create = context => {
 					messageId = ITERABLE_TO_ARRAY_IN_FOR_OF;
 					break;
 				}
+
 				case 'YieldExpression': {
 					messageId = ITERABLE_TO_ARRAY_IN_YIELD_STAR;
 					break;
 				}
+
 				case 'NewExpression': {
 					parentDescription = `new ${parent.callee.name}(…)`;
 					break;
 				}
+
 				case 'CallExpression': {
 					parentDescription = `${parent.callee.object.name}.${parent.callee.property.name}(…)`;
 					break;

@@ -187,6 +187,7 @@ function isNumber(node, scope) {
 
 			break;
 		}
+
 		case 'ConditionalExpression': {
 			const isConsequentNumber = isNumber(node.consequent, scope);
 			const isAlternateNumber = isNumber(node.alternate, scope);

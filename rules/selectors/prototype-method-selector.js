@@ -40,6 +40,7 @@ function prototypeMethodSelector(options) {
 			prototypeSelectors.push(emptyArraySelector(objectPath));
 			break;
 		}
+
 		case 'Object': {
 			// `{}.method` or `Object.prototype.method`
 			prototypeSelectors.push(emptyObjectSelector(objectPath));

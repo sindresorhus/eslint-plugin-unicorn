@@ -135,7 +135,8 @@ const create = context => {
 						// Optional chaining: `target.startsWith` => `target?.startsWith`
 						yield fixer.replaceText(sourceCode.getTokenBefore(node.callee.property), '?.');
 					}
-						// Fallthrough
+
+					// Fallthrough
 					default: {
 						if (
 							!isRegexParenthesized

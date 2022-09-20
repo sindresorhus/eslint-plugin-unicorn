@@ -24,9 +24,11 @@ function shouldAddParenthesesToMemberExpressionObject(node, sourceCode) {
 		case 'FunctionExpression': {
 			return false;
 		}
+
 		case 'NewExpression': {
 			return !isNewExpressionWithParentheses(node, sourceCode);
 		}
+
 		case 'Literal': {
 			/* c8 ignore next */
 			if (isDecimalIntegerNode(node)) {
