@@ -21,6 +21,7 @@ function runEslint(project) {
 					parserOpts: {
 						plugins: [
 							'jsx',
+							'exportDefaultFrom',
 						],
 					},
 				},
