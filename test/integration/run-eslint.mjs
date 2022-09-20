@@ -1,4 +1,5 @@
 import {codeFrameColumns} from '@babel/code-frame';
+import {ESLint} from 'eslint';
 import eslintPluginUnicorn from '../../index.js';
 
 class UnicornIntegrationTestError extends AggregateError {
