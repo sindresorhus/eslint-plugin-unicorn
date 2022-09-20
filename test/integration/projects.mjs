@@ -174,6 +174,7 @@ export default [
 	} = project;
 
 	return {
+		location: path.join(dirname, 'fixtures', name),
 		...project,
 		name,
 		repository,
