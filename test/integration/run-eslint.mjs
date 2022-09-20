@@ -39,7 +39,9 @@ async function runEslint(project) {
 		cwd: project.location,
 		baseConfig: eslintPluginUnicorn.configs.all,
 		useEslintrc: false,
-		extensions: ['.js', '.mjs', '.cjs', '.ts', '.mts', '.cts', '.jsx', '.tsx', '.vue'],
+		extensions: ['.js', '.ts', '.vue'],
+		// TODO[@fisker]: Lint more files
+		// extensions: ['.js', '.mjs', '.cjs', '.ts', '.mts', '.cts', '.jsx', '.tsx', '.vue'],
 		plugins: {
 			unicorn: eslintPluginUnicorn,
 		},

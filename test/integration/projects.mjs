@@ -94,7 +94,13 @@ export default [
 	'https://github.com/sindresorhus/create-dmg',
 	'https://github.com/sindresorhus/cp-file',
 	'https://github.com/sindresorhus/capture-website',
-	'https://github.com/sindresorhus/file-type',
+	{
+		repository: 'https://github.com/sindresorhus/file-type',
+		ignore: [
+			// Not a text file
+			'fixture/fixture-bdav.mts',
+		]
+	},
 	'https://github.com/sindresorhus/slugify',
 	{
 		repository: 'https://github.com/gatsbyjs/gatsby',
