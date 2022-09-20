@@ -74,6 +74,9 @@ async function runEslint(project) {
 				{
 					files: ['*.ts', '*.mts', '*.cts', '*.tsx'],
 					parser: '@typescript-eslint/parser',
+					parserOptions: {
+						project: [],
+					},
 				},
 				{
 					files: ['*.vue'],
@@ -83,6 +86,7 @@ async function runEslint(project) {
 						ecmaFeatures: {
 							jsx: true,
 						},
+						project: [],
 					},
 				},
 			],
