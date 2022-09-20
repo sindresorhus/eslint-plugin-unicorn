@@ -73,13 +73,14 @@ export default [
 			'tools/**',
 		],
 	},
-	{
-		repository: 'https://github.com/microsoft/typescript',
-		ignore: [
-			// These file use `'\033'`
-			'build/**',
-		],
-	},
+	// Too slow
+	// {
+	// 	repository: 'https://github.com/microsoft/typescript',
+	// 	ignore: [
+	// 		// These file use `'\033'`
+	// 		'build/**',
+	// 	],
+	// },
 	// This repo use `override` keyword which is not avaiable before TS4.3, temporary disable
 	// https://github.com/microsoft/vscode/pull/120690/files
 	// {
@@ -161,7 +162,8 @@ export default [
 		],
 	},
 	// #903
-	'https://github.com/mattermost/mattermost-webapp',
+	// Too slow
+	// 'https://github.com/mattermost/mattermost-webapp',
 	// #1030
 	'https://github.com/astrofox-io/astrofox',
 	// #1075
