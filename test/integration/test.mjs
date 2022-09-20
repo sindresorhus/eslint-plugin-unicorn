@@ -2,6 +2,7 @@
 import process from 'node:process';
 import fs from 'node:fs';
 import path from 'node:path';
+import {parseArgs} from 'node:util';
 import Listr from 'listr';
 import {execa} from 'execa';
 import chalk from 'chalk';
@@ -10,10 +11,36 @@ import mem from 'mem';
 import allProjects from './projects.mjs';
 import runEslint from './run-eslint.mjs';
 
-const projectsArguments = process.argv.slice(2);
-const projects = projectsArguments.length === 0
+const {
+	values: {
+		group,
+	},
+	positionals: projectsArguments,
+} = parseArgs({
+	options: {
+		group: {
+			type: 'string',
+		},
+	},
+	allowPositionals: true,
+});
+
+let projects = projectsArguments.length === 0
 	? allProjects
 	: allProjects.filter(({name}) => projectsArguments.includes(name));
+
+if (isCI && !group) {
+	throw new Error('"--group" is required');
+}
+
+if (group) {
+	projects = projects.filter(project => String(project.group + 1) === group);
+}
+
+if (projects.length === 0) {
+	console.log('No project matched');
+	process.exit(0);
+}
 
 const getBranch = mem(async dirname => {
 	const {stdout} = await execa('git', ['branch', '--show-current'], {cwd: dirname});
