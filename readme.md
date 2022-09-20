@@ -154,6 +154,7 @@ Each rule has emojis denoting:
 | [require-number-to-fixed-digits-argument](docs/rules/require-number-to-fixed-digits-argument.md) | Enforce using the digits argument with `Number#toFixed()`. | ✅ | 🔧 |  |
 | [require-post-message-target-origin](docs/rules/require-post-message-target-origin.md) | Enforce using the `targetOrigin` argument with `window.postMessage()`. |  |  | 💡 |
 | [string-content](docs/rules/string-content.md) | Enforce better string content. |  | 🔧 | 💡 |
+| [switch-case-braces](docs/rules/switch-case-braces.md) | Enforce consistent brace style for `case` clauses. | ✅ | 🔧 |  |
 | [template-indent](docs/rules/template-indent.md) | Fix whitespace-insensitive template indentation. | ✅ | 🔧 |  |
 | [text-encoding-identifier-case](docs/rules/text-encoding-identifier-case.md) | Enforce consistent case for text encoding identifiers. | ✅ | 🔧 | 💡 |
 | [throw-new-error](docs/rules/throw-new-error.md) | Require `new` when throwing an error. | ✅ | 🔧 |  |

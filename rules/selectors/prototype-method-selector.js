@@ -35,14 +35,17 @@ function prototypeMethodSelector(options) {
 	];
 
 	switch (object) {
-		case 'Array':
+		case 'Array': {
 			// `[].method` or `Array.prototype.method`
 			prototypeSelectors.push(emptyArraySelector(objectPath));
 			break;
-		case 'Object':
+		}
+
+		case 'Object': {
 			// `{}.method` or `Object.prototype.method`
 			prototypeSelectors.push(emptyObjectSelector(objectPath));
 			break;
+		}
 		// No default
 	}
 
