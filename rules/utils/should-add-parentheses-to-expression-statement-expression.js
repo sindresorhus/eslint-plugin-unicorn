@@ -9,12 +9,15 @@ Check if parentheses should to be added to a `node` when it's used as an `expres
 */
 function shouldAddParenthesesToExpressionStatementExpression(node) {
 	switch (node.type) {
-		case 'ObjectExpression':
+		case 'ObjectExpression': {
 			return true;
-		case 'AssignmentExpression':
+		}
+		case 'AssignmentExpression': {
 			return node.left.type === 'ObjectPattern' || node.left.type === 'ArrayPattern';
-		default:
+		}
+		default: {
 			return false;
+		}
 	}
 }
 

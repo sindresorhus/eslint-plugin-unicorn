@@ -36,8 +36,9 @@ const getEventNodeAndReferences = (context, node) => {
 			};
 		}
 
-		default:
+		default: {
 			return {};
+		}
 	}
 };
 

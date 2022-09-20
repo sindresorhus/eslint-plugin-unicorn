@@ -162,21 +162,24 @@ function getBlockStatementLastNode(blockStatement) {
 function shouldInsertBreakStatement(node) {
 	switch (node.type) {
 		case 'ReturnStatement':
-		case 'ThrowStatement':
+		case 'ThrowStatement': {
 			return false;
+		}
 
-		case 'IfStatement':
+		case 'IfStatement': {
 			return !node.alternate
 				|| shouldInsertBreakStatement(node.consequent)
 				|| shouldInsertBreakStatement(node.alternate);
+		}
 
 		case 'BlockStatement': {
 			const lastNode = getBlockStatementLastNode(node);
 			return !lastNode || shouldInsertBreakStatement(lastNode);
 		}
 
-		default:
+		default: {
 			return true;
+		}
 	}
 }
 
@@ -205,9 +208,10 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 			*/
 		} else {
 			switch (options.emptyDefaultCase) {
-				case 'no-default-comment':
+				case 'no-default-comment': {
 					yield fixer.insertTextAfter(firstStatement, `\n${indent}// No default`);
 					break;
+				}
 				case 'do-nothing-comment': {
 					yield fixer.insertTextAfter(firstStatement, `\n${indent}default:\n${indent}// Do nothing`);
 					break;

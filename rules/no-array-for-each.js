@@ -59,8 +59,9 @@ function shouldSwitchReturnStatementToBlockStatement(returnStatement) {
 	const {parent} = returnStatement;
 
 	switch (parent.type) {
-		case 'IfStatement':
+		case 'IfStatement': {
 			return parent.consequent === returnStatement || parent.alternate === returnStatement;
+		}
 
 		// These parent's body need switch to `BlockStatement` too, but since they are "continueAble", won't fix
 		// case 'ForStatement':
@@ -68,11 +69,13 @@ function shouldSwitchReturnStatementToBlockStatement(returnStatement) {
 		// case 'ForOfStatement':
 		// case 'WhileStatement':
 		// case 'DoWhileStatement':
-		case 'WithStatement':
+		case 'WithStatement': {
 			return parent.body === returnStatement;
+		}
 
-		default:
+		default: {
 			return false;
+		}
 	}
 }
 
@@ -315,20 +318,27 @@ function isAssignmentLeftHandSide(node) {
 	switch (parent.type) {
 		case 'AssignmentExpression':
 		case 'ForInStatement':
-		case 'ForOfStatement':
+		case 'ForOfStatement': {
 			return parent.left === node;
-		case 'UpdateExpression':
+		}
+		case 'UpdateExpression': {
 			return parent.argument === node;
-		case 'Property':
+		}
+		case 'Property': {
 			return parent.value === node && isAssignmentLeftHandSide(parent);
-		case 'AssignmentPattern':
+		}
+		case 'AssignmentPattern': {
 			return parent.left === node && isAssignmentLeftHandSide(parent);
-		case 'ArrayPattern':
+		}
+		case 'ArrayPattern': {
 			return parent.elements.includes(node) && isAssignmentLeftHandSide(parent);
-		case 'ObjectPattern':
+		}
+		case 'ObjectPattern': {
 			return parent.properties.includes(node) && isAssignmentLeftHandSide(parent);
-		default:
+		}
+		default: {
 			return false;
+		}
 	}
 }
 

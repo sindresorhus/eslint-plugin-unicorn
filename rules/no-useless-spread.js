@@ -150,18 +150,22 @@ const create = context => {
 			let parentDescription = '';
 			let messageId = ITERABLE_TO_ARRAY;
 			switch (parent.type) {
-				case 'ForOfStatement':
+				case 'ForOfStatement': {
 					messageId = ITERABLE_TO_ARRAY_IN_FOR_OF;
 					break;
-				case 'YieldExpression':
+				}
+				case 'YieldExpression': {
 					messageId = ITERABLE_TO_ARRAY_IN_YIELD_STAR;
 					break;
-				case 'NewExpression':
+				}
+				case 'NewExpression': {
 					parentDescription = `new ${parent.callee.name}(…)`;
 					break;
-				case 'CallExpression':
+				}
+				case 'CallExpression': {
 					parentDescription = `${parent.callee.object.name}.${parent.callee.property.name}(…)`;
 					break;
+				}
 				// No default
 			}
 
