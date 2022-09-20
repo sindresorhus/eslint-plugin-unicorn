@@ -94,7 +94,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow await non-promise value.',
+			description: 'Disallow awaiting non-promise values.',
 		},
 		fixable: 'code',
 
