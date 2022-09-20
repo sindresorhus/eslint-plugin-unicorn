@@ -71,6 +71,7 @@ jobs:
           - "15"
           - "16"
           - "17"
+          - "18"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
