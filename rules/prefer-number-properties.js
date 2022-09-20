@@ -89,7 +89,7 @@ const create = context => {
 	}
 
 	const tracker = new GlobalReferenceTracker({
-		objects: objects,
+		objects,
 		handle: reference => checkProperty(reference, sourceCode),
 	});
 
