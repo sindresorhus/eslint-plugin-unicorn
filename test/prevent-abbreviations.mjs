@@ -1858,6 +1858,30 @@ test.typescript({
 	],
 });
 
+// JSX
+test.typescript({
+	testerOptions: {
+		parserOptions: {
+			ecmaFeatures: {
+				jsx: true,
+			},
+		},
+	},
+	valid: [],
+	invalid: [
+		// https://github.com/microsoft/fluentui/blob/ead191a8368bf64ecabffce5ea0e02565f449a95/packages/fluentui/docs/src/views/FocusTrapZoneDoc.tsx#L10
+		{
+			code: outdent`
+				import DocPage from '../components/DocPage';
+				export default () => (
+					<DocPage title="Focus Trap Zone"></DocPage>
+				);
+			`,
+			errors: 1,
+		},
+	],
+});
+
 // Filename
 test({
 	valid: [
