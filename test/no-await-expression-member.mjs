@@ -54,5 +54,9 @@ test.typescript({
 			code: 'const foo: Type = (await promise)[0]',
 			errors: 1,
 		},
+		{
+			code: 'const foo: Type | A = (await promise).foo',
+			errors: 1,
+		},
 	],
 });

@@ -53,6 +53,7 @@ const create = context => {
 				&& memberExpression.parent.init === memberExpression
 				&& memberExpression.parent.id.type === 'Identifier'
 				&& memberExpression.parent.id.name === property.name
+				&& !memberExpression.parent.id.typeAnnotation
 			) {
 				problem.fix = function * (fixer) {
 					const variable = memberExpression.parent.id;
