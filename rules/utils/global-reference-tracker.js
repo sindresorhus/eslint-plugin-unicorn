@@ -1,8 +1,8 @@
 'use strict';
 const {ReferenceTracker} = require('eslint-utils');
 
-const createTraceMap = object => {
-	let map = {[ReferenceTracker.READ]: true};
+const createTraceMap = (object, type) => {
+	let map = {[type]: true};
 
 	const path = object.split('.').reverse();
 	for (const name of path) {
@@ -22,9 +22,10 @@ class GlobalReferenceTracker {
 		objects = [object],
 		filter,
 		handle,
+		type = ReferenceTracker.READ,
 	}) {
 		for (const object of objects) {
-			Object.assign(this.#traceMap, createTraceMap(object));
+			Object.assign(this.#traceMap, createTraceMap(object, type));
 		}
 
 		this.#filter = filter;
@@ -59,6 +60,12 @@ class GlobalReferenceTracker {
 		};
 	}
 }
+
+Object.assign(GlobalReferenceTracker, {
+	READ: ReferenceTracker.READ,
+	CALL: ReferenceTracker.CALL,
+	CONSTRUCT: ReferenceTracker.CONSTRUCT,
+});
 
 module.exports = {
 	GlobalReferenceTracker,
