@@ -78,7 +78,9 @@ async function runEslint(project) {
 					files: ['*.vue'],
 					parser: 'vue-eslint-parser',
 					parserOptions: {
+						ecmaVersion: 'latest',
 						parser: '@typescript-eslint/parser',
+						jsx: true,
 					},
 				},
 			],
