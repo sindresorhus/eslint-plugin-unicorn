@@ -46,6 +46,18 @@ async function runEslint(project) {
 		fix: true,
 		overrideConfig: {
 			parser: '@babel/eslint-parser',
+			parserOptions: {
+				requireConfigFile: false,
+				babelOptions: {
+					babelrc: false,
+					configFile: false,
+					parserOpts: {
+						plugins: [
+							'jsx',
+						],
+					},
+				},
+			},
 			ignorePatterns: project.ignore,
 			rules: {
 				// This rule crashing on replace string inside `jsx` or `Unicode escape sequence`

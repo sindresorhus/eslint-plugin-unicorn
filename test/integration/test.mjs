@@ -61,7 +61,9 @@ async function printEslintError(eslintError) {
 			file = `${project.repository}/blob/${project.branch}/${file}`;
 		}
 
-		file += `#L${error.eslintMessage.line}`;
+		if (typeof error.eslintMessage.line == 'number') {
+			file += `#L${error.eslintMessage.line}`;
+		}
 		console.log();
 		console.error(chalk.blue.bold.underline(file));
 		console.error(error.codeFrame);
