@@ -61,18 +61,17 @@ export default [
 			'tests/**',
 		],
 	},
-	// Too slow
-	// {
-	// 	repository: 'https://github.com/angular/angular',
-	// 	ignore: [
-	// 		'aio/content/examples/animations/src/app/open-close.component.3.ts',
-	// 		'aio/content/examples/router/src/app/app-routing.module.9.ts',
-	// 		'aio/tools/transforms/templates/data-module.template.js',
-	// 		'aio/tools/transforms/authors-package/index.js', // This file use `package` keyword as variable
-	// 		'packages/compiler-cli/test/**',
-	// 		'tools/**',
-	// 	],
-	// },
+	{
+		repository: 'https://github.com/angular/angular',
+		ignore: [
+			'aio/content/examples/animations/src/app/open-close.component.3.ts',
+			'aio/content/examples/router/src/app/app-routing.module.9.ts',
+			'aio/tools/transforms/templates/data-module.template.js',
+			'aio/tools/transforms/authors-package/index.js', // This file use `package` keyword as variable
+			'packages/compiler-cli/test/**',
+			'tools/**',
+		],
+	},
 	{
 		repository: 'https://github.com/microsoft/typescript',
 		ignore: [
