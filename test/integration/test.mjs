@@ -6,10 +6,29 @@ import {parseArgs} from 'node:util';
 import Listr from 'listr';
 import {execa} from 'execa';
 import chalk from 'chalk';
+import {outdent} from 'outdent';
 import {isCI} from 'ci-info';
 import mem from 'mem';
+import YAML from 'yaml';
 import allProjects from './projects.mjs';
 import runEslint from './run-eslint.mjs';
+
+if (isCI) {
+	const CI_CONFIG_FILE = new URL('../../.github/workflows/main.yml', import.meta.url);
+	const content = fs.readFileSync(CI_CONFIG_FILE, 'utf8');
+	const config = YAML.parse(content).jobs.integration.strategy.matrix.group;
+
+	const expected = [...new Set(allProjects.map(project => String(project.group + 1)))];
+	if (
+		config.length !== expected.length
+		|| expected.some((group, index) => config[index] !== group)
+	) {
+		throw new Error(outdent`
+			Expect 'jobs.integration.strategy.matrix.group' in '/.github/workflows/main.yml' to be:
+			${YAML.stringify(expected)}
+		`);
+	}
+}
 
 const {
 	values: {
