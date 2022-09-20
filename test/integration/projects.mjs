@@ -87,14 +87,41 @@ export default [
 		'https://github.com/kevva/npm-conf',
 		'https://github.com/imagemin/imagemin',
 		'https://github.com/qix-/color-convert',
+		{
+			repository: 'https://github.com/prettier/prettier',
+			ignore: [
+				'tests/**',
+			],
+		},
+		{
+			repository: 'https://github.com/puppeteer/puppeteer',
+			ignore: [
+				// Parser error on `await page.evaluate(() => delete Node);`
+				// https://github.com/puppeteer/puppeteer/blob/0b1a9ceee2f05f534f0d50079ece172d627a93c7/test/jshandle.spec.js#L151
+				'test/jshandle.spec.js',
+
+				// `package` keyword
+				// https://github.com/puppeteer/puppeteer/blob/0b1a9ceee2f05f534f0d50079ece172d627a93c7/utils/apply_next_version.js#L17
+				'utils/apply_next_version.js',
+
+				// Global return
+				'utils/fetch_devices.js',
+			],
+		},
+		'https://github.com/ReactTraining/react-router',
+		// #902
+		{
+			repository: 'https://github.com/reakit/reakit',
+			ignore: [
+				'packages/reakit/jest.config.js', // This file use `package` keyword as variable
+			],
+		},
+		// #1030
+		'https://github.com/astrofox-io/astrofox',
+		// #1075
+		'https://github.com/jaredLunde/masonic',
 	],
 	// 'https://github.com/eslint/eslint',
-	{
-		repository: 'https://github.com/prettier/prettier',
-		ignore: [
-			'tests/**',
-		],
-	},
 	{
 		repository: 'https://github.com/angular/angular',
 		ignore: [
@@ -130,21 +157,6 @@ export default [
 		],
 	},
 	{
-		repository: 'https://github.com/puppeteer/puppeteer',
-		ignore: [
-			// Parser error on `await page.evaluate(() => delete Node);`
-			// https://github.com/puppeteer/puppeteer/blob/0b1a9ceee2f05f534f0d50079ece172d627a93c7/test/jshandle.spec.js#L151
-			'test/jshandle.spec.js',
-
-			// `package` keyword
-			// https://github.com/puppeteer/puppeteer/blob/0b1a9ceee2f05f534f0d50079ece172d627a93c7/utils/apply_next_version.js#L17
-			'utils/apply_next_version.js',
-
-			// Global return
-			'utils/fetch_devices.js',
-		],
-	},
-	{
 		repository: 'https://github.com/vercel/next.js',
 		ignore: [
 			'examples/**',
@@ -159,7 +171,6 @@ export default [
 			'scripts/create-package.js', // This file use `package` keyword as variable
 		],
 	},
-	'https://github.com/ReactTraining/react-router',
 	'https://github.com/mozilla/pdf.js',
 	// #912
 	{
@@ -173,19 +184,8 @@ export default [
 			'scripts/cypress.js',
 		],
 	},
-	// #902
-	{
-		repository: 'https://github.com/reakit/reakit',
-		ignore: [
-			'packages/reakit/jest.config.js', // This file use `package` keyword as variable
-		],
-	},
 	// #903
 	'https://github.com/mattermost/mattermost-webapp',
-	// #1030
-	'https://github.com/astrofox-io/astrofox',
-	// #1075
-	'https://github.com/jaredLunde/masonic',
 	// These two project use `decorator`, try to enable when we use `@babel/eslint-parser`
 	// 'https://github.com/untitled-labs/metabase-custom',
 	// 'https://github.com/TheThingsNetwork/lorawan-stack',
