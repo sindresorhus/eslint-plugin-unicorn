@@ -99,7 +99,7 @@ export default [
 		ignore: [
 			// Not a text file
 			'fixture/fixture-bdav.mts',
-		]
+		],
 	},
 	'https://github.com/sindresorhus/slugify',
 	{
