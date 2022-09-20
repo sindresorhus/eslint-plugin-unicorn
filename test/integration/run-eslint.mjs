@@ -22,12 +22,12 @@ class UnicornEslintFatalError extends SyntaxError {
 		this.eslintFile = file;
 	}
 
-	get details() {
-		const {source} = this.eslintFile;
+	get codeFrame() {
+		const {source, output} = this.eslintFile;
 		const {line, column, message} = this.eslintMessage;
 
 		return codeFrameColumns(
-			source,
+			source ?? output,
 			{start: {line, column}},
 			{message, highlightCode: true},
 		);
@@ -39,29 +39,13 @@ async function runEslint(project) {
 		cwd: project.location,
 		baseConfig: eslintPluginUnicorn.configs.all,
 		useEslintrc: false,
-		extensions: ['.js', '.ts', '.vue'],
-		// TODO[@fisker]: Lint more files
-		// extensions: ['.js', '.mjs', '.cjs', '.ts', '.mts', '.cts', '.jsx', '.tsx', '.vue'],
+		extensions: ['.js', '.mjs', '.cjs', '.ts', '.mts', '.cts', '.jsx', '.tsx', '.vue'],
 		plugins: {
 			unicorn: eslintPluginUnicorn,
 		},
 		fix: true,
 		overrideConfig: {
 			parser: '@babel/eslint-parser',
-			parserOptions: {
-				requireConfigFile: false,
-				babelOptions: {
-					babelrc: false,
-					configFile: false,
-					parserOpts: {
-						plugins: [
-							'jsx',
-							'doExpressions',
-							'exportDefaultFrom',
-						],
-					},
-				},
-			},
 			ignorePatterns: project.ignore,
 			rules: {
 				// This rule crashing on replace string inside `jsx` or `Unicode escape sequence`

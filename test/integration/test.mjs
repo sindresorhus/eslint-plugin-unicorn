@@ -64,7 +64,7 @@ async function printEslintError(eslintError) {
 		file += `#L${error.eslintMessage.line}`;
 		console.log();
 		console.error(chalk.blue.bold.underline(file));
-		console.error(error.details);
+		console.error(error.codeFrame);
 	}
 }
 
