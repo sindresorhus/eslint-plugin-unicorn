@@ -1,5 +1,7 @@
 import {codeFrameColumns} from '@babel/code-frame';
 import {ESLint} from 'eslint';
+import chalk from 'chalk';
+import {outdent} from 'outdent';
 import eslintPluginUnicorn from '../../index.js';
 
 class UnicornIntegrationTestError extends AggregateError {
@@ -33,6 +35,9 @@ class UnicornEslintFatalError extends SyntaxError {
 		);
 	}
 }
+
+const sum = (collection, fieldName) =>
+	collection.reduce((total, {[fieldName]: value}) => total + value, 0);
 
 async function runEslint(project) {
 	const eslint = new ESLint({
@@ -77,9 +82,9 @@ async function runEslint(project) {
 		},
 	});
 
-	const result = await eslint.lintFiles('.');
+	const results = await eslint.lintFiles('.');
 
-	const errors = result
+	const errors = results
 		.filter(file => file.fatalErrorCount > 0)
 		.flatMap(
 			file => file.messages
@@ -87,11 +92,22 @@ async function runEslint(project) {
 				.map(message => new UnicornEslintFatalError(message, file)),
 		);
 
-	if (errors.length === 0) {
-		return;
+	if (errors.length > 0) {
+		throw new UnicornIntegrationTestError(project, errors);
 	}
 
-	throw new UnicornIntegrationTestError(project, errors);
+	const errorCount = sum(results, 'errorCount');
+	const warningCount = sum(results, 'warningCount');
+	const fixableErrorCount = sum(results, 'fixableErrorCount');
+	const fixableWarningCount = sum(results, 'fixableWarningCount');
+	console.log();
+	console.log(outdent`
+		${results.length} files linted:
+		- error: ${chalk.gray`${errorCount}`}
+		- warning: ${chalk.gray`${warningCount}`}
+		- fixable error: ${chalk.gray`${fixableErrorCount}`}
+		- fixable warning: ${chalk.gray`${fixableWarningCount}`}
+	`);
 }
 
 export default runEslint;
