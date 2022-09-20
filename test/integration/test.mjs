@@ -49,6 +49,7 @@ const execute = project => new Listr(
 async function printEslintError(eslintError) {
 	const {message, project} = eslintError;
 
+	console.log();
 	console.error(
 		chalk.red.bold.underline(`[${project.name}]`),
 		message,
@@ -66,6 +67,7 @@ async function printEslintError(eslintError) {
 		}
 		console.log();
 		console.error(chalk.blue.bold.underline(file));
+		console.log();
 		console.error(error.codeFrame);
 	}
 }
@@ -92,7 +94,7 @@ async function printListrError(listrError) {
 try {
 	await new Listr(
 		projects.map(project => ({title: project.name, task: () => execute(project)})),
-		{renderer: isCI ? 'verbose' : 'default'},
+		{renderer: 'verbose'},
 	).run();
 } catch (error) {
 	await printListrError(error);
