@@ -95,7 +95,10 @@ async function printListrError(listrError) {
 try {
 	await new Listr(
 		projects.map(project => ({title: project.name, task: () => execute(project)})),
-		{renderer: isCI ? 'verbose' : 'default'},
+		{
+			renderer: isCI ? 'verbose' : 'default',
+			concurrent: true,
+		},
 	).run();
 } catch (error) {
 	await printListrError(error);
