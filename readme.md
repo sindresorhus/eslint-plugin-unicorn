@@ -43,54 +43,52 @@ Use a preset config or configure each rules in `package.json`.
 
 ## Usage (new: `eslint.config.js`)
 
-From [`v8.21.0`](https://github.com/eslint/eslint/releases/tag/v8.21.0), eslint announced a new config system.
-In the new system, `.eslintrc*` is no longer used. `eslint.config.js` would be the default config file name.
+From [ESLint `v8.21.0`](https://github.com/eslint/eslint/releases/tag/v8.21.0), there is a new config system. In the new system, `.eslintrc*` is no longer used. `eslint.config.js` would be the default config file name.
 
-And from [`v8.23.0`](https://github.com/eslint/eslint/releases/tag/v8.23.0), eslint CLI starts to look up `eslint.config.js`.
-**So, if your eslint is `>=8.23.0`, you're 100% ready to use the new config system.**
+And from [`v8.23.0`](https://github.com/eslint/eslint/releases/tag/v8.23.0), the ESLint CLI starts to look up `eslint.config.js`.
+**So, if you are using ESLint `>=8.23.0`, you are 100% ready to use the new config system.**
 
 You might want to check out the official blog posts,
 
-- <https://eslint.org/blog/2022/08/new-config-system-part-1/>
-- <https://eslint.org/blog/2022/08/new-config-system-part-2/>
-- <https://eslint.org/blog/2022/08/new-config-system-part-3/>
+- https://eslint.org/blog/2022/08/new-config-system-part-1/
+- https://eslint.org/blog/2022/08/new-config-system-part-2/
+- https://eslint.org/blog/2022/08/new-config-system-part-3/
 
 and the [official docs](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new).
 
-The default export of `eslint-plugin-react` is a plugin object.
+The default export of `eslint-plugin-unicorn` is a plugin object.
 
-If your `eslint.config.js` is ESM, you can import and use the plugin like this.
+If your `eslint.config.js` is ESM, you can import and use the plugin like this:
 
 ```js
-import unicorn from 'eslint-plugin-unicorn'
+import unicorn from 'eslint-plugin-unicorn';
 
 export default [
-    // --- snip ---
-    {
-        files: ['**/*.{js,ts}'],
-        languageOptions: {
-  		    globals: {
-  			    ...globals.node,
-  			    ...globals.es2021,
-  		    },
-  	    },
-  	    plugins: {
-            unicorn,
-        },
-        rules: {
-            // ... any rules you want
-            'unicorn/better-regex': 'error',
-  	        'unicorn/catch-error-name': 'error',
-        },
-        // ... others are omitted for brevity
-    },
-    // --- snip ---
-]
+	// …
+	{
+		files: ['**/*.{js,ts}'],
+		languageOptions: {
+			globals: {
+				...globals.node,
+				...globals.es2021,
+			},
+		},
+		plugins: {
+			unicorn,
+		},
+		rules: {
+			'unicorn/better-regex': 'error',
+			'unicorn/catch-error-name': 'error',
+		},
+		// ... others are omitted for brevity
+	},
+	// …
+];
 ```
 
 If your `eslint.config.js` is CJS, please change it to ESM.
 
-Note that this plugin itself would transition to [Pure ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c) in future.
+Note that this plugin itself will transition to [Pure ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c) in the future.
 
 ## Rules
 
@@ -248,20 +246,19 @@ This plugin exports an [`all` config](configs-legacy/all.js) that makes use of a
 
 ## Shareable configs (new: `eslint.config.js`)
 
-If you use the new config system (`eslint.config.js`), there're 2 shareable configs.
+If you use the new config system (`eslint.config.js`), there are two shareable configs:
 
 - `eslint-plugin-unicorn/all`
 - `eslint-plugin-unicorn/recommended`
 
 **Note**: Shareable configs will enable the [`languageOptions.globals`](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new#configuration-objects).
 
-In the new config system, `plugin:` protocol(e.g. `plugin:react/recommended`) is no longer valid.
-As eslint does not automatically import the preset config (shareable config), you explicitly do it by yourself.
+In the new config system, the `plugin:` protocol (e.g. `plugin:react/recommended`) is no longer valid. As ESLint does not automatically import the preset config (shareable config), you explicitly do it by yourself.
 
 **Note**: The new plugin object does not have `configs` property as well.
 
 ```js
-import unicorn from 'eslint-plugin-unicorn/all' // <== trailing '/all'
+import unicorn from 'eslint-plugin-unicorn/all'; // <== trailing '/all'
 
 export default [
     // --- snip ---
