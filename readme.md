@@ -91,6 +91,7 @@ Each rule has emojis denoting:
 | [no-static-only-class](docs/rules/no-static-only-class.md) | Disallow classes that only have static members. | ✅ | 🔧 |  |
 | [no-thenable](docs/rules/no-thenable.md) | Disallow `then` property. | ✅ |  |  |
 | [no-this-assignment](docs/rules/no-this-assignment.md) | Disallow assigning `this` to a variable. | ✅ |  |  |
+| [no-unnecessary-await](docs/rules/no-unnecessary-await.md) | Disallow awaiting non-promise values. | ✅ | 🔧 |  |
 | [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) | Disallow unreadable array destructuring. | ✅ | 🔧 |  |
 | [no-unreadable-iife](docs/rules/no-unreadable-iife.md) | Disallow unreadable IIFEs. | ✅ |  |  |
 | [no-unsafe-regex](docs/rules/no-unsafe-regex.md) | Disallow unsafe regular expressions. |  |  |  |

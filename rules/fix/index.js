@@ -19,4 +19,5 @@ module.exports = {
 	removeSpacesAfter: require('./remove-spaces-after.js'),
 	fixSpaceAroundKeyword: require('./fix-space-around-keywords.js'),
 	replaceStringLiteral: require('./replace-string-literal.js'),
+	addParenthesizesToReturnOrThrowExpression: require('./add-parenthesizes-to-return-or-throw-expression.js'),
 };

@@ -1,9 +1,9 @@
 'use strict';
 
-function removeSpacesAfter(indexOrNode, sourceCode, fixer) {
-	let index = indexOrNode;
-	if (typeof indexOrNode === 'object' && Array.isArray(indexOrNode.range)) {
-		index = indexOrNode.range[1];
+function removeSpacesAfter(indexOrNodeOrToken, sourceCode, fixer) {
+	let index = indexOrNodeOrToken;
+	if (typeof indexOrNodeOrToken === 'object' && Array.isArray(indexOrNodeOrToken.range)) {
+		index = indexOrNodeOrToken.range[1];
 	}
 
 	const textAfter = sourceCode.text.slice(index);

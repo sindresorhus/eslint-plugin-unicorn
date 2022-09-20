@@ -50,6 +50,7 @@ module.exports = {
 		'unicorn/no-static-only-class': 'error',
 		'unicorn/no-thenable': 'error',
 		'unicorn/no-this-assignment': 'error',
+		'unicorn/no-unnecessary-await': 'error',
 		'unicorn/no-unreadable-array-destructuring': 'error',
 		'unicorn/no-unreadable-iife': 'error',
 		'unicorn/no-unsafe-regex': 'off',
