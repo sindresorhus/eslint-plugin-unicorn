@@ -53,12 +53,12 @@ const create = context => {
 	const newExpressionTracker = new GlobalReferenceTracker({
 		objects: builtins.disallowNew,
 		type: GlobalReferenceTracker.CONSTRUCT,
-		handle: reference => enforceCallExpression(reference, sourceCode)
+		handle: reference => enforceCallExpression(reference, sourceCode),
 	});
 	const callExpressionTracker = new GlobalReferenceTracker({
 		objects: builtins.enforceNew,
 		type: GlobalReferenceTracker.CALL,
-		handle: reference => enforceNewExpression(reference, sourceCode)
+		handle: reference => enforceNewExpression(reference, sourceCode),
 	});
 
 	return {
@@ -67,7 +67,7 @@ const create = context => {
 
 			yield * newExpressionTracker.track(scope);
 			yield * callExpressionTracker.track(scope);
-		}
+		},
 	};
 };
 
