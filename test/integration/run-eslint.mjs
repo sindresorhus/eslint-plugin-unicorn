@@ -1,5 +1,6 @@
 import {ESLint} from 'eslint';
 import {codeFrameColumns} from '@babel/code-frame';
+import Piscina from 'piscina';
 import eslintPluginUnicorn from '../../index.js';
 
 class UnicornIntegrationTestError extends AggregateError {
@@ -34,49 +35,11 @@ class UnicornEslintFatalError extends SyntaxError {
 	}
 }
 
+const piscina = new Piscina({
+  filename: new URL('./worker.mjs', import.meta.url).href
+});
 async function runEslint(project) {
-	const eslint = new ESLint({
-		cwd: project.location,
-		baseConfig: eslintPluginUnicorn.configs.all,
-		useEslintrc: false,
-		extensions: ['.js', '.mjs', '.cjs', '.ts', '.mts', '.cts', '.jsx', '.tsx', '.vue'],
-		plugins: {
-			unicorn: eslintPluginUnicorn,
-		},
-		fix: true,
-		overrideConfig: {
-			parser: '@babel/eslint-parser',
-			parserOptions: {
-				requireConfigFile: false,
-				babelOptions: {
-					babelrc: false,
-					configFile: false,
-					parserOpts: {
-						plugins: [
-							'jsx',
-						],
-					},
-				},
-			},
-			ignorePatterns: project.ignore,
-			rules: {
-				// This rule crashing on replace string inside `jsx` or `Unicode escape sequence`
-				'unicorn/string-content': 'off',
-			},
-			overrides: [
-				{
-					files: ['*.ts', '*.mts', '*.cts', '*.tsx'],
-					parser: '@typescript-eslint/parser',
-				},
-				{
-					files: ['*.vue'],
-					parser: 'vue-eslint-parser',
-				},
-			],
-		},
-	});
-
-	const result = await eslint.lintFiles('.');
+	const result = await piscina.run(project);
 
 	const errors = result
 		.filter(file => file.fatalErrorCount > 0)
