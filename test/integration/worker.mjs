@@ -1,5 +1,4 @@
 import {ESLint} from 'eslint';
-import {codeFrameColumns} from '@babel/code-frame';
 import eslintPluginUnicorn from '../../index.js';
 
 function runEslint(project) {

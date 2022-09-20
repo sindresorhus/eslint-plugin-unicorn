@@ -1,7 +1,5 @@
-import {ESLint} from 'eslint';
 import {codeFrameColumns} from '@babel/code-frame';
 import Piscina from 'piscina';
-import eslintPluginUnicorn from '../../index.js';
 
 class UnicornIntegrationTestError extends AggregateError {
 	name = 'UnicornIntegrationTestError';
@@ -36,7 +34,7 @@ class UnicornEslintFatalError extends SyntaxError {
 }
 
 const piscina = new Piscina({
-  filename: new URL('./worker.mjs', import.meta.url).href
+	filename: new URL('worker.mjs', import.meta.url).href,
 });
 async function runEslint(project) {
 	const result = await piscina.run(project);
