@@ -21,25 +21,29 @@ function isSameNode(left, right, sourceCode) {
 	}
 
 	switch (left.type) {
-		case 'AwaitExpression':
+		case 'AwaitExpression': {
 			return isSameNode(left.argument, right.argument, sourceCode);
+		}
 
-		case 'LogicalExpression':
+		case 'LogicalExpression': {
 			return (
 				left.operator === right.operator
 				&& isSameNode(left.left, right.left, sourceCode)
 				&& isSameNode(left.right, right.right, sourceCode)
 			);
+		}
 
-		case 'UnaryExpression':
+		case 'UnaryExpression': {
 			return (
 				left.operator === right.operator
 				&& left.prefix === right.prefix
 				&& isSameNode(left.argument, right.argument, sourceCode)
 			);
+		}
 
-		case 'UpdateExpression':
+		case 'UpdateExpression': {
 			return false;
+		}
 
 		// No default
 	}

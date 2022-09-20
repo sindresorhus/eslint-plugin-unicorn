@@ -180,12 +180,14 @@ function isNumber(node, scope) {
 			break;
 		}
 
-		case 'UpdateExpression':
+		case 'UpdateExpression': {
 			if (isNumber(node.argument, scope)) {
 				return true;
 			}
 
 			break;
+		}
+
 		case 'ConditionalExpression': {
 			const isConsequentNumber = isNumber(node.consequent, scope);
 			const isAlternateNumber = isNumber(node.alternate, scope);
