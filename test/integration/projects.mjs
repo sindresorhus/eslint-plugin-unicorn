@@ -117,8 +117,8 @@ export default [
 		repository: 'https://github.com/microsoft/vscode',
 		ignore: [
 			// This file use `'\033'`
-			'build/**'
-		]
+			'build/**',
+		],
 	},
 	'https://github.com/element-plus/element-plus',
 	'https://github.com/tusen-ai/naive-ui',
@@ -192,5 +192,5 @@ export default [
 ].flatMap((projectOrProjects, index) =>
 	Array.isArray(projectOrProjects)
 		? projectOrProjects.map(project => ({...normalizeProject(project), group: index}))
-		: [{...normalizeProject(projectOrProjects), group: index}]
+		: [{...normalizeProject(projectOrProjects), group: index}],
 );
