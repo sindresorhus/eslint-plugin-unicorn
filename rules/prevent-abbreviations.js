@@ -215,7 +215,13 @@ const isExportedIdentifier = identifier => {
 	return false;
 };
 
-const shouldFix = variable => !getVariableIdentifiers(variable).some(identifier => isExportedIdentifier(identifier));
+const shouldFix = variable => getVariableIdentifiers(variable)
+	.every(identifier =>
+		!isExportedIdentifier(identifier)
+		// In typescript parser, only `JSXOpeningElement` is added to variable
+		// `<foo></foo>` -> `<bar></foo>` will cause parse error
+		&& identifier.type !== 'JSXIdentifier'
+	);
 
 const isDefaultOrNamespaceImportName = identifier => {
 	if (
