@@ -12,10 +12,13 @@ const getReplacement = encoding => {
 	switch (encoding.toLowerCase()) {
 		// eslint-disable-next-line unicorn/text-encoding-identifier-case
 		case 'utf-8':
-		case 'utf8':
+		case 'utf8': {
 			return 'utf8';
-		case 'ascii':
+		}
+
+		case 'ascii': {
 			return 'ascii';
+		}
 		// No default
 	}
 };

@@ -37,21 +37,24 @@ function getStaticPropertyName(node) {
 	let property;
 
 	switch (node?.type) {
-		case 'MemberExpression':
+		case 'MemberExpression': {
 			property = node.property;
 			break;
+		}
 
 		/* c8 ignore next 2 */
-		case 'ChainExpression':
+		case 'ChainExpression': {
 			return getStaticPropertyName(node.expression);
+		}
 
 		// Only reachable when use this to get class/object member key
 		/* c8 ignore next */
 		case 'Property':
-		case 'MethodDefinition':
+		case 'MethodDefinition': {
 			/* c8 ignore next 2 */
 			property = node.key;
 			break;
+		}
 
 			// No default
 	}
@@ -121,17 +124,21 @@ function isSameReference(left, right) {
 
 	switch (left.type) {
 		case 'Super':
-		case 'ThisExpression':
+		case 'ThisExpression': {
 			return true;
+		}
 
-		case 'Identifier':
+		case 'Identifier': {
 			return left.name === right.name;
+		}
 
-		case 'Literal':
+		case 'Literal': {
 			return equalLiteralValue(left, right);
+		}
 
-		case 'ChainExpression':
+		case 'ChainExpression': {
 			return isSameReference(left.expression, right.expression);
+		}
 
 		case 'MemberExpression': {
 			const nameA = getStaticPropertyName(left);
@@ -144,8 +151,9 @@ function isSameReference(left, right) {
 			);
 		}
 
-		default:
+		default: {
 			return false;
+		}
 	}
 }
 

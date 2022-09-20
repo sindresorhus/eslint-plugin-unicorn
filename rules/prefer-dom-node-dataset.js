@@ -59,9 +59,10 @@ const create = context => ({
 				break;
 			}
 
-			case 'hasAttribute':
+			case 'hasAttribute': {
 				text = `Object.hasOwn(${datasetText}, ${quoteString(name, nameNode.raw.charAt(0))})`;
 				break;
+			}
 			// No default
 		}
 

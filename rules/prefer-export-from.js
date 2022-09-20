@@ -18,10 +18,13 @@ const NAMESPACE_SPECIFIER_NAME = Symbol('NAMESPACE_SPECIFIER_NAME');
 
 const getSpecifierName = node => {
 	switch (node.type) {
-		case 'Identifier':
+		case 'Identifier': {
 			return Symbol.for(node.name);
-		case 'Literal':
+		}
+
+		case 'Literal': {
 			return node.value;
+		}
 		// No default
 	}
 };
@@ -170,21 +173,23 @@ function getFixFunction({
 function getExported(identifier, context, sourceCode) {
 	const {parent} = identifier;
 	switch (parent.type) {
-		case 'ExportDefaultDeclaration':
+		case 'ExportDefaultDeclaration': {
 			return {
 				node: parent,
 				name: DEFAULT_SPECIFIER_NAME,
 				text: 'default',
 				isTypeExport: isTypeExport(parent),
 			};
+		}
 
-		case 'ExportSpecifier':
+		case 'ExportSpecifier': {
 			return {
 				node: parent,
 				name: getSpecifierName(parent.exported),
 				text: sourceCode.getText(parent.exported),
 				isTypeExport: isTypeExport(parent),
 			};
+		}
 
 		case 'VariableDeclarator': {
 			if (
@@ -237,26 +242,29 @@ function getImported(variable, sourceCode) {
 	};
 
 	switch (specifier.type) {
-		case 'ImportDefaultSpecifier':
+		case 'ImportDefaultSpecifier': {
 			return {
 				name: DEFAULT_SPECIFIER_NAME,
 				text: 'default',
 				...result,
 			};
+		}
 
-		case 'ImportSpecifier':
+		case 'ImportSpecifier': {
 			return {
 				name: getSpecifierName(specifier.imported),
 				text: sourceCode.getText(specifier.imported),
 				...result,
 			};
+		}
 
-		case 'ImportNamespaceSpecifier':
+		case 'ImportNamespaceSpecifier': {
 			return {
 				name: NAMESPACE_SPECIFIER_NAME,
 				text: '*',
 				...result,
 			};
+		}
 
 		// No default
 	}

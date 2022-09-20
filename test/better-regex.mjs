@@ -311,5 +311,15 @@ test({
 			],
 			parser: require.resolve('@typescript-eslint/parser'),
 		},
+
+		// Not fixable
+		{
+			code: 'const foo = /[0-9]/.toString',
+			errors: createError('/[0-9]/', '/\\d/'),
+		},
+		{
+			code: 'const foo = /[0-9]/.source',
+			errors: createError('/[0-9]/', '/\\d/'),
+		},
 	],
 });
