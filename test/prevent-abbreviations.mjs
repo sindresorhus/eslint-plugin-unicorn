@@ -1869,7 +1869,7 @@ test.typescript({
 	},
 	valid: [],
 	invalid: [
-		// `jsx` https://github.com/microsoft/fluentui/blob/ead191a8368bf64ecabffce5ea0e02565f449a95/packages/fluentui/docs/src/views/FocusTrapZoneDoc.tsx#L10
+		// https://github.com/microsoft/fluentui/blob/ead191a8368bf64ecabffce5ea0e02565f449a95/packages/fluentui/docs/src/views/FocusTrapZoneDoc.tsx#L10
 		{
 			code: outdent`
 				import DocPage from '../components/DocPage';
