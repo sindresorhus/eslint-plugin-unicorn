@@ -36,6 +36,8 @@ const configs = [
 			'coverage',
 			'test/integration/fixtures',
 			'test/integration/fixtures-local',
+			// Ignore this file self temporarily, disabling `n/file-extension-in-import` comment cause error
+			'test/run-rules-on-codebase/lint.mjs',
 		],
 	},
 	{
@@ -75,16 +77,11 @@ async function run() {
 
 	let results = await eslint.lintFiles(patterns.length === 0 ? ['.'] : patterns);
 
-	// Ignore errors not caused by this plugin
-	for (const result of results) {
-		result.messages = result.messages.filter(message => !message.ruleId || message.ruleId.startsWith('unicorn/'))
-	}
-
 	if (fix) {
 		await FlatESLint.outputFixes(results);
 	}
 
-	const errorCount = sum(results, 'errorCount');
+	let errorCount = sum(results, 'errorCount');
 	const warningCount = sum(results, 'warningCount');
 	const fixableErrorCount = sum(results, 'fixableErrorCount');
 	const fixableWarningCount = sum(results, 'fixableWarningCount');
