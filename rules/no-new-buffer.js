@@ -10,7 +10,7 @@ const SUGGESTION = 'suggestion';
 const messages = {
 	[ERROR]: '`new Buffer()` is deprecated, use `Buffer.{{method}}()` instead.',
 	[ERROR_UNKNOWN]: '`new Buffer()` is deprecated, use `Buffer.alloc()` or `Buffer.from()` instead.',
-	[SUGGESTION]: 'Switch to `Buffer.{{method}}()`.',
+	[SUGGESTION]: 'Switch to `Buffer.{{replacement}}()`.',
 };
 
 const inferMethod = (bufferArguments, scope) => {
