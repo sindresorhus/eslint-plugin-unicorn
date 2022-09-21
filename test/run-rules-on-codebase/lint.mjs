@@ -73,7 +73,7 @@ async function run() {
 	const results = await eslint.lintFiles(patterns.length === 0 ? ['.'] : patterns);
 
 	if (fix) {
-		await ESLint.outputFixes(results);
+		await FlatESLint.outputFixes(results);
 	}
 
 	const errorCount = sum(results, 'errorCount');
@@ -82,18 +82,19 @@ async function run() {
 	const fixableWarningCount = sum(results, 'fixableWarningCount');
 
 	const hasFixable = fixableErrorCount || fixableWarningCount;
+	const summary = outdent`
+		${results.length} files linted:
+			- error: ${chalk.gray(errorCount)}
+			- warning: ${chalk.gray(warningCount)}
+			- fixable error: ${chalk.gray(fixableErrorCount)}
+			- fixable warning: ${chalk.gray(fixableWarningCount)}
+	`;
 
 	if (errorCount || warningCount) {
 		console.log('*! If you\'re making a new rule, you can ignore this before review. !*');
 
 		console.log();
-		console.log(outdent`
-			${results.length} files linted:
-			 - error: ${chalk.gray(errorCount)}
-			 - warning: ${chalk.gray(warningCount)}
-			 - fixable error: ${chalk.gray(fixableErrorCount)}
-			 - fixable warning: ${chalk.gray(fixableWarningCount)}
-		`);
+		console.log(summary);
 
 		const {format} = await eslint.loadFormatter();
 		console.log();
@@ -107,6 +108,8 @@ async function run() {
 			console.log('You may also want run `npm run run-rules-on-codebase -- <file> --fix` to fix fixable problems.');
 		}
 	} else {
+		console.log(summary);
+		console.log();
 		console.log('All tests have passed.');
 	}
 
