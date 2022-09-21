@@ -38,12 +38,12 @@ const create = () => ({
 		let flags;
 		if (hasRegExp) {
 			({pattern} = arguments_[0].regex);
-			flags = arguments_[1] && arguments_[1].type === 'Literal'
+			flags = arguments_[1]?.type === 'Literal'
 				? arguments_[1].value
 				: arguments_[0].regex.flags;
 		} else {
 			pattern = arguments_[0].value;
-			flags = arguments_[1] && arguments_[1].type === 'Literal'
+			flags = arguments_[1]?.type === 'Literal'
 				? arguments_[1].value
 				: '';
 		}

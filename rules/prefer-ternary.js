@@ -19,7 +19,7 @@ const selector = [
 	'[alternate]',
 ].join('');
 
-const isTernary = node => node && node.type === 'ConditionalExpression';
+const isTernary = node => node?.type === 'ConditionalExpression';
 
 function getNodeBody(node) {
 	/* c8 ignore next 3 */

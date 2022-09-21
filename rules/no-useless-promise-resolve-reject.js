@@ -101,7 +101,7 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 	}
 
 	const {callee, parent, arguments: [errorOrValue]} = callExpression;
-	if (errorOrValue && errorOrValue.type === 'SpreadElement') {
+	if (errorOrValue?.type === 'SpreadElement') {
 		return;
 	}
 
@@ -122,7 +122,7 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 
 		let text = errorOrValue ? sourceCode.getText(errorOrValue) : '';
 
-		if (errorOrValue && errorOrValue.type === 'SequenceExpression') {
+		if (errorOrValue?.type === 'SequenceExpression') {
 			text = `(${text})`;
 		}
 
@@ -155,7 +155,7 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 			} else if (parent.type === 'ReturnStatement') {
 				text = `return${text ? ' ' : ''}${text};`;
 			} else {
-				if (errorOrValue && errorOrValue.type === 'ObjectExpression') {
+				if (errorOrValue?.type === 'ObjectExpression') {
 					text = `(${text})`;
 				}
 

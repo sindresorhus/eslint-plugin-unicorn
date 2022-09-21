@@ -16,7 +16,7 @@ const defaultElementName = 'element';
 const isLiteralZero = node => isLiteral(node, 0);
 const isLiteralOne = node => isLiteral(node, 1);
 
-const isIdentifierWithName = (node, name) => node && node.type === 'Identifier' && node.name === name;
+const isIdentifierWithName = (node, name) => node?.type === 'Identifier' && node.name === name;
 
 const getIndexIdentifierName = forStatement => {
 	const {init: variableDeclaration} = forStatement;
@@ -103,7 +103,7 @@ const getArrayIdentifier = (forStatement, indexIdentifierName) => {
 };
 
 const isLiteralOnePlusIdentifierWithName = (node, identifierName) => {
-	if (node && node.type === 'BinaryExpression' && node.operator === '+') {
+	if (node?.type === 'BinaryExpression' && node.operator === '+') {
 		return (isIdentifierWithName(node.left, identifierName) && isLiteralOne(node.right))
 			|| (isIdentifierWithName(node.right, identifierName) && isLiteralOne(node.left));
 	}
@@ -335,8 +335,8 @@ const create = context => {
 
 				return true;
 			});
-			const elementNode = elementReference && elementReference.identifier.parent.parent;
-			const elementIdentifierName = elementNode && elementNode.id.name;
+			const elementNode = elementReference?.identifier.parent.parent;
+			const elementIdentifierName = elementNode?.id.name;
 			const elementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
 
 			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope);

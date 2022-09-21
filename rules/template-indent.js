@@ -91,7 +91,7 @@ const create = context => {
 		TemplateLiteral(node) {
 			if (options.comments.length > 0) {
 				const previousToken = sourceCode.getTokenBefore(node, {includeComments: true});
-				if (previousToken && previousToken.type === 'Block' && options.comments.includes(previousToken.value.trim().toLowerCase())) {
+				if (previousToken?.type === 'Block' && options.comments.includes(previousToken.value.trim().toLowerCase())) {
 					indentTemplateLiteralNode(node);
 					return;
 				}

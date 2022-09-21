@@ -63,7 +63,7 @@ function checkObjectPattern(report, node, options) {
 		report(node, keyword);
 	}
 
-	// Prevent checking righthand side of destructured object
+	// Prevent checking right hand side of destructured object
 	if (parent.key === node && parent.value !== node) {
 		return true;
 	}
@@ -113,7 +113,7 @@ const create = context => {
 				parent.type === 'Property'
 				|| parent.type === 'AssignmentPattern'
 			) {
-				if (parent.parent && parent.parent.type === 'ObjectPattern') {
+				if (parent.parent.type === 'ObjectPattern') {
 					const finished = checkObjectPattern(report, node, options);
 					if (finished) {
 						return;
@@ -145,11 +145,7 @@ const create = context => {
 				].includes(parent.type)
 			) {
 				// Report only if the local imported identifier is invalid
-				if (
-					Boolean(keyword)
-					&& parent.local
-					&& parent.local.name === name
-				) {
+				if (Boolean(keyword) && parent.local?.name === name) {
 					report(node, keyword);
 				}
 

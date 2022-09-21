@@ -101,10 +101,8 @@ const isNumberMethodCall = node =>
 	&& isStaticProperties(node.callee, 'Number', numberMethods);
 const isGlobalParseToNumberFunctionCall = node => isFunctionCall(node, 'parseInt') || isFunctionCall(node, 'parseFloat');
 
-const isStaticNumber = (node, scope) => {
-	const staticResult = getStaticValue(node, scope);
-	return staticResult !== null && typeof staticResult.value === 'number';
-};
+const isStaticNumber = (node, scope) =>
+	typeof getStaticValue(node, scope)?.value === 'number';
 
 const isLengthProperty = node =>
 	node.type === 'MemberExpression'

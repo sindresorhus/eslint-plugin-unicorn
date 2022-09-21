@@ -54,7 +54,6 @@ const getMemberName = node => {
 
 	if (
 		type === 'MemberExpression'
-		&& property
 		&& property.type === 'Identifier'
 	) {
 		return property.name;
