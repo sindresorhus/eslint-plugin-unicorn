@@ -8,6 +8,20 @@ import eslintPluginUnicorn from '../../index.js';
 
 const {FlatESLint} = eslintExperimentalApis;
 
+const {
+	values: {
+		fix = false,
+	},
+	positionals: patterns,
+} = parseArgs({
+	options: {
+		fix: {
+			type: 'boolean',
+		},
+	},
+	allowPositionals: true,
+});
+
 const configs = [
 	// TODO: Use `eslintPluginUnicorn.configs.all` instead when we change preset to flat config
 	{
@@ -47,20 +61,6 @@ const configs = [
 		},
 	},
 ];
-
-const {
-	values: {
-		fix = false,
-	},
-	positionals: patterns,
-} = parseArgs({
-	options: {
-		fix: {
-			type: 'boolean',
-		},
-	},
-	allowPositionals: true,
-});
 
 const sum = (collection, fieldName) =>
 	collection.reduce((total, {[fieldName]: value}) => total + value, 0);
