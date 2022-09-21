@@ -1,8 +1,14 @@
 import {codeFrameColumns} from '@babel/code-frame';
-import {ESLint} from 'eslint';
+// eslint-disable-next-line n/file-extension-in-import -- https://github.com/eslint-community/eslint-plugin-n/issues/50
+import eslintExperimentalApis from 'eslint/use-at-your-own-risk';
 import chalk from 'chalk';
 import {outdent} from 'outdent';
+import babelParser from '@babel/eslint-parser';
+import typescriptParser from '@typescript-eslint/parser';
+import vueParser from 'vue-eslint-parser';
 import eslintPluginUnicorn from '../../index.js';
+
+const {FlatESLint} = eslintExperimentalApis;
 
 class UnicornIntegrationTestError extends AggregateError {
 	name = 'UnicornIntegrationTestError';
@@ -42,18 +48,19 @@ class UnicornEslintFatalError extends SyntaxError {
 const sum = (collection, fieldName) =>
 	collection.reduce((total, {[fieldName]: value}) => total + value, 0);
 
-async function runEslint(project) {
-	const eslint = new ESLint({
-		cwd: project.location,
-		baseConfig: eslintPluginUnicorn.configs.all,
-		useEslintrc: false,
-		extensions: ['.js', '.mjs', '.cjs', '.ts', '.mts', '.cts', '.jsx', '.tsx', '.vue'],
+const patterns = `**/*.{${['js', 'mjs', 'cjs', 'ts', 'mts', 'cts', 'jsx', 'tsx', 'vue'].join(',')}}`;
+const configs = [
+	// TODO: Use `eslintPluginUnicorn.configs.all` instead when we change preset to flat config
+	{
 		plugins: {
 			unicorn: eslintPluginUnicorn,
 		},
-		fix: true,
-		overrideConfig: {
-			parser: '@babel/eslint-parser',
+		rules: eslintPluginUnicorn.configs.all.rules,
+	},
+	{
+		languageOptions: {
+			sourceType: 'module',
+			parser: babelParser,
 			parserOptions: {
 				requireConfigFile: false,
 				babelOptions: {
@@ -69,35 +76,50 @@ async function runEslint(project) {
 					},
 				},
 			},
-			ignorePatterns: project.ignore,
-			rules: {
-				// This rule crashing on replace string inside `jsx` or `Unicode escape sequence`
-				'unicorn/string-content': 'off',
-			},
-			overrides: [
-				{
-					files: ['*.ts', '*.mts', '*.cts', '*.tsx'],
-					parser: '@typescript-eslint/parser',
-					parserOptions: {
-						project: [],
-					},
-				},
-				{
-					files: ['*.vue'],
-					parser: 'vue-eslint-parser',
-					parserOptions: {
-						parser: '@typescript-eslint/parser',
-						ecmaFeatures: {
-							jsx: true,
-						},
-						project: [],
-					},
-				},
-			],
 		},
+	},
+	{
+		rules: {
+			// This rule crashing on replace string inside `jsx` or `Unicode escape sequence`
+			'unicorn/string-content': 'off',
+		},
+	},
+	{
+		files: ['*.ts', '*.mts', '*.cts', '*.tsx'],
+		languageOptions: {
+			parser: typescriptParser,
+			parserOptions: {
+				project: [],
+			},
+		},
+	},
+	{
+		files: ['*.vue'],
+		languageOptions: {
+			parser: vueParser,
+			parserOptions: {
+				parser: '@typescript-eslint/parser',
+				ecmaFeatures: {
+					jsx: true,
+				},
+				project: [],
+			},
+		},
+	},
+];
+
+async function runEslint(project) {
+	const eslint = new FlatESLint({
+		cwd: project.location,
+		overrideConfigFile: true,
+		overrideConfig: [
+			...configs,
+			{ignores: project.ignore},
+		],
+		fix: true,
 	});
 
-	const results = await eslint.lintFiles('.');
+	const results = await eslint.lintFiles(patterns);
 
 	const errors = results
 		.filter(file => file.fatalErrorCount > 0)
