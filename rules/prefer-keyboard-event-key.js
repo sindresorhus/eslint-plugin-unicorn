@@ -15,7 +15,7 @@ const keys = new Set([
 ]);
 
 const isPropertyNamedAddEventListener = node =>
-	&& node?.type === 'CallExpression'
+	node?.type === 'CallExpression'
 	&& node.callee.type === 'MemberExpression'
 	&& node.callee.property.name === 'addEventListener';
 

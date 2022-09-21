@@ -239,7 +239,7 @@ const fixDestructuringAndReplaceFilter = (sourceCode, node) => {
 };
 
 const isAccessingZeroIndex = node =>
-	&& node.parent.type === 'MemberExpression'
+	node.parent.type === 'MemberExpression'
 	&& node.parent.computed === true
 	&& node.parent.object === node
 	&& node.parent.property.type === 'Literal'

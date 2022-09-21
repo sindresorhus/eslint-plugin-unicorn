@@ -47,7 +47,7 @@ function canAddDotSlash(node, context) {
 	const staticValueResult = getStaticValue(baseNode, context.getScope());
 
 	if (
-		&& typeof staticValueResult?.value === 'string'
+		typeof staticValueResult?.value === 'string'
 		&& isSafeToAddDotSlash(url, [staticValueResult.value])
 	) {
 		return true;
