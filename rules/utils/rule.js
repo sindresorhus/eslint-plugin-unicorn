@@ -71,10 +71,18 @@ function reportProblems(create) {
 		return create;
 	}
 
-	const wrapped = context => Object.fromEntries(
-		Object.entries(create(context))
-			.map(([selector, listener]) => [selector, reportListenerProblems(listener, context)]),
-	);
+	const wrapped = context => {
+		const listeners = create(context);
+
+		if (!listeners) {
+			return {};
+		}
+
+		return Object.fromEntries(
+			Object.entries(listeners)
+				.map(([selector, listener]) => [selector, reportListenerProblems(listener, context)]),
+		);
+	};
 
 	wrappedFunctions.add(wrapped);
 

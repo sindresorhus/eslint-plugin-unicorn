@@ -147,7 +147,7 @@ const create = context => {
 	const filenameWithExtension = context.getPhysicalFilename();
 
 	if (filenameWithExtension === '<input>' || filenameWithExtension === '<text>') {
-		return {};
+		return;
 	}
 
 	return {
