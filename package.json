@@ -87,7 +87,8 @@
 		"outdent": "^0.8.0",
 		"typescript": "^4.8.3",
 		"vue-eslint-parser": "^9.1.0",
-		"xo": "^0.52.3"
+		"xo": "^0.52.3",
+		"yaml": "^1.10.2"
 	},
 	"peerDependencies": {
 		"eslint": ">=8.23.1"

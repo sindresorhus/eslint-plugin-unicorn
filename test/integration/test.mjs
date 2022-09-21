@@ -2,186 +2,150 @@
 import process from 'node:process';
 import fs from 'node:fs';
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
+import {parseArgs} from 'node:util';
 import Listr from 'listr';
 import {execa} from 'execa';
 import chalk from 'chalk';
+import {outdent} from 'outdent';
 import {isCI} from 'ci-info';
 import mem from 'mem';
+import YAML from 'yaml';
 import allProjects from './projects.mjs';
+import runEslint from './run-eslint.mjs';
 
-const dirname = path.dirname(fileURLToPath(import.meta.url));
-const projectsArguments = process.argv.slice(2);
-const projects = projectsArguments.length === 0
+if (isCI) {
+	const CI_CONFIG_FILE = new URL('../../.github/workflows/main.yml', import.meta.url);
+	const content = fs.readFileSync(CI_CONFIG_FILE, 'utf8');
+	const config = YAML.parse(content).jobs.integration.strategy.matrix.group;
+
+	const expected = [...new Set(allProjects.map(project => String(project.group + 1)))];
+	if (
+		config.length !== expected.length
+		|| expected.some((group, index) => config[index] !== group)
+	) {
+		throw new Error(outdent`
+			Expect 'jobs.integration.strategy.matrix.group' in '/.github/workflows/main.yml' to be:
+			${YAML.stringify(expected)}
+		`);
+	}
+}
+
+const {
+	values: {
+		group,
+	},
+	positionals: projectsArguments,
+} = parseArgs({
+	options: {
+		group: {
+			type: 'string',
+		},
+	},
+	allowPositionals: true,
+});
+
+let projects = projectsArguments.length === 0
 	? allProjects
 	: allProjects.filter(({name}) => projectsArguments.includes(name));
 
-const enrichErrors = (packageName, cliArguments, f) => async (...arguments_) => {
-	try {
-		return await f(...arguments_);
-	} catch (error) {
-		error.packageName = packageName;
-		error.cliArgs = cliArguments;
-		throw error;
-	}
-};
+if (isCI && !group) {
+	throw new Error('"--group" is required');
+}
 
-const makeEslintTask = (project, destination) => {
-	const arguments_ = [
-		'eslint',
-		project.path || '.',
-		'--fix-dry-run',
-		'--no-eslintrc',
-		'--ext',
-		'.js,.ts,.vue',
-		'--format',
-		'json',
-		'--config',
-		path.join(dirname, 'config.js'),
-	];
+if (group) {
+	projects = projects.filter(project => String(project.group + 1) === group);
+}
 
-	for (const pattern of project.ignore) {
-		arguments_.push('--ignore-pattern', pattern);
-	}
-
-	return enrichErrors(project.name, arguments_, async () => {
-		let stdout;
-		let processError;
-		try {
-			({stdout} = await execa('npx', arguments_, {cwd: destination, localDir: dirname}));
-		} catch (error) {
-			({stdout} = error);
-			processError = error;
-
-			if (!stdout) {
-				throw error;
-			}
-		}
-
-		let files;
-		try {
-			files = JSON.parse(stdout);
-		} catch (error) {
-			console.error('Error while parsing eslint output:', error);
-
-			if (processError) {
-				throw processError;
-			}
-
-			throw error;
-		}
-
-		for (const file of files) {
-			for (const message of file.messages) {
-				if (message.fatal) {
-					const error = new Error(message.message);
-					error.eslintJob = {
-						destination,
-						project,
-						file,
-					};
-					error.eslintMessage = message;
-					throw error;
-				}
-			}
-		}
-	});
-};
+if (projects.length === 0) {
+	console.log('No project matched');
+	process.exit(0);
+}
 
 const getBranch = mem(async dirname => {
 	const {stdout} = await execa('git', ['branch', '--show-current'], {cwd: dirname});
 	return stdout;
 });
 
-const execute = project => {
-	const destination = project.location || path.join(dirname, 'fixtures', project.name);
-
-	return new Listr([
+const execute = project => new Listr(
+	[
 		{
 			title: 'Cloning',
-			skip: () => fs.existsSync(destination) ? 'Project already downloaded.' : false,
+			skip: () => fs.existsSync(project.location) ? 'Project already downloaded.' : false,
 			task: () => execa('git', [
 				'clone',
 				project.repository,
 				'--single-branch',
 				'--depth',
 				'1',
-				destination,
-			]),
+				project.location,
+			], {stdout: 'inherit', stderr: 'inherit'}),
 		},
 		{
 			title: 'Running eslint',
-			task: makeEslintTask(project, destination),
+			task: () => runEslint(project),
 		},
 	].map(({title, task, skip}) => ({
 		title: `${project.name} / ${title}`,
 		skip,
 		task,
-	})), {
-		exitOnError: false,
-	});
-};
+	})),
+	{exitOnError: false},
+);
 
-const list = new Listr([
-	{
-		title: 'Setup',
-		task: () => execa('npm', ['install'], {cwd: dirname, stdout: 'inherit', stderr: 'inherit'}),
-	},
-	{
-		title: 'Integration tests',
-		task() {
-			const tests = new Listr({concurrent: true});
+async function printEslintError(eslintError) {
+	const {message, project} = eslintError;
 
-			for (const project of projects) {
-				tests.add([
-					{
-						title: project.name,
-						task: () => execute(project),
-					},
-				]);
-			}
+	console.log();
+	console.error(
+		chalk.red.bold.underline(`[${project.name}]`),
+		message,
+	);
 
-			return tests;
-		},
-	},
-], {
-	renderer: isCI ? 'verbose' : 'default',
-});
-
-async function logError(error) {
-	if (error.errors) {
-		for (const error2 of error.errors) {
-			console.error('\n', chalk.red.bold.underline(error2.packageName), chalk.gray('(' + error2.cliArgs.join(' ') + ')'));
-			console.error(error2.message);
-
-			if (error2.stderr) {
-				console.error(chalk.gray(error2.stderr));
-			}
-
-			if (error2.eslintMessage) {
-				const {file, project, destination} = error2.eslintJob;
-				const {line} = error2.eslintMessage;
-
-				if (project.repository) {
-					// eslint-disable-next-line no-await-in-loop
-					const branch = await getBranch(destination);
-					console.error(chalk.gray(`${project.repository}/blob/${branch}/${path.relative(destination, file.filePath)}#L${line}`));
-				} else {
-					console.error(chalk.gray(`${path.relative(destination, file.filePath)}#L${line}`));
-				}
-
-				console.error(chalk.gray(JSON.stringify(error2.eslintMessage, undefined, 2)));
-			}
+	project.branch ??= await getBranch(project.location);
+	for (const error of eslintError.errors) {
+		let file = path.relative(project.location, error.eslintFile.filePath);
+		if (project.repository) {
+			file = `${project.repository}/blob/${project.branch}/${file}`;
 		}
-	} else {
-		console.error(error);
+
+		if (typeof error.eslintMessage.line === 'number') {
+			file += `#L${error.eslintMessage.line}`;
+		}
+
+		console.log();
+		console.error(chalk.blue.bold.underline(file));
+		console.log();
+		console.error(error.codeFrame);
+	}
+}
+
+async function printListrError(listrError) {
+	process.exitCode = 1;
+
+	if (!listrError.errors) {
+		console.error(listrError);
+		return;
 	}
 
-	process.exit(1);
+	for (const error of listrError.errors) {
+		if (error.name !== 'UnicornIntegrationTestError') {
+			console.error(error);
+			continue;
+		}
+
+		// eslint-disable-next-line no-await-in-loop
+		await printEslintError(error);
+	}
 }
 
 try {
-	await list.run();
+	await new Listr(
+		projects.map(project => ({title: project.name, task: () => execute(project)})),
+		{
+			renderer: isCI ? 'verbose' : 'default',
+			concurrent: true,
+		},
+	).run();
 } catch (error) {
-	await logError(error);
+	await printListrError(error);
 }

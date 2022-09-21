@@ -48,6 +48,7 @@ const typescript = {
 	mergeParserOptions(options) {
 		return {
 			...defaultOptions.parserOptions,
+			project: [],
 			...options,
 		};
 	},
