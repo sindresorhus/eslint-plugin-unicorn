@@ -1,5 +1,6 @@
 'use strict';
 const isSameReference = require('./utils/is-same-reference.js');
+const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument.js');
 const {removeArgument} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-object-define-properties';
@@ -29,7 +30,7 @@ function isObjectDefinePropertyOrObjectDefineProperties(node) {
 		return false;
 	}
 
-	const { callee, arguments: callArguments} = node;
+	const {callee, arguments: callArguments} = node;
 	if (
 		callee.type !== 'MemberExpression'
 		|| callArguments.some(({type}) => type === 'RestElement')
@@ -48,7 +49,6 @@ function isObjectDefinePropertyOrObjectDefineProperties(node) {
 		return false;
 	}
 
-
 	if (property.name === 'defineProperty') {
 		return callArguments.length === 3;
 	}
@@ -64,11 +64,12 @@ function getDescriptorsText(callExpression, sourceCode) {
 	const method = callExpression.callee.property.name;
 
 	if (method === 'defineProperty') {
-		let [, property, descriptor] = callExpression.arguments;
+		const [, property, descriptor] = callExpression.arguments;
 		let propertyText = sourceCode.getText(property);
 		if (property.type !== 'Literal') {
 			propertyText = `[${propertyText}]`;
 		}
+
 		return `${propertyText}: ${sourceCode.getText(descriptor)}`;
 	}
 
@@ -77,7 +78,11 @@ function getDescriptorsText(callExpression, sourceCode) {
 		return descriptors.properties.map(property => sourceCode.getText(property)).join(',\n');
 	}
 
-	return `...(${sourceCode.getText(descriptors)})`;
+	if (shouldAddParenthesesToSpreadElementArgument(descriptors)) {
+		return `...(${sourceCode.getText(descriptors)})`;
+	}
+
+	return `...${sourceCode.getText(descriptors)}`;
 }
 
 function * fix(fixer, firstCallExpression, secondCallExpression, sourceCode) {
@@ -115,14 +120,14 @@ function * fix(fixer, firstCallExpression, secondCallExpression, sourceCode) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	*'Program:exit'() {
+	* 'Program:exit'() {
 		const sourceCode = context.getSourceCode();
 		const callExpressions = context
 			.getScope()
 			.variableScope.set.get('Object')
 			.references.filter(
 				reference =>
-					isObjectDefinePropertyOrObjectDefineProperties(reference.identifier.parent.parent)
+					isObjectDefinePropertyOrObjectDefineProperties(reference.identifier.parent.parent),
 			)
 			.map(reference => reference.identifier.parent.parent);
 
@@ -158,7 +163,7 @@ const create = context => ({
 					replacement: 'Object.defineProperties',
 					value: 'Object.defineProperty',
 				},
-				fix: (fixer) => fix(fixer, firstCallExpression, secondCallExpression, sourceCode),
+				fix: fixer => fix(fixer, firstCallExpression, secondCallExpression, sourceCode),
 			};
 		}
 	},
