@@ -73,7 +73,6 @@ const create = context => ({
 			suggest: [
 				{
 					messageId: SUGGESTION_ID_ARRAY_SOME,
-					data: {method: methodNode.name},
 					* fix(fixer) {
 						yield fixer.replaceText(methodNode, 'some');
 

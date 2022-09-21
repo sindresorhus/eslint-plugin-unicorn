@@ -167,9 +167,6 @@ const create = context => ({
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
-					data: {
-						name: node.name,
-					},
 					fix,
 				},
 			];

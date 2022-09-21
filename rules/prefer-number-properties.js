@@ -64,7 +64,6 @@ function checkProperty({node, path: [name]}, sourceCode) {
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
-				data: problem.data,
 				fix,
 			},
 		];

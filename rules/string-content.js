@@ -95,14 +95,13 @@ const create = context => {
 			}
 
 			const {fix: autoFix, message = defaultMessage, match, suggest, regex} = replacement;
-			const messageData = {
-				match,
-				suggest,
-			};
 			const problem = {
 				node,
 				message,
-				data: messageData,
+				data: {
+					match,
+					suggest,
+				},
 			};
 
 			const fixed = string.replace(regex, suggest);
@@ -123,7 +122,6 @@ const create = context => {
 				problem.suggest = [
 					{
 						messageId: SUGGESTION_MESSAGE_ID,
-						data: messageData,
 						fix,
 					},
 				];
