@@ -66,18 +66,16 @@ const create = () => ({
 			return;
 		}
 
-		const messageData = {
-			value,
-			replacement,
-		};
-
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
 		const fix = fixer => replaceStringLiteral(fixer, node, replacement);
 
 		const problem = {
 			node,
 			messageId: MESSAGE_ID_ERROR,
-			data: messageData,
+			data: {
+				value,
+				replacement,
+			},
 		};
 
 		if (isFsReadFileEncoding(node)) {
@@ -88,7 +86,6 @@ const create = () => ({
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
-				data: messageData,
 				fix: fixer => replaceStringLiteral(fixer, node, replacement),
 			},
 		];

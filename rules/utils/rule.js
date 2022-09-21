@@ -56,6 +56,11 @@ function reportListenerProblems(listener, context) {
 					if (suggest.fix) {
 						suggest.fix = wrapFixFunction(suggest.fix);
 					}
+
+					suggest.data = {
+						...problem.data,
+						...suggest.data,
+					};
 				}
 			}
 
