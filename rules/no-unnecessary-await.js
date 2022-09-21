@@ -25,10 +25,14 @@ function notPromise(node) {
 		case 'Literal':
 		case 'TemplateLiteral':
 		case 'UnaryExpression':
-		case 'UpdateExpression':
+		case 'UpdateExpression': {
 			return true;
-		case 'SequenceExpression':
+		}
+
+		case 'SequenceExpression': {
 			return notPromise(node.expressions[node.expressions.length - 1]);
+		}
+
 		// No default
 	}
 
