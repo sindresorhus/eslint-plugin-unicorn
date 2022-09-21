@@ -76,7 +76,9 @@ async function run() {
 	let results = await eslint.lintFiles(patterns.length === 0 ? ['.'] : patterns);
 
 	// Ignore errors not caused by this plugin
-	results = results.map(file => file.messages.filter(message => message.ruleId && !message.ruleId.startsWith('unicorn/')));
+	for (const result of results) {
+		result.messages = result.messages.filter(message => !message.ruleId || message.ruleId.startsWith('unicorn/'))
+	}
 
 	if (fix) {
 		await FlatESLint.outputFixes(results);
