@@ -261,32 +261,31 @@ In the new config system, the `plugin:` protocol (e.g. `plugin:react/recommended
 import unicorn from 'eslint-plugin-unicorn/all'; // <== trailing '/all'
 
 export default [
-    // --- snip ---
+    // …
     unicorn, // This is not a plugin object, but a shareable config object
-    // --- snip ---
-]
+    // …
+];
 ```
 
 You can of course add/override some properties.
 
 ```js
-import unicorn from 'eslint-plugin-unicorn/recommended'
-import globals from 'globals'
+import unicorn from 'eslint-plugin-unicorn/recommended';
+import globals from 'globals';
 
 export default [
-    // --- snip ---
+    // …
     {
         ...unicorn,
         files: ['**/*.{js,jsx}'],
-  	    languageOptions: {
+        languageOptions: {
             globals: {
                 ...globals.browser,
-                // and so on
             },
   	    },
     },
-    // --- snip ---
-]
+    // …
+];
 ```
 
 ## Maintainers
