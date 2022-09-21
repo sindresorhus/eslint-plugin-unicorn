@@ -99,7 +99,7 @@ function unicorn() {
 ```
 */
 const isUnresolvedName = (name, scope) =>
-	getReferences(scope).some(({identifier, resolved}) => identifier && identifier.name === name && !resolved);
+	getReferences(scope).some(({identifier, resolved}) => identifier?.name === name && !resolved);
 
 const isSafeName = (name, scopes) =>
 	!scopes.some(scope => resolveVariableName(name, scope) || isUnresolvedName(name, scope));

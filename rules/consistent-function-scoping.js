@@ -21,7 +21,7 @@ function checkReferences(scope, parent, scopeManager) {
 		const [definition] = resolved.defs;
 
 		// Skip recursive function name
-		if (definition && definition.type === 'FunctionName' && resolved.name === definition.name.name) {
+		if (definition?.type === 'FunctionName' && resolved.name === definition.name.name) {
 			return false;
 		}
 
@@ -92,23 +92,20 @@ const reactHooks = [
 ].flatMap(hookName => [hookName, `React.${hookName}`]);
 
 const isReactHook = scope =>
-	scope.block
-	&& scope.block.parent
-	&& scope.block.parent.callee
+	scope.block?.parent?.callee
 	&& isNodeMatches(scope.block.parent.callee, reactHooks);
 
 const isArrowFunctionWithThis = scope =>
 	scope.type === 'function'
-	&& scope.block
-	&& scope.block.type === 'ArrowFunctionExpression'
+	&& scope.block?.type === 'ArrowFunctionExpression'
 	&& (scope.thisFound || scope.childScopes.some(scope => isArrowFunctionWithThis(scope)));
 
 const iifeFunctionTypes = new Set([
 	'FunctionExpression',
 	'ArrowFunctionExpression',
 ]);
-const isIife = node => node
-	&& iifeFunctionTypes.has(node.type)
+const isIife = node =>
+	iifeFunctionTypes.has(node.type)
 	&& node.parent.type === 'CallExpression'
 	&& node.parent.callee === node;
 

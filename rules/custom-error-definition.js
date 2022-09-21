@@ -137,15 +137,15 @@ function * customErrorDefinition(context, node) {
 	if (!nameExpression) {
 		const nameProperty = body.find(node => isPropertyDefinition(node, 'name'));
 
-		if (!nameProperty || !nameProperty.value || nameProperty.value.value !== name) {
+		if (!nameProperty?.value || nameProperty.value.value !== name) {
 			yield {
-				node: nameProperty && nameProperty.value ? nameProperty.value : constructorBodyNode,
+				node: nameProperty?.value ? nameProperty.value : constructorBodyNode,
 				message: `The \`name\` property should be set to \`${name}\`.`,
 			};
 		}
 	} else if (nameExpression.expression.right.value !== name) {
 		yield {
-			node: nameExpression ? nameExpression.expression.right : constructorBodyNode,
+			node: nameExpression?.expression.right ?? constructorBodyNode,
 			message: `The \`name\` property should be set to \`${name}\`.`,
 		};
 	}

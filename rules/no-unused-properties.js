@@ -11,13 +11,11 @@ const getDeclaratorOrPropertyValue = declaratorOrProperty =>
 	|| declaratorOrProperty.value;
 
 const isMemberExpressionCall = memberExpression =>
-	memberExpression.parent
-	&& memberExpression.parent.type === 'CallExpression'
+	&& memberExpression.parent?.type === 'CallExpression'
 	&& memberExpression.parent.callee === memberExpression;
 
 const isMemberExpressionAssignment = memberExpression =>
-	memberExpression.parent
-	&& memberExpression.parent.type === 'AssignmentExpression';
+	memberExpression.parent?.type === 'AssignmentExpression';
 
 const isMemberExpressionComputedBeyondPrediction = memberExpression =>
 	memberExpression.computed

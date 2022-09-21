@@ -28,7 +28,6 @@ const isFsReadFileEncoding = node =>
 	node.parent.type === 'CallExpression'
 	&& !node.parent.optional
 	&& node.parent.arguments[1] === node
-	&& node.parent.arguments[0]
 	&& node.parent.arguments[0].type !== 'SpreadElement'
 	&& node.parent.callee.type === 'MemberExpression'
 	&& !node.parent.callee.optional

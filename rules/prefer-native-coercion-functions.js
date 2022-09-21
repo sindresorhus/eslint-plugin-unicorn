@@ -11,13 +11,11 @@ const nativeCoercionFunctionNames = new Set(['String', 'Number', 'BigInt', 'Bool
 const arrayMethodsWithBooleanCallback = new Set(['every', 'filter', 'find', 'findLast', 'findIndex', 'findLastIndex', 'some']);
 
 const isNativeCoercionFunctionCall = (node, firstArgumentName) =>
-	node
-	&& node.type === 'CallExpression'
+	node?.type === 'CallExpression'
 	&& !node.optional
 	&& node.callee.type === 'Identifier'
 	&& nativeCoercionFunctionNames.has(node.callee.name)
-	&& node.arguments[0]
-	&& node.arguments[0].type === 'Identifier'
+	&& node.arguments[0]?.type === 'Identifier'
 	&& node.arguments[0].name === firstArgumentName;
 
 const isIdentityFunction = node =>
@@ -33,8 +31,7 @@ const isIdentityFunction = node =>
 		node.body.type === 'BlockStatement'
 		&& node.body.body.length === 1
 		&& node.body.body[0].type === 'ReturnStatement'
-		&& node.body.body[0].argument
-		&& node.body.body[0].argument.type === 'Identifier'
+		&& node.body.body[0].argument?.type === 'Identifier'
 		&& node.body.body[0].argument.name === node.params[0].name
 	);
 

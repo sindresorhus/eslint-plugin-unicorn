@@ -24,7 +24,7 @@ const globalObjects = {
 
 const isNegative = node => {
 	const {parent} = node;
-	return parent && parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
+	return parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
 };
 
 function checkProperty({node, path: [name]}, sourceCode) {

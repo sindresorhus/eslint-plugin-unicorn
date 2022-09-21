@@ -11,11 +11,8 @@ const messages = {
 	[MESSAGE_ID_CLASS]: 'Do not add `then` to a class.',
 };
 
-const isStringThen = (node, context) => {
-	const result = getStaticValue(node, context.getScope());
-
-	return result && result.value === 'then';
-};
+const isStringThen = (node, context) =>
+	getStaticValue(node, context.getScope())?.value === 'then';
 
 const cases = [
 	// `{then() {}}`,

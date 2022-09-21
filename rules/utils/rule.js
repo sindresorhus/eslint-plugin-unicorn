@@ -3,7 +3,7 @@ const path = require('node:path');
 const fs = require('node:fs');
 const getDocumentationUrl = require('./get-documentation-url.js');
 
-const isIterable = object => typeof object[Symbol.iterator] === 'function';
+const isIterable = object => object && typeof object[Symbol.iterator] === 'function';
 
 class FixAbortError extends Error {}
 const fixOptions = {
@@ -16,7 +16,7 @@ function wrapFixFunction(fix) {
 	return fixer => {
 		const result = fix(fixer, fixOptions);
 
-		if (result && isIterable(result)) {
+		if (isIterable(result)) {
 			try {
 				return [...result];
 			} catch (error) {
@@ -103,10 +103,7 @@ function checkVueTemplate(create, options) {
 		const listeners = create(context);
 
 		// `vue-eslint-parser`
-		if (
-			context.parserServices
-			&& context.parserServices.defineTemplateBodyVisitor
-		) {
+		if (context.parserServices?.defineTemplateBodyVisitor) {
 			return visitScriptBlock
 				? context.parserServices.defineTemplateBodyVisitor(listeners, listeners)
 				: context.parserServices.defineTemplateBodyVisitor(listeners);
