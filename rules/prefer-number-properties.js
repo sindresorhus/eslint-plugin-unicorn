@@ -52,33 +52,7 @@ function checkProperty({node, path: [name]}, sourceCode) {
 			yield * fixSpaceAroundKeyword(fixer, parent, sourceCode);
 		};
 
-		if (property === 'NEGATIVE_INFINITY') {
-			problem.node = parent;
-			problem.data.description = '-Infinity';
-			problem.fix = function * (fixer) {
-				yield fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
-				yield * fixSpaceAroundKeyword(fixer, parent, sourceCode);
-			};
-
-			yield problem;
-			continue;
-		}
-
-		const fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
-		const isSafeToFix = globalObjects[name];
-
-		if (isSafeToFix) {
-			problem.fix = fix;
-		} else {
-			problem.suggest = [
-				{
-					messageId: MESSAGE_ID_SUGGESTION,
-					fix,
-				},
-			];
-		}
-
-		yield problem;
+		return problem;
 	}
 
 	const fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
