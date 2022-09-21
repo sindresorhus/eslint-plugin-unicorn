@@ -3,7 +3,7 @@ const path = require('node:path');
 const fs = require('node:fs');
 const getDocumentationUrl = require('./get-documentation-url.js');
 
-const isIterable = object => object && typeof object[Symbol.iterator] === 'function';
+const isIterable = object => typeof object?.[Symbol.iterator] === 'function';
 
 class FixAbortError extends Error {}
 const fixOptions = {
