@@ -75,13 +75,13 @@ async function run() {
 		fix,
 	});
 
-	let results = await eslint.lintFiles(patterns.length === 0 ? ['.'] : patterns);
+	const results = await eslint.lintFiles(patterns.length === 0 ? ['.'] : patterns);
 
 	if (fix) {
 		await FlatESLint.outputFixes(results);
 	}
 
-	let errorCount = sum(results, 'errorCount');
+	const errorCount = sum(results, 'errorCount');
 	const warningCount = sum(results, 'warningCount');
 	const fixableErrorCount = sum(results, 'fixableErrorCount');
 	const fixableWarningCount = sum(results, 'fixableWarningCount');
