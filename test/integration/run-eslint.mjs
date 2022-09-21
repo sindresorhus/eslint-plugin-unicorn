@@ -116,7 +116,6 @@ async function runEslint(project) {
 			...configs,
 			{ignores: project.ignore},
 		],
-		ignore: false,
 		fix: true,
 	});
 
