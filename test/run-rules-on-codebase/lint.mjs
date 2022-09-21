@@ -19,9 +19,11 @@ const configs = [
 	{
 		ignores: [
 			'coverage',
-			'test/integration/fixtures/**',
-			'test/integration/fixtures-local/**',
+			'test/integration/fixtures',
+			'test/integration/fixtures-local',
 		],
+	},
+	{
 		rules: {
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1109#issuecomment-782689255
 			'unicorn/consistent-destructuring': 'off',
