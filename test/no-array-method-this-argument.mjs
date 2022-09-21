@@ -43,6 +43,8 @@ test.snapshot({
 		'array.filter(() => {}, thisArgument)',
 		'array.find(() => {}, thisArgument)',
 		'array.findIndex(() => {}, thisArgument)',
+		'array.findLast(() => {}, thisArgument)',
+		'array.findLastIndex(() => {}, thisArgument)',
 		'array.flatMap(() => {}, thisArgument)',
 		'array.forEach(() => {}, thisArgument)',
 		'array.map(() => {}, thisArgument)',

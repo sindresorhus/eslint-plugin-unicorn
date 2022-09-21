@@ -40,7 +40,23 @@ const iteratorMethods = [
 		},
 	],
 	[
+		'findLast',
+		{
+			ignore: [
+				'Boolean',
+			],
+		},
+	],
+	[
 		'findIndex',
+		{
+			ignore: [
+				'Boolean',
+			],
+		},
+	],
+	[
+		'findLastIndex',
 		{
 			ignore: [
 				'Boolean',

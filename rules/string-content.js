@@ -70,7 +70,7 @@ const create = context => {
 	const replacements = getReplacements(patterns);
 
 	if (replacements.length === 0) {
-		return {};
+		return;
 	}
 
 	return {

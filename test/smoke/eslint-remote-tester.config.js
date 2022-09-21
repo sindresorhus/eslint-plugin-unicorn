@@ -29,6 +29,7 @@ module.exports = {
 			ecmaFeatures: {
 				jsx: true,
 			},
+			project: [],
 		},
 		extends: ['plugin:unicorn/all'],
 	},

@@ -49,5 +49,14 @@ test.typescript({
 	valid: [
 		'function foo () {return (await promise) as string;}',
 	],
-	invalid: [],
+	invalid: [
+		{
+			code: 'const foo: Type = (await promise)[0]',
+			errors: 1,
+		},
+		{
+			code: 'const foo: Type | A = (await promise).foo',
+			errors: 1,
+		},
+	],
 });

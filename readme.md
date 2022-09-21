@@ -140,6 +140,7 @@ Each rule has emojis denoting:
 | [no-static-only-class](docs/rules/no-static-only-class.md) | Disallow classes that only have static members. | ✅ | 🔧 |  |
 | [no-thenable](docs/rules/no-thenable.md) | Disallow `then` property. | ✅ |  |  |
 | [no-this-assignment](docs/rules/no-this-assignment.md) | Disallow assigning `this` to a variable. | ✅ |  |  |
+| [no-unnecessary-await](docs/rules/no-unnecessary-await.md) | Disallow awaiting non-promise values. | ✅ | 🔧 |  |
 | [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md) | Disallow unreadable array destructuring. | ✅ | 🔧 |  |
 | [no-unreadable-iife](docs/rules/no-unreadable-iife.md) | Disallow unreadable IIFEs. | ✅ |  |  |
 | [no-unsafe-regex](docs/rules/no-unsafe-regex.md) | Disallow unsafe regular expressions. |  |  |  |
@@ -154,11 +155,11 @@ Each rule has emojis denoting:
 | [number-literal-case](docs/rules/number-literal-case.md) | Enforce proper case for numeric literals. | ✅ | 🔧 |  |
 | [numeric-separators-style](docs/rules/numeric-separators-style.md) | Enforce the style of numeric separators by correctly grouping digits. | ✅ | 🔧 |  |
 | [prefer-add-event-listener](docs/rules/prefer-add-event-listener.md) | Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions. | ✅ | 🔧 |  |
-| [prefer-array-find](docs/rules/prefer-array-find.md) | Prefer `.find(…)` over the first element from `.filter(…)`. | ✅ | 🔧 | 💡 |
+| [prefer-array-find](docs/rules/prefer-array-find.md) | Prefer `.find(…)` and `.findLast(…)` over the first or last element from `.filter(…)`. | ✅ | 🔧 | 💡 |
 | [prefer-array-flat](docs/rules/prefer-array-flat.md) | Prefer `Array#flat()` over legacy techniques to flatten arrays. | ✅ | 🔧 |  |
 | [prefer-array-flat-map](docs/rules/prefer-array-flat-map.md) | Prefer `.flatMap(…)` over `.map(…).flat()`. | ✅ | 🔧 |  |
-| [prefer-array-index-of](docs/rules/prefer-array-index-of.md) | Prefer `Array#indexOf()` over `Array#findIndex()` when looking for the index of an item. | ✅ | 🔧 | 💡 |
-| [prefer-array-some](docs/rules/prefer-array-some.md) | Prefer `.some(…)` over `.filter(…).length` check and `.find(…)`. | ✅ | 🔧 | 💡 |
+| [prefer-array-index-of](docs/rules/prefer-array-index-of.md) | Prefer `Array#{indexOf,lastIndexOf}()` over `Array#{findIndex,findLastIndex}()` when looking for the index of an item. | ✅ | 🔧 | 💡 |
+| [prefer-array-some](docs/rules/prefer-array-some.md) | Prefer `.some(…)` over `.filter(…).length` check and `.{find,findLast}(…)`. | ✅ | 🔧 | 💡 |
 | [prefer-at](docs/rules/prefer-at.md) | Prefer `.at()` method for index access and `String#charAt()`. |  | 🔧 | 💡 |
 | [prefer-code-point](docs/rules/prefer-code-point.md) | Prefer `String#codePointAt(…)` over `String#charCodeAt(…)` and `String.fromCodePoint(…)` over `String.fromCharCode(…)`. | ✅ |  | 💡 |
 | [prefer-date-now](docs/rules/prefer-date-now.md) | Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch. | ✅ | 🔧 |  |
@@ -178,7 +179,7 @@ Each rule has emojis denoting:
 | [prefer-modern-math-apis](docs/rules/prefer-modern-math-apis.md) | Prefer modern `Math` APIs over legacy patterns. | ✅ | 🔧 |  |
 | [prefer-module](docs/rules/prefer-module.md) | Prefer JavaScript modules (ESM) over CommonJS. | ✅ | 🔧 | 💡 |
 | [prefer-native-coercion-functions](docs/rules/prefer-native-coercion-functions.md) | Prefer using `String`, `Number`, `BigInt`, `Boolean`, and `Symbol` directly. | ✅ | 🔧 |  |
-| [prefer-negative-index](docs/rules/prefer-negative-index.md) | Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()`, `Array#splice()` and `Array#at()`. | ✅ | 🔧 |  |
+| [prefer-negative-index](docs/rules/prefer-negative-index.md) | Prefer negative index over `.length - index` for `{String,Array,TypedArray}#{slice,at}()` and `Array#splice()`. | ✅ | 🔧 |  |
 | [prefer-node-protocol](docs/rules/prefer-node-protocol.md) | Prefer using the `node:` protocol when importing Node.js builtin modules. | ✅ | 🔧 |  |
 | [prefer-number-properties](docs/rules/prefer-number-properties.md) | Prefer `Number` static properties over global ones. | ✅ | 🔧 | 💡 |
 | [prefer-object-from-entries](docs/rules/prefer-object-from-entries.md) | Prefer using `Object.fromEntries(…)` to transform a list of key-value pairs into an object. | ✅ | 🔧 |  |
@@ -203,6 +204,7 @@ Each rule has emojis denoting:
 | [require-number-to-fixed-digits-argument](docs/rules/require-number-to-fixed-digits-argument.md) | Enforce using the digits argument with `Number#toFixed()`. | ✅ | 🔧 |  |
 | [require-post-message-target-origin](docs/rules/require-post-message-target-origin.md) | Enforce using the `targetOrigin` argument with `window.postMessage()`. |  |  | 💡 |
 | [string-content](docs/rules/string-content.md) | Enforce better string content. |  | 🔧 | 💡 |
+| [switch-case-braces](docs/rules/switch-case-braces.md) | Enforce consistent brace style for `case` clauses. | ✅ | 🔧 |  |
 | [template-indent](docs/rules/template-indent.md) | Fix whitespace-insensitive template indentation. | ✅ | 🔧 |  |
 | [text-encoding-identifier-case](docs/rules/text-encoding-identifier-case.md) | Enforce consistent case for text encoding identifiers. | ✅ | 🔧 | 💡 |
 | [throw-new-error](docs/rules/throw-new-error.md) | Require `new` when throwing an error. | ✅ | 🔧 |  |

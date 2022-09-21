@@ -49,9 +49,28 @@ jobs:
       - run: npm install
       - run: npm run run-rules-on-codebase
   integration:
+    name: Integration test (${{ matrix.group }})
+    strategy:
+      fail-fast: false
+      matrix:
+        group:
+          - "1"
+          - "2"
+          - "3"
+          - "4"
+          - "5"
+          - "6"
+          - "7"
+          - "8"
+          - "9"
+          - "10"
+          - "11"
+          - "12"
+    env:
+      TIMING: 1
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
       - run: npm install
-      - run: npm run integration
+      - run: npm run integration -- --group ${{ matrix.group }}

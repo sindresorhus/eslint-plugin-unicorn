@@ -179,6 +179,25 @@ function create(context) {
 					yield removeLengthNode(lengthNode, fixer, sourceCode);
 				}
 
+				// Only remove space for `foo[foo.length - 1]`
+				if (
+					indexNode.type === 'BinaryExpression'
+					&& indexNode.operator === '-'
+					&& indexNode.left === lengthNode
+					&& indexNode.right.type === 'Literal'
+					&& /^\d+$/.test(indexNode.right.raw)
+				) {
+					const numberNode = indexNode.right;
+					const tokenBefore = sourceCode.getTokenBefore(numberNode);
+					if (
+						tokenBefore.type === 'Punctuator'
+						&& tokenBefore.value === '-'
+						&& /^\s+$/.test(sourceCode.text.slice(tokenBefore.range[1], numberNode.range[0]))
+					) {
+						yield fixer.removeRange([tokenBefore.range[1], numberNode.range[0]]);
+					}
+				}
+
 				const openingBracketToken = sourceCode.getTokenBefore(indexNode, isOpeningBracketToken);
 				yield fixer.replaceText(openingBracketToken, '.at(');
 

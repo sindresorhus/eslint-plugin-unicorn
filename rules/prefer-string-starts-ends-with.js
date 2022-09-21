@@ -103,7 +103,7 @@ const create = context => {
 
 				switch (fixType) {
 					// Goal: `(target ?? '').startsWith(pattern)`
-					case FIX_TYPE_NULLISH_COALESCING:
+					case FIX_TYPE_NULLISH_COALESCING: {
 						if (
 							!isTargetParenthesized
 							&& shouldAddParenthesesToLogicalExpressionChild(target, {operator: '??', property: 'left'})
@@ -120,20 +120,24 @@ const create = context => {
 						}
 
 						break;
+					}
 
 					// Goal: `String(target).startsWith(pattern)`
-					case FIX_TYPE_STRING_CASTING:
+					case FIX_TYPE_STRING_CASTING: {
 						// `target` was a call argument, don't need check parentheses
 						targetText = `String(${targetText})`;
 						// `CallExpression` don't need add parentheses to call `.startsWith()`
 						break;
+					}
 
 					// Goal: `target.startsWith(pattern)` or `target?.startsWith(pattern)`
-					case FIX_TYPE_OPTIONAL_CHAINING:
+					case FIX_TYPE_OPTIONAL_CHAINING: {
 						// Optional chaining: `target.startsWith` => `target?.startsWith`
 						yield fixer.replaceText(sourceCode.getTokenBefore(node.callee.property), '?.');
-						// Fallthrough
-					default:
+					}
+
+					// Fallthrough
+					default: {
 						if (
 							!isRegexParenthesized
 							&& !isTargetParenthesized
@@ -141,6 +145,7 @@ const create = context => {
 						) {
 							targetText = addParentheses(targetText);
 						}
+					}
 				}
 
 				// The regex literal always starts with `/` or `(`, so we don't need check ASI

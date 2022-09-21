@@ -1,11 +1,23 @@
 #!/usr/bin/env node
 import process from 'node:process';
+import {parseArgs} from 'node:util';
 import {ESLint} from 'eslint';
 import unicorn from '../../index.js';
 import allConfig from '../../configs-legacy/all.js';
 
-const files = [process.argv[2] || '.'];
-const fix = process.argv.includes('--fix');
+const {
+	values: {
+		fix = false,
+	},
+	positionals: patterns,
+} = parseArgs({
+	options: {
+		fix: {
+			type: 'boolean',
+		},
+	},
+	allowPositionals: true,
+});
 
 const eslint = new ESLint({
 	baseConfig: allConfig,
@@ -51,7 +63,7 @@ const sum = (collection, fieldName) =>
 	collection.reduce((total, {[fieldName]: value}) => total + value, 0);
 
 async function run() {
-	const results = await eslint.lintFiles(files);
+	const results = await eslint.lintFiles(patterns);
 
 	if (fix) {
 		await ESLint.outputFixes(results);

@@ -81,30 +81,43 @@ const isTypecheckingMemberExpression = (node, callExpression) => {
 
 const isTypecheckingExpression = (node, callExpression) => {
 	switch (node.type) {
-		case 'Identifier':
+		case 'Identifier': {
 			return isTypecheckingIdentifier(node, callExpression, false);
-		case 'MemberExpression':
+		}
+
+		case 'MemberExpression': {
 			return isTypecheckingMemberExpression(node, callExpression);
-		case 'CallExpression':
+		}
+
+		case 'CallExpression': {
 			return isTypecheckingExpression(node.callee, node);
-		case 'UnaryExpression':
+		}
+
+		case 'UnaryExpression': {
 			return (
 				node.operator === 'typeof'
 				|| (node.operator === '!' && isTypecheckingExpression(node.argument))
 			);
-		case 'BinaryExpression':
+		}
+
+		case 'BinaryExpression': {
 			return (
 				node.operator === 'instanceof'
 				|| isTypecheckingExpression(node.left, callExpression)
 				|| isTypecheckingExpression(node.right, callExpression)
 			);
-		case 'LogicalExpression':
+		}
+
+		case 'LogicalExpression': {
 			return (
 				isTypecheckingExpression(node.left, callExpression)
 				&& isTypecheckingExpression(node.right, callExpression)
 			);
-		default:
+		}
+
+		default: {
 			return false;
+		}
 	}
 };
 
