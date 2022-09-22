@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import {codeFrameColumns} from '@babel/code-frame';
 // eslint-disable-next-line n/file-extension-in-import -- https://github.com/eslint-community/eslint-plugin-n/issues/50
 import eslintExperimentalApis from 'eslint/use-at-your-own-risk';
@@ -122,16 +124,18 @@ async function runEslint(project) {
 
 	// const results = await eslint.lintFiles(patterns);
 
+	const patternPrefix = project.location.slice(process.cwd().length + 1).replaceAll('\\', '/') + '/';
+	const eslintIgnoreFile = path.join(project.location, '.eslintignore');
+
 	const eslint = new FlatESLint({
 		overrideConfigFile: true,
 		overrideConfig: [
 			...configs,
 			{ignores: project.ignore},
 		],
+		ignorePath: fs.existsSync(eslintIgnoreFile) ? eslintIgnoreFile : null,
 		fix: true,
 	});
-
-	const patternPrefix = project.location.slice(process.cwd().length + 1).replaceAll('\\', '/') + '/';
 	const results = await eslint.lintFiles(patterns.map(pattern => `${patternPrefix}${pattern}`));
 
 	const errors = results
