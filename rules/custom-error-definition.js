@@ -139,7 +139,7 @@ function * customErrorDefinition(context, node) {
 
 		if (!nameProperty?.value || nameProperty.value.value !== name) {
 			yield {
-				node: nameProperty?.value ? nameProperty.value : constructorBodyNode,
+				node: nameProperty?.value ?? constructorBodyNode,
 				message: `The \`name\` property should be set to \`${name}\`.`,
 			};
 		}
