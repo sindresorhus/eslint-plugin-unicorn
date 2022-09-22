@@ -48,8 +48,10 @@ class UnicornEslintFatalError extends SyntaxError {
 const sum = (collection, fieldName) =>
 	collection.reduce((total, {[fieldName]: value}) => total + value, 0);
 
-const patterns = `**/*.{${['js', 'mjs', 'cjs', 'ts', 'mts', 'cts', 'jsx', 'tsx', 'vue'].join(',')}}`;
 const configs = [
+	{
+		files: ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts', 'jsx', 'tsx', 'vue'].map(extension => `*.${extension}`),
+	},
 	// TODO: Use `eslintPluginUnicorn.configs.all` instead when we change preset to flat config
 	{
 		plugins: {
@@ -119,7 +121,7 @@ async function runEslint(project) {
 		fix: true,
 	});
 
-	const results = await eslint.lintFiles(patterns);
+	const results = await eslint.lintFiles('.');
 
 	const errors = results
 		.filter(file => file.fatalErrorCount > 0)
