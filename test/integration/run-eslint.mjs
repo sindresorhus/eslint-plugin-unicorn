@@ -48,10 +48,8 @@ class UnicornEslintFatalError extends SyntaxError {
 const sum = (collection, fieldName) =>
 	collection.reduce((total, {[fieldName]: value}) => total + value, 0);
 
+const patterns = ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts', 'jsx', 'tsx', 'vue'].map(extension => `**/*.${extension}`);
 const configs = [
-	{
-		files: ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts', 'jsx', 'tsx', 'vue'].map(extension => `*.${extension}`),
-	},
 	// TODO: Use `eslintPluginUnicorn.configs.all` instead when we change preset to flat config
 	{
 		plugins: {
@@ -111,8 +109,20 @@ const configs = [
 ];
 
 async function runEslint(project) {
+	// TRY to use the this when ESLint fixes https://github.com/eslint/eslint/issues/16340
+	// const eslint = new FlatESLint({
+	// 	cwd: project.location,
+	// 	overrideConfigFile: true,
+	// 	overrideConfig: [
+	// 		...configs,
+	// 		{ignores: project.ignore},
+	// 	],
+	// 	fix: true,
+	// });
+
+	// const results = await eslint.lintFiles(patterns);
+
 	const eslint = new FlatESLint({
-		cwd: project.location,
 		overrideConfigFile: true,
 		overrideConfig: [
 			...configs,
@@ -121,7 +131,8 @@ async function runEslint(project) {
 		fix: true,
 	});
 
-	const results = await eslint.lintFiles('.');
+	const patternPrefix = project.location.slice(process.cwd().length + 1).replaceAll('\\', '/') + '/';
+	const results = await eslint.lintFiles(patterns.map(pattern => `${patternPrefix}${pattern}`));
 
 	const errors = results
 		.filter(file => file.fatalErrorCount > 0)
