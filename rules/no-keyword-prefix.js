@@ -130,7 +130,7 @@ const create = context => {
 				if (
 					Boolean(keyword)
 					&& !ALLOWED_PARENT_TYPES.has(effectiveParent.type)
-					&& !(parent.right === node)
+					&& parent.right !== node
 					&& !isShorthandPropertyAssignmentPatternLeft(node)
 				) {
 					report(node, keyword);
