@@ -1,10 +1,11 @@
-'use strict';
-
 const isLogicalExpression = require('./is-logical-expression.js');
 
-const isLogicNot = node => node?.type === 'UnaryExpression' && node.operator === '!';
-const isLogicNotArgument = node => isLogicNot(node.parent) && node.parent.argument === node;
-const isBooleanCallArgument = node => isBooleanCall(node.parent) && node.parent.arguments[0] === node;
+const isLogicNot = node =>
+	node?.type === 'UnaryExpression' && node.operator === '!';
+const isLogicNotArgument = node =>
+	isLogicNot(node.parent) && node.parent.argument === node;
+const isBooleanCallArgument = node =>
+	isBooleanCall(node.parent) && node.parent.arguments[0] === node;
 const isBooleanCall = node =>
 	node?.type === 'CallExpression'
 	&& node.callee.type === 'Identifier'
@@ -17,11 +18,9 @@ const isVueBooleanAttributeValue = node =>
 	&& node.parent.value === node
 	&& node.parent.key.type === 'VDirectiveKey'
 	&& node.parent.key.name.type === 'VIdentifier'
-	&& (
-		node.parent.key.name.rawName === 'if'
+	&& (node.parent.key.name.rawName === 'if'
 		|| node.parent.key.name.rawName === 'else-if'
-		|| node.parent.key.name.rawName === 'show'
-	);
+		|| node.parent.key.name.rawName === 'show');
 
 /**
 Check if the value of node is a `boolean`.
@@ -31,15 +30,15 @@ Check if the value of node is a `boolean`.
 */
 function isBooleanNode(node) {
 	if (
-		isLogicNot(node) ||
-		isLogicNotArgument(node) ||
-		isBooleanCall(node) ||
-		isBooleanCallArgument(node)
+		isLogicNot(node)
+		|| isLogicNotArgument(node)
+		|| isBooleanCall(node)
+		|| isBooleanCallArgument(node)
 	) {
 		return true;
 	}
 
-	const { parent } = node;
+	const {parent} = node;
 	if (isVueBooleanAttributeValue(parent)) {
 		return true;
 	}
@@ -63,12 +62,12 @@ Check if the value of node can be cast to `boolean` without affecting its behavi
 */
 function isSafelyBooleanCastable(node) {
 	return (
-		(node.parent.type === "IfStatement" ||
-			node.parent.type === "ConditionalExpression" ||
-			node.parent.type === "WhileStatement" ||
-			node.parent.type === "DoWhileStatement" ||
-			node.parent.type === "ForStatement") &&
-		node.parent.test === node
+		(node.parent.type === 'IfStatement'
+			|| node.parent.type === 'ConditionalExpression'
+			|| node.parent.type === 'WhileStatement'
+			|| node.parent.type === 'DoWhileStatement'
+			|| node.parent.type === 'ForStatement')
+		&& node.parent.test === node
 	);
 }
 
@@ -95,7 +94,7 @@ function getBooleanAncestor(node) {
 		}
 	}
 
-	return { node, isNegative: depth % 2 === 1, depth };
+	return {node, isNegative: depth % 2 === 1, depth};
 }
 
 module.exports = {

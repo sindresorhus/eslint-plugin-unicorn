@@ -1,69 +1,82 @@
-"use strict";
+'use strict';
 const {
 	isLogicNot,
 	isBooleanCall,
 	getBooleanAncestor,
 	isSafelyBooleanCastable,
-} = require("./utils/boolean.js");
+} = require('./utils/boolean.js');
 
-const MESSAGE_ID = "no-unnecessary-negation";
+const MESSAGE_ID = 'no-unnecessary-negation';
 const messages = {
-	[MESSAGE_ID]: "Expression can be simpified.",
+	[MESSAGE_ID]: 'Expression can be simpified.',
 };
 
-function removeParens(str) {
-	return str.replace(/[()]/g, "");
+function removeParens(string_) {
+	return string_.replace(/[()]/g, '');
 }
 
 function isCompare(node, operator) {
-	return node.type === "BinaryExpression" && node.operator === operator;
+	return node.type === 'BinaryExpression' && node.operator === operator;
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = (context) => {
+const create = context => {
 	const sourceCode = context.getSourceCode();
-	const getNodeRaw = (node) => sourceCode.text.slice(...node.range);
+	const getNodeRaw = node => sourceCode.text.slice(...node.range);
 	const getNodeRawPositive = (node, save) => {
-		if (isCompare(node, "!==")) {
+		if (isCompare(node, '!==')) {
 			return `${getNodeRaw(node.left)} === ${getNodeRaw(node.right)}`;
 		}
-		if (isCompare(node, "!=")) {
+
+		if (isCompare(node, '!=')) {
 			return `${getNodeRaw(node.left)} == ${getNodeRaw(node.right)}`;
 		}
+
 		if (save) {
 			return getNodeRaw(node);
 		}
+
 		if (isLogicNot(node.parent)) {
 			return `!${getNodeRaw(node.parent)}`;
 		}
+
 		return `!!(${getNodeRaw(node)})`;
 	};
-	const getNodeRawNeative = (node) => {
-		if (isCompare(node, "===")) {
+
+	const getNodeRawNeative = node => {
+		if (isCompare(node, '===')) {
 			return `${getNodeRaw(node.left)} !== ${getNodeRaw(node.right)}`;
 		}
-		if (isCompare(node, "==")) {
+
+		if (isCompare(node, '==')) {
 			return `${getNodeRaw(node.left)} != ${getNodeRaw(node.right)}`;
 		}
-		if (isCompare(node, "!==") || isCompare(node, "!=")) {
+
+		if (isCompare(node, '!==') || isCompare(node, '!=')) {
 			return getNodeRaw(node);
 		}
+
 		if (isLogicNot(node.parent)) {
 			return getNodeRaw(node.parent);
 		}
+
 		return `!(${getNodeRaw(node)})`;
 	};
+
 	return {
 		[[
-			"UnaryExpression[operator='!']",
-			"CallExpression[callee.name='Boolean'][arguments.length=1]",
-		].join(",")](node) {
+			'UnaryExpression[operator=\'!\']',
+			'CallExpression[callee.name=\'Boolean\'][arguments.length=1]',
+		].join(',')](node) {
 			const child = node.argument || node.arguments[0];
-			if (isLogicNot(child) || isBooleanCall(child)) return;
-			let { node: ancestor, isNegative, depth } = getBooleanAncestor(child);
+			if (isLogicNot(child) || isBooleanCall(child)) {
+				return;
+			}
+
+			let {node: ancestor, isNegative, depth} = getBooleanAncestor(child);
 			const save = isNegative || isSafelyBooleanCastable(ancestor);
 
-			if (isCompare(child, "!==") || isCompare(child, "!=")) {
+			if (isCompare(child, '!==') || isCompare(child, '!=')) {
 				isNegative = !isNegative;
 				depth += 1;
 			} else if (!save && depth === 2) {
@@ -93,12 +106,12 @@ const create = (context) => {
 module.exports = {
 	create,
 	meta: {
-		type: "problem",
+		type: 'problem',
 		docs: {
-			description: "Dissallow unnecessary negations.",
+			description: 'Dissallow unnecessary negations.',
 		},
+		fixable: 'code',
 		schema: [],
-		fixable: "code",
 
 		messages,
 	},
