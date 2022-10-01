@@ -2,21 +2,35 @@
 
 <!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
 <!-- RULE_NOTICE -->
-✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
 
-🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
+✅ _This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config._
+
+🔧 _This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems)._
+
 <!-- /RULE_NOTICE -->
 
-<!-- Remove this comment, add more detailed description. -->
+Dissallow unnecessary negations when using `Boolean` or `!`.
 
 ## Fail
 
 ```js
-const foo = 'unicorn';
+!(a != b);
+!Boolean(a);
+!!!a;
+if (!!a) {
+}
 ```
 
 ## Pass
 
 ```js
-const foo = '🦄';
+!!a;
+Boolean(a);
+!a;
+
+a == b;
+!a;
+!a;
+if (a) {
+}
 ```

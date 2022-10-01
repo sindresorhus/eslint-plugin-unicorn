@@ -1,36 +1,90 @@
-'use strict';
-const {} = require('./selectors/index.js');
-const {} = require('./fix/index.js');
+"use strict";
+const {
+	isLogicNot,
+	isBooleanCall,
+	getBooleanAncestor,
+	isSafelyBooleanCastable,
+} = require("./utils/boolean.js");
 
-
-const MESSAGE_ID= 'no-unnecessary-negation';
+const MESSAGE_ID = "no-unnecessary-negation";
 const messages = {
-	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{value}}`.',
+	[MESSAGE_ID]: "Expression can be simpified.",
 };
 
+function removeParens(str) {
+	return str.replace(/[()]/g, "");
+}
 
-const selector = [
-	'Literal',
-	'[value="unicorn"]',
-].join('');
+function isCompare(node, operator) {
+	return node.type === "BinaryExpression" && node.operator === operator;
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
+const create = (context) => {
+	const sourceCode = context.getSourceCode();
+	const getNodeRaw = (node) => sourceCode.text.slice(...node.range);
+	const getNodeRawPositive = (node, save) => {
+		if (isCompare(node, "!==")) {
+			return `${getNodeRaw(node.left)} === ${getNodeRaw(node.right)}`;
+		}
+		if (isCompare(node, "!=")) {
+			return `${getNodeRaw(node.left)} == ${getNodeRaw(node.right)}`;
+		}
+		if (save) {
+			return getNodeRaw(node);
+		}
+		if (isLogicNot(node.parent)) {
+			return `!${getNodeRaw(node.parent)}`;
+		}
+		return `!!(${getNodeRaw(node)})`;
+	};
+	const getNodeRawNeative = (node) => {
+		if (isCompare(node, "===")) {
+			return `${getNodeRaw(node.left)} !== ${getNodeRaw(node.right)}`;
+		}
+		if (isCompare(node, "==")) {
+			return `${getNodeRaw(node.left)} != ${getNodeRaw(node.right)}`;
+		}
+		if (isCompare(node, "!==") || isCompare(node, "!=")) {
+			return getNodeRaw(node);
+		}
+		if (isLogicNot(node.parent)) {
+			return getNodeRaw(node.parent);
+		}
+		return `!(${getNodeRaw(node)})`;
+	};
 	return {
-		[selector](node) {
-			return {
-				node,
+		[[
+			"UnaryExpression[operator='!']",
+			"CallExpression[callee.name='Boolean'][arguments.length=1]",
+		].join(",")](node) {
+			const child = node.argument || node.arguments[0];
+			if (isLogicNot(child) || isBooleanCall(child)) return;
+			let { node: ancestor, isNegative, depth } = getBooleanAncestor(child);
+			const save = isNegative || isSafelyBooleanCastable(ancestor);
+
+			if (isCompare(child, "!==") || isCompare(child, "!=")) {
+				isNegative = !isNegative;
+				depth += 1;
+			} else if (!save && depth === 2) {
+				return;
+			}
+
+			const simpified = isNegative
+				? getNodeRawNeative(child)
+				: getNodeRawPositive(child, save);
+
+			if (removeParens(getNodeRaw(ancestor)) === removeParens(simpified)) {
+				return;
+			}
+
+			context.report({
+				node: ancestor,
 				messageId: MESSAGE_ID,
-				data: {
-					value: 'unicorn',
-					replacement: '🦄',
+				fix(fixer) {
+					return [fixer.replaceTextRange(ancestor.range, simpified)];
 				},
-				
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => fixer.replaceText(node, '\'🦄\''),
-				
-				
-			};
+			});
 		},
 	};
 };
@@ -39,12 +93,13 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
-		type: 'problem',
+		type: "problem",
 		docs: {
-			description: 'This rule checks if conditions can be simpified.',
+			description: "Dissallow unnecessary negations.",
 		},
-		fixable: 'code',
-		
+		schema: [],
+		fixable: "code",
+
 		messages,
 	},
 };

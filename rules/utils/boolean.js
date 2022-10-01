@@ -31,29 +31,20 @@ Check if the value of node is a `boolean`.
 */
 function isBooleanNode(node) {
 	if (
-		isLogicNot(node)
-		|| isLogicNotArgument(node)
-		|| isBooleanCall(node)
-		|| isBooleanCallArgument(node)
+		isLogicNot(node) ||
+		isLogicNotArgument(node) ||
+		isBooleanCall(node) ||
+		isBooleanCallArgument(node)
 	) {
 		return true;
 	}
 
-	const {parent} = node;
+	const { parent } = node;
 	if (isVueBooleanAttributeValue(parent)) {
 		return true;
 	}
 
-	if (
-		(
-			parent.type === 'IfStatement'
-			|| parent.type === 'ConditionalExpression'
-			|| parent.type === 'WhileStatement'
-			|| parent.type === 'DoWhileStatement'
-			|| parent.type === 'ForStatement'
-		)
-		&& parent.test === node
-	) {
+	if (isSafelyBooleanCastable(node)) {
 		return true;
 	}
 
@@ -65,28 +56,52 @@ function isBooleanNode(node) {
 }
 
 /**
+Check if the value of node can be cast to `boolean` without affecting its behaviour.
+
+@param {Node} node
+@returns {boolean}
+*/
+function isSafelyBooleanCastable(node) {
+	return (
+		(node.parent.type === "IfStatement" ||
+			node.parent.type === "ConditionalExpression" ||
+			node.parent.type === "WhileStatement" ||
+			node.parent.type === "DoWhileStatement" ||
+			node.parent.type === "ForStatement") &&
+		node.parent.test === node
+	);
+}
+
+/**
 Get the boolean type-casting ancestor.
 
-@typedef {{ node: Node, isNegative: boolean }} Result
+@typedef {{ node: Node, isNegative: boolean, depth: number }} Result
 
 @param {Node} node
 @returns {Result}
 */
 function getBooleanAncestor(node) {
-	let isNegative = false;
+	let depth = 0;
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		if (isLogicNotArgument(node)) {
-			isNegative = !isNegative;
+			depth += 1;
 			node = node.parent;
 		} else if (isBooleanCallArgument(node)) {
+			depth += 2;
 			node = node.parent;
 		} else {
 			break;
 		}
 	}
 
-	return {node, isNegative};
+	return { node, isNegative: depth % 2 === 1, depth };
 }
 
-module.exports = {isBooleanNode, getBooleanAncestor};
+module.exports = {
+	isBooleanNode,
+	isLogicNot,
+	isBooleanCall,
+	isSafelyBooleanCastable,
+	getBooleanAncestor,
+};

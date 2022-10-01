@@ -1,13 +1,21 @@
-import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import { getTester } from "./utils/test.mjs";
 
-const {test} = getTester(import.meta);
+const { test, rule, ruleId } = getTester(import.meta);
+const msg = rule.meta.messages[ruleId];
 
-test.snapshot({
-	valid: [
-		'const foo = "🦄";',
-	],
+test({
+	valid: ["!!a;", "Boolean(a);", "!a;"],
 	invalid: [
-		'const foo = "unicorn";',
+		{ code: "!(a != b)", errors: [msg], output: "a == b" },
+		{ code: "!(a !== b)", errors: [msg], output: "a === b" },
+		{ code: "!(a == b)", errors: [msg], output: "a != b" },
+		{ code: "!(a === b)", errors: [msg], output: "a !== b" },
+		{ code: "!Boolean(a)", errors: [msg], output: "!(a)" },
+		{ code: "!Boolean(!a)", errors: [msg], output: "!!a" },
+		{ code: "if(!Boolean(!a)){}", errors: [msg], output: "if(a){}" },
+		{ code: "Boolean(a != b)", errors: [msg], output: "a != b" },
+		{ code: "!!!a", errors: [msg], output: "!a" },
+		{ code: "if(!!a) {}", errors: [msg], output: "if(a) {}" },
+		{ code: "if(Boolean(a)) {}", errors: [msg], output: "if(a) {}" },
 	],
 });
