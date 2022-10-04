@@ -126,6 +126,12 @@ function defineParser(linter, parser) {
 function verify(linter, code, verifyConfig, {filename}) {
 	const messages = linter.verify(code, verifyConfig, {filename});
 
+	// Missed `message`, #1923
+	const invalidMessage = messages.find(({message}) => typeof message !== 'string');
+	if (invalidMessage) {
+		throw Object.assign(new Error('Unexpected message.'), {eslintMessage: invalidMessage});
+	}
+
 	const fatalError = messages.find(({fatal}) => fatal);
 	if (fatalError) {
 		const {line, column, message} = fatalError;
