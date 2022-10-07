@@ -31,10 +31,20 @@ const ignored = [
 	'underscore.find',
 	'R.find',
 
+	'lodash.findLast',
+	'_.findLast',
+	'underscore.findLast',
+	'R.findLast',
+
 	'lodash.findIndex',
 	'_.findIndex',
 	'underscore.findIndex',
 	'R.findIndex',
+
+	'lodash.findLastIndex',
+	'_.findLastIndex',
+	'underscore.findLastIndex',
+	'R.findLastIndex',
 
 	'lodash.flatMap',
 	'_.flatMap',
