@@ -1,8 +1,7 @@
 # Disallow identifiers starting with `new` or `class`
 
-<!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
-<!-- RULE_NOTICE -->
-<!-- /RULE_NOTICE -->
+<!-- end rule header -->
+<!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 `new Foo` and `newFoo` look very similar. Use alternatives that do not look like keyword usage.
 
