@@ -60,7 +60,10 @@ function getStaticPropertyName(node) {
 	}
 
 	if (property) {
-		if (property.type === 'Identifier' && !node.computed) {
+		if (
+			(property.type === 'Identifier' || property.type === 'PrivateIdentifier')
+			&& !node.computed
+		) {
 			return property.name;
 		}
 
