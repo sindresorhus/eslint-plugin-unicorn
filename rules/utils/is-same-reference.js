@@ -128,7 +128,8 @@ function isSameReference(left, right) {
 			return true;
 		}
 
-		case 'Identifier': {
+		case 'Identifier':
+		case 'PrivateIdentifier': {
 			return left.name === right.name;
 		}
 

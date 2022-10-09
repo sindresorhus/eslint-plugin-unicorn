@@ -38,6 +38,8 @@ test.snapshot({
 		'const {a = array[array.length - 1]} = {}',
 		'typeof array[array.length - 1]',
 		'function foo() {return arguments[arguments.length - 1]}',
+		'class Foo {bar; baz() {return this.bar[this.bar.length - 1]}}',
+		'class Foo {#bar; baz() {return this.#bar[this.#bar.length - 1]}}',
 	],
 });
 
