@@ -1,3 +1,4 @@
+'use strict';
 const isLogicalExpression = require('./is-logical-expression.js');
 
 const isLogicNot = node =>
