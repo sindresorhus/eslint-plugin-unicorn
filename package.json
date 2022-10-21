@@ -21,7 +21,7 @@
 		"fix:md": "npm run lint:md -- --fix",
 		"integration": "node ./test/integration/test.mjs",
 		"lint": "run-p --continue-on-error lint:*",
-		"lint:eslint-docs": "npm-run-all \"fix:eslint-docs --check\"",
+		"lint:eslint-docs": "npm run fix:eslint-docs -- --check",
 		"lint:js": "xo",
 		"lint:md": "markdownlint \"**/*.md\"",
 		"lint:package-json": "npmPkgJsonLint .",
