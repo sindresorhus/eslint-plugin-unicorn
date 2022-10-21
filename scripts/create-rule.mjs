@@ -5,7 +5,6 @@ import {fileURLToPath} from 'node:url';
 import enquirer from 'enquirer';
 import {template} from 'lodash-es';
 import {execa} from 'execa';
-import ruleDescriptionToDocumentTitle from '../test/utils/rule-description-to-document-title.mjs';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(dirname, '..');
@@ -131,10 +130,7 @@ async function getData() {
 
 	const data = await enquirer.prompt(questions);
 
-	return {
-		...data,
-		docTitle: ruleDescriptionToDocumentTitle(data.description),
-	};
+	return data;
 }
 
 const data = await getData();

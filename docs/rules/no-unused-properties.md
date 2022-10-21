@@ -1,8 +1,7 @@
 # Disallow unused object properties
 
-<!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
-<!-- RULE_NOTICE -->
-<!-- /RULE_NOTICE -->
+<!-- end rule header -->
+<!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 Unused properties, much like unused variables, are often a result of incomplete refactoring and may confuse readers.
 
