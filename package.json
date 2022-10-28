@@ -73,7 +73,7 @@
 		"enquirer": "^2.3.6",
 		"eslint": "^8.23.1",
 		"eslint-ava-rule-tester": "^4.0.0",
-		"eslint-doc-generator": "^0.13.0",
+		"eslint-doc-generator": "^0.17.0",
 		"eslint-plugin-eslint-plugin": "^5.0.6",
 		"eslint-plugin-internal-rules": "file:./scripts/internal-rules/",
 		"eslint-remote-tester": "^3.0.0",

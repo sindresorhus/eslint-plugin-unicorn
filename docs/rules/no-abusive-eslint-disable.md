@@ -2,7 +2,7 @@
 
 ✅ This rule is enabled in the `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
 
-<!-- end rule header -->
+<!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 This rule makes you specify the rules you want to disable when using `eslint-disable`, `eslint-disable-line` or `eslint-disable-next-line` comments.

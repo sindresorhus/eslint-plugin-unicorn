@@ -1,6 +1,8 @@
 # Disallow unused object properties
 
-<!-- end rule header -->
+✅ This rule is _disabled_ in the `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
+
+<!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 Unused properties, much like unused variables, are often a result of incomplete refactoring and may confuse readers.
