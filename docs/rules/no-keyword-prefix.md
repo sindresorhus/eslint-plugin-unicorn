@@ -1,6 +1,8 @@
 # Disallow identifiers starting with `new` or `class`
 
-<!-- end rule header -->
+✅ This rule is _disabled_ in the `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
+
+<!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 `new Foo` and `newFoo` look very similar. Use alternatives that do not look like keyword usage.
