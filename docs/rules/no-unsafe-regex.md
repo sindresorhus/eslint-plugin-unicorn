@@ -1,8 +1,9 @@
 # Disallow unsafe regular expressions
 
-<!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
-<!-- RULE_NOTICE -->
-<!-- /RULE_NOTICE -->
+✅ This rule is _disabled_ in the `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
+
+<!-- end auto-generated rule header -->
+<!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 Uses [safe-regex](https://github.com/substack/safe-regex) to disallow potentially [catastrophic](https://regular-expressions.info/catastrophic.html) [exponential-time](https://perlgeek.de/blog-en/perl-tips/in-search-of-an-exponetial-regexp.html) regular expressions.
 

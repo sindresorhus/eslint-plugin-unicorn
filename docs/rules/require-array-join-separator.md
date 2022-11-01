@@ -1,11 +1,11 @@
 # Enforce using the separator argument with `Array#join()`
 
-<!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
-<!-- RULE_NOTICE -->
-✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+✅ This rule is enabled in the `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
 
-🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
-<!-- /RULE_NOTICE -->
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
+<!-- end auto-generated rule header -->
+<!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 It's better to make it clear what the separator is when calling [Array#join()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/join), instead of relying on the default comma (`','`) separator.
 

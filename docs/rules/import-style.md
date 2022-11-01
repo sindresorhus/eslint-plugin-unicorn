@@ -1,9 +1,9 @@
 # Enforce specific import styles per module
 
-<!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
-<!-- RULE_NOTICE -->
-✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
-<!-- /RULE_NOTICE -->
+✅ This rule is enabled in the `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
+
+<!-- end auto-generated rule header -->
+<!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 Sometimes a module contains unrelated functions, like `util`, thus it is a good practice to enforce destructuring or named imports here. Other times, in modules like `path`, it is good to use default import as they have similar functions, all likely to be utilized.
 

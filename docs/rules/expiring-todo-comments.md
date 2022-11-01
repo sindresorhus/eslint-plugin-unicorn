@@ -1,9 +1,9 @@
 # Add expiration conditions to TODO comments
 
-<!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
-<!-- RULE_NOTICE -->
-✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
-<!-- /RULE_NOTICE -->
+✅ This rule is enabled in the `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
+
+<!-- end auto-generated rule header -->
+<!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 This rule makes it possible to pass arguments to TODO, FIXME and XXX comments to trigger ESLint to report.
 
