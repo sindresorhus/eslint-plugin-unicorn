@@ -60,10 +60,7 @@ function getStaticPropertyName(node) {
 	}
 
 	if (property) {
-		if (
-			(property.type === 'Identifier' || property.type === 'PrivateIdentifier')
-			&& !node.computed
-		) {
+		if (property.type === 'Identifier' && !node.computed) {
 			return property.name;
 		}
 
@@ -147,11 +144,23 @@ function isSameReference(left, right) {
 		case 'MemberExpression': {
 			const nameA = getStaticPropertyName(left);
 
-			// X.y = x["y"]
+			// X.y = X["y"]
+			if (nameA !== 'undefined') {
+				return (
+					isSameReference(left.object, right.object)
+					&& nameA === getStaticPropertyName(right)
+				);
+			}
+
+			/*
+			 * X[0] = X[0]
+			 * X[y] = X[y]
+			 * X.y = X.y
+			 */
 			return (
-				typeof nameA !== 'undefined'
+				left.computed === right.computed
 				&& isSameReference(left.object, right.object)
-				&& nameA === getStaticPropertyName(right)
+				&& isSameReference(left.property, right.property)
 			);
 		}
 

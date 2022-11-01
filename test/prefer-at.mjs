@@ -18,6 +18,7 @@ test.snapshot({
 		'++ array[array.length - 1]',
 		'array[array.length - 1] --',
 		'delete array[array.length - 1]',
+		'class Foo {bar; #bar; baz() {return this.#bar[this.bar.length - 1]}}',
 	],
 	invalid: [
 		'array[array.length - 1];',
