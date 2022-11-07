@@ -119,6 +119,18 @@ const getNameReplacements = (name, options, limit = 3) => {
 	// Split words
 	const words = name.split(/(?=[^a-z])|(?<=[^A-Za-z])/).filter(Boolean);
 
+	// `retVal`
+	// eslint-disable-next-line unicorn/prevent-abbreviations
+	const valueAfterRetIndex = words.findIndex(
+		(word, index) =>
+			index > 0
+			&& (word === 'Val' || word === 'Value')
+			&& /^[Rr]et$/.test(words[index - 1]),
+	);
+	if (valueAfterRetIndex !== -1) {
+		words.splice(valueAfterRetIndex, 1);
+	}
+
 	let hasReplacements = false;
 	const combinations = words.map(word => {
 		const wordReplacements = getWordReplacements(word, options);
@@ -420,7 +432,6 @@ const create = context => {
 		}
 
 		const variableReplacements = getNameReplacements(variable.name, options);
-
 		if (variableReplacements.total === 0) {
 			return;
 		}
