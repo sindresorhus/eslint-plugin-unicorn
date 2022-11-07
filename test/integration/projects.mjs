@@ -195,6 +195,7 @@ export default [
 			repository: 'https://github.com/rollup/rollup',
 			ignore: [
 				'test/**',
+				'scripts/perf.js',
 			],
 		},
 	],
