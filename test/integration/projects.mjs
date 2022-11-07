@@ -191,7 +191,12 @@ export default [
 	// 'https://github.com/TheThingsNetwork/lorawan-stack',
 	[
 		'https://github.com/zloirock/core-js',
-		'https://github.com/rollup/rollup',
+		{
+			repository: 'https://github.com/rollup/rollup',
+			ignore: [
+				'test/**',
+			],
+		},
 	],
 ].flatMap((projectOrProjects, index) =>
 	Array.isArray(projectOrProjects)
