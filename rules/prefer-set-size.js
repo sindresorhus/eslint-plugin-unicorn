@@ -3,7 +3,7 @@ const {
 	memberExpressionSelector,
 	newExpressionSelector,
 } = require('./selectors/index.js');
-const {} = require('./fix/index.js');
+const { fixSpaceAroundKeyword } = require('./fix/index.js');
 const { findVariable } = require('eslint-utils');
 
 const MESSAGE_ID = 'prefer-set-size';
@@ -64,6 +64,7 @@ function fix(sourceCode, lengthAccessNodes) {
 	return function * (fixer) {
 		yield fixer.replaceText(property, 'size');
 		yield fixer.replaceText(arrayExpression, sourceCode.getText(set));
+		yield * fixSpaceAroundKeyword(fixer, lengthAccessNodes, sourceCode)
 	}
 }
 

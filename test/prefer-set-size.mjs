@@ -25,5 +25,10 @@ test.snapshot({
 			const foo = new Set([]);
 			console.log([...foo].length);
 		`,
+		outdent`
+			function isUnique(array) {
+				return[...new Set(array)].length === array.length
+			}
+		`,
 	],
 });
