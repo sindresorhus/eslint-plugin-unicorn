@@ -1,12 +1,12 @@
 'use strict';
-const { findVariable } = require('eslint-utils');
+const {findVariable} = require('eslint-utils');
 const {memberExpressionSelector} = require('./selectors/index.js');
-const { fixSpaceAroundKeyword } = require('./fix/index.js');
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-set-size';
 const messages = {
-	[MESSAGE_ID]: 'Prefer use `Set#size` instead of `Array#length`.'
-}
+	[MESSAGE_ID]: 'Prefer use `Set#size` instead of `Array#length`.',
+};
 
 const lengthAccessSelector = [
 	memberExpressionSelector('length'),
@@ -24,7 +24,6 @@ function isSet(node, scope) {
 	if (isNewSet(node)) {
 		return true;
 	}
-
 
 	if (node.type !== 'Identifier') {
 		return false;
@@ -45,15 +44,14 @@ function isSet(node, scope) {
 	const declarator = definition.node;
 	return declarator.type === 'VariableDeclarator'
 		&& declarator.id.type === 'Identifier'
-		&& isNewSet(definition.node.init)
+		&& isNewSet(definition.node.init);
 }
-
 
 // `[...set].length` -> `set.size`
 function fix(sourceCode, lengthAccessNodes) {
 	const {
 		object: arrayExpression,
-		property
+		property,
 	} = lengthAccessNodes;
 	const set = arrayExpression.elements[0].argument;
 
@@ -65,8 +63,8 @@ function fix(sourceCode, lengthAccessNodes) {
 	return function * (fixer) {
 		yield fixer.replaceText(property, 'size');
 		yield fixer.replaceText(arrayExpression, sourceCode.getText(set));
-		yield * fixSpaceAroundKeyword(fixer, lengthAccessNodes, sourceCode)
-	}
+		yield * fixSpaceAroundKeyword(fixer, lengthAccessNodes, sourceCode);
+	};
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -84,8 +82,8 @@ const create = context => {
 				node: node.property,
 				messageId: MESSAGE_ID,
 				fix: fix(sourceCode, node),
-			}
-		}
+			};
+		},
 	};
 };
 
