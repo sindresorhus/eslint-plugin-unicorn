@@ -15,6 +15,9 @@ test.snapshot({
 		'[...new Set(array)]["length"]',
 		'[...new NotSet(array)].length',
 		'[...Set(array)].length',
+		'const foo = new NotSet([]);[...foo].length;',
+		'const {foo} = new Set([]);[...foo].length;',
+		'const [foo] = new Set([]);[...foo].length;',
 	],
 	invalid: [
 		'[...new Set(array)].length',
