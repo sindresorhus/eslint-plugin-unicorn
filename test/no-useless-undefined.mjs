@@ -53,6 +53,8 @@ test({
 		'array.unshift(undefined);',
 		'createContext(undefined);',
 		'React.createContext(undefined);',
+		'array.includes(undefined)',
+		'set.has(undefined)',
 
 		// `Function#bind()`
 		'foo.bind(bar, undefined)',

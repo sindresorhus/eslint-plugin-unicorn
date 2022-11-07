@@ -69,18 +69,26 @@ const shouldIgnore = node => {
 	}
 
 	return compareFunctionNames.has(name)
-		// https://vuejs.org/api/reactivity-core.html#ref
-		|| name === 'ref'
-		// `set.add(undefined)`
-		|| name === 'add'
-		// `map.set(foo, undefined)`
-		|| name === 'set'
 		// `array.push(undefined)`
 		|| name === 'push'
 		// `array.unshift(undefined)`
 		|| name === 'unshift'
+		// `array.includes(undefined)`
+		|| name === 'includes'
+
+		// `set.add(undefined)`
+		|| name === 'add'
+		// `set.has(undefined)`
+		|| name === 'has'
+
+		// `map.set(foo, undefined)`
+		|| name === 'set'
+
 		// `React.createContext(undefined)`
-		|| name === 'createContext';
+		|| name === 'createContext'
+
+		// https://vuejs.org/api/reactivity-core.html#ref
+		|| name === 'ref';
 };
 
 const getFunction = scope => {
