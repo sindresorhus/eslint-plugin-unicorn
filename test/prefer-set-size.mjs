@@ -16,6 +16,7 @@ test.snapshot({
 		'[...new NotSet(array)].length',
 		'[...Set(array)].length',
 		'const foo = new NotSet([]);[...foo].length;',
+		'let foo = new Set([]);[...foo].length;',
 		'const {foo} = new Set([]);[...foo].length;',
 		'const [foo] = new Set([]);[...foo].length;',
 	],
@@ -30,5 +31,14 @@ test.snapshot({
 				return[...new Set(array)].length === array.length
 			}
 		`,
+		'[...new Set(array),].length',
+		'[...(( new Set(array) ))].length',
+		'(( [...new Set(array)] )).length',
+		outdent`
+			foo
+			;[...new Set(array)].length
+		`,
+		'[/* comment */...new Set(array)].length',
+		'[...new /* comment */ Set(array)].length',
 	],
 });

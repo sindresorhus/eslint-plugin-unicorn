@@ -60,6 +60,10 @@ function fix(sourceCode, lengthAccessNodes) {
 	} = lengthAccessNodes;
 	const set = arrayExpression.elements[0].argument;
 
+	if (sourceCode.getCommentsInside(arrayExpression).length > sourceCode.getCommentsInside(set).length) {
+		return;
+	}
+
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
 		yield fixer.replaceText(property, 'size');
@@ -97,7 +101,6 @@ module.exports = {
 			description: 'Prefer use `Set#size` instead of `Array#length`.',
 		},
 		fixable: 'code',
-
 		messages,
 	},
 };
