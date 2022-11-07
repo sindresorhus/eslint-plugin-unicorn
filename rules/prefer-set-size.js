@@ -19,7 +19,7 @@ const lengthAccessSelector = [
 ].join('');
 
 const isNewSet = node =>
-	node.type === 'NewExpression'
+	node?.type === 'NewExpression'
 	&& node.callee.type === 'Identifier'
 	&& node.callee.name === 'Set';
 
@@ -33,7 +33,22 @@ function isSet(node, scope) {
 		return false;
 	}
 
-	const variable = findVariable(scope, maybeSet);
+	const variable = findVariable(scope, node);
+
+	if (!variable || variable.defs.length !== 1) {
+		return false;
+	}
+
+	const [definition] = variable.defs;
+
+	if (definition.type !== 'Variable' || definition.kind !== 'const') {
+		return false;
+	}
+
+	const declarator = definition.node;
+	return declarator.type === 'VariableDeclarator'
+		&& declarator.id.type === 'Identifier'
+		&& isNewSet(definition.node.init)
 }
 
 

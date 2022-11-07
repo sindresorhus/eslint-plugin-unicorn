@@ -17,9 +17,9 @@ test.snapshot({
 	],
 	invalid: [
 		'[...new Set(array)].length',
-		// outdent`
-		// 	const foo = new Set([]);
-		// 	console.log([...foo].length);
-		// `,
+		outdent`
+			const foo = new Set([]);
+			console.log([...foo].length);
+		`,
 	],
 });
