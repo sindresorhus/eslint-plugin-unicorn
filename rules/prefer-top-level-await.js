@@ -93,7 +93,8 @@ function create(context) {
 				? definition.node.init
 				: definition.node;
 			if (
-				!(
+				!value
+				|| !(
 					(
 						value.type === 'ArrowFunctionExpression'
 						|| value.type === 'FunctionExpression'
