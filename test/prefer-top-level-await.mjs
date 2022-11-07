@@ -138,6 +138,7 @@ test.snapshot({
 			const foo = async () => {};
 			await foo();
 		`,
+		'for (const statement of statements) { statement() };',
 	],
 	invalid: [
 		outdent`
