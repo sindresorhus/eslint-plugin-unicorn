@@ -76,10 +76,6 @@ const create = context => {
 					problem.suggest = [
 						{
 							messageId: SUGGESTION_BITWISE,
-							data: {
-								operator,
-								value: right.raw,
-							},
 							fix,
 						},
 					];

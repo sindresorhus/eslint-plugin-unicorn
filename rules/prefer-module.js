@@ -218,7 +218,7 @@ function create(context) {
 	const filename = context.getFilename().toLowerCase();
 
 	if (filename.endsWith('.cjs')) {
-		return {};
+		return;
 	}
 
 	const sourceCode = context.getSourceCode();

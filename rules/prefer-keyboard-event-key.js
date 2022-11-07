@@ -15,37 +15,32 @@ const keys = new Set([
 ]);
 
 const isPropertyNamedAddEventListener = node =>
-	node
-	&& node.type === 'CallExpression'
-	&& node.callee
+	node?.type === 'CallExpression'
 	&& node.callee.type === 'MemberExpression'
-	&& node.callee.property
 	&& node.callee.property.name === 'addEventListener';
 
 const getEventNodeAndReferences = (context, node) => {
 	const eventListener = getMatchingAncestorOfType(node, 'CallExpression', isPropertyNamedAddEventListener);
-	const callback = eventListener && eventListener.arguments && eventListener.arguments[1];
-	switch (callback && callback.type) {
+	const callback = eventListener?.arguments[1];
+	switch (callback?.type) {
 		case 'ArrowFunctionExpression':
 		case 'FunctionExpression': {
 			const eventVariable = context.getDeclaredVariables(callback)[0];
-			const references = eventVariable && eventVariable.references;
+			const references = eventVariable?.references;
 			return {
-				event: callback.params && callback.params[0],
+				event: callback.params[0],
 				references,
 			};
 		}
 
-		default:
+		default: {
 			return {};
+		}
 	}
 };
 
 const isPropertyOf = (node, eventNode) =>
-	node
-	&& node.parent
-	&& node.parent.type === 'MemberExpression'
-	&& node.parent.object
+	node?.parent?.type === 'MemberExpression'
 	&& node.parent.object === eventNode;
 
 // The third argument is a condition function, as one passed to `Array#filter()`
@@ -132,7 +127,7 @@ const create = context => ({
 
 	Property(node) {
 		// Destructured case
-		const propertyName = node.value && node.value.name;
+		const propertyName = node.value.name;
 		if (!keys.has(propertyName)) {
 			return;
 		}
@@ -146,10 +141,7 @@ const create = context => ({
 			node,
 			'VariableDeclarator',
 		);
-		const initObject
-			= nearestVariableDeclarator
-				&& nearestVariableDeclarator.init
-				&& nearestVariableDeclarator.init;
+		const initObject = nearestVariableDeclarator?.init;
 
 		// Make sure initObject is a reference of eventVariable
 		if (

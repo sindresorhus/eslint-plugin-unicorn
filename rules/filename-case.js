@@ -107,7 +107,7 @@ function splitFilename(filename) {
 	for (const char of tailing) {
 		const isIgnored = isIgnoredChar(char);
 
-		if (lastWord && lastWord.ignored === isIgnored) {
+		if (lastWord?.ignored === isIgnored) {
 			lastWord.word += char;
 		} else {
 			lastWord = {
@@ -147,7 +147,7 @@ const create = context => {
 	const filenameWithExtension = context.getPhysicalFilename();
 
 	if (filenameWithExtension === '<input>' || filenameWithExtension === '<text>') {
-		return {};
+		return;
 	}
 
 	return {

@@ -42,6 +42,8 @@ const methods = new Map([
 			argumentsIndexes: [0],
 			supportObjects: new Set([
 				'Array',
+				'String',
+				...typedArray,
 			]),
 		},
 	],
@@ -52,7 +54,6 @@ const getMemberName = node => {
 
 	if (
 		type === 'MemberExpression'
-		&& property
 		&& property.type === 'Identifier'
 	) {
 		return property.name;
@@ -174,7 +175,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer negative index over `.length - index` for `{String,Array,TypedArray}#slice()`, `Array#splice()` and `Array#at()`.',
+			description: 'Prefer negative index over `.length - index` for `{String,Array,TypedArray}#{slice,at}()` and `Array#splice()`.',
 		},
 		fixable: 'code',
 		messages,

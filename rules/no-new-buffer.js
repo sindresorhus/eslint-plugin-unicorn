@@ -10,7 +10,7 @@ const SUGGESTION = 'suggestion';
 const messages = {
 	[ERROR]: '`new Buffer()` is deprecated, use `Buffer.{{method}}()` instead.',
 	[ERROR_UNKNOWN]: '`new Buffer()` is deprecated, use `Buffer.alloc()` or `Buffer.from()` instead.',
-	[SUGGESTION]: 'Switch to `Buffer.{{method}}()`.',
+	[SUGGESTION]: 'Switch to `Buffer.{{replacement}}()`.',
 };
 
 const inferMethod = (bufferArguments, scope) => {
@@ -69,10 +69,10 @@ const create = context => {
 			return {
 				node,
 				messageId: ERROR_UNKNOWN,
-				suggest: ['from', 'alloc'].map(method => ({
+				suggest: ['from', 'alloc'].map(replacement => ({
 					messageId: SUGGESTION,
-					data: {method},
-					fix: fix(node, sourceCode, method),
+					data: {replacement},
+					fix: fix(node, sourceCode, replacement),
 				})),
 			};
 		},

@@ -59,8 +59,9 @@ function shouldSwitchReturnStatementToBlockStatement(returnStatement) {
 	const {parent} = returnStatement;
 
 	switch (parent.type) {
-		case 'IfStatement':
+		case 'IfStatement': {
 			return parent.consequent === returnStatement || parent.alternate === returnStatement;
+		}
 
 		// These parent's body need switch to `BlockStatement` too, but since they are "continueAble", won't fix
 		// case 'ForStatement':
@@ -68,11 +69,13 @@ function shouldSwitchReturnStatementToBlockStatement(returnStatement) {
 		// case 'ForOfStatement':
 		// case 'WhileStatement':
 		// case 'DoWhileStatement':
-		case 'WithStatement':
+		case 'WithStatement': {
 			return parent.body === returnStatement;
+		}
 
-		default:
+		default: {
 			return false;
+		}
 	}
 }
 

@@ -59,10 +59,8 @@ function getIdentifierDeclaration(node, scope) {
 	return getIdentifierDeclaration(identifier.parent.init, variable.scope);
 }
 
-const isUtf8EncodingStringNode = (node, scope) => {
-	const staticValue = getStaticValue(node, scope);
-	return staticValue && isUtf8EncodingString(staticValue.value);
-};
+const isUtf8EncodingStringNode = (node, scope) =>
+	isUtf8EncodingString(getStaticValue(node, scope)?.value);
 
 const isUtf8EncodingString = value => {
 	if (typeof value !== 'string') {

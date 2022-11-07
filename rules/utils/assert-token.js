@@ -2,7 +2,7 @@
 
 const ISSUE_LINK_PREFIX = 'https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?';
 function assertToken(token, {test, expected, ruleId}) {
-	if (test && test(token)) {
+	if (test?.(token)) {
 		return;
 	}
 

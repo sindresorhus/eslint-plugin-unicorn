@@ -3,9 +3,7 @@
 const {isStringLiteral} = require('./literal.js');
 
 const isStaticRequire = node => Boolean(
-	node
-	&& node.type === 'CallExpression'
-	&& node.callee
+	node?.type === 'CallExpression'
 	&& node.callee.type === 'Identifier'
 	&& node.callee.name === 'require'
 	&& !node.optional

@@ -63,7 +63,6 @@ const shouldIgnore = node => {
 	} else if (
 		node.type === 'MemberExpression'
 		&& node.computed === false
-		&& node.property
 		&& node.property.type === 'Identifier'
 	) {
 		name = node.property.name;
@@ -104,7 +103,7 @@ const create = context => {
 	const listener = (fix, checkFunctionReturnType) => node => {
 		if (checkFunctionReturnType) {
 			const functionNode = getFunction(context.getScope());
-			if (functionNode && functionNode.returnType) {
+			if (functionNode?.returnType) {
 				return;
 			}
 		}

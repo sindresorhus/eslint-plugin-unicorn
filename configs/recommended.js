@@ -50,6 +50,7 @@ module.exports = {
 		'unicorn/no-static-only-class': 'error',
 		'unicorn/no-thenable': 'error',
 		'unicorn/no-this-assignment': 'error',
+		'unicorn/no-unnecessary-await': 'error',
 		'unicorn/no-unreadable-array-destructuring': 'error',
 		'unicorn/no-unreadable-iife': 'error',
 		'unicorn/no-unsafe-regex': 'off',
@@ -118,6 +119,7 @@ module.exports = {
 		// See #1396
 		'unicorn/require-post-message-target-origin': 'off',
 		'unicorn/string-content': 'off',
+		'unicorn/switch-case-braces': 'error',
 		'unicorn/template-indent': 'error',
 		'unicorn/text-encoding-identifier-case': 'error',
 		'unicorn/throw-new-error': 'error',

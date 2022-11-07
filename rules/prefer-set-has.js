@@ -75,16 +75,10 @@ const selector = [
 ].join('');
 
 const isIncludesCall = node => {
-	/* c8 ignore next 3 */
-	if (!node.parent || !node.parent.parent) {
-		return false;
-	}
-
-	const {type, optional, callee, arguments: includesArguments} = node.parent.parent;
+	const {type, optional, callee, arguments: includesArguments} = node.parent.parent ?? {};
 	return (
 		type === 'CallExpression'
 		&& !optional
-		&& callee
 		&& callee.type === 'MemberExpression'
 		&& !callee.computed
 		&& !callee.optional
@@ -173,9 +167,6 @@ const create = context => ({
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
-					data: {
-						name: node.name,
-					},
 					fix,
 				},
 			];

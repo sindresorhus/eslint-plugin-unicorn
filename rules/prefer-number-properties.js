@@ -1,5 +1,5 @@
 'use strict';
-const {ReferenceTracker} = require('eslint-utils');
+const {GlobalReferenceTracker} = require('./utils/global-reference-tracker.js');
 const {replaceReferenceIdentifier} = require('./fix/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
@@ -24,65 +24,52 @@ const globalObjects = {
 
 const isNegative = node => {
 	const {parent} = node;
-	return parent && parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
+	return parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
 };
 
-function * checkProperties({sourceCode, tracker, checkInfinity}) {
-	let names = Object.keys(globalObjects);
-	if (!checkInfinity) {
-		names = names.filter(name => name !== 'Infinity');
+function checkProperty({node, path: [name]}, sourceCode) {
+	const {parent} = node;
+
+	let property = name;
+	if (name === 'Infinity') {
+		property = isNegative(node) ? 'NEGATIVE_INFINITY' : 'POSITIVE_INFINITY';
 	}
 
-	const traceMap = Object.fromEntries(
-		names.map(name => [name, {[ReferenceTracker.READ]: true}]),
-	);
+	const problem = {
+		node,
+		messageId: MESSAGE_ID_ERROR,
+		data: {
+			description: name,
+			property,
+		},
+	};
 
-	for (const {node, path: [name]} of tracker.iterateGlobalReferences(traceMap)) {
-		const {parent} = node;
-
-		let property = name;
-		if (name === 'Infinity') {
-			property = isNegative(node) ? 'NEGATIVE_INFINITY' : 'POSITIVE_INFINITY';
-		}
-
-		const problem = {
-			node,
-			messageId: MESSAGE_ID_ERROR,
-			data: {
-				description: name,
-				property,
-			},
+	if (property === 'NEGATIVE_INFINITY') {
+		problem.node = parent;
+		problem.data.description = '-Infinity';
+		problem.fix = function * (fixer) {
+			yield fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
+			yield * fixSpaceAroundKeyword(fixer, parent, sourceCode);
 		};
 
-		if (property === 'NEGATIVE_INFINITY') {
-			problem.node = parent;
-			problem.data.description = '-Infinity';
-			problem.fix = function * (fixer) {
-				yield fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
-				yield * fixSpaceAroundKeyword(fixer, parent, sourceCode);
-			};
-
-			yield problem;
-			continue;
-		}
-
-		const fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
-		const isSafeToFix = globalObjects[name];
-
-		if (isSafeToFix) {
-			problem.fix = fix;
-		} else {
-			problem.suggest = [
-				{
-					messageId: MESSAGE_ID_SUGGESTION,
-					data: problem.data,
-					fix,
-				},
-			];
-		}
-
-		yield problem;
+		return problem;
 	}
+
+	const fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
+	const isSafeToFix = globalObjects[name];
+
+	if (isSafeToFix) {
+		problem.fix = fix;
+	} else {
+		problem.suggest = [
+			{
+				messageId: MESSAGE_ID_SUGGESTION,
+				fix,
+			},
+		];
+	}
+
+	return problem;
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -93,15 +80,19 @@ const create = context => {
 		checkInfinity: true,
 		...context.options[0],
 	};
+	const sourceCode = context.getSourceCode();
 
-	return {
-		* 'Program:exit'() {
-			const sourceCode = context.getSourceCode();
-			const tracker = new ReferenceTracker(context.getScope());
+	let objects = Object.keys(globalObjects);
+	if (!checkInfinity) {
+		objects = objects.filter(name => name !== 'Infinity');
+	}
 
-			yield * checkProperties({sourceCode, tracker, checkInfinity});
-		},
-	};
+	const tracker = new GlobalReferenceTracker({
+		objects,
+		handle: reference => checkProperty(reference, sourceCode),
+	});
+
+	return tracker.createListeners(context);
 };
 
 const schema = [

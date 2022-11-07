@@ -3,7 +3,7 @@ const path = require('node:path');
 const fs = require('node:fs');
 const getDocumentationUrl = require('./get-documentation-url.js');
 
-const isIterable = object => typeof object[Symbol.iterator] === 'function';
+const isIterable = object => typeof object?.[Symbol.iterator] === 'function';
 
 class FixAbortError extends Error {}
 const fixOptions = {
@@ -16,7 +16,7 @@ function wrapFixFunction(fix) {
 	return fixer => {
 		const result = fix(fixer, fixOptions);
 
-		if (result && isIterable(result)) {
+		if (isIterable(result)) {
 			try {
 				return [...result];
 			} catch (error) {
@@ -56,6 +56,11 @@ function reportListenerProblems(listener, context) {
 					if (suggest.fix) {
 						suggest.fix = wrapFixFunction(suggest.fix);
 					}
+
+					suggest.data = {
+						...problem.data,
+						...suggest.data,
+					};
 				}
 			}
 
@@ -71,10 +76,18 @@ function reportProblems(create) {
 		return create;
 	}
 
-	const wrapped = context => Object.fromEntries(
-		Object.entries(create(context))
-			.map(([selector, listener]) => [selector, reportListenerProblems(listener, context)]),
-	);
+	const wrapped = context => {
+		const listeners = create(context);
+
+		if (!listeners) {
+			return {};
+		}
+
+		return Object.fromEntries(
+			Object.entries(listeners)
+				.map(([selector, listener]) => [selector, reportListenerProblems(listener, context)]),
+		);
+	};
 
 	wrappedFunctions.add(wrapped);
 
@@ -95,10 +108,7 @@ function checkVueTemplate(create, options) {
 		const listeners = create(context);
 
 		// `vue-eslint-parser`
-		if (
-			context.parserServices
-			&& context.parserServices.defineTemplateBodyVisitor
-		) {
+		if (context.parserServices?.defineTemplateBodyVisitor) {
 			return visitScriptBlock
 				? context.parserServices.defineTemplateBodyVisitor(listeners, listeners)
 				: context.parserServices.defineTemplateBodyVisitor(listeners);

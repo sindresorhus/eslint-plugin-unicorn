@@ -51,7 +51,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 	const secondArgumentRange = getParenthesizedRange(secondArgument, sourceCode);
 	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, sourceCode);
 
-	if (firstArgumentStaticResult && firstArgumentStaticResult.value === 0) {
+	if (firstArgumentStaticResult?.value === 0) {
 		if (isNumberLiteral(secondArgument) || isLengthProperty(secondArgument)) {
 			return;
 		}

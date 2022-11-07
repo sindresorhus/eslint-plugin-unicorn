@@ -133,7 +133,6 @@ function create(context) {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
-					data: problem.data,
 					fix,
 				},
 			];

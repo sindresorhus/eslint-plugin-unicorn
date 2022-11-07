@@ -12,10 +12,13 @@ const getReplacement = encoding => {
 	switch (encoding.toLowerCase()) {
 		// eslint-disable-next-line unicorn/text-encoding-identifier-case
 		case 'utf-8':
-		case 'utf8':
+		case 'utf8': {
 			return 'utf8';
-		case 'ascii':
+		}
+
+		case 'ascii': {
 			return 'ascii';
+		}
 		// No default
 	}
 };
@@ -25,7 +28,6 @@ const isFsReadFileEncoding = node =>
 	node.parent.type === 'CallExpression'
 	&& !node.parent.optional
 	&& node.parent.arguments[1] === node
-	&& node.parent.arguments[0]
 	&& node.parent.arguments[0].type !== 'SpreadElement'
 	&& node.parent.callee.type === 'MemberExpression'
 	&& !node.parent.callee.optional
@@ -63,18 +65,16 @@ const create = () => ({
 			return;
 		}
 
-		const messageData = {
-			value,
-			replacement,
-		};
-
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
 		const fix = fixer => replaceStringLiteral(fixer, node, replacement);
 
 		const problem = {
 			node,
 			messageId: MESSAGE_ID_ERROR,
-			data: messageData,
+			data: {
+				value,
+				replacement,
+			},
 		};
 
 		if (isFsReadFileEncoding(node)) {
@@ -85,7 +85,6 @@ const create = () => ({
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
-				data: messageData,
 				fix: fixer => replaceStringLiteral(fixer, node, replacement),
 			},
 		];

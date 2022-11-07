@@ -185,8 +185,10 @@ test.snapshot({
 		'array.every(v => v)',
 		'array.filter(v => v)',
 		'array.find(v => v)',
+		'array.findLast(v => v)',
 		'array.some(v => v)',
 		'array.findIndex(v => v)',
+		'array.findLastIndex(v => v)',
 		'array.some(v => v)',
 		outdent`
 			array.some(v => {
