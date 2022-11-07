@@ -312,7 +312,7 @@ function isFunctionParameterVariableReassigned(callbackFunction, context) {
 	return context.getDeclaredVariables(callbackFunction)
 		.filter(variable => variable.defs[0].type === 'Parameter')
 		.some(variable =>
-			variable.references.some(reference => reference.isWrite()),
+			variable.references.some(reference => !reference.init && reference.isWrite()),
 		);
 }
 
