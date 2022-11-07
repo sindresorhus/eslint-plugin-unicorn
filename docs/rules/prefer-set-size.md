@@ -1,16 +1,20 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-<!-- Remove this comment, add more detailed description. -->
+Prefer use `Set#size` directly instead of convert it to an array, and use `.length` of the array.
 
 ## Fail
 
 ```js
-const foo = 'unicorn';
+function isUnique(array) {
+	return [...new Set(array)].length === array.length;
+}
 ```
 
 ## Pass
 
 ```js
-const foo = '🦄';
+function isUnique(array) {
+	return new Set(array).size === array.length;
+}
 ```

@@ -1,14 +1,11 @@
 'use strict';
-const {
-	memberExpressionSelector,
-	newExpressionSelector,
-} = require('./selectors/index.js');
-const { fixSpaceAroundKeyword } = require('./fix/index.js');
 const { findVariable } = require('eslint-utils');
+const {memberExpressionSelector} = require('./selectors/index.js');
+const { fixSpaceAroundKeyword } = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-set-size';
 const messages = {
-	[MESSAGE_ID]: 'Prefer use `Set#size`.'
+	[MESSAGE_ID]: 'Prefer use `Set#size` instead of `Array#length`.'
 }
 
 const lengthAccessSelector = [
@@ -98,7 +95,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer use `Set#size` instead of `Array#length`.',
+			description: 'Prefer use `Set#size` instead of convert it to Array first.',
 		},
 		fixable: 'code',
 		messages,
