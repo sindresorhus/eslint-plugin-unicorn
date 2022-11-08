@@ -1261,6 +1261,39 @@ const tests = {
 			options: noExtendDefaultAllowListOptions,
 			errors: createErrors(),
 		},
+
+		// #1937
+		{
+			code: 'const expectedRetVal = "that should be ok";',
+			output: 'const expectedReturnValue = "that should be ok";',
+			errors: createErrors(),
+		},
+		{
+			code: 'const retVal = "that should be ok";',
+			output: 'const returnValue = "that should be ok";',
+			errors: createErrors(),
+		},
+		{
+			code: 'const retValue = "that should be ok";',
+			output: 'const returnValue = "that should be ok";',
+			errors: createErrors(),
+		},
+		{
+			code: 'const returnVal = "that should be ok";',
+			output: 'const returnValue = "that should be ok";',
+			errors: createErrors(),
+		},
+		{
+			code: 'const sendDmMessage = () => {};',
+			output: 'const sendDirectMessage = () => {};',
+			options: [{replacements: {dm: {directMessage: true}}}],
+			errors: createErrors(),
+		},
+		{
+			code: 'const ret_val = "that should be ok";',
+			output: 'const returnValue_value = "that should be ok";',
+			errors: createErrors(),
+		},
 	],
 };
 

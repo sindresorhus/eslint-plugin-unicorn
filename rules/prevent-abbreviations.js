@@ -141,6 +141,16 @@ const getNameReplacements = (name, options, limit = 3) => {
 		samples,
 	} = cartesianProductSamples(combinations, limit);
 
+	// `retVal` -> `['returnValue', 'Value']` -> `['returnValue']`
+	for (const parts of samples) {
+		for (let index = parts.length - 1; index > 0; index--) {
+			const word = parts[index];
+			if (/^[A-Za-z]+$/.test(word) && parts[index - 1].endsWith(parts[index])) {
+				parts.splice(index, 1);
+			}
+		}
+	}
+
 	return {
 		total,
 		samples: samples.map(words => words.join('')),
