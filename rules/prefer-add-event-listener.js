@@ -94,7 +94,7 @@ const create = context => {
 				return;
 			}
 
-			const {left: memberExpression, right: assignedExpression} = node;
+			const {left: memberExpression, right: assignedExpression, operator} = node;
 
 			if (
 				memberExpression.type !== 'MemberExpression'
@@ -132,7 +132,11 @@ const create = context => {
 			} else if (eventTypeName === 'error') {
 				// Disable `onerror` fix, see #1493
 				extra = extraMessages.error;
-			} else {
+			} else if (
+				operator === '='
+				&& node.parent.type === 'ExpressionStatement'
+				&& node.parent.expression === node
+			) {
 				fix = fixer => fixCode(fixer, context.getSourceCode(), node, memberExpression);
 			}
 
