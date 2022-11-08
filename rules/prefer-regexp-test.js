@@ -8,9 +8,11 @@ const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add
 
 const REGEXP_EXEC = 'regexp-exec';
 const STRING_MATCH = 'string-match';
+const SUGGESTION = 'suggestion';
 const messages = {
 	[REGEXP_EXEC]: 'Prefer `.test(…)` over `.exec(…)`.',
 	[STRING_MATCH]: 'Prefer `RegExp#test(…)` over `String#match(…)`.',
+	[SUGGESTION]: 'Switch to `RegExp#test(…)`.',
 };
 
 const cases = [
@@ -75,6 +77,21 @@ const isRegExpNode = node =>
 		&& node.callee.name === 'RegExp'
 	);
 
+const isRegExpWithoutGFlag = (node, scope) => {
+	const staticResult = getStaticValue(node, scope);
+
+	// Don't know if there is `g` flag
+	if (!staticResult) {
+		return false;
+	}
+
+	const {value} = staticResult;
+	return (
+		Object.prototype.toString.call(value) === '[object RegExp]'
+		&& !value.flags.includes('g')
+	);
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => Object.fromEntries(
 	cases.map(checkCase => [
@@ -97,20 +114,22 @@ const create = context => Object.fromEntries(
 				messageId: type,
 			};
 
-			if (!isRegExpNode(regexpNode)) {
-				const staticResult = getStaticValue(regexpNode, context.getScope());
-				if (staticResult) {
-					const {value} = staticResult;
-					if (
-						Object.prototype.toString.call(value) !== '[object RegExp]'
-						|| value.flags.includes('g')
-					) {
-						return problem;
-					}
-				}
+			const fixFunction = fixer => fix(fixer, nodes, context.getSourceCode());
+
+			if (
+				isRegExpNode(regexpNode)
+				|| isRegExpWithoutGFlag(regexpNode, context.getScope())
+			) {
+				problem.fix = fixFunction;
+			} else {
+				problem.suggest = [
+					{
+						messageId: SUGGESTION,
+						fix: fixFunction,
+					},
+				];
 			}
 
-			problem.fix = fixer => fix(fixer, nodes, context.getSourceCode());
 			return problem;
 		},
 	]),
@@ -125,6 +144,7 @@ module.exports = {
 			description: 'Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 	},
 };
