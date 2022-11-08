@@ -430,6 +430,7 @@ const create = context => {
 		}
 
 		const variableReplacements = getNameReplacements(variable.name, options);
+
 		if (variableReplacements.total === 0) {
 			return;
 		}
