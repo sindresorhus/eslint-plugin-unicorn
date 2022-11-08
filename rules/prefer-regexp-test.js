@@ -90,7 +90,7 @@ const isRegExpWithoutGFlag = (node, scope) => {
 		Object.prototype.toString.call(value) === '[object RegExp]'
 		&& !value.flags.includes('g')
 	);
-}
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => Object.fromEntries(
