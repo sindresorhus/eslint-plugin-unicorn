@@ -143,10 +143,10 @@ const getNameReplacements = (name, options, limit = 3) => {
 
 	// `retVal` -> `['returnValue', 'Value']` -> `['returnValue']`
 	for (const parts of samples) {
-		for (let index = parts.length - 1; index > 0; index --) {
+		for (let index = parts.length - 1; index > 0; index--) {
 			const word = parts[index];
-			if (/^[a-zA-Z]+$/.test(word) && parts[index - 1].endsWith(parts[index])) {
-				parts.splice(index, 1)
+			if (/^[A-Za-z]+$/.test(word) && parts[index - 1].endsWith(parts[index])) {
+				parts.splice(index, 1);
 			}
 		}
 	}
