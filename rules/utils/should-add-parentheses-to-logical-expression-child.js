@@ -34,7 +34,7 @@ function shouldAddParenthesesToLogicalExpressionChild(node, {operator, property}
 		node.type === 'LogicalExpression'
 		|| node.type === 'ConditionalExpression'
 		|| node.type === 'AssignmentExpression'
-		|| node.type === 'AssignmentExpression'
+		|| node.type === 'ArrowFunctionExpression'
 		|| node.type === 'YieldExpression'
 		|| node.type === 'SequenceExpression'
 	) {
