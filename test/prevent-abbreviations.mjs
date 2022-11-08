@@ -1284,6 +1284,12 @@ const tests = {
 			errors: createErrors(),
 		},
 		{
+			code: 'const sendDmMessage = () => {};',
+			output: 'const sendDirectMessage = () => {};',
+			options: [{replacements: {dm: {directMessage: true}}}],
+			errors: createErrors(),
+		},
+		{
 			code: 'const ret_val = "that should be ok";',
 			output: 'const returnValue_value = "that should be ok";',
 			errors: createErrors(),
