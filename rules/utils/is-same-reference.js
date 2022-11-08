@@ -1,7 +1,7 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
 
-// Copied from https://github.com/eslint/eslint/blob/c3e9accce2f61b04ab699fd37c90703305281aa3/lib/rules/utils/ast-utils.js#L379
+// Copied from https://github.com/eslint/eslint/blob/94ba68d76a6940f68ff82eea7332c6505f93df76/lib/rules/utils/ast-utils.js#L392
 
 /**
 Gets the property name of a given node.
@@ -128,7 +128,8 @@ function isSameReference(left, right) {
 			return true;
 		}
 
-		case 'Identifier': {
+		case 'Identifier':
+		case 'PrivateIdentifier': {
 			return left.name === right.name;
 		}
 
@@ -143,11 +144,23 @@ function isSameReference(left, right) {
 		case 'MemberExpression': {
 			const nameA = getStaticPropertyName(left);
 
-			// X.y = x["y"]
+			// `x.y = x["y"]`
+			if (typeof nameA !== 'undefined') {
+				return (
+					isSameReference(left.object, right.object)
+					&& nameA === getStaticPropertyName(right)
+				);
+			}
+
+			/*
+			`x[0] = x[0]`
+			`x[y] = x[y]`
+			`x.y = x.y`
+			*/
 			return (
-				typeof nameA !== 'undefined'
+				left.computed === right.computed
 				&& isSameReference(left.object, right.object)
-				&& nameA === getStaticPropertyName(right)
+				&& isSameReference(left.property, right.property)
 			);
 		}
 

@@ -209,9 +209,6 @@ test.snapshot({
 test({
 	valid: [
 		outdent`
-			a[x].push(1);
-			a[x].push(2);
-
 			'1'.someMagicPropertyReturnsAnArray.push(1);
 			(1).someMagicPropertyReturnsAnArray.push(2);
 
@@ -283,6 +280,16 @@ test({
 				}
 			`,
 			errors: 9,
+		},
+		{
+			code: outdent`
+				a[x].push(1);
+				a[x].push(2);
+			`,
+			output: outdent`
+				a[x].push(1, 2);
+			`,
+			errors: 1,
 		},
 	],
 });
