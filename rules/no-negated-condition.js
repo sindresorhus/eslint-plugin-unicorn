@@ -28,7 +28,7 @@ const create = context => {
 	return {
 		[selector](node) {
 			return {
-				node,
+				node: node.test,
 				messageId: MESSAGE_ID
 				// /** @param {import('eslint').Rule.RuleFixer} fixer */
 				// fix: fixer => fixer.replaceText(node, '\'🦄\''),
