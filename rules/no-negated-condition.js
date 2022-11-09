@@ -55,26 +55,19 @@ function isNegatedIf(node) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	return {
-		IfStatement(node) {
-			if (!hasElseWithoutCondition(node) || !isNegatedIf(node)) {
-				return;
-			}
-
-			return {
-					node,
-					messageId: MESSAGE_ID
-					// /** @param {import('eslint').Rule.RuleFixer} fixer */
-					// fix: fixer => fixer.replaceText(node, '\'🦄\''),
-			};
-		},
-		ConditionalExpression(node) {
-			if (!isNegatedIf(node)) {
+		'IfStatement, ConditionalExpression'(node) {
+			if (
+				(node.type === 'IfStatement' && !hasElseWithoutCondition(node))
+				|| !isNegatedIf(node)
+			) {
 				return;
 			}
 
 			return {
 				node,
 				messageId: MESSAGE_ID
+				// /** @param {import('eslint').Rule.RuleFixer} fixer */
+				// fix: fixer => fixer.replaceText(node, '\'🦄\''),
 			};
 		}
 	};
