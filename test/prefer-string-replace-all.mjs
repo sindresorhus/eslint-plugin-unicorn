@@ -14,6 +14,7 @@ test({
 		'foo.replace(/[a]/g, bar)',
 		'foo.replace(/a?/g, bar)',
 		'foo.replace(/.*/g, bar)',
+		'foo.replace(/a|b/g, bar)',
 		'foo.replace(/\\W/g, bar)',
 		'foo.replace(/\\u{61}/g, bar)',
 		'foo.replace(/\\u{61}/gu, bar)',
