@@ -19,7 +19,7 @@ const isRegexWithGlobalFlag = node =>
 
 function isLiteralCharactersOnly(node) {
 	const searchPattern = node.regex.pattern;
-	return !/[$()*+.?[\\\]^{}]/.test(searchPattern.replace(/\\[$()*+.?[\\\]^{}]/g, ''));
+	return !/[$()*+.?[\\\]^{|}]/.test(searchPattern.replace(/\\[$()*+.?[\\\]^{|}]/g, ''));
 }
 
 function removeEscapeCharacters(regexString) {
