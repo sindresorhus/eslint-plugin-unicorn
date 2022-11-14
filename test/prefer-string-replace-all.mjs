@@ -87,6 +87,11 @@ test({
 			output: 'foo.replaceAll(\'\\\\.\', bar)',
 			errors: [error],
 		},
+		{
+			code: 'foo.replace(/\\|/g, bar)',
+			output: 'foo.replaceAll(\'|\', bar)',
+			errors: [error],
+		},
 	],
 });
 
