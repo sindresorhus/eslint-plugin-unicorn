@@ -93,7 +93,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer use `Set#size` instead of convert it to Array first.',
+			description: 'Prefer using `Set#size` instead of `Array#length`.',
 		},
 		fixable: 'code',
 		messages,
