@@ -1,4 +1,4 @@
-# Prefer use `Set#size` instead of convert it to Array first
+# Prefer using `Set#size` instead of `Array#length`
 
 ✅ This rule is enabled in the `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
 
@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer use `Set#size` directly instead of convert it to an array, and use `.length` of the array.
+Prefer using `Set#size` directly instead of first converting it to an array and then using its `.length` property.
 
 ## Fail
 

@@ -5,7 +5,7 @@ const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-set-size';
 const messages = {
-	[MESSAGE_ID]: 'Prefer use `Set#size` instead of `Array#length`.',
+	[MESSAGE_ID]: 'Prefer using `Set#size` instead of `Array#length`.',
 };
 
 const lengthAccessSelector = [
