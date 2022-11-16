@@ -14,6 +14,7 @@ test.before(async () => {
 
 const ignoredRules = [
 	'no-nested-ternary',
+	'no-negated-condition',
 ];
 
 const deprecatedRules = Object.entries(eslintPluginUnicorn.rules)
