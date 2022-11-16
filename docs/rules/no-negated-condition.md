@@ -9,7 +9,7 @@
 
 Negated conditions are more difficult to understand. Code can be made more readable by inverting the condition instead.
 
-This rule is a replacement of ESLint builtin [`no-negated-condition`](https://eslint.org/docs/latest/rules/no-negated-condition) rule with additional autofix.
+Improved version of the [`no-negated-condition`](https://eslint.org/docs/latest/rules/no-negated-condition) ESLint rule, which is automatically fixable.
 
 ## Fail
 
