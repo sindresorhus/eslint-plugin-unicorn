@@ -66,5 +66,20 @@ test.snapshot({
 			a
 			!+b ? c : d
 		`,
+		outdent`
+			if (!a)
+				b()
+			else
+				c()
+		`,
+		"if(!a) b(); else c()",
+		outdent`
+			function fn() {
+				if(!a) b(); else return
+			}
+		`,
+		"if(!a) {b()} else {c()}",
+		"if(!!a) b(); else c();",
+		"(!!a) ? b() : c();"
 	],
 });

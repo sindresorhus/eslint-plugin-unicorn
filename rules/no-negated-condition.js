@@ -46,14 +46,21 @@ function * convertNegatedCondition(fixer, node, sourceCode) {
 }
 
 function * swapConsequentAndAlternate(fixer, node, sourceCode) {
+	const isIfStatement = node.type === 'IfStatement';
 	const [consequent, alternate] = [
 		node.consequent,
 		node.alternate
 	].map(node => {
 		const range = getParenthesizedRange(node, sourceCode);
+		let text = sourceCode.text.slice(...range);
+		// `if (!a) b(); else c()` can't fix to `if (!a) c() else b();`
+		if (isIfStatement && node.type !== 'BlockStatement') {
+			text = `{${text}}`;
+		}
+
 		return {
 			range,
-			text: sourceCode.text.slice(...range),
+			text,
 		}
 	});
 
