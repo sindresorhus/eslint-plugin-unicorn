@@ -1,3 +1,5 @@
+import path from 'node:path';
+import process from 'node:process';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
@@ -234,6 +236,20 @@ test({
 				ignore: [/FOOBAR\.js/u, /BaRbAz\.js/u],
 			},
 		]),
+		testCase('Src/Foo/foo-bar.js'),
+		testCaseWithOptions(
+			'Src/Foo/foo-bar.js',
+			undefined,
+			[
+				{
+					cases: {
+						kebabCase: true,
+					},
+					includePath: true,
+					ignore: [/Src/],
+				},
+			],
+		),
 		// Ignored
 		...['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue'].flatMap(
 			filename => ['camelCase', 'snakeCase', 'kebabCase', 'pascalCase'].map(chosenCase => testCase(filename, chosenCase)),
@@ -546,6 +562,50 @@ test({
 				kebabCase: true,
 			},
 			'Filename is not in camel case, pascal case, or kebab case. Rename it to `1.js`.',
+		),
+		testCaseWithOptions(
+			'Src/Foo/foo-bar.js',
+			'Filename is not in camel case or snake case. Rename it to `src/foo/fooBar.js` or `src/foo/foo_bar.js`.',
+			[
+				{
+					cases: {
+						camelCase: true,
+						snakeCase: true,
+					},
+					includePath: true,
+				},
+			],
+		),
+		testCaseWithOptions(
+			'src_/foo_Bar/foo-bar.js',
+			'Filename is not in kebab case. Rename it to `src/foo-bar/foo-bar.js`.',
+			[
+				{
+					case: 'kebabCase',
+					includePath: true,
+				},
+			],
+		),
+		testCaseWithOptions(
+			'Src/foo/foo-Bar.js',
+			'Filename is not in kebab case. Rename it to `src/foo/foo-bar.js`.',
+			[
+				{
+					case: 'kebabCase',
+					includePath: true,
+					ignore: [/bar/],
+				},
+			],
+		),
+		testCaseWithOptions(
+			path.join(process.cwd(), 'Src/foo/foo-Bar.js'),
+			'Filename is not in kebab case. Rename it to `src/foo/foo-bar.js`.',
+			[
+				{
+					case: 'kebabCase',
+					includePath: true,
+				},
+			],
 		),
 	],
 });

@@ -105,3 +105,20 @@ Don't forget that you must escape special characters that you don't want to be i
 	}
 ]
 ```
+
+### includePath
+
+Type: `boolean`\
+Default: `false`
+
+Checks the path for case style, in addition to the filename.
+
+```js
+"unicorn/filename-case": [
+	"error",
+	{
+		"case": "kebabCase",
+		"includePath": true,
+	}
+]
+```

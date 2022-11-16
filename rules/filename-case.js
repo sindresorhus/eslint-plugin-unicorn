@@ -1,5 +1,6 @@
 'use strict';
 const path = require('node:path');
+const process = require('node:process');
 const {camelCase, kebabCase, snakeCase, upperFirst} = require('lodash');
 const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
 
@@ -136,6 +137,7 @@ const englishishJoinWords = words => new Intl.ListFormat('en-US', {type: 'disjun
 const create = context => {
 	const options = context.options[0] || {};
 	const chosenCases = getChosenCases(options);
+	const includePath = options.includePath || false;
 	const ignore = (options.ignore || []).map(item => {
 		if (item instanceof RegExp) {
 			return item;
@@ -154,13 +156,19 @@ const create = context => {
 		Program() {
 			const extension = path.extname(filenameWithExtension);
 			const filename = path.basename(filenameWithExtension, extension);
+
+			const relativeFilenameWithExtension = path.relative(process.cwd(), filenameWithExtension);
+			const dirname = path.dirname(relativeFilenameWithExtension);
+			const directoryAndFilename = dirname + path.sep + filename;
+
 			const base = filename + extension;
 
-			if (ignoredByDefault.has(base) || ignore.some(regexp => regexp.test(base))) {
+			if (ignoredByDefault.has(base) || ignore.some(regexp => regexp.test(includePath ? relativeFilenameWithExtension : base))) {
 				return;
 			}
 
-			const {leading, words} = splitFilename(filename);
+			const {leading, words} = splitFilename(includePath ? directoryAndFilename : filename);
+
 			const isValid = validateFilename(words, chosenCasesFunctions);
 
 			if (isValid) {
@@ -194,6 +202,7 @@ const create = context => {
 	};
 };
 
+/** @type {import('json-schema').JSONSchema7[]} */
 const schema = [
 	{
 		oneOf: [
@@ -210,6 +219,9 @@ const schema = [
 					ignore: {
 						type: 'array',
 						uniqueItems: true,
+					},
+					includePath: {
+						type: 'boolean',
 					},
 				},
 				additionalProperties: false,
@@ -236,6 +248,9 @@ const schema = [
 					ignore: {
 						type: 'array',
 						uniqueItems: true,
+					},
+					includePath: {
+						type: 'boolean',
 					},
 				},
 				additionalProperties: false,
