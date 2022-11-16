@@ -58,13 +58,13 @@ test.snapshot({
 		`,
 		'!a ? b : c ? d : e',
 		'!a ? b : (( c ? d : e ))',
-		// outdent`
-		// 	a
-		// 	![] ? b : c
-		// `,
-		// outdent`
-		// 	a
-		// 	!+b ? c : d
-		// `,
+		outdent`
+			a
+			![] ? b : c
+		`,
+		outdent`
+			a
+			!+b ? c : d
+		`,
 	],
 });

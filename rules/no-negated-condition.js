@@ -89,7 +89,6 @@ const create = context => {
 
 					const {test, parent} = node;
 					const [firstToken, secondToken] = sourceCode.getFirstTokens(test);
-					let fixedText = '';
 					if (
 						(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 						&& parent.argument === node
@@ -97,13 +96,12 @@ const create = context => {
 						&& !isOnSameLine(firstToken, secondToken, )
 					) {
 						yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
-						fixedText = '('
+					} else {
+						const tokenBefore = sourceCode.getTokenBefore(node);
+						if (needsSemicolon(tokenBefore, sourceCode, secondToken.value)) {
+							yield fixer.insertTextBefore(node, ';')
+						}
 					}
-
-					// const tokenBefore = sourceCode.getTokenBefore(node);
-					// if (needsSemicolon(tokenBefore, sourceCode, fixedText ?? secondToken.value)) {
-					// 	yield fixer.insertTextBefore(node, ';')
-					// }
 				}
 			};
 		}
