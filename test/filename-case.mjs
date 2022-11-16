@@ -246,7 +246,7 @@ test({
 						kebabCase: true,
 					},
 					includePath: true,
-					ignore: [/Src/],
+					ignore: [/^Foo/],
 				},
 			],
 		),

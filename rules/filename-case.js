@@ -162,7 +162,19 @@ const create = context => {
 
 			const base = filename + extension;
 
-			if (ignoredByDefault.has(base) || ignore.some(regexp => regexp.test(includePath ? relativeFilenameWithExtension : base))) {
+			if (ignoredByDefault.has(base)) {
+				return;
+			}
+
+			const hasIgnoreMatch = ignore.some(regexp => {
+				if (includePath) {
+					return relativeFilenameWithExtension.split(path.sep).some((part => regexp.test(part)));
+				}
+
+				return regexp.test(base);
+			});
+
+			if (hasIgnoreMatch) {
 				return;
 			}
 
