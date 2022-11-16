@@ -4,7 +4,7 @@ https://github.com/eslint/eslint/blob/5c39425fc55ecc0b97bbd07ac22654c0eb4f789c/l
 */
 'use strict';
 const {matches} = require('./selectors/index.js');
-const { removeParentheses } = require('./fix/index.js');
+const { removeParentheses, fixSpaceAroundKeyword } = require('./fix/index.js');
 const { getParenthesizedRange, getParenthesizedText } = require('./utils/parentheses.js');
 
 const MESSAGE_ID= 'no-negated-condition';
@@ -28,7 +28,9 @@ function * convertNegatedCondition(fixer, node, sourceCode) {
 	const {test} = node;
 	if (test.type === 'UnaryExpression') {
 		const token = sourceCode.getFirstToken(test);
-		yield * removeParentheses(test, fixer, sourceCode);
+		if (node.type === 'IfStatement') {
+			yield * removeParentheses(test.argument, fixer, sourceCode);
+		}
 		yield fixer.remove(token);
 		return;
 	}
@@ -74,11 +76,19 @@ const create = context => {
 					yield * convertNegatedCondition(fixer, node, sourceCode);
 					yield * swapConsequentAndAlternate(fixer, node, sourceCode);
 
-					// TODO: Handle edge cases: ASI, space, return argument, parentheses
-				}
+					if (node.type !== "ConditionalExpression") {
+						return;
+					}
 
-				// /** @param {import('eslint').Rule.RuleFixer} fixer */
-				// fix: fixer => fixer.replaceText(node, '\'🦄\''),
+					const {test} = node;
+					if (test.type === 'UnaryExpression') {
+						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+					}
+
+
+
+					// TODO: Handle edge cases: ASI, return argument, parentheses
+				}
 			};
 		}
 	};

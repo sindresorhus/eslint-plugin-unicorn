@@ -26,5 +26,10 @@ test.snapshot({
 		"!a ? b : c",
 		"a != b ? c : d",
 		"a !== b ? c : d",
+		"(( !a )) ? b : c",
+		"!(( a )) ? b : c",
+		"if(!(( a ))) b(); else c();",
+		"if((( !a ))) b(); else c();",
+		"function a() {return!(( a )) ? b : c}",
 	],
 });
