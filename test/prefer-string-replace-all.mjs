@@ -3,10 +3,6 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const error = {
-	message: 'Prefer `String#replaceAll()` over `String#replace()`.',
-};
-
 test.snapshot({
 	valid: [
 		// No global flag

@@ -29,9 +29,8 @@ const isRegExpWithGlobalFlag = (node, scope) => {
 		&& node.arguments[0]?.type !== 'SpreadElement'
 		&& node.arguments[1]?.type === 'Literal'
 		&& typeof node.arguments[1].value === 'string'
-		&& node.arguments[1].value.includes('g')
 	) {
-		return true;
+		return node.arguments[1].value.includes('g');
 	}
 
 	const staticResult = getStaticValue(node, scope);
@@ -64,11 +63,11 @@ function removeEscapeCharacters(regexString) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = (context) => ({
+const create = context => ({
 	[selector](node) {
 		const {
 			arguments: [pattern],
-			callee: {property}
+			callee: {property},
 		} = node;
 
 		if (!isRegExpWithGlobalFlag(pattern, context.getScope())) {
@@ -88,7 +87,7 @@ const create = (context) => ({
 
 				const string = removeEscapeCharacters(pattern.regex.pattern);
 
-				yield fixer.replaceText(pattern, quoteString(string))
+				yield fixer.replaceText(pattern, quoteString(string));
 			},
 		};
 	},
