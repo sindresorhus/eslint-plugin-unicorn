@@ -7,7 +7,7 @@
 
 This rule makes it possible to pass arguments to TODO, FIXME and XXX comments to trigger ESLint to report.
 
-From [ESLint's documentation](https://eslint.org/docs/rules/no-warning-comments):
+From [ESLint's documentation](https://eslint.org/docs/latest/rules/no-warning-comments):
 
 > Developers often add comments to code which is not complete or needs review.
 
