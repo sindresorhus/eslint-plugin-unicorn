@@ -33,6 +33,8 @@ test.snapshot({
 		// Unknown/non-regexp/non-global value
 		'foo.replace(unknown, bar)',
 		'const pattern = new RegExp("foo", unknown); foo.replace(pattern, bar)',
+		'const pattern = new RegExp("foo"); foo.replace(pattern, bar)',
+		'const pattern = new RegExp(); foo.replace(pattern, bar)',
 		'const pattern = "string"; foo.replace(pattern, bar)',
 		'const pattern = new RegExp("foo", "g"); foo.replace(...[pattern], bar)',
 		'const pattern = "not-a-regexp"; foo.replace(pattern, bar)',

@@ -26,7 +26,7 @@ const isRegExpWithGlobalFlag = (node, scope) => {
 	if (
 		isNewExpression(node, {name: 'RegExp'})
 		&& node.arguments[0]?.type !== 'SpreadElement'
-		&& node.arguments[1]?.type !== 'Literal'
+		&& node.arguments[1]?.type === 'Literal'
 		&& typeof node.arguments[1].value === 'string'
 		&& node.arguments[1].value.includes('g')
 	) {

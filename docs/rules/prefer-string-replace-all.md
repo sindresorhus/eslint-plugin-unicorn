@@ -8,16 +8,16 @@
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 The [`String#replaceAll()`](https://github.com/tc39/proposal-string-replaceall) method is both faster and safer as you don't have to escape the regex if the string is not a literal.
-Even if regexp has to be used, `String#replaceAll()` has more clear intention when the regexp has global flag.
+Even if regexp has to be used, `String#replaceAll()` has more clear intention.
 
 ## Fail
 
 ```js
-string.replace(/regexp with global flag/igu, '');
+string.replace(/RegExp with global flag/igu, '');
 ```
 
 ```js
-string.replace(/This has no special regex symbols/g, '');
+string.replace(/RegExp without special symbols/g, '');
 ```
 
 ```js
@@ -39,5 +39,9 @@ string.replace('Not a regex expression', '')
 ```
 
 ```js
-string.replaceAll('Literal characters only', '');
+string.replaceAll('string', '');
+```
+
+```js
+string.replaceAll(/\s/, '');
 ```
