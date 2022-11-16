@@ -31,5 +31,30 @@ test.snapshot({
 		"if(!(( a ))) b(); else c();",
 		"if((( !a ))) b(); else c();",
 		"function a() {return!(( a )) ? b : c}",
+		outdent`
+			function a() {
+				return ! // comment
+					a ? b : c;
+			}
+		`,
+		outdent`
+			function a() {
+				return (! // comment
+					a ? b : c);
+			}
+		`,
+		outdent`
+			function a() {
+				return (
+					! // comment
+					a) ? b : c;
+			}
+		`,
+		outdent`
+			function a() {
+				throw ! // comment
+					a ? b : c;
+			}
+		`,
 	],
 });
