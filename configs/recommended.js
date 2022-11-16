@@ -101,6 +101,7 @@ module.exports = {
 		'unicorn/prefer-reflect-apply': 'error',
 		'unicorn/prefer-regexp-test': 'error',
 		'unicorn/prefer-set-has': 'error',
+		'unicorn/prefer-set-size': 'error',
 		'unicorn/prefer-spread': 'error',
 		// TODO: Enable this by default when targeting Node.js 16.
 		'unicorn/prefer-string-replace-all': 'off',
