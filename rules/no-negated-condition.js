@@ -4,8 +4,10 @@ https://github.com/eslint/eslint/blob/5c39425fc55ecc0b97bbd07ac22654c0eb4f789c/l
 */
 'use strict';
 const {matches} = require('./selectors/index.js');
-const { removeParentheses, fixSpaceAroundKeyword } = require('./fix/index.js');
-const { getParenthesizedRange, getParenthesizedText } = require('./utils/parentheses.js');
+const { removeParentheses, fixSpaceAroundKeyword, addParenthesizesToReturnOrThrowExpression } = require('./fix/index.js');
+const { getParenthesizedRange, getParenthesizedText, isParenthesized } = require('./utils/parentheses.js');
+const isOnSameLine = require('./utils/is-on-same-line.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
 
 const MESSAGE_ID= 'no-negated-condition';
 const messages = {
@@ -76,18 +78,32 @@ const create = context => {
 					yield * convertNegatedCondition(fixer, node, sourceCode);
 					yield * swapConsequentAndAlternate(fixer, node, sourceCode);
 
-					if (node.type !== "ConditionalExpression") {
+					if (
+						node.type !== "ConditionalExpression"
+						|| node.test.type !== 'UnaryExpression'
+					) {
 						return;
 					}
 
-					const {test} = node;
-					if (test.type === 'UnaryExpression') {
-						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+
+					const {test, parent} = node;
+					const [firstToken, secondToken] = sourceCode.getFirstTokens(test);
+					let fixedText = '';
+					if (
+						(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
+						&& parent.argument === node
+						&& !(isParenthesized(node, sourceCode) && !isParenthesized(test, sourceCode))
+						&& !isOnSameLine(firstToken, secondToken, )
+					) {
+						yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
+						fixedText = '('
 					}
 
-
-
-					// TODO: Handle edge cases: ASI, return argument, parentheses
+					// const tokenBefore = sourceCode.getTokenBefore(node);
+					// if (needsSemicolon(tokenBefore, sourceCode, fixedText ?? secondToken.value)) {
+					// 	yield fixer.insertTextBefore(node, ';')
+					// }
 				}
 			};
 		}
