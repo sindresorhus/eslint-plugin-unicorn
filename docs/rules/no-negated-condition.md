@@ -15,17 +15,17 @@ Improved version of the [`no-negated-condition`](https://eslint.org/docs/latest/
 
 ```js
 if (!a) {
-	doSomething();
+	doSomethingC();
 } else {
-	doSomethingElse();
+	doSomethingB();
 }
 ```
 
 ```js
 if (a !== b) {
-	doSomething();
+	doSomethingC();
 } else {
-	doSomethingElse();
+	doSomethingB();
 }
 ```
 
@@ -35,9 +35,9 @@ if (a !== b) {
 
 ```js
 if (a != b) {
-	doSomething();
+	doSomethingC();
 } else {
-	doSomethingElse();
+	doSomethingB();
 }
 ```
 
@@ -45,17 +45,17 @@ if (a != b) {
 
 ```js
 if (a) {
-	doSomething();
+	doSomethingB();
 } else {
-	doSomethingElse();
+	doSomethingC();
 }
 ```
 
 ```js
 if (a === b) {
-	doSomething();
+	doSomethingB();
 } else {
-	doSomethingElse();
+	doSomethingC();
 }
 ```
 
@@ -65,9 +65,9 @@ a ? b : c
 
 ```js
 if (a == b) {
-	doSomething();
+	doSomethingB();
 } else {
-	doSomethingElse();
+	doSomethingC();
 }
 ```
 
@@ -81,7 +81,7 @@ if (!a) {
 if (!a) {
 	doSomething();
 } else if (b) {
-	doSomething();
+	doSomethingElse();
 }
 ```
 

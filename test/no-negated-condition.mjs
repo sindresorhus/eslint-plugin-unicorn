@@ -96,5 +96,14 @@ test.snapshot({
 				return((!((a)) != b)) ? c : d
 			}
 		`,
+		outdent`
+			if (!a) {
+				b();
+			} else if (!c) {
+				d();
+			} else {
+				e();
+			}
+		`,
 	],
 });
