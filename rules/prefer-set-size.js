@@ -2,6 +2,7 @@
 const {findVariable} = require('eslint-utils');
 const {memberExpressionSelector} = require('./selectors/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
+const {isNewExpression} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-set-size';
 const messages = {
@@ -15,13 +16,8 @@ const lengthAccessSelector = [
 	'[object.elements.0.type="SpreadElement"]',
 ].join('');
 
-const isNewSet = node =>
-	node?.type === 'NewExpression'
-	&& node.callee.type === 'Identifier'
-	&& node.callee.name === 'Set';
-
 function isSet(node, scope) {
-	if (isNewSet(node)) {
+	if (isNewExpression(node, {name: 'Set'})) {
 		return true;
 	}
 

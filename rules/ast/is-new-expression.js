@@ -15,6 +15,7 @@ function isNewExpression(node, options) {
 		return node.callee.type === 'Identifier' && node.callee.name === name;
 	}
 
+	/* c8 ignore next */
 	return true;
 }
 
