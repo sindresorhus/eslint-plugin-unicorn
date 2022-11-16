@@ -16,6 +16,8 @@ const lengthAccessSelector = [
 	'[object.elements.0.type="SpreadElement"]',
 ].join('');
 
+const isNewSet = node => isNewExpression(node, {name: 'Set'});
+
 function isSet(node, scope) {
 	if (isNewExpression(node, {name: 'Set'})) {
 		return true;
