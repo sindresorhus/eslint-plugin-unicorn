@@ -30,6 +30,7 @@ test.snapshot({
 		"!(( a )) ? b : c",
 		"if(!(( a ))) b(); else c();",
 		"if((( !a ))) b(); else c();",
+		"function a() {return!a ? b : c}",
 		"function a() {return!(( a )) ? b : c}",
 		outdent`
 			function a() {
@@ -39,14 +40,14 @@ test.snapshot({
 		`,
 		outdent`
 			function a() {
-				return (! // comment
+				return (! // ReturnStatement argument is parenthesized
 					a ? b : c);
 			}
 		`,
 		outdent`
 			function a() {
 				return (
-					! // comment
+					! // UnaryExpression argument is parenthesized
 					a) ? b : c;
 			}
 		`,
@@ -67,6 +68,14 @@ test.snapshot({
 			!+b ? c : d
 		`,
 		outdent`
+			a
+			!(b) ? c : d
+		`,
+		outdent`
+			a
+			!b ? c : d
+		`,
+		outdent`
 			if (!a)
 				b()
 			else
@@ -80,6 +89,12 @@ test.snapshot({
 		`,
 		"if(!a) {b()} else {c()}",
 		"if(!!a) b(); else c();",
-		"(!!a) ? b() : c();"
+		"(!!a) ? b() : c();",
+		outdent`
+			function fn() {
+				return!a !== b ? c : d
+				return((!((a)) != b)) ? c : d
+			}
+		`,
 	],
 });
