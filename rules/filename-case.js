@@ -1,6 +1,5 @@
 'use strict';
 const path = require('node:path');
-const process = require('node:process');
 const {camelCase, kebabCase, snakeCase, upperFirst} = require('lodash');
 const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
 
@@ -157,7 +156,7 @@ const create = context => {
 			const extension = path.extname(filenameWithExtension);
 			const filename = path.basename(filenameWithExtension, extension);
 
-			const relativeFilenameWithExtension = path.relative(process.cwd(), filenameWithExtension);
+			const relativeFilenameWithExtension = path.relative(context.getCwd(), filenameWithExtension);
 			const dirname = path.dirname(relativeFilenameWithExtension);
 			const directoryAndFilename = dirname + path.sep + filename;
 
