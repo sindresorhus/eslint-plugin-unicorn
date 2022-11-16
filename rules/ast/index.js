@@ -21,4 +21,5 @@ module.exports = {
 	isEmptyNode: require('./is-empty-node.js'),
 	isStaticRequire: require('./is-static-require.js'),
 	isUndefined: require('./is-undefined.js'),
+	isNewExpression: require('./is-new-expression.js'),
 };
