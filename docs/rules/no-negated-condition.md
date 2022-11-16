@@ -7,16 +7,86 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-<!-- Remove this comment, add more detailed description. -->
+Negated conditions are more difficult to understand. Code can be made more readable by inverting the condition instead.
+
+This rule is a replacement of ESLint builtin [`no-negated-condition`](https://eslint.org/docs/latest/rules/no-negated-condition) rule with additional autofix.
 
 ## Fail
 
 ```js
-const foo = 'unicorn';
+if (!a) {
+	doSomething();
+} else {
+	doSomethingElse();
+}
+```
+
+```js
+if (a !== b) {
+	doSomething();
+} else {
+	doSomethingElse();
+}
+```
+
+```js
+!a ? c : b
+```
+
+```js
+if (a != b) {
+	doSomething();
+} else {
+	doSomethingElse();
+}
 ```
 
 ## Pass
 
 ```js
-const foo = '🦄';
+if (a) {
+	doSomething();
+} else {
+	doSomethingElse();
+}
+```
+
+```js
+if (a === b) {
+	doSomething();
+} else {
+	doSomethingElse();
+}
+```
+
+```js
+a ? b : c
+```
+
+```js
+if (a == b) {
+	doSomething();
+} else {
+	doSomethingElse();
+}
+```
+
+```js
+if (!a) {
+	doSomething();
+}
+```
+
+```js
+if (!a) {
+	doSomething();
+} else if (b) {
+	doSomething();
+}
+```
+
+```js
+if (a != b) {
+	doSomething();
+}
 ```
