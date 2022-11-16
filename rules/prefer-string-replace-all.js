@@ -14,9 +14,10 @@ const selector = methodCallSelector({
 	argumentsLength: 2,
 });
 
-const isRegexLiteralWithGlobalFlag = node =>
+const canReplacePatternWithString = node =>
 	isRegexLiteral(node)
-	&& node.regex.flags.replace('u', '') === 'g';
+	&& node.regex.flags.replace('u', '') === 'g'
+	&& !/[$()*+.?[\\\]^{|}]/.test(node.regex.pattern.replace(/\\[$()*+.?[\\\]^{|}]/g, ''));
 
 const isRegExpWithGlobalFlag = (node, scope) => {
 	if (isRegexLiteral(node)) {
@@ -46,11 +47,6 @@ const isRegExpWithGlobalFlag = (node, scope) => {
 		&& value.global
 	);
 };
-
-function isLiteralCharactersOnly(node) {
-	const searchPattern = node.regex.pattern;
-	return !/[$()*+.?[\\\]^{|}]/.test(searchPattern.replace(/\\[$()*+.?[\\\]^{|}]/g, ''));
-}
 
 function removeEscapeCharacters(regexString) {
 	let fixedString = regexString;
@@ -86,7 +82,7 @@ const create = (context) => ({
 			* fix(fixer) {
 				yield fixer.insertTextAfter(property, 'All');
 
-				if (!isRegexLiteralWithGlobalFlag(pattern) || !isLiteralCharactersOnly(pattern)) {
+				if (!canReplacePatternWithString(pattern)) {
 					return;
 				}
 
