@@ -565,7 +565,7 @@ test({
 		),
 		testCaseWithOptions(
 			'Src/Foo/foo-bar.js',
-			`Filename is not in camel case or snake case. Rename it to \`${path.join('src','foo','fooBar.js')}\` or \`${path.join('src','foo','foo_bar.js')}\`.`,
+			`Filename is not in camel case or snake case. Rename it to \`${path.join('src', 'foo', 'fooBar.js')}\` or \`${path.join('src', 'foo', 'foo_bar.js')}\`.`,
 			[
 				{
 					cases: {
@@ -599,7 +599,7 @@ test({
 		),
 		testCaseWithOptions(
 			path.join(process.cwd(), 'Src/foo/foo-Bar.js'),
-			`Filename is not in kebab case. Rename it to \`${path.join('src','foo','foo-bar.js')}\`.`,
+			`Filename is not in kebab case. Rename it to \`${path.join('src', 'foo', 'foo-bar.js')}\`.`,
 			[
 				{
 					case: 'kebabCase',
