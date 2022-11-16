@@ -103,7 +103,7 @@ const create = context => ({
 				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 
 				const {test, parent} = node;
-				const [firstToken, secondToken] = sourceCode.getFirstTokens(test);
+				const [firstToken, secondToken] = sourceCode.getFirstTokens(test, 2);
 				if (
 					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 					&& parent.argument === node
