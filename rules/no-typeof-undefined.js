@@ -11,9 +11,11 @@ const {
 	isParenthesized,
 } = require('./utils/parentheses.js');
 
-const MESSAGE_ID_ERROR = 'no-typeof-undefined';
+const MESSAGE_ID_ERROR = 'no-typeof-undefined/error';
+const MESSAGE_ID_SUGGESTION = 'no-typeof-undefined/suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Compare with `undefined` directly instead of `typeof` check.',
+	[MESSAGE_ID_SUGGESTION]: 'Switch to `… {{operator}} undefined`.',
 };
 
 const selector = [
@@ -30,69 +32,81 @@ const create = context => {
 	const {
 		checkGlobalVariables,
 	} = {
-		checkGlobalVariables: true,
+		checkGlobalVariables: false,
 		...context.options[0],
 	};
 
 	return {
 		[selector](binaryExpression) {
-			const {left: typeofNode, right: undefinedString} = binaryExpression;
+			const {left: typeofNode, right: undefinedString, operator} = binaryExpression;
 			if (undefinedString.value !== 'undefined') {
 				return;
 			}
 
 			const valueNode = typeofNode.argument;
+			const isGlobalVariable = valueNode.type === 'Identifier'
+				&& !isShadowed(context.getScope(), valueNode);
 
-			if (
-				valueNode.type === 'Identifier'
-				&& !checkGlobalVariables
-				&& !isShadowed(context.getScope(), valueNode)
-			) {
+			if (!checkGlobalVariables && isGlobalVariable) {
 				return;
 			}
 
 			const sourceCode = context.getSourceCode();
 			const [typeofToken, secondToken] = sourceCode.getFirstTokens(typeofNode, 2);
 
-			return {
+			const fix = function * (fixer) {
+				// Change `==`/`!=` to `===`/`!==`
+				if (operator === '==' || operator === '!=') {
+					const operatorToken = sourceCode.getTokenAfter(
+						typeofNode,
+						token => token.type === 'Punctuator' && token.value === operator,
+					);
+
+					yield fixer.insertTextAfter(operatorToken, '=');
+				}
+
+				yield fixer.replaceText(undefinedString, 'undefined');
+
+				yield fixer.remove(typeofToken);
+				yield removeSpacesAfter(typeofToken, sourceCode, fixer);
+
+				const {parent} = binaryExpression;
+				if (
+					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
+					&& parent.argument === binaryExpression
+					&& !isOnSameLine(typeofToken, secondToken)
+					&& !isParenthesized(binaryExpression, sourceCode)
+					&& !isParenthesized(typeofNode, sourceCode)
+				) {
+					yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
+					return;
+				}
+
+				const tokenBefore = sourceCode.getTokenBefore(binaryExpression);
+				if (needsSemicolon(tokenBefore, sourceCode, secondToken.value)) {
+					yield fixer.insertTextBefore(binaryExpression, ';');
+				}
+			}
+
+			const problem = {
 				node: binaryExpression,
 				loc: typeofToken.loc,
 				messageId: MESSAGE_ID_ERROR,
-				* fix(fixer) {
-					// Change `==`/`!=` to `===`/`!==`
-					const {operator} = binaryExpression;
-					if (operator === '==' || operator === '!=') {
-						const operatorToken = sourceCode.getTokenAfter(
-							typeofNode,
-							token => token.type === 'Punctuator' && token.value === operator,
-						);
-
-						yield fixer.insertTextAfter(operatorToken, '=');
-					}
-
-					yield fixer.replaceText(undefinedString, 'undefined');
-
-					yield fixer.remove(typeofToken);
-					yield removeSpacesAfter(typeofToken, sourceCode, fixer);
-
-					const {parent} = binaryExpression;
-					if (
-						(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
-						&& parent.argument === binaryExpression
-						&& !isOnSameLine(typeofToken, secondToken)
-						&& !isParenthesized(binaryExpression, sourceCode)
-						&& !isParenthesized(typeofNode, sourceCode)
-					) {
-						yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
-						return;
-					}
-
-					const tokenBefore = sourceCode.getTokenBefore(binaryExpression);
-					if (needsSemicolon(tokenBefore, sourceCode, secondToken.value)) {
-						yield fixer.insertTextBefore(binaryExpression, ';');
-					}
-				},
 			};
+
+			if (isGlobalVariable) {
+				problem.suggest = [
+					{
+						messageId: MESSAGE_ID_SUGGESTION,
+						data: {operator: operator.startsWith('!') ? '!==' : '==='},
+						fix,
+					},
+				];
+			} else {
+				problem.fix = fix;
+			}
+
+			return problem;
 		},
 	};
 };
@@ -121,5 +135,6 @@ module.exports = {
 		fixable: 'code',
 		schema,
 		messages,
+		hasSuggestions: true,
 	},
 };
