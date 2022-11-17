@@ -52,35 +52,30 @@ test.snapshot({
 	],
 });
 
-
-
-
-		// 'let foo; + foo === "undefined"',
-		// 'let foo; void foo === "undefined"',
-		// 'let foo; typeof foo > "undefined"',
-		// 'let foo; typeof foo instanceof "undefined"',
-		// 'let foo; typeof foo in "undefined"',
-		// Cases we are not checking
-		// 'var foo; typeof foo === "undefined"',
-		// 'let foo; typeof foo === "undefined"',
-		// 'let foo; typeof foo == "undefined"',
-		// 'let foo; "undefined" === typeof foo',
-		// 'let foo; const UNDEFINED_TYPE = "undefined"; UNDEFINED_TYPE == typeof foo',
-		// 'let foo; const UNDEFINED = undefined; typeof UNDEFINED == typeof foo',
-		// 'let foo; typeof undefined == typeof foo',
-		// 'let foo; `undefined` === typeof foo',
-		// 'const foo = 1; typeof foo === "undefined"',
-		// outdent`
-		// 	let foo;
-		// 	function bar() {
-		// 		typeof foo === "undefined";
-		// 	}
-		// `,
-		// 'function foo() {typeof foo === "undefined"}',
-		// 'function foo(bar) {typeof bar === "undefined"}',
-		// 'typeof foo.bar === "undefined"',
-		// // ASI
-		// outdent`
-		// 	foo
-		// 	typeof [] === "undefined";
-		// `,
+// `checkGlobalVariables: false`
+test.snapshot({
+	valid: [
+		'typeof foo === "undefined"',
+		'foo = 2; typeof foo === "undefined"',
+		'/* globals foo: readonly */ typeof foo === "undefined"',
+		'/* globals globalThis: readonly */ typeof globalThis === "undefined"',
+	].map(code => ({code, options: [{checkGlobalVariables: false}]})),
+	invalid: [
+		'let foo; typeof foo === "undefined"',
+		'const foo = 1; typeof foo === "undefined"',
+		'var foo; typeof foo === "undefined"',
+		'var foo; var foo; typeof foo === "undefined"',
+		'for (const foo of bar) typeof foo === "undefined";',
+		outdent`
+			let foo;
+			function bar() {
+				typeof foo === "undefined";
+			}
+		`,
+		'function foo() {typeof foo === "undefined"}',
+		'function foo(bar) {typeof bar === "undefined"}',
+		'function foo({bar}) {typeof bar === "undefined"}',
+		'function foo([bar]) {typeof bar === "undefined"}',
+		'typeof foo.bar === "undefined"',
+	].map(code => ({code, options: [{checkGlobalVariables: false}]})),
+});

@@ -1,4 +1,5 @@
 'use strict';
+const isShadowed = require('./utils/is-shadowed.js');
 const {matches} = require('./selectors/index.js');
 const {
 	addParenthesizesToReturnOrThrowExpression,
@@ -27,15 +28,30 @@ const selector = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {
+		checkGlobalVariables
+	} = {
+		checkGlobalVariables: true,
+		...context.options[0],
+	};
+
 	return {
 		[selector](binaryExpression) {
 			const {left: typeofNode, right: undefinedString} = binaryExpression;
 			if (undefinedString.value !== "undefined") {
 				return;
 			}
+			const valueNode = typeofNode.argument;
+
+			if (
+				valueNode.type === 'Identifier'
+				&& !checkGlobalVariables
+				&& !isShadowed(context.getScope(), valueNode)
+			) {
+				return;
+			}
 
 			const sourceCode = context.getSourceCode();
-			const valueNode = typeofNode.argument;
 			const [typeofToken, secondToken] = sourceCode.getFirstTokens(typeofNode, 2);
 
 			return {
@@ -80,6 +96,19 @@ const create = context => {
 		},
 	};
 };
+
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			checkGlobalVariables: {
+				type: 'boolean',
+				default: false,
+			},
+		},
+	},
+];
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
