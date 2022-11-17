@@ -31,6 +31,24 @@ test.snapshot({
 			foo
 			typeof [] === "undefined";
 		`,
+		outdent`
+			function a() {
+				return typeof // comment
+					a.b === 'undefined';
+			}
+		`,
+		outdent`
+			function a() {
+				return (typeof // ReturnStatement argument is parenthesized
+					a.b === 'undefined');
+			}
+		`,
+		outdent`
+			function a() {
+				return (typeof // UnaryExpression is parenthesized
+					a.b) === 'undefined';
+			}
+		`,
 	],
 });
 

@@ -1,6 +1,8 @@
 'use strict';
 const {matches} = require('./selectors/index.js');
-const {} = require('./fix/index.js');
+const {
+	addParenthesizesToReturnOrThrowExpression,
+} = require('./fix/index.js');
 const {removeSpacesAfter} = require('./fix/index.js');
 const isOnSameLine = require('./utils/is-on-same-line.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
@@ -63,7 +65,7 @@ const create = context => {
 						&& parent.argument === binaryExpression
 						&& !isParenthesized(binaryExpression, sourceCode)
 						&& !isParenthesized(typeofNode, sourceCode)
-						&& !isOnSameLine(firstToken, secondToken)
+						&& !isOnSameLine(typeofToken, secondToken)
 					) {
 						yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
 						return;
