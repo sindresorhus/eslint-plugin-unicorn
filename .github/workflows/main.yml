@@ -33,10 +33,8 @@ jobs:
       - uses: actions/setup-node@v3
       - run: npm install
       - run: npm run lint
-      # Force update snapshots, https://github.com/avajs/ava/discussions/2754
+      - run: rm -rf test/snapshots
       - run: npx c8 ava --update-snapshots
-        env:
-          AVA_FORCE_CI: not-ci
       - run: git diff --exit-code
       - uses: codecov/codecov-action@v2
         with:
