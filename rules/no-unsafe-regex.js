@@ -1,6 +1,7 @@
 'use strict';
 const safeRegex = require('safe-regex');
 const {newExpressionSelector} = require('./selectors/index.js');
+const {isNewExpression} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-unsafe-regex';
 const messages = {
@@ -16,10 +17,7 @@ const newRegExpSelector = [
 const create = () => ({
 	'Literal[regex]'(node) {
 		// Handle regex literal inside RegExp constructor in the other handler
-		if (
-			node.parent.type === 'NewExpression'
-				&& node.parent.callee.name === 'RegExp'
-		) {
+		if (isNewExpression(node.parent, {name: 'RegExp'})) {
 			return;
 		}
 

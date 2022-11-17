@@ -1,7 +1,8 @@
 'use strict';
+const {getStaticValue} = require('eslint-utils');
 const quoteString = require('./utils/quote-string.js');
 const {methodCallSelector} = require('./selectors/index.js');
-const {isRegexLiteral} = require('./ast/index.js');
+const {isRegexLiteral, isNewExpression} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-string-replace-all';
 const messages = {
@@ -13,14 +14,38 @@ const selector = methodCallSelector({
 	argumentsLength: 2,
 });
 
-const isRegexWithGlobalFlag = node =>
+const canReplacePatternWithString = node =>
 	isRegexLiteral(node)
-	&& node.regex.flags.replace('u', '') === 'g';
+	&& node.regex.flags.replace('u', '') === 'g'
+	&& !/[$()*+.?[\\\]^{|}]/.test(node.regex.pattern.replace(/\\[$()*+.?[\\\]^{|}]/g, ''));
 
-function isLiteralCharactersOnly(node) {
-	const searchPattern = node.regex.pattern;
-	return !/[$()*+.?[\\\]^{|}]/.test(searchPattern.replace(/\\[$()*+.?[\\\]^{|}]/g, ''));
-}
+const isRegExpWithGlobalFlag = (node, scope) => {
+	if (isRegexLiteral(node)) {
+		return node.regex.flags.includes('g');
+	}
+
+	if (
+		isNewExpression(node, {name: 'RegExp'})
+		&& node.arguments[0]?.type !== 'SpreadElement'
+		&& node.arguments[1]?.type === 'Literal'
+		&& typeof node.arguments[1].value === 'string'
+	) {
+		return node.arguments[1].value.includes('g');
+	}
+
+	const staticResult = getStaticValue(node, scope);
+
+	// Don't know if there is `g` flag
+	if (!staticResult) {
+		return false;
+	}
+
+	const {value} = staticResult;
+	return (
+		Object.prototype.toString.call(value) === '[object RegExp]'
+		&& value.global
+	);
+};
 
 function removeEscapeCharacters(regexString) {
 	let fixedString = regexString;
@@ -38,22 +63,32 @@ function removeEscapeCharacters(regexString) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
+const create = context => ({
 	[selector](node) {
-		const {arguments: arguments_, callee} = node;
-		const [search] = arguments_;
+		const {
+			arguments: [pattern],
+			callee: {property},
+		} = node;
 
-		if (!isRegexWithGlobalFlag(search) || !isLiteralCharactersOnly(search)) {
+		if (!isRegExpWithGlobalFlag(pattern, context.getScope())) {
 			return;
 		}
 
 		return {
-			node,
+			node: property,
 			messageId: MESSAGE_ID,
-			fix: fixer => [
-				fixer.insertTextAfter(callee, 'All'),
-				fixer.replaceText(search, quoteString(removeEscapeCharacters(search.regex.pattern))),
-			],
+			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			* fix(fixer) {
+				yield fixer.insertTextAfter(property, 'All');
+
+				if (!canReplacePatternWithString(pattern)) {
+					return;
+				}
+
+				const string = removeEscapeCharacters(pattern.regex.pattern);
+
+				yield fixer.replaceText(pattern, quoteString(string));
+			},
 		};
 	},
 });

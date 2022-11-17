@@ -2,7 +2,7 @@
 const {isParenthesized, getStaticValue} = require('eslint-utils');
 const {checkVueTemplate} = require('./utils/rule.js');
 const {methodCallSelector} = require('./selectors/index.js');
-const {isRegexLiteral} = require('./ast/index.js');
+const {isRegexLiteral, isNewExpression} = require('./ast/index.js');
 const {isBooleanNode} = require('./utils/boolean.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 
@@ -69,15 +69,9 @@ const cases = [
 	},
 ];
 
-const isRegExpNode = node =>
-	isRegexLiteral(node)
-	|| (
-		node.type === 'NewExpression'
-		&& node.callee.type === 'Identifier'
-		&& node.callee.name === 'RegExp'
-	);
+const isRegExpNode = node => isRegexLiteral(node) || isNewExpression(node, {name: 'RegExp'});
 
-const isRegExpWithoutGFlag = (node, scope) => {
+const isRegExpWithoutGlobalFlag = (node, scope) => {
 	const staticResult = getStaticValue(node, scope);
 
 	// Don't know if there is `g` flag
@@ -88,7 +82,7 @@ const isRegExpWithoutGFlag = (node, scope) => {
 	const {value} = staticResult;
 	return (
 		Object.prototype.toString.call(value) === '[object RegExp]'
-		&& !value.flags.includes('g')
+		&& !value.global
 	);
 };
 
@@ -118,7 +112,7 @@ const create = context => Object.fromEntries(
 
 			if (
 				isRegExpNode(regexpNode)
-				|| isRegExpWithoutGFlag(regexpNode, context.getScope())
+				|| isRegExpWithoutGlobalFlag(regexpNode, context.getScope())
 			) {
 				problem.fix = fixFunction;
 			} else {
