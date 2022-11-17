@@ -86,7 +86,7 @@ const create = context => {
 				if (needsSemicolon(tokenBefore, sourceCode, secondToken.value)) {
 					yield fixer.insertTextBefore(binaryExpression, ';');
 				}
-			}
+			};
 
 			const problem = {
 				node: binaryExpression,
@@ -133,8 +133,8 @@ module.exports = {
 			description: 'Enforce compare with `undefined` directly.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		messages,
-		hasSuggestions: true,
 	},
 };
