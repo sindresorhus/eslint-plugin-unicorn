@@ -145,7 +145,7 @@ function isSameReference(left, right) {
 			const nameA = getStaticPropertyName(left);
 
 			// `x.y = x["y"]`
-			if (typeof nameA !== 'undefined') {
+			if (nameA !== undefined) {
 				return (
 					isSameReference(left.object, right.object)
 					&& nameA === getStaticPropertyName(right)
