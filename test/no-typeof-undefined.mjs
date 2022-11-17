@@ -26,6 +26,11 @@ test.snapshot({
 		'typeof a.b != "undefined"',
 		'typeof a.b == \'undefined\'',
 		'typeof undefinedVariableIdentifier == \'undefined\'',
+		// ASI
+		outdent`
+			foo
+			typeof [] === "undefined";
+		`,
 	],
 });
 

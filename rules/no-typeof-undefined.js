@@ -2,6 +2,11 @@
 const {matches} = require('./selectors/index.js');
 const {} = require('./fix/index.js');
 const {removeSpacesAfter} = require('./fix/index.js');
+const isOnSameLine = require('./utils/is-on-same-line.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
+const {
+	isParenthesized,
+} = require('./utils/parentheses.js');
 
 
 const MESSAGE_ID_ERROR = 'no-typeof-undefined';
@@ -29,7 +34,7 @@ const create = context => {
 
 			const sourceCode = context.getSourceCode();
 			const valueNode = typeofNode.argument;
-			const typeofToken = sourceCode.getFirstToken(typeofNode);
+			const [typeofToken, secondToken] = sourceCode.getFirstTokens(typeofNode, 2);
 
 			return {
 				node: binaryExpression,
@@ -52,7 +57,22 @@ const create = context => {
 					yield fixer.remove(typeofToken);
 					yield removeSpacesAfter(typeofToken, sourceCode, fixer);
 
-					// TODO: return or throw, ASI,
+					const {parent} = binaryExpression;
+					if (
+						(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
+						&& parent.argument === binaryExpression
+						&& !isParenthesized(binaryExpression, sourceCode)
+						&& !isParenthesized(typeofNode, sourceCode)
+						&& !isOnSameLine(firstToken, secondToken)
+					) {
+						yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
+						return;
+					}
+
+					const tokenBefore = sourceCode.getTokenBefore(binaryExpression);
+					if (needsSemicolon(tokenBefore, sourceCode, secondToken.value)) {
+						yield fixer.insertTextBefore(binaryExpression, ';');
+					}
 				}
 			}
 		},
