@@ -19,6 +19,7 @@ function foo(bar) {
 
 ```js
 import foo from './foo.js';
+
 if (typeof foo.bar !== 'undefined') {}
 ```
 
@@ -32,6 +33,7 @@ function foo(bar) {
 
 ```js
 import foo from './foo.js';
+
 if (foo.bar !== undefined) {}
 ```
 
