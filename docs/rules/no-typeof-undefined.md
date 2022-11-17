@@ -1,22 +1,49 @@
 # Enforce compare with `undefined` directly
 
-<!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
-<!-- RULE_NOTICE -->
-✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+✅ This rule is enabled in the `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
 
-🔧💡 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems) and provides [suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).*
-<!-- /RULE_NOTICE -->
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
-<!-- Remove this comment, add more detailed description. -->
+<!-- end auto-generated rule header -->
+<!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
+
+Enforce compare value with `undefined` directly instead of compare `typeof value` with `'undefined'`.
 
 ## Fail
 
 ```js
-const foo = 'unicorn';
+if (typeof foo === 'undefined') {}
+```
+
+```js
+if (typeof foo !== 'undefined') {}
 ```
 
 ## Pass
 
 ```js
-const foo = '🦄';
+if (foo === undefined) {}
+```
+
+```js
+if (foo !== undefined) {}
+```
+
+## Options
+
+### checkGlobalVariables
+
+Type: `boolean`\
+Default: `true`
+
+Set it to `false` to ignore variables not defined in file.
+
+```js
+// eslint unicorn/no-typeof-undefined: ["error", {"checkGlobalVariables": false}]
+if (typeof undefinedVariable === 'undefined') {} // Passes
+```
+
+```js
+// eslint unicorn/no-typeof-undefined: ["error", {"checkGlobalVariables": false}]
+if (typeof Array === 'undefined') {}  // Passes
 ```

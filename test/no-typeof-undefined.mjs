@@ -77,5 +77,9 @@ test.snapshot({
 		'function foo({bar}) {typeof bar === "undefined"}',
 		'function foo([bar]) {typeof bar === "undefined"}',
 		'typeof foo.bar === "undefined"',
+		outdent`
+			import foo from 'foo';
+			typeof foo.bar === "undefined"
+		`,
 	].map(code => ({code, options: [{checkGlobalVariables: false}]})),
 });

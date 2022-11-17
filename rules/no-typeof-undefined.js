@@ -11,7 +11,6 @@ const {
 	isParenthesized,
 } = require('./utils/parentheses.js');
 
-
 const MESSAGE_ID_ERROR = 'no-typeof-undefined';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Compare with `undefined` directly instead of `typeof` check.',
@@ -29,7 +28,7 @@ const selector = [
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {
-		checkGlobalVariables
+		checkGlobalVariables,
 	} = {
 		checkGlobalVariables: true,
 		...context.options[0],
@@ -38,9 +37,10 @@ const create = context => {
 	return {
 		[selector](binaryExpression) {
 			const {left: typeofNode, right: undefinedString} = binaryExpression;
-			if (undefinedString.value !== "undefined") {
+			if (undefinedString.value !== 'undefined') {
 				return;
 			}
+
 			const valueNode = typeofNode.argument;
 
 			if (
@@ -91,8 +91,8 @@ const create = context => {
 					if (needsSemicolon(tokenBefore, sourceCode, secondToken.value)) {
 						yield fixer.insertTextBefore(binaryExpression, ';');
 					}
-				}
-			}
+				},
+			};
 		},
 	};
 };
@@ -119,7 +119,7 @@ module.exports = {
 			description: 'Enforce compare with `undefined` directly.',
 		},
 		fixable: 'code',
-		hasSuggestions: true,
+		schema,
 		messages,
 	},
 };
