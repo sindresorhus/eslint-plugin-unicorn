@@ -79,9 +79,9 @@ const create = context => {
 					if (
 						(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 						&& parent.argument === binaryExpression
+						&& !isOnSameLine(typeofToken, secondToken)
 						&& !isParenthesized(binaryExpression, sourceCode)
 						&& !isParenthesized(typeofNode, sourceCode)
-						&& !isOnSameLine(typeofToken, secondToken)
 					) {
 						yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
 						return;
