@@ -107,8 +107,9 @@ const create = context => ({
 				if (
 					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 					&& parent.argument === node
-					&& !(isParenthesized(node, sourceCode) && !isParenthesized(test, sourceCode))
 					&& !isOnSameLine(firstToken, secondToken)
+					&& !isParenthesized(node, sourceCode)
+					&& !isParenthesized(test, sourceCode)
 				) {
 					yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
 					return;
