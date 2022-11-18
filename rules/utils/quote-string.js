@@ -1,5 +1,7 @@
 'use strict';
 
+const jsesc = require('jsesc');
+
 /**
 Escape string and wrap the result in quotes.
 
@@ -8,10 +10,15 @@ Escape string and wrap the result in quotes.
 @returns {string} - The quoted and escaped string.
 */
 module.exports = (string, quote = '\'') => {
-	const escaped = string
-		.replace(/\\/g, '\\\\')
-		.replace(/\r/g, '\\r')
-		.replace(/\n/g, '\\n')
-		.replace(new RegExp(quote, 'g'), `\\${quote}`);
-	return quote + escaped + quote;
+	if (typeof string !== 'string') {
+		throw new TypeError('Unexpected string.')
+	}
+
+	return jsesc(string, {
+		quotes: quote === '"' ? 'double' : 'single',
+		wrap: true,
+		es6: true,
+		minimal: true,
+		lowercaseHex: false,
+	});
 };
