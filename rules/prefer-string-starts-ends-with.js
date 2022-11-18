@@ -1,7 +1,7 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('eslint-utils');
 const {methodCallSelector} = require('./selectors/index.js');
-const quoteString = require('./utils/quote-string.js');
+const escapeString = require('./utils/escape-string.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child.js');
 const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses.js');
@@ -157,7 +157,7 @@ const create = context => {
 				yield fixer.replaceText(node.callee.property, method);
 
 				// Replace argument with result.string
-				yield fixer.replaceTextRange(getParenthesizedRange(target, sourceCode), quoteString(result.string));
+				yield fixer.replaceTextRange(getParenthesizedRange(target, sourceCode), escapeString(result.string));
 			}
 
 			if (isString || !isNonString) {

@@ -53,6 +53,7 @@
 		"esquery": "^1.4.0",
 		"indent-string": "^4.0.0",
 		"is-builtin-module": "^3.2.0",
+		"jsesc": "3.0.2",
 		"lodash": "^4.17.21",
 		"pluralize": "^8.0.0",
 		"read-pkg-up": "^7.0.1",
