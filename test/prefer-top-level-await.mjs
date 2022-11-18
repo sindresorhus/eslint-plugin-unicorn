@@ -47,6 +47,16 @@ test.snapshot({
 		'await foo.then?.(bar)',
 		'await foo.then(bar)?.catch(bar)',
 		'await foo.then(bar)?.catch?.(bar)',
+		outdent`
+			class Example {
+				property = promise.then(bar)
+			}
+		`,
+		outdent`
+			const Example = class {
+				property = promise.then(bar)
+			}
+		`,
 	],
 	invalid: [
 		'foo.then(bar)',
