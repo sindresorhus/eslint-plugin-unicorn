@@ -21,6 +21,9 @@ function * convertRegExpToString(node, fixer) {
 	}
 
 	const {pattern, flags} = node.regex;
+	if (flags.replace('u', '') !== 'g') {
+		return;
+	}
 
 	const tree = parseRegExp(pattern, flags, {
 		unicodePropertyEscape: true,
