@@ -11,7 +11,7 @@ Escape string and wrap the result in quotes.
 */
 module.exports = (string, quote = '\'') => {
 	if (typeof string !== 'string') {
-		throw new TypeError('Unexpected string.')
+		throw new TypeError('Unexpected string.');
 	}
 
 	return jsesc(string, {
