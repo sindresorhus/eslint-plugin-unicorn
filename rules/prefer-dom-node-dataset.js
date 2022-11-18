@@ -1,5 +1,5 @@
 'use strict';
-const isValidVariableName = require('./utils/is-valid-variable-name.js');
+const {isIdentifierName} = require('@babel/helper-validator-identifier');
 const escapeString = require('./utils/escape-string.js');
 const {methodCallSelector, matches} = require('./selectors/index.js');
 
@@ -44,7 +44,7 @@ const create = context => ({
 			case 'setAttribute':
 			case 'getAttribute':
 			case 'removeAttribute': {
-				text = isValidVariableName(name) ? `.${name}` : `[${escapeString(name, nameNode.raw.charAt(0))}]`;
+				text = isIdentifierName(name) ? `.${name}` : `[${escapeString(name, nameNode.raw.charAt(0))}]`;
 				text = `${datasetText}${text}`;
 				if (method === 'setAttribute') {
 					text += ` = ${sourceCode.getText(node.arguments[1])}`;
