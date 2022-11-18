@@ -83,9 +83,12 @@ test.snapshot({
 		'foo.replace(/a{1}/g, _)',
 		'foo.replace(/\\u0022/g, _)',
 		'foo.replace(/\\u0027/g, _)',
+		'foo.replace(/\\cM\\cj/g, _)',
 		'foo.replace(/\\x22/g, _)',
 		'foo.replace(/\\x27/g, _)',
-		'foo.replace(/\\uD83D\\uDE00/g, _)',
+		'foo.replace(/\\uD83D\\ude00/g, _)',
+		'foo.replace(/\\u{1f600}/gu, _)',
 		'foo.replace(/\\n/g, _)',
+		'foo.replace(/\\u{20}/gu, _)',
 	],
 });

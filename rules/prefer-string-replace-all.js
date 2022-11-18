@@ -33,7 +33,7 @@ function * convertRegExpToString(node, fixer) {
 		return;
 	}
 
-	const string = String.fromCharCode(...parts.map(part => part.codePoint));
+	const string = String.fromCodePoint(...parts.map(part => part.codePoint));
 
 	yield fixer.replaceText(node, quoteString(string));
 }
