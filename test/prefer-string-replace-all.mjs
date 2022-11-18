@@ -86,5 +86,6 @@ test.snapshot({
 		'foo.replace(/\\x22/g, _)',
 		'foo.replace(/\\x27/g, _)',
 		'foo.replace(/\\uD83D\\uDE00/g, _)',
+		'foo.replace(/\\n/g, _)',
 	],
 });
