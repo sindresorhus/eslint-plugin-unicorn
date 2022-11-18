@@ -53,8 +53,22 @@ test.snapshot({
 			}
 		`,
 		outdent`
-			const Example = class {
+			const Example = class Example {
 				property = promise.then(bar)
+			}
+		`,
+		outdent`
+			class Example {
+				static {
+					promise.then(bar)
+				}
+			}
+		`,
+		outdent`
+			const Example = class Example {
+				static {
+					promise.then(bar)
+				}
 			}
 		`,
 	],
