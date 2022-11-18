@@ -57,6 +57,7 @@
 		"pluralize": "^8.0.0",
 		"read-pkg-up": "^7.0.1",
 		"regexp-tree": "^0.1.24",
+		"regjsparser": "0.9.1",
 		"safe-regex": "^2.1.1",
 		"semver": "^7.3.7",
 		"strip-indent": "^3.0.0"

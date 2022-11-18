@@ -1,5 +1,6 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
+const {parse: parseRegExp} = require('regjsparser')
 const quoteString = require('./utils/quote-string.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const {isRegexLiteral, isNewExpression} = require('./ast/index.js');
@@ -14,10 +15,33 @@ const selector = methodCallSelector({
 	argumentsLength: 2,
 });
 
-const canReplacePatternWithString = node =>
-	isRegexLiteral(node)
-	&& node.regex.flags.replace('u', '') === 'g'
-	&& !/[$()*+.?[\\\]^{|}]/.test(node.regex.pattern.replace(/\\[$()*+.?[\\\]^{|}]/g, ''));
+function * convertRegExpToString(node, fixer) {
+	if (!isRegexLiteral(node)) {
+		return;
+	}
+
+	const {pattern, flags} = node.regex;
+
+	const tree = parseRegExp(pattern, flags, {
+		unicodePropertyEscape: true,
+		namedGroups: true,
+		lookbehind: true,
+	});
+
+	if (
+		!(
+			tree.type == 'value'
+			|| (tree.type == 'alternative' && tree.body.every(part => part.type === 'value'))
+		)
+	) {
+		return;
+	}
+
+	const parts = tree.type == 'alternative' ? tree.body : [tree];
+	const string = String.fromCharCode(...parts.map(part => part.codePoint));
+
+	yield fixer.replaceText(node, quoteString(string));
+}
 
 const isRegExpWithGlobalFlag = (node, scope) => {
 	if (isRegexLiteral(node)) {
@@ -80,14 +104,7 @@ const create = context => ({
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
 				yield fixer.insertTextAfter(property, 'All');
-
-				if (!canReplacePatternWithString(pattern)) {
-					return;
-				}
-
-				const string = removeEscapeCharacters(pattern.regex.pattern);
-
-				yield fixer.replaceText(pattern, quoteString(string));
+				yield * convertRegExpToString(pattern, fixer);
 			},
 		};
 	},
