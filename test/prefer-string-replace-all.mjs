@@ -76,5 +76,15 @@ test.snapshot({
 		// Variables
 		'const pattern = new RegExp("foo", "g"); foo.replace(pattern, bar)',
 		'foo.replace(new RegExp("foo", "g"), bar)',
+
+		'foo.replace(/a]/g, _)',
+		'foo.replace(/[a]/g, _)',
+		'foo.replace(/a{1/g, _)',
+		'foo.replace(/a{1}/g, _)',
+		'foo.replace(/\\u0022/g, _)',
+		'foo.replace(/\\u0027/g, _)',
+		'foo.replace(/\\x22/g, _)',
+		'foo.replace(/\\x27/g, _)',
+		'foo.replace(/\\uD83D\\uDE00/g, _)',
 	],
 });

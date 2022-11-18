@@ -28,16 +28,11 @@ function * convertRegExpToString(node, fixer) {
 		lookbehind: true,
 	});
 
-	if (
-		!(
-			tree.type == 'value'
-			|| (tree.type == 'alternative' && tree.body.every(part => part.type === 'value'))
-		)
-	) {
+	const parts = tree.type == 'alternative' ? tree.body : [tree];
+	if (parts.some(part => part.type !== 'value')) {
 		return;
 	}
 
-	const parts = tree.type == 'alternative' ? tree.body : [tree];
 	const string = String.fromCharCode(...parts.map(part => part.codePoint));
 
 	yield fixer.replaceText(node, quoteString(string));
