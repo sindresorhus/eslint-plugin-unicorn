@@ -1,6 +1,6 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
-const quoteString = require('./utils/quote-string.js');
+const escapeString = require('./utils/escape-string.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const {isRegexLiteral, isNewExpression} = require('./ast/index.js');
 
@@ -87,7 +87,7 @@ const create = context => ({
 
 				const string = removeEscapeCharacters(pattern.regex.pattern);
 
-				yield fixer.replaceText(pattern, quoteString(string));
+				yield fixer.replaceText(pattern, escapeString(string));
 			},
 		};
 	},
