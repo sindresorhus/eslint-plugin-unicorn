@@ -103,22 +103,25 @@ test({
 		'const foo = { length: 1.5 }; if (foo.length) {}', // Array lengths must be integers
 		'const foo = { length: NaN }; if (foo.length) {}', // Array lengths cannot be NaN
 		'const foo = { length: Infinity }; if (foo.length) {}', // Array lengths cannot be Infinity
+		// Logical OR
+		'const x = foo.length || 2',
+		'const x = foo.length || bar()',
 	],
 	invalid: [
 		suggestionCase({
-			code: 'const x = foo.length || bar()',
-			output: 'const x = foo.length > 0 || bar()',
+			code: 'const x = foo.length && bar()',
+			output: 'const x = foo.length > 0 && bar()',
 			desc: 'Replace `.length` with `.length > 0`.',
 		}),
 		suggestionCase({
-			code: 'const x = foo.length || bar()',
-			output: 'const x = foo.length !== 0 || bar()',
+			code: 'const x = foo.length && bar()',
+			output: 'const x = foo.length !== 0 && bar()',
 			desc: 'Replace `.length` with `.length !== 0`.',
 			options: [{'non-zero': 'not-equal'}],
 		}),
 		suggestionCase({
-			code: 'const x = foo.length || bar()',
-			output: 'const x = foo.length > 0 || bar()',
+			code: 'const x = foo.length && bar()',
+			output: 'const x = foo.length > 0 && bar()',
 			desc: 'Replace `.length` with `.length > 0`.',
 			options: [{'non-zero': 'greater-than'}],
 		}),

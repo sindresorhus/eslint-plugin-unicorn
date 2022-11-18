@@ -171,7 +171,10 @@ function create(context) {
 				if (isBooleanNode(ancestor)) {
 					isZeroLengthCheck = isNegative;
 					node = ancestor;
-				} else if (isLogicalExpression(lengthNode.parent)) {
+				} else if (
+					isLogicalExpression(lengthNode.parent)
+					&& lengthNode.parent.operator === '&&'
+				) {
 					isZeroLengthCheck = isNegative;
 					node = lengthNode;
 					autoFix = false;
