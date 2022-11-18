@@ -66,21 +66,6 @@ const isRegExpWithGlobalFlag = (node, scope) => {
 	);
 };
 
-function removeEscapeCharacters(regexString) {
-	let fixedString = regexString;
-	let index = 0;
-	do {
-		index = fixedString.indexOf('\\', index);
-
-		if (index >= 0) {
-			fixedString = fixedString.slice(0, index) + fixedString.slice(index + 1);
-			index++;
-		}
-	} while (index >= 0);
-
-	return fixedString;
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector](node) {
