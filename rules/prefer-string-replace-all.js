@@ -1,6 +1,6 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
-const {parse: parseRegExp} = require('regjsparser')
+const {parse: parseRegExp} = require('regjsparser');
 const quoteString = require('./utils/quote-string.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const {isRegexLiteral, isNewExpression} = require('./ast/index.js');
@@ -31,7 +31,7 @@ function * convertRegExpToString(node, fixer) {
 		lookbehind: true,
 	});
 
-	const parts = tree.type == 'alternative' ? tree.body : [tree];
+	const parts = tree.type === 'alternative' ? tree.body : [tree];
 	if (parts.some(part => part.type !== 'value')) {
 		return;
 	}
