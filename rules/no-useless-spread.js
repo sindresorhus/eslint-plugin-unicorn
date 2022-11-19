@@ -20,13 +20,13 @@ const SPREAD_IN_LIST = 'spread-in-list';
 const ITERABLE_TO_ARRAY = 'iterable-to-array';
 const ITERABLE_TO_ARRAY_IN_FOR_OF = 'iterable-to-array-in-for-of';
 const ITERABLE_TO_ARRAY_IN_YIELD_STAR = 'iterable-to-array-in-yield-star';
-const CLONE_ARRAY = "clone-array";
+const CLONE_ARRAY = 'clone-array';
 const messages = {
 	[SPREAD_IN_LIST]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.',
 	[ITERABLE_TO_ARRAY]: '`{{parentDescription}}` accepts iterable as argument, it\'s unnecessary to convert to an array.',
 	[ITERABLE_TO_ARRAY_IN_FOR_OF]: '`for…of` can iterate over iterable, it\'s unnecessary to convert to an array.',
 	[ITERABLE_TO_ARRAY_IN_YIELD_STAR]: '`yield*` can delegate iterable, it\'s unnecessary to convert to an array.',
-	[CLONE_ARRAY]: 'Unnecessarily cloning an array.'
+	[CLONE_ARRAY]: 'Unnecessarily cloning an array.',
 };
 
 const uselessSpreadInListSelector = matches([
@@ -273,7 +273,7 @@ const create = context => {
 				node: arrayExpression,
 				messageId,
 				data: {parentDescription},
-				fix: (fixer) => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
+				fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
 			};
 		},
 		[uselessCloneImmediateArraySelector](node) {
@@ -281,8 +281,8 @@ const create = context => {
 			return {
 				node: arrayExpression,
 				messageId: CLONE_ARRAY,
-				fix: (fixer) => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
-			}
+				fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
+			};
 		},
 	};
 };
