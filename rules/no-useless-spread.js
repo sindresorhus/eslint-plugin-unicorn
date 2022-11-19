@@ -221,8 +221,8 @@ const create = context => {
 							continue;
 						}
 
-						// `call([foo, , bar])`
-						//             ^ Replace holes with `undefined`
+						// `call(...[foo, , bar])`
+						//               ^ Replace holes with `undefined`
 						yield fixer.insertTextBefore(commaToken, 'undefined');
 					}
 				},

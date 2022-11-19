@@ -273,6 +273,22 @@ test.snapshot({
 				];
 			}
 		`,
+		outdent`
+			function foo(bar) {
+				return[
+					...(
+						Object.keys(bar)
+					)
+				];
+			}
+		`,
+		outdent`
+			function foo(bar) {
+				return([
+					...Object.keys(bar)
+				]);
+			}
+		`,
 	],
 });
 
