@@ -7,25 +7,36 @@ test.snapshot({
 	valid: [
 		// No global flag
 		'foo.replace(/a/, bar)',
+		'foo.replaceAll(/a/, bar)',
 		// Not regex literal
 		'foo.replace("string", bar)',
+		'foo.replaceAll("string", bar)',
 		// Not 2 arguments
 		'foo.replace(/a/g)',
+		'foo.replaceAll(/a/g)',
 		'foo.replace(/\\\\./g)',
+		'foo.replaceAll(/\\\\./g)',
 		// Not `CallExpression`
 		'new foo.replace(/a/g, bar)',
+		'new foo.replaceAll(/a/g, bar)',
 		// Not `MemberExpression`
 		'replace(/a/g, bar)',
+		'replaceAll(/a/g, bar)',
 		// Computed
 		'foo[replace](/a/g, bar);',
+		'foo[replaceAll](/a/g, bar);',
 		// Not replace
 		'foo.methodNotReplace(/a/g, bar);',
 		// `callee.property` is not a `Identifier`
 		'foo[\'replace\'](/a/g, bar)',
+		'foo[\'replaceAll\'](/a/g, bar)',
 		// More or less argument(s)
 		'foo.replace(/a/g, bar, extra);',
+		'foo.replaceAll(/a/g, bar, extra);',
 		'foo.replace();',
+		'foo.replaceAll();',
 		'foo.replace(...argumentsArray, ...argumentsArray2)',
+		'foo.replaceAll(...argumentsArray, ...argumentsArray2)',
 		// Unknown/non-regexp/non-global value
 		'foo.replace(unknown, bar)',
 		'const pattern = new RegExp("foo", unknown); foo.replace(pattern, bar)',
