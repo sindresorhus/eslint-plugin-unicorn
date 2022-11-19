@@ -7,16 +7,19 @@ const {
 } = require('./selectors/index.js');
 const typedArray = require('./shared/typed-array.js');
 const {removeParentheses, fixSpaceAroundKeyword} = require('./fix/index.js');
+import arrayMethodsReturnsANewArray from './shared/array-methods-returns-a-new-array.js';
 
 const SPREAD_IN_LIST = 'spread-in-list';
 const ITERABLE_TO_ARRAY = 'iterable-to-array';
 const ITERABLE_TO_ARRAY_IN_FOR_OF = 'iterable-to-array-in-for-of';
 const ITERABLE_TO_ARRAY_IN_YIELD_STAR = 'iterable-to-array-in-yield-star';
+const CLONE_ARRAY = "clone-array";
 const messages = {
 	[SPREAD_IN_LIST]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.',
 	[ITERABLE_TO_ARRAY]: '`{{parentDescription}}` accepts iterable as argument, it\'s unnecessary to convert to an array.',
 	[ITERABLE_TO_ARRAY_IN_FOR_OF]: '`for…of` can iterate over iterable, it\'s unnecessary to convert to an array.',
 	[ITERABLE_TO_ARRAY_IN_YIELD_STAR]: '`yield*` can delegate iterable, it\'s unnecessary to convert to an array.',
+	[CLONE_ARRAY]: 'Unnecessarily cloning an array.'
 };
 
 const uselessSpreadInListSelector = matches([
@@ -55,6 +58,19 @@ const uselessIterableToArraySelector = matches([
 	`YieldExpression[delegate=true] > ${singleArraySpreadSelector}.argument`,
 ]);
 
+// TODO[@fisker]: Unify this with immediate array selector in `prefer-set-has.js`
+const uselessCloneImmediateArraySelector = [
+	`${singleArraySpreadSelector} > .arguments:first-child`,
+	matches([
+		// Array methods returns a new array
+		methodCallSelector(arrayMethodsReturnsANewArray),
+		// `String#split()`
+		methodCallSelector('split'),
+		// `Object.keys()` and `Object.values()`
+		methodCallSelector({object: 'Object', methods: ['keys', 'values']}),
+	]),
+].join('')
+
 const parentDescriptions = {
 	ArrayExpression: 'array literal',
 	ObjectExpression: 'object literal',
@@ -79,6 +95,36 @@ function getCommaTokens(arrayExpression, sourceCode) {
 		startToken = commaToken;
 		return commaToken;
 	});
+}
+
+function * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode) {
+	const [
+		openingBracketToken,
+		spreadToken,
+	] = sourceCode.getFirstTokens(arrayExpression, 2);
+
+	// `[...value]`
+	//  ^
+	yield fixer.remove(openingBracketToken);
+
+	// `[...value]`
+	//   ^^^
+	yield fixer.remove(spreadToken);
+
+	const [
+		commaToken,
+		closingBracketToken,
+	] = sourceCode.getLastTokens(arrayExpression, 2);
+
+	// `[...value]`
+	//              ^
+	yield fixer.remove(closingBracketToken);
+
+	// `[...value,]`
+	//              ^
+	if (isCommaToken(commaToken)) {
+		yield fixer.remove(commaToken);
+	}
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -145,8 +191,8 @@ const create = context => {
 				},
 			};
 		},
-		[uselessIterableToArraySelector](array) {
-			const {parent} = array;
+		[uselessIterableToArraySelector](arrayExpression) {
+			const {parent} = arrayExpression;
 			let parentDescription = '';
 			let messageId = ITERABLE_TO_ARRAY;
 			switch (parent.type) {
@@ -173,43 +219,26 @@ const create = context => {
 			}
 
 			return {
-				node: array,
+				node: arrayExpression,
 				messageId,
 				data: {parentDescription},
 				* fix(fixer) {
 					if (parent.type === 'ForOfStatement') {
-						yield * fixSpaceAroundKeyword(fixer, array, sourceCode);
+						yield * fixSpaceAroundKeyword(fixer, arrayExpression, sourceCode);
 					}
 
-					const [
-						openingBracketToken,
-						spreadToken,
-					] = sourceCode.getFirstTokens(array, 2);
-
-					// `[...iterable]`
-					//  ^
-					yield fixer.remove(openingBracketToken);
-
-					// `[...iterable]`
-					//   ^^^
-					yield fixer.remove(spreadToken);
-
-					const [
-						commaToken,
-						closingBracketToken,
-					] = sourceCode.getLastTokens(array, 2);
-
-					// `[...iterable]`
-					//              ^
-					yield fixer.remove(closingBracketToken);
-
-					// `[...iterable,]`
-					//              ^
-					if (isCommaToken(commaToken)) {
-						yield fixer.remove(commaToken);
-					}
+					yield * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode);
 				},
 			};
+		},
+		uselessCloneImmediateArraySelector(arrayExpression) {
+			return {
+				node: ArrayExpression,
+				messageId: CLONE_ARRAY,
+				* fix(fixer) {
+					yield * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode);
+				},
+			}
 		},
 	};
 };
