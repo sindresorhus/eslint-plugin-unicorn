@@ -173,9 +173,10 @@ function * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode) {
 		&& !isParenthesized(arrayExpression, sourceCode)
 	) {
 		yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
-	} else {
-		yield * fixSpaceAroundKeyword(fixer, arrayExpression, sourceCode);
+		return;
 	}
+
+	yield * fixSpaceAroundKeyword(fixer, arrayExpression, sourceCode);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
