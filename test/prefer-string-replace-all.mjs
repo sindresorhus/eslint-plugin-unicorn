@@ -68,6 +68,7 @@ test.snapshot({
 		'foo.replace(/\\W/g, bar)',
 		'foo.replace(/\\u{61}/g, bar)',
 		'foo.replace(/\\u{61}/gu, bar)',
+		'foo.replace(/]/g, "bar")',
 		// Extra flag
 		'foo.replace(/a/gi, bar)',
 		'foo.replace(/a/gui, bar)',
@@ -75,5 +76,19 @@ test.snapshot({
 		// Variables
 		'const pattern = new RegExp("foo", "g"); foo.replace(pattern, bar)',
 		'foo.replace(new RegExp("foo", "g"), bar)',
+
+		'foo.replace(/a]/g, _)',
+		'foo.replace(/[a]/g, _)',
+		'foo.replace(/a{1/g, _)',
+		'foo.replace(/a{1}/g, _)',
+		'foo.replace(/\\u0022/g, _)',
+		'foo.replace(/\\u0027/g, _)',
+		'foo.replace(/\\cM\\cj/g, _)',
+		'foo.replace(/\\x22/g, _)',
+		'foo.replace(/\\x27/g, _)',
+		'foo.replace(/\\uD83D\\ude00/g, _)',
+		'foo.replace(/\\u{1f600}/gu, _)',
+		'foo.replace(/\\n/g, _)',
+		'foo.replace(/\\u{20}/gu, _)',
 	],
 });

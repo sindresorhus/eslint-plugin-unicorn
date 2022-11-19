@@ -1,5 +1,6 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
+const {parse: parseRegExp} = require('regjsparser');
 const escapeString = require('./utils/escape-string.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const {isRegexLiteral, isNewExpression} = require('./ast/index.js');
@@ -14,10 +15,32 @@ const selector = methodCallSelector({
 	argumentsLength: 2,
 });
 
-const canReplacePatternWithString = node =>
-	isRegexLiteral(node)
-	&& node.regex.flags.replace('u', '') === 'g'
-	&& !/[$()*+.?[\\\]^{|}]/.test(node.regex.pattern.replace(/\\[$()*+.?[\\\]^{|}]/g, ''));
+function * convertRegExpToString(node, fixer) {
+	if (!isRegexLiteral(node)) {
+		return;
+	}
+
+	const {pattern, flags} = node.regex;
+	if (flags.replace('u', '') !== 'g') {
+		return;
+	}
+
+	const tree = parseRegExp(pattern, flags, {
+		unicodePropertyEscape: true,
+		namedGroups: true,
+		lookbehind: true,
+	});
+
+	const parts = tree.type === 'alternative' ? tree.body : [tree];
+	if (parts.some(part => part.type !== 'value')) {
+		return;
+	}
+
+	// TODO: Preserve escape
+	const string = String.fromCodePoint(...parts.map(part => part.codePoint));
+
+	yield fixer.replaceText(node, escapeString(string));
+}
 
 const isRegExpWithGlobalFlag = (node, scope) => {
 	if (isRegexLiteral(node)) {
@@ -47,21 +70,6 @@ const isRegExpWithGlobalFlag = (node, scope) => {
 	);
 };
 
-function removeEscapeCharacters(regexString) {
-	let fixedString = regexString;
-	let index = 0;
-	do {
-		index = fixedString.indexOf('\\', index);
-
-		if (index >= 0) {
-			fixedString = fixedString.slice(0, index) + fixedString.slice(index + 1);
-			index++;
-		}
-	} while (index >= 0);
-
-	return fixedString;
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector](node) {
@@ -80,14 +88,7 @@ const create = context => ({
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
 				yield fixer.insertTextAfter(property, 'All');
-
-				if (!canReplacePatternWithString(pattern)) {
-					return;
-				}
-
-				const string = removeEscapeCharacters(pattern.regex.pattern);
-
-				yield fixer.replaceText(pattern, escapeString(string));
+				yield * convertRegExpToString(pattern, fixer);
 			},
 		};
 	},
