@@ -1,7 +1,7 @@
 'use strict';
 const cleanRegexp = require('clean-regexp');
 const {optimize} = require('regexp-tree');
-const quoteString = require('./utils/quote-string.js');
+const escapeString = require('./utils/escape-string.js');
 const {newExpressionSelector} = require('./selectors/index.js');
 const {isStringLiteral} = require('./ast/index.js');
 
@@ -102,7 +102,7 @@ const create = context => {
 					},
 					fix: fixer => fixer.replaceText(
 						patternNode,
-						quoteString(newPattern, patternNode.raw.charAt(0)),
+						escapeString(newPattern, patternNode.raw.charAt(0)),
 					),
 				};
 			}

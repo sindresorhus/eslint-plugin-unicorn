@@ -1,6 +1,6 @@
 'use strict';
 const {findVariable, getFunctionHeadLocation} = require('eslint-utils');
-const {matches, memberExpressionSelector} = require('./selectors/index.js');
+const {matches, not, memberExpressionSelector} = require('./selectors/index.js');
 
 const ERROR_PROMISE = 'promise';
 const ERROR_IIFE = 'iife';
@@ -15,7 +15,10 @@ const messages = {
 
 const promiseMethods = ['then', 'catch', 'finally'];
 
-const topLevelCallExpression = 'CallExpression:not(:function *)';
+const topLevelCallExpression = [
+	'CallExpression',
+	not([':function *', 'ClassDeclaration *', 'ClassExpression *']),
+].join('');
 const iife = [
 	topLevelCallExpression,
 	matches([

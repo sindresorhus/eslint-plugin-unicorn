@@ -1,5 +1,5 @@
 'use strict';
-const quoteString = require('./utils/quote-string.js');
+const escapeString = require('./utils/escape-string.js');
 const translateToKey = require('./shared/event-keys.js');
 const {isNumberLiteral} = require('./ast/index.js');
 
@@ -97,7 +97,7 @@ const fix = node => fixer => {
 	// Apply fixes
 	return [
 		fixer.replaceText(node, 'key'),
-		fixer.replaceText(right, quoteString(key)),
+		fixer.replaceText(right, escapeString(key)),
 	];
 };
 

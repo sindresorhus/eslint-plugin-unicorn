@@ -351,6 +351,8 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 		!(parameters.length === 1 || parameters.length === 2)
 		// `array.forEach((element = defaultValue) => {})`
 		|| (parameters.length === 1 && parameters[0].type === 'AssignmentPattern')
+		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1814
+		|| (parameters.length === 2 && parameters[1].type !== 'Identifier')
 		|| parameters.some(({type, typeAnnotation}) => type === 'RestElement' || typeAnnotation)
 		|| !isFunctionParametersSafeToFix(callback, {scope, callExpression, allIdentifiers, context})
 	) {

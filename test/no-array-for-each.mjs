@@ -523,6 +523,10 @@ test.snapshot({
 				for (index of bar);
 			});
 		`,
+		'array.forEach((element, index = element) => {})',
+		'array.forEach(({foo}, index = foo) => {})',
+		'array.forEach((element, {bar = element}) => {})',
+		'array.forEach(({foo}, {bar = foo}) => {})',
 	],
 });
 

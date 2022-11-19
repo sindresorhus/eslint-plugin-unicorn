@@ -1,7 +1,7 @@
 'use strict';
 const {getStaticValue} = require('eslint-utils');
 const {parse: parseRegExp} = require('regjsparser');
-const quoteString = require('./utils/quote-string.js');
+const escapeString = require('./utils/escape-string.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const {isRegexLiteral, isNewExpression} = require('./ast/index.js');
 
@@ -38,7 +38,7 @@ function * convertRegExpToString(node, fixer) {
 
 	const string = String.fromCodePoint(...parts.map(part => part.codePoint));
 
-	yield fixer.replaceText(node, quoteString(string));
+	yield fixer.replaceText(node, escapeString(string));
 }
 
 const isRegExpWithGlobalFlag = (node, scope) => {

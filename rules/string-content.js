@@ -1,5 +1,5 @@
 'use strict';
-const quoteString = require('./utils/quote-string.js');
+const escapeString = require('./utils/escape-string.js');
 const escapeTemplateElementRaw = require('./utils/escape-template-element-raw.js');
 const {replaceTemplateElement} = require('./fix/index.js');
 
@@ -108,7 +108,7 @@ const create = context => {
 			const fix = type === 'Literal'
 				? fixer => fixer.replaceText(
 					node,
-					quoteString(fixed, raw[0]),
+					escapeString(fixed, raw[0]),
 				)
 				: fixer => replaceTemplateElement(
 					fixer,

@@ -1,6 +1,6 @@
 'use strict';
-const isValidVariableName = require('./utils/is-valid-variable-name.js');
-const quoteString = require('./utils/quote-string.js');
+const {isIdentifierName} = require('@babel/helper-validator-identifier');
+const escapeString = require('./utils/escape-string.js');
 const {methodCallSelector, matches} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-dom-node-dataset';
@@ -44,7 +44,7 @@ const create = context => ({
 			case 'setAttribute':
 			case 'getAttribute':
 			case 'removeAttribute': {
-				text = isValidVariableName(name) ? `.${name}` : `[${quoteString(name, nameNode.raw.charAt(0))}]`;
+				text = isIdentifierName(name) ? `.${name}` : `[${escapeString(name, nameNode.raw.charAt(0))}]`;
 				text = `${datasetText}${text}`;
 				if (method === 'setAttribute') {
 					text += ` = ${sourceCode.getText(node.arguments[1])}`;
@@ -60,7 +60,7 @@ const create = context => ({
 			}
 
 			case 'hasAttribute': {
-				text = `Object.hasOwn(${datasetText}, ${quoteString(name, nameNode.raw.charAt(0))})`;
+				text = `Object.hasOwn(${datasetText}, ${escapeString(name, nameNode.raw.charAt(0))})`;
 				break;
 			}
 			// No default
