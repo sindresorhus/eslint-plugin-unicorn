@@ -36,8 +36,6 @@ test.snapshot({
 		'const pattern = "not-a-regexp"; foo.replace(pattern, bar)',
 		'const pattern = new RegExp("foo", "i"); foo.replace(pattern, bar)',
 		'foo.replace(new NotRegExp("foo", "g"), bar)',
-		// We are not checking this
-		'foo.replaceAll(/a/g, bar)',
 	],
 	invalid: [
 		'foo.replace(/a/g, bar)',
@@ -90,5 +88,8 @@ test.snapshot({
 		'foo.replace(/\\u{1f600}/gu, _)',
 		'foo.replace(/\\n/g, _)',
 		'foo.replace(/\\u{20}/gu, _)',
+
+		'foo.replaceAll(/a]/g, _)',
+		'foo.replaceAll(/\\r\\n\\u{1f600}/gu, _)',
 	],
 });
