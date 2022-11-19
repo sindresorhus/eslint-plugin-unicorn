@@ -87,7 +87,6 @@ const create = context => ({
 		const methodName = property.name;
 		const patternReplacement = getPatternReplacement(pattern);
 
-
 		if (methodName === 'replaceAll') {
 			if (!patternReplacement) {
 				return;
