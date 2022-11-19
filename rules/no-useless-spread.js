@@ -7,7 +7,6 @@ const {
 } = require('./selectors/index.js');
 const typedArray = require('./shared/typed-array.js');
 const {removeParentheses, fixSpaceAroundKeyword} = require('./fix/index.js');
-import arrayMethodsReturnsANewArray from './shared/array-methods-returns-a-new-array.js';
 
 const SPREAD_IN_LIST = 'spread-in-list';
 const ITERABLE_TO_ARRAY = 'iterable-to-array';
@@ -58,18 +57,26 @@ const uselessIterableToArraySelector = matches([
 	`YieldExpression[delegate=true] > ${singleArraySpreadSelector}.argument`,
 ]);
 
-// TODO[@fisker]: Unify this with immediate array selector in `prefer-set-has.js`
 const uselessCloneImmediateArraySelector = [
-	`${singleArraySpreadSelector} > .arguments:first-child`,
+	`${singleArraySpreadSelector} > .elements:first-child > .argument`,
 	matches([
 		// Array methods returns a new array
-		methodCallSelector(arrayMethodsReturnsANewArray),
+		methodCallSelector([
+			'concat',
+			'copyWithin',
+			'filter',
+			'flat',
+			'flatMap',
+			'map',
+			'slice',
+			'splice',
+		]),
 		// `String#split()`
 		methodCallSelector('split'),
 		// `Object.keys()` and `Object.values()`
 		methodCallSelector({object: 'Object', methods: ['keys', 'values']}),
 	]),
-].join('')
+].join('');
 
 const parentDescriptions = {
 	ArrayExpression: 'array literal',
@@ -231,9 +238,10 @@ const create = context => {
 				},
 			};
 		},
-		uselessCloneImmediateArraySelector(arrayExpression) {
+		[uselessCloneImmediateArraySelector](node) {
+			const arrayExpression = node.parent.parent;
 			return {
-				node: ArrayExpression,
+				node: arrayExpression,
 				messageId: CLONE_ARRAY,
 				* fix(fixer) {
 					yield * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode);

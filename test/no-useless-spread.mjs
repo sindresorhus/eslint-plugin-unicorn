@@ -9,7 +9,6 @@ test.snapshot({
 		'const array = [[]]',
 		'const array = [{}]',
 		'const object = ({...[]})',
-		'const array = [...[].map(x => x)]',
 		'foo([])',
 		'foo({})',
 		'new Foo([])',
@@ -238,6 +237,24 @@ test.snapshot({
 				yield * ${code};
 			}
 		`),
+	],
+});
+
+// Cloning an immediate array
+test.snapshot({
+	valid: [],
+	invalid: [
+		'[...foo.concat(bar)]',
+		'[...foo.copyWithin(-2)]',
+		'[...foo.filter(bar)]',
+		'[...foo.flat()]',
+		'[...foo.flatMap(bar)]',
+		'[...foo.map(bar)]',
+		'[...foo.slice(1)]',
+		'[...foo.splice(1)]',
+		'[...foo.split("|")]',
+		'[...Object.keys(foo)]',
+		'[...Object.values(foo)]',
 	],
 });
 

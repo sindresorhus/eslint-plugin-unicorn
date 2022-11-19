@@ -7,7 +7,6 @@ const {
 	methodCallSelector,
 	callOrNewExpressionSelector,
 } = require('./selectors/index.js');
-import arrayMethodsReturnsANewArray from './shared/array-methods-returns-a-new-array.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -31,8 +30,31 @@ const arrayStaticMethodSelector = methodCallSelector({
 	path: 'init',
 });
 
+// `array.concat()`
+// `array.copyWithin()`
+// `array.fill()`
+// `array.filter()`
+// `array.flat()`
+// `array.flatMap()`
+// `array.map()`
+// `array.reverse()`
+// `array.slice()`
+// `array.sort()`
+// `array.splice()`
 const arrayMethodSelector = methodCallSelector({
-	methods: arrayMethodsReturnsANewArray,
+	methods: [
+		'concat',
+		'copyWithin',
+		'fill',
+		'filter',
+		'flat',
+		'flatMap',
+		'map',
+		'reverse',
+		'slice',
+		'sort',
+		'splice',
+	],
 	path: 'init',
 });
 
