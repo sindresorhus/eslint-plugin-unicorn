@@ -242,7 +242,13 @@ test.snapshot({
 
 // Cloning an immediate array
 test.snapshot({
-	valid: [],
+	valid: [
+		'[...not.array]',
+		'[...not.array()]',
+		'[...array.unknown()]',
+		'[...Object.notReturningArray(foo)]',
+		'[...NotObject.keys(foo)]',
+	],
 	invalid: [
 		'[...foo.concat(bar)]',
 		'[...foo.copyWithin(-2)]',

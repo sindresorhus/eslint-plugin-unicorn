@@ -105,6 +105,8 @@ function getCommaTokens(arrayExpression, sourceCode) {
 }
 
 function * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode) {
+	yield * fixSpaceAroundKeyword(fixer, arrayExpression, sourceCode);
+
 	const [
 		openingBracketToken,
 		spreadToken,
@@ -229,13 +231,7 @@ const create = context => {
 				node: arrayExpression,
 				messageId,
 				data: {parentDescription},
-				* fix(fixer) {
-					if (parent.type === 'ForOfStatement') {
-						yield * fixSpaceAroundKeyword(fixer, arrayExpression, sourceCode);
-					}
-
-					yield * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode);
-				},
+				fix: (fixer) => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
 			};
 		},
 		[uselessCloneImmediateArraySelector](node) {
@@ -243,9 +239,7 @@ const create = context => {
 			return {
 				node: arrayExpression,
 				messageId: CLONE_ARRAY,
-				* fix(fixer) {
-					yield * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode);
-				},
+				fix: (fixer) => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
 			}
 		},
 	};
