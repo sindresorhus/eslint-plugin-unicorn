@@ -89,19 +89,19 @@ const create = context => ({
 
 
 		if (methodName === 'replaceAll') {
-			if (patternReplacement) {
-				return {
-					node: pattern,
-					messageId: MESSAGE_ID_USE_STRING,
-					data: {
-						replacement: patternReplacement.length < 20 ? patternReplacement : 'literal',
-					},
-					/** @param {import('eslint').Rule.RuleFixer} fixer */
-					fix: fixer => fixer.replaceText(pattern, patternReplacement),
-				};
+			if (!patternReplacement) {
+				return;
 			}
 
-			return;
+			return {
+				node: pattern,
+				messageId: MESSAGE_ID_USE_STRING,
+				data: {
+					replacement: patternReplacement.length < 20 ? patternReplacement : 'literal',
+				},
+				/** @param {import('eslint').Rule.RuleFixer} fixer */
+				fix: fixer => fixer.replaceText(pattern, patternReplacement),
+			};
 		}
 
 		return {
