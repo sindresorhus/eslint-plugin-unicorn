@@ -26,7 +26,7 @@ const uselessSpreadInListSelector = matches([
 	'NewExpression > SpreadElement.arguments > ArrayExpression.argument',
 ]);
 
-const iterableToArraySelector = [
+const singleArraySpreadSelector = [
 	'ArrayExpression',
 	'[elements.length=1]',
 	'[elements.0.type="SpreadElement"]',
@@ -49,10 +49,10 @@ const uselessIterableToArraySelector = matches([
 			methodCallSelector({object: 'Object', method: 'fromEntries', argumentsLength: 1}),
 		]),
 		' > ',
-		`${iterableToArraySelector}.arguments:first-child`,
+		`${singleArraySpreadSelector}.arguments:first-child`,
 	].join(''),
-	`ForOfStatement > ${iterableToArraySelector}.right`,
-	`YieldExpression[delegate=true] > ${iterableToArraySelector}.argument`,
+	`ForOfStatement > ${singleArraySpreadSelector}.right`,
+	`YieldExpression[delegate=true] > ${singleArraySpreadSelector}.argument`,
 ]);
 
 const parentDescriptions = {
