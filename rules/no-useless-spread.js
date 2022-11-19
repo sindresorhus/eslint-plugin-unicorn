@@ -6,7 +6,15 @@ const {
 	methodCallSelector,
 } = require('./selectors/index.js');
 const typedArray = require('./shared/typed-array.js');
-const {removeParentheses, fixSpaceAroundKeyword} = require('./fix/index.js');
+const {
+	removeParentheses,
+	fixSpaceAroundKeyword,
+	addParenthesizesToReturnOrThrowExpression,
+} = require('./fix/index.js');
+const isOnSameLine = require('./utils/is-on-same-line.js');
+const {
+	isParenthesized,
+} = require('./utils/parentheses.js');
 
 const SPREAD_IN_LIST = 'spread-in-list';
 const ITERABLE_TO_ARRAY = 'iterable-to-array';
@@ -105,12 +113,11 @@ function getCommaTokens(arrayExpression, sourceCode) {
 }
 
 function * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode) {
-	yield * fixSpaceAroundKeyword(fixer, arrayExpression, sourceCode);
-
 	const [
 		openingBracketToken,
 		spreadToken,
-	] = sourceCode.getFirstTokens(arrayExpression, 2);
+		thirdToken,
+	] = sourceCode.getFirstTokens(arrayExpression, 3);
 
 	// `[...value]`
 	//  ^
@@ -133,6 +140,27 @@ function * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode) {
 	//              ^
 	if (isCommaToken(commaToken)) {
 		yield fixer.remove(commaToken);
+	}
+
+	/*
+	```js
+	function foo() {
+		return [
+			...value,
+		];
+	}
+	```
+	*/
+	const {parent} = arrayExpression;
+	if (
+		(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
+		&& parent.argument === arrayExpression
+		&& !isOnSameLine(openingBracketToken, thirdToken)
+		&& !isParenthesized(arrayExpression, sourceCode)
+	) {
+		yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
+	} else {
+		yield * fixSpaceAroundKeyword(fixer, arrayExpression, sourceCode);
 	}
 }
 
