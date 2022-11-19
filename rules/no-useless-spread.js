@@ -95,7 +95,7 @@ const uselessCloneImmediateArraySelector = [
 		].join(''),
 		// `Array.from()`, `Array.of()`
 		methodCallSelector({object: 'Array', methods: ['from', 'of']}),
-		// `new Array`
+		// `new Array()`
 		newExpressionSelector('Array'),
 	]),
 ].join('');
