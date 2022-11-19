@@ -248,6 +248,12 @@ test.snapshot({
 		'[...array.unknown()]',
 		'[...Object.notReturningArray(foo)]',
 		'[...NotObject.keys(foo)]',
+		'[...Int8Array.from(foo)]',
+		'[...Int8Array.of()]',
+		'[...new Int8Array(3)]',
+		'[...Promise.all(foo)]',
+		'[...Promise.allSettled(foo)]',
+		'[...await Promise.all(foo, extraArgument)]',
 	],
 	invalid: [
 		'[...foo.concat(bar)]',
@@ -261,6 +267,11 @@ test.snapshot({
 		'[...foo.split("|")]',
 		'[...Object.keys(foo)]',
 		'[...Object.values(foo)]',
+		'[...Array.from(foo)]',
+		'[...Array.of()]',
+		'[...new Array(3)]',
+		'[...await Promise.all(foo)]',
+		'[...await Promise.allSettled(foo)]',
 		outdent`
 			function foo(bar) {
 				return[...Object.keys(bar)];

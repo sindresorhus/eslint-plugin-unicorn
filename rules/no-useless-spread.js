@@ -82,7 +82,21 @@ const uselessCloneImmediateArraySelector = [
 		// `String#split()`
 		methodCallSelector('split'),
 		// `Object.keys()` and `Object.values()`
-		methodCallSelector({object: 'Object', methods: ['keys', 'values']}),
+		methodCallSelector({object: 'Object', methods: ['keys', 'values'], argumentsLength: 1}),
+		// `await Promise.all()` and `await Promise.allSettled`
+		[
+			'AwaitExpression',
+			methodCallSelector({
+				object: 'Promise',
+				methods: ['all', 'allSettled'],
+				argumentsLength: 1,
+				path: 'argument',
+			}),
+		].join(''),
+		// `Array.from()`, `Array.of()`
+		methodCallSelector({object: 'Array', methods: ['from', 'of']}),
+		// `new Array`
+		newExpressionSelector('Array'),
 	]),
 ].join('');
 
