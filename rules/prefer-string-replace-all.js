@@ -86,33 +86,31 @@ const create = context => ({
 
 		const methodName = property.name;
 		const patternReplacement = getPatternReplacement(pattern);
-		if (methodName !== 'replaceAll') {
+
+
+		if (methodName === 'replaceAll' && patternReplacement) {
 			return {
-				node: property,
-				messageId: MESSAGE_ID_USE_REPLACE_ALL,
+				node: pattern,
+				messageId: MESSAGE_ID_USE_STRING,
+				data: {replacement: patternReplacement},
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				* fix(fixer) {
-					yield fixer.insertTextAfter(property, 'All');
-
-					if (!patternReplacement) {
-						return;
-					}
-
-					yield fixer.replaceText(pattern, patternReplacement);
-				},
+				fix: fixer => fixer.replaceText(pattern, patternReplacement),
 			};
 		}
 
-		if (!patternReplacement) {
-			return;
-		}
-
 		return {
-			node: pattern,
-			messageId: MESSAGE_ID_USE_STRING,
-			data: {replacement: patternReplacement},
+			node: property,
+			messageId: MESSAGE_ID_USE_REPLACE_ALL,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix: fixer => fixer.replaceText(pattern, patternReplacement),
+			* fix(fixer) {
+				yield fixer.insertTextAfter(property, 'All');
+
+				if (!patternReplacement) {
+					return;
+				}
+
+				yield fixer.replaceText(pattern, patternReplacement);
+			},
 		};
 	},
 });
