@@ -36,6 +36,7 @@ function * convertRegExpToString(node, fixer) {
 		return;
 	}
 
+	// TODO: persevere escape
 	const string = String.fromCodePoint(...parts.map(part => part.codePoint));
 
 	yield fixer.replaceText(node, escapeString(string));
