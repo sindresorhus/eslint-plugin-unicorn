@@ -261,6 +261,18 @@ test.snapshot({
 		'[...foo.split("|")]',
 		'[...Object.keys(foo)]',
 		'[...Object.values(foo)]',
+		outdent`
+			function foo(bar) {
+				return[...Object.keys(bar)];
+			}
+		`,
+		outdent`
+			function foo(bar) {
+				return[
+					...Object.keys(bar)
+				];
+			}
+		`,
 	],
 });
 
