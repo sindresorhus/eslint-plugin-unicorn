@@ -96,6 +96,7 @@ const create = context => ({
 				node: pattern,
 				messageId: MESSAGE_ID_USE_STRING,
 				data: {
+					// Show `This pattern can be replaced with a string literal.` for long strings
 					replacement: patternReplacement.length < 20 ? patternReplacement : 'literal',
 				},
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
