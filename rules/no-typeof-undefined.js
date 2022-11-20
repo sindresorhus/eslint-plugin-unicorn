@@ -14,7 +14,7 @@ const {
 const MESSAGE_ID_ERROR = 'no-typeof-undefined/error';
 const MESSAGE_ID_SUGGESTION = 'no-typeof-undefined/suggestion';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Compare with `undefined` directly instead of `typeof` check.',
+	[MESSAGE_ID_ERROR]: 'Compare with `undefined` directly instead of using `typeof`.',
 	[MESSAGE_ID_SUGGESTION]: 'Switch to `… {{operator}} undefined`.',
 };
 

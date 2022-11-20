@@ -1,4 +1,4 @@
-# Enforce compare with `undefined` directly
+# Disallow comparing `undefined` using `typeof`
 
 ✅ This rule is enabled in the `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
 
@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Enforce compare value with `undefined` directly instead of compare `typeof value` with `'undefined'`.
+Checking if a value is `undefined` by using `typeof value === 'undefined'` is needlessly verbose. It's generally better to compare against `undefined` directly. The only time `typeof` is needed is when a global variable potentially does not exists, in which case, using `globalThis.value === undefined` may be better.
 
 ## Fail
 
@@ -44,7 +44,7 @@ if (foo.bar !== undefined) {}
 Type: `boolean`\
 Default: `false`
 
-This rule ignores variables not defined in file by default.
+The rule ignores variables not defined in the file by default.
 
 Set it to `true` to check all variables.
 
