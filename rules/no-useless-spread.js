@@ -65,7 +65,7 @@ const uselessIterableToArraySelector = matches([
 	`YieldExpression[delegate=true] > ${singleArraySpreadSelector}.argument`,
 ]);
 
-const uselessCloneImmediateArraySelector = [
+const uselessArrayCloneSelector = [
 	`${singleArraySpreadSelector} > .elements:first-child > .argument`,
 	matches([
 		// Array methods returns a new array
@@ -277,7 +277,7 @@ const create = context => {
 				fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
 			};
 		},
-		[uselessCloneImmediateArraySelector](node) {
+		[uselessArrayCloneSelector](node) {
 			const arrayExpression = node.parent.parent;
 			return {
 				node: arrayExpression,
