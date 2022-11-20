@@ -49,7 +49,7 @@ function isStaticMember(node) {
 	if (
 		isDeclare
 		|| isReadonly
-		|| typeof accessibility !== 'undefined'
+		|| accessibility !== undefined
 		|| (Array.isArray(decorators) && decorators.length > 0)
 		// TODO: Remove this when we drop support for `@typescript-eslint/parser` v4
 		|| key.type === 'TSPrivateIdentifier'

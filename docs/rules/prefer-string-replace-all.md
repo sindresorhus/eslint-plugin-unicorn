@@ -27,6 +27,10 @@ string.replace(/\(It also checks for escaped regex symbols\)/g, '');
 string.replace(/Works for u flag too/gu, '');
 ```
 
+```js
+string.replaceAll(/foo/g, 'bar');
+```
+
 ## Pass
 
 ```js
@@ -43,4 +47,8 @@ string.replaceAll('string', '');
 
 ```js
 string.replaceAll(/\s/, '');
+```
+
+```js
+string.replaceAll('foo', 'bar');
 ```
