@@ -5,17 +5,19 @@ const escapeString = require('./utils/escape-string.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const {isRegexLiteral, isNewExpression} = require('./ast/index.js');
 
-const MESSAGE_ID = 'prefer-string-replace-all';
+const MESSAGE_ID_USE_REPLACE_ALL = 'method';
+const MESSAGE_ID_USE_STRING = 'pattern';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `String#replaceAll()` over `String#replace()`.',
+	[MESSAGE_ID_USE_REPLACE_ALL]: 'Prefer `String#replaceAll()` over `String#replace()`.',
+	[MESSAGE_ID_USE_STRING]: 'This pattern can be replaced with a string {{replacement}}.',
 };
 
 const selector = methodCallSelector({
-	method: 'replace',
+	methods: ['replace', 'replaceAll'],
 	argumentsLength: 2,
 });
 
-function * convertRegExpToString(node, fixer) {
+function getPatternReplacement(node) {
 	if (!isRegexLiteral(node)) {
 		return;
 	}
@@ -39,7 +41,7 @@ function * convertRegExpToString(node, fixer) {
 	// TODO: Preserve escape
 	const string = String.fromCodePoint(...parts.map(part => part.codePoint));
 
-	yield fixer.replaceText(node, escapeString(string));
+	return escapeString(string);
 }
 
 const isRegExpWithGlobalFlag = (node, scope) => {
@@ -82,13 +84,38 @@ const create = context => ({
 			return;
 		}
 
+		const methodName = property.name;
+		const patternReplacement = getPatternReplacement(pattern);
+
+		if (methodName === 'replaceAll') {
+			if (!patternReplacement) {
+				return;
+			}
+
+			return {
+				node: pattern,
+				messageId: MESSAGE_ID_USE_STRING,
+				data: {
+					// Show `This pattern can be replaced with a string literal.` for long strings
+					replacement: patternReplacement.length < 20 ? patternReplacement : 'literal',
+				},
+				/** @param {import('eslint').Rule.RuleFixer} fixer */
+				fix: fixer => fixer.replaceText(pattern, patternReplacement),
+			};
+		}
+
 		return {
 			node: property,
-			messageId: MESSAGE_ID,
+			messageId: MESSAGE_ID_USE_REPLACE_ALL,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
 				yield fixer.insertTextAfter(property, 'All');
-				yield * convertRegExpToString(pattern, fixer);
+
+				if (!patternReplacement) {
+					return;
+				}
+
+				yield fixer.replaceText(pattern, patternReplacement);
 			},
 		};
 	},
