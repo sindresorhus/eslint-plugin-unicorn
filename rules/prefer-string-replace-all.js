@@ -9,7 +9,7 @@ const MESSAGE_ID_USE_REPLACE_ALL = 'method';
 const MESSAGE_ID_USE_STRING = 'pattern';
 const messages = {
 	[MESSAGE_ID_USE_REPLACE_ALL]: 'Prefer `String#replaceAll()` over `String#replace()`.',
-	[MESSAGE_ID_USE_STRING]: 'This pattern can be replaced with a string {{replacement}}.',
+	[MESSAGE_ID_USE_STRING]: 'This pattern can be replaced with {{replacement}}.',
 };
 
 const selector = methodCallSelector({
@@ -97,7 +97,7 @@ const create = context => ({
 				messageId: MESSAGE_ID_USE_STRING,
 				data: {
 					// Show `This pattern can be replaced with a string literal.` for long strings
-					replacement: patternReplacement.length < 20 ? patternReplacement : 'literal',
+					replacement: patternReplacement.length < 20 ? patternReplacement : 'a string literal',
 				},
 				/** @param {import('eslint').Rule.RuleFixer} fixer */
 				fix: fixer => fixer.replaceText(pattern, patternReplacement),
