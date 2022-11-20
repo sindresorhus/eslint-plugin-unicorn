@@ -6,17 +6,27 @@ const {
 	methodCallSelector,
 } = require('./selectors/index.js');
 const typedArray = require('./shared/typed-array.js');
-const {removeParentheses, fixSpaceAroundKeyword} = require('./fix/index.js');
+const {
+	removeParentheses,
+	fixSpaceAroundKeyword,
+	addParenthesizesToReturnOrThrowExpression,
+} = require('./fix/index.js');
+const isOnSameLine = require('./utils/is-on-same-line.js');
+const {
+	isParenthesized,
+} = require('./utils/parentheses.js');
 
 const SPREAD_IN_LIST = 'spread-in-list';
 const ITERABLE_TO_ARRAY = 'iterable-to-array';
 const ITERABLE_TO_ARRAY_IN_FOR_OF = 'iterable-to-array-in-for-of';
 const ITERABLE_TO_ARRAY_IN_YIELD_STAR = 'iterable-to-array-in-yield-star';
+const CLONE_ARRAY = 'clone-array';
 const messages = {
 	[SPREAD_IN_LIST]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.',
 	[ITERABLE_TO_ARRAY]: '`{{parentDescription}}` accepts iterable as argument, it\'s unnecessary to convert to an array.',
 	[ITERABLE_TO_ARRAY_IN_FOR_OF]: '`for…of` can iterate over iterable, it\'s unnecessary to convert to an array.',
 	[ITERABLE_TO_ARRAY_IN_YIELD_STAR]: '`yield*` can delegate iterable, it\'s unnecessary to convert to an array.',
+	[CLONE_ARRAY]: 'Unnecessarily cloning an array.',
 };
 
 const uselessSpreadInListSelector = matches([
@@ -26,7 +36,7 @@ const uselessSpreadInListSelector = matches([
 	'NewExpression > SpreadElement.arguments > ArrayExpression.argument',
 ]);
 
-const iterableToArraySelector = [
+const singleArraySpreadSelector = [
 	'ArrayExpression',
 	'[elements.length=1]',
 	'[elements.0.type="SpreadElement"]',
@@ -49,11 +59,46 @@ const uselessIterableToArraySelector = matches([
 			methodCallSelector({object: 'Object', method: 'fromEntries', argumentsLength: 1}),
 		]),
 		' > ',
-		`${iterableToArraySelector}.arguments:first-child`,
+		`${singleArraySpreadSelector}.arguments:first-child`,
 	].join(''),
-	`ForOfStatement > ${iterableToArraySelector}.right`,
-	`YieldExpression[delegate=true] > ${iterableToArraySelector}.argument`,
+	`ForOfStatement > ${singleArraySpreadSelector}.right`,
+	`YieldExpression[delegate=true] > ${singleArraySpreadSelector}.argument`,
 ]);
+
+const uselessArrayCloneSelector = [
+	`${singleArraySpreadSelector} > .elements:first-child > .argument`,
+	matches([
+		// Array methods returns a new array
+		methodCallSelector([
+			'concat',
+			'copyWithin',
+			'filter',
+			'flat',
+			'flatMap',
+			'map',
+			'slice',
+			'splice',
+		]),
+		// `String#split()`
+		methodCallSelector('split'),
+		// `Object.keys()` and `Object.values()`
+		methodCallSelector({object: 'Object', methods: ['keys', 'values'], argumentsLength: 1}),
+		// `await Promise.all()` and `await Promise.allSettled`
+		[
+			'AwaitExpression',
+			methodCallSelector({
+				object: 'Promise',
+				methods: ['all', 'allSettled'],
+				argumentsLength: 1,
+				path: 'argument',
+			}),
+		].join(''),
+		// `Array.from()`, `Array.of()`
+		methodCallSelector({object: 'Array', methods: ['from', 'of']}),
+		// `new Array()`
+		newExpressionSelector('Array'),
+	]),
+].join('');
 
 const parentDescriptions = {
 	ArrayExpression: 'array literal',
@@ -79,6 +124,59 @@ function getCommaTokens(arrayExpression, sourceCode) {
 		startToken = commaToken;
 		return commaToken;
 	});
+}
+
+function * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode) {
+	const [
+		openingBracketToken,
+		spreadToken,
+		thirdToken,
+	] = sourceCode.getFirstTokens(arrayExpression, 3);
+
+	// `[...value]`
+	//  ^
+	yield fixer.remove(openingBracketToken);
+
+	// `[...value]`
+	//   ^^^
+	yield fixer.remove(spreadToken);
+
+	const [
+		commaToken,
+		closingBracketToken,
+	] = sourceCode.getLastTokens(arrayExpression, 2);
+
+	// `[...value]`
+	//              ^
+	yield fixer.remove(closingBracketToken);
+
+	// `[...value,]`
+	//              ^
+	if (isCommaToken(commaToken)) {
+		yield fixer.remove(commaToken);
+	}
+
+	/*
+	```js
+	function foo() {
+		return [
+			...value,
+		];
+	}
+	```
+	*/
+	const {parent} = arrayExpression;
+	if (
+		(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
+		&& parent.argument === arrayExpression
+		&& !isOnSameLine(openingBracketToken, thirdToken)
+		&& !isParenthesized(arrayExpression, sourceCode)
+	) {
+		yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
+		return;
+	}
+
+	yield * fixSpaceAroundKeyword(fixer, arrayExpression, sourceCode);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -138,15 +236,15 @@ const create = context => {
 							continue;
 						}
 
-						// `call([foo, , bar])`
-						//             ^ Replace holes with `undefined`
+						// `call(...[foo, , bar])`
+						//               ^ Replace holes with `undefined`
 						yield fixer.insertTextBefore(commaToken, 'undefined');
 					}
 				},
 			};
 		},
-		[uselessIterableToArraySelector](array) {
-			const {parent} = array;
+		[uselessIterableToArraySelector](arrayExpression) {
+			const {parent} = arrayExpression;
 			let parentDescription = '';
 			let messageId = ITERABLE_TO_ARRAY;
 			switch (parent.type) {
@@ -173,42 +271,18 @@ const create = context => {
 			}
 
 			return {
-				node: array,
+				node: arrayExpression,
 				messageId,
 				data: {parentDescription},
-				* fix(fixer) {
-					if (parent.type === 'ForOfStatement') {
-						yield * fixSpaceAroundKeyword(fixer, array, sourceCode);
-					}
-
-					const [
-						openingBracketToken,
-						spreadToken,
-					] = sourceCode.getFirstTokens(array, 2);
-
-					// `[...iterable]`
-					//  ^
-					yield fixer.remove(openingBracketToken);
-
-					// `[...iterable]`
-					//   ^^^
-					yield fixer.remove(spreadToken);
-
-					const [
-						commaToken,
-						closingBracketToken,
-					] = sourceCode.getLastTokens(array, 2);
-
-					// `[...iterable]`
-					//              ^
-					yield fixer.remove(closingBracketToken);
-
-					// `[...iterable,]`
-					//              ^
-					if (isCommaToken(commaToken)) {
-						yield fixer.remove(commaToken);
-					}
-				},
+				fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
+			};
+		},
+		[uselessArrayCloneSelector](node) {
+			const arrayExpression = node.parent.parent;
+			return {
+				node: arrayExpression,
+				messageId: CLONE_ARRAY,
+				fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
 			};
 		},
 	};

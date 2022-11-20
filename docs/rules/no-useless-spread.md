@@ -12,6 +12,7 @@
   - Spread an array literal as elements of an array literal
   - Spread an array literal as arguments of a call or a `new` call
   - Spread an object literal as properties of an object literal
+  - Use spread syntax to clone an array created inline
 
 - The following builtins accept an iterable, so it's unnecessary to convert the iterable to an array:
 
@@ -65,6 +66,14 @@ function * foo() {
 }
 ```
 
+```js
+function foo(bar) {
+	return [
+		...bar.map(x => x * 2),
+	];
+}
+```
+
 ## Pass
 
 ```js
@@ -114,5 +123,11 @@ for (const foo of set);
 ```js
 function * foo() {
 	yield * anotherGenerator();
+}
+```
+
+```js
+function foo(bar) {
+	return bar.map(x => x * 2);
 }
 ```
