@@ -130,7 +130,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce compare with `undefined` directly.',
+			description: 'Disallow comparing `undefined` using `typeof`.',
 		},
 		fixable: 'code',
 		hasSuggestions: true,
