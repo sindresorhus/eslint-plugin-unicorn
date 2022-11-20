@@ -12,7 +12,7 @@
   - Spread an array literal as elements of an array literal
   - Spread an array literal as arguments of a call or a `new` call
   - Spread an object literal as properties of an object literal
-  - Use spread syntax to clone an immediate array
+  - Use spread syntax to clone an array created inline
 
 - The following builtins accept an iterable, so it's unnecessary to convert the iterable to an array:
 
