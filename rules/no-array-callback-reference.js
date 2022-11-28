@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized} = require('eslint-utils');
+const {isParenthesized} = require('@eslint-community/eslint-utils');
 const {methodCallSelector, notFunctionSelector} = require('./selectors/index.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 

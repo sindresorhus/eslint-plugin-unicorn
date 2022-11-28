@@ -1,6 +1,6 @@
 'use strict';
 
-const {isColonToken} = require('eslint-utils');
+const {isColonToken} = require('@eslint-community/eslint-utils');
 
 /**
 @typedef {line: number, column: number} Position

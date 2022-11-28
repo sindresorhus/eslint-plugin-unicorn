@@ -1,5 +1,5 @@
 'use strict';
-const {isOpeningParenToken} = require('eslint-utils');
+const {isOpeningParenToken} = require('@eslint-community/eslint-utils');
 
 /**
 Get the text of the arguments list of `CallExpression`.

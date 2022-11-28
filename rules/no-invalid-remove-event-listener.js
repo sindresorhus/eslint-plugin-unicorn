@@ -1,5 +1,5 @@
 'use strict';
-const {getFunctionHeadLocation} = require('eslint-utils');
+const {getFunctionHeadLocation} = require('@eslint-community/eslint-utils');
 const getDocumentationUrl = require('./utils/get-documentation-url.js');
 const {methodCallSelector, matches} = require('./selectors/index.js');
 

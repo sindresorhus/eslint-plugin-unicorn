@@ -1,5 +1,5 @@
 'use strict';
-const {isOpeningParenToken} = require('eslint-utils');
+const {isOpeningParenToken} = require('@eslint-community/eslint-utils');
 const isShadowed = require('./utils/is-shadowed.js');
 const assertToken = require('./utils/assert-token.js');
 const {referenceIdentifierSelector} = require('./selectors/index.js');

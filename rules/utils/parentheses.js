@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized, isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
+const {isParenthesized, isOpeningParenToken, isClosingParenToken} = require('@eslint-community/eslint-utils');
 
 /*
 Get how many times the node is parenthesized.

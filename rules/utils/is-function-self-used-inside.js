@@ -1,5 +1,5 @@
 'use strict';
-const {findVariable} = require('eslint-utils');
+const {findVariable} = require('@eslint-community/eslint-utils');
 
 const getReferences = (scope, nodeOrName) => {
 	const {references = []} = findVariable(scope, nodeOrName) || {};

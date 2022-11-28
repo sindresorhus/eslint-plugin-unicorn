@@ -1,5 +1,5 @@
 'use strict';
-const {isOpeningBracketToken, isClosingBracketToken, getStaticValue} = require('eslint-utils');
+const {isOpeningBracketToken, isClosingBracketToken, getStaticValue} = require('@eslint-community/eslint-utils');
 const {
 	isParenthesized,
 	getParenthesizedRange,

@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized} = require('eslint-utils');
+const {isParenthesized} = require('@eslint-community/eslint-utils');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const {isDecimalInteger} = require('./utils/numeric.js');
 const toLocation = require('./utils/to-location.js');
