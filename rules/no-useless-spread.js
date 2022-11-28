@@ -15,6 +15,7 @@ const isOnSameLine = require('./utils/is-on-same-line.js');
 const {
 	isParenthesized,
 } = require('./utils/parentheses.js');
+const {isNewExpression} = require('./ast/index.js');
 
 const SPREAD_IN_LIST = 'spread-in-list';
 const ITERABLE_TO_ARRAY = 'iterable-to-array';
@@ -279,11 +280,28 @@ const create = context => {
 		},
 		[uselessArrayCloneSelector](node) {
 			const arrayExpression = node.parent.parent;
-			return {
+			const problem = {
 				node: arrayExpression,
 				messageId: CLONE_ARRAY,
-				fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
 			};
+
+			if (
+				// `[...new Array(1)]` -> `new Array(1)` is not safe to fix since there are holes
+				isNewExpression(node, {name: 'Array'})
+				// `[...foo.slice(1)]` -> `foo.slice(1)` is not safe to fix since `foo` can be a string
+				|| (
+					node.type === 'CallExpression'
+					&& node.callee.type === 'MemberExpression'
+					&& node.callee.property.type === 'Identifier'
+					&& node.callee.property.name === 'slice'
+				)
+			) {
+				return problem;
+			}
+
+			return Object.assign(problem, {
+				fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
+			});
 		},
 	};
 };
