@@ -3,7 +3,7 @@ const {
 	isCommaToken,
 	isOpeningBraceToken,
 	isClosingBraceToken,
-} = require('eslint-utils');
+} = require('@eslint-community/eslint-utils');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';

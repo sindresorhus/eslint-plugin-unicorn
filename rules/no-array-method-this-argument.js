@@ -1,5 +1,5 @@
 'use strict';
-const {hasSideEffect} = require('eslint-utils');
+const {hasSideEffect} = require('@eslint-community/eslint-utils');
 const {methodCallSelector, notFunctionSelector} = require('./selectors/index.js');
 const {removeArgument} = require('./fix/index.js');
 const {getParentheses, getParenthesizedText} = require('./utils/parentheses.js');

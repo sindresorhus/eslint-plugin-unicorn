@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized} = require('eslint-utils');
+const {isParenthesized} = require('@eslint-community/eslint-utils');
 const eventTypes = require('./shared/dom-events.js');
 const {STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors/index.js');
 const {isUndefined, isNullLiteral} = require('./ast/index.js');

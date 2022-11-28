@@ -1,5 +1,5 @@
 'use strict';
-const {getStaticValue} = require('eslint-utils');
+const {getStaticValue} = require('@eslint-community/eslint-utils');
 const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const isNumber = require('./utils/is-number.js');

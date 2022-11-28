@@ -1,5 +1,5 @@
 'use strict';
-const {findVariable} = require('eslint-utils');
+const {findVariable} = require('@eslint-community/eslint-utils');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
 const {
 	matches,

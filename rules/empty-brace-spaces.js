@@ -1,5 +1,5 @@
 'use strict';
-const {isOpeningBraceToken} = require('eslint-utils');
+const {isOpeningBraceToken} = require('@eslint-community/eslint-utils');
 const {matches} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'empty-brace-spaces';

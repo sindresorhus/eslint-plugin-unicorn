@@ -1,5 +1,5 @@
 'use strict';
-const {hasSideEffect} = require('eslint-utils');
+const {hasSideEffect} = require('@eslint-community/eslint-utils');
 const isSameReference = require('./utils/is-same-reference.js');
 const getIndentString = require('./utils/get-indent-string.js');
 

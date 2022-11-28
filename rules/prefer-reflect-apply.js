@@ -1,5 +1,5 @@
 'use strict';
-const {getPropertyName} = require('eslint-utils');
+const {getPropertyName} = require('@eslint-community/eslint-utils');
 const {not, methodCallSelector} = require('./selectors/index.js');
 const {isNullLiteral} = require('./ast/index.js');
 

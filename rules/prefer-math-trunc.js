@@ -1,5 +1,5 @@
 'use strict';
-const {hasSideEffect} = require('eslint-utils');
+const {hasSideEffect} = require('@eslint-community/eslint-utils');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const ERROR_BITWISE = 'error-bitwise';

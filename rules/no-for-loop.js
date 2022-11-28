@@ -1,5 +1,5 @@
 'use strict';
-const {isClosingParenToken, getStaticValue} = require('eslint-utils');
+const {isClosingParenToken, getStaticValue} = require('@eslint-community/eslint-utils');
 const avoidCapture = require('./utils/avoid-capture.js');
 const getScopes = require('./utils/get-scopes.js');
 const singular = require('./utils/singular.js');

@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized, getStaticValue} = require('eslint-utils');
+const {isParenthesized, getStaticValue} = require('@eslint-community/eslint-utils');
 const {checkVueTemplate} = require('./utils/rule.js');
 const isLogicalExpression = require('./utils/is-logical-expression.js');
 const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean.js');

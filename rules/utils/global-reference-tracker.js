@@ -1,5 +1,5 @@
 'use strict';
-const {ReferenceTracker} = require('eslint-utils');
+const {ReferenceTracker} = require('@eslint-community/eslint-utils');
 
 const createTraceMap = (object, type) => {
 	let map = {[type]: true};

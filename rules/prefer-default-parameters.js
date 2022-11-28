@@ -1,5 +1,5 @@
 'use strict';
-const {findVariable} = require('eslint-utils');
+const {findVariable} = require('@eslint-community/eslint-utils');
 
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';

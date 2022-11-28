@@ -1,5 +1,5 @@
 'use strict';
-const {getStaticValue} = require('eslint-utils');
+const {getStaticValue} = require('@eslint-community/eslint-utils');
 
 // Copied from https://github.com/eslint/eslint/blob/94ba68d76a6940f68ff82eea7332c6505f93df76/lib/rules/utils/ast-utils.js#L392
 

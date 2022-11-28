@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized, getStaticValue} = require('eslint-utils');
+const {isParenthesized, getStaticValue} = require('@eslint-community/eslint-utils');
 const {checkVueTemplate} = require('./utils/rule.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const {isRegexLiteral, isNewExpression} = require('./ast/index.js');

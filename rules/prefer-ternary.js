@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized} = require('eslint-utils');
+const {isParenthesized} = require('@eslint-community/eslint-utils');
 const avoidCapture = require('./utils/avoid-capture.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const isSameReference = require('./utils/is-same-reference.js');

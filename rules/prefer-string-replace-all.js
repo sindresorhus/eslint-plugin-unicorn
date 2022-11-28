@@ -1,5 +1,5 @@
 'use strict';
-const {getStaticValue} = require('eslint-utils');
+const {getStaticValue} = require('@eslint-community/eslint-utils');
 const {parse: parseRegExp} = require('regjsparser');
 const escapeString = require('./utils/escape-string.js');
 const {methodCallSelector} = require('./selectors/index.js');

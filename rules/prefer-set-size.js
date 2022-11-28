@@ -1,5 +1,5 @@
 'use strict';
-const {findVariable} = require('eslint-utils');
+const {findVariable} = require('@eslint-community/eslint-utils');
 const {memberExpressionSelector} = require('./selectors/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
 const {isNewExpression} = require('./ast/index.js');

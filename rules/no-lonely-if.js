@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized, isNotSemicolonToken} = require('eslint-utils');
+const {isParenthesized, isNotSemicolonToken} = require('@eslint-community/eslint-utils');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const {removeSpacesAfter} = require('./fix/index.js');
 const {matches} = require('./selectors/index.js');

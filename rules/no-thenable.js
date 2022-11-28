@@ -1,5 +1,5 @@
 'use strict';
-const {getStaticValue, getPropertyName} = require('eslint-utils');
+const {getStaticValue, getPropertyName} = require('@eslint-community/eslint-utils');
 const {methodCallSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID_OBJECT = 'no-thenable-object';
