@@ -35,7 +35,6 @@ test.snapshot({
 			'md',
 			'vue',
 			'svelte',
-			'tsx',
 		].map(extension => ({code: '', filename: `example.${extension}`})),
 		...[
 			'd.ts',
@@ -69,11 +68,11 @@ test.snapshot({
 		].map(code => ({code, filename: 'example.js'})),
 		...[
 			'mjs',
-			'cjs',
+			'cJs',
 			'ts',
 			'tsx',
 			'jsx',
-			'mts',
+			'MTS',
 			'cts',
 		].map(extension => ({code: '{}', filename: `example.${extension}`})),
 	],
