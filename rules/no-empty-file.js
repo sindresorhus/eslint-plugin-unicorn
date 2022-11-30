@@ -19,7 +19,7 @@ const hasTripeSlashDirectives = comments =>
 const create = context => {
 	const filename = context.getPhysicalFilename().toLowerCase();
 
-	if (!/\.(?:js|mjs|cjs|ts|jsx|tsx|mts|cts)$/.test(filename)) {
+	if (!/\.(?:js|mjs|cjs|jsx|ts|mts|cts|tsx)$/.test(filename)) {
 		return;
 	}
 
