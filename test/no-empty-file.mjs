@@ -71,6 +71,8 @@ test.snapshot({
 			'mjs',
 			'cjs',
 			'ts',
+			'tsx',
+			'jsx',
 			'mts',
 			'cts',
 		].map(extension => ({code: '{}', filename: `example.${extension}`})),
