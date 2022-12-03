@@ -9,6 +9,8 @@
 
 Checking if a value is `undefined` by using `typeof value === 'undefined'` is needlessly verbose. It's generally better to compare against `undefined` directly. The only time `typeof` is needed is when a global variable potentially does not exists, in which case, using `globalThis.value === undefined` may be better.
 
+Historical note: Comparing against `undefined` without `typeof` was frowned upon until ES5. This is no longer a problem since all engines currently in use no longer allow reassigning the `undefined` global.
+
 ## Fail
 
 ```js
