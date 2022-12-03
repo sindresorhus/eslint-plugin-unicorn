@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized, findVariable} = require('eslint-utils');
+const {isParenthesized, findVariable} = require('@eslint-community/eslint-utils');
 const {
 	not,
 	methodCallSelector,

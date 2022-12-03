@@ -1,5 +1,5 @@
 'use strict';
-const {isColonToken} = require('eslint-utils');
+const {isColonToken} = require('@eslint-community/eslint-utils');
 const getSwitchCaseHeadLocation = require('./utils/get-switch-case-head-location.js');
 const getIndentString = require('./utils/get-indent-string.js');
 const {replaceNodeOrTokenAndSpacesBefore} = require('./fix/index.js');

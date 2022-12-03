@@ -1,5 +1,5 @@
 'use strict';
-const {isSemicolonToken} = require('eslint-utils');
+const {isSemicolonToken} = require('@eslint-community/eslint-utils');
 const getClassHeadLocation = require('./utils/get-class-head-location.js');
 const assertToken = require('./utils/assert-token.js');
 const {removeSpacesAfter} = require('./fix/index.js');

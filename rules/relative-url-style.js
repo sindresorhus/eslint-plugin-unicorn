@@ -1,5 +1,5 @@
 'use strict';
-const {getStaticValue} = require('eslint-utils');
+const {getStaticValue} = require('@eslint-community/eslint-utils');
 const {newExpressionSelector} = require('./selectors/index.js');
 const {replaceStringLiteral} = require('./fix/index.js');
 

@@ -1,5 +1,5 @@
 'use strict';
-const {getStaticValue} = require('eslint-utils');
+const {getStaticValue} = require('@eslint-community/eslint-utils');
 const {isNumberLiteral} = require('../ast/index.js');
 
 const isStaticProperties = (node, object, properties) =>

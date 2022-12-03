@@ -1,6 +1,6 @@
 'use strict';
 
-const {isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
+const {isOpeningParenToken, isClosingParenToken} = require('@eslint-community/eslint-utils');
 
 /**
 Determine if a constructor function is newed-up with parens.

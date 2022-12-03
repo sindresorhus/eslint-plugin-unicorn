@@ -1,6 +1,6 @@
 'use strict';
 const {defaultsDeep} = require('lodash');
-const {getStringIfConstant} = require('eslint-utils');
+const {getStringIfConstant} = require('@eslint-community/eslint-utils');
 const {callExpressionSelector} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'importStyle';

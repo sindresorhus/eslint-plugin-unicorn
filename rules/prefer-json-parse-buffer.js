@@ -1,5 +1,5 @@
 'use strict';
-const {findVariable, getStaticValue, getPropertyName} = require('eslint-utils');
+const {findVariable, getStaticValue, getPropertyName} = require('@eslint-community/eslint-utils');
 const {methodCallSelector} = require('./selectors/index.js');
 const {removeArgument} = require('./fix/index.js');
 

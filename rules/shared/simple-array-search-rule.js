@@ -1,6 +1,6 @@
 'use strict';
 
-const {hasSideEffect, isParenthesized, findVariable} = require('eslint-utils');
+const {hasSideEffect, isParenthesized, findVariable} = require('@eslint-community/eslint-utils');
 const {matches, methodCallSelector} = require('../selectors/index.js');
 const isFunctionSelfUsedInside = require('../utils/is-function-self-used-inside.js');
 

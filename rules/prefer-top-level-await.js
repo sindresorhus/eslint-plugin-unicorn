@@ -1,5 +1,5 @@
 'use strict';
-const {findVariable, getFunctionHeadLocation} = require('eslint-utils');
+const {findVariable, getFunctionHeadLocation} = require('@eslint-community/eslint-utils');
 const {matches, not, memberExpressionSelector} = require('./selectors/index.js');
 
 const ERROR_PROMISE = 'promise';

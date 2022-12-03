@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized, hasSideEffect} = require('eslint-utils');
+const {isParenthesized, hasSideEffect} = require('@eslint-community/eslint-utils');
 const {methodCallSelector, notDomNodeSelector} = require('./selectors/index.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const isValueNotUsable = require('./utils/is-value-not-usable.js');

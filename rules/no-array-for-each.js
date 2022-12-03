@@ -6,7 +6,7 @@ const {
 	isClosingParenToken,
 	findVariable,
 	hasSideEffect,
-} = require('eslint-utils');
+} = require('@eslint-community/eslint-utils');
 const {methodCallSelector, referenceIdentifierSelector} = require('./selectors/index.js');
 const {extendFixRange} = require('./fix/index.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');

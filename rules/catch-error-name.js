@@ -1,5 +1,5 @@
 'use strict';
-const {findVariable} = require('eslint-utils');
+const {findVariable} = require('@eslint-community/eslint-utils');
 const avoidCapture = require('./utils/avoid-capture.js');
 const {renameVariable} = require('./fix/index.js');
 const {matches, methodCallSelector} = require('./selectors/index.js');

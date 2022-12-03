@@ -1,5 +1,5 @@
 'use strict';
-const {isCommaToken} = require('eslint-utils');
+const {isCommaToken} = require('@eslint-community/eslint-utils');
 const {replaceNodeOrTokenAndSpacesBefore} = require('./fix/index.js');
 const {isUndefined} = require('./ast/index.js');
 
