@@ -17,7 +17,9 @@ npm install --save-dev eslint eslint-plugin-unicorn
 
 ## Usage
 
-Use a [preset config](#preset-configs) or configure each rules in `package.json`.
+Use a [preset config](#preset-configs) or configure each rule in `package.json`.
+
+If you don't use the preset, ensure you use the same `env` and `parserOptions` config as below.
 
 ```json
 {
