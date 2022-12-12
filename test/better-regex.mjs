@@ -323,3 +323,11 @@ test({
 		},
 	],
 });
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		// Invalid RegExp
+		'/(?!a)+/g',
+	],
+});
