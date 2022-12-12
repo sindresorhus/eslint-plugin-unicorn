@@ -9,7 +9,7 @@ const MESSAGE_ID = 'better-regex';
 const MESSAGE_ID_PARSE_ERROR = 'better-regex/parse-error';
 const messages = {
 	[MESSAGE_ID]: '{{original}} can be optimized to {{optimized}}.',
-	[MESSAGE_ID_PARSE_ERROR]: 'Problem parsing {{original}}: {{error}}'
+	[MESSAGE_ID_PARSE_ERROR]: 'Problem parsing {{original}}: {{error}}',
 };
 
 const newRegExp = newExpressionSelector({name: 'RegExp', minimumArguments: 1});
