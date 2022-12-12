@@ -103,5 +103,8 @@ test.snapshot({
 		'foo.replaceAll(/a]/g, _)',
 		'foo.replaceAll(/\\r\\n\\u{1f600}/gu, _)',
 		`foo.replaceAll(/a${' very'.repeat(30)} long string/g, _)`,
+
+		// Invalid RegExp #2010
+		'foo.replace(/(?!a)+/g, "")',
 	],
 });
