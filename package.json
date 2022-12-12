@@ -16,7 +16,7 @@
 	"scripts": {
 		"create-rule": "node ./scripts/create-rule.mjs && npm run fix:eslint-docs",
 		"fix": "run-p --continue-on-error fix:*",
-		"fix:eslint-docs": "eslint-doc-generator --ignore-deprecated-rules --ignore-config all --rule-doc-title-format desc --url-configs \"https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs\"",
+		"fix:eslint-docs": "eslint-doc-generator",
 		"fix:js": "npm run lint:js -- --fix",
 		"fix:md": "npm run lint:md -- --fix",
 		"integration": "node ./test/integration/test.mjs",
