@@ -448,7 +448,12 @@ const create = context => {
 			node: definition.name,
 		};
 
-		if (variableReplacements.total === 1 && shouldFix(variable) && variableReplacements.samples[0]) {
+		if (
+			variableReplacements.total === 1
+			&& shouldFix(variable)
+			&& variableReplacements.samples[0]
+			&& !variable.references.some(reference => reference.vueUsedInTemplate)
+		) {
 			const [replacement] = variableReplacements.samples;
 
 			for (const scope of scopes) {

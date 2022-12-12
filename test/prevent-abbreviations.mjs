@@ -2002,5 +2002,36 @@ test({
 			],
 		},
 	],
+});
 
+test.vue({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				<template>
+					<button @click="goToPrev"/>
+				</template>
+				<script setup>
+				const goToPrev = () => {}
+				</script>
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				<template><button/></template>
+				<script setup>
+				const goToPrev = () => {}
+				</script>
+			`,
+			output: outdent`
+				<template><button/></template>
+				<script setup>
+				const goToPrevious = () => {}
+				</script>
+			`,
+			errors: 1,
+		},
+	],
 });
