@@ -27,11 +27,17 @@ function getPatternReplacement(node) {
 		return;
 	}
 
-	const tree = parseRegExp(pattern, flags, {
-		unicodePropertyEscape: true,
-		namedGroups: true,
-		lookbehind: true,
-	});
+	let tree;
+
+	try {
+		tree = parseRegExp(pattern, flags, {
+			unicodePropertyEscape: true,
+			namedGroups: true,
+			lookbehind: true,
+		});
+	} catch {
+		return;
+	}
 
 	const parts = tree.type === 'alternative' ? tree.body : [tree];
 	if (parts.some(part => part.type !== 'value')) {

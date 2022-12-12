@@ -6,8 +6,10 @@ const {newExpressionSelector} = require('./selectors/index.js');
 const {isStringLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'better-regex';
+const MESSAGE_ID_PARSE_ERROR = 'better-regex/parse-error';
 const messages = {
 	[MESSAGE_ID]: '{{original}} can be optimized to {{optimized}}.',
+	[MESSAGE_ID_PARSE_ERROR]: 'Problem parsing {{original}}: {{error}}',
 };
 
 const newRegExp = newExpressionSelector({name: 'RegExp', minimumArguments: 1});
@@ -39,11 +41,11 @@ const create = context => {
 			} catch (error) {
 				return {
 					node,
+					messageId: MESSAGE_ID_PARSE_ERROR,
 					data: {
 						original,
 						error: error.message,
 					},
-					message: 'Problem parsing {{original}}: {{error}}',
 				};
 			}
 
