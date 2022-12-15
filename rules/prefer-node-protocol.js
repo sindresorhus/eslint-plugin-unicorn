@@ -26,6 +26,7 @@ const create = () => ({
 			typeof value !== 'string'
 			|| value.startsWith('node:')
 			|| !isBuiltinModule(value)
+			|| value === 'punycode'
 		) {
 			return;
 		}

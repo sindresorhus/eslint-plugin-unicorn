@@ -9,6 +9,7 @@ test.snapshot({
 		'import fs from "./fs";',
 		'import fs from "unknown-builtin-module";',
 		'import fs from "node:fs";',
+		'import punycode from "punycode";',
 		outdent`
 			async function foo() {
 				const fs = await import(fs);
@@ -74,6 +75,7 @@ test.snapshot({
 		'const fs = require();',
 		'const fs = require(...["fs"]);',
 		'const fs = require("unicorn");',
+		'const fs = require("punycode");',
 	],
 	invalid: [
 		'const {promises} = require("fs")',
