@@ -214,11 +214,10 @@ test({
 			options: [{
 				exceptions: ['this.state'],
 			}],
-			code: 
-				outdent`
-					const {someMethod} = this;
-					console.log(this.state);
-				`,
+			code: outdent`
+				const {someMethod} = this;
+				console.log(this.state);
+			`,
 		},
 	],
 	invalid: [
