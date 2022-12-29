@@ -57,3 +57,17 @@ console.log(a, foo.b());
 const {a} = foo.bar;
 console.log(foo.bar);
 ```
+
+## Options
+
+### exceptions
+
+Type: `string[]`
+
+Pass `exceptions` to disable linting of certain expressions.
+
+```js
+/* eslint unicorn/consistent-destructuring: ["error", {exceptions: ["this.state"]}] */
+const {someMethod} = this;
+console.log(this.state);
+```

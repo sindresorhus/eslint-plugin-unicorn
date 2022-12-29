@@ -55,6 +55,7 @@ const isChildInParentScope = (child, parent) => {
 const create = context => {
 	const source = context.getSourceCode();
 	const declarations = new Map();
+	const exceptions = context.options[0]?.exceptions;
 
 	return {
 		[declaratorSelector](node) {
@@ -95,6 +96,10 @@ const create = context => {
 
 			const expression = source.getText(node);
 			const member = source.getText(node.property);
+
+			if (exceptions?.includes(expression)) {
+				return;
+			}
 
 			// Member might already be destructured
 			const destructuredMember = destructurings.find(property =>
@@ -150,6 +155,21 @@ const create = context => {
 	};
 };
 
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			exceptions: {
+				type: 'array',
+				items: {
+					type: 'string',
+				},
+			},
+		},
+	},
+];
+
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
@@ -160,6 +180,7 @@ module.exports = {
 		},
 		fixable: 'code',
 		hasSuggestions: true,
+		schema,
 		messages: {
 			[MESSAGE_ID]: 'Use destructured variables over properties.',
 			[MESSAGE_ID_SUGGEST]: 'Replace `{{expression}}` with destructured property `{{property}}`.',
