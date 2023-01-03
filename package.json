@@ -79,7 +79,7 @@
 		"eslint-plugin-eslint-plugin": "^5.0.6",
 		"eslint-plugin-internal-rules": "file:./scripts/internal-rules/",
 		"eslint-remote-tester": "^3.0.0",
-		"eslint-remote-tester-repositories": "^0.0.7",
+		"eslint-remote-tester-repositories": "^1.0.0",
 		"execa": "^6.1.0",
 		"listr": "^0.14.3",
 		"lodash-es": "^4.17.21",
