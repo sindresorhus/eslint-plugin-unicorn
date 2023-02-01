@@ -12,6 +12,7 @@ function normalizeProject(project) {
 		repository,
 		name = repository.split('/').pop(),
 		ignore = [],
+		babelPlugins = [],
 	} = project;
 
 	return {
@@ -20,6 +21,7 @@ function normalizeProject(project) {
 		name,
 		repository,
 		ignore,
+		babelPlugins,
 	};
 }
 
@@ -106,9 +108,9 @@ export default [
 
 				// Global return
 				'utils/fetch_devices.js',
-
-				// Import assertions
-				'tools/analyze_issue.mjs',
+			],
+			babelPlugins: [
+				'importAssertions',
 			],
 		},
 		'https://github.com/ReactTraining/react-router',
@@ -205,9 +207,9 @@ export default [
 	],
 	{
 		repository: 'https://github.com/rust-lang/crates.io',
-		ignore: [
-			// Decorators
-			'app/**',
+		ignore: [],
+		babelPlugins: [
+			['decorators', { decoratorsBeforeExport: true }],
 		],
 	},
 ].flatMap((projectOrProjects, index) =>
