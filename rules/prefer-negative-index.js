@@ -37,12 +37,31 @@ const methods = new Map([
 		},
 	],
 	[
+		'toSpliced',
+		{
+			argumentsIndexes: [0],
+			supportObjects: new Set([
+				'Array',
+			]),
+		},
+	],
+	[
 		'at',
 		{
 			argumentsIndexes: [0],
 			supportObjects: new Set([
 				'Array',
 				'String',
+				...typedArray,
+			]),
+		},
+	],
+	[
+		'with',
+		{
+			argumentsIndexes: [0],
+			supportObjects: new Set([
+				'Array',
 				...typedArray,
 			]),
 		},
@@ -92,12 +111,12 @@ function parse(node) {
 	const parentCallee = callee.object.object;
 
 	if (
-		// [].{slice,splice}
+		// `[].{slice,splice,toSpliced,at,with}`
 		(
 			parentCallee.type === 'ArrayExpression'
 			&& parentCallee.elements.length === 0
 		)
-		// ''.slice
+		// `''.slice`
 		|| (
 			method === 'slice'
 			&& isLiteral(parentCallee, '')
@@ -175,7 +194,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer negative index over `.length - index` for `{String,Array,TypedArray}#{slice,at}()` and `Array#splice()`.',
+			description: 'Prefer negative index over `.length - index` for builtin object methods supports relative index.',
 		},
 		fixable: 'code',
 		messages,
