@@ -203,7 +203,13 @@ export default [
 			],
 		},
 	],
-	'https://github.com/rust-lang/crates.io',
+	{
+		repository: 'https://github.com/rust-lang/crates.io',
+		ignore: [
+			// Decorators
+			'app/adapters/application.js',
+		],
+	},
 ].flatMap((projectOrProjects, index) =>
 	Array.isArray(projectOrProjects)
 		? projectOrProjects.map(project => ({...normalizeProject(project), group: index}))
