@@ -209,7 +209,7 @@ export default [
 		repository: 'https://github.com/rust-lang/crates.io',
 		ignore: [],
 		babelPlugins: [
-			['decorators', { decoratorsBeforeExport: true }],
+			['decorators', {decoratorsBeforeExport: true}],
 		],
 	},
 ].flatMap((projectOrProjects, index) =>
