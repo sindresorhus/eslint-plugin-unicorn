@@ -1,4 +1,4 @@
-# Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#slice()` and `String#split('')`
+# Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#{slice,toSpliced}()` and `String#split('')`
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
 
@@ -25,6 +25,10 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 
 	Variables named `arrayBuffer`, `blob`, `buffer`, `file`, and `this` are ignored.
 
+- `Array#toSpliced()`
+
+	Shallow copy an `Array`.
+
 - `String#split('')`
 
 	Split a string into an array of characters.
@@ -45,6 +49,14 @@ const array = array1.concat(array2);
 
 ```js
 const copy = array.slice();
+```
+
+```js
+const copy = array.slice(0);
+```
+
+```js
+const copy = array.toSpliced();
 ```
 
 ```js
