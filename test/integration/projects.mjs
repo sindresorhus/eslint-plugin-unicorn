@@ -106,6 +106,9 @@ export default [
 
 				// Global return
 				'utils/fetch_devices.js',
+
+				// Import assertions
+				'tools/analyze_issue.mjs',
 			],
 		},
 		'https://github.com/ReactTraining/react-router',
@@ -133,13 +136,14 @@ export default [
 			'tools/**',
 		],
 	},
-	{
-		repository: 'https://github.com/microsoft/typescript',
-		ignore: [
-			// These file use `'\033'`
-			'build/**',
-		],
-	},
+	// OOM
+	// {
+	// 	repository: 'https://github.com/microsoft/typescript',
+	// 	ignore: [
+	// 		// These file use `'\033'`
+	// 		'build/**',
+	// 	],
+	// },
 	{
 		repository: 'https://github.com/microsoft/vscode',
 		ignore: [
@@ -199,6 +203,7 @@ export default [
 			],
 		},
 	],
+	'https://github.com/rust-lang/crates.io',
 ].flatMap((projectOrProjects, index) =>
 	Array.isArray(projectOrProjects)
 		? projectOrProjects.map(project => ({...normalizeProject(project), group: index}))
