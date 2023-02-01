@@ -47,7 +47,10 @@ const messages = {
 		'Unexpected \'{{matchedTerm}}\' comment without any conditions: \'{{comment}}\'.',
 };
 
-const packageResult = readPkgUp.sync();
+// We don't need to normalize the package.json data, because we are only using 2 properties and those 2 properties
+// aren't validated by the normalization. But when this plugin is used in a monorepo, the name field in the
+// package.json is invalid and would make this plugin throw an error. See also #1871
+const packageResult = readPkgUp.sync({normalize: false});
 const hasPackage = Boolean(packageResult);
 const packageJson = hasPackage ? packageResult.packageJson : {};
 
