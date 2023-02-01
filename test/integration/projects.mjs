@@ -12,6 +12,7 @@ function normalizeProject(project) {
 		repository,
 		name = repository.split('/').pop(),
 		ignore = [],
+		babelPlugins = [],
 	} = project;
 
 	return {
@@ -20,6 +21,7 @@ function normalizeProject(project) {
 		name,
 		repository,
 		ignore,
+		babelPlugins,
 	};
 }
 
@@ -107,6 +109,9 @@ export default [
 				// Global return
 				'utils/fetch_devices.js',
 			],
+			babelPlugins: [
+				'importAssertions',
+			],
 		},
 		'https://github.com/ReactTraining/react-router',
 		// #902
@@ -133,13 +138,14 @@ export default [
 			'tools/**',
 		],
 	},
-	{
-		repository: 'https://github.com/microsoft/typescript',
-		ignore: [
-			// These file use `'\033'`
-			'build/**',
-		],
-	},
+	// OOM
+	// {
+	// 	repository: 'https://github.com/microsoft/typescript',
+	// 	ignore: [
+	// 		// These file use `'\033'`
+	// 		'build/**',
+	// 	],
+	// },
 	{
 		repository: 'https://github.com/microsoft/vscode',
 		ignore: [
@@ -199,6 +205,13 @@ export default [
 			],
 		},
 	],
+	{
+		repository: 'https://github.com/rust-lang/crates.io',
+		ignore: [],
+		babelPlugins: [
+			['decorators', {decoratorsBeforeExport: true}],
+		],
+	},
 ].flatMap((projectOrProjects, index) =>
 	Array.isArray(projectOrProjects)
 		? projectOrProjects.map(project => ({...normalizeProject(project), group: index}))
