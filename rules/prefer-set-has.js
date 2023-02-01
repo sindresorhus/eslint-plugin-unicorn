@@ -30,7 +30,7 @@ const arrayStaticMethodSelector = methodCallSelector({
 	path: 'init',
 });
 
-// Array methods return an array
+// Array methods that return an array
 const arrayMethodSelector = methodCallSelector({
 	methods: [
 		'concat',
