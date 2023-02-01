@@ -64,7 +64,7 @@ async function runEslint(project) {
 						plugins: [
 							'jsx',
 							'exportDefaultFrom',
-							...babelPlugins,
+							...project.babelPlugins,
 						],
 					},
 				},
