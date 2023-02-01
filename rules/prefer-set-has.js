@@ -30,17 +30,7 @@ const arrayStaticMethodSelector = methodCallSelector({
 	path: 'init',
 });
 
-// `array.concat()`
-// `array.copyWithin()`
-// `array.fill()`
-// `array.filter()`
-// `array.flat()`
-// `array.flatMap()`
-// `array.map()`
-// `array.reverse()`
-// `array.slice()`
-// `array.sort()`
-// `array.splice()`
+// Array methods return an array
 const arrayMethodSelector = methodCallSelector({
 	methods: [
 		'concat',
@@ -54,6 +44,9 @@ const arrayMethodSelector = methodCallSelector({
 		'slice',
 		'sort',
 		'splice',
+		'toReversed',
+		'toSorted',
+		'toSpliced',
 	],
 	path: 'init',
 });

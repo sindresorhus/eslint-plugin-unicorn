@@ -24,6 +24,9 @@ const methodsReturnsArray = [
 	'slice',
 	'sort',
 	'splice',
+	'toReversed',
+	'toSorted',
+	'toSpliced',
 ];
 
 test({
