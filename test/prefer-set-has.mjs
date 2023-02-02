@@ -616,6 +616,7 @@ test.snapshot({
 
 test.snapshot({
 	testerOptions: {
+		parser: parsers.babel,
 		parserOptions: {
 			babelOptions: {
 				parserOpts: {
@@ -648,7 +649,11 @@ test.snapshot({
 	],
 });
 
-test.typescript({
+// Fix
+test.snapshot({
+	testerOptions: {
+		parser: parsers.typescript,
+	},
 	valid: [
 		// https://github.com/TheThingsNetwork/lorawan-stack/blob/1dab30227e632ceade425e0c67d5f84316e830da/pkg/webui/console/containers/device-importer/index.js#L74
 		outdent`
@@ -667,35 +672,14 @@ test.typescript({
 		`,
 	],
 	invalid: [
-		{
-			code: outdent`
-				const a: Array<'foo' | 'bar'> = ['foo', 'bar']
+		outdent`
+			const a: Array<'foo' | 'bar'> = ['foo', 'bar']
 
-				for (let i = 0; i < 3; i++) {
-					if (a.includes(someString)) {
-						console.log(123)
-					}
+			for (let i = 0; i < 3; i++) {
+				if (a.includes(someString)) {
+					console.log(123)
 				}
-			`,
-			errors: [
-				{
-					message: '`a` should be a `Set`, and use `a.has()` to check existence or non-existence.',
-					suggestions: [
-						{
-							desc: 'Switch `a` to `Set`.',
-							output: outdent`
-								const a: Array<'foo' | 'bar'> = new Set(['foo', 'bar'])
-
-								for (let i = 0; i < 3; i++) {
-									if (a.has(someString)) {
-										console.log(123)
-									}
-								}
-							`,
-						},
-					],
-				},
-			],
-		},
+			}
+		`,
 	],
 });
