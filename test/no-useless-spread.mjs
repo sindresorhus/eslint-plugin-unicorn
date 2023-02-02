@@ -267,6 +267,7 @@ test.snapshot({
 		'[...foo.toReversed()]',
 		'[...foo.toSorted()]',
 		'[...foo.toSpliced(0, 1)]',
+		'[...foo.with(0, bar)]',
 		'[...foo.split("|")]',
 		'[...Object.keys(foo)]',
 		'[...Object.values(foo)]',

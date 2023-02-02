@@ -82,6 +82,7 @@ const uselessArrayCloneSelector = [
 			'toReversed',
 			'toSorted',
 			'toSpliced',
+			'with',
 		]),
 		// `String#split()`
 		methodCallSelector('split'),
