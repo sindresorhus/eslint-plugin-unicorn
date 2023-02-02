@@ -1,4 +1,4 @@
-# Prefer negative index over `.length - index` for `{String,Array,TypedArray}#{slice,at}()` and `Array#splice()`
+# Prefer negative index over `.length - index` when possible
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
 
@@ -7,7 +7,25 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer negative index over calculating from `.length` for [`String#slice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice), [`Array#slice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice), [`TypedArray#slice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/slice), [`String#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/at), [`Array#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at), [`TypedArray#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/at), and [`Array#splice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice)
+Prefer negative index over calculating from `.length` for:
+
+- [`String#slice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice)
+- [`Array#slice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice)
+- [`TypedArray#slice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/slice)
+- [`String#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/at)
+- [`Array#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at)
+- [`TypedArray#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/at)
+- [`Array#splice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice)
+- [`Array#toSpliced()`](https://github.com/tc39/proposal-change-array-by-copy#overview)
+- [`Array#with()`](https://github.com/tc39/proposal-change-array-by-copy#overview)
+- [`TypedArray#with()`](https://github.com/tc39/proposal-change-array-by-copy#overview)
+
+<!--
+TODO: Use MDN links when available
+- [`Array#toSpliced()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced)
+- [`Array#with()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/with)
+- [`TypedArray#with()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/with)
+-->
 
 ## Fail
 

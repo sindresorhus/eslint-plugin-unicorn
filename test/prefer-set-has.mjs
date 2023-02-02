@@ -1,16 +1,7 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
-
-const createError = name => [
-	{
-		messageId: 'error',
-		data: {
-			name,
-		},
-	},
-];
 
 const methodsReturnsArray = [
 	'concat',
@@ -30,7 +21,7 @@ const methodsReturnsArray = [
 	'with',
 ];
 
-test({
+test.snapshot({
 	valid: [
 		outdent`
 			const foo = new Set([1, 2, 3]);
@@ -391,524 +382,245 @@ test({
 		`,
 	],
 	invalid: [
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				function unicorn() {
-					return foo.includes(1);
-				}
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				function unicorn() {
-					return foo.has(1);
-				}
-			`,
-			errors: createError('foo'),
-		},
+		outdent`
+			const foo = [1, 2, 3];
+			function unicorn() {
+				return foo.includes(1);
+			}
+		`,
 
 		// Called multiple times
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				const isExists = foo.includes(1);
-				const isExists2 = foo.includes(2);
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				const isExists = foo.has(1);
-				const isExists2 = foo.has(2);
-			`,
-			errors: createError('foo'),
-		},
+		outdent`
+			const foo = [1, 2, 3];
+			const isExists = foo.includes(1);
+			const isExists2 = foo.includes(2);
+		`,
 
 		// `ForOfStatement`
-		{
-			code: outdent`
+		outdent`
+			const foo = [1, 2, 3];
+			for (const a of b) {
+				foo.includes(1);
+			}
+		`,
+		outdent`
+			async function unicorn() {
 				const foo = [1, 2, 3];
-				for (const a of b) {
+				for await (const a of b) {
 					foo.includes(1);
 				}
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				for (const a of b) {
-					foo.has(1);
-				}
-			`,
-			errors: createError('foo'),
-		},
-		{
-			code: outdent`
-				async function unicorn() {
-					const foo = [1, 2, 3];
-					for await (const a of b) {
-						foo.includes(1);
-					}
-				}
-			`,
-			output: outdent`
-				async function unicorn() {
-					const foo = new Set([1, 2, 3]);
-					for await (const a of b) {
-						foo.has(1);
-					}
-				}
-			`,
-			errors: createError('foo'),
-		},
+			}
+		`,
 
 		// `ForStatement`
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				for (let i = 0; i < n; i++) {
-					foo.includes(1);
-				}
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				for (let i = 0; i < n; i++) {
-					foo.has(1);
-				}
-			`,
-			errors: createError('foo'),
-		},
+		outdent`
+			const foo = [1, 2, 3];
+			for (let i = 0; i < n; i++) {
+				foo.includes(1);
+			}
+		`,
 
 		// `ForInStatement`
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				for (let a in b) {
-					foo.includes(1);
-				}
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				for (let a in b) {
-					foo.has(1);
-				}
-			`,
-			errors: createError('foo'),
-		},
+		outdent`
+			const foo = [1, 2, 3];
+			for (let a in b) {
+				foo.includes(1);
+			}
+		`,
 
 		// `WhileStatement`
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				while (a)  {
-					foo.includes(1);
-				}
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				while (a)  {
-					foo.has(1);
-				}
-			`,
-			errors: createError('foo'),
-		},
+		outdent`
+			const foo = [1, 2, 3];
+			while (a)  {
+				foo.includes(1);
+			}
+		`,
 
 		// `DoWhileStatement`
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				do {
-					foo.includes(1);
-				} while (a)
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				do {
-					foo.has(1);
-				} while (a)
-			`,
-			errors: createError('foo'),
-		},
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				do {
-					// …
-				} while (foo.includes(1))
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				do {
-					// …
-				} while (foo.has(1))
-			`,
-			errors: createError('foo'),
-		},
+		outdent`
+			const foo = [1, 2, 3];
+			do {
+				foo.includes(1);
+			} while (a)
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			do {
+				// …
+			} while (foo.includes(1))
+		`,
 
 		// `function` https://github.com/estools/esquery/blob/master/esquery.js#L216
 		// `FunctionDeclaration`
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				function unicorn() {
-					return foo.includes(1);
-				}
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				function unicorn() {
-					return foo.has(1);
-				}
-			`,
-			errors: createError('foo'),
-		},
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				function * unicorn() {
-					return foo.includes(1);
-				}
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				function * unicorn() {
-					return foo.has(1);
-				}
-			`,
-			errors: createError('foo'),
-		},
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				async function unicorn() {
-					return foo.includes(1);
-				}
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				async function unicorn() {
-					return foo.has(1);
-				}
-			`,
-			errors: createError('foo'),
-		},
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				async function * unicorn() {
-					return foo.includes(1);
-				}
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				async function * unicorn() {
-					return foo.has(1);
-				}
-			`,
-			errors: createError('foo'),
-		},
+		outdent`
+			const foo = [1, 2, 3];
+			function unicorn() {
+				return foo.includes(1);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			function * unicorn() {
+				return foo.includes(1);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			async function unicorn() {
+				return foo.includes(1);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			async function * unicorn() {
+				return foo.includes(1);
+			}
+		`,
 		// `FunctionExpression`
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				const unicorn = function () {
+		outdent`
+			const foo = [1, 2, 3];
+			const unicorn = function () {
+				return foo.includes(1);
+			}
+		`,
+		// `ArrowFunctionExpression`
+		outdent`
+			const foo = [1, 2, 3];
+			const unicorn = () => foo.includes(1);
+		`,
+
+		outdent`
+			const foo = [1, 2, 3];
+			const a = {
+				b() {
 					return foo.includes(1);
 				}
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				const unicorn = function () {
-					return foo.has(1);
-				}
-			`,
-			errors: createError('foo'),
-		},
-		// `ArrowFunctionExpression`
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				const unicorn = () => foo.includes(1);
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				const unicorn = () => foo.has(1);
-			`,
-			errors: createError('foo'),
-		},
+			};
+		`,
 
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				const a = {
-					b() {
-						return foo.includes(1);
-					}
-				};
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				const a = {
-					b() {
-						return foo.has(1);
-					}
-				};
-			`,
-			errors: createError('foo'),
-		},
-
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				class A {
-					b() {
-						return foo.includes(1);
-					}
+		outdent`
+			const foo = [1, 2, 3];
+			class A {
+				b() {
+					return foo.includes(1);
 				}
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				class A {
-					b() {
-						return foo.has(1);
-					}
-				}
-			`,
-			errors: createError('foo'),
-		},
+			}
+		`,
 
 		// SpreadElement
-		{
-			code: outdent`
-				const foo = [...bar];
+		outdent`
+			const foo = [...bar];
+			function unicorn() {
+				return foo.includes(1);
+			}
+			bar.pop();
+		`,
+		// Multiple references
+		outdent`
+			const foo = [1, 2, 3];
+			function unicorn() {
+				const exists = foo.includes(1);
+				function isExists(find) {
+					return foo.includes(find);
+				}
+			}
+		`,
+		outdent`
+			function wrap() {
+				const foo = [1, 2, 3];
+
 				function unicorn() {
 					return foo.includes(1);
 				}
-				bar.pop();
-			`,
-			output: outdent`
-				const foo = new Set([...bar]);
-				function unicorn() {
-					return foo.has(1);
-				}
-				bar.pop();
-			`,
-			errors: createError('foo'),
-		},
-		// Multiple references
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				function unicorn() {
-					const exists = foo.includes(1);
-					function isExists(find) {
-						return foo.includes(find);
-					}
-				}
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				function unicorn() {
-					const exists = foo.has(1);
-					function isExists(find) {
-						return foo.has(find);
-					}
-				}
-			`,
-			errors: createError('foo'),
-		},
-		{
-			code: outdent`
-				function wrap() {
-					const foo = [1, 2, 3];
+			}
 
-					function unicorn() {
-						return foo.includes(1);
-					}
-				}
+			const bar = [4, 5, 6];
 
-				const bar = [4, 5, 6];
-
-				function unicorn() {
-					return bar.includes(1);
-				}
-			`,
-			output: outdent`
-				function wrap() {
-					const foo = new Set([1, 2, 3]);
-
-					function unicorn() {
-						return foo.has(1);
-					}
-				}
-
-				const bar = new Set([4, 5, 6]);
-
-				function unicorn() {
-					return bar.has(1);
-				}
-			`,
-			errors: [
-				...createError('foo'),
-				...createError('bar'),
-			],
-		},
+			function unicorn() {
+				return bar.includes(1);
+			}
+		`,
 		// Different scope
-		{
-			code: outdent`
-				const foo = [1, 2, 3];
-				function wrap() {
-					const exists = foo.includes(1);
-					const bar = [1, 2, 3];
+		outdent`
+			const foo = [1, 2, 3];
+			function wrap() {
+				const exists = foo.includes(1);
+				const bar = [1, 2, 3];
 
-					function outer(find) {
-						const foo = [1, 2, 3];
+				function outer(find) {
+					const foo = [1, 2, 3];
+					while (a) {
+						foo.includes(1);
+					}
+
+					function inner(find) {
+						const bar = [1, 2, 3];
 						while (a) {
-							foo.includes(1);
-						}
-
-						function inner(find) {
-							const bar = [1, 2, 3];
-							while (a) {
-								const exists = bar.includes(1);
-							}
+							const exists = bar.includes(1);
 						}
 					}
 				}
-			`,
-			output: outdent`
-				const foo = new Set([1, 2, 3]);
-				function wrap() {
-					const exists = foo.has(1);
-					const bar = [1, 2, 3];
-
-					function outer(find) {
-						const foo = new Set([1, 2, 3]);
-						while (a) {
-							foo.has(1);
-						}
-
-						function inner(find) {
-							const bar = new Set([1, 2, 3]);
-							while (a) {
-								const exists = bar.has(1);
-							}
-						}
-					}
-				}
-			`,
-			errors: [
-				...createError('foo'),
-				...createError('foo'),
-				...createError('bar'),
-			],
-		},
+			}
+		`,
 
 		// `Array()`
-		{
-			code: outdent`
-				const foo = Array(1, 2);
-				function unicorn() {
-					return foo.includes(1);
-				}
-			`,
-			output: outdent`
-				const foo = new Set(Array(1, 2));
-				function unicorn() {
-					return foo.has(1);
-				}
-			`,
-			errors: createError('foo'),
-		},
+		outdent`
+			const foo = Array(1, 2);
+			function unicorn() {
+				return foo.includes(1);
+			}
+		`,
 
 		// `new Array()`
-		{
-			code: outdent`
-				const foo = new Array(1, 2);
-				function unicorn() {
-					return foo.includes(1);
-				}
-			`,
-			output: outdent`
-				const foo = new Set(new Array(1, 2));
-				function unicorn() {
-					return foo.has(1);
-				}
-			`,
-			errors: createError('foo'),
-		},
+		outdent`
+			const foo = new Array(1, 2);
+			function unicorn() {
+				return foo.includes(1);
+			}
+		`,
 
 		// `Array.from()`
-		{
-			code: outdent`
-				const foo = Array.from({length: 1}, (_, index) => index);
-				function unicorn() {
-					return foo.includes(1);
-				}
-			`,
-			output: outdent`
-				const foo = new Set(Array.from({length: 1}, (_, index) => index));
-				function unicorn() {
-					return foo.has(1);
-				}
-			`,
-			errors: createError('foo'),
-		},
+		outdent`
+			const foo = Array.from({length: 1}, (_, index) => index);
+			function unicorn() {
+				return foo.includes(1);
+			}
+		`,
 
 		// `Array.of()`
-		{
-			code: outdent`
-				const foo = Array.of(1, 2);
-				function unicorn() {
-					return foo.includes(1);
-				}
-			`,
-			output: outdent`
-				const foo = new Set(Array.of(1, 2));
-				function unicorn() {
-					return foo.has(1);
-				}
-			`,
-			errors: createError('foo'),
-		},
+		outdent`
+			const foo = Array.of(1, 2);
+			function unicorn() {
+				return foo.includes(1);
+			}
+		`,
 
 		// Methods
-		...methodsReturnsArray.map(method => ({
-			code: outdent`
+		...methodsReturnsArray.map(method =>
+			outdent`
 				const foo = bar.${method}();
 				function unicorn() {
 					return foo.includes(1);
 				}
 			`,
-			output: outdent`
-				const foo = new Set(bar.${method}());
-				function unicorn() {
-					return foo.has(1);
-				}
-			`,
-			errors: createError('foo'),
-		})),
+		),
 
 		// `lodash`
 		// `bar` is not `array`, but code not broken
 		// See https://github.com/sindresorhus/eslint-plugin-unicorn/pull/641
-		{
-			code: outdent`
-				const foo = _([1,2,3]);
-				const bar = foo.map(value => value);
-				function unicorn() {
-					return bar.includes(1);
-				}
-			`,
-			output: outdent`
-				const foo = _([1,2,3]);
-				const bar = new Set(foo.map(value => value));
-				function unicorn() {
-					return bar.has(1);
-				}
-			`,
-			errors: createError('bar'),
-		},
+		outdent`
+			const foo = _([1,2,3]);
+			const bar = foo.map(value => value);
+			function unicorn() {
+				return bar.includes(1);
+			}
+		`,
 	],
 });
 
-test.babel({
+test.snapshot({
 	testerOptions: {
+		parser: parsers.babel,
 		parserOptions: {
 			babelOptions: {
 				parserOpts: {
@@ -941,7 +653,10 @@ test.babel({
 	],
 });
 
-test.typescript({
+test.snapshot({
+	testerOptions: {
+		parser: parsers.typescript,
+	},
 	valid: [
 		// https://github.com/TheThingsNetwork/lorawan-stack/blob/1dab30227e632ceade425e0c67d5f84316e830da/pkg/webui/console/containers/device-importer/index.js#L74
 		outdent`
@@ -960,35 +675,14 @@ test.typescript({
 		`,
 	],
 	invalid: [
-		{
-			code: outdent`
-				const a: Array<'foo' | 'bar'> = ['foo', 'bar']
+		outdent`
+			const a: Array<'foo' | 'bar'> = ['foo', 'bar']
 
-				for (let i = 0; i < 3; i++) {
-					if (a.includes(someString)) {
-						console.log(123)
-					}
+			for (let i = 0; i < 3; i++) {
+				if (a.includes(someString)) {
+					console.log(123)
 				}
-			`,
-			errors: [
-				{
-					message: '`a` should be a `Set`, and use `a.has()` to check existence or non-existence.',
-					suggestions: [
-						{
-							desc: 'Switch `a` to `Set`.',
-							output: outdent`
-								const a: Array<'foo' | 'bar'> = new Set(['foo', 'bar'])
-
-								for (let i = 0; i < 3; i++) {
-									if (a.has(someString)) {
-										console.log(123)
-									}
-								}
-							`,
-						},
-					],
-				},
-			],
-		},
+			}
+		`,
 	],
 });
