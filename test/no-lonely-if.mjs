@@ -3,7 +3,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-test({
+test.snapshot({
 	valid: [
 		outdent`
 			if (a) {
@@ -30,11 +30,6 @@ test({
 			}
 		`,
 	],
-	invalid: [],
-});
-
-test.snapshot({
-	valid: [],
 	invalid: [
 		outdent`
 			if (a) {
