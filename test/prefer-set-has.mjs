@@ -3,15 +3,6 @@ import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const createError = name => [
-	{
-		messageId: 'error',
-		data: {
-			name,
-		},
-	},
-];
-
 const methodsReturnsArray = [
 	'concat',
 	'copyWithin',
@@ -657,7 +648,10 @@ test.snapshot({
 	],
 });
 
-test.typescript({
+test.snapshot({
+	testerOptions: {
+		parser: parsers.typescript,
+	},
 	valid: [
 		// https://github.com/TheThingsNetwork/lorawan-stack/blob/1dab30227e632ceade425e0c67d5f84316e830da/pkg/webui/console/containers/device-importer/index.js#L74
 		outdent`

@@ -10,7 +10,7 @@ const MESSAGE_ID_NO_SINGLE_CODE_OBJECT = 'use-string';
 const MESSAGE_ID_REMOVE_FIX_MARK_COMMENT = 'remove-fix-mark';
 const messages = {
 	[MESSAGE_ID_DISALLOWED_PROPERTY]: '"{{name}}" not allowed.{{autoFixEnableTip}}',
-	[MESSAGE_ID_NO_SINGLE_CODE_OBJECT]: 'Use string instead of object with "code".{{autoFixEnableTip}}',
+	[MESSAGE_ID_NO_SINGLE_CODE_OBJECT]: 'Use string instead of object with "code".',
 	[MESSAGE_ID_REMOVE_FIX_MARK_COMMENT]: 'This comment should be removed.',
 };
 
@@ -53,7 +53,7 @@ function * removeObjectProperty(node, fixer, sourceCode) {
 }
 
 // The fix deletes lots of code, disabled by default
-function getFixComment(propertyNode, sourceCode) {
+function hasFixMarkComment(propertyNode, sourceCode) {
 	const snapshotTestCall = propertyNode.parent.parent.parent.parent.parent;
 	assert.ok(snapshotTestCall.type === 'CallExpression');
 	const comment = sourceCode.getTokenBefore(snapshotTestCall, {includeComments: true});
@@ -66,7 +66,7 @@ function getFixComment(propertyNode, sourceCode) {
 			|| comment.loc.start.line === snapshotTestCall.loc.start.line - 1
 		)
 	) {
-		return comment;
+		return true;
 	}
 }
 
@@ -77,19 +77,23 @@ module.exports = {
 		return {
 			[selector](propertyNode) {
 				const {key} = propertyNode;
-				const fixMarkComment = getFixComment(propertyNode, sourceCode);
-				const autoFixEnableTip = fixMarkComment
-					? ''
-					: ' Put /* fix */ before `test.snapshot()` to enable auto-fix.';
 
 				switch (key.name) {
 					case 'errors':
 					case 'output': {
+						const canFix = sourceCode.getCommentsInside(propertyNode).length === 0;
+						const hasFixMark = hasFixMarkComment(propertyNode, sourceCode);
+
 						context.report({
 							node: key,
 							messageId: MESSAGE_ID_DISALLOWED_PROPERTY,
-							data: {name: key.name, autoFixEnableTip},
-							fix: fixMarkComment && sourceCode.getCommentsInside(propertyNode).length === 0
+							data: {
+								name: key.name,
+								autoFixEnableTip: !hasFixMark && canFix
+									? ' Put /* fix */ before `test.snapshot()` to enable auto-fix.'
+									: '',
+							},
+							fix: hasFixMark && canFix
 								? fixer => removeObjectProperty(propertyNode, fixer, sourceCode)
 								: undefined
 							,
@@ -104,9 +108,8 @@ module.exports = {
 								- sourceCode.getCommentsInside(propertyNode).length;
 							context.report({
 								node: testCase,
-								data: {autoFixEnableTip},
 								messageId: MESSAGE_ID_NO_SINGLE_CODE_OBJECT,
-								fix: fixMarkComment && commentsCount === 0
+								fix: commentsCount === 0
 									? fixer => fixer.replaceText(testCase, sourceCode.getText(propertyNode.value))
 									: undefined,
 							});
