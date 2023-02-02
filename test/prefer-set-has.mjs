@@ -649,7 +649,6 @@ test.snapshot({
 	],
 });
 
-// Fix
 test.snapshot({
 	testerOptions: {
 		parser: parsers.typescript,
