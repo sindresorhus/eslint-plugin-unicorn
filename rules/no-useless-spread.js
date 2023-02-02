@@ -148,11 +148,11 @@ function * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode) {
 	] = sourceCode.getLastTokens(arrayExpression, 2);
 
 	// `[...value]`
-	//              ^
+	//           ^
 	yield fixer.remove(closingBracketToken);
 
 	// `[...value,]`
-	//              ^
+	//           ^
 	if (isCommaToken(commaToken)) {
 		yield fixer.remove(commaToken);
 	}
