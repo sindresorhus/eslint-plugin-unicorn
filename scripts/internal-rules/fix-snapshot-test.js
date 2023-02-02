@@ -23,7 +23,7 @@ const snapshotTestCallSelector = [
 		object: 'test',
 		method: 'snapshot',
 	}),
-].join('')
+].join('');
 
 const propertySelector = [
 	snapshotTestCallSelector,
@@ -87,7 +87,7 @@ module.exports = {
 
 				context.report({
 					node: comment,
-					messageId: MESSAGE_ID_REMOVE_FIX_MARK_COMMENT
+					messageId: MESSAGE_ID_REMOVE_FIX_MARK_COMMENT,
 				});
 			},
 			[propertySelector](propertyNode) {
@@ -99,7 +99,7 @@ module.exports = {
 						const canFix = sourceCode.getCommentsInside(propertyNode).length === 0;
 						const hasFixMark = Boolean(getFixMarkComment(
 							propertyNode.parent.parent.parent.parent.parent,
-							sourceCode
+							sourceCode,
 						));
 
 						context.report({
