@@ -101,7 +101,7 @@ module.exports = {
 						const testCase = propertyNode.parent;
 						if (testCase.properties.length === 1) {
 							const commentsCount = sourceCode.getCommentsInside(testCase).length
-								- sourceCode.getCommentsInside(propertyNode).length
+								- sourceCode.getCommentsInside(propertyNode).length;
 							context.report({
 								node: testCase,
 								data: {autoFixEnableTip},
