@@ -1,4 +1,4 @@
-# Prefer negative index over `.length - index` for builtin object methods supports relative index
+# Prefer negative index over `.length - index` when possible
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
 

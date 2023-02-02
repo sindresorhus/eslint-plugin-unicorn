@@ -194,7 +194,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer negative index over `.length - index` for builtin object methods supports relative index.',
+			description: 'Prefer negative index over `.length - index` when possible.',
 		},
 		fixable: 'code',
 		messages,
