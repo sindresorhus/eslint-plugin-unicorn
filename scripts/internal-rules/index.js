@@ -1,14 +1,14 @@
 'use strict';
 
 const path = require('node:path');
+
 const pluginName = 'internal-rules';
 const TEST_DIRECTORIES = [
-	path.join(__dirname, '../../test')
-]
+	path.join(__dirname, '../../test'),
+];
 const RULES_DIRECTORIES = [
-	__dirname,
-	path.join(__dirname, '../../rules')
-]
+	path.join(__dirname, '../../rules'),
+];
 
 const rules = [
 	{id: 'fix-snapshot-test', directories: TEST_DIRECTORIES},
@@ -29,14 +29,14 @@ module.exports = {
 					create(context) {
 						const filename = context.getPhysicalFilename();
 						if (directories.every(directory => !isFileInsideDirectory(filename, directory))) {
-							return {}
+							return {};
 						}
 
 						return rule.create(context);
-					}
-				}
+					},
+				},
 			];
-		})
+		}),
 	),
 	configs: {
 		all: {
