@@ -27,6 +27,7 @@ const methodsReturnsArray = [
 	'toReversed',
 	'toSorted',
 	'toSpliced',
+	'with',
 ];
 
 test({

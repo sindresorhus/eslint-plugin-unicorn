@@ -47,6 +47,7 @@ const arrayMethodSelector = methodCallSelector({
 		'toReversed',
 		'toSorted',
 		'toSpliced',
+		'with',
 	],
 	path: 'init',
 });
