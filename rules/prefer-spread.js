@@ -16,6 +16,7 @@ const isMethodNamed = require('./utils/is-method-named.js');
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
 const ERROR_ARRAY_SLICE = 'array-slice';
+const ERROR_ARRAY_TO_SPLICED = 'array-to-spliced';
 const ERROR_STRING_SPLIT = 'string-split';
 const SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE = 'argument-is-spreadable';
 const SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE = 'argument-is-not-spreadable';
@@ -26,6 +27,7 @@ const messages = {
 	[ERROR_ARRAY_FROM]: 'Prefer the spread operator over `Array.from(…)`.',
 	[ERROR_ARRAY_CONCAT]: 'Prefer the spread operator over `Array#concat(…)`.',
 	[ERROR_ARRAY_SLICE]: 'Prefer the spread operator over `Array#slice()`.',
+	[ERROR_ARRAY_TO_SPLICED]: 'Prefer the spread operator over `Array#toSpliced()`.',
 	[ERROR_STRING_SPLIT]: 'Prefer the spread operator over `String#split(\'\')`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE]: 'First argument is an `array`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE]: 'First argument is not an `array`.',
@@ -52,6 +54,14 @@ const arraySliceCallSelector = [
 		method: 'slice',
 		minimumArguments: 0,
 		maximumArguments: 1,
+	}),
+	'[callee.object.type!="ArrayExpression"]',
+].join('');
+
+const arrayToSplicedCallSelector = [
+	methodCallSelector({
+		method: 'toSpliced',
+		argumentsLength: 0,
 	}),
 	'[callee.object.type!="ArrayExpression"]',
 ].join('');
@@ -444,6 +454,13 @@ const create = context => {
 				fix: methodCallToSpread(node, sourceCode),
 			};
 		},
+		[arrayToSplicedCallSelector](node) {
+			return {
+				node: node.callee.property,
+				messageId: ERROR_ARRAY_TO_SPLICED,
+				fix: methodCallToSpread(node, sourceCode),
+			};
+		},
 		[stringSplitCallSelector](node) {
 			const [separator] = node.arguments;
 			if (!isLiteral(separator, '')) {
@@ -495,7 +512,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#slice()` and `String#split(\'\')`.',
+			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#{slice,toSpliced}()` and `String#split(\'\')`.',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

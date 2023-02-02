@@ -347,6 +347,45 @@ test.snapshot({
 	],
 });
 
+// `Array#toSpliced`
+test.snapshot({
+	valid: [
+		'new Array.toSpliced()',
+		'toSpliced()',
+		'array[toSpliced]()',
+		'array.toSpliced',
+		'array.toSpliced(0)',
+		'array.toSpliced(...[])',
+		'array.toSpliced(...[0])',
+		'array.toSpliced(0 + 0)',
+		'array.toSpliced("")',
+		'array.toSpliced(null)',
+		'const ZERO = 0;array.toSpliced(0, ZERO)',
+		'array.toSpliced(0, array.length)',
+		'array.toSpliced(0, 0)',
+		'array.notToSpliced()',
+		// Why would someone write these
+		'[...foo].toSpliced()',
+		'[foo].toSpliced()',
+		'array.toSpliced(100, 0)',
+		'array.toSpliced(-1, 0)',
+	],
+	invalid: [
+		'array.toSpliced()',
+		'array.toSpliced().toSpliced()',
+		'const copy = array.toSpliced()',
+		'(( (( (( array )).toSpliced ))() ))',
+		// Semicolon
+		outdent`
+			bar()
+			foo.toSpliced()
+		`,
+		// `{String,TypedArray}#toSpliced` are wrongly detected
+		'"".toSpliced()',
+		'new Uint8Array([10, 20, 30, 40, 50]).toSpliced()',
+	],
+});
+
 // `String#slice('')`
 test.snapshot({
 	valid: [
