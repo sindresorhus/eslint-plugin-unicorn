@@ -5,15 +5,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const enforceNewError = builtin => ({
-	message: `Use \`new ${builtin}()\` instead of \`${builtin}()\`.`,
-});
-
-const disallowNewError = builtin => ({
-	message: `Use \`${builtin}()\` instead of \`new ${builtin}()\`.`,
-});
-
-test({
+test.snapshot({
 	valid: [
 		'const foo = new Object()',
 		'const foo = new Array()',
@@ -106,214 +98,7 @@ test({
 		'const isObject = v => Object(v) === v;',
 		'const isObject = v => globalThis.Object(v) === v;',
 		'(x) !== Object(x)',
-	],
-	invalid: [
-		{
-			code: 'const foo = Object()',
-			errors: [enforceNewError('Object')],
-			output: 'const foo = new Object()',
-		},
-		{
-			code: 'const foo = Array()',
-			errors: [enforceNewError('Array')],
-			output: 'const foo = new Array()',
-		},
-		{
-			code: 'const foo = ArrayBuffer()',
-			errors: [enforceNewError('ArrayBuffer')],
-			output: 'const foo = new ArrayBuffer()',
-		},
-		{
-			code: 'const foo = BigInt64Array()',
-			errors: [enforceNewError('BigInt64Array')],
-			output: 'const foo = new BigInt64Array()',
-		},
-		{
-			code: 'const foo = BigUint64Array()',
-			errors: [enforceNewError('BigUint64Array')],
-			output: 'const foo = new BigUint64Array()',
-		},
-		{
-			code: 'const foo = DataView()',
-			errors: [enforceNewError('DataView')],
-			output: 'const foo = new DataView()',
-		},
-		{
-			code: 'const foo = Date()',
-			errors: [enforceNewError('Date')],
-			output: 'const foo = new Date()',
-		},
-		{
-			code: 'const foo = Error()',
-			errors: [enforceNewError('Error')],
-			output: 'const foo = new Error()',
-		},
-		{
-			code: 'const foo = Error(\'Foo bar\')',
-			errors: [enforceNewError('Error')],
-			output: 'const foo = new Error(\'Foo bar\')',
-		},
-		{
-			code: 'const foo = Float32Array()',
-			errors: [enforceNewError('Float32Array')],
-			output: 'const foo = new Float32Array()',
-		},
-		{
-			code: 'const foo = Float64Array()',
-			errors: [enforceNewError('Float64Array')],
-			output: 'const foo = new Float64Array()',
-		},
-		{
-			code: 'const foo = Function()',
-			errors: [enforceNewError('Function')],
-			output: 'const foo = new Function()',
-		},
-		{
-			code: 'const foo = Int8Array()',
-			errors: [enforceNewError('Int8Array')],
-			output: 'const foo = new Int8Array()',
-		},
-		{
-			code: 'const foo = Int16Array()',
-			errors: [enforceNewError('Int16Array')],
-			output: 'const foo = new Int16Array()',
-		},
-		{
-			code: 'const foo = Int32Array()',
-			errors: [enforceNewError('Int32Array')],
-			output: 'const foo = new Int32Array()',
-		},
-		{
-			code: 'const foo = (( Map ))()',
-			errors: [enforceNewError('Map')],
-			output: 'const foo = new (( Map ))()',
-		},
-		{
-			code: 'const foo = Map([[\'foo\', \'bar\'], [\'unicorn\', \'rainbow\']])',
-			errors: [enforceNewError('Map')],
-			output: 'const foo = new Map([[\'foo\', \'bar\'], [\'unicorn\', \'rainbow\']])',
-		},
-		{
-			code: 'const foo = WeakMap()',
-			errors: [enforceNewError('WeakMap')],
-			output: 'const foo = new WeakMap()',
-		},
-		{
-			code: 'const foo = Set()',
-			errors: [enforceNewError('Set')],
-			output: 'const foo = new Set()',
-		},
-		{
-			code: 'const foo = WeakSet()',
-			errors: [enforceNewError('WeakSet')],
-			output: 'const foo = new WeakSet()',
-		},
-		{
-			code: 'const foo = Promise()',
-			errors: [enforceNewError('Promise')],
-			output: 'const foo = new Promise()',
-		},
-		{
-			code: 'const foo = RegExp()',
-			errors: [enforceNewError('RegExp')],
-			output: 'const foo = new RegExp()',
-		},
-		{
-			code: 'const foo = Uint8Array()',
-			errors: [enforceNewError('Uint8Array')],
-			output: 'const foo = new Uint8Array()',
-		},
-		{
-			code: 'const foo = Uint16Array()',
-			errors: [enforceNewError('Uint16Array')],
-			output: 'const foo = new Uint16Array()',
-		},
-		{
-			code: 'const foo = Uint32Array()',
-			errors: [enforceNewError('Uint32Array')],
-			output: 'const foo = new Uint32Array()',
-		},
-		{
-			code: 'const foo = Uint8ClampedArray()',
-			errors: [enforceNewError('Uint8ClampedArray')],
-			output: 'const foo = new Uint8ClampedArray()',
-		},
-		{
-			code: 'const foo = new BigInt(123)',
-			errors: [disallowNewError('BigInt')],
-			output: 'const foo = BigInt(123)',
-		},
-		{
-			code: 'const foo = new Boolean()',
-			errors: [disallowNewError('Boolean')],
-		},
-		{
-			code: 'const foo = new Number()',
-			errors: [disallowNewError('Number')],
-		},
-		{
-			code: 'const foo = new Number(\'123\')',
-			errors: [disallowNewError('Number')],
-		},
-		{
-			code: 'const foo = new String()',
-			errors: [disallowNewError('String')],
-		},
-		{
-			code: 'const foo = new Symbol()',
-			errors: [disallowNewError('Symbol')],
-			output: 'const foo = Symbol()',
-		},
-		{
-			code: `
-				function varCheck() {
-					{
-						var WeakMap = function() {};
-					}
-					// This should not reported
-					return WeakMap()
-				}
-				function constCheck() {
-					{
-						const Array = function() {};
-					}
-					return Array()
-				}
-				function letCheck() {
-					{
-						let Map = function() {};
-					}
-					return Map()
-				}
-			`,
-			errors: [enforceNewError('Array'), enforceNewError('Map')],
-			output: `
-				function varCheck() {
-					{
-						var WeakMap = function() {};
-					}
-					// This should not reported
-					return WeakMap()
-				}
-				function constCheck() {
-					{
-						const Array = function() {};
-					}
-					return new Array()
-				}
-				function letCheck() {
-					{
-						let Map = function() {};
-					}
-					return new Map()
-				}
-			`,
-		},
-	],
-});
 
-test.snapshot({
-	valid: [
 		{
 			code: 'new Symbol("")',
 			globals: {Symbol: 'off'},
@@ -414,5 +199,58 @@ test.snapshot({
 			`,
 			globals: {Array: 'off'},
 		},
+		'const foo = Object()',
+		'const foo = Array()',
+		'const foo = ArrayBuffer()',
+		'const foo = BigInt64Array()',
+		'const foo = BigUint64Array()',
+		'const foo = DataView()',
+		'const foo = Date()',
+		'const foo = Error()',
+		'const foo = Error(\'Foo bar\')',
+		'const foo = Float32Array()',
+		'const foo = Float64Array()',
+		'const foo = Function()',
+		'const foo = Int8Array()',
+		'const foo = Int16Array()',
+		'const foo = Int32Array()',
+		'const foo = (( Map ))()',
+		'const foo = Map([[\'foo\', \'bar\'], [\'unicorn\', \'rainbow\']])',
+		'const foo = WeakMap()',
+		'const foo = Set()',
+		'const foo = WeakSet()',
+		'const foo = Promise()',
+		'const foo = RegExp()',
+		'const foo = Uint8Array()',
+		'const foo = Uint16Array()',
+		'const foo = Uint32Array()',
+		'const foo = Uint8ClampedArray()',
+		'const foo = new BigInt(123)',
+		'const foo = new Boolean()',
+		'const foo = new Number()',
+		'const foo = new Number(\'123\')',
+		'const foo = new String()',
+		'const foo = new Symbol()',
+		`
+				function varCheck() {
+					{
+						var WeakMap = function() {};
+					}
+					// This should not reported
+					return WeakMap()
+				}
+				function constCheck() {
+					{
+						const Array = function() {};
+					}
+					return Array()
+				}
+				function letCheck() {
+					{
+						let Map = function() {};
+					}
+					return Map()
+				}
+			`,
 	],
 });

@@ -15,7 +15,7 @@ const messages = {
 };
 
 // Top-level `test.snapshot({invalid: []})`
-const selector = [
+const snapshotTestCallSelector = [
 	'Program > ExpressionStatement.body > .expression',
 	// `test.snapshot()`
 	methodCallSelector({
@@ -23,6 +23,10 @@ const selector = [
 		object: 'test',
 		method: 'snapshot',
 	}),
+].join('');
+
+const propertySelector = [
+	snapshotTestCallSelector,
 	' > ObjectExpression.arguments:first-child',
 	/*
 	```
@@ -53,8 +57,7 @@ function * removeObjectProperty(node, fixer, sourceCode) {
 }
 
 // The fix deletes lots of code, disabled auto-fix by default, unless `/* fix */ test.snapshot()` pattern is used.
-function hasFixMarkComment(propertyNode, sourceCode) {
-	const snapshotTestCall = propertyNode.parent.parent.parent.parent.parent;
+function getFixMarkComment(snapshotTestCall, sourceCode) {
 	assert.ok(snapshotTestCall.type === 'CallExpression');
 	const comment = sourceCode.getTokenBefore(snapshotTestCall, {includeComments: true});
 
@@ -66,7 +69,7 @@ function hasFixMarkComment(propertyNode, sourceCode) {
 			|| comment.loc.start.line === snapshotTestCall.loc.start.line - 1
 		)
 	) {
-		return true;
+		return comment;
 	}
 }
 
@@ -75,14 +78,29 @@ module.exports = {
 		const sourceCode = context.getSourceCode();
 
 		return {
-			[selector](propertyNode) {
+			[snapshotTestCallSelector](snapshotTestCall) {
+				const comment = getFixMarkComment(snapshotTestCall, sourceCode);
+
+				if (!comment) {
+					return;
+				}
+
+				context.report({
+					node: comment,
+					messageId: MESSAGE_ID_REMOVE_FIX_MARK_COMMENT,
+				});
+			},
+			[propertySelector](propertyNode) {
 				const {key} = propertyNode;
 
 				switch (key.name) {
 					case 'errors':
 					case 'output': {
 						const canFix = sourceCode.getCommentsInside(propertyNode).length === 0;
-						const hasFixMark = hasFixMarkComment(propertyNode, sourceCode);
+						const hasFixMark = Boolean(getFixMarkComment(
+							propertyNode.parent.parent.parent.parent.parent,
+							sourceCode,
+						));
 
 						context.report({
 							node: key,
