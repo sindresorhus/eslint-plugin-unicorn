@@ -345,19 +345,23 @@ test.snapshot({
 			}
 		`),
 		// Not MemberExpression
-		...methodsReturnsArray.map(method => outdent`
-			const foo = ${method}();
-			function unicorn() {
-				return foo.includes(1);
-			}
-		`),
+		...methodsReturnsArray
+			.filter(method => method !== 'with')
+			.map(method => outdent`
+				const foo = ${method}();
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`),
 		// Computed
-		...methodsReturnsArray.map(method => outdent`
-			const foo = bar[${method}]();
-			function unicorn() {
-				return foo.includes(1);
-			}
-		`),
+		...methodsReturnsArray
+			.filter(method => method !== 'with')
+			.map(method => outdent`
+				const foo = bar[${method}]();
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`),
 		// Not `Identifier`
 		...methodsReturnsArray.map(method => outdent`
 			const foo = bar["${method}"]();
