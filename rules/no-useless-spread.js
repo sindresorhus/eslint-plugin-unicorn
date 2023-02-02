@@ -79,6 +79,10 @@ const uselessArrayCloneSelector = [
 			'map',
 			'slice',
 			'splice',
+			'toReversed',
+			'toSorted',
+			'toSpliced',
+			'with',
 		]),
 		// `String#split()`
 		methodCallSelector('split'),
