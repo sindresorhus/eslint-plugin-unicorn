@@ -109,6 +109,9 @@
 		]
 	},
 	"xo": {
+		"extends": [
+			"plugin:internal-rules/all"
+		],
 		"ignores": [
 			".cache-eslint-remote-tester",
 			"eslint-remote-tester-results",
@@ -160,14 +163,6 @@
 					"eslint-plugin/require-meta-has-suggestions": "off",
 					"eslint-plugin/require-meta-schema": "off"
 				}
-			},
-			{
-				"files": [
-					"rules/**/*.js"
-				],
-				"extends": [
-					"plugin:internal-rules/all"
-				]
 			}
 		]
 	},
