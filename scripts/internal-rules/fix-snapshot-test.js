@@ -52,7 +52,7 @@ function * removeObjectProperty(node, fixer, sourceCode) {
 	}
 }
 
-// The fix deletes lots of code, disabled by default
+// The fix deletes lots of code, disabled auto-fix by default, unless `/* fix */ test.snapshot()` pattern is used.
 function hasFixMarkComment(propertyNode, sourceCode) {
 	const snapshotTestCall = propertyNode.parent.parent.parent.parent.parent;
 	assert.ok(snapshotTestCall.type === 'CallExpression');
