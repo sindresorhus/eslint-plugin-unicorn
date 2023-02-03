@@ -84,6 +84,9 @@ module.exports.defaultReplacements = {
 	elem: {
 		element: true,
 	},
+	elems: {
+		elements: true,
+	},
 	env: {
 		environment: true,
 	},
