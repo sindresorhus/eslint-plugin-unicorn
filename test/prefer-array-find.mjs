@@ -47,6 +47,7 @@ test({
 		'++ array.filter(foo)[0]',
 		'array.filter(foo)[0]--',
 		'delete array.filter(foo)[0]',
+		'[array.filter(foo)[0] = 1] = []',
 	],
 	invalid: [
 		{
