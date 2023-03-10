@@ -91,7 +91,6 @@ const create = context => {
 	const tracker = new GlobalReferenceTracker({
 		objects,
 		handle: reference => checkProperty(reference, sourceCode),
-		// Possible bug in `@eslint-community/eslint-utils`
 		filter: ({node}) => !isLeftHandSide(node),
 	});
 
