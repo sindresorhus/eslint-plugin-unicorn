@@ -91,6 +91,10 @@ test({
 				return ${code}
 			}
 		`),
+
+		// Not read
+		'global.isFinite = Number.isFinite;',
+		'delete global.isFinite;',
 	],
 
 	invalid: [
