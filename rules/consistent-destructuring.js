@@ -1,6 +1,7 @@
 'use strict';
 const avoidCapture = require('./utils/avoid-capture.js');
-const {not, notLeftHandSideSelector} = require('./selectors/index.js');
+const {not} = require('./selectors/index.js');
+const isLeftHandSide = require('./utils/is-left-hand-side.js');
 
 const MESSAGE_ID = 'consistentDestructuring';
 const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';
@@ -15,7 +16,6 @@ const declaratorSelector = [
 const memberSelector = [
 	'MemberExpression',
 	'[computed!=true]',
-	notLeftHandSideSelector(),
 	not([
 		'CallExpression > .callee',
 		'NewExpression> .callee',
@@ -70,6 +70,10 @@ const create = context => {
 			});
 		},
 		[memberSelector](node) {
+			if (isLeftHandSide(node)) {
+				return;
+			}
+
 			const declaration = declarations.get(source.getText(node.object));
 
 			if (!declaration) {

@@ -1,6 +1,5 @@
 'use strict';
 
-// Keep logic sync with `../selector/not-left-hand-side.js`
 const isLeftHandSide = node =>
 	(
 		(node.parent.type === 'AssignmentExpression' || node.parent.type === 'AssignmentPattern')
