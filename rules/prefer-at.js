@@ -13,7 +13,7 @@ const {
 	getNegativeIndexLengthNode,
 	removeLengthNode,
 } = require('./shared/negative-index.js');
-const {methodCallSelector, callExpressionSelector, notLeftHandSideSelector} = require('./selectors/index.js');
+const {methodCallSelector, callExpressionSelector} = require('./selectors/index.js');
 const {removeMemberExpressionProperty, removeMethodCall} = require('./fix/index.js');
 const {isLiteral} = require('./ast/index.js');
 
@@ -38,7 +38,6 @@ const indexAccess = [
 	'MemberExpression',
 	'[optional!=true]',
 	'[computed!=false]',
-	notLeftHandSideSelector(),
 ].join('');
 const sliceCall = methodCallSelector({method: 'slice', minimumArguments: 1, maximumArguments: 2});
 const stringCharAt = methodCallSelector({method: 'charAt', argumentsLength: 1});
@@ -150,6 +149,10 @@ function create(context) {
 
 	return {
 		[indexAccess](node) {
+			if (isLeftHandSide(node)) {
+				return;
+			}
+
 			const indexNode = node.property;
 			const lengthNode = getNegativeIndexLengthNode(indexNode, node.object);
 

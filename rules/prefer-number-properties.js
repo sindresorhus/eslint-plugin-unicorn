@@ -2,6 +2,7 @@
 const {GlobalReferenceTracker} = require('./utils/global-reference-tracker.js');
 const {replaceReferenceIdentifier} = require('./fix/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
+const isLeftHandSide = require('./utils/is-left-hand-side.js');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -90,6 +91,7 @@ const create = context => {
 	const tracker = new GlobalReferenceTracker({
 		objects,
 		handle: reference => checkProperty(reference, sourceCode),
+		filter: ({node}) => !isLeftHandSide(node),
 	});
 
 	return tracker.createListeners(context);

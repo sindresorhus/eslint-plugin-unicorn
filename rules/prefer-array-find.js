@@ -3,7 +3,6 @@ const {isParenthesized, findVariable} = require('@eslint-community/eslint-utils'
 const {
 	not,
 	methodCallSelector,
-	notLeftHandSideSelector,
 } = require('./selectors/index.js');
 const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
 const avoidCapture = require('./utils/avoid-capture.js');
@@ -15,6 +14,7 @@ const {
 	removeMethodCall,
 	renameVariable,
 } = require('./fix/index.js');
+const isLeftHandSide = require('./utils/is-left-hand-side.js');
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
@@ -62,7 +62,6 @@ const zeroIndexSelector = [
 	'[computed!=false]',
 	'[property.type="Literal"]',
 	'[property.raw="0"]',
-	notLeftHandSideSelector(),
 	methodCallSelector({
 		...filterMethodSelectorOptions,
 		path: 'object',
@@ -267,6 +266,10 @@ const create = context => {
 
 	const listeners = {
 		[zeroIndexSelector](node) {
+			if (isLeftHandSide(node)) {
+				return;
+			}
+
 			return {
 				node: node.object.callee.property,
 				messageId: ERROR_ZERO_INDEX,
