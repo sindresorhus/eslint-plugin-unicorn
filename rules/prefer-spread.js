@@ -5,11 +5,7 @@ const needsSemicolon = require('./utils/needs-semicolon.js');
 const {getParenthesizedRange, getParenthesizedText} = require('./utils/parentheses.js');
 const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
-const {
-	replaceNodeOrTokenAndSpacesBefore,
-	removeSpacesAfter,
-	removeMethodCall,
-} = require('./fix/index.js');
+const {removeMethodCall} = require('./fix/index.js');
 const {isLiteral} = require('./ast/index.js');
 const isMethodNamed = require('./utils/is-method-named.js');
 
@@ -40,8 +36,7 @@ const arrayFromCallSelector = [
 	methodCallSelector({
 		object: 'Array',
 		method: 'from',
-		minimumArguments: 1,
-		maximumArguments: 3,
+		argumentsLength: 1,
 	}),
 	// Allow `Array.from({length})`
 	'[arguments.0.type!="ObjectExpression"]',
@@ -266,13 +261,6 @@ function fixArrayFrom(node, sourceCode) {
 		return `[...${text}]`;
 	}
 
-	function * removeObject(fixer) {
-		yield * replaceNodeOrTokenAndSpacesBefore(object, '', fixer, sourceCode);
-		const commaToken = sourceCode.getTokenAfter(object, isCommaToken);
-		yield * replaceNodeOrTokenAndSpacesBefore(commaToken, '', fixer, sourceCode);
-		yield removeSpacesAfter(commaToken, sourceCode, fixer);
-	}
-
 	return function * (fixer) {
 		// Fixed code always starts with `[`
 		if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')) {
@@ -281,15 +269,7 @@ function fixArrayFrom(node, sourceCode) {
 
 		const objectText = getObjectText();
 
-		if (node.arguments.length === 1) {
-			yield fixer.replaceText(node, objectText);
-			return;
-		}
-
-		// `Array.from(object, mapFunction, thisArgument)` -> `[...object].map(mapFunction, thisArgument)`
-		yield fixer.replaceText(node.callee.object, objectText);
-		yield fixer.replaceText(node.callee.property, 'map');
-		yield * removeObject(fixer);
+		yield fixer.replaceText(node, objectText);
 	};
 }
 
