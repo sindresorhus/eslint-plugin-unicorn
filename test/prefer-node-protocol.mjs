@@ -24,6 +24,7 @@ test.snapshot({
 				const fs = await import(\`fs\`);
 			}
 		`,
+		'import "punycode/";',
 	],
 	invalid: [
 		'import fs from "fs";',
