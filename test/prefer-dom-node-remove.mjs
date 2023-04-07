@@ -59,6 +59,8 @@ test({
 		'parentNode.removeChild(bar, extra);',
 		'parentNode.removeChild();',
 		'parentNode.removeChild(...argumentsArray)',
+		// Optional call
+		'parentNode.removeChild?.(foo)',
 
 		// `callee.object` is not a DOM Node,
 		...notDomNodeTypes.map(data => `(${data}).removeChild(foo)`),
@@ -244,6 +246,11 @@ test({
 		{
 			code: 'foo[doSomething()].removeChild(child)',
 			suggestionOutput: 'child.remove()',
+		},
+		// Optional parent
+		{
+			code: 'parentNode?.removeChild(foo)',
+			suggestionOutput: 'foo.remove()',
 		},
 	].map(options => invalidTestCase(options)),
 });

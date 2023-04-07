@@ -17,6 +17,7 @@ const selector = [
 	methodCallSelector({
 		method: 'removeChild',
 		argumentsLength: 1,
+		includeOptionalMember: true,
 	}),
 	notDomNodeSelector('callee.object'),
 	notDomNodeSelector('arguments.0'),
@@ -52,7 +53,7 @@ const create = context => {
 				return fixer.replaceText(node, `${childNodeText}.remove()`);
 			};
 
-			if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node)) {
+			if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node) && !node.callee.optional) {
 				problem.fix = fix;
 			} else {
 				problem.suggest = [

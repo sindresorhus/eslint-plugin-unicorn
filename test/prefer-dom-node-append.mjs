@@ -26,6 +26,8 @@ test({
 		'parent.appendChild(one, two);',
 		'parent.appendChild();',
 		'parent.appendChild(...argumentsArray)',
+		// Optional call
+		'parent.appendChild?.(child)',
 		// `callee.object` is not a DOM Node,
 		...notDomNodeTypes.map(data => `(${data}).appendChild(foo)`),
 		// First argument is not a DOM Node,
@@ -115,6 +117,15 @@ test({
 		},
 		{
 			code: 'foo(bar = node.appendChild(child))',
+			errors: [error],
+		},
+		{
+			code: 'node?.appendChild(child);',
+			output: 'node?.append(child);',
+			errors: [error],
+		},
+		{
+			code: '() => node?.appendChild(child)',
 			errors: [error],
 		},
 	],

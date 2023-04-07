@@ -10,6 +10,7 @@ const selector = [
 	methodCallSelector({
 		method: 'appendChild',
 		argumentsLength: 1,
+		includeOptionalMember: true,
 	}),
 	notDomNodeSelector('callee.object'),
 	notDomNodeSelector('arguments.0'),
