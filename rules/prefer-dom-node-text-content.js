@@ -8,7 +8,7 @@ const messages = {
 	[SUGGESTION]: 'Switch to `.textContent`.',
 };
 
-const memberExpressionPropertySelector = `${memberExpressionSelector('innerText')} > .property`;
+const memberExpressionPropertySelector = `${memberExpressionSelector({property: 'innerText', includeOptional: true})} > .property`;
 const destructuringSelector = [
 	'ObjectPattern',
 	' > ',
