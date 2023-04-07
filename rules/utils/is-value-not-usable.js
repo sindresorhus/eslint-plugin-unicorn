@@ -1,3 +1,8 @@
 'use strict';
 
-module.exports = ({parent}) => !parent || parent.type === 'ExpressionStatement';
+module.exports = (node) =>
+	node.parent.type === 'ExpressionStatement'
+	|| (
+		node.parent.type === 'ChainExpression'
+		&& node.parent.parent.type === 'ExpressionStatement'
+	);
