@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = (node) =>
+module.exports = node =>
 	node.parent.type === 'ExpressionStatement'
 	|| (
 		node.parent.type === 'ChainExpression'
