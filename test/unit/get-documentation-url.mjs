@@ -1,5 +1,3 @@
-// https://github.com/xojs/xo/issues/713
-/* eslint import/order: ["error", {"newlines-between": "ignore"}] */
 import {createRequire} from 'node:module';
 import url from 'node:url';
 import test from 'ava';
