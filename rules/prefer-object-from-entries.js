@@ -189,7 +189,7 @@ function create(context) {
 			}
 
 			const [firstParameter] = callbackFunction.params;
-			const variables = context.getDeclaredVariables(callbackFunction);
+			const variables = sourceCode.getDeclaredVariables(callbackFunction);
 			const firstParameterVariable = variables.find(variable => variable.identifiers.length === 1 && variable.identifiers[0] === firstParameter);
 			if (!firstParameterVariable || firstParameterVariable.references.length !== 1) {
 				return;

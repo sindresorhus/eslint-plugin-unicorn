@@ -84,7 +84,7 @@ const cases = [
 	{
 		selector: 'ExportNamedDeclaration > VariableDeclaration.declaration',
 		messageId: MESSAGE_ID_EXPORT,
-		getNodes: (node, context) => context.getDeclaredVariables(node).flatMap(({name, identifiers}) => name === 'then' ? identifiers : []),
+		getNodes: (node, context) => context.getSourceCode().getDeclaredVariables(node).flatMap(({name, identifiers}) => name === 'then' ? identifiers : []),
 	},
 ];
 

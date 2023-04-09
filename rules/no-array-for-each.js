@@ -94,7 +94,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		const shouldUseEntries = parameters.length === 2;
 
 		let text = 'for (';
-		text += isFunctionParameterVariableReassigned(callback, context) ? 'let' : 'const';
+		text += isFunctionParameterVariableReassigned(callback, sourceCode) ? 'let' : 'const';
 		text += ' ';
 		text += shouldUseEntries ? `[${indexText}, ${elementText}]` : elementText;
 		text += ' of ';
@@ -276,8 +276,8 @@ const isChildScope = (child, parent) => {
 	return false;
 };
 
-function isFunctionParametersSafeToFix(callbackFunction, {context, scope, callExpression, allIdentifiers}) {
-	const variables = context.getDeclaredVariables(callbackFunction);
+function isFunctionParametersSafeToFix(callbackFunction, {sourceCode, scope, callExpression, allIdentifiers}) {
+	const variables = sourceCode.getDeclaredVariables(callbackFunction);
 
 	for (const variable of variables) {
 		if (variable.defs.length !== 1) {
@@ -311,15 +311,15 @@ function isFunctionParametersSafeToFix(callbackFunction, {context, scope, callEx
 	return true;
 }
 
-function isFunctionParameterVariableReassigned(callbackFunction, context) {
-	return context.getDeclaredVariables(callbackFunction)
+function isFunctionParameterVariableReassigned(callbackFunction, sourceCode) {
+	return sourceCode.getDeclaredVariables(callbackFunction)
 		.filter(variable => variable.defs[0].type === 'Parameter')
 		.some(variable =>
 			variable.references.some(reference => !reference.init && reference.isWrite()),
 		);
 }
 
-function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
+function isFixable(callExpression, {scope, functionInfo, allIdentifiers, sourceCode}) {
 	// Check `CallExpression`
 	if (callExpression.optional || callExpression.arguments.length !== 1) {
 		return false;
@@ -354,7 +354,7 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1814
 		|| (parameters.length === 2 && parameters[1].type !== 'Identifier')
 		|| parameters.some(({type, typeAnnotation}) => type === 'RestElement' || typeAnnotation)
-		|| !isFunctionParametersSafeToFix(callback, {scope, callExpression, allIdentifiers, context})
+		|| !isFunctionParametersSafeToFix(callback, {scope, callExpression, allIdentifiers, sourceCode})
 	) {
 		return false;
 	}
@@ -426,7 +426,7 @@ const create = context => {
 					messageId: MESSAGE_ID_ERROR,
 				};
 
-				if (!isFixable(node, {scope, allIdentifiers, functionInfo, context})) {
+				if (!isFixable(node, {scope, allIdentifiers, functionInfo, sourceCode})) {
 					yield problem;
 					continue;
 				}
