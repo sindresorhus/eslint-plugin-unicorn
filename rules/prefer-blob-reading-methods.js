@@ -12,9 +12,9 @@ const cases = [
 	},
 	{
 		selector: methodCallSelector({
-      method: 'readAsText',
-      argumentsLength: 1
-    }),
+			method: 'readAsText',
+			argumentsLength: 1,
+		}),
 	},
 ];
 
