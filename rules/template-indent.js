@@ -99,8 +99,8 @@ const create = context => {
 				}
 			}
 
-			const ancestry = context.getAncestors().reverse();
-			const shouldIndent = selectors.some(selector => esquery.matches(node, esquery.parse(selector), ancestry));
+			const ancestors = sourceCode.getAncestors(node).reverse();
+			const shouldIndent = selectors.some(selector => esquery.matches(node, esquery.parse(selector), ancestors));
 
 			if (shouldIndent) {
 				indentTemplateLiteralNode(node);
