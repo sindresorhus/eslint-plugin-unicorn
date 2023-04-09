@@ -42,7 +42,6 @@ module.exports = {
 		docs: {
 			description: 'Prefer `Blob#arrayBuffer()` over `FileReader#readAsArrayBuffer(blob)` and `Blob#text()` over `FileReader#readAsText(blob)`.',
 		},
-		hasSuggestions: true,
 		messages,
 	},
 };
