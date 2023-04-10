@@ -8,12 +8,12 @@ test.snapshot({
 		'blob.text()',
 		'new Response(blob).arrayBuffer()',
 		'new Response(blob).text()',
-		'new FileReader().readAsDataURL(blob)',
-		'new FileReader().readAsBinaryString(blob)',
-		'new FileReader().readAsText(blob, "ascii")',
+		'fileReader.readAsDataURL(blob)',
+		'fileReader.readAsBinaryString(blob)',
+		'fileReader.readAsText(blob, "ascii")',
 	],
 	invalid: [
-		'new FileReader().readAsArrayBuffer(blob)',
-		'new FileReader().readAsText(blob)',
+		'fileReader.readAsArrayBuffer(blob)',
+		'fileReader.readAsText(blob)',
 	],
 });

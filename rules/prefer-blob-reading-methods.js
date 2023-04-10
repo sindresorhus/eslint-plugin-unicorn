@@ -6,33 +6,23 @@ const messages = {
 	'error/readAsText': 'Prefer `Blob#text()` over `FileReader#readAsText(blob)`.',
 };
 
-const cases = [
-	{
-		selector: methodCallSelector('readAsArrayBuffer'),
-	},
-	{
-		selector: methodCallSelector({
-			method: 'readAsText',
-			argumentsLength: 1,
-		}),
-	},
-];
+const selector = methodCallSelector({
+	methods: ['readAsText', 'readAsArrayBuffer'],
+	argumentsLength: 1,
+});
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => Object.fromEntries(
-	cases.map(({selector}) => [
-		selector,
-		node => {
-			const method = node.callee.property;
-			const methodName = method.name;
+const create = () => ({
+	[selector](node) {
+		const method = node.callee.property;
+		const methodName = method.name;
 
-			return {
-				node: method,
-				messageId: `error/${methodName}`,
-			};
-		},
-	]),
-);
+		return {
+			node: method,
+			messageId: `error/${methodName}`,
+		};
+	}
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
@@ -40,7 +30,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Blob#arrayBuffer()` over `FileReader#readAsArrayBuffer(blob)` and `Blob#text()` over `FileReader#readAsText(blob)`.',
+			description: 'Prefer `Blob#arrayBuffer()` over `FileReader#readAsArrayBuffer(…)` and `Blob#text()` over `FileReader#readAsText(…)`.',
 		},
 		messages,
 	},

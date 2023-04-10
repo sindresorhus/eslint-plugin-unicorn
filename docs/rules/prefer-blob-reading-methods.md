@@ -1,4 +1,4 @@
-# Prefer `Blob#arrayBuffer()` over `FileReader#readAsArrayBuffer(blob)` and `Blob#text()` over `FileReader#readAsText(blob)`
+# Prefer `Blob#arrayBuffer()` over `FileReader#readAsArrayBuffer(…)` and `Blob#text()` over `FileReader#readAsText(…)`
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
 
@@ -12,19 +12,18 @@
 ```js
 const arrayBuffer = await new Promise((resolve, reject) => {
 	const fileReader = new FileReader();
-	fileReader.onload = () => resolve(fileReader.result)
-	fileReader.onerror = () => reject(fileReader.error)
+	fileReader.addEventListener('load', () => {
+		resolve(fileReader.result);
+	});
+	fileReader.addEventListener('error', () => {
+		reject(fileReader.error);
+	});
 	fileReader.readAsArrayBuffer(blob);
 });
 ```
 
 ```js
-const text = await new Promise((resolve, reject) => {
-	const fileReader = new FileReader();
-	fileReader.onload = () => resolve(fileReader.result)
-	fileReader.onerror = () => reject(fileReader.error)
-	fileReader.readAsText(blob);
-});
+fileReader.readAsText(blob);
 ```
 
 ## Pass
@@ -35,4 +34,12 @@ const arrayBuffer = await blob.arrayBuffer();
 
 ```js
 const text = await blob.text();
+```
+
+```js
+fileReader.readAsText(blob, 'ascii');
+```
+
+```js
+fileReader.readAsDataURL(blob);
 ```
