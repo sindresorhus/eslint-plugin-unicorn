@@ -53,7 +53,7 @@ const isChildInParentScope = (child, parent) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const source = context.getSourceCode();
+	const sourceCode = context.getSourceCode();
 	const declarations = new Map();
 
 	return {
@@ -63,9 +63,9 @@ const create = context => {
 				return;
 			}
 
-			declarations.set(source.getText(node.init), {
+			declarations.set(sourceCode.getText(node.init), {
 				scope: context.getScope(),
-				variables: context.getDeclaredVariables(node),
+				variables: sourceCode.getDeclaredVariables(node),
 				objectPattern: node.id,
 			});
 		},
@@ -74,7 +74,7 @@ const create = context => {
 				return;
 			}
 
-			const declaration = declarations.get(source.getText(node.object));
+			const declaration = declarations.get(sourceCode.getText(node.object));
 
 			if (!declaration) {
 				return;
@@ -97,8 +97,8 @@ const create = context => {
 
 			const hasRest = lastProperty && lastProperty.type === 'RestElement';
 
-			const expression = source.getText(node);
-			const member = source.getText(node.property);
+			const expression = sourceCode.getText(node);
+			const member = sourceCode.getText(node.property);
 
 			// Member might already be destructured
 			const destructuredMember = destructurings.find(property =>

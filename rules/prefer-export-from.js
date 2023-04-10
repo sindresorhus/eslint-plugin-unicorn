@@ -170,7 +170,7 @@ function getFixFunction({
 	};
 }
 
-function getExported(identifier, context, sourceCode) {
+function getExported(identifier, sourceCode) {
 	const {parent} = identifier;
 	switch (parent.type) {
 		case 'ExportDefaultDeclaration': {
@@ -201,7 +201,7 @@ function getExported(identifier, context, sourceCode) {
 				&& parent.parent.declarations.length === 1
 				&& parent.parent.declarations[0] === parent
 				&& parent.parent.parent.type === 'ExportNamedDeclaration'
-				&& isVariableUnused(parent, context)
+				&& isVariableUnused(parent, sourceCode)
 			) {
 				return {
 					node: parent.parent.parent,
@@ -217,8 +217,8 @@ function getExported(identifier, context, sourceCode) {
 	}
 }
 
-function isVariableUnused(node, context) {
-	const variables = context.getDeclaredVariables(node);
+function isVariableUnused(node, sourceCode) {
+	const variables = sourceCode.getDeclaredVariables(node);
 
 	/* c8 ignore next 3 */
 	if (variables.length !== 1) {
@@ -270,10 +270,10 @@ function getImported(variable, sourceCode) {
 	}
 }
 
-function getExports(imported, context, sourceCode) {
+function getExports(imported, sourceCode) {
 	const exports = [];
 	for (const {identifier} of imported.variable.references) {
-		const exported = getExported(identifier, context, sourceCode);
+		const exported = getExported(identifier, sourceCode);
 
 		if (!exported) {
 			continue;
@@ -327,7 +327,7 @@ function create(context) {
 		},
 		* 'Program:exit'(program) {
 			for (const importDeclaration of importDeclarations) {
-				let variables = context.getDeclaredVariables(importDeclaration);
+				let variables = sourceCode.getDeclaredVariables(importDeclaration);
 
 				if (variables.some(variable => variable.defs.length !== 1 || variable.defs[0].parent !== importDeclaration)) {
 					continue;
@@ -335,7 +335,7 @@ function create(context) {
 
 				variables = variables.map(variable => {
 					const imported = getImported(variable, sourceCode);
-					const exports = getExports(imported, context, sourceCode);
+					const exports = getExports(imported, sourceCode);
 
 					return {
 						variable,

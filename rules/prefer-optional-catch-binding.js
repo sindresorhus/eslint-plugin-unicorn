@@ -18,7 +18,8 @@ const selector = [
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector](node) {
-		const variables = context.getDeclaredVariables(node.parent);
+		const sourceCode = context.getSourceCode();
+		const variables = sourceCode.getDeclaredVariables(node.parent);
 
 		if (variables.some(variable => variable.references.length > 0)) {
 			return;
@@ -31,7 +32,6 @@ const create = context => ({
 			messageId: type === 'Identifier' ? MESSAGE_ID_WITH_NAME : MESSAGE_ID_WITHOUT_NAME,
 			data: {name},
 			* fix(fixer) {
-				const sourceCode = context.getSourceCode();
 				const tokenBefore = sourceCode.getTokenBefore(node);
 				assertToken(tokenBefore, {
 					test: isOpeningParenToken,
