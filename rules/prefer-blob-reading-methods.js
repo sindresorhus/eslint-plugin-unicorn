@@ -21,7 +21,7 @@ const create = () => ({
 			node: method,
 			messageId: `error/${methodName}`,
 		};
-	}
+	},
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
