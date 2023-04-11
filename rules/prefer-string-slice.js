@@ -71,7 +71,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 		return;
 	}
 
-	if (argumentNodes.every(node => isNumber(node, sourceCode.getScope(node)))) {
+	if (argumentNodes.every(node => isNumber(node, scope))) {
 		const firstArgumentText = getParenthesizedText(firstArgument, sourceCode);
 
 		yield fixer.insertTextBeforeRange(secondArgumentRange, `${firstArgumentText} + `);
