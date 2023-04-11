@@ -28,7 +28,7 @@ const selector = callOrNewExpressionSelector([
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector](expression) {
-		const scope = context.getSourceCode().getScope(node);
+		const scope = context.getSourceCode().getScope(expression);
 		if (isShadowed(scope, expression.callee)) {
 			return;
 		}
