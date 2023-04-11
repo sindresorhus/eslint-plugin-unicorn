@@ -56,7 +56,7 @@ class GlobalReferenceTracker {
 
 	createListeners(context) {
 		return {
-			'Program:exit': (program) => this.track(context.getSourceCode().getScope(program)),
+			'Program:exit': program => this.track(context.getSourceCode().getScope(program)),
 		};
 	}
 }
