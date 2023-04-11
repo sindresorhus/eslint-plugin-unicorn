@@ -28,7 +28,8 @@ const selector = callOrNewExpressionSelector([
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector](expression) {
-		if (isShadowed(context.getScope(), expression.callee)) {
+		const scope = context.getSourceCode().getScope(node);
+		if (isShadowed(scope, expression.callee)) {
 			return;
 		}
 
@@ -59,7 +60,7 @@ const create = context => ({
 			};
 		}
 
-		const staticResult = getStaticValue(node, context.getScope());
+		const staticResult = getStaticValue(node, scope);
 
 		// We don't know the value of `message`
 		if (!staticResult) {

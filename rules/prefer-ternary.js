@@ -201,7 +201,7 @@ const create = context => {
 				return problem;
 			}
 
-			const scope = context.getScope();
+			const scope = sourceCode.getScope(node);
 			problem.fix = function * (fixer) {
 				const testText = getText(node.test);
 				const consequentText = typeof result.consequent === 'string'

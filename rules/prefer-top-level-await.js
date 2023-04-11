@@ -59,6 +59,8 @@ const isAwaitArgument = node => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
+	const sourceCode = context.getSourceCode();
+
 	return {
 		[promise](node) {
 			if (isPromiseMethodCalleeObject(node) || isAwaitArgument(node)) {
@@ -77,7 +79,7 @@ function create(context) {
 
 			return {
 				node,
-				loc: getFunctionHeadLocation(node.callee, context.getSourceCode()),
+				loc: getFunctionHeadLocation(node.callee, sourceCode),
 				messageId: ERROR_IIFE,
 			};
 		},
@@ -86,7 +88,7 @@ function create(context) {
 				return;
 			}
 
-			const variable = findVariable(context.getScope(), node.callee);
+			const variable = findVariable(sourceCode.getScope(node), node.callee);
 			if (!variable || variable.defs.length !== 1) {
 				return;
 			}

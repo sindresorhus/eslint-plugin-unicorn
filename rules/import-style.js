@@ -167,6 +167,8 @@ const create = context => {
 		),
 	);
 
+	const c = context.getSourceCode();
+
 	const report = (node, moduleName, actualImportStyles, allowedImportStyles, isRequire = false) => {
 		if (!allowedImportStyles || allowedImportStyles.size === 0) {
 			return;
@@ -206,7 +208,7 @@ const create = context => {
 			...visitor,
 
 			ImportDeclaration(node) {
-				const moduleName = getStringIfConstant(node.source, context.getScope());
+				const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 
 				const allowedImportStyles = styles.get(moduleName);
 				const actualImportStyles = getActualImportDeclarationStyles(node);
@@ -221,7 +223,7 @@ const create = context => {
 			...visitor,
 
 			'ExpressionStatement > ImportExpression'(node) {
-				const moduleName = getStringIfConstant(node.source, context.getScope());
+				const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 				const allowedImportStyles = styles.get(moduleName);
 				const actualImportStyles = ['unassigned'];
 
@@ -231,7 +233,7 @@ const create = context => {
 			[assignedDynamicImportSelector](node) {
 				const assignmentTargetNode = node.id;
 				const moduleNameNode = node.init.argument.source;
-				const moduleName = getStringIfConstant(moduleNameNode, context.getScope());
+				const moduleName = getStringIfConstant(moduleNameNode, sourceCode.getScope(moduleNameNode));
 
 				if (!moduleName) {
 					return;
@@ -250,7 +252,7 @@ const create = context => {
 			...visitor,
 
 			ExportAllDeclaration(node) {
-				const moduleName = getStringIfConstant(node.source, context.getScope());
+				const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 
 				const allowedImportStyles = styles.get(moduleName);
 				const actualImportStyles = ['namespace'];
@@ -259,7 +261,7 @@ const create = context => {
 			},
 
 			ExportNamedDeclaration(node) {
-				const moduleName = getStringIfConstant(node.source, context.getScope());
+				const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 
 				const allowedImportStyles = styles.get(moduleName);
 				const actualImportStyles = getActualExportDeclarationStyles(node);
@@ -274,7 +276,7 @@ const create = context => {
 			...visitor,
 
 			[`ExpressionStatement > ${callExpressionSelector({name: 'require', argumentsLength: 1})}.expression`](node) {
-				const moduleName = getStringIfConstant(node.arguments[0], context.getScope());
+				const moduleName = getStringIfConstant(node.arguments[0], sourceCode.getScope(node.arguments[0]));
 				const allowedImportStyles = styles.get(moduleName);
 				const actualImportStyles = ['unassigned'];
 
@@ -284,7 +286,7 @@ const create = context => {
 			[assignedRequireSelector](node) {
 				const assignmentTargetNode = node.id;
 				const moduleNameNode = node.init.arguments[0];
-				const moduleName = getStringIfConstant(moduleNameNode, context.getScope());
+				const moduleName = getStringIfConstant(moduleNameNode, sourceCode.getScope(moduleNameNode));
 
 				if (!moduleName) {
 					return;

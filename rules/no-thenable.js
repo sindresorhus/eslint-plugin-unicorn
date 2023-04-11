@@ -11,8 +11,8 @@ const messages = {
 	[MESSAGE_ID_CLASS]: 'Do not add `then` to a class.',
 };
 
-const isStringThen = (node, context) =>
-	getStaticValue(node, context.getScope())?.value === 'then';
+const isStringThen = (node, sourceCode) =>
+	getStaticValue(node, sourceCode.getScope(node))?.value === 'then';
 
 const cases = [
 	// `{then() {}}`,
@@ -21,7 +21,7 @@ const cases = [
 	// `{get [computedKey]() {}}`,
 	{
 		selector: 'ObjectExpression > Property.properties > .key',
-		test: (node, context) => getPropertyName(node.parent, context.getScope()) === 'then',
+		test: (node, sourceCode) => getPropertyName(node.parent, sourceCode.getScope(node.parent)) === 'then',
 		messageId: MESSAGE_ID_OBJECT,
 	},
 	// `class Foo {then}`,
@@ -30,14 +30,14 @@ const cases = [
 	// `class Foo {static get then() {}}`,
 	{
 		selector: ':matches(PropertyDefinition, MethodDefinition) > .key',
-		test: (node, context) => getPropertyName(node.parent, context.getScope()) === 'then',
+		test: (node, sourceCode) => getPropertyName(node.parent, sourceCode.getScope(node.parent)) === 'then',
 		messageId: MESSAGE_ID_CLASS,
 	},
 	// `foo.then = …`
 	// `foo[computedKey] = …`
 	{
 		selector: 'AssignmentExpression > MemberExpression.left > .property',
-		test: (node, context) => getPropertyName(node.parent, context.getScope()) === 'then',
+		test: (node, sourceCode) => getPropertyName(node.parent, sourceCode.getScope(node.parent)) === 'then',
 		messageId: MESSAGE_ID_OBJECT,
 	},
 	// `Object.defineProperty(foo, 'then', …)`
@@ -84,31 +84,35 @@ const cases = [
 	{
 		selector: 'ExportNamedDeclaration > VariableDeclaration.declaration',
 		messageId: MESSAGE_ID_EXPORT,
-		getNodes: (node, context) => context.getSourceCode().getDeclaredVariables(node).flatMap(({name, identifiers}) => name === 'then' ? identifiers : []),
+		getNodes: (node, sourceCode) => sourceCode.getDeclaredVariables(node).flatMap(({name, identifiers}) => name === 'then' ? identifiers : []),
 	},
 ];
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => Object.fromEntries(
-	cases.map(({selector, test, messageId, getNodes}) => [
-		selector,
-		function * (node) {
-			if (getNodes) {
-				for (const problematicNode of getNodes(node, context)) {
-					yield {node: problematicNode, messageId};
+const create = context => {
+	const sourceCode = context.getSourceCode();
+
+	return Object.fromEntries(
+		cases.map(({selector, test, messageId, getNodes}) => [
+			selector,
+			function * (node) {
+				if (getNodes) {
+					for (const problematicNode of getNodes(node, sourceCode)) {
+						yield {node: problematicNode, messageId};
+					}
+
+					return;
 				}
 
-				return;
-			}
+				if (test && !test(node, sourceCode)) {
+					return;
+				}
 
-			if (test && !test(node, context)) {
-				return;
-			}
-
-			yield {node, messageId};
-		},
-	]),
-);
+				yield {node, messageId};
+			},
+		]),
+	);
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

@@ -37,14 +37,14 @@ const isSafeToAddDotSlashToUrl = (url, base) => {
 const isSafeToAddDotSlash = (url, bases = TEST_URL_BASES) => bases.every(base => isSafeToAddDotSlashToUrl(url, base));
 const isSafeToRemoveDotSlash = (url, bases = TEST_URL_BASES) => bases.every(base => isSafeToAddDotSlashToUrl(url.slice(DOT_SLASH.length), base));
 
-function canAddDotSlash(node, context) {
+function canAddDotSlash(node, sourceCode) {
 	const url = node.value;
 	if (url.startsWith(DOT_SLASH) || url.startsWith('.') || url.startsWith('/')) {
 		return false;
 	}
 
 	const baseNode = node.parent.arguments[1];
-	const staticValueResult = getStaticValue(baseNode, context.getScope());
+	const staticValueResult = getStaticValue(baseNode, sourceCode.getScope(node));
 
 	if (
 		typeof staticValueResult?.value === 'string'
@@ -56,14 +56,14 @@ function canAddDotSlash(node, context) {
 	return isSafeToAddDotSlash(url);
 }
 
-function canRemoveDotSlash(node, context) {
+function canRemoveDotSlash(node, sourceCode) {
 	const rawValue = node.raw.slice(1, -1);
 	if (!rawValue.startsWith(DOT_SLASH)) {
 		return false;
 	}
 
 	const baseNode = node.parent.arguments[1];
-	const staticValueResult = getStaticValue(baseNode, context.getScope());
+	const staticValueResult = getStaticValue(baseNode, sourceCode.getScope(node));
 
 	if (
 		typeof staticValueResult?.value === 'string'
@@ -75,16 +75,16 @@ function canRemoveDotSlash(node, context) {
 	return isSafeToRemoveDotSlash(node.value);
 }
 
-function addDotSlash(node, context) {
-	if (!canAddDotSlash(node, context)) {
+function addDotSlash(node, sourceCode) {
+	if (!canAddDotSlash(node, sourceCode)) {
 		return;
 	}
 
 	return fixer => replaceStringLiteral(fixer, node, DOT_SLASH, 0, 0);
 }
 
-function removeDotSlash(node, context) {
-	if (!canRemoveDotSlash(node, context)) {
+function removeDotSlash(node, sourceCode) {
+	if (!canRemoveDotSlash(node, sourceCode)) {
 		return;
 	}
 
@@ -126,7 +126,8 @@ const create = context => {
 			return;
 		}
 
-		const fix = (style === 'never' ? removeDotSlash : addDotSlash)(node, context);
+		const sourceCode = context.getSourceCode();
+		const fix = (style === 'never' ? removeDotSlash : addDotSlash)(node, sourceCode);
 
 		if (!fix) {
 			return;

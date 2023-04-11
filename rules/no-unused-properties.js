@@ -211,8 +211,8 @@ const create = context => {
 	};
 
 	return {
-		'Program:exit'() {
-			const scopes = getScopes(context.getScope());
+		'Program:exit'(program) {
+			const scopes = getScopes(context.getSourceCode().getScope(program));
 			for (const scope of scopes) {
 				if (scope.type === 'global') {
 					continue;

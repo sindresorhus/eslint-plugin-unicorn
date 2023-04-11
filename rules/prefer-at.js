@@ -162,7 +162,7 @@ function create(context) {
 				}
 
 				// Only if we are sure it's an positive integer
-				const staticValue = getStaticValue(indexNode, context.getScope());
+				const staticValue = getStaticValue(indexNode, sourceCode.getScope(indexNode));
 				if (!staticValue || !Number.isInteger(staticValue.value) || staticValue.value < 0) {
 					return;
 				}

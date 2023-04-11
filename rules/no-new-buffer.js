@@ -55,7 +55,7 @@ const create = context => {
 	const sourceCode = context.getSourceCode();
 	return {
 		[newExpressionSelector('Buffer')](node) {
-			const method = inferMethod(node.arguments, context.getScope());
+			const method = inferMethod(node.arguments, sourceCode.getScope(node));
 
 			if (method) {
 				return {

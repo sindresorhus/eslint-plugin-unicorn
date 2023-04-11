@@ -35,6 +35,7 @@ const create = context => {
 		checkGlobalVariables: false,
 		...context.options[0],
 	};
+	const sourceCode = context.getSourceCode();
 
 	return {
 		[selector](binaryExpression) {
@@ -45,13 +46,12 @@ const create = context => {
 
 			const valueNode = typeofNode.argument;
 			const isGlobalVariable = valueNode.type === 'Identifier'
-				&& !isShadowed(context.getScope(), valueNode);
+				&& !isShadowed(sourceCode.getScope(valueNode), valueNode);
 
 			if (!checkGlobalVariables && isGlobalVariable) {
 				return;
 			}
 
-			const sourceCode = context.getSourceCode();
 			const [typeofToken, secondToken] = sourceCode.getFirstTokens(typeofNode, 2);
 
 			const fix = function * (fixer) {

@@ -83,7 +83,7 @@ const create = context => {
 				);
 			let isNonString = false;
 			if (!isString) {
-				const staticValue = getStaticValue(target, context.getScope());
+				const staticValue = getStaticValue(target, sourceCode.getScope(target));
 
 				if (staticValue) {
 					isString = typeof staticValue.value === 'string';

@@ -246,7 +246,7 @@ function create(context) {
 			};
 		},
 		[identifierSelector](node) {
-			if (isShadowed(context.getScope(), node)) {
+			if (isShadowed(sourceCode.getScope(node), node)) {
 				return;
 			}
 

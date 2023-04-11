@@ -41,7 +41,8 @@ function create(context) {
 	return {
 		[selector](node) {
 			const constructorName = node.object.type === 'ArrayExpression' ? 'Array' : 'Object';
-			const methodName = getPropertyName(node, context.getScope());
+			const sourceCode = context.getSourceCode();
+			const methodName = getPropertyName(node, sourceCode.getScope(node));
 
 			return {
 				node,
@@ -54,7 +55,7 @@ function create(context) {
 						node.object.type === 'ArrayExpression'
 						|| node.object.type === 'ObjectExpression'
 					) {
-						yield * fixSpaceAroundKeyword(fixer, node.parent.parent, context.getSourceCode());
+						yield * fixSpaceAroundKeyword(fixer, node.parent.parent, sourceCode);
 					}
 				},
 			};
