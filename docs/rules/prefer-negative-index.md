@@ -16,9 +16,9 @@ Prefer negative index over calculating from `.length` for:
 - [`Array#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at)
 - [`TypedArray#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/at)
 - [`Array#splice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice)
-- [`Array#toSpliced()`](https://github.com/tc39/proposal-change-array-by-copy#overview)
-- [`Array#with()`](https://github.com/tc39/proposal-change-array-by-copy#overview)
-- [`TypedArray#with()`](https://github.com/tc39/proposal-change-array-by-copy#overview)
+- [`Array#toSpliced()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced)
+- [`Array#with()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/with)
+- [`TypedArray#with()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/with)
 
 <!--
 TODO: Use MDN links when available
