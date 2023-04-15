@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Enforce explicitly checking the length of an object and enforce the comparison style.
+This rule is only meant to enforce a specific style and make comparisons more clear.
 
 This rule is fixable, unless it's [unsafe to fix](#unsafe-to-fix-case).
 
