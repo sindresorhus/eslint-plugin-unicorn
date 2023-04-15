@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-There is no difference in JavaScript between, for example, `1`, `1.0` and `1.`, so prefer the former for consistency.
+There is no difference in JavaScript between, for example, `1`, `1.0` and `1.`, so prefer the former for consistency and brevity.
 
 ## Fail
 
