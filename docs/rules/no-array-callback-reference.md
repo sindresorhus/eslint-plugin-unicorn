@@ -7,6 +7,8 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
+Passing functions to iterator methods can cause issues when the function is changed without realizing that the iterator passes 2 more parameters to it. **This also applies when using TypeScript,** albeit only if the function accepts the same parameter type used by the iterator method.
+
 Suppose you have a `unicorn` module:
 
 ```js
@@ -35,6 +37,15 @@ const unicorn = require('unicorn');
 
 [1, 2, 3].map(unicorn);
 //=> [2, 3, 5]
+```
+
+This rule helps safely call the function with the expected number of parameters:
+
+```js
+const unicorn = require('unicorn');
+
+[1, 2, 3].map(x => unicorn(x));
+//=> [2, 3, 4]
 ```
 
 ## Fail
