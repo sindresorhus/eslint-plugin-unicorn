@@ -31,6 +31,7 @@ const array = Array.prototype.slice.apply(bar);
 
 ```js
 const hasProperty = Object.prototype.hasOwnProperty.call(foo, 'property');
+// Or better yet Object.hasOwn(foo, 'property')
 ```
 
 ```js
