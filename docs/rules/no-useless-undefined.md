@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`undefined` is the default value for new variables, parameters, return statements, etc… so specifying it doesn't make any difference. 
+`undefined` is the default value for new variables, parameters, return statements, etc… so specifying it doesn't make any difference.
 
 The only case where passing `undefined` is required is due to bad TypeScript types in functions, in which case you can use `checkArguments: false` option.
 
