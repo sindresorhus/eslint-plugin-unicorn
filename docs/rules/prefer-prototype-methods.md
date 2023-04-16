@@ -16,7 +16,7 @@ const array = [].slice.apply(bar);
 ```
 
 ```js
-const hasProperty = {}.hasOwnProperty.call(foo, 'property');
+const type = {}.toString.call(foo);
 ```
 
 ```js
@@ -30,8 +30,7 @@ const array = Array.prototype.slice.apply(bar);
 ```
 
 ```js
-const hasProperty = Object.prototype.hasOwnProperty.call(foo, 'property');
-// Or better yet Object.hasOwn(foo, 'property')
+const type = Object.prototype.toString.call(foo);
 ```
 
 ```js
