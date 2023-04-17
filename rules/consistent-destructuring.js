@@ -64,7 +64,7 @@ const create = context => {
 			}
 
 			declarations.set(sourceCode.getText(node.init), {
-				scope: context.getScope(),
+				scope: sourceCode.getScope(node),
 				variables: sourceCode.getDeclaredVariables(node),
 				objectPattern: node.id,
 			});
@@ -81,7 +81,7 @@ const create = context => {
 			}
 
 			const {scope, objectPattern} = declaration;
-			const memberScope = context.getScope();
+			const memberScope = sourceCode.getScope(node);
 
 			// Property is destructured outside the current scope
 			if (!isChildInParentScope(memberScope, scope)) {

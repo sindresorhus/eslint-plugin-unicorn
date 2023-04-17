@@ -62,8 +62,8 @@ const create = context => {
 	});
 
 	return {
-		* 'Program:exit'() {
-			const scope = context.getScope();
+		* 'Program:exit'(program) {
+			const scope = sourceCode.getScope(program);
 
 			yield * newExpressionTracker.track(scope);
 			yield * callExpressionTracker.track(scope);

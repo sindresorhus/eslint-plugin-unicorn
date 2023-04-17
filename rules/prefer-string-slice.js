@@ -45,8 +45,8 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 		return;
 	}
 
-	const scope = context.getScope();
 	const sourceCode = context.getSourceCode();
+	const scope = sourceCode.getScope(node);
 	const firstArgumentStaticResult = getStaticValue(firstArgument, scope);
 	const secondArgumentRange = getParenthesizedRange(secondArgument, sourceCode);
 	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, sourceCode);
@@ -71,7 +71,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 		return;
 	}
 
-	if (argumentNodes.every(node => isNumber(node, context.getScope()))) {
+	if (argumentNodes.every(node => isNumber(node, scope))) {
 		const firstArgumentText = getParenthesizedText(firstArgument, sourceCode);
 
 		yield fixer.insertTextBeforeRange(secondArgumentRange, `${firstArgumentText} + `);

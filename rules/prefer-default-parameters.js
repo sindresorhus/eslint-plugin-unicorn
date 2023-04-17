@@ -148,7 +148,7 @@ const create = context => {
 			return;
 		}
 
-		const variable = findVariable(context.getScope(), secondId);
+		const variable = findVariable(sourceCode.getScope(node), secondId);
 
 		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1122
 		// But can't reproduce, just ignore this case

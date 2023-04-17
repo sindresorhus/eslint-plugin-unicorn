@@ -280,7 +280,7 @@ const create = context => {
 
 			const arrayIdentifierName = arrayIdentifier.name;
 
-			const scope = context.getScope();
+			const scope = sourceCode.getScope(node);
 			const staticResult = getStaticValue(arrayIdentifier, scope);
 			if (staticResult && !Array.isArray(staticResult.value)) {
 				// Bail out if we can tell that the array variable has a non-array value (i.e. we're looping through the characters of a string constant).

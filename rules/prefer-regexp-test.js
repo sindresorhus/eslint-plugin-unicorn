@@ -108,11 +108,12 @@ const create = context => Object.fromEntries(
 				messageId: type,
 			};
 
-			const fixFunction = fixer => fix(fixer, nodes, context.getSourceCode());
+			const sourceCode = context.getSourceCode();
+			const fixFunction = fixer => fix(fixer, nodes, sourceCode);
 
 			if (
 				isRegExpNode(regexpNode)
-				|| isRegExpWithoutGlobalFlag(regexpNode, context.getScope())
+				|| isRegExpWithoutGlobalFlag(regexpNode, sourceCode.getScope(regexpNode))
 			) {
 				problem.fix = fixFunction;
 			} else {

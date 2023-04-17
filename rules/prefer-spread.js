@@ -337,14 +337,13 @@ const create = context => {
 		},
 		[arrayConcatCallSelector](node) {
 			const {object} = node.callee;
+			const scope = sourceCode.getScope(object);
 
-			if (isNotArray(object, context.getScope())) {
+			if (isNotArray(object, scope)) {
 				return;
 			}
 
-			const scope = context.getScope();
 			const staticResult = getStaticValue(object, scope);
-
 			if (staticResult && !Array.isArray(staticResult.value)) {
 				return;
 			}
@@ -448,7 +447,7 @@ const create = context => {
 			}
 
 			const string = node.callee.object;
-			const staticValue = getStaticValue(string, context.getScope());
+			const staticValue = getStaticValue(string, sourceCode.getScope(string));
 			let hasSameResult = false;
 			if (staticValue) {
 				const {value} = staticValue;

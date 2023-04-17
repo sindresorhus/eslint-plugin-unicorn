@@ -147,7 +147,7 @@ function create(context) {
 				return;
 			}
 
-			const staticValue = getStaticValue(lengthNode, context.getScope());
+			const staticValue = getStaticValue(lengthNode, sourceCode.getScope(lengthNode));
 			if (staticValue && (!Number.isInteger(staticValue.value) || staticValue.value < 0)) {
 				// Ignore known, non-positive-integer length properties.
 				return;

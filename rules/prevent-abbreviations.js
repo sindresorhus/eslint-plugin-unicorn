@@ -539,12 +539,12 @@ const create = context => {
 			});
 		},
 
-		'Program:exit'() {
+		'Program:exit'(program) {
 			if (!options.checkVariables) {
 				return;
 			}
 
-			checkScope(context.getScope());
+			checkScope(context.getSourceCode().getScope(program));
 		},
 	};
 };

@@ -304,7 +304,7 @@ const create = context => {
 			};
 		},
 		[filterVariableSelector](node) {
-			const scope = context.getScope();
+			const scope = sourceCode.getScope(node);
 			const variable = findVariable(scope, node.id);
 			const identifiers = getVariableIdentifiers(variable).filter(identifier => identifier !== node.id);
 

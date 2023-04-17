@@ -72,7 +72,7 @@ const create = context => {
 	return {
 		[lengthAccessSelector](node) {
 			const maybeSet = node.object.elements[0].argument;
-			if (!isSet(maybeSet, context.getScope())) {
+			if (!isSet(maybeSet, sourceCode.getScope(maybeSet))) {
 				return;
 			}
 

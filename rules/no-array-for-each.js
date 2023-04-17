@@ -393,7 +393,7 @@ const create = context => {
 			functionStack.push(node);
 			functionInfo.set(node, {
 				returnStatements: [],
-				scope: context.getScope(),
+				scope: sourceCode.getScope(node),
 			});
 		},
 		':function:exit'() {
@@ -414,7 +414,7 @@ const create = context => {
 
 			callExpressions.push({
 				node,
-				scope: context.getScope(),
+				scope: sourceCode.getScope(node),
 			});
 		},
 		* 'Program:exit'() {

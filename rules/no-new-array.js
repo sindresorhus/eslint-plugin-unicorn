@@ -50,13 +50,14 @@ function getProblem(context, node) {
 	}
 
 	const fromLengthText = `Array.from(${text === 'length' ? '{length}' : `{length: ${text}}`})`;
-	if (isNumber(argumentNode, context.getScope())) {
+	const scope = sourceCode.getScope(node);
+	if (isNumber(argumentNode, scope)) {
 		problem.fix = fixer => fixer.replaceText(node, fromLengthText);
 		return problem;
 	}
 
 	const onlyElementText = `${maybeSemiColon}[${text}]`;
-	const result = getStaticValue(argumentNode, context.getScope());
+	const result = getStaticValue(argumentNode, scope);
 	if (result !== null && typeof result.value !== 'number') {
 		problem.fix = fixer => fixer.replaceText(node, onlyElementText);
 		return problem;

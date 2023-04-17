@@ -108,9 +108,11 @@ const isFunctionBindCall = node =>
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const sourceCode = context.getSourceCode();
+
 	const listener = (fix, checkFunctionReturnType) => node => {
 		if (checkFunctionReturnType) {
-			const functionNode = getFunction(context.getScope());
+			const functionNode = getFunction(sourceCode.getScope(node));
 			if (functionNode?.returnType) {
 				return;
 			}
@@ -123,7 +125,6 @@ const create = context => {
 		};
 	};
 
-	const sourceCode = context.getSourceCode();
 	const options = {
 		checkArguments: true,
 		...context.options[0],

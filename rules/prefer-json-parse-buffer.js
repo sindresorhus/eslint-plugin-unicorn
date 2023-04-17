@@ -108,7 +108,8 @@ function isUtf8Encoding(node, scope) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[jsonParseArgumentSelector](node) {
-		const scope = context.getScope();
+		const sourceCode = context.getSourceCode();
+		const scope = sourceCode.getScope(node);
 		node = getIdentifierDeclaration(node, scope);
 		if (
 			!(
@@ -137,7 +138,7 @@ const create = context => ({
 		return {
 			node: charsetNode,
 			messageId: MESSAGE_ID,
-			fix: fixer => removeArgument(fixer, charsetNode, context.getSourceCode()),
+			fix: fixer => removeArgument(fixer, charsetNode, sourceCode),
 		};
 	},
 });
