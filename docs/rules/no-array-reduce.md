@@ -9,7 +9,7 @@
 
 It's only somewhat useful in the rare case of summing up numbers, which is allowed by default.
 
-Use `eslint-disable` comment if you really need to use it.
+Use `eslint-disable` comment if you really need to use it or disable the rule entirely if you prefer functional programming.
 
 This rule is not fixable.
 

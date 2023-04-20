@@ -10,6 +10,8 @@
 Enforces a convention of grouping digits using [numeric separators](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Numeric_separators).
 Long numbers can become really hard to read, so cutting it into groups of digits, separated with a `_`, is important to keep your code clear. This rule also enforces a proper usage of the numeric separator, by checking if the groups of digits are of the correct size.
 
+By default, this doesn't apply to numbers below `10_000`, but that can be customized.
+
 ## Fail
 
 ```js
