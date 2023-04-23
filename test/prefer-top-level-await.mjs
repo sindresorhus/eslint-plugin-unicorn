@@ -193,6 +193,13 @@ test.snapshot({
 				foo();
 			}
 		`,
+		{
+			code: outdent`
+				const foo = async () => {};
+				foo().then(foo);
+			`,
+			filename: 'foo.cjS',
+		},
 	],
 });
 

@@ -59,6 +59,12 @@ const isAwaitArgument = node => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
+	const filename = context.getFilename();
+
+	if (filename.toLowerCase().endsWith('.cjs')) {
+		return;
+	}
+
 	const sourceCode = context.getSourceCode();
 
 	return {
