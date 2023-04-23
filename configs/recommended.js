@@ -73,8 +73,7 @@ module.exports = {
 		'unicorn/prefer-array-flat-map': 'error',
 		'unicorn/prefer-array-index-of': 'error',
 		'unicorn/prefer-array-some': 'error',
-		// TODO: Enable this by default when targeting a Node.js version that supports `Array#at`.
-		'unicorn/prefer-at': 'off',
+		'unicorn/prefer-at': 'error',
 		'unicorn/prefer-blob-reading-methods': 'error',
 		'unicorn/prefer-code-point': 'error',
 		'unicorn/prefer-date-now': 'error',
@@ -83,8 +82,7 @@ module.exports = {
 		'unicorn/prefer-dom-node-dataset': 'error',
 		'unicorn/prefer-dom-node-remove': 'error',
 		'unicorn/prefer-dom-node-text-content': 'error',
-		// TODO: Enable this by default when targeting Node.js 16.
-		'unicorn/prefer-event-target': 'off',
+		'unicorn/prefer-event-target': 'error',
 		'unicorn/prefer-export-from': 'error',
 		'unicorn/prefer-includes': 'error',
 		'unicorn/prefer-json-parse-buffer': 'off',
@@ -107,8 +105,7 @@ module.exports = {
 		'unicorn/prefer-set-has': 'error',
 		'unicorn/prefer-set-size': 'error',
 		'unicorn/prefer-spread': 'error',
-		// TODO: Enable this by default when targeting Node.js 16.
-		'unicorn/prefer-string-replace-all': 'off',
+		'unicorn/prefer-string-replace-all': 'error',
 		'unicorn/prefer-string-slice': 'error',
 		'unicorn/prefer-string-starts-ends-with': 'error',
 		'unicorn/prefer-string-trim-start-end': 'error',
