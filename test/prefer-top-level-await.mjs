@@ -71,6 +71,10 @@ test.snapshot({
 				}
 			}
 		`,
+		{
+			code: 'foo.then(bar)',
+			filename: 'foo.cjS',
+		},
 	],
 	invalid: [
 		'foo.then(bar)',
