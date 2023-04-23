@@ -71,6 +71,10 @@ test.snapshot({
 				}
 			}
 		`,
+		{
+			code: 'foo.then(bar)',
+			filename: 'foo.cjS',
+		},
 	],
 	invalid: [
 		'foo.then(bar)',
@@ -193,13 +197,6 @@ test.snapshot({
 				foo();
 			}
 		`,
-		{
-			code: outdent`
-				const foo = async () => {};
-				foo().then(foo);
-			`,
-			filename: 'foo.cjS',
-		},
 	],
 });
 
