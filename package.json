@@ -73,7 +73,7 @@
 		"c8": "^7.13.0",
 		"chalk": "^5.2.0",
 		"enquirer": "^2.3.6",
-		"eslint": "^8.38.0",
+		"eslint": "^8.40.0",
 		"eslint-ava-rule-tester": "^4.0.0",
 		"eslint-doc-generator": "^1.4.3",
 		"eslint-plugin-eslint-plugin": "^5.0.8",
@@ -118,6 +118,7 @@
 			"test/integration/{fixtures,fixtures-local}/**"
 		],
 		"rules": {
+			"unicorn/expiring-todo-comments": "off",
 			"unicorn/no-null": "error",
 			"unicorn/prefer-array-flat": [
 				"error",

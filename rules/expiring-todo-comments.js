@@ -286,14 +286,11 @@ const create = context => {
 	// Since we have priority, we leave only the comments that we didn't use.
 	const fakeContext = {
 		...context,
-		getSourceCode() {
-			return {
-				...sourceCode,
-				getAllComments() {
-					return options.allowWarningComments ? [] : unusedComments;
-				},
-			};
+		sourceCode: {
+			...sourceCode,
+			getAllComments: () => options.allowWarningComments ? [] : unusedComments,
 		},
+		getSourceCode: () => fakeContext.sourceCode,
 	};
 	const rules = baseRule.create(fakeContext);
 
