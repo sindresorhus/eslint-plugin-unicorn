@@ -118,6 +118,7 @@
 			"test/integration/{fixtures,fixtures-local}/**"
 		],
 		"rules": {
+			"unicorn/expiring-todo-comments": "off",
 			"unicorn/no-null": "error",
 			"unicorn/prefer-array-flat": [
 				"error",
