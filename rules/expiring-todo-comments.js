@@ -284,15 +284,15 @@ const create = context => {
 	// This is highly dependable on ESLint's `no-warning-comments` implementation.
 	// What we do is patch the parts we know the rule will use, `getAllComments`.
 	// Since we have priority, we leave only the comments that we didn't use.
+	const fakeSourceCode = {
+		...sourceCode,
+		getAllComments: () => options.allowWarningComments ? [] : unusedComments,
+	};
 	const fakeContext = {
 		...context,
+		sourceCode: fakeSourceCode,
 		getSourceCode() {
-			return {
-				...sourceCode,
-				getAllComments() {
-					return options.allowWarningComments ? [] : unusedComments;
-				},
-			};
+			return fakeSourceCode;
 		},
 	};
 	const rules = baseRule.create(fakeContext);
