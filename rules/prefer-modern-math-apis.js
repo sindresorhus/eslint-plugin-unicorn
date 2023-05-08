@@ -1,9 +1,9 @@
 'use strict';
-const {getParenthesizedText} = require('./utils/parentheses.js');
+const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses.js');
 const {methodCallSelector} = require('./selectors/index.js');
 const isSameReference = require('./utils/is-same-reference.js');
 const {isLiteral} = require('./ast/index.js');
-const {removeParentheses} = require('./fix/index.js');
+const {replaceNodeOrTokenAndSpacesBefore, removeParentheses} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-modern-math-apis';
 const messages = {
@@ -106,7 +106,7 @@ const checkFunctions = [
 	createLogCallDivideConstantCheck({constantName: 'LN2', replacementMethod: 'log2'}),
 ];
 
-const mathSqrtCallSelector = methodCallSelector({object: 'Math', method: 'sqrt', argumentsLength: 1})
+const mathSqrtCallSelector = methodCallSelector({object: 'Math', method: 'sqrt', argumentsLength: 1});
 
 const isPlusExpression = node => node.type === 'BinaryExpression' && node.operator === '+';
 
@@ -119,7 +119,7 @@ const isPow2Expression = node =>
 		|| (node.operator === '**' && isLiteral(node.right, 2))
 	);
 
-const flatPlusExpression = (node) =>
+const flatPlusExpression = node =>
 	isPlusExpression(node)
 		? [node.left, node.right].flatMap(child => flatPlusExpression(child))
 		: [node];
@@ -143,11 +143,10 @@ const create = context => {
 				messageId: MESSAGE_ID,
 				data: {
 					replacement: `Math.${replacementMethod}(…)`,
-					description: `Math.sqrt(…)`,
+					description: 'Math.sqrt(…)',
 				},
 				* fix(fixer) {
-					const fixedPlusExpressions = new WeakSet();
-					const sourceCode = context.sourceCode;
+					const {sourceCode} = context;
 
 					// `Math.sqrt` -> `Math.{hypot,abs}`
 					yield fixer.replaceText(callExpression.callee.property, replacementMethod);
@@ -156,15 +155,17 @@ const create = context => {
 					for (const expression of plusExpressions) {
 						const plusToken = sourceCode.getTokenAfter(expression.left, token => token.type === 'Punctuator' && token.value === '+');
 
-						yield fixer.replaceText(plusToken, ',');
+						yield * replaceNodeOrTokenAndSpacesBefore(plusToken, ',', fixer, sourceCode);
 						yield * removeParentheses(expression, fixer, sourceCode);
 					}
 
 					// `x ** 2` => `x`
 					// `x * a` => `x`
 					for (const expression of expressions) {
-						const operatorToken = sourceCode.getTokenAfter(expression.left, token => token.type === 'Punctuator' && token.value === expression.operator);
-						yield fixer.removeRange([operatorToken.range[0], expression.range[1]]);
+						yield fixer.removeRange([
+							getParenthesizedRange(expression.left, sourceCode)[1],
+							expression.range[1],
+						]);
 					}
 				},
 			};
