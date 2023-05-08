@@ -61,7 +61,7 @@ const checkRegex = ({pattern, flags}) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.sourceCode;
+	const {sourceCode} = context;
 
 	return {
 		[regexTestSelector](node) {

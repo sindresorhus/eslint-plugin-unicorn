@@ -221,7 +221,7 @@ function create(context) {
 		return;
 	}
 
-	const sourceCode = context.sourceCode;
+	const {sourceCode} = context;
 
 	return {
 		'ExpressionStatement[directive="use strict"]'(node) {

@@ -114,7 +114,7 @@ const create = context => {
 					messageId: zeroLengthChecks.has(node) ? 'zero' : 'non-zero',
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
 					fix(fixer) {
-						const sourceCode = context.sourceCode;
+						const {sourceCode} = context;
 						const {left, right} = node.parent;
 						const leftRange = getParenthesizedRange(left, sourceCode);
 						const rightRange = getParenthesizedRange(right, sourceCode);

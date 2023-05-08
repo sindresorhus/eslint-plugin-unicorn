@@ -177,7 +177,7 @@ function create(context) {
 		...context.options[0],
 	};
 	const functions = [...configFunctions, ...lodashFromPairsFunctions];
-	const sourceCode = context.sourceCode;
+	const {sourceCode} = context;
 	const listeners = {};
 	const arrayReduce = new Map();
 

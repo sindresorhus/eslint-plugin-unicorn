@@ -137,7 +137,7 @@ const create = context => ({
 			return;
 		}
 
-		const sourceCode = context.sourceCode;
+		const {sourceCode} = context;
 		const {replacementFunction, fix} = problem;
 
 		problem = {

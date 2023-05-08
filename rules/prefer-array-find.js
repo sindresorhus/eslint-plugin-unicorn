@@ -256,7 +256,7 @@ const isDestructuringFirstElement = node => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.sourceCode;
+	const {sourceCode} = context;
 	const {
 		checkFromLast,
 	} = {

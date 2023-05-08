@@ -45,7 +45,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 		return;
 	}
 
-	const sourceCode = context.sourceCode;
+	const {sourceCode} = context;
 	const scope = sourceCode.getScope(node);
 	const firstArgumentStaticResult = getStaticValue(firstArgument, scope);
 	const secondArgumentRange = getParenthesizedRange(secondArgument, sourceCode);
@@ -82,7 +82,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 }
 
 function * fixSubstringArguments({node, fixer, context, abort}) {
-	const sourceCode = context.sourceCode;
+	const {sourceCode} = context;
 	const [firstArgument, secondArgument] = node.arguments;
 
 	const firstNumber = firstArgument ? getNumericValue(firstArgument) : undefined;

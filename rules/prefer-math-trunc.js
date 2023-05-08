@@ -31,7 +31,7 @@ const bitwiseNotUnaryExpressionSelector = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.sourceCode;
+	const {sourceCode} = context;
 
 	const mathTruncFunctionCall = node => {
 		const text = sourceCode.getText(node);

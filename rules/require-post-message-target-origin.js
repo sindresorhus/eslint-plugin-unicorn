@@ -11,7 +11,7 @@ const messages = {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
-	const sourceCode = context.sourceCode;
+	const {sourceCode} = context;
 	return {
 		[methodCallSelector({method: 'postMessage', argumentsLength: 1})](node) {
 			const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);

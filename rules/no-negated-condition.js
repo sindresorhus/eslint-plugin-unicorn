@@ -89,7 +89,7 @@ const create = context => ({
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
-				const sourceCode = context.sourceCode;
+				const {sourceCode} = context;
 				yield * convertNegatedCondition(fixer, node, sourceCode);
 				yield * swapConsequentAndAlternate(fixer, node, sourceCode);
 

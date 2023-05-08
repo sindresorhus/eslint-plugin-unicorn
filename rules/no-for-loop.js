@@ -262,7 +262,7 @@ const getReferencesInChildScopes = (scope, name) =>
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.sourceCode;
+	const {sourceCode} = context;
 	const {scopeManager, text: sourceCodeText} = sourceCode;
 
 	return {

@@ -37,7 +37,7 @@ const create = context => ({
 		const method = node.callee.property.name;
 		const name = dashToCamelCase(attributeName.slice(5));
 
-		const sourceCode = context.sourceCode;
+		const {sourceCode} = context;
 		let text = '';
 		const datasetText = `${sourceCode.getText(node.callee.object)}.dataset`;
 		switch (method) {

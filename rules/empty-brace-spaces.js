@@ -19,7 +19,7 @@ const selector = matches([
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector](node) {
-		const sourceCode = context.sourceCode;
+		const {sourceCode} = context;
 		const filter = node.type === 'RecordExpression'
 			? token => token.type === 'Punctuator' && (token.value === '#{' || token.value === '{|')
 			: isOpeningBraceToken;

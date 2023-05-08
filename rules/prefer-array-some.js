@@ -102,7 +102,7 @@ const create = context => ({
 				// `.filter` to `.some`
 				yield fixer.replaceText(filterProperty, 'some');
 
-				const sourceCode = context.sourceCode;
+				const {sourceCode} = context;
 				const lengthNode = filterCall.parent;
 				/*
 					Remove `.length`

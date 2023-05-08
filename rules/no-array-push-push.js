@@ -52,7 +52,7 @@ function create(context) {
 		'process.stderr',
 		...ignore,
 	];
-	const sourceCode = context.sourceCode;
+	const {sourceCode} = context;
 
 	return {
 		[selector](secondExpression) {

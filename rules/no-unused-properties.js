@@ -80,7 +80,7 @@ const isUnusedVariable = variable => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.sourceCode;
+	const {sourceCode} = context;
 	const getPropertyDisplayName = property => {
 		if (property.key.type === 'Identifier') {
 			return property.key.name;

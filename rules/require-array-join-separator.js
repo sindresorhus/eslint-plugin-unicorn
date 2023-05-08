@@ -23,7 +23,7 @@ const selector = matches([
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.sourceCode;
+	const {sourceCode} = context;
 	return {
 		[selector](node) {
 			const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);

@@ -29,7 +29,7 @@ const create = context => {
 				return;
 			}
 
-			const sourceCode = context.sourceCode;
+			const {sourceCode} = context;
 			const comments = sourceCode.getAllComments();
 
 			if (hasTripeSlashDirectives(comments)) {

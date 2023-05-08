@@ -57,7 +57,7 @@ function createLogCallTimesConstantCheck({constantName, replacementMethod}) {
 				replacement,
 				description,
 			},
-			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context.getSourceCode())})`),
+			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context.sourceCode)})`),
 		};
 	};
 }
@@ -90,7 +90,7 @@ function createLogCallDivideConstantCheck({constantName, replacementMethod}) {
 		return {
 			...message,
 			node,
-			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context.getSourceCode())})`),
+			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context.sourceCode)})`),
 		};
 	};
 }

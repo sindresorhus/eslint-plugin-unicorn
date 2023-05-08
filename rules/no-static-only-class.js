@@ -197,7 +197,7 @@ function switchClassToObject(node, sourceCode) {
 }
 
 function create(context) {
-	const sourceCode = context.sourceCode;
+	const {sourceCode} = context;
 
 	return {
 		[selector](node) {

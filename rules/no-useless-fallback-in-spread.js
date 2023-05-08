@@ -34,7 +34,7 @@ const create = context => ({
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
-				const sourceCode = context.sourceCode;
+				const {sourceCode} = context;
 				const logicalExpression = emptyObject.parent;
 				const {left} = logicalExpression;
 				const isLeftObjectParenthesized = isParenthesized(left, sourceCode);

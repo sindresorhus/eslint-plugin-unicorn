@@ -41,7 +41,7 @@ function create(context) {
 	return {
 		[selector](node) {
 			const constructorName = node.object.type === 'ArrayExpression' ? 'Array' : 'Object';
-			const sourceCode = context.sourceCode;
+			const {sourceCode} = context;
 			const methodName = getPropertyName(node, sourceCode.getScope(node));
 
 			return {
