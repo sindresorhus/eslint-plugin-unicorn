@@ -70,9 +70,11 @@ test.snapshot({
 test.snapshot({
 	valid: [
 		'Math.notSqrt(a ** 2 + b ** 2)',
+		'NotMath.sqrt(a ** 2 + b ** 2)',
 		'Math.sqrt(a ** 2 - b ** 2)',
 		'Math.sqrt(a ** 2 + 2 ** b)',
 		'Math.sqrt(a * c + b * c)',
+		'Math.sqrt((++a) ** 2)',
 		// Leave this to `prefer-exponentiation-operator` rule
 		'Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2))',
 	],
@@ -82,6 +84,13 @@ test.snapshot({
 		'Math.sqrt(a * a + b ** 2)',
 		'Math.sqrt(a * a + b * b + c * c)',
 		'Math.sqrt(a ** 2 + b ** 2 + c ** 2)',
-		'Math.sqrt((a, b) ** 2, (++c) ** 2)'
+		'Math.sqrt(a * a)',
+		'Math.sqrt(a ** 2)',
+		'Math.sqrt(a * a,)',
+		'Math.sqrt(a ** 2,)',
+		'Math.sqrt((a, b) ** 2)',
+		'Math.sqrt(a * a + b * b,)',
+		'Math.sqrt(a ** 2 + b ** 2,)',
+		'Math.sqrt((( a ** 2 )) + (( b ** 2 + c ** 2 )) + (( d )) * (( d )) + (( e )) ** (( 2 )))',
 	],
 });
