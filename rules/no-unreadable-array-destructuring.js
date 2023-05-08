@@ -13,7 +13,7 @@ const isCommaFollowedWithComma = (element, index, array) =>
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
+	const sourceCode = context.sourceCode;
 
 	return {
 		'ArrayPattern[elements.length>=3]'(node) {

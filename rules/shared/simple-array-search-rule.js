@@ -60,7 +60,7 @@ function simpleArraySearchRule({method, replacement}) {
 	].join('');
 
 	function createListeners(context) {
-		const sourceCode = context.getSourceCode();
+		const sourceCode = context.sourceCode;
 		const {scopeManager} = sourceCode;
 
 		return {

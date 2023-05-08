@@ -37,7 +37,7 @@ function * addBraces(fixer, node, sourceCode) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const isBracesRequired = context.options[0] !== 'avoid';
-	const sourceCode = context.getSourceCode();
+	const sourceCode = context.sourceCode;
 
 	return {
 		SwitchCase(node) {

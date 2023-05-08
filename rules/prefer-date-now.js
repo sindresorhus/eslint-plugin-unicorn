@@ -90,7 +90,7 @@ const create = context => ({
 		return getProblem(
 			node.operator === '-' ? node.argument : node,
 			{},
-			context.getSourceCode(),
+			context.sourceCode,
 		);
 	},
 	[assignmentExpressionSelector](node) {

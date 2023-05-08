@@ -46,7 +46,7 @@ const create = context => ({
 			return;
 		}
 
-		const sourceCode = context.getSourceCode();
+		const sourceCode = context.sourceCode;
 		const awaitToken = sourceCode.getFirstToken(node);
 		const problem = {
 			node,

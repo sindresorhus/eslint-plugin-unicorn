@@ -149,7 +149,7 @@ function checkNode(node, scopeManager) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {checkArrowFunctions} = {checkArrowFunctions: true, ...context.options[0]};
-	const sourceCode = context.getSourceCode();
+	const sourceCode = context.sourceCode;
 	const {scopeManager} = sourceCode;
 
 	const functions = [];

@@ -179,7 +179,7 @@ const create = context => ({
 			messageId: MESSAGE_ID,
 			data: {method},
 			* fix(fixer) {
-				const sourceCode = context.getSourceCode();
+				const sourceCode = context.sourceCode;
 				for (const node of removableNodes) {
 					yield removeLengthNode(node, fixer, sourceCode);
 				}

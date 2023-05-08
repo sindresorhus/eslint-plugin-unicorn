@@ -60,7 +60,7 @@ const create = context => {
 				return;
 			}
 
-			const scope = context.getSourceCode().getScope(node);
+			const scope = context.sourceCode.getScope(node);
 			const variable = findVariable(scope, node);
 
 			// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768072967

@@ -34,7 +34,7 @@ const create = context => ({
 	[selector]: node => ({
 		node,
 		messageId,
-		fix: fixer => switchCallExpressionToNewExpression(node, context.getSourceCode(), fixer),
+		fix: fixer => switchCallExpressionToNewExpression(node, context.sourceCode, fixer),
 	}),
 });
 

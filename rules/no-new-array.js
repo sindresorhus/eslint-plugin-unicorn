@@ -28,7 +28,7 @@ function getProblem(context, node) {
 
 	const [argumentNode] = node.arguments;
 
-	const sourceCode = context.getSourceCode();
+	const sourceCode = context.sourceCode;
 	let text = sourceCode.getText(argumentNode);
 	if (isParenthesized(argumentNode, sourceCode)) {
 		text = `(${text})`;

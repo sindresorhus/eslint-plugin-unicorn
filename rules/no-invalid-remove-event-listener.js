@@ -28,7 +28,7 @@ const create = context => ({
 		if (['ArrowFunctionExpression', 'FunctionExpression'].includes(listener.type)) {
 			return {
 				node: listener,
-				loc: getFunctionHeadLocation(listener, context.getSourceCode()),
+				loc: getFunctionHeadLocation(listener, context.sourceCode),
 				messageId: MESSAGE_ID,
 			};
 		}

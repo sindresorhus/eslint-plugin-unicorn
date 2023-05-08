@@ -80,7 +80,7 @@ const create = context => ({
 							return;
 						}
 
-						const parenthesizedRange = getParenthesizedRange(callExpression, context.getSourceCode());
+						const parenthesizedRange = getParenthesizedRange(callExpression, context.sourceCode);
 						yield fixer.replaceTextRange([parenthesizedRange[1], callExpression.parent.range[1]], '');
 
 						if (callExpression.parent.operator === '!=' || callExpression.parent.operator === '!==') {
@@ -102,7 +102,7 @@ const create = context => ({
 				// `.filter` to `.some`
 				yield fixer.replaceText(filterProperty, 'some');
 
-				const sourceCode = context.getSourceCode();
+				const sourceCode = context.sourceCode;
 				const lengthNode = filterCall.parent;
 				/*
 					Remove `.length`

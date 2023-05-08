@@ -145,7 +145,7 @@ function create(context) {
 		...context.options[0],
 	};
 	const getLastFunctions = [...getLastElementFunctions, ...lodashLastFunctions];
-	const sourceCode = context.getSourceCode();
+	const sourceCode = context.sourceCode;
 
 	return {
 		[indexAccess](node) {

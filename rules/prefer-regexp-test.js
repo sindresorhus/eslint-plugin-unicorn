@@ -108,7 +108,7 @@ const create = context => Object.fromEntries(
 				messageId: type,
 			};
 
-			const sourceCode = context.getSourceCode();
+			const sourceCode = context.sourceCode;
 			const fixFunction = fixer => fix(fixer, nodes, sourceCode);
 
 			if (

@@ -86,7 +86,7 @@ const create = context => ({
 			callee: {property},
 		} = node;
 
-		if (!isRegExpWithGlobalFlag(pattern, context.getSourceCode().getScope(pattern))) {
+		if (!isRegExpWithGlobalFlag(pattern, context.sourceCode.getScope(pattern))) {
 			return;
 		}
 

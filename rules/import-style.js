@@ -167,7 +167,7 @@ const create = context => {
 		),
 	);
 
-	const sourceCode = context.getSourceCode();
+	const sourceCode = context.sourceCode;
 
 	const report = (node, moduleName, actualImportStyles, allowedImportStyles, isRequire = false) => {
 		if (!allowedImportStyles || allowedImportStyles.size === 0) {

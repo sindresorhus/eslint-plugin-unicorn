@@ -263,7 +263,7 @@ const create = context => {
 		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u'),
 	);
 
-	const sourceCode = context.getSourceCode();
+	const sourceCode = context.sourceCode;
 	const comments = sourceCode.getAllComments();
 	const unusedComments = comments
 		.filter(token => token.type !== 'Shebang')

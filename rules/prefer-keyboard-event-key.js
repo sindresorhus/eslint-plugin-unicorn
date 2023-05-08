@@ -25,7 +25,7 @@ const getEventNodeAndReferences = (context, node) => {
 	switch (callback?.type) {
 		case 'ArrowFunctionExpression':
 		case 'FunctionExpression': {
-			const eventVariable = context.getSourceCode().getDeclaredVariables(callback)[0];
+			const eventVariable = context.sourceCode.getDeclaredVariables(callback)[0];
 			const references = eventVariable?.references;
 			return {
 				event: callback.params[0],

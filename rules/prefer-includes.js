@@ -15,7 +15,7 @@ const isLiteralZero = node => isLiteral(node, 0);
 const isNegativeResult = node => ['===', '==', '<'].includes(node.operator);
 
 const getProblem = (context, node, target, argumentsNodes) => {
-	const sourceCode = context.getSourceCode();
+	const sourceCode = context.sourceCode;
 	const memberExpressionNode = target.parent;
 	const dotToken = sourceCode.getTokenBefore(memberExpressionNode.property);
 	const targetSource = sourceCode.getText().slice(memberExpressionNode.range[0], dotToken.range[0]);

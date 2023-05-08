@@ -17,7 +17,7 @@ const mathToFixed = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
+	const sourceCode = context.sourceCode;
 	return {
 		[mathToFixed](node) {
 			const [
