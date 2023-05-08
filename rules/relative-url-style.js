@@ -126,7 +126,7 @@ const create = context => {
 			return;
 		}
 
-		const sourceCode = context.getSourceCode();
+		const {sourceCode} = context;
 		const fix = (style === 'never' ? removeDotSlash : addDotSlash)(node, sourceCode);
 
 		if (!fix) {

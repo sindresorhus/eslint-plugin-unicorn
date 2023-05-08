@@ -108,7 +108,7 @@ function isUtf8Encoding(node, scope) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[jsonParseArgumentSelector](node) {
-		const sourceCode = context.getSourceCode();
+		const {sourceCode} = context;
 		const scope = sourceCode.getScope(node);
 		node = getIdentifierDeclaration(node, scope);
 		if (

@@ -182,7 +182,7 @@ function create(context) {
 		...context.options[0],
 	};
 	const functions = [...configFunctions, ...lodashFlattenFunctions];
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const listeners = {};
 
 	const cases = [

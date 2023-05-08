@@ -71,7 +71,7 @@ module.exports = {
 					const range = [start, start + word.length];
 					context.report({
 						node,
-						loc: toLocation(range, context.getSourceCode()),
+						loc: toLocation(range, context.sourceCode),
 						messageId,
 						data: {original, replacement},
 						fix: fixer => fixer.replaceTextRange(range, replacement),

@@ -52,7 +52,7 @@ function fix(node, sourceCode, method) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	return {
 		[newExpressionSelector('Buffer')](node) {
 			const method = inferMethod(node.arguments, sourceCode.getScope(node));

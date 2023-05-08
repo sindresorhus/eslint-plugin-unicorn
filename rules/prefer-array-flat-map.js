@@ -27,7 +27,7 @@ const create = context => ({
 			return;
 		}
 
-		const sourceCode = context.getSourceCode();
+		const {sourceCode} = context;
 		const mapProperty = mapCallExpression.callee.property;
 
 		return {

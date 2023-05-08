@@ -35,7 +35,7 @@ const create = context => {
 		checkGlobalVariables: false,
 		...context.options[0],
 	};
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 
 	return {
 		[selector](binaryExpression) {

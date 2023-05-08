@@ -30,7 +30,7 @@ const hasTrailingSpace = value => value.length > 1 && value.charAt(value.length 
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const getProblem = (node, method, position) => {
 		const index = position === 'leading'
 			? node.range[0] + 1

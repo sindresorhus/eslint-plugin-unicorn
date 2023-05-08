@@ -80,7 +80,7 @@ function shouldSwitchReturnStatementToBlockStatement(returnStatement) {
 }
 
 function getFixFunction(callExpression, functionInfo, context) {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const [callback] = callExpression.arguments;
 	const parameters = callback.params;
 	const iterableObject = callExpression.callee.object;
@@ -386,7 +386,7 @@ const create = context => {
 	const callExpressions = [];
 	const allIdentifiers = [];
 	const functionInfo = new Map();
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 
 	return {
 		':function'(node) {

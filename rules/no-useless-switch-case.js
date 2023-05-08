@@ -43,7 +43,7 @@ const create = context => ({
 		for (const node of uselessCases) {
 			yield {
 				node,
-				loc: getSwitchCaseHeadLocation(node, context.getSourceCode()),
+				loc: getSwitchCaseHeadLocation(node, context.sourceCode),
 				messageId: MESSAGE_ID_ERROR,
 				suggest: [
 					{
