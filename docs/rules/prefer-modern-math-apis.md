@@ -59,6 +59,27 @@ Math.LOG2E * Math.log(x)
 Math.log(x) / Math.LN2
 ```
 
+## Prefer `Math.hypot(…)` over
+
+```js
+Math.sqrt(a * a + b * b)
+```
+
+```js
+Math.sqrt(a ** 2 + b ** 2)
+```
+
+```js
+Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2))
+```
+
+*This case requires [`prefer-exponentiation-operator`](https://eslint.org/docs/latest/rules/prefer-exponentiation-operator) rule to fix it first.*
+
+```js
+Math.sqrt(x ** 2)
+// This case fix to `Math.abs(x)`, since it should be better than `Math.hypot(x)`
+```
+
 ## Separate rule for `Math.trunc()`
 
 See [`unicorn/prefer-math-trunc`](./prefer-math-trunc.md) rule.
