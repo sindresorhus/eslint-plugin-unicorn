@@ -3,7 +3,6 @@
 /**
 @typedef {
 	{
-		path?: string,
 		name?: string,
 		names?: string[],
 		argumentsLength?: number,
@@ -27,7 +26,6 @@ function create(node, options, type) {
 	}
 
 	let {
-		path,
 		name,
 		names,
 		argumentsLength,
@@ -35,7 +33,6 @@ function create(node, options, type) {
 		maximumArguments,
 		allowSpreadElement,
 	} = {
-		path: '',
 		minimumArguments: 0,
 		maximumArguments: Number.POSITIVE_INFINITY,
 		allowSpreadElement: false,
