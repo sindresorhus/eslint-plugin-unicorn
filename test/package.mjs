@@ -210,3 +210,8 @@ test('Every rule has a doc with the appropriate content', t => {
 		}
 	}
 });
+
+test('Plugin should have metadata', t => {
+	t.expect(typeof eslintPluginUnicorn.meta.name, 'string');
+	t.expect(typeof eslintPluginUnicorn.meta.version, 'string');
+});
