@@ -5,7 +5,6 @@ const needsSemicolon = require('./utils/needs-semicolon.js');
 const isValueNotUsable = require('./utils/is-value-not-usable.js');
 const {getParenthesizedText} = require('./utils/parentheses.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
-const isSameReference = require('./utils/is-same-reference.js');
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_MESSAGE_ID = 'suggestion';
