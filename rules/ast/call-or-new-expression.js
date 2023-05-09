@@ -9,7 +9,6 @@
 		argumentsLength?: number,
 		minimumArguments?: number,
 		maximumArguments?: number,
-		includeOptional?: boolean,
 		allowSpreadElement?: boolean,
 	} | string | string[]
 } CallOrNewExpressionOptions
@@ -34,23 +33,17 @@ function create(node, options, type) {
 		argumentsLength,
 		minimumArguments,
 		maximumArguments,
-		includeOptional,
 		allowSpreadElement,
 	} = {
 		path: '',
 		minimumArguments: 0,
 		maximumArguments: Number.POSITIVE_INFINITY,
-		includeOptional: false,
 		allowSpreadElement: false,
 		...options,
 	};
 
 	if (name) {
 		names = [name];
-	}
-
-	if (!includeOptional && node.optional) {
-		return false;
 	}
 
 	if (typeof argumentsLength === 'number' && node.arguments.length !== argumentsLength) {
