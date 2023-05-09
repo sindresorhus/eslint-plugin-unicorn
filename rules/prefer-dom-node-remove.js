@@ -5,12 +5,13 @@ const needsSemicolon = require('./utils/needs-semicolon.js');
 const isValueNotUsable = require('./utils/is-value-not-usable.js');
 const {getParenthesizedText} = require('./utils/parentheses.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
+const isSameReference = require('./utils/is-same-reference.js');
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_MESSAGE_ID = 'suggestion';
 const messages = {
 	[ERROR_MESSAGE_ID]: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
-	[SUGGESTION_MESSAGE_ID]: 'Replace `parentNode.removeChild(childNode)` with `childNode.remove()`.',
+	[SUGGESTION_MESSAGE_ID]: 'Replace `parentNode.removeChild(childNode)` with `childNode{{dotOrQuestionDot}}remove()`.',
 };
 
 const selector = [
@@ -46,7 +47,9 @@ const create = context => {
 				messageId: ERROR_MESSAGE_ID,
 			};
 
-			const fix = fixer => {
+			const isOptionalParentNode = isMemberExpressionOptionalObject(parentNode);
+
+			const createFix = (optional = false) => fixer => {
 				let childNodeText = getParenthesizedText(childNode, sourceCode);
 				if (
 					!isParenthesized(childNode, sourceCode)
@@ -59,20 +62,20 @@ const create = context => {
 					childNodeText = `;${childNodeText}`;
 				}
 
-				return fixer.replaceText(node, `${childNodeText}.remove()`);
+				return fixer.replaceText(node, `${childNodeText}${optional ? '?' : ''}.remove()`);
 			};
 
-			if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node) && !isMemberExpressionOptionalObject(parentNode)) {
-				problem.fix = fix;
+			if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node) && !isOptionalParentNode) {
+				problem.fix = createFix();
 			} else {
-				problem.suggest = [
-					{
-						messageId: SUGGESTION_MESSAGE_ID,
-						fix,
-					},
-				];
+				problem.suggest = (
+					isOptionalParentNode ? [true, false] : [false]
+				).map(optional => ({
+					messageId: SUGGESTION_MESSAGE_ID,
+					data: {dotOrQuestionDot: optional ? '?.' : '.'},
+					fix: createFix(optional)
+				}));
 			}
-
 			return problem;
 		},
 	};
