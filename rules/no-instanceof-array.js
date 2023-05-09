@@ -18,7 +18,7 @@ const selector = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 
 	return {
 		[selector](node) {

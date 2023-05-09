@@ -21,7 +21,7 @@ const selector = [
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	[selector](node) {
-		const sourceCode = context.getSourceCode();
+		const {sourceCode} = context;
 		if (!isParenthesized(node, sourceCode)) {
 			return;
 		}

@@ -544,7 +544,7 @@ const create = context => {
 				return;
 			}
 
-			checkScope(context.getSourceCode().getScope(program));
+			checkScope(context.sourceCode.getScope(program));
 		},
 	};
 };

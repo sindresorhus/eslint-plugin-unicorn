@@ -174,7 +174,7 @@ function getProblem(context, node, method, options) {
 				parameters: suggestionParameters,
 			},
 			fix(fixer) {
-				const sourceCode = context.getSourceCode();
+				const {sourceCode} = context;
 				let nodeText = sourceCode.getText(node);
 				if (isParenthesized(node, sourceCode) || type === 'ConditionalExpression') {
 					nodeText = `(${nodeText})`;

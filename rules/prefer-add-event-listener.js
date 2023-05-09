@@ -137,7 +137,7 @@ const create = context => {
 				&& node.parent.type === 'ExpressionStatement'
 				&& node.parent.expression === node
 			) {
-				fix = fixer => fixCode(fixer, context.getSourceCode(), node, memberExpression);
+				fix = fixer => fixCode(fixer, context.sourceCode, node, memberExpression);
 			}
 
 			return {

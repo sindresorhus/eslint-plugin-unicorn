@@ -312,7 +312,7 @@ const schema = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const {ignoreUsedVariables} = {ignoreUsedVariables: false, ...context.options[0]};
 	const importDeclarations = new Set();
 	const exportDeclarations = [];

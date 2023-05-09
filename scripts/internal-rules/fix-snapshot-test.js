@@ -75,7 +75,7 @@ function getFixMarkComment(snapshotTestCall, sourceCode) {
 
 module.exports = {
 	create(context) {
-		const sourceCode = context.getSourceCode();
+		const {sourceCode} = context;
 
 		return {
 			[snapshotTestCallSelector](snapshotTestCall) {

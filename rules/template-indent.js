@@ -18,7 +18,7 @@ const jestInlineSnapshotSelector = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const options = {
 		tags: ['outdent', 'dedent', 'gql', 'sql', 'html', 'styled'],
 		functions: ['dedent', 'stripIndent'],

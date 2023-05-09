@@ -81,7 +81,7 @@ const create = context => {
 		checkInfinity: true,
 		...context.options[0],
 	};
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 
 	let objects = Object.keys(globalObjects);
 	if (!checkInfinity) {

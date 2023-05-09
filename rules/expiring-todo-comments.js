@@ -263,7 +263,7 @@ const create = context => {
 		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u'),
 	);
 
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const comments = sourceCode.getAllComments();
 	const unusedComments = comments
 		.filter(token => token.type !== 'Shebang')
@@ -290,7 +290,6 @@ const create = context => {
 			...sourceCode,
 			getAllComments: () => options.allowWarningComments ? [] : unusedComments,
 		},
-		getSourceCode: () => fakeContext.sourceCode,
 	};
 	const rules = baseRule.create(fakeContext);
 

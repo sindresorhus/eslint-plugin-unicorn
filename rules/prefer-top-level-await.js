@@ -63,7 +63,7 @@ function create(context) {
 		return;
 	}
 
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 
 	return {
 		[promise](node) {

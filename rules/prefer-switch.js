@@ -256,7 +256,7 @@ const create = context => {
 		insertBreakInDefaultCase: false,
 		...context.options[0],
 	};
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const ifStatements = new Set();
 	const breakStatements = [];
 	const checked = new Set();

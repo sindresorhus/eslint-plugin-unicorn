@@ -99,7 +99,7 @@ function create(context) {
 		...context.options[0],
 	};
 	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 
 	function getProblem({node, isZeroLengthCheck, lengthNode, autoFix}) {
 		const {code, test} = isZeroLengthCheck ? zeroStyle : nonZeroStyle;
