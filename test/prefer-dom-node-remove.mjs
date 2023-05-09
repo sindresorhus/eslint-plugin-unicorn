@@ -47,7 +47,6 @@ const invalidTestCase = ({code, output, suggestionOutput, suggestionOutputs}) =>
 				},
 			],
 		};
-
 	}
 
 	return {

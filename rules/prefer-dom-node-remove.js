@@ -28,8 +28,8 @@ const isMemberExpressionOptionalObject = node =>
 	node.parent.type === 'MemberExpression'
 	&& node.parent.object === node
 	&& (
-		node.parent.optional ||
-		(node.type === 'MemberExpression' && isMemberExpressionOptionalObject(node.object))
+		node.parent.optional
+		|| (node.type === 'MemberExpression' && isMemberExpressionOptionalObject(node.object))
 	);
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -94,7 +94,7 @@ const create = context => {
 			).map(optional => ({
 				messageId: SUGGESTION_MESSAGE_ID,
 				data: {dotOrQuestionDot: optional ? '?.' : '.'},
-				fix: createFix(optional)
+				fix: createFix(optional),
 			}));
 
 			return problem;
