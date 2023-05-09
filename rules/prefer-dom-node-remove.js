@@ -23,6 +23,15 @@ const selector = [
 	notDomNodeSelector('arguments.0'),
 ].join('');
 
+// TODO: Don't check node.type twice
+const isMemberExpressionOptionalObject = node =>
+	node.parent.type === 'MemberExpression'
+	&& node.parent.object === node
+	&& (
+		node.parent.optional ||
+		(node.type === 'MemberExpression' && isMemberExpressionOptionalObject(node.object))
+	);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -53,7 +62,7 @@ const create = context => {
 				return fixer.replaceText(node, `${childNodeText}.remove()`);
 			};
 
-			if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node) && !node.callee.optional) {
+			if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node) && !isMemberExpressionOptionalObject(parentNode)) {
 				problem.fix = fix;
 			} else {
 				problem.suggest = [
