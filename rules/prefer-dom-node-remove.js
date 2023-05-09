@@ -64,17 +64,39 @@ const create = context => {
 				return fixer.replaceText(node, `${childNodeText}${optional ? '?' : ''}.remove()`);
 			};
 
-			if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node) && !isOptionalParentNode) {
-				problem.fix = createFix();
-			} else {
-				problem.suggest = (
-					isOptionalParentNode ? [true, false] : [false]
-				).map(optional => ({
-					messageId: SUGGESTION_MESSAGE_ID,
-					data: {dotOrQuestionDot: optional ? '?.' : '.'},
-					fix: createFix(optional)
-				}));
+			if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node)) {
+				if (!isOptionalParentNode) {
+					problem.fix = createFix(false);
+					return problem;
+				}
+
+				// The most common case `foo?.parentNode.remove(foo)`
+				// TODO: Allow case like `foo.bar?.parentNode.remove(foo.bar)`
+				if (
+					node.callee.type === 'MemberExpression'
+					&& !node.callee.optional
+					&& parentNode.type === 'MemberExpression'
+					&& parentNode.optional
+					&& !parentNode.computed
+					&& parentNode.property.type === 'Identifier'
+					&& parentNode.property.name === 'parentNode'
+					&& parentNode.object.type === 'Identifier'
+					&& childNode.type === 'Identifier'
+					&& parentNode.object.name === childNode.name
+				) {
+					problem.fix = createFix(true);
+					return problem;
+				}
 			}
+
+			problem.suggest = (
+				isOptionalParentNode ? [true, false] : [false]
+			).map(optional => ({
+				messageId: SUGGESTION_MESSAGE_ID,
+				data: {dotOrQuestionDot: optional ? '?.' : '.'},
+				fix: createFix(optional)
+			}));
+
 			return problem;
 		},
 	};

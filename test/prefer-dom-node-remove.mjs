@@ -279,8 +279,19 @@ test({
 		},
 		{
 			code: 'foo?.parentNode.removeChild(foo)',
-			suggestionOutput: 'foo.remove()',
+			output: 'foo?.remove()',
+		},
+		{
+			code: 'foo.parentNode?.removeChild(foo)',
 			suggestionOutputs: ['foo?.remove()', 'foo.remove()'],
+		},
+		{
+			code: 'foo?.parentNode?.removeChild(foo)',
+			suggestionOutputs: ['foo?.remove()', 'foo.remove()'],
+		},
+		{
+			code: 'foo.bar?.parentNode.removeChild(foo.bar)',
+			suggestionOutputs: ['foo.bar?.remove()', 'foo.bar.remove()'],
 		},
 		{
 			code: 'a.b?.c.parentNode.removeChild(foo)',
