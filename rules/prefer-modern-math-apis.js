@@ -151,7 +151,7 @@ const create = context => {
 					// `Math.sqrt` -> `Math.{hypot,abs}`
 					yield fixer.replaceText(callExpression.callee.property, replacementMethod);
 
-					// `x ** 2 + b ** 2` -> `a, b`
+					// `a ** 2 + b ** 2` -> `a, b`
 					for (const expression of plusExpressions) {
 						const plusToken = sourceCode.getTokenAfter(expression.left, token => token.type === 'Punctuator' && token.value === '+');
 
