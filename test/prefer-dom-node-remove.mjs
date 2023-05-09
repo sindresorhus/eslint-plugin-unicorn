@@ -300,6 +300,7 @@ test({
 			code: 'a[b?.c].parentNode.removeChild(foo)',
 			output: 'foo.remove()',
 		},
+		// The suggestions are bad, since they will break code
 		{
 			code: 'a?.b.parentNode.removeChild(a.b)',
 			suggestionOutputs: ['a.b?.remove()', 'a.b.remove()'],
