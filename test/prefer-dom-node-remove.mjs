@@ -7,7 +7,7 @@ const {test} = getTester(import.meta);
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_MESSAGE_ID = 'suggestion';
 
-const invalidTestCase = ({code, output, suggestionOutput}) => {
+const invalidTestCase = ({code, output, suggestionOutput, suggestionOutputs}) => {
 	if (suggestionOutput) {
 		return {
 			code,
@@ -17,7 +17,31 @@ const invalidTestCase = ({code, output, suggestionOutput}) => {
 					suggestions: [
 						{
 							messageId: SUGGESTION_MESSAGE_ID,
+							data: {dotOrQuestionDot: '.'},
 							output: suggestionOutput,
+						},
+					],
+				},
+			],
+		};
+	}
+
+	if (suggestionOutputs) {
+		return {
+			code,
+			errors: [
+				{
+					messageId: ERROR_MESSAGE_ID,
+					suggestions: [
+						{
+							messageId: SUGGESTION_MESSAGE_ID,
+							data: {dotOrQuestionDot: '?.'},
+							output: suggestionOutputs[0],
+						},
+						{
+							messageId: SUGGESTION_MESSAGE_ID,
+							data: {dotOrQuestionDot: '.'},
+							output: suggestionOutputs[1],
 						},
 					],
 				},
@@ -250,7 +274,36 @@ test({
 		// Optional parent
 		{
 			code: 'parentNode?.removeChild(foo)',
-			suggestionOutput: 'foo.remove()',
+			suggestionOutputs: ['foo?.remove()', 'foo.remove()'],
+		},
+		{
+			code: 'foo?.parentNode.removeChild(foo)',
+			output: 'foo?.remove()',
+		},
+		{
+			code: 'foo.parentNode?.removeChild(foo)',
+			suggestionOutputs: ['foo?.remove()', 'foo.remove()'],
+		},
+		{
+			code: 'foo?.parentNode?.removeChild(foo)',
+			suggestionOutputs: ['foo?.remove()', 'foo.remove()'],
+		},
+		{
+			code: 'foo.bar?.parentNode.removeChild(foo.bar)',
+			suggestionOutputs: ['foo.bar?.remove()', 'foo.bar.remove()'],
+		},
+		{
+			code: 'a.b?.c.parentNode.removeChild(foo)',
+			suggestionOutputs: ['foo?.remove()', 'foo.remove()'],
+		},
+		{
+			code: 'a[b?.c].parentNode.removeChild(foo)',
+			output: 'foo.remove()',
+		},
+		// The suggestions are bad, since they will break code
+		{
+			code: 'a?.b.parentNode.removeChild(a.b)',
+			suggestionOutputs: ['a.b?.remove()', 'a.b.remove()'],
 		},
 	].map(options => invalidTestCase(options)),
 });

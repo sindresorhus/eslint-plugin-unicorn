@@ -10,7 +10,7 @@ const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_MESSAGE_ID = 'suggestion';
 const messages = {
 	[ERROR_MESSAGE_ID]: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
-	[SUGGESTION_MESSAGE_ID]: 'Replace `parentNode.removeChild(childNode)` with `childNode.remove()`.',
+	[SUGGESTION_MESSAGE_ID]: 'Replace `parentNode.removeChild(childNode)` with `childNode{{dotOrQuestionDot}}remove()`.',
 };
 
 const selector = [
@@ -22,6 +22,15 @@ const selector = [
 	notDomNodeSelector('callee.object'),
 	notDomNodeSelector('arguments.0'),
 ].join('');
+
+// TODO: Don't check node.type twice
+const isMemberExpressionOptionalObject = node =>
+	node.parent.type === 'MemberExpression'
+	&& node.parent.object === node
+	&& (
+		node.parent.optional
+		|| (node.type === 'MemberExpression' && isMemberExpressionOptionalObject(node.object))
+	);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -37,7 +46,9 @@ const create = context => {
 				messageId: ERROR_MESSAGE_ID,
 			};
 
-			const fix = fixer => {
+			const isOptionalParentNode = isMemberExpressionOptionalObject(parentNode);
+
+			const createFix = (optional = false) => fixer => {
 				let childNodeText = getParenthesizedText(childNode, sourceCode);
 				if (
 					!isParenthesized(childNode, sourceCode)
@@ -50,19 +61,41 @@ const create = context => {
 					childNodeText = `;${childNodeText}`;
 				}
 
-				return fixer.replaceText(node, `${childNodeText}.remove()`);
+				return fixer.replaceText(node, `${childNodeText}${optional ? '?' : ''}.remove()`);
 			};
 
-			if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node) && !node.callee.optional) {
-				problem.fix = fix;
-			} else {
-				problem.suggest = [
-					{
-						messageId: SUGGESTION_MESSAGE_ID,
-						fix,
-					},
-				];
+			if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node)) {
+				if (!isOptionalParentNode) {
+					problem.fix = createFix(false);
+					return problem;
+				}
+
+				// The most common case `foo?.parentNode.remove(foo)`
+				// TODO: Allow case like `foo.bar?.parentNode.remove(foo.bar)`
+				if (
+					node.callee.type === 'MemberExpression'
+					&& !node.callee.optional
+					&& parentNode.type === 'MemberExpression'
+					&& parentNode.optional
+					&& !parentNode.computed
+					&& parentNode.property.type === 'Identifier'
+					&& parentNode.property.name === 'parentNode'
+					&& parentNode.object.type === 'Identifier'
+					&& childNode.type === 'Identifier'
+					&& parentNode.object.name === childNode.name
+				) {
+					problem.fix = createFix(true);
+					return problem;
+				}
 			}
+
+			problem.suggest = (
+				isOptionalParentNode ? [true, false] : [false]
+			).map(optional => ({
+				messageId: SUGGESTION_MESSAGE_ID,
+				data: {dotOrQuestionDot: optional ? '?.' : '.'},
+				fix: createFix(optional),
+			}));
 
 			return problem;
 		},
