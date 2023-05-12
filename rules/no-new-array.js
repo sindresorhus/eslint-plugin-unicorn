@@ -1,8 +1,8 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('@eslint-community/eslint-utils');
 const needsSemicolon = require('./utils/needs-semicolon.js');
-const {newExpressionSelector} = require('./selectors/index.js');
 const isNumber = require('./utils/is-number.js');
+const {isNewExpression} = require('./ast/index.js');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_LENGTH = 'array-length';
@@ -14,13 +14,18 @@ const messages = {
 	[MESSAGE_ID_ONLY_ELEMENT]: 'The argument is the only element of array.',
 	[MESSAGE_ID_SPREAD]: 'Spread the argument.',
 };
-const newArraySelector = newExpressionSelector({
-	name: 'Array',
-	argumentsLength: 1,
-	allowSpreadElement: true,
-});
 
 function getProblem(context, node) {
+	if (
+		!isNewExpression(node, {
+			name: 'Array',
+			argumentsLength: 1,
+			allowSpreadElement: true,
+		})
+	) {
+		return;
+	}
+
 	const problem = {
 		node,
 		messageId: MESSAGE_ID_ERROR,
@@ -79,7 +84,7 @@ function getProblem(context, node) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[newArraySelector](node) {
+	NewExpression(node) {
 		return getProblem(context, node);
 	},
 });

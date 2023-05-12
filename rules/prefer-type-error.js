@@ -1,5 +1,5 @@
 'use strict';
-const {newExpressionSelector} = require('./selectors/index.js');
+const {isNewExpression} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-type-error';
 const messages = {
@@ -50,11 +50,6 @@ const typeCheckGlobalIdentifiers = new Set([
 	'isNaN',
 	'isFinite',
 ]);
-
-const selector = [
-	'ThrowStatement',
-	newExpressionSelector({name: 'Error', path: 'argument'}),
-].join('');
 
 const isTypecheckingIdentifier = (node, callExpression, isMemberExpression) =>
 	callExpression !== undefined
@@ -125,9 +120,10 @@ const isTypechecking = node => node.type === 'IfStatement' && isTypecheckingExpr
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
-	[selector](node) {
+	ThrowStatement(node) {
 		if (
-			isLone(node)
+			isNewExpression(node.argument, {name: 'Error'})
+			&& isLone(node)
 			&& node.parent.parent
 			&& isTypechecking(node.parent.parent)
 		) {

@@ -1,8 +1,8 @@
 'use strict';
 const {getStaticValue} = require('@eslint-community/eslint-utils');
-const {newExpressionSelector} = require('./selectors/index.js');
 const {switchNewExpressionToCallExpression} = require('./fix/index.js');
 const isNumber = require('./utils/is-number.js');
+const {isNewExpression} = require('./ast/index.js');
 
 const ERROR = 'error';
 const ERROR_UNKNOWN = 'error-unknown';
@@ -54,7 +54,11 @@ function fix(node, sourceCode, method) {
 const create = context => {
 	const {sourceCode} = context;
 	return {
-		[newExpressionSelector('Buffer')](node) {
+		NewExpression(node) {
+			if (!isNewExpression(node, {name: 'Buffer'})) {
+				return;
+			}
+
 			const method = inferMethod(node.arguments, sourceCode.getScope(node));
 
 			if (method) {
