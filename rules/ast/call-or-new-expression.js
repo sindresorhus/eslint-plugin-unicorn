@@ -11,7 +11,7 @@
 		allowSpreadElement?: boolean,
 		optional?: boolean,
 	} | string | string[]
-} CallOrNewExpressionOptions
+} CallOrNewExpressionCheckOptions
 */
 function create(node, options, type) {
 	if (node?.type !== type) {
@@ -97,13 +97,13 @@ function create(node, options, type) {
 }
 
 /**
-@param {CallOrNewExpressionOptions} [options]
+@param {CallOrNewExpressionCheckOptions} [options]
 @returns {boolean}
 */
 const isCallExpression = (node, options) => create(node, options, 'CallExpression');
 
 /**
-@param {CallOrNewExpressionOptions} [options]
+@param {CallOrNewExpressionCheckOptions} [options]
 @returns {boolean}
 */
 const isNewExpression = (node, options) => {

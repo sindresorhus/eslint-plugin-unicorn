@@ -23,4 +23,5 @@ module.exports = {
 	isUndefined: require('./is-undefined.js'),
 	isNewExpression: require('./call-or-new-expression.js').isNewExpression,
 	isCallExpression: require('./call-or-new-expression.js').isCallExpression,
+	isMemberExpression: require('./is-member-expression.js'),
 };
