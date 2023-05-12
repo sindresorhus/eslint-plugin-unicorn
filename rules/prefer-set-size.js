@@ -1,20 +1,12 @@
 'use strict';
 const {findVariable} = require('@eslint-community/eslint-utils');
-const {memberExpressionSelector} = require('./selectors/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
-const {isNewExpression} = require('./ast/index.js');
+const {isNewExpression, isMemberExpression} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-set-size';
 const messages = {
 	[MESSAGE_ID]: 'Prefer using `Set#size` instead of `Array#length`.',
 };
-
-const lengthAccessSelector = [
-	memberExpressionSelector('length'),
-	'[object.type="ArrayExpression"]',
-	'[object.elements.length=1]',
-	'[object.elements.0.type="SpreadElement"]',
-].join('');
 
 const isNewSet = node => isNewExpression(node, {name: 'Set'});
 
@@ -70,7 +62,20 @@ const create = context => {
 	const {sourceCode} = context;
 
 	return {
-		[lengthAccessSelector](node) {
+		MemberExpression(node) {
+			if (
+				!isMemberExpression(node, {
+					property: 'length',
+					optional: false,
+					computed: false,
+				})
+				|| node.object.type !== 'ArrayExpression'
+				|| node.object.elements !== 1
+				|| node.object.elements[0].type !== 'SpreadElement'
+			) {
+				return;
+			}
+
 			const maybeSet = node.object.elements[0].argument;
 			if (!isSet(maybeSet, sourceCode.getScope(maybeSet))) {
 				return;
