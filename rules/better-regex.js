@@ -3,7 +3,7 @@ const cleanRegexp = require('clean-regexp');
 const {optimize} = require('regexp-tree');
 const escapeString = require('./utils/escape-string.js');
 const {newExpressionSelector} = require('./selectors/index.js');
-const {isStringLiteral} = require('./ast/index.js');
+const {isStringLiteral, isNewExpression} = require('./ast/index.js');
 
 const MESSAGE_ID = 'better-regex';
 const MESSAGE_ID_PARSE_ERROR = 'better-regex/parse-error';
@@ -11,8 +11,6 @@ const messages = {
 	[MESSAGE_ID]: '{{original}} can be optimized to {{optimized}}.',
 	[MESSAGE_ID_PARSE_ERROR]: 'Problem parsing {{original}}: {{error}}',
 };
-
-const newRegExp = newExpressionSelector({name: 'RegExp', minimumArguments: 1});
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -80,7 +78,11 @@ const create = context => {
 				fix: fixer => fixer.replaceText(node, optimized),
 			});
 		},
-		[newRegExp](node) {
+		NewExpression(node) {
+			if (!isNewExpression(node, {name: 'RegExp', minimumArguments: 1})) {
+				return;
+			}
+
 			const [patternNode, flagsNode] = node.arguments;
 
 			if (!isStringLiteral(patternNode)) {
