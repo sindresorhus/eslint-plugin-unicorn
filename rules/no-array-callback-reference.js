@@ -1,7 +1,8 @@
 'use strict';
 const {isParenthesized} = require('@eslint-community/eslint-utils');
-const {methodCallSelector, notFunctionSelector} = require('./selectors/index.js');
+const {methodCallSelector} = require('./selectors/index.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
+const {isNodeValueNotFunction} = require('./utils/index.js');
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
@@ -195,14 +196,6 @@ function getProblem(context, node, method, options) {
 	return problem;
 }
 
-const ignoredFirstArgumentSelector = [
-	notFunctionSelector('arguments.0'),
-	// Ignore all `CallExpression`s include `function.bind()`
-	'[arguments.0.type!="CallExpression"]',
-	'[arguments.0.type!="FunctionExpression"]',
-	'[arguments.0.type!="ArrowFunctionExpression"]',
-].join('');
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const rules = {};
@@ -216,7 +209,6 @@ const create = context => {
 				maximumArguments: 2,
 			}),
 			options.extraSelector,
-			ignoredFirstArgumentSelector,
 		].join('');
 
 		rules[selector] = node => {
@@ -228,8 +220,19 @@ const create = context => {
 				return;
 			}
 
-			const [iterator] = node.arguments;
-			return getProblem(context, iterator, method, options);
+			const [callback] = node.arguments;
+
+			if (
+				callback.type === 'FunctionExpression'
+				|| callback.type === 'ArrowFunctionExpression'
+				// Ignore all `CallExpression`s include `function.bind()`
+				|| callback.type === 'CallExpression'
+				|| isNodeValueNotFunction(callback)
+			) {
+				return;
+			}
+
+			return getProblem(context, callback, method, options);
 		};
 	}
 

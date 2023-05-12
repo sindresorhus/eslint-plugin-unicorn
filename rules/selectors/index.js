@@ -12,7 +12,6 @@ module.exports = {
 	memberExpressionSelector: require('./member-expression-selector.js'),
 	methodCallSelector: require('./method-call-selector.js'),
 	notDomNodeSelector: require('./not-dom-node.js').notDomNodeSelector,
-	notFunctionSelector: require('./not-function.js').notFunctionSelector,
 	referenceIdentifierSelector: require('./reference-identifier-selector.js'),
 	callExpressionSelector: require('./call-or-new-expression-selector.js').callExpressionSelector,
 	newExpressionSelector: require('./call-or-new-expression-selector.js').newExpressionSelector,
