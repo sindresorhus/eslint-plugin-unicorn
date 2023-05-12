@@ -1,5 +1,4 @@
 'use strict';
-const matches = require('./matches-any.js');
 
 /**
 @param {
@@ -92,4 +91,4 @@ function isMemberExpression(node, options) {
 	return true;
 }
 
-module.exports = memberExpressionSelector;
+module.exports = isMemberExpression;

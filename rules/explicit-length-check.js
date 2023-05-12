@@ -3,9 +3,8 @@ const {isParenthesized, getStaticValue} = require('@eslint-community/eslint-util
 const {checkVueTemplate} = require('./utils/rule.js');
 const isLogicalExpression = require('./utils/is-logical-expression.js');
 const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean.js');
-const {memberExpressionSelector} = require('./selectors/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
-const {isLiteral} = require('./ast/index.js');
+const {isLiteral, isMemberExpression} = require('./ast/index.js');
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -44,8 +43,6 @@ const zeroStyle = {
 	code: '=== 0',
 	test: node => isCompareRight(node, '===', 0),
 };
-
-const lengthSelector = memberExpressionSelector(['length', 'size']);
 
 function getLengthCheckNode(node) {
 	node = node.parent;
@@ -142,11 +139,19 @@ function create(context) {
 	}
 
 	return {
-		[lengthSelector](lengthNode) {
-			if (lengthNode.object.type === 'ThisExpression') {
+		MemberExpression(memberExpression) {
+			if (
+				!isMemberExpression(memberExpression, {
+					properties: ['length', 'size'],
+					optional: false,
+					computed: false,
+				})
+				|| memberExpression.object.type === 'ThisExpression'
+			) {
 				return;
 			}
 
+			const lengthNode = memberExpression;
 			const staticValue = getStaticValue(lengthNode, sourceCode.getScope(lengthNode));
 			if (staticValue && (!Number.isInteger(staticValue.value) || staticValue.value < 0)) {
 				// Ignore known, non-positive-integer length properties.
