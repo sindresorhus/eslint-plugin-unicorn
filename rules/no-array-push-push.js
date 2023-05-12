@@ -21,7 +21,7 @@ const isArrayPushCall = node =>
 		method: 'push',
 		optionalCall: false,
 		optionalMember: false,
-		computed: false
+		computed: false,
 	});
 
 function getFirstArrayPushCall(secondCall, sourceCode) {

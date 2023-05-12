@@ -1,26 +1,11 @@
 'use strict';
-const {methodCallSelector} = require('./selectors/index.js');
 const toLocation = require('./utils/to-location.js');
-const {isStringLiteral} = require('./ast/index.js');
+const {isStringLiteral, isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-console-spaces';
 const messages = {
 	[MESSAGE_ID]: 'Do not use {{position}} space between `console.{{method}}` parameters.',
 };
-
-const methods = [
-	'log',
-	'debug',
-	'info',
-	'warn',
-	'error',
-];
-
-const selector = methodCallSelector({
-	methods,
-	minimumArguments: 1,
-	object: 'console',
-});
 
 // Find exactly one leading space, allow exactly one space
 const hasLeadingSpace = value => value.length > 1 && value.charAt(0) === ' ' && value.charAt(1) !== ' ';
@@ -46,7 +31,26 @@ const create = context => {
 	};
 
 	return {
-		* [selector](node) {
+		* CallExpression(node) {
+			if (
+				!isMethodCall(node, {
+					object: 'console',
+					methods: [
+						'log',
+						'debug',
+						'info',
+						'warn',
+						'error',
+					],
+					minimumArguments: 1,
+					optionalCall: false,
+					optionalMember: false,
+					computed: false,
+				})
+			) {
+				return;
+			}
+
 			const method = node.callee.property.name;
 			const {arguments: messages} = node;
 			const {length} = messages;
