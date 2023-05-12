@@ -1,9 +1,11 @@
 'use strict';
+const { findIndex } = require('lodash');
 const {hasSideEffect, isCommaToken, isSemicolonToken} = require('@eslint-community/eslint-utils');
-const {methodCallSelector} = require('./selectors/index.js');
 const getCallExpressionArgumentsText = require('./utils/get-call-expression-arguments-text.js');
 const isSameReference = require('./utils/is-same-reference.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
+const getPreviousNode = require('./utils/get-previous-node.js');
+const {isMethodCall} = require('./ast/index.js');
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -12,30 +14,21 @@ const messages = {
 	[SUGGESTION]: 'Merge with previous one.',
 };
 
-const arrayPushExpressionStatement = [
-	'ExpressionStatement',
-	methodCallSelector({path: 'expression', method: 'push'}),
-].join('');
+const isArrayPushCall = node =>
+	node.parent.type === 'ExpressionStatement'
+	&& node.parent.expression === node
+	&& isMethodCall(node, {
+		method: 'push',
+		optionalCall: false,
+		optionalMember: false,
+		computed: false
+	});
 
-const selector = `${arrayPushExpressionStatement} + ${arrayPushExpressionStatement}`;
-
-function getFirstExpression(node, sourceCode) {
-	const {parent} = node;
-	const visitorKeys = sourceCode.visitorKeys[parent.type] || Object.keys(parent);
-
-	for (const property of visitorKeys) {
-		const value = parent[property];
-		if (Array.isArray(value)) {
-			const index = value.indexOf(node);
-
-			if (index !== -1) {
-				return value[index - 1];
-			}
-		}
+function getFirstArrayPushCall(secondCall, sourceCode) {
+	const firstCall = getPreviousNode(secondCall.parent, sourceCode)?.expression;
+	if (firstCall && isArrayPushCall(firstCall)) {
+		return firstCall;
 	}
-
-	/* c8 ignore next */
-	throw new Error('Cannot find the first `Array#push()` call.\nPlease open an issue at https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?title=%60no-array-push-push%60%3A%20Cannot%20find%20first%20%60push()%60');
 }
 
 function create(context) {
@@ -55,16 +48,22 @@ function create(context) {
 	const {sourceCode} = context;
 
 	return {
-		[selector](secondExpression) {
-			const secondCall = secondExpression.expression;
+		CallExpression(secondCall) {
+			if (!isArrayPushCall(secondCall)) {
+				return;
+			}
+
 			const secondCallArray = secondCall.callee.object;
 
 			if (isNodeMatches(secondCallArray, ignoredObjects)) {
 				return;
 			}
 
-			const firstExpression = getFirstExpression(secondExpression, sourceCode);
-			const firstCall = firstExpression.expression;
+			const firstCall = getFirstArrayPushCall(secondCall, sourceCode);
+			if (!firstCall) {
+				return;
+			}
+
 			const firstCallArray = firstCall.callee.object;
 
 			// Not same array
@@ -90,6 +89,8 @@ function create(context) {
 					);
 				}
 
+				const firstExpression = firstCall.parent;
+				const secondExpression = secondCall.parent;
 				const shouldKeepSemicolon = !isSemicolonToken(sourceCode.getLastToken(firstExpression))
 					&& isSemicolonToken(sourceCode.getLastToken(secondExpression));
 

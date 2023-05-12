@@ -46,11 +46,11 @@ function isMethodCall(node, options) {
 
 	return (
 		isCallExpression(node, {
-			...pick(options, ['path', 'argumentsLength', 'minimumArguments', 'maximumArguments', 'allowSpreadElement']),
+			...pick(options, ['argumentsLength', 'minimumArguments', 'maximumArguments', 'allowSpreadElement']),
 			optional: optionalCall,
 		})
 		&& isMemberExpression(node.callee, {
-			...pick(options, ['object', 'objects', 'allowComputed']),
+			...pick(options, ['object', 'objects', 'computed']),
 			property: method,
 			properties: methods,
 			optional: optionalMember,

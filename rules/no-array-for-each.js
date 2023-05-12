@@ -7,7 +7,7 @@ const {
 	findVariable,
 	hasSideEffect,
 } = require('@eslint-community/eslint-utils');
-const {methodCallSelector, referenceIdentifierSelector} = require('./selectors/index.js');
+const {referenceIdentifierSelector} = require('./selectors/index.js');
 const {extendFixRange} = require('./fix/index.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression.js');
