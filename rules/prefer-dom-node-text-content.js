@@ -1,5 +1,6 @@
 'use strict';
 const {memberExpressionSelector} = require('./selectors/index.js');
+const {isMemberExpression} = require('./ast/index.js');
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -8,7 +9,6 @@ const messages = {
 	[SUGGESTION]: 'Switch to `.textContent`.',
 };
 
-const memberExpressionPropertySelector = `${memberExpressionSelector({property: 'innerText', includeOptional: true})} > .property`;
 const destructuringSelector = [
 	'ObjectPattern',
 	' > ',
@@ -22,7 +22,18 @@ const destructuringSelector = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
-	[memberExpressionPropertySelector](node) {
+	MemberExpression(memberExpression) {
+		if (
+			!isMemberExpression(memberExpression, {
+				property: 'innerText',
+				computed: false,
+			})
+		) {
+			return;
+		}
+
+		const node = memberExpression.property;
+
 		return {
 			node,
 			messageId: ERROR,
