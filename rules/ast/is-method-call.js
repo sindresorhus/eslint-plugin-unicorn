@@ -24,7 +24,7 @@ const {isCallExpression} = require('./call-or-new-expression.js');
 } [options]
 @returns {string}
 */
-function methodCallSelector(options) {
+function isMethodCall(node, options) {
 	if (typeof options === 'string') {
 		options = {methods: [options]};
 	}
@@ -51,10 +51,9 @@ function methodCallSelector(options) {
 		})
 		&& isMemberExpression(node.callee, {
 			...pick(options, ['object', 'objects', 'allowComputed']),
-			path: `${prefix}callee`,
 			property: method,
 			properties: methods,
-			includeOptional: includeOptionalMember,
+			optional: optionalMember,
 		})
 	);
 }

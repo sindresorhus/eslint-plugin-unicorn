@@ -17,7 +17,7 @@ const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside.j
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 const assertToken = require('./utils/assert-token.js');
 const {fixSpaceAroundKeyword, removeParentheses} = require('./fix/index.js');
-const {isArrowFunctionBody} = require('./ast/index.js');
+const {isArrowFunctionBody, isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID_ERROR = 'no-array-for-each/error';
 const MESSAGE_ID_SUGGESTION = 'no-array-for-each/suggestion';
@@ -25,12 +25,6 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Use `for…of` instead of `.forEach(…)`.',
 	[MESSAGE_ID_SUGGESTION]: 'Switch to `for…of`.',
 };
-
-const forEachMethodCallSelector = methodCallSelector({
-	method: 'forEach',
-	includeOptionalCall: true,
-	includeOptionalMember: true,
-});
 
 const continueAbleNodeTypes = new Set([
 	'WhileStatement',
@@ -407,8 +401,14 @@ const create = context => {
 			const {returnStatements} = functionInfo.get(currentFunction);
 			returnStatements.push(node);
 		},
-		[forEachMethodCallSelector](node) {
-			if (isNodeMatches(node.callee.object, ignoredObjects)) {
+		CallExpression(node) {
+			if (
+				!isMethodCall(node, {
+					method: 'forEach',
+					computed: false,
+				})
+				|| isNodeMatches(node.callee.object, ignoredObjects)
+			) {
 				return;
 			}
 
