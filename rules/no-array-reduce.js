@@ -19,7 +19,7 @@ const cases = [
 	// `array.{reduce,reduceRight}()`
 	{
 		selector: methodCallSelector({methods: ['reduce', 'reduceRight'], minimumArguments: 1, maximumArguments: 2}),
-		test: callExpression => !isNodeValueNotFunction(callExpression.argument[0]),
+		test: callExpression => !isNodeValueNotFunction(callExpression.arguments[0]),
 		getMethodNode: callExpression => callExpression.callee.property,
 		isSimpleOperation(callExpression) {
 			const [callback] = callExpression.arguments;
