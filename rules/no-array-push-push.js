@@ -1,5 +1,4 @@
 'use strict';
-const {findIndex} = require('lodash');
 const {hasSideEffect, isCommaToken, isSemicolonToken} = require('@eslint-community/eslint-utils');
 const getCallExpressionArgumentsText = require('./utils/get-call-expression-arguments-text.js');
 const isSameReference = require('./utils/is-same-reference.js');
