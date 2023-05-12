@@ -1,6 +1,7 @@
 'use strict';
 
-const {isStringLiteral, isCallExpression} = require('./literal.js');
+const {isStringLiteral} = require('./literal.js');
+const {isCallExpression} = require('./call-or-new-expression.js');
 
 const isStaticRequire = node =>
 	isCallExpression({
