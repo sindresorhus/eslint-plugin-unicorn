@@ -9,6 +9,7 @@
 		minimumArguments?: number,
 		maximumArguments?: number,
 		allowSpreadElement?: boolean,
+		optional?: boolean,
 	} | string | string[]
 } CallOrNewExpressionOptions
 */
@@ -32,6 +33,7 @@ function create(node, options, type) {
 		minimumArguments,
 		maximumArguments,
 		allowSpreadElement,
+		optional,
 	} = {
 		minimumArguments: 0,
 		maximumArguments: Number.POSITIVE_INFINITY,
@@ -41,6 +43,14 @@ function create(node, options, type) {
 
 	if (name) {
 		names = [name];
+	}
+
+	// `node.optional` can be `undefined` in some parsers
+	if (
+		(optional === true && node.optional)
+		|| (optional === false && !node.optional)
+	) {
+		return false;
 	}
 
 	if (typeof argumentsLength === 'number' && node.arguments.length !== argumentsLength) {
@@ -58,8 +68,12 @@ function create(node, options, type) {
 	if (!allowSpreadElement) {
 		const maximumArgumentsLength = Number.isFinite(maximumArguments) ? maximumArguments : argumentsLength;
 		if (
-			typeof maximumArgumentsLength === 'number' &&
-			node.arguments.some((node, index) => node.type === 'SpreadElement' && index < maximumArgumentsLength)
+			typeof maximumArgumentsLength === 'number'
+			&& node.arguments.some(
+				(node, index) =>
+					node.type === 'SpreadElement'
+					&& index < maximumArgumentsLength,
+			)
 		) {
 			return false;
 		}
