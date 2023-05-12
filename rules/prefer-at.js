@@ -13,9 +13,9 @@ const {
 	getNegativeIndexLengthNode,
 	removeLengthNode,
 } = require('./shared/negative-index.js');
-const {methodCallSelector, callExpressionSelector} = require('./selectors/index.js');
+const {methodCallSelector} = require('./selectors/index.js');
 const {removeMemberExpressionProperty, removeMethodCall} = require('./fix/index.js');
-const {isLiteral} = require('./ast/index.js');
+const {isLiteral, isCallExpression} = require('./ast/index.js');
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
 const MESSAGE_ID_INDEX = 'index';
@@ -275,7 +275,11 @@ function create(context) {
 
 			return problem;
 		},
-		[callExpressionSelector({argumentsLength: 1})](node) {
+		CallExpression(node) {
+			if (!isCallExpression(node, {argumentsLength: 1, optional: false})) {
+				return;
+			}
+
 			const matchedFunction = getLastFunctions.find(nameOrPath => isNodeMatchesNameOrPath(node.callee, nameOrPath));
 			if (!matchedFunction) {
 				return;
