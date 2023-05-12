@@ -17,7 +17,7 @@ const create = () => ({
 					|| node.parent.type === 'ExportNamedDeclaration'
 					|| node.parent.type === 'ImportExpression'
 				)
-				&& node.parent.source == node
+				&& node.parent.source === node
 			)
 			|| (
 				isStaticRequire(node.parent)
@@ -38,11 +38,11 @@ const create = () => ({
 		}
 
 		return {
-			node: sourceNode,
+			node,
 			messageId: MESSAGE_ID,
 			data: {moduleName: value},
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix: fixer => replaceStringLiteral(fixer, sourceNode, 'node:', 0, 0),
+			fix: fixer => replaceStringLiteral(fixer, node, 'node:', 0, 0),
 		};
 	}
 });
