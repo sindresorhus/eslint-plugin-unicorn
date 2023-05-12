@@ -55,7 +55,7 @@ const create = context => {
 	const {sourceCode} = context;
 	return {
 		NewExpression(node) {
-			if (!isNewExpression({name: 'Buffer'})) {
+			if (!isNewExpression(node, {name: 'Buffer'})) {
 				return;
 			}
 

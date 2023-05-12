@@ -17,7 +17,7 @@ const messages = {
 
 function getProblem(context, node) {
 	if (
-		!isNewExpression({
+		!isNewExpression(node, {
 			name: 'Array',
 			argumentsLength: 1,
 			allowSpreadElement: true,
