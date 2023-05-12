@@ -106,7 +106,7 @@ const create = context => {
 	return {
 		CallExpression(callExpression) {
 			if (
-				!isMethodCall({
+				!isMethodCall(callExpression, {
 					methods: [
 						'every',
 						'filter',
@@ -125,7 +125,7 @@ const create = context => {
 					computed: false,
 				})
 				|| isNodeMatches(callExpression.callee, ignored)
-				|| !isNodeValueNotFunction(callExpression.arguments[0])
+				|| isNodeValueNotFunction(callExpression.arguments[0])
 			) {
 				return;
 			}
