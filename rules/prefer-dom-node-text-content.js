@@ -1,5 +1,4 @@
 'use strict';
-const {memberExpressionSelector} = require('./selectors/index.js');
 const {isMemberExpression} = require('./ast/index.js');
 
 const ERROR = 'error';
