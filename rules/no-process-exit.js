@@ -1,24 +1,12 @@
 'use strict';
-const {methodCallSelector, STATIC_REQUIRE_SELECTOR} = require('./selectors/index.js');
+const {methodCallSelector} = require('./selectors/index.js');
+const {isStaticRequire} = require('./ast/index.js')
 
 const MESSAGE_ID = 'no-process-exit';
 const messages = {
 	[MESSAGE_ID]: 'Only use `process.exit()` in CLI apps. Throw an error instead.',
 };
 
-const importWorkerThreadsSelector = [
-	// `require('worker_threads')`
-	[
-		STATIC_REQUIRE_SELECTOR,
-		'[arguments.0.value="worker_threads"]',
-	].join(''),
-	// `import workerThreads from 'worker_threads'`
-	[
-		'ImportDeclaration',
-		'[source.type="Literal"]',
-		'[source.value="worker_threads"]',
-	].join(''),
-].join(', ');
 const processOnOrOnceCallSelector = methodCallSelector({
 	object: 'process',
 	methods: ['on', 'once'],
@@ -44,10 +32,27 @@ const create = context => {
 	const problemNodes = [];
 
 	return {
-		// Check `worker_threads` require / import
-		[importWorkerThreadsSelector]() {
-			requiredWorkerThreadsModule = true;
+		CallExpression(callExpression) {
+			// `require('worker_threads')`
+			if (
+				isStaticRequire(callExpression)
+				// TODO: Support `node:worker_threads`
+				&& callExpression.arguments[0].value === 'worker_threads'
+			) {
+				requiredWorkerThreadsModule = true;
+			}
 		},
+		// `import workerThreads from 'worker_threads'`
+		ImportDeclaration(importDeclaration) {
+			// `import workerThreads from 'worker_threads'`
+			if (
+				importDeclaration.source.type === 'Literal'
+				// TODO: Support `node:worker_threads`
+				&& importDeclaration.source.value === 'worker_threads'
+			) {
+				requiredWorkerThreadsModule = true;
+			}
+		}
 		// Check `process.on` / `process.once` call
 		[processOnOrOnceCallSelector](node) {
 			processEventHandler = node;
