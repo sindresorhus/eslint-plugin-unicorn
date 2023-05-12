@@ -25,7 +25,7 @@ const mostLikelyNotNodeTypes = new Set([
 	'ThisExpression',
 ]);
 
-const isNodeValueNotFunction = node =>
+const isNodeValueNotFunction = node => !(
 	impossibleNodeTypes.has(node.type)
 	|| mostLikelyNotNodeTypes.has(node.type)
 	|| isUndefined(node)
@@ -37,6 +37,7 @@ const isNodeValueNotFunction = node =>
 			optionalMember: false,
 			computed: false,
 		}))
-	);
+	)
+);
 
 module.exports = isNodeValueNotFunction;
