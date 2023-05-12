@@ -5,7 +5,7 @@ const {getParentheses, getParenthesizedText} = require('./utils/parentheses.js')
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 const {isNodeValueNotFunction} = require('./utils/index.js');
-const {isMethodCall} = require('./ast/index.js')
+const {isMethodCall} = require('./ast/index.js');
 
 const ERROR = 'error';
 const SUGGESTION_BIND = 'suggestion-bind';

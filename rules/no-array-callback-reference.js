@@ -2,7 +2,7 @@
 const {isParenthesized} = require('@eslint-community/eslint-utils');
 const {methodCallSelector} = require('./selectors/index.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
-const {isNodeValueNotFunction} = require('./utils/index.js')
+const {isNodeValueNotFunction} = require('./utils/index.js');
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
@@ -223,11 +223,13 @@ const create = context => {
 			const [callback] = node.arguments;
 
 			if (
-				isNodeValueNotFunction(callback)
 				// Ignore all `CallExpression`s include `function.bind()`
-				|| callback.type == 'CallExpression'
+				callback.type === 'CallExpression'
+				|| callback.type === 'FunctionExpression'
+				|| callback.type === 'ArrowFunctionExpression'
+				|| isNodeValueNotFunction(callback)
 			) {
-				return
+				return;
 			}
 
 			return getProblem(context, callback, method, options);
