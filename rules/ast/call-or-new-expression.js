@@ -106,7 +106,13 @@ const isCallExpression = (node, options) => create(node, options, 'CallExpressio
 @param {CallOrNewExpressionOptions} [options]
 @returns {boolean}
 */
-const isNewExpression = (node, options) => create(node, options, 'NewExpression');
+const isNewExpression = (node, options) => {
+	if (typeof options.optional === 'boolean') {
+		throw new Error('Cannot check node.optional in `isNewExpression`.');
+	}
+
+	return create(node, options, 'NewExpression');
+};
 
 module.exports = {
 	isCallExpression,
