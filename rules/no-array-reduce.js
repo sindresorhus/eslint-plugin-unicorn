@@ -1,6 +1,7 @@
 'use strict';
 const {methodCallSelector} = require('./selectors/index.js');
 const {arrayPrototypeMethodSelector, notFunctionSelector} = require('./selectors/index.js');
+const {isNodeValueNotFunction} = require('./utils/index.js');
 
 const MESSAGE_ID = 'no-reduce';
 const messages = {
@@ -17,10 +18,8 @@ const prototypeSelector = method => [
 const cases = [
 	// `array.{reduce,reduceRight}()`
 	{
-		selector: [
-			methodCallSelector({methods: ['reduce', 'reduceRight'], minimumArguments: 1, maximumArguments: 2}),
-			notFunctionSelector('arguments.0'),
-		].join(''),
+		selector: methodCallSelector({methods: ['reduce', 'reduceRight'], minimumArguments: 1, maximumArguments: 2}),
+		test: callExpression => !isNodeValueNotFunction(callExpression.argument[0]),
 		getMethodNode: callExpression => callExpression.callee.property,
 		isSimpleOperation(callExpression) {
 			const [callback] = callExpression.arguments;
@@ -76,8 +75,12 @@ const create = context => {
 	const {allowSimpleOperations} = {allowSimpleOperations: true, ...context.options[0]};
 	const listeners = {};
 
-	for (const {selector, getMethodNode, isSimpleOperation} of cases) {
+	for (const {selector, test, getMethodNode, isSimpleOperation} of cases) {
 		listeners[selector] = callExpression => {
+			if (test && !test(callExpression)) {
+				return;
+			}
+
 			if (allowSimpleOperations && isSimpleOperation?.(callExpression)) {
 				return;
 			}
