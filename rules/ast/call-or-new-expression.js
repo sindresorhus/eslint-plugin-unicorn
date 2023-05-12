@@ -47,8 +47,8 @@ function create(node, options, type) {
 
 	// `node.optional` can be `undefined` in some parsers
 	if (
-		(optional === true && node.optional)
-		|| (optional === false && !node.optional)
+		(optional === true && !node.optional)
+		|| (optional === false && node.optional)
 	) {
 		return false;
 	}
