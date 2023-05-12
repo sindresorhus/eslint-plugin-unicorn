@@ -9,6 +9,5 @@ const requireCallSelector = callExpressionSelector({
 });
 
 module.exports = {
-	STATIC_REQUIRE_SELECTOR: `${requireCallSelector}[arguments.0.type="Literal"]`,
 	STATIC_REQUIRE_SOURCE_SELECTOR: `${requireCallSelector}  > Literal.arguments`,
 };

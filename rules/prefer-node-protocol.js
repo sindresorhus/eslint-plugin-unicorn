@@ -1,27 +1,16 @@
 'use strict';
 const isBuiltinModule = require('is-builtin-module');
-const {matches, STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors/index.js');
 const {replaceStringLiteral} = require('./fix/index.js');
+const isStaticRequire = require('./ast/is-static-require.js');
 
 const MESSAGE_ID = 'prefer-node-protocol';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `node:{{moduleName}}` over `{{moduleName}}`.',
 };
 
-const importExportSourceSelector = [
-	':matches(ImportDeclaration, ExportNamedDeclaration, ImportExpression)',
-	' > ',
-	'Literal.source',
-].join('');
+function getProblem(sourceNode) {
+		const {value} = sourceNode;
 
-const selector = matches([
-	importExportSourceSelector,
-	STATIC_REQUIRE_SOURCE_SELECTOR,
-]);
-
-const create = () => ({
-	[selector](node) {
-		const {value} = node;
 		if (
 			typeof value !== 'string'
 			|| value.startsWith('node:')
@@ -31,12 +20,25 @@ const create = () => ({
 		}
 
 		return {
-			node,
+			node: sourceNode,
 			messageId: MESSAGE_ID,
 			data: {moduleName: value},
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix: fixer => replaceStringLiteral(fixer, node, 'node:', 0, 0),
+			fix: fixer => replaceStringLiteral(fixer, sourceNode, 'node:', 0, 0),
 		};
+}
+
+
+const create = () => ({
+	CallExpression(node) {
+		if (!isStaticRequire(node)) {
+			return;
+		}
+
+		return getProblem(node.arguments[0]);
+	},
+	'ImportDeclaration, ExportNamedDeclaration, ImportExpression'(node) {
+		return getProblem(node.source);
 	},
 });
 
