@@ -45,10 +45,13 @@ function create(node, options, type) {
 		names = [name];
 	}
 
-	// `node.optional` can be `undefined` in some parsers
 	if (
-		(optional === true && !node.optional)
-		|| (optional === false && node.optional)
+		(optional === true && (node.optional !== optional))
+		|| (
+			optional === false
+			// `node.optional` can be `undefined` in some parsers
+			&& node.optional
+		)
 	) {
 		return false;
 	}
