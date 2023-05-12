@@ -108,7 +108,7 @@ const isCallExpression = (node, options) => create(node, options, 'CallExpressio
 */
 const isNewExpression = (node, options) => {
 	if (typeof options?.optional === 'boolean') {
-		throw new Error('Cannot check node.optional in `isNewExpression`.');
+		throw new TypeError('Cannot check node.optional in `isNewExpression`.');
 	}
 
 	return create(node, options, 'NewExpression');
