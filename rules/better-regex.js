@@ -2,7 +2,6 @@
 const cleanRegexp = require('clean-regexp');
 const {optimize} = require('regexp-tree');
 const escapeString = require('./utils/escape-string.js');
-const {newExpressionSelector} = require('./selectors/index.js');
 const {isStringLiteral, isNewExpression} = require('./ast/index.js');
 
 const MESSAGE_ID = 'better-regex';
