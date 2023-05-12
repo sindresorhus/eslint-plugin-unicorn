@@ -24,4 +24,5 @@ module.exports = {
 	isNewExpression: require('./call-or-new-expression.js').isNewExpression,
 	isCallExpression: require('./call-or-new-expression.js').isCallExpression,
 	isMemberExpression: require('./is-member-expression.js'),
+	isMethodCall: require('./is-method-call.js'),
 };

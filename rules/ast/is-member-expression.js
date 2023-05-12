@@ -34,7 +34,6 @@ function isMemberExpression(node, options) {
 		optional,
 		computed,
 	} = {
-		path: '',
 		property: '',
 		properties: [],
 		object: '',
