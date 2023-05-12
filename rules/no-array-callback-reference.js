@@ -223,10 +223,10 @@ const create = context => {
 			const [callback] = node.arguments;
 
 			if (
-				// Ignore all `CallExpression`s include `function.bind()`
-				callback.type === 'CallExpression'
-				|| callback.type === 'FunctionExpression'
+				callback.type === 'FunctionExpression'
 				|| callback.type === 'ArrowFunctionExpression'
+				// Ignore all `CallExpression`s include `function.bind()`
+				|| callback.type === 'CallExpression'
 				|| isNodeValueNotFunction(callback)
 			) {
 				return;
