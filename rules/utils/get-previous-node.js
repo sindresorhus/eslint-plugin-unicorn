@@ -6,6 +6,11 @@ function getPreviousNode(node, sourceCode) {
 
 	for (const property of visitorKeys) {
 		const value = parent[property];
+
+		if (value === node) {
+			return;
+		}
+
 		if (Array.isArray(value)) {
 			const index = value.indexOf(node);
 
