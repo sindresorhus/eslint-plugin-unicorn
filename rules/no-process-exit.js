@@ -1,6 +1,6 @@
 'use strict';
 const {methodCallSelector} = require('./selectors/index.js');
-const {isStaticRequire} = require('./ast/index.js')
+const {isStaticRequire} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-process-exit';
 const messages = {
@@ -42,7 +42,6 @@ const create = context => {
 				requiredWorkerThreadsModule = true;
 			}
 		},
-		// `import workerThreads from 'worker_threads'`
 		ImportDeclaration(importDeclaration) {
 			// `import workerThreads from 'worker_threads'`
 			if (
@@ -52,7 +51,7 @@ const create = context => {
 			) {
 				requiredWorkerThreadsModule = true;
 			}
-		}
+		},
 		// Check `process.on` / `process.once` call
 		[processOnOrOnceCallSelector](node) {
 			processEventHandler = node;

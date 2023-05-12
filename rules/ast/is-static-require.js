@@ -8,6 +8,6 @@ const isStaticRequire = node =>
 		argumentsLength: 1,
 		optional: false,
 	})
-	&&isStringLiteral(node.arguments[0]);
+	&& isStringLiteral(node.arguments[0]);
 
 module.exports = isStaticRequire;
