@@ -14,9 +14,6 @@ function getPreviousNode(node, sourceCode) {
 			}
 		}
 	}
-
-	/* c8 ignore next */
-	throw new Error('Cannot locate previous node.\nPlease open an issue at https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?title=%60getPreviousNode%60%20can%20not%20locate%20sibling');
 }
 
 module.exports = getPreviousNode;

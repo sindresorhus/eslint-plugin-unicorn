@@ -1,5 +1,5 @@
 'use strict';
-const { findIndex } = require('lodash');
+const {findIndex} = require('lodash');
 const {hasSideEffect, isCommaToken, isSemicolonToken} = require('@eslint-community/eslint-utils');
 const getCallExpressionArgumentsText = require('./utils/get-call-expression-arguments-text.js');
 const isSameReference = require('./utils/is-same-reference.js');
@@ -15,7 +15,8 @@ const messages = {
 };
 
 const isArrayPushCall = node =>
-	node.parent.type === 'ExpressionStatement'
+	node
+	&& node.parent.type === 'ExpressionStatement'
 	&& node.parent.expression === node
 	&& isMethodCall(node, {
 		method: 'push',
@@ -26,7 +27,7 @@ const isArrayPushCall = node =>
 
 function getFirstArrayPushCall(secondCall, sourceCode) {
 	const firstCall = getPreviousNode(secondCall.parent, sourceCode)?.expression;
-	if (firstCall && isArrayPushCall(firstCall)) {
+	if (isArrayPushCall(firstCall)) {
 		return firstCall;
 	}
 }
