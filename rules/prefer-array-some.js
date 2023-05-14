@@ -54,7 +54,7 @@ const arrayFilterCallSelector = [
 	' > ',
 	`${memberExpressionSelector('length')}.left`,
 	' > ',
-	`${methodCallSelector('filter')}.object`,
+	`${methodCallSelector('filter')}.object[arguments.0.type!="Literal"]`,
 ].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
