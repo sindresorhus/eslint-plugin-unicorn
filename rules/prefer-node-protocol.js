@@ -44,7 +44,7 @@ const create = () => ({
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			fix: fixer => replaceStringLiteral(fixer, node, 'node:', 0, 0),
 		};
-	}
+	},
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
