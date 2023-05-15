@@ -3,6 +3,7 @@ const {methodCallSelector, matches, memberExpressionSelector} = require('./selec
 const {checkVueTemplate} = require('./utils/rule.js');
 const {isBooleanNode} = require('./utils/boolean.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
+const {isNodeValueNotFunction} = require('./utils/index.js');
 const {removeMemberExpressionProperty} = require('./fix/index.js');
 const {isLiteral, isUndefined} = require('./ast/index.js');
 
@@ -94,6 +95,11 @@ const create = context => ({
 		};
 	},
 	[arrayFilterCallSelector](filterCall) {
+		const [firstArgument] = filterCall.arguments;
+		if (!firstArgument || isNodeValueNotFunction(firstArgument)) {
+			return;
+		}
+
 		const filterProperty = filterCall.callee.property;
 		return {
 			node: filterProperty,
