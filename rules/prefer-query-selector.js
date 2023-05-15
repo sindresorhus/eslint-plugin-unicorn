@@ -1,5 +1,5 @@
 'use strict';
-const {isNodeValueNotDomNode, isValueNotUsable} = require('./utils/index.js');
+const {isNodeValueNotDomNode} = require('./utils/index.js');
 const {isMethodCall, isStringLiteral, isNullLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-query-selector';

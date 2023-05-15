@@ -6,6 +6,7 @@ const {
 	isNodeValueNotDomNode,
 	isValueNotUsable,
 	needsSemicolon,
+	shouldAddParenthesesToMemberExpressionObject,
 } = require('./utils/index.js');
 
 const ERROR_MESSAGE_ID = 'error';

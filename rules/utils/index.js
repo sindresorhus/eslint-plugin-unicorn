@@ -6,13 +6,13 @@ const {
 	getParentheses,
 	getParenthesizedRange,
 	getParenthesizedText,
-} = require('./utils/parentheses.js')
+} = require('./utils/parentheses.js');
 
 module.exports = {
-	getParenthesizedTimes,
 	getParentheses,
 	getParenthesizedRange,
 	getParenthesizedText,
+	getParenthesizedTimes,
 	isNodeValueNotDomNode: require('./is-node-value-not-dom-node.js'),
 	isNodeValueNotFunction: require('./is-node-value-not-function.js'),
 	isParenthesized,

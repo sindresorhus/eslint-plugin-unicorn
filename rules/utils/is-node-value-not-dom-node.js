@@ -1,5 +1,5 @@
 'use strict';
-const {isUndefined, isCallExpression, isMethodCall} = require('../ast/index.js');
+const {isUndefined} = require('../ast/index.js');
 
 // AST Types:
 // https://github.com/eslint/espree/blob/master/lib/ast-node-types.js#L18
