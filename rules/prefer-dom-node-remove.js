@@ -1,10 +1,13 @@
 'use strict';
 const {isParenthesized, hasSideEffect} = require('@eslint-community/eslint-utils');
-const {methodCallSelector, notDomNodeSelector} = require('./selectors/index.js');
-const needsSemicolon = require('./utils/needs-semicolon.js');
-const isValueNotUsable = require('./utils/is-value-not-usable.js');
-const {getParenthesizedText} = require('./utils/parentheses.js');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
+const {isMethodCall} = require('./ast/index.js');
+const {
+	getParenthesizedText,
+	isNodeValueNotDomNode,
+	isValueNotUsable,
+	needsSemicolon,
+	shouldAddParenthesesToMemberExpressionObject,
+} = require('./utils/index.js');
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_MESSAGE_ID = 'suggestion';
@@ -12,16 +15,6 @@ const messages = {
 	[ERROR_MESSAGE_ID]: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
 	[SUGGESTION_MESSAGE_ID]: 'Replace `parentNode.removeChild(childNode)` with `childNode{{dotOrQuestionDot}}remove()`.',
 };
-
-const selector = [
-	methodCallSelector({
-		method: 'removeChild',
-		argumentsLength: 1,
-		includeOptionalMember: true,
-	}),
-	notDomNodeSelector('callee.object'),
-	notDomNodeSelector('arguments.0'),
-].join('');
 
 // TODO: Don't check node.type twice
 const isMemberExpressionOptionalObject = node =>
@@ -37,7 +30,20 @@ const create = context => {
 	const {sourceCode} = context;
 
 	return {
-		[selector](node) {
+		CallExpression(node) {
+			if (
+				!isMethodCall(node, {
+					method: 'removeChild',
+					argumentsLength: 1,
+					optionalCall: false,
+					computed: false,
+				})
+				|| isNodeValueNotDomNode(node.callee.object)
+				|| isNodeValueNotDomNode(node.arguments[0])
+			) {
+				return;
+			}
+
 			const parentNode = node.callee.object;
 			const childNode = node.arguments[0];
 
