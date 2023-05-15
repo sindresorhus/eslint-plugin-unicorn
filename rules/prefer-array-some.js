@@ -99,6 +99,7 @@ const create = context => ({
 		if (!argument || isNodeValueNotFunction(argument)) {
 			return;
 		}
+
 		const filterProperty = filterCall.callee.property;
 		return {
 			node: filterProperty,
