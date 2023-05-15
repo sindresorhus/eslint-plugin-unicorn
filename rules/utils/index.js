@@ -11,7 +11,7 @@ const {
 const {
 	isArrayPrototypeProperty,
 	isObjectPrototypeProperty,
-} = require('./array-or-object-prototype-property.js')
+} = require('./array-or-object-prototype-property.js');
 
 module.exports = {
 	getParentheses,

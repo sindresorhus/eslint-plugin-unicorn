@@ -32,30 +32,26 @@ function isPrototypeProperty(node, options) {
 
 	const objectNode = node.object;
 
-	// `Object.prototype.method` or `Array.prototype.method`
-	if (isMemberExpression(objectNode, {
-		object,
-		property: 'prototype',
-		optional: false,
-	})) {
-		return true;
-	}
-
-
-	switch (object) {
-		case 'Array': {
-			// `[].method`
-			return objectNode.type === 'ArrayExpression' && objectNode.elements.length === 0;
-		}
-
-		case 'Object': {
-			// `{}.method`
-			return objectNode.type === 'ObjectExpression' && objectNode.properties.length === 0;
-		}
-		// No default
-	}
-
-	return false;
+	return (
+		// `Object.prototype.method` or `Array.prototype.method`
+		isMemberExpression(objectNode, {
+			object,
+			property: 'prototype',
+			optional: false,
+		})
+		// `[].method`
+		|| (
+			object === 'Array'
+			&& objectNode.type === 'ArrayExpression'
+			&& objectNode.elements.length === 0
+		)
+		// `{}.method`
+		|| (
+			object === 'Object'
+			&& objectNode.type === 'ObjectExpression'
+			&& objectNode.properties.length === 0
+		)
+	);
 }
 
 const isArrayPrototypeProperty = (node, options) => isPrototypeProperty(node, {...options, object: 'Array'});

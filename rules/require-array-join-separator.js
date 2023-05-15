@@ -1,7 +1,7 @@
 'use strict';
 const {appendArgument} = require('./fix/index.js');
 const {isMethodCall} = require('./ast/index.js');
-const {isArrayPrototypeProperty} = require('./utils/index.js')
+const {isArrayPrototypeProperty} = require('./utils/index.js');
 
 const MESSAGE_ID = 'require-array-join-separator';
 const messages = {
@@ -17,9 +17,9 @@ const create = context => ({
 				method: 'join',
 				argumentsLength: 0,
 				optionalCall: false,
-			}) ||
+			})
 			// `[].join.call(foo)` and `Array.prototype.join.call(foo)`
-			(
+			|| (
 				isMethodCall(node, {
 					method: 'call',
 					argumentsLength: 1,
@@ -27,7 +27,7 @@ const create = context => ({
 					optionalMember: false,
 				})
 				&& isArrayPrototypeProperty(node.callee.object, {
-					property: 'join'
+					property: 'join',
 				})
 			)
 		)) {
