@@ -35,7 +35,6 @@ const isNodeValueNotFunction = node => (
 			method: 'bind',
 			optionalCall: false,
 			optionalMember: false,
-			computed: false,
 		}))
 	)
 );

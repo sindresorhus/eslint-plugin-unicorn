@@ -144,7 +144,6 @@ function create(context) {
 				!isMemberExpression(memberExpression, {
 					properties: ['length', 'size'],
 					optional: false,
-					computed: false,
 				})
 				|| memberExpression.object.type === 'ThisExpression'
 			) {

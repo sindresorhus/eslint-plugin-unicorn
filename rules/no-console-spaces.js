@@ -45,7 +45,6 @@ const create = context => {
 					minimumArguments: 1,
 					optionalCall: false,
 					optionalMember: false,
-					computed: false,
 				})
 			) {
 				return;

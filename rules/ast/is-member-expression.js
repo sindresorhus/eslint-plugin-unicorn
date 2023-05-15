@@ -49,13 +49,7 @@ function isMemberExpression(node, options) {
 	}
 
 	if (
-		(computed === true && (node.computed !== computed))
-		|| (
-			computed === false
-			// `node.computed` can be `undefined` in some parsers
-			&& node.computed
-		)
-		|| (optional === true && (node.optional !== optional))
+		(optional === true && (node.optional !== optional))
 		|| (
 			optional === false
 			// `node.optional` can be `undefined` in some parsers
@@ -68,9 +62,23 @@ function isMemberExpression(node, options) {
 	if (
 		Array.isArray(properties)
 		&& properties.length > 0
-		&& (
+	) {
+		if (
 			node.property.type !== 'Identifier'
 			|| !properties.includes(node.property.name)
+		) {
+			return false;
+		}
+
+		computed ??= false;
+	}
+
+	if (
+		(computed === true && (node.computed !== computed))
+		|| (
+			computed === false
+			// `node.computed` can be `undefined` in some parsers
+			&& node.computed
 		)
 	) {
 		return false;

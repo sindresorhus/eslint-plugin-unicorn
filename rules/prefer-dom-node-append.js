@@ -15,7 +15,6 @@ const create = () => ({
 				method: 'appendChild',
 				argumentsLength: 1,
 				optionalCall: false,
-				computed: false,
 			})
 			|| isNodeValueNotDomNode(node.callee.object)
 			|| isNodeValueNotDomNode(node.arguments[0])

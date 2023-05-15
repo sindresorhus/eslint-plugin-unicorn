@@ -95,7 +95,6 @@ const create = () => ({
 				argumentsLength: 1,
 				optionalCall: false,
 				optionalMember: false,
-				computed: false,
 			})
 			|| isNodeValueNotDomNode(node.callee.object)
 		) {
