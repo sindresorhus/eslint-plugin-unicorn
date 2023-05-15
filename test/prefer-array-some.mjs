@@ -184,7 +184,7 @@ test.snapshot({
 		'array.notFilter(fn).length > 0',
 		'array.filter.length > 0',
 
-		// `jQuery.prototype.filter`
+		// `jQuery#filter`
 		'$element.filter(":visible").length > 0',
 	],
 	invalid: [
