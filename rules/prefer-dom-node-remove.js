@@ -36,7 +36,6 @@ const create = context => {
 					method: 'removeChild',
 					argumentsLength: 1,
 					optionalCall: false,
-					computed: false,
 				})
 				|| isNodeValueNotDomNode(node.callee.object)
 				|| isNodeValueNotDomNode(node.arguments[0])

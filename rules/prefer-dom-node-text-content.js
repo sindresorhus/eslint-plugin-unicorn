@@ -25,7 +25,6 @@ const create = () => ({
 		if (
 			!isMemberExpression(memberExpression, {
 				property: 'innerText',
-				computed: false,
 			})
 		) {
 			return;

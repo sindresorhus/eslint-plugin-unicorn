@@ -405,7 +405,6 @@ const create = context => {
 			if (
 				!isMethodCall(node, {
 					method: 'forEach',
-					computed: false,
 				})
 				|| isNodeMatches(node.callee.object, ignoredObjects)
 			) {
