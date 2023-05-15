@@ -22,7 +22,6 @@ const create = context => ({
 			return;
 		}
 
-
 		const {sourceCode} = context;
 		const [
 			openingParenthesis,
