@@ -95,8 +95,8 @@ const create = context => ({
 		};
 	},
 	[arrayFilterCallSelector](filterCall) {
-		const argument = filterCall.arguments[0];
-		if (!argument || isNodeValueNotFunction(argument)) {
+		const [firstArgument] = filterCall.arguments;
+		if (!firstArgument || isNodeValueNotFunction(firstArgument)) {
 			return;
 		}
 
