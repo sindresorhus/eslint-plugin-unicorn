@@ -15,7 +15,7 @@ const impossibleNodeTypes = new Set([
 ]);
 
 const isNodeValueNotDomNode = node =>
-	impossibleNodeTypes.includes(node.type)
+	impossibleNodeTypes.has(node.type)
 	|| isUndefined(node);
 
 module.exports = isNodeValueNotDomNode;
