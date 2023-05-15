@@ -1,27 +1,34 @@
 'use strict';
 const isBuiltinModule = require('is-builtin-module');
-const {matches, STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors/index.js');
 const {replaceStringLiteral} = require('./fix/index.js');
+const isStaticRequire = require('./ast/is-static-require.js');
 
 const MESSAGE_ID = 'prefer-node-protocol';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `node:{{moduleName}}` over `{{moduleName}}`.',
 };
 
-const importExportSourceSelector = [
-	':matches(ImportDeclaration, ExportNamedDeclaration, ImportExpression)',
-	' > ',
-	'Literal.source',
-].join('');
-
-const selector = matches([
-	importExportSourceSelector,
-	STATIC_REQUIRE_SOURCE_SELECTOR,
-]);
-
 const create = () => ({
-	[selector](node) {
+	Literal(node) {
+		if (!(
+			(
+				(
+					node.parent.type === 'ImportDeclaration'
+					|| node.parent.type === 'ExportNamedDeclaration'
+					|| node.parent.type === 'ImportExpression'
+				)
+				&& node.parent.source === node
+			)
+			|| (
+				isStaticRequire(node.parent)
+				&& node.parent.arguments[0] === node
+			)
+		)) {
+			return;
+		}
+
 		const {value} = node;
+
 		if (
 			typeof value !== 'string'
 			|| value.startsWith('node:')

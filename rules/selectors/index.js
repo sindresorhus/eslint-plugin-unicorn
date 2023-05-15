@@ -16,6 +16,4 @@ module.exports = {
 	callExpressionSelector: require('./call-or-new-expression-selector.js').callExpressionSelector,
 	newExpressionSelector: require('./call-or-new-expression-selector.js').newExpressionSelector,
 	callOrNewExpressionSelector: require('./call-or-new-expression-selector.js').callOrNewExpressionSelector,
-	STATIC_REQUIRE_SELECTOR: require('./require-selector.js').STATIC_REQUIRE_SELECTOR,
-	STATIC_REQUIRE_SOURCE_SELECTOR: require('./require-selector.js').STATIC_REQUIRE_SOURCE_SELECTOR,
 };

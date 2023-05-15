@@ -1,8 +1,7 @@
 'use strict';
 const {isParenthesized} = require('@eslint-community/eslint-utils');
 const eventTypes = require('./shared/dom-events.js');
-const {STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors/index.js');
-const {isUndefined, isNullLiteral} = require('./ast/index.js');
+const {isUndefined, isNullLiteral, isStaticRequire} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-add-event-listener';
 const messages = {
@@ -73,8 +72,12 @@ const create = context => {
 			codePathInfo = codePathInfo.upper;
 		},
 
-		[STATIC_REQUIRE_SOURCE_SELECTOR](node) {
-			if (!isDisabled && excludedPackages.has(node.value)) {
+		CallExpression(node) {
+			if (!isStaticRequire(node)) {
+				return;
+			}
+
+			if (!isDisabled && excludedPackages.has(node.arguments[0].value)) {
 				isDisabled = true;
 			}
 		},

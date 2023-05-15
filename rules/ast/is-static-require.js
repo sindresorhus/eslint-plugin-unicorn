@@ -1,14 +1,14 @@
 'use strict';
 
 const {isStringLiteral} = require('./literal.js');
+const {isCallExpression} = require('./call-or-new-expression.js');
 
-const isStaticRequire = node => Boolean(
-	node?.type === 'CallExpression'
-	&& node.callee.type === 'Identifier'
-	&& node.callee.name === 'require'
-	&& !node.optional
-	&& node.arguments.length === 1
-	&& isStringLiteral(node.arguments[0]),
-);
+const isStaticRequire = node =>
+	isCallExpression(node, {
+		name: 'require',
+		argumentsLength: 1,
+		optional: false,
+	})
+	&& isStringLiteral(node.arguments[0]);
 
 module.exports = isStaticRequire;
