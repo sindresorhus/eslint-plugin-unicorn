@@ -18,5 +18,5 @@ module.exports = {
 	isParenthesized,
 	isValueNotUsable: require('./is-value-not-usable.js'),
 	needsSemicolon: require('./needs-semicolon.js'),
-	shouldAddParenthesesToMemberExpressionObject: require('./utils/should-add-parentheses-to-member-expression-object.js'),
+	shouldAddParenthesesToMemberExpressionObject: require('./should-add-parentheses-to-member-expression-object.js'),
 };
