@@ -6,7 +6,7 @@ const {
 	getParentheses,
 	getParenthesizedRange,
 	getParenthesizedText,
-} = require('./utils/parentheses.js');
+} = require('./parentheses.js');
 
 module.exports = {
 	getParentheses,
