@@ -4,7 +4,7 @@ const {isStringLiteral} = require('./literal.js');
 const {isCallExpression} = require('./call-or-new-expression.js');
 
 const isStaticRequire = node =>
-	isCallExpression({
+	isCallExpression(node, {
 		name: 'require',
 		argumentsLength: 1,
 		optional: false,
