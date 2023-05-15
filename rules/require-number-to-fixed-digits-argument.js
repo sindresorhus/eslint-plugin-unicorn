@@ -11,11 +11,11 @@ const messages = {
 const create = context => ({
 	CallExpression(node) {
 		if (
-			!isMethodCall({
-			method: 'toFixed',
-			argumentsLength: 0,
-			optionalCall: false,
-			optionalMember: false
+			!isMethodCall(node, {
+				method: 'toFixed',
+				argumentsLength: 0,
+				optionalCall: false,
+				optionalMember: false,
 			})
 			|| node.callee.object.type === 'NewExpression'
 		) {

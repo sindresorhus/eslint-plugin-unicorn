@@ -1,6 +1,5 @@
 'use strict';
-const { isMethodCall } = require('./ast/index.js');
-const {methodCallSelector} = require('./selectors/index.js');
+const {isMethodCall} = require('./ast/index.js');
 
 const messages = {
 	'error/charCodeAt': 'Prefer `String#codePointAt()` over `String#charCodeAt()`.',
@@ -26,7 +25,7 @@ const getReplacement = node => {
 	})) {
 		return 'fromCodePoint';
 	}
-}
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
@@ -51,7 +50,7 @@ const create = () => ({
 				},
 			],
 		};
-	}
+	},
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
