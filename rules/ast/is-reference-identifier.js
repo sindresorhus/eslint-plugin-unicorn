@@ -135,7 +135,7 @@ function isReferenceIdentifier(node, nameOrNames = []) {
 		return false;
 	}
 
-	return isNotReference(node);
+	return !isNotReference(node);
 }
 
 module.exports = isReferenceIdentifier;
