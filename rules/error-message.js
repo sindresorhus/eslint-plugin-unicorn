@@ -1,7 +1,7 @@
 'use strict';
 const {getStaticValue} = require('@eslint-community/eslint-utils');
 const isShadowed = require('./utils/is-shadowed.js');
-const {callOrNewExpressionSelector} = require('./selectors/index.js');
+const {isCallOrNewExpression} = require('./ast/index.js');
 
 const MESSAGE_ID_MISSING_MESSAGE = 'missing-message';
 const MESSAGE_ID_EMPTY_MESSAGE = 'message-is-empty-string';
@@ -12,7 +12,7 @@ const messages = {
 	[MESSAGE_ID_NOT_STRING]: 'Error message should be a string.',
 };
 
-const selector = callOrNewExpressionSelector([
+const builtinErrors = [
 	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
 	'Error',
 	'EvalError',
@@ -23,11 +23,18 @@ const selector = callOrNewExpressionSelector([
 	'URIError',
 	'InternalError',
 	'AggregateError',
-]);
+];
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[selector](expression) {
+	'CallExpression,NewExpression'(expression) {
+		if (!isCallOrNewExpression(expression, {
+			names: builtinErrors,
+			optional: false,
+		})) {
+			return;
+		}
+
 		const scope = context.sourceCode.getScope(expression);
 		if (isShadowed(scope, expression.callee)) {
 			return;
