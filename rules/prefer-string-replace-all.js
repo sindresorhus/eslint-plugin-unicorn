@@ -2,8 +2,7 @@
 const {getStaticValue} = require('@eslint-community/eslint-utils');
 const {parse: parseRegExp} = require('regjsparser');
 const escapeString = require('./utils/escape-string.js');
-const {methodCallSelector} = require('./selectors/index.js');
-const {isRegexLiteral, isNewExpression} = require('./ast/index.js');
+const {isRegexLiteral, isNewExpression, isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID_USE_REPLACE_ALL = 'method';
 const MESSAGE_ID_USE_STRING = 'pattern';
@@ -11,11 +10,6 @@ const messages = {
 	[MESSAGE_ID_USE_REPLACE_ALL]: 'Prefer `String#replaceAll()` over `String#replace()`.',
 	[MESSAGE_ID_USE_STRING]: 'This pattern can be replaced with {{replacement}}.',
 };
-
-const selector = methodCallSelector({
-	methods: ['replace', 'replaceAll'],
-	argumentsLength: 2,
-});
 
 function getPatternReplacement(node) {
 	if (!isRegexLiteral(node)) {
@@ -80,7 +74,16 @@ const isRegExpWithGlobalFlag = (node, scope) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[selector](node) {
+	CallExpression(node) {
+		if (!isMethodCall(node, {
+			methods: ['replace', 'replaceAll'],
+			argumentsLength: 2,
+			optionalCall: false,
+			optionalMember: false,
+		})) {
+			return;
+		}
+
 		const {
 			arguments: [pattern],
 			callee: {property},

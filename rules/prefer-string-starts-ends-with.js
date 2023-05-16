@@ -1,10 +1,10 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('@eslint-community/eslint-utils');
-const {methodCallSelector} = require('./selectors/index.js');
 const escapeString = require('./utils/escape-string.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child.js');
 const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses.js');
+const {isMethodCall, isRegexLiteral} = require('./ast/index.js');
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
@@ -25,11 +25,6 @@ const isSimpleString = string => doesNotContain(
 	['^', '$', '+', '[', '{', '(', '\\', '.', '?', '*', '|'],
 );
 const addParentheses = text => `(${text})`;
-
-const regexTestSelector = [
-	methodCallSelector({method: 'test', argumentsLength: 1}),
-	'[callee.object.regex]',
-].join('');
 
 const checkRegex = ({pattern, flags}) => {
 	if (flags.includes('i') || flags.includes('m')) {
@@ -64,7 +59,19 @@ const create = context => {
 	const {sourceCode} = context;
 
 	return {
-		[regexTestSelector](node) {
+		CallExpression(node) {
+			if (
+				!isMethodCall(node, {
+					method: 'test',
+					argumentsLength: 1,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				|| !isRegexLiteral(node.callee.object)
+			) {
+				return;
+			}
+
 			const regexNode = node.callee.object;
 			const {regex} = regexNode;
 			const result = checkRegex(regex);

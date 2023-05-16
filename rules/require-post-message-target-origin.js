@@ -1,5 +1,5 @@
 'use strict';
-const {methodCallSelector} = require('./selectors/index.js');
+const {isMethodCall} = require('./ast/index.js');
 const {appendArgument} = require('./fix/index.js');
 
 const ERROR = 'error';
@@ -13,7 +13,16 @@ const messages = {
 function create(context) {
 	const {sourceCode} = context;
 	return {
-		[methodCallSelector({method: 'postMessage', argumentsLength: 1})](node) {
+		CallExpression(node) {
+			if (!isMethodCall(node, {
+				method: 'postMessage',
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})) {
+				return;
+			}
+
 			const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
 			const replacements = [];
 			const target = node.callee.object;
