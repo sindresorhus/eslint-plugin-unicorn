@@ -22,7 +22,7 @@ const create = context => ({
 			&& node.parent.parent.type === 'SpreadElement'
 			&& node.parent.parent.argument === node.parent
 			&& node.parent.parent.parent.type === 'ObjectExpression'
-			&& node.parent.parent.parent.properties.include(node.parent.parent)
+			&& node.parent.parent.parent.properties.includes(node.parent.parent)
 		)) {
 			return;
 		}
