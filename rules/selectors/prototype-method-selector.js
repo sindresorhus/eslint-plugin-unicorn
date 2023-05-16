@@ -59,10 +59,8 @@ function prototypeMethodSelector(options) {
 	].join('');
 }
 
-const arrayPrototypeMethodSelector = options => prototypeMethodSelector({...options, object: 'Array'});
 const objectPrototypeMethodSelector = options => prototypeMethodSelector({...options, object: 'Object'});
 
 module.exports = {
-	arrayPrototypeMethodSelector,
 	objectPrototypeMethodSelector,
 };

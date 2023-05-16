@@ -7,11 +7,11 @@ const {
 	getParenthesizedRange,
 	getParenthesizedText,
 } = require('./parentheses.js');
-
 const {
 	isArrayPrototypeProperty,
 	isObjectPrototypeProperty,
 } = require('./array-or-object-prototype-property.js');
+const {isNodeMatches, isNodeMatchesNameOrPath} = require('./is-node-matches.js');
 
 module.exports = {
 	getParentheses,
@@ -19,6 +19,8 @@ module.exports = {
 	getParenthesizedText,
 	getParenthesizedTimes,
 	isArrayPrototypeProperty,
+	isNodeMatches,
+	isNodeMatchesNameOrPath,
 	isNodeValueNotDomNode: require('./is-node-value-not-dom-node.js'),
 	isNodeValueNotFunction: require('./is-node-value-not-function.js'),
 	isObjectPrototypeProperty,

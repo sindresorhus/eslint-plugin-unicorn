@@ -1,25 +1,24 @@
 'use strict';
-const {methodCallSelector} = require('./selectors/index.js');
-const {arrayPrototypeMethodSelector} = require('./selectors/index.js');
-const {isNodeValueNotFunction} = require('./utils/index.js');
+const {isMethodCall} = require('./ast/index.js');
+const {isNodeValueNotFunction, isArrayPrototypeProperty} = require('./utils/index.js');
 
 const MESSAGE_ID = 'no-reduce';
 const messages = {
 	[MESSAGE_ID]: '`Array#{{method}}()` is not allowed',
 };
 
-const prototypeSelector = method => [
-	methodCallSelector(method),
-	arrayPrototypeMethodSelector({
-		path: 'callee.object',
-		methods: ['reduce', 'reduceRight'],
-	}),
-].join('');
 const cases = [
 	// `array.{reduce,reduceRight}()`
 	{
-		selector: methodCallSelector({methods: ['reduce', 'reduceRight'], minimumArguments: 1, maximumArguments: 2}),
-		test: callExpression => !isNodeValueNotFunction(callExpression.arguments[0]),
+		test: callExpression =>
+			isMethodCall(callExpression, {
+				methods: ['reduce', 'reduceRight'],
+				minimumArguments: 1,
+				maximumArguments: 2,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			&& !isNodeValueNotFunction(callExpression.arguments[0]),
 		getMethodNode: callExpression => callExpression.callee.property,
 		isSimpleOperation(callExpression) {
 			const [callback] = callExpression.arguments;
@@ -44,13 +43,32 @@ const cases = [
 	},
 	// `[].{reduce,reduceRight}.call()` and `Array.{reduce,reduceRight}.call()`
 	{
-		selector: prototypeSelector('call'),
-		test: callExpression => !callExpression.arguments[1] || !isNodeValueNotFunction(callExpression.arguments[1]),
+		test: callExpression =>
+			isMethodCall(callExpression, {
+				method: 'call',
+				optionalCall: false,
+				optionalMember: false,
+			})
+			&& isArrayPrototypeProperty(callExpression.callee.object, {
+				properties: ['reduce', 'reduceRight'],
+			})
+			&& (
+				!callExpression.arguments[1]
+				|| !isNodeValueNotFunction(callExpression.arguments[1])
+			),
 		getMethodNode: callExpression => callExpression.callee.object.property,
 	},
 	// `[].{reduce,reduceRight}.apply()` and `Array.{reduce,reduceRight}.apply()`
 	{
-		selector: prototypeSelector('apply'),
+		test: callExpression =>
+			isMethodCall(callExpression, {
+				method: 'apply',
+				optionalCall: false,
+				optionalMember: false,
+			})
+			&& isArrayPrototypeProperty(callExpression.callee.object, {
+				properties: ['reduce', 'reduceRight'],
+			}),
 		getMethodNode: callExpression => callExpression.callee.object.property,
 	},
 ];
@@ -71,28 +89,27 @@ const schema = [
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {allowSimpleOperations} = {allowSimpleOperations: true, ...context.options[0]};
-	const listeners = {};
 
-	for (const {selector, test, getMethodNode, isSimpleOperation} of cases) {
-		listeners[selector] = callExpression => {
-			if (test && !test(callExpression)) {
-				return;
+	return {
+		* CallExpression(callExpression) {
+			for (const {test, getMethodNode, isSimpleOperation} of cases) {
+				if (!test(callExpression)) {
+					continue;
+				}
+
+				if (allowSimpleOperations && isSimpleOperation?.(callExpression)) {
+					continue;
+				}
+
+				const methodNode = getMethodNode(callExpression);
+				yield {
+					node: methodNode,
+					messageId: MESSAGE_ID,
+					data: {method: methodNode.name},
+				};
 			}
-
-			if (allowSimpleOperations && isSimpleOperation?.(callExpression)) {
-				return;
-			}
-
-			const methodNode = getMethodNode(callExpression);
-			return {
-				node: methodNode,
-				messageId: MESSAGE_ID,
-				data: {method: methodNode.name},
-			};
-		};
-	}
-
-	return listeners;
+		},
+	};
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
