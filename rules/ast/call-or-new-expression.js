@@ -13,8 +13,8 @@
 	} | string | string[]
 } CallOrNewExpressionCheckOptions
 */
-function create(node, options, type) {
-	if (node?.type !== type) {
+function create(node, options, types) {
+	if (types.includes(node?.type)) {
 		return false;
 	}
 
@@ -100,7 +100,7 @@ function create(node, options, type) {
 @param {CallOrNewExpressionCheckOptions} [options]
 @returns {boolean}
 */
-const isCallExpression = (node, options) => create(node, options, 'CallExpression');
+const isCallExpression = (node, options) => create(node, options, ['CallExpression']);
 
 /**
 @param {CallOrNewExpressionCheckOptions} [options]
@@ -111,10 +111,17 @@ const isNewExpression = (node, options) => {
 		throw new TypeError('Cannot check node.optional in `isNewExpression`.');
 	}
 
-	return create(node, options, 'NewExpression');
+	return create(node, options, ['NewExpression']);
 };
+
+/**
+@param {CallOrNewExpressionCheckOptions} [options]
+@returns {boolean}
+*/
+const isCallOrNewExpression = (node, options) => create(node, options, ['CallExpression', 'NewExpression']);
 
 module.exports = {
 	isCallExpression,
 	isNewExpression,
+	isCallOrNewExpression,
 };

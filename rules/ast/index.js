@@ -8,6 +8,11 @@ const {
 	isNullLiteral,
 	isRegexLiteral,
 } = require('./literal.js');
+const {
+	isNewExpression,
+	isCallExpression,
+	isCallOrNewExpression,
+} = require('./call-or-new-expression.js')
 
 module.exports = {
 	isLiteral,
@@ -18,11 +23,12 @@ module.exports = {
 	isRegexLiteral,
 
 	isArrowFunctionBody: require('./is-arrow-function-body.js'),
+	isCallExpression,
+	isCallOrNewExpression,
 	isEmptyNode: require('./is-empty-node.js'),
-	isStaticRequire: require('./is-static-require.js'),
-	isUndefined: require('./is-undefined.js'),
-	isNewExpression: require('./call-or-new-expression.js').isNewExpression,
-	isCallExpression: require('./call-or-new-expression.js').isCallExpression,
 	isMemberExpression: require('./is-member-expression.js'),
 	isMethodCall: require('./is-method-call.js'),
+	isNewExpression,
+	isStaticRequire: require('./is-static-require.js'),
+	isUndefined: require('./is-undefined.js'),
 };

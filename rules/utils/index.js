@@ -18,6 +18,7 @@ module.exports = {
 	getParenthesizedRange,
 	getParenthesizedText,
 	getParenthesizedTimes,
+	getVariableIdentifiers: require('./get-variable-identifiers.js'),
 	isArrayPrototypeProperty,
 	isNodeMatches,
 	isNodeMatchesNameOrPath,
@@ -29,3 +30,4 @@ module.exports = {
 	needsSemicolon: require('./needs-semicolon.js'),
 	shouldAddParenthesesToMemberExpressionObject: require('./should-add-parentheses-to-member-expression-object.js'),
 };
+
