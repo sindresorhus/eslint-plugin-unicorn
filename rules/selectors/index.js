@@ -5,7 +5,6 @@ module.exports = {
 	matches: require('./matches-any.js'),
 	not: require('./negation.js'),
 
-	objectPrototypeMethodSelector: require('./prototype-method-selector.js').objectPrototypeMethodSelector,
 	emptyArraySelector: require('./empty-array-selector.js'),
 	emptyObjectSelector: require('./empty-object-selector.js'),
 	memberExpressionSelector: require('./member-expression-selector.js'),
