@@ -15,13 +15,13 @@ const create = context => ({
 	CallExpression(node) {
 		if (!(
 			(
-				isMethodCall({
+				isMethodCall(node, {
 					method: 'setAttribute',
 					argumentsLength: 2,
 					optionalCall: false,
 					optionalMember: false,
 				})
-				|| isMethodCall({
+				|| isMethodCall(node, {
 					methods: ['getAttribute', 'removeAttribute', 'hasAttribute'],
 					argumentsLength: 1,
 					optionalCall: false,
