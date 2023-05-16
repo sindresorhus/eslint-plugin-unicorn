@@ -43,8 +43,8 @@ const create = context => ({
 			})
 			&& isNewDate(callExpression.callee.object)
 		) {
-			const method = node.callee.property;
-			return getProblem(node, {
+			const method = callExpression.callee.property;
+			return getProblem(callExpression, {
 				node: method,
 				messageId: MESSAGE_ID_METHOD,
 				data: {method: method.name},
@@ -58,7 +58,7 @@ const create = context => ({
 				argumentsLength: 1,
 				optional: false,
 			})
-			|| isNewDate(callExpression.arguments[0])
+			&& isNewDate(callExpression.arguments[0])
 		) {
 			const {name} = callExpression.callee;
 			if (name === 'Number') {
@@ -81,7 +81,7 @@ const create = context => ({
 
 		if (isNewDate(unaryExpression.argument)) {
 			return getProblem(
-				unaryExpression.operator === '-' ? unaryExpression.argument : node,
+				unaryExpression.operator === '-' ? unaryExpression.argument : unaryExpression,
 				{},
 				context.sourceCode,
 			);
