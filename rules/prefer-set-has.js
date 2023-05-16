@@ -79,14 +79,15 @@ const create = context => ({
 		const {parent} = node;
 
 		if (!(
-			(
-				parent.type == 'VariableDeclarator'
-				&& parent.id === node
-			)
+			parent.type == 'VariableDeclarator'
+			&& parent.id === node
+			&& Boolean(parent.init)
+			&& parent.parent.type === 'VariableDeclaration'
+			&& parent.parent.declarations.includes(parent)
 			// Exclude `export const foo = [];`
 			&& !(
-				parent.parent.type === 'ExportNamedDeclaration'
-				&& parent.parent.description === parent
+				parent.parent.parent.type === 'ExportNamedDeclaration'
+				&& parent.parent.parent.declaration === parent.parent
 			)
 			&& (
 				// `[]`
