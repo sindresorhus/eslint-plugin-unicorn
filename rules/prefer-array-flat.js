@@ -5,6 +5,7 @@ const {
 	isNodeMatches,
 	isNodeMatchesNameOrPath,
 	isParenthesized,
+	isSameIdentifier,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 } = require('./utils/index.js');
@@ -22,10 +23,6 @@ const messages = {
 const isEmptyArrayExpression = node =>
 	node.type === 'ArrayExpression'
 	&& node.elements.length === 0;
-const isSameIdentifier = (nodeA, nodeB) =>
-	nodeA.type === 'Identifier'
-	&& nodeB.type === 'Identifier'
-	&& nodeA.name === nodeB.name;
 
 // `array.flatMap(x => x)`
 const arrayFlatMap = {

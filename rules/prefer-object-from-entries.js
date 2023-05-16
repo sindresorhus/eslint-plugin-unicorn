@@ -1,10 +1,15 @@
 'use strict';
 const {isCommaToken, isArrowToken, isClosingParenToken} = require('@eslint-community/eslint-utils');
-const getDocumentationUrl = require('./utils/get-documentation-url.js');
-const {matches, methodCallSelector} = require('./selectors/index.js');
+const {isMethodCall, isLiteral} = require('./ast/index.js');
 const {removeParentheses} = require('./fix/index.js');
-const {getParentheses, getParenthesizedText} = require('./utils/parentheses.js');
-const {isNodeMatches, isNodeMatchesNameOrPath} = require('./utils/is-node-matches.js');
+const {
+	getParentheses,
+	getParenthesizedText,
+	isNodeMatches,
+	isNodeMatchesNameOrPath,
+	isSameIdentifier,
+} = require('./utils/index.js');
+const { isCallExpression } = require('./ast/call-or-new-expression.js');
 
 const MESSAGE_ID_REDUCE = 'reduce';
 const MESSAGE_ID_FUNCTION = 'function';
@@ -13,74 +18,72 @@ const messages = {
 	[MESSAGE_ID_FUNCTION]: 'Prefer `Object.fromEntries()` over `{{functionName}}()`.',
 };
 
-const createEmptyObjectSelector = path => {
-	const prefix = path ? `${path}.` : '';
-	return matches([
-		// `{}`
-		`[${prefix}type="ObjectExpression"][${prefix}properties.length=0]`,
-		// `Object.create(null)`
-		[
-			methodCallSelector({path, object: 'Object', method: 'create', argumentsLength: 1}),
-			`[${prefix}arguments.0.type="Literal"]`,
-			`[${prefix}arguments.0.raw="null"]`,
-		].join(''),
-	]);
-};
+const isEmptyObject = node =>
+	// `{}`
+	(node.type === 'ObjectExpression' && node.properties.length === 0)
+	// `Object.create(null)`
+	|| (
+		isMethodCall({
+			object: 'Object',
+			method: 'create',
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+		})
+		&& isLiteral(node.arguments[0], null)
+	);
 
-const createArrowCallbackSelector = path => {
-	const prefix = path ? `${path}.` : '';
-	return [
-		`[${prefix}type="ArrowFunctionExpression"]`,
-		`[${prefix}async!=true]`,
-		`[${prefix}generator!=true]`,
-		`[${prefix}params.length>=1]`,
-		`[${prefix}params.0.type="Identifier"]`,
-	].join('');
-};
+const isArrowFunctionCallback = node =>
+	node.type === 'ArrowFunctionExpression'
+	&& !node.async
+	&& node.params.length > 0
+	&& node.params[0].type === 'Identifier';
 
-const createPropertySelector = path => {
-	const prefix = path ? `${path}.` : '';
-	return [
-		`[${prefix}type="Property"]`,
-		`[${prefix}kind="init"]`,
-		`[${prefix}method!=true]`,
-	].join('');
-};
+const isProperty = node =>
+	node.type === 'Property'
+	&& node.kind == 'init'
+	&& !node.method;
 
 // - `pairs.reduce(…, {})`
 // - `pairs.reduce(…, Object.create(null))`
-const arrayReduceWithEmptyObject = [
-	methodCallSelector({method: 'reduce', argumentsLength: 2}),
-	createEmptyObjectSelector('arguments.1'),
-].join('');
+const isArrayReduceWithEmptyObject = node =>
+	isMethodCall(node, {
+		method: 'reduce',
+		argumentsLength: 2,
+		optionalCall: false,
+		optionalMember: false,
+	})
+	&& isEmptyObject(node.arguments[0]);
 
 const fixableArrayReduceCases = [
 	{
-		selector: [
-			arrayReduceWithEmptyObject,
-			// () => Object.assign(object, {key})
-			createArrowCallbackSelector('arguments.0'),
-			methodCallSelector({path: 'arguments.0.body', object: 'Object', method: 'assign', argumentsLength: 2}),
-			'[arguments.0.body.arguments.0.type="Identifier"]',
-			'[arguments.0.body.arguments.1.type="ObjectExpression"]',
-			'[arguments.0.body.arguments.1.properties.length=1]',
-			createPropertySelector('arguments.0.body.arguments.1.properties.0'),
-		].join(''),
-		test: callback => callback.params[0].name === callback.body.arguments[0].name,
+		test: (callExpression) =>
+			isArrayReduceWithEmptyObject(callExpression)
+			// `() => Object.assign(object, {key})`
+			&& isArrowFunctionCallback(callExpression.arguments[0])
+			&& isMethodCall(node.arguments[0].body, {
+				object: 'Object',
+				method: 'assign',
+				argumentsLength: 2,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			&& node.arguments[0].body.arguments[1].type === 'ObjectExpression'
+			&& node.arguments[0].body.arguments[1].properties.length === 1
+			&& isProperty(node.arguments[0].body.arguments[1].properties[0])
+			&& isSameIdentifier(node.arguments[0].params[0], node.arguments[0].body.arguments[0]),
 		getProperty: callback => callback.body.arguments[1].properties[0],
 	},
 	{
-		selector: [
-			arrayReduceWithEmptyObject,
-			// () => ({...object, key})
-			createArrowCallbackSelector('arguments.0'),
-			'[arguments.0.body.type="ObjectExpression"]',
-			'[arguments.0.body.properties.length=2]',
-			'[arguments.0.body.properties.0.type="SpreadElement"]',
-			'[arguments.0.body.properties.0.argument.type="Identifier"]',
-			createPropertySelector('arguments.0.body.properties.1'),
-		].join(''),
-		test: callback => callback.params[0].name === callback.body.properties[0].argument.name,
+		test: callExpression =>
+			isArrayReduceWithEmptyObject(callExpression)
+			// `() => ({...object, key})`
+			&& isArrowFunctionCallback(callExpression.arguments[0])
+			&& callExpression.arguments[0].body.type === 'ObjectExpression'
+			&& callExpression.arguments[0].body.properties.length === 2
+			&& callExpression.arguments[0].body.properties[0].type === "SpreadElement"
+			&& isProperty(node.arguments[0].body.properties[1])
+			&& isSameIdentifier(node.arguments[0].params[0], callExpression.arguments[0].body.properties[0].argument),
 		getProperty: callback => callback.body.properties[1],
 	},
 ];
@@ -90,13 +93,6 @@ const lodashFromPairsFunctions = [
 	'_.fromPairs',
 	'lodash.fromPairs',
 ];
-const anyCall = [
-	'CallExpression',
-	'[optional!=true]',
-	'[arguments.length=1]',
-	'[arguments.0.type!="SpreadElement"]',
-	' > .callee',
-].join('');
 
 function fixReduceAssignOrSpread({sourceCode, node, property}) {
 	const removeInitObject = fixer => {
@@ -177,61 +173,54 @@ function create(context) {
 		...context.options[0],
 	};
 	const functions = [...configFunctions, ...lodashFromPairsFunctions];
-	const {sourceCode} = context;
-	const listeners = {};
-	const arrayReduce = new Map();
 
-	for (const {selector, test, getProperty} of fixableArrayReduceCases) {
-		listeners[selector] = node => {
-			const [callbackFunction] = node.arguments;
-			if (!test(callbackFunction)) {
+	return {
+		* CallExpression(callExpression) {
+			for (const {test, getProperty} of fixableArrayReduceCases) {
+				if (!test(callExpression)) {
+					continue;
+				}
+
+				const [callbackFunction] = callExpression.arguments;
+				const [firstParameter] = callbackFunction.params;
+				const variables = context.sourceCode.getDeclaredVariables(callbackFunction);
+				const firstParameterVariable = variables.find(variable => variable.identifiers.length === 1 && variable.identifiers[0] === firstParameter);
+				if (!firstParameterVariable || firstParameterVariable.references.length !== 1) {
+					continue;
+				}
+
+				yield {
+					node: callExpression.callee.property,
+					messageId: MESSAGE_ID_REDUCE,
+					fix: fixReduceAssignOrSpread({
+						sourceCode,
+						callExpression,
+						property: getProperty(callbackFunction),
+					}),
+				};
+			}
+
+			if (!isCallExpression(callExpression, {
+				argumentsLength: 1,
+				optional: false,
+			})) {
 				return;
 			}
 
-			const [firstParameter] = callbackFunction.params;
-			const variables = sourceCode.getDeclaredVariables(callbackFunction);
-			const firstParameterVariable = variables.find(variable => variable.identifiers.length === 1 && variable.identifiers[0] === firstParameter);
-			if (!firstParameterVariable || firstParameterVariable.references.length !== 1) {
-				return;
+			const functionNode = callExpression.callee;
+			for (const nameOrPath of functions) {
+				const functionName = nameOrPath.trim();
+				if (isNodeMatchesNameOrPath(functionNode, functionName)) {
+					yield {
+						node: functionNode,
+						messageId: MESSAGE_ID_FUNCTION,
+						data: {functionName},
+						fix: fixer => fixer.replaceText(functionNode, 'Object.fromEntries'),
+					};
+				}
 			}
-
-			arrayReduce.set(
-				node,
-				// The fix function
-				fixReduceAssignOrSpread({
-					sourceCode,
-					node,
-					property: getProperty(callbackFunction),
-				}),
-			);
-		};
-	}
-
-	listeners['Program:exit'] = () => {
-		for (const [node, fix] of arrayReduce.entries()) {
-			context.report({
-				node: node.callee.property,
-				messageId: MESSAGE_ID_REDUCE,
-				fix,
-			});
-		}
+		},
 	};
-
-	listeners[anyCall] = node => {
-		if (!isNodeMatches(node, functions)) {
-			return;
-		}
-
-		const functionName = functions.find(nameOrPath => isNodeMatchesNameOrPath(node, nameOrPath)).trim();
-		context.report({
-			node,
-			messageId: MESSAGE_ID_FUNCTION,
-			data: {functionName},
-			fix: fixer => fixer.replaceText(node, 'Object.fromEntries'),
-		});
-	};
-
-	return listeners;
 }
 
 const schema = [
@@ -254,7 +243,6 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `Object.fromEntries(…)` to transform a list of key-value pairs into an object.',
-			url: getDocumentationUrl(__filename),
 		},
 		fixable: 'code',
 		schema,

@@ -26,6 +26,7 @@ module.exports = {
 	isNodeValueNotFunction: require('./is-node-value-not-function.js'),
 	isObjectPrototypeProperty,
 	isParenthesized,
+	isSameIdentifier: require('./is-same-identifier.js'),
 	isValueNotUsable: require('./is-value-not-usable.js'),
 	needsSemicolon: require('./needs-semicolon.js'),
 	shouldAddParenthesesToMemberExpressionObject: require('./should-add-parentheses-to-member-expression-object.js'),
