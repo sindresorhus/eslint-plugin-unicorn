@@ -7,7 +7,7 @@ const {
 	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
-} = require('./utils/index.js')
+} = require('./utils/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
 const {
 	isMethodCall,
@@ -54,8 +54,8 @@ const arrayFlatMap = {
 // `array.reduce((a, b) => a.concat(b), [])`
 // `array.reduce((a, b) => [...a, ...b], [])`
 const arrayReduce = {
-	testFunction(node){
-		if (!isMethodCall({
+	testFunction(node) {
+		if (!isMethodCall(node, {
 			method: 'reduce',
 			argumentsLength: 2,
 			optionalCall: false,
@@ -90,12 +90,12 @@ const arrayReduce = {
 			)
 			// `(a, b) => [...a, ...b]`
 			|| (
-				firstArgumentBody.type === "ArrayExpression"
+				firstArgumentBody.type === 'ArrayExpression'
 				&& firstArgumentBody.elements.length === 2
 				&& firstArgumentBody.elements.every((node, index) =>
 					node.type === 'SpreadElement'
 					&& node.argument.type === 'Identifier'
-					&& isSameIdentifier(firstArgument.params[index], node.argument)
+					&& isSameIdentifier(firstArgument.params[index], node.argument),
 				)
 			)
 		);
@@ -115,7 +115,7 @@ const emptyArrayConcat = {
 			optionalCall: false,
 			optionalMember: false,
 		})
-		&& isEmptyArrayExpression(node.callee.object)
+		&& isEmptyArrayExpression(node.callee.object);
 	},
 	getArrayNode(node) {
 		const argumentNode = node.arguments[0];
@@ -139,7 +139,7 @@ const arrayPrototypeConcat = {
 				optionalMember: false,
 			})
 			&& isArrayPrototypeProperty(node.callee.object, {
-				property: 'concat'
+				property: 'concat',
 			})
 		)) {
 			return false;
@@ -203,7 +203,6 @@ function create(context) {
 		...context.options[0],
 	};
 	const functions = [...configFunctions, ...lodashFlattenFunctions];
-	const {sourceCode} = context;
 
 	const cases = [
 		arrayFlatMap,
@@ -211,7 +210,7 @@ function create(context) {
 		emptyArrayConcat,
 		arrayPrototypeConcat,
 		{
-			testFunction: node => isCallExpression({
+			testFunction: node => isCallExpression(node, {
 				argumentsLength: 1,
 				optional: false,
 			}) && isNodeMatches(node.callee, functions),
@@ -239,6 +238,8 @@ function create(context) {
 					data,
 				};
 
+				const {sourceCode} = context;
+
 				// Don't fix if it has comments.
 				if (
 					sourceCode.getCommentsInside(node).length
@@ -249,7 +250,7 @@ function create(context) {
 
 				yield problem;
 			}
-		}
+		},
 	};
 }
 
