@@ -9,13 +9,6 @@ const messages = {
 	[MESSAGE_ID]: 'Use an object instead of a class with only static members.',
 };
 
-const selector = [
-	':matches(ClassDeclaration, ClassExpression)',
-	':not([superClass], [decorators.length>0])',
-	'[body.type="ClassBody"]',
-	'[body.body.length>0]',
-].join('');
-
 const isEqualToken = ({type, value}) => type === 'Punctuator' && value === '=';
 const isDeclarationOfExportDefaultDeclaration = node =>
 	node.type === 'ClassDeclaration'
@@ -197,13 +190,19 @@ function switchClassToObject(node, sourceCode) {
 }
 
 function create(context) {
-	const {sourceCode} = context;
-
 	return {
-		[selector](node) {
-			if (node.body.body.some(node => !isStaticMember(node))) {
+		'ClassDeclaration,ClassExpression'(node) {
+			if (
+				node.superClass
+				|| (node.decorators && node.decorators.length > 0)
+				|| node.body.type !== 'ClassBody'
+				|| node.body.body.length === 0
+				|| node.body.body.some(node => !isStaticMember(node))
+			) {
 				return;
 			}
+
+			const {sourceCode} = context;
 
 			return {
 				node,
