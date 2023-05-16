@@ -2,25 +2,10 @@
 const avoidCapture = require('./utils/avoid-capture.js');
 const {not} = require('./selectors/index.js');
 const isLeftHandSide = require('./utils/is-left-hand-side.js');
+const {isCallOrNewExpression} = require('./ast/index.js');
 
 const MESSAGE_ID = 'consistentDestructuring';
 const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';
-
-const declaratorSelector = [
-	'VariableDeclarator',
-	'[id.type="ObjectPattern"]',
-	'[init]',
-	'[init.type!="Literal"]',
-].join('');
-
-const memberSelector = [
-	'MemberExpression',
-	'[computed!=true]',
-	not([
-		'CallExpression > .callee',
-		'NewExpression> .callee',
-	]),
-].join('');
 
 const isSimpleExpression = expression => {
 	while (expression) {
@@ -57,9 +42,14 @@ const create = context => {
 	const declarations = new Map();
 
 	return {
-		[declaratorSelector](node) {
-			// Ignore any complex expressions (e.g. arrays, functions)
-			if (!isSimpleExpression(node.init)) {
+		VariableDeclarator(node) {
+			if (!(
+				node.id.type === 'ObjectPattern'
+				&& node.init
+				&& node.init.type !== 'Literal'
+				// Ignore any complex expressions (e.g. arrays, functions)
+				&& isSimpleExpression(node.init)
+			)) {
 				return;
 			}
 
@@ -69,8 +59,15 @@ const create = context => {
 				objectPattern: node.id,
 			});
 		},
-		[memberSelector](node) {
-			if (isLeftHandSide(node)) {
+		MemberExpression(node) {
+			if (
+				node.computed
+				|| (
+					isCallOrNewExpression(node.parent)
+					&& node.parent.callee === node
+				)
+				|| isLeftHandSide(node)
+			) {
 				return;
 			}
 
