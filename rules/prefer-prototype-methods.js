@@ -1,7 +1,7 @@
 'use strict';
 const {getPropertyName} = require('@eslint-community/eslint-utils');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
-const {isMemberExpression, isMethodCall} = require('./ast/index.js')
+const {isMemberExpression, isMethodCall} = require('./ast/index.js');
 
 const messages = {
 	'known-method': 'Prefer using `{{constructorName}}.prototype.{{methodName}}`.',
@@ -14,31 +14,31 @@ function create(context) {
 		CallExpression(callExpression) {
 			let methodNode;
 
-			// `Reflect.apply([].foo, …)`
-			// `Reflect.apply({}.foo, …)`
-			if (isMethodCall(callExpression, {
-				object: 'Reflect',
-				method: 'apply',
-				minimumArguments: 1,
-				optionalCall: false,
-				optionalMember: false,
-			})) {
+			if (
+				// `Reflect.apply([].foo, …)`
+				// `Reflect.apply({}.foo, …)`
+				isMethodCall(callExpression, {
+					object: 'Reflect',
+					method: 'apply',
+					minimumArguments: 1,
+					optionalCall: false,
+					optionalMember: false,
+				})
+			) {
 				methodNode = callExpression.arguments[0];
-			}
-			// `[].foo.{apply,bind,call}(…)`
-			// `({}).foo.{apply,bind,call}(…)`
-			else if (isMethodCall(callExpression, {
-				names: ['apply', 'bind', 'call'],
-				optionalCall: false,
-				optionalMember: false,
-			})) {
+			} else if (
+				// `[].foo.{apply,bind,call}(…)`
+				// `({}).foo.{apply,bind,call}(…)`
+				isMethodCall(callExpression, {
+					names: ['apply', 'bind', 'call'],
+					optionalCall: false,
+					optionalMember: false,
+				})
+			) {
 				methodNode = callExpression.callee.object;
 			}
 
-			if (
-				!methodNode
-				|| !isMemberExpression(methodNode, {optional: false})
-			) {
+			if (!methodNode || !isMemberExpression(methodNode, {optional: false})) {
 				return;
 			}
 

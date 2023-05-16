@@ -5,11 +5,10 @@ const {removeParentheses} = require('./fix/index.js');
 const {
 	getParentheses,
 	getParenthesizedText,
-	isNodeMatches,
 	isNodeMatchesNameOrPath,
 	isSameIdentifier,
 } = require('./utils/index.js');
-const { isCallExpression } = require('./ast/call-or-new-expression.js');
+const {isCallExpression} = require('./ast/call-or-new-expression.js');
 
 const MESSAGE_ID_REDUCE = 'reduce';
 const MESSAGE_ID_FUNCTION = 'function';
@@ -30,6 +29,7 @@ const isEmptyObject = node =>
 			optionalCall: false,
 			optionalMember: false,
 		})
+		// eslint-disable-next-line unicorn/no-null
 		&& isLiteral(node.arguments[0], null)
 	);
 
@@ -41,7 +41,7 @@ const isArrowFunctionCallback = node =>
 
 const isProperty = node =>
 	node.type === 'Property'
-	&& node.kind == 'init'
+	&& node.kind === 'init'
 	&& !node.method;
 
 // - `pairs.reduce(…, {})`
@@ -57,7 +57,7 @@ const isArrayReduceWithEmptyObject = node =>
 
 const fixableArrayReduceCases = [
 	{
-		test: (callExpression) =>
+		test: callExpression =>
 			isArrayReduceWithEmptyObject(callExpression)
 			// `() => Object.assign(object, {key})`
 			&& isArrowFunctionCallback(callExpression.arguments[0])
@@ -81,7 +81,7 @@ const fixableArrayReduceCases = [
 			&& isArrowFunctionCallback(callExpression.arguments[0])
 			&& callExpression.arguments[0].body.type === 'ObjectExpression'
 			&& callExpression.arguments[0].body.properties.length === 2
-			&& callExpression.arguments[0].body.properties[0].type === "SpreadElement"
+			&& callExpression.arguments[0].body.properties[0].type === 'SpreadElement'
 			&& isProperty(callExpression.arguments[0].body.properties[1])
 			&& isSameIdentifier(callExpression.arguments[0].params[0], callExpression.arguments[0].body.properties[0].argument),
 		getProperty: callback => callback.body.properties[1],
