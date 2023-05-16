@@ -2,8 +2,7 @@
 const {isOpeningParenToken} = require('@eslint-community/eslint-utils');
 const isShadowed = require('./utils/is-shadowed.js');
 const assertToken = require('./utils/assert-token.js');
-const {referenceIdentifierSelector} = require('./selectors/index.js');
-const {isStaticRequire} = require('./ast/index.js');
+const {isStaticRequire, isReferenceIdentifier} = require('./ast/index.js');
 const {
 	removeParentheses,
 	replaceReferenceIdentifier,
@@ -28,14 +27,6 @@ const messages = {
 	[SUGGESTION_IMPORT]: 'Switch to `import`.',
 	[SUGGESTION_EXPORT]: 'Switch to `export`.',
 };
-
-const identifierSelector = referenceIdentifierSelector([
-	'exports',
-	'require',
-	'module',
-	'__filename',
-	'__dirname',
-]);
 
 function fixRequireCall(node, sourceCode) {
 	if (!isStaticRequire(node.parent) || node.parent.callee !== node) {
@@ -245,8 +236,17 @@ function create(context) {
 				messageId: ERROR_GLOBAL_RETURN,
 			};
 		},
-		[identifierSelector](node) {
-			if (isShadowed(sourceCode.getScope(node), node)) {
+		Identifier(node) {
+			if (
+				!isReferenceIdentifier(node, [
+					'exports',
+					'require',
+					'module',
+					'__filename',
+					'__dirname',
+				])
+				|| isShadowed(sourceCode.getScope(node), node)
+			) {
 				return;
 			}
 
