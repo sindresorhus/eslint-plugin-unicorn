@@ -12,7 +12,7 @@ const {
 	isNewExpression,
 	isCallExpression,
 	isCallOrNewExpression,
-} = require('./call-or-new-expression.js')
+} = require('./call-or-new-expression.js');
 
 module.exports = {
 	isLiteral,

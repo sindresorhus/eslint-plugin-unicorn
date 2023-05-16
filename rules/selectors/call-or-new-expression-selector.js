@@ -100,14 +100,7 @@ const callExpressionSelector = options => create(options, ['CallExpression']);
 */
 const newExpressionSelector = options => create(options, ['NewExpression']);
 
-/**
-@param {CallOrNewExpressionOptions} [options]
-@returns {string}
-*/
-const callOrNewExpressionSelector = options => create(options, ['CallExpression', 'NewExpression']);
-
 module.exports = {
 	newExpressionSelector,
 	callExpressionSelector,
-	callOrNewExpressionSelector,
 };

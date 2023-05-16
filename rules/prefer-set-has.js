@@ -1,7 +1,7 @@
 'use strict';
 const {findVariable} = require('@eslint-community/eslint-utils');
 const {getVariableIdentifiers} = require('./utils/index.js');
-const {isCallOrNewExpression, isMethodCall} = require('./ast/index.js')
+const {isCallOrNewExpression, isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -26,8 +26,7 @@ const arrayMethodsReturnsArray = [
 	'toSorted',
 	'toSpliced',
 	'with',
-]
-
+];
 
 const isIncludesCall = node => {
 	const {type, optional, callee, arguments: includesArguments} = node.parent.parent ?? {};
@@ -79,7 +78,7 @@ const create = context => ({
 		const {parent} = node;
 
 		if (!(
-			parent.type == 'VariableDeclarator'
+			parent.type === 'VariableDeclarator'
 			&& parent.id === node
 			&& Boolean(parent.init)
 			&& parent.parent.type === 'VariableDeclaration'
@@ -99,10 +98,10 @@ const create = context => ({
 				})
 				// `Array.from()` and `Array.of()`
 				|| isMethodCall(parent.init, {
-						object: 'Array',
-						methods: ['from', 'of'],
-						optionalCall: false,
-						optionalMember: false,
+					object: 'Array',
+					methods: ['from', 'of'],
+					optionalCall: false,
+					optionalMember: false,
 				})
 				// Array methods that return an array
 				|| isMethodCall(parent.init, {
