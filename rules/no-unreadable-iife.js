@@ -18,14 +18,14 @@ const create = context => ({
 		if (
 			callExpression.callee.type !== 'ArrowFunctionExpression'
 			|| callExpression.callee.body.type === 'BlockStatement'
-			|| !isParenthesized(callExpression, sourceCode)
+			|| !isParenthesized(callExpression.callee.body, sourceCode)
 		) {
 			return;
 		}
 
 		return {
 			node: callExpression,
-			loc: toLocation(getParenthesizedRange(callExpression, context.sourceCode), sourceCode),
+			loc: toLocation(getParenthesizedRange(callExpression.callee.body, sourceCode), sourceCode),
 			messageId: MESSAGE_ID_ERROR,
 		};
 	},
