@@ -1,9 +1,9 @@
 'use strict';
 const {
-	not,
-	methodCallSelector,
-	callExpressionSelector,
-} = require('./selectors/index.js');
+	isMethodCall,
+	isCallExpression,
+	isLiteral,
+} = require('./ast/index.js');
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';
@@ -13,21 +13,6 @@ const messages = {
 	[SUGGESTION_REPLACE_MESSAGE_ID]: 'Replace `null` with `undefined`.',
 	[SUGGESTION_REMOVE_MESSAGE_ID]: 'Remove `null`.',
 };
-
-const selector = [
-	'Literal',
-	'[raw="null"]',
-	not([
-		// `Object.create(null)`, `Object.create(null, foo)`
-		`${methodCallSelector({object: 'Object', method: 'create', minimumArguments: 1, maximumArguments: 2})} > .arguments:first-child`,
-		// `useRef(null)`
-		`${callExpressionSelector({name: 'useRef', argumentsLength: 1})} > .arguments:first-child`,
-		// `React.useRef(null)`
-		`${methodCallSelector({object: 'React', method: 'useRef', argumentsLength: 1})} > .arguments:first-child`,
-		// `foo.insertBefore(bar, null)`
-		`${methodCallSelector({method: 'insertBefore', argumentsLength: 2})}[arguments.0.type!="SpreadElement"] > .arguments:nth-child(2)`,
-	]),
-].join('');
 
 const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].includes(node.operator);
 const isStrictEqual = node => node.type === 'BinaryExpression' && ['===', '!=='].includes(node.operator);
@@ -40,11 +25,59 @@ const create = context => {
 	};
 
 	return {
-		[selector](node) {
-			const {parent} = node;
-			if (!checkStrictEquality && isStrictEqual(parent)) {
+		Literal(node) {
+			if (
+				// eslint-disable-next-line unicorn/no-null
+				!isLiteral(node, null)
+				|| (!checkStrictEquality && isStrictEqual(node.parent))
+				// `Object.create(null)`, `Object.create(null, foo)`
+				|| (
+					isMethodCall(node.parent, {
+						object: 'Object',
+						method: 'create',
+						minimumArguments: 1,
+						maximumArguments: 2,
+						optionalCall: false,
+						optionalMember: false,
+					})
+					&& node.parent.arguments[0] === node
+				)
+				// `useRef(null)`
+				|| (
+					isCallExpression(node.parent, {
+						name: 'useRef',
+						argumentsLength: 1,
+						optionalCall: false,
+						optionalMember: false,
+					})
+					&& node.parent.arguments[0] === node
+				)
+				// `React.useRef(null)`
+				|| (
+					isMethodCall(node.parent, {
+						object: 'React',
+						method: 'useRef',
+						argumentsLength: 1,
+						optionalCall: false,
+						optionalMember: false,
+					})
+					&& node.parent.arguments[0] === node
+				)
+				// `foo.insertBefore(bar, null)`
+				|| (
+					isMethodCall(node.parent, {
+						method: 'insertBefore',
+						argumentsLength: 2,
+						optionalCall: false,
+						optionalMember: false,
+					})
+					&& node.parent.arguments[1] === node
+				)
+			) {
 				return;
 			}
+
+			const {parent} = node;
 
 			const problem = {
 				node,
