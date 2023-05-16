@@ -1,52 +1,44 @@
 'use strict';
 const safeRegex = require('safe-regex');
-const {newExpressionSelector} = require('./selectors/index.js');
-const {isNewExpression} = require('./ast/index.js');
+const {isNewExpression, isRegexLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-unsafe-regex';
 const messages = {
 	[MESSAGE_ID]: 'Unsafe regular expression.',
 };
 
-const newRegExpSelector = [
-	newExpressionSelector('RegExp'),
-	'[arguments.0.type="Literal"]',
-].join('');
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
-	'Literal[regex]'(node) {
-		// Handle regex literal inside RegExp constructor in the other handler
-		if (isNewExpression(node.parent, {name: 'RegExp'})) {
-			return;
+	Literal(node) {
+		if (
+			isNewExpression(node.parent, {name: 'RegExp'})
+			&& node.parent.arguments[0] === node
+		) {
+			const [, flagsNode] = node.parent.arguments;
+
+			let pattern;
+			let flags;
+			if (isRegexLiteral(node)) {
+				({pattern} = node.regex);
+				flags = flagsNode?.type === 'Literal'
+					? flagsNode.value
+					: node.regex.flags;
+			} else {
+				pattern = node.value;
+				flags = flagsNode?.type === 'Literal'
+					? flagsNode.value
+					: '';
+			}
+
+			if (!safeRegex(`/${pattern}/${flags}`)) {
+				return {
+					node,
+					messageId: MESSAGE_ID,
+				};
+			}
 		}
 
-		if (!safeRegex(node.value)) {
-			return {
-				node,
-				messageId: MESSAGE_ID,
-			};
-		}
-	},
-	[newRegExpSelector](node) {
-		const arguments_ = node.arguments;
-		const hasRegExp = arguments_[0].regex;
-
-		let pattern;
-		let flags;
-		if (hasRegExp) {
-			({pattern} = arguments_[0].regex);
-			flags = arguments_[1]?.type === 'Literal'
-				? arguments_[1].value
-				: arguments_[0].regex.flags;
-		} else {
-			pattern = arguments_[0].value;
-			flags = arguments_[1]?.type === 'Literal'
-				? arguments_[1].value
-				: '';
-		}
-
-		if (!safeRegex(`/${pattern}/${flags}`)) {
+		if (isRegexLiteral(node) && !safeRegex(node.value)) {
 			return {
 				node,
 				messageId: MESSAGE_ID,
