@@ -8,15 +8,6 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer reading the JSON file as a buffer.',
 };
 
-const jsonParseArgumentSelector = [
-	methodCallSelector({
-		object: 'JSON',
-		method: 'parse',
-		argumentsLength: 1,
-	}),
-	' > .arguments:first-child',
-].join('');
-
 const getAwaitExpressionArgument = node => {
 	while (node.type === 'AwaitExpression') {
 		node = node.argument;
@@ -107,7 +98,18 @@ function isUtf8Encoding(node, scope) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[jsonParseArgumentSelector](node) {
+	CallExpression(callExpression) {
+		if (!(isMethodCall(callExpression, {
+			object: 'JSON',
+			method: 'parse',
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false
+		}))) {
+			return;
+		}
+
+		const [node] = callExpression.arguments;
 		const {sourceCode} = context;
 		const scope = sourceCode.getScope(node);
 		node = getIdentifierDeclaration(node, scope);
