@@ -1,29 +1,14 @@
 'use strict';
 const {isParenthesized, isNotSemicolonToken} = require('@eslint-community/eslint-utils');
-const needsSemicolon = require('./utils/needs-semicolon.js');
+const {needsSemicolon} = require('./utils/index.js');
 const {removeSpacesAfter} = require('./fix/index.js');
-const {matches} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'no-lonely-if';
 const messages = {
 	[MESSAGE_ID]: 'Unexpected `if` as the only statement in a `if` block without `else`.',
 };
 
-const ifStatementWithoutAlternate = 'IfStatement:not([alternate])';
-const selector = matches([
-	// `if (a) { if (b) {} }`
-	[
-		ifStatementWithoutAlternate,
-		' > ',
-		'BlockStatement.consequent',
-		'[body.length=1]',
-		' > ',
-		`${ifStatementWithoutAlternate}.body`,
-	].join(''),
-
-	// `if (a) if (b) {}`
-	`${ifStatementWithoutAlternate} > ${ifStatementWithoutAlternate}.consequent`,
-]);
+const isIfStatementWithoutAlternate = node => node.type === 'IfStatement' && !node.alternate;
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
 // Lower precedence than `&&`
@@ -121,19 +106,35 @@ function fix(innerIfStatement, sourceCode) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	const {sourceCode} = context;
+const create = context => ({
+	IfStatement(ifStatement) {
+		if (!(
+			isIfStatementWithoutAlternate(ifStatement)
+			&& (
+				// `if (a) if (b) {}`
+				(
+					isIfStatementWithoutAlternate(ifStatement.parent)
+					&& ifStatement.parent.consequent === ifStatement
+				)
+				|| (
+					ifStatement.parent.type === 'BlockStatement'
+					&& ifStatement.parent.body.length === 1
+					&& ifStatement.parent.body[0] === ifStatement
+					&& isIfStatementWithoutAlternate(ifStatement.parent.parent)
+					&& ifStatement.parent.parent.consequent === ifStatement.parent
+				)
+			)
+		)) {
+			return;
+		}
 
-	return {
-		[selector](node) {
-			return {
-				node,
-				messageId: MESSAGE_ID,
-				fix: fix(node, sourceCode),
-			};
-		},
-	};
-};
+		return {
+			node: ifStatement,
+			messageId: MESSAGE_ID,
+			fix: fix(ifStatement, context.sourceCode),
+		};
+	},
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
