@@ -23,7 +23,7 @@ const isEmptyObject = node =>
 	(node.type === 'ObjectExpression' && node.properties.length === 0)
 	// `Object.create(null)`
 	|| (
-		isMethodCall({
+		isMethodCall(node, {
 			object: 'Object',
 			method: 'create',
 			argumentsLength: 1,
