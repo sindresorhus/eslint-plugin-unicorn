@@ -1,6 +1,6 @@
 'use strict';
 const {getStaticValue} = require('@eslint-community/eslint-utils');
-const {newExpressionSelector} = require('./selectors/index.js');
+const {isNewExpression, isStringLiteral} = require('./ast/index.js');
 const {replaceStringLiteral} = require('./fix/index.js');
 
 const MESSAGE_ID_NEVER = 'never';
@@ -11,15 +11,6 @@ const messages = {
 	[MESSAGE_ID_ALWAYS]: 'Add a `./` prefix to the relative URL.',
 	[MESSAGE_ID_REMOVE]: 'Remove leading `./`.',
 };
-
-const templateLiteralSelector = [
-	newExpressionSelector({name: 'URL', argumentsLength: 2}),
-	' > TemplateLiteral.arguments:first-child',
-].join('');
-const literalSelector = [
-	newExpressionSelector({name: 'URL', argumentsLength: 2}),
-	' > Literal.arguments:first-child',
-].join('');
 
 const DOT_SLASH = './';
 const TEST_URL_BASES = [
@@ -99,7 +90,14 @@ const create = context => {
 
 	// TemplateLiteral are not always safe to remove `./`, but if it's starts with `./` we'll report
 	if (style === 'never') {
-		listeners[templateLiteralSelector] = function (node) {
+		listeners.TemplateLiteral = function (node) {
+			if (!(
+				isNewExpression(node.parent, {name: 'URL', argumentsLength: 2})
+				&& node.parent.arguments[0] === node
+			)) {
+				return;
+			}
+
 			const firstPart = node.quasis[0];
 			if (!firstPart.value.raw.startsWith(DOT_SLASH)) {
 				return;
@@ -121,8 +119,12 @@ const create = context => {
 		};
 	}
 
-	listeners[literalSelector] = function (node) {
-		if (typeof node.value !== 'string') {
+	listeners.Literal = function (node) {
+		if (!(
+			isStringLiteral(node)
+			&& isNewExpression(node.parent, {name: 'URL', argumentsLength: 2})
+			&& node.parent.arguments[0] === node
+		)) {
 			return;
 		}
 
