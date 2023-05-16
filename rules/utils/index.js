@@ -14,6 +14,7 @@ const {
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./is-node-matches.js');
 
 module.exports = {
+	escapeString: require('./escape-string.js'),
 	getParentheses,
 	getParenthesizedRange,
 	getParenthesizedText,
@@ -25,10 +26,13 @@ module.exports = {
 	isNodeValueNotDomNode: require('./is-node-value-not-dom-node.js'),
 	isNodeValueNotFunction: require('./is-node-value-not-function.js'),
 	isObjectPrototypeProperty,
+	isOnSameLine: require('./is-on-same-line.js'),
 	isParenthesized,
 	isSameIdentifier: require('./is-same-identifier.js'),
+	isShadowed: require('./is-shadowed.js'),
 	isValueNotUsable: require('./is-value-not-usable.js'),
 	needsSemicolon: require('./needs-semicolon.js'),
 	shouldAddParenthesesToMemberExpressionObject: require('./should-add-parentheses-to-member-expression-object.js'),
+	toLocation: require('./to-location.js'),
 };
 

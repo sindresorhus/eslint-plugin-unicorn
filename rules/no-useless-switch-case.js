@@ -13,7 +13,7 @@ const isEmptySwitchCase = node => node.consequent.every(node => isEmptyNode(node
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	* 'SwitchStatement[cases.length>1]'(switchStatement) {
+	* SwitchStatement(switchStatement) {
 		const {cases} = switchStatement;
 
 		// TypeScript allows multiple `default` cases

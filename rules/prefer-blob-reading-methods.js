@@ -1,25 +1,33 @@
 'use strict';
-const {methodCallSelector} = require('./selectors/index.js');
+const {isMethodCall} = require('./ast/index.js');
 
+const MESSAGE_ID = 'error'
 const messages = {
-	'error/readAsArrayBuffer': 'Prefer `Blob#arrayBuffer()` over `FileReader#readAsArrayBuffer(blob)`.',
-	'error/readAsText': 'Prefer `Blob#text()` over `FileReader#readAsText(blob)`.',
+	[MESSAGE_ID]: 'Prefer `Blob#{{method}}()` over `FileReader#{{replacement}}(blob)`.',
 };
-
-const selector = methodCallSelector({
-	methods: ['readAsText', 'readAsArrayBuffer'],
-	argumentsLength: 1,
-});
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
-	[selector](node) {
+	CallExpression(node) {
+		if (!isMethodCall({
+			methods: ['readAsText', 'readAsArrayBuffer'],
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+		})) {
+			return;
+		}
+
 		const method = node.callee.property;
 		const methodName = method.name;
 
 		return {
 			node: method,
-			messageId: `error/${methodName}`,
+			messageId: MESSAGE_ID,
+			data: {
+				method: methodName,
+				replacement: methodName === 'readAsArrayBuffer' ? 'readAsArrayBuffer' : 'text',
+			},
 		};
 	},
 });

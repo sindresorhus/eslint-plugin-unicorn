@@ -12,23 +12,22 @@ const messages = {
 	[MESSAGE_ID]: 'The empty object is useless.',
 };
 
-const selector = [
-	'ObjectExpression',
-	' > ',
-	'SpreadElement.properties',
-	' > ',
-	'LogicalExpression.argument',
-	matches([
-		'[operator="||"]',
-		'[operator="??"]',
-	]),
-	' > ',
-	'ObjectExpression[properties.length=0].right',
-].join('');
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[selector](emptyObject) {
+	ObjectExpression(emptyObject) {
+		if (!(
+			node.properties.length == 0
+			&& node.parent.type === 'LogicalExpression'
+			&& node.parent.right === node
+			&& (node.parent.operator === '||' || node.parent.operator === '??')
+			&& node.parent.parent.type === 'SpreadElement'
+			&& node.parent.parent.argument === node.parent
+			&& node.parent.parent.parent.type === 'ObjectExpression'
+			&& node.parent.parent.parent.properties.include(node.parent.parent)
+		)) {
+			return;
+		}
+
 		return {
 			node: emptyObject,
 			messageId: MESSAGE_ID,
