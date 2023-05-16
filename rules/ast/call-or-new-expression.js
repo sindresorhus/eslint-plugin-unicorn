@@ -14,7 +14,7 @@
 } CallOrNewExpressionCheckOptions
 */
 function create(node, options, types) {
-	if (types.includes(node?.type)) {
+	if (!types.includes(node?.type)) {
 		return false;
 	}
 

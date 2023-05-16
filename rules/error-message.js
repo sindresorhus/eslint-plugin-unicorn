@@ -28,7 +28,7 @@ const builtinErrors = [
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	'CallExpression,NewExpression'(expression) {
-		if (!isCallOrNewExpression({
+		if (!isCallOrNewExpression(expression, {
 			names: builtinErrors,
 			optional: false,
 		})) {
