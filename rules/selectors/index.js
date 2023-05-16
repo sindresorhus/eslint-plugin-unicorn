@@ -9,7 +9,6 @@ module.exports = {
 	emptyObjectSelector: require('./empty-object-selector.js'),
 	memberExpressionSelector: require('./member-expression-selector.js'),
 	methodCallSelector: require('./method-call-selector.js'),
-	referenceIdentifierSelector: require('./reference-identifier-selector.js'),
 	callExpressionSelector: require('./call-or-new-expression-selector.js').callExpressionSelector,
 	newExpressionSelector: require('./call-or-new-expression-selector.js').newExpressionSelector,
 };

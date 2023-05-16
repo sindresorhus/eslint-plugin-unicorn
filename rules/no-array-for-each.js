@@ -7,7 +7,6 @@ const {
 	findVariable,
 	hasSideEffect,
 } = require('@eslint-community/eslint-utils');
-const {referenceIdentifierSelector} = require('./selectors/index.js');
 const {extendFixRange} = require('./fix/index.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression.js');
@@ -17,7 +16,7 @@ const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside.j
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 const assertToken = require('./utils/assert-token.js');
 const {fixSpaceAroundKeyword, removeParentheses} = require('./fix/index.js');
-const {isArrowFunctionBody, isMethodCall} = require('./ast/index.js');
+const {isArrowFunctionBody, isMethodCall, isReferenceIdentifier} = require('./ast/index.js');
 
 const MESSAGE_ID_ERROR = 'no-array-for-each/error';
 const MESSAGE_ID_SUGGESTION = 'no-array-for-each/suggestion';
@@ -393,8 +392,10 @@ const create = context => {
 		':function:exit'() {
 			functionStack.pop();
 		},
-		[referenceIdentifierSelector()](node) {
-			allIdentifiers.push(node);
+		Identifier(node) {
+			if (isReferenceIdentifier(node)) {
+				allIdentifiers.push(node);
+			}
 		},
 		':function ReturnStatement'(node) {
 			const currentFunction = functionStack[functionStack.length - 1];

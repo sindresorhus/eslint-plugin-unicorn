@@ -29,6 +29,7 @@ module.exports = {
 	isMemberExpression: require('./is-member-expression.js'),
 	isMethodCall: require('./is-method-call.js'),
 	isNewExpression,
+	isReferenceIdentifier: require('./is-reference-identifier.js'),
 	isStaticRequire: require('./is-static-require.js'),
 	isUndefined: require('./is-undefined.js'),
 };
