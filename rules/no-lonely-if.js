@@ -111,17 +111,18 @@ const create = context => ({
 		if (!(
 			isIfStatementWithoutAlternate(ifStatement)
 			&& (
-				// `if (a) if (b) {}`
+				// `if (a) { if (b) {} }`
 				(
-					isIfStatementWithoutAlternate(ifStatement.parent)
-					&& ifStatement.parent.consequent === ifStatement
-				)
-				|| (
 					ifStatement.parent.type === 'BlockStatement'
 					&& ifStatement.parent.body.length === 1
 					&& ifStatement.parent.body[0] === ifStatement
 					&& isIfStatementWithoutAlternate(ifStatement.parent.parent)
 					&& ifStatement.parent.parent.consequent === ifStatement.parent
+				)
+				// `if (a) if (b) {}`
+				|| (
+					isIfStatementWithoutAlternate(ifStatement.parent)
+					&& ifStatement.parent.consequent === ifStatement
 				)
 			)
 		)) {
