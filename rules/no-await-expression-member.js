@@ -16,7 +16,7 @@ const create = context => {
 
 	return {
 		MemberExpression(memberExpression) {
-			if (!node.object.type === 'AwaitExpression') {
+			if (!memberExpression.object.type === 'AwaitExpression') {
 				return;
 			}
 

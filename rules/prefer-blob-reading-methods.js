@@ -1,7 +1,7 @@
 'use strict';
 const {isMethodCall} = require('./ast/index.js');
 
-const MESSAGE_ID = 'error'
+const MESSAGE_ID = 'error';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Blob#{{method}}()` over `FileReader#{{replacement}}(blob)`.',
 };

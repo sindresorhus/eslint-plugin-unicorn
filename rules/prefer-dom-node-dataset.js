@@ -23,7 +23,7 @@ const create = context => ({
 				})
 				|| isMethodCall({
 					methods: ['getAttribute', 'removeAttribute', 'hasAttribute'],
-					argumentsLength: 1
+					argumentsLength: 1,
 					optionalCall: false,
 					optionalMember: false,
 				})
@@ -34,7 +34,7 @@ const create = context => ({
 		}
 
 		const [nameNode] = node.arguments;
-		let attributeName = nameNode.value.toLowerCase();
+		const attributeName = nameNode.value.toLowerCase();
 
 		if (!attributeName.startsWith('data-')) {
 			return;

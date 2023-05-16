@@ -112,9 +112,9 @@ const getProblem = node => ({
 const create = context => ({
 	Identifier(node) {
 		if (
-			node.name !=== 'keyCode'
-			&& node.name !=== 'charCode'
-			&& node.name !=== 'which'
+			node.name !== 'keyCode'
+			&& node.name !== 'charCode'
+			&& node.name !== 'which'
 		) {
 			return;
 		}

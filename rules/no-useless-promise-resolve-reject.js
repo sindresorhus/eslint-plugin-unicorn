@@ -1,6 +1,6 @@
 'use strict';
 const {getParenthesizedRange} = require('./utils/index.js');
-const {isFunction, isMemberExpression, isMethodCall} = require('./ast/index.js');
+const {isFunction, isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID_RESOLVE = 'resolve';
 const MESSAGE_ID_REJECT = 'reject';

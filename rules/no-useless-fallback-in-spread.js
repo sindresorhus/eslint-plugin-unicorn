@@ -1,5 +1,4 @@
 'use strict';
-const {matches} = require('./selectors/index.js');
 const {
 	isParenthesized,
 	getParenthesizedRange,
@@ -14,9 +13,9 @@ const messages = {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	ObjectExpression(emptyObject) {
+	ObjectExpression(node) {
 		if (!(
-			node.properties.length == 0
+			node.properties.length === 0
 			&& node.parent.type === 'LogicalExpression'
 			&& node.parent.right === node
 			&& (node.parent.operator === '||' || node.parent.operator === '??')
@@ -29,12 +28,12 @@ const create = context => ({
 		}
 
 		return {
-			node: emptyObject,
+			node,
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
 				const {sourceCode} = context;
-				const logicalExpression = emptyObject.parent;
+				const logicalExpression = node.parent;
 				const {left} = logicalExpression;
 				const isLeftObjectParenthesized = isParenthesized(left, sourceCode);
 				const [, start] = isLeftObjectParenthesized

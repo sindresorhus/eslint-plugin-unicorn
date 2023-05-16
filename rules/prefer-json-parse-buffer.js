@@ -1,6 +1,6 @@
 'use strict';
 const {findVariable, getStaticValue, getPropertyName} = require('@eslint-community/eslint-utils');
-const {methodCallSelector} = require('./selectors/index.js');
+const {isMethodCall} = require('./ast/index.js');
 const {removeArgument} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-json-parse-buffer';
@@ -104,12 +104,12 @@ const create = context => ({
 			method: 'parse',
 			argumentsLength: 1,
 			optionalCall: false,
-			optionalMember: false
+			optionalMember: false,
 		}))) {
 			return;
 		}
 
-		const [node] = callExpression.arguments;
+		let [node] = callExpression.arguments;
 		const {sourceCode} = context;
 		const scope = sourceCode.getScope(node);
 		node = getIdentifierDeclaration(node, scope);

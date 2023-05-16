@@ -1,6 +1,5 @@
 'use strict';
 const avoidCapture = require('./utils/avoid-capture.js');
-const {not} = require('./selectors/index.js');
 const isLeftHandSide = require('./utils/is-left-hand-side.js');
 const {isCallOrNewExpression} = require('./ast/index.js');
 

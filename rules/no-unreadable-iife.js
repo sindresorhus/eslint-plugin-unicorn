@@ -13,17 +13,19 @@ const messages = {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	CallExpression(callExpression) {
+		const {sourceCode} = context;
+
 		if (
 			callExpression.callee.type !== 'ArrowFunctionExpression'
 			|| callExpression.callee.body.type === 'BlockStatement'
-			|| !isParenthesized(node, context.sourceCode)
+			|| !isParenthesized(callExpression, sourceCode)
 		) {
 			return;
 		}
 
 		return {
-			node,
-			loc: toLocation(getParenthesizedRange(node, context.sourceCode), sourceCode),
+			node: callExpression,
+			loc: toLocation(getParenthesizedRange(callExpression, context.sourceCode), sourceCode),
 			messageId: MESSAGE_ID_ERROR,
 		};
 	},
