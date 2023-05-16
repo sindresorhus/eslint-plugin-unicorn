@@ -3,13 +3,13 @@ const {isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID = 'error';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `Blob#{{method}}()` over `FileReader#{{replacement}}(blob)`.',
+	[MESSAGE_ID]: 'Prefer `Blob#{{replacement}}()` over `FileReader#{{method}}(blob)`.',
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	CallExpression(node) {
-		if (!isMethodCall({
+		if (!isMethodCall(node, {
 			methods: ['readAsText', 'readAsArrayBuffer'],
 			argumentsLength: 1,
 			optionalCall: false,
@@ -26,7 +26,7 @@ const create = () => ({
 			messageId: MESSAGE_ID,
 			data: {
 				method: methodName,
-				replacement: methodName === 'readAsArrayBuffer' ? 'readAsArrayBuffer' : 'text',
+				replacement: methodName === 'readAsArrayBuffer' ? 'arrayBuffer' : 'text',
 			},
 		};
 	},
