@@ -53,7 +53,7 @@ const isArrayReduceWithEmptyObject = node =>
 		optionalCall: false,
 		optionalMember: false,
 	})
-	&& isEmptyObject(node.arguments[0]);
+	&& isEmptyObject(node.arguments[1]);
 
 const fixableArrayReduceCases = [
 	{
@@ -61,17 +61,17 @@ const fixableArrayReduceCases = [
 			isArrayReduceWithEmptyObject(callExpression)
 			// `() => Object.assign(object, {key})`
 			&& isArrowFunctionCallback(callExpression.arguments[0])
-			&& isMethodCall(node.arguments[0].body, {
+			&& isMethodCall(callExpression.arguments[0].body, {
 				object: 'Object',
 				method: 'assign',
 				argumentsLength: 2,
 				optionalCall: false,
 				optionalMember: false,
 			})
-			&& node.arguments[0].body.arguments[1].type === 'ObjectExpression'
-			&& node.arguments[0].body.arguments[1].properties.length === 1
-			&& isProperty(node.arguments[0].body.arguments[1].properties[0])
-			&& isSameIdentifier(node.arguments[0].params[0], node.arguments[0].body.arguments[0]),
+			&& callExpression.arguments[0].body.arguments[1].type === 'ObjectExpression'
+			&& callExpression.arguments[0].body.arguments[1].properties.length === 1
+			&& isProperty(callExpression.arguments[0].body.arguments[1].properties[0])
+			&& isSameIdentifier(callExpression.arguments[0].params[0], callExpression.arguments[0].body.arguments[0]),
 		getProperty: callback => callback.body.arguments[1].properties[0],
 	},
 	{
@@ -82,8 +82,8 @@ const fixableArrayReduceCases = [
 			&& callExpression.arguments[0].body.type === 'ObjectExpression'
 			&& callExpression.arguments[0].body.properties.length === 2
 			&& callExpression.arguments[0].body.properties[0].type === "SpreadElement"
-			&& isProperty(node.arguments[0].body.properties[1])
-			&& isSameIdentifier(node.arguments[0].params[0], callExpression.arguments[0].body.properties[0].argument),
+			&& isProperty(callExpression.arguments[0].body.properties[1])
+			&& isSameIdentifier(callExpression.arguments[0].params[0], callExpression.arguments[0].body.properties[0].argument),
 		getProperty: callback => callback.body.properties[1],
 	},
 ];
@@ -94,9 +94,9 @@ const lodashFromPairsFunctions = [
 	'lodash.fromPairs',
 ];
 
-function fixReduceAssignOrSpread({sourceCode, node, property}) {
+function fixReduceAssignOrSpread({sourceCode, callExpression, property}) {
 	const removeInitObject = fixer => {
-		const initObject = node.arguments[1];
+		const initObject = callExpression.arguments[1];
 		const parentheses = getParentheses(initObject, sourceCode);
 		const firstToken = parentheses[0] || initObject;
 		const lastToken = parentheses[parentheses.length - 1] || initObject;
@@ -107,7 +107,7 @@ function fixReduceAssignOrSpread({sourceCode, node, property}) {
 	};
 
 	function * removeFirstParameter(fixer) {
-		const parameters = node.arguments[0].params;
+		const parameters = callExpression.arguments[0].params;
 		const [firstParameter] = parameters;
 		const tokenAfter = sourceCode.getTokenAfter(firstParameter);
 
@@ -141,7 +141,7 @@ function fixReduceAssignOrSpread({sourceCode, node, property}) {
 	};
 
 	function * replaceFunctionBody(fixer) {
-		const functionBody = node.arguments[0].body;
+		const functionBody = callExpression.arguments[0].body;
 		const {keyText, valueText} = getKeyValueText();
 		yield fixer.replaceText(functionBody, `[${keyText}, ${valueText}]`);
 		yield * removeParentheses(functionBody, fixer, sourceCode);
@@ -149,11 +149,11 @@ function fixReduceAssignOrSpread({sourceCode, node, property}) {
 
 	return function * (fixer) {
 		// Wrap `array.reduce()` with `Object.fromEntries()`
-		yield fixer.insertTextBefore(node, 'Object.fromEntries(');
-		yield fixer.insertTextAfter(node, ')');
+		yield fixer.insertTextBefore(callExpression, 'Object.fromEntries(');
+		yield fixer.insertTextAfter(callExpression, ')');
 
 		// Switch `.reduce` to `.map`
-		yield fixer.replaceText(node.callee.property, 'map');
+		yield fixer.replaceText(callExpression.callee.property, 'map');
 
 		// Remove empty object
 		yield removeInitObject(fixer);
@@ -168,6 +168,7 @@ function fixReduceAssignOrSpread({sourceCode, node, property}) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
+	const {sourceCode} = context;
 	const {functions: configFunctions} = {
 		functions: [],
 		...context.options[0],
@@ -183,7 +184,7 @@ function create(context) {
 
 				const [callbackFunction] = callExpression.arguments;
 				const [firstParameter] = callbackFunction.params;
-				const variables = context.sourceCode.getDeclaredVariables(callbackFunction);
+				const variables = sourceCode.getDeclaredVariables(callbackFunction);
 				const firstParameterVariable = variables.find(variable => variable.identifiers.length === 1 && variable.identifiers[0] === firstParameter);
 				if (!firstParameterVariable || firstParameterVariable.references.length !== 1) {
 					continue;
