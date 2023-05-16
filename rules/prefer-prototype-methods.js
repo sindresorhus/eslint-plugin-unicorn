@@ -1,61 +1,72 @@
 'use strict';
 const {getPropertyName} = require('@eslint-community/eslint-utils');
-const {
-	methodCallSelector,
-	emptyObjectSelector,
-	emptyArraySelector,
-	matches,
-} = require('./selectors/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
+const {isMemberExpression, isMethodCall} = require('./ast/index.js');
 
 const messages = {
 	'known-method': 'Prefer using `{{constructorName}}.prototype.{{methodName}}`.',
 	'unknown-method': 'Prefer using method from `{{constructorName}}.prototype`.',
 };
 
-const emptyObjectOrArrayMethodSelector = [
-	'MemberExpression',
-	matches([emptyObjectSelector('object'), emptyArraySelector('object')]),
-].join('');
-const selector = matches([
-	// `[].foo.{apply,bind,call}(…)`
-	// `({}).foo.{apply,bind,call}(…)`
-	[
-		methodCallSelector(['apply', 'bind', 'call']),
-		' > ',
-		'.callee',
-		' > ',
-		`${emptyObjectOrArrayMethodSelector}.object`,
-	].join(''),
-	// `Reflect.apply([].foo, …)`
-	// `Reflect.apply({}.foo, …)`
-	[
-		methodCallSelector({object: 'Reflect', method: 'apply', minimumArguments: 1}),
-		' > ',
-		`${emptyObjectOrArrayMethodSelector}.arguments:first-child`,
-	].join(''),
-]);
-
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
 	return {
-		[selector](node) {
-			const constructorName = node.object.type === 'ArrayExpression' ? 'Array' : 'Object';
+		CallExpression(callExpression) {
+			let methodNode;
+
+			if (
+				// `Reflect.apply([].foo, …)`
+				// `Reflect.apply({}.foo, …)`
+				isMethodCall(callExpression, {
+					object: 'Reflect',
+					method: 'apply',
+					minimumArguments: 1,
+					optionalCall: false,
+					optionalMember: false,
+				})
+			) {
+				methodNode = callExpression.arguments[0];
+			} else if (
+				// `[].foo.{apply,bind,call}(…)`
+				// `({}).foo.{apply,bind,call}(…)`
+				isMethodCall(callExpression, {
+					names: ['apply', 'bind', 'call'],
+					optionalCall: false,
+					optionalMember: false,
+				})
+			) {
+				methodNode = callExpression.callee.object;
+			}
+
+			if (!methodNode || !isMemberExpression(methodNode, {optional: false})) {
+				return;
+			}
+
+			const objectNode = methodNode.object;
+
+			if (!(
+				(objectNode.type === 'ArrayExpression' && objectNode.elements.length === 0)
+				|| (objectNode.type === 'ObjectExpression' && objectNode.properties.length === 0)
+			)) {
+				return;
+			}
+
+			const constructorName = objectNode.type === 'ArrayExpression' ? 'Array' : 'Object';
 			const {sourceCode} = context;
-			const methodName = getPropertyName(node, sourceCode.getScope(node));
+			const methodName = getPropertyName(methodNode, sourceCode.getScope(methodNode));
 
 			return {
-				node,
+				node: methodNode,
 				messageId: methodName ? 'known-method' : 'unknown-method',
 				data: {constructorName, methodName},
 				* fix(fixer) {
-					yield fixer.replaceText(node.object, `${constructorName}.prototype`);
+					yield fixer.replaceText(objectNode, `${constructorName}.prototype`);
 
 					if (
-						node.object.type === 'ArrayExpression'
-						|| node.object.type === 'ObjectExpression'
+						objectNode.type === 'ArrayExpression'
+						|| objectNode.type === 'ObjectExpression'
 					) {
-						yield * fixSpaceAroundKeyword(fixer, node.parent.parent, sourceCode);
+						yield * fixSpaceAroundKeyword(fixer, callExpression, sourceCode);
 					}
 				},
 			};
