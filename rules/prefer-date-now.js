@@ -15,7 +15,7 @@ const messages = {
 	[MESSAGE_ID_NUMBER]: 'Prefer `Date.now()` over `Number(new Date())`.',
 };
 
-const isNewDate = node => isNewExpression({name: 'Date', argumentsLength: 0});
+const isNewDate = node => isNewExpression(node, {name: 'Date', argumentsLength: 0});
 
 const getProblem = (node, problem, sourceCode) => ({
 	node,
