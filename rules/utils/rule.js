@@ -81,17 +81,17 @@ function reportProblems(create) {
 		const addListener = (selector, listener) => {
 			listeners[selector] ??= [];
 			listeners[selector].push(listener);
-		}
+		};
 
 		const contextProxy = new Proxy(context, {
 			get(target, property, receiver) {
-				if (property === "on") {
+				if (property === 'on') {
 					return addListener;
 				}
 
 				return Reflect.get(target, property, receiver);
-			}
-		})
+			},
+		});
 
 		for (const [selector, listener] of Object.entries(create(contextProxy) ?? {})) {
 			addListener(selector, listener);
@@ -103,9 +103,9 @@ function reportProblems(create) {
 					selector,
 					(...listenerArguments) => {
 						for (const listener of listeners) {
-							reportListenerProblems(listener, context)(...listenerArguments)
+							reportListenerProblems(listener, context)(...listenerArguments);
 						}
-					}
+					},
 				]),
 		);
 	};

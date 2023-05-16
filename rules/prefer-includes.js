@@ -43,8 +43,10 @@ const includesOverSomeRule = simpleArraySearchRule({
 });
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	BinaryExpression(node) {
+const create = context => {
+	includesOverSomeRule.listen(context);
+
+	context.on('BinaryExpression', node => {
 		const {left, right, operator} = node;
 
 		if (!isMethodNamed(left, 'indexOf')) {
@@ -75,9 +77,8 @@ const create = context => ({
 				argumentsNodes,
 			);
 		}
-	},
-	...includesOverSomeRule.createListeners(context),
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

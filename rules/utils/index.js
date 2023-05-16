@@ -20,6 +20,7 @@ module.exports = {
 	getParenthesizedTimes,
 	getVariableIdentifiers: require('./get-variable-identifiers.js'),
 	isArrayPrototypeProperty,
+	isFunctionSelfUsedInside: require('./is-function-self-used-inside.js'),
 	isNodeMatches,
 	isNodeMatchesNameOrPath,
 	isNodeValueNotDomNode: require('./is-node-value-not-dom-node.js'),
