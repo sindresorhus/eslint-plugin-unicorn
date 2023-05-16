@@ -15,7 +15,7 @@ const create = context => ({
 			node.test,
 			node.consequent,
 			node.alternate,
-		].some(node => node.type == 'ConditionalExpression')) {
+		].some(node => node.type === 'ConditionalExpression')) {
 			return;
 		}
 
