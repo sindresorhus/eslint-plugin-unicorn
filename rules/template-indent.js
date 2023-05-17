@@ -3,18 +3,35 @@ const stripIndent = require('strip-indent');
 const indentString = require('indent-string');
 const esquery = require('esquery');
 const {replaceTemplateElement} = require('./fix/index.js');
-const {callExpressionSelector, methodCallSelector} = require('./selectors/index.js');
+const {isMethodCall, isCallExpression} = require('./ast/index.js');
 
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
 const messages = {
 	[MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE]: 'Templates should be properly indented.',
 };
 
-const jestInlineSnapshotSelector = [
-	callExpressionSelector({name: 'expect', path: 'callee.object', argumentsLength: 1}),
-	methodCallSelector({method: 'toMatchInlineSnapshot', argumentsLength: 1}),
-	' > TemplateLiteral.arguments:first-child',
-].join('');
+const isJestInlineSnapshot = node =>
+	isMethodCall(node.parent, {
+		method: 'toMatchInlineSnapshot',
+		argumentsLength: 1,
+		optionalCall: false,
+		optionalMember: false,
+	})
+	&& node.parent.arguments[0] === node
+	&& isCallExpression(node.parent.callee.object, {
+		name: 'expect',
+		argumentsLength: 1,
+		optionalCall: false,
+		optionalMember: false,
+	});
+
+const parsedEsquerySelectors = new Map();
+const parseEsquerySelector = selector => {
+	if (!parsedEsquerySelectors.has(selector)) {
+		parsedEsquerySelectors.set(selector, esquery.parse(selector));
+	}
+	return parsedEsquerySelectors.get(selector);
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -22,21 +39,15 @@ const create = context => {
 	const options = {
 		tags: ['outdent', 'dedent', 'gql', 'sql', 'html', 'styled'],
 		functions: ['dedent', 'stripIndent'],
-		selectors: [jestInlineSnapshotSelector],
+		selectors: [],
 		comments: ['HTML', 'indent'],
 		...context.options[0],
 	};
 
 	options.comments = options.comments.map(comment => comment.toLowerCase());
 
-	const selectors = [
-		...options.tags.map(tagName => `TaggedTemplateExpression[tag.name="${tagName}"] > .quasi`),
-		...options.functions.map(functionName => `CallExpression[callee.name="${functionName}"] > .arguments`),
-		...options.selectors,
-	];
-
 	/** @param {import('@babel/core').types.TemplateLiteral} node */
-	const indentTemplateLiteralNode = node => {
+	const getProblem = node => {
 		const delimiter = '__PLACEHOLDER__' + Math.random();
 		const joined = node.quasis
 			.map(quasi => {
@@ -79,32 +90,65 @@ const create = context => {
 			return;
 		}
 
-		context.report({
+		return {
 			node,
 			messageId: MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE,
 			fix: fixer => fixed
 				.split(delimiter)
 				.map((replacement, index) => replaceTemplateElement(fixer, node.quasis[index], replacement)),
-		});
+		};
+	};
+
+	const shouldIndent = node => {
+		if (options.comments.length > 0) {
+			const previousToken = sourceCode.getTokenBefore(node, {includeComments: true});
+			if (previousToken?.type === 'Block' && options.comments.includes(previousToken.value.trim().toLowerCase())) {
+				return true;
+			}
+		}
+
+		if (isJestInlineSnapshot(node)) {
+			return true;
+		}
+
+		if (
+			options.tags.length > 0
+			&& node.parent.type === 'TaggedTemplateExpression'
+			&& node.parent.quasi === node
+			&& node.parent.tag.type === 'Identifier'
+			&& options.tags.includes(node.parent.tag.name)
+		) {
+			return true;
+		}
+
+		if (
+			options.functions.length > 0
+			&& node.parent.type === 'CallExpression'
+			&& node.parent.arguments.includes(node)
+			&& node.parent.callee.type === 'Identifier'
+			&& options.functions.includes(node.parent.callee.name)
+		) {
+			return true;
+		}
+
+		if (options.selectors.length > 0) {
+			const ancestors = sourceCode.getAncestors(node).reverse();
+			if (options.selectors.some(selector => esquery.matches(node, parseEsquerySelector(selector), ancestors))) {
+				return true;
+			}
+		}
+
+		return false;
 	};
 
 	return {
 		/** @param {import('@babel/core').types.TemplateLiteral} node */
 		TemplateLiteral(node) {
-			if (options.comments.length > 0) {
-				const previousToken = sourceCode.getTokenBefore(node, {includeComments: true});
-				if (previousToken?.type === 'Block' && options.comments.includes(previousToken.value.trim().toLowerCase())) {
-					indentTemplateLiteralNode(node);
-					return;
-				}
+			if (!shouldIndent(node)) {
+				return;
 			}
 
-			const ancestors = sourceCode.getAncestors(node).reverse();
-			const shouldIndent = selectors.some(selector => esquery.matches(node, esquery.parse(selector), ancestors));
-
-			if (shouldIndent) {
-				indentTemplateLiteralNode(node);
-			}
+			return getProblem(node);
 		},
 	};
 };
