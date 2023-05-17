@@ -31,6 +31,7 @@ module.exports = {
 						if (directories.every(directory => !isFileInsideDirectory(filename, directory))) {
 							return {};
 						}
+
 						return rule.create(context);
 					},
 				},
