@@ -409,7 +409,7 @@ const create = context => {
 	});
 
 	// `array.slice()`
-	context.getAncestors('CallExpression', node => {
+	context.on('CallExpression', node => {
 		if (!(
 			isMethodCall(node, {
 				method: 'slice',
