@@ -188,5 +188,6 @@ test.snapshot({
 		'export let {foo, ...then} = 1',
 		'export var {foo, ...then} = 1',
 		'export const {foo: {bar: [{baz: then}]}} = 1',
+		'export const notThen = 1, then = 1',
 	],
 });
