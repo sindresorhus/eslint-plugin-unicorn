@@ -86,7 +86,12 @@ function reportProblems(create) {
 		const contextProxy = new Proxy(context, {
 			get(target, property, receiver) {
 				if (property === 'on') {
-					return addListener;
+					return (selectorOrSelectors, listener) => {
+						const selectors = Array.isArray(selectorOrSelectors) ? selectorOrSelectors : [selectorOrSelectors];
+						for (const selector of selectors) {
+							addListener(selector, listener);
+						}
+					};
 				}
 
 				return Reflect.get(target, property, receiver);
