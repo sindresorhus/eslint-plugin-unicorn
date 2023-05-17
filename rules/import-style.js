@@ -205,7 +205,6 @@ const create = context => {
 		});
 	}
 
-
 	if (checkDynamicImport) {
 		context.on('ImportExpression', node => {
 			if (isAssignedDynamicImport(node)) {
