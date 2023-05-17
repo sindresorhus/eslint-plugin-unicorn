@@ -1,6 +1,6 @@
 'use strict';
 const {findVariable, getFunctionHeadLocation} = require('@eslint-community/eslint-utils');
-const {matches, not, memberExpressionSelector} = require('./selectors/index.js');
+const {isFunction, isMemberExpression} = require('./ast/index.js');
 
 const ERROR_PROMISE = 'promise';
 const ERROR_IIFE = 'iife';
@@ -14,32 +14,23 @@ const messages = {
 };
 
 const promiseMethods = ['then', 'catch', 'finally'];
+const isTopLevelCallExpression = node => {
+	if (node.type !== 'CallExpression') {
+		return false;
+	}
 
-const topLevelCallExpression = [
-	'CallExpression',
-	not([':function *', 'ClassDeclaration *', 'ClassExpression *']),
-].join('');
-const iife = [
-	topLevelCallExpression,
-	matches([
-		'[callee.type="FunctionExpression"]',
-		'[callee.type="ArrowFunctionExpression"]',
-	]),
-	'[callee.async!=false]',
-	'[callee.generator!=true]',
-].join('');
-const promise = [
-	topLevelCallExpression,
-	memberExpressionSelector({
-		path: 'callee',
-		properties: promiseMethods,
-		includeOptional: true,
-	}),
-].join('');
-const identifier = [
-	topLevelCallExpression,
-	'[callee.type="Identifier"]',
-].join('');
+	for (let ancestor = node.parent; ancestor; ancestor = ancestor.parent) {
+		if (
+			isFunction(ancestor)
+			|| ancestor.type === 'ClassDeclaration'
+			|| ancestor.type === 'ClassExpression'
+		) {
+			return false;
+		}
+	}
+
+	return true;
+};
 
 const isPromiseMethodCalleeObject = node =>
 	node.parent.type === 'MemberExpression'
@@ -63,32 +54,44 @@ function create(context) {
 		return;
 	}
 
-	const {sourceCode} = context;
-
 	return {
-		[promise](node) {
-			if (isPromiseMethodCalleeObject(node) || isAwaitArgument(node)) {
+		CallExpression(node) {
+			if (
+				!isTopLevelCallExpression(node)
+				|| isPromiseMethodCalleeObject(node)
+				|| isAwaitArgument(node)
+			) {
 				return;
 			}
 
-			return {
-				node: node.callee.property,
-				messageId: ERROR_PROMISE,
-			};
-		},
-		[iife](node) {
-			if (isPromiseMethodCalleeObject(node) || isAwaitArgument(node)) {
-				return;
+			// Promises
+			if (isMemberExpression(node.callee, {
+				properties: promiseMethods,
+				computed: false,
+			})) {
+				return {
+					node: node.callee.property,
+					messageId: ERROR_PROMISE,
+				};
 			}
 
-			return {
-				node,
-				loc: getFunctionHeadLocation(node.callee, sourceCode),
-				messageId: ERROR_IIFE,
-			};
-		},
-		[identifier](node) {
-			if (isPromiseMethodCalleeObject(node) || isAwaitArgument(node)) {
+			const {sourceCode} = context;
+
+			// IIFE
+			if (
+				(node.callee.type === 'FunctionExpression' || node.callee.type === 'ArrowFunctionExpression')
+				&& node.callee.async
+				&& !node.callee.generator
+			) {
+				return {
+					node,
+					loc: getFunctionHeadLocation(node.callee, sourceCode),
+					messageId: ERROR_IIFE,
+				};
+			}
+
+			// Identifier
+			if (node.callee.type !== 'Identifier') {
 				return;
 			}
 

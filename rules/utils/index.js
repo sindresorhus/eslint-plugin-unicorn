@@ -25,6 +25,7 @@ module.exports = {
 	isArrayPrototypeProperty,
 	isBooleanNode,
 	isFunctionSelfUsedInside: require('./is-function-self-used-inside.js'),
+	isLogicalExpression: require('./is-logical-expression.js'),
 	isNodeMatches,
 	isNodeMatchesNameOrPath,
 	isNodeValueNotDomNode: require('./is-node-value-not-dom-node.js'),
