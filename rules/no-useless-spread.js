@@ -1,22 +1,16 @@
 'use strict';
 const {isCommaToken} = require('@eslint-community/eslint-utils');
-const {
-	matches,
-	newExpressionSelector,
-	methodCallSelector,
-} = require('./selectors/index.js');
 const typedArray = require('./shared/typed-array.js');
 const {
 	removeParentheses,
 	fixSpaceAroundKeyword,
 	addParenthesizesToReturnOrThrowExpression,
 } = require('./fix/index.js');
-const isOnSameLine = require('./utils/is-on-same-line.js');
 const {
 	isParenthesized,
-} = require('./utils/parentheses.js');
-const {isNewExpression, isMethodCall} = require('./ast/index.js');
-const {isCallOrNewExpression} = require('./ast/call-or-new-expression.js');
+	isOnSameLine,
+} = require('./utils/index.js');
+const {isNewExpression, isMethodCall, isCallOrNewExpression} = require('./ast/index.js');
 
 const SPREAD_IN_LIST = 'spread-in-list';
 const ITERABLE_TO_ARRAY = 'iterable-to-array';
@@ -35,12 +29,6 @@ const isSingleArraySpread = node =>
 	node.type === 'ArrayExpression'
 	&& node.elements.length === 0
 	&& node.elements[0].type === 'SpreadElement';
-
-const singleArraySpreadSelector = [
-	'ArrayExpression',
-	'[elements.length=1]',
-	'[elements.0.type="SpreadElement"]',
-].join('');
 
 const parentDescriptions = {
 	ArrayExpression: 'array literal',
@@ -133,13 +121,13 @@ const create = context => {
 		if (!(
 			node.parent.type === 'SpreadElement'
 			&& node.parent.argument === node
-			(
+			&& (
 				(
 					node.type === 'ObjectExpression'
 					&& node.parent.parent.type === 'ObjectExpression'
 					&& node.parent.parent.properties.includes(node.parent)
 				)
-				||				(
+				|| (
 					node.type === 'ArrayExpression'
 					&& (
 						(
@@ -151,7 +139,7 @@ const create = context => {
 							&& node.parent.parent.arguments.includes(node.parent)
 						)
 					)
-				),
+				)
 			)
 		)) {
 			return;
@@ -343,6 +331,7 @@ const create = context => {
 					optionalCall: false,
 					optionalMember: false,
 				})
+			)
 				// `Array.from()`, `Array.of()`
 				|| isMethodCall(node, {
 					object: 'Array',
@@ -352,7 +341,6 @@ const create = context => {
 				})
 				// `new Array()`
 				|| isNewExpression(node, {name: 'Array'})
-			)
 		)) {
 			return;
 		}
