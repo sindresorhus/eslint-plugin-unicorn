@@ -1,8 +1,10 @@
 'use strict';
-const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses.js');
-const {methodCallSelector} = require('./selectors/index.js');
-const isSameReference = require('./utils/is-same-reference.js');
-const {isLiteral} = require('./ast/index.js');
+const {
+	getParenthesizedText,
+	getParenthesizedRange,
+	isSameReference,
+} = require('./utils/index.js');
+const {isLiteral, isMethodCall} = require('./ast/index.js');
 const {replaceNodeOrTokenAndSpacesBefore, removeParentheses} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-modern-math-apis';
@@ -106,8 +108,6 @@ const checkFunctions = [
 	createLogCallDivideConstantCheck({constantName: 'LN2', replacementMethod: 'log2'}),
 ];
 
-const mathSqrtCallSelector = methodCallSelector({object: 'Math', method: 'sqrt', argumentsLength: 1});
-
 const isPlusExpression = node => node.type === 'BinaryExpression' && node.operator === '+';
 
 const isPow2Expression = node =>
@@ -129,7 +129,17 @@ const create = context => {
 	const nodes = [];
 
 	return {
-		[mathSqrtCallSelector](callExpression) {
+		CallExpression(callExpression) {
+			if (!isMethodCall({
+				object: 'Math',
+				method: 'sqrt',
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false
+			})) {
+				return;
+			}
+
 			const expressions = flatPlusExpression(callExpression.arguments[0]);
 			if (expressions.some(expression => !isPow2Expression(expression))) {
 				return;

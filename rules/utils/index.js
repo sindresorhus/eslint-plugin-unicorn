@@ -29,6 +29,7 @@ module.exports = {
 	isOnSameLine: require('./is-on-same-line.js'),
 	isParenthesized,
 	isSameIdentifier: require('./is-same-identifier.js'),
+	isSameReference: require('./is-same-reference.js'),
 	isShadowed: require('./is-shadowed.js'),
 	isValueNotUsable: require('./is-value-not-usable.js'),
 	needsSemicolon: require('./needs-semicolon.js'),
