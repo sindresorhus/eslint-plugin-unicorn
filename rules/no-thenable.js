@@ -86,6 +86,7 @@ const cases = [
 		},
 		messageId: MESSAGE_ID_OBJECT,
 	},
+	// TODO[@fisker]: Bug, we are checking wrong pattern `Object.fromEntries(['then', …])`
 	// `Object.fromEntries([['then', …]])`
 	{
 		selector: 'CallExpression',
@@ -106,8 +107,8 @@ const cases = [
 			}
 
 			for (const element of firstArgument.elements) {
-				if (isStringThen(element, context)) {
-					yield element;
+				if (isStringThen(element[0], context)) {
+					yield element[0];
 				}
 			}
 		},
