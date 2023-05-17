@@ -33,40 +33,35 @@ function wrapFixFunction(fix) {
 	};
 }
 
-function reportListenerProblems(listener, context) {
-	// Listener arguments can be `codePath, node` or `node`
-	return function (...listenerArguments) {
-		let problems = listener(...listenerArguments);
+function reportListenerProblems(problems, context) {
+	if (!problems) {
+		return;
+	}
 
-		if (!problems) {
-			return;
+	if (!isIterable(problems)) {
+		problems = [problems];
+	}
+
+	for (const problem of problems) {
+		if (problem.fix) {
+			problem.fix = wrapFixFunction(problem.fix);
 		}
 
-		if (!isIterable(problems)) {
-			problems = [problems];
-		}
-
-		for (const problem of problems) {
-			if (problem.fix) {
-				problem.fix = wrapFixFunction(problem.fix);
-			}
-
-			if (Array.isArray(problem.suggest)) {
-				for (const suggest of problem.suggest) {
-					if (suggest.fix) {
-						suggest.fix = wrapFixFunction(suggest.fix);
-					}
-
-					suggest.data = {
-						...problem.data,
-						...suggest.data,
-					};
+		if (Array.isArray(problem.suggest)) {
+			for (const suggest of problem.suggest) {
+				if (suggest.fix) {
+					suggest.fix = wrapFixFunction(suggest.fix);
 				}
-			}
 
-			context.report(problem);
+				suggest.data = {
+					...problem.data,
+					...suggest.data,
+				};
+			}
 		}
-	};
+
+		context.report(problem);
+	}
 }
 
 // `checkVueTemplate` function will wrap `create` function, there is no need to wrap twice
@@ -106,9 +101,10 @@ function reportProblems(create) {
 			Object.entries(listeners)
 				.map(([selector, listeners]) => [
 					selector,
+					// Listener arguments can be `codePath, node` or `node`
 					(...listenerArguments) => {
 						for (const listener of listeners) {
-							reportListenerProblems(listener, context)(...listenerArguments);
+							reportListenerProblems(listener(...listenerArguments), context);
 						}
 					},
 				]),
