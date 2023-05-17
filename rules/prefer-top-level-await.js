@@ -57,7 +57,7 @@ function create(context) {
 	return {
 		CallExpression(node) {
 			if (
-				isTopLevelCallExpression(node)
+				!isTopLevelCallExpression(node)
 				|| isPromiseMethodCalleeObject(node)
 				|| isAwaitArgument(node)
 			) {
@@ -80,7 +80,7 @@ function create(context) {
 			// IIFE
 			if (
 				(node.callee.type === 'FunctionExpression' || node.callee.type === 'ArrowFunctionExpression')
-				&& !node.callee.async
+				&& node.callee.async
 				&& !node.callee.generator
 			) {
 				return {
