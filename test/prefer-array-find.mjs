@@ -150,6 +150,7 @@ test({
 		'const [] = array.filter(bar)',
 		'const [foo, another] = array.filter(bar)',
 		'const [, foo] = array.filter(bar)',
+		'const [,] = array.filter(bar)',
 		// `RestElement`
 		'const [...foo] = array.filter(bar)',
 
