@@ -1,9 +1,8 @@
 'use strict';
+const functionTypes = require('./function-types.js');
 
 function isFunction(node) {
-	return node.type === 'FunctionDeclaration'
-		|| node.type === 'FunctionExpression'
-		|| node.type === 'ArrowFunctionExpression';
+	return functionTypes.includes(node.type);
 }
 
 module.exports = isFunction;

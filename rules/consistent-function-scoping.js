@@ -1,7 +1,12 @@
 'use strict';
 const {getFunctionHeadLocation, getFunctionNameWithKind} = require('@eslint-community/eslint-utils');
-const getReferences = require('./utils/get-references.js');
-const {isNodeMatches} = require('./utils/is-node-matches.js');
+const {
+	getReferences,
+	isNodeMatches,
+} = require('./utils/index.js');
+const {
+	functionTypes,
+} = require('./ast/index.js');
 
 const MESSAGE_ID = 'consistent-function-scoping';
 const messages = {
@@ -154,41 +159,42 @@ const create = context => {
 
 	const functions = [];
 
-	return {
-		':function'() {
-			functions.push(false);
-		},
-		JSXElement() {
-			// Turn off this rule if we see a JSX element because scope
-			// references does not include JSXElement nodes.
-			if (functions.length > 0) {
-				functions[functions.length - 1] = true;
-			}
-		},
-		':function:exit'(node) {
-			const currentFunctionHasJsx = functions.pop();
-			if (currentFunctionHasJsx) {
-				return;
-			}
+	context.on(functionTypes, () => {
+		functions.push(false);
+	});
 
-			if (node.type === 'ArrowFunctionExpression' && !checkArrowFunctions) {
-				return;
-			}
+	context.on('JSXElement', () => {
+		// Turn off this rule if we see a JSX element because scope
+		// references does not include JSXElement nodes.
+		if (functions.length > 0) {
+			functions[functions.length - 1] = true;
+		}
+	})
 
-			if (checkNode(node, scopeManager)) {
-				return;
-			}
+	context.on(functionTypes.map(type => `${type}:exit`), () => {
+		const currentFunctionHasJsx = functions.pop();
+		if (currentFunctionHasJsx) {
+			return;
+		}
 
-			return {
-				node,
-				loc: getFunctionHeadLocation(node, sourceCode),
-				messageId: MESSAGE_ID,
-				data: {
-					functionNameWithKind: getFunctionNameWithKind(node, sourceCode),
-				},
-			};
-		},
-	};
+		if (node.type === 'ArrowFunctionExpression' && !checkArrowFunctions) {
+			return;
+		}
+
+		if (checkNode(node, scopeManager)) {
+			return;
+		}
+
+		return {
+			node,
+			loc: getFunctionHeadLocation(node, sourceCode),
+			messageId: MESSAGE_ID,
+			data: {
+				functionNameWithKind: getFunctionNameWithKind(node, sourceCode),
+			},
+		};
+	});
+
 };
 
 const schema = [

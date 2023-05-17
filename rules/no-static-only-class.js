@@ -190,29 +190,30 @@ function switchClassToObject(node, sourceCode) {
 }
 
 function create(context) {
-	return {
-		'ClassDeclaration,ClassExpression'(node) {
-			if (
-				node.superClass
-				|| (node.decorators && node.decorators.length > 0)
-				|| node.body.type !== 'ClassBody'
-				|| node.body.body.length === 0
-				|| node.body.body.some(node => !isStaticMember(node))
-			) {
-				return;
-			}
+	context.on([
+		'ClassDeclaration',
+		'ClassExpression',
+	], node => {
+		if (
+			node.superClass
+			|| (node.decorators && node.decorators.length > 0)
+			|| node.body.type !== 'ClassBody'
+			|| node.body.body.length === 0
+			|| node.body.body.some(node => !isStaticMember(node))
+		) {
+			return;
+		}
 
-			const {sourceCode} = context;
+		const {sourceCode} = context;
 
-			return {
-				node,
-				loc: getClassHeadLocation(node, sourceCode),
-				messageId: MESSAGE_ID,
-				fix: switchClassToObject(node, sourceCode),
-			};
-		},
-	};
-}
+		return {
+			node,
+			loc: getClassHeadLocation(node, sourceCode),
+			messageId: MESSAGE_ID,
+			fix: switchClassToObject(node, sourceCode),
+		};
+	})
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

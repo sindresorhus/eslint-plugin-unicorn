@@ -33,4 +33,6 @@ module.exports = {
 	isReferenceIdentifier: require('./is-reference-identifier.js'),
 	isStaticRequire: require('./is-static-require.js'),
 	isUndefined: require('./is-undefined.js'),
+
+	functionTypes: require('./function-types.js'),
 };

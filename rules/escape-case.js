@@ -22,15 +22,17 @@ const getProblem = ({node, original, regex = escapeWithLowercase, fix}) => {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
-	Literal(node) {
+const create = context => {
+	context.on('Literal', node => {
 		if (isStringLiteral(node)) {
 			return getProblem({
 				node,
 				original: node.raw,
 			});
 		}
+	});
 
+	context.on('Literal', node => {
 		if (isRegexLiteral(node)) {
 			return getProblem({
 				node,
@@ -38,15 +40,14 @@ const create = () => ({
 				regex: escapePatternWithLowercase,
 			});
 		}
-	},
-	TemplateElement(node) {
-		return getProblem({
-			node,
-			original: node.value.raw,
-			fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed),
-		});
-	},
-});
+	});
+
+	context.on('TemplateElement', node => getProblem({
+		node,
+		original: node.value.raw,
+		fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed),
+	}));
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

@@ -8,32 +8,6 @@ const messages = {
 	[messageId]: 'Do not use useless `undefined`.',
 };
 
-const getSelector = (parent, property) =>
-	`${parent} > Identifier.${property}[name="undefined"]`;
-
-// `return undefined`
-const returnSelector = getSelector('ReturnStatement', 'argument');
-
-// `yield undefined`
-const yieldSelector = getSelector('YieldExpression[delegate!=true]', 'argument');
-
-// `() => undefined`
-const arrowFunctionSelector = getSelector('ArrowFunctionExpression', 'body');
-
-// `let foo = undefined` / `var foo = undefined`
-const variableInitSelector = getSelector(
-	[
-		'VariableDeclaration',
-		'[kind!="const"]',
-		'>',
-		'VariableDeclarator',
-	].join(''),
-	'init',
-);
-
-// `const {foo = undefined} = {}`
-const assignmentPatternSelector = getSelector('AssignmentPattern', 'right');
-
 const compareFunctionNames = new Set([
 	'is',
 	'equal',
@@ -110,7 +84,7 @@ const isFunctionBindCall = node =>
 const create = context => {
 	const {sourceCode} = context;
 
-	const listener = (fix, checkFunctionReturnType) => node => {
+	const getProblem = (node, fix, checkFunctionReturnType) => {
 		if (checkFunctionReturnType) {
 			const functionNode = getFunction(sourceCode.getScope(node));
 			if (functionNode?.returnType) {
@@ -121,7 +95,7 @@ const create = context => {
 		return {
 			node,
 			messageId,
-			fix: fixer => fix(node, fixer),
+			fix,
 		};
 	};
 
@@ -133,83 +107,143 @@ const create = context => {
 	const removeNodeAndLeadingSpace = (node, fixer) =>
 		replaceNodeOrTokenAndSpacesBefore(node, '', fixer, sourceCode);
 
-	const listeners = {
-		[returnSelector]: listener(
-			removeNodeAndLeadingSpace,
-			/* CheckFunctionReturnType */ true,
-		),
-		[yieldSelector]: listener(removeNodeAndLeadingSpace),
-		[arrowFunctionSelector]: listener(
-			(node, fixer) => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, sourceCode),
-			/* CheckFunctionReturnType */ true,
-		),
-		[variableInitSelector]: listener(
-			(node, fixer) => fixer.removeRange([node.parent.id.range[1], node.range[1]]),
-		),
-		[assignmentPatternSelector]: listener(
-			(node, fixer) => fixer.removeRange([node.parent.left.range[1], node.range[1]]),
-		),
-	};
+	// `return undefined`
+	context.on('Identifier', node => {
+		if (
+			isUndefined(node)
+			&& node.parent.type === 'ReturnStatement'
+			&& node.parent.argument === node
+		) {
+			return getProblem(
+				node,
+				fixer => removeNodeAndLeadingSpace(node, fixer),
+				/* CheckFunctionReturnType */ true,
+			);
+		}
+	});
 
-	if (options.checkArguments) {
-		listeners.CallExpression = node => {
-			if (shouldIgnore(node.callee)) {
-				return;
-			}
+	// `yield undefined`
+	context.on('Identifier', node => {
+		if (
+			isUndefined(node)
+			&& node.parent.type === 'YieldExpression'
+			&& !node.parent.delegate
+			&& node.parent.argument === node
+		) {
+			return getProblem(
+				node,
+				fixer => removeNodeAndLeadingSpace(node, fixer),
+			);
+		}
+	});
 
-			const argumentNodes = node.arguments;
+	// `() => undefined`
+	context.on('Identifier', node => {
+		if (
+			isUndefined(node)
+			&& node.parent.type === 'ArrowFunctionExpression'
+			&& node.parent.body === node
+		) {
+			return getProblem(
+				node,
+				fixer => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, sourceCode),
+				/* CheckFunctionReturnType */ true,
+			);
+		}
+	});
 
-			// Ignore arguments in `Function#bind()`, but not `this` argument
-			if (isFunctionBindCall(node) && argumentNodes.length !== 1) {
-				return;
-			}
+	// `let foo = undefined` / `var foo = undefined`
+	context.on('Identifier', node => {
+		if (
+			isUndefined(node)
+			&& node.parent.type === 'VariableDeclarator'
+			&& node.parent.init === node
+			&& node.parent.parent.type === 'VariableDeclaration'
+			&& node.parent.parent.kind !== 'const'
+			&& node.parent.parent.declarations.includes(node.parent)
+		) {
+			return getProblem(
+				node,
+				fixer => fixer.removeRange([node.parent.id.range[1], node.range[1]]),
+				/* CheckFunctionReturnType */ true,
+			);
+		}
+	});
 
-			const undefinedArguments = [];
-			for (let index = argumentNodes.length - 1; index >= 0; index--) {
-				const node = argumentNodes[index];
-				if (isUndefined(node)) {
-					undefinedArguments.unshift(node);
-				} else {
-					break;
-				}
-			}
+	// `const {foo = undefined} = {}`
+	context.on('Identifier', node => {
+		if (
+			isUndefined(node)
+			&& node.parent.type === 'AssignmentPattern'
+			&& node.parent.right === node
+		) {
+			return getProblem(
+				node,
+				fixer => fixer.removeRange([node.parent.left.range[1], node.range[1]]),
+				/* CheckFunctionReturnType */ true,
+			);
+		}
+	});
 
-			if (undefinedArguments.length === 0) {
-				return;
-			}
-
-			const firstUndefined = undefinedArguments[0];
-			const lastUndefined = undefinedArguments[undefinedArguments.length - 1];
-
-			return {
-				messageId,
-				loc: {
-					start: firstUndefined.loc.start,
-					end: lastUndefined.loc.end,
-				},
-				fix(fixer) {
-					let start = firstUndefined.range[0];
-					let end = lastUndefined.range[1];
-
-					const previousArgument = argumentNodes[argumentNodes.length - undefinedArguments.length - 1];
-
-					if (previousArgument) {
-						start = previousArgument.range[1];
-					} else {
-						// If all arguments removed, and there is trailing comma, we need remove it.
-						const tokenAfter = sourceCode.getTokenAfter(lastUndefined);
-						if (isCommaToken(tokenAfter)) {
-							end = tokenAfter.range[1];
-						}
-					}
-
-					return fixer.removeRange([start, end]);
-				},
-			};
-		};
+	if (!options.checkArguments) {
+		return;
 	}
 
-	return listeners;
+	context.on('CallExpression', node => {
+		if (shouldIgnore(node.callee)) {
+			return;
+		}
+
+		const argumentNodes = node.arguments;
+
+		// Ignore arguments in `Function#bind()`, but not `this` argument
+		if (isFunctionBindCall(node) && argumentNodes.length !== 1) {
+			return;
+		}
+
+		const undefinedArguments = [];
+		for (let index = argumentNodes.length - 1; index >= 0; index--) {
+			const node = argumentNodes[index];
+			if (isUndefined(node)) {
+				undefinedArguments.unshift(node);
+			} else {
+				break;
+			}
+		}
+
+		if (undefinedArguments.length === 0) {
+			return;
+		}
+
+		const firstUndefined = undefinedArguments[0];
+		const lastUndefined = undefinedArguments[undefinedArguments.length - 1];
+
+		return {
+			messageId,
+			loc: {
+				start: firstUndefined.loc.start,
+				end: lastUndefined.loc.end,
+			},
+			fix(fixer) {
+				let start = firstUndefined.range[0];
+				let end = lastUndefined.range[1];
+
+				const previousArgument = argumentNodes[argumentNodes.length - undefinedArguments.length - 1];
+
+				if (previousArgument) {
+					start = previousArgument.range[1];
+				} else {
+					// If all arguments removed, and there is trailing comma, we need remove it.
+					const tokenAfter = sourceCode.getTokenAfter(lastUndefined);
+					if (isCommaToken(tokenAfter)) {
+						end = tokenAfter.range[1];
+					}
+				}
+
+				return fixer.removeRange([start, end]);
+			},
+		};
+	});
 };
 
 const schema = [
