@@ -1,34 +1,23 @@
 'use strict';
-const {isMethodCall} = require('./ast/index.js');
-const {matches, memberExpressionSelector} = require('./selectors/index.js');
-const {getParenthesizedRange, isSameReference} = require('./utils/index.js');
+const {isMethodCall, isMemberExpression} = require('./ast/index.js');
+const {
+	getParenthesizedRange,
+	isSameReference,
+	isLogicalExpression,
+} = require('./utils/index.js');
 
 const messages = {
 	'non-zero': 'The non-empty check is useless as `Array#some()` returns `false` for an empty array.',
 	zero: 'The empty check is useless as `Array#every()` returns `true` for an empty array.',
 };
 
-const logicalExpressionSelector = [
-	'LogicalExpression',
-	matches(['[operator="||"]', '[operator="&&"]']),
-].join('');
 // We assume the user already follows `unicorn/explicit-length-check`. These are allowed in that rule.
-const lengthCompareZeroSelector = [
-	logicalExpressionSelector,
-	' > ',
-	'BinaryExpression',
-	memberExpressionSelector({path: 'left', property: 'length'}),
-	'[right.type="Literal"]',
-	'[right.raw="0"]',
-].join('');
-const zeroLengthCheckSelector = [
-	lengthCompareZeroSelector,
-	'[operator="==="]',
-].join('');
-const nonZeroLengthCheckSelector = [
-	lengthCompareZeroSelector,
-	matches(['[operator=">"]', '[operator="!=="]']),
-].join('');
+const isLengthCompareZero = node =>
+	node.type === 'BinaryExpression'
+	&& node.right.type === 'Literal'
+	&& node.right.raw === '0'
+	&& isMemberExpression(node.left, {property: 'length', optional: false})
+	&& isLogicalExpression(node.parent);
 
 function flatLogicalExpression(node) {
 	return [node.left, node.right].flatMap(child =>
@@ -81,11 +70,15 @@ const create = context => {
 	}
 
 	return {
-		[zeroLengthCheckSelector](node) {
-			zeroLengthChecks.add(node);
-		},
-		[nonZeroLengthCheckSelector](node) {
-			nonZeroLengthChecks.add(node);
+		BinaryExpression(node) {
+			if (isLengthCompareZero(node)) {
+				const {operator} = node;
+				if (operator === '===') {
+					zeroLengthChecks.add(node);
+				} else if (operator === '>' || operator === '!==') {
+					nonZeroLengthChecks.add(node);
+				}
+			}
 		},
 		CallExpression(node) {
 			if (
@@ -103,8 +96,10 @@ const create = context => {
 				}
 			}
 		},
-		[logicalExpressionSelector](node) {
-			logicalExpressions.push(node);
+		LogicalExpression(node) {
+			if (isLogicalExpression(node)) {
+				logicalExpressions.push(node);
+			}
 		},
 		* 'Program:exit'() {
 			const nodes = new Set(
