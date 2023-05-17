@@ -184,7 +184,7 @@ const create = context => {
 	// Zero index access
 	context.on('MemberExpression', node => {
 		if (!(
-			!node.computed
+			node.computed
 			&& node.property.type === 'Literal'
 			&& node.property.raw === '0'
 			&& isArrayFilterCall(node.object)
@@ -212,7 +212,7 @@ const create = context => {
 				optionalCall: false,
 				optionalMember: false,
 			})
-			&& isArrayFilterCall(node.object)
+			&& isArrayFilterCall(node.callee.object)
 		)) {
 			return;
 		}
@@ -345,7 +345,7 @@ const create = context => {
 				optionalCall: false,
 				optionalMember: false,
 			})
-			&& isArrayFilterCall(node.object)
+			&& isArrayFilterCall(node.callee.object)
 		)) {
 			return;
 		}
