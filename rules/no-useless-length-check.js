@@ -96,9 +96,9 @@ const create = context => {
 				})
 				&& node.callee.property.type === 'Identifier'
 			) {
-				if (node.callee.property.name == 'some') {
+				if (node.callee.property.name === 'some') {
 					arraySomeCalls.add(node);
-				} else if (node.callee.property.name == 'every') {
+				} else if (node.callee.property.name === 'every') {
 					arrayEveryCalls.add(node);
 				}
 			}
