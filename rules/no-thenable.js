@@ -1,6 +1,6 @@
 'use strict';
 const {getStaticValue, getPropertyName} = require('@eslint-community/eslint-utils');
-const {methodCallSelector} = require('./selectors/index.js');
+const {isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID_OBJECT = 'no-thenable-object';
 const MESSAGE_ID_EXPORT = 'no-thenable-export';
@@ -55,7 +55,7 @@ const cases = [
 				return;
 			}
 
-			if (getPropertyName(node, sourceCode.getScope(node)) === 'then') {
+			if (getPropertyName(node, context.sourceCode.getScope(node)) === 'then') {
 				yield node.key;
 			}
 		},
@@ -73,7 +73,7 @@ const cases = [
 					minimumArguments: 3,
 					optionalCall: true,
 					optionalMember: true,
-				}))
+				})
 				&& node.arguments[0].type !== 'SpreadElement'
 			)) {
 				return;
@@ -96,7 +96,7 @@ const cases = [
 				argumentsLength: 1,
 				optionalCall: true,
 				optionalMember: true,
-			}))) {
+			})) {
 				return;
 			}
 
@@ -105,12 +105,11 @@ const cases = [
 				return;
 			}
 
-			for (const element of elements) {
+			for (const element of firstArgument.elements) {
 				if (isStringThen(element, context)) {
 					yield element;
 				}
 			}
-
 		},
 		messageId: MESSAGE_ID_OBJECT,
 	},
@@ -138,7 +137,7 @@ const cases = [
 				&& (node.parent.type === 'FunctionDeclaration' || node.parent.type === 'ClassDeclaration')
 				&& node.parent.id === node
 				&& node.parent.parent.type === 'ExportNamedDeclaration'
-				&& node.parent.parent.declaration == node.parent
+				&& node.parent.parent.declaration === node.parent
 			) {
 				yield node;
 			}
@@ -170,7 +169,7 @@ const create = context => {
 			for (const problematicNode of getNodes(node, context)) {
 				yield {node: problematicNode, messageId};
 			}
-		})
+		});
 	}
 };
 
