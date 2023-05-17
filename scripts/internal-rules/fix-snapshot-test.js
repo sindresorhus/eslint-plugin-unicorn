@@ -95,7 +95,7 @@ function checkInvalidCases(node, context) {
 		return;
 	}
 
-	for (const testCaseNode of invalidCasesNode.elements) {
+	for (const testCaseNode of invalidCasesNode.value.elements) {
 		if (testCaseNode?.type !== 'ObjectExpression') {
 			continue;
 		}
