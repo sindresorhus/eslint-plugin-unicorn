@@ -45,9 +45,9 @@ const create = context => {
 		return getProblem(node, context);
 	});
 
-	// Experimental https://github.com/tc39/proposal-record-tuple
 	context.on([
 		'ObjectExpression',
+		// Experimental https://github.com/tc39/proposal-record-tuple
 		'RecordExpression',
 	], node => {
 		if (node.properties.length > 0) {
