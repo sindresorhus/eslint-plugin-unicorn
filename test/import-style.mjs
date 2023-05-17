@@ -592,7 +592,7 @@ test({
 			errors: [{
 				messageId: 'importStyle',
 				data: {
-					allowedStyles: 'named, namespace or default',
+					allowedStyles: 'named, namespace, or default',
 					moduleName: 'no-unassigned',
 				},
 			}],
