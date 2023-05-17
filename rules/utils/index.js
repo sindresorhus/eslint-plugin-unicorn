@@ -24,6 +24,7 @@ module.exports = {
 	getVariableIdentifiers: require('./get-variable-identifiers.js'),
 	isArrayPrototypeProperty,
 	isBooleanNode,
+	isFunctionSelfUsedInside: require('./is-function-self-used-inside.js'),
 	isLogicalExpression: require('./is-logical-expression.js'),
 	isNodeMatches,
 	isNodeMatchesNameOrPath,
