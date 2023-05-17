@@ -134,7 +134,7 @@ const create = context => ({
 
 			yield problem;
 		}
-	}
+	},
 });
 
 /** @type {import('eslint').Rule.RuleModule} */

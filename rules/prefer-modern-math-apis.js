@@ -130,12 +130,12 @@ const create = context => {
 
 	return {
 		CallExpression(callExpression) {
-			if (!isMethodCall({
+			if (!isMethodCall(callExpression, {
 				object: 'Math',
 				method: 'sqrt',
 				argumentsLength: 1,
 				optionalCall: false,
-				optionalMember: false
+				optionalMember: false,
 			})) {
 				return;
 			}

@@ -30,6 +30,7 @@ const parseEsquerySelector = selector => {
 	if (!parsedEsquerySelectors.has(selector)) {
 		parsedEsquerySelectors.set(selector, esquery.parse(selector));
 	}
+
 	return parsedEsquerySelectors.get(selector);
 };
 
