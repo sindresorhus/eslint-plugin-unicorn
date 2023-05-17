@@ -602,6 +602,8 @@ test({
 		'const foo = array.filter(bar); [first, another] = foo;',
 		'const foo = array.filter(bar); const [,first] = foo;',
 		'const foo = array.filter(bar); [,first] = foo;',
+		'const foo = array.filter(bar); const [,] = foo;',
+		'const foo = array.filter(bar); [,] = foo;',
 		'const foo = array.filter(bar); const [...first] = foo;',
 		'const foo = array.filter(bar); [...first] = foo;',
 		outdent`

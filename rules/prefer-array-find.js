@@ -168,6 +168,7 @@ const isDestructuringFirstElement = node => {
 		&& right === node
 		&& left.type === 'ArrayPattern'
 		&& left.elements.length === 1
+		&& left.elements[0]
 		&& left.elements[0].type !== 'RestElement';
 };
 
