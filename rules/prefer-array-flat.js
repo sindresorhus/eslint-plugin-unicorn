@@ -90,7 +90,7 @@ const arrayReduce = {
 				firstArgumentBody.type === 'ArrayExpression'
 				&& firstArgumentBody.elements.length === 2
 				&& firstArgumentBody.elements.every((node, index) =>
-					node.type === 'SpreadElement'
+					node?.type === 'SpreadElement'
 					&& node.argument.type === 'Identifier'
 					&& isSameIdentifier(firstArgument.params[index], node.argument),
 				)

@@ -21,6 +21,7 @@ test.snapshot({
 		'const [foo] = new Set([]);[...foo].length;',
 		'[...foo].length',
 		'var foo = new Set(); var foo = new Set(); [...foo].length',
+		'[,].length',
 	],
 	invalid: [
 		'[...new Set(array)].length',

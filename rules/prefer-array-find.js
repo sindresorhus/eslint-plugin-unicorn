@@ -168,6 +168,7 @@ const isDestructuringFirstElement = node => {
 		&& right === node
 		&& left.type === 'ArrayPattern'
 		&& left.elements.length === 1
+		&& left.elements[0]
 		&& left.elements[0].type !== 'RestElement';
 };
 
@@ -232,6 +233,7 @@ const create = context => {
 		if (!(
 			node.id.type === 'ArrayPattern'
 			&& node.id.elements.length === 1
+			&& node.id.elements[0]
 			&& node.id.elements[0].type !== 'RestElement'
 			&& isArrayFilterCall(node.init)
 		)) {
@@ -250,6 +252,7 @@ const create = context => {
 		if (!(
 			node.left.type === 'ArrayPattern'
 			&& node.left.elements.length === 1
+			&& node.left.elements[0]
 			&& node.left.elements[0].type !== 'RestElement'
 			&& isArrayFilterCall(node.right)
 		)) {
