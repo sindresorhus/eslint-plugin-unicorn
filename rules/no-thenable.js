@@ -86,29 +86,35 @@ const cases = [
 		},
 		messageId: MESSAGE_ID_OBJECT,
 	},
-	// TODO[@fisker]: Bug, we are checking wrong pattern `Object.fromEntries(['then', …])`
 	// `Object.fromEntries([['then', …]])`
 	{
 		selector: 'CallExpression',
 		* getNodes(node, context) {
-			if (!isMethodCall(node, {
-				object: 'Object',
-				method: 'fromEntries',
-				argumentsLength: 1,
-				optionalCall: false,
-				optionalMember: false,
-			})) {
+			if (!(
+				isMethodCall(node, {
+					object: 'Object',
+					method: 'fromEntries',
+					argumentsLength: 1,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				&& node.arguments[0].type === 'ArrayExpression'
+			)) {
 				return;
 			}
 
-			const [firstArgument] = node.arguments;
-			if (firstArgument.type !== 'ArrayExpression') {
-				return;
-			}
+			for (const pairs of node.arguments[0].elements) {
+				if (
+					pairs?.type === 'ArrayExpression'
+					&& pairs.elements[0]
+					&& pairs.elements[0].type !== 'SpreadElement'
+				) {
+					const [key] = pairs.elements;
 
-			const [firstElement] = firstArgument.elements;
-			if (isStringThen(firstElement, context)) {
-				yield firstElement;
+					if (isStringThen(key, context)) {
+						yield key;
+					}
+				}
 			}
 		},
 		messageId: MESSAGE_ID_OBJECT,
