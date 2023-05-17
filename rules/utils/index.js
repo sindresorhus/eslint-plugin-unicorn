@@ -12,15 +12,18 @@ const {
 	isObjectPrototypeProperty,
 } = require('./array-or-object-prototype-property.js');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./is-node-matches.js');
+const {isBooleanNode, getBooleanAncestor} = require('./boolean.js');
 
 module.exports = {
 	escapeString: require('./escape-string.js'),
+	getBooleanAncestor,
 	getParentheses,
 	getParenthesizedRange,
 	getParenthesizedText,
 	getParenthesizedTimes,
 	getVariableIdentifiers: require('./get-variable-identifiers.js'),
 	isArrayPrototypeProperty,
+	isBooleanNode,
 	isNodeMatches,
 	isNodeMatchesNameOrPath,
 	isNodeValueNotDomNode: require('./is-node-value-not-dom-node.js'),
