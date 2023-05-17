@@ -26,6 +26,7 @@ module.exports = {
 	isBooleanNode,
 	isFunctionSelfUsedInside: require('./is-function-self-used-inside.js'),
 	isLogicalExpression: require('./is-logical-expression.js'),
+	isMethodNamed: require('./is-method-named.js'),
 	isNodeMatches,
 	isNodeMatchesNameOrPath,
 	isNodeValueNotDomNode: require('./is-node-value-not-dom-node.js'),
@@ -39,6 +40,7 @@ module.exports = {
 	isValueNotUsable: require('./is-value-not-usable.js'),
 	needsSemicolon: require('./needs-semicolon.js'),
 	shouldAddParenthesesToMemberExpressionObject: require('./should-add-parentheses-to-member-expression-object.js'),
+	shouldAddParenthesesToSpreadElementArgument: require('./should-add-parentheses-to-spread-element-argument.js'),
 	toLocation: require('./to-location.js'),
 };
 
