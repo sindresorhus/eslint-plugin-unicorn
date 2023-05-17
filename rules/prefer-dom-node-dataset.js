@@ -1,34 +1,40 @@
 'use strict';
 const {isIdentifierName} = require('@babel/helper-validator-identifier');
-const escapeString = require('./utils/escape-string.js');
-const {methodCallSelector, matches} = require('./selectors/index.js');
+const {escapeString} = require('./utils/index.js');
+const {isMethodCall, isStringLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-dom-node-dataset';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `.dataset` over `{{method}}(…)`.',
 };
 
-const selector = [
-	matches([
-		methodCallSelector({method: 'setAttribute', argumentsLength: 2}),
-		methodCallSelector({methods: ['getAttribute', 'removeAttribute', 'hasAttribute'], argumentsLength: 1}),
-	]),
-	'[arguments.0.type="Literal"]',
-].join('');
-
 const dashToCamelCase = string => string.replace(/-[a-z]/g, s => s[1].toUpperCase());
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[selector](node) {
-		const [nameNode] = node.arguments;
-		let attributeName = nameNode.value;
-
-		if (typeof attributeName !== 'string') {
+	CallExpression(node) {
+		if (!(
+			(
+				isMethodCall(node, {
+					method: 'setAttribute',
+					argumentsLength: 2,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				|| isMethodCall(node, {
+					methods: ['getAttribute', 'removeAttribute', 'hasAttribute'],
+					argumentsLength: 1,
+					optionalCall: false,
+					optionalMember: false,
+				})
+			)
+			&& isStringLiteral(node.arguments[0])
+		)) {
 			return;
 		}
 
-		attributeName = attributeName.toLowerCase();
+		const [nameNode] = node.arguments;
+		const attributeName = nameNode.value.toLowerCase();
 
 		if (!attributeName.startsWith('data-')) {
 			return;

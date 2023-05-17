@@ -1,15 +1,15 @@
 'use strict';
-const isShadowed = require('./utils/is-shadowed.js');
-const {matches} = require('./selectors/index.js');
+const {isLiteral} = require('./ast/index.js');
 const {
 	addParenthesizesToReturnOrThrowExpression,
+	removeSpacesAfter,
 } = require('./fix/index.js');
-const {removeSpacesAfter} = require('./fix/index.js');
-const isOnSameLine = require('./utils/is-on-same-line.js');
-const needsSemicolon = require('./utils/needs-semicolon.js');
 const {
+	needsSemicolon,
 	isParenthesized,
-} = require('./utils/parentheses.js');
+	isOnSameLine,
+	isShadowed,
+} = require('./utils/index.js');
 
 const MESSAGE_ID_ERROR = 'no-typeof-undefined/error';
 const MESSAGE_ID_SUGGESTION = 'no-typeof-undefined/suggestion';
@@ -17,15 +17,6 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Compare with `undefined` directly instead of using `typeof`.',
 	[MESSAGE_ID_SUGGESTION]: 'Switch to `… {{operator}} undefined`.',
 };
-
-const selector = [
-	'BinaryExpression',
-	matches(['===', '!==', '==', '!='].map(operator => `[operator="${operator}"]`)),
-	'[left.type="UnaryExpression"]',
-	'[left.operator="typeof"]',
-	'[left.prefix]',
-	'[right.type="Literal"]',
-].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -38,11 +29,23 @@ const create = context => {
 	const {sourceCode} = context;
 
 	return {
-		[selector](binaryExpression) {
-			const {left: typeofNode, right: undefinedString, operator} = binaryExpression;
-			if (undefinedString.value !== 'undefined') {
+		BinaryExpression(binaryExpression) {
+			if (!(
+				(
+					binaryExpression.operator === '==='
+					|| binaryExpression.operator === '!=='
+					|| binaryExpression.operator === '=='
+					|| binaryExpression.operator === '!='
+				)
+				&& binaryExpression.left.type === 'UnaryExpression'
+				&& binaryExpression.left.operator === 'typeof'
+				&& binaryExpression.left.prefix
+				&& isLiteral(binaryExpression.right, 'undefined')
+			)) {
 				return;
 			}
+
+			const {left: typeofNode, right: undefinedString, operator} = binaryExpression;
 
 			const valueNode = typeofNode.argument;
 			const isGlobalVariable = valueNode.type === 'Identifier'

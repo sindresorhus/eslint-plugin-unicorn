@@ -1,5 +1,6 @@
 'use strict';
 const {replaceTemplateElement} = require('./fix/index.js');
+const {isRegexLiteral, isStringLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'escape-case';
 const messages = {
@@ -23,21 +24,20 @@ const getProblem = ({node, original, regex = escapeWithLowercase, fix}) => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	Literal(node) {
-		if (typeof node.value !== 'string') {
-			return;
+		if (isStringLiteral(node)) {
+			return getProblem({
+				node,
+				original: node.raw,
+			});
 		}
 
-		return getProblem({
-			node,
-			original: node.raw,
-		});
-	},
-	'Literal[regex]'(node) {
-		return getProblem({
-			node,
-			original: node.raw,
-			regex: escapePatternWithLowercase,
-		});
+		if (isRegexLiteral(node)) {
+			return getProblem({
+				node,
+				original: node.raw,
+				regex: escapePatternWithLowercase,
+			});
+		}
 	},
 	TemplateElement(node) {
 		return getProblem({

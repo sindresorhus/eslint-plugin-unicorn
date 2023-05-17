@@ -1,32 +1,25 @@
 'use strict';
-const {matches} = require('./selectors/index.js');
-
 const MESSAGE_ID = 'no-this-assignment';
 const messages = {
 	[MESSAGE_ID]: 'Do not assign `this` to `{{name}}`.',
 };
 
-const variableDeclaratorSelector = [
-	'VariableDeclarator',
-	'[init.type="ThisExpression"]',
-	'[id.type="Identifier"]',
-].join('');
-
-const assignmentExpressionSelector = [
-	'AssignmentExpression',
-	'[right.type="ThisExpression"]',
-	'[left.type="Identifier"]',
-].join('');
-
-const selector = matches([variableDeclaratorSelector, assignmentExpressionSelector]);
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
-	[selector](node) {
-		const variable = node.type === 'AssignmentExpression' ? node.left : node.id;
+	'VariableDeclarator,AssignmentExpression'(node) {
+		const variableNode = node.type === 'AssignmentExpression' ? node.left : node.id;
+		const valueNode = node.type === 'AssignmentExpression' ? node.right : node.init;
+
+		if (
+			variableNode.type !== 'Identifier'
+			|| valueNode?.type !== 'ThisExpression'
+		) {
+			return;
+		}
+
 		return {
 			node,
-			data: {name: variable.name},
+			data: {name: variableNode.name},
 			messageId: MESSAGE_ID,
 		};
 	},
