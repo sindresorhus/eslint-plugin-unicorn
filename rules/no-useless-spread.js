@@ -27,8 +27,8 @@ const messages = {
 
 const isSingleArraySpread = node =>
 	node.type === 'ArrayExpression'
-	&& node.elements.length === 0
-	&& node.elements[0].type === 'SpreadElement';
+	&& node.elements.length === 1
+	&& node.elements[0]?.type === 'SpreadElement';
 
 const parentDescriptions = {
 	ArrayExpression: 'array literal',
@@ -218,7 +218,7 @@ const create = context => {
 			|| (
 				(
 					isNewExpression(parent, {names: ['Map', 'WeakMap', 'Set', 'WeakSet'], argumentsLength: 1})
-					|| isNewExpression(parent, {names: typedArray, argumentsLength: 1})
+					|| isNewExpression(parent, {names: typedArray, minimumArguments: 1})
 					|| isMethodCall(parent, {
 						object: 'Promise',
 						methods: ['all', 'allSettled', 'any', 'race'],
@@ -332,15 +332,15 @@ const create = context => {
 					optionalMember: false,
 				})
 			)
-				// `Array.from()`, `Array.of()`
-				|| isMethodCall(node, {
-					object: 'Array',
-					methods: ['from', 'of'],
-					optionalCall: false,
-					optionalMember: false,
-				})
-				// `new Array()`
-				|| isNewExpression(node, {name: 'Array'})
+			// `Array.from()`, `Array.of()`
+			|| isMethodCall(node, {
+				object: 'Array',
+				methods: ['from', 'of'],
+				optionalCall: false,
+				optionalMember: false,
+			})
+			// `new Array()`
+			|| isNewExpression(node, {name: 'Array'})
 		)) {
 			return;
 		}
