@@ -24,6 +24,7 @@ module.exports = {
 	getVariableIdentifiers: require('./get-variable-identifiers.js'),
 	isArrayPrototypeProperty,
 	isBooleanNode,
+	isLogicalExpression: require('./is-logical-expression.js'),
 	isNodeMatches,
 	isNodeMatchesNameOrPath,
 	isNodeValueNotDomNode: require('./is-node-value-not-dom-node.js'),
