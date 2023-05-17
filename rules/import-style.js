@@ -103,20 +103,6 @@ const getActualAssignmentTargetImportStyles = assignmentTarget => {
 	return [];
 };
 
-const joinOr = words => words
-	.map((word, index) => {
-		if (index === words.length - 1) {
-			return word;
-		}
-
-		if (index === words.length - 2) {
-			return word + ' or';
-		}
-
-		return word + ',';
-	})
-	.join(' ');
-
 // Keep this alphabetically sorted for easier maintenance
 const defaultStyles = {
 	chalk: {
@@ -190,7 +176,7 @@ const create = context => {
 		}
 
 		const data = {
-			allowedStyles: joinOr([...allowedImportStyles.keys()]),
+			allowedStyles: new Intl.ListFormat('en-US', {type: 'disjunction'}).format([...allowedImportStyles.keys()]),
 			moduleName,
 		};
 
