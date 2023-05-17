@@ -27,7 +27,7 @@ const isTestSnapshot = node =>
 	&& node.parent.type === 'ExpressionStatement'
 	&& node.parent.expression === node
 	&& node.parent.parent.type === 'Program'
-	&& node.parent.parent.body.includes(node.parent)
+	&& node.parent.parent.body.includes(node.parent);
 
 function * removeObjectProperty(node, fixer, sourceCode) {
 	yield fixer.remove(node);
@@ -55,7 +55,7 @@ function getFixMarkComment(snapshotTestCall, sourceCode) {
 }
 
 function checkFixMark(node, context) {
-	const comment = getFixMarkComment(snapshotTestCall, sourceCode);
+	const comment = getFixMarkComment(node, context.sourceCode);
 
 	if (!comment) {
 		return;
@@ -68,11 +68,10 @@ function checkFixMark(node, context) {
 }
 
 function checkInvalidCases(node, context) {
-	const testCasesNode = node.arguments[0]
+	const testCasesNode = node.arguments[0];
 	if (testCasesNode?.type !== 'ObjectExpression') {
 		return;
 	}
-
 
 	/*
 	```
@@ -87,9 +86,9 @@ function checkInvalidCases(node, context) {
 		&& !node.method
 		&& !node.shorthand
 		&& node.kind === 'init'
-		&& node.key.type == 'Identifier'
+		&& node.key.type === 'Identifier'
 		&& node.key.name === 'invalid'
-		&& node.value.type === 'ArrayExpression'
+		&& node.value.type === 'ArrayExpression',
 	);
 
 	if (!invalidCasesNode) {
@@ -113,6 +112,7 @@ function checkInvalidCases(node, context) {
 
 function checkTestCaseProperty(propertyNode, context) {
 	const {key} = propertyNode;
+	const {sourceCode} = context;
 
 	switch (key.name) {
 		case 'errors':
@@ -163,8 +163,6 @@ function checkTestCaseProperty(propertyNode, context) {
 
 module.exports = {
 	create(context) {
-		const {sourceCode} = context;
-
 		return {
 			CallExpression(snapshotTestCall) {
 				if (!isTestSnapshot(snapshotTestCall)) {
