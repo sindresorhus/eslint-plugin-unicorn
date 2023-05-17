@@ -232,6 +232,7 @@ const create = context => {
 		if (!(
 			node.id.type === 'ArrayPattern'
 			&& node.id.elements.length === 1
+			&& node.id.elements[0]
 			&& node.id.elements[0].type !== 'RestElement'
 			&& isArrayFilterCall(node.init)
 		)) {
