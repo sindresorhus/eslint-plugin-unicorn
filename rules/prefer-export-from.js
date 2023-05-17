@@ -4,6 +4,9 @@ const {
 	isOpeningBraceToken,
 	isClosingBraceToken,
 } = require('@eslint-community/eslint-utils');
+const {
+	isStringLiteral
+} = require('./ast/index.js');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -318,12 +321,16 @@ function create(context) {
 	const exportDeclarations = [];
 
 	return {
-		'ImportDeclaration[specifiers.length>0]'(node) {
-			importDeclarations.add(node);
+		ImportDeclaration(node) {
+			if (node.specifier.length > 0) {
+				importDeclarations.add(node);
+			}
 		},
 		// `ExportAllDeclaration` and `ExportDefaultDeclaration` can't be reused
-		'ExportNamedDeclaration[source.type="Literal"]'(node) {
-			exportDeclarations.push(node);
+		ExportNamedDeclaration(node) {
+			if (isStringLiteral(node.source)) {
+				exportDeclarations.push(node);
+			}
 		},
 		* 'Program:exit'(program) {
 			for (const importDeclaration of importDeclarations) {
