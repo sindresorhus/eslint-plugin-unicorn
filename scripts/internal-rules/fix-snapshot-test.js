@@ -3,7 +3,7 @@ const assert = require('node:assert');
 const {
 	isCommaToken,
 } = require('@eslint-community/eslint-utils');
-const {methodCallSelector} = require('../../rules/selectors/index.js');
+const {isMethodCall} = require('../../rules/ast/index.js');
 
 const MESSAGE_ID_DISALLOWED_PROPERTY = 'disallow-property';
 const MESSAGE_ID_NO_SINGLE_CODE_OBJECT = 'use-string';
@@ -15,38 +15,19 @@ const messages = {
 };
 
 // Top-level `test.snapshot({invalid: []})`
-const snapshotTestCallSelector = [
-	'Program > ExpressionStatement.body > .expression',
+const isTestSnapshot = node =>
 	// `test.snapshot()`
-	methodCallSelector({
+	isMethodCall(node, {
 		argumentsLength: 1,
 		object: 'test',
 		method: 'snapshot',
-	}),
-].join('');
-
-const propertySelector = [
-	snapshotTestCallSelector,
-	' > ObjectExpression.arguments:first-child',
-	/*
-	```
-	test.snapshot({
-		invalid: [], <- Property
+		optionalCall: false,
+		optionalMember: false,
 	})
-	```
-	*/
-	' > Property.properties',
-	'[computed!=true]',
-	'[method!=true]',
-	'[shorthand!=true]',
-	'[kind="init"]',
-	'[key.type="Identifier"]',
-	'[key.name="invalid"]',
-
-	' > ArrayExpression.value',
-	' > ObjectExpression.elements',
-	' > Property.properties[computed!=true][key.type="Identifier"]',
-].join('');
+	&& node.parent.type === 'ExpressionStatement'
+	&& node.parent.expression === node
+	&& node.parent.parent.type === 'Program'
+	&& node.parent.parent.body.includes(node.parent);
 
 function * removeObjectProperty(node, fixer, sourceCode) {
 	yield fixer.remove(node);
@@ -73,71 +54,123 @@ function getFixMarkComment(snapshotTestCall, sourceCode) {
 	}
 }
 
+function checkFixMark(node, context) {
+	const comment = getFixMarkComment(node, context.sourceCode);
+
+	if (!comment) {
+		return;
+	}
+
+	context.report({
+		node: comment,
+		messageId: MESSAGE_ID_REMOVE_FIX_MARK_COMMENT,
+	});
+}
+
+function checkInvalidCases(node, context) {
+	const testCasesNode = node.arguments[0];
+	if (testCasesNode?.type !== 'ObjectExpression') {
+		return;
+	}
+
+	/*
+	```
+	test.snapshot({
+		invalid: [], <- Property
+	})
+	```
+	*/
+	const invalidCasesNode = testCasesNode.properties.find(node =>
+		node.type === 'Property'
+		&& !node.computed
+		&& !node.method
+		&& !node.shorthand
+		&& node.kind === 'init'
+		&& node.key.type === 'Identifier'
+		&& node.key.name === 'invalid'
+		&& node.value.type === 'ArrayExpression',
+	);
+
+	if (!invalidCasesNode) {
+		return;
+	}
+
+	for (const testCaseNode of invalidCasesNode.value.elements) {
+		if (testCaseNode?.type !== 'ObjectExpression') {
+			continue;
+		}
+
+		for (const propertyNode of testCaseNode.properties) {
+			if (propertyNode.computed || propertyNode.key.type !== 'Identifier') {
+				continue;
+			}
+
+			checkTestCaseProperty(propertyNode, context);
+		}
+	}
+}
+
+function checkTestCaseProperty(propertyNode, context) {
+	const {key} = propertyNode;
+	const {sourceCode} = context;
+
+	switch (key.name) {
+		case 'errors':
+		case 'output': {
+			const canFix = sourceCode.getCommentsInside(propertyNode).length === 0;
+			const hasFixMark = Boolean(getFixMarkComment(
+				propertyNode.parent.parent.parent.parent.parent,
+				sourceCode,
+			));
+
+			context.report({
+				node: key,
+				messageId: MESSAGE_ID_DISALLOWED_PROPERTY,
+				data: {
+					name: key.name,
+					autoFixEnableTip: !hasFixMark && canFix
+						? ' Put /* fix */ before `test.snapshot()` to enable auto-fix.'
+						: '',
+				},
+				fix: hasFixMark && canFix
+					? fixer => removeObjectProperty(propertyNode, fixer, sourceCode)
+					: undefined
+				,
+			});
+			break;
+		}
+
+		case 'code': {
+			const testCase = propertyNode.parent;
+			if (testCase.properties.length === 1) {
+				const commentsCount = sourceCode.getCommentsInside(testCase).length
+					- sourceCode.getCommentsInside(propertyNode).length;
+				context.report({
+					node: testCase,
+					messageId: MESSAGE_ID_NO_SINGLE_CODE_OBJECT,
+					fix: commentsCount === 0
+						? fixer => fixer.replaceText(testCase, sourceCode.getText(propertyNode.value))
+						: undefined,
+				});
+			}
+
+			break;
+		}
+
+		// No default
+	}
+}
+
 module.exports = {
 	create(context) {
-		const {sourceCode} = context;
-
 		return {
-			[snapshotTestCallSelector](snapshotTestCall) {
-				const comment = getFixMarkComment(snapshotTestCall, sourceCode);
-
-				if (!comment) {
+			CallExpression(snapshotTestCall) {
+				if (!isTestSnapshot(snapshotTestCall)) {
 					return;
 				}
 
-				context.report({
-					node: comment,
-					messageId: MESSAGE_ID_REMOVE_FIX_MARK_COMMENT,
-				});
-			},
-			[propertySelector](propertyNode) {
-				const {key} = propertyNode;
-
-				switch (key.name) {
-					case 'errors':
-					case 'output': {
-						const canFix = sourceCode.getCommentsInside(propertyNode).length === 0;
-						const hasFixMark = Boolean(getFixMarkComment(
-							propertyNode.parent.parent.parent.parent.parent,
-							sourceCode,
-						));
-
-						context.report({
-							node: key,
-							messageId: MESSAGE_ID_DISALLOWED_PROPERTY,
-							data: {
-								name: key.name,
-								autoFixEnableTip: !hasFixMark && canFix
-									? ' Put /* fix */ before `test.snapshot()` to enable auto-fix.'
-									: '',
-							},
-							fix: hasFixMark && canFix
-								? fixer => removeObjectProperty(propertyNode, fixer, sourceCode)
-								: undefined
-							,
-						});
-						break;
-					}
-
-					case 'code': {
-						const testCase = propertyNode.parent;
-						if (testCase.properties.length === 1) {
-							const commentsCount = sourceCode.getCommentsInside(testCase).length
-								- sourceCode.getCommentsInside(propertyNode).length;
-							context.report({
-								node: testCase,
-								messageId: MESSAGE_ID_NO_SINGLE_CODE_OBJECT,
-								fix: commentsCount === 0
-									? fixer => fixer.replaceText(testCase, sourceCode.getText(propertyNode.value))
-									: undefined,
-							});
-						}
-
-						break;
-					}
-
-					// No default
-				}
+				checkFixMark(snapshotTestCall, context);
+				checkInvalidCases(snapshotTestCall, context);
 			},
 		};
 	},

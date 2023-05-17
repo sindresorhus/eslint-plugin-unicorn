@@ -77,15 +77,41 @@ function reportProblems(create) {
 	}
 
 	const wrapped = context => {
-		const listeners = create(context);
+		const listeners = {};
+		const addListener = (selector, listener) => {
+			listeners[selector] ??= [];
+			listeners[selector].push(listener);
+		};
 
-		if (!listeners) {
-			return {};
+		const contextProxy = new Proxy(context, {
+			get(target, property, receiver) {
+				if (property === 'on') {
+					return (selectorOrSelectors, listener) => {
+						const selectors = Array.isArray(selectorOrSelectors) ? selectorOrSelectors : [selectorOrSelectors];
+						for (const selector of selectors) {
+							addListener(selector, listener);
+						}
+					};
+				}
+
+				return Reflect.get(target, property, receiver);
+			},
+		});
+
+		for (const [selector, listener] of Object.entries(create(contextProxy) ?? {})) {
+			addListener(selector, listener);
 		}
 
 		return Object.fromEntries(
 			Object.entries(listeners)
-				.map(([selector, listener]) => [selector, reportListenerProblems(listener, context)]),
+				.map(([selector, listeners]) => [
+					selector,
+					(...listenerArguments) => {
+						for (const listener of listeners) {
+							reportListenerProblems(listener, context)(...listenerArguments);
+						}
+					},
+				]),
 		);
 	};
 

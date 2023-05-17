@@ -15,16 +15,21 @@ const {isNodeMatches, isNodeMatchesNameOrPath} = require('./is-node-matches.js')
 const {isBooleanNode, getBooleanAncestor} = require('./boolean.js');
 
 module.exports = {
+	avoidCapture: require('./avoid-capture.js'),
 	escapeString: require('./escape-string.js'),
 	getBooleanAncestor,
 	getParentheses,
 	getParenthesizedRange,
 	getParenthesizedText,
 	getParenthesizedTimes,
+	getScopes: require('./get-scopes.js'),
 	getVariableIdentifiers: require('./get-variable-identifiers.js'),
 	isArrayPrototypeProperty,
 	isBooleanNode,
+	isFunctionSelfUsedInside: require('./is-function-self-used-inside.js'),
+	isLeftHandSide: require('./is-left-hand-side.js'),
 	isLogicalExpression: require('./is-logical-expression.js'),
+	isMethodNamed: require('./is-method-named.js'),
 	isNodeMatches,
 	isNodeMatchesNameOrPath,
 	isNodeValueNotDomNode: require('./is-node-value-not-dom-node.js'),
@@ -38,6 +43,8 @@ module.exports = {
 	isValueNotUsable: require('./is-value-not-usable.js'),
 	needsSemicolon: require('./needs-semicolon.js'),
 	shouldAddParenthesesToMemberExpressionObject: require('./should-add-parentheses-to-member-expression-object.js'),
+	shouldAddParenthesesToSpreadElementArgument: require('./should-add-parentheses-to-spread-element-argument.js'),
+	singular: require('./singular.js'),
 	toLocation: require('./to-location.js'),
 };
 

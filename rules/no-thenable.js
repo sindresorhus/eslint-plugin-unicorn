@@ -1,6 +1,6 @@
 'use strict';
 const {getStaticValue, getPropertyName} = require('@eslint-community/eslint-utils');
-const {methodCallSelector} = require('./selectors/index.js');
+const {isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID_OBJECT = 'no-thenable-object';
 const MESSAGE_ID_EXPORT = 'no-thenable-export';
@@ -11,8 +11,8 @@ const messages = {
 	[MESSAGE_ID_CLASS]: 'Do not add `then` to a class.',
 };
 
-const isStringThen = (node, sourceCode) =>
-	getStaticValue(node, sourceCode.getScope(node))?.value === 'then';
+const isStringThen = (node, context) =>
+	getStaticValue(node, context.sourceCode.getScope(node))?.value === 'then';
 
 const cases = [
 	// `{then() {}}`,
@@ -20,8 +20,17 @@ const cases = [
 	// `{[computedKey]() {}}`,
 	// `{get [computedKey]() {}}`,
 	{
-		selector: 'ObjectExpression > Property.properties > .key',
-		test: (node, sourceCode) => getPropertyName(node.parent, sourceCode.getScope(node.parent)) === 'then',
+		selector: 'ObjectExpression',
+		* getNodes(node, context) {
+			for (const property of node.properties) {
+				if (
+					property.type === 'Property'
+					&& getPropertyName(property, context.sourceCode.getScope(property)) === 'then'
+				) {
+					yield property.key;
+				}
+			}
+		},
 		messageId: MESSAGE_ID_OBJECT,
 	},
 	// `class Foo {then}`,
@@ -29,89 +38,139 @@ const cases = [
 	// `class Foo {get then() {}}`,
 	// `class Foo {static get then() {}}`,
 	{
-		selector: ':matches(PropertyDefinition, MethodDefinition) > .key',
-		test: (node, sourceCode) => getPropertyName(node.parent, sourceCode.getScope(node.parent)) === 'then',
+		selectors: ['PropertyDefinition', 'MethodDefinition'],
+		* getNodes(node, context) {
+			if (getPropertyName(node, context.sourceCode.getScope(node)) === 'then') {
+				yield node.key;
+			}
+		},
 		messageId: MESSAGE_ID_CLASS,
 	},
 	// `foo.then = …`
 	// `foo[computedKey] = …`
 	{
-		selector: 'AssignmentExpression > MemberExpression.left > .property',
-		test: (node, sourceCode) => getPropertyName(node.parent, sourceCode.getScope(node.parent)) === 'then',
+		selector: 'MemberExpression',
+		* getNodes(node, context) {
+			if (!(node.parent.type === 'AssignmentExpression' && node.parent.left === node)) {
+				return;
+			}
+
+			if (getPropertyName(node, context.sourceCode.getScope(node)) === 'then') {
+				yield node.property;
+			}
+		},
 		messageId: MESSAGE_ID_OBJECT,
 	},
 	// `Object.defineProperty(foo, 'then', …)`
 	// `Reflect.defineProperty(foo, 'then', …)`
 	{
-		selector: [
-			methodCallSelector({
-				objects: ['Object', 'Reflect'],
-				method: 'defineProperty',
-				minimumArguments: 3,
-			}),
-			'[arguments.0.type!="SpreadElement"]',
-			' > .arguments:nth-child(2)',
-		].join(''),
-		test: isStringThen,
+		selector: 'CallExpression',
+		* getNodes(node, context) {
+			if (!(
+				isMethodCall(node, {
+					objects: ['Object', 'Reflect'],
+					method: 'defineProperty',
+					minimumArguments: 3,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				&& node.arguments[0].type !== 'SpreadElement'
+			)) {
+				return;
+			}
+
+			const [, secondArgument] = node.arguments;
+			if (isStringThen(secondArgument, context)) {
+				yield secondArgument;
+			}
+		},
 		messageId: MESSAGE_ID_OBJECT,
 	},
-	// `Object.fromEntries(['then', …])`
+	// TODO[@fisker]: Bug, we are checking wrong pattern `Object.fromEntries(['then', …])`
+	// `Object.fromEntries([['then', …]])`
 	{
-		selector: [
-			methodCallSelector({
+		selector: 'CallExpression',
+		* getNodes(node, context) {
+			if (!isMethodCall(node, {
 				object: 'Object',
 				method: 'fromEntries',
 				argumentsLength: 1,
-			}),
-			' > ArrayExpression.arguments:nth-child(1)',
-			' > .elements:nth-child(1)',
-		].join(''),
-		test: isStringThen,
+				optionalCall: false,
+				optionalMember: false,
+			})) {
+				return;
+			}
+
+			const [firstArgument] = node.arguments;
+			if (firstArgument.type !== 'ArrayExpression') {
+				return;
+			}
+
+			const [firstElement] = firstArgument.elements;
+			if (isStringThen(firstElement, context)) {
+				yield firstElement;
+			}
+		},
 		messageId: MESSAGE_ID_OBJECT,
 	},
 	// `export {then}`
 	{
-		selector: 'ExportSpecifier.specifiers > Identifier.exported[name="then"]',
+		selector: 'Identifier',
+		* getNodes(node) {
+			if (
+				node.name === 'then'
+				&& node.parent.type === 'ExportSpecifier'
+				&& node.parent.exported === node
+			) {
+				yield node;
+			}
+		},
 		messageId: MESSAGE_ID_EXPORT,
 	},
 	// `export function then() {}`,
 	// `export class then {}`,
 	{
-		selector: 'ExportNamedDeclaration > :matches(FunctionDeclaration, ClassDeclaration).declaration > Identifier[name="then"].id',
+		selector: 'Identifier',
+		* getNodes(node) {
+			if (
+				node.name === 'then'
+				&& (node.parent.type === 'FunctionDeclaration' || node.parent.type === 'ClassDeclaration')
+				&& node.parent.id === node
+				&& node.parent.parent.type === 'ExportNamedDeclaration'
+				&& node.parent.parent.declaration === node.parent
+			) {
+				yield node;
+			}
+		},
 		messageId: MESSAGE_ID_EXPORT,
 	},
 	// `export const … = …`;
 	{
-		selector: 'ExportNamedDeclaration > VariableDeclaration.declaration',
+		selector: 'VariableDeclaration',
+		* getNodes(node, context) {
+			if (!(node.parent.type === 'ExportNamedDeclaration' && node.parent.declaration === node)) {
+				return;
+			}
+
+			for (const variable of context.sourceCode.getDeclaredVariables(node)) {
+				if (variable.name === 'then') {
+					yield * variable.identifiers;
+				}
+			}
+		},
 		messageId: MESSAGE_ID_EXPORT,
-		getNodes: (node, sourceCode) => sourceCode.getDeclaredVariables(node).flatMap(({name, identifiers}) => name === 'then' ? identifiers : []),
 	},
 ];
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
-
-	return Object.fromEntries(
-		cases.map(({selector, test, messageId, getNodes}) => [
-			selector,
-			function * (node) {
-				if (getNodes) {
-					for (const problematicNode of getNodes(node, sourceCode)) {
-						yield {node: problematicNode, messageId};
-					}
-
-					return;
-				}
-
-				if (test && !test(node, sourceCode)) {
-					return;
-				}
-
-				yield {node, messageId};
-			},
-		]),
-	);
+	for (const {selector, selectors, messageId, getNodes} of cases) {
+		context.on(selector ?? selectors, function * (node) {
+			for (const problematicNode of getNodes(node, context)) {
+				yield {node: problematicNode, messageId};
+			}
+		});
+	}
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

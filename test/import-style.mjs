@@ -621,7 +621,9 @@ test.babel({
 });
 
 test.snapshot({
-	valid: [],
+	valid: [
+		'let a',
+	],
 	invalid: [
 		'import util from \'util\'',
 		'import * as util from \'util\'',

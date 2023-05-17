@@ -1,6 +1,7 @@
 'use strict';
-const {} = require('./selectors/index.js');
+const {} = require('./ast/index.js');
 const {} = require('./fix/index.js');
+const {} = require('./utils/index.js');
 
 <% if (hasSuggestions) { %>
 const MESSAGE_ID_ERROR = '<%= id %>/error';
