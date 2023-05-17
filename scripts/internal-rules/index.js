@@ -12,7 +12,6 @@ const RULES_DIRECTORIES = [
 
 const rules = [
 	{id: 'fix-snapshot-test', directories: TEST_DIRECTORIES},
-	{id: 'prefer-disallow-over-forbid', directories: RULES_DIRECTORIES},
 	{id: 'prefer-negative-boolean-attribute', directories: RULES_DIRECTORIES},
 ];
 

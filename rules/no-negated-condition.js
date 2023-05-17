@@ -3,7 +3,6 @@ Based on ESLint builtin `no-negated-condition` rule
 https://github.com/eslint/eslint/blob/5c39425fc55ecc0b97bbd07ac22654c0eb4f789c/lib/rules/no-negated-condition.js
 */
 'use strict';
-const {matches} = require('./selectors/index.js');
 const {
 	removeParentheses,
 	fixSpaceAroundKeyword,
@@ -20,18 +19,6 @@ const MESSAGE_ID = 'no-negated-condition';
 const messages = {
 	[MESSAGE_ID]: 'Unexpected negated condition.',
 };
-
-const selector = [
-	matches([
-		'IfStatement[alternate][alternate.type!="IfStatement"]',
-		'ConditionalExpression',
-	]),
-	matches([
-		'[test.type="UnaryExpression"][test.operator="!"]',
-		'[test.type="BinaryExpression"][test.operator="!="]',
-		'[test.type="BinaryExpression"][test.operator="!=="]',
-	]),
-].join('');
 
 function * convertNegatedCondition(fixer, node, sourceCode) {
 	const {test} = node;
@@ -82,10 +69,32 @@ function * swapConsequentAndAlternate(fixer, node, sourceCode) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	[selector](node) {
+const create = context => {
+	context.on([
+		'IfStatement',
+		'ConditionalExpression',
+	], node => {
+		if (
+			node.type === 'IfStatement'
+			&& (
+				!node.alternate
+				|| node.alternate.type === 'IfStatement'
+			)
+		) {
+			return;
+		}
+
+		const {test} = node;
+
+		if (!(
+			(test.type === 'UnaryExpression' && test.operator === '!')
+			|| (test.type === 'BinaryExpression' && (test.operator === '!=' || test.operator === '!=='))
+		)) {
+			return;
+		}
+
 		return {
-			node: node.test,
+			node: test,
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
@@ -95,14 +104,14 @@ const create = context => ({
 
 				if (
 					node.type !== 'ConditionalExpression'
-					|| node.test.type !== 'UnaryExpression'
+					|| test.type !== 'UnaryExpression'
 				) {
 					return;
 				}
 
 				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 
-				const {test, parent} = node;
+				const {parent} = node;
 				const [firstToken, secondToken] = sourceCode.getFirstTokens(test, 2);
 				if (
 					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
@@ -121,8 +130,8 @@ const create = context => ({
 				}
 			},
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
