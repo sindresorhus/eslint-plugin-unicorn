@@ -221,7 +221,7 @@ const create = context => {
 
 		context.on('VariableDeclarator', node => {
 			if (!(
-				node.init.type === 'AwaitExpression'
+				node.init?.type === 'AwaitExpression'
 				&& node.init.argument.type === 'ImportExpression'
 			)) {
 				return;
@@ -285,7 +285,7 @@ const create = context => {
 
 		context.on('VariableDeclarator', node => {
 			if (!(
-				node.init.type === 'CallExpression'
+				node.init?.type === 'CallExpression'
 				&& node.init.callee.type === 'Identifier'
 				&& node.init.callee.name === 'require'
 			)) {
