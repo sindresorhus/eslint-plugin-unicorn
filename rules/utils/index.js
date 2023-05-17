@@ -25,6 +25,7 @@ module.exports = {
 	isArrayPrototypeProperty,
 	isBooleanNode,
 	isFunctionSelfUsedInside: require('./is-function-self-used-inside.js'),
+	isLeftHandSide: require('./is-left-hand-side.js'),
 	isLogicalExpression: require('./is-logical-expression.js'),
 	isMethodNamed: require('./is-method-named.js'),
 	isNodeMatches,
