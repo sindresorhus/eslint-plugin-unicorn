@@ -273,7 +273,7 @@ const create = context => {
 			// Exclude `export const foo = [];`
 			&& !(
 				node.parent.parent.type === 'ExportNamedDeclaration'
-				&& node.parent.parent.description === node.parent
+				&& node.parent.parent.declaration === node.parent
 			)
 		)) {
 			return;
