@@ -16,10 +16,12 @@ const create = context => {
 	const {sourceCode} = context;
 
 	return {
-		'ArrayPattern[elements.length>=3]'(node) {
+		ArrayPattern(node) {
 			const {elements, parent} = node;
 
-			if (!elements.some((element, index, elements) => isCommaFollowedWithComma(element, index, elements))) {
+			if (
+				elements.length < 3
+				|| !elements.some((element, index, elements) => isCommaFollowedWithComma(element, index, elements))) {
 				return;
 			}
 

@@ -9,19 +9,21 @@ const MESSAGE_ID = 'no-instanceof-array';
 const messages = {
 	[MESSAGE_ID]: 'Use `Array.isArray()` instead of `instanceof Array`.',
 };
-const selector = [
-	'BinaryExpression',
-	'[operator="instanceof"]',
-	'[right.type="Identifier"]',
-	'[right.name="Array"]',
-].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
 
 	return {
-		[selector](node) {
+		BinaryExpression(node) {
+			if (!(
+				node.operator === 'instanceof'
+				&& node.right.type === 'Identifier'
+				&& node.right.name === 'Array'
+			)) {
+				return;
+			}
+
 			const {left, right} = node;
 			let tokenStore = sourceCode;
 			let instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);

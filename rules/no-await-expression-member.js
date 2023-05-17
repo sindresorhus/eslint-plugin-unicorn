@@ -15,7 +15,11 @@ const create = context => {
 	const {sourceCode} = context;
 
 	return {
-		'MemberExpression[object.type="AwaitExpression"]'(memberExpression) {
+		MemberExpression(memberExpression) {
+			if (memberExpression.object.type !== 'AwaitExpression') {
+				return;
+			}
+
 			const {property} = memberExpression;
 			const problem = {
 				node: property,

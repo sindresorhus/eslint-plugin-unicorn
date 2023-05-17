@@ -8,30 +8,41 @@ const messages = {
 	[MESSAGE_ID_SHOULD_PARENTHESIZED]: 'Nest ternary expression should be parenthesized.',
 };
 
-const nestTernarySelector = level => `:not(ConditionalExpression)${' > ConditionalExpression'.repeat(level)}`;
-
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	const {sourceCode} = context;
+const create = context => ({
+	ConditionalExpression(node) {
+		if ([
+			node.test,
+			node.consequent,
+			node.alternate,
+		].some(node => node.type === 'ConditionalExpression')) {
+			return;
+		}
 
-	return {
-		[nestTernarySelector(3)]: node =>
-			// Nesting more than one level not allowed.
-			({node, messageId: MESSAGE_ID_TOO_DEEP}),
-		[nestTernarySelector(2)](node) {
-			if (!isParenthesized(node, sourceCode)) {
-				return {
-					node,
-					messageId: MESSAGE_ID_SHOULD_PARENTHESIZED,
-					fix: fixer => [
-						fixer.insertTextBefore(node, '('),
-						fixer.insertTextAfter(node, ')'),
-					],
-				};
-			}
-		},
-	};
-};
+		const {sourceCode} = context;
+		const ancestors = sourceCode.getAncestors(node).reverse();
+		const nestLevel = ancestors.findIndex(node => node.type !== 'ConditionalExpression');
+
+		if (nestLevel === 1 && !isParenthesized(node, sourceCode)) {
+			return {
+				node,
+				messageId: MESSAGE_ID_SHOULD_PARENTHESIZED,
+				fix: fixer => [
+					fixer.insertTextBefore(node, '('),
+					fixer.insertTextAfter(node, ')'),
+				],
+			};
+		}
+
+		// Nesting more than one level not allowed
+		if (nestLevel > 1) {
+			return {
+				node: nestLevel > 2 ? ancestors[nestLevel - 3] : node,
+				messageId: MESSAGE_ID_TOO_DEEP,
+			};
+		}
+	},
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

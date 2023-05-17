@@ -1,24 +1,26 @@
 'use strict';
-const {matches} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-event-target';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `EventTarget` over `EventEmitter`.',
 };
 
-const selector = [
-	'Identifier',
-	'[name="EventEmitter"]',
-	matches([
-		'ClassDeclaration > .superClass',
-		'ClassExpression > .superClass',
-		'NewExpression > .callee',
-	]),
-].join('');
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
-	[selector](node) {
+	Identifier(node) {
+		if (!(
+			node.name === 'EventEmitter'
+			&& (
+				(
+					(node.parent.type === 'ClassDeclaration' || node.parent.type === 'ClassExpression')
+					&& node.parent.superClass === node
+				)
+				|| (node.parent.type === 'NewExpression' && node.parent.callee === node)
+			)
+		)) {
+			return;
+		}
+
 		return {
 			node,
 			messageId: MESSAGE_ID,

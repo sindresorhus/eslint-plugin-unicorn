@@ -110,7 +110,15 @@ const getProblem = node => ({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	'Identifier:matches([name="keyCode"], [name="charCode"], [name="which"])'(node) {
+	Identifier(node) {
+		if (
+			node.name !== 'keyCode'
+			&& node.name !== 'charCode'
+			&& node.name !== 'which'
+		) {
+			return;
+		}
+
 		// Normal case when usage is direct -> `event.keyCode`
 		const {event, references} = getEventNodeAndReferences(context, node);
 		if (!event) {

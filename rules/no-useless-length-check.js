@@ -1,7 +1,7 @@
 'use strict';
-const {methodCallSelector, matches, memberExpressionSelector} = require('./selectors/index.js');
-const isSameReference = require('./utils/is-same-reference.js');
-const {getParenthesizedRange} = require('./utils/parentheses.js');
+const {isMethodCall} = require('./ast/index.js');
+const {matches, memberExpressionSelector} = require('./selectors/index.js');
+const {getParenthesizedRange, isSameReference} = require('./utils/index.js');
 
 const messages = {
 	'non-zero': 'The non-empty check is useless as `Array#some()` returns `false` for an empty array.',
@@ -29,8 +29,6 @@ const nonZeroLengthCheckSelector = [
 	lengthCompareZeroSelector,
 	matches(['[operator=">"]', '[operator="!=="]']),
 ].join('');
-const arraySomeCallSelector = methodCallSelector('some');
-const arrayEveryCallSelector = methodCallSelector('every');
 
 function flatLogicalExpression(node) {
 	return [node.left, node.right].flatMap(child =>
@@ -89,11 +87,21 @@ const create = context => {
 		[nonZeroLengthCheckSelector](node) {
 			nonZeroLengthChecks.add(node);
 		},
-		[arraySomeCallSelector](node) {
-			arraySomeCalls.add(node);
-		},
-		[arrayEveryCallSelector](node) {
-			arrayEveryCalls.add(node);
+		CallExpression(node) {
+			if (
+				isMethodCall(node, {
+					optionalCall: false,
+					optionalMember: false,
+					computed: false,
+				})
+				&& node.callee.property.type === 'Identifier'
+			) {
+				if (node.callee.property.name === 'some') {
+					arraySomeCalls.add(node);
+				} else if (node.callee.property.name === 'every') {
+					arrayEveryCalls.add(node);
+				}
+			}
 		},
 		[logicalExpressionSelector](node) {
 			logicalExpressions.push(node);

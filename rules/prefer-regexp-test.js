@@ -1,10 +1,11 @@
 'use strict';
 const {isParenthesized, getStaticValue} = require('@eslint-community/eslint-utils');
 const {checkVueTemplate} = require('./utils/rule.js');
-const {methodCallSelector} = require('./selectors/index.js');
-const {isRegexLiteral, isNewExpression} = require('./ast/index.js');
-const {isBooleanNode} = require('./utils/boolean.js');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
+const {isRegexLiteral, isNewExpression, isMethodCall} = require('./ast/index.js');
+const {
+	isBooleanNode,
+	shouldAddParenthesesToMemberExpressionObject,
+} = require('./utils/index.js');
 
 const REGEXP_EXEC = 'regexp-exec';
 const STRING_MATCH = 'string-match';
@@ -18,9 +19,11 @@ const messages = {
 const cases = [
 	{
 		type: REGEXP_EXEC,
-		selector: methodCallSelector({
+		test: node => isMethodCall(node, {
 			method: 'exec',
 			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
 		}),
 		getNodes: node => ({
 			stringNode: node.arguments[0],
@@ -31,9 +34,11 @@ const cases = [
 	},
 	{
 		type: STRING_MATCH,
-		selector: methodCallSelector({
+		test: node => isMethodCall(node, {
 			method: 'match',
 			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
 		}),
 		getNodes: node => ({
 			stringNode: node.callee.object,
@@ -87,20 +92,22 @@ const isRegExpWithoutGlobalFlag = (node, scope) => {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => Object.fromEntries(
-	cases.map(checkCase => [
-		checkCase.selector,
-		node => {
-			if (!isBooleanNode(node)) {
-				return;
+const create = context => ({
+	* CallExpression(node) {
+		if (!isBooleanNode(node)) {
+			return;
+		}
+
+		for (const {type, test, getNodes, fix} of cases) {
+			if (!test(node)) {
+				continue;
 			}
 
-			const {type, getNodes, fix} = checkCase;
 			const nodes = getNodes(node);
 			const {methodNode, regexpNode} = nodes;
 
 			if (regexpNode.type === 'Literal' && !regexpNode.regex) {
-				return;
+				continue;
 			}
 
 			const problem = {
@@ -125,10 +132,10 @@ const create = context => Object.fromEntries(
 				];
 			}
 
-			return problem;
-		},
-	]),
-);
+			yield problem;
+		}
+	},
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
