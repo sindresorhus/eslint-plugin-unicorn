@@ -1,8 +1,7 @@
 'use strict';
 const {isParenthesized} = require('@eslint-community/eslint-utils');
-const {methodCallSelector} = require('./selectors/index.js');
-const {isNodeMatches} = require('./utils/is-node-matches.js');
-const {isNodeValueNotFunction} = require('./utils/index.js');
+const {isMethodCall} = require('./ast/index.js');
+const {isNodeMatches, isNodeValueNotFunction} = require('./utils/index.js');
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
@@ -15,120 +14,127 @@ const messages = {
 	[REPLACE_WITHOUT_NAME_MESSAGE_ID]: 'Replace function with `… => …({{parameters}})`.',
 };
 
-const iteratorMethods = [
-	[
-		'every',
-		{
-			ignore: [
-				'Boolean',
-			],
-		},
-	],
-	[
-		'filter', {
-			extraSelector: '[callee.object.name!="Vue"]',
-			ignore: [
-				'Boolean',
-			],
-		},
-	],
-	[
-		'find',
-		{
-			ignore: [
-				'Boolean',
-			],
-		},
-	],
-	[
-		'findLast',
-		{
-			ignore: [
-				'Boolean',
-			],
-		},
-	],
-	[
-		'findIndex',
-		{
-			ignore: [
-				'Boolean',
-			],
-		},
-	],
-	[
-		'findLastIndex',
-		{
-			ignore: [
-				'Boolean',
-			],
-		},
-	],
-	[
-		'flatMap',
-	],
-	[
-		'forEach',
-		{
-			returnsUndefined: true,
-		},
-	],
-	[
-		'map',
-		{
-			extraSelector: '[callee.object.name!="types"]',
-			ignore: [
-				'String',
-				'Number',
-				'BigInt',
-				'Boolean',
-				'Symbol',
-			],
-		},
-	],
-	[
-		'reduce',
-		{
-			parameters: [
-				'accumulator',
-				'element',
-				'index',
-				'array',
-			],
-			minParameters: 2,
-		},
-	],
-	[
-		'reduceRight',
-		{
-			parameters: [
-				'accumulator',
-				'element',
-				'index',
-				'array',
-			],
-			minParameters: 2,
-		},
-	],
-	[
-		'some',
-		{
-			ignore: [
-				'Boolean',
-			],
-		},
-	],
-].map(([method, options]) => {
-	options = {
-		parameters: ['element', 'index', 'array'],
-		ignore: [],
-		minParameters: 1,
-		extraSelector: '',
-		returnsUndefined: false,
-		...options,
-	};
-	return [method, options];
-});
+const isAwaitExpressionArgument = node => node.parent.type === 'AwaitExpression' && node.parent.argument === node;
+
+const iteratorMethods = new Map([
+	{
+		method: 'every',
+		ignore: [
+			'Boolean',
+		],
+	},
+	{
+		method: 'filter',
+		test: node => !(node.callee.object.type === 'Identifier' && node.callee.object.name === 'Vue'),
+		ignore: [
+			'Boolean',
+		],
+	},
+	{
+		method: 'find',
+		ignore: [
+			'Boolean',
+		],
+	},
+	{
+		method: 'findLast',
+		ignore: [
+			'Boolean',
+		],
+	},
+	{
+		method: 'findIndex',
+		ignore: [
+			'Boolean',
+		],
+	},
+	{
+		method: 'findLastIndex',
+		ignore: [
+			'Boolean',
+		],
+	},
+	{
+		method: 'flatMap',
+	},
+	{
+		method: 'forEach',
+		returnsUndefined: true,
+	},
+	{
+		method: 'map',
+		test: node => !(node.callee.object.type === 'Identifier' && node.callee.object.name === 'types'),
+		ignore: [
+			'String',
+			'Number',
+			'BigInt',
+			'Boolean',
+			'Symbol',
+		],
+	},
+	{
+		method: 'reduce',
+		parameters: [
+			'accumulator',
+			'element',
+			'index',
+			'array',
+		],
+		minParameters: 2,
+	},
+	{
+		method: 'reduceRight',
+		parameters: [
+			'accumulator',
+			'element',
+			'index',
+			'array',
+		],
+		minParameters: 2,
+	},
+	{
+		method: 'some',
+		ignore: [
+			'Boolean',
+		],
+	},
+].map(({
+	method,
+	parameters = ['element', 'index', 'array'],
+	ignore = [],
+	minParameters = 1,
+	returnsUndefined = false,
+	test,
+}) => [method, {
+	minParameters,
+	parameters,
+	returnsUndefined,
+	test(node) {
+		if (
+			method !== 'reduce'
+			&& method !== 'reduceRight'
+			&& isAwaitExpressionArgument(node)
+		) {
+			return false;
+		}
+
+		if (isNodeMatches(node.callee.object, ignoredCallee)) {
+			return false;
+		}
+
+		if (node.callee.object.type === 'CallExpression' && isNodeMatches(node.callee.object.callee, ignoredCallee)) {
+			return false;
+		}
+
+		const [callback] = node.arguments;
+
+		if (callback.type === 'Identifier' && ignore.includes(callback.name)) {
+			return false;
+		}
+
+		return !test || test(node);
+	},
+}]));
 
 const ignoredCallee = [
 	// http://bluebirdjs.com/docs/api/promise.map.html
@@ -149,10 +155,6 @@ function getProblem(context, node, method, options) {
 	const {type} = node;
 
 	const name = type === 'Identifier' ? node.name : '';
-
-	if (type === 'Identifier' && options.ignore.includes(name)) {
-		return;
-	}
 
 	const problem = {
 		node,
@@ -197,47 +199,48 @@ function getProblem(context, node, method, options) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	const rules = {};
-
-	for (const [method, options] of iteratorMethods) {
-		const selector = [
-			method === 'reduce' || method === 'reduceRight' ? '' : ':not(AwaitExpression) > ',
-			methodCallSelector({
-				method,
+const create = context => ({
+	CallExpression(node) {
+		if (
+			!isMethodCall(node, {
 				minimumArguments: 1,
 				maximumArguments: 2,
-			}),
-			options.extraSelector,
-		].join('');
+				optionalCall: false,
+				optionalMember: false,
+				computed: false,
+			})
+			|| node.callee.property.type !== 'Identifier'
+		) {
+			return;
+		}
 
-		rules[selector] = node => {
-			if (isNodeMatches(node.callee.object, ignoredCallee)) {
-				return;
-			}
+		const methodNode = node.callee.property;
+		const methodName = methodNode.name;
+		if (!iteratorMethods.has(methodName)) {
+			return;
+		}
 
-			if (node.callee.object.type === 'CallExpression' && isNodeMatches(node.callee.object.callee, ignoredCallee)) {
-				return;
-			}
+		const [callback] = node.arguments;
 
-			const [callback] = node.arguments;
+		if (
+			callback.type === 'FunctionExpression'
+			|| callback.type === 'ArrowFunctionExpression'
+			// Ignore all `CallExpression`s include `function.bind()`
+			|| callback.type === 'CallExpression'
+			|| isNodeValueNotFunction(callback)
+		) {
+			return;
+		}
 
-			if (
-				callback.type === 'FunctionExpression'
-				|| callback.type === 'ArrowFunctionExpression'
-				// Ignore all `CallExpression`s include `function.bind()`
-				|| callback.type === 'CallExpression'
-				|| isNodeValueNotFunction(callback)
-			) {
-				return;
-			}
+		const options = iteratorMethods.get(methodName);
 
-			return getProblem(context, callback, method, options);
-		};
-	}
+		if (!options.test(node)) {
+			return;
+		}
 
-	return rules;
-};
+		return getProblem(context, callback, methodName, options);
+	},
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
