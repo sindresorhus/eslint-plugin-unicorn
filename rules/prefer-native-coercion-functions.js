@@ -1,6 +1,5 @@
 'use strict';
 const {getFunctionHeadLocation, getFunctionNameWithKind} = require('@eslint-community/eslint-utils');
-const {not} = require('./selectors/index.js');
 
 const MESSAGE_ID = 'prefer-native-coercion-functions';
 const messages = {
@@ -69,19 +68,6 @@ function getCallExpression(node) {
 	}
 }
 
-const functionsSelector = [
-	':function',
-	'[async!=true]',
-	'[generator!=true]',
-	'[params.length>0]',
-	'[params.0.type="Identifier"]',
-	not([
-		'MethodDefinition[kind="constructor"] > .value',
-		'MethodDefinition[kind="set"] > .value',
-		'Property[kind="set"] > .value',
-	]),
-].join('');
-
 function getArrayCallbackProblem(node) {
 	if (!isArrayIdentityCallback(node)) {
 		return;
@@ -129,8 +115,31 @@ function getCoercionFunctionProblem(node) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	[functionsSelector](node) {
+const create = context => {
+	context.on([
+		'FunctionDeclaration',
+		'FunctionExpression',
+		'ArrowFunctionExpression',
+	], node => {
+		if (
+			node.async
+			|| node.generator
+			|| node.params.length === 0
+			|| node.params[0].type !== 'Identifier'
+			|| (
+				(
+					(
+						node.parent.type === 'MethodDefinition'
+						&& (node.parent.kind === 'constructor' || node.parent.kind === 'set')
+					)
+					|| (node.parent.type === 'Property' && node.parent.kind === 'set')
+				)
+				&& node.parent.value === node
+			)
+		) {
+			return;
+		}
+
 		let problem = getArrayCallbackProblem(node) || getCoercionFunctionProblem(node);
 
 		if (!problem) {
@@ -162,8 +171,8 @@ const create = context => ({
 		problem.fix = fix;
 
 		return problem;
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
