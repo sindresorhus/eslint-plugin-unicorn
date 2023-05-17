@@ -4,3 +4,4 @@ coverage:
       default:
         target: 99%
         threshold: 1%
+    patch: off

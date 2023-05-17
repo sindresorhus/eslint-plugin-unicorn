@@ -46,6 +46,7 @@ jobs:
       - uses: codecov/codecov-action@v3
         with:
           fail_ci_if_error: true
+          files: coverage/lcov.info
   run-rules-on-codebase:
     runs-on: ubuntu-latest
     steps:
