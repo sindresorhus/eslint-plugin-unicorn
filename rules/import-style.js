@@ -117,6 +117,12 @@ const joinOr = words => words
 	})
 	.join(' ');
 
+const isAssignedDynamicImport = node =>
+	node.parent.type === 'AwaitExpression'
+	&& node.parent.argument === node
+	&& node.parent.parent.type === 'VariableDeclarator'
+	&& node.parent.parent.init === node.parent;
+
 // Keep this alphabetically sorted for easier maintenance
 const defaultStyles = {
 	chalk: {
@@ -199,8 +205,13 @@ const create = context => {
 		});
 	}
 
+
 	if (checkDynamicImport) {
 		context.on('ImportExpression', node => {
+			if (isAssignedDynamicImport(node)) {
+				return;
+			}
+
 			const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 			const allowedImportStyles = styles.get(moduleName);
 			const actualImportStyles = ['unassigned'];
@@ -276,7 +287,7 @@ const create = context => {
 			if (!(
 				node.init.type === 'CallExpression'
 				&& node.init.callee.type === 'Identifier'
-				&& node.init.callee.name == 'require`'
+				&& node.init.callee.name === 'require'
 			)) {
 				return;
 			}
