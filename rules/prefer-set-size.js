@@ -70,7 +70,7 @@ const create = context => {
 				})
 				|| node.object.type !== 'ArrayExpression'
 				|| node.object.elements.length !== 1
-				|| node.object.elements[0].type !== 'SpreadElement'
+				|| node.object.elements[0]?.type !== 'SpreadElement'
 			) {
 				return;
 			}
