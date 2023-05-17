@@ -263,10 +263,10 @@ const create = context => {
 		};
 	});
 
-	// `??`
+	// `const foo = array.filter(); foo[0]; [bar] = foo`
 	context.on('VariableDeclarator', node => {
 		if (!(
-			node.id === 'Identifier'
+			node.id.type === 'Identifier'
 			&& isArrayFilterCall(node.init)
 			&& node.parent.type === 'VariableDeclaration'
 			&& node.parent.declarations.includes(node)
