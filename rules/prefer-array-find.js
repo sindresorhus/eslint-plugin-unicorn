@@ -251,6 +251,7 @@ const create = context => {
 		if (!(
 			node.left.type === 'ArrayPattern'
 			&& node.left.elements.length === 1
+			&& node.left.elements[0]
 			&& node.left.elements[0].type !== 'RestElement'
 			&& isArrayFilterCall(node.right)
 		)) {

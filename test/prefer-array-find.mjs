@@ -383,6 +383,7 @@ test({
 		'[] = array.filter(bar)',
 		'[foo, another] = array.filter(bar)',
 		'[, foo] = array.filter(bar)',
+		'[,] = array.filter(bar)',
 		// `RestElement`
 		'[...foo] = array.filter(bar)',
 
