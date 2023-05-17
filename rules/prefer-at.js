@@ -143,7 +143,7 @@ function create(context) {
 	context.on('MemberExpression', node => {
 		if (
 			node.optional
-			|| node.computed
+			|| !node.computed
 			|| isLeftHandSide(node)
 		) {
 			return;
