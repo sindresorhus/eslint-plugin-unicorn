@@ -27,7 +27,7 @@ const cases = [
 					property.type === 'Property'
 					&& getPropertyName(property, context.sourceCode.getScope(property)) === 'then'
 				) {
-					yield node.key;
+					yield property.key;
 				}
 			}
 		},
@@ -56,7 +56,7 @@ const cases = [
 			}
 
 			if (getPropertyName(node, context.sourceCode.getScope(node)) === 'then') {
-				yield node.key;
+				yield node.property;
 			}
 		},
 		messageId: MESSAGE_ID_OBJECT,
@@ -71,8 +71,8 @@ const cases = [
 					objects: ['Object', 'Reflect'],
 					method: 'defineProperty',
 					minimumArguments: 3,
-					optionalCall: true,
-					optionalMember: true,
+					optionalCall: false,
+					optionalMember: false,
 				})
 				&& node.arguments[0].type !== 'SpreadElement'
 			)) {
@@ -95,8 +95,8 @@ const cases = [
 				object: 'Object',
 				method: 'fromEntries',
 				argumentsLength: 1,
-				optionalCall: true,
-				optionalMember: true,
+				optionalCall: false,
+				optionalMember: false,
 			})) {
 				return;
 			}
@@ -106,10 +106,9 @@ const cases = [
 				return;
 			}
 
-			for (const element of firstArgument.elements) {
-				if (isStringThen(element[0], context)) {
-					yield element[0];
-				}
+			const [firstElement] = firstArgument.elements;
+			if (isStringThen(firstElement, context)) {
+				yield firstElement;
 			}
 		},
 		messageId: MESSAGE_ID_OBJECT,
