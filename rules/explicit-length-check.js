@@ -4,7 +4,7 @@ const {checkVueTemplate} = require('./utils/rule.js');
 const isLogicalExpression = require('./utils/is-logical-expression.js');
 const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
-const {isLiteral, isMemberExpression} = require('./ast/index.js');
+const {isLiteral, isMemberExpression, isNumberLiteral} = require('./ast/index.js');
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -90,6 +90,15 @@ function getLengthCheckNode(node) {
 	return {};
 }
 
+function isNodeValueNumber(node, context) {
+	if (isNumberLiteral(node)) {
+		return true;
+	}
+
+	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+	return staticValue && typeof staticValue.value === 'number';
+}
+
 function create(context) {
 	const options = {
 		'non-zero': 'greater-than',
@@ -171,7 +180,13 @@ function create(context) {
 				if (isBooleanNode(ancestor)) {
 					isZeroLengthCheck = isNegative;
 					node = ancestor;
-				} else if (isLogicalExpression(lengthNode.parent)) {
+				} else if (
+					isLogicalExpression(lengthNode.parent)
+					&& !(
+						lengthNode.parent.operator === '||'
+						&& isNodeValueNumber(lengthNode.parent.right, context)
+					)
+				) {
 					isZeroLengthCheck = isNegative;
 					node = lengthNode;
 					autoFix = false;
