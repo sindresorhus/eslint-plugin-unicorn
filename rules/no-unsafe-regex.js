@@ -1,7 +1,6 @@
 'use strict';
 const safeRegex = require('safe-regex');
-const {isNewExpression, isRegexLiteral} = require('./ast/index.js');
-const { isStringLiteral } = require('./ast/literal.js');
+const {isNewExpression, isRegexLiteral, isStringLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-unsafe-regex';
 const messages = {
