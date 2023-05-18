@@ -1,6 +1,5 @@
 'use strict';
-const {isStaticRequire, isMethodCall} = require('./ast/index.js');
-const { isStringLiteral } = require('./ast/literal.js');
+const {isStaticRequire, isMethodCall, isLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-process-exit';
 const messages = {
@@ -8,8 +7,8 @@ const messages = {
 };
 
 const isWorkerThreads = node =>
-	isStringLiteral(node, 'node:worker_threads')
-	|| isStringLiteral(node, 'worker_threads');
+	isLiteral(node, 'node:worker_threads')
+	|| isLiteral(node, 'worker_threads');
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
