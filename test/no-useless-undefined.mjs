@@ -478,9 +478,27 @@ test.snapshot({
 	},
 	valid: [],
 	invalid: [
-		'function A(foo: Type = undefined) {}',
-		'function A(foo?: Type = undefined) {}',
-		'const A = function(foo: Type = undefined) {}',
-		'const A = (foo: Type = undefined) => {}',
-	]
+		'function f(foo: Type = undefined) {}',
+		'function f(foo?: Type = undefined) {}',
+		'const f = function(foo: Type = undefined) {}',
+		'const f = (foo: Type = undefined) => {}',
+		'const f = {method(foo: Type = undefined){}}',
+		'const f = class {method(foo: Type = undefined){}}',
+		'function f(foo = undefined) {}',
+		...[
+			undefined,
+			'foo.js',
+			'foo.ts',
+			'foo.MTs',
+			'foo.cts',
+			'foo.tsx',
+		].map(physicalFilename => ({
+			code: 'function f(foo = undefined) {}',
+			physicalFilename,
+		})),
+		{
+			code: 'function a({} = undefined) {}',
+			physicalFilename: 'foo.ts',
+		},
+	],
 })

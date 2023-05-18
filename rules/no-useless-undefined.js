@@ -80,6 +80,9 @@ const isFunctionBindCall = node =>
 	&& node.callee.property.type === 'Identifier'
 	&& node.callee.property.name === 'bind';
 
+const isTypeScriptFile = context =>
+	/\.(?:ts|mts|cts|tsx)$/i.test(context.getPhysicalFilename());
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -186,12 +189,16 @@ const create = context => {
 					yield fixer.removeRange([left.range[1], node.range[1]]);
 
 					if (
-						left.typeAnnotation
+						(left.typeAnnotation || isTypeScriptFile(context))
 						&& !left.optional
 						&& isFunction(assignmentPattern.parent)
 						&& assignmentPattern.parent.params.includes(assignmentPattern)
 					) {
-						yield fixer.insertTextBefore(left.typeAnnotation, '?');
+							yield (
+								left.typeAnnotation
+								? fixer.insertTextBefore(left.typeAnnotation, '?')
+								: fixer.insertTextAfter(left, '?')
+							);
 					}
 				},
 				/* CheckFunctionReturnType */ true,
