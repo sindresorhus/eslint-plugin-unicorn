@@ -224,7 +224,7 @@ function create(context) {
 	const {sourceCode} = context;
 
 	context.on('ExpressionStatement', node => {
-		if (!node.directive === 'use strict') {
+		if (node.directive !== 'use strict') {
 			return;
 		}
 
