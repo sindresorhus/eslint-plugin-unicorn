@@ -184,7 +184,7 @@ const create = context => {
 				node,
 				function * (fixer) {
 					const assignmentPattern = node.parent;
-					const left = assignmentPattern.left;
+					const {left} = assignmentPattern;
 
 					yield fixer.removeRange([left.range[1], node.range[1]]);
 					if (
@@ -195,8 +195,8 @@ const create = context => {
 					) {
 						yield (
 							left.typeAnnotation
-							? fixer.insertTextBefore(left.typeAnnotation, '?')
-							: fixer.insertTextAfter(left, '?')
+								? fixer.insertTextBefore(left.typeAnnotation, '?')
+								: fixer.insertTextAfter(left, '?')
 						);
 					}
 				},

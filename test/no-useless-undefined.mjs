@@ -497,8 +497,8 @@ test.snapshot({
 			filename,
 		})),
 		{
-			code: 'function a({} = undefined) {}',
+			code: 'function a({foo} = undefined) {}',
 			filename: 'foo.ts',
 		},
 	],
-})
+});
