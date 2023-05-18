@@ -1,6 +1,6 @@
 'use strict';
 const {findVariable, getFunctionHeadLocation} = require('@eslint-community/eslint-utils');
-const {isFunction, isMemberExpression} = require('./ast/index.js');
+const {isFunction, isMemberExpression, isFunction} = require('./ast/index.js');
 
 const ERROR_PROMISE = 'promise';
 const ERROR_IIFE = 'iife';
@@ -106,13 +106,7 @@ function create(context) {
 				: definition.node;
 			if (
 				!value
-				|| !(
-					(
-						value.type === 'ArrowFunctionExpression'
-						|| value.type === 'FunctionExpression'
-						|| value.type === 'FunctionDeclaration'
-					) && !value.generator && value.async
-				)
+				|| !(isFunction(value) && !value.generator && value.async)
 			) {
 				return;
 			}
