@@ -471,3 +471,14 @@ test.snapshot({
 		`,
 	],
 });
+
+test.snapshot({
+	testerOptions: {
+		parser: parsers.typescript,
+	},
+	valid: [],
+	invalid: [
+		'function A(type: foo = undefined) {}',
+		'function A(type?: foo = undefined) {}',
+	]
+})
