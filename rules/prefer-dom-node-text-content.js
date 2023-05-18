@@ -8,17 +8,6 @@ const messages = {
 	[SUGGESTION]: 'Switch to `.textContent`.',
 };
 
-const destructuringSelector = [
-	'ObjectPattern',
-	' > ',
-	'Property.properties',
-	'[kind="init"]',
-	'[computed!=true]',
-	' > ',
-	'Identifier.key',
-	'[name="innerText"]',
-].join('');
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
 	MemberExpression(memberExpression) {
@@ -43,7 +32,19 @@ const create = () => ({
 			],
 		};
 	},
-	[destructuringSelector](node) {
+	Identifier(node) {
+		if (!(
+			node.name === 'innerText'
+			&& node.parent.type === 'Property'
+			&& node.parent.key === node
+			&& !node.parent.computed
+			&& node.parent.kind === 'init'
+			&& node.parent.parent.type === 'ObjectPattern'
+			&& node.parent.parent.properties.includes(node.parent)
+		)) {
+			return;
+		}
+
 		return {
 			node,
 			messageId: ERROR,

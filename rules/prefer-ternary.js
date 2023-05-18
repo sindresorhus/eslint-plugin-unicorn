@@ -11,14 +11,6 @@ const getScopes = require('./utils/get-scopes.js');
 
 const messageId = 'prefer-ternary';
 
-const selector = [
-	'IfStatement',
-	':not(IfStatement > .alternate)',
-	'[test.type!="ConditionalExpression"]',
-	'[consequent]',
-	'[alternate]',
-].join('');
-
 const isTernary = node => node?.type === 'ConditionalExpression';
 
 function getNodeBody(node) {
@@ -174,7 +166,16 @@ const create = context => {
 	}
 
 	return {
-		[selector](node) {
+		IfStatement(node) {
+			if (
+				(node.parent.type === 'IfStatement' && node.parent.alternate === node)
+				|| node.test.type === 'ConditionalExpression'
+				|| !node.consequent
+				|| !node.alternate
+			) {
+				return;
+			}
+
 			const consequent = getNodeBody(node.consequent);
 			const alternate = getNodeBody(node.alternate);
 

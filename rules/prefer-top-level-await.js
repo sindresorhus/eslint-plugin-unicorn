@@ -106,13 +106,7 @@ function create(context) {
 				: definition.node;
 			if (
 				!value
-				|| !(
-					(
-						value.type === 'ArrowFunctionExpression'
-						|| value.type === 'FunctionExpression'
-						|| value.type === 'FunctionDeclaration'
-					) && !value.generator && value.async
-				)
+				|| !(isFunction(value) && !value.generator && value.async)
 			) {
 				return;
 			}

@@ -89,6 +89,15 @@ function reportProblems(create) {
 					};
 				}
 
+				if (property === 'onExit') {
+					return (selectorOrSelectors, listener) => {
+						const selectors = Array.isArray(selectorOrSelectors) ? selectorOrSelectors : [selectorOrSelectors];
+						for (const selector of selectors) {
+							addListener(`${selector}:exit`, listener);
+						}
+					};
+				}
+
 				return Reflect.get(target, property, receiver);
 			},
 		});

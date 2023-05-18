@@ -82,8 +82,8 @@ const create = context => {
 			}
 		},
 
-		'ImportDeclaration > Literal'(node) {
-			if (!isDisabled && excludedPackages.has(node.value)) {
+		Literal(node) {
+			if (node.parent.type === 'ImportDeclaration' && !isDisabled && excludedPackages.has(node.value)) {
 				isDisabled = true;
 			}
 		},

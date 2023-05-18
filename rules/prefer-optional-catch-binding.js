@@ -9,15 +9,14 @@ const messages = {
 	[MESSAGE_ID_WITHOUT_NAME]: 'Remove unused catch binding.',
 };
 
-const selector = [
-	'CatchClause',
-	' > ',
-	'.param',
-].join('');
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[selector](node) {
+	CatchClause(catchClause) {
+		const node = catchClause.param;
+		if (!node) {
+			return;
+		}
+
 		const {sourceCode} = context;
 		const variables = sourceCode.getDeclaredVariables(node.parent);
 

@@ -1,6 +1,6 @@
 'use strict';
 const safeRegex = require('safe-regex');
-const {isNewExpression, isRegexLiteral} = require('./ast/index.js');
+const {isNewExpression, isRegexLiteral, isStringLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-unsafe-regex';
 const messages = {
@@ -8,44 +8,49 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
-	Literal(node) {
-		if (
-			isNewExpression(node.parent, {name: 'RegExp'})
+const create = context => {
+	context.on('Literal', node => {
+		if (!(
+			isStringLiteral(node)
+			&& isNewExpression(node.parent, {name: 'RegExp'})
 			&& node.parent.arguments[0] === node
-		) {
-			const [, flagsNode] = node.parent.arguments;
-
-			let pattern;
-			let flags;
-			if (isRegexLiteral(node)) {
-				({pattern} = node.regex);
-				flags = flagsNode?.type === 'Literal'
-					? flagsNode.value
-					: node.regex.flags;
-			} else {
-				pattern = node.value;
-				flags = flagsNode?.type === 'Literal'
-					? flagsNode.value
-					: '';
-			}
-
-			if (!safeRegex(`/${pattern}/${flags}`)) {
-				return {
-					node,
-					messageId: MESSAGE_ID,
-				};
-			}
+		)) {
+			return;
 		}
 
+		const [, flagsNode] = node.parent.arguments;
+
+		let pattern;
+		let flags;
+		if (isRegexLiteral(node)) {
+			({pattern} = node.regex);
+			flags = flagsNode?.type === 'Literal'
+				? flagsNode.value
+				: node.regex.flags;
+		} else {
+			pattern = node.value;
+			flags = flagsNode?.type === 'Literal'
+				? flagsNode.value
+				: '';
+		}
+
+		if (!safeRegex(`/${pattern}/${flags}`)) {
+			return {
+				node,
+				messageId: MESSAGE_ID,
+			};
+		}
+	});
+
+	context.on('Literal', node => {
 		if (isRegexLiteral(node) && !safeRegex(node.value)) {
 			return {
 				node,
 				messageId: MESSAGE_ID,
 			};
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

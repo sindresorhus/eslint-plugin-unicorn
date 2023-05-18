@@ -2,7 +2,7 @@
 const cleanRegexp = require('clean-regexp');
 const {optimize} = require('regexp-tree');
 const escapeString = require('./utils/escape-string.js');
-const {isStringLiteral, isNewExpression} = require('./ast/index.js');
+const {isStringLiteral, isNewExpression, isRegexLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'better-regex';
 const MESSAGE_ID_PARSE_ERROR = 'better-regex/parse-error';
@@ -22,7 +22,11 @@ const create = context => {
 	}
 
 	return {
-		'Literal[regex]'(node) {
+		Literal(node) {
+			if (!isRegexLiteral(node)) {
+				return;
+			}
+
 			const {raw: original, regex} = node;
 
 			// Regular Expressions with `u` flag are not well handled by `regexp-tree`

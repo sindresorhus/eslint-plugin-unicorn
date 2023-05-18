@@ -4,26 +4,26 @@ const messages = {
 	[MESSAGE_ID]: 'Do not assign `this` to `{{name}}`.',
 };
 
+function getProblem(variableNode, valueNode) {
+	if (
+		variableNode.type !== 'Identifier'
+		|| valueNode?.type !== 'ThisExpression'
+	) {
+		return;
+	}
+
+	return {
+		node: valueNode.parent,
+		data: {name: variableNode.name},
+		messageId: MESSAGE_ID,
+	};
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
-	'VariableDeclarator,AssignmentExpression'(node) {
-		const variableNode = node.type === 'AssignmentExpression' ? node.left : node.id;
-		const valueNode = node.type === 'AssignmentExpression' ? node.right : node.init;
-
-		if (
-			variableNode.type !== 'Identifier'
-			|| valueNode?.type !== 'ThisExpression'
-		) {
-			return;
-		}
-
-		return {
-			node,
-			data: {name: variableNode.name},
-			messageId: MESSAGE_ID,
-		};
-	},
-});
+const create = context => {
+	context.on('VariableDeclarator', node => getProblem(node.id, node.init));
+	context.on('AssignmentExpression', node => getProblem(node.left, node.right));
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

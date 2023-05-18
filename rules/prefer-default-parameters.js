@@ -1,18 +1,9 @@
 'use strict';
 const {findVariable} = require('@eslint-community/eslint-utils');
+const {functionTypes} = require('./ast/index.js');
 
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
-
-const assignmentSelector = [
-	'ExpressionStatement',
-	'[expression.type="AssignmentExpression"]',
-].join('');
-
-const declarationSelector = [
-	'VariableDeclaration',
-	'[declarations.0.type="VariableDeclarator"]',
-].join('');
 
 const isDefaultExpression = (left, right) =>
 	left
@@ -189,24 +180,25 @@ const create = context => {
 		};
 	};
 
-	return {
-		':function'(node) {
-			functionStack.push(node);
-		},
-		':function:exit'() {
-			functionStack.pop();
-		},
-		[assignmentSelector](node) {
-			const {left, right} = node.expression;
+	context.on(functionTypes, node => {
+		functionStack.push(node);
+	});
 
-			return checkExpression(node, left, right, true);
-		},
-		[declarationSelector](node) {
-			const {id, init} = node.declarations[0];
+	context.onExit(functionTypes, () => {
+		functionStack.pop();
+	});
 
-			return checkExpression(node, id, init, false);
-		},
-	};
+	context.on('AssignmentExpression', node => {
+		if (node.parent.type === 'ExpressionStatement' && node.parent.expression === node) {
+			return checkExpression(node.parent, node.left, node.right, true);
+		}
+	});
+
+	context.on('VariableDeclarator', node => {
+		if (node.parent.type === 'VariableDeclaration' && node.parent.declarations[0] === node) {
+			return checkExpression(node.parent, node.id, node.init, false);
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

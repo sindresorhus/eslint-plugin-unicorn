@@ -26,8 +26,8 @@ const builtinErrors = [
 ];
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	'CallExpression,NewExpression'(expression) {
+const create = context => {
+	context.on(['CallExpression', 'NewExpression'], expression => {
 		if (!isCallOrNewExpression(expression, {
 			names: builtinErrors,
 			optional: false,
@@ -88,8 +88,8 @@ const create = context => ({
 				messageId: MESSAGE_ID_EMPTY_MESSAGE,
 			};
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

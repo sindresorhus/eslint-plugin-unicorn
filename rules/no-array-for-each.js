@@ -16,7 +16,7 @@ const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside.j
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 const assertToken = require('./utils/assert-token.js');
 const {fixSpaceAroundKeyword, removeParentheses} = require('./fix/index.js');
-const {isArrowFunctionBody, isMethodCall, isReferenceIdentifier} = require('./ast/index.js');
+const {isArrowFunctionBody, isMethodCall, isReferenceIdentifier, functionTypes} = require('./ast/index.js');
 
 const MESSAGE_ID_ERROR = 'no-array-for-each/error';
 const MESSAGE_ID_SUGGESTION = 'no-array-for-each/suggestion';
@@ -381,74 +381,81 @@ const create = context => {
 	const functionInfo = new Map();
 	const {sourceCode} = context;
 
-	return {
-		':function'(node) {
-			functionStack.push(node);
-			functionInfo.set(node, {
-				returnStatements: [],
-				scope: sourceCode.getScope(node),
-			});
-		},
-		':function:exit'() {
-			functionStack.pop();
-		},
-		Identifier(node) {
-			if (isReferenceIdentifier(node)) {
-				allIdentifiers.push(node);
-			}
-		},
-		':function ReturnStatement'(node) {
-			const currentFunction = functionStack[functionStack.length - 1];
-			const {returnStatements} = functionInfo.get(currentFunction);
-			returnStatements.push(node);
-		},
-		CallExpression(node) {
-			if (
-				!isMethodCall(node, {
-					method: 'forEach',
-				})
-				|| isNodeMatches(node.callee.object, ignoredObjects)
-			) {
-				return;
-			}
+	context.on(functionTypes, node => {
+		functionStack.push(node);
+		functionInfo.set(node, {
+			returnStatements: [],
+			scope: sourceCode.getScope(node),
+		});
+	});
 
-			callExpressions.push({
-				node,
-				scope: sourceCode.getScope(node),
-			});
-		},
-		* 'Program:exit'() {
-			for (const {node, scope} of callExpressions) {
-				const iterable = node.callee;
+	context.onExit(functionTypes, () => {
+		functionStack.pop();
+	});
 
-				const problem = {
-					node: iterable.property,
-					messageId: MESSAGE_ID_ERROR,
-				};
+	context.on('Identifier', node => {
+		if (isReferenceIdentifier(node)) {
+			allIdentifiers.push(node);
+		}
+	});
 
-				if (!isFixable(node, {scope, allIdentifiers, functionInfo, sourceCode})) {
-					yield problem;
-					continue;
-				}
+	context.on('ReturnStatement', node => {
+		const currentFunction = functionStack[functionStack.length - 1];
+		if (!currentFunction) {
+			return;
+		}
 
-				const shouldUseSuggestion = iterable.optional && hasSideEffect(iterable, sourceCode);
-				const fix = getFixFunction(node, functionInfo, context);
+		const {returnStatements} = functionInfo.get(currentFunction);
+		returnStatements.push(node);
+	});
 
-				if (shouldUseSuggestion) {
-					problem.suggest = [
-						{
-							messageId: MESSAGE_ID_SUGGESTION,
-							fix,
-						},
-					];
-				} else {
-					problem.fix = fix;
-				}
+	context.on('CallExpression', node => {
+		if (
+			!isMethodCall(node, {
+				method: 'forEach',
+			})
+			|| isNodeMatches(node.callee.object, ignoredObjects)
+		) {
+			return;
+		}
 
+		callExpressions.push({
+			node,
+			scope: sourceCode.getScope(node),
+		});
+	});
+
+	context.onExit('Program', function * () {
+		for (const {node, scope} of callExpressions) {
+			const iterable = node.callee;
+
+			const problem = {
+				node: iterable.property,
+				messageId: MESSAGE_ID_ERROR,
+			};
+
+			if (!isFixable(node, {scope, allIdentifiers, functionInfo, sourceCode})) {
 				yield problem;
+				continue;
 			}
-		},
-	};
+
+			const shouldUseSuggestion = iterable.optional && hasSideEffect(iterable, sourceCode);
+			const fix = getFixFunction(node, functionInfo, context);
+
+			if (shouldUseSuggestion) {
+				problem.suggest = [
+					{
+						messageId: MESSAGE_ID_SUGGESTION,
+						fix,
+					},
+				];
+			} else {
+				problem.fix = fix;
+			}
+
+			yield problem;
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

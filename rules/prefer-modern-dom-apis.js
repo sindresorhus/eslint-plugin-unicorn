@@ -85,8 +85,8 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(node) {
+const create = context => {
+	context.on('CallExpression', node => {
 		if (
 			isMethodCall(node, {
 				methods: ['replaceChild', 'insertBefore'],
@@ -101,7 +101,9 @@ const create = context => ({
 		) {
 			return checkForReplaceChildOrInsertBefore(context, node);
 		}
+	});
 
+	context.on('CallExpression', node => {
 		if (
 			isMethodCall(node, {
 				methods: ['insertAdjacentText', 'insertAdjacentElement'],
@@ -121,8 +123,8 @@ const create = context => ({
 		) {
 			return checkForInsertAdjacentTextOrInsertAdjacentElement(context, node);
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

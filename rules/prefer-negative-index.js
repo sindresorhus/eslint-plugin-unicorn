@@ -152,7 +152,11 @@ function parse(node) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	'CallExpression[callee.type="MemberExpression"]'(node) {
+	CallExpression(node) {
+		if (node.callee.type !== 'MemberExpression') {
+			return;
+		}
+
 		const parsed = parse(node);
 
 		if (!parsed) {

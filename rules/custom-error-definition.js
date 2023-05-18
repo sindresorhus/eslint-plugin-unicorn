@@ -183,11 +183,23 @@ const customErrorExport = (context, node) => {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	ClassDeclaration: node => customErrorDefinition(context, node),
-	'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
-	'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node),
-});
+const create = context => {
+	context.on('ClassDeclaration', node => customErrorDefinition(context, node));
+	context.on('AssignmentExpression', node => {
+		if (node.right.type === 'ClassExpression') {
+			return customErrorDefinition(context, node.right);
+		}
+	});
+	context.on('AssignmentExpression', node => {
+		if (
+			node.left.type === 'MemberExpression'
+			&& node.left.object.type === 'Identifier'
+			&& node.left.object.name === 'exports'
+		) {
+			return customErrorExport(context, node);
+		}
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
