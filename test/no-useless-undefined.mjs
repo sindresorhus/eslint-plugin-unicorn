@@ -471,3 +471,34 @@ test.snapshot({
 		`,
 	],
 });
+
+test.snapshot({
+	testerOptions: {
+		parser: parsers.typescript,
+	},
+	valid: [],
+	invalid: [
+		'function f(foo: Type = undefined) {}',
+		'function f(foo?: Type = undefined) {}',
+		'const f = function(foo: Type = undefined) {}',
+		'const f = (foo: Type = undefined) => {}',
+		'const f = {method(foo: Type = undefined){}}',
+		'const f = class {method(foo: Type = undefined){}}',
+		'function f(foo = undefined) {}',
+		...[
+			undefined,
+			'foo.js',
+			'foo.ts',
+			'foo.MTs',
+			'foo.cts',
+			'foo.tsx',
+		].map(filename => ({
+			code: 'function f(foo = undefined) {}',
+			filename,
+		})),
+		{
+			code: 'function a({foo} = undefined) {}',
+			filename: 'foo.ts',
+		},
+	],
+});
