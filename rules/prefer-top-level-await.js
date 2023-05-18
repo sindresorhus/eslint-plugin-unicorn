@@ -13,7 +13,7 @@ const messages = {
 	[SUGGESTION_ADD_AWAIT]: 'Insert `await`.',
 };
 
-const promiseMethods = ['then', 'catch', 'finally'];
+const promisePrototypeMethods = ['then', 'catch', 'finally'];
 const isTopLevelCallExpression = node => {
 	if (node.type !== 'CallExpression') {
 		return false;
@@ -37,7 +37,7 @@ const isPromiseMethodCalleeObject = node =>
 	&& node.parent.object === node
 	&& !node.parent.computed
 	&& node.parent.property.type === 'Identifier'
-	&& promiseMethods.includes(node.parent.property.name)
+	&& promisePrototypeMethods.includes(node.parent.property.name)
 	&& node.parent.parent.type === 'CallExpression'
 	&& node.parent.parent.callee === node.parent;
 const isAwaitArgument = node => {
@@ -81,7 +81,7 @@ function create(context) {
 
 			// Promises
 			if (isMemberExpression(node.callee, {
-				properties: promiseMethods,
+				properties: promisePrototypeMethods,
 				computed: false,
 			})) {
 				return {
