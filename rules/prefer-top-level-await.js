@@ -56,8 +56,6 @@ const isInPromiseMethods = node =>
 		object: 'Promise',
 		methods: ['all', 'allSettled', 'any', 'race'],
 		argumentsLength: 1,
-		optionalCall: false,
-		optionalMember: false,
 	})
 	&& node.parent.parent.arguments[0] === node.parent;
 

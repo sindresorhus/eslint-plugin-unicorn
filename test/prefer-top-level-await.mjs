@@ -213,8 +213,8 @@ test.snapshot({
 				foo.catch(bar),
 			]);
 			await Promise.allSettled([foo()]);
-			await Promise.any([foo()]);
-			await Promise.race([foo()]);
+			await Promise?.any([foo()]);
+			await Promise.race?.([foo()]);
 		`,
 		outdent`
 			const foo = async () => {};
