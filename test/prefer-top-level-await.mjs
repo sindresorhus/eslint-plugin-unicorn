@@ -167,6 +167,13 @@ test.snapshot({
 			await foo();
 		`,
 		'for (const statement of statements) { statement() };',
+		outdent`
+			const foo = async () => {};
+			await Promise.all([foo()]);
+			await Promise.allSettled([foo()]);
+			await Promise.any([foo()]);
+			await Promise.race([foo()]);
+		`,
 	],
 	invalid: [
 		outdent`
