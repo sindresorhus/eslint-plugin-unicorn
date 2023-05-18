@@ -196,7 +196,7 @@ const create = context => {
 			&& node.left.object.type === 'Identifier'
 			&& node.left.object.name === 'exports'
 		) {
-			return customErrorExport(context, node)
+			return customErrorExport(context, node);
 		}
 	});
 };

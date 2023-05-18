@@ -1,5 +1,6 @@
 'use strict';
 const {getFunctionHeadLocation, getFunctionNameWithKind} = require('@eslint-community/eslint-utils');
+const {functionTypes} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-native-coercion-functions';
 const messages = {

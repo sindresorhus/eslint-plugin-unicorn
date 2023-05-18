@@ -1,10 +1,9 @@
 'use strict';
 const {findVariable} = require('@eslint-community/eslint-utils');
+const {functionTypes} = require('./ast/index.js');
 
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
-
-
 
 const isDefaultExpression = (left, right) =>
 	left

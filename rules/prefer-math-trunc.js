@@ -12,7 +12,6 @@ const messages = {
 	[SUGGESTION_BITWISE]: 'Replace `{{operator}} {{value}}` with `Math.trunc`.',
 };
 
-
 // Bitwise operators
 const bitwiseOperators = new Set(['|', '>>', '<<', '^']);
 const isBitwiseNot = node =>

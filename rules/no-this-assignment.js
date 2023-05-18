@@ -13,14 +13,14 @@ function getProblem(variableNode, valueNode) {
 	}
 
 	return {
-		node,
+		node: valueNode.parent,
 		data: {name: variableNode.name},
 		messageId: MESSAGE_ID,
 	};
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = (context) => {
+const create = context => {
 	context.on('VariableDeclarator', node => getProblem(node.id, node.init));
 	context.on('AssignmentExpression', node => getProblem(node.left, node.right));
 };

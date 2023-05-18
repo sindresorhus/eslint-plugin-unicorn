@@ -92,7 +92,9 @@ function reportProblems(create) {
 							addListener(selector, listener);
 						}
 					};
-				} else if (property === 'onExit') {
+				}
+
+				if (property === 'onExit') {
 					return (selectorOrSelectors, listener) => {
 						const selectors = Array.isArray(selectorOrSelectors) ? selectorOrSelectors : [selectorOrSelectors];
 						for (const selector of selectors) {

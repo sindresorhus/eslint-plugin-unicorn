@@ -5,7 +5,7 @@ const {
 	isClosingBraceToken,
 } = require('@eslint-community/eslint-utils');
 const {
-	isStringLiteral
+	isStringLiteral,
 } = require('./ast/index.js');
 
 const MESSAGE_ID_ERROR = 'error';

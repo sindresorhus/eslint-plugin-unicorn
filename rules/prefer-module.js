@@ -2,7 +2,7 @@
 const {isOpeningParenToken} = require('@eslint-community/eslint-utils');
 const isShadowed = require('./utils/is-shadowed.js');
 const assertToken = require('./utils/assert-token.js');
-const {isStaticRequire, isReferenceIdentifier} = require('./ast/index.js');
+const {isStaticRequire, isReferenceIdentifier, isFunction} = require('./ast/index.js');
 const {
 	removeParentheses,
 	replaceReferenceIdentifier,

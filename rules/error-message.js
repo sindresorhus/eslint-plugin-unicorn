@@ -88,7 +88,7 @@ const create = context => {
 				messageId: MESSAGE_ID_EMPTY_MESSAGE,
 			};
 		}
-	})
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

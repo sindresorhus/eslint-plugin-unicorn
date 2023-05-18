@@ -212,8 +212,8 @@ function create(context) {
 			messageId: MESSAGE_ID,
 			fix: switchClassToObject(node, sourceCode),
 		};
-	})
-};
+	});
+}
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

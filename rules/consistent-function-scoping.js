@@ -169,9 +169,9 @@ const create = context => {
 		if (functions.length > 0) {
 			functions[functions.length - 1] = true;
 		}
-	})
+	});
 
-	context.onExit(functionTypes, () => {
+	context.onExit(functionTypes, (node) => {
 		const currentFunctionHasJsx = functions.pop();
 		if (currentFunctionHasJsx) {
 			return;
@@ -194,7 +194,6 @@ const create = context => {
 			},
 		};
 	});
-
 };
 
 const schema = [

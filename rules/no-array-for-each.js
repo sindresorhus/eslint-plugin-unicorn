@@ -404,6 +404,7 @@ const create = context => {
 		if (!currentFunction) {
 			return;
 		}
+
 		const {returnStatements} = functionInfo.get(currentFunction);
 		returnStatements.push(node);
 	});

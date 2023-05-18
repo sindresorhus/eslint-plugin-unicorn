@@ -8,7 +8,7 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = (context) => {
+const create = context => {
 	context.on('Literal', node => {
 		if (!(
 			isNewExpression(node.parent, {name: 'RegExp'})
