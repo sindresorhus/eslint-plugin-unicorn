@@ -73,7 +73,7 @@ function create(context) {
 				!isTopLevelCallExpression(node)
 				|| isPromiseMethodCalleeObject(node)
 				|| isAwaitArgument(node)
-				|| isInAwaitedPromiseMethods(node)
+				|| isInPromiseMethods(node)
 			) {
 				return;
 			}
