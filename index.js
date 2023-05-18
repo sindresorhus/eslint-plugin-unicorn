@@ -11,6 +11,7 @@ const deprecatedRules = createDeprecatedRules({
 	'no-array-instanceof': 'unicorn/no-instanceof-array',
 	'no-fn-reference-in-iterator': 'unicorn/no-array-callback-reference',
 	'no-reduce': 'unicorn/no-array-reduce',
+	'no-unsafe-regex': [],
 	'prefer-dataset': 'unicorn/prefer-dom-node-dataset',
 	'prefer-event-key': 'unicorn/prefer-keyboard-event-key',
 	'prefer-exponentiation-operator': 'prefer-exponentiation-operator',

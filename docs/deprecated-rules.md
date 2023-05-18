@@ -16,6 +16,10 @@ This rule was renamed to [`no-array-callback-reference`](rules/no-array-callback
 
 This rule was renamed to [`no-array-reduce`](rules/no-array-reduce.md) to be more specific.
 
+## no-unsafe-regex
+
+Removed due to bugs.
+
 ## prefer-dataset
 
 This rule was renamed to [`prefer-dom-node-dataset`](rules/prefer-dom-node-dataset.md) to be more specific.
