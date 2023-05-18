@@ -114,10 +114,7 @@ const create = context => {
 	const {sourceCode} = context;
 
 	// Useless spread in list
-	context.on([
-		'ArrayExpression',
-		'ObjectExpression',
-	], node => {
+	context.on(['ArrayExpression', 'ObjectExpression'], node => {
 		if (!(
 			node.parent.type === 'SpreadElement'
 			&& node.parent.argument === node

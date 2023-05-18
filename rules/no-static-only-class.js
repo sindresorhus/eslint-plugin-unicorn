@@ -190,10 +190,7 @@ function switchClassToObject(node, sourceCode) {
 }
 
 function create(context) {
-	context.on([
-		'ClassDeclaration',
-		'ClassExpression',
-	], node => {
+	context.on(['ClassDeclaration', 'ClassExpression'], node => {
 		if (
 			node.superClass
 			|| (node.decorators && node.decorators.length > 0)

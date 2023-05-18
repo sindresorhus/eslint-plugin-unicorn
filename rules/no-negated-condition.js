@@ -70,10 +70,7 @@ function * swapConsequentAndAlternate(fixer, node, sourceCode) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	context.on([
-		'IfStatement',
-		'ConditionalExpression',
-	], node => {
+	context.on(['IfStatement', 'ConditionalExpression'], node => {
 		if (
 			node.type === 'IfStatement'
 			&& (
