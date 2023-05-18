@@ -190,15 +190,13 @@ const create = context => {
 
 	context.on('AssignmentExpression', node => {
 		if (node.parent.type === 'ExpressionStatement' && node.parent.expression === node) {
-			const {left, right} = node;
-			return checkExpression(node, left, right, true);
+			return checkExpression(node.parent, node.left, node.right, true);
 		}
 	});
 
 	context.on('VariableDeclarator', node => {
 		if (node.parent.type === 'VariableDeclaration' && node.parent.declarations[0] === node) {
-			const {id, init} = node;
-			return checkExpression(node, id, init, false);
+			return checkExpression(node.parent, node.id, node.init, false);
 		}
 	});
 };
