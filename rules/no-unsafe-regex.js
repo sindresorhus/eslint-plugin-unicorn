@@ -1,6 +1,7 @@
 'use strict';
 const safeRegex = require('safe-regex');
 const {isNewExpression, isRegexLiteral} = require('./ast/index.js');
+const { isStringLiteral } = require('./ast/literal.js');
 
 const MESSAGE_ID = 'no-unsafe-regex';
 const messages = {
@@ -11,7 +12,8 @@ const messages = {
 const create = context => {
 	context.on('Literal', node => {
 		if (!(
-			isNewExpression(node.parent, {name: 'RegExp'})
+			isStringLiteral(node)
+			&& isNewExpression(node.parent, {name: 'RegExp'})
 			&& node.parent.arguments[0] === node
 		)) {
 			return;
