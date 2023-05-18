@@ -127,7 +127,8 @@
 						"flatten"
 					]
 				}
-			]
+			],
+			"import/order": "off"
 		},
 		"overrides": [
 			{
