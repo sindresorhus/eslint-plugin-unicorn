@@ -167,13 +167,6 @@ test.snapshot({
 			await foo();
 		`,
 		'for (const statement of statements) { statement() };',
-		outdent`
-			const foo = async () => {};
-			await Promise.all([foo()]);
-			await Promise.allSettled([foo()]);
-			await Promise.any([foo()]);
-			await Promise.race([foo()]);
-		`,
 	],
 	invalid: [
 		outdent`
@@ -205,6 +198,26 @@ test.snapshot({
 			}
 		`,
 	],
+});
+
+// In `Promise` methods
+test.snapshot({
+	valid: [
+		outdent`
+			const foo = async () => {};
+			await Promise.all([
+				(async () => {})(),
+				/* hole */,
+				foo(),
+				foo.then(bar),
+				foo.catch(bar),
+			]);
+			await Promise.allSettled([foo()]);
+			await Promise.any([foo()]);
+			await Promise.race([foo()]);
+		`,
+	],
+	invalid: [],
 });
 
 test.babel({

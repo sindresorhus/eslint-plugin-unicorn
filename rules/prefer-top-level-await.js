@@ -48,6 +48,20 @@ const isAwaitArgument = node => {
 	return node.parent.type === 'AwaitExpression' && node.parent.argument === node;
 };
 
+// `await Promise.{all,allSettled,any,race}([foo()])`
+const isInAwaitedPromiseMethods = node =>
+	node.parent.type === 'ArrayExpression'
+	&& node.parent.elements.includes(node)
+	&& isMethodCall(node.parent.parent, {
+		object: 'Promise',
+		methods: ['all', 'allSettled', 'any', 'race'],
+		argumentsLength: 1,
+		optionalCall: false,
+		optionalMember: false,
+	})
+	&& node.parent.parent.arguments[0] === node.parent
+	&& isAwaitArgument(node.parent.parent)
+
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
 	if (context.getFilename().toLowerCase().endsWith('.cjs')) {
@@ -60,6 +74,7 @@ function create(context) {
 				!isTopLevelCallExpression(node)
 				|| isPromiseMethodCalleeObject(node)
 				|| isAwaitArgument(node)
+				|| isInAwaitedPromiseMethods(node)
 			) {
 				return;
 			}
@@ -92,23 +107,6 @@ function create(context) {
 
 			// Identifier
 			if (node.callee.type !== 'Identifier') {
-				return;
-			}
-
-			// `await Promise.{all,allSettled,any,race}([foo()])`
-			if (
-				node.parent.type === 'ArrayExpression'
-				&& node.parent.elements.includes(node)
-				&& isMethodCall(node.parent.parent, {
-					object: 'Promise',
-					methods: ['all', 'allSettled', 'any', 'race'],
-					argumentsLength: 1,
-					optionalCall: false,
-					optionalMember: false,
-				})
-				&& node.parent.parent.arguments[0] === node.parent
-				&& isAwaitArgument(node.parent.parent)
-			) {
 				return;
 			}
 
