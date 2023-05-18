@@ -48,8 +48,8 @@ const isAwaitArgument = node => {
 	return node.parent.type === 'AwaitExpression' && node.parent.argument === node;
 };
 
-// `await Promise.{all,allSettled,any,race}([foo()])`
-const isInAwaitedPromiseMethods = node =>
+// `Promise.{all,allSettled,any,race}([foo()])`
+const isInPromiseMethods = node =>
 	node.parent.type === 'ArrayExpression'
 	&& node.parent.elements.includes(node)
 	&& isMethodCall(node.parent.parent, {
@@ -59,8 +59,7 @@ const isInAwaitedPromiseMethods = node =>
 		optionalCall: false,
 		optionalMember: false,
 	})
-	&& node.parent.parent.arguments[0] === node.parent
-	&& isAwaitArgument(node.parent.parent)
+	&& node.parent.parent.arguments[0] === node.parent;
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {

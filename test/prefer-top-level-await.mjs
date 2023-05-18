@@ -216,6 +216,16 @@ test.snapshot({
 			await Promise.any([foo()]);
 			await Promise.race([foo()]);
 		`,
+		outdent`
+			const foo = async () => {};
+			const promise = Promise.all([
+				(async () => {})(),
+				foo(),
+				foo.then(bar),
+				foo.catch(bar),
+			]);
+			await promise;
+		`,
 	],
 	invalid: [],
 });
