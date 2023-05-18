@@ -61,6 +61,7 @@ const create = context => {
 		handle: reference => enforceNewExpression(reference, sourceCode),
 	});
 
+
 	return {
 		* 'Program:exit'(program) {
 			const scope = sourceCode.getScope(program);

@@ -70,13 +70,13 @@ const create = context => {
 		}
 	});
 
-	context.on('CallExpression:exit', node => {
+	context.onExit('CallExpression', node => {
 		if (node === processEventHandler) {
 			processEventHandler = undefined;
 		}
 	});
 
-	context.on('Program:exit', function * () {
+	context.onExit('Program', function * () {
 		if (requiredWorkerThreadsModule) {
 			return;
 		}

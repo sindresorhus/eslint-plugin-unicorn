@@ -171,7 +171,7 @@ const create = context => {
 		}
 	})
 
-	context.on(functionTypes.map(type => `${type}:exit`), () => {
+	context.onExit(functionTypes, () => {
 		const currentFunctionHasJsx = functions.pop();
 		if (currentFunctionHasJsx) {
 			return;

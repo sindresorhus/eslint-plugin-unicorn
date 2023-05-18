@@ -185,7 +185,7 @@ const create = context => {
 		functionStack.push(node);
 	});
 
-	context.on(functionTypes.map(type => `${type}:exit`), () => {
+	context.onExit(functionTypes, () => {
 		functionStack.pop();
 	});
 

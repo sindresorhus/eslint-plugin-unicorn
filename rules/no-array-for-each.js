@@ -389,7 +389,7 @@ const create = context => {
 		});
 	});
 
-	context.on(functionTypes.map(type => `${type}:exit`), () => {
+	context.onExit(functionTypes, () => {
 		functionStack.pop();
 	});
 
@@ -424,7 +424,7 @@ const create = context => {
 		});
 	});
 
-	context.on('Program:exit', function * () {
+	context.onExit('Program', function * () {
 		for (const {node, scope} of callExpressions) {
 			const iterable = node.callee;
 
